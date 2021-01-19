@@ -69,12 +69,13 @@
   },
   "time-begin": "Begin Time",
   "time-end": "End Time",
-  "tu-sec" : "Sec.",
-  "tu-min" : "Min.",
-  "tu-hou" : "Hou.",
-  "tu-day" : "Day",
-  "tu-week" : "Week",
-  "tu-mon" : "Month",
-  "tu-year" : "Year",
-  "today": "Today"
+  "time-ms": "Ms",
+  "today": "Today",
+  "tu-day": "Day",
+  "tu-hou": "Hr",
+  "tu-min": "Min",
+  "tu-mon": "Month",
+  "tu-sec": "Sec",
+  "tu-week": "Week",
+  "tu-year": "Year"
 }

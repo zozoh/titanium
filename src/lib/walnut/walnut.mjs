@@ -13,7 +13,7 @@ import OpenCmdPanel     from "./wn-run-cmd-panel.mjs"
 
 
 //---------------------------------------
-const WALNUT_VERSION = "2.1-dev"
+const WALNUT_VERSION = "1.2-dev"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
