@@ -1,0 +1,78 @@
+.ti-markdown-richeditor2 {
+  $tbH : SZ(50);
+  //---------------------------------------------
+  position: relative;
+  padding:$tbH 0 0 0; 
+  //---------------------------------------------
+  // Toolbar
+  > .as-toolbar {
+    @include pos-abs($t:0,$l:0,$r:0,$h:$tbH);
+    @include border(1px, solid, shallow, bottom);
+    padding: 0 .5em;
+  }
+  //---------------------------------------------
+  // Stage
+  > .as-stage {
+    @include flex-align-nowrap($ai:stretch);
+    max-width: unset; width:100%; height:100%;
+    padding:0; margin:0;
+    //-------------------------------------------
+    > .as-editing {
+      height:100%;
+      width: 50%; flex:0 0 auto;
+      padding:0; margin:0;
+      //-----------------------------------------
+      // Quill Setting
+      .ql-editor {
+        position: relative;
+        box-sizing: border-box;
+        height: 100%;
+        outline: none;
+        overflow-y: auto;
+        tab-size: 4;
+        -moz-tab-size: 4;
+        text-align: left;
+        padding:1em 2em;
+        /*white-space: pre-wrap;
+        word-wrap: break-word;*/
+        a[href] {text-decoration: underline;}
+      }
+      .ql-editor * {
+        cursor: text;
+      }
+      .ql-editor.ql-blank::before {
+        color: rgba(0,0,0,0.6);
+        content: attr(data-placeholder);
+        font-style: italic;
+        display: inline;
+        pointer-events: none;
+        position: absolute;
+        top:2em; left:2em;
+      }
+      .ql-clipboard {
+        left: -100000px;
+        height: 1px;
+        overflow-y: hidden;
+        position: absolute;
+        top: 50%;
+      }
+    }
+    //-------------------------------------------
+    > .as-aside {
+      width: 50%; flex:0 0 auto;
+      pre {
+        @include font-fixed;
+        @include color($color-track, r, c);
+        width: 100%; height:100%; padding: 1em;
+      }
+    }
+    //-------------------------------------------
+  }
+  //---------------------------------------------
+  &.nil-content {
+    > .as-toolbar, > .as-stage {
+      visibility: hidden;
+    }
+  }
+  //---------------------------------------------
+}

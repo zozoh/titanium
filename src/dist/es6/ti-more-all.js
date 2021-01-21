@@ -1,17 +1,1834 @@
-// Pack At: 2021-01-20 00:16:13
+Ti.Load([
+'@deps:highlight/highlight.js',
+'@lib:code2a/cheap-markdown.mjs',
+'@deps:sortable.js',
+'@deps:leaflet/leaflet.js',
+'@deps:quill/quill.js',
+'@deps:antv/v4/g2/g2.min.js',
+'@deps:leaflet/leaflet.css']).then(function(){
+////////////async loading////////////////
 (function(){
-//============================================================
-// JOIN: hmaker/config/io/detail/config-io-detail.html
-//============================================================
+window.TI_PACK_EXPORTS = {};
+// ========================================
+// EXPORT 'cheap-markdown.mjs' -> Cheap
+// ========================================
+window.TI_PACK_EXPORTS['ti/lib/code2a/cheap-markdown.mjs'] = {
+Cheap : (function(){
+/******************************************************
+ * Cheap Markdown Parser and Render
+ * 
+ * By zozoh @ 2020
+ */
+///////////////////////////////////////////////////////
+class CheapNode {
+  //---------------------------------------------------
+  constructor(nodeType="Element", parentNode=null) {
+    this.nodeType = nodeType
+    this.index = 0
+    if(parentNode) {
+      if(parentNode instanceof CheapNode) {
+        parentNode.appendChild(this)
+      }
+      // Append Document
+      else if(parentNode instanceof CheapDocument){
+        this.$document = parentNode
+      }
+    }
+  }
+  //---------------------------------------------------
+  __children() {
+    if(!_.isArray(this.children)) {
+      this.children = []
+    }
+    return this.children
+  }
+  //---------------------------------------------------
+  document() {
+    if(!this.$document) {
+      if(this.parentNode) {
+        this.$document = this.parentNode.document()
+      }
+    }
+    return this.$document
+  }
+  //---------------------------------------------------
+  body() {
+    return this.document().getBodyElement()
+  }
+  //---------------------------------------------------
+  isElementNode() {return "Element" == this.nodeType}
+  isTextNode() {return "Text" == this.nodeType}
+  //---------------------------------------------------
+  hasChildren() {return !_.isEmpty(this.children)}
+  //---------------------------------------------------
+  emptyChildren() {
+    this.children = []
+  }
+  //---------------------------------------------------
+  getText() {
+    let ss = []
+    if(this.hasChildren()) {
+      for(let child of this.children) {
+        ss.push(child.getText())
+      }
+    }
+    return ss.join("")
+  }
+  //---------------------------------------------------
+  getFirstChild() {
+    return _.first(this.children)
+  }
+  //---------------------------------------------------
+  getLastChild() {
+    return _.last(this.children)
+  }
+  //---------------------------------------------------
+  appendChild(node) {
+    node.parentNode = this
+    node.$document = this.$document
+    let childCount = this.children ? this.children.length : 0
+    this.__children().push(node)
+    node.index = childCount
+    return this
+  }
+  //---------------------------------------------------
+  prependChild(node) {
+    node.parentNode = this
+    node.$document = this.$document
+    this.__children().unshift(node)
+    return this
+  }
+  //---------------------------------------------------
+  appendChildren(nodes=[]) {
+    for(let nd of nodes) {
+      nd.parentNode = this
+      nd.$document = this.$document
+    }
+    let childCount = this.children ? this.children.length : 0
+    this.__children().push(...nodes)
+    _.forEach(nodes, (node, index)=>{
+      node.index = index + childCount
+    })
+    return this
+  }
+  //---------------------------------------------------
+  prependChildren(nodes=[]) {
+    for(let nd of nodes) {
+      nd.parentNode = this
+      nd.$document = this.$document
+    }
+    this.__children().unshift(...nodes)
+    _.forEach(this.children, (node, index)=>{
+      node.index = index
+    })
+    return this
+  }
+  //---------------------------------------------------
+  treeWalk(depth=0, iteratee=_.identity){
+    if(this.hasChildren()){
+      for(let child of this.children) {
+        child.treeWalk(depth+1, iteratee)
+      }
+    }
+  }
+  //---------------------------------------------------
+  async joinDelta(delta=[], config) {
+    let lastOp;
+    if(this.hasChildren()) {
+      for(let child of this.children) {
+        lastOp = await child.joinDelta(delta, config)
+      }
+    }
+    return lastOp
+  }
+  //---------------------------------------------------
+  toString() {
+    let ss = []
+    this.treeWalk(0, ({depth, name, value})=>{
+      let prefix = depth>0
+        ? "|-- "
+        : ""
+      let display = value.display
+        ? `<${value.display}>`
+        : ""
+      let attrs = value.attrs && !_.isEmpty(value.attrs)
+        ? JSON.stringify(value.attrs)
+        : ""
+      let text = _.isString(value) ? `"${value}"` : ""
+      ss.push(`${_.repeat("|   ", depth-1)}${prefix}${name}${display}${attrs}${text}`)
+    })
+    return ss.join("\n")
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapTextNode extends CheapNode {
+  //---------------------------------------------------
+  constructor(text="", parentNode=null){
+    super("Text", parentNode)
+    this.text = text
+  }
+  //---------------------------------------------------
+  getMarkdown() {
+    return this.text
+  }
+  //---------------------------------------------------
+  getText() {
+    return this.text
+  }
+  //---------------------------------------------------
+  setText(text) {
+    this.text = text
+  }
+  //---------------------------------------------------
+  appendText(text) {
+    this.text += text
+  }
+  //---------------------------------------------------
+  appendChild(){
+    throw "Text canot append child"
+  }
+  //---------------------------------------------------
+  treeWalk(depth=0, iteratee=_.identity) {
+    iteratee({
+      depth,
+      name  : "!TEXT",
+      value : this.text.replace("\n", "\\n")
+    })
+  }
+  //---------------------------------------------------
+  joinDelta(delta=[], {autoJoinPrev=true}={}) {
+    let lastOp = _.last(delta)
+    // // Join Text
+    if(autoJoinPrev && lastOp && _.isString(lastOp.insert) && !lastOp.attributes) {
+      lastOp.insert += this.text
+    }
+    // New Node
+    else {
+      lastOp = {insert: this.text}
+      delta.push(lastOp)
+    }
+    return lastOp
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapElement extends CheapNode {
+  //---------------------------------------------------
+  constructor(tagName="P", display="block", {
+    closeBy = "EndTag", // Self | EndTag
+    className,
+    style = {},   // bold, italic, underline
+    attrs = {}
+  }={}, parentNode=null) {
+    super("Element", parentNode)
+    this.tagName = _.toUpper(tagName)
+    this.display = _.toLower(display)
+    this.className = className
+    this.style   = style || {}
+    this.attrs   = attrs || {}
+    this.closeBy = closeBy
+  }
+  //---------------------------------------------------
+  canSelfClose() {return "Self" == this.closeBy}
+  //---------------------------------------------------
+  getClassName(asStr=false) {
+    if(asStr) {
+      if(!_.isEmpty(this.className)) {
+        return _.concat(this.className).join(" ")
+      }
+      return ""
+    }
+    return this.className
+  }
+  //---------------------------------------------------
+  addClass(... classNames) {
+    if(this.className) {
+      this.className.push(...classNames)
+    } else {
+      this.className = _.clone(classNames)
+    }
+  }
+  //---------------------------------------------------
+  hasAttrs(){
+    return !_.isEmpty(this.attrs)
+  }
+  //---------------------------------------------------
+  getAttr(name, dft) {
+    let val = this.attrs[name]
+    return _.isUndefined(val)
+      ? dft
+      : val
+  }
+  //---------------------------------------------------
+  setAttr(name, value=true) {
+    if(_.isString(name)) {
+      this.attrs[name] = value
+    }
+    // attr set
+    else if(_.isPlainObject(name)) {
+      _.assign(this.attrs, name)
+    }
+    return this
+  }
+  //---------------------------------------------------
+  getRuntimeAttrs() {
+    return this.attrs || {}
+  }
+  //---------------------------------------------------
+  async getRuntimeAttr(name, dft, config) {
+    let val = await this.getRuntimeAttrs(config)[name]
+    return _.isUndefined(val)
+      ? dft
+      : val
+  }
+  //---------------------------------------------------
+  isAttr(name, value) {
+    return this.attrs[name] == value
+  }
+  //---------------------------------------------------
+  hasStyle(){
+    return !_.isEmpty(this.style)
+  }
+  //---------------------------------------------------
+  isDisplayAs(regex=/^inline/){
+    return regex.test(this.display)
+  }
+  //---------------------------------------------------
+  isDisplayAsInline(){
+    return this.isDisplayAs(/^inline/)
+  }
+  //---------------------------------------------------
+  empty() {
+    super.emptyChildren()
+  }
+  //---------------------------------------------------
+  appendText(text) {
+    new CheapTextNode(text, this)
+  }
+  //---------------------------------------------------
+  setText(text) {
+    this.empty()
+    this.appendText(text)
+  }
+  //---------------------------------------------------
+  isTag(tagName) {
+    if(_.isRegExp(tagName)) {
+      return tagName.test(this.tagName)
+    }
+    return this.tagName == tagName
+  }
+  //---------------------------------------------------
+  async getMarkdown(config) {
+    let mds = []
+    if(_.isArray(this.children)) {
+      for(let nd of this.children){
+        let mdSub = await nd.getMarkdown(config)
+        mds.push(mdSub)
+        // if(nd.isElementNode() 
+        //   && !nd.isDisplayAsInline()) {
+        //   mds.push("\n")
+        // }
+      }
+    }
+    // Remove the Endle "\n\n"
+    // if(mds.length>0 && _.last(mds) == "\n") {
+    //   mds = _.slice(mds, 0, mds.length-1)
+    // }
+    return mds.join("")
+  }
+  //---------------------------------------------------
+  setInnerMarkdown(markdown) {
+    this.empty()
+    this.appendMarkdown(markdown)
+  }
+  //---------------------------------------------------
+  treeWalk(depth=0, iteratee=_.identity) {
+    iteratee({
+      depth,
+      name  : this.tagName,
+      value : {
+        display: this.display,
+        attrs  : this.attrs,
+        style  : this.style
+      }
+    })
+    super.treeWalk(depth, iteratee)
+  }
+  //---------------------------------------------------
+  async getOutterHtml(options, depth=0) {
+    //console.log("getOutterHtml", this.tagName, depth, options)
+    // prefix for indent space
+    let prefix = options.indent > 0 && depth>0
+          ? _.repeat(" ", options.indent*depth)
+          : "";
+    // prepare str-buffer to render tag
+    let ss = []
+
+    // Block
+    if(!this.isDisplayAsInline()){
+      ss.push("\n", prefix)
+    }
+
+    // TagName
+    let tagName = _.toLower(this.tagName)
+    ss.push("<", tagName)
+
+    // ClassName
+    if(this.className) {
+      ss.push(` class="${this.getClassName(true)}"`)
+    }
+
+    // Attributes
+    let attrs = await this.getRuntimeAttrs(options)
+    _.forEach(attrs, (v, k)=>{
+      ss.push(` ${k}="${v}"`)
+    })
+
+    // Styles
+    if(this.hasStyle()){
+      ss.push(' style="')
+      _.forEach(this.style, (v, k)=>{
+        ss.push(`${k}:${v};`)
+      })
+      ss.push('"')
+    }
+
+    // Inner HTML
+    let html = await this.getInnerHtml(options, depth+1);
+
+    // Closed if empty
+    if(!html) {
+      // Self close
+      if(this.canSelfClose()) {
+        ss.push("/>")
+      }
+      // Require close tag
+      else {
+        ss.push("></", tagName, ">")
+      }
+    }
+    // Join children
+    else {
+      ss.push(">")
+      if(this.isDisplayAsInline()) {
+        ss.push(html)  
+      }
+      // Block element
+      else {
+        ss.push(html)
+      }
+      // Close tag
+      ss.push("</", tagName, ">")
+    }
+    // done
+    return ss.join("")
+  }
+  //---------------------------------------------------
+  async getInnerHtml(options, depth=0) {
+    // prepare to html render list
+    let html = []
+    if(this.hasChildren()){
+      for(let nd of this.children){
+        // Text Node
+        if(nd.isTextNode()) {
+          html.push(nd.getText())
+        }
+        // Element node
+        else if(nd.isElementNode()){
+          let ndHtml = await nd.getOutterHtml(options, depth)
+          html.push(ndHtml)
+        }
+      }
+    }
+    return html.join("")
+  }
+  //---------------------------------------------------
+  appendMarkdown(markdown) {
+    //console.log("--", markdown)
+    //......................................
+    // Define the regex
+    let reg = '(\\*([^*]+)\\*)'
+        + '|(\\*\\*([^*]+)\\*\\*)'
+        + '|((?<=(\\s|^))_{1,2}(\\S+)_{1,2}(?=(\\s|$)))'
+        + '|(~~([^~]+)~~)'
+        + '|(`([^`]+)`)'
+        + '|(!\\[([^\\]]*)\\]\\(([^\\)]+)\\))'
+        + '|(\\[([^\\]]*)\\]\\(([^\\)]+)\\))'
+        + '|(\\[([^\\]]*)\\]\\[([^\\]]+)\\])'
+        + '|(https?:\\/\\/[^ ]+)';
+    let REG = new RegExp(reg, "g");
+    //......................................
+    // Prepare matching
+    let m;
+    let pos = 0;
+    //......................................
+    // In loop
+    while (m = REG.exec(markdown)) {
+      // B/EM: __xxx__ or _xxx_
+      if (m[5]) {
+        let token = m[5]
+        // B: __xxx__
+        if(token.startsWith("__") && token.endsWith("__")){
+          // !Head-Text
+          if (pos < m.index) {
+            let text = markdown.substring(pos, m.index);
+            new CheapTextNode(text, this)
+          }
+          new CheapBoldElement(this).setText(token.substring(2, token.length-2))
+          pos = m.index + m[0].length
+        }
+        // I: _xxx_
+        else if(token.startsWith("_") && token.endsWith("_")){
+          // !Head-Text
+          if (pos < m.index) {
+            let text = markdown.substring(pos, m.index);
+            new CheapTextNode(text, this)
+          }
+          new CheapItalicElement(this).setText(token.substring(1, token.length-1))
+          pos = m.index + m[0].length
+        }
+        // Normal Text
+        continue
+      }
+      //....................................
+      // !Head-Text
+      if (pos < m.index) {
+        let text = markdown.substring(pos, m.index);
+        new CheapTextNode(text, this)
+      }
+      // EM: *xxx*
+      if (m[1]) {
+        new CheapEmphasisElement(this).setText(m[2])
+      }
+      // STRONG: **xxx**
+      else if (m[3]) {
+        new CheapStrongElement(this).setText(m[4])
+      }
+      // DEL: ~~xxx~~
+      else if (m[9]) {
+        new CheapDeletedTextElement(this).setText(m[10])
+      }
+      // CODE: `xxx`
+      else if (m[11]) {
+        let s2 = m[12]
+        new CheapCodeElement(this).setText(s2)
+      }
+      // IMG or Video: ![](xxxx)
+      else if(m[13]) {
+        // console.log("found image", m[13], m[0])
+        let alt = _.trim(m[14])
+        let src = _.trim(m[15])
+        let attrs = {src, alt}
+
+        // Customized width/height
+        // [100] or [100-50]
+        let m2 = /^([\d.]+(px|%|rem|em)?)?(-([\d.]+(px|%|rem|em)?))?(:(.*))?$/.exec(alt);
+        if(m2){
+          attrs.width  = m2[1]
+          attrs.height = m2[4]
+          attrs.alt    = m2[7]
+        }
+
+        // remove alt if blank
+        attrs = _.omitBy(attrs, v => !v)
+
+
+        // For vidio
+        if(/[.](mp4|avi|mov)$/.test(src)){
+          new CheapVideoElement(this).setAttr(attrs)
+        }
+        // For Image
+        else {
+          new CheapImageElement(this).setAttr(attrs)
+        }
+      }
+      // A: [](xxxx)
+      else if (m[16]) {
+        let href = m[18]
+        let text = m[17]
+        let attrs = {href}
+
+        // New Tab
+        if(text && text.startsWith("+")){
+          attrs.target = "_blank"
+          text = _.trim(text.substring(1))
+        }
+
+        // Gen tag
+        let $an = new CheapAnchorElement(this)
+        $an.setAttr(attrs)
+        $an.appendText(text || href)
+      }
+      // A: [][refer]
+      else if(m[19]) {
+        let refer = m[21]
+        let text = m[20]
+        let attrs = {refer}
+
+        // New Tab
+        if(text && text.startsWith("+")){
+          attrs.target = "_blank"
+          text = _.trim(text.substring(1))
+        }
+
+        // Gen tag
+        let $an = new CheapAnchorElement(this)
+        $an.setAttr(attrs)
+        $an.appendText(text || refer)
+      }
+      // A: http://xxxx
+      else if(m[22]) {
+        let href = m[22]
+        let $an = new CheapAnchorElement(this)
+        $an.setAttr({href, primaryLink:true})
+        $an.appendText(href)
+      }
+
+      // The move the cursor
+      pos = m.index + m[0].length
+    } // ~ while (m = REG.exec(str)) {
+    //......................................
+    // !Tail-Text
+    if(pos < markdown.length) {
+      let text = markdown.substring(pos)
+      new CheapTextNode(text, this)
+    }
+
+    //......................................
+  } // ~appendMarkdown(markdown)
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapBoldElement extends CheapElement {
+  constructor(parentNode=null) {
+    super("B", "inline", {}, parentNode)
+  }
+  async getMarkdown(){return `__${await super.getMarkdown()}__`}
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
+    _.set(lastOp, "attributes.bold", true)
+    return lastOp
+  }
+}
+class CheapItalicElement extends CheapElement {
+  constructor(parentNode=null) {
+    super("I", "inline", {}, parentNode)
+  }
+  async getMarkdown(){return `_${await super.getMarkdown()}_`}
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
+    _.set(lastOp, "attributes.italic", true)
+    return lastOp
+  }
+}
+class CheapStrongElement extends CheapElement {
+  constructor(parentNode=null) {
+    super("STRONG", "inline", {}, parentNode)
+  }
+  async getMarkdown(){return `**${await super.getMarkdown()}**`}
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
+    _.set(lastOp, "attributes.bold", true)
+    return lastOp
+  }
+}
+class CheapEmphasisElement extends CheapElement {
+  constructor(parentNode=null) {
+    super("EM", "inline", {}, parentNode)
+  }
+  async getMarkdown(){return `*${await super.getMarkdown()}*`}
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
+    _.set(lastOp, "attributes.italic", true)
+    return lastOp
+  }
+}
+class CheapDeletedTextElement extends CheapElement {
+  constructor(parentNode=null) {
+    super("DEL", "inline", {}, parentNode)
+  }
+  async getMarkdown(){return `~~${await super.getMarkdown()}~~`}
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
+    _.set(lastOp, "attributes.strike", true)
+    return lastOp
+  }
+}
+class CheapCodeElement extends CheapElement {
+  constructor(parentNode=null) {
+    super("CODE", "inline", {}, parentNode)
+  }
+  async getMarkdown(){return `\`${await super.getMarkdown()}\``}
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
+    _.set(lastOp, "attributes.code", true)
+    return lastOp
+  }
+}
+class CheapAnchorElement extends CheapElement {
+  //---------------------------------------------------
+  constructor(parentNode=null) {
+    super("A", "inline", {}, parentNode)
+  }
+  //---------------------------------------------------
+  async getMarkdown(){
+    let ref  = this.getAttr("refer")
+    let href = this.getAttr("href")
+    let text = this.getText()
+    let newT = this.isAttr("target", "_blank")
+    if(href == text){
+      return href
+    }
+    if(newT) {
+      text = "+" + text
+    }
+    if(ref) {
+      return `[${text}][${ref}]`
+    }
+    return `[${text}](${href})`
+  }
+  //---------------------------------------------------
+  async joinDelta(delta=[], config){
+    //console.log("haha", config)
+    let lastOp = await super.joinDelta(delta, {autoJoinPrev:false});
+    let attrs = await this.getRuntimeAttrs(config)
+    _.set(lastOp, "attributes.link", attrs.href)
+    if(attrs.target == "_blank") {
+      lastOp.insert = '+' + lastOp.insert
+    }
+    return lastOp
+  }
+  //---------------------------------------------------
+  async getRuntimeAttrs({anchorHref}={}) {
+    let attrs = _.assign({}, this.attrs)
+    // Explain refers
+    if(attrs.refer) {
+      let href = this.document().getRefer(attrs.refer)
+      attrs.href = href
+    }
+    // Eval to real href
+    if(attrs.href && _.isFunction(anchorHref)) {
+      attrs.href = await anchorHref(attrs.href)
+    }
+    // Done
+    return attrs
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapMediaElement extends CheapElement {
+  //---------------------------------------------------
+  constructor(tagName, display, setup, parentNode=null) {
+    super(tagName, display, setup, parentNode)
+  }
+  //---------------------------------------------------
+  async getMarkdown({mediaSrc}){
+    let src  = this.getAttr("src")
+    // Transfer src
+    if(_.isFunction(mediaSrc)) {
+      src = await mediaSrc(src)
+    }
+    // Sizing
+    let size = _.without([
+      this.getAttr("width",null),
+      this.getAttr("height",null)
+    ], null)
+    let alts = _.without([
+      size.join("-"), this.getAttr("alt", "")
+    ], "")
+
+    // To markdown mark
+    return `![${alts.join(":")}](${src})`
+  }
+  //---------------------------------------------------
+  async joinDelta(delta=[], config){
+    let attrs = await this.getRuntimeAttrs(config)
+    let src = attrs.src
+    let attributes = _.omit(attrs, "src")
+    let key = this.isTag("IMG") ? "image" : "video"
+    let op = {insert : {[key]:src}}
+    if(!_.isEmpty(attributes)) {
+      op.attributes = attributes
+    }
+    delta.push(op)
+  }
+  //---------------------------------------------------
+  async getRuntimeAttrs({mediaSrc}={}) {
+    let attrs = _.assign({}, this.attrs)
+    // Eval to real src
+    if(attrs.src && _.isFunction(mediaSrc)) {
+      attrs.src = await mediaSrc(attrs.src)
+    }
+    // Done
+    return attrs
+  }
+  //---------------------------------------------------
+}
+class CheapImageElement extends CheapMediaElement {
+  constructor(parentNode=null) {
+    super("IMG", "inline", {closeBy:"Self"}, parentNode)
+  }
+}
+class CheapVideoElement extends CheapMediaElement {
+  constructor(parentNode=null) {
+    super("VIDEO", "inline", {
+      attrs: {controls:true}
+    }, parentNode)
+  }
+}
+///////////////////////////////////////////////////////
+class CheapTableElement extends CheapElement {
+  constructor(parentNode=null) {
+    super("TABLE", "table", {}, parentNode)
+  }
+  appendMarkdown(markdown) {
+    throw "TABLE can't appendMarkdown!!!"
+  }
+}
+///////////////////////////////////////////////////////
+class CheapTableHeadElement extends CheapElement {
+  constructor(parentNode=null){
+    super("THEAD", "table-head", {}, parentNode)
+  }
+}
+///////////////////////////////////////////////////////
+class CheapTableBodyElement extends CheapElement {
+  constructor(parentNode=null){
+    super("TBODY", "table-body", {}, parentNode)
+  }
+}
+///////////////////////////////////////////////////////
+class CheapTableRowElement extends CheapElement {
+  //---------------------------------------------------
+  constructor(parentNode=null) {
+    super("TR", "table-row", {}, parentNode)
+  }
+  //---------------------------------------------------
+  appendMarkdown(markdown) {
+    // Split Cells
+    let ss = _.without(markdown.split("|"), "")
+    
+    // Gen cells
+    for(let s of ss) {
+      let $cell = new CheapTableDataCellElement(this)
+      $cell.appendMarkdown(s)
+    }
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapTableDataCellElement extends CheapElement {
+  constructor(parentNode=null){
+    super("TD", "table-cell", {}, parentNode)
+  }
+}
+///////////////////////////////////////////////////////
+class CheapBlockElement extends CheapElement {
+  //---------------------------------------------------
+  constructor(tagName, setup, parentNode=null){
+    super(tagName, "block", setup, parentNode)
+  }
+  //---------------------------------------------------
+  async getMarkdown(config) {
+    let md = await super.getMarkdown(config)
+    return md + "\n"
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapListElement extends CheapBlockElement {
+  //---------------------------------------------------
+  constructor(tagName, parentNode=null){
+    super(tagName, {}, parentNode)
+  }
+  //---------------------------------------------------
+  async joinDelta(delta=[], config){
+    if(this.hasChildren()) {
+      let listType = this.isTag("OL") ? "ordered" : "bullet"
+      let lastOp;
+      for(let $li of this.children) {
+        await $li.joinDelta(delta, config)
+        lastOp = _.last(delta)
+        if(lastOp.insert.endsWith("\n")){
+          lastOp.insert += "\n"
+        } else {
+          lastOp = {insert:"\n"}
+          delta.push(lastOp)
+        }
+        _.set(lastOp, "attributes.list", listType)
+        let indent = $li.getAttr("indent", 0)
+        if(indent > 0) {
+          _.set(lastOp, "attributes.indent", indent)
+        }
+      }
+      return lastOp
+    }
+    return _.last(delta)
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapOrderedListElement extends CheapListElement {
+  constructor(parentNode=null){
+    super("OL", parentNode)
+  }
+}
+///////////////////////////////////////////////////////
+class CheapUnorderedListElement extends CheapListElement {
+  constructor(parentNode=null){
+    super("UL", parentNode)
+  }
+}
+///////////////////////////////////////////////////////
+class CheapListItemElement extends CheapElement {
+  //---------------------------------------------------
+  constructor(parentNode=null){
+    super("LI", "block", {},  parentNode)
+  }
+  //---------------------------------------------------
+  async getMarkdown(config) {
+    let {
+      ulIndent  = 2,
+      olIndent  = 3,
+    } = config || {}
+    let mds = []
+    let isUL = this.parentNode.isTag("UL")
+    let myTab = isUL ? ulIndent : olIndent
+    let indent = this.getAttr("indent", 0)
+    let prefix = _.repeat(' ', myTab * indent);
+    mds.push(prefix)
+    // UL
+    if(isUL) {
+      let hc = this.getAttr("indent") % 2 == 0 ? "-" : "+"
+      mds.push(`${hc} `)
+    }
+    // OL
+    else {
+      let ix = 1
+      // get parent index seq
+      if(this.parentNode) {
+        let indexes = this.parentNode._ol_indexes
+        if(!indexes) {
+          indexes = []
+          this.parentNode._ol_indexes = indexes
+        }
+        ix = _.nth(indexes, indent)
+        if(_.isUndefined(ix)) {
+          ix = 1
+        } else {
+          ix ++
+        }
+        indexes[indent] = ix
+      }
+
+      mds.push(`${ix}. `)
+    }
+    mds.push(await super.getMarkdown(config))
+    mds.push("\n")
+    return mds.join("")
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapHrElement extends CheapElement {
+  //---------------------------------------------------
+  constructor(parentNode=null){
+    super("HR", "block", {closeBy:"Self"},  parentNode)
+  }
+  //---------------------------------------------------
+  getMarkdown() {
+    let len = this.getAttr("len", 16)
+    return '\n' + _.repeat('-', len) + '\n'
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapPreformattedTextElement extends CheapElement {
+  //---------------------------------------------------
+  constructor(parentNode=null){
+    super("PRE", "block", {},  parentNode)
+  }
+  //---------------------------------------------------
+  isGFMCode() {
+    return this.isAttr("mode", "GFM")
+  }
+  //---------------------------------------------------
+  getCodeType(dft=null) {
+    return this.getAttr("type") || dft
+  }
+  //---------------------------------------------------
+  // "xxx" => Text("xxx") + Text("\n")
+  // "xxx\n" => Text("xxx") + Text("\n")
+  // "xxx\n\n" => Text("xxx") + Text("\n") + Text("\n")
+  // "xxx\nxxx" => Text("xxx") + Text("\n") + Text("xxx") + Text("\n")
+  addCodeLine(codeLine="") {
+    let lines = codeLine.split("\n")
+    // Mark sure end by empty line
+    if(_.last(lines)) {
+      lines.push("")
+    }
+    // Join sub-text nodes
+    for(let line of lines) {
+      // \n
+      if(!line) {
+        new CheapTextNode("\n", this)
+      }
+      // xxx
+      else {
+        new CheapTextNode(line, this)
+      }
+    }
+  }
+  //---------------------------------------------------
+  getMarkdown() {
+    let mds = []
+    //.................................................
+    let prefix = this.isGFMCode() ? "" : "    ";
+    if(this.isGFMCode()) {
+      mds.push("\n```", this.getCodeType(""), "\n")
+    } else {
+      mds.push(`\n${prefix}`)
+    }
+    //.................................................
+    if(this.hasChildren()){
+      for(let nd of this.children){
+        let line = nd.getText()
+        if("\n" == line) {
+          mds.push("\n")
+        } else {
+          mds.push(prefix, line)
+        }
+      }
+    }
+    //.................................................
+    if(this.isGFMCode()) {
+      mds.push("```\n")
+    } else {
+      mds.push(`\n${prefix}`)
+    }
+    //.................................................
+    return mds.join("")
+  }
+  //---------------------------------------------------
+  joinDelta(delta=[], config){
+    if(this.hasChildren()){
+      for(let nd of this.children){
+        let line = nd.getText()
+        if("\n" == line) {
+          delta.push({insert:"\n", attributes:{"code-block": true}})
+        } else {
+          delta.push({insert:line})
+        }
+      }
+    }
+    // Empty
+    else {
+      delta.push({insert:"\n", attributes:{"code-block": true}})
+    }
+    return _.last(delta)
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapBlockQuoteElement extends CheapBlockElement {
+  //---------------------------------------------------
+  constructor(parentNode=null){
+    super("BLOCKQUOTE", {},  parentNode)
+  }
+  //---------------------------------------------------
+  async getMarkdown(config) {
+    let mds = ["> "]
+    mds.push(await super.getMarkdown(config))
+    mds.push("\n")
+    return mds.join("")
+  }
+  //---------------------------------------------------
+  async joinDelta(delta=[], config){
+    await super.joinDelta(delta, config)
+    let lastOp = {insert:"\n", attributes:{blockquote: true}}
+    delta.push(lastOp)
+    return _.last(delta)
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapSectionHeadingElement extends CheapBlockElement {
+  //---------------------------------------------------
+  constructor(level=1, parentNode=null){
+    super(`H${level}`, {attrs:{level}},  parentNode)
+  }
+  //---------------------------------------------------
+  async getMarkdown(config) {
+    let mds = [_.repeat('#', this.getAttr("level", 1))]
+    mds.push(" ")
+    mds.push(await super.getMarkdown(config))
+    mds.push("\n")
+    return mds.join("")
+  }
+  //---------------------------------------------------
+  async joinDelta(delta=[], config){
+    await super.joinDelta(delta, config)
+    let lastOp = {insert:"\n", attributes:{header: this.getAttr("level", 1)}}
+    delta.push(lastOp)
+    return _.last(delta)
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapParagraphElement extends CheapBlockElement {
+  //---------------------------------------------------
+  constructor(parentNode=null){
+    super("P", "block", {},  parentNode)
+  }
+  //---------------------------------------------------
+  async getMarkdown(config) {
+    let md = await super.getMarkdown(config)
+    return md + "\n"
+  }
+  //---------------------------------------------------
+  async joinDelta(delta=[], config){
+    let lastOp = await super.joinDelta(delta, config)
+    if(lastOp && lastOp.insert && _.isString(lastOp.insert) && !lastOp.attributes) {
+      if(!lastOp.insert.endsWith("\n"))
+        lastOp.insert += "\n"
+    }
+    // New P
+    else {
+      lastOp = {insert: "\n"}
+      delta.push(lastOp)
+    }
+    return lastOp
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapBodyElement extends CheapElement {
+  //---------------------------------------------------
+  constructor(parentNode=null){
+    super("BODY", "block", {},  parentNode)
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapDocument {
+  //---------------------------------------------------
+  constructor(){
+    this.$body = new CheapBodyElement(this)
+    this.$meta = {}
+    this.$refs = {}
+  }
+  //---------------------------------------------------
+  getBodyElement() {
+    return this.$body
+  }
+  //---------------------------------------------------
+  getRefer(name, dft) {
+    if(_.isUndefined(name)) {
+      return this.$refs
+    }
+    return this.$refs[name] || dft
+  }
+  //---------------------------------------------------
+  setRefer(name, value) {
+    let k = _.trim(name)
+    let v = _.trim(value)
+    this.$refs[k] = v
+  }
+  //---------------------------------------------------
+  getMeta(name, dft) {
+    if(_.isUndefined(name)) {
+      return this.$meta
+    }
+    return this.$meta[name] || dft
+  }
+  //---------------------------------------------------
+  setMeta(name, value) {
+    let k = _.trim(name)
+    let v = _.trim(value)
+    this.$meta[k] = v
+  }
+  //---------------------------------------------------
+  setDefaultMeta(metas={}) {
+    _.defaults(this.$meta, metas)
+  }
+  //---------------------------------------------------
+  pushMetaValue(name, value) {
+    let k = _.trim(name)
+    let v = _.trim(value)
+    let vs = this.$meta[k]
+    if(!_.isArray(vs)) {
+      vs = vs ? [vs] : []
+      this.$meta[k] = vs
+    }
+    vs.push(v)
+  }
+  //---------------------------------------------------
+  /***
+   * @param mediaSrc{Function}: `F(src, CheapElement)`
+   * @param anchorHref{Function}: `F(href, CheapElement)`
+   * @param indent{Number}: indent space number
+   * 
+   * @return document body innerHTML
+   */
+  async toBodyInnerHtml({
+    mediaSrc   = _.identity,
+    anchorHref = _.identity,
+    indent     = 2
+  }={}) {
+    return await this.$body.getInnerHtml({
+      mediaSrc, anchorHref, indent
+    })
+  }
+  //---------------------------------------------------
+  toString() {
+    let ss = []
+    if(!_.isEmpty(this.$meta)) {
+      ss.push(JSON.stringify(this.$meta, null, "   "))
+      ss.push(_.repeat('*', 60))
+    }
+
+    ss.push(this.$body.toString())
+
+    if(!_.isEmpty(this.$refs)) {
+      ss.push(_.repeat('*', 60))
+      ss.push(JSON.stringify(this.$refs, null, "   "))
+    }
+
+    return ss.join("\n")
+  }
+  //---------------------------------------------------
+  async toMarkdown({
+    mediaSrc,
+    ulIndent  = 2,
+    olIndent  = 3,
+  }={}) {
+    let md = []
+    // Meta
+    if(!_.isEmpty(this.$meta)) {
+      md.push('---')
+      _.forEach(this.$meta, (v, k)=>{
+        if(_.isArray(v)) {
+          md.push(`${k}:`)
+          for(let t of v) {
+            md.push(` - ${t}`)
+          }
+        } else {
+          md.push(`${k}: ${v}`)
+        }
+      })
+      md.push('---')
+      md.push('\n\n')
+    }
+    
+    // Body
+    let mdBody = await this.$body.getMarkdown({
+      mediaSrc,
+      ulIndent, 
+      olIndent
+    })
+    md.push(mdBody)
+
+    // Refer links
+    if(!_.isEmpty(this.$refs)) {
+      md.push("\n")
+      _.forEach(this.$refs, (v, k)=>{
+        md.push(`[${k}]:${v}\n`)
+      })
+    }
+    // done
+    return md.join("\n")
+  }
+  //---------------------------------------------------
+  async toDelta(config) {
+    let delta = []
+    await this.$body.joinDelta(delta, config)
+    return delta
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+class CheapBlock {
+  //---------------------------------------------------
+  constructor({
+    indentAsCode = 4,   // how many indent as code block
+    tabIndent = 4,      // TAB key indent value
+    ulIndent  = 2,
+    olIndent  = 3,
+  }={}){
+    this.indentAsCode = indentAsCode
+    this.tabIndent  = tabIndent
+    this.ulIndent = ulIndent
+    this.olIndent = olIndent
+    this.reset()
+  }
+  //---------------------------------------------------
+  isEmpty() {
+    return this.$top ? false : true
+  }
+  //---------------------------------------------------
+  reset() {
+    this.$top = null
+    this.$tbody = null
+    this.$li = null
+    this.lastPushBlank = false
+  }
+  //---------------------------------------------------
+  getTopAttr(name, dft=undefined) {
+    return this.$top ? this.$top.getAttr(name) : dft
+  }
+  //---------------------------------------------------
+  isTopTag(tagName) {
+    return this.$top && this.$top.tagName == tagName
+  }
+  //---------------------------------------------------
+  isTopAs(elementClass) {
+    return this.$top && elementClass && (this.$top instanceof elementClass)
+  }
+  //---------------------------------------------------
+  pushLine(line="", trimed="") {
+    try {
+      return this.__do_push_line(line, trimed)
+    }
+    // Warn
+    catch(E) {
+      console.error("invalid line:", line)
+      throw E
+    }
+    // mark
+    finally {
+      this.lastPushBlank = trimed ? false : true
+    }
+  }
+  //---------------------------------------------------
+  /***
+   * @return {repush, closed}
+   */
+  __do_push_line(line="", trimed="") {
+    let m;  // Matcher result
+    //.................................................
+    // Count indent
+    let space = 0
+    let cI = -1
+    for(let i=0; i<line.length; i++) {
+      let c = line.charAt(i)
+      // Remember the pos for indent-code
+      if(cI < 0 && space >= this.indentAsCode) {
+        cI = i
+      }
+      // space indent
+      if(' ' == c) {
+        space ++
+      }
+      // Tab indent
+      else if('\t' == c) {
+        space += this.tabIndent
+      }
+      // Quit
+      else {
+        break
+      }
+    }
+    //.................................................
+    // >>> Pre
+    if(this.isTopAs(CheapPreformattedTextElement)) {
+      // GFM code
+      if(this.$top.isGFMCode()) {
+        // Closed
+        if("```" == trimed) {
+          return {closed:true}
+        }
+        // Join Code
+        else {
+          this.$top.addCodeLine(line)
+        }
+      }
+      // Indent code
+      else {
+        // Still indent code
+        if(cI > 0) {
+          let codeLine = line.substring(cI)
+          this.$top.addCodeLine(codeLine)
+        }
+        // Quit indent
+        else {
+          return {repush:true, closed:true}
+        }
+      }
+      return
+    }
+    //.................................................
+    // HR
+    if(/^(-{3,}|={3,})$/.test(trimed)) {
+      if(!this.isEmpty()) {
+        return {closed:true, repush:true}
+      }
+      this.$top = new CheapHrElement().setAttr({len: trimed.length})
+      return {closed:true}
+    }
+    //.................................................
+    // Heading : H1~6
+    m = /^(#{1,})[\t ]+(.*)$/.exec(trimed)
+    if(m) {
+      if(!this.isEmpty()) {
+        return {closed:true, repush:true}
+      }
+      let n = m[1].length
+      this.$top = new CheapSectionHeadingElement(n)
+      this.$top.appendMarkdown(m[2])
+      return {closed:true}
+    }
+    //.................................................
+    // >>> List
+    if(this.$li) {
+      // Close the list
+      if(!trimed) {
+        return {closed: this.lastPushBlank}
+      }
+      //-----------------------------------
+      // eval current line
+      let start = undefined;
+      m = /^(([*+-])|(\d)\.) +(.+)$/.exec(trimed)
+      if(m) {
+        start = m[3] * 1
+      }
+      let text = _.trim(trimed.substring(2))
+      //-----------------------------------
+      let listIndent = !isNaN(start) ? this.olIndent : this.ulIndent
+      //-----------------------------------
+      // Join Paragraph
+      if(_.isUndefined(start)) {
+        let $p = new CheapParagraphElement(this.$li)
+        $p.appendMarkdown(text)
+      }
+      // New list item
+      else {
+        let indent = parseInt(space / listIndent)
+        this.$li = new CheapListItemElement(this.$top)
+        this.$li.addClass(`li-indent-${indent}`)
+        this.$li.setAttr({space, indent})
+        this.$li.appendMarkdown(text)
+      }
+      //-----------------------------------
+      return
+    }
+    //+++++++++++++++++++++++++++++++++++++++++++++++++
+    // empty block: return true to end the block
+    //+++++++++++++++++++++++++++++++++++++++++++++++++
+    if(!trimed) {
+      return {closed: !this.isEmpty()}
+    }
+    //.................................................
+    // >>> TABLE
+    if(this.$tbody) {
+      let $row = new CheapTableRowElement(this.$tbody)
+      $row.appendMarkdown(trimed)
+      return
+    }
+    //.................................................
+    // Indent Code
+    if(cI > 0) {
+      this.$top = new CheapPreformattedTextElement()
+      this.$top.setAttr({mode: "MARKDOWN"})
+      let codeLine = line.substring(cI)
+      this.$top.addCodeLine(codeLine)
+      return
+    }
+    //.................................................
+    // GFM Code
+    if(trimed.startsWith("```")) {
+      let type = _.trim(trimed.substring(3)) || null
+      this.$top = new CheapPreformattedTextElement()
+      this.$top.setAttr({
+        mode: "GFM", type
+      })
+      return
+    }
+    //.................................................
+    // BLOCKQUOTE
+    if(trimed.startsWith('>')) {
+      if(!this.isEmpty()){
+        return {repush:true, closed:true}
+      }
+      this.$top = new CheapBlockQuoteElement()
+      let text = _.trim(trimed.substring(1))
+      this.$top.appendMarkdown(text)
+      return
+    }
+    //.................................................
+    // UL / OL
+    m = /^(([*+-])|(\d)\.) +(.+)$/.exec(trimed)
+    if(m) {
+      if(!this.isEmpty()){
+        return {closed:true, repush:true}
+      }
+      // Create top OL/UL
+      let start = m[3] * 1
+      // Count the indent
+      let listIndent = !isNaN(start) ? this.olIndent : this.ulIndent
+      // UL
+      if(isNaN(start)) {
+        this.$top = new CheapUnorderedListElement()
+      }
+      // OL 
+      else {
+        this.$top = new CheapOrderedListElement()
+        this.$top.setAttr({start})
+      }
+      // Append the first list item
+      let indent = parseInt(space / listIndent)
+      this.$li = new CheapListItemElement(this.$top)
+      this.$li.addClass(`li-indent-${indent}`)
+      this.$li.setAttr({space, indent})
+
+      // append list item content
+      let text = _.trim(trimed.substring(2))
+      this.$li.appendMarkdown(text)
+      return
+    }
+    //.................................................
+    // TABLE
+    if(/^([ |:-]{6,})$/.test(trimed) && !this.isEmpty()) {
+      let header = this.$top.getMarkdown()
+      this.$top = new CheapTableElement();
+      let $thead = new CheapTableHeadElement(this.$top)
+      let $h_row = new CheapTableRowElement($thead)
+      $h_row.appendMarkdown(header)
+
+      this.$tbody = new CheapTableBodyElement(this.$top)
+      return
+    }
+    //.................................................
+    // Normal paragraph
+    if(this.isEmpty()) {
+      this.$top = new CheapParagraphElement()
+    }
+    this.$top.appendMarkdown(line)
+    //.................................................
+  }
+  //---------------------------------------------------
+}
+///////////////////////////////////////////////////////
+function parseMarkdown(markdown="") {
+  //.................................................
+  // Prapare
+  let lines   = markdown.split(/\r?\n/)
+  let block = new CheapBlock()
+  let lastMetaKey = null
+  let lnIndex = 0
+  //.................................................
+  let MdDoc = new CheapDocument()
+  //.................................................
+  // Find the header
+  let inHeader = false
+  while(lnIndex < lines.length) {
+    let line = lines[lnIndex++]
+    let trimed = _.trim(line)
+    // Ignore blank line
+    if(!trimed) {
+      continue
+    }
+    // Found the head part
+    if('---' == trimed) {
+      inHeader = true
+    }
+    // Normal line
+    else {
+      lnIndex --
+    }
+    // Always break
+    break
+  }
+  //.................................................
+  // Scan header
+  while(inHeader && lnIndex < lines.length) {
+    let line = lines[lnIndex++]
+    let trimed = _.trim(line)
+    // Ignore blank line
+    if(!trimed) {
+      continue
+    }
+    // Quit header
+    if('---' == trimed) {
+      inHeader = false
+      break
+    }
+    // Join List
+    if(trimed.startsWith("-")) {
+      if(lastMetaKey) {
+        let v = _.trim(trimed.substring(1))
+        MdDoc.pushMetaValue(lastMetaKey, v)
+      }
+    }
+    // Set meta value
+    else {
+      let [k, ...v] = trimed.split(":")
+      MdDoc.setMeta(k, _.trim(v.join(":")))
+      lastMetaKey = k
+    }
+  }
+  //.................................................
+  // Scan document body
+  for(; lnIndex < lines.length; lnIndex++) {
+    let line = lines[lnIndex]
+    let trimed = _.trim(line)
+
+    // Link Refer 
+    let m = /^\[([^\]]+)\]:(.+)$/.exec(trimed)
+    if(m) {
+      let name  = _.trim(m[1])
+      let refer = _.trim(m[2])
+      MdDoc.setRefer(name, refer)
+      continue
+    }
+
+    // Elements
+    let {repush, closed} = block.pushLine(line, trimed) || {}
+
+    // Closed block
+    if(closed && !block.isEmpty()) {
+      MdDoc.$body.appendChild(block.$top)
+      block.reset()
+    }
+
+    // push again
+    if(repush) {
+      lnIndex --
+    }
+  }
+  //.................................................
+  // Tail Block
+  if(!block.isEmpty()){
+    MdDoc.$body.appendChild(block.$top)
+  }
+  //.................................................
+  return MdDoc
+}
+///////////////////////////////////////////////////////
+// Delta object please:
+// @see https://quilljs.com/docs/delta/
+class DeltaHelper {
+  //.................................................
+  constructor(){
+    this.__buf = []
+  }
+  //.................................................
+  isBufEmpty() {
+    return _.isEmpty(this.__buf)
+  }
+  //.................................................
+  pushBuf($nd) {
+    this.__buf.push($nd)
+  }
+  //.................................................
+  popBuf($el) {
+    if($el) {
+      $el.appendChildren(this.__buf)
+    }
+    this.__buf = []
+    return $el
+  }
+  //.................................................
+  genInline(attr, text) {
+    let $el = new CheapTextNode(text)
+    // Code
+    if(attr.code) {
+      $el = new CheapCodeElement().appendChild($el);
+    }
+    // B/I/A
+    else {
+      if(attr.bold) {
+        $el = new CheapStrongElement().appendChild($el);
+      }
+      if(attr.italic) {
+        $el = new CheapEmphasisElement().appendChild($el);
+      }
+      if(attr.link) {
+        $el = new CheapAnchorElement()
+                  .setAttr({href:attr.link})
+                    .appendChild($el);
+      }
+    }
+    return $el
+  }
+  //.................................................
+  genBlock(attr) {
+    // List
+    if(attr.list) {
+      // LI
+      let $li = this.popBuf(new CheapListItemElement())
+      $li.setAttr({
+        indent: attr.indent || 0
+      })
+      // OL
+      if("ordered" == attr.list) {
+        return new CheapOrderedListElement().appendChild($li)
+      }
+      // UL
+      return new CheapUnorderedListElement().appendChild($li)
+    }
+    // Heading
+    if(attr.header) {
+      return this.popBuf(new CheapSectionHeadingElement(attr.header))
+    }
+    // BlockQuote
+    if(attr.blockquote) {
+      return this.popBuf(new CheapBlockQuoteElement())
+    }
+    // CodeBlock
+    if(attr["code-block"]) {
+      let $pre = new CheapPreformattedTextElement()
+      $pre.setAttr({mode:"GFM"})
+      if(this.isBufEmpty()) {
+        $pre.addCodeLine("")
+      } else {
+        _.forEach(this.__buf, $nd => $pre.addCodeLine($nd.getText()))
+      }
+      this.popBuf()
+      return $pre
+    }
+    // Paragraph
+    return this.popBuf(new CheapParagraphElement())
+  }
+  //.................................................
+}
+///////////////////////////////////////////////////////
+function parseDelta({ops=[]}={}){
+  //.................................................
+  let MdDoc = new CheapDocument()
+  let $body = MdDoc.$body
+  //.................................................
+  let helper = new DeltaHelper()
+  //.................................................
+  for(let op of ops) {
+    //...............................................
+    // Media: Image
+    if(op.insert && op.insert.image) {
+      let $media = new CheapImageElement()
+      $media.setAttr(_.assign({src: op.insert.image}, op.attributes))
+      helper.pushBuf($media)
+      continue
+    }
+    // Media: Video
+    if(op.insert && op.insert.video) {
+      let $media = new CheapVideoElement()
+      $media.setAttr(_.assign({src: op.insert.video}, op.attributes))
+      helper.pushBuf($media)
+      continue
+    }
+    //...............................................
+    let text  = op.insert
+    let attr  = op.attributes || {}
+    //...............................................
+    let I0 = 0
+    let I1 = text.indexOf("\n", I0)
+    while(I1 >= I0) {
+      //.............................................
+      // Found "xxx\n"
+      if(I1 > I0) {
+        let s = text.substring(I0, I1)
+        helper.pushBuf(new CheapTextNode(s))
+      }
+      //.............................................
+      // Gen Block
+      let $nd = helper.genBlock(attr)
+      if($nd) {
+        let $last = $body.getLastChild()
+
+        // Join to Last
+        if($last && $last.isTag($nd.tagName)
+          && !$last.isTag(/^(BLOCKQUOTE|P|H[1-6])$/)) {
+          $last.appendChildren($nd.children)
+        }
+        // Add new
+        else {
+          $body.appendChild($nd)
+        }
+      }
+
+      //.............................................
+      // Next find
+      I0 = I1 + 1
+      I1 = text.indexOf("\n", I0)
+      //.............................................
+    }
+    //...............................................
+    // Remain part join buffer
+    if(I0 < text.length) {
+      let s = text.substring(I0)
+      let $nd = helper.genInline(attr, s)
+      helper.pushBuf($nd)
+    }
+  }
+  //.................................................
+  // Clean Buffer
+  if(!helper.isBufEmpty()) {
+    helper.popBuf(new CheapParagraphElement($body))
+  }
+  //.................................................
+  return MdDoc
+}
+///////////////////////////////////////////////////////
+ const Cheap = {
+  parseMarkdown,
+  parseDelta
+}
+///////////////////////////////////////////////////////
+// Install to window
+if(window) {
+  window.Cheap = Cheap
+}
+///////////////////////////////////////////////////////;
+return Cheap;})()}
+// ========================================
+// EXPORT 'br.blot.mjs' -> BrBlot
+// ========================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/markdown/richeditor2/blot/br.blot.mjs'] = {
+BrBlot : (function(){
+const Parchment = Quill.import("parchment")
+
+ class BrBlot extends Parchment.Inline {
+  static create(url) {
+    let node = super.create();
+    
+    return node;
+  }
+
+  static formats(domNode) {
+    return "BR" == domNode.tagName
+  }
+
+  format(name, value) {
+    if (name === 'breakLine' && value) {
+      
+    } else {
+      super.format(name, value);
+    }
+  }
+
+  formats() {
+    let formats = super.formats();
+    formats['breakLine'] = BrBlot.formats(this.domNode);
+    return formats;
+  }
+}
+BrBlot.blotName = 'breakLine';
+BrBlot.tagName = 'BR';;
+return BrBlot;})()}
+})();   // ~ windows.TI_EXPORTS
+(function(){
+//========================================
+// JOIN <config-io-detail.html> ti/com/hmaker/config/io/detail/config-io-detail.html
+//========================================
 Ti.Preload("ti/com/hmaker/config/io/detail/config-io-detail.html", `<div class="config-io-detail">
   <component
     class="ti-fill-parent"
     :is="MainCom.comType"
     v-bind="MainCom.comConf"/>
 </div>`);
-//============================================================
-// JOIN: hmaker/config/io/detail/config-io-detail.mjs
-//============================================================
+//========================================
+// JOIN <config-io-detail.mjs> ti/com/hmaker/config/io/detail/config-io-detail.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -83,9 +1900,9 @@ const _M = {
 }
 Ti.Preload("ti/com/hmaker/config/io/detail/config-io-detail.mjs", _M);
 })();
-//============================================================
-// JOIN: hmaker/config/io/detail/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/hmaker/config/io/detail/_com.json
+//========================================
 Ti.Preload("ti/com/hmaker/config/io/detail/_com.json", {
   "name" : "hmaker-config-io-detail",
   "globally" : true,
@@ -96,18 +1913,18 @@ Ti.Preload("ti/com/hmaker/config/io/detail/_com.json", {
     "@com:hmaker/config/io/ix/dao"
   ]
 });
-//============================================================
-// JOIN: hmaker/config/io/hmaker-config-io.html
-//============================================================
+//========================================
+// JOIN <hmaker-config-io.html> ti/com/hmaker/config/io/hmaker-config-io.html
+//========================================
 Ti.Preload("ti/com/hmaker/config/io/hmaker-config-io.html", `<WnFilesetTabs
   :meta="oHome"
   :view-ready="isViewReady"
   com-type="wn-fileset-list"
   :com-conf="FilesetListConf"
   :on-init="OnTabsInit"/>`);
-//============================================================
-// JOIN: hmaker/config/io/hmaker-config-io.mjs
-//============================================================
+//========================================
+// JOIN <hmaker-config-io.mjs> ti/com/hmaker/config/io/hmaker-config-io.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -227,18 +2044,18 @@ const _M = {
 }
 Ti.Preload("ti/com/hmaker/config/io/hmaker-config-io.mjs", _M);
 })();
-//============================================================
-// JOIN: hmaker/config/io/ix/dao/io-ix-dao.html
-//============================================================
+//========================================
+// JOIN <io-ix-dao.html> ti/com/hmaker/config/io/ix/dao/io-ix-dao.html
+//========================================
 Ti.Preload("ti/com/hmaker/config/io/ix/dao/io-ix-dao.html", `<TiForm
   class="hmaker-config-io-ix-dao auto-fit-tab-field no-pad-tab-body"
   v-bind="FormConf"
   :data="TheData"
   @change="OnFormChange"
   @field:change="OnFormFieldChange"/>`);
-//============================================================
-// JOIN: hmaker/config/io/ix/dao/io-ix-dao.mjs
-//============================================================
+//========================================
+// JOIN <io-ix-dao.mjs> ti/com/hmaker/config/io/ix/dao/io-ix-dao.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -501,9 +2318,9 @@ const _M = {
 }
 Ti.Preload("ti/com/hmaker/config/io/ix/dao/io-ix-dao.mjs", _M);
 })();
-//============================================================
-// JOIN: hmaker/config/io/ix/dao/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/hmaker/config/io/ix/dao/_com.json
+//========================================
 Ti.Preload("ti/com/hmaker/config/io/ix/dao/_com.json", {
   "name" : "hmaker-config-io-ix-dao",
   "globally" : true,
@@ -514,9 +2331,9 @@ Ti.Preload("ti/com/hmaker/config/io/ix/dao/_com.json", {
     "@com:ti/bullet/checkbox"
   ]
 });
-//============================================================
-// JOIN: hmaker/config/io/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/hmaker/config/io/_com.json
+//========================================
 Ti.Preload("ti/com/hmaker/config/io/_com.json", {
   "name" : "hmaker-config-io",
   "globally" : true,
@@ -526,9 +2343,9 @@ Ti.Preload("ti/com/hmaker/config/io/_com.json", {
     "@com:hmaker/config/io/detail"
   ]
 });
-//============================================================
-// JOIN: net/aliyun/vod/manager/vod-manager.html
-//============================================================
+//========================================
+// JOIN <vod-manager.html> ti/com/net/aliyun/vod/manager/vod-manager.html
+//========================================
 Ti.Preload("ti/com/net/aliyun/vod/manager/vod-manager.html", `<ti-gui
   class="net-aliyun-vod-manager"
   :class="TopClass"
@@ -541,9 +2358,9 @@ Ti.Preload("ti/com/net/aliyun/vod/manager/vod-manager.html", `<ti-gui
   @list::select="OnListSelect"
   @video::preview="OnVideoPreview"
   @pager::change="OnPagerChange"/>`);
-//============================================================
-// JOIN: net/aliyun/vod/manager/vod-manager.mjs
-//============================================================
+//========================================
+// JOIN <vod-manager.mjs> ti/com/net/aliyun/vod/manager/vod-manager.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////////
@@ -959,9 +2776,9 @@ const _M = {
 }
 Ti.Preload("ti/com/net/aliyun/vod/manager/vod-manager.mjs", _M);
 })();
-//============================================================
-// JOIN: net/aliyun/vod/manager/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/net/aliyun/vod/manager/_com.json
+//========================================
 Ti.Preload("ti/com/net/aliyun/vod/manager/_com.json", {
   "name" : "net-aliyun-vod-manager",
   "globally" : true,
@@ -975,9 +2792,9 @@ Ti.Preload("ti/com/net/aliyun/vod/manager/_com.json", {
     "@com:net/aliyun/vod/video/info"
   ]
 });
-//============================================================
-// JOIN: net/aliyun/vod/video/info/vod-video-info.html
-//============================================================
+//========================================
+// JOIN <vod-video-info.html> ti/com/net/aliyun/vod/video/info/vod-video-info.html
+//========================================
 Ti.Preload("ti/com/net/aliyun/vod/video/info/vod-video-info.html", `<div class="net-aliyun-vod-video-info"
   :class="TopClass">
   <!--
@@ -1013,9 +2830,9 @@ Ti.Preload("ti/com/net/aliyun/vod/video/info/vod-video-info.html", `<div class="
     </div>
   </template>
 </div>`);
-//============================================================
-// JOIN: net/aliyun/vod/video/info/vod-video-info.mjs
-//============================================================
+//========================================
+// JOIN <vod-video-info.mjs> ti/com/net/aliyun/vod/video/info/vod-video-info.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////////
@@ -1099,9 +2916,9 @@ const _M = {
 }
 Ti.Preload("ti/com/net/aliyun/vod/video/info/vod-video-info.mjs", _M);
 })();
-//============================================================
-// JOIN: net/aliyun/vod/video/info/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/net/aliyun/vod/video/info/_com.json
+//========================================
 Ti.Preload("ti/com/net/aliyun/vod/video/info/_com.json", {
   "name" : "NetAliyunVodVideoInfo",
   "globally" : true,
@@ -1111,16 +2928,16 @@ Ti.Preload("ti/com/net/aliyun/vod/video/info/_com.json", {
     "@com:ti/form"
   ]
 });
-//============================================================
-// JOIN: net/aliyun/vod/video/player/vod-video-player.html
-//============================================================
+//========================================
+// JOIN <vod-video-player.html> ti/com/net/aliyun/vod/video/player/vod-video-player.html
+//========================================
 Ti.Preload("ti/com/net/aliyun/vod/video/player/vod-video-player.html", `<div class="net-vod-video-player"
   :class="TopClass">
   <div :id="PlayerID"></div>
 </div>`);
-//============================================================
-// JOIN: net/aliyun/vod/video/player/vod-video-player.mjs
-//============================================================
+//========================================
+// JOIN <vod-video-player.mjs> ti/com/net/aliyun/vod/video/player/vod-video-player.mjs
+//========================================
 (function(){
 /*
 Aliyun Player JS SDK properties and API:
@@ -1244,9 +3061,9 @@ const _M = {
 }
 Ti.Preload("ti/com/net/aliyun/vod/video/player/vod-video-player.mjs", _M);
 })();
-//============================================================
-// JOIN: net/aliyun/vod/video/player/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/net/aliyun/vod/video/player/_com.json
+//========================================
 Ti.Preload("ti/com/net/aliyun/vod/video/player/_com.json", {
   "name" : "NetAliyunVodVideoPlayer",
   "globally" : true,
@@ -1256,17 +3073,17 @@ Ti.Preload("ti/com/net/aliyun/vod/video/player/_com.json", {
     
   ]
 });
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-action/bar-item-action.html
-//============================================================
+//========================================
+// JOIN <bar-item-action.html> ti/com/ti/actionbar/com/bar-item-action/bar-item-action.html
+//========================================
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-action/bar-item-action.html", `<div class="bar-item-action">
   <bar-item-info
     v-bind="this"
     @fire="OnFired"/>
 </div>`);
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-action/bar-item-action.mjs
-//============================================================
+//========================================
+// JOIN <bar-item-action.mjs> ti/com/ti/actionbar/com/bar-item-action/bar-item-action.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////
@@ -1432,17 +3249,17 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-action/bar-item-action.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-action/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/actionbar/com/bar-item-action/_com.json
+//========================================
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-action/_com.json", {
   "name" : "bar-item-action",
   "template" : "./bar-item-action.html",
   "mixins"   : ["./bar-item-action.mjs"]
 });
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-group/bar-item-group.html
-//============================================================
+//========================================
+// JOIN <bar-item-group.html> ti/com/ti/actionbar/com/bar-item-group/bar-item-group.html
+//========================================
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-group/bar-item-group.html", `<div class="bar-item-group"
   :class="TopClass"
   @mouseenter.stop="OnMouseEnter"
@@ -1488,9 +3305,9 @@ Ti.Preload("ti/com/ti/actionbar/com/bar-item-group/bar-item-group.html", `<div c
     </div>
   </template>
 </div>`);
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-group/bar-item-group.mjs
-//============================================================
+//========================================
+// JOIN <bar-item-group.mjs> ti/com/ti/actionbar/com/bar-item-group/bar-item-group.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////
@@ -1680,17 +3497,17 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-group/bar-item-group.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-group/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/actionbar/com/bar-item-group/_com.json
+//========================================
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-group/_com.json", {
   "name" : "bar-item-group",
   "template" : "./bar-item-group.html",
   "mixins"   : ["./bar-item-group.mjs"]
 });
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-info/bar-item-info.html
-//============================================================
+//========================================
+// JOIN <bar-item-info.html> ti/com/ti/actionbar/com/bar-item-info/bar-item-info.html
+//========================================
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-info/bar-item-info.html", `<div class="bar-item-info"
   :class="TopClass"
   @click.left="OnClickTop">
@@ -1724,9 +3541,9 @@ Ti.Preload("ti/com/ti/actionbar/com/bar-item-info/bar-item-info.html", `<div cla
     v-else-if="isShowShortcut"
       class="as-shortcut">{{shortcut}}</span>
 </div>`);
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-info/bar-item-info.mjs
-//============================================================
+//========================================
+// JOIN <bar-item-info.mjs> ti/com/ti/actionbar/com/bar-item-info/bar-item-info.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////
@@ -1924,22 +3741,22 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-info/bar-item-info.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-info/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/actionbar/com/bar-item-info/_com.json
+//========================================
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-info/_com.json", {
   "name" : "bar-item-info",
   "template" : "./bar-item-info.html",
   "mixins"   : ["./bar-item-info.mjs"]
 });
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-line/bar-item-line.html
-//============================================================
+//========================================
+// JOIN <bar-item-line.html> ti/com/ti/actionbar/com/bar-item-line/bar-item-line.html
+//========================================
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-line/bar-item-line.html", `<div class="bar-item-line"
   :class="TopClass"></div>`);
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-line/bar-item-line.mjs
-//============================================================
+//========================================
+// JOIN <bar-item-line.mjs> ti/com/ti/actionbar/com/bar-item-line/bar-item-line.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////
@@ -1966,17 +3783,17 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-line/bar-item-line.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-line/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/actionbar/com/bar-item-line/_com.json
+//========================================
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-line/_com.json", {
   "name" : "bar-item-line",
   "template" : "./bar-item-line.html",
   "mixins"   : ["./bar-item-line.mjs"]
 });
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-switcher/bar-item-switcher.html
-//============================================================
+//========================================
+// JOIN <bar-item-switcher.html> ti/com/ti/actionbar/com/bar-item-switcher/bar-item-switcher.html
+//========================================
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-switcher/bar-item-switcher.html", `<div class="bar-item-switcher"
   :class="TopClass">
   <!--
@@ -2005,9 +3822,9 @@ Ti.Preload("ti/com/ti/actionbar/com/bar-item-switcher/bar-item-switcher.html", `
     :value="TheValue"
     @change="OnSwitcherChange($event)"/>
 </div>`);
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-switcher/bar-item-switcher.mjs
-//============================================================
+//========================================
+// JOIN <bar-item-switcher.mjs> ti/com/ti/actionbar/com/bar-item-switcher/bar-item-switcher.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////
@@ -2173,9 +3990,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-switcher/bar-item-switcher.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/actionbar/com/bar-item-switcher/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/actionbar/com/bar-item-switcher/_com.json
+//========================================
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-switcher/_com.json", {
   "name" : "bar-item-switcher",
   "template" : "./bar-item-switcher.html",
@@ -2184,9 +4001,9 @@ Ti.Preload("ti/com/ti/actionbar/com/bar-item-switcher/_com.json", {
     "@com:ti/switcher"
   ]
 });
-//============================================================
-// JOIN: ti/actionbar/ti-actionbar.html
-//============================================================
+//========================================
+// JOIN <ti-actionbar.html> ti/com/ti/actionbar/ti-actionbar.html
+//========================================
 Ti.Preload("ti/com/ti/actionbar/ti-actionbar.html", `<div class="ti-actionbar"
   :class="TopClass"
   v-ti-activable>
@@ -2195,9 +4012,9 @@ Ti.Preload("ti/com/ti/actionbar/ti-actionbar.html", `<div class="ti-actionbar"
     :items="BarItems"
     :status="status"/>
 </div>`);
-//============================================================
-// JOIN: ti/actionbar/ti-actionbar.mjs
-//============================================================
+//========================================
+// JOIN <ti-actionbar.mjs> ti/com/ti/actionbar/ti-actionbar.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////
@@ -2352,9 +4169,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/actionbar/ti-actionbar.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/actionbar/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/actionbar/_com.json
+//========================================
 Ti.Preload("ti/com/ti/actionbar/_com.json", {
   "name" : "ti-actionbar",
   "globally" : true,
@@ -2368,9 +4185,9 @@ Ti.Preload("ti/com/ti/actionbar/_com.json", {
     "./com/bar-item-info"
   ]
 });
-//============================================================
-// JOIN: ti/bullet/checkbox/ti-bullet-checkbox.mjs
-//============================================================
+//========================================
+// JOIN <ti-bullet-checkbox.mjs> ti/com/ti/bullet/checkbox/ti-bullet-checkbox.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -2422,9 +4239,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/bullet/checkbox/ti-bullet-checkbox.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/bullet/checkbox/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/bullet/checkbox/_com.json
+//========================================
 Ti.Preload("ti/com/ti/bullet/checkbox/_com.json", {
   "name" : "ti-bullet-checkbox",
   "globally" : true,
@@ -2433,9 +4250,9 @@ Ti.Preload("ti/com/ti/bullet/checkbox/_com.json", {
     "@com:ti/bullet/ti-bullet-mixin.mjs",
     "./ti-bullet-checkbox.mjs"]
 });
-//============================================================
-// JOIN: ti/bullet/radio/ti-bullet-radio.mjs
-//============================================================
+//========================================
+// JOIN <ti-bullet-radio.mjs> ti/com/ti/bullet/radio/ti-bullet-radio.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -2471,9 +4288,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/bullet/radio/ti-bullet-radio.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/bullet/radio/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/bullet/radio/_com.json
+//========================================
 Ti.Preload("ti/com/ti/bullet/radio/_com.json", {
   "name" : "ti-bullet-radio",
   "globally" : true,
@@ -2482,9 +4299,9 @@ Ti.Preload("ti/com/ti/bullet/radio/_com.json", {
     "@com:ti/bullet/ti-bullet-mixin.mjs",
     "./ti-bullet-radio.mjs"]
 });
-//============================================================
-// JOIN: ti/bullet/ti-bullet-mixin.mjs
-//============================================================
+//========================================
+// JOIN <ti-bullet-mixin.mjs> ti/com/ti/bullet/ti-bullet-mixin.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -2614,9 +4431,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/bullet/ti-bullet-mixin.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/bullet/ti-bullet.html
-//============================================================
+//========================================
+// JOIN <ti-bullet.html> ti/com/ti/bullet/ti-bullet.html
+//========================================
 Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list"
   :class="TopClass"
   :style="TopStyle">
@@ -2644,9 +4461,9 @@ Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list"
       <div class="as-text">{{it.text|i18n}}</div>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/button/ti-button.html
-//============================================================
+//========================================
+// JOIN <ti-button.html> ti/com/ti/button/ti-button.html
+//========================================
 Ti.Preload("ti/com/ti/button/ti-button.html", `<div class="ti-button"
   :class="topClass">
   <ul>
@@ -2667,9 +4484,9 @@ Ti.Preload("ti/com/ti/button/ti-button.html", `<div class="ti-button"
     </li>
   </ul>
 </div>`);
-//============================================================
-// JOIN: ti/button/ti-button.mjs
-//============================================================
+//========================================
+// JOIN <ti-button.mjs> ti/com/ti/button/ti-button.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -2740,9 +4557,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/button/ti-button.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/button/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/button/_com.json
+//========================================
 Ti.Preload("ti/com/ti/button/_com.json", {
   "name" : "ti-button",
   "globally" : true,
@@ -2750,9 +4567,9 @@ Ti.Preload("ti/com/ti/button/_com.json", {
   "mixins"   : ["./ti-button.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: ti/calendar/ti-calendar.html
-//============================================================
+//========================================
+// JOIN <ti-calendar.html> ti/com/ti/calendar/ti-calendar.html
+//========================================
 Ti.Preload("ti/com/ti/calendar/ti-calendar.html", `<div class="ti-calendar">
   <!--
     Heading
@@ -2815,9 +4632,9 @@ Ti.Preload("ti/com/ti/calendar/ti-calendar.html", `<div class="ti-calendar">
     </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/calendar/ti-calendar.mjs
-//============================================================
+//========================================
+// JOIN <ti-calendar.mjs> ti/com/ti/calendar/ti-calendar.mjs
+//========================================
 (function(){
 ///////////////////////////////////////////
 const _M = {
@@ -3293,9 +5110,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/calendar/ti-calendar.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/calendar/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/calendar/_com.json
+//========================================
 Ti.Preload("ti/com/ti/calendar/_com.json", {
   "name" : "ti-calendar",
   "globally" : true,
@@ -3304,9 +5121,9 @@ Ti.Preload("ti/com/ti/calendar/_com.json", {
   "components" : [
     "@com:ti/input/month"]
 });
-//============================================================
-// JOIN: ti/chart/combo/ti-chart-combo.html
-//============================================================
+//========================================
+// JOIN <ti-chart-combo.html> ti/com/ti/chart/combo/ti-chart-combo.html
+//========================================
 Ti.Preload("ti/com/ti/chart/combo/ti-chart-combo.html", `<div class="ti-chart-combo"
   :class="TopClass">
   <!--
@@ -3370,9 +5187,9 @@ Ti.Preload("ti/com/ti/chart/combo/ti-chart-combo.html", `<div class="ti-chart-co
         class="as-mid-tip"/>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/chart/combo/ti-chart-combo.mjs
-//============================================================
+//========================================
+// JOIN <ti-chart-combo.mjs> ti/com/ti/chart/combo/ti-chart-combo.mjs
+//========================================
 (function(){
 //////////////////////////////////////////////////////
 var _CHARTS = {
@@ -3762,9 +5579,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/chart/combo/ti-chart-combo.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/chart/combo/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/chart/combo/_com.json
+//========================================
 Ti.Preload("ti/com/ti/chart/combo/_com.json", {
   "name" : "ti-chart-combo",
   "globally" : true,
@@ -3779,18 +5596,18 @@ Ti.Preload("ti/com/ti/chart/combo/_com.json", {
     "@com:ti/chart/g2"
   ]
 });
-//============================================================
-// JOIN: ti/chart/g2/ti-chart-g2.html
-//============================================================
+//========================================
+// JOIN <ti-chart-g2.html> ti/com/ti/chart/g2/ti-chart-g2.html
+//========================================
 Ti.Preload("ti/com/ti/chart/g2/ti-chart-g2.html", `<div class="ti-chart ti-chart-g2"
   :class="TopClass"
   :style="TopStyle">
   <div ref="chart"
     class="chart-main ti-fill-parent"></div>
 </div>`);
-//============================================================
-// JOIN: ti/chart/g2/ti-chart-g2.mjs
-//============================================================
+//========================================
+// JOIN <ti-chart-g2.mjs> ti/com/ti/chart/g2/ti-chart-g2.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -3930,9 +5747,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/chart/g2/ti-chart-g2.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/chart/g2/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/chart/g2/_com.json
+//========================================
 Ti.Preload("ti/com/ti/chart/g2/_com.json", {
   "name" : "ti-chart-g2",
   "globally" : true,
@@ -3940,12 +5757,12 @@ Ti.Preload("ti/com/ti/chart/g2/_com.json", {
   "mixins"   : ["./ti-chart-g2.mjs"],
   "components" : [],
   "deps" : [
-    "@/gu/rs/ti/deps/antv/v4/g2/g2.min.js"
+    "@deps:antv/v4/g2/g2.min.js"
   ]
 });
-//============================================================
-// JOIN: ti/chart/raw/bar/ti-chart-raw-bar.html
-//============================================================
+//========================================
+// JOIN <ti-chart-raw-bar.html> ti/com/ti/chart/raw/bar/ti-chart-raw-bar.html
+//========================================
 Ti.Preload("ti/com/ti/chart/raw/bar/ti-chart-raw-bar.html", `<TiChartG2
   class="as-bar"
   :class-name="className"
@@ -3956,9 +5773,9 @@ Ti.Preload("ti/com/ti/chart/raw/bar/ti-chart-raw-bar.html", `<TiChartG2
   :append-padding="appendPadding"
   :auto-source="false"
   :setup="ChartSetup"/>`);
-//============================================================
-// JOIN: ti/chart/raw/bar/ti-chart-raw-bar.mjs
-//============================================================
+//========================================
+// JOIN <ti-chart-raw-bar.mjs> ti/com/ti/chart/raw/bar/ti-chart-raw-bar.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -4003,9 +5820,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/chart/raw/bar/ti-chart-raw-bar.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/chart/raw/bar/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/chart/raw/bar/_com.json
+//========================================
 Ti.Preload("ti/com/ti/chart/raw/bar/_com.json", {
   "name" : "ti-chart-raw-bar",
   "globally" : true,
@@ -4015,9 +5832,9 @@ Ti.Preload("ti/com/ti/chart/raw/bar/_com.json", {
     "./ti-chart-raw-bar.mjs"],
   "components" : ["@com:ti/chart/g2"]
 });
-//============================================================
-// JOIN: ti/chart/raw/line/ti-chart-raw-line.html
-//============================================================
+//========================================
+// JOIN <ti-chart-raw-line.html> ti/com/ti/chart/raw/line/ti-chart-raw-line.html
+//========================================
 Ti.Preload("ti/com/ti/chart/raw/line/ti-chart-raw-line.html", `<TiChartG2
   class="as-line"
   :class-name="className"
@@ -4028,9 +5845,9 @@ Ti.Preload("ti/com/ti/chart/raw/line/ti-chart-raw-line.html", `<TiChartG2
   :append-padding="appendPadding"
   :auto-source="false"
   :setup="ChartSetup"/>`);
-//============================================================
-// JOIN: ti/chart/raw/line/ti-chart-raw-line.mjs
-//============================================================
+//========================================
+// JOIN <ti-chart-raw-line.mjs> ti/com/ti/chart/raw/line/ti-chart-raw-line.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -4096,9 +5913,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/chart/raw/line/ti-chart-raw-line.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/chart/raw/line/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/chart/raw/line/_com.json
+//========================================
 Ti.Preload("ti/com/ti/chart/raw/line/_com.json", {
   "name" : "ti-chart-raw-line",
   "globally" : true,
@@ -4108,9 +5925,9 @@ Ti.Preload("ti/com/ti/chart/raw/line/_com.json", {
     "./ti-chart-raw-line.mjs"],
   "components" : ["@com:ti/chart/g2"]
 });
-//============================================================
-// JOIN: ti/chart/raw/pie/ti-chart-raw-pie.html
-//============================================================
+//========================================
+// JOIN <ti-chart-raw-pie.html> ti/com/ti/chart/raw/pie/ti-chart-raw-pie.html
+//========================================
 Ti.Preload("ti/com/ti/chart/raw/pie/ti-chart-raw-pie.html", `<TiChartG2
   class="as-pie"
   :class-name="className"
@@ -4121,9 +5938,9 @@ Ti.Preload("ti/com/ti/chart/raw/pie/ti-chart-raw-pie.html", `<TiChartG2
   :append-padding="appendPadding"
   :auto-source="false"
   :setup="ChartSetup"/>`);
-//============================================================
-// JOIN: ti/chart/raw/pie/ti-chart-raw-pie.mjs
-//============================================================
+//========================================
+// JOIN <ti-chart-raw-pie.mjs> ti/com/ti/chart/raw/pie/ti-chart-raw-pie.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -4223,9 +6040,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/chart/raw/pie/ti-chart-raw-pie.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/chart/raw/pie/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/chart/raw/pie/_com.json
+//========================================
 Ti.Preload("ti/com/ti/chart/raw/pie/_com.json", {
   "name" : "ti-chart-raw-pie",
   "globally" : true,
@@ -4235,9 +6052,9 @@ Ti.Preload("ti/com/ti/chart/raw/pie/_com.json", {
     "./ti-chart-raw-pie.mjs"],
   "components" : ["@com:ti/chart/g2"]
 });
-//============================================================
-// JOIN: ti/chart/raw/rank/ti-chart-raw-rank.html
-//============================================================
+//========================================
+// JOIN <ti-chart-raw-rank.html> ti/com/ti/chart/raw/rank/ti-chart-raw-rank.html
+//========================================
 Ti.Preload("ti/com/ti/chart/raw/rank/ti-chart-raw-rank.html", `<TiChartG2
   class="as-bar"
   :class-name="className"
@@ -4248,9 +6065,9 @@ Ti.Preload("ti/com/ti/chart/raw/rank/ti-chart-raw-rank.html", `<TiChartG2
   :append-padding="appendPadding"
   :auto-source="false"
   :setup="ChartSetup"/>`);
-//============================================================
-// JOIN: ti/chart/raw/rank/ti-chart-raw-rank.mjs
-//============================================================
+//========================================
+// JOIN <ti-chart-raw-rank.mjs> ti/com/ti/chart/raw/rank/ti-chart-raw-rank.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -4294,9 +6111,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/chart/raw/rank/ti-chart-raw-rank.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/chart/raw/rank/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/chart/raw/rank/_com.json
+//========================================
 Ti.Preload("ti/com/ti/chart/raw/rank/_com.json", {
   "name" : "ti-chart-raw-rank",
   "globally" : true,
@@ -4306,9 +6123,9 @@ Ti.Preload("ti/com/ti/chart/raw/rank/_com.json", {
     "./ti-chart-raw-rank.mjs"],
   "components" : ["@com:ti/chart/g2"]
 });
-//============================================================
-// JOIN: ti/chart/raw/ti-chart-raw.mjs
-//============================================================
+//========================================
+// JOIN <ti-chart-raw.mjs> ti/com/ti/chart/raw/ti-chart-raw.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -4549,9 +6366,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/chart/raw/ti-chart-raw.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/chart/simple/ti-chart-simple.html
-//============================================================
+//========================================
+// JOIN <ti-chart-simple.html> ti/com/ti/chart/simple/ti-chart-simple.html
+//========================================
 Ti.Preload("ti/com/ti/chart/simple/ti-chart-simple.html", `<div class="ti-chart ti-chart-simple">
   <header 
     v-if="title" 
@@ -4568,9 +6385,9 @@ Ti.Preload("ti/com/ti/chart/simple/ti-chart-simple.html", `<div class="ti-chart 
     class="chart-slider">
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/chart/simple/ti-chart-simple.mjs
-//============================================================
+//========================================
+// JOIN <ti-chart-simple.mjs> ti/com/ti/chart/simple/ti-chart-simple.mjs
+//========================================
 (function(){
 function draw_chart({
   $refs,
@@ -4856,9 +6673,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/chart/simple/ti-chart-simple.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/chart/simple/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/chart/simple/_com.json
+//========================================
 Ti.Preload("ti/com/ti/chart/simple/_com.json", {
   "name" : "ti-chart-simple",
   "globally" : true,
@@ -4867,9 +6684,9 @@ Ti.Preload("ti/com/ti/chart/simple/_com.json", {
   "components" : [],
   "deps" : []
 });
-//============================================================
-// JOIN: ti/color/ti-color.html
-//============================================================
+//========================================
+// JOIN <ti-color.html> ti/com/ti/color/ti-color.html
+//========================================
 Ti.Preload("ti/com/ti/color/ti-color.html", `<div class="ti-color" >
   <!--
     Color Matrix Table
@@ -4931,9 +6748,9 @@ Ti.Preload("ti/com/ti/color/ti-color.html", `<div class="ti-color" >
     <span>{{theColorValue}}</span>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/color/ti-color.mjs
-//============================================================
+//========================================
+// JOIN <ti-color.mjs> ti/com/ti/color/ti-color.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -5083,18 +6900,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/color/ti-color.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/color/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/color/_com.json
+//========================================
 Ti.Preload("ti/com/ti/color/_com.json", {
   "name" : "ti-color",
   "globally" : true,
   "template" : "./ti-color.html",
   "mixins" : ["./ti-color.mjs"]
 });
-//============================================================
-// JOIN: ti/combo/box/ti-combo-box.html
-//============================================================
+//========================================
+// JOIN <ti-combo-box.html> ti/com/ti/combo/box/ti-combo-box.html
+//========================================
 Ti.Preload("ti/com/ti/combo/box/ti-combo-box.html", `<div class="ti-combo-box" 
   :class="topClass"
   :style="topStyle">
@@ -5116,9 +6933,9 @@ Ti.Preload("ti/com/ti/combo/box/ti-combo-box.html", `<div class="ti-combo-box"
     </div>
   </template>
 </div>`);
-//============================================================
-// JOIN: ti/combo/box/ti-combo-box.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-box.mjs> ti/com/ti/combo/box/ti-combo-box.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -5335,18 +7152,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/box/ti-combo-box.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/box/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/combo/box/_com.json
+//========================================
 Ti.Preload("ti/com/ti/combo/box/_com.json", {
   "name" : "ti-combo-box",
   "globally" : true,
   "template" : "./ti-combo-box.html",
   "mixins" : ["./ti-combo-box.mjs"]
 });
-//============================================================
-// JOIN: ti/combo/filter/ti-combo-filter-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-filter-props.mjs> ti/com/ti/combo/filter/ti-combo-filter-props.mjs
+//========================================
 (function(){
 const _M  = {
   "major" : {
@@ -5388,9 +7205,9 @@ const _M  = {
 }
 Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/filter/ti-combo-filter.html
-//============================================================
+//========================================
+// JOIN <ti-combo-filter.html> ti/com/ti/combo/filter/ti-combo-filter.html
+//========================================
 Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter.html", `<div class="ti-combo-filter"
   :class="TopClass">
   <!--
@@ -5442,9 +7259,9 @@ Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter.html", `<div class="ti-combo-
     Sorter
   -->
 </div>`);
-//============================================================
-// JOIN: ti/combo/filter/ti-combo-filter.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-filter.mjs> ti/com/ti/combo/filter/ti-combo-filter.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -5643,9 +7460,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/filter/ti-combo-filter.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/filter/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/combo/filter/_com.json
+//========================================
 Ti.Preload("ti/com/ti/combo/filter/_com.json", {
   "name" : "ti-combo-filter",
   "globally" : true,
@@ -5659,9 +7476,9 @@ Ti.Preload("ti/com/ti/combo/filter/_com.json", {
     "@com:ti/form",
     "@com:ti/combo/sorter"]
 });
-//============================================================
-// JOIN: ti/combo/input/ti-combo-input-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-input-props.mjs> ti/com/ti/combo/input/ti-combo-input-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -5754,9 +7571,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/input/ti-combo-input-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/input/ti-combo-input.html
-//============================================================
+//========================================
+// JOIN <ti-combo-input.html> ti/com/ti/combo/input/ti-combo-input.html
+//========================================
 Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box 
   class="ti-combo-input full-field"
   :class="TopClass"
@@ -5796,9 +7613,9 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box
       @select="OnDropListSelected"/>
   </template>
 </ti-combo-box>`);
-//============================================================
-// JOIN: ti/combo/input/ti-combo-input.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-input.mjs> ti/com/ti/combo/input/ti-combo-input.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -6164,9 +7981,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/input/ti-combo-input.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/input/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/combo/input/_com.json
+//========================================
 Ti.Preload("ti/com/ti/combo/input/_com.json", {
   "name" : "ti-combo-input",
   "globally" : true,
@@ -6178,9 +7995,9 @@ Ti.Preload("ti/com/ti/combo/input/_com.json", {
   "components" : [
     "@com:ti/combo/box"]
 });
-//============================================================
-// JOIN: ti/combo/multi-input/ti-combo-multi-input.html
-//============================================================
+//========================================
+// JOIN <ti-combo-multi-input.html> ti/com/ti/combo/multi-input/ti-combo-multi-input.html
+//========================================
 Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", `<ti-combo-box 
   class="ti-combo-multi-input full-field"
   :class="TopClass"
@@ -6245,9 +8062,9 @@ Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", `<ti-combo-b
       @select="OnDropListSelected"/>
   </template>
 </ti-combo-box>`);
-//============================================================
-// JOIN: ti/combo/multi-input/ti-combo-multi-input.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-multi-input.mjs> ti/com/ti/combo/multi-input/ti-combo-multi-input.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -6555,9 +8372,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/multi-input/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/combo/multi-input/_com.json
+//========================================
 Ti.Preload("ti/com/ti/combo/multi-input/_com.json", {
   "name" : "ti-combo-multi-input",
   "globally" : true,
@@ -6570,9 +8387,9 @@ Ti.Preload("ti/com/ti/combo/multi-input/_com.json", {
   "components" : [
     "@com:ti/combo/box"]
 });
-//============================================================
-// JOIN: ti/combo/pair-auto/ti-combo-pair-auto-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-pair-auto-props.mjs> ti/com/ti/combo/pair-auto/ti-combo-pair-auto-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -6627,9 +8444,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/pair-auto/ti-combo-pair-auto-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/pair-auto/ti-combo-pair-auto.html
-//============================================================
+//========================================
+// JOIN <ti-combo-pair-auto.html> ti/com/ti/combo/pair-auto/ti-combo-pair-auto.html
+//========================================
 Ti.Preload("ti/com/ti/combo/pair-auto/ti-combo-pair-auto.html", `<ti-form
   class="full-field"
   :class="TopClass"
@@ -6641,9 +8458,9 @@ Ti.Preload("ti/com/ti/combo/pair-auto/ti-combo-pair-auto.html", `<ti-form
   :spacing="spacing"
   :width="width"
   :height="height"/>`);
-//============================================================
-// JOIN: ti/combo/pair-auto/ti-combo-pair-auto.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-pair-auto.mjs> ti/com/ti/combo/pair-auto/ti-combo-pair-auto.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -6711,9 +8528,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/pair-auto/ti-combo-pair-auto.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/pair-auto/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/combo/pair-auto/_com.json
+//========================================
 Ti.Preload("ti/com/ti/combo/pair-auto/_com.json", {
   "name" : "ti-combo-pair-auto",
   "globally" : true,
@@ -6721,9 +8538,9 @@ Ti.Preload("ti/com/ti/combo/pair-auto/_com.json", {
   "props"    : ["./ti-combo-pair-auto-props.mjs"],
   "mixins"   : "./ti-combo-pair-auto.mjs"
 });
-//============================================================
-// JOIN: ti/combo/pair-group/ti-combo-pair-group-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-pair-group-props.mjs> ti/com/ti/combo/pair-group/ti-combo-pair-group-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -6756,9 +8573,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/pair-group/ti-combo-pair-group-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/pair-group/ti-combo-pair-group.html
-//============================================================
+//========================================
+// JOIN <ti-combo-pair-group.html> ti/com/ti/combo/pair-group/ti-combo-pair-group.html
+//========================================
 Ti.Preload("ti/com/ti/combo/pair-group/ti-combo-pair-group.html", `<ti-gui
   class="ti-fill-parent full-field"
   :class="TopClass"
@@ -6766,9 +8583,9 @@ Ti.Preload("ti/com/ti/combo/pair-group/ti-combo-pair-group.html", `<ti-gui
   :shown="TheShown"
   :keep-shown-to="keepShownTo"
   @block:shown="OnShownUpdate"/>`);
-//============================================================
-// JOIN: ti/combo/pair-group/ti-combo-pair-group.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-pair-group.mjs> ti/com/ti/combo/pair-group/ti-combo-pair-group.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -6900,9 +8717,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/pair-group/ti-combo-pair-group.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/pair-group/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/combo/pair-group/_com.json
+//========================================
 Ti.Preload("ti/com/ti/combo/pair-group/_com.json", {
   "name" : "ti-combo-pair-group",
   "globally" : true,
@@ -6910,9 +8727,9 @@ Ti.Preload("ti/com/ti/combo/pair-group/_com.json", {
   "props"    : ["./ti-combo-pair-group-props.mjs"],
   "mixins"   : "./ti-combo-pair-group.mjs"
 });
-//============================================================
-// JOIN: ti/combo/pair-text/ti-combo-pair-text-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-pair-text-props.mjs> ti/com/ti/combo/pair-text/ti-combo-pair-text-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -6970,9 +8787,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/pair-text/ti-combo-pair-text-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/pair-text/ti-combo-pair-text.html
-//============================================================
+//========================================
+// JOIN <ti-combo-pair-text.html> ti/com/ti/combo/pair-text/ti-combo-pair-text.html
+//========================================
 Ti.Preload("ti/com/ti/combo/pair-text/ti-combo-pair-text.html", `<div class="ti-combo-pair-text full-field">
   <div
     v-for="it in Items"
@@ -7000,9 +8817,9 @@ Ti.Preload("ti/com/ti/combo/pair-text/ti-combo-pair-text.html", `<div class="ti-
             @change="OnTextChange(it.key, $event)"></textarea></div>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/combo/pair-text/ti-combo-pair-text.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-pair-text.mjs> ti/com/ti/combo/pair-text/ti-combo-pair-text.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -7126,9 +8943,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/pair-text/ti-combo-pair-text.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/pair-text/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/combo/pair-text/_com.json
+//========================================
 Ti.Preload("ti/com/ti/combo/pair-text/_com.json", {
   "name" : "ti-combo-pair-text",
   "globally" : true,
@@ -7136,9 +8953,9 @@ Ti.Preload("ti/com/ti/combo/pair-text/_com.json", {
   "props"    : ["./ti-combo-pair-text-props.mjs"],
   "mixins"   : "./ti-combo-pair-text.mjs"
 });
-//============================================================
-// JOIN: ti/combo/sorter/ti-combo-sorter-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-sorter-props.mjs> ti/com/ti/combo/sorter/ti-combo-sorter-props.mjs
+//========================================
 (function(){
 const _M = {
   "placeholder" : {
@@ -7188,9 +9005,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/sorter/ti-combo-sorter-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/sorter/ti-combo-sorter.html
-//============================================================
+//========================================
+// JOIN <ti-combo-sorter.html> ti/com/ti/combo/sorter/ti-combo-sorter.html
+//========================================
 Ti.Preload("ti/com/ti/combo/sorter/ti-combo-sorter.html", `<div class="ti-combo-sorter"
   :class="TopClass"
   :style="TopStyle">
@@ -7252,9 +9069,9 @@ Ti.Preload("ti/com/ti/combo/sorter/ti-combo-sorter.html", `<div class="ti-combo-
     Sorter
   -->
 </div>`);
-//============================================================
-// JOIN: ti/combo/sorter/ti-combo-sorter.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-sorter.mjs> ti/com/ti/combo/sorter/ti-combo-sorter.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -7444,9 +9261,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/sorter/ti-combo-sorter.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/sorter/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/combo/sorter/_com.json
+//========================================
 Ti.Preload("ti/com/ti/combo/sorter/_com.json", {
   "name" : "ti-combo-sorter",
   "globally" : true,
@@ -7455,9 +9272,9 @@ Ti.Preload("ti/com/ti/combo/sorter/_com.json", {
   "mixins"   : "./ti-combo-sorter.mjs",
   "components" : ["@com:ti/combo/box"]
 });
-//============================================================
-// JOIN: ti/combo/table/ti-combo-table-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-table-props.mjs> ti/com/ti/combo/table/ti-combo-table-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -7518,9 +9335,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/table/ti-combo-table-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/table/ti-combo-table.html
-//============================================================
+//========================================
+// JOIN <ti-combo-table.html> ti/com/ti/combo/table/ti-combo-table.html
+//========================================
 Ti.Preload("ti/com/ti/combo/table/ti-combo-table.html", `<div class="ti-combo-table"
   :class="TopClass"
   :style="TopStyle">
@@ -7542,9 +9359,9 @@ Ti.Preload("ti/com/ti/combo/table/ti-combo-table.html", `<div class="ti-combo-ta
       @open="OnTableRowOpen"/>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/combo/table/ti-combo-table.mjs
-//============================================================
+//========================================
+// JOIN <ti-combo-table.mjs> ti/com/ti/combo/table/ti-combo-table.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -7770,9 +9587,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/combo/table/ti-combo-table.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/combo/table/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/combo/table/_com.json
+//========================================
 Ti.Preload("ti/com/ti/combo/table/_com.json", {
   "name" : "ti-combo-table",
   "globally" : true,
@@ -7784,9 +9601,9 @@ Ti.Preload("ti/com/ti/combo/table/_com.json", {
     "@com:ti/table",
     "@com:ti/form"]
 });
-//============================================================
-// JOIN: ti/crumb/com/crumb-item/crumb-item.html
-//============================================================
+//========================================
+// JOIN <crumb-item.html> ti/com/ti/crumb/com/crumb-item/crumb-item.html
+//========================================
 Ti.Preload("ti/com/ti/crumb/com/crumb-item/crumb-item.html", `<div class="ti-crumb-item" 
   :class="TopClass"
   @click.left="OnClickTop">
@@ -7822,9 +9639,9 @@ Ti.Preload("ti/com/ti/crumb/com/crumb-item/crumb-item.html", `<div class="ti-cru
     class="as-path-icon"
     :value="pathIcon"/>
 </div>`);
-//============================================================
-// JOIN: ti/crumb/com/crumb-item/crumb-item.mjs
-//============================================================
+//========================================
+// JOIN <crumb-item.mjs> ti/com/ti/crumb/com/crumb-item/crumb-item.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -7928,18 +9745,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/crumb/com/crumb-item/crumb-item.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/crumb/com/crumb-item/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/crumb/com/crumb-item/_com.json
+//========================================
 Ti.Preload("ti/com/ti/crumb/com/crumb-item/_com.json", {
   "name" : "crumb-item",
   "globally" : false,
   "template" : "./crumb-item.html",
   "mixins" : ["./crumb-item.mjs"]
 });
-//============================================================
-// JOIN: ti/crumb/ti-crumb.html
-//============================================================
+//========================================
+// JOIN <ti-crumb.html> ti/com/ti/crumb/ti-crumb.html
+//========================================
 Ti.Preload("ti/com/ti/crumb/ti-crumb.html", `<div class="ti-crumb"
   :class="TopClass">
   <!--
@@ -7951,9 +9768,9 @@ Ti.Preload("ti/com/ti/crumb/ti-crumb.html", `<div class="ti-crumb"
     :cancel-bubble="cancelItemBubble"
     v-bind="it"/>
 </div>`);
-//============================================================
-// JOIN: ti/crumb/ti-crumb.mjs
-//============================================================
+//========================================
+// JOIN <ti-crumb.mjs> ti/com/ti/crumb/ti-crumb.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -8020,9 +9837,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/crumb/ti-crumb.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/crumb/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/crumb/_com.json
+//========================================
 Ti.Preload("ti/com/ti/crumb/_com.json", {
   "name" : "ti-crumb",
   "globally" : true,
@@ -8032,9 +9849,9 @@ Ti.Preload("ti/com/ti/crumb/_com.json", {
     "./com/crumb-item"
   ]
 });
-//============================================================
-// JOIN: ti/datetime/ti-datetime.html
-//============================================================
+//========================================
+// JOIN <ti-datetime.html> ti/com/ti/datetime/ti-datetime.html
+//========================================
 Ti.Preload("ti/com/ti/datetime/ti-datetime.html", `<div class="ti-datetime">
   <!--Date-->
   <ti-calendar class="is-date"
@@ -8056,9 +9873,9 @@ Ti.Preload("ti/com/ti/datetime/ti-datetime.html", `<div class="ti-datetime">
     </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/datetime/ti-datetime.mjs
-//============================================================
+//========================================
+// JOIN <ti-datetime.mjs> ti/com/ti/datetime/ti-datetime.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -8156,9 +9973,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/datetime/ti-datetime.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/datetime/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/datetime/_com.json
+//========================================
 Ti.Preload("ti/com/ti/datetime/_com.json", {
   "name" : "ti-datetime",
   "globally" : true,
@@ -8168,9 +9985,9 @@ Ti.Preload("ti/com/ti/datetime/_com.json", {
     "@com:ti/time",
     "@com:ti/calendar"]
 });
-//============================================================
-// JOIN: ti/droplist/ti-droplist.html
-//============================================================
+//========================================
+// JOIN <ti-droplist.html> ti/com/ti/droplist/ti-droplist.html
+//========================================
 Ti.Preload("ti/com/ti/droplist/ti-droplist.html", `<component 
   :is="ComType"
   v-bind="this"
@@ -8178,9 +9995,9 @@ Ti.Preload("ti/com/ti/droplist/ti-droplist.html", `<component
   :must-in-list="true"
   :auto-collapse="true"
   @change="$notify('change', $event)"/>`);
-//============================================================
-// JOIN: ti/droplist/ti-droplist.mjs
-//============================================================
+//========================================
+// JOIN <ti-droplist.mjs> ti/com/ti/droplist/ti-droplist.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -8203,9 +10020,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/droplist/ti-droplist.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/droplist/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/droplist/_com.json
+//========================================
 Ti.Preload("ti/com/ti/droplist/_com.json", {
   "name" : "ti-droplist",
   "globally" : true,
@@ -8220,9 +10037,9 @@ Ti.Preload("ti/com/ti/droplist/_com.json", {
     "@com:ti/combo/multi-input"
   ]
 });
-//============================================================
-// JOIN: ti/form/com/form-field/form-field-props.mjs
-//============================================================
+//========================================
+// JOIN <form-field-props.mjs> ti/com/ti/form/com/form-field/form-field-props.mjs
+//========================================
 (function(){
 const _M = {
   "type" : {
@@ -8334,9 +10151,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/form/com/form-field/form-field-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/form/com/form-field/form-field.html
-//============================================================
+//========================================
+// JOIN <form-field.html> ti/com/ti/form/com/form-field/form-field.html
+//========================================
 Ti.Preload("ti/com/ti/form/com/form-field/form-field.html", `<div class="form-field"
   :class="TopClass"
   :style="ConStyle"
@@ -8388,9 +10205,9 @@ Ti.Preload("ti/com/ti/form/com/form-field/form-field.html", `<div class="form-fi
         class="field-tip">{{tip|i18n}}</div>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/form/com/form-field/form-field.mjs
-//============================================================
+//========================================
+// JOIN <form-field.mjs> ti/com/ti/form/com/form-field/form-field.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////////
@@ -8636,9 +10453,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/form/com/form-field/form-field.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/form/com/form-field/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/form/com/form-field/_com.json
+//========================================
 Ti.Preload("ti/com/ti/form/com/form-field/_com.json", {
   "name" : "ti-form-field",
   "globally" : true,
@@ -8647,9 +10464,9 @@ Ti.Preload("ti/com/ti/form/com/form-field/_com.json", {
   "props" : "./form-field-props.mjs",
   "mixins" : ["./form-field.mjs"]
 });
-//============================================================
-// JOIN: ti/form/com/form-group/form-group-props.mjs
-//============================================================
+//========================================
+// JOIN <form-group-props.mjs> ti/com/ti/form/com/form-group/form-group-props.mjs
+//========================================
 (function(){
 const _M = {
   "type" : {
@@ -8685,9 +10502,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/form/com/form-group/form-group-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/form/com/form-group/form-group.html
-//============================================================
+//========================================
+// JOIN <form-group.html> ti/com/ti/form/com/form-group/form-group.html
+//========================================
 Ti.Preload("ti/com/ti/form/com/form-group/form-group.html", `<div class="form-group"
   :class="topClass">
   <div
@@ -8709,9 +10526,9 @@ Ti.Preload("ti/com/ti/form/com/form-group/form-group.html", `<div class="form-gr
         :status-icons="statusIcons"/>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/form/com/form-group/form-group.mjs
-//============================================================
+//========================================
+// JOIN <form-group.mjs> ti/com/ti/form/com/form-group/form-group.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs: false,
@@ -8738,9 +10555,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/form/com/form-group/form-group.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/form/com/form-group/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/form/com/form-group/_com.json
+//========================================
 Ti.Preload("ti/com/ti/form/com/form-group/_com.json", {
   "name" : "form-group",
   "globally" : false,
@@ -8748,9 +10565,9 @@ Ti.Preload("ti/com/ti/form/com/form-group/_com.json", {
   "props" : "./form-group-props.mjs",
   "mixins" : ["./form-group.mjs"]
 });
-//============================================================
-// JOIN: ti/form/ti-form-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-form-props.mjs> ti/com/ti/form/ti-form-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -8864,9 +10681,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/form/ti-form-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/form/ti-form.html
-//============================================================
+//========================================
+// JOIN <ti-form.html> ti/com/ti/form/ti-form.html
+//========================================
 Ti.Preload("ti/com/ti/form/ti-form.html", `<div class="ti-form"
   :class="TopClass"
   :style="TopStyle"
@@ -8931,9 +10748,9 @@ Ti.Preload("ti/com/ti/form/ti-form.html", `<div class="ti-form"
       class="nil-data as-big-mask"
       v-bind="blankAs"/>
 </div>`);
-//============================================================
-// JOIN: ti/form/ti-form.mjs
-//============================================================
+//========================================
+// JOIN <ti-form.mjs> ti/com/ti/form/ti-form.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////////////////
@@ -9349,9 +11166,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/form/ti-form.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/form/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/form/_com.json
+//========================================
 Ti.Preload("ti/com/ti/form/_com.json", {
   "name" : "ti-form",
   "globally" : true,
@@ -9381,9 +11198,9 @@ Ti.Preload("ti/com/ti/form/_com.json", {
     "@com:ti/switcher",
     "@com:ti/droplist"]
 });
-//============================================================
-// JOIN: ti/form/_hmaker.json
-//============================================================
+//========================================
+// JOIN <_hmaker.json> ti/com/ti/form/_hmaker.json
+//========================================
 Ti.Preload("ti/com/ti/form/_hmaker.json", {
   "icon"   : "im-task-o",
   "title"  : "i18n:com-form",
@@ -9393,9 +11210,9 @@ Ti.Preload("ti/com/ti/form/_hmaker.json", {
     "value" : "=comConf"
   }
 });
-//============================================================
-// JOIN: ti/gui/block/ti-gui-block.html
-//============================================================
+//========================================
+// JOIN <ti-gui-block.html> ti/com/ti/gui/block/ti-gui-block.html
+//========================================
 Ti.Preload("ti/com/ti/gui/block/ti-gui-block.html", `<div class="ti-gui-block" 
   :class="TopClass"
   :style="TopStyle">
@@ -9433,9 +11250,9 @@ Ti.Preload("ti/com/ti/gui/block/ti-gui-block.html", `<div class="ti-gui-block"
   </div>
   <!--Blank-->
   </div>`);
-//============================================================
-// JOIN: ti/gui/block/ti-gui-block.mjs
-//============================================================
+//========================================
+// JOIN <ti-gui-block.mjs> ti/com/ti/gui/block/ti-gui-block.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////
@@ -9715,18 +11532,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/gui/block/ti-gui-block.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/gui/block/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/gui/block/_com.json
+//========================================
 Ti.Preload("ti/com/ti/gui/block/_com.json", {
   "name" : "ti-gui-block",
   "globally" : true,
   "template" : "./ti-gui-block.html",
   "mixins"   : ["./ti-gui-block.mjs"]
 });
-//============================================================
-// JOIN: ti/gui/cols/ti-gui-cols.html
-//============================================================
+//========================================
+// JOIN <ti-gui-cols.html> ti/com/ti/gui/cols/ti-gui-cols.html
+//========================================
 Ti.Preload("ti/com/ti/gui/cols/ti-gui-cols.html", `<div class="ti-gui-cols" :class="topClass">
   <template v-if="hasBlocks">
     <template v-for="(block, index) in blocks">
@@ -9740,9 +11557,9 @@ Ti.Preload("ti/com/ti/gui/cols/ti-gui-cols.html", `<div class="ti-gui-cols" :cla
       </template>
   </template>
 </div>`);
-//============================================================
-// JOIN: ti/gui/cols/ti-gui-cols.mjs
-//============================================================
+//========================================
+// JOIN <ti-gui-cols.mjs> ti/com/ti/gui/cols/ti-gui-cols.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -9797,9 +11614,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/gui/cols/ti-gui-cols.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/gui/cols/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/gui/cols/_com.json
+//========================================
 Ti.Preload("ti/com/ti/gui/cols/_com.json", {
   "name" : "ti-gui-cols",
   "globally" : true,
@@ -9807,9 +11624,9 @@ Ti.Preload("ti/com/ti/gui/cols/_com.json", {
   "mixins"   : ["./ti-gui-cols.mjs"],
   "components" : ["@com:ti/gui/block"]
 });
-//============================================================
-// JOIN: ti/gui/panel/ti-gui-panel.html
-//============================================================
+//========================================
+// JOIN <ti-gui-panel.html> ti/com/ti/gui/panel/ti-gui-panel.html
+//========================================
 Ti.Preload("ti/com/ti/gui/panel/ti-gui-panel.html", `<div class="ti-gui-panel"
   :class="TopClass"
   @click.left="OnClickMask">
@@ -9850,9 +11667,9 @@ Ti.Preload("ti/com/ti/gui/panel/ti-gui-panel.html", `<div class="ti-gui-panel"
     </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/gui/panel/ti-gui-panel.mjs
-//============================================================
+//========================================
+// JOIN <ti-gui-panel.mjs> ti/com/ti/gui/panel/ti-gui-panel.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -10033,9 +11850,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/gui/panel/ti-gui-panel.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/gui/panel/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/gui/panel/_com.json
+//========================================
 Ti.Preload("ti/com/ti/gui/panel/_com.json", {
   "name" : "ti-gui-panel",
   "globally" : true,
@@ -10043,9 +11860,9 @@ Ti.Preload("ti/com/ti/gui/panel/_com.json", {
   "mixins"   : ["./ti-gui-panel.mjs"],
   "components" : ["@com:ti/gui/block"]
 });
-//============================================================
-// JOIN: ti/gui/rows/ti-gui-rows.html
-//============================================================
+//========================================
+// JOIN <ti-gui-rows.html> ti/com/ti/gui/rows/ti-gui-rows.html
+//========================================
 Ti.Preload("ti/com/ti/gui/rows/ti-gui-rows.html", `<div class="ti-gui-rows" :class="topClass">
   <template v-if="hasBlocks">
     <template v-for="(block, index) in blocks">
@@ -10059,9 +11876,9 @@ Ti.Preload("ti/com/ti/gui/rows/ti-gui-rows.html", `<div class="ti-gui-rows" :cla
     </template>
   </template>
 </div>`);
-//============================================================
-// JOIN: ti/gui/rows/ti-gui-rows.mjs
-//============================================================
+//========================================
+// JOIN <ti-gui-rows.mjs> ti/com/ti/gui/rows/ti-gui-rows.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -10116,9 +11933,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/gui/rows/ti-gui-rows.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/gui/rows/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/gui/rows/_com.json
+//========================================
 Ti.Preload("ti/com/ti/gui/rows/_com.json", {
   "name" : "ti-gui-rows",
   "globally" : true,
@@ -10126,9 +11943,9 @@ Ti.Preload("ti/com/ti/gui/rows/_com.json", {
   "mixins"   : ["./ti-gui-rows.mjs"],
   "components" : ["@com:ti/gui/block"]
 });
-//============================================================
-// JOIN: ti/gui/tabs/ti-gui-tabs.html
-//============================================================
+//========================================
+// JOIN <ti-gui-tabs.html> ti/com/ti/gui/tabs/ti-gui-tabs.html
+//========================================
 Ti.Preload("ti/com/ti/gui/tabs/ti-gui-tabs.html", `<div class="ti-gui-tabs" :class="TopClass">
   <!--
     Tab title bar
@@ -10161,9 +11978,9 @@ Ti.Preload("ti/com/ti/gui/tabs/ti-gui-tabs.html", `<div class="ti-gui-tabs" :cla
       :shown="shown"/>
   </section>
 </div>`);
-//============================================================
-// JOIN: ti/gui/tabs/ti-gui-tabs.mjs
-//============================================================
+//========================================
+// JOIN <ti-gui-tabs.mjs> ti/com/ti/gui/tabs/ti-gui-tabs.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -10315,9 +12132,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/gui/tabs/ti-gui-tabs.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/gui/tabs/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/gui/tabs/_com.json
+//========================================
 Ti.Preload("ti/com/ti/gui/tabs/_com.json", {
   "name" : "ti-gui-tabs",
   "globally" : true,
@@ -10325,9 +12142,9 @@ Ti.Preload("ti/com/ti/gui/tabs/_com.json", {
   "mixins"   : ["./ti-gui-tabs.mjs"],
   "components" : ["@com:ti/gui/block"]
 });
-//============================================================
-// JOIN: ti/gui/ti-gui-methods.mjs
-//============================================================
+//========================================
+// JOIN <ti-gui-methods.mjs> ti/com/ti/gui/ti-gui-methods.mjs
+//========================================
 (function(){
 const _M = {
   //--------------------------------------
@@ -10495,9 +12312,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/gui/ti-gui-methods.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/gui/ti-gui.html
-//============================================================
+//========================================
+// JOIN <ti-gui.html> ti/com/ti/gui/ti-gui.html
+//========================================
 Ti.Preload("ti/com/ti/gui/ti-gui.html", `<div class="ti-gui" :class="TopClass">
   <!--===========================================
     All normal layout
@@ -10566,9 +12383,9 @@ Ti.Preload("ti/com/ti/gui/ti-gui.html", `<div class="ti-gui" :class="TopClass">
     <ti-loading v-bind="TheLoading"/>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/gui/ti-gui.mjs
-//============================================================
+//========================================
+// JOIN <ti-gui.mjs> ti/com/ti/gui/ti-gui.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////
@@ -10891,9 +12708,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/gui/ti-gui.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/gui/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/gui/_com.json
+//========================================
 Ti.Preload("ti/com/ti/gui/_com.json", {
   "name" : "ti-gui",
   "globally" : true,
@@ -10907,9 +12724,9 @@ Ti.Preload("ti/com/ti/gui/_com.json", {
     "@com:ti/gui/panel"
   ]
 });
-//============================================================
-// JOIN: ti/icon/text/ti-icon-text.html
-//============================================================
+//========================================
+// JOIN <ti-icon-text.html> ti/com/ti/icon/text/ti-icon-text.html
+//========================================
 Ti.Preload("ti/com/ti/icon/text/ti-icon-text.html", `<div class="ti-icon-text" 
   :class="className">
   <!--Icon-->
@@ -10917,9 +12734,9 @@ Ti.Preload("ti/com/ti/icon/text/ti-icon-text.html", `<div class="ti-icon-text"
   <!--Text-->
   <div v-if="text" class="as-text">{{text|i18n}}</div>
 </div>`);
-//============================================================
-// JOIN: ti/icon/text/ti-icon-text.mjs
-//============================================================
+//========================================
+// JOIN <ti-icon-text.mjs> ti/com/ti/icon/text/ti-icon-text.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -10938,18 +12755,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/icon/text/ti-icon-text.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/icon/text/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/icon/text/_com.json
+//========================================
 Ti.Preload("ti/com/ti/icon/text/_com.json", {
   "name" : "ti-icon-text",
   "globally" : true,
   "template" : "./ti-icon-text.html",
   "mixins" : ["./ti-icon-text.mjs"]
 });
-//============================================================
-// JOIN: ti/icon/ti-icon.html
-//============================================================
+//========================================
+// JOIN <ti-icon.html> ti/com/ti/icon/ti-icon.html
+//========================================
 Ti.Preload("ti/com/ti/icon/ti-icon.html", `<div 
   class="ti-icon" 
   :class="TopClass"
@@ -10973,9 +12790,9 @@ Ti.Preload("ti/com/ti/icon/ti-icon.html", `<div
     <em v-else>{{value}}</em>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/icon/ti-icon.mjs
-//============================================================
+//========================================
+// JOIN <ti-icon.mjs> ti/com/ti/icon/ti-icon.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////////
@@ -11154,18 +12971,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/icon/ti-icon.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/icon/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/icon/_com.json
+//========================================
 Ti.Preload("ti/com/ti/icon/_com.json", {
   "name" : "ti-icon",
   "globally" : true,
   "template" : "./ti-icon.html",
   "mixins" : ["./ti-icon.mjs"]
 });
-//============================================================
-// JOIN: ti/imgfile/ti-imgfile.html
-//============================================================
+//========================================
+// JOIN <ti-imgfile.html> ti/com/ti/imgfile/ti-imgfile.html
+//========================================
 Ti.Preload("ti/com/ti/imgfile/ti-imgfile.html", `<div class="ti-imgfile"
   :class="TopClass">
   <!--
@@ -11211,9 +13028,9 @@ Ti.Preload("ti/com/ti/imgfile/ti-imgfile.html", `<div class="ti-imgfile"
     <!--//////-->
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/imgfile/ti-imgfile.mjs
-//============================================================
+//========================================
+// JOIN <ti-imgfile.mjs> ti/com/ti/imgfile/ti-imgfile.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -11316,9 +13133,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/imgfile/ti-imgfile.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/imgfile/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/imgfile/_com.json
+//========================================
 Ti.Preload("ti/com/ti/imgfile/_com.json", {
   "name" : "ti-imgfile",
   "globally" : true,
@@ -11326,9 +13143,9 @@ Ti.Preload("ti/com/ti/imgfile/_com.json", {
   "mixins" : ["./ti-imgfile.mjs"],
   "components" : ["@com:ti/obj/thumb"]
 });
-//============================================================
-// JOIN: ti/input/color/ti-input-color.html
-//============================================================
+//========================================
+// JOIN <ti-input-color.html> ti/com/ti/input/color/ti-input-color.html
+//========================================
 Ti.Preload("ti/com/ti/input/color/ti-input-color.html", `<ti-combo-box class="ti-input-color"
   :class="topClass"
   :drop-width="null"
@@ -11356,9 +13173,9 @@ Ti.Preload("ti/com/ti/input/color/ti-input-color.html", `<ti-combo-box class="ti
       @change="onColorChanged"/>
   </template>
 </ti-combo-box>`);
-//============================================================
-// JOIN: ti/input/color/ti-input-color.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-color.mjs> ti/com/ti/input/color/ti-input-color.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -11430,9 +13247,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/color/ti-input-color.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/color/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/input/color/_com.json
+//========================================
 Ti.Preload("ti/com/ti/input/color/_com.json", {
   "name" : "ti-input-color",
   "globally" : true,
@@ -11440,9 +13257,9 @@ Ti.Preload("ti/com/ti/input/color/_com.json", {
   "mixins" : ["./ti-input-color.mjs"],
   "components" : ["@com:ti/color"]
 });
-//============================================================
-// JOIN: ti/input/date/ti-input-date.html
-//============================================================
+//========================================
+// JOIN <ti-input-date.html> ti/com/ti/input/date/ti-input-date.html
+//========================================
 Ti.Preload("ti/com/ti/input/date/ti-input-date.html", `<ti-combo-box class="as-date"
   :class="topClass"
   :width="width"
@@ -11478,9 +13295,9 @@ Ti.Preload("ti/com/ti/input/date/ti-input-date.html", `<ti-combo-box class="as-d
       @change="onDateChanged"/>
   </template>
 </ti-combo-box>`);
-//============================================================
-// JOIN: ti/input/date/ti-input-date.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-date.mjs> ti/com/ti/input/date/ti-input-date.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -11649,9 +13466,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/date/ti-input-date.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/date/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/input/date/_com.json
+//========================================
 Ti.Preload("ti/com/ti/input/date/_com.json", {
   "name" : "ti-input-date",
   "globally" : true,
@@ -11661,9 +13478,9 @@ Ti.Preload("ti/com/ti/input/date/_com.json", {
     "@com:ti/combo/input",
     "@com:ti/calendar"]
 });
-//============================================================
-// JOIN: ti/input/daterange/ti-input-daterange.html
-//============================================================
+//========================================
+// JOIN <ti-input-daterange.html> ti/com/ti/input/daterange/ti-input-daterange.html
+//========================================
 Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<ti-combo-box class="as-daterange"
   :class="topClass"
   :drop-width="dropWidth"
@@ -11701,9 +13518,9 @@ Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<ti-combo-box c
       @change="onDateRangeChanged"/>
   </template>
 </ti-combo-box>`);
-//============================================================
-// JOIN: ti/input/daterange/ti-input-daterange.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-daterange.mjs> ti/com/ti/input/daterange/ti-input-daterange.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -12048,9 +13865,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/daterange/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/input/daterange/_com.json
+//========================================
 Ti.Preload("ti/com/ti/input/daterange/_com.json", {
   "name" : "ti-input-daterange",
   "globally" : true,
@@ -12060,9 +13877,9 @@ Ti.Preload("ti/com/ti/input/daterange/_com.json", {
     "@com:ti/combo/input",
     "@com:ti/calendar"]
 });
-//============================================================
-// JOIN: ti/input/datetime/ti-input-datetime.html
-//============================================================
+//========================================
+// JOIN <ti-input-datetime.html> ti/com/ti/input/datetime/ti-input-datetime.html
+//========================================
 Ti.Preload("ti/com/ti/input/datetime/ti-input-datetime.html", `<ti-combo-box class="as-datetime"
   :class="topClass"
   :width="width"
@@ -12099,9 +13916,9 @@ Ti.Preload("ti/com/ti/input/datetime/ti-input-datetime.html", `<ti-combo-box cla
       @change="onDateChanged"/>
   </template>
 </ti-combo-box>`);
-//============================================================
-// JOIN: ti/input/datetime/ti-input-datetime.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-datetime.mjs> ti/com/ti/input/datetime/ti-input-datetime.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -12271,9 +14088,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/datetime/ti-input-datetime.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/datetime/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/input/datetime/_com.json
+//========================================
 Ti.Preload("ti/com/ti/input/datetime/_com.json", {
   "name" : "ti-input-datetime",
   "globally" : true,
@@ -12283,9 +14100,9 @@ Ti.Preload("ti/com/ti/input/datetime/_com.json", {
     "@com:ti/combo/input",
     "@com:ti/datetime"]
 });
-//============================================================
-// JOIN: ti/input/icon/ti-input-icon-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-icon-props.mjs> ti/com/ti/input/icon/ti-input-icon-props.mjs
+//========================================
 (function(){
 const _M = {
   "options": {
@@ -12595,9 +14412,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/icon/ti-input-icon-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/icon/ti-input-icon.html
-//============================================================
+//========================================
+// JOIN <ti-input-icon.html> ti/com/ti/input/icon/ti-input-icon.html
+//========================================
 Ti.Preload("ti/com/ti/input/icon/ti-input-icon.html", `<ti-combo-box class="ti-input-icon"
   :class="TopClass"
   :drop-width="dropWidth"
@@ -12655,9 +14472,9 @@ Ti.Preload("ti/com/ti/input/icon/ti-input-icon.html", `<ti-combo-box class="ti-i
     </div>
   </template>
 </ti-combo-box>`);
-//============================================================
-// JOIN: ti/input/icon/ti-input-icon.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-icon.mjs> ti/com/ti/input/icon/ti-input-icon.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -12777,9 +14594,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/icon/ti-input-icon.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/icon/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/input/icon/_com.json
+//========================================
 Ti.Preload("ti/com/ti/input/icon/_com.json", {
   "name" : "ti-input-icon",
   "globally" : true,
@@ -12787,9 +14604,9 @@ Ti.Preload("ti/com/ti/input/icon/_com.json", {
   "props" : "./ti-input-icon-props.mjs",
   "mixins" : ["./ti-input-icon.mjs"]
 });
-//============================================================
-// JOIN: ti/input/month/ti-input-month.html
-//============================================================
+//========================================
+// JOIN <ti-input-month.html> ti/com/ti/input/month/ti-input-month.html
+//========================================
 Ti.Preload("ti/com/ti/input/month/ti-input-month.html", `<ti-combo-box class="as-month"
   :class="topClass"
   :width="width"
@@ -12827,9 +14644,9 @@ Ti.Preload("ti/com/ti/input/month/ti-input-month.html", `<ti-combo-box class="as
       @change="onMonthChanged"/>
   </template>
 </ti-combo-box>`);
-//============================================================
-// JOIN: ti/input/month/ti-input-month.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-month.mjs> ti/com/ti/input/month/ti-input-month.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -13000,9 +14817,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/month/ti-input-month.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/month/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/input/month/_com.json
+//========================================
 Ti.Preload("ti/com/ti/input/month/_com.json", {
   "name" : "ti-input-month",
   "globally" : true,
@@ -13012,9 +14829,9 @@ Ti.Preload("ti/com/ti/input/month/_com.json", {
     "@com:ti/combo/input",
     "@com:ti/month"]
 });
-//============================================================
-// JOIN: ti/input/num/ti-input-num.html
-//============================================================
+//========================================
+// JOIN <ti-input-num.html> ti/com/ti/input/num/ti-input-num.html
+//========================================
 Ti.Preload("ti/com/ti/input/num/ti-input-num.html", `<div
   class="ti-input-num ti-fill-parent"
   :class="TopClass"
@@ -13045,9 +14862,9 @@ Ti.Preload("ti/com/ti/input/num/ti-input-num.html", `<div
     <ti-icon value="zmdi-plus"/>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/input/num/ti-input-num.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-num.mjs> ti/com/ti/input/num/ti-input-num.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -13162,18 +14979,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/num/ti-input-num.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/num/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/input/num/_com.json
+//========================================
 Ti.Preload("ti/com/ti/input/num/_com.json", {
   "name" : "ti-input-num",
   "globally" : true,
   "template" : "./ti-input-num.html",
   "mixins" : ["./ti-input-num.mjs"]
 });
-//============================================================
-// JOIN: ti/input/tags/ti-input-tags-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-tags-props.mjs> ti/com/ti/input/tags/ti-input-tags-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -13231,9 +15048,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/tags/ti-input-tags-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/tags/ti-input-tags.html
-//============================================================
+//========================================
+// JOIN <ti-input-tags.html> ti/com/ti/input/tags/ti-input-tags.html
+//========================================
 Ti.Preload("ti/com/ti/input/tags/ti-input-tags.html", `<ti-input
   class="ti-input-tags"
   :class-name="className"
@@ -13285,9 +15102,9 @@ Ti.Preload("ti/com/ti/input/tags/ti-input-tags.html", `<ti-input
       @change="$notify('change', $event)"/>
   </div>
 </ti-input>`);
-//============================================================
-// JOIN: ti/input/tags/ti-input-tags.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-tags.mjs> ti/com/ti/input/tags/ti-input-tags.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -13431,9 +15248,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/tags/ti-input-tags.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/tags/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/input/tags/_com.json
+//========================================
 Ti.Preload("ti/com/ti/input/tags/_com.json", {
   "name" : "ti-input-tags",
   "globally" : true,
@@ -13445,9 +15262,9 @@ Ti.Preload("ti/com/ti/input/tags/_com.json", {
   "mixins" : ["./ti-input-tags.mjs"],
   "components" : ["@com:ti/tags"]
 });
-//============================================================
-// JOIN: ti/input/text/ti-input-text.html
-//============================================================
+//========================================
+// JOIN <ti-input-text.html> ti/com/ti/input/text/ti-input-text.html
+//========================================
 Ti.Preload("ti/com/ti/input/text/ti-input-text.html", `<div class="ti-input-text full-field" 
   :class="topClass" 
   :style="topStyle"
@@ -13512,9 +15329,9 @@ Ti.Preload("ti/com/ti/input/text/ti-input-text.html", `<div class="ti-input-text
     </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/input/text/ti-input-text.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-text.mjs> ti/com/ti/input/text/ti-input-text.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -13787,9 +15604,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/text/ti-input-text.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/text/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/input/text/_com.json
+//========================================
 Ti.Preload("ti/com/ti/input/text/_com.json", {
   "name" : "ti-input-text",
   "globally" : true,
@@ -13797,9 +15614,9 @@ Ti.Preload("ti/com/ti/input/text/_com.json", {
   "mixins" : ["./ti-input-text.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: ti/input/ti-input-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-props.mjs> ti/com/ti/input/ti-input-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -13892,9 +15709,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/ti-input-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/ti-input.html
-//============================================================
+//========================================
+// JOIN <ti-input.html> ti/com/ti/input/ti-input.html
+//========================================
 Ti.Preload("ti/com/ti/input/ti-input.html", `<div class="ti-input full-field" 
   :class="TopClass" 
   :style="TopStyle"
@@ -13954,9 +15771,9 @@ Ti.Preload("ti/com/ti/input/ti-input.html", `<div class="ti-input full-field"
     </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/input/ti-input.mjs
-//============================================================
+//========================================
+// JOIN <ti-input.mjs> ti/com/ti/input/ti-input.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -14159,9 +15976,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/ti-input.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/time/ti-input-time.html
-//============================================================
+//========================================
+// JOIN <ti-input-time.html> ti/com/ti/input/time/ti-input-time.html
+//========================================
 Ti.Preload("ti/com/ti/input/time/ti-input-time.html", `<ti-combo-box class="as-time"
   :class="topClass"
   :width="width"
@@ -14198,9 +16015,9 @@ Ti.Preload("ti/com/ti/input/time/ti-input-time.html", `<ti-combo-box class="as-t
       @change="onTimeChanged"/>
   </template>
 </ti-combo-box>`);
-//============================================================
-// JOIN: ti/input/time/ti-input-time.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-time.mjs> ti/com/ti/input/time/ti-input-time.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -14385,9 +16202,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/time/ti-input-time.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/time/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/input/time/_com.json
+//========================================
 Ti.Preload("ti/com/ti/input/time/_com.json", {
   "name" : "ti-input-time",
   "globally" : true,
@@ -14397,9 +16214,9 @@ Ti.Preload("ti/com/ti/input/time/_com.json", {
     "@com:ti/combo/input",
     "@com:ti/time"]
 });
-//============================================================
-// JOIN: ti/input/timerange/ti-input-timerange.html
-//============================================================
+//========================================
+// JOIN <ti-input-timerange.html> ti/com/ti/input/timerange/ti-input-timerange.html
+//========================================
 Ti.Preload("ti/com/ti/input/timerange/ti-input-timerange.html", `<ti-combo-box class="as-timerange"
   :class="topClass"
   :width="width"
@@ -14433,9 +16250,9 @@ Ti.Preload("ti/com/ti/input/timerange/ti-input-timerange.html", `<ti-combo-box c
       @change="onFormChanged"/>
   </template>
 </ti-combo-box>`);
-//============================================================
-// JOIN: ti/input/timerange/ti-input-timerange.mjs
-//============================================================
+//========================================
+// JOIN <ti-input-timerange.mjs> ti/com/ti/input/timerange/ti-input-timerange.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -14721,9 +16538,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/input/timerange/ti-input-timerange.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/input/timerange/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/input/timerange/_com.json
+//========================================
 Ti.Preload("ti/com/ti/input/timerange/_com.json", {
   "name" : "ti-input-timerange",
   "globally" : true,
@@ -14732,9 +16549,9 @@ Ti.Preload("ti/com/ti/input/timerange/_com.json", {
   "components" : [
     "@com:ti/combo/input"]
 });
-//============================================================
-// JOIN: ti/input/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/input/_com.json
+//========================================
 Ti.Preload("ti/com/ti/input/_com.json", {
   "name" : "ti-input",
   "globally" : true,
@@ -14743,9 +16560,9 @@ Ti.Preload("ti/com/ti/input/_com.json", {
   "mixins" : ["./ti-input.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: ti/label/ti-label-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-label-props.mjs> ti/com/ti/label/ti-label-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -14828,9 +16645,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/label/ti-label-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/label/ti-label.html
-//============================================================
+//========================================
+// JOIN <ti-label.html> ti/com/ti/label/ti-label.html
+//========================================
 Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
   :class="TopClass"
   :style="TopStyle"
@@ -14877,9 +16694,9 @@ Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
     <ti-icon :value="suffixIcon"/>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/label/ti-label.mjs
-//============================================================
+//========================================
+// JOIN <ti-label.mjs> ti/com/ti/label/ti-label.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -15120,9 +16937,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/label/ti-label.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/label/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/label/_com.json
+//========================================
 Ti.Preload("ti/com/ti/label/_com.json", {
   "name" : "ti-label",
   "globally" : true,
@@ -15130,9 +16947,9 @@ Ti.Preload("ti/com/ti/label/_com.json", {
   "props" : "./ti-label-props.mjs",
   "mixins" : ["./ti-label.mjs"]
 });
-//============================================================
-// JOIN: ti/label/_hmaker.json
-//============================================================
+//========================================
+// JOIN <_hmaker.json> ti/com/ti/label/_hmaker.json
+//========================================
 Ti.Preload("ti/com/ti/label/_hmaker.json", {
   "icon"   : "im-tag",
   "title"  : "i18n:com-label",
@@ -15237,15 +17054,15 @@ Ti.Preload("ti/com/ti/label/_hmaker.json", {
     }]
   }
 });
-//============================================================
-// JOIN: ti/lbs/map/baidu/ti-lbs-map-baidu.html
-//============================================================
+//========================================
+// JOIN <ti-lbs-map-baidu.html> ti/com/ti/lbs/map/baidu/ti-lbs-map-baidu.html
+//========================================
 Ti.Preload("ti/com/ti/lbs/map/baidu/ti-lbs-map-baidu.html", `<div class="ti-lbs-map by-baidu ti-fill-parent">
   <div ref="arena" class="map-arena ti-fill-parent"></div>
 </div>`);
-//============================================================
-// JOIN: ti/lbs/map/baidu/ti-lbs-map-baidu.mjs
-//============================================================
+//========================================
+// JOIN <ti-lbs-map-baidu.mjs> ti/com/ti/lbs/map/baidu/ti-lbs-map-baidu.mjs
+//========================================
 (function(){
 //
 // The coordinate base on BD09
@@ -15368,9 +17185,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/lbs/map/baidu/ti-lbs-map-baidu.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/lbs/map/baidu/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/lbs/map/baidu/_com.json
+//========================================
 Ti.Preload("ti/com/ti/lbs/map/baidu/_com.json", {
   "name" : "ti-lbs-map-baidu",
   "globally" : true,
@@ -15378,17 +17195,17 @@ Ti.Preload("ti/com/ti/lbs/map/baidu/_com.json", {
   "mixins"   : ["./ti-lbs-map-baidu.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: ti/lbs/map/google/ti-lbs-map-google.html
-//============================================================
+//========================================
+// JOIN <ti-lbs-map-google.html> ti/com/ti/lbs/map/google/ti-lbs-map-google.html
+//========================================
 Ti.Preload("ti/com/ti/lbs/map/google/ti-lbs-map-google.html", `<div class="ti-lbs-map by-google ti-fill-parent">
   <div ref="arena" class="map-arena ti-fill-parent"></div>
   <!--div style="background:#FF0;position: absolute; bottom:0;right:0;"
     @click="redrawLayers()">Redraw</div-->
 </div>`);
-//============================================================
-// JOIN: ti/lbs/map/google/ti-lbs-map-google.mjs
-//============================================================
+//========================================
+// JOIN <ti-lbs-map-google.mjs> ti/com/ti/lbs/map/google/ti-lbs-map-google.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -16088,9 +17905,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/lbs/map/google/ti-lbs-map-google.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/lbs/map/google/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/lbs/map/google/_com.json
+//========================================
 Ti.Preload("ti/com/ti/lbs/map/google/_com.json", {
   "name" : "ti-lbs-map-google",
   "globally" : true,
@@ -16098,15 +17915,15 @@ Ti.Preload("ti/com/ti/lbs/map/google/_com.json", {
   "mixins"   : ["./ti-lbs-map-google.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: ti/lbs/map/tencent/ti-lbs-map-tencent.html
-//============================================================
+//========================================
+// JOIN <ti-lbs-map-tencent.html> ti/com/ti/lbs/map/tencent/ti-lbs-map-tencent.html
+//========================================
 Ti.Preload("ti/com/ti/lbs/map/tencent/ti-lbs-map-tencent.html", `<div class="ti-lbs-map by-tencent ti-fill-parent">
   <div ref="arena" class="map-arena ti-fill-parent"></div>
 </div>`);
-//============================================================
-// JOIN: ti/lbs/map/tencent/ti-lbs-map-tencent.mjs
-//============================================================
+//========================================
+// JOIN <ti-lbs-map-tencent.mjs> ti/com/ti/lbs/map/tencent/ti-lbs-map-tencent.mjs
+//========================================
 (function(){
 //
 // The coordinate base on GCJ02
@@ -16235,9 +18052,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/lbs/map/tencent/ti-lbs-map-tencent.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/lbs/map/tencent/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/lbs/map/tencent/_com.json
+//========================================
 Ti.Preload("ti/com/ti/lbs/map/tencent/_com.json", {
   "name" : "ti-lbs-map-tencent",
   "globally" : true,
@@ -16245,9 +18062,9 @@ Ti.Preload("ti/com/ti/lbs/map/tencent/_com.json", {
   "mixins"   : ["./ti-lbs-map-tencent.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: ti/lbs/map/ti-lbs-map.html
-//============================================================
+//========================================
+// JOIN <ti-lbs-map.html> ti/com/ti/lbs/map/ti-lbs-map.html
+//========================================
 Ti.Preload("ti/com/ti/lbs/map/ti-lbs-map.html", `<div class="ti-lbs-map" 
   :class="TopClass"
   :style="TopStyle">
@@ -16299,9 +18116,9 @@ Ti.Preload("ti/com/ti/lbs/map/ti-lbs-map.html", `<div class="ti-lbs-map"
     v-else
       class="as-big-mask"/>
 </div>`);
-//============================================================
-// JOIN: ti/lbs/map/ti-lbs-map.mjs
-//============================================================
+//========================================
+// JOIN <ti-lbs-map.mjs> ti/com/ti/lbs/map/ti-lbs-map.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -16812,9 +18629,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/lbs/map/ti-lbs-map.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/lbs/map/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/lbs/map/_com.json
+//========================================
 Ti.Preload("ti/com/ti/lbs/map/_com.json", {
   "name" : "ti-lbs-map",
   "globally" : true,
@@ -16827,9 +18644,9 @@ Ti.Preload("ti/com/ti/lbs/map/_com.json", {
     "@com:ti/button"
   ]
 });
-//============================================================
-// JOIN: ti/lbs/route/ti-lbs-route.html
-//============================================================
+//========================================
+// JOIN <ti-lbs-route.html> ti/com/ti/lbs/route/ti-lbs-route.html
+//========================================
 Ti.Preload("ti/com/ti/lbs/route/ti-lbs-route.html", `<div class="ti-lbs-route" 
   :class="TopClass"
   :style="TopStyle">
@@ -16871,9 +18688,9 @@ Ti.Preload("ti/com/ti/lbs/route/ti-lbs-route.html", `<div class="ti-lbs-route"
     </div>
   </template>
 </div>`);
-//============================================================
-// JOIN: ti/lbs/route/ti-lbs-route.mjs
-//============================================================
+//========================================
+// JOIN <ti-lbs-route.mjs> ti/com/ti/lbs/route/ti-lbs-route.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -17379,9 +19196,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/lbs/route/ti-lbs-route.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/lbs/route/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/lbs/route/_com.json
+//========================================
 Ti.Preload("ti/com/ti/lbs/route/_com.json", {
   "name" : "ti-lbs-route",
   "globally" : true,
@@ -17390,9 +19207,9 @@ Ti.Preload("ti/com/ti/lbs/route/_com.json", {
   "components" : [
     "@com:ti/lbs/map"]
 });
-//============================================================
-// JOIN: ti/list/com/list-row/list-row.html
-//============================================================
+//========================================
+// JOIN <list-row.html> ti/com/ti/list/com/list-row/list-row.html
+//========================================
 Ti.Preload("ti/com/ti/list/com/list-row/list-row.html", `<div class="list-row"
   :class="TopClass">
   <!--current actived row indicator-->
@@ -17435,9 +19252,9 @@ Ti.Preload("ti/com/ti/list/com/list-row/list-row.html", `<div class="list-row"
   </div>
 
 </div>`);
-//============================================================
-// JOIN: ti/list/com/list-row/list-row.mjs
-//============================================================
+//========================================
+// JOIN <list-row.mjs> ti/com/ti/list/com/list-row/list-row.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -17552,9 +19369,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/list/com/list-row/list-row.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/list/com/list-row/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/list/com/list-row/_com.json
+//========================================
 Ti.Preload("ti/com/ti/list/com/list-row/_com.json", {
   "name" : "list-row",
   "globally" : false,
@@ -17564,9 +19381,9 @@ Ti.Preload("ti/com/ti/list/com/list-row/_com.json", {
     "@com:ti/support/list_item_mixins.mjs",
     "./list-row.mjs"]
 });
-//============================================================
-// JOIN: ti/list/ti-list.html
-//============================================================
+//========================================
+// JOIN <ti-list.html> ti/com/ti/list/ti-list.html
+//========================================
 Ti.Preload("ti/com/ti/list/ti-list.html", `<div class="ti-list"
   :class="TopClass"
   @click="OnClickTop"
@@ -17605,9 +19422,9 @@ Ti.Preload("ti/com/ti/list/ti-list.html", `<div class="ti-list"
         @open="OnRowOpen"/>
   </template>
 </div>`);
-//============================================================
-// JOIN: ti/list/ti-list.mjs
-//============================================================
+//========================================
+// JOIN <ti-list.mjs> ti/com/ti/list/ti-list.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -17767,9 +19584,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/list/ti-list.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/list/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/list/_com.json
+//========================================
 Ti.Preload("ti/com/ti/list/_com.json", {
   "name" : "ti-list",
   "globally" : true,
@@ -17785,9 +19602,9 @@ Ti.Preload("ti/com/ti/list/_com.json", {
     "@com:ti/label"
   ]
 });
-//============================================================
-// JOIN: ti/list/_hmaker.json
-//============================================================
+//========================================
+// JOIN <_hmaker.json> ti/com/ti/list/_hmaker.json
+//========================================
 Ti.Preload("ti/com/ti/list/_hmaker.json", {
   "icon"   : "im-data",
   "title"  : "i18n:com-list",
@@ -17800,17 +19617,17 @@ Ti.Preload("ti/com/ti/list/_hmaker.json", {
     "fields" : []
   }
 });
-//============================================================
-// JOIN: ti/loading/ti-loading.html
-//============================================================
+//========================================
+// JOIN <ti-loading.html> ti/com/ti/loading/ti-loading.html
+//========================================
 Ti.Preload("ti/com/ti/loading/ti-loading.html", `<div class="ti-loading"
   :class="TopClass">
   <ti-icon class="as-icon" :value="icon"/>
   <div class="as-text">{{text|i18n}}</div>
 </div>`);
-//============================================================
-// JOIN: ti/loading/ti-loading.mjs
-//============================================================
+//========================================
+// JOIN <ti-loading.mjs> ti/com/ti/loading/ti-loading.mjs
+//========================================
 (function(){
 const _M = {
   props : {
@@ -17831,18 +19648,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/loading/ti-loading.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/loading/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/loading/_com.json
+//========================================
 Ti.Preload("ti/com/ti/loading/_com.json", {
   "name" : "ti-loading",
   "globally" : true,
   "template" : "./ti-loading.html",
   "mixins" : ["./ti-loading.mjs"]
 });
-//============================================================
-// JOIN: ti/logging/ti-logging.html
-//============================================================
+//========================================
+// JOIN <ti-logging.html> ti/com/ti/logging/ti-logging.html
+//========================================
 Ti.Preload("ti/com/ti/logging/ti-logging.html", `<div class="ti-logging"
   :class="TopClass"
   :style="TopStyle">
@@ -17851,9 +19668,9 @@ Ti.Preload("ti/com/ti/logging/ti-logging.html", `<div class="ti-logging"
       :data-index="index"
       >{{line || '&nbsp;'}}</div></pre>    
 </div>`);
-//============================================================
-// JOIN: ti/logging/ti-logging.mjs
-//============================================================
+//========================================
+// JOIN <ti-logging.mjs> ti/com/ti/logging/ti-logging.mjs
+//========================================
 (function(){
 const _M = {
   props : {
@@ -17898,18 +19715,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/logging/ti-logging.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/logging/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/logging/_com.json
+//========================================
 Ti.Preload("ti/com/ti/logging/_com.json", {
   "name" : "ti-logging",
   "globally" : true,
   "template" : "./ti-logging.html",
   "mixins" : ["./ti-logging.mjs"]
 });
-//============================================================
-// JOIN: ti/media/binary/ti-media-binary.html
-//============================================================
+//========================================
+// JOIN <ti-media-binary.html> ti/com/ti/media/binary/ti-media-binary.html
+//========================================
 Ti.Preload("ti/com/ti/media/binary/ti-media-binary.html", `<div class="ti-media-binary">
   <div class="tob-icon">
     <ti-icon v-if="icon" :value="icon" size="1.28rem"/>
@@ -17924,9 +19741,9 @@ Ti.Preload("ti/com/ti/media/binary/ti-media-binary.html", `<div class="ti-media-
     </a>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/media/binary/ti-media-binary.mjs
-//============================================================
+//========================================
+// JOIN <ti-media-binary.mjs> ti/com/ti/media/binary/ti-media-binary.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -17961,18 +19778,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/media/binary/ti-media-binary.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/media/binary/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/media/binary/_com.json
+//========================================
 Ti.Preload("ti/com/ti/media/binary/_com.json", {
   "name" : "ti-media-binary",
   "globally" : true,
   "template" : "./ti-media-binary.html",
   "mixins" : ["./ti-media-binary.mjs"]
 });
-//============================================================
-// JOIN: ti/media/image/ti-media-image.html
-//============================================================
+//========================================
+// JOIN <ti-media-image.html> ti/com/ti/media/image/ti-media-image.html
+//========================================
 Ti.Preload("ti/com/ti/media/image/ti-media-image.html", `<div class="ti-media-image" 
      :class="topClass"
      :style="topStyle"
@@ -17986,9 +19803,9 @@ Ti.Preload("ti/com/ti/media/image/ti-media-image.html", `<div class="ti-media-im
       @dblclick.stop="onToggleImageFitMode">
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/media/image/ti-media-image.mjs
-//============================================================
+//========================================
+// JOIN <ti-media-image.mjs> ti/com/ti/media/image/ti-media-image.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////
@@ -18108,18 +19925,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/media/image/ti-media-image.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/media/image/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/media/image/_com.json
+//========================================
 Ti.Preload("ti/com/ti/media/image/_com.json", {
   "name" : "ti-media-image",
   "globally" : true,
   "template" : "./ti-media-image.html",
   "mixins" : ["./ti-media-image.mjs"]
 });
-//============================================================
-// JOIN: ti/media/video/ti-media-video.html
-//============================================================
+//========================================
+// JOIN <ti-media-video.html> ti/com/ti/media/video/ti-media-video.html
+//========================================
 Ti.Preload("ti/com/ti/media/video/ti-media-video.html", `<div class="ti-media-video"
     :class="topClass"
     :style="topStyle"
@@ -18132,9 +19949,9 @@ Ti.Preload("ti/com/ti/media/video/ti-media-video.html", `<div class="ti-media-vi
       <ti-loading/>
     </div>
 </div>`);
-//============================================================
-// JOIN: ti/media/video/ti-media-video.mjs
-//============================================================
+//========================================
+// JOIN <ti-media-video.mjs> ti/com/ti/media/video/ti-media-video.mjs
+//========================================
 (function(){
 const resize = function(evt){
   this.doResizeVideo()
@@ -18219,18 +20036,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/media/video/ti-media-video.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/media/video/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/media/video/_com.json
+//========================================
 Ti.Preload("ti/com/ti/media/video/_com.json", {
   "name" : "ti-media-video",
   "globally" : true,
   "template" : "./ti-media-video.html",
   "mixins" : ["./ti-media-video.mjs"]
 });
-//============================================================
-// JOIN: ti/month/ti-month.html
-//============================================================
+//========================================
+// JOIN <ti-month.html> ti/com/ti/month/ti-month.html
+//========================================
 Ti.Preload("ti/com/ti/month/ti-month.html", `<div class="ti-col-data as-month" 
   :class="topClass" 
   :style="topStyle">
@@ -18242,9 +20059,9 @@ Ti.Preload("ti/com/ti/month/ti-month.html", `<div class="ti-col-data as-month"
     :cancelable="false"
     @select="onListSelected(list.key, $event)"/>
 </div>`);
-//============================================================
-// JOIN: ti/month/ti-month.mjs
-//============================================================
+//========================================
+// JOIN <ti-month.mjs> ti/com/ti/month/ti-month.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -18352,9 +20169,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/month/ti-month.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/month/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/month/_com.json
+//========================================
 Ti.Preload("ti/com/ti/month/_com.json", {
   "name" : "ti-month",
   "globally" : true,
@@ -18362,9 +20179,9 @@ Ti.Preload("ti/com/ti/month/_com.json", {
   "mixins" : ["./ti-month.mjs"],
   "components" : ["@com:ti/list"]
 });
-//============================================================
-// JOIN: ti/obj/pair/ti-obj-pair.html
-//============================================================
+//========================================
+// JOIN <ti-obj-pair.html> ti/com/ti/obj/pair/ti-obj-pair.html
+//========================================
 Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair full-field" 
     :class="TopClass">
   <!--
@@ -18425,9 +20242,9 @@ Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair full-
     </table>
   </template>
 </div>`);
-//============================================================
-// JOIN: ti/obj/pair/ti-obj-pair.mjs
-//============================================================
+//========================================
+// JOIN <ti-obj-pair.mjs> ti/com/ti/obj/pair/ti-obj-pair.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////
@@ -18637,18 +20454,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/obj/pair/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/obj/pair/_com.json
+//========================================
 Ti.Preload("ti/com/ti/obj/pair/_com.json", {
   "name" : "ti-obj-pair",
   "globally" : true,
   "template" : "./ti-obj-pair.html",
   "mixins" : ["./ti-obj-pair.mjs"]
 });
-//============================================================
-// JOIN: ti/obj/thumb/ti-obj-thumb.html
-//============================================================
+//========================================
+// JOIN <ti-obj-thumb.html> ti/com/ti/obj/thumb/ti-obj-thumb.html
+//========================================
 Ti.Preload("ti/com/ti/obj/thumb/ti-obj-thumb.html", `<div class="ti-obj-thumb" 
     :class="TopClass">
   <!--
@@ -18722,9 +20539,9 @@ Ti.Preload("ti/com/ti/obj/thumb/ti-obj-thumb.html", `<div class="ti-obj-thumb"
       <ti-icon :value="removeIcon"/>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/obj/thumb/ti-obj-thumb.mjs
-//============================================================
+//========================================
+// JOIN <ti-obj-thumb.mjs> ti/com/ti/obj/thumb/ti-obj-thumb.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////
@@ -18913,18 +20730,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/obj/thumb/ti-obj-thumb.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/obj/thumb/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/obj/thumb/_com.json
+//========================================
 Ti.Preload("ti/com/ti/obj/thumb/_com.json", {
   "name" : "ti-obj-thumb",
   "globally" : true,
   "template" : "./ti-obj-thumb.html",
   "mixins" : ["./ti-obj-thumb.mjs"]
 });
-//============================================================
-// JOIN: ti/obj/tile/ti-obj-tile.html
-//============================================================
+//========================================
+// JOIN <ti-obj-tile.html> ti/com/ti/obj/tile/ti-obj-tile.html
+//========================================
 Ti.Preload("ti/com/ti/obj/tile/ti-obj-tile.html", `<div class="ti-obj-tile" 
     :class="topClass">
   <!--
@@ -18962,9 +20779,9 @@ Ti.Preload("ti/com/ti/obj/tile/ti-obj-tile.html", `<div class="ti-obj-tile"
     <span>{{brief}}</span>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/obj/tile/ti-obj-tile.mjs
-//============================================================
+//========================================
+// JOIN <ti-obj-tile.mjs> ti/com/ti/obj/tile/ti-obj-tile.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -19057,18 +20874,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/obj/tile/ti-obj-tile.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/obj/tile/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/obj/tile/_com.json
+//========================================
 Ti.Preload("ti/com/ti/obj/tile/_com.json", {
   "name" : "ti-obj-tile",
   "globally" : true,
   "template" : "./ti-obj-tile.html",
   "mixins" : ["./ti-obj-tile.mjs"]
 });
-//============================================================
-// JOIN: ti/paging/button/ti-paging-button.html
-//============================================================
+//========================================
+// JOIN <ti-paging-button.html> ti/com/ti/paging/button/ti-paging-button.html
+//========================================
 Ti.Preload("ti/com/ti/paging/button/ti-paging-button.html", `<div class="ti-paging-button"
   :class="TopClass">
   <div class="as-pg-btn is-prev" @click.left="JumpTo(PN-1)">
@@ -19093,9 +20910,9 @@ Ti.Preload("ti/com/ti/paging/button/ti-paging-button.html", `<div class="ti-pagi
     <i class="im im-angle-right"></i>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/paging/button/ti-paging-button.mjs
-//============================================================
+//========================================
+// JOIN <ti-paging-button.mjs> ti/com/ti/paging/button/ti-paging-button.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////
@@ -19214,18 +21031,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/paging/button/ti-paging-button.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/paging/button/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/paging/button/_com.json
+//========================================
 Ti.Preload("ti/com/ti/paging/button/_com.json", {
   "name" : "ti-paging-button",
   "globally" : true,
   "template" : "./ti-paging-button.html",
   "mixins" : ["./ti-paging-button.mjs"]
 });
-//============================================================
-// JOIN: ti/paging/jumper/ti-paging-jumper.html
-//============================================================
+//========================================
+// JOIN <ti-paging-jumper.html> ti/com/ti/paging/jumper/ti-paging-jumper.html
+//========================================
 Ti.Preload("ti/com/ti/paging/jumper/ti-paging-jumper.html", `<div class="ti-paging-jumper"
   :class="TopClass">
   <div 
@@ -19264,9 +21081,9 @@ Ti.Preload("ti/com/ti/paging/jumper/ti-paging-jumper.html", `<div class="ti-pagi
       :class="SumClass"
       @click="OnClickSum">{{'paging-sum'|i18n(value)}}</div>
 </div>`);
-//============================================================
-// JOIN: ti/paging/jumper/ti-paging-jumper.mjs
-//============================================================
+//========================================
+// JOIN <ti-paging-jumper.mjs> ti/com/ti/paging/jumper/ti-paging-jumper.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////
@@ -19399,18 +21216,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/paging/jumper/ti-paging-jumper.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/paging/jumper/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/paging/jumper/_com.json
+//========================================
 Ti.Preload("ti/com/ti/paging/jumper/_com.json", {
   "name" : "ti-paging-jumper",
   "globally" : true,
   "template" : "./ti-paging-jumper.html",
   "mixins" : ["./ti-paging-jumper.mjs"]
 });
-//============================================================
-// JOIN: ti/roadblock/ti-roadblock.html
-//============================================================
+//========================================
+// JOIN <ti-roadblock.html> ti/com/ti/roadblock/ti-roadblock.html
+//========================================
 Ti.Preload("ti/com/ti/roadblock/ti-roadblock.html", `<div class="ti-roadblock"
   :class="TopClass">
   <div class="as-main">
@@ -19422,9 +21239,9 @@ Ti.Preload("ti/com/ti/roadblock/ti-roadblock.html", `<div class="ti-roadblock"
     </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/roadblock/ti-roadblock.mjs
-//============================================================
+//========================================
+// JOIN <ti-roadblock.mjs> ti/com/ti/roadblock/ti-roadblock.mjs
+//========================================
 (function(){
 /***
  * In Building ....
@@ -19451,9 +21268,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/roadblock/ti-roadblock.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/roadblock/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/roadblock/_com.json
+//========================================
 Ti.Preload("ti/com/ti/roadblock/_com.json", {
   "name" : "ti-roadblock",
   "globally" : true,
@@ -19461,9 +21278,9 @@ Ti.Preload("ti/com/ti/roadblock/_com.json", {
   "mixins"   : ["./ti-roadblock.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: ti/session/badge/ti-session-badge.html
-//============================================================
+//========================================
+// JOIN <ti-session-badge.html> ti/com/ti/session/badge/ti-session-badge.html
+//========================================
 Ti.Preload("ti/com/ti/session/badge/ti-session-badge.html", `<div class="ti-session-badge"
   :class="TopClass">
   <!--
@@ -19518,9 +21335,9 @@ Ti.Preload("ti/com/ti/session/badge/ti-session-badge.html", `<div class="ti-sess
     </div>
   </template>
 </div>`);
-//============================================================
-// JOIN: ti/session/badge/ti-session-badge.mjs
-//============================================================
+//========================================
+// JOIN <ti-session-badge.mjs> ti/com/ti/session/badge/ti-session-badge.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -19675,18 +21492,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/session/badge/ti-session-badge.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/session/badge/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/session/badge/_com.json
+//========================================
 Ti.Preload("ti/com/ti/session/badge/_com.json", {
   "name" : "ti-session-badge",
   "globally" : true,
   "template" : "./ti-session-badge.html",
   "mixins" : ["./ti-session-badge.mjs"]
 });
-//============================================================
-// JOIN: ti/sheet/emoji/ti-sheet-emoji.html
-//============================================================
+//========================================
+// JOIN <ti-sheet-emoji.html> ti/com/ti/sheet/emoji/ti-sheet-emoji.html
+//========================================
 Ti.Preload("ti/com/ti/sheet/emoji/ti-sheet-emoji.html", `<div  class="ti-sheet-emoji" 
   :class="TopClass"
   :style="TopStyle">
@@ -19702,9 +21519,9 @@ Ti.Preload("ti/com/ti/sheet/emoji/ti-sheet-emoji.html", `<div  class="ti-sheet-e
     </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/sheet/emoji/ti-sheet-emoji.mjs
-//============================================================
+//========================================
+// JOIN <ti-sheet-emoji.mjs> ti/com/ti/sheet/emoji/ti-sheet-emoji.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////////
@@ -19795,18 +21612,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/sheet/emoji/ti-sheet-emoji.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/sheet/emoji/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/sheet/emoji/_com.json
+//========================================
 Ti.Preload("ti/com/ti/sheet/emoji/_com.json", {
   "name" : "ti-sheet-emoji",
   "globally" : true,
   "template" : "./ti-sheet-emoji.html",
   "mixins" : ["./ti-sheet-emoji.mjs"]
 });
-//============================================================
-// JOIN: ti/support/field_display.mjs
-//============================================================
+//========================================
+// JOIN <field_display.mjs> ti/com/ti/support/field_display.mjs
+//========================================
 (function(){
 //////////////////////////////////////////////
 function _render_iteratee({
@@ -20201,9 +22018,9 @@ const FieldDisplay = {
 //////////////////////////////////////////////
 Ti.Preload("ti/com/ti/support/field_display.mjs", FieldDisplay);
 })();
-//============================================================
-// JOIN: ti/support/formed_list_methods.mjs
-//============================================================
+//========================================
+// JOIN <formed_list_methods.mjs> ti/com/ti/support/formed_list_methods.mjs
+//========================================
 (function(){
 //////////////////////////////////////////
 const _M = {
@@ -20392,9 +22209,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/support/formed_list_methods.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/support/list_item_mixins.mjs
-//============================================================
+//========================================
+// JOIN <list_item_mixins.mjs> ti/com/ti/support/list_item_mixins.mjs
+//========================================
 (function(){
 const _M = {
   inject: ["$vars"],
@@ -20539,9 +22356,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/support/list_item_mixins.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/support/list_mixins.mjs
-//============================================================
+//========================================
+// JOIN <list_mixins.mjs> ti/com/ti/support/list_mixins.mjs
+//========================================
 (function(){
 const LIST_MIXINS = {
   ///////////////////////////////////////////////////
@@ -21169,9 +22986,9 @@ const LIST_MIXINS = {
 }
 Ti.Preload("ti/com/ti/support/list_mixins.mjs", LIST_MIXINS);
 })();
-//============================================================
-// JOIN: ti/support/list_props.mjs
-//============================================================
+//========================================
+// JOIN <list_props.mjs> ti/com/ti/support/list_props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -21325,9 +23142,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/support/list_props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/switcher/ti-switcher-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-switcher-props.mjs> ti/com/ti/switcher/ti-switcher-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -21395,9 +23212,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/switcher/ti-switcher-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/switcher/ti-switcher.html
-//============================================================
+//========================================
+// JOIN <ti-switcher.html> ti/com/ti/switcher/ti-switcher.html
+//========================================
 Ti.Preload("ti/com/ti/switcher/ti-switcher.html", `<div class="ti-switcher"
   :class="TopClass">
   <!--
@@ -21427,9 +23244,9 @@ Ti.Preload("ti/com/ti/switcher/ti-switcher.html", `<div class="ti-switcher"
     </ul>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/switcher/ti-switcher.mjs
-//============================================================
+//========================================
+// JOIN <ti-switcher.mjs> ti/com/ti/switcher/ti-switcher.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////////////////
@@ -21614,9 +23431,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/switcher/ti-switcher.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/switcher/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/switcher/_com.json
+//========================================
 Ti.Preload("ti/com/ti/switcher/_com.json", {
   "name" : "ti-switcher",
   "globally" : true,
@@ -21624,9 +23441,9 @@ Ti.Preload("ti/com/ti/switcher/_com.json", {
   "props" : "./ti-switcher-props.mjs",
   "mixins" : ["./ti-switcher.mjs"]
 });
-//============================================================
-// JOIN: ti/table/com/table-row/com/table-cell/table-cell.html
-//============================================================
+//========================================
+// JOIN <table-cell.html> ti/com/ti/table/com/table-row/com/table-cell/table-cell.html
+//========================================
 Ti.Preload("ti/com/ti/table/com/table-row/com/table-cell/table-cell.html", `<td class="table-cell"
   :class="TopClass"
   :col-index="index"
@@ -21647,9 +23464,9 @@ Ti.Preload("ti/com/ti/table/com/table-row/com/table-cell/table-cell.html", `<td 
     </div>
   </div>
 </td>`);
-//============================================================
-// JOIN: ti/table/com/table-row/com/table-cell/table-cell.mjs
-//============================================================
+//========================================
+// JOIN <table-cell.mjs> ti/com/ti/table/com/table-row/com/table-cell/table-cell.mjs
+//========================================
 (function(){
 /////////////////////////////////////////////////////
 const _M = {
@@ -21847,9 +23664,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/table/com/table-row/com/table-cell/table-cell.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/table/com/table-row/com/table-cell/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/table/com/table-row/com/table-cell/_com.json
+//========================================
 Ti.Preload("ti/com/ti/table/com/table-row/com/table-cell/_com.json", {
   "name" : "table-cell",
   "globally" : false,
@@ -21858,9 +23675,9 @@ Ti.Preload("ti/com/ti/table/com/table-row/com/table-cell/_com.json", {
   "mixins"   : ["./table-cell.mjs"],
   "components" : ["@com:ti/label"]
 });
-//============================================================
-// JOIN: ti/table/com/table-row/table-row.html
-//============================================================
+//========================================
+// JOIN <table-row.html> ti/com/ti/table/com/table-row/table-row.html
+//========================================
 Ti.Preload("ti/com/ti/table/com/table-row/table-row.html", `<tr class="table-row"
   :class="TopClass"
   @click.left="OnClickRow"
@@ -21907,9 +23724,9 @@ Ti.Preload("ti/com/ti/table/com/table-row/table-row.html", `<tr class="table-row
     </template>
   </table-cell>
 </tr>`);
-//============================================================
-// JOIN: ti/table/com/table-row/table-row.mjs
-//============================================================
+//========================================
+// JOIN <table-row.mjs> ti/com/ti/table/com/table-row/table-row.mjs
+//========================================
 (function(){
 /////////////////////////////////////////////////////
 const _M = {
@@ -21972,9 +23789,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/table/com/table-row/table-row.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/table/com/table-row/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/table/com/table-row/_com.json
+//========================================
 Ti.Preload("ti/com/ti/table/com/table-row/_com.json", {
   "name" : "table-row",
   "globally" : false,
@@ -21986,9 +23803,9 @@ Ti.Preload("ti/com/ti/table/com/table-row/_com.json", {
       "./com/table-cell"
     ]
 });
-//============================================================
-// JOIN: ti/table/ti-table-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-table-props.mjs> ti/com/ti/table/ti-table-props.mjs
+//========================================
 (function(){
 const _M = {
   "iconBy" : {
@@ -22022,9 +23839,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/table/ti-table-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/table/ti-table-resizes.mjs
-//============================================================
+//========================================
+// JOIN <ti-table-resizes.mjs> ti/com/ti/table/ti-table-resizes.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -22234,9 +24051,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/table/ti-table-resizes.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/table/ti-table.html
-//============================================================
+//========================================
+// JOIN <ti-table.html> ti/com/ti/table/ti-table.html
+//========================================
 Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
   :class="TopClass"
   :style="TopStyle"
@@ -22315,9 +24132,9 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
     </table>
   </template>
 </div>`);
-//============================================================
-// JOIN: ti/table/ti-table.mjs
-//============================================================
+//========================================
+// JOIN <ti-table.mjs> ti/com/ti/table/ti-table.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -22641,9 +24458,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/table/ti-table.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/table/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/table/_com.json
+//========================================
 Ti.Preload("ti/com/ti/table/_com.json", {
   "name" : "ti-table",
   "globally" : true,
@@ -22661,9 +24478,9 @@ Ti.Preload("ti/com/ti/table/_com.json", {
     "./com/table-row"
   ]
 });
-//============================================================
-// JOIN: ti/tags/com/tags-item/tags-item.html
-//============================================================
+//========================================
+// JOIN <tags-item.html> ti/com/ti/tags/com/tags-item/tags-item.html
+//========================================
 Ti.Preload("ti/com/ti/tags/com/tags-item/tags-item.html", `<div class="ti-tags-item" 
   :class="topClass"
   @mouseenter="mouseEnter='top'"
@@ -22717,9 +24534,9 @@ Ti.Preload("ti/com/ti/tags/com/tags-item/tags-item.html", `<div class="ti-tags-i
     </div>
   </template>
 </div>`);
-//============================================================
-// JOIN: ti/tags/com/tags-item/tags-item.mjs
-//============================================================
+//========================================
+// JOIN <tags-item.mjs> ti/com/ti/tags/com/tags-item/tags-item.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -22963,9 +24780,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/tags/com/tags-item/tags-item.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/tags/com/tags-item/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/tags/com/tags-item/_com.json
+//========================================
 Ti.Preload("ti/com/ti/tags/com/tags-item/_com.json", {
   "name" : "tags-item",
   "globally" : false,
@@ -22973,9 +24790,9 @@ Ti.Preload("ti/com/ti/tags/com/tags-item/_com.json", {
   "mixins" : ["./tags-item.mjs"],
   "components" : ["@com:ti/icon/text"]
 });
-//============================================================
-// JOIN: ti/tags/ti-tags.html
-//============================================================
+//========================================
+// JOIN <ti-tags.html> ti/com/ti/tags/ti-tags.html
+//========================================
 Ti.Preload("ti/com/ti/tags/ti-tags.html", `<div class="ti-tags"
   :class="TopClass">
   <!--
@@ -22993,9 +24810,9 @@ Ti.Preload("ti/com/ti/tags/ti-tags.html", `<div class="ti-tags"
     @remove="OnItemRemoved"
     @fire="OnItemFired"/>
 </div>`);
-//============================================================
-// JOIN: ti/tags/ti-tags.mjs
-//============================================================
+//========================================
+// JOIN <ti-tags.mjs> ti/com/ti/tags/ti-tags.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -23186,9 +25003,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/tags/ti-tags.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/tags/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/tags/_com.json
+//========================================
 Ti.Preload("ti/com/ti/tags/_com.json", {
   "name" : "ti-tags",
   "globally" : true,
@@ -23198,9 +25015,9 @@ Ti.Preload("ti/com/ti/tags/_com.json", {
     "./com/tags-item"
   ]
 });
-//============================================================
-// JOIN: ti/text/json/ti-text-json.html
-//============================================================
+//========================================
+// JOIN <ti-text-json.html> ti/com/ti/text/json/ti-text-json.html
+//========================================
 Ti.Preload("ti/com/ti/text/json/ti-text-json.html", `<ti-gui
   class="ti-text-json"
   :class="className"
@@ -23209,9 +25026,9 @@ Ti.Preload("ti/com/ti/text/json/ti-text-json.html", `<ti-gui
   :schema="TheSchema"
   :can-loading="true"
   @change="OnChange"/>`);
-//============================================================
-// JOIN: ti/text/json/ti-text-json.mjs
-//============================================================
+//========================================
+// JOIN <ti-text-json.mjs> ti/com/ti/text/json/ti-text-json.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -23335,9 +25152,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/text/json/ti-text-json.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/text/json/tree/item/json-tree-item.html
-//============================================================
+//========================================
+// JOIN <json-tree-item.html> ti/com/ti/text/json/tree/item/json-tree-item.html
+//========================================
 Ti.Preload("ti/com/ti/text/json/tree/item/json-tree-item.html", `<div class="json-value"
   :class="TopClass"
   v-ti-activable>
@@ -23375,9 +25192,9 @@ Ti.Preload("ti/com/ti/text/json/tree/item/json-tree-item.html", `<div class="jso
       :items="theActionMenuData"
       :status="theActionMenuStatus"/>
 </div>`);
-//============================================================
-// JOIN: ti/text/json/tree/item/json-tree-item.mjs
-//============================================================
+//========================================
+// JOIN <json-tree-item.mjs> ti/com/ti/text/json/tree/item/json-tree-item.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -23607,18 +25424,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/text/json/tree/item/json-tree-item.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/text/json/tree/item/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/text/json/tree/item/_com.json
+//========================================
 Ti.Preload("ti/com/ti/text/json/tree/item/_com.json", {
   "name" : "ti-text-json-tree-item",
   "globally" : true,
   "template" : "./json-tree-item.html",
   "mixins" : ["./json-tree-item.mjs"]
 });
-//============================================================
-// JOIN: ti/text/json/tree/ti-text-json-tree.html
-//============================================================
+//========================================
+// JOIN <ti-text-json-tree.html> ti/com/ti/text/json/tree/ti-text-json-tree.html
+//========================================
 Ti.Preload("ti/com/ti/text/json/tree/ti-text-json-tree.html", `<ti-tree class="ti-text-json-tree"
   title="i18n:name"
   :main-width="mainWidth"
@@ -23635,9 +25452,9 @@ Ti.Preload("ti/com/ti/text/json/tree/ti-text-json-tree.html", `<ti-tree class="t
   @select
   @node:item:change="OnNodeItemChange"
   @opened-status:changed="OnOpenedStatusChanged"/>`);
-//============================================================
-// JOIN: ti/text/json/tree/ti-text-json-tree.mjs
-//============================================================
+//========================================
+// JOIN <ti-text-json-tree.mjs> ti/com/ti/text/json/tree/ti-text-json-tree.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -24170,9 +25987,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/text/json/tree/ti-text-json-tree.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/text/json/tree/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/text/json/tree/_com.json
+//========================================
 Ti.Preload("ti/com/ti/text/json/tree/_com.json", {
   "name" : "ti-text-json-tree",
   "globally" : true,
@@ -24183,9 +26000,9 @@ Ti.Preload("ti/com/ti/text/json/tree/_com.json", {
     "@com:ti/text/json/tree/item"
   ]
 });
-//============================================================
-// JOIN: ti/text/json/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/text/json/_com.json
+//========================================
 Ti.Preload("ti/com/ti/text/json/_com.json", {
   "name" : "ti-text-json",
   "globally" : true,
@@ -24198,9 +26015,9 @@ Ti.Preload("ti/com/ti/text/json/_com.json", {
     "@com:ti/text/json/tree"
   ]
 });
-//============================================================
-// JOIN: ti/text/markdown/preview/markdown-preview.html
-//============================================================
+//========================================
+// JOIN <markdown-preview.html> ti/com/ti/text/markdown/preview/markdown-preview.html
+//========================================
 Ti.Preload("ti/com/ti/text/markdown/preview/markdown-preview.html", `<div class="ti-markdown-preview"
   :class="TopClass">
   <article 
@@ -24208,9 +26025,9 @@ Ti.Preload("ti/com/ti/text/markdown/preview/markdown-preview.html", `<div class=
     v-html="myHtml"></article>
   <!--pre>{{myHtml}}</pre-->
 </div>`);
-//============================================================
-// JOIN: ti/text/markdown/preview/markdown-preview.mjs
-//============================================================
+//========================================
+// JOIN <markdown-preview.mjs> ti/com/ti/text/markdown/preview/markdown-preview.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -24306,9 +26123,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/text/markdown/preview/markdown-preview.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/text/markdown/preview/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/text/markdown/preview/_com.json
+//========================================
 Ti.Preload("ti/com/ti/text/markdown/preview/_com.json", {
   "name" : "ti-text-markdown-preview",
   "globally" : true,
@@ -24318,9 +26135,9 @@ Ti.Preload("ti/com/ti/text/markdown/preview/_com.json", {
     "@lib:code2a/cheap-markdown.mjs"
   ]
 });
-//============================================================
-// JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor-delegate-methods.mjs
-//============================================================
+//========================================
+// JOIN <ti-markdown-richeditor-delegate-methods.mjs> ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor-delegate-methods.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------------------
@@ -24332,9 +26149,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor-delegate-methods.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-markdown-richeditor-props.mjs> ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs
+//========================================
 (function(){
 const _M = {
   //...............................................
@@ -24413,9 +26230,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor.html
-//============================================================
+//========================================
+// JOIN <ti-markdown-richeditor.html> ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor.html
+//========================================
 Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor.html", `<div class="ti-markdown-richeditor"
   :class="TopClass"
   v-ti-activable>
@@ -24452,9 +26269,9 @@ Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor.html", `<d
       :is="blankAs.comType"
       v-bind="blankAs.comConf"/>
 </div>`);
-//============================================================
-// JOIN: ti/text/markdown/richeditor/ti-markdown-richeditor.mjs
-//============================================================
+//========================================
+// JOIN <ti-markdown-richeditor.mjs> ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor.mjs
+//========================================
 (function(){
 /////////////////////////////////////////////////////
 function ResetQuillConfig(Quill) {
@@ -24950,9 +26767,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/text/markdown/richeditor/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/text/markdown/richeditor/_com.json
+//========================================
 Ti.Preload("ti/com/ti/text/markdown/richeditor/_com.json", {
   "name" : "ti-text-markdown-richeditor",
   "globally" : true,
@@ -24971,9 +26788,742 @@ Ti.Preload("ti/com/ti/text/markdown/richeditor/_com.json", {
     "@deps:highlight/highlight.js"
   ]
 });
-//============================================================
-// JOIN: ti/text/raw/ti-text-raw.html
-//============================================================
+//========================================
+// JOIN <br.blot.mjs> ti/com/ti/text/markdown/richeditor2/blot/br.blot.mjs
+//========================================
+//========================================
+// JOIN <md-actionbar.mjs> ti/com/ti/text/markdown/richeditor2/md-actionbar.mjs
+//========================================
+(function(){
+/////////////////////////////////////////////////////
+const BUILTIN_TOOLBAR_ACTIONS = {
+  //.........................................
+  "|" : {type : "line"},
+  //.........................................
+  "B" : {
+    icon : "fas-bold",
+    notifyChange: "bold",
+    highlight : "bold",
+    disabled : "italic"
+  },
+  //.........................................
+  "I" : {
+    icon : "fas-italic",
+    notifyChange : "italic",
+    highlight : "italic",
+    disabled : "bold"
+  },
+  //.........................................
+  "Link" : {
+    icon : "fas-link",
+    notifyChange : "link",
+    highlight : "link"
+  },
+  //.........................................
+  "Code" : {
+    icon : "zmdi-code",
+    notifyChange : "code",
+    highlight : "code"
+  },
+  //.........................................
+  "Heading" : {
+    type : "group",
+    icon : "fas-hashtag",
+    text : "i18n:wordp-heading",
+    items : [{
+        text: "i18n:wordp-h1",
+        notifyChange: "header",
+        highlight : "h1",
+        value: 1
+      }, {
+        text: "i18n:wordp-h2",
+        notifyChange: "header",
+        highlight : "h2",
+        value: 2
+      }, {
+        text: "i18n:wordp-h3",
+        notifyChange: "header",
+        highlight : "h3",
+        value: 3
+      }, {
+        text: "i18n:wordp-h4",
+        notifyChange: "header",
+        highlight : "h4",
+        value: 4
+      }, {
+        text: "i18n:wordp-h5",
+        notifyChange: "header",
+        highlight : "h5",
+        value: 5
+      }, {
+        text: "i18n:wordp-h6",
+        notifyChange: "header",
+        highlight : "h6",
+        value: 6
+      }, {
+        text: "i18n:wordp-h0",
+        notifyChange: "header",
+        highlight : "h0",
+        value:  0
+      }]
+  },
+  //.........................................
+  "BlockQuote" : {
+    icon : "fas-quote-right",
+    notifyChange : "blockquote",
+    highlight : "blockquote"
+  },
+  //.........................................
+  "CodeBlock" : {
+    icon : "fas-code",
+    notifyChange : "code_block",
+    highlight : "code-block"
+  },
+  //.........................................
+  "Indent" : {
+    icon : "fas-indent",
+    notifyChange: "indent"
+  },
+  //.........................................
+  "Outdent" : {
+    icon : "fas-outdent",
+    notifyChange: "outdent"
+  },
+  //.........................................
+  "UL" : {
+    icon : "fas-list-ul",
+    notifyChange : "list",
+    value : "bullet",
+    highlight: {list:"bullet"}
+  },
+  //.........................................
+  "OL" : {
+    icon : "fas-list-ol",
+    notifyChange : "list",
+    value : "ordered",
+    highlight: {list:"ordered"}
+  }
+  //.........................................
+}
+/////////////////////////////////////////////////////
+const _M = {
+  computed : {
+    //-----------------------------------------------
+    hasToolbar() {
+      return !_.isEmpty(this.ToolbarMenuData)
+    },
+    //-----------------------------------------------
+    ToolbarActions() {
+      return _.merge({}, BUILTIN_TOOLBAR_ACTIONS, this.actions)
+    },
+    //-----------------------------------------------
+    ToolbarMenuData() {
+      let list = []
+      _.forEach(this.toolbar, v => {
+        let it = _.get(this.ToolbarActions, v)
+        //...........................................
+        if(it) {
+          list.push(it)
+        }
+        //...........................................
+      })
+      // list.push({
+      //   text: "HL",
+      //   action : "$parent:highlightCode"
+      // })
+      return list;
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods : {
+    //-----------------------------------------------
+    // Events
+    //-----------------------------------------------
+    OnToolbarChange({name, value}={}) {
+      //console.log("OnToolbarChange", {name, value})
+      const fn = ({
+        //...........................................  
+        bold  ($q, val){$q.format("bold", val)},
+        italic($q, val){$q.format("italic", val)},
+        code($q, val){$q.format("code", val)},
+        //...........................................
+        header($q, val) {$q.format("header", val)},
+        //...........................................
+        blockquote($q, val){$q.format("blockquote", val)},
+        code_block($q, val){$q.format("code-block", val)},
+        //..........................................
+        async link($q, val){
+          let range = $q.getSelection()
+          if(!range) {
+            return await Ti.Toast.Open("i18n:wordp-nil-sel", "warn")
+          }
+          // Eval Format
+          let {link} = $q.getFormat(range)
+          
+          // Adjust range
+          let text;
+          if(link) {
+            let [bolt, offset] = $q.getLeaf(range.index)
+            text = bolt.text
+            let index = range.index - offset;
+            let length = text.length
+            range = {index, length}
+          }
+          else {
+            text = $q.getText(range)
+          }
+          // Eval new tab
+          let newtab  = false
+          if(/^\+/.test(text)) {
+            text = text.substring(1)
+            newtab = true
+          }
+          
+          // Get link information
+          let reo = await Ti.App.Open({
+            icon  : "fas-link",
+            title : "i18n:wordp-link",
+            height : "3.2rem",
+            result : {
+              text, newtab, link
+            },
+            model : {prop: "data", event: "change"},
+            comType: "TiForm",
+            comConf: {
+              fields: [{
+                title : "i18n:link-href",
+                name  : "link",
+                comType : "ti-input"
+              }, {
+                title : "i18n:link-text",
+                name  : "text",
+                comType : "ti-input"
+              }, {
+                title : "i18n:open-newtab",
+                name  : "newtab",
+                type  : "Boolean",
+                comType : "ti-toggle"
+              }]
+            }
+          })
+          
+          // User Cancel
+          if(!reo)
+            return
+
+          let newText = reo.text
+          if(reo.link && reo.newtab)
+            newText = "+" + newText
+          $q.updateContents({
+            ops: [
+              {retain: range.index},
+              {delete: range.length},
+              {insert: newText, attributes: {
+                link: reo.link, newtab: true
+              }}]
+          })
+        },
+        //...........................................
+        indent ($q){$q.format("indent", "+1")},
+        outdent($q){$q.format("indent", "-1")},
+        //...........................................
+        list($q, val="bullet"){$q.format("list", val)}
+        //...........................................
+      })[name]
+      //.............................................
+      // Invoke
+      if(_.isFunction(fn)) {
+        fn(this.$editor, value)
+        this.quillUpdateFormat()
+      }
+      //.............................................
+    }
+    //-----------------------------------------------
+  }
+  ///////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/text/markdown/richeditor2/md-actionbar.mjs", _M);
+})();
+//========================================
+// JOIN <md-quill.mjs> ti/com/ti/text/markdown/richeditor2/md-quill.mjs
+//========================================
+(function(){
+const {BrBlot} = window.TI_PACK_EXPORTS['ti/com/ti/text/markdown/richeditor2/blot/br.blot.mjs'];
+
+/////////////////////////////////////////////////////
+async function ResetQuillConfig(Quill) {
+  //.................................................
+  // Reset once
+  if(Quill.__has_been_reset) 
+    return
+  //.................................................
+  // hljs.configure({   // optionally configure hljs
+  //   languages: ['javascript', 'ruby', 'python']
+  // });
+  //.................................................
+  // Reset Indent    
+  const Indent = Quill.import('formats/indent')
+  Indent.keyName = "li-indent"
+  Indent.whitelist = [1,2,3,4,5,6]
+  //.................................................
+  // New format
+  // ...
+  //let {BlotBr} = await import("./br-blot.mjs")
+  console.log(BrBlot)
+  //.................................................
+  // Mark it
+  Quill.__has_been_reset = true
+}
+/////////////////////////////////////////////////////
+const _M = {
+  ///////////////////////////////////////////////////
+  data : ()=>({
+    myDelta : []
+  }),
+  ///////////////////////////////////////////////////
+  methods : {
+    //-----------------------------------------------
+    // Quill
+    //-----------------------------------------------
+    async quillChanged(delta) {
+      //console.log("changed", JSON.stringify(delta, null, '  '))
+      //console.log("quillChanged")
+      this.myDelta = delta
+      // Guard
+      if(this.isContentNil) {
+        return
+      }
+
+      // Delat => CheapDocument
+      let MdDoc = Cheap.parseDelta(delta)
+      MdDoc.setDefaultMeta(this.myMeta)
+      this.myMeta = MdDoc.getMeta()
+      //console.log(MdDoc.toString())
+      
+      // CheapDocument => markdown
+      let markdown = await MdDoc.toMarkdown({
+        mediaSrc: this.TheMarkdownMediaSrc
+      })
+      //console.log(markdown)
+      if(markdown != this.value) {
+        this.syncForbid = 1
+        this.$notify("change", markdown)
+      }
+    },
+    //-----------------------------------------------
+    quillSelectionChanged(range) {
+      // Update selection info
+      if(range) {
+        // Indicate row:col
+        let ii = [range.index]
+        if(range.length > 0) {
+          ii.push(range.length)
+        }
+        this.$notify("indicate", ii.join(":"))
+
+        // Update format
+        this.quillUpdateFormat(range)
+      }
+    },
+    //-----------------------------------------------
+    quillUpdateFormat(range) {
+      let fmt = this.$editor.getFormat(range)
+      //console.log(fmt)
+      //fmt = _.cloneDeep(fmt)
+      if(fmt.header) {
+        fmt[`h${fmt.header}`] = true
+      } else {
+        fmt["h0"] = true
+      }
+      if(!_.isEqual(this.myToolbarStatus, fmt)) {
+        this.myToolbarStatus = fmt
+      }
+    },
+    //-----------------------------------------------
+    installQuillEditor() {
+      // Guard
+      if(this.$editor) {
+        return
+      }
+      //.............................................
+      // Reset the Quill Default
+      ResetQuillConfig(Quill)
+      //Quill.register(MyIndent)
+      //.............................................
+      this.$editor = new Quill(this.$refs.editing, {
+        modules: {
+          syntax: false
+        },
+        bounds : this.$refs.stage,
+        placeholder : Ti.I18n.text(this.placeholder)
+      });
+      //.............................................
+      this.debounceQuillChanged = _.debounce((newDelta, oldDelta)=>{
+        let delta = oldDelta.compose(newDelta)
+        this.quillChanged(delta)
+      }, 1000)
+      //.............................................
+      this.$editor.on("text-change", (newDelta, oldDelta, source)=>{
+        //console.log("text-change",this.isContentNil, _.cloneDeep({newDelta, oldDelta}))
+        if(!this.isContentNil) {
+          this.debounceQuillChanged(newDelta, oldDelta)
+        }
+      })
+      //.............................................
+      this.$editor.on("selection-change", (range, oldRange, source)=>{
+        this.quillSelectionChanged(range)
+      })
+    }
+    //-----------------------------------------------
+  }
+  ///////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/text/markdown/richeditor2/md-quill.mjs", _M);
+})();
+//========================================
+// JOIN <md-richeditor-delegates.mjs> ti/com/ti/text/markdown/richeditor2/md-richeditor-delegates.mjs
+//========================================
+(function(){
+const _M = {
+  //-----------------------------------------------
+  // Delegate Quill Methods
+  //-----------------------------------------------
+  getSelection  (...args){return this.$editor.getSelection(...args)},
+  setSelection  (...args){return this.$editor.setSelection(...args)},
+  updateContents(...args){return this.$editor.updateContents(...args)},
+}
+Ti.Preload("ti/com/ti/text/markdown/richeditor2/md-richeditor-delegates.mjs", _M);
+})();
+//========================================
+// JOIN <md-richeditor-props.mjs> ti/com/ti/text/markdown/richeditor2/md-richeditor-props.mjs
+//========================================
+(function(){
+const _M = {
+  //...............................................
+  // Data
+  //...............................................
+  "mediaBase" : {
+    type : String,
+    default : undefined
+  },
+  "value" : {
+    type : String,
+    default : undefined
+  }, 
+  //...............................................
+  // Behavior
+  //...............................................
+  // Ext-toolbar item defination
+  "actions": {
+    type: Object,
+    default: ()=>({})
+  },
+  // preview -> markdown -> save
+  "markdownMediaSrc": {
+    type: [String, Function],
+    default: undefined
+  },
+  // load -> markdown -> preview
+  "previewMediaSrc": {
+    type: [String, Function],
+    default: undefined
+  },
+  //...............................................
+  // Aspact
+  //...............................................
+  "placeholder" : {
+    type : String,
+    default : "i18n:blank"
+  },
+  "theme" : {
+    type : String,
+    default : "nice"
+  },
+  "toolbar" : {
+    type : Array,
+    default : ()=>[
+      "Heading", "|", "B", "I", "|", "Link", "Code", 
+      "|", "BlockQuote", "CodeBlock", 
+      "|", "Outdent", "Indent",  
+      "|", "UL", "OL"
+      ]
+  },
+  "toolbarAlign" : {
+    type : String,
+    default: "left",
+    validator : v => /^(left|right|center)$/.test(v)
+  },
+  "loadingAs" : {
+    type : Object,
+    default : ()=>({
+      className : "as-nil-mask as-big-mask",
+      icon : undefined,
+      text : undefined
+    })
+  },
+  "blankAs" : {
+    type : Object,
+    default : ()=>({
+      comType : "TiLoading",
+      comConf : {
+        className : "as-nil-mask as-big-mask",
+        icon : "fas-coffee",
+        text : null
+      }
+    })
+  }
+}
+Ti.Preload("ti/com/ti/text/markdown/richeditor2/md-richeditor-props.mjs", _M);
+})();
+//========================================
+// JOIN <md-richeditor.html> ti/com/ti/text/markdown/richeditor2/md-richeditor.html
+//========================================
+Ti.Preload("ti/com/ti/text/markdown/richeditor2/md-richeditor.html", `<div class="ti-markdown-richeditor2"
+  :class="TopClass"
+  v-ti-activable>
+  <!--
+    Toolbar
+  -->
+  <ti-actionbar 
+  v-if="hasToolbar"
+    class="as-toolbar"
+    :items="ToolbarMenuData" 
+    :align="toolbarAlign"
+    :status="myToolbarStatus"
+    @change="OnToolbarChange"/>
+  <!--
+    Stage
+  -->
+  <div ref="stage" class="as-stage">
+    <!--
+      Editor
+    -->
+    <div ref="editing"
+      class="as-editing"
+      spellcheck="false"
+      :class="ThemeClass"></div>
+    <!--
+      Side
+    -->
+    <div ref="aside"
+      class="as-aside"
+      @dblclick.left="OnClickPre">abc<br><pre>{{myDelta}}</pre></div>
+  </div>
+  <!--
+    Show loading
+  -->
+  <TiLoading
+    v-if="isContentLoading"
+      class="as-nil-mask as-big-mask"
+      v-bind="loadingAs"/>
+  <!--
+    Show blank
+  -->
+  <component
+    v-else-if="isContentNil"
+      :style="BlankComStyle"
+      :is="blankAs.comType"
+      v-bind="blankAs.comConf"/>
+</div>`);
+//========================================
+// JOIN <md-richeditor.mjs> ti/com/ti/text/markdown/richeditor2/md-richeditor.mjs
+//========================================
+(function(){
+/////////////////////////////////////////////////////
+const _M = {
+  ///////////////////////////////////////////////////
+  data: ()=>({
+    myMeta : {},
+    syncForbid : 0,
+    myToolbarStatus : {}
+  }),
+  ///////////////////////////////////////////////////
+  computed : {
+    //-----------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "nil-content" : this.isContentNil,
+        "has-content" : !this.isContentNil
+      })
+    },
+    //-----------------------------------------------
+    ThemeClass() {
+      if(this.ThemeName) {
+        return `ti-markdown-theme-${this.ThemeName}`
+      }
+    },
+    //-----------------------------------------------
+    ThemeName() {
+      return _.get(this.myMeta, "theme") || this.theme
+    },
+    //-----------------------------------------------
+    hasToolbar() {
+      return !_.isEmpty(this.ToolbarMenuData)
+    },
+    //-----------------------------------------------
+    isContentLoading() {
+      return _.isUndefined(this.value)
+    },
+    //-----------------------------------------------
+    isContentNil() {
+      return Ti.Util.isNil(this.value)
+    },
+    //-----------------------------------------------
+    BlankComStyle() {
+      return {
+        position: "absolute",
+        top:0, right:0, bottom:0, left:0
+      }
+    },
+    //-----------------------------------------------
+    TheMarkdownMediaSrc() {
+      if(_.isFunction(this.markdownMediaSrc)){
+        return this.markdownMediaSrc
+      }
+
+      if(_.isString(this.markdownMediaSrc)) {
+        return Ti.Util.genInvoking(this.markdownMediaSrc, {
+          partial: "right"
+        })
+      }
+    },
+    //-----------------------------------------------
+    ThePreviewMediaSrc() {
+      if(_.isFunction(this.previewMediaSrc)){
+        return this.previewMediaSrc
+      }
+
+      if(_.isString(this.previewMediaSrc)) {
+        return Ti.Util.genInvoking(this.previewMediaSrc, {
+          partial: "right"
+        })
+      }
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods : {
+    //-----------------------------------------------
+    // Events
+    //-----------------------------------------------
+    async OnClickPre() {
+      let json = await Ti.App.Open({
+        width: 600, height: "96%",
+        title : "Edit delta",
+        result : JSON.stringify(this.myDelta),
+        comType : "TiInputText",
+        comConf : {
+          height: "100%"
+        },
+        components : "@com:ti/input/text"
+      })
+
+      console.log(json)
+    },
+    //-----------------------------------------------
+    // Utility
+    //-----------------------------------------------
+    async renderMarkdown() {
+      //console.log("!!!!!!!!!!!!!!!!!!!!!! renderMarkdown")
+      if(!Ti.Util.isBlank(this.value)) {
+        // Parse markdown
+        let MdDoc = Cheap.parseMarkdown(this.value)
+        //console.log(MdDoc.toString())
+        window.MdDoc = MdDoc
+        this.myMeta = _.cloneDeep(MdDoc.getMeta())
+
+        // Get delta
+        let delta = await MdDoc.toDelta({
+          mediaSrc: this.ThePreviewMediaSrc
+        })
+        //console.log(JSON.stringify(delta, null, '   '))
+
+        // Update Quill editor content
+        this.$editor.setContents(delta);
+        
+      }
+      // Show Blank
+      else {
+        this.myMeta = {}
+        this.$editor.setContents([]);
+      }
+    },
+    //-----------------------------------------------
+    syncMarkdown() {
+      if(this.syncForbid > 0) {
+        //console.log("!forbid! syncMarkdown", this.syncForbid)
+        this.syncForbid --
+        return
+      }
+      this.renderMarkdown()
+    },
+    //-----------------------------------------------
+    // Highlight
+    //-----------------------------------------------
+    // highlightCode() {
+    //   for(let $code of this.$refs.stage.querySelectorAll("pre")) {
+    //     console.log($code)
+    //     hljs.highlightBlock($code)
+    //   }
+    // },
+    
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "value" : {
+      handler : "syncMarkdown"
+    },
+    "isContentNil": function(newVal, oldVal){
+      //console.log("isContentNil", newVal, oldVal)
+      if(newVal) {
+        this.syncForbid = 0
+      }
+    }
+  },
+  ///////////////////////////////////////////////////
+  mounted() {
+    this.syncForbid = 0;
+    this.installQuillEditor()
+    this.syncMarkdown()
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy() {
+    this.syncForbid = 0;
+  }
+  ///////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/text/markdown/richeditor2/md-richeditor.mjs", _M);
+})();
+//========================================
+// JOIN <_com.json> ti/com/ti/text/markdown/richeditor2/_com.json
+//========================================
+Ti.Preload("ti/com/ti/text/markdown/richeditor2/_com.json", {
+  "name" : "ti-text-markdown-richeditor2",
+  "globally" : true,
+  "i18n" : "@i18n:ti-text-editor",
+  "css" : "@deps:highlight/default.css",
+  "template" : "./md-richeditor.html",
+  "props": "./md-richeditor-props.mjs",
+  "methods": "./md-richeditor-delegates.mjs",
+  "mixins" : [
+    "./md-richeditor.mjs",
+    "./md-actionbar.mjs",
+    "./md-quill.mjs"
+  ],
+  "components" : [
+    "@com:wn/adaptlist"
+  ],
+  "deps" : [
+    "@lib:code2a/cheap-markdown.mjs",
+    "@deps:quill/quill.js",
+    "@deps:highlight/highlight.js"
+  ]
+});
+//========================================
+// JOIN <ti-text-raw.html> ti/com/ti/text/raw/ti-text-raw.html
+//========================================
 Ti.Preload("ti/com/ti/text/raw/ti-text-raw.html", `<div class="ti-text-raw"
   :class="TopClass"
   v-ti-activable>
@@ -25001,9 +27551,9 @@ Ti.Preload("ti/com/ti/text/raw/ti-text-raw.html", `<div class="ti-text-raw"
       @change="OnTextChanged"></textarea>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/text/raw/ti-text-raw.mjs
-//============================================================
+//========================================
+// JOIN <ti-text-raw.mjs> ti/com/ti/text/raw/ti-text-raw.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -25143,18 +27693,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/text/raw/ti-text-raw.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/text/raw/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/text/raw/_com.json
+//========================================
 Ti.Preload("ti/com/ti/text/raw/_com.json", {
   "name" : "ti-text-raw",
   "globally" : true,
   "template" : "./ti-text-raw.html",
   "mixins" : ["./ti-text-raw.mjs"]
 });
-//============================================================
-// JOIN: ti/time/ti-time.html
-//============================================================
+//========================================
+// JOIN <ti-time.html> ti/com/ti/time/ti-time.html
+//========================================
 Ti.Preload("ti/com/ti/time/ti-time.html", `<div class="ti-col-data as-time" 
   :class="topClass" 
   :style="topStyle">
@@ -25166,9 +27716,9 @@ Ti.Preload("ti/com/ti/time/ti-time.html", `<div class="ti-col-data as-time"
     :cancelable="false"
     @select="onListSelected(list.key, $event)"/>
 </div>`);
-//============================================================
-// JOIN: ti/time/ti-time.mjs
-//============================================================
+//========================================
+// JOIN <ti-time.mjs> ti/com/ti/time/ti-time.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -25274,9 +27824,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/time/ti-time.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/time/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/time/_com.json
+//========================================
 Ti.Preload("ti/com/ti/time/_com.json", {
   "name" : "ti-time",
   "globally" : true,
@@ -25284,16 +27834,16 @@ Ti.Preload("ti/com/ti/time/_com.json", {
   "mixins" : ["./ti-time.mjs"],
   "components" : ["@com:ti/list"]
 });
-//============================================================
-// JOIN: ti/toggle/ti-toggle.html
-//============================================================
+//========================================
+// JOIN <ti-toggle.html> ti/com/ti/toggle/ti-toggle.html
+//========================================
 Ti.Preload("ti/com/ti/toggle/ti-toggle.html", `<div class="ti-toggle"
   :class="topClass">
   <aside @click.left="onClick"><b></b></aside>
 </div>`);
-//============================================================
-// JOIN: ti/toggle/ti-toggle.mjs
-//============================================================
+//========================================
+// JOIN <ti-toggle.mjs> ti/com/ti/toggle/ti-toggle.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -25343,18 +27893,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/toggle/ti-toggle.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/toggle/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/toggle/_com.json
+//========================================
 Ti.Preload("ti/com/ti/toggle/_com.json", {
   "name" : "ti-toggle",
   "globally" : true,
   "template" : "./ti-toggle.html",
   "mixins" : ["./ti-toggle.mjs"]
 });
-//============================================================
-// JOIN: ti/transfer/ti-transfer-props.mjs
-//============================================================
+//========================================
+// JOIN <ti-transfer-props.mjs> ti/com/ti/transfer/ti-transfer-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -25467,9 +28017,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/transfer/ti-transfer-props.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/transfer/ti-transfer.html
-//============================================================
+//========================================
+// JOIN <ti-transfer.html> ti/com/ti/transfer/ti-transfer.html
+//========================================
 Ti.Preload("ti/com/ti/transfer/ti-transfer.html", `<div class="ti-transfer"
   :class="TopClass"
   :style="TopStyle">
@@ -25562,9 +28112,9 @@ Ti.Preload("ti/com/ti/transfer/ti-transfer.html", `<div class="ti-transfer"
     </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/transfer/ti-transfer.mjs
-//============================================================
+//========================================
+// JOIN <ti-transfer.mjs> ti/com/ti/transfer/ti-transfer.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////////
@@ -26004,9 +28554,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/transfer/ti-transfer.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/transfer/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/transfer/_com.json
+//========================================
 Ti.Preload("ti/com/ti/transfer/_com.json", {
   "name" : "ti-transfer",
   "globally" : true,
@@ -26014,9 +28564,9 @@ Ti.Preload("ti/com/ti/transfer/_com.json", {
   "props" : "./ti-transfer-props.mjs",
   "mixins" : ["./ti-transfer.mjs"]
 });
-//============================================================
-// JOIN: ti/tree/ti-tree.html
-//============================================================
+//========================================
+// JOIN <ti-tree.html> ti/com/ti/tree/ti-tree.html
+//========================================
 Ti.Preload("ti/com/ti/tree/ti-tree.html", `<ti-table
   class="ti-tree"
   :class="TopClass"
@@ -26058,9 +28608,9 @@ Ti.Preload("ti/com/ti/tree/ti-tree.html", `<ti-table
   @select="OnRowSelect"
   @cell:item:change="OnCellItemChange"/>
   `);
-//============================================================
-// JOIN: ti/tree/ti-tree.mjs
-//============================================================
+//========================================
+// JOIN <ti-tree.mjs> ti/com/ti/tree/ti-tree.mjs
+//========================================
 (function(){
 const TI_TREE = {
   //////////////////////////////////////////
@@ -26751,9 +29301,9 @@ const TI_TREE = {
 }
 Ti.Preload("ti/com/ti/tree/ti-tree.mjs", TI_TREE);
 })();
-//============================================================
-// JOIN: ti/tree/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/tree/_com.json
+//========================================
 Ti.Preload("ti/com/ti/tree/_com.json", {
   "name" : "ti-tree",
   "globally" : true,
@@ -26762,9 +29312,9 @@ Ti.Preload("ti/com/ti/tree/_com.json", {
   "components" : [
     "@com:ti/table"]
 });
-//============================================================
-// JOIN: ti/upload/file/ti-upload-file.html
-//============================================================
+//========================================
+// JOIN <ti-upload-file.html> ti/com/ti/upload/file/ti-upload-file.html
+//========================================
 Ti.Preload("ti/com/ti/upload/file/ti-upload-file.html", `<div class="ti-upload-file full-field"
   :class="TopClass">
   <!--
@@ -26813,9 +29363,9 @@ Ti.Preload("ti/com/ti/upload/file/ti-upload-file.html", `<div class="ti-upload-f
     <!--//////-->
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/upload/file/ti-upload-file.mjs
-//============================================================
+//========================================
+// JOIN <ti-upload-file.mjs> ti/com/ti/upload/file/ti-upload-file.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -27016,18 +29566,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/upload/file/ti-upload-file.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/upload/file/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/upload/file/_com.json
+//========================================
 Ti.Preload("ti/com/ti/upload/file/_com.json", {
   "name" : "ti-upload-file",
   "globally" : true,
   "template" : "./ti-upload-file.html",
   "mixins" : ["./ti-upload-file.mjs"]
 });
-//============================================================
-// JOIN: ti/wall/com/wall-tile/wall-tile.html
-//============================================================
+//========================================
+// JOIN <wall-tile.html> ti/com/ti/wall/com/wall-tile/wall-tile.html
+//========================================
 Ti.Preload("ti/com/ti/wall/com/wall-tile/wall-tile.html", `<div class="wall-tile"
   :class="TopClass"
   :style="TopStyle">
@@ -27041,9 +29591,9 @@ Ti.Preload("ti/com/ti/wall/com/wall-tile/wall-tile.html", `<div class="wall-tile
       v-bind="myCom.comConf"/>
   </div>
 </div>`);
-//============================================================
-// JOIN: ti/wall/com/wall-tile/wall-tile.mjs
-//============================================================
+//========================================
+// JOIN <wall-tile.mjs> ti/com/ti/wall/com/wall-tile/wall-tile.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -27132,9 +29682,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/wall/com/wall-tile/wall-tile.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/wall/com/wall-tile/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/wall/com/wall-tile/_com.json
+//========================================
 Ti.Preload("ti/com/ti/wall/com/wall-tile/_com.json", {
   "name" : "wall-tile",
   "globally" : false,
@@ -27144,9 +29694,9 @@ Ti.Preload("ti/com/ti/wall/com/wall-tile/_com.json", {
     "@com:ti/support/list_item_mixins.mjs",
     "./wall-tile.mjs"]
 });
-//============================================================
-// JOIN: ti/wall/ti-wall.html
-//============================================================
+//========================================
+// JOIN <ti-wall.html> ti/com/ti/wall/ti-wall.html
+//========================================
 Ti.Preload("ti/com/ti/wall/ti-wall.html", `<div class="ti-wall" 
   :class="TopClass"
   @click="OnClickTop"
@@ -27189,9 +29739,9 @@ Ti.Preload("ti/com/ti/wall/ti-wall.html", `<div class="ti-wall"
     </div>
   </template>
 </div>`);
-//============================================================
-// JOIN: ti/wall/ti-wall.mjs
-//============================================================
+//========================================
+// JOIN <ti-wall.mjs> ti/com/ti/wall/ti-wall.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -27396,9 +29946,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/wall/ti-wall.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/wall/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/wall/_com.json
+//========================================
 Ti.Preload("ti/com/ti/wall/_com.json", {
   "name" : "ti-wall",
   "globally" : true,
@@ -27414,17 +29964,17 @@ Ti.Preload("ti/com/ti/wall/_com.json", {
     "@com:ti/label"
   ]
 });
-//============================================================
-// JOIN: ti/wizard/com/wizard-step/wizard-step.html
-//============================================================
+//========================================
+// JOIN <wizard-step.html> ti/com/ti/wizard/com/wizard-step/wizard-step.html
+//========================================
 Ti.Preload("ti/com/ti/wizard/com/wizard-step/wizard-step.html", `<component 
   class="ti-fill-parent"
   :is="comType"
   v-bind="comConf"
   @change="OnChange"/>`);
-//============================================================
-// JOIN: ti/wizard/com/wizard-step/wizard-step.mjs
-//============================================================
+//========================================
+// JOIN <wizard-step.mjs> ti/com/ti/wizard/com/wizard-step/wizard-step.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -27486,18 +30036,18 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/wizard/com/wizard-step/wizard-step.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/wizard/com/wizard-step/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/wizard/com/wizard-step/_com.json
+//========================================
 Ti.Preload("ti/com/ti/wizard/com/wizard-step/_com.json", {
   "name" : "wizard-step",
   "globally" : true,
   "template" : "./wizard-step.html",
   "mixins" : ["./wizard-step.mjs"]
 });
-//============================================================
-// JOIN: ti/wizard/ti-wizard.html
-//============================================================
+//========================================
+// JOIN <ti-wizard.html> ti/com/ti/wizard/ti-wizard.html
+//========================================
 Ti.Preload("ti/com/ti/wizard/ti-wizard.html", `<div class="ti-wizard ti-fill-parent"
   :class="TopClass"><div class="wizard-con">
   <!--
@@ -27572,9 +30122,9 @@ Ti.Preload("ti/com/ti/wizard/ti-wizard.html", `<div class="ti-wizard ti-fill-par
       </div>
   </div>
 </div></div>`);
-//============================================================
-// JOIN: ti/wizard/ti-wizard.mjs
-//============================================================
+//========================================
+// JOIN <ti-wizard.mjs> ti/com/ti/wizard/ti-wizard.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -27882,9 +30432,9 @@ const _M = {
 }
 Ti.Preload("ti/com/ti/wizard/ti-wizard.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/wizard/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/ti/wizard/_com.json
+//========================================
 Ti.Preload("ti/com/ti/wizard/_com.json", {
   "name" : "ti-wizard",
   "globally" : true,
@@ -27893,9 +30443,9 @@ Ti.Preload("ti/com/ti/wizard/_com.json", {
   "components" : [
     "./com/wizard-step"]
 });
-//============================================================
-// JOIN: web/auth/passwd/auth-passwd.html
-//============================================================
+//========================================
+// JOIN <auth-passwd.html> ti/com/web/auth/passwd/auth-passwd.html
+//========================================
 Ti.Preload("ti/com/web/auth/passwd/auth-passwd.html", `<div 
   class="web-auth-passwd web-simple-form" 
   :class="TopClass">
@@ -28053,9 +30603,9 @@ Ti.Preload("ti/com/web/auth/passwd/auth-passwd.html", `<div
     </section>
   </template>
 </div>`);
-//============================================================
-// JOIN: web/auth/passwd/auth-passwd.mjs
-//============================================================
+//========================================
+// JOIN <auth-passwd.mjs> ti/com/web/auth/passwd/auth-passwd.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////////
@@ -28458,18 +31008,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/auth/passwd/auth-passwd.mjs", _M);
 })();
-//============================================================
-// JOIN: web/auth/passwd/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/auth/passwd/_com.json
+//========================================
 Ti.Preload("ti/com/web/auth/passwd/_com.json", {
   "name" : "web-auth-passwd",
   "globally" : true,
   "template" : "./auth-passwd.html",
   "mixins" : ["./auth-passwd.mjs"]
 });
-//============================================================
-// JOIN: web/auth/signup/auth-signup.html
-//============================================================
+//========================================
+// JOIN <auth-signup.html> ti/com/web/auth/signup/auth-signup.html
+//========================================
 Ti.Preload("ti/com/web/auth/signup/auth-signup.html", `<div 
   class="web-auth-signup web-simple-form" 
   :class="TopClass"
@@ -28548,9 +31098,9 @@ Ti.Preload("ti/com/web/auth/signup/auth-signup.html", `<div
     </footer>
   </template>
 </div>`);
-//============================================================
-// JOIN: web/auth/signup/auth-signup.mjs
-//============================================================
+//========================================
+// JOIN <auth-signup.mjs> ti/com/web/auth/signup/auth-signup.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////////
@@ -29007,24 +31557,24 @@ const _M = {
 }
 Ti.Preload("ti/com/web/auth/signup/auth-signup.mjs", _M);
 })();
-//============================================================
-// JOIN: web/auth/signup/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/auth/signup/_com.json
+//========================================
 Ti.Preload("ti/com/web/auth/signup/_com.json", {
   "name" : "web-auth-signup",
   "globally" : true,
   "template" : "./auth-signup.html",
   "mixins" : ["./auth-signup.mjs"]
 });
-//============================================================
-// JOIN: web/footer/web-footer.html
-//============================================================
+//========================================
+// JOIN <web-footer.html> ti/com/web/footer/web-footer.html
+//========================================
 Ti.Preload("ti/com/web/footer/web-footer.html", `<div class="ti-web-footer">
   I footer
 </div>`);
-//============================================================
-// JOIN: web/footer/web-footer.mjs
-//============================================================
+//========================================
+// JOIN <web-footer.mjs> ti/com/web/footer/web-footer.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -29052,18 +31602,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/footer/web-footer.mjs", _M);
 })();
-//============================================================
-// JOIN: web/footer/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/footer/_com.json
+//========================================
 Ti.Preload("ti/com/web/footer/_com.json", {
   "name" : "web-footer",
   "globally" : true,
   "template" : "./web-footer.html",
   "mixins"   : ["./web-footer.mjs"]
 });
-//============================================================
-// JOIN: web/gis/leaflet/leaflet-mock-methods.mjs
-//============================================================
+//========================================
+// JOIN <leaflet-mock-methods.mjs> ti/com/web/gis/leaflet/leaflet-mock-methods.mjs
+//========================================
 (function(){
 const _M = {
   //--------------------------------------
@@ -29087,9 +31637,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/gis/leaflet/leaflet-mock-methods.mjs", _M);
 })();
-//============================================================
-// JOIN: web/gis/leaflet/leaflet-redraw-methods.mjs
-//============================================================
+//========================================
+// JOIN <leaflet-redraw-methods.mjs> ti/com/web/gis/leaflet/leaflet-redraw-methods.mjs
+//========================================
 (function(){
 const _M = {
   //--------------------------------------
@@ -29390,9 +31940,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/gis/leaflet/leaflet-redraw-methods.mjs", _M);
 })();
-//============================================================
-// JOIN: web/gis/leaflet/leaflet-tiles-methods.mjs
-//============================================================
+//========================================
+// JOIN <leaflet-tiles-methods.mjs> ti/com/web/gis/leaflet/leaflet-tiles-methods.mjs
+//========================================
 (function(){
 const TILES = {
   // 高德路网：
@@ -29531,9 +32081,9 @@ const _M = {
 ////////////////////////////////////////////
 Ti.Preload("ti/com/web/gis/leaflet/leaflet-tiles-methods.mjs", _M);
 })();
-//============================================================
-// JOIN: web/gis/leaflet/web-gis-leaflet-props.mjs
-//============================================================
+//========================================
+// JOIN <web-gis-leaflet-props.mjs> ti/com/web/gis/leaflet/web-gis-leaflet-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -29719,9 +32269,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/gis/leaflet/web-gis-leaflet-props.mjs", _M);
 })();
-//============================================================
-// JOIN: web/gis/leaflet/web-gis-leaflet.html
-//============================================================
+//========================================
+// JOIN <web-gis-leaflet.html> ti/com/web/gis/leaflet/web-gis-leaflet.html
+//========================================
 Ti.Preload("ti/com/web/gis/leaflet/web-gis-leaflet.html", `<div class="web-gsi-leaflet ti-fill-parent"
   :class="TopClass"
   :style="TopStyle">
@@ -29783,9 +32333,9 @@ Ti.Preload("ti/com/web/gis/leaflet/web-gis-leaflet.html", `<div class="web-gsi-l
       </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/gis/leaflet/web-gis-leaflet.mjs
-//============================================================
+//========================================
+// JOIN <web-gis-leaflet.mjs> ti/com/web/gis/leaflet/web-gis-leaflet.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////
@@ -30304,9 +32854,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/gis/leaflet/web-gis-leaflet.mjs", _M);
 })();
-//============================================================
-// JOIN: web/gis/leaflet/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/gis/leaflet/_com.json
+//========================================
 Ti.Preload("ti/com/web/gis/leaflet/_com.json", {
   "name" : "web-gis-leaflet",
   "globally" : true,
@@ -30323,9 +32873,9 @@ Ti.Preload("ti/com/web/gis/leaflet/_com.json", {
     "@deps:leaflet/leaflet.css"
   ]
 });
-//============================================================
-// JOIN: web/media/image/web-media-image.html
-//============================================================
+//========================================
+// JOIN <web-media-image.html> ti/com/web/media/image/web-media-image.html
+//========================================
 Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-image"
   :class="TopClass"
   :style="TopStyle"
@@ -30357,9 +32907,9 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
         :style="ZoomLenDockStyle"></div>
   </template>
 </a>`);
-//============================================================
-// JOIN: web/media/image/web-media-image.mjs
-//============================================================
+//========================================
+// JOIN <web-media-image.mjs> ti/com/web/media/image/web-media-image.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////
@@ -30594,24 +33144,24 @@ const _M = {
 }
 Ti.Preload("ti/com/web/media/image/web-media-image.mjs", _M);
 })();
-//============================================================
-// JOIN: web/media/image/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/media/image/_com.json
+//========================================
 Ti.Preload("ti/com/web/media/image/_com.json", {
   "name" : "web-media-image",
   "globally" : true,
   "template" : "./web-media-image.html",
   "mixins"   : ["./web-media-image.mjs"]
 });
-//============================================================
-// JOIN: web/media/player/web-media-player.html
-//============================================================
+//========================================
+// JOIN <web-media-player.html> ti/com/web/media/player/web-media-player.html
+//========================================
 Ti.Preload("ti/com/web/media/player/web-media-player.html", `<div class="ti-web-image">
   
 </div>`);
-//============================================================
-// JOIN: web/media/player/web-media-player.mjs
-//============================================================
+//========================================
+// JOIN <web-media-player.mjs> ti/com/web/media/player/web-media-player.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -30652,18 +33202,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/media/player/web-media-player.mjs", _M);
 })();
-//============================================================
-// JOIN: web/media/player/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/media/player/_com.json
+//========================================
 Ti.Preload("ti/com/web/media/player/_com.json", {
   "name" : "web-media-player",
   "globally" : true,
   "template" : "./web-media-player.html",
   "mixins"   : ["./web-media-player.mjs"]
 });
-//============================================================
-// JOIN: web/meta/article/web-meta-article.html
-//============================================================
+//========================================
+// JOIN <web-meta-article.html> ti/com/web/meta/article/web-meta-article.html
+//========================================
 Ti.Preload("ti/com/web/meta/article/web-meta-article.html", `<div class="web-meta-article"
   :class="TopClass">
   <!--
@@ -30710,9 +33260,9 @@ Ti.Preload("ti/com/web/meta/article/web-meta-article.html", `<div class="web-met
   -->
   <hr v-if="bottomLine" class="as-bottom-line">
 </div>`);
-//============================================================
-// JOIN: web/meta/article/web-meta-article.mjs
-//============================================================
+//========================================
+// JOIN <web-meta-article.mjs> ti/com/web/meta/article/web-meta-article.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -30799,18 +33349,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/meta/article/web-meta-article.mjs", _M);
 })();
-//============================================================
-// JOIN: web/meta/article/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/meta/article/_com.json
+//========================================
 Ti.Preload("ti/com/web/meta/article/_com.json", {
   "name" : "web-meta-article",
   "globally" : true,
   "template" : "./web-meta-article.html",
   "mixins"   : ["./web-meta-article.mjs"]
 });
-//============================================================
-// JOIN: web/meta/badge/web-meta-badge.html
-//============================================================
+//========================================
+// JOIN <web-meta-badge.html> ti/com/web/meta/badge/web-meta-badge.html
+//========================================
 Ti.Preload("ti/com/web/meta/badge/web-meta-badge.html", `<div class="web-meta-badge"
   :class="TopClass">
   <!--==============================-->
@@ -30844,9 +33394,9 @@ Ti.Preload("ti/com/web/meta/badge/web-meta-badge.html", `<div class="web-meta-ba
       </ul>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/meta/badge/web-meta-badge.mjs
-//============================================================
+//========================================
+// JOIN <web-meta-badge.mjs> ti/com/web/meta/badge/web-meta-badge.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -30992,18 +33542,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/meta/badge/web-meta-badge.mjs", _M);
 })();
-//============================================================
-// JOIN: web/meta/badge/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/meta/badge/_com.json
+//========================================
 Ti.Preload("ti/com/web/meta/badge/_com.json", {
   "name" : "web-meta-badge",
   "globally" : true,
   "template" : "./web-meta-badge.html",
   "mixins"   : ["./web-meta-badge.mjs"]
 });
-//============================================================
-// JOIN: web/meta/commodity/web-meta-commodity.html
-//============================================================
+//========================================
+// JOIN <web-meta-commodity.html> ti/com/web/meta/commodity/web-meta-commodity.html
+//========================================
 Ti.Preload("ti/com/web/meta/commodity/web-meta-commodity.html", `<div class="web-meta-commodity"
   :class="TopClass">
   <div class="as-main">
@@ -31035,9 +33585,9 @@ Ti.Preload("ti/com/web/meta/commodity/web-meta-commodity.html", `<div class="web
     </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/meta/commodity/web-meta-commodity.mjs
-//============================================================
+//========================================
+// JOIN <web-meta-commodity.mjs> ti/com/web/meta/commodity/web-meta-commodity.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -31113,9 +33663,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/meta/commodity/web-meta-commodity.mjs", _M);
 })();
-//============================================================
-// JOIN: web/meta/commodity/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/meta/commodity/_com.json
+//========================================
 Ti.Preload("ti/com/web/meta/commodity/_com.json", {
   "name" : "web-meta-commodity",
   "globally" : true,
@@ -31125,9 +33675,9 @@ Ti.Preload("ti/com/web/meta/commodity/_com.json", {
     "@com:web/meta/preview"
   ]
 });
-//============================================================
-// JOIN: web/meta/order/com/order-item/order-item.html
-//============================================================
+//========================================
+// JOIN <order-item.html> ti/com/web/meta/order/com/order-item/order-item.html
+//========================================
 Ti.Preload("ti/com/web/meta/order/com/order-item/order-item.html", `<div class="as-row order-item">
   <!--Thumb/Title-->
   <div class="as-cell">
@@ -31152,9 +33702,9 @@ Ti.Preload("ti/com/web/meta/order/com/order-item/order-item.html", `<div class="
     <em class="ti-num is-md">{{feeText}}</em>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/meta/order/com/order-item/order-item.mjs
-//============================================================
+//========================================
+// JOIN <order-item.mjs> ti/com/web/meta/order/com/order-item/order-item.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -31216,18 +33766,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/meta/order/com/order-item/order-item.mjs", _M);
 })();
-//============================================================
-// JOIN: web/meta/order/com/order-item/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/meta/order/com/order-item/_com.json
+//========================================
 Ti.Preload("ti/com/web/meta/order/com/order-item/_com.json", {
   "name" : "order-item",
   "globally" : false,
   "template" : "./order-item.html",
   "mixins"   : ["./order-item.mjs"]
 });
-//============================================================
-// JOIN: web/meta/order/web-meta-order.html
-//============================================================
+//========================================
+// JOIN <web-meta-order.html> ti/com/web/meta/order/web-meta-order.html
+//========================================
 Ti.Preload("ti/com/web/meta/order/web-meta-order.html", `<div class="web-meta-order"
   :class="TopClass">
   <!--
@@ -31324,9 +33874,9 @@ Ti.Preload("ti/com/web/meta/order/web-meta-order.html", `<div class="web-meta-or
     </table>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/meta/order/web-meta-order.mjs
-//============================================================
+//========================================
+// JOIN <web-meta-order.mjs> ti/com/web/meta/order/web-meta-order.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -31454,9 +34004,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/meta/order/web-meta-order.mjs", _M);
 })();
-//============================================================
-// JOIN: web/meta/order/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/meta/order/_com.json
+//========================================
 Ti.Preload("ti/com/web/meta/order/_com.json", {
   "name" : "web-meta-order",
   "globally" : true,
@@ -31466,9 +34016,9 @@ Ti.Preload("ti/com/web/meta/order/_com.json", {
     "./com/order-item"
   ]
 });
-//============================================================
-// JOIN: web/meta/preview/web-meta-preview.html
-//============================================================
+//========================================
+// JOIN <web-meta-preview.html> ti/com/web/meta/preview/web-meta-preview.html
+//========================================
 Ti.Preload("ti/com/web/meta/preview/web-meta-preview.html", `<div class="ti-web-preview ti-fill-parent">
   <!--
     Top: Image
@@ -31481,9 +34031,9 @@ Ti.Preload("ti/com/web/meta/preview/web-meta-preview.html", `<div class="ti-web-
   -->
   
 </div>`);
-//============================================================
-// JOIN: web/meta/preview/web-meta-preview.mjs
-//============================================================
+//========================================
+// JOIN <web-meta-preview.mjs> ti/com/web/meta/preview/web-meta-preview.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -31511,18 +34061,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/meta/preview/web-meta-preview.mjs", _M);
 })();
-//============================================================
-// JOIN: web/meta/preview/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/meta/preview/_com.json
+//========================================
 Ti.Preload("ti/com/web/meta/preview/_com.json", {
   "name" : "web-meta-preview",
   "globally" : true,
   "template" : "./web-meta-preview.html",
   "mixins"   : ["./web-meta-preview.mjs"]
 });
-//============================================================
-// JOIN: web/nav/columns/nav-columns.html
-//============================================================
+//========================================
+// JOIN <nav-columns.html> ti/com/web/nav/columns/nav-columns.html
+//========================================
 Ti.Preload("ti/com/web/nav/columns/nav-columns.html", `<nav class="web-nav-columns"
   :class="TopClass">
   <!--=======================================-->
@@ -31575,9 +34125,9 @@ Ti.Preload("ti/com/web/nav/columns/nav-columns.html", `<nav class="web-nav-colum
   </div>
   <!--=======================================-->
 </nav>`);
-//============================================================
-// JOIN: web/nav/columns/nav-columns.mjs
-//============================================================
+//========================================
+// JOIN <nav-columns.mjs> ti/com/web/nav/columns/nav-columns.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -31676,9 +34226,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/nav/columns/nav-columns.mjs", _M);
 })();
-//============================================================
-// JOIN: web/nav/columns/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/nav/columns/_com.json
+//========================================
 Ti.Preload("ti/com/web/nav/columns/_com.json", {
   "name" : "web-nav-columns",
   "globally" : true,
@@ -31689,9 +34239,9 @@ Ti.Preload("ti/com/web/nav/columns/_com.json", {
   ],
   "components" : []
 });
-//============================================================
-// JOIN: web/nav/crumb/nav-crumb.html
-//============================================================
+//========================================
+// JOIN <nav-crumb.html> ti/com/web/nav/crumb/nav-crumb.html
+//========================================
 Ti.Preload("ti/com/web/nav/crumb/nav-crumb.html", `<nav class="web-nav-crumb"
   :class="TopClass">
   <!--=======================================-->
@@ -31741,9 +34291,9 @@ Ti.Preload("ti/com/web/nav/crumb/nav-crumb.html", `<nav class="web-nav-crumb"
       class="as-title">{{title|i18n}}</div>
   <!--=======================================-->
 </nav>`);
-//============================================================
-// JOIN: web/nav/crumb/nav-crumb.mjs
-//============================================================
+//========================================
+// JOIN <nav-crumb.mjs> ti/com/web/nav/crumb/nav-crumb.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -31771,9 +34321,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/nav/crumb/nav-crumb.mjs", _M);
 })();
-//============================================================
-// JOIN: web/nav/crumb/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/nav/crumb/_com.json
+//========================================
 Ti.Preload("ti/com/web/nav/crumb/_com.json", {
   "name" : "web-nav-crumb",
   "globally" : true,
@@ -31784,9 +34334,9 @@ Ti.Preload("ti/com/web/nav/crumb/_com.json", {
   ],
   "components" : []
 });
-//============================================================
-// JOIN: web/nav/links/nav-links.html
-//============================================================
+//========================================
+// JOIN <nav-links.html> ti/com/web/nav/links/nav-links.html
+//========================================
 Ti.Preload("ti/com/web/nav/links/nav-links.html", `<nav class="web-nav-links"
   :class="TopClass">
   <!--=======================================-->
@@ -31837,9 +34387,9 @@ Ti.Preload("ti/com/web/nav/links/nav-links.html", `<nav class="web-nav-links"
   </a>
   <!--=======================================-->
 </nav>`);
-//============================================================
-// JOIN: web/nav/links/nav-links.mjs
-//============================================================
+//========================================
+// JOIN <nav-links.mjs> ti/com/web/nav/links/nav-links.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -31926,9 +34476,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/nav/links/nav-links.mjs", _M);
 })();
-//============================================================
-// JOIN: web/nav/links/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/nav/links/_com.json
+//========================================
 Ti.Preload("ti/com/web/nav/links/_com.json", {
   "name" : "web-nav-links",
   "globally" : true,
@@ -31939,9 +34489,9 @@ Ti.Preload("ti/com/web/nav/links/_com.json", {
   ],
   "components" : []
 });
-//============================================================
-// JOIN: web/nav/side/com/side-item/side-item.html
-//============================================================
+//========================================
+// JOIN <side-item.html> ti/com/web/nav/side/com/side-item/side-item.html
+//========================================
 Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.html", `<div class="side-item" 
   :class="TopClass">
   <!--
@@ -31997,9 +34547,9 @@ Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.html", `<div class="side
     </div>
   </transition>
 </div>`);
-//============================================================
-// JOIN: web/nav/side/com/side-item/side-item.mjs
-//============================================================
+//========================================
+// JOIN <side-item.mjs> ti/com/web/nav/side/com/side-item/side-item.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////////
@@ -32163,17 +34713,17 @@ const _M = {
 }
 Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.mjs", _M);
 })();
-//============================================================
-// JOIN: web/nav/side/com/side-item/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/nav/side/com/side-item/_com.json
+//========================================
 Ti.Preload("ti/com/web/nav/side/com/side-item/_com.json", {
   "name" : "side-item",
   "template" : "./side-item.html",
   "mixins" : ["./side-item.mjs"]
 });
-//============================================================
-// JOIN: web/nav/side/web-nav-side.html
-//============================================================
+//========================================
+// JOIN <web-nav-side.html> ti/com/web/nav/side/web-nav-side.html
+//========================================
 Ti.Preload("ti/com/web/nav/side/web-nav-side.html", `<div class="web-nav-side"
   :class="TopClass"
   v-ti-activable>
@@ -32187,9 +34737,9 @@ Ti.Preload("ti/com/web/nav/side/web-nav-side.html", `<div class="web-nav-side"
         @click:item="OnClickLink"
         @change:opened="OnChangeOpened"/>
 </div>`);
-//============================================================
-// JOIN: web/nav/side/web-nav-side.mjs
-//============================================================
+//========================================
+// JOIN <web-nav-side.mjs> ti/com/web/nav/side/web-nav-side.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -32229,9 +34779,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/nav/side/web-nav-side.mjs", _M);
 })();
-//============================================================
-// JOIN: web/nav/side/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/nav/side/_com.json
+//========================================
 Ti.Preload("ti/com/web/nav/side/_com.json", {
   "name" : "web-nav-side",
   "globally" : true,
@@ -32242,9 +34792,9 @@ Ti.Preload("ti/com/web/nav/side/_com.json", {
   ],
   "components" : ["./com/side-item"]
 });
-//============================================================
-// JOIN: web/nav/support/web-nav-mixins.mjs
-//============================================================
+//========================================
+// JOIN <web-nav-mixins.mjs> ti/com/web/nav/support/web-nav-mixins.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -32322,9 +34872,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/nav/support/web-nav-mixins.mjs", _M);
 })();
-//============================================================
-// JOIN: web/pay/checkout/web-pay-checkout-props.mjs
-//============================================================
+//========================================
+// JOIN <web-pay-checkout-props.mjs> ti/com/web/pay/checkout/web-pay-checkout-props.mjs
+//========================================
 (function(){
 const _M = {
   "tipIcon": {
@@ -32370,9 +34920,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout-props.mjs", _M);
 })();
-//============================================================
-// JOIN: web/pay/checkout/web-pay-checkout.html
-//============================================================
+//========================================
+// JOIN <web-pay-checkout.html> ti/com/web/pay/checkout/web-pay-checkout.html
+//========================================
 Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout.html", `<div class="web-pay-checkout"
   :class="TopClass">
   <!--
@@ -32498,9 +35048,9 @@ Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout.html", `<div class="web-pay
     </div>
   </template>
 </div>`);
-//============================================================
-// JOIN: web/pay/checkout/web-pay-checkout.mjs
-//============================================================
+//========================================
+// JOIN <web-pay-checkout.mjs> ti/com/web/pay/checkout/web-pay-checkout.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -32602,9 +35152,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/pay/checkout/web-pay-checkout.mjs", _M);
 })();
-//============================================================
-// JOIN: web/pay/checkout/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/pay/checkout/_com.json
+//========================================
 Ti.Preload("ti/com/web/pay/checkout/_com.json", {
   "name" : "web-pay-checkout",
   "globally" : true,
@@ -32612,9 +35162,9 @@ Ti.Preload("ti/com/web/pay/checkout/_com.json", {
   "props"    : "./web-pay-checkout-props.mjs",
   "mixins"   : ["./web-pay-checkout.mjs"]
 });
-//============================================================
-// JOIN: web/pay/choose/web-pay-choose-props.mjs
-//============================================================
+//========================================
+// JOIN <web-pay-choose-props.mjs> ti/com/web/pay/choose/web-pay-choose-props.mjs
+//========================================
 (function(){
 const _M = {
   "options" : {
@@ -32632,9 +35182,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/pay/choose/web-pay-choose-props.mjs", _M);
 })();
-//============================================================
-// JOIN: web/pay/choose/web-pay-choose.html
-//============================================================
+//========================================
+// JOIN <web-pay-choose.html> ti/com/web/pay/choose/web-pay-choose.html
+//========================================
 Ti.Preload("ti/com/web/pay/choose/web-pay-choose.html", `<div class="web-pay-choose"
   :class="TopClass">
   <!--Title-->
@@ -32652,9 +35202,9 @@ Ti.Preload("ti/com/web/pay/choose/web-pay-choose.html", `<div class="web-pay-cho
   </div>
   <div class="as-tip">{{PayTypeText}}</div>
 </div>`);
-//============================================================
-// JOIN: web/pay/choose/web-pay-choose.mjs
-//============================================================
+//========================================
+// JOIN <web-pay-choose.mjs> ti/com/web/pay/choose/web-pay-choose.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////////////
@@ -32708,9 +35258,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/pay/choose/web-pay-choose.mjs", _M);
 })();
-//============================================================
-// JOIN: web/pay/choose/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/pay/choose/_com.json
+//========================================
 Ti.Preload("ti/com/web/pay/choose/_com.json", {
   "name" : "web-pay-choose",
   "globally" : true,
@@ -32718,9 +35268,9 @@ Ti.Preload("ti/com/web/pay/choose/_com.json", {
   "props"    : "./web-pay-choose-props.mjs",
   "mixins"   : ["./web-pay-choose.mjs"]
 });
-//============================================================
-// JOIN: web/pay/done/web-pay-done-props.mjs
-//============================================================
+//========================================
+// JOIN <web-pay-done-props.mjs> ti/com/web/pay/done/web-pay-done-props.mjs
+//========================================
 (function(){
 const _M = {
   "waitIcon": {
@@ -32765,9 +35315,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/pay/done/web-pay-done-props.mjs", _M);
 })();
-//============================================================
-// JOIN: web/pay/done/web-pay-done.html
-//============================================================
+//========================================
+// JOIN <web-pay-done.html> ti/com/web/pay/done/web-pay-done.html
+//========================================
 Ti.Preload("ti/com/web/pay/done/web-pay-done.html", `<div class="web-pay-done"
   :class="TopClass">
   <!--
@@ -32806,9 +35356,9 @@ Ti.Preload("ti/com/web/pay/done/web-pay-done.html", `<div class="web-pay-done"
       </ul>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/pay/done/web-pay-done.mjs
-//============================================================
+//========================================
+// JOIN <web-pay-done.mjs> ti/com/web/pay/done/web-pay-done.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -32893,9 +35443,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/pay/done/web-pay-done.mjs", _M);
 })();
-//============================================================
-// JOIN: web/pay/done/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/pay/done/_com.json
+//========================================
 Ti.Preload("ti/com/web/pay/done/_com.json", {
   "name" : "web-pay-done",
   "globally" : true,
@@ -32903,9 +35453,9 @@ Ti.Preload("ti/com/web/pay/done/_com.json", {
   "props"    : "./web-pay-done-props.mjs",
   "mixins"   : ["./web-pay-done.mjs"]
 });
-//============================================================
-// JOIN: web/pay/proceed/web-pay-proceed-props.mjs
-//============================================================
+//========================================
+// JOIN <web-pay-proceed-props.mjs> ti/com/web/pay/proceed/web-pay-proceed-props.mjs
+//========================================
 (function(){
 const _M = {
   "watchUser" : {
@@ -32951,9 +35501,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed-props.mjs", _M);
 })();
-//============================================================
-// JOIN: web/pay/proceed/web-pay-proceed.html
-//============================================================
+//========================================
+// JOIN <web-pay-proceed.html> ti/com/web/pay/proceed/web-pay-proceed.html
+//========================================
 Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed.html", `<div class="web-pay-proceed">
   <!--
     Wait for create order
@@ -33021,9 +35571,9 @@ Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed.html", `<div class="web-pay-p
     </div>
   </template>
 </div>`);
-//============================================================
-// JOIN: web/pay/proceed/web-pay-proceed.mjs
-//============================================================
+//========================================
+// JOIN <web-pay-proceed.mjs> ti/com/web/pay/proceed/web-pay-proceed.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////////////
@@ -33347,9 +35897,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/pay/proceed/web-pay-proceed.mjs", _M);
 })();
-//============================================================
-// JOIN: web/pay/proceed/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/pay/proceed/_com.json
+//========================================
 Ti.Preload("ti/com/web/pay/proceed/_com.json", {
   "name" : "web-pay-proceed",
   "globally" : true,
@@ -33357,9 +35907,9 @@ Ti.Preload("ti/com/web/pay/proceed/_com.json", {
   "props": "./web-pay-proceed-props.mjs",
   "mixins"   : ["./web-pay-proceed.mjs"]
 });
-//============================================================
-// JOIN: web/pay/web-pay.html
-//============================================================
+//========================================
+// JOIN <web-pay.html> ti/com/web/pay/web-pay.html
+//========================================
 Ti.Preload("ti/com/web/pay/web-pay.html", `<div class="web-pay">
   <ti-wizard
     :current="0"
@@ -33369,9 +35919,9 @@ Ti.Preload("ti/com/web/pay/web-pay.html", `<div class="web-pay">
     can-click-head-item="passed"
     @change="OnChange"/>
 </div>`);
-//============================================================
-// JOIN: web/pay/web-pay.mjs
-//============================================================
+//========================================
+// JOIN <web-pay.mjs> ti/com/web/pay/web-pay.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -33521,9 +36071,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/pay/web-pay.mjs", _M);
 })();
-//============================================================
-// JOIN: web/pay/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/pay/_com.json
+//========================================
 Ti.Preload("ti/com/web/pay/_com.json", {
   "name" : "web-pay",
   "globally" : true,
@@ -33543,9 +36093,9 @@ Ti.Preload("ti/com/web/pay/_com.json", {
     "@com:web/pay/done"
   ]
 });
-//============================================================
-// JOIN: web/row/article/web-row-article.html
-//============================================================
+//========================================
+// JOIN <web-row-article.html> ti/com/web/row/article/web-row-article.html
+//========================================
 Ti.Preload("ti/com/web/row/article/web-row-article.html", `<div class="web-row-article"
   :class="TopClass">
   <!--
@@ -33597,9 +36147,9 @@ Ti.Preload("ti/com/web/row/article/web-row-article.html", `<div class="web-row-a
     <div class="as-brief">{{Article.brief}}</div>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/row/article/web-row-article.mjs
-//============================================================
+//========================================
+// JOIN <web-row-article.mjs> ti/com/web/row/article/web-row-article.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -33721,18 +36271,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/row/article/web-row-article.mjs", _M);
 })();
-//============================================================
-// JOIN: web/row/article/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/row/article/_com.json
+//========================================
 Ti.Preload("ti/com/web/row/article/_com.json", {
   "name" : "web-row-article",
   "globally" : true,
   "template" : "./web-row-article.html",
   "mixins" : ["./web-row-article.mjs"]
 });
-//============================================================
-// JOIN: web/shelf/free/web-shelf-free.html
-//============================================================
+//========================================
+// JOIN <web-shelf-free.html> ti/com/web/shelf/free/web-shelf-free.html
+//========================================
 Ti.Preload("ti/com/web/shelf/free/web-shelf-free.html", `<div class="web-shelf-free"
   :class="TopClass"
   :style="TopStyle">
@@ -33752,9 +36302,9 @@ Ti.Preload("ti/com/web/shelf/free/web-shelf-free.html", `<div class="web-shelf-f
   </div>
   <!--=============================-->
 </div>`);
-//============================================================
-// JOIN: web/shelf/free/web-shelf-free.mjs
-//============================================================
+//========================================
+// JOIN <web-shelf-free.mjs> ti/com/web/shelf/free/web-shelf-free.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -33920,18 +36470,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/shelf/free/web-shelf-free.mjs", _M);
 })();
-//============================================================
-// JOIN: web/shelf/free/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/shelf/free/_com.json
+//========================================
 Ti.Preload("ti/com/web/shelf/free/_com.json", {
   "name" : "web-shelf-free",
   "globally" : true,
   "template" : "./web-shelf-free.html",
   "mixins" : ["./web-shelf-free.mjs"]
 });
-//============================================================
-// JOIN: web/shelf/iconbox/web-shelf-iconbox.html
-//============================================================
+//========================================
+// JOIN <web-shelf-iconbox.html> ti/com/web/shelf/iconbox/web-shelf-iconbox.html
+//========================================
 Ti.Preload("ti/com/web/shelf/iconbox/web-shelf-iconbox.html", `<div class="web-shelf-iconbox"
   :class="TopClass"
   :style="TopStyle">
@@ -33986,9 +36536,9 @@ Ti.Preload("ti/com/web/shelf/iconbox/web-shelf-iconbox.html", `<div class="web-s
     </div></div>
   </transition>
 </div>`);
-//============================================================
-// JOIN: web/shelf/iconbox/web-shelf-iconbox.mjs
-//============================================================
+//========================================
+// JOIN <web-shelf-iconbox.mjs> ti/com/web/shelf/iconbox/web-shelf-iconbox.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -34106,18 +36656,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/shelf/iconbox/web-shelf-iconbox.mjs", _M);
 })();
-//============================================================
-// JOIN: web/shelf/iconbox/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/shelf/iconbox/_com.json
+//========================================
 Ti.Preload("ti/com/web/shelf/iconbox/_com.json", {
   "name" : "web-shelf-iconbox",
   "globally" : true,
   "template" : "./web-shelf-iconbox.html",
   "mixins" : ["./web-shelf-iconbox.mjs"]
 });
-//============================================================
-// JOIN: web/shelf/list/web-shelf-list.html
-//============================================================
+//========================================
+// JOIN <web-shelf-list.html> ti/com/web/shelf/list/web-shelf-list.html
+//========================================
 Ti.Preload("ti/com/web/shelf/list/web-shelf-list.html", `<div class="web-shelf-list"
   :class="TopClass">
   <!--
@@ -34170,9 +36720,9 @@ Ti.Preload("ti/com/web/shelf/list/web-shelf-list.html", `<div class="web-shelf-l
       </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/shelf/list/web-shelf-list.mjs
-//============================================================
+//========================================
+// JOIN <web-shelf-list.mjs> ti/com/web/shelf/list/web-shelf-list.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -34275,18 +36825,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/shelf/list/web-shelf-list.mjs", _M);
 })();
-//============================================================
-// JOIN: web/shelf/list/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/shelf/list/_com.json
+//========================================
 Ti.Preload("ti/com/web/shelf/list/_com.json", {
   "name" : "web-shelf-list",
   "globally" : true,
   "template" : "./web-shelf-list.html",
   "mixins" : ["./web-shelf-list.mjs"]
 });
-//============================================================
-// JOIN: web/shelf/scroller/web-shelf-scroller.html
-//============================================================
+//========================================
+// JOIN <web-shelf-scroller.html> ti/com/web/shelf/scroller/web-shelf-scroller.html
+//========================================
 Ti.Preload("ti/com/web/shelf/scroller/web-shelf-scroller.html", `<div class="web-shelf-scroller"
   :class="TopClass">
   <!--=======================================-->
@@ -34321,9 +36871,9 @@ Ti.Preload("ti/com/web/shelf/scroller/web-shelf-scroller.html", `<div class="web
   </div>
   <!--=======================================-->
 </div>`);
-//============================================================
-// JOIN: web/shelf/scroller/web-shelf-scroller.mjs
-//============================================================
+//========================================
+// JOIN <web-shelf-scroller.mjs> ti/com/web/shelf/scroller/web-shelf-scroller.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -34518,18 +37068,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/shelf/scroller/web-shelf-scroller.mjs", _M);
 })();
-//============================================================
-// JOIN: web/shelf/scroller/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/shelf/scroller/_com.json
+//========================================
 Ti.Preload("ti/com/web/shelf/scroller/_com.json", {
   "name" : "web-shelf-scroller",
   "globally" : true,
   "template" : "./web-shelf-scroller.html",
   "mixins" : ["./web-shelf-scroller.mjs"]
 });
-//============================================================
-// JOIN: web/shelf/slide/web-shelf-slide.html
-//============================================================
+//========================================
+// JOIN <web-shelf-slide.html> ti/com/web/shelf/slide/web-shelf-slide.html
+//========================================
 Ti.Preload("ti/com/web/shelf/slide/web-shelf-slide.html", `<div class="web-shelf-slide"
   :class="TopClass"
   :style="TopStyle">
@@ -34569,9 +37119,9 @@ Ti.Preload("ti/com/web/shelf/slide/web-shelf-slide.html", `<div class="web-shelf
     <i class="im im-angle-right"></i>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/shelf/slide/web-shelf-slide.mjs
-//============================================================
+//========================================
+// JOIN <web-shelf-slide.mjs> ti/com/web/shelf/slide/web-shelf-slide.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -34717,18 +37267,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/shelf/slide/web-shelf-slide.mjs", _M);
 })();
-//============================================================
-// JOIN: web/shelf/slide/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/shelf/slide/_com.json
+//========================================
 Ti.Preload("ti/com/web/shelf/slide/_com.json", {
   "name" : "web-shelf-slide",
   "globally" : true,
   "template" : "./web-shelf-slide.html",
   "mixins" : ["./web-shelf-slide.mjs"]
 });
-//============================================================
-// JOIN: web/shelf/wall/web-shelf-wall.html
-//============================================================
+//========================================
+// JOIN <web-shelf-wall.html> ti/com/web/shelf/wall/web-shelf-wall.html
+//========================================
 Ti.Preload("ti/com/web/shelf/wall/web-shelf-wall.html", `<div class="web-shelf-wall"
   :class="TopClass">
   <!--
@@ -34779,9 +37329,9 @@ Ti.Preload("ti/com/web/shelf/wall/web-shelf-wall.html", `<div class="web-shelf-w
     </div> <!--End Row-->
   </template>
 </div>`);
-//============================================================
-// JOIN: web/shelf/wall/web-shelf-wall.mjs
-//============================================================
+//========================================
+// JOIN <web-shelf-wall.mjs> ti/com/web/shelf/wall/web-shelf-wall.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -34900,18 +37450,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/shelf/wall/web-shelf-wall.mjs", _M);
 })();
-//============================================================
-// JOIN: web/shelf/wall/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/shelf/wall/_com.json
+//========================================
 Ti.Preload("ti/com/web/shelf/wall/_com.json", {
   "name" : "web-shelf-wall",
   "globally" : true,
   "template" : "./web-shelf-wall.html",
   "mixins" : ["./web-shelf-wall.mjs"]
 });
-//============================================================
-// JOIN: web/text/heading/web-text-heading.html
-//============================================================
+//========================================
+// JOIN <web-text-heading.html> ti/com/web/text/heading/web-text-heading.html
+//========================================
 Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-text-heading"
   :class="TopClass">
   <!--Icon-->
@@ -34935,9 +37485,9 @@ Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-tex
       class="as-more"
       @click.left="OnClickMore"><span>{{more|i18n}}</span></div>
 </div>`);
-//============================================================
-// JOIN: web/text/heading/web-text-heading.mjs
-//============================================================
+//========================================
+// JOIN <web-text-heading.mjs> ti/com/web/text/heading/web-text-heading.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -34999,18 +37549,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/text/heading/web-text-heading.mjs", _M);
 })();
-//============================================================
-// JOIN: web/text/heading/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/text/heading/_com.json
+//========================================
 Ti.Preload("ti/com/web/text/heading/_com.json", {
   "name" : "web-text-heading",
   "globally" : true,
   "template" : "./web-text-heading.html",
   "mixins"   : ["./web-text-heading.mjs"]
 });
-//============================================================
-// JOIN: web/text/raw/web-text-raw.html
-//============================================================
+//========================================
+// JOIN <web-text-raw.html> ti/com/web/text/raw/web-text-raw.html
+//========================================
 Ti.Preload("ti/com/web/text/raw/web-text-raw.html", `<div class="web-text-raw" :class="TopClass">
   <!--
     Icon
@@ -35032,9 +37582,9 @@ Ti.Preload("ti/com/web/text/raw/web-text-raw.html", `<div class="web-text-raw" :
       </template>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/text/raw/web-text-raw.mjs
-//============================================================
+//========================================
+// JOIN <web-text-raw.mjs> ti/com/web/text/raw/web-text-raw.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -35090,18 +37640,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/text/raw/web-text-raw.mjs", _M);
 })();
-//============================================================
-// JOIN: web/text/raw/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/text/raw/_com.json
+//========================================
 Ti.Preload("ti/com/web/text/raw/_com.json", {
   "name" : "web-text-raw",
   "globally" : true,
   "template" : "./web-text-raw.html",
   "mixins"   : ["./web-text-raw.mjs"]
 });
-//============================================================
-// JOIN: web/tile/address/web-tile-address.html
-//============================================================
+//========================================
+// JOIN <web-tile-address.html> ti/com/web/tile/address/web-tile-address.html
+//========================================
 Ti.Preload("ti/com/web/tile/address/web-tile-address.html", `<div class="web-tile-address"
   :class="TopClass"
   @click.left="OnClickTop">
@@ -35176,9 +37726,9 @@ Ti.Preload("ti/com/web/tile/address/web-tile-address.html", `<div class="web-til
       <a v-if="can.add" @click="OnAdd">{{'address-shipping-add'|i18n}}</a>
   </div>  
 </div>`);
-//============================================================
-// JOIN: web/tile/address/web-tile-address.mjs
-//============================================================
+//========================================
+// JOIN <web-tile-address.mjs> ti/com/web/tile/address/web-tile-address.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -35332,18 +37882,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/tile/address/web-tile-address.mjs", _M);
 })();
-//============================================================
-// JOIN: web/tile/address/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/tile/address/_com.json
+//========================================
 Ti.Preload("ti/com/web/tile/address/_com.json", {
   "name" : "web-tile-address",
   "globally" : true,
   "template" : "./web-tile-address.html",
   "mixins" : ["./web-tile-address.mjs"]
 });
-//============================================================
-// JOIN: web/tile/comment/web-tile-comment.html
-//============================================================
+//========================================
+// JOIN <web-tile-comment.html> ti/com/web/tile/comment/web-tile-comment.html
+//========================================
 Ti.Preload("ti/com/web/tile/comment/web-tile-comment.html", `<div class="web-tile-comment"
   :class="TopClass">
   <!--
@@ -35365,9 +37915,9 @@ Ti.Preload("ti/com/web/tile/comment/web-tile-comment.html", `<div class="web-til
       <div class="as-content">{{Post.content}}</div>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/tile/comment/web-tile-comment.mjs
-//============================================================
+//========================================
+// JOIN <web-tile-comment.mjs> ti/com/web/tile/comment/web-tile-comment.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -35433,18 +37983,18 @@ const _M = {
 }
 Ti.Preload("ti/com/web/tile/comment/web-tile-comment.mjs", _M);
 })();
-//============================================================
-// JOIN: web/tile/comment/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/tile/comment/_com.json
+//========================================
 Ti.Preload("ti/com/web/tile/comment/_com.json", {
   "name" : "web-tile-comment",
   "globally" : true,
   "template" : "./web-tile-comment.html",
   "mixins" : ["./web-tile-comment.mjs"]
 });
-//============================================================
-// JOIN: web/tile/order/web-tile-order.html
-//============================================================
+//========================================
+// JOIN <web-tile-order.html> ti/com/web/tile/order/web-tile-order.html
+//========================================
 Ti.Preload("ti/com/web/tile/order/web-tile-order.html", `<div class="web-tile-order"
   :class="TopClass">
   <!--
@@ -35510,9 +38060,9 @@ Ti.Preload("ti/com/web/tile/order/web-tile-order.html", `<div class="web-tile-or
     </table>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/tile/order/web-tile-order.mjs
-//============================================================
+//========================================
+// JOIN <web-tile-order.mjs> ti/com/web/tile/order/web-tile-order.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -35609,27 +38159,27 @@ const _M = {
 }
 Ti.Preload("ti/com/web/tile/order/web-tile-order.mjs", _M);
 })();
-//============================================================
-// JOIN: web/tile/order/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/tile/order/_com.json
+//========================================
 Ti.Preload("ti/com/web/tile/order/_com.json", {
   "name" : "web-tile-order",
   "globally" : true,
   "template" : "./web-tile-order.html",
   "mixins" : ["./web-tile-order.mjs"]
 });
-//============================================================
-// JOIN: web/widget/frame/widget-frame.html
-//============================================================
+//========================================
+// JOIN <widget-frame.html> ti/com/web/widget/frame/widget-frame.html
+//========================================
 Ti.Preload("ti/com/web/widget/frame/widget-frame.html", `<div class="web-widget-frame"
   :class="TopClass">
   <template v-if="hasFrameSrce">
     <iframe :src="FrameSrce" class="ti-fill-parent" :style="FrameStyle"></iframe>
   </template>
 </div>`);
-//============================================================
-// JOIN: web/widget/frame/widget-frame.mjs
-//============================================================
+//========================================
+// JOIN <widget-frame.mjs> ti/com/web/widget/frame/widget-frame.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -35668,9 +38218,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/widget/frame/widget-frame.mjs", _M);
 })();
-//============================================================
-// JOIN: web/widget/frame/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/widget/frame/_com.json
+//========================================
 Ti.Preload("ti/com/web/widget/frame/_com.json", {
   "name" : "web-widget-frame",
   "globally" : true,
@@ -35678,9 +38228,9 @@ Ti.Preload("ti/com/web/widget/frame/_com.json", {
   "mixins"   : ["./widget-frame.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: web/widget/input/text/widget-input-text.html
-//============================================================
+//========================================
+// JOIN <widget-input-text.html> ti/com/web/widget/input/text/widget-input-text.html
+//========================================
 Ti.Preload("ti/com/web/widget/input/text/widget-input-text.html", `<div class="web-widget-input-text" 
   :class="TopClass" 
   :style="TopStyle"
@@ -35738,9 +38288,9 @@ Ti.Preload("ti/com/web/widget/input/text/widget-input-text.html", `<div class="w
     </div> <!-- Bottom Bar-->
   </div>
 </div>`);
-//============================================================
-// JOIN: web/widget/input/text/widget-input-text.mjs
-//============================================================
+//========================================
+// JOIN <widget-input-text.mjs> ti/com/web/widget/input/text/widget-input-text.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -35903,9 +38453,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/widget/input/text/widget-input-text.mjs", _M);
 })();
-//============================================================
-// JOIN: web/widget/input/text/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/widget/input/text/_com.json
+//========================================
 Ti.Preload("ti/com/web/widget/input/text/_com.json", {
   "name" : "web-widget-input-text",
   "globally" : true,
@@ -35914,9 +38464,9 @@ Ti.Preload("ti/com/web/widget/input/text/_com.json", {
   "components" : [
     "@com:ti/sheet/emoji"]
 });
-//============================================================
-// JOIN: web/widget/sharebar/widget-sharebar.html
-//============================================================
+//========================================
+// JOIN <widget-sharebar.html> ti/com/web/widget/sharebar/widget-sharebar.html
+//========================================
 Ti.Preload("ti/com/web/widget/sharebar/widget-sharebar.html", `<div class="web-widget-sharebar"
   :class="TopClass">
   <!--
@@ -35937,9 +38487,9 @@ Ti.Preload("ti/com/web/widget/sharebar/widget-sharebar.html", `<div class="web-w
     </a>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/widget/sharebar/widget-sharebar.mjs
-//============================================================
+//========================================
+// JOIN <widget-sharebar.mjs> ti/com/web/widget/sharebar/widget-sharebar.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -36017,9 +38567,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/widget/sharebar/widget-sharebar.mjs", _M);
 })();
-//============================================================
-// JOIN: web/widget/sharebar/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/widget/sharebar/_com.json
+//========================================
 Ti.Preload("ti/com/web/widget/sharebar/_com.json", {
   "name" : "web-widget-sharebar",
   "globally" : true,
@@ -36027,9 +38577,9 @@ Ti.Preload("ti/com/web/widget/sharebar/_com.json", {
   "mixins"   : ["./widget-sharebar.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: web/widget/summary/widget-summary.html
-//============================================================
+//========================================
+// JOIN <widget-summary.html> ti/com/web/widget/summary/widget-summary.html
+//========================================
 Ti.Preload("ti/com/web/widget/summary/widget-summary.html", `<div class="web-widget-summary"
   :class="TopClass">
   <!--
@@ -36058,9 +38608,9 @@ Ti.Preload("ti/com/web/widget/summary/widget-summary.html", `<div class="web-wid
     </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/widget/summary/widget-summary.mjs
-//============================================================
+//========================================
+// JOIN <widget-summary.mjs> ti/com/web/widget/summary/widget-summary.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -36100,9 +38650,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/widget/summary/widget-summary.mjs", _M);
 })();
-//============================================================
-// JOIN: web/widget/summary/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/widget/summary/_com.json
+//========================================
 Ti.Preload("ti/com/web/widget/summary/_com.json", {
   "name" : "web-widget-summary",
   "globally" : true,
@@ -36110,9 +38660,9 @@ Ti.Preload("ti/com/web/widget/summary/_com.json", {
   "mixins"   : ["./widget-summary.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: web/widget/user/widget-user.html
-//============================================================
+//========================================
+// JOIN <widget-user.html> ti/com/web/widget/user/widget-user.html
+//========================================
 Ti.Preload("ti/com/web/widget/user/widget-user.html", `<div class="web-widget-user"
   :class="TopClass">
   <!--
@@ -36139,9 +38689,9 @@ Ti.Preload("ti/com/web/widget/user/widget-user.html", `<div class="web-widget-us
       @click="$notify('go:my:profile')">{{'profile-edit'|i18n}}</div>
   </div>
 </div>`);
-//============================================================
-// JOIN: web/widget/user/widget-user.mjs
-//============================================================
+//========================================
+// JOIN <widget-user.mjs> ti/com/web/widget/user/widget-user.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -36211,9 +38761,9 @@ const _M = {
 }
 Ti.Preload("ti/com/web/widget/user/widget-user.mjs", _M);
 })();
-//============================================================
-// JOIN: web/widget/user/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/web/widget/user/_com.json
+//========================================
 Ti.Preload("ti/com/web/widget/user/_com.json", {
   "name" : "web-widget-user",
   "globally" : true,
@@ -36221,9 +38771,9 @@ Ti.Preload("ti/com/web/widget/user/_com.json", {
   "mixins"   : ["./widget-user.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: wn/adaptlist/wn-adaptlist-methods.mjs
-//============================================================
+//========================================
+// JOIN <wn-adaptlist-methods.mjs> ti/com/wn/adaptlist/wn-adaptlist-methods.mjs
+//========================================
 (function(){
 const OBJ = {
   //---------------------------------------
@@ -36523,9 +39073,9 @@ const OBJ = {
 }
 Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist-methods.mjs", OBJ);
 })();
-//============================================================
-// JOIN: wn/adaptlist/wn-adaptlist-props.mjs
-//============================================================
+//========================================
+// JOIN <wn-adaptlist-props.mjs> ti/com/wn/adaptlist/wn-adaptlist-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -36621,9 +39171,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist-props.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/adaptlist/wn-adaptlist.html
-//============================================================
+//========================================
+// JOIN <wn-adaptlist.html> ti/com/wn/adaptlist/wn-adaptlist.html
+//========================================
 Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", `<div class="wn-adaptlist" 
   :class="TopClass"
   v-ti-activable>
@@ -36693,9 +39243,9 @@ Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", `<div class="wn-adaptlist"
     <!--==================================-->
   </div>
 </div>`);
-//============================================================
-// JOIN: wn/adaptlist/wn-adaptlist.mjs
-//============================================================
+//========================================
+// JOIN <wn-adaptlist.mjs> ti/com/wn/adaptlist/wn-adaptlist.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////
@@ -37034,9 +39584,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/adaptlist/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/adaptlist/_com.json
+//========================================
 Ti.Preload("ti/com/wn/adaptlist/_com.json", {
   "name" : "wn-adaptlist",
   "globally" : true,
@@ -37048,9 +39598,9 @@ Ti.Preload("ti/com/wn/adaptlist/_com.json", {
     "@com:ti/obj/thumb",
     "@com:ti/wall"]
 });
-//============================================================
-// JOIN: wn/chart/combo/wn-chart-combo.html
-//============================================================
+//========================================
+// JOIN <wn-chart-combo.html> ti/com/wn/chart/combo/wn-chart-combo.html
+//========================================
 Ti.Preload("ti/com/wn/chart/combo/wn-chart-combo.html", `<div class="wn-chart-combo"
   :class="TopClass">
   <!--
@@ -37068,9 +39618,9 @@ Ti.Preload("ti/com/wn/chart/combo/wn-chart-combo.html", `<div class="wn-chart-co
         @reload:data="OnReloadChartData(li, $event)"/>
   </div>
 </div>`);
-//============================================================
-// JOIN: wn/chart/combo/wn-chart-combo.mjs
-//============================================================
+//========================================
+// JOIN <wn-chart-combo.mjs> ti/com/wn/chart/combo/wn-chart-combo.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -37310,9 +39860,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/chart/combo/wn-chart-combo.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/chart/combo/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/chart/combo/_com.json
+//========================================
 Ti.Preload("ti/com/wn/chart/combo/_com.json", {
   "name" : "wn-chart-combo",
   "globally" : true,
@@ -37323,9 +39873,9 @@ Ti.Preload("ti/com/wn/chart/combo/_com.json", {
   ],
   "deps" : []
 });
-//============================================================
-// JOIN: wn/cmd/panel/wn-cmd-panel.html
-//============================================================
+//========================================
+// JOIN <wn-cmd-panel.html> ti/com/wn/cmd/panel/wn-cmd-panel.html
+//========================================
 Ti.Preload("ti/com/wn/cmd/panel/wn-cmd-panel.html", `<div class="wn-cmd-panel">
   <!--Head-->
   <div 
@@ -37344,9 +39894,9 @@ Ti.Preload("ti/com/wn/cmd/panel/wn-cmd-panel.html", `<div class="wn-cmd-panel">
         :key="index"
         class="as-line">{{line}}</div></pre>
 </div>`);
-//============================================================
-// JOIN: wn/cmd/panel/wn-cmd-panel.mjs
-//============================================================
+//========================================
+// JOIN <wn-cmd-panel.mjs> ti/com/wn/cmd/panel/wn-cmd-panel.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -37501,18 +40051,18 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/cmd/panel/wn-cmd-panel.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/cmd/panel/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/cmd/panel/_com.json
+//========================================
 Ti.Preload("ti/com/wn/cmd/panel/_com.json", {
   "name" : "wn-cmd-panel",
   "globally" : true,
   "template" : "./wn-cmd-panel.html",
   "mixins"   : ["./wn-cmd-panel.mjs"]
 });
-//============================================================
-// JOIN: wn/combo/edit-com/wn-combo-edit-com.html
-//============================================================
+//========================================
+// JOIN <wn-combo-edit-com.html> ti/com/wn/combo/edit-com/wn-combo-edit-com.html
+//========================================
 Ti.Preload("ti/com/wn/combo/edit-com/wn-combo-edit-com.html", `<ti-label
   class="wn-combo-edit-com"
   :class="className"
@@ -37523,9 +40073,9 @@ Ti.Preload("ti/com/wn/combo/edit-com/wn-combo-edit-com.html", `<ti-label
   @click:value="OnClickValue"
   @suffix:icon="OnClickSuffixIcon"/>
   `);
-//============================================================
-// JOIN: wn/combo/edit-com/wn-combo-edit-com.mjs
-//============================================================
+//========================================
+// JOIN <wn-combo-edit-com.mjs> ti/com/wn/combo/edit-com/wn-combo-edit-com.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -37606,18 +40156,18 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/combo/edit-com/wn-combo-edit-com.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/combo/edit-com/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/combo/edit-com/_com.json
+//========================================
 Ti.Preload("ti/com/wn/combo/edit-com/_com.json", {
   "name" : "wn-combo-edit-com",
   "globally" : true,
   "template" : "./wn-combo-edit-com.html",
   "mixins"   : "./wn-combo-edit-com.mjs"
 });
-//============================================================
-// JOIN: wn/combo/input/wn-combo-input.html
-//============================================================
+//========================================
+// JOIN <wn-combo-input.html> ti/com/wn/combo/input/wn-combo-input.html
+//========================================
 Ti.Preload("ti/com/wn/combo/input/wn-combo-input.html", `<ti-combo-input v-bind="this"
   
   :options="OptionsDict"
@@ -37627,9 +40177,9 @@ Ti.Preload("ti/com/wn/combo/input/wn-combo-input.html", `<ti-combo-input v-bind=
   
   @change="$notify('change', $event)"/>
   `);
-//============================================================
-// JOIN: wn/combo/input/wn-combo-input.mjs
-//============================================================
+//========================================
+// JOIN <wn-combo-input.mjs> ti/com/wn/combo/input/wn-combo-input.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -37689,9 +40239,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/combo/input/wn-combo-input.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/combo/input/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/combo/input/_com.json
+//========================================
 Ti.Preload("ti/com/wn/combo/input/_com.json", {
   "name" : "wn-combo-input",
   "globally" : true,
@@ -37705,9 +40255,9 @@ Ti.Preload("ti/com/wn/combo/input/_com.json", {
     "@com:wn/list",
     "@com:wn/obj/icon"]
 });
-//============================================================
-// JOIN: wn/combo/multi-input/wn-combo-multi-input.html
-//============================================================
+//========================================
+// JOIN <wn-combo-multi-input.html> ti/com/wn/combo/multi-input/wn-combo-multi-input.html
+//========================================
 Ti.Preload("ti/com/wn/combo/multi-input/wn-combo-multi-input.html", `<ti-combo-multi-input v-bind="this"
 
   :options="OptionsDict"
@@ -37719,9 +40269,9 @@ Ti.Preload("ti/com/wn/combo/multi-input/wn-combo-multi-input.html", `<ti-combo-m
   
   @change="$notify('change', $event)"/>
   `);
-//============================================================
-// JOIN: wn/combo/multi-input/wn-combo-multi-input.mjs
-//============================================================
+//========================================
+// JOIN <wn-combo-multi-input.mjs> ti/com/wn/combo/multi-input/wn-combo-multi-input.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -37790,9 +40340,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/combo/multi-input/wn-combo-multi-input.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/combo/multi-input/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/combo/multi-input/_com.json
+//========================================
 Ti.Preload("ti/com/wn/combo/multi-input/_com.json", {
   "name" : "wn-combo-multi-input",
   "globally" : true,
@@ -37807,9 +40357,9 @@ Ti.Preload("ti/com/wn/combo/multi-input/_com.json", {
     "@com:wn/list",
     "@com:wn/obj/icon"]
 });
-//============================================================
-// JOIN: wn/droplist/wn-droplist.html
-//============================================================
+//========================================
+// JOIN <wn-droplist.html> ti/com/wn/droplist/wn-droplist.html
+//========================================
 Ti.Preload("ti/com/wn/droplist/wn-droplist.html", `<component 
   :is="ComType"
   v-bind="this"
@@ -37817,9 +40367,9 @@ Ti.Preload("ti/com/wn/droplist/wn-droplist.html", `<component
   :must-in-list="true"
   :auto-collapse="true"
   @change="$notify('change', $event)"/>`);
-//============================================================
-// JOIN: wn/droplist/wn-droplist.mjs
-//============================================================
+//========================================
+// JOIN <wn-droplist.mjs> ti/com/wn/droplist/wn-droplist.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -37843,9 +40393,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/droplist/wn-droplist.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/droplist/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/droplist/_com.json
+//========================================
 Ti.Preload("ti/com/wn/droplist/_com.json", {
   "name" : "wn-droplist",
   "globally" : true,
@@ -37860,9 +40410,9 @@ Ti.Preload("ti/com/wn/droplist/_com.json", {
     "@com:wn/combo/multi-input"
   ]
 });
-//============================================================
-// JOIN: wn/entity/history/wn-entity-history.html
-//============================================================
+//========================================
+// JOIN <wn-entity-history.html> ti/com/wn/entity/history/wn-entity-history.html
+//========================================
 Ti.Preload("ti/com/wn/entity/history/wn-entity-history.html", `<ti-gui
   class="wn-entity-history"
   :class="TopClass"
@@ -37876,9 +40426,9 @@ Ti.Preload("ti/com/wn/entity/history/wn-entity-history.html", `<ti-gui
   @sorter::change="OnSorterChange"
   @pager::change="OnPagerChange"
   @list::select="OnSelect"/>`);
-//============================================================
-// JOIN: wn/entity/history/wn-entity-history.mjs
-//============================================================
+//========================================
+// JOIN <wn-entity-history.mjs> ti/com/wn/entity/history/wn-entity-history.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -38225,9 +40775,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/entity/history/wn-entity-history.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/entity/history/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/entity/history/_com.json
+//========================================
 Ti.Preload("ti/com/wn/entity/history/_com.json", {
   "name" : "wn-entity-history",
   "globally" : true,
@@ -38239,9 +40789,9 @@ Ti.Preload("ti/com/wn/entity/history/_com.json", {
     "@com:ti/paging/jumper"
   ]
 });
-//============================================================
-// JOIN: wn/fileset/config/wn-fileset-config.html
-//============================================================
+//========================================
+// JOIN <wn-fileset-config.html> ti/com/wn/fileset/config/wn-fileset-config.html
+//========================================
 Ti.Preload("ti/com/wn/fileset/config/wn-fileset-config.html", `<div class="wn-fileset-config"
   :class="TopClass">
   <WnFilesetTabs
@@ -38251,9 +40801,9 @@ Ti.Preload("ti/com/wn/fileset/config/wn-fileset-config.html", `<div class="wn-fi
     :meta="myHomeDir"
     :on-init="OnTabsInit"/>
 </div>`);
-//============================================================
-// JOIN: wn/fileset/config/wn-fileset-config.mjs
-//============================================================
+//========================================
+// JOIN <wn-fileset-config.mjs> ti/com/wn/fileset/config/wn-fileset-config.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -38354,9 +40904,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/fileset/config/wn-fileset-config.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/fileset/config/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/fileset/config/_com.json
+//========================================
 Ti.Preload("ti/com/wn/fileset/config/_com.json", {
   "name" : "wn-fileset-config",
   "globally" : true,
@@ -38370,9 +40920,9 @@ Ti.Preload("ti/com/wn/fileset/config/_com.json", {
   ],
   "deps" : []
 });
-//============================================================
-// JOIN: wn/fileset/list/wn-fileset-list.html
-//============================================================
+//========================================
+// JOIN <wn-fileset-list.html> ti/com/wn/fileset/list/wn-fileset-list.html
+//========================================
 Ti.Preload("ti/com/wn/fileset/list/wn-fileset-list.html", `<TiGui
   class="wn-fileset-list"
   :class="TopClass"
@@ -38386,9 +40936,9 @@ Ti.Preload("ti/com/wn/fileset/list/wn-fileset-list.html", `<TiGui
   @meta::change="OnMetaChange"
   @meta::field:change="OnMetaFieldChange"
   @detail::change="OnDetailChange"/>`);
-//============================================================
-// JOIN: wn/fileset/list/wn-fileset-list.mjs
-//============================================================
+//========================================
+// JOIN <wn-fileset-list.mjs> ti/com/wn/fileset/list/wn-fileset-list.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -38951,9 +41501,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/fileset/list/wn-fileset-list.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/fileset/list/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/fileset/list/_com.json
+//========================================
 Ti.Preload("ti/com/wn/fileset/list/_com.json", {
   "name" : "wn-fileset-list",
   "globally" : true,
@@ -38964,9 +41514,9 @@ Ti.Preload("ti/com/wn/fileset/list/_com.json", {
   "components" : [],
   "deps" : []
 });
-//============================================================
-// JOIN: wn/fileset/tabs/wn-fileset-tabs.html
-//============================================================
+//========================================
+// JOIN <wn-fileset-tabs.html> ti/com/wn/fileset/tabs/wn-fileset-tabs.html
+//========================================
 Ti.Preload("ti/com/wn/fileset/tabs/wn-fileset-tabs.html", `<TiGui
   class="wn-fileset-tabs"
   :class="TopClass"
@@ -38974,9 +41524,9 @@ Ti.Preload("ti/com/wn/fileset/tabs/wn-fileset-tabs.html", `<TiGui
   :on-init="OnGuiInit"
   :shown="myShown"
   @block:shown="OnShownChange"/>`);
-//============================================================
-// JOIN: wn/fileset/tabs/wn-fileset-tabs.mjs
-//============================================================
+//========================================
+// JOIN <wn-fileset-tabs.mjs> ti/com/wn/fileset/tabs/wn-fileset-tabs.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -39093,9 +41643,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/fileset/tabs/wn-fileset-tabs.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/fileset/tabs/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/fileset/tabs/_com.json
+//========================================
 Ti.Preload("ti/com/wn/fileset/tabs/_com.json", {
   "name" : "wn-fileset-tabs",
   "globally" : true,
@@ -39106,18 +41656,18 @@ Ti.Preload("ti/com/wn/fileset/tabs/_com.json", {
   "components" : [],
   "deps" : []
 });
-//============================================================
-// JOIN: wn/gui/arena/wn-gui-arena.html
-//============================================================
+//========================================
+// JOIN <wn-gui-arena.html> ti/com/wn/gui/arena/wn-gui-arena.html
+//========================================
 Ti.Preload("ti/com/wn/gui/arena/wn-gui-arena.html", `<div class="wn-gui-arena">
   <component 
     :is="comType"
       class="ti-cover-parent"
       v-bind="comConf"/>
 </div>`);
-//============================================================
-// JOIN: wn/gui/arena/wn-gui-arena.mjs
-//============================================================
+//========================================
+// JOIN <wn-gui-arena.mjs> ti/com/wn/gui/arena/wn-gui-arena.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -39139,18 +41689,18 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/gui/arena/wn-gui-arena.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/gui/arena/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/gui/arena/_com.json
+//========================================
 Ti.Preload("ti/com/wn/gui/arena/_com.json", {
   "name" : "wn-gui-arena",
   "globally" : true,
   "template" : "./wn-gui-arena.html",
   "mixins"   : ["./wn-gui-arena.mjs"]
 });
-//============================================================
-// JOIN: wn/gui/footer/wn-gui-footer.html
-//============================================================
+//========================================
+// JOIN <wn-gui-footer.html> ti/com/wn/gui/footer/wn-gui-footer.html
+//========================================
 Ti.Preload("ti/com/wn/gui/footer/wn-gui-footer.html", `<div class="wn-gui-footer">
   <!--
     Info
@@ -39174,9 +41724,9 @@ Ti.Preload("ti/com/wn/gui/footer/wn-gui-footer.html", `<div class="wn-gui-footer
     {{indicator}}
   </div>
 </div>`);
-//============================================================
-// JOIN: wn/gui/footer/wn-gui-footer.mjs
-//============================================================
+//========================================
+// JOIN <wn-gui-footer.mjs> ti/com/wn/gui/footer/wn-gui-footer.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -39203,18 +41753,18 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/gui/footer/wn-gui-footer.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/gui/footer/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/gui/footer/_com.json
+//========================================
 Ti.Preload("ti/com/wn/gui/footer/_com.json", {
   "name" : "wn-gui-footer",
   "globally" : true,
   "template" : "./wn-gui-footer.html",
   "mixins"   : ["./wn-gui-footer.mjs"]
 });
-//============================================================
-// JOIN: wn/gui/side/nav/com/side-nav-item/side-nav-item.html
-//============================================================
+//========================================
+// JOIN <side-nav-item.html> ti/com/wn/gui/side/nav/com/side-nav-item/side-nav-item.html
+//========================================
 Ti.Preload("ti/com/wn/gui/side/nav/com/side-nav-item/side-nav-item.html", `<div class="side-nav-item" 
   :class="TopClass">
   <!--
@@ -39257,9 +41807,9 @@ Ti.Preload("ti/com/wn/gui/side/nav/com/side-nav-item/side-nav-item.html", `<div 
         v-bind="subIt"/>
   </div>
 </div>`);
-//============================================================
-// JOIN: wn/gui/side/nav/com/side-nav-item/side-nav-item.mjs
-//============================================================
+//========================================
+// JOIN <side-nav-item.mjs> ti/com/wn/gui/side/nav/com/side-nav-item/side-nav-item.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////
@@ -39396,17 +41946,17 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/gui/side/nav/com/side-nav-item/side-nav-item.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/gui/side/nav/com/side-nav-item/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/gui/side/nav/com/side-nav-item/_com.json
+//========================================
 Ti.Preload("ti/com/wn/gui/side/nav/com/side-nav-item/_com.json", {
   "name" : "side-nav-item",
   "template" : "./side-nav-item.html",
   "mixins" : ["./side-nav-item.mjs"]
 });
-//============================================================
-// JOIN: wn/gui/side/nav/wn-gui-side-nav.html
-//============================================================
+//========================================
+// JOIN <wn-gui-side-nav.html> ti/com/wn/gui/side/nav/wn-gui-side-nav.html
+//========================================
 Ti.Preload("ti/com/wn/gui/side/nav/wn-gui-side-nav.html", `<div class="wn-gui-side-nav"
   :class="TopClass"
   v-ti-activable>
@@ -39415,9 +41965,9 @@ Ti.Preload("ti/com/wn/gui/side/nav/wn-gui-side-nav.html", `<div class="wn-gui-si
     v-bind="it"
     @item:actived="onItemActived"/>
 </div>`);
-//============================================================
-// JOIN: wn/gui/side/nav/wn-gui-side-nav.mjs
-//============================================================
+//========================================
+// JOIN <wn-gui-side-nav.mjs> ti/com/wn/gui/side/nav/wn-gui-side-nav.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -39527,9 +42077,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/gui/side/nav/wn-gui-side-nav.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/gui/side/nav/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/gui/side/nav/_com.json
+//========================================
 Ti.Preload("ti/com/wn/gui/side/nav/_com.json", {
   "name" : "wn-gui-side-nav",
   "globally" : true,
@@ -39537,9 +42087,9 @@ Ti.Preload("ti/com/wn/gui/side/nav/_com.json", {
   "mixins"   : ["./wn-gui-side-nav.mjs"],
   "components" : ["./com/side-nav-item"]
 });
-//============================================================
-// JOIN: wn/gui/side/tree/wn-gui-side-tree.html
-//============================================================
+//========================================
+// JOIN <wn-gui-side-tree.html> ti/com/wn/gui/side/tree/wn-gui-side-tree.html
+//========================================
 Ti.Preload("ti/com/wn/gui/side/tree/wn-gui-side-tree.html", `<ti-tree
   class="ti-fill-parent wn-gui-side-tree"
   id-by="value"
@@ -39554,9 +42104,9 @@ Ti.Preload("ti/com/wn/gui/side/tree/wn-gui-side-tree.html", `<ti-tree
   :show-root="false"
   :puppet-mode="true"
   @select="onItemActived"/>`);
-//============================================================
-// JOIN: wn/gui/side/tree/wn-gui-side-tree.mjs
-//============================================================
+//========================================
+// JOIN <wn-gui-side-tree.mjs> ti/com/wn/gui/side/tree/wn-gui-side-tree.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -39692,9 +42242,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/gui/side/tree/wn-gui-side-tree.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/gui/side/tree/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/gui/side/tree/_com.json
+//========================================
 Ti.Preload("ti/com/wn/gui/side/tree/_com.json", {
   "name" : "wn-gui-side-tree",
   "globally" : true,
@@ -39702,9 +42252,9 @@ Ti.Preload("ti/com/wn/gui/side/tree/_com.json", {
   "mixins"   : ["./wn-gui-side-tree.mjs"],
   "components" : ["@com:ti/tree"]
 });
-//============================================================
-// JOIN: wn/gui/test.json
-//============================================================
+//========================================
+// JOIN <test.json> ti/com/wn/gui/test.json
+//========================================
 Ti.Preload("ti/com/wn/gui/test.json", {
   "layout" : {
     "type" : "cols",
@@ -39848,18 +42398,18 @@ Ti.Preload("ti/com/wn/gui/test.json", {
       "action" : "main:hideBlock(P1)"
     }] 
 });
-//============================================================
-// JOIN: wn/gui/wn-gui.html
-//============================================================
+//========================================
+// JOIN <wn-gui.html> ti/com/wn/gui/wn-gui.html
+//========================================
 Ti.Preload("ti/com/wn/gui/wn-gui.html", `<ti-gui
   v-bind="layout"
   :schema="schema"
   :shown="shown"
   @block:show="showBlock"
   @block:hide="hideBlock"/>`);
-//============================================================
-// JOIN: wn/gui/wn-gui.mjs
-//============================================================
+//========================================
+// JOIN <wn-gui.mjs> ti/com/wn/gui/wn-gui.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : false,
@@ -39910,9 +42460,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/gui/wn-gui.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/gui/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/gui/_com.json
+//========================================
 Ti.Preload("ti/com/wn/gui/_com.json", {
   "name" : "wn-gui",
   "globally" : true,
@@ -39921,9 +42471,9 @@ Ti.Preload("ti/com/wn/gui/_com.json", {
   "mixins"   : ["./wn-gui.mjs"],
   "components" : ["@com:ti/gui"]
 });
-//============================================================
-// JOIN: wn/imgfile/wn-imgfile.html
-//============================================================
+//========================================
+// JOIN <wn-imgfile.html> ti/com/wn/imgfile/wn-imgfile.html
+//========================================
 Ti.Preload("ti/com/wn/imgfile/wn-imgfile.html", `<ti-imgfile
   :src="imageSrc"
   :width="width"
@@ -39934,9 +42484,9 @@ Ti.Preload("ti/com/wn/imgfile/wn-imgfile.html", `<ti-imgfile
   @upload="onUpload"
   @remove="onRemove"
   @open="onOpen"/>`);
-//============================================================
-// JOIN: wn/imgfile/wn-imgfile.mjs
-//============================================================
+//========================================
+// JOIN <wn-imgfile.mjs> ti/com/wn/imgfile/wn-imgfile.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -40166,9 +42716,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/imgfile/wn-imgfile.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/imgfile/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/imgfile/_com.json
+//========================================
 Ti.Preload("ti/com/wn/imgfile/_com.json", {
   "name" : "wn-imgfile",
   "globally" : true,
@@ -40178,17 +42728,17 @@ Ti.Preload("ti/com/wn/imgfile/_com.json", {
     "@com:ti/imgfile"
   ]
 });
-//============================================================
-// JOIN: wn/label/wn-label.html
-//============================================================
+//========================================
+// JOIN <wn-label.html> ti/com/wn/label/wn-label.html
+//========================================
 Ti.Preload("ti/com/wn/label/wn-label.html", `<ti-label
   :class-name="className"
   v-bind="this"
   :value-clickable="ValueClickable"
   @click:value="OnClickValue"/>`);
-//============================================================
-// JOIN: wn/label/wn-label.mjs
-//============================================================
+//========================================
+// JOIN <wn-label.mjs> ti/com/wn/label/wn-label.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -40233,9 +42783,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/label/wn-label.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/label/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/label/_com.json
+//========================================
 Ti.Preload("ti/com/wn/label/_com.json", {
   "name" : "wn-label",
   "globally" : true,
@@ -40245,18 +42795,18 @@ Ti.Preload("ti/com/wn/label/_com.json", {
   "mixins" : ["./wn-label.mjs"],
   "components" : ["@com:ti/label"]
 });
-//============================================================
-// JOIN: wn/list/wn-list.html
-//============================================================
+//========================================
+// JOIN <wn-list.html> ti/com/wn/list/wn-list.html
+//========================================
 Ti.Preload("ti/com/wn/list/wn-list.html", `<ti-list
   v-bind="this"
   :display="DisplayItems"
   :on-init="OnSubListInit"
   @select="OnSelected"
   @open="$notify('open', $event)"/>`);
-//============================================================
-// JOIN: wn/list/wn-list.mjs
-//============================================================
+//========================================
+// JOIN <wn-list.mjs> ti/com/wn/list/wn-list.mjs
+//========================================
 (function(){
 /////////////////////////////////////////////////////
 const _M = {
@@ -40347,9 +42897,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/list/wn-list.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/list/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/list/_com.json
+//========================================
 Ti.Preload("ti/com/wn/list/_com.json", {
   "name" : "wn-list",
   "globally" : true,
@@ -40362,9 +42912,9 @@ Ti.Preload("ti/com/wn/list/_com.json", {
   "components" : [
     "@com:ti/table"]
 });
-//============================================================
-// JOIN: wn/obj/creation/wn-obj-creation.html
-//============================================================
+//========================================
+// JOIN <wn-obj-creation.html> ti/com/wn/obj/creation/wn-obj-creation.html
+//========================================
 Ti.Preload("ti/com/wn/obj/creation/wn-obj-creation.html", `<div class="wn-obj-creation"
   :class="TopClass">
   <!--
@@ -40426,9 +42976,9 @@ Ti.Preload("ti/com/wn/obj/creation/wn-obj-creation.html", `<div class="wn-obj-cr
     </div>
   </div>
 </div>`);
-//============================================================
-// JOIN: wn/obj/creation/wn-obj-creation.mjs
-//============================================================
+//========================================
+// JOIN <wn-obj-creation.mjs> ti/com/wn/obj/creation/wn-obj-creation.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -40568,26 +43118,26 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/creation/wn-obj-creation.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/creation/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/creation/_com.json
+//========================================
 Ti.Preload("ti/com/wn/obj/creation/_com.json", {
   "name" : "wn-obj-creation",
   "globally" : true,
   "template" : "./wn-obj-creation.html",
   "mixins" : ["./wn-obj-creation.mjs"]
 });
-//============================================================
-// JOIN: wn/obj/detail/wn-obj-detail.html
-//============================================================
+//========================================
+// JOIN <wn-obj-detail.html> ti/com/wn/obj/detail/wn-obj-detail.html
+//========================================
 Ti.Preload("ti/com/wn/obj/detail/wn-obj-detail.html", `<TiGui
   class="wn-obj-detail"
   :class="TopClass"
   :layout="Layout"
   :schema="Schema"/>`);
-//============================================================
-// JOIN: wn/obj/detail/wn-obj-detail.mjs
-//============================================================
+//========================================
+// JOIN <wn-obj-detail.mjs> ti/com/wn/obj/detail/wn-obj-detail.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -40661,9 +43211,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/detail/wn-obj-detail.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/detail/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/detail/_com.json
+//========================================
 Ti.Preload("ti/com/wn/obj/detail/_com.json", {
   "name" : "wn-obj-detail",
   "globally" : true,
@@ -40674,9 +43224,9 @@ Ti.Preload("ti/com/wn/obj/detail/_com.json", {
     "@com:wn/obj/preview"
   ]
 });
-//============================================================
-// JOIN: wn/obj/form/wn-obj-form-props.mjs
-//============================================================
+//========================================
+// JOIN <wn-obj-form-props.mjs> ti/com/wn/obj/form/wn-obj-form-props.mjs
+//========================================
 (function(){
 const _M = {
   "fuse" : {
@@ -40714,9 +43264,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/form/wn-obj-form-props.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/form/wn-obj-form.html
-//============================================================
+//========================================
+// JOIN <wn-obj-form.html> ti/com/wn/obj/form/wn-obj-form.html
+//========================================
 Ti.Preload("ti/com/wn/obj/form/wn-obj-form.html", `<ti-form 
   v-bind="this"
   :data="FormData"
@@ -40726,9 +43276,9 @@ Ti.Preload("ti/com/wn/obj/form/wn-obj-form.html", `<ti-form
   @field:change="OnFieldChange"
   @change="OnChange"
   @invalid="OnInvalid"/>`);
-//============================================================
-// JOIN: wn/obj/form/wn-obj-form.mjs
-//============================================================
+//========================================
+// JOIN <wn-obj-form.mjs> ti/com/wn/obj/form/wn-obj-form.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////////////////
@@ -40823,9 +43373,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/form/wn-obj-form.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/form/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/form/_com.json
+//========================================
 Ti.Preload("ti/com/wn/obj/form/_com.json", {
   "name" : "wn-obj-form",
   "globally" : true,
@@ -40844,16 +43394,16 @@ Ti.Preload("ti/com/wn/obj/form/_com.json", {
     "@com:wn/combo/multi-input"
   ]
 });
-//============================================================
-// JOIN: wn/obj/icon/wn-obj-icon.html
-//============================================================
+//========================================
+// JOIN <wn-obj-icon.html> ti/com/wn/obj/icon/wn-obj-icon.html
+//========================================
 Ti.Preload("ti/com/wn/obj/icon/wn-obj-icon.html", `<ti-icon 
   class="wn-obj-icon" 
   :class="topClass"
   :value="theIcon"/>`);
-//============================================================
-// JOIN: wn/obj/icon/wn-obj-icon.mjs
-//============================================================
+//========================================
+// JOIN <wn-obj-icon.mjs> ti/com/wn/obj/icon/wn-obj-icon.mjs
+//========================================
 (function(){
 /////////////////////////////////////////////////////
 const _M = {
@@ -40922,18 +43472,18 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/icon/wn-obj-icon.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/icon/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/icon/_com.json
+//========================================
 Ti.Preload("ti/com/wn/obj/icon/_com.json", {
   "name" : "wn-obj-icon",
   "globally" : true,
   "template" : "./wn-obj-icon.html",
   "mixins" : ["./wn-obj-icon.mjs"]
 });
-//============================================================
-// JOIN: wn/obj/id/wn-obj-id.html
-//============================================================
+//========================================
+// JOIN <wn-obj-id.html> ti/com/wn/obj/id/wn-obj-id.html
+//========================================
 Ti.Preload("ti/com/wn/obj/id/wn-obj-id.html", `<div class="wn-obj-id"
   :class="TopClass"
   @mouseenter="OnMouseEnter"
@@ -40981,9 +43531,9 @@ Ti.Preload("ti/com/wn/obj/id/wn-obj-id.html", `<div class="wn-obj-id"
     </table>
   </div>
 </div>`);
-//============================================================
-// JOIN: wn/obj/id/wn-obj-id.mjs
-//============================================================
+//========================================
+// JOIN <wn-obj-id.mjs> ti/com/wn/obj/id/wn-obj-id.mjs
+//========================================
 (function(){
 /////////////////////////////////////////////////////
 const _M = {
@@ -41057,18 +43607,18 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/id/wn-obj-id.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/id/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/id/_com.json
+//========================================
 Ti.Preload("ti/com/wn/obj/id/_com.json", {
   "name" : "wn-obj-id",
   "globally" : true,
   "template" : "./wn-obj-id.html",
   "mixins" : ["./wn-obj-id.mjs"]
 });
-//============================================================
-// JOIN: wn/obj/json/wn-obj-json.html
-//============================================================
+//========================================
+// JOIN <wn-obj-json.html> ti/com/wn/obj/json/wn-obj-json.html
+//========================================
 Ti.Preload("ti/com/wn/obj/json/wn-obj-json.html", `<div class="wn-obj-json">
   <!--
     Show Text Editor
@@ -41082,9 +43632,9 @@ Ti.Preload("ti/com/wn/obj/json/wn-obj-json.html", `<div class="wn-obj-json">
   -->
   <ti-loading v-else/>
 </div>`);
-//============================================================
-// JOIN: wn/obj/json/wn-obj-json.mjs
-//============================================================
+//========================================
+// JOIN <wn-obj-json.mjs> ti/com/wn/obj/json/wn-obj-json.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////
@@ -41138,9 +43688,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/json/wn-obj-json.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/json/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/json/_com.json
+//========================================
 Ti.Preload("ti/com/wn/obj/json/_com.json", {
   "name" : "wn-obj-json",
   "globally" : true,
@@ -41148,9 +43698,9 @@ Ti.Preload("ti/com/wn/obj/json/_com.json", {
   "mixins" : ["./wn-obj-json.mjs"],
   "components" : ["@com:ti/text/json"]
 });
-//============================================================
-// JOIN: wn/obj/markdown/richeditor/wn-markdown-richeditor-props.mjs
-//============================================================
+//========================================
+// JOIN <wn-markdown-richeditor-props.mjs> ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor-props.mjs
+//========================================
 (function(){
 const _M = {
   // Relative meta
@@ -41181,9 +43731,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor-props.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/markdown/richeditor/wn-markdown-richeditor.html
-//============================================================
+//========================================
+// JOIN <wn-markdown-richeditor.html> ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor.html
+//========================================
 Ti.Preload("ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor.html", `<TiTextMarkdownRicheditor
   v-bind="this"
   :actions="ToolbarActions"
@@ -41191,9 +43741,9 @@ Ti.Preload("ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor.html", `<Ti
   :preview-media-src="ThePreviewMediaSrc"
   :value="TheValue"
   :on-init="OnEditorInit"/>`);
-//============================================================
-// JOIN: wn/obj/markdown/richeditor/wn-markdown-richeditor.mjs
-//============================================================
+//========================================
+// JOIN <wn-markdown-richeditor.mjs> ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -41368,9 +43918,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/markdown/richeditor/wn-markdown-richeditor.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/markdown/richeditor/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/markdown/richeditor/_com.json
+//========================================
 Ti.Preload("ti/com/wn/obj/markdown/richeditor/_com.json", {
   "name" : "wn-obj-markdown-richeditor",
   "globally" : true,
@@ -41385,9 +43935,9 @@ Ti.Preload("ti/com/wn/obj/markdown/richeditor/_com.json", {
     "@com:ti/text/markdown/richeditor"
   ]
 });
-//============================================================
-// JOIN: wn/obj/picker/wn-obj-picker.html
-//============================================================
+//========================================
+// JOIN <wn-obj-picker.html> ti/com/wn/obj/picker/wn-obj-picker.html
+//========================================
 Ti.Preload("ti/com/wn/obj/picker/wn-obj-picker.html", `<div class="wn-obj-picker"
   :class="TopClass">
   <!--
@@ -41431,9 +43981,9 @@ Ti.Preload("ti/com/wn/obj/picker/wn-obj-picker.html", `<div class="wn-obj-picker
     v-if="loading"
       class="as-mid-tip-mask"/>
 </div>`);
-//============================================================
-// JOIN: wn/obj/picker/wn-obj-picker.mjs
-//============================================================
+//========================================
+// JOIN <wn-obj-picker.mjs> ti/com/wn/obj/picker/wn-obj-picker.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -41771,9 +44321,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/picker/wn-obj-picker.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/picker/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/picker/_com.json
+//========================================
 Ti.Preload("ti/com/wn/obj/picker/_com.json", {
   "name" : "wn-obj-picker",
   "globally" : true,
@@ -41783,9 +44333,9 @@ Ti.Preload("ti/com/wn/obj/picker/_com.json", {
     "@com:wn/adaptlist"],
   "deps": ["@deps:sortable.js"]
 });
-//============================================================
-// JOIN: wn/obj/preview/com/preview-info-field/preview-info-field.html
-//============================================================
+//========================================
+// JOIN <preview-info-field.html> ti/com/wn/obj/preview/com/preview-info-field/preview-info-field.html
+//========================================
 Ti.Preload("ti/com/wn/obj/preview/com/preview-info-field/preview-info-field.html", `<div class="info-field">
   <div class="as-name" :style="theNameStyle">
     <ti-icon v-if="icon" class="it-icon" :value="icon"/>
@@ -41793,9 +44343,9 @@ Ti.Preload("ti/com/wn/obj/preview/com/preview-info-field/preview-info-field.html
   </div>
   <div class="as-value" :style="theValueStyle">{{theValue}}</div>
 </div>`);
-//============================================================
-// JOIN: wn/obj/preview/com/preview-info-field/preview-info-field.mjs
-//============================================================
+//========================================
+// JOIN <preview-info-field.mjs> ti/com/wn/obj/preview/com/preview-info-field/preview-info-field.mjs
+//========================================
 (function(){
 /////////////////////////////////////////////////////
 const _M = {
@@ -41897,18 +44447,18 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/preview/com/preview-info-field/preview-info-field.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/preview/com/preview-info-field/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/preview/com/preview-info-field/_com.json
+//========================================
 Ti.Preload("ti/com/wn/obj/preview/com/preview-info-field/_com.json", {
   "name" : "wn-obj-preview-info-field",
   "globally" : true,
   "template" : "./preview-info-field.html",
   "mixins" : ["./preview-info-field.mjs"]
 });
-//============================================================
-// JOIN: wn/obj/preview/wn-obj-preview.html
-//============================================================
+//========================================
+// JOIN <wn-obj-preview.html> ti/com/wn/obj/preview/wn-obj-preview.html
+//========================================
 Ti.Preload("ti/com/wn/obj/preview/wn-obj-preview.html", `<div class="wn-obj-preview" :class="TopClass">
   <!--
     With content
@@ -41966,9 +44516,9 @@ Ti.Preload("ti/com/wn/obj/preview/wn-obj-preview.html", `<div class="wn-obj-prev
       class="ti-fill-parent"
       :class="blankClass"/>
 </div>`);
-//============================================================
-// JOIN: wn/obj/preview/wn-obj-preview.mjs
-//============================================================
+//========================================
+// JOIN <wn-obj-preview.mjs> ti/com/wn/obj/preview/wn-obj-preview.mjs
+//========================================
 (function(){
 const _M = {
   //////////////////////////////////////////
@@ -42307,9 +44857,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/preview/wn-obj-preview.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/preview/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/preview/_com.json
+//========================================
 Ti.Preload("ti/com/wn/obj/preview/_com.json", {
   "name" : "wn-obj-preview",
   "globally" : true,
@@ -42322,9 +44872,9 @@ Ti.Preload("ti/com/wn/obj/preview/_com.json", {
     "@com:ti/media/image",
     "@com:ti/media/video"]
 });
-//============================================================
-// JOIN: wn/obj/puretext/wn-obj-puretext.html
-//============================================================
+//========================================
+// JOIN <wn-obj-puretext.html> ti/com/wn/obj/puretext/wn-obj-puretext.html
+//========================================
 Ti.Preload("ti/com/wn/obj/puretext/wn-obj-puretext.html", `<div class="wn-obj-puretext">
   <!--
     Show Text Editor
@@ -42347,9 +44897,9 @@ Ti.Preload("ti/com/wn/obj/puretext/wn-obj-puretext.html", `<div class="wn-obj-pu
     <span>{{"empty-data"|i18n}}</span>
   </div>
 </div>`);
-//============================================================
-// JOIN: wn/obj/puretext/wn-obj-puretext.mjs
-//============================================================
+//========================================
+// JOIN <wn-obj-puretext.mjs> ti/com/wn/obj/puretext/wn-obj-puretext.mjs
+//========================================
 (function(){
 const _M = {
   inheritAttrs : true,
@@ -42434,9 +44984,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/puretext/wn-obj-puretext.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/puretext/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/puretext/_com.json
+//========================================
 Ti.Preload("ti/com/wn/obj/puretext/_com.json", {
   "name" : "wn-obj-puretext",
   "globally" : true,
@@ -42444,9 +44994,9 @@ Ti.Preload("ti/com/wn/obj/puretext/_com.json", {
   "mixins" : ["./wn-obj-puretext.mjs"],
   "components" : ["@com:ti/text/raw"]
 });
-//============================================================
-// JOIN: wn/obj/tree/wn-obj-tree.html
-//============================================================
+//========================================
+// JOIN <wn-obj-tree.html> ti/com/wn/obj/tree/wn-obj-tree.html
+//========================================
 Ti.Preload("ti/com/wn/obj/tree/wn-obj-tree.html", `<div class="wn-obj-tree"
   :class="TopClass"
   :style="TopStyle">
@@ -42490,9 +45040,9 @@ Ti.Preload("ti/com/wn/obj/tree/wn-obj-tree.html", `<div class="wn-obj-tree"
     @opened="OnNodeOpened"
     @opened-status:changed="OnTreeOpenedStatusChange"/>
 </div>`);
-//============================================================
-// JOIN: wn/obj/tree/wn-obj-tree.mjs
-//============================================================
+//========================================
+// JOIN <wn-obj-tree.mjs> ti/com/wn/obj/tree/wn-obj-tree.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -42999,9 +45549,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/obj/tree/wn-obj-tree.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj/tree/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/tree/_com.json
+//========================================
 Ti.Preload("ti/com/wn/obj/tree/_com.json", {
   "name" : "wn-obj-tree",
   "globally" : true,
@@ -43009,9 +45559,9 @@ Ti.Preload("ti/com/wn/obj/tree/_com.json", {
   "mixins"   : ["./wn-obj-tree.mjs"],
   "components" : ["@com:ti/tree"]
 });
-//============================================================
-// JOIN: wn/session/badge/wn-session-badge.html
-//============================================================
+//========================================
+// JOIN <wn-session-badge.html> ti/com/wn/session/badge/wn-session-badge.html
+//========================================
 Ti.Preload("ti/com/wn/session/badge/wn-session-badge.html", `<div class="wn-session-badge"
   :class="TopClass">
   <!--
@@ -43068,9 +45618,9 @@ Ti.Preload("ti/com/wn/session/badge/wn-session-badge.html", `<div class="wn-sess
     </div>
   </template>
 </div>`);
-//============================================================
-// JOIN: wn/session/badge/wn-session-badge.mjs
-//============================================================
+//========================================
+// JOIN <wn-session-badge.mjs> ti/com/wn/session/badge/wn-session-badge.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -43194,9 +45744,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/session/badge/wn-session-badge.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/session/badge/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/session/badge/_com.json
+//========================================
 Ti.Preload("ti/com/wn/session/badge/_com.json", {
   "name" : "wn-session-badge",
   "globally" : true,
@@ -43206,9 +45756,9 @@ Ti.Preload("ti/com/wn/session/badge/_com.json", {
     "@com:ti/session/badge"
   ]
 });
-//============================================================
-// JOIN: wn/support/wn-fileset-mixins.mjs
-//============================================================
+//========================================
+// JOIN <wn-fileset-mixins.mjs> ti/com/wn/support/wn-fileset-mixins.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////////
@@ -43293,9 +45843,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/support/wn-fileset-mixins.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/support/wn_list_wrapper_mixins.mjs
-//============================================================
+//========================================
+// JOIN <wn_list_wrapper_mixins.mjs> ti/com/wn/support/wn_list_wrapper_mixins.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -43347,18 +45897,18 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/support/wn_list_wrapper_mixins.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/table/wn-table.html
-//============================================================
+//========================================
+// JOIN <wn-table.html> ti/com/wn/table/wn-table.html
+//========================================
 Ti.Preload("ti/com/wn/table/wn-table.html", `<ti-table
   v-bind="this"
   :fields="TheFields"
   :on-init="OnSubListInit"
   @select="OnSelected"
   @open="$notify('open', $event)"/>`);
-//============================================================
-// JOIN: wn/table/wn-table.mjs
-//============================================================
+//========================================
+// JOIN <wn-table.mjs> ti/com/wn/table/wn-table.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -43427,9 +45977,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/table/wn-table.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/table/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/table/_com.json
+//========================================
 Ti.Preload("ti/com/wn/table/_com.json", {
   "name" : "wn-table",
   "globally" : true,
@@ -43443,9 +45993,9 @@ Ti.Preload("ti/com/wn/table/_com.json", {
   "components" : [
     "@com:ti/table"]
 });
-//============================================================
-// JOIN: wn/thing/manager/com/thing-creator/thing-creator.html
-//============================================================
+//========================================
+// JOIN <thing-creator.html> ti/com/wn/thing/manager/com/thing-creator/thing-creator.html
+//========================================
 Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/thing-creator.html", `<div class="thing-creator ti-box-relative">
   <ti-form
     :fields="fields"
@@ -43468,9 +46018,9 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/thing-creator.html", `<div
     <ti-loading text="i18n:creating"/>
   </div>
 </div>`);
-//============================================================
-// JOIN: wn/thing/manager/com/thing-creator/thing-creator.mjs
-//============================================================
+//========================================
+// JOIN <thing-creator.mjs> ti/com/wn/thing/manager/com/thing-creator/thing-creator.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////
@@ -43544,9 +46094,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/thing-creator.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/manager/com/thing-creator/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/thing/manager/com/thing-creator/_com.json
+//========================================
 Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/_com.json", {
   "name" : "wn-thing-creator",
   "globally" : true,
@@ -43554,9 +46104,9 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/_com.json", {
   "mixins"   : ["./thing-creator.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: wn/thing/manager/com/thing-files/thing-files-props.mjs
-//============================================================
+//========================================
+// JOIN <thing-files-props.mjs> ti/com/wn/thing/manager/com/thing-files/thing-files-props.mjs
+//========================================
 (function(){
 const _M = {
   //-----------------------------------
@@ -43661,9 +46211,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files-props.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/manager/com/thing-files/thing-files.html
-//============================================================
+//========================================
+// JOIN <thing-files.html> ti/com/wn/thing/manager/com/thing-files/thing-files.html
+//========================================
 Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.html", `<div class="wn-thing-files"
   :class="TopClass">
   <!--
@@ -43731,9 +46281,9 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.html", `<div cla
       :text="nilText"
       :icon="nilIcon"/>
 </div>`);
-//============================================================
-// JOIN: wn/thing/manager/com/thing-files/thing-files.mjs
-//============================================================
+//========================================
+// JOIN <thing-files.mjs> ti/com/wn/thing/manager/com/thing-files/thing-files.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////
@@ -43954,9 +46504,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/manager/com/thing-files/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/thing/manager/com/thing-files/_com.json
+//========================================
 Ti.Preload("ti/com/wn/thing/manager/com/thing-files/_com.json", {
   "name" : "wn-thing-files",
   "globally" : true,
@@ -43967,9 +46517,9 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-files/_com.json", {
     "@com:wn/adaptlist"
   ]
 });
-//============================================================
-// JOIN: wn/thing/manager/com/thing-filter/thing-filter.html
-//============================================================
+//========================================
+// JOIN <thing-filter.html> ti/com/wn/thing/manager/com/thing-filter/thing-filter.html
+//========================================
 Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/thing-filter.html", `<div class="wn-thing-filter"
   :class="TopClass">
   <!--
@@ -44006,9 +46556,9 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/thing-filter.html", `<div c
       :value="value.sorter"
       @change="OnSorterChange"/>
 </div>`);
-//============================================================
-// JOIN: wn/thing/manager/com/thing-filter/thing-filter.mjs
-//============================================================
+//========================================
+// JOIN <thing-filter.mjs> ti/com/wn/thing/manager/com/thing-filter/thing-filter.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////
@@ -44077,9 +46627,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/thing-filter.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/manager/com/thing-filter/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/thing/manager/com/thing-filter/_com.json
+//========================================
 Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/_com.json", {
   "name" : "wn-thing-filter",
   "globally" : true,
@@ -44090,9 +46640,9 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-filter/_com.json", {
     "@com:ti/combo/sorter"
   ]
 });
-//============================================================
-// JOIN: wn/thing/manager/com/thing-markdown-editor/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/thing/manager/com/thing-markdown-editor/_com.json
+//========================================
 Ti.Preload("ti/com/wn/thing/manager/com/thing-markdown-editor/_com.json", {
   "name" : "wn-thing-markdown-richeditor",
   "globally" : true,
@@ -44100,9 +46650,9 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-markdown-editor/_com.json", {
   "mixins"   : ["./thing-markdown-richeditor.mjs"],
   "components" : []
 });
-//============================================================
-// JOIN: wn/thing/manager/wn-thing-manager-methods.mjs
-//============================================================
+//========================================
+// JOIN <wn-thing-manager-methods.mjs> ti/com/wn/thing/manager/wn-thing-manager-methods.mjs
+//========================================
 (function(){
 const _M = {
   //--------------------------------------
@@ -44301,9 +46851,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager-methods.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/manager/wn-thing-manager.html
-//============================================================
+//========================================
+// JOIN <wn-thing-manager.html> ti/com/wn/thing/manager/wn-thing-manager.html
+//========================================
 Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager.html", `<ti-gui
   class="wn-thing"
   :class="TopClass"
@@ -44314,9 +46864,9 @@ Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager.html", `<ti-gui
   :can-loading="true"
   :loading-as="GuiLoadingAs"
   :action-status="status"/>`);
-//============================================================
-// JOIN: wn/thing/manager/wn-thing-manager.mjs
-//============================================================
+//========================================
+// JOIN <wn-thing-manager.mjs> ti/com/wn/thing/manager/wn-thing-manager.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////
@@ -44602,9 +47152,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/manager/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/thing/manager/_com.json
+//========================================
 Ti.Preload("ti/com/wn/thing/manager/_com.json", {
   "name" : "wn-thing-manager",
   "globally" : true,
@@ -44627,15 +47177,15 @@ Ti.Preload("ti/com/wn/thing/manager/_com.json", {
     "@com:wn/obj/form",
     "@com:wn/upload/file"]
 });
-//============================================================
-// JOIN: wn/thing/markdown/richeditor/thing-markdown-richeditor.html
-//============================================================
+//========================================
+// JOIN <thing-markdown-richeditor.html> ti/com/wn/thing/markdown/richeditor/thing-markdown-richeditor.html
+//========================================
 Ti.Preload("ti/com/wn/thing/markdown/richeditor/thing-markdown-richeditor.html", `<WnObjMarkdownRicheditor
   v-bind="this"
   :on-init="OnEditorInit"/>`);
-//============================================================
-// JOIN: wn/thing/markdown/richeditor/thing-markdown-richeditor.mjs
-//============================================================
+//========================================
+// JOIN <thing-markdown-richeditor.mjs> ti/com/wn/thing/markdown/richeditor/thing-markdown-richeditor.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////
@@ -44674,9 +47224,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/thing/markdown/richeditor/thing-markdown-richeditor.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/markdown/richeditor/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/thing/markdown/richeditor/_com.json
+//========================================
 Ti.Preload("ti/com/wn/thing/markdown/richeditor/_com.json", {
   "name" : "wn-thing-markdown-richeditor",
   "globally" : true,
@@ -44693,9 +47243,9 @@ Ti.Preload("ti/com/wn/thing/markdown/richeditor/_com.json", {
     "@lib:code2a/cheap-markdown.mjs"
   ]
 });
-//============================================================
-// JOIN: wn/transfer/wn-transfer.html
-//============================================================
+//========================================
+// JOIN <wn-transfer.html> ti/com/wn/transfer/wn-transfer.html
+//========================================
 Ti.Preload("ti/com/wn/transfer/wn-transfer.html", `<ti-transfer v-bind="this"
   
   :options="OptionsDict"
@@ -44704,9 +47254,9 @@ Ti.Preload("ti/com/wn/transfer/wn-transfer.html", `<ti-transfer v-bind="this"
   :display="TheDisplay"
 
   @change="$notify('change', $event)"/>`);
-//============================================================
-// JOIN: wn/transfer/wn-transfer.mjs
-//============================================================
+//========================================
+// JOIN <wn-transfer.mjs> ti/com/wn/transfer/wn-transfer.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////////////////
@@ -44750,9 +47300,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/transfer/wn-transfer.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/transfer/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/transfer/_com.json
+//========================================
 Ti.Preload("ti/com/wn/transfer/_com.json", {
   "name" : "wn-transfer",
   "globally" : true,
@@ -44761,9 +47311,9 @@ Ti.Preload("ti/com/wn/transfer/_com.json", {
   "mixins" : ["./wn-transfer.mjs"],
   "components" : ["@com:ti/transfer"]
 });
-//============================================================
-// JOIN: wn/upload/file/wn-upload-file.html
-//============================================================
+//========================================
+// JOIN <wn-upload-file.html> ti/com/wn/upload/file/wn-upload-file.html
+//========================================
 Ti.Preload("ti/com/wn/upload/file/wn-upload-file.html", `<TiUploadFile
   :preview="PreviewIcon"
   :width="width"
@@ -44776,9 +47326,9 @@ Ti.Preload("ti/com/wn/upload/file/wn-upload-file.html", `<TiUploadFile
   @upload="onUpload"
   @remove="onRemove"
   @open="onOpen"/>`);
-//============================================================
-// JOIN: wn/upload/file/wn-upload-file.mjs
-//============================================================
+//========================================
+// JOIN <wn-upload-file.mjs> ti/com/wn/upload/file/wn-upload-file.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -45069,9 +47619,9 @@ const _M = {
 }
 Ti.Preload("ti/com/wn/upload/file/wn-upload-file.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/upload/file/_com.json
-//============================================================
+//========================================
+// JOIN <_com.json> ti/com/wn/upload/file/_com.json
+//========================================
 Ti.Preload("ti/com/wn/upload/file/_com.json", {
   "name" : "wn-upload-file",
   "globally" : true,
@@ -45081,9 +47631,9 @@ Ti.Preload("ti/com/wn/upload/file/_com.json", {
     "@com:ti/upload/file"
   ]
 });
-//============================================================
-// JOIN: hmaker/website/mod/site-config/site-config-actions.mjs
-//============================================================
+//========================================
+// JOIN <site-config-actions.mjs> ti/mod/hmaker/website/mod/site-config/site-config-actions.mjs
+//========================================
 (function(){
 const _M = {
   //----------------------------------------
@@ -45099,9 +47649,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/hmaker/website/mod/site-config/site-config-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: hmaker/website/mod/site-config/site-config.json
-//============================================================
+//========================================
+// JOIN <site-config.json> ti/mod/hmaker/website/mod/site-config/site-config.json
+//========================================
 Ti.Preload("ti/mod/hmaker/website/mod/site-config/site-config.json", {
   "meta" : null,
   "desktop" : {
@@ -45258,9 +47808,9 @@ Ti.Preload("ti/mod/hmaker/website/mod/site-config/site-config.json", {
     "reloading" : false
   }
 });
-//============================================================
-// JOIN: hmaker/website/mod/site-config/site-config.mjs
-//============================================================
+//========================================
+// JOIN <site-config.mjs> ti/mod/hmaker/website/mod/site-config/site-config.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////
@@ -45279,9 +47829,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/hmaker/website/mod/site-config/site-config.mjs", _M);
 })();
-//============================================================
-// JOIN: hmaker/website/mod/site-config/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/mod/hmaker/website/mod/site-config/_mod.json
+//========================================
 Ti.Preload("ti/mod/hmaker/website/mod/site-config/_mod.json", {
   "name" : "hmaker-site-config",
   "namespaced" : true,
@@ -45289,9 +47839,9 @@ Ti.Preload("ti/mod/hmaker/website/mod/site-config/_mod.json", {
   "actions" : "./site-config-actions.mjs",
   "mixins" : "./site-config.mjs"
 });
-//============================================================
-// JOIN: hmaker/website/mod/site-tree/site-tree-actions.mjs
-//============================================================
+//========================================
+// JOIN <site-tree-actions.mjs> ti/mod/hmaker/website/mod/site-tree/site-tree-actions.mjs
+//========================================
 (function(){
 const _M = {
   //----------------------------------------
@@ -45416,17 +47966,17 @@ const _M = {
 }
 Ti.Preload("ti/mod/hmaker/website/mod/site-tree/site-tree-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: hmaker/website/mod/site-tree/site-tree.json
-//============================================================
+//========================================
+// JOIN <site-tree.json> ti/mod/hmaker/website/mod/site-tree/site-tree.json
+//========================================
 Ti.Preload("ti/mod/hmaker/website/mod/site-tree/site-tree.json", {
   "root" : {},
   "currentId" : null,
   "openedNodePaths" : {}
 });
-//============================================================
-// JOIN: hmaker/website/mod/site-tree/site-tree.mjs
-//============================================================
+//========================================
+// JOIN <site-tree.mjs> ti/mod/hmaker/website/mod/site-tree/site-tree.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////
@@ -45451,9 +48001,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/hmaker/website/mod/site-tree/site-tree.mjs", _M);
 })();
-//============================================================
-// JOIN: hmaker/website/mod/site-tree/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/mod/hmaker/website/mod/site-tree/_mod.json
+//========================================
 Ti.Preload("ti/mod/hmaker/website/mod/site-tree/_mod.json", {
   "name" : "hmaker-site-tree",
   "namespaced" : true,
@@ -45461,9 +48011,9 @@ Ti.Preload("ti/mod/hmaker/website/mod/site-tree/_mod.json", {
   "actions" : "./site-tree-actions.mjs",
   "mixins" : "./site-tree.mjs"
 });
-//============================================================
-// JOIN: hmaker/website/website-actions.mjs
-//============================================================
+//========================================
+// JOIN <website-actions.mjs> ti/mod/hmaker/website/website-actions.mjs
+//========================================
 (function(){
 const _M = {
   //--------------------------------------------
@@ -45573,9 +48123,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/hmaker/website/website-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: hmaker/website/website.json
-//============================================================
+//========================================
+// JOIN <website.json> ti/mod/hmaker/website/website.json
+//========================================
 Ti.Preload("ti/mod/hmaker/website/website.json", {
   "home": null,
   "status" : {
@@ -45588,9 +48138,9 @@ Ti.Preload("ti/mod/hmaker/website/website.json", {
     "exposeHidden" : false
   }
 });
-//============================================================
-// JOIN: hmaker/website/website.mjs
-//============================================================
+//========================================
+// JOIN <website.mjs> ti/mod/hmaker/website/website.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////
@@ -45633,9 +48183,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/hmaker/website/website.mjs", _M);
 })();
-//============================================================
-// JOIN: hmaker/website/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/mod/hmaker/website/_mod.json
+//========================================
 Ti.Preload("ti/mod/hmaker/website/_mod.json", {
   "name" : "hmaker-website",
   "namespaced" : true,
@@ -45648,16 +48198,16 @@ Ti.Preload("ti/mod/hmaker/website/_mod.json", {
     "current" : "@mod:wn/obj-current"
   }
 });
-//============================================================
-// JOIN: ti/viewport/ti-viewport.json
-//============================================================
+//========================================
+// JOIN <ti-viewport.json> ti/mod/ti/viewport/ti-viewport.json
+//========================================
 Ti.Preload("ti/mod/ti/viewport/ti-viewport.json", {
   "mode" : "desktop",
   "activedIds" : []
 });
-//============================================================
-// JOIN: ti/viewport/ti-viewport.mjs
-//============================================================
+//========================================
+// JOIN <ti-viewport.mjs> ti/mod/ti/viewport/ti-viewport.mjs
+//========================================
 (function(){
 const _M = {
   getters : {
@@ -45683,16 +48233,16 @@ const _M = {
 }
 Ti.Preload("ti/mod/ti/viewport/ti-viewport.mjs", _M);
 })();
-//============================================================
-// JOIN: ti/viewport/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/mod/ti/viewport/_mod.json
+//========================================
 Ti.Preload("ti/mod/ti/viewport/_mod.json", {
   "state" : "./ti-viewport.json",
   "mixins" : "./ti-viewport.mjs"
 });
-//============================================================
-// JOIN: wn/obj-axis/m-obj-axis-actions.mjs
-//============================================================
+//========================================
+// JOIN <m-obj-axis-actions.mjs> ti/mod/wn/obj-axis/m-obj-axis-actions.mjs
+//========================================
 (function(){
 const _M = {
   //----------------------------------------
@@ -45729,9 +48279,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/obj-axis/m-obj-axis-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj-axis/m-obj-axis.json
-//============================================================
+//========================================
+// JOIN <m-obj-axis.json> ti/mod/wn/obj-axis/m-obj-axis.json
+//========================================
 Ti.Preload("ti/mod/wn/obj-axis/m-obj-axis.json", {
   "ancestors" : [], 
   "parent" : null, 
@@ -45742,9 +48292,9 @@ Ti.Preload("ti/mod/wn/obj-axis/m-obj-axis.json", {
     "reloading" : false
   }
 });
-//============================================================
-// JOIN: wn/obj-axis/m-obj-axis.mjs
-//============================================================
+//========================================
+// JOIN <m-obj-axis.mjs> ti/mod/wn/obj-axis/m-obj-axis.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////
@@ -45779,9 +48329,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/obj-axis/m-obj-axis.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj-axis/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/mod/wn/obj-axis/_mod.json
+//========================================
 Ti.Preload("ti/mod/wn/obj-axis/_mod.json", {
   "name" : "wn-obj-axis",
   "namespaced" : true,
@@ -45789,9 +48339,9 @@ Ti.Preload("ti/mod/wn/obj-axis/_mod.json", {
   "actions" : "./m-obj-axis-actions.mjs",
   "mixins" : "./m-obj-axis.mjs"
 });
-//============================================================
-// JOIN: wn/obj-current/m-obj-current-actions.mjs
-//============================================================
+//========================================
+// JOIN <m-obj-current-actions.mjs> ti/mod/wn/obj-current/m-obj-current-actions.mjs
+//========================================
 (function(){
 const _M = {
   //----------------------------------------
@@ -45999,9 +48549,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/obj-current/m-obj-current-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj-current/m-obj-current.json
-//============================================================
+//========================================
+// JOIN <m-obj-current.json> ti/mod/wn/obj-current/m-obj-current.json
+//========================================
 Ti.Preload("ti/mod/wn/obj-current/m-obj-current.json", {
   "meta" : null,
   "content" : null,
@@ -46015,9 +48565,9 @@ Ti.Preload("ti/mod/wn/obj-current/m-obj-current.json", {
   },
   "fieldStatus" : {}
 });
-//============================================================
-// JOIN: wn/obj-current/m-obj-current.mjs
-//============================================================
+//========================================
+// JOIN <m-obj-current.mjs> ti/mod/wn/obj-current/m-obj-current.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////
@@ -46132,9 +48682,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/obj-current/m-obj-current.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj-current/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/mod/wn/obj-current/_mod.json
+//========================================
 Ti.Preload("ti/mod/wn/obj-current/_mod.json", {
   "name" : "wn-obj-current",
   "namespaced" : true,
@@ -46142,9 +48692,9 @@ Ti.Preload("ti/mod/wn/obj-current/_mod.json", {
   "actions" : "./m-obj-current-actions.mjs",
   "mixins" : "./m-obj-current.mjs"
 });
-//============================================================
-// JOIN: wn/obj-meta/m-obj-meta-actions.mjs
-//============================================================
+//========================================
+// JOIN <m-obj-meta-actions.mjs> ti/mod/wn/obj-meta/m-obj-meta-actions.mjs
+//========================================
 (function(){
 const _M = {
   //--------------------------------------------
@@ -46231,9 +48781,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/obj-meta/m-obj-meta-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj-meta/m-obj-meta.json
-//============================================================
+//========================================
+// JOIN <m-obj-meta.json> ti/mod/wn/obj-meta/m-obj-meta.json
+//========================================
 Ti.Preload("ti/mod/wn/obj-meta/m-obj-meta.json", {
   "ancestors" : [], 
   "parent" : null, 
@@ -46245,9 +48795,9 @@ Ti.Preload("ti/mod/wn/obj-meta/m-obj-meta.json", {
   },
   "fieldStatus" : {}
 });
-//============================================================
-// JOIN: wn/obj-meta/m-obj-meta.mjs
-//============================================================
+//========================================
+// JOIN <m-obj-meta.mjs> ti/mod/wn/obj-meta/m-obj-meta.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////
@@ -46360,17 +48910,17 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/obj-meta/m-obj-meta.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/obj-meta/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/mod/wn/obj-meta/_mod.json
+//========================================
 Ti.Preload("ti/mod/wn/obj-meta/_mod.json", {
   "state" : "./m-obj-meta.json",
   "actions" : "./m-obj-meta-actions.mjs",
   "mixins" : "./m-obj-meta.mjs"
 });
-//============================================================
-// JOIN: wn/session/m-session.json
-//============================================================
+//========================================
+// JOIN <m-session.json> ti/mod/wn/session/m-session.json
+//========================================
 Ti.Preload("ti/mod/wn/session/m-session.json", {
   "id"     : null,
   "grp"    : null,
@@ -46383,9 +48933,9 @@ Ti.Preload("ti/mod/wn/session/m-session.json", {
   "me"     : null,
   "envs"   : {}
 });
-//============================================================
-// JOIN: wn/session/m-session.mjs
-//============================================================
+//========================================
+// JOIN <m-session.mjs> ti/mod/wn/session/m-session.mjs
+//========================================
 (function(){
 ////////////////////////////////////////////////
 const _M = {
@@ -46492,16 +49042,16 @@ const _M = {
 ////////////////////////////////////////////////
 Ti.Preload("ti/mod/wn/session/m-session.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/session/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/mod/wn/session/_mod.json
+//========================================
 Ti.Preload("ti/mod/wn/session/_mod.json", {
   "state" : "./m-session.json",
   "mixins" : ["./m-session.mjs"]
 });
-//============================================================
-// JOIN: wn/thing/m-thing-actions.mjs
-//============================================================
+//========================================
+// JOIN <m-thing-actions.mjs> ti/mod/wn/thing/m-thing-actions.mjs
+//========================================
 (function(){
 const _M = {
   //--------------------------------------------
@@ -47091,9 +49641,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/thing/m-thing-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/m-thing-export.mjs
-//============================================================
+//========================================
+// JOIN <m-thing-export.mjs> ti/mod/wn/thing/m-thing-export.mjs
+//========================================
 (function(){
 const _M = {
   //--------------------------------------------
@@ -47365,12 +49915,12 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/thing/m-thing-export.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/m-thing-import.mjs
-//============================================================
-//============================================================
-// JOIN: wn/thing/m-thing.json
-//============================================================
+//========================================
+// JOIN <m-thing-import.mjs> ti/mod/wn/thing/m-thing-import.mjs
+//========================================
+//========================================
+// JOIN <m-thing.json> ti/mod/wn/thing/m-thing.json
+//========================================
 Ti.Preload("ti/mod/wn/thing/m-thing.json", {
   "meta": null,
   "currentDataDir"  : null,
@@ -47387,9 +49937,9 @@ Ti.Preload("ti/mod/wn/thing/m-thing.json", {
     "inRecycleBin" : false
   }
 });
-//============================================================
-// JOIN: wn/thing/m-thing.mjs
-//============================================================
+//========================================
+// JOIN <m-thing.mjs> ti/mod/wn/thing/m-thing.mjs
+//========================================
 (function(){
 //---------------------------------------
 const _M = {
@@ -47434,9 +49984,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/thing/m-thing.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/mod/config/m-thing-config-actions.mjs
-//============================================================
+//========================================
+// JOIN <m-thing-config-actions.mjs> ti/mod/wn/thing/mod/config/m-thing-config-actions.mjs
+//========================================
 (function(){
 // Ti required(Wn)
 ////////////////////////////////////////////////
@@ -47515,9 +50065,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/thing/mod/config/m-thing-config-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/mod/config/m-thing-config.json
-//============================================================
+//========================================
+// JOIN <m-thing-config.json> ti/mod/wn/thing/mod/config/m-thing-config.json
+//========================================
 Ti.Preload("ti/mod/wn/thing/mod/config/m-thing-config.json", {
   "meta": null,
   "shown" : {
@@ -47541,9 +50091,9 @@ Ti.Preload("ti/mod/wn/thing/mod/config/m-thing-config.json", {
     "saving"    : false
   }
 });
-//============================================================
-// JOIN: wn/thing/mod/config/m-thing-config.mjs
-//============================================================
+//========================================
+// JOIN <m-thing-config.mjs> ti/mod/wn/thing/mod/config/m-thing-config.mjs
+//========================================
 (function(){
 //---------------------------------------
 const _M = {
@@ -47587,18 +50137,18 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/thing/mod/config/m-thing-config.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/mod/config/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/mod/wn/thing/mod/config/_mod.json
+//========================================
 Ti.Preload("ti/mod/wn/thing/mod/config/_mod.json", {
   "namespaced" : true,
   "state" : "./m-thing-config.json",
   "actions" : "./m-thing-config-actions.mjs",
   "mixins" : "./m-thing-config.mjs"
 });
-//============================================================
-// JOIN: wn/thing/mod/current/m-thing-current-actions.mjs
-//============================================================
+//========================================
+// JOIN <m-thing-current-actions.mjs> ti/mod/wn/thing/mod/current/m-thing-current-actions.mjs
+//========================================
 (function(){
 const _M = {
   //----------------------------------------
@@ -47810,9 +50360,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/thing/mod/current/m-thing-current-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/mod/current/m-thing-current.json
-//============================================================
+//========================================
+// JOIN <m-thing-current.json> ti/mod/wn/thing/mod/current/m-thing-current.json
+//========================================
 Ti.Preload("ti/mod/wn/thing/mod/current/m-thing-current.json", {
   "meta" : null,
   "content" : null,
@@ -47826,9 +50376,9 @@ Ti.Preload("ti/mod/wn/thing/mod/current/m-thing-current.json", {
   },
   "fieldStatus" : {}
 });
-//============================================================
-// JOIN: wn/thing/mod/current/m-thing-current.mjs
-//============================================================
+//========================================
+// JOIN <m-thing-current.mjs> ti/mod/wn/thing/mod/current/m-thing-current.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////
@@ -47943,18 +50493,18 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/thing/mod/current/m-thing-current.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/mod/current/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/mod/wn/thing/mod/current/_mod.json
+//========================================
 Ti.Preload("ti/mod/wn/thing/mod/current/_mod.json", {
   "namespaced" : true,
   "state" : "./m-thing-current.json",
   "actions" : "./m-thing-current-actions.mjs",
   "mixins" : "./m-thing-current.mjs"
 });
-//============================================================
-// JOIN: wn/thing/mod/search/m-thing-search-actions.mjs
-//============================================================
+//========================================
+// JOIN <m-thing-search-actions.mjs> ti/mod/wn/thing/mod/search/m-thing-search-actions.mjs
+//========================================
 (function(){
 // Ti required(Wn)
 ////////////////////////////////////////////////
@@ -48022,9 +50572,9 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/thing/mod/search/m-thing-search-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/mod/search/m-thing-search.json
-//============================================================
+//========================================
+// JOIN <m-thing-search.json> ti/mod/wn/thing/mod/search/m-thing-search.json
+//========================================
 Ti.Preload("ti/mod/wn/thing/mod/search/m-thing-search.json", {
   "meta": null,
   "filter" : {},
@@ -48051,9 +50601,9 @@ Ti.Preload("ti/mod/wn/thing/mod/search/m-thing-search.json", {
     "deleting"  : false
   }
 });
-//============================================================
-// JOIN: wn/thing/mod/search/m-thing-search.mjs
-//============================================================
+//========================================
+// JOIN <m-thing-search.mjs> ti/mod/wn/thing/mod/search/m-thing-search.mjs
+//========================================
 (function(){
 function saveToLocal(meta, key, val) {
   if(!meta) {
@@ -48316,18 +50866,18 @@ const _M = {
 }
 Ti.Preload("ti/mod/wn/thing/mod/search/m-thing-search.mjs", _M);
 })();
-//============================================================
-// JOIN: wn/thing/mod/search/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/mod/wn/thing/mod/search/_mod.json
+//========================================
 Ti.Preload("ti/mod/wn/thing/mod/search/_mod.json", {
   "namespaced" : true,
   "state" : "./m-thing-search.json",
   "actions" : "./m-thing-search-actions.mjs",
   "mixins" : "./m-thing-search.mjs"
 });
-//============================================================
-// JOIN: wn/thing/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/mod/wn/thing/_mod.json
+//========================================
 Ti.Preload("ti/mod/wn/thing/_mod.json", {
   "name" : "wn-thing",
   "namespaced" : true,
@@ -48344,9 +50894,9 @@ Ti.Preload("ti/mod/wn/thing/_mod.json", {
     "current" : "./mod/current"
   }
 });
-//============================================================
-// JOIN: com/site-main.html
-//============================================================
+//========================================
+// JOIN <site-main.html> ti/lib/www/com/site-main.html
+//========================================
 Ti.Preload("ti/lib/www/com/site-main.html", `<div class="site-main" @click.right="OnMouseRightClick">
   <ti-gui 
     class="site-page"
@@ -48355,9 +50905,9 @@ Ti.Preload("ti/lib/www/com/site-main.html", `<div class="site-main" @click.right
     :shown="page.shown"/>
   <!--pre>{{page}}</pre-->
 </div>`);
-//============================================================
-// JOIN: com/site-main.mjs
-//============================================================
+//========================================
+// JOIN <site-main.mjs> ti/lib/www/com/site-main.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -48611,9 +51161,9 @@ const _M = {
 }
 Ti.Preload("ti/lib/www/com/site-main.mjs", _M);
 })();
-//============================================================
-// JOIN: mod/auth/mod-address-actions.mjs
-//============================================================
+//========================================
+// JOIN <mod-address-actions.mjs> ti/lib/www/mod/auth/mod-address-actions.mjs
+//========================================
 (function(){
 const _M = {
   //--------------------------------------------
@@ -48827,9 +51377,9 @@ const _M = {
 }
 Ti.Preload("ti/lib/www/mod/auth/mod-address-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: mod/auth/mod-auth-actions.mjs
-//============================================================
+//========================================
+// JOIN <mod-auth-actions.mjs> ti/lib/www/mod/auth/mod-auth-actions.mjs
+//========================================
 (function(){
 const _M = {
   //--------------------------------------------
@@ -49270,9 +51820,9 @@ const _M = {
 }
 Ti.Preload("ti/lib/www/mod/auth/mod-auth-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: mod/auth/mod-profile-actions.mjs
-//============================================================
+//========================================
+// JOIN <mod-profile-actions.mjs> ti/lib/www/mod/auth/mod-profile-actions.mjs
+//========================================
 (function(){
 const _M = {
   //--------------------------------------------
@@ -49314,9 +51864,9 @@ const _M = {
 }
 Ti.Preload("ti/lib/www/mod/auth/mod-profile-actions.mjs", _M);
 })();
-//============================================================
-// JOIN: mod/auth/www-mod-auth.json
-//============================================================
+//========================================
+// JOIN <www-mod-auth.json> ti/lib/www/mod/auth/www-mod-auth.json
+//========================================
 Ti.Preload("ti/lib/www/mod/auth/www-mod-auth.json", {
   "ticket" : null,
   "expi"   : 0,
@@ -49348,9 +51898,9 @@ Ti.Preload("ti/lib/www/mod/auth/www-mod-auth.json", {
     "profile_save"    : "auth/setme"
   }
 });
-//============================================================
-// JOIN: mod/auth/www-mod-auth.mjs
-//============================================================
+//========================================
+// JOIN <www-mod-auth.mjs> ti/lib/www/mod/auth/www-mod-auth.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////
@@ -49439,9 +51989,9 @@ const _M = {
 }
 Ti.Preload("ti/lib/www/mod/auth/www-mod-auth.mjs", _M);
 })();
-//============================================================
-// JOIN: mod/auth/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/lib/www/mod/auth/_mod.json
+//========================================
 Ti.Preload("ti/lib/www/mod/auth/_mod.json", {
   "name" : "www-mod-auth",
   "namespaced" : true,
@@ -49453,9 +52003,9 @@ Ti.Preload("ti/lib/www/mod/auth/_mod.json", {
     ],
   "mixins" : "./www-mod-auth.mjs"
 });
-//============================================================
-// JOIN: mod/page/www-mod-page.json
-//============================================================
+//========================================
+// JOIN <www-mod-page.json> ti/lib/www/mod/page/www-mod-page.json
+//========================================
 Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "className": null,
   "title" : null,
@@ -49479,9 +52029,9 @@ Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "schema" : {},
   "actions" : {}
 });
-//============================================================
-// JOIN: mod/page/www-mod-page.mjs
-//============================================================
+//========================================
+// JOIN <www-mod-page.mjs> ti/lib/www/mod/page/www-mod-page.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////
@@ -50277,18 +52827,18 @@ const _M = {
 }
 Ti.Preload("ti/lib/www/mod/page/www-mod-page.mjs", _M);
 })();
-//============================================================
-// JOIN: mod/page/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/lib/www/mod/page/_mod.json
+//========================================
 Ti.Preload("ti/lib/www/mod/page/_mod.json", {
   "name" : "www-mod-page",
   "namespaced" : true,
   "state" : "./www-mod-page.json",
   "mixins" : "./www-mod-page.mjs"
 });
-//============================================================
-// JOIN: mod/shop/www-mod-shop.json
-//============================================================
+//========================================
+// JOIN <www-mod-shop.json> ti/lib/www/mod/shop/www-mod-shop.json
+//========================================
 Ti.Preload("ti/lib/www/mod/shop/www-mod-shop.json", {
   "basket" : [],
 
@@ -50306,9 +52856,9 @@ Ti.Preload("ti/lib/www/mod/shop/www-mod-shop.json", {
     "fetchOrder": "pay/order"
   }
 });
-//============================================================
-// JOIN: mod/shop/www-mod-shop.mjs
-//============================================================
+//========================================
+// JOIN <www-mod-shop.mjs> ti/lib/www/mod/shop/www-mod-shop.mjs
+//========================================
 (function(){
 const _M = {
   ////////////////////////////////////////////////
@@ -50811,18 +53361,18 @@ const _M = {
 }
 Ti.Preload("ti/lib/www/mod/shop/www-mod-shop.mjs", _M);
 })();
-//============================================================
-// JOIN: mod/shop/_mod.json
-//============================================================
+//========================================
+// JOIN <_mod.json> ti/lib/www/mod/shop/_mod.json
+//========================================
 Ti.Preload("ti/lib/www/mod/shop/_mod.json", {
   "name" : "www-mod-shop",
   "namespaced" : true,
   "state" : "./www-mod-shop.json",
   "mixins" : "./www-mod-shop.mjs"
 });
-//============================================================
-// JOIN: mod/www-mod-site.mjs
-//============================================================
+//========================================
+// JOIN <www-mod-site.mjs> ti/lib/www/mod/www-mod-site.mjs
+//========================================
 (function(){
 const _M = {
   /////////////////////////////////////////
@@ -51267,12 +53817,12 @@ const _M = {
 }
 Ti.Preload("ti/lib/www/mod/www-mod-site.mjs", _M);
 })();
-//============================================================
-// JOIN: cheap-markdown.mjs
-//============================================================
-//============================================================
-// JOIN: wn.manager/gui/layout.json
-//============================================================
+//========================================
+// JOIN <cheap-markdown.mjs> ti/lib/code2a/cheap-markdown.mjs
+//========================================
+//========================================
+// JOIN <layout.json> /a/load/wn.manager/gui/layout.json
+//========================================
 Ti.Preload("/a/load/wn.manager/gui/layout.json", {
   "desktop" : {
     "type" : "rows",
@@ -51326,9 +53876,9 @@ Ti.Preload("/a/load/wn.manager/gui/layout.json", {
   "tablet" : "desktop",
   "phone" : "desktop"
 });
-//============================================================
-// JOIN: wn.manager/gui/schema.json
-//============================================================
+//========================================
+// JOIN <schema.json> /a/load/wn.manager/gui/schema.json
+//========================================
 Ti.Preload("/a/load/wn.manager/gui/schema.json", {
   "pcSkyLogo" : {
     "comType" : "ti-icon",
@@ -51368,9 +53918,9 @@ Ti.Preload("/a/load/wn.manager/gui/schema.json", {
     "comConf" : "=Footer"
   }
 });
-//============================================================
-// JOIN: wn.manager/gui/setup.json
-//============================================================
+//========================================
+// JOIN <setup.json> /a/load/wn.manager/gui/setup.json
+//========================================
 Ti.Preload("/a/load/wn.manager/gui/setup.json", {
   "shown" : {
     "desktop" : {
@@ -51387,9 +53937,9 @@ Ti.Preload("/a/load/wn.manager/gui/setup.json", {
   "crumbTitleBy" : "title",
   "logo" : "<:home>"
 });
-//============================================================
-// JOIN: wn.manager/wn-manager-computed.mjs
-//============================================================
+//========================================
+// JOIN <wn-manager-computed.mjs> /a/load/wn.manager/wn-manager-computed.mjs
+//========================================
 (function(){
 const _M = {
   //.........................................
@@ -51492,9 +54042,9 @@ const _M = {
 }
 Ti.Preload("/a/load/wn.manager/wn-manager-computed.mjs", _M);
 })();
-//============================================================
-// JOIN: wn.manager/wn-manager-methods.mjs
-//============================================================
+//========================================
+// JOIN <wn-manager-methods.mjs> /a/load/wn.manager/wn-manager-methods.mjs
+//========================================
 (function(){
 const _M = {
   //.........................................
@@ -51625,9 +54175,9 @@ const _M = {
 }
 Ti.Preload("/a/load/wn.manager/wn-manager-methods.mjs", _M);
 })();
-//============================================================
-// JOIN: wn.manager/wn-manager.html
-//============================================================
+//========================================
+// JOIN <wn-manager.html> /a/load/wn.manager/wn-manager.html
+//========================================
 Ti.Preload("/a/load/wn.manager/wn-manager.html", `<ti-gui
   class="wn-manager"
   :class="TopClass"
@@ -51646,9 +54196,9 @@ Ti.Preload("/a/load/wn.manager/wn-manager.html", `<ti-gui
   @arena::indicate="OnArenaIndicate"
   @arena::message="OnArenaMessage"
   @arena::update:view:status="OnArenaViewStatusUpdated"/>`);
-//============================================================
-// JOIN: wn.manager/wn-manager.mjs
-//============================================================
+//========================================
+// JOIN <wn-manager.mjs> /a/load/wn.manager/wn-manager.mjs
+//========================================
 (function(){
 const _M = {
   ///////////////////////////////////////////
@@ -51954,9 +54504,9 @@ const _M = {
 }
 Ti.Preload("/a/load/wn.manager/wn-manager.mjs", _M);
 })();
-//============================================================
-// JOIN: en-us/hmaker.i18n.json
-//============================================================
+//========================================
+// JOIN <hmaker.i18n.json> ti/i18n/en-us/hmaker.i18n.json
+//========================================
 Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "com-form": "表单",
   "com-label": "标签",
@@ -52082,9 +54632,9 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-valueMaxWidth": "值最大宽度",
   "hmk-width": "控件宽度"
 });
-//============================================================
-// JOIN: en-us/ti-datetime.i18n.json
-//============================================================
+//========================================
+// JOIN <ti-datetime.i18n.json> ti/i18n/en-us/ti-datetime.i18n.json
+//========================================
 Ti.Preload("ti/i18n/en-us/ti-datetime.i18n.json", {
   "Apr": "April",
   "Aug": "August",
@@ -52156,18 +54706,19 @@ Ti.Preload("ti/i18n/en-us/ti-datetime.i18n.json", {
   },
   "time-begin": "Begin Time",
   "time-end": "End Time",
-  "tu-sec" : "Sec.",
-  "tu-min" : "Min.",
-  "tu-hou" : "Hou.",
-  "tu-day" : "Day",
-  "tu-week" : "Week",
-  "tu-mon" : "Month",
-  "tu-year" : "Year",
-  "today": "Today"
+  "time-ms": "Ms",
+  "today": "Today",
+  "tu-day": "Day",
+  "tu-hou": "Hr",
+  "tu-min": "Min",
+  "tu-mon": "Month",
+  "tu-sec": "Sec",
+  "tu-week": "Week",
+  "tu-year": "Year"
 });
-//============================================================
-// JOIN: en-us/ti-text-editor.i18n.json
-//============================================================
+//========================================
+// JOIN <ti-text-editor.i18n.json> ti/i18n/en-us/ti-text-editor.i18n.json
+//========================================
 Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
   "wordp-h0": "Main",
   "wordp-h1": "Heading 1",
@@ -52180,9 +54731,9 @@ Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
   "wordp-link": "Hyperlink",
   "wordp-nil-sel": "Please select a paragraph first"
 });
-//============================================================
-// JOIN: en-us/web.i18n.json
-//============================================================
+//========================================
+// JOIN <web.i18n.json> ti/i18n/en-us/web.i18n.json
+//========================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "account": "Account",
   "account-flt-tip": "Filter by account name",
@@ -52229,8 +54780,8 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "ar-flt-tip": "Filter by article title",
   "ar-meta": "Article property",
   "ar-meta-tip": "Choose an article for detail",
-  "ar-nm" : "Name",
   "ar-new": "New article",
+  "ar-nm": "Name",
   "ar-pubat": "Publish at",
   "ar-thumb": "Thumbnail",
   "ar-title": "Title",
@@ -52538,9 +55089,9 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "waybil-com-yunda": "YUN DA Express",
   "waybil-com-zto": "ZHONG TONG Express"
 });
-//============================================================
-// JOIN: en-us/wn-manager.i18n.json
-//============================================================
+//========================================
+// JOIN <wn-manager.i18n.json> ti/i18n/en-us/wn-manager.i18n.json
+//========================================
 Ti.Preload("ti/i18n/en-us/wn-manager.i18n.json", {
   "ti-loading": "Load...",
   "wn-adaptlist": "Object explorer",
@@ -52575,16 +55126,16 @@ Ti.Preload("ti/i18n/en-us/wn-manager.i18n.json", {
   "wn-thing-manager": "Data manager",
   "wn-view-opening": "Loading gui..."
 });
-//============================================================
-// JOIN: en-us/wn-obj-preview.i18n.json
-//============================================================
+//========================================
+// JOIN <wn-obj-preview.i18n.json> ti/i18n/en-us/wn-obj-preview.i18n.json
+//========================================
 Ti.Preload("ti/i18n/en-us/wn-obj-preview.i18n.json", {
   "wop-fullscreen-enter": "Enter fullscreen",
   "wop-fullscreen-quit": "Exit fullscreen"
 });
-//============================================================
-// JOIN: en-us/wn-thing.i18n.json
-//============================================================
+//========================================
+// JOIN <wn-thing.i18n.json> ti/i18n/en-us/wn-thing.i18n.json
+//========================================
 Ti.Preload("ti/i18n/en-us/wn-thing.i18n.json", {
   "thing-clean": "Empty the recycle bin",
   "thing-cleaning": "Cleaning...",
@@ -52631,9 +55182,9 @@ Ti.Preload("ti/i18n/en-us/wn-thing.i18n.json", {
   "thing-restore-none": "Select the data you want to recover first",
   "thing-restoring": "Restoring..."
 });
-//============================================================
-// JOIN: en-us/_net.i18n.json
-//============================================================
+//========================================
+// JOIN <_net.i18n.json> ti/i18n/en-us/_net.i18n.json
+//========================================
 Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
   "net-ct": "Created",
   "net-flt-nil": "Query by name",
@@ -52646,17 +55197,10 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
   "net-vod-size": "Video size",
   "net-vod-video-nil": "Please choose one video for detail"
 });
-//============================================================
-// JOIN: en-us/_ti.i18n.json
-//============================================================
+//========================================
+// JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
+//========================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
-  "nil-content" : "Nil content",
-  "sort": "Sort",
-  "sort-tip-asc": "The smaller at first",
-  "sort-tip-desc": "The bigger at first",
-  "sort-val": "Sort value",
-  "init" : "Initiate",
-  "init-data" : "Initiate data",
   "add": "Add",
   "add-item": "New item",
   "album": "Album",
@@ -52784,6 +55328,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "import-data": "Import data ...",
   "index": "Index",
   "info": "Information",
+  "init": "Initiate",
+  "init-data": "Initiate data",
   "input": "Input",
   "input-tags": "Input tags",
   "java-type-Boolean": "Boolean",
@@ -52872,6 +55418,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "newsfeed": "Newfeed",
   "next": "Next",
   "nil": "Nil",
+  "nil-content": "Nil content",
   "nil-detail": "Please choose one item for detail",
   "nil-item": "Please choose one item at first",
   "nil-obj": "Please choose one object",
@@ -52942,6 +55489,10 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "sms-scene-nm": "Scene name",
   "sms-scene-nm-tip": "Only include english letters or numbers or underline, and guarantee unique",
   "sms-setup": "SMS setup",
+  "sort": "Sort",
+  "sort-tip-asc": "The smaller at first",
+  "sort-tip-desc": "The bigger at first",
+  "sort-val": "Sort value",
   "source-code": "Source code",
   "stat-date-at": "Stat at",
   "stat-date-at-oor": "Statistics on this date are not ready yet",
@@ -52989,9 +55540,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "zip": "Zip",
   "zipping": "Zipping..."
 });
-//============================================================
-// JOIN: en-us/_wn.i18n.json
-//============================================================
+//========================================
+// JOIN <_wn.i18n.json> ti/i18n/en-us/_wn.i18n.json
+//========================================
 Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-admin-check-obj-thumb": "Check obj thumbnails ...",
   "wn-admin-tools": "Admin tools",
@@ -53073,9 +55624,9 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-th-recount-media": "Recalculate file number",
   "wn-th-recount-media-done": "Current number of files: ${n}"
 });
-//============================================================
-// JOIN: zh-cn/hmaker.i18n.json
-//============================================================
+//========================================
+// JOIN <hmaker.i18n.json> ti/i18n/zh-cn/hmaker.i18n.json
+//========================================
 Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "com-form": "表单",
   "com-label": "标签",
@@ -53201,9 +55752,9 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-valueMaxWidth": "值最大宽度",
   "hmk-width": "控件宽度"
 });
-//============================================================
-// JOIN: zh-cn/ti-datetime.i18n.json
-//============================================================
+//========================================
+// JOIN <ti-datetime.i18n.json> ti/i18n/zh-cn/ti-datetime.i18n.json
+//========================================
 Ti.Preload("ti/i18n/zh-cn/ti-datetime.i18n.json", {
   "Apr": "四月",
   "Aug": "八月",
@@ -53275,19 +55826,19 @@ Ti.Preload("ti/i18n/zh-cn/ti-datetime.i18n.json", {
   },
   "time-begin": "开始时间",
   "time-end": "结束时间",
-  "time-ms" : "毫秒",
-  "tu-sec" : "秒",
-  "tu-min" : "分钟",
-  "tu-hou" : "小时",
-  "tu-day" : "天",
-  "tu-week" : "周",
-  "tu-mon" : "月",
-  "tu-year" : "年",
-  "today": "今天"
+  "time-ms": "毫秒",
+  "today": "今天",
+  "tu-day": "天",
+  "tu-hou": "小时",
+  "tu-min": "分钟",
+  "tu-mon": "月",
+  "tu-sec": "秒",
+  "tu-week": "周",
+  "tu-year": "年"
 });
-//============================================================
-// JOIN: zh-cn/ti-text-editor.i18n.json
-//============================================================
+//========================================
+// JOIN <ti-text-editor.i18n.json> ti/i18n/zh-cn/ti-text-editor.i18n.json
+//========================================
 Ti.Preload("ti/i18n/zh-cn/ti-text-editor.i18n.json", {
   "wordp-h0": "正文",
   "wordp-h1": "标题 1",
@@ -53300,9 +55851,9 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-editor.i18n.json", {
   "wordp-link": "超链接",
   "wordp-nil-sel": "请先选择一段文字"
 });
-//============================================================
-// JOIN: zh-cn/web.i18n.json
-//============================================================
+//========================================
+// JOIN <web.i18n.json> ti/i18n/zh-cn/web.i18n.json
+//========================================
 Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "account": "账户",
   "account-flt-tip": "请输入账号名过滤",
@@ -53349,8 +55900,8 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "ar-flt-tip": "请输入文章标题过滤",
   "ar-meta": "文章属性",
   "ar-meta-tip": "请选择一篇文章查看详情",
-  "ar-nm" : "文章名称",
   "ar-new": "新文章",
+  "ar-nm": "文章名称",
   "ar-pubat": "发布日期",
   "ar-thumb": "缩略封面",
   "ar-title": "文章标题",
@@ -53658,9 +56209,9 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "waybil-com-yunda": "韵达快递",
   "waybil-com-zto": "中通快递"
 });
-//============================================================
-// JOIN: zh-cn/wn-manager.i18n.json
-//============================================================
+//========================================
+// JOIN <wn-manager.i18n.json> ti/i18n/zh-cn/wn-manager.i18n.json
+//========================================
 Ti.Preload("ti/i18n/zh-cn/wn-manager.i18n.json", {
   "ti-loading": "加载中...",
   "wn-adaptlist": "对象浏览器",
@@ -53695,16 +56246,16 @@ Ti.Preload("ti/i18n/zh-cn/wn-manager.i18n.json", {
   "wn-thing-manager": "数据管理器",
   "wn-view-opening": "正在加载界面..."
 });
-//============================================================
-// JOIN: zh-cn/wn-obj-preview.i18n.json
-//============================================================
+//========================================
+// JOIN <wn-obj-preview.i18n.json> ti/i18n/zh-cn/wn-obj-preview.i18n.json
+//========================================
 Ti.Preload("ti/i18n/zh-cn/wn-obj-preview.i18n.json", {
   "wop-fullscreen-enter": "进入全屏",
   "wop-fullscreen-quit": "退出全屏"
 });
-//============================================================
-// JOIN: zh-cn/wn-thing.i18n.json
-//============================================================
+//========================================
+// JOIN <wn-thing.i18n.json> ti/i18n/zh-cn/wn-thing.i18n.json
+//========================================
 Ti.Preload("ti/i18n/zh-cn/wn-thing.i18n.json", {
   "thing-clean": "清空回收站",
   "thing-cleaning": "正在清空...",
@@ -53751,9 +56302,9 @@ Ti.Preload("ti/i18n/zh-cn/wn-thing.i18n.json", {
   "thing-restore-none": "请先选择要恢复的数据",
   "thing-restoring": "正在恢复..."
 });
-//============================================================
-// JOIN: zh-cn/_net.i18n.json
-//============================================================
+//========================================
+// JOIN <_net.i18n.json> ti/i18n/zh-cn/_net.i18n.json
+//========================================
 Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
   "net-ct": "创建时间",
   "net-flt-nil": "查找视频名称",
@@ -53766,16 +56317,10 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
   "net-vod-size": "视频大小",
   "net-vod-video-nil": "请选择一个视频查看详情"
 });
-//============================================================
-// JOIN: zh-cn/_ti.i18n.json
-//============================================================
+//========================================
+// JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
+//========================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
-  "sort": "排序",
-  "sort-tip-asc": "越小越靠前",
-  "sort-tip-desc": "越大越靠前",
-  "sort-val": "排序值",
-  "init" : "初始化",
-  "init-data" : "初始化数据",
   "add": "添加",
   "add-item": "添加新项",
   "album": "相册",
@@ -53903,6 +56448,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "import-data": "导入数据...",
   "index": "索引",
   "info": "信息",
+  "init": "初始化",
+  "init-data": "初始化数据",
   "input": "输入",
   "input-tags": "输入标签",
   "java-type-Boolean": "布尔",
@@ -53991,10 +56538,10 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "newsfeed": "消息流",
   "next": "下一步",
   "nil": "无",
+  "nil-content": "无内容",
   "nil-detail": "请选择一项查看详情",
   "nil-item": "请先选择一项",
   "nil-obj": "请选择一个对象",
-  "nil-content" : "无内容",
   "no": "否",
   "no-saved": "您有未保存的数据",
   "no-selected": "未选择",
@@ -54062,6 +56609,10 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "sms-scene-nm": "场景名称",
   "sms-scene-nm-tip": "请用半角英文数字或者下划线组合，并保证唯一",
   "sms-setup": "短信配置",
+  "sort": "排序",
+  "sort-tip-asc": "越小越靠前",
+  "sort-tip-desc": "越大越靠前",
+  "sort-val": "排序值",
   "source-code": "源代码",
   "stat-date-at": "统计日期",
   "stat-date-at-oor": "这个日期的统计数据还未就绪",
@@ -54109,9 +56660,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "zip": "压缩",
   "zipping": "正在压缩..."
 });
-//============================================================
-// JOIN: zh-cn/_wn.i18n.json
-//============================================================
+//========================================
+// JOIN <_wn.i18n.json> ti/i18n/zh-cn/_wn.i18n.json
+//========================================
 Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-admin-check-obj-thumb": "检查图像缩略图...",
   "wn-admin-tools": "管理工具",
@@ -54196,3 +56747,5 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
 ////////////////////////////////////////////////////////////
 // The End
 })();
+////////////async loading////////////////
+});

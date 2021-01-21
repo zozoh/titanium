@@ -77,14 +77,6 @@ export async function WalnutAppMain({
     })
     await Promise.all(pres)
   }
-  //---------------------------------------
-  // setup the i18n
-  Ti.I18n.put(await Ti.Load([
-    "@i18n:_ti",
-    "@i18n:_wn",
-    "@i18n:_net",
-    "@i18n:web",
-    "@i18n:ti-datetime"]))
 
   //---------------------------------------
   // Customized Zone
@@ -152,6 +144,14 @@ export async function WalnutAppMain({
     let mod = await Ti.Load(val) 
     window[key] = mod
   }
+  //---------------------------------------
+  // setup the i18n
+  Ti.I18n.put(await Ti.Load([
+    "@i18n:_ti",
+    "@i18n:_wn",
+    "@i18n:_net",
+    "@i18n:web",
+    "@i18n:ti-datetime"]))
   //---------------------------------------
   // Setup dictionary
   Wn.Dict.setup(tiConf.dictionary)

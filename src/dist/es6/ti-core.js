@@ -1,4 +1,3 @@
-// Pack At: 2021-01-20 00:16:13
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4525,7 +4524,7 @@ const {Load} = (function(){
             props : {
               //charset : "stylesheet",
               src     : url,
-              //async   : true
+              async   : true
             }
           })
           $script.addEventListener("load", function(event){
@@ -12024,7 +12023,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210120.001613",
+  "version" : "1.6-20210121.223541",
   "dev" : false,
   "appName" : null,
   "session" : {},

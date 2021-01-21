@@ -1,0 +1,9 @@
+{
+  "comPath" : "@com:ti/text/markdown/richeditor2",
+  "comType" : "ti-text-markdown-richeditor2",
+  "comConf" : {
+    "mediaBase" : "/gu/rs/ti/test/components",
+    "theme"     : "nice",
+    "value"     : "=content"
+  }
+}

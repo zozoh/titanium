@@ -136,6 +136,9 @@
 @FILE mock/components/ti-others/ti-markdown-richeditor.comt 'MARKDOWN-RICHEDITOR'
 {com:'/rs/ti/test/components/ti-others/demo-ti-markdown-richeditor.json'}
 #---------------------------------------------------------
+@FILE mock/components/ti-others/ti-markdown-richeditor2.comt 'MARKDOWN-RICHEDITOR2'
+{com:'/rs/ti/test/components/ti-others/demo-ti-markdown-richeditor2.json'}
+#---------------------------------------------------------
 @FILE mock/components/wn-form/wn-combo-input.comt 'COMBO-INPUT'
 {com:'/rs/ti/test/components/wn-form/demo-wn-combo-input.json'}
 #---------------------------------------------------------
