@@ -1,0 +1,15 @@
+<div class="ti-text-rich-tinymce"
+  :class="TopClass"
+  v-ti-activable>
+  <!--
+    Editor
+  -->
+  <div class="as-editor">
+    <textarea ref="editor" :value="value"></textarea>
+  </div>
+  <!--
+    Source code
+  -->
+  <div class="as-sourcecode">
+    <textarea ref="source" :value="myHtmlCode"></textarea></div>
+</div>

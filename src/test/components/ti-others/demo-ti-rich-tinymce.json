@@ -1,0 +1,9 @@
+{
+  "comPath" : "@com:ti/text/rich/tinymce",
+  "comType" : "ti-text-rich-tinymce",
+  "comConf" : {
+    "mediaBase" : "/gu/rs/ti/test/components",
+    "theme"     : "nice",
+    "value"     : "=content"
+  }
+}

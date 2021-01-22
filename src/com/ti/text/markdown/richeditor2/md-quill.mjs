@@ -19,7 +19,8 @@ async function ResetQuillConfig(Quill) {
   // New format
   // ...
   //let {BlotBr} = await import("./br-blot.mjs")
-  console.log(BrBlot)
+  Quill.register(BrBlot, true);
+
   //.................................................
   // Mark it
   Quill.__has_been_reset = true
@@ -107,6 +108,17 @@ const _M = {
         bounds : this.$refs.stage,
         placeholder : Ti.I18n.text(this.placeholder)
       });
+      //.............................................
+      console.log("abcccc")
+      this.$editor.keyboard.addBinding({
+        key: "Enter",
+        ctrlKey: true,
+        handler:  (range, context)=>{
+          console.log("hahah")
+            this.$editor.insertEmbed(range.index, 'breakLine', true, 'user');
+            this.$editor.setSelection(range.index + 1, Quill.sources.SILENT);
+        }
+      })
       //.............................................
       this.debounceQuillChanged = _.debounce((newDelta, oldDelta)=>{
         let delta = oldDelta.compose(newDelta)

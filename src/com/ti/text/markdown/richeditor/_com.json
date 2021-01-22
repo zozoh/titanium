@@ -12,7 +12,7 @@
   ],
   "deps" : [
     "@lib:code2a/cheap-markdown.mjs",
-    "@deps:quill/quill.js",
+    "@deps:quill/1.3.6/quill.js",
     "@deps:highlight/highlight.js"
   ]
 }

@@ -79,7 +79,7 @@ const _M = {
       let json = await Ti.App.Open({
         width: 600, height: "96%",
         title : "Edit delta",
-        result : JSON.stringify(this.myDelta),
+        result : JSON.stringify(this.myDelta, null, '   '),
         comType : "TiInputText",
         comConf : {
           height: "100%"
@@ -87,7 +87,11 @@ const _M = {
         components : "@com:ti/input/text"
       })
 
-      console.log(json)
+      if(!json)
+        return
+
+      let delta = JSON.parse(json);
+      this.$editor.setContents(delta);
     },
     //-----------------------------------------------
     // Utility
