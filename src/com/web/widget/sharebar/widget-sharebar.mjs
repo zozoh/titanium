@@ -19,6 +19,46 @@ export default {
     //------------------------------------
     TheItems() {
       return this.evalItems(this.items)
+    },
+    //------------------------------------
+    ShareTargets() {
+      return {
+        //..............................
+        "facebook": {
+          iconClass: "fab fa-facebook-f",
+          link : "https://www.facebook.com/sharer.php",
+          params : {
+            u     : "=url",
+            title : "=title"
+          }
+        },
+        //..............................
+        "twitter": {
+          iconClass: "fab fa-twitter",
+          link : "https://twitter.com/share",
+          params : {
+            url  : "=url",
+            text : "=title"
+          }
+        },
+        //..............................
+        "mix": {
+          iconClass: "fab fa-mix",
+          link : "https://mix.com/mixit",
+          params : {
+            url  : "=url"
+          }
+        },
+        //..............................
+        "linkedin": {
+          iconClass: "fab fa-linkedin-in",
+          link : "https://www.linkedin.com/cws/share",
+          params : {
+            url  : "=url"
+          }
+        }
+        //..............................
+      }
     }
     //------------------------------------
   },
@@ -40,27 +80,7 @@ export default {
       let list = []
       _.forEach(items, (it, index)=>{
         //................................
-        let li = ({
-          //..............................
-          "facebook": {
-            iconClass: "fab fa-facebook-f",
-            link : "https://www.facebook.com/sharer.php",
-            params : {
-              title : "=title",
-              u     : "=url"
-            }
-          },
-          //..............................
-          "twitter": {
-            iconClass: "fab fa-twitter",
-            link : "https://twitter.com/share",
-            params : {
-              text : "=title",
-              url  : "=url"
-            }
-          }
-          //..............................
-        })[it]
+        let li = _.get(this.ShareTargets, it)
         //................................
         if(li)
           list.push(li)

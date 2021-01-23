@@ -1,8 +1,14 @@
 .ti-text-rich-tinymce {
   @include flex-align-nowrap($ai:stretch);
   //---------------------------------------------
+  &.nil-content {
+    > .as-editor {
+      visibility: hidden;
+    }
+  }
+  //---------------------------------------------
   > .as-editor {
-    width: 50%; height:100%;
+    height:100%; flex:1 1 auto;
     textarea {
       width:100%; height:100%; outline:none; resize: none;
       border:0;
@@ -13,7 +19,7 @@
   }
   //---------------------------------------------
   > .as-sourcecode {
-    width: 50%; height:100%;
+    width: 50%; height:100%; flex:0 0 auto;
     textarea {
       @include color($color-track, r, c);
       @include font-fixed;

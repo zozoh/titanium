@@ -416,9 +416,12 @@ const _M = {
         })
       }
 
-      
       // Update the auth
       commit("auth/mergePaths", state.authPaths)
+
+      // Reload the global data
+      let apis = []
+      // _.forEach(state.global, )
 
       // Eval the entry page
       let entry = state.entry

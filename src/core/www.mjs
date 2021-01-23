@@ -299,7 +299,107 @@ const TiWWW = {
       // TODO ...
       throw "www:unsupport query: " + query
     }
-  }
+  },
+  //---------------------------------------
+  async runApi({
+    state = {},
+    api, 
+    vars, 
+    params, 
+    headers, 
+    body,
+  } = {}) {
+    //.....................................
+    // Override api
+    api = _.cloneDeep(api)
+    _.assign(api.vars, vars)
+    _.assign(api.params, params)
+    _.assign(api.headers, headers)
+    if(!Ti.Util.isNil(body)) {
+      api.body = body
+    }
+    //.....................................
+    // Eval url
+    _.defaults(vars, api.vars)
+    let url = api.url
+    //.....................................
+    // Eval dynamic url
+    if(!_.isEmpty(api.vars)) {
+      let vs2 = Ti.Util.explainObj(state, api.vars)
+      url = Ti.S.renderBy(url, vs2)
+    }
+    //.....................................
+    // Gen the options
+    let options = _.pick(api, ["method", "as"])
+    //.....................................
+    // Eval headers
+    options.headers = Ti.Util.explainObj(state, api.headers)
+    //.....................................
+    // Eval the params
+    options.params = Ti.Util.explainObj(state, api.params)
+    //.....................................
+    // Prepare the body
+    if("POST" == api.method && api.body) {
+      let bodyData = Ti.Util.explainObj(state, api.body)
+      // As JSON
+      if("json" == api.bodyType) {
+        options.body = JSON.stringify(bodyData)
+      }
+      // As responseText
+      else if("text" == api.bodyType) {
+        options.body = Ti.Types.toStr(bodyData)
+      }
+      // Default is form
+      else {
+        options.body = Ti.Http.encodeFormData(bodyData)
+      }
+    }
+    //.....................................
+    // Join the http send Promise
+    //console.log(`will send to "${url}"`, options)
+    let reo = undefined;
+    // Invoke Action
+    if(api.method == "INVOKE") {
+      reo = await dispatch(api.path, options.params, {root:true})
+    }
+    // Send HTTP Request
+    else {
+      // Check the page local ssr cache
+      if(api.ssr && "GET" == api.method) {
+        //console.log("try", api)
+        let paramsJson = JSON.stringify(options.params || {})
+        let ssrConf = _.pick(options, "as")
+        ssrConf.dft = undefined
+        ssrConf.ssrFinger = Ti.Alg.sha1(paramsJson)
+        reo = Ti.WWW.getSSRData(`api-${api.name}`, ssrConf)
+      }
+      if(_.isUndefined(reo)) {
+        reo = await Ti.Http.sendAndProcess(url, options);
+      }
+    }
+    //.....................................
+    // Eval api transformer
+    if(api.transformer) {
+      let trans = _.cloneDeep(api.transformer)
+      let partial = Ti.Util.fallback(trans.partial, "right")
+      // PreExplain args
+      if(trans.explain) {
+        let tro = _.pick(trans, "name", "args")
+        trans = Ti.Util.explainObjs(rootState, tro)
+      }
+      let fnTrans = Ti.Util.genInvoking(trans, {
+        context: rootState,
+        partial
+      })
+      if(_.isFunction(fnTrans)) {
+        //console.log("transformer", reo)
+        return fnTrans(reo)
+      }
+    }
+    //.....................................
+    return reo
+
+  } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ runApi
   //---------------------------------------
 }
 ///////////////////////////////////////////

@@ -4,6 +4,8 @@
   "comConf" : {
     "mediaBase" : "/gu/rs/ti/test/components",
     "theme"     : "nice",
-    "value"     : "=content"
+    "value"     : "=content",
+    "debugMode" : true,
+    "toolbar"   : "#full"
   }
 }

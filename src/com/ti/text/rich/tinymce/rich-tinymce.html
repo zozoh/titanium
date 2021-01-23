@@ -5,11 +5,27 @@
     Editor
   -->
   <div class="as-editor">
-    <textarea ref="editor" :value="value"></textarea>
+    <textarea ref="editor"></textarea>
   </div>
   <!--
     Source code
   -->
-  <div class="as-sourcecode">
+  <div class="as-sourcecode" v-if="debugMode">
     <textarea ref="source" :value="myHtmlCode"></textarea></div>
+  <!--
+    Show loading
+  -->
+  <TiLoading
+    v-if="isContentLoading"
+      class="as-nil-mask as-big-mask"
+      :style="BlankComStyle"
+      v-bind="loadingAs"/>
+  <!--
+    Show blank
+  -->
+  <component
+    v-else-if="isContentNil"
+      :style="BlankComStyle"
+      :is="blankAs.comType"
+      v-bind="blankAs.comConf"/>
 </div>

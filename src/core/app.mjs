@@ -166,7 +166,7 @@ class OneTiApp {
   //---------------------------------------
   /***
    * @param uniqKey{String} : like "CTRL+S"
-   * @param $event{Event} : DOM Event Object, for prevent or stop 
+   * @param $event{Event} : [optional] DOM Event Object, for prevent or stop 
    */
   fireShortcut(uniqKey, $event) {
     //......................................
@@ -195,10 +195,10 @@ class OneTiApp {
     //......................................
     this.$shortcuts.fire(this, uniqKey, st)
     //......................................
-    if(st.prevent) {
+    if(st.prevent && $event && _.isFunction($event.preventDefault)) {
       $event.preventDefault()
     }
-    if(st.stop) {
+    if(st.stop && $event && _.isFunction($event.stopPropagation)) {
       $event.stopPropagation()
     }
     //......................................

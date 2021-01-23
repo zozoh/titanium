@@ -92,11 +92,15 @@ export async function WebAppMain({
   //---------------------------------------
   if(appJson.css) {
     let exCssList = _.concat(appJson.css)
+    let exCssCtx = {theme : appJson.theme || "light"}
     for(let css of exCssList) {
       if(css) {
-        await Ti.Load(css)
+        let cssPath = Ti.S.renderBy(css, exCssCtx)
+        console.log("load ", cssPath)
+        await Ti.Load(cssPath)
       }
     }
+    appJson.css = undefined
   }
   //---------------------------------------
   // Append extra deps

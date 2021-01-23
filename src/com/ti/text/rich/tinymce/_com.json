@@ -2,7 +2,8 @@
   "name" : "ti-text-rich-tinymce",
   "globally" : true,
   "template" : "./rich-tinymce.html",
-  "mixins" : ["./rich-tinymce.mjs"],
+  "props" : "./rich-tinymce-props.mjs",
+  "mixins" : "./rich-tinymce.mjs",
   "deps" : [
     "@deps:tinymce/5.6.2/tinymce.min.js"
   ]
