@@ -105,7 +105,6 @@ const _M = {
   ///////////////////////////////////////
   methods : {
     OnFired(val) {
-      console.log("OnFire")
       // Call Action
       if(this.action) {
         let app = Ti.App(this)

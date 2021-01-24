@@ -14,7 +14,7 @@ export default {
     type : [String, Function],
     default : undefined
   },
-  "iconeBy" : {
+  "iconBy" : {
     type : [String, Function],
     default : undefined
   },

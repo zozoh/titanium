@@ -22,23 +22,26 @@ const _M = {
       let m = /^#(.+)$/.exec(tb)
       if(m) {
         let tbName = m[1]
-        console.log(m)
         let tbd = ({
-          quick : [
+          markdown : [
             'formatselect',
             'bold italic',
             'blockquote bullist numlist',
-            'copy cut paste removeformat',
-            'undo redo'],
+            'edit'],
+          quick : [
+            'formatselect',
+            'bold italic underline',
+            'alignment indent outdent',
+            'blockquote bullist numlist',
+            'edit'],
           full : [
             'formatselect',
-            'bold italic',
-            'alignment',
+            'bold italic underline',
+            'alignment indent outdent',
             'blockquote bullist numlist',
             'table',
             'superscript subscript',
-            'copy cut paste removeformat',
-            'undo redo']
+            'edit']
         })[tbName]
         return tbd ? tbd.join("|") : false
       }
@@ -82,17 +85,24 @@ const _M = {
         statusbar: false,
         menubar: false,
         resize: false,
+        br_in_pre : false,
         readonly : this.readonly,
         placeholder: Ti.I18n.text(this.placeholder),
-        plugins: 'lists table',
+        plugins: 'paste lists table',
         toolbar: this.TheToolbar,
         toolbar_groups: {
+            edit : {
+              icon: 'edit-block',
+              tooltip: 'edit',
+              items: 'copy cut paste pastetext | removeformat | undo redo',
+            },
             alignment: {
               icon: 'align-justify',
               tooltip: 'alignment',
               items: 'alignleft aligncenter alignright alignjustify',
             },
         },
+        
         table_advtab: false,
         table_cell_advtab: false,
         table_row_advtab: false,

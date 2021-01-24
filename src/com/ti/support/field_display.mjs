@@ -176,6 +176,7 @@ const FieldDisplay = {
           return {
             key       : m[1] || defaultKey || ":ti-icon",
             defaultAs : m[3] || undefined,
+            ignoreNil : false,
             comType   : "ti-icon",
             comConf   : {
               className : m[5] || undefined
@@ -317,7 +318,7 @@ const FieldDisplay = {
       }
       // Dynamic value
       else {
-        value = Ti.Util.fallback(
+        value = Ti.Util.fallbackNil(
           Ti.Util.getOrPickNoBlank(itemData, dis.key),
           value
         )

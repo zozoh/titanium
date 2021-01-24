@@ -156,6 +156,10 @@ const TI_TREE = {
       type : Boolean,
       default : false
     },
+    "onNodeSelect" : {
+      type : Function,
+      default : undefined
+    },
     "width" : {
       type : [String, Number],
       default : null
@@ -545,12 +549,21 @@ const TI_TREE = {
           Ti.Storage.session.set(this.keepCurrentBy, this.myCurrentId)
         }
       }
-      // Emit the value
-      this.$notify("select", {
+
+      // Prepare context
+      let evtCtxt = {
         node,
         current, selected,
         currentId, checkedIds
-      })
+      }
+
+      // Callback
+      if(_.isFunction(this.onNodeSelect)) {
+        this.onNodeSelect.apply(this, [evtCtxt])
+      }
+
+      // Emit the value
+      this.$notify("select", evtCtxt)
     },
     //--------------------------------------
     OnRowIconClick({rowId}={}) {

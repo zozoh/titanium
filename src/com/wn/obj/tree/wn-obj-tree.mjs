@@ -54,6 +54,8 @@ export default {
     "cancelable" : undefined,
     "hoverable"  : undefined,
 
+    "onNodeSelect" : undefined,
+
     // Local store to save the tree open status
     "keepOpenBy" : {
       type : String,
@@ -166,7 +168,7 @@ export default {
       if(!hie)
         return
 
-      console.log(hie)
+      //console.log(hie)
       // Keep the exists children
       let oldPathId = hie.path.join("/")
       let children = _.get(hie.node, this.childrenBy)
@@ -223,6 +225,14 @@ export default {
     //------------------------------------------------
     selectNodeById(id) {
       this.$tree.selectNodeById(id)
+    },
+    //--------------------------------------
+    isOpened(rowOrId) {
+      return this.$tree.isOpened(rowOrId)
+    },
+    //--------------------------------------
+    closeRow(rowOrId) {
+      this.$tree.closeRow(rowOrId)
     },
     //------------------------------------------------
     selectNodeByPath(path) {
