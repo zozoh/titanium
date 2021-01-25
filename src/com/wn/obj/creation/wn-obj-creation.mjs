@@ -73,6 +73,7 @@ export default {
         li.className = {
           "is-current" : li.current
         }
+        li.meta = type.meta
         list.push(li)
       })
       return list
@@ -107,7 +108,8 @@ export default {
       let type = _.assign({
         name : "txt",
         mime : "text/plain",
-        race : "FILE"
+        race : "FILE",
+        meta : {}
       }, this.CurrentType)
 
       // Try to find suffix name in type list
@@ -127,7 +129,8 @@ export default {
         name,
         type : type.name,
         mime : type.mime,
-        race : type.race
+        race : type.race,
+        meta : type.meta
       })
     }
     //--------------------------------------

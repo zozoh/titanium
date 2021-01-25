@@ -22,7 +22,7 @@ const OBJ = {
       },
       components : ["@com:wn/obj/creation"]
     })
-    
+   
     // Do Create
     // Check the newName
     if(no && no.name) {
@@ -56,6 +56,7 @@ const OBJ = {
       
       // Do the creation
       let json = JSON.stringify({
+        ... no.meta,
         nm : no.name,
         tp : no.type,
         race : no.race,
