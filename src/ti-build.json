@@ -22,10 +22,6 @@
         "prefix": "ti/lib/www/",
         "target": "all"
       }, {
-        "path": "lib/code2a",
-        "prefix": "ti/lib/code2a/",
-        "target": "all"
-      }, {
         "path": "app",
         "prefix": "/a/load/",
         "ignore": "^.+\/(pc_tmpl.*\\.html|_app.json|init_context)$",

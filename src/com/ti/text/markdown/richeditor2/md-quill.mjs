@@ -1,3 +1,5 @@
+import {BrBlot} from "./blot/br.blot.mjs";
+
 /////////////////////////////////////////////////////
 async function ResetQuillConfig(Quill) {
   //.................................................
@@ -17,7 +19,7 @@ async function ResetQuillConfig(Quill) {
   // New format
   // ...
   //let {BlotBr} = await import("./br-blot.mjs")
-  //Quill.register(BrBlot, true);
+  Quill.register(BrBlot, true);
 
   //.................................................
   // Mark it
