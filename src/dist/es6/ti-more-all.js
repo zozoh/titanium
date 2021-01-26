@@ -1,12 +1,13 @@
-Ti.Load([
-'@deps:highlight/highlight.js',
-'@lib:code2a/cheap-markdown.mjs',
-'@deps:sortable.js',
-'@deps:leaflet/leaflet.js',
-'@deps:quill/quill.js',
-'@deps:antv/v4/g2/g2.min.js',
-'@deps:leaflet/leaflet.css']).then(function(){
+(async function(){
 ////////////async loading////////////////
+await Ti.Load('@deps:highlight/highlight.js');
+await Ti.Load('@deps:tinymce/5.6.2/tinymce.min.js');
+await Ti.Load('@lib:code2a/cheap-markdown.mjs');
+await Ti.Load('@deps:sortable.js');
+await Ti.Load('@deps:leaflet/leaflet.js');
+await Ti.Load('@deps:quill/1.3.6/quill.js');
+await Ti.Load('@deps:antv/v4/g2/g2.min.js');
+await Ti.Load('@deps:leaflet/leaflet.css');
 (function(){
 window.TI_PACK_EXPORTS = {};
 // ========================================
@@ -1780,41 +1781,6 @@ if(window) {
 }
 ///////////////////////////////////////////////////////;
 return Cheap;})()}
-// ========================================
-// EXPORT 'br.blot.mjs' -> BrBlot
-// ========================================
-window.TI_PACK_EXPORTS['ti/com/ti/text/markdown/richeditor2/blot/br.blot.mjs'] = {
-BrBlot : (function(){
-const Parchment = Quill.import("parchment")
-
- class BrBlot extends Parchment.Inline {
-  static create(url) {
-    let node = super.create();
-    
-    return node;
-  }
-
-  static formats(domNode) {
-    return "BR" == domNode.tagName
-  }
-
-  format(name, value) {
-    if (name === 'breakLine' && value) {
-      
-    } else {
-      super.format(name, value);
-    }
-  }
-
-  formats() {
-    let formats = super.formats();
-    formats['breakLine'] = BrBlot.formats(this.domNode);
-    return formats;
-  }
-}
-BrBlot.blotName = 'breakLine';
-BrBlot.tagName = 'BR';;
-return BrBlot;})()}
 })();   // ~ windows.TI_EXPORTS
 (function(){
 //========================================
@@ -3192,7 +3158,6 @@ const _M = {
   ///////////////////////////////////////
   methods : {
     OnFired(val) {
-      //console.log("OnFire")
       // Call Action
       if(this.action) {
         let app = Ti.App(this)
@@ -7496,7 +7461,7 @@ const _M = {
     type : [String, Function],
     default : undefined
   },
-  "iconeBy" : {
+  "iconBy" : {
     type : [String, Function],
     default : undefined
   },
@@ -8751,7 +8716,7 @@ const _M = {
     type : [String, Function],
     default : undefined
   },
-  "iconeBy" : {
+  "iconBy" : {
     type : [String, Function],
     default : undefined
   },
@@ -21803,6 +21768,7 @@ const FieldDisplay = {
           return {
             key       : m[1] || defaultKey || ":ti-icon",
             defaultAs : m[3] || undefined,
+            ignoreNil : false,
             comType   : "ti-icon",
             comConf   : {
               className : m[5] || undefined
@@ -21944,7 +21910,7 @@ const FieldDisplay = {
       }
       // Dynamic value
       else {
-        value = Ti.Util.fallback(
+        value = Ti.Util.fallbackNil(
           Ti.Util.getOrPickNoBlank(itemData, dis.key),
           value
         )
@@ -26784,7 +26750,7 @@ Ti.Preload("ti/com/ti/text/markdown/richeditor/_com.json", {
   ],
   "deps" : [
     "@lib:code2a/cheap-markdown.mjs",
-    "@deps:quill/quill.js",
+    "@deps:quill/1.3.6/quill.js",
     "@deps:highlight/highlight.js"
   ]
 });
@@ -27049,8 +27015,6 @@ Ti.Preload("ti/com/ti/text/markdown/richeditor2/md-actionbar.mjs", _M);
 // JOIN <md-quill.mjs> ti/com/ti/text/markdown/richeditor2/md-quill.mjs
 //========================================
 (function(){
-const {BrBlot} = window.TI_PACK_EXPORTS['ti/com/ti/text/markdown/richeditor2/blot/br.blot.mjs'];
-
 /////////////////////////////////////////////////////
 async function ResetQuillConfig(Quill) {
   //.................................................
@@ -27070,7 +27034,8 @@ async function ResetQuillConfig(Quill) {
   // New format
   // ...
   //let {BlotBr} = await import("./br-blot.mjs")
-  console.log(BrBlot)
+  //Quill.register(BrBlot, true);
+
   //.................................................
   // Mark it
   Quill.__has_been_reset = true
@@ -27158,6 +27123,17 @@ const _M = {
         bounds : this.$refs.stage,
         placeholder : Ti.I18n.text(this.placeholder)
       });
+      //.............................................
+      console.log("abcccc")
+      this.$editor.keyboard.addBinding({
+        key: "Enter",
+        ctrlKey: true,
+        handler:  (range, context)=>{
+          console.log("hahah")
+            this.$editor.insertEmbed(range.index, 'breakLine', true, 'user');
+            this.$editor.setSelection(range.index + 1, Quill.sources.SILENT);
+        }
+      })
       //.............................................
       this.debounceQuillChanged = _.debounce((newDelta, oldDelta)=>{
         let delta = oldDelta.compose(newDelta)
@@ -27411,7 +27387,7 @@ const _M = {
       let json = await Ti.App.Open({
         width: 600, height: "96%",
         title : "Edit delta",
-        result : JSON.stringify(this.myDelta),
+        result : JSON.stringify(this.myDelta, null, '   '),
         comType : "TiInputText",
         comConf : {
           height: "100%"
@@ -27419,7 +27395,11 @@ const _M = {
         components : "@com:ti/input/text"
       })
 
-      console.log(json)
+      if(!json)
+        return
+
+      let delta = JSON.parse(json);
+      this.$editor.setContents(delta);
     },
     //-----------------------------------------------
     // Utility
@@ -27517,7 +27497,7 @@ Ti.Preload("ti/com/ti/text/markdown/richeditor2/_com.json", {
   ],
   "deps" : [
     "@lib:code2a/cheap-markdown.mjs",
-    "@deps:quill/quill.js",
+    "@deps:quill/1.3.6/quill.js",
     "@deps:highlight/highlight.js"
   ]
 });
@@ -27701,6 +27681,295 @@ Ti.Preload("ti/com/ti/text/raw/_com.json", {
   "globally" : true,
   "template" : "./ti-text-raw.html",
   "mixins" : ["./ti-text-raw.mjs"]
+});
+//========================================
+// JOIN <rich-tinymce-props.mjs> ti/com/ti/text/rich/tinymce/rich-tinymce-props.mjs
+//========================================
+(function(){
+const _M = {
+  //...............................................
+  // Data
+  //...............................................
+  "mediaBase" : {
+    type : String,
+    default : undefined
+  },
+  "value" : {
+    type : String,
+    default : undefined
+  },
+  //...............................................
+  // Behavior
+  //...............................................
+  // Ext-toolbar item defination
+  "actions": {
+    type: Object,
+    default: ()=>({})
+  },
+  "toolbar" : {
+    type : [Boolean, Array, String],
+    default : true
+  },
+  "debugMode" : {
+    type : Boolean,
+    default : false
+  },
+  "readonly" : {
+    type : Boolean,
+    default : false
+  },
+  //...............................................
+  // Aspact
+  //...............................................
+  "placeholder" : {
+    type : String,
+    default : "i18n:blank"
+  },
+  "theme" : {
+    type : String,
+    default : "nice"
+  },
+  "loadingAs" : {
+    type : Object,
+    default : ()=>({
+      className : "as-nil-mask as-big-mask",
+      icon : undefined,
+      text : undefined
+    })
+  },
+  "blankAs" : {
+    type : Object,
+    default : ()=>({
+      comType : "TiLoading",
+      comConf : {
+        className : "as-nil-mask as-big-mask",
+        icon : "fas-coffee",
+        text : null
+      }
+    })
+  }
+}
+Ti.Preload("ti/com/ti/text/rich/tinymce/rich-tinymce-props.mjs", _M);
+})();
+//========================================
+// JOIN <rich-tinymce.html> ti/com/ti/text/rich/tinymce/rich-tinymce.html
+//========================================
+Ti.Preload("ti/com/ti/text/rich/tinymce/rich-tinymce.html", `<div class="ti-text-rich-tinymce"
+  :class="TopClass"
+  v-ti-activable>
+  <!--
+    Editor
+  -->
+  <div class="as-editor">
+    <textarea ref="editor"></textarea>
+  </div>
+  <!--
+    Source code
+  -->
+  <div class="as-sourcecode" v-if="debugMode">
+    <textarea ref="source" :value="myHtmlCode"></textarea></div>
+  <!--
+    Show loading
+  -->
+  <TiLoading
+    v-if="isContentLoading"
+      class="as-nil-mask as-big-mask"
+      :style="BlankComStyle"
+      v-bind="loadingAs"/>
+  <!--
+    Show blank
+  -->
+  <component
+    v-else-if="isContentNil"
+      :style="BlankComStyle"
+      :is="blankAs.comType"
+      v-bind="blankAs.comConf"/>
+</div>`);
+//========================================
+// JOIN <rich-tinymce.mjs> ti/com/ti/text/rich/tinymce/rich-tinymce.mjs
+//========================================
+(function(){
+const _M = {
+  ///////////////////////////////////////////////////
+  data : ()=>({
+    myHtmlCode : undefined
+  }),
+  ///////////////////////////////////////////////////
+  computed : {
+    //-----------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "nil-content" : this.isContentNil,
+        "has-content" : !this.isContentNil
+      })
+    },
+    //-----------------------------------------------
+    TheToolbar() {
+      let tb = this.toolbar
+      if(true === this.toolbar
+        || (_.isArray(this.toolbar) && _.isEmpty(this.toolbar))) {
+        tb = "#quick"
+      }
+      let m = /^#(.+)$/.exec(tb)
+      if(m) {
+        let tbName = m[1]
+        let tbd = ({
+          markdown : [
+            'formatselect',
+            'bold italic',
+            'blockquote bullist numlist',
+            'edit'],
+          quick : [
+            'formatselect',
+            'bold italic underline',
+            'alignment indent outdent',
+            'blockquote bullist numlist',
+            'edit'],
+          full : [
+            'formatselect',
+            'bold italic underline',
+            'alignment indent outdent',
+            'blockquote bullist numlist',
+            'table',
+            'superscript subscript',
+            'edit']
+        })[tbName]
+        return tbd ? tbd.join("|") : false
+      }
+      if(_.isArray(this.toolbar)) {
+        return this.toolbar.join("|")
+      }
+      return this.toolbar
+    },
+    //-----------------------------------------------
+    BlankComStyle() {
+      return {
+        position: "absolute",
+        top:0, right:0, bottom:0, left:0,
+        zIndex: 10
+      }
+    },
+    //-----------------------------------------------
+    isContentLoading() {
+      return _.isUndefined(this.value)
+    },
+    //-----------------------------------------------
+    isContentNil() {
+      return Ti.Util.isNil(this.value)
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods : {
+    //-----------------------------------------------
+    getOutline() {
+
+    },
+    //-----------------------------------------------
+    async initEditor() {
+      //.............................................
+      await tinymce.init({
+        target: this.$refs.editor,
+        language: "zh_CN",
+        auto_focus: true,
+        menubar: true,
+        statusbar: false,
+        menubar: false,
+        resize: false,
+        br_in_pre : false,
+        readonly : this.readonly,
+        placeholder: Ti.I18n.text(this.placeholder),
+        plugins: 'paste lists table',
+        toolbar: this.TheToolbar,
+        toolbar_groups: {
+            edit : {
+              icon: 'edit-block',
+              tooltip: 'edit',
+              items: 'copy cut paste pastetext | removeformat | undo redo',
+            },
+            alignment: {
+              icon: 'align-justify',
+              tooltip: 'alignment',
+              items: 'alignleft aligncenter alignright alignjustify',
+            },
+        },
+        
+        table_advtab: false,
+        table_cell_advtab: false,
+        table_row_advtab: false,
+        table_toolbar: [
+          'tableinsertrowbefore tableinsertrowafter tabledeleterow','tableinsertcolbefore tableinsertcolafter tabledeletecol',
+          'tabledelete'].join("|"),
+        table_use_colgroups: true,
+        setup : (editor)=>{
+          // Event: change
+          editor.on("Change", (evt)=>{
+            // console.log("haha ", evt)
+            this.myHtmlCode = editor.getContent()
+          })
+          // Shortcute
+          editor.addShortcut('ctrl+s', "Save content", ()=>{
+            Ti.App(this).fireShortcut("CTRL+S");
+          });
+          // Remember instance
+          this.$editor = editor
+        }
+      });
+      if(this.value) {
+        this.myHtmlCode = this.value
+        this.$editor.setContent(this.value)
+      }
+      // https://www.tiny.cloud/blog/tinymce-toolbar/
+      //   tinymce.init({
+      //     selector: "textarea",
+      //     menubar: false,
+      //     plugins: "link image code",
+      //     toolbar: 'undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link image | code'
+      // });
+      //.............................................
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "myHtmlCode" : function(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.value)) {
+        this.$notify("change", newVal);
+      }
+    },
+    "value" : function(newVal, oldVal) {
+      // console.log("value", newVal, oldVal)
+      if(!this.myHtmlCode ||
+        (!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.myHtmlCode))) {
+        this.myHtmlCode = newVal
+        this.$editor.setContent(newVal||"")
+      }
+    }
+  },
+  ///////////////////////////////////////////////////
+  created : function() {
+    
+  },
+  ///////////////////////////////////////////////////
+  mounted : function() {
+    this.initEditor()
+  }
+  ///////////////////////////////////////////////////
+}
+Ti.Preload("ti/com/ti/text/rich/tinymce/rich-tinymce.mjs", _M);
+})();
+//========================================
+// JOIN <_com.json> ti/com/ti/text/rich/tinymce/_com.json
+//========================================
+Ti.Preload("ti/com/ti/text/rich/tinymce/_com.json", {
+  "name" : "ti-text-rich-tinymce",
+  "globally" : true,
+  "template" : "./rich-tinymce.html",
+  "props" : "./rich-tinymce-props.mjs",
+  "mixins" : "./rich-tinymce.mjs",
+  "deps" : [
+    "@deps:tinymce/5.6.2/tinymce.min.js"
+  ]
 });
 //========================================
 // JOIN <ti-time.html> ti/com/ti/time/ti-time.html
@@ -28770,6 +29039,10 @@ const TI_TREE = {
       type : Boolean,
       default : false
     },
+    "onNodeSelect" : {
+      type : Function,
+      default : undefined
+    },
     "width" : {
       type : [String, Number],
       default : null
@@ -29159,12 +29432,21 @@ const TI_TREE = {
           Ti.Storage.session.set(this.keepCurrentBy, this.myCurrentId)
         }
       }
-      // Emit the value
-      this.$notify("select", {
+
+      // Prepare context
+      let evtCtxt = {
         node,
         current, selected,
         currentId, checkedIds
-      })
+      }
+
+      // Callback
+      if(_.isFunction(this.onNodeSelect)) {
+        this.onNodeSelect.apply(this, [evtCtxt])
+      }
+
+      // Emit the value
+      this.$notify("select", evtCtxt)
     },
     //--------------------------------------
     OnRowIconClick({rowId}={}) {
@@ -30018,7 +30300,7 @@ const _M = {
       if(this.dataKey) {
         payload = _.set({}, this.dataKey, payload)
       }
-      console.log(payload)
+      //console.log(payload)
       this.$emit("data:change", payload)
     }
     //----------------------------------------------
@@ -38512,6 +38794,46 @@ const _M = {
     //------------------------------------
     TheItems() {
       return this.evalItems(this.items)
+    },
+    //------------------------------------
+    ShareTargets() {
+      return {
+        //..............................
+        "facebook": {
+          iconClass: "fab fa-facebook-f",
+          link : "https://www.facebook.com/sharer.php",
+          params : {
+            u     : "=url",
+            title : "=title"
+          }
+        },
+        //..............................
+        "twitter": {
+          iconClass: "fab fa-twitter",
+          link : "https://twitter.com/share",
+          params : {
+            url  : "=url",
+            text : "=title"
+          }
+        },
+        //..............................
+        "mix": {
+          iconClass: "fab fa-mix",
+          link : "https://mix.com/mixit",
+          params : {
+            url  : "=url"
+          }
+        },
+        //..............................
+        "linkedin": {
+          iconClass: "fab fa-linkedin-in",
+          link : "https://www.linkedin.com/cws/share",
+          params : {
+            url  : "=url"
+          }
+        }
+        //..............................
+      }
     }
     //------------------------------------
   },
@@ -38533,27 +38855,7 @@ const _M = {
       let list = []
       _.forEach(items, (it, index)=>{
         //................................
-        let li = ({
-          //..............................
-          "facebook": {
-            iconClass: "fab fa-facebook-f",
-            link : "https://www.facebook.com/sharer.php",
-            params : {
-              title : "=title",
-              u     : "=url"
-            }
-          },
-          //..............................
-          "twitter": {
-            iconClass: "fab fa-twitter",
-            link : "https://twitter.com/share",
-            params : {
-              text : "=title",
-              url  : "=url"
-            }
-          }
-          //..............................
-        })[it]
+        let li = _.get(this.ShareTargets, it)
         //................................
         if(li)
           list.push(li)
@@ -38799,7 +39101,7 @@ const OBJ = {
       },
       components : ["@com:wn/obj/creation"]
     })
-    
+   
     // Do Create
     // Check the newName
     if(no && no.name) {
@@ -38833,6 +39135,7 @@ const OBJ = {
       
       // Do the creation
       let json = JSON.stringify({
+        ... no.meta,
         nm : no.name,
         tp : no.type,
         race : no.race,
@@ -39992,6 +40295,7 @@ const _M = {
     },
     //------------------------------------------------
     async exec(cmdText, options={}) {
+      cmdText = Ti.S.renderBy(cmdText, this.vars)
       if(this.showRunTip || options.showRunTip) {
         this.printHR()
         this.lines.push("> " + cmdText)
@@ -40001,7 +40305,6 @@ const _M = {
       let re = await Wn.Sys.exec(cmdText, {
         //...............................
         as : this.as,
-        vars : this.vars,
         input : this.input, 
         forceFlushBuffer : this.forceFlushBuffer,
         //...............................
@@ -43055,6 +43358,7 @@ const _M = {
         li.className = {
           "is-current" : li.current
         }
+        li.meta = type.meta
         list.push(li)
       })
       return list
@@ -43089,7 +43393,8 @@ const _M = {
       let type = _.assign({
         name : "txt",
         mime : "text/plain",
-        race : "FILE"
+        race : "FILE",
+        meta : {}
       }, this.CurrentType)
 
       // Try to find suffix name in type list
@@ -43109,7 +43414,8 @@ const _M = {
         name,
         type : type.name,
         mime : type.mime,
-        race : type.race
+        race : type.race,
+        meta : type.meta
       })
     }
     //--------------------------------------
@@ -45029,6 +45335,8 @@ Ti.Preload("ti/com/wn/obj/tree/wn-obj-tree.html", `<div class="wn-obj-tree"
     :openable="openable"
     :hoverable="hoverable"
 
+    :on-node-select="onNodeSelect"
+
     :spacing="spacing"
     :border="border"
     :loading-node="loadingNode"
@@ -45099,6 +45407,8 @@ const _M = {
     "openable"   : undefined,
     "cancelable" : undefined,
     "hoverable"  : undefined,
+
+    "onNodeSelect" : undefined,
 
     // Local store to save the tree open status
     "keepOpenBy" : {
@@ -45212,7 +45522,7 @@ const _M = {
       if(!hie)
         return
 
-      console.log(hie)
+      //console.log(hie)
       // Keep the exists children
       let oldPathId = hie.path.join("/")
       let children = _.get(hie.node, this.childrenBy)
@@ -45269,6 +45579,14 @@ const _M = {
     //------------------------------------------------
     selectNodeById(id) {
       this.$tree.selectNodeById(id)
+    },
+    //--------------------------------------
+    isOpened(rowOrId) {
+      return this.$tree.isOpened(rowOrId)
+    },
+    //--------------------------------------
+    closeRow(rowOrId) {
+      this.$tree.closeRow(rowOrId)
     },
     //------------------------------------------------
     selectNodeByPath(path) {
@@ -53792,9 +54110,12 @@ const _M = {
         })
       }
 
-      
       // Update the auth
       commit("auth/mergePaths", state.authPaths)
+
+      // Reload the global data
+      let apis = []
+      // _.forEach(state.global, )
 
       // Eval the entry page
       let entry = state.entry
@@ -56748,4 +57069,4 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
 // The End
 })();
 ////////////async loading////////////////
-});
+})()

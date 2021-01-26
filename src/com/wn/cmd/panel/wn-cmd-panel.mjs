@@ -92,6 +92,7 @@ const _M = {
     },
     //------------------------------------------------
     async exec(cmdText, options={}) {
+      cmdText = Ti.S.renderBy(cmdText, this.vars)
       if(this.showRunTip || options.showRunTip) {
         this.printHR()
         this.lines.push("> " + cmdText)
@@ -101,7 +102,6 @@ const _M = {
       let re = await Wn.Sys.exec(cmdText, {
         //...............................
         as : this.as,
-        vars : this.vars,
         input : this.input, 
         forceFlushBuffer : this.forceFlushBuffer,
         //...............................
