@@ -32,6 +32,7 @@ const _M = {
     },
     //--------------------------------------
     TheData() {
+      console.log("haha", this.value)
       if(!Ti.Util.isNil(this.value)) {
         return Ti.Types.safeParseJson(this.value, null)
       }

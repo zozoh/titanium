@@ -5305,97 +5305,11 @@ const _M = {
     //--------------------------------------------
     // Merget page api and the site api
     pageApis(state, getters, rootState, rootGetters) {
-      let apiBase  = rootState.apiBase || "/"
-      let SiteApis = rootState.apis || {}
-      let PageApis = {}
-
-      // Define the api tidy func
-      const hydrateApi = function(key, siteApi, pageApi={}) {
-        let api = _.cloneDeep(siteApi)
-
-        // Assign default value
-        _.defaults(api, {
-          name    : key,
-          method  : "GET",
-          headers : {},
-          params  : {},
-          vars    : {},
-          as      : "json"
-        })
-
-        // API path is required
-        if(!api.path) {
-          console.warn(`!!!API[${key}] without defined in site!!!`, api)
-          return
-        }
-
-        //..........................................
-        // Merge vars
-        _.assign(api.vars, pageApi.vars)
-        //..........................................
-        // Merge headers
-        _.assign(api.headers, pageApi.headers)
-        //..........................................
-        // Merge params
-        _.assign(api.params, pageApi.params)
-        //..........................................
-        // Absolute URL
-        if("INVOKE" != api.method) {
-          if(/^(https?:\/\/|\/)/.test(api.path)) {
-            api.url = api.path
-          }
-          // Join with the apiBase
-          else {
-            api.url = Ti.Util.appendPath(apiBase, api.path)
-          }
-        }
-        //..........................................
-        // Copy the Setting from page
-        _.assign(api, _.pick(pageApi, 
-          "body", 
-          "preload",
-          "ssr",
-          "transformer", 
-          "dataKey",
-          "dataMerge",
-          "rawDataKey",
-          "rawDataMerge"
-        ))
-        //..........................................
-        _.defaults(api, {
-          bodyType : "form",
-          dataKey  : key
-        })
-        //..........................................
-        // Then done
-        return api
-      }  // const hydrateApi = function
-
-      // Join site apis
-      _.forEach(SiteApis, (api, key)=>{
-        if(api.pages) {
-          api = hydrateApi(key, api)
-          if(api) {
-            PageApis[key] = api
-          }
-        }
+      return Ti.WWW.hydrateApi({
+        base : rootState.apiBase,
+        siteApis : rootState.apis,
+        apis : state.apis
       })
-      // For each api declared in current page
-      _.forEach(state.apis, (pageApi, key)=>{
-        //..........................................
-        // Get SiteApi template
-        let siteApi = _.get(SiteApis, pageApi.apiName || key)
-        //console.log(key, siteApi)
-        let api = hydrateApi(key, siteApi, pageApi)
-
-        if(api) {
-          PageApis[key] = api
-        }
-        //..........................................
-      })  // _.forEach(state.apis, (info, key)=>{
-      // console.log("APIs", PageApis)
-      // Return page api-set
-      return PageApis
     }
     //--------------------------------------------
   },
@@ -5733,142 +5647,23 @@ const _M = {
       headers, 
       body,
       ok, fail}) {
-      //.....................................
-      // Override api
-      api = _.cloneDeep(api)
-      _.assign(api.vars, vars)
-      _.assign(api.params, params)
-      _.assign(api.headers, headers)
-      if(!Ti.Util.isNil(body)) {
-        api.body = body
-      }
-      //.....................................
-      // Eval url
-      _.defaults(vars, api.vars)
-      let url = api.url
-      //.....................................
-      // Eval dynamic url
-      if(!_.isEmpty(api.vars)) {
-        let vs2 = Ti.Util.explainObj(rootState, api.vars)
-        url = Ti.S.renderBy(url, vs2)
-      }
-      //.....................................
-      // Gen the options
-      let options = _.pick(api, ["method", "as"])
-      //options.vars = api.vars
-      //.....................................
-      // Eval headers
-      options.headers = Ti.Util.explainObj(rootState, api.headers)
-      //.....................................
-      // Eval the params
-      options.params = Ti.Util.explainObj(rootState, api.params)
-      //.....................................
-      // Prepare the body
-      if("POST" == api.method && api.body) {
-        let bodyData = Ti.Util.explainObj(rootState, api.body)
-        // As JSON
-        if("json" == api.bodyType) {
-          options.body = JSON.stringify(bodyData)
+      //.....................................  
+      await Ti.WWW.runApiAndPrcessReturn(rootState, api, {
+        vars, 
+        params, 
+        headers, 
+        body,
+        ok, fail,
+        mergeData : function(payload) {
+          commit("mergeData", payload)
+        },
+        updateData : function(payload) {
+          commit("updateData", payload)
+        },
+        doAction : function(at) {
+          dispatch("doAction", at, {root:true})
         }
-        // As responseText
-        else if("text" == api.bodyType) {
-          options.body = Ti.Types.toStr(bodyData)
-        }
-        // Default is form
-        else {
-          options.body = Ti.Http.encodeFormData(bodyData)
-        }
-      }
-      //.....................................
-      // Join the http send Promise
-      //console.log(`will send to "${url}"`, options)
-      let reo = undefined;
-      try{
-        // Invoke Action
-        if(api.method == "INVOKE") {
-          reo = await dispatch(api.path, options.params, {root:true})
-        }
-        // Send HTTP Request
-        else {
-          // Check the page local ssr cache
-          if(api.ssr && "GET" == api.method) {
-            //console.log("try", api)
-            let paramsJson = JSON.stringify(options.params || {})
-            let ssrConf = _.pick(options, "as")
-            ssrConf.dft = undefined
-            ssrConf.ssrFinger = Ti.Alg.sha1(paramsJson)
-            reo = Ti.WWW.getSSRData(`api-${api.name}`, ssrConf)
-          }
-          if(_.isUndefined(reo)) {
-            reo = await Ti.Http.sendAndProcess(url, options);
-          }
-        }
-      }
-      // Cache the Error
-      catch (err) {
-        console.warn(`Fail to invoke ${url}`, {api, url, options, err})
-        // Prepare fail Object
-        let failAction = Ti.Util.explainObj({
-          api, url, options,
-          err,
-          errText : err.responseText
-        }, fail)
-        dispatch("doAction", failAction, {root:true})
-        return
-      }
-      let data = reo
-      //.....................................
-      // Eval api transformer
-      if(api.transformer) {
-        let trans = _.cloneDeep(api.transformer)
-        let partial = Ti.Util.fallback(trans.partial, "right")
-        // PreExplain args
-        if(trans.explain) {
-          let tro = _.pick(trans, "name", "args")
-          trans = Ti.Util.explainObjs(rootState, tro)
-        }
-        let fnTrans = Ti.Util.genInvoking(trans, {
-          context: rootState,
-          partial
-        })
-        if(_.isFunction(fnTrans)) {
-          //console.log("transformer", reo)
-          data = fnTrans(reo)
-        }
-      }
-      //.....................................
-      // Update or merge
-      if(api.dataMerge) {
-        commit("mergeData", {
-          [api.dataKey] : data
-        })
-      }
-      // Just update
-      else if(api.dataKey) {
-        commit("updateData", {
-          key   : api.dataKey,
-          value : data
-        })
-      }
-      //.....................................
-      // Update or merge raw
-      if(api.rawDataKey) {
-        if(api.rawDataMerge) {
-          commit("mergeData", {
-            [api.rawDataKey] : reo
-          })
-        }
-        // Just update
-        else {
-          commit("updateData", {
-            key   : api.rawDataKey,
-            value : reo
-          })
-        }
-      }
-      //.....................................
-      // All done
-      dispatch("doAction", ok, {root:true})
+      })
     },
     //--------------------------------------------
     /***
@@ -5984,6 +5779,7 @@ const _M = {
       pinfo.params = _.merge({}, pinfo.params, params)
       pinfo.path = pinfo.path || path
       pinfo.name = Ti.Util.getMajorName(pinfo.path)
+      pinfo.href = path
       //.....................................
       // Update Path url
       let link = Ti.Util.Link({url:path, params, anchor})
@@ -6014,40 +5810,12 @@ const _M = {
       await dispatch("invokeAction", {name:"@page:prepare"}, {root:true})
       //.....................................
       // Conclude the api loading keys
-      let keyGroups = []
-      let afterLoadkeys = []   // After page loaded, those api should be load
-      _.forEach(getters.pageApis, (api, k)=>{
-        let preload = api.preload
-        // Considering preload=true
-        if(_.isBoolean(preload)) {
-          if(!preload) {
-            return
-          }
-          preload = 1
-        }
-        // Preload before display
-        if(_.isNumber(preload)) {
-          if(preload >= 0) {
-            let keys = _.nth(keyGroups, preload)
-            if(!_.isArray(keys)){
-              keys = []
-              keyGroups[preload] = keys
-            }
-            keys.push(k)
-          }
-          // After page load
-          else {
-            afterLoadkeys.push(k)
-          }
-        }
-      })
+      let {preloads, afterLoads} = Ti.WWW.groupPreloadApis(getters.pageApis)
       //console.log(keyGroups)
       //.....................................
       // init: data
-      for(let keys of keyGroups) {
-        if(!_.isEmpty(keys)) {
-          await dispatch("reloadData", keys)
-        }
+      for(let keys of preloads) {
+        await dispatch("reloadData", keys)
       }
       // explain data
       await dispatch("explainData")
@@ -6061,8 +5829,8 @@ const _M = {
       await dispatch("invokeAction", {name:"@page:ready"}, {root:true})
       //.....................................
       // Load the after page api
-      if(afterLoadkeys.length > 0) {
-        dispatch("reloadData", afterLoadkeys)
+      if(!_.isEmpty(afterLoads.length)) {
+        dispatch("reloadData", afterLoads)
       }
       //.....................................
     }
@@ -20486,6 +20254,16 @@ window.TI_PACK_EXPORTS['ti/com/web/nav/support/web-nav-mixins.mjs'] = (function(
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
   props : {
+    // The items appeared at the head
+    "headItems" : {
+      type : Array,
+      default : ()=>[]
+    },
+    // The items appeared at the tail
+    "tailItems" : {
+      type : Array,
+      default : ()=>[]
+    },
     /*
     {text, icon, href, newtab, path, payload}
     */
@@ -20516,7 +20294,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //------------------------------------
     TheItems() {
-      return this.evalItems(this.items)
+      return this.evalItems(
+        _.concat(
+          this.headItems, 
+          this.items, 
+          this.tailItems
+          ))
     }
     //------------------------------------
   },
@@ -20524,6 +20307,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
   methods : {
     //------------------------------------
     OnClickLink(evt, {type,value,params}={}) {
+      console.log("haha")
+      evt.stopPropagation();
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()
         //console.log("onClickLink", "nav:to", {type,value,params})
@@ -22537,6 +22322,7 @@ const _M = {
     },
     //--------------------------------------
     TheData() {
+      console.log("haha", this.value)
       if(!Ti.Util.isNil(this.value)) {
         return Ti.Types.safeParseJson(this.value, null)
       }
@@ -29385,6 +29171,7 @@ const _M = {
         "domain"    : state=>state.domain,
         "rs"        : state=>state.rs,
         "nav"       : state=>state.nav,
+        "data"      : state=>state.data,
         "base"      : state=>state.base,
         "apiBase"   : state=>state.apiBase,
         "cdnTmpl"   : state=>state.cdnTmpl,
@@ -38085,7 +37872,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/lib/www/mod/www-mod-site.mjs'] = (function(){
 const _M = {
-  /////////////////////////////////////////
+  ////////////////////////////////////////////////
   getters : {
     //--------------------------------------------
     // Pre-compiled Site Routers
@@ -38119,6 +37906,14 @@ const _M = {
         list.push(li)
       })
       return list
+    },
+    //--------------------------------------------
+    globalApis(state) {
+      return Ti.WWW.hydrateApi({
+        base : state.apiBase,
+        siteApis : state.apis,
+        apis : state.global
+      })
     },
     //--------------------------------------------
     // Site Action Mapping
@@ -38192,7 +37987,7 @@ const _M = {
     }
     //--------------------------------------------
   },
-  /////////////////////////////////////////
+  ////////////////////////////////////////////////
   mutations : {
     //--------------------------------------------
     setSiteId(state, siteId) {
@@ -38205,13 +38000,100 @@ const _M = {
       state.apiBase = Ti.S.renderBy(state.apiBase||"/api/${domain}/", {domain})
     },
     //--------------------------------------------
+    setLang(state, lang) {
+      let as = state.langCase || "snake"
+      state.lang = _[`${as}Case`](lang)
+      state.langName = _.kebabCase(lang)
+    },
+    //--------------------------------------------
+    explainNav(state) {
+      if(state.nav) {
+        state.nav = Ti.Util.explainObj(state, state.nav)
+      }
+    },
+    //--------------------------------------------
+    setData(state, data) {
+      state.data = data
+    },
+    //--------------------------------------------
+    updateData(state, {key, value}={}) {
+      // kay-value pair is required
+      if(!key || _.isUndefined(value)) {
+        return
+      }
+      let vobj = _.set({}, key, value)
+      state.data = _.assign({}, state.data, vobj)
+    },
+    //--------------------------------------------
+    updateDataBy(state, {key, value}) {
+      if(!key || _.isUndefined(value)) {
+        return
+      }
+      let data = _.cloneDeep(state.data)
+      _.set(data, key, value)
+      state.data = data
+    },
+    //--------------------------------------------
     setLoading(state, loading) {
       state.loading = loading
     }
     //--------------------------------------------
   },
-  /////////////////////////////////////////
+  ////////////////////////////////////////////////
   actions : {
+    //--------------------------------------------
+    async __run_gloabl_api({commit, dispatch, state}, {
+      api, 
+      vars, 
+      params, 
+      headers, 
+      body,
+      ok, fail}) {
+      //.....................................  
+      await Ti.WWW.runApiAndPrcessReturn(state, api, {
+        vars, 
+        params, 
+        headers, 
+        body,
+        ok, fail,
+        mergeData : function(payload) {
+          commit("mergeData", payload)
+        },
+        updateData : function(payload) {
+          commit("updateData", payload)
+        },
+        doAction : function(at) {
+          dispatch("doAction", at)
+        }
+      })
+    },
+    //--------------------------------------------
+    /***
+     * Reload page data by given api keys
+     */
+    async reloadGlobalData({state, commit, getters, dispatch}, keys=[]) {
+      commit("setLoading", true)
+      
+      let apis = []
+      for(let key of keys) {
+        let api = _.get(getters.globalApis, key)
+        if(!api) {
+          continue;
+        }
+        //console.log("  # -> page.reloadData -> prepareApi", api)
+        if(api.preloadWhen) {
+          if(!Ti.AutoMatch.test(api.preloadWhen, state)) {
+            continue;
+          }
+        }
+        apis.push(dispatch("__run_gloabl_api", {api}))
+      }
+      if(!_.isEmpty(apis)) {
+        await Promise.all(apis)
+      }
+      commit("setLoading", false)
+    },
+    //--------------------------------------------
     //--------------------------------------------
     navBackward() {
       if(window.history) {
@@ -38464,17 +38346,20 @@ const _M = {
       }
     },
     //--------------------------------------------
-    async reload({state, commit, dispatch}) {
-      //console.log("site.reload", state.entry, state.base)
-      // Merge Site FuncSet
-      //console.log(state.utils)
-
-      // Init the base/apiBase
-
+    async reload({state, commit, dispatch, getters}, {loc, lang}={}) {
+      console.log("site.reload", state.entry, state.base, state.lang)
+      //---------------------------------------
       // Looking for the entry page
       // {href,protocol,host,port,path,search,query,hash,anchor}
-      let loc = Ti.Util.parseHref(window.location.href)
-
+      loc = loc || Ti.Util.parseHref(window.location.href)
+      //---------------------------------------
+      // Format lang to the expect case: snake/kebab/camel
+      if(lang) {
+        commit("setLang", lang)
+      }
+      //---------------------------------------
+      // Explain nav
+      commit("explainNav")
       //---------------------------------------
       // Setup dictionary
       if(state.dictionary) {
@@ -38506,8 +38391,12 @@ const _M = {
       commit("auth/mergePaths", state.authPaths)
 
       // Reload the global data
-      let apis = []
-      // _.forEach(state.global, )
+      let {preloads, afterLoads} = Ti.WWW.groupPreloadApis(getters.globalApis)
+      //..........................................
+      // init global data
+      for(let keys of preloads) {
+        await dispatch("reloadGlobalData", keys)
+      }
 
       // Eval the entry page
       let entry = state.entry
@@ -38523,10 +38412,16 @@ const _M = {
         anchor : loc.hash,
         pushHistory : false
       })
+
+      //..........................................
+      // Load the after page completed
+      if(!_.isEmpty(afterLoads.length)) {
+        dispatch("reloadGlobalData", afterLoads)
+      }
     }
     //--------------------------------------------
   }
-  /////////////////////////////////////////
+  ////////////////////////////////////////////////
 }
 return _M;;
 })()
@@ -50030,7 +49925,7 @@ Ti.Preload("ti/com/web/nav/links/nav-links.html", `<nav class="web-nav-links"
       <!--Text-->
       <span
         v-if="it.title"
-          class="as-text">{{it.title}}</span>
+          class="as-text">{{it.title | i18n}}</span>
       <!--===================================-->
       <!--SubItems-->
       <div
@@ -50052,7 +49947,7 @@ Ti.Preload("ti/com/web/nav/links/nav-links.html", `<nav class="web-nav-links"
                 <!--Text-->
                 <span
                   v-if="sub.title"
-                    class="as-text">{{sub.title}}</span>
+                    class="as-text">{{sub.title | i18n}}</span>
             </a>
           </div>
       </div>
@@ -53953,6 +53848,7 @@ Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "className": null,
   "title" : null,
   "name"  : null,
+  "href"  : null,
   "path"  : null,
   "pageUri": null,
   "ready" : 0,
@@ -54990,6 +54886,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "hierarchy": "Hierarchy",
   "history-record": "History record",
   "home": "HOME",
+  "home-index" : "HOME",
   "i-known": "I known",
   "icon": "Icon",
   "icon-code-tip": "Please key-in code for icon, such as 'zmdi-case'",
@@ -56110,6 +56007,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "hierarchy": "层级",
   "history-record": "历史记录",
   "home": "主目录",
+  "home-index" : "首页",
   "i-known": "我知道了",
   "icon": "图标",
   "icon-code-tip": "请输入图标代码，如 zmdi-case",
@@ -56411,6 +56309,1086 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-th-acc-pwd-too-short": "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合",
   "wn-th-recount-media": "重新计算当前文件数量",
   "wn-th-recount-media-done": "当前文件数量: ${n}"
+});
+//========================================
+// JOIN <hmaker.i18n.json> ti/i18n/zh-hk/hmaker.i18n.json
+//========================================
+Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
+   "com-form": "表單",
+   "com-label": "標籤",
+   "com-list": "列表",
+   "hm-type-Array": "數組",
+   "hm-type-Boolean": "布爾",
+   "hm-type-Group": "字段分組",
+   "hm-type-Integer": "整數",
+   "hm-type-Number": "數字",
+   "hm-type-Object": "對象",
+   "hm-type-String": "文本",
+   "hm-type-icons": "{\"Array\":\"zmdi-format-list-bulleted\",\"Boolean\":\"zmdi-toll\",\"Group\":\"zmdi-collection-bookmark\",\"Integer\":\"zmdi-n-6-square\",\"Number\":\"zmdi-input-svideo\",\"Object\":\"zmdi-toys\",\"String\":\"zmdi-translate\"}",
+   "hmaker-com-conf-blank": "請選擇一個控件設置其詳情",
+   "hmaker-com-type-blank": "選擇一個控件",
+   "hmaker-edit-form-del-group-all": "組以及全部字段",
+   "hmaker-edit-form-del-group-confirm": "您是要刪除組以及其內的全部字段，還是僅是組？",
+   "hmaker-edit-form-del-group-only": "僅是組",
+   "hmaker-edit-form-field-nil": "請選擇一個字段編輯詳情",
+   "hmaker-edit-form-new-field": "新字段",
+   "hmaker-edit-form-new-field-e0": "字段名不能以數字開頭，內容只能爲小寫英文字母數字和下劃線",
+   "hmaker-edit-form-new-field-e1": "字段【${val}】已存在，請另選一個名稱",
+   "hmaker-edit-form-new-field-tip": "請輸入新字段名（只能爲小寫英文字母數字和下劃線）",
+   "hmaker-edit-form-new-group": "新分組",
+   "hmaker-edit-form-new-group-tip": "請輸入新分組名",
+   "hmaker-edit-form-nil-field": "請先選擇一個字段",
+   "hmaker-edit-form-not-current": "請選擇一個字段或者字段組",
+   "hmaker-layout-cols": "列布局",
+   "hmaker-layout-rows": "行佈局",
+   "hmaker-layout-tabs": "標籤佈局",
+   "hmaker-nav-blank-item": "請選擇一個導航項目編輯",
+   "hmaker-nav-k-display": "鏈接顯示內容",
+   "hmaker-nav-k-icon": "鏈接圖標",
+   "hmaker-nav-k-title": "鏈接文字",
+   "hmaker-nav-k-type": "鏈接類型",
+   "hmaker-nav-k-value": "鏈接目標",
+   "hmaker-nav-tp-dispatch": "方法調用",
+   "hmaker-nav-tp-href": "外部鏈接",
+   "hmaker-nav-tp-page": "站點頁面",
+   "hmaker-site-k-apiBase": "接口路徑",
+   "hmaker-site-k-base": "資源路徑",
+   "hmaker-site-k-captcha": "驗證碼路徑",
+   "hmaker-site-k-domain": "所屬域",
+   "hmaker-site-k-entry": "着陸頁",
+   "hmaker-site-prop": "站點屬性",
+   "hmaker-site-state": "站點全局配置",
+   "hmaker-site-state-actions": "全局動作表",
+   "hmaker-site-state-apis": "接口集",
+   "hmaker-site-state-blocks": "預定義佈局",
+   "hmaker-site-state-general": "通用配置",
+   "hmaker-site-state-nav": "全局導航條",
+   "hmaker-site-state-router": "頁面路由",
+   "hmaker-site-state-schema": "預定義控件",
+   "hmaker-site-state-utils": "擴展函數",
+   "hmaker-site-tree": "站點結構",
+   "hmaker-site-tree-loading": "正在加載站點結構...",
+   "hmk-adjustDelay": "調整延遲",
+   "hmk-aspect": "外觀",
+   "hmk-autoI18n": "國際化",
+   "hmk-behavior": "行爲",
+   "hmk-blankAs": "空白樣式",
+   "hmk-breakLine": "維持換行",
+   "hmk-currentTab": "當前標籤",
+   "hmk-data": "數據",
+   "hmk-dict": "數據字典",
+   "hmk-editable": "可編輯",
+   "hmk-field-checkEquals": "檢查相等",
+   "hmk-field-com": "編輯控件",
+   "hmk-field-defaultAs": "默認值",
+   "hmk-field-disabled": "失效條件",
+   "hmk-field-height": "高度",
+   "hmk-field-hidden": "隱藏條件",
+   "hmk-field-icon": "圖標",
+   "hmk-field-name": "鍵名",
+   "hmk-field-serializer": "自定義保存",
+   "hmk-field-tip": "提示說明",
+   "hmk-field-title": "顯示名",
+   "hmk-field-transformer": "自定義轉換",
+   "hmk-field-type": "類型",
+   "hmk-field-width": "寬度",
+   "hmk-fieldStatus": "字段狀態",
+   "hmk-fields": "字段",
+   "hmk-fields-advance": "高級",
+   "hmk-fields-general": "基本",
+   "hmk-form-data": "數據源",
+   "hmk-form-height": "表單高度",
+   "hmk-form-onlyFields": "僅聲明字段",
+   "hmk-form-width": "表單寬度",
+   "hmk-format": "格式化",
+   "hmk-height": "控件高度",
+   "hmk-href": "超鏈接",
+   "hmk-icon": "表單圖標",
+   "hmk-measure": "尺寸",
+   "hmk-mode": "顯示方式",
+   "hmk-mode-all": "全部",
+   "hmk-mode-tab": "標籤",
+   "hmk-newTab": "新窗口",
+   "hmk-placeholder": "佔位文本",
+   "hmk-prefixIcon": "前綴圖標",
+   "hmk-prefixText": "前綴文字",
+   "hmk-spacing": "間距",
+   "hmk-spacing-comfy": "舒適",
+   "hmk-spacing-tiny": "緊湊",
+   "hmk-suffixIcon": "後綴圖標",
+   "hmk-suffixText": "後綴文字",
+   "hmk-tabAt": "標籤位置",
+   "hmk-tabAt-bottom-center": "下部居中",
+   "hmk-tabAt-bottom-left": "下部居左",
+   "hmk-tabAt-bottom-right": "下部居右",
+   "hmk-tabAt-top-center": "上部居中",
+   "hmk-tabAt-top-left": "上部居左",
+   "hmk-tabAt-top-right": "上部居右",
+   "hmk-title": "表單標題",
+   "hmk-trimed": "修剪空白",
+   "hmk-value": "輸入值",
+   "hmk-valueMaxWidth": "值最大寬度",
+   "hmk-width": "控件寬度"
+});
+//========================================
+// JOIN <ti-datetime.i18n.json> ti/i18n/zh-hk/ti-datetime.i18n.json
+//========================================
+Ti.Preload("ti/i18n/zh-hk/ti-datetime.i18n.json", {
+   "Apr": "四月",
+   "Aug": "八月",
+   "Dec": "十二月",
+   "Feb": "二月",
+   "Fri": "週五",
+   "Friday": "星期五",
+   "Jan": "一月",
+   "Jul": "七月",
+   "Jun": "六月",
+   "Mar": "三月",
+   "May": "五月",
+   "Mon": "週一",
+   "Monday": "星期一",
+   "Nov": "十一月",
+   "Oct": "十月",
+   "Sat": "週六",
+   "Saturday": "星期六",
+   "Sep": "九月",
+   "Sun": "週日",
+   "Sunday": "星期日",
+   "Thu": "週四",
+   "Thursday": "星期四",
+   "Tue": "週二",
+   "Tuesday": "星期二",
+   "Wed": "週三",
+   "Wednesday": "星期三",
+   "blank-date": "請選擇日期",
+   "blank-date-range": "請選擇日期範圍",
+   "blank-datetime": "請選擇日期時間",
+   "blank-month": "請選擇月份",
+   "blank-time": "請選擇時間",
+   "blank-time-range": "請選擇時間範圍",
+   "cal": "{\"abbr\":{\"Apr\":\"四月\",\"Aug\":\"八月\",\"Dec\":\"十二\",\"Feb\":\"二月\",\"Jan\":\"一月\",\"Jul\":\"七月\",\"Jun\":\"六月\",\"Mar\":\"三月\",\"May\":\"五月\",\"Nov\":\"十一\",\"Oct\":\"十月\",\"Sep\":\"九月\"},\"d-range-beyond-days\":\"${yy0}年${MM0}月${dd0}至${dd1}日\",\"d-range-beyond-months\":\"${yy0}年${MM0}月${dd0}日至${MM1}月${dd1}日\",\"d-range-beyond-years\":\"${yy0}年${MM0}月${dd0}日至${yy1}年${MM1}月${dd1}日\",\"d-range-in-same-day\":\"${yy0}年${MM0}月${dd0}日全天\",\"m-range-beyond-months\":\"${yy0}年${MT0}至${MT1}\",\"m-range-beyond-years\":\"${yy0}年${MT0}至${yy1}年${MT1}\",\"week\":[\"日\", \"一\", \"二\", \"三\", \"四\", \"五\", \"六\"]}",
+   "du-in-min": "${n}分鐘",
+   "time": "{\"any-time\":\"yyyy年M月d日\",\"in-year\":\"M月d日\",\"past-in-min\":\"剛剛\",\"past-in-hour\":\"${min}分鐘前\",\"past-in-day\":\"${hour}小時前\",\"past-in-week\":\"${day}天前\",\"future-in-min\":\"即將\",\"future-in-hour\":\"${min}分鐘後\",\"future-in-day\":\"${hour}小時後\",\"future-in-week\":\"${day}天后\"}",
+   "time-begin": "開始時間",
+   "time-end": "結束時間",
+   "time-ms": "毫秒",
+   "today": "今天",
+   "tu-day": "天",
+   "tu-hou": "小時",
+   "tu-min": "分鐘",
+   "tu-mon": "月",
+   "tu-sec": "秒",
+   "tu-week": "周",
+   "tu-year": "年"
+});
+//========================================
+// JOIN <ti-text-editor.i18n.json> ti/i18n/zh-hk/ti-text-editor.i18n.json
+//========================================
+Ti.Preload("ti/i18n/zh-hk/ti-text-editor.i18n.json", {
+   "wordp-h0": "正文",
+   "wordp-h1": "標題 1",
+   "wordp-h2": "標題 2",
+   "wordp-h3": "標題 3",
+   "wordp-h4": "標題 4",
+   "wordp-h5": "標題 5",
+   "wordp-h6": "標題 6",
+   "wordp-heading": "標題級別",
+   "wordp-link": "超鏈接",
+   "wordp-nil-sel": "請先選擇一段文字"
+});
+//========================================
+// JOIN <web.i18n.json> ti/i18n/zh-hk/web.i18n.json
+//========================================
+Ti.Preload("ti/i18n/zh-hk/web.i18n.json", {
+   "account": "賬戶",
+   "account-flt-tip": "請輸入賬號名過濾",
+   "account-manage": "賬戶管理",
+   "account-meta": "賬戶屬性",
+   "account-meta-tip": "請選擇一個賬號查看詳情",
+   "address-consignee": "收貨人",
+   "address-empty-list": "未設置任何收貨地址",
+   "address-flt-tip": "請輸入地址名過濾",
+   "address-is-dft": "默認收貨地址",
+   "address-k-area": "區縣",
+   "address-k-city": "城市",
+   "address-k-code": "地址編碼",
+   "address-k-code-tip": "12位國家地址編碼",
+   "address-k-consignee": "收貨人姓名",
+   "address-k-country": "國家",
+   "address-k-dftaddr": "默認地址",
+   "address-k-door": "門牌",
+   "address-k-email": "郵箱",
+   "address-k-phone": "電話",
+   "address-k-postcode": "郵編",
+   "address-k-province": "省/直轄市",
+   "address-k-street": "鄉鎮/街道",
+   "address-k-title": "地址",
+   "address-k-tp": "地址類型",
+   "address-k-tp-s": "賣家地址",
+   "address-k-tp-u": "用戶地址",
+   "address-k-uid": "用戶",
+   "address-k-uid-tip": "輸入關聯用戶名過濾",
+   "address-meta": "地址屬性",
+   "address-nil": "空地址",
+   "address-nil-detail": "請選擇一個地址查看詳情",
+   "address-rm-confirm": "您確定要刪除這個地址嗎？",
+   "address-set-dft": "設爲默認地址",
+   "address-shipping-add": "添加收貨地址",
+   "admin-flt-tip": "請輸入管理員名過濾",
+   "admin-meta": "管理員屬性",
+   "admin-new": "新管理員",
+   "admin-nickname": "管理員暱稱",
+   "admin-no-detail": "請選擇一個管理員查看詳情",
+   "ar-cate": "文章分類",
+   "ar-content": "文章內容",
+   "ar-duration": "閱讀時長",
+   "ar-flt-tip": "請輸入文章標題過濾",
+   "ar-meta": "文章屬性",
+   "ar-meta-tip": "請選擇一篇文章查看詳情",
+   "ar-new": "新文章",
+   "ar-nm": "文章名稱",
+   "ar-pubat": "發佈日期",
+   "ar-thumb": "縮略封面",
+   "ar-title": "文章標題",
+   "ar-watch-c": "瀏覽次數",
+   "auth-bind": "綁定",
+   "auth-bind-email-title": "綁定郵箱",
+   "auth-bind-phone-title": "綁定手機",
+   "auth-blank-email": "郵箱不能爲空",
+   "auth-blank-name": "名稱不能爲空",
+   "auth-blank-name-passwd": "名稱或者密碼不能爲空",
+   "auth-blank-phone": "手機號不能爲空",
+   "auth-doing": "正在驗證",
+   "auth-email-tip": "郵箱地址",
+   "auth-email-title": "郵件密碼登錄/註冊",
+   "auth-email-vcode": "郵件密碼",
+   "auth-email-vcode-get": "獲取郵件密碼",
+   "auth-go-email": "郵件密碼登錄/註冊",
+   "auth-go-passwd": "賬號密碼登錄",
+   "auth-go-phone": "短信密碼登錄/註冊",
+   "auth-login": "登錄",
+   "auth-login-NoSaltedPasswd": "你還未初始化您的登錄密碼，請切換至【${ta?驗證碼}】登錄，之後前往【用戶中心 > 重置密碼】初始化您的登錄密碼，謝謝",
+   "auth-login-or-signup": "登錄/註冊",
+   "auth-logout-confirm": "您確定要退出登錄嗎？",
+   "auth-ok": "賬號驗證通過",
+   "auth-passwd-getback": "找回密碼",
+   "auth-passwd-name-email-tip": "郵箱地址/登錄名",
+   "auth-passwd-name-phone-tip": "手機號/登錄名",
+   "auth-passwd-tip": "密碼",
+   "auth-passwd-title": "賬號密碼登錄",
+   "auth-phone-tip": "手機號",
+   "auth-phone-title": "短信密碼登錄/註冊",
+   "auth-phone-vcode": "短信密碼",
+   "auth-phone-vcode-get": "獲取短信密碼",
+   "auth-reset-passwd": "重置密碼 ...",
+   "auth-reset-passwd-again": "再次重置密碼",
+   "auth-reset-passwd-btn-invalid": "密碼包含非法字符",
+   "auth-reset-passwd-btn-lack": "請填寫必要信息",
+   "auth-reset-passwd-btn-ready": "立即重置密碼",
+   "auth-reset-passwd-btn-short": "密碼至少6位",
+   "auth-reset-passwd-btn-unmatch": "密碼兩次輸入不一致",
+   "auth-reset-passwd-by-email": "用郵箱重置密碼",
+   "auth-reset-passwd-by-email-sent": "已經向您的註冊郵箱 ${email} 發送了郵件密碼",
+   "auth-reset-passwd-by-email-tip": "請輸入註冊郵箱地址",
+   "auth-reset-passwd-by-passwd": "用舊密碼重置密碼",
+   "auth-reset-passwd-by-phone": "用手機重置密碼",
+   "auth-reset-passwd-by-phone-sent": "已經向您的手機 ${phone} 發送了短信密碼",
+   "auth-reset-passwd-by-phone-tip": "請輸入註冊手機號碼",
+   "auth-reset-passwd-ing": "正在重置密碼...",
+   "auth-reset-passwd-lack-email": "請輸入註冊郵箱地址",
+   "auth-reset-passwd-lack-phone": "請輸入註冊手機號",
+   "auth-reset-passwd-new": "新密碼（最少6位）",
+   "auth-reset-passwd-ok": "密碼已經重置，下次登錄時生效",
+   "auth-reset-passwd-old": "舊密碼",
+   "auth-reset-passwd-ren": "再次確認",
+   "auth-sending-vcode": "正在發送驗證碼",
+   "auth-sent-ok": "${ta?驗證碼}已發出，請在${by}查收，${min}分鐘內有效",
+   "auth-ta-by-email": "郵箱裏",
+   "auth-ta-by-phone": "手機上",
+   "auth-ta-email": "郵件密碼",
+   "auth-ta-phone": "手機密碼",
+   "auth-vcode-delay": "${sec} 秒後重新發送",
+   "auth-vcode-lost": "收不到驗證碼？",
+   "base-info": "基本信息",
+   "blog": "博客",
+   "blog-manage": "博客管理",
+   "buy-checkout-nil": "請選擇要付款的商品",
+   "cate": "分類",
+   "cate-flt-tip": "請輸入分類名過濾",
+   "cate-maj": "主分類",
+   "cate-meta": "分類屬性",
+   "cate-new": "新分類",
+   "cate-nil-tip": "請選擇一個分類",
+   "cate-no-detail": "請選擇一個分類查看詳情",
+   "cate-pa": "父分類",
+   "cate-pa-nil": "請選擇自己的父分類",
+   "cate-sub": "子分類",
+   "cate-sub-nil": "請選擇自己的子分類",
+   "cate-val": "分類值",
+   "cmt-brief": "評論摘要",
+   "cmt-content": "評論內容",
+   "cmt-flt-tip": "請輸入用戶ID或者評論內容過濾",
+   "cmt-meta": "評論屬性",
+   "cmt-no-detail": "請選擇一個角色查看詳情",
+   "cmt-target": "評論目標",
+   "cmt-type": "評論類型",
+   "cmt-user": "評論賬戶",
+   "comments": "評論",
+   "cover": "封面",
+   "cover-pic": "封面圖片",
+   "detail-info": "詳細信息",
+   "dir-media": "媒體目錄",
+   "e-cmd-passwd-old_invalid": "舊密碼錯誤",
+   "e-cmd-www_passwd-Blank": "新密碼爲空",
+   "e-cmd-www_passwd-CheckBlankAccount": "空賬戶",
+   "e-cmd-www_passwd-CheckBlankCode": "空驗證碼",
+   "e-cmd-www_passwd-CheckCodeFail": "驗證碼錯誤",
+   "e-cmd-www_passwd-CheckFailed": "校驗錯誤",
+   "e-cmd-www_passwd-CheckWeirdAccount": "詭異的賬戶",
+   "e-cmd-www_passwd-InvalidNewPasswd": "新密碼無效",
+   "e-cmd-www_passwd-LackTarget": "缺少重置目標",
+   "e-cmd-www_passwd-TooShort": "新密碼太短",
+   "e-cmd-www_passwd-nopvg": "沒有重置密碼的權限",
+   "e-run-action-test-fail": "執行操作前置條件不足",
+   "e-www-captcha-fail_send_by_email": "郵件密碼發送失敗，請檢查郵件賬戶是否正確",
+   "e-www-invalid-captcha": "${ta?驗證碼}錯誤",
+   "e-www-login-invalid-passwd": "賬號密碼錯誤",
+   "e-www-login-noexists": "賬號不存在",
+   "e-www-order-OutOfStore": "商品${val?}庫存不足",
+   "invoice-k-bankaccount": "銀行賬號",
+   "invoice-k-bankname": "開戶行",
+   "invoice-k-busiaddr": "企業地址",
+   "invoice-k-busiphone": "企業電話",
+   "invoice-k-invdft": "默認擡頭",
+   "invoice-k-invtfn": "發票稅號",
+   "invoice-k-invtitle": "發票擡頭",
+   "invoice-k-type": "發票類型",
+   "invoice-k-uemail": "收票人郵箱",
+   "invoice-k-uid": "關聯賬戶",
+   "invoice-k-uid-tip": "輸入關聯用戶名過濾",
+   "invoice-k-uname": "收票人名稱",
+   "invoice-k-uphone": "收票人電話",
+   "invoice-kg-bank": "銀行信息",
+   "invoice-kg-busi": "企業信息",
+   "invoice-kg-inv": "發票信息",
+   "invoice-kg-u": "收票人信息",
+   "k-ct-date": "創建日期",
+   "k-lm": "最後更新",
+   "me-k-account": "賬戶",
+   "me-k-avatar": "頭像",
+   "me-k-city": "城市",
+   "me-k-country": "國家",
+   "me-k-email": "郵箱",
+   "me-k-login": "最後登錄",
+   "me-k-nickname": "用戶暱稱",
+   "me-k-nm": "登錄名",
+   "me-k-phone": "手機號",
+   "me-k-role": "角色",
+   "me-k-sex": "性別",
+   "mine": "我的",
+   "my-favors": "我的收藏",
+   "my-favors-blog": "收藏的博客",
+   "my-favors-goods": "收藏的商品",
+   "my-favors-posts": "收藏的文章",
+   "my-favors-spots": "收藏的景點",
+   "my-favors-video": "收藏的視頻",
+   "my-orders": "我的訂單",
+   "my-orders-shop": "購物訂單",
+   "my-orders-video": "視頻訂單",
+   "my-passwd": "重置密碼",
+   "my-profile": "我的資料",
+   "my-shipping-address": "收貨地址",
+   "my-shopping-car": "購物車",
+   "or-st-ca": "已取消",
+   "or-st-dn": "完成",
+   "or-st-fa": "創建訂單失敗",
+   "or-st-nw": "提交訂單",
+   "or-st-ok": "支付成功",
+   "or-st-sp": "已發貨",
+   "or-st-wt": "待支付",
+   "ord-detail": "訂單詳情",
+   "order-flt-tip": "請輸入訂單ID查詢",
+   "order-k-accounts": "用戶庫",
+   "order-k-addr_ship": "發貨地址",
+   "order-k-addr_ship_code": "發貨地址編碼",
+   "order-k-addr_ship_country": "發貨國家",
+   "order-k-addr_ship_door": "發貨門牌",
+   "order-k-addr_user": "收貨地址",
+   "order-k-addr_user_area": "地區",
+   "order-k-addr_user_city": "城市",
+   "order-k-addr_user_code": "收貨地址編碼",
+   "order-k-addr_user_country": "收貨國家",
+   "order-k-addr_user_door": "收貨門牌",
+   "order-k-addr_user_province": "省",
+   "order-k-addr_user_street": "街道",
+   "order-k-buyer_id": "買家",
+   "order-k-ca_at": "取消時間",
+   "order-k-currency": "貨幣單位",
+   "order-k-discount": "優惠",
+   "order-k-dn_at": "完成時間",
+   "order-k-fa_at": "支付失敗",
+   "order-k-fee": "支付金額",
+   "order-k-freight": "運費",
+   "order-k-freight-m": "修改運費",
+   "order-k-freight-m-tip": "可以在這裏輸入0爲客戶免去運費",
+   "order-k-id": "訂單號",
+   "order-k-invoice": "發票信息",
+   "order-k-nominal": "標稱總價",
+   "order-k-note": "備註",
+   "order-k-ok_at": "支付成功",
+   "order-k-pay_id": "支付單",
+   "order-k-pay_tp": "支付類型",
+   "order-k-payment": "支付信息",
+   "order-k-prefee": "基礎金額",
+   "order-k-prefee-m": "修改總價",
+   "order-k-prefee-m-tip": "爲用戶輸入新的協商後的商品總價",
+   "order-k-price": "訂單金額",
+   "order-k-pro-amount": "數量",
+   "order-k-pro-price": "單價",
+   "order-k-pro-retail": "零售價",
+   "order-k-pro-subretail": "零計",
+   "order-k-pro-subtotal": "小計",
+   "order-k-pro-title": "商品標題",
+   "order-k-products": "商品信息",
+   "order-k-profit": "收益金額",
+   "order-k-seller": "賣家",
+   "order-k-sp_at": "發貨時間",
+   "order-k-st": "訂單狀態",
+   "order-k-title": "訂單標題",
+   "order-k-total": "商品總價",
+   "order-k-user_email": "收貨人郵箱",
+   "order-k-user_name": "收貨人姓名",
+   "order-k-user_phone": "收貨人手機",
+   "order-k-waybil": "物流信息",
+   "order-k-waybil_com": "物流公司",
+   "order-k-waybil_nb": "運單號",
+   "order-k-wt_at": "支付時間",
+   "order-nil-detail": "請選擇一個訂單查看詳情",
+   "order-pay-id": "支付單號",
+   "order-pay-status": "交易狀態",
+   "order-shipaddr-nil": "請指定一個收貨地址",
+   "passwd-invalid-char": "密碼只能包括英文數字/大小寫字母/以及特殊字符",
+   "passwd-sl-1": "弱",
+   "passwd-sl-2": "較弱",
+   "passwd-sl-3": "中",
+   "passwd-sl-4": "較強",
+   "passwd-sl-5": "強",
+   "passwd-tip": "請輸入最少6位的英文數字/大小寫字母/特殊字符的組合",
+   "pay-by-free": "免費",
+   "pay-by-paypal": "PayPal",
+   "pay-by-wx-jsapi": "微信JSAPI",
+   "pay-by-wx-qrcode": "微信掃碼",
+   "pay-by-wx-scan": "微信付款碼",
+   "pay-by-zfb-qrcode": "支付寶掃碼",
+   "pay-by-zfb-scan": "支付寶付款碼",
+   "pay-checkout-it-amount": "數量",
+   "pay-checkout-it-name": "商品名稱",
+   "pay-checkout-it-price": "單價",
+   "pay-checkout-it-subtotal": "小計",
+   "pay-checkout-tip": "請確認你購買的商品數量和金額",
+   "pay-paypal": "PayPal",
+   "pay-proceed-check": "檢查支付結果",
+   "pay-proceed-ing": "正在檢查...",
+   "pay-re-fail": "支付失敗",
+   "pay-re-nil": "支付結果是一隻薛定諤的貓",
+   "pay-re-ok": "支付成功",
+   "pay-re-wait": "等待支付中",
+   "pay-step-checkout-title": "確認訂單",
+   "pay-step-choose-nil": "☝ 請選擇上面的一個支付方式 👆",
+   "pay-step-choose-tip": "您可以選擇下面任意一種支付方式支付本訂單",
+   "pay-step-choose-tip2": "您將使用${val}支付本訂單",
+   "pay-step-choose-title": "支付方式",
+   "pay-step-choose-title2": "選擇支付方式",
+   "pay-step-done-title": "完成",
+   "pay-step-proceed-create-order": "正在創建訂單...",
+   "pay-step-proceed-fetch-order": "正在獲取訂單...",
+   "pay-step-proceed-nil": "您未選擇任何支付方式",
+   "pay-step-proceed-tip": "使用${val}支付本訂單",
+   "pay-step-proceed-title": "支付",
+   "pay-tip-wx-qrcode": "請於15分鐘內用微信掃一掃付款碼",
+   "pay-tip-zfb-qrcode": "請於15分鐘內用支付寶掃一掃付款碼",
+   "pay-title": "支付流程",
+   "pay-wx": "微信支付",
+   "pay-zfb": "支付寶",
+   "paypal-amount_value": "交易金額",
+   "paypal-approve-tip": "已經在新標籤裏爲您打開了PayPal支付頁面，如果沒有打開，請點擊☝上面的圖標。支付完畢，頁面會自動感知到，如果沒有反應，試着點擊👇下面的【檢查支付結果】按鈕。",
+   "paypal-cap-id": "記錄ID",
+   "paypal-cap-status": "記錄狀態",
+   "paypal-currency": "貨幣單位",
+   "paypal-id": "PayPal交易號",
+   "paypal-payer_email": "交易賬戶郵箱",
+   "paypal-payer_id": "交易賬戶ID",
+   "photo": "照片",
+   "post-content-blank": "您提交的內容不能爲空，也不能少於10個字",
+   "profile-title": "我的基本信息",
+   "pubat": "發佈日期",
+   "read-du": "閱讀時長",
+   "role": "角色",
+   "role-as-guest": "訪客",
+   "role-as-normal": "普通用戶",
+   "role-as-vip": "VIP用戶",
+   "role-dft": "默認角色",
+   "role-flt-tip": "請輸入角色名過濾",
+   "role-manage": "角色管理",
+   "role-meta": "角色屬性",
+   "role-meta-tip": "請選擇一個角色查看詳情",
+   "role-name": "角色名",
+   "role-select-tip": "請選擇角色",
+   "role-val": "角色值",
+   "shop-basket-clean-confirm": "您確定要清空購物車內全部商品嗎？這是一個不能撤回的操作。",
+   "shop-basket-remove-confirm": "您確定要從購物車中刪除這個商品嗎？",
+   "topic": "主題",
+   "type-new": "新類型",
+   "video-title": "視頻標題",
+   "watch_c": "瀏覽次數",
+   "waybil-com-ane": "安能物流",
+   "waybil-com-best": "百世快遞",
+   "waybil-com-db": "德邦快遞",
+   "waybil-com-ems": "中國郵政速遞物流",
+   "waybil-com-jdl": "京東物流",
+   "waybil-com-pj": "品駿快遞",
+   "waybil-com-sf": "順豐快遞",
+   "waybil-com-sto": "申通快遞",
+   "waybil-com-uce": "優速快遞",
+   "waybil-com-yto": "圓通速遞",
+   "waybil-com-yunda": "韻達快遞",
+   "waybil-com-zto": "中通快遞"
+});
+//========================================
+// JOIN <wn-manager.i18n.json> ti/i18n/zh-hk/wn-manager.i18n.json
+//========================================
+Ti.Preload("ti/i18n/zh-hk/wn-manager.i18n.json", {
+   "ti-loading": "加載中...",
+   "wn-adaptlist": "對象瀏覽器",
+   "wn-create-fail": "創建失敗",
+   "wn-create-invalid": "新對象名稱不能包括非法字符",
+   "wn-create-ok": "創建成功",
+   "wn-create-too-long": "新對象名稱過長",
+   "wn-del-confirm": "您確定要刪除選中的${N}個項目嗎？這是一個不可撤銷的操作！",
+   "wn-del-item": "正在刪除: \"${name}\"",
+   "wn-del-no-empty-folder": "目錄\"${nm}\"不是空的，您是否要全部刪除？點擊\"否\"跳過",
+   "wn-del-none": "請選擇至少一個對象進行刪除!",
+   "wn-del-ok": "已有 ${N} 個對象被移除",
+   "wn-download-dir": "對象 \"${nm}\" 是一個目錄，點擊\"繼續\"將跳過它並下載下一個文件，點擊\"終止\"將結束本次操作!",
+   "wn-download-none": "請選擇至少一個文件進行下載!",
+   "wn-download-too-many": "即將逐個下載 ${N} 個文件，繼續嗎？",
+   "wn-expose-hidden-off": "不顯示隱藏的對象",
+   "wn-expose-hidden-on": "顯示隱藏的對象",
+   "wn-gui": "通用佈局界面",
+   "wn-obj-preview": "對象預覽",
+   "wn-obj-puretext": "純文本編輯器",
+   "wn-obj-single-com": "單控件測試套",
+   "wn-publish-done": "發佈成功",
+   "wn-publish-to-nil": "未設置發佈目標",
+   "wn-publish-to-noexist": "發佈目標不存在",
+   "wn-rename": "重命名對象 \"${name}\"",
+   "wn-rename-fail": "重命名失敗",
+   "wn-rename-invalid": "名稱不能包括非法字符",
+   "wn-rename-none": "請選擇一個文件重命名!",
+   "wn-rename-ok": "重命名成功",
+   "wn-rename-suffix-changed": "您的文件後綴名發生變化，您需要自動爲您補全原來的後綴嗎？",
+   "wn-rename-too-long": "名稱過長",
+   "wn-thing-manager": "數據管理器",
+   "wn-view-opening": "正在加載界面..."
+});
+//========================================
+// JOIN <wn-obj-preview.i18n.json> ti/i18n/zh-hk/wn-obj-preview.i18n.json
+//========================================
+Ti.Preload("ti/i18n/zh-hk/wn-obj-preview.i18n.json", {
+   "wop-fullscreen-enter": "進入全屏",
+   "wop-fullscreen-quit": "退出全屏"
+});
+//========================================
+// JOIN <wn-thing.i18n.json> ti/i18n/zh-hk/wn-thing.i18n.json
+//========================================
+Ti.Preload("ti/i18n/zh-hk/wn-thing.i18n.json", {
+   "thing-clean": "清空回收站",
+   "thing-cleaning": "正在清空...",
+   "thing-content": "對象內容",
+   "thing-content-hide": "隱藏內容",
+   "thing-content-show": "顯示內容",
+   "thing-create": "創建新對象",
+   "thing-create-in-recyclebin": "請先退出回收站，再創建新對象",
+   "thing-enter-recyclebin": "打開回收站",
+   "thing-export-c-expi": "保存時間",
+   "thing-export-c-expi-14d": "十四天",
+   "thing-export-c-expi-3d": "三天",
+   "thing-export-c-expi-7d": "七天",
+   "thing-export-c-expi-off": "永遠",
+   "thing-export-c-mapping": "映射方式",
+   "thing-export-c-mode": "導出模式",
+   "thing-export-c-mode-csv": "CSV文件",
+   "thing-export-c-mode-json": "JSON",
+   "thing-export-c-mode-xls": "電子表格",
+   "thing-export-c-mode-zip": "數據壓縮包",
+   "thing-export-c-name": "導出文件名稱",
+   "thing-export-c-page": "數據範圍",
+   "thing-export-c-page-all": "全部頁",
+   "thing-export-c-page-current": "當前頁",
+   "thing-export-done": "完成",
+   "thing-export-done-ok": "導出成功",
+   "thing-export-done-tip": "請點擊下載鏈接下載",
+   "thing-export-ing": "執行導出",
+   "thing-export-ing-tip": "正在執行導出腳本，請稍後",
+   "thing-export-open-dir": "打開導出歷史目錄...",
+   "thing-export-setup": "導出設置",
+   "thing-files": "對象文件表",
+   "thing-files-attachment": "附件目錄",
+   "thing-files-hide": "隱藏文件表",
+   "thing-files-media": "媒體目錄",
+   "thing-files-show": "顯示文件表",
+   "thing-filter-kwdplhd": "請輸入查詢條件",
+   "thing-leave-recyclebin": "退出回收站",
+   "thing-meta": "對象屬性",
+   "thing-meta-hide": "隱藏屬性",
+   "thing-meta-show": "顯示屬性",
+   "thing-recycle-bin": "回收站",
+   "thing-restore": "恢復選中",
+   "thing-restore-none": "請先選擇要恢復的數據",
+   "thing-restoring": "正在恢復..."
+});
+//========================================
+// JOIN <_net.i18n.json> ti/i18n/zh-hk/_net.i18n.json
+//========================================
+Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
+   "net-ct": "創建時間",
+   "net-flt-nil": "查找視頻名稱",
+   "net-vod-add-video": "添加視頻",
+   "net-vod-cate": "視頻分類",
+   "net-vod-du-long": "長視頻",
+   "net-vod-du-short": "短視頻",
+   "net-vod-du-tv": "劇集視頻",
+   "net-vod-duration": "視頻時長",
+   "net-vod-size": "視頻大小",
+   "net-vod-video-nil": "請選擇一個視頻查看詳情"
+});
+//========================================
+// JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
+//========================================
+Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
+   "add": "添加",
+   "add-item": "添加新項",
+   "album": "相冊",
+   "albums": "相冊",
+   "amount": "數量",
+   "attachment": "附件",
+   "audio": "音頻",
+   "audios": "音頻",
+   "avatar": "頭像",
+   "banner": "頭圖",
+   "batch-none": "請從下面列表中選擇至少一個對象進行批量更新",
+   "batch-update": "批量更新...",
+   "blank": "空白",
+   "blank-to-edit": "請選擇要編輯的項目",
+   "brief": "摘要",
+   "brief-d": "摘要描述",
+   "brief-i": "摘要說明",
+   "buy": "購買",
+   "buy-now": "立即購買",
+   "cancel": "取消",
+   "cancel-all": "取消選中",
+   "candidate": "備選項",
+   "captcha": "驗證碼",
+   "captcha-chagne": "換一張",
+   "captcha-tip": "請輸入圖中的驗證碼",
+   "chart": "圖表",
+   "chart-bar": "柱狀圖",
+   "chart-line": "折線圖",
+   "chart-pie": "餅狀圖",
+   "chart-rank": "條狀圖",
+   "checked": "已選中",
+   "choose": "選擇",
+   "choose-file": "選擇文件",
+   "choose-obj": "選擇對象",
+   "clean": "清理",
+   "clear": "清除",
+   "close": "關閉",
+   "confirm": "確認",
+   "console": "控制檯",
+   "content": "內容",
+   "continue": "繼續",
+   "create": "新建",
+   "create-now": "立即創建",
+   "creating": "正在創建...",
+   "date": "日期",
+   "db-col-type-AUTO": "自動",
+   "db-col-type-BINARY": "二進制",
+   "db-col-type-BOOLEAN": "布爾",
+   "db-col-type-CHAR": "定長字符",
+   "db-col-type-FLOAT": "浮點數",
+   "db-col-type-INT": "整數",
+   "db-col-type-TEXT": "長文本",
+   "db-col-type-TIMESTAMP": "時間戳",
+   "db-col-type-VARCHAR": "變長字符",
+   "debug": "調試",
+   "default": "默認",
+   "del": "刪除",
+   "del-checked": "刪除選中",
+   "del-hard": "選中項目即將被直接刪除，此操作不可撤銷，您確定要繼續嗎？",
+   "del-ing": "正在刪除...",
+   "del-none": "請從下面列表中選擇至少一個對象進行刪除",
+   "desktop": "桌面",
+   "detail": "詳情",
+   "dis-name": "顯示名",
+   "disable": "禁用",
+   "disabled": "禁用的",
+   "doing": "正在執行...",
+   "download": "下載",
+   "download-to-local": "下載到本地",
+   "drop-file-here-to-upload": "拖拽文件至此以便上傳",
+   "drop-here": "拖拽文件至此",
+   "dt-in": "在${val}內",
+   "dt-u-day": "天",
+   "dt-u-hour": "小時",
+   "dt-u-min": "分鐘",
+   "dt-u-month": "月",
+   "dt-u-ms": "好眠",
+   "dt-u-sec": "秒",
+   "dt-u-week": "周",
+   "dt-u-year": "年",
+   "e-auth-account-noexists": "賬戶不存在",
+   "e-auth-home-forbidden": "賬戶不具備進入主目錄的權限",
+   "e-auth-login-NoPhoneOrEmail": "錯誤的手機號或郵箱地址",
+   "e-auth-login-NoSaltedPasswd": "未設置合法的密碼",
+   "e-auth-login-invalid-passwd": "賬戶密碼未通過校驗",
+   "e-io-obj-BlankName": "對象名稱不能爲空",
+   "e-io-obj-InvalidName": "對象名稱非法",
+   "e-io-obj-exists": "但是對象已然存在",
+   "e-io-obj-noexists": "對象其實並不存在",
+   "e-io-obj-noexistsf": "對象[${nm}]其實並不存在",
+   "edit": "編輯",
+   "edit-com": "編輯控件",
+   "email": "郵箱",
+   "emoji": "表情符合",
+   "empty": "空",
+   "empty-data": "無數據",
+   "enable": "啓用",
+   "enabled": "啓用的",
+   "error": "錯誤",
+   "export-data": "導出數據...",
+   "fail": "失敗",
+   "false": "否",
+   "favorites": "收藏",
+   "female": "女",
+   "filter": "過濾",
+   "find": "查找",
+   "find-data": "查找數據",
+   "gender": "性別",
+   "geo-alti": "海拔",
+   "geo-azimuth": "方向角",
+   "geo-gcj02-lat": "火星緯度",
+   "geo-gcj02-lng": "火星經度",
+   "geo-hash": "地理哈希",
+   "geo-lat": "緯度",
+   "geo-lng": "經度",
+   "geo-sate-cno": "可見衛星數",
+   "geo-sate-cnt": "使用衛星數",
+   "global-settings": "全局設置",
+   "hierarchy": "層級",
+   "history-record": "歷史記錄",
+   "home": "主目錄",
+   "home-index": "首頁",
+   "i-known": "我知道了",
+   "icon": "圖標",
+   "icon-code-tip": "請輸入圖標代碼，如 zmdi-case",
+   "import-data": "導入數據...",
+   "index": "索引",
+   "info": "信息",
+   "init": "初始化",
+   "init-data": "初始化數據",
+   "input": "輸入",
+   "input-tags": "輸入標籤",
+   "java-type-Boolean": "布爾",
+   "java-type-Double": "雙精度浮點",
+   "java-type-Float": "浮點",
+   "java-type-Integer": "整數",
+   "java-type-JSON": "JSON對象",
+   "java-type-List": "對象列表",
+   "java-type-Long": "長整數",
+   "java-type-Object": "對象",
+   "java-type-SArray": "字符串數組",
+   "java-type-String": "字符串",
+   "json-Array": "數組",
+   "json-Boolean": "布爾",
+   "json-Float": "小數",
+   "json-Integer": "整數",
+   "json-Nil": "空值",
+   "json-Number": "數字",
+   "json-Object": "對象",
+   "json-String": "字符串",
+   "json-new-key": "請輸入一個新鍵名",
+   "label": "標籤",
+   "lang": "語言",
+   "lang-en-us": "英",
+   "lang-zh-cn": "簡",
+   "lang-zh-hk": "繁",
+   "lang-zh-tw": "繁",
+   "lat": "緯度",
+   "lbs-place-add": "添加地點",
+   "lbs-ro-rnb-k-first": "起始數字",
+   "lbs-ro-rnb-k-type": "顯示類型",
+   "lbs-ro-rnb-k-type-alpha": "小寫字母",
+   "lbs-ro-rnb-k-type-capital": "大寫字母",
+   "lbs-ro-rnb-k-type-number": "數字",
+   "lbs-ro-rnb-title": "自動設置線路標籤",
+   "link": "鏈接",
+   "link-href": "鏈接目標",
+   "link-text": "鏈接文字",
+   "list": "列表",
+   "lng": "經度",
+   "loading": "加載中...",
+   "location": "位置",
+   "login": "登錄",
+   "login-name": "登錄名",
+   "logout": "退出",
+   "logout-ing": "正在註銷...",
+   "mail-as-html": "HTML郵件",
+   "mail-bcc": "密送",
+   "mail-cc": "抄送",
+   "mail-charset": "郵件字符編碼",
+   "mail-notify": "郵件通知",
+   "mail-r-addr": "郵件地址",
+   "mail-r-name": "名稱",
+   "mail-scene": "郵件場景",
+   "mail-scene-ctmpl": "內容模板",
+   "mail-scene-flt-tip": "請輸入場景名稱查詢",
+   "mail-scene-meta": "郵件場景屬性",
+   "mail-scene-nil-detail": "請選擇一個郵件場景查看詳情",
+   "mail-scene-nm": "場景名稱",
+   "mail-scene-nm-tip": "請用半角英文數字或者下劃線組合，並保證唯一",
+   "mail-scene-var-trans": "轉換腳本",
+   "mail-scene-var-trans-placeholder": "譬如 jsc /path/to/script.js -vars",
+   "mail-scene-var-trans-tip": "輸入是原始變量的JSON，輸出是一個JSON變量集合",
+   "mail-setup": "郵件設置",
+   "mail-subject": "郵件標題",
+   "mail-to": "收信人",
+   "male": "男",
+   "map-hybrid": "俯瞰地圖",
+   "map-roadmap": "道路地圖",
+   "map-satellite": "衛星照片",
+   "map-terrain": "地形地圖",
+   "map-type": "地圖類型",
+   "me": "我",
+   "media": "媒體",
+   "meta": "元數據",
+   "mine": "我的",
+   "modal": "模式",
+   "modify": "修改",
+   "more": "更多",
+   "move": "移動",
+   "move-down": "下移",
+   "move-up": "上移",
+   "msg": "消息",
+   "name": "名稱",
+   "new-item": "新項目",
+   "newsfeed": "消息流",
+   "next": "下一步",
+   "nil": "無",
+   "nil-content": "無內容",
+   "nil-detail": "請選擇一項查看詳情",
+   "nil-item": "請先選擇一項",
+   "nil-obj": "請選擇一個對象",
+   "no": "否",
+   "no-saved": "您有未保存的數據",
+   "no-selected": "未選擇",
+   "no-title": "無標題",
+   "obj": "對象",
+   "off": "關",
+   "ok": "確定",
+   "on": "開",
+   "open": "打開",
+   "open-newtab": "在新標籤打開",
+   "others": "其他",
+   "paging-change-pgsz": "當前每頁有${pgsz}條記錄，您想修改爲：",
+   "paging-change-pgsz-invalid": "頁大小必須是整數數字，而且必須大於0，可您... -_-!",
+   "paging-change-pn": "當前第${pn}頁，您想跳轉到：（請輸入 1 至 ${pgc} 之間的數字）",
+   "paging-change-pn-invalid": "頁碼必須是整數數字，而且必須爲 1 至 ${pgc} 之間的數字",
+   "paging-first": "首頁",
+   "paging-last": "尾頁",
+   "paging-next": "後一頁",
+   "paging-prev": "前一頁",
+   "paging-sum": "共${pgc}頁${sum}條記錄，當前${count}/${pgsz}",
+   "passwd": "密碼",
+   "passwd-reset": "重置密碼",
+   "path": "路徑",
+   "phone": "手機",
+   "phone-nb": "手機號",
+   "post": "提交",
+   "prev": "上一步",
+   "price": "價格",
+   "profile": "資料",
+   "profile-edit": "編輯資料",
+   "prompt": "詢問",
+   "properties": "屬性",
+   "publish": "發佈",
+   "publishing": "正在發佈...",
+   "refresh": "刷新",
+   "refresh-hard": "硬性刷新",
+   "refresh-hard-clear": "清空緩存並硬性刷新",
+   "reload": "重新加載",
+   "reloading": "重新加載數據...",
+   "remove": "移除",
+   "removing": "正在移除...",
+   "rename": "重命名...",
+   "renaming": "正在重命名...",
+   "reset": "重置",
+   "reset-change": "撤銷修改",
+   "reset-data": "重置數據",
+   "restore": "恢復",
+   "revoke": "撤銷",
+   "revoke-change": "撤銷修改",
+   "run": "運行",
+   "run-finished": "腳本執行結束",
+   "run-welcome": "正在運行腳本，請稍後 ...",
+   "save": "保存",
+   "save-change": "保存修改",
+   "save-done": "保存成功",
+   "save-now": "立即保存",
+   "saving": "正在保存...",
+   "score": "評分",
+   "score-count": "打分人數",
+   "select": "選擇",
+   "select-all": "全部選中",
+   "send": "發送",
+   "settings": "設置",
+   "slogan": "標語",
+   "sms-scene-nm": "場景名稱",
+   "sms-scene-nm-tip": "請用半角英文數字或者下劃線組合，並保證唯一",
+   "sms-setup": "短信配置",
+   "sort": "排序",
+   "sort-tip-asc": "越小越靠前",
+   "sort-tip-desc": "越大越靠前",
+   "sort-val": "排序值",
+   "source-code": "源代碼",
+   "stat-date-at": "統計日期",
+   "stat-date-at-oor": "這個日期的統計數據還未就緒",
+   "stat-date-span": "時間跨度",
+   "stop": "停止",
+   "structure": "結構",
+   "success": "成功",
+   "sys-settings": "系統設置",
+   "tablet": "平板",
+   "terminal": "終端",
+   "terminate": "終止",
+   "text": "文字",
+   "timestamp": "時間戳",
+   "title": "標題",
+   "total": "總共",
+   "total-count": "共 ${nb?0} ${unit?項}",
+   "total-items": "總共${val}項",
+   "trace": "跟蹤",
+   "track": "消息",
+   "true": "是",
+   "type": "類型",
+   "under-construction": "正在施工中",
+   "unknown": "未知",
+   "unzip": "解壓縮",
+   "unzipping": "正在解壓縮...",
+   "upload": "上傳",
+   "upload-done": "文件上傳已完成",
+   "upload-file": "上傳文件...",
+   "upload-nofinished": "文件上傳還沒有完成",
+   "uploading": "正在上傳",
+   "user-avator": "用戶頭像",
+   "value": "值",
+   "video": "視頻",
+   "videos": "視頻",
+   "view": "查看",
+   "view-resource": "查看源代碼",
+   "vu-mv": "毫伏",
+   "vu-v": "伏特",
+   "warn": "警告",
+   "website": "網站",
+   "www-admin-login": "後臺登錄界面",
+   "www-home": "網站目錄",
+   "www-title": "前端網站",
+   "yes": "是",
+   "zip": "壓縮",
+   "zipping": "正在壓縮..."
+});
+//========================================
+// JOIN <_wn.i18n.json> ti/i18n/zh-hk/_wn.i18n.json
+//========================================
+Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
+   "wn-admin-check-obj-thumb": "檢查圖像縮略圖...",
+   "wn-admin-tools": "管理工具",
+   "wn-ctt-css-text": "CSS樣式文件",
+   "wn-ctt-folder-text": "文件夾",
+   "wn-ctt-html-text": "HTML文本",
+   "wn-ctt-js-text": "JS腳本",
+   "wn-ctt-json-text": "JSON文本",
+   "wn-ctt-less-text": "LESS文本",
+   "wn-ctt-md-text": "Markdown文本",
+   "wn-ctt-mjs-text": "模塊化JS腳本",
+   "wn-ctt-sass-text": "SASS文本",
+   "wn-ctt-thing_set-text": "數據集合",
+   "wn-ctt-txt-text": "純文本",
+   "wn-ctt-wnml-text": "WNML源文件",
+   "wn-ctt-xml-text": "XML文本",
+   "wn-edit-com-nil": "默認爲標籤控件",
+   "wn-en-his-ct": "創建時間",
+   "wn-en-his-flt-tip": "請輸入用戶ID或者名稱過濾",
+   "wn-en-his-mor": "操作細節",
+   "wn-en-his-opt": "操作",
+   "wn-en-his-tar": "目標",
+   "wn-en-his-tid": "目標ID",
+   "wn-en-his-tnm": "目標名",
+   "wn-en-his-ttp": "目標類型",
+   "wn-en-his-uid": "用戶ID",
+   "wn-en-his-unm": "用戶名",
+   "wn-en-his-usr": "用戶",
+   "wn-en-his-utp": "用戶類型",
+   "wn-fsc-mail-scene-new": "新建一個郵件場景",
+   "wn-fsc-mail-tmpl-new": "請輸入新郵件模板的名稱(要唯一，譬如 signup)",
+   "wn-invalid-mimes": "不支持的文件內容類型 \"${current}\"，僅能支持 \"${supports}\"",
+   "wn-invalid-types": "不支持的文件擴展名 \"${current}\"，僅能支持 \"${supports}\"",
+   "wn-key-c": "創建者",
+   "wn-key-ct": "創建時間",
+   "wn-key-d0": "D0",
+   "wn-key-d1": "D1",
+   "wn-key-data": "數據",
+   "wn-key-duration": "時長",
+   "wn-key-expi": "過期時間",
+   "wn-key-g": "主組",
+   "wn-key-grp-advance": "高級",
+   "wn-key-grp-basic": "基本",
+   "wn-key-grp-customized": "自定義",
+   "wn-key-grp-more": "更多",
+   "wn-key-grp-others": "其他",
+   "wn-key-grp-privilege": "權限",
+   "wn-key-grp-thumb": "縮略圖",
+   "wn-key-grp-timestamp": "時間戳",
+   "wn-key-height": "高",
+   "wn-key-icon": "圖標",
+   "wn-key-id": "ID",
+   "wn-key-len": "大小",
+   "wn-key-lm": "修改",
+   "wn-key-m": "修改者",
+   "wn-key-md": "基本權限",
+   "wn-key-mime": "內容類型",
+   "wn-key-nm": "對象名",
+   "wn-key-ph": "路徑",
+   "wn-key-pid": "父對象",
+   "wn-key-pvg": "定製權限",
+   "wn-key-race": "族類",
+   "wn-key-sha1": "內容簽名",
+   "wn-key-thumb": "縮略圖",
+   "wn-key-title": "標題",
+   "wn-key-tp": "類型",
+   "wn-key-width": "寬",
+   "wn-obj-nosaved": "您有未保存的對象",
+   "wn-oc-auto-type": "全部類型",
+   "wn-oc-free": "請輸入對象完整名稱，包括擴展名，譬如 `myfile.xml`",
+   "wn-oc-tip": "新對象名稱",
+   "wn-race-DIR": "目錄",
+   "wn-race-FILE": "文件",
+   "wn-th-acc-pwd-choose-none": "請選擇要重置密碼的賬號（可多選）",
+   "wn-th-acc-pwd-done": "已經爲${n}名用戶重置了密碼",
+   "wn-th-acc-pwd-invalid": "密碼中不得包含單雙引號星號等非法字符",
+   "wn-th-acc-pwd-reset-tip": "將密碼重置爲",
+   "wn-th-acc-pwd-too-short": "您輸入的密碼過短，不能少於6位，最好爲數字字母以及特殊字符的組合",
+   "wn-th-recount-media": "重新計算當前文件數量",
+   "wn-th-recount-media-done": "當前文件數量: ${n}"
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // The End

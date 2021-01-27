@@ -8568,7 +8568,9 @@ const {Util} = (function(){
       let func = _.get(funcSet, callPath)
       if(_.isFunction(func)) {
         let args = Ti.S.joinArgs(callArgs, [], v=>{
-          return Ti.S.toJsValue(v, {context})
+          if(_.isString(v) || _.isArray(v))
+            return Ti.S.toJsValue(v, {context})
+          return v
         })
         if(!_.isEmpty(args)) {
           // [ ? --> ... ]
@@ -9453,9 +9455,103 @@ const {WWW} = (function(){
       }
     },
     //---------------------------------------
-    async runApi({
-      state = {},
-      api, 
+    hydrateApi({
+      base = "/",
+      siteApis = {},
+      apis = {}
+    }={}) {
+        let PageApis = {}
+  
+        // Define the api tidy func
+        const _do_hydration = function(key, siteApi, pageApi={}) {
+          let api = _.cloneDeep(siteApi)
+  
+          // Assign default value
+          _.defaults(api, {
+            name    : key,
+            method  : "GET",
+            headers : {},
+            params  : {},
+            vars    : {},
+            as      : "json"
+          })
+  
+          // API path is required
+          if(!api.path) {
+            console.warn(`!!!API[${key}] without defined in site!!!`, api)
+            return
+          }
+  
+          //..........................................
+          // Merge vars
+          _.assign(api.vars, pageApi.vars)
+          //..........................................
+          // Merge headers
+          _.assign(api.headers, pageApi.headers)
+          //..........................................
+          // Merge params
+          _.assign(api.params, pageApi.params)
+          //..........................................
+          // Absolute URL
+          if("INVOKE" != api.method) {
+            if(/^(https?:\/\/|\/)/.test(api.path)) {
+              api.url = api.path
+            }
+            // Join with the base
+            else {
+              api.url = Ti.Util.appendPath(base, api.path)
+            }
+          }
+          //..........................................
+          // Copy the Setting from page
+          _.assign(api, _.pick(pageApi, 
+            "body", 
+            "preload",
+            "ssr",
+            "transformer", 
+            "dataKey",
+            "dataMerge",
+            "rawDataKey",
+            "rawDataMerge"
+          ))
+          //..........................................
+          _.defaults(api, {
+            bodyType : "form",
+            dataKey  : key
+          })
+          //..........................................
+          // Then done
+          return api
+        }  // const _do_hydration = function
+  
+        // Join site apis
+        _.forEach(siteApis, (api, key)=>{
+          if(api.pages) {
+            api = _do_hydration(key, api)
+            if(api) {
+              PageApis[key] = api
+            }
+          }
+        })
+        // For each api declared in current page
+        _.forEach(apis, (pageApi, key)=>{
+          //..........................................
+          // Get SiteApi template
+          let siteApi = _.get(siteApis, pageApi.apiName || key)
+          //console.log(key, siteApi)
+          let api = _do_hydration(key, siteApi, pageApi)
+  
+          if(api) {
+            PageApis[key] = api
+          }
+          //..........................................
+        })  // _.forEach(PageApis, (info, key)=>{
+        // console.log("APIs", PageApis)
+        // Return page api-set
+        return PageApis
+    },
+    //---------------------------------------
+    async runApi(state={}, api, {
       vars, 
       params, 
       headers, 
@@ -9509,7 +9605,8 @@ const {WWW} = (function(){
       //.....................................
       // Join the http send Promise
       //console.log(`will send to "${url}"`, options)
-      let reo = undefined;
+      let reo;
+      let data;
       // Invoke Action
       if(api.method == "INVOKE") {
         reo = await dispatch(api.path, options.params, {root:true})
@@ -9530,6 +9627,8 @@ const {WWW} = (function(){
         }
       }
       //.....................................
+      data = reo
+      //.....................................
       // Eval api transformer
       if(api.transformer) {
         let trans = _.cloneDeep(api.transformer)
@@ -9537,21 +9636,147 @@ const {WWW} = (function(){
         // PreExplain args
         if(trans.explain) {
           let tro = _.pick(trans, "name", "args")
-          trans = Ti.Util.explainObjs(rootState, tro)
+          trans = Ti.Util.explainObjs(state, tro)
+          console.log(trans)
         }
         let fnTrans = Ti.Util.genInvoking(trans, {
-          context: rootState,
+          context: state,
           partial
         })
         if(_.isFunction(fnTrans)) {
           //console.log("transformer", reo)
-          return fnTrans(reo)
+          data = fnTrans(reo)
         }
       }
       //.....................................
-      return reo
+      return {reo, data}
   
-    } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ runApi
+    },// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ runApi
+    //---------------------------------------
+    async runApiAndPrcessReturn(state={}, api, {
+      vars, 
+      params, 
+      headers, 
+      body,
+      ok, fail,
+      mergeData,
+      updateData,
+      doAction
+    } = {}) {
+      //.....................................
+      let apiRe;
+      //.....................................
+      try {
+        apiRe = await Ti.WWW.runApi(state, api, {
+          vars, params, headers, body
+        })
+      }
+      // Cache the Error
+      catch (err) {
+        console.warn(`Fail to invoke API`, {
+          api, err,
+          vars, params, headers, body
+        })
+        // Prepare fail Object
+        let failAction = Ti.Util.explainObj({
+          api, 
+          vars, params, headers, body,
+          err,
+          errText : err.responseText
+        }, fail)
+        doAction(failAction)
+        return
+      }
+      //.....................................
+      let {reo, data} = apiRe
+      //.....................................
+      // Update or merge
+      if(api.dataMerge) {
+        mergeData({
+          [api.dataKey] : data
+        })
+      }
+      // Just update
+      else if(api.dataKey) {
+        updateData({
+          key   : api.dataKey,
+          value : data
+        })
+      }
+      //.....................................
+      // Update or merge raw
+      if(api.rawDataKey) {
+        if(api.rawDataMerge) {
+          mergeData({
+            [api.rawDataKey] : reo
+          })
+        }
+        // Just update
+        else {
+          updateData({
+            key   : api.rawDataKey,
+            value : reo
+          })
+        }
+      }
+      //.....................................
+      // All done
+      let okAction = Ti.Util.explainObj({
+        api, 
+        vars, params, headers, body,
+        data, reo
+      }, ok)
+      doAction(okAction)
+    }, // async runApiAndPrcessReturn
+    //---------------------------------------
+    /**
+     * Grouping api by preload priority
+     * 
+     * @return  *JSON*: 
+     * <pre>
+     * {
+     *    preloads: [
+     *       [K1, K2, K3],
+     *       [K5, K6],
+     *       ...
+     *    ],
+     *    afterLoads: [Kx, Ky, Kz ...]
+     * }
+     * </pre>
+     */
+    groupPreloadApis(apis) {
+      let preloads = []
+      let afterLoads = []
+      _.forEach(apis, (api, k)=>{
+        let preload = api.preload
+        // Considering preload=true
+        if(_.isBoolean(preload)) {
+          if(!preload) {
+            return
+          }
+          preload = 1
+        }
+        // Preload before display
+        if(_.isNumber(preload)) {
+          if(preload >= 0) {
+            let keys = _.nth(preloads, preload)
+            if(!_.isArray(keys)){
+              keys = []
+              preloads[preload] = keys
+            }
+            keys.push(k)
+          }
+          // After page load
+          else {
+            afterLoads.push(k)
+          }
+        }
+      })
+      return {
+        preloads : _.filter(preloads, it=>!!it), 
+        afterLoads
+      }
+    }
     //---------------------------------------
   }
   ///////////////////////////////////////////
@@ -11970,11 +12195,26 @@ const {WebAppMain} = (function(){
     }
   }={}) {
     //---------------------------------------
+    const loc = Ti.Util.parseHref(window.location.href)
+    //---------------------------------------
     // Override the rs/siteRs by vars
     rs = _.get(vars, "rs") || rs
     siteRs = _.get(vars, "siteRs") || siteRs
-    lang = _.get(vars, "lang") || lang
     let confHome = _.get(vars, "confHome") || `/gu/mnt/project/${domain}/_ti/`
+    //---------------------------------------
+    // Eval lang
+    lang = _.get(vars, "lang") || lang
+    if(appJson.langInPath) {
+      let {match, group} = appJson.langInPath || {}
+      console.log({match, group})
+      if(match && group) {
+        let reg = new RegExp(match)
+        let m = reg.exec(loc.path)
+        if(m) {
+          lang = _.kebabCase(m[group])
+        }
+      }
+    }
     //---------------------------------------
     Ti.AddResourcePrefix(rs, siteRs)
     //---------------------------------------
@@ -12067,11 +12307,13 @@ const {WebAppMain} = (function(){
     let app = await Ti.App(appJson, conf=>{
       //console.log("appConf", conf)
       _.assign(conf.store.state, vars, {
-        loading   : false,
+        loading : false,
         siteId,
         domain,
-        rs
+        rs,
+        lang
       })
+      
       return conf
     })
     await app.init()
@@ -12092,7 +12334,9 @@ const {WebAppMain} = (function(){
     app.mountTo("#app")
     
     // Reload the page data
-    await app.dispatch("reload")
+    await app.dispatch("reload", {
+      loc, lang
+    })
     
     //---------------------------------------
     // All Done
@@ -12136,7 +12380,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210126.180944",
+  "version" : "1.6-20210128.025106",
   "dev" : false,
   "appName" : null,
   "session" : {},

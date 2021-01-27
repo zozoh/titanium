@@ -2257,7 +2257,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210126.180945"
+const WALNUT_VERSION = "1.2-20210128.025107"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
