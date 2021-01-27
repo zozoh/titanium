@@ -17,11 +17,26 @@ export async function WebAppMain({
   }
 }={}) {
   //---------------------------------------
+  const loc = Ti.Util.parseHref(window.location.href)
+  //---------------------------------------
   // Override the rs/siteRs by vars
   rs = _.get(vars, "rs") || rs
   siteRs = _.get(vars, "siteRs") || siteRs
-  lang = _.get(vars, "lang") || lang
   let confHome = _.get(vars, "confHome") || `/gu/mnt/project/${domain}/_ti/`
+  //---------------------------------------
+  // Eval lang
+  lang = _.get(vars, "lang") || lang
+  if(appJson.langInPath) {
+    let {match, group} = appJson.langInPath || {}
+    console.log({match, group})
+    if(match && group) {
+      let reg = new RegExp(match)
+      let m = reg.exec(loc.path)
+      if(m) {
+        lang = _.kebabCase(m[group])
+      }
+    }
+  }
   //---------------------------------------
   Ti.AddResourcePrefix(rs, siteRs)
   //---------------------------------------
@@ -114,11 +129,13 @@ export async function WebAppMain({
   let app = await Ti.App(appJson, conf=>{
     //console.log("appConf", conf)
     _.assign(conf.store.state, vars, {
-      loading   : false,
+      loading : false,
       siteId,
       domain,
-      rs
+      rs,
+      lang
     })
+    
     return conf
   })
   await app.init()
@@ -139,7 +156,9 @@ export async function WebAppMain({
   app.mountTo("#app")
   
   // Reload the page data
-  await app.dispatch("reload")
+  await app.dispatch("reload", {
+    loc, lang
+  })
   
   //---------------------------------------
   // All Done

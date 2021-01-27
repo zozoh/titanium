@@ -1,6 +1,16 @@
 export default {
   /////////////////////////////////////////
   props : {
+    // The items appeared at the head
+    "headItems" : {
+      type : Array,
+      default : ()=>[]
+    },
+    // The items appeared at the tail
+    "tailItems" : {
+      type : Array,
+      default : ()=>[]
+    },
     /*
     {text, icon, href, newtab, path, payload}
     */
@@ -31,7 +41,12 @@ export default {
     },
     //------------------------------------
     TheItems() {
-      return this.evalItems(this.items)
+      return this.evalItems(
+        _.concat(
+          this.headItems, 
+          this.items, 
+          this.tailItems
+          ))
     }
     //------------------------------------
   },
@@ -39,6 +54,8 @@ export default {
   methods : {
     //------------------------------------
     OnClickLink(evt, {type,value,params}={}) {
+      console.log("haha")
+      evt.stopPropagation();
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()
         //console.log("onClickLink", "nav:to", {type,value,params})

@@ -15,6 +15,7 @@ const _M = {
         "domain"    : state=>state.domain,
         "rs"        : state=>state.rs,
         "nav"       : state=>state.nav,
+        "data"      : state=>state.data,
         "base"      : state=>state.base,
         "apiBase"   : state=>state.apiBase,
         "cdnTmpl"   : state=>state.cdnTmpl,

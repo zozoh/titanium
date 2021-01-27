@@ -1,5 +1,5 @@
 const _M = {
-  /////////////////////////////////////////
+  ////////////////////////////////////////////////
   getters : {
     //--------------------------------------------
     // Pre-compiled Site Routers
@@ -33,6 +33,14 @@ const _M = {
         list.push(li)
       })
       return list
+    },
+    //--------------------------------------------
+    globalApis(state) {
+      return Ti.WWW.hydrateApi({
+        base : state.apiBase,
+        siteApis : state.apis,
+        apis : state.global
+      })
     },
     //--------------------------------------------
     // Site Action Mapping
@@ -106,7 +114,7 @@ const _M = {
     }
     //--------------------------------------------
   },
-  /////////////////////////////////////////
+  ////////////////////////////////////////////////
   mutations : {
     //--------------------------------------------
     setSiteId(state, siteId) {
@@ -119,13 +127,100 @@ const _M = {
       state.apiBase = Ti.S.renderBy(state.apiBase||"/api/${domain}/", {domain})
     },
     //--------------------------------------------
+    setLang(state, lang) {
+      let as = state.langCase || "snake"
+      state.lang = _[`${as}Case`](lang)
+      state.langName = _.kebabCase(lang)
+    },
+    //--------------------------------------------
+    explainNav(state) {
+      if(state.nav) {
+        state.nav = Ti.Util.explainObj(state, state.nav)
+      }
+    },
+    //--------------------------------------------
+    setData(state, data) {
+      state.data = data
+    },
+    //--------------------------------------------
+    updateData(state, {key, value}={}) {
+      // kay-value pair is required
+      if(!key || _.isUndefined(value)) {
+        return
+      }
+      let vobj = _.set({}, key, value)
+      state.data = _.assign({}, state.data, vobj)
+    },
+    //--------------------------------------------
+    updateDataBy(state, {key, value}) {
+      if(!key || _.isUndefined(value)) {
+        return
+      }
+      let data = _.cloneDeep(state.data)
+      _.set(data, key, value)
+      state.data = data
+    },
+    //--------------------------------------------
     setLoading(state, loading) {
       state.loading = loading
     }
     //--------------------------------------------
   },
-  /////////////////////////////////////////
+  ////////////////////////////////////////////////
   actions : {
+    //--------------------------------------------
+    async __run_gloabl_api({commit, dispatch, state}, {
+      api, 
+      vars, 
+      params, 
+      headers, 
+      body,
+      ok, fail}) {
+      //.....................................  
+      await Ti.WWW.runApiAndPrcessReturn(state, api, {
+        vars, 
+        params, 
+        headers, 
+        body,
+        ok, fail,
+        mergeData : function(payload) {
+          commit("mergeData", payload)
+        },
+        updateData : function(payload) {
+          commit("updateData", payload)
+        },
+        doAction : function(at) {
+          dispatch("doAction", at)
+        }
+      })
+    },
+    //--------------------------------------------
+    /***
+     * Reload page data by given api keys
+     */
+    async reloadGlobalData({state, commit, getters, dispatch}, keys=[]) {
+      commit("setLoading", true)
+      
+      let apis = []
+      for(let key of keys) {
+        let api = _.get(getters.globalApis, key)
+        if(!api) {
+          continue;
+        }
+        //console.log("  # -> page.reloadData -> prepareApi", api)
+        if(api.preloadWhen) {
+          if(!Ti.AutoMatch.test(api.preloadWhen, state)) {
+            continue;
+          }
+        }
+        apis.push(dispatch("__run_gloabl_api", {api}))
+      }
+      if(!_.isEmpty(apis)) {
+        await Promise.all(apis)
+      }
+      commit("setLoading", false)
+    },
+    //--------------------------------------------
     //--------------------------------------------
     navBackward() {
       if(window.history) {
@@ -378,17 +473,20 @@ const _M = {
       }
     },
     //--------------------------------------------
-    async reload({state, commit, dispatch}) {
-      //console.log("site.reload", state.entry, state.base)
-      // Merge Site FuncSet
-      //console.log(state.utils)
-
-      // Init the base/apiBase
-
+    async reload({state, commit, dispatch, getters}, {loc, lang}={}) {
+      console.log("site.reload", state.entry, state.base, state.lang)
+      //---------------------------------------
       // Looking for the entry page
       // {href,protocol,host,port,path,search,query,hash,anchor}
-      let loc = Ti.Util.parseHref(window.location.href)
-
+      loc = loc || Ti.Util.parseHref(window.location.href)
+      //---------------------------------------
+      // Format lang to the expect case: snake/kebab/camel
+      if(lang) {
+        commit("setLang", lang)
+      }
+      //---------------------------------------
+      // Explain nav
+      commit("explainNav")
       //---------------------------------------
       // Setup dictionary
       if(state.dictionary) {
@@ -420,8 +518,12 @@ const _M = {
       commit("auth/mergePaths", state.authPaths)
 
       // Reload the global data
-      let apis = []
-      // _.forEach(state.global, )
+      let {preloads, afterLoads} = Ti.WWW.groupPreloadApis(getters.globalApis)
+      //..........................................
+      // init global data
+      for(let keys of preloads) {
+        await dispatch("reloadGlobalData", keys)
+      }
 
       // Eval the entry page
       let entry = state.entry
@@ -437,9 +539,15 @@ const _M = {
         anchor : loc.hash,
         pushHistory : false
       })
+
+      //..........................................
+      // Load the after page completed
+      if(!_.isEmpty(afterLoads.length)) {
+        dispatch("reloadGlobalData", afterLoads)
+      }
     }
     //--------------------------------------------
   }
-  /////////////////////////////////////////
+  ////////////////////////////////////////////////
 }
 export default _M;

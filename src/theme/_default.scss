@@ -50,7 +50,7 @@ body {
 //...................................................
 pre {
   @include font-fixed;
-  tab-size: 4; -moz-tab-size:4;
+  -moz-tab-size:4; tab-size: 4;
   padding:.2rem; margin:0;
 }
 //...................................................

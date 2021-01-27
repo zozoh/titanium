@@ -2,6 +2,7 @@
   "className": null,
   "title" : null,
   "name"  : null,
+  "href"  : null,
   "path"  : null,
   "pageUri": null,
   "ready" : 0,

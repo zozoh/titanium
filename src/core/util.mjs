@@ -1095,7 +1095,9 @@ const TiUtil = {
     let func = _.get(funcSet, callPath)
     if(_.isFunction(func)) {
       let args = Ti.S.joinArgs(callArgs, [], v=>{
-        return Ti.S.toJsValue(v, {context})
+        if(_.isString(v) || _.isArray(v))
+          return Ti.S.toJsValue(v, {context})
+        return v
       })
       if(!_.isEmpty(args)) {
         // [ ? --> ... ]

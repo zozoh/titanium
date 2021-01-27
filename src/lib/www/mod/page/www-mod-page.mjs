@@ -25,97 +25,11 @@ const _M = {
     //--------------------------------------------
     // Merget page api and the site api
     pageApis(state, getters, rootState, rootGetters) {
-      let apiBase  = rootState.apiBase || "/"
-      let SiteApis = rootState.apis || {}
-      let PageApis = {}
-
-      // Define the api tidy func
-      const hydrateApi = function(key, siteApi, pageApi={}) {
-        let api = _.cloneDeep(siteApi)
-
-        // Assign default value
-        _.defaults(api, {
-          name    : key,
-          method  : "GET",
-          headers : {},
-          params  : {},
-          vars    : {},
-          as      : "json"
-        })
-
-        // API path is required
-        if(!api.path) {
-          console.warn(`!!!API[${key}] without defined in site!!!`, api)
-          return
-        }
-
-        //..........................................
-        // Merge vars
-        _.assign(api.vars, pageApi.vars)
-        //..........................................
-        // Merge headers
-        _.assign(api.headers, pageApi.headers)
-        //..........................................
-        // Merge params
-        _.assign(api.params, pageApi.params)
-        //..........................................
-        // Absolute URL
-        if("INVOKE" != api.method) {
-          if(/^(https?:\/\/|\/)/.test(api.path)) {
-            api.url = api.path
-          }
-          // Join with the apiBase
-          else {
-            api.url = Ti.Util.appendPath(apiBase, api.path)
-          }
-        }
-        //..........................................
-        // Copy the Setting from page
-        _.assign(api, _.pick(pageApi, 
-          "body", 
-          "preload",
-          "ssr",
-          "transformer", 
-          "dataKey",
-          "dataMerge",
-          "rawDataKey",
-          "rawDataMerge"
-        ))
-        //..........................................
-        _.defaults(api, {
-          bodyType : "form",
-          dataKey  : key
-        })
-        //..........................................
-        // Then done
-        return api
-      }  // const hydrateApi = function
-
-      // Join site apis
-      _.forEach(SiteApis, (api, key)=>{
-        if(api.pages) {
-          api = hydrateApi(key, api)
-          if(api) {
-            PageApis[key] = api
-          }
-        }
+      return Ti.WWW.hydrateApi({
+        base : rootState.apiBase,
+        siteApis : rootState.apis,
+        apis : state.apis
       })
-      // For each api declared in current page
-      _.forEach(state.apis, (pageApi, key)=>{
-        //..........................................
-        // Get SiteApi template
-        let siteApi = _.get(SiteApis, pageApi.apiName || key)
-        //console.log(key, siteApi)
-        let api = hydrateApi(key, siteApi, pageApi)
-
-        if(api) {
-          PageApis[key] = api
-        }
-        //..........................................
-      })  // _.forEach(state.apis, (info, key)=>{
-      // console.log("APIs", PageApis)
-      // Return page api-set
-      return PageApis
     }
     //--------------------------------------------
   },
@@ -453,142 +367,23 @@ const _M = {
       headers, 
       body,
       ok, fail}) {
-      //.....................................
-      // Override api
-      api = _.cloneDeep(api)
-      _.assign(api.vars, vars)
-      _.assign(api.params, params)
-      _.assign(api.headers, headers)
-      if(!Ti.Util.isNil(body)) {
-        api.body = body
-      }
-      //.....................................
-      // Eval url
-      _.defaults(vars, api.vars)
-      let url = api.url
-      //.....................................
-      // Eval dynamic url
-      if(!_.isEmpty(api.vars)) {
-        let vs2 = Ti.Util.explainObj(rootState, api.vars)
-        url = Ti.S.renderBy(url, vs2)
-      }
-      //.....................................
-      // Gen the options
-      let options = _.pick(api, ["method", "as"])
-      //options.vars = api.vars
-      //.....................................
-      // Eval headers
-      options.headers = Ti.Util.explainObj(rootState, api.headers)
-      //.....................................
-      // Eval the params
-      options.params = Ti.Util.explainObj(rootState, api.params)
-      //.....................................
-      // Prepare the body
-      if("POST" == api.method && api.body) {
-        let bodyData = Ti.Util.explainObj(rootState, api.body)
-        // As JSON
-        if("json" == api.bodyType) {
-          options.body = JSON.stringify(bodyData)
+      //.....................................  
+      await Ti.WWW.runApiAndPrcessReturn(rootState, api, {
+        vars, 
+        params, 
+        headers, 
+        body,
+        ok, fail,
+        mergeData : function(payload) {
+          commit("mergeData", payload)
+        },
+        updateData : function(payload) {
+          commit("updateData", payload)
+        },
+        doAction : function(at) {
+          dispatch("doAction", at, {root:true})
         }
-        // As responseText
-        else if("text" == api.bodyType) {
-          options.body = Ti.Types.toStr(bodyData)
-        }
-        // Default is form
-        else {
-          options.body = Ti.Http.encodeFormData(bodyData)
-        }
-      }
-      //.....................................
-      // Join the http send Promise
-      //console.log(`will send to "${url}"`, options)
-      let reo = undefined;
-      try{
-        // Invoke Action
-        if(api.method == "INVOKE") {
-          reo = await dispatch(api.path, options.params, {root:true})
-        }
-        // Send HTTP Request
-        else {
-          // Check the page local ssr cache
-          if(api.ssr && "GET" == api.method) {
-            //console.log("try", api)
-            let paramsJson = JSON.stringify(options.params || {})
-            let ssrConf = _.pick(options, "as")
-            ssrConf.dft = undefined
-            ssrConf.ssrFinger = Ti.Alg.sha1(paramsJson)
-            reo = Ti.WWW.getSSRData(`api-${api.name}`, ssrConf)
-          }
-          if(_.isUndefined(reo)) {
-            reo = await Ti.Http.sendAndProcess(url, options);
-          }
-        }
-      }
-      // Cache the Error
-      catch (err) {
-        console.warn(`Fail to invoke ${url}`, {api, url, options, err})
-        // Prepare fail Object
-        let failAction = Ti.Util.explainObj({
-          api, url, options,
-          err,
-          errText : err.responseText
-        }, fail)
-        dispatch("doAction", failAction, {root:true})
-        return
-      }
-      let data = reo
-      //.....................................
-      // Eval api transformer
-      if(api.transformer) {
-        let trans = _.cloneDeep(api.transformer)
-        let partial = Ti.Util.fallback(trans.partial, "right")
-        // PreExplain args
-        if(trans.explain) {
-          let tro = _.pick(trans, "name", "args")
-          trans = Ti.Util.explainObjs(rootState, tro)
-        }
-        let fnTrans = Ti.Util.genInvoking(trans, {
-          context: rootState,
-          partial
-        })
-        if(_.isFunction(fnTrans)) {
-          //console.log("transformer", reo)
-          data = fnTrans(reo)
-        }
-      }
-      //.....................................
-      // Update or merge
-      if(api.dataMerge) {
-        commit("mergeData", {
-          [api.dataKey] : data
-        })
-      }
-      // Just update
-      else if(api.dataKey) {
-        commit("updateData", {
-          key   : api.dataKey,
-          value : data
-        })
-      }
-      //.....................................
-      // Update or merge raw
-      if(api.rawDataKey) {
-        if(api.rawDataMerge) {
-          commit("mergeData", {
-            [api.rawDataKey] : reo
-          })
-        }
-        // Just update
-        else {
-          commit("updateData", {
-            key   : api.rawDataKey,
-            value : reo
-          })
-        }
-      }
-      //.....................................
-      // All done
-      dispatch("doAction", ok, {root:true})
+      })
     },
     //--------------------------------------------
     /***
@@ -704,6 +499,7 @@ const _M = {
       pinfo.params = _.merge({}, pinfo.params, params)
       pinfo.path = pinfo.path || path
       pinfo.name = Ti.Util.getMajorName(pinfo.path)
+      pinfo.href = path
       //.....................................
       // Update Path url
       let link = Ti.Util.Link({url:path, params, anchor})
@@ -734,40 +530,12 @@ const _M = {
       await dispatch("invokeAction", {name:"@page:prepare"}, {root:true})
       //.....................................
       // Conclude the api loading keys
-      let keyGroups = []
-      let afterLoadkeys = []   // After page loaded, those api should be load
-      _.forEach(getters.pageApis, (api, k)=>{
-        let preload = api.preload
-        // Considering preload=true
-        if(_.isBoolean(preload)) {
-          if(!preload) {
-            return
-          }
-          preload = 1
-        }
-        // Preload before display
-        if(_.isNumber(preload)) {
-          if(preload >= 0) {
-            let keys = _.nth(keyGroups, preload)
-            if(!_.isArray(keys)){
-              keys = []
-              keyGroups[preload] = keys
-            }
-            keys.push(k)
-          }
-          // After page load
-          else {
-            afterLoadkeys.push(k)
-          }
-        }
-      })
+      let {preloads, afterLoads} = Ti.WWW.groupPreloadApis(getters.pageApis)
       //console.log(keyGroups)
       //.....................................
       // init: data
-      for(let keys of keyGroups) {
-        if(!_.isEmpty(keys)) {
-          await dispatch("reloadData", keys)
-        }
+      for(let keys of preloads) {
+        await dispatch("reloadData", keys)
       }
       // explain data
       await dispatch("explainData")
@@ -781,8 +549,8 @@ const _M = {
       await dispatch("invokeAction", {name:"@page:ready"}, {root:true})
       //.....................................
       // Load the after page api
-      if(afterLoadkeys.length > 0) {
-        dispatch("reloadData", afterLoadkeys)
+      if(!_.isEmpty(afterLoads.length)) {
+        dispatch("reloadData", afterLoads)
       }
       //.....................................
     }
