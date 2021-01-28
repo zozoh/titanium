@@ -2,8 +2,8 @@ const _M = {
   ////////////////////////////////////////////////
   getters : {
     //--------------------------------------------
-    pageLink({path, params, anchor}) {
-      let link = [path]
+    pageLink({href, params, anchor}) {
+      let link = [href]
       // Join QueryString
       if(!_.isEmpty(params)) {
         let qs = []
