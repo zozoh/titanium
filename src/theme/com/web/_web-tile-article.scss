@@ -1,0 +1,58 @@
+.web-tile-article {
+  //------------------------------------
+  @include color($color-primary, r, c);
+  @include flex-align-v-nowrap($jc:center);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  font-size: SZ(12);
+  padding: 0 3em;
+  //------------------------------------
+  > header {
+    padding:0; margin:0 0 1em 0; font-size: 1.6em;
+    font-weight: bold; 
+  }
+  //------------------------------------
+  &.is-font-small {font-size:SZ(10);}
+  &.is-font-big {font-size:SZ(14);}
+  //------------------------------------
+  &.is-header-shadow header {
+    text-shadow: SZ(1) SZ(1) SZ(2) map-get($color-shadow, heavy);
+  }
+  //------------------------------------
+  > article {
+    h1,h2,h3,h4,h5,h6 {font-weight: normal;}
+    h1 {padding:0; margin:0.2em 0; font-size: 1.4em;}
+    h2 {padding:0; margin:0.2em 0; font-size: 1.3em;}
+    h3 {padding:0; margin:0.2em 0; font-size: 1.2em;}
+    h4 {padding:0; margin:0.2em 0; font-size: 1.1em;}
+    h5 {padding:0; margin:0.2em 0; font-size: 1em;}
+    h6 {padding:0; margin:0.2em 0; font-size: 1em;}
+    blockquote {
+      margin: .5em 0; 
+      font-size: .9em; opacity: 0.8;
+    }
+  }
+  //------------------------------------
+  > footer {
+    @include flex-align-nowrap;
+    margin: 1em 0;
+    //----------------------------------
+    .as-btn {
+      @include flex-align-nowrap;
+      color: rgba(255,255,255, 0.8); 
+      background: rgba(255,255,255, 0.1);
+      border:1px solid rgba(255,255,255, 0.6);
+      padding: .5em 1em;
+      border-radius: SZ(4);
+      cursor: pointer;
+      &:hover {
+        color: #FFF;  border-color: #FFF; 
+        background: rgba(255,255,255, 0.3); 
+      }
+      > .as-text {margin:0 .5em;}
+    }
+    //----------------------------------
+  }
+  //------------------------------------
+}

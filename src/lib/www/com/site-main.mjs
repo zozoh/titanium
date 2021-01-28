@@ -8,6 +8,8 @@ const _M = {
     ...Vuex.mapState({
         "siteId"    : state=>state.siteId,
         "logo"      : state=>state.logo,
+        "lang"      : state=>state.lang,
+        "langName"  : state=>state.langName,
         "utils"     : state=>state.utils,
         "page"      : state=>state.page,
         "shop"      : state=>state.shop,

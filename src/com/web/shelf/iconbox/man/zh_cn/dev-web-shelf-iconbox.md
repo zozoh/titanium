@@ -1,6 +1,9 @@
 ---
 title: 图标弹出搁板:WebShelfIconbox
 author: zozohtnt@gmail.com
+screen:
+- desktop
+- mobile
 ---
 
 # 图标弹出搁板概述

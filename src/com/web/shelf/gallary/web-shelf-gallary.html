@@ -1,0 +1,30 @@
+<div class="web-shelf-gallary"
+  :class="TopClass"
+  :style="TopStyle"
+  @mouseleave="OnMouseLeave">
+  <div ref="con" class="as-gallary-con">
+    <!--
+      Each component container
+    -->
+    <div
+      v-for="it in myItemList"
+        :key="it.index"
+        :it-index="it.index"
+        class="as-gallary-item"
+        :style="getItemStyle(it.index)"
+        @mouseenter="OnMouseEnterItem(it)">
+      <!--
+        Component
+      -->
+      <compnent
+        v-if="it.comType"
+          class="ti-fill-parent"
+          :is="it.comType"
+          v-bind="it.comConf"
+          :abc="it.comConf.abc"/>
+      <!--
+        Placeholder
+      -->
+      <span v-else>Item {{it.index}}</span>
+    </div>
+</div></div>

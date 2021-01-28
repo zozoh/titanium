@@ -235,7 +235,9 @@ const TiWWW = {
     // preview obj for id
     if(apiTmpl) {
       // 看看有木有对象
-      let oph = _.get(obj, previewKey)
+      let oph = ".." == previewKey 
+                  ? obj
+                  :_.get(obj, previewKey)
       if(oph) {
         return Ti.S.renderBy(apiTmpl, obj)
       }

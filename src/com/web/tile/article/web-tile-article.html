@@ -1,0 +1,22 @@
+<div class="web-tile-article"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Title
+  -->
+  <header
+    v-if="title">{{title | i18n}}</header>
+  <!--
+    Content
+  -->
+  <article v-if="content" v-html="HtmlContent"></article>
+  <!--
+    Button
+  -->
+  <footer v-if="hasButton">
+    <a class="as-btn" :href="href">
+      <span v-if="btnText" class="as-text">{{btnText|i18n}}</span>
+      <TiIcon v-if="btnIcon" :value="btnIcon"/>
+    </a>
+  </footer>
+</div>

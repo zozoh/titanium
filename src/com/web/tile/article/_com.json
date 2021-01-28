@@ -1,0 +1,6 @@
+{
+  "name" : "web-tile-article",
+  "globally" : true,
+  "template" : "./web-tile-article.html",
+  "mixins" : ["./web-tile-article.mjs"]
+}
