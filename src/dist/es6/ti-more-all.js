@@ -1,4 +1,4 @@
-// Pack At: 2021-01-29 17:59:56
+// Pack At: 2021-01-29 18:52:18
 (async function(){
 ////////////async loading////////////////
 await Ti.Load(["@deps:leaflet/leaflet.css", "@deps:antv/v4/g2/g2.min.js", "@deps:quill/1.3.6/quill.js", "@deps:leaflet/leaflet.js", "@deps:sortable.js", "@lib:code2a/cheap-markdown.mjs", "@deps:tinymce/5.6.2/tinymce.min.js", "@deps:highlight/highlight.js"]);
@@ -22616,7 +22616,6 @@ const _M = {
     },
     //--------------------------------------
     TheData() {
-      console.log("haha", this.value)
       if(!Ti.Util.isNil(this.value)) {
         return Ti.Types.safeParseJson(this.value, null)
       }
