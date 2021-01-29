@@ -485,7 +485,7 @@ const TiWWW = {
       if(trans.explain) {
         let tro = _.pick(trans, "name", "args")
         trans = Ti.Util.explainObjs(state, tro)
-        console.log(trans)
+        //console.log(trans)
       }
       let fnTrans = Ti.Util.genInvoking(trans, {
         context: state,

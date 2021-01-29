@@ -1,3 +1,4 @@
+// Pack At: 2021-01-29 17:59:56
 (async function(){
 ////////////async loading////////////////
 await Ti.Load(["@deps:leaflet/leaflet.css", "@deps:antv/v4/g2/g2.min.js", "@deps:quill/1.3.6/quill.js", "@deps:leaflet/leaflet.js", "@deps:sortable.js", "@lib:code2a/cheap-markdown.mjs", "@deps:tinymce/5.6.2/tinymce.min.js", "@deps:highlight/highlight.js"]);
@@ -678,6 +679,181 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'web-shelf-gallary.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/shelf/gallary/web-shelf-gallary.mjs'] = (function(){
+const _M = {
+  //////////////////////////////////////////
+  data : ()=>({
+    myHoverIndex: -1,
+    myRect: {width:0, height:0},
+    myItemList: []
+  }),
+  //////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "items" : {
+      type : Array,
+      default : ()=>[]
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "comType" : {
+      type: String,
+      default : undefined
+    },
+    "comConf" : {
+      type : Object,
+      default : ()=>({})
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "minScale" : {
+      type : Number,
+      default : 0.5
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    // item scale = width/height
+    "itemWH" : {
+      type : Number,
+      default : undefined
+    },
+    "width" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "height" : {
+      type : [Number, String],
+      default : undefined
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //--------------------------------------
+    ItemStyles() {
+      if(_.isEmpty(this.items) || this.myHoverIndex < 0){
+        return []
+      }
+      // Measure: viewport sizing
+      let {width, height} = this.myRect
+      let n = this.items.length
+      let half = width / (n+1)
+      let unit = half * 2
+
+      // Scale
+      let hoveI = this.myHoverIndex
+      let lastI = n - 1
+      let scale = 1 - this.minScale
+
+      // At left
+      // 0 -> [][][][][]V[][] <- last
+      //              hoveI
+      let stepL = hoveI > 0 ? scale / hoveI  : 0
+      let stepR = hoveI < lastI ? scale / (lastI - hoveI) : 0
+
+
+      // Loop for style
+      let itW = this.itemWH ? (height*this.itemWH) : 0
+      let list = []
+      for(let i=0; i<this.items.length; i++) {
+        let left  = half * i
+        let width = itW || unit
+        if(itW) {
+          left -= (itW - unit) / 2
+        }
+        // About scale
+        let d = Math.abs(i - hoveI)
+        let transform = null
+        // Need to transform scale
+        if(i != hoveI) {
+          let s = i < hoveI
+                    ? d * stepL
+                    : d * stepR
+          transform = `scale(${1-s})`
+        }
+        list.push(Ti.Css.toStyle({
+          left, width, transform,
+          zIndex : n - d
+        }))
+      }
+
+      return list
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnResize() {
+      this.myRect = Ti.Rects.createBy(this.$refs.con)
+    },
+    //--------------------------------------
+    OnMouseLeave() {
+      this.myHoverIndex = parseInt(this.items.length / 2)
+    },
+    //--------------------------------------
+    OnMouseEnterItem({index}) {
+      this.myHoverIndex = index
+    },
+    //--------------------------------------
+    getItemStyle(index) {
+      return _.get(this.ItemStyles, index)
+    },
+    //--------------------------------------
+    evalItemList() {
+      let list = []
+      _.forEach(this.items, (it, index) => {
+        let comType = Ti.Util.explainObj(it, this.comType)
+        let comConf = Ti.Util.explainObj(it, this.comConf)
+        list.push({
+          index,
+          comType, comConf
+        })
+      })
+      this.myItemList = list
+      this.myHoverIndex = parseInt(list.length / 2)
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "items" : "evalItemList"
+  },
+  //////////////////////////////////////////
+  mounted: function() {
+    this.OnResize()
+    this.evalItemList()
+
+    Ti.Viewport.watch(this, {
+      resize : _.debounce(()=>this.OnResize(), 10)
+    })
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Viewport.unwatch(this)
+  }
+  //////////////////////////////////////////
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'order-item.mjs' -> null
@@ -5282,8 +5458,8 @@ const _M = {
   ////////////////////////////////////////////////
   getters : {
     //--------------------------------------------
-    pageLink({path, params, anchor}) {
-      let link = [path]
+    pageLink({href, params, anchor}) {
+      let link = [href]
       // Join QueryString
       if(!_.isEmpty(params)) {
         let qs = []
@@ -21506,6 +21682,124 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'web-tile-article.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/tile/article/web-tile-article.mjs'] = (function(){
+const _M = {
+  //////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "title" : {
+      type : String,
+      default : undefined
+    },
+    "content" : {
+      type : String,
+      default : undefined
+    },
+    "contentType" : {
+      type : String,
+      default : "text",
+      validator : v=>/^(text|html|markdown)$/.test(v)
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "href" : {
+      type : String,
+      default : undefined,
+    },
+    "emitName" : {
+      type : String,
+      default : undefined,
+    },
+    "payload" : undefined,
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "btnIcon" : {
+      type : String,
+      default : undefined,
+    },
+    "btnText" : {
+      type : String,
+      default : undefined,
+    },
+    "backgroundSrc" : {
+      type : [String, Object],
+      default : undefined
+    },
+    "backgroundPreview" : {
+      type : Object,
+      default : undefined
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "width" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "height" : {
+      type : [Number, String],
+      default : undefined
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    TopStyle() {
+      let backgroundImage = null
+      if(this.TheBackgroundImageSrc) {
+        backgroundImage = `url('${this.TheBackgroundImageSrc}')`
+      }
+      return Ti.Css.toStyle({
+        width  : this.width,
+        height : this.height,
+        backgroundImage
+      })
+    },
+    //--------------------------------------
+    hasButton() {
+      return this.btnText || this.btnIcon
+    },
+    //--------------------------------------
+    TheBackgroundImageSrc() {
+      return Ti.WWW.evalObjPreviewSrc(this.backgroundSrc, this.backgroundPreview)
+    },
+    //--------------------------------------
+    HtmlContent() {
+      if(this.content) {
+        if("text" == this.contentType) {
+          return this.content.replaceAll(/\r?\n/g, '<br>')
+        }
+        if("markdown" == this.contentType) {
+          // TODO convert markdown
+          return this.content
+        }
+        // Raw HTML
+        return this.content
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'json-tree-item.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/text/json/tree/item/json-tree-item.mjs'] = (function(){
@@ -29164,6 +29458,8 @@ const _M = {
     ...Vuex.mapState({
         "siteId"    : state=>state.siteId,
         "logo"      : state=>state.logo,
+        "lang"      : state=>state.lang,
+        "langName"  : state=>state.langName,
         "utils"     : state=>state.utils,
         "page"      : state=>state.page,
         "shop"      : state=>state.shop,
@@ -50551,6 +50847,52 @@ Ti.Preload("ti/com/web/shelf/free/_com.json", {
   "mixins" : ["./web-shelf-free.mjs"]
 });
 //========================================
+// JOIN <web-shelf-gallary.html> ti/com/web/shelf/gallary/web-shelf-gallary.html
+//========================================
+Ti.Preload("ti/com/web/shelf/gallary/web-shelf-gallary.html", `<div class="web-shelf-gallary"
+  :class="TopClass"
+  :style="TopStyle"
+  @mouseleave="OnMouseLeave">
+  <div ref="con" class="as-gallary-con">
+    <!--
+      Each component container
+    -->
+    <div
+      v-for="it in myItemList"
+        :key="it.index"
+        :it-index="it.index"
+        class="as-gallary-item"
+        :style="getItemStyle(it.index)"
+        @mouseenter="OnMouseEnterItem(it)">
+      <!--
+        Component
+      -->
+      <compnent
+        v-if="it.comType"
+          class="ti-fill-parent"
+          :is="it.comType"
+          v-bind="it.comConf"
+          :abc="it.comConf.abc"/>
+      <!--
+        Placeholder
+      -->
+      <span v-else>Item {{it.index}}</span>
+    </div>
+</div></div>`);
+//========================================
+// JOIN <web-shelf-gallary.mjs> ti/com/web/shelf/gallary/web-shelf-gallary.mjs
+//========================================
+Ti.Preload("ti/com/web/shelf/gallary/web-shelf-gallary.mjs", TI_PACK_EXPORTS['ti/com/web/shelf/gallary/web-shelf-gallary.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/web/shelf/gallary/_com.json
+//========================================
+Ti.Preload("ti/com/web/shelf/gallary/_com.json", {
+  "name" : "web-shelf-gallary",
+  "globally" : true,
+  "template" : "./web-shelf-gallary.html",
+  "mixins" : ["./web-shelf-gallary.mjs"]
+});
+//========================================
 // JOIN <web-shelf-iconbox.html> ti/com/web/shelf/iconbox/web-shelf-iconbox.html
 //========================================
 Ti.Preload("ti/com/web/shelf/iconbox/web-shelf-iconbox.html", `<div class="web-shelf-iconbox"
@@ -51024,6 +51366,44 @@ Ti.Preload("ti/com/web/tile/address/_com.json", {
   "globally" : true,
   "template" : "./web-tile-address.html",
   "mixins" : ["./web-tile-address.mjs"]
+});
+//========================================
+// JOIN <web-tile-article.html> ti/com/web/tile/article/web-tile-article.html
+//========================================
+Ti.Preload("ti/com/web/tile/article/web-tile-article.html", `<div class="web-tile-article"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Title
+  -->
+  <header
+    v-if="title">{{title | i18n}}</header>
+  <!--
+    Content
+  -->
+  <article v-if="content" v-html="HtmlContent"></article>
+  <!--
+    Button
+  -->
+  <footer v-if="hasButton">
+    <a class="as-btn" :href="href">
+      <span v-if="btnText" class="as-text">{{btnText|i18n}}</span>
+      <TiIcon v-if="btnIcon" :value="btnIcon"/>
+    </a>
+  </footer>
+</div>`);
+//========================================
+// JOIN <web-tile-article.mjs> ti/com/web/tile/article/web-tile-article.mjs
+//========================================
+Ti.Preload("ti/com/web/tile/article/web-tile-article.mjs", TI_PACK_EXPORTS['ti/com/web/tile/article/web-tile-article.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/web/tile/article/_com.json
+//========================================
+Ti.Preload("ti/com/web/tile/article/_com.json", {
+  "name" : "web-tile-article",
+  "globally" : true,
+  "template" : "./web-tile-article.html",
+  "mixins" : ["./web-tile-article.mjs"]
 });
 //========================================
 // JOIN <web-tile-comment.html> ti/com/web/tile/comment/web-tile-comment.html
@@ -57390,7 +57770,7 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-th-recount-media": "重新計算當前文件數量",
    "wn-th-recount-media-done": "當前文件數量: ${n}"
 });
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////
 // The End
 })();
 ////////////async loading////////////////

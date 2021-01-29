@@ -1,3 +1,4 @@
+// Pack At: 2021-01-29 17:59:56
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4637,6 +4638,10 @@ const {Load} = (function(){
     let reObj = Ti.MatchCache(url)
     if(reObj)
       return reObj
+  
+    // if(url.endsWith(".json")) {
+    //   console.log({url, type})
+    // }
   
     // invoke
     try {
@@ -9389,7 +9394,9 @@ const {WWW} = (function(){
       // preview obj for id
       if(apiTmpl) {
         // 看看有木有对象
-        let oph = _.get(obj, previewKey)
+        let oph = ".." == previewKey 
+                    ? obj
+                    :_.get(obj, previewKey)
         if(oph) {
           return Ti.S.renderBy(apiTmpl, obj)
         }
@@ -9637,7 +9644,7 @@ const {WWW} = (function(){
         if(trans.explain) {
           let tro = _.pick(trans, "name", "args")
           trans = Ti.Util.explainObjs(state, tro)
-          console.log(trans)
+          //console.log(trans)
         }
         let fnTrans = Ti.Util.genInvoking(trans, {
           context: state,
@@ -12037,16 +12044,6 @@ const {WalnutAppMain} = (function(){
       lang
     })
     //---------------------------------------
-    // Preload resources
-    if(!_.isEmpty(preloads)) {
-      let pres = []
-      _.forEach(preloads, url => {
-        pres.push(Ti.Load(url))
-      })
-      await Promise.all(pres)
-    }
-  
-    //---------------------------------------
     // Customized Zone
     //---------------------------------------
     // Load Config
@@ -12055,6 +12052,15 @@ const {WalnutAppMain} = (function(){
     })
     if(!_.isEmpty(tiConf)) {
       Ti.Config.update(tiConf)
+    }
+    //---------------------------------------
+    // Preload resources
+    if(!_.isEmpty(preloads)) {
+      let pres = []
+      _.forEach(preloads, url => {
+        pres.push(Ti.Load(url))
+      })
+      await Promise.all(pres)
     }
     //---------------------------------------
     // join customized icons
@@ -12100,7 +12106,7 @@ const {WalnutAppMain} = (function(){
       })
       await Promise.all(pres)
     }
-  
+    
     if(!_.isEmpty(tiConf.rsPrefixes)) {
       let pxs = _.concat(tiConf.rsPrefixes)
       Ti.AddResourcePrefix(...pxs)
@@ -12206,7 +12212,7 @@ const {WebAppMain} = (function(){
     lang = _.get(vars, "lang") || lang
     if(appJson.langInPath) {
       let {match, group} = appJson.langInPath || {}
-      console.log({match, group})
+      //console.log({match, group})
       if(match && group) {
         let reg = new RegExp(match)
         let m = reg.exec(loc.path)
@@ -12266,20 +12272,13 @@ const {WebAppMain} = (function(){
     // Preload resources
     if(!_.isEmpty(preloads)) {
       let pres = []
-      _.forEach(preloads, url => {
-        pres.push(Ti.Load(url))
-      })
-      await Promise.all(pres)
+      for(let url of preloads) {
+        //pres.push(Ti.Load(url))
+        await Ti.Load(url)
+      }
+      //await Promise.all(pres)
     }
-    //---------------------------------------
-    // setup the i18n
-    Ti.I18n.put(await Ti.Load([
-      "@i18n:_ti",
-      "@i18n:_net",
-      "@i18n:_wn",
-      "@i18n:web",
-      "@i18n:ti-datetime"]))
-  
+    
     //---------------------------------------
     // Customized Zone
     //---------------------------------------
@@ -12289,7 +12288,7 @@ const {WebAppMain} = (function(){
       for(let css of exCssList) {
         if(css) {
           let cssPath = Ti.S.renderBy(css, exCssCtx)
-          console.log("load ", cssPath)
+          //console.log("load ", cssPath)
           await Ti.Load(cssPath)
         }
       }
@@ -12301,6 +12300,14 @@ const {WebAppMain} = (function(){
     if(_.isArray(vars.deps)) {
       Ti.Util.pushUniqValue(appJson, "deps", vars.deps)
     }
+    //---------------------------------------
+    // setup the i18n
+    Ti.I18n.put(await Ti.Load([
+      "@i18n:_ti",
+      "@i18n:_net",
+      "@i18n:_wn",
+      "@i18n:web",
+      "@i18n:ti-datetime"]))
     //---------------------------------------
     // Load main app
     // If "i18n" or "deps" declared, it will be loaded too
@@ -12380,7 +12387,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210128.025106",
+  "version" : "1.6-20210129.175956",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -28,7 +28,7 @@ export async function WebAppMain({
   lang = _.get(vars, "lang") || lang
   if(appJson.langInPath) {
     let {match, group} = appJson.langInPath || {}
-    console.log({match, group})
+    //console.log({match, group})
     if(match && group) {
       let reg = new RegExp(match)
       let m = reg.exec(loc.path)
@@ -88,20 +88,13 @@ export async function WebAppMain({
   // Preload resources
   if(!_.isEmpty(preloads)) {
     let pres = []
-    _.forEach(preloads, url => {
-      pres.push(Ti.Load(url))
-    })
-    await Promise.all(pres)
+    for(let url of preloads) {
+      //pres.push(Ti.Load(url))
+      await Ti.Load(url)
+    }
+    //await Promise.all(pres)
   }
-  //---------------------------------------
-  // setup the i18n
-  Ti.I18n.put(await Ti.Load([
-    "@i18n:_ti",
-    "@i18n:_net",
-    "@i18n:_wn",
-    "@i18n:web",
-    "@i18n:ti-datetime"]))
-
+  
   //---------------------------------------
   // Customized Zone
   //---------------------------------------
@@ -111,7 +104,7 @@ export async function WebAppMain({
     for(let css of exCssList) {
       if(css) {
         let cssPath = Ti.S.renderBy(css, exCssCtx)
-        console.log("load ", cssPath)
+        //console.log("load ", cssPath)
         await Ti.Load(cssPath)
       }
     }
@@ -123,6 +116,14 @@ export async function WebAppMain({
   if(_.isArray(vars.deps)) {
     Ti.Util.pushUniqValue(appJson, "deps", vars.deps)
   }
+  //---------------------------------------
+  // setup the i18n
+  Ti.I18n.put(await Ti.Load([
+    "@i18n:_ti",
+    "@i18n:_net",
+    "@i18n:_wn",
+    "@i18n:web",
+    "@i18n:ti-datetime"]))
   //---------------------------------------
   // Load main app
   // If "i18n" or "deps" declared, it will be loaded too

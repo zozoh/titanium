@@ -69,16 +69,6 @@ export async function WalnutAppMain({
     lang
   })
   //---------------------------------------
-  // Preload resources
-  if(!_.isEmpty(preloads)) {
-    let pres = []
-    _.forEach(preloads, url => {
-      pres.push(Ti.Load(url))
-    })
-    await Promise.all(pres)
-  }
-
-  //---------------------------------------
   // Customized Zone
   //---------------------------------------
   // Load Config
@@ -87,6 +77,15 @@ export async function WalnutAppMain({
   })
   if(!_.isEmpty(tiConf)) {
     Ti.Config.update(tiConf)
+  }
+  //---------------------------------------
+  // Preload resources
+  if(!_.isEmpty(preloads)) {
+    let pres = []
+    _.forEach(preloads, url => {
+      pres.push(Ti.Load(url))
+    })
+    await Promise.all(pres)
   }
   //---------------------------------------
   // join customized icons
@@ -132,7 +131,7 @@ export async function WalnutAppMain({
     })
     await Promise.all(pres)
   }
-
+  
   if(!_.isEmpty(tiConf.rsPrefixes)) {
     let pxs = _.concat(tiConf.rsPrefixes)
     Ti.AddResourcePrefix(...pxs)

@@ -206,6 +206,10 @@ async function TiLoad(url=[], {dynamicPrefix, dynamicAlias, cooked, type}={}) {
   if(reObj)
     return reObj
 
+  // if(url.endsWith(".json")) {
+  //   console.log({url, type})
+  // }
+
   // invoke
   try {
     reObj = await LoadModes[type](url)
