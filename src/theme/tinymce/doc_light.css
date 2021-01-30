@@ -1,0 +1,62 @@
+body.mce-content-body {
+  font-size: 16px;
+  margin: 1em;
+  color: #000;
+  background-color: #FFF; }
+  body.mce-content-body a[href] {
+    color: #08F;
+    background-color: transparent; }
+  body.mce-content-body em {
+    color: #888;
+    background-color: transparent; }
+  body.mce-content-body strong {
+    color: #F80;
+    background-color: transparent; }
+  body.mce-content-body u {
+    color: #444;
+    background-color: transparent; }
+  body.mce-content-body code {
+    font-family: Monaco, Consolas, Courier New;
+    color: #A8A;
+    background-color: transparent; }
+  body.mce-content-body h1 {
+    color: inherit;
+    background-color: transparent; }
+  body.mce-content-body h2 {
+    color: inherit;
+    background-color: transparent; }
+  body.mce-content-body h3 {
+    color: inherit;
+    background-color: transparent; }
+  body.mce-content-body h4 {
+    color: inherit;
+    background-color: transparent; }
+  body.mce-content-body h5 {
+    color: inherit;
+    background-color: transparent; }
+  body.mce-content-body h6 {
+    color: inherit;
+    background-color: transparent; }
+  body.mce-content-body pre {
+    color: #444;
+    background-color: #DDD;
+    border: 1px solid unset;
+    margin: 1em;
+    padding: 1em; }
+  body.mce-content-body blockquote {
+    color: #888;
+    background-color: #EEE;
+    border-left: 3px solid unset;
+    margin: 1em;
+    padding: 1em; }
+  body.mce-content-body p {
+    color: inherit;
+    background-color: transparent; }
+  body.mce-content-body ol {
+    color: inherit;
+    background-color: transparent; }
+  body.mce-content-body ul {
+    color: inherit;
+    background-color: transparent; }
+
+/*# sourceMappingURL=doc_light.css.map */
