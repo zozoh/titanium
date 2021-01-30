@@ -148,6 +148,7 @@ const FieldDisplay = {
             context: this,
             partial: "right"
           }
+          console.log("haha")
           dis.transformer = Ti.Util.genInvoking(dis.transformer, invokeOpt)
         }
         return dis

@@ -30,9 +30,21 @@ const _M = {
     type : Boolean,
     default : false
   },
+  "tinymce" : {
+    type : Object,
+    default: ()=>({})
+  },
+  "tinymceSetup" : {
+    type : Function,
+    default : undefined
+  },
   //...............................................
   // Aspact
   //...............................................
+  "lang" : {
+    type : String,
+    default : "zh-cn"
+  },
   "placeholder" : {
     type : String,
     default : "i18n:blank"

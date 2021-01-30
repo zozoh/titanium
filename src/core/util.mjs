@@ -1069,7 +1069,7 @@ const TiUtil = {
   genInvoking(str, {
     context={},
     funcSet = window,
-    partial = "left"  // "left" | "right" | Falsy
+    partial = "left"  // "left" | "right" | "right?" | Falsy
   }={}) {
     //.............................................
     if(_.isFunction(str)) {
@@ -1102,6 +1102,12 @@ const TiUtil = {
       if(!_.isEmpty(args)) {
         // [ ? --> ... ]
         if("right" == partial) {
+          return  function(input){
+            let as = _.concat([input], args);
+            return func.apply(this, as)
+          }
+        }
+        else if("right?" == partial) {
           return  function(input){
             let as = _.isUndefined(input)
                       ? args

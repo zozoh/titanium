@@ -149,6 +149,17 @@ const TiDom = {
       $el.classList.add(className)
     }
   },
+  is($el, selector) {
+    let doc = $el.ownerDocument
+    let win = doc.defaultView
+    let sheet = doc.styleSheets[doc.styleSheets.length-1];
+    let magic = 918918351;
+    sheet.insertRule(`${selector} {z-index: ${magic} !important;}`, sheet.rules.length)
+    let style = win.getComputedStyle($el)
+    let re = (style.zIndex == magic)
+    sheet.removeRule(sheet.rules.length-1)
+    return re
+  },
   removeClass($el, ...classNames) {
     let klass = _.flattenDeep(classNames)
     for(let kl of klass) {

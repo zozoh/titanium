@@ -1,4 +1,4 @@
-// Pack At: 2021-01-29 18:52:18
+// Pack At: 2021-01-30 15:26:09
 (async function(){
 ////////////async loading////////////////
 await Ti.Load(["@deps:leaflet/leaflet.css", "@deps:antv/v4/g2/g2.min.js", "@deps:quill/1.3.6/quill.js", "@deps:leaflet/leaflet.js", "@deps:sortable.js", "@lib:code2a/cheap-markdown.mjs", "@deps:tinymce/5.6.2/tinymce.min.js", "@deps:highlight/highlight.js"]);
@@ -235,6 +235,7 @@ const FieldDisplay = {
             context: this,
             partial: "right"
           }
+          console.log("haha")
           dis.transformer = Ti.Util.genInvoking(dis.transformer, invokeOpt)
         }
         return dis
@@ -31556,6 +31557,34 @@ const _M = {
     //-----------------------------------------------
     isContentNil() {
       return Ti.Util.isNil(this.value)
+    },
+    //-----------------------------------------------
+    TheLang() {
+      let ss = _.kebabCase(this.lang).split(/[_-]/)
+      let s0 = _.lowerCase(ss[0])
+      if("en" == s0)
+        return null
+      let s1 = _.upperCase(ss[1])
+      return [s0, s1].join("_")
+    },
+    //-----------------------------------------------
+    TheTinyEditor() {
+      return _.assign({
+        plugins: 'paste lists table',
+        auto_focus: true,
+        menubar: true,
+        statusbar: false,
+        menubar: false,
+        resize: false,
+        br_in_pre : false,
+        table_advtab: false,
+        table_cell_advtab: false,
+        table_row_advtab: false,
+        table_toolbar: [
+          'tableinsertrowbefore tableinsertrowafter tabledeleterow','tableinsertcolbefore tableinsertcolafter tabledeletecol',
+          'tabledelete'].join("|"),
+        table_use_colgroups: true
+      }, this.tinymce)
     }
     //-----------------------------------------------
   },
@@ -31570,16 +31599,10 @@ const _M = {
       //.............................................
       await tinymce.init({
         target: this.$refs.editor,
-        language: "zh_CN",
-        auto_focus: true,
-        menubar: true,
-        statusbar: false,
-        menubar: false,
-        resize: false,
-        br_in_pre : false,
+        ... this.TheTinyEditor,
+        language: this.TheLang,
         readonly : this.readonly,
         placeholder: Ti.I18n.text(this.placeholder),
-        plugins: 'paste lists table',
         toolbar: this.TheToolbar,
         toolbar_groups: {
             edit : {
@@ -31593,14 +31616,6 @@ const _M = {
               items: 'alignleft aligncenter alignright alignjustify',
             },
         },
-        
-        table_advtab: false,
-        table_cell_advtab: false,
-        table_row_advtab: false,
-        table_toolbar: [
-          'tableinsertrowbefore tableinsertrowafter tabledeleterow','tableinsertcolbefore tableinsertcolafter tabledeletecol',
-          'tabledelete'].join("|"),
-        table_use_colgroups: true,
         setup : (editor)=>{
           // Event: change
           editor.on("Change", (evt)=>{
@@ -31611,6 +31626,10 @@ const _M = {
           editor.addShortcut('ctrl+s', "Save content", ()=>{
             Ti.App(this).fireShortcut("CTRL+S");
           });
+          // Customized
+          if(_.isFunction(this.tinymceSetup)) {
+            this.tinymceSetup(editor)
+          }
           // Remember instance
           this.$editor = editor
         }
@@ -33198,9 +33217,21 @@ const _M = {
     type : Boolean,
     default : false
   },
+  "tinymce" : {
+    type : Object,
+    default: ()=>({})
+  },
+  "tinymceSetup" : {
+    type : Function,
+    default : undefined
+  },
   //...............................................
   // Aspact
   //...............................................
+  "lang" : {
+    type : String,
+    default : "zh-cn"
+  },
   "placeholder" : {
     type : String,
     default : "i18n:blank"

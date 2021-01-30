@@ -1,4 +1,4 @@
-// Pack At: 2021-01-29 18:52:18
+// Pack At: 2021-01-30 15:26:09
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3465,6 +3465,17 @@ const {Dom} = (function(){
         let className = _.trim(kl)
         $el.classList.add(className)
       }
+    },
+    is($el, selector) {
+      let doc = $el.ownerDocument
+      let win = doc.defaultView
+      let sheet = doc.styleSheets[doc.styleSheets.length-1];
+      let magic = 918918351;
+      sheet.insertRule(`${selector} {z-index: ${magic} !important;}`, sheet.rules.length)
+      let style = win.getComputedStyle($el)
+      let re = (style.zIndex == magic)
+      sheet.removeRule(sheet.rules.length-1)
+      return re
     },
     removeClass($el, ...classNames) {
       let klass = _.flattenDeep(classNames)
@@ -8547,7 +8558,7 @@ const {Util} = (function(){
     genInvoking(str, {
       context={},
       funcSet = window,
-      partial = "left"  // "left" | "right" | Falsy
+      partial = "left"  // "left" | "right" | "right?" | Falsy
     }={}) {
       //.............................................
       if(_.isFunction(str)) {
@@ -8580,6 +8591,12 @@ const {Util} = (function(){
         if(!_.isEmpty(args)) {
           // [ ? --> ... ]
           if("right" == partial) {
+            return  function(input){
+              let as = _.concat([input], args);
+              return func.apply(this, as)
+            }
+          }
+          else if("right?" == partial) {
             return  function(input){
               let as = _.isUndefined(input)
                         ? args
@@ -12387,7 +12404,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210129.185218",
+  "version" : "1.6-20210130.152609",
   "dev" : false,
   "appName" : null,
   "session" : {},
