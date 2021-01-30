@@ -1,0 +1,48 @@
+body.mce-content-body {
+  font-size: 16px; margin: 1em;
+  @include color($color-f-text, c, r);
+  //-----------------------------------------------------
+  a[href] {@include color($color-f-link,      c, r);}
+  em      {@include color($color-f-em,        c, r);}
+  strong  {@include color($color-f-strong,    c, r);}
+  u       {@include color($color-f-underline, c, r);}
+  //-----------------------------------------------------
+  code    {
+    @include font-fixed;
+    @include color($color-f-code,c, r);
+  }
+  //-----------------------------------------------------
+  h1 {@include color($color-b-h1, c, r);}
+  h2 {@include color($color-b-h2, c, r);}
+  h3 {@include color($color-b-h3, c, r);}
+  h4 {@include color($color-b-h4, c, r);}
+  h5 {@include color($color-b-h5, c, r);}
+  h6 {@include color($color-b-h6, c, r);}
+  //-----------------------------------------------------
+  pre {
+    @include color($color-b-codeblock, c, r);
+    border:1px solid map-get($color-b-codeblock, l);
+    margin: 1em; padding: 1em;
+  }
+  //-----------------------------------------------------
+  blockquote {
+    @include color($color-b-blockquote, c, r);
+    border-left:3px solid map-get($color-b-blockquote, l);
+    margin: 1em; padding: 1em;
+  }
+  //-----------------------------------------------------
+  p {
+    @include color($color-b-paragraph, c, r);
+  }
+  //-----------------------------------------------------
+  ol {
+    @include color($color-b-ol, c, r);
+  }
+  //-----------------------------------------------------
+  ul {
+    @include color($color-b-ul, c, r);
+  }
+  //-----------------------------------------------------
+
+}
+

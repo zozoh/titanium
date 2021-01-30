@@ -1,6 +1,7 @@
 const _M = {
   ///////////////////////////////////////////////////
   data : ()=>({
+    myPlugins : [],
     myHtmlCode : undefined
   }),
   ///////////////////////////////////////////////////
@@ -67,6 +68,25 @@ const _M = {
       return Ti.Util.isNil(this.value)
     },
     //-----------------------------------------------
+    ExplainPluginUrl() {
+      // String
+      if(_.isString(this.pluginUrl)) {
+        return Ti.Util.genInvoking(this.pluginUrl, {partial:"right"})
+      }
+      // Customized function
+      if(_.isFunction(this.pluginUrl)) {
+        return this.pluginUrl
+      }
+      // Default
+      return function(url) {
+        let m = /^[#](.+)$/.exec(url)
+        if(m) {
+          return `@com:ti/text/rich/tinymce/plugin/${m[1]}.mjs`
+        }
+        return url
+      }
+    },
+    //-----------------------------------------------
     TheLang() {
       let ss = _.kebabCase(this.lang).split(/[_-]/)
       let s0 = _.lowerCase(ss[0])
@@ -77,8 +97,10 @@ const _M = {
     },
     //-----------------------------------------------
     TheTinyEditor() {
+      let plugNames = _.map(this.myPlugins, ({name}={})=>name)
+      let plugins = ['paste lists table'].concat(plugNames)
       return _.assign({
-        plugins: 'paste lists table',
+        plugins: plugins.join(" "),
         auto_focus: true,
         menubar: true,
         statusbar: false,
@@ -92,7 +114,7 @@ const _M = {
           'tableinsertrowbefore tableinsertrowafter tabledeleterow','tableinsertcolbefore tableinsertcolafter tabledeletecol',
           'tabledelete'].join("|"),
         table_use_colgroups: true
-      }, this.tinymce)
+      }, this.tinyConfig)
     }
     //-----------------------------------------------
   },
@@ -104,8 +126,8 @@ const _M = {
     },
     //-----------------------------------------------
     async initEditor() {
-      //.............................................
-      await tinymce.init({
+      // Prepare the configuration
+      const conf = {
         target: this.$refs.editor,
         ... this.TheTinyEditor,
         language: this.TheLang,
@@ -130,29 +152,47 @@ const _M = {
             // console.log("haha ", evt)
             this.myHtmlCode = editor.getContent()
           })
+          // Event: watch the command to update
+          editor.on("ExecCommand", (evt)=>{
+            this.myHtmlCode = editor.getContent()
+          })
           // Shortcute
           editor.addShortcut('ctrl+s', "Save content", ()=>{
             Ti.App(this).fireShortcut("CTRL+S");
           });
+          editor.addShortcut('alt+shift+v', "View source", ()=>{
+            Ti.App(this).fireShortcut("ALT+SHIFT+V");
+          });
+          editor.addShortcut('alt+shift+P', "Properties", ()=>{
+            Ti.App(this).fireShortcut("ALT+SHIFT+P");
+          });
           // Customized
-          if(_.isFunction(this.tinymceSetup)) {
-            this.tinymceSetup(editor)
+          if(_.isFunction(this.tinySetup)) {
+            this.tinySetup(editor)
           }
           // Remember instance
           this.$editor = editor
         }
-      });
+      }
+      // Init customized plugins
+      for(let plug of this.myPlugins) {
+        tinymce.PluginManager.add(plug.name, plug.setup)
+        if(_.isFunction(plug.init)) {
+          plug.init(conf)
+        }
+      }
+      
+      // :: Setup tinyMCE
+      // The init() method return Promise object for some result async loading.
+      // We need to await all them done before invoke setContent method of
+      // the editor instance.
+      await tinymce.init(conf);
+
+      // init content
       if(this.value) {
         this.myHtmlCode = this.value
-        this.$editor.setContent(this.value)
+        this.$editor.setContent(this.value)        
       }
-      // https://www.tiny.cloud/blog/tinymce-toolbar/
-      //   tinymce.init({
-      //     selector: "textarea",
-      //     menubar: false,
-      //     plugins: "link image code",
-      //     toolbar: 'undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link image | code'
-      // });
       //.............................................
     }
     //-----------------------------------------------
@@ -165,7 +205,7 @@ const _M = {
       }
     },
     "value" : function(newVal, oldVal) {
-      // console.log("value", newVal, oldVal)
+      //console.log("value", newVal, oldVal)
       if(!this.myHtmlCode ||
         (!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.myHtmlCode))) {
         this.myHtmlCode = newVal
@@ -178,8 +218,13 @@ const _M = {
     
   },
   ///////////////////////////////////////////////////
-  mounted : function() {
-    this.initEditor()
+  mounted : async function() {
+    if(!_.isEmpty(this.plugins)) {
+      let list = _.map(this.plugins, this.ExplainPluginUrl)
+      this.myPlugins = await Ti.Load(list)
+    }
+   
+    await this.initEditor()
   }
   ///////////////////////////////////////////////////
 }

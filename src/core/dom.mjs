@@ -1,5 +1,8 @@
 const TiDom = {
-  createElement({tagName="div", attrs={}, props={}, className="", $p=null}, $doc=document) {
+  createElement({
+    tagName="div", attrs={}, props={}, className="", 
+    $p=null, $refer=null
+  }, $doc=document) {
     const $el = $doc.createElement(tagName)
     if(className)
       $el.className = Ti.Css.joinClassNames(className)
@@ -11,9 +14,15 @@ const TiDom = {
     _.forOwn(props, (val, key) => {
       $el[key] = val
     })
-    if($p) {
-      $p.appendChild($el)
+
+    if($refer && !$p) {
+      $p = $refer.parentElement
     }
+
+    if($p) {
+      $p.insertBefore($el, $refer)
+    }
+
     return $el
   },
   appendToHead($el, $head=document.head) {
@@ -38,6 +47,18 @@ const TiDom = {
       $p.appendChild($el)
     }
   },
+  remove(selectorOrElement, context) {
+    if(_.isString(selectorOrElement)) {
+      let $els = TiDom.findAll(selectorOrElement, context)
+      for(let $el of $els) {
+        TiDom.remove($el)
+      }
+      return
+    }
+    // remove single element
+    if(_.isElement(selectorOrElement))
+      selectorOrElement.parentNode.removeChild(selectorOrElement)
+  },
   // self by :scope
   findAll(selector="*", $doc=document) {
     if(!$doc)
@@ -52,17 +73,18 @@ const TiDom = {
       return selector
     return $doc.querySelector(selector);
   },
-  remove(selectorOrElement, context) {
-    if(_.isString(selectorOrElement)) {
-      let $els = TiDom.findAll(selectorOrElement, context)
-      for(let $el of $els) {
-        TiDom.remove($el)
-      }
-      return
+  closest($el, selector) {
+    if(!selector) {
+      return $el
     }
-    // remove single element
-    if(_.isElement(selectorOrElement))
-      selectorOrElement.parentNode.removeChild(selectorOrElement)
+    let $pel = $el
+    while($pel) {
+      if(TiDom.is($pel, selector)) {
+        return $pel
+      }
+      $pel = $pel.parentElement
+    }
+    return null
   },
   ownerWindow($el) {
     if($el.defaultView)

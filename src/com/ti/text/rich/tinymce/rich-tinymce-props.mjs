@@ -14,27 +14,27 @@ const _M = {
   // Behavior
   //...............................................
   // Ext-toolbar item defination
-  "actions": {
-    type: Object,
-    default: ()=>({})
-  },
   "toolbar" : {
     type : [Boolean, Array, String],
     default : true
   },
-  "debugMode" : {
-    type : Boolean,
-    default : false
+  "plugins" : {
+    type : Array,
+    default : ()=>[]
+  },
+  "pluginUrl" : {
+    type : [String, Function],
+    default : undefined
   },
   "readonly" : {
     type : Boolean,
     default : false
   },
-  "tinymce" : {
+  "tinyConfig" : {
     type : Object,
     default: ()=>({})
   },
-  "tinymceSetup" : {
+  "tinySetup" : {
     type : Function,
     default : undefined
   },
