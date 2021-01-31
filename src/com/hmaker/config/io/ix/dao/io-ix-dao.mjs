@@ -77,6 +77,13 @@ export default {
                         dropDisplay : ["text::flex-auto", "value::as-tip"]
                       }
                     }, {
+                      title : "存储字段名",
+                      name  : "columnName",
+                      comType : "ti-input",
+                      comConf : {
+                        placeholder : "与字段名相同"
+                      }
+                    }, {
                       title : "存储类型",
                       name  : "columnType",
                       tip : "数据库中的字段数据类型",
@@ -110,6 +117,13 @@ export default {
                       name  : "update",
                       type  : "Boolean",
                       defaultAs : true,
+                      comType : "ti-toggle"
+                    }, {
+                      title : "包裹名称",
+                      name  : "wrapName",
+                      tip : "生成 SQL 的时候，是否要用引号包裹名称",
+                      type  : "Boolean",
+                      defaultAs : false,
                       comType : "ti-toggle"
                     }]
                   },

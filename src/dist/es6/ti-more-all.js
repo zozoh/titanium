@@ -1,4 +1,4 @@
-// Pack At: 2021-01-30 15:35:21
+// Pack At: 2021-01-31 18:49:51
 (async function(){
 ////////////async loading////////////////
 await Ti.Load(["@deps:leaflet/leaflet.css", "@deps:antv/v4/g2/g2.min.js", "@deps:quill/1.3.6/quill.js", "@deps:leaflet/leaflet.js", "@deps:sortable.js", "@lib:code2a/cheap-markdown.mjs", "@deps:tinymce/5.6.2/tinymce.min.js", "@deps:highlight/highlight.js"]);
@@ -8368,6 +8368,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
                         dropDisplay : ["text::flex-auto", "value::as-tip"]
                       }
                     }, {
+                      title : "存储字段名",
+                      name  : "columnName",
+                      comType : "ti-input",
+                      comConf : {
+                        placeholder : "与字段名相同"
+                      }
+                    }, {
                       title : "存储类型",
                       name  : "columnType",
                       tip : "数据库中的字段数据类型",
@@ -8401,6 +8408,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
                       name  : "update",
                       type  : "Boolean",
                       defaultAs : true,
+                      comType : "ti-toggle"
+                    }, {
+                      title : "包裹名称",
+                      name  : "wrapName",
+                      tip : "生成 SQL 的时候，是否要用引号包裹名称",
+                      type  : "Boolean",
+                      defaultAs : false,
                       comType : "ti-toggle"
                     }]
                   },
@@ -31492,6 +31506,7 @@ window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/rich-tinymce.mjs'] = (functi
 const _M = {
   ///////////////////////////////////////////////////
   data : ()=>({
+    myPlugins : [],
     myHtmlCode : undefined
   }),
   ///////////////////////////////////////////////////
@@ -31558,6 +31573,25 @@ const _M = {
       return Ti.Util.isNil(this.value)
     },
     //-----------------------------------------------
+    ExplainPluginUrl() {
+      // String
+      if(_.isString(this.pluginUrl)) {
+        return Ti.Util.genInvoking(this.pluginUrl, {partial:"right"})
+      }
+      // Customized function
+      if(_.isFunction(this.pluginUrl)) {
+        return this.pluginUrl
+      }
+      // Default
+      return function(url) {
+        let m = /^[#](.+)$/.exec(url)
+        if(m) {
+          return `@com:ti/text/rich/tinymce/plugin/${m[1]}.mjs`
+        }
+        return url
+      }
+    },
+    //-----------------------------------------------
     TheLang() {
       let ss = _.kebabCase(this.lang).split(/[_-]/)
       let s0 = _.lowerCase(ss[0])
@@ -31568,8 +31602,10 @@ const _M = {
     },
     //-----------------------------------------------
     TheTinyEditor() {
+      let plugNames = _.map(this.myPlugins, ({name}={})=>name)
+      let plugins = ['paste lists table'].concat(plugNames)
       return _.assign({
-        plugins: 'paste lists table',
+        plugins: plugins.join(" "),
         auto_focus: true,
         menubar: true,
         statusbar: false,
@@ -31583,7 +31619,7 @@ const _M = {
           'tableinsertrowbefore tableinsertrowafter tabledeleterow','tableinsertcolbefore tableinsertcolafter tabledeletecol',
           'tabledelete'].join("|"),
         table_use_colgroups: true
-      }, this.tinymce)
+      }, this.tinyConfig)
     }
     //-----------------------------------------------
   },
@@ -31595,8 +31631,8 @@ const _M = {
     },
     //-----------------------------------------------
     async initEditor() {
-      //.............................................
-      await tinymce.init({
+      // Prepare the configuration
+      const conf = {
         target: this.$refs.editor,
         ... this.TheTinyEditor,
         language: this.TheLang,
@@ -31621,29 +31657,47 @@ const _M = {
             // console.log("haha ", evt)
             this.myHtmlCode = editor.getContent()
           })
+          // Event: watch the command to update
+          editor.on("ExecCommand", (evt)=>{
+            this.myHtmlCode = editor.getContent()
+          })
           // Shortcute
           editor.addShortcut('ctrl+s', "Save content", ()=>{
             Ti.App(this).fireShortcut("CTRL+S");
           });
+          editor.addShortcut('alt+shift+v', "View source", ()=>{
+            Ti.App(this).fireShortcut("ALT+SHIFT+V");
+          });
+          editor.addShortcut('alt+shift+P', "Properties", ()=>{
+            Ti.App(this).fireShortcut("ALT+SHIFT+P");
+          });
           // Customized
-          if(_.isFunction(this.tinymceSetup)) {
-            this.tinymceSetup(editor)
+          if(_.isFunction(this.tinySetup)) {
+            this.tinySetup(editor)
           }
           // Remember instance
           this.$editor = editor
         }
-      });
+      }
+      // Init customized plugins
+      for(let plug of this.myPlugins) {
+        tinymce.PluginManager.add(plug.name, plug.setup)
+        if(_.isFunction(plug.init)) {
+          plug.init(conf)
+        }
+      }
+      
+      // :: Setup tinyMCE
+      // The init() method return Promise object for some result async loading.
+      // We need to await all them done before invoke setContent method of
+      // the editor instance.
+      await tinymce.init(conf);
+
+      // init content
       if(this.value) {
         this.myHtmlCode = this.value
-        this.$editor.setContent(this.value)
+        this.$editor.setContent(this.value)        
       }
-      // https://www.tiny.cloud/blog/tinymce-toolbar/
-      //   tinymce.init({
-      //     selector: "textarea",
-      //     menubar: false,
-      //     plugins: "link image code",
-      //     toolbar: 'undo redo | styleselect | forecolor | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link image | code'
-      // });
       //.............................................
     }
     //-----------------------------------------------
@@ -31656,7 +31710,7 @@ const _M = {
       }
     },
     "value" : function(newVal, oldVal) {
-      // console.log("value", newVal, oldVal)
+      //console.log("value", newVal, oldVal)
       if(!this.myHtmlCode ||
         (!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.myHtmlCode))) {
         this.myHtmlCode = newVal
@@ -31669,8 +31723,13 @@ const _M = {
     
   },
   ///////////////////////////////////////////////////
-  mounted : function() {
-    this.initEditor()
+  mounted : async function() {
+    if(!_.isEmpty(this.plugins)) {
+      let list = _.map(this.plugins, this.ExplainPluginUrl)
+      this.myPlugins = await Ti.Load(list)
+    }
+   
+    await this.initEditor()
   }
   ///////////////////////////////////////////////////
 }
@@ -31716,6 +31775,80 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
   }
   //////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'heading.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/heading.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  name : "ti-heading",
+  setup : function(editor, url){
+    console.log("plugin:heading", editor, url)
+
+    // Heading data
+    let headingItems = [{
+      title: "H1",
+      selector: "h1",
+      command: ['FormatBlock', false, 'h1']
+    }, {
+      title: "H2",
+      selector: "h2",
+      command: ['FormatBlock', false, 'h2']
+    }, {
+      title: "H3",
+      selector: "h3",
+      command: ['FormatBlock', false, 'h3']
+    }]
+
+    // Register toolbar actions
+    editor.ui.registry.addMenuButton("TiHeading", {
+      text: "i18n:heading",
+      fetch(callback) {
+        let items = []
+        for(let hi of headingItems) {
+          let {title, selector, command} = hi || {} 
+          items.push({
+            type : 'togglemenuitem',
+            text : title,
+            onAction() {
+              editor.execCommand(...command)
+            }, // ~ onAction()
+            onSetup(menuItem) {
+              let el = editor.selection.getNode()
+              let on = Ti.Dom.is(el, selector)
+              menuItem.setActive(on)
+              return function(){}
+            }
+          })
+        }
+        callback(items)
+      },
+      onAction(menuBtn) {
+        console.log(menuBtn)
+      },
+      onSetup(menuBtn) {
+        console.log(menuBtn)
+        const callback = function({element}={}) {
+          console.log("OnMenuBtnCallback", element, menuBtn)
+        }
+        editor.on('NodeChange', callback);
+        return function(){
+          editor.off('NodeChange', callback);
+        }
+      }
+    })
+
+    return {
+      getMetadata: function () {
+        return  {
+          name: 'Ti Heading plugin',
+          url: 'http://site.cn'
+        };
+      }
+    };
+  }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -33200,27 +33333,27 @@ const _M = {
   // Behavior
   //...............................................
   // Ext-toolbar item defination
-  "actions": {
-    type: Object,
-    default: ()=>({})
-  },
   "toolbar" : {
     type : [Boolean, Array, String],
     default : true
   },
-  "debugMode" : {
-    type : Boolean,
-    default : false
+  "plugins" : {
+    type : Array,
+    default : ()=>[]
+  },
+  "pluginUrl" : {
+    type : [String, Function],
+    default : undefined
   },
   "readonly" : {
     type : Boolean,
     default : false
   },
-  "tinymce" : {
+  "tinyConfig" : {
     type : Object,
     default: ()=>({})
   },
-  "tinymceSetup" : {
+  "tinySetup" : {
     type : Function,
     default : undefined
   },
@@ -37004,7 +37137,7 @@ const _M = {
     },
     //--------------------------------------
     isItemChecked(itValue, val) {
-      if(_.isUndefined(val) ||  !_.isUndefined(itValue)) {
+      if(_.isUndefined(val) ||  _.isUndefined(itValue)) {
         return false
       }
       if(_.isArray(val)) {
@@ -41000,6 +41133,18 @@ const _M = {
   updateContents(...args){return this.$editor.updateContents(...args)},
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'codeblock.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/codeblock.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  name : "ti-codeblock",
+  setup : function(editor, url){
+    console.log("plugin:codeblock", editor, url)
+  }
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'web-shelf-iconbox.mjs' -> null
@@ -48737,6 +48882,14 @@ Ti.Preload("ti/com/ti/text/raw/_com.json", {
   "mixins" : ["./ti-text-raw.mjs"]
 });
 //========================================
+// JOIN <codeblock.mjs> ti/com/ti/text/rich/tinymce/plugin/codeblock.mjs
+//========================================
+Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/codeblock.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/codeblock.mjs']);
+//========================================
+// JOIN <heading.mjs> ti/com/ti/text/rich/tinymce/plugin/heading.mjs
+//========================================
+Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/heading.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/heading.mjs']);
+//========================================
 // JOIN <rich-tinymce-props.mjs> ti/com/ti/text/rich/tinymce/rich-tinymce-props.mjs
 //========================================
 Ti.Preload("ti/com/ti/text/rich/tinymce/rich-tinymce-props.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/rich-tinymce-props.mjs']);
@@ -48752,11 +48905,6 @@ Ti.Preload("ti/com/ti/text/rich/tinymce/rich-tinymce.html", `<div class="ti-text
   <div class="as-editor">
     <textarea ref="editor"></textarea>
   </div>
-  <!--
-    Source code
-  -->
-  <div class="as-sourcecode" v-if="debugMode">
-    <textarea ref="source" :value="myHtmlCode"></textarea></div>
   <!--
     Show loading
   -->

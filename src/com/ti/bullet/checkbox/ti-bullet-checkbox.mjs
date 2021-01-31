@@ -34,7 +34,7 @@ const _M = {
     },
     //--------------------------------------
     isItemChecked(itValue, val) {
-      if(_.isUndefined(val) ||  !_.isUndefined(itValue)) {
+      if(_.isUndefined(val) ||  _.isUndefined(itValue)) {
         return false
       }
       if(_.isArray(val)) {
