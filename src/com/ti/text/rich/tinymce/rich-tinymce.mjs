@@ -28,13 +28,13 @@ const _M = {
             'formatselect',
             'bold italic',
             'blockquote bullist numlist',
-            'edit'],
+            'edit removeformat'],
           quick : [
             'formatselect',
             'bold italic underline',
             'alignment indent outdent',
             'blockquote bullist numlist',
-            'edit'],
+            'edit removeformat'],
           full : [
             'formatselect',
             'bold italic underline',
@@ -42,7 +42,7 @@ const _M = {
             'blockquote bullist numlist',
             'table',
             'superscript subscript',
-            'edit']
+            'edit removeformat']
         })[tbName]
         return tbd ? tbd.join("|") : false
       }
@@ -138,7 +138,7 @@ const _M = {
             edit : {
               icon: 'edit-block',
               tooltip: 'edit',
-              items: 'copy cut paste pastetext | removeformat | undo redo',
+              items: 'copy cut paste pastetext | undo redo',
             },
             alignment: {
               icon: 'align-justify',

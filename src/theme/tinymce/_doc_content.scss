@@ -1,6 +1,16 @@
+html {
+  @include color($color-paper, r, c);
+  height: 100%;
+}
 body.mce-content-body {
-  font-size: 16px; margin: 1em;
   @include color($color-f-text, c, r);
+  font-size: 16px; min-height: 92%;
+  max-width: 1000px; margin:0 auto;
+  padding: 2em;
+  //-----------------------------------------------------
+  &.mce-content-body:not([dir=rtl])[data-mce-placeholder]:not(.mce-visualblocks)::before {
+    left: 2em; padding: 1em 0;
+  }  
   //-----------------------------------------------------
   a[href] {@include color($color-f-link,      c, r);}
   em      {@include color($color-f-em,        c, r);}
@@ -28,7 +38,7 @@ body.mce-content-body {
   blockquote {
     @include color($color-b-blockquote, c, r);
     border-left:3px solid map-get($color-b-blockquote, l);
-    margin: 1em; padding: 1em;
+    margin: 1em; padding: 1em 2em; font-size: 0.9em;
   }
   //-----------------------------------------------------
   p {

@@ -104,6 +104,11 @@ const _M = {
     return await Promise.all([r0, r1, r2, r3])
   },
   //.........................................
+  async execEvent(eventName, payload, dftCommand) {
+    let cmd = _.get(this.view.events, eventName) || dftCommand
+    await Ti.App(this).exec(cmd, payload)
+  },
+  //.........................................
   pushHistory(meta) {
     // Push history to update the browser address bar
     let his = window.history

@@ -192,7 +192,7 @@ const _M = {
     },
     //--------------------------------------
     OnCurrentDataChange(data){
-      Ti.App(this).dispatch("current/changeContent", data);
+      this.execEvent("arena::change", data, "dispatch:current/changeContent")
     },
     //--------------------------------------
     OnArenaViewStatusUpdated(status) {

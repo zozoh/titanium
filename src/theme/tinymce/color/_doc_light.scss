@@ -1,11 +1,11 @@
 $color-f-text       : (c:#000,  r:#FFF);
-$color-f-em         : (c:#888,  r:transparent);
-$color-f-strong     : (c:#F80,  r:transparent);
+$color-f-em         : (c:inherit,  r:transparent);
+$color-f-strong     : (c:inherit,  r:transparent);
 $color-f-link       : (c:#08F,  r:transparent);
-$color-f-underline  : (c:#444,  r:transparent);
-$color-f-code       : (c:#A8A,  r:transparent);
+$color-f-underline  : (c:inherit,  r:transparent);
+$color-f-code       : (c:#F80,  r:transparent);
 
-$color-b-blockquote : (c:#888,  r:#EEE,      l:unset);
+$color-b-blockquote : (c:#444,  r:#EEE,      l:unset);
 $color-b-codeblock  : (c:#444,  r:#DDD,      l:unset);
 $color-b-paragraph  : (c:inherit, r:transparent, l:unset);
 $color-b-h1         : (c:inherit, r:transparent, l:unset);
