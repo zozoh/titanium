@@ -1,4 +1,4 @@
-// Pack At: 2021-02-01 20:20:12
+// Pack At: 2021-02-01 20:48:07
 (async function(){
 ////////////async loading////////////////
 await Ti.Load(["@deps:leaflet/leaflet.css", "@deps:antv/v4/g2/g2.min.js", "@deps:quill/1.3.6/quill.js", "@deps:leaflet/leaflet.js", "@deps:sortable.js", "@lib:code2a/cheap-markdown.mjs", "@deps:tinymce/5.6.2/tinymce.min.js", "@deps:highlight/highlight.js"]);
@@ -14003,7 +14003,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   //-----------------------------------------------
   selectRow(rowId, {quiet=false, payload}={}) {
-    console.log(rowId)
     let idMap = {}
     let curId = null
     // Change the current & checked
@@ -14986,6 +14985,8 @@ const _M = {
     }]
     */
     TableData() {
+      let showNumber = _.isNumber(this.rowNumberBase)
+      let base = showNumber ? this.rowNumberBase : -1
       let list = _.map(this.data, (obj, index) => {
         let id = this.getRowId(obj, index)
         if(Ti.Util.isNil(id)) {
@@ -14996,8 +14997,13 @@ const _M = {
         let current = (this.myCurrentId == id)
         let className = {
           "is-checked" : checked,
-          "is-current" : changed,
-          "is-changed" : current
+          "is-current" : current,
+          "is-changed" : changed
+        }
+        
+        let number;
+        if(base >= 0) {
+          number = base + index
         }
 
         let cells = _.map(this.TableFields, fld=>{
@@ -15028,7 +15034,9 @@ const _M = {
         }) // End cells
 
         return {
-          index, id, className, cells,
+          showNumber,
+          number, index, 
+          id, className, cells,
           checked, changed, current,
           rawData : obj
         }
@@ -49113,7 +49121,9 @@ Ti.Preload("ti/com/ti/table/quick/ti-table-quick.html", `<div class="ti-table as
                   <div 
                     v-if="0 == cell.index"
                       class="table-row-head">
+                      <!--Indicator-->
                       <div class="row-actived-indicator"></div>
+                      <!--Checker-->
                       <div
                         v-if="checkable"
                           class="row-checker"
@@ -49121,6 +49131,10 @@ Ti.Preload("ti/com/ti/table/quick/ti-table-quick.html", `<div class="ti-table as
                           <i v-if="row.checked" class="fas fa-check-square"></i>
                           <i v-else class="far fa-square"></i>
                       </div>
+                      <!--Row number-->
+                      <div
+                      v-if="row.showNumber"
+                        class="row-number">{{row.number}}</div>
                   </div>
                   <div class="cell-con">
                     <!--Begin: Cell display items-->

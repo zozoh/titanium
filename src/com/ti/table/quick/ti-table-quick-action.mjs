@@ -157,7 +157,6 @@ export default {
   },
   //-----------------------------------------------
   selectRow(rowId, {quiet=false, payload}={}) {
-    console.log(rowId)
     let idMap = {}
     let curId = null
     // Change the current & checked

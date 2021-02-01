@@ -58,7 +58,9 @@
                   <div 
                     v-if="0 == cell.index"
                       class="table-row-head">
+                      <!--Indicator-->
                       <div class="row-actived-indicator"></div>
+                      <!--Checker-->
                       <div
                         v-if="checkable"
                           class="row-checker"
@@ -66,6 +68,10 @@
                           <i v-if="row.checked" class="fas fa-check-square"></i>
                           <i v-else class="far fa-square"></i>
                       </div>
+                      <!--Row number-->
+                      <div
+                      v-if="row.showNumber"
+                        class="row-number">{{row.number}}</div>
                   </div>
                   <div class="cell-con">
                     <!--Begin: Cell display items-->

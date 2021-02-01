@@ -45,6 +45,8 @@ const _M = {
     }]
     */
     TableData() {
+      let showNumber = _.isNumber(this.rowNumberBase)
+      let base = showNumber ? this.rowNumberBase : -1
       let list = _.map(this.data, (obj, index) => {
         let id = this.getRowId(obj, index)
         if(Ti.Util.isNil(id)) {
@@ -55,8 +57,13 @@ const _M = {
         let current = (this.myCurrentId == id)
         let className = {
           "is-checked" : checked,
-          "is-current" : changed,
-          "is-changed" : current
+          "is-current" : current,
+          "is-changed" : changed
+        }
+        
+        let number;
+        if(base >= 0) {
+          number = base + index
         }
 
         let cells = _.map(this.TableFields, fld=>{
@@ -87,7 +94,9 @@ const _M = {
         }) // End cells
 
         return {
-          index, id, className, cells,
+          showNumber,
+          number, index, 
+          id, className, cells,
           checked, changed, current,
           rawData : obj
         }
