@@ -1,4 +1,4 @@
-// Pack At: 2021-01-31 18:49:51
+// Pack At: 2021-02-01 20:20:12
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3347,7 +3347,7 @@ const {Dom} = (function(){
         $head.appendChild($el)
       }
     },
-    appendToBody($el, $head=document.body) {
+    appendToBody($el, $body=document.body) {
       if(_.isElement($el) && _.isElement($body)) {
         $body.appendChild($el)
       }
@@ -3363,6 +3363,36 @@ const {Dom} = (function(){
       }else{
         $p.appendChild($el)
       }
+    },
+    replace($el, $newEl, keepInnerHTML=false) {
+      $el.insertAdjacentElement("afterend", $newEl)
+      if(keepInnerHTML) {
+        $newEl.innerHTML = $el.innerHTML
+      }
+      TiDom.remove($el)
+      return $newEl
+    },
+    copyAttributes($el, $ta) {
+      let attrs = $el.attributes
+      for(let i=0; i<attrs.length; i++) {
+        let {name,value} = attrs[i]
+        $ta.setAttribute(name, value)
+      }
+    },
+    renameElement($el, newTagName) {
+      if($el.tagName == newTagName)
+        return $el
+      let $doc = $el.ownerDocument
+      let $ta = $doc.createElement(newTagName)
+      Ti.Dom.copyAttributes($el, $ta)
+      return Ti.Dom.replace($el, $ta, true)
+    },
+    getHeadingLevel($h) {
+      let m = /^H([1-6])$/.exec($h.tagName)
+      if(m) {
+        return parseInt(m[1])
+      }
+      return 0
     },
     remove(selectorOrElement, context) {
       if(_.isString(selectorOrElement)) {
@@ -9602,6 +9632,7 @@ const {WWW} = (function(){
       params, 
       headers, 
       body,
+      dispatch
     } = {}) {
       //.....................................
       // Override api
@@ -9705,6 +9736,7 @@ const {WWW} = (function(){
       headers, 
       body,
       ok, fail,
+      dispatch,
       mergeData,
       updateData,
       doAction
@@ -9714,7 +9746,7 @@ const {WWW} = (function(){
       //.....................................
       try {
         apiRe = await Ti.WWW.runApi(state, api, {
-          vars, params, headers, body
+          vars, params, headers, body, dispatch
         })
       }
       // Cache the Error
@@ -12426,7 +12458,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210131.184951",
+  "version" : "1.6-20210201.202012",
   "dev" : false,
   "appName" : null,
   "session" : {},

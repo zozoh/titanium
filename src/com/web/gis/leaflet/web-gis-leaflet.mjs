@@ -90,7 +90,7 @@ export default {
     },
     //--------------------------------------
     hasObjData() {
-      return !_.isEmpty(this.ObjData)
+      return !_.isEmpty(this.ObjData) 
     },
     //--------------------------------------
     isShowInfo() {
@@ -203,6 +203,9 @@ export default {
         //..................................
         "obj" : (latlng)=>{
           latlng = latlng || dftLo
+          if(Ti.Util.isNil(latlng.lat) || Ti.Util.isNil(latlng.lng)) {
+            return {}
+          }
           if(this.coords_value_to_tiles) {
             return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
           }

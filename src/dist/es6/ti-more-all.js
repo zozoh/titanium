@@ -1,4 +1,4 @@
-// Pack At: 2021-01-31 18:49:51
+// Pack At: 2021-02-01 20:20:12
 (async function(){
 ////////////async loading////////////////
 await Ti.Load(["@deps:leaflet/leaflet.css", "@deps:antv/v4/g2/g2.min.js", "@deps:quill/1.3.6/quill.js", "@deps:leaflet/leaflet.js", "@deps:sortable.js", "@lib:code2a/cheap-markdown.mjs", "@deps:tinymce/5.6.2/tinymce.min.js", "@deps:highlight/highlight.js"]);
@@ -5829,6 +5829,7 @@ const _M = {
         params, 
         headers, 
         body,
+        dispatch,
         ok, fail,
         mergeData : function(payload) {
           commit("mergeData", payload)
@@ -11390,7 +11391,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     hasObjData() {
-      return !_.isEmpty(this.ObjData)
+      return !_.isEmpty(this.ObjData) 
     },
     //--------------------------------------
     isShowInfo() {
@@ -11503,6 +11504,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
         //..................................
         "obj" : (latlng)=>{
           latlng = latlng || dftLo
+          if(Ti.Util.isNil(latlng.lat) || Ti.Util.isNil(latlng.lng)) {
+            return {}
+          }
           if(this.coords_value_to_tiles) {
             return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
           }
@@ -13837,6 +13841,278 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'ti-table-quick-action.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/table/quick/ti-table-quick-action.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //-----------------------------------------------
+  OnClickRow(row, $event) {
+    let rowId  = row.id
+    let shift  = $event.shiftKey
+    let toggle = ($event.ctrlKey || $event.metaKey)
+    // Multi + Shift Mode
+    if(shift && this.multi) {
+      this.selectRowsToCurrent(rowId)
+    }
+    // Multi + Toggle Mode
+    else if(toggle && this.multi) {
+      this.toggleRow(rowId)
+    }
+    // Toggle Mode
+    else if(!Ti.Util.isNil(rowId) && !this.autoCheckCurrent) {
+      this.toggleRow(rowId)
+    }
+    // Single Mode
+    else {
+      this.selectRow(rowId)
+    }
+  },
+  //-----------------------------------------------
+  OnClickRowChecker(row, $event) {
+    let rowId  = row.id
+    let shift  = $event.shiftKey
+    console.log("haha")
+    if(this.multi) {
+      // Shift Mode
+      if(shift) {
+        this.selectRowsToCurrent(rowId)
+      }
+      // Simple Toggle Mode
+      else {
+        this.toggleRow(rowId)
+      }
+    }
+    // Single Mode
+    else {
+      this.selectRow(rowId)
+    }
+  },
+  //--------------------------------------
+  OnClickHeadChecker() {
+    console.log("hahaha")
+    // Cancel All
+    if(this.isAllChecked) {
+      this.cancelRow()
+    }
+    // Check All
+    else {
+      this.checkRow()
+    }
+  },
+  //-----------------------------------------------
+  // Publis methods
+  //-----------------------------------------------
+  toggleRow(rowId) {
+    if(this.myCheckedIds[rowId]) {
+      this.cancelRow(rowId)
+    } else {
+      this.checkRow(rowId)
+    }
+  },
+  canSelectRow(payload) {
+    if(_.isFunction(this.onBeforeChangeSelect)) {
+      let canSelect = this.onBeforeChangeSelect(payload)
+      if(false === canSelect) {
+        return false
+      }
+    }
+    return true
+  },
+  //-----------------------------------------------
+  checkRow(rowId) {
+    let idMap = _.cloneDeep(this.myCheckedIds)
+    let curId = this.myCurrentId
+    let index = this.myLastIndex
+    let rowIndex = this.findRowIndexById(rowId)
+    // All rows
+    if(_.isUndefined(rowId)) {
+      idMap = {}
+      _.forEach(this.TableData, (row)=>{
+        idMap[row.id] = true
+      })
+    }
+    // Multi rows
+    else if(_.isArray(rowId)) {
+      let lastRowId = _.last(rowId)
+      _.forEach(rowId, (r_id)=>{
+        idMap[r_id] = true
+      })
+      if(this.autoCheckCurrent) {
+        index = this.findRowIndexById(lastRowId)
+      }
+    }
+    // Object
+    else if(_.isPlainObject(rowId)) {
+      idMap = _.cloneDeep(rowId)
+      if(this.autoCheckCurrent) {
+        let lastRowId = undefined
+        for(let key in idMap) {
+          lastRowId = key
+          break;
+        }
+        index = this.findRowIndexById(lastRowId)
+      }
+    }
+    // Single row
+    else {
+      idMap[rowId] = true
+      if(this.autoCheckCurrent) {
+        index = rowIndex
+      }
+    }
+    // Eval context
+    let emitContext = this.getEmitContext(curId, idMap)
+    // Private Mode
+    this.myCheckedIds = idMap
+    this.myCurrentId  = curId
+    this.myLastIndex  = rowIndex
+    // Notify Changes
+    this.doNotifySelect(emitContext)
+  },
+  //-----------------------------------------------
+  async cancelRow(rowId) {
+    let idMap = _.cloneDeep(this.myCheckedIds)
+    let curId  = this.myCurrentId
+    let index = -1
+    //console.log("cancelRow", rowId)
+    if(_.isUndefined(rowId)) {
+      idMap = {}
+      curId = null
+    }
+    // Single row
+    else {
+      index = this.findRowIndexById(rowId)
+      idMap[rowId] = false
+      if(this.autoCheckCurrent && curId == rowId) {
+        curId = null
+      }
+    }
+    // Eval context
+    let emitContext = this.getEmitContext(curId, idMap)
+
+    if(!(await this.canSelectRow(emitContext))) {
+      return;
+    }
+
+    // Private Mode
+    this.myCheckedIds = idMap
+    this.myCurrentId  = curId
+    this.myLastIndex  = index
+    // Notify Changes
+    this.doNotifySelect(emitContext)
+  },
+  //-----------------------------------------------
+  selectRow(rowId, {quiet=false, payload}={}) {
+    console.log(rowId)
+    let idMap = {}
+    let curId = null
+    // Change the current & checked
+    if(this.autoCheckCurrent) {
+      idMap = rowId ? {[rowId]:true} : {}
+      curId = rowId || null
+    }
+    // Just change to current
+    else {
+      idMap = _.cloneDeep(this.myCheckedIds)
+      curId = rowId
+    }
+
+    let emitContext = this.getEmitContext(curId, idMap)
+
+    if(!(this.canSelectRow(emitContext))) {
+      return;
+    }
+
+    this.myCheckedIds = idMap
+    this.myCurrentId  = curId
+    this.myLastIndex  = this.findRowIndexById(rowId)
+    // Notify Changes
+    if(!quiet) {
+      _.defaults(emitContext, payload)
+      this.doNotifySelect(emitContext)
+    }
+  },
+  //-----------------------------------------------
+  selectRowByIndex(rowIndex, options) {
+    //console.log(rowIndex)
+    let index = rowIndex
+    if(this.scrollIndex) {
+      index = Ti.Num.scrollIndex(rowIndex, this.TableData.length)
+    }
+    if(_.inRange(index, 0, this.TableData.length)) {
+      let row = this.TableData[index]
+      this.selectRow(row.id, options)
+    }
+  },
+  //-----------------------------------------------
+  selectPrevRow(options) {
+    this.selectRowByIndex(Math.max(-1, this.myLastIndex-1), options)
+  },
+  //-----------------------------------------------
+  selectNextRow(options) {
+    this.selectRowByIndex(this.myLastIndex+1, options)
+  },
+  //-----------------------------------------------
+  selectRowsToCurrent(rowId) {
+    let idMap = _.cloneDeep(this.myCheckedIds)
+    let curId = this.myCurrentId
+    let index = this.findRowIndexById(rowId)
+    if(index >= 0) {
+      let fromIndex = Math.min(index, this.myLastIndex)
+      let toIndex   = Math.max(index, this.myLastIndex)
+      if(fromIndex < 0) {
+        fromIndex = 0
+      }
+      for(let i=fromIndex; i<=toIndex; i++) {
+        let row = this.TableData[i]
+        idMap[row.id] = true
+      }
+      // Eval context
+      let emitContext = this.getEmitContext(curId, idMap)
+      // Private Mode
+      if(!this.puppetMode) {
+        this.myCheckedIds = idMap
+        this.myCurrentId  = curId
+      }
+      this.myLastIndex  = index
+      // Notify Changes
+      this.doNotifySelect(emitContext)
+    }
+  },
+  //-----------------------------------------------
+  getEmitContext(
+    currentId, 
+    checkedIds={}
+  ) {
+    let checked = []
+    let current = null
+    let currentIndex = -1
+    for(let row of this.TableData) {
+      if(row.id == currentId) {
+        current = row.rawData
+        currentIndex = row.index
+      }
+      if(checkedIds[row.id]) {
+        checked.push(row.rawData)
+      }
+    }
+    return {
+      current, currentId, currentIndex,
+      checked, checkedIds
+    }
+  },
+  //-----------------------------------------------
+  doNotifySelect(emitContext) {
+    this.$notify("select", emitContext)
+    if(_.isFunction(this.onSelect)) {
+      this.onSelect(emitContext)
+    }
+  }
+  //-----------------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-combo-multi-input.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/combo/multi-input/ti-combo-multi-input.mjs'] = (function(){
@@ -14656,6 +14932,347 @@ const _M = {
     }
   }
   ///////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
+// EXPORT 'ti-table-quick.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/table/quick/ti-table-quick.mjs'] = (function(){
+const _M = {
+  ///////////////////////////////////////////////////
+  data : ()=>({
+    myLastIndex: -1,      // The last row index selected by user
+    myCurrentId: null,    // Current row ID
+    myCheckedIds: {}      // Which row has been checked
+  }),
+  ///////////////////////////////////////////////////
+  // props -> ti-table-props.mjs
+  ///////////////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-checkable"   : this.checkable,
+        "is-selectable"  : this.selectable,
+        "is-openable"    : this.openable,
+        "is-cancelable"  : this.cancelable,
+        "is-hoverable"   : this.hoverable
+      }, [
+        `is-border-${this.border}`
+      ])
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //--------------------------------------
+    /*
+    [{
+      index, id, className,
+      cells : [{
+          index, width, nowrap, className,
+          checked, changed, current,
+          items : [{
+            index, type,
+            className,    // <- getClassName
+            value,        // <- getValue
+            displayValue  // <- transformer | tidy
+          }]
+      }]
+    }]
+    */
+    TableData() {
+      let list = _.map(this.data, (obj, index) => {
+        let id = this.getRowId(obj, index)
+        if(Ti.Util.isNil(id)) {
+          id = `Row-${index}`
+        }
+        let checked = !!this.myCheckedIds[id]
+        let changed = (this.changedId == id)
+        let current = (this.myCurrentId == id)
+        let className = {
+          "is-checked" : checked,
+          "is-current" : changed,
+          "is-changed" : current
+        }
+
+        let cells = _.map(this.TableFields, fld=>{
+          let items = _.map(fld.display, ({
+            index, type, getClassName, getValue, 
+            transform, tidy
+          })=>{
+            let it = {index, type}
+            // Item value
+            it.value = getValue(obj)
+            // ClassName
+            if(getClassName) {
+              it.className = getClassName(it.value)
+            }
+            // Transform
+            let disval = it.value
+            if(transform) {
+              disval = transform(disval)
+            }
+            disval = tidy(disval)
+            // Tidy value by types
+            it.displayValue = disval
+            // Done for item
+            return it
+          }) // End Items
+
+          return {... fld, items}
+        }) // End cells
+
+        return {
+          index, id, className, cells,
+          checked, changed, current,
+          rawData : obj
+        }
+      })
+
+      return list
+    },
+    //-----------------------------------------------
+    getRowId() {
+      return Ti.Util.genRowIdGetter(this.idBy)
+    },
+    //-----------------------------------------------
+    isDataEmpty() {
+      return !_.isArray(this.TableData) || _.isEmpty(this.TableData)
+    },
+    //-----------------------------------------------
+    isAllChecked() {
+      // Empty list, nothing checked
+      if(this.isDataEmpty) {
+        return false 
+      }
+      if(_.size(this.myCheckedIds) != _.size(this.TableData)) {
+        return false
+      }
+      // Checking ...
+      for(let row of this.TableData){
+        if(!this.myCheckedIds[row.id])
+          return false;  
+      }
+      return true
+    },
+    //-----------------------------------------------
+    hasChecked() {
+      return !_.isEmpty(this.myCheckedIds)
+    },
+    //--------------------------------------
+    HeadCheckerIcon() {
+      if(this.isAllChecked) {
+        return "fas-check-square"
+      }
+      if(this.hasChecked) {
+        return "fas-minus-square"
+      }
+      return "far-square"
+    },
+    //--------------------------------------
+    TableFields() {
+      //....................................
+      const evalFldDisplay = (dis={}, index)=>{
+        if(_.isString(dis)) {
+          dis = {key:dis}
+        }
+        let {key, type, className, transformer} = dis
+
+        // Key
+        let m = /^([\w\d_-]+)(\.([\w\d_-]+))?/.exec(key)
+        if(m) {
+          key = m[1]
+          className = className || m[3]
+        }
+
+        // Default type as text
+        type = type || "text"
+
+        // Get value
+        let getValue;
+        if(".." == key){
+          getValue = obj => obj
+        } else if(_.isArray(key)) {
+          getValue = obj => _.pick(obj, key)
+        } else {
+          getValue = obj => _.get(obj, key)
+        }
+
+        // ClassName
+        let getClassName;
+        if(_.isFunction(className)) {
+          getClassName = className
+        } else if(_.isString(className)) {
+          getClassName = ()=>className
+        } else if(className){
+          let cans = []
+          _.forEach(className, (key, val)=>{
+            cans.push({
+              className : key,
+              match : Ti.AutoMatch.parse(val)
+            })
+          })
+          getClassName = (val) => {
+            for(let can of cans) {
+              if(can.match(val))
+                return can.className
+            }
+          }
+        }
+
+        // transformer
+        let transFunc;
+        if(transformer) {
+          transFunc = Ti.Util.genInvoking(transformer, {
+            context: this, 
+            partial: "right"
+          })
+        }
+
+        // Tidy Value by type
+        let tidyFunc =({
+          "text" : v => v,
+          "icon" : v => Ti.Icons.parseFontIcon(v),
+          "img"  : v => v
+        })[type]
+
+        if(!tidyFunc) {
+          throw "Invalid display type: " + type
+        }
+
+        return {
+          index, type, 
+          getClassName, 
+          getValue, 
+          transform: transFunc,
+          tidy: tidyFunc
+        }
+      }
+      //....................................
+      let fields = _.map(this.fields, (fld, index) => {
+        let diss = [].concat(fld.display)
+        let display = _.map(diss, (dis,index) => {
+          return evalFldDisplay(dis, index)
+        })
+        return {
+          ... fld,
+          headStyle : Ti.Css.toStyle({
+            width : fld.width
+          }),
+          index, display,
+          className : {
+            "is-nowrap" : fld.nowrap
+          }
+        }
+      })
+      //....................................
+      return fields
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnClickTop($event) {
+      if(this.cancelable) {
+        // Click The body or top to cancel the row selection
+        if(Ti.Dom.hasOneClass($event.target,
+            'ti-table', 'table-body',
+            'table-head-cell',
+            'table-head-cell-text')) {
+          this.cancelRow()
+        }
+      }
+    },
+    //--------------------------------------
+    // Publish methods
+    //--------------------------------------
+    findRowIndexById(rowId) {
+      for(let row of this.TableData) {
+        if(row.id == rowId) {
+          return row.index
+        }
+      }
+      return -1
+    },
+    //--------------------------------------
+    findRowById(rowId) {
+      for(let row of this.TableData) {
+        if(row.id == rowId) {
+          return row
+        }
+      }
+    },
+    //--------------------------------------
+    getRow(index=0) {
+      return _.nth(this.TableData, index)
+    },
+    //--------------------------------------
+    // Utility
+    //--------------------------------------
+    scrollCurrentIntoView() {
+      //console.log("scrollCurrentIntoView", this.myLastIndex)
+      if(this.autoScrollIntoView && this.myCurrentId) {
+        let index = this.findRowIndexById(this.myCurrentId)
+        //console.log("scroll", index)
+        let $view = this.$el
+        let $row  = Ti.Dom.find(`.table-row:nth-child(${index+1})`, $view)
+
+        if(!_.isElement($view) || !_.isElement($row)) {
+          return
+        }
+
+        let r_view = Ti.Rects.createBy($view)
+        let r_row = Ti.Rects.createBy($row)
+
+        // test it need to scroll or not
+        if(!r_view.contains(r_row)) {
+          // at bottom
+          if(r_row.bottom > r_view.bottom) {
+            $view.scrollTop += r_row.bottom - r_view.bottom
+          }
+          // at top
+          else {
+            $view.scrollTop += r_row.top - r_view.top
+          }
+        }
+      }
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "currentId" : {
+      handler : function(newVal, oldVal){
+        if(!_.isEqual(newVal, oldVal)) {
+          this.myCurrentId = newVal
+        }
+      },
+      immediate : true
+    },
+    "checkedIds" : {
+      handler : function(newVal, oldVal){
+        if(!_.isEqual(newVal, oldVal)) {
+          this.myCheckedIds = newVal
+        }
+      },
+      immediate : true
+    }
+  },
+  ///////////////////////////////////////////////////
+  mounted : function() {
+    if(this.autoScrollIntoView) {
+      _.delay(()=>{
+        this.scrollCurrentIntoView()
+      }, 0)
+    }
+  }
+  ///////////////////////////////////////////////////
 }
 return _M;;
 })()
@@ -20732,7 +21349,7 @@ const _M = {
     },
     //--------------------------------------
     OnCurrentDataChange(data){
-      Ti.App(this).dispatch("current/changeContent", data);
+      this.execEvent("arena::change", data, "dispatch:current/changeContent")
     },
     //--------------------------------------
     OnArenaViewStatusUpdated(status) {
@@ -26610,6 +27227,122 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'ti-table-quick-props.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/table/quick/ti-table-quick-props.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
+  "data" : {
+    type : Array,
+    default : ()=>[]
+  },
+  "idBy" : {
+    type : [String, Function],
+    default : "id"
+  },
+  "currentId" : {
+    type : [String, Number],
+    default : null
+  },
+  "checkedIds" : {
+    type : [Array, Object],
+    default : ()=>[]
+  },
+  "changedId" : {
+    type : String,
+    default : null
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  "fields" : {
+    type : Array,
+    default : ()=>[]
+  },
+  "multi" : {
+    type : Boolean,
+    default : false
+  },
+  "checkable" : {
+    type : Boolean,
+    default : false
+  },
+  "selectable" : {
+    type : Boolean,
+    default : true
+  },
+  "openable" : {
+    type : Boolean,
+    default : true
+  },
+  "cancelable" : {
+    type : Boolean,
+    default : true
+  },
+  "hoverable" : {
+    type : Boolean,
+    default : false
+  },
+  "autoCheckCurrent" : {
+    type : Boolean,
+    default : true
+  },
+  //-----------------------------------
+  // Callback
+  //-----------------------------------
+  "onSelect": {
+    type : Function,
+    default: undefined
+  },
+  "onOpen": {
+    type : Function,
+    default: undefined
+  },
+  "onBeforeChangeSelect" : {
+    type : Function,
+    default: undefined
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "blankAs" : {
+    type : Object,
+    default : ()=>({
+      icon : "far-list-alt",
+      text : "empty-data"
+    })
+  },
+  "blankClass": {
+    type: String,
+    default: "as-big-mask",
+    validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
+  },
+  "rowNumberBase" : {
+    type : Number,
+    default : undefined
+  },
+  "border" : {
+    type : String,
+    default : "cell",
+    validator : v => /^(row|column|cell|none)$/.test(v)
+  },
+  //-----------------------------------
+  // Measure
+  //-----------------------------------
+  "width" : {
+    type : [Number, String],
+    default : undefined
+  },
+  "height" : {
+    type : [Number, String],
+    default : undefined
+  }
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-toggle.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/toggle/ti-toggle.mjs'] = (function(){
@@ -29348,11 +30081,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   "width" : {
     type : [Number, String],
-    default : null
+    default : undefined
   },
   "height" : {
     type : [Number, String],
-    default : null
+    default : undefined
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -31533,13 +32266,13 @@ const _M = {
             'formatselect',
             'bold italic',
             'blockquote bullist numlist',
-            'edit'],
+            'edit removeformat'],
           quick : [
             'formatselect',
             'bold italic underline',
             'alignment indent outdent',
             'blockquote bullist numlist',
-            'edit'],
+            'edit removeformat'],
           full : [
             'formatselect',
             'bold italic underline',
@@ -31547,7 +32280,7 @@ const _M = {
             'blockquote bullist numlist',
             'table',
             'superscript subscript',
-            'edit']
+            'edit removeformat']
         })[tbName]
         return tbd ? tbd.join("|") : false
       }
@@ -31643,7 +32376,7 @@ const _M = {
             edit : {
               icon: 'edit-block',
               tooltip: 'edit',
-              items: 'copy cut paste pastetext | removeformat | undo redo',
+              items: 'copy cut paste pastetext | undo redo',
             },
             alignment: {
               icon: 'align-justify',
@@ -36059,6 +36792,11 @@ const _M = {
     return await Promise.all([r0, r1, r2, r3])
   },
   //.........................................
+  async execEvent(eventName, payload, dftCommand) {
+    let cmd = _.get(this.view.events, eventName) || dftCommand
+    await Ti.App(this).exec(cmd, payload)
+  },
+  //.........................................
   pushHistory(meta) {
     // Push history to update the browser address bar
     let his = window.history
@@ -38512,7 +39250,8 @@ const _M = {
         vars, 
         params, 
         headers, 
-        body,
+        body, 
+        dispatch,
         ok, fail,
         mergeData : function(payload) {
           commit("mergeData", payload)
@@ -48302,6 +49041,137 @@ Ti.Preload("ti/com/ti/table/com/table-row/_com.json", {
   "components" : [
       "./com/table-cell"
     ]
+});
+//========================================
+// JOIN <ti-table-quick-action.mjs> ti/com/ti/table/quick/ti-table-quick-action.mjs
+//========================================
+Ti.Preload("ti/com/ti/table/quick/ti-table-quick-action.mjs", TI_PACK_EXPORTS['ti/com/ti/table/quick/ti-table-quick-action.mjs']);
+//========================================
+// JOIN <ti-table-quick-props.mjs> ti/com/ti/table/quick/ti-table-quick-props.mjs
+//========================================
+Ti.Preload("ti/com/ti/table/quick/ti-table-quick-props.mjs", TI_PACK_EXPORTS['ti/com/ti/table/quick/ti-table-quick-props.mjs']);
+//========================================
+// JOIN <ti-table-quick.html> ti/com/ti/table/quick/ti-table-quick.html
+//========================================
+Ti.Preload("ti/com/ti/table/quick/ti-table-quick.html", `<div class="ti-table as-quick is-head-frozen"
+  :class="TopClass"
+  :style="TopStyle"
+  @click="OnClickTop">
+  <!--
+    Blank
+  -->
+  <ti-loading 
+    v-if="isDataEmpty"
+      class="nil-data"
+      :class="blankClass"
+      v-bind="blankAs"/>
+  <!--
+    Show thead/tbody
+  -->
+  <template v-else>
+    <!--checker-->
+    <div
+      v-if="checkable && multi"
+        class="as-checker"
+        @click.left="OnClickHeadChecker">
+        <ti-icon :value="HeadCheckerIcon"/>
+    </div>
+    <!--
+      Table
+    -->
+    <table ref="table">
+      <!--
+        Head
+      -->
+      <thead
+        class="table-head">
+        <tr>
+          <th
+            v-for="fld in TableFields"
+              :style="fld.headStyle"
+              :col-index="fld.index">
+            <span class="table-head-cell-text">{{fld.title|i18n}}</span>
+          </th>
+        </tr>
+      </thead>
+      <!--
+        Body
+      -->
+      <tbody
+        class="table-body">
+        <tr
+          v-for="row in TableData"
+            :key="row.id"
+            :index="row.index"
+            :class="row.className"
+            @click.left="OnClickRow(row, $event)">
+            <!-- Begin Cell -->
+            <td
+              v-for="cell in row.cells"
+                :key="cell.index">
+                <div class="cell-wrapper">
+                  <div 
+                    v-if="0 == cell.index"
+                      class="table-row-head">
+                      <div class="row-actived-indicator"></div>
+                      <div
+                        v-if="checkable"
+                          class="row-checker"
+                          @click.left.stop="OnClickRowChecker(row, $event)">
+                          <i v-if="row.checked" class="fas fa-check-square"></i>
+                          <i v-else class="far fa-square"></i>
+                      </div>
+                  </div>
+                  <div class="cell-con">
+                    <!--Begin: Cell display items-->
+                    <template
+                      v-for="it in cell.items">
+                      <!--
+                        Icon
+                      -->
+                      <i
+                        v-if="'icon' == it.type"
+                          :class="[it.className, it.displayValue.className]"
+                          >{{it.displayValue.text||""}}</i>
+                      <!--
+                        Image
+                      -->
+                      <img
+                        v-else-if="'img' == it.type"
+                          :class="it.className"
+                          :src="it.displayValue">
+                      <!--
+                        Text
+                      -->
+                      <span
+                        v-else
+                          :class="it.className"
+                          >{{it.displayValue}}</span>
+                    </template>
+                  </div>
+                </div>
+                <!--End: Cell display items-->
+            </td>
+            <!-- End Cell -->
+        </tr>
+      </tbody>
+    </table>
+  </template>
+</div>`);
+//========================================
+// JOIN <ti-table-quick.mjs> ti/com/ti/table/quick/ti-table-quick.mjs
+//========================================
+Ti.Preload("ti/com/ti/table/quick/ti-table-quick.mjs", TI_PACK_EXPORTS['ti/com/ti/table/quick/ti-table-quick.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/table/quick/_com.json
+//========================================
+Ti.Preload("ti/com/ti/table/quick/_com.json", {
+  "name" : "ti-table-quick",
+  "globally" : true,
+  "template" : "./ti-table-quick.html",
+  "props" : "./ti-table-quick-props.mjs",
+  "methods" : "./ti-table-quick-action.mjs",
+  "mixins" : "./ti-table-quick.mjs"
 });
 //========================================
 // JOIN <ti-table-props.mjs> ti/com/ti/table/ti-table-props.mjs

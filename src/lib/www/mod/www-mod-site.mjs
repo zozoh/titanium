@@ -181,7 +181,8 @@ const _M = {
         vars, 
         params, 
         headers, 
-        body,
+        body, 
+        dispatch,
         ok, fail,
         mergeData : function(payload) {
           commit("mergeData", payload)

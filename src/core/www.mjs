@@ -404,6 +404,7 @@ const TiWWW = {
     params, 
     headers, 
     body,
+    dispatch
   } = {}) {
     //.....................................
     // Override api
@@ -507,6 +508,7 @@ const TiWWW = {
     headers, 
     body,
     ok, fail,
+    dispatch,
     mergeData,
     updateData,
     doAction
@@ -516,7 +518,7 @@ const TiWWW = {
     //.....................................
     try {
       apiRe = await Ti.WWW.runApi(state, api, {
-        vars, params, headers, body
+        vars, params, headers, body, dispatch
       })
     }
     // Cache the Error

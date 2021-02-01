@@ -3,22 +3,12 @@ export default {
   // Data
   //-----------------------------------
   "data" : {
-    type : [Array, String],
+    type : Array,
     default : ()=>[]
-  },
-  // If input the value(ID) Array
-  // it can translate by this Dict
-  "dict" : {
-    type : [String, Ti.Dict],
-    default : null
   },
   "idBy" : {
     type : [String, Function],
     default : "id"
-  },
-  "rawDataBy" : {
-    type : [Object, String, Function],
-    default : _.identity
   },
   "currentId" : {
     type : [String, Number],
@@ -32,50 +22,16 @@ export default {
     type : String,
     default : null
   },
-  // "extendFunctionSet" : {
-  //   type : Object,
-  //   default : ()=>({})
-  // },
-  "vars" : {
-    type : Object,
-    default : ()=>({})
-  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
+  "fields" : {
+    type : Array,
+    default : ()=>[]
+  },
   "multi" : {
     type : Boolean,
     default : false
-  },
-  // in selectRow(), auto check current and drop primary checked rows?
-  "autoCheckCurrent" : {
-    type : Boolean,
-    default : true
-  },
-  // in multi mode, which key to toggle row checker?
-  "rowToggleKey" : {
-    type : [String, Array],
-    default : ()=>["SPACE"]
-  },
-  "rowCheckable" : {
-    type : [Object, Function],
-    default : undefined
-  },
-  "rowSelectable" : {
-    type : [Object, Function],
-    default : undefined
-  },
-  "rowOpenable" : {
-    type : [Object, Function],
-    default : undefined
-  },
-  "rowCancelable" : {
-    type : [Object, Function],
-    default : undefined
-  },
-  "rowHoverable" : {
-    type : [Object, Function],
-    default : undefined
   },
   "checkable" : {
     type : Boolean,
@@ -97,23 +53,22 @@ export default {
     type : Boolean,
     default : false
   },
-  "puppetMode" : {
+  "autoCheckCurrent" : {
     type : Boolean,
-    default : false
+    default : true
   },
-  "scrollIndex" : {
-    type : Boolean,
-    default : false
-  },
-  "onBeforeChangeSelect": {
-    type : Function,
-    default: undefined
-  },
+  //-----------------------------------
+  // Callback
+  //-----------------------------------
   "onSelect": {
     type : Function,
     default: undefined
   },
   "onOpen": {
+    type : Function,
+    default: undefined
+  },
+  "onBeforeChangeSelect" : {
     type : Function,
     default: undefined
   },
@@ -135,6 +90,11 @@ export default {
   "rowNumberBase" : {
     type : Number,
     default : undefined
+  },
+  "border" : {
+    type : String,
+    default : "cell",
+    validator : v => /^(row|column|cell|none)$/.test(v)
   },
   //-----------------------------------
   // Measure

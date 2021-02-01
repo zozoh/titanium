@@ -1,0 +1,8 @@
+{
+  "name" : "ti-table-quick",
+  "globally" : true,
+  "template" : "./ti-table-quick.html",
+  "props" : "./ti-table-quick-props.mjs",
+  "methods" : "./ti-table-quick-action.mjs",
+  "mixins" : "./ti-table-quick.mjs"
+}

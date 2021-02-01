@@ -373,6 +373,7 @@ const _M = {
         params, 
         headers, 
         body,
+        dispatch,
         ok, fail,
         mergeData : function(payload) {
           commit("mergeData", payload)

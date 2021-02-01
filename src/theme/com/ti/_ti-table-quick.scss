@@ -1,0 +1,27 @@
+.ti-table.as-quick {
+  //---------------------------------------------
+  > table > tbody td > .cell-wrapper > .cell-con {
+    align-items: center; padding:0 .5em;
+    //-------------------------------------------
+    > i {margin:0 .2em;}
+    //-------------------------------------------
+    > span {
+      display: block; line-height: 1.2em;
+      padding: 0 .1em; margin: 0 .2em;
+      white-space: nowrap;
+    }
+    //-------------------------------------------
+    > span.as-tip {
+      font-size: 0.9em; opacity: 0.8;
+    }
+    //-------------------------------------------
+    > span.align-center {
+      flex:1 1 auto; text-align: center;
+    }
+    > span.align-right {
+      flex:1 1 auto; text-align: right;
+    }
+    //-------------------------------------------
+  }
+  //---------------------------------------------
+}

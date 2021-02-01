@@ -1,0 +1,105 @@
+<div class="ti-table as-quick is-head-frozen"
+  :class="TopClass"
+  :style="TopStyle"
+  @click="OnClickTop">
+  <!--
+    Blank
+  -->
+  <ti-loading 
+    v-if="isDataEmpty"
+      class="nil-data"
+      :class="blankClass"
+      v-bind="blankAs"/>
+  <!--
+    Show thead/tbody
+  -->
+  <template v-else>
+    <!--checker-->
+    <div
+      v-if="checkable && multi"
+        class="as-checker"
+        @click.left="OnClickHeadChecker">
+        <ti-icon :value="HeadCheckerIcon"/>
+    </div>
+    <!--
+      Table
+    -->
+    <table ref="table">
+      <!--
+        Head
+      -->
+      <thead
+        class="table-head">
+        <tr>
+          <th
+            v-for="fld in TableFields"
+              :style="fld.headStyle"
+              :col-index="fld.index">
+            <span class="table-head-cell-text">{{fld.title|i18n}}</span>
+          </th>
+        </tr>
+      </thead>
+      <!--
+        Body
+      -->
+      <tbody
+        class="table-body">
+        <tr
+          v-for="row in TableData"
+            :key="row.id"
+            :index="row.index"
+            :class="row.className"
+            @click.left="OnClickRow(row, $event)">
+            <!-- Begin Cell -->
+            <td
+              v-for="cell in row.cells"
+                :key="cell.index">
+                <div class="cell-wrapper">
+                  <div 
+                    v-if="0 == cell.index"
+                      class="table-row-head">
+                      <div class="row-actived-indicator"></div>
+                      <div
+                        v-if="checkable"
+                          class="row-checker"
+                          @click.left.stop="OnClickRowChecker(row, $event)">
+                          <i v-if="row.checked" class="fas fa-check-square"></i>
+                          <i v-else class="far fa-square"></i>
+                      </div>
+                  </div>
+                  <div class="cell-con">
+                    <!--Begin: Cell display items-->
+                    <template
+                      v-for="it in cell.items">
+                      <!--
+                        Icon
+                      -->
+                      <i
+                        v-if="'icon' == it.type"
+                          :class="[it.className, it.displayValue.className]"
+                          >{{it.displayValue.text||""}}</i>
+                      <!--
+                        Image
+                      -->
+                      <img
+                        v-else-if="'img' == it.type"
+                          :class="it.className"
+                          :src="it.displayValue">
+                      <!--
+                        Text
+                      -->
+                      <span
+                        v-else
+                          :class="it.className"
+                          >{{it.displayValue}}</span>
+                    </template>
+                  </div>
+                </div>
+                <!--End: Cell display items-->
+            </td>
+            <!-- End Cell -->
+        </tr>
+      </tbody>
+    </table>
+  </template>
+</div>
