@@ -24,7 +24,7 @@
       > .as-badge {
         font-size: SZ(12); opacity: 0.6;
         //----------------------------------------
-        $bdgPad : SZ(6);
+        $bdgPad : SZ(2);
         //----------------------------------------
         &.at-nw {@include pos-abs($t:$bdgPad, $l:$bdgPad);}
         &.at-ne {@include pos-abs($t:$bdgPad, $r:$bdgPad);}

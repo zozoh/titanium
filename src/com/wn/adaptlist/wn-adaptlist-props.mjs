@@ -80,7 +80,11 @@ export default {
   //-----------------------------------
   "itemClassName" : {
     type : String,
-    default : null
+    default : undefined
+  },
+  "itemBadges" : {
+    type : [Object, Function],
+    default : undefined
   },
   //-----------------------------------
   // Callback

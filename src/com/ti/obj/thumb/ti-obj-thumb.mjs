@@ -117,6 +117,29 @@ const _M = {
       return {width:this.ProgressTip}
     },
     //--------------------------------------------
+    ThumbBadges() {
+      let list = []
+      _.forEach(this.badges, (v, k)=> {
+        if(!v)
+          return
+        if(_.isString(v)) {
+          list.push({
+            type:"icon", value:v,
+            className: `as-badge at-${k.toLowerCase()}`
+          })
+        } else {
+          list.push({
+            ...v, 
+            className: [
+              `as-badge at-${k.toLowerCase()}`, 
+              v.className
+            ].join(" ")
+          })
+        }
+      })
+      return list
+    },
+    //--------------------------------------------
     hasHref() {
       return this.href ? true : false
     },

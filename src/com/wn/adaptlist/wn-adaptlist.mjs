@@ -60,7 +60,8 @@ const _M = {
           let li = Wn.Util.getObjThumbInfo(it, {
             status : this.myItemStatus,
             exposeHidden : this.myExposeHidden,
-            titleKey : this.itemTitleKey
+            titleKey : this.itemTitleKey,
+            badges : this.itemBadges
           })
           list.push(li)
           //list.push(it)

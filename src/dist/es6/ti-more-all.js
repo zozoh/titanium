@@ -1,4 +1,4 @@
-// Pack At: 2021-02-02 14:09:32
+// Pack At: 2021-02-02 20:05:21
 (async function(){
 ////////////async loading////////////////
 await Ti.Load(["@deps:leaflet/leaflet.css", "@deps:antv/v4/g2/g2.min.js", "@deps:quill/1.3.6/quill.js", "@deps:leaflet/leaflet.js", "@deps:sortable.js", "@lib:code2a/cheap-markdown.mjs", "@deps:tinymce/5.6.2/tinymce.min.js", "@deps:highlight/highlight.js"]);
@@ -985,7 +985,8 @@ const _M = {
           let li = Wn.Util.getObjThumbInfo(it, {
             status : this.myItemStatus,
             exposeHidden : this.myExposeHidden,
-            titleKey : this.itemTitleKey
+            titleKey : this.itemTitleKey,
+            badges : this.itemBadges
           })
           list.push(li)
           //list.push(it)
@@ -8651,7 +8652,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   "itemClassName" : {
     type : String,
-    default : null
+    default : undefined
+  },
+  "itemBadges" : {
+    type : [Object, Function],
+    default : undefined
   },
   //-----------------------------------
   // Callback
@@ -31650,6 +31655,29 @@ const _M = {
       return {width:this.ProgressTip}
     },
     //--------------------------------------------
+    ThumbBadges() {
+      let list = []
+      _.forEach(this.badges, (v, k)=> {
+        if(!v)
+          return
+        if(_.isString(v)) {
+          list.push({
+            type:"icon", value:v,
+            className: `as-badge at-${k.toLowerCase()}`
+          })
+        } else {
+          list.push({
+            ...v, 
+            className: [
+              `as-badge at-${k.toLowerCase()}`, 
+              v.className
+            ].join(" ")
+          })
+        }
+      })
+      return list
+    },
+    //--------------------------------------------
     hasHref() {
       return this.href ? true : false
     },
@@ -48538,12 +48566,17 @@ Ti.Preload("ti/com/ti/obj/thumb/ti-obj-thumb.html", `<div class="ti-obj-thumb"
         <ti-icon :value="preview"/>
       </template>
       <!--Badge-->
-      <template v-if="badges">
-        <div v-if="badges.NW" class="as-badge at-nw"><ti-icon :value="badges.NW"/></div>
-        <div v-if="badges.NE" class="as-badge at-ne"><ti-icon :value="badges.NE"/></div>
-        <div v-if="badges.SW" class="as-badge at-sw"><ti-icon :value="badges.SW"/></div>
-        <div v-if="badges.SE" class="as-badge at-se"><ti-icon :value="badges.SE"/></div>
-      </template>
+      <div
+        v-for="bdg in ThumbBadges"
+          :class="bdg.className">
+          <!--Icon-->
+          <ti-icon
+            v-if="'icon' == bdg.type"
+              :value="bdg.value"/>
+          <!--Text-->
+          <span
+            v-else-if="'text' == bdg.type">{{bdg.value}}</span>
+      </div>
     </div>
     <!--Process bar-->
     <div v-if="isShowProgress"

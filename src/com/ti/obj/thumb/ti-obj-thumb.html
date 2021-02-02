@@ -23,12 +23,17 @@
         <ti-icon :value="preview"/>
       </template>
       <!--Badge-->
-      <template v-if="badges">
-        <div v-if="badges.NW" class="as-badge at-nw"><ti-icon :value="badges.NW"/></div>
-        <div v-if="badges.NE" class="as-badge at-ne"><ti-icon :value="badges.NE"/></div>
-        <div v-if="badges.SW" class="as-badge at-sw"><ti-icon :value="badges.SW"/></div>
-        <div v-if="badges.SE" class="as-badge at-se"><ti-icon :value="badges.SE"/></div>
-      </template>
+      <div
+        v-for="bdg in ThumbBadges"
+          :class="bdg.className">
+          <!--Icon-->
+          <ti-icon
+            v-if="'icon' == bdg.type"
+              :value="bdg.value"/>
+          <!--Text-->
+          <span
+            v-else-if="'text' == bdg.type">{{bdg.value}}</span>
+      </div>
     </div>
     <!--Process bar-->
     <div v-if="isShowProgress"

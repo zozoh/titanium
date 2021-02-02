@@ -140,32 +140,44 @@ const WnUtil = {
   getAppLinkStr(meta, options) {
     return WnUtil.getAppLink(meta, options).toString()
   },
-  getObjBadges(meta={}, {
-    NW= null,
-    NE= ["ln", "zmdi-open-in-new"],
-    SW= null,
-    SE= null
-  }={}) {
-    let bg = {}
-    let badge = function(name, BD){
+  getObjBadges(meta={}, setup) {
+    // Totaly customized
+    if(_.isFunction(setup)) {
+      return setup(meta)
+    }
+
+    let {
+      NW= null,
+      NE= ["ln", "zmdi-open-in-new"],
+      SW= null,
+      SE= null
+    } = setup
+
+    let badges = {}
+
+    let _eval_badge = function(name, BD){
+      if(_.isFunction(BD)) {
+        BD = BD(meta)
+      }
       if(!BD) return;
-      if(_.isString(BD)) {
-        bg[name] = BD
-      }
-      if(BD.length == 1){
-        bg[name] = BD[0]
-      }
-      else if(BD.length > 1 && meta[BD[0]]) {
-        bg[name] = BD[1]
+      if(_.isArray(BD)) {
+        if(BD.length == 1){
+          badges[name] = BD[0]
+        }
+        else if(BD.length > 1 && meta[BD[0]]) {
+          badges[name] = BD[1]
+        }
+      } else {
+        badges[name] = BD
       }
     }
 
-    badge("NW", NW);
-    badge("NE", NE);
-    badge("SW", SW);
-    badge("SE", SE);
+    _eval_badge("NW", NW);
+    _eval_badge("NE", NE);
+    _eval_badge("SW", SW);
+    _eval_badge("SE", SE);
     
-    return bg
+    return badges
   },
   getObjThumbInfo(meta={}, {
     exposeHidden = false,
