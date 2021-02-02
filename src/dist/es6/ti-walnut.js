@@ -1,4 +1,4 @@
-// Pack At: 2021-02-02 20:05:21
+// Pack At: 2021-02-02 23:33:31
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1350,7 +1350,7 @@ const Util = (function(){
         NE= ["ln", "zmdi-open-in-new"],
         SW= null,
         SE= null
-      } = setup
+      } = (setup || {})
   
       let badges = {}
   
@@ -2270,7 +2270,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210202.200521"
+const WALNUT_VERSION = "1.2-20210202.233331"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

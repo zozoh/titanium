@@ -151,7 +151,7 @@ const WnUtil = {
       NE= ["ln", "zmdi-open-in-new"],
       SW= null,
       SE= null
-    } = setup
+    } = (setup || {})
 
     let badges = {}
 

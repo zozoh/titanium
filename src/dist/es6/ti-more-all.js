@@ -1,4 +1,4 @@
-// Pack At: 2021-02-02 20:05:21
+// Pack At: 2021-02-02 23:33:31
 (async function(){
 ////////////async loading////////////////
 await Ti.Load(["@deps:leaflet/leaflet.css", "@deps:antv/v4/g2/g2.min.js", "@deps:quill/1.3.6/quill.js", "@deps:leaflet/leaflet.js", "@deps:sortable.js", "@lib:code2a/cheap-markdown.mjs", "@deps:tinymce/5.6.2/tinymce.min.js", "@deps:highlight/highlight.js"]);
@@ -22379,9 +22379,17 @@ const _M = {
       type : Object,
       default : undefined
     },
+    "backgroundAtHeader" : {
+      type : Boolean,
+      default : false
+    },
     //-----------------------------------
     // Measure
     //-----------------------------------
+    "headerHeight" : {
+      type : [Number, String],
+      default : undefined
+    },
     "width" : {
       type : [Number, String],
       default : undefined
@@ -22395,17 +22403,31 @@ const _M = {
   computed : {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "is-bg-at-top"  : !this.backgroundAtHeader,
+        "is-bg-at-head" : this.backgroundAtHeader
+      })
     },
     //--------------------------------------
     TopStyle() {
       let backgroundImage = null
-      if(this.TheBackgroundImageSrc) {
+      if(this.TheBackgroundImageSrc && !this.backgroundAtHeader) {
         backgroundImage = `url('${this.TheBackgroundImageSrc}')`
       }
       return Ti.Css.toStyle({
         width  : this.width,
         height : this.height,
+        backgroundImage
+      })
+    },
+    //--------------------------------------
+    HeaderStyle() {
+      let backgroundImage = null
+      if(this.TheBackgroundImageSrc && this.backgroundAtHeader) {
+        backgroundImage = `url('${this.TheBackgroundImageSrc}')`
+      }
+      return Ti.Css.toStyle({
+        height : this.headerHeight,
         backgroundImage
       })
     },
@@ -41936,6 +41958,10 @@ const _M = {
       type: [Object, String],
       default: "im-menu"
     },
+    "iconConf" : {
+      type: Object,
+      default: ()=>({})
+    },
     "closeIcon": {
       type: [Object, String],
       default: "im-x-mark"
@@ -51996,7 +52022,7 @@ Ti.Preload("ti/com/web/shelf/iconbox/web-shelf-iconbox.html", `<div class="web-s
     Icon
   -->
   <div class="as-icon" @click.left="OnToggleMode">
-    <ti-icon :value="icon"/>
+    <ti-icon :value="icon" v-bind="iconConf"/>
   </div>
   <!--
     Mask
@@ -52471,7 +52497,8 @@ Ti.Preload("ti/com/web/tile/article/web-tile-article.html", `<div class="web-til
     Title
   -->
   <header
-    v-if="title">{{title | i18n}}</header>
+    v-if="title"
+      :style="HeaderStyle">{{title | i18n}}</header>
   <!--
     Content
   -->

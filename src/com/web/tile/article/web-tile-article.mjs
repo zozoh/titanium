@@ -48,9 +48,17 @@ const _M = {
       type : Object,
       default : undefined
     },
+    "backgroundAtHeader" : {
+      type : Boolean,
+      default : false
+    },
     //-----------------------------------
     // Measure
     //-----------------------------------
+    "headerHeight" : {
+      type : [Number, String],
+      default : undefined
+    },
     "width" : {
       type : [Number, String],
       default : undefined
@@ -64,17 +72,31 @@ const _M = {
   computed : {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "is-bg-at-top"  : !this.backgroundAtHeader,
+        "is-bg-at-head" : this.backgroundAtHeader
+      })
     },
     //--------------------------------------
     TopStyle() {
       let backgroundImage = null
-      if(this.TheBackgroundImageSrc) {
+      if(this.TheBackgroundImageSrc && !this.backgroundAtHeader) {
         backgroundImage = `url('${this.TheBackgroundImageSrc}')`
       }
       return Ti.Css.toStyle({
         width  : this.width,
         height : this.height,
+        backgroundImage
+      })
+    },
+    //--------------------------------------
+    HeaderStyle() {
+      let backgroundImage = null
+      if(this.TheBackgroundImageSrc && this.backgroundAtHeader) {
+        backgroundImage = `url('${this.TheBackgroundImageSrc}')`
+      }
+      return Ti.Css.toStyle({
+        height : this.headerHeight,
         backgroundImage
       })
     },

@@ -9,6 +9,10 @@ const _M = {
       type: [Object, String],
       default: "im-menu"
     },
+    "iconConf" : {
+      type: Object,
+      default: ()=>({})
+    },
     "closeIcon": {
       type: [Object, String],
       default: "im-x-mark"

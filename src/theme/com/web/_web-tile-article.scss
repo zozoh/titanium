@@ -1,26 +1,19 @@
 .web-tile-article {
   //------------------------------------
-  @include color($color-primary, r, c);
   @include flex-align-v-nowrap($jc:center);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  font-size: SZ(12);
-  padding: 0 3em;
+  font-size: SZ(14);
   //------------------------------------
   > header {
-    padding:0; margin:0 0 1em 0; font-size: 1.6em;
+    padding: 0 SZ(36);
+    margin:0 0 1em 0; font-size: 1.6em;
     font-weight: bold; 
   }
   //------------------------------------
-  &.is-font-small {font-size:SZ(10);}
-  &.is-font-big {font-size:SZ(14);}
-  //------------------------------------
-  &.is-header-shadow header {
-    text-shadow: SZ(1) SZ(1) SZ(2) map-get($color-shadow, heavy);
-  }
-  //------------------------------------
   > article {
+    padding: 0 SZ(36);
     h1,h2,h3,h4,h5,h6 {font-weight: normal;}
     h1 {padding:0; margin:0.2em 0; font-size: 1.4em;}
     h2 {padding:0; margin:0.2em 0; font-size: 1.3em;}
@@ -35,24 +28,55 @@
   }
   //------------------------------------
   > footer {
+    padding: 0 SZ(36);
     @include flex-align-nowrap;
     margin: 1em 0;
     //----------------------------------
     .as-btn {
       @include flex-align-nowrap;
-      color: rgba(255,255,255, 0.8); 
-      background: rgba(255,255,255, 0.1);
-      border:1px solid rgba(255,255,255, 0.6);
+      @include color($color-primary, c, r);
+      border:1px solid map-get($color-primary, c);
       padding: .5em 1em;
       border-radius: SZ(4);
       cursor: pointer;
       &:hover {
-        color: #FFF;  border-color: #FFF; 
-        background: rgba(255,255,255, 0.3); 
+        @include color($color-primary, r, c); 
       }
       > .as-text {margin:0 .5em;}
     }
     //----------------------------------
+  }
+  //------------------------------------
+  &.is-bg-at-head {
+    > header {
+      @include color($color-primary, r, c);
+      @include flex($jc:flex-start,$ai:flex-end);
+      padding: 1em;
+    }
+  }
+  //------------------------------------
+  &.is-bg-at-top {
+    @include color($color-primary, r, c);
+    > footer {
+      //----------------------------------
+      .as-btn {
+        color: rgba(255,255,255, 0.8); 
+        background: rgba(255,255,255, 0.1);
+        border:1px solid rgba(255,255,255, 0.6);
+        &:hover {
+          color: #FFF;  border-color: #FFF; 
+          background: rgba(255,255,255, 0.3); 
+        }
+      }
+      //----------------------------------
+    }
+  }
+  //------------------------------------
+  &.is-font-small {font-size:SZ(12);}
+  &.is-font-big {font-size:SZ(16);}
+  //------------------------------------
+  &.is-header-shadow header {
+    text-shadow: SZ(1) SZ(1) SZ(2) map-get($color-shadow, heavy);
   }
   //------------------------------------
 }

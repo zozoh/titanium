@@ -5,7 +5,8 @@
     Title
   -->
   <header
-    v-if="title">{{title | i18n}}</header>
+    v-if="title"
+      :style="HeaderStyle">{{title | i18n}}</header>
   <!--
     Content
   -->
