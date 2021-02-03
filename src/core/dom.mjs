@@ -257,6 +257,11 @@ const TiDom = {
     viewportBorder=4,
     position}={}
   ) {
+    // Guard
+    if(!_.isElement($src) || !_.isElement($ta)) {
+      return
+    }
+    // Force position
     if(position) {
       $src.style.position = position
     }

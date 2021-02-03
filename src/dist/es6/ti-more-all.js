@@ -1,7 +1,4 @@
-// Pack At: 2021-02-02 23:33:31
-(async function(){
-////////////async loading////////////////
-await Ti.Load(["@deps:leaflet/leaflet.css", "@deps:antv/v4/g2/g2.min.js", "@deps:quill/1.3.6/quill.js", "@deps:leaflet/leaflet.js", "@deps:sortable.js", "@lib:code2a/cheap-markdown.mjs", "@deps:tinymce/5.6.2/tinymce.min.js", "@deps:highlight/highlight.js"]);
+// Pack At: 2021-02-04 00:52:38
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -58894,5 +58891,3 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
 //////////////////////////////////////////////////
 // The End
 })();
-////////////async loading////////////////
-})()

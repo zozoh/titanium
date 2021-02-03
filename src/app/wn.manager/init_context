@@ -1,2 +1,2 @@
 # Gen extend js lib
-cat -quiet ~/.domain/wn.manager-extlibs.html | json -type String -put extlibs
+# cat -quiet ~/.domain/wn.manager-extlibs.html | json -type String -put extlibs

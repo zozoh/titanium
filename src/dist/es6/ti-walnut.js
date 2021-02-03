@@ -1,4 +1,4 @@
-// Pack At: 2021-02-02 23:33:31
+// Pack At: 2021-02-04 00:52:38
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -2270,7 +2270,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210202.233331"
+const WALNUT_VERSION = "1.2-20210204.005239"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

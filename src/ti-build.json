@@ -42,6 +42,7 @@
     },
     "all": {
       "path" : "dist/es6/ti-more-all.js",
+      "deps" : "dist/es6/ti-more-all.deps.json",
       "wrap" : true
     }
   }

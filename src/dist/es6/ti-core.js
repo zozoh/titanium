@@ -1,4 +1,4 @@
-// Pack At: 2021-02-02 23:33:31
+// Pack At: 2021-02-04 00:52:38
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3574,6 +3574,11 @@ const {Dom} = (function(){
       viewportBorder=4,
       position}={}
     ) {
+      // Guard
+      if(!_.isElement($src) || !_.isElement($ta)) {
+        return
+      }
+      // Force position
       if(position) {
         $src.style.position = position
       }
@@ -12458,7 +12463,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210202.233331",
+  "version" : "1.6-20210204.005238",
   "dev" : false,
   "appName" : null,
   "session" : {},
