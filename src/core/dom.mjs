@@ -1,18 +1,24 @@
 const TiDom = {
   createElement({
     tagName="div", attrs={}, props={}, className="", 
+    style = {},
     $p=null, $refer=null
   }, $doc=document) {
     const $el = $doc.createElement(tagName)
     if(className)
       $el.className = Ti.Css.joinClassNames(className)
     
-    _.forOwn(attrs, (val, key) => {
+    _.forEach(attrs, (val, key) => {
       $el.setAttribute(key, val)
     })
 
-    _.forOwn(props, (val, key) => {
+    _.forEach(props, (val, key) => {
       $el[key] = val
+    })
+
+    _.forEach(style, (val, key) => {
+      let k = _.camelCase(key)
+      $el.style[k] = val
     })
 
     if($refer && !$p) {

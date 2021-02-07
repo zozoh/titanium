@@ -42,7 +42,7 @@ export default {
     },
     "conWidth" : {
       type : [Number, String],
-      default : 400
+      default : undefined
     },
     "conHeight" : {
       type : [Number, String],

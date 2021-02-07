@@ -62,7 +62,29 @@ export default {
     },
     //-----------------------------------------------
     OnMouseLeave() {
-      this.showDetail = "hide"
+      //this.showDetail = "hide"
+    },
+    //-----------------------------------------------
+    OnCopyAll(evt) {
+      let $ta = Ti.Dom.find("table", this.$el)
+      let ids = _.concat(_.get(this.OID, "homeId"), _.get(this.OID, "myId"))
+      this.__copy(ids.join(":"), $ta)
+    },
+    //-----------------------------------------------
+    OnCopyHomeId(evt) {
+      let $ta = Ti.Dom.find(".is-home-id td:nth-child(2)", this.$el)
+      this.__copy(_.get(this.OID, "homeId"), $ta)
+    },
+    //-----------------------------------------------
+    OnCopyMyId(evt) {
+      let $ta = Ti.Dom.find(".is-my-id td:nth-child(2)", this.$el)
+      this.__copy(_.get(this.OID, "myId"), $ta)
+    },
+    //-----------------------------------------------
+    __copy(str, $ta) {
+      Ti.Be.BlinkIt($ta)
+      //console.log(str)
+      Ti.Be.writeToClipboard(str)
     }
     //-----------------------------------------------
   }

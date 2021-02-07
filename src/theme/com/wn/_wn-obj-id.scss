@@ -53,6 +53,13 @@
         @include color($color-primary, r, c);
         text-align: right; 
       }
+      &.as-copy {border-color: transparent;}
+    }
+    //----------------------------------------
+    .as-copy a {
+      display: block; text-align: center;
+      font-size: SZ(10); padding: SZ(6) 0;
+      &:hover {text-decoration: underline;} 
     }
     //----------------------------------------
   }
@@ -63,6 +70,7 @@
         border-color: map-get($color-secondary, c);
         color: map-get($color-secondary, c);
         &:first-child {@include color($color-secondary, r, c);}
+        &.as-copy {border-color: transparent;}
       }
     }
   }

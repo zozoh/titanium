@@ -1,4 +1,6 @@
 {
+  "copy" : "Copy",
+  "copy-all" : "Copy all",
   "preview": "Preview",
   "add": "Add",
   "add-item": "New item",

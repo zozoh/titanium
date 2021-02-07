@@ -1,4 +1,6 @@
 {
+   "copy" : "復制",
+   "copy-all" : "全部復制",
    "preview": "預覽",
    "add": "添加",
    "add-item": "添加新項",

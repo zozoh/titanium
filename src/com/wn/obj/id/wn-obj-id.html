@@ -36,12 +36,25 @@
     <table>
       <tr v-if="OID.homeId"
         class="is-home-id">
-        <td>HOME ID</td><td>{{OID.homeId}}</td>
+        <td>HOME ID</td>
+        <td>{{OID.homeId}}</td>
+        <td class="as-copy">
+          <a @click.left="OnCopyHomeId">{{'i18n:copy'|i18n}}</a>
+        </td>
       </tr>
       <tr
         class="is-my-id">
-        <td>MY ID</td><td>{{OID.myId}}</td>
+        <td>MY ID</td>
+        <td>{{OID.myId}}</td>
+        <td class="as-copy">
+          <a @click.left="OnCopyMyId">{{'i18n:copy'|i18n}}</a>
+        </td>
       </tr>
     </table>
+    <div
+      v-if="OID.homeId" 
+        class="as-copy">
+        <a @click.left="OnCopyAll">{{'i18n:copy'|i18n}}</a>
+    </div>
   </div>
 </div>

@@ -57,6 +57,53 @@ const TiBehaviors = {
     window.scrollTo(x, y);
   },
   /**
+   * Write some content to system clipboard
+   * 
+   * @param str content to be write to clipboard
+   */
+  writeToClipboard(str) {
+    if(!_.isString(str)) {
+      str = Ti.Types.toStr(str)
+    }
+
+    // Copy to clipboard
+    if(navigator.clipboard) {
+      navigator.clipboard.writeText(str)
+    }
+    // Hack copy
+    else {
+      let $t = Ti.Dom.createElement({
+        tagName : "textarea",
+        style : {
+          position : "fixed",
+          top : "-100000px",
+          left : "0px",
+          width : "300px",
+          height : "300px",
+          opacity : -0,
+          zIndex : 10000
+        },
+        props : {
+          value : str
+        },
+        $p : document.body
+      });
+      $t.focus();
+      $t.select();
+
+      try {
+          if(!document.execCommand('copy')) {
+            console.warn('fail to execCommand("copy") for text: ', str);
+          }
+          //console.log(re)
+      } catch (err) {
+          console.warn('fail to copy text: ', err);
+      }
+
+      Ti.Dom.remove($t)
+    }
+  },
+  /**
    * !!! jQuery here
    * jq - 要闪烁的对象
    * opt.after - 当移除完成后的操作

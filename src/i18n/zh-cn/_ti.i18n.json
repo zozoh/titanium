@@ -1,4 +1,6 @@
 {
+  "copy" : "复制",
+  "copy-all" : "全部复制",
   "preview": "预览",
   "add": "添加",
   "add-item": "添加新项",
