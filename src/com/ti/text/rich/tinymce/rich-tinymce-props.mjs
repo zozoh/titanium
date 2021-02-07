@@ -51,7 +51,7 @@ const _M = {
   },
   "theme" : {
     type : String,
-    default : "nice"
+    default : "light"
   },
   "loadingAs" : {
     type : Object,

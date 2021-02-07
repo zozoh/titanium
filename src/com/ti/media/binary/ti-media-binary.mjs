@@ -1,17 +1,20 @@
 export default {
-  inheritAttrs : false,
   props : {
     "icon" : {
       type : [String, Object],
-      default : null
+      default : undefined
     },
     "title" : {
       type : String,
-      default : null
+      default : undefined
     },
     "src" : {
       type : String,
-      default : null
+      default : undefined
+    },
+    "download" : {
+      type : Boolean,
+      default : undefined
     },
     "width" : {
       type : [String, Number],

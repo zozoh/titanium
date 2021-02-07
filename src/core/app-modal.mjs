@@ -47,6 +47,10 @@ export class TiAppModal {
     // Measure
     this.width    = "6.4rem"
     this.height   = undefined
+    this.maxWidth  = undefined
+    this.maxHeight = undefined
+    this.minWidth  = undefined
+    this.minHeight = undefined
     this.spacing  = undefined
     this.overflow = undefined
     this.adjustable = false  // true|false|"x"|"y"
@@ -209,6 +213,10 @@ export class TiAppModal {
         //--------------------------------------
         width      : this.width,
         height     : this.height,
+        maxWidth   : this.maxWidth,
+        maxHeight  : this.maxHeight,
+        minWidth   : this.minWidth,
+        minHeight  : this.minHeight,
         spacing    : this.spacing,
         overflow   : this.overflow,
         adjustable : this.adjustable,
@@ -285,7 +293,11 @@ export class TiAppModal {
         ConStyle() {
           return Ti.Css.toStyle({
             width  : this.width,
-            height : this.height
+            height : this.height,
+            maxWidth  : this.maxWidth,
+            maxHeight : this.maxHeight,
+            minWidth  : this.minWidth,
+            minHeight : this.minHeight
           })
         },
         //--------------------------------------

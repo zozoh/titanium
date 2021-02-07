@@ -42,7 +42,8 @@ const _M = {
             'blockquote bullist numlist',
             'table',
             'superscript subscript',
-            'edit removeformat']
+            'edit removeformat',
+            'TiPreview']
         })[tbName]
         return tbd ? tbd.join("|") : false
       }
@@ -50,6 +51,10 @@ const _M = {
         return this.toolbar.join("|")
       }
       return this.toolbar
+    },
+    //------------------------------------------------
+    ContentCssPath() {
+      return Ti.Config.url(`@theme:tinymce/doc_${this.theme}.css`)
     },
     //-----------------------------------------------
     BlankComStyle() {
@@ -101,6 +106,7 @@ const _M = {
       let plugins = ['paste lists table'].concat(plugNames)
       return _.assign({
         plugins: plugins.join(" "),
+        content_css : this.ContentCssPath,
         auto_focus: true,
         menubar: true,
         statusbar: false,

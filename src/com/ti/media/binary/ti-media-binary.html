@@ -5,10 +5,12 @@
   <div class="tob-title">
     {{title}}
   </div>
-  <div class="tob-actions">
-    <a :href="src">
-      <ti-icon value="download"/>
-      <span>{{'download'|i18n}}</span>
-    </a>
+  <div 
+    v-if="download"
+      class="tob-actions">
+      <a :href="src">
+        <ti-icon value="download"/>
+        <span>{{'download'|i18n}}</span>
+      </a>
   </div>
 </div>

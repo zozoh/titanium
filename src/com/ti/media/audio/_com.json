@@ -1,0 +1,9 @@
+{
+  "name" : "ti-media-audio",
+  "globally" : true,
+  "template" : "./ti-media-audio.html",
+  "mixins" : ["./ti-media-audio.mjs"],
+  "components" : [
+    "@com:ti/slide/bar"
+  ]
+}

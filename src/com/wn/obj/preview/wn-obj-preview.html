@@ -5,10 +5,8 @@
   <div class="wop-con" v-if="hasMeta">
     <!--Main View-->
     <component class="as-main"
-      :is="PreviewComType"
-      :icon="DataIcon"
-      :title="DataTitle"
-      :src="DataSource"/>
+      :is="PreviewCom.comType"
+      v-bind="PreviewCom.comConf"/>
     <!--ActionBar at top-->
     <div class="as-abar">
       <ul>

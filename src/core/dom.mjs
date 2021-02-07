@@ -98,7 +98,13 @@ const TiDom = {
   },
   find(selector="*", $doc=document) {
     if(!$doc)
-      return []
+      return null
+    if(_.isUndefined(selector)) {
+      return $doc
+    }
+    if(_.isNull(selector)) {
+      return null
+    }
     if(_.isElement(selector))
       return selector
     return $doc.querySelector(selector);
@@ -115,6 +121,21 @@ const TiDom = {
       $pel = $pel.parentElement
     }
     return null
+  },
+  eventCurrentTarget(evt, selector, scope) {
+    let $el = evt.srcElement
+    if(!selector) {
+      return $el
+    }
+    while($el) {
+      if($el === scope) {
+        return
+      }
+      if(TiDom.is($el, selector)) {
+        return $el
+      }
+      $el = $el.parentElement
+    }
   },
   ownerWindow($el) {
     if($el.defaultView)

@@ -1,0 +1,93 @@
+.ti-media-audio {
+  @include flex-center;
+  user-select: none;
+  //-------------------------------------------------
+  audio {
+    position: absolute; top: SZ(-200);
+    visibility: hidden;
+  }
+}
+/////////////////////////////////////////////////////
+.ti-media-control {
+  @include flex-align-nowrap;
+  @include color($color-chip, c, r);
+  position: relative; width: 2.6rem;
+  padding: SZ(6) SZ(46) SZ(6) SZ(6);
+  border-radius: SZ(30); 
+  //-------------------------------------------------
+  .as-play-icon {
+    padding: 0 SZ(4) 0 0;
+    .ti-icon {
+      width: SZ(32); height:SZ(32); font-size: SZ(22);
+      border-radius: 50%;
+    }
+  }
+  //-------------------------------------------------
+  .as-timeline {
+    padding: 0 SZ(12); width: 2rem;
+    > .as-con {
+      .as-bar {
+        background-color: map-get($color-bar, r);
+      }
+      .as-hdl {
+        &::before {background-color: map-get($color-bar, c);}
+      }
+    }
+  }
+  //-------------------------------------------------
+  .as-volume {
+    @include flex-align-nowrap($jc:flex-end);
+    @include pos-abs($t:0,$b:0,$r:0, $w: SZ(48));
+    font-size: SZ(20); border-radius: SZ(30); 
+    padding-right: SZ(8); transition: 0.5s;
+    cursor: pointer;  max-width: SZ(300);
+    //-----------------------------------------------
+    .as-volume-bar {
+      padding: 0 SZ(20); flex:1 1 auto; 
+      display: none;
+    }
+    //-----------------------------------------------
+    .as-volume-icon {
+      .ti-icon {
+        width: SZ(32); height:SZ(32); font-size: SZ(22);
+        border-radius: 50%; 
+      }
+      &:hover {
+        .ti-icon {@include color($color-light, r, c);}
+      }
+    }
+    //-----------------------------------------------
+    &:hover {
+      @include color($color-primary, r, c);
+      width: 100%;
+      .as-volume-bar {
+        display: flex;
+        > .as-con {
+          .as-hdl {
+            &::before {background-color: map-get($color-primary, r);}
+          }
+        }
+      }
+    }
+    //-----------------------------------------------
+  }
+  //-------------------------------------------------
+  //
+  // Status
+  //
+  //-------------------------------------------------
+  &.is-ready {
+    //-----------------------------------------------
+    .as-play-icon {
+      cursor: pointer;
+      &:hover .ti-icon { @include color($color-light, r, c);}
+    }
+    //-----------------------------------------------
+  }
+  //-------------------------------------------------
+  &.is-paused .as-play-icon .ti-icon {
+    padding-left: SZ(1);
+  }
+  //-------------------------------------------------
+}  // .ti-media-control
+/////////////////////////////////////////////////////

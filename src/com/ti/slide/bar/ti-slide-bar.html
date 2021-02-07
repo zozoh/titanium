@@ -1,0 +1,28 @@
+<div class="ti-slide-bar" 
+  :class="TopClass"
+  :style="TopStyle" 
+  v-ti-activable
+  v-ti-draggable="Draggable">
+  <!--Prefix text-->
+  <div 
+    v-if="isShowPreifx"
+      class="as-text at-prefix"
+      :style="TextStyle">{{ThePrefixText}}</div>
+  <!--
+    Bar
+  -->
+  <div ref="con"
+    class="as-con" 
+    @click.left="OnClickBar">
+    <div class="as-bar" :style="BarStyle">
+      <span class="as-marker" :style="BarMarkStyle"></span>
+      <span class="as-inner"  :style="BarInnerStyle"></span>
+    </div>
+    <div class="as-hdl" :style="HandlerStyle" ref="hdl"></div>
+  </div>
+  <!--Suffix text-->
+  <div 
+    v-if="isShowSuffix"
+      class="as-text at-suffix"
+      :style="TextStyle">{{TheSuffixText}}</div>
+</div>

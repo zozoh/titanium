@@ -1,0 +1,6 @@
+{
+  "name" : "ti-slide-bar",
+  "globally" : true,
+  "template" : "./ti-slide-bar.html",
+  "mixins" : ["./ti-slide-bar.mjs"]
+}

@@ -17,6 +17,7 @@ const FIELDS = {
   "title" : {
     title : "i18n:wn-key-title",
     name  : "title",
+    emptyAs: null,
     display: "<=ti-label>",
     comType: "ti-input"
   },

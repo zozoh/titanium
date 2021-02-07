@@ -3,7 +3,6 @@ const resize = function(evt){
 }
 //-----------------------------------
 export default {
-  inheritAttrs : false,
   data: ()=>({
     naturalWidth  : -1,
     naturalHeight : -1,
@@ -42,6 +41,9 @@ export default {
   methods : {
     onVideoLoaded() {
       let $video = this.$refs.the_video
+      if(!_.isElement($video)) {
+        return
+      }
       this.naturalWidth  = $video.videoWidth
       this.naturalHeight = $video.videoHeight
       //console.log(this.naturalWidth, this.naturalHeight)

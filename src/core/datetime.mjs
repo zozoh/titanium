@@ -1,3 +1,5 @@
+import Ti from "./ti.mjs"
+
 ///////////////////////////////////////////
 const I_DAYS = ["sun","mon","tue", "wed", "thu", "fri", "sat"]
 const I_WEEK = [
@@ -24,6 +26,10 @@ const P_DATE = new RegExp(
 )
 ///////////////////////////////////////////
 const TiDateTime = {
+  //---------------------------------------
+  parseTime(val, options) {
+    return Ti.Types.toTime(val, options)
+  },
   //---------------------------------------
   parse(d) {
     //console.log("parseDate:", d)

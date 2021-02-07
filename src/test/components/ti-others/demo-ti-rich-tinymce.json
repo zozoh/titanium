@@ -3,9 +3,9 @@
   "comType" : "ti-text-rich-tinymce",
   "comConf" : {
     "mediaBase" : "/gu/rs/ti/test/components",
-    "theme"     : "nice",
+    "theme"     : "light",
     "value"     : "=content",
-    "debugMode" : true,
-    "toolbar"   : "#full"
+    "toolbar"   : "#full",
+    "plugins"   : ["#preview"]
   }
 }

@@ -29,7 +29,7 @@ const TiCss = {
     if(_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
       if(0 == sz)
         return sz
-      if(autoPercent && sz>-1 && sz<1) {
+      if(autoPercent && sz>=-1 && sz<=1) {
         return sz*100 + "%"
       }
       if(remBase>0) {

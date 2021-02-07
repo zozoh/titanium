@@ -1,0 +1,89 @@
+.ti-slide-bar {
+  @include flex-align-nowrap;
+  user-select: none;
+  padding: 0 SZ(8);
+  width: SZ(150); height: SZ(20); 
+  //-------------------------------------------------
+  $hdl-sm : SZ(8);
+  $hdl-md : SZ(12);
+  $hdl-lg : SZ(16); 
+  @mixin bar-ind($sz) {
+    height: $sz;
+    width : $sz;
+    left  : $sz / -2;
+  }
+  //-------------------------------------------------
+  &.hdl-sm > .as-con .as-hdl::before {@include bar-ind($hdl-sm);}
+  &.hdl-md > .as-con .as-hdl::before {@include bar-ind($hdl-md);}
+  &.hdl-lg > .as-con .as-hdl::before {@include bar-ind($hdl-lg);}
+  //-------------------------------------------------
+  &.bar-sm > .as-con .as-bar {height: 3px;}
+  &.bar-md > .as-con .as-bar {height: 5px;}
+  &.bar-lg > .as-con .as-bar {height: 7px;}
+  //-------------------------------------------------
+  &.no-bar-inner > .as-con .as-bar span {display: none;}
+  //-------------------------------------------------
+  > .as-text {
+    @include font-fixed;
+    font-size: SZ(10); overflow: hidden;
+    text-overflow: ellipsis;
+    &.at-prefix {margin-right: 1em; text-align: right;}
+    &.at-suffix {margin-left: 1em;}
+  }
+  //-------------------------------------------------
+  > .as-con {
+    @include flex-center;
+    position: relative; cursor: pointer;
+    width:100%; height:100%;
+    //-----------------------------------------------
+    .as-bar {
+      background-color: map-get($color-track, c);
+      height: 3px; width:100%;
+      position: relative;
+      //---------------------------------------------
+      > .as-marker {
+        @include pos-abs($l:0,$t:0,$b:0); 
+        display:block;
+        background-color: map-get($color-track, r);
+        opacity: 0.6;
+      }
+      //---------------------------------------------
+      > .as-inner {
+        @include pos-abs($l:0,$t:0,$b:0); 
+        display:block;
+        background-color: map-get($color-track, r);
+      }
+      //---------------------------------------------
+    }
+    //-----------------------------------------------
+    .as-hdl {
+      @include pos-abs($l:0,$t:0,$b:0); 
+      @include flex-center;
+      //---------------------------------------------
+      &::before {
+        @include color($color-primary, r, c);
+        content:"";
+        position: relative; 
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      //---------------------------------------------
+    }
+    //-----------------------------------------------
+  }
+  //-------------------------------------------------
+  &.hdl-sm, &.hdl-md, &.hdl-lg {
+    > .as-con .as-hdl::before {display: block;}
+  }
+  //-------------------------------------------------
+  &.hdl-auto-hide {
+    > .as-con {
+      .as-hdl {opacity: 0; transition: opacity 0.3s;}
+      &:hover .as-hdl {opacity: 1;}
+    }
+  }
+  //-------------------------------------------------
+  &.is-show-prefix {padding-left:0;}
+  &.is-show-suffix {padding-right:0;}
+  //-------------------------------------------------
+}

@@ -1,3 +1,5 @@
+import Draggable from "./vue-ti-com-draggable.mjs"
+
 /////////////////////////////////////////////////////
 const TiComMixin = {
   inheritAttrs : false,
@@ -266,6 +268,11 @@ export const VueTiCom = {
           }
         })
       }
+    })
+    //...............................................
+    // Directive: v-ti-on-actived="this"
+    Vue.directive("tiDraggable", {
+      bind : Draggable
     })
     //...............................................
   }

@@ -1,0 +1,15 @@
+<div class="web-text-article" :class="TopClass">
+  <!--- Loading -->
+  <TiLoading
+    v-if="isLoading && loadingAs"
+      v-bind="loadingAs"/>
+  <!-- Blank -->
+  <component
+    v-if="isBlank && blankAs"
+      :is="blankAs.comType"
+      v-bind="blankAs.comConf"/>
+  <!-- Render content -->
+  <article 
+    :class="ArticleClass"
+    v-html="ArticleHtml"></article>
+</div>

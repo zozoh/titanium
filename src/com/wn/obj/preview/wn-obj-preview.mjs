@@ -82,20 +82,44 @@ export default {
       }
     },
     //--------------------------------------
-    PreviewComType() {
+    DataSource() {
+      if(!this.meta)
+        return ""
+      let link = Wn.Util.getDownloadLink(this.meta, {mode:"auto"})
+      return link.toString();
+    },
+    //--------------------------------------
+    DataIcon() {
+      return Wn.Util.getIconObj(this.meta)
+    },
+    //--------------------------------------
+    DataTitle() {
+      return Wn.Util.getObjDisplayName(this.meta)
+    },
+    //--------------------------------------
+    PreviewCom() {
       if(this.meta) {
+        // File
         let mime = this.meta.mime || ""
-        // Video
-        if(mime.startsWith("video/")){
-          return "ti-media-video"
-        }
-        // Image
-        else if(mime.startsWith("image/")){
-          return "ti-media-image"
+        let m = /^(video|audio|image)\/.+$/.exec(mime)
+        // Video/Audio/Image
+        if(m){
+          return {
+            comType : `ti-media-${m[1]}`,
+            comConf : {
+              src : this.DataSource
+            }
+          }
         }
         // Binary
-        else {
-          return "ti-media-binary"
+        return {
+          comType : "ti-media-binary",
+          comConf : {
+            src : this.DataSource,
+            icon : this.DataIcon,
+            title : this.DataTitle,
+            download : this.meta.race == 'FILE'
+          }
         }
       }
     },
@@ -190,21 +214,6 @@ export default {
       }
       //................................
       return list
-    },
-    //--------------------------------------
-    DataSource() {
-      if(!this.meta)
-        return ""
-      let link = Wn.Util.getDownloadLink(this.meta, {mode:"auto"})
-      return link.toString();
-    },
-    //--------------------------------------
-    DataIcon() {
-      return Wn.Util.getIconObj(this.meta)
-    },
-    //--------------------------------------
-    DataTitle() {
-      return Wn.Util.getObjDisplayName(this.meta)
     }
     //--------------------------------------
   },

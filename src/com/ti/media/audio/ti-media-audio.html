@@ -1,0 +1,66 @@
+<div class="ti-media-audio"
+    :class="TopClass"
+    :style="TopStyle"
+    v-drag-off>
+    <!--
+      Audio
+    -->
+    <audio ref="audio"
+      :src="src"
+      controls
+      @loadstart="OnLoadsStart"
+      @loadedmetadata="OnLoadedMetaData"
+      @canplay="OnCanPlay"
+      @durationchange="OnDurationChange"
+      @loadeddata="OnLoadedData"
+      @ended="OnEnded"
+      @play="OnPlay"
+      @pause="OnPause"
+      @seeked="OnSeeked"
+      @seeking="OnSeeking"
+      @timeupdate="OnTimeUpdate"
+      @volumechange="OnVolumeChange"
+      @stalled="OnStalled"
+      @waiting="OnWaiting"/>
+    <!--
+      Display wrapper
+    -->
+    <div class="ti-media-control" 
+      :class="ControlClass"
+      :style="ControlStyle">
+      <!--
+        Play Icon
+      -->
+      <div class="as-play-icon"
+        @click.left="togglePlay">
+        <TiIcon :value="PlayIcon"/>
+      </div>
+      <!--
+        Slide bar
+      -->
+      <TiSlideBar
+        class="as-timeline hdl-auto-hide hdl-md bar-sm"
+        v-bind="TimelineConfig"
+        :value="currentTime"
+        :max-value="duration"
+        :mark-begin="bufferedBegin"
+        :mark-end="bufferedEnd"
+        @drag:begin="OnTimelineDragBegin"
+        @drag:end="OnTimelineDragEnd"
+        @change="OnTimelineChange"/>
+        <!---
+          Volume button
+        -->
+        <div class="as-volume abc">
+          <TiSlideBar
+            class="as-volume-bar hdl-lg bar-md"
+            v-bind="VolumeConfig"
+            :value="volume"
+            @change="OnVolumeBarChange"/>
+          <div class="as-volume-icon"
+            @click.left="toggleMuted">
+            <TiIcon :value="VolumeIcon"/>
+          </div>
+        </div>
+    </div>
+</div>
