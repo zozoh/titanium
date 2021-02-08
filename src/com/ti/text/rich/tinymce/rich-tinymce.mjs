@@ -132,6 +132,9 @@ const _M = {
     },
     //-----------------------------------------------
     async initEditor() {
+      // Guard
+      if(this.$editor) 
+        return
       // Prepare the configuration
       const conf = {
         target: this.$refs.editor,
@@ -211,11 +214,15 @@ const _M = {
       }
     },
     "value" : function(newVal, oldVal) {
+      // Guard
+      if(!this.$editor) {
+        return
+      }
       //console.log("value", newVal, oldVal)
       if(!this.myHtmlCode ||
         (!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.myHtmlCode))) {
-        this.myHtmlCode = newVal
-        this.$editor.setContent(newVal||"")
+          this.myHtmlCode = newVal
+          this.$editor.setContent(newVal||"")
       }
     }
   },

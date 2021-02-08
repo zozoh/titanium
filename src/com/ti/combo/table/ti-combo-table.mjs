@@ -1,11 +1,5 @@
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({   
-  }),
-  ////////////////////////////////////////////////////
-  props : {
-  },
-  ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
     TopClass() {
@@ -65,9 +59,19 @@ const _M = {
       }]
     },
     //------------------------------------------------
+    TheValue() {
+      if(!this.value) {
+        return []
+      }
+      if(_.isString(this.value)) {
+        return JSON.parse(this.value)
+      }
+      return this.value
+    },
+    //------------------------------------------------
     TableConfig() {
       let config = _.cloneDeep(this.list)
-      config.data = this.value
+      config.data = this.TheValue
       _.defaults(config, {
         blankAs    : this.blankAs,
         blankClass : this.blankClass,
@@ -100,7 +104,7 @@ const _M = {
         return
 
       // Join to 
-      let list = _.cloneDeep(this.value||[])
+      let list = _.cloneDeep(this.TheValue||[])
       list.splice(index, 1, reo)
       this.notifyChange(list)
     },
@@ -113,7 +117,8 @@ const _M = {
         return
 
       // Join to 
-      let val = _.concat(this.value||[], reo)
+      let list = _.cloneDeep(this.TheValue||[])
+      let val = _.concat(list||[], reo)
       this.notifyChange(val)
     },
     //-----------------------------------------------
@@ -130,7 +135,7 @@ const _M = {
         return
 
       // Join to 
-      let list = _.cloneDeep(this.value||[])
+      let list = _.cloneDeep(this.TheValue||[])
       list.splice(index, 1, reo)
       this.notifyChange(list)
     },
@@ -209,6 +214,9 @@ const _M = {
     },
     //-----------------------------------------------
     notifyChange(val=[]) {
+      if("String" == this.valueType) {
+        val = JSON.stringify(val, null, '   ')
+      }
       this.$notify("change", val)
     }
     //-----------------------------------------------

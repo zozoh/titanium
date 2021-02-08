@@ -280,6 +280,7 @@ const WnObj = {
             if(Ti.Util.isNil(v) 
                || Wn.Obj.isBuiltInFields(k)
                || keys[k]
+               || "children" == k
                || k.startsWith("_")) {
               return
             }

@@ -3,8 +3,13 @@ export default {
   // Data
   //-----------------------------------
   "value" : {
-    type : [Array],
+    type : [Array, String],
     default : ()=>[]
+  },
+  "valueType" : {
+    type : String,
+    default : "Array",
+    validator : v => /^(Array|String)$/.test(v)
   },
   //-----------------------------------
   // Behavior

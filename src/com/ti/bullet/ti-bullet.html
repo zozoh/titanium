@@ -1,27 +1,52 @@
 <div class="ti-bullet-list"
   :class="TopClass"
   :style="TopStyle">
-  <div
-    v-for="it of ItemList"
-      class="as-bullet-item"
-      :class="it.className"
-      @click.left="OnClickItem(it)">
-      <!--
-        Bullet
-      -->
-      <ti-icon 
-        class="as-bullet"
-          :value="it.bullet"/>
-      <!--
-        Icon
-      -->
-      <ti-icon 
-        v-if="it.icon"
-          class="as-icon"
-            :value="it.icon"/>
-      <!--
-        Text
-      -->
-      <div class="as-text">{{it.text|i18n}}</div>
-  </div>
+  <!--
+    Blank
+  -->
+  <ti-loading 
+    v-if="!hasItems"
+      class="nil-data"
+      :class="blankClass"
+      v-bind="blankAs"/>
+  <!--
+    Show Items
+  -->
+  <template v-else>
+    <div
+      v-for="grp of ItemGroups"
+        :key="grp.key"
+        class="as-bullet-group">
+        <!-- Group Title -->
+        <div 
+          v-if="grp.title"
+            class="as-group-title">{{grp.title | i18n}}</div>
+        <!-- Group Items -->
+        <div class="as-group-items">
+          <div
+            v-for="it of grp.items"
+              class="as-bullet-item"
+              :class="it.className"
+              @click.left="OnClickItem(it)">
+              <!--
+                Bullet
+              -->
+              <ti-icon 
+                class="as-bullet"
+                  :value="it.bullet"/>
+              <!--
+                Icon
+              -->
+              <ti-icon 
+                v-if="it.icon"
+                  class="as-icon"
+                    :value="it.icon"/>
+              <!--
+                Text
+              -->
+              <div class="as-text">{{it.text|i18n}}</div>
+          </div>
+        </div>
+      </div>
+  </template>
 </div>

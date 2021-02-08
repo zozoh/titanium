@@ -10,13 +10,23 @@
         "comType" : "ti-bullet-checkbox",
         "comConf" : {
           "options" : [
-            {"icon":"fas-rocket", "value": "A", "text": "Ansower A"},
-            {"icon":"fas-rocket", "value": "B", "text": "Ansower B"},
-            {"icon":"fas-rocket", "value": "C", "text": "Ansower C"},
-            {"icon":"fas-rocket", "value": "D", "text": "Ansower D"},
-            {"icon":"fas-rocket", "value": "E", "text": "Ansower E"},
-            {"icon":"fas-rocket", "value": "F", "text": "Ansower F"},
-            {"icon":"fas-rocket", "value": "G", "text": "Ansower G"}]
+            {
+              "key" : "G0",
+              "title" : "分组1",
+              "items" : [
+                {"icon":"fas-rocket", "value": "A", "text": "Ansower A"},
+                {"icon":"fas-rocket", "value": "B", "text": "Ansower B"},
+                {"icon":"fas-rocket", "value": "C", "text": "Ansower C"}]
+            }, {
+              "key" : "G1",
+              "title" : "分组2",
+              "items" : [
+                {"icon":"fas-rocket", "value": "D", "text": "Ansower D"},
+                {"icon":"fas-rocket", "value": "E", "text": "Ansower E"},
+                {"icon":"fas-rocket", "value": "F", "text": "Ansower F"},
+                {"icon":"fas-rocket", "value": "G", "text": "Ansower G"}]
+            }],
+            "groupBy" : true
         }
       }, {
         "title" : "单选列表",
@@ -32,6 +42,28 @@
             {"value": "E", "text": "Ansower E"},
             {"value": "F", "text": "Ansower F"},
             {"value": "G", "text": "Ansower G"}]
+        }
+      }, {
+        "title" : "分组单选列表",
+        "name"  : "br1",
+        "type"  : "String",
+        "comType" : "ti-bullet-radio",
+        "comConf" : {
+          "options" : [
+            {
+              "key" : "G0",
+              "title" : "分组1",
+              "items" : [
+                {"icon":"fas-rocket", "value": "A", "text": "Ansower A"},
+                {"icon":"fas-rocket", "value": "B", "text": "Ansower B"}]
+            }, {
+              "key" : "G1",
+              "title" : "分组2",
+              "items" : [
+                {"icon":"fas-rocket", "value": "D", "text": "Ansower D"},
+                {"icon":"fas-rocket", "value": "E", "text": "Ansower E"}]
+            }],
+            "groupBy" : true
         }
       }]
   }

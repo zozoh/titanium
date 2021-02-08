@@ -34,7 +34,7 @@ export default {
   },
   "autoSelect" : {
     type : Boolean,
-    default : false
+    default : undefined
   },
   //-----------------------------------
   // Aspect

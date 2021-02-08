@@ -1,6 +1,10 @@
 .ti-bullet-list {
   overflow: auto;
   //-------------------------------------
+  .as-group-title {
+    padding: .5em; font-size: 0.9em;
+  }
+  //-------------------------------------
   .as-bullet-item {
     @include flex-align-nowrap($ai:flex-start);
     cursor: pointer; line-height: 1.8em;

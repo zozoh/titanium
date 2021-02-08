@@ -19,16 +19,18 @@ const _M = {
     //--------------------------------------
     OnClickItem({value}) {
       let vals = []
-      _.forEach(this.myOptionsData, it => {
-        if(this.isItemChecked(it.value, this.value)) {
-          if(!_.isEqual(value, it.value)) {
+      _.forEach(this.ItemGroups, grp => {
+        _.forEach(grp.items, it => {
+          if(this.isItemChecked(it.value, this.value)) {
+            if(!_.isEqual(value, it.value)) {
+              vals.push(it.value)
+            }
+          }
+          // check it
+          else if(_.isEqual(value, it.value)) {
             vals.push(it.value)
           }
-        }
-        // check it
-        else if(_.isEqual(value, it.value)) {
-          vals.push(it.value)
-        }
+        })
       })
       this.$notify("change", vals)
     },

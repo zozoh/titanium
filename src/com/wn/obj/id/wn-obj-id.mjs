@@ -62,7 +62,7 @@ export default {
     },
     //-----------------------------------------------
     OnMouseLeave() {
-      //this.showDetail = "hide"
+      this.showDetail = "hide"
     },
     //-----------------------------------------------
     OnCopyAll(evt) {

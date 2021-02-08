@@ -18,10 +18,14 @@ const OBJ = {
       height : "61.8%",
       comType : "wn-obj-creation",
       comConf : {
-        types, freeCreate
+        types, freeCreate,
+        autoFocus : true,
+        enterEvent : "ok"
       },
       components : ["@com:wn/obj/creation"]
     })
+
+    // console.log(no)
    
     // Do Create
     // Check the newName
@@ -62,6 +66,7 @@ const OBJ = {
         race : no.race,
         mime : no.mime
       })
+      // console.log(json)
       let newMeta = await Wn.Sys.exec2(
           `obj id:${this.meta.id} -cqno -new '${json}'`,
           {as:"json"})
@@ -106,7 +111,7 @@ const OBJ = {
         // Check the suffix Name
         let oldSuffix = Ti.Util.getSuffix(it.nm)
         let newSuffix = Ti.Util.getSuffix(newName)
-        if(oldSuffix && oldSuffix != newSuffix) {
+        if('FILE' == it.race && oldSuffix && oldSuffix != newSuffix) {
           let repair = await Ti.Confirm("i18n:wn-rename-suffix-changed")
           if(repair) {
             newName += oldSuffix

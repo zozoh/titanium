@@ -25,6 +25,14 @@ export default {
     "freeCreate" : {
       type : Boolean,
       default : false
+    },
+    "autoFocus" : {
+      type : Boolean,
+      default : false
+    },
+    "enterEvent" : {
+      type : String,
+      default : undefined
     }
   },
   /////////////////////////////////////////
@@ -132,8 +140,28 @@ export default {
         race : type.race,
         meta : type.meta
       })
+    },
+    //--------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("WnObjCreation", uniqKey)
+      if("ENTER" == uniqKey) {
+        if(this.enterEvent) {
+          _.delay(()=>{
+            this.$notify(this.enterEvent)
+          }, 100)
+        }
+      }
     }
     //--------------------------------------
+  },
+  /////////////////////////////////////////
+  mounted : function() {
+    if(this.autoFocus) {
+      if(this.$refs.input) {
+        this.$refs.input.focus()
+      }
+      this.$el.click()
+    }
   }
   /////////////////////////////////////////
 }
