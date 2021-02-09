@@ -1,4 +1,4 @@
-// Pack At: 2021-02-04 00:52:38
+// Pack At: 2021-02-09 20:41:31
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -581,6 +581,53 @@ const {Be} = (function(){
      */
     ScrollWindowTo({x=0,y=0}={}) {
       window.scrollTo(x, y);
+    },
+    /**
+     * Write some content to system clipboard
+     * 
+     * @param str content to be write to clipboard
+     */
+    writeToClipboard(str) {
+      if(!_.isString(str)) {
+        str = Ti.Types.toStr(str)
+      }
+  
+      // Copy to clipboard
+      if(navigator.clipboard) {
+        navigator.clipboard.writeText(str)
+      }
+      // Hack copy
+      else {
+        let $t = Ti.Dom.createElement({
+          tagName : "textarea",
+          style : {
+            position : "fixed",
+            top : "-100000px",
+            left : "0px",
+            width : "300px",
+            height : "300px",
+            opacity : -0,
+            zIndex : 10000
+          },
+          props : {
+            value : str
+          },
+          $p : document.body
+        });
+        $t.focus();
+        $t.select();
+  
+        try {
+            if(!document.execCommand('copy')) {
+              console.warn('fail to execCommand("copy") for text: ', str);
+            }
+            //console.log(re)
+        } catch (err) {
+            console.warn('fail to copy text: ', err);
+        }
+  
+        Ti.Dom.remove($t)
+      }
     },
     /**
      * !!! jQuery here
@@ -2224,6 +2271,10 @@ const {App} = (function(){
         // Measure
         this.width    = "6.4rem"
         this.height   = undefined
+        this.maxWidth  = undefined
+        this.maxHeight = undefined
+        this.minWidth  = undefined
+        this.minHeight = undefined
         this.spacing  = undefined
         this.overflow = undefined
         this.adjustable = false  // true|false|"x"|"y"
@@ -2386,6 +2437,10 @@ const {App} = (function(){
             //--------------------------------------
             width      : this.width,
             height     : this.height,
+            maxWidth   : this.maxWidth,
+            maxHeight  : this.maxHeight,
+            minWidth   : this.minWidth,
+            minHeight  : this.minHeight,
             spacing    : this.spacing,
             overflow   : this.overflow,
             adjustable : this.adjustable,
@@ -2462,7 +2517,11 @@ const {App} = (function(){
             ConStyle() {
               return Ti.Css.toStyle({
                 width  : this.width,
-                height : this.height
+                height : this.height,
+                maxWidth  : this.maxWidth,
+                maxHeight : this.maxHeight,
+                minWidth  : this.minWidth,
+                minHeight : this.minHeight
               })
             },
             //--------------------------------------
@@ -3318,18 +3377,24 @@ const {Dom} = (function(){
   const TiDom = {
     createElement({
       tagName="div", attrs={}, props={}, className="", 
+      style = {},
       $p=null, $refer=null
     }, $doc=document) {
       const $el = $doc.createElement(tagName)
       if(className)
         $el.className = Ti.Css.joinClassNames(className)
       
-      _.forOwn(attrs, (val, key) => {
+      _.forEach(attrs, (val, key) => {
         $el.setAttribute(key, val)
       })
   
-      _.forOwn(props, (val, key) => {
+      _.forEach(props, (val, key) => {
         $el[key] = val
+      })
+  
+      _.forEach(style, (val, key) => {
+        let k = _.camelCase(key)
+        $el.style[k] = val
       })
   
       if($refer && !$p) {
@@ -3415,7 +3480,13 @@ const {Dom} = (function(){
     },
     find(selector="*", $doc=document) {
       if(!$doc)
-        return []
+        return null
+      if(_.isUndefined(selector)) {
+        return $doc
+      }
+      if(_.isNull(selector)) {
+        return null
+      }
       if(_.isElement(selector))
         return selector
       return $doc.querySelector(selector);
@@ -3432,6 +3503,21 @@ const {Dom} = (function(){
         $pel = $pel.parentElement
       }
       return null
+    },
+    eventCurrentTarget(evt, selector, scope) {
+      let $el = evt.srcElement
+      if(!selector) {
+        return $el
+      }
+      while($el) {
+        if($el === scope) {
+          return
+        }
+        if(TiDom.is($el, selector)) {
+          return $el
+        }
+        $el = $el.parentElement
+      }
     },
     ownerWindow($el) {
       if($el.defaultView)
@@ -6142,9 +6228,394 @@ const {AutoMatch} = (function(){
   return {AutoMatch: TiAutoMatch};
 })();
 //##################################################
+// # import {DateTime}     from "./datetime.mjs"
+const {DateTime} = (function(){
+  ///////////////////////////////////////////
+  const I_DAYS = ["sun","mon","tue", "wed", "thu", "fri", "sat"]
+  const I_WEEK = [
+    "sunday", "monday", "tuesday", "wednesday",
+    "thursday", "friday", "saturday"
+  ]
+  const WEEK_DAYS = {
+    "sun":0,"mon":1,"tue":2, "wed":3, "thu":4, "fri":5, "sat":6,
+    "sunday":0, "monday":1, "tuesday":2, "wednesday":3,
+    "thursday":4, "friday":5, "saturday":6
+  }
+  const MONTH_ABBR = [
+    "Jan","Feb","Mar","Apr","May","Jun",
+    "Jul","Aug","Sep","Oct","Nov","Dec"
+  ]
+  ///////////////////////////////////////////
+  const P_DATE = new RegExp(
+    "^((\\d{4})([/\\\\-])?(\\d{1,2})?([/\\\\-])?(\\d{1,2})?)?"
+    + "(([ T])?"
+    + "(\\d{1,2})(:)(\\d{1,2})((:)(\\d{1,2}))?"
+    + "((\.)(\\d{1,3}))?)?"
+    + "(([+-])(\\d{1,2})(:\\d{1,2})?)?"
+    + "(Z(\\d*))?$"
+  )
+  ///////////////////////////////////////////
+  const TiDateTime = {
+    //---------------------------------------
+    parseTime(val, options) {
+      return Ti.Types.toTime(val, options)
+    },
+    //---------------------------------------
+    parse(d) {
+      //console.log("parseDate:", d)
+      // Default return today
+      if(_.isUndefined(d) || "today" === d || "now" === d){
+        return new Date()
+      }
+      // keep null
+      if(!d || (_.isArray(d) && _.isEmpty(d))) {
+        return null
+      }
+      // Date
+      if(_.isDate(d)){
+        return new Date(d)
+      }
+      // Number as AMS
+      if(_.isNumber(d)) {
+        return new Date(d)
+      }
+      // String 
+      if(_.isString(d)) {
+        let str = d
+        // MS 
+        if(/\d{13,}/.test(str)) {
+          return new Date(str * 1)
+        }
+        // Try to tidy string 
+        let m = P_DATE.exec(d)
+        if(m) {
+          let _int = (m, index, dft)=>{
+            let s = m[index]
+            if(s) {
+              return parseInt(s)
+            }
+            return dft
+          }
+          let today = new Date()
+          let yy = _int(m, 2, today.getFullYear());
+          let MM = _int(m, 4, m[2] ? 1 : today.getMonth()+1);
+          let dd = _int(m, 6, m[2] ? 1 : today.getDate());
+          let HH = _int(m, 9, 0);
+          let mm = _int(m, 11, 0);
+          let ss = _int(m, 14, 0);
+          let ms = _int(m, 17, 0);
+          let list = [
+            _.padStart(yy, 4, "0"),
+            "-",
+            _.padStart(MM, 2, "0"),
+            "-",
+            _.padStart(dd, 2, "0"),
+            "T",
+            _.padStart(HH, 2, "0"),
+            ":",
+            _.padStart(mm, 2, "0"),
+            ":",
+            _.padStart(ss, 2, "0"),
+            ".",
+            _.padStart(ms, 3, "0")
+          ]
+          if(m[18])
+            list.push(m[18])
+          let dateStr = list.join("")
+          return new Date(dateStr)
+        }
+      }
+      // Invalid date
+      throw 'i18n:invalid-date'
+    },
+    //---------------------------------------
+    format(date, fmt="yyyy-MM-dd HH:mm:ss") {
+      // Date Range or a group of date
+      if(_.isArray(date)) {
+        //console.log("formatDate", date, fmt)
+        let list = []
+        for(let d of date) {
+          list.push(TiDateTime.format(d, fmt))
+        }
+        return list
+      }
+  
+      if(!_.isDate(date)) {
+        date = TiDateTime.parse(date)
+      }
+      // Guard it
+      if(!date)
+        return null
+      
+      // TODO here add another param
+      // to format the datetime to "in 5min" like string
+      // Maybe the param should named as "shorthand"
+      /*
+      E   :Mon
+      EE  :Mon
+      EEE :Mon
+      EEEE:Monday
+      M   :9
+      MM  :09
+      MMM :Sep
+      MMMM:September
+      */
+      // Format by pattern
+      let yyyy = date.getFullYear()
+      let M = date.getMonth() + 1
+      let d = date.getDate()
+      let H = date.getHours()
+      let m = date.getMinutes()
+      let s = date.getSeconds()
+      let S = date.getMilliseconds()
+  
+      let mkey = MONTH_ABBR[date.getMonth()]
+      let MMM = Ti.I18n.get(`cal.abbr.${mkey}`)
+      let MMMM = Ti.I18n.get(mkey)
+  
+      let day = date.getDay()
+      let dayK0 = _.upperFirst(I_DAYS[day])
+      let dayK1 = _.upperFirst(I_WEEK[day])
+      let E = Ti.I18n.get(dayK0)
+      let EEEE = Ti.I18n.get(dayK1)
+      let _c = {
+        yyyy, M, d, H, m, s, S,
+        yyy : yyyy,
+        yy  : (""+yyyy).substring(2,4),
+        MM  : _.padStart(M, 2, '0'),
+        dd  : _.padStart(d, 2, '0'),
+        HH  : _.padStart(H, 2, '0'),
+        mm  : _.padStart(m, 2, '0'),
+        ss  : _.padStart(s, 2, '0'),
+        SS  : _.padStart(S, 3, '0'),
+        SSS : _.padStart(S, 3, '0'),
+        E, EE:E, EEE:E, EEEE,
+        MMM, MMMM
+      }
+      let regex = /(y{2,4}|M{1,4}|dd?|HH?|mm?|ss?|S{1,3}|E{1,4}|'([^']+)')/g;
+      let ma;
+      let list = []
+      let last = 0
+      while(ma=regex.exec(fmt)) {
+        if(last < ma.index) {
+          list.push(fmt.substring(last, ma.index))
+        }
+        let it = Ti.Util.fallback(ma[2], _c[ma[1]], ma[1])
+        list.push(it)
+        last = regex.lastIndex
+      }
+      if(last < fmt.length) {
+        list.push(fmt.substring(last))
+      }
+      return list.join("")
+    },
+    //---------------------------------------
+    getWeekDayAbbr(day) {
+      let i = _.clamp(day, 0, I_DAYS.length-1)
+      return I_DAYS[i]
+    },
+    //---------------------------------------
+    getWeekDayName(day) {
+      let i = _.clamp(day, 0, I_WEEK.length-1)
+      return I_WEEK[i]
+    },
+    //---------------------------------------
+    getWeekDayValue(name, dft=-1) {
+      let nm = _.trim(_.lowerCase(name))
+      let re = WEEK_DAYS[nm]
+      if(_.isNumber(re))
+        return re
+      return dft
+    },
+    //---------------------------------------
+    /***
+     * @param month{Number} - 0 base Month number
+     * 
+     * @return Month abbr like : "Jan" ... "Dec"
+     */
+    getMonthAbbr(month) {
+      let m = _.clamp(month, 0, 11)
+      return MONTH_ABBR[m]
+    },
+    //---------------------------------------
+    setTime(d, 
+      hours = 0,
+      minutes = 0,
+      seconds = 0,
+      milliseconds = 0
+    ) {
+      if(_.inRange(hours, 0, 24)) {
+        d.setHours(hours)
+      }
+      if(_.inRange(minutes, 0, 60)) {
+        d.setMinutes(minutes)
+      }
+      if(_.inRange(seconds, 0, 60)) {
+        d.setSeconds(seconds)
+      }
+      if(_.inRange(milliseconds, 0, 1000)) {
+        d.setMilliseconds(milliseconds)
+      }
+      return d
+    },
+    //---------------------------------------
+    setDayLastTime(d) {
+      return TiDateTime.setTime(d, 23,59,59,999)
+    },
+    //---------------------------------------
+    moveYear(d, offset=0) {
+      if(_.isDate(d)) {
+        d.setFullYear(d.getFullYear + offset)
+      }
+      return d
+    },
+    //---------------------------------------
+    moveMonth(d, offset=0) {
+      if(_.isDate(d)) {
+        d.setMonth(d.getMonth() + offset)
+      }
+      return d
+    },
+    //---------------------------------------
+    moveDate(d, offset=0) {
+      if(_.isDate(d)) {
+        d.setDate(d.getDate() + offset)
+      }
+      return d
+    },
+    //---------------------------------------
+    createDate(d, offset=0) {
+      if(_.isDate(d)) {
+        let d2 = new Date(d)
+        d2.setDate(d2.getDate() + offset)
+        return d2
+      }
+    },
+    //---------------------------------------
+    rangeStr({date, time="3h"}={}, tmpl='[${from},${to}]') {
+      date = date || 'now'
+      let context = {
+        from : `${date}-${time}`, 
+        to   : date
+      }
+      return Ti.S.renderBy(tmpl, context)
+    },
+    //---------------------------------------
+    rangeFrom({from, to}={}, tmpl='[${from},${to}]') {
+      let amss = []
+      if(from) {
+        amss[0] = TiDateTime.parse(from).getTime()
+      }
+      if(to) {
+        amss[1] = TiDateTime.parse(to).getTime()
+      }
+      if(0 == amss.length) {
+        amss[1] = Date.now()
+      }
+      if(!amss[0]) {
+        amss[0] = amss[1] - 86400000;
+      }
+      if(!amss[1]) {
+        amss[1] = amss[0] + 86400000;
+      }
+      let [ms0, ms1] = amss
+      amss[0] = Math.min(ms0, ms1)
+      amss[1] = Math.max(ms0, ms1)
+  
+      let context = {
+        from : amss[0], 
+        to   : amss[1]
+      }
+      return Ti.S.renderBy(tmpl, context)
+    },
+    //---------------------------------------
+    /**
+     * Given date time in range
+     * 
+     * @param d{Date|String|Number} input datetime
+     * @param range{Number} range in ms
+     * @param falsy{Any} return if not in range
+     * @param trusy{Any} return if in range
+     * 
+     * @return falsy when given time not in range, 
+     * else, trusy will be returned.
+     */
+    toBoolStr(d, range=60000,  falsy="No", trusy="Yes") {
+      let ams = 0;
+      if(d) {
+        ams = TiDateTime.parse(d).getTime()
+      }
+      let du = Date.now() - ams
+      if(du > range) {
+        return falsy
+      }
+      return trusy
+    },
+    //---------------------------------------
+    // - inMin   : just now   : < 10min
+    // - inHour  : 56min      : < 1hour
+    // - inDay   : 23hour     : < 1day
+    // - inWeek  : 6day       : < 1week
+    // - inYear  : Jun 19     : < This Year
+    // - anyTime : 2020/12/32 : Any time
+    timeText(d, {
+      justNow=10,
+      i18n=Ti.I18n.get("time")
+    }={}) {
+      d = TiDateTime.parse(d)
+      let ams = d.getTime()
+      let now = Date.now()
+      let du_ms  = now - ams;
+      //.....................................
+      let prefix = du_ms > 0 ? "past-" : "future-"
+      du_ms = Math.abs(du_ms)
+      //.....................................
+      // Just now
+      let du_min = Math.round(du_ms / 60000)
+      if(du_min < justNow) {
+        return i18n[`${prefix}in-min`]
+      }
+      // in-hour
+      if(du_min < 60) {
+        return Ti.S.renderBy(i18n[`${prefix}in-hour`], {min:du_min})
+      }
+      //.....................................
+      // in-day
+      let du_hr  = Math.round(du_ms / 3600000)
+      if(du_hr < 24) {
+        return Ti.S.renderBy(i18n[`${prefix}in-day`], {
+          min:du_min, hour:du_hr
+        })
+      }
+      //.....................................
+      // in-week
+      let du_day  = Math.round(du_hr / 24)
+      if(du_day < 7) {
+        return Ti.S.renderBy(i18n[`${prefix}in-week`], {
+          min:du_min, hour:du_hr, day: du_day
+        })
+      }
+      //.....................................
+      // in-year
+      let year = d.getFullYear()
+      let toYear = (new Date()).getFullYear()
+      if(year == toYear) {
+        return TiDateTime.format(d, i18n["in-year"])
+      }
+      //.....................................
+      // any-time
+      return TiDateTime.format(d, i18n["any-time"])
+      //.....................................
+    }
+    //---------------------------------------
+  }
+  ///////////////////////////////////////////
+  return {DateTime: TiDateTime};
+})();
+//##################################################
 // # import {Types}        from "./types.mjs"
 const {Types} = (function(){
-  /////////////////////////////////////
+  ///////////////////////////////////////////
   // Time Object
   class TiTime {
     //--------------------------------
@@ -10420,387 +10891,6 @@ const {Bank} = (function(){
   return {Bank: TiBank};
 })();
 //##################################################
-// # import {DateTime}     from "./datetime.mjs"
-const {DateTime} = (function(){
-  ///////////////////////////////////////////
-  const I_DAYS = ["sun","mon","tue", "wed", "thu", "fri", "sat"]
-  const I_WEEK = [
-    "sunday", "monday", "tuesday", "wednesday",
-    "thursday", "friday", "saturday"
-  ]
-  const WEEK_DAYS = {
-    "sun":0,"mon":1,"tue":2, "wed":3, "thu":4, "fri":5, "sat":6,
-    "sunday":0, "monday":1, "tuesday":2, "wednesday":3,
-    "thursday":4, "friday":5, "saturday":6
-  }
-  const MONTH_ABBR = [
-    "Jan","Feb","Mar","Apr","May","Jun",
-    "Jul","Aug","Sep","Oct","Nov","Dec"
-  ]
-  ///////////////////////////////////////////
-  const P_DATE = new RegExp(
-    "^((\\d{4})([/\\\\-])?(\\d{1,2})?([/\\\\-])?(\\d{1,2})?)?"
-    + "(([ T])?"
-    + "(\\d{1,2})(:)(\\d{1,2})((:)(\\d{1,2}))?"
-    + "((\.)(\\d{1,3}))?)?"
-    + "(([+-])(\\d{1,2})(:\\d{1,2})?)?"
-    + "(Z(\\d*))?$"
-  )
-  ///////////////////////////////////////////
-  const TiDateTime = {
-    //---------------------------------------
-    parse(d) {
-      //console.log("parseDate:", d)
-      // Default return today
-      if(_.isUndefined(d) || "today" === d || "now" === d){
-        return new Date()
-      }
-      // keep null
-      if(!d || (_.isArray(d) && _.isEmpty(d))) {
-        return null
-      }
-      // Date
-      if(_.isDate(d)){
-        return new Date(d)
-      }
-      // Number as AMS
-      if(_.isNumber(d)) {
-        return new Date(d)
-      }
-      // String 
-      if(_.isString(d)) {
-        let str = d
-        // MS 
-        if(/\d{13,}/.test(str)) {
-          return new Date(str * 1)
-        }
-        // Try to tidy string 
-        let m = P_DATE.exec(d)
-        if(m) {
-          let _int = (m, index, dft)=>{
-            let s = m[index]
-            if(s) {
-              return parseInt(s)
-            }
-            return dft
-          }
-          let today = new Date()
-          let yy = _int(m, 2, today.getFullYear());
-          let MM = _int(m, 4, m[2] ? 1 : today.getMonth()+1);
-          let dd = _int(m, 6, m[2] ? 1 : today.getDate());
-          let HH = _int(m, 9, 0);
-          let mm = _int(m, 11, 0);
-          let ss = _int(m, 14, 0);
-          let ms = _int(m, 17, 0);
-          let list = [
-            _.padStart(yy, 4, "0"),
-            "-",
-            _.padStart(MM, 2, "0"),
-            "-",
-            _.padStart(dd, 2, "0"),
-            "T",
-            _.padStart(HH, 2, "0"),
-            ":",
-            _.padStart(mm, 2, "0"),
-            ":",
-            _.padStart(ss, 2, "0"),
-            ".",
-            _.padStart(ms, 3, "0")
-          ]
-          if(m[18])
-            list.push(m[18])
-          let dateStr = list.join("")
-          return new Date(dateStr)
-        }
-      }
-      // Invalid date
-      throw 'i18n:invalid-date'
-    },
-    //---------------------------------------
-    format(date, fmt="yyyy-MM-dd HH:mm:ss") {
-      // Date Range or a group of date
-      if(_.isArray(date)) {
-        //console.log("formatDate", date, fmt)
-        let list = []
-        for(let d of date) {
-          list.push(TiDateTime.format(d, fmt))
-        }
-        return list
-      }
-  
-      if(!_.isDate(date)) {
-        date = TiDateTime.parse(date)
-      }
-      // Guard it
-      if(!date)
-        return null
-      
-      // TODO here add another param
-      // to format the datetime to "in 5min" like string
-      // Maybe the param should named as "shorthand"
-      /*
-      E   :Mon
-      EE  :Mon
-      EEE :Mon
-      EEEE:Monday
-      M   :9
-      MM  :09
-      MMM :Sep
-      MMMM:September
-      */
-      // Format by pattern
-      let yyyy = date.getFullYear()
-      let M = date.getMonth() + 1
-      let d = date.getDate()
-      let H = date.getHours()
-      let m = date.getMinutes()
-      let s = date.getSeconds()
-      let S = date.getMilliseconds()
-  
-      let mkey = MONTH_ABBR[date.getMonth()]
-      let MMM = Ti.I18n.get(`cal.abbr.${mkey}`)
-      let MMMM = Ti.I18n.get(mkey)
-  
-      let day = date.getDay()
-      let dayK0 = _.upperFirst(I_DAYS[day])
-      let dayK1 = _.upperFirst(I_WEEK[day])
-      let E = Ti.I18n.get(dayK0)
-      let EEEE = Ti.I18n.get(dayK1)
-      let _c = {
-        yyyy, M, d, H, m, s, S,
-        yyy : yyyy,
-        yy  : (""+yyyy).substring(2,4),
-        MM  : _.padStart(M, 2, '0'),
-        dd  : _.padStart(d, 2, '0'),
-        HH  : _.padStart(H, 2, '0'),
-        mm  : _.padStart(m, 2, '0'),
-        ss  : _.padStart(s, 2, '0'),
-        SS  : _.padStart(S, 3, '0'),
-        SSS : _.padStart(S, 3, '0'),
-        E, EE:E, EEE:E, EEEE,
-        MMM, MMMM
-      }
-      let regex = /(y{2,4}|M{1,4}|dd?|HH?|mm?|ss?|S{1,3}|E{1,4}|'([^']+)')/g;
-      let ma;
-      let list = []
-      let last = 0
-      while(ma=regex.exec(fmt)) {
-        if(last < ma.index) {
-          list.push(fmt.substring(last, ma.index))
-        }
-        let it = Ti.Util.fallback(ma[2], _c[ma[1]], ma[1])
-        list.push(it)
-        last = regex.lastIndex
-      }
-      if(last < fmt.length) {
-        list.push(fmt.substring(last))
-      }
-      return list.join("")
-    },
-    //---------------------------------------
-    getWeekDayAbbr(day) {
-      let i = _.clamp(day, 0, I_DAYS.length-1)
-      return I_DAYS[i]
-    },
-    //---------------------------------------
-    getWeekDayName(day) {
-      let i = _.clamp(day, 0, I_WEEK.length-1)
-      return I_WEEK[i]
-    },
-    //---------------------------------------
-    getWeekDayValue(name, dft=-1) {
-      let nm = _.trim(_.lowerCase(name))
-      let re = WEEK_DAYS[nm]
-      if(_.isNumber(re))
-        return re
-      return dft
-    },
-    //---------------------------------------
-    /***
-     * @param month{Number} - 0 base Month number
-     * 
-     * @return Month abbr like : "Jan" ... "Dec"
-     */
-    getMonthAbbr(month) {
-      let m = _.clamp(month, 0, 11)
-      return MONTH_ABBR[m]
-    },
-    //---------------------------------------
-    setTime(d, 
-      hours = 0,
-      minutes = 0,
-      seconds = 0,
-      milliseconds = 0
-    ) {
-      if(_.inRange(hours, 0, 24)) {
-        d.setHours(hours)
-      }
-      if(_.inRange(minutes, 0, 60)) {
-        d.setMinutes(minutes)
-      }
-      if(_.inRange(seconds, 0, 60)) {
-        d.setSeconds(seconds)
-      }
-      if(_.inRange(milliseconds, 0, 1000)) {
-        d.setMilliseconds(milliseconds)
-      }
-      return d
-    },
-    //---------------------------------------
-    setDayLastTime(d) {
-      return TiDateTime.setTime(d, 23,59,59,999)
-    },
-    //---------------------------------------
-    moveYear(d, offset=0) {
-      if(_.isDate(d)) {
-        d.setFullYear(d.getFullYear + offset)
-      }
-      return d
-    },
-    //---------------------------------------
-    moveMonth(d, offset=0) {
-      if(_.isDate(d)) {
-        d.setMonth(d.getMonth() + offset)
-      }
-      return d
-    },
-    //---------------------------------------
-    moveDate(d, offset=0) {
-      if(_.isDate(d)) {
-        d.setDate(d.getDate() + offset)
-      }
-      return d
-    },
-    //---------------------------------------
-    createDate(d, offset=0) {
-      if(_.isDate(d)) {
-        let d2 = new Date(d)
-        d2.setDate(d2.getDate() + offset)
-        return d2
-      }
-    },
-    //---------------------------------------
-    rangeStr({date, time="3h"}={}, tmpl='[${from},${to}]') {
-      date = date || 'now'
-      let context = {
-        from : `${date}-${time}`, 
-        to   : date
-      }
-      return Ti.S.renderBy(tmpl, context)
-    },
-    //---------------------------------------
-    rangeFrom({from, to}={}, tmpl='[${from},${to}]') {
-      let amss = []
-      if(from) {
-        amss[0] = TiDateTime.parse(from).getTime()
-      }
-      if(to) {
-        amss[1] = TiDateTime.parse(to).getTime()
-      }
-      if(0 == amss.length) {
-        amss[1] = Date.now()
-      }
-      if(!amss[0]) {
-        amss[0] = amss[1] - 86400000;
-      }
-      if(!amss[1]) {
-        amss[1] = amss[0] + 86400000;
-      }
-      let [ms0, ms1] = amss
-      amss[0] = Math.min(ms0, ms1)
-      amss[1] = Math.max(ms0, ms1)
-  
-      let context = {
-        from : amss[0], 
-        to   : amss[1]
-      }
-      return Ti.S.renderBy(tmpl, context)
-    },
-    //---------------------------------------
-    /**
-     * Given date time in range
-     * 
-     * @param d{Date|String|Number} input datetime
-     * @param range{Number} range in ms
-     * @param falsy{Any} return if not in range
-     * @param trusy{Any} return if in range
-     * 
-     * @return falsy when given time not in range, 
-     * else, trusy will be returned.
-     */
-    toBoolStr(d, range=60000,  falsy="No", trusy="Yes") {
-      let ams = 0;
-      if(d) {
-        ams = TiDateTime.parse(d).getTime()
-      }
-      let du = Date.now() - ams
-      if(du > range) {
-        return falsy
-      }
-      return trusy
-    },
-    //---------------------------------------
-    // - inMin   : just now   : < 10min
-    // - inHour  : 56min      : < 1hour
-    // - inDay   : 23hour     : < 1day
-    // - inWeek  : 6day       : < 1week
-    // - inYear  : Jun 19     : < This Year
-    // - anyTime : 2020/12/32 : Any time
-    timeText(d, {
-      justNow=10,
-      i18n=Ti.I18n.get("time")
-    }={}) {
-      d = TiDateTime.parse(d)
-      let ams = d.getTime()
-      let now = Date.now()
-      let du_ms  = now - ams;
-      //.....................................
-      let prefix = du_ms > 0 ? "past-" : "future-"
-      du_ms = Math.abs(du_ms)
-      //.....................................
-      // Just now
-      let du_min = Math.round(du_ms / 60000)
-      if(du_min < justNow) {
-        return i18n[`${prefix}in-min`]
-      }
-      // in-hour
-      if(du_min < 60) {
-        return Ti.S.renderBy(i18n[`${prefix}in-hour`], {min:du_min})
-      }
-      //.....................................
-      // in-day
-      let du_hr  = Math.round(du_ms / 3600000)
-      if(du_hr < 24) {
-        return Ti.S.renderBy(i18n[`${prefix}in-day`], {
-          min:du_min, hour:du_hr
-        })
-      }
-      //.....................................
-      // in-week
-      let du_day  = Math.round(du_hr / 24)
-      if(du_day < 7) {
-        return Ti.S.renderBy(i18n[`${prefix}in-week`], {
-          min:du_min, hour:du_hr, day: du_day
-        })
-      }
-      //.....................................
-      // in-year
-      let year = d.getFullYear()
-      let toYear = (new Date()).getFullYear()
-      if(year == toYear) {
-        return TiDateTime.format(d, i18n["in-year"])
-      }
-      //.....................................
-      // any-time
-      return TiDateTime.format(d, i18n["any-time"])
-      //.....................................
-    }
-    //---------------------------------------
-  }
-  ///////////////////////////////////////////
-  return {DateTime: TiDateTime};
-})();
-//##################################################
 // # import {Num}          from "./num.mjs"
 const {Num} = (function(){
   //-----------------------------------
@@ -10925,7 +11015,7 @@ const {Css} = (function(){
       if(_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
         if(0 == sz)
           return sz
-        if(autoPercent && sz>-1 && sz<1) {
+        if(autoPercent && sz>=-1 && sz<=1) {
           return sz*100 + "%"
         }
         if(remBase>0) {
@@ -11770,6 +11860,92 @@ const {VueEventBubble} = (function(){
 //##################################################
 // # import {VueTiCom} from "./vue/vue-ti-com.mjs"
 const {VueTiCom} = (function(){
+  //################################################
+  // # import TiDraggable from "./vue-ti-com-draggable.mjs"
+  const TiDraggable = (function(){
+    function TiDraggable($el, setup, {context}) {
+      let vm = context
+      let {
+        trigger,     // Which element will trigger the behavior
+        viewport,    // The dragging viewport, default is $el
+        handler = null,  // Dragging handle default is trigger
+        // Callback to dealwith dragging
+        // Function(context)
+        dragging,
+        // Function(context)
+        prepare = _.identity,
+        // Function(context)
+        done =  _.identity,
+      } = setup.value
+      //-----------------------------------------------
+      if(!_.isFunction(dragging)) {
+        return
+      }
+      //-----------------------------------------------
+      $el.addEventListener("mousedown", function(evt){
+        //console.log(evt, trigger)
+        // Find the trigger
+        let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, vm.$el)
+        if(!_.isElement($trigger)) {
+          return
+        }
+        // Enter dragmode
+        let $body = $el.ownerDocument.body
+        let $viewport = Ti.Dom.find(viewport, $el)
+        let $handler  = Ti.Dom.find(handler, $el) || $trigger
+        let context = _.pick(evt, "clientX", "clientY")
+        _.assign(context, {
+          $body, $viewport, $handler, $trigger
+        })
+    
+        // Guard
+        if(!_.isElement($viewport) || !_.isElement($handler)) {
+          return
+        }
+    
+        // Count the view/handler
+        context.viewport = Ti.Rects.createBy($viewport)
+        context.handler = Ti.Rects.createBy($handler) 
+        context.evalScale = function() {
+          let {width, height, left, top} = this.viewport
+          this.x = this.clientX - left
+          this.y = this.clientY - top
+          this.scaleX = this.x / width
+          this.scaleY = this.y / height
+        }
+    
+        // Prepare
+        context = prepare(context) || context
+    
+        //---------------------------------------------
+        function OnBodyMouseMove(evt) {
+          context.clientX = evt.clientX
+          context.clientY = evt.clientY
+          context.evalScale()
+          dragging(context)
+        }
+        //---------------------------------------------
+        function RemoveDraggle(evt) {
+          $body.removeEventListener("mousemove", OnBodyMouseMove, true)
+          $body.removeEventListener("mouseup", RemoveDraggle, true)
+    
+          context.clientX = evt.clientX
+          context.clientY = evt.clientY
+          context.evalScale()
+          done(context)
+        }
+        //---------------------------------------------
+        // Watch dragging in body
+        $body.addEventListener("mousemove", OnBodyMouseMove, true)
+        
+        // Quit 
+        $body.addEventListener("mouseup", RemoveDraggle, true)
+      })
+      //-----------------------------------------------
+    }
+    return TiDraggable;
+  })();
+  
   /////////////////////////////////////////////////////
   const TiComMixin = {
     inheritAttrs : false,
@@ -12038,6 +12214,11 @@ const {VueTiCom} = (function(){
             }
           })
         }
+      })
+      //...............................................
+      // Directive: v-ti-on-actived="this"
+      Vue.directive("tiDraggable", {
+        bind : TiDraggable
       })
       //...............................................
     }
@@ -12463,7 +12644,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210204.005238",
+  "version" : "1.6-20210209.204131",
   "dev" : false,
   "appName" : null,
   "session" : {},

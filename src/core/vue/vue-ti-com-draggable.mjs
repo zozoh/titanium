@@ -1,4 +1,4 @@
-export default function($el, setup, {context}) {
+function TiDraggable($el, setup, {context}) {
   let vm = context
   let {
     trigger,     // Which element will trigger the behavior
@@ -78,3 +78,4 @@ export default function($el, setup, {context}) {
   })
   //-----------------------------------------------
 }
+export default TiDraggable;

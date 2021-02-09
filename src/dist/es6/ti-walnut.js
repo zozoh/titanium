@@ -1,4 +1,4 @@
-// Pack At: 2021-02-04 00:52:38
+// Pack At: 2021-02-09 20:41:31
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -395,6 +395,7 @@ const Obj = (function(){
     "title" : {
       title : "i18n:wn-key-title",
       name  : "title",
+      emptyAs: null,
       display: "<=ti-label>",
       comType: "ti-input"
     },
@@ -657,6 +658,7 @@ const Obj = (function(){
               if(Ti.Util.isNil(v) 
                  || Wn.Obj.isBuiltInFields(k)
                  || keys[k]
+                 || "children" == k
                  || k.startsWith("_")) {
                 return
               }
@@ -2270,7 +2272,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210204.005239"
+const WALNUT_VERSION = "1.2-20210209.204132"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

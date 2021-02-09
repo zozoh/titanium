@@ -1,4 +1,4 @@
-// Pack At: 2021-02-04 00:52:38
+// Pack At: 2021-02-09 20:41:31
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -254,13 +254,13 @@ const FieldDisplay = {
       }
       //......................................
       if(_.isString(displayItem)){
-        // <icon:zmdi-user:$ClassName>
-        let m = /^<([^:>=]*)(:([^>:]+))?(:([^>:]+))?>$/.exec(displayItem)
+        // <icon:zmdi-user:$ClassName>?
+        let m = /^<([^:>=]*)(:([^>:]+))?(:([^>:]+))?>(\?)?$/.exec(displayItem)
         if(m) {
           return {
             key       : m[1] || defaultKey || ":ti-icon",
             defaultAs : m[3] || undefined,
-            ignoreNil : false,
+            ignoreNil : "?" == m[6],
             comType   : "ti-icon",
             comConf   : {
               className : m[5] || undefined
@@ -673,6 +673,53 @@ const __TI_MOD_EXPORT_VAR_NM = {
       warn     : 'zmdi-alert-triangle',
       ok       : 'zmdi-check-circle',
     })
+  }
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'preview.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/preview.mjs'] = (function(){
+function showPreivewDialog(html) {
+  Ti.App.Open({
+    title : "i18n:preview",
+    position : "top",
+    width  : "95%",
+    height : "95%",
+    maxWidth : "10rem",
+    result : html,
+    textOk : null,
+    textCancel : null,
+    comType : "WebTextArticle",
+    comConf : {
+      type  : "html",
+      theme : "nice"
+    },
+    components : ["@com:web/text/article"]
+  })
+}
+
+const __TI_MOD_EXPORT_VAR_NM = {
+  name : "ti-preview",
+  setup : function(editor, url){
+    // Register toolbar actions
+    editor.ui.registry.addButton("TiPreview", {
+      text: Ti.I18n.text("i18n:preview"),
+      onAction(menuBtn) {
+        let html = editor.getContent();
+        showPreivewDialog(html)
+      },
+    })
+
+    return {
+      getMetadata: function () {
+        return  {
+          name: 'Ti Preview plugin',
+          url: 'http://site0.cn'
+        };
+      }
+    };
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -10397,6 +10444,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "freeCreate" : {
       type : Boolean,
       default : false
+    },
+    "autoFocus" : {
+      type : Boolean,
+      default : false
+    },
+    "enterEvent" : {
+      type : String,
+      default : undefined
     }
   },
   /////////////////////////////////////////
@@ -10504,8 +10559,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
         race : type.race,
         meta : type.meta
       })
+    },
+    //--------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("WnObjCreation", uniqKey)
+      if("ENTER" == uniqKey) {
+        if(this.enterEvent) {
+          _.delay(()=>{
+            this.$notify(this.enterEvent)
+          }, 100)
+        }
+      }
     }
     //--------------------------------------
+  },
+  /////////////////////////////////////////
+  mounted : function() {
+    if(this.autoFocus) {
+      if(this.$refs.input) {
+        this.$refs.input.focus()
+      }
+      this.$el.click()
+    }
   }
   /////////////////////////////////////////
 }
@@ -11893,6 +11968,319 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'ti-media-audio.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/media/audio/ti-media-audio.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////////
+  data : ()=>({
+    $audio : undefined,
+
+    dragging : false,
+    loading  : false,
+    seeking  : false,
+    stalled  : false,
+    canplay  : false,
+    playing  : false,
+
+    // Media internal status
+    bufferedBegin : undefined,
+    bufferedEnd : undefined,
+    muted : undefined,
+    paused : undefined,
+    ended : undefined,
+    volume : undefined,
+    duration : undefined,   // In sec.
+    currentTime : 0,        // In sec.
+  }),
+  ///////////////////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "src" : {
+      type : String,
+      default : null
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "timelineWidth" : {
+      type : [Number, String],
+      default : "100%"
+    },
+    "barHeight" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "conWidth" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "conHeight" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "width" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "height" : {
+      type : [Number, String],
+      default : undefined
+    }
+  },
+  ///////////////////////////////////////////////////////
+  computed : {
+    //---------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //---------------------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width  : this.width, 
+        height : this.height
+      })
+    },
+    //---------------------------------------------------
+    ControlClass() {
+      return {
+        "is-ready"    : this.canplay,
+        "is-playing"  : this.playing,
+        "is-paused"   : this.paused,
+        "is-ended"    : this.ended
+      }
+    },
+    //---------------------------------------------------
+    ControlStyle() {
+      return Ti.Css.toStyle({
+        width  : this.conWidth, 
+        height : this.conHeight
+      })
+    },
+    //---------------------------------------------------
+    PlayIcon() {
+      if(this.loading || this.seeking) {
+        return "fas-spinner fa-spin"
+      }
+      if(this.paused) {
+        return "zmdi-play"
+      }
+      return "zmdi-pause"
+    },
+    //---------------------------------------------------
+    VolumeIcon() {
+      if(this.muted) {
+        return "zmdi-volume-off"
+      }
+      if(!this.volume) {
+        return "zmdi-volume-mute"  
+      }
+      if(this.volume < 0.5) {
+        return "zmdi-volume-down"
+      }
+      return "zmdi-volume-up"
+    },
+    //---------------------------------------------------
+    TimeTextWidth() {
+      if(this.duration > 3600) {
+        return "8em"
+      }
+      return "5em"
+    },
+    //---------------------------------------------------
+    TimelineConfig() {
+      return {
+        precision : -1,
+        width     : this.timelineWidth,
+        barHeight : this.barHeight,
+        format    : (v)=>{
+          let tm = Ti.DateTime.parseTime(v, {unit:"s"})
+          return tm.toString("min")
+        },
+        textWidth : this.TimeTextWidth
+      }
+    },
+    //---------------------------------------------------
+    VolumeConfig() {
+      return {
+        precision : -1,
+        notifyFrequency : 100,
+        height : "unset"
+      }
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods : {
+    //---------------------------------------------------
+    OnTimelineChange(val) {
+      // console.log("timline", val)
+      this.$audio.currentTime = val
+    },
+    //---------------------------------------------------
+    OnTimelineDragBegin() {
+      this.dragging = true
+    },
+    OnTimelineDragEnd() {
+      this.dragging = false
+    },
+    //---------------------------------------------------
+    OnVolumeBarChange(val) {
+      // console.log("volume", val)
+      this.$audio.volume = val
+    },
+    //---------------------------------------------------
+    /*
+    Load:
+      1. OnLoadsStart
+      2. OnDurationChange
+      3. OnLoadedMetaData
+      4. OnLoadedData
+      5. OnCanPlay
+    
+    Play
+      1. OnPlay
+      2. OnPause
+      3. OnEnded
+
+    Seek:
+      1. OnSeeking
+      2. OnSeeked
+      3. OnCanPlay
+    
+    Volume
+      1. OnVolumeChange
+    */
+    //---------------------------------------------------
+    OnLoadsStart() {
+      // console.log("OnLoadsStart")
+      this.loading = true
+      this.updateMediaState()
+    },
+    //---------------------------------------------------
+    OnLoadedMetaData() {
+      // console.log("OnLoadedMetaData")
+    },
+    //---------------------------------------------------
+    OnDurationChange() {
+      // console.log("OnDurationChange", this.$audio.duration)
+      this.updateMediaState()
+    },
+    //---------------------------------------------------
+    OnLoadedData() {
+      // console.log("OnLoadedData")
+      this.loading = false
+      this.updateMediaState()
+    },
+    //---------------------------------------------------
+    OnSeeking() {
+      // console.log("OnSeeking")
+      this.seeking = true
+      this.updateMediaState()
+    },
+    //---------------------------------------------------
+    OnSeeked() {
+      // console.log("OnSeeked")
+      this.seeking = false
+      this.updateMediaState()
+    },
+    //---------------------------------------------------
+    OnCanPlay() {
+      // console.log("OnCanPlay")
+      this.loading = false
+      this.canplay = true
+      this.updateMediaState()
+    },
+    //---------------------------------------------------
+    OnPlay() {
+      // console.log("OnPlay")
+      this.playing = true
+      this.updateMediaState()
+    },
+    //---------------------------------------------------
+    OnPause() {
+      // console.log("OnPause")
+      this.playing = false
+      this.updateMediaState()
+    },
+    //---------------------------------------------------
+    OnEnded() {
+      // console.log("OnEnded")
+      this.playing = false
+      this.updateMediaState()
+    },
+    //---------------------------------------------------
+    OnTimeUpdate() {
+      if(!this.dragging) {
+        //console.log("OnTimeUpdate")
+        this.currentTime = this.$audio.currentTime
+        this.updateMediaBuffered()
+      }
+    },
+    //---------------------------------------------------
+    OnVolumeChange() {
+      //console.log("OnVolumeChange", this.$audio.volume, this.$audio.muted)
+      this.volume = this.$audio.volume
+      this.muted = this.$audio.muted
+    },
+    //---------------------------------------------------
+    OnWaiting() {
+      // console.log("OnWaiting")
+      this.loading = true
+    },
+    //---------------------------------------------------
+    OnStalled() {
+      // console.log("OnWaiting")
+      this.stalled = true
+    },
+    //---------------------------------------------------
+    updateMediaBuffered() {
+      let buf = this.$audio.buffered
+      if(buf.length >= 1) {
+        this.bufferedBegin = this.$audio.buffered.start(0)
+        this.bufferedEnd   = this.$audio.buffered.end(0)
+      } else {
+        this.bufferedBegin = undefined
+        this.bufferedEnd   = undefined
+      }
+    },
+    //---------------------------------------------------
+    updateMediaState() {
+      this.updateMediaBuffered()
+      this.paused      = this.$audio.paused
+      this.ended       = this.$audio.ended
+      this.volume      = this.$audio.volume
+      this.muted       = this.$audio.muted
+      this.duration    = this.$audio.duration
+      this.currentTime = this.$audio.currentTime
+    },
+    //---------------------------------------------------
+    togglePlay() {
+      if(this.canplay) {
+        if(this.paused) {
+          this.$audio.play()
+        } else {
+          this.$audio.pause()
+        }
+      }
+    },
+    //---------------------------------------------------
+    toggleMuted() {
+      this.$audio.muted = !this.muted
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  mounted : function() {
+    this.$audio = this.$refs.audio
+  }
+  ///////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'web-shelf-free.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/shelf/free/web-shelf-free.mjs'] = (function(){
@@ -12271,7 +12659,6 @@ const resize = function(evt){
 }
 //-----------------------------------
 const __TI_MOD_EXPORT_VAR_NM = {
-  inheritAttrs : false,
   data: ()=>({
     naturalWidth  : -1,
     naturalHeight : -1,
@@ -12310,6 +12697,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   methods : {
     onVideoLoaded() {
       let $video = this.$refs.the_video
+      if(!_.isElement($video)) {
+        return
+      }
       this.naturalWidth  = $video.videoWidth
       this.naturalHeight = $video.videoHeight
       //console.log(this.naturalWidth, this.naturalHeight)
@@ -18847,20 +19237,44 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //--------------------------------------
-    PreviewComType() {
+    DataSource() {
+      if(!this.meta)
+        return ""
+      let link = Wn.Util.getDownloadLink(this.meta, {mode:"auto"})
+      return link.toString();
+    },
+    //--------------------------------------
+    DataIcon() {
+      return Wn.Util.getIconObj(this.meta)
+    },
+    //--------------------------------------
+    DataTitle() {
+      return Wn.Util.getObjDisplayName(this.meta)
+    },
+    //--------------------------------------
+    PreviewCom() {
       if(this.meta) {
+        // File
         let mime = this.meta.mime || ""
-        // Video
-        if(mime.startsWith("video/")){
-          return "ti-media-video"
-        }
-        // Image
-        else if(mime.startsWith("image/")){
-          return "ti-media-image"
+        let m = /^(video|audio|image)\/.+$/.exec(mime)
+        // Video/Audio/Image
+        if(m){
+          return {
+            comType : `ti-media-${m[1]}`,
+            comConf : {
+              src : this.DataSource
+            }
+          }
         }
         // Binary
-        else {
-          return "ti-media-binary"
+        return {
+          comType : "ti-media-binary",
+          comConf : {
+            src : this.DataSource,
+            icon : this.DataIcon,
+            title : this.DataTitle,
+            download : this.meta.race == 'FILE'
+          }
         }
       }
     },
@@ -18955,21 +19369,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       //................................
       return list
-    },
-    //--------------------------------------
-    DataSource() {
-      if(!this.meta)
-        return ""
-      let link = Wn.Util.getDownloadLink(this.meta, {mode:"auto"})
-      return link.toString();
-    },
-    //--------------------------------------
-    DataIcon() {
-      return Wn.Util.getIconObj(this.meta)
-    },
-    //--------------------------------------
-    DataTitle() {
-      return Wn.Util.getObjDisplayName(this.meta)
     }
     //--------------------------------------
   },
@@ -20353,10 +20752,14 @@ const OBJ = {
       height : "61.8%",
       comType : "wn-obj-creation",
       comConf : {
-        types, freeCreate
+        types, freeCreate,
+        autoFocus : true,
+        enterEvent : "ok"
       },
       components : ["@com:wn/obj/creation"]
     })
+
+    // console.log(no)
    
     // Do Create
     // Check the newName
@@ -20397,6 +20800,7 @@ const OBJ = {
         race : no.race,
         mime : no.mime
       })
+      // console.log(json)
       let newMeta = await Wn.Sys.exec2(
           `obj id:${this.meta.id} -cqno -new '${json}'`,
           {as:"json"})
@@ -20441,7 +20845,7 @@ const OBJ = {
         // Check the suffix Name
         let oldSuffix = Ti.Util.getSuffix(it.nm)
         let newSuffix = Ti.Util.getSuffix(newName)
-        if(oldSuffix && oldSuffix != newSuffix) {
+        if('FILE' == it.race && oldSuffix && oldSuffix != newSuffix) {
           let repair = await Ti.Confirm("i18n:wn-rename-suffix-changed")
           if(repair) {
             newName += oldSuffix
@@ -20799,13 +21203,24 @@ const _M = {
       type : [String, Array, Function, Ti.Dict],
       default : ()=>[]
     },
+    /*
+     {
+       title : "title",
+       key   : "key",
+       items : "items"
+     } 
+     */
+    "groupBy" : {
+      type : [Object, Function, Boolean],
+      default : undefined
+    },
     "valueBy" : {
       type : [String, Function],
-      default : "value"
+      default : "value|id"
     },
     "textBy" : {
       type : [String, Function],
-      default : "text"
+      default : "text|name|title"
     },
     "iconeBy" : {
       type : [String, Function],
@@ -20818,6 +21233,18 @@ const _M = {
     "bulletIconOff" : {
       type : String,
       default : "far-circle"
+    },
+    "blankAs" : {
+      type : Object,
+      default : ()=>({
+        icon : "far-list-alt",
+        text : "empty-data"
+      })
+    },
+    "blankClass": {
+      type: String,
+      default: "as-big",
+      validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
     },
     "width" : {
       type : [Number, String],
@@ -20841,18 +21268,77 @@ const _M = {
         height : this.height
       })
     },
+    //-----------------------------------------------
+    Grouping() {
+      if(this.groupBy) {
+        if(_.isFunction(this.groupBy)) {
+          return this.groupBy
+        }
+        if(_.isPlainObject(this.groupBy)) {
+          return (obj) => {
+            let title = _.get(obj, this.groupBy.title)
+            let key = _.get(obj, this.groupBy.key)
+            let items = _.get(obj, this.groupBy.items)
+            if(key && !_.isEmpty(items)) {
+              return {title, key, items}
+            }
+          }
+        }
+        return (obj)=>_.pick(obj, "title", "key", "items")
+      }
+    },
+    //-----------------------------------------------
+    getItemIcon()  {
+      if(this.myDict)
+        return it => this.myDict.getIcon(it)
+      return Ti.Util.genGetterNotNil(this.iconBy)
+    },
+    getItemText()  {
+      if(this.myDict)
+        return it => this.myDict.getText(it)
+      return Ti.Util.genGetterNotNil(this.textBy)
+    },
+    getItemValue() {
+      if(this.myDict)
+        return it => this.myDict.getValue(it)
+      return Ti.Util.genGetterNotNil(this.valueBy)
+    },
     //------------------------------------------------
-    getItemIcon()  {return Ti.Util.genGetterNotNil(this.iconBy)},
-    getItemText()  {return Ti.Util.genGetterNotNil(this.textBy)},
-    getItemValue() {return Ti.Util.genGetterNotNil(this.valueBy)},
+    hasItems() {
+      return !_.isEmpty(this.ItemGroups)
+    },
     //------------------------------------------------
-    ItemList() {
+    ItemGroups() {
+      if(this.Grouping) {
+        let list = []
+        for(let data of this.myOptionsData) {
+          let {title,key,items} = this.Grouping(data)
+          items = this.evalItems(items)
+          list.push({title, key, items})
+        }
+        return list
+      }
+      // Single Group
+      else {
+        let items = this.evalItems(this.myOptionsData)
+        return [{
+          key: "g0",
+          items
+        }]
+      }
+    },
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    evalItems(items=[]) {
       let list = []
-      _.forEach(this.myOptionsData, li => {
+      _.forEach(items, li => {
         let it = {
-          icon  : this.myDict.getIcon(li),
-          text  : this.myDict.getText(li),
-          value : this.myDict.getValue(li)
+          icon  : this.getItemIcon(li),
+          text  : this.getItemText(li),
+          value : this.getItemValue(li)
         }
         if(this.isItemChecked(it.value, this.value)) {
           it.className = "is-checked"
@@ -20863,11 +21349,7 @@ const _M = {
         list.push(it)
       })
       return list
-    }
-    //------------------------------------------------
-  },
-  ////////////////////////////////////////////////////
-  methods : {
+    },
     //------------------------------------------------
     createDict() {
       // Customized
@@ -20884,12 +21366,12 @@ const _M = {
         }
       }
       // Auto Create
-      return Ti.DictFactory.CreateDict({
-        data : this.options,
-        // getValue : Ti.Util.genGetter(this.valueBy || "value"),
-        // getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
-        // getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
-      })
+      // return Ti.DictFactory.CreateDict({
+      //   data : this.options,
+      //   getValue : Ti.Util.genGetter(this.valueBy || "value|id"),
+      //   getText  : Ti.Util.genGetter(this.textBy  || "text|name|title"),
+      //   getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
+      // })
     },
     //------------------------------------------------
   },
@@ -20899,8 +21381,12 @@ const _M = {
       handler : async function(newval, oldval) {
         if(!_.isEqual(newval, oldval)) {
           this.myDict = this.createDict()
-          this.loading = true
-          this.myOptionsData = await this.myDict.getData()
+          if(this.myDict) {
+            this.loading = true
+            this.myOptionsData = await this.myDict.getData()
+          } else {
+            this.myOptionsData = newval
+          }
           this.$nextTick(()=>{
             this.loading = false
           })
@@ -21600,19 +22086,22 @@ return _M;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/media/binary/ti-media-binary.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
-  inheritAttrs : false,
   props : {
     "icon" : {
       type : [String, Object],
-      default : null
+      default : undefined
     },
     "title" : {
       type : String,
-      default : null
+      default : undefined
     },
     "src" : {
       type : String,
-      default : null
+      default : undefined
+    },
+    "download" : {
+      type : Boolean,
+      default : undefined
     },
     "width" : {
       type : [String, Number],
@@ -23373,12 +23862,6 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/combo/table/ti-combo-table.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({   
-  }),
-  ////////////////////////////////////////////////////
-  props : {
-  },
-  ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
     TopClass() {
@@ -23438,9 +23921,19 @@ const _M = {
       }]
     },
     //------------------------------------------------
+    TheValue() {
+      if(!this.value) {
+        return []
+      }
+      if(_.isString(this.value)) {
+        return JSON.parse(this.value)
+      }
+      return this.value
+    },
+    //------------------------------------------------
     TableConfig() {
       let config = _.cloneDeep(this.list)
-      config.data = this.value
+      config.data = this.TheValue
       _.defaults(config, {
         blankAs    : this.blankAs,
         blankClass : this.blankClass,
@@ -23473,7 +23966,7 @@ const _M = {
         return
 
       // Join to 
-      let list = _.cloneDeep(this.value||[])
+      let list = _.cloneDeep(this.TheValue||[])
       list.splice(index, 1, reo)
       this.notifyChange(list)
     },
@@ -23486,7 +23979,8 @@ const _M = {
         return
 
       // Join to 
-      let val = _.concat(this.value||[], reo)
+      let list = _.cloneDeep(this.TheValue||[])
+      let val = _.concat(list||[], reo)
       this.notifyChange(val)
     },
     //-----------------------------------------------
@@ -23503,7 +23997,7 @@ const _M = {
         return
 
       // Join to 
-      let list = _.cloneDeep(this.value||[])
+      let list = _.cloneDeep(this.TheValue||[])
       list.splice(index, 1, reo)
       this.notifyChange(list)
     },
@@ -23582,6 +24076,9 @@ const _M = {
     },
     //-----------------------------------------------
     notifyChange(val=[]) {
+      if("String" == this.valueType) {
+        val = JSON.stringify(val, null, '   ')
+      }
       this.$notify("change", val)
     }
     //-----------------------------------------------
@@ -29778,6 +30275,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------------------
     OnMouseLeave() {
       this.showDetail = "hide"
+    },
+    //-----------------------------------------------
+    OnCopyAll(evt) {
+      let $ta = Ti.Dom.find("table", this.$el)
+      let ids = _.concat(_.get(this.OID, "homeId"), _.get(this.OID, "myId"))
+      this.__copy(ids.join(":"), $ta)
+    },
+    //-----------------------------------------------
+    OnCopyHomeId(evt) {
+      let $ta = Ti.Dom.find(".is-home-id td:nth-child(2)", this.$el)
+      this.__copy(_.get(this.OID, "homeId"), $ta)
+    },
+    //-----------------------------------------------
+    OnCopyMyId(evt) {
+      let $ta = Ti.Dom.find(".is-my-id td:nth-child(2)", this.$el)
+      this.__copy(_.get(this.OID, "myId"), $ta)
+    },
+    //-----------------------------------------------
+    __copy(str, $ta) {
+      Ti.Be.BlinkIt($ta)
+      //console.log(str)
+      Ti.Be.writeToClipboard(str)
     }
     //-----------------------------------------------
   }
@@ -32335,7 +32854,8 @@ const _M = {
             'blockquote bullist numlist',
             'table',
             'superscript subscript',
-            'edit removeformat']
+            'edit removeformat',
+            'TiPreview']
         })[tbName]
         return tbd ? tbd.join("|") : false
       }
@@ -32343,6 +32863,10 @@ const _M = {
         return this.toolbar.join("|")
       }
       return this.toolbar
+    },
+    //------------------------------------------------
+    ContentCssPath() {
+      return Ti.Config.url(`@theme:tinymce/doc_${this.theme}.css`)
     },
     //-----------------------------------------------
     BlankComStyle() {
@@ -32394,6 +32918,7 @@ const _M = {
       let plugins = ['paste lists table'].concat(plugNames)
       return _.assign({
         plugins: plugins.join(" "),
+        content_css : this.ContentCssPath,
         auto_focus: true,
         menubar: true,
         statusbar: false,
@@ -32419,6 +32944,9 @@ const _M = {
     },
     //-----------------------------------------------
     async initEditor() {
+      // Guard
+      if(this.$editor) 
+        return
       // Prepare the configuration
       const conf = {
         target: this.$refs.editor,
@@ -32498,11 +33026,15 @@ const _M = {
       }
     },
     "value" : function(newVal, oldVal) {
+      // Guard
+      if(!this.$editor) {
+        return
+      }
       //console.log("value", newVal, oldVal)
       if(!this.myHtmlCode ||
         (!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.myHtmlCode))) {
-        this.myHtmlCode = newVal
-        this.$editor.setContent(newVal||"")
+          this.myHtmlCode = newVal
+          this.$editor.setContent(newVal||"")
       }
     }
   },
@@ -32563,80 +33095,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
   }
   //////////////////////////////////////////
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'heading.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/heading.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  name : "ti-heading",
-  setup : function(editor, url){
-    console.log("plugin:heading", editor, url)
-
-    // Heading data
-    let headingItems = [{
-      title: "H1",
-      selector: "h1",
-      command: ['FormatBlock', false, 'h1']
-    }, {
-      title: "H2",
-      selector: "h2",
-      command: ['FormatBlock', false, 'h2']
-    }, {
-      title: "H3",
-      selector: "h3",
-      command: ['FormatBlock', false, 'h3']
-    }]
-
-    // Register toolbar actions
-    editor.ui.registry.addMenuButton("TiHeading", {
-      text: "i18n:heading",
-      fetch(callback) {
-        let items = []
-        for(let hi of headingItems) {
-          let {title, selector, command} = hi || {} 
-          items.push({
-            type : 'togglemenuitem',
-            text : title,
-            onAction() {
-              editor.execCommand(...command)
-            }, // ~ onAction()
-            onSetup(menuItem) {
-              let el = editor.selection.getNode()
-              let on = Ti.Dom.is(el, selector)
-              menuItem.setActive(on)
-              return function(){}
-            }
-          })
-        }
-        callback(items)
-      },
-      onAction(menuBtn) {
-        console.log(menuBtn)
-      },
-      onSetup(menuBtn) {
-        console.log(menuBtn)
-        const callback = function({element}={}) {
-          console.log("OnMenuBtnCallback", element, menuBtn)
-        }
-        editor.on('NodeChange', callback);
-        return function(){
-          editor.off('NodeChange', callback);
-        }
-      }
-    })
-
-    return {
-      getMetadata: function () {
-        return  {
-          name: 'Ti Heading plugin',
-          url: 'http://site.cn'
-        };
-      }
-    };
-  }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -34158,7 +34616,7 @@ const _M = {
   },
   "theme" : {
     type : String,
-    default : "nice"
+    default : "light"
   },
   "loadingAs" : {
     type : Object,
@@ -36738,6 +37196,83 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'web-text-article.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "value": {
+      type: String,
+      default: undefined
+    },
+    "type": {
+      type : String,
+      default : "html",
+      validator : v => /^(html|markdown)$/.test(v)
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "theme": {
+      type : String,
+      default: "nice"
+    },
+    "loadingAs" : {
+      type : Object,
+      default : ()=>({
+        className : "as-nil-mask as-big",
+        icon : undefined,
+        text : undefined
+      })
+    },
+    "blankAs" : {
+      type : Object,
+      default : ()=>({
+        comType : "TiLoading",
+        comConf : {
+          className : "as-nil-mask as-big",
+          icon : "fas-coffee",
+          text : null
+        }
+      })
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    ArticleClass() {
+      return `ti-article-theme-${this.theme}`
+    },
+    //--------------------------------------
+    isLoading() {
+      return _.isUndefined(this.value)
+    },
+    //--------------------------------------
+    isBlank() {
+      return Ti.Util.isNil(this.value)
+    },
+    //--------------------------------------
+    ArticleHtml() {
+      if("html" == this.type) {
+        return this.value
+      }
+      throw `type '${this.type}' not support yet!`
+    }
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'wn-manager-methods.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['/a/load/wn.manager/wn-manager-methods.mjs'] = (function(){
@@ -37915,16 +38450,18 @@ const _M = {
     //--------------------------------------
     OnClickItem({value}) {
       let vals = []
-      _.forEach(this.myOptionsData, it => {
-        if(this.isItemChecked(it.value, this.value)) {
-          if(!_.isEqual(value, it.value)) {
+      _.forEach(this.ItemGroups, grp => {
+        _.forEach(grp.items, it => {
+          if(this.isItemChecked(it.value, this.value)) {
+            if(!_.isEqual(value, it.value)) {
+              vals.push(it.value)
+            }
+          }
+          // check it
+          else if(_.isEqual(value, it.value)) {
             vals.push(it.value)
           }
-        }
-        // check it
-        else if(_.isEqual(value, it.value)) {
-          vals.push(it.value)
-        }
+        })
       })
       this.$notify("change", vals)
     },
@@ -38927,6 +39464,293 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'ti-slide-bar.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/slide/bar/ti-slide-bar.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////////
+  data : ()=>({
+    myHdlLeft : 0,
+    myValue : undefined
+  }),
+  ///////////////////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "value" : {
+      type : Number,
+      default : undefined
+    },
+    "maxValue" : {
+      type : Number,
+      default : 1
+    },
+    "minValue" : {
+      type : Number,
+      default : 0
+    },
+    "markBegin" : {
+      type : Number,
+      default : undefined
+    },
+    "markEnd" : {
+      type : Number,
+      default : undefined
+    },
+    "precision" : {
+      type : Number,
+      default : 2
+    },
+    "format" : {
+      type : [Function, String],
+      default : undefined
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    // 0 : notify when dragging done
+    // > 0 : notify during dragging with throttle
+    "notifyFrequency" : {
+      type : Number,
+      default : 0
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "prefixText" : {
+      type : [Boolean, String],
+      default : true,
+      validator: v=>(_.isBoolean(v) || /^(current|min|none)$/.test(v))
+    },
+    "suffixText" : {
+      type : [Boolean, String],
+      default : true,
+      validator: v=>(_.isBoolean(v) || /^(current|max|none)$/.test(v))
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "textWidth" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "barHeight" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "width" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "height" : {
+      type : [Number, String],
+      default : undefined
+    }
+  },
+  ///////////////////////////////////////////////////////
+  computed : {
+    //---------------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-show-prefix" : this.isShowPreifx,
+        "is-show-suffix" : this.isShowSuffix
+      })
+    },
+    //---------------------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //---------------------------------------------------
+    TextStyle() {
+      return Ti.Css.toStyle({
+        width: this.textWidth,
+      })
+    },
+    //---------------------------------------------------
+    BarStyle() {
+      return Ti.Css.toStyle({
+        height: this.barHeight,
+      })
+    },
+    //---------------------------------------------------
+    TheValueSize() {
+      return Ti.Css.toSize(this.myHdlLeft)
+    },
+    BarInnerStyle() {
+      return {width: this.TheValueSize}
+    },
+    HandlerStyle() {
+      return {left: this.TheValueSize}
+    },
+    //---------------------------------------------------
+    BarMarkStyle() {
+      if(_.isNumber(this.markBegin) && _.isNumber(this.markEnd)) {
+        let left  = this.calScale(this.markBegin)
+        let width = this.calScale(this.markEnd - this.markBegin)
+        return Ti.Css.toStyle({
+          left, width
+        })
+      }
+    },
+    //---------------------------------------------------
+    FormatValue() {
+      if(_.isString(this.format)) {
+        if(this.format.startsWith("=>")) {
+          let str = this.format.substring(2).trim()
+          return Ti.Util.genInvoking(str, {partial: "right"})
+        }
+        return (val) => {
+          return Ti.S.renderBy(this.format, {val})
+        }
+      }
+      if(_.isFunction(this.format)) {
+        return this.format;
+      }
+      return v=>v
+    },
+    //---------------------------------------------------
+    MaxValueText() {
+      return this.FormatValue(this.maxValue)
+    },
+    //---------------------------------------------------
+    MinValueText() {
+      return this.FormatValue(this.minValue)
+    },
+    //---------------------------------------------------
+    CurrentValueText() {
+      return this.FormatValue(this.myValue)
+    },
+    //---------------------------------------------------
+    TextContext() {
+      return {
+        current : this.CurrentValueText,
+        min     : this.MinValueText,
+        max     : this.MaxValueText
+      }
+    },
+    //---------------------------------------------------
+    ThePrefixText() {
+      if(this.prefixText) {
+        if(_.isBoolean(this.prefixText)) {
+          return this.CurrentValueText || this.MinValueText
+        }
+        return _.get(this.TextContext, this.prefixText)
+      }
+    },
+    //---------------------------------------------------
+    TheSuffixText() {
+      if(this.suffixText) {
+        if(_.isBoolean(this.suffixText)) {
+          return this.MaxValueText
+        }
+        return _.get(this.TextContext, this.suffixText)
+      }
+    },
+    //---------------------------------------------------
+    isShowPreifx() {return this.textWidth && this.ThePrefixText},
+    isShowSuffix() {return this.textWidth && this.TheSuffixText},
+    //---------------------------------------------------
+    ThrottleSetVal() {
+      if(this.notifyFrequency > 0) {
+        return _.throttle( scale => {
+          this.evalMyVal(scale)
+        }, this.notifyFrequency)
+      }
+    },
+    //---------------------------------------------------
+    Draggable() {
+      return {
+        trigger  : ".as-hdl",
+        viewport : ".as-con",
+        prepare  : ({scaleX})=>{
+          let scale = _.clamp(scaleX, 0, 1)
+          let value = this.calValue(scale)
+          this.$notify("drag:begin", {value, scale})
+        },
+        dragging : ({scaleX})=>{
+          this.evalMyHdlLeft(scaleX)
+          if(this.ThrottleSetVal) {
+            this.ThrottleSetVal(this.myHdlLeft)
+          }
+        },
+        done : ({scaleX}) => {
+          this.evalMyHdlLeft(scaleX)
+          this.evalMyVal(scaleX)
+          this.$notify("drag:end", {
+            value : this.myValue, 
+            scale : this.myHdlLeft
+          })
+        }
+      }
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods : {
+    //---------------------------------------------------
+    OnClickBar(evt) {
+      if(evt.srcElement == this.$refs.hdl) {
+        return
+      }
+      let {left, width} = Ti.Rects.createBy(this.$refs.con)
+      let clientX = evt.clientX
+      let scale = (clientX - left) / width
+      this.evalMyHdlLeft(scale)
+      this.evalMyVal(scale)
+    },
+    //---------------------------------------------------
+    calScale(val) {
+      let sum = this.maxValue - this.minValue
+      if(sum != 0)
+        return val / sum
+    },
+    //---------------------------------------------------
+    calValue(scale) {
+      scale = _.clamp(scale, 0, 1)
+      let val = (this.maxValue - this.minValue) * scale
+      val = Ti.Num.precise(val, this.precision)
+      return val
+    },
+    //---------------------------------------------------
+    evalMyHdlLeft(scale) {
+      this.myHdlLeft = _.clamp(scale, 0, 1)
+    },
+    //---------------------------------------------------
+    evalMyVal(scale) {
+      this.myValue = this.calValue(scale)
+    }
+    //---------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    "value" : {
+      handler : function(newVal, oldVal) {
+        if(newVal != oldVal) {
+          newVal = newVal || 0
+          let scale = newVal / (this.maxValue - this.minValue)
+          this.evalMyHdlLeft(scale)
+          this.myValue = newVal
+        }
+      },
+      immediate : true
+    },
+    "myValue" : function(newVal, oldVal) {
+      if(newVal != oldVal 
+        && !_.isUndefined(oldVal)
+        && newVal != this.value) {
+        this.$notify("change", this.myValue)
+      }
+    }
+  }
+  ///////////////////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -43316,7 +44140,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "autoSelect" : {
     type : Boolean,
-    default : false
+    default : undefined
   },
   //-----------------------------------
   // Aspect
@@ -44767,8 +45591,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // Data
   //-----------------------------------
   "value" : {
-    type : [Array],
+    type : [Array, String],
     default : ()=>[]
+  },
+  "valueType" : {
+    type : String,
+    default : "Array",
+    validator : v => /^(Array|String)$/.test(v)
   },
   //-----------------------------------
   // Behavior
@@ -45274,29 +46103,54 @@ Ti.Preload("ti/com/ti/bullet/ti-bullet-mixin.mjs", TI_PACK_EXPORTS['ti/com/ti/bu
 Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list"
   :class="TopClass"
   :style="TopStyle">
-  <div
-    v-for="it of ItemList"
-      class="as-bullet-item"
-      :class="it.className"
-      @click.left="OnClickItem(it)">
-      <!--
-        Bullet
-      -->
-      <ti-icon 
-        class="as-bullet"
-          :value="it.bullet"/>
-      <!--
-        Icon
-      -->
-      <ti-icon 
-        v-if="it.icon"
-          class="as-icon"
-            :value="it.icon"/>
-      <!--
-        Text
-      -->
-      <div class="as-text">{{it.text|i18n}}</div>
-  </div>
+  <!--
+    Blank
+  -->
+  <ti-loading 
+    v-if="!hasItems"
+      class="nil-data"
+      :class="blankClass"
+      v-bind="blankAs"/>
+  <!--
+    Show Items
+  -->
+  <template v-else>
+    <div
+      v-for="grp of ItemGroups"
+        :key="grp.key"
+        class="as-bullet-group">
+        <!-- Group Title -->
+        <div 
+          v-if="grp.title"
+            class="as-group-title">{{grp.title | i18n}}</div>
+        <!-- Group Items -->
+        <div class="as-group-items">
+          <div
+            v-for="it of grp.items"
+              class="as-bullet-item"
+              :class="it.className"
+              @click.left="OnClickItem(it)">
+              <!--
+                Bullet
+              -->
+              <ti-icon 
+                class="as-bullet"
+                  :value="it.bullet"/>
+              <!--
+                Icon
+              -->
+              <ti-icon 
+                v-if="it.icon"
+                  class="as-icon"
+                    :value="it.icon"/>
+              <!--
+                Text
+              -->
+              <div class="as-text">{{it.text|i18n}}</div>
+          </div>
+        </div>
+      </div>
+  </template>
 </div>`);
 //========================================
 // JOIN <ti-button.html> ti/com/ti/button/ti-button.html
@@ -48371,6 +49225,91 @@ Ti.Preload("ti/com/ti/logging/_com.json", {
   "mixins" : ["./ti-logging.mjs"]
 });
 //========================================
+// JOIN <ti-media-audio.html> ti/com/ti/media/audio/ti-media-audio.html
+//========================================
+Ti.Preload("ti/com/ti/media/audio/ti-media-audio.html", `<div class="ti-media-audio"
+    :class="TopClass"
+    :style="TopStyle"
+    v-drag-off>
+    <!--
+      Audio
+    -->
+    <audio ref="audio"
+      :src="src"
+      controls
+      @loadstart="OnLoadsStart"
+      @loadedmetadata="OnLoadedMetaData"
+      @canplay="OnCanPlay"
+      @durationchange="OnDurationChange"
+      @loadeddata="OnLoadedData"
+      @ended="OnEnded"
+      @play="OnPlay"
+      @pause="OnPause"
+      @seeked="OnSeeked"
+      @seeking="OnSeeking"
+      @timeupdate="OnTimeUpdate"
+      @volumechange="OnVolumeChange"
+      @stalled="OnStalled"
+      @waiting="OnWaiting"/>
+    <!--
+      Display wrapper
+    -->
+    <div class="ti-media-control" 
+      :class="ControlClass"
+      :style="ControlStyle">
+      <!--
+        Play Icon
+      -->
+      <div class="as-play-icon"
+        @click.left="togglePlay">
+        <TiIcon :value="PlayIcon"/>
+      </div>
+      <!--
+        Slide bar
+      -->
+      <TiSlideBar
+        class="as-timeline hdl-auto-hide hdl-md bar-sm"
+        v-bind="TimelineConfig"
+        :value="currentTime"
+        :max-value="duration"
+        :mark-begin="bufferedBegin"
+        :mark-end="bufferedEnd"
+        @drag:begin="OnTimelineDragBegin"
+        @drag:end="OnTimelineDragEnd"
+        @change="OnTimelineChange"/>
+        <!---
+          Volume button
+        -->
+        <div class="as-volume abc">
+          <TiSlideBar
+            class="as-volume-bar hdl-lg bar-md"
+            v-bind="VolumeConfig"
+            :value="volume"
+            @change="OnVolumeBarChange"/>
+          <div class="as-volume-icon"
+            @click.left="toggleMuted">
+            <TiIcon :value="VolumeIcon"/>
+          </div>
+        </div>
+    </div>
+</div>`);
+//========================================
+// JOIN <ti-media-audio.mjs> ti/com/ti/media/audio/ti-media-audio.mjs
+//========================================
+Ti.Preload("ti/com/ti/media/audio/ti-media-audio.mjs", TI_PACK_EXPORTS['ti/com/ti/media/audio/ti-media-audio.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/media/audio/_com.json
+//========================================
+Ti.Preload("ti/com/ti/media/audio/_com.json", {
+  "name" : "ti-media-audio",
+  "globally" : true,
+  "template" : "./ti-media-audio.html",
+  "mixins" : ["./ti-media-audio.mjs"],
+  "components" : [
+    "@com:ti/slide/bar"
+  ]
+});
+//========================================
 // JOIN <ti-media-binary.html> ti/com/ti/media/binary/ti-media-binary.html
 //========================================
 Ti.Preload("ti/com/ti/media/binary/ti-media-binary.html", `<div class="ti-media-binary">
@@ -48380,11 +49319,13 @@ Ti.Preload("ti/com/ti/media/binary/ti-media-binary.html", `<div class="ti-media-
   <div class="tob-title">
     {{title}}
   </div>
-  <div class="tob-actions">
-    <a :href="src">
-      <ti-icon value="download"/>
-      <span>{{'download'|i18n}}</span>
-    </a>
+  <div 
+    v-if="download"
+      class="tob-actions">
+      <a :href="src">
+        <ti-icon value="download"/>
+        <span>{{'download'|i18n}}</span>
+      </a>
   </div>
 </div>`);
 //========================================
@@ -48930,6 +49871,50 @@ Ti.Preload("ti/com/ti/sheet/emoji/_com.json", {
   "globally" : true,
   "template" : "./ti-sheet-emoji.html",
   "mixins" : ["./ti-sheet-emoji.mjs"]
+});
+//========================================
+// JOIN <ti-slide-bar.html> ti/com/ti/slide/bar/ti-slide-bar.html
+//========================================
+Ti.Preload("ti/com/ti/slide/bar/ti-slide-bar.html", `<div class="ti-slide-bar" 
+  :class="TopClass"
+  :style="TopStyle" 
+  v-ti-activable
+  v-ti-draggable="Draggable">
+  <!--Prefix text-->
+  <div 
+    v-if="isShowPreifx"
+      class="as-text at-prefix"
+      :style="TextStyle">{{ThePrefixText}}</div>
+  <!--
+    Bar
+  -->
+  <div ref="con"
+    class="as-con" 
+    @click.left="OnClickBar">
+    <div class="as-bar" :style="BarStyle">
+      <span class="as-marker" :style="BarMarkStyle"></span>
+      <span class="as-inner"  :style="BarInnerStyle"></span>
+    </div>
+    <div class="as-hdl" :style="HandlerStyle" ref="hdl"></div>
+  </div>
+  <!--Suffix text-->
+  <div 
+    v-if="isShowSuffix"
+      class="as-text at-suffix"
+      :style="TextStyle">{{TheSuffixText}}</div>
+</div>`);
+//========================================
+// JOIN <ti-slide-bar.mjs> ti/com/ti/slide/bar/ti-slide-bar.mjs
+//========================================
+Ti.Preload("ti/com/ti/slide/bar/ti-slide-bar.mjs", TI_PACK_EXPORTS['ti/com/ti/slide/bar/ti-slide-bar.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/slide/bar/_com.json
+//========================================
+Ti.Preload("ti/com/ti/slide/bar/_com.json", {
+  "name" : "ti-slide-bar",
+  "globally" : true,
+  "template" : "./ti-slide-bar.html",
+  "mixins" : ["./ti-slide-bar.mjs"]
 });
 //========================================
 // JOIN <field_display.mjs> ti/com/ti/support/field_display.mjs
@@ -49826,9 +50811,9 @@ Ti.Preload("ti/com/ti/text/raw/_com.json", {
 //========================================
 Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/codeblock.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/codeblock.mjs']);
 //========================================
-// JOIN <heading.mjs> ti/com/ti/text/rich/tinymce/plugin/heading.mjs
+// JOIN <preview.mjs> ti/com/ti/text/rich/tinymce/plugin/preview.mjs
 //========================================
-Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/heading.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/heading.mjs']);
+Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/preview.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/preview.mjs']);
 //========================================
 // JOIN <rich-tinymce-props.mjs> ti/com/ti/text/rich/tinymce/rich-tinymce-props.mjs
 //========================================
@@ -52319,6 +53304,37 @@ Ti.Preload("ti/com/web/shelf/wall/_com.json", {
   "mixins" : ["./web-shelf-wall.mjs"]
 });
 //========================================
+// JOIN <web-text-article.html> ti/com/web/text/article/web-text-article.html
+//========================================
+Ti.Preload("ti/com/web/text/article/web-text-article.html", `<div class="web-text-article" :class="TopClass">
+  <!--- Loading -->
+  <TiLoading
+    v-if="isLoading && loadingAs"
+      v-bind="loadingAs"/>
+  <!-- Blank -->
+  <component
+    v-if="isBlank && blankAs"
+      :is="blankAs.comType"
+      v-bind="blankAs.comConf"/>
+  <!-- Render content -->
+  <article 
+    :class="ArticleClass"
+    v-html="ArticleHtml"></article>
+</div>`);
+//========================================
+// JOIN <web-text-article.mjs> ti/com/web/text/article/web-text-article.mjs
+//========================================
+Ti.Preload("ti/com/web/text/article/web-text-article.mjs", TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/web/text/article/_com.json
+//========================================
+Ti.Preload("ti/com/web/text/article/_com.json", {
+  "name" : "web-text-article",
+  "globally" : true,
+  "template" : "./web-text-article.html",
+  "mixins"   : ["./web-text-article.mjs"]
+});
+//========================================
 // JOIN <web-text-heading.html> ti/com/web/text/heading/web-text-heading.html
 //========================================
 Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-text-heading"
@@ -53712,7 +54728,8 @@ Ti.Preload("ti/com/wn/list/_com.json", {
 // JOIN <wn-obj-creation.html> ti/com/wn/obj/creation/wn-obj-creation.html
 //========================================
 Ti.Preload("ti/com/wn/obj/creation/wn-obj-creation.html", `<div class="wn-obj-creation"
-  :class="TopClass">
+  :class="TopClass"
+  v-ti-activable>
   <!--
     Side type list
   -->
@@ -53912,13 +54929,26 @@ Ti.Preload("ti/com/wn/obj/id/wn-obj-id.html", `<div class="wn-obj-id"
     <table>
       <tr v-if="OID.homeId"
         class="is-home-id">
-        <td>HOME ID</td><td>{{OID.homeId}}</td>
+        <td>HOME ID</td>
+        <td>{{OID.homeId}}</td>
+        <td class="as-copy">
+          <a @click.left="OnCopyHomeId">{{'i18n:copy'|i18n}}</a>
+        </td>
       </tr>
       <tr
         class="is-my-id">
-        <td>MY ID</td><td>{{OID.myId}}</td>
+        <td>MY ID</td>
+        <td>{{OID.myId}}</td>
+        <td class="as-copy">
+          <a @click.left="OnCopyMyId">{{'i18n:copy'|i18n}}</a>
+        </td>
       </tr>
     </table>
+    <div
+      v-if="OID.homeId" 
+        class="as-copy">
+        <a @click.left="OnCopyAll">{{'i18n:copy'|i18n}}</a>
+    </div>
   </div>
 </div>`);
 //========================================
@@ -54094,10 +55124,8 @@ Ti.Preload("ti/com/wn/obj/preview/wn-obj-preview.html", `<div class="wn-obj-prev
   <div class="wop-con" v-if="hasMeta">
     <!--Main View-->
     <component class="as-main"
-      :is="PreviewComType"
-      :icon="DataIcon"
-      :title="DataTitle"
-      :src="DataSource"/>
+      :is="PreviewCom.comType"
+      v-bind="PreviewCom.comConf"/>
     <!--ActionBar at top-->
     <div class="as-abar">
       <ul>
@@ -54161,6 +55189,7 @@ Ti.Preload("ti/com/wn/obj/preview/_com.json", {
     "./com/preview-info-field",
     "@com:ti/media/binary",
     "@com:ti/media/image",
+    "@com:ti/media/audio",
     "@com:ti/media/video"]
 });
 //========================================
@@ -56263,6 +57292,9 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "copy" : "Copy",
+  "copy-all" : "Copy all",
+  "preview": "Preview",
   "add": "Add",
   "add-item": "New item",
   "album": "Album",
@@ -57384,6 +58416,9 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "copy" : "复制",
+  "copy-all" : "全部复制",
+  "preview": "预览",
   "add": "添加",
   "add-item": "添加新项",
   "album": "相册",
@@ -58464,6 +59499,9 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
+   "copy" : "復制",
+   "copy-all" : "全部復制",
+   "preview": "預覽",
    "add": "添加",
    "add-item": "添加新項",
    "album": "相冊",

@@ -1,5 +1,3 @@
-import Ti from "./ti.mjs"
-
 ///////////////////////////////////////////
 const I_DAYS = ["sun","mon","tue", "wed", "thu", "fri", "sat"]
 const I_WEEK = [
