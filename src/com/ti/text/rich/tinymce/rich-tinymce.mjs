@@ -2,7 +2,17 @@ const _M = {
   ///////////////////////////////////////////////////
   data : ()=>({
     myPlugins : [],
-    myHtmlCode : undefined
+    myHtmlCode : undefined,
+    /*
+    [{
+      key : "xxx",
+      index : 0,
+      level : 1,  // H1~6
+      title : "xxx",
+      children : [{..}]
+    }]
+    */
+    myOutlineTree : undefined
   }),
   ///////////////////////////////////////////////////
   computed : {
@@ -127,8 +137,65 @@ const _M = {
   ///////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
-    getOutline() {
+    OnHeadingChange($h) {
+      this.evalOutline()
+    },
+    //-----------------------------------------------
+    evalOutline() {
+      let list = []
+      this.$editor.$('h1,h2,h3,h4,h5,h6').each((index, el)=>{
+        let nodeId = el.getAttribute("ti-outline-id")
+        if(!nodeId) {
+          nodeId = Ti.Random.str(6)
+          el.setAttribute("ti-outline-id", nodeId)
+        }
+        list.push({
+          id : nodeId,
+          index,
+          name : el.innerText,
+          level : parseInt(el.tagName.substring(1))
+        })
+      })
 
+      // Groupping to tree
+      let tree = {
+        id : "@OUTLINE",
+        level : 0,
+        name : "Document",
+        children : []
+      }
+      let rootHie = Ti.Trees.getById(tree, "@OUTLINE")
+
+      
+      if(!_.isEmpty(list)) {
+        let hie = rootHie
+        for(let i=0; i < list.length; i++) {
+          let it = list[i]
+          // Join the child
+          if(it.level > hie.node.level) {
+            hie = Ti.Trees.append(hie, it, {autoChildren:true}).hierarchy
+          }
+          // add sibling
+          else if(it.level == hie.node.level) {
+            hie = Ti.Trees.insertAfter(hie, it).hierarchy
+          }
+          // add parent
+          else {
+            // Seek to sibling
+            while(hie.parent) {
+              hie = hie.parent
+              if(it.level >= hie.node.level) {
+                break;
+              }
+            }
+            hie = Ti.Trees.insertAfter(hie, it).hierarchy
+          }
+        }
+      }
+      console.log(tree)
+
+      // Set
+      this.myOutlineTree = tree
     },
     //-----------------------------------------------
     async initEditor() {
@@ -161,9 +228,18 @@ const _M = {
             // console.log("haha ", evt)
             this.myHtmlCode = editor.getContent()
           })
+          // Event: get outline
+          editor.on("input", (evt)=>{
+            let $node = editor.selection.getNode()
+            let $h = Ti.Dom.closestByTagName($node, /^H[1-6]$/)
+            if($h) {
+              this.OnHeadingChange($h)
+            }
+          })
           // Event: watch the command to update
           editor.on("ExecCommand", (evt)=>{
             this.myHtmlCode = editor.getContent()
+            this.evalOutline()
           })
           // Shortcute
           editor.addShortcut('ctrl+s', "Save content", ()=>{
@@ -200,7 +276,10 @@ const _M = {
       // init content
       if(this.value) {
         this.myHtmlCode = this.value
-        this.$editor.setContent(this.value)        
+        this.$editor.setContent(this.value)
+
+        // Then generate the outline
+        this.evalOutline()
       }
       //.............................................
     }
@@ -211,6 +290,11 @@ const _M = {
     "myHtmlCode" : function(newVal, oldVal) {
       if(!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.value)) {
         this.$notify("change", newVal);
+      }
+    },
+    "myOutlineTree" : function(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal)) {
+        this.$notify("outline:change", this.myOutlineTree)
       }
     },
     "value" : function(newVal, oldVal) {

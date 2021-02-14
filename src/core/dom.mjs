@@ -128,6 +128,32 @@ const TiDom = {
     }
     return null
   },
+  closestBy($el, test=$p=>false) {
+    let $pel = $el
+    while($pel) {
+      if(test($pel)) {
+        return $pel
+      }
+      $pel = $pel.parentElement
+    }
+    return null
+  },
+  closestByTagName($el, tagName) {
+    if(!tagName)
+      return false
+
+    let am = Ti.AutoMatch.parse(tagName)
+    let test = ({tagName})=>am(tagName)
+
+    let $pel = $el
+    while($pel) {
+      if(test($pel)) {
+        return $pel
+      }
+      $pel = $pel.parentElement
+    }
+    return null
+  },
   eventCurrentTarget(evt, selector, scope) {
     let $el = evt.srcElement
     if(!selector) {

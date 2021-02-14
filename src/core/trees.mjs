@@ -200,6 +200,19 @@ const TiTrees = {
   },
   //---------------------------------
   /***
+   * 
+   * @param hie{Object} 
+   * ```
+   * {
+   *    node : self node
+   *    path : self path in Array
+   *    depth     : path depth 0 base
+   *    parent    : parentNode
+   *    ancestors : root ... parentNode
+   * }
+   * ```
+   * @param item{Any}
+   * 
    * @return Object {
    *   hierarchy : hie,
    *   children  : [],  // hie.parent.children, after changed
@@ -207,7 +220,9 @@ const TiTrees = {
    *   index   // the position of `item` in children
    * })
    */ 
-  insertBefore(hie, item) {
+  insertBefore(hie, item, {
+    nameBy = "name"
+  }={}) {
     // Guard
     if(!hie || _.isUndefined(item))
       return
@@ -226,14 +241,38 @@ const TiTrees = {
     }
     
     let index = Ti.Util.insertToArray(children, pos, item)
+    let itPath = _.cloneDeep(hie.path)
+    let itName = _.get(item, nameBy)
+    itPath[itPath.length - 1] = itName
+
+    let itHie = {
+      index,
+      node  : item,
+      path  : itPath,
+      depth : hie.depth,
+      parent : hie.parent,
+      ancestors : hie.ancestors
+    }
     
     return {
-      hierarchy : hie,
+      hierarchy : itHie,
       children, item, index
     }
   },
   //---------------------------------
   /***
+   * @param hie{Object} 
+   * ```
+   * {
+   *    node : self node
+   *    path : self path in Array
+   *    depth     : path depth 0 base
+   *    parent    : parentNode
+   *    ancestors : root ... parentNode
+   * }
+   * ```
+   * @param item{Any}
+   * 
    * @return Object {
    *   hierarchy : hie,
    *   children:[],  // hie.parent.children, after changed
@@ -241,7 +280,9 @@ const TiTrees = {
    *   index   // the position of `item` in children
    * })
    */ 
-  insertAfter(hie, item) {
+  insertAfter(hie, item, {
+    nameBy = "name"
+  }={}) {
     // Guard
     if(!hie || _.isUndefined(item))
       return
@@ -260,14 +301,39 @@ const TiTrees = {
     }
     
     let index = Ti.Util.insertToArray(children, pos, item)
+    let itPath = _.cloneDeep(hie.path)
+    let itName = _.get(item, nameBy)
+    itPath[itPath.length - 1] = itName
+
+    let itHie = {
+      index,
+      node  : item,
+      path  : itPath,
+      depth : hie.depth,
+      parent : hie.parent,
+      ancestors : hie.ancestors
+    }
     
     return {
-      hierarchy : hie,
+      hierarchy : itHie,
       children, item, index
     }
   },
   //---------------------------------
   /***
+   * 
+   * @param hie{Object} 
+   * ```
+   * {
+   *    node : self node
+   *    path : self path in Array
+   *    depth     : path depth 0 base
+   *    parent    : parentNode
+   *    ancestors : root ... parentNode
+   * }
+   * ```
+   * @param item{Any}
+   * 
    * @return Object {
    *   hierarchy : hie,
    *   children:[],  // hie.parent.children, after changed
@@ -275,7 +341,10 @@ const TiTrees = {
    *   index   // the position of `item` in children
    * })
    */ 
-  prepend(hie, item) {
+  prepend(hie, item, {
+    nameBy = "name",
+    autoChildren = false
+  }={}) {
     // Guard
     if(!hie || _.isUndefined(item))
       return
@@ -284,8 +353,14 @@ const TiTrees = {
 
     // Leaf -> sibling
     if(!_.isArray(hie.node.children)) {
-      children = hie.parent.node.children
-      pos = hie.index + 1
+      if(autoChildren) {
+        children = []
+        hie.node.children = children
+        pos = 0
+      } else {
+        children = hie.parent.node.children
+        pos = hie.index + 1
+      }
     }
     // Node -> children
     else {
@@ -294,14 +369,38 @@ const TiTrees = {
     }
     
     let index = Ti.Util.insertToArray(children, pos, item)
+    let itName = _.get(item, nameBy)
+    let itPath = _.concat(itName, hie.path)
+
+    let itHie = {
+      index,
+      node  : item,
+      path  : itPath,
+      depth : hie.depth + 1,
+      parent : hie,
+      ancestors : _.concat(hie.ancestors, hie)
+    }
     
     return {
-      hierarchy : hie,
+      hierarchy : itHie,
       children, item, index
     }
   },
   //---------------------------------
   /***
+   * 
+   * @param hie{Object} 
+   * ```
+   * {
+   *    node : self node
+   *    path : self path in Array
+   *    depth     : path depth 0 base
+   *    parent    : parentNode
+   *    ancestors : root ... parentNode
+   * }
+   * ```
+   * @param item{Any}
+   * 
    * @return Object {
    *   hierarchy : hie,
    *   children:[],  // hie.parent.children, after changed
@@ -309,7 +408,10 @@ const TiTrees = {
    *   index   // the position of `item` in children
    * })
    */ 
-  append(hie, item) {
+  append(hie, item, {
+    nameBy = "name",
+    autoChildren = false
+  }={}) {
     // Guard
     if(!hie || _.isUndefined(item))
       return
@@ -318,8 +420,14 @@ const TiTrees = {
 
     // Leaf -> sibling
     if(!_.isArray(hie.node.children)) {
-      children = hie.parent.node.children
-      pos = hie.index
+      if(autoChildren) {
+        children = []
+        hie.node.children = children
+        pos = 0
+      } else {
+        children = hie.parent.node.children
+        pos = hie.index
+      }
     }
     // Node -> children
     else {
@@ -328,14 +436,38 @@ const TiTrees = {
     }
     
     let index = Ti.Util.insertToArray(children, pos, item)
+    let itName = _.get(item, nameBy)
+    let itPath = _.concat(hie.path, itName)
+
+    let itHie = {
+      index,
+      node  : item,
+      path  : itPath,
+      depth : hie.depth + 1,
+      parent : hie,
+      ancestors : _.concat(hie.ancestors, hie)
+    }
     
     return {
-      hierarchy : hie,
+      hierarchy : itHie,
       children, item, index
     }
   },
   //---------------------------------
   /***
+   * 
+   * @param hie{Object} 
+   * ```
+   * {
+   *    node : self node
+   *    path : self path in Array
+   *    depth     : path depth 0 base
+   *    parent    : parentNode
+   *    ancestors : root ... parentNode
+   * }
+   * ```
+   * @param item{Any}
+   * 
    * @return Object {
    *   hierarchy : hie,
    *   children:[],  // hie.parent.children, after changed
@@ -343,16 +475,31 @@ const TiTrees = {
    *   index   // the position of `item` in children
    * })
    */ 
-  replace(hie, item) {
+  replace(hie, item, {
+    nameBy = "name"
+  }={}) {
     // Guard
     if(!hie || !hie.parent || _.isUndefined(item))
       return
 
     let children = hie.parent.node.children
     children[hie.index] = item
+
+    let itPath = _.cloneDeep(hie.path)
+    let itName = _.get(item, nameBy)
+    itPath[itPath.length - 1] = itName
+
+    let itHie = {
+      index : hie.index,
+      node  : item,
+      path  : itPath,
+      depth : hie.depth,
+      parent : hie.parent,
+      ancestors : hie.ancestors
+    }
     
     return {
-      hierarchy : hie,
+      hierarchy : itHie,
       children, item, 
       index: hie.index
     }

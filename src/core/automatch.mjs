@@ -29,6 +29,12 @@ function DoAutoMatch(input) {
   if (_.isString(input)) {
     return AutoStrMatch(input);
   }
+  // Regex
+  if (_.isRegExp(input)) {
+    return function(val) {
+      return input.test(val)
+    }
+  }
   throw Ti.Err.make("e.match.unsupport", input);
 }
 function AutoStrMatch(input) {
