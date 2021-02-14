@@ -12,7 +12,8 @@ const _M = {
       children : [{..}]
     }]
     */
-    myOutlineTree : undefined
+    myOutlineTree : undefined,
+    myCurrentHeadingId : undefined
   }),
   ///////////////////////////////////////////////////
   computed : {
@@ -141,6 +142,25 @@ const _M = {
       this.evalOutline()
     },
     //-----------------------------------------------
+    evalCurrentHeading() {
+      let $node = this.$editor.selection.getNode()
+      let $h = Ti.Dom.closestByTagName($node, /^H[1-6]$/)
+      
+      // Looking previous
+      if(!$h) {
+        let $body = $node.ownerDocument.body
+        let $top = $node
+        while($top.parentElement && $top.parentElement != $body) {
+          $top = $top.parentElement
+        }
+        $h = Ti.Dom.prevByTagName($top, /^H[1-6]$/)
+      }
+
+      if($h) {
+        this.myCurrentHeadingId = $h.getAttribute("ti-outline-id")
+      }
+    },
+    //-----------------------------------------------
     evalOutline() {
       let list = []
       this.$editor.$('h1,h2,h3,h4,h5,h6').each((index, el)=>{
@@ -149,10 +169,14 @@ const _M = {
           nodeId = Ti.Random.str(6)
           el.setAttribute("ti-outline-id", nodeId)
         }
+
         list.push({
           id : nodeId,
           index,
           name : el.innerText,
+          className : el.className,
+          tagName : el.tagName,
+          attrs : Ti.Dom.attrs(el),
           level : parseInt(el.tagName.substring(1))
         })
       })
@@ -192,10 +216,38 @@ const _M = {
           }
         }
       }
-      console.log(tree)
+      //console.log(tree)
 
       // Set
       this.myOutlineTree = tree
+    },
+    //-----------------------------------------------
+    scrollIntoView(selector) {
+      let $ta;
+      if(_.isElement(selector)) {
+        $ta = selector
+      } else {
+        let q = this.$editor.$(selector).first()
+        if(q.length > 0) {
+          $ta = q[0]
+        }
+      }
+      if(!$ta)
+        return
+
+      let $view = Ti.Dom.ownerWindow($ta)
+      let r_view = Ti.Rects.createBy($view)
+      let r_targ = Ti.Rects.createBy($ta)
+
+      // test it need to scroll or not
+      if(!r_view.contains(r_targ)) {
+        $view.scroll({
+          top: r_targ.top + $view.scrollY, 
+          behavior:"smooth"
+        })
+      }
+      // console.log("r_view: " + r_view)
+      // console.log("r_targ: " + r_targ)
     },
     //-----------------------------------------------
     async initEditor() {
@@ -241,7 +293,12 @@ const _M = {
             this.myHtmlCode = editor.getContent()
             this.evalOutline()
           })
+          editor.on("SelectionChange", (evt)=>{
+            this.evalCurrentHeading()
+          })
+          //
           // Shortcute
+          //
           editor.addShortcut('ctrl+s', "Save content", ()=>{
             Ti.App(this).fireShortcut("CTRL+S");
           });
@@ -295,6 +352,11 @@ const _M = {
     "myOutlineTree" : function(newVal, oldVal) {
       if(!_.isEqual(newVal, oldVal)) {
         this.$notify("outline:change", this.myOutlineTree)
+      }
+    },
+    "myCurrentHeadingId" : function(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal)) {
+        this.$notify("current:heading", newVal)
       }
     },
     "value" : function(newVal, oldVal) {

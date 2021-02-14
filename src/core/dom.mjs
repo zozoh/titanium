@@ -61,6 +61,14 @@ const TiDom = {
     TiDom.remove($el)
     return $newEl
   },
+  attrs($el) {
+    let re = {}
+    for(let i=0; i<$el.attributes.length; i++) {
+      let {name,value} = $el.attributes[i]
+      re[name] = value
+    }
+    return re
+  },
   copyAttributes($el, $ta) {
     let attrs = $el.attributes
     for(let i=0; i<attrs.length; i++) {
@@ -115,8 +123,8 @@ const TiDom = {
       return selector
     return $doc.querySelector(selector);
   },
-  closest($el, selector) {
-    if(!selector) {
+  seek($el, selector, seekBy) {
+    if(!selector || !_.isFunction(seekBy)) {
       return $el
     }
     let $pel = $el
@@ -124,36 +132,65 @@ const TiDom = {
       if(TiDom.is($pel, selector)) {
         return $pel
       }
-      $pel = $pel.parentElement
+      $pel = seekBy($pel)
     }
     return null
   },
-  closestBy($el, test=$p=>false) {
+  seekBy($el, test, seekBy) {
+    if(!_.isFunction(test) || !_.isFunction(seekBy)) {
+      return $el
+    }
     let $pel = $el
     while($pel) {
       if(test($pel)) {
         return $pel
       }
-      $pel = $pel.parentElement
+      $pel = seekBy($pel)
     }
     return null
   },
-  closestByTagName($el, tagName) {
-    if(!tagName)
+  seekByTagName($el, tagName, seekBy) {
+    if(!tagName || !_.isFunction(seekBy))
       return false
 
     let am = Ti.AutoMatch.parse(tagName)
     let test = ({tagName})=>am(tagName)
 
-    let $pel = $el
-    while($pel) {
-      if(test($pel)) {
-        return $pel
-      }
-      $pel = $pel.parentElement
-    }
-    return null
+    return TiDom.seekBy($el, test, seekBy)
   },
+  //
+  // prev
+  //
+  prev($el, selector) {
+    return TiDom.seek($el, selector, el=>el.previousElementSibling)},
+  prevBy($el, test) {
+    return TiDom.seekBy($el, test, el=>el.previousElementSibling)},
+  prevByTagName($el, tagName) {
+    return TiDom.seekByTagName($el, tagName, el=>el.previousElementSibling)
+  },
+  //
+  // next
+  //
+  next($el, selector) {
+    return TiDom.seek($el, selector, el=>el.nextElementSibling )},
+  nextBy($el, test) {
+    return TiDom.seekBy($el, test, el=>el.nextElementSibling )},
+  nextByTagName($el, tagName) {
+    return TiDom.seekByTagName($el, tagName, el=>el.nextElementSibling )
+  },
+  //
+  // Closest
+  //
+  closest($el, selector) {
+    return TiDom.seek($el, selector, el=>el.parentElement)},
+  closestBy($el, test) {
+    return TiDom.seekBy($el, test, el=>el.parentElement)},
+  closestByTagName($el, tagName) {
+    return TiDom.seekByTagName($el, tagName, el=>el.parentElement)
+  },
+  //
+  // Event current target
+  //
   eventCurrentTarget(evt, selector, scope) {
     let $el = evt.srcElement
     if(!selector) {
