@@ -1,4 +1,4 @@
-// Pack At: 2021-02-09 20:41:31
+// Pack At: 2021-02-17 07:59:01
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3437,6 +3437,14 @@ const {Dom} = (function(){
       TiDom.remove($el)
       return $newEl
     },
+    attrs($el) {
+      let re = {}
+      for(let i=0; i<$el.attributes.length; i++) {
+        let {name,value} = $el.attributes[i]
+        re[name] = value
+      }
+      return re
+    },
     copyAttributes($el, $ta) {
       let attrs = $el.attributes
       for(let i=0; i<attrs.length; i++) {
@@ -3491,8 +3499,8 @@ const {Dom} = (function(){
         return selector
       return $doc.querySelector(selector);
     },
-    closest($el, selector) {
-      if(!selector) {
+    seek($el, selector, seekBy) {
+      if(!selector || !_.isFunction(seekBy)) {
         return $el
       }
       let $pel = $el
@@ -3500,10 +3508,65 @@ const {Dom} = (function(){
         if(TiDom.is($pel, selector)) {
           return $pel
         }
-        $pel = $pel.parentElement
+        $pel = seekBy($pel)
       }
       return null
     },
+    seekBy($el, test, seekBy) {
+      if(!_.isFunction(test) || !_.isFunction(seekBy)) {
+        return $el
+      }
+      let $pel = $el
+      while($pel) {
+        if(test($pel)) {
+          return $pel
+        }
+        $pel = seekBy($pel)
+      }
+      return null
+    },
+    seekByTagName($el, tagName, seekBy) {
+      if(!tagName || !_.isFunction(seekBy))
+        return false
+  
+      let am = Ti.AutoMatch.parse(tagName)
+      let test = ({tagName})=>am(tagName)
+  
+      return TiDom.seekBy($el, test, seekBy)
+    },
+    //
+    // prev
+    //
+    prev($el, selector) {
+      return TiDom.seek($el, selector, el=>el.previousElementSibling)},
+    prevBy($el, test) {
+      return TiDom.seekBy($el, test, el=>el.previousElementSibling)},
+    prevByTagName($el, tagName) {
+      return TiDom.seekByTagName($el, tagName, el=>el.previousElementSibling)
+    },
+    //
+    // next
+    //
+    next($el, selector) {
+      return TiDom.seek($el, selector, el=>el.nextElementSibling )},
+    nextBy($el, test) {
+      return TiDom.seekBy($el, test, el=>el.nextElementSibling )},
+    nextByTagName($el, tagName) {
+      return TiDom.seekByTagName($el, tagName, el=>el.nextElementSibling )
+    },
+    //
+    // Closest
+    //
+    closest($el, selector) {
+      return TiDom.seek($el, selector, el=>el.parentElement)},
+    closestBy($el, test) {
+      return TiDom.seekBy($el, test, el=>el.parentElement)},
+    closestByTagName($el, tagName) {
+      return TiDom.seekByTagName($el, tagName, el=>el.parentElement)
+    },
+    //
+    // Event current target
+    //
     eventCurrentTarget(evt, selector, scope) {
       let $el = evt.srcElement
       if(!selector) {
@@ -6020,6 +6083,12 @@ const {AutoMatch} = (function(){
     // String
     if (_.isString(input)) {
       return AutoStrMatch(input);
+    }
+    // Regex
+    if (_.isRegExp(input)) {
+      return function(val) {
+        return input.test(val)
+      }
     }
     throw Ti.Err.make("e.match.unsupport", input);
   }
@@ -9436,6 +9505,19 @@ const {Trees} = (function(){
     },
     //---------------------------------
     /***
+     * 
+     * @param hie{Object} 
+     * ```
+     * {
+     *    node : self node
+     *    path : self path in Array
+     *    depth     : path depth 0 base
+     *    parent    : parentNode
+     *    ancestors : root ... parentNode
+     * }
+     * ```
+     * @param item{Any}
+     * 
      * @return Object {
      *   hierarchy : hie,
      *   children  : [],  // hie.parent.children, after changed
@@ -9443,7 +9525,9 @@ const {Trees} = (function(){
      *   index   // the position of `item` in children
      * })
      */ 
-    insertBefore(hie, item) {
+    insertBefore(hie, item, {
+      nameBy = "name"
+    }={}) {
       // Guard
       if(!hie || _.isUndefined(item))
         return
@@ -9462,14 +9546,38 @@ const {Trees} = (function(){
       }
       
       let index = Ti.Util.insertToArray(children, pos, item)
+      let itPath = _.cloneDeep(hie.path)
+      let itName = _.get(item, nameBy)
+      itPath[itPath.length - 1] = itName
+  
+      let itHie = {
+        index,
+        node  : item,
+        path  : itPath,
+        depth : hie.depth,
+        parent : hie.parent,
+        ancestors : hie.ancestors
+      }
       
       return {
-        hierarchy : hie,
+        hierarchy : itHie,
         children, item, index
       }
     },
     //---------------------------------
     /***
+     * @param hie{Object} 
+     * ```
+     * {
+     *    node : self node
+     *    path : self path in Array
+     *    depth     : path depth 0 base
+     *    parent    : parentNode
+     *    ancestors : root ... parentNode
+     * }
+     * ```
+     * @param item{Any}
+     * 
      * @return Object {
      *   hierarchy : hie,
      *   children:[],  // hie.parent.children, after changed
@@ -9477,7 +9585,9 @@ const {Trees} = (function(){
      *   index   // the position of `item` in children
      * })
      */ 
-    insertAfter(hie, item) {
+    insertAfter(hie, item, {
+      nameBy = "name"
+    }={}) {
       // Guard
       if(!hie || _.isUndefined(item))
         return
@@ -9496,14 +9606,39 @@ const {Trees} = (function(){
       }
       
       let index = Ti.Util.insertToArray(children, pos, item)
+      let itPath = _.cloneDeep(hie.path)
+      let itName = _.get(item, nameBy)
+      itPath[itPath.length - 1] = itName
+  
+      let itHie = {
+        index,
+        node  : item,
+        path  : itPath,
+        depth : hie.depth,
+        parent : hie.parent,
+        ancestors : hie.ancestors
+      }
       
       return {
-        hierarchy : hie,
+        hierarchy : itHie,
         children, item, index
       }
     },
     //---------------------------------
     /***
+     * 
+     * @param hie{Object} 
+     * ```
+     * {
+     *    node : self node
+     *    path : self path in Array
+     *    depth     : path depth 0 base
+     *    parent    : parentNode
+     *    ancestors : root ... parentNode
+     * }
+     * ```
+     * @param item{Any}
+     * 
      * @return Object {
      *   hierarchy : hie,
      *   children:[],  // hie.parent.children, after changed
@@ -9511,7 +9646,10 @@ const {Trees} = (function(){
      *   index   // the position of `item` in children
      * })
      */ 
-    prepend(hie, item) {
+    prepend(hie, item, {
+      nameBy = "name",
+      autoChildren = false
+    }={}) {
       // Guard
       if(!hie || _.isUndefined(item))
         return
@@ -9520,8 +9658,14 @@ const {Trees} = (function(){
   
       // Leaf -> sibling
       if(!_.isArray(hie.node.children)) {
-        children = hie.parent.node.children
-        pos = hie.index + 1
+        if(autoChildren) {
+          children = []
+          hie.node.children = children
+          pos = 0
+        } else {
+          children = hie.parent.node.children
+          pos = hie.index + 1
+        }
       }
       // Node -> children
       else {
@@ -9530,14 +9674,38 @@ const {Trees} = (function(){
       }
       
       let index = Ti.Util.insertToArray(children, pos, item)
+      let itName = _.get(item, nameBy)
+      let itPath = _.concat(itName, hie.path)
+  
+      let itHie = {
+        index,
+        node  : item,
+        path  : itPath,
+        depth : hie.depth + 1,
+        parent : hie,
+        ancestors : _.concat(hie.ancestors, hie)
+      }
       
       return {
-        hierarchy : hie,
+        hierarchy : itHie,
         children, item, index
       }
     },
     //---------------------------------
     /***
+     * 
+     * @param hie{Object} 
+     * ```
+     * {
+     *    node : self node
+     *    path : self path in Array
+     *    depth     : path depth 0 base
+     *    parent    : parentNode
+     *    ancestors : root ... parentNode
+     * }
+     * ```
+     * @param item{Any}
+     * 
      * @return Object {
      *   hierarchy : hie,
      *   children:[],  // hie.parent.children, after changed
@@ -9545,7 +9713,10 @@ const {Trees} = (function(){
      *   index   // the position of `item` in children
      * })
      */ 
-    append(hie, item) {
+    append(hie, item, {
+      nameBy = "name",
+      autoChildren = false
+    }={}) {
       // Guard
       if(!hie || _.isUndefined(item))
         return
@@ -9554,8 +9725,14 @@ const {Trees} = (function(){
   
       // Leaf -> sibling
       if(!_.isArray(hie.node.children)) {
-        children = hie.parent.node.children
-        pos = hie.index
+        if(autoChildren) {
+          children = []
+          hie.node.children = children
+          pos = 0
+        } else {
+          children = hie.parent.node.children
+          pos = hie.index
+        }
       }
       // Node -> children
       else {
@@ -9564,14 +9741,38 @@ const {Trees} = (function(){
       }
       
       let index = Ti.Util.insertToArray(children, pos, item)
+      let itName = _.get(item, nameBy)
+      let itPath = _.concat(hie.path, itName)
+  
+      let itHie = {
+        index,
+        node  : item,
+        path  : itPath,
+        depth : hie.depth + 1,
+        parent : hie,
+        ancestors : _.concat(hie.ancestors, hie)
+      }
       
       return {
-        hierarchy : hie,
+        hierarchy : itHie,
         children, item, index
       }
     },
     //---------------------------------
     /***
+     * 
+     * @param hie{Object} 
+     * ```
+     * {
+     *    node : self node
+     *    path : self path in Array
+     *    depth     : path depth 0 base
+     *    parent    : parentNode
+     *    ancestors : root ... parentNode
+     * }
+     * ```
+     * @param item{Any}
+     * 
      * @return Object {
      *   hierarchy : hie,
      *   children:[],  // hie.parent.children, after changed
@@ -9579,16 +9780,31 @@ const {Trees} = (function(){
      *   index   // the position of `item` in children
      * })
      */ 
-    replace(hie, item) {
+    replace(hie, item, {
+      nameBy = "name"
+    }={}) {
       // Guard
       if(!hie || !hie.parent || _.isUndefined(item))
         return
   
       let children = hie.parent.node.children
       children[hie.index] = item
+  
+      let itPath = _.cloneDeep(hie.path)
+      let itName = _.get(item, nameBy)
+      itPath[itPath.length - 1] = itName
+  
+      let itHie = {
+        index : hie.index,
+        node  : item,
+        path  : itPath,
+        depth : hie.depth,
+        parent : hie.parent,
+        ancestors : hie.ancestors
+      }
       
       return {
-        hierarchy : hie,
+        hierarchy : itHie,
         children, item, 
         index: hie.index
       }
@@ -12644,7 +12860,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210209.204131",
+  "version" : "1.6-20210217.075901",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -83,6 +83,7 @@ const _M = {
     },
     //--------------------------------------
     OnFileOpen(obj) {
+      console.log("haha", obj)
       this.$notify("file:open", obj)
     },
     //--------------------------------------

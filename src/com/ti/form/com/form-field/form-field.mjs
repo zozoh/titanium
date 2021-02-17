@@ -160,9 +160,12 @@ const _M = {
       // apply default
       v2 = this.evalInputValue(v2)
 
+      // Com Value
+      let comValue = _.get(this.myComConf, this.autoValue)
+
       // emit event
-      if(!this.checkEquals || !_.isEqual(v2, this.fieldValue)) {
-        //console.log("  #field.change:", v2)
+      if(!this.checkEquals || !_.isEqual(v2, comValue)) {
+        //console.log("  #field.change:", this.name, v2)
         this.$notify("change", {
           name  : this.name,
           value : v2
@@ -222,9 +225,12 @@ const _M = {
         )
       }
       if(_.isEmpty(val) && _.isString(val)) {
-        return _.cloneDeep(
+        let re = _.cloneDeep(
           Ti.Util.fallback(this.emptyAs, this.defaultAs, "")
         )
+        if("~~undefined~~" == re) 
+          return
+        return re
       }
       return val
     }

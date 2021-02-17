@@ -52,7 +52,7 @@
         :before-upload="checkDataDir"
         @uploaded="OnFileUploaded"
         @select="OnFileSelect"
-        @open="OnFileOpen"
+        @open:wn:obj="OnFileOpen"
         :on-init="OnAdaptListInit"/>
     </div>
   </template>

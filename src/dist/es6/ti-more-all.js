@@ -1,4 +1,4 @@
-// Pack At: 2021-02-09 20:41:31
+// Pack At: 2021-02-17 07:59:01
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5020,6 +5020,7 @@ const _M = {
     },
     //--------------------------------------
     OnFileOpen(obj) {
+      console.log("haha", obj)
       this.$notify("file:open", obj)
     },
     //--------------------------------------
@@ -8164,7 +8165,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     async reload() {
       this.dataReady = false
-      console.log("do reload")
+      //console.log("do reload")
       this.myList = await this.reloadChildren()
       this.dataReady = true
 
@@ -8416,6 +8417,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
                     }, {
                       title : "存储字段名",
                       name  : "columnName",
+                      emptyAs : "~~undefined~~",
                       comType : "ti-input",
                       comConf : {
                         placeholder : "与字段名相同"
@@ -8467,7 +8469,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
                   list : {
                     fields : [{
                       title : "字段名",
-                      display : "name"
+                      display : ["name", "columnName::as-tip"]
                     }, {
                       title : "数据类型",
                       display : {
@@ -17255,9 +17257,12 @@ const _M = {
       // apply default
       v2 = this.evalInputValue(v2)
 
+      // Com Value
+      let comValue = _.get(this.myComConf, this.autoValue)
+
       // emit event
-      if(!this.checkEquals || !_.isEqual(v2, this.fieldValue)) {
-        //console.log("  #field.change:", v2)
+      if(!this.checkEquals || !_.isEqual(v2, comValue)) {
+        //console.log("  #field.change:", this.name, v2)
         this.$notify("change", {
           name  : this.name,
           value : v2
@@ -17317,9 +17322,12 @@ const _M = {
         )
       }
       if(_.isEmpty(val) && _.isString(val)) {
-        return _.cloneDeep(
+        let re = _.cloneDeep(
           Ti.Util.fallback(this.emptyAs, this.defaultAs, "")
         )
+        if("~~undefined~~" == re) 
+          return
+        return re
       }
       return val
     }
@@ -27552,16 +27560,27 @@ const _M = {
         }
         // Dynamic value
         else {
-          _.set(data, name, value)
+          if(_.isUndefined(value)) {
+            data = _.omit(data, name)
+          } else {
+            _.set(data, name, value)
+          }
         }
       }
       // Object
       else if(_.isArray(name)) {
-        let vo = {}
+        let omitKeys = []
         for(let k of name) {
-          vo[k] = _.get(value, k)
+          let v = _.get(value, k)
+          if(_.isUndefined(v)) {
+            omitKeys.push(k)
+          } else {
+            _.set(data, k, v)
+          }
         }
-        _.assign(data, vo)
+        if(omitKeys.length > 0) {
+          data = _.omit(data, omitKeys)
+        }
       }
 
       // Join the fixed data
@@ -32814,7 +32833,18 @@ const _M = {
   ///////////////////////////////////////////////////
   data : ()=>({
     myPlugins : [],
-    myHtmlCode : undefined
+    myHtmlCode : undefined,
+    /*
+    [{
+      key : "xxx",
+      index : 0,
+      level : 1,  // H1~6
+      title : "xxx",
+      children : [{..}]
+    }]
+    */
+    myOutlineTree : undefined,
+    myCurrentHeadingId : undefined
   }),
   ///////////////////////////////////////////////////
   computed : {
@@ -32939,8 +32969,116 @@ const _M = {
   ///////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
-    getOutline() {
+    OnHeadingChange($h) {
+      this.evalOutline()
+    },
+    //-----------------------------------------------
+    evalCurrentHeading() {
+      let $node = this.$editor.selection.getNode()
+      let $h = Ti.Dom.closestByTagName($node, /^H[1-6]$/)
+      
+      // Looking previous
+      if(!$h) {
+        let $body = $node.ownerDocument.body
+        let $top = $node
+        while($top.parentElement && $top.parentElement != $body) {
+          $top = $top.parentElement
+        }
+        $h = Ti.Dom.prevByTagName($top, /^H[1-6]$/)
+      }
 
+      if($h) {
+        this.myCurrentHeadingId = $h.getAttribute("ti-outline-id")
+      }
+    },
+    //-----------------------------------------------
+    evalOutline() {
+      let list = []
+      this.$editor.$('h1,h2,h3,h4,h5,h6').each((index, el)=>{
+        let nodeId = el.getAttribute("ti-outline-id")
+        if(!nodeId) {
+          nodeId = Ti.Random.str(6)
+          el.setAttribute("ti-outline-id", nodeId)
+        }
+
+        list.push({
+          id : nodeId,
+          index,
+          name : el.innerText,
+          className : el.className,
+          tagName : el.tagName,
+          attrs : Ti.Dom.attrs(el),
+          level : parseInt(el.tagName.substring(1))
+        })
+      })
+
+      // Groupping to tree
+      let tree = {
+        id : "@OUTLINE",
+        level : 0,
+        name : "Document",
+        children : []
+      }
+      let rootHie = Ti.Trees.getById(tree, "@OUTLINE")
+
+      
+      if(!_.isEmpty(list)) {
+        let hie = rootHie
+        for(let i=0; i < list.length; i++) {
+          let it = list[i]
+          // Join the child
+          if(it.level > hie.node.level) {
+            hie = Ti.Trees.append(hie, it, {autoChildren:true}).hierarchy
+          }
+          // add sibling
+          else if(it.level == hie.node.level) {
+            hie = Ti.Trees.insertAfter(hie, it).hierarchy
+          }
+          // add parent
+          else {
+            // Seek to sibling
+            while(hie.parent) {
+              hie = hie.parent
+              if(it.level >= hie.node.level) {
+                break;
+              }
+            }
+            hie = Ti.Trees.insertAfter(hie, it).hierarchy
+          }
+        }
+      }
+      //console.log(tree)
+
+      // Set
+      this.myOutlineTree = tree
+    },
+    //-----------------------------------------------
+    scrollIntoView(selector) {
+      let $ta;
+      if(_.isElement(selector)) {
+        $ta = selector
+      } else {
+        let q = this.$editor.$(selector).first()
+        if(q.length > 0) {
+          $ta = q[0]
+        }
+      }
+      if(!$ta)
+        return
+
+      let $view = Ti.Dom.ownerWindow($ta)
+      let r_view = Ti.Rects.createBy($view)
+      let r_targ = Ti.Rects.createBy($ta)
+
+      // test it need to scroll or not
+      if(!r_view.contains(r_targ)) {
+        $view.scroll({
+          top: r_targ.top + $view.scrollY, 
+          behavior:"smooth"
+        })
+      }
+      // console.log("r_view: " + r_view)
+      // console.log("r_targ: " + r_targ)
     },
     //-----------------------------------------------
     async initEditor() {
@@ -32973,11 +33111,25 @@ const _M = {
             // console.log("haha ", evt)
             this.myHtmlCode = editor.getContent()
           })
+          // Event: get outline
+          editor.on("input", (evt)=>{
+            let $node = editor.selection.getNode()
+            let $h = Ti.Dom.closestByTagName($node, /^H[1-6]$/)
+            if($h) {
+              this.OnHeadingChange($h)
+            }
+          })
           // Event: watch the command to update
           editor.on("ExecCommand", (evt)=>{
             this.myHtmlCode = editor.getContent()
+            this.evalOutline()
           })
+          editor.on("SelectionChange", (evt)=>{
+            this.evalCurrentHeading()
+          })
+          //
           // Shortcute
+          //
           editor.addShortcut('ctrl+s', "Save content", ()=>{
             Ti.App(this).fireShortcut("CTRL+S");
           });
@@ -33012,7 +33164,10 @@ const _M = {
       // init content
       if(this.value) {
         this.myHtmlCode = this.value
-        this.$editor.setContent(this.value)        
+        this.$editor.setContent(this.value)
+
+        // Then generate the outline
+        this.evalOutline()
       }
       //.............................................
     }
@@ -33023,6 +33178,16 @@ const _M = {
     "myHtmlCode" : function(newVal, oldVal) {
       if(!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.value)) {
         this.$notify("change", newVal);
+      }
+    },
+    "myOutlineTree" : function(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal)) {
+        this.$notify("outline:change", this.myOutlineTree)
+      }
+    },
+    "myCurrentHeadingId" : function(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal)) {
+        this.$notify("current:heading", newVal)
       }
     },
     "value" : function(newVal, oldVal) {
@@ -55505,7 +55670,7 @@ Ti.Preload("ti/com/wn/thing/manager/com/thing-files/thing-files.html", `<div cla
         :before-upload="checkDataDir"
         @uploaded="OnFileUploaded"
         @select="OnFileSelect"
-        @open="OnFileOpen"
+        @open:wn:obj="OnFileOpen"
         :on-init="OnAdaptListInit"/>
     </div>
   </template>

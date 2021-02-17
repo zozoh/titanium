@@ -79,6 +79,7 @@ export default {
                     }, {
                       title : "存储字段名",
                       name  : "columnName",
+                      emptyAs : "~~undefined~~",
                       comType : "ti-input",
                       comConf : {
                         placeholder : "与字段名相同"
@@ -130,7 +131,7 @@ export default {
                   list : {
                     fields : [{
                       title : "字段名",
-                      display : "name"
+                      display : ["name", "columnName::as-tip"]
                     }, {
                       title : "数据类型",
                       display : {

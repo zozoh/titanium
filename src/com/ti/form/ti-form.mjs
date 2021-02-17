@@ -209,16 +209,27 @@ const _M = {
         }
         // Dynamic value
         else {
-          _.set(data, name, value)
+          if(_.isUndefined(value)) {
+            data = _.omit(data, name)
+          } else {
+            _.set(data, name, value)
+          }
         }
       }
       // Object
       else if(_.isArray(name)) {
-        let vo = {}
+        let omitKeys = []
         for(let k of name) {
-          vo[k] = _.get(value, k)
+          let v = _.get(value, k)
+          if(_.isUndefined(v)) {
+            omitKeys.push(k)
+          } else {
+            _.set(data, k, v)
+          }
         }
-        _.assign(data, vo)
+        if(omitKeys.length > 0) {
+          data = _.omit(data, omitKeys)
+        }
       }
 
       // Join the fixed data

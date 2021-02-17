@@ -98,7 +98,7 @@ export default {
     //------------------------------------------------
     async reload() {
       this.dataReady = false
-      console.log("do reload")
+      //console.log("do reload")
       this.myList = await this.reloadChildren()
       this.dataReady = true
 
