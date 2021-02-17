@@ -10,7 +10,9 @@ async function OpenObjSelector(pathOrObj="~", {
   position = "top",
   width="80%", height="90%", spacing,
   multi=true,
+  titleBy="title|nm",
   fromIndex=0,
+  exposeHidden=false,
   homePath=Wn.Session.getHomePath(),
   fallbackPath=Wn.Session.getHomePath(),
   filter= o => "FILE" == o.race,
@@ -66,13 +68,16 @@ async function OpenObjSelector(pathOrObj="~", {
     }],
     //------------------------------------------
     modules : {
-      current  : "@mod:wn/obj-meta",
-      main     : "@mod:wn/obj-current"
+      axis  : "@mod:wn/obj-axis",
+      current  : "@mod:wn/obj-current"
     },
     //------------------------------------------
     comType : "modal-inner-body",
     //------------------------------------------
-    components : [{
+    components : [
+      "@com:ti/crumb",
+      "@com:wn/adaptlist",
+      {
       //////////////////////////////////////////
       name : "modal-inner-body",
       globally : false,
@@ -98,30 +103,37 @@ async function OpenObjSelector(pathOrObj="~", {
         :can-loading="true"
         :loading-as="status.reloading"
         @sky::item:active="OnCurrentMetaChange"
-        @arena::open="OnCurrentMetaChange"
+        @arena::open:wn:obj="OnCurrentMetaChange"
         @arena::select="OnArenaSelect"/>`,
       //////////////////////////////////////////
       computed : {
         //--------------------------------------
-        ...Vuex.mapGetters("current", {
-          "obj"              : "get",
-          "objHome"          : "getHome",
-          "objIsHome"        : "isHome",
-          "objHasParent"     : "hasParent",
-          "objParentIsHome"  : "parentIsHome"
-        }),
+        ...Vuex.mapState("axis", [
+          "ancestors", "parent"]
+        ),
         //--------------------------------------
-        ...Vuex.mapState("main", ["data", "status"]),
+        ...Vuex.mapState("current", [
+          "meta", "content", "data", "status", "fieldStatus"]),
         //--------------------------------------
-        theCrumbData() {
-          return Wn.Obj.evalCrumbData({
-            meta      : _.get(this.obj, "meta"),
-            ancestors : _.get(this.obj, "ancestors"),
-            fromIndex : fromIndex,
-            homePath  : homePath,
-          }, (item)=>{
-            item.asterisk = _.get(this.mainStatus, "changed")
+        CrumbData() {
+          let crumbs = Wn.Obj.evalCrumbData({
+            meta      : this.meta,
+            ancestors : this.ancestors,
+            fromIndex,
+            homePath,
+            titleBy,
+            iteratee : (item, i, {nm}={}) => {
+              if(!exposeHidden && nm && nm.startsWith(".")) {
+                return
+              }
+              return item
+            }
           })
+          // Cancel the first item icon
+          if(!_.isEmpty(crumbs)) {
+            crumbs[0].icon = null
+          }
+          return crumbs
         },
         //--------------------------------------
         theLayout(){
@@ -145,13 +157,13 @@ async function OpenObjSelector(pathOrObj="~", {
               comType : "ti-crumb",
               comConf : {
                 "style" : {padding: "0 .1rem"},
-                "data" : this.theCrumbData
+                "data" : this.CrumbData
               }
             },
             "main" : {
               comType : "wn-adaptlist",
               comConf : {
-                "meta"   : this.obj,
+                "meta"   : this.meta,
                 "data"   : this.data,
                 "status" : this.status,
                 "multi"  : multi,
@@ -193,7 +205,7 @@ async function OpenObjSelector(pathOrObj="~", {
           if(obj && "DIR" == obj.race) {
             let app = Ti.App(this)
             app.dispatch("current/reload", obj)
-            app.dispatch("main/reload", obj)    
+            app.dispatch("axis/reload", obj)    
           }
         }
         //--------------------------------------

@@ -1,4 +1,8 @@
 {
+  "img" : "Image",
+  "img-add" : "Add image",
+  "img-insert" : "Insert image",
+  "img-remove" : "Remove image",
   "copy" : "Copy",
   "copy-all" : "Copy all",
   "preview": "Preview",

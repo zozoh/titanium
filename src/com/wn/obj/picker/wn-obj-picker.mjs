@@ -47,6 +47,10 @@ export default {
       default : ()=>({
         "race" : ["isEqual", "FILE"]
       })
+    },
+    "titleEditable" : {
+      type : Boolean,
+      default : true
     }
   },
   //////////////////////////////////////////
@@ -74,8 +78,10 @@ export default {
         it.index = i;
         it._key = `${it.id}_${it.index}`
         it.removeIcon = "im-x-mark"
-        it.onTitle = (payload)=>{
-          this.OnEditItem(payload)
+        if(this.titleEditable) {
+          it.onTitle = (payload)=>{
+            this.OnEditItem(payload)
+          }
         }
         //it.removeIcon = "im-trash-can"
         list.push(it)

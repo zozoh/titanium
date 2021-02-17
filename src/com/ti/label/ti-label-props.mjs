@@ -38,7 +38,7 @@ export default {
   // Aspect
   //-----------------------------------
   "placeholder" : {
-    type : String,
+    type : [String, Number],
     default : "i18n:nil"
   },
   "autoI18n" : {

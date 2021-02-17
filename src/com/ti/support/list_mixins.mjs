@@ -410,11 +410,18 @@ const LIST_MIXINS = {
       }
     },
     //-----------------------------------------------
-    checkRow(rowId) {
+    checkRow(rowId, {quiet=false, payload, reset=false}={}) {
       let idMap = _.cloneDeep(this.theCheckedIds)
       let curId = this.theCurrentId
       let index = this.myLastIndex
       let rowIndex = this.findRowIndexById(rowId)
+
+      // Reset
+      if(reset) {
+        curId = null
+        idMap = {}
+      }
+
       // All rows
       if(_.isUndefined(rowId)) {
         idMap = {}
@@ -460,15 +467,18 @@ const LIST_MIXINS = {
       }
       this.myLastIndex  = rowIndex
       // Notify Changes
-      this.doNotifySelect(emitContext)
+      if(!quiet) {
+        _.defaults(emitContext, payload)
+        this.doNotifySelect(emitContext)
+      }
     },
     //-----------------------------------------------
-    async cancelRow(rowId) {
+    async cancelRow(rowId, {quiet=false, payload}={}) {
       let idMap = _.cloneDeep(this.theCheckedIds)
       let curId  = this.theCurrentId
       let index = -1
       //console.log("cancelRow", rowId)
-      if(_.isUndefined(rowId)) {
+      if(Ti.Util.isNil(rowId)) {
         idMap = {}
         curId = null
       }
@@ -494,14 +504,17 @@ const LIST_MIXINS = {
         this.myLastIndex  = index
       }
       // Notify Changes
-      this.doNotifySelect(emitContext)
+      if(!quiet) {
+        _.defaults(emitContext, payload)
+        this.doNotifySelect(emitContext)
+      }
     },
     //-----------------------------------------------
-    toggleRow(rowId) {
+    toggleRow(rowId, {quiet=false, payload}={}) {
       if(this.theCheckedIds[rowId]) {
-        this.cancelRow(rowId)
+        this.cancelRow(rowId, {quiet, payload})
       } else {
-        this.checkRow(rowId)
+        this.checkRow(rowId, {quiet, payload})
       }
     },
     //-----------------------------------------------

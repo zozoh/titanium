@@ -263,8 +263,11 @@ const OBJ = {
     await this._run("reload")
 
     // Make it checked
-    this.myCheckedIds = newIds
-    this.myCurrentId = null
+    let checkIds = Ti.Util.truthyKeys(newIds)
+    if(!this.multi) {
+      checkIds = _.first(checkIds)
+    }
+    this.$innerList.checkRow(checkIds, {reset:true})
   },
   //--------------------------------------------
   async doDownload() {

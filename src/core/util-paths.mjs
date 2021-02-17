@@ -28,6 +28,11 @@ const TiPaths = {
   getFileName(path, dft="") {
     if(!path)
       return dft
+
+    while(path.endsWith("/")) {
+      path = path.substring(0, path.length-1)
+    }
+    
     let pos = path.lastIndexOf("/")
     if(pos>=0) {
       return path.substring(pos+1)
@@ -43,6 +48,11 @@ const TiPaths = {
   getMajorName(path, dft="") {
       if (!path)
           return dft;
+
+      while(path.endsWith("/")) {
+        path = path.substring(0, path.length-1)
+      }
+
       var len = path.length;
       var l = 0;
       var r = len;
@@ -122,8 +132,11 @@ const TiPaths = {
    * Get the parent path
    */
   getParentPath(path="") {
-    if(!path || path.endsWith("/"))
+    if(!path)
       return path
+    while(path.endsWith("/")) {
+      path = path.substring(0, path.length-1)
+    }
     let pos = path.lastIndexOf("/")
     if(pos<0)
       return ""

@@ -43,14 +43,14 @@ const _M = {
           quick : [
             'formatselect',
             'bold italic underline',
-            'alignment indent outdent',
             'blockquote bullist numlist',
+            'blocks',
             'edit removeformat'],
           full : [
             'formatselect',
             'bold italic underline',
-            'alignment indent outdent',
             'blockquote bullist numlist',
+            'blocks',
             'table',
             'superscript subscript',
             'edit removeformat',
@@ -119,11 +119,18 @@ const _M = {
         plugins: plugins.join(" "),
         content_css : this.ContentCssPath,
         auto_focus: true,
-        menubar: true,
         statusbar: false,
         menubar: false,
         resize: false,
         br_in_pre : false,
+        convert_urls: false,
+        // urlconverter_callback: function(url, node, on_save, name) {
+        //   // Do some custom URL conversion
+        //   console.log("urlconverter_callback", {url, node, on_save, name})
+      
+        //   // Return new URL
+        //   return url;
+        // },
         table_advtab: false,
         table_cell_advtab: false,
         table_row_advtab: false,
@@ -140,6 +147,10 @@ const _M = {
     //-----------------------------------------------
     OnHeadingChange($h) {
       this.evalOutline()
+    },
+    //-----------------------------------------------
+    syncContent() {
+      this.myHtmlCode = this.$editor.getContent()
     },
     //-----------------------------------------------
     evalCurrentHeading() {
@@ -273,15 +284,22 @@ const _M = {
               tooltip: 'alignment',
               items: 'alignleft aligncenter alignright alignjustify',
             },
+            blocks: {
+              icon: 'align-justify',
+              tooltip: 'alignment',
+              items: 'alignleft aligncenter alignright alignjustify | indent outdent',
+            },
         },
         setup : (editor)=>{
+          editor.__rich_tinymce_com = this
           // Event: change
           editor.on("Change", (evt)=>{
-            // console.log("haha ", evt)
+            // onsole.log("Change ", evt)
             this.myHtmlCode = editor.getContent()
           })
           // Event: get outline
           editor.on("input", (evt)=>{
+            // console.log("input!!", evt)
             let $node = editor.selection.getNode()
             let $h = Ti.Dom.closestByTagName($node, /^H[1-6]$/)
             if($h) {
@@ -290,6 +308,7 @@ const _M = {
           })
           // Event: watch the command to update
           editor.on("ExecCommand", (evt)=>{
+            // console.log("command fired!!", evt)
             this.myHtmlCode = editor.getContent()
             this.evalOutline()
           })

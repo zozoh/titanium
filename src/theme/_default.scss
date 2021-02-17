@@ -15,16 +15,16 @@ body {
 }
 //...................................................
 ::-webkit-input-placeholder { /* WebKit browsers */
-  @include color($color-disable, c);
+  @include color($color-disable, t);
 }
 :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-  @include color($color-disable, c);
+  @include color($color-disable, t);
 }
 ::-moz-placeholder { /* Mozilla Firefox 19+ */
-  @include color($color-disable, c);
+  @include color($color-disable, t);
 }
 :-ms-input-placeholder { /* Internet Explorer 10+ */
-  @include color($color-disable, c);
+  @include color($color-disable, t);
 }
 //...................................................
 ::-webkit-scrollbar {

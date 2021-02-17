@@ -1,4 +1,19 @@
+////////////////////////////////////////////////////////
+class TiDomRange {
+
+  /**
+   * @param{Range} rng : starndard DOM Range object
+   * 
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Range
+   */
+  constructor(rng) {
+    
+  }
+
+}
+////////////////////////////////////////////////////////
 const TiDom = {
+  //----------------------------------------------------
   createElement({
     tagName="div", attrs={}, props={}, className="", 
     style = {},
@@ -31,21 +46,25 @@ const TiDom = {
 
     return $el
   },
+  //----------------------------------------------------
   appendToHead($el, $head=document.head) {
     if(_.isElement($el) && _.isElement($head)) {
       $head.appendChild($el)
     }
   },
+  //----------------------------------------------------
   appendToBody($el, $body=document.body) {
     if(_.isElement($el) && _.isElement($body)) {
       $body.appendChild($el)
     }
   },
+  //----------------------------------------------------
   appendTo($el, $p) {
     if(_.isElement($el) && _.isElement($p)) {
       $p.appendChild($el)
     }
   },
+  //----------------------------------------------------
   prependTo($el, $p) {
     if($p.firstChild) {
       $p.insertBefore($el, $p.firstChild)
@@ -53,6 +72,7 @@ const TiDom = {
       $p.appendChild($el)
     }
   },
+  //----------------------------------------------------
   replace($el, $newEl, keepInnerHTML=false) {
     $el.insertAdjacentElement("afterend", $newEl)
     if(keepInnerHTML) {
@@ -61,6 +81,7 @@ const TiDom = {
     TiDom.remove($el)
     return $newEl
   },
+  //----------------------------------------------------
   attrs($el) {
     let re = {}
     for(let i=0; i<$el.attributes.length; i++) {
@@ -69,6 +90,7 @@ const TiDom = {
     }
     return re
   },
+  //----------------------------------------------------
   copyAttributes($el, $ta) {
     let attrs = $el.attributes
     for(let i=0; i<attrs.length; i++) {
@@ -76,6 +98,7 @@ const TiDom = {
       $ta.setAttribute(name, value)
     }
   },
+  //----------------------------------------------------
   renameElement($el, newTagName) {
     if($el.tagName == newTagName)
       return $el
@@ -84,6 +107,7 @@ const TiDom = {
     Ti.Dom.copyAttributes($el, $ta)
     return Ti.Dom.replace($el, $ta, true)
   },
+  //----------------------------------------------------
   getHeadingLevel($h) {
     let m = /^H([1-6])$/.exec($h.tagName)
     if(m) {
@@ -91,6 +115,7 @@ const TiDom = {
     }
     return 0
   },
+  //----------------------------------------------------
   remove(selectorOrElement, context) {
     if(_.isString(selectorOrElement)) {
       let $els = TiDom.findAll(selectorOrElement, context)
@@ -103,6 +128,7 @@ const TiDom = {
     if(_.isElement(selectorOrElement))
       selectorOrElement.parentNode.removeChild(selectorOrElement)
   },
+  //----------------------------------------------------
   // self by :scope
   findAll(selector="*", $doc=document) {
     if(!$doc)
@@ -110,6 +136,7 @@ const TiDom = {
     const $ndList = $doc.querySelectorAll(selector);
     return [...$ndList]
   },
+  //----------------------------------------------------
   find(selector="*", $doc=document) {
     if(!$doc)
       return null
@@ -123,70 +150,154 @@ const TiDom = {
       return selector
     return $doc.querySelector(selector);
   },
-  seek($el, selector, seekBy) {
-    if(!selector || !_.isFunction(seekBy)) {
+  //----------------------------------------------------
+  elementTester(test) {
+    // Selector
+    if(_.isString(test)) {
+      if(test.startsWith("^") && test.endsWith("$")) {
+        let reg = new RegExp(test)
+        return el => reg.test(el.tagName)
+      }
+      return el => TiDom.is(el, test)
+    }
+
+    // Function
+    if(_.isFunction(test))
+      return test
+    
+    // Element
+    if(_.isElement(test))
+      return el => test === el
+    
+    // Boolean
+    if(_.isBoolean(test))
+      return ()=>test
+
+    // RegExp
+    if(_.isRegExp(test))
+      return el => test.test(el.tagName)
+
+    // Array
+    if(_.isArray(test)) {
+      let testList = []
+      for(let t of test) {
+        testList.push(TiDom.elementTester(t))
+      }
+      return el => {
+        for(let te of testList) {
+          if(te(el))
+            return true
+        }
+        return false
+      }
+    }
+
+    throw "Unsupport ElementTester: " + test
+  },
+  //----------------------------------------------------
+  seekUntil($el, test, {
+    by, 
+    includeSelf=false, 
+    includeStop=true, 
+    reverse=false
+  }={}) {
+    if(!test || !_.isFunction(by)) {
       return $el
     }
+    // Default test
+    if(Ti.Util.isNil(test)) {
+      test = $el.ownerDocument.documentElement
+    }
+    // Normlize tester
+    test = TiDom.elementTester(test)
+
+    let re = []
     let $pel = $el
+    if(includeSelf) {
+      re.push($pel)
+    }
     while($pel) {
-      if(TiDom.is($pel, selector)) {
+      if(test($pel)) {
+        if(includeStop) {
+          re.push($pel)
+        }
         return $pel
       }
-      $pel = seekBy($pel)
+      $pel = by($pel)
+      re.push($pel)
     }
-    return null
+    if(reverse) {
+      return re.reverse()
+    }
+    return re
   },
-  seekBy($el, test, seekBy) {
-    if(!_.isFunction(test) || !_.isFunction(seekBy)) {
+  //----------------------------------------------------
+  seek($el, test, by) {
+    if(!_.isFunction(by)) {
       return $el
     }
+
+    // Normlize tester
+    test = TiDom.elementTester(test)
+
     let $pel = $el
     while($pel) {
       if(test($pel)) {
         return $pel
       }
-      $pel = seekBy($pel)
+      $pel = by($pel)
     }
     return null
   },
-  seekByTagName($el, tagName, seekBy) {
-    if(!tagName || !_.isFunction(seekBy))
+  //----------------------------------------------------
+  seekByTagName($el, tagName, by) {
+    if(!tagName || !_.isFunction(by))
       return false
 
     let am = Ti.AutoMatch.parse(tagName)
     let test = ({tagName})=>am(tagName)
 
-    return TiDom.seekBy($el, test, seekBy)
+    return TiDom.seek($el, test, by)
   },
   //
   // prev
   //
-  prev($el, selector) {
-    return TiDom.seek($el, selector, el=>el.previousElementSibling)},
-  prevBy($el, test) {
-    return TiDom.seekBy($el, test, el=>el.previousElementSibling)},
+  prev($el, test) {
+    return TiDom.seek($el, test, el=>el.previousElementSibling)},
   prevByTagName($el, tagName) {
-    return TiDom.seekByTagName($el, tagName, el=>el.previousElementSibling)
+    return TiDom.seekByTagName($el, tagName, el=>el.previousElementSibling)},
+  prevUtil($el, test, setup={}) {
+    return TiDom.seekUtil($el, test, {
+      ... setup,
+      by : el=>el.previousElementSibling
+    })
   },
   //
   // next
   //
   next($el, selector) {
     return TiDom.seek($el, selector, el=>el.nextElementSibling )},
-  nextBy($el, test) {
-    return TiDom.seekBy($el, test, el=>el.nextElementSibling )},
   nextByTagName($el, tagName) {
-    return TiDom.seekByTagName($el, tagName, el=>el.nextElementSibling )
+    return TiDom.seekByTagName($el, tagName, el=>el.nextElementSibling)},
+  nextUtil($el, test, setup={}) {
+    return TiDom.seekUtil($el, test, {
+      ... setup,
+      by : el=>el.nextElementSibling
+    })
   },
   //
   // Closest
   //
   closest($el, selector) {
     return TiDom.seek($el, selector, el=>el.parentElement)},
-  closestBy($el, test) {
-    return TiDom.seekBy($el, test, el=>el.parentElement)},
   closestByTagName($el, tagName) {
     return TiDom.seekByTagName($el, tagName, el=>el.parentElement)
+  },
+  parentsUntil($el, selector, setup={}) {
+    return TiDom.seekUntil($el, selector, {
+      ... setup,
+      by : el=>el.parentElement
+    })
   },
   //
   // Event current target
@@ -206,6 +317,7 @@ const TiDom = {
       $el = $el.parentElement
     }
   },
+  //----------------------------------------------------
   ownerWindow($el) {
     if($el.defaultView)
       return $el.defaultView
@@ -214,6 +326,7 @@ const TiDom = {
     }
     return $el
   },
+  //----------------------------------------------------
   autoRootFontSize({
     $win=window,
     phoneMaxWidth=540,
@@ -240,12 +353,15 @@ const TiDom = {
       })
     }
   },
+  //----------------------------------------------------
   watchDocument(event, handler) {
     document.addEventListener(event, handler);
   },
+  //----------------------------------------------------
   unwatchDocument(event, handler) {
     document.removeEventListener(event, handler);
   },
+  //----------------------------------------------------
   watchAutoRootFontSize(setup={}, callback, $win=window) {
     if(_.isFunction(setup)) {
       $win = callback || window
@@ -262,6 +378,7 @@ const TiDom = {
       TiDom.autoRootFontSize(options)
     }, 1)
   },
+  //----------------------------------------------------
   setStyle($el, css={}) {
     _.forOwn(css, (val, key)=>{
       if(_.isNull(val) || _.isUndefined(val))
@@ -279,11 +396,13 @@ const TiDom = {
       }
     })
   },
+  //----------------------------------------------------
   setClass($el, ...classNames) {
     let klass = _.flattenDeep(classNames)
     let className = klass.join(" ")
     $el.className = className
   },
+  //----------------------------------------------------
   addClass($el, ...classNames) {
     let klass = _.flattenDeep(classNames)
     for(let kl of klass) {
@@ -291,6 +410,7 @@ const TiDom = {
       $el.classList.add(className)
     }
   },
+  //----------------------------------------------------
   is($el, selector) {
     let doc = $el.ownerDocument
     let win = doc.defaultView
@@ -302,6 +422,7 @@ const TiDom = {
     sheet.removeRule(sheet.rules.length-1)
     return re
   },
+  //----------------------------------------------------
   removeClass($el, ...classNames) {
     let klass = _.flattenDeep(classNames)
     for(let kl of klass) {
@@ -309,6 +430,7 @@ const TiDom = {
       $el.classList.remove(className)
     }
   },
+  //----------------------------------------------------
   hasClass($el, ...classNames) {
     if(!_.isElement($el)) {
       return false
@@ -319,6 +441,7 @@ const TiDom = {
     }
     return true
   },
+  //----------------------------------------------------
   hasOneClass($el, ...classNames) {
     if(!_.isElement($el)) {
       return false
@@ -329,6 +452,7 @@ const TiDom = {
     }
     return false
   },
+  //----------------------------------------------------
   applyRect($el, rect, keys="tlwh", viewport={}) {
     let $win = $el.ownerDocument.defaultView
     _.defaults(viewport, {
@@ -338,6 +462,7 @@ const TiDom = {
     let css = rect.toCss(viewport, keys)
     TiDom.setStyle($el, css)
   },
+  //----------------------------------------------------
   dockTo($src, $ta, {
     mode="H", 
     axis={}, 
@@ -417,7 +542,7 @@ const TiDom = {
   /**
    * Return HTML string to present the icon/text/tip HTML segment
    */
-  htmlChipITT({icon,text,tip,more}={}, {
+  /*htmlChipITT({icon,text,tip,more}={}, {
     tagName   = "div",
     className = "",
     iconTag   = "div", 
@@ -470,7 +595,8 @@ const TiDom = {
       return `<${wrapperTag} ${klass(wrapperClass)}>${html}</${wrapperTag}>`
     }
     return html
-  },
+  },*/
+  //----------------------------------------------------
   /**
    * Retrive Current window scrollbar size
    */
@@ -490,6 +616,7 @@ const TiDom = {
     }
     return window.SCROLL_BAR_SIZE;
   }
+  //----------------------------------------------------
 }
 //---------------------------------------
 export const Dom = TiDom

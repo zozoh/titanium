@@ -1,9 +1,8 @@
 export default {
-  inheritAttrs: false,
   ///////////////////////////////////////////
   computed : {
     //----------------------------------------
-    topClass() {
+    TopClass() {
       let klass = [`as-${this.viewportMode}`]
       if(this.className) {
         klass.push(this.className)

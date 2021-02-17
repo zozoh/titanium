@@ -1,4 +1,8 @@
 {
+  "img" : "图像",
+  "img-add" : "添加图像",
+  "img-insert" : "插入图像",
+  "img-remove" : "删除图像",
   "copy" : "复制",
   "copy-all" : "全部复制",
   "preview": "预览",
