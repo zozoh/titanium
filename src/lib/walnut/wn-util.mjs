@@ -159,7 +159,10 @@ const WnUtil = {
       if(_.isFunction(BD)) {
         BD = BD(meta)
       }
-      if(!BD) return;
+      if(!BD)
+        return;
+
+      // Quick badge
       if(_.isArray(BD)) {
         if(BD.length == 1){
           badges[name] = BD[0]
@@ -167,7 +170,21 @@ const WnUtil = {
         else if(BD.length > 1 && meta[BD[0]]) {
           badges[name] = BD[1]
         }
-      } else {
+      }
+      // Auto match badge
+      else if(BD.test && BD.value && BD.value) {
+        if(Ti.AutoMatch.test(BD.test, meta)) {
+          let bag = Ti.Util.explainObj(meta, {
+            type: BD.type || "icon",
+            className: BD.className,
+            value: BD.value
+          })
+          if(bag)
+            badges[name] = bag
+        }
+      }
+      // Static badge
+      else {
         badges[name] = BD
       }
     }

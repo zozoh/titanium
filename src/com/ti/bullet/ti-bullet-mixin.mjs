@@ -1,3 +1,5 @@
+import Ti from "../../../core/ti.mjs"
+
 const _M = {
   ////////////////////////////////////////////////////
   data : ()=>({
@@ -12,6 +14,8 @@ const _M = {
       type : [String, Array, Function, Ti.Dict],
       default : ()=>[]
     },
+    // Item ignore by the AutoMatch
+    "ignoreBy" : undefined,
     /*
      {
        title : "title",
@@ -97,6 +101,13 @@ const _M = {
       }
     },
     //-----------------------------------------------
+    IgnoreItem() {
+      if(this.ignoreBy) {
+        return Ti.AutoMatch.parse(this.ignoreBy)
+      }
+      return ()=>false
+    },
+    //-----------------------------------------------
     getItemIcon()  {
       if(this.myDict)
         return it => this.myDict.getIcon(it)
@@ -144,6 +155,8 @@ const _M = {
     evalItems(items=[]) {
       let list = []
       _.forEach(items, li => {
+        if(this.IgnoreItem(li))
+          return
         let it = {
           icon  : this.getItemIcon(li),
           text  : this.getItemText(li),

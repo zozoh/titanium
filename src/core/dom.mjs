@@ -1,3 +1,5 @@
+import Ti from "./ti.mjs"
+
 ////////////////////////////////////////////////////////
 class TiDomRange {
 
@@ -15,7 +17,7 @@ class TiDomRange {
 const TiDom = {
   //----------------------------------------------------
   createElement({
-    tagName="div", attrs={}, props={}, className="", 
+    tagName="div", attrs={}, props={}, data={}, className="", 
     style = {},
     $p=null, $refer=null
   }, $doc=document) {
@@ -26,6 +28,8 @@ const TiDom = {
     _.forEach(attrs, (val, key) => {
       $el.setAttribute(key, val)
     })
+
+    TiDom.setData($el, data)
 
     _.forEach(props, (val, key) => {
       $el[key] = val
@@ -91,20 +95,40 @@ const TiDom = {
     return re
   },
   //----------------------------------------------------
-  copyAttributes($el, $ta) {
+  getData($el) {
+    let re = {}
+    for(let i=0; i<$el.attributes.length; i++) {
+      let {name,value} = $el.attributes[i]
+      if(name.startsWith("data-")) {
+        let key = _.camelCase(name.substring(5))
+        re[key] = value
+      }
+    }
+    return re
+  },
+  //----------------------------------------------------
+  setData($el, data={}) {
+    _.forEach(data, (val, key) => {
+      $el.setAttribute(`data-${_.kebabCase(key)}`, val)
+    })
+  },
+  //----------------------------------------------------
+  copyAttributes($el, $ta, attrFilter=()=>true) {
     let attrs = $el.attributes
     for(let i=0; i<attrs.length; i++) {
       let {name,value} = attrs[i]
+      if(!attrFilter(name, value))
+        continue
       $ta.setAttribute(name, value)
     }
   },
   //----------------------------------------------------
-  renameElement($el, newTagName) {
+  renameElement($el, newTagName, attrFilter=()=>true) {
     if($el.tagName == newTagName)
       return $el
     let $doc = $el.ownerDocument
     let $ta = $doc.createElement(newTagName)
-    Ti.Dom.copyAttributes($el, $ta)
+    Ti.Dom.copyAttributes($el, $ta, attrFilter)
     return Ti.Dom.replace($el, $ta, true)
   },
   //----------------------------------------------------
@@ -202,7 +226,7 @@ const TiDom = {
     reverse=false
   }={}) {
     if(!test || !_.isFunction(by)) {
-      return $el
+      return [$el]
     }
     // Default test
     if(Ti.Util.isNil(test)) {
@@ -216,15 +240,16 @@ const TiDom = {
     if(includeSelf) {
       re.push($pel)
     }
+    $pel = by($pel)
     while($pel) {
       if(test($pel)) {
         if(includeStop) {
           re.push($pel)
         }
-        return $pel
+        return re
       }
-      $pel = by($pel)
       re.push($pel)
+      $pel = by($pel)
     }
     if(reverse) {
       return re.reverse()
@@ -421,6 +446,10 @@ const TiDom = {
     let re = (style.zIndex == magic)
     sheet.removeRule(sheet.rules.length-1)
     return re
+  },
+  //----------------------------------------------------
+  isBody($el) {
+    return $el.ownerDocument.body === $el
   },
   //----------------------------------------------------
   removeClass($el, ...classNames) {

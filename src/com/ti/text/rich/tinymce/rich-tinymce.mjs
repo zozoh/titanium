@@ -269,9 +269,13 @@ const _M = {
       const conf = {
         target: this.$refs.editor,
         ... this.TheTinyEditor,
+        icons : "ti_tiny_icon_pack",
         language: this.TheLang,
         readonly : this.readonly,
         placeholder: Ti.I18n.text(this.placeholder),
+        formats : {
+          underline : {inline: 'u'}
+        },
         toolbar: this.TheToolbar,
         toolbar_groups: {
             edit : {
