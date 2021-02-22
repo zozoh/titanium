@@ -19,7 +19,7 @@
           <!--Text-->
           <span
             v-if="it.title"
-              class="as-text">{{it.title}}</span>
+              class="as-text">{{it.title | i18n}}</span>
       </a>
       <!--
         Just text
@@ -36,7 +36,7 @@
           <!--Text-->
           <span
             v-if="it.title"
-              class="as-text">{{it.title}}</span>
+              class="as-text">{{it.title | i18n}}</span>
       </span>
       <!--Sep-->
       <TiIcon :value="sep"/>

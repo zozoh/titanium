@@ -1,18 +1,3 @@
-import Ti from "./ti.mjs"
-
-////////////////////////////////////////////////////////
-class TiDomRange {
-
-  /**
-   * @param{Range} rng : starndard DOM Range object
-   * 
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Range
-   */
-  constructor(rng) {
-    
-  }
-
-}
 ////////////////////////////////////////////////////////
 const TiDom = {
   //----------------------------------------------------
@@ -86,22 +71,84 @@ const TiDom = {
     return $newEl
   },
   //----------------------------------------------------
-  attrs($el) {
+  attrFilter(filter) {
+    // Selector
+    if(_.isString(filter)) {
+      if(filter.startsWith("^") && filter.endsWith("$")) {
+        let reg = new RegExp(filter)
+        return (key) => reg.test(key)
+      }
+      return (key) => filter === key
+    }
+
+    // Function
+    if(_.isFunction(filter))
+      return filter
+    
+    // Boolean
+    if(_.isBoolean(filter))
+      return ()=>filter
+
+    // RegExp
+    if(_.isRegExp(filter))
+      return key => filter.test(key)
+
+    // Array
+    if(_.isArray(filter)) {
+      let fltList = []
+      for(let t of filter) {
+        fltList.push(TiDom.attrFilter(t))
+      }
+      return el => {
+        for(let te of fltList) {
+          if(te(el))
+            return true
+        }
+        return false
+      }
+    }
+
+    throw "Unsupport attrFilter: " + filter
+  },
+  //----------------------------------------------------
+  attrs($el, filter=true) {
+    filter = this.attrFilter(filter)
     let re = {}
     for(let i=0; i<$el.attributes.length; i++) {
       let {name,value} = $el.attributes[i]
-      re[name] = value
+      let key = filter(name, value)
+      if(key) {
+        if(_.isBoolean(key))
+          key = name
+        re[key] = value
+      }
     }
     return re
   },
   //----------------------------------------------------
-  getData($el) {
+  getStyle($el, filter=true) {
+    filter = this.attrFilter(filter)
+    let re = {}
+    for(var i=0; i<$el.style.length; i++) {
+      let k = $el.style[i]
+      if(filter(k)) {
+        let key = _.camelCase(k)
+        let val = $el.style[key]
+        re[key] = val
+      }
+    }
+    return re
+  },
+  //----------------------------------------------------
+  getData($el, filter=true) {
+    filter = this.attrFilter(filter)
     let re = {}
     for(let i=0; i<$el.attributes.length; i++) {
       let {name,value} = $el.attributes[i]
       if(name.startsWith("data-")) {
         let key = _.camelCase(name.substring(5))
-        re[key] = value
+        if(filter(key, value))
+          re[key] = value
       }
     }
     return re
@@ -175,7 +222,7 @@ const TiDom = {
     return $doc.querySelector(selector);
   },
   //----------------------------------------------------
-  elementTester(test) {
+  elementFilter(test) {
     // Selector
     if(_.isString(test)) {
       if(test.startsWith("^") && test.endsWith("$")) {
@@ -203,12 +250,12 @@ const TiDom = {
 
     // Array
     if(_.isArray(test)) {
-      let testList = []
+      let fltList = []
       for(let t of test) {
-        testList.push(TiDom.elementTester(t))
+        fltList.push(TiDom.elementFilter(t))
       }
       return el => {
-        for(let te of testList) {
+        for(let te of fltList) {
           if(te(el))
             return true
         }
@@ -216,24 +263,24 @@ const TiDom = {
       }
     }
 
-    throw "Unsupport ElementTester: " + test
+    throw "Unsupport elementFilter: " + test
   },
   //----------------------------------------------------
-  seekUntil($el, test, {
+  seekUntil($el, filter, {
     by, 
     includeSelf=false, 
     includeStop=true, 
     reverse=false
   }={}) {
-    if(!test || !_.isFunction(by)) {
+    if(!filter || !_.isFunction(by)) {
       return [$el]
     }
     // Default test
-    if(Ti.Util.isNil(test)) {
-      test = $el.ownerDocument.documentElement
+    if(Ti.Util.isNil(filter)) {
+      filter = $el.ownerDocument.documentElement
     }
     // Normlize tester
-    test = TiDom.elementTester(test)
+    filter = TiDom.elementFilter(filter)
 
     let re = []
     let $pel = $el
@@ -242,7 +289,7 @@ const TiDom = {
     }
     $pel = by($pel)
     while($pel) {
-      if(test($pel)) {
+      if(filter($pel)) {
         if(includeStop) {
           re.push($pel)
         }
@@ -257,17 +304,17 @@ const TiDom = {
     return re
   },
   //----------------------------------------------------
-  seek($el, test, by) {
+  seek($el, filter, by) {
     if(!_.isFunction(by)) {
       return $el
     }
 
     // Normlize tester
-    test = TiDom.elementTester(test)
+    filter = TiDom.elementFilter(filter)
 
     let $pel = $el
     while($pel) {
-      if(test($pel)) {
+      if(filter($pel)) {
         return $pel
       }
       $pel = by($pel)
@@ -287,8 +334,8 @@ const TiDom = {
   //
   // prev
   //
-  prev($el, test) {
-    return TiDom.seek($el, test, el=>el.previousElementSibling)},
+  prev($el, filter) {
+    return TiDom.seek($el, filter, el=>el.previousElementSibling)},
   prevByTagName($el, tagName) {
     return TiDom.seekByTagName($el, tagName, el=>el.previousElementSibling)},
   prevUtil($el, test, setup={}) {
@@ -300,8 +347,8 @@ const TiDom = {
   //
   // next
   //
-  next($el, selector) {
-    return TiDom.seek($el, selector, el=>el.nextElementSibling )},
+  next($el, filter) {
+    return TiDom.seek($el, filter, el=>el.nextElementSibling )},
   nextByTagName($el, tagName) {
     return TiDom.seekByTagName($el, tagName, el=>el.nextElementSibling)},
   nextUtil($el, test, setup={}) {
@@ -313,8 +360,8 @@ const TiDom = {
   //
   // Closest
   //
-  closest($el, selector) {
-    return TiDom.seek($el, selector, el=>el.parentElement)},
+  closest($el, filter) {
+    return TiDom.seek($el, filter, el=>el.parentElement)},
   closestByTagName($el, tagName) {
     return TiDom.seekByTagName($el, tagName, el=>el.parentElement)
   },

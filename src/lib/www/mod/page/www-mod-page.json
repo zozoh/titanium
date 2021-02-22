@@ -5,6 +5,7 @@
   "href"  : null,
   "path"  : null,
   "pageUri": null,
+  "pageUriWithParams" : true,
   "ready" : 0,
   "finger" : null,
   "params" : {},

@@ -5,19 +5,24 @@
     v-if="icon"
       class="as-icon"><ti-icon :value="icon"/></div>
   <!--Title-->
-  <div
+  <a
     v-if="title"
       class="as-title"
       :class="TitleClass"
       :style="TitleStyle"
-      @click.left="OnClickTitle"><span>{{title|i18n}}</span></div>
+      :href="href"
+      @click.left="OnClickTitle"><span>{{title | i18n}}</span></a>
   <!--Comments-->
   <div
     v-if="comment"
-      class="as-comment"><span>{{comment|i18n}}</span></div>
+      class="as-comment"><span>{{comment | i18n}}</span></div>
   <!--View more-->
-  <div
-    v-if="more"
+  <a
+    v-if="showMore"
       class="as-more"
-      @click.left="OnClickMore"><span>{{more|i18n}}</span></div>
+      :href="moreHref"
+      @click.left="OnClickMore">
+      <TiIcon v-if="moreIcon" :value="moreIcon"/>
+      <span v-if="moreText">{{moreText | i18n}}</span>
+  </a>
 </div>

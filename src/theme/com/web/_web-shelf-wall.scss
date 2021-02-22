@@ -1,15 +1,24 @@
 .web-shelf-wall {
   //------------------------------------------
   .wall-group {
-    @include flex(flex-start, stretch, nowrap, stretch);
-    padding: .5em 0;
-    //----------------------------------------
-    > .wall-tile {
-      @include flex(center, stretch, nowrap, stretch);
-      flex:1 1 auto; 
-      > * {width:100%;}
-    }
-    //----------------------------------------
+    @include flex(space-around, stretch);
   }
+  //------------------------------------------
+  .wall-tile {
+    @include flex(center, stretch, nowrap, stretch);
+    flex:1 1 auto; 
+    > * {width:100%;}
+  }
+  //------------------------------------------
+  &.item-space.is-xl .wall-tile {padding: SZ(30);}
+  &.item-space.is-lg .wall-tile {padding: SZ(24);}
+  &.item-space.is-md .wall-tile {padding: SZ(16);}
+  &.item-space.is-sm .wall-tile {padding: SZ(10);}
+  &.item-space.is-xs .wall-tile {padding: SZ(4);}
+  //------------------------------------------
+  &.flex-none   .wall-tile {flex:0 0 auto;}
+  &.flex-both   .wall-tile {flex:1 1 auto;}
+  &.flex-grow   .wall-tile {flex:1 0 auto;}
+  &.flex-shrink .wall-tile {flex:0 1 auto;}
   //------------------------------------------
 }

@@ -21,9 +21,6 @@
   .as-text {
     @include flex-center; 
     @include font-nice;
-    color:#FFF;
-    text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
-    //---------------------------------------
   }
   //-----------------------------------------
   .as-zoom-pick {
@@ -45,30 +42,47 @@
     }
   }
   //-----------------------------------------
-  &.text-in-center .as-text {@include pos-abs-full;}
-  &.text-in-top    .as-text {@include pos-abs($l:0,$r:0,$t:0);}
-  &.text-in-bottom .as-text {@include pos-abs($l:0,$r:0,$b:0);}
-  &.text-in-left   .as-text {@include pos-abs($l:0,$t:0,$b:0);}
-  &.text-in-right  .as-text {@include pos-abs($r:0,$t:0,$b:0);}
-
-  &.text-in-bottom-left  .as-text {@include pos-abs($l:0,$b:0);}
-  &.text-in-bottom-right .as-text {@include pos-abs($r:0,$b:0);}
-  &.text-in-left-top     .as-text {@include pos-abs($l:0,$t:0);}
-  &.text-in-right-top    .as-text {@include pos-abs($r:0,$t:0);}
+  &.is-hoverable {
+    transition: 0.3s;
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
+    }
+  }
   //-----------------------------------------
-  &.text-at-top {
+  &.text-in.at-center .as-text {@include pos-abs-full;}
+  &.text-in.at-top    .as-text {@include pos-abs($l:0,$r:0,$t:0);}
+  &.text-in.at-bottom .as-text {@include pos-abs($l:0,$r:0,$b:0);}
+  &.text-in.at-left   .as-text {@include pos-abs($l:0,$t:0,$b:0);}
+  &.text-in.at-right  .as-text {@include pos-abs($r:0,$t:0,$b:0);}
+
+  &.text-in.at-bottom-left  .as-text {@include pos-abs($l:0,$b:0);}
+  &.text-in.at-bottom-right .as-text {@include pos-abs($r:0,$b:0);}
+  &.text-in.at-left-top     .as-text {@include pos-abs($l:0,$t:0);}
+  &.text-in.at-right-top    .as-text {@include pos-abs($r:0,$t:0);}
+  //-----------------------------------------
+  &.text-in .as-text{
+    padding: 0.5em 0.6em; 
+    color:#FFF;
+  }
+  &.text-in.as-shadow .as-text {
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.6);}
+  &.text-in.as-mask .as-text {
+    background-color:rgba(0,0,0,0.4);}
+  //-----------------------------------------
+  &.text-out.at-top {
     @include flex-align-v-nowrap;
     .as-text {order: -1; display: block; text-align: center;}
   }
-  &.text-at-bottom {
+  &.text-out.at-bottom {
     @include flex-align-v-nowrap;
     .as-text {display: block; text-align: center;}
   }
-  &.text-at-left {
+  &.text-out.at-left {
     @include flex-align-nowrap($ai:stretch);
     .as-text {order: -1;}
   }
-  &.text-at-right {
+  &.text-out.at-right {
     @include flex-align-nowrap($ai:stretch);
     .as-text {}
   }

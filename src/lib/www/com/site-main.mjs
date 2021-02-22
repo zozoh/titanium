@@ -35,8 +35,8 @@ const _M = {
       "getUrl",
       "getApiUrl"
     ]),
-    ...Vuex.mapGetters("page", [
-      "pageLink"
+    ...Vuex.mapState("page", [
+      "pageUri"
     ]),
     //-------------------------------------
     PayReturnUrl: function() {
@@ -205,7 +205,8 @@ const _M = {
       let loc = window.location
       let loPath = [loc.pathname, loc.search, loc.hash].join("")
       //...................................
-      let pgLink = this.getUrl(this.pageLink)
+      //let pgLink = this.getUrl(this.pageLink)
+      let pgLink = this.pageUri
       //...................................
       if(loPath != pgLink || !his.state) {
         let pg = _.cloneDeep(_.pick(this.page, "path", "params", "anchor"))
@@ -222,7 +223,7 @@ const _M = {
   watch : {
     // Page changd, update document title
     "page.finger" : function() {
-      //console.log("-> ", this.page.title)
+      console.log("-> ", this.page.title)
       let pageTitle = Ti.Util.explainObj(this, this.page.title)
       document.title = pageTitle
       this.pushBrowserHistory(pageTitle)

@@ -1,4 +1,4 @@
-// Pack At: 2021-02-17 07:59:01
+// Pack At: 2021-02-22 15:51:36
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3374,9 +3374,11 @@ const {Config} = (function(){
 //##################################################
 // # import {Dom}          from "./dom.mjs"
 const {Dom} = (function(){
+  ////////////////////////////////////////////////////////
   const TiDom = {
+    //----------------------------------------------------
     createElement({
-      tagName="div", attrs={}, props={}, className="", 
+      tagName="div", attrs={}, props={}, data={}, className="", 
       style = {},
       $p=null, $refer=null
     }, $doc=document) {
@@ -3387,6 +3389,8 @@ const {Dom} = (function(){
       _.forEach(attrs, (val, key) => {
         $el.setAttribute(key, val)
       })
+  
+      TiDom.setData($el, data)
   
       _.forEach(props, (val, key) => {
         $el[key] = val
@@ -3407,21 +3411,25 @@ const {Dom} = (function(){
   
       return $el
     },
+    //----------------------------------------------------
     appendToHead($el, $head=document.head) {
       if(_.isElement($el) && _.isElement($head)) {
         $head.appendChild($el)
       }
     },
+    //----------------------------------------------------
     appendToBody($el, $body=document.body) {
       if(_.isElement($el) && _.isElement($body)) {
         $body.appendChild($el)
       }
     },
+    //----------------------------------------------------
     appendTo($el, $p) {
       if(_.isElement($el) && _.isElement($p)) {
         $p.appendChild($el)
       }
     },
+    //----------------------------------------------------
     prependTo($el, $p) {
       if($p.firstChild) {
         $p.insertBefore($el, $p.firstChild)
@@ -3429,6 +3437,7 @@ const {Dom} = (function(){
         $p.appendChild($el)
       }
     },
+    //----------------------------------------------------
     replace($el, $newEl, keepInnerHTML=false) {
       $el.insertAdjacentElement("afterend", $newEl)
       if(keepInnerHTML) {
@@ -3437,29 +3446,115 @@ const {Dom} = (function(){
       TiDom.remove($el)
       return $newEl
     },
-    attrs($el) {
+    //----------------------------------------------------
+    attrFilter(filter) {
+      // Selector
+      if(_.isString(filter)) {
+        if(filter.startsWith("^") && filter.endsWith("$")) {
+          let reg = new RegExp(filter)
+          return (key) => reg.test(key)
+        }
+        return (key) => filter === key
+      }
+  
+      // Function
+      if(_.isFunction(filter))
+        return filter
+      
+      // Boolean
+      if(_.isBoolean(filter))
+        return ()=>filter
+  
+      // RegExp
+      if(_.isRegExp(filter))
+        return key => filter.test(key)
+  
+      // Array
+      if(_.isArray(filter)) {
+        let fltList = []
+        for(let t of filter) {
+          fltList.push(TiDom.attrFilter(t))
+        }
+        return el => {
+          for(let te of fltList) {
+            if(te(el))
+              return true
+          }
+          return false
+        }
+      }
+  
+      throw "Unsupport attrFilter: " + filter
+    },
+    //----------------------------------------------------
+    attrs($el, filter=true) {
+      filter = this.attrFilter(filter)
       let re = {}
       for(let i=0; i<$el.attributes.length; i++) {
         let {name,value} = $el.attributes[i]
-        re[name] = value
+        let key = filter(name, value)
+        if(key) {
+          if(_.isBoolean(key))
+            key = name
+          re[key] = value
+        }
       }
       return re
     },
-    copyAttributes($el, $ta) {
+    //----------------------------------------------------
+    getStyle($el, filter=true) {
+      filter = this.attrFilter(filter)
+      let re = {}
+      for(var i=0; i<$el.style.length; i++) {
+        let k = $el.style[i]
+        if(filter(k)) {
+          let key = _.camelCase(k)
+          let val = $el.style[key]
+          re[key] = val
+        }
+      }
+      return re
+    },
+    //----------------------------------------------------
+    getData($el, filter=true) {
+      filter = this.attrFilter(filter)
+      let re = {}
+      for(let i=0; i<$el.attributes.length; i++) {
+        let {name,value} = $el.attributes[i]
+        if(name.startsWith("data-")) {
+          let key = _.camelCase(name.substring(5))
+          if(filter(key, value))
+            re[key] = value
+        }
+      }
+      return re
+    },
+    //----------------------------------------------------
+    setData($el, data={}) {
+      _.forEach(data, (val, key) => {
+        $el.setAttribute(`data-${_.kebabCase(key)}`, val)
+      })
+    },
+    //----------------------------------------------------
+    copyAttributes($el, $ta, attrFilter=()=>true) {
       let attrs = $el.attributes
       for(let i=0; i<attrs.length; i++) {
         let {name,value} = attrs[i]
+        if(!attrFilter(name, value))
+          continue
         $ta.setAttribute(name, value)
       }
     },
-    renameElement($el, newTagName) {
+    //----------------------------------------------------
+    renameElement($el, newTagName, attrFilter=()=>true) {
       if($el.tagName == newTagName)
         return $el
       let $doc = $el.ownerDocument
       let $ta = $doc.createElement(newTagName)
-      Ti.Dom.copyAttributes($el, $ta)
+      Ti.Dom.copyAttributes($el, $ta, attrFilter)
       return Ti.Dom.replace($el, $ta, true)
     },
+    //----------------------------------------------------
     getHeadingLevel($h) {
       let m = /^H([1-6])$/.exec($h.tagName)
       if(m) {
@@ -3467,6 +3562,7 @@ const {Dom} = (function(){
       }
       return 0
     },
+    //----------------------------------------------------
     remove(selectorOrElement, context) {
       if(_.isString(selectorOrElement)) {
         let $els = TiDom.findAll(selectorOrElement, context)
@@ -3479,6 +3575,7 @@ const {Dom} = (function(){
       if(_.isElement(selectorOrElement))
         selectorOrElement.parentNode.removeChild(selectorOrElement)
     },
+    //----------------------------------------------------
     // self by :scope
     findAll(selector="*", $doc=document) {
       if(!$doc)
@@ -3486,6 +3583,7 @@ const {Dom} = (function(){
       const $ndList = $doc.querySelectorAll(selector);
       return [...$ndList]
     },
+    //----------------------------------------------------
     find(selector="*", $doc=document) {
       if(!$doc)
         return null
@@ -3499,70 +3597,155 @@ const {Dom} = (function(){
         return selector
       return $doc.querySelector(selector);
     },
-    seek($el, selector, seekBy) {
-      if(!selector || !_.isFunction(seekBy)) {
+    //----------------------------------------------------
+    elementFilter(test) {
+      // Selector
+      if(_.isString(test)) {
+        if(test.startsWith("^") && test.endsWith("$")) {
+          let reg = new RegExp(test)
+          return el => reg.test(el.tagName)
+        }
+        return el => TiDom.is(el, test)
+      }
+  
+      // Function
+      if(_.isFunction(test))
+        return test
+      
+      // Element
+      if(_.isElement(test))
+        return el => test === el
+      
+      // Boolean
+      if(_.isBoolean(test))
+        return ()=>test
+  
+      // RegExp
+      if(_.isRegExp(test))
+        return el => test.test(el.tagName)
+  
+      // Array
+      if(_.isArray(test)) {
+        let fltList = []
+        for(let t of test) {
+          fltList.push(TiDom.elementFilter(t))
+        }
+        return el => {
+          for(let te of fltList) {
+            if(te(el))
+              return true
+          }
+          return false
+        }
+      }
+  
+      throw "Unsupport elementFilter: " + test
+    },
+    //----------------------------------------------------
+    seekUntil($el, filter, {
+      by, 
+      includeSelf=false, 
+      includeStop=true, 
+      reverse=false
+    }={}) {
+      if(!filter || !_.isFunction(by)) {
+        return [$el]
+      }
+      // Default test
+      if(Ti.Util.isNil(filter)) {
+        filter = $el.ownerDocument.documentElement
+      }
+      // Normlize tester
+      filter = TiDom.elementFilter(filter)
+  
+      let re = []
+      let $pel = $el
+      if(includeSelf) {
+        re.push($pel)
+      }
+      $pel = by($pel)
+      while($pel) {
+        if(filter($pel)) {
+          if(includeStop) {
+            re.push($pel)
+          }
+          return re
+        }
+        re.push($pel)
+        $pel = by($pel)
+      }
+      if(reverse) {
+        return re.reverse()
+      }
+      return re
+    },
+    //----------------------------------------------------
+    seek($el, filter, by) {
+      if(!_.isFunction(by)) {
         return $el
       }
+  
+      // Normlize tester
+      filter = TiDom.elementFilter(filter)
+  
       let $pel = $el
       while($pel) {
-        if(TiDom.is($pel, selector)) {
+        if(filter($pel)) {
           return $pel
         }
-        $pel = seekBy($pel)
+        $pel = by($pel)
       }
       return null
     },
-    seekBy($el, test, seekBy) {
-      if(!_.isFunction(test) || !_.isFunction(seekBy)) {
-        return $el
-      }
-      let $pel = $el
-      while($pel) {
-        if(test($pel)) {
-          return $pel
-        }
-        $pel = seekBy($pel)
-      }
-      return null
-    },
-    seekByTagName($el, tagName, seekBy) {
-      if(!tagName || !_.isFunction(seekBy))
+    //----------------------------------------------------
+    seekByTagName($el, tagName, by) {
+      if(!tagName || !_.isFunction(by))
         return false
   
       let am = Ti.AutoMatch.parse(tagName)
       let test = ({tagName})=>am(tagName)
   
-      return TiDom.seekBy($el, test, seekBy)
+      return TiDom.seek($el, test, by)
     },
     //
     // prev
     //
-    prev($el, selector) {
-      return TiDom.seek($el, selector, el=>el.previousElementSibling)},
-    prevBy($el, test) {
-      return TiDom.seekBy($el, test, el=>el.previousElementSibling)},
+    prev($el, filter) {
+      return TiDom.seek($el, filter, el=>el.previousElementSibling)},
     prevByTagName($el, tagName) {
-      return TiDom.seekByTagName($el, tagName, el=>el.previousElementSibling)
+      return TiDom.seekByTagName($el, tagName, el=>el.previousElementSibling)},
+    prevUtil($el, test, setup={}) {
+      return TiDom.seekUtil($el, test, {
+        ... setup,
+        by : el=>el.previousElementSibling
+      })
     },
     //
     // next
     //
-    next($el, selector) {
-      return TiDom.seek($el, selector, el=>el.nextElementSibling )},
-    nextBy($el, test) {
-      return TiDom.seekBy($el, test, el=>el.nextElementSibling )},
+    next($el, filter) {
+      return TiDom.seek($el, filter, el=>el.nextElementSibling )},
     nextByTagName($el, tagName) {
-      return TiDom.seekByTagName($el, tagName, el=>el.nextElementSibling )
+      return TiDom.seekByTagName($el, tagName, el=>el.nextElementSibling)},
+    nextUtil($el, test, setup={}) {
+      return TiDom.seekUtil($el, test, {
+        ... setup,
+        by : el=>el.nextElementSibling
+      })
     },
     //
     // Closest
     //
-    closest($el, selector) {
-      return TiDom.seek($el, selector, el=>el.parentElement)},
-    closestBy($el, test) {
-      return TiDom.seekBy($el, test, el=>el.parentElement)},
+    closest($el, filter) {
+      return TiDom.seek($el, filter, el=>el.parentElement)},
     closestByTagName($el, tagName) {
       return TiDom.seekByTagName($el, tagName, el=>el.parentElement)
+    },
+    parentsUntil($el, selector, setup={}) {
+      return TiDom.seekUntil($el, selector, {
+        ... setup,
+        by : el=>el.parentElement
+      })
     },
     //
     // Event current target
@@ -3582,6 +3765,7 @@ const {Dom} = (function(){
         $el = $el.parentElement
       }
     },
+    //----------------------------------------------------
     ownerWindow($el) {
       if($el.defaultView)
         return $el.defaultView
@@ -3590,6 +3774,7 @@ const {Dom} = (function(){
       }
       return $el
     },
+    //----------------------------------------------------
     autoRootFontSize({
       $win=window,
       phoneMaxWidth=540,
@@ -3616,12 +3801,15 @@ const {Dom} = (function(){
         })
       }
     },
+    //----------------------------------------------------
     watchDocument(event, handler) {
       document.addEventListener(event, handler);
     },
+    //----------------------------------------------------
     unwatchDocument(event, handler) {
       document.removeEventListener(event, handler);
     },
+    //----------------------------------------------------
     watchAutoRootFontSize(setup={}, callback, $win=window) {
       if(_.isFunction(setup)) {
         $win = callback || window
@@ -3638,6 +3826,7 @@ const {Dom} = (function(){
         TiDom.autoRootFontSize(options)
       }, 1)
     },
+    //----------------------------------------------------
     setStyle($el, css={}) {
       _.forOwn(css, (val, key)=>{
         if(_.isNull(val) || _.isUndefined(val))
@@ -3655,11 +3844,13 @@ const {Dom} = (function(){
         }
       })
     },
+    //----------------------------------------------------
     setClass($el, ...classNames) {
       let klass = _.flattenDeep(classNames)
       let className = klass.join(" ")
       $el.className = className
     },
+    //----------------------------------------------------
     addClass($el, ...classNames) {
       let klass = _.flattenDeep(classNames)
       for(let kl of klass) {
@@ -3667,6 +3858,7 @@ const {Dom} = (function(){
         $el.classList.add(className)
       }
     },
+    //----------------------------------------------------
     is($el, selector) {
       let doc = $el.ownerDocument
       let win = doc.defaultView
@@ -3678,6 +3870,11 @@ const {Dom} = (function(){
       sheet.removeRule(sheet.rules.length-1)
       return re
     },
+    //----------------------------------------------------
+    isBody($el) {
+      return $el.ownerDocument.body === $el
+    },
+    //----------------------------------------------------
     removeClass($el, ...classNames) {
       let klass = _.flattenDeep(classNames)
       for(let kl of klass) {
@@ -3685,6 +3882,7 @@ const {Dom} = (function(){
         $el.classList.remove(className)
       }
     },
+    //----------------------------------------------------
     hasClass($el, ...classNames) {
       if(!_.isElement($el)) {
         return false
@@ -3695,6 +3893,7 @@ const {Dom} = (function(){
       }
       return true
     },
+    //----------------------------------------------------
     hasOneClass($el, ...classNames) {
       if(!_.isElement($el)) {
         return false
@@ -3705,6 +3904,7 @@ const {Dom} = (function(){
       }
       return false
     },
+    //----------------------------------------------------
     applyRect($el, rect, keys="tlwh", viewport={}) {
       let $win = $el.ownerDocument.defaultView
       _.defaults(viewport, {
@@ -3714,6 +3914,7 @@ const {Dom} = (function(){
       let css = rect.toCss(viewport, keys)
       TiDom.setStyle($el, css)
     },
+    //----------------------------------------------------
     dockTo($src, $ta, {
       mode="H", 
       axis={}, 
@@ -3793,7 +3994,7 @@ const {Dom} = (function(){
     /**
      * Return HTML string to present the icon/text/tip HTML segment
      */
-    htmlChipITT({icon,text,tip,more}={}, {
+    /*htmlChipITT({icon,text,tip,more}={}, {
       tagName   = "div",
       className = "",
       iconTag   = "div", 
@@ -3846,7 +4047,8 @@ const {Dom} = (function(){
         return `<${wrapperTag} ${klass(wrapperClass)}>${html}</${wrapperTag}>`
       }
       return html
-    },
+    },*/
+    //----------------------------------------------------
     /**
      * Retrive Current window scrollbar size
      */
@@ -3866,6 +4068,7 @@ const {Dom} = (function(){
       }
       return window.SCROLL_BAR_SIZE;
     }
+    //----------------------------------------------------
   }
   //---------------------------------------
   return {Dom: TiDom};
@@ -7808,6 +8011,11 @@ const {Util} = (function(){
       getFileName(path, dft="") {
         if(!path)
           return dft
+    
+        while(path.endsWith("/")) {
+          path = path.substring(0, path.length-1)
+        }
+        
         let pos = path.lastIndexOf("/")
         if(pos>=0) {
           return path.substring(pos+1)
@@ -7823,6 +8031,11 @@ const {Util} = (function(){
       getMajorName(path, dft="") {
           if (!path)
               return dft;
+    
+          while(path.endsWith("/")) {
+            path = path.substring(0, path.length-1)
+          }
+    
           var len = path.length;
           var l = 0;
           var r = len;
@@ -7902,8 +8115,11 @@ const {Util} = (function(){
        * Get the parent path
        */
       getParentPath(path="") {
-        if(!path || path.endsWith("/"))
+        if(!path)
           return path
+        while(path.endsWith("/")) {
+          path = path.substring(0, path.length-1)
+        }
         let pos = path.lastIndexOf("/")
         if(pos<0)
           return ""
@@ -8832,6 +9048,40 @@ const {Util} = (function(){
         path = path.split(".")
       }
       return set_key_by(source, path, 0, newKey)
+    },
+    /***
+     * Get value from obj by first NOT-NIL value candicate key.
+     * 
+     * @param obj{Any} any object
+     * @param keys{Array} candicate keys 
+     * 
+     * @return new obj or value
+     */
+    getValue(obj, ...keys) {
+      for(let k of keys) {
+        let v = _.get(obj, k)
+        if(!_.isUndefined(v) && !_.isNull(v)) {
+          return v
+        }
+      }
+    },
+    /***
+     * Get value from obj by first NOT-NIL value candicate key.
+     * 
+     * @param tmpl{String} the string template to render value
+     * @param obj{Any} any object
+     * @param keys{Array} candicate keys 
+     * 
+     * @return new obj or value
+     */
+    getValueAs(tmpl, obj, ...keys) {
+      for(let k of keys) {
+        let v = _.get(obj, k)
+        if(!_.isUndefined(v) && !_.isNull(v)) {
+          return Ti.S.renderBy(tmpl, {val:v})
+        }
+      }
+      return tmpl
     },
     /***
      * Get value from obj
@@ -12860,7 +13110,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210217.075901",
+  "version" : "1.6-20210222.155136",
   "dev" : false,
   "appName" : null,
   "session" : {},

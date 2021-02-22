@@ -5,11 +5,10 @@
       v-bind="loadingAs"/>
   <!-- Blank -->
   <component
-    v-if="isBlank && blankAs"
+    v-else-if="isBlank && blankAs"
       :is="blankAs.comType"
       v-bind="blankAs.comConf"/>
   <!-- Render content -->
-  <article 
-    :class="ArticleClass"
-    v-html="ArticleHtml"></article>
+  <article ref="main"
+    :class="ArticleClass"></article>
 </div>

@@ -51,7 +51,7 @@ const _M = {
             'bold italic underline',
             'blockquote bullist numlist',
             'blocks',
-            'table',
+            'table WnImgPick',
             'superscript subscript',
             'edit removeformat',
             'TiPreview']

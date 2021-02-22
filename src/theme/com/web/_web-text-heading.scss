@@ -13,6 +13,8 @@
   .as-title {
     flex:0 0 auto;
     font-size:1.2em;
+    cursor: default;
+    &[href] {cursor: pointer;}
   }
   //-----------------------------------------
   .as-comment {
@@ -26,13 +28,8 @@
     flex:1 1 auto;
     padding:0 .5em;
     font-size:.9em;
-    span {
-      cursor: pointer;
-      &:hover {
-        color: map-get($color-primary, c);
-        text-decoration: underline;
-      }
-    }
+    cursor: default;
+    &[href] {cursor: pointer;}
   }
   //-----------------------------------------
 }

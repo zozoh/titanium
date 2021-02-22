@@ -3,11 +3,11 @@ export default {
   props : {
     "icon": {
       type : String,
-      default: null
+      default: undefined
     },
     "title" : {
       type : String,
-      default : null
+      default : undefined
     },
     "titleClass": {
       type: [String, Array, Object],
@@ -17,15 +17,31 @@ export default {
       type: Object,
       default: undefined
     },
+    "value": undefined,
+    "href" : {
+      type: String,
+      default: undefined
+    },
     "comment" : {
       type : String,
-      default : null
+      default : undefined
     },
     "more": {
       type: String,
-      default: null
+      default: undefined
     },
-    "value": null
+    "moreIcon": {
+      type: String,
+      default: undefined
+    },
+    "moreText": {
+      type: String,
+      default: undefined
+    },
+    "moreHref": {
+      type: String,
+      default: undefined
+    }
   },
   //////////////////////////////////////////
   computed: {
@@ -39,6 +55,12 @@ export default {
     //--------------------------------------
     TitleStyle() {
       return Ti.Css.toStyle(this.titleStyle)
+    },
+    //--------------------------------------
+    showMore() {
+      if(this.moreText || this.moreIcon)
+        return true
+      return false
     }
     //--------------------------------------
   },
@@ -46,11 +68,15 @@ export default {
   methods : {
     //--------------------------------------
     OnClickTitle() {
-      this.$notify("fire", this.value)
+      if(this.value) {
+        this.$notify("fire", this.value)
+      }
     },
     //--------------------------------------
     OnClickMore() {
-      this.$notify("more", this.value)
+      if(this.more) {
+        this.$notify("more", this.value)
+      }
     }
     //--------------------------------------
   }

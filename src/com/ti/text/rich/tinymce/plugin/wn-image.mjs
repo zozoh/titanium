@@ -55,7 +55,10 @@ function CmdInsertImage(editor, oImgs) {
       tagName : "img",
       attrs : {
         src : `/o/content?str=id:${oImg.id}`,
-        "wn-obj-id" : oImg.id
+        "wn-obj-id" : oImg.id,
+        "wn-obj-sha1" : oImg.sha1,
+        "wn-obj-mime" : oImg.mime,
+        "wn-obj-tp"   : oImg.tp
       }
     }, $doc)
     frag.appendChild($img)
@@ -101,6 +104,9 @@ async function CmdShowImageProp(editor, settings) {
   if("IMG" != $img.tagName) {
     return
   }
+  // Get margin style
+  let stl = Ti.Dom.getStyle($img, /^(float|(margin-(left|right|top|bottom)))$/)
+  stl.float = stl.float || "none"
   // Gen the properties
   let data = {
     oid    : $img.getAttribute("wn-obj-id"),
@@ -111,14 +117,10 @@ async function CmdShowImageProp(editor, settings) {
     displayHeight : $img.height,
     naturalWidth  : $img.naturalWidth,
     naturalHeight : $img.naturalHeight,
-    float  : $img.style.float || "none",
-    marginLeft   : $img.style.marginLeft   || undefined,
-    marginRight  : $img.style.marginLeft   || undefined,
-    marginTop    : $img.style.marginTop    || undefined,
-    marginBottom : $img.style.marginBottom || undefined
+    ... stl
   }
 
-  console.log(data)
+  //console.log(data)
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fas-image",
@@ -147,22 +149,16 @@ async function CmdShowImageProp(editor, settings) {
           fields: [{
             title : "宽度",
             name  : "width",
-            type  : "Integer",
-            nanAs : null,
             comType : "TiInput",
             comConf : {
-              placeholder: `${data.displayWidth}/${data.naturalWidth}`,
-              suffixText: "像素"
+              placeholder: `${data.displayWidth}/${data.naturalWidth}px`
             }
           }, {
             title : "高度",
             name  : "height",
-            type  : "Integer",
-            nanAs : null,
             comType : "TiInput",
             comConf : {
-              placeholder: `${data.displayHeight}/${data.naturalHeight}`,
-              suffixText: "像素"
+              placeholder: `${data.displayHeight}/${data.naturalHeight}px`
             }
           }]
         }, {
@@ -181,42 +177,30 @@ async function CmdShowImageProp(editor, settings) {
           fields : [{
             title : "上",
             name  : "marginTop",
-            type  : "Integer",
-            nanAs : 0,
             comType : "TiInput",
             comConf : {
-              placeholder : 0,
-              suffixText  : "像素"
+              placeholder : "0px"
             }
           }, {
             title : "右",
             name  : "marginRight",
-            type  : "Integer",
-            nanAs : 0,
             comType : "TiInput",
             comConf : {
-              placeholder : 0,
-              suffixText  : "像素"
+              placeholder : "0px"
             }
           }, {
             title : "下",
             name  : "marginBottom",
-            type  : "Integer",
-            nanAs : 0,
             comType : "TiInput",
             comConf : {
-              placeholder : 0,
-              suffixText  : "像素"
+              placeholder : "0px"
             }
           }, {
             title : "左",
             name  : "marginLeft",
-            type  : "Integer",
-            nanAs : 0,
             comType : "TiInput",
             comConf : {
-              placeholder : 0,
-              suffixText  : "像素"
+              placeholder : "0px"
             }
           }]
         }]
@@ -239,9 +223,14 @@ async function CmdShowImageProp(editor, settings) {
       Ti.Dom.remove($img)
       return
     }
+    // 读取对象详情
+    let oImg = await Wn.Io.loadMetaById(reo.oid)
     // Switch image src
     $img.src = `/o/content?str=id:${reo.oid}`
-    $img.setAttribute("wn-obj-id", reo.oid)
+    $img.setAttribute("wn-obj-id", oImg.id)
+    $img.setAttribute("wn-obj-sha1", oImg.sha1)
+    $img.setAttribute("wn-obj-mime", oImg.mime)
+    $img.setAttribute("wn-obj-tp", oImg.tp)
   }
   //................................................
   // Measure
@@ -294,7 +283,7 @@ export default {
 
     conf.extended_valid_elements = _.concat(
       extended_valid_elements, 
-      'img[wn-obj-id|src|width|height|style]'
+      'img[wn-obj-*|src|width|height|style]'
     ).join(",")
   },
   //------------------------------------------------

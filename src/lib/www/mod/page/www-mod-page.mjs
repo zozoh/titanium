@@ -2,26 +2,28 @@ const _M = {
   ////////////////////////////////////////////////
   getters : {
     //--------------------------------------------
-    pageLink({href, params, anchor}) {
-      let link = [href]
-      // Join QueryString
-      if(!_.isEmpty(params)) {
-        let qs = []
-        _.forEach(params, (v, k)=>{
-          if(!Ti.Util.isNil(v)) {
-            qs.push(`${k}=${encodeURIComponent(v)}`)
-          }
-        })
-        if(!_.isEmpty(qs)) {
-          link.push(`?${qs.join("&")}`)
-        }
-      }
-      // Join Anchor
-      if(anchor) {
-        link.push(`#${anchor}`)
-      }
-      return link.join("")
-    },
+    // 似乎直接采用 pageUri 就好，这个木有必要了
+    // 观察一段时间木有用就删了吧
+    // pageLink({href, params, anchor}) {
+    //   let link = [href]
+    //   // Join QueryString
+    //   if(!_.isEmpty(params)) {
+    //     let qs = []
+    //     _.forEach(params, (v, k)=>{
+    //       if(!Ti.Util.isNil(v)) {
+    //         qs.push(`${k}=${encodeURIComponent(v)}`)
+    //       }
+    //     })
+    //     if(!_.isEmpty(qs)) {
+    //       link.push(`?${qs.join("&")}`)
+    //     }
+    //   }
+    //   // Join Anchor
+    //   if(anchor) {
+    //     link.push(`#${anchor}`)
+    //   }
+    //   return link.join("")
+    // },
     //--------------------------------------------
     // Merget page api and the site api
     pageApis(state, getters, rootState, rootGetters) {
@@ -455,7 +457,7 @@ const _M = {
     /***
      * Reload whole page
      */
-    async reload({commit, dispatch, getters, rootGetters}, {
+    async reload({commit, dispatch, getters, rootGetters, rootState}, {
       path,
       anchor,
       params={}
@@ -503,8 +505,14 @@ const _M = {
       pinfo.href = path
       //.....................................
       // Update Path url
-      let link = Ti.Util.Link({url:path, params, anchor})
-      pinfo.pageUri = link.toString()
+      let {pageUriWithParams} = json
+      let base = rootState.base
+      let link = Ti.Util.Link({
+        url: path, 
+        params : pageUriWithParams ? params : null,  
+        anchor
+      })
+      pinfo.pageUri = Ti.Util.appendPath(base, link.toString())
       //.....................................
       let page = _.merge({
         "className" : null,

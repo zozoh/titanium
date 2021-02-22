@@ -1,4 +1,4 @@
-// Pack At: 2021-02-17 07:59:01
+// Pack At: 2021-02-22 15:51:36
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1360,7 +1360,10 @@ const Util = (function(){
         if(_.isFunction(BD)) {
           BD = BD(meta)
         }
-        if(!BD) return;
+        if(!BD)
+          return;
+  
+        // Quick badge
         if(_.isArray(BD)) {
           if(BD.length == 1){
             badges[name] = BD[0]
@@ -1368,7 +1371,21 @@ const Util = (function(){
           else if(BD.length > 1 && meta[BD[0]]) {
             badges[name] = BD[1]
           }
-        } else {
+        }
+        // Auto match badge
+        else if(BD.test && BD.value && BD.value) {
+          if(Ti.AutoMatch.test(BD.test, meta)) {
+            let bag = Ti.Util.explainObj(meta, {
+              type: BD.type || "icon",
+              className: BD.className,
+              value: BD.value
+            })
+            if(bag)
+              badges[name] = bag
+          }
+        }
+        // Static badge
+        else {
           badges[name] = BD
         }
       }
@@ -1674,7 +1691,9 @@ const OpenObjSelector = (function(){
     position = "top",
     width="80%", height="90%", spacing,
     multi=true,
+    titleBy="title|nm",
     fromIndex=0,
+    exposeHidden=false,
     homePath=Wn.Session.getHomePath(),
     fallbackPath=Wn.Session.getHomePath(),
     filter= o => "FILE" == o.race,
@@ -1730,13 +1749,16 @@ const OpenObjSelector = (function(){
       }],
       //------------------------------------------
       modules : {
-        current  : "@mod:wn/obj-meta",
-        main     : "@mod:wn/obj-current"
+        axis  : "@mod:wn/obj-axis",
+        current  : "@mod:wn/obj-current"
       },
       //------------------------------------------
       comType : "modal-inner-body",
       //------------------------------------------
-      components : [{
+      components : [
+        "@com:ti/crumb",
+        "@com:wn/adaptlist",
+        {
         //////////////////////////////////////////
         name : "modal-inner-body",
         globally : false,
@@ -1762,30 +1784,37 @@ const OpenObjSelector = (function(){
           :can-loading="true"
           :loading-as="status.reloading"
           @sky::item:active="OnCurrentMetaChange"
-          @arena::open="OnCurrentMetaChange"
+          @arena::open:wn:obj="OnCurrentMetaChange"
           @arena::select="OnArenaSelect"/>`,
         //////////////////////////////////////////
         computed : {
           //--------------------------------------
-          ...Vuex.mapGetters("current", {
-            "obj"              : "get",
-            "objHome"          : "getHome",
-            "objIsHome"        : "isHome",
-            "objHasParent"     : "hasParent",
-            "objParentIsHome"  : "parentIsHome"
-          }),
+          ...Vuex.mapState("axis", [
+            "ancestors", "parent"]
+          ),
           //--------------------------------------
-          ...Vuex.mapState("main", ["data", "status"]),
+          ...Vuex.mapState("current", [
+            "meta", "content", "data", "status", "fieldStatus"]),
           //--------------------------------------
-          theCrumbData() {
-            return Wn.Obj.evalCrumbData({
-              meta      : _.get(this.obj, "meta"),
-              ancestors : _.get(this.obj, "ancestors"),
-              fromIndex : fromIndex,
-              homePath  : homePath,
-            }, (item)=>{
-              item.asterisk = _.get(this.mainStatus, "changed")
+          CrumbData() {
+            let crumbs = Wn.Obj.evalCrumbData({
+              meta      : this.meta,
+              ancestors : this.ancestors,
+              fromIndex,
+              homePath,
+              titleBy,
+              iteratee : (item, i, {nm}={}) => {
+                if(!exposeHidden && nm && nm.startsWith(".")) {
+                  return
+                }
+                return item
+              }
             })
+            // Cancel the first item icon
+            if(!_.isEmpty(crumbs)) {
+              crumbs[0].icon = null
+            }
+            return crumbs
           },
           //--------------------------------------
           theLayout(){
@@ -1809,13 +1838,13 @@ const OpenObjSelector = (function(){
                 comType : "ti-crumb",
                 comConf : {
                   "style" : {padding: "0 .1rem"},
-                  "data" : this.theCrumbData
+                  "data" : this.CrumbData
                 }
               },
               "main" : {
                 comType : "wn-adaptlist",
                 comConf : {
-                  "meta"   : this.obj,
+                  "meta"   : this.meta,
                   "data"   : this.data,
                   "status" : this.status,
                   "multi"  : multi,
@@ -1857,7 +1886,7 @@ const OpenObjSelector = (function(){
             if(obj && "DIR" == obj.race) {
               let app = Ti.App(this)
               app.dispatch("current/reload", obj)
-              app.dispatch("main/reload", obj)    
+              app.dispatch("axis/reload", obj)    
             }
           }
           //--------------------------------------
@@ -2272,7 +2301,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210217.075901"
+const WALNUT_VERSION = "1.2-20210222.155136"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

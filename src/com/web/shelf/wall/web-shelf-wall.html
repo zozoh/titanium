@@ -17,34 +17,28 @@
   <!--
     Each Items
   -->
-  <template v-else>
-    <div v-for="wr in WallList"
-      class="wall-group"
-      :key="wr.key">
-      <!--
-        ===========================================
-        Items in row
-      -->
-      <template v-for="it in wr.items">
-        <!--
-          Blank
-        -->
-        <div
-          v-if="it.blank"
-            class="wall-tile is-blank"
-            :style="ItemStyle"></div>
-        <!--
-          Normal Item
-        -->
-        <div
-          v-else
-            class="wall-tile is-com"
-            :style="ItemStyle">
-            <component
-              :is="it.comType"
-              v-bind="it.comConf"/>
-        </div>
-      </template> <!-- End item-->
-    </div> <!--End Row-->
-  </template>
+  <div v-else class="wall-group" ref="group">
+    <!--
+      ===========================================
+      Items in row
+    -->
+    <div
+      v-for="it in WallItems"
+        :key="it.key"
+        class="wall-tile is-com"
+        :class="it.className"
+        :style="it.style">
+        <component :is="it.comType" v-bind="it.comConf"/>
+    </div>
+    <!--
+      ===========================================
+      Blank items
+    -->
+    <div
+      v-for="it in BlankItems"
+        :key="it.key"
+        class="wall-tile is-blank"
+        :class="it.className"
+        :style="it.style"></div>
+  </div> <!--End Row-->
 </div>

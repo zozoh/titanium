@@ -748,6 +748,40 @@ const TiUtil = {
     return set_key_by(source, path, 0, newKey)
   },
   /***
+   * Get value from obj by first NOT-NIL value candicate key.
+   * 
+   * @param obj{Any} any object
+   * @param keys{Array} candicate keys 
+   * 
+   * @return new obj or value
+   */
+  getValue(obj, ...keys) {
+    for(let k of keys) {
+      let v = _.get(obj, k)
+      if(!_.isUndefined(v) && !_.isNull(v)) {
+        return v
+      }
+    }
+  },
+  /***
+   * Get value from obj by first NOT-NIL value candicate key.
+   * 
+   * @param tmpl{String} the string template to render value
+   * @param obj{Any} any object
+   * @param keys{Array} candicate keys 
+   * 
+   * @return new obj or value
+   */
+  getValueAs(tmpl, obj, ...keys) {
+    for(let k of keys) {
+      let v = _.get(obj, k)
+      if(!_.isUndefined(v) && !_.isNull(v)) {
+        return Ti.S.renderBy(tmpl, {val:v})
+      }
+    }
+    return tmpl
+  },
+  /***
    * Get value from obj
    * 
    * @param key{String|Array} value key, if array will pick out a new obj

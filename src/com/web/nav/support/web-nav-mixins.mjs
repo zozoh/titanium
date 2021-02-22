@@ -18,6 +18,22 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    "translateHead" : {
+      type : Boolean,
+      default : false
+    },
+    "translateTail" : {
+      type : Boolean,
+      default : false
+    },
+    "mapping" : {
+      type : [Object, Function],
+      default : undefined
+    },
+    "sortBy" : {
+      type : [Array, Function, String],
+      default : undefined
+    },
     "base": {
       type: String,
       default: undefined
@@ -41,12 +57,45 @@ export default {
     },
     //------------------------------------
     TheItems() {
-      return this.evalItems(
-        _.concat(
-          this.headItems, 
-          this.items, 
-          this.tailItems
-          ))
+      // Head
+      let itHead = this.headItems
+      if(this.translateHead) {
+        itHead = this.ItemMapping(itHead)
+      }
+      // Items
+      let its = _.cloneDeep(this.items)
+      if(this.SortItemBy) {
+        its = _.sortBy(its, this.SortItemBy)
+      }
+      let itList = this.ItemMapping(its)
+      // Tail
+      let itTail = this.tailItems
+      if(this.translateTail) {
+        itTail = this.ItemMapping(itTail)
+      }
+      // Concat
+      let list = _.concat(itHead, itList, itTail)
+      return this.evalItems(list)
+    },
+    //------------------------------------
+    SortItemBy() {
+      if(_.isString(this.sortBy)) {
+        return it => _.get(it, this.sortBy)
+      }
+      return this.sortBy
+    },
+    //------------------------------------
+    ItemMapping() {
+      if(_.isFunction(this.mapping))
+        return this.mapping
+
+      if(this.mapping) {
+        return items => {
+          return Ti.Util.explainObjs(items, this.mapping)
+        }
+      }
+
+      return items => items
     }
     //------------------------------------
   },
@@ -54,7 +103,6 @@ export default {
   methods : {
     //------------------------------------
     OnClickLink(evt, {type,value,params}={}) {
-      console.log("haha")
       evt.stopPropagation();
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()

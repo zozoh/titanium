@@ -64,8 +64,8 @@ body.mce-content-body {
   body.mce-content-body p {
     color: inherit;
     background-color: transparent; }
-    body.mce-content-body p img {
-      max-width: 100%; }
+  body.mce-content-body img {
+    max-width: 100%; }
   body.mce-content-body ol {
     color: inherit;
     background-color: transparent; }
