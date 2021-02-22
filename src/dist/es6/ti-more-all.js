@@ -1,4 +1,4 @@
-// Pack At: 2021-02-22 15:51:36
+// Pack At: 2021-02-22 20:47:43
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7,206 +7,6 @@ window.TI_PACK_EXPORTS = {};
 // ============================================================
 // LV1 : imports
 // ============================================================
-// ============================================================
-// EXPORT 'ti.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/ti.mjs'] = (function(){
-const {Alert} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/ti-alert.mjs'];
-const {Confirm} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/ti-confirm.mjs'];
-const {Prompt} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/ti-prompt.mjs'];
-const {Captcha} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/ti-captcha.mjs'];
-const {Toast} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/ti-toast.mjs'];
-const {Be} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/behaviors.mjs'];
-const {Alg} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/algorithm.mjs'];
-const {S} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/str.mjs'];
-const {App} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/app.mjs'];
-const {Err} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/err.mjs'];
-const {Config} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/config.mjs'];
-const {Dom} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/dom.mjs'];
-const {Rect,Rects} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/rect.mjs'];
-const {Load} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/load.mjs'];
-const {Http} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/http.mjs'];
-const {I18n} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/i18n.mjs'];
-const {Icons} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/icons.mjs'];
-const {Fuse} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/fuse.mjs'];
-const {Random} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/random.mjs'];
-const {Storage} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/storage.mjs'];
-const {Shortcut} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/shortcut.mjs'];
-const {TiWebsocket} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/websocket.mjs'];
-const {Validate} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/validate.mjs'];
-const {AutoMatch} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/automatch.mjs'];
-const {DateTime} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/datetime.mjs'];
-const {Types} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/types.mjs'];
-const {Util} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/util.mjs'];
-const {Trees} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/trees.mjs'];
-const {Viewport} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/viewport.mjs'];
-const {WWW} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/www.mjs'];
-const {GPS} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/gps.mjs'];
-const {GIS} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/gis.mjs'];
-const {Bank} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/bank.mjs'];
-const {Num} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/num.mjs'];
-const {Css} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/css.mjs'];
-const {Mapping} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/mapping.mjs'];
-const {Dict,DictFactory} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/dict.mjs'];
-const {VueEventBubble} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/vue/vue-event-bubble.mjs'];
-const {VueTiCom} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/vue/vue-ti-com.mjs'];
-//---------------------------------------
-const {WalnutAppMain} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/ti-walnut-app-main.mjs'];
-const {WebAppMain} = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/ti-web-app-main.mjs'];
-//---------------------------------------
-const LOAD_CACHE = {}
-function Preload(url, anyObj) {
-  // if(url.indexOf("label")>0)
-  //   console.log("Preloaded", url)
-  LOAD_CACHE[url] = anyObj
-}
-//---------------------------------------
-let RS_PREFIXs = [];
-function AddResourcePrefix(...prefixes) {
-  for(let prefix of prefixes) {
-    if(prefix) {
-      if(!prefix.endsWith("/")) {
-        RS_PREFIXs.push(prefix + "/")
-      } else {
-        RS_PREFIXs.push(prefix)
-      }
-    }
-  }
-}
-//---------------------------------------
-function MatchCache(url) {
-  if(!url) {
-    return
-  }
-  for(let prefix of RS_PREFIXs) {
-    if(prefix && url.startsWith(prefix)) {
-      url = url.substring(prefix.length)
-      break
-    }
-  }
-  return LOAD_CACHE[url]
-}
-//---------------------------------------
-const ENV = {
-  "version" : "1.6-dev",
-  "dev" : false,
-  "appName" : null,
-  "session" : {},
-  "log" : {
-    "ROOT" : 0
-  }
-}
-function _IS_LOG(cate="ROOT", lv) {
-  let logc = ENV.log[cate]
-  if(_.isUndefined(logc))
-    logc = ENV.log.ROOT
-  return logc >= lv
-}
-//---------------------------------------
-const LOG_LEVELS = {
-  "error" : 0,
-  "warn"  : 1,
-  "info"  : 2,
-  "debug" : 3,
-  "trace" : 4,
-}
-//---------------------------------------
-const G_FUNCS = {}
-//---------------------------------------
-const __TI_MOD_EXPORT_VAR_NM = const Ti = {
-  //-----------------------------------------------------
-  Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, 
-  Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
-  WWW, GPS, GIS, Validate, DateTime, Num, Trees, Bank,
-  Mapping, Dict, DictFactory, Rects, Rect,
-  AutoMatch,
-  //-----------------------------------------------------
-  Websocket: TiWebsocket,
-  //-----------------------------------------------------
-  Preload, MatchCache, AddResourcePrefix, RS_PREFIXs, LOAD_CACHE,
-  //-----------------------------------------------------
-  WalnutAppMain, WebAppMain,
-  //-----------------------------------------------------
-  Vue: {
-    EventBubble : VueEventBubble,
-    TiCom       : VueTiCom
-  },
-  //-----------------------------------------------------
-  Alert, Confirm, Prompt, Toast, Captcha, 
-  //-----------------------------------------------------
-  Env(key, val) {
-    if(_.isUndefined(key))
-      return ENV
-    return Ti.Util.geset(ENV, key, val)
-  },
-  //-----------------------------------------------------
-  Version() {return Ti.Env("version")},
-  //-----------------------------------------------------
-  SetForDev(dev=true){Ti.Env({dev})},
-  IsForDev(){return Ti.Env("dev")},
-  //-----------------------------------------------------
-  SetAppName(appName){Ti.Env({appName})},
-  GetAppName(){return Ti.Env("appName")},
-  //-----------------------------------------------------
-  SetLogLevel(lv=0, cate="ROOT"){
-    // Get number by name
-    if(_.isString(lv))
-      lv = LOG_LEVELS[lv] || 0
-    
-    // Set the level
-    ENV.log[cate] = lv
-  },
-  IsError(cate){return _IS_LOG(cate, LOG_LEVELS.error)},
-  IsWarn (cate){return _IS_LOG(cate, LOG_LEVELS.warn)},
-  IsInfo (cate){return _IS_LOG(cate, LOG_LEVELS.info)},
-  IsDebug(cate){return _IS_LOG(cate, LOG_LEVELS.debug)},
-  IsTrace(cate){return _IS_LOG(cate, LOG_LEVELS.trace)},
-  //-----------------------------------------------------
-  Invoke(fn, args=[], context) {
-    if(_.isFunction(fn)) {
-      context = context || this
-      return fn.apply(context, args)
-    }
-  },
-  //-----------------------------------------------------
-  InvokeBy(target={}, funcName, args=[], context) {
-    if(target) {
-      return Ti.Invoke(target[funcName], args, context||target)
-    }
-  },
-  //-----------------------------------------------------
-  async DoInvoke(fn, args=[], context) {
-    if(_.isFunction(fn)) {
-      context = context || this
-      return await fn.apply(context, args)
-    }
-  },
-  //-----------------------------------------------------
-  async DoInvokeBy(target={}, funcName, args=[], context) {
-    if(target) {
-      return await Ti.DoInvoke(target[funcName], args, context||target)
-    }
-  },
-  //-----------------------------------------------------
-  AddGlobalFuncs(funcs){
-    _.assign(G_FUNCS, funcs)
-  },
-  //-----------------------------------------------------
-  GlobalFuncs() {
-    return _.assign({}, Ti.Types, G_FUNCS)
-  }
-  //-----------------------------------------------------
-}
-//---------------------------------------
-export default Ti
-//---------------------------------------
-if(window) {
-  window.Ti = Ti
-}
-//---------------------------------------
-// Ti 
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
 // ============================================================
 // EXPORT 'br.blot.mjs' -> null
 // ============================================================
@@ -239,7 +39,7 @@ BrBlot.tagName = 'SPAN';
 return {BrBlot};
 })()
 // ============================================================
-// LV2 : imports - (2)
+// LV2 : imports - (1)
 // ============================================================
 // ============================================================
 // EXPORT 'm-obj-axis.mjs' -> null
@@ -21505,8 +21305,6 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'ti-bullet-mixin.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/bullet/ti-bullet-mixin.mjs'] = (function(){
-const Ti = window.TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/ti.mjs'];
-
 const _M = {
   ////////////////////////////////////////////////////
   data : ()=>({
@@ -31779,7 +31577,7 @@ const _M = {
   watch : {
     // Page changd, update document title
     "page.finger" : function() {
-      console.log("-> ", this.page.title)
+      //console.log("-> ", this.page.title)
       let pageTitle = Ti.Util.explainObj(this, this.page.title)
       document.title = pageTitle
       this.pushBrowserHistory(pageTitle)
@@ -56779,7 +56577,6 @@ Ti.Preload("ti/com/wn/upload/file/_com.json", {
     "@com:ti/upload/file"
   ]
 });
-Ti.Preload("ti/com/ti/bullet/../../../core/ti.mjs", TI_PACK_EXPORTS['ti/com/ti/bullet/../../../core/ti.mjs']);
 Ti.Preload("ti/com/ti/text/markdown/richeditor2/blot/br.blot.mjs", TI_PACK_EXPORTS['ti/com/ti/text/markdown/richeditor2/blot/br.blot.mjs']);
 //========================================
 // JOIN <site-config-actions.mjs> ti/mod/hmaker/website/mod/site-config/site-config-actions.mjs

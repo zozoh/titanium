@@ -100,7 +100,7 @@ const LOG_LEVELS = {
 //---------------------------------------
 const G_FUNCS = {}
 //---------------------------------------
-export const Ti = {
+const Ti = {
   //-----------------------------------------------------
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, 
   Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,

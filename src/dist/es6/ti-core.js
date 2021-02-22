@@ -1,4 +1,4 @@
-// Pack At: 2021-02-22 15:51:36
+// Pack At: 2021-02-22 20:47:43
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -13110,7 +13110,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210222.155136",
+  "version" : "1.6-20210222.204743",
   "dev" : false,
   "appName" : null,
   "session" : {},
@@ -13135,7 +13135,7 @@ const LOG_LEVELS = {
 //---------------------------------------
 const G_FUNCS = {}
 //---------------------------------------
-export const Ti = {
+const Ti = {
   //-----------------------------------------------------
   Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, 
   Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
