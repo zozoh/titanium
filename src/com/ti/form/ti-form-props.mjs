@@ -31,6 +31,10 @@ export default {
     type : String,
     default : "String"
   },
+  "linkFields" : {
+    type : Object,
+    default : undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

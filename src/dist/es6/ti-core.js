@@ -1,4 +1,4 @@
-// Pack At: 2021-02-22 20:47:43
+// Pack At: 2021-02-23 17:44:22
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3494,8 +3494,9 @@ const {Dom} = (function(){
         let {name,value} = $el.attributes[i]
         let key = filter(name, value)
         if(key) {
-          if(_.isBoolean(key))
+          if(_.isBoolean(key)) {
             key = name
+          }
           re[key] = value
         }
       }
@@ -3506,9 +3507,12 @@ const {Dom} = (function(){
       filter = this.attrFilter(filter)
       let re = {}
       for(var i=0; i<$el.style.length; i++) {
-        let k = $el.style[i]
-        if(filter(k)) {
-          let key = _.camelCase(k)
+        let name = $el.style[i]
+        let key = filter(name, value)
+        if(key) {
+          if(_.isBoolean(key)) {
+            key = name
+          }
           let val = $el.style[key]
           re[key] = val
         }
@@ -3522,9 +3526,14 @@ const {Dom} = (function(){
       for(let i=0; i<$el.attributes.length; i++) {
         let {name,value} = $el.attributes[i]
         if(name.startsWith("data-")) {
-          let key = _.camelCase(name.substring(5))
-          if(filter(key, value))
+          name = _.camelCase(name.substring(5))
+          let key = filter(name, value)
+          if(key) {
+            if(_.isBoolean(key)) {
+              key = name
+            }
             re[key] = value
+          }
         }
       }
       return re
@@ -3532,7 +3541,11 @@ const {Dom} = (function(){
     //----------------------------------------------------
     setData($el, data={}) {
       _.forEach(data, (val, key) => {
-        $el.setAttribute(`data-${_.kebabCase(key)}`, val)
+        if(Ti.Util.isNil(val)) {
+          $el.removeAttribute(`data-${_.kebabCase(key)}`)
+        } else {
+          $el.setAttribute(`data-${_.kebabCase(key)}`, val)
+        }
       })
     },
     //----------------------------------------------------
@@ -13110,7 +13123,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210222.204743",
+  "version" : "1.6-20210223.174422",
   "dev" : false,
   "appName" : null,
   "session" : {},

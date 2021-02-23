@@ -1,4 +1,4 @@
-// Pack At: 2021-02-22 20:47:43
+// Pack At: 2021-02-23 17:44:22
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -28048,6 +28048,41 @@ const _M = {
       }
     },
     //--------------------------------------------------
+    FormLinkFields() {
+      let re = {}
+      _.forEach(this.linkFields, (val, key)=>{
+        // By dict
+        if(val && val.dict && val.target) {
+          let {dict, target} = val
+          // Get dict
+          let d = Ti.DictFactory.CheckDict(dict)
+          let fn;
+          // Pick
+          if(_.isArray(target)) {
+            fn = async function({value}) {
+              let it = (await d.getItem(value)) || {}
+              return _.pick(it, target)
+            }
+          }
+          // Translate
+          else {
+            fn = async function({value}) {
+              let it = (await d.getItem(value)) || {}
+              console.log(it)
+              return Ti.Util.translate(it, target)
+            }
+          }
+          // join to map
+          re[key] = fn
+        }
+        // Customized Function
+        else if(_.isFunction(val)) {
+          re[key] = val
+        }
+      })
+      return re
+    },
+    //--------------------------------------------------
     /***
      * Eval function set for `transformer|serializer` of each fields
      * 
@@ -28076,20 +28111,29 @@ const _M = {
       this.$notify("tab:change", tab)
     },
     //--------------------------------------------------
-    OnFieldChange({name, value}={}) {
+    async OnFieldChange({name, value}={}) {
       // Notify at first
-      //console.log("notify field", {name, value})
+      console.log("notify field", {name, value})
       this.$notify("field:change", {name, value})
 
+      // Link fields
+      let linkFunc = this.FormLinkFields[name]
+      let obj;
+      if(linkFunc) {
+        obj = await linkFunc({name, value}, this.data)
+        if(!_.isEmpty(obj)) {
+          _.forEach(obj, (v,k)=>{
+            this.$notify("field:change", {name:k, value:v})
+          })
+        }
+      }
+
       // Notify later ...
-      // Wait a tick, give the change parent
-      // Update the data input
-      // The computed field "TheField"
-      // will auto-update the field status 'disabled/hidden'
-      // It may change the notify data
+      // Wait for a tick to give a chance to parent of 'data' updating
       this.$nextTick(()=>{
         //console.log("notify data")
         let data = this.getData({name, value})
+        _.assign(data, obj)
         this.$notify("change", data)
       })
     },
@@ -39147,6 +39191,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "defaultFieldType" : {
     type : String,
     default : "String"
+  },
+  "linkFields" : {
+    type : Object,
+    default : undefined
   },
   //-----------------------------------
   // Behavior
