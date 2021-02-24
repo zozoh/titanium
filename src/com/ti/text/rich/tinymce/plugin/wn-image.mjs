@@ -169,8 +169,8 @@ async function CmdShowImageProp(editor, settings) {
             allowEmpty : false,
             options : [
               {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
-              {value: "left",  text: "居左绕图", icon:"fas-align-left"},
-              {value: "right", text: "居右绕图", icon:"fas-align-right"},]
+              {value: "left",  text: "左绕图", icon:"fas-align-left"},
+              {value: "right", text: "右绕图", icon:"fas-align-right"},]
           }
         }, {
           title : "图片边距",

@@ -1,4 +1,4 @@
-// Pack At: 2021-02-23 17:44:22
+// Pack At: 2021-02-24 19:21:37
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3508,6 +3508,7 @@ const {Dom} = (function(){
       let re = {}
       for(var i=0; i<$el.style.length; i++) {
         let name = $el.style[i]
+        let value = $el.style[name]
         let key = filter(name, value)
         if(key) {
           if(_.isBoolean(key)) {
@@ -13123,7 +13124,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210223.174422",
+  "version" : "1.6-20210224.192137",
   "dev" : false,
   "appName" : null,
   "session" : {},

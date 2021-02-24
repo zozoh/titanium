@@ -168,7 +168,6 @@ const _M = {
           else {
             fn = async function({value}) {
               let it = (await d.getItem(value)) || {}
-              console.log(it)
               return Ti.Util.translate(it, target)
             }
           }

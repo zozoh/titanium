@@ -132,6 +132,7 @@ const TiDom = {
     let re = {}
     for(var i=0; i<$el.style.length; i++) {
       let name = $el.style[i]
+      let value = $el.style[name]
       let key = filter(name, value)
       if(key) {
         if(_.isBoolean(key)) {

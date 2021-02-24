@@ -1,4 +1,4 @@
-// Pack At: 2021-02-23 17:44:22
+// Pack At: 2021-02-24 19:21:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -27322,8 +27322,8 @@ async function CmdShowImageProp(editor, settings) {
             allowEmpty : false,
             options : [
               {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
-              {value: "left",  text: "居左绕图", icon:"fas-align-left"},
-              {value: "right", text: "居右绕图", icon:"fas-align-right"},]
+              {value: "left",  text: "左绕图", icon:"fas-align-left"},
+              {value: "right", text: "右绕图", icon:"fas-align-right"},]
           }
         }, {
           title : "图片边距",
@@ -28068,7 +28068,6 @@ const _M = {
           else {
             fn = async function({value}) {
               let it = (await d.getItem(value)) || {}
-              console.log(it)
               return Ti.Util.translate(it, target)
             }
           }
