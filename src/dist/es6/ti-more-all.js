@@ -1,4 +1,4 @@
-// Pack At: 2021-02-24 19:21:37
+// Pack At: 2021-02-24 19:36:31
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -27260,6 +27260,7 @@ async function CmdShowImageProp(editor, settings) {
   // Get margin style
   let stl = Ti.Dom.getStyle($img, /^(float|(margin-(left|right|top|bottom)))$/)
   stl.float = stl.float || "none"
+  console.log("stl", stl)
   // Gen the properties
   let data = {
     oid    : $img.getAttribute("wn-obj-id"),

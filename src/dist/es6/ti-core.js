@@ -1,4 +1,4 @@
-// Pack At: 2021-02-24 19:21:37
+// Pack At: 2021-02-24 19:36:31
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3512,7 +3512,7 @@ const {Dom} = (function(){
         let key = filter(name, value)
         if(key) {
           if(_.isBoolean(key)) {
-            key = name
+            key = _.camelCase(name)
           }
           let val = $el.style[key]
           re[key] = val
@@ -13124,7 +13124,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210224.192137",
+  "version" : "1.6-20210224.193631",
   "dev" : false,
   "appName" : null,
   "session" : {},

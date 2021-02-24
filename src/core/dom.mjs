@@ -136,7 +136,7 @@ const TiDom = {
       let key = filter(name, value)
       if(key) {
         if(_.isBoolean(key)) {
-          key = name
+          key = _.camelCase(name)
         }
         let val = $el.style[key]
         re[key] = val
