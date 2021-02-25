@@ -13,7 +13,7 @@
     </span>
     <!--Group-->
     <span
-      v-if="isGroup"
+      v-if="!hasHrefOrValue"
         class="it-info-text">{{title|i18n}}</span>
     <!--Item-->
     <a
@@ -27,7 +27,8 @@
     <TiIcon 
       v-if="isGroup"
         class="it-status-icon"
-          :value="OpenStatusIcon"/>
+          :value="OpenStatusIcon"
+          @click.native.left.stop="OnToggleGroupOpened"/>
   </div>
   <!--
     Sub Container

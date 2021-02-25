@@ -28,6 +28,10 @@ export default {
       type: String,
       default: undefined
     },
+    "navTo": {
+      type: Object,
+      default: undefined
+    },
     "newtab": {
       type: [String, Boolean],
       default: undefined
@@ -180,6 +184,13 @@ export default {
         this.clientWidth  = $img.clientWidth
         this.clientHeight = $img.clientHeight
         this.imgLoading = false
+      }
+    },
+    //--------------------------------------
+    OnClickTop(evt) {
+      if(this.navTo) {
+        evt.preventDefault()
+        this.$notify("nav:to", this.navTo)
       }
     },
     //--------------------------------------

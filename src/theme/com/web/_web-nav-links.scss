@@ -2,15 +2,15 @@
   @include noselect;
   @include flex-align-nowrap;
   //------------------------------------
-  &.is-border-solid a {
+  &.is-border-solid .link-item.is-top {
     @include border(1px, solid, shallow, left);
     &:first-child {border:0;}
   }
-  &.is-border-dashed a {
+  &.is-border-dashed  .link-item.is-top {
     @include border(1px, dashed, dark, left);
     &:first-child {border:0;}
   }
-  &.is-border-dotted a {
+  &.is-border-dotted  .link-item.is-top {
     @include border(1px, dotted, dark, left);
     &:first-child {border:0;}
   }
@@ -19,29 +19,58 @@
   &.is-align-center {justify-content: center;}
   &.is-align-right  {justify-content: flex-end;}
   //------------------------------------
-  &.is-spacing-tiny  a {padding:.2em 0.4em;}
-  &.is-spacing-comfy a {padding:.4em 0.8em;}
-  &.is-spacing-wide  a {padding:.6em 1.2em;}
+  &.is-spacing-tiny  .link-item.is-top {padding:.2em 0.4em;}
+  &.is-spacing-comfy .link-item.is-top {padding:.4em 0.8em;}
+  &.is-spacing-wide  .link-item.is-top {padding:.6em 1.2em;}
   //------------------------------------
-  a.link-item {
+  .link-item {
     @include flex-align-nowrap;
     position: relative;
+    //----------------------------------
+    &.is-top > .it-con {
+      padding: SZ(10) 0;
+    }
+    //----------------------------------
+    &.is-sub {
+      padding: .5em; line-height: 1.8em;;
+    }
+    &.is-sub > .it-con {padding: 0 SZ(10); ;}
+    //----------------------------------
+    &.is-opened {
+      @include color($color-weaktip, r, c);
+    }
+    //----------------------------------
+    &.is-highlight, &.is-current {
+      @include color($color-primary, r, c);
+      > .it-info a {color:inherit;}
+    }
+    //----------------------------------
   }
   //------------------------------------
-  .sub-items {
-    position: absolute;
-    z-index: $z-menu;
+  .it-con {
+    position: absolute; z-index: $z-menu;
+    opacity: 0;
   }
   //------------------------------------
-  .items-con {
+  .link-item.is-dock-ready > .it-con {
+    transition: .3s;
+  }
+  .link-item.is-dock-show > .it-con {
+    opacity: 1;
+  }
+  //------------------------------------
+  .it-con-wrapper {
     @include flex-align-v-nowrap;
-    @include color($color-chip, r, c);
-    min-width: 10em;
-    padding: SZ(2);
+    @include color($color-body, r, c);
+    @include border(1px, solid, shallow);
+    min-width: 10em; 
+    padding: SZ(10) 0;
   }
   //------------------------------------
-  a.sub-item {
-    @include flex-align-nowrap;
+  .link-item.is-top > .it-con {top: SZ(50);}
+  //------------------------------------
+  .link-item.is-sub {
+    > .it-info {line-height: 2em;}
   }
   //------------------------------------
 }

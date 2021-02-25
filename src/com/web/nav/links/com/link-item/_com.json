@@ -1,0 +1,8 @@
+{
+  "name" : "link-item",
+  "template" : "./link-item.html",
+  "mixins" : [
+    "@com:web/nav/support/web-nav-item-mixins.mjs",
+    "./link-item.mjs"
+  ]
+}

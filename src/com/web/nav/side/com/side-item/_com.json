@@ -1,5 +1,8 @@
 {
   "name" : "side-item",
   "template" : "./side-item.html",
-  "mixins" : ["./side-item.mjs"]
+  "mixins" : [
+    "@com:web/nav/support/web-nav-item-mixins.mjs",
+    "./side-item.mjs"
+  ]
 }

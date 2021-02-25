@@ -28,7 +28,8 @@ const TiWWW = {
     suffix=".html",
     iteratee=_.identity,
     idBy=undefined,
-    indexPath=[]
+    indexPath=[],
+    idPath=[]
   }={}) {
     let list = []
     for(let index=0; index<navItems.length; index++) {
@@ -40,9 +41,12 @@ const TiWWW = {
       if(Ti.Util.isNil(id)) {
         id = "it-" + ixPath.join("-")
       }
+      let itemIdPath = [].concat(idPath, id)
       //..........................................
       let li = {
         id, index, depth,
+        idPath : itemIdPath,
+        indexPath : ixPath,
         type : "page",
         ..._.pick(it, "icon","title","type","value","href","target","params")
       }
@@ -80,17 +84,18 @@ const TiWWW = {
         //   li.href = "javascript:void(0)"
       }
       //..........................................
-      li = iteratee(li)
-      //..........................................
       // Children
       if(_.isArray(it.items)) {
         li.items = TiWWW.explainNavigation(it.items, {
           base, suffix, iteratee,
           depth: depth+1,
           idBy,
-          indexPath: ixPath
+          indexPath: ixPath,
+          idPath : itemIdPath
         })
       }
+      //..........................................
+      li = iteratee(li)
       //..........................................
       // Join to list
       list.push(li)

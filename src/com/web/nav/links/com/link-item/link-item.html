@@ -1,0 +1,41 @@
+<div class="link-item" 
+  :class="TopClass"
+  @mouseenter.stop="OnOpenGroup"
+  @mouseleave.stop="OnCloseGroup">
+  <!--
+    Self Info
+  -->
+  <div ref="info"
+    class="it-info"
+    @click.left="OnClickItemInfo">
+    <!--Icon-->
+    <span
+      v-if="icon"
+        class="it-info-icon">
+        <ti-icon :value="icon"/>
+    </span>
+    <!--Group-->
+    <span
+      v-if="!hasHrefOrValue"
+        class="it-info-text">{{title|i18n}}</span>
+    <!--Item-->
+    <a
+      v-else
+        class="it-info-text"
+        :href="href"
+        @click.left="OnClickItemLink($event)">{{title|i18n}}</a>
+  </div>
+  <!--
+    Sub Container
+  -->
+  <div ref="con"
+    v-if="hasSubItems && isOpened"
+      class="it-con"><div class="it-con-wrapper">
+        <LinkItem
+          v-for="subIt in items"
+            :key="subIt.id"
+            v-bind="subIt"
+            :opened-ids="openedIds"
+            :opened-depth="openedDepth"/>
+  </div></div>
+</div>

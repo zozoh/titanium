@@ -71,7 +71,7 @@ export default {
     },
     //--------------------------------------
     isBlank() {
-      return Ti.Util.isNil(this.value)
+      return Ti.S.isBlank(this.value)
     },
     //--------------------------------------
     ArticleHtml() {

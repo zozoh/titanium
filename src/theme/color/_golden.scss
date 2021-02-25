@@ -44,5 +44,6 @@ $color-mask: (
 $color-line: (
   dark      : rgba(0,0,0,0.2),
   shallow   : rgba(20,20,20,0.1),
+  weak      : rgba(20,20,20,0.06),
   highlight : map-get($color-primary, c)
 );

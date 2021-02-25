@@ -345,8 +345,8 @@ export class Rect {
   // - y   : Y 周位移
   // 返回矩形自身
   translate({x=0,y=0}={}) {
-    this.y  -= y;
-    this.x -= x;
+    this.y += y;
+    this.x += x;
     return this.updateBy("xywh");
   }
   /***

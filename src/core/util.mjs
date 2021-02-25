@@ -756,6 +756,16 @@ const TiUtil = {
    * @return new obj or value
    */
   getValue(obj, ...keys) {
+    // Get value for array
+    if(_.isArray(obj)) {
+      let re = []
+      for(let o of obj) {
+        let v = TiUtil.getValue(o, keys)
+        re.push(v)
+      }
+      return re
+    }
+    // Single object
     for(let k of keys) {
       let v = _.get(obj, k)
       if(!_.isUndefined(v) && !_.isNull(v)) {
@@ -773,6 +783,16 @@ const TiUtil = {
    * @return new obj or value
    */
   getValueAs(tmpl, obj, ...keys) {
+    // Get value for array
+    if(_.isArray(obj)) {
+      let re = []
+      for(let o of obj) {
+        let v = TiUtil.getValueAs(tmpl, o, keys)
+        re.push(v)
+      }
+      return re
+    }
+    // Single object
     for(let k of keys) {
       let v = _.get(obj, k)
       if(!_.isUndefined(v) && !_.isNull(v)) {

@@ -559,6 +559,7 @@ const TiDom = {
     posListX,  // ["left", "center", "right"]
     posListY,  // ["top", "center", "bottom"]
     space,
+    coord = "win",  // win | target
     viewportBorder=4,
     position}={}
   ) {
@@ -605,8 +606,9 @@ const TiDom = {
     }
 
     // Count the max viewport to wrapCut
+    // Cut the droplist panel by target positon
     let viewport = rect.win.clone()
-    if("H" == mode) {
+    if("H" == mode && "win" == coord) {
       if(axis.y == "bottom") {
         viewport.top = rect.ta.bottom
       }
@@ -624,6 +626,15 @@ const TiDom = {
       viewportBorder,
       wrapCut  : true
     })
+
+    // Translate coord
+    if("target" == coord) {
+      rect.src.translate({
+        x: rect.ta.left * -1,
+        y: rect.ta.top * -1
+      })
+    }
+
     //console.log("do DockTo", dockedRect+"")
     _.delay(()=>{
       TiDom.applyRect($src, rect.src, dockMode)

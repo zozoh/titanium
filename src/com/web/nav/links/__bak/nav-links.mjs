@@ -1,7 +1,8 @@
 export default {
   /////////////////////////////////////////
   data: ()=>({
-    myOpenedIds: {}
+    mySubIndex: -1,
+    mySubItems: null
   }),
   /////////////////////////////////////////
   props : {
@@ -38,15 +39,43 @@ export default {
   /////////////////////////////////////////
   methods : {
     //------------------------------------
-    OnChangeGroupOpened({idPath, opened}) {
-      let ids = {}
-      for(let id of idPath) {
-        ids[id] = true
+    OnItemMouseEnter({index, items}) {
+      // Guard
+      if(_.isEmpty(items)) {
+        this.mySubIndex = -1
+        this.mySubItems = null
+        return
       }
-      if(!opened) {
-        ids[_.last(idPath)] = false
+      // Eval sub items
+      this.mySubItems = this.evalItems(items)
+      this.mySubIndex = index
+
+      // Dock it
+      this.$nextTick(()=>this.dockSub())
+    },
+    //------------------------------------
+    OnItemMouseLeave({index}) {
+      if(this.mySubIndex == index) {
+        this.mySubIndex = -1
+        this.mySubItems = null
       }
-      this.myOpenedIds = ids
+    },
+    //------------------------------------
+    dockSub(){
+      let $sub = Ti.Dom.find(".sub-items", this.$el)
+      // Guard
+      if(!$sub) {
+        return
+      }
+      // Ready to dock
+      let $an = $sub.parentNode
+      let rAn = Ti.Rects.createBy($an)
+      let rSub = Ti.Rects.createBy($sub)
+      let css = Ti.Css.toStyle({
+        top  : rAn.height,
+        left : (rAn.width - rSub.width)/2
+      })
+      Ti.Dom.setStyle($sub, css)
     }
     //------------------------------------
   }
