@@ -64,6 +64,11 @@ class OneTiApp {
       }
     }
 
+    // Import global methods
+    if(conf.importMethods) {
+      _.assign(window, conf.importMethods)
+    }
+
     // Store instance
     let store
     if(conf.store) {

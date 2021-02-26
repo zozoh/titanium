@@ -483,6 +483,18 @@ const TiDom = {
     })
   },
   //----------------------------------------------------
+  setAttrs($el, attrs={}) {
+    _.forEach(attrs, (val, key)=>{
+      if(_.isUndefined(val))
+        return
+      if(_.isNull(val)) {
+        $el.removeAttribute(key)
+      } else {
+        $el.setAttribute(key, val)
+      }
+    })
+  },
+  //----------------------------------------------------
   setClass($el, ...classNames) {
     let klass = _.flattenDeep(classNames)
     let className = klass.join(" ")

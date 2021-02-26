@@ -295,7 +295,7 @@ const TiUtil = {
 
         let m_type, m_val, m_dft;
         // Match template
-        m = /^(==|!=|=>>?|->)(.+)$/.exec(theValue)
+        m = /^(==>|==|!=|=>>?|->)(.+)$/.exec(theValue)
         if(m) {
           m_type = m[1]
           m_val  = _.trim(m[2])
@@ -316,6 +316,13 @@ const TiUtil = {
           }
           //................................
           let fn = ({
+            // Just get function
+            "==>" : (val)=> {
+              let func = _.get(window, val)
+              if(_.isFunction(func)) {
+                return func
+              }
+            },
             // ==xxx  # Get Boolean value now
             "==" : (val)=> {
               return _.get(context, val) ? true : false

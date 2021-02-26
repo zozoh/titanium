@@ -7,14 +7,17 @@
   @mousemove="OnMouseMove"
   @mouseleave="OnMouseLeave">
   <!--Image-->
-  <img ref="img"
-    v-if="TheSrc" 
-      :src="TheSrc"
-      @load="OnImageLoaded"/>
+  <div class="as-img-con">
+    <img ref="img"
+      v-if="TheSrc" 
+        :src="TheSrc"
+        @load="OnImageLoaded"/>
+  </div>
   <!--Text-->
   <div
     v-if="TheText"
-      class="as-text">
+      class="as-text"
+      :style="TextStyle">
       <span>{{TheText}}</span>
   </div>
   <!--Zoom len-->

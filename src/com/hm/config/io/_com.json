@@ -1,0 +1,9 @@
+{
+  "name" : "hm-config-io",
+  "globally" : true,
+  "template" : "./hm-config-io.html",
+  "mixins"   : ["./hm-config-io.mjs"],
+  "components" : [
+    "@com:hm/config/io/detail"
+  ]
+}

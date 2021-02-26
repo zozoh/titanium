@@ -24,6 +24,10 @@ export default {
       type: String,
       default: undefined
     },
+    "textStyle": {
+      type: Object,
+      default: undefined
+    },
     "href": {
       type: String,
       default: undefined
@@ -75,6 +79,10 @@ export default {
         width  : this.width,
         height : this.height
       })
+    },
+    //--------------------------------------
+    TextStyle() {
+      return Ti.Css.toStyle(this.textStyle)
     },
     //--------------------------------------
     TheZoomLens() {

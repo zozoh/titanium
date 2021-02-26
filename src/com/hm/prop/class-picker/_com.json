@@ -1,0 +1,8 @@
+{
+  "name" : "hm-prop-class-picker",
+  "globally" : true,
+  "template" : "./hm-prop-class-picker.html",
+  "mixins" : ["./hm-prop-class-picker.mjs"],
+  "components" : [
+    "@com:ti/form"]
+}

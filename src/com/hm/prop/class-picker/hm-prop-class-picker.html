@@ -1,0 +1,15 @@
+<div class="hm-prop-class-picker full-field"
+  :class="TopClass"
+  @click.left="OnClickTop"
+  v-ti-activable>
+  <div
+    v-for="txt of ValueTexts"
+      class="as-name-item"><span>{{txt}}</span></div>
+  <!--
+    Clean btn
+  -->
+  <div class="as-cleaner"
+    @click.left.stop="OnClickCleaner">
+    <span><i class="zmdi zmdi-close"></i></span>
+  </div>
+</div>

@@ -150,6 +150,7 @@ export async function WalnutAppMain({
     "@i18n:_wn",
     "@i18n:_net",
     "@i18n:web",
+    "@i18n:hmaker",
     "@i18n:ti-datetime"]))
   //---------------------------------------
   // Setup dictionary

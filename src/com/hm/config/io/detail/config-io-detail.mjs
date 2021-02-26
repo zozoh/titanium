@@ -38,7 +38,7 @@ export default {
       // Dao Mapping
       if(this.MainData.dao && _.isArray(this.MainData.fields)) {
         return {
-          comType : 'HmakerConfigIoIxDao',
+          comType : 'HmConfigIoIxDao',
           comConf : {
             value : this.MainData
           }

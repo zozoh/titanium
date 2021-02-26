@@ -1,0 +1,25 @@
+<div class="hm-prop-css-rules full-field"
+  :class="TopClass"
+  v-ti-activable>
+  <!--
+    ActionBar
+  -->
+  <TiActionbar :items="ActionItems"/>
+  <!--
+    Empty
+  -->
+  <TiButton
+    v-if="isEmpty"
+      size="small"
+      :setup="EmptyButtonSetup"/>
+  <!--
+    Value table
+  -->
+  <table
+    v-else>
+      <tr
+        v-for="row in ValueTable">
+        <td>{{row.title | i18n}}</td><td>{{row.value}}</td>
+      </tr>
+  </table>
+</div>

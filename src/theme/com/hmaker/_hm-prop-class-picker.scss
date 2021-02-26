@@ -1,0 +1,45 @@
+.hm-prop-class-picker {
+  @include flex-align($ai:stretch, $ac:stretch);
+  user-select: none; cursor: pointer;
+  border:1px solid transparent;
+  padding: SZ(4) SZ(24) SZ(4) SZ(4);
+  position: relative;
+  //-----------------------------------------
+  &:hover {
+    @include color($color-chip, r, c); 
+    border-color: map-get($color-secondary, c);
+    > .as-name-item {
+      @include color($color-secondary, r, c);  
+    }
+    > .as-cleaner > span {opacity: 1;}
+  }
+  //-----------------------------------------
+  > .as-name-item {
+    @include color($color-primary, r, c);
+    margin: SZ(2); font-size: SZ(11);
+    padding: SZ(3) SZ(8) SZ(4) SZ(8);
+    border-radius: SZ(4);
+  }
+  //-----------------------------------------
+  > .as-cleaner {
+    @include pos-abs($t:0, $r:0);
+    padding: SZ(6) SZ(6) 0 0; 
+    //---------------------------------------
+    > span {
+      @include flex-center;
+      @include color($color-secondary, r, c);
+      width: SZ(20); height: SZ(20);
+      border-radius: 20%; opacity: 0;
+      transition: 0.5s; 
+      //---------------------------------------
+      &:hover {
+        @include color($color-primary, r, c);
+        border-radius: 50%;
+        transform: rotate(360deg) scale(1.2);
+      }
+      //---------------------------------------
+    }
+    //---------------------------------------
+  }
+  //-----------------------------------------
+}

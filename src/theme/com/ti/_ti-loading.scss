@@ -48,6 +48,16 @@
     }
   }
   //------------------------------------------
+  &.as-mid {
+    padding: 1.5em 0 1em 0; font-size: SZ(12);
+    > .as-icon{font-size: 2em;}
+    > .as-text{
+      display:block; padding-top:.5em;
+      width:100%;
+      text-align:center;
+    }
+  }
+  //------------------------------------------
   &.as-mid-tip {
     @include flex-align;
     @include color($color-track, c);

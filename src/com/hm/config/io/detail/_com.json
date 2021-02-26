@@ -1,10 +1,10 @@
 {
-  "name" : "hmaker-config-io-detail",
+  "name" : "hm-config-io-detail",
   "globally" : true,
   "template" : "./config-io-detail.html",
   "mixins"   : ["./config-io-detail.mjs"],
   "components" : [
     "@com:ti/text/json",
-    "@com:hmaker/config/io/ix/dao"
+    "@com:hm/config/io/ix/dao"
   ]
 }

@@ -135,7 +135,10 @@ const _M = {
     //--------------------------------------------
     explainNav(state) {
       if(state.nav) {
-        state.nav = Ti.Util.explainObj(state, state.nav)
+        if(!state.__nav_input) {
+          state.__nav_input = _.cloneDeep(state.nav)
+        }
+        state.nav = Ti.Util.explainObj(state, state.__nav_input)
       }
     },
     //--------------------------------------------
@@ -264,6 +267,7 @@ const _M = {
         await dispatch("page/reload", href)
         
         commit("setLoading", false)
+        commit("explainNav")
       }
       // navTo::dispatch
       else if("dispatch" == type) {

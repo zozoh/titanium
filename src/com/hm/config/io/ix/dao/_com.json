@@ -1,5 +1,5 @@
 {
-  "name" : "hmaker-config-io-ix-dao",
+  "name" : "hm-config-io-ix-dao",
   "globally" : true,
   "template" : "./io-ix-dao.html",
   "mixins"   : ["./io-ix-dao.mjs"],

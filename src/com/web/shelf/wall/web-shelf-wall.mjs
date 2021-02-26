@@ -152,6 +152,10 @@ const _M = {
     },
     //--------------------------------------
     evalWallColumns($wallGroup) {
+      // Customized item width
+      if(_.isArray(this.itemWidth) && this.itemWidth.length > 1) {
+        return
+      }
       // console.log("evalWallColumns")
       let $divs = Ti.Dom.findAll(":scope >  .wall-tile.is-com", $wallGroup)
       let cols = 0;

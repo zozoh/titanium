@@ -27,7 +27,7 @@ export default {
         listSize : 200,
         detailIcon  : "fas-traffic-light",
         detailTitle : "映射详情",
-        detailType : "HmakerConfigIoDetail",
+        detailType : "HmConfigIoDetail",
         detailConf : {
           
         }

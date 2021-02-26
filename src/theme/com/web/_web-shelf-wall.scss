@@ -10,11 +10,11 @@
     > * {width:100%;}
   }
   //------------------------------------------
-  &.item-space.is-xl .wall-tile {padding: SZ(30);}
-  &.item-space.is-lg .wall-tile {padding: SZ(24);}
-  &.item-space.is-md .wall-tile {padding: SZ(16);}
-  &.item-space.is-sm .wall-tile {padding: SZ(10);}
-  &.item-space.is-xs .wall-tile {padding: SZ(4);}
+  &.item-space-xl .wall-tile {padding: SZ(30);}
+  &.item-space-lg .wall-tile {padding: SZ(24);}
+  &.item-space-md .wall-tile {padding: SZ(16);}
+  &.item-space-sm .wall-tile {padding: SZ(10);}
+  &.item-space-xs .wall-tile {padding: SZ(4);}
   //------------------------------------------
   &.flex-none   .wall-tile {flex:0 0 auto;}
   &.flex-both   .wall-tile {flex:1 1 auto;}

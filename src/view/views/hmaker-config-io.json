@@ -1,11 +1,11 @@
 {
   "components" : [
-    "@com:hmaker/config/io",
+    "@com:hm/config/io",
     "@com:wn/fileset/tabs",
     "@com:wn/fileset/list"
   ],
   "comIcon" : "fas-traffic-light",
-  "comType" : "@com:hmaker/config/io",
+  "comType" : "@com:hm/config/io",
   "comConf" : {
     "home" : "=meta"
   },

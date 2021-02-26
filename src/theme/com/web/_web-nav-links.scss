@@ -52,11 +52,8 @@
     opacity: 0;
   }
   //------------------------------------
-  .link-item.is-dock-ready > .it-con {
-    transition: .3s;
-  }
   .link-item.is-dock-show > .it-con {
-    opacity: 1;
+    transition: .3s; opacity: 1;
   }
   //------------------------------------
   .it-con-wrapper {
@@ -67,7 +64,9 @@
     padding: SZ(10) 0;
   }
   //------------------------------------
-  .link-item.is-top > .it-con {top: SZ(50);}
+  .link-item.is-top > .it-con {
+    top: SZ(50); left: 0;
+  }
   //------------------------------------
   .link-item.is-sub {
     > .it-info {line-height: 2em;}

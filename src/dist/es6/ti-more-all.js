@@ -1,4 +1,4 @@
-// Pack At: 2021-02-24 19:36:31
+// Pack At: 2021-02-27 03:23:59
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8343,286 +8343,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
   }
   ///////////////////////////////////////////////////////
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'io-ix-dao.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/hmaker/config/io/ix/dao/io-ix-dao.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  /////////////////////////////////////////
-  data: ()=>({
-  }),
-  /////////////////////////////////////////
-  props : {
-    "value" : {
-      type: [String, Object],
-      default: undefined
-    }
-  },
-  /////////////////////////////////////////
-  computed : {
-    //------------------------------------
-    TheData() {
-      if(_.isString(this.value)) {
-        return JSON.stringify(this.value)
-      }
-      return _.cloneDeep(this.value)
-    },
-    //------------------------------------
-    FormConf() {
-      return {
-        mode : "tab",
-        keepTabIndexBy : "hmaker-config-io-ix-dao-tabIndex",
-        fields: [{
-          //............................
-          // 基本设置
-          //............................
-          title : "基本",
-          fields : [{
-              title : "数据源",
-              name  : "dao",
-              comType : "ti-input"
-            }, {
-              title : "数据表",
-              name  : "tableName",
-              comType : "ti-input"
-            }, {
-              title : "自动建表",
-              name  : "autoCreate",
-              type  : "Boolean",
-              tip   : "第一次访问时，会自动检查并确保数据库里有这个表",
-              comType : "ti-toggle"
-            }, {
-              title : "主键",
-              name  : "pks",
-              type  : "Array",
-              tip   : "默认为 `id` 字段",
-              comType : "ti-input-tags"
-            }]
-          },
-          //............................
-          // 映射字段
-          //............................
-          {
-            title : "映射字段",
-            fields : [{
-                name : "fields",
-                type : "Array",
-                comType : "ti-combo-table",
-                comConf : {
-                  className : "ti-cover-parent",
-                  form : {
-                    fields : [{
-                      title : "字段名",
-                      name  : "name",
-                      comType : "ti-input"
-                    }, {
-                      title : "数据类型",
-                      name  : "type",
-                      tip : "程序内存中的数据类型",
-                      defaultAs : "String",
-                      comType : "ti-droplist",
-                      comConf : {
-                        options: "#JavaTypes",
-                        dropDisplay : ["text::flex-auto", "value::as-tip"]
-                      }
-                    }, {
-                      title : "存储字段名",
-                      name  : "columnName",
-                      emptyAs : "~~undefined~~",
-                      comType : "ti-input",
-                      comConf : {
-                        placeholder : "与字段名相同"
-                      }
-                    }, {
-                      title : "存储类型",
-                      name  : "columnType",
-                      tip : "数据库中的字段数据类型",
-                      defaultAs : "AUTO",
-                      comType : "ti-droplist",
-                      comConf : {
-                        options: "#ColumnTypes",
-                        dropDisplay : ["text::flex-auto", "value::as-tip"]
-                      }
-                    }, {
-                      title : "存储长度",
-                      name  : "width",
-                      type  : "Integer",
-                      tip : "数据库存储该字段所占的空间",
-                      width  : 120,
-                      comType : "ti-input"
-                    }, {
-                      title : "不可为空",
-                      name  : "notNull",
-                      type  : "Boolean",
-                      defaultAs : false,
-                      comType : "ti-toggle"
-                    }, {
-                      title : "可插入",
-                      name  : "insert",
-                      type  : "Boolean",
-                      defaultAs : true,
-                      comType : "ti-toggle"
-                    }, {
-                      title : "可更新",
-                      name  : "update",
-                      type  : "Boolean",
-                      defaultAs : true,
-                      comType : "ti-toggle"
-                    }, {
-                      title : "包裹名称",
-                      name  : "wrapName",
-                      tip : "生成 SQL 的时候，是否要用引号包裹名称",
-                      type  : "Boolean",
-                      defaultAs : false,
-                      comType : "ti-toggle"
-                    }]
-                  },
-                  list : {
-                    fields : [{
-                      title : "字段名",
-                      display : ["name", "columnName::as-tip"]
-                    }, {
-                      title : "数据类型",
-                      display : {
-                        key : "type",
-                        defaultAs : "String",
-                        comType : "ti-label",
-                        comConf : {
-                          dict : "JavaTypes"
-                        }
-                      }
-                    }, {
-                      title : "存储类型",
-                      display : {
-                        key : "columnType",
-                        defaultAs : "AUTO",
-                        comType : "ti-label",
-                        comConf : {
-                          dict : "ColumnTypes"
-                        }
-                      }
-                    }, {
-                      title : "存储长度",
-                      width : 100,
-                      display : "width::align-right"
-                    }, {
-                      title : "不可为空",
-                      width : 80,
-                      display : "<=TiLabel:notNull>.align-center=>Ti.Types.toBoolStr(null,'i18n:yes')"
-                    }, {
-                      title : "可插入",
-                      width : 50,
-                      display : "<=TiLabel:insert>.align-center=>Ti.Types.toBoolStr(null,'i18n:yes')"
-                    }, {
-                      title : "可更新",
-                      width : 50,
-                      display : "<=TiLabel:update>.align-center=>Ti.Types.toBoolStr(null,'i18n:yes')"
-                    }]
-                  },
-                  dialog : {
-                    title  : "编辑字段",
-                    width  : 640,
-                    height : 0.8
-                  }
-                }
-              }]
-          },
-          //............................
-          // 内置字段
-          //............................
-          {
-            title : "内置字段",
-            fields : [{
-              name : "objKeys",
-              type : "Array",
-              comType : "ti-bullet-checkbox",
-              comConf : {
-                className : "ti-cover-parent",
-                options: "#BuiltInFields",
-                style : {
-                  padding : "1em"
-                }
-              }
-            }]
-          },
-          //............................
-          // 索引
-          //............................
-          {
-            title : "索引",
-            fields : [{
-              name : "indexes",
-              type : "Array",
-              comType : "ti-combo-table",
-              comConf : {
-                className : "ti-fill-parent",
-                form : {
-                  fields : [{
-                      title : "唯一性索引",
-                      name  : "unique",
-                      type  : "Boolean",
-                      comType : "ti-toggle"
-                    }, {
-                      title : "索引名称",
-                      name  : "name",
-                      comType : "ti-input"
-                    }, {
-                      title : "索引字段",
-                      name  : "fields",
-                      type  : "Array",
-                      comType : "ti-input-tags"
-                    }]
-                },
-                list : {
-                  fields: [{
-                    title : "索引名称",
-                    display : [
-                      "<=TiIcon:notNull>=>Ti.Types.toBoolStr(null,'fas-exclamation')",
-                      "name"]
-                  }, {
-                    title : "索引字段",
-                    display : "fields"
-                  }, {
-                    title : "唯一性",
-                    display : "<=TiLabel:unique>=>Ti.Types.toBoolStr(null,'唯一')"
-                  }]
-                },
-                dialog : {
-                  title  : "编辑索引",
-                  width  : 420,
-                  height : 500
-                }
-              }
-            }]
-          }
-          //............................
-        ]
-      }
-    }
-    //------------------------------------
-  },
-  /////////////////////////////////////////
-  methods : {
-    //------------------------------------
-    OnFormChange(payload) {
-      //console.log("change", payload)
-      let json = JSON.stringify(payload, null, '   ')
-      this.$notify("change", json)
-    },
-    //------------------------------------
-    OnFormFieldChange(payload){
-      //console.log("field:change", payload)
-    }
-    //------------------------------------
-  },
-  /////////////////////////////////////////
-  watch : {
-    
-  }
-  /////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -18964,8 +18684,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: String,
       default: undefined
     },
+    "textStyle": {
+      type: Object,
+      default: undefined
+    },
     "href": {
       type: String,
+      default: undefined
+    },
+    "navTo": {
+      type: Object,
       default: undefined
     },
     "newtab": {
@@ -19011,6 +18739,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
         width  : this.width,
         height : this.height
       })
+    },
+    //--------------------------------------
+    TextStyle() {
+      return Ti.Css.toStyle(this.textStyle)
     },
     //--------------------------------------
     TheZoomLens() {
@@ -19120,6 +18852,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
         this.clientWidth  = $img.clientWidth
         this.clientHeight = $img.clientHeight
         this.imgLoading = false
+      }
+    },
+    //--------------------------------------
+    OnClickTop(evt) {
+      if(this.navTo) {
+        evt.preventDefault()
+        this.$notify("nav:to", this.navTo)
       }
     },
     //--------------------------------------
@@ -19976,6 +19715,10 @@ const _M = {
     },
     //--------------------------------------
     evalWallColumns($wallGroup) {
+      // Customized item width
+      if(_.isArray(this.itemWidth) && this.itemWidth.length > 1) {
+        return
+      }
       // console.log("evalWallColumns")
       let $divs = Ti.Dom.findAll(":scope >  .wall-tile.is-com", $wallGroup)
       let cols = 0;
@@ -21713,9 +21456,22 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : [Object, Function],
       default : undefined
     },
+    "idBy" : {
+      type : String,
+      default : "=id"
+    },
+    "childrenBy" : {
+      type : String,
+      default : "items"
+    },
     "sortBy" : {
-      type : [Array, Function, String],
+      type : [Function, String],
       default : undefined
+    },
+    // Store current array
+    // could be Array<Object> Or Object or String
+    "currentIds" : {
+      type : [Array, Object, String]
     },
     "base": {
       type: String,
@@ -21739,46 +21495,103 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return this.getTopClass()
     },
     //------------------------------------
+    CurrentIdMap() {
+      let cids = _.concat(this.currentIds)
+      let re = {}
+      for(let cid of cids) {
+        if(!cid) {
+          continue;
+        }
+        if(_.isString(cid)) {
+          re[cid] = true
+        } else {
+          cid = Ti.Util.explainObj(cid, this.idBy);
+          re[cid] = true
+        }
+      }
+      return re;
+    },
+    //------------------------------------
     TheItems() {
+      //
       // Head
+      //
       let itHead = this.headItems
       if(this.translateHead) {
         itHead = this.ItemMapping(itHead)
       }
+      //
       // Items
+      //
       let its = _.cloneDeep(this.items)
-      if(this.SortItemBy) {
-        its = _.sortBy(its, this.SortItemBy)
+      const SortItems = items => {
+        if(this.SortItemsBy) {
+          let list = _.sortBy(items, this.SortItemsBy)
+          for(let li of list) {
+            let subs = _.get(li, this.childrenBy)
+            if(_.isArray(subs)){
+              let subs2 = SortItems(subs)
+              _.set(li, this.childrenBy, subs2)
+            }
+          }
+          return list
+        }
+        return items
       }
-      let itList = this.ItemMapping(its)
+      // Sorting 
+      its = _.sortBy(its, this.SortItemBy)
+      its = SortItems(its)
+      // Mapping items
+      const MappingItems = items => {
+        let list = []
+        for(let it of items) {
+          let it2 = this.ItemMappingBy(it)
+          let subs = _.get(it, this.childrenBy)
+          if(_.isArray(subs)){
+            subs = MappingItems(subs)
+            it2.items = subs
+          }
+          list.push(it2)
+        }
+        return list
+      }
+      // Mapping
+      let itList = MappingItems(its)
+      //
       // Tail
+      //
       let itTail = this.tailItems
       if(this.translateTail) {
         itTail = this.ItemMapping(itTail)
       }
+      //
       // Concat
+      //
       let list = _.concat(itHead, itList, itTail)
       return this.evalItems(list)
     },
     //------------------------------------
-    SortItemBy() {
+    SortItemsBy() {
       if(_.isString(this.sortBy)) {
         return it => _.get(it, this.sortBy)
       }
-      return this.sortBy
-    },
+      if(_.isFunction(this.sortBy)) {
+        return it => this.sortBy(it)
+      }
+   },
     //------------------------------------
-    ItemMapping() {
-      if(_.isFunction(this.mapping))
+    ItemMappingBy() {
+      if(_.isFunction(this.mapping)) {
         return this.mapping
+      }
 
       if(this.mapping) {
-        return items => {
-          return Ti.Util.explainObjs(items, this.mapping)
+        return item => {
+          return Ti.Util.explainObjs(item, this.mapping)
         }
       }
 
-      return items => items
+      return item => item
     }
     //------------------------------------
   },
@@ -21801,17 +21614,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return Ti.WWW.explainNavigation(items, {
         depth,
         base: this.base, 
+        idBy: this.idBy,
         iteratee: (li)=>{
           if(this.path) {
             li.highlight = li.highlightBy(this.path, this.params)
           }
-          let hasHref = li.href ? true : false;
-          li.className = {
-            "has-href"    : hasHref,
-            "nil-href"    : !hasHref,
-            "is-highlight": li.highlight,
-            "is-normal"   : !li.highlight,
+          //........................................
+          // Children highlight cause the parent focused
+          let current = this.CurrentIdMap[li.id]
+          if(!current && !_.isEmpty(li.items)) {
+            for(let it of li.items) {
+              if(it.current || it.highlight) {
+                current = true
+                break
+              }
+            }
           }
+          li.current = current
           return li
         }
       })
@@ -26491,6 +26310,172 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'web-nav-item-mixins.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/nav/support/web-nav-item-mixins.mjs'] = (function(){
+const _M = {
+  ///////////////////////////////////////////////////////
+  props : {
+    "id" : {
+      type: String,
+      default: undefined
+    },
+    "index" : {
+      type: Number,
+      default: undefined
+    },
+    "idPath" : {
+      type : Array,
+    },
+    "indexPath" : {
+      type : Array
+    },
+    "depth" : {
+      type:Number, 
+      default: 0
+    },
+    "icon"  : {
+      type:[String,Object], 
+      default:undefined
+    },
+    "title" : {
+      type:String, 
+      default:undefined
+    },
+    "type"  : {
+      type:String, 
+      default:undefined
+    },
+    "params"  : {
+      type: Object, 
+      default:undefined
+    },
+    "href"  : {
+      type:String, 
+      default:undefined
+    },
+    "target"  : {
+      type:String, 
+      default:undefined
+    },
+    "value"  : {
+      type:String, 
+      default:undefined
+    },
+    "items" : {
+      type : Array,
+      default : undefined
+    },
+    "highlight" : {
+      type : Boolean,
+    },
+    "current" : {
+      type : Boolean,
+    },
+    "openedIds"   : undefined,
+    "openedDepth" : undefined
+  },
+  ///////////////////////////////////////////////////////
+  computed : {
+    //---------------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-dock-ready" : this.myDockReady,
+        "is-dock-show"  : this.myDockShow,
+        "is-top"   : this.isTop,
+        "is-sub"   : !this.isTop,
+        "is-group" : this.isGroup,
+        "is-item"  : !this.isGroup,
+        "has-href"    : this.hasHref,
+        "nil-href"    : !this.hasHref,
+        "is-opened"   : this.isOpened,
+        "is-closed"   : !this.isOpened,
+        "is-highlight": this.highlight,
+        "is-normal"   : !this.highlight,
+        "is-current"  : this.current
+      })
+    },
+    //---------------------------------------------------
+    isTop() {return this.depth == 0},
+    isGroup() {return _.isArray(this.items)},
+    hasSubItems() {return !_.isEmpty(this.items)},
+    //---------------------------------------------------
+    hasHref() {return this.href ? true : false},
+    hasValue() {return this.value ? true : false},
+    hasHrefOrValue() {return this.hasHref || this.hasValue},
+    //---------------------------------------------------
+    isOpened() {
+      if(this.isGroup) {
+        let opened = _.get(this.openedIds, this.id)
+        if(_.isUndefined(opened) && !_.isUndefined(this.openedDepth)) {
+          return this.depth < this.openedDepth
+        }
+        return opened
+      }
+      return false
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods : {
+    //---------------------------------------------------
+    OnToggleGroupOpened() {
+      this.notifyGroupOpenStatus(!this.isOpened)
+    },
+    //---------------------------------------------------
+    OnOpenGroup() {
+      //console.log("OnOpenGroup", this.indexPath)
+      this.notifyGroupOpenStatus(true)
+    },
+    //---------------------------------------------------
+    OnCloseGroup() {
+      //console.log("OnCloseGroup", this.indexPath)
+      this.notifyGroupOpenStatus(false)
+    },
+    //---------------------------------------------------
+    notifyGroupOpenStatus(opened) {
+      if(this.isGroup) {
+        this.$notify("change:opened", {
+          id     : this.id,
+          idPath : this.idPath,
+          type   : this.type,
+          params : this.params,
+          href   : this.href,
+          target : this.target,
+          value  : this.value,
+          opened
+        })
+      }
+    },
+    //---------------------------------------------------
+    OnClickItemInfo() {
+      if(!this.hasHrefOrValue) {
+        this.OnToggleGroupOpened()
+      } else {
+        this.OnClickItemLink()
+      }
+    },
+    //---------------------------------------------------
+    OnClickItemLink(evt) {
+      if(this.hasHref && evt) {
+        evt.stopPropagation()
+      }
+      this.$notify("click:item", evt, {
+        id     : this.id,
+        type   : this.type,
+        params : this.params,
+        href   : this.href,
+        target : this.target,
+        value  : this.value
+      })
+    }
+    //---------------------------------------------------
+  }
+  ///////////////////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'side-nav-item.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/gui/side/nav/com/side-nav-item/side-nav-item.mjs'] = (function(){
@@ -27227,7 +27212,17 @@ function CmdInsertImage(editor, oImgs) {
 
 }
 ////////////////////////////////////////////////////
-function CmdClearImageSize(editor) {
+function GetCurrentImageElement(editor) {
+  let sel = editor.selection
+  let $img = sel.getNode()
+  // Guard
+  if("IMG" != $img.tagName) {
+    return
+  }
+  return $img
+}
+////////////////////////////////////////////////////
+function CmdSetImageSize(editor, {width=null, height=null}={}) {
   let sel = editor.selection
   let $img = sel.getNode()
   // Guard
@@ -27235,11 +27230,12 @@ function CmdClearImageSize(editor) {
     return
   }
   // Clear the attribute
-  $img.removeAttribute("width")
-  $img.removeAttribute("height")
+  Ti.Dom.setAttrs($img, {width, height})
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
 }
 ////////////////////////////////////////////////////
-function CmdFloatImage(editor, float) {
+function CmdSetImageStyle(editor, css={}) {
   let sel = editor.selection
   let $img = sel.getNode()
   // Guard
@@ -27247,7 +27243,9 @@ function CmdFloatImage(editor, float) {
     return
   }
   // Clear float
-  $img.style.float = float || ""
+  Ti.Dom.setStyle($img, css)
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
 }
 ////////////////////////////////////////////////////
 async function CmdShowImageProp(editor, settings) {
@@ -27260,7 +27258,7 @@ async function CmdShowImageProp(editor, settings) {
   // Get margin style
   let stl = Ti.Dom.getStyle($img, /^(float|(margin-(left|right|top|bottom)))$/)
   stl.float = stl.float || "none"
-  console.log("stl", stl)
+  //console.log("stl", stl)
   // Gen the properties
   let data = {
     oid    : $img.getAttribute("wn-obj-id"),
@@ -27449,10 +27447,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //console.log("setup", editor.settings)
     //..............................................
     // Register plugin command
-    editor.addCommand("InsertImage",    CmdInsertImage)
-    editor.addCommand("ClearImageSize", CmdClearImageSize)
-    editor.addCommand("FloatImage",     CmdFloatImage)
-    editor.addCommand("ShowImageProp",  CmdShowImageProp)
+    editor.addCommand("InsertImage",   CmdInsertImage)
+    editor.addCommand("SetImageSize",  CmdSetImageSize)
+    editor.addCommand("SetImageStyle", CmdSetImageStyle)
+    editor.addCommand("ShowImageProp", CmdShowImageProp)
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnImgPick", {
@@ -27467,32 +27465,93 @@ const __TI_MOD_EXPORT_VAR_NM = {
       icon : "edit-image",
       text : "清除图片尺寸",
       onAction() {
-        editor.execCommand("ClearImageSize", editor)
+        editor.execCommand("SetImageSize", editor)
       }
     })
     //..............................................
-    editor.ui.registry.addMenuItem("WnImgFloatLeft", {
-      icon : "align-left",
-      text : "居左绕图",
+    editor.ui.registry.addMenuItem("WnImgAutoFitWidth", {
+      text : "自动适应宽度",
       onAction() {
-        editor.execCommand("FloatImage", editor, "left")
+        editor.execCommand("SetImageSize", editor, {width:"100%"})
       }
     })
     //..............................................
-    editor.ui.registry.addMenuItem("WnImgFloatRight", {
-      icon : "align-right",
-      text : "居右绕图",
-      onAction() {
-        editor.execCommand("FloatImage", editor, "right")
+    editor.ui.registry.addNestedMenuItem('WnImgFloat', {
+      text: '文本绕图',
+      getSubmenuItems: function () {
+        return [{
+          type : "menuitem",
+          icon : "align-left",
+          text : "居左绕图",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {float:"left"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "align-right",
+          text : "居右绕图",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {float:"right"})
+          }
+        }, {
+          type : "menuitem",
+          text : "清除浮动",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {float:""})
+          }
+        }];
       }
-    })
+    });
     //..............................................
-    editor.ui.registry.addMenuItem("WnImgFloatNone", {
-      text : "清除浮动",
-      onAction() {
-        editor.execCommand("FloatImage", editor, null)
+    editor.ui.registry.addNestedMenuItem('WnImgMargin', {
+      text: '图片边距',
+      getSubmenuItems: function () {
+        const __check_margin_size = function(api, expectSize) {
+          let $img = GetCurrentImageElement(editor)
+          let state = true
+          if($img) {
+            let sz = $img.style.marginLeft || $img.style.marginRight
+            state = expectSize == sz
+          }
+          api.setActive(state);
+          return function() {};
+        }
+        return [{
+          type : "togglemenuitem",
+          text : "小边距",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {margin:"1em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '1em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "中等边距",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {margin:"2em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '2em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "较大边距",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {margin:"3em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '3em')
+          }
+        }, {
+          type : "menuitem",
+          text : "清除边距",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {margin:""})
+          }
+        }];
       }
-    })
+    });
     //..............................................
     editor.ui.registry.addMenuItem("WnImgProp", {
       text : "图片属性",
@@ -27507,8 +27566,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
         let $nd = sel.getNode()
         if($nd.hasAttribute("wn-obj-id") && "IMG" == $nd.tagName) {
           return [
-            "WnImgClrSize",
-            "WnImgFloatLeft WnImgFloatCenter WnImgFloatRight WnImgFloatNone",
+            "WnImgClrSize WnImgAutoFitWidth",
+            "WnImgFloat WnImgMargin",
             "WnImgProp"
           ].join(" | ")
         }
@@ -28113,7 +28172,7 @@ const _M = {
     //--------------------------------------------------
     async OnFieldChange({name, value}={}) {
       // Notify at first
-      console.log("notify field", {name, value})
+      //console.log("notify field", {name, value})
       this.$notify("field:change", {name, value})
 
       // Link fields
@@ -32723,6 +32782,95 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'nav-links.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/nav/links/__bak/nav-links.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  data: ()=>({
+    mySubIndex: -1,
+    mySubItems: null
+  }),
+  /////////////////////////////////////////
+  props : {
+    "align" : {
+      type : String,
+      default : "left",
+      validator: v => /^(left|center|right)$/.test(v)
+    },
+    "spacing" : {
+      type : String,
+      validator: v => /^(tiny|comfy|wide)$/.test(v)
+    },
+    "border" : {
+      type : String,
+      default : "solid",
+      validator: v => /^(none|solid|dashed|dotted)$/.test(v)
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //------------------------------------
+    TopClass() {
+      return this.getTopClass(
+        `is-spacing-${this.spacing}`,
+        `is-align-${this.align}`,
+        ()=> {
+          if(this.border)
+            return `is-border-${this.border}`
+        }
+      )
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  methods : {
+    //------------------------------------
+    OnItemMouseEnter({index, items}) {
+      // Guard
+      if(_.isEmpty(items)) {
+        this.mySubIndex = -1
+        this.mySubItems = null
+        return
+      }
+      // Eval sub items
+      this.mySubItems = this.evalItems(items)
+      this.mySubIndex = index
+
+      // Dock it
+      this.$nextTick(()=>this.dockSub())
+    },
+    //------------------------------------
+    OnItemMouseLeave({index}) {
+      if(this.mySubIndex == index) {
+        this.mySubIndex = -1
+        this.mySubItems = null
+      }
+    },
+    //------------------------------------
+    dockSub(){
+      let $sub = Ti.Dom.find(".sub-items", this.$el)
+      // Guard
+      if(!$sub) {
+        return
+      }
+      // Ready to dock
+      let $an = $sub.parentNode
+      let rAn = Ti.Rects.createBy($an)
+      let rSub = Ti.Rects.createBy($sub)
+      let css = Ti.Css.toStyle({
+        top  : rAn.height,
+        left : (rAn.width - rSub.width)/2
+      })
+      Ti.Dom.setStyle($sub, css)
+    }
+    //------------------------------------
+  }
+  /////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-obj-thumb.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/obj/thumb/ti-obj-thumb.mjs'] = (function(){
@@ -35054,128 +35202,6 @@ const _M = {
   //////////////////////////////////////////
 }
 return _M;;
-})()
-// ============================================================
-// EXPORT 'hmaker-config-io.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/hmaker/config/io/hmaker-config-io.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  /////////////////////////////////////////
-  data: ()=>({
-    oHome : undefined
-  }),
-  /////////////////////////////////////////
-  props : {
-    "home" : {
-      type: [String, Object],
-      default: undefined
-    }
-  },
-  /////////////////////////////////////////
-  computed : {
-    //------------------------------------
-    isViewReady() {
-      return this.oHome ? true : false
-    },
-    //------------------------------------
-    FilesetListConf() {
-      return {
-        meta : "=meta",
-        viewReady : this.isViewReady,
-        metaType : null,
-        createTip : "请输入新项目的名称",
-        listTitle : "映射列表",
-        listSize : 200,
-        detailIcon  : "fas-traffic-light",
-        detailTitle : "映射详情",
-        detailType : "HmakerConfigIoDetail",
-        detailConf : {
-          
-        }
-      }
-    }
-    //------------------------------------
-  },
-  /////////////////////////////////////////
-  methods : {
-    //------------------------------------
-    OnTabsInit($tabs) {
-      this.$tabs = $tabs;
-    },
-    //------------------------------------------------
-    doCreate(payload) {
-      let $mcom = this.$tabs.$MainCom()
-      if($mcom) {
-        $mcom.doCreate(payload)
-      }
-    },
-    //------------------------------------------------
-    doDelete(payload) {
-      let $mcom = this.$tabs.$MainCom()
-      if($mcom) {
-        $mcom.doDelete(payload)
-      }
-    },
-    //------------------------------------------------
-    doRename(payload) {
-      let $mcom = this.$tabs.$MainCom()
-      if($mcom) {
-        $mcom.doRename(payload)
-      }
-    },
-    //------------------------------------------------
-    async openContentEditor() {
-      let $mcom = this.$tabs.$MainCom()
-      if($mcom && $mcom.hasCurrent) {
-        return await $mcom.openContentEditor()
-      }
-    },
-    //------------------------------------------------
-    async openCurrentMeta() {
-      let $mcom = this.$tabs.$MainCom()
-      if($mcom && $mcom.hasCurrent) {
-        return await $mcom.openCurrentMeta()
-      }
-      await Ti.App(this).dispatch("current/openMetaEditor")
-    },
-    //------------------------------------------------
-    async reloadAll() {
-      Ti.App(this).commit("current/setStatus", {reloading:true})
-      // Reload self
-      await this.reload()
-
-      // Reload tabs
-      await this.$tabs.reload()
-
-      // Reload main
-      let $mcom = this.$tabs.$MainCom()
-      if($mcom) {
-        await $mcom.reload()
-      }
-      Ti.App(this).commit("current/setStatus", {reloading:false})
-    },
-    //------------------------------------
-    async reload() {
-      if(this.home) {
-        if(_.isString(this.home)) {
-          this.oHome = await Wn.Io.loadMeta(this.home)
-        } else {
-          this.oHome = _.cloneDeep(this.home)
-        }
-      }
-    }
-    //------------------------------------
-  },
-  /////////////////////////////////////////
-  watch : {
-    "home" : {
-      handler : "reload",
-      immediate : true
-    }
-  }
-  /////////////////////////////////////////
-}
-return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'site-tree-actions.mjs' -> null
@@ -38092,7 +38118,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     isBlank() {
-      return Ti.Util.isNil(this.value)
+      return Ti.S.isBlank(this.value)
     },
     //--------------------------------------
     ArticleHtml() {
@@ -39073,8 +39099,7 @@ window.TI_PACK_EXPORTS['ti/com/web/nav/links/nav-links.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
   data: ()=>({
-    mySubIndex: -1,
-    mySubItems: null
+    myOpenedIds: {}
   }),
   /////////////////////////////////////////
   props : {
@@ -39111,43 +39136,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
   methods : {
     //------------------------------------
-    OnItemMouseEnter({index, items}) {
-      // Guard
-      if(_.isEmpty(items)) {
-        this.mySubIndex = -1
-        this.mySubItems = null
-        return
+    OnChangeGroupOpened({idPath, opened}) {
+      let ids = {}
+      for(let id of idPath) {
+        ids[id] = true
       }
-      // Eval sub items
-      this.mySubItems = this.evalItems(items)
-      this.mySubIndex = index
-
-      // Dock it
-      this.$nextTick(()=>this.dockSub())
-    },
-    //------------------------------------
-    OnItemMouseLeave({index}) {
-      if(this.mySubIndex == index) {
-        this.mySubIndex = -1
-        this.mySubItems = null
+      if(!opened) {
+        ids[_.last(idPath)] = false
       }
-    },
-    //------------------------------------
-    dockSub(){
-      let $sub = Ti.Dom.find(".sub-items", this.$el)
-      // Guard
-      if(!$sub) {
-        return
-      }
-      // Ready to dock
-      let $an = $sub.parentNode
-      let rAn = Ti.Rects.createBy($an)
-      let rSub = Ti.Rects.createBy($sub)
-      let css = Ti.Css.toStyle({
-        top  : rAn.height,
-        left : (rAn.width - rSub.width)/2
-      })
-      Ti.Dom.setStyle($sub, css)
+      this.myOpenedIds = ids
     }
     //------------------------------------
   }
@@ -40973,7 +40970,10 @@ const _M = {
     //--------------------------------------------
     explainNav(state) {
       if(state.nav) {
-        state.nav = Ti.Util.explainObj(state, state.nav)
+        if(!state.__nav_input) {
+          state.__nav_input = _.cloneDeep(state.nav)
+        }
+        state.nav = Ti.Util.explainObj(state, state.__nav_input)
       }
     },
     //--------------------------------------------
@@ -41102,6 +41102,7 @@ const _M = {
         await dispatch("page/reload", href)
         
         commit("setLoading", false)
+        commit("explainNav")
       }
       // navTo::dispatch
       else if("dispatch" == type) {
@@ -44088,80 +44089,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
-// EXPORT 'config-io-detail.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/hmaker/config/io/detail/config-io-detail.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  /////////////////////////////////////////
-  data: ()=>({
-  }),
-  /////////////////////////////////////////
-  props : {
-    "value" : {
-      type: [String, Object],
-      default: undefined
-    }
-  },
-  /////////////////////////////////////////
-  computed : {
-    //------------------------------------
-    MainData() {
-      if(_.isString(this.value)) {
-        let str = _.trim(this.value)
-        if(!str) {
-          return {}
-        }
-        return JSON.parse(str)
-      }
-      return _.cloneDeep(this.value)
-    },
-    //------------------------------------
-    MainCom() {
-      // Nil
-      if(!this.MainData) {
-        return {
-          comType : 'TiLoading',
-          comConf : {
-            className : "as-big",
-            icon: "zmdi-arrow-left",
-            text: "i18n:nil-detail"
-          }
-        }
-      }
-      // Dao Mapping
-      if(this.MainData.dao && _.isArray(this.MainData.fields)) {
-        return {
-          comType : 'HmakerConfigIoIxDao',
-          comConf : {
-            value : this.MainData
-          }
-        }
-      }
-      // Default as JSON
-      return {
-        comType : "TiTextJson",
-        comConf : {
-          value : this.MainData
-        }
-      }
-    }
-    //------------------------------------
-  },
-  /////////////////////////////////////////
-  methods : {
-    //------------------------------------
-    
-    //------------------------------------
-  },
-  /////////////////////////////////////////
-  watch : {
-    
-  }
-  /////////////////////////////////////////
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
 // EXPORT 'vod-manager.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/net/aliyun/vod/manager/vod-manager.mjs'] = (function(){
@@ -45988,6 +45915,92 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'link-item.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/nav/links/com/link-item/link-item.mjs'] = (function(){
+const _M = {
+  ///////////////////////////////////////////////////////
+  data: ()=>({
+    myDockReady : false,
+    myDockShow  : false,
+  }),
+  ///////////////////////////////////////////////////////
+  methods : {
+    //---------------------------------------------------
+    dockSub: function() {
+      // let $sub = Ti.Dom.find(".sub-items", this.$el)
+      // // Guard
+      // if(!$sub) {
+      //   return
+      // }
+      // // Ready to dock
+      // let $an = $sub.parentNode
+      // let rAn = Ti.Rects.createBy($an)
+      // let rSub = Ti.Rects.createBy($sub)
+      // let css = Ti.Css.toStyle({
+      //   top  : rAn.height,
+      //   left : (rAn.width - rSub.width)/2
+      // })
+      // Ti.Dom.setStyle($sub, css)
+      let $con = this.$refs.con
+      if(!_.isElement($con))
+        return
+
+      let mode = "V";
+      let space = {x:-1};
+      if(this.isTop) {
+        mode = "H"
+        space = {y:-1}
+      }
+      Ti.Dom.dockTo($con, this.$el, {
+        mode, space, coord: "target"
+      })
+      this.myDockReady = true
+      _.delay(()=>{
+        this.myDockShow = true
+      }, 10)
+    },
+    //---------------------------------------------------
+    dockSubDelay: function() {
+      if(!this.isOpened) {
+        this.myDockReady = false
+        this.myDockShow  = false
+        return
+      }
+
+      _.delay(()=>{
+        if(!this.$refs.con) {
+          this.dockSubDelay()
+        } else {
+          this.dockSub()
+        }
+      }, 10)
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  watch : {
+    "isOpened" : "dockSubDelay"
+  },
+  ///////////////////////////////////////////////////////
+  mounted : function() {
+    Ti.Viewport.watch(this, {
+      scroll : ()=> {
+        if(this.isOpened) {
+          this.notifyGroupOpenStatus(false)
+        }
+      }
+    })
+  },
+  ///////////////////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Viewport.unwatch(this)
+  }
+  ///////////////////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'web-pay-choose.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/pay/choose/web-pay-choose.mjs'] = (function(){
@@ -46217,127 +46230,18 @@ window.TI_PACK_EXPORTS['ti/com/web/nav/side/com/side-item/side-item.mjs'] = (fun
 const _M = {
   ///////////////////////////////////////////////////////
   props : {
-    "id" : {
-      type: String,
-      default: undefined
-    },
-    "depth" : {
-      type:Number, 
-      default: 0
-    },
-    "icon"  : {
-      type:[String,Object], 
-      default:undefined
-    },
-    "title" : {
-      type:String, 
-      default:undefined
-    },
-    "type"  : {
-      type:String, 
-      default:undefined
-    },
-    "params"  : {
-      type: Object, 
-      default:undefined
-    },
-    "href"  : {
-      type:String, 
-      default:undefined
-    },
-    "target"  : {
-      type:String, 
-      default:undefined
-    },
-    "value"  : {
-      type:String, 
-      default:undefined
-    },
-    "items" : {
-      type : Array,
-      default : undefined
-    },
-    "openedIds"   : undefined,
-    "openedDepth" : undefined,
     "openedIcons" : undefined
   },
   ///////////////////////////////////////////////////////
   computed : {
-    //---------------------------------------------------
-    TopClass() {
-      return this.getTopClass({
-        "is-top"   : this.isTop,
-        "is-sub"   : !this.isTop,
-        "is-group" : this.isGroup,
-        "is-item"  : !this.isGroup,
-        "is-highlight" : this.isHighlight
-      })
-    },
-    //---------------------------------------------------
-    isTop() {
-      return this.depth == 0
-    },
-    //---------------------------------------------------
-    isGroup() {
-      return _.isArray(this.items)
-    },
-    //---------------------------------------------------
-    isHighlight() {
-      return this.id && this.id == this.highlightId
-    },
-    //---------------------------------------------------
-    hasSubItems() {
-      return !_.isEmpty(this.items)
-    },
-    //---------------------------------------------------
-    isOpened() {
-      if(this.isGroup) {
-        let opened = _.get(this.openedIds, this.id)
-        if(_.isUndefined(opened)) {
-          return this.depth < this.openedDepth
-        }
-        return opened
-      }
-      return false
-    },
-    //---------------------------------------------------
     OpenStatusIcon() {
       return this.isOpened
         ? this.openedIcons.opened
         : this.openedIcons.closed
     }
-    //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
   methods : {
-    //---------------------------------------------------
-    OnClickItemInfo() {
-      if(this.isGroup) {
-        this.$notify("change:opened", {
-          id     : this.id,  
-          type   : this.type,
-          params : this.params,
-          href   : this.href,
-          target : this.target,
-          value  : this.value,
-          opened : !this.isOpened
-        })
-      }
-    },
-    //---------------------------------------------------
-    OnClickItemLink(evt) {
-      if(this.href) {
-        evt.stopPropagation()
-      }
-      this.$notify("click:item", evt, {
-        id     : this.id,
-        type   : this.type,
-        params : this.params,
-        href   : this.href,
-        target : this.target,
-        value  : this.value
-      })
-    },
     //---------------------------------------------------
     OnTransBeforeEnter($con) {
       // console.log("before enter")
@@ -46542,83 +46446,6 @@ return __TI_MOD_EXPORT_VAR_NM;;
 })()
 })();   // ~ windows.TI_EXPORTS
 (function(){
-//========================================
-// JOIN <config-io-detail.html> ti/com/hmaker/config/io/detail/config-io-detail.html
-//========================================
-Ti.Preload("ti/com/hmaker/config/io/detail/config-io-detail.html", `<div class="config-io-detail">
-  <component
-    class="ti-fill-parent"
-    :is="MainCom.comType"
-    v-bind="MainCom.comConf"/>
-</div>`);
-//========================================
-// JOIN <config-io-detail.mjs> ti/com/hmaker/config/io/detail/config-io-detail.mjs
-//========================================
-Ti.Preload("ti/com/hmaker/config/io/detail/config-io-detail.mjs", TI_PACK_EXPORTS['ti/com/hmaker/config/io/detail/config-io-detail.mjs']);
-//========================================
-// JOIN <_com.json> ti/com/hmaker/config/io/detail/_com.json
-//========================================
-Ti.Preload("ti/com/hmaker/config/io/detail/_com.json", {
-  "name" : "hmaker-config-io-detail",
-  "globally" : true,
-  "template" : "./config-io-detail.html",
-  "mixins"   : ["./config-io-detail.mjs"],
-  "components" : [
-    "@com:ti/text/json",
-    "@com:hmaker/config/io/ix/dao"
-  ]
-});
-//========================================
-// JOIN <hmaker-config-io.html> ti/com/hmaker/config/io/hmaker-config-io.html
-//========================================
-Ti.Preload("ti/com/hmaker/config/io/hmaker-config-io.html", `<WnFilesetTabs
-  :meta="oHome"
-  :view-ready="isViewReady"
-  com-type="wn-fileset-list"
-  :com-conf="FilesetListConf"
-  :on-init="OnTabsInit"/>`);
-//========================================
-// JOIN <hmaker-config-io.mjs> ti/com/hmaker/config/io/hmaker-config-io.mjs
-//========================================
-Ti.Preload("ti/com/hmaker/config/io/hmaker-config-io.mjs", TI_PACK_EXPORTS['ti/com/hmaker/config/io/hmaker-config-io.mjs']);
-//========================================
-// JOIN <io-ix-dao.html> ti/com/hmaker/config/io/ix/dao/io-ix-dao.html
-//========================================
-Ti.Preload("ti/com/hmaker/config/io/ix/dao/io-ix-dao.html", `<TiForm
-  class="hmaker-config-io-ix-dao auto-fit-tab-field no-pad-tab-body"
-  v-bind="FormConf"
-  :data="TheData"
-  @change="OnFormChange"
-  @field:change="OnFormFieldChange"/>`);
-//========================================
-// JOIN <io-ix-dao.mjs> ti/com/hmaker/config/io/ix/dao/io-ix-dao.mjs
-//========================================
-Ti.Preload("ti/com/hmaker/config/io/ix/dao/io-ix-dao.mjs", TI_PACK_EXPORTS['ti/com/hmaker/config/io/ix/dao/io-ix-dao.mjs']);
-//========================================
-// JOIN <_com.json> ti/com/hmaker/config/io/ix/dao/_com.json
-//========================================
-Ti.Preload("ti/com/hmaker/config/io/ix/dao/_com.json", {
-  "name" : "hmaker-config-io-ix-dao",
-  "globally" : true,
-  "template" : "./io-ix-dao.html",
-  "mixins"   : ["./io-ix-dao.mjs"],
-  "components" : [
-    "@com:ti/combo/table",
-    "@com:ti/bullet/checkbox"
-  ]
-});
-//========================================
-// JOIN <_com.json> ti/com/hmaker/config/io/_com.json
-//========================================
-Ti.Preload("ti/com/hmaker/config/io/_com.json", {
-  "name" : "hmaker-config-io",
-  "globally" : true,
-  "template" : "./hmaker-config-io.html",
-  "mixins"   : ["./hmaker-config-io.mjs"],
-  "components" : [
-    "@com:hmaker/config/io/detail"
-  ]
-});
 //========================================
 // JOIN <vod-manager.html> ti/com/net/aliyun/vod/manager/vod-manager.html
 //========================================
@@ -47480,6 +47307,7 @@ Ti.Preload("ti/com/ti/color/ti-color.html", `<div class="ti-color" >
         :max-value="100"
         :min-value="0"
         :step="10"
+        width="100%"
         @change="onAlphaChanged"/>
     </div>
   </div>
@@ -52651,17 +52479,21 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   :style="TopStyle"
   :href="TheHref"
   :target="isNewTab ? '_blank' : '_self'"
+  @click.left="OnClickTop"
   @mousemove="OnMouseMove"
   @mouseleave="OnMouseLeave">
   <!--Image-->
-  <img ref="img"
-    v-if="TheSrc" 
-      :src="TheSrc"
-      @load="OnImageLoaded"/>
+  <div class="as-img-con">
+    <img ref="img"
+      v-if="TheSrc" 
+        :src="TheSrc"
+        @load="OnImageLoaded"/>
+  </div>
   <!--Text-->
   <div
     v-if="TheText"
-      class="as-text">
+      class="as-text"
+      :style="TextStyle">
       <span>{{TheText}}</span>
   </div>
   <!--Zoom len-->
@@ -53195,9 +53027,99 @@ Ti.Preload("ti/com/web/nav/crumb/_com.json", {
   "components" : []
 });
 //========================================
+// JOIN <link-item.html> ti/com/web/nav/links/com/link-item/link-item.html
+//========================================
+Ti.Preload("ti/com/web/nav/links/com/link-item/link-item.html", `<div class="link-item" 
+  :class="TopClass"
+  @mouseenter.stop="OnOpenGroup"
+  @mouseleave.stop="OnCloseGroup">
+  <!--
+    Self Info
+  -->
+  <div ref="info"
+    class="it-info"
+    @click.left="OnClickItemInfo">
+    <!--Icon-->
+    <span
+      v-if="icon"
+        class="it-info-icon">
+        <ti-icon :value="icon"/>
+    </span>
+    <!--Group-->
+    <span
+      v-if="!hasHrefOrValue"
+        class="it-info-text">{{title|i18n}}</span>
+    <!--Item-->
+    <a
+      v-else
+        class="it-info-text"
+        :href="href"
+        @click.left="OnClickItemLink($event)">{{title|i18n}}</a>
+  </div>
+  <!--
+    Sub Container
+  -->
+  <div ref="con"
+    v-if="hasSubItems && isOpened"
+      class="it-con"><div class="it-con-wrapper">
+        <LinkItem
+          v-for="subIt in items"
+            :key="subIt.id"
+            v-bind="subIt"
+            :opened-ids="openedIds"
+            :opened-depth="openedDepth"/>
+  </div></div>
+</div>`);
+//========================================
+// JOIN <link-item.mjs> ti/com/web/nav/links/com/link-item/link-item.mjs
+//========================================
+Ti.Preload("ti/com/web/nav/links/com/link-item/link-item.mjs", TI_PACK_EXPORTS['ti/com/web/nav/links/com/link-item/link-item.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/web/nav/links/com/link-item/_com.json
+//========================================
+Ti.Preload("ti/com/web/nav/links/com/link-item/_com.json", {
+  "name" : "link-item",
+  "template" : "./link-item.html",
+  "mixins" : [
+    "@com:web/nav/support/web-nav-item-mixins.mjs",
+    "./link-item.mjs"
+  ]
+});
+//========================================
 // JOIN <nav-links.html> ti/com/web/nav/links/nav-links.html
 //========================================
 Ti.Preload("ti/com/web/nav/links/nav-links.html", `<nav class="web-nav-links"
+  :class="TopClass">
+  <LinkItem
+    v-for="it in TheItems"
+      :key="it.id"
+      class="link-item"
+      v-bind="it"
+      :opened-ids="myOpenedIds"
+      @click:item="OnClickLink"
+      @change:opened="OnChangeGroupOpened"/>
+</nav>`);
+//========================================
+// JOIN <nav-links.mjs> ti/com/web/nav/links/nav-links.mjs
+//========================================
+Ti.Preload("ti/com/web/nav/links/nav-links.mjs", TI_PACK_EXPORTS['ti/com/web/nav/links/nav-links.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/web/nav/links/_com.json
+//========================================
+Ti.Preload("ti/com/web/nav/links/_com.json", {
+  "name" : "web-nav-links",
+  "globally" : true,
+  "template" : "./nav-links.html",
+  "mixins"   : [
+    "@com:web/nav/support/web-nav-mixins.mjs",
+    "./nav-links.mjs"
+  ],
+  "components" : ["./com/link-item"]
+});
+//========================================
+// JOIN <nav-links.html> ti/com/web/nav/links/__bak/nav-links.html
+//========================================
+Ti.Preload("ti/com/web/nav/links/__bak/nav-links.html", `<nav class="web-nav-links"
   :class="TopClass">
   <!--=======================================-->
   <a
@@ -53248,13 +53170,13 @@ Ti.Preload("ti/com/web/nav/links/nav-links.html", `<nav class="web-nav-links"
   <!--=======================================-->
 </nav>`);
 //========================================
-// JOIN <nav-links.mjs> ti/com/web/nav/links/nav-links.mjs
+// JOIN <nav-links.mjs> ti/com/web/nav/links/__bak/nav-links.mjs
 //========================================
-Ti.Preload("ti/com/web/nav/links/nav-links.mjs", TI_PACK_EXPORTS['ti/com/web/nav/links/nav-links.mjs']);
+Ti.Preload("ti/com/web/nav/links/__bak/nav-links.mjs", TI_PACK_EXPORTS['ti/com/web/nav/links/__bak/nav-links.mjs']);
 //========================================
-// JOIN <_com.json> ti/com/web/nav/links/_com.json
+// JOIN <_com.json> ti/com/web/nav/links/__bak/_com.json
 //========================================
-Ti.Preload("ti/com/web/nav/links/_com.json", {
+Ti.Preload("ti/com/web/nav/links/__bak/_com.json", {
   "name" : "web-nav-links",
   "globally" : true,
   "template" : "./nav-links.html",
@@ -53262,7 +53184,7 @@ Ti.Preload("ti/com/web/nav/links/_com.json", {
     "@com:web/nav/support/web-nav-mixins.mjs",
     "./nav-links.mjs"
   ],
-  "components" : []
+  "components" : ["./com/link-item"]
 });
 //========================================
 // JOIN <side-item.html> ti/com/web/nav/side/com/side-item/side-item.html
@@ -53282,7 +53204,7 @@ Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.html", `<div class="side
     </span>
     <!--Group-->
     <span
-      v-if="isGroup"
+      v-if="!hasHrefOrValue"
         class="it-info-text">{{title|i18n}}</span>
     <!--Item-->
     <a
@@ -53296,7 +53218,8 @@ Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.html", `<div class="side
     <TiIcon 
       v-if="isGroup"
         class="it-status-icon"
-          :value="OpenStatusIcon"/>
+          :value="OpenStatusIcon"
+          @click.native.left.stop="OnToggleGroupOpened"/>
   </div>
   <!--
     Sub Container
@@ -53332,7 +53255,10 @@ Ti.Preload("ti/com/web/nav/side/com/side-item/side-item.mjs", TI_PACK_EXPORTS['t
 Ti.Preload("ti/com/web/nav/side/com/side-item/_com.json", {
   "name" : "side-item",
   "template" : "./side-item.html",
-  "mixins" : ["./side-item.mjs"]
+  "mixins" : [
+    "@com:web/nav/support/web-nav-item-mixins.mjs",
+    "./side-item.mjs"
+  ]
 });
 //========================================
 // JOIN <web-nav-side.html> ti/com/web/nav/side/web-nav-side.html
@@ -53367,6 +53293,10 @@ Ti.Preload("ti/com/web/nav/side/_com.json", {
   ],
   "components" : ["./com/side-item"]
 });
+//========================================
+// JOIN <web-nav-item-mixins.mjs> ti/com/web/nav/support/web-nav-item-mixins.mjs
+//========================================
+Ti.Preload("ti/com/web/nav/support/web-nav-item-mixins.mjs", TI_PACK_EXPORTS['ti/com/web/nav/support/web-nav-item-mixins.mjs']);
 //========================================
 // JOIN <web-nav-mixins.mjs> ti/com/web/nav/support/web-nav-mixins.mjs
 //========================================
@@ -57492,16 +57422,78 @@ Ti.Preload("/a/load/wn.manager/wn-manager.mjs", TI_PACK_EXPORTS['/a/load/wn.mana
 // JOIN <hmaker.i18n.json> ti/i18n/en-us/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
-  "com-form": "表单",
-  "com-label": "标签",
-  "com-list": "列表",
-  "hm-type-Array": "数组",
-  "hm-type-Boolean": "布尔",
-  "hm-type-Group": "字段分组",
-  "hm-type-Integer": "整数",
-  "hm-type-Number": "数字",
-  "hm-type-Object": "对象",
-  "hm-type-String": "文本",
+  "hmk-css-c-auto" : "auto",
+  "hmk-css-g-inherit" : "inherit",
+  "hmk-css-g-initial" : "initial",
+  "hmk-css-g-unset" : "unset",
+  "hmk-css-edit" : "Edit css",
+  "hmk-css-grp-texting" : "Text setup",
+  "hmk-css-grp-aspect" : "Aspect setup",
+  "hmk-css-grp-measure" : "Measure setup",
+  "hmk-css-border" : "Border",
+  "hmk-css-border-radius" : "Rounded",
+  "hmk-css-margin" : "Margin",
+  "hmk-css-padding" : "Padding",
+  "hmk-css-color" : "Color",
+  "hmk-css-background" : "Background",
+  "hmk-css-background-color" : "BgColor",
+  "hmk-css-box-shadow" : "Box shadow",
+  "hmk-css-text-shadow" : "Text shadow",
+  "hmk-css-overflow" : "Overflow",
+  "hmk-css-overflow-scroll" : "scroll",
+  "hmk-css-overflow-hidden" : "hidden",
+  "hmk-css-overflow-clip" : "clip",
+  "hmk-css-overflow-visible" : "visible",
+  "hmk-css-width" : "Width",
+  "hmk-css-height" : "Height",
+  "hmk-css-max-width" : "Max width",
+  "hmk-css-max-height" : "Max height",
+  "hmk-css-min-width" : "Min width",
+  "hmk-css-min-height" : "Min height",
+  "hmk-css-line-height" : "Line height",
+  "hmk-css-letter-spacing" : "Letter space",
+  "hmk-class-pick" : "Edit class selector",
+  "hmk-class-item-space" : "Item space",
+  "hmk-class-flex" : "Flex",
+  "hmk-class-flex-none" : "None",
+  "hmk-class-flex-both" : "Both",
+  "hmk-class-flex-grow" : "Grow",
+  "hmk-class-flex-shrink" : "Shrink",
+  "hmk-class-text" : "Text",
+  "hmk-class-text-in" : "Inside",
+  "hmk-class-text-out" : "Outside",
+  "hmk-class-at" : "Position",
+  "hmk-class-at-center" : "Center",
+  "hmk-class-at-top" : "Top",
+  "hmk-class-at-bottom" : "Bottom",
+  "hmk-class-at-left" : "Left",
+  "hmk-class-at-right" : "Right",
+  "hmk-class-at-bottom-left" : "Left bottom",
+  "hmk-class-at-bottom-right" : "Right bottom",
+  "hmk-class-at-top-left" : "Left top",
+  "hmk-class-at-top-right" : "Right top",
+  "hmk-class-font-size" : "Size",
+  "hmk-class-xs" : "XS",
+  "hmk-class-sm" : "SM",
+  "hmk-class-md" : "MD",
+  "hmk-class-lg" : "LG",
+  "hmk-class-xl" : "XL",
+  "hmk-class-text-style" : "Text style",
+  "hmk-class-ts-mask" : "Mask",
+  "hmk-class-ts-shadow" : "Shadow",
+  "hmk-class-hover" : "Hover",
+  "hmk-class-hover-to-up" : "Up",
+  "hmk-class-hover-to-zoom" : "Zoom",
+  "com-form": "Form",
+  "com-label": "Label",
+  "com-list": "list",
+  "hm-type-Array": "Array",
+  "hm-type-Boolean": "Boolean",
+  "hm-type-Group": "Group",
+  "hm-type-Integer": "Integer",
+  "hm-type-Number": "Number",
+  "hm-type-Object": "Object",
+  "hm-type-String": "String",
   "hm-type-icons": {
     "Array": "Zmdi-format-list-bulleted",
     "Boolean": "Zmdi-toll",
@@ -58620,6 +58612,68 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-cn/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
+  "hmk-css-c-auto" : "自动",
+  "hmk-css-g-inherit" : "继承",
+  "hmk-css-g-initial" : "初始",
+  "hmk-css-g-unset" : "默认",
+  "hmk-css-edit" : "编辑CSS样式",
+  "hmk-css-grp-texting" : "文字设置",
+  "hmk-css-grp-aspect" : "外观设置",
+  "hmk-css-grp-measure" : "尺度设置",
+  "hmk-css-border" : "边框",
+  "hmk-css-border-radius" : "圆角",
+  "hmk-css-margin" : "外边距",
+  "hmk-css-padding" : "内边框",
+  "hmk-css-color" : "文字颜色",
+  "hmk-css-background" : "背景",
+  "hmk-css-background-color" : "背景颜色",
+  "hmk-css-box-shadow" : "块阴影",
+  "hmk-css-text-shadow" : "文字阴影",
+  "hmk-css-overflow" : "内容溢出",
+  "hmk-css-overflow-scroll" : "滚动",
+  "hmk-css-overflow-hidden" : "隐藏",
+  "hmk-css-overflow-clip" : "剪裁",
+  "hmk-css-overflow-visible" : "可见",
+  "hmk-css-width" : "宽度",
+  "hmk-css-height" : "高度",
+  "hmk-css-max-width" : "最大宽度",
+  "hmk-css-max-height" : "最大高度",
+  "hmk-css-min-width" : "最小宽度",
+  "hmk-css-min-height" : "最小高度",
+  "hmk-css-line-height" : "行高",
+  "hmk-css-letter-spacing" : "字间距",
+  "hmk-class-pick" : "编辑类选择器",
+  "hmk-class-item-space" : "项间距",
+  "hmk-class-flex" : "自动伸缩",
+  "hmk-class-flex-none" : "关闭",
+  "hmk-class-flex-both" : "双向",
+  "hmk-class-flex-grow" : "伸展",
+  "hmk-class-flex-shrink" : "收缩",
+  "hmk-class-text" : "文字",
+  "hmk-class-text-in" : "居内",
+  "hmk-class-text-out" : "居外",
+  "hmk-class-at" : "位置",
+  "hmk-class-at-center" : "居中",
+  "hmk-class-at-top" : "上部",
+  "hmk-class-at-bottom" : "下部",
+  "hmk-class-at-left" : "左侧",
+  "hmk-class-at-right" : "右侧",
+  "hmk-class-at-bottom-left" : "左下",
+  "hmk-class-at-bottom-right" : "右下",
+  "hmk-class-at-top-left" : "左上",
+  "hmk-class-at-top-right" : "右上",
+  "hmk-class-font-size" : "文字大小",
+  "hmk-class-xs" : "特小",
+  "hmk-class-sm" : "较小",
+  "hmk-class-md" : "正常",
+  "hmk-class-lg" : "较大",
+  "hmk-class-xl" : "特大",
+  "hmk-class-text-style" : "文字风格",
+  "hmk-class-ts-mask" : "遮罩",
+  "hmk-class-ts-shadow" : "阴影",
+  "hmk-class-hover" : "悬停效果",
+  "hmk-class-hover-to-up" : "上浮",
+  "hmk-class-hover-to-zoom" : "缩放",
   "com-form": "表单",
   "com-label": "标签",
   "com-list": "列表",
@@ -59748,6 +59802,68 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-hk/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
+   "hmk-css-c-auto": "自動",
+   "hmk-css-g-inherit": "繼承",
+   "hmk-css-g-initial": "初始",
+   "hmk-css-g-unset": "默認",
+   "hmk-css-edit": "編輯CSS樣式",
+   "hmk-css-grp-texting": "文字設置",
+   "hmk-css-grp-aspect": "外觀設置",
+   "hmk-css-grp-measure": "尺度設置",
+   "hmk-css-border": "邊框",
+   "hmk-css-border-radius": "圓角",
+   "hmk-css-margin": "外邊距",
+   "hmk-css-padding": "內邊框",
+   "hmk-css-color": "文字顏色",
+   "hmk-css-background": "背景",
+   "hmk-css-background-color": "背景顏色",
+   "hmk-css-box-shadow": "塊陰影",
+   "hmk-css-text-shadow": "文字陰影",
+   "hmk-css-overflow": "內容溢出",
+   "hmk-css-overflow-scroll": "滾動",
+   "hmk-css-overflow-hidden": "隱藏",
+   "hmk-css-overflow-clip": "剪裁",
+   "hmk-css-overflow-visible": "可見",
+   "hmk-css-width": "寬度",
+   "hmk-css-height": "高度",
+   "hmk-css-max-width": "最大寬度",
+   "hmk-css-max-height": "最大高度",
+   "hmk-css-min-width": "最小寬度",
+   "hmk-css-min-height": "最小高度",
+   "hmk-css-line-height": "行高",
+   "hmk-css-letter-spacing": "字間距",
+   "hmk-class-pick": "編輯類選擇器",
+   "hmk-class-item-space": "項間距",
+   "hmk-class-flex": "自動伸縮",
+   "hmk-class-flex-none": "關閉",
+   "hmk-class-flex-both": "雙向",
+   "hmk-class-flex-grow": "伸展",
+   "hmk-class-flex-shrink": "收縮",
+   "hmk-class-text": "文字",
+   "hmk-class-text-in": "居內",
+   "hmk-class-text-out": "居外",
+   "hmk-class-at": "位置",
+   "hmk-class-at-center": "居中",
+   "hmk-class-at-top": "上部",
+   "hmk-class-at-bottom": "下部",
+   "hmk-class-at-left": "左側",
+   "hmk-class-at-right": "右側",
+   "hmk-class-at-bottom-left": "左下",
+   "hmk-class-at-bottom-right": "右下",
+   "hmk-class-at-top-left": "左上",
+   "hmk-class-at-top-right": "右上",
+   "hmk-class-font-size": "文字大小",
+   "hmk-class-xs": "特小",
+   "hmk-class-sm": "較小",
+   "hmk-class-md": "正常",
+   "hmk-class-lg": "較大",
+   "hmk-class-xl": "特大",
+   "hmk-class-text-style": "文字風格",
+   "hmk-class-ts-mask": "遮罩",
+   "hmk-class-ts-shadow": "陰影",
+   "hmk-class-hover": "懸停效果",
+   "hmk-class-hover-to-up": "上浮",
+   "hmk-class-hover-to-zoom": "縮放",
    "com-form": "表單",
    "com-label": "標籤",
    "com-list": "列表",
@@ -60400,12 +60516,12 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
-   "img" : "圖像",
-   "img-add" : "添加圖像",
-   "img-insert" : "插入圖像",
-   "img-remove" : "刪除圖像",
-   "copy" : "復制",
-   "copy-all" : "全部復制",
+   "img": "圖像",
+   "img-add": "添加圖像",
+   "img-insert": "插入圖像",
+   "img-remove": "刪除圖像",
+   "copy": "複製",
+   "copy-all": "全部複製",
    "preview": "預覽",
    "add": "添加",
    "add-item": "添加新項",

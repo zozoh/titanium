@@ -22,7 +22,7 @@ export default {
     FormConf() {
       return {
         mode : "tab",
-        keepTabIndexBy : "hmaker-config-io-ix-dao-tabIndex",
+        keepTabIndexBy : "hm-config-io-ix-dao-tabIndex",
         fields: [{
           //............................
           // 基本设置

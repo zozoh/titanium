@@ -74,7 +74,17 @@ function CmdInsertImage(editor, oImgs) {
 
 }
 ////////////////////////////////////////////////////
-function CmdClearImageSize(editor) {
+function GetCurrentImageElement(editor) {
+  let sel = editor.selection
+  let $img = sel.getNode()
+  // Guard
+  if("IMG" != $img.tagName) {
+    return
+  }
+  return $img
+}
+////////////////////////////////////////////////////
+function CmdSetImageSize(editor, {width=null, height=null}={}) {
   let sel = editor.selection
   let $img = sel.getNode()
   // Guard
@@ -82,11 +92,12 @@ function CmdClearImageSize(editor) {
     return
   }
   // Clear the attribute
-  $img.removeAttribute("width")
-  $img.removeAttribute("height")
+  Ti.Dom.setAttrs($img, {width, height})
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
 }
 ////////////////////////////////////////////////////
-function CmdFloatImage(editor, float) {
+function CmdSetImageStyle(editor, css={}) {
   let sel = editor.selection
   let $img = sel.getNode()
   // Guard
@@ -94,7 +105,9 @@ function CmdFloatImage(editor, float) {
     return
   }
   // Clear float
-  $img.style.float = float || ""
+  Ti.Dom.setStyle($img, css)
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
 }
 ////////////////////////////////////////////////////
 async function CmdShowImageProp(editor, settings) {
@@ -107,7 +120,7 @@ async function CmdShowImageProp(editor, settings) {
   // Get margin style
   let stl = Ti.Dom.getStyle($img, /^(float|(margin-(left|right|top|bottom)))$/)
   stl.float = stl.float || "none"
-  console.log("stl", stl)
+  //console.log("stl", stl)
   // Gen the properties
   let data = {
     oid    : $img.getAttribute("wn-obj-id"),
@@ -296,10 +309,10 @@ export default {
     //console.log("setup", editor.settings)
     //..............................................
     // Register plugin command
-    editor.addCommand("InsertImage",    CmdInsertImage)
-    editor.addCommand("ClearImageSize", CmdClearImageSize)
-    editor.addCommand("FloatImage",     CmdFloatImage)
-    editor.addCommand("ShowImageProp",  CmdShowImageProp)
+    editor.addCommand("InsertImage",   CmdInsertImage)
+    editor.addCommand("SetImageSize",  CmdSetImageSize)
+    editor.addCommand("SetImageStyle", CmdSetImageStyle)
+    editor.addCommand("ShowImageProp", CmdShowImageProp)
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnImgPick", {
@@ -314,32 +327,93 @@ export default {
       icon : "edit-image",
       text : "清除图片尺寸",
       onAction() {
-        editor.execCommand("ClearImageSize", editor)
+        editor.execCommand("SetImageSize", editor)
       }
     })
     //..............................................
-    editor.ui.registry.addMenuItem("WnImgFloatLeft", {
-      icon : "align-left",
-      text : "居左绕图",
+    editor.ui.registry.addMenuItem("WnImgAutoFitWidth", {
+      text : "自动适应宽度",
       onAction() {
-        editor.execCommand("FloatImage", editor, "left")
+        editor.execCommand("SetImageSize", editor, {width:"100%"})
       }
     })
     //..............................................
-    editor.ui.registry.addMenuItem("WnImgFloatRight", {
-      icon : "align-right",
-      text : "居右绕图",
-      onAction() {
-        editor.execCommand("FloatImage", editor, "right")
+    editor.ui.registry.addNestedMenuItem('WnImgFloat', {
+      text: '文本绕图',
+      getSubmenuItems: function () {
+        return [{
+          type : "menuitem",
+          icon : "align-left",
+          text : "居左绕图",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {float:"left"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "align-right",
+          text : "居右绕图",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {float:"right"})
+          }
+        }, {
+          type : "menuitem",
+          text : "清除浮动",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {float:""})
+          }
+        }];
       }
-    })
+    });
     //..............................................
-    editor.ui.registry.addMenuItem("WnImgFloatNone", {
-      text : "清除浮动",
-      onAction() {
-        editor.execCommand("FloatImage", editor, null)
+    editor.ui.registry.addNestedMenuItem('WnImgMargin', {
+      text: '图片边距',
+      getSubmenuItems: function () {
+        const __check_margin_size = function(api, expectSize) {
+          let $img = GetCurrentImageElement(editor)
+          let state = true
+          if($img) {
+            let sz = $img.style.marginLeft || $img.style.marginRight
+            state = expectSize == sz
+          }
+          api.setActive(state);
+          return function() {};
+        }
+        return [{
+          type : "togglemenuitem",
+          text : "小边距",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {margin:"1em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '1em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "中等边距",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {margin:"2em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '2em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "较大边距",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {margin:"3em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '3em')
+          }
+        }, {
+          type : "menuitem",
+          text : "清除边距",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {margin:""})
+          }
+        }];
       }
-    })
+    });
     //..............................................
     editor.ui.registry.addMenuItem("WnImgProp", {
       text : "图片属性",
@@ -354,8 +428,8 @@ export default {
         let $nd = sel.getNode()
         if($nd.hasAttribute("wn-obj-id") && "IMG" == $nd.tagName) {
           return [
-            "WnImgClrSize",
-            "WnImgFloatLeft WnImgFloatCenter WnImgFloatRight WnImgFloatNone",
+            "WnImgClrSize WnImgAutoFitWidth",
+            "WnImgFloat WnImgMargin",
             "WnImgProp"
           ].join(" | ")
         }

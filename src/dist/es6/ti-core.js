@@ -1,4 +1,4 @@
-// Pack At: 2021-02-24 19:36:31
+// Pack At: 2021-02-27 03:23:59
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2753,6 +2753,11 @@ const {App} = (function(){
         }
       }
   
+      // Import global methods
+      if(conf.importMethods) {
+        _.assign(window, conf.importMethods)
+      }
+  
       // Store instance
       let store
       if(conf.store) {
@@ -3859,6 +3864,18 @@ const {Dom} = (function(){
       })
     },
     //----------------------------------------------------
+    setAttrs($el, attrs={}) {
+      _.forEach(attrs, (val, key)=>{
+        if(_.isUndefined(val))
+          return
+        if(_.isNull(val)) {
+          $el.removeAttribute(key)
+        } else {
+          $el.setAttribute(key, val)
+        }
+      })
+    },
+    //----------------------------------------------------
     setClass($el, ...classNames) {
       let klass = _.flattenDeep(classNames)
       let className = klass.join(" ")
@@ -3935,6 +3952,7 @@ const {Dom} = (function(){
       posListX,  // ["left", "center", "right"]
       posListY,  // ["top", "center", "bottom"]
       space,
+      coord = "win",  // win | target
       viewportBorder=4,
       position}={}
     ) {
@@ -3981,8 +3999,9 @@ const {Dom} = (function(){
       }
   
       // Count the max viewport to wrapCut
+      // Cut the droplist panel by target positon
       let viewport = rect.win.clone()
-      if("H" == mode) {
+      if("H" == mode && "win" == coord) {
         if(axis.y == "bottom") {
           viewport.top = rect.ta.bottom
         }
@@ -4000,6 +4019,15 @@ const {Dom} = (function(){
         viewportBorder,
         wrapCut  : true
       })
+  
+      // Translate coord
+      if("target" == coord) {
+        rect.src.translate({
+          x: rect.ta.left * -1,
+          y: rect.ta.top * -1
+        })
+      }
+  
       //console.log("do DockTo", dockedRect+"")
       _.delay(()=>{
         TiDom.applyRect($src, rect.src, dockMode)
@@ -4437,8 +4465,8 @@ const {Rect,Rects} = (function(){
     // - y   : Y 周位移
     // 返回矩形自身
     translate({x=0,y=0}={}) {
-      this.y  -= y;
-      this.x -= x;
+      this.y += y;
+      this.x += x;
       return this.updateBy("xywh");
     }
     /***
@@ -8611,7 +8639,7 @@ const {Util} = (function(){
   
           let m_type, m_val, m_dft;
           // Match template
-          m = /^(==|!=|=>>?|->)(.+)$/.exec(theValue)
+          m = /^(==>|==|!=|=>>?|->)(.+)$/.exec(theValue)
           if(m) {
             m_type = m[1]
             m_val  = _.trim(m[2])
@@ -8632,6 +8660,13 @@ const {Util} = (function(){
             }
             //................................
             let fn = ({
+              // Just get function
+              "==>" : (val)=> {
+                let func = _.get(window, val)
+                if(_.isFunction(func)) {
+                  return func
+                }
+              },
               // ==xxx  # Get Boolean value now
               "==" : (val)=> {
                 return _.get(context, val) ? true : false
@@ -9072,6 +9107,16 @@ const {Util} = (function(){
      * @return new obj or value
      */
     getValue(obj, ...keys) {
+      // Get value for array
+      if(_.isArray(obj)) {
+        let re = []
+        for(let o of obj) {
+          let v = TiUtil.getValue(o, keys)
+          re.push(v)
+        }
+        return re
+      }
+      // Single object
       for(let k of keys) {
         let v = _.get(obj, k)
         if(!_.isUndefined(v) && !_.isNull(v)) {
@@ -9089,6 +9134,16 @@ const {Util} = (function(){
      * @return new obj or value
      */
     getValueAs(tmpl, obj, ...keys) {
+      // Get value for array
+      if(_.isArray(obj)) {
+        let re = []
+        for(let o of obj) {
+          let v = TiUtil.getValueAs(tmpl, o, keys)
+          re.push(v)
+        }
+        return re
+      }
+      // Single object
       for(let k of keys) {
         let v = _.get(obj, k)
         if(!_.isUndefined(v) && !_.isNull(v)) {
@@ -10212,7 +10267,8 @@ const {WWW} = (function(){
       suffix=".html",
       iteratee=_.identity,
       idBy=undefined,
-      indexPath=[]
+      indexPath=[],
+      idPath=[]
     }={}) {
       let list = []
       for(let index=0; index<navItems.length; index++) {
@@ -10224,9 +10280,12 @@ const {WWW} = (function(){
         if(Ti.Util.isNil(id)) {
           id = "it-" + ixPath.join("-")
         }
+        let itemIdPath = [].concat(idPath, id)
         //..........................................
         let li = {
           id, index, depth,
+          idPath : itemIdPath,
+          indexPath : ixPath,
           type : "page",
           ..._.pick(it, "icon","title","type","value","href","target","params")
         }
@@ -10264,17 +10323,18 @@ const {WWW} = (function(){
           //   li.href = "javascript:void(0)"
         }
         //..........................................
-        li = iteratee(li)
-        //..........................................
         // Children
         if(_.isArray(it.items)) {
           li.items = TiWWW.explainNavigation(it.items, {
             base, suffix, iteratee,
             depth: depth+1,
             idBy,
-            indexPath: ixPath
+            indexPath: ixPath,
+            idPath : itemIdPath
           })
         }
+        //..........................................
+        li = iteratee(li)
         //..........................................
         // Join to list
         list.push(li)
@@ -12862,6 +12922,7 @@ const {WalnutAppMain} = (function(){
       "@i18n:_wn",
       "@i18n:_net",
       "@i18n:web",
+      "@i18n:hmaker",
       "@i18n:ti-datetime"]))
     //---------------------------------------
     // Setup dictionary
@@ -13124,7 +13185,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210224.193631",
+  "version" : "1.6-20210227.032359",
   "dev" : false,
   "appName" : null,
   "session" : {},

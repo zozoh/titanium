@@ -33,7 +33,7 @@ const _M = {
         space = {y:-1}
       }
       Ti.Dom.dockTo($con, this.$el, {
-        mode, coord : "target", space
+        mode, space, coord: "target"
       })
       this.myDockReady = true
       _.delay(()=>{
@@ -61,6 +61,20 @@ const _M = {
   ///////////////////////////////////////////////////////
   watch : {
     "isOpened" : "dockSubDelay"
+  },
+  ///////////////////////////////////////////////////////
+  mounted : function() {
+    Ti.Viewport.watch(this, {
+      scroll : ()=> {
+        if(this.isOpened) {
+          this.notifyGroupOpenStatus(false)
+        }
+      }
+    })
+  },
+  ///////////////////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Viewport.unwatch(this)
   }
   ///////////////////////////////////////////////////////
 }
