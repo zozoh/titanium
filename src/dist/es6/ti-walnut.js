@@ -1,4 +1,4 @@
-// Pack At: 2021-02-27 03:23:59
+// Pack At: 2021-03-01 02:34:19
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -270,6 +270,9 @@ const Io = (function(){
       if(!meta) {
         return
       }
+      if(Ti.Util.isNil(content)) {
+        content = ""
+      }
       // Load meta 
       if(_.isString(meta)) {
         meta = await WnIo.loadMetaBy(meta)
@@ -515,7 +518,11 @@ const Obj = (function(){
     //---------------------------------------------
     "sha1" : {
       title : "i18n:wn-key-sha1",
-      name  : "sha1"
+      name  : "sha1",
+      comConf : {
+        className : "is-nowrap",
+        fullField : false
+      }
     },
     //---------------------------------------------
     "md" : {
@@ -2301,7 +2308,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210227.032359"
+const WALNUT_VERSION = "1.2-20210301.023419"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

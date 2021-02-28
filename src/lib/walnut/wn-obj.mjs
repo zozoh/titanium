@@ -137,7 +137,11 @@ const FIELDS = {
   //---------------------------------------------
   "sha1" : {
     title : "i18n:wn-key-sha1",
-    name  : "sha1"
+    name  : "sha1",
+    comConf : {
+      className : "is-nowrap",
+      fullField : false
+    }
   },
   //---------------------------------------------
   "md" : {

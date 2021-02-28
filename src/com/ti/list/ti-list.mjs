@@ -98,7 +98,6 @@ export default {
       if(!this.autoScrollIntoView || Ti.Util.isNil(this.myCurrentId)) {
         return;
       }
-      
       let [$first] = Ti.Dom.findAll(".list-row.is-current", this.$el)
       if($first) {
         let rect = Ti.Rects.createBy($first)
@@ -140,7 +139,9 @@ export default {
           })
 
           this.$nextTick(()=>{
-            this.scrollCurrentIntoView()
+            _.delay(()=>{
+              this.scrollCurrentIntoView()
+            }, 300)
           })
         }
       },

@@ -1,4 +1,4 @@
-// Pack At: 2021-02-27 03:23:59
+// Pack At: 2021-03-01 02:34:19
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1015,16 +1015,28 @@ const _M = {
       }
     },
     //--------------------------------------------
+    DataList() {
+      if(this.myData) {
+        if(_.isArray(this.myData)) {
+          return this.myData
+        }
+        if(_.isArray(this.myData.list)) {
+          return this.myData.list
+        }
+      }
+      return []
+    },
+    //--------------------------------------------
     hasDataList() {
-      return this.myData && _.isArray(this.myData.list)
+      return !_.isEmpty(this.DataList)
     },
     //--------------------------------------------
     WallDataList() {
-      if(!this.myData || _.isEmpty(this.myData.list)) {
+      if(!this.hasDataList) {
         return []
       }
       let list = []
-      for(let it of this.myData.list) {
+      for(let it of this.DataList) {
         if(!this.isHiddenItem(it)) {
           let li = Wn.Util.getObjThumbInfo(it, {
             status : this.myItemStatus,
@@ -1108,7 +1120,7 @@ const _M = {
     // Events
     //--------------------------------------------
     OnItemSelecteItem({currentId, checkedIds, currentIndex}) {
-      //console.log("OnSelected", currentId, checkedIds)
+      console.log("OnSelected", currentId, checkedIds)
       // For Desktop
       this.myCurrentId  = currentId
       this.myCheckedIds = checkedIds
@@ -1198,7 +1210,6 @@ const _M = {
     //--------------------------------------------
     // For global menu invoke checkAll/cancleAll
     invokeList(methodName) {
-      console.log("methodName")
       Ti.InvokeBy(this.$innerList, methodName)
     },
     //--------------------------------------------
@@ -16334,7 +16345,7 @@ const _M = {
     setContent(state, content) {
       let meta = state.meta;
       // Guard
-      if(!meta || Ti.Util.isNil(content)) {
+      if(!meta || _.isUndefined(content)) {
         state.content = null
         state.data = null
         state.__saved_content = null
@@ -16367,6 +16378,12 @@ const _M = {
           else if(Wn.Util.isMimeText(meta.mime)) {
             state.data = null
           }
+        }
+        //....................................
+        // null value
+        else if(Ti.Util.isNil(content)) {
+          state.content = ""
+          state.data = null
         }
         //....................................
         // Take content as plain object or Array
@@ -22376,6 +22393,23 @@ const _M = {
       return val
     },
     //------------------------------------------------
+    Validating() {
+      if(this.validator) {
+        let {test, message} = this.validator
+        if(test) {
+          let am = Ti.AutoMatch.parse(test)
+          return v => {
+            if(!am(v)) {
+              Ti.Toast.Open(message||"i18n:invalid-val", "warn")
+              return false
+            }
+            return true
+          }
+        }
+      }
+      return v => true
+    },
+    //------------------------------------------------
     ThePrefixIcon() {
       if("prefixIcon" == this.pointerHover
         && this.isCanHover("prefixIcon")) {
@@ -22445,6 +22479,11 @@ const _M = {
     //------------------------------------------------
     OnInputChanged() {
       let val = this.getInputValue(this.autoJsValue)
+      // validate
+      if(!this.Validating(val)) {
+        this.$notify("invalid", val)
+        return
+      }
       this.$notify("change", val)
     },
     //------------------------------------------------
@@ -22508,6 +22547,7 @@ const _M = {
         }
         // case
         val = Ti.S.toCase(val, this.valueCase)
+
         // notify
         return val
       }
@@ -33548,7 +33588,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if(!this.autoScrollIntoView || Ti.Util.isNil(this.myCurrentId)) {
         return;
       }
-      
       let [$first] = Ti.Dom.findAll(".list-row.is-current", this.$el)
       if($first) {
         let rect = Ti.Rects.createBy($first)
@@ -33590,7 +33629,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
           })
 
           this.$nextTick(()=>{
-            this.scrollCurrentIntoView()
+            _.delay(()=>{
+              this.scrollCurrentIntoView()
+            }, 300)
           })
         }
       },
@@ -39881,6 +39922,216 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'wn-browser.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/browser/wn-browser.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////////////
+  data : ()=>({
+    myList  : [],
+    myPager : {},
+    /*{filter: {}, sorter: {ct: -1}}*/
+    mySearch : {}
+  }),
+  ////////////////////////////////////////////////////
+  props : {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
+    "meta" : {
+      type : Object
+    },
+    "data" : {
+      type : Object
+    },
+    "search" : {
+      type : Object
+    },
+    "status" : {
+      type : Object,
+      default : ()=>({})
+    },
+    //------------------------------------------------
+    // Behavior
+    //------------------------------------------------
+    "filter" : {
+      type : Object,
+      default : ()=>({
+        comType : "WnThingFilter",
+        comConf : {
+          "placeholder" : "i18n:filter",
+          "status" : "=status",
+          "value": "=mySearch",
+          "sorter": {
+            "options": [
+              { "value": "nm", "text": "i18n:wn-key-nm" },
+              { "value": "ct", "text": "i18n:wn-key-ct" }
+            ]
+          }
+        }
+      })
+    },
+    "list" : {
+      type : Object,
+      default : ()=>({
+        comType : "WnAdaptlist",
+        comConf : {
+          "meta" : "=meta",
+          "data" : {
+            list : "=myList",
+            pager : "=myPager"
+          },
+          "multi" : true,
+          "status" : "=status"
+        }
+      })
+    },
+    "pager" : {
+      type : Object,
+      default : ()=>({
+        comType : "TiPagingJumper",
+        comConf : {
+          "value" : "=myPager",
+          "mapping" : "longName"
+        }
+      })
+    },
+    "detail" : {
+      type : Object,
+      default : ()=>({
+        comType : "TiLabel",
+        comConf : {
+          "value" : "I am detail"
+        }
+      })
+    },
+    //------------------------------------------------
+    // Aspect
+    //------------------------------------------------
+    
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    ComFilter() {return Ti.Util.explainObj(this, this.filter)},
+    ComList() {
+      let com = Ti.Util.explainObj(this, this.list)
+      _.merge(com, {
+        comConf : {
+          onInit : this.OnListInit
+        }
+      })
+      return com
+    },
+    ComPager() {return Ti.Util.explainObj(this, this.pager)},
+    ComDetail() {return Ti.Util.explainObj(this, this.detail)},
+    //------------------------------------------------
+    TheLayout() {
+      let left = []
+      if(this.ComFilter) {
+        left.push({
+          name : "filter",
+          size : 43,
+          body : "filter"
+        })
+      }
+      left.push({
+        name : "list",
+        size : "stretch",
+        overflow : "cover",
+        body : "list"
+      })
+      if(this.ComPager) {
+        left.push({
+          name : "pager",
+          size : "auto",
+          body : "pager"
+        })
+      }
+      if(this.ComDetail) {
+        return {
+          type : "cols",
+          border: true,
+          blocks: [{
+              type : "rows",
+              size : "61.8%",
+              border : true,
+              blocks : left
+            }, {
+              name : "detail",
+              size : "38.2%",
+              body : "detail"
+            }]
+        }
+      }
+      return {
+        type : "rows",
+        size : "61.8%",
+        blocks : left
+      }
+    },
+    //------------------------------------------------
+    TheSchema() {
+      return {
+        filter : this.ComFilter,
+        list   : this.ComList,
+        pager  : this.ComPager,
+        detail : this.ComDetail
+      }
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    //------------------------------------------------
+    OnListInit($adaptlist) {
+      this.$adaptlist = $adaptlist
+    },
+    //------------------------------------------------
+    // Delegate methods
+    selectItem(id) {
+      this.$adaptlist.selectItem(id)
+    },
+    invokeList(methodName) {
+      this.$adaptlist.invokeList(methodName)
+    },
+    getCurrentItem() {
+      return this.$adaptlist.getCurrentItem()
+    },
+    getCheckedItems() {
+      return this.$adaptlist.getCheckedItems()
+    },
+    async openCurrentMeta() {
+      return this.$adaptlist.openCurrentMeta()
+    },
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch : {
+    //------------------------------------------------
+    "data" : {
+      handler : function() {
+        this.myList = _.get(this.data, "list")
+        this.myPager = _.get(this.data, "pager")
+      }
+    },
+    "search" : {
+      handler : function() {
+        this.mySearch = this.search
+      },
+      immediate : true
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-input-color.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/input/color/ti-input-color.mjs'] = (function(){
@@ -43827,6 +44078,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'wn-browser-methods.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/browser/wn-browser-methods.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //--------------------------------------------------
+  async queryTrademarks() {
+
+  },
+  //--------------------------------------------------
+  async loadTrademarkDetail() {
+
+  }
+  //--------------------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'wn-combo-multi-input.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/combo/multi-input/wn-combo-multi-input.mjs'] = (function(){
@@ -44522,6 +44790,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
         sum : 0,    // Total
         count : 0   // Record in page
       })
+    },
+    "mapping" : {
+      type : [String, Object]
     }
   },
   ///////////////////////////////////////////
@@ -44532,17 +44803,39 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     hasValue() {
-      return !_.isEmpty(this.value) && this.value.pn > 0
+      return !_.isEmpty(this.PageValue) && this.PageValue.pn > 0
+    },
+    //--------------------------------------
+    PageMapping() {
+      if(this.mapping) {
+        if("longName" == this.mapping) {
+          return {
+            pn : "pageNumber",
+            pgsz : "pageSize",
+            pgc : "pageCount",
+            sum : "totalCount",
+            count : "count"
+          }
+        }
+        return this.mapping
+      }
+    },
+    //--------------------------------------
+    PageValue() {
+      if(this.PageMapping) {
+        return Ti.Util.translate(this.value, this.PageMapping)
+      }
+      return this.value
     },
     //--------------------------------------
     PageNumberClass() {
-      return this.hasValue && this.value.pgc > 1
+      return this.hasValue && this.PageValue.pgc > 1
               ? "is-enabled"
               : "is-disabled"
     },
     //--------------------------------------
     SumClass() {
-      return this.hasValue && this.value.pgsz > 0
+      return this.hasValue && this.PageValue.pgsz > 0
               ? "is-enabled"
               : "is-disabled"
     }
@@ -44553,8 +44846,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     isInvalidPageNumber(pageNumber) {
       return pageNumber <=0 
-        || pageNumber > this.value.pgc
-        || pageNumber == this.value.pn
+        || pageNumber > this.PageValue.pgc
+        || pageNumber == this.PageValue.pn
     },
     //--------------------------------------
     getBtnClass(pageNumber) {
@@ -44567,30 +44860,30 @@ const __TI_MOD_EXPORT_VAR_NM = {
     OnJumpTo(pageNumber) {
       if(!this.isInvalidPageNumber(pageNumber)) {
         this.$notify("change", {
-          skip :  this.value.pgsz * (pageNumber-1),
-          limit :  this.value.pgsz, 
+          skip :  this.PageValue.pgsz * (pageNumber-1),
+          limit :  this.PageValue.pgsz, 
           pn   : pageNumber, 
-          pgsz : this.value.pgsz
+          pgsz : this.PageValue.pgsz
         })
       }
     },
     //--------------------------------------
     async OnClickCurrent() {
       // No Necessary
-      if(this.value.pgc <= 1)
+      if(this.PageValue.pgc <= 1)
         return
       // Ask new pageNumber
-      let msg = Ti.I18n.getf("paging-change-pn", this.value)
+      let msg = Ti.I18n.getf("paging-change-pn", this.PageValue)
       let str = await Ti.Prompt(msg, {
-        value : this.value.pn
+        value : this.PageValue.pn
       })
       // NoChange
-      if(!str || str == this.value.pn)
+      if(!str || str == this.PageValue.pn)
         return
       // verify the str
       let pn = parseInt(str)
-      if(isNaN(pn) || pn<=0 || pn>this.value.pgc) {
-        msg = Ti.I18n.getf("paging-change-pn-invalid", this.value)
+      if(isNaN(pn) || pn<=0 || pn>this.PageValue.pgc) {
+        msg = Ti.I18n.getf("paging-change-pn-invalid", this.PageValue)
         await Ti.Alert(msg, {
           title : "i18n:warn",
           type  : "warn",
@@ -44601,20 +44894,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       // 通知修改
       this.$notify("change", {
-        skip :  this.value.pgsz * (pn-1),
-        limit :  this.value.pgsz, 
+        skip :  this.PageValue.pgsz * (pn-1),
+        limit :  this.PageValue.pgsz, 
         pn   : pn, 
-        pgsz : this.value.pgsz
+        pgsz : this.PageValue.pgsz
       })
     },
     //--------------------------------------
     async OnClickSum(){
-      let msg = Ti.I18n.getf("paging-change-pgsz", this.value)
+      let msg = Ti.I18n.getf("paging-change-pgsz", this.PageValue)
       let str = await Ti.Prompt(msg, {
-        value : this.value.pgsz
+        value : this.PageValue.pgsz
       })
       // NoChange
-      if(!str || str == this.value.pgsz)
+      if(!str || str == this.PageValue.pgsz)
         return
       // verify the str
       let pgsz = parseInt(str)
@@ -44939,6 +45232,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "autoJsValue" : {
     type : Boolean,
     default : false
+  },
+  /* {test:AutoMatch, message} */
+  "validator" : {
+    type : Object
   },
   //-----------------------------------
   // Behavior
@@ -50428,7 +50725,7 @@ Ti.Preload("ti/com/ti/paging/jumper/ti-paging-jumper.html", `<div class="ti-pagi
     class="pj-current"
     :class="PageNumberClass"
     @click="OnClickCurrent">
-    <b>{{value.pn}}</b>
+    <b>{{PageValue.pn}}</b>
   </div>
   <div 
     class="pj-btn"
@@ -50446,7 +50743,7 @@ Ti.Preload("ti/com/ti/paging/jumper/ti-paging-jumper.html", `<div class="ti-pagi
     v-if="hasValue"
       class="pj-sum"
       :class="SumClass"
-      @click="OnClickSum">{{'paging-sum'|i18n(value)}}</div>
+      @click="OnClickSum">{{'paging-sum'|i18n(PageValue)}}</div>
 </div>`);
 //========================================
 // JOIN <ti-paging-jumper.mjs> ti/com/ti/paging/jumper/ti-paging-jumper.mjs
@@ -54801,6 +55098,38 @@ Ti.Preload("ti/com/wn/adaptlist/_com.json", {
     "@com:ti/wall"]
 });
 //========================================
+// JOIN <wn-browser-methods.mjs> ti/com/wn/browser/wn-browser-methods.mjs
+//========================================
+Ti.Preload("ti/com/wn/browser/wn-browser-methods.mjs", TI_PACK_EXPORTS['ti/com/wn/browser/wn-browser-methods.mjs']);
+//========================================
+// JOIN <wn-browser.html> ti/com/wn/browser/wn-browser.html
+//========================================
+Ti.Preload("ti/com/wn/browser/wn-browser.html", `<TiGui
+  class="chispo-trademark-browser"
+  :class="TopClass"
+  :schema="TheSchema"
+  :layout="TheLayout"
+  keep-shown-to="chispo-trademark-browser-gui-shown"/>`);
+//========================================
+// JOIN <wn-browser.mjs> ti/com/wn/browser/wn-browser.mjs
+//========================================
+Ti.Preload("ti/com/wn/browser/wn-browser.mjs", TI_PACK_EXPORTS['ti/com/wn/browser/wn-browser.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/browser/_com.json
+//========================================
+Ti.Preload("ti/com/wn/browser/_com.json", {
+  "name" : "wn-browser",
+  "globally" : true,
+  "template" : "./wn-browser.html",
+  "methods" : "./wn-browser-methods.mjs",
+  "mixins" : ["./wn-browser.mjs"],
+  "components" : [
+    "@com:ti/paging/jumper",
+    "@com:wn/thing/manager/com/thing-filter",
+    "@com:wn/adaptlist"
+  ]
+});
+//========================================
 // JOIN <wn-chart-combo.html> ti/com/wn/chart/combo/wn-chart-combo.html
 //========================================
 Ti.Preload("ti/com/wn/chart/combo/wn-chart-combo.html", `<div class="wn-chart-combo"
@@ -58177,6 +58506,8 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "invalid" : "Invalid",
+  "invalid-val" : "Invalid value",
   "img" : "Image",
   "img-add" : "Add image",
   "img-insert" : "Insert image",
@@ -59367,6 +59698,8 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "invalid" : "不正确的",
+  "invalid-val" : "不正确的值",
   "img" : "图像",
   "img-add" : "添加图像",
   "img-insert" : "插入图像",
@@ -60516,6 +60849,8 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
+   "invalid": "不正確的",
+   "invalid-val": "不正確的值",
    "img": "圖像",
    "img-add": "添加圖像",
    "img-insert": "插入圖像",

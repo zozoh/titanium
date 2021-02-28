@@ -10,6 +10,9 @@ export default {
         sum : 0,    // Total
         count : 0   // Record in page
       })
+    },
+    "mapping" : {
+      type : [String, Object]
     }
   },
   ///////////////////////////////////////////
@@ -20,17 +23,39 @@ export default {
     },
     //--------------------------------------
     hasValue() {
-      return !_.isEmpty(this.value) && this.value.pn > 0
+      return !_.isEmpty(this.PageValue) && this.PageValue.pn > 0
+    },
+    //--------------------------------------
+    PageMapping() {
+      if(this.mapping) {
+        if("longName" == this.mapping) {
+          return {
+            pn : "pageNumber",
+            pgsz : "pageSize",
+            pgc : "pageCount",
+            sum : "totalCount",
+            count : "count"
+          }
+        }
+        return this.mapping
+      }
+    },
+    //--------------------------------------
+    PageValue() {
+      if(this.PageMapping) {
+        return Ti.Util.translate(this.value, this.PageMapping)
+      }
+      return this.value
     },
     //--------------------------------------
     PageNumberClass() {
-      return this.hasValue && this.value.pgc > 1
+      return this.hasValue && this.PageValue.pgc > 1
               ? "is-enabled"
               : "is-disabled"
     },
     //--------------------------------------
     SumClass() {
-      return this.hasValue && this.value.pgsz > 0
+      return this.hasValue && this.PageValue.pgsz > 0
               ? "is-enabled"
               : "is-disabled"
     }
@@ -41,8 +66,8 @@ export default {
     //--------------------------------------
     isInvalidPageNumber(pageNumber) {
       return pageNumber <=0 
-        || pageNumber > this.value.pgc
-        || pageNumber == this.value.pn
+        || pageNumber > this.PageValue.pgc
+        || pageNumber == this.PageValue.pn
     },
     //--------------------------------------
     getBtnClass(pageNumber) {
@@ -55,30 +80,30 @@ export default {
     OnJumpTo(pageNumber) {
       if(!this.isInvalidPageNumber(pageNumber)) {
         this.$notify("change", {
-          skip :  this.value.pgsz * (pageNumber-1),
-          limit :  this.value.pgsz, 
+          skip :  this.PageValue.pgsz * (pageNumber-1),
+          limit :  this.PageValue.pgsz, 
           pn   : pageNumber, 
-          pgsz : this.value.pgsz
+          pgsz : this.PageValue.pgsz
         })
       }
     },
     //--------------------------------------
     async OnClickCurrent() {
       // No Necessary
-      if(this.value.pgc <= 1)
+      if(this.PageValue.pgc <= 1)
         return
       // Ask new pageNumber
-      let msg = Ti.I18n.getf("paging-change-pn", this.value)
+      let msg = Ti.I18n.getf("paging-change-pn", this.PageValue)
       let str = await Ti.Prompt(msg, {
-        value : this.value.pn
+        value : this.PageValue.pn
       })
       // NoChange
-      if(!str || str == this.value.pn)
+      if(!str || str == this.PageValue.pn)
         return
       // verify the str
       let pn = parseInt(str)
-      if(isNaN(pn) || pn<=0 || pn>this.value.pgc) {
-        msg = Ti.I18n.getf("paging-change-pn-invalid", this.value)
+      if(isNaN(pn) || pn<=0 || pn>this.PageValue.pgc) {
+        msg = Ti.I18n.getf("paging-change-pn-invalid", this.PageValue)
         await Ti.Alert(msg, {
           title : "i18n:warn",
           type  : "warn",
@@ -89,20 +114,20 @@ export default {
       }
       // 通知修改
       this.$notify("change", {
-        skip :  this.value.pgsz * (pn-1),
-        limit :  this.value.pgsz, 
+        skip :  this.PageValue.pgsz * (pn-1),
+        limit :  this.PageValue.pgsz, 
         pn   : pn, 
-        pgsz : this.value.pgsz
+        pgsz : this.PageValue.pgsz
       })
     },
     //--------------------------------------
     async OnClickSum(){
-      let msg = Ti.I18n.getf("paging-change-pgsz", this.value)
+      let msg = Ti.I18n.getf("paging-change-pgsz", this.PageValue)
       let str = await Ti.Prompt(msg, {
-        value : this.value.pgsz
+        value : this.PageValue.pgsz
       })
       // NoChange
-      if(!str || str == this.value.pgsz)
+      if(!str || str == this.PageValue.pgsz)
         return
       // verify the str
       let pgsz = parseInt(str)

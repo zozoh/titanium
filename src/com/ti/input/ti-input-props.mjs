@@ -17,6 +17,10 @@ export default {
     type : Boolean,
     default : false
   },
+  /* {test:AutoMatch, message} */
+  "validator" : {
+    type : Object
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

@@ -16,7 +16,7 @@
     class="pj-current"
     :class="PageNumberClass"
     @click="OnClickCurrent">
-    <b>{{value.pn}}</b>
+    <b>{{PageValue.pn}}</b>
   </div>
   <div 
     class="pj-btn"
@@ -34,5 +34,5 @@
     v-if="hasValue"
       class="pj-sum"
       :class="SumClass"
-      @click="OnClickSum">{{'paging-sum'|i18n(value)}}</div>
+      @click="OnClickSum">{{'paging-sum'|i18n(PageValue)}}</div>
 </div>

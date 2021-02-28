@@ -1,4 +1,6 @@
 {
+   "invalid": "不正確的",
+   "invalid-val": "不正確的值",
    "img": "圖像",
    "img-add": "添加圖像",
    "img-insert": "插入圖像",

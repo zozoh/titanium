@@ -266,6 +266,9 @@ const WnIo = {
     if(!meta) {
       return
     }
+    if(Ti.Util.isNil(content)) {
+      content = ""
+    }
     // Load meta 
     if(_.isString(meta)) {
       meta = await WnIo.loadMetaBy(meta)

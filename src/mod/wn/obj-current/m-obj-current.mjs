@@ -17,7 +17,7 @@ const _M = {
     setContent(state, content) {
       let meta = state.meta;
       // Guard
-      if(!meta || Ti.Util.isNil(content)) {
+      if(!meta || _.isUndefined(content)) {
         state.content = null
         state.data = null
         state.__saved_content = null
@@ -50,6 +50,12 @@ const _M = {
           else if(Wn.Util.isMimeText(meta.mime)) {
             state.data = null
           }
+        }
+        //....................................
+        // null value
+        else if(Ti.Util.isNil(content)) {
+          state.content = ""
+          state.data = null
         }
         //....................................
         // Take content as plain object or Array

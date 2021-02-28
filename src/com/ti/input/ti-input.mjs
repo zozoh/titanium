@@ -43,6 +43,23 @@ const _M = {
       return val
     },
     //------------------------------------------------
+    Validating() {
+      if(this.validator) {
+        let {test, message} = this.validator
+        if(test) {
+          let am = Ti.AutoMatch.parse(test)
+          return v => {
+            if(!am(v)) {
+              Ti.Toast.Open(message||"i18n:invalid-val", "warn")
+              return false
+            }
+            return true
+          }
+        }
+      }
+      return v => true
+    },
+    //------------------------------------------------
     ThePrefixIcon() {
       if("prefixIcon" == this.pointerHover
         && this.isCanHover("prefixIcon")) {
@@ -112,6 +129,11 @@ const _M = {
     //------------------------------------------------
     OnInputChanged() {
       let val = this.getInputValue(this.autoJsValue)
+      // validate
+      if(!this.Validating(val)) {
+        this.$notify("invalid", val)
+        return
+      }
       this.$notify("change", val)
     },
     //------------------------------------------------
@@ -175,6 +197,7 @@ const _M = {
         }
         // case
         val = Ti.S.toCase(val, this.valueCase)
+
         // notify
         return val
       }

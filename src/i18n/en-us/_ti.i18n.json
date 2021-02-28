@@ -1,4 +1,6 @@
 {
+  "invalid" : "Invalid",
+  "invalid-val" : "Invalid value",
   "img" : "Image",
   "img-add" : "Add image",
   "img-insert" : "Insert image",

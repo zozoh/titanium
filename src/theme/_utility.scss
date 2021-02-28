@@ -107,6 +107,13 @@
     font-size:1.5em; padding:.16rem;
     min-width:2.56rem; 
   }
+  &.is-disabled {
+    @include color($color-disable, r, c);
+    cursor: default; opacity: 0.4;
+    &:hover {
+      @include color($color-disable, r, c);
+    }
+  }
 }
 //...................................................
 .ti-padding-5  {padding:.05rem;}

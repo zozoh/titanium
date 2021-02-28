@@ -46,16 +46,28 @@ const _M = {
       }
     },
     //--------------------------------------------
+    DataList() {
+      if(this.myData) {
+        if(_.isArray(this.myData)) {
+          return this.myData
+        }
+        if(_.isArray(this.myData.list)) {
+          return this.myData.list
+        }
+      }
+      return []
+    },
+    //--------------------------------------------
     hasDataList() {
-      return this.myData && _.isArray(this.myData.list)
+      return !_.isEmpty(this.DataList)
     },
     //--------------------------------------------
     WallDataList() {
-      if(!this.myData || _.isEmpty(this.myData.list)) {
+      if(!this.hasDataList) {
         return []
       }
       let list = []
-      for(let it of this.myData.list) {
+      for(let it of this.DataList) {
         if(!this.isHiddenItem(it)) {
           let li = Wn.Util.getObjThumbInfo(it, {
             status : this.myItemStatus,
@@ -139,7 +151,7 @@ const _M = {
     // Events
     //--------------------------------------------
     OnItemSelecteItem({currentId, checkedIds, currentIndex}) {
-      //console.log("OnSelected", currentId, checkedIds)
+      console.log("OnSelected", currentId, checkedIds)
       // For Desktop
       this.myCurrentId  = currentId
       this.myCheckedIds = checkedIds
@@ -229,7 +241,6 @@ const _M = {
     //--------------------------------------------
     // For global menu invoke checkAll/cancleAll
     invokeList(methodName) {
-      console.log("methodName")
       Ti.InvokeBy(this.$innerList, methodName)
     },
     //--------------------------------------------

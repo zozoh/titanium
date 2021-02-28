@@ -1,4 +1,6 @@
 {
+  "invalid" : "不正确的",
+  "invalid-val" : "不正确的值",
   "img" : "图像",
   "img-add" : "添加图像",
   "img-insert" : "插入图像",
