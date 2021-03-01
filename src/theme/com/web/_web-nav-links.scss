@@ -72,4 +72,71 @@
     > .it-info {line-height: 2em;}
   }
   //------------------------------------
+  //
+  //  Top Item Style: hover-line
+  //
+  &.hover-line {
+    align-items: stretch; padding: 0 2em;
+    > .link-item.is-top {
+      @include flex-align-nowrap($ai:stretch);
+      padding-top: 0; padding-bottom: 0;
+      //----------------------------------------
+      > .it-info {
+        @include flex-align-nowrap($ai:stretch);
+        //--------------------------------------
+        > a {
+          display: block; @include flex-center;
+          position: relative; padding: 0 .5em;
+          //------------------------------------
+          &:after {
+            @include pos-abs($l:50%,$r:50%,$b:0,$h:SZ(4));
+            display: block; content:"";
+            margin: SZ(12) auto 0 auto;
+            background: map-get($color-primary, c); opacity: 0;
+            transition: .5s;
+          }
+          //------------------------------------
+          &:hover {
+            text-decoration: none;
+            color: map-get($color-primary, r);
+            &::after {
+              opacity: 1; left:0; right:0;
+            }
+          }
+          //------------------------------------
+        }
+        //--------------------------------------
+      }
+      //----------------------------------
+      &.is-opened {
+        color: inherit; background-color: inherit;
+      }
+      //----------------------------------------
+      &.is-highlight, &.is-current {
+        color: inherit;
+        background-color: transparent;
+        > .it-info > a {
+          color: map-get($color-primary, r);
+          &:hover::after, &::after {
+            color: map-get($color-primary, r);
+            background: map-get($color-primary, r);
+            width:100%; left:0; opacity: 1;
+          }
+        }
+      }
+    } // > .link-item.is-top
+  }
+  //------------------------------------
+  &.sub-border-weak {
+    @include border(1px, solid, weak, top);
+    padding: .5em 1.4em;
+    &:first-child {border-top:0;}
+  }
+  //------------------------------------
+  &.sub-border {
+    @include border(1px, solid, shallow, top);
+    padding: .5em 1.4em;
+    &:first-child {border-top:0;}
+  }
+  //------------------------------------
 }

@@ -11,10 +11,13 @@
   }
   //-----------------------------------------
   .as-title {
-    flex:0 0 auto;
-    font-size:1.2em;
-    cursor: default;
-    &[href] {cursor: pointer;}
+    flex:0 0 auto; font-size:1.2em; cursor: default;
+    text-decoration: none;
+    &:hover {text-decoration: none;}
+    &[href] {
+      cursor: pointer; 
+      &:hover {text-decoration: underline;}
+    }
   }
   //-----------------------------------------
   .as-comment {
@@ -29,7 +32,12 @@
     padding:0 .5em;
     font-size:.9em;
     cursor: default;
-    &[href] {cursor: pointer;}
+    text-decoration: none;
+    &:hover {text-decoration: none;}
+    &[href] {
+      cursor: pointer; 
+      &:hover {text-decoration: underline;}
+    }
   }
   //-----------------------------------------
 }
