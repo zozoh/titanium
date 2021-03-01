@@ -76,7 +76,7 @@
   //  Top Item Style: hover-line
   //
   &.hover-line {
-    align-items: stretch; padding: 0 2em;
+    align-items: stretch;
     > .link-item.is-top {
       @include flex-align-nowrap($ai:stretch);
       padding-top: 0; padding-bottom: 0;
@@ -89,7 +89,7 @@
           position: relative; padding: 0 .5em;
           //------------------------------------
           &:after {
-            @include pos-abs($l:50%,$r:50%,$b:0,$h:SZ(4));
+            @include pos-abs($l:50%,$r:50%,$b:0,$h:SZ(3));
             display: block; content:"";
             margin: SZ(12) auto 0 auto;
             background: map-get($color-primary, c); opacity: 0;
@@ -98,7 +98,7 @@
           //------------------------------------
           &:hover {
             text-decoration: none;
-            color: map-get($color-primary, r);
+            color: map-get($color-primary, c);
             &::after {
               opacity: 1; left:0; right:0;
             }
@@ -116,10 +116,10 @@
         color: inherit;
         background-color: transparent;
         > .it-info > a {
-          color: map-get($color-primary, r);
+          color: map-get($color-primary, c);
           &:hover::after, &::after {
             color: map-get($color-primary, r);
-            background: map-get($color-primary, r);
+            background: map-get($color-primary, c);
             width:100%; left:0; opacity: 1;
           }
         }

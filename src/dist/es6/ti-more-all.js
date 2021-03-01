@@ -1,4 +1,4 @@
-// Pack At: 2021-03-01 15:24:31
+// Pack At: 2021-03-01 20:45:54
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -28107,8 +28107,10 @@ const _M = {
     // add "current" to theTabList
     TabItems() {
       let items = []
+      let maxTabIndex = this.TabList.length - 1
+      let currentIndex = Math.min(maxTabIndex, this.currentTabIndex)
       _.forEach(this.TabList, (li, index)=>{
-        let isCurrent = (index == this.currentTabIndex)
+        let isCurrent = (index == currentIndex)
         items.push(_.assign({}, li, {
           index, isCurrent, className: {
             "is-current" : isCurrent
