@@ -1,4 +1,9 @@
 {
+  "hmk-css-text-transform" : "Text trans",
+  "hmk-css-text-transform-capitalize" : "Cap",
+  "hmk-css-text-transform-uppercase" : "Upper",
+  "hmk-css-text-transform-lowercase" : "Lower",
+  "hmk-css-text-transform-none" : "None",
   "hmk-css-c-auto" : "auto",
   "hmk-css-g-inherit" : "inherit",
   "hmk-css-g-initial" : "initial",

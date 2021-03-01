@@ -7,7 +7,7 @@ const BORDER = {
 //------------------------------------------------------
 const BORDER_RADIUS = {
   title : "i18n:hmk-css-border-radius",
-  name : "borderRadius",
+  name : "border-radius",
   comType : "ti-input"
 };
 //------------------------------------------------------
@@ -109,6 +109,20 @@ const LETTER_SPACING = {
   name : "letter-spacing",
   comType : "ti-input"
 };
+//------------------------------------------------------
+const TEXT_TRANSFORM = {
+  title : "i18n:hmk-css-text-transform",
+  name : "text-transform",
+  comType : "ti-switcher",
+  comConf : {
+    options : [
+      {value:"capitalize",text: "i18n:hmk-css-text-transform-capitalize"},
+      {value:"uppercase", text: "i18n:hmk-css-text-transform-uppercase"},
+      {value:"lowercase", text: "i18n:hmk-css-text-transform-lowercase"},
+      {value:"none",      text: "i18n:hmk-css-text-transform-none"}
+    ]
+  }
+};
 ////////////////////////////////////////////////////////
 const CSS_PROPS = {
   "background"     : BACKGROUND,
@@ -127,11 +141,13 @@ const CSS_PROPS = {
   "overflow"       : OVERFLOW,
   "padding"        : PADDING,
   "text-shadow"    : TEXT_SHADOW,
+  "text-transform" : TEXT_TRANSFORM,
   "width"          : WIDTH,
 }
 ////////////////////////////////////////////////////////
 const CSS_GROUPING = {
   texting : [
+    "text-transform",
     "letter-spacing",
     "line-height",
     "text-shadow"],

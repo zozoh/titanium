@@ -1,4 +1,9 @@
 {
+   "hmk-css-text-transform": "文字轉換",
+   "hmk-css-text-transform-capitalize": "首字母大寫",
+   "hmk-css-text-transform-uppercase": "全大寫",
+   "hmk-css-text-transform-lowercase": "全小寫",
+   "hmk-css-text-transform-none": "原始",
    "hmk-css-c-auto": "自動",
    "hmk-css-g-inherit": "繼承",
    "hmk-css-g-initial": "初始",

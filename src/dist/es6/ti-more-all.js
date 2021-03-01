@@ -1,4 +1,4 @@
-// Pack At: 2021-03-01 02:34:19
+// Pack At: 2021-03-01 15:24:31
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -57751,6 +57751,11 @@ Ti.Preload("/a/load/wn.manager/wn-manager.mjs", TI_PACK_EXPORTS['/a/load/wn.mana
 // JOIN <hmaker.i18n.json> ti/i18n/en-us/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
+  "hmk-css-text-transform" : "Text trans",
+  "hmk-css-text-transform-capitalize" : "Cap",
+  "hmk-css-text-transform-uppercase" : "Upper",
+  "hmk-css-text-transform-lowercase" : "Lower",
+  "hmk-css-text-transform-none" : "None",
   "hmk-css-c-auto" : "auto",
   "hmk-css-g-inherit" : "inherit",
   "hmk-css-g-initial" : "initial",
@@ -58943,6 +58948,11 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-cn/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
+  "hmk-css-text-transform" : "文字转换",
+  "hmk-css-text-transform-capitalize" : "首大写",
+  "hmk-css-text-transform-uppercase" : "全大写",
+  "hmk-css-text-transform-lowercase" : "全小写",
+  "hmk-css-text-transform-none" : "无",
   "hmk-css-c-auto" : "自动",
   "hmk-css-g-inherit" : "继承",
   "hmk-css-g-initial" : "初始",
@@ -60135,6 +60145,11 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-hk/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
+   "hmk-css-text-transform": "文字轉換",
+   "hmk-css-text-transform-capitalize": "首字母大寫",
+   "hmk-css-text-transform-uppercase": "全大寫",
+   "hmk-css-text-transform-lowercase": "全小寫",
+   "hmk-css-text-transform-none": "原始",
    "hmk-css-c-auto": "自動",
    "hmk-css-g-inherit": "繼承",
    "hmk-css-g-initial": "初始",
