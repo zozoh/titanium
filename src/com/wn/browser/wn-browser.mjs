@@ -27,6 +27,26 @@ export default {
     //------------------------------------------------
     // Behavior
     //------------------------------------------------
+    "autoSelect" : {
+      type : Boolean,
+      default : false
+    },
+    // TODO ... need to apply those settins below
+    // in __on_events
+    // "notifyName" : {
+    //   type : String,
+    //   default : "change"
+    // },
+    // "notifyWhen" : {
+    //   type : String,
+    //   default : "select"
+    // },
+    // "notifyPayload" : {
+    //   type : [Object, Function]
+    // },
+    //------------------------------------------------
+    // Aspect
+    //------------------------------------------------
     "filter" : {
       type : Object,
       default : ()=>({
@@ -77,11 +97,7 @@ export default {
           "value" : "I am detail"
         }
       })
-    },
-    //------------------------------------------------
-    // Aspect
-    //------------------------------------------------
-    
+    }
   },
   ////////////////////////////////////////////////////
   computed : {
@@ -169,6 +185,9 @@ export default {
     selectItem(id) {
       this.$adaptlist.selectItem(id)
     },
+    selectItemByIndex(id) {
+      this.$adaptlist.selectItemByIndex(id)
+    },
     invokeList(methodName) {
       this.$adaptlist.invokeList(methodName)
     },
@@ -190,6 +209,16 @@ export default {
       handler : function() {
         this.myList = _.get(this.data, "list")
         this.myPager = _.get(this.data, "pager")
+      },
+      immediate : true
+    },
+    "ComList" : function() {
+      if(this.autoSelect) {
+        this.$nextTick(()=>{
+          _.delay(()=>{
+            this.selectItemByIndex(0)
+          }, 100)
+        })
       }
     },
     "search" : {

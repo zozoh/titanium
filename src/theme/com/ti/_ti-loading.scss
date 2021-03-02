@@ -13,6 +13,15 @@
     @include flex-align($ai:center);
   }
   //------------------------------------------
+  &.is-success {color: map-get($color-success, c);}
+  &.is-warn {color: map-get($color-warn, c);}
+  &.is-info {color: map-get($color-info, c);} 
+  &.is-error {color: map-get($color-error, c);}
+  &.is-track {color: map-get($color-track, c);}
+  &.is-disable {color: map-get($color-disable, c);}
+  &.is-text {color: map-get($color-text, c);}
+  &.is-number {color: map-get($color-number, c);}
+  //------------------------------------------
   &.as-hug {
     padding: 3em 1em;
     > .as-icon{font-size: SZ(128);}

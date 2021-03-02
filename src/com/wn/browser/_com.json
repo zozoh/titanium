@@ -2,7 +2,6 @@
   "name" : "wn-browser",
   "globally" : true,
   "template" : "./wn-browser.html",
-  "methods" : "./wn-browser-methods.mjs",
   "mixins" : ["./wn-browser.mjs"],
   "components" : [
     "@com:ti/paging/jumper",

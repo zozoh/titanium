@@ -309,6 +309,10 @@ export class TiAppModal {
           return this.$store.state.main
         },
         //--------------------------------------
+        State() {
+          return this.$store.state
+        },
+        //--------------------------------------
         TopActionBarStatus() {
           return _.get(this.Main, "status")
         },

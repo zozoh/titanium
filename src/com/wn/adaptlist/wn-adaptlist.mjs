@@ -151,7 +151,7 @@ const _M = {
     // Events
     //--------------------------------------------
     OnItemSelecteItem({currentId, checkedIds, currentIndex}) {
-      console.log("OnSelected", currentId, checkedIds)
+      //console.log("OnSelected", currentId, checkedIds)
       // For Desktop
       this.myCurrentId  = currentId
       this.myCheckedIds = checkedIds
@@ -237,6 +237,10 @@ const _M = {
     //--------------------------------------------
     selectItem(id) {
       this.$innerList.selectRow(id)
+    },
+    //--------------------------------------------
+    selectItemByIndex(index) {
+      this.$innerList.selectRowByIndex(index)
     },
     //--------------------------------------------
     // For global menu invoke checkAll/cancleAll
