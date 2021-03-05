@@ -12,6 +12,9 @@ export default {
   }),
   /////////////////////////////////////////
   props : {
+    //-------------------------------------
+    // Data
+    //-------------------------------------
     "src" : {
       type : [String, Object],
       default : undefined
@@ -20,14 +23,9 @@ export default {
       type: Object,
       default: undefined
     },
-    "text": {
-      type: String,
-      default: undefined
-    },
-    "textStyle": {
-      type: Object,
-      default: undefined
-    },
+    //-------------------------------------
+    // Behavior
+    //-------------------------------------
     "href": {
       type: String,
       default: undefined
@@ -40,10 +38,24 @@ export default {
       type: [String, Boolean],
       default: undefined
     },
+    //-------------------------------------
+    // Aspect
+    //-------------------------------------
+    "text": {
+      type: String,
+      default: undefined
+    },
+    "textStyle": {
+      type: Object,
+      default: undefined
+    },
     "i18n": {
       type: Boolean,
       default: true
     },
+    //-------------------------------------
+    // Measure
+    //-------------------------------------
     "width": {
       type: [String, Number],
       default: undefined

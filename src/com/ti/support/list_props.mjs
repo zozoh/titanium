@@ -124,7 +124,7 @@ export default {
     type : Object,
     default : ()=>({
       icon : "far-list-alt",
-      text : "empty-data"
+      text : "i18n:empty-data"
     })
   },
   "blankClass": {

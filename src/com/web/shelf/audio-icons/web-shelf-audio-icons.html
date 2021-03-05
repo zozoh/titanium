@@ -1,0 +1,35 @@
+<div class="web-shelf-audio-icons"
+  :class="TopClass">
+  <!--
+    No audios
+  -->
+  <div
+    v-if="!hasAudios"
+      class="nil-audios">
+      <i class="fas fa-volume-up"></i>
+      <span>{{'i18n:empty' | i18n}}</span>
+  </div>
+  <!--
+    Show Audios
+  -->
+  <template v-else>
+    <!--
+      Player
+    -->
+    <TiMediaAudio v-bind="CurrentAudioComConf"/>
+    <!--
+      Candidate items
+    -->
+    <div
+      v-if="hasMultiAudios"
+        class="as-audio-icons">
+        <div
+          v-for="it in AudioItems"
+            class="as-audio-item"
+            :class="it.className"
+            @click.left="OnGoTo(it)">
+              <span>{{it.title}}</span>
+        </div>
+    </div>
+  </template>
+</div>

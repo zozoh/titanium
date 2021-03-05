@@ -1,0 +1,34 @@
+.web-shelf-audio-icons {
+  @include flex-align;
+  padding: SZ(6);
+  //-----------------------------------------
+  .as-audio-icons {
+    @include flex-align($ai:center, $ac:center);
+    padding: 0 SZ(4); 
+  }
+  //-----------------------------------------
+  .as-audio-item {
+    @include flex-center;
+    @include color($color-chip, c, r);
+    width: SZ(40); height: SZ(40); 
+    font-size: SZ(18); font-weight: bold;
+    border-radius: 50%; cursor: pointer;
+    margin: 0 SZ(3); opacity: 0.6;
+    transition: opacity 0.5s;
+    //---------------------------------------
+    &.is-current {
+      @include color($color-primary, r, c);
+      cursor: default; opacity: 1;
+      &:hover {
+        @include color($color-primary, r, c);
+      }
+    }
+    //---------------------------------------
+    &:hover{
+      @include color($color-secondary, r, c);
+      opacity: 1;
+    }
+    //---------------------------------------
+  }
+  //-----------------------------------------
+}

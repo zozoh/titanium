@@ -142,6 +142,9 @@ export async function WebAppMain({
   await app.init()
   Ti.App.pushInstance(app)
 
+  // Save the main web app instance
+  window.TiWebApp = app
+
   // Save current app name
   Ti.SetAppName(app.name())
 

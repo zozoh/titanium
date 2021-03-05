@@ -1,17 +1,17 @@
 .ti-media-audio {
   @include flex-center;
-  user-select: none;
+  user-select: none; width: 2.6rem;
   //-------------------------------------------------
   audio {
-    position: absolute; top: SZ(-200);
-    visibility: hidden;
+    position: fixed; top: SZ(-20000);
+    display: none;
   }
 }
 /////////////////////////////////////////////////////
 .ti-media-control {
   @include flex-align-nowrap;
   @include color($color-chip, c, r);
-  position: relative; width: 2.6rem;
+  position: relative;  flex:1 1 auto;
   padding: SZ(6) SZ(46) SZ(6) SZ(6);
   border-radius: SZ(30); 
   //-------------------------------------------------

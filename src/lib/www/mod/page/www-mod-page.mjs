@@ -495,6 +495,12 @@ const _M = {
         json = await Ti.Load(`@Site:${jsonPath}`)
       }
       //.....................................
+      // Load page components
+      let {components} = json
+      if(!_.isEmpty(components)) {
+        await TiWebApp.loadView({components})
+      }
+      //.....................................
       // merge info
       if(anchor) {
         pinfo.anchor = anchor

@@ -112,9 +112,9 @@ export default {
     //---------------------------------------------------
     TimeTextWidth() {
       if(this.duration > 3600) {
-        return "8em"
+        return "80px"
       }
-      return "5em"
+      return "50px"
     },
     //---------------------------------------------------
     TimelineConfig() {

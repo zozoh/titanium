@@ -314,7 +314,7 @@ class OneTiApp {
   async loadView(view) {
     // [Optional] Load the module
     //.....................................
-    let mod;
+    let mod, comName;
     if(view.modType) {
       let moInfo = await Ti.Load(view.modType)
       let moConf = await LoadTiLinkedObj(moInfo, {
@@ -333,7 +333,10 @@ class OneTiApp {
     }
     //.....................................
     // Load the component
-    let comInfo = await Ti.Load(view.comType)
+    let comInfo = {}
+    if(view.comType) {
+      comInfo = await Ti.Load(view.comType)
+    }
     //.....................................
     // Push View dependance components
     Ti.Util.pushValue(comInfo, "components", view.components)
@@ -352,22 +355,24 @@ class OneTiApp {
     let setup = TiVue.Setup(comConf)
     //.....................................
     // Get the formed comName
-    let comName = setup.options.name 
-                  || Ti.Util.getLinkName(view.comType)
-    //.....................................
-    if(Ti.IsInfo("TiApp")) {
-      console.log("TiApp.loadView:", comName)
-      console.log(" -- global:", setup.global)
-      console.log(" -- options:", setup.options)
+    if(view.comType) {
+      comName = setup.options.name 
+                    || Ti.Util.getLinkName(view.comType)
+      //.....................................
+      if(Ti.IsInfo("TiApp")) {
+        console.log("TiApp.loadView:", comName)
+        console.log(" -- global:", setup.global)
+        console.log(" -- options:", setup.options)
+      }
+      //.....................................
+      // Decorate it
+      Ti.Config.decorate(setup.options)
+      //.....................................
+      // Define the com
+      //console.log("define com:", comName)
+      //Vue.component(comName, setup.options)
+      TiVue.registerComponent(comName, setup.options)
     }
-    //.....................................
-    // Decorate it
-    Ti.Config.decorate(setup.options)
-    //.....................................
-    // Define the com
-    //console.log("define com:", comName)
-    //Vue.component(comName, setup.options)
-    TiVue.registerComponent(comName, setup.options)
     //.....................................
     _.map(setup.global.components, com=>{
       //Ti.I18n.put(com.i18n)

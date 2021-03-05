@@ -1,0 +1,30 @@
+<div class="web-media"
+  :class="TopClass"
+  :style="TopStyle"><div class="as-con">
+  <!--Main media component-->
+  <component
+    class="web-media-com ti-fill-parent"
+    :is="MediaCom.comType"
+    v-bind="MediaCom.comConf"/>
+  <!--Show switcher-->
+  <div
+    v-if="showIconPrev || showIconNext"
+      class="as-switcher">
+      <!--Left-->
+      <div 
+        v-if="showIconPrev"
+          class="as-switcher-btn at-left">
+          <span @click.left="OnClickPrev">
+            <ti-icon :value="iconPrev"/>
+          </span>
+      </div>
+      <!--Right-->
+      <div
+        v-if="showIconNext"
+          class="as-switcher-btn at-right">
+          <span @click.left="OnClickNext">
+            <ti-icon :value="iconNext"/>
+          </span>
+      </div>
+  </div>
+</div></div>

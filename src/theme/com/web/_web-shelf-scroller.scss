@@ -1,5 +1,5 @@
 .web-shelf-scroller {
-  position: relative;
+  position: relative; min-height: SZ(40);
   //-----------------------------------------
   $btnSZ: SZ(50);
   //-----------------------------------------
@@ -34,6 +34,32 @@
     //---------------------------------------
   }
   //-----------------------------------------
+  &.btn-at-inner .scroll-btn {
+    z-index: $z-above; padding: 0 SZ(18);
+    width: unset;
+    //---------------------------------------
+    &.at-left  {left :0;}
+    &.at-right {right:0;}
+    //---------------------------------------
+    > span {
+      @include color($color-mask, r, thin);
+      transition: 0.5s; opacity: 0;
+    }
+    //---------------------------------------
+    &.is-enabled {
+      &:hover > span {opacity: 1;}
+    }
+    //---------------------------------------
+  }
+  //-----------------------------------------
+  &.btn-as-circle .scroll-btn {
+    > span {
+      border-radius: 50%; flex:0 0 auto;
+      width: SZ(42); height: SZ(42);
+      font-size: SZ(28);
+    }
+  }
+  //-----------------------------------------
   .scroller-outer {
     width:100%;
     overflow: hidden;
@@ -48,8 +74,23 @@
   //-----------------------------------------
   .scroller-tile {
     @include flex(center, stretch, nowrap, stretch);
-    flex:0 0 auto; 
-    > * {width:100%;}
+    border:SZ(4) solid transparent;
+    flex:0 0 auto;  position: relative;
+    //---------------------------------------
+    &.is-current {
+      border-color: map-get($color-primary, c); 
+      &::after {
+        @include pos-abs-full;
+        @include flex-center;
+        @include color($color-mask, r, bushy);
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900; font-size: SZ(32);
+        content: "\f077";
+      }
+    }
+    //---------------------------------------
+    > * {flex:1 1 auto;}
+    //---------------------------------------
   }
   //-----------------------------------------
 }

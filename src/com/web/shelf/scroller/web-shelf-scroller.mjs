@@ -7,19 +7,20 @@ const _M = {
   }),
   //////////////////////////////////////////
   props : {
+    //-------------------------------------
+    // Data
+    //-------------------------------------
     "data" : {
       type : Array,
       default : ()=>[]
     },
-    // Item count per-row
-    "cols" : {
+    "currentIndex" : {
       type : Number,
-      default : 4
+      default : 0
     },
-    "itemWidth" : {
-      type : [String, Number],
-      default: undefined
-    },
+    //-------------------------------------
+    // Behavior
+    //-------------------------------------
     // Item comType
     "comType": {
       type: String,
@@ -31,13 +32,9 @@ const _M = {
         value: "=.."
       })
     },
-    "iconLeft": {
-      type: String,
-      default: "zmdi-chevron-left"
-    },
-    "iconRight": {
-      type: String,
-      default: "zmdi-chevron-right"
+    "clickItem" : {
+      type: [String, Function],
+      default: undefined
     },
     "enterItem" : {
       type: [String, Function],
@@ -50,6 +47,26 @@ const _M = {
     "keepScrolling" : {
       type : Boolean,
       default : false
+    },
+    //-------------------------------------
+    // Aspect
+    //-------------------------------------
+    // Item count per-row
+    "cols" : {
+      type : Number,
+      default : 4
+    },
+    "itemWidth" : {
+      type : [String, Number],
+      default: undefined
+    },
+    "iconLeft": {
+      type: String,
+      default: "zmdi-chevron-left"
+    },
+    "iconRight": {
+      type: String,
+      default: "zmdi-chevron-right"
     }
   },
   //////////////////////////////////////////
@@ -109,8 +126,11 @@ const _M = {
         // })
         let comConf = Ti.Util.explainObj(it, this.comConf)
         list.push({
+          index: i,
           key: `It-${i}`,
-          className: it.className,
+          className: Ti.Css.mergeClassName(it.className, {
+            "is-current" : i == this.currentIndex
+          }),
           rawData : it,
           comType : this.comType,
           comConf
@@ -147,21 +167,30 @@ const _M = {
       this.myScrollLeft -= step
     },
     //--------------------------------------
-    OnEnterTile(it) {
-      if(_.isFunction(this.enterItem)) {
-        this.enterItem(it)
+    OnClickTile(item, index) {
+      if(_.isFunction(this.clickItem)) {
+        this.clickItem({item, index})
       }
-      else if(_.isString(this.enterItem)) {
-        this.$notify(this.enterItem, it)
+      else if(_.isString(this.clickItem)) {
+        this.$notify(this.clickItem, {item, index})
       }
     },
     //--------------------------------------
-    OnLeaveTile(it) {
+    OnEnterTile(item, index) {
+      if(_.isFunction(this.enterItem)) {
+        this.enterItem({item, index})
+      }
+      else if(_.isString(this.enterItem)) {
+        this.$notify(this.enterItem, {item, index})
+      }
+    },
+    //--------------------------------------
+    OnLeaveTile(item, index) {
       if(_.isFunction(this.leaveItem)) {
-        this.leaveItem(it)
+        this.leaveItem({item, index})
       }
       else if(_.isString(this.leaveItem)) {
-        this.$notify(this.leaveItem, it)
+        this.$notify(this.leaveItem, {item, index})
       }
     },
     //--------------------------------------

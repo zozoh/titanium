@@ -16,8 +16,9 @@
           :key="it.key"
           :style="ItemStyle"
           :class="it.className"
-          @mouseenter="OnEnterTile(it.rawData)"
-          @mouseleave="OnLeaveTile(it.rawData)">
+          @click.left="OnClickTile(it.rawData, it.index)"
+          @mouseenter="OnEnterTile(it.rawData, it.index)"
+          @mouseleave="OnLeaveTile(it.rawData, it.index)">
           <component
             :is="it.comType"
             v-bind="it.comConf"/>

@@ -7,15 +7,16 @@ const _M = {
   }),
   //////////////////////////////////////////
   props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
     "data" : {
       type : Array,
       default : undefined
     },
-    "layout" : {
-      type : String,
-      default : "horizontal",
-      validator: v => /^(tile|horizontal|vertical)$/.test(v)
-    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
     // Item comType
     "comType": {
       type: String,
@@ -26,6 +27,14 @@ const _M = {
       default: ()=>({
         value: "=.."
       })
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "layout" : {
+      type : String,
+      default : "horizontal",
+      validator: v => /^(tile|horizontal|vertical)$/.test(v)
     },
     "itemClass" : {
       type : [String, Array],
@@ -67,7 +76,7 @@ const _M = {
     getItemClass() {
       let itKlass = _.without(_.concat(this.itemClass))
       return (index)=> {
-        let w, h, i;
+        let i;
         if(itKlass.length > 0) {
           i = Ti.Num.scrollIndex(index, itKlass.length)
           return itKlass[i]

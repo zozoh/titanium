@@ -1,0 +1,9 @@
+{
+  "name" : "web-shelf-preview-scroller",
+  "globally" : true,
+  "template" : "./web-shelf-preview-scroller.html",
+  "mixins" : ["./web-shelf-preview-scroller.mjs"],
+  "components" : [
+    "@com:web/media"
+  ]
+}

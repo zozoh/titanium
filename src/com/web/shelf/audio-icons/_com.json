@@ -1,0 +1,9 @@
+{
+  "name" : "web-shelf-audio-icons",
+  "globally" : true,
+  "template" : "./web-shelf-audio-icons.html",
+  "mixins" : ["./web-shelf-audio-icons.mjs"],
+  "components" : [
+    "@com:ti/media/audio"
+  ]
+}

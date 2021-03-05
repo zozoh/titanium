@@ -10,7 +10,7 @@ const _M = {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "items" : {
+    "data" : {
       type : Array,
       default : ()=>[]
     },
@@ -63,13 +63,18 @@ const _M = {
       })
     },
     //--------------------------------------
+    DataItems() {
+      return this.data || []
+    },
+    //--------------------------------------
     ItemStyles() {
-      if(_.isEmpty(this.items) || this.myHoverIndex < 0){
+      if(_.isEmpty(this.data) || this.myHoverIndex < 0){
         return []
       }
       // Measure: viewport sizing
+      let items = this.data || []
       let {width, height} = this.myRect
-      let n = this.items.length
+      let n = this.DataItems.length
       let half = width / (n+1)
       let unit = half * 2
 
@@ -88,7 +93,7 @@ const _M = {
       // Loop for style
       let itW = this.itemWH ? (height*this.itemWH) : 0
       let list = []
-      for(let i=0; i<this.items.length; i++) {
+      for(let i=0; i<this.DataItems.length; i++) {
         let left  = half * i
         let width = itW || unit
         if(itW) {
@@ -122,7 +127,7 @@ const _M = {
     },
     //--------------------------------------
     OnMouseLeave() {
-      this.myHoverIndex = parseInt(this.items.length / 2)
+      this.myHoverIndex = parseInt(this.DataItems.length / 2)
     },
     //--------------------------------------
     OnMouseEnterItem({index}) {
@@ -133,15 +138,10 @@ const _M = {
       return _.get(this.ItemStyles, index)
     },
     //--------------------------------------
-    evalItemList() {
+    evalDataItemList() {
       let list = []
-      _.forEach(this.items, (it, index) => {
-        let comType = Ti.Util.explainObj(it, this.comType)
-        let comConf = Ti.Util.explainObj(it, this.comConf)
-        list.push({
-          index,
-          comType, comConf
-        })
+      _.forEach(this.data, (it, index) => {
+        rawData : it
       })
       this.myItemList = list
       this.myHoverIndex = parseInt(list.length / 2)
@@ -150,12 +150,12 @@ const _M = {
   },
   //////////////////////////////////////////
   watch : {
-    "items" : "evalItemList"
+    "data" : "evalDataItemList"
   },
   //////////////////////////////////////////
   mounted: function() {
     this.OnResize()
-    this.evalItemList()
+    this.evalDataItemList()
 
     Ti.Viewport.watch(this, {
       resize : _.debounce(()=>this.OnResize(), 10)

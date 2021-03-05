@@ -1,0 +1,17 @@
+<div class="web-shelf-preview-scroller"
+  :class="TopClass">
+    <!--
+      Current item preview
+    -->
+    <component class="as-preview" 
+      :is="previewComType" 
+      v-bind="CurrentPreviewComConf"
+      @go:prev="OnGoPrev"
+      @go:next="OnGoNext"/>
+    <!--
+      Candidate items
+    -->
+    <WebShelfScroller class="as-scroller"
+      :class="scrollerClass"
+      v-bind="ScrollerComConf"/>
+</div>

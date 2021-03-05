@@ -11,8 +11,11 @@ export default {
   }),
   props : {
     "src" : {
-      type : String,
-      default : null
+      type : String
+    },
+    /* video/mp4 or video/webm */
+    "mime" : {
+      type : String
     },
     "width" : {
       type : [String, Number],
