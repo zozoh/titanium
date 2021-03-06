@@ -1,6 +1,6 @@
 .ti-media-audio {
   @include flex-center;
-  user-select: none; width: 2.6rem;
+  user-select: none; width: 3rem; 
   //-------------------------------------------------
   audio {
     position: fixed; top: SZ(-20000);

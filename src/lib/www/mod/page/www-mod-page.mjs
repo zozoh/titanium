@@ -383,8 +383,8 @@ const _M = {
         updateData : function(payload) {
           commit("updateData", payload)
         },
-        doAction : function(at) {
-          dispatch("doAction", at, {root:true})
+        doAction : async function(at) {
+          await dispatch("doAction", at, {root:true})
         }
       })
     },

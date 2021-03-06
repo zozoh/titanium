@@ -13,14 +13,22 @@
     @include flex-align($ai:center);
   }
   //------------------------------------------
-  &.is-success {color: map-get($color-success, c);}
-  &.is-warn {color: map-get($color-warn, c);}
-  &.is-info {color: map-get($color-info, c);} 
-  &.is-error {color: map-get($color-error, c);}
-  &.is-track {color: map-get($color-track, c);}
-  &.is-disable {color: map-get($color-disable, c);}
-  &.is-text {color: map-get($color-text, c);}
-  &.is-number {color: map-get($color-number, c);}
+  &.as-cover {
+    @include pos-abs-full;
+    @include color($color-mask, r, weak);
+    @include flex-center;
+    z-index: $z-mask;
+    //----------------------------------------
+    &.at-top    {bottom:unset;}
+    &.at-bottom {top:unset;}
+    &.at-left   {right:unset;}
+    &.at-right  {left:unset;}
+    &.at-left-top    {bottom:unset; right:unset;}
+    &.at-bottom-left  {top:unset; right:unset;}
+    &.at-bottom-right {top:unset; left:unset;}
+    &.at-right-top    {left:unset; bottom:unset;}
+    //----------------------------------------
+  }
   //------------------------------------------
   &.as-hug {
     padding: 3em 1em;
@@ -48,6 +56,7 @@
     @include pos-abs-full;
     @include color($color-mask, r, weak);
     @include flex-center;
+    z-index: $z-mask;
     > .as-icon{font-size: SZ(64);}
     > .as-text{
       display:block; padding:.5em;
@@ -79,6 +88,7 @@
     @include pos-abs-full;
     @include color($color-mask, r, weak);
     @include flex-align;
+    z-index: $z-mask;
     font-size: SZ(14);
     justify-content: flex-start;
     padding: 2em;
@@ -91,4 +101,14 @@
     justify-content: flex-start;
     padding: 0.5em;
   }
+  //------------------------------------------
+  &.is-success {color: map-get($color-success, c);}
+  &.is-warn {color: map-get($color-warn, c);}
+  &.is-info {color: map-get($color-info, c);} 
+  &.is-error {color: map-get($color-error, c);}
+  &.is-track {color: map-get($color-track, c);}
+  &.is-disable {color: map-get($color-disable, c);}
+  &.is-text {color: map-get($color-text, c);}
+  &.is-number {color: map-get($color-number, c);}
+  //------------------------------------------
 }

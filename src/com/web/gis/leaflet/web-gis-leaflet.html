@@ -58,4 +58,10 @@
           <span>{{GeoStr(pointerClick.lat)}}, {{GeoStr(pointerClick.lng)}}</span>
       </div>
   </div>
+  <!--
+    Loading Info
+  -->
+  <TiLoading
+    v-if="loading"
+      v-bind="loadingAs"/>
 </div>

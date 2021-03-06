@@ -26,6 +26,8 @@ const WnSession = {
     return _.cloneDeep(ENVS)
   },
   //----------------------------------------
+  getLang(){return WnSession.env("LANG")},
+  //----------------------------------------
   getMyId() {return SESSION.uid},
   getMyName() {return SESSION.unm},
   getMyGroup() {return SESSION.grp},

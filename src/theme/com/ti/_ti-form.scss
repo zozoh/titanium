@@ -19,6 +19,7 @@
     li {
       @include flex-align-nowrap;
       padding:SZ(6) SZ(12); cursor: pointer;
+      white-space: nowrap; 
       > .tab-icon {
         padding:0 SZ(6) 0 0;
       }

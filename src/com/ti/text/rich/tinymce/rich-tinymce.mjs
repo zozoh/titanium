@@ -37,18 +37,18 @@ const _M = {
         let tbd = ({
           markdown : [
             'formatselect',
-            'bold italic',
+            'bold italic link',
             'blockquote bullist numlist',
             'edit removeformat'],
           quick : [
             'formatselect',
-            'bold italic underline',
+            'bold italic underline link',
             'blockquote bullist numlist',
             'blocks',
             'edit removeformat'],
           full : [
             'formatselect',
-            'bold italic underline',
+            'bold italic underline link',
             'blockquote bullist numlist',
             'blocks',
             'table WnImgPick',
@@ -114,7 +114,12 @@ const _M = {
     //-----------------------------------------------
     TheTinyEditor() {
       let plugNames = _.map(this.myPlugins, ({name}={})=>name)
-      let plugins = ['paste lists table'].concat(plugNames)
+      //.........................................
+      let tinyConfig = _.omit(this.tinyConfig, "plugins")
+      let tinyPlugins = _.get(this.tinyConfig, "plugins")
+      //.........................................
+      let plugins = _.concat('paste lists table', plugNames, tinyPlugins)
+      //.........................................
       return _.assign({
         plugins: plugins.join(" "),
         content_css : this.ContentCssPath,
@@ -138,7 +143,7 @@ const _M = {
           'tableinsertrowbefore tableinsertrowafter tabledeleterow','tableinsertcolbefore tableinsertcolafter tabledeletecol',
           'tabledelete'].join("|"),
         table_use_colgroups: true
-      }, this.tinyConfig)
+      }, tinyConfig)
     }
     //-----------------------------------------------
   },

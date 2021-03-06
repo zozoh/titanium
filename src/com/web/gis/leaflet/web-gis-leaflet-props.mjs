@@ -168,6 +168,18 @@ export default {
     type : Object,
     default: ()=>({})
   },
+  "loading" : {
+    type : Boolean,
+    default : false
+  },
+  "loadingAs" : {
+    type : Object,
+    default : ()=>({
+      className : "is-info as-big as-cover",
+      icon : "fas-spinner fa-spin",
+      text : "i18n:loading"
+    })
+  },
   //-----------------------------------
   // Measure
   //-----------------------------------

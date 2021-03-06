@@ -539,7 +539,7 @@ const TiWWW = {
         err,
         errText : err.responseText
       }, fail)
-      doAction(failAction)
+      await doAction(failAction)
       return
     }
     //.....................................
@@ -581,7 +581,7 @@ const TiWWW = {
       vars, params, headers, body,
       data, reo
     }, ok)
-    doAction(okAction)
+    await doAction(okAction)
   }, // async runApiAndPrcessReturn
   //---------------------------------------
   /**

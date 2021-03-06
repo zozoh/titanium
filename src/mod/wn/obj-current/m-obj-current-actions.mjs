@@ -87,9 +87,8 @@ const _M = {
 
     // Do the update
     let json = JSON.stringify(data)
-    let th_set = state.meta.th_set
-    let th_id  = state.meta.id
-    let cmdText = `thing ${th_set} update ${th_id} -fields -cqn`
+    let id  = state.meta.id
+    let cmdText = `o id:${id} @update @json -cqn`
     let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
     let isError = reo instanceof Error;
 

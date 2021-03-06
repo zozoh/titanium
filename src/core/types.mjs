@@ -582,6 +582,9 @@ const TiTypes = {
     if(_.isDate(val)){
       return val.getTime()
     }
+    if(Ti.S.isBlank(val)) {
+      return NaN
+    }
     let n = 1 * val
     if(isNaN(n)){
       // console.log("invalid number")

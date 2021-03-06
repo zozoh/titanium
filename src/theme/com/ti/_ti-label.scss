@@ -104,4 +104,8 @@
     flex: 1 1 auto;
   }
   //-----------------------------------------
+  &.as-uppercase  {text-transform: uppercase;}
+  &.as-lowercase  {text-transform: lowercase;}
+  &.as-capitalize {text-transform: capitalize;}
+  //-----------------------------------------
 }
