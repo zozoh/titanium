@@ -141,7 +141,12 @@ const _M = {
     evalDataItemList() {
       let list = []
       _.forEach(this.data, (it, index) => {
-        rawData : it
+        let comType = Ti.Util.explainObj(it, this.comType)
+        let comConf = Ti.Util.explainObj(it, this.comConf)
+        list.push({
+          index,
+          comType, comConf
+        })
       })
       this.myItemList = list
       this.myHoverIndex = parseInt(list.length / 2)
