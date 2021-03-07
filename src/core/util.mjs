@@ -603,7 +603,7 @@ const TiUtil = {
    * @return `Object|Array`
    */
   translate(source={}, mapping={}, customizer=_.identity) {
-    if(_.isEmpty(source) || _.isEmpty(mapping)) {
+    if(_.isEmpty(mapping)) {
       return _.cloneDeep(source)
     }
     // Array
@@ -631,6 +631,7 @@ const TiUtil = {
       mapping = map
     }
     // If source is string, just get the value
+    // translate('A', {A:1,B:2}) => 1
     if(_.isString(source)) {
       return _.get(mapping, source)
     }

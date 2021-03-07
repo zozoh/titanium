@@ -15,8 +15,8 @@ const _M = {
     //------------------------------------------------
     ActionItems() {
       return [{
-        icon : "fas-plus",
-        text : "i18n:new-item",
+        icon : this.newItemIcon,
+        text : this.newItemText,
         action : ()=>{
           this.doAddNewItem()
         }

@@ -284,7 +284,7 @@ const _M = {
     // Callback
     //-----------------------------------------------
     __ti_shortcut(uniqKey) {
-      //console.log("ti-combo-multi-input", uniqKey)
+      console.log("ti-combo-multi-input", uniqKey)
       //....................................
       if("ESCAPE" == uniqKey) {
         this.doCollapse({escaped:true})

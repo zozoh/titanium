@@ -31,15 +31,15 @@
           <div v-else
             class="row-icon"></div>
         </template>
-        <!--Row Number-->
-        <div 
-          v-if="hasRowNumber"
-            class="row-number">{{RowNumber}}</div>
         <!--ICON: Checker-->
         <ti-icon v-if="checkable"
             class="row-checker"
             :value="theCheckIcon"
             @click.native.left.stop="OnClickChecker"/>
+        <!--Row Number-->
+        <div 
+          v-if="hasRowNumber"
+            class="row-number">{{RowNumber}}</div>
       </div>
     </template>
   </table-cell>

@@ -60,7 +60,6 @@
         },{
           "name" : "cancelAll",
           "type" : "action",
-          "__icon" : "zmdi-minus",
           "text" : "i18n:cancel-all",
           "action" : "main:invokeList(cancelRow)"
         },{

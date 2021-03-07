@@ -1,4 +1,4 @@
-// Pack At: 2021-03-01 20:45:54
+// Pack At: 2021-03-07 23:44:47
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -740,7 +740,7 @@ const _M = {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "items" : {
+    "data" : {
       type : Array,
       default : ()=>[]
     },
@@ -793,13 +793,18 @@ const _M = {
       })
     },
     //--------------------------------------
+    DataItems() {
+      return this.data || []
+    },
+    //--------------------------------------
     ItemStyles() {
-      if(_.isEmpty(this.items) || this.myHoverIndex < 0){
+      if(_.isEmpty(this.data) || this.myHoverIndex < 0){
         return []
       }
       // Measure: viewport sizing
+      let items = this.data || []
       let {width, height} = this.myRect
-      let n = this.items.length
+      let n = this.DataItems.length
       let half = width / (n+1)
       let unit = half * 2
 
@@ -818,7 +823,7 @@ const _M = {
       // Loop for style
       let itW = this.itemWH ? (height*this.itemWH) : 0
       let list = []
-      for(let i=0; i<this.items.length; i++) {
+      for(let i=0; i<this.DataItems.length; i++) {
         let left  = half * i
         let width = itW || unit
         if(itW) {
@@ -852,7 +857,7 @@ const _M = {
     },
     //--------------------------------------
     OnMouseLeave() {
-      this.myHoverIndex = parseInt(this.items.length / 2)
+      this.myHoverIndex = parseInt(this.DataItems.length / 2)
     },
     //--------------------------------------
     OnMouseEnterItem({index}) {
@@ -863,15 +868,10 @@ const _M = {
       return _.get(this.ItemStyles, index)
     },
     //--------------------------------------
-    evalItemList() {
+    evalDataItemList() {
       let list = []
-      _.forEach(this.items, (it, index) => {
-        let comType = Ti.Util.explainObj(it, this.comType)
-        let comConf = Ti.Util.explainObj(it, this.comConf)
-        list.push({
-          index,
-          comType, comConf
-        })
+      _.forEach(this.data, (it, index) => {
+        rawData : it
       })
       this.myItemList = list
       this.myHoverIndex = parseInt(list.length / 2)
@@ -880,12 +880,12 @@ const _M = {
   },
   //////////////////////////////////////////
   watch : {
-    "items" : "evalItemList"
+    "data" : "evalDataItemList"
   },
   //////////////////////////////////////////
   mounted: function() {
     this.OnResize()
-    this.evalItemList()
+    this.evalDataItemList()
 
     Ti.Viewport.watch(this, {
       resize : _.debounce(()=>this.OnResize(), 10)
@@ -1120,7 +1120,7 @@ const _M = {
     // Events
     //--------------------------------------------
     OnItemSelecteItem({currentId, checkedIds, currentIndex}) {
-      console.log("OnSelected", currentId, checkedIds)
+      //console.log("OnSelected", currentId, checkedIds)
       // For Desktop
       this.myCurrentId  = currentId
       this.myCheckedIds = checkedIds
@@ -1206,6 +1206,10 @@ const _M = {
     //--------------------------------------------
     selectItem(id) {
       this.$innerList.selectRow(id)
+    },
+    //--------------------------------------------
+    selectItemByIndex(index) {
+      this.$innerList.selectRowByIndex(index)
     },
     //--------------------------------------------
     // For global menu invoke checkAll/cancleAll
@@ -5902,8 +5906,8 @@ const _M = {
         updateData : function(payload) {
           commit("updateData", payload)
         },
-        doAction : function(at) {
-          dispatch("doAction", at, {root:true})
+        doAction : async function(at) {
+          await dispatch("doAction", at, {root:true})
         }
       })
     },
@@ -6012,6 +6016,12 @@ const _M = {
         let m = /^([^.]+)(\.html?)?$/.exec(pinfo.path)
         let jsonPath = m[1] + ".json"
         json = await Ti.Load(`@Site:${jsonPath}`)
+      }
+      //.....................................
+      // Load page components
+      let {components} = json
+      if(!_.isEmpty(components)) {
+        await TiWebApp.loadView({components})
       }
       //.....................................
       // merge info
@@ -9755,9 +9765,8 @@ const _M = {
 
     // Do the update
     let json = JSON.stringify(data)
-    let th_set = state.meta.th_set
-    let th_id  = state.meta.id
-    let cmdText = `thing ${th_set} update ${th_id} -fields -cqn`
+    let id  = state.meta.id
+    let cmdText = `o id:${id} @update @json -cqn`
     let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
     let isError = reo instanceof Error;
 
@@ -11832,9 +11841,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
     TimeTextWidth() {
       if(this.duration > 3600) {
-        return "8em"
+        return "80px"
       }
-      return "5em"
+      return "50px"
     },
     //---------------------------------------------------
     TimelineConfig() {
@@ -12414,8 +12423,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }),
   props : {
     "src" : {
-      type : String,
-      default : null
+      type : String
+    },
+    /* video/mp4 or video/webm */
+    "mime" : {
+      type : String
     },
     "width" : {
       type : [String, Number],
@@ -18689,6 +18701,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }),
   /////////////////////////////////////////
   props : {
+    //-------------------------------------
+    // Data
+    //-------------------------------------
     "src" : {
       type : [String, Object],
       default : undefined
@@ -18697,14 +18712,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: Object,
       default: undefined
     },
-    "text": {
-      type: String,
-      default: undefined
-    },
-    "textStyle": {
-      type: Object,
-      default: undefined
-    },
+    //-------------------------------------
+    // Behavior
+    //-------------------------------------
     "href": {
       type: String,
       default: undefined
@@ -18717,10 +18727,24 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: [String, Boolean],
       default: undefined
     },
+    //-------------------------------------
+    // Aspect
+    //-------------------------------------
+    "text": {
+      type: String,
+      default: undefined
+    },
+    "textStyle": {
+      type: Object,
+      default: undefined
+    },
     "i18n": {
       type: Boolean,
       default: true
     },
+    //-------------------------------------
+    // Measure
+    //-------------------------------------
     "width": {
       type: [String, Number],
       default: undefined
@@ -19587,15 +19611,16 @@ const _M = {
   }),
   //////////////////////////////////////////
   props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
     "data" : {
       type : Array,
       default : undefined
     },
-    "layout" : {
-      type : String,
-      default : "horizontal",
-      validator: v => /^(tile|horizontal|vertical)$/.test(v)
-    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
     // Item comType
     "comType": {
       type: String,
@@ -19606,6 +19631,14 @@ const _M = {
       default: ()=>({
         value: "=.."
       })
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "layout" : {
+      type : String,
+      default : "horizontal",
+      validator: v => /^(tile|horizontal|vertical)$/.test(v)
     },
     "itemClass" : {
       type : [String, Array],
@@ -19647,7 +19680,7 @@ const _M = {
     getItemClass() {
       let itKlass = _.without(_.concat(this.itemClass))
       return (index)=> {
-        let w, h, i;
+        let i;
         if(itKlass.length > 0) {
           i = Ti.Num.scrollIndex(index, itKlass.length)
           return itKlass[i]
@@ -22345,6 +22378,186 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'web-media.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/media/web-media.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  props : {
+    //-------------------------------------
+    // Data
+    //-------------------------------------
+    "src" : {
+      type : [String, Object],
+      default : undefined
+    },
+    "preview": {
+      type: Object,
+      default: undefined
+    },
+    "mime": {
+      type : [String, Function],
+      default : "=mime"
+    },
+    //-------------------------------------
+    // Behavior
+    //-------------------------------------
+    /* prop setting for <WebMediaImage> */
+    "image" : {
+      type: Object,
+      default: undefined
+    },
+    "showIconPrev" : {
+      type : Boolean,
+      default : false
+    },
+    "showIconNext" : {
+      type : Boolean,
+      default : false
+    },
+    //-------------------------------------
+    // Aspect
+    //-------------------------------------
+    "iconPrev": {
+      type: String,
+      default: "zmdi-chevron-left"
+    },
+    "iconNext": {
+      type: String,
+      default: "zmdi-chevron-right"
+    },
+    "blankAs" : {
+      type : Object,
+      default : ()=>({
+        icon : "fas-photo-video",
+        text : "i18n:media"
+      })
+    },
+    "unknownAs" : {
+      type : Object,
+      default : ()=>({
+        icon : "far-question-circle",
+        text : "i18n:unknown"
+      })
+    },
+    //-------------------------------------
+    // Measure
+    //-------------------------------------
+    "width" : {
+      type : [String, Number],
+      default : ""
+    },
+    "height" : {
+      type : [String, Number],
+      default : ""
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //--------------------------------------
+    MediaSrc() {
+      return Ti.WWW.evalObjPreviewSrc(this.src, this.preview)
+    },
+    //--------------------------------------
+    MediaMime() {
+      // Customized
+      if(_.isFunction(this.mime)) {
+        return this.mime(this.src)
+      }
+      // Explain
+      if(this.src) {
+        if(_.isString(this.src)) {
+          return this.mime
+        }
+        return Ti.Util.explainObj(this.src, this.mime)
+      }
+    },
+    //--------------------------------------
+    MediaCom() {
+      let mime = this.MediaMime
+      // Default component
+      if(!mime) {
+        return {
+          comType : "TiLoading",
+          comConf : _.assign({
+            className : "as-hug",
+          }, this.blankAs)
+        }
+      }
+      //
+      // Image
+      //
+      if(/^image\/.+$/.test(mime)) {
+        return {
+          comType : "WebMediaImage",
+          comConf : _.assign({}, this.image, {
+            src : this.MediaSrc
+          })
+        }
+      }
+      //
+      // Video
+      //
+      if(/^video\/.+$/.test(mime)) {
+        return {
+          comType : "TiMediaVideo",
+          comConf : {
+            src  : this.MediaSrc,
+            mime : this.MediaMime
+          }
+        }
+      }
+      //
+      // Audio
+      //
+      if(/^audio\/.+$/.test(mime)) {
+        return {
+          comType : "TiMediaAudio",
+          comConf : {
+            src : this.MediaSrc
+          }
+        }
+      }
+      //
+      // Unknown
+      //
+      return {
+        comType : "TiLoading",
+        comConf : _.assign({
+          className : "as-hug",
+        }, this.unknownAs)
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnClickPrev() {
+      this.$notify("go:prev");
+    },
+    //--------------------------------------
+    OnClickNext() {
+      this.$notify("go:next");
+    }
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-input.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/input/ti-input.mjs'] = (function(){
@@ -23911,8 +24124,8 @@ const _M = {
     //------------------------------------------------
     ActionItems() {
       return [{
-        icon : "fas-plus",
-        text : "i18n:new-item",
+        icon : this.newItemIcon,
+        text : this.newItemText,
         action : ()=>{
           this.doAddNewItem()
         }
@@ -28214,7 +28427,7 @@ const _M = {
     //--------------------------------------------------
     async OnFieldChange({name, value}={}) {
       // Notify at first
-      //console.log("notify field", {name, value})
+      console.log("notify field", {name, value})
       this.$notify("field:change", {name, value})
 
       // Link fields
@@ -31139,8 +31352,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let icn 
       if(_.isPlainObject(this.myValue)){
         // Regular icon object, return it directly
-        if(this.myValue.type && this.myValue.value) {
-          icn = this.myValue
+        if(this.myValue.value) {
+          icn = _.cloneDeep(this.myValue)
         }
         // Eval it as meta
         else {
@@ -31148,6 +31361,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
             type  : "font", 
             value : Ti.Icons.get(this.myValue)
           }
+        }
+        // Auto type
+        if(!icn.type) {
+          icn.type = /(jpe?g|gif|png|svg)$/i.test(icn.value)
+                      ? "image"
+                      : "font"
         }
       }
       // String
@@ -31160,7 +31379,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           icn.type = Ti.Util.getSuffixName(this.myValue) || "font"
         }
         // for image
-        if(/^(jpe?g|gif|png)$/i.test(icn.type)){
+        if(/^(jpe?g|gif|png|svg)$/i.test(icn.type)){
           icn.type = "image"
         }
       }
@@ -31178,9 +31397,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
 
       // join style:outer
+      let width  = icn.width   || this.width
+      let height = icn.height  || this.height 
       icn.outerStyle = Ti.Css.toStyle({
-        width   : this.width,
-        height  : this.height,
+        width, height,
         color   : this.color,
         opacity : this.opacity >= 0 ? this.opacity : undefined
       })
@@ -31188,8 +31408,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // join style:inner
       if('image' == icn.type) {
         icn.innerStyle = {
-          "width"  : this.width  ? "100%" : undefined,
-          "height" : this.height ? "100%" : undefined
+          "width"  : width  ? "100%" : undefined,
+          "height" : height ? "100%" : undefined
         }
       }
       // font size
@@ -31367,7 +31587,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : Object,
     default : ()=>({
       icon : "far-list-alt",
-      text : "empty-data"
+      text : "i18n:empty-data"
     })
   },
   "blankClass": {
@@ -32639,19 +32859,20 @@ const _M = {
   }),
   //////////////////////////////////////////
   props : {
+    //-------------------------------------
+    // Data
+    //-------------------------------------
     "data" : {
       type : Array,
       default : ()=>[]
     },
-    // Item count per-row
-    "cols" : {
+    "currentIndex" : {
       type : Number,
-      default : 4
+      default : 0
     },
-    "itemWidth" : {
-      type : [String, Number],
-      default: undefined
-    },
+    //-------------------------------------
+    // Behavior
+    //-------------------------------------
     // Item comType
     "comType": {
       type: String,
@@ -32663,13 +32884,9 @@ const _M = {
         value: "=.."
       })
     },
-    "iconLeft": {
-      type: String,
-      default: "zmdi-chevron-left"
-    },
-    "iconRight": {
-      type: String,
-      default: "zmdi-chevron-right"
+    "clickItem" : {
+      type: [String, Function],
+      default: undefined
     },
     "enterItem" : {
       type: [String, Function],
@@ -32682,6 +32899,26 @@ const _M = {
     "keepScrolling" : {
       type : Boolean,
       default : false
+    },
+    //-------------------------------------
+    // Aspect
+    //-------------------------------------
+    // Item count per-row
+    "cols" : {
+      type : Number,
+      default : 4
+    },
+    "itemWidth" : {
+      type : [String, Number],
+      default: undefined
+    },
+    "iconLeft": {
+      type: String,
+      default: "zmdi-chevron-left"
+    },
+    "iconRight": {
+      type: String,
+      default: "zmdi-chevron-right"
     }
   },
   //////////////////////////////////////////
@@ -32741,8 +32978,11 @@ const _M = {
         // })
         let comConf = Ti.Util.explainObj(it, this.comConf)
         list.push({
+          index: i,
           key: `It-${i}`,
-          className: it.className,
+          className: Ti.Css.mergeClassName(it.className, {
+            "is-current" : i == this.currentIndex
+          }),
           rawData : it,
           comType : this.comType,
           comConf
@@ -32779,21 +33019,30 @@ const _M = {
       this.myScrollLeft -= step
     },
     //--------------------------------------
-    OnEnterTile(it) {
-      if(_.isFunction(this.enterItem)) {
-        this.enterItem(it)
+    OnClickTile(item, index) {
+      if(_.isFunction(this.clickItem)) {
+        this.clickItem({item, index})
       }
-      else if(_.isString(this.enterItem)) {
-        this.$notify(this.enterItem, it)
+      else if(_.isString(this.clickItem)) {
+        this.$notify(this.clickItem, {item, index})
       }
     },
     //--------------------------------------
-    OnLeaveTile(it) {
+    OnEnterTile(item, index) {
+      if(_.isFunction(this.enterItem)) {
+        this.enterItem({item, index})
+      }
+      else if(_.isString(this.enterItem)) {
+        this.$notify(this.enterItem, {item, index})
+      }
+    },
+    //--------------------------------------
+    OnLeaveTile(item, index) {
       if(_.isFunction(this.leaveItem)) {
-        this.leaveItem(it)
+        this.leaveItem({item, index})
       }
       else if(_.isString(this.leaveItem)) {
-        this.$notify(this.leaveItem, it)
+        this.$notify(this.leaveItem, {item, index})
       }
     },
     //--------------------------------------
@@ -33692,18 +33941,18 @@ const _M = {
         let tbd = ({
           markdown : [
             'formatselect',
-            'bold italic',
+            'bold italic link',
             'blockquote bullist numlist',
             'edit removeformat'],
           quick : [
             'formatselect',
-            'bold italic underline',
+            'bold italic underline link',
             'blockquote bullist numlist',
             'blocks',
             'edit removeformat'],
           full : [
             'formatselect',
-            'bold italic underline',
+            'bold italic underline link',
             'blockquote bullist numlist',
             'blocks',
             'table WnImgPick',
@@ -33769,7 +34018,12 @@ const _M = {
     //-----------------------------------------------
     TheTinyEditor() {
       let plugNames = _.map(this.myPlugins, ({name}={})=>name)
-      let plugins = ['paste lists table'].concat(plugNames)
+      //.........................................
+      let tinyConfig = _.omit(this.tinyConfig, "plugins")
+      let tinyPlugins = _.get(this.tinyConfig, "plugins")
+      //.........................................
+      let plugins = _.concat('paste lists table', plugNames, tinyPlugins)
+      //.........................................
       return _.assign({
         plugins: plugins.join(" "),
         content_css : this.ContentCssPath,
@@ -33793,7 +34047,7 @@ const _M = {
           'tableinsertrowbefore tableinsertrowafter tabledeleterow','tableinsertcolbefore tableinsertcolafter tabledeletecol',
           'tabledelete'].join("|"),
         table_use_colgroups: true
-      }, this.tinyConfig)
+      }, tinyConfig)
     }
     //-----------------------------------------------
   },
@@ -39956,6 +40210,26 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     // Behavior
     //------------------------------------------------
+    "autoSelect" : {
+      type : Boolean,
+      default : false
+    },
+    // TODO ... need to apply those settins below
+    // in __on_events
+    // "notifyName" : {
+    //   type : String,
+    //   default : "change"
+    // },
+    // "notifyWhen" : {
+    //   type : String,
+    //   default : "select"
+    // },
+    // "notifyPayload" : {
+    //   type : [Object, Function]
+    // },
+    //------------------------------------------------
+    // Aspect
+    //------------------------------------------------
     "filter" : {
       type : Object,
       default : ()=>({
@@ -40006,11 +40280,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           "value" : "I am detail"
         }
       })
-    },
-    //------------------------------------------------
-    // Aspect
-    //------------------------------------------------
-    
+    }
   },
   ////////////////////////////////////////////////////
   computed : {
@@ -40098,6 +40368,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     selectItem(id) {
       this.$adaptlist.selectItem(id)
     },
+    selectItemByIndex(id) {
+      this.$adaptlist.selectItemByIndex(id)
+    },
     invokeList(methodName) {
       this.$adaptlist.invokeList(methodName)
     },
@@ -40119,6 +40392,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
       handler : function() {
         this.myList = _.get(this.data, "list")
         this.myPager = _.get(this.data, "pager")
+      },
+      immediate : true
+    },
+    "ComList" : function() {
+      if(this.autoSelect) {
+        this.$nextTick(()=>{
+          _.delay(()=>{
+            this.selectItemByIndex(0)
+          }, 100)
+        })
       }
     },
     "search" : {
@@ -40132,6 +40415,99 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'web-shelf-audio-icons.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/shelf/audio-icons/web-shelf-audio-icons.mjs'] = (function(){
+const _M = {
+  //////////////////////////////////////////
+  data : ()=>({
+    myCurrentIndex: 0
+  }),
+  //////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "data" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "audioItem" : {
+      type : Object,
+      default : ()=>({
+        title : "=title"
+      })
+    },
+    "preview" : {
+      type: Object
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "audioConf" : {
+      type : Object
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    CurrentAudioData() {
+      return _.nth(this.data, this.myCurrentIndex)
+    },
+    //--------------------------------------
+    CurrentAudioSrc() {
+      return Ti.WWW.evalObjPreviewSrc(this.CurrentAudioData, this.preview)
+    },
+    //--------------------------------------
+    CurrentAudioComConf() {
+      if(this.CurrentAudioSrc) {
+        return _.assign({}, this.audioConf, {
+          src: this.CurrentAudioSrc
+        })
+      }
+    },
+    //--------------------------------------
+    hasAudios() {
+      return !_.isEmpty(this.data)
+    },
+    //--------------------------------------
+    hasMultiAudios() {
+      return this.hasAudios && this.data.length > 1
+    },
+    //--------------------------------------
+    AudioItems() {
+      return _.map(this.data, (it, index) => {
+        let re = Ti.Util.explainObj(it, this.audioItem) || {}
+        if(!re.title) {
+          re.title = index + 1;
+        }
+        re.current = index == this.myCurrentIndex
+        re.className = {
+          "is-current" : re.current
+        }
+        re.index = index
+        return re
+      })
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnGoTo({index}) {
+      this.myCurrentIndex = index
+    }
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'ti-input-color.mjs' -> null
@@ -41068,6 +41444,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : Object,
     default: ()=>({})
   },
+  "loading" : {
+    type : Boolean,
+    default : false
+  },
+  "loadingAs" : {
+    type : Object,
+    default : ()=>({
+      className : "is-info as-big as-cover",
+      icon : "fas-spinner fa-spin",
+      text : "i18n:loading"
+    })
+  },
   //-----------------------------------
   // Measure
   //-----------------------------------
@@ -41281,8 +41669,8 @@ const _M = {
         updateData : function(payload) {
           commit("updateData", payload)
         },
-        doAction : function(at) {
-          dispatch("doAction", at)
+        doAction : async function(at) {
+          await dispatch("doAction", at)
         }
       })
     },
@@ -42434,7 +42822,7 @@ const _M = {
     // Callback
     //-----------------------------------------------
     __ti_shortcut(uniqKey) {
-      //console.log("ti-combo-multi-input", uniqKey)
+      console.log("ti-combo-multi-input", uniqKey)
       //....................................
       if("ESCAPE" == uniqKey) {
         this.doCollapse({escaped:true})
@@ -44076,23 +44464,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
       })
     }
   }
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'wn-browser-methods.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/wn/browser/wn-browser-methods.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  //--------------------------------------------------
-  async queryTrademarks() {
-
-  },
-  //--------------------------------------------------
-  async loadTrademarkDetail() {
-
-  }
-  //--------------------------------------------------
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -46651,6 +47022,110 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'web-shelf-preview-scroller.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/shelf/preview-scroller/web-shelf-preview-scroller.mjs'] = (function(){
+const _M = {
+  //////////////////////////////////////////
+  data : ()=>({
+    myCurrentIndex: 0
+  }),
+  //////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "data" : {
+      type : Array,
+      default : ()=>[]
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "previewComType" : {
+      type: String,
+      default : "WebMedia"
+    },
+    "previewComConf" : {
+      type : Object,
+      default : ()=>({
+        value : "=.."
+      })
+    },
+    "itemComConf" : {
+      type : Object,
+      default : ()=>({})
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "scrollerClass" : {
+      type : [Object, String, Array],
+      default : "btn-at-inner btn-as-circle"
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    hasNext() {
+      return this.data && this.myCurrentIndex < (this.data.length - 1)
+    },
+    //--------------------------------------
+    hasPrev() {
+      return this.myCurrentIndex > 0
+    },
+    //--------------------------------------
+    CurrentPreviewData() {
+      return _.nth(this.data, this.myCurrentIndex)
+    },
+    //--------------------------------------
+    CurrentPreviewComConf() {
+      return Ti.Util.explainObj({
+        data: this.CurrentPreviewData,
+        hasNext : this.hasNext,
+        hasPrev : this.hasPrev
+      }, this.previewComConf)
+    },
+    //--------------------------------------
+    ScrollerComConf() {
+      return {
+        cols : 0,
+        data : this.data,
+        currentIndex : this.myCurrentIndex,
+        comType : "WebMediaImage",
+        comConf : this.itemComConf,
+        clickItem : ({index})=>{
+          this.myCurrentIndex = index
+        }
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnGoPrev() {
+      if(this.hasPrev) {
+        this.myCurrentIndex --;
+      }
+    },
+    //--------------------------------------
+    OnGoNext() {
+      if(this.hasNext) {
+        this.myCurrentIndex ++
+      }
+    },
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'ti-droplist.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/droplist/ti-droplist.mjs'] = (function(){
@@ -46728,6 +47203,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "actionAlign" : {
     type : String,
     default : undefined
+  },
+  "newItemIcon" : {
+    type : String,
+    default : "fas-plus"
+  },
+  "newItemText" : {
+    type : String,
+    default : "i18n:new-item"
   },
   //-----------------------------------
   // Measure
@@ -48872,7 +49355,7 @@ Ti.Preload("ti/com/ti/icon/ti-icon.html", `<div
       <template v-if="Icon.text">{{Icon.text}}</template>
     </i>
     <!--Svg/Image-->
-    <img v-else-if="'svg'==Icon.type || 'image'==Icon.type"
+    <img v-else-if="'image'==Icon.type"
         :src="Icon.value"
         :style="Icon.innerStyle"/>
     <!--
@@ -51077,15 +51560,15 @@ Ti.Preload("ti/com/ti/table/com/table-row/table-row.html", `<tr class="table-row
           <div v-else
             class="row-icon"></div>
         </template>
-        <!--Row Number-->
-        <div 
-          v-if="hasRowNumber"
-            class="row-number">{{RowNumber}}</div>
         <!--ICON: Checker-->
         <ti-icon v-if="checkable"
             class="row-checker"
             :value="theCheckIcon"
             @click.native.left.stop="OnClickChecker"/>
+        <!--Row Number-->
+        <div 
+          v-if="hasRowNumber"
+            class="row-number">{{RowNumber}}</div>
       </div>
     </template>
   </table-cell>
@@ -52746,6 +53229,12 @@ Ti.Preload("ti/com/web/gis/leaflet/web-gis-leaflet.html", `<div class="web-gsi-l
           <span>{{GeoStr(pointerClick.lat)}}, {{GeoStr(pointerClick.lng)}}</span>
       </div>
   </div>
+  <!--
+    Loading Info
+  -->
+  <TiLoading
+    v-if="loading"
+      v-bind="loadingAs"/>
 </div>`);
 //========================================
 // JOIN <web-gis-leaflet.mjs> ti/com/web/gis/leaflet/web-gis-leaflet.mjs
@@ -52839,6 +53328,57 @@ Ti.Preload("ti/com/web/media/player/_com.json", {
   "globally" : true,
   "template" : "./web-media-player.html",
   "mixins"   : ["./web-media-player.mjs"]
+});
+//========================================
+// JOIN <web-media.html> ti/com/web/media/web-media.html
+//========================================
+Ti.Preload("ti/com/web/media/web-media.html", `<div class="web-media"
+  :class="TopClass"
+  :style="TopStyle"><div class="as-con">
+  <!--Main media component-->
+  <component
+    class="web-media-com ti-fill-parent"
+    :is="MediaCom.comType"
+    v-bind="MediaCom.comConf"/>
+  <!--Show switcher-->
+  <div
+    v-if="showIconPrev || showIconNext"
+      class="as-switcher">
+      <!--Left-->
+      <div 
+        v-if="showIconPrev"
+          class="as-switcher-btn at-left">
+          <span @click.left="OnClickPrev">
+            <ti-icon :value="iconPrev"/>
+          </span>
+      </div>
+      <!--Right-->
+      <div
+        v-if="showIconNext"
+          class="as-switcher-btn at-right">
+          <span @click.left="OnClickNext">
+            <ti-icon :value="iconNext"/>
+          </span>
+      </div>
+  </div>
+</div></div>`);
+//========================================
+// JOIN <web-media.mjs> ti/com/web/media/web-media.mjs
+//========================================
+Ti.Preload("ti/com/web/media/web-media.mjs", TI_PACK_EXPORTS['ti/com/web/media/web-media.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/web/media/_com.json
+//========================================
+Ti.Preload("ti/com/web/media/_com.json", {
+  "name" : "web-media",
+  "globally" : true,
+  "template" : "./web-media.html",
+  "mixins"   : ["./web-media.mjs"],
+  "components" : [
+    "@com:web/media/image",
+    "@com:ti/media/video",
+    "@com:ti/media/audio"
+  ]
 });
 //========================================
 // JOIN <web-meta-article.html> ti/com/web/meta/article/web-meta-article.html
@@ -54037,6 +54577,60 @@ Ti.Preload("ti/com/web/row/article/_com.json", {
   "mixins" : ["./web-row-article.mjs"]
 });
 //========================================
+// JOIN <web-shelf-audio-icons.html> ti/com/web/shelf/audio-icons/web-shelf-audio-icons.html
+//========================================
+Ti.Preload("ti/com/web/shelf/audio-icons/web-shelf-audio-icons.html", `<div class="web-shelf-audio-icons"
+  :class="TopClass">
+  <!--
+    No audios
+  -->
+  <div
+    v-if="!hasAudios"
+      class="nil-audios">
+      <i class="fas fa-volume-up"></i>
+      <span>{{'i18n:empty' | i18n}}</span>
+  </div>
+  <!--
+    Show Audios
+  -->
+  <template v-else>
+    <!--
+      Player
+    -->
+    <TiMediaAudio v-bind="CurrentAudioComConf"/>
+    <!--
+      Candidate items
+    -->
+    <div
+      v-if="hasMultiAudios"
+        class="as-audio-icons">
+        <div
+          v-for="it in AudioItems"
+            class="as-audio-item"
+            :class="it.className"
+            @click.left="OnGoTo(it)">
+              <span>{{it.title}}</span>
+        </div>
+    </div>
+  </template>
+</div>`);
+//========================================
+// JOIN <web-shelf-audio-icons.mjs> ti/com/web/shelf/audio-icons/web-shelf-audio-icons.mjs
+//========================================
+Ti.Preload("ti/com/web/shelf/audio-icons/web-shelf-audio-icons.mjs", TI_PACK_EXPORTS['ti/com/web/shelf/audio-icons/web-shelf-audio-icons.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/web/shelf/audio-icons/_com.json
+//========================================
+Ti.Preload("ti/com/web/shelf/audio-icons/_com.json", {
+  "name" : "web-shelf-audio-icons",
+  "globally" : true,
+  "template" : "./web-shelf-audio-icons.html",
+  "mixins" : ["./web-shelf-audio-icons.mjs"],
+  "components" : [
+    "@com:ti/media/audio"
+  ]
+});
+//========================================
 // JOIN <web-shelf-free.html> ti/com/web/shelf/free/web-shelf-free.html
 //========================================
 Ti.Preload("ti/com/web/shelf/free/web-shelf-free.html", `<div class="web-shelf-free"
@@ -54256,6 +54850,42 @@ Ti.Preload("ti/com/web/shelf/list/_com.json", {
   "mixins" : ["./web-shelf-list.mjs"]
 });
 //========================================
+// JOIN <web-shelf-preview-scroller.html> ti/com/web/shelf/preview-scroller/web-shelf-preview-scroller.html
+//========================================
+Ti.Preload("ti/com/web/shelf/preview-scroller/web-shelf-preview-scroller.html", `<div class="web-shelf-preview-scroller"
+  :class="TopClass">
+    <!--
+      Current item preview
+    -->
+    <component class="as-preview" 
+      :is="previewComType" 
+      v-bind="CurrentPreviewComConf"
+      @go:prev="OnGoPrev"
+      @go:next="OnGoNext"/>
+    <!--
+      Candidate items
+    -->
+    <WebShelfScroller class="as-scroller"
+      :class="scrollerClass"
+      v-bind="ScrollerComConf"/>
+</div>`);
+//========================================
+// JOIN <web-shelf-preview-scroller.mjs> ti/com/web/shelf/preview-scroller/web-shelf-preview-scroller.mjs
+//========================================
+Ti.Preload("ti/com/web/shelf/preview-scroller/web-shelf-preview-scroller.mjs", TI_PACK_EXPORTS['ti/com/web/shelf/preview-scroller/web-shelf-preview-scroller.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/web/shelf/preview-scroller/_com.json
+//========================================
+Ti.Preload("ti/com/web/shelf/preview-scroller/_com.json", {
+  "name" : "web-shelf-preview-scroller",
+  "globally" : true,
+  "template" : "./web-shelf-preview-scroller.html",
+  "mixins" : ["./web-shelf-preview-scroller.mjs"],
+  "components" : [
+    "@com:web/media"
+  ]
+});
+//========================================
 // JOIN <web-shelf-scroller.html> ti/com/web/shelf/scroller/web-shelf-scroller.html
 //========================================
 Ti.Preload("ti/com/web/shelf/scroller/web-shelf-scroller.html", `<div class="web-shelf-scroller"
@@ -54276,8 +54906,9 @@ Ti.Preload("ti/com/web/shelf/scroller/web-shelf-scroller.html", `<div class="web
           :key="it.key"
           :style="ItemStyle"
           :class="it.className"
-          @mouseenter="OnEnterTile(it.rawData)"
-          @mouseleave="OnLeaveTile(it.rawData)">
+          @click.left="OnClickTile(it.rawData, it.index)"
+          @mouseenter="OnEnterTile(it.rawData, it.index)"
+          @mouseleave="OnLeaveTile(it.rawData, it.index)">
           <component
             :is="it.comType"
             v-bind="it.comConf"/>
@@ -55100,10 +55731,6 @@ Ti.Preload("ti/com/wn/adaptlist/_com.json", {
     "@com:ti/wall"]
 });
 //========================================
-// JOIN <wn-browser-methods.mjs> ti/com/wn/browser/wn-browser-methods.mjs
-//========================================
-Ti.Preload("ti/com/wn/browser/wn-browser-methods.mjs", TI_PACK_EXPORTS['ti/com/wn/browser/wn-browser-methods.mjs']);
-//========================================
 // JOIN <wn-browser.html> ti/com/wn/browser/wn-browser.html
 //========================================
 Ti.Preload("ti/com/wn/browser/wn-browser.html", `<TiGui
@@ -55123,7 +55750,6 @@ Ti.Preload("ti/com/wn/browser/_com.json", {
   "name" : "wn-browser",
   "globally" : true,
   "template" : "./wn-browser.html",
-  "methods" : "./wn-browser-methods.mjs",
   "mixins" : ["./wn-browser.mjs"],
   "components" : [
     "@com:ti/paging/jumper",

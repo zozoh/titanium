@@ -77,8 +77,8 @@ export default {
       let icn 
       if(_.isPlainObject(this.myValue)){
         // Regular icon object, return it directly
-        if(this.myValue.type && this.myValue.value) {
-          icn = this.myValue
+        if(this.myValue.value) {
+          icn = _.cloneDeep(this.myValue)
         }
         // Eval it as meta
         else {
@@ -86,6 +86,12 @@ export default {
             type  : "font", 
             value : Ti.Icons.get(this.myValue)
           }
+        }
+        // Auto type
+        if(!icn.type) {
+          icn.type = /(jpe?g|gif|png|svg)$/i.test(icn.value)
+                      ? "image"
+                      : "font"
         }
       }
       // String
@@ -98,7 +104,7 @@ export default {
           icn.type = Ti.Util.getSuffixName(this.myValue) || "font"
         }
         // for image
-        if(/^(jpe?g|gif|png)$/i.test(icn.type)){
+        if(/^(jpe?g|gif|png|svg)$/i.test(icn.type)){
           icn.type = "image"
         }
       }
@@ -116,9 +122,10 @@ export default {
       }
 
       // join style:outer
+      let width  = icn.width   || this.width
+      let height = icn.height  || this.height 
       icn.outerStyle = Ti.Css.toStyle({
-        width   : this.width,
-        height  : this.height,
+        width, height,
         color   : this.color,
         opacity : this.opacity >= 0 ? this.opacity : undefined
       })
@@ -126,8 +133,8 @@ export default {
       // join style:inner
       if('image' == icn.type) {
         icn.innerStyle = {
-          "width"  : this.width  ? "100%" : undefined,
-          "height" : this.height ? "100%" : undefined
+          "width"  : width  ? "100%" : undefined,
+          "height" : height ? "100%" : undefined
         }
       }
       // font size

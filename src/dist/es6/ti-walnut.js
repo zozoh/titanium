@@ -1,4 +1,4 @@
-// Pack At: 2021-03-01 20:45:54
+// Pack At: 2021-03-07 23:44:47
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -901,6 +901,8 @@ const Session = (function(){
       // Get Env
       return _.cloneDeep(ENVS)
     },
+    //----------------------------------------
+    getLang(){return WnSession.env("LANG")},
     //----------------------------------------
     getMyId() {return SESSION.uid},
     getMyName() {return SESSION.unm},
@@ -2308,7 +2310,7 @@ const OpenCmdPanel = (function(){
 
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210301.204555"
+const WALNUT_VERSION = "1.2-20210307.234448"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

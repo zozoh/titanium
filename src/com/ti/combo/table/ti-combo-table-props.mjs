@@ -48,6 +48,14 @@ export default {
     type : String,
     default : undefined
   },
+  "newItemIcon" : {
+    type : String,
+    default : "fas-plus"
+  },
+  "newItemText" : {
+    type : String,
+    default : "i18n:new-item"
+  },
   //-----------------------------------
   // Measure
   //-----------------------------------

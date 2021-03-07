@@ -1,4 +1,4 @@
-// Pack At: 2021-03-01 20:45:54
+// Pack At: 2021-03-07 23:44:47
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2533,6 +2533,10 @@ const {App} = (function(){
               return this.$store.state.main
             },
             //--------------------------------------
+            State() {
+              return this.$store.state
+            },
+            //--------------------------------------
             TopActionBarStatus() {
               return _.get(this.Main, "status")
             },
@@ -3003,7 +3007,7 @@ const {App} = (function(){
     async loadView(view) {
       // [Optional] Load the module
       //.....................................
-      let mod;
+      let mod, comName;
       if(view.modType) {
         let moInfo = await Ti.Load(view.modType)
         let moConf = await LoadTiLinkedObj(moInfo, {
@@ -3022,7 +3026,10 @@ const {App} = (function(){
       }
       //.....................................
       // Load the component
-      let comInfo = await Ti.Load(view.comType)
+      let comInfo = {}
+      if(view.comType) {
+        comInfo = await Ti.Load(view.comType)
+      }
       //.....................................
       // Push View dependance components
       Ti.Util.pushValue(comInfo, "components", view.components)
@@ -3041,22 +3048,24 @@ const {App} = (function(){
       let setup = TiVue.Setup(comConf)
       //.....................................
       // Get the formed comName
-      let comName = setup.options.name 
-                    || Ti.Util.getLinkName(view.comType)
-      //.....................................
-      if(Ti.IsInfo("TiApp")) {
-        console.log("TiApp.loadView:", comName)
-        console.log(" -- global:", setup.global)
-        console.log(" -- options:", setup.options)
+      if(view.comType) {
+        comName = setup.options.name 
+                      || Ti.Util.getLinkName(view.comType)
+        //.....................................
+        if(Ti.IsInfo("TiApp")) {
+          console.log("TiApp.loadView:", comName)
+          console.log(" -- global:", setup.global)
+          console.log(" -- options:", setup.options)
+        }
+        //.....................................
+        // Decorate it
+        Ti.Config.decorate(setup.options)
+        //.....................................
+        // Define the com
+        //console.log("define com:", comName)
+        //Vue.component(comName, setup.options)
+        TiVue.registerComponent(comName, setup.options)
       }
-      //.....................................
-      // Decorate it
-      Ti.Config.decorate(setup.options)
-      //.....................................
-      // Define the com
-      //console.log("define com:", comName)
-      //Vue.component(comName, setup.options)
-      TiVue.registerComponent(comName, setup.options)
       //.....................................
       _.map(setup.global.components, com=>{
         //Ti.I18n.put(com.i18n)
@@ -7513,6 +7522,9 @@ const {Types} = (function(){
       if(_.isDate(val)){
         return val.getTime()
       }
+      if(Ti.S.isBlank(val)) {
+        return NaN
+      }
       let n = 1 * val
       if(isNaN(n)){
         // console.log("invalid number")
@@ -8947,7 +8959,7 @@ const {Util} = (function(){
      * @return `Object|Array`
      */
     translate(source={}, mapping={}, customizer=_.identity) {
-      if(_.isEmpty(source) || _.isEmpty(mapping)) {
+      if(_.isEmpty(mapping)) {
         return _.cloneDeep(source)
       }
       // Array
@@ -8975,6 +8987,7 @@ const {Util} = (function(){
         mapping = map
       }
       // If source is string, just get the value
+      // translate('A', {A:1,B:2}) => 1
       if(_.isString(source)) {
         return _.get(mapping, source)
       }
@@ -10778,7 +10791,7 @@ const {WWW} = (function(){
           err,
           errText : err.responseText
         }, fail)
-        doAction(failAction)
+        await doAction(failAction)
         return
       }
       //.....................................
@@ -10820,7 +10833,7 @@ const {WWW} = (function(){
         vars, params, headers, body,
         data, reo
       }, ok)
-      doAction(okAction)
+      await doAction(okAction)
     }, // async runApiAndPrcessReturn
     //---------------------------------------
     /**
@@ -13124,6 +13137,9 @@ const {WebAppMain} = (function(){
     await app.init()
     Ti.App.pushInstance(app)
   
+    // Save the main web app instance
+    window.TiWebApp = app
+  
     // Save current app name
     Ti.SetAppName(app.name())
   
@@ -13185,7 +13201,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210301.204554",
+  "version" : "1.6-20210307.234447",
   "dev" : false,
   "appName" : null,
   "session" : {},

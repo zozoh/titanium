@@ -2,6 +2,26 @@ html {
   @include color($color-paper, r, c);
   height: 100%;
 }
+//...................................................
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: map-get($color-line, dark) map-get($color-line, shallow);
+}
+//...................................................
+::-webkit-scrollbar {
+  width: 8px; height: 8px;
+}
+::-webkit-scrollbar-track {
+  @include color($color-line, null, shallow);
+}
+::-webkit-scrollbar-thumb {
+  @include color($color-line, null, dark);
+}
+::-webkit-scrollbar-thumb:hover {
+  @include color($color-line, null, highlight);
+}
+//...................................................
 body.mce-content-body {
   @include color($color-f-text, c, r);
   font-size: 16px; min-height: 92%;
