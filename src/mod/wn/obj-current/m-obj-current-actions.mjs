@@ -1,3 +1,14 @@
+////////////////////////////////////////////
+function getKeepSearchAs(meta) {
+  if(meta && meta.keep_search_as) {
+    let keepAs = meta.keep_search_as
+    if(_.isBoolean(keepAs)) {
+      keepAs = `search-${meta.id}`
+    }
+    return keepAs
+  }
+}
+////////////////////////////////////////////
 const _M = {
   //----------------------------------------
   // Combin Mutations
@@ -153,6 +164,46 @@ const _M = {
     return newMeta
   },
   //----------------------------------------
+  saveSearchSetting({state, commit}, {filter, sorter, pager}={}) {
+    if(filter)
+      commit("setFilter", filter)
+    if(sorter)
+      commit("setSorter", sorter)
+    if(pager)
+      commit("setPager", pager)
+
+    let keepAs = getKeepSearchAs(state.meta)
+    if(keepAs) {
+      Ti.Storage.session.setObject(keepAs, {
+        filter : state.filter,
+        sorter : state.sorter,
+        pager  : {
+          pageNumber : state.pageNumber,
+          pageSize   : state.pageSize
+        }
+      })
+    }
+  },
+  //----------------------------------------
+  recoverSearchSetting({commit}, meta) {
+    let keepAs = getKeepSearchAs(meta)
+    if(keepAs) {
+      let {
+        filter, sorter, pager
+      } = Ti.Storage.session.getObject(keepAs, {})
+
+      commit("setFilter", filter)
+      commit("setSorter", sorter)
+      commit("setPager", pager)
+    }
+  },
+  //----------------------------------------
+  async query({dispatch}, search={}){
+    //console.log("query", search)
+    dispatch("saveSearchSetting", search)
+    return await dispatch("reload")
+  },
+  //----------------------------------------
   async reload({state, commit, dispatch}, meta) {
     if(state.status.reloading
       || state.status.saving){
@@ -177,6 +228,10 @@ const _M = {
       commit("setContent", null)
       return
     }
+    //......................................
+    // Restore the search setting
+    dispatch("recoverSearchSetting", meta)
+
     // Init content as null
     let content = null
     commit("setStatus", {reloading:true})
@@ -189,12 +244,32 @@ const _M = {
     //......................................
     // For dir
     else if('DIR' == meta.race) {
-      content = await Wn.Io.loadChildren(meta)
+      let cmds = [`o @query -p id:${meta.id}`]
+      cmds.push('-pager -mine')
+      if(state.pageSize > 0) {
+        let pgsz = state.pageSize
+        let pn = state.pageNumber || 1
+        let skip = Math.max(0, pgsz * (pn-1))
+        if(skip > 0) {
+          cmds.push(`-skip ${skip}`)
+        }
+        cmds.push(`-limit ${pgsz}`)
+      }
+      if(state.sorter) {
+        cmds.push(`-sort '${JSON.stringify(state.sorter)}'`)
+      }
+      let input;
+      if(state.filter) {
+        let flt = Wn.Util.getMatchByFilter(state.filter, meta.search_setting)
+        input = JSON.stringify(flt)
+      }
+      cmds.push('@json -cqnl')
+      content = await Wn.Sys.exec2(cmds.join(' '), {as:"json", input})
     }
     //......................................
     // Just update the meta
-    commit("setStatus", {reloading:false})
     commit("setMeta", meta)
+    commit("setStatus", {reloading:false})
     commit("clearFieldStatus")
     // Update content and sync state
     dispatch("updateContent", content)

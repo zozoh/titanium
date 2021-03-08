@@ -2,5 +2,8 @@
   "name" : "ti-paging-jumper",
   "globally" : true,
   "template" : "./ti-paging-jumper.html",
-  "mixins" : ["./ti-paging-jumper.mjs"]
+  "mixins" : [
+    "@com:ti/paging/support/ti-paging-mixins.mjs",
+    "./ti-paging-jumper.mjs"
+  ]
 }

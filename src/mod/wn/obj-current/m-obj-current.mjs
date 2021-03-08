@@ -82,6 +82,31 @@ const _M = {
       state.__saved_content = content
     },
     //----------------------------------------
+    setFilter(state, filter) {
+      state.filter = _.cloneDeep(filter)
+    },
+    //----------------------------------------
+    setSorter(state, sorter) {
+      state.sorter = _.cloneDeep(sorter)
+    },
+    //----------------------------------------
+    setPager(state, {pageNumber, pageSize}={}) {
+      if(_.isNumber(pageNumber)) {
+        state.pageNumber =  pageNumber
+      }
+      if(_.isNumber(pageSize)) {
+        state.pageSize =  pageSize
+      }
+    },
+    //----------------------------------------
+    setPagerNumber(state, pageNumber=1) {
+      state.pageNumber =  pageNumber
+    },
+    //----------------------------------------
+    setPageSize(state, pageSize=100) {
+      state.pageSize =  pageSize
+    },
+    //----------------------------------------
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)
     },

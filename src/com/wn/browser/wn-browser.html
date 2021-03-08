@@ -3,4 +3,7 @@
   :class="TopClass"
   :schema="TheSchema"
   :layout="TheLayout"
-  keep-shown-to="chispo-trademark-browser-gui-shown"/>
+  keep-shown-to="chispo-trademark-browser-gui-shown"
+  @filter::change="OnFilterChange"
+  @sorter::change="OnSorterChange"
+  @pager::change="OnPagerChange"/>

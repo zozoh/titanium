@@ -134,10 +134,16 @@ const _M = {
       }
     },
     //---------------------------------------
-    // Main Module
+    // Main Modules
     //---------------------------------------
     Main() {
       return this.$store.state.main
+    },
+    Current() {
+      return this.$store.state.current
+    },
+    Axis() {
+      return this.$store.state.axis
     },
     //---------------------------------------
     // GUI

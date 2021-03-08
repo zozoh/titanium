@@ -1,21 +1,5 @@
 export default {
   ///////////////////////////////////////////
-  props : {
-    "value" : {
-      type : Object,
-      default : ()=>({
-        pn : 0,     // Page Number
-        pgsz : 0,   // PageSize
-        pgc : 0,    // page count
-        sum : 0,    // Total
-        count : 0   // Record in page
-      })
-    },
-    "mapping" : {
-      type : [String, Object]
-    }
-  },
-  ///////////////////////////////////////////
   computed : {
     //--------------------------------------
     TopClass() {
@@ -24,28 +8,6 @@ export default {
     //--------------------------------------
     hasValue() {
       return !_.isEmpty(this.PageValue) && this.PageValue.pn > 0
-    },
-    //--------------------------------------
-    PageMapping() {
-      if(this.mapping) {
-        if("longName" == this.mapping) {
-          return {
-            pn : "pageNumber",
-            pgsz : "pageSize",
-            pgc : "pageCount",
-            sum : "totalCount",
-            count : "count"
-          }
-        }
-        return this.mapping
-      }
-    },
-    //--------------------------------------
-    PageValue() {
-      if(this.PageMapping) {
-        return Ti.Util.translate(this.value, this.PageMapping)
-      }
-      return this.value
     },
     //--------------------------------------
     PageNumberClass() {
@@ -79,7 +41,8 @@ export default {
     //--------------------------------------
     OnJumpTo(pageNumber) {
       if(!this.isInvalidPageNumber(pageNumber)) {
-        this.$notify("change", {
+        console.log("OnJumpTo", pageNumber)
+        this.notifyChange({
           skip :  this.PageValue.pgsz * (pageNumber-1),
           limit :  this.PageValue.pgsz, 
           pn   : pageNumber, 
@@ -113,7 +76,7 @@ export default {
         return 
       }
       // 通知修改
-      this.$notify("change", {
+      this.notifyChange({
         skip :  this.PageValue.pgsz * (pn-1),
         limit :  this.PageValue.pgsz, 
         pn   : pn, 
@@ -142,7 +105,7 @@ export default {
       }
       // 通知修改
       this.$notify("change:pgsz", pgsz)
-      this.$notify("change", {
+      this.notifyChange({
         skip  : 0,
         limit : pgsz,
         pn    : 1, 

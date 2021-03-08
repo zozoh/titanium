@@ -177,8 +177,11 @@
             //-----------------------------------------
             .row-number {
               @include font-fixed;
-              font-size: SZ(10); min-width: 3em; opacity: 0.6;
-              text-align: right;
+              font-size: SZ(10); opacity: 0.6;
+              padding: 0 SZ(6) 0 SZ(3);
+              &::after {
+                display: inline; content:".";
+              }
             }
             //-----------------------------------------
             .row-checker {

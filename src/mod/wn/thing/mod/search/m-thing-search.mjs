@@ -50,60 +50,12 @@ const _M = {
     },
     //---------------------------------------------------
     filterObj(state, getters, rootState) {
-      let {keyword, match, majorKey, majorValue} = state.filter || {}
-      let flt = {}
-      //............................................
-      // Eval Filter: keyword
-      if(keyword) {
-        if(/"^[\d\w]{26}(:.+)?$"/.test(keyword)) {
-          flt.id = keyword
-        }
-        // Find
-        else {
-          let knm = "title"
-          let beh = _.get(rootState, "main.config.schema.behavior") || {}
-          let keys = _.keys(beh.keyword)
-          //........................................
-          for(let k of keys) {
-            let val = beh.keyword[k]
-            if(new RegExp(val).test(keyword)) {
-              knm = k;
-              break;
-            }
-          }
-          //........................................
-          // Accurate equal
-          if(knm.startsWith("=")) {
-            flt[knm.substring(1).trim()] = keyword
-          }
-          // Default is like
-          else {
-            flt[knm] = "^.*"+keyword;
-          }
-          //........................................
-        }
-      }
-      //............................................
-      // Eval Filter: match
-      if(!_.isEmpty(match)) {
-        _.assign(flt, match)
-      }
-      //............................................
-      // Eval Filter: major
-      if(majorKey && !Ti.Util.isNil(majorValue)) {
-        _.set(flt, majorKey, majorValue)
-      }
-      //............................................
-      // Fix filter
-      let beMatch = _.get(rootState, "main.config.schema.behavior.match")
-      if(!_.isEmpty(beMatch)) {
-        _.assign(flt, beMatch)
-      }
-      //............................................
+      let setting = _.get(rootState, "main.config.schema.behavior") || {}
+      let flt = Wn.Util.getMatchByFilter(state.filter, setting)
+      
       // InRecycleBin 
       flt.th_live = state.inRecycleBin ? -1 : 1
-      //............................................
-      // Done
+      
       return flt
     },
     //---------------------------------------------------

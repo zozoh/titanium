@@ -81,11 +81,7 @@ const _M = {
     //------------------------------------------------
     ReverMapping() {
       if(this.mapping) {
-        let re = {}
-        _.forEach(this.mapping, (v, k)=>{
-          re[v] = k
-        })
-        return re
+        Ti.Util.reverMapping(this.mapping)
       }
     },
     //------------------------------------------------

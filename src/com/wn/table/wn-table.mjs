@@ -38,8 +38,8 @@ const _M = {
     },
     //----------------------------------------------
     // Delegate methods
-    selectPrevRow(options){this.$list.selectPrevRow(options)},
-    selectNextRow(options){this.$list.selectNextRow(options)},
+    selectPrevRow(options){return this.$list.selectPrevRow(options)},
+    selectNextRow(options){return this.$list.selectNextRow(options)},
 
     getCurrentRow(options){return this.$list.getCurrentRow(options)},
     getCheckedRow(options){return this.$list.getCheckedRow(options)},
@@ -47,9 +47,15 @@ const _M = {
     getCurrent(options){return this.$list.getCurrent(options)},
     getChecked(options){return this.$list.getChecked(options)},
 
-    selectRow(options){this.$list.selectRow(options)},
-    checkRow (options){this.$list.checkRow(options)},
-    cancelRow(options){this.$list.cancelRow(options)}
+    selectRow(options){return this.$list.selectRow(options)},
+    checkRow (options){return this.$list.checkRow(options)},
+    cancelRow(options){return this.$list.cancelRow(options)},
+
+    removeCheckedRow(idMap){return this.$list.removeCheckedRow(idMap)},
+    removeChecked(idMap){return this.$list.removeChecked(idMap)},
+
+    moveCheckedRow(offset, idMap){return this.$list.moveCheckedRow(offset, idMap)},
+    moveChecked(offset, idMap){return this.$list.moveChecked(offset, idMap)},
     //----------------------------------------------
   },
   ///////////////////////////////////////////////////

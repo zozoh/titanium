@@ -31,6 +31,13 @@ export default {
       type : Boolean,
       default : false
     },
+    "multi" : {
+      type : Boolean
+    },
+    "reloadBy" : {
+      type : [String, Function],
+      default : "current/query"
+    },
     // TODO ... need to apply those settins below
     // in __on_events
     // "notifyName" : {
@@ -74,7 +81,7 @@ export default {
             list : "=myList",
             pager : "=myPager"
           },
-          "multi" : true,
+          "multi" : "=multi",
           "status" : "=status"
         }
       })
@@ -85,7 +92,7 @@ export default {
         comType : "TiPagingJumper",
         comConf : {
           "value" : "=myPager",
-          "mapping" : "longName"
+          "valueType" : "longName"
         }
       })
     },
@@ -181,6 +188,28 @@ export default {
       this.$adaptlist = $adaptlist
     },
     //------------------------------------------------
+    OnFilterChange(filter) {
+      this.reload({filter, pager:{pageNumber:1}})
+    },
+    //------------------------------------------------
+    OnSorterChange(sorter) {
+      this.reload({sorter, pager:{pageNumber:1}})
+    },
+    //------------------------------------------------
+    OnPagerChange(pager) {
+      this.reload({pager})
+    },
+    //------------------------------------------------
+    async reload({filter, sorter, pager}={}) {
+      if(_.isString(this.reloadBy)) {
+        return await Ti.App(this).dispatch(this.reloadBy, {
+          filter, sorter, pager
+        })
+      }
+      // Customized reloading
+      return await this.reloadBy({filter, sorter, pager})
+    },
+    //------------------------------------------------
     // Delegate methods
     selectItem(id) {
       this.$adaptlist.selectItem(id)
@@ -223,7 +252,7 @@ export default {
     },
     "search" : {
       handler : function() {
-        this.mySearch = this.search
+        this.mySearch = _.cloneDeep(this.search)
       },
       immediate : true
     }

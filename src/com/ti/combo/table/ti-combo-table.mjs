@@ -158,7 +158,7 @@ const _M = {
       }
       // Invalid json
       catch(E) {
-        await Ti.Toast.Open("")
+        await Ti.Toast.Open("" + E)
       }
     },
     //-----------------------------------------------
@@ -203,6 +203,7 @@ const _M = {
     async openDialogForSource(json='[]') {
       let dialog = _.cloneDeep(this.dialog);
       _.assign(dialog, {
+        title : "i18n:edit",
         result : json,
         comType : "TiInputText",
         comConf : {

@@ -8,8 +8,8 @@
       <span class="it-text">{{'paging-first'|i18n}}</span></div>
   <div 
     class="pj-btn"
-    :class="getBtnClass(value.pn-1)"
-    @click="OnJumpTo(value.pn-1)">
+    :class="getBtnClass(PageValue.pn-1)"
+    @click="OnJumpTo(PageValue.pn-1)">
       <ti-icon value="zmdi-chevron-left"/>
       <span class="it-text">{{'paging-prev'|i18n}}</span></div>
   <div 
@@ -20,14 +20,14 @@
   </div>
   <div 
     class="pj-btn"
-    :class="getBtnClass(value.pn+1)"
-    @click="OnJumpTo(value.pn+1)">
+    :class="getBtnClass(PageValue.pn+1)"
+    @click="OnJumpTo(PageValue.pn+1)">
       <span class="it-text">{{'paging-next'|i18n}}</span>
       <ti-icon value="zmdi-chevron-right"/></div>
   <div 
     class="pj-btn"
-    :class="getBtnClass(value.pgc)"
-    @click="OnJumpTo(value.pgc)">
+    :class="getBtnClass(PageValue.pgc)"
+    @click="OnJumpTo(PageValue.pgc)">
       <span class="it-text">{{'paging-last'|i18n}}</span>
       <ti-icon value="zmdi-skip-next"/></div>
   <div

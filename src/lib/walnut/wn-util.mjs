@@ -237,6 +237,86 @@ const WnUtil = {
       params : {d:mode}
     })
   },
+  /**
+   * Eval filter obj {keyword, match, majorKey, majorValue}
+   * to the query object match
+   * 
+   * @param keyword{String} - Keyword to search. the `setting.keyword` will
+   *        explain the meaning
+   * @param match{Object} - match object
+   * @param majorKey{String} - key of the major search condition
+   * @param majorValue{Any} - value of the major search condition
+   * @param setting{Object} - Setting object:
+   * ```js
+   * {
+   *    "defaultKey" : "nm",
+   *    "keyword": {
+   *       "=id"   : "^[\\d\\w]{26}$",
+   *       "~nm"   : "^[a-z0-9]{10}$",
+   *       "title" : "^.+"
+   *    }, 
+   *    match : {  ...fixed matcher ... }
+   * }
+   * ```
+   */
+  getMatchByFilter({keyword, match, majorKey, majorValue}={}, setting={}) {
+    let flt = {}
+    //............................................
+    // Eval Filter: keyword
+    if(keyword) {
+      if(/"^[\d\w]{26}(:.+)?$"/.test(keyword)) {
+        flt.id = keyword
+      }
+      // Find
+      else {
+        let knm = setting.defaultKey || "nm"
+        let keywordSet = _.cloneDeep(setting.keyword)
+        let keys = _.keys(keywordSet)
+        //........................................
+        for(let k of keys) {
+          let val = keywordSet[k]
+          if(new RegExp(val).test(keyword)) {
+            knm = k;
+            break;
+          }
+        }
+        //........................................
+        // Accurate equal
+        if(knm.startsWith("=")) {
+          flt[knm.substring(1).trim()] = keyword
+        }
+        // Startwith
+        else if(knm.startsWith("~")) {
+          flt[knm.substring(1).trim()] = "^"+keyword
+        }
+        // Default is like
+        else {
+          flt[knm] = "^.*"+keyword;
+        }
+        //........................................
+      }
+    }
+    //............................................
+    // Eval Filter: match
+    if(!_.isEmpty(match)) {
+      _.assign(flt, match)
+    }
+    //............................................
+    // Eval Filter: major
+    if(majorKey && !Ti.Util.isNil(majorValue)) {
+      _.set(flt, majorKey, majorValue)
+    }
+    //............................................
+    // Fix filter
+    let fixedMatch = setting.match
+    if(!_.isEmpty(fixedMatch)) {
+      _.assign(flt, fixedMatch)
+    }
+    //............................................
+    // Done
+    return flt
+    //............................................
+  },
   /***
    * Get Object link as `Plain Object`
    * 

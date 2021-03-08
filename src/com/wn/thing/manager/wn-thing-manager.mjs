@@ -215,7 +215,9 @@ const _M = {
     //--------------------------------------
     OnPagerChange({pn, pgsz}={}) {
       //console.log("OnPagerChange", {pn, pgsz})
-      Ti.App(this).dispatch("main/search/reloadPage", {pn, pgsz})
+      let app = Ti.App(this)
+      app.commit("main/search/updatePager", {pn, pgsz})
+      app.dispatch("main/reloadSearch")
     },
     //--------------------------------------
     OnViewCurrentSource() {

@@ -591,6 +591,18 @@ const TiUtil = {
     }
     return ks.join(sep)
   },
+  /**
+   * Rever given object key and value
+   * 
+   * @return `Object`
+   */
+  reverMapping(mapping={}) {
+    let re = {}
+    _.forEach(mapping, (v, k)=>{
+      re[v] = k
+    })
+    return re
+  },
   /***
    * Create new Mapping value
    * 
