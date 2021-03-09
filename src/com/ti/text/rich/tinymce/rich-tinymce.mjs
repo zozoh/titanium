@@ -65,7 +65,13 @@ const _M = {
     },
     //------------------------------------------------
     ContentCssPath() {
-      return Ti.Config.url(`@theme:tinymce/doc_${this.theme}.css`)
+      let css = _.concat(
+        Ti.Config.url(`@theme:tinymce/doc_${this.theme}.css`),
+        Ti.Config.url(`@deps:zmdi/css/material-design-iconic-font.css`),
+        Ti.Config.url(`@deps:fontawesome/5.15.1-web/css/all.css`),
+        Ti.Config.url(`@deps:iconmonstr/css/iconmonstr-iconic-font.css`),
+      )
+      return css.join(",")
     },
     //-----------------------------------------------
     BlankComStyle() {
@@ -155,6 +161,11 @@ const _M = {
     },
     //-----------------------------------------------
     setElementEditable(editable, selector) {
+      // Direct element
+      if(_.isElement(selector)) {
+        selector.contentEditable = editable
+        return
+      }
       // Guard
       if(_.isEmpty(selector)) {
         return
@@ -166,12 +177,9 @@ const _M = {
         }
         return
       }
-      // Direct element
-      if(_.isElement(selector)) {
-        selector.contentEditable = editable
-      }
+      
       // Find
-      else if(_.isString(selector)) {
+      if(_.isString(selector)) {
         let els = this.$editor.$(selector)
         for(let i=0; i<els.length; i++) {
           els[i].contentEditable = editable
@@ -180,7 +188,9 @@ const _M = {
     },
     //-----------------------------------------------
     syncContent() {
-      this.myHtmlCode = this.$editor.getContent()
+      let str = this.$editor.getContent()
+      //console.log("content", typeof str, `【${str}】`, this.value)
+      this.myHtmlCode = str
     },
     //-----------------------------------------------
     evalCurrentHeading() {
