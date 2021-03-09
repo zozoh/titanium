@@ -78,6 +78,29 @@ const _M = {
       state.data = data
     },
     //----------------------------------------
+    setDataItem(state, newItem) {
+      // Guard
+      if(!newItem || !newItem.id)
+        return
+
+      let data = state.data
+
+      // Update pager list item of data
+      if(_.isArray(data.list) && data.pager) {
+        let list = _.cloneDeep(data.list)
+        list = _.map(list, li => {
+          if(li.id == newItem.id) {
+            return newItem
+          }
+          return li
+        })
+        state.data = {
+          list,
+          pager : data.pager
+        }
+      }
+    },
+    //----------------------------------------
     setSavedContent(state, content) {
       state.__saved_content = content
     },

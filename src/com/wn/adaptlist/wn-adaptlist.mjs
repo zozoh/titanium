@@ -225,7 +225,7 @@ const _M = {
             ? newItem
             : it
         })
-        this.myData.list = list
+        this.myData = _.assign({}, this.myData, {list})
       }
     },
     //--------------------------------------------
@@ -233,6 +233,17 @@ const _M = {
       this.myItemStatus = _.assign({}, this.myItemStatus, {
         [id] : status
       })
+    },
+    //--------------------------------------------
+    findRowById(rowId) {
+      return this.$innerList.findRowById(rowId)
+    },
+    //--------------------------------------------
+    getItemById(id) {
+      let row = this.$innerList.findRowById(id)
+      if(row) {
+        return row.rawData
+      }
     },
     //--------------------------------------------
     selectItem(id) {
@@ -249,7 +260,7 @@ const _M = {
     },
     //--------------------------------------------
     isHiddenItem(it) {
-      if(it.nm.startsWith(".") && !this.myExposeHidden) {
+      if(it && it.nm && it.nm.startsWith(".") && !this.myExposeHidden) {
         return true
       }
       return false
@@ -304,6 +315,13 @@ const _M = {
     },
     //--------------------------------------------
     syncMyData() {
+      //console.log("syncMyData")
+      // 有时候直接改了 myData， 竟然会导致这个函数被触发
+      // 我也是醉了，不知道为啥
+      // 这会导致通过 setItem 修改列表，修改不了
+      // 因为会被同步回来
+      // 是否做一点脏脏的事情呢？
+      //  - setItem 的时候做一个时间戳，在 500ms 内， 让 sync 不工作？
       this.myData = _.cloneDeep(this.data) || {
         list: [], pager: {}
       }
@@ -313,6 +331,12 @@ const _M = {
   },
   ////////////////////////////////////////////////
   watch: {
+    // "myData" : function(newVal, oldVal) {
+    //   console.log("MyData changed:", {
+    //     "newVal" : _.get(newVal, "list.0.nm"),
+    //     "oldVal" : _.get(oldVal, "list.0.nm"),
+    //   })
+    // },
     //--------------------------------------------
     "data" : {
       handler : "syncMyData",

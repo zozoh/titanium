@@ -4,7 +4,8 @@ export default {
     myList  : [],
     myPager : {},
     /*{filter: {}, sorter: {ct: -1}}*/
-    mySearch : {}
+    mySearch : {},
+    myCurrentId : undefined
   }),
   ////////////////////////////////////////////////////
   props : {
@@ -200,6 +201,27 @@ export default {
       this.reload({pager})
     },
     //------------------------------------------------
+    OnSelectItem({currentId}) {
+      this.myCurrentId = currentId
+      return false
+    },
+    //------------------------------------------------
+    doAutoSelectItem() {
+      // Guard
+      if(!this.autoSelect) 
+        return
+      // Try the last current Id
+      if(this.myCurrentId) {
+        let row = this.$adaptlist.findRowById(this.myCurrentId)
+        if(row) {
+          this.selectItem(row.id)
+          return
+        }
+      }
+      // Default use the first item
+      this.selectItemByIndex(0)
+    },
+    //------------------------------------------------
     async reload({filter, sorter, pager}={}) {
       if(_.isString(this.reloadBy)) {
         return await Ti.App(this).dispatch(this.reloadBy, {
@@ -211,6 +233,9 @@ export default {
     },
     //------------------------------------------------
     // Delegate methods
+    setItem(newItem) {
+      this.$adaptlist.setItem(newItem)
+    },
     selectItem(id) {
       this.$adaptlist.selectItem(id)
     },
@@ -229,6 +254,9 @@ export default {
     async openCurrentMeta() {
       return this.$adaptlist.openCurrentMeta()
     },
+    async doDelete(confirm) {
+      return this.$adaptlist.doDelete(confirm)
+    },
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
@@ -242,13 +270,11 @@ export default {
       immediate : true
     },
     "ComList" : function() {
-      if(this.autoSelect) {
-        this.$nextTick(()=>{
-          _.delay(()=>{
-            this.selectItemByIndex(0)
-          }, 100)
-        })
-      }
+      this.$nextTick(()=>{
+        _.delay(()=>{
+          this.doAutoSelectItem()
+        }, 100)
+      })
     },
     "search" : {
       handler : function() {
@@ -258,5 +284,13 @@ export default {
     }
     //------------------------------------------------
   },
+  ////////////////////////////////////////////////////
+  mounted : function() {
+    this.$nextTick(()=>{
+      _.delay(()=>{
+        this.doAutoSelectItem()
+      }, 100)
+    })
+  }
   ////////////////////////////////////////////////////
 }

@@ -128,7 +128,8 @@ const _M = {
         Ti.Be.EditIt(this.$el, {
           text: this.TheValue,
           ok : (newVal)=> {
-            this.$notify("change", newVal)
+            let val = Ti.S.toCase(newVal, this.valueCase)
+            this.$notify("change", val)
           }
         })
       }

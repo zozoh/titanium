@@ -154,6 +154,31 @@ const _M = {
       this.evalOutline()
     },
     //-----------------------------------------------
+    setElementEditable(editable, selector) {
+      // Guard
+      if(_.isEmpty(selector)) {
+        return
+      }
+      // Batch
+      if(_.isArray(selector)) {
+        for(let sel of selector) {
+          this.setElementEditable(editable, sel)
+        }
+        return
+      }
+      // Direct element
+      if(_.isElement(selector)) {
+        selector.contentEditable = editable
+      }
+      // Find
+      else if(_.isString(selector)) {
+        let els = this.$editor.$(selector)
+        for(let i=0; i<els.length; i++) {
+          els[i].contentEditable = editable
+        }
+      }
+    },
+    //-----------------------------------------------
     syncContent() {
       this.myHtmlCode = this.$editor.getContent()
     },

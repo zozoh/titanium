@@ -509,7 +509,7 @@ const TiStr = {
    */
   toCase(str, mode) {
     // Guard
-    if(Ti.Util.isNil(str))
+    if(Ti.Util.isNil(str) || !mode)
       return str
     // Find mode
     let fn = TiStr.getCaseFunc(mode)

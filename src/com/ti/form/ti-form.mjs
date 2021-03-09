@@ -214,7 +214,7 @@ const _M = {
     //--------------------------------------------------
     async OnFieldChange({name, value}={}) {
       // Notify at first
-      console.log("notify field", {name, value})
+      //console.log("notify field", {name, value})
       this.$notify("field:change", {name, value})
 
       // Link fields

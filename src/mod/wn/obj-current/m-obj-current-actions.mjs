@@ -245,7 +245,7 @@ const _M = {
     // For dir
     else if('DIR' == meta.race) {
       let cmds = [`o @query -p id:${meta.id}`]
-      cmds.push('-pager -mine')
+      cmds.push('-pager -mine -hidden')
       if(state.pageSize > 0) {
         let pgsz = state.pageSize
         let pn = state.pageNumber || 1

@@ -4,6 +4,7 @@
   :schema="TheSchema"
   :layout="TheLayout"
   keep-shown-to="chispo-trademark-browser-gui-shown"
+  @select="OnSelectItem"
   @filter::change="OnFilterChange"
   @sorter::change="OnSorterChange"
   @pager::change="OnPagerChange"/>
