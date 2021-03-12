@@ -12,6 +12,10 @@
   "anchor" : null,
   "apis" : {},
   "data" : {},
+  "gui" : {
+    "flex" : "nil",
+    "overflow" : "none"
+  },
   "contextMenu": true,
   "explainDataKey": [],
   "layout" : {

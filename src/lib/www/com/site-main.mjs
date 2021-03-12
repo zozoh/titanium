@@ -124,8 +124,8 @@ const _M = {
       // Gen the GUI object
       let gui = {
         className: page.className,
-        defaultFlex: "nil",
-        defaultOverflow: "none",
+        defaultFlex: "=page.gui.flex?nil",
+        defaultOverflow: "=page.gui.overflow?none",
         layout, 
         schema : {},
         canLoading : true
