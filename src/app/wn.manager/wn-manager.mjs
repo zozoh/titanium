@@ -268,7 +268,7 @@ const _M = {
       let reo = await Ti.Http.get("/a/sys_logout", {
         params:{ajax:true}
       })
-      console.log(reo)
+      //console.log(reo)
       Ti.Be.Open(quitPath, {target:"_self", delay:0})
     }
     //--------------------------------------
@@ -298,6 +298,14 @@ const _M = {
     //......................................
     this.reloadSidebar()
     this.reloadPrivilege()
+    //......................................
+    window.onpopstate = (evt)=>{
+      let obj = evt.state
+      //console.log("popstate", obj)
+      if(obj && obj.id && obj.ph) {
+        Ti.App(this).dispatch("current/reload", obj)
+      }
+    }
     //......................................
   },
   ///////////////////////////////////////////

@@ -209,8 +209,9 @@ const _M = {
       let pgLink = this.pageUri
       //...................................
       if(loPath != pgLink || !his.state) {
-        let pg = _.cloneDeep(_.pick(this.page, "path", "params", "anchor"))
-        // console.log("pg", JSON.stringify(pg))
+        let pg = _.pick(this.page, "pageUri","href", "path", "params", "anchor");
+        pg = _.cloneDeep(pg)
+        console.log("pg", JSON.stringify(pg))
         // console.log("pageTitle", pageTitle)
         // console.log("pgLink", pgLink)
         his.pushState(pg, pageTitle, pgLink)
@@ -237,13 +238,13 @@ const _M = {
     // The state(page) pushed by $store.dispath("navTo")
     window.onpopstate = (evt)=>{
       let page = evt.state
-      console.log("popstate", page)
-      if(page && page.path) {
-        console.log("window.onpopstate", page)
+      //console.log("popstate", page)
+      if(page && page.href) {
+        //console.log("window.onpopstate", page)
         let app = Ti.App(this)
         app.dispatch("navTo", {
           type   : "page",
-          value  : page.path,
+          value  : page.href,
           params : page.params,
           anchor : page.anchor
         })

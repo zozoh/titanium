@@ -120,10 +120,9 @@ const _M = {
       // Push to history stack
       let newLink = Wn.Util.getAppLink(meta.id)
       let title =  Wn.Util.getObjDisplayName(meta)
-      if(Ti.IsInfo("app/wn-manager")) {
-        console.log(title , "->", newLink)
-      }
-      his.pushState(meta, title, newLink)
+      let obj = _.cloneDeep(meta)
+      //console.log(title , "->", newLink)
+      his.pushState(obj, title, newLink)
       // Update the Title
       document.title = Ti.I18n.text(title);
     }
