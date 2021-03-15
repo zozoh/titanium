@@ -16,6 +16,7 @@ const _M = {
     //----------------------------------------
     setContent(state, content) {
       let meta = state.meta;
+      //console.log("setContent", content)
       // Guard
       if(!meta || _.isUndefined(content)) {
         state.content = null

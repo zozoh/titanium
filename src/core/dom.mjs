@@ -421,8 +421,8 @@ const TiDom = {
     max=100,min=80,
     callback
   }={}) {
-    const $doc  = window.document
-    const $root = document.documentElement
+    const $doc  = $win.document
+    const $root = $doc.documentElement
     const win_rect = Ti.Rects.createBy($win)
     let size = (win_rect.width/designWidth) * max
     let fontSize = Math.min(Math.max(size,min), max)
@@ -503,9 +503,15 @@ const TiDom = {
   //----------------------------------------------------
   addClass($el, ...classNames) {
     let klass = _.flattenDeep(classNames)
+    let klassMap = {}
+    _.forEach($el.classList, myClass=>{
+      klassMap[myClass] = true
+    })
     for(let kl of klass) {
       let className = _.trim(kl)
-      $el.classList.add(className)
+      if(!klassMap[className]) {
+        $el.classList.add(className)
+      }
     }
   },
   //----------------------------------------------------

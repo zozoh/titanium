@@ -10,6 +10,7 @@ import EditObjMeta      from "./wn-edit-obj-meta.mjs"
 import EditObjContent   from "./wn-edit-obj-content.mjs"
 import EditTiComponent  from "./wn-edit-ti-component.mjs"
 import OpenCmdPanel     from "./wn-run-cmd-panel.mjs"
+import Youtube   from "./wn-youtube.mjs"
 
 
 //---------------------------------------
@@ -25,6 +26,7 @@ export const Wn = {
   Io, Obj, Session, Sys, Util, Dict, 
   OpenObjSelector, EditObjMeta, EditObjContent,
   EditTiComponent, OpenThingManager, OpenCmdPanel,
+  Youtube,
   //-------------------------------------
   addHook(key, fn) {
     Ti.Util.pushValue(HOOKs, key, fn)

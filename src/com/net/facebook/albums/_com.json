@@ -1,0 +1,14 @@
+{
+  "name" : "net-facebook-albums",
+  "globally" : true,
+  "template" : "./facebook-albums.html",
+  "mixins" : ["./facebook-albums.mjs"],
+  "components": [
+    "@com:ti/wall",
+    "@com:web/shelf/wall",
+    "@com:web/media/image"
+  ],
+  "deps" : [
+    "@https://connect.facebook.net/en_US/sdk.js"
+  ]
+}

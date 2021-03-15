@@ -16,7 +16,7 @@ const _M = {
     },
     // The URL of thumb
     "preview" : {
-      type : [String, Object],
+      type : [String, Object, Function],
       default : "broken_image"
     },
     "href" : {

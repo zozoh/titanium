@@ -51,7 +51,7 @@ const _M = {
             'bold italic underline link',
             'blockquote bullist numlist',
             'blocks',
-            'table WnImgPick',
+            'table WnImgPick WnVideoPick WnYoutubePick',
             'superscript subscript',
             'edit removeformat',
             'TiPreview']
@@ -358,6 +358,19 @@ const _M = {
           })
           editor.on("SelectionChange", (evt)=>{
             this.evalCurrentHeading()
+          })
+          editor.on('init', ()=>{
+            let $html = editor.$('html')[0]
+            let $win = Ti.Dom.ownerWindow($html)
+            Ti.Dom.watchAutoRootFontSize({
+              phoneMaxWidth:640,
+              tabletMaxWidth:900,
+              designWidth:1200,
+              max:100,min:70,
+            }, ({$root, mode, fontSize})=>{
+              $root.style.fontSize = fontSize + "px"
+              $root.setAttribute("as", mode)
+            }, $win)
           })
           //
           // Shortcute

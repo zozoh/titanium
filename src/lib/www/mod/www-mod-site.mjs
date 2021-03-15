@@ -225,7 +225,6 @@ const _M = {
       commit("setLoading", false)
     },
     //--------------------------------------------
-    //--------------------------------------------
     navBackward() {
       if(window.history) {
         window.history.back()

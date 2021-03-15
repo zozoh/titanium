@@ -4,7 +4,7 @@ export default {
   //-----------------------------------
   "data" : {
     type : [Array, String],
-    default : ()=>[]
+    default : undefined
   },
   // If input the value(ID) Array
   // it can translate by this Dict
@@ -131,6 +131,14 @@ export default {
     type: String,
     default: "as-big-mask",
     validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
+  },
+  "loadingAs" : {
+    type : Object,
+    default : ()=>({
+      className : "as-nil-mask as-big-mask",
+      icon : undefined,
+      text : undefined
+    })
   },
   "rowNumberBase" : {
     type : Number,

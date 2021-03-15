@@ -41,6 +41,10 @@ const LIST_MIXINS = {
       return Ti.Util.genRowDataGetter(this.rawDataBy)
     },
     //-----------------------------------------------
+    isDataLoading() {
+      return _.isUndefined(this.data)
+    },
+    //-----------------------------------------------
     isDataEmpty() {
       return !_.isArray(this.data) || _.isEmpty(this.data)
     },

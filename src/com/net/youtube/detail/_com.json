@@ -1,0 +1,10 @@
+{
+  "name" : "net-youtube-detail",
+  "globally" : true,
+  "template" : "./youtube-detail.html",
+  "mixins" : ["./youtube-detail.mjs"],
+  "components": [
+    "@com:ti/form",
+    "@com:net/youtube/player"
+  ]
+}

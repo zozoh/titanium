@@ -85,7 +85,18 @@ export class TiTime {
     }
     // String
     else if(_.isString(input)) {
-      let m = /^([0-9]{1,2}):?([0-9]{1,2})(:?([0-9]{1,2})([.,]([0-9]{1,3}))?)?$/
+      // ISO 8601 Time
+      let m = /^PT((\d+)H)?((\d+)M)?((\d+)S)?$/.exec(input)
+      if(m) {
+        this.hours = m[2] ? m[2] * 1 : 0;
+        this.minutes = m[4] ? m[4] * 1 : 0;
+        this.seconds = m[6] ? m[6] * 1 : 0;
+        this.milliseconds = 0;
+        return this
+      }
+
+      // Time string
+      m = /^([0-9]{1,2}):?([0-9]{1,2})(:?([0-9]{1,2})([.,]([0-9]{1,3}))?)?$/
                     .exec(input);
       if(m) {
         // Min: 23:59

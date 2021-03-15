@@ -42,6 +42,23 @@ body.mce-content-body {
     @include color($color-f-code,c, r);
   }
   //-----------------------------------------------------
+  [contentEditable=false][data-mce-selected] {
+    cursor: pointer;
+  }
+  //-----------------------------------------------------
+  div.wn-media {
+    @include color($color-paper, c, r);
+    @include flex-align-nowrap($ai:stretch);
+    width:5.4rem; height: 3rem; cursor: pointer;
+    .media-inner {
+      @include flex-center;
+      flex:1 1 auto; font-size: SZ(64);
+      background-repeat: no-repeat;
+      background-size: cover; 
+      background-position: center;
+    }
+  }
+  //-----------------------------------------------------
   h1 {@include color($color-b-h1, c, r);}
   h2 {@include color($color-b-h2, c, r);}
   h3 {@include color($color-b-h3, c, r);}

@@ -3,10 +3,17 @@
   @click="OnClickTop"
   v-ti-activable>
   <!--
+    Loading
+  -->
+  <ti-loading 
+    v-if="isDataLoading"
+      class="nil-data"
+      v-bind="loadingAs"/>
+  <!--
     Blank
   -->
   <ti-loading 
-    v-if="isDataEmpty"
+    v-else-if="isDataEmpty"
       class="nil-data"
       :class="blankClass"
       v-bind="blankAs"/>

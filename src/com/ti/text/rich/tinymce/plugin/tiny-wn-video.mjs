@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////
-async function pickImageAndInsertToDoc(editor, {
+async function pickVideoAndInsertToDoc(editor, {
   base = "~", 
   autoCreate=null, 
   fallbackPath,
@@ -23,7 +23,7 @@ async function pickImageAndInsertToDoc(editor, {
   // Show dialog
   let reo = await Wn.OpenObjSelector(base, {
     icon  : "fas-image",
-    title : "i18n:img-insert",
+    title : "i18n:video-insert",
     position : "top",
     width  : "95%",
     height : "95%",
@@ -37,11 +37,64 @@ async function pickImageAndInsertToDoc(editor, {
   }
 
   // Do insert image
-  editor.execCommand("InsertImage", editor, reo)
+  editor.execCommand("InsertVideo", editor, reo)
 }
 ////////////////////////////////////////////////////
-function CmdInsertImage(editor, oImgs) {
-  if(_.isEmpty(oImgs))
+function GetVideoAttrsByElement(elVideo) {
+  let stl = Ti.Dom.getStyle(elVideo, 
+    /^(width|height|float|(margin-(left|right|top|bottom)))$/)
+  stl.float = stl.float || "none"
+  return {
+    oid   : elVideo.getAttribute("wn-obj-id"),
+    sha1  : elVideo.getAttribute("wn-obj-sha1"),
+    mime  : elVideo.getAttribute("wn-obj-mime"),
+    tp    : elVideo.getAttribute("wn-obj-tp"),
+    thumb : elVideo.getAttribute("wn-obj-thumb"),
+    video_cover   : elVideo.getAttribute("wn-obj-video_cover"),
+    naturalWidth  : elVideo.getAttribute("wn-obj-width"),
+    naturalHeight : elVideo.getAttribute("wn-obj-height"),
+    duration : elVideo.getAttribute("wn-obj-duration"),
+    ... stl
+  }
+}
+////////////////////////////////////////////////////
+function GetVideoAttrsByObj(oVideo) {
+  return {
+    "wn-obj-id" : oVideo.id,
+    "wn-obj-sha1" : oVideo.sha1,
+    "wn-obj-mime" : oVideo.mime,
+    "wn-obj-tp"   : oVideo.tp,
+    "wn-obj-thumb" : oVideo.thumb,
+    "wn-obj-video_cover" : oVideo.video_cover,
+    "wn-obj-width" : oVideo.width,
+    "wn-obj-height" : oVideo.height,
+    "wn-obj-duration" : oVideo.duration
+  }
+}
+////////////////////////////////////////////////////
+function UpdateVideoTagInnerHtml(elVideo) {
+  let cover = elVideo.getAttribute("wn-obj-video_cover")
+  if(!cover) {
+    cover = elVideo.getAttribute("wn-obj-thumb")
+  }
+  if(cover && !cover.startsWith("id:")) {
+    cover = "id:" + cover
+  }
+  let $inner = Ti.Dom.createElement({
+    tagName : "div",
+    className : "media-inner",
+    style : {
+      "background-image" : `url("/o/content?str=${cover}")`
+    }
+  })
+  $inner.innerHTML = '<i class="fas fa-play-circle"></i>'
+  elVideo.innerHTML = null
+  elVideo.contentEditable = false
+  Ti.Dom.appendTo($inner, elVideo)
+}
+////////////////////////////////////////////////////
+function CmdInsertVideo(editor, oVideos) {
+  if(_.isEmpty(oVideos))
     return
   
   // Prepare range
@@ -50,18 +103,14 @@ function CmdInsertImage(editor, oImgs) {
   // Create image fragments
   let $doc = rng.commonAncestorContainer.ownerDocument
   let frag = new DocumentFragment()
-  for(let oImg of oImgs) {
-    let $img = Ti.Dom.createElement({
-      tagName : "img",
-      attrs : {
-        src : `/o/content?str=id:${oImg.id}`,
-        "wn-obj-id" : oImg.id,
-        "wn-obj-sha1" : oImg.sha1,
-        "wn-obj-mime" : oImg.mime,
-        "wn-obj-tp"   : oImg.tp
-      }
+  for(let oVideo of oVideos) {
+    let $video = Ti.Dom.createElement({
+      tagName : "div",
+      className : "wn-media as-video",
+      attrs : GetVideoAttrsByObj(oVideo)
     }, $doc)
-    frag.appendChild($img)
+    UpdateVideoTagInnerHtml($video)
+    frag.appendChild($video)
   }
   
   // Remove content
@@ -74,71 +123,54 @@ function CmdInsertImage(editor, oImgs) {
 
 }
 ////////////////////////////////////////////////////
-function GetCurrentImageElement(editor) {
+function GetCurrentVideoElement(editor) {
   let sel = editor.selection
-  let $img = sel.getNode()
+  let $nd = sel.getNode()
   // Guard
-  if("IMG" != $img.tagName) {
-    return
-  }
-  return $img
+  return Ti.Dom.closest($nd, (el)=>{
+    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-video")
+  })
 }
 ////////////////////////////////////////////////////
-function CmdSetImageSize(editor, {width=null, height=null}={}) {
-  let sel = editor.selection
-  let $img = sel.getNode()
+function CmdSetVideoSize(editor, {width="", height=""}={}) {
+  let $video = GetCurrentVideoElement(editor)
   // Guard
-  if("IMG" != $img.tagName) {
+  if(!_.isElement($video)) {
     return
   }
   // Clear the attribute
-  Ti.Dom.setAttrs($img, {width, height})
+  Ti.Dom.setStyle($video, {width, height})
   // Force sync content
   editor.__rich_tinymce_com.syncContent()
 }
 ////////////////////////////////////////////////////
-function CmdSetImageStyle(editor, css={}) {
-  let sel = editor.selection
-  let $img = sel.getNode()
+function CmdSetVideoStyle(editor, css={}) {
+  let $video = GetCurrentVideoElement(editor)
   // Guard
-  if("IMG" != $img.tagName) {
+  if(!_.isElement($video)) {
     return
   }
   // Clear float
-  Ti.Dom.setStyle($img, css)
+  Ti.Dom.setStyle($video, css)
   // Force sync content
   editor.__rich_tinymce_com.syncContent()
 }
 ////////////////////////////////////////////////////
-async function CmdShowImageProp(editor, settings) {
-  let sel = editor.selection
-  let $img = sel.getNode()
+async function CmdShowVideoProp(editor, settings) {
+  let $video = GetCurrentVideoElement(editor)
   // Guard
-  if("IMG" != $img.tagName) {
+  if(!_.isElement($video)) {
     return
   }
-  // Get margin style
-  let stl = Ti.Dom.getStyle($img, /^(float|(margin-(left|right|top|bottom)))$/)
-  stl.float = stl.float || "none"
   //console.log("stl", stl)
   // Gen the properties
-  let data = {
-    oid    : $img.getAttribute("wn-obj-id"),
-    src    : $img.getAttribute("src"),
-    width  : $img.getAttribute("width")  || undefined,
-    height : $img.getAttribute("height") || undefined,
-    displayWidth  : $img.width,
-    displayHeight : $img.height,
-    naturalWidth  : $img.naturalWidth,
-    naturalHeight : $img.naturalHeight,
-    ... stl
-  }
+  let data = GetVideoAttrsByElement($video)
 
   //console.log(data)
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fas-image",
-    title : "编辑图片属性",
+    title : "编辑视频属性",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -150,7 +182,7 @@ async function CmdShowImageProp(editor, settings) {
     comConf : {
       spacing : "tiny",
       fields : [{
-          title : "图片",
+          title : "视频",
           name  : "oid",
           comType : "WnObjPicker",
           comConf : {
@@ -165,14 +197,14 @@ async function CmdShowImageProp(editor, settings) {
             name  : "width",
             comType : "TiInput",
             comConf : {
-              placeholder: `${data.displayWidth}/${data.naturalWidth}px`
+              placeholder: `${data.naturalWidth}px`
             }
           }, {
             title : "高度",
             name  : "height",
             comType : "TiInput",
             comConf : {
-              placeholder: `${data.displayHeight}/${data.naturalHeight}px`
+              placeholder: `${data.naturalHeight}px`
             }
           }]
         }, {
@@ -187,7 +219,7 @@ async function CmdShowImageProp(editor, settings) {
               {value: "right", text: "右绕图", icon:"fas-align-right"},]
           }
         }, {
-          title : "图片边距",
+          title : "视频距",
           fields : [{
             title : "上",
             name  : "marginTop",
@@ -232,72 +264,59 @@ async function CmdShowImageProp(editor, settings) {
   //................................................
   // src
   if(data.oid != reo.oid) {
-    // Remove Image
+    // Remove Video
     if(!reo.oid) {
-      Ti.Dom.remove($img)
+      Ti.Dom.remove($video)
       return
     }
     // 读取对象详情
-    let oImg = await Wn.Io.loadMetaById(reo.oid)
+    let oVideo = await Wn.Io.loadMetaById(reo.oid)
     // Switch image src
-    $img.src = `/o/content?str=id:${reo.oid}`
-    $img.setAttribute("wn-obj-id", oImg.id)
-    $img.setAttribute("wn-obj-sha1", oImg.sha1)
-    $img.setAttribute("wn-obj-mime", oImg.mime)
-    $img.setAttribute("wn-obj-tp", oImg.tp)
+    let attrs = GetVideoAttrsByObj(oVideo)
+    Ti.Dom.setAttrs($video, attrs)
+
+    UpdateVideoTagInnerHtml($video)
+    
   }
-  //................................................
-  // Measure
-  const _img_size = function(attrName, sz, oldSize) {
-    if(oldSize == sz)
-      return
-    if(!sz) {
-      $img.removeAttribute(attrName)
-    } else {
-      $img.setAttribute(attrName, sz)
-    }
-  }
-  //................................................
-  // Width/height
-  _img_size("width",  reo.width,  data.width)
-  _img_size("height", reo.height, data.height)
   //................................................
   // Styling
-  const _img_style = function(styName, v, oldValue) {
+  const _video_style = function(styName, v, oldValue) {
     if(oldValue == v)
       return
     if(!v || "none" == v) {
-      $img.style[styName] = ""
-    } else if(_.isNumber(v)) {
-      $img.style[styName] = `${v}px`
+      $video.style[styName] = ""
+    } else if(_.isNumber(v) || /^\d+(\.\d+)?$/.test(v)) {
+      $video.style[styName] = `${v}px`
     } else {
-      $img.style[styName] = v
+      $video.style[styName] = v
     }
   }
   //................................................
-  _img_style("float", reo.float, data.float)
-  _img_style("marginLeft",   reo.marginLeft,   data.marginLeft)
-  _img_style("marginRight",  reo.marginRight,  data.marginRight)
-  _img_style("marginTop",    reo.marginTop,    data.marginTop)
-  _img_style("marginBottom", reo.marginBottom, data.marginBottom)
+  _video_style("width", reo.width, data.width)
+  _video_style("height", reo.height, data.height)
+  _video_style("float", reo.float, data.float)
+  _video_style("marginLeft",   reo.marginLeft,   data.marginLeft)
+  _video_style("marginRight",  reo.marginRight,  data.marginRight)
+  _video_style("marginTop",    reo.marginTop,    data.marginTop)
+  _video_style("marginBottom", reo.marginBottom, data.marginBottom)
   //................................................
   // clean cache
-  $img.removeAttribute("data-mce-src")
-  $img.removeAttribute("data-mce-style")
+  $video.removeAttribute("data-mce-src")
+  $video.removeAttribute("data-mce-style")
   //................................................
   // Force sync content
   editor.__rich_tinymce_com.syncContent()
 }
 ////////////////////////////////////////////////////
 export default {
-  name : "wn-image",
+  name : "wn-video",
   //------------------------------------------------
   init : function(conf={}) {
     let {extended_valid_elements} = conf 
 
     conf.extended_valid_elements = _.concat(
       extended_valid_elements, 
-      'img[wn-obj-*|src|width|height|style]'
+      'div[wn-*|style|class]'
     ).join(",")
   },
   //------------------------------------------------
@@ -305,40 +324,39 @@ export default {
     //..............................................
     let settings = _.assign({
         base : "~"
-      }, _.get(editor.settings, "wn_image_config"));
+      }, _.get(editor.settings, "wn_video_config"));
     //console.log("setup", editor.settings)
     //..............................................
     // Register plugin command
-    editor.addCommand("InsertImage",   CmdInsertImage)
-    editor.addCommand("SetImageSize",  CmdSetImageSize)
-    editor.addCommand("SetImageStyle", CmdSetImageStyle)
-    editor.addCommand("ShowImageProp", CmdShowImageProp)
+    editor.addCommand("InsertVideo",   CmdInsertVideo)
+    editor.addCommand("SetVideoSize",  CmdSetVideoSize)
+    editor.addCommand("SetVideoStyle", CmdSetVideoStyle)
+    editor.addCommand("ShowVideoProp", CmdShowVideoProp)
     //..............................................
     // Register toolbar actions
-    editor.ui.registry.addButton("WnImgPick", {
-      icon : "image",
-      tooltip : Ti.I18n.text("i18n:img-insert"),
+    editor.ui.registry.addButton("WnVideoPick", {
+      icon : "film-solid",
+      tooltip : Ti.I18n.text("i18n:video-insert"),
       onAction : function(menuBtn) {
-        pickImageAndInsertToDoc(editor, settings)
+        pickVideoAndInsertToDoc(editor, settings)
       },
     })
     //..............................................
-    editor.ui.registry.addMenuItem("WnImgClrSize", {
-      icon : "edit-image",
-      text : "清除图片尺寸",
+    editor.ui.registry.addMenuItem("WnVideoClrSize", {
+      text : "清除视频尺寸",
       onAction() {
-        editor.execCommand("SetImageSize", editor)
+        editor.execCommand("SetVideoSize", editor)
       }
     })
     //..............................................
-    editor.ui.registry.addMenuItem("WnImgAutoFitWidth", {
+    editor.ui.registry.addMenuItem("WnVideoAutoFitWidth", {
       text : "自动适应宽度",
       onAction() {
-        editor.execCommand("SetImageSize", editor, {width:"100%"})
+        editor.execCommand("SetVideoSize", editor, {width:"100%"})
       }
     })
     //..............................................
-    editor.ui.registry.addNestedMenuItem('WnImgFloat', {
+    editor.ui.registry.addNestedMenuItem('WnVideoFloat', {
       text: '文本绕图',
       getSubmenuItems: function () {
         return [{
@@ -346,33 +364,33 @@ export default {
           icon : "align-left",
           text : "居左绕图",
           onAction() {
-            editor.execCommand("SetImageStyle", editor, {float:"left"})
+            editor.execCommand("SetVideoStyle", editor, {float:"left"})
           }
         }, {
           type : "menuitem",
           icon : "align-right",
           text : "居右绕图",
           onAction() {
-            editor.execCommand("SetImageStyle", editor, {float:"right"})
+            editor.execCommand("SetVideoStyle", editor, {float:"right"})
           }
         }, {
           type : "menuitem",
           text : "清除浮动",
           onAction() {
-            editor.execCommand("SetImageStyle", editor, {float:""})
+            editor.execCommand("SetVideoStyle", editor, {float:""})
           }
         }];
       }
     });
     //..............................................
-    editor.ui.registry.addNestedMenuItem('WnImgMargin', {
-      text: '图片边距',
+    editor.ui.registry.addNestedMenuItem('WnVideoMargin', {
+      text: '视频边距',
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
-          let $img = GetCurrentImageElement(editor)
+          let $video = GetCurrentVideoElement(editor)
           let state = true
-          if($img) {
-            let sz = $img.style.marginLeft || $img.style.marginRight
+          if($video) {
+            let sz = $video.style.marginLeft || $video.style.marginRight
             state = expectSize == sz
           }
           api.setActive(state);
@@ -382,7 +400,7 @@ export default {
           type : "togglemenuitem",
           text : "小边距",
           onAction() {
-            editor.execCommand("SetImageStyle", editor, {margin:"1em"})
+            editor.execCommand("SetVideoStyle", editor, {margin:"1em"})
           },
           onSetup: function(api) {
             return __check_margin_size(api, '1em')
@@ -391,7 +409,7 @@ export default {
           type : "togglemenuitem",
           text : "中等边距",
           onAction() {
-            editor.execCommand("SetImageStyle", editor, {margin:"2em"})
+            editor.execCommand("SetVideoStyle", editor, {margin:"2em"})
           },
           onSetup: function(api) {
             return __check_margin_size(api, '2em')
@@ -400,7 +418,7 @@ export default {
           type : "togglemenuitem",
           text : "较大边距",
           onAction() {
-            editor.execCommand("SetImageStyle", editor, {margin:"3em"})
+            editor.execCommand("SetVideoStyle", editor, {margin:"3em"})
           },
           onSetup: function(api) {
             return __check_margin_size(api, '3em')
@@ -409,38 +427,48 @@ export default {
           type : "menuitem",
           text : "清除边距",
           onAction() {
-            editor.execCommand("SetImageStyle", editor, {margin:""})
+            editor.execCommand("SetVideoStyle", editor, {margin:""})
           }
         }];
       }
     });
     //..............................................
-    editor.ui.registry.addMenuItem("WnImgProp", {
-      text : "图片属性",
+    editor.ui.registry.addMenuItem("WnVideoProp", {
+      text : "视频属性",
       onAction() {
-        editor.execCommand("ShowImageProp", editor, settings)
+        editor.execCommand("ShowVideoProp", editor, settings)
       }
     })
     //..............................................
-    editor.ui.registry.addContextMenu("wn-image", {
+    editor.ui.registry.addContextMenu("wn-video", {
       update: function (el) {
-        let sel = editor.selection
-        let $nd = sel.getNode()
-        if($nd.hasAttribute("wn-obj-id") && "IMG" == $nd.tagName) {
-          return [
-            "WnImgClrSize WnImgAutoFitWidth",
-            "WnImgFloat WnImgMargin",
-            "WnImgProp"
-          ].join(" | ")
+        let $video = GetCurrentVideoElement(editor)
+        // Guard
+        if(!_.isElement($video)) {
+          return []
         }
-        return []
+        return [
+          "WnVideoClrSize WnVideoAutoFitWidth",
+          "WnVideoFloat WnVideoMargin",
+          "WnVideoProp"
+        ].join(" | ")
+      }
+    })
+    //..............................................
+    editor.on("SetContent", function() {
+      console.log("SetContent video")
+      let els = editor.$('.wn-media.as-video')
+      for(let i=0; i<els.length; i++) {
+        let el = els[i]
+        let mime = el.getAttribute("wn-obj-mime")
+        UpdateVideoTagInnerHtml(el)
       }
     })
     //..............................................
     return {
       getMetadata: function () {
         return  {
-          name: 'Wn Image plugin',
+          name: 'Wn Video plugin',
           url: 'http://site0.cn'
         };
       }

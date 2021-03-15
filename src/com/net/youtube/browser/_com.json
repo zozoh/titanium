@@ -1,0 +1,13 @@
+{
+  "name" : "net-youtube-browser",
+  "globally" : true,
+  "template" : "./youtube-browser.html",
+  "mixins" : ["./youtube-browser.mjs"],
+  "components": [
+    "@com:ti/wall",
+    "@com:ti/combo/filter",
+    "@com:ti/combo/sorter",
+    "@com:ti/paging/jumper",
+    "@com:net/youtube/detail"
+  ]
+}

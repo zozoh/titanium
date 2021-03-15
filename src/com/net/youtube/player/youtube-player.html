@@ -1,0 +1,36 @@
+<div class="net-youtube-player ti-fill-parent"
+  :style="TopStyle">
+  <!--
+    Blank
+  -->
+  <TiLoading
+    v-if="!hasValue"
+      v-bind="blankAs"/>
+  <!--
+    Show video content
+  -->
+  <iframe 
+    v-else
+      width="100%"
+      height="100%"
+      :src="VideoSrc"
+      frameborder="0"
+      :allow="VideoAllow"
+      :allowfullscreen="allowFullScreen"></iframe>
+  <!--template v-else>
+    <div
+      v-if="!showPlayer" 
+        class="as-preview"
+        @click.left="showPlayer=true">
+        <i class="fab fa-youtube"></i>
+    </div>
+    <iframe 
+      v-else
+        width="100%"
+        height="100%"
+        :src="VideoSrc"
+        frameborder="0"
+        :allow="VideoAllow"
+        :allowfullscreen="allowFullScreen"></iframe>
+  </template-->
+</div>

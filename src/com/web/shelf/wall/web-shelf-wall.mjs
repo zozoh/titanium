@@ -69,7 +69,9 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-layout" : this.layout
+        "is-layout" : this.layout,
+        "is-single-row" : 1 == this.myRows,
+        "is-multi-rows" : this.myRows > 1
       })
     },
     //--------------------------------------
@@ -85,9 +87,9 @@ const _M = {
     },
     //--------------------------------------
     getItemStyle() {
-      let itWs = _.without(_.concat(this.itemWidth))
-      let itHs = _.without(_.concat(this.itemHeight))
-      let itStyles = _.without(_.concat(this.itemStyle))
+      let itWs = _.without(_.concat(this.itemWidth), undefined)
+      let itHs = _.without(_.concat(this.itemHeight), undefined)
+      let itStyles = _.without(_.concat(this.itemStyle), undefined)
       return (index)=> {
         let w, h, sty, i;
         if(itWs.length > 0) {
@@ -102,11 +104,14 @@ const _M = {
           i = Ti.Num.scrollIndex(index, itStyles.length)
           sty = itStyles[i]
         }
-        return {
-          ...(sty||{}),
-          width  : Ti.Css.toSize(w),
-          height : Ti.Css.toSize(h)
+        let css = _.cloneDeep(sty) || {}
+        if(!Ti.Util.isNil(w)) {
+          css.width = Ti.Css.toSize(w)
         }
+        if(!Ti.Util.isNil(h)) {
+          css.height = Ti.Css.toSize(h)
+        }
+        return css
       }
     },
     //--------------------------------------
@@ -116,11 +121,12 @@ const _M = {
       
       let list = []      
       for(let i=0; i < this.data.length; i++) {
+        let stl = this.getItemStyle(i)
         let it = this.data[i]
         list.push({
           key: `It-${i}`,
           className : this.getItemClass(i),
-          style : this.getItemStyle(i),
+          style : stl,
           comType: this.comType,
           comConf: Ti.Util.explainObj(it, this.comConf)
         })        

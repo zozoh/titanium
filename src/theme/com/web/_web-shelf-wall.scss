@@ -4,6 +4,13 @@
     @include flex(space-around, stretch);
   }
   //------------------------------------------
+  &.is-multi-rows .wall-group {
+    justify-content: space-around;
+  }
+  &.is-single-row .wall-group {
+    justify-content: flex-start;
+  }
+  //------------------------------------------
   .wall-tile {
     @include flex(center, stretch, nowrap, stretch);
     flex:1 1 auto; 

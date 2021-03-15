@@ -1,0 +1,6 @@
+{
+  "name" : "net-youtube-player",
+  "globally" : true,
+  "template" : "./youtube-player.html",
+  "mixins" : ["./youtube-player.mjs"]
+}

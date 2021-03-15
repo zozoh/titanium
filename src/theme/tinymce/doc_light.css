@@ -48,6 +48,30 @@ body.mce-content-body {
     font-family: Monaco, Consolas, Courier New;
     color: #F80;
     background-color: transparent; }
+  body.mce-content-body [contentEditable=false][data-mce-selected] {
+    cursor: pointer; }
+  body.mce-content-body div.wn-media {
+    color: #F0F0F0;
+    background-color: #444;
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: center;
+    flex-wrap: nowrap;
+    width: 5.4rem;
+    height: 3rem;
+    cursor: pointer; }
+    body.mce-content-body div.wn-media .media-inner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      flex: 1 1 auto;
+      font-size: 0.64rem;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center; }
   body.mce-content-body h1 {
     color: inherit;
     background-color: transparent; }
