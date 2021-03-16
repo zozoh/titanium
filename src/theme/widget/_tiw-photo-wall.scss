@@ -1,0 +1,24 @@
+.tiw-photo-wall {
+  @include flex-align($ai:center, $ac: center);
+  padding: SZ(10);
+  //-----------------------------------------
+  > .wall-tile {
+    display: block;
+    padding: SZ(10);
+    //---------------------------------------
+    img {width: SZ(200);}
+    //---------------------------------------
+  }
+  //-----------------------------------------
+  &.item-space-xl .wall-tile {padding: SZ(30);}
+  &.item-space-lg .wall-tile {padding: SZ(24);}
+  &.item-space-md .wall-tile {padding: SZ(16);}
+  &.item-space-sm .wall-tile {padding: SZ(10);}
+  &.item-space-xs .wall-tile {padding: SZ(4);}
+  //------------------------------------------
+  &.flex-none   .wall-tile {flex:0 0 auto;}
+  &.flex-both   .wall-tile {flex:1 1 auto;}
+  &.flex-grow   .wall-tile {flex:1 0 auto;}
+  &.flex-shrink .wall-tile {flex:0 1 auto;}
+  //-----------------------------------------
+}

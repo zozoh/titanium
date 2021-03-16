@@ -43,6 +43,10 @@ export default {
     type : [String, Number],
     default : undefined
   },
+  "fieldWidth" : {
+    type : [String, Number],
+    default : undefined
+  },
   "checkEquals" : {
     type : Boolean,
     default : true

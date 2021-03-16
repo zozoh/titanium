@@ -58,6 +58,12 @@
         }
       }
       //--------------------------------
+      &.as-vertical {
+        > .group-fields {
+          @include flex-align;
+        }
+      }
+      //--------------------------------
     }
     //----------------------------------
     > .form-group > .group-fields > .form-field,
@@ -224,6 +230,12 @@
       padding: 0;
     }
     //----------------------------------
+  }
+  //////////////////////////////////////
+  &.no-status > .form-body > .form-group > .group-fields {
+     > .form-field.as-desktop > .field-name {
+       padding-left: SZ(10);
+     }
   }
   //////////////////////////////////////
 }

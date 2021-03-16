@@ -7,13 +7,11 @@ const TiDom = {
     $p=null, $refer=null
   }, $doc=document) {
     const $el = $doc.createElement(tagName)
-    if(className)
+    if(className) {
       $el.className = Ti.Css.joinClassNames(className)
+    }
     
-    _.forEach(attrs, (val, key) => {
-      $el.setAttribute(key, val)
-    })
-
+    TiDom.setAttrs($el, attrs)
     TiDom.setData($el, data)
 
     _.forEach(props, (val, key) => {
@@ -127,6 +125,22 @@ const TiDom = {
     return re
   },
   //----------------------------------------------------
+  getClassList(className, filter=()=>true) {
+    if(!className) {
+      return []
+    }
+    if(_.isElement(className)) {
+      className = className.className
+    }
+    let list = _.without(className.split(/\s+/), "")
+    let re = []
+    for(let li of list) {
+      if(filter(li))
+        re.push(li)
+    }
+    return re
+  },
+  //----------------------------------------------------
   getStyle($el, filter=true) {
     filter = this.attrFilter(filter)
     let re = {}
@@ -185,6 +199,9 @@ const TiDom = {
   },
   //----------------------------------------------------
   renameElement($el, newTagName, attrFilter=()=>true) {
+    if(!_.isString(newTagName))
+      return $el
+    newTagName = newTagName.toUpperCase()
     if($el.tagName == newTagName)
       return $el
     let $doc = $el.ownerDocument
@@ -194,11 +211,26 @@ const TiDom = {
   },
   //----------------------------------------------------
   getHeadingLevel($h) {
+    if(!_.isElement($h)) {
+      return 0
+    }
     let m = /^H([1-6])$/.exec($h.tagName)
     if(m) {
       return parseInt(m[1])
     }
     return 0
+  },
+  //----------------------------------------------------
+  getMyHeadingLevel($el) {
+    let $hp = Ti.Dom.seek($el, (el)=>{
+      return /^H([1-6])$/.exec(el.tagName)
+    }, (el)=>{
+      if(el.previousElementSibling)
+        return el.previousElementSibling
+      if(el.parentElement)
+        return el.parentElement
+    })
+    return Ti.Dom.getHeadingLevel($hp)
   },
   //----------------------------------------------------
   remove(selectorOrElement, context) {
@@ -465,9 +497,35 @@ const TiDom = {
     }, 1)
   },
   //----------------------------------------------------
+  formatStyle(css={}) {
+    let keys = _.keys(css)
+    for(let key of keys) {
+      let val = css[key]
+      if(_.isNumber(val) || /^\d+(\.\d+)?$/.test(val)) {
+        css[key] = `${val}px`
+      }
+    }
+  },
+  //----------------------------------------------------
+  setStyleValue($el, name, val, oldVal) {
+    if(!_.isUndefined(oldVal) && oldVal == val)
+      return
+    if(!val || "none" == val) {
+      $el.style[name] = ""
+    } else if(_.isNumber(val) || /^\d+(\.\d+)?$/.test(val)) {
+      $el.style[name] = `${val}px`
+    } else {
+      $el.style[name] = val
+    }
+  },
+  //----------------------------------------------------
   setStyle($el, css={}) {
+    if(_.isEmpty(css)) {
+      $el.style = ""
+      return
+    }
     _.forOwn(css, (val, key)=>{
-      if(_.isNull(val) || _.isUndefined(val))
+      if(_.isNull(val) || _.isUndefined(val)) 
         return
       let pnm = _.kebabCase(key)
       // Empty string to remove one propperty

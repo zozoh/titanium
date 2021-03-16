@@ -12,6 +12,9 @@
 @import "_default.scss";
 @import "_utility.scss";
 //-----------------------------------------------------
+// Widget
+@import "widget/_tiw-photo-wall.scss";
+//-----------------------------------------------------
 // AUTO-INCLUDE-COM-STUB
 @import "app/_wn-manager.scss";
 @import "com/hmaker/_hm-prop-class-picker.scss";

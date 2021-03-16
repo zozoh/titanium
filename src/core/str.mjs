@@ -1,4 +1,147 @@
+const CN_NC0 = "零一二三四五六七八九";
+const CN_NU0 = "个十百千万亿";
+
 const TiStr = {
+  intToChineseNumber(input) {
+    let re = "";
+
+    // 考虑负数
+    if (input < 0) {
+        re += '负';
+        input *= -1;
+    }
+
+    // 优化零
+    if (input == 0) {
+        re += CN_NC0[0];
+        return re;
+    }
+
+    // 直接就是个位数
+    if (input < 10) {
+        let c = CN_NC0[input];
+        re += c;
+        return re;
+    }
+
+    // 准备拆分各个位，数组 0 表示个位
+    //let ns = new int[10];
+    let ns = [];
+    let len = 0;
+
+    // 挨个来
+    let n = input;
+    while (n > 0) {
+        let nd = parseInt(n / 10);
+        ns[len++] = n - nd * 10;
+        n = nd;
+    }
+    let lastNSIndex = len - 1;
+    console.log(ns)
+    // 现在我们有一个数字数组
+    // [2][3][0][9] ...
+    // 个 十 百 千 ...
+    let lastN;
+    let maxI;
+    let lastI;
+    //
+    // 分作三段输出
+    //
+    // ................................
+    // 亿位段
+    if (len > 8) {
+        maxI = Math.min(lastNSIndex, 11);
+        lastN = -1;
+        for (let i = maxI; i >= 8; i--) {
+            n = ns[i];
+            // 不能输出零零
+            if (n == 0 && lastN <= 0) {
+                continue;
+            }
+            let s_n = CN_NC0[n];
+            re += s_n;
+            // 单位
+            if (i > 8 && (n > 0 || lastN > 0)) {
+                let s_u = CN_NU0[i - 8];
+                re += s_u;
+            }
+            // 记录最后一次输出的数字
+            lastN = n;
+        }
+        // 检查，最后一个字符是 '零' 改成 '亿'
+        // 否则加个 '亿'
+        lastI = re.length - 1;
+        if (re[lastI] == CN_NC0[0]) {
+            re[lastI] = CN_NU0[5];
+        } else {
+            re += CN_NU0[5];
+        }
+    }
+    // ................................
+    // 万位段
+    if (len > 4) {
+        maxI = Math.min(lastNSIndex, 7);
+        lastN = -1;
+        for (let i = maxI; i >= 4; i--) {
+            n = ns[i];
+            // 不能输出零零
+            if (n == 0 && lastN <= 0) {
+                continue;
+            }
+            let s_n = CN_NC0[n];
+            re += s_n;
+            // 单位
+            if (i > 4 && (n > 0 || lastN > 0)) {
+                let s_u = CN_NU0[i - 4];
+                re += s_u;
+            }
+            // 记录最后一次输出的数字
+            lastN = n;
+        }
+        // 检查，最后一个字符是 '零' 改成 '万'
+        // 否则加个 '万'
+        if (lastN >= 0) {
+            lastI = re.length - 1;
+            if (re[lastI] == CN_NC0[0]) {
+                re[lastI] = CN_NU0[4];
+            } else {
+                re += CN_NU0[4];
+            }
+        }
+    }
+
+    // ................................
+    // 个位段
+    maxI = Math.min(lastNSIndex, 3);
+    lastN = -1;
+    for (let i = maxI; i >= 0; i--) {
+        n = ns[i];
+        // 不能输出零零
+        if (n == 0 && lastN == 0) {
+            continue;
+        }
+        let s_n = CN_NC0[n];
+        // 十一 至 十九
+        if (i != 1 || n != 1 || maxI > 1) {
+            re += s_n;
+        }
+        // 单位
+        if (i > 0 && n > 0) {
+            let s_u = CN_NU0[i];
+            re += s_u;
+        }
+        // 记录最后一次输出的数字
+        lastN = n;
+    }
+
+    // 输出前，检查，最后一个字符是 '零' 删掉它
+    lastI = re.length - 1;
+    if (re[lastI] == CN_NC0[0]) {
+        return re.substring(0, lastI)
+    }
+
+    return re;
+  },
   sBlank(str, dft) {
     if(TiStr.isBlank(str))
       return dft

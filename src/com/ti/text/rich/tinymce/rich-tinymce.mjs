@@ -51,7 +51,7 @@ const _M = {
             'bold italic underline link',
             'blockquote bullist numlist',
             'blocks',
-            'table WnImgPick WnVideoPick WnYoutubePick',
+            'table WnImgPick WnVideoPick WnYoutubePick WnFacebookPick',
             'superscript subscript',
             'edit removeformat',
             'TiPreview']
@@ -217,7 +217,7 @@ const _M = {
       this.$editor.$('h1,h2,h3,h4,h5,h6').each((index, el)=>{
         let nodeId = el.getAttribute("ti-outline-id")
         if(!nodeId) {
-          nodeId = Ti.Random.str(6)
+          nodeId = Ti.Random.str(12)
           el.setAttribute("ti-outline-id", nodeId)
         }
 
@@ -392,6 +392,14 @@ const _M = {
           this.$editor = editor
         }
       }
+      // Extends valid element
+      let {extended_valid_elements} = conf 
+
+      conf.extended_valid_elements = _.concat(
+        extended_valid_elements, 
+        'img[ti-*|wn-obj-*|src|width|height|style|class]',
+        'div[ti-*|wn-*|style|class]'
+      ).join(",")
       // Init customized plugins
       for(let plug of this.myPlugins) {
         tinymce.PluginManager.add(plug.name, plug.setup)

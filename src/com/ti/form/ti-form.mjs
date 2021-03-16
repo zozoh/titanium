@@ -375,6 +375,9 @@ const _M = {
       // Guard
       if(!_.isElement(this.$el))
         return
+      //
+      // Find the max width in all form
+      //
       // Find all field-name Elements
       let $fldNames = Ti.Dom.findAll(".form-field > .field-name", this.$el)
 
@@ -387,12 +390,35 @@ const _M = {
       let maxWidth = 0
       for(let $fldnm of $fldNames) {
         let rect = Ti.Rects.createBy($fldnm)
-        maxWidth = Math.ceil(Math.max(rect.width, maxWidth))
+        // If in vertical group
+        let $pp = $fldnm.parentElement.parentElement.parentElement
+        if(Ti.Dom.hasClass($pp, "form-group")
+           && Ti.Dom.hasOneClass($pp, "as-columns", "as-vertical")
+        ){
+          let maxw = $pp.getAttribute("fld-name-max-width")*1 || 0
+          maxw = Math.max(maxw, rect.width)
+          $pp.setAttribute("fld-name-max-width", maxw)
+        }
+        // for whole form
+        else {
+          maxWidth = Math.ceil(Math.max(rect.width, maxWidth))
+        }
       }
+
+
 
       // Wait for whole view rendered, and align the field-name
       for(let $fldnm of $fldNames) {
-        Ti.Dom.setStyle($fldnm, {width:maxWidth})
+        // If in group
+        let $pp = $fldnm.parentElement.parentElement.parentElement
+        let maxw = $pp.getAttribute("fld-name-max-width")
+        if(maxw) {
+          Ti.Dom.setStyle($fldnm, {width:maxw*1})
+        }
+        // For whole form
+        else {
+          Ti.Dom.setStyle($fldnm, {width:maxWidth})
+        }
       }
     },
     //--------------------------------------------------

@@ -1,4 +1,4 @@
-// Pack At: 2021-03-08 00:06:08
+// Pack At: 2021-03-17 05:38:39
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -934,7 +934,150 @@ const {Alg} = (function(){
 //##################################################
 // # import {S}            from "./str.mjs"
 const {S} = (function(){
+  const CN_NC0 = "零一二三四五六七八九";
+  const CN_NU0 = "个十百千万亿";
+  
   const TiStr = {
+    intToChineseNumber(input) {
+      let re = "";
+  
+      // 考虑负数
+      if (input < 0) {
+          re += '负';
+          input *= -1;
+      }
+  
+      // 优化零
+      if (input == 0) {
+          re += CN_NC0[0];
+          return re;
+      }
+  
+      // 直接就是个位数
+      if (input < 10) {
+          let c = CN_NC0[input];
+          re += c;
+          return re;
+      }
+  
+      // 准备拆分各个位，数组 0 表示个位
+      //let ns = new int[10];
+      let ns = [];
+      let len = 0;
+  
+      // 挨个来
+      let n = input;
+      while (n > 0) {
+          let nd = parseInt(n / 10);
+          ns[len++] = n - nd * 10;
+          n = nd;
+      }
+      let lastNSIndex = len - 1;
+      console.log(ns)
+      // 现在我们有一个数字数组
+      // [2][3][0][9] ...
+      // 个 十 百 千 ...
+      let lastN;
+      let maxI;
+      let lastI;
+      //
+      // 分作三段输出
+      //
+      // ................................
+      // 亿位段
+      if (len > 8) {
+          maxI = Math.min(lastNSIndex, 11);
+          lastN = -1;
+          for (let i = maxI; i >= 8; i--) {
+              n = ns[i];
+              // 不能输出零零
+              if (n == 0 && lastN <= 0) {
+                  continue;
+              }
+              let s_n = CN_NC0[n];
+              re += s_n;
+              // 单位
+              if (i > 8 && (n > 0 || lastN > 0)) {
+                  let s_u = CN_NU0[i - 8];
+                  re += s_u;
+              }
+              // 记录最后一次输出的数字
+              lastN = n;
+          }
+          // 检查，最后一个字符是 '零' 改成 '亿'
+          // 否则加个 '亿'
+          lastI = re.length - 1;
+          if (re[lastI] == CN_NC0[0]) {
+              re[lastI] = CN_NU0[5];
+          } else {
+              re += CN_NU0[5];
+          }
+      }
+      // ................................
+      // 万位段
+      if (len > 4) {
+          maxI = Math.min(lastNSIndex, 7);
+          lastN = -1;
+          for (let i = maxI; i >= 4; i--) {
+              n = ns[i];
+              // 不能输出零零
+              if (n == 0 && lastN <= 0) {
+                  continue;
+              }
+              let s_n = CN_NC0[n];
+              re += s_n;
+              // 单位
+              if (i > 4 && (n > 0 || lastN > 0)) {
+                  let s_u = CN_NU0[i - 4];
+                  re += s_u;
+              }
+              // 记录最后一次输出的数字
+              lastN = n;
+          }
+          // 检查，最后一个字符是 '零' 改成 '万'
+          // 否则加个 '万'
+          if (lastN >= 0) {
+              lastI = re.length - 1;
+              if (re[lastI] == CN_NC0[0]) {
+                  re[lastI] = CN_NU0[4];
+              } else {
+                  re += CN_NU0[4];
+              }
+          }
+      }
+  
+      // ................................
+      // 个位段
+      maxI = Math.min(lastNSIndex, 3);
+      lastN = -1;
+      for (let i = maxI; i >= 0; i--) {
+          n = ns[i];
+          // 不能输出零零
+          if (n == 0 && lastN == 0) {
+              continue;
+          }
+          let s_n = CN_NC0[n];
+          // 十一 至 十九
+          if (i != 1 || n != 1 || maxI > 1) {
+              re += s_n;
+          }
+          // 单位
+          if (i > 0 && n > 0) {
+              let s_u = CN_NU0[i];
+              re += s_u;
+          }
+          // 记录最后一次输出的数字
+          lastN = n;
+      }
+  
+      // 输出前，检查，最后一个字符是 '零' 删掉它
+      lastI = re.length - 1;
+      if (re[lastI] == CN_NC0[0]) {
+          return re.substring(0, lastI)
+      }
+  
+      return re;
+    },
     sBlank(str, dft) {
       if(TiStr.isBlank(str))
         return dft
@@ -1445,7 +1588,7 @@ const {S} = (function(){
      */
     toCase(str, mode) {
       // Guard
-      if(Ti.Util.isNil(str))
+      if(Ti.Util.isNil(str) || !mode)
         return str
       // Find mode
       let fn = TiStr.getCaseFunc(mode)
@@ -3397,13 +3540,11 @@ const {Dom} = (function(){
       $p=null, $refer=null
     }, $doc=document) {
       const $el = $doc.createElement(tagName)
-      if(className)
+      if(className) {
         $el.className = Ti.Css.joinClassNames(className)
+      }
       
-      _.forEach(attrs, (val, key) => {
-        $el.setAttribute(key, val)
-      })
-  
+      TiDom.setAttrs($el, attrs)
       TiDom.setData($el, data)
   
       _.forEach(props, (val, key) => {
@@ -3517,6 +3658,22 @@ const {Dom} = (function(){
       return re
     },
     //----------------------------------------------------
+    getClassList(className, filter=()=>true) {
+      if(!className) {
+        return []
+      }
+      if(_.isElement(className)) {
+        className = className.className
+      }
+      let list = _.without(className.split(/\s+/), "")
+      let re = []
+      for(let li of list) {
+        if(filter(li))
+          re.push(li)
+      }
+      return re
+    },
+    //----------------------------------------------------
     getStyle($el, filter=true) {
       filter = this.attrFilter(filter)
       let re = {}
@@ -3575,6 +3732,9 @@ const {Dom} = (function(){
     },
     //----------------------------------------------------
     renameElement($el, newTagName, attrFilter=()=>true) {
+      if(!_.isString(newTagName))
+        return $el
+      newTagName = newTagName.toUpperCase()
       if($el.tagName == newTagName)
         return $el
       let $doc = $el.ownerDocument
@@ -3584,11 +3744,26 @@ const {Dom} = (function(){
     },
     //----------------------------------------------------
     getHeadingLevel($h) {
+      if(!_.isElement($h)) {
+        return 0
+      }
       let m = /^H([1-6])$/.exec($h.tagName)
       if(m) {
         return parseInt(m[1])
       }
       return 0
+    },
+    //----------------------------------------------------
+    getMyHeadingLevel($el) {
+      let $hp = Ti.Dom.seek($el, (el)=>{
+        return /^H([1-6])$/.exec(el.tagName)
+      }, (el)=>{
+        if(el.previousElementSibling)
+          return el.previousElementSibling
+        if(el.parentElement)
+          return el.parentElement
+      })
+      return Ti.Dom.getHeadingLevel($hp)
     },
     //----------------------------------------------------
     remove(selectorOrElement, context) {
@@ -3811,8 +3986,8 @@ const {Dom} = (function(){
       max=100,min=80,
       callback
     }={}) {
-      const $doc  = window.document
-      const $root = document.documentElement
+      const $doc  = $win.document
+      const $root = $doc.documentElement
       const win_rect = Ti.Rects.createBy($win)
       let size = (win_rect.width/designWidth) * max
       let fontSize = Math.min(Math.max(size,min), max)
@@ -3855,9 +4030,35 @@ const {Dom} = (function(){
       }, 1)
     },
     //----------------------------------------------------
+    formatStyle(css={}) {
+      let keys = _.keys(css)
+      for(let key of keys) {
+        let val = css[key]
+        if(_.isNumber(val) || /^\d+(\.\d+)?$/.test(val)) {
+          css[key] = `${val}px`
+        }
+      }
+    },
+    //----------------------------------------------------
+    setStyleValue($el, name, val, oldVal) {
+      if(!_.isUndefined(oldVal) && oldVal == val)
+        return
+      if(!val || "none" == val) {
+        $el.style[name] = ""
+      } else if(_.isNumber(val) || /^\d+(\.\d+)?$/.test(val)) {
+        $el.style[name] = `${val}px`
+      } else {
+        $el.style[name] = val
+      }
+    },
+    //----------------------------------------------------
     setStyle($el, css={}) {
+      if(_.isEmpty(css)) {
+        $el.style = ""
+        return
+      }
       _.forOwn(css, (val, key)=>{
-        if(_.isNull(val) || _.isUndefined(val))
+        if(_.isNull(val) || _.isUndefined(val)) 
           return
         let pnm = _.kebabCase(key)
         // Empty string to remove one propperty
@@ -3893,9 +4094,15 @@ const {Dom} = (function(){
     //----------------------------------------------------
     addClass($el, ...classNames) {
       let klass = _.flattenDeep(classNames)
+      let klassMap = {}
+      _.forEach($el.classList, myClass=>{
+        klassMap[myClass] = true
+      })
       for(let kl of klass) {
         let className = _.trim(kl)
-        $el.classList.add(className)
+        if(!klassMap[className]) {
+          $el.classList.add(className)
+        }
       }
     },
     //----------------------------------------------------
@@ -7025,7 +7232,18 @@ const {Types} = (function(){
       }
       // String
       else if(_.isString(input)) {
-        let m = /^([0-9]{1,2}):?([0-9]{1,2})(:?([0-9]{1,2})([.,]([0-9]{1,3}))?)?$/
+        // ISO 8601 Time
+        let m = /^PT((\d+)H)?((\d+)M)?((\d+)S)?$/.exec(input)
+        if(m) {
+          this.hours = m[2] ? m[2] * 1 : 0;
+          this.minutes = m[4] ? m[4] * 1 : 0;
+          this.seconds = m[6] ? m[6] * 1 : 0;
+          this.milliseconds = 0;
+          return this
+        }
+  
+        // Time string
+        m = /^([0-9]{1,2}):?([0-9]{1,2})(:?([0-9]{1,2})([.,]([0-9]{1,3}))?)?$/
                       .exec(input);
         if(m) {
           // Min: 23:59
@@ -8946,6 +9164,18 @@ const {Util} = (function(){
         ks.push(obj)
       }
       return ks.join(sep)
+    },
+    /**
+     * Rever given object key and value
+     * 
+     * @return `Object`
+     */
+    reverMapping(mapping={}) {
+      let re = {}
+      _.forEach(mapping, (v, k)=>{
+        re[v] = k
+      })
+      return re
     },
     /***
      * Create new Mapping value
@@ -13167,6 +13397,126 @@ const {WebAppMain} = (function(){
   return {WebAppMain};
 })();
 //---------------------------------------
+//##################################################
+// # import Facebook from "./api-facebook.mjs"
+const Facebook = (function(){
+  ////////////////////////////////////////////
+  function getThumbImage(images=[], thumbMinHeight=320) {
+    // Sort by image height
+    images.sort((im1, im2)=>{
+      return im1.height - im2.height
+    })
+    // Find the closest one
+    for(let img of images) {
+      if(img.height >= thumbMinHeight) {
+        return img
+      }
+    }
+    return _.first(images)
+  }
+  //------------------------------------------
+  function setImages(obj, images=[], {
+    preview = {type : "font", value : "fas-images"},
+    thumbMinHeight = 320
+  }={}) {
+    let orgImg = _.first(images)
+    let thumbImg = getThumbImage(images, thumbMinHeight)
+    obj.width = _.get(orgImg, "width")
+    obj.height = _.get(orgImg, "height")
+    obj.src = _.get(orgImg, "source")
+    obj.thumb_src = _.get(thumbImg, "source")
+  
+    if(obj.thumb_src) {
+      obj.preview = {
+        type : "image",
+        value : obj.thumb_src
+      }
+    } else {
+      obj.preview = preview
+    }
+  }
+  //------------------------------------------
+  function FBAPI(path, version="v10.0") {
+    return `https://graph.facebook.com/${version}/${path}`
+  }
+  ////////////////////////////////////////////
+  const TiApiFacebook = {
+    //----------------------------------------
+    async getAlbumPhotoList({
+      albumId, 
+      access_token,
+      fields = "id,link,name,images,width,height"
+    }={}){
+      if(!albumId)
+        return
+      let url = FBAPI(`${albumId}/photos`)
+      let reo = await Ti.Http.get(url, {
+        params : {access_token, fields},
+        as : "json"
+      })
+      let {data, paging} = reo
+  
+      // Setup thumb src
+      for(let photo of data) {
+        setImages(photo, photo.images)   
+      }
+  
+      return data
+    },
+    //----------------------------------------
+    async getPhoto({
+      photoId, 
+      access_token,
+      fields = "id,link,name,images,width,height"
+    }={}){
+      if(!photoId)
+        return
+      let url = FBAPI(`${photoId}`)
+      let photo = await Ti.Http.get(url, {
+        params : {access_token, fields},
+        as : "json"
+      })
+      return photo
+    },
+    //----------------------------------------
+    async getAlbumList({
+      userId, 
+      access_token,
+      fields = "id,name,place,created_time,description,link,cover_photo",
+      loadCover = false
+    }={}) {
+      let url = FBAPI(`${userId}/albums`)
+      let reo = await Ti.Http.get(url, {
+        params : {access_token, fields},
+        as : "json"
+      })
+      let {data, paging} = reo
+      // console.log(data)
+  
+      // Load cover photo
+      if(loadCover) {
+        for(let ab of data) {
+          let photoId = _.get(ab, "cover_photo.id")
+          if(photoId) {
+            let photo = await TiApiFacebook.getPhoto({
+              photoId, access_token
+            })
+            if(photo) {
+              setImages(ab, photo.images)
+              ab.cover_photo = photo
+            }
+          }
+        }
+      }
+  
+      return data
+    }
+    //----------------------------------------
+  }
+  ////////////////////////////////////////////
+  return TiApiFacebook;
+})();
+//---------------------------------------
 const LOAD_CACHE = {}
 function Preload(url, anyObj) {
   // if(url.indexOf("label")>0)
@@ -13201,7 +13551,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210308.000608",
+  "version" : "1.6-20210317.053839",
   "dev" : false,
   "appName" : null,
   "session" : {},
@@ -13235,6 +13585,10 @@ const Ti = {
   AutoMatch,
   //-----------------------------------------------------
   Websocket: TiWebsocket,
+  //-----------------------------------------------------
+  Api : {
+    Facebook
+  },
   //-----------------------------------------------------
   Preload, MatchCache, AddResourcePrefix, RS_PREFIXs, LOAD_CACHE,
   //-----------------------------------------------------

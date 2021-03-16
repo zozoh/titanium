@@ -1,4 +1,4 @@
-// Pack At: 2021-03-08 00:06:08
+// Pack At: 2021-03-17 05:38:39
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -108,19 +108,27 @@ function _render_iteratee({
 function __eval_com_conf_item(val, cx={}) {
   // String valu3
   if(_.isString(val)) {
+    if("=preview" == val)
+      console.log("item", val)
     //........................................
     // Function call
     //........................................
-    let m = /^=>(.+)$/.exec(val)
-    if(m) {
-      let func = Ti.Util.genInvoking(m[1], {
-        context: {
-          ...cx,
-          item: cx.itemData
-        },
-        partial: "left"
-      })
-      return func()
+    // let m = /^=>(.+)$/.exec(val)
+    // if(m) {
+    //   let func = Ti.Util.genInvoking(m[1], {
+    //     context: {
+    //       ...cx,
+    //       item: cx.itemData
+    //     },
+    //     partial: "left"
+    //   })
+    //   return func()
+    // }
+    if(/^[-=]/.test(val)) {
+      return Ti.Util.explainObj({
+        ...cx,
+        item: cx.itemData
+      }, val)
     }
     //........................................
     // Quick Value
@@ -129,7 +137,7 @@ function __eval_com_conf_item(val, cx={}) {
     //  - "${=value}"
     //  - "${=..}"
     //  - "${=varName}"
-    m = /^\$\{=([^${}=]+)\}$/.exec(val)
+    let m = /^\$\{=([^${}=]+)\}$/.exec(val)
     if(m) {
       let varName = _.trim(m[1])
       // Whole Context
@@ -612,6 +620,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : [String, Number],
     default : undefined
   },
+  "fieldWidth" : {
+    type : [String, Number],
+    default : undefined
+  },
   "checkEquals" : {
     type : Boolean,
     default : true
@@ -674,6 +686,95 @@ const __TI_MOD_EXPORT_VAR_NM = {
       ok       : 'zmdi-check-circle',
     })
   }
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'youtube-detail.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/net/youtube/detail/youtube-detail.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "value" : {
+      type : Object
+    }
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  computed : {
+    //---------------------------------------------------
+    TopClass() {
+      return this.getTopClass();
+    },
+    //---------------------------------------------------
+    hasValue() {
+      return (this.value && this.value.id) ? true : false
+    },
+    //---------------------------------------------------
+    GuiLayout(){
+      return {
+        type: "rows",
+        border:true,
+        blocks: [{
+          size : "37%",
+          body : "player"
+        }, {
+          body : "form"
+        }]
+      }
+    },
+    //---------------------------------------------------
+    GuiSchema() {
+      const V_FIELD = (name, title)=>{
+        return {
+          title, name,
+          comType : "TiLabel"
+        }
+      }
+      return {
+        player: {
+          comType: "NetYoutubePlayer",
+          comConf: {
+            value: this.value
+          }
+        },
+        form: {
+          comType: "TiForm",
+          comConf: {
+            spacing : "tiny",
+            autoShowBlank : true,
+            data: this.value,
+            fields : [
+              V_FIELD("id", "ID"),
+              V_FIELD("title", "Title"),
+              V_FIELD("description", "Description"),
+              V_FIELD("publishedAt", "PublishedAt"),
+              V_FIELD("tags", "Tags"),
+              V_FIELD("duration", "Duration"),
+              V_FIELD("du_in_sec", "Du in sec"),
+              V_FIELD("du_in_str", "Du in str"),
+              V_FIELD("definition", "Definition"),
+              V_FIELD("categoryId", "CategoryId")
+            ]
+          }
+        }
+      }
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods :{
+    //---------------------------------------------------
+    
+    //---------------------------------------------------
+  }
+  ///////////////////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -1199,7 +1300,7 @@ const _M = {
             ? newItem
             : it
         })
-        this.myData.list = list
+        this.myData = _.assign({}, this.myData, {list})
       }
     },
     //--------------------------------------------
@@ -1207,6 +1308,17 @@ const _M = {
       this.myItemStatus = _.assign({}, this.myItemStatus, {
         [id] : status
       })
+    },
+    //--------------------------------------------
+    findRowById(rowId) {
+      return this.$innerList.findRowById(rowId)
+    },
+    //--------------------------------------------
+    getItemById(id) {
+      let row = this.$innerList.findRowById(id)
+      if(row) {
+        return row.rawData
+      }
     },
     //--------------------------------------------
     selectItem(id) {
@@ -1223,7 +1335,7 @@ const _M = {
     },
     //--------------------------------------------
     isHiddenItem(it) {
-      if(it.nm.startsWith(".") && !this.myExposeHidden) {
+      if(it && it.nm && it.nm.startsWith(".") && !this.myExposeHidden) {
         return true
       }
       return false
@@ -1278,6 +1390,13 @@ const _M = {
     },
     //--------------------------------------------
     syncMyData() {
+      //console.log("syncMyData")
+      // 有时候直接改了 myData， 竟然会导致这个函数被触发
+      // 我也是醉了，不知道为啥
+      // 这会导致通过 setItem 修改列表，修改不了
+      // 因为会被同步回来
+      // 是否做一点脏脏的事情呢？
+      //  - setItem 的时候做一个时间戳，在 500ms 内， 让 sync 不工作？
       this.myData = _.cloneDeep(this.data) || {
         list: [], pager: {}
       }
@@ -1287,6 +1406,12 @@ const _M = {
   },
   ////////////////////////////////////////////////
   watch: {
+    // "myData" : function(newVal, oldVal) {
+    //   console.log("MyData changed:", {
+    //     "newVal" : _.get(newVal, "list.0.nm"),
+    //     "oldVal" : _.get(oldVal, "list.0.nm"),
+    //   })
+    // },
     //--------------------------------------------
     "data" : {
       handler : "syncMyData",
@@ -6472,11 +6597,7 @@ const _M = {
     //------------------------------------------------
     ReverMapping() {
       if(this.mapping) {
-        let re = {}
-        _.forEach(this.mapping, (v, k)=>{
-          re[v] = k
-        })
-        return re
+        Ti.Util.reverMapping(this.mapping)
       }
     },
     //------------------------------------------------
@@ -9468,60 +9589,12 @@ const _M = {
     },
     //---------------------------------------------------
     filterObj(state, getters, rootState) {
-      let {keyword, match, majorKey, majorValue} = state.filter || {}
-      let flt = {}
-      //............................................
-      // Eval Filter: keyword
-      if(keyword) {
-        if(/"^[\d\w]{26}(:.+)?$"/.test(keyword)) {
-          flt.id = keyword
-        }
-        // Find
-        else {
-          let knm = "title"
-          let beh = _.get(rootState, "main.config.schema.behavior") || {}
-          let keys = _.keys(beh.keyword)
-          //........................................
-          for(let k of keys) {
-            let val = beh.keyword[k]
-            if(new RegExp(val).test(keyword)) {
-              knm = k;
-              break;
-            }
-          }
-          //........................................
-          // Accurate equal
-          if(knm.startsWith("=")) {
-            flt[knm.substring(1).trim()] = keyword
-          }
-          // Default is like
-          else {
-            flt[knm] = "^.*"+keyword;
-          }
-          //........................................
-        }
-      }
-      //............................................
-      // Eval Filter: match
-      if(!_.isEmpty(match)) {
-        _.assign(flt, match)
-      }
-      //............................................
-      // Eval Filter: major
-      if(majorKey && !Ti.Util.isNil(majorValue)) {
-        _.set(flt, majorKey, majorValue)
-      }
-      //............................................
-      // Fix filter
-      let beMatch = _.get(rootState, "main.config.schema.behavior.match")
-      if(!_.isEmpty(beMatch)) {
-        _.assign(flt, beMatch)
-      }
-      //............................................
+      let setting = _.get(rootState, "main.config.schema.behavior") || {}
+      let flt = Wn.Util.getMatchByFilter(state.filter, setting)
+      
       // InRecycleBin 
       flt.th_live = state.inRecycleBin ? -1 : 1
-      //............................................
-      // Done
+      
       return flt
     },
     //---------------------------------------------------
@@ -9681,6 +9754,17 @@ return _M;;
 // EXPORT 'm-obj-current-actions.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/obj-current/m-obj-current-actions.mjs'] = (function(){
+////////////////////////////////////////////
+function getKeepSearchAs(meta) {
+  if(meta && meta.keep_search_as) {
+    let keepAs = meta.keep_search_as
+    if(_.isBoolean(keepAs)) {
+      keepAs = `search-${meta.id}`
+    }
+    return keepAs
+  }
+}
+////////////////////////////////////////////
 const _M = {
   //----------------------------------------
   // Combin Mutations
@@ -9836,6 +9920,46 @@ const _M = {
     return newMeta
   },
   //----------------------------------------
+  saveSearchSetting({state, commit}, {filter, sorter, pager}={}) {
+    if(filter)
+      commit("setFilter", filter)
+    if(sorter)
+      commit("setSorter", sorter)
+    if(pager)
+      commit("setPager", pager)
+
+    let keepAs = getKeepSearchAs(state.meta)
+    if(keepAs) {
+      Ti.Storage.session.setObject(keepAs, {
+        filter : state.filter,
+        sorter : state.sorter,
+        pager  : {
+          pageNumber : state.pageNumber,
+          pageSize   : state.pageSize
+        }
+      })
+    }
+  },
+  //----------------------------------------
+  recoverSearchSetting({commit}, meta) {
+    let keepAs = getKeepSearchAs(meta)
+    if(keepAs) {
+      let {
+        filter, sorter, pager
+      } = Ti.Storage.session.getObject(keepAs, {})
+
+      commit("setFilter", filter)
+      commit("setSorter", sorter)
+      commit("setPager", pager)
+    }
+  },
+  //----------------------------------------
+  async query({dispatch}, search={}){
+    //console.log("query", search)
+    dispatch("saveSearchSetting", search)
+    return await dispatch("reload")
+  },
+  //----------------------------------------
   async reload({state, commit, dispatch}, meta) {
     if(state.status.reloading
       || state.status.saving){
@@ -9860,6 +9984,10 @@ const _M = {
       commit("setContent", null)
       return
     }
+    //......................................
+    // Restore the search setting
+    dispatch("recoverSearchSetting", meta)
+
     // Init content as null
     let content = null
     commit("setStatus", {reloading:true})
@@ -9872,12 +10000,32 @@ const _M = {
     //......................................
     // For dir
     else if('DIR' == meta.race) {
-      content = await Wn.Io.loadChildren(meta)
+      let cmds = [`o @query -p id:${meta.id}`]
+      cmds.push('-pager -mine -hidden')
+      if(state.pageSize > 0) {
+        let pgsz = state.pageSize
+        let pn = state.pageNumber || 1
+        let skip = Math.max(0, pgsz * (pn-1))
+        if(skip > 0) {
+          cmds.push(`-skip ${skip}`)
+        }
+        cmds.push(`-limit ${pgsz}`)
+      }
+      if(state.sorter) {
+        cmds.push(`-sort '${JSON.stringify(state.sorter)}'`)
+      }
+      let input;
+      if(state.filter) {
+        let flt = Wn.Util.getMatchByFilter(state.filter, meta.search_setting)
+        input = JSON.stringify(flt)
+      }
+      cmds.push('@json -cqnl')
+      content = await Wn.Sys.exec2(cmds.join(' '), {as:"json", input})
     }
     //......................................
     // Just update the meta
-    commit("setStatus", {reloading:false})
     commit("setMeta", meta)
+    commit("setStatus", {reloading:false})
     commit("clearFieldStatus")
     // Update content and sync state
     dispatch("updateContent", content)
@@ -15023,7 +15171,9 @@ const _M = {
     //--------------------------------------
     OnPagerChange({pn, pgsz}={}) {
       //console.log("OnPagerChange", {pn, pgsz})
-      Ti.App(this).dispatch("main/search/reloadPage", {pn, pgsz})
+      let app = Ti.App(this)
+      app.commit("main/search/updatePager", {pn, pgsz})
+      app.dispatch("main/reloadSearch")
     },
     //--------------------------------------
     OnViewCurrentSource() {
@@ -16109,7 +16259,8 @@ const _M = {
         Ti.Be.EditIt(this.$el, {
           text: this.TheValue,
           ok : (newVal)=> {
-            this.$notify("change", newVal)
+            let val = Ti.S.toCase(newVal, this.valueCase)
+            this.$notify("change", val)
           }
         })
       }
@@ -16361,6 +16512,7 @@ const _M = {
     //----------------------------------------
     setContent(state, content) {
       let meta = state.meta;
+      //console.log("setContent", content)
       // Guard
       if(!meta || _.isUndefined(content)) {
         state.content = null
@@ -16423,8 +16575,56 @@ const _M = {
       state.data = data
     },
     //----------------------------------------
+    setDataItem(state, newItem) {
+      // Guard
+      if(!newItem || !newItem.id)
+        return
+
+      let data = state.data
+
+      // Update pager list item of data
+      if(_.isArray(data.list) && data.pager) {
+        let list = _.cloneDeep(data.list)
+        list = _.map(list, li => {
+          if(li.id == newItem.id) {
+            return newItem
+          }
+          return li
+        })
+        state.data = {
+          list,
+          pager : data.pager
+        }
+      }
+    },
+    //----------------------------------------
     setSavedContent(state, content) {
       state.__saved_content = content
+    },
+    //----------------------------------------
+    setFilter(state, filter) {
+      state.filter = _.cloneDeep(filter)
+    },
+    //----------------------------------------
+    setSorter(state, sorter) {
+      state.sorter = _.cloneDeep(sorter)
+    },
+    //----------------------------------------
+    setPager(state, {pageNumber, pageSize}={}) {
+      if(_.isNumber(pageNumber)) {
+        state.pageNumber =  pageNumber
+      }
+      if(_.isNumber(pageSize)) {
+        state.pageSize =  pageSize
+      }
+    },
+    //----------------------------------------
+    setPagerNumber(state, pageNumber=1) {
+      state.pageNumber =  pageNumber
+    },
+    //----------------------------------------
+    setPageSize(state, pageSize=100) {
+      state.pageSize =  pageSize
     },
     //----------------------------------------
     setStatus(state, status) {
@@ -16917,7 +17117,8 @@ const _M = {
     //----------------------------------------
     ConStyle() {
       return Ti.Css.toStyle({
-        height: this.height
+        height: this.height,
+        width : this.fieldWidth
       })
     },
     //----------------------------------------
@@ -19319,6 +19520,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : [String, Ti.Dict],
     default : undefined
   },
+  "valueCase" : {
+    type : String,
+    default : undefined,
+    validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
+  },
   "trimed" : {
     type : Boolean,
     default : true
@@ -19678,7 +19884,9 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-layout" : this.layout
+        "is-layout" : this.layout,
+        "is-single-row" : 1 == this.myRows,
+        "is-multi-rows" : this.myRows > 1
       })
     },
     //--------------------------------------
@@ -19694,9 +19902,9 @@ const _M = {
     },
     //--------------------------------------
     getItemStyle() {
-      let itWs = _.without(_.concat(this.itemWidth))
-      let itHs = _.without(_.concat(this.itemHeight))
-      let itStyles = _.without(_.concat(this.itemStyle))
+      let itWs = _.without(_.concat(this.itemWidth), undefined)
+      let itHs = _.without(_.concat(this.itemHeight), undefined)
+      let itStyles = _.without(_.concat(this.itemStyle), undefined)
       return (index)=> {
         let w, h, sty, i;
         if(itWs.length > 0) {
@@ -19711,11 +19919,14 @@ const _M = {
           i = Ti.Num.scrollIndex(index, itStyles.length)
           sty = itStyles[i]
         }
-        return {
-          ...(sty||{}),
-          width  : Ti.Css.toSize(w),
-          height : Ti.Css.toSize(h)
+        let css = _.cloneDeep(sty) || {}
+        if(!Ti.Util.isNil(w)) {
+          css.width = Ti.Css.toSize(w)
         }
+        if(!Ti.Util.isNil(h)) {
+          css.height = Ti.Css.toSize(h)
+        }
+        return css
       }
     },
     //--------------------------------------
@@ -19725,11 +19936,12 @@ const _M = {
       
       let list = []      
       for(let i=0; i < this.data.length; i++) {
+        let stl = this.getItemStyle(i)
         let it = this.data[i]
         list.push({
           key: `It-${i}`,
           className : this.getItemClass(i),
-          style : this.getItemStyle(i),
+          style : stl,
           comType: this.comType,
           comConf: Ti.Util.explainObj(it, this.comConf)
         })        
@@ -21005,6 +21217,211 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'youtube-browser.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/net/youtube/browser/youtube-browser.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////////
+  data : ()=>({
+    myCurrentId : undefined,
+    ytConfig : undefined,
+    ytPlaylists : [],
+    ytVideos : undefined
+  }),
+  ///////////////////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "meta" : {
+      type : Object
+    },
+    "domain": {
+      type : String
+    },
+    "channelId" : {
+      type : String
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "notifyName" : {
+      type : String
+    }
+  },
+  ///////////////////////////////////////////////////////
+  computed : {
+    //---------------------------------------------------
+    TopClass() {
+      return this.getTopClass();
+    },
+    //---------------------------------------------------
+    hasCurrent() {
+      return this.myCurrentId ? true : false
+    },
+    //---------------------------------------------------
+    CurrentVideo() {
+      return this.getVideoObj(this.myCurrentId)
+},
+    //---------------------------------------------------
+    GuiLayout(){
+      return {
+        type: "cols",
+        border:true,
+        blocks: [{
+          name : "list",
+          size : "62%",
+          body : "pcList"
+        }, {
+          name : "detail",
+          body : "pcDetail"
+        }]
+      }
+    },
+    //---------------------------------------------------
+    GuiSchema() {
+      return {
+        pcList: {
+          comType: "TiWall",
+          comConf: {
+            data: this.WallItemList,
+            idBy: "id",
+            multi: false,
+            display: {
+              key : "..",
+              comType : "ti-obj-thumb",
+              comConf : {
+                "..." : "${=value}"
+              }
+            }
+          }
+        },
+        pcDetail: {
+          comType: "NetYoutubeDetail",
+          comConf: {
+            value: this.CurrentVideo
+          }
+        }
+      }
+    },
+    //---------------------------------------------------
+    WallItemList() {
+      if(!this.ytVideos)
+        return
+      let list = _.map(this.ytVideos, video=>{
+        return {
+          id : video.id,
+          title : video.title,
+          preview : video.thumbUrl,
+          badges : {
+            "SE" : {
+              type : "text",
+              className : "bchc-badge as-label",
+              value : video.du_in_str
+            }
+          }
+        }
+      })
+      return list
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods :{
+    //---------------------------------------------------
+    OnListSelect({currentId}) {
+      this.myCurrentId = currentId
+      let video = _.cloneDeep(this.CurrentVideo)
+      if(this.notifyName) {
+        this.$notify(this.notifyName, video)
+      }
+    },
+    //---------------------------------------------------
+    getVideoObj(videoId) {
+      if(videoId && _.isArray(this.ytVideos)) {
+        for(let video of this.ytVideos) {
+          if(video.id == videoId) {
+            return video
+          }
+        }
+      }
+    },
+    //---------------------------------------------------
+    async reload(force=false) {
+      // Guard
+      if(!this.domain || !this.channelId)
+        return
+
+      this.ytVideos = undefined
+
+      // Reload config
+      let config = await Wn.Youtube.loadConfig({
+        domain : this.domain,
+        channelId : this.channelId,
+        force
+      })
+
+      let playlists = await Wn.Youtube.getAllPlaylists(config)
+      let videos = await Wn.Youtube.getAllVideos(config)
+
+      // Reload playlist
+      this.ytConfig = config
+      this.ytPlaylists = playlists
+      this.ytVideos = videos 
+    },
+    //--------------------------------------------
+    async openCurrentMeta() {
+      let meta = this.CurrentVideo || this.meta
+
+      if(!meta) {
+        await Ti.Toast.Open("i18n:nil-obj")
+        return
+      }
+
+      let fields = "auto"
+      if(this.hasCurrent) {
+        const V_FIELD = (name, title)=>{
+          return {
+            title, name,
+            comType : "TiLabel"
+          }
+        }
+        fields = [
+          V_FIELD("id", "ID"),
+          V_FIELD("title", "Title"),
+          V_FIELD("description", "Description"),
+          V_FIELD("publishedAt", "PublishedAt"),
+          V_FIELD("tags", "Tags"),
+          V_FIELD("duration", "Duration"),
+          V_FIELD("du_in_sec", "Du in sec"),
+          V_FIELD("du_in_str", "Du in str"),
+          V_FIELD("definition", "Definition"),
+          V_FIELD("categoryId", "CategoryId"),
+        ]
+      }
+
+      await Wn.EditObjMeta(meta, {
+        fields,
+        textOk : null,
+        autoSave : false
+      })
+    },
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  watch : {
+    "domain" : "reload",
+    "channelId" : "reload"
+  },
+  ///////////////////////////////////////////////////////
+  mounted : async function() {
+    await this.reload();
+  }
+  ///////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-obj-tile.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/obj/tile/ti-obj-tile.mjs'] = (function(){
@@ -21836,10 +22253,16 @@ const _M = {
       }
     },
     //---------------------------------------
-    // Main Module
+    // Main Modules
     //---------------------------------------
     Main() {
       return this.$store.state.main
+    },
+    Current() {
+      return this.$store.state.current
+    },
+    Axis() {
+      return this.$store.state.axis
     },
     //---------------------------------------
     // GUI
@@ -21964,7 +22387,7 @@ const _M = {
       let reo = await Ti.Http.get("/a/sys_logout", {
         params:{ajax:true}
       })
-      console.log(reo)
+      //console.log(reo)
       Ti.Be.Open(quitPath, {target:"_self", delay:0})
     }
     //--------------------------------------
@@ -21994,6 +22417,14 @@ const _M = {
     //......................................
     this.reloadSidebar()
     this.reloadPrivilege()
+    //......................................
+    window.onpopstate = (evt)=>{
+      let obj = evt.state
+      //console.log("popstate", obj)
+      if(obj && obj.id && obj.ph) {
+        Ti.App(this).dispatch("current/reload", obj)
+      }
+    }
     //......................................
   },
   ///////////////////////////////////////////
@@ -24272,7 +24703,7 @@ const _M = {
       }
       // Invalid json
       catch(E) {
-        await Ti.Toast.Open("")
+        await Ti.Toast.Open("" + E)
       }
     },
     //-----------------------------------------------
@@ -24317,6 +24748,7 @@ const _M = {
     async openDialogForSource(json='[]') {
       let dialog = _.cloneDeep(this.dialog);
       _.assign(dialog, {
+        title : "i18n:edit",
         result : json,
         comType : "TiInputText",
         comConf : {
@@ -27391,459 +27823,71 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
-// EXPORT 'wn-image.mjs' -> null
+// EXPORT 'ti-paging-mixins.mjs' -> null
 // ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/wn-image.mjs'] = (function(){
-////////////////////////////////////////////////////
-async function pickImageAndInsertToDoc(editor, {
-  base = "~", 
-  autoCreate=null, 
-  fallbackPath,
-}) {
-  // Check base
-  if(_.isPlainObject(autoCreate)) {
-    let oBase = await Wn.Io.loadMeta(base)
-    if(!oBase) {
-      let pph = Ti.Util.getParentPath(base)
-      let dnm = Ti.Util.getFileName(base)
-      let baseMeta = _.assign({}, autoCreate, {
-        race: 'DIR', nm : dnm
-      })
-      let baseJson = JSON.stringify(baseMeta)
-      let cmdText = `o @create '${baseJson}' -p ${pph} -auto @json -cqn`
-      oBase = await Wn.Sys.exec2(cmdText, {as:"json"})
-    }
-    base = oBase
-  }
-
-  // Show dialog
-  let reo = await Wn.OpenObjSelector(base, {
-    icon  : "fas-image",
-    title : "i18n:img-insert",
-    position : "top",
-    width  : "95%",
-    height : "95%",
-    multi : false,
-    fallbackPath
-  })
-
-  // User canceled
-  if(_.isEmpty(reo)) {
-    return
-  }
-
-  // Do insert image
-  editor.execCommand("InsertImage", editor, reo)
-}
-////////////////////////////////////////////////////
-function CmdInsertImage(editor, oImgs) {
-  if(_.isEmpty(oImgs))
-    return
-  
-  // Prepare range
-  let rng = editor.selection.getRng()
-  
-  // Create image fragments
-  let $doc = rng.commonAncestorContainer.ownerDocument
-  let frag = new DocumentFragment()
-  for(let oImg of oImgs) {
-    let $img = Ti.Dom.createElement({
-      tagName : "img",
-      attrs : {
-        src : `/o/content?str=id:${oImg.id}`,
-        "wn-obj-id" : oImg.id,
-        "wn-obj-sha1" : oImg.sha1,
-        "wn-obj-mime" : oImg.mime,
-        "wn-obj-tp"   : oImg.tp
-      }
-    }, $doc)
-    frag.appendChild($img)
-  }
-  
-  // Remove content
-  if(!rng.collapsed) {
-    rng.deleteContents()
-  }
-
-  // Insert fragments
-  rng.insertNode(frag)
-
-}
-////////////////////////////////////////////////////
-function GetCurrentImageElement(editor) {
-  let sel = editor.selection
-  let $img = sel.getNode()
-  // Guard
-  if("IMG" != $img.tagName) {
-    return
-  }
-  return $img
-}
-////////////////////////////////////////////////////
-function CmdSetImageSize(editor, {width=null, height=null}={}) {
-  let sel = editor.selection
-  let $img = sel.getNode()
-  // Guard
-  if("IMG" != $img.tagName) {
-    return
-  }
-  // Clear the attribute
-  Ti.Dom.setAttrs($img, {width, height})
-  // Force sync content
-  editor.__rich_tinymce_com.syncContent()
-}
-////////////////////////////////////////////////////
-function CmdSetImageStyle(editor, css={}) {
-  let sel = editor.selection
-  let $img = sel.getNode()
-  // Guard
-  if("IMG" != $img.tagName) {
-    return
-  }
-  // Clear float
-  Ti.Dom.setStyle($img, css)
-  // Force sync content
-  editor.__rich_tinymce_com.syncContent()
-}
-////////////////////////////////////////////////////
-async function CmdShowImageProp(editor, settings) {
-  let sel = editor.selection
-  let $img = sel.getNode()
-  // Guard
-  if("IMG" != $img.tagName) {
-    return
-  }
-  // Get margin style
-  let stl = Ti.Dom.getStyle($img, /^(float|(margin-(left|right|top|bottom)))$/)
-  stl.float = stl.float || "none"
-  //console.log("stl", stl)
-  // Gen the properties
-  let data = {
-    oid    : $img.getAttribute("wn-obj-id"),
-    src    : $img.getAttribute("src"),
-    width  : $img.getAttribute("width")  || undefined,
-    height : $img.getAttribute("height") || undefined,
-    displayWidth  : $img.width,
-    displayHeight : $img.height,
-    naturalWidth  : $img.naturalWidth,
-    naturalHeight : $img.naturalHeight,
-    ... stl
-  }
-
-  //console.log(data)
-  // Show dialog
-  let reo = await Ti.App.Open({
-    icon  : "fas-image",
-    title : "编辑图片属性",
-    width  : "37%",
-    height : "100%",
-    position : "right",
-    closer : "left",
-    clickMaskToClose : true,
-    result : data,
-    model : {prop:"data", event:"change"},
-    comType : "TiForm",
-    comConf : {
-      spacing : "tiny",
-      fields : [{
-          title : "图片",
-          name  : "oid",
-          comType : "WnObjPicker",
-          comConf : {
-            valueType : "id",
-            base : settings.base,
-            titleEditable : false
-          }
-        }, {
-          title : "尺寸",
-          fields: [{
-            title : "宽度",
-            name  : "width",
-            comType : "TiInput",
-            comConf : {
-              placeholder: `${data.displayWidth}/${data.naturalWidth}px`
-            }
-          }, {
-            title : "高度",
-            name  : "height",
-            comType : "TiInput",
-            comConf : {
-              placeholder: `${data.displayHeight}/${data.naturalHeight}px`
-            }
-          }]
-        }, {
-          title : "文本绕图",
-          name  : "float",
-          comType : "TiSwitcher",
-          comConf : {
-            allowEmpty : false,
-            options : [
-              {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
-              {value: "left",  text: "左绕图", icon:"fas-align-left"},
-              {value: "right", text: "右绕图", icon:"fas-align-right"},]
-          }
-        }, {
-          title : "图片边距",
-          fields : [{
-            title : "上",
-            name  : "marginTop",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "右",
-            name  : "marginRight",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "下",
-            name  : "marginBottom",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "左",
-            name  : "marginLeft",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }]
-        }]
-    },
-    components : [
-      "@com:wn/obj/picker"
-    ]
-  })
-
-  // 用户取消
-  if(!reo)
-    return
-
-  // Update image
-  //................................................
-  // src
-  if(data.oid != reo.oid) {
-    // Remove Image
-    if(!reo.oid) {
-      Ti.Dom.remove($img)
-      return
-    }
-    // 读取对象详情
-    let oImg = await Wn.Io.loadMetaById(reo.oid)
-    // Switch image src
-    $img.src = `/o/content?str=id:${reo.oid}`
-    $img.setAttribute("wn-obj-id", oImg.id)
-    $img.setAttribute("wn-obj-sha1", oImg.sha1)
-    $img.setAttribute("wn-obj-mime", oImg.mime)
-    $img.setAttribute("wn-obj-tp", oImg.tp)
-  }
-  //................................................
-  // Measure
-  const _img_size = function(attrName, sz, oldSize) {
-    if(oldSize == sz)
-      return
-    if(!sz) {
-      $img.removeAttribute(attrName)
-    } else {
-      $img.setAttribute(attrName, sz)
-    }
-  }
-  //................................................
-  // Width/height
-  _img_size("width",  reo.width,  data.width)
-  _img_size("height", reo.height, data.height)
-  //................................................
-  // Styling
-  const _img_style = function(styName, v, oldValue) {
-    if(oldValue == v)
-      return
-    if(!v || "none" == v) {
-      $img.style[styName] = ""
-    } else if(_.isNumber(v)) {
-      $img.style[styName] = `${v}px`
-    } else {
-      $img.style[styName] = v
-    }
-  }
-  //................................................
-  _img_style("float", reo.float, data.float)
-  _img_style("marginLeft",   reo.marginLeft,   data.marginLeft)
-  _img_style("marginRight",  reo.marginRight,  data.marginRight)
-  _img_style("marginTop",    reo.marginTop,    data.marginTop)
-  _img_style("marginBottom", reo.marginBottom, data.marginBottom)
-  //................................................
-  // clean cache
-  $img.removeAttribute("data-mce-src")
-  $img.removeAttribute("data-mce-style")
-  //................................................
-  // Force sync content
-  editor.__rich_tinymce_com.syncContent()
-}
-////////////////////////////////////////////////////
+window.TI_PACK_EXPORTS['ti/com/ti/paging/support/ti-paging-mixins.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
-  name : "wn-image",
-  //------------------------------------------------
-  init : function(conf={}) {
-    let {extended_valid_elements} = conf 
-
-    conf.extended_valid_elements = _.concat(
-      extended_valid_elements, 
-      'img[wn-obj-*|src|width|height|style]'
-    ).join(",")
+  ///////////////////////////////////////////
+  props : {
+    "value" : {
+      type : Object,
+      default : ()=>({
+        pn : 0,     // Page Number
+        pgsz : 0,   // PageSize
+        pgc : 0,    // page count
+        sum : 0,    // Total
+        count : 0   // Record in page
+      })
+    },
+    "valueType" : {
+      type : String,
+      default : "shortName",
+      validator : v => /^(short|long)Name$/.test(v)
+    }
   },
-  //------------------------------------------------
-  setup : function(editor, url){
-    //..............................................
-    let settings = _.assign({
-        base : "~"
-      }, _.get(editor.settings, "wn_image_config"));
-    //console.log("setup", editor.settings)
-    //..............................................
-    // Register plugin command
-    editor.addCommand("InsertImage",   CmdInsertImage)
-    editor.addCommand("SetImageSize",  CmdSetImageSize)
-    editor.addCommand("SetImageStyle", CmdSetImageStyle)
-    editor.addCommand("ShowImageProp", CmdShowImageProp)
-    //..............................................
-    // Register toolbar actions
-    editor.ui.registry.addButton("WnImgPick", {
-      icon : "image",
-      tooltip : Ti.I18n.text("i18n:img-insert"),
-      onAction : function(menuBtn) {
-        pickImageAndInsertToDoc(editor, settings)
-      },
-    })
-    //..............................................
-    editor.ui.registry.addMenuItem("WnImgClrSize", {
-      icon : "edit-image",
-      text : "清除图片尺寸",
-      onAction() {
-        editor.execCommand("SetImageSize", editor)
-      }
-    })
-    //..............................................
-    editor.ui.registry.addMenuItem("WnImgAutoFitWidth", {
-      text : "自动适应宽度",
-      onAction() {
-        editor.execCommand("SetImageSize", editor, {width:"100%"})
-      }
-    })
-    //..............................................
-    editor.ui.registry.addNestedMenuItem('WnImgFloat', {
-      text: '文本绕图',
-      getSubmenuItems: function () {
-        return [{
-          type : "menuitem",
-          icon : "align-left",
-          text : "居左绕图",
-          onAction() {
-            editor.execCommand("SetImageStyle", editor, {float:"left"})
-          }
-        }, {
-          type : "menuitem",
-          icon : "align-right",
-          text : "居右绕图",
-          onAction() {
-            editor.execCommand("SetImageStyle", editor, {float:"right"})
-          }
-        }, {
-          type : "menuitem",
-          text : "清除浮动",
-          onAction() {
-            editor.execCommand("SetImageStyle", editor, {float:""})
-          }
-        }];
-      }
-    });
-    //..............................................
-    editor.ui.registry.addNestedMenuItem('WnImgMargin', {
-      text: '图片边距',
-      getSubmenuItems: function () {
-        const __check_margin_size = function(api, expectSize) {
-          let $img = GetCurrentImageElement(editor)
-          let state = true
-          if($img) {
-            let sz = $img.style.marginLeft || $img.style.marginRight
-            state = expectSize == sz
-          }
-          api.setActive(state);
-          return function() {};
+  ///////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    PageMapping() {
+      // longName shoudl follow the 
+      // `org.nutz.walnut.util.WnPagerObj`
+      // generated by `WnPager.toPagerObj`
+      if("longName" == this.valueType) {
+        return {
+          pn : "pageNumber",
+          pgsz : "pageSize",
+          pgc : "pageCount",
+          sum : "totalCount",
+          count : "count"
         }
-        return [{
-          type : "togglemenuitem",
-          text : "小边距",
-          onAction() {
-            editor.execCommand("SetImageStyle", editor, {margin:"1em"})
-          },
-          onSetup: function(api) {
-            return __check_margin_size(api, '1em')
-          }
-        }, {
-          type : "togglemenuitem",
-          text : "中等边距",
-          onAction() {
-            editor.execCommand("SetImageStyle", editor, {margin:"2em"})
-          },
-          onSetup: function(api) {
-            return __check_margin_size(api, '2em')
-          }
-        }, {
-          type : "togglemenuitem",
-          text : "较大边距",
-          onAction() {
-            editor.execCommand("SetImageStyle", editor, {margin:"3em"})
-          },
-          onSetup: function(api) {
-            return __check_margin_size(api, '3em')
-          }
-        }, {
-          type : "menuitem",
-          text : "清除边距",
-          onAction() {
-            editor.execCommand("SetImageStyle", editor, {margin:""})
-          }
-        }];
       }
-    });
-    //..............................................
-    editor.ui.registry.addMenuItem("WnImgProp", {
-      text : "图片属性",
-      onAction() {
-        editor.execCommand("ShowImageProp", editor, settings)
+    },
+    //--------------------------------------
+    PageValue() {
+      if(this.PageMapping) {
+        return Ti.Util.translate(this.value, this.PageMapping)
       }
-    })
-    //..............................................
-    editor.ui.registry.addContextMenu("wn-image", {
-      update: function (el) {
-        let sel = editor.selection
-        let $nd = sel.getNode()
-        if($nd.hasAttribute("wn-obj-id") && "IMG" == $nd.tagName) {
-          return [
-            "WnImgClrSize WnImgAutoFitWidth",
-            "WnImgFloat WnImgMargin",
-            "WnImgProp"
-          ].join(" | ")
-        }
-        return []
+      return this.value
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    notifyChange(page={}) {
+      // Guard
+      if(_.isEmpty(page))
+        return
+
+      if(this.PageMapping) {
+        let rever = Ti.Util.reverMapping(this.PageMapping)
+        page = Ti.Util.translate(page, rever)
       }
-    })
-    //..............................................
-    return {
-      getMetadata: function () {
-        return  {
-          name: 'Wn Image plugin',
-          url: 'http://site0.cn'
-        };
-      }
-    };
-    //..............................................
+
+      this.$notify("change", page)
+    }
   }
-  //------------------------------------------------
+  ///////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -28432,7 +28476,7 @@ const _M = {
     //--------------------------------------------------
     async OnFieldChange({name, value}={}) {
       // Notify at first
-      console.log("notify field", {name, value})
+      //console.log("notify field", {name, value})
       this.$notify("field:change", {name, value})
 
       // Link fields
@@ -28593,6 +28637,9 @@ const _M = {
       // Guard
       if(!_.isElement(this.$el))
         return
+      //
+      // Find the max width in all form
+      //
       // Find all field-name Elements
       let $fldNames = Ti.Dom.findAll(".form-field > .field-name", this.$el)
 
@@ -28605,12 +28652,35 @@ const _M = {
       let maxWidth = 0
       for(let $fldnm of $fldNames) {
         let rect = Ti.Rects.createBy($fldnm)
-        maxWidth = Math.ceil(Math.max(rect.width, maxWidth))
+        // If in vertical group
+        let $pp = $fldnm.parentElement.parentElement.parentElement
+        if(Ti.Dom.hasClass($pp, "form-group")
+           && Ti.Dom.hasOneClass($pp, "as-columns", "as-vertical")
+        ){
+          let maxw = $pp.getAttribute("fld-name-max-width")*1 || 0
+          maxw = Math.max(maxw, rect.width)
+          $pp.setAttribute("fld-name-max-width", maxw)
+        }
+        // for whole form
+        else {
+          maxWidth = Math.ceil(Math.max(rect.width, maxWidth))
+        }
       }
+
+
 
       // Wait for whole view rendered, and align the field-name
       for(let $fldnm of $fldNames) {
-        Ti.Dom.setStyle($fldnm, {width:maxWidth})
+        // If in group
+        let $pp = $fldnm.parentElement.parentElement.parentElement
+        let maxw = $pp.getAttribute("fld-name-max-width")
+        if(maxw) {
+          Ti.Dom.setStyle($fldnm, {width:maxw*1})
+        }
+        // For whole form
+        else {
+          Ti.Dom.setStyle($fldnm, {width:maxWidth})
+        }
       }
     },
     //--------------------------------------------------
@@ -29810,6 +29880,10 @@ const LIST_MIXINS = {
     //-----------------------------------------------
     getRowData() {
       return Ti.Util.genRowDataGetter(this.rawDataBy)
+    },
+    //-----------------------------------------------
+    isDataLoading() {
+      return _.isUndefined(this.data)
     },
     //-----------------------------------------------
     isDataEmpty() {
@@ -31472,7 +31546,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   "data" : {
     type : [Array, String],
-    default : ()=>[]
+    default : undefined
   },
   // If input the value(ID) Array
   // it can translate by this Dict
@@ -31599,6 +31673,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: String,
     default: "as-big-mask",
     validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
+  },
+  "loadingAs" : {
+    type : Object,
+    default : ()=>({
+      className : "as-nil-mask as-big-mask",
+      icon : undefined,
+      text : undefined
+    })
   },
   "rowNumberBase" : {
     type : Number,
@@ -31848,8 +31930,8 @@ const _M = {
       // Gen the GUI object
       let gui = {
         className: page.className,
-        defaultFlex: "nil",
-        defaultOverflow: "none",
+        defaultFlex: "=page.gui.flex?nil",
+        defaultOverflow: "=page.gui.overflow?none",
         layout, 
         schema : {},
         canLoading : true
@@ -31933,8 +32015,9 @@ const _M = {
       let pgLink = this.pageUri
       //...................................
       if(loPath != pgLink || !his.state) {
-        let pg = _.cloneDeep(_.pick(this.page, "path", "params", "anchor"))
-        // console.log("pg", JSON.stringify(pg))
+        let pg = _.pick(this.page, "pageUri","href", "path", "params", "anchor");
+        pg = _.cloneDeep(pg)
+        console.log("pg", JSON.stringify(pg))
         // console.log("pageTitle", pageTitle)
         // console.log("pgLink", pgLink)
         his.pushState(pg, pageTitle, pgLink)
@@ -31961,13 +32044,13 @@ const _M = {
     // The state(page) pushed by $store.dispath("navTo")
     window.onpopstate = (evt)=>{
       let page = evt.state
-      console.log("popstate", page)
-      if(page && page.path) {
-        console.log("window.onpopstate", page)
+      //console.log("popstate", page)
+      if(page && page.href) {
+        //console.log("window.onpopstate", page)
         let app = Ti.App(this)
         app.dispatch("navTo", {
           type   : "page",
-          value  : page.path,
+          value  : page.href,
           params : page.params,
           anchor : page.anchor
         })
@@ -32852,6 +32935,98 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'youtube-player.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/net/youtube/player/youtube-player.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////////
+  data : ()=>({
+    showPlayer : false
+  }),
+  ///////////////////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "value" : {
+      type : Object
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "allow" : {
+      type : [String, Array],
+      default : "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    },
+    "allowFullScreen" : {
+      type : Boolean
+    },
+    //-----------------------------------
+    // Aspace
+    //-----------------------------------
+    "blankAs" : {
+      type : Object,
+      default : ()=>({
+        className : "as-big",
+        icon : "fab-deezer",
+        text : "i18n:empty"
+      })
+    }
+  },
+  ///////////////////////////////////////////////////////
+  computed : {
+    //---------------------------------------------------
+    TopClass() {
+      return this.getTopClass();
+    },
+    //---------------------------------------------------
+    TopStyle() {
+      if(this.hasValue) {
+        return {
+          "background-image" : `url("${this.value.thumb_url}")`
+        }
+      }
+    },
+    //---------------------------------------------------
+    hasValue() {
+      return (this.value && this.value.id) ? true : false
+    },
+    //---------------------------------------------------
+    VideoSrc() {
+      if(this.hasValue) {
+        return `//www.youtube.com/embed/${this.value.id}`
+      }
+    },
+    //---------------------------------------------------
+    VideoAllow() {
+      if(_.isString(this.allow)) {
+        return this.allow
+      }
+      if(_.isArray(this.allow)) {
+        return this.allow.join(";")
+      }
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  watch : {
+    "value" : function(newVal, oldVal) {
+      if(newVal && !_.isEqual(newVal, oldVal)) {
+        this.showPlayer = false
+      }
+    }
+  },
+  ///////////////////////////////////////////////////////
+  methods :{
+    //---------------------------------------------------
+    
+    //---------------------------------------------------
+  }
+  ///////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'web-shelf-scroller.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/shelf/scroller/web-shelf-scroller.mjs'] = (function(){
@@ -33188,7 +33363,7 @@ const _M = {
     },
     // The URL of thumb
     "preview" : {
-      type : [String, Object],
+      type : [String, Object, Function],
       default : "broken_image"
     },
     "href" : {
@@ -33534,6 +33709,485 @@ const __TI_MOD_EXPORT_VAR_NM = {
     Ti.Viewport.unwatch(this)
   }
   ///////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'tiny-wn-video.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-video.mjs'] = (function(){
+////////////////////////////////////////////////////
+async function pickVideoAndInsertToDoc(editor, {
+  base = "~", 
+  autoCreate=null, 
+  fallbackPath,
+}) {
+  // Check base
+  if(_.isPlainObject(autoCreate)) {
+    let oBase = await Wn.Io.loadMeta(base)
+    if(!oBase) {
+      let pph = Ti.Util.getParentPath(base)
+      let dnm = Ti.Util.getFileName(base)
+      let baseMeta = _.assign({}, autoCreate, {
+        race: 'DIR', nm : dnm
+      })
+      let baseJson = JSON.stringify(baseMeta)
+      let cmdText = `o @create '${baseJson}' -p ${pph} -auto @json -cqn`
+      oBase = await Wn.Sys.exec2(cmdText, {as:"json"})
+    }
+    base = oBase
+  }
+
+  // Show dialog
+  let reo = await Wn.OpenObjSelector(base, {
+    icon  : "fas-image",
+    title : "i18n:video-insert",
+    position : "top",
+    width  : "95%",
+    height : "95%",
+    multi : false,
+    fallbackPath
+  })
+
+  // User canceled
+  if(_.isEmpty(reo)) {
+    return
+  }
+
+  // Do insert image
+  editor.execCommand("InsertVideo", editor, reo)
+}
+////////////////////////////////////////////////////
+function GetVideoAttrsByElement(elVideo) {
+  let stl = Ti.Dom.getStyle(elVideo, 
+    /^(width|height|float|(margin-(left|right|top|bottom)))$/)
+  stl.float = stl.float || "none"
+  return {
+    oid   : elVideo.getAttribute("wn-obj-id"),
+    sha1  : elVideo.getAttribute("wn-obj-sha1"),
+    mime  : elVideo.getAttribute("wn-obj-mime"),
+    tp    : elVideo.getAttribute("wn-obj-tp"),
+    thumb : elVideo.getAttribute("wn-obj-thumb"),
+    video_cover   : elVideo.getAttribute("wn-obj-video_cover"),
+    naturalWidth  : elVideo.getAttribute("wn-obj-width"),
+    naturalHeight : elVideo.getAttribute("wn-obj-height"),
+    duration : elVideo.getAttribute("wn-obj-duration"),
+    ... stl
+  }
+}
+////////////////////////////////////////////////////
+function GetVideoAttrsByObj(oVideo) {
+  return {
+    "wn-obj-id" : oVideo.id,
+    "wn-obj-sha1" : oVideo.sha1,
+    "wn-obj-mime" : oVideo.mime,
+    "wn-obj-tp"   : oVideo.tp,
+    "wn-obj-thumb" : oVideo.thumb,
+    "wn-obj-video_cover" : oVideo.video_cover,
+    "wn-obj-width" : oVideo.width,
+    "wn-obj-height" : oVideo.height,
+    "wn-obj-duration" : oVideo.duration
+  }
+}
+////////////////////////////////////////////////////
+function UpdateVideoTagInnerHtml(elVideo) {
+  let cover = elVideo.getAttribute("wn-obj-video_cover")
+  if(!cover) {
+    cover = elVideo.getAttribute("wn-obj-thumb")
+  }
+  if(cover && !cover.startsWith("id:")) {
+    cover = "id:" + cover
+  }
+  let $inner = Ti.Dom.createElement({
+    tagName : "div",
+    className : "media-inner",
+    style : {
+      "background-image" : `url("/o/content?str=${cover}")`
+    }
+  })
+  $inner.innerHTML = '<i class="fas fa-play-circle"></i>'
+  elVideo.innerHTML = null
+  elVideo.contentEditable = false
+  Ti.Dom.appendTo($inner, elVideo)
+}
+////////////////////////////////////////////////////
+function CmdInsertVideo(editor, oVideos) {
+  if(_.isEmpty(oVideos))
+    return
+  
+  // Prepare range
+  let rng = editor.selection.getRng()
+  
+  // Create image fragments
+  let $doc = rng.commonAncestorContainer.ownerDocument
+  let frag = new DocumentFragment()
+  for(let oVideo of oVideos) {
+    let $video = Ti.Dom.createElement({
+      tagName : "div",
+      className : "wn-media as-video",
+      attrs : GetVideoAttrsByObj(oVideo)
+    }, $doc)
+    UpdateVideoTagInnerHtml($video)
+    frag.appendChild($video)
+  }
+  
+  // Remove content
+  if(!rng.collapsed) {
+    rng.deleteContents()
+  }
+
+  // Insert fragments
+  rng.insertNode(frag)
+
+}
+////////////////////////////////////////////////////
+function GetCurrentVideoElement(editor) {
+  let sel = editor.selection
+  let $nd = sel.getNode()
+  // Guard
+  return Ti.Dom.closest($nd, (el)=>{
+    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-video")
+  })
+}
+////////////////////////////////////////////////////
+function CmdSetVideoSize(editor, {width="", height=""}={}) {
+  let $video = GetCurrentVideoElement(editor)
+  // Guard
+  if(!_.isElement($video)) {
+    return
+  }
+  // Clear the attribute
+  Ti.Dom.setStyle($video, {width, height})
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+function CmdSetVideoStyle(editor, css={}) {
+  let $video = GetCurrentVideoElement(editor)
+  // Guard
+  if(!_.isElement($video)) {
+    return
+  }
+  // Clear float
+  Ti.Dom.setStyle($video, css)
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+async function CmdShowVideoProp(editor, settings) {
+  let $video = GetCurrentVideoElement(editor)
+  // Guard
+  if(!_.isElement($video)) {
+    return
+  }
+  //console.log("stl", stl)
+  // Gen the properties
+  let data = GetVideoAttrsByElement($video)
+
+  //console.log(data)
+  // Show dialog
+  let reo = await Ti.App.Open({
+    icon  : "fas-image",
+    title : "编辑视频属性",
+    width  : "37%",
+    height : "100%",
+    position : "right",
+    closer : "left",
+    clickMaskToClose : true,
+    result : data,
+    model : {prop:"data", event:"change"},
+    comType : "TiForm",
+    comConf : {
+      spacing : "tiny",
+      fields : [{
+          title : "视频",
+          name  : "oid",
+          comType : "WnObjPicker",
+          comConf : {
+            valueType : "id",
+            base : settings.base,
+            titleEditable : false
+          }
+        }, {
+          title : "尺寸",
+          fields: [{
+            title : "宽度",
+            name  : "width",
+            comType : "TiInput",
+            comConf : {
+              placeholder: `${data.naturalWidth}px`
+            }
+          }, {
+            title : "高度",
+            name  : "height",
+            comType : "TiInput",
+            comConf : {
+              placeholder: `${data.naturalHeight}px`
+            }
+          }]
+        }, {
+          title : "文本绕图",
+          name  : "float",
+          comType : "TiSwitcher",
+          comConf : {
+            allowEmpty : false,
+            options : [
+              {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
+              {value: "left",  text: "左绕图", icon:"fas-align-left"},
+              {value: "right", text: "右绕图", icon:"fas-align-right"},]
+          }
+        }, {
+          title : "视频距",
+          fields : [{
+            title : "上",
+            name  : "marginTop",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "右",
+            name  : "marginRight",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "下",
+            name  : "marginBottom",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "左",
+            name  : "marginLeft",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }]
+        }]
+    },
+    components : [
+      "@com:wn/obj/picker"
+    ]
+  })
+
+  // 用户取消
+  if(!reo)
+    return
+
+  // Update image
+  //................................................
+  // src
+  if(data.oid != reo.oid) {
+    // Remove Video
+    if(!reo.oid) {
+      Ti.Dom.remove($video)
+      return
+    }
+    // 读取对象详情
+    let oVideo = await Wn.Io.loadMetaById(reo.oid)
+    // Switch image src
+    let attrs = GetVideoAttrsByObj(oVideo)
+    Ti.Dom.setAttrs($video, attrs)
+
+    UpdateVideoTagInnerHtml($video)
+    
+  }
+  //................................................
+  // Styling
+  const _video_style = function(styName, v, oldValue) {
+    if(oldValue == v)
+      return
+    if(!v || "none" == v) {
+      $video.style[styName] = ""
+    } else if(_.isNumber(v) || /^\d+(\.\d+)?$/.test(v)) {
+      $video.style[styName] = `${v}px`
+    } else {
+      $video.style[styName] = v
+    }
+  }
+  //................................................
+  _video_style("width", reo.width, data.width)
+  _video_style("height", reo.height, data.height)
+  _video_style("float", reo.float, data.float)
+  _video_style("marginLeft",   reo.marginLeft,   data.marginLeft)
+  _video_style("marginRight",  reo.marginRight,  data.marginRight)
+  _video_style("marginTop",    reo.marginTop,    data.marginTop)
+  _video_style("marginBottom", reo.marginBottom, data.marginBottom)
+  //................................................
+  // clean cache
+  $video.removeAttribute("data-mce-src")
+  $video.removeAttribute("data-mce-style")
+  //................................................
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  name : "wn-video",
+  //------------------------------------------------
+  init : function(conf={}) {
+  },
+  //------------------------------------------------
+  setup : function(editor, url){
+    //..............................................
+    let settings = _.assign({
+        base : "~"
+      }, _.get(editor.settings, "wn_video_config"));
+    //console.log("setup", editor.settings)
+    //..............................................
+    // Register plugin command
+    editor.addCommand("InsertVideo",   CmdInsertVideo)
+    editor.addCommand("SetVideoSize",  CmdSetVideoSize)
+    editor.addCommand("SetVideoStyle", CmdSetVideoStyle)
+    editor.addCommand("ShowVideoProp", CmdShowVideoProp)
+    //..............................................
+    // Register toolbar actions
+    editor.ui.registry.addButton("WnVideoPick", {
+      icon : "film-solid",
+      tooltip : Ti.I18n.text("i18n:video-insert"),
+      onAction : function(menuBtn) {
+        pickVideoAndInsertToDoc(editor, settings)
+      },
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnVideoClrSize", {
+      text : "清除视频尺寸",
+      onAction() {
+        editor.execCommand("SetVideoSize", editor)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnVideoAutoFitWidth", {
+      text : "自动适应宽度",
+      onAction() {
+        editor.execCommand("SetVideoSize", editor, {width:"100%"})
+      }
+    })
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnVideoFloat', {
+      text: '文本绕图',
+      getSubmenuItems: function () {
+        return [{
+          type : "menuitem",
+          icon : "align-left",
+          text : "居左绕图",
+          onAction() {
+            editor.execCommand("SetVideoStyle", editor, {float:"left"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "align-right",
+          text : "居右绕图",
+          onAction() {
+            editor.execCommand("SetVideoStyle", editor, {float:"right"})
+          }
+        }, {
+          type : "menuitem",
+          text : "清除浮动",
+          onAction() {
+            editor.execCommand("SetVideoStyle", editor, {float:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnVideoMargin', {
+      text: '视频边距',
+      getSubmenuItems: function () {
+        const __check_margin_size = function(api, expectSize) {
+          let $video = GetCurrentVideoElement(editor)
+          let state = true
+          if($video) {
+            let sz = $video.style.marginLeft || $video.style.marginRight
+            state = expectSize == sz
+          }
+          api.setActive(state);
+          return function() {};
+        }
+        return [{
+          type : "togglemenuitem",
+          text : "小边距",
+          onAction() {
+            editor.execCommand("SetVideoStyle", editor, {margin:"1em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '1em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "中等边距",
+          onAction() {
+            editor.execCommand("SetVideoStyle", editor, {margin:"2em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '2em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "较大边距",
+          onAction() {
+            editor.execCommand("SetVideoStyle", editor, {margin:"3em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '3em')
+          }
+        }, {
+          type : "menuitem",
+          text : "清除边距",
+          onAction() {
+            editor.execCommand("SetVideoStyle", editor, {margin:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addMenuItem("WnVideoProp", {
+      text : "视频属性",
+      onAction() {
+        editor.execCommand("ShowVideoProp", editor, settings)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addContextMenu("wn-video", {
+      update: function (el) {
+        let $video = GetCurrentVideoElement(editor)
+        // Guard
+        if(!_.isElement($video)) {
+          return []
+        }
+        return [
+          "WnVideoClrSize WnVideoAutoFitWidth",
+          "WnVideoFloat WnVideoMargin",
+          "WnVideoProp"
+        ].join(" | ")
+      }
+    })
+    //..............................................
+    editor.on("SetContent", function() {
+      //console.log("SetContent video")
+      let els = editor.$('.wn-media.as-video')
+      for(let i=0; i<els.length; i++) {
+        let el = els[i]
+        let mime = el.getAttribute("wn-obj-mime")
+        UpdateVideoTagInnerHtml(el)
+      }
+    })
+    //..............................................
+    return {
+      getMetadata: function () {
+        return  {
+          name: 'Wn Video plugin',
+          url: 'http://site0.cn'
+        };
+      }
+    };
+    //..............................................
+  }
+  //------------------------------------------------
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -33960,7 +34614,7 @@ const _M = {
             'bold italic underline link',
             'blockquote bullist numlist',
             'blocks',
-            'table WnImgPick',
+            'table WnImgPick WnVideoPick WnYoutubePick WnFacebookPick',
             'superscript subscript',
             'edit removeformat',
             'TiPreview']
@@ -33974,7 +34628,13 @@ const _M = {
     },
     //------------------------------------------------
     ContentCssPath() {
-      return Ti.Config.url(`@theme:tinymce/doc_${this.theme}.css`)
+      let css = _.concat(
+        Ti.Config.url(`@theme:tinymce/doc_${this.theme}.css`),
+        Ti.Config.url(`@deps:zmdi/css/material-design-iconic-font.css`),
+        Ti.Config.url(`@deps:fontawesome/5.15.1-web/css/all.css`),
+        Ti.Config.url(`@deps:iconmonstr/css/iconmonstr-iconic-font.css`),
+      )
+      return css.join(",")
     },
     //-----------------------------------------------
     BlankComStyle() {
@@ -34063,8 +34723,37 @@ const _M = {
       this.evalOutline()
     },
     //-----------------------------------------------
+    setElementEditable(editable, selector) {
+      // Direct element
+      if(_.isElement(selector)) {
+        selector.contentEditable = editable
+        return
+      }
+      // Guard
+      if(_.isEmpty(selector)) {
+        return
+      }
+      // Batch
+      if(_.isArray(selector)) {
+        for(let sel of selector) {
+          this.setElementEditable(editable, sel)
+        }
+        return
+      }
+      
+      // Find
+      if(_.isString(selector)) {
+        let els = this.$editor.$(selector)
+        for(let i=0; i<els.length; i++) {
+          els[i].contentEditable = editable
+        }
+      }
+    },
+    //-----------------------------------------------
     syncContent() {
-      this.myHtmlCode = this.$editor.getContent()
+      let str = this.$editor.getContent()
+      //console.log("content", typeof str, `【${str}】`, this.value)
+      this.myHtmlCode = str
     },
     //-----------------------------------------------
     evalCurrentHeading() {
@@ -34091,7 +34780,7 @@ const _M = {
       this.$editor.$('h1,h2,h3,h4,h5,h6').each((index, el)=>{
         let nodeId = el.getAttribute("ti-outline-id")
         if(!nodeId) {
-          nodeId = Ti.Random.str(6)
+          nodeId = Ti.Random.str(12)
           el.setAttribute("ti-outline-id", nodeId)
         }
 
@@ -34233,6 +34922,19 @@ const _M = {
           editor.on("SelectionChange", (evt)=>{
             this.evalCurrentHeading()
           })
+          editor.on('init', ()=>{
+            let $html = editor.$('html')[0]
+            let $win = Ti.Dom.ownerWindow($html)
+            Ti.Dom.watchAutoRootFontSize({
+              phoneMaxWidth:640,
+              tabletMaxWidth:900,
+              designWidth:1200,
+              max:100,min:70,
+            }, ({$root, mode, fontSize})=>{
+              $root.style.fontSize = fontSize + "px"
+              $root.setAttribute("as", mode)
+            }, $win)
+          })
           //
           // Shortcute
           //
@@ -34253,6 +34955,14 @@ const _M = {
           this.$editor = editor
         }
       }
+      // Extends valid element
+      let {extended_valid_elements} = conf 
+
+      conf.extended_valid_elements = _.concat(
+        extended_valid_elements, 
+        'img[ti-*|wn-obj-*|src|width|height|style|class]',
+        'div[ti-*|wn-*|style|class]'
+      ).join(",")
       // Init customized plugins
       for(let plug of this.myPlugins) {
         tinymce.PluginManager.add(plug.name, plug.setup)
@@ -35506,6 +36216,469 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'tiny-wn-image.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-image.mjs'] = (function(){
+////////////////////////////////////////////////////
+async function pickImageAndInsertToDoc(editor, {
+  base = "~", 
+  autoCreate=null, 
+  fallbackPath,
+}) {
+  // Check base
+  if(_.isPlainObject(autoCreate)) {
+    let oBase = await Wn.Io.loadMeta(base)
+    if(!oBase) {
+      let pph = Ti.Util.getParentPath(base)
+      let dnm = Ti.Util.getFileName(base)
+      let baseMeta = _.assign({}, autoCreate, {
+        race: 'DIR', nm : dnm
+      })
+      let baseJson = JSON.stringify(baseMeta)
+      let cmdText = `o @create '${baseJson}' -p ${pph} -auto @json -cqn`
+      oBase = await Wn.Sys.exec2(cmdText, {as:"json"})
+    }
+    base = oBase
+  }
+
+  // Show dialog
+  let reo = await Wn.OpenObjSelector(base, {
+    icon  : "fas-image",
+    title : "i18n:img-insert",
+    position : "top",
+    width  : "95%",
+    height : "95%",
+    multi : false,
+    fallbackPath
+  })
+
+  // User canceled
+  if(_.isEmpty(reo)) {
+    return
+  }
+
+  // Do insert image
+  editor.execCommand("InsertImage", editor, reo)
+}
+////////////////////////////////////////////////////
+function CmdInsertImage(editor, oImgs) {
+  if(_.isEmpty(oImgs))
+    return
+  
+  // Prepare range
+  let rng = editor.selection.getRng()
+  
+  // Create image fragments
+  let $doc = rng.commonAncestorContainer.ownerDocument
+  let frag = new DocumentFragment()
+  for(let oImg of oImgs) {
+    let $img = Ti.Dom.createElement({
+      tagName : "img",
+      className : "wn-media as-image",
+      attrs : {
+        src : `/o/content?str=id:${oImg.id}`,
+        "wn-obj-id" : oImg.id,
+        "wn-obj-sha1" : oImg.sha1,
+        "wn-obj-mime" : oImg.mime,
+        "wn-obj-tp"   : oImg.tp
+      }
+    }, $doc)
+    frag.appendChild($img)
+  }
+  
+  // Remove content
+  if(!rng.collapsed) {
+    rng.deleteContents()
+  }
+
+  // Insert fragments
+  rng.insertNode(frag)
+
+}
+////////////////////////////////////////////////////
+function GetCurrentImageElement(editor) {
+  let sel = editor.selection
+  let $img = sel.getNode()
+  // Guard
+  if("IMG" != $img.tagName) {
+    return
+  }
+  return $img
+}
+////////////////////////////////////////////////////
+function CmdSetImageSize(editor, {width=null, height=null}={}) {
+  let $img = GetCurrentImageElement(editor)
+  // Guard
+  if(!_.isElement($img)) {
+    return
+  }
+  // Clear the attribute
+  Ti.Dom.setAttrs($img, {width, height})
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+function CmdSetImageStyle(editor, css={}) {
+  let $img = GetCurrentImageElement(editor)
+  // Guard
+  if(!_.isElement($img)) {
+    return
+  }
+  // Clear float
+  Ti.Dom.setStyle($img, css)
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+async function CmdShowImageProp(editor, settings) {
+  let $img = GetCurrentImageElement(editor)
+  // Guard
+  if(!_.isElement($img)) {
+    return
+  }
+  // Get margin style
+  let stl = Ti.Dom.getStyle($img, /^(float|(margin-(left|right|top|bottom)))$/)
+  stl.float = stl.float || "none"
+  //console.log("stl", stl)
+  // Gen the properties
+  let data = {
+    oid    : $img.getAttribute("wn-obj-id"),
+    src    : $img.getAttribute("src"),
+    width  : $img.getAttribute("width")  || undefined,
+    height : $img.getAttribute("height") || undefined,
+    displayWidth  : $img.width,
+    displayHeight : $img.height,
+    naturalWidth  : $img.naturalWidth,
+    naturalHeight : $img.naturalHeight,
+    ... stl
+  }
+
+  //console.log(data)
+  // Show dialog
+  let reo = await Ti.App.Open({
+    icon  : "fas-image",
+    title : "编辑图片属性",
+    width  : "37%",
+    height : "100%",
+    position : "right",
+    closer : "left",
+    clickMaskToClose : true,
+    result : data,
+    model : {prop:"data", event:"change"},
+    comType : "TiForm",
+    comConf : {
+      spacing : "tiny",
+      fields : [{
+          title : "图片",
+          name  : "oid",
+          comType : "WnObjPicker",
+          comConf : {
+            valueType : "id",
+            base : settings.base,
+            titleEditable : false
+          }
+        }, {
+          title : "尺寸",
+          fields: [{
+            title : "宽度",
+            name  : "width",
+            comType : "TiInput",
+            comConf : {
+              placeholder: `${data.displayWidth}/${data.naturalWidth}px`
+            }
+          }, {
+            title : "高度",
+            name  : "height",
+            comType : "TiInput",
+            comConf : {
+              placeholder: `${data.displayHeight}/${data.naturalHeight}px`
+            }
+          }]
+        }, {
+          title : "文本绕图",
+          name  : "float",
+          comType : "TiSwitcher",
+          comConf : {
+            allowEmpty : false,
+            options : [
+              {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
+              {value: "left",  text: "左绕图", icon:"fas-align-left"},
+              {value: "right", text: "右绕图", icon:"fas-align-right"},]
+          }
+        }, {
+          title : "图片边距",
+          fields : [{
+            title : "上",
+            name  : "marginTop",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "右",
+            name  : "marginRight",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "下",
+            name  : "marginBottom",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "左",
+            name  : "marginLeft",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }]
+        }]
+    },
+    components : [
+      "@com:wn/obj/picker"
+    ]
+  })
+
+  // 用户取消
+  if(!reo)
+    return
+
+  // Update image
+  //................................................
+  // src
+  if(data.oid != reo.oid) {
+    // Remove Image
+    if(!reo.oid) {
+      Ti.Dom.remove($img)
+      return
+    }
+    // 读取对象详情
+    let oImg = await Wn.Io.loadMetaById(reo.oid)
+    // Switch image src
+    $img.src = `/o/content?str=id:${reo.oid}`
+    $img.setAttribute("wn-obj-id", oImg.id)
+    $img.setAttribute("wn-obj-sha1", oImg.sha1)
+    $img.setAttribute("wn-obj-mime", oImg.mime)
+    $img.setAttribute("wn-obj-tp", oImg.tp)
+  }
+  //................................................
+  // Measure
+  const _img_size = function(attrName, sz, oldSize) {
+    if(oldSize == sz)
+      return
+    if(!sz) {
+      $img.removeAttribute(attrName)
+    } else {
+      $img.setAttribute(attrName, sz)
+    }
+  }
+  //................................................
+  // Width/height
+  _img_size("width",  reo.width,  data.width)
+  _img_size("height", reo.height, data.height)
+  //................................................
+  // Styling
+  const _img_style = function(styName, v, oldValue) {
+    if(oldValue == v)
+      return
+    if(!v || "none" == v) {
+      $img.style[styName] = ""
+    } else if(_.isNumber(v)) {
+      $img.style[styName] = `${v}px`
+    } else {
+      $img.style[styName] = v
+    }
+  }
+  //................................................
+  _img_style("float", reo.float, data.float)
+  _img_style("marginLeft",   reo.marginLeft,   data.marginLeft)
+  _img_style("marginRight",  reo.marginRight,  data.marginRight)
+  _img_style("marginTop",    reo.marginTop,    data.marginTop)
+  _img_style("marginBottom", reo.marginBottom, data.marginBottom)
+  //................................................
+  // clean cache
+  $img.removeAttribute("data-mce-src")
+  $img.removeAttribute("data-mce-style")
+  //................................................
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  name : "wn-image",
+  //------------------------------------------------
+  init : function(conf={}) {
+  },
+  //------------------------------------------------
+  setup : function(editor, url){
+    //..............................................
+    let settings = _.assign({
+        base : "~"
+      }, _.get(editor.settings, "wn_image_config"));
+    //console.log("setup", editor.settings)
+    //..............................................
+    // Register plugin command
+    editor.addCommand("InsertImage",   CmdInsertImage)
+    editor.addCommand("SetImageSize",  CmdSetImageSize)
+    editor.addCommand("SetImageStyle", CmdSetImageStyle)
+    editor.addCommand("ShowImageProp", CmdShowImageProp)
+    //..............................................
+    // Register toolbar actions
+    editor.ui.registry.addButton("WnImgPick", {
+      icon : "image",
+      tooltip : Ti.I18n.text("i18n:img-insert"),
+      onAction : function(menuBtn) {
+        pickImageAndInsertToDoc(editor, settings)
+      },
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnImgClrSize", {
+      icon : "edit-image",
+      text : "清除图片尺寸",
+      onAction() {
+        editor.execCommand("SetImageSize", editor)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnImgAutoFitWidth", {
+      text : "自动适应宽度",
+      onAction() {
+        editor.execCommand("SetImageSize", editor, {width:"100%"})
+      }
+    })
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnImgFloat', {
+      text: '文本绕图',
+      getSubmenuItems: function () {
+        return [{
+          type : "menuitem",
+          icon : "align-left",
+          text : "居左绕图",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {float:"left"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "align-right",
+          text : "居右绕图",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {float:"right"})
+          }
+        }, {
+          type : "menuitem",
+          text : "清除浮动",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {float:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnImgMargin', {
+      text: '图片边距',
+      getSubmenuItems: function () {
+        const __check_margin_size = function(api, expectSize) {
+          let $img = GetCurrentImageElement(editor)
+          let state = true
+          if($img) {
+            let sz = $img.style.marginLeft || $img.style.marginRight
+            state = expectSize == sz
+          }
+          api.setActive(state);
+          return function() {};
+        }
+        return [{
+          type : "togglemenuitem",
+          text : "小边距",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {margin:"1em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '1em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "中等边距",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {margin:"2em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '2em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "较大边距",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {margin:"3em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '3em')
+          }
+        }, {
+          type : "menuitem",
+          text : "清除边距",
+          onAction() {
+            editor.execCommand("SetImageStyle", editor, {margin:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addMenuItem("WnImgProp", {
+      text : "图片属性",
+      onAction() {
+        editor.execCommand("ShowImageProp", editor, settings)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addContextMenu("wn-image", {
+      update: function (el) {
+        let sel = editor.selection
+        let $nd = sel.getNode()
+        if($nd.hasAttribute("wn-obj-id")
+          && "IMG" == $nd.tagName
+          && Ti.Dom.hasClass($nd, "wn-media", "as-image")) {
+          return [
+            "WnImgClrSize WnImgAutoFitWidth",
+            "WnImgFloat WnImgMargin",
+            "WnImgProp"
+          ].join(" | ")
+        }
+        return []
+      }
+    })
+    //..............................................
+    editor.on("SetContent", function() {
+      //console.log("SetContent image")
+      let els = editor.$('img[wn-obj-mime]')
+      for(let i=0; i<els.length; i++) {
+        let el = els[i]
+        let mime = el.getAttribute("wn-obj-mime")
+        if(/^image\//.test(mime) && !Ti.Dom.hasClass(el, "wn-media", "as-image")) {
+          Ti.Dom.addClass(el, "wn-media", "as-image")
+        }
+      }
+    })
+    //..............................................
+    return {
+      getMetadata: function () {
+        return  {
+          name: 'Wn Image plugin',
+          url: 'http://site0.cn'
+        };
+      }
+    };
+    //..............................................
+  }
+  //------------------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'site-tree-actions.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/hmaker/website/mod/site-tree/site-tree-actions.mjs'] = (function(){
@@ -35629,6 +36802,1011 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // }
   }
   //----------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'tiny-wn-facebook.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-facebook.mjs'] = (function(){
+////////////////////////////////////////////////////
+async function pickFacebookAndInsertToDoc(editor, settings) {
+  let {meta, data} = await settings.load()
+  // Check base
+  let reo = await Ti.App.Open({
+    icon  : "fas-image",
+    title : "Facebook",
+    position : "top",
+    width  : "95%",
+    height : "95%",
+    comType : "NetFacebookAlbums",
+    comConf : {
+      meta, 
+      ... data,
+      notifyName : "change"
+    },
+    components : [
+      "@com:net/facebook/albums"
+    ]
+  })
+
+  // User canceled
+  if(_.isEmpty(reo)) {
+    return
+  }
+
+  // Do insert image
+  editor.execCommand("InsertFacebook", editor, reo)
+}
+////////////////////////////////////////////////////
+function GetFacebookAttrsByElement(elFacebook) {
+  // Top Style
+  let stl = Ti.Dom.getStyle(elFacebook, 
+    /^(width|height|float|(margin-(left|right|top|bottom)))$/)
+  stl.float = stl.float || "none"
+  //
+  // Wall Style
+  let $wall = Ti.Dom.find(".tiw-photo-wall", elFacebook)
+  let wallClass = ""
+  let wallStyle = {}
+  let tileClass = ""
+  let tileStyle = {}
+  let picStyle = {}
+  if(_.isElement($wall)) {
+    wallClass = Ti.Dom.getClassList($wall, v=>v!="tiw-photo-wall").join(" ")
+    wallStyle = Ti.Dom.getStyle($wall)
+    tileClass = Ti.Dom.getClassList($wall.getAttribute("wn-tile-class")).join(" ")
+    tileStyle = JSON.parse($wall.getAttribute("wn-tile-style")||'{}')
+    picStyle = JSON.parse($wall.getAttribute("wn-pic-style")||'{}')
+  }
+  return {
+    id   : elFacebook.getAttribute("wn-fb-id"),
+    name  : elFacebook.getAttribute("wn-fb-name"),
+    link  : elFacebook.getAttribute("wn-fb-link"),
+    ... stl,
+    wallClass, wallStyle,
+    tileClass, tileStyle, picStyle
+  }
+}
+////////////////////////////////////////////////////
+function GetFacebookAttrsByObj(fbAlbumn) {
+  return {
+    "wn-fb-id" : fbAlbumn.id,
+    "wn-fb-name" : fbAlbumn.name,
+    "wn-fb-link" : fbAlbumn.link
+  }
+}
+////////////////////////////////////////////////////
+function SetAlbumInfoToElement($album, data, old={}) {
+  //................................................
+  Ti.Dom.setStyleValue($album, "width",        data.width,        old.width)
+  Ti.Dom.setStyleValue($album, "height",       data.height,       old.height)
+  Ti.Dom.setStyleValue($album, "float",        data.float,        old.float)
+  Ti.Dom.setStyleValue($album, "marginLeft",   data.marginLeft,   old.marginLeft)
+  Ti.Dom.setStyleValue($album, "marginRight",  data.marginRight,  old.marginRight)
+  Ti.Dom.setStyleValue($album, "marginTop",    data.marginTop,    old.marginTop)
+  Ti.Dom.setStyleValue($album, "marginBottom", data.marginBottom, old.marginBottom)
+  //................................................
+  let $wall = Ti.Dom.find(":scope > .tiw-photo-wall", $album)
+  if($wall) {
+    Ti.Dom.formatStyle(data.wallStyle)
+    Ti.Dom.formatStyle(data.tileStyle)
+    Ti.Dom.formatStyle(data.picStyle)
+    $wall.className = `tiw-photo-wall ${data.wallClass||""}`
+    Ti.Dom.setStyle($wall, data.wallStyle)
+    $wall.setAttribute("wn-tile-class", data.tileClass || null)
+    $wall.setAttribute("wn-tile-style", JSON.stringify(data.tileStyle))
+    $wall.setAttribute("wn-pic-style", JSON.stringify(data.picStyle))
+  }
+  //................................................
+}
+////////////////////////////////////////////////////
+function UpdateFacebookTagInnerHtml(elFacebook, settings) {
+  // Get old content
+  let album = GetFacebookAttrsByElement(elFacebook)
+  // Mark content editable
+  elFacebook.contentEditable = false
+  // Show loading
+  elFacebook.innerHTML = `<div class="media-inner">
+    <i class="fas fa-spinner fa-spin"></i>
+  </div>`
+
+  settings.load().then(({data})=>{
+    // Reload album items
+    Ti.Api.Facebook.getAlbumPhotoList({
+      albumId : album.id,
+      access_token : data.longLiveAccessToken
+    }).then((photos)=>{
+      // Create inner HTML for the album
+      let html = '<div class="tiw-photo-wall">'
+      for(let photo of photos) {
+        let {link, thumb_src} = photo
+        html += `<a class="wall-tile"
+          href="${link}"
+          target="_blank"><img src="${thumb_src}"/></a>`
+      }
+      html += '</div>'
+      elFacebook.innerHTML = html
+
+      // Recover the attr-data
+      SetAlbumInfoToElement(elFacebook, album)
+
+      // Then we need update the album css style
+      UpdateAlbumStyle(elFacebook)
+    })
+  })
+}
+////////////////////////////////////////////////////
+function UpdateAlbumStyle($album) {
+  let $wall = Ti.Dom.find(":scope > .tiw-photo-wall", $album)
+  let {tileStyle, picStyle} = GetFacebookAttrsByElement($album)
+  let $tiles = Ti.Dom.findAll(".wall-tile", $wall)
+  for(let i=0; i<$tiles.length; i++) {
+    let $tile = $tiles[i]
+    let $img = Ti.Dom.find("img", $tile)
+    Ti.Dom.setStyle($tile, tileStyle)
+    Ti.Dom.setStyle($img, picStyle)
+  }
+}
+////////////////////////////////////////////////////
+function CmdInsertFacebook(editor, fbAlbumn) {
+  if(!fbAlbumn)
+    return
+  
+  // Prepare range
+  let rng = editor.selection.getRng()
+  
+  // Create image fragments
+  let $doc = rng.commonAncestorContainer.ownerDocument
+  let $album = Ti.Dom.createElement({
+    tagName : "div",
+    className : "wn-media as-facebook",
+    attrs : GetFacebookAttrsByObj(fbAlbumn)
+  }, $doc)
+  UpdateFacebookTagInnerHtml($album, editor.wn_facebook_settings)
+  
+  // Remove content
+  if(!rng.collapsed) {
+    rng.deleteContents()
+  }
+
+  // Insert fragments
+  rng.insertNode($album)
+
+}
+////////////////////////////////////////////////////
+function GetCurrentFacebookElement(editor) {
+  let sel = editor.selection
+  let $nd = sel.getNode()
+  // Guard
+  return Ti.Dom.closest($nd, (el)=>{
+    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-facebook")
+  })
+}
+////////////////////////////////////////////////////
+function CmdSetFacebookSize(editor, {width="", height=""}={}) {
+  let $album = GetCurrentFacebookElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  // Clear the attribute
+  Ti.Dom.setStyle($album, {width, height})
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+function CmdSetFacebookStyle(editor, css={}) {
+  let $album = GetCurrentFacebookElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  // Clear float
+  Ti.Dom.setStyle($album, css)
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+async function CmdShowFacebookProp(editor, settings) {
+  let $album = GetCurrentFacebookElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  //console.log("stl", stl)
+  // Gen the properties
+  let data = GetFacebookAttrsByElement($album)
+
+  //console.log(data)
+  // Show dialog
+  let reo = await Ti.App.Open({
+    icon  : "fab-facebook",
+    title : "编辑Facebook相册属性",
+    width  : "37%",
+    height : "100%",
+    position : "right",
+    closer : "left",
+    clickMaskToClose : true,
+    result : data,
+    model : {prop:"data", event:"change"},
+    comType : "TiForm",
+    comConf : {
+      className : "no-status",
+      spacing : "tiny",
+      fields : [{
+          title : "相册尺寸",
+          className : "as-vertical",
+          fields: [{
+            title : "宽度",
+            name  : "width",
+            fieldWidth : "50%",
+            comType : "TiInput"
+          }, {
+            title : "高度",
+            name  : "height",
+            fieldWidth : "50%",
+            comType : "TiInput"
+          }, {
+            title : "图片宽",
+            name  : "picStyle.width",
+            fieldWidth : "50%",
+            comType : "TiInput"
+          }, {
+            title : "图片高",
+            name  : "picStyle.height",
+            fieldWidth : "50%",
+            comType : "TiInput"
+          }]
+        }, {
+          title : "相册外距",
+          className : "as-vertical",
+          fields : [{
+            title : "上",
+            name  : "marginTop",
+            fieldWidth : "25%",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "右",
+            name  : "marginRight",
+            fieldWidth : "25%",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "下",
+            name  : "marginBottom",
+            fieldWidth : "25%",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "左",
+            name  : "marginLeft",
+            fieldWidth : "25%",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }]
+        }, {
+          title : "相册样式",
+          fields : [{
+              title : "文本绕图",
+              name  : "float",
+              comType : "TiSwitcher",
+              comConf : {
+                allowEmpty : false,
+                options : [
+                  {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
+                  {value: "left",  text: "左绕图", icon:"fas-align-left"},
+                  {value: "right", text: "右绕图", icon:"fas-align-right"},]
+              }
+            }, {
+            title : "整体风格",
+            name : "wallClass",
+            emptyAs : null,
+            comType : "HmPropClassPicker",
+            comConf : {
+              dftValue : "flex-none item-space-sm",
+              valueType : "String",
+              form : {
+                fields : [{
+                  title : "i18n:hmk-class-flex",
+                  name : "flexMode",
+                  comType : "TiSwitcher",
+                  comConf : {
+                    options : [
+                      {value: "flex-none",  text:"i18n:hmk-class-flex-none"},
+                      {value: "flex-both",  text:"i18n:hmk-class-flex-both"},
+                      {value: "flex-grow",  text:"i18n:hmk-class-flex-grow"},
+                      {value: "flex-shrink",text:"i18n:hmk-class-flex-shrink"}                    ]
+                  }
+                }, {
+                  title : "i18n:hmk-class-item-space",
+                  name : "itemSpace",
+                  comType : "TiSwitcher",
+                  comConf : {
+                    options : [
+                      {value: "item-space-xs", text:"i18n:hmk-class-xs"},
+                      {value: "item-space-sm", text:"i18n:hmk-class-sm"},
+                      {value: "item-space-md", text:"i18n:hmk-class-md"},
+                      {value: "item-space-lg", text:"i18n:hmk-class-lg"},
+                      {value: "item-space-xl", text:"i18n:hmk-class-xl"}
+                    ]
+                  }
+                }]
+              }
+            } // title : "整体风格",
+          }, {
+            title : "整体样式",
+            name  : "wallStyle",
+            type  : "Object",
+            emptyAs : null,
+            comType : "HmPropCssRules"
+          }, {
+            title : "瓦片样式",
+            name  : "tileStyle",
+            type  : "Object",
+            emptyAs : null,
+            comType : "HmPropCssRules"
+          }, {
+            title : "图片样式",
+            name  : "picStyle",
+            type  : "Object",
+            emptyAs : null,
+            comType : "HmPropCssRules"
+          }]
+        }]
+    },
+    components : []
+  })
+
+  // 用户取消
+  if(!reo)
+    return
+
+  //................................................
+  SetAlbumInfoToElement($album, reo, data)
+  //................................................
+  // clean cache
+  $album.removeAttribute("data-mce-src")
+  $album.removeAttribute("data-mce-style")
+  //................................................
+  // Then we need update the album css style
+  UpdateAlbumStyle($album)
+  //................................................
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  name : "wn-facebook",
+  //------------------------------------------------
+  init : function(conf={}) {
+  },
+  //------------------------------------------------
+  setup : function(editor, url){
+    //..............................................
+    let settings = _.assign({
+        meta : "~"
+      }, _.get(editor.settings, "wn_facebook_config"));
+    //console.log("setup", editor.settings)
+    //..............................................
+    // Reload meta content
+    // Check meta
+    settings.load = async function(){
+      if(this.data) {
+        return {meta: this.meta, data: this.data}
+      }
+      let oMeta = await Wn.Io.loadMeta(this.meta)
+      if(!oMeta) {
+        return await Ti.Toast.Open(`路径[${this.meta}]不存在`, "warn")
+      }
+      if(oMeta.race != "FILE") {
+        return await Ti.Toast.Open(`对象[${this.meta}]非法`, "warn")
+      }
+      this.meta = oMeta
+      this.data = await Wn.Io.loadContent(oMeta, {as:"json"})  
+
+      return {meta: this.meta, data: this.data}
+    }
+    editor.wn_facebook_settings = settings
+    // 读取信息
+    //..............................................
+    // Register plugin command
+    editor.addCommand("InsertFacebook",   CmdInsertFacebook)
+    editor.addCommand("SetFacebookSize",  CmdSetFacebookSize)
+    editor.addCommand("SetFacebookStyle", CmdSetFacebookStyle)
+    editor.addCommand("ShowFacebookProp", CmdShowFacebookProp)
+    //..............................................
+    // Register toolbar actions
+    editor.ui.registry.addButton("WnFacebookPick", {
+      icon : "facebook-square-brands",
+      tooltip : Ti.I18n.text("i18n:video-insert"),
+      onAction : function(menuBtn) {
+        pickFacebookAndInsertToDoc(editor, settings)
+      },
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnFacebookClrSize", {
+      text : "清除相册尺寸",
+      onAction() {
+        editor.execCommand("SetFacebookSize", editor)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnFacebookAutoFitWidth", {
+      text : "自动适应宽度",
+      onAction() {
+        editor.execCommand("SetFacebookSize", editor, {width:"100%"})
+      }
+    })
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnFacebookFloat', {
+      text: '文本绕图',
+      getSubmenuItems: function () {
+        return [{
+          type : "menuitem",
+          icon : "align-left",
+          text : "居左绕图",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {float:"left"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "align-right",
+          text : "居右绕图",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {float:"right"})
+          }
+        }, {
+          type : "menuitem",
+          text : "清除浮动",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {float:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnFacebookMargin', {
+      text: '相册边距',
+      getSubmenuItems: function () {
+        const __check_margin_size = function(api, expectSize) {
+          let $album = GetCurrentFacebookElement(editor)
+          let state = true
+          if($album) {
+            let sz = $album.style.marginLeft || $album.style.marginRight
+            state = expectSize == sz
+          }
+          api.setActive(state);
+          return function() {};
+        }
+        return [{
+          type : "togglemenuitem",
+          text : "小边距",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {margin:"1em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '1em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "中等边距",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {margin:"2em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '2em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "较大边距",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {margin:"3em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '3em')
+          }
+        }, {
+          type : "menuitem",
+          text : "清除边距",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {margin:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addMenuItem("WnFacebookProp", {
+      text : "相册属性",
+      onAction() {
+        editor.execCommand("ShowFacebookProp", editor, settings)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addContextMenu("wn-facebook", {
+      update: function (el) {
+        let $album = GetCurrentFacebookElement(editor)
+        // Guard
+        if(!_.isElement($album)) {
+          return []
+        }
+        return [
+          "WnFacebookClrSize WnFacebookAutoFitWidth",
+          "WnFacebookFloat WnFacebookMargin",
+          "WnFacebookProp"
+        ].join(" | ")
+      }
+    })
+    //..............................................
+    editor.on("SetContent", function() {
+      console.log("SetContent facebook")
+      let els = editor.$('.wn-media.as-facebook')
+      for(let i=0; i<els.length; i++) {
+        let el = els[i]
+        UpdateFacebookTagInnerHtml(el, settings)
+      }
+    })
+    //..............................................
+    return {
+      getMetadata: function () {
+        return  {
+          name: 'Wn Facebook plugin',
+          url: 'http://site0.cn'
+        };
+      }
+    };
+    //..............................................
+  }
+  //------------------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'tiny-wn-youtube.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-youtube.mjs'] = (function(){
+////////////////////////////////////////////////////
+async function pickYoutubeAndInsertToDoc(editor, {
+  meta = "~"
+}) {
+  // Check meta
+  let oMeta = await Wn.Io.loadMeta(meta)
+  if(!oMeta) {
+    return await Ti.Toast.Open(`路径[${meta}]不存在`, "warn")
+  }
+  if(oMeta.race != "FILE") {
+    return await Ti.Toast.Open(`对象[${meta}]非法`, "warn")
+  }
+  meta = oMeta
+
+  // 读取信息
+  let {domain, channelId} = await Wn.Io.loadContent(meta, {as:"json"})
+
+  // Check base
+  let reo = await Ti.App.Open({
+    icon  : "fas-image",
+    title : "Youtube",
+    position : "top",
+    width  : "95%",
+    height : "95%",
+    comType : "NetYoutubeBrowser",
+    comConf : {
+      meta, domain, channelId,
+      notifyName : "change"
+    },
+    components : [
+      "@com:net/youtube/browser"
+    ]
+  })
+
+  // User canceled
+  if(_.isEmpty(reo)) {
+    return
+  }
+
+  // Do insert image
+  editor.execCommand("InsertYoutube", editor, reo)
+}
+////////////////////////////////////////////////////
+function GetYoutubeAttrsByElement(elYoutube) {
+  let stl = Ti.Dom.getStyle(elYoutube, 
+    /^(width|height|float|(margin-(left|right|top|bottom)))$/)
+  stl.float = stl.float || "none"
+  return {
+    id   : elYoutube.getAttribute("wn-yt-id"),
+    title  : elYoutube.getAttribute("wn-yt-title"),
+    description  : elYoutube.getAttribute("wn-yt-description"),
+    pubat    : elYoutube.getAttribute("wn-yt-pubat"),
+    thumbUrl : elYoutube.getAttribute("wn-yt-thumb-url"),
+    duration   : elYoutube.getAttribute("wn-yt-duration"),
+    du_in_str  : elYoutube.getAttribute("wn-yt-du_in_str"),
+    definition : elYoutube.getAttribute("wn-yt-definition"),
+    categoryId : elYoutube.getAttribute("wn-yt-category-id"),
+    ... stl
+  }
+}
+////////////////////////////////////////////////////
+function GetYoutubeAttrsByObj(ytVideo) {
+  return {
+    "wn-yt-id" : ytVideo.id,
+    "wn-yt-title" : ytVideo.title,
+    "wn-yt-description" : ytVideo.description,
+    "wn-yt-pubat" : ytVideo.publishedAt,
+    "wn-yt-thumb-url" : ytVideo.thumbUrl,
+    "wn-yt-duration" : ytVideo.duration,
+    "wn-yt-du_in_str" : ytVideo.du_in_str,
+    "wn-yt-definition" : ytVideo.definition,
+    "wn-yt-category-id" : ytVideo.categoryId,
+  }
+}
+////////////////////////////////////////////////////
+function UpdateYoutubeTagInnerHtml(elYoutube) {
+  let cover = elYoutube.getAttribute("wn-yt-thumb-url")
+  let $inner = Ti.Dom.createElement({
+    tagName : "div",
+    className : "media-inner",
+    style : {
+      "background-image" : `url("${cover}")`
+    }
+  })
+  $inner.innerHTML = '<i class="fab fa-youtube"></i>'
+  elYoutube.innerHTML = null
+  elYoutube.contentEditable = false
+  Ti.Dom.appendTo($inner, elYoutube)
+}
+////////////////////////////////////////////////////
+function CmdInsertYoutube(editor, ytVideo) {
+  if(!ytVideo)
+    return
+  
+  // Prepare range
+  let rng = editor.selection.getRng()
+  
+  // Create image fragments
+  let $doc = rng.commonAncestorContainer.ownerDocument
+  let $video = Ti.Dom.createElement({
+    tagName : "div",
+    className : "wn-media as-youtube",
+    attrs : GetYoutubeAttrsByObj(ytVideo)
+  }, $doc)
+  UpdateYoutubeTagInnerHtml($video)
+  
+  // Remove content
+  if(!rng.collapsed) {
+    rng.deleteContents()
+  }
+
+  // Insert fragments
+  rng.insertNode($video)
+
+}
+////////////////////////////////////////////////////
+function GetCurrentYoutubeElement(editor) {
+  let sel = editor.selection
+  let $nd = sel.getNode()
+  // Guard
+  return Ti.Dom.closest($nd, (el)=>{
+    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-youtube")
+  })
+}
+////////////////////////////////////////////////////
+function CmdSetYoutubeSize(editor, {width="", height=""}={}) {
+  let $video = GetCurrentYoutubeElement(editor)
+  // Guard
+  if(!_.isElement($video)) {
+    return
+  }
+  // Clear the attribute
+  Ti.Dom.setStyle($video, {width, height})
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+function CmdSetYoutubeStyle(editor, css={}) {
+  let $video = GetCurrentYoutubeElement(editor)
+  // Guard
+  if(!_.isElement($video)) {
+    return
+  }
+  // Clear float
+  Ti.Dom.setStyle($video, css)
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+async function CmdShowYoutubeProp(editor, settings) {
+  let $video = GetCurrentYoutubeElement(editor)
+  // Guard
+  if(!_.isElement($video)) {
+    return
+  }
+  //console.log("stl", stl)
+  // Gen the properties
+  let data = GetYoutubeAttrsByElement($video)
+
+  //console.log(data)
+  // Show dialog
+  let reo = await Ti.App.Open({
+    icon  : "fab-youtube",
+    title : "编辑Youtube视频属性",
+    width  : "37%",
+    height : "100%",
+    position : "right",
+    closer : "left",
+    clickMaskToClose : true,
+    result : data,
+    model : {prop:"data", event:"change"},
+    comType : "TiForm",
+    comConf : {
+      spacing : "tiny",
+      fields : [{
+          title : "尺寸",
+          fields: [{
+            title : "宽度",
+            name  : "width",
+            comType : "TiInput",
+            comConf : {
+              
+            }
+          }, {
+            title : "高度",
+            name  : "height",
+            comType : "TiInput",
+            comConf : {
+              
+            }
+          }]
+        }, {
+          title : "文本绕图",
+          name  : "float",
+          comType : "TiSwitcher",
+          comConf : {
+            allowEmpty : false,
+            options : [
+              {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
+              {value: "left",  text: "左绕图", icon:"fas-align-left"},
+              {value: "right", text: "右绕图", icon:"fas-align-right"},]
+          }
+        }, {
+          title : "视频距",
+          fields : [{
+            title : "上",
+            name  : "marginTop",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "右",
+            name  : "marginRight",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "下",
+            name  : "marginBottom",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "左",
+            name  : "marginLeft",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }]
+        }]
+    },
+    components : []
+  })
+
+  // 用户取消
+  if(!reo)
+    return
+
+  //................................................
+  // Styling
+  const _video_style = function(styName, v, oldValue) {
+    if(oldValue == v)
+      return
+    if(!v || "none" == v) {
+      $video.style[styName] = ""
+    } else if(_.isNumber(v) || /^\d+(\.\d+)?$/.test(v)) {
+      $video.style[styName] = `${v}px`
+    } else {
+      $video.style[styName] = v
+    }
+  }
+  //................................................
+  _video_style("width", reo.width, data.width)
+  _video_style("height", reo.height, data.height)
+  _video_style("float", reo.float, data.float)
+  _video_style("marginLeft",   reo.marginLeft,   data.marginLeft)
+  _video_style("marginRight",  reo.marginRight,  data.marginRight)
+  _video_style("marginTop",    reo.marginTop,    data.marginTop)
+  _video_style("marginBottom", reo.marginBottom, data.marginBottom)
+  //................................................
+  // clean cache
+  $video.removeAttribute("data-mce-src")
+  $video.removeAttribute("data-mce-style")
+  //................................................
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  name : "wn-youtube",
+  //------------------------------------------------
+  init : function(conf={}) {
+  },
+  //------------------------------------------------
+  setup : function(editor, url){
+    //..............................................
+    let settings = _.assign({
+        meta : "~"
+      }, _.get(editor.settings, "wn_youtube_config"));
+    //console.log("setup", editor.settings)
+    //..............................................
+    // Register plugin command
+    editor.addCommand("InsertYoutube",   CmdInsertYoutube)
+    editor.addCommand("SetYoutubeSize",  CmdSetYoutubeSize)
+    editor.addCommand("SetYoutubeStyle", CmdSetYoutubeStyle)
+    editor.addCommand("ShowYoutubeProp", CmdShowYoutubeProp)
+    //..............................................
+    // Register toolbar actions
+    editor.ui.registry.addButton("WnYoutubePick", {
+      icon : "youtube-brands",
+      tooltip : Ti.I18n.text("i18n:video-insert"),
+      onAction : function(menuBtn) {
+        pickYoutubeAndInsertToDoc(editor, settings)
+      },
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnYoutubeClrSize", {
+      text : "清除视频尺寸",
+      onAction() {
+        editor.execCommand("SetYoutubeSize", editor)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnYoutubeAutoFitWidth", {
+      text : "自动适应宽度",
+      onAction() {
+        editor.execCommand("SetYoutubeSize", editor, {width:"100%"})
+      }
+    })
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnYoutubeFloat', {
+      text: '文本绕图',
+      getSubmenuItems: function () {
+        return [{
+          type : "menuitem",
+          icon : "align-left",
+          text : "居左绕图",
+          onAction() {
+            editor.execCommand("SetYoutubeStyle", editor, {float:"left"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "align-right",
+          text : "居右绕图",
+          onAction() {
+            editor.execCommand("SetYoutubeStyle", editor, {float:"right"})
+          }
+        }, {
+          type : "menuitem",
+          text : "清除浮动",
+          onAction() {
+            editor.execCommand("SetYoutubeStyle", editor, {float:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnYoutubeMargin', {
+      text: '视频边距',
+      getSubmenuItems: function () {
+        const __check_margin_size = function(api, expectSize) {
+          let $video = GetCurrentYoutubeElement(editor)
+          let state = true
+          if($video) {
+            let sz = $video.style.marginLeft || $video.style.marginRight
+            state = expectSize == sz
+          }
+          api.setActive(state);
+          return function() {};
+        }
+        return [{
+          type : "togglemenuitem",
+          text : "小边距",
+          onAction() {
+            editor.execCommand("SetYoutubeStyle", editor, {margin:"1em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '1em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "中等边距",
+          onAction() {
+            editor.execCommand("SetYoutubeStyle", editor, {margin:"2em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '2em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "较大边距",
+          onAction() {
+            editor.execCommand("SetYoutubeStyle", editor, {margin:"3em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '3em')
+          }
+        }, {
+          type : "menuitem",
+          text : "清除边距",
+          onAction() {
+            editor.execCommand("SetYoutubeStyle", editor, {margin:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addMenuItem("WnYoutubeProp", {
+      text : "视频属性",
+      onAction() {
+        editor.execCommand("ShowYoutubeProp", editor, settings)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addContextMenu("wn-youtube", {
+      update: function (el) {
+        let $video = GetCurrentYoutubeElement(editor)
+        // Guard
+        if(!_.isElement($video)) {
+          return []
+        }
+        return [
+          "WnYoutubeClrSize WnYoutubeAutoFitWidth",
+          "WnYoutubeFloat WnYoutubeMargin",
+          "WnYoutubeProp"
+        ].join(" | ")
+      }
+    })
+    //..............................................
+    editor.on("SetContent", function() {
+      //console.log("SetContent youtube")
+      let els = editor.$('.wn-media.as-youtube')
+      for(let i=0; i<els.length; i++) {
+        let el = els[i]
+        UpdateYoutubeTagInnerHtml(el)
+      }
+    })
+    //..............................................
+    return {
+      getMetadata: function () {
+        return  {
+          name: 'Wn Youtube plugin',
+          url: 'http://site0.cn'
+        };
+      }
+    };
+    //..............................................
+  }
+  //------------------------------------------------
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -38612,10 +40790,9 @@ const _M = {
       // Push to history stack
       let newLink = Wn.Util.getAppLink(meta.id)
       let title =  Wn.Util.getObjDisplayName(meta)
-      if(Ti.IsInfo("app/wn-manager")) {
-        console.log(title , "->", newLink)
-      }
-      his.pushState(meta, title, newLink)
+      let obj = _.cloneDeep(meta)
+      //console.log(title , "->", newLink)
+      his.pushState(obj, title, newLink)
       // Update the Title
       document.title = Ti.I18n.text(title);
     }
@@ -40192,7 +42369,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     myList  : [],
     myPager : {},
     /*{filter: {}, sorter: {ct: -1}}*/
-    mySearch : {}
+    mySearch : {},
+    myCurrentId : undefined
   }),
   ////////////////////////////////////////////////////
   props : {
@@ -40218,6 +42396,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "autoSelect" : {
       type : Boolean,
       default : false
+    },
+    "multi" : {
+      type : Boolean
+    },
+    "reloadBy" : {
+      type : [String, Function],
+      default : "current/query"
     },
     // TODO ... need to apply those settins below
     // in __on_events
@@ -40262,7 +42447,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
             list : "=myList",
             pager : "=myPager"
           },
-          "multi" : true,
+          "multi" : "=multi",
           "status" : "=status"
         }
       })
@@ -40273,7 +42458,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         comType : "TiPagingJumper",
         comConf : {
           "value" : "=myPager",
-          "mapping" : "longName"
+          "valueType" : "longName"
         }
       })
     },
@@ -40369,7 +42554,53 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.$adaptlist = $adaptlist
     },
     //------------------------------------------------
+    OnFilterChange(filter) {
+      this.reload({filter, pager:{pageNumber:1}})
+    },
+    //------------------------------------------------
+    OnSorterChange(sorter) {
+      this.reload({sorter, pager:{pageNumber:1}})
+    },
+    //------------------------------------------------
+    OnPagerChange(pager) {
+      this.reload({pager})
+    },
+    //------------------------------------------------
+    OnSelectItem({currentId}) {
+      this.myCurrentId = currentId
+      return false
+    },
+    //------------------------------------------------
+    doAutoSelectItem() {
+      // Guard
+      if(!this.autoSelect) 
+        return
+      // Try the last current Id
+      if(this.myCurrentId) {
+        let row = this.$adaptlist.findRowById(this.myCurrentId)
+        if(row) {
+          this.selectItem(row.id)
+          return
+        }
+      }
+      // Default use the first item
+      this.selectItemByIndex(0)
+    },
+    //------------------------------------------------
+    async reload({filter, sorter, pager}={}) {
+      if(_.isString(this.reloadBy)) {
+        return await Ti.App(this).dispatch(this.reloadBy, {
+          filter, sorter, pager
+        })
+      }
+      // Customized reloading
+      return await this.reloadBy({filter, sorter, pager})
+    },
+    //------------------------------------------------
     // Delegate methods
+    setItem(newItem) {
+      this.$adaptlist.setItem(newItem)
+    },
     selectItem(id) {
       this.$adaptlist.selectItem(id)
     },
@@ -40388,6 +42619,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     async openCurrentMeta() {
       return this.$adaptlist.openCurrentMeta()
     },
+    async doDelete(confirm) {
+      return this.$adaptlist.doDelete(confirm)
+    },
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
@@ -40401,22 +42635,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
       immediate : true
     },
     "ComList" : function() {
-      if(this.autoSelect) {
-        this.$nextTick(()=>{
-          _.delay(()=>{
-            this.selectItemByIndex(0)
-          }, 100)
-        })
-      }
+      this.$nextTick(()=>{
+        _.delay(()=>{
+          this.doAutoSelectItem()
+        }, 100)
+      })
     },
     "search" : {
       handler : function() {
-        this.mySearch = this.search
+        this.mySearch = _.cloneDeep(this.search)
       },
       immediate : true
     }
     //------------------------------------------------
   },
+  ////////////////////////////////////////////////////
+  mounted : function() {
+    this.$nextTick(()=>{
+      _.delay(()=>{
+        this.doAutoSelectItem()
+      }, 100)
+    })
+  }
   ////////////////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -41706,7 +43946,6 @@ const _M = {
       commit("setLoading", false)
     },
     //--------------------------------------------
-    //--------------------------------------------
     navBackward() {
       if(window.history) {
         window.history.back()
@@ -42827,7 +45066,7 @@ const _M = {
     // Callback
     //-----------------------------------------------
     __ti_shortcut(uniqKey) {
-      console.log("ti-combo-multi-input", uniqKey)
+      //console.log("ti-combo-multi-input", uniqKey)
       //....................................
       if("ESCAPE" == uniqKey) {
         this.doCollapse({escaped:true})
@@ -45158,22 +47397,6 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/paging/jumper/ti-paging-jumper.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////
-  props : {
-    "value" : {
-      type : Object,
-      default : ()=>({
-        pn : 0,     // Page Number
-        pgsz : 0,   // PageSize
-        pgc : 0,    // page count
-        sum : 0,    // Total
-        count : 0   // Record in page
-      })
-    },
-    "mapping" : {
-      type : [String, Object]
-    }
-  },
-  ///////////////////////////////////////////
   computed : {
     //--------------------------------------
     TopClass() {
@@ -45182,28 +47405,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     hasValue() {
       return !_.isEmpty(this.PageValue) && this.PageValue.pn > 0
-    },
-    //--------------------------------------
-    PageMapping() {
-      if(this.mapping) {
-        if("longName" == this.mapping) {
-          return {
-            pn : "pageNumber",
-            pgsz : "pageSize",
-            pgc : "pageCount",
-            sum : "totalCount",
-            count : "count"
-          }
-        }
-        return this.mapping
-      }
-    },
-    //--------------------------------------
-    PageValue() {
-      if(this.PageMapping) {
-        return Ti.Util.translate(this.value, this.PageMapping)
-      }
-      return this.value
     },
     //--------------------------------------
     PageNumberClass() {
@@ -45237,7 +47438,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     OnJumpTo(pageNumber) {
       if(!this.isInvalidPageNumber(pageNumber)) {
-        this.$notify("change", {
+        console.log("OnJumpTo", pageNumber)
+        this.notifyChange({
           skip :  this.PageValue.pgsz * (pageNumber-1),
           limit :  this.PageValue.pgsz, 
           pn   : pageNumber, 
@@ -45271,7 +47473,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         return 
       }
       // 通知修改
-      this.$notify("change", {
+      this.notifyChange({
         skip :  this.PageValue.pgsz * (pn-1),
         limit :  this.PageValue.pgsz, 
         pn   : pn, 
@@ -45300,7 +47502,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       // 通知修改
       this.$notify("change:pgsz", pgsz)
-      this.$notify("change", {
+      this.notifyChange({
         skip  : 0,
         limit : pgsz,
         pn    : 1, 
@@ -46956,6 +49158,325 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'facebook-albums.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/net/facebook/albums/facebook-albums.mjs'] = (function(){
+/////////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////////
+  data : ()=>({
+    myId : undefined,
+    myLongLiveAK : undefined,
+    myAlbumList : undefined,
+    currentAlbumId : undefined,
+    myPhotoList : []
+  }),
+  ///////////////////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "meta" : {
+      type : Object
+    },
+    "domain": {
+      type : String
+    },
+    "appId" : {
+      type : String
+    },
+    "appSecret" : {
+      type : String
+    },
+    "longLiveAccessToken": {
+      type : String
+    },
+    "tokenExpiresIn" : {
+      type : Number,
+    },
+    "tokenType" : {
+      type : String
+    },
+    "tokenExpaireAt" : {
+      type : Number,
+      default : 0
+    },
+    "userId" : {
+      type : String
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "apiVersion" : {
+      type : String,
+      default : "v10.0"
+    },
+    "autoLogAppEvents" : {
+      type : Boolean,
+      default : true
+    },
+    "xfbml" : {
+      type : Boolean,
+      default : true
+    },
+    "notifyName" : {
+      type : String
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "thumbMinHeight" : {
+      type : Number,
+      default : 320
+    }
+  },
+  ///////////////////////////////////////////////////////
+  computed : {
+    //---------------------------------------------------
+    TopClass() {
+      return this.getTopClass();
+    },
+    //---------------------------------------------------
+    hasCurrentAlbum() {
+      return this.currentAlbumId ? true : false
+    },
+    //---------------------------------------------------
+    CurrentAlbum() {
+      return this.getAlbum(this.currentAlbumId)
+    },
+    //---------------------------------------------------
+    GuiLayout(){
+      return {
+        type: "rows",
+        border:true,
+        blocks: [{
+            name : "photos",
+            body : "photos"
+          }, {
+            name : "albums",
+            size : "30%",
+            body : "albums"
+          }]
+      }
+    },
+    //---------------------------------------------------
+    GuiSchema() {
+      return {
+        albums: {
+          comType: "TiWall",
+          comConf: {
+            data: this.myAlbumList,
+            idBy: "id",
+            multi: false,
+            display: {
+              key : "..",
+              comType : "ti-obj-thumb",
+              comConf : {
+                "id" : "=item.id",
+                "title" : "=item.name",
+                "preview" : "=item.preview",
+                "badges" : {
+                  "SW" : "fab-facebook-square"
+                }
+              }
+            }
+          }
+        },
+        photos: {
+          comType: "WebShelfWall",
+          comConf: {
+            className : "ti-fill-parent flex-none item-space-sm",
+            style : {
+              "overflow" : "auto",
+              "padding"  : ".1rem"
+            },
+            data: this.myPhotoList,
+            itemWidth : "2rem",
+            itemHeight : "1.5rem",
+            comType : "WebMediaImage",
+            comConf : {
+              text : "=name",
+              src  : "=thumb_src",
+              style : {
+                "border" : "3px solid #EEE",
+                "border-radius" : "6px"
+              }
+            }
+          }
+        }
+      }
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods :{
+    //---------------------------------------------------
+    OnAlbumSelect({currentId}) {
+      this.currentAlbumId = currentId
+
+      this.reloadPhotos()
+
+      let album = _.cloneDeep(this.CurrentAlbum)
+      if(this.notifyName) {
+        this.$notify(this.notifyName, album)
+      }
+    },
+    //---------------------------------------------------
+    getAlbum(albumId) {
+      if(_.isArray(this.myAlbumList)) {
+        for(let ab of this.myAlbumList) {
+          if(ab.id == albumId) {
+            return ab
+          }
+        }
+      }
+    },
+    //---------------------------------------------------
+    FBAPI(path) {
+      return `https://graph.facebook.com/${this.apiVersion}/${path}`
+    },
+    //--------------------------------------------
+    async openCurrentMeta() {
+      let meta = this.CurrentAlbum || this.meta
+
+      if(!meta) {
+        await Ti.Toast.Open("i18n:nil-obj")
+        return
+      }
+
+      let fields = "auto"
+      if(this.hasCurrentAlbum) {
+        const V_FIELD = (name, title)=>{
+          return {
+            title, name,
+            comType : "TiLabel"
+          }
+        }
+        fields = [
+          V_FIELD("id", "ID"),
+          V_FIELD("title", "Title"),
+          V_FIELD("created_time", "Created Time"),
+          V_FIELD("link", "Link")
+        ]
+      }
+
+      await Wn.EditObjMeta(meta, {
+        fields,
+        textOk : null,
+        autoSave : false
+      })
+    },
+    //---------------------------------------------------
+    async reloadPhotos() {
+      if(!this.hasCurrentAlbum) {
+        this.myPhotoList = []
+        return
+      }
+      // Reload albums
+      this.myPhotoList = undefined
+
+      this.myPhotoList = await Ti.Api.Facebook.getAlbumPhotoList({
+        albumId : this.currentAlbumId,
+        access_token : this.myLongLiveAK
+      })
+    },
+    //---------------------------------------------------
+    async reloadAlbums() {
+      this.myAlbumList = await Ti.Api.Facebook.getAlbumList({
+        userId : this.myId,
+        access_token : this.myLongLiveAK,
+        loadCover : true
+      })
+    },
+    //---------------------------------------------------
+    async reloadLongLiveAccessToken(accessToken) {
+      let url = this.FBAPI("oauth/access_token")
+      let reo = await Ti.Http.get(url, {
+        params : {
+          "grant_type" : "fb_exchange_token",
+          "client_id" : this.appId,
+          "client_secret" : this.appSecret,
+          "fb_exchange_token" : accessToken
+        },
+        as : "json"
+      })
+      // Grap Long live access token
+      this.myLongLiveAK = reo.access_token
+
+      // Save to remote
+      if(reo.access_token) {
+        let jsonToken = JSON.stringify({
+          userId : this.myId,
+          longLiveAccessToken : reo.access_token,
+          tokenExpiresIn : reo.expires_in,
+          tokenType : reo.token_type,
+          tokenExpaireAt : Date.now() + reo.expires_in * 1000
+        })
+        let cmdText = `jsonx -qn @read ~/facebook -auto @set '${jsonToken}' > ~/facebook`
+        await Wn.Sys.exec2(cmdText)
+      }
+      // Error
+      else {
+        console.error("Fail to reloadLongLiveAccessToken", reo)
+      }
+    },
+    //---------------------------------------------------
+    checkdLongLiveAccessToken() {
+      // Refresh token before a day
+      let expiAt = this.tokenExpaireAt - 86400000
+      if(Date.now() > expiAt || !this.myId || !this.longLiveAccessToken) {
+        FB.login(resp => {
+          console.log("after login", resp)
+          if (resp.authResponse) {
+            let {accessToken, userID} = resp.authResponse
+            this.myId = userID 
+            // Get Long Live Access Token
+            this.reloadLongLiveAccessToken(accessToken)
+              .then(()=>{
+                this.reloadAlbums()
+              })
+          }
+        })
+      }
+      // Has a valid LongLiveAK
+      else {
+        this.myLongLiveAK = this.longLiveAccessToken
+        this.reloadAlbums()
+      }
+    },
+    //---------------------------------------------------
+    initFBSdk() {
+      // Get config file
+      FB.init({
+        appId            : this.appId,
+        autoLogAppEvents : this.autoLogAppEvents,
+        xfbml            : this.xfbml,
+        version          : this.apiVersion
+      });
+
+      // Login
+      this.checkdLongLiveAccessToken()
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  watch : {
+    "userId" : {
+      handler : function(newVal){
+        this.myId = newVal
+      },
+      immediate : true
+    }
+  },
+  ///////////////////////////////////////////////////////
+  mounted : function() {
+    this.initFBSdk()
+  }
+  ///////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'wn-table.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/table/wn-table.mjs'] = (function(){
@@ -46999,8 +49520,8 @@ const _M = {
     },
     //----------------------------------------------
     // Delegate methods
-    selectPrevRow(options){this.$list.selectPrevRow(options)},
-    selectNextRow(options){this.$list.selectNextRow(options)},
+    selectPrevRow(options){return this.$list.selectPrevRow(options)},
+    selectNextRow(options){return this.$list.selectNextRow(options)},
 
     getCurrentRow(options){return this.$list.getCurrentRow(options)},
     getCheckedRow(options){return this.$list.getCheckedRow(options)},
@@ -47008,9 +49529,15 @@ const _M = {
     getCurrent(options){return this.$list.getCurrent(options)},
     getChecked(options){return this.$list.getChecked(options)},
 
-    selectRow(options){this.$list.selectRow(options)},
-    checkRow (options){this.$list.checkRow(options)},
-    cancelRow(options){this.$list.cancelRow(options)}
+    selectRow(options){return this.$list.selectRow(options)},
+    checkRow (options){return this.$list.checkRow(options)},
+    cancelRow(options){return this.$list.cancelRow(options)},
+
+    removeCheckedRow(idMap){return this.$list.removeCheckedRow(idMap)},
+    removeChecked(idMap){return this.$list.removeChecked(idMap)},
+
+    moveCheckedRow(offset, idMap){return this.$list.moveCheckedRow(offset, idMap)},
+    moveChecked(offset, idMap){return this.$list.moveChecked(offset, idMap)},
     //----------------------------------------------
   },
   ///////////////////////////////////////////////////
@@ -47344,6 +49871,145 @@ Ti.Preload("ti/com/net/aliyun/vod/video/player/_com.json", {
   "components": [
     
   ]
+});
+//========================================
+// JOIN <facebook-albums.html> ti/com/net/facebook/albums/facebook-albums.html
+//========================================
+Ti.Preload("ti/com/net/facebook/albums/facebook-albums.html", `<ti-gui
+  class="net-facebook-albums"
+  :class="TopClass"
+  :layout="GuiLayout"
+  :schema="GuiSchema"
+  :can-loading="false"
+  @albums::select="OnAlbumSelect"/>`);
+//========================================
+// JOIN <facebook-albums.mjs> ti/com/net/facebook/albums/facebook-albums.mjs
+//========================================
+Ti.Preload("ti/com/net/facebook/albums/facebook-albums.mjs", TI_PACK_EXPORTS['ti/com/net/facebook/albums/facebook-albums.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/net/facebook/albums/_com.json
+//========================================
+Ti.Preload("ti/com/net/facebook/albums/_com.json", {
+  "name" : "net-facebook-albums",
+  "globally" : true,
+  "template" : "./facebook-albums.html",
+  "mixins" : ["./facebook-albums.mjs"],
+  "components": [
+    "@com:ti/wall",
+    "@com:web/shelf/wall",
+    "@com:web/media/image"
+  ],
+  "deps" : [
+    "@https://connect.facebook.net/en_US/sdk.js"
+  ]
+});
+//========================================
+// JOIN <youtube-browser.html> ti/com/net/youtube/browser/youtube-browser.html
+//========================================
+Ti.Preload("ti/com/net/youtube/browser/youtube-browser.html", `<ti-gui
+  class="net-youtube-browser"
+  :class="TopClass"
+  :layout="GuiLayout"
+  :schema="GuiSchema"
+  :can-loading="false"
+  @list::select="OnListSelect"/>`);
+//========================================
+// JOIN <youtube-browser.mjs> ti/com/net/youtube/browser/youtube-browser.mjs
+//========================================
+Ti.Preload("ti/com/net/youtube/browser/youtube-browser.mjs", TI_PACK_EXPORTS['ti/com/net/youtube/browser/youtube-browser.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/net/youtube/browser/_com.json
+//========================================
+Ti.Preload("ti/com/net/youtube/browser/_com.json", {
+  "name" : "net-youtube-browser",
+  "globally" : true,
+  "template" : "./youtube-browser.html",
+  "mixins" : ["./youtube-browser.mjs"],
+  "components": [
+    "@com:ti/wall",
+    "@com:ti/combo/filter",
+    "@com:ti/combo/sorter",
+    "@com:ti/paging/jumper",
+    "@com:net/youtube/detail"
+  ]
+});
+//========================================
+// JOIN <youtube-detail.html> ti/com/net/youtube/detail/youtube-detail.html
+//========================================
+Ti.Preload("ti/com/net/youtube/detail/youtube-detail.html", `<ti-gui
+  class="net-youtube-detail"
+  :class="TopClass"
+  :layout="GuiLayout"
+  :schema="GuiSchema"
+  :can-loading="false"/>`);
+//========================================
+// JOIN <youtube-detail.mjs> ti/com/net/youtube/detail/youtube-detail.mjs
+//========================================
+Ti.Preload("ti/com/net/youtube/detail/youtube-detail.mjs", TI_PACK_EXPORTS['ti/com/net/youtube/detail/youtube-detail.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/net/youtube/detail/_com.json
+//========================================
+Ti.Preload("ti/com/net/youtube/detail/_com.json", {
+  "name" : "net-youtube-detail",
+  "globally" : true,
+  "template" : "./youtube-detail.html",
+  "mixins" : ["./youtube-detail.mjs"],
+  "components": [
+    "@com:ti/form",
+    "@com:net/youtube/player"
+  ]
+});
+//========================================
+// JOIN <youtube-player.html> ti/com/net/youtube/player/youtube-player.html
+//========================================
+Ti.Preload("ti/com/net/youtube/player/youtube-player.html", `<div class="net-youtube-player ti-fill-parent"
+  :style="TopStyle">
+  <!--
+    Blank
+  -->
+  <TiLoading
+    v-if="!hasValue"
+      v-bind="blankAs"/>
+  <!--
+    Show video content
+  -->
+  <iframe 
+    v-else
+      width="100%"
+      height="100%"
+      :src="VideoSrc"
+      frameborder="0"
+      :allow="VideoAllow"
+      :allowfullscreen="allowFullScreen"></iframe>
+  <!--template v-else>
+    <div
+      v-if="!showPlayer" 
+        class="as-preview"
+        @click.left="showPlayer=true">
+        <i class="fab fa-youtube"></i>
+    </div>
+    <iframe 
+      v-else
+        width="100%"
+        height="100%"
+        :src="VideoSrc"
+        frameborder="0"
+        :allow="VideoAllow"
+        :allowfullscreen="allowFullScreen"></iframe>
+  </template-->
+</div>`);
+//========================================
+// JOIN <youtube-player.mjs> ti/com/net/youtube/player/youtube-player.mjs
+//========================================
+Ti.Preload("ti/com/net/youtube/player/youtube-player.mjs", TI_PACK_EXPORTS['ti/com/net/youtube/player/youtube-player.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/net/youtube/player/_com.json
+//========================================
+Ti.Preload("ti/com/net/youtube/player/_com.json", {
+  "name" : "net-youtube-player",
+  "globally" : true,
+  "template" : "./youtube-player.html",
+  "mixins" : ["./youtube-player.mjs"]
 });
 //========================================
 // JOIN <bar-item-action.html> ti/com/ti/actionbar/com/bar-item-action/bar-item-action.html
@@ -51207,8 +53873,8 @@ Ti.Preload("ti/com/ti/paging/jumper/ti-paging-jumper.html", `<div class="ti-pagi
       <span class="it-text">{{'paging-first'|i18n}}</span></div>
   <div 
     class="pj-btn"
-    :class="getBtnClass(value.pn-1)"
-    @click="OnJumpTo(value.pn-1)">
+    :class="getBtnClass(PageValue.pn-1)"
+    @click="OnJumpTo(PageValue.pn-1)">
       <ti-icon value="zmdi-chevron-left"/>
       <span class="it-text">{{'paging-prev'|i18n}}</span></div>
   <div 
@@ -51219,14 +53885,14 @@ Ti.Preload("ti/com/ti/paging/jumper/ti-paging-jumper.html", `<div class="ti-pagi
   </div>
   <div 
     class="pj-btn"
-    :class="getBtnClass(value.pn+1)"
-    @click="OnJumpTo(value.pn+1)">
+    :class="getBtnClass(PageValue.pn+1)"
+    @click="OnJumpTo(PageValue.pn+1)">
       <span class="it-text">{{'paging-next'|i18n}}</span>
       <ti-icon value="zmdi-chevron-right"/></div>
   <div 
     class="pj-btn"
-    :class="getBtnClass(value.pgc)"
-    @click="OnJumpTo(value.pgc)">
+    :class="getBtnClass(PageValue.pgc)"
+    @click="OnJumpTo(PageValue.pgc)">
       <span class="it-text">{{'paging-last'|i18n}}</span>
       <ti-icon value="zmdi-skip-next"/></div>
   <div
@@ -51246,8 +53912,15 @@ Ti.Preload("ti/com/ti/paging/jumper/_com.json", {
   "name" : "ti-paging-jumper",
   "globally" : true,
   "template" : "./ti-paging-jumper.html",
-  "mixins" : ["./ti-paging-jumper.mjs"]
+  "mixins" : [
+    "@com:ti/paging/support/ti-paging-mixins.mjs",
+    "./ti-paging-jumper.mjs"
+  ]
 });
+//========================================
+// JOIN <ti-paging-mixins.mjs> ti/com/ti/paging/support/ti-paging-mixins.mjs
+//========================================
+Ti.Preload("ti/com/ti/paging/support/ti-paging-mixins.mjs", TI_PACK_EXPORTS['ti/com/ti/paging/support/ti-paging-mixins.mjs']);
 //========================================
 // JOIN <ti-roadblock.html> ti/com/ti/roadblock/ti-roadblock.html
 //========================================
@@ -52320,9 +54993,21 @@ Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/codeblock.mjs", TI_PACK_EXPORTS['
 //========================================
 Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/preview.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/preview.mjs']);
 //========================================
-// JOIN <wn-image.mjs> ti/com/ti/text/rich/tinymce/plugin/wn-image.mjs
+// JOIN <tiny-wn-facebook.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-facebook.mjs
 //========================================
-Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/wn-image.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/wn-image.mjs']);
+Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-facebook.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-facebook.mjs']);
+//========================================
+// JOIN <tiny-wn-image.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-image.mjs
+//========================================
+Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-image.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-image.mjs']);
+//========================================
+// JOIN <tiny-wn-video.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-video.mjs
+//========================================
+Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-video.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-video.mjs']);
+//========================================
+// JOIN <tiny-wn-youtube.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-youtube.mjs
+//========================================
+Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-youtube.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-youtube.mjs']);
 //========================================
 // JOIN <rich-tinymce-props.mjs> ti/com/ti/text/rich/tinymce/rich-tinymce-props.mjs
 //========================================
@@ -52697,10 +55382,17 @@ Ti.Preload("ti/com/ti/wall/ti-wall.html", `<div class="ti-wall"
   @click="OnClickTop"
   v-ti-activable>
   <!--
+    Loading
+  -->
+  <ti-loading 
+    v-if="isDataLoading"
+      class="nil-data"
+      v-bind="loadingAs"/>
+  <!--
     Blank
   -->
   <ti-loading 
-    v-if="isDataEmpty"
+    v-else-if="isDataEmpty"
       class="nil-data"
       :class="blankClass"
       v-bind="blankAs"/>
@@ -55743,7 +58435,11 @@ Ti.Preload("ti/com/wn/browser/wn-browser.html", `<TiGui
   :class="TopClass"
   :schema="TheSchema"
   :layout="TheLayout"
-  keep-shown-to="chispo-trademark-browser-gui-shown"/>`);
+  keep-shown-to="chispo-trademark-browser-gui-shown"
+  @select="OnSelectItem"
+  @filter::change="OnFilterChange"
+  @sorter::change="OnSorterChange"
+  @pager::change="OnPagerChange"/>`);
 //========================================
 // JOIN <wn-browser.mjs> ti/com/wn/browser/wn-browser.mjs
 //========================================
@@ -57820,6 +60516,12 @@ Ti.Preload("ti/mod/wn/obj-current/m-obj-current.json", {
   "content" : null,
   "data" : null,
   "__saved_content" : null,
+  "filter" : {},
+  "sorter" : {
+    "nm" : 1
+  },
+  "pageNumber" : 1,
+  "pageSize" : 100,
   "status" : {
     "changed"   : false,
     "saving"    : false,
@@ -58169,6 +60871,10 @@ Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "anchor" : null,
   "apis" : {},
   "data" : {},
+  "gui" : {
+    "flex" : "nil",
+    "overflow" : "none"
+  },
   "contextMenu": true,
   "explainDataKey": [],
   "layout" : {
@@ -59150,6 +61856,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "img-add" : "Add image",
   "img-insert" : "Insert image",
   "img-remove" : "Remove image",
+  "video-add": "Add video",
+  "video-insert": "Insert video",
+  "video-remove": "Remove video",
   "copy" : "Copy",
   "copy-all" : "Copy all",
   "preview": "Preview",
@@ -60347,6 +63056,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "img-add" : "添加图像",
   "img-insert" : "插入图像",
   "img-remove" : "删除图像",
+  "video-add": "添加视频",
+  "video-insert": "插入视频",
+  "video-remove": "删除视频",
   "copy" : "复制",
   "copy-all" : "全部复制",
   "preview": "预览",
@@ -60779,10 +63491,10 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
 //========================================
 Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-css-text-transform": "文字轉換",
-   "hmk-css-text-transform-capitalize": "首字母大寫",
+   "hmk-css-text-transform-capitalize": "首大寫",
    "hmk-css-text-transform-uppercase": "全大寫",
    "hmk-css-text-transform-lowercase": "全小寫",
-   "hmk-css-text-transform-none": "原始",
+   "hmk-css-text-transform-none": "無",
    "hmk-css-c-auto": "自動",
    "hmk-css-g-inherit": "繼承",
    "hmk-css-g-initial": "初始",
@@ -61503,6 +64215,9 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "img-add": "添加圖像",
    "img-insert": "插入圖像",
    "img-remove": "刪除圖像",
+   "video-add": "添加視頻",
+   "video-insert": "插入視頻",
+   "video-remove": "刪除視頻",
    "copy": "複製",
    "copy-all": "全部複製",
    "preview": "預覽",

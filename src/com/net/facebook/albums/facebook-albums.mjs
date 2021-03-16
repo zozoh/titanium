@@ -58,6 +58,13 @@ export default {
     },
     "notifyName" : {
       type : String
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "thumbMinHeight" : {
+      type : Number,
+      default : 320
     }
   },
   ///////////////////////////////////////////////////////
@@ -102,12 +109,9 @@ export default {
               key : "..",
               comType : "ti-obj-thumb",
               comConf : {
-                "id" : "${id}",
-                "title" : "${name}",
-                "preview" : {
-                  type : "font",
-                  value : "fas-images"
-                },
+                "id" : "=item.id",
+                "title" : "=item.name",
+                "preview" : "=item.preview",
                 "badges" : {
                   "SW" : "fab-facebook-square"
                 }
@@ -123,39 +127,21 @@ export default {
               "overflow" : "auto",
               "padding"  : ".1rem"
             },
-            data: this.PhotoItemList,
+            data: this.myPhotoList,
             itemWidth : "2rem",
             itemHeight : "1.5rem",
             comType : "WebMediaImage",
             comConf : {
-              "..." : "=..",
+              text : "=name",
+              src  : "=thumb_src",
               style : {
                 "border" : "3px solid #EEE",
                 "border-radius" : "6px"
               }
             }
           }
-        },
-        // pcDetail: {
-        //   comType: "NetYoutubeDetail",
-        //   comConf: {
-        //     value: this.CurrentVideo
-        //   }
-        // }
-      }
-    },
-    //---------------------------------------------------
-    PhotoItemList() {
-      if(!this.myPhotoList)
-        return
-      let list = _.map(this.myPhotoList, photo=>{
-        return {
-          id : photo.id,
-          text : photo.name,
-          src : _.get(photo, "images.1.source")
         }
-      })
-      return list
+      }
     }
     //---------------------------------------------------
   },
@@ -188,7 +174,7 @@ export default {
     },
     //--------------------------------------------
     async openCurrentMeta() {
-      let meta = this.CurrentVideo || this.meta
+      let meta = this.CurrentAlbum || this.meta
 
       if(!meta) {
         await Ti.Toast.Open("i18n:nil-obj")
@@ -196,7 +182,7 @@ export default {
       }
 
       let fields = "auto"
-      if(this.hasCurrent) {
+      if(this.hasCurrentAlbum) {
         const V_FIELD = (name, title)=>{
           return {
             title, name,
@@ -206,14 +192,8 @@ export default {
         fields = [
           V_FIELD("id", "ID"),
           V_FIELD("title", "Title"),
-          V_FIELD("description", "Description"),
-          V_FIELD("publishedAt", "PublishedAt"),
-          V_FIELD("tags", "Tags"),
-          V_FIELD("duration", "Duration"),
-          V_FIELD("du_in_sec", "Du in sec"),
-          V_FIELD("du_in_str", "Du in str"),
-          V_FIELD("definition", "Definition"),
-          V_FIELD("categoryId", "CategoryId"),
+          V_FIELD("created_time", "Created Time"),
+          V_FIELD("link", "Link")
         ]
       }
 
@@ -231,30 +211,19 @@ export default {
       }
       // Reload albums
       this.myPhotoList = undefined
-      let url = this.FBAPI(`${this.currentAlbumId}/photos`)
-      let reo = await Ti.Http.get(url, {
-        params : {
-          access_token : this.myLongLiveAK,
-          fields : "id,name,width,height,images"
-        },
-        as : "json"
+
+      this.myPhotoList = await Ti.Api.Facebook.getAlbumPhotoList({
+        albumId : this.currentAlbumId,
+        access_token : this.myLongLiveAK
       })
-      let {data, paging} = reo
-      this.myPhotoList = data
     },
     //---------------------------------------------------
     async reloadAlbums() {
-      // Reload albums
-      let url = this.FBAPI(`${this.myId}/albums`)
-      let reo = await Ti.Http.get(url, {
-        params : {
-          access_token : this.myLongLiveAK,
-          fields : "id,name,place,created_time,description,link,cover_photo"
-        },
-        as : "json"
+      this.myAlbumList = await Ti.Api.Facebook.getAlbumList({
+        userId : this.myId,
+        access_token : this.myLongLiveAK,
+        loadCover : true
       })
-      let {data, paging} = reo
-      this.myAlbumList = data
     },
     //---------------------------------------------------
     async reloadLongLiveAccessToken(accessToken) {

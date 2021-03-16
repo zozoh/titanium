@@ -291,12 +291,6 @@ export default {
   name : "wn-image",
   //------------------------------------------------
   init : function(conf={}) {
-    let {extended_valid_elements} = conf 
-
-    conf.extended_valid_elements = _.concat(
-      extended_valid_elements, 
-      'img[wn-obj-*|src|width|height|style|class]'
-    ).join(",")
   },
   //------------------------------------------------
   setup : function(editor, url){

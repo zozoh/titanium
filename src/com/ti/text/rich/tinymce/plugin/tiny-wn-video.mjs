@@ -312,12 +312,6 @@ export default {
   name : "wn-video",
   //------------------------------------------------
   init : function(conf={}) {
-    let {extended_valid_elements} = conf 
-
-    conf.extended_valid_elements = _.concat(
-      extended_valid_elements, 
-      'div[wn-*|style|class]'
-    ).join(",")
   },
   //------------------------------------------------
   setup : function(editor, url){
@@ -456,7 +450,7 @@ export default {
     })
     //..............................................
     editor.on("SetContent", function() {
-      console.log("SetContent video")
+      //console.log("SetContent video")
       let els = editor.$('.wn-media.as-video')
       for(let i=0; i<els.length; i++) {
         let el = els[i]

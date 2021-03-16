@@ -32,8 +32,6 @@ async function pickYoutubeAndInsertToDoc(editor, {
     ]
   })
 
-  console.log(reo)
-
   // User canceled
   if(_.isEmpty(reo)) {
     return
@@ -276,12 +274,6 @@ export default {
   name : "wn-youtube",
   //------------------------------------------------
   init : function(conf={}) {
-    let {extended_valid_elements} = conf 
-
-    conf.extended_valid_elements = _.concat(
-      extended_valid_elements, 
-      'div[wn-*|style|class]'
-    ).join(",")
   },
   //------------------------------------------------
   setup : function(editor, url){
@@ -406,7 +398,6 @@ export default {
     //..............................................
     editor.ui.registry.addContextMenu("wn-youtube", {
       update: function (el) {
-        console.log("haha")
         let $video = GetCurrentYoutubeElement(editor)
         // Guard
         if(!_.isElement($video)) {
@@ -421,7 +412,7 @@ export default {
     })
     //..............................................
     editor.on("SetContent", function() {
-      console.log("SetContent youtube")
+      //console.log("SetContent youtube")
       let els = editor.$('.wn-media.as-youtube')
       for(let i=0; i<els.length; i++) {
         let el = els[i]

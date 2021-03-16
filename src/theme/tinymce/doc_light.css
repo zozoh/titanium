@@ -1,3 +1,34 @@
+.tiw-photo-wall {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+  padding: 0.1rem; }
+  .tiw-photo-wall > .wall-tile {
+    display: block;
+    padding: 0.1rem; }
+    .tiw-photo-wall > .wall-tile img {
+      width: 2rem; }
+  .tiw-photo-wall.item-space-xl .wall-tile {
+    padding: 0.3rem; }
+  .tiw-photo-wall.item-space-lg .wall-tile {
+    padding: 0.24rem; }
+  .tiw-photo-wall.item-space-md .wall-tile {
+    padding: 0.16rem; }
+  .tiw-photo-wall.item-space-sm .wall-tile {
+    padding: 0.1rem; }
+  .tiw-photo-wall.item-space-xs .wall-tile {
+    padding: 0.04rem; }
+  .tiw-photo-wall.flex-none .wall-tile {
+    flex: 0 0 auto; }
+  .tiw-photo-wall.flex-both .wall-tile {
+    flex: 1 1 auto; }
+  .tiw-photo-wall.flex-grow .wall-tile {
+    flex: 1 0 auto; }
+  .tiw-photo-wall.flex-shrink .wall-tile {
+    flex: 0 1 auto; }
+
 html {
   color: #444;
   background-color: #F0F0F0;
@@ -51,15 +82,6 @@ body.mce-content-body {
   body.mce-content-body [contentEditable=false][data-mce-selected] {
     cursor: pointer; }
   body.mce-content-body div.wn-media {
-    color: #F0F0F0;
-    background-color: #444;
-    display: flex;
-    justify-content: flex-start;
-    align-items: stretch;
-    align-content: center;
-    flex-wrap: nowrap;
-    width: 5.4rem;
-    height: 3rem;
     cursor: pointer; }
     body.mce-content-body div.wn-media .media-inner {
       display: flex;
@@ -72,6 +94,21 @@ body.mce-content-body {
       background-repeat: no-repeat;
       background-size: cover;
       background-position: center; }
+    body.mce-content-body div.wn-media.as-youtube {
+      display: flex;
+      justify-content: flex-start;
+      align-items: stretch;
+      align-content: center;
+      flex-wrap: nowrap;
+      color: #F0F0F0;
+      background-color: #444;
+      width: 5.4rem;
+      height: 3rem; }
+    body.mce-content-body div.wn-media.as-facebook {
+      border: 1px dashed rgba(0, 0, 0, 0.2);
+      min-height: 3rem; }
+      body.mce-content-body div.wn-media.as-facebook .media-inner {
+        height: 3rem; }
   body.mce-content-body h1 {
     color: inherit;
     background-color: transparent; }

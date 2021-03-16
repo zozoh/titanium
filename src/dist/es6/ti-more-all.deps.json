@@ -9,6 +9,9 @@
    "path": "@deps:quill/1.3.6/quill.js"
 }, {
    "type": "js",
+   "path": "@https://connect.facebook.net/en_US/sdk.js"
+}, {
+   "type": "js",
    "path": "@deps:leaflet/leaflet.js"
 }, {
    "type": "js",

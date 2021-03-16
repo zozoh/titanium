@@ -52,7 +52,8 @@ const _M = {
     //----------------------------------------
     ConStyle() {
       return Ti.Css.toStyle({
-        height: this.height
+        height: this.height,
+        width : this.fieldWidth
       })
     },
     //----------------------------------------

@@ -41,6 +41,8 @@ import {VueTiCom} from "./vue/vue-ti-com.mjs"
 import {WalnutAppMain} from "./ti-walnut-app-main.mjs"
 import {WebAppMain} from "./ti-web-app-main.mjs"
 //---------------------------------------
+import Facebook from "./api-facebook.mjs"
+//---------------------------------------
 const LOAD_CACHE = {}
 function Preload(url, anyObj) {
   // if(url.indexOf("label")>0)
@@ -109,6 +111,10 @@ const Ti = {
   AutoMatch,
   //-----------------------------------------------------
   Websocket: TiWebsocket,
+  //-----------------------------------------------------
+  Api : {
+    Facebook
+  },
   //-----------------------------------------------------
   Preload, MatchCache, AddResourcePrefix, RS_PREFIXs, LOAD_CACHE,
   //-----------------------------------------------------

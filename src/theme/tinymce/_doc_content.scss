@@ -47,9 +47,8 @@ body.mce-content-body {
   }
   //-----------------------------------------------------
   div.wn-media {
-    @include color($color-paper, c, r);
-    @include flex-align-nowrap($ai:stretch);
-    width:5.4rem; height: 3rem; cursor: pointer;
+    cursor: pointer;
+    //---------------------------------------------------
     .media-inner {
       @include flex-center;
       flex:1 1 auto; font-size: SZ(64);
@@ -57,6 +56,21 @@ body.mce-content-body {
       background-size: cover; 
       background-position: center;
     }
+    //---------------------------------------------------
+    &.as-youtube {
+      @include flex-align-nowrap($ai:stretch);
+      @include color($color-paper, c, r);
+      width:5.4rem; height: 3rem;
+    }
+    //---------------------------------------------------
+    &.as-facebook {
+      @include border(1px, dashed, dark);
+      min-height: 3rem;
+      .media-inner {
+        height: 3rem;
+      }
+    }
+    //---------------------------------------------------
   }
   //-----------------------------------------------------
   h1 {@include color($color-b-h1, c, r);}
