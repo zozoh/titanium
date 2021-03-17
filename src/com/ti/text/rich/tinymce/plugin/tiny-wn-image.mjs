@@ -59,7 +59,9 @@ function CmdInsertImage(editor, oImgs) {
         "wn-obj-id" : oImg.id,
         "wn-obj-sha1" : oImg.sha1,
         "wn-obj-mime" : oImg.mime,
-        "wn-obj-tp"   : oImg.tp
+        "wn-obj-tp"   : oImg.tp,
+        "wn-obj-width" : oImg.width,
+        "wn-obj-height" : oImg.height
       }
     }, $doc)
     frag.appendChild($img)

@@ -5,11 +5,20 @@
   align-content: center;
   flex-wrap: wrap;
   padding: 0.1rem; }
-  .tiw-photo-wall > .wall-tile {
+  .tiw-photo-wall .wall-tile {
     display: block;
     padding: 0.1rem; }
-    .tiw-photo-wall > .wall-tile img {
-      width: 2rem; }
+    .tiw-photo-wall .wall-tile img {
+      width: 2rem;
+      object-fit: cover; }
+  .tiw-photo-wall.pic-fit-fill .wall-tile img {
+    object-fit: fill; }
+  .tiw-photo-wall.pic-fit-cover .wall-tile img {
+    object-fit: cover; }
+  .tiw-photo-wall.pic-fit-contain .wall-tile img {
+    object-fit: contain; }
+  .tiw-photo-wall.pic-fit-none .wall-tile img {
+    object-fit: none; }
   .tiw-photo-wall.item-space-xl .wall-tile {
     padding: 0.3rem; }
   .tiw-photo-wall.item-space-lg .wall-tile {

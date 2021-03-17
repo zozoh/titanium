@@ -302,7 +302,7 @@ async function CmdShowFacebookProp(editor, settings) {
             emptyAs : null,
             comType : "HmPropClassPicker",
             comConf : {
-              dftValue : "flex-none item-space-sm",
+              dftValue : "flex-none item-space-sm pic-fit-cover",
               valueType : "String",
               form : {
                 fields : [{
@@ -327,6 +327,18 @@ async function CmdShowFacebookProp(editor, settings) {
                       {value: "item-space-md", text:"i18n:hmk-class-md"},
                       {value: "item-space-lg", text:"i18n:hmk-class-lg"},
                       {value: "item-space-xl", text:"i18n:hmk-class-xl"}
+                    ]
+                  }
+                }, {
+                  title : "i18n:hmk-class-object-fit",
+                  name : "picFit",
+                  comType : "TiSwitcher",
+                  comConf : {
+                    options : [
+                      {value: "pic-fit-fill",   text:"i18n:hmk-class-object-fit-fill"},
+                      {value: "pic-fit-cover",  text:"i18n:hmk-class-object-fit-cover"},
+                      {value: "pic-fit-contain",text:"i18n:hmk-class-object-fit-contain"},
+                      {value: "pic-fit-none", text:"i18n:hmk-class-object-fit-none"}
                     ]
                   }
                 }]

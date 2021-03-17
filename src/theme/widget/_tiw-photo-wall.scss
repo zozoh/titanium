@@ -2,13 +2,21 @@
   @include flex-align($ai:center, $ac: center);
   padding: SZ(10);
   //-----------------------------------------
-  > .wall-tile {
+  .wall-tile {
     display: block;
     padding: SZ(10);
     //---------------------------------------
-    img {width: SZ(200);}
+    img {
+      width: SZ(200);
+      object-fit: cover;
+    }
     //---------------------------------------
   }
+  //-----------------------------------------
+  &.pic-fit-fill    .wall-tile img {object-fit: fill;}
+  &.pic-fit-cover   .wall-tile img {object-fit: cover;}
+  &.pic-fit-contain .wall-tile img {object-fit: contain;}
+  &.pic-fit-none    .wall-tile img {object-fit: none;}
   //-----------------------------------------
   &.item-space-xl .wall-tile {padding: SZ(30);}
   &.item-space-lg .wall-tile {padding: SZ(24);}

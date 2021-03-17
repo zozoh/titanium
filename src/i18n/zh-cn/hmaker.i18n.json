@@ -1,4 +1,9 @@
 {
+  "hmk-class-object-fit" : "对象填充",
+  "hmk-class-object-fit-fill" : "拉伸",
+  "hmk-class-object-fit-cover" : "封面",
+  "hmk-class-object-fit-contain" : "包含",
+  "hmk-class-object-fit-none" : "无",
   "hmk-css-text-transform" : "文字转换",
   "hmk-css-text-transform-capitalize" : "首大写",
   "hmk-css-text-transform-uppercase" : "全大写",
