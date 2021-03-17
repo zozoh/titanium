@@ -1,4 +1,4 @@
-// Pack At: 2021-03-17 05:38:39
+// Pack At: 2021-03-17 16:54:17
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -37348,7 +37348,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.on("SetContent", function() {
-      console.log("SetContent facebook")
+      //console.log("SetContent facebook")
       let els = editor.$('.wn-media.as-facebook')
       for(let i=0; i<els.length; i++) {
         let el = els[i]

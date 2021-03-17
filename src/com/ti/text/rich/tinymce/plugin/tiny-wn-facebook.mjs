@@ -537,7 +537,7 @@ export default {
     })
     //..............................................
     editor.on("SetContent", function() {
-      console.log("SetContent facebook")
+      //console.log("SetContent facebook")
       let els = editor.$('.wn-media.as-facebook')
       for(let i=0; i<els.length; i++) {
         let el = els[i]
