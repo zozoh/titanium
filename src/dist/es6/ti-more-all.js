@@ -1,4 +1,4 @@
-// Pack At: 2021-03-17 16:54:17
+// Pack At: 2021-03-18 10:56:06
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -34754,6 +34754,8 @@ const _M = {
       let str = this.$editor.getContent()
       //console.log("content", typeof str, `【${str}】`, this.value)
       this.myHtmlCode = str
+
+      return str
     },
     //-----------------------------------------------
     evalCurrentHeading() {
@@ -36280,7 +36282,9 @@ function CmdInsertImage(editor, oImgs) {
         "wn-obj-id" : oImg.id,
         "wn-obj-sha1" : oImg.sha1,
         "wn-obj-mime" : oImg.mime,
-        "wn-obj-tp"   : oImg.tp
+        "wn-obj-tp"   : oImg.tp,
+        "wn-obj-width" : oImg.width,
+        "wn-obj-height" : oImg.height
       }
     }, $doc)
     frag.appendChild($img)
@@ -37113,7 +37117,7 @@ async function CmdShowFacebookProp(editor, settings) {
             emptyAs : null,
             comType : "HmPropClassPicker",
             comConf : {
-              dftValue : "flex-none item-space-sm",
+              dftValue : "flex-none item-space-sm pic-fit-cover",
               valueType : "String",
               form : {
                 fields : [{
@@ -37138,6 +37142,18 @@ async function CmdShowFacebookProp(editor, settings) {
                       {value: "item-space-md", text:"i18n:hmk-class-md"},
                       {value: "item-space-lg", text:"i18n:hmk-class-lg"},
                       {value: "item-space-xl", text:"i18n:hmk-class-xl"}
+                    ]
+                  }
+                }, {
+                  title : "i18n:hmk-class-object-fit",
+                  name : "picFit",
+                  comType : "TiSwitcher",
+                  comConf : {
+                    options : [
+                      {value: "pic-fit-fill",   text:"i18n:hmk-class-object-fit-fill"},
+                      {value: "pic-fit-cover",  text:"i18n:hmk-class-object-fit-cover"},
+                      {value: "pic-fit-contain",text:"i18n:hmk-class-object-fit-contain"},
+                      {value: "pic-fit-none", text:"i18n:hmk-class-object-fit-none"}
                     ]
                   }
                 }]
@@ -61090,6 +61106,11 @@ Ti.Preload("/a/load/wn.manager/wn-manager.mjs", TI_PACK_EXPORTS['/a/load/wn.mana
 // JOIN <hmaker.i18n.json> ti/i18n/en-us/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
+  "hmk-class-object-fit" : "Object fit",
+  "hmk-class-object-fit-fill" : "Fill",
+  "hmk-class-object-fit-cover" : "Cover",
+  "hmk-class-object-fit-contain" : "Contain",
+  "hmk-class-object-fit-none" : "None",
   "hmk-css-text-transform" : "Text trans",
   "hmk-css-text-transform-capitalize" : "Cap",
   "hmk-css-text-transform-uppercase" : "Upper",
@@ -62290,6 +62311,11 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-cn/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
+  "hmk-class-object-fit" : "对象填充",
+  "hmk-class-object-fit-fill" : "拉伸",
+  "hmk-class-object-fit-cover" : "封面",
+  "hmk-class-object-fit-contain" : "包含",
+  "hmk-class-object-fit-none" : "无",
   "hmk-css-text-transform" : "文字转换",
   "hmk-css-text-transform-capitalize" : "首大写",
   "hmk-css-text-transform-uppercase" : "全大写",
@@ -63490,6 +63516,11 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-hk/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
+   "hmk-class-object-fit": "對象填充",
+   "hmk-class-object-fit-fill": "拉伸",
+   "hmk-class-object-fit-cover": "封面",
+   "hmk-class-object-fit-contain": "包含",
+   "hmk-class-object-fit-none": "無",
    "hmk-css-text-transform": "文字轉換",
    "hmk-css-text-transform-capitalize": "首大寫",
    "hmk-css-text-transform-uppercase": "全大寫",

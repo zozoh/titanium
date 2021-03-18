@@ -1,4 +1,4 @@
-// Pack At: 2021-03-17 16:54:17
+// Pack At: 2021-03-18 10:56:06
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1340,11 +1340,11 @@ const Util = (function(){
      */
     getAppLink(meta, {
       appName = "wn.manager",
-      encoded = true
+      encoded = false
     }={}) {
       return WnUtil.getLink(`/a/open/${appName}`, meta, {
         pathKey : "ph",
-        encoded : true
+        encoded
       })
     },
     getAppLinkStr(meta, options) {
@@ -2681,7 +2681,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210317.165417"
+const WALNUT_VERSION = "1.2-20210318.105607"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

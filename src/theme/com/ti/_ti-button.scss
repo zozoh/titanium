@@ -31,6 +31,15 @@
     //------------------------------
   }
   //---------------------------------------------
+  &.as-vertical ul {
+    align-items: stretch;
+    flex-direction: column; 
+    flex-wrap: nowrap;
+    li {
+      margin: SZ(10) 0;
+    }
+  }
+  //---------------------------------------------
   &.is-big {
     li {
       font-size:1.6em;

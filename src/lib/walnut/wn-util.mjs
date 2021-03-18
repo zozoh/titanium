@@ -130,11 +130,11 @@ const WnUtil = {
    */
   getAppLink(meta, {
     appName = "wn.manager",
-    encoded = true
+    encoded = false
   }={}) {
     return WnUtil.getLink(`/a/open/${appName}`, meta, {
       pathKey : "ph",
-      encoded : true
+      encoded
     })
   },
   getAppLinkStr(meta, options) {

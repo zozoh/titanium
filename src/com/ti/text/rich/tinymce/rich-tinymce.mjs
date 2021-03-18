@@ -191,6 +191,8 @@ const _M = {
       let str = this.$editor.getContent()
       //console.log("content", typeof str, `【${str}】`, this.value)
       this.myHtmlCode = str
+
+      return str
     },
     //-----------------------------------------------
     evalCurrentHeading() {
