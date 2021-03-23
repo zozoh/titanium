@@ -143,6 +143,10 @@ const _M = {
       })
       //console.log("pageGUI", formedGUI)
       return theGUI
+    },
+    //-------------------------------------
+    PageShown() {
+      return  Ti.Util.explainObj(this, this.page.shown)
     }
     //-------------------------------------
   },
@@ -211,7 +215,7 @@ const _M = {
       if(loPath != pgLink || !his.state) {
         let pg = _.pick(this.page, "pageUri","href", "path", "params", "anchor");
         pg = _.cloneDeep(pg)
-        console.log("pg", JSON.stringify(pg))
+        //console.log("pg", JSON.stringify(pg))
         // console.log("pageTitle", pageTitle)
         // console.log("pgLink", pgLink)
         his.pushState(pg, pageTitle, pgLink)

@@ -17,6 +17,7 @@ export default {
       N: 0,
       zoom : 0
     },
+    lastMove : undefined
   }),
   //////////////////////////////////////////
   computed : {
@@ -124,6 +125,7 @@ export default {
     //--------------------------------------
     OnMapMove(evt) {
       //console.log("map move", evt)
+      let now = Date.now()
       let bou = this.$map.getBounds()
       this.geo = {
         zoom   : this.$map.getZoom(),
@@ -141,6 +143,15 @@ export default {
       if(this.keepZoomBy) {
         Ti.Storage.local.set(this.keepZoomBy, this.geo.zoom)
       }
+      // If cooling, notify
+      if(!this.__check_cooling && this.cooling > 0) {
+        this.__check_cooling = true
+        window.setTimeout(()=>{
+          this.checkMoveCooling()
+        }, this.cooling + 10)
+      }
+      // lastMove for cooling
+      this.lastMove = now
     },
     //--------------------------------------
     OnMapPointerMove(evt) {
@@ -151,11 +162,26 @@ export default {
       this.pointerClick = evt.latlng
     },
     //--------------------------------------
+    checkMoveCooling() {
+      let now = Date.now()
+      let isCooling = (now - this.lastMove) > this.cooling
+      if(isCooling || !this.lastMove) {
+        this.__check_cooling = false
+        //console.log("notify map move", this.geo)
+        this.$notify("map:move", this.geo)
+      } else {
+        window.setTimeout(()=>{
+          this.checkMoveCooling()
+        }, this.cooling / 2)
+      }
+    },
+    //--------------------------------------
     //
     // Drawing methods
     //
     //--------------------------------------
     redraw() {
+      this.$map.invalidateSize()
       // Prepare the function name
 
       // Clear live layer
@@ -414,7 +440,8 @@ export default {
         //..................................
         "obj-list" : (list=[])=>{
           if(list.length > 1) {
-            let {SW,NE} = Ti.GIS.getLatlngObjBounds(list)
+            let gr = Ti.GIS.getLatlngObjBounds(list)
+            let {SW,NE} = gr
             this.fitBounds([SW, NE])
           } else if(list.length == 1) {
             let latlng = list[0]

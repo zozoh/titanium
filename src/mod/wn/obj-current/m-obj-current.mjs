@@ -80,6 +80,7 @@ const _M = {
     },
     //----------------------------------------
     setDataItem(state, newItem) {
+      console.log("setDataItem:", newItem)
       // Guard
       if(!newItem || !newItem.id)
         return

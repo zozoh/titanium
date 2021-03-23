@@ -41,11 +41,31 @@ export default {
     //-------------------------------------
     // Aspect
     //-------------------------------------
+    "imageStyle": {
+      type: Object,
+      default: undefined
+    },
+    "tags": {
+      type: [String, Array, Object],
+      default: undefined
+    },
+    "tagsStyle": {
+      type: Object,
+      default: undefined
+    },
     "text": {
       type: String,
       default: undefined
     },
     "textStyle": {
+      type: Object,
+      default: undefined
+    },
+    "brief": {
+      type: String,
+      default: undefined
+    },
+    "briefStyle": {
       type: Object,
       default: undefined
     },
@@ -93,8 +113,20 @@ export default {
       })
     },
     //--------------------------------------
+    TagsStyle() {
+      return Ti.Css.toStyle(this.tagsStyle)
+    },
+    //--------------------------------------
+    ImageStyle() {
+      return Ti.Css.toStyle(this.imageStyle)
+    },
+    //--------------------------------------
     TextStyle() {
       return Ti.Css.toStyle(this.textStyle)
+    },
+    //--------------------------------------
+    BriefStyle() {
+      return Ti.Css.toStyle(this.briefStyle)
     },
     //--------------------------------------
     TheZoomLens() {
@@ -159,11 +191,50 @@ export default {
       return Ti.WWW.evalObjPreviewSrc(this.src, this.preview)
     },
     //--------------------------------------
+    TheTags() {
+      if(this.tags) {
+        let tags = _.concat(this.tags)
+        let list = []
+        for(let tag of tags) {
+          if(_.isString(tag)) {
+            list.push({
+              className : undefined,
+              text : tag
+            })
+          } else {
+            let {text,color,className} = tag
+            if(!text) {
+              continue
+            }
+            let style;
+            if(color) {
+              style = {"background-color" : color}
+            }
+            list.push({text, style, className})
+          }
+        }
+        return list
+      }
+    },
+    //--------------------------------------
     TheText() {
       if(this.text) {
         let str = this.text
         if(_.isPlainObject(this.src)) {
           str = Ti.Util.explainObj(this.src, this.text)
+        }
+        if(this.i18n) {
+          str = Ti.I18n.text(str)
+        }
+        return str
+      }
+    },
+    //--------------------------------------
+    TheBrief() {
+      if(this.brief) {
+        let str = this.brief
+        if(_.isPlainObject(this.src)) {
+          str = Ti.Util.explainObj(this.src, this.brief)
         }
         if(this.i18n) {
           str = Ti.I18n.text(str)
@@ -208,7 +279,7 @@ export default {
     },
     //--------------------------------------
     OnClickTop(evt) {
-      if(this.navTo) {
+      if(this.navTo && !this.newtab) {
         evt.preventDefault()
         this.$notify("nav:to", this.navTo)
       }

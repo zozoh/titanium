@@ -81,24 +81,32 @@ const _M = {
     },
     //--------------------------------------
     TheLayout() {
+      let lay = {}
       if(_.isEmpty(this.layout))
-        return {}
+        return lay
       //....................................
       // Raw layout
       if(/^(rows|cols|tabs)$/.test(this.layout.type)) {
-        return this.layout
+        lay = this.layout
       }
       //....................................
       // Auto adapt viewMode
-      let lay = this.layout[this.viewportMode]
-      // Refer onece
-      if(_.isString(lay)) {
-        lay = this.layout[lay]
+      else {
+        lay = this.layout[this.viewportMode]
+        // Refer onece
+        if(_.isString(lay)) {
+          lay = this.layout[lay]
+        }
+        // Refer twice (I think it is enough for most of cases)
+        if(_.isString(lay)) {
+          lay = this.layout[lay]
+        }
       }
-      // Refer twice (I think it is enough for most of cases)
-      if(_.isString(lay)) {
-        lay = this.layout[lay]
-      }
+      //....................................
+      // Filter block
+      lay.blocks = this.filterBlocks(lay.blocks)
+      //....................................
+      // Done
       return lay || {}
     },
     //--------------------------------------
@@ -276,6 +284,24 @@ const _M = {
       this.myViewportHeight = rect.height
     },
     //--------------------------------------
+    filterBlocks(blocks) {
+      let reBlocks = []
+      _.forEach(blocks, bl => {
+        let isShow = true
+        if(bl.name) {
+          isShow = _.get(this.TheShown, bl.name)
+          isShow = Ti.Util.fallback(isShow, true)
+        }
+        if(isShow) {
+          reBlocks.push(bl)
+          if(bl.blocks) {
+            bl.blocks = this.filterBlocks(bl.blocks)
+          }
+        }
+      })
+      return reBlocks
+    },
+    //--------------------------------------
     $block(name) {
       return this.myBlockMap[name]
     },
@@ -294,9 +320,12 @@ const _M = {
   },
   //////////////////////////////////////////
   watch : {
-    "shown" : function(shown) {
-      //console.log("ti-gui shown changed", shown)
-      this.syncMyShown(shown)
+    "shown" : {
+      handler : function(shown) {
+        //console.log("ti-gui shown changed", shown)
+        this.syncMyShown(shown)
+      },
+      immediate : true
     }
   },
   //////////////////////////////////////////

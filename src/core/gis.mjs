@@ -5,6 +5,24 @@ const ee = 0.00669342162296594323;
 ////////////////////////////////////////////////////
 const TiGis = {
   //------------------------------------------------
+  isInBounds(lat, lng, bound) {
+    let {N,S,E,W} = bound
+    if(lat > N || lat < S)
+      return false
+    if(lng > E || lng < W)
+      return false
+    
+    return true
+  },
+  //------------------------------------------------
+  isLatLngObjInBounds({lat, lng}, bound) {
+    return TiGis.isInBounds(lat, lng, bound)
+  },
+  //------------------------------------------------
+  isLatLngPairInBounds([lat, lng], bound) {
+    return TiGis.isInBounds(lat, lng, bound)
+  },
+  //------------------------------------------------
   __build_bounds({N,S,E,W}={}) {
     return {
       N,S,E,W,
@@ -25,6 +43,8 @@ const TiGis = {
       W: 180,  E:-180
     }
     _.forEach(latlngPairs, ([lat,lng])=>{
+      if(!_.isNumber(lng) || !_.isNumber(lat))
+        return
       bo.N = Math.max(lat, bo.N)
       bo.S = Math.min(lat, bo.S)
       bo.E = Math.max(lng, bo.E)
@@ -39,6 +59,8 @@ const TiGis = {
       W: 180,  E:-180
     }
     _.forEach(latlngPairs, ([lng, lat])=>{
+      if(!_.isNumber(lng) || !_.isNumber(lat))
+        return
       bo.N = Math.max(lat, bo.N)
       bo.S = Math.min(lat, bo.S)
       bo.E = Math.max(lng, bo.E)
@@ -53,6 +75,8 @@ const TiGis = {
       W: 180,  E:-180
     }
     _.forEach(latlngObjs, ({lat,lng})=>{
+      if(!_.isNumber(lng) || !_.isNumber(lat))
+        return
       bo.N = Math.max(lat, bo.N)
       bo.S = Math.min(lat, bo.S)
       bo.E = Math.max(lng, bo.E)

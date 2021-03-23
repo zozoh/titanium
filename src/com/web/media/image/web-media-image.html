@@ -7,18 +7,38 @@
   @mousemove="OnMouseMove"
   @mouseleave="OnMouseLeave">
   <!--Image-->
-  <div class="as-img-con">
+  <div
+    class="as-img-con"
+    :style="ImageStyle">
     <img ref="img"
       v-if="TheSrc" 
         :src="TheSrc"
         @load="OnImageLoaded"/>
+    <!-- Tags -->
+    <div
+      v-if="TheTags"
+        class="as-tags">
+        <div
+          v-for="tag of TheTags"
+            class="as-tag-item"
+            :class="tag.className"
+            :style="tag.style">
+            <span>{{tag.text}}</span>
+        </div>
+    </div>
   </div>
   <!--Text-->
   <div
-    v-if="TheText"
+    v-if="TheText || TheBrief"
       class="as-text"
       :style="TextStyle">
-      <span>{{TheText}}</span>
+      <div
+        v-if="TheText"
+          class="as-title"><span>{{TheText}}</span></div>
+      <div
+        v-if="TheBrief"
+          class="as-brief"
+          :style="BriefStyle"><span>{{TheBrief}}</span></div>
   </div>
   <!--Zoom len-->
   <template v-if="zoomLens">

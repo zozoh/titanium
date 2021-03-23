@@ -19,6 +19,16 @@
     display:block;
   }
   //-----------------------------------------
+  .as-tags {
+    @include pos-abs($l:0,$t:0);
+    font-size: SZ(10);
+  }
+  //-----------------------------------------
+  .as-tag-item {
+    @include color($color-primary, r, c);
+    padding: SZ(6) SZ(6);    
+  }
+  //-----------------------------------------
   &.is-fit-none    img {object-fit: unset;}
   &.is-fit-contain img {object-fit: contain;}
   &.is-fit-cover   img {object-fit: cover; }
@@ -26,6 +36,17 @@
   .as-text {
     @include flex-center; 
     @include font-nice;
+    //---------------------------------------
+    .as-brief {
+      @include border(1px, solid, shallow, top);
+      display: block;
+      padding: 1em 0; margin-top: 1em;
+      font-size: 0.9em; opacity: 0.7; 
+      font-weight: normal;
+      text-decoration: none;
+      &:hover {text-decoration: none;}
+    }
+    //---------------------------------------  
   }
   //-----------------------------------------
   .as-zoom-pick {
@@ -80,7 +101,12 @@
     padding: 0.5em 0.6em; 
     color:#FFF;
   }
-    //-----------------------------------------
+  //-----------------------------------------
+  &.text-out.fix-image-size {
+    .as-img-con {flex:0 0 auto;}
+    .as-text {flex:1 1 auto;}
+  }
+  //-----------------------------------------
   &.text-out .as-text{
     padding: 0.5em 0.3em; 
   }
