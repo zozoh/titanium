@@ -214,7 +214,7 @@ const TiPaths = {
    * 'arena>item:change' -> {block:"arena", event:"item:change"} 
    */
   parseHref(href="") {
-    let m = /^((https?):)?((\/\/([^/:]+))(:(\d+))?)?([^?]*)(\?([^#]*))?(#(.*))?$/
+    let m = /^((https?):)?((\/\/([^/:]+))(:(\d+))?)?([^?#]*)(\?([^#]*))?(#(.*))?$/
               .exec(href)
     if(m) {
       let link = {

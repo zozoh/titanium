@@ -6,6 +6,7 @@
   "path"  : null,
   "pageUri": null,
   "pageUriWithParams" : true,
+  "pageAnchorTo" : null,
   "ready" : 0,
   "finger" : null,
   "params" : {},

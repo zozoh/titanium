@@ -1,4 +1,4 @@
-// Pack At: 2021-03-24 11:28:39
+// Pack At: 2021-03-24 13:33:44
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5897,6 +5897,7 @@ const _M = {
     },
     //--------------------------------------------
     changeDataBy({commit}, payload) {
+      //console.log("changeDataBy", payload)
       commit("updateDataBy", payload)
     },
     //--------------------------------------------
@@ -5992,7 +5993,7 @@ const _M = {
     }={}) {
       //.....................................
       let api = _.get(getters.pageApis, key)
-      console.log("doApi", {key, api, params, vars, body})
+      //console.log("doApi", {key, api, params, vars, body})
       //.....................................
       // Guard
       if(!api) {
@@ -6164,7 +6165,7 @@ const _M = {
       pinfo.href = path
       //.....................................
       // Update Path url
-      let {pageUriWithParams} = json
+      let {pageUriWithParams, pageAnchorTo} = json
       let base = rootState.base
       let link = Ti.Util.Link({
         url: path, 
@@ -6187,10 +6188,14 @@ const _M = {
         "actions" : {}
       }, json, pinfo)
       //.....................................
+      // Prepare anchor to data
+      if(pageAnchorTo && anchor) {
+        _.set(page, pageAnchorTo, anchor)
+      }
+      //.....................................
       // Update page 
       commit("set", page)
       //console.log(" #### page.loaded", _.cloneDeep(page))
-
       //.....................................
       // Notify: Prepare
       //console.log("@page:prepare ...")
@@ -22039,6 +22044,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : [Function, String],
       default : undefined
     },
+    "notifyName" : {
+      type : String
+    },
     // Store current array
     // could be Array<Object> Or Object or String
     "currentIds" : {
@@ -22169,14 +22177,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
   methods : {
     //------------------------------------
-    OnClickLink(evt, {type,value,params}={}) {
+    OnClickLink(evt, linkInfo) {
       evt.stopPropagation();
+      let {type, value} = linkInfo
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()
         //console.log("onClickLink", "nav:to", {type,value,params})
         if(value) {
-          this.$notify("nav:to", {type,value,params})
+          let notiName = this.notifyName || "nav:to"
+          this.$notify(notiName, linkInfo)
         }
+      } else if(this.notifyName) {
+        this.$notify(this.notifyName, linkInfo)
       }
     },
     //------------------------------------
@@ -44413,7 +44425,8 @@ const _M = {
         type   : "page",
         value  : entry,
         params : loc.params,
-        anchor : loc.hash,
+        hash   : loc.hash,
+        anchor : loc.anchor,
         pushHistory : false
       })
 
@@ -61037,6 +61050,7 @@ Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "path"  : null,
   "pageUri": null,
   "pageUriWithParams" : true,
+  "pageAnchorTo" : null,
   "ready" : 0,
   "finger" : null,
   "params" : {},
@@ -62027,6 +62041,7 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "all" : "All",
   "attachments" : "Attachments",
   "invalid" : "Invalid",
   "invalid-val" : "Invalid value",
@@ -63238,6 +63253,7 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "all" : "全部",
   "attachments" : "附件",
   "invalid" : "不正确的",
   "invalid-val" : "不正确的值",
@@ -64408,6 +64424,7 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
+   "all": "全部",
    "attachments": "附件",
    "invalid": "不正確的",
    "invalid-val": "不正確的值",

@@ -540,7 +540,8 @@ const _M = {
         type   : "page",
         value  : entry,
         params : loc.params,
-        anchor : loc.hash,
+        hash   : loc.hash,
+        anchor : loc.anchor,
         pushHistory : false
       })
 

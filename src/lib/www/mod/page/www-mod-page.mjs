@@ -244,6 +244,7 @@ const _M = {
     },
     //--------------------------------------------
     changeDataBy({commit}, payload) {
+      //console.log("changeDataBy", payload)
       commit("updateDataBy", payload)
     },
     //--------------------------------------------
@@ -339,7 +340,7 @@ const _M = {
     }={}) {
       //.....................................
       let api = _.get(getters.pageApis, key)
-      console.log("doApi", {key, api, params, vars, body})
+      //console.log("doApi", {key, api, params, vars, body})
       //.....................................
       // Guard
       if(!api) {
@@ -511,7 +512,7 @@ const _M = {
       pinfo.href = path
       //.....................................
       // Update Path url
-      let {pageUriWithParams} = json
+      let {pageUriWithParams, pageAnchorTo} = json
       let base = rootState.base
       let link = Ti.Util.Link({
         url: path, 
@@ -534,10 +535,14 @@ const _M = {
         "actions" : {}
       }, json, pinfo)
       //.....................................
+      // Prepare anchor to data
+      if(pageAnchorTo && anchor) {
+        _.set(page, pageAnchorTo, anchor)
+      }
+      //.....................................
       // Update page 
       commit("set", page)
       //console.log(" #### page.loaded", _.cloneDeep(page))
-
       //.....................................
       // Notify: Prepare
       //console.log("@page:prepare ...")

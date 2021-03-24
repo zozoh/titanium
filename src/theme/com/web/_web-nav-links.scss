@@ -2,6 +2,10 @@
   @include noselect;
   @include flex-align-nowrap;
   //------------------------------------
+  &.as-uppercase  .it-info-text {text-transform: uppercase;}
+  &.as-lowercase  .it-info-text {text-transform: lowercase;}
+  &.as-capitalize .it-info-text {text-transform: capitalize;}
+  //------------------------------------
   &.is-border-solid .link-item.is-top {
     @include border(1px, solid, shallow, left);
     &:first-child {border:0;}

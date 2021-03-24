@@ -1,4 +1,4 @@
-// Pack At: 2021-03-24 11:28:39
+// Pack At: 2021-03-24 13:33:44
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -8469,7 +8469,7 @@ const {Util} = (function(){
        * 'arena>item:change' -> {block:"arena", event:"item:change"} 
        */
       parseHref(href="") {
-        let m = /^((https?):)?((\/\/([^/:]+))(:(\d+))?)?([^?]*)(\?([^#]*))?(#(.*))?$/
+        let m = /^((https?):)?((\/\/([^/:]+))(:(\d+))?)?([^?#]*)(\?([^#]*))?(#(.*))?$/
                   .exec(href)
         if(m) {
           let link = {
@@ -13575,7 +13575,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210324.112839",
+  "version" : "1.6-20210324.133344",
   "dev" : false,
   "appName" : null,
   "session" : {},

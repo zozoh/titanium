@@ -42,6 +42,9 @@ export default {
       type : [Function, String],
       default : undefined
     },
+    "notifyName" : {
+      type : String
+    },
     // Store current array
     // could be Array<Object> Or Object or String
     "currentIds" : {
@@ -172,14 +175,18 @@ export default {
   /////////////////////////////////////////
   methods : {
     //------------------------------------
-    OnClickLink(evt, {type,value,params}={}) {
+    OnClickLink(evt, linkInfo) {
       evt.stopPropagation();
+      let {type, value} = linkInfo
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()
         //console.log("onClickLink", "nav:to", {type,value,params})
         if(value) {
-          this.$notify("nav:to", {type,value,params})
+          let notiName = this.notifyName || "nav:to"
+          this.$notify(notiName, linkInfo)
         }
+      } else if(this.notifyName) {
+        this.$notify(this.notifyName, linkInfo)
       }
     },
     //------------------------------------
