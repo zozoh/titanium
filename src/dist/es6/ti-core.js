@@ -1,4 +1,4 @@
-// Pack At: 2021-03-18 10:56:06
+// Pack At: 2021-03-24 11:28:39
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -11374,6 +11374,24 @@ const {GIS} = (function(){
   ////////////////////////////////////////////////////
   const TiGis = {
     //------------------------------------------------
+    isInBounds(lat, lng, bound) {
+      let {N,S,E,W} = bound
+      if(lat > N || lat < S)
+        return false
+      if(lng > E || lng < W)
+        return false
+      
+      return true
+    },
+    //------------------------------------------------
+    isLatLngObjInBounds({lat, lng}, bound) {
+      return TiGis.isInBounds(lat, lng, bound)
+    },
+    //------------------------------------------------
+    isLatLngPairInBounds([lat, lng], bound) {
+      return TiGis.isInBounds(lat, lng, bound)
+    },
+    //------------------------------------------------
     __build_bounds({N,S,E,W}={}) {
       return {
         N,S,E,W,
@@ -11394,6 +11412,8 @@ const {GIS} = (function(){
         W: 180,  E:-180
       }
       _.forEach(latlngPairs, ([lat,lng])=>{
+        if(!_.isNumber(lng) || !_.isNumber(lat))
+          return
         bo.N = Math.max(lat, bo.N)
         bo.S = Math.min(lat, bo.S)
         bo.E = Math.max(lng, bo.E)
@@ -11408,6 +11428,8 @@ const {GIS} = (function(){
         W: 180,  E:-180
       }
       _.forEach(latlngPairs, ([lng, lat])=>{
+        if(!_.isNumber(lng) || !_.isNumber(lat))
+          return
         bo.N = Math.max(lat, bo.N)
         bo.S = Math.min(lat, bo.S)
         bo.E = Math.max(lng, bo.E)
@@ -11422,6 +11444,8 @@ const {GIS} = (function(){
         W: 180,  E:-180
       }
       _.forEach(latlngObjs, ({lat,lng})=>{
+        if(!_.isNumber(lng) || !_.isNumber(lat))
+          return
         bo.N = Math.max(lat, bo.N)
         bo.S = Math.min(lat, bo.S)
         bo.E = Math.max(lng, bo.E)
@@ -13551,7 +13575,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210318.105606",
+  "version" : "1.6-20210324.112839",
   "dev" : false,
   "appName" : null,
   "session" : {},

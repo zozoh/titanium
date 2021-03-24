@@ -1,4 +1,4 @@
-// Pack At: 2021-03-18 10:56:06
+// Pack At: 2021-03-24 11:28:39
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -11304,6 +11304,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       N: 0,
       zoom : 0
     },
+    lastMove : undefined
   }),
   //////////////////////////////////////////
   computed : {
@@ -11411,6 +11412,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     OnMapMove(evt) {
       //console.log("map move", evt)
+      let now = Date.now()
       let bou = this.$map.getBounds()
       this.geo = {
         zoom   : this.$map.getZoom(),
@@ -11428,6 +11430,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if(this.keepZoomBy) {
         Ti.Storage.local.set(this.keepZoomBy, this.geo.zoom)
       }
+      // If cooling, notify
+      if(!this.__check_cooling && this.cooling > 0) {
+        this.__check_cooling = true
+        window.setTimeout(()=>{
+          this.checkMoveCooling()
+        }, this.cooling + 10)
+      }
+      // lastMove for cooling
+      this.lastMove = now
     },
     //--------------------------------------
     OnMapPointerMove(evt) {
@@ -11438,11 +11449,26 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.pointerClick = evt.latlng
     },
     //--------------------------------------
+    checkMoveCooling() {
+      let now = Date.now()
+      let isCooling = (now - this.lastMove) > this.cooling
+      if(isCooling || !this.lastMove) {
+        this.__check_cooling = false
+        //console.log("notify map move", this.geo)
+        this.$notify("map:move", this.geo)
+      } else {
+        window.setTimeout(()=>{
+          this.checkMoveCooling()
+        }, this.cooling / 2)
+      }
+    },
+    //--------------------------------------
     //
     // Drawing methods
     //
     //--------------------------------------
     redraw() {
+      this.$map.invalidateSize()
       // Prepare the function name
 
       // Clear live layer
@@ -11701,7 +11727,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
         //..................................
         "obj-list" : (list=[])=>{
           if(list.length > 1) {
-            let {SW,NE} = Ti.GIS.getLatlngObjBounds(list)
+            let gr = Ti.GIS.getLatlngObjBounds(list)
+            let {SW,NE} = gr
             this.fitBounds([SW, NE])
           } else if(list.length == 1) {
             let latlng = list[0]
@@ -16576,6 +16603,7 @@ const _M = {
     },
     //----------------------------------------
     setDataItem(state, newItem) {
+      console.log("setDataItem:", newItem)
       // Guard
       if(!newItem || !newItem.id)
         return
@@ -18936,11 +18964,31 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-------------------------------------
     // Aspect
     //-------------------------------------
+    "imageStyle": {
+      type: Object,
+      default: undefined
+    },
+    "tags": {
+      type: [String, Array, Object],
+      default: undefined
+    },
+    "tagsStyle": {
+      type: Object,
+      default: undefined
+    },
     "text": {
       type: String,
       default: undefined
     },
     "textStyle": {
+      type: Object,
+      default: undefined
+    },
+    "brief": {
+      type: String,
+      default: undefined
+    },
+    "briefStyle": {
       type: Object,
       default: undefined
     },
@@ -18988,8 +19036,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
       })
     },
     //--------------------------------------
+    TagsStyle() {
+      return Ti.Css.toStyle(this.tagsStyle)
+    },
+    //--------------------------------------
+    ImageStyle() {
+      return Ti.Css.toStyle(this.imageStyle)
+    },
+    //--------------------------------------
     TextStyle() {
       return Ti.Css.toStyle(this.textStyle)
+    },
+    //--------------------------------------
+    BriefStyle() {
+      return Ti.Css.toStyle(this.briefStyle)
     },
     //--------------------------------------
     TheZoomLens() {
@@ -19054,11 +19114,50 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return Ti.WWW.evalObjPreviewSrc(this.src, this.preview)
     },
     //--------------------------------------
+    TheTags() {
+      if(this.tags) {
+        let tags = _.concat(this.tags)
+        let list = []
+        for(let tag of tags) {
+          if(_.isString(tag)) {
+            list.push({
+              className : undefined,
+              text : tag
+            })
+          } else {
+            let {text,color,className} = tag
+            if(!text) {
+              continue
+            }
+            let style;
+            if(color) {
+              style = {"background-color" : color}
+            }
+            list.push({text, style, className})
+          }
+        }
+        return list
+      }
+    },
+    //--------------------------------------
     TheText() {
       if(this.text) {
         let str = this.text
         if(_.isPlainObject(this.src)) {
           str = Ti.Util.explainObj(this.src, this.text)
+        }
+        if(this.i18n) {
+          str = Ti.I18n.text(str)
+        }
+        return str
+      }
+    },
+    //--------------------------------------
+    TheBrief() {
+      if(this.brief) {
+        let str = this.brief
+        if(_.isPlainObject(this.src)) {
+          str = Ti.Util.explainObj(this.src, this.brief)
         }
         if(this.i18n) {
           str = Ti.I18n.text(str)
@@ -19103,7 +19202,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     OnClickTop(evt) {
-      if(this.navTo) {
+      if(this.navTo && !this.newtab) {
         evt.preventDefault()
         this.$notify("nav:to", this.navTo)
       }
@@ -31949,6 +32048,10 @@ const _M = {
       })
       //console.log("pageGUI", formedGUI)
       return theGUI
+    },
+    //-------------------------------------
+    PageShown() {
+      return  Ti.Util.explainObj(this, this.page.shown)
     }
     //-------------------------------------
   },
@@ -32017,7 +32120,7 @@ const _M = {
       if(loPath != pgLink || !his.state) {
         let pg = _.pick(this.page, "pageUri","href", "path", "params", "anchor");
         pg = _.cloneDeep(pg)
-        console.log("pg", JSON.stringify(pg))
+        //console.log("pg", JSON.stringify(pg))
         // console.log("pageTitle", pageTitle)
         // console.log("pgLink", pgLink)
         his.pushState(pg, pageTitle, pgLink)
@@ -41950,24 +42053,32 @@ const _M = {
     },
     //--------------------------------------
     TheLayout() {
+      let lay = {}
       if(_.isEmpty(this.layout))
-        return {}
+        return lay
       //....................................
       // Raw layout
       if(/^(rows|cols|tabs)$/.test(this.layout.type)) {
-        return this.layout
+        lay = this.layout
       }
       //....................................
       // Auto adapt viewMode
-      let lay = this.layout[this.viewportMode]
-      // Refer onece
-      if(_.isString(lay)) {
-        lay = this.layout[lay]
+      else {
+        lay = this.layout[this.viewportMode]
+        // Refer onece
+        if(_.isString(lay)) {
+          lay = this.layout[lay]
+        }
+        // Refer twice (I think it is enough for most of cases)
+        if(_.isString(lay)) {
+          lay = this.layout[lay]
+        }
       }
-      // Refer twice (I think it is enough for most of cases)
-      if(_.isString(lay)) {
-        lay = this.layout[lay]
-      }
+      //....................................
+      // Filter block
+      lay.blocks = this.filterBlocks(lay.blocks)
+      //....................................
+      // Done
       return lay || {}
     },
     //--------------------------------------
@@ -42145,6 +42256,24 @@ const _M = {
       this.myViewportHeight = rect.height
     },
     //--------------------------------------
+    filterBlocks(blocks) {
+      let reBlocks = []
+      _.forEach(blocks, bl => {
+        let isShow = true
+        if(bl.name) {
+          isShow = _.get(this.TheShown, bl.name)
+          isShow = Ti.Util.fallback(isShow, true)
+        }
+        if(isShow) {
+          reBlocks.push(bl)
+          if(bl.blocks) {
+            bl.blocks = this.filterBlocks(bl.blocks)
+          }
+        }
+      })
+      return reBlocks
+    },
+    //--------------------------------------
     $block(name) {
       return this.myBlockMap[name]
     },
@@ -42163,9 +42292,12 @@ const _M = {
   },
   //////////////////////////////////////////
   watch : {
-    "shown" : function(shown) {
-      //console.log("ti-gui shown changed", shown)
-      this.syncMyShown(shown)
+    "shown" : {
+      handler : function(shown) {
+        //console.log("ti-gui shown changed", shown)
+        this.syncMyShown(shown)
+      },
+      immediate : true
     }
   },
   //////////////////////////////////////////
@@ -43637,6 +43769,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default : ()=>({
       
     })
+  },
+  "cooling" : {
+    type : Number,
+    default : 500
   },
   //-----------------------------------
   // Aspect
@@ -55984,18 +56120,38 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   @mousemove="OnMouseMove"
   @mouseleave="OnMouseLeave">
   <!--Image-->
-  <div class="as-img-con">
+  <div
+    class="as-img-con"
+    :style="ImageStyle">
     <img ref="img"
       v-if="TheSrc" 
         :src="TheSrc"
         @load="OnImageLoaded"/>
+    <!-- Tags -->
+    <div
+      v-if="TheTags"
+        class="as-tags">
+        <div
+          v-for="tag of TheTags"
+            class="as-tag-item"
+            :class="tag.className"
+            :style="tag.style">
+            <span>{{tag.text}}</span>
+        </div>
+    </div>
   </div>
   <!--Text-->
   <div
-    v-if="TheText"
+    v-if="TheText || TheBrief"
       class="as-text"
       :style="TextStyle">
-      <span>{{TheText}}</span>
+      <div
+        v-if="TheText"
+          class="as-title"><span>{{TheText}}</span></div>
+      <div
+        v-if="TheBrief"
+          class="as-brief"
+          :style="BriefStyle"><span>{{TheBrief}}</span></div>
   </div>
   <!--Zoom len-->
   <template v-if="zoomLens">
@@ -60799,7 +60955,7 @@ Ti.Preload("ti/lib/www/com/site-main.html", `<div class="site-main" @click.right
     class="site-page"
     v-bind="PageGUI"
     :loading-as="loading"
-    :shown="page.shown"/>
+    :shown="PageShown"/>
   <!--pre>{{page}}</pre-->
 </div>`);
 //========================================
@@ -61871,6 +62027,7 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "attachments" : "Attachments",
   "invalid" : "Invalid",
   "invalid-val" : "Invalid value",
   "img" : "Image",
@@ -61920,6 +62077,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "clean": "Clean",
   "clear": "Clear",
   "close": "Close",
+  "color": "Color",
   "confirm": "Confirm",
   "console": "Console",
   "content": "Content",
@@ -62085,6 +62243,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "map-satellite": "SATELLITE",
   "map-terrain": "TERRAIN",
   "map-type": "Map type",
+  "map-location" : "Map location",
+  "map-location-edit" : "Edit map location",
+  "map-location-clear" : "Clear map location",
   "me": "Me",
   "media": "Media",
   "meta": "Meta data",
@@ -62184,6 +62345,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "structure": "Structure",
   "success": "Success",
   "sys-settings": "System settings",
+  "tags" : "Tags",
   "tablet": "Tablet",
   "terminal": "Terminal",
   "terminate": "Terminate",
@@ -63076,6 +63238,7 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "attachments" : "附件",
   "invalid" : "不正确的",
   "invalid-val" : "不正确的值",
   "img" : "图像",
@@ -63125,6 +63288,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "clean": "清理",
   "clear": "清除",
   "close": "关闭",
+  "color": "颜色",
   "confirm": "确认",
   "console": "控制台",
   "content": "内容",
@@ -63290,6 +63454,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "map-satellite": "卫星照片",
   "map-terrain": "地形地图",
   "map-type": "地图类型",
+  "map-location" : "地图位置",
+  "map-location-edit" : "编辑地图位置...",
+  "map-location-clear" : "清除地图位置",
   "me": "我",
   "media": "媒体",
   "meta": "元数据",
@@ -63389,6 +63556,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "structure": "结构",
   "success": "成功",
   "sys-settings": "系统设置",
+  "tags" : "标签",
   "tablet": "平板",
   "terminal": "终端",
   "terminate": "终止",
@@ -64240,6 +64408,7 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
+   "attachments": "附件",
    "invalid": "不正確的",
    "invalid-val": "不正確的值",
    "img": "圖像",
@@ -64289,6 +64458,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "clean": "清理",
    "clear": "清除",
    "close": "關閉",
+   "color": "顏色",
    "confirm": "確認",
    "console": "控制檯",
    "content": "內容",
@@ -64454,6 +64624,9 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "map-satellite": "衛星照片",
    "map-terrain": "地形地圖",
    "map-type": "地圖類型",
+   "map-location": "地圖位置",
+   "map-location-edit": "編輯地圖位置...",
+   "map-location-clear": "清除地圖位置",
    "me": "我",
    "media": "媒體",
    "meta": "元數據",
@@ -64553,6 +64726,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "structure": "結構",
    "success": "成功",
    "sys-settings": "系統設置",
+   "tags": "標籤",
    "tablet": "平板",
    "terminal": "終端",
    "terminate": "終止",
