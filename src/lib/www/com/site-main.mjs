@@ -9,6 +9,7 @@ const _M = {
         "siteId"    : state=>state.siteId,
         "logo"      : state=>state.logo,
         "lang"      : state=>state.lang,
+        "analyzers" : state=>state.analyzers,
         "langName"  : state=>state.langName,
         "utils"     : state=>state.utils,
         "page"      : state=>state.page,
@@ -221,6 +222,32 @@ const _M = {
         his.pushState(pg, pageTitle, pgLink)
       }
       //...................................
+    },
+    //-------------------------------------
+    invokeAnalyzers() {
+      // Guard
+      if(_.isEmpty(this.analyzers))
+        return
+
+      // Clean all
+      let $scripts = Ti.Dom.findAll('script[ti-analyzer]')
+      for(let $script of $scripts) {
+        Ti.Dom.remove($script)
+      }
+
+      // Create
+      for(let an of this.analyzers) {
+        //console.log("an:", an)
+        let src = an
+        let $script = Ti.Dom.createElement({
+          tagName : "script",
+          attrs : {
+            "ti-analyzer" : true
+          },
+          props : {src}
+        })
+        Ti.Dom.appendToHead($script)
+      }
     }
     //-------------------------------------
   },
@@ -234,6 +261,7 @@ const _M = {
       this.pushBrowserHistory(pageTitle)
 
       // TODO : Maybe here to embed the BaiDu Tongji Code
+      this.invokeAnalyzers()
     }
   },
   /////////////////////////////////////////

@@ -1,4 +1,4 @@
-// Pack At: 2021-03-24 13:33:44
+// Pack At: 2021-03-24 15:04:20
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5819,6 +5819,7 @@ const _M = {
     // Page finger to indicate the page changed
     // watch the filter can auto update document title
     updateFinger(state) {
+      // console.log("updateFinger")
       let ss = [state.path, state.params, state.anchor, state.data]
       let sha1 = Ti.Alg.sha1(ss)
       state.finger = sha1
@@ -6082,7 +6083,6 @@ const _M = {
       //.......................................
       // Unmark loading
       commit("setLoading", false, {root:true})
-      commit("updateFinger")
       //.......................................
       // // Get return value
       // let reKeys = []
@@ -6223,9 +6223,10 @@ const _M = {
       //.....................................
       // Load the after page api
       if(!_.isEmpty(afterLoads.length)) {
-        dispatch("reloadData", afterLoads)
+        await dispatch("reloadData", afterLoads)
       }
       //.....................................
+      commit("updateFinger")
     }
     //--------------------------------------------
   }
@@ -22456,7 +22457,7 @@ const _M = {
     },
     //--------------------------------------
     OnUpdateActions(actions) {
-      //console.log("OnUpdateAction", actions)
+      console.log("OnUpdateAction", actions)
       this.actions = _.cloneDeep(actions)
       Ti.App(this).reWatchShortcut(actions)
     },
@@ -31926,6 +31927,7 @@ const _M = {
         "siteId"    : state=>state.siteId,
         "logo"      : state=>state.logo,
         "lang"      : state=>state.lang,
+        "analyzers" : state=>state.analyzers,
         "langName"  : state=>state.langName,
         "utils"     : state=>state.utils,
         "page"      : state=>state.page,
@@ -32138,6 +32140,32 @@ const _M = {
         his.pushState(pg, pageTitle, pgLink)
       }
       //...................................
+    },
+    //-------------------------------------
+    invokeAnalyzers() {
+      // Guard
+      if(_.isEmpty(this.analyzers))
+        return
+
+      // Clean all
+      let $scripts = Ti.Dom.findAll('script[ti-analyzer]')
+      for(let $script of $scripts) {
+        Ti.Dom.remove($script)
+      }
+
+      // Create
+      for(let an of this.analyzers) {
+        //console.log("an:", an)
+        let src = an
+        let $script = Ti.Dom.createElement({
+          tagName : "script",
+          attrs : {
+            "ti-analyzer" : true
+          },
+          props : {src}
+        })
+        Ti.Dom.appendToHead($script)
+      }
     }
     //-------------------------------------
   },
@@ -32151,6 +32179,7 @@ const _M = {
       this.pushBrowserHistory(pageTitle)
 
       // TODO : Maybe here to embed the BaiDu Tongji Code
+      this.invokeAnalyzers()
     }
   },
   /////////////////////////////////////////
@@ -61226,9 +61255,8 @@ Ti.Preload("/a/load/wn.manager/gui/schema.json", {
 Ti.Preload("/a/load/wn.manager/gui/setup.json", {
   "shown" : {
     "desktop" : {
-      "logo"         : "==theLogo",
-      "menu"         : "==theMenu",
-      "sessionBadge" : "==theSessionBadge"
+      "logo"    : "==Logo",
+      "session" : "==SessionBadge"
     },
     "tablet"  : {},
     "phone"   : {}

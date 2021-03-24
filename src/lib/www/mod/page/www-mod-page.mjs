@@ -166,6 +166,7 @@ const _M = {
     // Page finger to indicate the page changed
     // watch the filter can auto update document title
     updateFinger(state) {
+      // console.log("updateFinger")
       let ss = [state.path, state.params, state.anchor, state.data]
       let sha1 = Ti.Alg.sha1(ss)
       state.finger = sha1
@@ -429,7 +430,6 @@ const _M = {
       //.......................................
       // Unmark loading
       commit("setLoading", false, {root:true})
-      commit("updateFinger")
       //.......................................
       // // Get return value
       // let reKeys = []
@@ -570,9 +570,10 @@ const _M = {
       //.....................................
       // Load the after page api
       if(!_.isEmpty(afterLoads.length)) {
-        dispatch("reloadData", afterLoads)
+        await dispatch("reloadData", afterLoads)
       }
       //.....................................
+      commit("updateFinger")
     }
     //--------------------------------------------
   }

@@ -226,7 +226,7 @@ const _M = {
     },
     //--------------------------------------
     OnUpdateActions(actions) {
-      //console.log("OnUpdateAction", actions)
+      console.log("OnUpdateAction", actions)
       this.actions = _.cloneDeep(actions)
       Ti.App(this).reWatchShortcut(actions)
     },
