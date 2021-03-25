@@ -51,7 +51,7 @@ const _M = {
             'bold italic underline link',
             'blockquote bullist numlist',
             'blocks',
-            'table WnImgPick WnVideoPick WnYoutubePick WnFacebookPick',
+            'table WnImgPick WnVideoPick WnAudioPick WnYoutubePick WnFacebookPick',
             'superscript subscript',
             'edit removeformat',
             'TiPreview']

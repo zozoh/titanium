@@ -51,10 +51,23 @@ body.mce-content-body {
     //---------------------------------------------------
     .media-inner {
       @include flex-center;
-      flex:1 1 auto; font-size: SZ(64);
+      width: 100%; height:100%;
+      flex:1 1 auto; 
       background-repeat: no-repeat;
       background-size: cover; 
       background-position: center;
+      .media-font-icon {
+        @include flex-center;
+        color: rgba(255,255,255,0.8);
+        background-color: rgba(0,0,0,0.4);
+        width: SZ(80); height: SZ(80);
+        border-radius: 50%;
+        font-size: SZ(48);
+      }
+    }
+    //---------------------------------------------------
+    &.as-video {
+      height: 5rem;
     }
     //---------------------------------------------------
     &.as-youtube {

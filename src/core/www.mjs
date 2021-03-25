@@ -361,6 +361,7 @@ const TiWWW = {
           "body", 
           "preload",
           "ssr",
+          "test",
           "transformer", 
           "dataKey",
           "dataMerge",

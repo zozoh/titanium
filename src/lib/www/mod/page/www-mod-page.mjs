@@ -421,7 +421,10 @@ const _M = {
       // Prepare the Promises
       let allApis = []
       for(let api of apis) {
-        //console.log("  # -> page.reloadData -> prepareApi", api)
+        // console.log("  # -> page.reloadData -> prepareApi", api)
+        if(api.test && !Ti.AutoMatch.test(api.test, rootState)) {
+          continue;
+        }
         allApis.push(dispatch("__run_api", {api}))
       }
       //.......................................

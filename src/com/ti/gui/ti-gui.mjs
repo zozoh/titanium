@@ -104,7 +104,7 @@ const _M = {
       }
       //....................................
       // Filter block
-      lay.blocks = this.filterBlocks(lay.blocks)
+      lay.blocks = this.filterBlocks(lay.blocks, lay.type)
       //....................................
       // Done
       return lay || {}
@@ -284,18 +284,18 @@ const _M = {
       this.myViewportHeight = rect.height
     },
     //--------------------------------------
-    filterBlocks(blocks) {
+    filterBlocks(blocks, type) {
       let reBlocks = []
       _.forEach(blocks, bl => {
         let isShow = true
-        if(bl.name) {
+        if("tabs" != type && bl.name) {
           isShow = _.get(this.TheShown, bl.name)
           isShow = Ti.Util.fallback(isShow, true)
         }
         if(isShow) {
           reBlocks.push(bl)
           if(bl.blocks) {
-            bl.blocks = this.filterBlocks(bl.blocks)
+            bl.blocks = this.filterBlocks(bl.blocks, bl.type)
           }
         }
       })
