@@ -1,0 +1,26 @@
+<div class="ti-text-rich-tinymce"
+  :class="TopClass"
+  v-ti-activable>
+  <!--
+    Editor
+  -->
+  <div class="as-editor">
+    <textarea ref="editor"></textarea>
+  </div>
+  <!--
+    Show loading
+  -->
+  <TiLoading
+    v-if="isContentLoading"
+      class="as-nil-mask as-big-mask"
+      :style="BlankComStyle"
+      v-bind="loadingAs"/>
+  <!--
+    Show blank
+  -->
+  <component
+    v-else-if="isContentNil"
+      :style="BlankComStyle"
+      :is="blankAs.comType"
+      v-bind="blankAs.comConf"/>
+</div>
