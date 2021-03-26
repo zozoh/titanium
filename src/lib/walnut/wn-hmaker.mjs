@@ -35,6 +35,20 @@ const COLOR = {
   comType : "ti-input-color"
 };
 //------------------------------------------------------
+const FLOAT = {
+  title : "i18n:hmk-css-float",
+  name : "float",
+  fieldWidth : "100%",
+  comType : "ti-switcher",
+  comConf : {
+    options : [
+      {value: "none",  text: "i18n:hmk-css-float-none",  icon:"fas-align-justify"},
+      {value: "left",  text: "i18n:hmk-css-float-left",  icon:"fas-align-left"},
+      {value: "right", text: "i18n:hmk-css-float-right", icon:"fas-align-right"}
+    ]
+  }
+};
+//------------------------------------------------------
 const BOX_SHADOW = {
   title : "i18n:hmk-css-box-shadow",
   name : "box-shadow",
@@ -50,6 +64,7 @@ const TEXT_SHADOW = {
 const OVERFLOW = {
   title : "i18n:hmk-css-overflow",
   name : "overflow",
+  fieldWidth : "100%",
   comType : "ti-switcher",
   comConf : {
     options : [
@@ -110,9 +125,16 @@ const LETTER_SPACING = {
   comType : "ti-input"
 };
 //------------------------------------------------------
+const FONT_SIZE = {
+  title : "i18n:hmk-css-font-size",
+  name : "font-size",
+  comType : "ti-input"
+};
+//------------------------------------------------------
 const TEXT_TRANSFORM = {
   title : "i18n:hmk-css-text-transform",
   name : "text-transform",
+  fieldWidth : "100%",
   comType : "ti-switcher",
   comConf : {
     options : [
@@ -130,6 +152,8 @@ const CSS_PROPS = {
   "border-radius"  : BORDER_RADIUS,
   "box-shadow"     : BOX_SHADOW,
   "color"          : COLOR,
+  "float"          : FLOAT,
+  "font-size"      : FONT_SIZE,
   "height"         : HEIGHT,
   "letter-spacing" : LETTER_SPACING,
   "line-height"    : LINE_HEIGHT,
@@ -146,31 +170,32 @@ const CSS_PROPS = {
 }
 ////////////////////////////////////////////////////////
 const CSS_GROUPING = {
-  texting : [
-    "text-transform",
-    "letter-spacing",
-    "line-height",
-    "text-shadow"],
   aspect : [
     "border",
+    "margin",
+    "padding",
+    "border-radius",
     "background",
     "color",
-    "border-radius",
     "box-shadow",
+    "float",
     "overflow"],
   measure : [
-    "padding",
-    "margin",
     "width",
     "height",
     "min-height",
     "min-width",
     "max-height",
-    "max-width",
-  ]
+    "max-width"],
+  texting : [
+    "text-transform",
+    "font-size",
+    "letter-spacing",
+    "line-height",
+    "text-shadow"]
 }
 ////////////////////////////////////////////////////////
-export default {
+const WnHMaker = {
   //----------------------------------------------------
   /**
    * Get css prop display text.
@@ -179,12 +204,19 @@ export default {
    * 
    * @return  the prop display title text.
    */
-  getCssPropTitle(name) {
+   getCssPropTitle(name) {
     let fld = CSS_PROPS[name]
     if(fld) {
       return fld.title
     }
     return name
+  },
+  //----------------------------------------------------
+  getCssPropField(name, setting={}) {
+    let fld = _.cloneDeep(CSS_PROPS[name])
+    if(fld) {
+      return _.merge(fld, setting)
+    }
   },
   //----------------------------------------------------
   /**
@@ -214,8 +246,14 @@ export default {
         }
       }
       if(fields.length > 0) {
+        let className = ({
+          aspect  : "as-vertical col-2",
+          measure : "as-vertical col-2",
+          texting : "as-vertical col-2"
+        })[gnm]
         re.push({
           title : `i18n:hmk-css-grp-${gnm}`,
+          className,
           fields
         })
       }
@@ -226,3 +264,5 @@ export default {
   }
   //----------------------------------------------------
 }
+////////////////////////////////////////////////////////
+export default WnHMaker;

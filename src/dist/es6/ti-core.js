@@ -1,4 +1,4 @@
-// Pack At: 2021-03-25 14:50:01
+// Pack At: 2021-03-26 09:06:55
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3652,6 +3652,11 @@ const {Dom} = (function(){
           if(_.isBoolean(key)) {
             key = name
           }
+          if("true" == value) {
+            value = true
+          } else if ("false" == value) {
+            value = false
+          }
           re[key] = value
         }
       }
@@ -3690,6 +3695,53 @@ const {Dom} = (function(){
         }
       }
       return re
+    },
+    //----------------------------------------------------
+    getOwnStyle($el, filter=true) {
+      return TiDom.parseCssRule($el.getAttribute("style"), filter)
+    },
+    //----------------------------------------------------
+    parseCssRule(rule="", filter=true) {
+      rule = _.trim(rule)
+      if(Ti.S.isBlank(rule)) {
+        return {}
+      }
+      filter = this.attrFilter(filter)
+      let re = {}
+      let ss = rule.split(";")
+      for(let s of ss) {
+        if(Ti.S.isBlank(s))
+          continue
+        let [name, value] = s.split(":");
+        name  = _.trim(name)
+        value = _.trim(value)
+        let key = filter(name, value)
+        if(key) {
+          if(_.isBoolean(key)) {
+            key = _.camelCase(name)
+          }
+          re[key] = value
+        }
+      }
+      return re
+    },
+    //----------------------------------------------------
+    renderCssRule(css={}) {
+      let list = []
+      _.forEach(css, (val, key)=>{
+        if(_.isNull(val) || _.isUndefined(val) || Ti.S.isBlank(val)) 
+          return
+        let pnm = _.kebabCase(key)
+        // Empty string to remove one propperty
+        if(_.isNumber(val)) {
+          list.push(`${pnm}:${val}px`)
+        }
+        // Set the property
+        else {
+          list.push(`${pnm}:${val}`)
+        }
+      })
+      return list.join(";")
     },
     //----------------------------------------------------
     getData($el, filter=true) {
@@ -4053,6 +4105,15 @@ const {Dom} = (function(){
     },
     //----------------------------------------------------
     setStyle($el, css={}) {
+      if(_.isEmpty(css)) {
+        $el.style = ""
+        return
+      }
+      let cssStyle = TiDom.renderCssRule(css)
+      $el.style = cssStyle
+    },
+    //----------------------------------------------------
+    updateStyle($el, css={}) {
       if(_.isEmpty(css)) {
         $el.style = ""
         return
@@ -13576,7 +13637,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210325.145001",
+  "version" : "1.6-20210326.090655",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -1,23 +1,46 @@
 ////////////////////////////////////////////////////
-async function pickFacebookAndInsertToDoc(editor, settings) {
-  let {meta, data} = await settings.load()
+async function pickAlbumAndInsertToDoc(editor, {
+  base = "~", 
+  autoCreate=null, 
+  fallbackPath,
+}) {
   // Check base
-  let reo = await Ti.App.Open({
-    icon  : "fas-image",
-    title : "Facebook",
+  if(_.isPlainObject(autoCreate)) {
+    let oBase = await Wn.Io.loadMeta(base)
+    if(!oBase) {
+      let pph = Ti.Util.getParentPath(base)
+      let dnm = Ti.Util.getFileName(base)
+      let baseMeta = _.assign({}, autoCreate, {
+        race: 'DIR', nm : dnm
+      })
+      let baseJson = JSON.stringify(baseMeta)
+      let cmdText = `o @create '${baseJson}' -p ${pph} -auto @json -cqn`
+      oBase = await Wn.Sys.exec2(cmdText, {as:"json"})
+    }
+    base = oBase
+  }
+
+  // Show dialog
+  let reo = await Wn.OpenObjSelector(base, {
+    icon  : "far-images",
+    title : "i18n:album-insert",
     position : "top",
     width  : "95%",
     height : "95%",
-    comType : "NetFacebookAlbums",
-    comConf : {
-      meta, 
-      ... data,
-      notifyName : "change"
+    multi : false,
+    filter : o => "DIR" == o.race,
+    search : {
+      filter : {
+        match : {
+          race : "DIR"
+        }
+      },
+      sorter : {nm : 1}
     },
-    components : [
-      "@com:net/facebook/albums"
-    ]
+    fallbackPath
   })
+
+  console.log(reo)
 
   // User canceled
   if(_.isEmpty(reo)) {
@@ -25,17 +48,17 @@ async function pickFacebookAndInsertToDoc(editor, settings) {
   }
 
   // Do insert image
-  editor.execCommand("InsertFacebook", editor, reo)
+  editor.execCommand("InsertAlbum", editor, reo[0])
 }
 ////////////////////////////////////////////////////
-function GetFacebookAttrsByElement(elFacebook) {
+function GetAlbumAttrsByElement(elAlbum) {
   // Top Style
-  let stl = Ti.Dom.getStyle(elFacebook, 
+  let stl = Ti.Dom.getStyle(elAlbum, 
     /^(width|height|float|(margin-(left|right|top|bottom)))$/)
   stl.float = stl.float || "none"
   //
   // Wall Style
-  let $wall = Ti.Dom.find(".tiw-photo-wall", elFacebook)
+  let $wall = Ti.Dom.find(".tiw-photo-wall", elAlbum)
   let wallClass = ""
   let wallStyle = {}
   let tileClass = ""
@@ -49,20 +72,22 @@ function GetFacebookAttrsByElement(elFacebook) {
     picStyle = Ti.Dom.parseCssRule($wall.getAttribute("wn-pic-style"))
   }
   return {
-    id   : elFacebook.getAttribute("wn-fb-id"),
-    name  : elFacebook.getAttribute("wn-fb-name"),
-    link  : elFacebook.getAttribute("wn-fb-link"),
+    id : elAlbum.getAttribute("wn-obj-id"),
+    nm : elAlbum.getAttribute("wn-obj-nm"),
+    thumb : elAlbum.getAttribute("wn-obj-thumb"),
+    title : elAlbum.getAttribute("wn-obj-title"),
     ... stl,
     wallClass, wallStyle,
     tileClass, tileStyle, picStyle
   }
 }
 ////////////////////////////////////////////////////
-function GetFacebookAttrsByObj(fbAlbumn) {
+function GetAlbumAttrsByObj(oAlbumn) {
   return {
-    "wn-fb-id" : fbAlbumn.id,
-    "wn-fb-name" : fbAlbumn.name,
-    "wn-fb-link" : fbAlbumn.link
+    "wn-obj-id" : oAlbumn.id,
+    "wn-obj-nm" : oAlbumn.nm,
+    "wn-obj-thumb" : oAlbumn.thumb,
+    "wn-obj-title" : oAlbumn.title
   }
 }
 ////////////////////////////////////////////////////
@@ -98,46 +123,53 @@ const DFT_CLASS = [
   'pic-fit-cover','hover-to-zoom'
 ].join(' ')
 //--------------------------------------------------
-function UpdateFacebookTagInnerHtml(elFacebook, settings) {
-  //console.log("UpdateFacebookTagInnerHtml")
+function UpdateAlbumTagInnerHtml(elAlbum) {
+  //console.log("UpdateAlbumTagInnerHtml")
   // Get old content
-  let album = GetFacebookAttrsByElement(elFacebook)
+  let album = GetAlbumAttrsByElement(elAlbum)
   // Mark content editable
-  elFacebook.contentEditable = false
+  elAlbum.contentEditable = false
   // Show loading
-  elFacebook.innerHTML = `<div class="media-inner">
+  elAlbum.innerHTML = `<div class="media-inner">
     <i class="fas fa-spinner fa-spin"></i>
   </div>`
 
-  settings.load().then(({data})=>{
-    // Reload album items
-    Ti.Api.Facebook.getAlbumPhotoList({
-      albumId : album.id,
-      access_token : data.longLiveAccessToken
-    }).then((photos)=>{
-      // Create inner HTML for the album
-      let html = `<div class="tiw-photo-wall ${DFT_CLASS}">`
-      for(let photo of photos) {
-        let {link, thumb_src} = photo
-        html += `<a class="wall-tile"
-          href="${link}"
-          target="_blank"><img src="${thumb_src}"/></a>`
-      }
-      html += '</div>'
-      elFacebook.innerHTML = html
+  console.log("album", album)
+  let match = JSON.stringify({
+    pid : album.id,
+    race : "FILE",
+    mime : "^image\/"
+  })
+  Wn.Sys.exec2(`o @query '${match}' @json #SHA1 -cqnl`, {
+    as:"json"
+  }).then(data => {
+    // Create inner HTML for the album
+    let html = `<div class="tiw-photo-wall ${DFT_CLASS}">`
+    for(let oImg of data) {
+      let src = `/o/content?str=${oImg.thumb}`
+      html += `<a class="wall-tile" href="#" target="_blank">
+          <img src="${src}" 
+          wn-obj-id="${oImg.id}"
+          wn-obj-sha1="${oImg.sha1}"
+          wn-obj-mime="${oImg.mime}"
+          wn-obj-tp="${oImg.tp}"
+          wn-obj-width="${oImg.width}"
+          wn-obj-height="${oImg.height}"/></a>`
+    }
+    html += '</div>'
+    elAlbum.innerHTML = html
 
-      // Recover the attr-data
-      SetAlbumInfoToElement(elFacebook, album)
+    // Recover the attr-data
+    SetAlbumInfoToElement(elAlbum, album)
 
-      // Then we need update the album css style
-      UpdateAlbumStyle(elFacebook)
-    })
+    // Then we need update the album css style
+    UpdateAlbumStyle(elAlbum)
   })
 }
 ////////////////////////////////////////////////////
 function UpdateAlbumStyle($album) {
   let $wall = Ti.Dom.find(":scope > .tiw-photo-wall", $album)
-  let {tileStyle, picStyle} = GetFacebookAttrsByElement($album)
+  let {tileStyle, picStyle} = GetAlbumAttrsByElement($album)
   let $tiles = Ti.Dom.findAll(".wall-tile", $wall)
   for(let i=0; i<$tiles.length; i++) {
     let $tile = $tiles[i]
@@ -147,10 +179,10 @@ function UpdateAlbumStyle($album) {
   }
 }
 ////////////////////////////////////////////////////
-function CmdInsertFacebook(editor, fbAlbumn) {
-  if(!fbAlbumn)
+function CmdInsertAlbum(editor, oAlbumn) {
+  if(!oAlbumn)
     return
-  
+  //console.log("CmdInsertAlbum", oAlbumn)
   // Prepare range
   let rng = editor.selection.getRng()
   
@@ -158,10 +190,10 @@ function CmdInsertFacebook(editor, fbAlbumn) {
   let $doc = rng.commonAncestorContainer.ownerDocument
   let $album = Ti.Dom.createElement({
     tagName : "div",
-    className : "wn-media as-photos as-facebook",
-    attrs : GetFacebookAttrsByObj(fbAlbumn)
+    className : "wn-media as-photos as-album",
+    attrs : GetAlbumAttrsByObj(oAlbumn)
   }, $doc)
-  UpdateFacebookTagInnerHtml($album, editor.wn_facebook_settings)
+  UpdateAlbumTagInnerHtml($album, editor.wn_album_settings)
   
   // Remove content
   if(!rng.collapsed) {
@@ -173,27 +205,27 @@ function CmdInsertFacebook(editor, fbAlbumn) {
 
 }
 ////////////////////////////////////////////////////
-function CmdReloadFacebookAlbum(editor, settings) {
-  let $album = GetCurrentFacebookElement(editor)
+function CmdReloadAlbumAlbum(editor, settings) {
+  let $album = GetCurrentAlbumElement(editor)
   // Guard
   if(!_.isElement($album)) {
     return
   }
   // Reload content
-  UpdateFacebookTagInnerHtml($album, settings)
+  UpdateAlbumTagInnerHtml($album, settings)
 }
 ////////////////////////////////////////////////////
-function GetCurrentFacebookElement(editor) {
+function GetCurrentAlbumElement(editor) {
   let sel = editor.selection
   let $nd = sel.getNode()
   // Guard
   return Ti.Dom.closest($nd, (el)=>{
-    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-facebook")
+    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-album")
   })
 }
 ////////////////////////////////////////////////////
-function CmdSetFacebookSize(editor, {width="", height=""}={}) {
-  let $album = GetCurrentFacebookElement(editor)
+function CmdSetAlbumSize(editor, {width="", height=""}={}) {
+  let $album = GetCurrentAlbumElement(editor)
   // Guard
   if(!_.isElement($album)) {
     return
@@ -204,8 +236,8 @@ function CmdSetFacebookSize(editor, {width="", height=""}={}) {
   editor.__rich_tinymce_com.syncContent()
 }
 ////////////////////////////////////////////////////
-function CmdSetFacebookStyle(editor, css={}) {
-  let $album = GetCurrentFacebookElement(editor)
+function CmdSetAlbumStyle(editor, css={}) {
+  let $album = GetCurrentAlbumElement(editor)
   // Guard
   if(!_.isElement($album)) {
     return
@@ -216,21 +248,21 @@ function CmdSetFacebookStyle(editor, css={}) {
   editor.__rich_tinymce_com.syncContent()
 }
 ////////////////////////////////////////////////////
-async function CmdShowFacebookProp(editor, settings) {
-  let $album = GetCurrentFacebookElement(editor)
+async function CmdShowAlbumProp(editor, settings) {
+  let $album = GetCurrentAlbumElement(editor)
   // Guard
   if(!_.isElement($album)) {
     return
   }
   //console.log("stl", stl)
   // Gen the properties
-  let data = GetFacebookAttrsByElement($album)
+  let data = GetAlbumAttrsByElement($album)
 
   //console.log(data)
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fab-facebook",
-    title : "编辑Facebook相册属性",
+    icon  : "fab-album",
+    title : "编辑相册属性",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -432,7 +464,7 @@ async function CmdShowFacebookProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 export default {
-  name : "wn-facebook",
+  name : "wn-album",
   //------------------------------------------------
   init : function(conf={}) {
   },
@@ -441,7 +473,7 @@ export default {
     //..............................................
     let settings = _.assign({
         meta : "~"
-      }, _.get(editor.settings, "wn_facebook_config"));
+      }, _.get(editor.settings, "wn_album_config"));
     //console.log("setup", editor.settings)
     //..............................................
     // Reload meta content
@@ -462,40 +494,40 @@ export default {
 
       return {meta: this.meta, data: this.data}
     }
-    editor.wn_facebook_settings = settings
+    editor.wn_album_settings = settings
     // 读取信息
     //..............................................
     // Register plugin command
-    editor.addCommand("InsertFacebook",   CmdInsertFacebook)
-    editor.addCommand("SetFacebookSize",  CmdSetFacebookSize)
-    editor.addCommand("SetFacebookStyle", CmdSetFacebookStyle)
-    editor.addCommand("ReloadFacebookAlbum", CmdReloadFacebookAlbum)
-    editor.addCommand("ShowFacebookProp", CmdShowFacebookProp)
+    editor.addCommand("InsertAlbum",   CmdInsertAlbum)
+    editor.addCommand("SetAlbumSize",  CmdSetAlbumSize)
+    editor.addCommand("SetAlbumStyle", CmdSetAlbumStyle)
+    editor.addCommand("ReloadAlbumAlbum", CmdReloadAlbumAlbum)
+    editor.addCommand("ShowAlbumProp", CmdShowAlbumProp)
     //..............................................
     // Register toolbar actions
-    editor.ui.registry.addButton("WnFacebookPick", {
-      icon : "facebook-square-brands",
+    editor.ui.registry.addButton("WnAlbumPick", {
+      icon : "images-regular",
       tooltip : Ti.I18n.text("i18n:album-insert"),
       onAction : function(menuBtn) {
-        pickFacebookAndInsertToDoc(editor, settings)
+        pickAlbumAndInsertToDoc(editor, settings)
       },
     })
     //..............................................
-    editor.ui.registry.addMenuItem("WnFacebookClrSize", {
+    editor.ui.registry.addMenuItem("WnAlbumClrSize", {
       text : "清除相册尺寸",
       onAction() {
-        editor.execCommand("SetFacebookSize", editor)
+        editor.execCommand("SetAlbumSize", editor)
       }
     })
     //..............................................
-    editor.ui.registry.addMenuItem("WnFacebookAutoFitWidth", {
+    editor.ui.registry.addMenuItem("WnAlbumAutoFitWidth", {
       text : "自动适应宽度",
       onAction() {
-        editor.execCommand("SetFacebookSize", editor, {width:"100%"})
+        editor.execCommand("SetAlbumSize", editor, {width:"100%"})
       }
     })
     //..............................................
-    editor.ui.registry.addNestedMenuItem('WnFacebookFloat', {
+    editor.ui.registry.addNestedMenuItem('WnAlbumFloat', {
       text: '文本绕图',
       getSubmenuItems: function () {
         return [{
@@ -503,30 +535,30 @@ export default {
           icon : "align-left",
           text : "居左绕图",
           onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {float:"left"})
+            editor.execCommand("SetAlbumStyle", editor, {float:"left"})
           }
         }, {
           type : "menuitem",
           icon : "align-right",
           text : "居右绕图",
           onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {float:"right"})
+            editor.execCommand("SetAlbumStyle", editor, {float:"right"})
           }
         }, {
           type : "menuitem",
           text : "清除浮动",
           onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {float:""})
+            editor.execCommand("SetAlbumStyle", editor, {float:""})
           }
         }];
       }
     });
     //..............................................
-    editor.ui.registry.addNestedMenuItem('WnFacebookMargin', {
+    editor.ui.registry.addNestedMenuItem('WnAlbumMargin', {
       text: '相册边距',
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
-          let $album = GetCurrentFacebookElement(editor)
+          let $album = GetCurrentAlbumElement(editor)
           let state = true
           if($album) {
             let sz = $album.style.marginLeft || $album.style.marginRight
@@ -539,7 +571,7 @@ export default {
           type : "togglemenuitem",
           text : "小边距",
           onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {margin:"1em"})
+            editor.execCommand("SetAlbumStyle", editor, {margin:"1em"})
           },
           onSetup: function(api) {
             return __check_margin_size(api, '1em')
@@ -548,7 +580,7 @@ export default {
           type : "togglemenuitem",
           text : "中等边距",
           onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {margin:"2em"})
+            editor.execCommand("SetAlbumStyle", editor, {margin:"2em"})
           },
           onSetup: function(api) {
             return __check_margin_size(api, '2em')
@@ -557,7 +589,7 @@ export default {
           type : "togglemenuitem",
           text : "较大边距",
           onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {margin:"3em"})
+            editor.execCommand("SetAlbumStyle", editor, {margin:"3em"})
           },
           onSetup: function(api) {
             return __check_margin_size(api, '3em')
@@ -574,56 +606,56 @@ export default {
           icon : "square-6",
           text : "清除边距",
           onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {margin:""})
+            editor.execCommand("SetAlbumStyle", editor, {margin:""})
           }
         }];
       }
     });
     //..............................................
-    editor.ui.registry.addMenuItem("WnFacebookReload", {
+    editor.ui.registry.addMenuItem("WnAlbumReload", {
       icon : "sync-alt-solid",
       text : "刷新相册内容",
       onAction() {
-        editor.execCommand("ReloadFacebookAlbum", editor, settings)
+        editor.execCommand("ReloadAlbumAlbum", editor, settings)
       }
     })
     //..............................................
-    editor.ui.registry.addMenuItem("WnFacebookProp", {
+    editor.ui.registry.addMenuItem("WnAlbumProp", {
       text : "相册属性",
       onAction() {
-        editor.execCommand("ShowFacebookProp", editor, settings)
+        editor.execCommand("ShowAlbumProp", editor, settings)
       }
     })
     //..............................................
-    editor.ui.registry.addContextMenu("wn-facebook", {
+    editor.ui.registry.addContextMenu("wn-album", {
       update: function (el) {
-        let $album = GetCurrentFacebookElement(editor)
+        let $album = GetCurrentAlbumElement(editor)
         // Guard
         if(!_.isElement($album)) {
           return []
         }
         return [
-          "WnFacebookClrSize WnFacebookAutoFitWidth",
-          "WnFacebookFloat WnFacebookMargin",
-          "WnFacebookReload",
-          "WnFacebookProp"
+          "WnAlbumClrSize WnAlbumAutoFitWidth",
+          "WnAlbumFloat WnAlbumMargin",
+          "WnAlbumReload",
+          "WnAlbumProp"
         ].join(" | ")
       }
     })
     //..............................................
     editor.on("SetContent", function() {
-      //console.log("SetContent facebook")
-      let els = editor.$('.wn-media.as-facebook')
+      //console.log("SetContent album")
+      let els = editor.$('.wn-media.as-album')
       for(let i=0; i<els.length; i++) {
         let el = els[i]
-        UpdateFacebookTagInnerHtml(el, settings)
+        UpdateAlbumTagInnerHtml(el, settings)
       }
     })
     //..............................................
     return {
       getMetadata: function () {
         return  {
-          name: 'Wn Facebook plugin',
+          name: 'Wn Album plugin',
           url: 'http://site0.cn'
         };
       }

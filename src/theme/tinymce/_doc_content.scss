@@ -46,6 +46,12 @@ body.mce-content-body {
     cursor: pointer;
   }
   //-----------------------------------------------------
+  span.wn-attachment {
+    cursor: pointer; display: inline-block;
+    .as-icon {margin: 0 .2em;}
+    .as-title {margin: 0 .2em; text-decoration: underline;}
+  }
+  //-----------------------------------------------------
   div.wn-media {
     cursor: pointer;
     //---------------------------------------------------
@@ -66,6 +72,40 @@ body.mce-content-body {
       }
     }
     //---------------------------------------------------
+    &.as-audio {
+      @include flex-align-nowrap($ai:flex-end);
+      //-------------------------------------------------
+      .audio-inner {
+        @include flex-align-nowrap($ai:center);
+        color: #000; background: #F1F3F4;
+        padding: 0 SZ(8); flex:1 1 auto;
+        height: 52px;
+        border-radius: 50px; 
+        //-----------------------------------------------
+        .as-play-icon {
+          @include flex-center;
+          width: 40px; height: 32px;
+          font-size: 14px;
+        }
+        //-----------------------------------------------
+        .as-audio-name {
+          flex: 1 1 auto; text-align: center;
+          font-size: 12px;
+          white-space: nowrap;
+          width: 100px; overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        //-----------------------------------------------
+        .as-volume-icon {
+          @include flex-center;
+          width: 40px; height: 32px;
+          font-size: 14px;
+        }
+        //-----------------------------------------------
+      }
+      //-------------------------------------------------
+    }
+    //---------------------------------------------------
     &.as-video {
       height: 5rem;
     }
@@ -76,11 +116,12 @@ body.mce-content-body {
       width:5.4rem; height: 3rem;
     }
     //---------------------------------------------------
-    &.as-facebook {
+    //&.as-facebook {
+    &.as-photos {
       @include border(1px, dashed, dark);
-      min-height: 3rem;
+      min-height: 1.6rem;
       .media-inner {
-        height: 3rem;
+        height: 1.6rem;
       }
     }
     //---------------------------------------------------

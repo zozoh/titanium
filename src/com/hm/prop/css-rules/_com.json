@@ -2,7 +2,6 @@
   "name" : "hm-prop-css-rules",
   "globally" : true,
   "template" : "./hm-prop-css-rules.html",
-  "methods" : "./hm-prop-css-rules-fields.mjs",
   "mixins" : ["./hm-prop-css-rules.mjs"],
   "components" : [
     "@com:ti/form"]

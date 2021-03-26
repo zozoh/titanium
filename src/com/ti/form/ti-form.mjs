@@ -176,6 +176,15 @@ const _M = {
           // join to map
           re[key] = fn
         }
+        // Statice value
+        else if(val && val.target) {
+          re[key] = ({name, value}, data)=>{
+            if(val.test && !Ti.AutoMatch.test(val.test, data)) {
+              return
+            }
+            return Ti.Util.explainObj(data, val.target)
+          }
+        }
         // Customized Function
         else if(_.isFunction(val)) {
           re[key] = val

@@ -40,11 +40,19 @@ async function pickYoutubeAndInsertToDoc(editor, {
   // Do insert image
   editor.execCommand("InsertYoutube", editor, reo)
 }
+const DFT_ALLOW = [
+  "accelerometer", "autoplay", "clipboard-write",
+  "encrypted-media", "gyroscope",
+  "picture-in-picture"].join(";")
 ////////////////////////////////////////////////////
 function GetYoutubeAttrsByElement(elYoutube) {
-  let stl = Ti.Dom.getStyle(elYoutube, 
-    /^(width|height|float|(margin-(left|right|top|bottom)))$/)
-  stl.float = stl.float || "none"
+  let style = Ti.Dom.getOwnStyle(elYoutube)
+  let af = elYoutube.getAttribute("wn-yt-allowfullscreen")
+  let allowfullscreen = af && /^(allowfullscreen|yes|true)$/.test(af)
+  let allow = elYoutube.getAttribute("wn-yt-allow") || DFT_ALLOW;
+  if(allow) {
+    allow = _.map(allow.split(";"), al => _.trim(al))
+  }
   return {
     id   : elYoutube.getAttribute("wn-yt-id"),
     title  : elYoutube.getAttribute("wn-yt-title"),
@@ -55,11 +63,15 @@ function GetYoutubeAttrsByElement(elYoutube) {
     du_in_str  : elYoutube.getAttribute("wn-yt-du_in_str"),
     definition : elYoutube.getAttribute("wn-yt-definition"),
     categoryId : elYoutube.getAttribute("wn-yt-category-id"),
-    ... stl
+    allow,
+    allowfullscreen,
+    style
   }
 }
 ////////////////////////////////////////////////////
 function GetYoutubeAttrsByObj(ytVideo) {
+  let {allow, allowfullscreen} = ytVideo
+  allow = allow || []
   return {
     "wn-yt-id" : ytVideo.id,
     "wn-yt-title" : ytVideo.title,
@@ -70,6 +82,8 @@ function GetYoutubeAttrsByObj(ytVideo) {
     "wn-yt-du_in_str" : ytVideo.du_in_str,
     "wn-yt-definition" : ytVideo.definition,
     "wn-yt-category-id" : ytVideo.categoryId,
+    "wn-yt-allow" : allow.join("; ") || null,
+    "wn-yt-allowfullscreen" : allowfullscreen || null
   }
 }
 ////////////////////////////////////////////////////
@@ -82,7 +96,7 @@ function UpdateYoutubeTagInnerHtml(elYoutube) {
       "background-image" : `url("${cover}")`
     }
   })
-  $inner.innerHTML = '<i class="fab fa-youtube"></i>'
+  $inner.innerHTML = '<i class="media-font-icon fab fa-youtube"></i>'
   elYoutube.innerHTML = null
   elYoutube.contentEditable = false
   Ti.Dom.appendTo($inner, elYoutube)
@@ -123,18 +137,6 @@ function GetCurrentYoutubeElement(editor) {
   })
 }
 ////////////////////////////////////////////////////
-function CmdSetYoutubeSize(editor, {width="", height=""}={}) {
-  let $video = GetCurrentYoutubeElement(editor)
-  // Guard
-  if(!_.isElement($video)) {
-    return
-  }
-  // Clear the attribute
-  Ti.Dom.setStyle($video, {width, height})
-  // Force sync content
-  editor.__rich_tinymce_com.syncContent()
-}
-////////////////////////////////////////////////////
 function CmdSetYoutubeStyle(editor, css={}) {
   let $video = GetCurrentYoutubeElement(editor)
   // Guard
@@ -172,95 +174,69 @@ async function CmdShowYoutubeProp(editor, settings) {
     comType : "TiForm",
     comConf : {
       spacing : "tiny",
-      fields : [{
-          title : "尺寸",
-          fields: [{
-            title : "宽度",
-            name  : "width",
-            comType : "TiInput",
-            comConf : {
-              
-            }
-          }, {
-            title : "高度",
-            name  : "height",
-            comType : "TiInput",
-            comConf : {
-              
-            }
-          }]
-        }, {
-          title : "文本绕图",
-          name  : "float",
-          comType : "TiSwitcher",
+      fields : [
+        {
+          title : "视频特性",
+          name  : "allow",
+          type  : "Array",
+          comType : "TiBulletCheckbox",
           comConf : {
-            allowEmpty : false,
             options : [
-              {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
-              {value: "left",  text: "左绕图", icon:"fas-align-left"},
-              {value: "right", text: "右绕图", icon:"fas-align-right"},]
+              {value: "accelerometer", text: "视频加速"},
+              {value: "autoplay", text: "自动播放"},
+              {value: "clipboard-write", text: "剪贴板写入"},
+              {value: "encrypted-media", text: "媒体加密"},
+              {value: "gyroscope", text: "重播"},
+              {value: "picture-in-picture", text: "画中画"}
+            ]
           }
-        }, {
-          title : "视频距",
-          fields : [{
-            title : "上",
-            name  : "marginTop",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "右",
-            name  : "marginRight",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "下",
-            name  : "marginBottom",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "左",
-            name  : "marginLeft",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }]
+        },
+        {
+          title : "允许全屏",
+          name  : "allowfullscreen",
+          type  : "Boolean",
+          comType : "TiToggle"
+        },
+        Wn.Hm.getCssPropField("width", {
+          name  : "style.width"
+        }),
+        Wn.Hm.getCssPropField("height", {
+          name  : "style.height"
+        }),
+        Wn.Hm.getCssPropField("float", {
+          name  : "style.float"
+        }),
+        {
+          title : "i18n:style-more",
+          name  : "style",
+          type  : "Object",
+          comType : "HmPropCssRules",
+          comConf : {
+            rules : [
+              /^((min|max)-)?(width|height)$/,
+              /^(margin|border|box-shadow|float)$/
+            ]
+          }
         }]
     },
-    components : []
+    components : [
+      "@com:ti/droplist",
+      "@com:ti/bullet/checkbox"
+    ]
   })
-
+  //................................................
   // 用户取消
   if(!reo)
     return
-
+  //................................................
+  // 设置属性
+  let attrs = GetYoutubeAttrsByObj(reo)
+  Ti.Dom.setAttrs($video, attrs)
   //................................................
   // Styling
-  const _video_style = function(styName, v, oldValue) {
-    if(oldValue == v)
-      return
-    if(!v || "none" == v) {
-      $video.style[styName] = ""
-    } else if(_.isNumber(v) || /^\d+(\.\d+)?$/.test(v)) {
-      $video.style[styName] = `${v}px`
-    } else {
-      $video.style[styName] = v
-    }
-  }
-  //................................................
-  _video_style("width", reo.width, data.width)
-  _video_style("height", reo.height, data.height)
-  _video_style("float", reo.float, data.float)
-  _video_style("marginLeft",   reo.marginLeft,   data.marginLeft)
-  _video_style("marginRight",  reo.marginRight,  data.marginRight)
-  _video_style("marginTop",    reo.marginTop,    data.marginTop)
-  _video_style("marginBottom", reo.marginBottom, data.marginBottom)
+  let style = Ti.Dom.renderCssRule(reo.style)
+  //console.log("style:", style)
+  $video.style = style
   //................................................
   // clean cache
   $video.removeAttribute("data-mce-src")
@@ -285,7 +261,6 @@ export default {
     //..............................................
     // Register plugin command
     editor.addCommand("InsertYoutube",   CmdInsertYoutube)
-    editor.addCommand("SetYoutubeSize",  CmdSetYoutubeSize)
     editor.addCommand("SetYoutubeStyle", CmdSetYoutubeStyle)
     editor.addCommand("ShowYoutubeProp", CmdShowYoutubeProp)
     //..............................................
@@ -301,14 +276,14 @@ export default {
     editor.ui.registry.addMenuItem("WnYoutubeClrSize", {
       text : "清除视频尺寸",
       onAction() {
-        editor.execCommand("SetYoutubeSize", editor)
+        editor.execCommand("SetVideoStyle", editor, {width:""})
       }
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnYoutubeAutoFitWidth", {
       text : "自动适应宽度",
       onAction() {
-        editor.execCommand("SetYoutubeSize", editor, {width:"100%"})
+        editor.execCommand("SetVideoStyle", editor, {width:"100%"})
       }
     })
     //..............................................
@@ -381,6 +356,14 @@ export default {
           }
         }, {
           type : "menuitem",
+          icon : "align-center",
+          text : "边距居中",
+          onAction() {
+            editor.execCommand("SetYoutubeStyle", editor, {margin:"0 auto"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "square-6",
           text : "清除边距",
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {margin:""})

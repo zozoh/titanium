@@ -5,12 +5,28 @@
   .wall-tile {
     display: block;
     padding: SZ(10);
+    width: SZ(200); height: SZ(200);
     //---------------------------------------
     img {
-      width: SZ(200);
+      width:100%; height: 100%;
       object-fit: cover;
     }
     //---------------------------------------
+  }
+  //-----------------------------------------
+  &.hover-to-up .wall-tile {
+    transition: transform 0.3s; 
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
+    }
+  }
+  //-----------------------------------------
+  &.hover-to-zoom .wall-tile {
+    img {transition: transform 0.5s; }
+    &:hover img {
+      transform: scale(1.2);
+    }
   }
   //-----------------------------------------
   &.pic-fit-fill    .wall-tile img {object-fit: fill;}
@@ -18,11 +34,19 @@
   &.pic-fit-contain .wall-tile img {object-fit: contain;}
   &.pic-fit-none    .wall-tile img {object-fit: none;}
   //-----------------------------------------
-  &.item-space-xl .wall-tile {padding: SZ(30);}
-  &.item-space-lg .wall-tile {padding: SZ(24);}
-  &.item-space-md .wall-tile {padding: SZ(16);}
-  &.item-space-sm .wall-tile {padding: SZ(10);}
-  &.item-space-xs .wall-tile {padding: SZ(4);}
+  &.item-margin-xl .wall-tile {margin: SZ(30);}
+  &.item-margin-lg .wall-tile {margin: SZ(24);}
+  &.item-margin-md .wall-tile {margin: SZ(16);}
+  &.item-margin-sm .wall-tile {margin: SZ(10);}
+  &.item-margin-xs .wall-tile {margin: SZ(4);}
+  &.item-margin-no .wall-tile {margin: 0;}
+  //-----------------------------------------
+  &.item-padding-xl .wall-tile {padding: SZ(30);}
+  &.item-padding-lg .wall-tile {padding: SZ(24);}
+  &.item-padding-md .wall-tile {padding: SZ(16);}
+  &.item-padding-sm .wall-tile {padding: SZ(10);}
+  &.item-padding-xs .wall-tile {padding: SZ(4);}
+  &.item-padding-no .wall-tile {padding: 0;}
   //------------------------------------------
   &.flex-none   .wall-tile {flex:0 0 auto;}
   &.flex-both   .wall-tile {flex:1 1 auto;}

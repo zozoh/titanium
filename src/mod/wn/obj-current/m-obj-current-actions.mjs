@@ -228,6 +228,7 @@ const _M = {
       commit("setContent", null)
       return
     }
+    //console.log("m-obj-current.reload", meta.id)
     //......................................
     // Restore the search setting
     dispatch("recoverSearchSetting", meta)

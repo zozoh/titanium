@@ -46,6 +46,7 @@ function GetAudioAttrsByElement(elAudio) {
   stl.float = stl.float || "none"
   return {
     oid   : elAudio.getAttribute("wn-obj-id"),
+    nm    : elAudio.getAttribute("wn-obj-nm"),
     sha1  : elAudio.getAttribute("wn-obj-sha1"),
     mime  : elAudio.getAttribute("wn-obj-mime"),
     tp    : elAudio.getAttribute("wn-obj-tp"),
@@ -58,6 +59,7 @@ function GetAudioAttrsByObj(oAudio) {
   return {
     "wn-obj-id" : oAudio.id,
     "wn-obj-sha1" : oAudio.sha1,
+    "wn-obj-nm" : oAudio.nm,
     "wn-obj-mime" : oAudio.mime,
     "wn-obj-tp"   : oAudio.tp,
     "wn-obj-duration" : oAudio.duration
@@ -65,19 +67,18 @@ function GetAudioAttrsByObj(oAudio) {
 }
 ////////////////////////////////////////////////////
 function UpdateAudioTagInnerHtml(elAudio) {
-  let cover = elAudio.getAttribute("wn-obj-audio_cover")
-  if(!cover) {
-    cover = elAudio.getAttribute("wn-obj-thumb")
-  }
-  if(cover && !cover.startsWith("id:")) {
-    cover = "id:" + cover
-  }
+  let audioName = elAudio.getAttribute("wn-obj-nm") || "No title"
   let $inner = Ti.Dom.createElement({
     tagName : "div",
-    className : "media-inner"
+    className : "audio-inner"
   })
-  $inner.innerHTML = '<i class="fas fa-volume-up"></i>'
+  $inner.innerHTML = `
+    <div class="as-play-icon"><i class="fas fa-play"></i></div>
+    <div class="as-audio-name"></div>
+    <div class="as-volume-icon"><i class="fas fa-volume-up"></i></div>
+  `
   elAudio.innerHTML = null
+  Ti.Dom.find(".as-audio-name", $inner).innerText = audioName
   elAudio.contentEditable = false
   Ti.Dom.appendTo($inner, elAudio)
 }
@@ -312,7 +313,7 @@ export default {
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnAudioPick", {
-      icon : "music-solid",
+      icon : "volume-up-solid",
       tooltip : Ti.I18n.text("i18n:audio-insert"),
       onAction : function(menuBtn) {
         pickAudioAndInsertToDoc(editor, settings)

@@ -41,9 +41,7 @@ async function pickVideoAndInsertToDoc(editor, {
 }
 ////////////////////////////////////////////////////
 function GetVideoAttrsByElement(elVideo) {
-  let stl = Ti.Dom.getStyle(elVideo, 
-    /^(width|height|float|(margin-(left|right|top|bottom)))$/)
-  stl.float = stl.float || "none"
+  let style = Ti.Dom.getOwnStyle(elVideo)
   return {
     oid   : elVideo.getAttribute("wn-obj-id"),
     sha1  : elVideo.getAttribute("wn-obj-sha1"),
@@ -54,7 +52,7 @@ function GetVideoAttrsByElement(elVideo) {
     naturalWidth  : elVideo.getAttribute("wn-obj-width"),
     naturalHeight : elVideo.getAttribute("wn-obj-height"),
     duration : elVideo.getAttribute("wn-obj-duration"),
-    ... stl
+    style
   }
 }
 ////////////////////////////////////////////////////
@@ -133,19 +131,7 @@ function GetCurrentVideoElement(editor) {
     return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-video")
   })
 }
-////////////////////////////////////////////////////
-function CmdSetVideoSize(editor, {width="", height=""}={}) {
-  let $video = GetCurrentVideoElement(editor)
-  // Guard
-  if(!_.isElement($video)) {
-    return
-  }
-  // Clear the attribute
-  Ti.Dom.setStyle($video, {width, height})
-  // Force sync content
-  editor.__rich_tinymce_com.syncContent()
-}
-////////////////////////////////////////////////////
+///////////////////////////////////////////////////
 function CmdSetVideoStyle(editor, css={}) {
   let $video = GetCurrentVideoElement(editor)
   // Guard
@@ -171,7 +157,7 @@ async function CmdShowVideoProp(editor, settings) {
   //console.log(data)
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fas-image",
+    icon  : "fas-film",
     title : "编辑视频属性",
     width  : "37%",
     height : "100%",
@@ -184,7 +170,7 @@ async function CmdShowVideoProp(editor, settings) {
     comConf : {
       spacing : "tiny",
       fields : [{
-          title : "视频",
+          title : "i18n:video",
           name  : "oid",
           comType : "WnObjPicker",
           comConf : {
@@ -192,65 +178,33 @@ async function CmdShowVideoProp(editor, settings) {
             base : settings.base,
             titleEditable : false
           }
-        }, {
-          title : "尺寸",
-          fields: [{
-            title : "宽度",
-            name  : "width",
-            comType : "TiInput",
-            comConf : {
-              placeholder: `${data.naturalWidth}px`
-            }
-          }, {
-            title : "高度",
-            name  : "height",
-            comType : "TiInput",
-            comConf : {
-              placeholder: `${data.naturalHeight}px`
-            }
-          }]
-        }, {
-          title : "文本绕图",
-          name  : "float",
-          comType : "TiSwitcher",
+        },
+        Wn.Hm.getCssPropField("width", {
+          name  : "style.width",
           comConf : {
-            allowEmpty : false,
-            options : [
-              {value: "none",  text: "不绕图", icon:"fas-align-justify"},
-              {value: "left",  text: "左绕图", icon:"fas-align-left"},
-              {value: "right", text: "右绕图", icon:"fas-align-right"},]
+            placeholder: `${data.naturalWidth}px`
           }
-        }, {
-          title : "视频距",
-          fields : [{
-            title : "上",
-            name  : "marginTop",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "右",
-            name  : "marginRight",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "下",
-            name  : "marginBottom",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "左",
-            name  : "marginLeft",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }]
+        }),
+        Wn.Hm.getCssPropField("height", {
+          name  : "style.height",
+          comConf : {
+            placeholder: `${data.naturalHeight}px`
+          }
+        }),
+        Wn.Hm.getCssPropField("float", {
+          name  : "style.float"
+        }),
+        {
+          title : "i18n:style-more",
+          name  : "style",
+          type  : "Object",
+          comType : "HmPropCssRules",
+          comConf : {
+            rules : [
+              /^((min|max)-)?(width|height)$/,
+              /^(margin|border|box-shadow|float)$/
+            ]
+          }
         }]
     },
     components : [
@@ -282,25 +236,9 @@ async function CmdShowVideoProp(editor, settings) {
   }
   //................................................
   // Styling
-  const _video_style = function(styName, v, oldValue) {
-    if(oldValue == v)
-      return
-    if(!v || "none" == v) {
-      $video.style[styName] = ""
-    } else if(_.isNumber(v) || /^\d+(\.\d+)?$/.test(v)) {
-      $video.style[styName] = `${v}px`
-    } else {
-      $video.style[styName] = v
-    }
-  }
-  //................................................
-  _video_style("width", reo.width, data.width)
-  _video_style("height", reo.height, data.height)
-  _video_style("float", reo.float, data.float)
-  _video_style("marginLeft",   reo.marginLeft,   data.marginLeft)
-  _video_style("marginRight",  reo.marginRight,  data.marginRight)
-  _video_style("marginTop",    reo.marginTop,    data.marginTop)
-  _video_style("marginBottom", reo.marginBottom, data.marginBottom)
+  let style = Ti.Dom.renderCssRule(reo.style)
+  //console.log("style:", style)
+  $video.style = style
   //................................................
   // clean cache
   $video.removeAttribute("data-mce-src")
@@ -325,7 +263,6 @@ export default {
     //..............................................
     // Register plugin command
     editor.addCommand("InsertVideo",   CmdInsertVideo)
-    editor.addCommand("SetVideoSize",  CmdSetVideoSize)
     editor.addCommand("SetVideoStyle", CmdSetVideoStyle)
     editor.addCommand("ShowVideoProp", CmdShowVideoProp)
     //..............................................
@@ -341,14 +278,14 @@ export default {
     editor.ui.registry.addMenuItem("WnVideoClrSize", {
       text : "清除视频尺寸",
       onAction() {
-        editor.execCommand("SetVideoSize", editor)
+        editor.execCommand("SetVideoStyle", editor, {width:""})
       }
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnVideoAutoFitWidth", {
       text : "自动适应宽度",
       onAction() {
-        editor.execCommand("SetVideoSize", editor, {width:"100%"})
+        editor.execCommand("SetVideoStyle", editor, {width:"100%"})
       }
     })
     //..............................................
@@ -421,6 +358,14 @@ export default {
           }
         }, {
           type : "menuitem",
+          icon : "align-center",
+          text : "边距居中",
+          onAction() {
+            editor.execCommand("SetVideoStyle", editor, {margin:"0 auto"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "square-6",
           text : "清除边距",
           onAction() {
             editor.execCommand("SetVideoStyle", editor, {margin:""})
@@ -456,7 +401,6 @@ export default {
       let els = editor.$('.wn-media.as-video')
       for(let i=0; i<els.length; i++) {
         let el = els[i]
-        let mime = el.getAttribute("wn-obj-mime")
         UpdateVideoTagInnerHtml(el)
       }
     })

@@ -15,7 +15,13 @@ async function OpenObjSelector(pathOrObj="~", {
   exposeHidden=false,
   homePath=Wn.Session.getHomePath(),
   fallbackPath=Wn.Session.getHomePath(),
-  filter= o => "FILE" == o.race,
+  sideItems=[],
+  sideWidth="2rem",
+  search = {
+    filter : {},
+    sorter : {nm:1}
+  },
+  filter = o => "FILE" == o.race,
   selected=[]
 }={}){
   //................................................
@@ -35,6 +41,22 @@ async function OpenObjSelector(pathOrObj="~", {
               ? { ph: pathOrObj, nm: Ti.Util.getFileName(pathOrObj)}
               : pathOrObj.ph
     }, "warn")
+  }
+  //................................................
+  // Eval side items
+  let sideCandidateItems = []
+  for(let si of sideItems) {
+    let sideObj = await Wn.Io.loadMeta(si)
+    if(sideObj) {
+      sideCandidateItems.push({
+        depth : 0,
+        key   : sideObj.id,
+        id    : sideObj.id,
+        path  : sideObj.ph,
+        icon  : Ti.Icons.get(sideObj),
+        title : sideObj.title || sideObj.nm
+      })
+    }
   }
   //................................................
   // Make sure the obj is dir
@@ -77,6 +99,7 @@ async function OpenObjSelector(pathOrObj="~", {
     components : [
       "@com:ti/crumb",
       "@com:wn/adaptlist",
+      "@com:wn/gui/side/nav",
       {
       //////////////////////////////////////////
       name : "modal-inner-body",
@@ -84,7 +107,9 @@ async function OpenObjSelector(pathOrObj="~", {
       //////////////////////////////////////////
       data : {
         myChecked : [],
-        myShown : {}
+        myShown : {
+          side : sideCandidateItems.length > 1
+        }
       },
       //////////////////////////////////////////
       props : {
@@ -97,12 +122,12 @@ async function OpenObjSelector(pathOrObj="~", {
       },
       //////////////////////////////////////////
       template : `<ti-gui
-        :layout="theLayout"
-        :schema="theSchema"
+        :layout="TheLayout"
+        :schema="TheSchema"
         :shown="myShown"
         :can-loading="true"
         :loading-as="status.reloading"
-        @sky::item:active="OnCurrentMetaChange"
+        @item:active="OnCurrentMetaChange"
         @arena::open:wn:obj="OnCurrentMetaChange"
         @arena::select="OnArenaSelect"/>`,
       //////////////////////////////////////////
@@ -136,7 +161,15 @@ async function OpenObjSelector(pathOrObj="~", {
           return crumbs
         },
         //--------------------------------------
-        theLayout(){
+        SideConfig() {
+          return {
+            items : sideCandidateItems,
+            highlightItemId   : _.get(this.meta, "id"),
+            highlightItemPath : _.get(this.meta, "ph")
+          }
+        },
+        //--------------------------------------
+        TheLayout(){
           return {
             type : "rows",
             border : true,
@@ -145,13 +178,21 @@ async function OpenObjSelector(pathOrObj="~", {
                 size : ".5rem",
                 body : "sky"
               }, {
-                name : "arena",
-                body : "main"
+                type : "cols",
+                border : true,
+                blocks : [{
+                    name : "side",
+                    size : sideWidth,
+                    body : "side"
+                  }, {
+                    name : "arena",
+                    body : "main"
+                  }]
               }]
           }
         },
         //--------------------------------------
-        theSchema(){
+        TheSchema(){
           return {
             "sky" : {
               comType : "ti-crumb",
@@ -159,6 +200,10 @@ async function OpenObjSelector(pathOrObj="~", {
                 "style" : {padding: "0 .1rem"},
                 "data" : this.CrumbData
               }
+            },
+            "side" : {
+              comType : "wn-gui-side-nav",
+              comConf : this.SideConfig
             },
             "main" : {
               comType : "wn-adaptlist",
@@ -204,6 +249,11 @@ async function OpenObjSelector(pathOrObj="~", {
           // Only can enter DIR
           if(obj && "DIR" == obj.race) {
             let app = Ti.App(this)
+            // Setup search filter/sorter
+            if(search) {
+              app.commit("current/setFilter", search.filter || {})
+              app.commit("current/setSorter", search.sorter || {nm:1})
+            }
             app.dispatch("current/reload", obj)
             app.dispatch("axis/reload", obj)    
           }
@@ -215,7 +265,7 @@ async function OpenObjSelector(pathOrObj="~", {
         this.open(meta)
       }
       //////////////////////////////////////////
-    }]
+    }]  // ~ components: []
     //------------------------------------------
   })
   //................................................

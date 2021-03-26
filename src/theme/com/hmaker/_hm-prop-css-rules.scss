@@ -33,14 +33,40 @@
       border:1px solid map-get($color-bar, c);
       font-size: SZ(11); padding: SZ(6);
       //-------------------------------------
-      &:first-child {
+      &.as-title-cell {
         color:map-get($color-track, c);
       }
-      &:last-child {
-        color:map-get($color-success, c);
+      //-------------------------------------
+      &.as-value-cell {
         @include font-fixed;
+        position: relative; cursor: pointer;
+        color:map-get($color-success, c);
+        //-----------------------------------
+        .as-remove {
+          @include pos-abs($r:0,$t:0,$b:0);
+          @include flex-center;
+          opacity: 0; transition: 0.5s;
+          padding: 0 SZ(4);
+          //---------------------------------
+          i {
+            @include flex-center;
+            color: map-get($color-secondary, c);
+            width: SZ(16); height: SZ(16); font-size: SZ(12);
+            border-radius: 50%;
+            transition: 0.5s;
+          }
+          //---------------------------------
+          &:hover i {
+            @include color($color-secondary, r, c);
+            transform: rotate(180deg);
+          }
+          //---------------------------------
+        }
+        //-----------------------------------
+        &:hover .as-remove {opacity: 1;}
+        //-----------------------------------
       }
-      //-------------------------------------  
+      //-------------------------------------
     }
     //---------------------------------------
   }

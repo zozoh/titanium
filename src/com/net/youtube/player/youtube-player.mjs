@@ -19,7 +19,8 @@ export default {
       default : "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
     },
     "allowFullScreen" : {
-      type : Boolean
+      type : Boolean,
+      default : true
     },
     //-----------------------------------
     // Aspace

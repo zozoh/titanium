@@ -104,6 +104,7 @@ const _M = {
       }
       //....................................
       // Filter block
+      lay = _.cloneDeep(lay)
       lay.blocks = this.filterBlocks(lay.blocks, lay.type)
       //....................................
       // Done
@@ -286,7 +287,9 @@ const _M = {
     //--------------------------------------
     filterBlocks(blocks, type) {
       let reBlocks = []
+      //let shown = JSON.stringify(this.TheShown)
       _.forEach(blocks, bl => {
+        //console.log(bl.name, shown)
         let isShow = true
         if("tabs" != type && bl.name) {
           isShow = _.get(this.TheShown, bl.name)

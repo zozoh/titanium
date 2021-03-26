@@ -22,7 +22,7 @@ async function pickVideoAndInsertToDoc(editor, {
 
   // Show dialog
   let reo = await Wn.OpenObjSelector(base, {
-    icon  : "fas-image",
+    icon  : "fas-film",
     title : "i18n:video-insert",
     position : "top",
     width  : "95%",
@@ -87,7 +87,9 @@ function UpdateVideoTagInnerHtml(elVideo) {
       "background-image" : `url("/o/content?str=${cover}")`
     }
   })
-  $inner.innerHTML = '<i class="fas fa-play-circle"></i>'
+  $inner.innerHTML = `<i 
+    class="media-font-icon zmdi zmdi-play"
+    style="padding-left:.06rem;"></i>`
   elVideo.innerHTML = null
   elVideo.contentEditable = false
   Ti.Dom.appendTo($inner, elVideo)
@@ -214,7 +216,7 @@ async function CmdShowVideoProp(editor, settings) {
           comConf : {
             allowEmpty : false,
             options : [
-              {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
+              {value: "none",  text: "不绕图", icon:"fas-align-justify"},
               {value: "left",  text: "左绕图", icon:"fas-align-left"},
               {value: "right", text: "右绕图", icon:"fas-align-right"},]
           }

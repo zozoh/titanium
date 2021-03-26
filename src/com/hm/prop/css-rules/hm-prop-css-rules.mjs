@@ -23,7 +23,7 @@ const _M = {
       default : ()=>({})
     },
     "rules" : {
-      type : [Array, String, Object, Boolean],
+      type : [Array, String, Object, Boolean, RegExp],
       default : true
     },
     //-----------------------------------
@@ -56,10 +56,10 @@ const _M = {
     //--------------------------------------------------
     ValueTable() {
       let re = []
-      _.forEach(this.ValueObj, (value, k)=>{
-        let title = this.getCssPropTitle(k)
+      _.forEach(this.ValueObj, (value, name)=>{
+        let title = Wn.Hm.getCssPropTitle(name)
         re.push({
-          title, value
+          title, name, value
         })
       })
       return re;
@@ -110,8 +110,11 @@ const _M = {
     //--------------------------------------------------
     FormConfig() {
       let conf = _.cloneDeep(this.form)
+      _.defaults(conf, {
+        spacing : "tiny"
+      })
       if(_.isEmpty(conf.fields)) {
-        conf.fields = this.findCssPropFields(this.rules)
+        conf.fields = Wn.Hm.findCssPropFields(this.rules)
       }
       return conf
     }
@@ -120,6 +123,11 @@ const _M = {
   //////////////////////////////////////////////////////
   methods : {
     //--------------------------------------------------
+    OnRemoveValue({name}) {
+      let val = _.omit(this.ValueObj, name)
+      this.$notify("change", val)
+    },
+    //--------------------------------------------------
     async openCssFormDialog() {
       // Eval result
       let result = this.ValueObj
@@ -127,7 +135,7 @@ const _M = {
       // Open dialog
       let reo = await Ti.App.Open({
         title : "i18n:hmk-css-edit",
-        width : 500,
+        width : 640,
         height : "95%",
         position : "top",
         result,
@@ -148,8 +156,7 @@ const _M = {
     //--------------------------------------------------
     async openCssCodeDialog() {
       // Eval result
-      let result = this.ValueObj
-      let json = JSON.stringify(result, null, '   ')
+      let result = JSON.stringify(this.ValueObj, null, '   ')
 
       // Open dialog
       let re = await Ti.App.Open({
@@ -160,7 +167,6 @@ const _M = {
         result,
         comType : "TiTextJson",
         comConf : {
-          
         },
         components: ["@com:ti/text/json"]
       })

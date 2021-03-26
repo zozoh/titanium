@@ -25,7 +25,7 @@ export default {
     },
     "dropHeight" : {
       type : [Number, String],
-      default : "4rem"
+      default : "4.2rem"
     },
   },
   ////////////////////////////////////////////////////

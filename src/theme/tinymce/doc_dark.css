@@ -7,10 +7,22 @@
   padding: 0.1rem; }
   .tiw-photo-wall .wall-tile {
     display: block;
-    padding: 0.1rem; }
+    padding: 0.1rem;
+    width: 2rem;
+    height: 2rem; }
     .tiw-photo-wall .wall-tile img {
-      width: 2rem;
+      width: 100%;
+      height: 100%;
       object-fit: cover; }
+  .tiw-photo-wall.hover-to-up .wall-tile {
+    transition: transform 0.3s; }
+    .tiw-photo-wall.hover-to-up .wall-tile:hover {
+      transform: translateY(-3px);
+      box-shadow: 0.04rem 0.04rem 0.1rem rgba(0, 0, 0, 0.4); }
+  .tiw-photo-wall.hover-to-zoom .wall-tile img {
+    transition: transform 0.5s; }
+  .tiw-photo-wall.hover-to-zoom .wall-tile:hover img {
+    transform: scale(1.2); }
   .tiw-photo-wall.pic-fit-fill .wall-tile img {
     object-fit: fill; }
   .tiw-photo-wall.pic-fit-cover .wall-tile img {
@@ -19,16 +31,30 @@
     object-fit: contain; }
   .tiw-photo-wall.pic-fit-none .wall-tile img {
     object-fit: none; }
-  .tiw-photo-wall.item-space-xl .wall-tile {
+  .tiw-photo-wall.item-margin-xl .wall-tile {
+    margin: 0.3rem; }
+  .tiw-photo-wall.item-margin-lg .wall-tile {
+    margin: 0.24rem; }
+  .tiw-photo-wall.item-margin-md .wall-tile {
+    margin: 0.16rem; }
+  .tiw-photo-wall.item-margin-sm .wall-tile {
+    margin: 0.1rem; }
+  .tiw-photo-wall.item-margin-xs .wall-tile {
+    margin: 0.04rem; }
+  .tiw-photo-wall.item-margin-no .wall-tile {
+    margin: 0; }
+  .tiw-photo-wall.item-padding-xl .wall-tile {
     padding: 0.3rem; }
-  .tiw-photo-wall.item-space-lg .wall-tile {
+  .tiw-photo-wall.item-padding-lg .wall-tile {
     padding: 0.24rem; }
-  .tiw-photo-wall.item-space-md .wall-tile {
+  .tiw-photo-wall.item-padding-md .wall-tile {
     padding: 0.16rem; }
-  .tiw-photo-wall.item-space-sm .wall-tile {
+  .tiw-photo-wall.item-padding-sm .wall-tile {
     padding: 0.1rem; }
-  .tiw-photo-wall.item-space-xs .wall-tile {
+  .tiw-photo-wall.item-padding-xs .wall-tile {
     padding: 0.04rem; }
+  .tiw-photo-wall.item-padding-no .wall-tile {
+    padding: 0; }
   .tiw-photo-wall.flex-none .wall-tile {
     flex: 0 0 auto; }
   .tiw-photo-wall.flex-both .wall-tile {
@@ -90,6 +116,14 @@ body.mce-content-body {
     background-color: transparent; }
   body.mce-content-body [contentEditable=false][data-mce-selected] {
     cursor: pointer; }
+  body.mce-content-body span.wn-attachment {
+    cursor: pointer;
+    display: inline-block; }
+    body.mce-content-body span.wn-attachment .as-icon {
+      margin: 0 .2em; }
+    body.mce-content-body span.wn-attachment .as-title {
+      margin: 0 .2em;
+      text-decoration: underline; }
   body.mce-content-body div.wn-media {
     cursor: pointer; }
     body.mce-content-body div.wn-media .media-inner {
@@ -116,6 +150,50 @@ body.mce-content-body {
         height: 0.8rem;
         border-radius: 50%;
         font-size: 0.48rem; }
+    body.mce-content-body div.wn-media.as-audio {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-end;
+      align-content: center;
+      flex-wrap: nowrap; }
+      body.mce-content-body div.wn-media.as-audio .audio-inner {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        align-content: center;
+        flex-wrap: nowrap;
+        color: #000;
+        background: #F1F3F4;
+        padding: 0 0.08rem;
+        flex: 1 1 auto;
+        height: 52px;
+        border-radius: 50px; }
+        body.mce-content-body div.wn-media.as-audio .audio-inner .as-play-icon {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          align-content: center;
+          flex-wrap: wrap;
+          width: 40px;
+          height: 32px;
+          font-size: 14px; }
+        body.mce-content-body div.wn-media.as-audio .audio-inner .as-audio-name {
+          flex: 1 1 auto;
+          text-align: center;
+          font-size: 12px;
+          white-space: nowrap;
+          width: 100px;
+          overflow: hidden;
+          text-overflow: ellipsis; }
+        body.mce-content-body div.wn-media.as-audio .audio-inner .as-volume-icon {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          align-content: center;
+          flex-wrap: wrap;
+          width: 40px;
+          height: 32px;
+          font-size: 14px; }
     body.mce-content-body div.wn-media.as-video {
       height: 5rem; }
     body.mce-content-body div.wn-media.as-youtube {
@@ -128,11 +206,11 @@ body.mce-content-body {
       background-color: #FFF;
       width: 5.4rem;
       height: 3rem; }
-    body.mce-content-body div.wn-media.as-facebook {
+    body.mce-content-body div.wn-media.as-photos {
       border: 1px dashed rgba(210, 210, 210, 0.3);
-      min-height: 3rem; }
-      body.mce-content-body div.wn-media.as-facebook .media-inner {
-        height: 3rem; }
+      min-height: 1.6rem; }
+      body.mce-content-body div.wn-media.as-photos .media-inner {
+        height: 1.6rem; }
   body.mce-content-body h1 {
     color: inherit;
     background-color: transparent; }

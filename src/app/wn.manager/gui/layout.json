@@ -5,28 +5,24 @@
     "blocks" : [{
       "name" : "sky",
       "size" : 48,
-      "type" : "rows",
-      "border" : true,
+      "type" : "cols",
       "blocks" : [{
-          "type" : "cols",
-          "blocks" : [{
-              "name" : "logo",
-              "size" : "auto",
-              "body" : "pcSkyLogo"
-            }, {
-              "name" : "title",
-              "size" : "stretch",
-              "body" : "pcSkyTitle"
-            }, {
-              "name" : "session",
-              "size" : "auto",
-              "body" : "pcSkySession"
-            }, {
-              "name" : "menu",
-              "size" : "auto",
-              "body" : "pcSkyMenu"
-            }]
-      }]
+          "name" : "logo",
+          "size" : "auto",
+          "body" : "pcSkyLogo"
+        }, {
+          "name" : "title",
+          "size" : "stretch",
+          "body" : "pcSkyTitle"
+        }, {
+          "name" : "session",
+          "size" : "auto",
+          "body" : "pcSkySession"
+        }, {
+          "name" : "menu",
+          "size" : "auto",
+          "body" : "pcSkyMenu"
+        }]
     }, {
       "name" : "main",
       "size" : "100px",

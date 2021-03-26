@@ -50,8 +50,12 @@ const _M = {
             'formatselect',
             'bold italic underline link',
             'blockquote bullist numlist',
-            'blocks',
-            'table WnImgPick WnVideoPick WnAudioPick WnYoutubePick WnFacebookPick',
+            'blocks table',
+            [
+              'WnImgPick','WnVideoPick','WnAudioPick',
+              'WnAttachmentPick', 'WnAlbumPick'
+            ].join(' '),
+            ['WnYoutubePick', 'WnFacebookPick'].join(' '),
             'superscript subscript',
             'edit removeformat',
             'TiPreview']
@@ -191,7 +195,8 @@ const _M = {
       let str = this.$editor.getContent()
       //console.log("content", typeof str, `【${str}】`, this.value)
       this.myHtmlCode = str
-
+      //console.log("syncContent", str)
+      //this.$notify("change", str);
       return str
     },
     //-----------------------------------------------
@@ -340,7 +345,7 @@ const _M = {
           editor.__rich_tinymce_com = this
           // Event: change
           editor.on("Change", (evt)=>{
-            // onsole.log("Change ", evt)
+            //console.log("Change ", evt)
             this.myHtmlCode = editor.getContent()
           })
           // Event: get outline
@@ -359,6 +364,7 @@ const _M = {
             this.evalOutline()
           })
           editor.on("SelectionChange", (evt)=>{
+            //console.log("SelectionChange ", evt)
             this.evalCurrentHeading()
           })
           editor.on('init', ()=>{
@@ -400,7 +406,8 @@ const _M = {
       conf.extended_valid_elements = _.concat(
         extended_valid_elements, 
         'img[ti-*|wn-obj-*|src|width|height|style|class]',
-        'div[ti-*|wn-*|style|class]'
+        'div[ti-*|wn-*|style|class]',
+        'span[ti-*|wn-*|style|class]'
       ).join(",")
       // Init customized plugins
       for(let plug of this.myPlugins) {
@@ -432,6 +439,7 @@ const _M = {
   watch : {
     "myHtmlCode" : function(newVal, oldVal) {
       if(!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.value)) {
+        //console.log("myHtmlCode", {newVal, oldVal})
         this.$notify("change", newVal);
       }
     },
@@ -450,7 +458,7 @@ const _M = {
       if(!this.$editor) {
         return
       }
-      //console.log("value", newVal, oldVal)
+      //console.log("value", {newVal, oldVal})
       if(!this.myHtmlCode ||
         (!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.myHtmlCode))) {
           this.myHtmlCode = newVal
