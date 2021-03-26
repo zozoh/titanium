@@ -1,4 +1,4 @@
-// Pack At: 2021-03-26 09:06:55
+// Pack At: 2021-03-26 09:24:34
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4220,7 +4220,7 @@ const {Dom} = (function(){
         height : $win.innerHeight
       })
       let css = rect.toCss(viewport, keys)
-      TiDom.setStyle($el, css)
+      TiDom.updateStyle($el, css)
     },
     //----------------------------------------------------
     dockTo($src, $ta, {
@@ -13637,7 +13637,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210326.090655",
+  "version" : "1.6-20210326.092434",
   "dev" : false,
   "appName" : null,
   "session" : {},

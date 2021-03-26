@@ -687,7 +687,7 @@ const TiDom = {
       height : $win.innerHeight
     })
     let css = rect.toCss(viewport, keys)
-    TiDom.setStyle($el, css)
+    TiDom.updateStyle($el, css)
   },
   //----------------------------------------------------
   dockTo($src, $ta, {
