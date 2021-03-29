@@ -1,4 +1,4 @@
-// Pack At: 2021-03-30 02:03:51
+// Pack At: 2021-03-30 02:33:21
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8582,6 +8582,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : Array,
     default : undefined
   },
+  "exposeHidden" : {
+    type : Boolean,
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -8592,9 +8595,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "itemBadges" : {
     type : [Object, Function],
     default : undefined
-  },
-  "exposeHidden" : {
-    type : Boolean,
   },
   //-----------------------------------
   // Callback

@@ -71,6 +71,9 @@ export default {
     type : Array,
     default : undefined
   },
+  "exposeHidden" : {
+    type : Boolean,
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -81,9 +84,6 @@ export default {
   "itemBadges" : {
     type : [Object, Function],
     default : undefined
-  },
-  "exposeHidden" : {
-    type : Boolean,
   },
   //-----------------------------------
   // Callback
