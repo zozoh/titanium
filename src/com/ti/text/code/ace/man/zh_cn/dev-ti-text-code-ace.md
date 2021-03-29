@@ -1,5 +1,5 @@
 ---
-title: 富文本编辑器:TiTextRichTinymce
+title: 代码编辑器:TiTextCodeAce
 author: zozohtnt@gmail.com
 screen:
 - desktop
@@ -8,10 +8,10 @@ screen:
 
 # 富文本编辑器
 
-本编辑器是对于`TiTextRichTinymce`的整合。
+本编辑器是对于`ACE`的整合。
 
-- [TinyMCE 官网](https://www.tiny.cloud)
-- [创建一个 TinmyMCE 插件](https://www.tiny.cloud/docs/advanced/creating-a-plugin/)
+- [Ace 官网](https://ace.c9.io/)
+
 
 # 属性列表
 
@@ -43,28 +43,3 @@ Name          | Description
 `loadingAs`   | 内容加载中的样式
 `blankAs`     | 空内容样式
 
-# 插件详情
-
-插件是通过`@plugins`描述的插件路径，在编辑器初始化时通过`Ti.Load`加载的。
-插件模块遵循如下规范:
-
-```js
-// 总之需要导出 default 对象
-export default {
-  // 插件的名称，这个会传递给 TinyMCE 的 plugins 配置项
-  // 作为本编辑的额外插件，它不会覆盖你原本的 tinymce.plugins 设置
-  // 而是会追加在后面
-  name : "ti-heading",
-  // 这个函数会在初始化 TinyMCE 之前，给插件一个机会，修改配置项
-  init : function(config) {
-    // TODO update config
-  },
-  // 这个是 TinyMCE 标准插件函数，遵循起规范，详情请参见
-  // https://www.tiny.cloud/docs/advanced/creating-a-plugin/
-  // 这个函数是控件在初始化 TinyMCE 时，逐个通过 PluginManager.add
-  // 加入 TinyMCE 的
-  setup : function(editor, url){
-    // TODO plugin detail
-  }
-}
-```

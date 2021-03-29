@@ -2,10 +2,6 @@ const _M = {
   //...............................................
   // Data
   //...............................................
-  "mediaBase" : {
-    type : String,
-    default : undefined
-  },
   "value" : {
     type : String,
     default : undefined
@@ -14,37 +10,9 @@ const _M = {
   // Behavior
   //...............................................
   // Ext-toolbar item defination
-  "toolbar" : {
-    type : [Boolean, Array, String],
-    default : true
-  },
-  "plugins" : {
-    type : Array,
-    default : ()=>[]
-  },
-  "pluginUrl" : {
-    type : [String, Function],
-    default : undefined
-  },
-  "readonly" : {
-    type : Boolean,
-    default : false
-  },
-  "tinyConfig" : {
-    type : Object,
-    default: ()=>({})
-  },
-  "tinySetup" : {
-    type : Function,
-    default : undefined
-  },
   //...............................................
   // Aspact
   //...............................................
-  "lang" : {
-    type : String,
-    default : "zh-cn"
-  },
   "placeholder" : {
     type : String,
     default : "i18n:blank"

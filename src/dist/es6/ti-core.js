@@ -1,4 +1,4 @@
-// Pack At: 2021-03-26 09:24:34
+// Pack At: 2021-03-30 02:03:51
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1534,7 +1534,7 @@ const {S} = (function(){
         re = nb.toFixed(fixed)+unit
       }
       
-      if(bytes) {
+      if(bytes && i > 0) {
         return re + ` (${byte} bytes)`
       }
       return re
@@ -13298,6 +13298,7 @@ const {WalnutAppMain} = (function(){
     if(_app.obj) {
       basePath = "id:" + _app.obj.id
     }
+    await app.dispatch("viewport/reload")
     await app.dispatch("current/reload", basePath)
     //---------------------------------------
     // All Done
@@ -13637,7 +13638,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210326.092434",
+  "version" : "1.6-20210330.020351",
   "dev" : false,
   "appName" : null,
   "session" : {},

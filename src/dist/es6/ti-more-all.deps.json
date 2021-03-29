@@ -17,6 +17,9 @@
    "type": "js",
    "path": "@deps:sortable.js"
 }, {
+   "type": "js",
+   "path": "@deps:ace/1.4.12/ace.js"
+}, {
    "type": "mjs",
    "path": "@lib:code2a/cheap-markdown.mjs"
 }, {

@@ -8,7 +8,8 @@ export default {
     isViewportModeDesktopOrTablet : (state)=> 
       ("desktop" == state.mode || "tablet" == state.mode),
     isViewportModePhoneOrTablet : (state)=> 
-      ("phone" == state.mode || "tablet" == state.mode)
+      ("phone" == state.mode || "tablet" == state.mode),
+    isExposeHidden : (state)=> state.exposeHidden,
   },
   mutations : {
     setMode(state, mode="desktop") {
@@ -17,6 +18,24 @@ export default {
     setActivedIds(state, activedIds=[]) {
       //console.log("viewport setActivedIds", activedIds)
       state.activedIds = _.cloneDeep(activedIds)
+    },
+    setExposeHidden(state, exposeHidden) {
+      //console.log("viewport setActivedIds", activedIds)
+      state.exposeHidden = exposeHidden
+    }
+  },
+  actions : {
+    toggleExposeHidden({state, commit}) {
+      commit("setExposeHidden", !state.exposeHidden)
+      if(state.keeyHiddenBy) {
+        Ti.Storage.session.set(state.keeyHiddenBy, state.exposeHidden)
+      }
+    },
+    reload({state, commit}) {
+      if(state.keeyHiddenBy) {
+        let eh = Ti.Storage.session.getBoolean(state.keeyHiddenBy)
+        commit("setExposeHidden", eh)
+      }
     }
   }
 }

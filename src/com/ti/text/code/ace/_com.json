@@ -5,6 +5,6 @@
   "props" : "./code-ace-props.mjs",
   "mixins" : "./code-ace.mjs",
   "deps" : [
-    "@deps:tinymce/5.6.2/tinymce.min.js"
+    "@deps:ace/1.4.12/ace.js"
   ]
 }

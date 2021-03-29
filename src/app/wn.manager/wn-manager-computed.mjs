@@ -18,7 +18,7 @@ const _M = {
       homePath  : this.setup.skyHomePath,
       titleBy,
       iteratee : (item, i, {nm}={}) => {
-        if(!this.myExposeHidden && nm && nm.startsWith(".")) {
+        if(!this.exposeHidden && nm && nm.startsWith(".")) {
           return
         }
         return item

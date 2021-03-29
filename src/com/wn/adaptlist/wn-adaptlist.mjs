@@ -281,13 +281,13 @@ const _M = {
       }
     },
     //--------------------------------------------
-    toggleExposeHidden() {
-      let newVal = !this.myExposeHidden
-      this.myExposeHidden = newVal
-      if(this.keeyHiddenBy) {
-        Ti.Storage.session.set(this.keeyHiddenBy, newVal)
-      }
-    },
+    // toggleExposeHidden() {
+    //   let newVal = !this.myExposeHidden
+    //   this.myExposeHidden = newVal
+    //   if(this.keeyHiddenBy) {
+    //     Ti.Storage.session.set(this.keeyHiddenBy, newVal)
+    //   }
+    // },
     //--------------------------------------------
     openLocalFileSelectdDialog(){
       this.$refs.file.click()
@@ -343,8 +343,11 @@ const _M = {
       immediate : true
     },
     //--------------------------------------------
-    "myExposeHidden" : function(eh){
-      this.$notify("expose-hidden", eh)
+    "exposeHidden" : {
+      handler : function(eh){
+        this.myExposeHidden = eh
+      },
+      immediate : true
     }
     //--------------------------------------------
   },
@@ -362,9 +365,9 @@ const _M = {
       }
     })
     // Restore the exposeHidden
-    if(this.keeyHiddenBy) {
-      this.myExposeHidden = Ti.Storage.session.getBoolean(this.keeyHiddenBy)
-    }
+    // if(this.keeyHiddenBy) {
+    //   this.myExposeHidden = Ti.Storage.session.getBoolean(this.keeyHiddenBy)
+    // }
   },
   //--------------------------------------------
   beforeDestroy : function(){

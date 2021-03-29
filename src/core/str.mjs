@@ -598,7 +598,7 @@ const TiStr = {
       re = nb.toFixed(fixed)+unit
     }
     
-    if(bytes) {
+    if(bytes && i > 0) {
       return re + ` (${byte} bytes)`
     }
     return re

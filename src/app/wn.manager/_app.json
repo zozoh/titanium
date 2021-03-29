@@ -27,6 +27,11 @@
           "status"  : "status",
           "fieldStatus"  : "fieldStatus"
         }
+      },
+      "...viewport" : {
+        "state" : {
+          "exposeHidden" : "exposeHidden"
+        }
       }
     }, "!mjs:./wn-manager-computed.mjs"],
   "methods" : "!mjs:./wn-manager-methods.mjs",

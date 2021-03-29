@@ -1,4 +1,6 @@
 {
   "mode" : "desktop",
-  "activedIds" : []
+  "activedIds" : [],
+  "exposeHidden" : false,
+  "keeyHiddenBy" : "ti-viewport-expose-hidden"
 }

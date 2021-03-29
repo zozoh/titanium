@@ -13,7 +13,6 @@ const _M = {
   },
   ///////////////////////////////////////////
   data:()=>({
-    myExposeHidden : false,
     loading : false,
     comIcon : "zmdi-hourglass-alt",
     comType : "ti-loading",
@@ -118,7 +117,7 @@ const _M = {
         this.mainViewStatus,
         {
           pvg : this.privilege,
-          exposeHidden : this.myExposeHidden,
+          exposeHidden : this.exposeHidden,
           changed      : this.isChanged,
           reloading    : reloading,
           loading      : this.loading
@@ -185,12 +184,18 @@ const _M = {
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
-    OnExposeHidden(eh) {
-      this.myExposeHidden = eh
-    },
-    //--------------------------------------
     OnLogout() {
       this.doLogout()
+    },
+    //--------------------------------------
+    OnArenaSelect({checked}) {
+      //console.log("OnArenaSelect", checked)
+      let n = _.size(checked)
+      if(n > 0) {
+        this.myIndicator = `${n} selected`
+      } else {
+        this.myIndicator = null
+      }
     },
     //--------------------------------------
     OnCurrentMetaChange({id, path, value}={}) {

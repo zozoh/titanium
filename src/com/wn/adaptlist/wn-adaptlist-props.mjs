@@ -57,10 +57,6 @@ export default {
     type : String,
     default : "sm"
   },
-  "keeyHiddenBy" : {
-    type : String,
-    default : "wn-list-adaptview-expose-hidden"
-  },
   "routers" : {
     type : Object,
     default : ()=>({
@@ -85,6 +81,9 @@ export default {
   "itemBadges" : {
     type : [Object, Function],
     default : undefined
+  },
+  "exposeHidden" : {
+    type : Boolean,
   },
   //-----------------------------------
   // Callback

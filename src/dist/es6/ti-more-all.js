@@ -1,4 +1,4 @@
-// Pack At: 2021-03-26 09:24:34
+// Pack At: 2021-03-30 02:03:51
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1356,13 +1356,13 @@ const _M = {
       }
     },
     //--------------------------------------------
-    toggleExposeHidden() {
-      let newVal = !this.myExposeHidden
-      this.myExposeHidden = newVal
-      if(this.keeyHiddenBy) {
-        Ti.Storage.session.set(this.keeyHiddenBy, newVal)
-      }
-    },
+    // toggleExposeHidden() {
+    //   let newVal = !this.myExposeHidden
+    //   this.myExposeHidden = newVal
+    //   if(this.keeyHiddenBy) {
+    //     Ti.Storage.session.set(this.keeyHiddenBy, newVal)
+    //   }
+    // },
     //--------------------------------------------
     openLocalFileSelectdDialog(){
       this.$refs.file.click()
@@ -1418,8 +1418,11 @@ const _M = {
       immediate : true
     },
     //--------------------------------------------
-    "myExposeHidden" : function(eh){
-      this.$notify("expose-hidden", eh)
+    "exposeHidden" : {
+      handler : function(eh){
+        this.myExposeHidden = eh
+      },
+      immediate : true
     }
     //--------------------------------------------
   },
@@ -1437,9 +1440,9 @@ const _M = {
       }
     })
     // Restore the exposeHidden
-    if(this.keeyHiddenBy) {
-      this.myExposeHidden = Ti.Storage.session.getBoolean(this.keeyHiddenBy)
-    }
+    // if(this.keeyHiddenBy) {
+    //   this.myExposeHidden = Ti.Storage.session.getBoolean(this.keeyHiddenBy)
+    // }
   },
   //--------------------------------------------
   beforeDestroy : function(){
@@ -8565,10 +8568,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : String,
     default : "sm"
   },
-  "keeyHiddenBy" : {
-    type : String,
-    default : "wn-list-adaptview-expose-hidden"
-  },
   "routers" : {
     type : Object,
     default : ()=>({
@@ -8593,6 +8592,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "itemBadges" : {
     type : [Object, Function],
     default : undefined
+  },
+  "exposeHidden" : {
+    type : Boolean,
   },
   //-----------------------------------
   // Callback
@@ -22776,7 +22778,6 @@ const _M = {
   },
   ///////////////////////////////////////////
   data:()=>({
-    myExposeHidden : false,
     loading : false,
     comIcon : "zmdi-hourglass-alt",
     comType : "ti-loading",
@@ -22881,7 +22882,7 @@ const _M = {
         this.mainViewStatus,
         {
           pvg : this.privilege,
-          exposeHidden : this.myExposeHidden,
+          exposeHidden : this.exposeHidden,
           changed      : this.isChanged,
           reloading    : reloading,
           loading      : this.loading
@@ -22948,12 +22949,18 @@ const _M = {
   ///////////////////////////////////////////
   methods : {
     //--------------------------------------
-    OnExposeHidden(eh) {
-      this.myExposeHidden = eh
-    },
-    //--------------------------------------
     OnLogout() {
       this.doLogout()
+    },
+    //--------------------------------------
+    OnArenaSelect({checked}) {
+      //console.log("OnArenaSelect", checked)
+      let n = _.size(checked)
+      if(n > 0) {
+        this.myIndicator = `${n} selected`
+      } else {
+        this.myIndicator = null
+      }
     },
     //--------------------------------------
     OnCurrentMetaChange({id, path, value}={}) {
@@ -26598,6 +26605,66 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'code-ace.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/code/ace/code-ace.mjs'] = (function(){
+const _M = {
+  ///////////////////////////////////////////////////
+  data : ()=>({
+    
+  }),
+  ///////////////////////////////////////////////////
+  computed : {
+    //-----------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "nil-content" : this.isContentNil,
+        "has-content" : !this.isContentNil
+      })
+    },
+    //-----------------------------------------------
+    BlankComStyle() {
+      return {
+        position: "absolute",
+        top:0, right:0, bottom:0, left:0,
+        zIndex: 10
+      }
+    },
+    //-----------------------------------------------
+    isContentLoading() {
+      return _.isUndefined(this.value)
+    },
+    //-----------------------------------------------
+    isContentNil() {
+      return Ti.Util.isNil(this.value)
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods : {
+    //-----------------------------------------------
+    async initEditor() {
+      
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    
+  },
+  ///////////////////////////////////////////////////
+  created : function() {
+    
+  },
+  ///////////////////////////////////////////////////
+  mounted : async function() {
+    await this.initEditor()
+  }
+  ///////////////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'web-meta-article.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/meta/article/web-meta-article.mjs'] = (function(){
@@ -27972,7 +28039,7 @@ const _M = {
       homePath  : this.setup.skyHomePath,
       titleBy,
       iteratee : (item, i, {nm}={}) => {
-        if(!this.myExposeHidden && nm && nm.startsWith(".")) {
+        if(!this.exposeHidden && nm && nm.startsWith(".")) {
           return
         }
         return item
@@ -28853,6 +28920,55 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //--------------------------------------------
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'code-ace-props.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/code/ace/code-ace-props.mjs'] = (function(){
+const _M = {
+  //...............................................
+  // Data
+  //...............................................
+  "value" : {
+    type : String,
+    default : undefined
+  },
+  //...............................................
+  // Behavior
+  //...............................................
+  // Ext-toolbar item defination
+  //...............................................
+  // Aspact
+  //...............................................
+  "placeholder" : {
+    type : String,
+    default : "i18n:blank"
+  },
+  "theme" : {
+    type : String,
+    default : "light"
+  },
+  "loadingAs" : {
+    type : Object,
+    default : ()=>({
+      className : "as-nil-mask as-big-mask",
+      icon : undefined,
+      text : undefined
+    })
+  },
+  "blankAs" : {
+    type : Object,
+    default : ()=>({
+      comType : "TiLoading",
+      comConf : {
+        className : "as-nil-mask as-big-mask",
+        icon : "fas-coffee",
+        text : null
+      }
+    })
+  }
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'wn-transfer.mjs' -> null
@@ -48056,7 +48172,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     isViewportModeDesktopOrTablet : (state)=> 
       ("desktop" == state.mode || "tablet" == state.mode),
     isViewportModePhoneOrTablet : (state)=> 
-      ("phone" == state.mode || "tablet" == state.mode)
+      ("phone" == state.mode || "tablet" == state.mode),
+    isExposeHidden : (state)=> state.exposeHidden,
   },
   mutations : {
     setMode(state, mode="desktop") {
@@ -48065,6 +48182,24 @@ const __TI_MOD_EXPORT_VAR_NM = {
     setActivedIds(state, activedIds=[]) {
       //console.log("viewport setActivedIds", activedIds)
       state.activedIds = _.cloneDeep(activedIds)
+    },
+    setExposeHidden(state, exposeHidden) {
+      //console.log("viewport setActivedIds", activedIds)
+      state.exposeHidden = exposeHidden
+    }
+  },
+  actions : {
+    toggleExposeHidden({state, commit}) {
+      commit("setExposeHidden", !state.exposeHidden)
+      if(state.keeyHiddenBy) {
+        Ti.Storage.session.set(state.keeyHiddenBy, state.exposeHidden)
+      }
+    },
+    reload({state, commit}) {
+      if(state.keeyHiddenBy) {
+        let eh = Ti.Storage.session.getBoolean(state.keeyHiddenBy)
+        commit("setExposeHidden", eh)
+      }
     }
   }
 }
@@ -56645,6 +56780,57 @@ Ti.Preload("ti/com/ti/tags/_com.json", {
   ]
 });
 //========================================
+// JOIN <code-ace-props.mjs> ti/com/ti/text/code/ace/code-ace-props.mjs
+//========================================
+Ti.Preload("ti/com/ti/text/code/ace/code-ace-props.mjs", TI_PACK_EXPORTS['ti/com/ti/text/code/ace/code-ace-props.mjs']);
+//========================================
+// JOIN <code-ace.html> ti/com/ti/text/code/ace/code-ace.html
+//========================================
+Ti.Preload("ti/com/ti/text/code/ace/code-ace.html", `<div class="ti-text-code-ace"
+  :class="TopClass"
+  v-ti-activable>
+  <!--
+    Editor
+  -->
+  <div class="as-editor">function foo(items) {
+    var x = "All this is syntax highlighted";
+    return x;
+}</div>
+  <!--
+    Show loading
+  -->
+  <TiLoading
+    v-if="isContentLoading"
+      class="as-nil-mask as-big-mask"
+      :style="BlankComStyle"
+      v-bind="loadingAs"/>
+  <!--
+    Show blank
+  -->
+  <component
+    v-else-if="isContentNil"
+      :style="BlankComStyle"
+      :is="blankAs.comType"
+      v-bind="blankAs.comConf"/>
+</div>`);
+//========================================
+// JOIN <code-ace.mjs> ti/com/ti/text/code/ace/code-ace.mjs
+//========================================
+Ti.Preload("ti/com/ti/text/code/ace/code-ace.mjs", TI_PACK_EXPORTS['ti/com/ti/text/code/ace/code-ace.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/text/code/ace/_com.json
+//========================================
+Ti.Preload("ti/com/ti/text/code/ace/_com.json", {
+  "name" : "ti-text-code-ace",
+  "globally" : true,
+  "template" : "./code-ace.html",
+  "props" : "./code-ace-props.mjs",
+  "mixins" : "./code-ace.mjs",
+  "deps" : [
+    "@deps:ace/1.4.12/ace.js"
+  ]
+});
+//========================================
 // JOIN <ti-text-json.html> ti/com/ti/text/json/ti-text-json.html
 //========================================
 Ti.Preload("ti/com/ti/text/json/ti-text-json.html", `<ti-gui
@@ -62514,7 +62700,9 @@ Ti.Preload("ti/mod/hmaker/website/_mod.json", {
 //========================================
 Ti.Preload("ti/mod/ti/viewport/ti-viewport.json", {
   "mode" : "desktop",
-  "activedIds" : []
+  "activedIds" : [],
+  "exposeHidden" : false,
+  "keeyHiddenBy" : "ti-viewport-expose-hidden"
 });
 //========================================
 // JOIN <ti-viewport.mjs> ti/mod/ti/viewport/ti-viewport.mjs
@@ -63123,11 +63311,11 @@ Ti.Preload("/a/load/wn.manager/wn-manager.html", `<ti-gui
   :can-loading="GuiCanLoading"
   :loading-as="GuiLoadingAs"
   @sky::menu::update:me:vars="OnUpdateMyVars"
-  @arena::expose-hidden="OnExposeHidden"
   @do:logout="OnLogout"
   @item:active="OnCurrentMetaChange"
   @open:wn:obj="OnCurrentMetaChange"
   @arena::change="OnCurrentDataChange"
+  @arena::select="OnArenaSelect"
   @arena::actions:update="OnUpdateActions"
   @arena::indicate="OnArenaIndicate"
   @arena::message="OnArenaMessage"

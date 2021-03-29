@@ -1,6 +1,14 @@
 {
   "comIcon" : "im-archive",
   "comType" : "@com:wn/adaptlist",
+  "comConf" : {
+    "ancestors" : "=ancestors",
+    "parent"    : "=parent",
+    "meta"      : "=meta",
+    "data"      : "=data",
+    "status"    : "=status",
+    "exposeHidden"  : "=exposeHidden"
+  },
   "actions" : [{
       "name" : "reloading",
       "type" : "action",
@@ -74,7 +82,7 @@
             "text" : "i18n:wn-expose-hidden-off",
             "capture" : false
           },
-          "action" : "main:toggleExposeHidden",
+          "action" : "dispatch:viewport/toggleExposeHidden",
           "shortcut" : "ALT+CTRL+SHIFT+H"
         },{
           "type" : "line"

@@ -197,6 +197,7 @@ export async function WalnutAppMain({
   if(_app.obj) {
     basePath = "id:" + _app.obj.id
   }
+  await app.dispatch("viewport/reload")
   await app.dispatch("current/reload", basePath)
   //---------------------------------------
   // All Done
