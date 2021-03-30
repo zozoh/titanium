@@ -1,0 +1,6 @@
+{
+  "name" : "web-shelf-gallery",
+  "globally" : true,
+  "template" : "./web-shelf-gallery.html",
+  "mixins" : ["./web-shelf-gallery.mjs"]
+}

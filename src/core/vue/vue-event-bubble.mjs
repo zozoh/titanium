@@ -49,6 +49,7 @@ const Notify = function(name, ...args) {
     // {stop:true}
     else if(reo && _.isBoolean(reo.stop)) {
       stop = reo.stop
+      event.name = reo.name || event.name
     }
     // Try bubble
     TryBubble(this, event, stop)

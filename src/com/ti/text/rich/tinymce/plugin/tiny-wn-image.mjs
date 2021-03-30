@@ -106,7 +106,7 @@ function CmdSetImageStyle(editor, css={}) {
     return
   }
   // Clear float
-  Ti.Dom.setStyle($img, css)
+  Ti.Dom.updateStyle($img, css)
   // Force sync content
   editor.__rich_tinymce_com.syncContent()
 }

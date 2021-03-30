@@ -1,4 +1,4 @@
-// Pack At: 2021-03-30 02:33:21
+// Pack At: 2021-03-30 12:17:27
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -824,186 +824,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'web-shelf-gallary.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/web/shelf/gallary/web-shelf-gallary.mjs'] = (function(){
-const _M = {
-  //////////////////////////////////////////
-  data : ()=>({
-    myHoverIndex: -1,
-    myRect: {width:0, height:0},
-    myItemList: []
-  }),
-  //////////////////////////////////////////
-  props : {
-    //-----------------------------------
-    // Data
-    //-----------------------------------
-    "data" : {
-      type : Array,
-      default : ()=>[]
-    },
-    //-----------------------------------
-    // Behavior
-    //-----------------------------------
-    "comType" : {
-      type: String,
-      default : undefined
-    },
-    "comConf" : {
-      type : Object,
-      default : ()=>({})
-    },
-    //-----------------------------------
-    // Aspect
-    //-----------------------------------
-    "minScale" : {
-      type : Number,
-      default : 0.5
-    },
-    //-----------------------------------
-    // Measure
-    //-----------------------------------
-    // item scale = width/height
-    "itemWH" : {
-      type : Number,
-      default : undefined
-    },
-    "width" : {
-      type : [Number, String],
-      default : undefined
-    },
-    "height" : {
-      type : [Number, String],
-      default : undefined
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    TopClass() {
-      return this.getTopClass()
-    },
-    //--------------------------------------
-    TopStyle() {
-      return Ti.Css.toStyle({
-        width: this.width,
-        height: this.height
-      })
-    },
-    //--------------------------------------
-    DataItems() {
-      return this.data || []
-    },
-    //--------------------------------------
-    ItemStyles() {
-      if(_.isEmpty(this.data) || this.myHoverIndex < 0){
-        return []
-      }
-      // Measure: viewport sizing
-      let items = this.data || []
-      let {width, height} = this.myRect
-      let n = this.DataItems.length
-      let half = width / (n+1)
-      let unit = half * 2
-
-      // Scale
-      let hoveI = this.myHoverIndex
-      let lastI = n - 1
-      let scale = 1 - this.minScale
-
-      // At left
-      // 0 -> [][][][][]V[][] <- last
-      //              hoveI
-      let stepL = hoveI > 0 ? scale / hoveI  : 0
-      let stepR = hoveI < lastI ? scale / (lastI - hoveI) : 0
-
-
-      // Loop for style
-      let itW = this.itemWH ? (height*this.itemWH) : 0
-      let list = []
-      for(let i=0; i<this.DataItems.length; i++) {
-        let left  = half * i
-        let width = itW || unit
-        if(itW) {
-          left -= (itW - unit) / 2
-        }
-        // About scale
-        let d = Math.abs(i - hoveI)
-        let transform = null
-        // Need to transform scale
-        if(i != hoveI) {
-          let s = i < hoveI
-                    ? d * stepL
-                    : d * stepR
-          transform = `scale(${1-s})`
-        }
-        list.push(Ti.Css.toStyle({
-          left, width, transform,
-          zIndex : n - d
-        }))
-      }
-
-      return list
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    OnResize() {
-      this.myRect = Ti.Rects.createBy(this.$refs.con)
-    },
-    //--------------------------------------
-    OnMouseLeave() {
-      this.myHoverIndex = parseInt(this.DataItems.length / 2)
-    },
-    //--------------------------------------
-    OnMouseEnterItem({index}) {
-      this.myHoverIndex = index
-    },
-    //--------------------------------------
-    getItemStyle(index) {
-      return _.get(this.ItemStyles, index)
-    },
-    //--------------------------------------
-    evalDataItemList() {
-      let list = []
-      _.forEach(this.data, (it, index) => {
-        let comType = Ti.Util.explainObj(it, this.comType)
-        let comConf = Ti.Util.explainObj(it, this.comConf)
-        list.push({
-          index,
-          comType, comConf
-        })
-      })
-      this.myItemList = list
-      this.myHoverIndex = parseInt(list.length / 2)
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  watch : {
-    "data" : "evalDataItemList"
-  },
-  //////////////////////////////////////////
-  mounted: function() {
-    this.OnResize()
-    this.evalDataItemList()
-
-    Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.OnResize(), 10)
-    })
-  },
-  ///////////////////////////////////////////////////
-  beforeDestroy : function(){
-    Ti.Viewport.unwatch(this)
-  }
-  //////////////////////////////////////////
-}
-return _M;;
 })()
 // ============================================================
 // EXPORT 'order-item.mjs' -> null
@@ -20831,6 +20651,186 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'web-shelf-gallery.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/shelf/gallery/web-shelf-gallery.mjs'] = (function(){
+const _M = {
+  //////////////////////////////////////////
+  data : ()=>({
+    myHoverIndex: -1,
+    myRect: {width:0, height:0},
+    myItemList: []
+  }),
+  //////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "data" : {
+      type : Array,
+      default : ()=>[]
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "comType" : {
+      type: String,
+      default : undefined
+    },
+    "comConf" : {
+      type : Object,
+      default : ()=>({})
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "minScale" : {
+      type : Number,
+      default : 0.5
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    // item scale = width/height
+    "itemWH" : {
+      type : Number,
+      default : undefined
+    },
+    "width" : {
+      type : [Number, String],
+      default : undefined
+    },
+    "height" : {
+      type : [Number, String],
+      default : undefined
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //--------------------------------------
+    DataItems() {
+      return this.data || []
+    },
+    //--------------------------------------
+    ItemStyles() {
+      if(_.isEmpty(this.data) || this.myHoverIndex < 0){
+        return []
+      }
+      // Measure: viewport sizing
+      let items = this.data || []
+      let {width, height} = this.myRect
+      let n = this.DataItems.length
+      let half = width / (n+1)
+      let unit = half * 2
+
+      // Scale
+      let hoveI = this.myHoverIndex
+      let lastI = n - 1
+      let scale = 1 - this.minScale
+
+      // At left
+      // 0 -> [][][][][]V[][] <- last
+      //              hoveI
+      let stepL = hoveI > 0 ? scale / hoveI  : 0
+      let stepR = hoveI < lastI ? scale / (lastI - hoveI) : 0
+
+
+      // Loop for style
+      let itW = this.itemWH ? (height*this.itemWH) : 0
+      let list = []
+      for(let i=0; i<this.DataItems.length; i++) {
+        let left  = half * i
+        let width = itW || unit
+        if(itW) {
+          left -= (itW - unit) / 2
+        }
+        // About scale
+        let d = Math.abs(i - hoveI)
+        let transform = null
+        // Need to transform scale
+        if(i != hoveI) {
+          let s = i < hoveI
+                    ? d * stepL
+                    : d * stepR
+          transform = `scale(${1-s})`
+        }
+        list.push(Ti.Css.toStyle({
+          left, width, transform,
+          zIndex : n - d
+        }))
+      }
+
+      return list
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnResize() {
+      this.myRect = Ti.Rects.createBy(this.$refs.con)
+    },
+    //--------------------------------------
+    OnMouseLeave() {
+      this.myHoverIndex = parseInt(this.DataItems.length / 2)
+    },
+    //--------------------------------------
+    OnMouseEnterItem({index}) {
+      this.myHoverIndex = index
+    },
+    //--------------------------------------
+    getItemStyle(index) {
+      return _.get(this.ItemStyles, index)
+    },
+    //--------------------------------------
+    evalDataItemList() {
+      let list = []
+      _.forEach(this.data, (it, index) => {
+        let comType = Ti.Util.explainObj(it, this.comType)
+        let comConf = Ti.Util.explainObj(it, this.comConf)
+        list.push({
+          index,
+          comType, comConf
+        })
+      })
+      this.myItemList = list
+      this.myHoverIndex = parseInt(list.length / 2)
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "data" : "evalDataItemList"
+  },
+  //////////////////////////////////////////
+  mounted: function() {
+    this.OnResize()
+    this.evalDataItemList()
+
+    Ti.Viewport.watch(this, {
+      resize : _.debounce(()=>this.OnResize(), 10)
+    })
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy : function(){
+    Ti.Viewport.unwatch(this)
+  }
+  //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'web-pay-proceed-props.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/pay/proceed/web-pay-proceed-props.mjs'] = (function(){
@@ -21863,8 +21863,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////////
   data : ()=>({
     myCurrentId : undefined,
+    currentPlayListId : undefined,
     ytConfig : undefined,
-    ytPlaylists : [],
+    ytPlaylists : undefined,
     ytVideos : undefined
   }),
   ///////////////////////////////////////////////////////
@@ -21908,8 +21909,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
         type: "cols",
         border:true,
         blocks: [{
+          icon  : "fab-youtube",
+          title : "Playlists",
+          name : "nav",
+          size : "20%",
+          body : "pcNav"
+        }, {
           name : "list",
-          size : "62%",
+          size : "50%",
           body : "pcList"
         }, {
           name : "detail",
@@ -21920,12 +21927,24 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
     GuiSchema() {
       return {
+        pcNav: {
+          comType: "TiList",
+          comConf: {
+            data: this.ytPlaylists,
+            idBy: "id",
+            multi: false,
+            currentId : this.currentPlayListId,
+            display: [
+              "<thumbUrl:fas-youtube>", "itemCount::as-tip", "title"
+            ]
+          }
+        },
         pcList: {
           comType: "TiWall",
           comConf: {
             data: this.WallItemList,
             idBy: "id",
-            multi: false,
+            multi: true,
             display: {
               key : "..",
               comType : "ti-obj-thumb",
@@ -21968,12 +21987,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////////
   methods :{
     //---------------------------------------------------
+    async OnNavSelect({currentId}) {
+      this.currentPlayListId = currentId
+      await this.reloadVideos()
+    },
+    //---------------------------------------------------
     OnListSelect({currentId}) {
       this.myCurrentId = currentId
       let video = _.cloneDeep(this.CurrentVideo)
       if(this.notifyName) {
         this.$notify(this.notifyName, video)
       }
+      return {stop:false, name:"select"}
     },
     //---------------------------------------------------
     getVideoObj(videoId) {
@@ -21984,6 +22009,24 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }
       }
+    },
+    //---------------------------------------------------
+    getPlaylistObj(playlistId, playlists=this.ytPlaylists) {
+      if(!playlists || !_.isArray(playlists))
+        return
+
+      for(let pl of playlists) {
+        if(playlistId == pl.id) {
+          return pl
+        }
+      }
+    },
+    //---------------------------------------------------
+    async reloadVideos(plId = this.currentPlayListId) {
+      this.ytVideos = undefined
+      let config = this.ytConfig
+      let videos = await Wn.Youtube.getAllVideos(config, plId)
+      this.ytVideos = videos
     },
     //---------------------------------------------------
     async reload(force=false) {
@@ -22001,12 +22044,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
       })
 
       let playlists = await Wn.Youtube.getAllPlaylists(config)
-      let videos = await Wn.Youtube.getAllVideos(config)
+      let plId = this.currentPlayListId
+      if(playlists.length > 0) {
+        let pl = this.getPlaylistObj(plId, playlists)
+        if(!pl) {
+          pl = _.nth(playlists, 0)
+        }
+        plId = _.get(pl, "id")
+      }
+      let videos = await Wn.Youtube.getAllVideos(config, plId)
 
       // Reload playlist
+      this.currentPlayListId = plId
       this.ytConfig = config
       this.ytPlaylists = playlists
-      this.ytVideos = videos 
+      this.ytVideos = videos
     },
     //--------------------------------------------
     async openCurrentMeta() {
@@ -22954,7 +23006,7 @@ const _M = {
     },
     //--------------------------------------
     OnArenaSelect({checked}) {
-      //console.log("OnArenaSelect", checked)
+      console.log("OnArenaSelect", checked)
       let n = _.size(checked)
       if(n > 0) {
         this.myIndicator = `${n} selected`
@@ -37757,7 +37809,7 @@ function CmdSetImageStyle(editor, css={}) {
     return
   }
   // Clear float
-  Ti.Dom.setStyle($img, css)
+  Ti.Dom.updateStyle($img, css)
   // Force sync content
   editor.__rich_tinymce_com.syncContent()
 }
@@ -52066,6 +52118,7 @@ Ti.Preload("ti/com/net/youtube/browser/youtube-browser.html", `<ti-gui
   :layout="GuiLayout"
   :schema="GuiSchema"
   :can-loading="false"
+  @nav::select="OnNavSelect"
   @list::select="OnListSelect"/>`);
 //========================================
 // JOIN <youtube-browser.mjs> ti/com/net/youtube/browser/youtube-browser.mjs
@@ -59600,9 +59653,9 @@ Ti.Preload("ti/com/web/shelf/free/_com.json", {
   "mixins" : ["./web-shelf-free.mjs"]
 });
 //========================================
-// JOIN <web-shelf-gallary.html> ti/com/web/shelf/gallary/web-shelf-gallary.html
+// JOIN <web-shelf-gallery.html> ti/com/web/shelf/gallery/web-shelf-gallery.html
 //========================================
-Ti.Preload("ti/com/web/shelf/gallary/web-shelf-gallary.html", `<div class="web-shelf-gallary"
+Ti.Preload("ti/com/web/shelf/gallery/web-shelf-gallery.html", `<div class="web-shelf-gallary"
   :class="TopClass"
   :style="TopStyle"
   @mouseleave="OnMouseLeave">
@@ -59633,17 +59686,17 @@ Ti.Preload("ti/com/web/shelf/gallary/web-shelf-gallary.html", `<div class="web-s
     </div>
 </div></div>`);
 //========================================
-// JOIN <web-shelf-gallary.mjs> ti/com/web/shelf/gallary/web-shelf-gallary.mjs
+// JOIN <web-shelf-gallery.mjs> ti/com/web/shelf/gallery/web-shelf-gallery.mjs
 //========================================
-Ti.Preload("ti/com/web/shelf/gallary/web-shelf-gallary.mjs", TI_PACK_EXPORTS['ti/com/web/shelf/gallary/web-shelf-gallary.mjs']);
+Ti.Preload("ti/com/web/shelf/gallery/web-shelf-gallery.mjs", TI_PACK_EXPORTS['ti/com/web/shelf/gallery/web-shelf-gallery.mjs']);
 //========================================
-// JOIN <_com.json> ti/com/web/shelf/gallary/_com.json
+// JOIN <_com.json> ti/com/web/shelf/gallery/_com.json
 //========================================
-Ti.Preload("ti/com/web/shelf/gallary/_com.json", {
-  "name" : "web-shelf-gallary",
+Ti.Preload("ti/com/web/shelf/gallery/_com.json", {
+  "name" : "web-shelf-gallery",
   "globally" : true,
-  "template" : "./web-shelf-gallary.html",
-  "mixins" : ["./web-shelf-gallary.mjs"]
+  "template" : "./web-shelf-gallery.html",
+  "mixins" : ["./web-shelf-gallery.mjs"]
 });
 //========================================
 // JOIN <web-shelf-iconbox.html> ti/com/web/shelf/iconbox/web-shelf-iconbox.html

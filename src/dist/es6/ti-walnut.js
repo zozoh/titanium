@@ -1,4 +1,4 @@
-// Pack At: 2021-03-30 02:33:21
+// Pack At: 2021-03-30 12:17:27
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -2784,7 +2784,9 @@ const Youtube = (function(){
       return list
     },
     //----------------------------------------
-    async getVideos(config, playlistId, {pageToken}={}) {
+    async getVideos(config, playlistId, {
+      pageToken, maxResults = 50
+    }={}) {
       // Guard
       if(!config) {
         return
@@ -2797,7 +2799,7 @@ const Youtube = (function(){
      
       // Reload from youtube
       let json = JSON.stringify({
-        playlistId, part: "contentDetails", pageToken
+        playlistId, part: "contentDetails", pageToken, maxResults
       })
   
       // Get api url
@@ -2867,7 +2869,9 @@ const Youtube = (function(){
       return list
     },
     //----------------------------------------
-    async getPlaylists(config, {pageToken}={}) {
+    async getPlaylists(config, {
+      pageToken, maxResults = 50
+    }={}) {
       // Guard
       if(!config) {
         return
@@ -2878,7 +2882,7 @@ const Youtube = (function(){
      
       // Reload from youtube
       let json = JSON.stringify({
-        channelId, part: config.playlistPart, pageToken
+        channelId, part: config.playlistPart, pageToken, maxResults
       })
   
       // Get api url
@@ -3003,7 +3007,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210330.023321"
+const WALNUT_VERSION = "1.2-20210330.121727"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

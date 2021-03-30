@@ -10,11 +10,11 @@ screen:
 
 走廊将展示一组控件，让其具备灵动的鼠标交互效果。
 
-![](../media/sketch-web-shelf-gallary-a.png)
+![](../media/sketch-web-shelf-gallery-a.png)
 
 本控件的重点是如何计算控件的位置:
 
-![](../media/sketch-web-shelf-gallary-b.png)
+![](../media/sketch-web-shelf-gallery-b.png)
 
 计算的策略如下：
 

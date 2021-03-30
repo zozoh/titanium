@@ -1,6 +1,0 @@
-{
-  "name" : "web-shelf-gallary",
-  "globally" : true,
-  "template" : "./web-shelf-gallary.html",
-  "mixins" : ["./web-shelf-gallary.mjs"]
-}

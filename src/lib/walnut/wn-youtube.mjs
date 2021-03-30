@@ -70,7 +70,9 @@ const WnYoutube = {
     return list
   },
   //----------------------------------------
-  async getVideos(config, playlistId, {pageToken}={}) {
+  async getVideos(config, playlistId, {
+    pageToken, maxResults = 50
+  }={}) {
     // Guard
     if(!config) {
       return
@@ -83,7 +85,7 @@ const WnYoutube = {
    
     // Reload from youtube
     let json = JSON.stringify({
-      playlistId, part: "contentDetails", pageToken
+      playlistId, part: "contentDetails", pageToken, maxResults
     })
 
     // Get api url
@@ -153,7 +155,9 @@ const WnYoutube = {
     return list
   },
   //----------------------------------------
-  async getPlaylists(config, {pageToken}={}) {
+  async getPlaylists(config, {
+    pageToken, maxResults = 50
+  }={}) {
     // Guard
     if(!config) {
       return
@@ -164,7 +168,7 @@ const WnYoutube = {
    
     // Reload from youtube
     let json = JSON.stringify({
-      channelId, part: config.playlistPart, pageToken
+      channelId, part: config.playlistPart, pageToken, maxResults
     })
 
     // Get api url

@@ -2,8 +2,9 @@ export default {
   ///////////////////////////////////////////////////////
   data : ()=>({
     myCurrentId : undefined,
+    currentPlayListId : undefined,
     ytConfig : undefined,
-    ytPlaylists : [],
+    ytPlaylists : undefined,
     ytVideos : undefined
   }),
   ///////////////////////////////////////////////////////
@@ -47,8 +48,14 @@ export default {
         type: "cols",
         border:true,
         blocks: [{
+          icon  : "fab-youtube",
+          title : "Playlists",
+          name : "nav",
+          size : "20%",
+          body : "pcNav"
+        }, {
           name : "list",
-          size : "62%",
+          size : "50%",
           body : "pcList"
         }, {
           name : "detail",
@@ -59,12 +66,24 @@ export default {
     //---------------------------------------------------
     GuiSchema() {
       return {
+        pcNav: {
+          comType: "TiList",
+          comConf: {
+            data: this.ytPlaylists,
+            idBy: "id",
+            multi: false,
+            currentId : this.currentPlayListId,
+            display: [
+              "<thumbUrl:fas-youtube>", "itemCount::as-tip", "title"
+            ]
+          }
+        },
         pcList: {
           comType: "TiWall",
           comConf: {
             data: this.WallItemList,
             idBy: "id",
-            multi: false,
+            multi: true,
             display: {
               key : "..",
               comType : "ti-obj-thumb",
@@ -107,12 +126,18 @@ export default {
   ///////////////////////////////////////////////////////
   methods :{
     //---------------------------------------------------
+    async OnNavSelect({currentId}) {
+      this.currentPlayListId = currentId
+      await this.reloadVideos()
+    },
+    //---------------------------------------------------
     OnListSelect({currentId}) {
       this.myCurrentId = currentId
       let video = _.cloneDeep(this.CurrentVideo)
       if(this.notifyName) {
         this.$notify(this.notifyName, video)
       }
+      return {stop:false, name:"select"}
     },
     //---------------------------------------------------
     getVideoObj(videoId) {
@@ -123,6 +148,24 @@ export default {
           }
         }
       }
+    },
+    //---------------------------------------------------
+    getPlaylistObj(playlistId, playlists=this.ytPlaylists) {
+      if(!playlists || !_.isArray(playlists))
+        return
+
+      for(let pl of playlists) {
+        if(playlistId == pl.id) {
+          return pl
+        }
+      }
+    },
+    //---------------------------------------------------
+    async reloadVideos(plId = this.currentPlayListId) {
+      this.ytVideos = undefined
+      let config = this.ytConfig
+      let videos = await Wn.Youtube.getAllVideos(config, plId)
+      this.ytVideos = videos
     },
     //---------------------------------------------------
     async reload(force=false) {
@@ -140,12 +183,21 @@ export default {
       })
 
       let playlists = await Wn.Youtube.getAllPlaylists(config)
-      let videos = await Wn.Youtube.getAllVideos(config)
+      let plId = this.currentPlayListId
+      if(playlists.length > 0) {
+        let pl = this.getPlaylistObj(plId, playlists)
+        if(!pl) {
+          pl = _.nth(playlists, 0)
+        }
+        plId = _.get(pl, "id")
+      }
+      let videos = await Wn.Youtube.getAllVideos(config, plId)
 
       // Reload playlist
+      this.currentPlayListId = plId
       this.ytConfig = config
       this.ytPlaylists = playlists
-      this.ytVideos = videos 
+      this.ytVideos = videos
     },
     //--------------------------------------------
     async openCurrentMeta() {

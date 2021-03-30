@@ -1,4 +1,4 @@
-// Pack At: 2021-03-30 02:33:21
+// Pack At: 2021-03-30 12:17:27
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -12682,6 +12682,7 @@ const {VueEventBubble} = (function(){
       // {stop:true}
       else if(reo && _.isBoolean(reo.stop)) {
         stop = reo.stop
+        event.name = reo.name || event.name
       }
       // Try bubble
       TryBubble(this, event, stop)
@@ -13638,7 +13639,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210330.023321",
+  "version" : "1.6-20210330.121727",
   "dev" : false,
   "appName" : null,
   "session" : {},
