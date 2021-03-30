@@ -189,7 +189,7 @@ const _M = {
     },
     //--------------------------------------
     OnArenaSelect({checked}) {
-      console.log("OnArenaSelect", checked)
+      //console.log("OnArenaSelect", checked)
       let n = _.size(checked)
       if(n > 0) {
         this.myIndicator = `${n} selected`
