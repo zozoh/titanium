@@ -1,4 +1,4 @@
-// Pack At: 2021-03-30 12:17:27
+// Pack At: 2021-03-30 19:09:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -23006,7 +23006,7 @@ const _M = {
     },
     //--------------------------------------
     OnArenaSelect({checked}) {
-      console.log("OnArenaSelect", checked)
+      //console.log("OnArenaSelect", checked)
       let n = _.size(checked)
       if(n > 0) {
         this.myIndicator = `${n} selected`
