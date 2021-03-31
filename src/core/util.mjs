@@ -295,25 +295,28 @@ const TiUtil = {
 
         let m_type, m_val, m_dft;
         // Match template
-        m = /^(==>|==|!=|=>>?|->)(.+)$/.exec(theValue)
+        m = /^(==>|=>>?|->)(.+)$/.exec(theValue)
         if(m) {
           m_type = m[1]
           m_val  = _.trim(m[2])
         }
         // Find key in context
         else {
-          m = /^(=)([^?]+)(\?(.*))?$/.exec(theValue)
+          m = /^(==?|!=)([^?]+)(\?(.*))?$/.exec(theValue)
           if(m) {
             m_type = m[1]
             m_val  = _.trim(m[2])
             m_dft  = m[4]
+            // starts with "=" auto covert to JS value
+            if(/^=/.test(m_dft) || "==" == m_type) {
+              m_dft = Ti.S.toJsValue(m_dft)
+            } else if(m_dft) {
+              m_dft = _.trim(m_dft)  
+            }
           }
         }
         // Matched
         if(m_type) {
-          if(!Ti.Util.isNil(m_dft)) {
-            m_dft = _.trim(m_dft)
-          }
           //................................
           let fn = ({
             // Just get function
@@ -325,11 +328,17 @@ const TiUtil = {
             },
             // ==xxx  # Get Boolean value now
             "==" : (val)=> {
-              return _.get(context, val) ? true : false
+              let re = _.get(context, val)
+              if(Ti.Util.isNil(re))
+                return Ti.Util.fallback(m_dft, false)
+              return re ? true : false
             },
             // !=xxx  # Revert Boolean value now
             "!=" : (val)=> {
-              return _.get(context, val) ? false : true
+              let re = _.get(context, val)
+              if(Ti.Util.isNil(re))
+                return Ti.Util.fallback(m_dft, false)
+              return re ? false : true
             },
             // =xxx   # Get Value Now
             "=" : (val, dft)=>{

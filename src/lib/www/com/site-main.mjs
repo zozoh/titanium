@@ -147,7 +147,8 @@ const _M = {
     },
     //-------------------------------------
     PageShown() {
-      return  Ti.Util.explainObj(this, this.page.shown)
+      let re = Ti.Util.explainObj(this, this.page.shown)
+      return  re
     }
     //-------------------------------------
   },

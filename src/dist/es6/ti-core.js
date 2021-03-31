@@ -1,4 +1,4 @@
-// Pack At: 2021-03-31 05:53:58
+// Pack At: 2021-03-31 23:39:54
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -8930,25 +8930,28 @@ const {Util} = (function(){
   
           let m_type, m_val, m_dft;
           // Match template
-          m = /^(==>|==|!=|=>>?|->)(.+)$/.exec(theValue)
+          m = /^(==>|=>>?|->)(.+)$/.exec(theValue)
           if(m) {
             m_type = m[1]
             m_val  = _.trim(m[2])
           }
           // Find key in context
           else {
-            m = /^(=)([^?]+)(\?(.*))?$/.exec(theValue)
+            m = /^(==?|!=)([^?]+)(\?(.*))?$/.exec(theValue)
             if(m) {
               m_type = m[1]
               m_val  = _.trim(m[2])
               m_dft  = m[4]
+              // starts with "=" auto covert to JS value
+              if(/^=/.test(m_dft) || "==" == m_type) {
+                m_dft = Ti.S.toJsValue(m_dft)
+              } else if(m_dft) {
+                m_dft = _.trim(m_dft)  
+              }
             }
           }
           // Matched
           if(m_type) {
-            if(!Ti.Util.isNil(m_dft)) {
-              m_dft = _.trim(m_dft)
-            }
             //................................
             let fn = ({
               // Just get function
@@ -8960,11 +8963,17 @@ const {Util} = (function(){
               },
               // ==xxx  # Get Boolean value now
               "==" : (val)=> {
-                return _.get(context, val) ? true : false
+                let re = _.get(context, val)
+                if(Ti.Util.isNil(re))
+                  return Ti.Util.fallback(m_dft, false)
+                return re ? true : false
               },
               // !=xxx  # Revert Boolean value now
               "!=" : (val)=> {
-                return _.get(context, val) ? false : true
+                let re = _.get(context, val)
+                if(Ti.Util.isNil(re))
+                  return Ti.Util.fallback(m_dft, false)
+                return re ? false : true
               },
               // =xxx   # Get Value Now
               "=" : (val, dft)=>{
@@ -13639,7 +13648,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210331.055358",
+  "version" : "1.6-20210331.233954",
   "dev" : false,
   "appName" : null,
   "session" : {},
