@@ -13,6 +13,13 @@ const _M = {
       return this.multi
         ? "wn-combo-multi-input"
         : "wn-combo-input"
+    },
+    //------------------------------------------------
+    TheDropDisplay() {
+      if(this.dropDisplay)
+        return this.dropDisplay;
+
+      return ["@<thumb>", "title|nm"]
     }
     //------------------------------------------------
   }
