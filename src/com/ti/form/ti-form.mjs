@@ -265,6 +265,8 @@ const _M = {
         else {
           if(_.isUndefined(value)) {
             data = _.omit(data, name)
+          } else if (name.startsWith(".")) {
+            data[name] = value
           } else {
             _.set(data, name, value)
           }
@@ -276,7 +278,7 @@ const _M = {
         for(let k of name) {
           let v = _.get(value, k)
           if(_.isUndefined(v)) {
-            omitKeys.push(k)
+            omitKeys.push(k) 
           } else {
             _.set(data, k, v)
           }

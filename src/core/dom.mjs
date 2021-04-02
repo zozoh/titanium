@@ -60,6 +60,19 @@ const TiDom = {
     }
   },
   //----------------------------------------------------
+  unwrap($el) {
+    let $p = $el.parentNode
+    let list = []
+    for(let i=0; i<$el.childNodes.length; i++) {
+      let $child = $el.childNodes[i]
+      list.push($child)
+    }
+    for(let $child of list) {
+      $p.insertBefore($child, $el)
+    }
+    Ti.Dom.remove($el)
+  },
+  //----------------------------------------------------
   replace($el, $newEl, keepInnerHTML=false) {
     $el.insertAdjacentElement("afterend", $newEl)
     if(keepInnerHTML) {
