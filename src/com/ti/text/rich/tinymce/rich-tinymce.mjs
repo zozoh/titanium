@@ -128,7 +128,7 @@ const _M = {
       let tinyConfig = _.omit(this.tinyConfig, "plugins")
       let tinyPlugins = _.get(this.tinyConfig, "plugins")
       //.........................................
-      let plugins = _.concat('paste lists table', plugNames, tinyPlugins)
+      let plugins = _.concat('paste lists table searchreplace', plugNames, tinyPlugins)
       //.........................................
       return _.assign({
         plugins: plugins.join(" "),
@@ -328,7 +328,7 @@ const _M = {
             edit : {
               icon: 'edit-block',
               tooltip: 'edit',
-              items: 'copy cut paste pastetext | undo redo',
+              items: 'copy cut paste pastetext | undo redo | searchreplace',
             },
             alignment: {
               icon: 'align-justify',

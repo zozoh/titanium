@@ -9,17 +9,19 @@ const _M = {
   //...............................................
   // Behavior
   //...............................................
-  // Ext-toolbar item defination
+  "mode" : {
+    type : String,
+    default : "javascript"
+  },
   //...............................................
   // Aspact
   //...............................................
-  "placeholder" : {
-    type : String,
-    default : "i18n:blank"
-  },
   "theme" : {
     type : String,
-    default : "light"
+    default : "monokai"
+  },
+  "options" : {
+    type : Object
   },
   "loadingAs" : {
     type : Object,
@@ -27,17 +29,6 @@ const _M = {
       className : "as-nil-mask as-big-mask",
       icon : undefined,
       text : undefined
-    })
-  },
-  "blankAs" : {
-    type : Object,
-    default : ()=>({
-      comType : "TiLoading",
-      comConf : {
-        className : "as-nil-mask as-big-mask",
-        icon : "fas-coffee",
-        text : null
-      }
     })
   }
 }

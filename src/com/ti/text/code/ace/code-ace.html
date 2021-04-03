@@ -4,10 +4,7 @@
   <!--
     Editor
   -->
-  <div class="as-editor">function foo(items) {
-    var x = "All this is syntax highlighted";
-    return x;
-}</div>
+  <div class="as-editor" ref="edit"></div>
   <!--
     Show loading
   -->
@@ -16,12 +13,4 @@
       class="as-nil-mask as-big-mask"
       :style="BlankComStyle"
       v-bind="loadingAs"/>
-  <!--
-    Show blank
-  -->
-  <component
-    v-else-if="isContentNil"
-      :style="BlankComStyle"
-      :is="blankAs.comType"
-      v-bind="blankAs.comConf"/>
 </div>

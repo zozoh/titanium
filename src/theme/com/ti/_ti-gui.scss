@@ -97,7 +97,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
     }
     //-----------------------------------
     li {
-      @include flex-center;
+      @include flex-center($wp:nowrap);
       cursor:pointer; 
       border:1px solid transparent;
       min-width: SZ(80); 
@@ -113,6 +113,9 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
       }
       > .it-icon {
         padding-right:SZ(6);
+      }
+      > .it-text {
+        display: block; white-space: nowrap;
       }
     }
     //-----------------------------------

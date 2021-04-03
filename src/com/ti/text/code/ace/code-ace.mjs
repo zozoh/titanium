@@ -7,10 +7,7 @@ const _M = {
   computed : {
     //-----------------------------------------------
     TopClass() {
-      return this.getTopClass({
-        "nil-content" : this.isContentNil,
-        "has-content" : !this.isContentNil
-      })
+      return this.getTopClass()
     },
     //-----------------------------------------------
     BlankComStyle() {
@@ -23,32 +20,49 @@ const _M = {
     //-----------------------------------------------
     isContentLoading() {
       return _.isUndefined(this.value)
-    },
-    //-----------------------------------------------
-    isContentNil() {
-      return Ti.Util.isNil(this.value)
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
-    async initEditor() {
-      
+    initEditor() {
+      // Create editor
+      let editor = ace.edit(this.$refs.edit);
+      editor.setTheme(`ace/theme/${this.theme}`)
+      editor.setOptions(this.options || {})
+      editor.session.setMode(`ace/mode/${this.mode}`)
+      editor.session.setValue(this.value || "")
+
+      // Events
+      editor.session.on("change", (delta)=>{
+        console.log(delta)
+      })
+
+      // Save instance
+      this.$editor = editor
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   watch : {
-    
-  },
-  ///////////////////////////////////////////////////
-  created : function() {
-    
+    "mode" : function(newVal, oldVal){
+      if(newVal && newVal != oldVal) {
+        this.$editor.session.setMode(`ace/mode/${newVal}`)
+      }
+    },
+    "theme" : function(newVal, oldVal){
+      if(newVal && newVal != oldVal) {
+        this.$editor.setTheme(`ace/theme/${newVal}`)
+      }
+    },
+    "value" : function(newVal){
+      this.editor.session.setValue(newVal || "")
+    }
   },
   ///////////////////////////////////////////////////
   mounted : async function() {
-    await this.initEditor()
+    this.initEditor()
   }
   ///////////////////////////////////////////////////
 }

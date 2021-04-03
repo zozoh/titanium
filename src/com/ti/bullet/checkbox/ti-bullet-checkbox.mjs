@@ -1,7 +1,7 @@
 const _M = {
   //////////////////////////////////////////
   data: ()=>({
-    myTypeName : "ti-radio-list"
+    myTypeName : "ti-check-list"
   }),
   //////////////////////////////////////////
   props: {
