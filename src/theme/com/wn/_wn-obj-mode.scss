@@ -1,0 +1,57 @@
+.wn-obj-mode {
+  padding: SZ(4);
+  //--------------------------------------------
+  .as-bar {
+    @include flex-align; 
+    //------------------------------------------
+    .as-group header {
+      @include color($color-track, c);
+      text-align: center;
+      font-size: SZ(11);
+      padding: SZ(4);
+    }
+    //------------------------------------------
+    .as-group section {
+      @include flex-align-nowrap;
+      margin:0 SZ(2);
+      //----------------------------------------
+      a {
+        @include color($color-bar, r, c);
+        @include border(1px, solid, shallow);
+        display: block; padding: .5em;
+        min-width: SZ(32); text-align: center;
+        margin-right:1px;
+        transition: transform 0.3s;
+        //--------------------------------------
+        &.is-on {
+          @include color($color-primary, r, c);
+          border-color: map-get($color-primary, c);
+        }
+        //--------------------------------------
+        &:first-child {border-radius: SZ(4) 0 0 SZ(4);}
+        &:last-child {border-radius: 0 SZ(4) SZ(4) 0;}
+        //--------------------------------------
+        &:hover {
+          transform: translateY(-2px);
+        }
+        //--------------------------------------
+      }
+      //----------------------------------------
+    }
+    //------------------------------------------
+  }
+  //--------------------------------------------
+  .as-info {
+    @include flex-align;
+    @include font-fixed;
+    @include color($color-track, c);
+    padding: SZ(2) SZ(6);
+    //------------------------------------------
+    > div {
+      margin: 0 SZ(6); min-width: SZ(86);
+      text-align: center;
+    }
+    //------------------------------------------
+  }
+  //--------------------------------------------
+}

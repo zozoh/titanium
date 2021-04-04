@@ -1,0 +1,7 @@
+{
+  "name" : "wn-obj-mode",
+  "globally" : true,
+  "template" : "./wn-obj-mode.html",
+  "mixins" : ["./wn-obj-mode.mjs"],
+  "components" : []
+}

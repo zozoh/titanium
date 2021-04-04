@@ -1,0 +1,51 @@
+<div class="wn-obj-mode" :class="TopClass">
+  <!--
+    Edit bar
+  -->
+  <div class="as-bar">
+    <!--Owner-->
+    <div class="as-group is-owner">
+      <header>{{'i18n:wn-md-owner'|i18n}}</header>
+      <section>
+        <a :class="{'is-on':ModeObj.owner.readable}" 
+          @click.left="OnToggleItem('owner.readable')">{{'i18n:wn-md-R'|i18n}}</a>
+        <a :class="{'is-on':ModeObj.owner.writable}" 
+          @click.left="OnToggleItem('owner.writable')">{{'i18n:wn-md-W'|i18n}}</a>
+        <a :class="{'is-on':ModeObj.owner.excutable}" 
+          @click.left="OnToggleItem('owner.excutable')">{{'i18n:wn-md-X'|i18n}}</a>
+      </section>
+    </div>
+    <!--Member-->
+    <div class="as-group is-member">
+      <header>{{'i18n:wn-md-member'|i18n}}</header>
+      <section>
+        <a :class="{'is-on':ModeObj.member.readable}" 
+          @click.left="OnToggleItem('member.readable')">{{'i18n:wn-md-R'|i18n}}</a>
+        <a :class="{'is-on':ModeObj.member.writable}" 
+          @click.left="OnToggleItem('member.writable')">{{'i18n:wn-md-W'|i18n}}</a>
+        <a :class="{'is-on':ModeObj.member.excutable}" 
+          @click.left="OnToggleItem('member.excutable')">{{'i18n:wn-md-X'|i18n}}</a>
+      </section>
+    </div>
+    <!--Other-->
+    <div class="as-group is-other">
+      <header>{{'i18n:wn-md-other'|i18n}}</header>
+      <section>
+        <a :class="{'is-on':ModeObj.other.readable}" 
+          @click.left="OnToggleItem('other.readable')">{{'i18n:wn-md-R'|i18n}}</a>
+        <a :class="{'is-on':ModeObj.other.writable}" 
+          @click.left="OnToggleItem('other.writable')">{{'i18n:wn-md-W'|i18n}}</a>
+        <a :class="{'is-on':ModeObj.other.excutable}" 
+          @click.left="OnToggleItem('other.excutable')">{{'i18n:wn-md-X'|i18n}}</a>
+      </section>
+    </div>
+  </div>
+  <!--
+    Info
+  -->
+  <div class="as-info">
+    <div class="as-str">{{ModeObj.text}}</div>
+    <div class="as-octal">{{ModeObj.octal}}</div>
+    <div class="as-decimal">{{ModeObj.mode}}</div>
+  </div>
+</div>

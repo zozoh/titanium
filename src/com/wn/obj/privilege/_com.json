@@ -1,0 +1,7 @@
+{
+  "name" : "wn-obj-privilege",
+  "globally" : true,
+  "template" : "./wn-obj-privilege.html",
+  "mixins" : ["./wn-obj-privilege.mjs"],
+  "components" : []
+}
