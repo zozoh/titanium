@@ -1,4 +1,10 @@
 {
+   "wn-md-R": "讀",
+   "wn-md-W": "寫",
+   "wn-md-X": "用",
+   "wn-md-owner": "所有者",
+   "wn-md-member": "成員",
+   "wn-md-other": "其他人",
    "wn-admin-check-obj-thumb": "檢查圖像縮略圖...",
    "wn-admin-tools": "管理工具",
    "wn-ctt-css-text": "CSS樣式文件",

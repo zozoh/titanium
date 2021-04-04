@@ -1,4 +1,4 @@
-// Pack At: 2021-03-31 23:39:54
+// Pack At: 2021-04-05 03:37:10
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3591,6 +3591,19 @@ const {Dom} = (function(){
       }else{
         $p.appendChild($el)
       }
+    },
+    //----------------------------------------------------
+    unwrap($el) {
+      let $p = $el.parentNode
+      let list = []
+      for(let i=0; i<$el.childNodes.length; i++) {
+        let $child = $el.childNodes[i]
+        list.push($child)
+      }
+      for(let $child of list) {
+        $p.insertBefore($child, $el)
+      }
+      Ti.Dom.remove($el)
     },
     //----------------------------------------------------
     replace($el, $newEl, keepInnerHTML=false) {
@@ -13648,7 +13661,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210331.233954",
+  "version" : "1.6-20210405.033710",
   "dev" : false,
   "appName" : null,
   "session" : {},

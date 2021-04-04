@@ -1,4 +1,4 @@
-// Pack At: 2021-03-31 23:39:54
+// Pack At: 2021-04-05 03:37:10
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2952,6 +2952,13 @@ const _M = {
       return this.multi
         ? "wn-combo-multi-input"
         : "wn-combo-input"
+    },
+    //------------------------------------------------
+    TheDropDisplay() {
+      if(this.dropDisplay)
+        return this.dropDisplay;
+
+      return ["@<thumb>", "title|nm"]
     }
     //------------------------------------------------
   }
@@ -7491,6 +7498,67 @@ const _M = {
 }
 return _M;
 ;
+})()
+// ============================================================
+// EXPORT 'wn-obj-mode.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/obj/mode/wn-obj-mode.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //////////////////////////////////////////
+  props : {
+    "value" : {
+      type : [Number, String, Object],
+      default : 0
+    },
+    "valueType" : {
+      type : String,
+      default : "decimal",
+      validator : v => /^(obj|decimal|str|octal)$/.test(v)
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    ModeObj() {
+      return Wn.Obj.parseMode(this.value || 0)
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnToggleItem(key) {
+      let obj = _.cloneDeep(this.ModeObj)
+      let val = _.get(obj, key)
+      _.set(obj, key, val ? false : true)
+      let md = Wn.Obj.modeFromObj(obj)
+
+      let v = ({
+        "obj" : (md)=>{
+          return Wn.Obj.modeToObj(md)
+        },
+        "decimal" : (md)=>{
+          return md
+        },
+        "str" : (md)=>{
+          return Wn.Obj.modeToStr(md)
+        },
+        "octal" : (md)=>{
+          return Wn.Obj.modeToOctal(md)
+        }
+      })[this.valueType](md)
+
+      this.$notify("change", v)
+    }
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'ti-tags.mjs' -> null
@@ -19242,6 +19310,47 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'wn-obj-privilege.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/obj/privilege/wn-obj-privilege.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //////////////////////////////////////////
+  props : {
+    "value" : {
+      type : Object,
+      default : ()=>({})
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    PrivilegeObj() {
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    
+  },
+  //////////////////////////////////////////
+  mounted : function() {
+    
+  }
+  //////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-table-props.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/table/ti-table-props.mjs'] = (function(){
@@ -26669,10 +26778,7 @@ const _M = {
   computed : {
     //-----------------------------------------------
     TopClass() {
-      return this.getTopClass({
-        "nil-content" : this.isContentNil,
-        "has-content" : !this.isContentNil
-      })
+      return this.getTopClass()
     },
     //-----------------------------------------------
     BlankComStyle() {
@@ -26685,32 +26791,49 @@ const _M = {
     //-----------------------------------------------
     isContentLoading() {
       return _.isUndefined(this.value)
-    },
-    //-----------------------------------------------
-    isContentNil() {
-      return Ti.Util.isNil(this.value)
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   methods : {
     //-----------------------------------------------
-    async initEditor() {
-      
+    initEditor() {
+      // Create editor
+      let editor = ace.edit(this.$refs.edit);
+      editor.setTheme(`ace/theme/${this.theme}`)
+      editor.setOptions(this.options || {})
+      editor.session.setMode(`ace/mode/${this.mode}`)
+      editor.session.setValue(this.value || "")
+
+      // Events
+      editor.session.on("change", (delta)=>{
+        console.log(delta)
+      })
+
+      // Save instance
+      this.$editor = editor
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
   watch : {
-    
-  },
-  ///////////////////////////////////////////////////
-  created : function() {
-    
+    "mode" : function(newVal, oldVal){
+      if(newVal && newVal != oldVal) {
+        this.$editor.session.setMode(`ace/mode/${newVal}`)
+      }
+    },
+    "theme" : function(newVal, oldVal){
+      if(newVal && newVal != oldVal) {
+        this.$editor.setTheme(`ace/theme/${newVal}`)
+      }
+    },
+    "value" : function(newVal){
+      this.editor.session.setValue(newVal || "")
+    }
   },
   ///////////////////////////////////////////////////
   mounted : async function() {
-    await this.initEditor()
+    this.initEditor()
   }
   ///////////////////////////////////////////////////
 }
@@ -28988,17 +29111,19 @@ const _M = {
   //...............................................
   // Behavior
   //...............................................
-  // Ext-toolbar item defination
+  "mode" : {
+    type : String,
+    default : "javascript"
+  },
   //...............................................
   // Aspact
   //...............................................
-  "placeholder" : {
-    type : String,
-    default : "i18n:blank"
-  },
   "theme" : {
     type : String,
-    default : "light"
+    default : "monokai"
+  },
+  "options" : {
+    type : Object
   },
   "loadingAs" : {
     type : Object,
@@ -29006,17 +29131,6 @@ const _M = {
       className : "as-nil-mask as-big-mask",
       icon : undefined,
       text : undefined
-    })
-  },
-  "blankAs" : {
-    type : Object,
-    default : ()=>({
-      comType : "TiLoading",
-      comConf : {
-        className : "as-nil-mask as-big-mask",
-        icon : "fas-coffee",
-        text : null
-      }
     })
   }
 }
@@ -29339,6 +29453,8 @@ const _M = {
         else {
           if(_.isUndefined(value)) {
             data = _.omit(data, name)
+          } else if (name.startsWith(".")) {
+            data[name] = value
           } else {
             _.set(data, name, value)
           }
@@ -29350,7 +29466,7 @@ const _M = {
         for(let k of name) {
           let v = _.get(value, k)
           if(_.isUndefined(v)) {
-            omitKeys.push(k)
+            omitKeys.push(k) 
           } else {
             _.set(data, k, v)
           }
@@ -36164,7 +36280,7 @@ const _M = {
       let tinyConfig = _.omit(this.tinyConfig, "plugins")
       let tinyPlugins = _.get(this.tinyConfig, "plugins")
       //.........................................
-      let plugins = _.concat('paste lists table', plugNames, tinyPlugins)
+      let plugins = _.concat('paste lists table searchreplace', plugNames, tinyPlugins)
       //.........................................
       return _.assign({
         plugins: plugins.join(" "),
@@ -36364,7 +36480,7 @@ const _M = {
             edit : {
               icon: 'edit-block',
               tooltip: 'edit',
-              items: 'copy cut paste pastetext | undo redo',
+              items: 'copy cut paste pastetext | undo redo | searchreplace',
             },
             alignment: {
               icon: 'align-justify',
@@ -43486,7 +43602,7 @@ window.TI_PACK_EXPORTS['ti/com/ti/bullet/checkbox/ti-bullet-checkbox.mjs'] = (fu
 const _M = {
   //////////////////////////////////////////
   data: ()=>({
-    myTypeName : "ti-radio-list"
+    myTypeName : "ti-check-list"
   }),
   //////////////////////////////////////////
   props: {
@@ -56846,10 +56962,7 @@ Ti.Preload("ti/com/ti/text/code/ace/code-ace.html", `<div class="ti-text-code-ac
   <!--
     Editor
   -->
-  <div class="as-editor">function foo(items) {
-    var x = "All this is syntax highlighted";
-    return x;
-}</div>
+  <div class="as-editor" ref="edit"></div>
   <!--
     Show loading
   -->
@@ -56858,14 +56971,6 @@ Ti.Preload("ti/com/ti/text/code/ace/code-ace.html", `<div class="ti-text-code-ac
       class="as-nil-mask as-big-mask"
       :style="BlankComStyle"
       v-bind="loadingAs"/>
-  <!--
-    Show blank
-  -->
-  <component
-    v-else-if="isContentNil"
-      :style="BlankComStyle"
-      :is="blankAs.comType"
-      v-bind="blankAs.comConf"/>
 </div>`);
 //========================================
 // JOIN <code-ace.mjs> ti/com/ti/text/code/ace/code-ace.mjs
@@ -60922,6 +61027,7 @@ Ti.Preload("ti/com/wn/combo/multi-input/_com.json", {
 Ti.Preload("ti/com/wn/droplist/wn-droplist.html", `<component 
   :is="ComType"
   v-bind="this"
+  :drop-display="TheDropDisplay"
   :can-input="false"
   :must-in-list="true"
   :auto-collapse="true"
@@ -61804,6 +61910,74 @@ Ti.Preload("ti/com/wn/obj/markdown/richeditor/_com.json", {
   ]
 });
 //========================================
+// JOIN <wn-obj-mode.html> ti/com/wn/obj/mode/wn-obj-mode.html
+//========================================
+Ti.Preload("ti/com/wn/obj/mode/wn-obj-mode.html", `<div class="wn-obj-mode" :class="TopClass">
+  <!--
+    Edit bar
+  -->
+  <div class="as-bar">
+    <!--Owner-->
+    <div class="as-group is-owner">
+      <header>{{'i18n:wn-md-owner'|i18n}}</header>
+      <section>
+        <a :class="{'is-on':ModeObj.owner.readable}" 
+          @click.left="OnToggleItem('owner.readable')">{{'i18n:wn-md-R'|i18n}}</a>
+        <a :class="{'is-on':ModeObj.owner.writable}" 
+          @click.left="OnToggleItem('owner.writable')">{{'i18n:wn-md-W'|i18n}}</a>
+        <a :class="{'is-on':ModeObj.owner.excutable}" 
+          @click.left="OnToggleItem('owner.excutable')">{{'i18n:wn-md-X'|i18n}}</a>
+      </section>
+    </div>
+    <!--Member-->
+    <div class="as-group is-member">
+      <header>{{'i18n:wn-md-member'|i18n}}</header>
+      <section>
+        <a :class="{'is-on':ModeObj.member.readable}" 
+          @click.left="OnToggleItem('member.readable')">{{'i18n:wn-md-R'|i18n}}</a>
+        <a :class="{'is-on':ModeObj.member.writable}" 
+          @click.left="OnToggleItem('member.writable')">{{'i18n:wn-md-W'|i18n}}</a>
+        <a :class="{'is-on':ModeObj.member.excutable}" 
+          @click.left="OnToggleItem('member.excutable')">{{'i18n:wn-md-X'|i18n}}</a>
+      </section>
+    </div>
+    <!--Other-->
+    <div class="as-group is-other">
+      <header>{{'i18n:wn-md-other'|i18n}}</header>
+      <section>
+        <a :class="{'is-on':ModeObj.other.readable}" 
+          @click.left="OnToggleItem('other.readable')">{{'i18n:wn-md-R'|i18n}}</a>
+        <a :class="{'is-on':ModeObj.other.writable}" 
+          @click.left="OnToggleItem('other.writable')">{{'i18n:wn-md-W'|i18n}}</a>
+        <a :class="{'is-on':ModeObj.other.excutable}" 
+          @click.left="OnToggleItem('other.excutable')">{{'i18n:wn-md-X'|i18n}}</a>
+      </section>
+    </div>
+  </div>
+  <!--
+    Info
+  -->
+  <div class="as-info">
+    <div class="as-str">{{ModeObj.text}}</div>
+    <div class="as-octal">{{ModeObj.octal}}</div>
+    <div class="as-decimal">{{ModeObj.mode}}</div>
+  </div>
+</div>`);
+//========================================
+// JOIN <wn-obj-mode.mjs> ti/com/wn/obj/mode/wn-obj-mode.mjs
+//========================================
+Ti.Preload("ti/com/wn/obj/mode/wn-obj-mode.mjs", TI_PACK_EXPORTS['ti/com/wn/obj/mode/wn-obj-mode.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/mode/_com.json
+//========================================
+Ti.Preload("ti/com/wn/obj/mode/_com.json", {
+  "name" : "wn-obj-mode",
+  "globally" : true,
+  "template" : "./wn-obj-mode.html",
+  "mixins" : ["./wn-obj-mode.mjs"],
+  "components" : []
+});
+//========================================
 // JOIN <wn-obj-picker.html> ti/com/wn/obj/picker/wn-obj-picker.html
 //========================================
 Ti.Preload("ti/com/wn/obj/picker/wn-obj-picker.html", `<div class="wn-obj-picker"
@@ -61965,6 +62139,26 @@ Ti.Preload("ti/com/wn/obj/preview/_com.json", {
     "@com:ti/media/image",
     "@com:ti/media/audio",
     "@com:ti/media/video"]
+});
+//========================================
+// JOIN <wn-obj-privilege.html> ti/com/wn/obj/privilege/wn-obj-privilege.html
+//========================================
+Ti.Preload("ti/com/wn/obj/privilege/wn-obj-privilege.html", `<div class="wn-obj-privilege" :class="TopClass">
+  I am PrivilegeObj
+</div>`);
+//========================================
+// JOIN <wn-obj-privilege.mjs> ti/com/wn/obj/privilege/wn-obj-privilege.mjs
+//========================================
+Ti.Preload("ti/com/wn/obj/privilege/wn-obj-privilege.mjs", TI_PACK_EXPORTS['ti/com/wn/obj/privilege/wn-obj-privilege.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/privilege/_com.json
+//========================================
+Ti.Preload("ti/com/wn/obj/privilege/_com.json", {
+  "name" : "wn-obj-privilege",
+  "globally" : true,
+  "template" : "./wn-obj-privilege.html",
+  "mixins" : ["./wn-obj-privilege.mjs"],
+  "components" : []
 });
 //========================================
 // JOIN <wn-obj-puretext.html> ti/com/wn/obj/puretext/wn-obj-puretext.html
@@ -64526,6 +64720,12 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
 // JOIN <_wn.i18n.json> ti/i18n/en-us/_wn.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
+  "wn-md-R" : "R",
+  "wn-md-W" : "W",
+  "wn-md-X" : "X",
+  "wn-md-owner" : "Owner",
+  "wn-md-member" : "Member",
+  "wn-md-other" : "Other",
   "wn-admin-check-obj-thumb": "Check obj thumbnails ...",
   "wn-admin-tools": "Admin tools",
   "wn-ctt-css-text": "CSS File",
@@ -65754,6 +65954,12 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
 // JOIN <_wn.i18n.json> ti/i18n/zh-cn/_wn.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
+  "wn-md-R" : "读",
+  "wn-md-W" : "写",
+  "wn-md-X" : "用",
+  "wn-md-owner" : "所有者",
+  "wn-md-member" : "成员",
+  "wn-md-other" : "其他人",
   "wn-admin-check-obj-thumb": "检查图像缩略图...",
   "wn-admin-tools": "管理工具",
   "wn-ctt-css-text": "CSS样式文件",
@@ -66941,6 +67147,12 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
 // JOIN <_wn.i18n.json> ti/i18n/zh-hk/_wn.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
+   "wn-md-R": "讀",
+   "wn-md-W": "寫",
+   "wn-md-X": "用",
+   "wn-md-owner": "所有者",
+   "wn-md-member": "成員",
+   "wn-md-other": "其他人",
    "wn-admin-check-obj-thumb": "檢查圖像縮略圖...",
    "wn-admin-tools": "管理工具",
    "wn-ctt-css-text": "CSS樣式文件",

@@ -10,7 +10,7 @@ async function EditObjMeta(pathOrObj="~", {
   width      = 640,
   height     = "90%", 
   spacing,
-  currentTab = 0,
+  currentTab = 1,
   // static tabs
   // if emtpy, apply the default
   // “auto" will load by `ti editmeta`, it will override the currentTab
@@ -48,8 +48,8 @@ async function EditObjMeta(pathOrObj="~", {
     fields = [{ 
       title: "basic",
       fields: [
-        "id", "nm", "title",  "icon", "thumb","ph", "race", "tp", "mime", 
-        "width", "height", "len", "sha1"],
+        "id", "nm", "title",  "icon", "thumb", "ph", "race", "tp", "mime", 
+        "width", "height", "len", "sha1", "sort"],
     }, {
       title: "privilege",
       fields: ["c","m","g", "md", "pvg"]
@@ -132,7 +132,10 @@ async function EditObjMeta(pathOrObj="~", {
           this.updates = _.assign({}, this.updates, obj)
         }
       }
-    }, "@com:ti/form", "@com:wn/imgfile"]
+    }, 
+    "@com:ti/form", 
+    "@com:wn/imgfile",
+    "@com:wn/obj/mode"]
     //------------------------------------------
   })
   //............................................

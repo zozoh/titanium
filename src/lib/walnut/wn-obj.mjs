@@ -146,7 +146,12 @@ const FIELDS = {
   //---------------------------------------------
   "md" : {
     title : "i18n:wn-key-md",
-    name  : "md"
+    name  : "md",
+    type : "Integer",
+    comType : "WnObjMode",
+    comConf : {
+      valueType : "decimal"
+    }
   },
   //---------------------------------------------
   "pvg" : {
@@ -182,6 +187,11 @@ const FIELDS = {
   //---------------------------------------------
 }
 ////////////////////////////////////////////
+const R = 1 << 2;
+const W = 1 << 1;
+const X = 1;
+const RWX = R | W | X;
+////////////////////////////////////////////
 const WnObj = {
   //----------------------------------------
   isValidName(newName) {
@@ -197,6 +207,131 @@ const WnObj = {
     }
 
     return true
+  },
+  //----------------------------------------
+  octalModeToStr(octalMode) {
+    let mode = parseInt(octalMode, 8);
+    return WnObj.modeToStr(mode);
+  },
+  //----------------------------------------
+  modeToStr(md) {
+    let sb = []
+    for (let i = 2; i >= 0; i--) {
+      let m = md >> (i * 3) & RWX;
+      sb.push((m & R) > 0 ? 'r' : '-');
+      sb.push((m & W) > 0 ? 'w' : '-');
+      sb.push((m & X) > 0 ? 'x' : '-');
+    }
+    return sb.join("");
+  },
+  //----------------------------------------
+  modeToOctal(md) {
+    return md.toString(8);
+  },
+  //----------------------------------------
+  octalModeFromStr(mds) {
+    let md = WnObj.modeFromStr(mds);
+    return md.toString(8);
+  },
+  //----------------------------------------
+  modeFromOctalMode(octalMode) {
+      return parseInt(octalMode, 8);
+  },
+  //----------------------------------------
+  modeFromStr(mds) {
+      let md = 0;
+      for (let i = 0; i < 3; i++) {
+          let left = (2 - i) * 3;
+          let cs = mds.substring(left, left + 3);
+          let m = WnObj.modeFromStr0(cs);
+          md |= m << (i * 3);
+      }
+      return md;
+  },
+  //----------------------------------------
+  modeFromStr0(cs) {
+    let m = 0;
+    if (cs[0] == 'r')
+        m |= R;
+    if (cs[1] == 'w')
+        m |= W;
+    if (cs[2] == 'x')
+        m |= X;
+    return m;
+  },
+  //----------------------------------------
+  modeToObj(md) {
+    let keys = ["other", "member", "owner"]
+    let re = {
+      mode  : md,
+      text  : WnObj.modeToStr(md),
+      octal : md.toString(8)
+    }
+    for (let i = 2; i >= 0; i--) {
+      let m = md >> (i * 3) & RWX;
+      let key = keys[i]
+      re[key] = {
+        readable  : (m & R) > 0,
+        writable  : (m & W) > 0,
+        excutable : (m & X) > 0
+      }
+    }
+    return re
+  },
+  //----------------------------------------
+  modeFromObj({owner,member,other}={}) {
+    let mdOwner  = WnObj.mode0FromObj(owner)
+    let mdMember = WnObj.mode0FromObj(member)
+    let mdOther  = WnObj.mode0FromObj(other)
+    return (mdOwner << 6)
+           | (mdMember << 3)
+           | mdOther
+  },
+  //----------------------------------------
+  mode0FromObj({readable,writable,excutable}={}) {
+    let md = 0;
+    if(readable)
+      md |= R
+    if(writable)
+      md |= W
+    if(excutable)
+      md |= X
+    return md
+  },
+  //----------------------------------------
+  parseMode(input, octal=false) {
+    let md = 0;
+    if(/^\{.+\}$/.test(input)) {
+      input = JSON.parse(input)
+    }
+    if(_.isPlainObject(input)) {
+      if(input.readable) {
+        return WnObj.mode0FromObj(input)
+      }
+      return WnObj.modeFromObj(input)
+    }
+    // rwxr-x---
+    else if (/^[rwx-]{3,9}$/.test(input)) {
+      if(3 == input.length) {
+        md = WnObj.modeFromStr0(input)
+      } else {
+        md = WnObj.modeFromStr(input)
+      }
+    }
+    // 0777
+    else if(/^0[0-7]{3}$/.test(input)) {
+      md = WnObj.modeFromOctalMode(input.substring(1))
+    }
+    // 777
+    else if (octal) {
+      md = WnObj.modeFromOctalMode(input)
+    }
+    // 488
+    else {
+      md = parseInt(input)
+    }
+    // Done
+    return WnObj.modeToObj(md)
   },
   //----------------------------------------
   isBuiltInFields(key) {

@@ -1,4 +1,10 @@
 {
+  "wn-md-R" : "R",
+  "wn-md-W" : "W",
+  "wn-md-X" : "X",
+  "wn-md-owner" : "Owner",
+  "wn-md-member" : "Member",
+  "wn-md-other" : "Other",
   "wn-admin-check-obj-thumb": "Check obj thumbnails ...",
   "wn-admin-tools": "Admin tools",
   "wn-ctt-css-text": "CSS File",
