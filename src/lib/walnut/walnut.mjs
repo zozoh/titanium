@@ -9,6 +9,7 @@ import OpenObjSelector  from "./wn-open-obj-selector.mjs"
 import OpenThingManager from "./wn-open-thing-manager.mjs"
 import EditObjMeta      from "./wn-edit-obj-meta.mjs"
 import EditObjContent   from "./wn-edit-obj-content.mjs"
+import EditObjPrivilege from "./wn-edit-obj-privilege.mjs"
 import EditTiComponent  from "./wn-edit-ti-component.mjs"
 import OpenCmdPanel     from "./wn-run-cmd-panel.mjs"
 import Youtube  from "./wn-youtube.mjs"
@@ -24,7 +25,7 @@ const HOOKs = {
 export const Wn = {
   Version: WALNUT_VERSION,
   Io, Obj, Session, Sys, Util, Dict, Hm,
-  OpenObjSelector, EditObjMeta, EditObjContent,
+  OpenObjSelector, EditObjMeta, EditObjContent, EditObjPrivilege,
   EditTiComponent, OpenThingManager, OpenCmdPanel,
   Youtube, 
   //-------------------------------------

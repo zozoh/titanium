@@ -1,4 +1,4 @@
-// Pack At: 2021-04-05 03:37:10
+// Pack At: 2021-04-06 04:46:42
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -537,7 +537,13 @@ const Obj = (function(){
     //---------------------------------------------
     "pvg" : {
       title : "i18n:wn-key-pvg",
-      name  : "pvg"
+      name  : "pvg",
+      type  : "Object",
+      comType : "TiInputText",
+      comConf : {
+        autoJsValue : true,
+        height : 200
+      }
     },
     //---------------------------------------------
     "width" : {
@@ -2532,7 +2538,7 @@ const EditObjMeta = (function(){
     width      = 640,
     height     = "90%", 
     spacing,
-    currentTab = 1,
+    currentTab = 0,
     // static tabs
     // if emtpy, apply the default
     // “auto" will load by `ti editmeta`, it will override the currentTab
@@ -2656,6 +2662,7 @@ const EditObjMeta = (function(){
         }
       }, 
       "@com:ti/form", 
+      "@com:ti/input/text", 
       "@com:wn/imgfile",
       "@com:wn/obj/mode"]
       //------------------------------------------
@@ -2752,6 +2759,66 @@ const EditObjContent = (function(){
   }
   ////////////////////////////////////////////////////
   return EditObjContent;
+})();
+//##################################################
+// # import EditObjPrivilege from "./wn-edit-obj-privilege.mjs"
+const EditObjPrivilege = (function(){
+  ////////////////////////////////////////////////////
+  async function EditObjPrivilege(pathOrObj="~", {
+    icon = "fas-user-lock",  
+    title = "i18n:wn-key-pvg", 
+    type   = "info", 
+    closer = true,
+    escape = true,
+    position   = "top",
+    width      = 640,
+    height     = "95%", 
+    autoSave   = true
+  }={}){
+    //............................................
+    // Load meta
+    let meta = pathOrObj
+    if(_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(pathOrObj)
+    }
+    //............................................
+    let theTitle = Ti.I18n.text(title) + " : " + (meta.title||meta.nm)
+    //............................................
+    let pvg = await Ti.App.Open({
+      //------------------------------------------
+      type, width, height, position, closer, escape,
+      icon, 
+      title : theTitle,
+      result : meta.pvg,
+      comType : "WnObjPrivilege", 
+      components : ["@com:wn/obj/privilege"]
+      //------------------------------------------
+    })
+    //............................................
+    // User cancel
+    if(!pvg || _.isEqual(meta.pvg, pvg)) {
+      return
+    }
+    //............................................
+    if(autoSave) {
+      let input = _.isEmpty(pvg)
+        ? {"!pvg":true}
+        : {pvg};
+      let json = JSON.stringify(input)
+      let cmdText = `o 'id:${meta.id}' @update @json -cqn`
+      let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
+      await Ti.Toast.Open("i18n:save-done", "success")
+      return newMeta
+    }
+    // Just update obj
+    else {
+      meta.pvg = pvg
+    }
+    //............................................
+    return meta
+  }
+  ////////////////////////////////////////////////////
+  return EditObjPrivilege;
 })();
 //##################################################
 // # import EditTiComponent  from "./wn-edit-ti-component.mjs"
@@ -3145,7 +3212,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210405.033710"
+const WALNUT_VERSION = "1.2-20210406.044642"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
@@ -3155,7 +3222,7 @@ const HOOKs = {
 export const Wn = {
   Version: WALNUT_VERSION,
   Io, Obj, Session, Sys, Util, Dict, Hm,
-  OpenObjSelector, EditObjMeta, EditObjContent,
+  OpenObjSelector, EditObjMeta, EditObjContent, EditObjPrivilege,
   EditTiComponent, OpenThingManager, OpenCmdPanel,
   Youtube, 
   //-------------------------------------

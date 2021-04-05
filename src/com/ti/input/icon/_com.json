@@ -2,6 +2,6 @@
   "name" : "ti-input-icon",
   "globally" : true,
   "template" : "./ti-input-icon.html",
-  "props" : "./ti-input-icon-props.mjs",
+  "methods" : "./ti-input-icon-data.mjs",
   "mixins" : ["./ti-input-icon.mjs"]
 }

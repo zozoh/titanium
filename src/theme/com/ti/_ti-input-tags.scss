@@ -5,6 +5,9 @@ div.ti-input-tags {flex-wrap: wrap;}
   > .as-tags {
     @include flex-center;
     padding:0 SZ(4); font-size:.8em;
+    .ti-tags-item {
+      min-height: SZ(24);
+    }
   }
   //-----------------------------------------
   // Input Box

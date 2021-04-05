@@ -147,6 +147,9 @@ class TiToastBox {
 const TiToast = {
   //------------------------------------------
   Open(options, type="info", position="top") {
+    if(options instanceof Error) {
+      options = options.errMsg || options+""
+    }
     if(_.isString(options)) {
       // Open("i18n:xxx", {vars})
       if(_.isPlainObject(type)) {
@@ -166,7 +169,12 @@ const TiToast = {
         }
       }
     }
-    //console.log("toast", options)
+    // Format content
+    //console.log("toast", options.content)
+    if(!/^i18n:/.test(options.content)) {
+      options.content = Ti.I18n.translate(options.content)
+    }
+    // Open box
     let toa = new TiToastBox(options)
     toa.open()
     return toa

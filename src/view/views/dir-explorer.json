@@ -115,6 +115,14 @@
           "type" : "line"
         },{
           "type" : "action",
+          "icon" : "fas-user-lock",
+          "text" : "i18n:wn-key-pvg",
+          "action" : "main:openCurrentPrivilege",
+          "shortcut" : "ALT+CTRL+SHIFT+P"
+        },{
+          "type" : "line"
+        },{
+          "type" : "action",
           "icon" : "fas-keyboard",
           "text" : "i18n:console",
           "action" : "=>Ti.Be.Open('/a/open/wn.console')",

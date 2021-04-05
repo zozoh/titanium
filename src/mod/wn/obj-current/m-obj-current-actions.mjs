@@ -78,6 +78,23 @@ const _M = {
     await dispatch("changeContent", newContent)
   },
   //--------------------------------------------
+  async openPrivilegeEditor({state, dispatch}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    // Open Editor
+    let newMeta = await Wn.EditObjPrivilege(state.meta)
+
+    // Cancel the editing
+    if(_.isUndefined(newMeta)) {
+      return
+    }
+
+    // Update the current editing
+    await dispatch("reload", newMeta)
+  },
+  //--------------------------------------------
   // Update to remote
   //----------------------------------------
   async updateMeta({commit, dispatch}, {name, value}={}) {

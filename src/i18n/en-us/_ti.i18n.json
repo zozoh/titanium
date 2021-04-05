@@ -1,4 +1,5 @@
 {
+  "key" : "Key",
   "all" : "All",
   "attachments" : "Attachments",
   "attachment-add" : "Add attachmemt",
@@ -110,6 +111,7 @@
   "e-io-obj-exists": "Object already exists",
   "e-io-obj-noexists": "Object does't exists",
   "e-io-obj-noexistsf": "Object[${nm}] does't exists",
+  "e-io-forbidden" : "IO Forbidden",
   "edit": "Edit",
   "edit-com": "Edit control",
   "email": "Email",

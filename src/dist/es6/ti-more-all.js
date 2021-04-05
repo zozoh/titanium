@@ -1,4 +1,4 @@
-// Pack At: 2021-04-05 03:37:10
+// Pack At: 2021-04-06 04:46:42
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1209,6 +1209,28 @@ const _M = {
       }
     },
     //--------------------------------------------
+    async openCurrentPrivilege() {
+      let meta = this.getCurrentItem() || this.meta
+
+      if(!meta) {
+        await Ti.Toast.Open("i18n:nil-obj")
+        return
+      }
+
+      let newMeta = await Wn.EditObjPrivilege(meta)
+      
+      // Update to current list
+      if(newMeta) {
+        if(this.meta.id == newMeta.id)  {
+          await Ti.App(this).dispatch("current/reload", newMeta)
+        } else {
+          await Ti.App(this).commit("current/setDataItem", newMeta)
+          //this.setItem(newMeta)
+        }
+        return newMeta
+      }
+    },
+    //--------------------------------------------
     syncMyData() {
       //console.log("syncMyData")
       // 有时候直接改了 myData， 竟然会导致这个函数被触发
@@ -1231,6 +1253,9 @@ const _M = {
     //     "newVal" : _.get(newVal, "list.0.nm"),
     //     "oldVal" : _.get(oldVal, "list.0.nm"),
     //   })
+    // },
+    // myData : function(newVal, oldVal) {
+    //   console.log("myData Changed", newVal)
     // },
     //--------------------------------------------
     "data" : {
@@ -2836,12 +2861,12 @@ const _M = {
       }
     },
     //------------------------------------------------
-    doWhenInput(emitName="inputing", autoJsValue=false) {
+    doWhenInput(emitName="inputing") {
       if(_.isElement(this.$refs.input)) {
-        //console.log("doWhenInput", emitName)
+        console.log("doWhenInput", emitName)
         let val = this.$refs.input.value
         // Auto js value
-        if(autoJsValue) {
+        if(this.autoJsValue) {
           val = Ti.S.toJsValue(val, {
             autoNil  : true,
             autoDate : false,
@@ -2869,7 +2894,7 @@ const _M = {
     },
     //------------------------------------------------
     onInputChanged() {
-      this.doWhenInput("change", this.autoJsValue)
+      this.doWhenInput("change")
     },
     //------------------------------------------------
     onInputFocus() {
@@ -7576,7 +7601,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Data
     //-----------------------------------
     "value" : {
-      type : Array,
+      type : [Array, String],
       default : ()=>[]
     },
     "dict" : {
@@ -7690,10 +7715,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     async evalMyData() {
       const tags = []
+      let list;
       if(_.isArray(this.value)) {
-        const lastIndex = this.value.length - 1
-        for(let index=0; index<this.value.length; index++){
-          let val = this.value[index]
+        list = this.value
+      } else if(_.isString(this.value)) {
+        list = _.without(this.value.split(","), "")
+      } else {
+        list = []
+      }
+      if(!_.isEmpty(list)) {
+        const lastIndex = list.length - 1
+        for(let index=0; index<list.length; index++){
+          let val = list[index]
           let tag;
           // Auto mapping plain object
           if(_.isPlainObject(val)) {
@@ -9733,6 +9766,23 @@ const _M = {
     await dispatch("changeContent", newContent)
   },
   //--------------------------------------------
+  async openPrivilegeEditor({state, dispatch}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    // Open Editor
+    let newMeta = await Wn.EditObjPrivilege(state.meta)
+
+    // Cancel the editing
+    if(_.isUndefined(newMeta)) {
+      return
+    }
+
+    // Update the current editing
+    await dispatch("reload", newMeta)
+  },
+  //--------------------------------------------
   // Update to remote
   //----------------------------------------
   async updateMeta({commit, dispatch}, {name, value}={}) {
@@ -11733,6 +11783,121 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'ti-input-icon-data.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/input/icon/ti-input-icon-data.mjs'] = (function(){
+//////////////////////////////////////////////////////
+const ICONS = {
+  /* Starts Icons */
+  starts : ["fas-allergies","fas-ambulance","fas-anchor","fas-angry","fas-archive","fas-archway",
+  "fas-atlas","fas-baby-carriage","fas-bacteria","fas-bacterium","fas-balance-scale",
+  "fas-band-aid","fas-bath","fas-bed","fas-binoculars","fas-biohazard","fas-birthday-cake",
+  "fas-bone","fas-bong","fas-book","fas-book-medical","fas-brain","fas-briefcase",
+  "fas-briefcase-medical","fas-building","fas-bullhorn","fas-bullseye","fas-burn",
+  "fas-bus","fas-bus-alt","fas-business-time","fas-calculator","fas-calendar","fas-calendar-alt",
+  "fas-campground","fas-candy-cane","fas-cannabis","fas-capsules","fas-car","fas-caravan",
+  "fas-carrot","fas-certificate","fas-chart-area","fas-chart-bar","fas-chart-line",
+  "fas-chart-pie","fas-church","fas-city","fas-clinic-medical","fas-clipboard","fas-cocktail",
+  "fas-coffee","fas-columns","fas-comment-dollar","fas-comment-medical","fas-comments-dollar",
+  "fas-compass","fas-concierge-bell","fas-cookie-bite","fas-copy","fas-copyright",
+  "fas-crutch","fas-cut","fas-dharmachakra","fas-diagnoses","fas-dice","fas-dice-five",
+  "fas-disease","fas-dizzy","fas-dna","fas-door-closed","fas-door-open","fas-dumbbell",
+  "fas-dungeon","fas-edit","fas-envelope","fas-envelope-open","fas-envelope-open-text",
+  "fas-envelope-square","fas-eraser","fas-fax","fas-file","fas-file-alt","fas-file-medical",
+  "fas-file-medical-alt","fas-file-prescription","fas-first-aid","fas-flushed","fas-folder",
+  "fas-folder-minus","fas-folder-open","fas-folder-plus","fas-frog","fas-frown","fas-frown-open",
+  "fas-funnel-dollar","fas-gift","fas-gifts","fas-glass-cheers","fas-glass-martini",
+  "fas-glass-martini-alt","fas-glasses","fas-globe","fas-globe-africa","fas-globe-americas",
+  "fas-globe-asia","fas-globe-europe","fas-gopuram","fas-graduation-cap","fas-grimace",
+  "fas-grin","fas-grin-alt","fas-grin-beam","fas-grin-beam-sweat","fas-grin-hearts",
+  "fas-grin-squint","fas-grin-squint-tears","fas-grin-stars","fas-grin-tears","fas-grin-tongue",
+  "fas-grin-tongue-squint","fas-grin-tongue-wink","fas-grin-wink","fas-hand-holding-medical",
+  "fas-hat-cowboy","fas-hat-cowboy-side","fas-hat-wizard","fas-head-side-cough","fas-head-side-cough-slash",
+  "fas-head-side-mask","fas-head-side-virus","fas-heart","fas-heartbeat","fas-highlighter",
+  "fas-holly-berry","fas-home","fas-hospital","fas-hospital-alt","fas-hospital-symbol",
+  "fas-hospital-user","fas-hot-tub","fas-hotel","fas-house-damage","fas-id-card-alt",
+  "fas-igloo","fas-industry","fas-infinity","fas-joint","fas-kaaba","fas-key","fas-kiss",
+  "fas-kiss-beam","fas-kiss-wink-heart","fas-landmark","fas-laptop-house","fas-laptop-medical",
+  "fas-laugh","fas-laugh-beam","fas-laugh-squint","fas-laugh-wink","fas-lightbulb",
+  "fas-luggage-cart","fas-lungs","fas-lungs-virus","fas-mail-bulk","fas-map","fas-map-marked",
+  "fas-map-marked-alt","fas-marker","fas-meh","fas-meh-blank","fas-meh-rolling-eyes",
+  "fas-microscope","fas-mitten","fas-monument","fas-mortar-pestle","fas-mosque","fas-mug-hot",
+  "fas-notes-medical","fas-pager","fas-paperclip","fas-passport","fas-paste","fas-pen",
+  "fas-pen-alt","fas-pen-fancy","fas-pen-nib","fas-pen-square","fas-pencil-alt","fas-percent",
+  "fas-phone","fas-phone-alt","fas-phone-slash","fas-phone-square","fas-phone-square-alt",
+  "fas-phone-volume","fas-pills","fas-place-of-worship","fas-poop","fas-prescription-bottle",
+  "fas-prescription-bottle-alt","fas-print","fas-procedures","fas-project-diagram",
+  "fas-pump-medical","fas-radiation","fas-radiation-alt","fas-registered","fas-sad-cry",
+  "fas-sad-tear","fas-save","fas-school","fas-search-dollar","fas-search-location",
+  "fas-shield-virus","fas-ship","fas-shoe-prints","fas-shower","fas-shuttle-van","fas-sitemap",
+  "fas-skull-crossbones","fas-sleigh","fas-smile","fas-smile-beam","fas-smile-wink",
+  "fas-smoking","fas-smoking-ban","fas-snowflake","fas-snowman","fas-socks","fas-spa",
+  "fas-star-of-life","fas-stethoscope","fas-sticky-note","fas-store","fas-store-alt",
+  "fas-suitcase","fas-suitcase-rolling","fas-surprise","fas-swimmer","fas-swimming-pool",
+  "fas-synagogue","fas-syringe","fas-table","fas-tablets","fas-tag","fas-tags","fas-tasks",
+  "fas-taxi","fas-thermometer","fas-thumbtack","fas-tired","fas-tooth","fas-torii-gate",
+  "fas-trademark","fas-tram","fas-tshirt","fas-tv","fas-umbrella-beach","fas-university",
+  "fas-user-md","fas-user-nurse","fas-user-tie","fas-utensils","fas-vial","fas-vials",
+  "fas-vihara","fas-virus","fas-virus-slash","fas-viruses","fas-wallet","fas-warehouse",
+  "fas-water","fas-weight","fas-wheelchair","fas-wifi","fas-wind","fas-wine-glass",
+  "fas-wine-glass-alt","fas-x-ray","zmdi-airplane","zmdi-album","zmdi-archive","zmdi-assignment-account",
+  "zmdi-assignment-alert","zmdi-assignment-check","zmdi-assignment-o","zmdi-assignment",
+  "zmdi-attachment-alt","zmdi-attachment","zmdi-audio","zmdi-badge-check","zmdi-balance-wallet",
+  "zmdi-balance","zmdi-battery-flash","zmdi-battery","zmdi-bike","zmdi-boat","zmdi-book-image",
+  "zmdi-book","zmdi-bookmark-outline","zmdi-bookmark","zmdi-brush","zmdi-bug","zmdi-bus",
+  "zmdi-cake","zmdi-car-taxi","zmdi-car-wash","zmdi-car","zmdi-card-giftcard","zmdi-card-membership",
+  "zmdi-card-travel","zmdi-card","zmdi-case","zmdi-chart-donut","zmdi-chart","zmdi-city-alt",
+  "zmdi-city","zmdi-close-circle-o","zmdi-close-circle","zmdi-close","zmdi-cocktail",
+  "zmdi-code-setting","zmdi-code-smartphone","zmdi-code","zmdi-coffee","zmdi-collection-bookmark",
+  "zmdi-collection-case-play","zmdi-collection-folder-image","zmdi-collection-image-o",
+  "zmdi-collection-image","zmdi-collection-item-1","zmdi-collection-item-2","zmdi-collection-item-3",
+  "zmdi-collection-item-4","zmdi-collection-item-5","zmdi-collection-item-6","zmdi-collection-item-7",
+  "zmdi-collection-item-8","zmdi-collection-item-9-plus","zmdi-collection-item-9",
+  "zmdi-collection-item","zmdi-collection-music","zmdi-collection-pdf","zmdi-collection-plus",
+  "zmdi-collection-speaker","zmdi-collection-text","zmdi-collection-video","zmdi-compass",
+  "zmdi-cutlery","zmdi-delete","zmdi-dialpad","zmdi-dns","zmdi-drink","zmdi-edit",
+  "zmdi-email-open","zmdi-email","zmdi-eye-off","zmdi-eye","zmdi-eyedropper","zmdi-favorite-outline",
+  "zmdi-favorite","zmdi-fire","zmdi-flag","zmdi-flare","zmdi-flash-auto","zmdi-flash-off",
+  "zmdi-flash","zmdi-flip","zmdi-flower-alt","zmdi-flower","zmdi-gas-station","zmdi-gesture",
+  "zmdi-globe-alt","zmdi-globe-lock","zmdi-globe","zmdi-graduation-cap","zmdi-home",
+  "zmdi-hospital-alt","zmdi-hospital","zmdi-hotel","zmdi-hourglass-alt","zmdi-hourglass-outline",
+  "zmdi-hourglass","zmdi-http","zmdi-image","zmdi-inbox","zmdi-invert-colors-off",
+  "zmdi-invert-colors","zmdi-key","zmdi-label-alt-outline","zmdi-label-alt","zmdi-label-heart",
+  "zmdi-label","zmdi-labels","zmdi-lamp","zmdi-landscape","zmdi-library","zmdi-link",
+  "zmdi-lock-open","zmdi-lock-outline","zmdi-lock","zmdi-mail-send","zmdi-mall","zmdi-map",
+  "zmdi-money-box","zmdi-money","zmdi-movie-alt","zmdi-movie","zmdi-nature-people",
+  "zmdi-nature","zmdi-navigation","zmdi-open-in-browser","zmdi-open-in-new","zmdi-palette",
+  "zmdi-parking","zmdi-pizza","zmdi-plaster","zmdi-power-setting","zmdi-power","zmdi-print",
+  "zmdi-puzzle-piece","zmdi-railway","zmdi-receipt","zmdi-roller","zmdi-ruler","zmdi-scissors",
+  "zmdi-seat","zmdi-settings-square","zmdi-settings","zmdi-shape","zmdi-shield-check",
+  "zmdi-shield-security","zmdi-shopping-basket","zmdi-shopping-cart-plus","zmdi-shopping-cart",
+  "zmdi-storage","zmdi-store-24","zmdi-store","zmdi-subway","zmdi-sun","zmdi-tag",
+  "zmdi-thumb-up","zmdi-ticket-star","zmdi-toll","zmdi-toys","zmdi-traffic","zmdi-truck",
+  "zmdi-turning-sign","zmdi-wallpaper","zmdi-washing-machine"]
+  ,
+  /* Icons for role */
+  role: ["fas-user-tie","fas-user-tag","fas-user-shield","fas-user-secret","fas-user-nurse",
+  "fas-user-ninja","fas-user-minus","fas-user-md","fas-user-lock","fas-user-circle",
+  "fas-user","fas-user-astronaut","fas-user-injured","fas-user-graduate","fas-user-alt",
+  "im-user-male","im-user-female","zmdi-account-o","zmdi-account","zmdi-face","fas-user-friends",
+  "fas-users","fas-wheelchair","fas-walking","fas-swimmer","fas-street-view","fas-snowboarding",
+  "fas-skiing-nordic","fas-skiing","fas-skating","fas-running","fas-restroom","fas-pray",
+  "fas-person-booth","fas-male","fas-hiking","fas-female","fas-child","fas-chalkboard-teacher",
+  "fas-blind","fas-biking","fas-bed","fas-baby","fas-smile","fas-meh","fas-frown",
+  "far-smile","far-meh","far-frown","fas-otter","fas-hippo","fas-dog","fas-spider",
+  "fas-kiwi-bird","fas-horse-head","fas-horse","fas-frog","fas-fish","fas-feather-alt",
+  "fas-feather","fas-dragon","fas-dove","fas-crow","fas-cat","fas-chess-rook","fas-chess-queen",
+  "fas-chess-pawn","fas-chess-knight","fas-chess-king","fas-chess-bishop","fas-chess"]
+};
+//////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  queryIcons(key="starts") {
+    return ICONS[key] || ICONS.starts
+  }
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'thing-filter.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/thing/manager/com/thing-filter/thing-filter.mjs'] = (function(){
@@ -12706,6 +12871,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : [String, Object],
       default : null
     },
+    "options": {
+      type: [Array, String],
+      default: "stars"
+    },
     "iconSize" : {
       type : [Number,String],
       default : null
@@ -12748,7 +12917,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     OptionIcons() {
       let list = []
-      _.forEach(this.options, (icon, index)=>{
+      let icons;
+      if(_.isArray(this.options)) {
+        icons = this.options
+      } else {
+        icons = this.queryIcons(this.options)
+      }
+      _.forEach(icons, (icon, index)=>{
         let m = /^([a-z]+)-(.+)$/.exec(icon)
         list.push({
           value : icon,
@@ -19315,6 +19490,17 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/wn/obj/privilege/wn-obj-privilege.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
+  data : ()=>({
+    myAccountHome : null,
+    myRoleHome : null,
+    myAccounts : [],
+    myRoles : [],
+    myAccountMap : {},
+    myRoleMap : {},
+    myCurrentId : null,
+    loading : false
+  }),
+  //////////////////////////////////////////
   props : {
     "value" : {
       type : Object,
@@ -19324,27 +19510,367 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
   computed : {
     //--------------------------------------
-    TopClass() {
-      return this.getTopClass()
+    hasAccounts()  {return !_.isEmpty(this.myAccounts)},
+    hasRoles()  {return !_.isEmpty(this.myRoles)},
+    //--------------------------------------
+    TheLoadingAs() {
+      if(this.loading)
+        return true
+
+      if(!this.hasAccounts)
+        return {
+          text : "i18n:empty",
+          icon : "fas-border-none"
+        }
     },
     //--------------------------------------
-    PrivilegeObj() {
+    ActionItems() {
+      return [{
+        icon : "fas-user-plus",
+        text : "i18n:account-add",
+        action : ()=>{this.OnAddAccounts()}
+      }, {
+        type : "line"
+      }, {
+        icon : "fas-ribbon",
+        text : "i18n:role-add",
+        action : ()=>{this.OnAddRoles()}
+      }, {
+        type : "line"
+      }, {
+        icon : "far-trash-alt",
+        text : "i18n:del-checked",
+        action : ()=>{this.OnRemoveSelected()}
+      }]
+    },
+    //--------------------------------------
+    Layout() {
+      return {
+        type : "rows",
+        border : true,
+        defaultFlex : "both",
+        blocks : [{
+            size : 42,
+            body : "actions"
+          }, {
+            type : "cols",
+            border : true,
+            blocks : [{
+              name : "list",
+              body : "list"
+            }, {
+              name : "data",
+              body : "data"
+            }]
+          }]
+      }
+    },
+    //--------------------------------------
+    Schema() {
+      return {
+        actions : {
+          comType : "TiActionbar",
+          comConf : {
+            items : this.ActionItems
+          }
+        },
+        list : {
+          comType : "TiList",
+          comConf : {
+            checkable : true,
+            multi : true,
+            data : this.PrivilegeData,
+            idBy : "key",
+            display : [
+              "<icon>", "text", "tip::as-tip-block"
+            ],
+            onInit : ($list)=>{
+              this.$list = $list
+            }
+          }
+        },
+        data : {
+          comType : "TiForm",
+          comConf : {
+            spacing : "tiny",
+            data : this.CurrentItem,
+            autoShowBlank : true,
+            blankAs : {
+              text : "i18n:blank-to-edit",
+              icon : "fas-arrow-left"
+            },
+            fields : [{
+              title : "i18n:type",
+              name : "type"
+            }, {
+              title : "i18n:name",
+              name : "text"
+            }, {
+              title : "i18n:key",
+              name : "key"
+            }, {
+              title : "i18n:wn-md-readable",
+              name : "readable",
+              type : "Boolean",
+              comType : "TiToggle"
+            }, {
+              title : "i18n:wn-md-writable",
+              name : "writable",
+              type : "Boolean",
+              comType : "TiToggle"
+            }, {
+              title : "i18n:wn-md-excutable",
+              name : "excutable",
+              type : "Boolean",
+              comType : "TiToggle"
+            }]
+          }
+        }
+      }
+    },
+    //--------------------------------------
+    PrivilegeData() {
+      let list = []
+      _.forEach(this.value, (md, id)=>{
+        let {other} = Wn.Obj.parseMode(md)
+        let tips = []
+        if(other.readable)
+          tips.push(Ti.I18n.get("wn-md-R"))
+        if(other.writable)
+          tips.push(Ti.I18n.get("wn-md-W"))
+        if(other.excutable)
+          tips.push(Ti.I18n.get("wn-md-X"))
+        let tip = tips.join("") || Ti.I18n.get("nil");
+        // Role
+        if(/^@/.test(id)) {
+          let roleName = id.substring(1)
+          let role = _.get(this.myRoleMap, roleName)
+          if(role) {
+            list.push({
+              type  : "role",
+              icon  : role.icon || 'far-smile',
+              text  : role.title || role.nm,
+              key  : id,
+              tip, 
+              ... other
+            })
+          } else {
+            list.push({
+              type  : "role",
+              icon  : 'far-smile',
+              text  : roleName,
+              key  : id,
+              tip,
+              ... other
+            })
+          }
+        }
+        // Account
+        else {
+          let user = _.get(this.myAccountMap, id)
+          if(user) {
+            list.push({
+              type  : "account",
+              icon  : user.icon || 'zmdi-account',
+              thumb : user.thumb,
+              text  : user.nickname || user.nm,
+              key  : id,
+              tip,
+              ... other
+            })
+          } else {
+            list.push({
+              type  : "account",
+              icon  : 'zmdi-account',
+              text  : id,
+              key  : id,
+              tip,
+              ... other
+            })
+          }
+        }
+      })
+      return list
+    },
+    //--------------------------------------
+    CurrentItem() {
+      for(let it of this.PrivilegeData) {
+        if(this.myCurrentId == it.key) {
+          return it
+        }
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods : {
     //--------------------------------------
-    
+    OnListSelect({currentId}) {
+      this.myCurrentId = currentId
+    },
+    //--------------------------------------
+    OnDataChange(data) {
+      let key = data.key
+      let m0 = Wn.Obj.mode0FromObj(data)
+      let md = (m0 << 6) | (m0 << 3) | (m0)
+      let val = _.cloneDeep(this.value)
+      val[key] = md
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    async OnAddAccounts() {
+      let accounts = _.filter(this.myAccounts, acc=>{
+        let md = _.get(this.value, acc.id)
+        return _.isUndefined(md)
+      })
+
+      let reo = await Ti.App.Open({
+        icon : "fas-user-plus",
+        title : "i18n:account-add",
+        position : "top",
+        width : 480,
+        height : "90%",
+        model : {prop:"value", event:"select"},
+        comType : "TiList",
+        comConf : {
+          multi : true,
+          checkable : true,
+          data : accounts,
+          display : ["<icon:zmdi-account>", "nickname", "nm::as-tip-block"]
+        }
+      })
+
+      // User cancel
+      if(!reo)
+        return
+      
+      // Nothing selected
+      let checkeds = Ti.Util.truthyKeys(reo.checkedIds)
+      if(_.isEmpty(checkeds)) {
+        return
+      }
+
+      // Update value
+      let val = _.cloneDeep(this.value)
+      for(let id of checkeds) {
+        val[id] = 508
+      }
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    async OnAddRoles() {
+      let roles = _.filter(this.myRoles, role=>{
+        let md = _.get(this.value, `@${role.nm}`)
+        return _.isUndefined(md)
+      })
+
+      let reo = await Ti.App.Open({
+        icon : "fas-user-plus",
+        title : "i18n:account-add",
+        position : "top",
+        width : 480,
+        height : "90%",
+        model : {prop:"value", event:"select"},
+        comType : "TiList",
+        comConf : {
+          multi : true,
+          checkable : true,
+          idBy : "nm",
+          data : roles,
+          display : ["<icon:far-smile>", "title", "nm::as-tip-block"]
+        }
+      })
+
+      // User cancel
+      if(!reo)
+        return
+      
+      // Nothing selected
+      let checkeds = Ti.Util.truthyKeys(reo.checkedIds)
+      if(_.isEmpty(checkeds)) {
+        return
+      }
+
+      // Update value
+      let val = _.cloneDeep(this.value)
+      for(let nm of checkeds) {
+        val[`@${nm}`] = 508
+      }
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    OnRemoveSelected() {
+      let checked = this.$list.getChecked()
+      if(_.isEmpty(checked)) {
+        Ti.Toast.Open("i18n:nil-obj", "warn")
+        return
+      }
+      // Build key map
+      let keyMap = {}
+      _.forEach(checked, it=>{
+        keyMap[it.key] = true
+      })
+
+      // Remove from value
+      let val = {}
+      _.forEach(this.value, (md, key)=>{
+          if(!keyMap[key]) {
+            val[key] = md
+          }
+      })
+      
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    buildMap(list=[], key="id") {
+      let re = {}
+      _.forEach(list, li=>{
+        if(!li)
+          return
+        let k = li[key]
+        if(k) {
+          re[k] = li
+        }
+      })
+      return re
+    },
+    //--------------------------------------
+    async reload() {
+      this.loading = true
+      // Reload accountHome and roleHome
+      let cmdText = 'domain site -cqn -keys "^(id|nm|ph|title)$"'
+      let site = await Wn.Sys.exec2(cmdText, {as:"json"})
+      this.myAccountHome = _.get(site, "accountHome")
+      this.myRoleHome = _.get(site, "roleHome")
+
+      // Reload Accounts
+      let km = '^(id|nm|title|nickname|icon|thumb)$';
+      if(this.myAccountHome) {
+        cmdText = `thing id:${this.myAccountHome.id} query -cqn -e '${km}'`
+        this.myAccounts = await Wn.Sys.exec2(cmdText, {as:"json"})
+      } else {
+        this.myAccounts = []
+      }
+
+      // Reload Roles
+      if(this.myRoleHome) {
+        cmdText = `thing id:${this.myRoleHome.id} query -cqn -e '${km}'`
+        this.myRoles = await Wn.Sys.exec2(cmdText, {as:"json"})
+      } else {
+        this.myRoles = []
+      }
+
+      // Build map
+      this.myAccountMap = this.buildMap(this.myAccounts, "id")
+      this.myRoleMap = this.buildMap(this.myRoles, "nm")
+
+      this.loading = false
+    }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    
-  },
-  //////////////////////////////////////////
   mounted : function() {
-    
+    this.reload()    
   }
   //////////////////////////////////////////
 }
@@ -26364,318 +26890,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
   }
   //////////////////////////////////////////
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'ti-input-icon-props.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/input/icon/ti-input-icon-props.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  "options": {
-    type: Array,
-    default: () => [
-      "im-spotify",
-      "im-newsletter",
-      "im-award",
-      "im-headphones",
-      "im-megaphone",
-      "im-barcode",
-      "im-google-play",
-      "im-facebook-messenger",
-      "im-wechat",
-      "im-line",
-      "im-git",
-      "im-first-aid",
-      "im-ribbon",
-      "im-plane",
-      "im-idea",
-      "im-data",
-      "im-data-delete",
-      "im-data-validate",
-      "im-folder-add",
-      "im-radar",
-      "im-pizza",
-      "im-truck",
-      "im-support",
-      "im-reset",
-      "im-import",
-      "im-export",
-      "im-color-fan",
-      "im-cookie",
-      "im-gift-card",
-      "im-factory",
-      "im-pulse",
-      "im-accessibility",
-      "im-apartment",
-      "im-plugin",
-      "im-layer",
-      "im-direction",
-      "im-dribbble",
-      "im-radio",
-      "im-bank",
-      "im-battery-empty",
-      "im-battery",
-      "im-battery-full",
-      "im-x-mark-circle-o",
-      "im-timer",
-      "im-hashtag",
-      "im-server",
-      "im-flask",
-      "im-anchor",
-      "im-umbrella",
-      "im-cc-amex",
-      "im-cc-visa",
-      "im-cc-mastercard",
-      "im-cc-paypal",
-      "im-cc-amazon",
-      "im-cc-bitcoin",
-      "im-car",
-      "im-paintbrush",
-      "im-cube",
-      "im-cubes",
-      "im-language",
-      "im-calculator",
-      "im-user-settings",
-      "im-trophy",
-      "im-pointer",
-      "im-edit",
-      "im-warning-circle",
-      "im-check-mark-circle-o",
-      "im-date-o",
-      "im-newspaper-o",
-      "im-wrench",
-      "im-binoculars",
-      "im-gamepad",
-      "im-history",
-      "im-bell-active",
-      "im-coffee",
-      "im-leaf",
-      "im-gift",
-      "im-flip-chart-o",
-      "im-clock",
-      "im-line-chart-up",
-      "im-laptop-o",
-      "im-monitor-o",
-      "im-cursor",
-      "im-keyboard",
-      "im-pin",
-      "im-store",
-      "im-graduation-hat",
-      "im-certificate-o",
-      "im-sun",
-      "im-diamond-o",
-      "im-drop",
-      "im-paperplane",
-      "im-fingerprint",
-      "im-lifebuoy",
-      "im-power",
-      "im-target",
-      "im-navigation",
-      "im-bug",
-      "im-network",
-      "im-pie-chart",
-      "im-note-o",
-      "im-id-card",
-      "im-tags",
-      "im-floppy-disk",
-      "im-dashboard",
-      "im-tools",
-      "im-users",
-      "im-trash-can",
-      "im-x-mark-circle",
-      "im-x-mark",
-      "im-shield",
-      "im-mobile",
-      "im-inbox",
-      "im-crown",
-      "im-check-square",
-      "im-check-square-o",
-      "im-check-mark-circle",
-      "im-check-mark",
-      "im-redo",
-      "im-undo",
-      "im-map-o",
-      "im-task-o",
-      "im-menu-dot-v",
-      "im-edit-off",
-      "im-facebook",
-      "im-sitemap",
-      "im-save",
-      "im-volume-off",
-      "im-volume",
-      "im-sign-out",
-      "im-sign-in",
-      "im-shopping-cart",
-      "im-rocket",
-      "im-banknote",
-      "im-fullscreen",
-      "im-minimize",
-      "im-maximize",
-      "im-light-bulb",
-      "im-filter",
-      "im-picture-o",
-      "im-eye-off",
-      "im-eye",
-      "im-external-link",
-      "im-random",
-      "im-loop",
-      "im-next",
-      "im-previous",
-      "im-eject",
-      "im-stop",
-      "im-pause",
-      "im-play",
-      "im-credit-card",
-      "im-bookmark",
-      "im-upload",
-      "im-download",
-      "im-video-camera",
-      "im-photo-camera",
-      "im-care-up",
-      "im-care-down",
-      "im-care-left",
-      "im-arrow-up-circle",
-      "im-arrow-down-circle",
-      "im-arrow-left-circle",
-      "im-arrow-right-circle",
-      "im-arrow-up",
-      "im-arrow-down",
-      "im-arrow-left",
-      "im-arrow-right",
-      "im-angle-up-circle",
-      "im-angle-down-circle",
-      "im-angle-left-circle",
-      "im-angle-right-circle",
-      "im-angle-up",
-      "im-angle-down",
-      "im-angle-left",
-      "im-angle-right",
-      "im-twitch",
-      "im-reddit",
-      "im-edge",
-      "im-whatsapp",
-      "im-amazon",
-      "im-snapchat",
-      "im-instagram",
-      "im-fire",
-      "im-sync",
-      "im-toggle",
-      "im-control-panel",
-      "im-archive",
-      "im-bell",
-      "im-bell-off",
-      "im-youtube",
-      "im-spinner",
-      "im-smiley-o",
-      "im-frown-o",
-      "im-code",
-      "im-android-os",
-      "im-linux-os",
-      "im-apple-os",
-      "im-menu",
-      "im-menu-list",
-      "im-menu-dot-h",
-      "im-windows-os",
-      "im-square-o",
-      "im-check-square-i",
-      "im-radio-button-circle",
-      "im-radio-button-circle-o",
-      "im-flag",
-      "im-opera",
-      "im-thumb-up",
-      "im-thumb-down",
-      "im-safari",
-      "im-paper-clip",
-      "im-firefox",
-      "im-copy",
-      "im-chrome",
-      "im-quote-left",
-      "im-quote-right",
-      "im-ie",
-      "im-briefcase",
-      "im-forbidden",
-      "im-vk",
-      "im-wizard",
-      "im-location",
-      "im-paypal",
-      "im-coin",
-      "im-key",
-      "im-lock",
-      "im-lock-open",
-      "im-share",
-      "im-flash",
-      "im-cloud",
-      "im-database",
-      "im-wifi",
-      "im-book",
-      "im-audio",
-      "im-video",
-      "im-microphone",
-      "im-printer",
-      "im-computer",
-      "im-phone",
-      "im-user-male",
-      "im-user-female",
-      "im-user-circle",
-      "im-clock-o",
-      "im-calendar",
-      "im-pencil",
-      "im-question",
-      "im-bar-chart",
-      "im-info",
-      "im-folder",
-      "im-folder-open",
-      "im-file",
-      "im-file-o",
-      "im-files-o",
-      "im-warning",
-      "im-link",
-      "im-unlink",
-      "im-tag",
-      "im-heart",
-      "im-cloud-upload",
-      "im-cloud-download",
-      "im-speech-bubble",
-      "im-speech-bubble-comment",
-      "im-speech-bubble-comments",
-      "im-mail",
-      "im-globe",
-      "im-home",
-      "im-window-o",
-      "im-table",
-      "im-windows-o",
-      "im-gear",
-      "im-twitter",
-      "im-magnifier",
-      "im-magnifier-plus",
-      "im-magnifier-minus",
-      "im-minus",
-      "im-minus-circle",
-      "im-plus",
-      "im-plus-circle",
-      "im-care-right",
-      "im-star",
-      "im-star-half",
-      "im-star-o",
-      "im-circle-o",
-      "im-xing",
-      "im-vimeo",
-      "im-tumblr",
-      "im-stumbleupon",
-      "im-stackoverflow",
-      "im-soundcloud",
-      "im-skype",
-      "im-pinterest",
-      "im-linkedin",
-      "im-google-plus",
-      "im-github",
-      "im-flickr",
-      "im-facebook-like",
-      "im-blogger",
-      "im-behance"
-    ]
-  }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -46402,7 +46616,7 @@ const _M = {
             dropStyle.height = this.dropHeight
           }
           //..........................................S
-          Ti.Dom.setStyle($drop, Ti.Css.toStyle(dropStyle))
+          Ti.Dom.updateStyle($drop, Ti.Css.toStyle(dropStyle))
           //..........................................
           // Dock drop to box
           Ti.Dom.dockTo($drop, $box, {
@@ -54644,9 +54858,9 @@ Ti.Preload("ti/com/ti/input/datetime/_com.json", {
     "@com:ti/datetime"]
 });
 //========================================
-// JOIN <ti-input-icon-props.mjs> ti/com/ti/input/icon/ti-input-icon-props.mjs
+// JOIN <ti-input-icon-data.mjs> ti/com/ti/input/icon/ti-input-icon-data.mjs
 //========================================
-Ti.Preload("ti/com/ti/input/icon/ti-input-icon-props.mjs", TI_PACK_EXPORTS['ti/com/ti/input/icon/ti-input-icon-props.mjs']);
+Ti.Preload("ti/com/ti/input/icon/ti-input-icon-data.mjs", TI_PACK_EXPORTS['ti/com/ti/input/icon/ti-input-icon-data.mjs']);
 //========================================
 // JOIN <ti-input-icon.html> ti/com/ti/input/icon/ti-input-icon.html
 //========================================
@@ -54718,7 +54932,7 @@ Ti.Preload("ti/com/ti/input/icon/_com.json", {
   "name" : "ti-input-icon",
   "globally" : true,
   "template" : "./ti-input-icon.html",
-  "props" : "./ti-input-icon-props.mjs",
+  "methods" : "./ti-input-icon-data.mjs",
   "mixins" : ["./ti-input-icon.mjs"]
 });
 //========================================
@@ -62143,9 +62357,14 @@ Ti.Preload("ti/com/wn/obj/preview/_com.json", {
 //========================================
 // JOIN <wn-obj-privilege.html> ti/com/wn/obj/privilege/wn-obj-privilege.html
 //========================================
-Ti.Preload("ti/com/wn/obj/privilege/wn-obj-privilege.html", `<div class="wn-obj-privilege" :class="TopClass">
-  I am PrivilegeObj
-</div>`);
+Ti.Preload("ti/com/wn/obj/privilege/wn-obj-privilege.html", `<TiGui
+  class="wn-obj-privilege"
+  :layout="Layout"
+  :schema="Schema"
+  :can-loading="true"
+  :loading-as="TheLoadingAs"
+  @list::select="OnListSelect"
+  @data::change="OnDataChange"/>`);
 //========================================
 // JOIN <wn-obj-privilege.mjs> ti/com/wn/obj/privilege/wn-obj-privilege.mjs
 //========================================
@@ -63883,6 +64102,8 @@ Ti.Preload("ti/i18n/en-us/ti-text-editor.i18n.json", {
 // JOIN <web.i18n.json> ti/i18n/en-us/web.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/web.i18n.json", {
+  "role-add" : "Add role",
+  "account-add" : "Add account",
   "account": "Account",
   "account-flt-tip": "Filter by account name",
   "account-manage": "Accounts",
@@ -64349,6 +64570,7 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "key" : "Key",
   "all" : "All",
   "attachments" : "Attachments",
   "attachment-add" : "Add attachmemt",
@@ -64460,6 +64682,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "e-io-obj-exists": "Object already exists",
   "e-io-obj-noexists": "Object does't exists",
   "e-io-obj-noexistsf": "Object[${nm}] does't exists",
+  "e-io-forbidden" : "IO Forbidden",
   "edit": "Edit",
   "edit-com": "Edit control",
   "email": "Email",
@@ -64723,6 +64946,9 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-md-R" : "R",
   "wn-md-W" : "W",
   "wn-md-X" : "X",
+  "wn-md-readable"  : "Readable",
+  "wn-md-writable"  : "Writable",
+  "wn-md-excutable" : "Excutable",
   "wn-md-owner" : "Owner",
   "wn-md-member" : "Member",
   "wn-md-other" : "Other",
@@ -64785,7 +65011,7 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-key-nm": "Name",
   "wn-key-ph": "Path",
   "wn-key-pid": "Parent",
-  "wn-key-pvg": "Biz pvg",
+  "wn-key-pvg": "Customized pvg",
   "wn-key-race": "Race",
   "wn-key-sha1": "SHA1",
   "wn-key-thumb": "Thumb",
@@ -65117,6 +65343,8 @@ Ti.Preload("ti/i18n/zh-cn/ti-text-editor.i18n.json", {
 // JOIN <web.i18n.json> ti/i18n/zh-cn/web.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
+  "role-add" : "添加角色",
+  "account-add" : "添加账户",
   "account": "账户",
   "account-flt-tip": "请输入账号名过滤",
   "account-manage": "账户管理",
@@ -65583,6 +65811,7 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "key" : "键",
   "all" : "全部",
   "attachments" : "附件",
   "attachment-add" : "添加附件",
@@ -65694,6 +65923,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-io-obj-exists": "但是对象已然存在",
   "e-io-obj-noexists": "对象其实并不存在",
   "e-io-obj-noexistsf": "对象[${nm}]其实并不存在",
+  "e-io-forbidden" : "禁止写入",
   "edit": "编辑",
   "edit-com": "编辑控件",
   "email": "邮箱",
@@ -65957,6 +66187,9 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-md-R" : "读",
   "wn-md-W" : "写",
   "wn-md-X" : "用",
+  "wn-md-readable"  : "可读取",
+  "wn-md-writable"  : "可写入",
+  "wn-md-excutable" : "可使用",
   "wn-md-owner" : "所有者",
   "wn-md-member" : "成员",
   "wn-md-other" : "其他人",
@@ -66310,6 +66543,8 @@ Ti.Preload("ti/i18n/zh-hk/ti-text-editor.i18n.json", {
 // JOIN <web.i18n.json> ti/i18n/zh-hk/web.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/web.i18n.json", {
+   "role-add": "添加角色",
+   "account-add": "添加賬戶",
    "account": "賬戶",
    "account-flt-tip": "請輸入賬號名過濾",
    "account-manage": "賬戶管理",
@@ -66776,6 +67011,7 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
+   "key": "鍵",
    "all": "全部",
    "attachments": "附件",
    "attachment-add": "添加附件",
@@ -66887,6 +67123,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "e-io-obj-exists": "但是對象已然存在",
    "e-io-obj-noexists": "對象其實並不存在",
    "e-io-obj-noexistsf": "對象[${nm}]其實並不存在",
+   "e-io-forbidden": "禁止寫入",
    "edit": "編輯",
    "edit-com": "編輯控件",
    "email": "郵箱",
@@ -67150,6 +67387,9 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-md-R": "讀",
    "wn-md-W": "寫",
    "wn-md-X": "用",
+   "wn-md-readable": "可讀取",
+   "wn-md-writable": "可寫入",
+   "wn-md-excutable": "可使用",
    "wn-md-owner": "所有者",
    "wn-md-member": "成員",
    "wn-md-other": "其他人",

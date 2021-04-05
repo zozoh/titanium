@@ -15,6 +15,10 @@ export default {
       type : [String, Object],
       default : null
     },
+    "options": {
+      type: [Array, String],
+      default: "stars"
+    },
     "iconSize" : {
       type : [Number,String],
       default : null
@@ -57,7 +61,13 @@ export default {
     //------------------------------------------------
     OptionIcons() {
       let list = []
-      _.forEach(this.options, (icon, index)=>{
+      let icons;
+      if(_.isArray(this.options)) {
+        icons = this.options
+      } else {
+        icons = this.queryIcons(this.options)
+      }
+      _.forEach(icons, (icon, index)=>{
         let m = /^([a-z]+)-(.+)$/.exec(icon)
         list.push({
           value : icon,

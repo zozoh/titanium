@@ -1,4 +1,6 @@
 {
+   "role-add": "添加角色",
+   "account-add": "添加賬戶",
    "account": "賬戶",
    "account-flt-tip": "請輸入賬號名過濾",
    "account-manage": "賬戶管理",

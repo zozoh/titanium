@@ -1,4 +1,6 @@
 {
+  "role-add" : "Add role",
+  "account-add" : "Add account",
   "account": "Account",
   "account-flt-tip": "Filter by account name",
   "account-manage": "Accounts",

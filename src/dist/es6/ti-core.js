@@ -1,4 +1,4 @@
-// Pack At: 2021-04-05 03:37:10
+// Pack At: 2021-04-06 04:46:42
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -485,6 +485,9 @@ const {Toast} = (function(){
   const TiToast = {
     //------------------------------------------
     Open(options, type="info", position="top") {
+      if(options instanceof Error) {
+        options = options.errMsg || options+""
+      }
       if(_.isString(options)) {
         // Open("i18n:xxx", {vars})
         if(_.isPlainObject(type)) {
@@ -504,7 +507,12 @@ const {Toast} = (function(){
           }
         }
       }
-      //console.log("toast", options)
+      // Format content
+      //console.log("toast", options.content)
+      if(!/^i18n:/.test(options.content)) {
+        options.content = Ti.I18n.translate(options.content)
+      }
+      // Open box
       let toa = new TiToastBox(options)
       toa.open()
       return toa
@@ -5733,6 +5741,7 @@ const {I18n} = (function(){
       if(pos>0) {
         let code = _.trim(s.substring(0, pos))
         let data = _.trim(s.substring(pos+1))
+        console.log({code, data})
         return Ti18n.getf(code, {val:data})
       }
       return Ti18n.get(s)
@@ -13661,7 +13670,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210405.033710",
+  "version" : "1.6-20210406.044642",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -1,4 +1,5 @@
 {
+   "key": "鍵",
    "all": "全部",
    "attachments": "附件",
    "attachment-add": "添加附件",
@@ -110,6 +111,7 @@
    "e-io-obj-exists": "但是對象已然存在",
    "e-io-obj-noexists": "對象其實並不存在",
    "e-io-obj-noexistsf": "對象[${nm}]其實並不存在",
+   "e-io-forbidden": "禁止寫入",
    "edit": "編輯",
    "edit-com": "編輯控件",
    "email": "郵箱",

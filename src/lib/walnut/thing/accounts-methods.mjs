@@ -40,18 +40,21 @@ export default {
     let cmdText = cmds.join(";\n")
     
     // 执行命令
-    await Wn.Sys.exec2(cmdText)
+    try {
+      await Wn.Sys.exec(cmdText)
 
-    let n = accounts.length
-    Ti.Toast.Open({
-      content : "i18n:wn-th-acc-pwd-done",
-      vars : {n},
-      position : "top",
-      type : "success"
-    })
-
-    // 执行完毕
-    Ti.App(this).dispatch("main/reloadSearch")
+      let n = accounts.length
+      Ti.Toast.Open({
+        content : "i18n:wn-th-acc-pwd-done",
+        vars : {n},
+        position : "top",
+        type : "success"
+      })
+        // 执行完毕
+      Ti.App(this).dispatch("main/reloadSearch")
+    } catch(err) {
+      Ti.Toast.Open(err, "error");
+    }
   }
   //----------------------------------------------------
 }

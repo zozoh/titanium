@@ -10,7 +10,7 @@ async function EditObjMeta(pathOrObj="~", {
   width      = 640,
   height     = "90%", 
   spacing,
-  currentTab = 1,
+  currentTab = 0,
   // static tabs
   // if emtpy, apply the default
   // “auto" will load by `ti editmeta`, it will override the currentTab
@@ -134,6 +134,7 @@ async function EditObjMeta(pathOrObj="~", {
       }
     }, 
     "@com:ti/form", 
+    "@com:ti/input/text", 
     "@com:wn/imgfile",
     "@com:wn/obj/mode"]
     //------------------------------------------

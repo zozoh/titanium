@@ -140,7 +140,7 @@ const _M = {
             dropStyle.height = this.dropHeight
           }
           //..........................................S
-          Ti.Dom.setStyle($drop, Ti.Css.toStyle(dropStyle))
+          Ti.Dom.updateStyle($drop, Ti.Css.toStyle(dropStyle))
           //..........................................
           // Dock drop to box
           Ti.Dom.dockTo($drop, $box, {

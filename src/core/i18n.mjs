@@ -97,6 +97,7 @@ const Ti18n = {
     if(pos>0) {
       let code = _.trim(s.substring(0, pos))
       let data = _.trim(s.substring(pos+1))
+      console.log({code, data})
       return Ti18n.getf(code, {val:data})
     }
     return Ti18n.get(s)

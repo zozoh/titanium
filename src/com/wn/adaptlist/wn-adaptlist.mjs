@@ -314,6 +314,28 @@ const _M = {
       }
     },
     //--------------------------------------------
+    async openCurrentPrivilege() {
+      let meta = this.getCurrentItem() || this.meta
+
+      if(!meta) {
+        await Ti.Toast.Open("i18n:nil-obj")
+        return
+      }
+
+      let newMeta = await Wn.EditObjPrivilege(meta)
+      
+      // Update to current list
+      if(newMeta) {
+        if(this.meta.id == newMeta.id)  {
+          await Ti.App(this).dispatch("current/reload", newMeta)
+        } else {
+          await Ti.App(this).commit("current/setDataItem", newMeta)
+          //this.setItem(newMeta)
+        }
+        return newMeta
+      }
+    },
+    //--------------------------------------------
     syncMyData() {
       //console.log("syncMyData")
       // 有时候直接改了 myData， 竟然会导致这个函数被触发
@@ -336,6 +358,9 @@ const _M = {
     //     "newVal" : _.get(newVal, "list.0.nm"),
     //     "oldVal" : _.get(oldVal, "list.0.nm"),
     //   })
+    // },
+    // myData : function(newVal, oldVal) {
+    //   console.log("myData Changed", newVal)
     // },
     //--------------------------------------------
     "data" : {

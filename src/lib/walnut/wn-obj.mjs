@@ -156,7 +156,13 @@ const FIELDS = {
   //---------------------------------------------
   "pvg" : {
     title : "i18n:wn-key-pvg",
-    name  : "pvg"
+    name  : "pvg",
+    type  : "Object",
+    comType : "TiInputText",
+    comConf : {
+      autoJsValue : true,
+      height : 200
+    }
   },
   //---------------------------------------------
   "width" : {

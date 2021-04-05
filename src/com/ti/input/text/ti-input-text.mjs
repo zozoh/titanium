@@ -172,12 +172,12 @@ const _M = {
       }
     },
     //------------------------------------------------
-    doWhenInput(emitName="inputing", autoJsValue=false) {
+    doWhenInput(emitName="inputing") {
       if(_.isElement(this.$refs.input)) {
-        //console.log("doWhenInput", emitName)
+        console.log("doWhenInput", emitName)
         let val = this.$refs.input.value
         // Auto js value
-        if(autoJsValue) {
+        if(this.autoJsValue) {
           val = Ti.S.toJsValue(val, {
             autoNil  : true,
             autoDate : false,
@@ -205,7 +205,7 @@ const _M = {
     },
     //------------------------------------------------
     onInputChanged() {
-      this.doWhenInput("change", this.autoJsValue)
+      this.doWhenInput("change")
     },
     //------------------------------------------------
     onInputFocus() {

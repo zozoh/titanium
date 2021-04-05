@@ -10,7 +10,7 @@ export default {
     // Data
     //-----------------------------------
     "value" : {
-      type : Array,
+      type : [Array, String],
       default : ()=>[]
     },
     "dict" : {
@@ -124,10 +124,18 @@ export default {
     //------------------------------------------------
     async evalMyData() {
       const tags = []
+      let list;
       if(_.isArray(this.value)) {
-        const lastIndex = this.value.length - 1
-        for(let index=0; index<this.value.length; index++){
-          let val = this.value[index]
+        list = this.value
+      } else if(_.isString(this.value)) {
+        list = _.without(this.value.split(","), "")
+      } else {
+        list = []
+      }
+      if(!_.isEmpty(list)) {
+        const lastIndex = list.length - 1
+        for(let index=0; index<list.length; index++){
+          let val = list[index]
           let tag;
           // Auto mapping plain object
           if(_.isPlainObject(val)) {
