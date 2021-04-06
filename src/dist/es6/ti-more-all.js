@@ -1,4 +1,4 @@
-// Pack At: 2021-04-06 21:53:10
+// Pack At: 2021-04-07 03:07:47
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -36587,21 +36587,30 @@ const _M = {
     //-----------------------------------------------
     evalOutline() {
       let list = []
-      this.$editor.$('h1,h2,h3,h4,h5,h6').each((index, el)=>{
+      this.$editor.$('h1,h2,h3,h4,h5,h6,[doc-heading]').each((index, el)=>{
         let nodeId = el.getAttribute("ti-outline-id")
         if(!nodeId) {
           nodeId = Ti.Random.str(12)
           el.setAttribute("ti-outline-id", nodeId)
         }
 
+        let headingName = el.getAttribute("doc-heading");
+        let level = 0;
+        if("title" == headingName) {
+          level = 1
+        } else  if("sub-title" == headingName) {
+          level = 2
+        } else {
+          level = parseInt(el.tagName.substring(1)) + 2
+        }
+
         list.push({
           id : nodeId,
-          index,
+          index, level,
           name : el.innerText,
           className : el.className,
           tagName : el.tagName,
-          attrs : Ti.Dom.attrs(el),
-          level : parseInt(el.tagName.substring(1))
+          attrs : Ti.Dom.attrs(el)
         })
       })
 
@@ -36641,6 +36650,9 @@ const _M = {
         }
       }
       //console.log(tree)
+      if(tree.children.length == 1) {
+        tree = tree.children[0];
+      }
 
       // Set
       this.myOutlineTree = tree
@@ -36687,7 +36699,17 @@ const _M = {
         readonly : this.readonly,
         placeholder: Ti.I18n.text(this.placeholder),
         formats : {
-          underline : {inline: 'u'}
+          underline : {inline: 'u'},
+          docTitle: {
+            selector: 'p,h1,h2,h3,h4,h5,h6,div', 
+            block : "p",
+            attributes : {"doc-heading" : "title"}
+          },
+          docSubTitle: {
+            selector: 'p,h1,h2,h3,h4,h5,h6,div', 
+            block : "p",
+            attributes : {"doc-heading" : "sub-title"}
+          },
         },
         toolbar: this.TheToolbar,
         toolbar_groups: {
@@ -36718,7 +36740,10 @@ const _M = {
           editor.on("input", (evt)=>{
             // console.log("input!!", evt)
             let $node = editor.selection.getNode()
-            let $h = Ti.Dom.closestByTagName($node, /^H[1-6]$/)
+            let $h = Ti.Dom.closest($node, el=>{
+              return /^(sub-)?title$/.test(el.getAttribute("doc-heading"))
+                || /^H[1-6]$/.test(el.tagName)
+            })
             if($h) {
               this.OnHeadingChange($h)
             }
@@ -36773,6 +36798,7 @@ const _M = {
         extended_valid_elements, 
         'img[ti-*|wn-obj-*|src|width|height|style|class]',
         'div[ti-*|wn-*|style|class]',
+        'p[doc-heading|style]',
         'span[ti-*|wn-*|style|class]'
       ).join(",")
       // Init customized plugins
