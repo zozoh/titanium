@@ -17,14 +17,14 @@
   }
   //-------------------------------------------
   > .as-del {
-    padding:0 SZ(6); cursor: pointer;
+    padding:0 SZ(4); cursor: pointer;
     .icon-icon {
       transition: .3s; opacity: .6;
     }
   }
   //-------------------------------------------
   > .as-icon {
-    padding:0 SZ(4);
+    padding:0 SZ(6);
     &.ti-icon {
       img {
         height: SZ(20); border-radius: 50%;
@@ -35,7 +35,7 @@
   > .as-text {
     @include flex-center;
     color: inherit; text-decoration: inherit;
-    padding:0 0 SZ(2) SZ(2);
+    padding:0;
     &:hover {text-decoration: inherit;}
     &.without-icon    {padding-left:SZ(8);}
     &.without-options {padding-right:SZ(8);}

@@ -7,6 +7,12 @@ div.ti-input-tags {flex-wrap: wrap;}
     padding:0 SZ(4); font-size:.8em;
     .ti-tags-item {
       min-height: SZ(24);
+      > .as-del {
+        margin-right: SZ(4);
+      }
+      > .as-icon {
+        padding:0 SZ(4) 0 0;
+      }
     }
   }
   //-----------------------------------------
