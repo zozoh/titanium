@@ -111,6 +111,23 @@ export default {
             }
           }
         }
+        // Youtube
+        if("youtube" == this.meta.tp && this.meta.yt_video_id) {
+          let thumbUrl;
+          let preview = Wn.Util.genPreviewObj(this.meta)
+          if("image" == preview.type) {
+            thumbUrl = preview.value
+          }
+          return {
+            comType : "NetYoutubePlayer",
+            comConf : {
+              value : {
+                id : this.meta.yt_video_id,
+                thumbUrl
+              }
+            }
+          }
+        }
         // Binary
         return {
           comType : "ti-media-binary",

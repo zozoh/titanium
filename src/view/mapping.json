@@ -9,7 +9,8 @@
     "thing_set"   : "thing-manager",
     "comt"        : "com-test",
     "hmaker_site" : "hmaker-site",
-    "aliyun_vod"  : "aliyun-vod-manager"
+    "aliyun_vod"  : "aliyun-vod-manager",
+    "youtube"     : "file-preview"
   },
   "mimes" : {
     "text/json" : "json-editor",

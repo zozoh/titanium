@@ -8,6 +8,7 @@
     "@com:ti/combo/filter",
     "@com:ti/combo/sorter",
     "@com:ti/paging/jumper",
-    "@com:net/youtube/detail"
+    "@com:net/youtube/detail",
+    "@com:wn/thing/manager/com/thing-filter"
   ]
 }

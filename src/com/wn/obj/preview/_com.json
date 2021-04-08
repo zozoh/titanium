@@ -9,5 +9,6 @@
     "@com:ti/media/binary",
     "@com:ti/media/image",
     "@com:ti/media/audio",
-    "@com:ti/media/video"]
+    "@com:ti/media/video",
+    "@com:net/youtube/player"]
 }

@@ -598,6 +598,25 @@ const LIST_MIXINS = {
       return idMap
     },
     //-----------------------------------------------
+    setRowSelect({currentId, checkedIds={}, quiet}={}) {
+      console.log("haha")
+      let idMap = {}
+      if(_.isArray(checkedIds)) {
+        for(let id of checkedIds) {
+          idMap[id] = true
+        }
+      } else {
+        _.assign(idMap, checkedIds)
+      }
+
+      if(currentId) {
+        this.selectRow(currentId, {quiet})
+      } else {
+        this.cancelRow(currentId, {quiet})
+      }
+      this.myCheckedIds = idMap
+    },
+    //-----------------------------------------------
     syncCurrentId() {
       if(!this.puppetMode && this.theCurrentId != this.theCurrentRowId) {
         //console.log("syncCurrentId", this.theCurrentRowId)

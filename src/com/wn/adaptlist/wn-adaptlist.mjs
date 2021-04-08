@@ -254,6 +254,18 @@ const _M = {
       this.$innerList.selectRowByIndex(index)
     },
     //--------------------------------------------
+    checkItem(id) {
+      this.$innerList.checkRow(id)
+    },
+    //--------------------------------------------
+    toggleItem(id) {
+      this.$innerList.toggleRow(id)
+    },
+    //--------------------------------------------
+    setItemSelect(id) {
+      this.$innerList.setRowSelect(id)
+    },
+    //--------------------------------------------
     // For global menu invoke checkAll/cancleAll
     invokeList(methodName) {
       Ti.InvokeBy(this.$innerList, methodName)

@@ -8,5 +8,7 @@
   "net-vod-du-tv": "剧集视频",
   "net-vod-duration": "视频时长",
   "net-vod-size": "视频大小",
-  "net-vod-video-nil": "请选择一个视频查看详情"
+  "net-vod-video-nil": "请选择一个视频查看详情",
+  "net-youtube" : "Youtube",
+  "net-youtube-add-video" : "添加Youtube视频"
 }

@@ -24,6 +24,15 @@ const WnUtil = {
   genPreviewObj(meta) {
     // Uploaded thumb preview
     if(meta.thumb) {
+      // Remove image resource
+      if(/https?:\/\//.test(meta.thumb)) {
+        return {
+          type : "image",
+          value : meta.thumb
+        }
+      }
+
+      // Load walnut obj thunbmail
       return {
         type : "image",
         value : '/o/thumbnail/id:' + meta.id

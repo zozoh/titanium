@@ -5,7 +5,9 @@ export default {
     currentPlayListId : undefined,
     ytConfig : undefined,
     ytPlaylists : undefined,
-    ytVideos : undefined
+    ytVideos : undefined,
+
+    currentVideoIds : []
   }),
   ///////////////////////////////////////////////////////
   props : {
@@ -24,6 +26,10 @@ export default {
     //-----------------------------------
     // Behavior
     //-----------------------------------
+    "multi" : {
+      type : Boolean,
+      default : false
+    },
     "notifyName" : {
       type : String
     }
@@ -41,22 +47,39 @@ export default {
     //---------------------------------------------------
     CurrentVideo() {
       return this.getVideoObj(this.myCurrentId)
-},
+    },
+    //---------------------------------------------------
+    TheSearch() {
+      return {
+        filter : {
+          majorKey : "playlistId",
+          majorValue : this.currentPlayListId,
+          keyword : this.currentVideoIds.join(",")
+        }
+      }
+    },
     //---------------------------------------------------
     GuiLayout(){
       return {
         type: "cols",
         border:true,
-        blocks: [{
+        blocks: [/*{
           icon  : "fab-youtube",
           title : "Playlists",
           name : "nav",
           size : "20%",
           body : "pcNav"
-        }, {
-          name : "list",
-          size : "50%",
-          body : "pcList"
+        }, */{
+          type : "rows",
+          size : "65%",
+          blocks : [{
+              name : "filter",
+              size : 42,
+              body : "pcFilter"
+            }, {
+              name : "list",
+              body : "pcList"
+            }]
         }, {
           name : "detail",
           body : "pcDetail"
@@ -78,12 +101,39 @@ export default {
             ]
           }
         },
+        pcFilter : {
+          comType : "wn-thing-filter",
+          comConf : {
+            placeholder : "Comma-separated Video ID(s)",
+            value: this.TheSearch,
+            filter : {
+              major: {
+                placeholder : "Choose Playlist",
+                options : this.ytPlaylists,
+                width : .4,
+                iconBy : "thumbUrl",
+                textBy : "title",
+                valueBy : "id",
+                dropDisplay: [
+                  "<thumbUrl:fas-youtube>", "itemCount::as-tip", "title"
+                ],
+                dropWidth : 500
+              }
+            },
+            // sorter: {
+            //   options: [
+            //     { "value": "nm", "text": "i18n:wn-key-nm" },
+            //     { "value": "ct", "text": "i18n:wn-key-ct" }
+            //   ]
+            // }
+          }
+        },
         pcList: {
           comType: "TiWall",
           comConf: {
             data: this.WallItemList,
             idBy: "id",
-            multi: true,
+            multi: this.multi,
             display: {
               key : "..",
               comType : "ti-obj-thumb",
@@ -126,18 +176,36 @@ export default {
   ///////////////////////////////////////////////////////
   methods :{
     //---------------------------------------------------
-    async OnNavSelect({currentId}) {
-      this.currentPlayListId = currentId
-      await this.reloadVideos()
-    },
+    // async OnNavSelect({currentId}) {
+    //   this.currentPlayListId = currentId
+    //   await this.reloadVideos()
+    // },
     //---------------------------------------------------
-    OnListSelect({currentId}) {
+    OnListSelect({currentId, checkedIds}) {
       this.myCurrentId = currentId
-      let video = _.cloneDeep(this.CurrentVideo)
+      
       if(this.notifyName) {
-        this.$notify(this.notifyName, video)
+        let payload;
+        // Multi
+        if(this.multi) {
+          payload = this.findVideoObjs(checkedIds) 
+        }
+        // Single
+        else {
+          payload = _.cloneDeep(this.CurrentVideo)
+        }
+        this.$notify(this.notifyName, payload)
       }
       return {stop:false, name:"select"}
+    },
+    //---------------------------------------------------
+    async OnFilterChange(payload) {
+      let {majorValue, keyword, match} = payload
+      //console.log("OnFilterChange", payload)
+      this.currentPlayListId = majorValue
+      this.currentVideoIds = Ti.S.splitIgnoreBlank(keyword, /[, ;\r\n]/g)
+      //console.log(this.currentVideoIds)
+      await this.reloadVideos()
     },
     //---------------------------------------------------
     getVideoObj(videoId) {
@@ -148,6 +216,20 @@ export default {
           }
         }
       }
+    },
+    //---------------------------------------------------
+    findVideoObjs(videoIds) {
+      // Build Map
+      let idMap = {}
+      if(_.isArray(videoIds)) {
+        _.forEach(videoIds, id=>idMap[id] = true)
+      } else if(_.isString(videoIds)) {
+        idMap[videoIds] = true
+      } else if(_.isPlainObject(videoIds)) {
+        idMap = videoIds
+      }
+      // Find 
+      return _.filter(this.ytVideos, v=>idMap[v.id]?true:false)
     },
     //---------------------------------------------------
     getPlaylistObj(playlistId, playlists=this.ytPlaylists) {
@@ -162,9 +244,18 @@ export default {
     },
     //---------------------------------------------------
     async reloadVideos(plId = this.currentPlayListId) {
+      //console.log("reloadVideos")
       this.ytVideos = undefined
       let config = this.ytConfig
-      let videos = await Wn.Youtube.getAllVideos(config, plId)
+      let videos;
+      // Reload by videoIds 
+      if(!_.isEmpty(this.currentVideoIds)) {
+        videos = await Wn.Youtube.getVideoDetails(config, this.currentVideoIds)
+      }
+      // Reload by playlist
+      else {
+        videos = await Wn.Youtube.getAllVideos(config, plId)
+      }
       this.ytVideos = videos
     },
     //---------------------------------------------------

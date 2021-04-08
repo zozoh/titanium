@@ -4,5 +4,6 @@
   :layout="GuiLayout"
   :schema="GuiSchema"
   :can-loading="false"
-  @nav::select="OnNavSelect"
+  __nav::select="OnNavSelect"
+  @filter::change="OnFilterChange"
   @list::select="OnListSelect"/>

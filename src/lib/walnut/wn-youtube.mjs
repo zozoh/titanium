@@ -59,10 +59,12 @@ const WnYoutube = {
       return
     }
     // load key fields in config
-    let reo = await WnYoutube.getVideos(config, playlistId)
+    let reo = await WnYoutube.getPlaylistVideos(config, playlistId)
     let list = reo.list || []
     while(reo.next) {
-      reo = await WnYoutube.getVideos(config, playlistId, {pageToken: reo.next})
+      reo = await WnYoutube.getPlaylistVideos(config, playlistId, {
+        pageToken: reo.next
+      })
       list = _.concat(list, reo.list)
     }
 
@@ -70,7 +72,7 @@ const WnYoutube = {
     return list
   },
   //----------------------------------------
-  async getVideos(config, playlistId, {
+  async getPlaylistVideos(config, playlistId, {
     pageToken, maxResults = 50
   }={}) {
     // Guard

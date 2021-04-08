@@ -17,8 +17,8 @@ async function pickYoutubeAndInsertToDoc(editor, {
 
   // Check base
   let reo = await Ti.App.Open({
-    icon  : "fas-image",
-    title : "Youtube",
+    icon  : "fab-youtube",
+    title : "i18n:net-youtube-add-video",
     position : "top",
     width  : "95%",
     height : "95%",

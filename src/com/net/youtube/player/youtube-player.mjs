@@ -42,9 +42,9 @@ export default {
     },
     //---------------------------------------------------
     TopStyle() {
-      if(this.hasValue) {
+      if(this.hasValue && this.value.thumbUrl) {
         return {
-          "background-image" : `url("${this.value.thumb_url}")`
+          "background-image" : `url("${this.value.thumbUrl}")`
         }
       }
     },

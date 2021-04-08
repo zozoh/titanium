@@ -126,8 +126,8 @@ export default {
       let height = icn.height  || this.height 
       icn.outerStyle = Ti.Css.toStyle({
         width, height,
-        color   : this.color,
-        opacity : this.opacity >= 0 ? this.opacity : undefined
+        color   : icn.color || this.color,
+        opacity : icn.opacity || this.opacity >= 0 ? this.opacity : undefined
       })
 
       // join style:inner

@@ -8,7 +8,7 @@ export default {
     },
     "rowId" : {
       type : String,
-      default : null
+      default : undefined
     },
     "data" : undefined,
     "item" : {
@@ -17,11 +17,11 @@ export default {
     },
     "changedId" : {
       type : String,
-      default : null
+      default : undefined
     },
     "currentId" : {
       type : String,
-      default : null
+      default : undefined
     },
     "checkedIds" : {
       type : Object,
@@ -63,12 +63,16 @@ export default {
       }, klass)
     },
     //-----------------------------------------------
+    hasRowId() {
+      return !Ti.Util.isNil(this.rowId)
+    },
+    //-----------------------------------------------
     isCurrent() {
-      return this.rowId == this.currentId
+      return this.hasRowId && this.rowId == this.currentId
     },
     //-----------------------------------------------
     isChanged() {
-      return this.rowId == this.changedId
+      return this.hasRowId && this.rowId == this.changedId
     },
     //-----------------------------------------------
     isChecked() {

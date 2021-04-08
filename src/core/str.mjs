@@ -152,6 +152,13 @@ const TiStr = {
       return !str || /^\s*$/.test(str)
     return false
   },
+  splitIgnoreBlank(input, sep=",") {
+    if(!input || !_.isString(input))
+      return []
+    let list = input.split(sep);
+    let l2 = _.filter(list, li => !TiStr.isBlank(li))
+    return _.map(l2, li=>_.trim(li))
+  },
   renderVars(vars={}, fmt="", {
     iteratee, 
     regex, 
