@@ -244,7 +244,11 @@ class OneTiApp {
     if(Ti.IsInfo("TiApp")) {
       console.log("TiApp.dispatch", nm, payload)
     }
-    return await this.$store().dispatch(nm, payload)
+    try{
+      return await this.$store().dispatch(nm, payload)
+    } catch (err) {
+      await Ti.Toast.Open(err, "error");
+    }
   }
   //---------------------------------------
   root(nm, payload) {
