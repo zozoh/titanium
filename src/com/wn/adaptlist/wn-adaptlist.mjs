@@ -47,6 +47,7 @@ const _M = {
     },
     //--------------------------------------------
     DataList() {
+      //console.log("eval DataList")
       if(this.myData) {
         if(_.isArray(this.myData)) {
           return this.myData
@@ -66,6 +67,7 @@ const _M = {
       if(!this.hasDataList) {
         return []
       }
+      //console.log("eval WallDataList", this.DataList.length)
       let list = []
       for(let it of this.DataList) {
         if(!this.isHiddenItem(it)) {
