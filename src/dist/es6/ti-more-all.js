@@ -1,4 +1,4 @@
-// Pack At: 2021-04-08 18:51:24
+// Pack At: 2021-04-09 18:37:54
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1147,6 +1147,18 @@ const _M = {
     //--------------------------------------------
     selectItemByIndex(index) {
       this.$innerList.selectRowByIndex(index)
+    },
+    //--------------------------------------------
+    checkItem(id) {
+      this.$innerList.checkRow(id)
+    },
+    //--------------------------------------------
+    toggleItem(id) {
+      this.$innerList.toggleRow(id)
+    },
+    //--------------------------------------------
+    setItemSelect(id) {
+      this.$innerList.setRowSelect(id)
     },
     //--------------------------------------------
     // For global menu invoke checkAll/cancleAll
@@ -20368,6 +20380,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
             }
           }
         }
+        // Youtube
+        if("youtube" == this.meta.tp && this.meta.yt_video_id) {
+          let thumbUrl;
+          let preview = Wn.Util.genPreviewObj(this.meta)
+          if("image" == preview.type) {
+            thumbUrl = preview.value
+          }
+          return {
+            comType : "NetYoutubePlayer",
+            comConf : {
+              value : {
+                id : this.meta.yt_video_id,
+                thumbUrl
+              }
+            }
+          }
+        }
         // Binary
         return {
           comType : "ti-media-binary",
@@ -22501,7 +22530,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     currentPlayListId : undefined,
     ytConfig : undefined,
     ytPlaylists : undefined,
-    ytVideos : undefined
+    ytVideos : undefined,
+
+    currentVideoIds : []
   }),
   ///////////////////////////////////////////////////////
   props : {
@@ -22520,6 +22551,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------
     // Behavior
     //-----------------------------------
+    "multi" : {
+      type : Boolean,
+      default : false
+    },
     "notifyName" : {
       type : String
     }
@@ -22537,22 +22572,39 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
     CurrentVideo() {
       return this.getVideoObj(this.myCurrentId)
-},
+    },
+    //---------------------------------------------------
+    TheSearch() {
+      return {
+        filter : {
+          majorKey : "playlistId",
+          majorValue : this.currentPlayListId,
+          keyword : this.currentVideoIds.join(",")
+        }
+      }
+    },
     //---------------------------------------------------
     GuiLayout(){
       return {
         type: "cols",
         border:true,
-        blocks: [{
+        blocks: [/*{
           icon  : "fab-youtube",
           title : "Playlists",
           name : "nav",
           size : "20%",
           body : "pcNav"
-        }, {
-          name : "list",
-          size : "50%",
-          body : "pcList"
+        }, */{
+          type : "rows",
+          size : "65%",
+          blocks : [{
+              name : "filter",
+              size : 42,
+              body : "pcFilter"
+            }, {
+              name : "list",
+              body : "pcList"
+            }]
         }, {
           name : "detail",
           body : "pcDetail"
@@ -22574,12 +22626,39 @@ const __TI_MOD_EXPORT_VAR_NM = {
             ]
           }
         },
+        pcFilter : {
+          comType : "wn-thing-filter",
+          comConf : {
+            placeholder : "Comma-separated Video ID(s)",
+            value: this.TheSearch,
+            filter : {
+              major: {
+                placeholder : "Choose Playlist",
+                options : this.ytPlaylists,
+                width : .4,
+                iconBy : "thumbUrl",
+                textBy : "title",
+                valueBy : "id",
+                dropDisplay: [
+                  "<thumbUrl:fas-youtube>", "itemCount::as-tip", "title"
+                ],
+                dropWidth : 500
+              }
+            },
+            // sorter: {
+            //   options: [
+            //     { "value": "nm", "text": "i18n:wn-key-nm" },
+            //     { "value": "ct", "text": "i18n:wn-key-ct" }
+            //   ]
+            // }
+          }
+        },
         pcList: {
           comType: "TiWall",
           comConf: {
             data: this.WallItemList,
             idBy: "id",
-            multi: true,
+            multi: this.multi,
             display: {
               key : "..",
               comType : "ti-obj-thumb",
@@ -22622,18 +22701,36 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////////
   methods :{
     //---------------------------------------------------
-    async OnNavSelect({currentId}) {
-      this.currentPlayListId = currentId
-      await this.reloadVideos()
-    },
+    // async OnNavSelect({currentId}) {
+    //   this.currentPlayListId = currentId
+    //   await this.reloadVideos()
+    // },
     //---------------------------------------------------
-    OnListSelect({currentId}) {
+    OnListSelect({currentId, checkedIds}) {
       this.myCurrentId = currentId
-      let video = _.cloneDeep(this.CurrentVideo)
+      
       if(this.notifyName) {
-        this.$notify(this.notifyName, video)
+        let payload;
+        // Multi
+        if(this.multi) {
+          payload = this.findVideoObjs(checkedIds) 
+        }
+        // Single
+        else {
+          payload = _.cloneDeep(this.CurrentVideo)
+        }
+        this.$notify(this.notifyName, payload)
       }
       return {stop:false, name:"select"}
+    },
+    //---------------------------------------------------
+    async OnFilterChange(payload) {
+      let {majorValue, keyword, match} = payload
+      //console.log("OnFilterChange", payload)
+      this.currentPlayListId = majorValue
+      this.currentVideoIds = Ti.S.splitIgnoreBlank(keyword, /[, ;\r\n]/g)
+      //console.log(this.currentVideoIds)
+      await this.reloadVideos()
     },
     //---------------------------------------------------
     getVideoObj(videoId) {
@@ -22644,6 +22741,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }
       }
+    },
+    //---------------------------------------------------
+    findVideoObjs(videoIds) {
+      // Build Map
+      let idMap = {}
+      if(_.isArray(videoIds)) {
+        _.forEach(videoIds, id=>idMap[id] = true)
+      } else if(_.isString(videoIds)) {
+        idMap[videoIds] = true
+      } else if(_.isPlainObject(videoIds)) {
+        idMap = videoIds
+      }
+      // Find 
+      return _.filter(this.ytVideos, v=>idMap[v.id]?true:false)
     },
     //---------------------------------------------------
     getPlaylistObj(playlistId, playlists=this.ytPlaylists) {
@@ -22658,9 +22769,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //---------------------------------------------------
     async reloadVideos(plId = this.currentPlayListId) {
+      //console.log("reloadVideos")
       this.ytVideos = undefined
       let config = this.ytConfig
-      let videos = await Wn.Youtube.getAllVideos(config, plId)
+      let videos;
+      // Reload by videoIds 
+      if(!_.isEmpty(this.currentVideoIds)) {
+        videos = await Wn.Youtube.getVideoDetails(config, this.currentVideoIds)
+      }
+      // Reload by playlist
+      else {
+        videos = await Wn.Youtube.getAllVideos(config, plId)
+      }
       this.ytVideos = videos
     },
     //---------------------------------------------------
@@ -24173,6 +24293,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : [String, Function],
       default : "=mime"
     },
+    "type" : {
+      type : [String, Function],
+      default : "=type"
+    },
     //-------------------------------------
     // Behavior
     //-------------------------------------
@@ -24245,21 +24369,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     MediaMime() {
-      // Customized
-      if(_.isFunction(this.mime)) {
-        return this.mime(this.src)
-      }
-      // Explain
-      if(this.src) {
-        if(_.isString(this.src)) {
-          return this.mime
-        }
-        return Ti.Util.explainObj(this.src, this.mime)
-      }
+      return this.getSrcValueBy(this.mime)
+    },
+    //--------------------------------------
+    MediaType() {
+      return this.getSrcValueBy(this.type)
     },
     //--------------------------------------
     MediaCom() {
       let mime = this.MediaMime
+      let type = this.MediaType
       // Default component
       if(!mime) {
         return {
@@ -24270,9 +24389,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
       }
       //
+      // Youtube
+      //
+      if("youtube" == type && this.src && this.src.yt_video_id) {
+        return {
+          comType : "NetYoutubePlayer",
+          comConf : {
+            value : {
+              id : this.src.yt_video_id,
+              thumbUrl : this.src.thumb
+            }
+          }
+        }
+      }
+      //
       // Image
       //
-      if(/^image\/.+$/.test(mime)) {
+      else if(/^image\/.+$/.test(mime)) {
         return {
           comType : "WebMediaImage",
           comConf : _.assign({}, this.image, {
@@ -24324,6 +24457,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     OnClickNext() {
       this.$notify("go:next");
+    },
+    //--------------------------------------
+    getSrcValueBy(key) {
+      // Customized
+      if(_.isFunction(key)) {
+        return key(this.src)
+      }
+      // Explain
+      if(this.src) {
+        if(_.isString(this.src)) {
+          return key
+        }
+        return Ti.Util.explainObj(this.src, key)
+      }
     }
     //--------------------------------------
   }
@@ -31590,6 +31737,25 @@ const LIST_MIXINS = {
       return idMap
     },
     //-----------------------------------------------
+    setRowSelect({currentId, checkedIds={}, quiet}={}) {
+      console.log("haha")
+      let idMap = {}
+      if(_.isArray(checkedIds)) {
+        for(let id of checkedIds) {
+          idMap[id] = true
+        }
+      } else {
+        _.assign(idMap, checkedIds)
+      }
+
+      if(currentId) {
+        this.selectRow(currentId, {quiet})
+      } else {
+        this.cancelRow(currentId, {quiet})
+      }
+      this.myCheckedIds = idMap
+    },
+    //-----------------------------------------------
     syncCurrentId() {
       if(!this.puppetMode && this.theCurrentId != this.theCurrentRowId) {
         //console.log("syncCurrentId", this.theCurrentRowId)
@@ -32631,8 +32797,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let height = icn.height  || this.height 
       icn.outerStyle = Ti.Css.toStyle({
         width, height,
-        color   : this.color,
-        opacity : this.opacity >= 0 ? this.opacity : undefined
+        color   : icn.color || this.color,
+        opacity : icn.opacity || this.opacity >= 0 ? this.opacity : undefined
       })
 
       // join style:inner
@@ -34802,7 +34968,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////////
   props : {
     //-----------------------------------
-    // Data
+    // Data: {id:"QH3zuJCW3Lo", thumbUrl:"https://i.ytimg.com/vi/QH3z..."}
     //-----------------------------------
     "value" : {
       type : Object
@@ -34838,9 +35004,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //---------------------------------------------------
     TopStyle() {
-      if(this.hasValue) {
+      if(this.hasValue && this.value.thumbUrl) {
         return {
-          "background-image" : `url("${this.value.thumb_url}")`
+          "background-image" : `url("${this.value.thumbUrl}")`
         }
       }
     },
@@ -39309,8 +39475,8 @@ async function pickYoutubeAndInsertToDoc(editor, {
 
   // Check base
   let reo = await Ti.App.Open({
-    icon  : "fas-image",
-    title : "Youtube",
+    icon  : "fab-youtube",
+    title : "i18n:net-youtube-add-video",
     position : "top",
     width  : "95%",
     height : "95%",
@@ -44764,10 +44930,21 @@ const _M = {
     "preview" : {
       type: Object
     },
+    "mime": {
+      type : [String, Function],
+      default : "=mime"
+    },
+    "type" : {
+      type : [String, Function],
+      default : "=type"
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
     "audioConf" : {
+      type : Object
+    },
+    "youtubeConf" : {
       type : Object
     }
   },
@@ -44782,15 +44959,36 @@ const _M = {
       return _.nth(this.data, this.myCurrentIndex)
     },
     //--------------------------------------
-    CurrentAudioSrc() {
-      return Ti.WWW.evalObjPreviewSrc(this.CurrentAudioData, this.preview)
+    CurrentAudioMime() {
+      return this.getItemValueBy(this.CurrentAudioData, this.mime)
     },
     //--------------------------------------
-    CurrentAudioComConf() {
-      if(this.CurrentAudioSrc) {
-        return _.assign({}, this.audioConf, {
-          src: this.CurrentAudioSrc
-        })
+    CurrentAudioType() {
+      return this.getItemValueBy(this.CurrentAudioData, this.type)
+    },
+    //--------------------------------------
+    CurrentAudioCom() {
+      // Youtube Audio
+      if("youtube" == this.CurrentAudioType) {
+        return {
+          comType : "NetYoutubePlayer",
+          comConf : _.assign({}, this.youtubeConf, {
+            value : {
+              id : this.CurrentAudioData.yt_video_id,
+              thumbUrl : this.CurrentAudioData.thumb
+            }
+          })
+        }
+      }
+      // Normal audio
+      else {
+        let src = Ti.WWW.evalObjPreviewSrc(this.CurrentAudioData, this.preview)
+        return {
+          comType : "TiMediaAudio",
+          comConf :_.assign({}, this.audioConf, {
+            src
+          })
+        }
       }
     },
     //--------------------------------------
@@ -44823,6 +45021,20 @@ const _M = {
     //--------------------------------------
     OnGoTo({index}) {
       this.myCurrentIndex = index
+    },
+    //--------------------------------------
+    getItemValueBy(item={}, key) {
+      // Customized
+      if(_.isFunction(key)) {
+        return key(item)
+      }
+      // Explain
+      if(item) {
+        if(_.isString(item)) {
+          return key
+        }
+        return Ti.Util.explainObj(item, key)
+      }
     }
     //--------------------------------------
   }
@@ -48055,7 +48267,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     "rowId" : {
       type : String,
-      default : null
+      default : undefined
     },
     "data" : undefined,
     "item" : {
@@ -48064,11 +48276,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     "changedId" : {
       type : String,
-      default : null
+      default : undefined
     },
     "currentId" : {
       type : String,
-      default : null
+      default : undefined
     },
     "checkedIds" : {
       type : Object,
@@ -48110,12 +48322,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }, klass)
     },
     //-----------------------------------------------
+    hasRowId() {
+      return !Ti.Util.isNil(this.rowId)
+    },
+    //-----------------------------------------------
     isCurrent() {
-      return this.rowId == this.currentId
+      return this.hasRowId && this.rowId == this.currentId
     },
     //-----------------------------------------------
     isChanged() {
-      return this.rowId == this.changedId
+      return this.hasRowId && this.rowId == this.changedId
     },
     //-----------------------------------------------
     isChecked() {
@@ -52475,7 +52691,8 @@ Ti.Preload("ti/com/net/youtube/browser/youtube-browser.html", `<ti-gui
   :layout="GuiLayout"
   :schema="GuiSchema"
   :can-loading="false"
-  @nav::select="OnNavSelect"
+  __nav::select="OnNavSelect"
+  @filter::change="OnFilterChange"
   @list::select="OnListSelect"/>`);
 //========================================
 // JOIN <youtube-browser.mjs> ti/com/net/youtube/browser/youtube-browser.mjs
@@ -52494,7 +52711,8 @@ Ti.Preload("ti/com/net/youtube/browser/_com.json", {
     "@com:ti/combo/filter",
     "@com:ti/combo/sorter",
     "@com:ti/paging/jumper",
-    "@com:net/youtube/detail"
+    "@com:net/youtube/detail",
+    "@com:wn/thing/manager/com/thing-filter"
   ]
 });
 //========================================
@@ -58710,7 +58928,8 @@ Ti.Preload("ti/com/web/media/_com.json", {
   "components" : [
     "@com:web/media/image",
     "@com:ti/media/video",
-    "@com:ti/media/audio"
+    "@com:ti/media/audio",
+    "@com:net/youtube/player"
   ]
 });
 //========================================
@@ -59930,7 +60149,10 @@ Ti.Preload("ti/com/web/shelf/audio-icons/web-shelf-audio-icons.html", `<div clas
     <!--
       Player
     -->
-    <TiMediaAudio v-bind="CurrentAudioComConf"/>
+    <component
+      class="as-current-audio-player"
+      :is="CurrentAudioCom.comType"
+      v-bind="CurrentAudioCom.comConf"/>
     <!--
       Candidate items
     -->
@@ -59960,7 +60182,8 @@ Ti.Preload("ti/com/web/shelf/audio-icons/_com.json", {
   "template" : "./web-shelf-audio-icons.html",
   "mixins" : ["./web-shelf-audio-icons.mjs"],
   "components" : [
-    "@com:ti/media/audio"
+    "@com:ti/media/audio",
+    "@com:net/youtube/player"
   ]
 });
 //========================================
@@ -62378,7 +62601,8 @@ Ti.Preload("ti/com/wn/obj/preview/_com.json", {
     "@com:ti/media/binary",
     "@com:ti/media/image",
     "@com:ti/media/audio",
-    "@com:ti/media/video"]
+    "@com:ti/media/video",
+    "@com:net/youtube/player"]
 });
 //========================================
 // JOIN <wn-obj-privilege.html> ti/com/wn/obj/privilege/wn-obj-privilege.html
@@ -64590,7 +64814,9 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
   "net-vod-du-tv": "TV",
   "net-vod-duration": "Duration",
   "net-vod-size": "Video size",
-  "net-vod-video-nil": "Please choose one video for detail"
+  "net-vod-video-nil": "Please choose one video for detail",
+  "net-youtube" : "Youtube",
+  "net-youtube-add-video" : "Add youtube video"
 });
 //========================================
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
@@ -65831,7 +66057,9 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
   "net-vod-du-tv": "剧集视频",
   "net-vod-duration": "视频时长",
   "net-vod-size": "视频大小",
-  "net-vod-video-nil": "请选择一个视频查看详情"
+  "net-vod-video-nil": "请选择一个视频查看详情",
+  "net-youtube" : "Youtube",
+  "net-youtube-add-video" : "添加Youtube视频"
 });
 //========================================
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
@@ -67031,7 +67259,9 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
    "net-vod-du-tv": "劇集視頻",
    "net-vod-duration": "視頻時長",
    "net-vod-size": "視頻大小",
-   "net-vod-video-nil": "請選擇一個視頻查看詳情"
+   "net-vod-video-nil": "請選擇一個視頻查看詳情",
+   "net-youtube": "Youtube",
+   "net-youtube-add-video": "添加Youtube視頻"
 });
 //========================================
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json

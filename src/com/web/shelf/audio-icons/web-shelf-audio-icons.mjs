@@ -21,10 +21,21 @@ const _M = {
     "preview" : {
       type: Object
     },
+    "mime": {
+      type : [String, Function],
+      default : "=mime"
+    },
+    "type" : {
+      type : [String, Function],
+      default : "=type"
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
     "audioConf" : {
+      type : Object
+    },
+    "youtubeConf" : {
       type : Object
     }
   },
@@ -39,15 +50,36 @@ const _M = {
       return _.nth(this.data, this.myCurrentIndex)
     },
     //--------------------------------------
-    CurrentAudioSrc() {
-      return Ti.WWW.evalObjPreviewSrc(this.CurrentAudioData, this.preview)
+    CurrentAudioMime() {
+      return this.getItemValueBy(this.CurrentAudioData, this.mime)
     },
     //--------------------------------------
-    CurrentAudioComConf() {
-      if(this.CurrentAudioSrc) {
-        return _.assign({}, this.audioConf, {
-          src: this.CurrentAudioSrc
-        })
+    CurrentAudioType() {
+      return this.getItemValueBy(this.CurrentAudioData, this.type)
+    },
+    //--------------------------------------
+    CurrentAudioCom() {
+      // Youtube Audio
+      if("youtube" == this.CurrentAudioType) {
+        return {
+          comType : "NetYoutubePlayer",
+          comConf : _.assign({}, this.youtubeConf, {
+            value : {
+              id : this.CurrentAudioData.yt_video_id,
+              thumbUrl : this.CurrentAudioData.thumb
+            }
+          })
+        }
+      }
+      // Normal audio
+      else {
+        let src = Ti.WWW.evalObjPreviewSrc(this.CurrentAudioData, this.preview)
+        return {
+          comType : "TiMediaAudio",
+          comConf :_.assign({}, this.audioConf, {
+            src
+          })
+        }
       }
     },
     //--------------------------------------
@@ -80,6 +112,20 @@ const _M = {
     //--------------------------------------
     OnGoTo({index}) {
       this.myCurrentIndex = index
+    },
+    //--------------------------------------
+    getItemValueBy(item={}, key) {
+      // Customized
+      if(_.isFunction(key)) {
+        return key(item)
+      }
+      // Explain
+      if(item) {
+        if(_.isString(item)) {
+          return key
+        }
+        return Ti.Util.explainObj(item, key)
+      }
     }
     //--------------------------------------
   }

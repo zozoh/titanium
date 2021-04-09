@@ -6,7 +6,7 @@ export default {
   ///////////////////////////////////////////////////////
   props : {
     //-----------------------------------
-    // Data
+    // Data: {id:"QH3zuJCW3Lo", thumbUrl:"https://i.ytimg.com/vi/QH3z..."}
     //-----------------------------------
     "value" : {
       type : Object

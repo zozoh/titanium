@@ -16,7 +16,10 @@
     <!--
       Player
     -->
-    <TiMediaAudio v-bind="CurrentAudioComConf"/>
+    <component
+      class="as-current-audio-player"
+      :is="CurrentAudioCom.comType"
+      v-bind="CurrentAudioCom.comConf"/>
     <!--
       Candidate items
     -->

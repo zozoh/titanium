@@ -1,4 +1,4 @@
-// Pack At: 2021-04-08 18:51:24
+// Pack At: 2021-04-09 18:37:54
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1375,6 +1375,15 @@ const Util = (function(){
     genPreviewObj(meta) {
       // Uploaded thumb preview
       if(meta.thumb) {
+        // Remove image resource
+        if(/https?:\/\//.test(meta.thumb)) {
+          return {
+            type : "image",
+            value : meta.thumb
+          }
+        }
+  
+        // Load walnut obj thunbmail
         return {
           type : "image",
           value : '/o/thumbnail/id:' + meta.id
@@ -2978,10 +2987,12 @@ const Youtube = (function(){
         return
       }
       // load key fields in config
-      let reo = await WnYoutube.getVideos(config, playlistId)
+      let reo = await WnYoutube.getPlaylistVideos(config, playlistId)
       let list = reo.list || []
       while(reo.next) {
-        reo = await WnYoutube.getVideos(config, playlistId, {pageToken: reo.next})
+        reo = await WnYoutube.getPlaylistVideos(config, playlistId, {
+          pageToken: reo.next
+        })
         list = _.concat(list, reo.list)
       }
   
@@ -2989,7 +3000,7 @@ const Youtube = (function(){
       return list
     },
     //----------------------------------------
-    async getVideos(config, playlistId, {
+    async getPlaylistVideos(config, playlistId, {
       pageToken, maxResults = 50
     }={}) {
       // Guard
@@ -3212,7 +3223,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210408.185124"
+const WALNUT_VERSION = "1.2-20210409.183754"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

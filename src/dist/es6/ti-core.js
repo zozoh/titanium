@@ -1,4 +1,4 @@
-// Pack At: 2021-04-08 18:51:24
+// Pack At: 2021-04-09 18:37:54
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1095,6 +1095,13 @@ const {S} = (function(){
       if(_.isString(str))
         return !str || /^\s*$/.test(str)
       return false
+    },
+    splitIgnoreBlank(input, sep=",") {
+      if(!input || !_.isString(input))
+        return []
+      let list = input.split(sep);
+      let l2 = _.filter(list, li => !TiStr.isBlank(li))
+      return _.map(l2, li=>_.trim(li))
     },
     renderVars(vars={}, fmt="", {
       iteratee, 
@@ -5803,6 +5810,7 @@ const {Icons} = (function(){
     "xls"  : "far-file-excel",
     "xlsx" : "fas-file-excel",
     "xml"  : "far-file-code",
+    "youtube" : "fab-youtube",
     "zip"  : "fas-file-archive",
     "category" : "zmdi-folder",
     "article"  : "zmdi-file-text"
@@ -13674,7 +13682,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210408.185124",
+  "version" : "1.6-20210409.183754",
   "dev" : false,
   "appName" : null,
   "session" : {},

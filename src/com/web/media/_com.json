@@ -6,6 +6,7 @@
   "components" : [
     "@com:web/media/image",
     "@com:ti/media/video",
-    "@com:ti/media/audio"
+    "@com:ti/media/audio",
+    "@com:net/youtube/player"
   ]
 }

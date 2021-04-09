@@ -4,6 +4,7 @@
   "template" : "./web-shelf-audio-icons.html",
   "mixins" : ["./web-shelf-audio-icons.mjs"],
   "components" : [
-    "@com:ti/media/audio"
+    "@com:ti/media/audio",
+    "@com:net/youtube/player"
   ]
 }

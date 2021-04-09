@@ -16,6 +16,10 @@ export default {
       type : [String, Function],
       default : "=mime"
     },
+    "type" : {
+      type : [String, Function],
+      default : "=type"
+    },
     //-------------------------------------
     // Behavior
     //-------------------------------------
@@ -88,21 +92,16 @@ export default {
     },
     //--------------------------------------
     MediaMime() {
-      // Customized
-      if(_.isFunction(this.mime)) {
-        return this.mime(this.src)
-      }
-      // Explain
-      if(this.src) {
-        if(_.isString(this.src)) {
-          return this.mime
-        }
-        return Ti.Util.explainObj(this.src, this.mime)
-      }
+      return this.getSrcValueBy(this.mime)
+    },
+    //--------------------------------------
+    MediaType() {
+      return this.getSrcValueBy(this.type)
     },
     //--------------------------------------
     MediaCom() {
       let mime = this.MediaMime
+      let type = this.MediaType
       // Default component
       if(!mime) {
         return {
@@ -113,9 +112,23 @@ export default {
         }
       }
       //
+      // Youtube
+      //
+      if("youtube" == type && this.src && this.src.yt_video_id) {
+        return {
+          comType : "NetYoutubePlayer",
+          comConf : {
+            value : {
+              id : this.src.yt_video_id,
+              thumbUrl : this.src.thumb
+            }
+          }
+        }
+      }
+      //
       // Image
       //
-      if(/^image\/.+$/.test(mime)) {
+      else if(/^image\/.+$/.test(mime)) {
         return {
           comType : "WebMediaImage",
           comConf : _.assign({}, this.image, {
@@ -167,6 +180,20 @@ export default {
     //--------------------------------------
     OnClickNext() {
       this.$notify("go:next");
+    },
+    //--------------------------------------
+    getSrcValueBy(key) {
+      // Customized
+      if(_.isFunction(key)) {
+        return key(this.src)
+      }
+      // Explain
+      if(this.src) {
+        if(_.isString(this.src)) {
+          return key
+        }
+        return Ti.Util.explainObj(this.src, key)
+      }
     }
     //--------------------------------------
   }

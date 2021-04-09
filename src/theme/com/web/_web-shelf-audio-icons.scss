@@ -2,8 +2,13 @@
   @include flex-align;
   padding: SZ(6);
   //-----------------------------------------
+  .as-current-audio-player {
+    flex: 1 1 auto;
+  }
+  //-----------------------------------------
   .as-audio-icons {
     @include flex-align($ai:center, $ac:center);
+    flex: 0 0 auto;
     padding: 0 SZ(4); 
   }
   //-----------------------------------------
