@@ -189,7 +189,8 @@ export const TiVue = {
       components : (function(){
         let coms = {}
         _.map(Assets.components, com=>{
-          coms[com.name] = TiVue.Options({
+          let comName = _.camelCase(com.name)
+          coms[comName] = TiVue.Options({
             conf : com, global
           })
         })
