@@ -1,4 +1,4 @@
-// Pack At: 2021-04-12 05:41:36
+// Pack At: 2021-04-12 06:11:23
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -12797,7 +12797,7 @@ const {VueTiCom} = (function(){
       }
       //-----------------------------------------------
       $el.addEventListener("mousedown", function(evt){
-        console.log(evt, trigger)
+        //console.log(evt, trigger)
         // Find the trigger
         let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, vm.$el)
         if(!_.isElement($trigger)) {
@@ -13685,7 +13685,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210412.054136",
+  "version" : "1.6-20210412.061123",
   "dev" : false,
   "appName" : null,
   "session" : {},
