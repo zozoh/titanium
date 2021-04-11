@@ -6,7 +6,7 @@ async function EditObjContent(pathOrObj="~", {
   textOk = undefined,  
   textCancel = "i18n:cancel",
   position = "top",
-  width=640, height="80%", spacing,
+  width="80%", height="96%", spacing,
   readonly=false,
   showEditorTitle=true,
   content,

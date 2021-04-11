@@ -1,4 +1,4 @@
-// Pack At: 2021-04-09 18:37:54
+// Pack At: 2021-04-12 05:41:36
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -2710,7 +2710,7 @@ const EditObjContent = (function(){
     textOk = undefined,  
     textCancel = "i18n:cancel",
     position = "top",
-    width=640, height="80%", spacing,
+    width="80%", height="96%", spacing,
     readonly=false,
     showEditorTitle=true,
     content,
@@ -3223,7 +3223,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210409.183754"
+const WALNUT_VERSION = "1.2-20210412.054136"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

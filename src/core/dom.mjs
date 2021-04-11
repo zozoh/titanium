@@ -319,7 +319,7 @@ const TiDom = {
     return [...$ndList]
   },
   //----------------------------------------------------
-  find(selector="*", $doc=document) {
+  find(selector, $doc=document) {
     if(!$doc)
       return null
     if(_.isUndefined(selector)) {

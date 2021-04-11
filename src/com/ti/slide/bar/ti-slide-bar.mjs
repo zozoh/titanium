@@ -208,14 +208,14 @@ export default {
             this.ThrottleSetVal(this.myHdlLeft)
           }
         },
-        done : ({scaleX}) => {
-          this.evalMyHdlLeft(scaleX)
-          this.evalMyVal(scaleX)
-          this.$notify("drag:end", {
-            value : this.myValue, 
-            scale : this.myHdlLeft
-          })
-        }
+          done : ({scaleX}) => {
+            this.evalMyHdlLeft(scaleX)
+            this.evalMyVal(scaleX)
+            this.$notify("drag:end", {
+              value : this.myValue, 
+              scale : this.myHdlLeft
+            })
+          }
       }
     }
     //---------------------------------------------------

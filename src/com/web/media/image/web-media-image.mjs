@@ -88,8 +88,13 @@ export default {
     Show zoom lens and dock aside to the image
     - pickWidth : (0-1) percent | >1 for pixcle
     - scale : 2 zoome leave base on pick zoomLens
-    - dockMode  : "V"
-    - dockSpace : 10
+    - dockMode  : "V|H"
+    - dockSpace : 10,
+    - dockPosListX : ["left", "center", "right"],
+    - dockPosListY : ["top", "center", "bottom"]
+    - followPicker : false,  // dock to picker each time mouse move
+    - pickStyle : {...}  // ex style for picker
+    - dockStyle : {...}  // ex style for docker
     */
     "zoomLens" : {
       type : Object,
@@ -102,7 +107,10 @@ export default {
     TopClass() {
       return this.getTopClass({
         "has-href" : this.TheHref ? true : false,
-        "no-href"  : this.TheHref ? false : true
+        "no-href"  : this.TheHref ? false : true,
+        "show-zoomlen" : this.showZoomPick,
+        "no-zoomlen"   : this.TheZoomLens ? false : true,
+        "has-zoomlen"  : this.TheZoomLens ? true  : false,
       })
     },
     //--------------------------------------
@@ -135,8 +143,13 @@ export default {
       
       let pickW = _.get(this.zoomLens, "pickWidth", .618)
       let pickH = _.get(this.zoomLens, "pickHeight", -1)
+      let followPicker = _.get(this.zoomLens, "followPicker", false)
+      let dockStyle = _.get(this.zoomLens, "dockStyle", {})
+      let pickStyle = _.get(this.zoomLens, "pickStyle", {})
 
-      let zl = {}
+      let zl = {
+        followPicker, dockStyle, pickStyle
+      }
       zl.pickWidth = pickW < 1 
             ? this.clientWidth * pickW
             : pickW;
@@ -164,26 +177,35 @@ export default {
           top    : this.pickRect.top,
           left   : this.pickRect.left,
           width  : this.TheZoomLens.pickWidth,
-          height : this.TheZoomLens.pickHeight
+          height : this.TheZoomLens.pickHeight,
+          ... this.TheZoomLens.pickStyle
         })
       }
     },
     //--------------------------------------
     ZoomLenDockStyle() {
-      if(this.zoomLens && !_.isEmpty(this.pickRect)) {
-        let scale = _.get(this.zoomLens, "scale", 2)
-        let cW = this.clientWidth
-        let cH = this.clientHeight
-        let pLeft = this.pickRect.left
-        let pTop  = this.pickRect.top
-        return Ti.Css.toStyle({
-          visibility : this.showZoomDock ? "visible" : "hidden",
-          width  : this.TheZoomLens.dockWidth,
-          height : this.TheZoomLens.dockHeight,
-          backgroundImage: `url("${this.TheSrc}")`,
-          backgroundSize : `${cW*scale}px ${cH*scale}px`,
-          backgroundPosition: `${pLeft*scale*-1}px ${pTop*scale*-1}px`
-        })
+      if(this.zoomLens){
+        if(_.isEmpty(this.pickRect)) {
+          return {
+            visibility : this.showZoomDock ? "visible" : "hidden",
+            backgroundImage: `url("${this.TheSrc}")`
+          }
+        } else {
+          let scale = _.get(this.zoomLens, "scale", 2)
+          let cW = this.clientWidth
+          let cH = this.clientHeight
+          let pLeft = this.pickRect.left
+          let pTop  = this.pickRect.top
+          return Ti.Css.toStyle({
+            visibility : this.showZoomDock ? "visible" : "hidden",
+            width  : this.TheZoomLens.dockWidth,
+            height : this.TheZoomLens.dockHeight,
+            backgroundImage: `url("${this.TheSrc}")`,
+            backgroundSize : `${cW*scale}px ${cH*scale}px`,
+            backgroundPosition: `${pLeft*scale*-1}px ${pTop*scale*-1}px`,
+            ... this.TheZoomLens.dockStyle
+          })
+        }
       }
     },
     //--------------------------------------
@@ -301,6 +323,15 @@ export default {
       imRect.wrap(rect)
       rect.relative(imRect)
 
+      if(this.TheZoomLens && this.TheZoomLens.followPicker) {
+        Ti.Dom.dockTo(this.$refs.dock, this.$refs.pick, {
+          mode  : this.TheZoomLens.dockMode,
+          space : this.TheZoomLens.dockSpace,
+          posListX : this.TheZoomLens.dockPosListX,
+          posListY : this.TheZoomLens.dockPosListY
+        })
+      }
+
       this.pickRect = rect
       this.showZoomPick = true
     },
@@ -316,15 +347,19 @@ export default {
     "showZoomPick" : function(newVal) {
       if(newVal && this.zoomLens) {
         this.$nextTick(()=>{
-          Ti.Dom.dockTo(this.$refs.dock, this.$refs.img, {
-            mode  : this.TheZoomLens.dockMode,
-            space : this.TheZoomLens.dockSpace,
-            posListX : this.TheZoomLens.dockPosListX,
-            posListY : this.TheZoomLens.dockPosListY
-          })
-          _.delay(()=>{
+          if(!this.TheZoomLens || !this.TheZoomLens.followPicker) {
+            Ti.Dom.dockTo(this.$refs.dock, this.$refs.img, {
+              mode  : this.TheZoomLens.dockMode,
+              space : this.TheZoomLens.dockSpace,
+              posListX : this.TheZoomLens.dockPosListX,
+              posListY : this.TheZoomLens.dockPosListY
+            })
+            _.delay(()=>{
+              this.showZoomDock = true
+            }, 100)
+          } else {
             this.showZoomDock = true
-          }, 100)
+          }
         })
       }
     }

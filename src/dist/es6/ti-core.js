@@ -1,4 +1,4 @@
-// Pack At: 2021-04-09 18:37:54
+// Pack At: 2021-04-12 05:41:36
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2260,7 +2260,8 @@ const {App} = (function(){
           components : (function(){
             let coms = {}
             _.map(Assets.components, com=>{
-              coms[com.name] = TiVue.Options({
+              let comName = _.camelCase(com.name)
+              coms[comName] = TiVue.Options({
                 conf : com, global
               })
             })
@@ -3871,7 +3872,7 @@ const {Dom} = (function(){
       return [...$ndList]
     },
     //----------------------------------------------------
-    find(selector="*", $doc=document) {
+    find(selector, $doc=document) {
       if(!$doc)
         return null
       if(_.isUndefined(selector)) {
@@ -11910,7 +11911,7 @@ const {Css} = (function(){
         return str
       }
       // String, may `45px` or `43%`
-      let m = /^([\d.]+)(px)?(%)?$/.exec(str);
+      let m = /^(-?[\d.]+)(px)?(%)?$/.exec(str);
       if(m) {
         // percent
         if(m[3]) {
@@ -12796,7 +12797,7 @@ const {VueTiCom} = (function(){
       }
       //-----------------------------------------------
       $el.addEventListener("mousedown", function(evt){
-        //console.log(evt, trigger)
+        console.log(evt, trigger)
         // Find the trigger
         let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, vm.$el)
         if(!_.isElement($trigger)) {
@@ -12821,6 +12822,7 @@ const {VueTiCom} = (function(){
         context.handler = Ti.Rects.createBy($handler) 
         context.evalScale = function() {
           let {width, height, left, top} = this.viewport
+          //console.log(this.viewport.tagName, {width, left, clientX:this.clientX})
           this.x = this.clientX - left
           this.y = this.clientY - top
           this.scaleX = this.x / width
@@ -12828,6 +12830,7 @@ const {VueTiCom} = (function(){
         }
     
         // Prepare
+        context.evalScale();
         context = prepare(context) || context
     
         //---------------------------------------------
@@ -13682,7 +13685,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210409.183754",
+  "version" : "1.6-20210412.054136",
   "dev" : false,
   "appName" : null,
   "session" : {},

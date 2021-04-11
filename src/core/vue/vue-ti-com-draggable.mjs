@@ -18,7 +18,7 @@ function TiDraggable($el, setup, {context}) {
   }
   //-----------------------------------------------
   $el.addEventListener("mousedown", function(evt){
-    //console.log(evt, trigger)
+    console.log(evt, trigger)
     // Find the trigger
     let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, vm.$el)
     if(!_.isElement($trigger)) {
@@ -43,6 +43,7 @@ function TiDraggable($el, setup, {context}) {
     context.handler = Ti.Rects.createBy($handler) 
     context.evalScale = function() {
       let {width, height, left, top} = this.viewport
+      //console.log(this.viewport.tagName, {width, left, clientX:this.clientX})
       this.x = this.clientX - left
       this.y = this.clientY - top
       this.scaleX = this.x / width
@@ -50,6 +51,7 @@ function TiDraggable($el, setup, {context}) {
     }
 
     // Prepare
+    context.evalScale();
     context = prepare(context) || context
 
     //---------------------------------------------

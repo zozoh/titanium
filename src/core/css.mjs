@@ -12,7 +12,7 @@ const TiCss = {
       return str
     }
     // String, may `45px` or `43%`
-    let m = /^([\d.]+)(px)?(%)?$/.exec(str);
+    let m = /^(-?[\d.]+)(px)?(%)?$/.exec(str);
     if(m) {
       // percent
       if(m[3]) {

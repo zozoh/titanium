@@ -41,15 +41,15 @@
           :style="BriefStyle"><span>{{TheBrief}}</span></div>
   </div>
   <!--Zoom len-->
-  <template v-if="zoomLens">
-    <!--Picker-->
-    <div ref="pick"
-      class="as-zoom-pick"
-      :style="ZoomLenPickStyle"></div>
-    <!--Docker-->
-    <div ref="dock"
-      v-if="showZoomPick"
+  <div v-if="zoomLens"
+    class="as-zoomlen">
+      <!--Picker-->
+      <div ref="pick"
+        class="as-zoom-pick"
+        :style="ZoomLenPickStyle"></div>
+      <!--Docker-->
+      <div ref="dock"
         class="as-zoom-dock"
         :style="ZoomLenDockStyle"></div>
-  </template>
+  </div>
 </a>

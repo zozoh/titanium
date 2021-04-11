@@ -84,13 +84,13 @@ article.ti-article-theme-nice {
   //---------------------------------------
   // Table
   table {
-    border:1px solid map-get($color-primary, c);
+    border:1px solid map-get($color-line, weak);
     border-collapse: collapse;
     border-spacing: 0;
     margin:2em 0;
   }
   td, th {
-    border:1px solid map-get($color-primary, c);
+    border:1px solid map-get($color-line, c);
     padding:.4em; font-size:.9em;
   }
   thead td {
