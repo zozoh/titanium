@@ -1,12 +1,9 @@
-.web-text-article {
-  padding: 1px;
-}
 /////////////////////////////////////////////
 //
 // Generaor
 //
 /////////////////////////////////////////////
-article {
+article.ti-article {
   //---------------------------------------
   i {font-style: normal;}
   //---------------------------------------
@@ -44,7 +41,7 @@ article {
 // @nice
 //
 /////////////////////////////////////////////
-article.ti-article-theme-nice {
+article.ti-article.is-theme-nice {
   //---------------------------------------
   padding:1em 2em;
   font-size: 16px; line-height: 1.5em;

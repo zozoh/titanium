@@ -32,15 +32,20 @@ const _M = {
     //--------------------------------------
     LangList() {
       return [{
-        lang : "zh-cn",
-        text : "中文",
-        className: {"is-current" : "zh-cn" == this.MyLang},
-        src  : "/gu/rs/ti/icons/png/lang-zh-cn.png"
-      }, {
         lang : "en-us",
         text : "English",
         className: {"is-current" : "en-us" == this.MyLang},
         src  : "/gu/rs/ti/icons/png/lang-en-us.png"
+      }, {
+        lang : "zh-cn",
+        text : "简体",
+        className: {"is-current" : "zh-cn" == this.MyLang},
+        src  : "/gu/rs/ti/icons/png/lang-zh-cn.png"
+      }, {
+        lang : "zh-hk",
+        text : "繁體",
+        className: {"is-current" : "zh-hk" == this.MyLang},
+        src  : "/gu/rs/ti/icons/png/lang-zh-hk.png"
       }]
     },
     //--------------------------------------

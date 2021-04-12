@@ -2,6 +2,9 @@
   "name" : "web-text-article",
   "globally" : true,
   "template" : "./web-text-article.html",
+  "props" : "./web-text-article-props.mjs",
+  "computed" : "./web-text-article-computed.mjs",
+  "methods" : "./web-text-article-methods.mjs",
   "mixins"   : ["./web-text-article.mjs"],
   "components" : [
     "@com:ti/media/audio"

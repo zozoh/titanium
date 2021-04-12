@@ -22,6 +22,7 @@ async function OpenObjSelector(pathOrObj="~", {
     sorter : {nm:1}
   },
   filter = o => "FILE" == o.race,
+  canOpen = o => "DIR" == o.race,
   selected=[]
 }={}){
   //................................................
@@ -247,7 +248,7 @@ async function OpenObjSelector(pathOrObj="~", {
           }
   
           // Only can enter DIR
-          if(obj && "DIR" == obj.race) {
+          if(canOpen(obj)) {
             let app = Ti.App(this)
             // Setup search filter/sorter
             if(search) {
@@ -256,6 +257,11 @@ async function OpenObjSelector(pathOrObj="~", {
             }
             app.dispatch("current/reload", obj)
             app.dispatch("axis/reload", obj)    
+          }
+          // Double click file to select and click "OK"
+          else {
+            console.log(this.myChecked)
+            this.$notify("ok", this.myChecked)
           }
         }
         //--------------------------------------
