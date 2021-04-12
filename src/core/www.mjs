@@ -547,32 +547,48 @@ const TiWWW = {
     let {reo, data} = apiRe
     //.....................................
     // Update or merge
-    if(api.dataMerge) {
-      mergeData({
-        [api.dataKey] : data
-      })
-    }
-    // Just update
-    else if(api.dataKey) {
-      updateData({
-        key   : api.dataKey,
-        value : data
-      })
+    if(api.dataKey) {
+      // Eval the key
+      let key = Ti.Util.explainObj({
+        reo, data, vars, params, headers
+      }, api.dataKey)
+      // Set to state
+      if(key) {
+        if(api.dataMerge) {
+          let d2 = {}
+          _.set(d2, key, data)
+          mergeData(d2)
+        }
+        // Just update
+        else {
+          updateData({
+            key,
+            value : data
+          })
+        }
+      }
     }
     //.....................................
     // Update or merge raw
     if(api.rawDataKey) {
-      if(api.rawDataMerge) {
-        mergeData({
-          [api.rawDataKey] : reo
-        })
-      }
-      // Just update
-      else {
-        updateData({
-          key   : api.rawDataKey,
-          value : reo
-        })
+      // Eval the key
+      let key = Ti.Util.explainObj({
+        reo, data, vars, params, headers
+      }, api.rawDataKey)
+      // Set to state
+      if(key) {
+        if(api.rawDataMerge) {
+          let d2 = {}
+          _.set(d2, key, data)
+          mergeData(d2)
+        }
+        // Just update
+        else {
+          updateData({
+            key,
+            value : reo
+          })
+        }
       }
     }
     //.....................................
