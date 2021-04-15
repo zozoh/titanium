@@ -1,4 +1,4 @@
-// Pack At: 2021-04-15 09:48:18
+// Pack At: 2021-04-15 10:45:42
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -12864,7 +12864,7 @@ const {VueTiCom} = (function(){
       }
       //-----------------------------------------------
       $el.addEventListener(EVENTS.POINTER_DOWN, function(evt){
-        console.log(EVENTS.POINTER_DOWN, evt)
+        //console.log(EVENTS.POINTER_DOWN, evt)
         // Find the trigger
         let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, vm.$el)
         if(!_.isElement($trigger)) {
@@ -13844,7 +13844,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210415.094818",
+  "version" : "1.6-20210415.104542",
   "dev" : false,
   "appName" : null,
   "session" : {},

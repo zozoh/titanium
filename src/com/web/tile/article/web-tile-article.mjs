@@ -113,7 +113,7 @@ const _M = {
       if(this.content) {
         console.log("haha")
         if("text" == this.contentType) {
-          return this.content.replaceAll(/\r?\n/g, '<br>')
+          return this.content.replace(/\r?\n/g, '<br>')
         }
         if("markdown" == this.contentType) {
           // TODO convert markdown

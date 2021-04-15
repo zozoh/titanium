@@ -1,4 +1,4 @@
-// Pack At: 2021-04-15 09:48:18
+// Pack At: 2021-04-15 10:45:42
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -25387,7 +25387,7 @@ const _M = {
       if(this.content) {
         console.log("haha")
         if("text" == this.contentType) {
-          return this.content.replaceAll(/\r?\n/g, '<br>')
+          return this.content.replace(/\r?\n/g, '<br>')
         }
         if("markdown" == this.contentType) {
           // TODO convert markdown
