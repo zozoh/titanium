@@ -139,6 +139,34 @@ const _M = {
       
       // Get the result
       return list
+    },
+    //--------------------------------------
+    Draggable() {
+      return {
+        trigger  : ".scroller-inner",
+        viewport : ($trigger) => {
+          return Ti.Dom.closest($trigger, ".scroller-outer")
+        },
+        activedRadius : 5,
+        actived  : (ctx)=>{
+          //console.log("dragging begin", ctx, ctx.x, ctx.startX)
+          this.evalScrolling();
+          ctx.orgLeft = this.myScrollLeft
+          ctx.$viewport.setAttribute("ti-in-dragging", "yes")
+          //this.$emit("drag:start")
+        },
+        dragging : (ctx)=>{
+          // console.log("dragging", scaleX)
+          let {offsetX, orgLeft} = ctx
+          this.myScrollLeft = orgLeft + offsetX
+        },
+        done : (ctx) => {
+          let {viewport, $trigger, $viewport, offsetX, speed} = ctx
+          // console.log("dragging done")
+          $viewport.setAttribute("ti-in-dragging", "no")
+          this.myScrollLeft = ctx.evalLeftBySpeed(this.myScrollLeft)
+        }
+      }
     }
     //--------------------------------------
   },
@@ -150,6 +178,8 @@ const _M = {
       if(!this.isLeftEnabled) {
         return
       }
+      // Eval scrolling
+      this.evalScrolling();
       // Do Scroll
       let step = Math.abs(this.myScrollLeft)
       step = Math.min(this.myScrollWidth, step)
@@ -161,6 +191,8 @@ const _M = {
       if(!this.isRightEnabled) {
         return
       }
+      // Eval scrolling
+      this.evalScrolling();
       // Do Scroll
       let remain = this.myMaxScroll + this.myScrollLeft - this.myScrollWidth;
       let step = Math.min(this.myScrollWidth, remain)
@@ -197,7 +229,6 @@ const _M = {
     evalScrolling() {
       this.myMaxScroll = this.$refs.inner.scrollWidth;
       this.myScrollWidth = this.$refs.inner.getBoundingClientRect().width;
-      this.myScrollLeft = 0;
     }
     //--------------------------------------
   },
@@ -210,6 +241,7 @@ const _M = {
         if(!this.keepScrolling || !this.myScrollWidth || lenNew != lenOld) {
           this.$nextTick(()=>{
             this.evalScrolling()
+            this.myScrollLeft = 0;
           })
         }
       },

@@ -1,46 +1,48 @@
 export default {
   /////////////////////////////////////////
   props : {
-    "icon": {
-      type : String,
-      default: undefined
-    },
-    "title" : {
-      type : String,
-      default : undefined
-    },
-    "titleClass": {
-      type: [String, Array, Object],
-      default: undefined
-    },
-    "titleStyle": {
-      type: Object,
-      default: undefined
-    },
+    //-----------------------------------
+    // Data
+    //-----------------------------------
     "value": undefined,
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
     "href" : {
-      type: String,
-      default: undefined
-    },
-    "comment" : {
-      type : String,
-      default : undefined
-    },
-    "more": {
-      type: String,
-      default: undefined
-    },
-    "moreIcon": {
-      type: String,
-      default: undefined
-    },
-    "moreText": {
-      type: String,
-      default: undefined
+      type: String
     },
     "moreHref": {
-      type: String,
-      default: undefined
+      type: String
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "icon": {
+      type : String
+    },
+    "title" : {
+      type : String
+    },
+    "titleIcon" : {
+      type : String
+    },
+    "titleClass": {
+      type: [String, Array, Object]
+    },
+    "titleStyle": {
+      type: Object
+    },
+    "comment" : {
+      type : String
+    },
+    "more": {
+      type: String
+    },
+    "moreIcon": {
+      type: String
+    },
+    "moreText": {
+      type: String
     }
   },
   //////////////////////////////////////////

@@ -7,12 +7,12 @@
   @mousemove="OnMouseMove"
   @mouseleave="OnMouseLeave">
   <!--Image-->
-  <div
-    class="as-img-con"
-    :style="ImageStyle">
+  <div class="as-img-con">
     <img ref="img"
       v-if="TheSrc" 
+        :style="ImageStyle"
         :src="TheSrc"
+        draggable="false"
         @load="OnImageLoaded"/>
     <!-- Tags -->
     <div

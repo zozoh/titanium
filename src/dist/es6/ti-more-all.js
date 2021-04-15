@@ -1,4 +1,4 @@
-// Pack At: 2021-04-12 06:11:23
+// Pack At: 2021-04-15 09:48:18
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2877,7 +2877,7 @@ const _M = {
     //------------------------------------------------
     doWhenInput(emitName="inputing") {
       if(_.isElement(this.$refs.input)) {
-        console.log("doWhenInput", emitName)
+        //console.log("doWhenInput", emitName)
         let val = this.$refs.input.value
         // Auto js value
         if(this.autoJsValue) {
@@ -15370,6 +15370,197 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'web-text-article-methods.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article-methods.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //--------------------------------------
+  explainWnImage($div) {
+    let $imgs = Ti.Dom.findAll("img[wn-obj-id]", $div);
+    for(let $img of $imgs) {
+      // Prepare the obj
+      let obj = Ti.Dom.attrs($img, (key)=>{
+        if(key.startsWith("wn-obj-")) {
+          return key.substring(7)
+        }
+      })
+      // Eval the src
+      let src = Ti.WWW.evalObjPreviewSrc(obj, {
+        previewKey : "..",
+        previewObj : "..",
+        apiTmpl : this.apiTmpl,
+        cdnTmpl : this.cdnTmpl,
+        dftSrc : this.dftImgSrc
+      })
+      $img.src = src
+    }
+  },
+  //--------------------------------------
+  explainWnAttachment($div) {
+    let $els = Ti.Dom.findAll(".wn-attachment", $div);
+    for(let $el of $els) {
+      // Prepare the obj
+      let obj = Ti.Dom.attrs($el, (key)=>{
+        if(key.startsWith("wn-obj-")) {
+          return key.substring(7)
+        }
+      })
+      // Eval the src
+      let href = Ti.WWW.evalObjPreviewSrc(obj, {
+        previewKey : "..",
+        previewObj : "..",
+        apiTmpl : this.downTmpl || this.apiTmpl
+      })
+      let $an = Ti.Dom.createElement({
+        tagName : "A",
+        className : "wn-attachment",
+        attrs : {href}
+      })
+      let icon = Ti.Icons.get(obj, "fas-paperclip")
+      let iconHtml = Ti.Icons.fontIconHtml(icon)
+      let html = `<span class="as-icon">${iconHtml}</span>`
+      if(obj.title) {
+        html += `<span class="as-title">${obj.title}</span>`
+      }
+      $an.innerHTML = html
+      Ti.Dom.replace($el, $an)
+    }
+  },
+  //--------------------------------------
+  explainWnMediaVideo($div) {
+    let $els = Ti.Dom.findAll(".wn-media.as-video", $div);
+    for(let $el of $els) {
+      // Prepare the obj
+      let obj = Ti.Dom.attrs($el, (key)=>{
+        if(key.startsWith("wn-obj-")) {
+          return key.substring(7)
+        }
+      })
+      // Eval the src
+      let src = Ti.WWW.evalObjPreviewSrc(obj, {
+        previewKey : "..",
+        previewObj : "..",
+        apiTmpl : this.apiTmpl,
+        cdnTmpl : this.cdnTmpl,
+        dftSrc : this.dftImgSrc
+      })
+      let $video = Ti.Dom.createElement({
+        tagName : "video",
+        attrs : {
+          src,
+          controls : true
+        },
+        style : {
+          width : "100%",
+          height : "100%"
+        }
+      })
+      $el.innerHTML = null
+      Ti.Dom.appendTo($video, $el)
+    }
+  },
+  //--------------------------------------
+  explainWnMediaAudio($div) {
+    let $els = Ti.Dom.findAll(".wn-media.as-audio", $div);
+    for(let $el of $els) {
+      // Prepare the obj
+      let obj = Ti.Dom.attrs($el, (key)=>{
+        if(key.startsWith("wn-obj-")) {
+          return key.substring(7)
+        }
+      })
+      // Eval the src
+      let src = Ti.WWW.evalObjPreviewSrc(obj, {
+        previewKey : "..",
+        previewObj : "..",
+        apiTmpl : this.apiTmpl,
+        cdnTmpl : this.cdnTmpl,
+        dftSrc : this.dftImgSrc
+      })
+      let $audio = Ti.Dom.createElement({
+        tagName : "audio",
+        attrs : {
+          src,
+          controls : true
+        },
+        style : {
+          width : "100%",
+          height : "100%"
+        }
+      })
+      $el.innerHTML = null
+      Ti.Dom.appendTo($audio, $el)
+    }
+  },
+  //--------------------------------------
+  explainWnMediaYoutube($div) {
+    let $els = Ti.Dom.findAll(".wn-media.as-youtube", $div);
+    for(let $el of $els) {
+      // Prepare the obj
+      let obj = Ti.Dom.attrs($el, (key)=>{
+        if(key.startsWith("wn-yt-")) {
+          return key.substring(6)
+        }
+      })
+      //console.log(obj)
+      // Eval the src
+      let $frame = Ti.Dom.createElement({
+        tagName : "iframe",
+        attrs : {
+          src : `//www.youtube.com/embed/${obj.id}`,
+          allow : obj.allow,
+          allowfullscreen : obj.allowfullscreen
+        },
+        style : {
+          width : "100%",
+          height : "100%"
+        }
+      })
+      $el.innerHTML = null
+      Ti.Dom.appendTo($frame, $el)
+    }
+  },
+  //--------------------------------------
+  redrawContent() {
+    // Guard
+    if(!_.isElement(this.$refs.main))
+      return false;
+
+    // Create fragment 
+    let $div = Ti.Dom.createElement({
+      tagName : "div"
+    })
+
+    // Prepare HTML
+    let html = this.ArticleHtml || ""
+    html = html.replace("<script", "[SCRIPT")
+    $div.innerHTML = html
+    
+    // Image
+    this.explainWnImage($div)
+
+    // Attachment
+    this.explainWnAttachment($div)
+
+    // Video
+    this.explainWnMediaVideo($div)
+
+    // Audio
+    this.explainWnMediaAudio($div)
+
+    // Audio
+    this.explainWnMediaYoutube($div)
+
+    // Update the article content
+    this.$refs.main.innerHTML = $div.innerHTML
+
+    return true
+  }
+  //--------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'list-row.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/list/com/list-row/list-row.mjs'] = (function(){
@@ -20279,7 +20470,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "showZoomPick" : function(newVal) {
       if(newVal && this.zoomLens) {
         this.$nextTick(()=>{
-          if(!this.TheZoomLens || !this.TheZoomLens.followPicker) {
+          if(this.TheZoomLens && this.TheZoomLens.followPicker) {
             Ti.Dom.dockTo(this.$refs.dock, this.$refs.img, {
               mode  : this.TheZoomLens.dockMode,
               space : this.TheZoomLens.dockSpace,
@@ -21199,6 +21390,38 @@ const _M = {
   //////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'web-text-article-computed.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article-computed.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //--------------------------------------
+  TopClass() {
+    return this.getTopClass()
+  },
+  //--------------------------------------
+  ArticleClass() {
+    return `is-theme-${this.theme}`
+  },
+  //--------------------------------------
+  isLoading() {
+    return _.isUndefined(this.value)
+  },
+  //--------------------------------------
+  isBlank() {
+    return Ti.S.isBlank(this.value)
+  },
+  //--------------------------------------
+  ArticleHtml() {
+    if("html" == this.type) {
+      return this.value
+    }
+    throw `type '${this.type}' not support yet!`
+  }
+  //--------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'preview-info-field.mjs' -> null
@@ -24125,6 +24348,10 @@ const _M = {
       type : Boolean,
       default : false
     },
+    "multiLines" : {
+      type : Boolean,
+      default : false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -24221,6 +24448,31 @@ const _M = {
         _.set(data, name, newVal)
         this.$notify("change", data)
       }
+    },
+    //--------------------------------------------
+    async OnClickPairMore({name, value}) {
+      // Get new value
+      let newVal = await Ti.App.Open({
+        icon : "zmdi-edit",
+        title : "i18n:edit",
+        width  : 640,
+        height : "80%",
+        result : value,
+        comType : "TiInputText",
+        comConf : {
+          height: "100%"
+        },
+        components : ["@com:ti/input/text"]
+      })
+
+      // User cancel
+      if(Ti.Util.isNil(newVal) || newVal == value)
+        return
+
+      // Update value
+      let data = _.cloneDeep(this.TheData) 
+      _.set(data, name, newVal)
+      this.$notify("change", data)
     },
     //--------------------------------------------
     async evalThePairList() {
@@ -25133,6 +25385,7 @@ const _M = {
     //--------------------------------------
     HtmlContent() {
       if(this.content) {
+        console.log("haha")
         if("text" == this.contentType) {
           return this.content.replaceAll(/\r?\n/g, '<br>')
         }
@@ -30266,46 +30519,48 @@ window.TI_PACK_EXPORTS['ti/com/web/text/heading/web-text-heading.mjs'] = (functi
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
   props : {
-    "icon": {
-      type : String,
-      default: undefined
-    },
-    "title" : {
-      type : String,
-      default : undefined
-    },
-    "titleClass": {
-      type: [String, Array, Object],
-      default: undefined
-    },
-    "titleStyle": {
-      type: Object,
-      default: undefined
-    },
+    //-----------------------------------
+    // Data
+    //-----------------------------------
     "value": undefined,
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
     "href" : {
-      type: String,
-      default: undefined
-    },
-    "comment" : {
-      type : String,
-      default : undefined
-    },
-    "more": {
-      type: String,
-      default: undefined
-    },
-    "moreIcon": {
-      type: String,
-      default: undefined
-    },
-    "moreText": {
-      type: String,
-      default: undefined
+      type: String
     },
     "moreHref": {
-      type: String,
-      default: undefined
+      type: String
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "icon": {
+      type : String
+    },
+    "title" : {
+      type : String
+    },
+    "titleIcon" : {
+      type : String
+    },
+    "titleClass": {
+      type: [String, Array, Object]
+    },
+    "titleStyle": {
+      type: Object
+    },
+    "comment" : {
+      type : String
+    },
+    "more": {
+      type: String
+    },
+    "moreIcon": {
+      type: String
+    },
+    "moreText": {
+      type: String
     }
   },
   //////////////////////////////////////////
@@ -35231,6 +35486,34 @@ const _M = {
       
       // Get the result
       return list
+    },
+    //--------------------------------------
+    Draggable() {
+      return {
+        trigger  : ".scroller-inner",
+        viewport : ($trigger) => {
+          return Ti.Dom.closest($trigger, ".scroller-outer")
+        },
+        activedRadius : 5,
+        actived  : (ctx)=>{
+          //console.log("dragging begin", ctx, ctx.x, ctx.startX)
+          this.evalScrolling();
+          ctx.orgLeft = this.myScrollLeft
+          ctx.$viewport.setAttribute("ti-in-dragging", "yes")
+          //this.$emit("drag:start")
+        },
+        dragging : (ctx)=>{
+          // console.log("dragging", scaleX)
+          let {offsetX, orgLeft} = ctx
+          this.myScrollLeft = orgLeft + offsetX
+        },
+        done : (ctx) => {
+          let {viewport, $trigger, $viewport, offsetX, speed} = ctx
+          // console.log("dragging done")
+          $viewport.setAttribute("ti-in-dragging", "no")
+          this.myScrollLeft = ctx.evalLeftBySpeed(this.myScrollLeft)
+        }
+      }
     }
     //--------------------------------------
   },
@@ -35242,6 +35525,8 @@ const _M = {
       if(!this.isLeftEnabled) {
         return
       }
+      // Eval scrolling
+      this.evalScrolling();
       // Do Scroll
       let step = Math.abs(this.myScrollLeft)
       step = Math.min(this.myScrollWidth, step)
@@ -35253,6 +35538,8 @@ const _M = {
       if(!this.isRightEnabled) {
         return
       }
+      // Eval scrolling
+      this.evalScrolling();
       // Do Scroll
       let remain = this.myMaxScroll + this.myScrollLeft - this.myScrollWidth;
       let step = Math.min(this.myScrollWidth, remain)
@@ -35289,7 +35576,6 @@ const _M = {
     evalScrolling() {
       this.myMaxScroll = this.$refs.inner.scrollWidth;
       this.myScrollWidth = this.$refs.inner.getBoundingClientRect().width;
-      this.myScrollLeft = 0;
     }
     //--------------------------------------
   },
@@ -35302,6 +35588,7 @@ const _M = {
         if(!this.keepScrolling || !this.myScrollWidth || lenNew != lenOld) {
           this.$nextTick(()=>{
             this.evalScrolling()
+            this.myScrollLeft = 0;
           })
         }
       },
@@ -38169,15 +38456,20 @@ const _M = {
     //--------------------------------------
     LangList() {
       return [{
-        lang : "zh-cn",
-        text : "中文",
-        className: {"is-current" : "zh-cn" == this.MyLang},
-        src  : "/gu/rs/ti/icons/png/lang-zh-cn.png"
-      }, {
         lang : "en-us",
         text : "English",
         className: {"is-current" : "en-us" == this.MyLang},
         src  : "/gu/rs/ti/icons/png/lang-en-us.png"
+      }, {
+        lang : "zh-cn",
+        text : "简体",
+        className: {"is-current" : "zh-cn" == this.MyLang},
+        src  : "/gu/rs/ti/icons/png/lang-zh-cn.png"
+      }, {
+        lang : "zh-hk",
+        text : "繁體",
+        className: {"is-current" : "zh-hk" == this.MyLang},
+        src  : "/gu/rs/ti/icons/png/lang-zh-hk.png"
       }]
     },
     //--------------------------------------
@@ -42628,277 +42920,6 @@ return _M;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
-  /////////////////////////////////////////
-  props : {
-    //-----------------------------------
-    // Data
-    //-----------------------------------
-    "value": {
-      type: String,
-      default: undefined
-    },
-    "type": {
-      type : String,
-      default : "html",
-      validator : v => /^(html|markdown)$/.test(v)
-    },
-    //-----------------------------------
-    // Behavior
-    //-----------------------------------
-    "apiTmpl": {
-      type: String,
-      default: undefined
-    },
-    "cdnTmpl": {
-      type: String,
-      default: undefined
-    },
-    "dftImgSrc": {
-      type: String,
-      default: undefined
-    },
-    "downTmpl" : {
-      type: String,
-      default: undefined
-    },
-    //-----------------------------------
-    // Aspect
-    //-----------------------------------
-    "theme": {
-      type : String,
-      default: "nice"
-    },
-    "loadingAs" : {
-      type : Object,
-      default : ()=>({
-        className : "as-nil-mask as-big",
-        icon : undefined,
-        text : undefined
-      })
-    },
-    "blankAs" : {
-      type : Object,
-      default : ()=>({
-        comType : "TiLoading",
-        comConf : {
-          className : "as-nil-mask as-big",
-          icon : "fas-coffee",
-          text : null
-        }
-      })
-    }
-  },
-  //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    TopClass() {
-      return this.getTopClass()
-    },
-    //--------------------------------------
-    ArticleClass() {
-      return `ti-article-theme-${this.theme}`
-    },
-    //--------------------------------------
-    isLoading() {
-      return _.isUndefined(this.value)
-    },
-    //--------------------------------------
-    isBlank() {
-      return Ti.S.isBlank(this.value)
-    },
-    //--------------------------------------
-    ArticleHtml() {
-      if("html" == this.type) {
-        return this.value
-      }
-      throw `type '${this.type}' not support yet!`
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    explainWnImage($div) {
-      let $imgs = Ti.Dom.findAll("img[wn-obj-id]", $div);
-      for(let $img of $imgs) {
-        // Prepare the obj
-        let obj = Ti.Dom.attrs($img, (key)=>{
-          if(key.startsWith("wn-obj-")) {
-            return key.substring(7)
-          }
-        })
-        // Eval the src
-        let src = Ti.WWW.evalObjPreviewSrc(obj, {
-          previewKey : "..",
-          previewObj : "..",
-          apiTmpl : this.apiTmpl,
-          cdnTmpl : this.cdnTmpl,
-          dftSrc : this.dftImgSrc
-        })
-        $img.src = src
-      }
-    },
-    //--------------------------------------
-    explainWnAttachment($div) {
-      let $els = Ti.Dom.findAll(".wn-attachment", $div);
-      for(let $el of $els) {
-        // Prepare the obj
-        let obj = Ti.Dom.attrs($el, (key)=>{
-          if(key.startsWith("wn-obj-")) {
-            return key.substring(7)
-          }
-        })
-        // Eval the src
-        let href = Ti.WWW.evalObjPreviewSrc(obj, {
-          previewKey : "..",
-          previewObj : "..",
-          apiTmpl : this.downTmpl || this.apiTmpl
-        })
-        let $an = Ti.Dom.createElement({
-          tagName : "A",
-          className : "wn-attachment",
-          attrs : {href}
-        })
-        let icon = Ti.Icons.get(obj, "fas-paperclip")
-        let iconHtml = Ti.Icons.fontIconHtml(icon)
-        let html = `<span class="as-icon">${iconHtml}</span>`
-        if(obj.title) {
-          html += `<span class="as-title">${obj.title}</span>`
-        }
-        $an.innerHTML = html
-        Ti.Dom.replace($el, $an)
-      }
-    },
-    //--------------------------------------
-    explainWnMediaVideo($div) {
-      let $els = Ti.Dom.findAll(".wn-media.as-video", $div);
-      for(let $el of $els) {
-        // Prepare the obj
-        let obj = Ti.Dom.attrs($el, (key)=>{
-          if(key.startsWith("wn-obj-")) {
-            return key.substring(7)
-          }
-        })
-        // Eval the src
-        let src = Ti.WWW.evalObjPreviewSrc(obj, {
-          previewKey : "..",
-          previewObj : "..",
-          apiTmpl : this.apiTmpl,
-          cdnTmpl : this.cdnTmpl,
-          dftSrc : this.dftImgSrc
-        })
-        let $video = Ti.Dom.createElement({
-          tagName : "video",
-          attrs : {
-            src,
-            controls : true
-          },
-          style : {
-            width : "100%",
-            height : "100%"
-          }
-        })
-        $el.innerHTML = null
-        Ti.Dom.appendTo($video, $el)
-      }
-    },
-    //--------------------------------------
-    explainWnMediaAudio($div) {
-      let $els = Ti.Dom.findAll(".wn-media.as-audio", $div);
-      for(let $el of $els) {
-        // Prepare the obj
-        let obj = Ti.Dom.attrs($el, (key)=>{
-          if(key.startsWith("wn-obj-")) {
-            return key.substring(7)
-          }
-        })
-        // Eval the src
-        let src = Ti.WWW.evalObjPreviewSrc(obj, {
-          previewKey : "..",
-          previewObj : "..",
-          apiTmpl : this.apiTmpl,
-          cdnTmpl : this.cdnTmpl,
-          dftSrc : this.dftImgSrc
-        })
-        let $audio = Ti.Dom.createElement({
-          tagName : "audio",
-          attrs : {
-            src,
-            controls : true
-          },
-          style : {
-            width : "100%",
-            height : "100%"
-          }
-        })
-        $el.innerHTML = null
-        Ti.Dom.appendTo($audio, $el)
-      }
-    },
-    //--------------------------------------
-    explainWnMediaYoutube($div) {
-      let $els = Ti.Dom.findAll(".wn-media.as-youtube", $div);
-      for(let $el of $els) {
-        // Prepare the obj
-        let obj = Ti.Dom.attrs($el, (key)=>{
-          if(key.startsWith("wn-yt-")) {
-            return key.substring(6)
-          }
-        })
-        //console.log(obj)
-        // Eval the src
-        let $frame = Ti.Dom.createElement({
-          tagName : "iframe",
-          attrs : {
-            src : `//www.youtube.com/embed/${obj.id}`,
-            allow : obj.allow,
-            allowfullscreen : obj.allowfullscreen
-          },
-          style : {
-            width : "100%",
-            height : "100%"
-          }
-        })
-        $el.innerHTML = null
-        Ti.Dom.appendTo($frame, $el)
-      }
-    },
-    //--------------------------------------
-    redrawContent() {
-      // Guard
-      if(!_.isElement(this.$refs.main))
-        return
-
-      // Create fragment 
-      let $div = Ti.Dom.createElement({
-        tagName : "div"
-      })
-
-      // Prepare HTML
-      let html = this.ArticleHtml || ""
-      html = html.replace("<script", "[SCRIPT")
-      $div.innerHTML = html
-      
-      // Image
-      this.explainWnImage($div)
-
-      // Attachment
-      this.explainWnAttachment($div)
-
-      // Video
-      this.explainWnMediaVideo($div)
-
-      // Audio
-      this.explainWnMediaAudio($div)
-
-      // Audio
-      this.explainWnMediaYoutube($div)
-
-      // Update the article content
-      this.$refs.main.innerHTML = $div.innerHTML
-    }
-    //--------------------------------------
-  },
   //////////////////////////////////////////
   watch : {
     "ArticleHtml" : "redrawContent"
@@ -48868,6 +48889,71 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'web-text-article-props.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article-props.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
+  "value": {
+    type: String,
+    default: undefined
+  },
+  "type": {
+    type : String,
+    default : "html",
+    validator : v => /^(html|markdown)$/.test(v)
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  "apiTmpl": {
+    type: String,
+    default: undefined
+  },
+  "cdnTmpl": {
+    type: String,
+    default: undefined
+  },
+  "dftImgSrc": {
+    type: String,
+    default: undefined
+  },
+  "downTmpl" : {
+    type: String,
+    default: undefined
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "theme": {
+    type : String,
+    default: "nice"
+  },
+  "loadingAs" : {
+    type : Object,
+    default : ()=>({
+      className : "as-nil-mask as-big",
+      icon : undefined,
+      text : undefined
+    })
+  },
+  "blankAs" : {
+    type : Object,
+    default : ()=>({
+      comType : "TiLoading",
+      comConf : {
+        className : "as-nil-mask as-big",
+        icon : "fas-coffee",
+        text : null
+      }
+    })
+  }
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-markdown-richeditor-delegate-methods.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/text/markdown/richeditor/ti-markdown-richeditor-delegate-methods.mjs'] = (function(){
@@ -51962,6 +52048,10 @@ const _M = {
     //--------------------------------------
     hasPrev() {
       return this.myCurrentIndex > 0
+    },
+    //--------------------------------------
+    hasMultiData() {
+      return this.data && this.data.length > 1
     },
     //--------------------------------------
     CurrentPreviewData() {
@@ -56473,6 +56563,14 @@ Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair full-
               -->
               <span
                 v-else>{{pa.text || pa.value}}</span>
+              <!--
+                Move icon
+              -->
+              <div
+                v-if="canEditValue && multiLines"
+                  class="as-more"
+                  @click.left="OnClickPairMore(pa)">
+                    <b><i class="zmdi zmdi-edit"></i></b></div>
             </td>
         </tr>
       </tbody>
@@ -58839,12 +58937,12 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   @mousemove="OnMouseMove"
   @mouseleave="OnMouseLeave">
   <!--Image-->
-  <div
-    class="as-img-con"
-    :style="ImageStyle">
+  <div class="as-img-con">
     <img ref="img"
       v-if="TheSrc" 
+        :style="ImageStyle"
         :src="TheSrc"
+        draggable="false"
         @load="OnImageLoaded"/>
     <!-- Tags -->
     <div
@@ -60458,9 +60556,11 @@ Ti.Preload("ti/com/web/shelf/preview-scroller/web-shelf-preview-scroller.html", 
     <!--
       Candidate items
     -->
-    <WebShelfScroller class="as-scroller"
-      :class="scrollerClass"
-      v-bind="ScrollerComConf"/>
+    <WebShelfScroller
+      v-if="hasMultiData"
+        class="as-scroller"
+        :class="scrollerClass"
+        v-bind="ScrollerComConf"/>
 </div>`);
 //========================================
 // JOIN <web-shelf-preview-scroller.mjs> ti/com/web/shelf/preview-scroller/web-shelf-preview-scroller.mjs
@@ -60482,7 +60582,8 @@ Ti.Preload("ti/com/web/shelf/preview-scroller/_com.json", {
 // JOIN <web-shelf-scroller.html> ti/com/web/shelf/scroller/web-shelf-scroller.html
 //========================================
 Ti.Preload("ti/com/web/shelf/scroller/web-shelf-scroller.html", `<div class="web-shelf-scroller"
-  :class="TopClass">
+  :class="TopClass"
+  v-ti-draggable="Draggable">
   <!--=======================================-->
   <div class="scroll-btn at-left" :class="BtnLeftClass">
     <span @click.left="OnScrollLeft"><ti-icon :value="iconLeft"/></span>
@@ -60645,6 +60746,18 @@ Ti.Preload("ti/com/web/shelf/wall/_com.json", {
   "mixins" : ["./web-shelf-wall.mjs"]
 });
 //========================================
+// JOIN <web-text-article-computed.mjs> ti/com/web/text/article/web-text-article-computed.mjs
+//========================================
+Ti.Preload("ti/com/web/text/article/web-text-article-computed.mjs", TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article-computed.mjs']);
+//========================================
+// JOIN <web-text-article-methods.mjs> ti/com/web/text/article/web-text-article-methods.mjs
+//========================================
+Ti.Preload("ti/com/web/text/article/web-text-article-methods.mjs", TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article-methods.mjs']);
+//========================================
+// JOIN <web-text-article-props.mjs> ti/com/web/text/article/web-text-article-props.mjs
+//========================================
+Ti.Preload("ti/com/web/text/article/web-text-article-props.mjs", TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article-props.mjs']);
+//========================================
 // JOIN <web-text-article.html> ti/com/web/text/article/web-text-article.html
 //========================================
 Ti.Preload("ti/com/web/text/article/web-text-article.html", `<div class="web-text-article" :class="TopClass">
@@ -60659,6 +60772,7 @@ Ti.Preload("ti/com/web/text/article/web-text-article.html", `<div class="web-tex
       v-bind="blankAs.comConf"/>
   <!-- Render content -->
   <article ref="main"
+    class="ti-article"
     :class="ArticleClass"></article>
 </div>`);
 //========================================
@@ -60672,6 +60786,9 @@ Ti.Preload("ti/com/web/text/article/_com.json", {
   "name" : "web-text-article",
   "globally" : true,
   "template" : "./web-text-article.html",
+  "props" : "./web-text-article-props.mjs",
+  "computed" : "./web-text-article-computed.mjs",
+  "methods" : "./web-text-article-methods.mjs",
   "mixins"   : ["./web-text-article.mjs"],
   "components" : [
     "@com:ti/media/audio"
@@ -60682,18 +60799,26 @@ Ti.Preload("ti/com/web/text/article/_com.json", {
 //========================================
 Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-text-heading"
   :class="TopClass">
-  <!--Icon-->
-  <div
-    v-if="icon"
-      class="as-icon"><ti-icon :value="icon"/></div>
-  <!--Title-->
+  <!--Title/Icon-->
   <a
     v-if="title"
       class="as-title"
       :class="TitleClass"
       :style="TitleStyle"
       :href="href"
-      @click.left="OnClickTitle"><span>{{title | i18n}}</span></a>
+      @click.left="OnClickTitle">
+        <TiIcon
+          v-if="icon"
+            class="at-0"
+            :value="icon"/>
+        <span
+          v-if="title"
+            class="as-title-text">{{title | i18n}}</span>
+        <TiIcon
+          v-if="titleIcon"
+            class="at-1"
+            :value="titleIcon"/>
+  </a>
   <!--Comments-->
   <div
     v-if="comment"
@@ -60859,7 +60984,7 @@ Ti.Preload("ti/com/web/tile/article/web-tile-article.html", `<div class="web-til
   -->
   <header
     v-if="title"
-      :style="HeaderStyle">{{title | i18n}}</header>
+      :style="HeaderStyle"><span>{{title | i18n}}</span></header>
   <!--
     Content
   -->
@@ -64087,6 +64212,11 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-class-object-fit-cover" : "Cover",
   "hmk-class-object-fit-contain" : "Contain",
   "hmk-class-object-fit-none" : "None",
+  "hmk-css-align-left"  : "Left",
+  "hmk-css-align-center": "Center",
+  "hmk-css-align-right" : "Right",
+  "hmk-css-align-justify" : "Justify",
+  "hmk-css-text-align" : "Text align",
   "hmk-css-text-transform" : "Text trans",
   "hmk-css-text-transform-capitalize" : "Cap",
   "hmk-css-text-transform-uppercase" : "Upper",
@@ -65330,6 +65460,11 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-class-object-fit-cover" : "封面",
   "hmk-class-object-fit-contain" : "包含",
   "hmk-class-object-fit-none" : "无",
+  "hmk-css-align-left"  : "左对齐",
+  "hmk-css-align-center": "居中",
+  "hmk-css-align-right" : "右对齐",
+  "hmk-css-align-justify" : "两端对齐",
+  "hmk-css-text-align" : "文字排列",
   "hmk-css-text-transform" : "文字转换",
   "hmk-css-text-transform-capitalize" : "首大写",
   "hmk-css-text-transform-uppercase" : "全大写",
@@ -66573,6 +66708,11 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-class-object-fit-cover": "封面",
    "hmk-class-object-fit-contain": "包含",
    "hmk-class-object-fit-none": "無",
+   "hmk-css-align-left": "左對齊",
+   "hmk-css-align-center": "居中",
+   "hmk-css-align-right": "右對齊",
+   "hmk-css-align-justify": "兩端對齊",
+   "hmk-css-text-align": "文字排列",
    "hmk-css-text-transform": "文字轉換",
    "hmk-css-text-transform-capitalize": "首大寫",
    "hmk-css-text-transform-uppercase": "全大寫",

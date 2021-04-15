@@ -174,7 +174,7 @@ const _M = {
     //------------------------------------------------
     doWhenInput(emitName="inputing") {
       if(_.isElement(this.$refs.input)) {
-        console.log("doWhenInput", emitName)
+        //console.log("doWhenInput", emitName)
         let val = this.$refs.input.value
         // Auto js value
         if(this.autoJsValue) {

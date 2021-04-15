@@ -11,13 +11,23 @@
   }
   //-----------------------------------------
   .as-title {
-    flex:0 0 auto; font-size:1.2em; cursor: default;
-    text-decoration: none;
+    @include flex-align-nowrap;
+    flex:1 1 auto; font-size:1.2em; cursor: default;
+    text-decoration: none; 
+    //---------------------------------------
     &:hover {text-decoration: none;}
+    //---------------------------------------
     &[href] {
       cursor: pointer; 
       &:hover {text-decoration: underline;}
     }
+    //---------------------------------------
+    .ti-icon {
+      margin: 0 .5em;
+      &.at-0 {font-size: 1.3em;}
+      &.at-1 {font-size: 0.8em;}
+    }
+    //---------------------------------------
   }
   //-----------------------------------------
   .as-comment {
@@ -28,7 +38,6 @@
   //-----------------------------------------
   .as-more {
     @include flex($jc:flex-end, $ai:center);
-    flex:1 1 auto;
     padding:0 .5em;
     font-size:.9em;
     cursor: default;

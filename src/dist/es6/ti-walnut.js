@@ -1,4 +1,4 @@
-// Pack At: 2021-04-12 06:11:23
+// Pack At: 2021-04-15 09:48:18
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1969,6 +1969,21 @@ const Hm = (function(){
     }
   };
   //------------------------------------------------------
+  const TEXT_ALIGN = {
+    title : "i18n:hmk-css-text-align",
+    name : "text-align",
+    fieldWidth : "100%",
+    comType : "ti-switcher",
+    comConf : {
+      options : [
+        {value: "left",   text: "i18n:hmk-css-align-left",   icon:"fas-align-left"},
+        {value: "center", text: "i18n:hmk-css-align-center", icon:"fas-align-center"},
+        {value: "right",  text: "i18n:hmk-css-align-right",  icon:"fas-align-right"},
+        {value: "justify",text: "i18n:hmk-css-align-justify",icon:"fas-align-justify"}
+      ]
+    }
+  };
+  //------------------------------------------------------
   const BOX_SHADOW = {
     title : "i18n:hmk-css-box-shadow",
     name : "box-shadow",
@@ -2086,14 +2101,15 @@ const Hm = (function(){
     "padding"        : PADDING,
     "text-shadow"    : TEXT_SHADOW,
     "text-transform" : TEXT_TRANSFORM,
+    "text-align"     : TEXT_ALIGN,
     "width"          : WIDTH,
   }
   ////////////////////////////////////////////////////////
   const CSS_GROUPING = {
     aspect : [
-      "border",
       "margin",
       "padding",
+      "border",
       "border-radius",
       "background",
       "color",
@@ -2103,11 +2119,12 @@ const Hm = (function(){
     measure : [
       "width",
       "height",
-      "min-height",
-      "min-width",
+      "max-width",
       "max-height",
-      "max-width"],
+      "min-width",
+      "min-height"],
     texting : [
+      "text-align",
       "text-transform",
       "font-size",
       "letter-spacing",
@@ -2214,6 +2231,7 @@ const OpenObjSelector = (function(){
       sorter : {nm:1}
     },
     filter = o => "FILE" == o.race,
+    canOpen = o => "DIR" == o.race,
     selected=[]
   }={}){
     //................................................
@@ -2439,7 +2457,7 @@ const OpenObjSelector = (function(){
             }
     
             // Only can enter DIR
-            if(obj && "DIR" == obj.race) {
+            if(canOpen(obj)) {
               let app = Ti.App(this)
               // Setup search filter/sorter
               if(search) {
@@ -2448,6 +2466,11 @@ const OpenObjSelector = (function(){
               }
               app.dispatch("current/reload", obj)
               app.dispatch("axis/reload", obj)    
+            }
+            // Double click file to select and click "OK"
+            else {
+              console.log(this.myChecked)
+              this.$notify("ok", this.myChecked)
             }
           }
           //--------------------------------------
@@ -3223,7 +3246,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210412.061123"
+const WALNUT_VERSION = "1.2-20210415.094819"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

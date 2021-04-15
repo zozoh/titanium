@@ -1,5 +1,6 @@
 <div class="web-shelf-scroller"
-  :class="TopClass">
+  :class="TopClass"
+  v-ti-draggable="Draggable">
   <!--=======================================-->
   <div class="scroll-btn at-left" :class="BtnLeftClass">
     <span @click.left="OnScrollLeft"><ti-icon :value="iconLeft"/></span>

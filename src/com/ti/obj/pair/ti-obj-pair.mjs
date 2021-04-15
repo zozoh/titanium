@@ -23,6 +23,10 @@ const _M = {
       type : Boolean,
       default : false
     },
+    "multiLines" : {
+      type : Boolean,
+      default : false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -119,6 +123,31 @@ const _M = {
         _.set(data, name, newVal)
         this.$notify("change", data)
       }
+    },
+    //--------------------------------------------
+    async OnClickPairMore({name, value}) {
+      // Get new value
+      let newVal = await Ti.App.Open({
+        icon : "zmdi-edit",
+        title : "i18n:edit",
+        width  : 640,
+        height : "80%",
+        result : value,
+        comType : "TiInputText",
+        comConf : {
+          height: "100%"
+        },
+        components : ["@com:ti/input/text"]
+      })
+
+      // User cancel
+      if(Ti.Util.isNil(newVal) || newVal == value)
+        return
+
+      // Update value
+      let data = _.cloneDeep(this.TheData) 
+      _.set(data, name, newVal)
+      this.$notify("change", data)
     },
     //--------------------------------------------
     async evalThePairList() {

@@ -11,7 +11,9 @@
     <!--
       Candidate items
     -->
-    <WebShelfScroller class="as-scroller"
-      :class="scrollerClass"
-      v-bind="ScrollerComConf"/>
+    <WebShelfScroller
+      v-if="hasMultiData"
+        class="as-scroller"
+        :class="scrollerClass"
+        v-bind="ScrollerComConf"/>
 </div>

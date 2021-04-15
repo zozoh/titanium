@@ -510,6 +510,11 @@ const TiDom = {
     return $el
   },
   //----------------------------------------------------
+  isTouchDevice() {
+    let UA = window.navigator.userAgent || ""
+    return /^.+(\((ipad|iphone);|linux;\s*android).+$/.test(UA.toLowerCase())
+  },
+  //----------------------------------------------------
   autoRootFontSize({
     $win=window,
     phoneMaxWidth=540,

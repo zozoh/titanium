@@ -49,6 +49,21 @@ const FLOAT = {
   }
 };
 //------------------------------------------------------
+const TEXT_ALIGN = {
+  title : "i18n:hmk-css-text-align",
+  name : "text-align",
+  fieldWidth : "100%",
+  comType : "ti-switcher",
+  comConf : {
+    options : [
+      {value: "left",   text: "i18n:hmk-css-align-left",   icon:"fas-align-left"},
+      {value: "center", text: "i18n:hmk-css-align-center", icon:"fas-align-center"},
+      {value: "right",  text: "i18n:hmk-css-align-right",  icon:"fas-align-right"},
+      {value: "justify",text: "i18n:hmk-css-align-justify",icon:"fas-align-justify"}
+    ]
+  }
+};
+//------------------------------------------------------
 const BOX_SHADOW = {
   title : "i18n:hmk-css-box-shadow",
   name : "box-shadow",
@@ -166,14 +181,15 @@ const CSS_PROPS = {
   "padding"        : PADDING,
   "text-shadow"    : TEXT_SHADOW,
   "text-transform" : TEXT_TRANSFORM,
+  "text-align"     : TEXT_ALIGN,
   "width"          : WIDTH,
 }
 ////////////////////////////////////////////////////////
 const CSS_GROUPING = {
   aspect : [
-    "border",
     "margin",
     "padding",
+    "border",
     "border-radius",
     "background",
     "color",
@@ -183,11 +199,12 @@ const CSS_GROUPING = {
   measure : [
     "width",
     "height",
-    "min-height",
-    "min-width",
+    "max-width",
     "max-height",
-    "max-width"],
+    "min-width",
+    "min-height"],
   texting : [
+    "text-align",
     "text-transform",
     "font-size",
     "letter-spacing",

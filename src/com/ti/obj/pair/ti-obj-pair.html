@@ -52,6 +52,14 @@
               -->
               <span
                 v-else>{{pa.text || pa.value}}</span>
+              <!--
+                Move icon
+              -->
+              <div
+                v-if="canEditValue && multiLines"
+                  class="as-more"
+                  @click.left="OnClickPairMore(pa)">
+                    <b><i class="zmdi zmdi-edit"></i></b></div>
             </td>
         </tr>
       </tbody>

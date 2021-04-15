@@ -347,7 +347,7 @@ export default {
     "showZoomPick" : function(newVal) {
       if(newVal && this.zoomLens) {
         this.$nextTick(()=>{
-          if(!this.TheZoomLens || !this.TheZoomLens.followPicker) {
+          if(this.TheZoomLens && this.TheZoomLens.followPicker) {
             Ti.Dom.dockTo(this.$refs.dock, this.$refs.img, {
               mode  : this.TheZoomLens.dockMode,
               space : this.TheZoomLens.dockSpace,

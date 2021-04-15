@@ -111,6 +111,7 @@ const _M = {
     //--------------------------------------
     HtmlContent() {
       if(this.content) {
+        console.log("haha")
         if("text" == this.contentType) {
           return this.content.replaceAll(/\r?\n/g, '<br>')
         }

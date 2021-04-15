@@ -1,17 +1,25 @@
 <div class="web-text-heading"
   :class="TopClass">
-  <!--Icon-->
-  <div
-    v-if="icon"
-      class="as-icon"><ti-icon :value="icon"/></div>
-  <!--Title-->
+  <!--Title/Icon-->
   <a
     v-if="title"
       class="as-title"
       :class="TitleClass"
       :style="TitleStyle"
       :href="href"
-      @click.left="OnClickTitle"><span>{{title | i18n}}</span></a>
+      @click.left="OnClickTitle">
+        <TiIcon
+          v-if="icon"
+            class="at-0"
+            :value="icon"/>
+        <span
+          v-if="title"
+            class="as-title-text">{{title | i18n}}</span>
+        <TiIcon
+          v-if="titleIcon"
+            class="at-1"
+            :value="titleIcon"/>
+  </a>
   <!--Comments-->
   <div
     v-if="comment"

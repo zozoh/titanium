@@ -52,6 +52,10 @@ const _M = {
       return this.myCurrentIndex > 0
     },
     //--------------------------------------
+    hasMultiData() {
+      return this.data && this.data.length > 1
+    },
+    //--------------------------------------
     CurrentPreviewData() {
       return _.nth(this.data, this.myCurrentIndex)
     },

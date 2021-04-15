@@ -2,6 +2,18 @@
   @include flex-align;
   padding: SZ(6);
   //-----------------------------------------
+  &.wrap-icons {
+    > .as-audio-icons {
+      width: 100%; padding: SZ(20) 0;
+      justify-content: center;
+    }
+  }
+  //-----------------------------------------
+  &.item-big .as-audio-item {
+    width: SZ(72); height: SZ(72); font-size: SZ(24);
+    margin:0 SZ(8);
+  }
+  //-----------------------------------------
   .as-current-audio-player {
     flex: 1 1 auto;
   }

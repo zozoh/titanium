@@ -4,7 +4,7 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  font-size: SZ(14);
+  position: relative;
   //------------------------------------
   > header {
     background-repeat: no-repeat;
@@ -13,6 +13,7 @@
     padding: 0 SZ(36);
     margin:0 0 1em 0; font-size: 1.6em;
     font-weight: bold; 
+    position: relative;
   }
   //------------------------------------
   > article {
@@ -44,6 +45,7 @@
       cursor: pointer;
       &:hover {
         @include color($color-primary, r, c); 
+        text-decoration: none;
       }
       > .as-text {margin:0 .5em;}
     }
@@ -51,32 +53,93 @@
   }
   //------------------------------------
   &.is-bg-at-head {
+    //----------------------------------
     > header {
       @include color($color-primary, r, c);
       @include flex($jc:flex-start,$ai:flex-end);
-      padding: 1em;
+      padding: 0.5em;
     }
+    //----------------------------------
+    &.as-mask > header {
+      //--------------------------------
+      > * {z-index: $z-above; cursor: default;}
+      //--------------------------------
+      &:before {
+        @include pos-abs-full;
+        display:block; content: ""; opacity: 0.6;
+        transition: opacity 0.3s;
+        background: radial-gradient(rgba(0,0,0,0.4) 0%, #000 100%);
+      } 
+      //--------------------------------
+    } // &.as-mask {
+    //----------------------------------
+    &.hover-mask > header {
+      //--------------------------------
+      > * {z-index: $z-above; cursor: default;}
+      //--------------------------------
+      &:before {
+        @include pos-abs-full;
+        display:block; content: ""; opacity: 0;
+        transition: opacity 0.3s;
+        background: radial-gradient(rgba(0,0,0,0.4) 0%, #000 100%);
+      }
+      //--------------------------------
+      &:hover::before {
+        opacity: 0.6;
+      }
+      //--------------------------------
+    } // &.hover-mask {
+    //----------------------------------
   }
   //------------------------------------
   &.is-bg-at-top {
     @include color($color-primary, r, c);
+    //----------------------------------
     > footer {
-      //----------------------------------
+      //--------------------------------
       .as-btn {
         color: rgba(255,255,255, 0.8); 
-        background: rgba(255,255,255, 0.1);
+        background: rgba(20,20,20, 0.4);
         border:1px solid rgba(255,255,255, 0.6);
         &:hover {
           color: #FFF;  border-color: #FFF; 
-          background: rgba(255,255,255, 0.3); 
+          background: rgba(0,0,0, 0.8);
         }
       }
-      //----------------------------------
+      //--------------------------------
     }
-  }
-  //------------------------------------
-  &.is-font-small {font-size:SZ(12);}
-  &.is-font-big {font-size:SZ(16);}
+    //----------------------------------
+    &.as-mask {
+      //--------------------------------
+      > * {z-index: $z-above; cursor: default;}
+      //--------------------------------
+      &:before {
+        @include pos-abs-full;
+        display:block; content: ""; opacity: 0.6;
+        transition: opacity 0.3s;
+        background: radial-gradient(rgba(0,0,0,0.4) 0%, #000 100%);
+      } 
+      //--------------------------------
+    } // &.as-mask {
+    //----------------------------------
+    &.hover-mask {
+      //--------------------------------
+      > * {z-index: $z-above; cursor: default;}
+      //--------------------------------
+      &:before {
+        @include pos-abs-full;
+        display:block; content: ""; opacity: 0;
+        transition: opacity 0.3s;
+        background: radial-gradient(rgba(0,0,0,0.4) 0%, #000 100%);
+      }
+      //--------------------------------
+      &:hover::before {
+        opacity: 0.6;
+      }
+      //--------------------------------
+    } // &.hover-mask {
+    //----------------------------------
+  } // &.is-bg-at-top {
   //------------------------------------
   &.is-header-shadow header {
     text-shadow: SZ(1) SZ(1) SZ(2) map-get($color-shadow, heavy);
