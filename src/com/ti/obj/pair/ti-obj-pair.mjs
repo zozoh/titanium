@@ -27,6 +27,10 @@ const _M = {
       type : Boolean,
       default : false
     },
+    "emptyAsNull" : {
+      type : Boolean,
+      default : true
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -110,6 +114,9 @@ const _M = {
     //--------------------------------------------
     OnPairComChange(newVal, {name, value}) {
       if(!_.isEqual(newVal, value)) {
+        if(this.emptyAsNull && _.isEmpty(newVal)) {
+          newVal = null
+        }
         let data = _.cloneDeep(this.TheData) 
         _.set(data, name, newVal)
         this.$notify("change", data)
@@ -119,6 +126,9 @@ const _M = {
     OnPairValueChange(evt, {name, value}) {
       let newVal = _.trim(evt.target.value)
       if(newVal != value) {
+        if(this.emptyAsNull && _.isEmpty(newVal)) {
+          newVal = null
+        }
         let data = _.cloneDeep(this.TheData) 
         _.set(data, name, newVal)
         this.$notify("change", data)

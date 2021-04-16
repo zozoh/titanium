@@ -7,15 +7,17 @@ function TiDraggable($el, setup, {context}) {
     // Speed Unit, move 1px per 1ms
     // default 100, mean: move 1px in 1ms, it was 100
     speed = 100,
-    // If the move distance (offsetX or offsetY) over the value(in PX)
+    // If the moved distance (offsetX or offsetY) over the value(in PX)
     // it will active dragging
+    // If object form like {x:50, y:-1}
+    // just actived when x move distance over the indicated value 
     activedRadius = 0,
     // If the dragging duration (duInMs) over the value(in MS), 
     // it will active dragging
     activedDelay = 0,
     // Callback to dealwith dragging
     // Function(context)
-    dragging,
+    dragging = _.identity,
     // Function(context)
     prepare = _.identity,
     // Function(context)  call once first time context actived
@@ -24,9 +26,15 @@ function TiDraggable($el, setup, {context}) {
     done =  _.identity,
   } = setup.value
   //-----------------------------------------------
-  if(!_.isFunction(dragging)) {
-    return
+  // Format actived radius
+  let AR = {}
+  if(_.isNumber(activedRadius)) {
+    AR.x = activedRadius;
+    AR.y = activedRadius;
+  } else {
+    _.assign(AR, {x:-1, y:-1}, _.pick(activedRadius, "x", "y"))
   }
+  console.log(AR)
   //-----------------------------------------------
   const findBy = function($trigger, find, $dft) {
     if(_.isFunction(find)) {
@@ -62,6 +70,7 @@ function TiDraggable($el, setup, {context}) {
       getPointerEvent : evt => evt
     })
   }
+  //console.log(EVENTS)
   //-----------------------------------------------
   $el.addEventListener(EVENTS.POINTER_DOWN, function(evt){
     //console.log(EVENTS.POINTER_DOWN, evt)
@@ -139,8 +148,13 @@ function TiDraggable($el, setup, {context}) {
       if(!this.actived) {
         let offX = Math.abs(this.offsetX)
         let offY = Math.abs(this.offsetY)
-        this.actived = this.duInMs > activedDelay
-                        && (offX > activedRadius || offY > activedRadius)
+        if(this.duInMs > activedDelay) {
+          if(AR.x < 0 || offX > AR.x) {
+            if(AR.y < 0 || offY > AR.y) {
+              this.actived = true
+            }
+          }
+        }
       }
     }
     //........................................

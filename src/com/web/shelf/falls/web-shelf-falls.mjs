@@ -1,9 +1,9 @@
+const DFT_ITEM_WIDTH = 200
 const _M = {
   //////////////////////////////////////////
   data: ()=>({
-    myRows: 0,
-    myColumns: 0,
-    myLastCols: 0
+    myColWidths : [],
+    myCols : 0
   }),
   //////////////////////////////////////////
   props : {
@@ -11,8 +11,7 @@ const _M = {
     // Data
     //-----------------------------------
     "data" : {
-      type : Array,
-      default : undefined
+      type : Array
     },
     //-----------------------------------
     // Behavior
@@ -31,21 +30,21 @@ const _M = {
     //-----------------------------------
     // Aspect
     //-----------------------------------
+    "cols" : {
+      type : [Number, String]
+    },
     "itemClass" : {
-      type : [String, Array],
-      default : undefined
+      type : [String, Array]
     },
     "itemStyle" : {
-      type : [Object, Array],
-      default : undefined
+      type : [Object, Array]
     },
     "itemWidth" : {
       type : [String, Number, Array],
-      default : undefined
+      default : DFT_ITEM_WIDTH
     },
-    "itemHeight" : {
-      type : [String, Number, Array],
-      default : undefined
+    "itemMaxHeight" : {
+      type : [String, Number, Array]
     },
     "blankAs": {
       type: Object,
@@ -64,8 +63,7 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-single-row" : 1 == this.myRows,
-        "is-multi-rows" : this.myRows > 1
+        "has-data" : this.FallsData
       })
     },
     //--------------------------------------
@@ -81,15 +79,10 @@ const _M = {
     },
     //--------------------------------------
     getItemStyle() {
-      let itWs = _.without(_.concat(this.itemWidth), undefined)
-      let itHs = _.without(_.concat(this.itemHeight), undefined)
+      let itHs = _.without(_.concat(this.itemMaxHeight), undefined)
       let itStyles = _.without(_.concat(this.itemStyle), undefined)
       return (index)=> {
-        let w, h, sty, i;
-        if(itWs.length > 0) {
-          i = Ti.Num.scrollIndex(index, itWs.length)
-          w = itWs[i]
-        }
+        let h, sty, i;
         if(itHs.length > 0) {
           i = Ti.Num.scrollIndex(index, itHs.length)
           h = itHs[i]
@@ -99,47 +92,52 @@ const _M = {
           sty = itStyles[i]
         }
         let css = _.cloneDeep(sty) || {}
-        if(!Ti.Util.isNil(w)) {
-          css.width = Ti.Css.toSize(w)
-        }
         if(!Ti.Util.isNil(h)) {
-          css.height = Ti.Css.toSize(h)
+          css.maxHeight = Ti.Css.toSize(h)
         }
         return css
       }
     },
     //--------------------------------------
-    WallItems() {
-      if(!_.isArray(this.data))
+    FallsData() {
+      if(!this.hasData)
         return []
-      
-      let list = []      
+
+      let C = this.myCols
+      let groups = []
+      // Init Groups
+      for(let i=0; i < C; i++) {
+        let gW = _.nth(this.myColWidths, i)
+        let style;
+        if(gW) {
+          style = {width: gW + 'px'}
+        }
+        groups.push({
+          style, items : []
+        })
+      }
+
+      // Each data
       for(let i=0; i < this.data.length; i++) {
+        let cIX = i % C
+        let grp = groups[cIX]
         let stl = this.getItemStyle(i)
         let it = this.data[i]
-        list.push({
+        let comConf = Ti.Util.explainObj(it, this.comConf)
+        if(stl.maxHeight) {
+          comConf.style = _.assign({}, comConf.style, {
+            maxHeight : stl.maxHeight
+          })
+        }
+        grp.items.push({
           key: `It-${i}`,
           className : this.getItemClass(i),
           style : stl,
-          comType: this.comType,
-          comConf: Ti.Util.explainObj(it, this.comConf)
+          comType: this.comType, comConf
         })        
       }
       
-      return list
-    },
-    //--------------------------------------
-    BlankItems() {
-      let list = []
-      let index = this.WallItems.length
-      for(let i=this.myLastCols; i<this.myColumns; i++) {
-        list.push({
-          key : `Blank-It-${i}`,
-          className : this.getItemClass(index+i),
-          style : this.getItemStyle(index+i)
-        })
-      }
-      return list
+      return groups
     },
     //--------------------------------------
     isLoading() {
@@ -147,7 +145,11 @@ const _M = {
     },
     //--------------------------------------
     isEmpty() {
-      return _.isEmpty(this.WallItems)
+      return _.isEmpty(this.FallsData)
+    },
+    //--------------------------------------
+    hasData() {
+      return this.myCols > 0 && !_.isEmpty(this.data)
     }
     //--------------------------------------
   },
@@ -156,50 +158,66 @@ const _M = {
     //--------------------------------------
     OnWallResize() {
       this.$nextTick(()=>{
-        this.evalWallColumns(this.$refs.group)
+        this.evalWallColumns()
       })
     },
     //--------------------------------------
-    evalWallColumns($wallGroup) {
-      // Customized item width
-      if(_.isArray(this.itemWidth) && this.itemWidth.length > 1) {
+    evalWallColumns() {
+      //console.log("evalWallColumns")
+      // Specific cols
+      if(this.cols > 0) {
+        this.myCols = parseInt(this.cols * 1)
+        this.myColWidths = []
         return
       }
-      // console.log("evalWallColumns")
-      let $divs = Ti.Dom.findAll(":scope >  .wall-tile.is-com", $wallGroup)
-      let cols = 0;
-      let rows = this.isEmpty ? 0 : 1;
-      let last = 0;
-      if(!_.isEmpty($divs)) {
-        let top = -1;
-        for(let $div of $divs) {
-          let rect = $div.getBoundingClientRect()
-          let divTop = parseInt(rect.top)
-          if(top < 0) {
-            top  = divTop
-          }
-          if(top == divTop) {
-            last ++
-          }
-          // Find the next row
-          else {
-            cols = Math.max(cols, last)
-            top = divTop;
-            rows ++;
-            last = 1;
-          }
-        }
-        cols = Math.max(cols, last)
+      // Guard
+      if(!_.isElement(this.$el) || !this.data || this.data.length <= 0) {
+        return
       }
-      this.myColumns = cols;
-      this.myRows = rows;
-      this.myLastCols = last;
+
+      // Whole width
+      let elW = this.$el.clientWidth
+
+      // Get rem base
+      let $html = this.$el.ownerDocument.documentElement
+      let fontSize = $html.style.fontSize || "100px"
+      let remBase = Ti.Css.toAbsPixel(fontSize)
+
+      // Item width list
+      let itWs = _.without(_.concat(this.itemWidth), undefined)
+
+      let sumW = 0;
+      let colWidths = []
+      for(let i=0; i<this.data.length; i++) {
+        // Get item width by index
+        let w;
+        if(itWs.length > 0) {
+          let x = Ti.Num.scrollIndex(i, itWs.length)
+          w = Ti.Css.toAbsPixel(itWs[x], {
+            remBase, base: elW
+          })
+        } else {
+          w = DFT_ITEM_WIDTH
+        }
+        // Add up
+        sumW += w
+        if(sumW > elW) {
+          break
+        }
+        colWidths.push(w)
+      }
+      
+      // Done
+      this.myCols = colWidths.length
+      this.myColWidths = colWidths
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   watch : {
-    "data" : "OnWallResize"
+    "data" : "OnWallResize",
+    "cols" :  "OnWallResize",
+    "itemWidth" : "OnWallResize"
   },
   //////////////////////////////////////////
   mounted : function() {
@@ -208,7 +226,7 @@ const _M = {
       resize : _.debounce(()=>this.OnWallResize(), 20)
     })
     //.................................
-    // this.OnWallResize()
+    this.OnWallResize()
     //.................................
   },
   //////////////////////////////////////////

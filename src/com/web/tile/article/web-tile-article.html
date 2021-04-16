@@ -4,9 +4,11 @@
   <!--
     Title
   -->
-  <header
+  <a 
     v-if="title"
-      :style="HeaderStyle"><span>{{title | i18n}}</span></header>
+      class="as-header"
+      :href="href"
+      :style="HeaderStyle"><span>{{title | i18n}}</span></a>
   <!--
     Content
   -->

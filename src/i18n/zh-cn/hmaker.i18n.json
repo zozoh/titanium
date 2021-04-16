@@ -83,6 +83,7 @@
   "hmk-class-ts-shadow" : "阴影",
   "hmk-class-hover" : "悬停效果",
   "hmk-class-hover-to-up" : "上浮",
+  "hmk-class-hover-to-scale" : "放大",
   "hmk-class-hover-to-zoom" : "缩放",
   "com-form": "表单",
   "com-label": "标签",

@@ -83,6 +83,7 @@
   "hmk-class-ts-shadow" : "Shadow",
   "hmk-class-hover" : "Hover",
   "hmk-class-hover-to-up" : "Up",
+  "hmk-class-hover-to-scale" : "Scale",
   "hmk-class-hover-to-zoom" : "Zoom",
   "com-form": "Form",
   "com-label": "Label",

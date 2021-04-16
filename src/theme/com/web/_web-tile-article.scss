@@ -6,7 +6,8 @@
   background-position: center;
   position: relative;
   //------------------------------------
-  > header {
+  > a.as-header {
+    display: block;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -14,6 +15,11 @@
     margin:0 0 1em 0; font-size: 1.6em;
     font-weight: bold; 
     position: relative;
+    color: inherit; 
+    &[href] {color: inherit; cursor: pointer;}
+    &:hover {
+      color: inherit; 
+    }
   }
   //------------------------------------
   > article {
@@ -54,13 +60,13 @@
   //------------------------------------
   &.is-bg-at-head {
     //----------------------------------
-    > header {
+    > a.as-header {
       @include color($color-primary, r, c);
       @include flex($jc:flex-start,$ai:flex-end);
       padding: 0.5em;
     }
     //----------------------------------
-    &.as-mask > header {
+    &.as-mask > a.as-header {
       //--------------------------------
       > * {z-index: $z-above; cursor: default;}
       //--------------------------------
@@ -73,7 +79,7 @@
       //--------------------------------
     } // &.as-mask {
     //----------------------------------
-    &.hover-mask > header {
+    &.hover-mask > a.as-header {
       //--------------------------------
       > * {z-index: $z-above; cursor: default;}
       //--------------------------------
@@ -141,7 +147,7 @@
     //----------------------------------
   } // &.is-bg-at-top {
   //------------------------------------
-  &.is-header-shadow header {
+  &.is-header-shadow > a.as-header {
     text-shadow: SZ(1) SZ(1) SZ(2) map-get($color-shadow, heavy);
   }
   //------------------------------------

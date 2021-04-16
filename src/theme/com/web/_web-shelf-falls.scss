@@ -1,0 +1,23 @@
+.web-shelf-falls {
+  //-----------------------------------------
+  &.has-data {
+    @include flex-align-nowrap($ai:flex-start);
+  }
+  //-----------------------------------------
+  .falls-group {
+    flex:1 1 auto;
+  }
+  //------------------------------------------
+  &.item-space-xl  .falls-tile {margin: SZ(30) SZ(15);}
+  &.item-space-lg  .falls-tile {margin: SZ(24) SZ(12);}
+  &.item-space-md  .falls-tile {margin: SZ(16) SZ(8);}
+  &.item-space-sm  .falls-tile {margin: SZ(10) SZ(5);}
+  &.item-space-xs  .falls-tile {margin: SZ(4)  SZ(2);}
+  &.item-space-no  .falls-tile {margin: 0;}
+  //------------------------------------------
+  &.flex-none   .falls-group {flex:0 0 auto;}
+  &.flex-both   .falls-group {flex:1 1 auto;}
+  &.flex-grow   .falls-group {flex:1 0 auto;}
+  &.flex-shrink .falls-group {flex:0 1 auto;}
+  //-----------------------------------------
+}

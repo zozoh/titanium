@@ -1,0 +1,37 @@
+<div class="web-shelf-falls"
+  :class="TopClass">
+  <!--
+    Loading
+  -->
+  <ti-loading
+    v-if="isLoading"
+      class="as-big"
+      v-bind="loadingAs"/>
+  <!--
+    Blank
+  -->
+  <ti-loading
+    v-else-if="isEmpty"
+      class="as-big"
+      v-bind="blankAs"/>
+  <!--
+    Each Items
+  -->
+  <template v-else>
+    <div 
+      v-for="grp in FallsData"
+        class="falls-group"
+        :style="grp.style">
+        <!--====================-->
+        <div
+          v-for="it in grp.items"
+            :key="it.key"
+            class="falls-tile is-com"
+            :class="it.className"
+            :style="it.style">
+            <component :is="it.comType" v-bind="it.comConf"/>
+        </div>
+        <!--====================-->
+    </div>
+  </template>
+</div>

@@ -25,6 +25,28 @@ const TiCss = {
     return dft
   },
   //-----------------------------------
+  toAbsPixel(input, {base=100, dft=0, remBase=100, emBase=14}={}) {
+    if(_.isNumber(input)) {
+      return input
+    }
+    let m = /^(-?[\d.]+)(px|rem|em|%s)?$/.exec(input);
+    if(m) {
+      let v = m[1] * 1
+      let fn = ({
+        px  : v => v,
+        rem : v => v * remBase,
+        em  : v => v * emBase,
+        '%' : v => v * base / 100
+      })[m[2]]
+      if(fn) {
+        return fn(v)
+      }
+      return v
+    }
+    // Fallback to default
+    return dft
+  },
+  //-----------------------------------
   toSize(sz, {autoPercent=true, remBase=0}={}) {
     if(_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
       if(0 == sz)

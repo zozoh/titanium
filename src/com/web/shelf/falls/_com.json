@@ -1,0 +1,6 @@
+{
+  "name" : "web-shelf-falls",
+  "globally" : true,
+  "template" : "./web-shelf-falls.html",
+  "mixins" : ["./web-shelf-falls.mjs"]
+}

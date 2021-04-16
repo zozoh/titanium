@@ -134,7 +134,6 @@ function UpdateAlbumTagInnerHtml(elAlbum) {
     <i class="fas fa-spinner fa-spin"></i>
   </div>`
 
-  console.log("album", album)
   let match = JSON.stringify({
     pid : album.id,
     race : "FILE",

@@ -11,7 +11,7 @@
   //-----------------------------------------
   .as-img-con {
     flex:1 1 auto;
-    width:100%; height:100%;
+    width:100%; 
     overflow: hidden;
   }
   img {
@@ -72,6 +72,10 @@
     }
   }
   //-----------------------------------------
+  //
+  // Hover effect
+  //
+  //-----------------------------------------
   &.hover-to-up {
     transition: transform 0.3s; 
     &:hover {
@@ -87,9 +91,22 @@
     }
   }
   //-----------------------------------------
+  &.hover-to-scale {
+    transition: transform 0.3s; 
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
+    }
+  }
+  //-----------------------------------------
+  //
+  // Texting
+  //
+  //-----------------------------------------
   &.ts-shadow .as-text {text-shadow: 2px 2px 6px rgba(0,0,0,0.6);}
   &.ts-mask .as-text {background-color:rgba(0,0,0,0.4);}
   //-----------------------------------------
+  &.text-in .as-img-con {height:100%;}
   &.text-in.at-center .as-text {@include pos-abs-full;}
   &.text-in.at-top    .as-text {@include pos-abs($l:0,$r:0,$t:0);}
   &.text-in.at-bottom .as-text {@include pos-abs($l:0,$r:0,$b:0);}
