@@ -1,4 +1,4 @@
-// Pack At: 2021-04-15 10:45:42
+// Pack At: 2021-04-16 15:51:02
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -2664,6 +2664,10 @@ const EditObjMeta = (function(){
         }
       }],
       //------------------------------------------
+      ready () {
+        this.$main.meta = meta
+      },
+      //------------------------------------------
       comType : "modal-inner-body",
       //------------------------------------------
       components : [{
@@ -2672,7 +2676,7 @@ const EditObjMeta = (function(){
         data : {
           myFormFields,
           currentTab, 
-          meta,
+          meta : undefined,
           updates : {}
         },
         template : `<ti-form
@@ -3246,7 +3250,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210415.104542"
+const WALNUT_VERSION = "1.2-20210416.155103"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

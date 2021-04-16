@@ -104,6 +104,10 @@ async function EditObjMeta(pathOrObj="~", {
       }
     }],
     //------------------------------------------
+    ready () {
+      this.$main.meta = meta
+    },
+    //------------------------------------------
     comType : "modal-inner-body",
     //------------------------------------------
     components : [{
@@ -112,7 +116,7 @@ async function EditObjMeta(pathOrObj="~", {
       data : {
         myFormFields,
         currentTab, 
-        meta,
+        meta : undefined,
         updates : {}
       },
       template : `<ti-form
