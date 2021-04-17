@@ -430,7 +430,7 @@ const _M = {
 
       conf.extended_valid_elements = _.concat(
         extended_valid_elements, 
-        'img[ti-*|wn-obj-*|src|width|height|style|class]',
+        'img[ti-*|wn-*|src|width|height|style|class]',
         'div[ti-*|wn-*|style|class]',
         'p[doc-heading|style]',
         'span[ti-*|wn-*|style|class]'

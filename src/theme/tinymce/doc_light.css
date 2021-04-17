@@ -1,67 +1,67 @@
-.tiw-photo-wall {
+.ti-widget-album > .photo-wall {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   align-content: center;
   flex-wrap: wrap;
   padding: 0.1rem; }
-  .tiw-photo-wall .wall-tile {
+  .ti-widget-album > .photo-wall .wall-tile {
     display: block;
     padding: 0.1rem;
     width: 2rem;
     height: 2rem; }
-    .tiw-photo-wall .wall-tile img {
+    .ti-widget-album > .photo-wall .wall-tile img {
       width: 100%;
       height: 100%;
       object-fit: cover; }
-  .tiw-photo-wall.hover-to-up .wall-tile {
+  .ti-widget-album > .photo-wall.hover-to-up .wall-tile {
     transition: transform 0.3s; }
-    .tiw-photo-wall.hover-to-up .wall-tile:hover {
+    .ti-widget-album > .photo-wall.hover-to-up .wall-tile:hover {
       transform: translateY(-3px);
       box-shadow: 0.04rem 0.04rem 0.1rem rgba(30, 30, 30, 0.2); }
-  .tiw-photo-wall.hover-to-zoom .wall-tile img {
+  .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile img {
     transition: transform 0.5s; }
-  .tiw-photo-wall.hover-to-zoom .wall-tile:hover img {
+  .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile:hover img {
     transform: scale(1.2); }
-  .tiw-photo-wall.pic-fit-fill .wall-tile img {
+  .ti-widget-album > .photo-wall.pic-fit-fill .wall-tile img {
     object-fit: fill; }
-  .tiw-photo-wall.pic-fit-cover .wall-tile img {
+  .ti-widget-album > .photo-wall.pic-fit-cover .wall-tile img {
     object-fit: cover; }
-  .tiw-photo-wall.pic-fit-contain .wall-tile img {
+  .ti-widget-album > .photo-wall.pic-fit-contain .wall-tile img {
     object-fit: contain; }
-  .tiw-photo-wall.pic-fit-none .wall-tile img {
+  .ti-widget-album > .photo-wall.pic-fit-none .wall-tile img {
     object-fit: none; }
-  .tiw-photo-wall.item-margin-xl .wall-tile {
+  .ti-widget-album > .photo-wall.item-margin-xl .wall-tile {
     margin: 0.3rem; }
-  .tiw-photo-wall.item-margin-lg .wall-tile {
+  .ti-widget-album > .photo-wall.item-margin-lg .wall-tile {
     margin: 0.24rem; }
-  .tiw-photo-wall.item-margin-md .wall-tile {
+  .ti-widget-album > .photo-wall.item-margin-md .wall-tile {
     margin: 0.16rem; }
-  .tiw-photo-wall.item-margin-sm .wall-tile {
+  .ti-widget-album > .photo-wall.item-margin-sm .wall-tile {
     margin: 0.1rem; }
-  .tiw-photo-wall.item-margin-xs .wall-tile {
+  .ti-widget-album > .photo-wall.item-margin-xs .wall-tile {
     margin: 0.04rem; }
-  .tiw-photo-wall.item-margin-no .wall-tile {
+  .ti-widget-album > .photo-wall.item-margin-no .wall-tile {
     margin: 0; }
-  .tiw-photo-wall.item-padding-xl .wall-tile {
+  .ti-widget-album > .photo-wall.item-padding-xl .wall-tile {
     padding: 0.3rem; }
-  .tiw-photo-wall.item-padding-lg .wall-tile {
+  .ti-widget-album > .photo-wall.item-padding-lg .wall-tile {
     padding: 0.24rem; }
-  .tiw-photo-wall.item-padding-md .wall-tile {
+  .ti-widget-album > .photo-wall.item-padding-md .wall-tile {
     padding: 0.16rem; }
-  .tiw-photo-wall.item-padding-sm .wall-tile {
+  .ti-widget-album > .photo-wall.item-padding-sm .wall-tile {
     padding: 0.1rem; }
-  .tiw-photo-wall.item-padding-xs .wall-tile {
+  .ti-widget-album > .photo-wall.item-padding-xs .wall-tile {
     padding: 0.04rem; }
-  .tiw-photo-wall.item-padding-no .wall-tile {
+  .ti-widget-album > .photo-wall.item-padding-no .wall-tile {
     padding: 0; }
-  .tiw-photo-wall.flex-none .wall-tile {
+  .ti-widget-album > .photo-wall.flex-none .wall-tile {
     flex: 0 0 auto; }
-  .tiw-photo-wall.flex-both .wall-tile {
+  .ti-widget-album > .photo-wall.flex-both .wall-tile {
     flex: 1 1 auto; }
-  .tiw-photo-wall.flex-grow .wall-tile {
+  .ti-widget-album > .photo-wall.flex-grow .wall-tile {
     flex: 1 0 auto; }
-  .tiw-photo-wall.flex-shrink .wall-tile {
+  .ti-widget-album > .photo-wall.flex-shrink .wall-tile {
     flex: 0 1 auto; }
 
 html {

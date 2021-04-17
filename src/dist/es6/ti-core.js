@@ -1,4 +1,4 @@
-// Pack At: 2021-04-16 15:51:02
+// Pack At: 2021-04-18 02:57:41
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3696,9 +3696,14 @@ const {Dom} = (function(){
       return re
     },
     //----------------------------------------------------
-    getClassList(className, filter=()=>true) {
+    getClassList(className, {filter=()=>true, dftList=[]}={}) {
       if(!className) {
-        return []
+        return dftList
+      }
+      if(_.isArray(className)) {
+        if(className.length == 0)
+          return dftList
+        return _.uniq(className)
       }
       if(_.isElement(className)) {
         className = className.className
@@ -3708,6 +3713,10 @@ const {Dom} = (function(){
       for(let li of list) {
         if(filter(li))
           re.push(li)
+      }
+      re = _.uniq(re)
+      if(_.isEmpty(re)) {
+        return dftList
       }
       return re
     },
@@ -3760,6 +3769,9 @@ const {Dom} = (function(){
     },
     //----------------------------------------------------
     renderCssRule(css={}) {
+      if(_.isString(css)) {
+        return css
+      }
       let list = []
       _.forEach(css, (val, key)=>{
         if(_.isNull(val) || _.isUndefined(val) || Ti.S.isBlank(val)) 
@@ -4173,14 +4185,16 @@ const {Dom} = (function(){
       })
     },
     //----------------------------------------------------
-    setAttrs($el, attrs={}) {
+    setAttrs($el, attrs={}, prefix) {
       _.forEach(attrs, (val, key)=>{
+        let k2 = prefix ? prefix + key : key
+        let k3 = _.kebabCase(k2)
         if(_.isUndefined(val))
           return
         if(_.isNull(val)) {
-          $el.removeAttribute(key)
+          $el.removeAttribute(k3)
         } else {
-          $el.setAttribute(key, val)
+          $el.setAttribute(k3, val)
         }
       })
     },
@@ -4348,63 +4362,6 @@ const {Dom} = (function(){
         TiDom.applyRect($src, rect.src, dockMode)
       }, 0)
     },
-    /**
-     * Return HTML string to present the icon/text/tip HTML segment
-     */
-    /*htmlChipITT({icon,text,tip,more}={}, {
-      tagName   = "div",
-      className = "",
-      iconTag   = "div", 
-      iconClass = "",
-      textTag   = "div", 
-      textClass = "",
-      textAsHtml = false,
-      moreTag = "div",
-      moreClass = "",
-      wrapperTag   = "",
-      wrapperClass = "",
-      attrs = {}
-    }={}){
-      let html = ""
-      if(icon || text) {
-        let iconHtml = Ti.Icons.fontIconHtml(icon)
-        //--------------------------------
-        let attr=(name, value)=>{
-          if(name && value){
-            return `${name}="${value}"`
-          }
-          return ""
-        }
-        //--------------------------------
-        let klass = (name)=>{
-          return attr("class", name)
-        }
-        //--------------------------------
-        let attrsHtml = []
-        _.forOwn(attrs, (val, nm)=>{
-          attrsHtml.push(attr(nm, val))
-        })
-        attrsHtml = attrsHtml.join(" ")
-        //--------------------------------
-        html += `<${tagName} ${klass(className)} ${attr("ti-tip", tip)} ${attrsHtml}>`
-        if(iconHtml) {
-          html += `<${iconTag} ${klass(iconClass)}">${iconHtml}</${iconTag}>`
-        }
-        if(text) {
-          let textHtml = textAsHtml ? text : Ti.I18n.text(text)
-          html += `<${textTag} ${klass(textClass)}>${textHtml}</${textTag}>`
-        }
-        if(more) {
-          let moreHtml = Ti.I18n.text(more)
-          html += `<${moreTag} ${klass(moreClass)}>${moreHtml}</${moreTag}>`
-        }
-        html += `</${tagName}>`
-      }
-      if(wrapperTag) {
-        return `<${wrapperTag} ${klass(wrapperClass)}>${html}</${wrapperTag}>`
-      }
-      return html
-    },*/
     //----------------------------------------------------
     /**
      * Retrive Current window scrollbar size
@@ -11945,6 +11902,28 @@ const {Css} = (function(){
       return dft
     },
     //-----------------------------------
+    toAbsPixel(input, {base=100, dft=0, remBase=100, emBase=14}={}) {
+      if(_.isNumber(input)) {
+        return input
+      }
+      let m = /^(-?[\d.]+)(px|rem|em|%s)?$/.exec(input);
+      if(m) {
+        let v = m[1] * 1
+        let fn = ({
+          px  : v => v,
+          rem : v => v * remBase,
+          em  : v => v * emBase,
+          '%' : v => v * base / 100
+        })[m[2]]
+        if(fn) {
+          return fn(v)
+        }
+        return v
+      }
+      // Fallback to default
+      return dft
+    },
+    //-----------------------------------
     toSize(sz, {autoPercent=true, remBase=0}={}) {
       if(_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
         if(0 == sz)
@@ -12807,15 +12786,17 @@ const {VueTiCom} = (function(){
         // Speed Unit, move 1px per 1ms
         // default 100, mean: move 1px in 1ms, it was 100
         speed = 100,
-        // If the move distance (offsetX or offsetY) over the value(in PX)
+        // If the moved distance (offsetX or offsetY) over the value(in PX)
         // it will active dragging
+        // If object form like {x:50, y:-1}
+        // just actived when x move distance over the indicated value 
         activedRadius = 0,
         // If the dragging duration (duInMs) over the value(in MS), 
         // it will active dragging
         activedDelay = 0,
         // Callback to dealwith dragging
         // Function(context)
-        dragging,
+        dragging = _.identity,
         // Function(context)
         prepare = _.identity,
         // Function(context)  call once first time context actived
@@ -12824,9 +12805,15 @@ const {VueTiCom} = (function(){
         done =  _.identity,
       } = setup.value
       //-----------------------------------------------
-      if(!_.isFunction(dragging)) {
-        return
+      // Format actived radius
+      let AR = {}
+      if(_.isNumber(activedRadius)) {
+        AR.x = activedRadius;
+        AR.y = activedRadius;
+      } else {
+        _.assign(AR, {x:-1, y:-1}, _.pick(activedRadius, "x", "y"))
       }
+      console.log(AR)
       //-----------------------------------------------
       const findBy = function($trigger, find, $dft) {
         if(_.isFunction(find)) {
@@ -12862,6 +12849,7 @@ const {VueTiCom} = (function(){
           getPointerEvent : evt => evt
         })
       }
+      //console.log(EVENTS)
       //-----------------------------------------------
       $el.addEventListener(EVENTS.POINTER_DOWN, function(evt){
         //console.log(EVENTS.POINTER_DOWN, evt)
@@ -12939,8 +12927,13 @@ const {VueTiCom} = (function(){
           if(!this.actived) {
             let offX = Math.abs(this.offsetX)
             let offY = Math.abs(this.offsetY)
-            this.actived = this.duInMs > activedDelay
-                            && (offX > activedRadius || offY > activedRadius)
+            if(this.duInMs > activedDelay) {
+              if(AR.x < 0 || offX > AR.x) {
+                if(AR.y < 0 || offY > AR.y) {
+                  this.actived = true
+                }
+              }
+            }
           }
         }
         //........................................
@@ -13300,6 +13293,297 @@ const {VueTiCom} = (function(){
   }
   /////////////////////////////////////////////////////
   return {VueTiCom};
+})();
+//##################################################
+// # import {Album} from "./widget/album.mjs"
+const {Album} = (function(){
+  const ALBUM_CLASS_NAME = "ti-widget-album"
+  const WALL_CLASS_NAME = "photo-wall"
+  const DFT_WALL_CLASS = [
+    'flex-none','item-margin-no','item-padding-sm',
+    'pic-fit-cover','hover-to-zoom'
+  ]
+  ////////////////////////////////////////////////
+  class TiAlbum {
+    //---------------------------------------
+    constructor($el, setup) {
+      Ti.Dom.addClass($el, ALBUM_CLASS_NAME)
+      this.$el = $el
+      this.setup = _.assign({
+        attrPrefix : "wn-obj-",
+        dftWallClass : DFT_WALL_CLASS,
+        itemToPhoto : {
+          name : "=name",
+          link : "=link",
+          src  : "=src"
+        },
+        photoToItem : {
+          name : "=name",
+          link : "=link",
+          src  : "=src"
+        }
+      }, setup)
+    }
+    //---------------------------------------
+    setData(album={}) {
+      let {attrPrefix} = this.setup
+      let attrs = this.formatData(album)
+      
+      Ti.Dom.setAttrs(this.$el, attrs, attrPrefix)
+    }
+    //---------------------------------------
+    formatData(album={}) {
+      let {dftWallClass} = this.setup
+      let {
+        id, name, link,
+        albumStyle, wallStyle, tileStyle, imageStyle,
+        wallClass
+      } = album
+  
+      wallClass = Ti.Dom.getClassList(wallClass, {
+        dftList : dftWallClass
+      })
+  
+      Ti.Dom.formatStyle(albumStyle)
+      Ti.Dom.formatStyle(wallStyle)
+      Ti.Dom.formatStyle(tileStyle)
+      Ti.Dom.formatStyle(imageStyle)
+  
+      return {
+        id,name,link, 
+        wallClass  : wallClass.join(" "), 
+        albumStyle : Ti.Dom.renderCssRule(albumStyle),
+        wallStyle  : Ti.Dom.renderCssRule(wallStyle),
+        tileStyle  : Ti.Dom.renderCssRule(tileStyle),
+        imageStyle : Ti.Dom.renderCssRule(imageStyle),
+      }
+    }
+    //---------------------------------------
+    getData() {
+      let {attrPrefix} = this.setup
+      let N = attrPrefix.length
+      let album = Ti.Dom.attrs(this.$el, (name)=>{
+        if(name.startsWith(attrPrefix)) {
+          return _.camelCase(name.substring(N))
+        }
+      })
+      let {
+        wallClass, albumStyle, wallStyle, tileStyle, imageStyle
+      } = album
+      album.wallClass = Ti.Dom.getClassList(wallClass).join(" ")
+      album.albumStyle = Ti.Dom.parseCssRule(albumStyle)
+      album.wallStyle  = Ti.Dom.parseCssRule(wallStyle)
+      album.tileStyle  = Ti.Dom.parseCssRule(tileStyle)
+      album.imageStyle = Ti.Dom.parseCssRule(imageStyle)
+      return album
+    }
+    //---------------------------------------
+    covertToPhotos(items=[]) {
+      let {itemToPhoto} = this.setup
+      return _.map(items, it=>Ti.Util.explainObj(it, itemToPhoto))
+    }
+    //---------------------------------------
+    renderItems(items=[]) {
+      let photos = this.covertToPhotos(items)
+      this.renderPhotos(photos)
+    }
+    //---------------------------------------
+    renderPhotos(photos=[]) {
+      let album = this.getData()
+      album = this.formatData(album)
+  
+      // Outer style
+      this.$el.style = album.albumStyle
+  
+      // Build HTML
+      let alClass = _.uniq(_.concat(WALL_CLASS_NAME, album.wallClass)).join(" ")
+      let html = [`<div class="${alClass}">`]
+      for(let po of photos) {
+        let {src, link, name} = po
+        html.push(`<a class="wall-tile" href="${link||'#'}" title="${name||''}">`)
+        html.push(`<img src="${src}"/>`)
+        html.push('</a>')
+      }
+      html.push('</div>')
+      this.$el.innerHTML = html.join("")
+  
+      // Update style
+      let $wall = Ti.Dom.find(":scope > ."+WALL_CLASS_NAME, this.$el)
+      $wall.style = album.wallStyle
+  
+      let $tiles = Ti.Dom.findAll(".wall-tile", $wall)
+      for(let i=0; i<$tiles.length; i++) {
+        let $tile = $tiles[i]
+        let $img = Ti.Dom.find("img", $tile)
+        $tile.style = album.tileStyle
+        $img.style = album.imageStyle
+      }
+    }
+    //---------------------------------------
+    getPhotos() {
+      let list = []
+      let $wall = Ti.Dom.find(":scope > ."+WALL_CLASS_NAME, this.$el)
+      let $tiles = Ti.Dom.findAll(".wall-tile", $wall)
+      for(let i=0; i<$tiles.length; i++) {
+        let $tile = $tiles[i]
+        let $img = Ti.Dom.find("img", $tile)
+        list.push({
+          name : $tile.getAttribute("title") || null,
+          link : $tile.getAttribute("href") || null,
+          src  : $img.getAttribute("src") || null
+        })
+      }
+      return list
+    }
+    //---------------------------------------
+    convertToItems(photos=[]) {
+      let {photoToItem} = this.setup
+      return _.map(photos, photo=>Ti.Util.explainObj(photo, photoToItem))
+    }
+    //---------------------------------------
+    getItems() {
+      let photos = this.getPhotos()
+      return this.convertToItems(photos)
+    }
+    //---------------------------------------
+    showLoading() {
+      this.$el.innerHTML = [
+        `<div class="media-inner">`,
+        `<i class="fas fa-spinner fa-spin"></i>`,
+        `</div>`
+      ].join("")
+    }
+    //---------------------------------------
+    getEditFormConfig() {
+      return {
+        className : "no-status",
+        spacing : "tiny",
+        fields : [{
+            title : "相册信息",
+            fields: [{
+              title : "ID",
+              name  : "id"
+            }, {
+              title : "Name",
+              name  : "name"
+            }]
+          }, {
+            title : "相册外观",
+            fields : [{
+                title : "外部样式",
+                name  : "albumStyle",
+                type  : "Object",
+                emptyAs : null,
+                comType : "HmPropCssRules"
+              }, {
+                title : "整体风格",
+                name : "wallClass",
+                emptyAs : null,
+                comType : "HmPropClassPicker",
+                comConf : {
+                  valueType : "String",
+                  form : {
+                    fields : [{
+                      title : "i18n:hmk-class-flex",
+                      name : "flexMode",
+                      comType : "TiSwitcher",
+                      comConf : {
+                        options : [
+                          {value: "flex-none",  text:"i18n:hmk-class-flex-none"},
+                          {value: "flex-both",  text:"i18n:hmk-class-flex-both"},
+                          {value: "flex-grow",  text:"i18n:hmk-class-flex-grow"},
+                          {value: "flex-shrink",text:"i18n:hmk-class-flex-shrink"}                    ]
+                      }
+                    }, {
+                      title : "i18n:hmk-class-item-padding",
+                      name : "itemPadding",
+                      comType : "TiSwitcher",
+                      comConf : {
+                        options : [
+                          {value: "item-padding-no", text:"i18n:hmk-class-sz-no"},
+                          {value: "item-padding-xs", text:"i18n:hmk-class-sz-xs"},
+                          {value: "item-padding-sm", text:"i18n:hmk-class-sz-sm"},
+                          {value: "item-padding-md", text:"i18n:hmk-class-sz-md"},
+                          {value: "item-padding-lg", text:"i18n:hmk-class-sz-lg"},
+                          {value: "item-padding-xl", text:"i18n:hmk-class-sz-xl"}
+                        ]
+                      }
+                    }, {
+                      title : "i18n:hmk-class-item-margin",
+                      name : "itemMargin",
+                      comType : "TiSwitcher",
+                      comConf : {
+                        options : [
+                          {value: "item-margin-no", text:"i18n:hmk-class-sz-no"},
+                          {value: "item-margin-xs", text:"i18n:hmk-class-sz-xs"},
+                          {value: "item-margin-sm", text:"i18n:hmk-class-sz-sm"},
+                          {value: "item-margin-md", text:"i18n:hmk-class-sz-md"},
+                          {value: "item-margin-lg", text:"i18n:hmk-class-sz-lg"},
+                          {value: "item-margin-xl", text:"i18n:hmk-class-sz-xl"}
+                        ]
+                      }
+                    }, {
+                      title : "i18n:hmk-class-object-fit",
+                      name : "picFit",
+                      comType : "TiSwitcher",
+                      comConf : {
+                        options : [
+                          {value: "pic-fit-fill",   text:"i18n:hmk-class-object-fit-fill"},
+                          {value: "pic-fit-cover",  text:"i18n:hmk-class-object-fit-cover"},
+                          {value: "pic-fit-contain",text:"i18n:hmk-class-object-fit-contain"},
+                          {value: "pic-fit-none", text:"i18n:hmk-class-object-fit-none"}
+                        ]
+                      }
+                    }, {
+                      title : "i18n:hmk-class-hover",
+                      name : "textHover",
+                      comType : "TiSwitcher",
+                      comConf : {
+                        options : [
+                          {value: "hover-to-up",    text:"i18n:hmk-class-hover-to-up"},
+                          {value: "hover-to-scale", text:"i18n:hmk-class-hover-to-scale"},
+                          {value: "hover-to-zoom",  text:"i18n:hmk-class-hover-to-zoom"}
+                        ]
+                      }
+                    }]
+                  }
+                } // title : "整体风格",
+              }, {
+                title : "内部样式",
+                name  : "wallStyle",
+                type  : "Object",
+                emptyAs : null,
+                comType : "HmPropCssRules"
+              }, {
+                title : "瓦片样式",
+                name  : "tileStyle",
+                type  : "Object",
+                emptyAs : null,
+                comType : "HmPropCssRules"
+              }, {
+                title : "图片样式",
+                name  : "imageStyle",
+                type  : "Object",
+                emptyAs : null,
+                comType : "HmPropCssRules"
+              }]
+          }]
+      } // return {
+    }
+    //---------------------------------------
+  }
+  ////////////////////////////////////////////////
+  const Album = {
+    //---------------------------------------
+    getOrCreate($el, setup={}) {
+      if(!$el.__ti_photo_wall) {
+        $el.__ti_photo_wall = new TiAlbum($el, setup)
+      }
+      return $el.__ti_photo_wall
+    }
+    //---------------------------------------
+  }
+  return {Album};
 })();
 //---------------------------------------
 //##################################################
@@ -13844,7 +14128,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210416.155102",
+  "version" : "1.6-20210418.025741",
   "dev" : false,
   "appName" : null,
   "session" : {},
@@ -13878,6 +14162,10 @@ const Ti = {
   AutoMatch,
   //-----------------------------------------------------
   Websocket: TiWebsocket,
+  //-----------------------------------------------------
+  Widget : {
+    Album
+  },
   //-----------------------------------------------------
   Api : {
     Facebook

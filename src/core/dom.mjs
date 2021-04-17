@@ -143,9 +143,14 @@ const TiDom = {
     return re
   },
   //----------------------------------------------------
-  getClassList(className, filter=()=>true) {
+  getClassList(className, {filter=()=>true, dftList=[]}={}) {
     if(!className) {
-      return []
+      return dftList
+    }
+    if(_.isArray(className)) {
+      if(className.length == 0)
+        return dftList
+      return _.uniq(className)
     }
     if(_.isElement(className)) {
       className = className.className
@@ -155,6 +160,10 @@ const TiDom = {
     for(let li of list) {
       if(filter(li))
         re.push(li)
+    }
+    re = _.uniq(re)
+    if(_.isEmpty(re)) {
+      return dftList
     }
     return re
   },
@@ -207,6 +216,9 @@ const TiDom = {
   },
   //----------------------------------------------------
   renderCssRule(css={}) {
+    if(_.isString(css)) {
+      return css
+    }
     let list = []
     _.forEach(css, (val, key)=>{
       if(_.isNull(val) || _.isUndefined(val) || Ti.S.isBlank(val)) 
@@ -620,14 +632,16 @@ const TiDom = {
     })
   },
   //----------------------------------------------------
-  setAttrs($el, attrs={}) {
+  setAttrs($el, attrs={}, prefix) {
     _.forEach(attrs, (val, key)=>{
+      let k2 = prefix ? prefix + key : key
+      let k3 = _.kebabCase(k2)
       if(_.isUndefined(val))
         return
       if(_.isNull(val)) {
-        $el.removeAttribute(key)
+        $el.removeAttribute(k3)
       } else {
-        $el.setAttribute(key, val)
+        $el.setAttribute(k3, val)
       }
     })
   },
@@ -795,63 +809,6 @@ const TiDom = {
       TiDom.applyRect($src, rect.src, dockMode)
     }, 0)
   },
-  /**
-   * Return HTML string to present the icon/text/tip HTML segment
-   */
-  /*htmlChipITT({icon,text,tip,more}={}, {
-    tagName   = "div",
-    className = "",
-    iconTag   = "div", 
-    iconClass = "",
-    textTag   = "div", 
-    textClass = "",
-    textAsHtml = false,
-    moreTag = "div",
-    moreClass = "",
-    wrapperTag   = "",
-    wrapperClass = "",
-    attrs = {}
-  }={}){
-    let html = ""
-    if(icon || text) {
-      let iconHtml = Ti.Icons.fontIconHtml(icon)
-      //--------------------------------
-      let attr=(name, value)=>{
-        if(name && value){
-          return `${name}="${value}"`
-        }
-        return ""
-      }
-      //--------------------------------
-      let klass = (name)=>{
-        return attr("class", name)
-      }
-      //--------------------------------
-      let attrsHtml = []
-      _.forOwn(attrs, (val, nm)=>{
-        attrsHtml.push(attr(nm, val))
-      })
-      attrsHtml = attrsHtml.join(" ")
-      //--------------------------------
-      html += `<${tagName} ${klass(className)} ${attr("ti-tip", tip)} ${attrsHtml}>`
-      if(iconHtml) {
-        html += `<${iconTag} ${klass(iconClass)}">${iconHtml}</${iconTag}>`
-      }
-      if(text) {
-        let textHtml = textAsHtml ? text : Ti.I18n.text(text)
-        html += `<${textTag} ${klass(textClass)}>${textHtml}</${textTag}>`
-      }
-      if(more) {
-        let moreHtml = Ti.I18n.text(more)
-        html += `<${moreTag} ${klass(moreClass)}>${moreHtml}</${moreTag}>`
-      }
-      html += `</${tagName}>`
-    }
-    if(wrapperTag) {
-      return `<${wrapperTag} ${klass(wrapperClass)}>${html}</${wrapperTag}>`
-    }
-    return html
-  },*/
   //----------------------------------------------------
   /**
    * Retrive Current window scrollbar size

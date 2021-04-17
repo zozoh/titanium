@@ -1,6 +1,33 @@
 ////////////////////////////////////////////////////
 async function pickFacebookAndInsertToDoc(editor, settings) {
-  let {meta, data} = await settings.load()
+  let {metas} = await settings.load()
+  if(metas.length == 0) {
+    return await Ti.Toast.Open("找不到配置信息", "warn")
+  }
+
+  // Get the meta
+  let meta;
+  if(metas.length > 1) {
+    let metaId = await Ti.App.Open({
+      title : "选择配置信息",
+      width : 480,
+      height : 480,
+      comType : "TiBulletRadio",
+      comConf : {
+        options : metas
+      },
+      components : ["@com:ti/bullet/radio"]
+    })
+    // User cancel
+    if(!metaId) {
+      return
+    }
+    meta = _.find(metas, m => m.id == metaId)
+  }
+  // Only one meta
+  else {
+    meta = metas[0]
+  }
   // Check base
   let reo = await Ti.App.Open({
     icon  : "fas-image",
@@ -11,7 +38,7 @@ async function pickFacebookAndInsertToDoc(editor, settings) {
     comType : "NetFacebookAlbums",
     comConf : {
       meta, 
-      ... data,
+      ... meta.content,
       notifyName : "change"
     },
     components : [
@@ -67,6 +94,7 @@ function GetFacebookAttrsByObj(fbAlbumn) {
 }
 ////////////////////////////////////////////////////
 function SetAlbumInfoToElement($album, data, old={}) {
+  console.log("SetAlbumInfoToElement", data, old)
   //................................................
   Ti.Dom.setStyleValue($album, "width",        data.width,        old.width)
   Ti.Dom.setStyleValue($album, "height",       data.height,       old.height)
@@ -86,9 +114,11 @@ function SetAlbumInfoToElement($album, data, old={}) {
     let tileStyle = Ti.Dom.renderCssRule(data.tileStyle)
     let picStyle = Ti.Dom.renderCssRule(data.picStyle)
     $wall.style = wallStyle
-    $wall.setAttribute("wn-tile-class", data.tileClass || null)
-    $wall.setAttribute("wn-tile-style", tileStyle)
-    $wall.setAttribute("wn-pic-style", picStyle)
+    Ti.Dom.setAttrs($wall, {
+      "wn-tile-class" : data.tileClass || null,
+      "wn-tile-style" : tileStyle || null,
+      "wn-pic-style"  : picStyle  || null
+    })
   }
   //................................................
 }
@@ -110,17 +140,18 @@ function UpdateFacebookTagInnerHtml(elFacebook, settings) {
   </div>`
 
   settings.load().then(({data})=>{
+    let {longLiveAccessToken} = data[album.id].content
     // Reload album items
     Ti.Api.Facebook.getAlbumPhotoList({
       albumId : album.id,
-      access_token : data.longLiveAccessToken
+      access_token : longLiveAccessToken
     }).then((photos)=>{
       // Create inner HTML for the album
       let html = `<div class="tiw-photo-wall ${DFT_CLASS}">`
       for(let photo of photos) {
-        let {link, thumb_src} = photo
+        let {name, link, thumb_src} = photo
         html += `<a class="wall-tile"
-          href="${link}"
+          href="${link}" title="${name||''}"
           target="_blank"><img src="${thumb_src}"/></a>`
       }
       html += '</div>'
@@ -382,8 +413,9 @@ async function CmdShowFacebookProp(editor, settings) {
                   comType : "TiSwitcher",
                   comConf : {
                     options : [
-                      {value: "hover-to-up",  text:"i18n:hmk-class-hover-to-up"},
-                      {value: "hover-to-zoom", text:"i18n:hmk-class-hover-to-zoom"}
+                      {value: "hover-to-up",    text:"i18n:hmk-class-hover-to-up"},
+                      {value: "hover-to-scale", text:"i18n:hmk-class-hover-to-scale"},
+                      {value: "hover-to-zoom",  text:"i18n:hmk-class-hover-to-zoom"}
                     ]
                   }
                 }]
@@ -432,7 +464,7 @@ async function CmdShowFacebookProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 export default {
-  name : "wn-facebook",
+  name : "wn-fb-albums",
   //------------------------------------------------
   init : function(conf={}) {
   },
@@ -440,7 +472,8 @@ export default {
   setup : function(editor, url){
     //..............................................
     let settings = _.assign({
-        meta : "~"
+        meta : "~",
+        type : "facebook_albums"
       }, _.get(editor.settings, "wn_facebook_config"));
     //console.log("setup", editor.settings)
     //..............................................
@@ -448,19 +481,39 @@ export default {
     // Check meta
     settings.load = async function(){
       if(this.data) {
-        return {meta: this.meta, data: this.data}
+        return {metas: this.metas, data: this.data}
       }
       let oMeta = await Wn.Io.loadMeta(this.meta)
       if(!oMeta) {
         return await Ti.Toast.Open(`路径[${this.meta}]不存在`, "warn")
       }
-      if(oMeta.race != "FILE") {
-        return await Ti.Toast.Open(`对象[${this.meta}]非法`, "warn")
+      // DIR, loading setting map
+      if("DIR" == oMeta.race) {
+        // Query and read
+        let cmdText = [
+          `o id:${oMeta.id}`,
+            `@query 'tp:"${this.type}"'`,
+            `@read -as json`,
+            `@json -cqn'`].join(" ")
+        this.metas = await Wn.Sys.exec2(cmdText, {as:"json"})
       }
-      this.meta = oMeta
-      this.data = await Wn.Io.loadContent(oMeta, {as:"json"})  
+      // FILE, load the single file
+      else {
+        oMeta.content = await Wn.Io.loadContent(oMeta, {as:"json"})
+        this.metas = [oMeta]
+      }
 
-      return {meta: this.meta, data: this.data}
+      // Build Album ID data
+      this.data = {}
+      for(let meta of this.metas) {
+        let content = _.get(meta, "content")
+        _.forEach(content.userAlbumIds, aId => {
+          this.data[aId] = {meta, content}
+        })
+
+      }
+
+      return {metas: this.metas, data: this.data}
     }
     editor.wn_facebook_settings = settings
     // 读取信息
@@ -595,7 +648,7 @@ export default {
       }
     })
     //..............................................
-    editor.ui.registry.addContextMenu("wn-facebook", {
+    editor.ui.registry.addContextMenu("wn-fb-albums", {
       update: function (el) {
         let $album = GetCurrentFacebookElement(editor)
         // Guard

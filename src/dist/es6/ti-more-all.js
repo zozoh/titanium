@@ -1,4 +1,4 @@
-// Pack At: 2021-04-16 15:51:02
+// Pack At: 2021-04-18 02:57:41
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8437,6 +8437,467 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
   }
   ///////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'tiny-wn-fb-albums.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-albums.mjs'] = (function(){
+////////////////////////////////////////////////////
+async function pickFacebookAndInsertToDoc(editor, settings) {
+  let {metas} = await settings.load()
+  if(metas.length == 0) {
+    return await Ti.Toast.Open("找不到配置信息", "warn")
+  }
+
+  // Get the meta
+  let meta;
+  if(metas.length > 1) {
+    let metaId = await Ti.App.Open({
+      title : "选择配置信息",
+      width : 480,
+      height : 480,
+      comType : "TiBulletRadio",
+      comConf : {
+        options : metas
+      },
+      components : ["@com:ti/bullet/radio"]
+    })
+    // User cancel
+    if(!metaId) {
+      return
+    }
+    meta = _.find(metas, m => m.id == metaId)
+  }
+  // Only one meta
+  else {
+    meta = metas[0]
+  }
+  // Check base
+  let reo = await Ti.App.Open({
+    icon  : "fas-image",
+    title : "Facebook",
+    position : "top",
+    width  : "95%",
+    height : "95%",
+    comType : "NetFacebookAlbums",
+    comConf : {
+      meta, 
+      ... meta.content,
+      notifyName : "change"
+    },
+    components : [
+      "@com:net/facebook/albums"
+    ]
+  })
+
+  // User canceled
+  if(_.isEmpty(reo)) {
+    return
+  }
+
+  // Do insert image
+  editor.execCommand("InsertFacebook", editor, reo)
+}
+//--------------------------------------------------
+function GetAlbumWidget($album) {
+  return Ti.Widget.Album.getOrCreate($album, {
+    attrPrefix : "wn-fb-",
+    itemToPhoto : {
+      name : "=name",
+      link : "=link",
+      src  : "=thumb_src"
+    },
+    photoToItem : {
+      name : "=name",
+      link : "=link",
+      thumb_src : "=src"
+    }
+  })
+}
+//--------------------------------------------------
+function UpdateFacebookTagInnerHtml($album, settings, {
+  album, photos, items
+}={}) {
+  console.log("UpdateFacebookTagInnerHtml")
+  // Bind widget and get the data
+  let AB = GetAlbumWidget($album);
+  // If insert new album, the params will be passed
+  if(!album) {
+    album = AB.getData()
+  } else {
+    AB.setData(album)
+  }
+  // Mark content editable
+  $album.contentEditable = false
+
+  // Explain items to photos
+  if(items) {
+    photos = AB.covertToPhotos(items)
+  }
+  
+  // Reload photo from remote
+  if(_.isEmpty(photos)) {
+    // Show loading
+    AB.showLoading()
+
+    // Load and rendering
+    settings.load().then(({data})=>{
+      let {longLiveAccessToken} = data[album.id].content
+      // Reload album items
+      Ti.Api.Facebook.getAlbumPhotoList({
+        albumId : album.id,
+        access_token : longLiveAccessToken
+      }).then((photos)=>{
+        AB.renderPhotos(photos)
+      })
+    })
+  }
+  // Just render
+  else {
+    AB.renderPhotos(photos)
+  }
+}
+////////////////////////////////////////////////////
+function CmdInsertFacebook(editor, fbAlbum) {
+  if(!fbAlbum)
+    return
+  
+  // Prepare range
+  let rng = editor.selection.getRng()
+  
+  // Create image fragments
+  let $doc = rng.commonAncestorContainer.ownerDocument
+  let $album = Ti.Dom.createElement({
+    tagName : "div",
+    className : "wn-media as-photos as-facebook"
+  }, $doc)
+
+  // Update INNER HTML
+  UpdateFacebookTagInnerHtml($album, editor.wn_facebook_settings, {
+    album : fbAlbum
+  })
+  
+  // Remove content
+  if(!rng.collapsed) {
+    rng.deleteContents()
+  }
+
+  // Insert fragments
+  rng.insertNode($album)
+
+}
+////////////////////////////////////////////////////
+function CmdReloadFacebookAlbum(editor, settings) {
+  let $album = GetCurrentFacebookElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  // Reload content
+  UpdateFacebookTagInnerHtml($album, settings)
+}
+////////////////////////////////////////////////////
+function GetCurrentFacebookElement(editor) {
+  let sel = editor.selection
+  let $nd = sel.getNode()
+  // Guard
+  return Ti.Dom.closest($nd, (el)=>{
+    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-facebook")
+  })
+}
+////////////////////////////////////////////////////
+function CmdSetFacebookSize(editor, {width="", height=""}={}) {
+  let $album = GetCurrentFacebookElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  // Clear the attribute
+  Ti.Dom.setStyle($album, {width, height})
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+function CmdSetFacebookStyle(editor, css={}) {
+  let $album = GetCurrentFacebookElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  // Clear float
+  Ti.Dom.setStyle($album, css)
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+async function CmdShowFacebookProp(editor, settings) {
+  let $album = GetCurrentFacebookElement(editor)
+  let AB = GetAlbumWidget($album)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  // Gen the properties
+  let data = AB.getData()
+  console.log(data)
+
+  // Show dialog
+  let reo = await Ti.App.Open({
+    icon  : "fab-facebook",
+    title : "编辑Facebook相册属性",
+    width  : "37%",
+    height : "100%",
+    position : "right",
+    closer : "left",
+    clickMaskToClose : true,
+    result : data,
+    model : {prop:"data", event:"change"},
+    comType : "TiForm",
+    comConf : AB.getEditFormConfig(),
+    components : []
+  })
+
+  // 用户取消
+  if(!reo)
+    return
+
+  //................................................
+  let photos = AB.getPhotos()
+  UpdateFacebookTagInnerHtml($album, settings, {
+    album:reo, photos
+  })
+  //................................................
+  // clean cache
+  $album.removeAttribute("data-mce-src")
+  $album.removeAttribute("data-mce-style")
+  //................................................
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  name : "wn-fb-albums",
+  //------------------------------------------------
+  init : function(conf={}) {
+  },
+  //------------------------------------------------
+  setup : function(editor, url){
+    //..............................................
+    let settings = _.assign({
+        meta : "~",
+        type : "facebook_albums"
+      }, _.get(editor.settings, "wn_facebook_config"));
+    //console.log("setup", editor.settings)
+    //..............................................
+    // Reload meta content
+    // Check meta
+    settings.load = async function(){
+      if(this.data) {
+        return {metas: this.metas, data: this.data}
+      }
+      let oMeta = await Wn.Io.loadMeta(this.meta)
+      if(!oMeta) {
+        return await Ti.Toast.Open(`路径[${this.meta}]不存在`, "warn")
+      }
+      // DIR, loading setting map
+      if("DIR" == oMeta.race) {
+        // Query and read
+        let cmdText = [
+          `o id:${oMeta.id}`,
+            `@query 'tp:"${this.type}"'`,
+            `@read -as json`,
+            `@json -cqn'`].join(" ")
+        this.metas = await Wn.Sys.exec2(cmdText, {as:"json"})
+      }
+      // FILE, load the single file
+      else {
+        oMeta.content = await Wn.Io.loadContent(oMeta, {as:"json"})
+        this.metas = [oMeta]
+      }
+
+      // Build Album ID data
+      this.data = {}
+      for(let meta of this.metas) {
+        let content = _.get(meta, "content")
+        _.forEach(content.userAlbumIds, aId => {
+          this.data[aId] = {meta, content}
+        })
+
+      }
+
+      return {metas: this.metas, data: this.data}
+    }
+    editor.wn_facebook_settings = settings
+    // 读取信息
+    //..............................................
+    // Register plugin command
+    editor.addCommand("InsertFacebook",   CmdInsertFacebook)
+    editor.addCommand("SetFacebookSize",  CmdSetFacebookSize)
+    editor.addCommand("SetFacebookStyle", CmdSetFacebookStyle)
+    editor.addCommand("ReloadFacebookAlbum", CmdReloadFacebookAlbum)
+    editor.addCommand("ShowFacebookProp", CmdShowFacebookProp)
+    //..............................................
+    // Register toolbar actions
+    editor.ui.registry.addButton("WnFacebookPick", {
+      icon : "facebook-square-brands",
+      tooltip : Ti.I18n.text("i18n:album-insert"),
+      onAction : function(menuBtn) {
+        pickFacebookAndInsertToDoc(editor, settings)
+      },
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnFacebookClrSize", {
+      text : "清除相册尺寸",
+      onAction() {
+        editor.execCommand("SetFacebookSize", editor)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnFacebookAutoFitWidth", {
+      text : "自动适应宽度",
+      onAction() {
+        editor.execCommand("SetFacebookSize", editor, {width:"100%"})
+      }
+    })
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnFacebookFloat', {
+      text: '文本绕图',
+      getSubmenuItems: function () {
+        return [{
+          type : "menuitem",
+          icon : "align-left",
+          text : "居左绕图",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {float:"left"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "align-right",
+          text : "居右绕图",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {float:"right"})
+          }
+        }, {
+          type : "menuitem",
+          text : "清除浮动",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {float:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnFacebookMargin', {
+      text: '相册边距',
+      getSubmenuItems: function () {
+        const __check_margin_size = function(api, expectSize) {
+          let $album = GetCurrentFacebookElement(editor)
+          let state = true
+          if($album) {
+            let sz = $album.style.marginLeft || $album.style.marginRight
+            state = expectSize == sz
+          }
+          api.setActive(state);
+          return function() {};
+        }
+        return [{
+          type : "togglemenuitem",
+          text : "小边距",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {margin:"1em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '1em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "中等边距",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {margin:"2em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '2em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "较大边距",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {margin:"3em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '3em')
+          }
+        }, {
+          type : "menuitem",
+          icon : "align-center",
+          text : "边距居中",
+          onAction() {
+            editor.execCommand("SetVideoStyle", editor, {margin:"0 auto"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "square-6",
+          text : "清除边距",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {margin:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addMenuItem("WnFacebookReload", {
+      icon : "sync-alt-solid",
+      text : "刷新相册内容",
+      onAction() {
+        editor.execCommand("ReloadFacebookAlbum", editor, settings)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnFacebookProp", {
+      text : "相册属性",
+      onAction() {
+        editor.execCommand("ShowFacebookProp", editor, settings)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addContextMenu("wn-fb-albums", {
+      update: function (el) {
+        let $album = GetCurrentFacebookElement(editor)
+        // Guard
+        if(!_.isElement($album)) {
+          return []
+        }
+        return [
+          "WnFacebookClrSize WnFacebookAutoFitWidth",
+          "WnFacebookFloat WnFacebookMargin",
+          "WnFacebookReload",
+          "WnFacebookProp"
+        ].join(" | ")
+      }
+    })
+    //..............................................
+    editor.on("SetContent", function() {
+      //console.log("SetContent facebook")
+      let els = editor.$('.wn-media.as-facebook')
+      for(let i=0; i<els.length; i++) {
+        let el = els[i]
+        UpdateFacebookTagInnerHtml(el, settings)
+      }
+    })
+    //..............................................
+    return {
+      getMetadata: function () {
+        return  {
+          name: 'Wn Facebook plugin',
+          url: 'http://site0.cn'
+        };
+      }
+    };
+    //..............................................
+  }
+  //------------------------------------------------
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -21197,11 +21658,6 @@ const _M = {
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "layout" : {
-      type : String,
-      default : "horizontal",
-      validator: v => /^(tile|horizontal|vertical)$/.test(v)
-    },
     "itemClass" : {
       type : [String, Array],
       default : undefined
@@ -21235,7 +21691,6 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-layout" : this.layout,
         "is-single-row" : 1 == this.myRows,
         "is-multi-rows" : this.myRows > 1
       })
@@ -22488,8 +22943,8 @@ const OBJ = {
       })
       // console.log(json)
       let newMeta = await Wn.Sys.exec2(
-          `obj id:${this.meta.id} -cqno -new '${json}'`,
-          {as:"json"})
+          `o @create -p id:${this.meta.id} @json -cqn`,
+          {as:"json", input: json})
       // Error
       if(newMeta instanceof Error) {
         Ti.Toast.Open("i18n:wn-create-fail", "error")
@@ -24352,6 +24807,10 @@ const _M = {
       type : Boolean,
       default : false
     },
+    "emptyAsNull" : {
+      type : Boolean,
+      default : true
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -24435,6 +24894,9 @@ const _M = {
     //--------------------------------------------
     OnPairComChange(newVal, {name, value}) {
       if(!_.isEqual(newVal, value)) {
+        if(this.emptyAsNull && _.isEmpty(newVal)) {
+          newVal = null
+        }
         let data = _.cloneDeep(this.TheData) 
         _.set(data, name, newVal)
         this.$notify("change", data)
@@ -24444,6 +24906,9 @@ const _M = {
     OnPairValueChange(evt, {name, value}) {
       let newVal = _.trim(evt.target.value)
       if(newVal != value) {
+        if(this.emptyAsNull && _.isEmpty(newVal)) {
+          newVal = null
+        }
         let data = _.cloneDeep(this.TheData) 
         _.set(data, name, newVal)
         this.$notify("change", data)
@@ -25385,7 +25850,6 @@ const _M = {
     //--------------------------------------
     HtmlContent() {
       if(this.content) {
-        console.log("haha")
         if("text" == this.contentType) {
           return this.content.replace(/\r?\n/g, '<br>')
         }
@@ -33285,7 +33749,6 @@ function UpdateAlbumTagInnerHtml(elAlbum) {
     <i class="fas fa-spinner fa-spin"></i>
   </div>`
 
-  console.log("album", album)
   let match = JSON.stringify({
     pid : album.id,
     race : "FILE",
@@ -37286,7 +37749,7 @@ const _M = {
 
       conf.extended_valid_elements = _.concat(
         extended_valid_elements, 
-        'img[ti-*|wn-obj-*|src|width|height|style|class]',
+        'img[ti-*|wn-*|src|width|height|style|class]',
         'div[ti-*|wn-*|style|class]',
         'p[doc-heading|style]',
         'span[ti-*|wn-*|style|class]'
@@ -39138,646 +39601,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // }
   }
   //----------------------------------------
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'tiny-wn-facebook.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-facebook.mjs'] = (function(){
-////////////////////////////////////////////////////
-async function pickFacebookAndInsertToDoc(editor, settings) {
-  let {meta, data} = await settings.load()
-  // Check base
-  let reo = await Ti.App.Open({
-    icon  : "fas-image",
-    title : "Facebook",
-    position : "top",
-    width  : "95%",
-    height : "95%",
-    comType : "NetFacebookAlbums",
-    comConf : {
-      meta, 
-      ... data,
-      notifyName : "change"
-    },
-    components : [
-      "@com:net/facebook/albums"
-    ]
-  })
-
-  // User canceled
-  if(_.isEmpty(reo)) {
-    return
-  }
-
-  // Do insert image
-  editor.execCommand("InsertFacebook", editor, reo)
-}
-////////////////////////////////////////////////////
-function GetFacebookAttrsByElement(elFacebook) {
-  // Top Style
-  let stl = Ti.Dom.getStyle(elFacebook, 
-    /^(width|height|float|(margin-(left|right|top|bottom)))$/)
-  stl.float = stl.float || "none"
-  //
-  // Wall Style
-  let $wall = Ti.Dom.find(".tiw-photo-wall", elFacebook)
-  let wallClass = ""
-  let wallStyle = {}
-  let tileClass = ""
-  let tileStyle = {}
-  let picStyle = {}
-  if(_.isElement($wall)) {
-    wallClass = Ti.Dom.getClassList($wall, v=>v!="tiw-photo-wall").join(" ")
-    wallStyle = Ti.Dom.getOwnStyle($wall)
-    tileClass = Ti.Dom.getClassList($wall.getAttribute("wn-tile-class")).join(" ")
-    tileStyle = Ti.Dom.parseCssRule($wall.getAttribute("wn-tile-style"))
-    picStyle = Ti.Dom.parseCssRule($wall.getAttribute("wn-pic-style"))
-  }
-  return {
-    id   : elFacebook.getAttribute("wn-fb-id"),
-    name  : elFacebook.getAttribute("wn-fb-name"),
-    link  : elFacebook.getAttribute("wn-fb-link"),
-    ... stl,
-    wallClass, wallStyle,
-    tileClass, tileStyle, picStyle
-  }
-}
-////////////////////////////////////////////////////
-function GetFacebookAttrsByObj(fbAlbumn) {
-  return {
-    "wn-fb-id" : fbAlbumn.id,
-    "wn-fb-name" : fbAlbumn.name,
-    "wn-fb-link" : fbAlbumn.link
-  }
-}
-////////////////////////////////////////////////////
-function SetAlbumInfoToElement($album, data, old={}) {
-  //................................................
-  Ti.Dom.setStyleValue($album, "width",        data.width,        old.width)
-  Ti.Dom.setStyleValue($album, "height",       data.height,       old.height)
-  Ti.Dom.setStyleValue($album, "float",        data.float,        old.float)
-  Ti.Dom.setStyleValue($album, "marginLeft",   data.marginLeft,   old.marginLeft)
-  Ti.Dom.setStyleValue($album, "marginRight",  data.marginRight,  old.marginRight)
-  Ti.Dom.setStyleValue($album, "marginTop",    data.marginTop,    old.marginTop)
-  Ti.Dom.setStyleValue($album, "marginBottom", data.marginBottom, old.marginBottom)
-  //................................................
-  let $wall = Ti.Dom.find(":scope > .tiw-photo-wall", $album)
-  if($wall) {
-    Ti.Dom.formatStyle(data.wallStyle)
-    Ti.Dom.formatStyle(data.tileStyle)
-    Ti.Dom.formatStyle(data.picStyle)
-    $wall.className = `tiw-photo-wall ${data.wallClass||""}`
-    let wallStyle = Ti.Dom.renderCssRule(data.wallStyle)
-    let tileStyle = Ti.Dom.renderCssRule(data.tileStyle)
-    let picStyle = Ti.Dom.renderCssRule(data.picStyle)
-    $wall.style = wallStyle
-    $wall.setAttribute("wn-tile-class", data.tileClass || null)
-    $wall.setAttribute("wn-tile-style", tileStyle)
-    $wall.setAttribute("wn-pic-style", picStyle)
-  }
-  //................................................
-}
-////////////////////////////////////////////////////
-const DFT_CLASS = [
-  'flex-none','item-margin-no','item-padding-sm',
-  'pic-fit-cover','hover-to-zoom'
-].join(' ')
-//--------------------------------------------------
-function UpdateFacebookTagInnerHtml(elFacebook, settings) {
-  //console.log("UpdateFacebookTagInnerHtml")
-  // Get old content
-  let album = GetFacebookAttrsByElement(elFacebook)
-  // Mark content editable
-  elFacebook.contentEditable = false
-  // Show loading
-  elFacebook.innerHTML = `<div class="media-inner">
-    <i class="fas fa-spinner fa-spin"></i>
-  </div>`
-
-  settings.load().then(({data})=>{
-    // Reload album items
-    Ti.Api.Facebook.getAlbumPhotoList({
-      albumId : album.id,
-      access_token : data.longLiveAccessToken
-    }).then((photos)=>{
-      // Create inner HTML for the album
-      let html = `<div class="tiw-photo-wall ${DFT_CLASS}">`
-      for(let photo of photos) {
-        let {link, thumb_src} = photo
-        html += `<a class="wall-tile"
-          href="${link}"
-          target="_blank"><img src="${thumb_src}"/></a>`
-      }
-      html += '</div>'
-      elFacebook.innerHTML = html
-
-      // Recover the attr-data
-      SetAlbumInfoToElement(elFacebook, album)
-
-      // Then we need update the album css style
-      UpdateAlbumStyle(elFacebook)
-    })
-  })
-}
-////////////////////////////////////////////////////
-function UpdateAlbumStyle($album) {
-  let $wall = Ti.Dom.find(":scope > .tiw-photo-wall", $album)
-  let {tileStyle, picStyle} = GetFacebookAttrsByElement($album)
-  let $tiles = Ti.Dom.findAll(".wall-tile", $wall)
-  for(let i=0; i<$tiles.length; i++) {
-    let $tile = $tiles[i]
-    let $img = Ti.Dom.find("img", $tile)
-    Ti.Dom.setStyle($tile, tileStyle)
-    Ti.Dom.setStyle($img, picStyle)
-  }
-}
-////////////////////////////////////////////////////
-function CmdInsertFacebook(editor, fbAlbumn) {
-  if(!fbAlbumn)
-    return
-  
-  // Prepare range
-  let rng = editor.selection.getRng()
-  
-  // Create image fragments
-  let $doc = rng.commonAncestorContainer.ownerDocument
-  let $album = Ti.Dom.createElement({
-    tagName : "div",
-    className : "wn-media as-photos as-facebook",
-    attrs : GetFacebookAttrsByObj(fbAlbumn)
-  }, $doc)
-  UpdateFacebookTagInnerHtml($album, editor.wn_facebook_settings)
-  
-  // Remove content
-  if(!rng.collapsed) {
-    rng.deleteContents()
-  }
-
-  // Insert fragments
-  rng.insertNode($album)
-
-}
-////////////////////////////////////////////////////
-function CmdReloadFacebookAlbum(editor, settings) {
-  let $album = GetCurrentFacebookElement(editor)
-  // Guard
-  if(!_.isElement($album)) {
-    return
-  }
-  // Reload content
-  UpdateFacebookTagInnerHtml($album, settings)
-}
-////////////////////////////////////////////////////
-function GetCurrentFacebookElement(editor) {
-  let sel = editor.selection
-  let $nd = sel.getNode()
-  // Guard
-  return Ti.Dom.closest($nd, (el)=>{
-    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-facebook")
-  })
-}
-////////////////////////////////////////////////////
-function CmdSetFacebookSize(editor, {width="", height=""}={}) {
-  let $album = GetCurrentFacebookElement(editor)
-  // Guard
-  if(!_.isElement($album)) {
-    return
-  }
-  // Clear the attribute
-  Ti.Dom.setStyle($album, {width, height})
-  // Force sync content
-  editor.__rich_tinymce_com.syncContent()
-}
-////////////////////////////////////////////////////
-function CmdSetFacebookStyle(editor, css={}) {
-  let $album = GetCurrentFacebookElement(editor)
-  // Guard
-  if(!_.isElement($album)) {
-    return
-  }
-  // Clear float
-  Ti.Dom.setStyle($album, css)
-  // Force sync content
-  editor.__rich_tinymce_com.syncContent()
-}
-////////////////////////////////////////////////////
-async function CmdShowFacebookProp(editor, settings) {
-  let $album = GetCurrentFacebookElement(editor)
-  // Guard
-  if(!_.isElement($album)) {
-    return
-  }
-  //console.log("stl", stl)
-  // Gen the properties
-  let data = GetFacebookAttrsByElement($album)
-
-  //console.log(data)
-  // Show dialog
-  let reo = await Ti.App.Open({
-    icon  : "fab-facebook",
-    title : "编辑Facebook相册属性",
-    width  : "37%",
-    height : "100%",
-    position : "right",
-    closer : "left",
-    clickMaskToClose : true,
-    result : data,
-    model : {prop:"data", event:"change"},
-    comType : "TiForm",
-    comConf : {
-      className : "no-status",
-      spacing : "tiny",
-      fields : [{
-          title : "相册尺寸",
-          className : "as-vertical col-2",
-          fields: [{
-            title : "宽度",
-            name  : "width",
-            comType : "TiInput"
-          }, {
-            title : "高度",
-            name  : "height",
-            comType : "TiInput"
-          }, {
-            title : "瓦片宽",
-            name  : "tileStyle.width",
-            comType : "TiInput"
-          }, {
-            title : "瓦片高",
-            name  : "tileStyle.height",
-            comType : "TiInput"
-          }, {
-            title : "图片宽",
-            name  : "picStyle.width",
-            comType : "TiInput"
-          }, {
-            title : "图片高",
-            name  : "picStyle.height",
-            fieldWidth : "50%",
-            comType : "TiInput"
-          }]
-        }, {
-          title : "相册外距",
-          className : "as-vertical col-4",
-          fields : [{
-            title : "上",
-            name  : "marginTop",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "右",
-            name  : "marginRight",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "下",
-            name  : "marginBottom",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "左",
-            name  : "marginLeft",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }]
-        }, {
-          title : "相册样式",
-          fields : [{
-              title : "文本绕图",
-              name  : "float",
-              comType : "TiSwitcher",
-              comConf : {
-                allowEmpty : false,
-                options : [
-                  {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
-                  {value: "left",  text: "左绕图", icon:"fas-align-left"},
-                  {value: "right", text: "右绕图", icon:"fas-align-right"},]
-              }
-            }, {
-            title : "整体风格",
-            name : "wallClass",
-            emptyAs : null,
-            comType : "HmPropClassPicker",
-            comConf : {
-              dftValue : DFT_CLASS,
-              valueType : "String",
-              form : {
-                fields : [{
-                  title : "i18n:hmk-class-flex",
-                  name : "flexMode",
-                  comType : "TiSwitcher",
-                  comConf : {
-                    options : [
-                      {value: "flex-none",  text:"i18n:hmk-class-flex-none"},
-                      {value: "flex-both",  text:"i18n:hmk-class-flex-both"},
-                      {value: "flex-grow",  text:"i18n:hmk-class-flex-grow"},
-                      {value: "flex-shrink",text:"i18n:hmk-class-flex-shrink"}                    ]
-                  }
-                }, {
-                  title : "i18n:hmk-class-item-padding",
-                  name : "itemPadding",
-                  comType : "TiSwitcher",
-                  comConf : {
-                    options : [
-                      {value: "item-padding-no", text:"i18n:hmk-class-sz-no"},
-                      {value: "item-padding-xs", text:"i18n:hmk-class-sz-xs"},
-                      {value: "item-padding-sm", text:"i18n:hmk-class-sz-sm"},
-                      {value: "item-padding-md", text:"i18n:hmk-class-sz-md"},
-                      {value: "item-padding-lg", text:"i18n:hmk-class-sz-lg"},
-                      {value: "item-padding-xl", text:"i18n:hmk-class-sz-xl"}
-                    ]
-                  }
-                }, {
-                  title : "i18n:hmk-class-item-margin",
-                  name : "itemMargin",
-                  comType : "TiSwitcher",
-                  comConf : {
-                    options : [
-                      {value: "item-margin-no", text:"i18n:hmk-class-sz-no"},
-                      {value: "item-margin-xs", text:"i18n:hmk-class-sz-xs"},
-                      {value: "item-margin-sm", text:"i18n:hmk-class-sz-sm"},
-                      {value: "item-margin-md", text:"i18n:hmk-class-sz-md"},
-                      {value: "item-margin-lg", text:"i18n:hmk-class-sz-lg"},
-                      {value: "item-margin-xl", text:"i18n:hmk-class-sz-xl"}
-                    ]
-                  }
-                }, {
-                  title : "i18n:hmk-class-object-fit",
-                  name : "picFit",
-                  comType : "TiSwitcher",
-                  comConf : {
-                    options : [
-                      {value: "pic-fit-fill",   text:"i18n:hmk-class-object-fit-fill"},
-                      {value: "pic-fit-cover",  text:"i18n:hmk-class-object-fit-cover"},
-                      {value: "pic-fit-contain",text:"i18n:hmk-class-object-fit-contain"},
-                      {value: "pic-fit-none", text:"i18n:hmk-class-object-fit-none"}
-                    ]
-                  }
-                }, {
-                  title : "i18n:hmk-class-hover",
-                  name : "textHover",
-                  comType : "TiSwitcher",
-                  comConf : {
-                    options : [
-                      {value: "hover-to-up",  text:"i18n:hmk-class-hover-to-up"},
-                      {value: "hover-to-zoom", text:"i18n:hmk-class-hover-to-zoom"}
-                    ]
-                  }
-                }]
-              }
-            } // title : "整体风格",
-          }, {
-            title : "整体样式",
-            name  : "wallStyle",
-            type  : "Object",
-            emptyAs : null,
-            comType : "HmPropCssRules"
-          }, {
-            title : "瓦片样式",
-            name  : "tileStyle",
-            type  : "Object",
-            emptyAs : null,
-            comType : "HmPropCssRules"
-          }, {
-            title : "图片样式",
-            name  : "picStyle",
-            type  : "Object",
-            emptyAs : null,
-            comType : "HmPropCssRules"
-          }]
-        }]
-    },
-    components : []
-  })
-
-  // 用户取消
-  if(!reo)
-    return
-
-  //................................................
-  SetAlbumInfoToElement($album, reo, data)
-  //................................................
-  // clean cache
-  $album.removeAttribute("data-mce-src")
-  $album.removeAttribute("data-mce-style")
-  //................................................
-  // Then we need update the album css style
-  UpdateAlbumStyle($album)
-  //................................................
-  // Force sync content
-  editor.__rich_tinymce_com.syncContent()
-}
-////////////////////////////////////////////////////
-const __TI_MOD_EXPORT_VAR_NM = {
-  name : "wn-facebook",
-  //------------------------------------------------
-  init : function(conf={}) {
-  },
-  //------------------------------------------------
-  setup : function(editor, url){
-    //..............................................
-    let settings = _.assign({
-        meta : "~"
-      }, _.get(editor.settings, "wn_facebook_config"));
-    //console.log("setup", editor.settings)
-    //..............................................
-    // Reload meta content
-    // Check meta
-    settings.load = async function(){
-      if(this.data) {
-        return {meta: this.meta, data: this.data}
-      }
-      let oMeta = await Wn.Io.loadMeta(this.meta)
-      if(!oMeta) {
-        return await Ti.Toast.Open(`路径[${this.meta}]不存在`, "warn")
-      }
-      if(oMeta.race != "FILE") {
-        return await Ti.Toast.Open(`对象[${this.meta}]非法`, "warn")
-      }
-      this.meta = oMeta
-      this.data = await Wn.Io.loadContent(oMeta, {as:"json"})  
-
-      return {meta: this.meta, data: this.data}
-    }
-    editor.wn_facebook_settings = settings
-    // 读取信息
-    //..............................................
-    // Register plugin command
-    editor.addCommand("InsertFacebook",   CmdInsertFacebook)
-    editor.addCommand("SetFacebookSize",  CmdSetFacebookSize)
-    editor.addCommand("SetFacebookStyle", CmdSetFacebookStyle)
-    editor.addCommand("ReloadFacebookAlbum", CmdReloadFacebookAlbum)
-    editor.addCommand("ShowFacebookProp", CmdShowFacebookProp)
-    //..............................................
-    // Register toolbar actions
-    editor.ui.registry.addButton("WnFacebookPick", {
-      icon : "facebook-square-brands",
-      tooltip : Ti.I18n.text("i18n:album-insert"),
-      onAction : function(menuBtn) {
-        pickFacebookAndInsertToDoc(editor, settings)
-      },
-    })
-    //..............................................
-    editor.ui.registry.addMenuItem("WnFacebookClrSize", {
-      text : "清除相册尺寸",
-      onAction() {
-        editor.execCommand("SetFacebookSize", editor)
-      }
-    })
-    //..............................................
-    editor.ui.registry.addMenuItem("WnFacebookAutoFitWidth", {
-      text : "自动适应宽度",
-      onAction() {
-        editor.execCommand("SetFacebookSize", editor, {width:"100%"})
-      }
-    })
-    //..............................................
-    editor.ui.registry.addNestedMenuItem('WnFacebookFloat', {
-      text: '文本绕图',
-      getSubmenuItems: function () {
-        return [{
-          type : "menuitem",
-          icon : "align-left",
-          text : "居左绕图",
-          onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {float:"left"})
-          }
-        }, {
-          type : "menuitem",
-          icon : "align-right",
-          text : "居右绕图",
-          onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {float:"right"})
-          }
-        }, {
-          type : "menuitem",
-          text : "清除浮动",
-          onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {float:""})
-          }
-        }];
-      }
-    });
-    //..............................................
-    editor.ui.registry.addNestedMenuItem('WnFacebookMargin', {
-      text: '相册边距',
-      getSubmenuItems: function () {
-        const __check_margin_size = function(api, expectSize) {
-          let $album = GetCurrentFacebookElement(editor)
-          let state = true
-          if($album) {
-            let sz = $album.style.marginLeft || $album.style.marginRight
-            state = expectSize == sz
-          }
-          api.setActive(state);
-          return function() {};
-        }
-        return [{
-          type : "togglemenuitem",
-          text : "小边距",
-          onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {margin:"1em"})
-          },
-          onSetup: function(api) {
-            return __check_margin_size(api, '1em')
-          }
-        }, {
-          type : "togglemenuitem",
-          text : "中等边距",
-          onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {margin:"2em"})
-          },
-          onSetup: function(api) {
-            return __check_margin_size(api, '2em')
-          }
-        }, {
-          type : "togglemenuitem",
-          text : "较大边距",
-          onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {margin:"3em"})
-          },
-          onSetup: function(api) {
-            return __check_margin_size(api, '3em')
-          }
-        }, {
-          type : "menuitem",
-          icon : "align-center",
-          text : "边距居中",
-          onAction() {
-            editor.execCommand("SetVideoStyle", editor, {margin:"0 auto"})
-          }
-        }, {
-          type : "menuitem",
-          icon : "square-6",
-          text : "清除边距",
-          onAction() {
-            editor.execCommand("SetFacebookStyle", editor, {margin:""})
-          }
-        }];
-      }
-    });
-    //..............................................
-    editor.ui.registry.addMenuItem("WnFacebookReload", {
-      icon : "sync-alt-solid",
-      text : "刷新相册内容",
-      onAction() {
-        editor.execCommand("ReloadFacebookAlbum", editor, settings)
-      }
-    })
-    //..............................................
-    editor.ui.registry.addMenuItem("WnFacebookProp", {
-      text : "相册属性",
-      onAction() {
-        editor.execCommand("ShowFacebookProp", editor, settings)
-      }
-    })
-    //..............................................
-    editor.ui.registry.addContextMenu("wn-facebook", {
-      update: function (el) {
-        let $album = GetCurrentFacebookElement(editor)
-        // Guard
-        if(!_.isElement($album)) {
-          return []
-        }
-        return [
-          "WnFacebookClrSize WnFacebookAutoFitWidth",
-          "WnFacebookFloat WnFacebookMargin",
-          "WnFacebookReload",
-          "WnFacebookProp"
-        ].join(" | ")
-      }
-    })
-    //..............................................
-    editor.on("SetContent", function() {
-      //console.log("SetContent facebook")
-      let els = editor.$('.wn-media.as-facebook')
-      for(let i=0; i<els.length; i++) {
-        let el = els[i]
-        UpdateFacebookTagInnerHtml(el, settings)
-      }
-    })
-    //..............................................
-    return {
-      getMetadata: function () {
-        return  {
-          name: 'Wn Facebook plugin',
-          url: 'http://site0.cn'
-        };
-      }
-    };
-    //..............................................
-  }
-  //------------------------------------------------
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -48225,6 +48048,249 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'web-shelf-falls.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/shelf/falls/web-shelf-falls.mjs'] = (function(){
+const DFT_ITEM_WIDTH = 200
+const _M = {
+  //////////////////////////////////////////
+  data: ()=>({
+    myColWidths : [],
+    myCols : 0
+  }),
+  //////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "data" : {
+      type : Array
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    // Item comType
+    "comType": {
+      type: String,
+      default: "ti-label"
+    },
+    "comConf": {
+      type: [Object, String],
+      default: ()=>({
+        value: "=.."
+      })
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "cols" : {
+      type : [Number, String]
+    },
+    "itemClass" : {
+      type : [String, Array]
+    },
+    "itemStyle" : {
+      type : [Object, Array]
+    },
+    "itemWidth" : {
+      type : [String, Number, Array],
+      default : DFT_ITEM_WIDTH
+    },
+    "itemMaxHeight" : {
+      type : [String, Number, Array]
+    },
+    "blankAs": {
+      type: Object,
+      default: ()=>({
+        text: "i18n:empty",
+        icon: "fas-box-open"
+      })
+    },
+    "loadingAs": {
+      type: [Object, Boolean],
+      default: ()=>({})
+    }
+  },
+  //////////////////////////////////////////
+  computed : {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "has-data" : this.FallsData
+      })
+    },
+    //--------------------------------------
+    getItemClass() {
+      let itKlass = _.without(_.concat(this.itemClass))
+      return (index)=> {
+        let i;
+        if(itKlass.length > 0) {
+          i = Ti.Num.scrollIndex(index, itKlass.length)
+          return itKlass[i]
+        }
+      }
+    },
+    //--------------------------------------
+    getItemStyle() {
+      let itHs = _.without(_.concat(this.itemMaxHeight), undefined)
+      let itStyles = _.without(_.concat(this.itemStyle), undefined)
+      return (index)=> {
+        let h, sty, i;
+        if(itHs.length > 0) {
+          i = Ti.Num.scrollIndex(index, itHs.length)
+          h = itHs[i]
+        }
+        if(itStyles.length > 0) {
+          i = Ti.Num.scrollIndex(index, itStyles.length)
+          sty = itStyles[i]
+        }
+        let css = _.cloneDeep(sty) || {}
+        if(!Ti.Util.isNil(h)) {
+          css.maxHeight = Ti.Css.toSize(h)
+        }
+        return css
+      }
+    },
+    //--------------------------------------
+    FallsData() {
+      if(!this.hasData)
+        return []
+
+      let C = this.myCols
+      let groups = []
+      // Init Groups
+      for(let i=0; i < C; i++) {
+        let gW = _.nth(this.myColWidths, i)
+        let style;
+        if(gW) {
+          style = {width: gW + 'px'}
+        }
+        groups.push({
+          style, items : []
+        })
+      }
+
+      // Each data
+      for(let i=0; i < this.data.length; i++) {
+        let cIX = i % C
+        let grp = groups[cIX]
+        let stl = this.getItemStyle(i)
+        let it = this.data[i]
+        let comConf = Ti.Util.explainObj(it, this.comConf)
+        if(stl.maxHeight) {
+          comConf.style = _.assign({}, comConf.style, {
+            maxHeight : stl.maxHeight
+          })
+        }
+        grp.items.push({
+          key: `It-${i}`,
+          className : this.getItemClass(i),
+          style : stl,
+          comType: this.comType, comConf
+        })        
+      }
+      
+      return groups
+    },
+    //--------------------------------------
+    isLoading() {
+      return Ti.Util.isNil(this.data)
+    },
+    //--------------------------------------
+    isEmpty() {
+      return _.isEmpty(this.FallsData)
+    },
+    //--------------------------------------
+    hasData() {
+      return this.myCols > 0 && !_.isEmpty(this.data)
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnWallResize() {
+      this.$nextTick(()=>{
+        this.evalWallColumns()
+      })
+    },
+    //--------------------------------------
+    evalWallColumns() {
+      //console.log("evalWallColumns")
+      // Specific cols
+      if(this.cols > 0) {
+        this.myCols = parseInt(this.cols * 1)
+        this.myColWidths = []
+        return
+      }
+      // Guard
+      if(!_.isElement(this.$el) || !this.data || this.data.length <= 0) {
+        return
+      }
+
+      // Whole width
+      let elW = this.$el.clientWidth
+
+      // Get rem base
+      let $html = this.$el.ownerDocument.documentElement
+      let fontSize = $html.style.fontSize || "100px"
+      let remBase = Ti.Css.toAbsPixel(fontSize)
+
+      // Item width list
+      let itWs = _.without(_.concat(this.itemWidth), undefined)
+
+      let sumW = 0;
+      let colWidths = []
+      for(let i=0; i<this.data.length; i++) {
+        // Get item width by index
+        let w;
+        if(itWs.length > 0) {
+          let x = Ti.Num.scrollIndex(i, itWs.length)
+          w = Ti.Css.toAbsPixel(itWs[x], {
+            remBase, base: elW
+          })
+        } else {
+          w = DFT_ITEM_WIDTH
+        }
+        // Add up
+        sumW += w
+        if(sumW > elW) {
+          break
+        }
+        colWidths.push(w)
+      }
+      
+      // Done
+      this.myCols = colWidths.length
+      this.myColWidths = colWidths
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "data" : "OnWallResize",
+    "cols" :  "OnWallResize",
+    "itemWidth" : "OnWallResize"
+  },
+  //////////////////////////////////////////
+  mounted : function() {
+    //.................................
+    Ti.Viewport.watch(this, {
+      resize : _.debounce(()=>this.OnWallResize(), 20)
+    })
+    //.................................
+    this.OnWallResize()
+    //.................................
+  },
+  //////////////////////////////////////////
+  destroyed : function() {
+    Ti.Viewport.unwatch(this)
+  }
+  //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'wn-fileset-mixins.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/support/wn-fileset-mixins.mjs'] = (function(){
@@ -49998,6 +50064,699 @@ const _M  = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'tiny-wn-fb-albums - 副本.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-albums - 副本.mjs'] = (function(){
+////////////////////////////////////////////////////
+async function pickFacebookAndInsertToDoc(editor, settings) {
+  let {metas} = await settings.load()
+  if(metas.length == 0) {
+    return await Ti.Toast.Open("找不到配置信息", "warn")
+  }
+
+  // Get the meta
+  let meta;
+  if(metas.length > 1) {
+    let metaId = await Ti.App.Open({
+      title : "选择配置信息",
+      width : 480,
+      height : 480,
+      comType : "TiBulletRadio",
+      comConf : {
+        options : metas
+      },
+      components : ["@com:ti/bullet/radio"]
+    })
+    // User cancel
+    if(!metaId) {
+      return
+    }
+    meta = _.find(metas, m => m.id == metaId)
+  }
+  // Only one meta
+  else {
+    meta = metas[0]
+  }
+  // Check base
+  let reo = await Ti.App.Open({
+    icon  : "fas-image",
+    title : "Facebook",
+    position : "top",
+    width  : "95%",
+    height : "95%",
+    comType : "NetFacebookAlbums",
+    comConf : {
+      meta, 
+      ... meta.content,
+      notifyName : "change"
+    },
+    components : [
+      "@com:net/facebook/albums"
+    ]
+  })
+
+  // User canceled
+  if(_.isEmpty(reo)) {
+    return
+  }
+
+  // Do insert image
+  editor.execCommand("InsertFacebook", editor, reo)
+}
+////////////////////////////////////////////////////
+function GetFacebookAttrsByElement(elFacebook) {
+  // Top Style
+  let stl = Ti.Dom.getStyle(elFacebook, 
+    /^(width|height|float|(margin-(left|right|top|bottom)))$/)
+  stl.float = stl.float || "none"
+  //
+  // Wall Style
+  let $wall = Ti.Dom.find(".tiw-photo-wall", elFacebook)
+  let wallClass = ""
+  let wallStyle = {}
+  let tileClass = ""
+  let tileStyle = {}
+  let picStyle = {}
+  if(_.isElement($wall)) {
+    wallClass = Ti.Dom.getClassList($wall, v=>v!="tiw-photo-wall").join(" ")
+    wallStyle = Ti.Dom.getOwnStyle($wall)
+    tileClass = Ti.Dom.getClassList($wall.getAttribute("wn-tile-class")).join(" ")
+    tileStyle = Ti.Dom.parseCssRule($wall.getAttribute("wn-tile-style"))
+    picStyle = Ti.Dom.parseCssRule($wall.getAttribute("wn-pic-style"))
+  }
+  return {
+    id   : elFacebook.getAttribute("wn-fb-id"),
+    name  : elFacebook.getAttribute("wn-fb-name"),
+    link  : elFacebook.getAttribute("wn-fb-link"),
+    ... stl,
+    wallClass, wallStyle,
+    tileClass, tileStyle, picStyle
+  }
+}
+////////////////////////////////////////////////////
+function GetFacebookAttrsByObj(fbAlbumn) {
+  return {
+    "wn-fb-id" : fbAlbumn.id,
+    "wn-fb-name" : fbAlbumn.name,
+    "wn-fb-link" : fbAlbumn.link
+  }
+}
+////////////////////////////////////////////////////
+function SetAlbumInfoToElement($album, data, old={}) {
+  console.log("SetAlbumInfoToElement", data, old)
+  //................................................
+  Ti.Dom.setStyleValue($album, "width",        data.width,        old.width)
+  Ti.Dom.setStyleValue($album, "height",       data.height,       old.height)
+  Ti.Dom.setStyleValue($album, "float",        data.float,        old.float)
+  Ti.Dom.setStyleValue($album, "marginLeft",   data.marginLeft,   old.marginLeft)
+  Ti.Dom.setStyleValue($album, "marginRight",  data.marginRight,  old.marginRight)
+  Ti.Dom.setStyleValue($album, "marginTop",    data.marginTop,    old.marginTop)
+  Ti.Dom.setStyleValue($album, "marginBottom", data.marginBottom, old.marginBottom)
+  //................................................
+  let $wall = Ti.Dom.find(":scope > .tiw-photo-wall", $album)
+  if($wall) {
+    Ti.Dom.formatStyle(data.wallStyle)
+    Ti.Dom.formatStyle(data.tileStyle)
+    Ti.Dom.formatStyle(data.picStyle)
+    $wall.className = `tiw-photo-wall ${data.wallClass||""}`
+    let wallStyle = Ti.Dom.renderCssRule(data.wallStyle)
+    let tileStyle = Ti.Dom.renderCssRule(data.tileStyle)
+    let picStyle = Ti.Dom.renderCssRule(data.picStyle)
+    $wall.style = wallStyle
+    Ti.Dom.setAttrs($wall, {
+      "wn-tile-class" : data.tileClass || null,
+      "wn-tile-style" : tileStyle || null,
+      "wn-pic-style"  : picStyle  || null
+    })
+  }
+  //................................................
+}
+////////////////////////////////////////////////////
+const DFT_CLASS = [
+  'flex-none','item-margin-no','item-padding-sm',
+  'pic-fit-cover','hover-to-zoom'
+].join(' ')
+//--------------------------------------------------
+function UpdateFacebookTagInnerHtml(elFacebook, settings) {
+  //console.log("UpdateFacebookTagInnerHtml")
+  // Get old content
+  let album = GetFacebookAttrsByElement(elFacebook)
+  // Mark content editable
+  elFacebook.contentEditable = false
+  // Show loading
+  elFacebook.innerHTML = `<div class="media-inner">
+    <i class="fas fa-spinner fa-spin"></i>
+  </div>`
+
+  settings.load().then(({data})=>{
+    let {longLiveAccessToken} = data[album.id].content
+    // Reload album items
+    Ti.Api.Facebook.getAlbumPhotoList({
+      albumId : album.id,
+      access_token : longLiveAccessToken
+    }).then((photos)=>{
+      // Create inner HTML for the album
+      let html = `<div class="tiw-photo-wall ${DFT_CLASS}">`
+      for(let photo of photos) {
+        let {name, link, thumb_src} = photo
+        html += `<a class="wall-tile"
+          href="${link}" title="${name||''}"
+          target="_blank"><img src="${thumb_src}"/></a>`
+      }
+      html += '</div>'
+      elFacebook.innerHTML = html
+
+      // Recover the attr-data
+      SetAlbumInfoToElement(elFacebook, album)
+
+      // Then we need update the album css style
+      UpdateAlbumStyle(elFacebook)
+    })
+  })
+}
+////////////////////////////////////////////////////
+function UpdateAlbumStyle($album) {
+  let $wall = Ti.Dom.find(":scope > .tiw-photo-wall", $album)
+  let {tileStyle, picStyle} = GetFacebookAttrsByElement($album)
+  let $tiles = Ti.Dom.findAll(".wall-tile", $wall)
+  for(let i=0; i<$tiles.length; i++) {
+    let $tile = $tiles[i]
+    let $img = Ti.Dom.find("img", $tile)
+    Ti.Dom.setStyle($tile, tileStyle)
+    Ti.Dom.setStyle($img, picStyle)
+  }
+}
+////////////////////////////////////////////////////
+function CmdInsertFacebook(editor, fbAlbumn) {
+  if(!fbAlbumn)
+    return
+  
+  // Prepare range
+  let rng = editor.selection.getRng()
+  
+  // Create image fragments
+  let $doc = rng.commonAncestorContainer.ownerDocument
+  let $album = Ti.Dom.createElement({
+    tagName : "div",
+    className : "wn-media as-photos as-facebook",
+    attrs : GetFacebookAttrsByObj(fbAlbumn)
+  }, $doc)
+  UpdateFacebookTagInnerHtml($album, editor.wn_facebook_settings)
+  
+  // Remove content
+  if(!rng.collapsed) {
+    rng.deleteContents()
+  }
+
+  // Insert fragments
+  rng.insertNode($album)
+
+}
+////////////////////////////////////////////////////
+function CmdReloadFacebookAlbum(editor, settings) {
+  let $album = GetCurrentFacebookElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  // Reload content
+  UpdateFacebookTagInnerHtml($album, settings)
+}
+////////////////////////////////////////////////////
+function GetCurrentFacebookElement(editor) {
+  let sel = editor.selection
+  let $nd = sel.getNode()
+  // Guard
+  return Ti.Dom.closest($nd, (el)=>{
+    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-facebook")
+  })
+}
+////////////////////////////////////////////////////
+function CmdSetFacebookSize(editor, {width="", height=""}={}) {
+  let $album = GetCurrentFacebookElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  // Clear the attribute
+  Ti.Dom.setStyle($album, {width, height})
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+function CmdSetFacebookStyle(editor, css={}) {
+  let $album = GetCurrentFacebookElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  // Clear float
+  Ti.Dom.setStyle($album, css)
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+async function CmdShowFacebookProp(editor, settings) {
+  let $album = GetCurrentFacebookElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  //console.log("stl", stl)
+  // Gen the properties
+  let data = GetFacebookAttrsByElement($album)
+
+  //console.log(data)
+  // Show dialog
+  let reo = await Ti.App.Open({
+    icon  : "fab-facebook",
+    title : "编辑Facebook相册属性",
+    width  : "37%",
+    height : "100%",
+    position : "right",
+    closer : "left",
+    clickMaskToClose : true,
+    result : data,
+    model : {prop:"data", event:"change"},
+    comType : "TiForm",
+    comConf : {
+      className : "no-status",
+      spacing : "tiny",
+      fields : [{
+          title : "相册尺寸",
+          className : "as-vertical col-2",
+          fields: [{
+            title : "宽度",
+            name  : "width",
+            comType : "TiInput"
+          }, {
+            title : "高度",
+            name  : "height",
+            comType : "TiInput"
+          }, {
+            title : "瓦片宽",
+            name  : "tileStyle.width",
+            comType : "TiInput"
+          }, {
+            title : "瓦片高",
+            name  : "tileStyle.height",
+            comType : "TiInput"
+          }, {
+            title : "图片宽",
+            name  : "picStyle.width",
+            comType : "TiInput"
+          }, {
+            title : "图片高",
+            name  : "picStyle.height",
+            fieldWidth : "50%",
+            comType : "TiInput"
+          }]
+        }, {
+          title : "相册外距",
+          className : "as-vertical col-4",
+          fields : [{
+            title : "上",
+            name  : "marginTop",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "右",
+            name  : "marginRight",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "下",
+            name  : "marginBottom",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }, {
+            title : "左",
+            name  : "marginLeft",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "0px"
+            }
+          }]
+        }, {
+          title : "相册样式",
+          fields : [{
+              title : "文本绕图",
+              name  : "float",
+              comType : "TiSwitcher",
+              comConf : {
+                allowEmpty : false,
+                options : [
+                  {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
+                  {value: "left",  text: "左绕图", icon:"fas-align-left"},
+                  {value: "right", text: "右绕图", icon:"fas-align-right"},]
+              }
+            }, {
+            title : "整体风格",
+            name : "wallClass",
+            emptyAs : null,
+            comType : "HmPropClassPicker",
+            comConf : {
+              dftValue : DFT_CLASS,
+              valueType : "String",
+              form : {
+                fields : [{
+                  title : "i18n:hmk-class-flex",
+                  name : "flexMode",
+                  comType : "TiSwitcher",
+                  comConf : {
+                    options : [
+                      {value: "flex-none",  text:"i18n:hmk-class-flex-none"},
+                      {value: "flex-both",  text:"i18n:hmk-class-flex-both"},
+                      {value: "flex-grow",  text:"i18n:hmk-class-flex-grow"},
+                      {value: "flex-shrink",text:"i18n:hmk-class-flex-shrink"}                    ]
+                  }
+                }, {
+                  title : "i18n:hmk-class-item-padding",
+                  name : "itemPadding",
+                  comType : "TiSwitcher",
+                  comConf : {
+                    options : [
+                      {value: "item-padding-no", text:"i18n:hmk-class-sz-no"},
+                      {value: "item-padding-xs", text:"i18n:hmk-class-sz-xs"},
+                      {value: "item-padding-sm", text:"i18n:hmk-class-sz-sm"},
+                      {value: "item-padding-md", text:"i18n:hmk-class-sz-md"},
+                      {value: "item-padding-lg", text:"i18n:hmk-class-sz-lg"},
+                      {value: "item-padding-xl", text:"i18n:hmk-class-sz-xl"}
+                    ]
+                  }
+                }, {
+                  title : "i18n:hmk-class-item-margin",
+                  name : "itemMargin",
+                  comType : "TiSwitcher",
+                  comConf : {
+                    options : [
+                      {value: "item-margin-no", text:"i18n:hmk-class-sz-no"},
+                      {value: "item-margin-xs", text:"i18n:hmk-class-sz-xs"},
+                      {value: "item-margin-sm", text:"i18n:hmk-class-sz-sm"},
+                      {value: "item-margin-md", text:"i18n:hmk-class-sz-md"},
+                      {value: "item-margin-lg", text:"i18n:hmk-class-sz-lg"},
+                      {value: "item-margin-xl", text:"i18n:hmk-class-sz-xl"}
+                    ]
+                  }
+                }, {
+                  title : "i18n:hmk-class-object-fit",
+                  name : "picFit",
+                  comType : "TiSwitcher",
+                  comConf : {
+                    options : [
+                      {value: "pic-fit-fill",   text:"i18n:hmk-class-object-fit-fill"},
+                      {value: "pic-fit-cover",  text:"i18n:hmk-class-object-fit-cover"},
+                      {value: "pic-fit-contain",text:"i18n:hmk-class-object-fit-contain"},
+                      {value: "pic-fit-none", text:"i18n:hmk-class-object-fit-none"}
+                    ]
+                  }
+                }, {
+                  title : "i18n:hmk-class-hover",
+                  name : "textHover",
+                  comType : "TiSwitcher",
+                  comConf : {
+                    options : [
+                      {value: "hover-to-up",    text:"i18n:hmk-class-hover-to-up"},
+                      {value: "hover-to-scale", text:"i18n:hmk-class-hover-to-scale"},
+                      {value: "hover-to-zoom",  text:"i18n:hmk-class-hover-to-zoom"}
+                    ]
+                  }
+                }]
+              }
+            } // title : "整体风格",
+          }, {
+            title : "整体样式",
+            name  : "wallStyle",
+            type  : "Object",
+            emptyAs : null,
+            comType : "HmPropCssRules"
+          }, {
+            title : "瓦片样式",
+            name  : "tileStyle",
+            type  : "Object",
+            emptyAs : null,
+            comType : "HmPropCssRules"
+          }, {
+            title : "图片样式",
+            name  : "picStyle",
+            type  : "Object",
+            emptyAs : null,
+            comType : "HmPropCssRules"
+          }]
+        }]
+    },
+    components : []
+  })
+
+  // 用户取消
+  if(!reo)
+    return
+
+  //................................................
+  SetAlbumInfoToElement($album, reo, data)
+  //................................................
+  // clean cache
+  $album.removeAttribute("data-mce-src")
+  $album.removeAttribute("data-mce-style")
+  //................................................
+  // Then we need update the album css style
+  UpdateAlbumStyle($album)
+  //................................................
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  name : "wn-fb-albums",
+  //------------------------------------------------
+  init : function(conf={}) {
+  },
+  //------------------------------------------------
+  setup : function(editor, url){
+    //..............................................
+    let settings = _.assign({
+        meta : "~",
+        type : "facebook_albums"
+      }, _.get(editor.settings, "wn_facebook_config"));
+    //console.log("setup", editor.settings)
+    //..............................................
+    // Reload meta content
+    // Check meta
+    settings.load = async function(){
+      if(this.data) {
+        return {metas: this.metas, data: this.data}
+      }
+      let oMeta = await Wn.Io.loadMeta(this.meta)
+      if(!oMeta) {
+        return await Ti.Toast.Open(`路径[${this.meta}]不存在`, "warn")
+      }
+      // DIR, loading setting map
+      if("DIR" == oMeta.race) {
+        // Query and read
+        let cmdText = [
+          `o id:${oMeta.id}`,
+            `@query 'tp:"${this.type}"'`,
+            `@read -as json`,
+            `@json -cqn'`].join(" ")
+        this.metas = await Wn.Sys.exec2(cmdText, {as:"json"})
+      }
+      // FILE, load the single file
+      else {
+        oMeta.content = await Wn.Io.loadContent(oMeta, {as:"json"})
+        this.metas = [oMeta]
+      }
+
+      // Build Album ID data
+      this.data = {}
+      for(let meta of this.metas) {
+        let content = _.get(meta, "content")
+        _.forEach(content.userAlbumIds, aId => {
+          this.data[aId] = {meta, content}
+        })
+
+      }
+
+      return {metas: this.metas, data: this.data}
+    }
+    editor.wn_facebook_settings = settings
+    // 读取信息
+    //..............................................
+    // Register plugin command
+    editor.addCommand("InsertFacebook",   CmdInsertFacebook)
+    editor.addCommand("SetFacebookSize",  CmdSetFacebookSize)
+    editor.addCommand("SetFacebookStyle", CmdSetFacebookStyle)
+    editor.addCommand("ReloadFacebookAlbum", CmdReloadFacebookAlbum)
+    editor.addCommand("ShowFacebookProp", CmdShowFacebookProp)
+    //..............................................
+    // Register toolbar actions
+    editor.ui.registry.addButton("WnFacebookPick", {
+      icon : "facebook-square-brands",
+      tooltip : Ti.I18n.text("i18n:album-insert"),
+      onAction : function(menuBtn) {
+        pickFacebookAndInsertToDoc(editor, settings)
+      },
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnFacebookClrSize", {
+      text : "清除相册尺寸",
+      onAction() {
+        editor.execCommand("SetFacebookSize", editor)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnFacebookAutoFitWidth", {
+      text : "自动适应宽度",
+      onAction() {
+        editor.execCommand("SetFacebookSize", editor, {width:"100%"})
+      }
+    })
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnFacebookFloat', {
+      text: '文本绕图',
+      getSubmenuItems: function () {
+        return [{
+          type : "menuitem",
+          icon : "align-left",
+          text : "居左绕图",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {float:"left"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "align-right",
+          text : "居右绕图",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {float:"right"})
+          }
+        }, {
+          type : "menuitem",
+          text : "清除浮动",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {float:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnFacebookMargin', {
+      text: '相册边距',
+      getSubmenuItems: function () {
+        const __check_margin_size = function(api, expectSize) {
+          let $album = GetCurrentFacebookElement(editor)
+          let state = true
+          if($album) {
+            let sz = $album.style.marginLeft || $album.style.marginRight
+            state = expectSize == sz
+          }
+          api.setActive(state);
+          return function() {};
+        }
+        return [{
+          type : "togglemenuitem",
+          text : "小边距",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {margin:"1em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '1em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "中等边距",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {margin:"2em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '2em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "较大边距",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {margin:"3em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '3em')
+          }
+        }, {
+          type : "menuitem",
+          icon : "align-center",
+          text : "边距居中",
+          onAction() {
+            editor.execCommand("SetVideoStyle", editor, {margin:"0 auto"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "square-6",
+          text : "清除边距",
+          onAction() {
+            editor.execCommand("SetFacebookStyle", editor, {margin:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addMenuItem("WnFacebookReload", {
+      icon : "sync-alt-solid",
+      text : "刷新相册内容",
+      onAction() {
+        editor.execCommand("ReloadFacebookAlbum", editor, settings)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnFacebookProp", {
+      text : "相册属性",
+      onAction() {
+        editor.execCommand("ShowFacebookProp", editor, settings)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addContextMenu("wn-fb-albums", {
+      update: function (el) {
+        let $album = GetCurrentFacebookElement(editor)
+        // Guard
+        if(!_.isElement($album)) {
+          return []
+        }
+        return [
+          "WnFacebookClrSize WnFacebookAutoFitWidth",
+          "WnFacebookFloat WnFacebookMargin",
+          "WnFacebookReload",
+          "WnFacebookProp"
+        ].join(" | ")
+      }
+    })
+    //..............................................
+    editor.on("SetContent", function() {
+      //console.log("SetContent facebook")
+      let els = editor.$('.wn-media.as-facebook')
+      for(let i=0; i<els.length; i++) {
+        let el = els[i]
+        UpdateFacebookTagInnerHtml(el, settings)
+      }
+    })
+    //..............................................
+    return {
+      getMetadata: function () {
+        return  {
+          name: 'Wn Facebook plugin',
+          url: 'http://site0.cn'
+        };
+      }
+    };
+    //..............................................
+  }
+  //------------------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'wn-imgfile.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/imgfile/wn-imgfile.mjs'] = (function(){
@@ -51605,6 +52364,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////////
   data : ()=>({
     myId : undefined,
+    myName : undefined,
+    myGrantedScopes : undefined,
     myLongLiveAK : undefined,
     myAlbumList : undefined,
     currentAlbumId : undefined,
@@ -51627,6 +52388,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "appSecret" : {
       type : String
     },
+    "scope" : {
+      type : String
+    },
+    "grantedScopes" : {
+      type : String
+    },
     "longLiveAccessToken": {
       type : String
     },
@@ -51636,12 +52403,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "tokenType" : {
       type : String
     },
-    "tokenExpaireAt" : {
+    "tokenExpireAt" : {
       type : Number,
       default : 0
     },
     "userId" : {
       type : String
+    },
+    "userName" : {
+      type : String
+    },
+    "userAlbumIds" : {
+      type : Array,
+      default: ()=>[]
     },
     //-----------------------------------
     // Behavior
@@ -51682,6 +52456,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
     CurrentAlbum() {
       return this.getAlbum(this.currentAlbumId)
+    },
+    //---------------------------------------------------
+    ApiScope() {
+      return this.scope || "public_profile,user_photos,user_videos"
+    },
+    //---------------------------------------------------
+    ProfileSelectorIds() {
+      return this.profileSelectorIds || this.userId || undefined
     },
     //---------------------------------------------------
     GuiLayout(){
@@ -51736,7 +52518,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
             comConf : {
               text : "=name",
               src  : "=thumb_src",
-              style : {
+              className : [
+                "text-in", "at-bottom","ts-shadow","fs-sm",
+                "of-con-visiable",
+                "hover-to-up-img is-fit-auto"],
+              imageStyle : {
                 "border" : "3px solid #EEE",
                 "border-radius" : "6px"
               }
@@ -51769,6 +52555,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }
       }
+    },
+    //---------------------------------------------------
+    ReloginFBAccount() {
+      this.checkdLongLiveAccessToken(true)
     },
     //---------------------------------------------------
     FBAPI(path) {
@@ -51818,14 +52608,46 @@ const __TI_MOD_EXPORT_VAR_NM = {
         albumId : this.currentAlbumId,
         access_token : this.myLongLiveAK
       })
+
+      // Save to cache
+      if(!_.isEmpty(this.myPhotoList) && this.domain) {
+        let input = JSON.stringify(this.myPhotoList)
+        let cmdText = `str > ~/.domain/facebook/${this.domain}/${this.currentAlbumId}.photos.json`
+        await Wn.Sys.exec2(cmdText, {input})
+      }
     },
     //---------------------------------------------------
     async reloadAlbums() {
+      this.myAlbumList = undefined
       this.myAlbumList = await Ti.Api.Facebook.getAlbumList({
         userId : this.myId,
         access_token : this.myLongLiveAK,
         loadCover : true
       })
+      // Update albums Ids
+      let aIds = _.map(this.myAlbumList, al => al.id)
+      if(!_.isEqual(aIds, this.userAlbumIds)) {
+        let json = JSON.stringify({
+          userAlbumIds : aIds
+        })
+        let cmdText = `jsonx -qn @read id:${this.meta.id} -auto @set '${json}' > id:${this.meta.id}`
+        await Wn.Sys.exec2(cmdText)
+      }
+      // If current album out of the albumn list
+      // Maybe user switch the account, then clean the photoList
+      if(this.currentAlbumId) {
+        let currentInAlbum = false
+        for(let al of this.myAlbumList) {
+          if(al.id == this.currentAlbumId) {
+            currentInAlbum = true
+            break
+          }
+        }
+        if(!currentInAlbum) {
+          this.currentAlbumId = null
+          this.myPhotoList = []
+        }
+      }
     },
     //---------------------------------------------------
     async reloadLongLiveAccessToken(accessToken) {
@@ -51844,15 +52666,27 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       // Save to remote
       if(reo.access_token) {
+        let expireAt = Date.now() + reo.expires_in * 1000
+        // Update file content
         let jsonToken = JSON.stringify({
           userId : this.myId,
+          userName : this.myName,
+          scope : this.ApiScope,
+          grantedScopes : this.myGrantedScopes,
           longLiveAccessToken : reo.access_token,
           tokenExpiresIn : reo.expires_in,
           tokenType : reo.token_type,
-          tokenExpaireAt : Date.now() + reo.expires_in * 1000
+          tokenExpireAt : expireAt
         })
-        let cmdText = `jsonx -qn @read ~/facebook -auto @set '${jsonToken}' > ~/facebook`
+        let cmdText = `jsonx -qn @read id:${this.meta.id} -auto @set '${jsonToken}' > id:${this.meta.id}`
         await Wn.Sys.exec2(cmdText)
+        // Update file meta
+        let objMeta = JSON.stringify({
+          title : this.myName,
+          token_expire_at : expireAt
+        })
+        cmdText = `o id:${this.meta.id} @update`
+        await Wn.Sys.exec2(cmdText, {input:objMeta})
       }
       // Error
       else {
@@ -51860,21 +52694,30 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //---------------------------------------------------
-    checkdLongLiveAccessToken() {
+    checkdLongLiveAccessToken(force=false) {
       // Refresh token before a day
-      let expiAt = this.tokenExpaireAt - 86400000
-      if(Date.now() > expiAt || !this.myId || !this.longLiveAccessToken) {
+      let expiAt = this.tokenExpireAt - 86400000
+      if(force || Date.now() > expiAt || !this.myId || !this.longLiveAccessToken) {
         FB.login(resp => {
           console.log("after login", resp)
           if (resp.authResponse) {
-            let {accessToken, userID} = resp.authResponse
-            this.myId = userID 
-            // Get Long Live Access Token
-            this.reloadLongLiveAccessToken(accessToken)
-              .then(()=>{
-                this.reloadAlbums()
-              })
+            let {accessToken, userID, grantedScopes} = resp.authResponse
+            this.myId = userID
+            this.myGrantedScopes = grantedScopes
+            FB.api('/'+userID, resp => {
+              //console.log('Good to see you, ' + resp.name + '.', resp);
+              // Get Long Live Access Token
+              this.myName = resp.name
+              this.reloadLongLiveAccessToken(accessToken)
+                .then(()=>{
+                  this.reloadAlbums()
+                })
+            });
           }
+        }, {
+          scope: this.ApiScope,
+          return_scopes: true,
+          profile_selector_ids : this.ProfileSelectorIds
         })
       }
       // Has a valid LongLiveAK
@@ -57962,9 +58805,13 @@ Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-attachment.mjs", TI_PACK_
 //========================================
 Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-audio.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-audio.mjs']);
 //========================================
-// JOIN <tiny-wn-facebook.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-facebook.mjs
+// JOIN <tiny-wn-fb-albums - 副本.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-albums - 副本.mjs
 //========================================
-Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-facebook.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-facebook.mjs']);
+Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-albums - 副本.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-albums - 副本.mjs']);
+//========================================
+// JOIN <tiny-wn-fb-albums.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-albums.mjs
+//========================================
+Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-albums.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-albums.mjs']);
 //========================================
 // JOIN <tiny-wn-image.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-image.mjs
 //========================================
@@ -60322,6 +61169,59 @@ Ti.Preload("ti/com/web/shelf/audio-icons/_com.json", {
   ]
 });
 //========================================
+// JOIN <web-shelf-falls.html> ti/com/web/shelf/falls/web-shelf-falls.html
+//========================================
+Ti.Preload("ti/com/web/shelf/falls/web-shelf-falls.html", `<div class="web-shelf-falls"
+  :class="TopClass">
+  <!--
+    Loading
+  -->
+  <ti-loading
+    v-if="isLoading"
+      class="as-big"
+      v-bind="loadingAs"/>
+  <!--
+    Blank
+  -->
+  <ti-loading
+    v-else-if="isEmpty"
+      class="as-big"
+      v-bind="blankAs"/>
+  <!--
+    Each Items
+  -->
+  <template v-else>
+    <div 
+      v-for="grp in FallsData"
+        class="falls-group"
+        :style="grp.style">
+        <!--====================-->
+        <div
+          v-for="it in grp.items"
+            :key="it.key"
+            class="falls-tile is-com"
+            :class="it.className"
+            :style="it.style">
+            <component :is="it.comType" v-bind="it.comConf"/>
+        </div>
+        <!--====================-->
+    </div>
+  </template>
+</div>`);
+//========================================
+// JOIN <web-shelf-falls.mjs> ti/com/web/shelf/falls/web-shelf-falls.mjs
+//========================================
+Ti.Preload("ti/com/web/shelf/falls/web-shelf-falls.mjs", TI_PACK_EXPORTS['ti/com/web/shelf/falls/web-shelf-falls.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/web/shelf/falls/_com.json
+//========================================
+Ti.Preload("ti/com/web/shelf/falls/_com.json", {
+  "name" : "web-shelf-falls",
+  "globally" : true,
+  "template" : "./web-shelf-falls.html",
+  "mixins" : ["./web-shelf-falls.mjs"]
+});
+//========================================
 // JOIN <web-shelf-free.html> ti/com/web/shelf/free/web-shelf-free.html
 //========================================
 Ti.Preload("ti/com/web/shelf/free/web-shelf-free.html", `<div class="web-shelf-free"
@@ -60982,9 +61882,11 @@ Ti.Preload("ti/com/web/tile/article/web-tile-article.html", `<div class="web-til
   <!--
     Title
   -->
-  <header
+  <a 
     v-if="title"
-      :style="HeaderStyle"><span>{{title | i18n}}</span></header>
+      class="as-header"
+      :href="href"
+      :style="HeaderStyle"><span>{{title | i18n}}</span></a>
   <!--
     Content
   -->
@@ -64291,6 +65193,7 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-class-ts-shadow" : "Shadow",
   "hmk-class-hover" : "Hover",
   "hmk-class-hover-to-up" : "Up",
+  "hmk-class-hover-to-scale" : "Scale",
   "hmk-class-hover-to-zoom" : "Zoom",
   "com-form": "Form",
   "com-label": "Label",
@@ -64983,7 +65886,8 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
   "net-vod-size": "Video size",
   "net-vod-video-nil": "Please choose one video for detail",
   "net-youtube" : "Youtube",
-  "net-youtube-add-video" : "Add youtube video"
+  "net-youtube-add-video" : "Add youtube video",
+  "net-fb-relogin" : "Relogin FB account"
 });
 //========================================
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
@@ -65539,6 +66443,7 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-class-ts-shadow" : "阴影",
   "hmk-class-hover" : "悬停效果",
   "hmk-class-hover-to-up" : "上浮",
+  "hmk-class-hover-to-scale" : "放大",
   "hmk-class-hover-to-zoom" : "缩放",
   "com-form": "表单",
   "com-label": "标签",
@@ -66231,7 +67136,8 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
   "net-vod-size": "视频大小",
   "net-vod-video-nil": "请选择一个视频查看详情",
   "net-youtube" : "Youtube",
-  "net-youtube-add-video" : "添加Youtube视频"
+  "net-youtube-add-video" : "添加Youtube视频",
+  "net-fb-relogin" : "重新登录FB账户"
 });
 //========================================
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
@@ -66787,6 +67693,7 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-class-ts-shadow": "陰影",
    "hmk-class-hover": "懸停效果",
    "hmk-class-hover-to-up": "上浮",
+   "hmk-class-hover-to-scale": "放大",
    "hmk-class-hover-to-zoom": "縮放",
    "com-form": "表單",
    "com-label": "標籤",
@@ -67438,7 +68345,8 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
    "net-vod-size": "視頻大小",
    "net-vod-video-nil": "請選擇一個視頻查看詳情",
    "net-youtube": "Youtube",
-   "net-youtube-add-video": "添加Youtube視頻"
+   "net-youtube-add-video": "添加Youtube視頻",
+   "net-fb-relogin": "重新登錄FB賬戶"
 });
 //========================================
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json

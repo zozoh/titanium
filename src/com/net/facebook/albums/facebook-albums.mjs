@@ -52,6 +52,10 @@ export default {
     "userName" : {
       type : String
     },
+    "userAlbumIds" : {
+      type : Array,
+      default: ()=>[]
+    },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -259,6 +263,15 @@ export default {
         access_token : this.myLongLiveAK,
         loadCover : true
       })
+      // Update albums Ids
+      let aIds = _.map(this.myAlbumList, al => al.id)
+      if(!_.isEqual(aIds, this.userAlbumIds)) {
+        let json = JSON.stringify({
+          userAlbumIds : aIds
+        })
+        let cmdText = `jsonx -qn @read id:${this.meta.id} -auto @set '${json}' > id:${this.meta.id}`
+        await Wn.Sys.exec2(cmdText)
+      }
       // If current album out of the albumn list
       // Maybe user switch the account, then clean the photoList
       if(this.currentAlbumId) {
