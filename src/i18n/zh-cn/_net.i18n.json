@@ -10,5 +10,6 @@
   "net-vod-size": "视频大小",
   "net-vod-video-nil": "请选择一个视频查看详情",
   "net-youtube" : "Youtube",
-  "net-youtube-add-video" : "添加Youtube视频"
+  "net-youtube-add-video" : "添加Youtube视频",
+  "net-fb-relogin" : "重新登录FB账户"
 }

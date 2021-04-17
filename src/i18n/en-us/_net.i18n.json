@@ -10,5 +10,6 @@
   "net-vod-size": "Video size",
   "net-vod-video-nil": "Please choose one video for detail",
   "net-youtube" : "Youtube",
-  "net-youtube-add-video" : "Add youtube video"
+  "net-youtube-add-video" : "Add youtube video",
+  "net-fb-relogin" : "Relogin FB account"
 }

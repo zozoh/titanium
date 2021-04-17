@@ -3,6 +3,8 @@ export default {
   ///////////////////////////////////////////////////////
   data : ()=>({
     myId : undefined,
+    myName : undefined,
+    myGrantedScopes : undefined,
     myLongLiveAK : undefined,
     myAlbumList : undefined,
     currentAlbumId : undefined,
@@ -25,6 +27,12 @@ export default {
     "appSecret" : {
       type : String
     },
+    "scope" : {
+      type : String
+    },
+    "grantedScopes" : {
+      type : String
+    },
     "longLiveAccessToken": {
       type : String
     },
@@ -34,11 +42,14 @@ export default {
     "tokenType" : {
       type : String
     },
-    "tokenExpaireAt" : {
+    "tokenExpireAt" : {
       type : Number,
       default : 0
     },
     "userId" : {
+      type : String
+    },
+    "userName" : {
       type : String
     },
     //-----------------------------------
@@ -80,6 +91,14 @@ export default {
     //---------------------------------------------------
     CurrentAlbum() {
       return this.getAlbum(this.currentAlbumId)
+    },
+    //---------------------------------------------------
+    ApiScope() {
+      return this.scope || "public_profile,user_photos,user_videos"
+    },
+    //---------------------------------------------------
+    ProfileSelectorIds() {
+      return this.profileSelectorIds || this.userId || undefined
     },
     //---------------------------------------------------
     GuiLayout(){
@@ -134,7 +153,11 @@ export default {
             comConf : {
               text : "=name",
               src  : "=thumb_src",
-              style : {
+              className : [
+                "text-in", "at-bottom","ts-shadow","fs-sm",
+                "of-con-visiable",
+                "hover-to-up-img is-fit-auto"],
+              imageStyle : {
                 "border" : "3px solid #EEE",
                 "border-radius" : "6px"
               }
@@ -167,6 +190,10 @@ export default {
           }
         }
       }
+    },
+    //---------------------------------------------------
+    ReloginFBAccount() {
+      this.checkdLongLiveAccessToken(true)
     },
     //---------------------------------------------------
     FBAPI(path) {
@@ -216,14 +243,37 @@ export default {
         albumId : this.currentAlbumId,
         access_token : this.myLongLiveAK
       })
+
+      // Save to cache
+      if(!_.isEmpty(this.myPhotoList) && this.domain) {
+        let input = JSON.stringify(this.myPhotoList)
+        let cmdText = `str > ~/.domain/facebook/${this.domain}/${this.currentAlbumId}.photos.json`
+        await Wn.Sys.exec2(cmdText, {input})
+      }
     },
     //---------------------------------------------------
     async reloadAlbums() {
+      this.myAlbumList = undefined
       this.myAlbumList = await Ti.Api.Facebook.getAlbumList({
         userId : this.myId,
         access_token : this.myLongLiveAK,
         loadCover : true
       })
+      // If current album out of the albumn list
+      // Maybe user switch the account, then clean the photoList
+      if(this.currentAlbumId) {
+        let currentInAlbum = false
+        for(let al of this.myAlbumList) {
+          if(al.id == this.currentAlbumId) {
+            currentInAlbum = true
+            break
+          }
+        }
+        if(!currentInAlbum) {
+          this.currentAlbumId = null
+          this.myPhotoList = []
+        }
+      }
     },
     //---------------------------------------------------
     async reloadLongLiveAccessToken(accessToken) {
@@ -242,15 +292,27 @@ export default {
 
       // Save to remote
       if(reo.access_token) {
+        let expireAt = Date.now() + reo.expires_in * 1000
+        // Update file content
         let jsonToken = JSON.stringify({
           userId : this.myId,
+          userName : this.myName,
+          scope : this.ApiScope,
+          grantedScopes : this.myGrantedScopes,
           longLiveAccessToken : reo.access_token,
           tokenExpiresIn : reo.expires_in,
           tokenType : reo.token_type,
-          tokenExpaireAt : Date.now() + reo.expires_in * 1000
+          tokenExpireAt : expireAt
         })
-        let cmdText = `jsonx -qn @read ~/facebook -auto @set '${jsonToken}' > ~/facebook`
+        let cmdText = `jsonx -qn @read id:${this.meta.id} -auto @set '${jsonToken}' > id:${this.meta.id}`
         await Wn.Sys.exec2(cmdText)
+        // Update file meta
+        let objMeta = JSON.stringify({
+          title : this.myName,
+          token_expire_at : expireAt
+        })
+        cmdText = `o id:${this.meta.id} @update`
+        await Wn.Sys.exec2(cmdText, {input:objMeta})
       }
       // Error
       else {
@@ -258,21 +320,30 @@ export default {
       }
     },
     //---------------------------------------------------
-    checkdLongLiveAccessToken() {
+    checkdLongLiveAccessToken(force=false) {
       // Refresh token before a day
-      let expiAt = this.tokenExpaireAt - 86400000
-      if(Date.now() > expiAt || !this.myId || !this.longLiveAccessToken) {
+      let expiAt = this.tokenExpireAt - 86400000
+      if(force || Date.now() > expiAt || !this.myId || !this.longLiveAccessToken) {
         FB.login(resp => {
           console.log("after login", resp)
           if (resp.authResponse) {
-            let {accessToken, userID} = resp.authResponse
-            this.myId = userID 
-            // Get Long Live Access Token
-            this.reloadLongLiveAccessToken(accessToken)
-              .then(()=>{
-                this.reloadAlbums()
-              })
+            let {accessToken, userID, grantedScopes} = resp.authResponse
+            this.myId = userID
+            this.myGrantedScopes = grantedScopes
+            FB.api('/'+userID, resp => {
+              //console.log('Good to see you, ' + resp.name + '.', resp);
+              // Get Long Live Access Token
+              this.myName = resp.name
+              this.reloadLongLiveAccessToken(accessToken)
+                .then(()=>{
+                  this.reloadAlbums()
+                })
+            });
           }
+        }, {
+          scope: this.ApiScope,
+          return_scopes: true,
+          profile_selector_ids : this.ProfileSelectorIds
         })
       }
       // Has a valid LongLiveAK

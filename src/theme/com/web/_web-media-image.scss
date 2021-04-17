@@ -31,6 +31,13 @@
     padding: SZ(6) SZ(6);    
   }
   //-----------------------------------------
+  &.of-con-hidden   .as-img-con {overflow: hidden;}
+  &.of-con-visiable .as-img-con {overflow: visible;}
+  //-----------------------------------------
+  &.is-fit-auto img {
+    width: auto; height: auto; 
+    max-height: 100%; max-width: 100%;
+  }
   &.is-fit-none    img {object-fit: unset;}
   &.is-fit-contain img {object-fit: contain;}
   &.is-fit-cover   img {object-fit: cover; }
@@ -79,6 +86,13 @@
   &.hover-to-up {
     transition: transform 0.3s; 
     &:hover {
+      transform: translateY(-3px);
+      box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
+    }
+  }
+  &.hover-to-up-img {
+    .as-img-con img {transition: transform 0.3s; }
+    &:hover .as-img-con img {
       transform: translateY(-3px);
       box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
     }

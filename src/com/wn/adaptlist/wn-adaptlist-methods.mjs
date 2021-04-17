@@ -68,8 +68,8 @@ const OBJ = {
       })
       // console.log(json)
       let newMeta = await Wn.Sys.exec2(
-          `obj id:${this.meta.id} -cqno -new '${json}'`,
-          {as:"json"})
+          `o @create -p id:${this.meta.id} @json -cqn`,
+          {as:"json", input: json})
       // Error
       if(newMeta instanceof Error) {
         Ti.Toast.Open("i18n:wn-create-fail", "error")
