@@ -29,7 +29,7 @@ const TiCss = {
     if(_.isNumber(input)) {
       return input
     }
-    let m = /^(-?[\d.]+)(px|rem|em|%s)?$/.exec(input);
+    let m = /^(-?[\d.]+)(px|rem|em|%)?$/.exec(input);
     if(m) {
       let v = m[1] * 1
       let fn = ({

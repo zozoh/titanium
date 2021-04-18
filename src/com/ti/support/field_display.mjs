@@ -24,22 +24,6 @@ function _render_iteratee({
 function __eval_com_conf_item(val, cx={}) {
   // String valu3
   if(_.isString(val)) {
-    if("=preview" == val)
-      console.log("item", val)
-    //........................................
-    // Function call
-    //........................................
-    // let m = /^=>(.+)$/.exec(val)
-    // if(m) {
-    //   let func = Ti.Util.genInvoking(m[1], {
-    //     context: {
-    //       ...cx,
-    //       item: cx.itemData
-    //     },
-    //     partial: "left"
-    //   })
-    //   return func()
-    // }
     if(/^[-=]/.test(val)) {
       return Ti.Util.explainObj({
         ...cx,

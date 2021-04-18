@@ -55,7 +55,7 @@ const _M = {
               'WnImgPick','WnVideoPick','WnAudioPick',
               'WnAttachmentPick', 'WnAlbumPick'
             ].join(' '),
-            ['WnYoutubePick', 'WnFacebookPick'].join(' '),
+            ['WnYoutubePick','WnYtPlaylistPick', 'WnFbAlubmPick'].join(' '),
             'superscript subscript',
             'edit removeformat',
             'TiPreview']

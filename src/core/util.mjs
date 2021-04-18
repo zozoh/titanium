@@ -424,7 +424,11 @@ const TiUtil = {
           let v4 = iteratee(v3)
           // key `...` -> assign o1
           if("..." == k2) {
-            _.assign(o2, v4)
+            if(_.isPlainObject(v4)) {
+              _.assign(o2, v4)
+            } else {
+              o2[k2] = v4
+            }
           }
           // escape the "..."
           else if(/^\.{3,}$/.test(k2)) {

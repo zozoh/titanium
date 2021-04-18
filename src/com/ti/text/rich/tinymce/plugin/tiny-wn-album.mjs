@@ -87,7 +87,6 @@ function UpdateAlbumTagInnerHtml($album, settings, {
 
     // Load and rendering
     settings.load(album).then((data)=>{
-      console.log("load", data)
       AB.renderItems(data)
     })
   }
@@ -108,7 +107,10 @@ function CmdInsertAlbum(editor, oAlbum) {
   let $doc = rng.commonAncestorContainer.ownerDocument
   let $album = Ti.Dom.createElement({
     tagName : "div",
-    className : "wn-media as-photos as-album"
+    attrs : {
+      tiAlbumType : "album"
+    },
+    className : "wn-media as-album"
   }, $doc)
   
   // Update INNER HTML
@@ -126,7 +128,7 @@ function CmdInsertAlbum(editor, oAlbum) {
 
 }
 ////////////////////////////////////////////////////
-function CmdReloadAlbumAlbum(editor, settings) {
+function CmdReloadAlbum(editor, settings) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
   if(!_.isElement($album)) {
@@ -144,19 +146,7 @@ function GetCurrentAlbumElement(editor) {
     return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-album")
   })
 }
-////////////////////////////////////////////////////
-function CmdSetAlbumSize(editor, {width="", height=""}={}) {
-  let $album = GetCurrentAlbumElement(editor)
-  // Guard
-  if(!_.isElement($album)) {
-    return
-  }
-  // Clear the attribute
-  Ti.Dom.setStyle($album, {width, height})
-  // Force sync content
-  editor.__rich_tinymce_com.syncContent()
-}
-////////////////////////////////////////////////////
+///////////////////////////////////////////////////
 function CmdSetAlbumStyle(editor, css={}) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
@@ -178,7 +168,7 @@ async function CmdShowAlbumProp(editor, settings) {
   // Gen the properties
   let AB = GetAlbumWidget($album)
   let data = AB.getData()
-  console.log(data)
+  //console.log(data)
 
   //console.log(data)
   // Show dialog
@@ -194,7 +184,7 @@ async function CmdShowAlbumProp(editor, settings) {
     result : data,
     model : {prop:"data", event:"change"},
     comType : "TiForm",
-    comConf : AB.getEditFormConfig(),
+    comConf : Ti.Widget.Album.getEditFormConfig(),
     components : []
   })
 
@@ -243,14 +233,6 @@ export default {
         })
     }
     editor.wn_album_settings = settings
-    // 读取信息
-    //..............................................
-    // Register plugin command
-    editor.addCommand("InsertAlbum",   CmdInsertAlbum)
-    editor.addCommand("SetAlbumSize",  CmdSetAlbumSize)
-    editor.addCommand("SetAlbumStyle", CmdSetAlbumStyle)
-    editor.addCommand("ReloadAlbumAlbum", CmdReloadAlbumAlbum)
-    editor.addCommand("ShowAlbumProp", CmdShowAlbumProp)
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnAlbumPick", {
@@ -261,135 +243,19 @@ export default {
       },
     })
     //..............................................
-    editor.ui.registry.addMenuItem("WnAlbumClrSize", {
-      text : "清除相册尺寸",
-      onAction() {
-        editor.execCommand("SetAlbumSize", editor)
-      }
+    let {
+      CMD_SET_STYLE, CMD_RELOAD, CMD_PROP
+    } = Ti.Widget.Album.registryTinyMceMenuItem(editor, {
+      prefix : "album",
+      settings,
+      GetCurrentAlbumElement
     })
     //..............................................
-    editor.ui.registry.addMenuItem("WnAlbumAutoFitWidth", {
-      text : "自动适应宽度",
-      onAction() {
-        editor.execCommand("SetAlbumSize", editor, {width:"100%"})
-      }
-    })
-    //..............................................
-    editor.ui.registry.addNestedMenuItem('WnAlbumFloat', {
-      text: '文本绕图',
-      getSubmenuItems: function () {
-        return [{
-          type : "menuitem",
-          icon : "align-left",
-          text : "居左绕图",
-          onAction() {
-            editor.execCommand("SetAlbumStyle", editor, {float:"left"})
-          }
-        }, {
-          type : "menuitem",
-          icon : "align-right",
-          text : "居右绕图",
-          onAction() {
-            editor.execCommand("SetAlbumStyle", editor, {float:"right"})
-          }
-        }, {
-          type : "menuitem",
-          text : "清除浮动",
-          onAction() {
-            editor.execCommand("SetAlbumStyle", editor, {float:""})
-          }
-        }];
-      }
-    });
-    //..............................................
-    editor.ui.registry.addNestedMenuItem('WnAlbumMargin', {
-      text: '相册边距',
-      getSubmenuItems: function () {
-        const __check_margin_size = function(api, expectSize) {
-          let $album = GetCurrentAlbumElement(editor)
-          let state = true
-          if($album) {
-            let sz = $album.style.marginLeft || $album.style.marginRight
-            state = expectSize == sz
-          }
-          api.setActive(state);
-          return function() {};
-        }
-        return [{
-          type : "togglemenuitem",
-          text : "小边距",
-          onAction() {
-            editor.execCommand("SetAlbumStyle", editor, {margin:"1em"})
-          },
-          onSetup: function(api) {
-            return __check_margin_size(api, '1em')
-          }
-        }, {
-          type : "togglemenuitem",
-          text : "中等边距",
-          onAction() {
-            editor.execCommand("SetAlbumStyle", editor, {margin:"2em"})
-          },
-          onSetup: function(api) {
-            return __check_margin_size(api, '2em')
-          }
-        }, {
-          type : "togglemenuitem",
-          text : "较大边距",
-          onAction() {
-            editor.execCommand("SetAlbumStyle", editor, {margin:"3em"})
-          },
-          onSetup: function(api) {
-            return __check_margin_size(api, '3em')
-          }
-        }, {
-          type : "menuitem",
-          icon : "align-center",
-          text : "边距居中",
-          onAction() {
-            editor.execCommand("SetVideoStyle", editor, {margin:"0 auto"})
-          }
-        }, {
-          type : "menuitem",
-          icon : "square-6",
-          text : "清除边距",
-          onAction() {
-            editor.execCommand("SetAlbumStyle", editor, {margin:""})
-          }
-        }];
-      }
-    });
-    //..............................................
-    editor.ui.registry.addMenuItem("WnAlbumReload", {
-      icon : "sync-alt-solid",
-      text : "刷新相册内容",
-      onAction() {
-        editor.execCommand("ReloadAlbumAlbum", editor, settings)
-      }
-    })
-    //..............................................
-    editor.ui.registry.addMenuItem("WnAlbumProp", {
-      text : "相册属性",
-      onAction() {
-        editor.execCommand("ShowAlbumProp", editor, settings)
-      }
-    })
-    //..............................................
-    editor.ui.registry.addContextMenu("wn-album", {
-      update: function (el) {
-        let $album = GetCurrentAlbumElement(editor)
-        // Guard
-        if(!_.isElement($album)) {
-          return []
-        }
-        return [
-          "WnAlbumClrSize WnAlbumAutoFitWidth",
-          "WnAlbumFloat WnAlbumMargin",
-          "WnAlbumReload",
-          "WnAlbumProp"
-        ].join(" | ")
-      }
-    })
+    // Register plugin command
+    editor.addCommand("InsertAlbum",   CmdInsertAlbum)
+    editor.addCommand(CMD_SET_STYLE, CmdSetAlbumStyle)
+    editor.addCommand(CMD_RELOAD,   CmdReloadAlbum)
+    editor.addCommand(CMD_PROP, CmdShowAlbumProp)
     //..............................................
     editor.on("SetContent", function() {
       //console.log("SetContent album")

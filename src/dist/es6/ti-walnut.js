@@ -1,4 +1,4 @@
-// Pack At: 2021-04-18 02:57:41
+// Pack At: 2021-04-19 03:38:57
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1521,7 +1521,7 @@ const Util = (function(){
         }
         if(!BD)
           return;
-  
+        console.log(name, BD)
         // Quick badge
         if(_.isArray(BD)) {
           if(BD.length == 1){
@@ -1532,16 +1532,17 @@ const Util = (function(){
           }
         }
         // Auto match badge
-        else if(BD.test && BD.value && BD.value) {
-          if(Ti.AutoMatch.test(BD.test, meta)) {
-            let bag = Ti.Util.explainObj(meta, {
-              type: BD.type || "icon",
-              className: BD.className,
-              value: BD.value
-            })
-            if(bag)
-              badges[name] = bag
+        else if(_.isPlainObject(BD) && BD.value) {
+          if(BD.test && !Ti.AutoMatch.test(BD.test, meta)) {
+            return
           }
+          let bag = Ti.Util.explainObj(meta, {
+            type: BD.type || "icon",
+            className: BD.className,
+            value: BD.value
+          })
+          if(bag)
+            badges[name] = bag
         }
         // Static badge
         else {
@@ -2163,6 +2164,28 @@ const Hm = (function(){
      * @return `TiForm` fields setup
      */
     findCssPropFields(filter=true) {
+      // Quick name
+      let qf = ({
+        "#BLOCK" : [
+          /^(margin|padding|border|overflow|background)-?/,
+          /^(box-shadow|float)$/,
+          /^((max|min)-)?(width|height)$/
+        ],
+        "#IMG" : [
+          /^(margin|border|obj)-?/,
+          /^(box-shadow|float)$/,
+          /^((max|min)-)?(width|height)$/
+        ],
+        "#TEXT" : [
+          /^(color)$/,
+          /^(text-(align|transform|shadow|overflow))$/,
+          /^(font-size|line-height|letter-spacing)$/,
+        ]
+      })[filter]
+      if(qf) {
+        filter = qf
+      }
+  
       let am = Ti.AutoMatch.parse(filter)
       // Get the field list
       let fldMap = {}
@@ -3250,7 +3273,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210418.025741"
+const WALNUT_VERSION = "1.2-20210419.033858"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

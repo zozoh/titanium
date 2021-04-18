@@ -1,3 +1,22 @@
+.ti-widget-album {
+  position: relative; }
+
+.ti-widget-album .album-loading-stub {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  height: 100%;
+  padding: 0.2rem;
+  font-size: 0.32rem; }
+
 .ti-widget-album > .photo-wall {
   display: flex;
   justify-content: flex-start;
@@ -13,18 +32,38 @@
     .ti-widget-album > .photo-wall .wall-tile img {
       width: 100%;
       height: 100%;
-      object-fit: cover; }
+      object-fit: cover;
+      display: block; }
+  .ti-widget-album > .photo-wall.layout-falls {
+    flex-wrap: nowrap;
+    align-items: flex-start; }
+    .ti-widget-album > .photo-wall.layout-falls .falls-group {
+      display: flex;
+      justify-content: flex-start;
+      align-items: stretch;
+      align-content: stretch;
+      flex-wrap: nowrap;
+      flex-direction: column; }
+      .ti-widget-album > .photo-wall.layout-falls .falls-group .wall-tile {
+        flex: 1 1 auto;
+        height: unset;
+        width: unset; }
   .ti-widget-album > .photo-wall.hover-to-up .wall-tile {
-    transition: transform 0.3s; }
+    transition: transform 0.5s; }
     .ti-widget-album > .photo-wall.hover-to-up .wall-tile:hover {
       transform: translateY(-3px);
       box-shadow: 0.04rem 0.04rem 0.1rem rgba(30, 30, 30, 0.2); }
   .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile {
     overflow: hidden; }
     .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile img {
-      transition: transform 0.5s; }
+      transition: transform 0.3s; }
     .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile:hover img {
       transform: scale(1.2); }
+  .ti-widget-album > .photo-wall.hover-to-scale .wall-tile {
+    transition: transform 0.3s; }
+    .ti-widget-album > .photo-wall.hover-to-scale .wall-tile:hover {
+      transform: scale(1.2);
+      box-shadow: 0.04rem 0.04rem 0.1rem rgba(30, 30, 30, 0.2); }
   .ti-widget-album > .photo-wall.pic-fit-fill .wall-tile img {
     object-fit: fill; }
   .ti-widget-album > .photo-wall.pic-fit-cover .wall-tile img {

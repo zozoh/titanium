@@ -1,4 +1,4 @@
-// Pack At: 2021-04-18 02:57:41
+// Pack At: 2021-04-19 03:38:57
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3563,17 +3563,13 @@ const {Dom} = (function(){
       if(className) {
         $el.className = Ti.Css.joinClassNames(className)
       }
-      
+  
+      Ti.Dom.setStyle($el, style)
       TiDom.setAttrs($el, attrs)
       TiDom.setData($el, data)
   
       _.forEach(props, (val, key) => {
         $el[key] = val
-      })
-  
-      _.forEach(style, (val, key) => {
-        let k = _.camelCase(key)
-        $el.style[k] = val
       })
   
       if($refer && !$p) {
@@ -3681,17 +3677,29 @@ const {Dom} = (function(){
       for(let i=0; i<$el.attributes.length; i++) {
         let {name,value} = $el.attributes[i]
         let key = filter(name, value)
-        if(key) {
-          if(_.isBoolean(key)) {
-            key = name
-          }
-          if("true" == value) {
-            value = true
-          } else if ("false" == value) {
-            value = false
-          }
-          re[key] = value
+        let val = value
+        // Just say yes
+        if(_.isBoolean(key)) {
+          key = name
         }
+        // convert name and value
+        else if(_.isPlainObject(key)) {
+          val = key.value
+          key = key.name
+        }
+        // say no ..
+        if(!key) {
+          continue;
+        }
+        // Auto convert "true/false"
+        if("true" == val) {
+          val = true
+        } else if ("false" == val) {
+          val = false
+        }
+        // Set the value
+        re[key] = val
+        
       }
       return re
     },
@@ -4189,9 +4197,20 @@ const {Dom} = (function(){
       _.forEach(attrs, (val, key)=>{
         let k2 = prefix ? prefix + key : key
         let k3 = _.kebabCase(k2)
-        if(_.isUndefined(val))
+        
+        // Style
+        if("style" == k3) {
+          if(Ti.Util.isNil(val)) {
+            $el.removeAttribute("style")
+          } else {
+            let cssStyle = TiDom.renderCssRule(val)
+            $el.style = cssStyle
+          }
+        }
+        // Other attribute
+        else if(_.isUndefined(val)){
           return
-        if(_.isNull(val)) {
+        } else if(_.isNull(val)) {
           $el.removeAttribute(k3)
         } else {
           $el.setAttribute(k3, val)
@@ -9056,7 +9075,11 @@ const {Util} = (function(){
             let v4 = iteratee(v3)
             // key `...` -> assign o1
             if("..." == k2) {
-              _.assign(o2, v4)
+              if(_.isPlainObject(v4)) {
+                _.assign(o2, v4)
+              } else {
+                o2[k2] = v4
+              }
             }
             // escape the "..."
             else if(/^\.{3,}$/.test(k2)) {
@@ -11906,7 +11929,7 @@ const {Css} = (function(){
       if(_.isNumber(input)) {
         return input
       }
-      let m = /^(-?[\d.]+)(px|rem|em|%s)?$/.exec(input);
+      let m = /^(-?[\d.]+)(px|rem|em|%)?$/.exec(input);
       if(m) {
         let v = m[1] * 1
         let fn = ({
@@ -13300,7 +13323,7 @@ const {Album} = (function(){
   const ALBUM_CLASS_NAME = "ti-widget-album"
   const WALL_CLASS_NAME = "photo-wall"
   const DFT_WALL_CLASS = [
-    'flex-none','item-margin-no','item-padding-sm',
+    'flex-none','item-margin-md','item-padding-no',
     'pic-fit-cover','hover-to-zoom'
   ]
   ////////////////////////////////////////////////
@@ -13316,11 +13339,6 @@ const {Album} = (function(){
           name : "=name",
           link : "=link",
           src  : "=src"
-        },
-        photoToItem : {
-          name : "=name",
-          link : "=link",
-          src  : "=src"
         }
       }, setup)
     }
@@ -13328,15 +13346,20 @@ const {Album} = (function(){
     setData(album={}) {
       let {attrPrefix} = this.setup
       let attrs = this.formatData(album)
-      
-      Ti.Dom.setAttrs(this.$el, attrs, attrPrefix)
+      // Clean the attribute for re-count the falls columns
+      _.assign(attrs, {
+        tiAlbumFallsWidth : null,
+        tiAlbumFallsCount : null,
+      })
+      Ti.Dom.setStyle(this.$el, attrs.style)
+      Ti.Dom.setAttrs(this.$el, _.omit(attrs, "style"), attrPrefix)
     }
     //---------------------------------------
     formatData(album={}) {
       let {dftWallClass} = this.setup
       let {
-        id, name, link,
-        albumStyle, wallStyle, tileStyle, imageStyle,
+        id, name, link, layout,
+        style, wallStyle, tileStyle, imageStyle,
         wallClass
       } = album
   
@@ -13344,15 +13367,15 @@ const {Album} = (function(){
         dftList : dftWallClass
       })
   
-      Ti.Dom.formatStyle(albumStyle)
+      Ti.Dom.formatStyle(style)
       Ti.Dom.formatStyle(wallStyle)
       Ti.Dom.formatStyle(tileStyle)
       Ti.Dom.formatStyle(imageStyle)
   
       return {
-        id,name,link, 
+        id,name,link, layout,
         wallClass  : wallClass.join(" "), 
-        albumStyle : Ti.Dom.renderCssRule(albumStyle),
+        style      : Ti.Dom.renderCssRule(style),
         wallStyle  : Ti.Dom.renderCssRule(wallStyle),
         tileStyle  : Ti.Dom.renderCssRule(tileStyle),
         imageStyle : Ti.Dom.renderCssRule(imageStyle),
@@ -13363,15 +13386,18 @@ const {Album} = (function(){
       let {attrPrefix} = this.setup
       let N = attrPrefix.length
       let album = Ti.Dom.attrs(this.$el, (name)=>{
+        if("style" == name) {
+          return name
+        }
         if(name.startsWith(attrPrefix)) {
           return _.camelCase(name.substring(N))
         }
       })
       let {
-        wallClass, albumStyle, wallStyle, tileStyle, imageStyle
+        style, wallClass, wallStyle, tileStyle, imageStyle
       } = album
-      album.wallClass = Ti.Dom.getClassList(wallClass).join(" ")
-      album.albumStyle = Ti.Dom.parseCssRule(albumStyle)
+      album.wallClass  = Ti.Dom.getClassList(wallClass).join(" ")
+      album.style      = Ti.Dom.parseCssRule(style)
       album.wallStyle  = Ti.Dom.parseCssRule(wallStyle)
       album.tileStyle  = Ti.Dom.parseCssRule(tileStyle)
       album.imageStyle = Ti.Dom.parseCssRule(imageStyle)
@@ -13380,7 +13406,13 @@ const {Album} = (function(){
     //---------------------------------------
     covertToPhotos(items=[]) {
       let {itemToPhoto} = this.setup
-      return _.map(items, it=>Ti.Util.explainObj(it, itemToPhoto))
+      return _.map(items, it=>{
+        let po = Ti.Util.explainObj(it, itemToPhoto, {
+          evalFunc : true
+        })
+        po.item = it
+        return po
+      })
     }
     //---------------------------------------
     renderItems(items=[]) {
@@ -13389,56 +13421,173 @@ const {Album} = (function(){
     }
     //---------------------------------------
     renderPhotos(photos=[]) {
+      let {attrPrefix} = this.setup
       let album = this.getData()
-      album = this.formatData(album)
   
-      // Outer style
-      this.$el.style = album.albumStyle
+      // Build OUTER
+      let $wall = Ti.Dom.createElement({
+        tagName : "div",
+        className : [
+          WALL_CLASS_NAME, album.wallClass,
+          `layout-${album.layout||"wall"}`
+        ],
+        style : album.wallStyle
+      })
   
-      // Build HTML
-      let alClass = _.uniq(_.concat(WALL_CLASS_NAME, album.wallClass)).join(" ")
-      let html = [`<div class="${alClass}">`]
-      for(let po of photos) {
-        let {src, link, name} = po
-        html.push(`<a class="wall-tile" href="${link||'#'}" title="${name||''}">`)
-        html.push(`<img src="${src}"/>`)
-        html.push('</a>')
+      // Render photos
+      if("falls" == album.layout) {
+        this.renderPhotosAsFalls(photos, {$wall, album, attrPrefix})
+      } else {
+        this.renderPhotosAsWall(photos, {$wall, album, attrPrefix})
       }
-      html.push('</div>')
-      this.$el.innerHTML = html.join("")
   
-      // Update style
-      let $wall = Ti.Dom.find(":scope > ."+WALL_CLASS_NAME, this.$el)
-      $wall.style = album.wallStyle
+      // Update content
+      this.$el.innerHTML = ""
+      Ti.Dom.appendTo($wall, this.$el)
+    }
+    //---------------------------------------
+    renderPhotosAsWall(photos=[], {$wall, album, attrPrefix}) {
+      // Build tils
+      for(let i=0; i<photos.length; i++) {
+        this.createPhotoTileElement($wall, photos[i], album, attrPrefix)
+      }
+    }
+    //---------------------------------------
+    renderPhotosAsFalls(photos=[], {$wall, album, attrPrefix}) {
+      //
+      // Eval columns
+      let {count, width} = this.evalColumns($wall, album)
+      //console.log("renderPhotosAsFalls", album)
   
-      let $tiles = Ti.Dom.findAll(".wall-tile", $wall)
-      for(let i=0; i<$tiles.length; i++) {
-        let $tile = $tiles[i]
-        let $img = Ti.Dom.find("img", $tile)
-        $tile.style = album.tileStyle
-        $img.style = album.imageStyle
+      // Save status
+      Ti.Dom.setAttrs(this.$el, {count,width}, "ti-album-falls-")
+  
+      // Prepare the falls groups
+      let $fallsGroups = []
+      for(let i=0; i<count; i++) {
+        let $grp = Ti.Dom.createElement({
+          $p : $wall,
+          tagName : "div",
+          className : "falls-group",
+          style : {width}
+        })
+        $fallsGroups.push($grp)
+      }
+  
+      // Prepare style
+      let {tileStyle, imageStyle} = album
+      tileStyle = _.omit(tileStyle, "width", "maxWidth", "minWidth")
+  
+      // Build tils
+      for(let i=0; i<photos.length; i++) {
+        let gIx = i % count
+        let $grp = $fallsGroups[gIx]
+        this.createPhotoTileElement($grp, photos[i], {tileStyle, imageStyle}, attrPrefix)
+      }
+    }
+    //---------------------------------------
+    createPhotoTileElement($p, photo, {tileStyle, imageStyle}, attrPrefix) {
+      let {src, link, name, item} = photo
+      let $tile = Ti.Dom.createElement({
+        $p,
+        tagName : "a",
+        className : "wall-tile",
+        style : tileStyle,
+        attrs : {
+          href  : link || null,
+          title : name || null,
+          target : "_blank"
+        }
+      })
+      let $img = Ti.Dom.createElement({
+        $p : $tile,
+        tagName : "img",
+        style : imageStyle,
+        attrs : {
+          src : src
+        }
+      })
+      // Save photo setting
+      Ti.Dom.setAttrs($img, item, attrPrefix)
+    }
+    //---------------------------------------
+    evalColumns($wall, album) {
+      // In WWW page, the album always be redraw in background DIV
+      // it was not JOIN the DOM tree yet. so, we can not get the measure.
+      // At the editing time, we save the two attribute to avoid eval
+      // them in this case.
+      let {count, width} = Ti.Dom.attrs(this.$el, (name, value)=>{
+        if("ti-album-falls-width" == name) {
+          return "width"
+        }
+        if("ti-album-falls-count" == name) {
+          return {name:"count", value: value* 1}
+        }
+      })
+      if(count > 0) {
+        return {count, width}
+      }
+  
+      // Then lets see how to calculate the two values ...
+      // Insert stub to measure the inner size
+      console.log("evalColumns", album)
+      this.$el.innerHTML = ""
+      Ti.Dom.appendTo($wall, this.$el)
+      this.showLoading($wall)
+  
+      // Get the stub
+      let $stub = Ti.Dom.find(".album-loading-stub", $wall)
+      let stubW = $stub.clientWidth
+  
+      // Get rem base
+      let $html = $stub.ownerDocument.documentElement
+      let fontSize = $html.style.fontSize || "100px"
+      let remBase = Ti.Css.toAbsPixel(fontSize)
+      let absCtx = {remBase, base: stubW}
+  
+      // Get tile width
+      let itW = _.get(album, "tileStyle.width") || "2rem"
+      let itWpx = Ti.Css.toAbsPixel(itW, absCtx)
+  
+      if(itWpx > 0) {
+        Ti.Dom.remove($stub)
+        return {
+          count : Math.floor(stubW / itWpx),
+          width : itW
+        }
+      }
+      // KAO!!!
+      else {
+        throw "Fail to eval falls columns count: itW: " + itW
       }
     }
     //---------------------------------------
     getPhotos() {
+      let {attrPrefix} = this.setup
+      let N = attrPrefix.length
       let list = []
       let $wall = Ti.Dom.find(":scope > ."+WALL_CLASS_NAME, this.$el)
       let $tiles = Ti.Dom.findAll(".wall-tile", $wall)
       for(let i=0; i<$tiles.length; i++) {
         let $tile = $tiles[i]
         let $img = Ti.Dom.find("img", $tile)
+        let item = Ti.Dom.attrs($img, (name)=>{
+          if(name.startsWith(attrPrefix)) {
+            return _.camelCase(name.substring(N))
+          }
+        })
         list.push({
           name : $tile.getAttribute("title") || null,
           link : $tile.getAttribute("href") || null,
-          src  : $img.getAttribute("src") || null
+          src  : $img.getAttribute("src") || null,
+          item
         })
       }
       return list
     }
     //---------------------------------------
     convertToItems(photos=[]) {
-      let {photoToItem} = this.setup
-      return _.map(photos, photo=>Ti.Util.explainObj(photo, photoToItem))
+      return _.map(photos, photo=>photo.item)
     }
     //---------------------------------------
     getItems() {
@@ -13446,13 +13595,18 @@ const {Album} = (function(){
       return this.convertToItems(photos)
     }
     //---------------------------------------
-    showLoading() {
-      this.$el.innerHTML = [
-        `<div class="media-inner">`,
+    showLoading($ta) {
+      $ta = $ta || this.$el
+      $ta.innerHTML = [
+        `<div class="album-loading-stub">`,
         `<i class="fas fa-spinner fa-spin"></i>`,
         `</div>`
       ].join("")
     }
+    //---------------------------------------
+  }
+  ////////////////////////////////////////////////
+  const Album = {
     //---------------------------------------
     getEditFormConfig() {
       return {
@@ -13470,11 +13624,24 @@ const {Album} = (function(){
           }, {
             title : "相册外观",
             fields : [{
+                title : "布局模式",
+                name  : "layout",
+                defaultAs : "wall",
+                comType : "TiSwitcher",
+                comConf : {
+                  options : [
+                    {value: "wall",  text:"i18n:hmk-layout-wall"},
+                    {value: "falls",  text:"i18n:hmk-layout-falls"}]
+                }
+              }, {
                 title : "外部样式",
-                name  : "albumStyle",
+                name  : "style",
                 type  : "Object",
                 emptyAs : null,
-                comType : "HmPropCssRules"
+                comType : "HmPropCssRules",
+                comConf : {
+                  rules : "#BLOCK"
+                }
               }, {
                 title : "整体风格",
                 name : "wallClass",
@@ -13553,34 +13720,180 @@ const {Album} = (function(){
                 name  : "wallStyle",
                 type  : "Object",
                 emptyAs : null,
-                comType : "HmPropCssRules"
+                comType : "HmPropCssRules",
+                comConf : {
+                  rules : "#BLOCK"
+                }
               }, {
                 title : "瓦片样式",
                 name  : "tileStyle",
                 type  : "Object",
                 emptyAs : null,
-                comType : "HmPropCssRules"
+                comType : "HmPropCssRules",
+                comConf : {
+                  rules : "#BLOCK"
+                }
               }, {
                 title : "图片样式",
                 name  : "imageStyle",
                 type  : "Object",
                 emptyAs : null,
-                comType : "HmPropCssRules"
+                comType : "HmPropCssRules",
+                comConf : {
+                  rules : "#IMG"
+                }
               }]
           }]
       } // return {
-    }
+    },
     //---------------------------------------
-  }
-  ////////////////////////////////////////////////
-  const Album = {
+    registryTinyMceMenuItem(editor, {
+      prefix,
+      settings,
+      GetCurrentAlbumElement
+    }) {
+      const NM = (...ss)=>{
+        let re = _.camelCase(ss.join("-"))
+        return _.capitalize(re)
+      }
+      let NM_MENU = _.kebabCase(["wn", prefix].join("-"))
+      let NM_PROP = NM("Wn",prefix,"Prop")
+      let NM_RELOAD = NM("Wn",prefix,"Reload")
+      let NM_AUTO_FIT_WIDTH = NM("Wn",prefix,"AutoFitWidth")
+      let NM_MARGIN = NM("Wn",prefix,"Margin")
+      let NM_CLR_SZ = NM("Wn",prefix,"ClrSize")
+  
+      let CMD_SET_STYLE = NM("Set",prefix,"Style")
+      let CMD_RELOAD = NM("Reload",prefix)
+      let CMD_PROP = NM("Show",prefix,"Prop")
+      //.....................................
+      editor.ui.registry.addMenuItem(NM_CLR_SZ, {
+        text : "清除相册尺寸",
+        onAction() {
+          editor.execCommand(CMD_SET_STYLE, editor, {
+            width:"", height:"", 
+            maxWidth:"", maxHeight:"",
+            minWidth:"", minHeight:""
+          })
+        }
+      })
+      //.....................................
+      editor.ui.registry.addMenuItem(NM_AUTO_FIT_WIDTH, {
+        text : "自动适应宽度",
+        onAction() {
+          editor.execCommand(CMD_SET_STYLE, editor, {
+            width:"100%", maxWidth:"", minWidth:""
+          })
+        }
+      })
+      //.....................................
+      editor.ui.registry.addMenuItem(NM_MARGIN, {
+        text: '相册边距',
+        getSubmenuItems: function () {
+          const __check_margin_size = function(api, expectSize) {
+            let $album = GetCurrentAlbumElement(editor)
+            let state = true
+            if($album) {
+              let sz = $album.style.marginLeft || $album.style.marginRight
+              state = expectSize == sz
+            }
+            api.setActive(state);
+            return function() {};
+          }
+          return [{
+            type : "togglemenuitem",
+            text : "小边距",
+            onAction() {
+              editor.execCommand(CMD_SET_STYLE, editor, {margin:"1em"})
+            },
+            onSetup: function(api) {
+              return __check_margin_size(api, '1em')
+            }
+          }, {
+            type : "togglemenuitem",
+            text : "中等边距",
+            onAction() {
+              editor.execCommand(CMD_SET_STYLE, editor, {margin:"2em"})
+            },
+            onSetup: function(api) {
+              return __check_margin_size(api, '2em')
+            }
+          }, {
+            type : "togglemenuitem",
+            text : "较大边距",
+            onAction() {
+              editor.execCommand(CMD_SET_STYLE, editor, {margin:"3em"})
+            },
+            onSetup: function(api) {
+              return __check_margin_size(api, '3em')
+            }
+          }, {
+            type : "menuitem",
+            icon : "align-center",
+            text : "边距居中",
+            onAction() {
+              editor.execCommand(CMD_SET_STYLE, editor, {margin:"0 auto"})
+            }
+          }, {
+            type : "menuitem",
+            icon : "square-6",
+            text : "清除边距",
+            onAction() {
+              editor.execCommand(CMD_SET_STYLE, editor, {margin:""})
+            }
+          }];
+        }
+      });
+      //.....................................
+      editor.ui.registry.addMenuItem(NM_RELOAD, {
+        icon : "sync-alt-solid",
+        text : "刷新相册内容",
+        onAction() {
+          editor.execCommand(CMD_RELOAD, editor, settings)
+        }
+      })
+      //.....................................
+      editor.ui.registry.addMenuItem(NM_PROP, {
+        text : "相册属性",
+        onAction() {
+          editor.execCommand(CMD_PROP, editor, settings)
+        }
+      })
+      //.....................................
+      editor.ui.registry.addContextMenu(NM_MENU, {
+        update: function (el) {
+          let $album = GetCurrentAlbumElement(editor)
+          // Guard
+          if(!_.isElement($album)) {
+            return []
+          }
+          return [
+            [NM_CLR_SZ, NM_AUTO_FIT_WIDTH].join(" "),
+            [NM_MARGIN, NM_RELOAD].join(" "),
+            NM_PROP
+          ].join(" | ")
+        }
+      })
+      //.....................................
+      return {
+        NM_MENU,
+        NM_PROP,
+        NM_RELOAD,
+        NM_AUTO_FIT_WIDTH,
+        NM_MARGIN,
+        NM_CLR_SZ,
+        CMD_SET_STYLE,
+        CMD_RELOAD,
+        CMD_PROP,
+      }
+    },
     //---------------------------------------
     getOrCreate($el, setup={}) {
       if(!$el.__ti_photo_wall) {
         $el.__ti_photo_wall = new TiAlbum($el, setup)
       }
       return $el.__ti_photo_wall
-    }
+    },
     //---------------------------------------
   }
   return {Album};
@@ -14128,7 +14441,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210418.025741",
+  "version" : "1.6-20210419.033857",
   "dev" : false,
   "appName" : null,
   "session" : {},

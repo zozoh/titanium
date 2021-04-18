@@ -170,7 +170,7 @@ const WnUtil = {
       }
       if(!BD)
         return;
-
+      console.log(name, BD)
       // Quick badge
       if(_.isArray(BD)) {
         if(BD.length == 1){
@@ -181,16 +181,17 @@ const WnUtil = {
         }
       }
       // Auto match badge
-      else if(BD.test && BD.value && BD.value) {
-        if(Ti.AutoMatch.test(BD.test, meta)) {
-          let bag = Ti.Util.explainObj(meta, {
-            type: BD.type || "icon",
-            className: BD.className,
-            value: BD.value
-          })
-          if(bag)
-            badges[name] = bag
+      else if(_.isPlainObject(BD) && BD.value) {
+        if(BD.test && !Ti.AutoMatch.test(BD.test, meta)) {
+          return
         }
+        let bag = Ti.Util.explainObj(meta, {
+          type: BD.type || "icon",
+          className: BD.className,
+          value: BD.value
+        })
+        if(bag)
+          badges[name] = bag
       }
       // Static badge
       else {

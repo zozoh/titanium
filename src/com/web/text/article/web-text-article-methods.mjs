@@ -146,6 +146,58 @@ export default {
     }
   },
   //--------------------------------------
+  explainTiAlbum($div) {
+    let $els = Ti.Dom.findAll(".ti-widget-album", $div);
+    for(let $el of $els) {
+      //
+      // Get album setup by type
+      //
+      let setup = ({
+        "album" : {
+          attrPrefix : "wn-obj-",
+          itemToPhoto : {
+            name : "=title|nm",
+            link : "#",
+            src  : (obj)=>{
+              return Ti.WWW.evalObjPreviewSrc(obj, {
+                previewKey : "..",
+                previewObj : "..",
+                apiTmpl : this.apiTmpl,
+                cdnTmpl : this.cdnTmpl,
+                dftSrc : this.dftImgSrc
+              })
+            }
+          }
+        },
+        "fb-album" : {
+          attrPrefix : "wn-fb-",
+          itemToPhoto : {
+            name : "=name",
+            link : "=link",
+            src  : "=thumbSrc"  // "thumb_src" will be camelCase
+          }
+        },
+        "yt-playlist" : {
+          attrPrefix : "wn-ytpl-",
+          itemToPhoto : {
+            name : "=title",
+            link : "->https://www.youtube.com/watch?v=${id}",
+            src  : "=thumbUrl"
+          }
+        }
+      })[$el.getAttribute("ti-album-type") || "album"]
+      //
+      // Create widget
+      //
+      let AB = Ti.Widget.Album.getOrCreate($el, setup)
+      
+      // Redraw
+      let items = AB.getItems()
+      console.log(items)
+      AB.renderItems(items)
+    }
+  },
+  //--------------------------------------
   redrawContent() {
     // Guard
     if(!_.isElement(this.$refs.main))
@@ -173,8 +225,11 @@ export default {
     // Audio
     this.explainWnMediaAudio($div)
 
-    // Audio
+    // Youtube video
     this.explainWnMediaYoutube($div)
+
+    // Album: (album/FbAlbum/YtPlaylist)
+    this.explainTiAlbum($div)
 
     // Update the article content
     this.$refs.main.innerHTML = $div.innerHTML

@@ -1,3 +1,14 @@
+//-----------------------------------------
+.ti-widget-album {
+  position: relative;
+}
+.ti-widget-album .album-loading-stub {
+  @include pos-abs-full;
+  @include flex-center;
+  width:100%; height:100%;
+  padding: SZ(20); font-size: SZ(32);
+}
+//-----------------------------------------
 .ti-widget-album > .photo-wall {
   @include flex-align($ai:center, $ac: center);
   padding: SZ(10);
@@ -10,12 +21,31 @@
     img {
       width:100%; height: 100%;
       object-fit: cover;
+      display: block;
     }
     //---------------------------------------
   }
   //-----------------------------------------
+  //
+  // Waterfalls Style
+  // 
+  //-----------------------------------------
+  &.layout-falls {
+    flex-wrap: nowrap; align-items: flex-start;
+    .falls-group {
+      @include flex-align-v-nowrap($ai:stretch);
+      .wall-tile {
+        flex:1 1 auto; height:unset; width: unset;
+      }
+    }
+  }
+  //-----------------------------------------
+  //
+  // Effections 
+  // 
+  //-----------------------------------------
   &.hover-to-up .wall-tile {
-    transition: transform 0.3s; 
+    transition: transform 0.5s; 
     &:hover {
       transform: translateY(-3px);
       box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
@@ -24,9 +54,17 @@
   //-----------------------------------------
   &.hover-to-zoom .wall-tile {
     overflow: hidden;
-    img {transition: transform 0.5s; } 
+    img {transition: transform 0.3s; } 
     &:hover img {
       transform: scale(1.2);
+    }
+  }
+  //-----------------------------------------
+  &.hover-to-scale .wall-tile {
+    transition: transform 0.3s;  
+    &:hover {
+      transform: scale(1.2);
+      box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
     }
   }
   //-----------------------------------------

@@ -89,18 +89,6 @@ export default {
     //---------------------------------------------------
     GuiSchema() {
       return {
-        pcNav: {
-          comType: "TiList",
-          comConf: {
-            data: this.ytPlaylists,
-            idBy: "id",
-            multi: false,
-            currentId : this.currentPlayListId,
-            display: [
-              "<thumbUrl:fas-youtube>", "itemCount::as-tip", "title"
-            ]
-          }
-        },
         pcFilter : {
           comType : "wn-thing-filter",
           comConf : {

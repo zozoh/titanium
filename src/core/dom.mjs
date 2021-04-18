@@ -124,17 +124,29 @@ const TiDom = {
     for(let i=0; i<$el.attributes.length; i++) {
       let {name,value} = $el.attributes[i]
       let key = filter(name, value)
-      if(key) {
-        if(_.isBoolean(key)) {
-          key = name
-        }
-        if("true" == value) {
-          value = true
-        } else if ("false" == value) {
-          value = false
-        }
-        re[key] = value
+      let val = value
+      // Just say yes
+      if(_.isBoolean(key)) {
+        key = name
       }
+      // convert name and value
+      else if(_.isPlainObject(key)) {
+        val = key.value
+        key = key.name
+      }
+      // say no ..
+      if(!key) {
+        continue;
+      }
+      // Auto convert "true/false"
+      if("true" == val) {
+        val = true
+      } else if ("false" == val) {
+        val = false
+      }
+      // Set the value
+      re[key] = val
+      
     }
     return re
   },
@@ -632,9 +644,20 @@ const TiDom = {
     _.forEach(attrs, (val, key)=>{
       let k2 = prefix ? prefix + key : key
       let k3 = _.kebabCase(k2)
-      if(_.isUndefined(val))
+      
+      // Style
+      if("style" == k3) {
+        if(Ti.Util.isNil(val)) {
+          $el.removeAttribute("style")
+        } else {
+          let cssStyle = TiDom.renderCssRule(val)
+          $el.style = cssStyle
+        }
+      }
+      // Other attribute
+      else if(_.isUndefined(val)){
         return
-      if(_.isNull(val)) {
+      } else if(_.isNull(val)) {
         $el.removeAttribute(k3)
       } else {
         $el.setAttribute(k3, val)
