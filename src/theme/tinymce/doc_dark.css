@@ -19,10 +19,12 @@
     .ti-widget-album > .photo-wall.hover-to-up .wall-tile:hover {
       transform: translateY(-3px);
       box-shadow: 0.04rem 0.04rem 0.1rem rgba(0, 0, 0, 0.4); }
-  .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile img {
-    transition: transform 0.5s; }
-  .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile:hover img {
-    transform: scale(1.2); }
+  .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile {
+    overflow: hidden; }
+    .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile img {
+      transition: transform 0.5s; }
+    .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile:hover img {
+      transform: scale(1.2); }
   .ti-widget-album > .photo-wall.pic-fit-fill .wall-tile img {
     object-fit: fill; }
   .ti-widget-album > .photo-wall.pic-fit-cover .wall-tile img {

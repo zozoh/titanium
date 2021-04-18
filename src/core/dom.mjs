@@ -10,17 +10,13 @@ const TiDom = {
     if(className) {
       $el.className = Ti.Css.joinClassNames(className)
     }
-    
+
+    Ti.Dom.setStyle($el, style)
     TiDom.setAttrs($el, attrs)
     TiDom.setData($el, data)
 
     _.forEach(props, (val, key) => {
       $el[key] = val
-    })
-
-    _.forEach(style, (val, key) => {
-      let k = _.camelCase(key)
-      $el.style[k] = val
     })
 
     if($refer && !$p) {

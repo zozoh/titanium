@@ -23,7 +23,8 @@
   }
   //-----------------------------------------
   &.hover-to-zoom .wall-tile {
-    img {transition: transform 0.5s; }
+    overflow: hidden;
+    img {transition: transform 0.5s; } 
     &:hover img {
       transform: scale(1.2);
     }

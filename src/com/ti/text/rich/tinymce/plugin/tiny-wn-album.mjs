@@ -40,8 +40,6 @@ async function pickAlbumAndInsertToDoc(editor, {
     fallbackPath
   })
 
-  console.log(reo)
-
   // User canceled
   if(_.isEmpty(reo)) {
     return
@@ -50,138 +48,59 @@ async function pickAlbumAndInsertToDoc(editor, {
   // Do insert image
   editor.execCommand("InsertAlbum", editor, reo[0])
 }
-////////////////////////////////////////////////////
-function GetAlbumAttrsByElement(elAlbum) {
-  // Top Style
-  let stl = Ti.Dom.getStyle(elAlbum, 
-    /^(width|height|float|(margin-(left|right|top|bottom)))$/)
-  stl.float = stl.float || "none"
-  //
-  // Wall Style
-  let $wall = Ti.Dom.find(".tiw-photo-wall", elAlbum)
-  let wallClass = ""
-  let wallStyle = {}
-  let tileClass = ""
-  let tileStyle = {}
-  let picStyle = {}
-  if(_.isElement($wall)) {
-    wallClass = Ti.Dom.getClassList($wall, v=>v!="tiw-photo-wall").join(" ")
-    wallStyle = Ti.Dom.getOwnStyle($wall)
-    tileClass = Ti.Dom.getClassList($wall.getAttribute("wn-tile-class")).join(" ")
-    tileStyle = Ti.Dom.parseCssRule($wall.getAttribute("wn-tile-style"))
-    picStyle = Ti.Dom.parseCssRule($wall.getAttribute("wn-pic-style"))
-  }
-  return {
-    id : elAlbum.getAttribute("wn-obj-id"),
-    nm : elAlbum.getAttribute("wn-obj-nm"),
-    thumb : elAlbum.getAttribute("wn-obj-thumb"),
-    title : elAlbum.getAttribute("wn-obj-title"),
-    ... stl,
-    wallClass, wallStyle,
-    tileClass, tileStyle, picStyle
-  }
-}
-////////////////////////////////////////////////////
-function GetAlbumAttrsByObj(oAlbumn) {
-  return {
-    "wn-obj-id" : oAlbumn.id,
-    "wn-obj-nm" : oAlbumn.nm,
-    "wn-obj-thumb" : oAlbumn.thumb,
-    "wn-obj-title" : oAlbumn.title
-  }
-}
-////////////////////////////////////////////////////
-function SetAlbumInfoToElement($album, data, old={}) {
-  //................................................
-  Ti.Dom.setStyleValue($album, "width",        data.width,        old.width)
-  Ti.Dom.setStyleValue($album, "height",       data.height,       old.height)
-  Ti.Dom.setStyleValue($album, "float",        data.float,        old.float)
-  Ti.Dom.setStyleValue($album, "marginLeft",   data.marginLeft,   old.marginLeft)
-  Ti.Dom.setStyleValue($album, "marginRight",  data.marginRight,  old.marginRight)
-  Ti.Dom.setStyleValue($album, "marginTop",    data.marginTop,    old.marginTop)
-  Ti.Dom.setStyleValue($album, "marginBottom", data.marginBottom, old.marginBottom)
-  //................................................
-  let $wall = Ti.Dom.find(":scope > .tiw-photo-wall", $album)
-  if($wall) {
-    Ti.Dom.formatStyle(data.wallStyle)
-    Ti.Dom.formatStyle(data.tileStyle)
-    Ti.Dom.formatStyle(data.picStyle)
-    $wall.className = `tiw-photo-wall ${data.wallClass||""}`
-    let wallStyle = Ti.Dom.renderCssRule(data.wallStyle)
-    let tileStyle = Ti.Dom.renderCssRule(data.tileStyle)
-    let picStyle = Ti.Dom.renderCssRule(data.picStyle)
-    $wall.style = wallStyle
-    $wall.setAttribute("wn-tile-class", data.tileClass || null)
-    $wall.setAttribute("wn-tile-style", tileStyle)
-    $wall.setAttribute("wn-pic-style", picStyle)
-  }
-  //................................................
-}
-////////////////////////////////////////////////////
-const DFT_CLASS = [
-  'flex-none','item-margin-no','item-padding-sm',
-  'pic-fit-cover','hover-to-zoom'
-].join(' ')
 //--------------------------------------------------
-function UpdateAlbumTagInnerHtml(elAlbum) {
-  //console.log("UpdateAlbumTagInnerHtml")
-  // Get old content
-  let album = GetAlbumAttrsByElement(elAlbum)
-  // Mark content editable
-  elAlbum.contentEditable = false
-  // Show loading
-  elAlbum.innerHTML = `<div class="media-inner">
-    <i class="fas fa-spinner fa-spin"></i>
-  </div>`
-
-  let match = JSON.stringify({
-    pid : album.id,
-    race : "FILE",
-    mime : "^image\/"
-  })
-  Wn.Sys.exec2(`o @query '${match}' @json #SHA1 -cqnl`, {
-    as:"json"
-  }).then(data => {
-    // Create inner HTML for the album
-    let html = `<div class="tiw-photo-wall ${DFT_CLASS}">`
-    for(let oImg of data) {
-      let src = `/o/content?str=${oImg.thumb}`
-      html += `<a class="wall-tile" href="#" target="_blank">
-          <img src="${src}" 
-          wn-obj-id="${oImg.id}"
-          wn-obj-sha1="${oImg.sha1}"
-          wn-obj-mime="${oImg.mime}"
-          wn-obj-tp="${oImg.tp}"
-          wn-obj-width="${oImg.width}"
-          wn-obj-height="${oImg.height}"/></a>`
+function GetAlbumWidget($album) {
+  return Ti.Widget.Album.getOrCreate($album, {
+    attrPrefix : "wn-obj-",
+    itemToPhoto : {
+      name : "=title|nm",
+      link : "#",
+      src  : "->/o/content?str=${thumb}"
     }
-    html += '</div>'
-    elAlbum.innerHTML = html
-
-    // Recover the attr-data
-    SetAlbumInfoToElement(elAlbum, album)
-
-    // Then we need update the album css style
-    UpdateAlbumStyle(elAlbum)
   })
 }
-////////////////////////////////////////////////////
-function UpdateAlbumStyle($album) {
-  let $wall = Ti.Dom.find(":scope > .tiw-photo-wall", $album)
-  let {tileStyle, picStyle} = GetAlbumAttrsByElement($album)
-  let $tiles = Ti.Dom.findAll(".wall-tile", $wall)
-  for(let i=0; i<$tiles.length; i++) {
-    let $tile = $tiles[i]
-    let $img = Ti.Dom.find("img", $tile)
-    Ti.Dom.setStyle($tile, tileStyle)
-    Ti.Dom.setStyle($img, picStyle)
+//--------------------------------------------------
+function UpdateAlbumTagInnerHtml($album, settings, {
+  album, photos, items
+}={}) {
+  //console.log("UpdateAlbumTagInnerHtml")
+  // Bind widget and get the data
+  let AB = GetAlbumWidget($album);
+  // If insert new album, the params will be passed
+  if(!album) {
+    album = AB.getData()
+  } else {
+    AB.setData(album)
+  }
+  // Mark content editable
+  $album.contentEditable = false
+
+  // Explain items to photos
+  if(items) {
+    photos = AB.covertToPhotos(items)
+  }
+
+  // Reload photo from remote
+  if(_.isEmpty(photos)) {
+    // Show loading
+    AB.showLoading()
+
+    // Load and rendering
+    settings.load(album).then((data)=>{
+      console.log("load", data)
+      AB.renderItems(data)
+    })
+  }
+  // Just render
+  else {
+    AB.renderPhotos(photos)
   }
 }
 ////////////////////////////////////////////////////
-function CmdInsertAlbum(editor, oAlbumn) {
-  if(!oAlbumn)
+function CmdInsertAlbum(editor, oAlbum) {
+  if(!oAlbum)
     return
-  //console.log("CmdInsertAlbum", oAlbumn)
+  //console.log("CmdInsertAlbum", oAlbum)
   // Prepare range
   let rng = editor.selection.getRng()
   
@@ -189,10 +108,13 @@ function CmdInsertAlbum(editor, oAlbumn) {
   let $doc = rng.commonAncestorContainer.ownerDocument
   let $album = Ti.Dom.createElement({
     tagName : "div",
-    className : "wn-media as-photos as-album",
-    attrs : GetAlbumAttrsByObj(oAlbumn)
+    className : "wn-media as-photos as-album"
   }, $doc)
-  UpdateAlbumTagInnerHtml($album, editor.wn_album_settings)
+  
+  // Update INNER HTML
+  UpdateAlbumTagInnerHtml($album, editor.wn_album_settings, {
+    album : oAlbum
+  })
   
   // Remove content
   if(!rng.collapsed) {
@@ -253,14 +175,16 @@ async function CmdShowAlbumProp(editor, settings) {
   if(!_.isElement($album)) {
     return
   }
-  //console.log("stl", stl)
   // Gen the properties
-  let data = GetAlbumAttrsByElement($album)
+  let AB = GetAlbumWidget($album)
+  let data = AB.getData()
+  console.log(data)
 
   //console.log(data)
   // Show dialog
+  // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fab-album",
+    icon  : "fab-facebook",
     title : "编辑相册属性",
     width  : "37%",
     height : "100%",
@@ -270,177 +194,7 @@ async function CmdShowAlbumProp(editor, settings) {
     result : data,
     model : {prop:"data", event:"change"},
     comType : "TiForm",
-    comConf : {
-      className : "no-status",
-      spacing : "tiny",
-      fields : [{
-          title : "相册尺寸",
-          className : "as-vertical col-2",
-          fields: [{
-            title : "宽度",
-            name  : "width",
-            comType : "TiInput"
-          }, {
-            title : "高度",
-            name  : "height",
-            comType : "TiInput"
-          }, {
-            title : "瓦片宽",
-            name  : "tileStyle.width",
-            comType : "TiInput"
-          }, {
-            title : "瓦片高",
-            name  : "tileStyle.height",
-            comType : "TiInput"
-          }, {
-            title : "图片宽",
-            name  : "picStyle.width",
-            comType : "TiInput"
-          }, {
-            title : "图片高",
-            name  : "picStyle.height",
-            fieldWidth : "50%",
-            comType : "TiInput"
-          }]
-        }, {
-          title : "相册外距",
-          className : "as-vertical col-4",
-          fields : [{
-            title : "上",
-            name  : "marginTop",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "右",
-            name  : "marginRight",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "下",
-            name  : "marginBottom",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "左",
-            name  : "marginLeft",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }]
-        }, {
-          title : "相册样式",
-          fields : [{
-              title : "文本绕图",
-              name  : "float",
-              comType : "TiSwitcher",
-              comConf : {
-                allowEmpty : false,
-                options : [
-                  {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
-                  {value: "left",  text: "左绕图", icon:"fas-align-left"},
-                  {value: "right", text: "右绕图", icon:"fas-align-right"},]
-              }
-            }, {
-            title : "整体风格",
-            name : "wallClass",
-            emptyAs : null,
-            comType : "HmPropClassPicker",
-            comConf : {
-              dftValue : DFT_CLASS,
-              valueType : "String",
-              form : {
-                fields : [{
-                  title : "i18n:hmk-class-flex",
-                  name : "flexMode",
-                  comType : "TiSwitcher",
-                  comConf : {
-                    options : [
-                      {value: "flex-none",  text:"i18n:hmk-class-flex-none"},
-                      {value: "flex-both",  text:"i18n:hmk-class-flex-both"},
-                      {value: "flex-grow",  text:"i18n:hmk-class-flex-grow"},
-                      {value: "flex-shrink",text:"i18n:hmk-class-flex-shrink"}                    ]
-                  }
-                }, {
-                  title : "i18n:hmk-class-item-padding",
-                  name : "itemPadding",
-                  comType : "TiSwitcher",
-                  comConf : {
-                    options : [
-                      {value: "item-padding-no", text:"i18n:hmk-class-sz-no"},
-                      {value: "item-padding-xs", text:"i18n:hmk-class-sz-xs"},
-                      {value: "item-padding-sm", text:"i18n:hmk-class-sz-sm"},
-                      {value: "item-padding-md", text:"i18n:hmk-class-sz-md"},
-                      {value: "item-padding-lg", text:"i18n:hmk-class-sz-lg"},
-                      {value: "item-padding-xl", text:"i18n:hmk-class-sz-xl"}
-                    ]
-                  }
-                }, {
-                  title : "i18n:hmk-class-item-margin",
-                  name : "itemMargin",
-                  comType : "TiSwitcher",
-                  comConf : {
-                    options : [
-                      {value: "item-margin-no", text:"i18n:hmk-class-sz-no"},
-                      {value: "item-margin-xs", text:"i18n:hmk-class-sz-xs"},
-                      {value: "item-margin-sm", text:"i18n:hmk-class-sz-sm"},
-                      {value: "item-margin-md", text:"i18n:hmk-class-sz-md"},
-                      {value: "item-margin-lg", text:"i18n:hmk-class-sz-lg"},
-                      {value: "item-margin-xl", text:"i18n:hmk-class-sz-xl"}
-                    ]
-                  }
-                }, {
-                  title : "i18n:hmk-class-object-fit",
-                  name : "picFit",
-                  comType : "TiSwitcher",
-                  comConf : {
-                    options : [
-                      {value: "pic-fit-fill",   text:"i18n:hmk-class-object-fit-fill"},
-                      {value: "pic-fit-cover",  text:"i18n:hmk-class-object-fit-cover"},
-                      {value: "pic-fit-contain",text:"i18n:hmk-class-object-fit-contain"},
-                      {value: "pic-fit-none", text:"i18n:hmk-class-object-fit-none"}
-                    ]
-                  }
-                }, {
-                  title : "i18n:hmk-class-hover",
-                  name : "textHover",
-                  comType : "TiSwitcher",
-                  comConf : {
-                    options : [
-                      {value: "hover-to-up",  text:"i18n:hmk-class-hover-to-up"},
-                      {value: "hover-to-zoom", text:"i18n:hmk-class-hover-to-zoom"}
-                    ]
-                  }
-                }]
-              }
-            } // title : "整体风格",
-          }, {
-            title : "整体样式",
-            name  : "wallStyle",
-            type  : "Object",
-            emptyAs : null,
-            comType : "HmPropCssRules"
-          }, {
-            title : "瓦片样式",
-            name  : "tileStyle",
-            type  : "Object",
-            emptyAs : null,
-            comType : "HmPropCssRules"
-          }, {
-            title : "图片样式",
-            name  : "picStyle",
-            type  : "Object",
-            emptyAs : null,
-            comType : "HmPropCssRules"
-          }]
-        }]
-    },
+    comConf : AB.getEditFormConfig(),
     components : []
   })
 
@@ -449,14 +203,14 @@ async function CmdShowAlbumProp(editor, settings) {
     return
 
   //................................................
-  SetAlbumInfoToElement($album, reo, data)
+  let photos = AB.getPhotos()
+  UpdateAlbumTagInnerHtml($album, settings, {
+    album:reo, photos
+  })
   //................................................
   // clean cache
   $album.removeAttribute("data-mce-src")
   $album.removeAttribute("data-mce-style")
-  //................................................
-  // Then we need update the album css style
-  UpdateAlbumStyle($album)
   //................................................
   // Force sync content
   editor.__rich_tinymce_com.syncContent()
@@ -473,25 +227,20 @@ export default {
     let settings = _.assign({
         meta : "~"
       }, _.get(editor.settings, "wn_album_config"));
-    //console.log("setup", editor.settings)
     //..............................................
     // Reload meta content
     // Check meta
-    settings.load = async function(){
-      if(this.data) {
-        return {meta: this.meta, data: this.data}
-      }
-      let oMeta = await Wn.Io.loadMeta(this.meta)
-      if(!oMeta) {
-        return await Ti.Toast.Open(`路径[${this.meta}]不存在`, "warn")
-      }
-      if(oMeta.race != "FILE") {
-        return await Ti.Toast.Open(`对象[${this.meta}]非法`, "warn")
-      }
-      this.meta = oMeta
-      this.data = await Wn.Io.loadContent(oMeta, {as:"json"})  
-
-      return {meta: this.meta, data: this.data}
+    settings.load = async function({id}){
+      let match = JSON.stringify({
+        pid  : id,
+        race : "FILE",
+        mime : "^image\/"
+      })
+      let KF = '^(id|thumb|sha1|nm|title|mime|tp|width|height)$'
+      return await Wn.Sys.exec2(
+        `o @query '${match}' @json '${KF}' -cqnl`, {
+          as:"json"
+        })
     }
     editor.wn_album_settings = settings
     // 读取信息

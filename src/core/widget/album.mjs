@@ -1,7 +1,7 @@
 const ALBUM_CLASS_NAME = "ti-widget-album"
 const WALL_CLASS_NAME = "photo-wall"
 const DFT_WALL_CLASS = [
-  'flex-none','item-margin-no','item-padding-sm',
+  'flex-none','item-margin-md','item-padding-no',
   'pic-fit-cover','hover-to-zoom'
 ]
 ////////////////////////////////////////////////
@@ -14,11 +14,6 @@ class TiAlbum {
       attrPrefix : "wn-obj-",
       dftWallClass : DFT_WALL_CLASS,
       itemToPhoto : {
-        name : "=name",
-        link : "=link",
-        src  : "=src"
-      },
-      photoToItem : {
         name : "=name",
         link : "=link",
         src  : "=src"
@@ -81,7 +76,11 @@ class TiAlbum {
   //---------------------------------------
   covertToPhotos(items=[]) {
     let {itemToPhoto} = this.setup
-    return _.map(items, it=>Ti.Util.explainObj(it, itemToPhoto))
+    return _.map(items, it=>{
+      let po = Ti.Util.explainObj(it, itemToPhoto)
+      po.item = it
+      return po
+    })
   }
   //---------------------------------------
   renderItems(items=[]) {
@@ -90,35 +89,48 @@ class TiAlbum {
   }
   //---------------------------------------
   renderPhotos(photos=[]) {
+    let {attrPrefix} = this.setup
     let album = this.getData()
-    album = this.formatData(album)
 
     // Outer style
     this.$el.style = album.albumStyle
 
-    // Build HTML
-    let alClass = _.uniq(_.concat(WALL_CLASS_NAME, album.wallClass)).join(" ")
-    let html = [`<div class="${alClass}">`]
-    for(let po of photos) {
-      let {src, link, name} = po
-      html.push(`<a class="wall-tile" href="${link||'#'}" title="${name||''}">`)
-      html.push(`<img src="${src}"/>`)
-      html.push('</a>')
-    }
-    html.push('</div>')
-    this.$el.innerHTML = html.join("")
+    // Build OUTER
+    let $wall = Ti.Dom.createElement({
+      tagName : "div",
+      className : [WALL_CLASS_NAME, album.wallClass],
+      style : album.wallStyle
+    })
 
-    // Update style
-    let $wall = Ti.Dom.find(":scope > ."+WALL_CLASS_NAME, this.$el)
-    $wall.style = album.wallStyle
-
-    let $tiles = Ti.Dom.findAll(".wall-tile", $wall)
-    for(let i=0; i<$tiles.length; i++) {
-      let $tile = $tiles[i]
-      let $img = Ti.Dom.find("img", $tile)
-      $tile.style = album.tileStyle
-      $img.style = album.imageStyle
+    // Build tils
+    for(let i=0; i<photos.length; i++) {
+      let photo = photos[i]
+      let {src, link, name, item} = photo
+      let $tile = Ti.Dom.createElement({
+        $p : $wall,
+        tagName : "a",
+        className : "wall-tile",
+        style : album.tileStyle,
+        attrs : {
+          href  : link || null,
+          title : name || null
+        }
+      })
+      let $img = Ti.Dom.createElement({
+        $p : $tile,
+        tagName : "img",
+        style : album.imageStyle,
+        attrs : {
+          src : src
+        }
+      })
+      // Save photo setting
+      Ti.Dom.setAttrs($img, item, attrPrefix)
     }
+
+    // Update content
+    this.$el.innerHTML = ""
+    Ti.Dom.appendTo($wall, this.$el)
   }
   //---------------------------------------
   getPhotos() {
@@ -138,8 +150,7 @@ class TiAlbum {
   }
   //---------------------------------------
   convertToItems(photos=[]) {
-    let {photoToItem} = this.setup
-    return _.map(photos, photo=>Ti.Util.explainObj(photo, photoToItem))
+    return _.map(photos, photo=>photo.item)
   }
   //---------------------------------------
   getItems() {
@@ -175,7 +186,10 @@ class TiAlbum {
               name  : "albumStyle",
               type  : "Object",
               emptyAs : null,
-              comType : "HmPropCssRules"
+              comType : "HmPropCssRules",
+              comConf : {
+                rules : "#BLOCK"
+              }
             }, {
               title : "整体风格",
               name : "wallClass",
@@ -254,19 +268,28 @@ class TiAlbum {
               name  : "wallStyle",
               type  : "Object",
               emptyAs : null,
-              comType : "HmPropCssRules"
+              comType : "HmPropCssRules",
+              comConf : {
+                rules : "#BLOCK"
+              }
             }, {
               title : "瓦片样式",
               name  : "tileStyle",
               type  : "Object",
               emptyAs : null,
-              comType : "HmPropCssRules"
+              comType : "HmPropCssRules",
+              comConf : {
+                rules : "#BLOCK"
+              }
             }, {
               title : "图片样式",
               name  : "imageStyle",
               type  : "Object",
               emptyAs : null,
-              comType : "HmPropCssRules"
+              comType : "HmPropCssRules",
+              comConf : {
+                rules : "#IMG"
+              }
             }]
         }]
     } // return {

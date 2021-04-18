@@ -243,6 +243,28 @@ const WnHMaker = {
    * @return `TiForm` fields setup
    */
   findCssPropFields(filter=true) {
+    // Quick name
+    let qf = ({
+      "#BLOCK" : [
+        /^(margin|padding|border|overflow|background)-?/,
+        /^(box-shadow|float)$/,
+        /^((max|min)-)?(width|height)$/
+      ],
+      "#IMG" : [
+        /^(margin|border|obj)-?/,
+        /^(box-shadow|float)$/,
+        /^((max|min)-)?(width|height)$/
+      ],
+      "#TEXT" : [
+        /^(color)$/,
+        /^(text-(align|transform|shadow|overflow))$/,
+        /^(font-size|line-height|letter-spacing)$/,
+      ]
+    })[filter]
+    if(qf) {
+      filter = qf
+    }
+
     let am = Ti.AutoMatch.parse(filter)
     // Get the field list
     let fldMap = {}

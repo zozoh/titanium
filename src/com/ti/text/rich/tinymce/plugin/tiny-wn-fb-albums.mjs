@@ -52,7 +52,7 @@ async function pickFacebookAndInsertToDoc(editor, settings) {
   }
 
   // Do insert image
-  editor.execCommand("InsertFacebook", editor, reo)
+  editor.execCommand("InsertFBAlbum", editor, reo)
 }
 //--------------------------------------------------
 function GetAlbumWidget($album) {
@@ -71,10 +71,10 @@ function GetAlbumWidget($album) {
   })
 }
 //--------------------------------------------------
-function UpdateFacebookTagInnerHtml($album, settings, {
+function UpdateFBAlbumTagInnerHtml($album, settings, {
   album, photos, items
 }={}) {
-  console.log("UpdateFacebookTagInnerHtml")
+  //console.log("UpdateFBAlbumTagInnerHtml")
   // Bind widget and get the data
   let AB = GetAlbumWidget($album);
   // If insert new album, the params will be passed
@@ -114,7 +114,7 @@ function UpdateFacebookTagInnerHtml($album, settings, {
   }
 }
 ////////////////////////////////////////////////////
-function CmdInsertFacebook(editor, fbAlbum) {
+function CmdInsertFBAlbum(editor, fbAlbum) {
   if(!fbAlbum)
     return
   
@@ -125,11 +125,11 @@ function CmdInsertFacebook(editor, fbAlbum) {
   let $doc = rng.commonAncestorContainer.ownerDocument
   let $album = Ti.Dom.createElement({
     tagName : "div",
-    className : "wn-media as-photos as-facebook"
+    className : "wn-media as-photos as-fb-album"
   }, $doc)
 
   // Update INNER HTML
-  UpdateFacebookTagInnerHtml($album, editor.wn_facebook_settings, {
+  UpdateFBAlbumTagInnerHtml($album, editor.wn_facebook_settings, {
     album : fbAlbum
   })
   
@@ -144,26 +144,26 @@ function CmdInsertFacebook(editor, fbAlbum) {
 }
 ////////////////////////////////////////////////////
 function CmdReloadFacebookAlbum(editor, settings) {
-  let $album = GetCurrentFacebookElement(editor)
+  let $album = GetCurrentFbAlbumElement(editor)
   // Guard
   if(!_.isElement($album)) {
     return
   }
   // Reload content
-  UpdateFacebookTagInnerHtml($album, settings)
+  UpdateFBAlbumTagInnerHtml($album, settings)
 }
 ////////////////////////////////////////////////////
-function GetCurrentFacebookElement(editor) {
+function GetCurrentFbAlbumElement(editor) {
   let sel = editor.selection
   let $nd = sel.getNode()
   // Guard
   return Ti.Dom.closest($nd, (el)=>{
-    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-facebook")
+    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-fb-album")
   })
 }
 ////////////////////////////////////////////////////
 function CmdSetFacebookSize(editor, {width="", height=""}={}) {
-  let $album = GetCurrentFacebookElement(editor)
+  let $album = GetCurrentFbAlbumElement(editor)
   // Guard
   if(!_.isElement($album)) {
     return
@@ -175,7 +175,7 @@ function CmdSetFacebookSize(editor, {width="", height=""}={}) {
 }
 ////////////////////////////////////////////////////
 function CmdSetFacebookStyle(editor, css={}) {
-  let $album = GetCurrentFacebookElement(editor)
+  let $album = GetCurrentFbAlbumElement(editor)
   // Guard
   if(!_.isElement($album)) {
     return
@@ -186,14 +186,14 @@ function CmdSetFacebookStyle(editor, css={}) {
   editor.__rich_tinymce_com.syncContent()
 }
 ////////////////////////////////////////////////////
-async function CmdShowFacebookProp(editor, settings) {
-  let $album = GetCurrentFacebookElement(editor)
-  let AB = GetAlbumWidget($album)
+async function CmdShowFBAlbumProp(editor, settings) {
+  let $album = GetCurrentFbAlbumElement(editor)
   // Guard
   if(!_.isElement($album)) {
     return
   }
   // Gen the properties
+  let AB = GetAlbumWidget($album)
   let data = AB.getData()
   console.log(data)
 
@@ -219,7 +219,7 @@ async function CmdShowFacebookProp(editor, settings) {
 
   //................................................
   let photos = AB.getPhotos()
-  UpdateFacebookTagInnerHtml($album, settings, {
+  UpdateFBAlbumTagInnerHtml($album, settings, {
     album:reo, photos
   })
   //................................................
@@ -287,11 +287,11 @@ export default {
     // 读取信息
     //..............................................
     // Register plugin command
-    editor.addCommand("InsertFacebook",   CmdInsertFacebook)
+    editor.addCommand("InsertFBAlbum",   CmdInsertFBAlbum)
     editor.addCommand("SetFacebookSize",  CmdSetFacebookSize)
     editor.addCommand("SetFacebookStyle", CmdSetFacebookStyle)
     editor.addCommand("ReloadFacebookAlbum", CmdReloadFacebookAlbum)
-    editor.addCommand("ShowFacebookProp", CmdShowFacebookProp)
+    editor.addCommand("ShowFacebookProp", CmdShowFBAlbumProp)
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnFacebookPick", {
@@ -347,7 +347,7 @@ export default {
       text: '相册边距',
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
-          let $album = GetCurrentFacebookElement(editor)
+          let $album = GetCurrentFbAlbumElement(editor)
           let state = true
           if($album) {
             let sz = $album.style.marginLeft || $album.style.marginRight
@@ -418,7 +418,7 @@ export default {
     //..............................................
     editor.ui.registry.addContextMenu("wn-fb-albums", {
       update: function (el) {
-        let $album = GetCurrentFacebookElement(editor)
+        let $album = GetCurrentFbAlbumElement(editor)
         // Guard
         if(!_.isElement($album)) {
           return []
@@ -434,10 +434,10 @@ export default {
     //..............................................
     editor.on("SetContent", function() {
       //console.log("SetContent facebook")
-      let els = editor.$('.wn-media.as-facebook')
+      let els = editor.$('.wn-media.as-fb-album')
       for(let i=0; i<els.length; i++) {
         let el = els[i]
-        UpdateFacebookTagInnerHtml(el, settings)
+        UpdateFBAlbumTagInnerHtml(el, settings)
       }
     })
     //..............................................
