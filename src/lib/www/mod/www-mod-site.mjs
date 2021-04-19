@@ -371,8 +371,15 @@ const _M = {
       //....................................
       // Test precondition
       if(test) {
-        if(!Ti.AutoMatch.test(test, state)) {
-          return await Ti.Toast.Open(testMsg, "warn")
+        let ctx = _.assign({}, state, {payload, args})
+        let t2 = Ti.Util.explainObj(ctx, test)
+        if(!Ti.AutoMatch.test(t2, state)) {
+          // Warn user
+          if(testMsg) {
+            return await Ti.Toast.Open(testMsg, "warn")
+          }
+          // Skip quietly
+          return
         }
       }
       //....................................

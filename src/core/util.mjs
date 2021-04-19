@@ -985,6 +985,12 @@ const TiUtil = {
         return arg
     }
   },
+  trueGet(test=false, val, dft) {
+    if(_.isBoolean(test)) {
+      return test ? val : dft
+    }
+    return test
+  },
   fallbackEmpty(...args) {
     for(let arg of args) {
       if(!_.isEmpty(arg))

@@ -8,8 +8,7 @@ export default {
     myLongLiveAK : undefined,
     myAlbumList : undefined,
     currentAlbumId : undefined,
-    myPhotoList : [],
-    myFilterKeyword : undefined
+    myPhotoList : []
   }),
   ///////////////////////////////////////////////////////
   props : {
@@ -98,40 +97,8 @@ export default {
       return this.getAlbum(this.currentAlbumId)
     },
     //---------------------------------------------------
-    CurrentAlbumTitle() {
-      return _.get(this.CurrentAlbum, "name") || "i18n:nil"
-    },
-    //---------------------------------------------------
-    FilteredAlbumList() {
-      let list = []
-      let kwds = Ti.S.splitIgnoreBlank(_.toLower(this.myFilterKeyword), /[\s,;]+/g)
-      _.forEach(this.myAlbumList, album=>{
-        if(kwds.length == 0 || !album.name) {
-          list.push(album)
-        } else {
-          let aName = _.toLower(album.name)
-          for(let kwd of kwds) {
-            if(aName.indexOf(kwd)>=0) {
-              list.push(album)
-              return
-            }
-          }
-        }
-      })
-      return list
-    },
-    //---------------------------------------------------
-    FilteredAlbumSummary() {
-      let N = this.FilteredAlbumList.length
-      let photoC = 0;
-      for(let album of this.FilteredAlbumList) {
-        photoC += album.count
-      }
-      return `Total ${N} albums ${photoC} photos`
-    },
-    //---------------------------------------------------
     ApiScope() {
-      return this.scope || "public_profile"
+      return this.scope || "public_profile,user_photos,user_videos"
     },
     //---------------------------------------------------
     ProfileSelectorIds() {
@@ -140,59 +107,25 @@ export default {
     //---------------------------------------------------
     GuiLayout(){
       return {
-        type: "cols",
+        type: "rows",
         border:true,
         blocks: [{
-            type : "rows",
-            size : "50%",
-            border : true,
-            blocks : [{
-                name : "filter",
-                size : 52,
-                style : {
-                  padding: ".06rem"
-                },
-                body : "filter"
-              }, {
-                name : "albums",
-                body : "albums"
-              }, {
-                name : "infos",
-                size : 52,
-                style : {
-                  padding: ".06rem"
-                },
-                body : "infos"
-              }]
-          }, {
-            icon : "fab-facebook-square",
-            title : this.CurrentAlbumTitle,
             name : "photos",
             body : "photos"
+          }, {
+            name : "albums",
+            size : "30%",
+            body : "albums"
           }]
       }
     },
     //---------------------------------------------------
     GuiSchema() {
       return {
-        filter : {
-          comType : "TiInput",
-          comConf : {
-            placeholder : "Enter the album name to filter",
-            value : this.myFilterKeyword
-          }
-        },
-        infos : {
-          comType : "TiLabel",
-          comConf : {
-            className : "align-right as-tip",
-            value : this.FilteredAlbumSummary
-          }
-        },
-        albums : {
+        albums: {
           comType: "TiWall",
           comConf: {
-            data: this.FilteredAlbumList,
+            data: this.myAlbumList,
             idBy: "id",
             multi: false,
             display: {
@@ -203,12 +136,7 @@ export default {
                 "title" : "=item.name",
                 "preview" : "=item.preview",
                 "badges" : {
-                  "NW" : "fab-facebook-square",
-                  "SE" : {
-                    type : "text",
-                    className : "bchc-badge as-label",
-                    value : "=item.count"
-                  }
+                  "SW" : "fab-facebook-square"
                 }
               }
             }
@@ -246,10 +174,6 @@ export default {
   },
   ///////////////////////////////////////////////////////
   methods :{
-    //---------------------------------------------------
-    OnFilterChange(val) {
-      this.myFilterKeyword = _.trim(val) || undefined
-    },
     //---------------------------------------------------
     OnAlbumSelect({currentId}) {
       this.currentAlbumId = currentId
@@ -327,62 +251,19 @@ export default {
       // Save to cache
       if(!_.isEmpty(this.myPhotoList) && this.domain) {
         let input = JSON.stringify(this.myPhotoList)
-        let fnm = `album.${this.currentAlbumId}.photos.json`
-        let cmdText = `str > ~/.domain/facebook/${this.domain}/${fnm}`
+        let cmdText = `str > ~/.domain/facebook/${this.domain}/${this.currentAlbumId}.photos.json`
         await Wn.Sys.exec2(cmdText, {input})
-      }
-    },
-    //---------------------------------------------------
-    async reloadAlbumsCover(albums=[], force=false) {
-      // Load Cache
-      let fnm = `user.${this.myId}.albums.cover_photos.json`
-      let fph = `~/.domain/facebook/${this.domain}/${fnm}`
-      let photos = {}
-      if(!force) {
-        let oPhotos = await Wn.Io.loadMeta(fph)
-        if(oPhotos) {
-          photos = await Wn.Io.loadContent(oPhotos, {as:"json"})
-        }
-      }
-      // Set photos to each album obj
-      let loadedPhoto = false
-      for(let album of albums) {
-        if(album && album.cover_photo && album.cover_photo.id) {
-          let photoId = album.cover_photo.id
-          let photo = photos[photoId];
-          // Load from facebook
-          if(!photo) {
-            photo = await Ti.Api.Facebook.getPhoto({
-              photoId,
-              access_token : this.myLongLiveAK
-            })
-          }
-          // Set to album
-          if(photo && !_.isEmpty(photo.images)) {
-            loadedPhoto = true
-            photos[photoId] = photo
-            Ti.Api.Facebook.setObjPreview(album, photo.images)
-          }
-        }
-      }
-      // Cache to local
-      if(loadedPhoto) {
-        let input = JSON.stringify(photos)
-        await Wn.Sys.exec2(`str > ${fph}`, {input})
       }
     },
     //---------------------------------------------------
     async reloadAlbums() {
       this.myAlbumList = undefined
-      let albums = await Ti.Api.Facebook.getAlbumList({
+      this.myAlbumList = await Ti.Api.Facebook.getAlbumList({
         userId : this.myId,
-        access_token : this.myLongLiveAK
+        access_token : this.myLongLiveAK,
+        loadCover : true
       })
-      // Reload cover
-      await this.reloadAlbumsCover(albums)
-      this.myAlbumList = albums
-
-      // Update albums Ids to profile
+      // Update albums Ids
       let aIds = _.map(this.myAlbumList, al => al.id)
       if(!_.isEqual(aIds, this.userAlbumIds)) {
         let json = JSON.stringify({
@@ -460,9 +341,9 @@ export default {
           console.log("after login", resp)
           if (resp.authResponse) {
             let {accessToken, userID, grantedScopes} = resp.authResponse
-            this.myId = this.userId || userID
+            this.myId = userID
             this.myGrantedScopes = grantedScopes
-            FB.api('/'+this.myId, resp => {
+            FB.api('/'+userID, resp => {
               console.log('Good to see you, ' + resp.name + '.', resp);
               // Get Long Live Access Token
               this.myName = resp.name

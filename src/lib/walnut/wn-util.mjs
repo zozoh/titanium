@@ -170,7 +170,7 @@ const WnUtil = {
       }
       if(!BD)
         return;
-      console.log(name, BD)
+
       // Quick badge
       if(_.isArray(BD)) {
         if(BD.length == 1){

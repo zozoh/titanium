@@ -23,6 +23,14 @@ function DoAutoMatch(input) {
   }
   // Map
   if (_.isPlainObject(input)) {
+    // Special Function
+    if(input["$Nil"]) {
+      return NilMatch(input["$Nil"])
+    }
+    if(input["$NotNil"]) {
+      return NotNilMatch(input["$NotNil"])
+    }
+    // General Map Match
     return MapMatch(input);
   }
   // String
@@ -159,9 +167,22 @@ function MapMatch(map) {
     return true
   }
 }
-function NilMatch() {
-  return function(val) {
-    return Ti.Util.isNil(val)
+function NotNilMatch(input) {
+  if(!input) {
+    return val => !Ti.Util.isNil(val)
+  }
+  return val => {
+    let v = _.get(val, input)
+    return !Ti.Util.isNil(v)
+  }
+}
+function NilMatch(input) {
+  if(!input) {
+    return val => Ti.Util.isNil(val)
+  }
+  return val => {
+    let v = _.get(val, input)
+    return Ti.Util.isNil(v)
   }
 }
 function NotMatch(m) {

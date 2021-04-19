@@ -1,6 +1,5 @@
 <a class="web-media-image"
   :class="TopClass"
-  :style="TopStyle"
   :href="TheHref"
   :target="isNewTab ? '_blank' : '_self'"
   @click.left="OnClickTop"
@@ -9,11 +8,13 @@
   <!--Image-->
   <div class="as-img-con">
     <img ref="img"
-      v-if="TheSrc" 
+      v-if="TheSrc"
         :style="ImageStyle"
         :src="TheSrc"
         draggable="false"
-        @load="OnImageLoaded"/>
+        @load="OnImageLoaded"
+        @mouseenter="OnImageMouseEnter"
+        @mouseleave="OnImageMouseLeave"/>
     <!-- Tags -->
     <div
       v-if="TheTags"
@@ -39,6 +40,12 @@
         v-if="TheBrief"
           class="as-brief"
           :style="BriefStyle"><span>{{TheBrief}}</span></div>
+  </div>
+  <!--Zoom len-->
+  <div
+    v-if="isWaitEnterCooling"
+      class="as-cooling-tip">
+      <i class="fas fa-cog fa-spin"></i>
   </div>
   <!--Zoom len-->
   <div v-if="zoomLens"

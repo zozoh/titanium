@@ -42,9 +42,23 @@
   &.is-fit-contain img {object-fit: contain;}
   &.is-fit-cover   img {object-fit: cover; }
   //-----------------------------------------
+  &.primary-img-size {
+    img {
+      width:auto; height:auto; flex:0 0 auto;
+      margin:0 auto;
+    }
+  }
+  //-----------------------------------------
   .as-text {
     @include flex-center; 
     @include font-nice;
+    //---------------------------------------
+    .as-title {
+      flex:1 1 auto;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     //---------------------------------------
     .as-brief {
       @include border(1px, solid, shallow, top);
@@ -72,11 +86,11 @@
     z-index: $z-mask;
   }
   //-----------------------------------------
-  &.primary-img-size {
-    img {
-      width:auto; height:auto; flex:0 0 auto;
-      margin:0 auto;
-    }
+  .as-cooling-tip {
+    @include pos-abs($r:0, $t:0);
+    color: rgba(200,200,200,0.6);
+    padding: SZ(4); opacity: 0.8;
+    font-size: SZ(24);
   }
   //-----------------------------------------
   //

@@ -40,6 +40,11 @@ function FBAPI(path, version="v10.0") {
 ////////////////////////////////////////////
 const TiApiFacebook = {
   //----------------------------------------
+  setObjPreview(obj, images, options) {
+    setImages(obj, images, options)
+    return obj
+  },
+  //----------------------------------------
   async getAlbumPhotoList({
     albumId, 
     access_token,
@@ -80,8 +85,7 @@ const TiApiFacebook = {
   async getAlbumList({
     userId, 
     access_token,
-    fields = "id,name,place,created_time,description,link,cover_photo",
-    loadCover = false
+    fields = "id,name,place,created_time,description,link,count,cover_photo"
   }={}) {
     let url = FBAPI(`${userId}/albums`)
     let reo = await Ti.Http.get(url, {
@@ -89,24 +93,7 @@ const TiApiFacebook = {
       as : "json"
     })
     let {data, paging} = reo
-    // console.log(data)
-
-    // Load cover photo
-    if(loadCover) {
-      for(let ab of data) {
-        let photoId = _.get(ab, "cover_photo.id")
-        if(photoId) {
-          let photo = await TiApiFacebook.getPhoto({
-            photoId, access_token
-          })
-          if(photo) {
-            setImages(ab, photo.images)
-            ab.cover_photo = photo
-          }
-        }
-      }
-    }
-
+    
     return data
   }
   //----------------------------------------

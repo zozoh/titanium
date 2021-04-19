@@ -8,7 +8,9 @@ export default {
     clientWidth  : -1,
     clientHeight : -1,
     imgLoading : true,
-    pickRect : {}
+    pickRect : {},
+    myEnterAt : -1,    // AMS mouse enter for cooling
+    myEnterNotifed : false
   }),
   /////////////////////////////////////////
   props : {
@@ -16,73 +18,25 @@ export default {
     // Data
     //-------------------------------------
     "src" : {
-      type : [String, Object],
-      default : undefined
+      type : [String, Object]
     },
     "preview": {
-      type: Object,
-      default: undefined
+      type: Object
+    },
+    "hoverPreview": {
+      type: Object
     },
     //-------------------------------------
     // Behavior
     //-------------------------------------
     "href": {
-      type: String,
-      default: undefined
+      type: String
     },
     "navTo": {
-      type: Object,
-      default: undefined
+      type: Object
     },
     "newtab": {
-      type: [String, Boolean],
-      default: undefined
-    },
-    //-------------------------------------
-    // Aspect
-    //-------------------------------------
-    "imageStyle": {
-      type: Object,
-      default: undefined
-    },
-    "tags": {
-      type: [String, Array, Object],
-      default: undefined
-    },
-    "tagsStyle": {
-      type: Object,
-      default: undefined
-    },
-    "text": {
-      type: String,
-      default: undefined
-    },
-    "textStyle": {
-      type: Object,
-      default: undefined
-    },
-    "brief": {
-      type: String,
-      default: undefined
-    },
-    "briefStyle": {
-      type: Object,
-      default: undefined
-    },
-    "i18n": {
-      type: Boolean,
-      default: true
-    },
-    //-------------------------------------
-    // Measure
-    //-------------------------------------
-    "width": {
-      type: [String, Number],
-      default: undefined
-    },
-    "height": {
-      type: [String, Number],
-      default: undefined
+      type: [String, Boolean]
     },
     /*
     Show zoom lens and dock aside to the image
@@ -99,7 +53,54 @@ export default {
     "zoomLens" : {
       type : Object,
       default : undefined
-    }
+    },
+    "enterNotify" : {
+      type : [String, Boolean]
+      /*default: "media:enter"*/
+    },
+    "notifyPayload" : {
+      type : [Object, String, Number]
+    },
+    "enterCooling" : {
+      type : Number,
+      default : 500
+    },
+    "leaveNotify" : {
+      type : [String, Boolean]
+      /*default: "media:leave"*/
+    },
+    //-------------------------------------
+    // Aspect
+    //-------------------------------------
+    "imageStyle": {
+      type: Object
+    },
+    "tags": {
+      type: [String, Array, Object]
+    },
+    "tagsStyle": {
+      type: Object
+    },
+    "text": {
+      type: String
+    },
+    "textStyle": {
+      type: Object
+    },
+    "brief": {
+      type: String
+    },
+    "briefStyle": {
+      type: Object
+    },
+    "i18n": {
+      type: Boolean,
+      default: true
+    },
+    //-------------------------------------
+    // Measure
+    //-------------------------------------
+    // ...
   },
   //////////////////////////////////////////
   computed : {
@@ -111,13 +112,6 @@ export default {
         "show-zoomlen" : this.showZoomPick,
         "no-zoomlen"   : this.TheZoomLens ? false : true,
         "has-zoomlen"  : this.TheZoomLens ? true  : false,
-      })
-    },
-    //--------------------------------------
-    TopStyle() {
-      return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
       })
     },
     //--------------------------------------
@@ -209,8 +203,20 @@ export default {
       }
     },
     //--------------------------------------
+    EnterNotifyName() {
+      return Ti.Util.trueGet(this.enterNotify, "media:enter")
+    },
+    //--------------------------------------
+    LeaveNotifyName() {
+      return Ti.Util.trueGet(this.leaveNotify, "media:leave")
+    },
+    //--------------------------------------
     TheSrc() {
       return Ti.WWW.evalObjPreviewSrc(this.src, this.preview)
+    },
+    //--------------------------------------
+    TheHoverSrc() {
+      return Ti.WWW.evalObjPreviewSrc(this.src, this.hoverPreview)
     },
     //--------------------------------------
     TheTags() {
@@ -283,6 +289,10 @@ export default {
         }
       }
       return newtab ? true : false
+    },
+    //--------------------------------------
+    isWaitEnterCooling() {
+      return this.myEnterAt > 0 && !this.myEnterNotifed
     }
     //--------------------------------------
   },
@@ -339,6 +349,53 @@ export default {
     OnMouseLeave() {
       this.showZoomPick = false
       this.showZoomDock = false
+    },
+    //--------------------------------------
+    OnImageMouseEnter() {
+      if(this.EnterNotifyName && this.enterCooling >= 0) {
+        let $img = this.$refs.img
+        this.myEnterAt = Date.now()
+        if(this.TheHoverSrc) {
+          $img.src = this.TheHoverSrc
+        }
+        // Check layter, it can prevent the event fire too many!
+        _.delay(()=>{
+          this.doCheckEnterEvent()
+        }, this.enterCooling)
+      }
+    },
+    //--------------------------------------
+    doCheckEnterEvent() {
+      // Guard
+      if(this.myEnterNotifed || this.myEnterAt<0) {
+        return
+      }
+      let du = Date.now()  - this.myEnterAt
+      if(du >= this.enterCooling) {
+        //console.log("du cooling", du, this.enterCooling)
+        this.myEnterNotifed = true
+        let payload = _.assign({
+          $el : this.$el,
+          $img : this.$refs.img
+        }, this.notifyPayload)
+        this.$notify(this.EnterNotifyName, payload)
+      }
+    },
+    //--------------------------------------
+    OnImageMouseLeave() {
+      let $img = this.$refs.img
+      if(this.TheHoverSrc) {
+        $img.src = this.TheSrc
+      }
+      if(this.myEnterNotifed && this.LeaveNotifyName) {
+        let payload = _.assign({
+          $el : this.$el,
+          $img : this.$refs.img
+        }, this.notifyPayload)
+        this.$notify(this.LeaveNotifyName, payload)
+      }
+      this.myEnterNotifed = false
+      this.myEnterAt = -1
     }
     //--------------------------------------
   },
