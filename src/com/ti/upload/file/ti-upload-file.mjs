@@ -27,6 +27,11 @@ const _M = {
       type : Boolean,
       default : false
     },
+    "previewType" : {
+      type : String,
+      default : "obj",
+      validator : v => /^(obj|link)$/.test(v)
+    },
     "maxWidth" : {
       type : [String, Number],
       default : undefined
@@ -115,6 +120,10 @@ const _M = {
       return false
     },
     //--------------------------------------
+    isShowExlink() {
+      return this.exlink && !this.hasPreview
+    },
+    //--------------------------------------
     PreviewIcon() {
       if(this.uploadFile) {
         return {type:"localFile", value:this.uploadFile}
@@ -132,7 +141,11 @@ const _M = {
   methods : {
     //--------------------------------------
     OnClickToEdit() {
-      this.$refs.file.click()
+      if("link" == this.previewType) {
+        this.$notify("exlink")
+      } else {
+        this.$refs.file.click()
+      }
     },
     //--------------------------------------
     async OnDropFiles(files) {

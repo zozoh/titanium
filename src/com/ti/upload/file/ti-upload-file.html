@@ -24,10 +24,19 @@
       :progress="progress"
       :show-footer="false"/>
     <!--
+      Preview type badge
+    -->
+    <div
+      v-if="hasPreview"
+        class="as-preview-type">
+          <i v-if="'link'==previewType" class="fas fa-link"></i>
+          <i v-else-if="'obj'==previewType" class="fas fa-save"></i>
+    </div>
+    <!--
       Remove
     -->
     <div ref="actions"
-      v-if="isShowRemoveIcon || exlink"
+      v-if="isShowRemoveIcon || isShowExlink"
         class="thumb-actions"
         :style="ActionsStyle">
         <!--remove-->
@@ -48,7 +57,7 @@
         </div>
         <!--exlink-->
         <div
-          v-if="exlink"
+          v-if="isShowExlink"
             class="thumb-opt as-exlink"
             @click.left.stop="OnExlink">
             <ti-icon value="fas-link"/>

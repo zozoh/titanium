@@ -144,6 +144,10 @@ const _M = {
         // Others just get the icon font
         return Wn.Util.getObjIcon(this.oFile)
       }
+    },
+    //--------------------------------------
+    PreviewType() {
+      return this.srcAsUrl ? "link" : "obj"
     }
     //--------------------------------------
   },
@@ -172,8 +176,10 @@ const _M = {
     },
     //--------------------------------------
     async OnExlink() {
+      let value = this.srcAsUrl ? this.value : undefined
       let src = _.trim(await Ti.Prompt("i18n:exlink-tip-img", {
-        width: "80%"
+        width: "80%",
+        value
       }))
       // User cancel
       if(!src)
@@ -183,8 +189,11 @@ const _M = {
     },
     //--------------------------------------
     async OnOpen() {
+      if(this.srcAsUrl) {
+        await Ti.Be.Open(this.value)
+      }
       // remove the thumb file
-      if(this.oFile) {
+      else if(this.oFile) {
         let link = Wn.Util.getAppLink(this.oFile)
         //console.log("it will open ", link)
         await Ti.Be.Open(link.url, {params:link.params})

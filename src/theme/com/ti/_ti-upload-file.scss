@@ -49,11 +49,20 @@
       }
     }
     //-------------------------------------------
+    .as-preview-type {
+      @include pos-abs($l:0,$b:0);
+      padding: SZ(6); font-size: SZ(16);
+      opacity: 0.6; transition: 0.8s;
+    }
+    //-------------------------------------------
     &:hover {
       border:2px dashed map-get($color-secondary, c);
       color:map-get($color-secondary, c);
       .ti-obj-thumb .as-preview .ti-icon .tii-con {
         transform: scale(1.5) rotate(180deg);
+      }
+      .as-preview-type {
+        opacity: 1;
       }
     }
     //-------------------------------------------
