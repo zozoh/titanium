@@ -55,6 +55,16 @@
     bottom: 0; }
   .ti-widget-album > .photo-wall.at-bottom .wall-tile .tile-title {
     bottom: 0; }
+  .ti-widget-album > .photo-wall.title-wrap-auto .wall-tile .tile-title {
+    white-space: normal; }
+  .ti-widget-album > .photo-wall.title-wrap-clip .wall-tile .tile-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip; }
+  .ti-widget-album > .photo-wall.title-wrap-ellipsis .wall-tile .tile-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; }
   .ti-widget-album > .photo-wall.layout-falls {
     flex-wrap: nowrap;
     align-items: flex-start; }

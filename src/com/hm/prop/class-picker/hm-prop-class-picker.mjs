@@ -26,6 +26,17 @@ const _M = {
     "form" : {
       type : Object,
       default : ()=>({})
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "dialogWidth" : {
+      type : [String, Number],
+      default : 500
+    },
+    "dialogHeight" : {
+      type : [String, Number],
+      default : 500
     }
   },
   //////////////////////////////////////////////////////
@@ -76,8 +87,8 @@ const _M = {
       // Open dialog
       let reo = await Ti.App.Open({
         title : "i18n:hmk-class-pick",
-        width : 500,
-        height : 500,
+        width : this.dialogWidth,
+        height : this.dialogHeight,
         position : "top",
         result,
         model : {prop:"data", event:"change"},

@@ -55,7 +55,8 @@ function GetAlbumWidget($album) {
     itemToPhoto : {
       name : "=title|nm",
       link : "#",
-      src  : "->/o/content?str=${thumb}"
+      src  : "->/o/content?str=${thumb}",
+      brief : "=brief"
     }
   })
 }

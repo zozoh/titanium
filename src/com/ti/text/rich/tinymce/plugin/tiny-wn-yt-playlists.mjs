@@ -91,9 +91,9 @@ function UpdateYtPlaylistTagInnerHtml($album, settings, {
     AB.showLoading()
 
     // Load and rendering
-    console.log("YTPL:: setting.load")
+    //console.log("YTPL:: setting.load")
     settings.loadVideos(album).then((data)=>{
-      console.log("load PL videos", data)
+      //console.log("load PL videos", data)
       AB.renderItems(data)
     })
   }

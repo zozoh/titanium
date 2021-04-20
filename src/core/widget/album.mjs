@@ -2,7 +2,8 @@ const ALBUM_CLASS_NAME = "ti-widget-album"
 const WALL_CLASS_NAME = "photo-wall"
 const DFT_WALL_CLASS = [
   'flex-none','item-margin-md','item-padding-no',
-  'pic-fit-cover','hover-to-zoom', "at-bottom"
+  'pic-fit-cover','hover-to-zoom', "at-bottom", 
+  'title-wrap-ellipsis'
 ]
 ////////////////////////////////////////////////
 class TiAlbum {
@@ -196,16 +197,16 @@ class TiAlbum {
         src : src
       }
     })
-    if(!Ti.S.isBlank(name)) {
+    if(name && !Ti.S.isBlank(name)) {
       let $title = Ti.Dom.createElement({
         $p : $tile,
         tagName : "div",
         className : "tile-title",
         style : titleStyle
       })
-      $title.innerText = name
+      $title.innerText = name.replace(/\r?\n/g, " ")
     }
-    if(!Ti.S.isBlank(brief)) {
+    if(brief && !Ti.S.isBlank(brief)) {
       let $title = Ti.Dom.createElement({
         $p : $tile,
         tagName : "div",
@@ -347,6 +348,7 @@ export const Album = {
               comType : "HmPropClassPicker",
               comConf : {
                 valueType : "String",
+                dialogHeight : 600,
                 form : {
                   fields : [{
                     title : "i18n:hmk-class-flex",
@@ -396,6 +398,18 @@ export const Album = {
                         {value: "at-top",    text:"i18n:hmk-class-at-top"},
                         {value: "at-center", text:"i18n:hmk-class-at-center"},
                         {value: "at-bottom", text:"i18n:hmk-class-at-bottom"}
+                      ]
+                    }
+                  }, {
+                    title : "i18n:hmk-class-title-wrap",
+                    name : "titleWrap",
+                    defaultAs : "title-warp",
+                    comType : "TiSwitcher",
+                    comConf : {
+                      options : [
+                        {value: "title-wrap-auto",text:"i18n:hmk-class-text-wrap-auto"},
+                        {value: "title-wrap-clip", text:"i18n:hmk-class-text-wrap-clip"},
+                        {value: "title-wrap-ellipsis", text:"i18n:hmk-class-text-wrap-ellipsis"}
                       ]
                     }
                   }, {

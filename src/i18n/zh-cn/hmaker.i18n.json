@@ -1,4 +1,9 @@
 {
+  "hmk-class-title-wrap" : "标题折行",
+  "hmk-class-text-wrap" : "文字折行",
+  "hmk-class-text-wrap-auto" : "自动",
+  "hmk-class-text-wrap-clip" : "剪裁",
+  "hmk-class-text-wrap-ellipsis" : "省略号",
   "hmk-css-text-overflow" : "文字溢出",
   "hmk-css-text-overflow-clip" : "剪裁",
   "hmk-css-text-overflow-ellipsis" : "省略号",

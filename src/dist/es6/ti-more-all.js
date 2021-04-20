@@ -1,4 +1,4 @@
-// Pack At: 2021-04-20 20:20:18
+// Pack At: 2021-04-20 21:04:54
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2266,9 +2266,9 @@ function UpdateYtPlaylistTagInnerHtml($album, settings, {
     AB.showLoading()
 
     // Load and rendering
-    console.log("YTPL:: setting.load")
+    //console.log("YTPL:: setting.load")
     settings.loadVideos(album).then((data)=>{
-      console.log("load PL videos", data)
+      //console.log("load PL videos", data)
       AB.renderItems(data)
     })
   }
@@ -16161,7 +16161,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 cdnTmpl : this.cdnTmpl,
                 dftSrc : this.dftImgSrc
               })
-            }
+            },
+            brief : "=brief"
           }
         },
         "fb-album" : {
@@ -16177,7 +16178,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           itemToPhoto : {
             name : "=title",
             link : "->https://www.youtube.com/watch?v=${id}",
-            src  : "=thumbUrl"
+            src  : "=thumbUrl",
+            brief : "=description",
           }
         }
       })[$el.getAttribute("ti-album-type") || "album"]
@@ -34403,7 +34405,8 @@ function GetAlbumWidget($album) {
     itemToPhoto : {
       name : "=title|nm",
       link : "#",
-      src  : "->/o/content?str=${thumb}"
+      src  : "->/o/content?str=${thumb}",
+      brief : "=brief"
     }
   })
 }
@@ -64907,6 +64910,11 @@ Ti.Preload("/a/load/wn.manager/wn-manager.mjs", TI_PACK_EXPORTS['/a/load/wn.mana
 // JOIN <hmaker.i18n.json> ti/i18n/en-us/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
+  "hmk-class-title-wrap" : "Title wrap",
+  "hmk-class-text-wrap" : "Text wrap",
+  "hmk-class-text-wrap-auto" : "Auto",
+  "hmk-class-text-wrap-clip" : "Clip",
+  "hmk-class-text-wrap-ellipsis" : "Ellipsis",
   "hmk-css-text-overflow" : "Text overflow",
   "hmk-css-text-overflow-clip" : "Clip",
   "hmk-css-text-overflow-ellipsis" : "Ellipsis",
@@ -66171,6 +66179,11 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-cn/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
+  "hmk-class-title-wrap" : "标题折行",
+  "hmk-class-text-wrap" : "文字折行",
+  "hmk-class-text-wrap-auto" : "自动",
+  "hmk-class-text-wrap-clip" : "剪裁",
+  "hmk-class-text-wrap-ellipsis" : "省略号",
   "hmk-css-text-overflow" : "文字溢出",
   "hmk-css-text-overflow-clip" : "剪裁",
   "hmk-css-text-overflow-ellipsis" : "省略号",
@@ -67435,6 +67448,21 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-hk/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
+   "hmk-class-title-wrap": "標題折行",
+   "hmk-class-text-wrap": "文字折行",
+   "hmk-class-text-wrap-auto": "自動",
+   "hmk-class-text-wrap-clip": "剪裁",
+   "hmk-class-text-wrap-ellipsis": "省略號",
+   "hmk-css-text-overflow": "文字溢出",
+   "hmk-css-text-overflow-clip": "剪裁",
+   "hmk-css-text-overflow-ellipsis": "省略號",
+   "hmk-css-white-space": "文字折行",
+   "hmk-css-white-space-normal": "正常",
+   "hmk-css-white-space-nowrap": "不折行",
+   "hmk-css-white-space-pre": "保持預先格式",
+   "hmk-css-white-space-pre-wrap": "保持預先格式並自動折行",
+   "hmk-css-white-space-pre-line": "保持預先格式並按行自動折行",
+   "hmk-css-white-space-break-space": "保持預先格式並自動折行（除了空格）",
    "hmk-layout-cols": "列布局",
    "hmk-layout-rows": "行佈局",
    "hmk-layout-tabs": "標籤佈局",

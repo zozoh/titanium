@@ -1,4 +1,4 @@
-// Pack At: 2021-04-20 20:20:18
+// Pack At: 2021-04-20 21:04:54
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -13351,7 +13351,8 @@ const {Album} = (function(){
   const WALL_CLASS_NAME = "photo-wall"
   const DFT_WALL_CLASS = [
     'flex-none','item-margin-md','item-padding-no',
-    'pic-fit-cover','hover-to-zoom', "at-bottom"
+    'pic-fit-cover','hover-to-zoom', "at-bottom", 
+    'title-wrap-ellipsis'
   ]
   ////////////////////////////////////////////////
   class TiAlbum {
@@ -13545,16 +13546,16 @@ const {Album} = (function(){
           src : src
         }
       })
-      if(!Ti.S.isBlank(name)) {
+      if(name && !Ti.S.isBlank(name)) {
         let $title = Ti.Dom.createElement({
           $p : $tile,
           tagName : "div",
           className : "tile-title",
           style : titleStyle
         })
-        $title.innerText = name
+        $title.innerText = name.replace(/\r?\n/g, " ")
       }
-      if(!Ti.S.isBlank(brief)) {
+      if(brief && !Ti.S.isBlank(brief)) {
         let $title = Ti.Dom.createElement({
           $p : $tile,
           tagName : "div",
@@ -13696,6 +13697,7 @@ const {Album} = (function(){
                 comType : "HmPropClassPicker",
                 comConf : {
                   valueType : "String",
+                  dialogHeight : 600,
                   form : {
                     fields : [{
                       title : "i18n:hmk-class-flex",
@@ -13745,6 +13747,18 @@ const {Album} = (function(){
                           {value: "at-top",    text:"i18n:hmk-class-at-top"},
                           {value: "at-center", text:"i18n:hmk-class-at-center"},
                           {value: "at-bottom", text:"i18n:hmk-class-at-bottom"}
+                        ]
+                      }
+                    }, {
+                      title : "i18n:hmk-class-title-wrap",
+                      name : "titleWrap",
+                      defaultAs : "title-warp",
+                      comType : "TiSwitcher",
+                      comConf : {
+                        options : [
+                          {value: "title-wrap-auto",text:"i18n:hmk-class-text-wrap-auto"},
+                          {value: "title-wrap-clip", text:"i18n:hmk-class-text-wrap-clip"},
+                          {value: "title-wrap-ellipsis", text:"i18n:hmk-class-text-wrap-ellipsis"}
                         ]
                       }
                     }, {
@@ -14516,7 +14530,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210420.202018",
+  "version" : "1.6-20210420.210454",
   "dev" : false,
   "appName" : null,
   "session" : {},

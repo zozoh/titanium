@@ -40,6 +40,20 @@
   }
   &.at-bottom .wall-tile .tile-title {bottom:0;}
   //-----------------------------------------
+  &.title-wrap-auto .wall-tile .tile-title {
+    white-space: normal;
+  }
+  &.title-wrap-clip .wall-tile .tile-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+  }
+  &.title-wrap-ellipsis .wall-tile .tile-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  //-----------------------------------------
   //
   // Waterfalls Style
   // 

@@ -166,7 +166,8 @@ export default {
                 cdnTmpl : this.cdnTmpl,
                 dftSrc : this.dftImgSrc
               })
-            }
+            },
+            brief : "=brief"
           }
         },
         "fb-album" : {
@@ -182,7 +183,8 @@ export default {
           itemToPhoto : {
             name : "=title",
             link : "->https://www.youtube.com/watch?v=${id}",
-            src  : "=thumbUrl"
+            src  : "=thumbUrl",
+            brief : "=description",
           }
         }
       })[$el.getAttribute("ti-album-type") || "album"]

@@ -1,4 +1,9 @@
 {
+  "hmk-class-title-wrap" : "Title wrap",
+  "hmk-class-text-wrap" : "Text wrap",
+  "hmk-class-text-wrap-auto" : "Auto",
+  "hmk-class-text-wrap-clip" : "Clip",
+  "hmk-class-text-wrap-ellipsis" : "Ellipsis",
   "hmk-css-text-overflow" : "Text overflow",
   "hmk-css-text-overflow-clip" : "Clip",
   "hmk-css-text-overflow-ellipsis" : "Ellipsis",
