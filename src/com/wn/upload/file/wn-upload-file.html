@@ -1,5 +1,6 @@
 <TiUploadFile
   :preview="PreviewIcon"
+  :exlink="exlink"
   :width="width"
   :height="height"
   :max-width="maxWidth"
@@ -7,6 +8,7 @@
   :progress="progress"
   :upload-file="uploadFile"
   :removable="removable"
-  @upload="onUpload"
-  @remove="onRemove"
-  @open="onOpen"/>
+  @upload="OnUpload"
+  @remove="OnRemove"
+  @exlink="OnExlink"
+  @open="OnOpen"/>

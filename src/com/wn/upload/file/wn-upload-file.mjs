@@ -1,10 +1,11 @@
 const _M = {
   /////////////////////////////////////////
   data : ()=>({
-    "src_ts" : null,
-    "oFile"     : null,
-    "uploadFile" : null,
-    "progress"   : -1
+    srcAsUrl : false,
+    src_ts : null,
+    oFile     : null,
+    uploadFile : null,
+    progress   : -1
   }),
   /////////////////////////////////////////
   props : {
@@ -20,6 +21,11 @@ const _M = {
       type: String,
       default: "obj",
       validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
+    },
+    // Input a image link directly
+    "exlink" : {
+      type : Boolean,
+      default : false
     },
     "maxWidth" : {
       type : [String, Number],
@@ -103,6 +109,11 @@ const _M = {
     //--------------------------------------
     // Display image for <ti-thumb>
     PreviewIcon() {
+      if(this.srcAsUrl) {
+        return {
+          type: "image", value: this.value
+        }
+      }
       //....................................
       if(this.oFile) {
         //..................................
@@ -160,7 +171,18 @@ const _M = {
       return true
     },
     //--------------------------------------
-    async onOpen() {
+    async OnExlink() {
+      let src = _.trim(await Ti.Prompt("i18n:exlink-tip-img", {
+        width: "80%"
+      }))
+      // User cancel
+      if(!src)
+        return
+      
+      this.$notify("change", src)
+    },
+    //--------------------------------------
+    async OnOpen() {
       // remove the thumb file
       if(this.oFile) {
         let link = Wn.Util.getAppLink(this.oFile)
@@ -169,7 +191,7 @@ const _M = {
       }
     },
     //--------------------------------------
-    async onRemove() {
+    async OnRemove() {
       // remove the thumb file
       if(this.oFile) {
         await Wn.Sys.exec2(`rm id:${this.oFile.id}`)
@@ -178,7 +200,7 @@ const _M = {
       this.$notify("change", null)
     },
     //--------------------------------------
-    async onUpload(file) {
+    async OnUpload(file) {
       // console.log("it will upload ", file)
       //................................
       // Check for support Types
@@ -259,6 +281,10 @@ const _M = {
     },
     //--------------------------------------
     async reload() {
+      this.srcAsUrl = /^https?:\/\//.test(this.value)
+      if(this.srcAsUrl) {
+        return
+      }
       if(_.isString(this.value)) {
         this.oFile = await Wn.Io.loadMetaBy(this.value)
       }

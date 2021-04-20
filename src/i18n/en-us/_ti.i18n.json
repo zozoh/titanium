@@ -1,4 +1,7 @@
 {
+  "exlink" : "Ex-link",
+  "exlink-tip" : "Please enter a URL address",
+  "exlink-tip-img" : "Please enter an image URL address",
   "key" : "Key",
   "all" : "All",
   "attachments" : "Attachments",

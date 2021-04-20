@@ -161,7 +161,7 @@ function TiDraggable($el, setup, {context}) {
     context.evalLeftBySpeed = function(left=0) {
       let {viewport, $trigger, offsetX, speed} = this
       if(speed > 1) {
-        console.log(left, speed * offsetX, {offsetX, speed})
+        //console.log(left, speed * offsetX, {offsetX, speed})
         left += speed * offsetX
       }
       let wScroller = $trigger.scrollWidth

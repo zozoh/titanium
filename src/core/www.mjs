@@ -243,6 +243,9 @@ const TiWWW = {
       let oph = ".." == previewKey 
                   ? obj
                   :_.get(obj, previewKey)
+      if(/^https?:\/\//.test(oph)) {
+        return oph
+      }
       if(oph) {
         return Ti.S.renderBy(apiTmpl, obj)
       }

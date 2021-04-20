@@ -27,20 +27,32 @@
       Remove
     -->
     <div ref="actions"
-      v-if="isShowRemoveIcon"
+      v-if="isShowRemoveIcon || exlink"
         class="thumb-actions"
         :style="ActionsStyle">
         <!--remove-->
-        <div class="thumb-opt as-del"
-          @click.left.stop="OnRemove">
-          <ti-icon value="zmdi-delete"/>
-          <span class="it-text">{{'clear'|i18n}}</span>
+        <div
+          v-if="isShowRemoveIcon"
+            class="thumb-opt as-del"
+            @click.left.stop="OnRemove">
+            <ti-icon value="zmdi-delete"/>
+            <span class="it-text">{{'clear'|i18n}}</span>
         </div>
         <!--open-->
-        <div class="thumb-opt as-open"
-          @click.left.stop="OnOpen">
-          <ti-icon value="zmdi-open-in-new"/>
-          <span class="it-text">{{'open'|i18n}}</span>
+        <div
+          v-if="isShowRemoveIcon"
+            class="thumb-opt as-open"
+            @click.left.stop="OnOpen">
+            <ti-icon value="zmdi-open-in-new"/>
+            <span class="it-text">{{'open'|i18n}}</span>
+        </div>
+        <!--exlink-->
+        <div
+          v-if="exlink"
+            class="thumb-opt as-exlink"
+            @click.left.stop="OnExlink">
+            <ti-icon value="fas-link"/>
+            <span class="it-text">{{'link'|i18n}}</span>
         </div>
     </div>
     <!--//////-->

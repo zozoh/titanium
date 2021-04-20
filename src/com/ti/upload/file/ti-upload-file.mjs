@@ -22,6 +22,11 @@ const _M = {
       type : Number,
       default : -1
     },
+    // Input a image link directly
+    "exlink" : {
+      type : Boolean,
+      default : false
+    },
     "maxWidth" : {
       type : [String, Number],
       default : undefined
@@ -148,6 +153,10 @@ const _M = {
     //--------------------------------------
     OnOpen() {
       this.$notify("open")
+    },
+    //--------------------------------------
+    OnExlink() {
+      this.$notify("exlink")
     },
     //--------------------------------------
     recountArea() {
