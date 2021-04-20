@@ -1,4 +1,4 @@
-// Pack At: 2021-04-20 15:16:14
+// Pack At: 2021-04-20 20:09:41
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2232,9 +2232,10 @@ function GetAlbumWidget($album) {
   return Ti.Widget.Album.getOrCreate($album, {
     attrPrefix : "wn-ytpl-",
     itemToPhoto : {
-      name : "=title",
-      link : "->https://www.youtube.com/watch?v=${id}",
-      src  : "=thumbUrl"
+      name  : "=title",
+      link  : "->https://www.youtube.com/watch?v=${id}",
+      src   : "=thumbUrl",
+      brief : "=description",
     }
   })
 }
@@ -8840,7 +8841,7 @@ function UpdateFbAlbumTagInnerHtml($album, settings, {
         albumId : album.id,
         access_token : longLiveAccessToken
       }).then((items)=>{
-        console.log(items)
+        //console.log(items)
         AB.renderItems(items)
       })
     })
@@ -16186,7 +16187,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       
       // Redraw
       let items = AB.getItems()
-      console.log(items)
+      //console.log(items)
       AB.renderItems(items)
     }
   },
@@ -18534,9 +18535,36 @@ window.TI_PACK_EXPORTS['ti/com/web/widget/frame/widget-frame.mjs'] = (function()
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
   props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
     "src": {
-      type: String,
+      type : String,
       default: undefined
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "postPayload" : {
+      type : [String, Object, Number, Boolean, Array]
+    },
+    "postEvents" : {
+      type : [String, Array]
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "frameStyle" : {
+      type : Object
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "width" : {
+      type : [Number, String]
+    },
+    "height" : {
+      type : [Number, String]
     }
   },
   /////////////////////////////////////////
@@ -18546,23 +18574,67 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return this.getTopClass()
     },
     //------------------------------------
-    FrameSrce() {
+    FrameSrc() {
       return _.trim(this.src)
     },
     //------------------------------------
-    hasFrameSrce() {
-      return this.FrameSrce ? true : false
+    hasFrameSrc() {
+      return this.FrameSrc ? true : false
     },
     //------------------------------------
     FrameStyle() {
-      return {border: 0}
+      return Ti.Css.toStyle(_.assign({
+        border : 0, 
+        width  : this.width,
+        height : this.height
+      }, this.frameStyle))
+    },
+    //------------------------------------
+    PostEventNames() {
+      if(this.postEvents) {
+        return _.concat(this.postEvents)
+      }
+    },
+    //------------------------------------
+    hasPostEventNames() {
+      return !_.isEmpty(this.PostEventNames)
+    },
+    //------------------------------------
+    PostEventFunctions() {
+      let re = []
+      if(this.hasPostEventNames) {
+        for(let eventName of this.PostEventNames) {
+          re.push({
+            index : re.length,
+            eventName,
+            handler : () => {
+              let $fm = this.$refs.frame
+              if(_.isElement($fm)) {
+                $fm.contentWindow.postMessage(eventName, this.postPayload);
+              }
+            }
+          })
+        }
+      }
+      return re;
     }
     //------------------------------------
   },
   /////////////////////////////////////////
-  methods : {
-    //------------------------------------
-    //------------------------------------
+  mounted() {
+    for(let en of this.PostEventFunctions) {
+      let {eventName, handler} = en
+      console.log("add", eventName)
+      window.addEventListener(eventName, handler, false)
+    }
+  },
+  /////////////////////////////////////////
+  beforeDestroy : function(){
+    for(let en of this.PostEventFunctions) {
+      let {eventName, handler} = en
+      console.log("remove", eventName)
+      window.removeEventListener(eventName, handler, false)
+    }
   }
   /////////////////////////////////////////
 }
@@ -57618,7 +57690,8 @@ Ti.Preload("ti/com/ti/switcher/ti-switcher.html", `<div class="ti-switcher"
           v-if="it.icon" 
           :value="it.icon"/>
         <span
-          class="it-text">{{it.text|i18n}}</span>
+          v-if="it.text" 
+            class="it-text">{{it.text|i18n}}</span>
       </li>
     </ul>
   </div>
@@ -61757,8 +61830,12 @@ Ti.Preload("ti/com/web/tile/order/_com.json", {
 //========================================
 Ti.Preload("ti/com/web/widget/frame/widget-frame.html", `<div class="web-widget-frame"
   :class="TopClass">
-  <template v-if="hasFrameSrce">
-    <iframe :src="FrameSrce" class="ti-fill-parent" :style="FrameStyle"></iframe>
+  <template v-if="hasFrameSrc">
+    <iframe ref="frame"
+      :width="width"
+      :height="height"
+      :src="FrameSrc"
+      :style="FrameStyle"></iframe>
   </template>
 </div>`);
 //========================================
@@ -64829,6 +64906,16 @@ Ti.Preload("/a/load/wn.manager/wn-manager.mjs", TI_PACK_EXPORTS['/a/load/wn.mana
 // JOIN <hmaker.i18n.json> ti/i18n/en-us/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
+  "hmk-css-text-overflow" : "Text overflow",
+  "hmk-css-text-overflow-clip" : "Clip",
+  "hmk-css-text-overflow-ellipsis" : "Ellipsis",
+  "hmk-css-white-space" : "Word wrap",
+  "hmk-css-white-space-normal" : "Normal",
+  "hmk-css-white-space-nowrap" : "No wrap",
+  "hmk-css-white-space-pre" : "Keep primary",
+  "hmk-css-white-space-pre-wrap" : "Keep primary and wrap",
+  "hmk-css-white-space-pre-line" : "Keep primary and wrap by line",
+  "hmk-css-white-space-break-space" : "Keep primary and wrap (except space)",
   "hmk-layout-cols": "Columns",
   "hmk-layout-rows": "Rows",
   "hmk-layout-tabs": "Tabs",
@@ -64894,6 +64981,8 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-class-flex-grow" : "Grow",
   "hmk-class-flex-shrink" : "Shrink",
   "hmk-class-text" : "Text",
+  "hmk-class-text-at" : "Text at",
+  "hmk-class-text-side" : "Text side",
   "hmk-class-text-in" : "Inside",
   "hmk-class-text-out" : "Outside",
   "hmk-class-at" : "Position",
@@ -66081,6 +66170,16 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-cn/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
+  "hmk-css-text-overflow" : "文字溢出",
+  "hmk-css-text-overflow-clip" : "剪裁",
+  "hmk-css-text-overflow-ellipsis" : "省略号",
+  "hmk-css-white-space" : "文字折行",
+  "hmk-css-white-space-normal" : "正常",
+  "hmk-css-white-space-nowrap" : "不折行",
+  "hmk-css-white-space-pre" : "保持预先格式",
+  "hmk-css-white-space-pre-wrap" : "保持预先格式并自动折行",
+  "hmk-css-white-space-pre-line" : "保持预先格式并按行自动折行",
+  "hmk-css-white-space-break-space" : "保持预先格式并自动折行（除了空格）",
   "hmk-layout-cols": "列布局",
   "hmk-layout-rows": "行布局",
   "hmk-layout-tabs": "标签布局",
@@ -66146,6 +66245,8 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-class-flex-grow" : "伸展",
   "hmk-class-flex-shrink" : "收缩",
   "hmk-class-text" : "文字",
+  "hmk-class-text-at" : "文字位置",
+  "hmk-class-text-side" : "文字放置",
   "hmk-class-text-in" : "居内",
   "hmk-class-text-out" : "居外",
   "hmk-class-at" : "位置",
@@ -67398,6 +67499,8 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-class-flex-grow": "伸展",
    "hmk-class-flex-shrink": "收縮",
    "hmk-class-text": "文字",
+   "hmk-class-text-at": "文字位置",
+   "hmk-class-text-side": "文字放置",
    "hmk-class-text-in": "居內",
    "hmk-class-text-out": "居外",
    "hmk-class-at": "位置",

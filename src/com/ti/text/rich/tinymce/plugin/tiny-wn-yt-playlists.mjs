@@ -57,9 +57,10 @@ function GetAlbumWidget($album) {
   return Ti.Widget.Album.getOrCreate($album, {
     attrPrefix : "wn-ytpl-",
     itemToPhoto : {
-      name : "=title",
-      link : "->https://www.youtube.com/watch?v=${id}",
-      src  : "=thumbUrl"
+      name  : "=title",
+      link  : "->https://www.youtube.com/watch?v=${id}",
+      src   : "=thumbUrl",
+      brief : "=description",
     }
   })
 }

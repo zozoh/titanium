@@ -135,7 +135,7 @@ const _M = {
       // Open dialog
       let reo = await Ti.App.Open({
         title : "i18n:hmk-css-edit",
-        width : 640,
+        width : 720,
         height : "95%",
         position : "top",
         result,

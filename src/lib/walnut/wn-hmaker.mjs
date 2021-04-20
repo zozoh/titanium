@@ -38,7 +38,6 @@ const COLOR = {
 const FLOAT = {
   title : "i18n:hmk-css-float",
   name : "float",
-  fieldWidth : "100%",
   comType : "ti-switcher",
   comConf : {
     options : [
@@ -52,14 +51,41 @@ const FLOAT = {
 const TEXT_ALIGN = {
   title : "i18n:hmk-css-text-align",
   name : "text-align",
-  fieldWidth : "100%",
   comType : "ti-switcher",
   comConf : {
     options : [
-      {value: "left",   text: "i18n:hmk-css-align-left",   icon:"fas-align-left"},
-      {value: "center", text: "i18n:hmk-css-align-center", icon:"fas-align-center"},
-      {value: "right",  text: "i18n:hmk-css-align-right",  icon:"fas-align-right"},
-      {value: "justify",text: "i18n:hmk-css-align-justify",icon:"fas-align-justify"}
+      {value: "left",   tip: "i18n:hmk-css-align-left",   icon:"fas-align-left"},
+      {value: "center", tip: "i18n:hmk-css-align-center", icon:"fas-align-center"},
+      {value: "right",  tip: "i18n:hmk-css-align-right",  icon:"fas-align-right"},
+      {value: "justify",tip: "i18n:hmk-css-align-justify",icon:"fas-align-justify"}
+    ]
+  }
+};
+//------------------------------------------------------
+const WHITE_SPACE = {
+  title : "i18n:hmk-css-white-space",
+  name : "white-space",
+  comType : "ti-droplist",
+  comConf : {
+    options : [
+      {value: "normal",  text: "i18n:hmk-css-white-space-normal"},
+      {value: "nowrap",  text: "i18n:hmk-css-white-space-nowrap"},
+      {value: "pre",     text: "i18n:hmk-css-white-space-pre"},
+      {value: "pre-wrap",text: "i18n:hmk-css-white-space-pre-wrap"},
+      {value: "pre-line",text: "i18n:hmk-css-white-space-pre-line"},
+      {value: "break-space",text: "i18n:hmk-css-white-space-break-space"}
+    ]
+  }
+};
+//------------------------------------------------------
+const TEXT_OVERFLOW = {
+  title : "i18n:hmk-css-text-overflow",
+  name : "text-overflow",
+  comType : "ti-switcher",
+  comConf : {
+    options : [
+      {value: "clip", text: "i18n:hmk-css-text-overflow-clip", icon:"fas-cut"},
+      {value: "ellipsis", text: "i18n:hmk-css-text-overflow-ellipsis", icon:"fas-ellipsis-h"}
     ]
   }
 };
@@ -88,6 +114,19 @@ const OVERFLOW = {
       {value:"hidden", text: "i18n:hmk-css-overflow-hidden"},
       {value:"clip", text: "i18n:hmk-css-overflow-clip"},
       {value:"visible", text: "i18n:hmk-css-overflow-visible"}
+    ]
+  }
+};
+//------------------------------------------------------
+const TEXT_TRANSFORM = {
+  title : "i18n:hmk-css-text-transform",
+  name : "text-transform",
+  comType : "ti-switcher",
+  comConf : {
+    options : [
+      {value:"capitalize",text: "i18n:hmk-css-text-transform-capitalize"},
+      {value:"uppercase", text: "i18n:hmk-css-text-transform-uppercase"},
+      {value:"lowercase", text: "i18n:hmk-css-text-transform-lowercase"}
     ]
   }
 };
@@ -145,21 +184,6 @@ const FONT_SIZE = {
   name : "font-size",
   comType : "ti-input"
 };
-//------------------------------------------------------
-const TEXT_TRANSFORM = {
-  title : "i18n:hmk-css-text-transform",
-  name : "text-transform",
-  fieldWidth : "100%",
-  comType : "ti-switcher",
-  comConf : {
-    options : [
-      {value:"capitalize",text: "i18n:hmk-css-text-transform-capitalize"},
-      {value:"uppercase", text: "i18n:hmk-css-text-transform-uppercase"},
-      {value:"lowercase", text: "i18n:hmk-css-text-transform-lowercase"},
-      {value:"none",      text: "i18n:hmk-css-text-transform-none"}
-    ]
-  }
-};
 ////////////////////////////////////////////////////////
 const CSS_PROPS = {
   "background"     : BACKGROUND,
@@ -179,10 +203,12 @@ const CSS_PROPS = {
   "min-width"      : MIN_WIDTH,
   "overflow"       : OVERFLOW,
   "padding"        : PADDING,
+  "text-align"     : TEXT_ALIGN,
   "text-shadow"    : TEXT_SHADOW,
   "text-transform" : TEXT_TRANSFORM,
-  "text-align"     : TEXT_ALIGN,
+  "text-overflow"  : TEXT_OVERFLOW,
   "width"          : WIDTH,
+  "white-space"    : WHITE_SPACE,
 }
 ////////////////////////////////////////////////////////
 const CSS_GROUPING = {
@@ -205,6 +231,8 @@ const CSS_GROUPING = {
     "min-height"],
   texting : [
     "text-align",
+    "white-space",
+    "text-overflow",
     "text-transform",
     "font-size",
     "letter-spacing",
@@ -251,14 +279,19 @@ const WnHMaker = {
         /^((max|min)-)?(width|height)$/
       ],
       "#IMG" : [
-        /^(margin|border|obj)-?/,
+        /^(margin|border|obj|background)-?/,
         /^(box-shadow|float)$/,
         /^((max|min)-)?(width|height)$/
       ],
       "#TEXT" : [
-        /^(color)$/,
+        /^(color|background(-.+)?)$/,
         /^(text-(align|transform|shadow|overflow))$/,
-        /^(font-size|line-height|letter-spacing)$/,
+        /^(font-size|line-height|letter-spacing|white-space)$/,
+      ],
+      "#TEXT-BLOCK" : [
+        /^(padding|border|color|background(-.+)?|overflow)$/,
+        /^(text-(align|transform|shadow|overflow))$/,
+        /^(font-size|line-height|letter-spacing|white-space)$/,
       ]
     })[filter]
     if(qf) {

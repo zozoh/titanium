@@ -64,6 +64,8 @@
    "hmk-class-flex-grow": "伸展",
    "hmk-class-flex-shrink": "收縮",
    "hmk-class-text": "文字",
+   "hmk-class-text-at": "文字位置",
+   "hmk-class-text-side": "文字放置",
    "hmk-class-text-in": "居內",
    "hmk-class-text-out": "居外",
    "hmk-class-at": "位置",

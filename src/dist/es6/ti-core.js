@@ -1,4 +1,4 @@
-// Pack At: 2021-04-20 15:16:14
+// Pack At: 2021-04-20 20:09:41
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -13351,7 +13351,7 @@ const {Album} = (function(){
   const WALL_CLASS_NAME = "photo-wall"
   const DFT_WALL_CLASS = [
     'flex-none','item-margin-md','item-padding-no',
-    'pic-fit-cover','hover-to-zoom'
+    'pic-fit-cover','hover-to-zoom', "at-bottom"
   ]
   ////////////////////////////////////////////////
   class TiAlbum {
@@ -13363,9 +13363,10 @@ const {Album} = (function(){
         attrPrefix : "wn-obj-",
         dftWallClass : DFT_WALL_CLASS,
         itemToPhoto : {
-          name : "=name",
-          link : "=link",
-          src  : "=src"
+          name  : "=name",
+          link  : "=link",
+          src   : "=src",
+          brief : "=brief",
         }
       }, setup)
     }
@@ -13502,19 +13503,21 @@ const {Album} = (function(){
       }
   
       // Prepare style
-      let {tileStyle, imageStyle} = album
+      let {tileStyle} = album
       tileStyle = _.omit(tileStyle, "width", "maxWidth", "minWidth")
   
       // Build tils
       for(let i=0; i<photos.length; i++) {
         let gIx = i % count
         let $grp = $fallsGroups[gIx]
-        this.createPhotoTileElement($grp, photos[i], {tileStyle, imageStyle}, attrPrefix)
+        this.createPhotoTileElement($grp, photos[i], album, attrPrefix)
       }
     }
     //---------------------------------------
-    createPhotoTileElement($p, photo, {tileStyle, imageStyle}, attrPrefix) {
-      let {src, link, name, item} = photo
+    createPhotoTileElement($p, photo, {
+      tileStyle, imageStyle, titleStyle, briefStyle
+    }, attrPrefix) {
+      let {src, link, name, brief, item} = photo
       let $tile = Ti.Dom.createElement({
         $p,
         tagName : "a",
@@ -13534,6 +13537,24 @@ const {Album} = (function(){
           src : src
         }
       })
+      if(!Ti.S.isBlank(name)) {
+        let $title = Ti.Dom.createElement({
+          $p : $tile,
+          tagName : "div",
+          className : "tile-title",
+          style : titleStyle
+        })
+        $title.innerText = name
+      }
+      if(!Ti.S.isBlank(brief)) {
+        let $title = Ti.Dom.createElement({
+          $p : $tile,
+          tagName : "div",
+          className : "tile-brief",
+          style : briefStyle
+        })
+        $title.innerText = brief
+      }
       // Save photo setting
       Ti.Dom.setAttrs($img, item, attrPrefix)
     }
@@ -13557,7 +13578,7 @@ const {Album} = (function(){
   
       // Then lets see how to calculate the two values ...
       // Insert stub to measure the inner size
-      console.log("evalColumns", album)
+      //console.log("evalColumns", album)
       this.$el.innerHTML = ""
       Ti.Dom.appendTo($wall, this.$el)
       this.showLoading($wall)
@@ -13661,15 +13682,6 @@ const {Album} = (function(){
                     {value: "falls",  text:"i18n:hmk-layout-falls"}]
                 }
               }, {
-                title : "外部样式",
-                name  : "style",
-                type  : "Object",
-                emptyAs : null,
-                comType : "HmPropCssRules",
-                comConf : {
-                  rules : "#BLOCK"
-                }
-              }, {
                 title : "整体风格",
                 name : "wallClass",
                 emptyAs : null,
@@ -13717,6 +13729,17 @@ const {Album} = (function(){
                         ]
                       }
                     }, {
+                      title : "i18n:hmk-class-text-at",
+                      name : "textAt",
+                      comType : "TiSwitcher",
+                      comConf : {
+                        options : [
+                          {value: "at-top",    text:"i18n:hmk-class-at-top"},
+                          {value: "at-center", text:"i18n:hmk-class-at-center"},
+                          {value: "at-bottom", text:"i18n:hmk-class-at-bottom"}
+                        ]
+                      }
+                    }, {
                       title : "i18n:hmk-class-object-fit",
                       name : "picFit",
                       comType : "TiSwitcher",
@@ -13742,6 +13765,18 @@ const {Album} = (function(){
                     }]
                   }
                 } // title : "整体风格",
+              }]
+          }, {
+            title : "相册高级样式",
+            fields : [{
+                title : "外部样式",
+                name  : "style",
+                type  : "Object",
+                emptyAs : null,
+                comType : "HmPropCssRules",
+                comConf : {
+                  rules : "#BLOCK"
+                }
               }, {
                 title : "内部样式",
                 name  : "wallStyle",
@@ -13768,6 +13803,24 @@ const {Album} = (function(){
                 comType : "HmPropCssRules",
                 comConf : {
                   rules : "#IMG"
+                }
+              }, {
+                title : "标题样式",
+                name  : "titleStyle",
+                type  : "Object",
+                emptyAs : null,
+                comType : "HmPropCssRules",
+                comConf : {
+                  rules : "#TEXT-BLOCK"
+                }
+              }, {
+                title : "摘要样式",
+                name  : "briefStyle",
+                type  : "Object",
+                emptyAs : null,
+                comType : "HmPropCssRules",
+                comConf : {
+                  rules : "#TEXT-BLOCK"
                 }
               }]
           }]
@@ -14455,7 +14508,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210420.151614",
+  "version" : "1.6-20210420.200941",
   "dev" : false,
   "appName" : null,
   "session" : {},

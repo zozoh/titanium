@@ -1,6 +1,10 @@
 <div class="web-widget-frame"
   :class="TopClass">
-  <template v-if="hasFrameSrce">
-    <iframe :src="FrameSrce" class="ti-fill-parent" :style="FrameStyle"></iframe>
+  <template v-if="hasFrameSrc">
+    <iframe ref="frame"
+      :width="width"
+      :height="height"
+      :src="FrameSrc"
+      :style="FrameStyle"></iframe>
   </template>
 </div>

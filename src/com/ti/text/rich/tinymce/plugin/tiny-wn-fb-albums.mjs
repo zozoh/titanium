@@ -99,7 +99,7 @@ function UpdateFbAlbumTagInnerHtml($album, settings, {
         albumId : album.id,
         access_token : longLiveAccessToken
       }).then((items)=>{
-        console.log(items)
+        //console.log(items)
         AB.renderItems(items)
       })
     })

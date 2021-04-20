@@ -22,7 +22,8 @@
           v-if="it.icon" 
           :value="it.icon"/>
         <span
-          class="it-text">{{it.text|i18n}}</span>
+          v-if="it.text" 
+            class="it-text">{{it.text|i18n}}</span>
       </li>
     </ul>
   </div>
