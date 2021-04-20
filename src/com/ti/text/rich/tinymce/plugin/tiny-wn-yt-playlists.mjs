@@ -48,7 +48,7 @@ async function pickYtPlaylistAndInsertToDoc(editor, settings) {
   if(_.isEmpty(reo) || !reo.current) {
     return
   }
-  console.log("YTPlaylist", reo.current)
+  //console.log("YTPlaylist", reo.current)
   // Do insert
   editor.execCommand("InsertYtPlaylist", editor, reo.current)
 }
@@ -175,7 +175,7 @@ async function CmdShowAlbumProp(editor, settings) {
   // Gen the properties
   let AB = GetAlbumWidget($album)
   let data = AB.getData()
-  console.log(data)
+  //console.log(data)
 
   // Show dialog
   let reo = await Ti.App.Open({
@@ -192,6 +192,7 @@ async function CmdShowAlbumProp(editor, settings) {
     comConf : Ti.Widget.Album.getEditFormConfig(),
     components : []
   })
+  //console.log(reo)
 
   // 用户取消
   if(!reo)

@@ -39,6 +39,7 @@ class TiAlbum {
     let {
       id, name, link, layout,
       style, wallStyle, tileStyle, imageStyle,
+      titleStyle, briefStyle,
       wallClass
     } = album
 
@@ -50,6 +51,8 @@ class TiAlbum {
     Ti.Dom.formatStyle(wallStyle)
     Ti.Dom.formatStyle(tileStyle)
     Ti.Dom.formatStyle(imageStyle)
+    Ti.Dom.formatStyle(titleStyle)
+    Ti.Dom.formatStyle(briefStyle)
 
     return {
       id,name,link, layout,
@@ -58,6 +61,8 @@ class TiAlbum {
       wallStyle  : Ti.Dom.renderCssRule(wallStyle),
       tileStyle  : Ti.Dom.renderCssRule(tileStyle),
       imageStyle : Ti.Dom.renderCssRule(imageStyle),
+      titleStyle : Ti.Dom.renderCssRule(titleStyle),
+      briefStyle : Ti.Dom.renderCssRule(briefStyle),
     }
   }
   //---------------------------------------
@@ -73,13 +78,16 @@ class TiAlbum {
       }
     })
     let {
-      style, wallClass, wallStyle, tileStyle, imageStyle
+      style, wallClass, wallStyle, tileStyle, imageStyle,
+      titleStyle, briefStyle,
     } = album
     album.wallClass  = Ti.Dom.getClassList(wallClass).join(" ")
     album.style      = Ti.Dom.parseCssRule(style)
     album.wallStyle  = Ti.Dom.parseCssRule(wallStyle)
     album.tileStyle  = Ti.Dom.parseCssRule(tileStyle)
     album.imageStyle = Ti.Dom.parseCssRule(imageStyle)
+    album.titleStyle = Ti.Dom.parseCssRule(titleStyle)
+    album.briefStyle = Ti.Dom.parseCssRule(briefStyle)
     return album
   }
   //---------------------------------------

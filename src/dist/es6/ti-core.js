@@ -1,4 +1,4 @@
-// Pack At: 2021-04-20 20:09:41
+// Pack At: 2021-04-20 20:20:18
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -13388,6 +13388,7 @@ const {Album} = (function(){
       let {
         id, name, link, layout,
         style, wallStyle, tileStyle, imageStyle,
+        titleStyle, briefStyle,
         wallClass
       } = album
   
@@ -13399,6 +13400,8 @@ const {Album} = (function(){
       Ti.Dom.formatStyle(wallStyle)
       Ti.Dom.formatStyle(tileStyle)
       Ti.Dom.formatStyle(imageStyle)
+      Ti.Dom.formatStyle(titleStyle)
+      Ti.Dom.formatStyle(briefStyle)
   
       return {
         id,name,link, layout,
@@ -13407,6 +13410,8 @@ const {Album} = (function(){
         wallStyle  : Ti.Dom.renderCssRule(wallStyle),
         tileStyle  : Ti.Dom.renderCssRule(tileStyle),
         imageStyle : Ti.Dom.renderCssRule(imageStyle),
+        titleStyle : Ti.Dom.renderCssRule(titleStyle),
+        briefStyle : Ti.Dom.renderCssRule(briefStyle),
       }
     }
     //---------------------------------------
@@ -13422,13 +13427,16 @@ const {Album} = (function(){
         }
       })
       let {
-        style, wallClass, wallStyle, tileStyle, imageStyle
+        style, wallClass, wallStyle, tileStyle, imageStyle,
+        titleStyle, briefStyle,
       } = album
       album.wallClass  = Ti.Dom.getClassList(wallClass).join(" ")
       album.style      = Ti.Dom.parseCssRule(style)
       album.wallStyle  = Ti.Dom.parseCssRule(wallStyle)
       album.tileStyle  = Ti.Dom.parseCssRule(tileStyle)
       album.imageStyle = Ti.Dom.parseCssRule(imageStyle)
+      album.titleStyle = Ti.Dom.parseCssRule(titleStyle)
+      album.briefStyle = Ti.Dom.parseCssRule(briefStyle)
       return album
     }
     //---------------------------------------
@@ -14508,7 +14516,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210420.200941",
+  "version" : "1.6-20210420.202018",
   "dev" : false,
   "appName" : null,
   "session" : {},

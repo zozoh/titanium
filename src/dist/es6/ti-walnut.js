@@ -1,4 +1,4 @@
-// Pack At: 2021-04-20 20:09:41
+// Pack At: 2021-04-20 20:20:18
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -3306,7 +3306,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210420.200941"
+const WALNUT_VERSION = "1.2-20210420.202018"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
