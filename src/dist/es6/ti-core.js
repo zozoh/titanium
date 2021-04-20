@@ -1,4 +1,4 @@
-// Pack At: 2021-04-19 03:38:57
+// Pack At: 2021-04-20 15:16:14
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -6616,6 +6616,14 @@ const {AutoMatch} = (function(){
     }
     // Map
     if (_.isPlainObject(input)) {
+      // Special Function
+      if(input["$Nil"]) {
+        return NilMatch(input["$Nil"])
+      }
+      if(input["$NotNil"]) {
+        return NotNilMatch(input["$NotNil"])
+      }
+      // General Map Match
       return MapMatch(input);
     }
     // String
@@ -6752,9 +6760,22 @@ const {AutoMatch} = (function(){
       return true
     }
   }
-  function NilMatch() {
-    return function(val) {
-      return Ti.Util.isNil(val)
+  function NotNilMatch(input) {
+    if(!input) {
+      return val => !Ti.Util.isNil(val)
+    }
+    return val => {
+      let v = _.get(val, input)
+      return !Ti.Util.isNil(v)
+    }
+  }
+  function NilMatch(input) {
+    if(!input) {
+      return val => Ti.Util.isNil(val)
+    }
+    return val => {
+      let v = _.get(val, input)
+      return Ti.Util.isNil(v)
     }
   }
   function NotMatch(m) {
@@ -9635,6 +9656,12 @@ const {Util} = (function(){
         if(!TiUtil.isNil(arg))
           return arg
       }
+    },
+    trueGet(test=false, val, dft) {
+      if(_.isBoolean(test)) {
+        return test ? val : dft
+      }
+      return test
     },
     fallbackEmpty(...args) {
       for(let arg of args) {
@@ -14332,6 +14359,11 @@ const Facebook = (function(){
   ////////////////////////////////////////////
   const TiApiFacebook = {
     //----------------------------------------
+    setObjPreview(obj, images, options) {
+      setImages(obj, images, options)
+      return obj
+    },
+    //----------------------------------------
     async getAlbumPhotoList({
       albumId, 
       access_token,
@@ -14372,8 +14404,7 @@ const Facebook = (function(){
     async getAlbumList({
       userId, 
       access_token,
-      fields = "id,name,place,created_time,description,link,cover_photo",
-      loadCover = false
+      fields = "id,name,place,created_time,description,link,count,cover_photo"
     }={}) {
       let url = FBAPI(`${userId}/albums`)
       let reo = await Ti.Http.get(url, {
@@ -14381,24 +14412,7 @@ const Facebook = (function(){
         as : "json"
       })
       let {data, paging} = reo
-      // console.log(data)
-  
-      // Load cover photo
-      if(loadCover) {
-        for(let ab of data) {
-          let photoId = _.get(ab, "cover_photo.id")
-          if(photoId) {
-            let photo = await TiApiFacebook.getPhoto({
-              photoId, access_token
-            })
-            if(photo) {
-              setImages(ab, photo.images)
-              ab.cover_photo = photo
-            }
-          }
-        }
-      }
-  
+      
       return data
     }
     //----------------------------------------
@@ -14441,7 +14455,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210419.033857",
+  "version" : "1.6-20210420.151614",
   "dev" : false,
   "appName" : null,
   "session" : {},

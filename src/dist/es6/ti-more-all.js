@@ -1,4 +1,4 @@
-// Pack At: 2021-04-19 03:38:57
+// Pack At: 2021-04-20 15:16:14
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -20804,7 +20804,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     clientWidth  : -1,
     clientHeight : -1,
     imgLoading : true,
-    pickRect : {}
+    pickRect : {},
+    myEnterAt : -1,    // AMS mouse enter for cooling
+    myEnterNotifed : false
   }),
   /////////////////////////////////////////
   props : {
@@ -20812,73 +20814,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Data
     //-------------------------------------
     "src" : {
-      type : [String, Object],
-      default : undefined
+      type : [String, Object]
     },
     "preview": {
-      type: Object,
-      default: undefined
+      type: Object
+    },
+    "hoverPreview": {
+      type: Object
     },
     //-------------------------------------
     // Behavior
     //-------------------------------------
     "href": {
-      type: String,
-      default: undefined
+      type: String
     },
     "navTo": {
-      type: Object,
-      default: undefined
+      type: Object
     },
     "newtab": {
-      type: [String, Boolean],
-      default: undefined
-    },
-    //-------------------------------------
-    // Aspect
-    //-------------------------------------
-    "imageStyle": {
-      type: Object,
-      default: undefined
-    },
-    "tags": {
-      type: [String, Array, Object],
-      default: undefined
-    },
-    "tagsStyle": {
-      type: Object,
-      default: undefined
-    },
-    "text": {
-      type: String,
-      default: undefined
-    },
-    "textStyle": {
-      type: Object,
-      default: undefined
-    },
-    "brief": {
-      type: String,
-      default: undefined
-    },
-    "briefStyle": {
-      type: Object,
-      default: undefined
-    },
-    "i18n": {
-      type: Boolean,
-      default: true
-    },
-    //-------------------------------------
-    // Measure
-    //-------------------------------------
-    "width": {
-      type: [String, Number],
-      default: undefined
-    },
-    "height": {
-      type: [String, Number],
-      default: undefined
+      type: [String, Boolean]
     },
     /*
     Show zoom lens and dock aside to the image
@@ -20895,7 +20849,54 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "zoomLens" : {
       type : Object,
       default : undefined
-    }
+    },
+    "enterNotify" : {
+      type : [String, Boolean]
+      /*default: "media:enter"*/
+    },
+    "notifyPayload" : {
+      type : [Object, String, Number]
+    },
+    "enterCooling" : {
+      type : Number,
+      default : 500
+    },
+    "leaveNotify" : {
+      type : [String, Boolean]
+      /*default: "media:leave"*/
+    },
+    //-------------------------------------
+    // Aspect
+    //-------------------------------------
+    "imageStyle": {
+      type: Object
+    },
+    "tags": {
+      type: [String, Array, Object]
+    },
+    "tagsStyle": {
+      type: Object
+    },
+    "text": {
+      type: String
+    },
+    "textStyle": {
+      type: Object
+    },
+    "brief": {
+      type: String
+    },
+    "briefStyle": {
+      type: Object
+    },
+    "i18n": {
+      type: Boolean,
+      default: true
+    },
+    //-------------------------------------
+    // Measure
+    //-------------------------------------
+    // ...
   },
   //////////////////////////////////////////
   computed : {
@@ -20907,13 +20908,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
         "show-zoomlen" : this.showZoomPick,
         "no-zoomlen"   : this.TheZoomLens ? false : true,
         "has-zoomlen"  : this.TheZoomLens ? true  : false,
-      })
-    },
-    //--------------------------------------
-    TopStyle() {
-      return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
       })
     },
     //--------------------------------------
@@ -21005,8 +20999,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //--------------------------------------
+    EnterNotifyName() {
+      return Ti.Util.trueGet(this.enterNotify, "media:enter")
+    },
+    //--------------------------------------
+    LeaveNotifyName() {
+      return Ti.Util.trueGet(this.leaveNotify, "media:leave")
+    },
+    //--------------------------------------
     TheSrc() {
       return Ti.WWW.evalObjPreviewSrc(this.src, this.preview)
+    },
+    //--------------------------------------
+    TheHoverSrc() {
+      return Ti.WWW.evalObjPreviewSrc(this.src, this.hoverPreview)
     },
     //--------------------------------------
     TheTags() {
@@ -21079,6 +21085,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
       }
       return newtab ? true : false
+    },
+    //--------------------------------------
+    isWaitEnterCooling() {
+      return this.myEnterAt > 0 && !this.myEnterNotifed
     }
     //--------------------------------------
   },
@@ -21135,6 +21145,53 @@ const __TI_MOD_EXPORT_VAR_NM = {
     OnMouseLeave() {
       this.showZoomPick = false
       this.showZoomDock = false
+    },
+    //--------------------------------------
+    OnImageMouseEnter() {
+      if(this.EnterNotifyName && this.enterCooling >= 0) {
+        let $img = this.$refs.img
+        this.myEnterAt = Date.now()
+        if(this.TheHoverSrc) {
+          $img.src = this.TheHoverSrc
+        }
+        // Check layter, it can prevent the event fire too many!
+        _.delay(()=>{
+          this.doCheckEnterEvent()
+        }, this.enterCooling)
+      }
+    },
+    //--------------------------------------
+    doCheckEnterEvent() {
+      // Guard
+      if(this.myEnterNotifed || this.myEnterAt<0) {
+        return
+      }
+      let du = Date.now()  - this.myEnterAt
+      if(du >= this.enterCooling) {
+        //console.log("du cooling", du, this.enterCooling)
+        this.myEnterNotifed = true
+        let payload = _.assign({
+          $el : this.$el,
+          $img : this.$refs.img
+        }, this.notifyPayload)
+        this.$notify(this.EnterNotifyName, payload)
+      }
+    },
+    //--------------------------------------
+    OnImageMouseLeave() {
+      let $img = this.$refs.img
+      if(this.TheHoverSrc) {
+        $img.src = this.TheSrc
+      }
+      if(this.myEnterNotifed && this.LeaveNotifyName) {
+        let payload = _.assign({
+          $el : this.$el,
+          $img : this.$refs.img
+        }, this.notifyPayload)
+        this.$notify(this.LeaveNotifyName, payload)
+      }
+      this.myEnterNotifed = false
+      this.myEnterAt = -1
     }
     //--------------------------------------
   },
@@ -21528,6 +21585,409 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
   }
   //////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'facebook-albums - 副本.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/net/facebook/albums/facebook-albums - 副本.mjs'] = (function(){
+/////////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////////
+  data : ()=>({
+    myId : undefined,
+    myName : undefined,
+    myGrantedScopes : undefined,
+    myLongLiveAK : undefined,
+    myAlbumList : undefined,
+    currentAlbumId : undefined,
+    myPhotoList : []
+  }),
+  ///////////////////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "meta" : {
+      type : Object
+    },
+    "domain": {
+      type : String
+    },
+    "appId" : {
+      type : String
+    },
+    "appSecret" : {
+      type : String
+    },
+    "scope" : {
+      type : String
+    },
+    "grantedScopes" : {
+      type : String
+    },
+    "longLiveAccessToken": {
+      type : String
+    },
+    "tokenExpiresIn" : {
+      type : Number,
+    },
+    "tokenType" : {
+      type : String
+    },
+    "tokenExpireAt" : {
+      type : Number,
+      default : 0
+    },
+    "userId" : {
+      type : String
+    },
+    "userName" : {
+      type : String
+    },
+    "userAlbumIds" : {
+      type : Array,
+      default: ()=>[]
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "apiVersion" : {
+      type : String,
+      default : "v10.0"
+    },
+    "autoLogAppEvents" : {
+      type : Boolean,
+      default : true
+    },
+    "xfbml" : {
+      type : Boolean,
+      default : true
+    },
+    "notifyName" : {
+      type : String
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "thumbMinHeight" : {
+      type : Number,
+      default : 320
+    }
+  },
+  ///////////////////////////////////////////////////////
+  computed : {
+    //---------------------------------------------------
+    TopClass() {
+      return this.getTopClass();
+    },
+    //---------------------------------------------------
+    hasCurrentAlbum() {
+      return this.currentAlbumId ? true : false
+    },
+    //---------------------------------------------------
+    CurrentAlbum() {
+      return this.getAlbum(this.currentAlbumId)
+    },
+    //---------------------------------------------------
+    ApiScope() {
+      return this.scope || "public_profile,user_photos,user_videos"
+    },
+    //---------------------------------------------------
+    ProfileSelectorIds() {
+      return this.profileSelectorIds || this.userId || undefined
+    },
+    //---------------------------------------------------
+    GuiLayout(){
+      return {
+        type: "rows",
+        border:true,
+        blocks: [{
+            name : "photos",
+            body : "photos"
+          }, {
+            name : "albums",
+            size : "30%",
+            body : "albums"
+          }]
+      }
+    },
+    //---------------------------------------------------
+    GuiSchema() {
+      return {
+        albums: {
+          comType: "TiWall",
+          comConf: {
+            data: this.myAlbumList,
+            idBy: "id",
+            multi: false,
+            display: {
+              key : "..",
+              comType : "ti-obj-thumb",
+              comConf : {
+                "id" : "=item.id",
+                "title" : "=item.name",
+                "preview" : "=item.preview",
+                "badges" : {
+                  "SW" : "fab-facebook-square"
+                }
+              }
+            }
+          }
+        },
+        photos: {
+          comType: "WebShelfWall",
+          comConf: {
+            className : "ti-fill-parent flex-none item-space-sm",
+            style : {
+              "overflow" : "auto",
+              "padding"  : ".1rem"
+            },
+            data: this.myPhotoList,
+            itemWidth : "2rem",
+            itemHeight : "1.5rem",
+            comType : "WebMediaImage",
+            comConf : {
+              text : "=name",
+              src  : "=thumb_src",
+              className : [
+                "text-in", "at-bottom","ts-shadow","fs-sm",
+                "of-con-visiable",
+                "hover-to-up-img is-fit-auto"],
+              imageStyle : {
+                "border" : "3px solid #EEE",
+                "border-radius" : "6px"
+              }
+            }
+          }
+        }
+      }
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods :{
+    //---------------------------------------------------
+    OnAlbumSelect({currentId}) {
+      this.currentAlbumId = currentId
+
+      this.reloadPhotos()
+
+      let album = _.cloneDeep(this.CurrentAlbum)
+      if(this.notifyName) {
+        this.$notify(this.notifyName, album)
+      }
+    },
+    //---------------------------------------------------
+    getAlbum(albumId) {
+      if(_.isArray(this.myAlbumList)) {
+        for(let ab of this.myAlbumList) {
+          if(ab.id == albumId) {
+            return ab
+          }
+        }
+      }
+    },
+    //---------------------------------------------------
+    ReloginFBAccount() {
+      this.checkdLongLiveAccessToken(true)
+    },
+    //---------------------------------------------------
+    FBAPI(path) {
+      return `https://graph.facebook.com/${this.apiVersion}/${path}`
+    },
+    //--------------------------------------------
+    async openCurrentMeta() {
+      let meta = this.CurrentAlbum || this.meta
+
+      if(!meta) {
+        await Ti.Toast.Open("i18n:nil-obj")
+        return
+      }
+
+      let fields = "auto"
+      if(this.hasCurrentAlbum) {
+        const V_FIELD = (name, title)=>{
+          return {
+            title, name,
+            comType : "TiLabel"
+          }
+        }
+        fields = [
+          V_FIELD("id", "ID"),
+          V_FIELD("title", "Title"),
+          V_FIELD("created_time", "Created Time"),
+          V_FIELD("link", "Link")
+        ]
+      }
+
+      await Wn.EditObjMeta(meta, {
+        fields,
+        textOk : null,
+        autoSave : false
+      })
+    },
+    //---------------------------------------------------
+    async reloadPhotos() {
+      if(!this.hasCurrentAlbum) {
+        this.myPhotoList = []
+        return
+      }
+      // Reload albums
+      this.myPhotoList = undefined
+
+      this.myPhotoList = await Ti.Api.Facebook.getAlbumPhotoList({
+        albumId : this.currentAlbumId,
+        access_token : this.myLongLiveAK
+      })
+
+      // Save to cache
+      if(!_.isEmpty(this.myPhotoList) && this.domain) {
+        let input = JSON.stringify(this.myPhotoList)
+        let cmdText = `str > ~/.domain/facebook/${this.domain}/${this.currentAlbumId}.photos.json`
+        await Wn.Sys.exec2(cmdText, {input})
+      }
+    },
+    //---------------------------------------------------
+    async reloadAlbums() {
+      this.myAlbumList = undefined
+      this.myAlbumList = await Ti.Api.Facebook.getAlbumList({
+        userId : this.myId,
+        access_token : this.myLongLiveAK,
+        loadCover : true
+      })
+      // Update albums Ids
+      let aIds = _.map(this.myAlbumList, al => al.id)
+      if(!_.isEqual(aIds, this.userAlbumIds)) {
+        let json = JSON.stringify({
+          userAlbumIds : aIds
+        })
+        let cmdText = `jsonx -qn @read id:${this.meta.id} -auto @set '${json}' > id:${this.meta.id}`
+        await Wn.Sys.exec2(cmdText)
+      }
+      // If current album out of the albumn list
+      // Maybe user switch the account, then clean the photoList
+      if(this.currentAlbumId) {
+        let currentInAlbum = false
+        for(let al of this.myAlbumList) {
+          if(al.id == this.currentAlbumId) {
+            currentInAlbum = true
+            break
+          }
+        }
+        if(!currentInAlbum) {
+          this.currentAlbumId = null
+          this.myPhotoList = []
+        }
+      }
+    },
+    //---------------------------------------------------
+    async reloadLongLiveAccessToken(accessToken) {
+      let url = this.FBAPI("oauth/access_token")
+      let reo = await Ti.Http.get(url, {
+        params : {
+          "grant_type" : "fb_exchange_token",
+          "client_id" : this.appId,
+          "client_secret" : this.appSecret,
+          "fb_exchange_token" : accessToken
+        },
+        as : "json"
+      })
+      // Grap Long live access token
+      this.myLongLiveAK = reo.access_token
+
+      // Save to remote
+      if(reo.access_token) {
+        let expireAt = Date.now() + reo.expires_in * 1000
+        // Update file content
+        let jsonToken = JSON.stringify({
+          userId : this.myId,
+          userName : this.myName,
+          scope : this.ApiScope,
+          grantedScopes : this.myGrantedScopes,
+          longLiveAccessToken : reo.access_token,
+          tokenExpiresIn : reo.expires_in,
+          tokenType : reo.token_type,
+          tokenExpireAt : expireAt
+        })
+        let cmdText = `jsonx -qn @read id:${this.meta.id} -auto @set '${jsonToken}' > id:${this.meta.id}`
+        await Wn.Sys.exec2(cmdText)
+        // Update file meta
+        let objMeta = JSON.stringify({
+          title : this.myName,
+          token_expire_at : expireAt
+        })
+        cmdText = `o id:${this.meta.id} @update`
+        await Wn.Sys.exec2(cmdText, {input:objMeta})
+      }
+      // Error
+      else {
+        console.error("Fail to reloadLongLiveAccessToken", reo)
+      }
+    },
+    //---------------------------------------------------
+    checkdLongLiveAccessToken(force=false) {
+      // Refresh token before a day
+      let expiAt = this.tokenExpireAt - 86400000
+      if(force || Date.now() > expiAt || !this.myId || !this.longLiveAccessToken) {
+        FB.login(resp => {
+          console.log("after login", resp)
+          if (resp.authResponse) {
+            let {accessToken, userID, grantedScopes} = resp.authResponse
+            this.myId = userID
+            this.myGrantedScopes = grantedScopes
+            FB.api('/'+userID, resp => {
+              console.log('Good to see you, ' + resp.name + '.', resp);
+              // Get Long Live Access Token
+              this.myName = resp.name
+              this.reloadLongLiveAccessToken(accessToken)
+                .then(()=>{
+                  this.reloadAlbums()
+                })
+            });
+          }
+        }, {
+          scope: this.ApiScope,
+          return_scopes: true,
+          profile_selector_ids : this.ProfileSelectorIds
+        })
+      }
+      // Has a valid LongLiveAK
+      else {
+        this.myLongLiveAK = this.longLiveAccessToken
+        this.reloadAlbums()
+      }
+    },
+    //---------------------------------------------------
+    initFBSdk() {
+      // Get config file
+      FB.init({
+        appId            : this.appId,
+        autoLogAppEvents : this.autoLogAppEvents,
+        xfbml            : this.xfbml,
+        version          : this.apiVersion
+      });
+
+      // Login
+      this.checkdLongLiveAccessToken()
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  watch : {
+    "userId" : {
+      handler : function(newVal){
+        this.myId = newVal
+      },
+      immediate : true
+    }
+  },
+  ///////////////////////////////////////////////////////
+  mounted : function() {
+    this.initFBSdk()
+  }
+  ///////////////////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -46080,8 +46540,15 @@ const _M = {
       //....................................
       // Test precondition
       if(test) {
-        if(!Ti.AutoMatch.test(test, state)) {
-          return await Ti.Toast.Open(testMsg, "warn")
+        let ctx = _.assign({}, state, {payload, args})
+        let t2 = Ti.Util.explainObj(ctx, test)
+        if(!Ti.AutoMatch.test(t2, state)) {
+          // Warn user
+          if(testMsg) {
+            return await Ti.Toast.Open(testMsg, "warn")
+          }
+          // Skip quietly
+          return
         }
       }
       //....................................
@@ -51491,7 +51958,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     myLongLiveAK : undefined,
     myAlbumList : undefined,
     currentAlbumId : undefined,
-    myPhotoList : []
+    myPhotoList : [],
+    myFilterKeyword : undefined
   }),
   ///////////////////////////////////////////////////////
   props : {
@@ -51580,8 +52048,40 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return this.getAlbum(this.currentAlbumId)
     },
     //---------------------------------------------------
+    CurrentAlbumTitle() {
+      return _.get(this.CurrentAlbum, "name") || "i18n:nil"
+    },
+    //---------------------------------------------------
+    FilteredAlbumList() {
+      let list = []
+      let kwds = Ti.S.splitIgnoreBlank(_.toLower(this.myFilterKeyword), /[\s,;]+/g)
+      _.forEach(this.myAlbumList, album=>{
+        if(kwds.length == 0 || !album.name) {
+          list.push(album)
+        } else {
+          let aName = _.toLower(album.name)
+          for(let kwd of kwds) {
+            if(aName.indexOf(kwd)>=0) {
+              list.push(album)
+              return
+            }
+          }
+        }
+      })
+      return list
+    },
+    //---------------------------------------------------
+    FilteredAlbumSummary() {
+      let N = this.FilteredAlbumList.length
+      let photoC = 0;
+      for(let album of this.FilteredAlbumList) {
+        photoC += album.count
+      }
+      return `Total ${N} albums ${photoC} photos`
+    },
+    //---------------------------------------------------
     ApiScope() {
-      return this.scope || "public_profile,user_photos,user_videos"
+      return this.scope || "public_profile"
     },
     //---------------------------------------------------
     ProfileSelectorIds() {
@@ -51590,25 +52090,59 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
     GuiLayout(){
       return {
-        type: "rows",
+        type: "cols",
         border:true,
         blocks: [{
+            type : "rows",
+            size : "50%",
+            border : true,
+            blocks : [{
+                name : "filter",
+                size : 52,
+                style : {
+                  padding: ".06rem"
+                },
+                body : "filter"
+              }, {
+                name : "albums",
+                body : "albums"
+              }, {
+                name : "infos",
+                size : 52,
+                style : {
+                  padding: ".06rem"
+                },
+                body : "infos"
+              }]
+          }, {
+            icon : "fab-facebook-square",
+            title : this.CurrentAlbumTitle,
             name : "photos",
             body : "photos"
-          }, {
-            name : "albums",
-            size : "30%",
-            body : "albums"
           }]
       }
     },
     //---------------------------------------------------
     GuiSchema() {
       return {
-        albums: {
+        filter : {
+          comType : "TiInput",
+          comConf : {
+            placeholder : "Enter the album name to filter",
+            value : this.myFilterKeyword
+          }
+        },
+        infos : {
+          comType : "TiLabel",
+          comConf : {
+            className : "align-right as-tip",
+            value : this.FilteredAlbumSummary
+          }
+        },
+        albums : {
           comType: "TiWall",
           comConf: {
-            data: this.myAlbumList,
+            data: this.FilteredAlbumList,
             idBy: "id",
             multi: false,
             display: {
@@ -51619,7 +52153,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 "title" : "=item.name",
                 "preview" : "=item.preview",
                 "badges" : {
-                  "SW" : "fab-facebook-square"
+                  "NW" : "fab-facebook-square",
+                  "SE" : {
+                    type : "text",
+                    className : "bchc-badge as-label",
+                    value : "=item.count"
+                  }
                 }
               }
             }
@@ -51657,6 +52196,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   ///////////////////////////////////////////////////////
   methods :{
+    //---------------------------------------------------
+    OnFilterChange(val) {
+      this.myFilterKeyword = _.trim(val) || undefined
+    },
     //---------------------------------------------------
     OnAlbumSelect({currentId}) {
       this.currentAlbumId = currentId
@@ -51734,19 +52277,62 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Save to cache
       if(!_.isEmpty(this.myPhotoList) && this.domain) {
         let input = JSON.stringify(this.myPhotoList)
-        let cmdText = `str > ~/.domain/facebook/${this.domain}/${this.currentAlbumId}.photos.json`
+        let fnm = `album.${this.currentAlbumId}.photos.json`
+        let cmdText = `str > ~/.domain/facebook/${this.domain}/${fnm}`
         await Wn.Sys.exec2(cmdText, {input})
+      }
+    },
+    //---------------------------------------------------
+    async reloadAlbumsCover(albums=[], force=false) {
+      // Load Cache
+      let fnm = `user.${this.myId}.albums.cover_photos.json`
+      let fph = `~/.domain/facebook/${this.domain}/${fnm}`
+      let photos = {}
+      if(!force) {
+        let oPhotos = await Wn.Io.loadMeta(fph)
+        if(oPhotos) {
+          photos = await Wn.Io.loadContent(oPhotos, {as:"json"})
+        }
+      }
+      // Set photos to each album obj
+      let loadedPhoto = false
+      for(let album of albums) {
+        if(album && album.cover_photo && album.cover_photo.id) {
+          let photoId = album.cover_photo.id
+          let photo = photos[photoId];
+          // Load from facebook
+          if(!photo) {
+            photo = await Ti.Api.Facebook.getPhoto({
+              photoId,
+              access_token : this.myLongLiveAK
+            })
+          }
+          // Set to album
+          if(photo && !_.isEmpty(photo.images)) {
+            loadedPhoto = true
+            photos[photoId] = photo
+            Ti.Api.Facebook.setObjPreview(album, photo.images)
+          }
+        }
+      }
+      // Cache to local
+      if(loadedPhoto) {
+        let input = JSON.stringify(photos)
+        await Wn.Sys.exec2(`str > ${fph}`, {input})
       }
     },
     //---------------------------------------------------
     async reloadAlbums() {
       this.myAlbumList = undefined
-      this.myAlbumList = await Ti.Api.Facebook.getAlbumList({
+      let albums = await Ti.Api.Facebook.getAlbumList({
         userId : this.myId,
-        access_token : this.myLongLiveAK,
-        loadCover : true
+        access_token : this.myLongLiveAK
       })
-      // Update albums Ids
+      // Reload cover
+      await this.reloadAlbumsCover(albums)
+      this.myAlbumList = albums
+
+      // Update albums Ids to profile
       let aIds = _.map(this.myAlbumList, al => al.id)
       if(!_.isEqual(aIds, this.userAlbumIds)) {
         let json = JSON.stringify({
@@ -51824,10 +52410,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
           console.log("after login", resp)
           if (resp.authResponse) {
             let {accessToken, userID, grantedScopes} = resp.authResponse
-            this.myId = userID
+            this.myId = this.userId || userID
             this.myGrantedScopes = grantedScopes
-            FB.api('/'+userID, resp => {
-              //console.log('Good to see you, ' + resp.name + '.', resp);
+            FB.api('/'+this.myId, resp => {
+              console.log('Good to see you, ' + resp.name + '.', resp);
               // Get Long Live Access Token
               this.myName = resp.name
               this.reloadLongLiveAccessToken(accessToken)
@@ -52744,6 +53330,10 @@ Ti.Preload("ti/com/net/aliyun/vod/video/player/_com.json", {
   ]
 });
 //========================================
+// JOIN <facebook-albums - 副本.mjs> ti/com/net/facebook/albums/facebook-albums - 副本.mjs
+//========================================
+Ti.Preload("ti/com/net/facebook/albums/facebook-albums - 副本.mjs", TI_PACK_EXPORTS['ti/com/net/facebook/albums/facebook-albums - 副本.mjs']);
+//========================================
 // JOIN <facebook-albums.html> ti/com/net/facebook/albums/facebook-albums.html
 //========================================
 Ti.Preload("ti/com/net/facebook/albums/facebook-albums.html", `<ti-gui
@@ -52752,6 +53342,7 @@ Ti.Preload("ti/com/net/facebook/albums/facebook-albums.html", `<ti-gui
   :layout="GuiLayout"
   :schema="GuiSchema"
   :can-loading="false"
+  @filter::change="OnFilterChange"
   @albums::select="OnAlbumSelect"/>`);
 //========================================
 // JOIN <facebook-albums.mjs> ti/com/net/facebook/albums/facebook-albums.mjs
@@ -58899,7 +59490,6 @@ Ti.Preload("ti/com/web/gis/leaflet/_com.json", {
 //========================================
 Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-image"
   :class="TopClass"
-  :style="TopStyle"
   :href="TheHref"
   :target="isNewTab ? '_blank' : '_self'"
   @click.left="OnClickTop"
@@ -58908,11 +59498,13 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   <!--Image-->
   <div class="as-img-con">
     <img ref="img"
-      v-if="TheSrc" 
+      v-if="TheSrc"
         :style="ImageStyle"
         :src="TheSrc"
         draggable="false"
-        @load="OnImageLoaded"/>
+        @load="OnImageLoaded"
+        @mouseenter="OnImageMouseEnter"
+        @mouseleave="OnImageMouseLeave"/>
     <!-- Tags -->
     <div
       v-if="TheTags"
@@ -58938,6 +59530,12 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
         v-if="TheBrief"
           class="as-brief"
           :style="BriefStyle"><span>{{TheBrief}}</span></div>
+  </div>
+  <!--Zoom len-->
+  <div
+    v-if="isWaitEnterCooling"
+      class="as-cooling-tip">
+      <i class="fas fa-cog fa-spin"></i>
   </div>
   <!--Zoom len-->
   <div v-if="zoomLens"
