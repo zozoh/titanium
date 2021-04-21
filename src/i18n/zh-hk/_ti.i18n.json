@@ -1,4 +1,7 @@
 {
+   "exlink": "外部鏈接",
+   "exlink-tip": "請輸入一個超鏈接地址",
+   "exlink-tip-img": "請輸入圖片超鏈接地址",
    "key": "鍵",
    "all": "全部",
    "attachments": "附件",

@@ -303,8 +303,16 @@ export default {
       return latlng
     },
     //--------------------------------------
+    GetIconSrc(src) {
+      if(/^(https?:\/\/|\/)/.test(src)) {
+        return src
+      }
+      return `${this.imageIconBase}${src}`
+    },
+    //--------------------------------------
     Icon(urlOrIcon, {
       size = 32,
+      className,
       color = "primary",
       iconSize = [24, 41],
       iconAnchor = [12, 41],
@@ -342,10 +350,11 @@ export default {
             let [_, nmPath, suffix] = /^([^.]+)\.(\w+)$/.exec(value)
             shadowUrl = `${nmPath}-shadow.${suffix}`
           }
-          shadowUrl = `${this.imageIconBase}${shadowUrl}`
+          shadowUrl = this.GetIconSrc(shadowUrl)
         }
         return L.icon({
-          iconUrl : `${this.imageIconBase}${value}`,
+          iconUrl : this.GetIconSrc(value),
+          className,
           iconSize, iconAnchor,
           shadowUrl, shadowSize, shadowAnchor
         })

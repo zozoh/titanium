@@ -1,4 +1,4 @@
-// Pack At: 2021-04-20 21:04:54
+// Pack At: 2021-04-21 12:14:08
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1956,6 +1956,18 @@ const Hm = (function(){
     comType : "ti-input-color"
   };
   //------------------------------------------------------
+  const OPACITY = {
+    title : "i18n:hmk-css-opacity",
+    name : "opacity",
+    type : "Number",
+    defaultAs : 1,
+    comType : "ti-slide-bar",
+    comConf : {
+      className : "hdl-lg inner-color-0",
+      width : "100%"
+    }
+  };
+  //------------------------------------------------------
   const FLOAT = {
     title : "i18n:hmk-css-float",
     name : "float",
@@ -2009,6 +2021,27 @@ const Hm = (function(){
         {value: "ellipsis", text: "i18n:hmk-css-text-overflow-ellipsis", icon:"fas-ellipsis-h"}
       ]
     }
+  };
+  //------------------------------------------------------
+  const OBJECT_FIT = {
+    title : "i18n:hmk-css-object-fit",
+    name : "object-fit",
+    comType : "ti-droplist",
+    comConf : {
+      options : [
+        {value: "fill",      text: "i18n:hmk-css-object-fit-fill"},
+        {value: "contain",   text: "i18n:hmk-css-object-fit-contain"},
+        {value: "cover",     text: "i18n:hmk-css-object-fit-cover"},
+        {value: "none",      text: "i18n:hmk-css-object-fit-none"},
+        {value: "scale-down",text: "i18n:hmk-css-object-fit-scale-down"}
+      ]
+    }
+  };
+  //------------------------------------------------------
+  const OBJECT_POSITION = {
+    title : "i18n:hmk-css-object-position",
+    name : "object-position",
+    comType : "ti-input"
   };
   //------------------------------------------------------
   const BOX_SHADOW = {
@@ -2122,6 +2155,9 @@ const Hm = (function(){
     "max-width"      : MAX_WIDTH,
     "min-height"     : MIN_HEIGHT,
     "min-width"      : MIN_WIDTH,
+    "object-fit"     : OBJECT_FIT,
+    "object-positon" : OBJECT_POSITION,
+    "opacity"        : OPACITY,
     "overflow"       : OVERFLOW,
     "padding"        : PADDING,
     "text-align"     : TEXT_ALIGN,
@@ -2141,6 +2177,9 @@ const Hm = (function(){
       "background",
       "color",
       "box-shadow",
+      "opacity",
+      "object-fit",
+      "object-positon",
       "float",
       "overflow"],
     measure : [
@@ -2196,22 +2235,23 @@ const Hm = (function(){
       let qf = ({
         "#BLOCK" : [
           /^(margin|padding|border|overflow|background)-?/,
-          /^(box-shadow|float)$/,
+          /^(box-shadow|float|opacity)$/,
           /^((max|min)-)?(width|height)$/
         ],
         "#IMG" : [
-          /^(margin|border|obj|background)-?/,
-          /^(box-shadow|float)$/,
+          /^(margin|border|object|background)-?/,
+          /^(box-shadow|float|opacity|overflow)$/,
           /^((max|min)-)?(width|height)$/
         ],
         "#TEXT" : [
           /^(color|background(-.+)?)$/,
-          /^(text-(align|transform|shadow|overflow))$/,
+          /^(text-(align|transform|shadow|overflow)|opacity)$/,
           /^(font-size|line-height|letter-spacing|white-space)$/,
         ],
         "#TEXT-BLOCK" : [
-          /^(padding|border|color|background(-.+)?|overflow)$/,
-          /^(text-(align|transform|shadow|overflow))$/,
+          /^(padding|color||overflow)$/,
+          /^(border|background)(-.+)?/,
+          /^(text-(align|transform|shadow|overflow)|opacity)$/,
           /^(font-size|line-height|letter-spacing|white-space)$/,
         ]
       })[filter]
@@ -3306,7 +3346,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210420.210455"
+const WALNUT_VERSION = "1.2-20210421.121408"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

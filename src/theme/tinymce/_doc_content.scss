@@ -28,6 +28,10 @@ body.mce-content-body {
   max-width: 1000px; margin:0 auto;
   padding: 2em;
   //-----------------------------------------------------
+  &[ti-tinymce-no-select] {
+    user-select: none;
+  }
+  //-----------------------------------------------------
   &.mce-content-body:not([dir=rtl])[data-mce-placeholder]:not(.mce-visualblocks)::before {
     left: 2em; padding: 1em 0;
   }  
@@ -46,10 +50,34 @@ body.mce-content-body {
     cursor: pointer;
   }
   //-----------------------------------------------------
+  div.ti-tinymce-obj-resize-handler {
+    position: absolute;
+    width: SZ(20); height: SZ(20);
+    background: map-get($color-f-link, c);
+    &.at-nw {cursor: nwse-resize; margin: SZ(-10) 0 0 SZ(-10);}
+    &.at-ne {cursor: nesw-resize; margin: SZ(-10) 0 0 SZ(-10);}
+    &.at-sw {cursor: nesw-resize; margin: SZ(-10) 0 0 SZ(-10);}
+    &.at-se {cursor: nwse-resize; margin: SZ(-10) 0 0 SZ(-10);}
+    
+  }
+  //-----------------------------------------------------
   span.wn-attachment {
     cursor: pointer; display: inline-block;
     .as-icon {margin: 0 .2em;}
     .as-title {margin: 0 .2em; text-decoration: underline;}
+  }
+  //-----------------------------------------------------
+  a.wn-media {
+    //---------------------------------------------------
+    &.as-image-con {
+      display: inline-block;
+      img {display: block; width:100%; height:100%;}
+      .as-img-alt {
+        display: block; padding: .5em; text-align: center;
+        opacity: 0.8;
+      }
+    }
+    //---------------------------------------------------
   }
   //-----------------------------------------------------
   div.wn-media {

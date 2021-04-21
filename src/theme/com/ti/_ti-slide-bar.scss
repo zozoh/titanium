@@ -21,6 +21,13 @@
   &.bar-md > .as-con .as-bar {height: 5px;}
   &.bar-lg > .as-con .as-bar {height: 7px;}
   //-------------------------------------------------
+  &.inner-color-0 > .as-con .as-bar > .as-inner {
+    background-color: map-get($color-primary, c);
+  }
+  &.inner-color-1 > .as-con .as-bar > .as-inner {
+    background-color: map-get($color-secondary, c);
+  }
+  //-------------------------------------------------
   &.no-bar-inner > .as-con .as-bar span {display: none;}
   //-------------------------------------------------
   > .as-text {

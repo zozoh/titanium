@@ -56,6 +56,11 @@ const TiDom = {
     }
   },
   //----------------------------------------------------
+  wrap($el, $newEl) {
+    $el.insertAdjacentElement("afterend", $newEl)
+    $newEl.appendChild($el)
+  },
+  //----------------------------------------------------
   unwrap($el) {
     let $p = $el.parentNode
     let list = []
@@ -195,7 +200,9 @@ const TiDom = {
   },
   //----------------------------------------------------
   getOwnStyle($el, filter=true) {
-    return TiDom.parseCssRule($el.getAttribute("style"), filter)
+    if(_.isElement($el)) {
+      return TiDom.parseCssRule($el.getAttribute("style"), filter)
+    }
   },
   //----------------------------------------------------
   parseCssRule(rule="", filter=true) {
@@ -232,8 +239,11 @@ const TiDom = {
       if(_.isNull(val) || _.isUndefined(val) || Ti.S.isBlank(val)) 
         return
       let pnm = _.kebabCase(key)
+      if(/^(opacity|z-index|order)$/.test(pnm)){
+        list.push(`${pnm}:${val}`)
+      }
       // Empty string to remove one propperty
-      if(_.isNumber(val)) {
+      else if(_.isNumber(val)) {
         list.push(`${pnm}:${val}px`)
       }
       // Set the property
@@ -591,7 +601,10 @@ const TiDom = {
     let keys = _.keys(css)
     for(let key of keys) {
       let val = css[key]
-      if(_.isNumber(val) || /^\d+(\.\d+)?$/.test(val)) {
+      if(/^(opacity|z-index|order)$/.test(key)){
+        css[key] = val * 1
+      }
+      else if(_.isNumber(val) || /^\d+(\.\d+)?$/.test(val)) {
         css[key] = `${val}px`
       }
     }
@@ -641,6 +654,11 @@ const TiDom = {
   },
   //----------------------------------------------------
   setAttrs($el, attrs={}, prefix) {
+    // Guard
+    if(!$el || !_.isElement($el)) {
+      return
+    }
+    // Set attrs
     _.forEach(attrs, (val, key)=>{
       let k2 = prefix ? prefix + key : key
       let k3 = _.kebabCase(k2)

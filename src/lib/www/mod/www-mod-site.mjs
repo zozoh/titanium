@@ -292,7 +292,7 @@ const _M = {
      * 
      * @return {void}
      */
-    async doAction({dispatch}, AT){
+    async doAction({dispatch, state}, AT){
       // Guard nil
       if(!AT) {
         return
@@ -303,6 +303,37 @@ const _M = {
       //....................................
       if(_.isFunction(AT)) {
         return await AT()
+      }
+
+      // Fire another action
+      if(AT.fire) {
+        let {name, args, memo} = AT
+        // Guard for Infinite recursion
+        if(_.indexOf(memo, name) >= 0) {
+          console.warn("May Infinite recursion invokeAction", {
+            name, args, memo
+          })
+          return
+        }
+        // Prepare to call another action
+        memo.push(name)
+        try{
+          //console.log("fire At", AT)
+          let args2 = Ti.Util.explainObj(state, args)
+          await dispatch("invokeAction", {
+            name, args: args2, memo
+          })
+        }
+        catch(E) {
+          console.warn(`Fail to doAction[${name}]`, {
+            name, args, memo
+          })
+        }
+        // clean self name
+        finally {
+          memo.pop()
+        }
+        return 
       }
 
       //....................................
@@ -422,7 +453,7 @@ const _M = {
     /***
      * Invoke action by given name
      */
-    async invokeAction({getters, dispatch}, {name="", args=[]}={}){
+    async invokeAction({getters, dispatch}, {name="", args=[], memo=[]}={}){
       /*
       The action should like
       {
@@ -451,30 +482,33 @@ const _M = {
       // Guard
       if(!AT)
         return;
-  
+        
       // Invoke it
       try {
         // Batch call
         if(_.isArray(AT)) {
           for(let a of AT) {
-            await dispatch("doAction", {
-              ... a,
-              args
-            })
+            let da = {...a, memo}
+            if(!_.isEmpty(args)) {
+              da.args = args
+            }
+            await dispatch("doAction", da)
           }
         }
         // Direct call : String
         else if(_.isString(AT)) {
           await dispatch("doAction", {
             action: AT,
-            args
+            args,
+            memo
           })
         }
         // Direct call : Object
         else {
           await dispatch("doAction", {
             ... AT,
-            args
+            args,
+            memo
           })
         }
       }

@@ -44,8 +44,11 @@ const _M = {
       default:undefined
     },
     "value"  : {
-      type:String, 
+      type: String, 
       default:undefined
+    },
+    "rawData" : {
+      type : Object
     },
     "items" : {
       type : Array,
@@ -146,12 +149,13 @@ const _M = {
         evt.stopPropagation()
       }
       this.$notify("click:item", evt, {
-        id     : this.id,
-        type   : this.type,
-        params : this.params,
-        href   : this.href,
-        target : this.target,
-        value  : this.value
+        id      : this.id,
+        type    : this.type,
+        params  : this.params,
+        href    : this.href,
+        target  : this.target,
+        value   : this.value,
+        rawData : this.rawData
       })
     }
     //---------------------------------------------------

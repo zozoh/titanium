@@ -27,7 +27,7 @@
       @include flex-center;
       @include border(1px, solid, dark, left);
       cursor:pointer;
-      padding:0 SZ(4);
+      padding:0 SZ(4); margin-left:1px;
       font-size:SZ(10);
       &:hover {
         @include color($color-secondary, r, c);

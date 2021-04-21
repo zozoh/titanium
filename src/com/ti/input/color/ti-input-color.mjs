@@ -1,7 +1,5 @@
 export default {
   ////////////////////////////////////////////////////
-  inheritAttrs : false,
-  ////////////////////////////////////////////////////
   data: ()=>({
     hideBorder : false,
     status  : "collapse"
@@ -11,6 +9,10 @@ export default {
     "value" : {
       type : [String, Number],
       default : null
+    },
+    "autoCollapse" : {
+      type : Boolean,
+      default : true
     }
   },
   ////////////////////////////////////////////////////
@@ -57,6 +59,9 @@ export default {
     onColorChanged(color) {
       let co = Ti.Types.toColor(color)
       this.$notify("change", co ? co.toString() : null)
+      if(this.autoCollapse) {
+        this.status = "collapse"
+      }
     },
     //------------------------------------------------
     doCollapse() {

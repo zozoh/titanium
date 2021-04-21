@@ -113,7 +113,7 @@ export default {
     default : false
   },
   "markerIcon" : {
-    type : [String, Object],
+    type : [String, Object, Function],
     //default : "png/map-pin-1.png"
     default : undefined
   },

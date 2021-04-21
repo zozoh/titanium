@@ -12,6 +12,15 @@ article.ti-article {
     .as-title {margin: 0 .1em;}
   }
   //---------------------------------------
+  .wn-media.as-image-con {
+    display: inline-block;
+    img {display: block; width:100%; height:100%;}
+    .as-img-alt {
+      display: block; padding: .5em; text-align: center;
+      opacity: 0.8;
+    }
+  }
+  //---------------------------------------
   .wn-media.as-video {
     video {
       outline: none; 

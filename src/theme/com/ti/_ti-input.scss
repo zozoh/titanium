@@ -14,7 +14,7 @@
   //-----------------------------------------
   .as-input-icon {
     @include flex-center($ai:stretch, $ac:stretch);
-    flex:0 0 auto; width:2em; min-height:2.6em;
+    flex:0 0 auto; width:2em; 
     overflow: hidden;
     //---------------------------------------
     &.can-hover{cursor: pointer;}

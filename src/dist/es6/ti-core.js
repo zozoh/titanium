@@ -1,4 +1,4 @@
-// Pack At: 2021-04-20 21:04:54
+// Pack At: 2021-04-21 12:14:08
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3609,6 +3609,11 @@ const {Dom} = (function(){
       }
     },
     //----------------------------------------------------
+    wrap($el, $newEl) {
+      $el.insertAdjacentElement("afterend", $newEl)
+      $newEl.appendChild($el)
+    },
+    //----------------------------------------------------
     unwrap($el) {
       let $p = $el.parentNode
       let list = []
@@ -3748,7 +3753,9 @@ const {Dom} = (function(){
     },
     //----------------------------------------------------
     getOwnStyle($el, filter=true) {
-      return TiDom.parseCssRule($el.getAttribute("style"), filter)
+      if(_.isElement($el)) {
+        return TiDom.parseCssRule($el.getAttribute("style"), filter)
+      }
     },
     //----------------------------------------------------
     parseCssRule(rule="", filter=true) {
@@ -3785,8 +3792,11 @@ const {Dom} = (function(){
         if(_.isNull(val) || _.isUndefined(val) || Ti.S.isBlank(val)) 
           return
         let pnm = _.kebabCase(key)
+        if(/^(opacity|z-index|order)$/.test(pnm)){
+          list.push(`${pnm}:${val}`)
+        }
         // Empty string to remove one propperty
-        if(_.isNumber(val)) {
+        else if(_.isNumber(val)) {
           list.push(`${pnm}:${val}px`)
         }
         // Set the property
@@ -4144,7 +4154,10 @@ const {Dom} = (function(){
       let keys = _.keys(css)
       for(let key of keys) {
         let val = css[key]
-        if(_.isNumber(val) || /^\d+(\.\d+)?$/.test(val)) {
+        if(/^(opacity|z-index|order)$/.test(key)){
+          css[key] = val * 1
+        }
+        else if(_.isNumber(val) || /^\d+(\.\d+)?$/.test(val)) {
           css[key] = `${val}px`
         }
       }
@@ -4194,6 +4207,11 @@ const {Dom} = (function(){
     },
     //----------------------------------------------------
     setAttrs($el, attrs={}, prefix) {
+      // Guard
+      if(!$el || !_.isElement($el)) {
+        return
+      }
+      // Set attrs
       _.forEach(attrs, (val, key)=>{
         let k2 = prefix ? prefix + key : key
         let k3 = _.kebabCase(k2)
@@ -10647,7 +10665,10 @@ const {WWW} = (function(){
           idPath : itemIdPath,
           indexPath : ixPath,
           type : "page",
-          ..._.pick(it, "icon","title","type","value","href","target","params")
+          ..._.pick(it,
+              "icon","title","type",
+              "value","href", "target",
+              "params", "rawData")
         }
         //..........................................
         // Link to Site Page
@@ -10842,6 +10863,9 @@ const {WWW} = (function(){
         let oph = ".." == previewKey 
                     ? obj
                     :_.get(obj, previewKey)
+        if(/^https?:\/\//.test(oph)) {
+          return oph
+        }
         if(oph) {
           return Ti.S.renderBy(apiTmpl, obj)
         }
@@ -12863,7 +12887,7 @@ const {VueTiCom} = (function(){
       } else {
         _.assign(AR, {x:-1, y:-1}, _.pick(activedRadius, "x", "y"))
       }
-      console.log(AR)
+      //console.log(AR)
       //-----------------------------------------------
       const findBy = function($trigger, find, $dft) {
         if(_.isFunction(find)) {
@@ -12990,7 +13014,7 @@ const {VueTiCom} = (function(){
         context.evalLeftBySpeed = function(left=0) {
           let {viewport, $trigger, offsetX, speed} = this
           if(speed > 1) {
-            console.log(left, speed * offsetX, {offsetX, speed})
+            //console.log(left, speed * offsetX, {offsetX, speed})
             left += speed * offsetX
           }
           let wScroller = $trigger.scrollWidth
@@ -14530,7 +14554,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210420.210454",
+  "version" : "1.6-20210421.121408",
   "dev" : false,
   "appName" : null,
   "session" : {},

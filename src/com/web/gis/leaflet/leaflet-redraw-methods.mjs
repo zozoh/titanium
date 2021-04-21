@@ -8,7 +8,10 @@ export default {
   }={}) {
     // Customized Icon
     if(markerIcon) {
-      let icon = Ti.Util.explainObj(obj, markerIcon)
+      let icon = Ti.Util.explainObj(obj, markerIcon, {
+        evalFunc : true
+      })
+      console.log({icon})
       if(icon) {
         $marker.setIcon(this.Icon(icon, markerIconOptions))
       }

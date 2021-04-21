@@ -123,6 +123,7 @@ export default {
         let list = []
         for(let it of items) {
           let it2 = this.ItemMappingBy(it)
+          it2.rawData = it
           let subs = _.get(it, this.childrenBy)
           if(_.isArray(subs)){
             subs = MappingItems(subs)
@@ -180,7 +181,7 @@ export default {
       let {type, value} = linkInfo
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()
-        //console.log("onClickLink", "nav:to", {type,value,params})
+        //console.log("onClickLink", "nav:to", {type,value})
         if(value) {
           let notiName = this.notifyName || "nav:to"
           this.$notify(notiName, linkInfo)

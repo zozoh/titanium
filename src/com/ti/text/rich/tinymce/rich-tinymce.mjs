@@ -52,7 +52,7 @@ const _M = {
             'blockquote bullist numlist',
             'blocks table',
             [
-              'WnImgPick','WnVideoPick','WnAudioPick',
+              'WnImgPick','WnWebImgPick','WnVideoPick','WnAudioPick',
               'WnAttachmentPick', 'WnAlbumPick'
             ].join(' '),
             ['WnYoutubePick','WnYtPlaylistPick', 'WnFbAlubmPick'].join(' '),
@@ -192,6 +192,10 @@ const _M = {
     },
     //-----------------------------------------------
     syncContent() {
+      // Clear the style cache
+      this.$editor.$("[data-mce-style]").attr({
+        "data-mce-style" : null
+      })
       let str = this.$editor.getContent()
       //console.log("content", typeof str, `【${str}】`, this.value)
       this.myHtmlCode = str
@@ -391,6 +395,18 @@ const _M = {
           editor.on("SelectionChange", (evt)=>{
             //console.log("SelectionChange ", evt)
             this.evalCurrentHeading()
+          })
+          editor.on("NodeChange", (evt)=>{
+            if(Ti.Dom.hasClass(evt.element, "ti-tinymce-obj-resize-handler")) {
+              evt.preventDefault();
+              evt.stopPropagation();
+              return false
+            } else {
+              this.redrawResizeHandler(evt.element)
+            }
+          })
+          editor.on("ResizeWindow", (evt)=>{
+            editor.$('.ti-tinymce-obj-resize-handler').remove()
           })
           editor.on('init', ()=>{
             let $html = editor.$('html')[0]

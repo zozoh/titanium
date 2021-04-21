@@ -3,6 +3,7 @@
   "globally" : true,
   "template" : "./rich-tinymce.html",
   "props" : "./rich-tinymce-props.mjs",
+  "methods" : "./rich-tinymce-obj-resizing.mjs",
   "mixins" : "./rich-tinymce.mjs",
   "deps" : [
     "@deps:tinymce/5.6.2/tinymce.min.js"

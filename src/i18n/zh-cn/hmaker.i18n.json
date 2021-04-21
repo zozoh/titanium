@@ -1,4 +1,12 @@
 {
+  "hmk-css-opacity" : "不透明度",
+  "hmk-css-object-fit" : "内容缩放",
+  "hmk-css-object-fit-fill" : "拉伸",
+  "hmk-css-object-fit-contain" : "包含",
+  "hmk-css-object-fit-cover" : "封面",
+  "hmk-css-object-fit-none" : "无",
+  "hmk-css-object-fit-scale-down" : "等比",
+  "hmk-css-object-position" : "内容位置",
   "hmk-class-title-wrap" : "标题折行",
   "hmk-class-text-wrap" : "文字折行",
   "hmk-class-text-wrap-auto" : "自动",

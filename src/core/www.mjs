@@ -48,7 +48,10 @@ const TiWWW = {
         idPath : itemIdPath,
         indexPath : ixPath,
         type : "page",
-        ..._.pick(it, "icon","title","type","value","href","target","params")
+        ..._.pick(it,
+            "icon","title","type",
+            "value","href", "target",
+            "params", "rawData")
       }
       //..........................................
       // Link to Site Page

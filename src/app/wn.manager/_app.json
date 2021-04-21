@@ -48,6 +48,7 @@
     "@com:ti/gui",
     "@com:ti/icon",
     "@com:ti/button",
+    "@com:ti/slide/bar",
     "@com:ti/crumb",
     "@com:ti/loading",
     "@com:ti/actionbar",

@@ -1,4 +1,4 @@
-// Pack At: 2021-04-20 21:04:54
+// Pack At: 2021-04-21 12:14:08
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7836,6 +7836,532 @@ return _M;
 ;
 })()
 // ============================================================
+// EXPORT 'tiny-wn-web-image.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-web-image.mjs'] = (function(){
+////////////////////////////////////////////////////
+async function pickWebImageAndInsertToDoc(editor, {
+  base = "~", 
+  autoCreate=null, 
+  fallbackPath,
+}) {
+  // Check base
+  if(_.isPlainObject(autoCreate)) {
+    let oBase = await Wn.Io.loadMeta(base)
+    if(!oBase) {
+      let pph = Ti.Util.getParentPath(base)
+      let dnm = Ti.Util.getFileName(base)
+      let baseMeta = _.assign({}, autoCreate, {
+        race: 'DIR', nm : dnm
+      })
+      let baseJson = JSON.stringify(baseMeta)
+      let cmdText = `o @create '${baseJson}' -p ${pph} -auto @json -cqn`
+      oBase = await Wn.Sys.exec2(cmdText, {as:"json"})
+    }
+    base = oBase
+  }
+
+  // Show dialog
+  let reo = await Wn.OpenObjSelector(base, {
+    icon  : "fas-image",
+    title : "i18n:img-insert",
+    position : "top",
+    width  : "95%",
+    height : "95%",
+    multi : false,
+    fallbackPath
+  })
+
+  // User canceled
+  if(_.isEmpty(reo)) {
+    return
+  }
+
+  // Do insert image
+  editor.execCommand("InsertWebImage", editor, reo)
+}
+////////////////////////////////////////////////////
+function GetElContext(el) {
+  if(_.isElement(el)) {
+    let con = Ti.Dom.closest(el, p=>Ti.Dom.hasClass(p, "as-image-con"))
+    if(!con) {
+      return {
+        con : el,
+        img : el
+      }
+    }
+    else {
+      return {
+        con : con,
+        img : Ti.Dom.find("img", con),
+        alt : Ti.Dom.find("span.as-img-alt", con),
+      }
+    }
+  }
+  return el
+}
+////////////////////////////////////////////////////
+function GetWebImageDataByElement(elOrCtx) {
+  let IMC = GetElContext(elOrCtx)
+  let obj = Ti.Dom.attrs(IMC.img, name=>{
+    let m = /^(wn-obj-)(.+)$/.exec(name)
+    if(m) {
+      return _.camelCase(m[2])
+    }
+  })
+  obj.imgStyle = _.assign({}, 
+    Ti.Dom.getOwnStyle(IMC.con), 
+    Ti.Dom.getOwnStyle(IMC.img))
+  obj.altStyle = Ti.Dom.getOwnStyle(IMC.alt)
+  return obj
+}
+////////////////////////////////////////////////////
+function FormatWebImageObjData(obj) {
+  return _.pick(obj, 
+    "id","sha1","title","mime","tp","width","height",
+    "imgStyle", "altStyle")
+}
+////////////////////////////////////////////////////
+const OUTER_STYLE_NAMES = [
+  "margin", "float", "width", "height",
+  "minWidth", "minHeight",
+  "maxWidth", "maxHeight"
+]
+////////////////////////////////////////////////////
+function UpdateWebImageStyle(editor, el, data) {
+  let IMC = GetElContext(el)
+  //console.log(IMC)
+  if(data) {
+    let attrs = FormatWebImageObjData(data)
+    attrs.imgStyle = null
+    attrs.altStyle = null
+    Ti.Dom.setAttrs(IMC.img, attrs, "wn-obj-")
+  } else {
+    data = GetWebImageDataByElement(IMC)
+  }
+  //console.log(data)
+  //............................................
+  let conStyle = _.pick(data.imgStyle, OUTER_STYLE_NAMES)
+  let imgStyle = _.omit(data.imgStyle, OUTER_STYLE_NAMES)
+  let altStyle = Ti.Dom.renderCssRule(data.altStyle)
+  conStyle = Ti.Dom.renderCssRule(conStyle)
+  imgStyle = Ti.Dom.renderCssRule(imgStyle)
+  //............................................
+  let {con, img, alt} = IMC
+  //............................................
+  // Wrap image by span
+  if(con == img && "IMG" == con.tagName) {
+    if(!Ti.Dom.closest(con, $con => Ti.Dom.hasClass($con, "as-image-con"))) {
+      let $con = Ti.Dom.createElement({
+        tagName : "span",
+        className : "wn-media as-image-con"
+      })
+      Ti.Dom.wrap(con, $con)
+      con = $con
+    }
+  }
+  //............................................
+  if(img) {
+    img.style = imgStyle
+    Ti.Dom.setAttrs(img, {
+      "ti-resize-target" : null
+    })
+  }
+  //............................................
+  if(alt) {
+    if(!data.title || Ti.S.isBlank(data.title)) {
+      Ti.Dom.remove(alt)
+    } else {
+      alt.style = altStyle
+      alt.innerText = data.title || ""
+    }
+  } else if(data.title && !Ti.S.isBlank(data.title)) {
+    alt = Ti.Dom.createElement({
+      $p : con,
+      tagName : "span",
+      className : "as-img-alt",
+    })
+    alt.style = altStyle
+    alt.innerText = data.title || ""
+  }
+  //............................................
+  if(con) {
+    con.style = conStyle
+    con.contentEditable = false
+    Ti.Dom.setAttrs(con, {
+      "ti-tinymce-obj-resizable" : "style"
+    })
+    // Update resize handler
+    editor.__rich_tinymce_com.redrawResizeHandler(con)
+  }
+}
+////////////////////////////////////////////////////
+function CmdInsertWebImage(editor, oImgs) {
+  if(_.isEmpty(oImgs))
+    return
+  
+  // Prepare range
+  let rng = editor.selection.getRng()
+  
+  // Create image fragments
+  let $doc = rng.commonAncestorContainer.ownerDocument
+  let frag = new DocumentFragment()
+  for(let oImg of oImgs) {
+    let $con = Ti.Dom.createElement({
+      tagName : "a",
+      className : "wn-media as-image-con"
+    })
+    $con.contentEditable = false
+    let $img = Ti.Dom.createElement({
+      $p : $con,
+      tagName : "img",
+      className : "wn-media as-image",
+      attrs : {
+        src : `/o/content?str=id:${oImg.id}`
+      }
+    }, $doc)
+    Ti.Dom.setAttrs($img, FormatWebImageObjData(oImg), "wn-obj-")
+    
+    frag.appendChild($con)
+
+    // Update style
+    UpdateWebImageStyle(editor, $con)
+  }
+  
+  // Remove content
+  if(!rng.collapsed) {
+    rng.deleteContents()
+  }
+
+  // Insert fragments
+  rng.insertNode(frag)
+}
+////////////////////////////////////////////////////
+function GetCurrentWebImageElement(editor) {
+  let sel = editor.selection
+  let $nd = sel.getNode()
+  // Guard
+  return Ti.Dom.closest($nd, (el)=>{
+    if(Ti.Dom.hasClass(el, "wn-media", "as-image-con")) {
+      return true
+    }
+    if("IMG" == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-image")) {
+      return true
+    }
+  })
+}
+////////////////////////////////////////////////////
+function CmdSetWebImageStyle(editor, css={}) {
+  let $con = GetCurrentWebImageElement(editor)
+  let IMC = GetElContext($con)
+  // Guard
+  if(!_.isElement($con)) {
+    return
+  }
+  // Save to element
+  let data = GetWebImageDataByElement(IMC)
+  data.imgStyle = _.assign({}, data.imgStyle, css)
+  UpdateWebImageStyle(editor, IMC, data)
+  
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+async function CmdShowWebImageProp(editor, settings) {
+  let $img = GetCurrentWebImageElement(editor)
+  let IMC = GetElContext($img)
+  // Guard
+  if(!_.isElement($img)) {
+    return
+  }
+  // Get margin style
+  let stl = Ti.Dom.getStyle($img, /^(float|(margin-(left|right|top|bottom)))$/)
+  stl.float = stl.float || "none"
+  //console.log("stl", stl)
+  // Gen the properties
+  let data = GetWebImageDataByElement($img)
+  //console.log(data)
+
+  // Show dialog
+  let reo = await Ti.App.Open({
+    icon  : "fas-image",
+    title : "编辑图片属性",
+    width  : "37%",
+    height : "100%",
+    position : "right",
+    closer : "left",
+    clickMaskToClose : true,
+    result : data,
+    model : {prop:"data", event:"change"},
+    comType : "TiForm",
+    comConf : {
+      onlyFields : false,
+      spacing : "tiny",
+      fields : [{
+        title : "图片信息",
+        fields: [{
+            title : "图片",
+            name  : "id",
+            comType : "WnObjPicker",
+            comConf : {
+              valueType : "id",
+              base : settings.base,
+              titleEditable : false
+            }
+          }, {
+            title : "i18n:title",
+            name  : "title",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "请输入图片的标题"
+            }
+          }]
+      }, {
+        title : "样式外观",
+        fields : [
+          Wn.Hm.getCssPropField("margin",{name:"imgStyle.margin"}),
+            Wn.Hm.getCssPropField("width",{name:"imgStyle.width"}),
+            Wn.Hm.getCssPropField("height",{name:"imgStyle.height"}),
+            Wn.Hm.getCssPropField("float",{name:"imgStyle.float"}),
+            Wn.Hm.getCssPropField("object-fit",{name:"imgStyle.objectFit"}),
+          ]
+      }, {
+        title : "高级样式",
+        fields : [{
+            title : "图片样式",
+            name  : "imgStyle",
+            type  : "Object",
+            emptyAs : null,
+            comType : "HmPropCssRules",
+            comConf : {
+              rules : "#IMG"
+            }
+          }, {
+            title : "标题样式",
+            name  : "altStyle",
+            type  : "Object",
+            emptyAs : null,
+            comType : "HmPropCssRules",
+            comConf : {
+              rules : "#TEXT-BLOCK"
+            }
+          }]
+        }]
+    },
+    components : [
+      "@com:wn/obj/picker"
+    ]
+  })
+
+  // 用户取消
+  if(!reo)
+    return
+
+  // Update image
+  //................................................
+  // src
+  if(data.id != reo.id) {
+    // Remove Image
+    if(!reo.id) {
+      Ti.Dom.remove(IMC.con)
+      return
+    }
+    // 读取对象详情
+    let oImg = await Wn.Io.loadMetaById(reo.id)
+    reo = FormatWebImageObjData(_.assign(reo, oImg))
+    // Switch image src
+    IMC.img.src = `/o/content?str=id:${reo.id}`
+  }
+  //................................................
+  console.log(reo)
+  UpdateWebImageStyle(editor, IMC, reo)
+  //................................................
+  // clean cache
+  IMC.con.removeAttribute("data-mce-style")
+  IMC.img.removeAttribute("data-mce-src")
+  IMC.img.removeAttribute("data-mce-style")
+  //................................................
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  name : "wn-web-image",
+  //------------------------------------------------
+  init : function(conf={}) {
+  },
+  //------------------------------------------------
+  setup : function(editor, url){
+    //..............................................
+    let settings = _.assign({
+        base : "~"
+      }, _.get(editor.settings, "wn_web_image_config"));
+    //console.log("setup", editor.settings)
+    //..............................................
+    // Register plugin command
+    editor.addCommand("InsertWebImage",   CmdInsertWebImage)
+    editor.addCommand("SetWebImageStyle", CmdSetWebImageStyle)
+    editor.addCommand("ShowWebImageProp", CmdShowWebImageProp)
+    //..............................................
+    // Register toolbar actions
+    editor.ui.registry.addButton("WnWebImgPick", {
+      icon : "image",
+      tooltip : Ti.I18n.text("i18n:img-insert"),
+      onAction : function(menuBtn) {
+        pickWebImageAndInsertToDoc(editor, settings)
+      },
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnWebImgClrSize", {
+      icon : "edit-image",
+      text : "清除图片尺寸",
+      onAction() {
+        editor.execCommand("SetWebImageStyle", editor, {
+          width: "", height: "",
+          minWidth: "", minHeight: "",
+          maxWidth: "", maxHeight: ""
+        })
+      }
+    })
+    //..............................................
+    editor.ui.registry.addMenuItem("WnWebImgAutoFitWidth", {
+      text : "自动适应宽度",
+      onAction() {
+        editor.execCommand("SetWebImageStyle", editor, {
+          width: "100%", height: "",
+          margin: "",
+          minWidth: "", minHeight: "",
+          maxWidth: "", maxHeight: ""
+        })
+      }
+    })
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnWebImgFloat', {
+      text: '文本绕图',
+      getSubmenuItems: function () {
+        return [{
+          type : "menuitem",
+          icon : "align-left",
+          text : "居左绕图",
+          onAction() {
+            editor.execCommand("SetWebImageStyle", editor, {float:"left"})
+          }
+        }, {
+          type : "menuitem",
+          icon : "align-right",
+          text : "居右绕图",
+          onAction() {
+            editor.execCommand("SetWebImageStyle", editor, {float:"right"})
+          }
+        }, {
+          type : "menuitem",
+          text : "清除浮动",
+          onAction() {
+            editor.execCommand("SetWebImageStyle", editor, {float:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addNestedMenuItem('WnWebImgMargin', {
+      text: '图片边距',
+      getSubmenuItems: function () {
+        const __check_margin_size = function(api, expectSize) {
+          let $img = GetCurrentWebImageElement(editor)
+          let IMC = GetElContext($img)
+          let state = true
+          if(IMC.con) {
+            state = (expectSize == IMC.con.style.margin)
+          }
+          api.setActive(state);
+          return function() {};
+        }
+        return [{
+          type : "togglemenuitem",
+          text : "小边距",
+          onAction() {
+            editor.execCommand("SetWebImageStyle", editor, {margin:"1em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '1em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "中等边距",
+          onAction() {
+            editor.execCommand("SetWebImageStyle", editor, {margin:"2em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '2em')
+          }
+        }, {
+          type : "togglemenuitem",
+          text : "较大边距",
+          onAction() {
+            editor.execCommand("SetWebImageStyle", editor, {margin:"3em"})
+          },
+          onSetup: function(api) {
+            return __check_margin_size(api, '3em')
+          }
+        }, {
+          type : "menuitem",
+          text : "清除边距",
+          onAction() {
+            editor.execCommand("SetWebImageStyle", editor, {margin:""})
+          }
+        }];
+      }
+    });
+    //..............................................
+    editor.ui.registry.addMenuItem("WnWebImgProp", {
+      text : "图片属性",
+      onAction() {
+        editor.execCommand("ShowWebImageProp", editor, settings)
+      }
+    })
+    //..............................................
+    editor.ui.registry.addContextMenu("wn-web-image", {
+      update: function (el) {
+        let sel = editor.selection
+        let $nd = sel.getNode()
+        let IMC = GetElContext($nd)
+        if(IMC && IMC.img && IMC.img.hasAttribute("wn-obj-id")
+          && "IMG" == IMC.img.tagName
+          && Ti.Dom.hasClass(IMC.img, "wn-media", "as-image")) {
+          return [
+            "WnWebImgClrSize WnWebImgAutoFitWidth",
+            "WnWebImgFloat WnWebImgMargin",
+            "WnWebImgProp"
+          ].join(" | ")
+        }
+        return []
+      }
+    })
+    //..............................................
+    editor.on("SetContent", function() {
+      //console.log("SetContent image")
+      let els = editor.$('img[wn-obj-mime]')
+      for(let i=0; i<els.length; i++) {
+        let el = els[i]
+        UpdateWebImageStyle(editor, el)
+      }
+    })
+    //..............................................
+    return {
+      getMetadata: function () {
+        return  {
+          name: 'Wn Web Image plugin',
+          url: 'http://site0.cn'
+        };
+      }
+    };
+    //..............................................
+  }
+  //------------------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'wn-obj-mode.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/obj/mode/wn-obj-mode.mjs'] = (function(){
@@ -12174,8 +12700,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return latlng
     },
     //--------------------------------------
+    GetIconSrc(src) {
+      if(/^(https?:\/\/|\/)/.test(src)) {
+        return src
+      }
+      return `${this.imageIconBase}${src}`
+    },
+    //--------------------------------------
     Icon(urlOrIcon, {
       size = 32,
+      className,
       color = "primary",
       iconSize = [24, 41],
       iconAnchor = [12, 41],
@@ -12213,10 +12747,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
             let [_, nmPath, suffix] = /^([^.]+)\.(\w+)$/.exec(value)
             shadowUrl = `${nmPath}-shadow.${suffix}`
           }
-          shadowUrl = `${this.imageIconBase}${shadowUrl}`
+          shadowUrl = this.GetIconSrc(shadowUrl)
         }
         return L.icon({
-          iconUrl : `${this.imageIconBase}${value}`,
+          iconUrl : this.GetIconSrc(value),
+          className,
           iconSize, iconAnchor,
           shadowUrl, shadowSize, shadowAnchor
         })
@@ -24917,6 +25452,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         let list = []
         for(let it of items) {
           let it2 = this.ItemMappingBy(it)
+          it2.rawData = it
           let subs = _.get(it, this.childrenBy)
           if(_.isArray(subs)){
             subs = MappingItems(subs)
@@ -24974,7 +25510,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let {type, value} = linkInfo
       if(/^(page|action)$/.test(type)) {
         evt.preventDefault()
-        //console.log("onClickLink", "nav:to", {type,value,params})
+        //console.log("onClickLink", "nav:to", {type,value})
         if(value) {
           let notiName = this.notifyName || "nav:to"
           this.$notify(notiName, linkInfo)
@@ -27757,10 +28293,11 @@ window.TI_PACK_EXPORTS['ti/com/wn/upload/file/wn-upload-file.mjs'] = (function()
 const _M = {
   /////////////////////////////////////////
   data : ()=>({
-    "src_ts" : null,
-    "oFile"     : null,
-    "uploadFile" : null,
-    "progress"   : -1
+    srcAsUrl : false,
+    src_ts : null,
+    oFile     : null,
+    uploadFile : null,
+    progress   : -1
   }),
   /////////////////////////////////////////
   props : {
@@ -27776,6 +28313,11 @@ const _M = {
       type: String,
       default: "obj",
       validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
+    },
+    // Input a image link directly
+    "exlink" : {
+      type : Boolean,
+      default : false
     },
     "maxWidth" : {
       type : [String, Number],
@@ -27859,6 +28401,11 @@ const _M = {
     //--------------------------------------
     // Display image for <ti-thumb>
     PreviewIcon() {
+      if(this.srcAsUrl) {
+        return {
+          type: "image", value: this.value
+        }
+      }
       //....................................
       if(this.oFile) {
         //..................................
@@ -27889,6 +28436,10 @@ const _M = {
         // Others just get the icon font
         return Wn.Util.getObjIcon(this.oFile)
       }
+    },
+    //--------------------------------------
+    PreviewType() {
+      return this.srcAsUrl ? "link" : "obj"
     }
     //--------------------------------------
   },
@@ -27916,16 +28467,32 @@ const _M = {
       return true
     },
     //--------------------------------------
-    async onOpen() {
+    async OnExlink() {
+      let value = this.srcAsUrl ? this.value : undefined
+      let src = _.trim(await Ti.Prompt("i18n:exlink-tip-img", {
+        width: "80%",
+        value
+      }))
+      // User cancel
+      if(!src)
+        return
+      
+      this.$notify("change", src)
+    },
+    //--------------------------------------
+    async OnOpen() {
+      if(this.srcAsUrl) {
+        await Ti.Be.Open(this.value)
+      }
       // remove the thumb file
-      if(this.oFile) {
+      else if(this.oFile) {
         let link = Wn.Util.getAppLink(this.oFile)
         //console.log("it will open ", link)
         await Ti.Be.Open(link.url, {params:link.params})
       }
     },
     //--------------------------------------
-    async onRemove() {
+    async OnRemove() {
       // remove the thumb file
       if(this.oFile) {
         await Wn.Sys.exec2(`rm id:${this.oFile.id}`)
@@ -27934,7 +28501,7 @@ const _M = {
       this.$notify("change", null)
     },
     //--------------------------------------
-    async onUpload(file) {
+    async OnUpload(file) {
       // console.log("it will upload ", file)
       //................................
       // Check for support Types
@@ -28015,6 +28582,10 @@ const _M = {
     },
     //--------------------------------------
     async reload() {
+      this.srcAsUrl = /^https?:\/\//.test(this.value)
+      if(this.srcAsUrl) {
+        return
+      }
       if(_.isString(this.value)) {
         this.oFile = await Wn.Io.loadMetaBy(this.value)
       }
@@ -29785,8 +30356,11 @@ const _M = {
       default:undefined
     },
     "value"  : {
-      type:String, 
+      type: String, 
       default:undefined
+    },
+    "rawData" : {
+      type : Object
     },
     "items" : {
       type : Array,
@@ -29887,12 +30461,13 @@ const _M = {
         evt.stopPropagation()
       }
       this.$notify("click:item", evt, {
-        id     : this.id,
-        type   : this.type,
-        params : this.params,
-        href   : this.href,
-        target : this.target,
-        value  : this.value
+        id      : this.id,
+        type    : this.type,
+        params  : this.params,
+        href    : this.href,
+        target  : this.target,
+        value   : this.value,
+        rawData : this.rawData
       })
     }
     //---------------------------------------------------
@@ -30269,7 +30844,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }={}) {
     // Customized Icon
     if(markerIcon) {
-      let icon = Ti.Util.explainObj(obj, markerIcon)
+      let icon = Ti.Util.explainObj(obj, markerIcon, {
+        evalFunc : true
+      })
+      console.log({icon})
       if(icon) {
         $marker.setIcon(this.Icon(icon, markerIconOptions))
       }
@@ -36414,95 +36992,6 @@ const _M = {
 return _M;;
 })()
 // ============================================================
-// EXPORT 'nav-links.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/web/nav/links/__bak/nav-links.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  /////////////////////////////////////////
-  data: ()=>({
-    mySubIndex: -1,
-    mySubItems: null
-  }),
-  /////////////////////////////////////////
-  props : {
-    "align" : {
-      type : String,
-      default : "left",
-      validator: v => /^(left|center|right)$/.test(v)
-    },
-    "spacing" : {
-      type : String,
-      validator: v => /^(tiny|comfy|wide)$/.test(v)
-    },
-    "border" : {
-      type : String,
-      default : "solid",
-      validator: v => /^(none|solid|dashed|dotted)$/.test(v)
-    }
-  },
-  /////////////////////////////////////////
-  computed : {
-    //------------------------------------
-    TopClass() {
-      return this.getTopClass(
-        `is-spacing-${this.spacing}`,
-        `is-align-${this.align}`,
-        ()=> {
-          if(this.border)
-            return `is-border-${this.border}`
-        }
-      )
-    }
-    //------------------------------------
-  },
-  /////////////////////////////////////////
-  methods : {
-    //------------------------------------
-    OnItemMouseEnter({index, items}) {
-      // Guard
-      if(_.isEmpty(items)) {
-        this.mySubIndex = -1
-        this.mySubItems = null
-        return
-      }
-      // Eval sub items
-      this.mySubItems = this.evalItems(items)
-      this.mySubIndex = index
-
-      // Dock it
-      this.$nextTick(()=>this.dockSub())
-    },
-    //------------------------------------
-    OnItemMouseLeave({index}) {
-      if(this.mySubIndex == index) {
-        this.mySubIndex = -1
-        this.mySubItems = null
-      }
-    },
-    //------------------------------------
-    dockSub(){
-      let $sub = Ti.Dom.find(".sub-items", this.$el)
-      // Guard
-      if(!$sub) {
-        return
-      }
-      // Ready to dock
-      let $an = $sub.parentNode
-      let rAn = Ti.Rects.createBy($an)
-      let rSub = Ti.Rects.createBy($sub)
-      let css = Ti.Css.toStyle({
-        top  : rAn.height,
-        left : (rAn.width - rSub.width)/2
-      })
-      Ti.Dom.setStyle($sub, css)
-    }
-    //------------------------------------
-  }
-  /////////////////////////////////////////
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
 // EXPORT 'ti-obj-thumb.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/obj/thumb/ti-obj-thumb.mjs'] = (function(){
@@ -37326,6 +37815,16 @@ const _M = {
       type : Number,
       default : -1
     },
+    // Input a image link directly
+    "exlink" : {
+      type : Boolean,
+      default : false
+    },
+    "previewType" : {
+      type : String,
+      default : "obj",
+      validator : v => /^(obj|link)$/.test(v)
+    },
     "maxWidth" : {
       type : [String, Number],
       default : undefined
@@ -37414,6 +37913,10 @@ const _M = {
       return false
     },
     //--------------------------------------
+    isShowExlink() {
+      return this.exlink && !this.hasPreview
+    },
+    //--------------------------------------
     PreviewIcon() {
       if(this.uploadFile) {
         return {type:"localFile", value:this.uploadFile}
@@ -37431,7 +37934,11 @@ const _M = {
   methods : {
     //--------------------------------------
     OnClickToEdit() {
-      this.$refs.file.click()
+      if("link" == this.previewType) {
+        this.$notify("exlink")
+      } else {
+        this.$refs.file.click()
+      }
     },
     //--------------------------------------
     async OnDropFiles(files) {
@@ -37452,6 +37959,10 @@ const _M = {
     //--------------------------------------
     OnOpen() {
       this.$notify("open")
+    },
+    //--------------------------------------
+    OnExlink() {
+      this.$notify("exlink")
     },
     //--------------------------------------
     recountArea() {
@@ -37722,7 +38233,7 @@ const _M = {
             'blockquote bullist numlist',
             'blocks table',
             [
-              'WnImgPick','WnVideoPick','WnAudioPick',
+              'WnImgPick','WnWebImgPick','WnVideoPick','WnAudioPick',
               'WnAttachmentPick', 'WnAlbumPick'
             ].join(' '),
             ['WnYoutubePick','WnYtPlaylistPick', 'WnFbAlubmPick'].join(' '),
@@ -37862,6 +38373,10 @@ const _M = {
     },
     //-----------------------------------------------
     syncContent() {
+      // Clear the style cache
+      this.$editor.$("[data-mce-style]").attr({
+        "data-mce-style" : null
+      })
       let str = this.$editor.getContent()
       //console.log("content", typeof str, `【${str}】`, this.value)
       this.myHtmlCode = str
@@ -38061,6 +38576,18 @@ const _M = {
           editor.on("SelectionChange", (evt)=>{
             //console.log("SelectionChange ", evt)
             this.evalCurrentHeading()
+          })
+          editor.on("NodeChange", (evt)=>{
+            if(Ti.Dom.hasClass(evt.element, "ti-tinymce-obj-resize-handler")) {
+              evt.preventDefault();
+              evt.stopPropagation();
+              return false
+            } else {
+              this.redrawResizeHandler(evt.element)
+            }
+          })
+          editor.on("ResizeWindow", (evt)=>{
+            editor.$('.ti-tinymce-obj-resize-handler').remove()
           })
           editor.on('init', ()=>{
             let $html = editor.$('html')[0]
@@ -38361,6 +38888,153 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }
 }
 ////////////////////////////////////////////
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'rich-tinymce-obj-resizing.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/rich-tinymce-obj-resizing.mjs'] = (function(){
+///////////////////////////////////////////////////
+function CreateHandler($body, name) {
+  return Ti.Dom.createElement({
+    $p : $body,
+    tagName : "div",
+    className : `ti-tinymce-obj-resize-handler at-${name}`,
+    attrs : {
+      "hdl-name" : name
+    }
+  })
+}
+///////////////////////////////////////////////////
+function UpdateHandlerStyle(rect, {NW,NE,SW,SE}) {
+  NW.style.left = rect.left+'px'
+  NE.style.left = rect.right+'px'
+  SW.style.left = rect.left+'px'
+  SE.style.left = rect.right+'px'
+
+  NW.style.top = rect.top+'px'
+  NE.style.top = rect.top+'px'
+  SW.style.top = rect.bottom+'px'
+  SE.style.top = rect.bottom+'px'
+}
+///////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  //-----------------------------------------------
+  redrawResizeHandler(el) {
+    let editor = this.$editor
+    // Remove old handler
+    let $hs = editor.$('.ti-tinymce-obj-resize-handler')
+    $hs.remove()
+
+    // Guard
+    if(!_.isElement(el) || !el.getAttribute("data-mce-selected")){
+      return
+    }
+
+    // Get resize target
+    let resizeMode = el.getAttribute("ti-tinymce-obj-resizable")
+    // Guard
+    if("style" != resizeMode) {
+      return
+    }
+
+    // Find resize obj
+    let $ta = Ti.Dom.find("[ti-resize-target]", el) || el
+
+    //console.log("redrawResizeHandler", el)
+    // Create rect
+    let $body = editor.$('body')[0]
+    if(el == $body) {
+      return
+    }
+
+    // Prepare two window obj
+    const winIn  = $body.ownerDocument.defaultView
+    const winOut =  this.$el.ownerDocument.defaultView
+
+    // Count measure
+    let rect = Ti.Rects.createBy($ta)
+    rect.y += winIn.scrollY
+    rect.updateBy("xywh")
+
+    
+
+    // Draw new resize handler
+    let hdls = {}
+    hdls.NW = CreateHandler($body, "nw")
+    hdls.NE = CreateHandler($body, "ne")
+    hdls.SW = CreateHandler($body, "sw")
+    hdls.SE = CreateHandler($body, "se")
+    UpdateHandlerStyle(rect, hdls)
+
+    // Current handler
+    let currentHdl = {}
+
+    const OnMouseMove = (evt)=>{
+      let {startX, startY, width, height} = currentHdl
+      let {pageX, pageY} = evt
+      let offX = Math.round(pageX - startX)
+      let offY = Math.round(pageY - startY)
+      let w = Math.max(10, width  + offX)
+      let h = Math.max(10, height + offY)
+      //console.log({offX,offY,w, h}, target)
+      $ta.style.width  = w + 'px';
+      $ta.style.height = h + 'px';
+      // rect.width  = w
+      // rect.height = h
+      // rect.updateBy()
+      let rect = Ti.Rects.createBy($ta)
+      UpdateHandlerStyle(rect, hdls)
+    }
+
+    // Prepare the callback functions
+    const OnMouseUp = ()=>{
+      //console.log("mouseup")
+
+      // Remove event handler
+      winIn.removeEventListener("mousemove", OnMouseMove, true)
+      winIn.removeEventListener("mouseup", OnMouseUp, true)
+      winOut.removeEventListener("mouseup", OnMouseUp, true)
+
+      $ta.removeAttribute("data-mce-style");
+
+      _.delay(()=>{
+        $body.removeAttribute("ti-tinymce-no-select")
+        $body.contentEditable = true
+        this.syncContent()
+      }, 100)
+    }
+
+    // Start
+    const OnMouseDown = (evt)=>{
+      evt.stopPropagation()
+      currentHdl.target = evt.target
+      currentHdl.name = evt.target.getAttribute("hdl-name")
+      let hR = Ti.Rects.createBy(evt.target)
+      currentHdl.startX = hR.x
+      currentHdl.startY = hR.y + winIn.scrollY
+      currentHdl.width  = rect.width
+      currentHdl.height = rect.height
+      // Stop selection
+      $body.setAttribute("ti-tinymce-no-select", true)
+      $body.contentEditable = false
+      //console.log("mousedown", evt)
+      // Watch the mouse up
+      winIn.addEventListener("mousemove", OnMouseMove, true)
+      winIn.addEventListener("mouseup", OnMouseUp, true)
+      winOut.addEventListener("mouseup", OnMouseUp, true)
+    }
+
+    // Attache events
+    hdls.NW.addEventListener("mousedown", OnMouseDown, true)
+    hdls.NE.addEventListener("mousedown", OnMouseDown, true)
+    hdls.SW.addEventListener("mousedown", OnMouseDown, true)
+    hdls.SE.addEventListener("mousedown", OnMouseDown, true)
+    // Add event listener
+  }
+  //-----------------------------------------------
+  //-----------------------------------------------
+}
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -45280,8 +45954,6 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/input/color/ti-input-color.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
-  inheritAttrs : false,
-  ////////////////////////////////////////////////////
   data: ()=>({
     hideBorder : false,
     status  : "collapse"
@@ -45291,6 +45963,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "value" : {
       type : [String, Number],
       default : null
+    },
+    "autoCollapse" : {
+      type : Boolean,
+      default : true
     }
   },
   ////////////////////////////////////////////////////
@@ -45337,6 +46013,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     onColorChanged(color) {
       let co = Ti.Types.toColor(color)
       this.$notify("change", co ? co.toString() : null)
+      if(this.autoCollapse) {
+        this.status = "collapse"
+      }
     },
     //------------------------------------------------
     doCollapse() {
@@ -46154,7 +46833,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default : false
   },
   "markerIcon" : {
-    type : [String, Object],
+    type : [String, Object, Function],
     //default : "png/map-pin-1.png"
     default : undefined
   },
@@ -46537,7 +47216,7 @@ const _M = {
      * 
      * @return {void}
      */
-    async doAction({dispatch}, AT){
+    async doAction({dispatch, state}, AT){
       // Guard nil
       if(!AT) {
         return
@@ -46548,6 +47227,37 @@ const _M = {
       //....................................
       if(_.isFunction(AT)) {
         return await AT()
+      }
+
+      // Fire another action
+      if(AT.fire) {
+        let {name, args, memo} = AT
+        // Guard for Infinite recursion
+        if(_.indexOf(memo, name) >= 0) {
+          console.warn("May Infinite recursion invokeAction", {
+            name, args, memo
+          })
+          return
+        }
+        // Prepare to call another action
+        memo.push(name)
+        try{
+          //console.log("fire At", AT)
+          let args2 = Ti.Util.explainObj(state, args)
+          await dispatch("invokeAction", {
+            name, args: args2, memo
+          })
+        }
+        catch(E) {
+          console.warn(`Fail to doAction[${name}]`, {
+            name, args, memo
+          })
+        }
+        // clean self name
+        finally {
+          memo.pop()
+        }
+        return 
       }
 
       //....................................
@@ -46667,7 +47377,7 @@ const _M = {
     /***
      * Invoke action by given name
      */
-    async invokeAction({getters, dispatch}, {name="", args=[]}={}){
+    async invokeAction({getters, dispatch}, {name="", args=[], memo=[]}={}){
       /*
       The action should like
       {
@@ -46696,30 +47406,33 @@ const _M = {
       // Guard
       if(!AT)
         return;
-  
+        
       // Invoke it
       try {
         // Batch call
         if(_.isArray(AT)) {
           for(let a of AT) {
-            await dispatch("doAction", {
-              ... a,
-              args
-            })
+            let da = {...a, memo}
+            if(!_.isEmpty(args)) {
+              da.args = args
+            }
+            await dispatch("doAction", da)
           }
         }
         // Direct call : String
         else if(_.isString(AT)) {
           await dispatch("doAction", {
             action: AT,
-            args
+            args,
+            memo
           })
         }
         // Direct call : Object
         else {
           await dispatch("doAction", {
             ... AT,
-            args
+            args,
+            memo
           })
         }
       }
@@ -58607,6 +59320,10 @@ Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-image.mjs", TI_PACK_EXPOR
 //========================================
 Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-video.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-video.mjs']);
 //========================================
+// JOIN <tiny-wn-web-image.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-web-image.mjs
+//========================================
+Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-web-image.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-web-image.mjs']);
+//========================================
 // JOIN <tiny-wn-youtube.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-youtube.mjs
 //========================================
 Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-youtube.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-youtube.mjs']);
@@ -58614,6 +59331,10 @@ Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-youtube.mjs", TI_PACK_EXP
 // JOIN <tiny-wn-yt-playlists.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-yt-playlists.mjs
 //========================================
 Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-yt-playlists.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-yt-playlists.mjs']);
+//========================================
+// JOIN <rich-tinymce-obj-resizing.mjs> ti/com/ti/text/rich/tinymce/rich-tinymce-obj-resizing.mjs
+//========================================
+Ti.Preload("ti/com/ti/text/rich/tinymce/rich-tinymce-obj-resizing.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/rich-tinymce-obj-resizing.mjs']);
 //========================================
 // JOIN <rich-tinymce-props.mjs> ti/com/ti/text/rich/tinymce/rich-tinymce-props.mjs
 //========================================
@@ -58659,6 +59380,7 @@ Ti.Preload("ti/com/ti/text/rich/tinymce/_com.json", {
   "globally" : true,
   "template" : "./rich-tinymce.html",
   "props" : "./rich-tinymce-props.mjs",
+  "methods" : "./rich-tinymce-obj-resizing.mjs",
   "mixins" : "./rich-tinymce.mjs",
   "deps" : [
     "@deps:tinymce/5.6.2/tinymce.min.js"
@@ -58913,23 +59635,44 @@ Ti.Preload("ti/com/ti/upload/file/ti-upload-file.html", `<div class="ti-upload-f
       :progress="progress"
       :show-footer="false"/>
     <!--
+      Preview type badge
+    -->
+    <div
+      v-if="hasPreview"
+        class="as-preview-type">
+          <i v-if="'link'==previewType" class="fas fa-link"></i>
+          <i v-else-if="'obj'==previewType" class="fas fa-save"></i>
+    </div>
+    <!--
       Remove
     -->
     <div ref="actions"
-      v-if="isShowRemoveIcon"
+      v-if="isShowRemoveIcon || isShowExlink"
         class="thumb-actions"
         :style="ActionsStyle">
         <!--remove-->
-        <div class="thumb-opt as-del"
-          @click.left.stop="OnRemove">
-          <ti-icon value="zmdi-delete"/>
-          <span class="it-text">{{'clear'|i18n}}</span>
+        <div
+          v-if="isShowRemoveIcon"
+            class="thumb-opt as-del"
+            @click.left.stop="OnRemove">
+            <ti-icon value="zmdi-delete"/>
+            <span class="it-text">{{'clear'|i18n}}</span>
         </div>
         <!--open-->
-        <div class="thumb-opt as-open"
-          @click.left.stop="OnOpen">
-          <ti-icon value="zmdi-open-in-new"/>
-          <span class="it-text">{{'open'|i18n}}</span>
+        <div
+          v-if="isShowRemoveIcon"
+            class="thumb-opt as-open"
+            @click.left.stop="OnOpen">
+            <ti-icon value="zmdi-open-in-new"/>
+            <span class="it-text">{{'open'|i18n}}</span>
+        </div>
+        <!--exlink-->
+        <div
+          v-if="isShowExlink"
+            class="thumb-opt as-exlink"
+            @click.left.stop="OnExlink">
+            <ti-icon value="fas-link"/>
+            <span class="it-text">{{'link'|i18n}}</span>
         </div>
     </div>
     <!--//////-->
@@ -60277,76 +61020,6 @@ Ti.Preload("ti/com/web/nav/links/nav-links.mjs", TI_PACK_EXPORTS['ti/com/web/nav
 // JOIN <_com.json> ti/com/web/nav/links/_com.json
 //========================================
 Ti.Preload("ti/com/web/nav/links/_com.json", {
-  "name" : "web-nav-links",
-  "globally" : true,
-  "template" : "./nav-links.html",
-  "mixins"   : [
-    "@com:web/nav/support/web-nav-mixins.mjs",
-    "./nav-links.mjs"
-  ],
-  "components" : ["./com/link-item"]
-});
-//========================================
-// JOIN <nav-links.html> ti/com/web/nav/links/__bak/nav-links.html
-//========================================
-Ti.Preload("ti/com/web/nav/links/__bak/nav-links.html", `<nav class="web-nav-links"
-  :class="TopClass">
-  <!--=======================================-->
-  <a
-    v-for="it in TheItems"
-      :key="it.index"
-      class="link-item"
-      :class="it.className"
-      :href="it.href"
-      :target="it.target"
-      @click.left="OnClickLink($event, it)"
-      @mouseenter="OnItemMouseEnter(it)"
-      @mouseleave="OnItemMouseLeave(it)">
-      <!--Icon-->
-      <ti-icon
-        v-if="it.icon"
-          :value="it.icon"/>
-      <!--Text-->
-      <span
-        v-if="it.title"
-          class="as-text">{{it.title | i18n}}</span>
-      <!--===================================-->
-      <!--SubItems-->
-      <div
-        v-if="mySubItems && mySubIndex == it.index"
-          class="sub-items">
-          <div class="items-con">
-            <a
-              v-for="sub in mySubItems"
-                :key="sub.index"
-                class="sub-item"
-                :class="sub.className"
-                :href="sub.href"
-                :target="sub.target"
-                @click.left="OnClickLink($event, sub)">
-                <!--Icon-->
-                <ti-icon
-                  v-if="sub.icon"
-                    :value="sub.icon"/>
-                <!--Text-->
-                <span
-                  v-if="sub.title"
-                    class="as-text">{{sub.title | i18n}}</span>
-            </a>
-          </div>
-      </div>
-      <!--===================================-->
-  </a>
-  <!--=======================================-->
-</nav>`);
-//========================================
-// JOIN <nav-links.mjs> ti/com/web/nav/links/__bak/nav-links.mjs
-//========================================
-Ti.Preload("ti/com/web/nav/links/__bak/nav-links.mjs", TI_PACK_EXPORTS['ti/com/web/nav/links/__bak/nav-links.mjs']);
-//========================================
-// JOIN <_com.json> ti/com/web/nav/links/__bak/_com.json
-//========================================
-Ti.Preload("ti/com/web/nav/links/__bak/_com.json", {
   "name" : "web-nav-links",
   "globally" : true,
   "template" : "./nav-links.html",
@@ -64009,6 +64682,8 @@ Ti.Preload("ti/com/wn/transfer/_com.json", {
 //========================================
 Ti.Preload("ti/com/wn/upload/file/wn-upload-file.html", `<TiUploadFile
   :preview="PreviewIcon"
+  :preview-type="PreviewType"
+  :exlink="exlink"
   :width="width"
   :height="height"
   :max-width="maxWidth"
@@ -64016,9 +64691,10 @@ Ti.Preload("ti/com/wn/upload/file/wn-upload-file.html", `<TiUploadFile
   :progress="progress"
   :upload-file="uploadFile"
   :removable="removable"
-  @upload="onUpload"
-  @remove="onRemove"
-  @open="onOpen"/>`);
+  @upload="OnUpload"
+  @remove="OnRemove"
+  @exlink="OnExlink"
+  @open="OnOpen"/>`);
 //========================================
 // JOIN <wn-upload-file.mjs> ti/com/wn/upload/file/wn-upload-file.mjs
 //========================================
@@ -64910,6 +65586,14 @@ Ti.Preload("/a/load/wn.manager/wn-manager.mjs", TI_PACK_EXPORTS['/a/load/wn.mana
 // JOIN <hmaker.i18n.json> ti/i18n/en-us/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
+  "hmk-css-opacity" : "Opacity",
+  "hmk-css-object-fit" : "Obj fit",
+  "hmk-css-object-fit-fill" : "Fill",
+  "hmk-css-object-fit-contain" : "Contain",
+  "hmk-css-object-fit-cover" : "Cover",
+  "hmk-css-object-fit-none" : "None",
+  "hmk-css-object-fit-scale-down" : "Scale",
+  "hmk-css-object-position" : "Obj pos",
   "hmk-class-title-wrap" : "Title wrap",
   "hmk-class-text-wrap" : "Text wrap",
   "hmk-class-text-wrap-auto" : "Auto",
@@ -64954,7 +65638,7 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-css-grp-aspect" : "Aspect setup",
   "hmk-css-grp-measure" : "Measure setup",
   "hmk-css-border" : "Border",
-  "hmk-css-border-radius" : "Rounded",
+  "hmk-css-border-radius" : "Radius",
   "hmk-css-float" : "Float",
   "hmk-css-float-none" : "None",
   "hmk-css-float-left" : "Left",
@@ -65713,6 +66397,9 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "exlink" : "Ex-link",
+  "exlink-tip" : "Please enter a URL address",
+  "exlink-tip-img" : "Please enter an image URL address",
   "key" : "Key",
   "all" : "All",
   "attachments" : "Attachments",
@@ -66179,6 +66866,14 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-cn/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
+  "hmk-css-opacity" : "不透明度",
+  "hmk-css-object-fit" : "内容缩放",
+  "hmk-css-object-fit-fill" : "拉伸",
+  "hmk-css-object-fit-contain" : "包含",
+  "hmk-css-object-fit-cover" : "封面",
+  "hmk-css-object-fit-none" : "无",
+  "hmk-css-object-fit-scale-down" : "等比",
+  "hmk-css-object-position" : "内容位置",
   "hmk-class-title-wrap" : "标题折行",
   "hmk-class-text-wrap" : "文字折行",
   "hmk-class-text-wrap-auto" : "自动",
@@ -66982,6 +67677,9 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "exlink" : "外部链接",
+  "exlink-tip" : "请输入一个超链接地址",
+  "exlink-tip-img" : "请输入图片超链接地址",
   "key" : "键",
   "all" : "全部",
   "attachments" : "附件",
@@ -67448,6 +68146,14 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-hk/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
+   "hmk-css-opacity": "不透明度",
+   "hmk-css-object-fit": "內容縮放",
+   "hmk-css-object-fit-fill": "拉伸",
+   "hmk-css-object-fit-contain": "包含",
+   "hmk-css-object-fit-cover": "封面",
+   "hmk-css-object-fit-none": "無",
+   "hmk-css-object-fit-scale-down": "等比",
+   "hmk-css-object-position": "內容位置",
    "hmk-class-title-wrap": "標題折行",
    "hmk-class-text-wrap": "文字折行",
    "hmk-class-text-wrap-auto": "自動",
@@ -68210,6 +68916,9 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
+   "exlink": "外部鏈接",
+   "exlink-tip": "請輸入一個超鏈接地址",
+   "exlink-tip-img": "請輸入圖片超鏈接地址",
    "key": "鍵",
    "all": "全部",
    "attachments": "附件",
