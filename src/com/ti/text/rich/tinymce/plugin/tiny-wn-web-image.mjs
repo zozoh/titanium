@@ -100,6 +100,9 @@ function UpdateWebImageStyle(editor, el, data) {
   }
   //console.log(data)
   //............................................
+  Ti.Dom.formatStyle(data.imgStyle)
+  Ti.Dom.formatStyle(data.altStyle)
+  //............................................
   let conStyle = _.pick(data.imgStyle, OUTER_STYLE_NAMES)
   let imgStyle = _.omit(data.imgStyle, OUTER_STYLE_NAMES)
   let altStyle = Ti.Dom.renderCssRule(data.altStyle)
@@ -112,7 +115,7 @@ function UpdateWebImageStyle(editor, el, data) {
   if(con == img && "IMG" == con.tagName) {
     if(!Ti.Dom.closest(con, $con => Ti.Dom.hasClass($con, "as-image-con"))) {
       let $con = Ti.Dom.createElement({
-        tagName : "span",
+        tagName : "a",
         className : "wn-media as-image-con"
       })
       Ti.Dom.wrap(con, $con)
@@ -332,7 +335,7 @@ async function CmdShowWebImageProp(editor, settings) {
     IMC.img.src = `/o/content?str=id:${reo.id}`
   }
   //................................................
-  console.log(reo)
+  //console.log(reo)
   UpdateWebImageStyle(editor, IMC, reo)
   //................................................
   // clean cache
