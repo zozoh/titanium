@@ -81,6 +81,12 @@ export default {
       let offY = Math.round(pageY - startY)
       let w = Math.max(10, width  + offX)
       let h = Math.max(10, height + offY)
+
+      // Keep scale 
+      if(evt.shiftKey) {
+        h =  Math.round(w / currentHdl.scale)
+      }
+
       //console.log({offX,offY,w, h}, target)
       $ta.style.width  = w + 'px';
       $ta.style.height = h + 'px';
@@ -88,6 +94,8 @@ export default {
       // rect.height = h
       // rect.updateBy()
       let rect = Ti.Rects.createBy($ta)
+      rect.y += winIn.scrollY
+      rect.updateBy("xywh")
       UpdateHandlerStyle(rect, hdls)
     }
 
@@ -119,6 +127,7 @@ export default {
       currentHdl.startY = hR.y + winIn.scrollY
       currentHdl.width  = rect.width
       currentHdl.height = rect.height
+      currentHdl.scale = rect.width / rect.height
       // Stop selection
       $body.setAttribute("ti-tinymce-no-select", true)
       $body.contentEditable = false

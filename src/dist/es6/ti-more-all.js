@@ -1,4 +1,4 @@
-// Pack At: 2021-04-21 12:27:39
+// Pack At: 2021-04-21 12:51:13
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8239,6 +8239,24 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     })
     //..............................................
+    editor.ui.registry.addMenuItem("WnWebImgAutoScaleByWidth", {
+      text : "恢复比例",
+      onAction() {
+        let $con = GetCurrentWebImageElement(editor)
+        let IMC = GetElContext($con)
+        let scale = IMC.img.naturalWidth  / IMC.img.naturalHeight
+        let {width, height} = Ti.Rects.createBy(IMC.img)
+        height = Math.round(width / scale)
+        
+        editor.execCommand("SetWebImageStyle", editor, {
+          width, height,
+          margin: "",
+          minWidth: "", minHeight: "",
+          maxWidth: "", maxHeight: ""
+        })
+      }
+    })
+    //..............................................
     editor.ui.registry.addNestedMenuItem('WnWebImgFloat', {
       text: '文本绕图',
       getSubmenuItems: function () {
@@ -8332,7 +8350,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           && "IMG" == IMC.img.tagName
           && Ti.Dom.hasClass(IMC.img, "wn-media", "as-image")) {
           return [
-            "WnWebImgClrSize WnWebImgAutoFitWidth",
+            "WnWebImgClrSize WnWebImgAutoFitWidth WnWebImgAutoScaleByWidth",
             "WnWebImgFloat WnWebImgMargin",
             "WnWebImgProp"
           ].join(" | ")
@@ -38980,6 +38998,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let offY = Math.round(pageY - startY)
       let w = Math.max(10, width  + offX)
       let h = Math.max(10, height + offY)
+
+      // Keep scale 
+      if(evt.shiftKey) {
+        h =  Math.round(w / currentHdl.scale)
+      }
+
       //console.log({offX,offY,w, h}, target)
       $ta.style.width  = w + 'px';
       $ta.style.height = h + 'px';
@@ -38987,6 +39011,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // rect.height = h
       // rect.updateBy()
       let rect = Ti.Rects.createBy($ta)
+      rect.y += winIn.scrollY
+      rect.updateBy("xywh")
       UpdateHandlerStyle(rect, hdls)
     }
 
@@ -39018,6 +39044,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       currentHdl.startY = hR.y + winIn.scrollY
       currentHdl.width  = rect.width
       currentHdl.height = rect.height
+      currentHdl.scale = rect.width / rect.height
       // Stop selection
       $body.setAttribute("ti-tinymce-no-select", true)
       $body.contentEditable = false

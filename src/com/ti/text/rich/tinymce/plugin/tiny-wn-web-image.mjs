@@ -398,6 +398,24 @@ export default {
       }
     })
     //..............................................
+    editor.ui.registry.addMenuItem("WnWebImgAutoScaleByWidth", {
+      text : "恢复比例",
+      onAction() {
+        let $con = GetCurrentWebImageElement(editor)
+        let IMC = GetElContext($con)
+        let scale = IMC.img.naturalWidth  / IMC.img.naturalHeight
+        let {width, height} = Ti.Rects.createBy(IMC.img)
+        height = Math.round(width / scale)
+        
+        editor.execCommand("SetWebImageStyle", editor, {
+          width, height,
+          margin: "",
+          minWidth: "", minHeight: "",
+          maxWidth: "", maxHeight: ""
+        })
+      }
+    })
+    //..............................................
     editor.ui.registry.addNestedMenuItem('WnWebImgFloat', {
       text: '文本绕图',
       getSubmenuItems: function () {
@@ -491,7 +509,7 @@ export default {
           && "IMG" == IMC.img.tagName
           && Ti.Dom.hasClass(IMC.img, "wn-media", "as-image")) {
           return [
-            "WnWebImgClrSize WnWebImgAutoFitWidth",
+            "WnWebImgClrSize WnWebImgAutoFitWidth WnWebImgAutoScaleByWidth",
             "WnWebImgFloat WnWebImgMargin",
             "WnWebImgProp"
           ].join(" | ")
