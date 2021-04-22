@@ -6,7 +6,7 @@ const WnYoutube = {
     if(!config || _.isEmpty(videoIds)) {
       return
     }
-    let {domain, thumbType} = config
+    let {domain, thumbType, coverType} = config
 
     // Get api url
     let json = JSON.stringify({
@@ -36,6 +36,7 @@ const WnYoutube = {
         publishedAt : snippet.publishedAt,
         description : snippet.description,
         thumbUrl : _.get(snippet, `thumbnails.${thumbType}.url`),
+        coverUrl : _.get(snippet, `thumbnails.${coverType}.url`),
         defaultLanguage : snippet.defaultLanguage,
         defaultAudioLanguage : snippet.defaultAudioLanguage,
         categoryId : snippet.categoryId,
@@ -242,6 +243,7 @@ const WnYoutube = {
     _.defaults(config, {
       domain,
       thumbType : "high",
+      coverType : "maxres",
       maxResults : 50,
       channelId,
       channelTitle: "No Title",

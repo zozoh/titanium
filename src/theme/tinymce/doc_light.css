@@ -2,11 +2,6 @@
   position: relative; }
 
 .ti-widget-album .album-loading-stub {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,7 +9,7 @@
   flex-wrap: wrap;
   width: 100%;
   height: 100%;
-  padding: 0.2rem;
+  padding: 0.32rem;
   font-size: 0.32rem; }
 
 .ti-widget-album > .photo-wall {

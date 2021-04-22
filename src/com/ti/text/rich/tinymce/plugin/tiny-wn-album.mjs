@@ -1,3 +1,4 @@
+const ALBUM_PREFIX = "album";
 ////////////////////////////////////////////////////
 async function pickAlbumAndInsertToDoc(editor, {
   base = "~", 
@@ -53,16 +54,16 @@ function GetAlbumWidget($album) {
   return Ti.Widget.Album.getOrCreate($album, {
     attrPrefix : "wn-obj-",
     itemToPhoto : {
-      name : "=title|nm",
+      name : "=title",
       link : "#",
-      src  : "->/o/content?str=${thumb}",
-      brief : "=brief"
+      thumb : "->/o/content?str=${thumb}",
+      src  : "->/o/content?str=id:${id}"
     }
   })
 }
 //--------------------------------------------------
-function UpdateAlbumTagInnerHtml($album, settings, {
-  album, photos, items
+async function UpdateAlbumTagInnerHtml(editor, $album, settings, {
+  album, photos, items, reloadMeta
 }={}) {
   //console.log("UpdateAlbumTagInnerHtml")
   // Bind widget and get the data
@@ -70,7 +71,13 @@ function UpdateAlbumTagInnerHtml($album, settings, {
   // If insert new album, the params will be passed
   if(!album) {
     album = AB.getData()
+    if(reloadMeta) {
+      album = await Wn.Sys.exec2(`o id:${album.id} @json -cqn`, {as:"json"})
+      album.name = album.title || album.nm
+      AB.setData(album)  
+    }
   } else {
+    album.name = album.title || album.nm
     AB.setData(album)
   }
   // Mark content editable
@@ -89,11 +96,15 @@ function UpdateAlbumTagInnerHtml($album, settings, {
     // Load and rendering
     settings.load(album).then((data)=>{
       AB.renderItems(data)
+      // Force sync content
+      editor.__rich_tinymce_com.syncContent()
     })
   }
   // Just render
   else {
     AB.renderPhotos(photos)
+    // Force sync content
+    editor.__rich_tinymce_com.syncContent()
   }
 }
 ////////////////////////////////////////////////////
@@ -115,7 +126,7 @@ function CmdInsertAlbum(editor, oAlbum) {
   }, $doc)
   
   // Update INNER HTML
-  UpdateAlbumTagInnerHtml($album, editor.wn_album_settings, {
+  UpdateAlbumTagInnerHtml(editor, $album, editor.wn_album_settings, {
     album : oAlbum
   })
   
@@ -136,7 +147,7 @@ function CmdReloadAlbum(editor, settings) {
     return
   }
   // Reload content
-  UpdateAlbumTagInnerHtml($album, settings)
+  UpdateAlbumTagInnerHtml(editor, $album, settings, {reloadMeta:true})
 }
 ////////////////////////////////////////////////////
 function GetCurrentAlbumElement(editor) {
@@ -175,8 +186,8 @@ async function CmdShowAlbumProp(editor, settings) {
   // Show dialog
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fab-facebook",
-    title : "编辑相册属性",
+    icon  : "far-images",
+    title : "i18n:hmk-w-edit-album-prop",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -185,7 +196,7 @@ async function CmdShowAlbumProp(editor, settings) {
     result : data,
     model : {prop:"data", event:"change"},
     comType : "TiForm",
-    comConf : Ti.Widget.Album.getEditFormConfig(),
+    comConf : Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
     components : []
   })
 
@@ -195,7 +206,8 @@ async function CmdShowAlbumProp(editor, settings) {
 
   //................................................
   let photos = AB.getPhotos()
-  UpdateAlbumTagInnerHtml($album, settings, {
+  console.log("AB.getPhotos", photos)
+  UpdateAlbumTagInnerHtml(editor, $album, settings, {
     album:reo, photos
   })
   //................................................
@@ -227,7 +239,7 @@ export default {
         race : "FILE",
         mime : "^image\/"
       })
-      let KF = '^(id|thumb|sha1|nm|title|mime|tp|width|height)$'
+      let KF = '^(id|thumb|sha1|nm|title|mime|tp|width|height|len)$'
       return await Wn.Sys.exec2(
         `o @query '${match}' @json '${KF}' -cqnl`, {
           as:"json"
@@ -247,7 +259,7 @@ export default {
     let {
       CMD_SET_STYLE, CMD_RELOAD, CMD_PROP
     } = Ti.Widget.Album.registryTinyMceMenuItem(editor, {
-      prefix : "album",
+      prefix : ALBUM_PREFIX,
       settings,
       GetCurrentAlbumElement
     })
@@ -263,7 +275,7 @@ export default {
       let els = editor.$('.wn-media.as-album')
       for(let i=0; i<els.length; i++) {
         let el = els[i]
-        UpdateAlbumTagInnerHtml(el, settings)
+        UpdateAlbumTagInnerHtml(editor, el, settings)
       }
     })
     //..............................................

@@ -1,4 +1,4 @@
-// Pack At: 2021-04-21 12:51:13
+// Pack At: 2021-04-23 03:39:38
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -3057,7 +3057,7 @@ const Youtube = (function(){
       if(!config || _.isEmpty(videoIds)) {
         return
       }
-      let {domain, thumbType} = config
+      let {domain, thumbType, coverType} = config
   
       // Get api url
       let json = JSON.stringify({
@@ -3087,6 +3087,7 @@ const Youtube = (function(){
           publishedAt : snippet.publishedAt,
           description : snippet.description,
           thumbUrl : _.get(snippet, `thumbnails.${thumbType}.url`),
+          coverUrl : _.get(snippet, `thumbnails.${coverType}.url`),
           defaultLanguage : snippet.defaultLanguage,
           defaultAudioLanguage : snippet.defaultAudioLanguage,
           categoryId : snippet.categoryId,
@@ -3293,6 +3294,7 @@ const Youtube = (function(){
       _.defaults(config, {
         domain,
         thumbType : "high",
+        coverType : "maxres",
         maxResults : 50,
         channelId,
         channelTitle: "No Title",
@@ -3346,7 +3348,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210421.125114"
+const WALNUT_VERSION = "1.2-20210423.033939"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

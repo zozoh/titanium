@@ -247,7 +247,7 @@ async function CmdShowWebImageProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fas-image",
-    title : "编辑图片属性",
+    title : "i18n:hmk-w-edit-img-prop",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -260,9 +260,9 @@ async function CmdShowWebImageProp(editor, settings) {
       onlyFields : false,
       spacing : "tiny",
       fields : [{
-        title : "图片信息",
+        title : "i18n:hmk-w-edit-img-info",
         fields: [{
-            title : "图片",
+            title : "i18n:hmk-w-edit-img-pic",
             name  : "id",
             comType : "WnObjPicker",
             comConf : {
@@ -271,15 +271,15 @@ async function CmdShowWebImageProp(editor, settings) {
               titleEditable : false
             }
           }, {
-            title : "i18n:title",
+            title : "i18n:hmk-w-edit-img-title",
             name  : "title",
             comType : "TiInput",
             comConf : {
-              placeholder : "请输入图片的标题"
+              placeholder : "i18n:hmk-w-edit-img-title-tip"
             }
           }]
       }, {
-        title : "样式外观",
+        title : "i18n:hmk-aspect",
         fields : [
           Wn.Hm.getCssPropField("margin",{name:"imgStyle.margin"}),
             Wn.Hm.getCssPropField("width",{name:"imgStyle.width"}),
@@ -288,9 +288,9 @@ async function CmdShowWebImageProp(editor, settings) {
             Wn.Hm.getCssPropField("object-fit",{name:"imgStyle.objectFit"}),
           ]
       }, {
-        title : "高级样式",
+        title : "i18n:hmk-aspect-more",
         fields : [{
-            title : "图片样式",
+            title : "i18n:hmk-w-edit-img-style",
             name  : "imgStyle",
             type  : "Object",
             emptyAs : null,
@@ -299,7 +299,7 @@ async function CmdShowWebImageProp(editor, settings) {
               rules : "#IMG"
             }
           }, {
-            title : "标题样式",
+            title : "i18n:hmk-w-edit-alt-style",
             name  : "altStyle",
             type  : "Object",
             emptyAs : null,
@@ -376,7 +376,7 @@ export default {
     //..............................................
     editor.ui.registry.addMenuItem("WnWebImgClrSize", {
       icon : "edit-image",
-      text : "清除图片尺寸",
+      text : Ti.I18n.text("i18n:hmk-w-edit-img-clrsz"),
       onAction() {
         editor.execCommand("SetWebImageStyle", editor, {
           width: "", height: "",
@@ -387,7 +387,7 @@ export default {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnWebImgAutoFitWidth", {
-      text : "自动适应宽度",
+      text : Ti.I18n.text("i18n:hmk-autofit"),
       onAction() {
         editor.execCommand("SetWebImageStyle", editor, {
           width: "100%", height: "",
@@ -399,7 +399,7 @@ export default {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnWebImgAutoScaleByWidth", {
-      text : "恢复比例",
+      text : Ti.I18n.text("i18n:hmk-autoscale"),
       onAction() {
         let $con = GetCurrentWebImageElement(editor)
         let IMC = GetElContext($con)
@@ -417,25 +417,25 @@ export default {
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnWebImgFloat', {
-      text: '文本绕图',
+      text : Ti.I18n.text("i18n:hmk-float"),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
           icon : "align-left",
-          text : "居左绕图",
+          text : Ti.I18n.text("i18n:hmk-float-left"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {float:"left"})
           }
         }, {
           type : "menuitem",
           icon : "align-right",
-          text : "居右绕图",
+          text : Ti.I18n.text("i18n:hmk-float-right"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {float:"right"})
           }
         }, {
           type : "menuitem",
-          text : "清除浮动",
+          text : Ti.I18n.text("i18n:hmk-float-clear"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {float:""})
           }
@@ -444,7 +444,7 @@ export default {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnWebImgMargin', {
-      text: '图片边距',
+      text : Ti.I18n.text("i18n:hmk-w-edit-img-margin"),
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
           let $img = GetCurrentWebImageElement(editor)
@@ -458,7 +458,7 @@ export default {
         }
         return [{
           type : "togglemenuitem",
-          text : "小边距",
+          text : Ti.I18n.text("i18n:hmk-margin-sm"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {margin:"1em"})
           },
@@ -467,7 +467,7 @@ export default {
           }
         }, {
           type : "togglemenuitem",
-          text : "中等边距",
+          text : Ti.I18n.text("i18n:hmk-margin-md"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {margin:"2em"})
           },
@@ -476,7 +476,7 @@ export default {
           }
         }, {
           type : "togglemenuitem",
-          text : "较大边距",
+          text : Ti.I18n.text("i18n:hmk-margin-lg"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {margin:"3em"})
           },
@@ -485,7 +485,7 @@ export default {
           }
         }, {
           type : "menuitem",
-          text : "清除边距",
+          text : Ti.I18n.text("i18n:hmk-margin-no"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {margin:""})
           }
@@ -494,7 +494,7 @@ export default {
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnWebImgProp", {
-      text : "图片属性",
+      text : Ti.I18n.text("i18n:hmk-w-edit-img-prop"),
       onAction() {
         editor.execCommand("ShowWebImageProp", editor, settings)
       }

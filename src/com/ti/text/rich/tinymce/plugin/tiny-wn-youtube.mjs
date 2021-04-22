@@ -5,10 +5,18 @@ async function pickYoutubeAndInsertToDoc(editor, {
   // Check meta
   let oMeta = await Wn.Io.loadMeta(meta)
   if(!oMeta) {
-    return await Ti.Toast.Open(`路径[${meta}]不存在`, "warn")
+    return await Ti.Toast.Open({
+      content : "i18n:e-ph-noexists",
+      type : "warn",
+      val: meta
+    })
   }
   if(oMeta.race != "FILE") {
-    return await Ti.Toast.Open(`对象[${meta}]非法`, "warn")
+    return await Ti.Toast.Open({
+      content : "i18n:e-obj-invalid",
+      type : "warn",
+      val: meta
+    })
   }
   meta = oMeta
 
@@ -163,7 +171,7 @@ async function CmdShowYoutubeProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fab-youtube",
-    title : "编辑Youtube视频属性",
+    title : "i18n:hmk-w-edit-yt-video",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -176,23 +184,23 @@ async function CmdShowYoutubeProp(editor, settings) {
       spacing : "tiny",
       fields : [
         {
-          title : "视频特性",
+          title : "i18n:hmk-w-edit-yt-video-features",
           name  : "allow",
           type  : "Array",
           comType : "TiBulletCheckbox",
           comConf : {
             options : [
-              {value: "accelerometer", text: "视频加速"},
-              {value: "autoplay", text: "自动播放"},
-              {value: "clipboard-write", text: "剪贴板写入"},
-              {value: "encrypted-media", text: "媒体加密"},
-              {value: "gyroscope", text: "重播"},
-              {value: "picture-in-picture", text: "画中画"}
+              {value: "accelerometer", text: "i18n:video-accelerometer"},
+              {value: "autoplay", text: "i18n:video-autoplay"},
+              {value: "clipboard-write", text: "i18n:video-clipboard-write"},
+              {value: "encrypted-media", text: "i18n:video-encrypted-media"},
+              {value: "gyroscope", text: "i18n:video-gyroscope"},
+              {value: "picture-in-picture", text: "i18n:video-pic-in-pic"}
             ]
           }
         },
         {
-          title : "允许全屏",
+          title : "i18n:allowfullscreen",
           name  : "allowfullscreen",
           type  : "Boolean",
           comType : "TiToggle"
@@ -274,39 +282,39 @@ export default {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnYoutubeClrSize", {
-      text : "清除视频尺寸",
+      text : Ti.I18n.text("i18n:hmk-w-edit-video-clrsz"),
       onAction() {
         editor.execCommand("SetVideoStyle", editor, {width:""})
       }
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnYoutubeAutoFitWidth", {
-      text : "自动适应宽度",
+      text : Ti.I18n.text("i18n:hmk-autofit"),
       onAction() {
         editor.execCommand("SetVideoStyle", editor, {width:"100%"})
       }
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnYoutubeFloat', {
-      text: '文本绕图',
+      text: 'i18n:hmk-float',
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
           icon : "align-left",
-          text : "居左绕图",
+          text : Ti.I18n.text("i18n:hmk-float-left"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {float:"left"})
           }
         }, {
           type : "menuitem",
           icon : "align-right",
-          text : "居右绕图",
+          text : Ti.I18n.text("i18n:hmk-float-right"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {float:"right"})
           }
         }, {
           type : "menuitem",
-          text : "清除浮动",
+          text : Ti.I18n.text("i18n:hmk-float-none"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {float:""})
           }
@@ -315,7 +323,7 @@ export default {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnYoutubeMargin', {
-      text: '视频边距',
+      text: 'i18n:hmk-w-edit-video-margin',
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
           let $video = GetCurrentYoutubeElement(editor)
@@ -329,7 +337,7 @@ export default {
         }
         return [{
           type : "togglemenuitem",
-          text : "小边距",
+          text : Ti.I18n.text("i18n:hmk-margin-sm"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {margin:"1em"})
           },
@@ -338,7 +346,7 @@ export default {
           }
         }, {
           type : "togglemenuitem",
-          text : "中等边距",
+          text : Ti.I18n.text("i18n:hmk-margin-md"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {margin:"2em"})
           },
@@ -347,7 +355,7 @@ export default {
           }
         }, {
           type : "togglemenuitem",
-          text : "较大边距",
+          text : Ti.I18n.text("i18n:hmk-margin-lg"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {margin:"3em"})
           },
@@ -357,14 +365,14 @@ export default {
         }, {
           type : "menuitem",
           icon : "align-center",
-          text : "边距居中",
+          text : Ti.I18n.text("i18n:hmk-margin-center"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {margin:"0 auto"})
           }
         }, {
           type : "menuitem",
           icon : "square-6",
-          text : "清除边距",
+          text : Ti.I18n.text("i18n:hmk-margin-no"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {margin:""})
           }
@@ -373,7 +381,7 @@ export default {
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnYoutubeProp", {
-      text : "视频属性",
+      text : Ti.I18n.text("i18n:hmk-w-edit-video-prop"),
       onAction() {
         editor.execCommand("ShowYoutubeProp", editor, settings)
       }

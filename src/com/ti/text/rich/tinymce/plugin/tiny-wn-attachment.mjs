@@ -169,7 +169,7 @@ async function CmdShowAttachmentProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fas-paperclip",
-    title : "编辑附件属性",
+    title : "i18n:hmk-w-edit-attachment-prop",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -191,7 +191,7 @@ async function CmdShowAttachmentProp(editor, settings) {
       },
       spacing : "tiny",
       fields : [{
-          title : "附件",
+          title : "i18n:attachments",
           name  : "oid",
           comType : "WnObjPicker",
           comConf : {
@@ -200,42 +200,42 @@ async function CmdShowAttachmentProp(editor, settings) {
             titleEditable : false
           }
         }, {
-          title : "样式",
+          title : "i18n:style",
           fields: [{
-            title : "文字大小",
+            title : "i18n:font-size",
             name  : "fontSize",
             comType : "TiInput",
             comConf : {
-              placeholder: `譬如: .16rem`
+              placeholder: `Such as: .16rem`
             }
           }, {
-            title : "文字粗细",
+            title : "i18n:font-weight",
             name  : "fontWeight",
             comType : "TiSwitcher",
             comConf : {
               options : [
-                {value: "inherit", text: "继承"},
-                {value: "normal",  text: "正常"},
-                {value: "bold",    text: "加粗"}
+                {value: "inherit", text: "i18n:inherit"},
+                {value: "normal",  text: "i18n:font-w-normal"},
+                {value: "bold",    text: "i18n:font-w-bold"}
               ]
             }
           }, {
-            title : "文字转换",
+            title : "i18n:font-transform",
             name  : "textTransform",
             comType : "TiSwitcher",
             comConf : {
               options : [
-                {value: "inherit",    text: "继承"},
-                {value: "capitalize", text: "首字母大写"},
-                {value: "uppercase",  text: "全大写"},
-                {value: "lowercase",  text: "全小写"}
+                {value: "inherit",    text: "i18n:inherit"},
+                {value: "capitalize", text: "i18n:font-t-capitalize"},
+                {value: "uppercase",  text: "i18n:font-t-uppercase"},
+                {value: "lowercase",  text: "i18n:font-t-lowercase"}
               ]
             }
           }]
         }, {
-          title : "内容设置",
+          title : "i18n:content-setup",
           fields : [{
-            title : "图标",
+            title : "i18n:icon",
             name  : "icon",
             comType : "TiInputIcon",
             comConf : {
@@ -269,11 +269,11 @@ async function CmdShowAttachmentProp(editor, settings) {
               ]
             }
           }, {
-            title : "标题",
+            title : "i18n:title",
             name  : "title",
             comType : "TiInput"
           }, {
-            title : "名称",
+            title : "i18n:name",
             name  : "nm"
           }]
         }]
@@ -366,7 +366,7 @@ export default {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnAttachmentClrStyle", {
-      text : "清除附件样式",
+      text : Ti.I18n.text("清除附件样式"),
       onAction() {
         editor.execCommand("CmdSetAttachmentStyle", editor, {
           fontSize : null,
@@ -377,35 +377,35 @@ export default {
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnAttachmentFontSize', {
-      text: '文字大小',
+      text: Ti.I18n.text("文字大小"),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
-          text : "特小",
+          text : Ti.I18n.text("特小"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontSize:".8em"})
           }
         }, {
           type : "menuitem",
-          text : "较小",
+          text : Ti.I18n.text("较小"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontSize:".9em"})
           }
         }, {
           type : "menuitem",
-          text : "正常",
+          text : Ti.I18n.text("正常"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontSize:"1em"})
           }
         }, {
           type : "menuitem",
-          text : "较大",
+          text : Ti.I18n.text("较大"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontSize:"1.2em"})
           }
         }, {
           type : "menuitem",
-          text : "特大",
+          text : Ti.I18n.text("特大"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontSize:"1.5em"})
           }
@@ -414,23 +414,23 @@ export default {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnAttachmentFontWeight', {
-      text: '文字粗细',
+      text: Ti.I18n.text("文字粗细"),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
-          text : "继承",
+          text : Ti.I18n.text("继承"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontWeight:"inherit"})
           }
         }, {
           type : "menuitem",
-          text : "正常",
+          text : Ti.I18n.text("正常"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontWeight:"normal"})
           }
         }, {
           type : "menuitem",
-          text : "加粗",
+          text : Ti.I18n.text("加粗"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontWeight:"bold"})
           }
@@ -439,11 +439,11 @@ export default {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnAttachmentTextTransform', {
-      text: '文字转换',
+      text: Ti.I18n.text("文字转换"),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
-          text : "继承",
+          text : Ti.I18n.text("继承"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {
               textTransform: "inherit"
@@ -451,7 +451,7 @@ export default {
           }
         }, {
           type : "menuitem",
-          text : "首字母大写",
+          text : Ti.I18n.text("首字母大写"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {
               textTransform: "capitalize"
@@ -459,7 +459,7 @@ export default {
           }
         }, {
           type : "menuitem",
-          text : "全大写",
+          text : Ti.I18n.text("全大写"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {
               textTransform: "uppercase"
@@ -467,7 +467,7 @@ export default {
           }
         }, {
           type : "menuitem",
-          text : "全小写",
+          text : Ti.I18n.text("全小写"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {
               textTransform: "lowercase"
@@ -478,7 +478,7 @@ export default {
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnAttachmentProp", {
-      text : "附件属性",
+      text : Ti.I18n.text("附件属性"),
       onAction() {
         editor.execCommand("ShowAttachmentProp", editor, settings)
       }

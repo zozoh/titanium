@@ -1,27 +1,56 @@
 ////////////////////////////////////////////
+/***
+ * @param images{Array} : [{height,width,source:"https://xxx"}]
+ * @param thumbMinHeight{Integer} :
+ *  The min height, -1 mean the max one, 0 mean the min one.
+ *  If a `>0` number has been given, it will find the closest image
+ */
 function getThumbImage(images=[], thumbMinHeight=320) {
-  // Sort by image height
-  images.sort((im1, im2)=>{
-    return im1.height - im2.height
-  })
   // Find the closest one
+  let minImg;
+  let maxImg;
+  let fitImg;
   for(let img of images) {
-    if(img.height >= thumbMinHeight) {
-      return img
+    // Min image
+    if(!minImg) {
+      minImg = img
+      fitImg = img
+    }
+    else if(img.height < minImg.height) {
+      minImg = img
+    }
+    // Fit image
+    if(thumbMinHeight > 0
+      && fitImg.height > thumbMinHeight
+      && img.height <= thumbMinHeight) {
+      fitImg = img
+    }
+    // Max Image
+    if(!maxImg) {
+      maxImg = img
+    }
+    else if(img.height > maxImg.height) {
+      maxImg = img
     }
   }
-  return _.first(images)
+  if(thumbMinHeight < 0) {
+    return maxImg
+  }
+  if(thumbMinHeight == 0) {
+    return minImg
+  }
+  return fitImg
 }
 //------------------------------------------
 function setImages(obj, images=[], {
   preview = {type : "font", value : "fas-images"},
   thumbMinHeight = 320
 }={}) {
-  let orgImg = _.first(images)
   let thumbImg = getThumbImage(images, thumbMinHeight)
-  obj.width = _.get(orgImg, "width")
-  obj.height = _.get(orgImg, "height")
-  obj.src = _.get(orgImg, "source")
+  let realImg =  getThumbImage(images, -1)
+  obj.width = _.get(realImg, "width")
+  obj.height = _.get(realImg, "height")
+  obj.src = _.get(realImg, "source")
   obj.thumb_src = _.get(thumbImg, "source")
 
   if(obj.thumb_src) {
@@ -61,7 +90,7 @@ const TiApiFacebook = {
 
     // Setup thumb src
     for(let photo of data) {
-      setImages(photo, photo.images)   
+      TiApiFacebook.setObjPreview(photo, photo.images)
     }
 
     return data

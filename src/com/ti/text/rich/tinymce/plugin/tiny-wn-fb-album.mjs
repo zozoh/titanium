@@ -1,15 +1,16 @@
+const ALBUM_PREFIX = "FbAlbum";
 ////////////////////////////////////////////////////
 async function pickFbAlbumAndInsertToDoc(editor, settings) {
   let {metas} = await settings.load()
   if(metas.length == 0) {
-    return await Ti.Toast.Open("找不到配置信息", "warn")
+    return await Ti.Toast.Open("i18n:hmk-config-nil", "warn")
   }
 
   // Get the meta
   let meta;
   if(metas.length > 1) {
     let metaId = await Ti.App.Open({
-      title : "选择配置信息",
+      title : "i18n:hmk-config-choose",
       width : 480,
       height : 480,
       comType : "TiBulletRadio",
@@ -59,14 +60,15 @@ function GetAlbumWidget($album) {
   return Ti.Widget.Album.getOrCreate($album, {
     attrPrefix : "wn-fb-",
     itemToPhoto : {
-      name : "=name",
-      link : "=link",
-      src  : "=thumb_src"
+      name  : "=name",
+      link  : "=link",
+      thumb : "=thumb_src",
+      src   : "=src"
     }
   })
 }
 //--------------------------------------------------
-function UpdateFbAlbumTagInnerHtml($album, settings, {
+function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
   album, photos, items
 }={}) {
   //console.log("UpdateFbAlbumTagInnerHtml")
@@ -101,12 +103,16 @@ function UpdateFbAlbumTagInnerHtml($album, settings, {
       }).then((items)=>{
         //console.log(items)
         AB.renderItems(items)
+        // Force sync content
+        editor.__rich_tinymce_com.syncContent()
       })
     })
   }
   // Just render
   else {
     AB.renderPhotos(photos)
+    // Force sync content
+    editor.__rich_tinymce_com.syncContent()
   }
 }
 ////////////////////////////////////////////////////
@@ -128,7 +134,7 @@ function CmdInsertAlbum(editor, fbAlbum) {
   }, $doc)
 
   // Update INNER HTML
-  UpdateFbAlbumTagInnerHtml($album, editor.wn_facebook_settings, {
+  UpdateFbAlbumTagInnerHtml(editor, $album, editor.wn_facebook_settings, {
     album : fbAlbum
   })
   
@@ -149,7 +155,7 @@ function CmdReloadAlbum(editor, settings) {
     return
   }
   // Reload content
-  UpdateFbAlbumTagInnerHtml($album, settings)
+  UpdateFbAlbumTagInnerHtml(editor, $album, settings)
 }
 ////////////////////////////////////////////////////
 function GetCurrentAlbumElement(editor) {
@@ -186,7 +192,7 @@ async function CmdShowAlbumProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fab-facebook",
-    title : "编辑Facebook相册属性",
+    title : "i18n:hmk-w-edit-fb-album-prop",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -195,7 +201,7 @@ async function CmdShowAlbumProp(editor, settings) {
     result : data,
     model : {prop:"data", event:"change"},
     comType : "TiForm",
-    comConf : Ti.Widget.Album.getEditFormConfig(),
+    comConf : Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
     components : []
   })
 
@@ -205,7 +211,7 @@ async function CmdShowAlbumProp(editor, settings) {
 
   //................................................
   let photos = AB.getPhotos()
-  UpdateFbAlbumTagInnerHtml($album, settings, {
+  UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
     album:reo, photos
   })
   //................................................
@@ -218,7 +224,7 @@ async function CmdShowAlbumProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 export default {
-  name : "wn-fb-albums",
+  name : "wn-fb-album",
   //------------------------------------------------
   init : function(conf={}) {
   },
@@ -239,7 +245,11 @@ export default {
       }
       let oMeta = await Wn.Io.loadMeta(this.meta)
       if(!oMeta) {
-        return await Ti.Toast.Open(`路径[${this.meta}]不存在`, "warn")
+        return await Ti.Toast.Open({
+          content : "i18n:e-ph-noexists",
+          type : "warn",
+          val: this.meta
+        })
       }
       // DIR, loading setting map
       if("DIR" == oMeta.race) {
@@ -283,7 +293,7 @@ export default {
     let {
       CMD_SET_STYLE, CMD_RELOAD, CMD_PROP
     } = Ti.Widget.Album.registryTinyMceMenuItem(editor, {
-      prefix : "FbAlbums",
+      prefix : ALBUM_PREFIX,
       settings,
       GetCurrentAlbumElement
     })
@@ -299,14 +309,14 @@ export default {
       let els = editor.$('.wn-media.as-fb-album')
       for(let i=0; i<els.length; i++) {
         let el = els[i]
-        UpdateFbAlbumTagInnerHtml(el, settings)
+        UpdateFbAlbumTagInnerHtml(editor, el, settings)
       }
     })
     //..............................................
     return {
       getMetadata: function () {
         return  {
-          name: 'Wn Facebook plugin',
+          name: 'Wn Facebook Album plugin',
           url: 'http://site0.cn'
         };
       }

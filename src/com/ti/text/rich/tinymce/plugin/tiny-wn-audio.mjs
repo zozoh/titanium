@@ -160,7 +160,7 @@ async function CmdShowAudioProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fas-image",
-    title : "编辑音频属性",
+    title : "i18n:hmk-w-edit-audio-prop",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -172,7 +172,7 @@ async function CmdShowAudioProp(editor, settings) {
     comConf : {
       spacing : "tiny",
       fields : [{
-          title : "音频",
+          title : "i18n:audio",
           name  : "oid",
           comType : "WnObjPicker",
           comConf : {
@@ -181,58 +181,70 @@ async function CmdShowAudioProp(editor, settings) {
             titleEditable : false
           }
         }, {
-          title : "尺寸",
+          title : "i18n:size",
           fields: [{
-            title : "宽度",
+            title : "i18n:width",
             name  : "width",
             comType : "TiInput"
           }, {
-            title : "高度",
+            title : "i18n:height",
             name  : "height",
             comType : "TiInput"
           }]
         }, {
-          title : "文本绕图",
+          title : "i18n:hmk-float",
           name  : "float",
           comType : "TiSwitcher",
           comConf : {
             allowEmpty : false,
             options : [
-              {value: "none",  text: "不绕图", icon:"fas-align-justify"},
-              {value: "left",  text: "左绕图", icon:"fas-align-left"},
-              {value: "right", text: "右绕图", icon:"fas-align-right"},]
+              {
+                icon:"fas-align-justify",
+                value: "none",
+                text: "i18n:hmk-float-none"
+              },
+              {
+                icon:"fas-align-left",
+                value: "left",
+                text: "i18n:hmk-float-left"
+              },
+              {
+                icon:"fas-align-right",
+                value: "right",
+                text: "i18n:hmk-float-right"
+              }]
           }
         }, {
-          title : "音频距",
+          title : "i18n:hmk-w-edit-audio-margin",
           fields : [{
-            title : "上",
-            name  : "marginTop",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "右",
-            name  : "marginRight",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "下",
-            name  : "marginBottom",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "左",
-            name  : "marginLeft",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }]
+              title : "i18n:top",
+              name  : "marginTop",
+              comType : "TiInput",
+              comConf : {
+                placeholder : "0px"
+              }
+            }, {
+              title : "i18n:right",
+              name  : "marginRight",
+              comType : "TiInput",
+              comConf : {
+                placeholder : "0px"
+              }
+            }, {
+              title : "i18n:bottom",
+              name  : "marginBottom",
+              comType : "TiInput",
+              comConf : {
+                placeholder : "0px"
+              }
+            }, {
+              title : "i18n:left",
+              name  : "marginLeft",
+              comType : "TiInput",
+              comConf : {
+                placeholder : "0px"
+              }
+            }]
         }]
     },
     components : [
@@ -321,39 +333,39 @@ export default {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnAudioClrSize", {
-      text : "清除音频尺寸",
+      text : Ti.I18n.text("i18n:hmk-w-edit-audio-clrsz"),
       onAction() {
         editor.execCommand("SetAudioSize", editor)
       }
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnAudioAutoFitWidth", {
-      text : "自动适应宽度",
+      text : Ti.I18n.text("i18n:hmk-autofit"),
       onAction() {
         editor.execCommand("SetAudioSize", editor, {width:"100%"})
       }
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnAudioFloat', {
-      text: '文本绕图',
+      text: 'i18n:hmk-float',
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
           icon : "align-left",
-          text : "居左绕图",
+          text : Ti.I18n.text("i18n:hmk-float-left"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {float:"left"})
           }
         }, {
           type : "menuitem",
           icon : "align-right",
-          text : "居右绕图",
+          text : Ti.I18n.text("i18n:hmk-float-right"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {float:"right"})
           }
         }, {
           type : "menuitem",
-          text : "清除浮动",
+          text : Ti.I18n.text("i18n:hmk-float-clear"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {float:""})
           }
@@ -362,7 +374,7 @@ export default {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnAudioMargin', {
-      text: '音频边距',
+      text : Ti.I18n.text("i18n:hmk-w-edit-audio-margin"),
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
           let $audio = GetCurrentAudioElement(editor)
@@ -376,7 +388,7 @@ export default {
         }
         return [{
           type : "togglemenuitem",
-          text : "小边距",
+          text : Ti.I18n.text("i18n:hmk-margin-sm"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {margin:"1em"})
           },
@@ -385,7 +397,7 @@ export default {
           }
         }, {
           type : "togglemenuitem",
-          text : "中等边距",
+          text : Ti.I18n.text("i18n:hmk-margin-md"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {margin:"2em"})
           },
@@ -394,7 +406,7 @@ export default {
           }
         }, {
           type : "togglemenuitem",
-          text : "较大边距",
+          text : Ti.I18n.text("i18n:hmk-margin-lg"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {margin:"3em"})
           },
@@ -403,7 +415,7 @@ export default {
           }
         }, {
           type : "menuitem",
-          text : "清除边距",
+          text : Ti.I18n.text("i18n:hmk-margin-no"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {margin:""})
           }
@@ -412,7 +424,7 @@ export default {
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnAudioProp", {
-      text : "音频属性",
+      text : Ti.I18n.text("i18n:hmk-w-edit-audio-prop"),
       onAction() {
         editor.execCommand("ShowAudioProp", editor, settings)
       }

@@ -1,3 +1,4 @@
+const ALBUM_PREFIX = "YtPlaylist";
 ////////////////////////////////////////////////////
 async function pickYtPlaylistAndInsertToDoc(editor, settings) {
   // Load information
@@ -59,16 +60,17 @@ function GetAlbumWidget($album) {
     itemToPhoto : {
       name  : "=title",
       link  : "->https://www.youtube.com/watch?v=${id}",
-      src   : "=thumbUrl",
+      thumb : "=thumbUrl",
+      src   : "=coverUrl",
       brief : "=description",
     }
   })
 }
 //--------------------------------------------------
-function UpdateYtPlaylistTagInnerHtml($album, settings, {
+function UpdateYtPlaylistTagInnerHtml(editor, $album, settings, {
   album, photos, items
 }={}) {
-  //console.log("UpdateYtPlaylistTagInnerHtml")
+  console.log("UpdateYtPlaylistTagInnerHtml")
   // Bind widget and get the data
   let AB = GetAlbumWidget($album);
   // If insert new album, the params will be passed
@@ -95,11 +97,15 @@ function UpdateYtPlaylistTagInnerHtml($album, settings, {
     settings.loadVideos(album).then((data)=>{
       //console.log("load PL videos", data)
       AB.renderItems(data)
+      // Force sync content
+      editor.__rich_tinymce_com.syncContent()
     })
   }
   // Just render
   else {
     AB.renderPhotos(photos)
+    // Force sync content
+    editor.__rich_tinymce_com.syncContent()
   }
 }
 ////////////////////////////////////////////////////
@@ -121,7 +127,7 @@ function CmdInsertAlbum(editor, ytPlaylist) {
   }, $doc)
 
   // Update INNER HTML
-  UpdateYtPlaylistTagInnerHtml($album, editor.wn_yt_playlist_settings, {
+  UpdateYtPlaylistTagInnerHtml(editor, $album, editor.wn_yt_playlist_settings, {
     album : ytPlaylist
   })
   
@@ -142,7 +148,7 @@ function CmdReloadAlbum(editor, settings) {
     return
   }
   // Reload content
-  UpdateYtPlaylistTagInnerHtml($album, settings)
+  UpdateYtPlaylistTagInnerHtml(editor, $album, settings)
 }
 ////////////////////////////////////////////////////
 function GetCurrentAlbumElement(editor) {
@@ -180,7 +186,7 @@ async function CmdShowAlbumProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fab-youtube-square",
-    title : "编辑播放列表属性",
+    title : "i18n:hmk-w-edit-yt-playlist",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -189,7 +195,7 @@ async function CmdShowAlbumProp(editor, settings) {
     result : data,
     model : {prop:"data", event:"change"},
     comType : "TiForm",
-    comConf : Ti.Widget.Album.getEditFormConfig(),
+    comConf : Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
     components : []
   })
   //console.log(reo)
@@ -200,7 +206,7 @@ async function CmdShowAlbumProp(editor, settings) {
 
   //................................................
   let photos = AB.getPhotos()
-  UpdateYtPlaylistTagInnerHtml($album, settings, {
+  UpdateYtPlaylistTagInnerHtml(editor, $album, settings, {
     album:reo, photos
   })
   //................................................
@@ -236,10 +242,18 @@ export default {
     settings.loadConfig = async function(){
       let oMeta = await Wn.Io.loadMeta(this.meta)
       if(!oMeta) {
-        return await Ti.Toast.Open(`路径[${meta}]不存在`, "warn")
+        return await Ti.Toast.Open({
+          content : "i18n:e-ph-noexists",
+          type : "warn",
+          val: meta
+        })
       }
       if(oMeta.race != "FILE") {
-        return await Ti.Toast.Open(`对象[${meta}]非法`, "warn")
+        return await Ti.Toast.Open({
+          content : "i18n:e-obj-invalid",
+          type : "warn",
+          val: meta
+        })
       }
 
       // Load playlists
@@ -274,7 +288,7 @@ export default {
     let {
       CMD_SET_STYLE, CMD_RELOAD, CMD_PROP
     } = Ti.Widget.Album.registryTinyMceMenuItem(editor, {
-      prefix : "YtPlaylists",
+      prefix : ALBUM_PREFIX,
       settings,
       GetCurrentAlbumElement
     })
@@ -289,7 +303,7 @@ export default {
       let els = editor.$('.wn-media.as-yt-playlist')
       for(let i=0; i<els.length; i++) {
         let el = els[i]
-        UpdateYtPlaylistTagInnerHtml(el, settings)
+        UpdateYtPlaylistTagInnerHtml(editor, el, settings)
       }
     })
     //..............................................

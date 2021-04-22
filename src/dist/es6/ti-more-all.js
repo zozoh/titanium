@@ -1,4 +1,4 @@
-// Pack At: 2021-04-21 12:51:13
+// Pack At: 2021-04-23 03:39:38
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2170,319 +2170,6 @@ const _M = {
 return _M;;
 })()
 // ============================================================
-// EXPORT 'tiny-wn-yt-playlists.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-yt-playlists.mjs'] = (function(){
-////////////////////////////////////////////////////
-async function pickYtPlaylistAndInsertToDoc(editor, settings) {
-  // Load information
-  let playlists = await settings.loadPlaylists()
-
-  // format
-  let items = _.map(playlists, pl=>{
-    return {
-      id: pl.id, title: pl.title, preview: pl.thumbUrl,
-      badges : {
-        NW : "fab-youtube-square",
-        SE : {
-          type : "text",
-          className : "bchc-badge as-label as-year",
-          value : pl.itemCount
-        }
-      }
-    }
-  })
-
-  // Check base
-  let reo = await Ti.App.Open({
-    icon  : "fab-youtube-square",
-    title : "i18n:net-youtube-add-playlist",
-    position : "top",
-    width  : "95%",
-    height : "95%",
-    model : {event:"select"},
-    comType : "TiWall",
-    comConf : {
-      data: items,
-      idBy: "id",
-      multi: false,
-      display: {
-        key : "..",
-        comType : "ti-obj-thumb",
-        comConf : {
-          "..." : "${=..}"
-        }
-      }
-    },
-    components : [
-      "@com:ti/wall"
-    ]
-  })
-
-  // User canceled
-  if(_.isEmpty(reo) || !reo.current) {
-    return
-  }
-  //console.log("YTPlaylist", reo.current)
-  // Do insert
-  editor.execCommand("InsertYtPlaylist", editor, reo.current)
-}
-//--------------------------------------------------
-function GetAlbumWidget($album) {
-  return Ti.Widget.Album.getOrCreate($album, {
-    attrPrefix : "wn-ytpl-",
-    itemToPhoto : {
-      name  : "=title",
-      link  : "->https://www.youtube.com/watch?v=${id}",
-      src   : "=thumbUrl",
-      brief : "=description",
-    }
-  })
-}
-//--------------------------------------------------
-function UpdateYtPlaylistTagInnerHtml($album, settings, {
-  album, photos, items
-}={}) {
-  //console.log("UpdateYtPlaylistTagInnerHtml")
-  // Bind widget and get the data
-  let AB = GetAlbumWidget($album);
-  // If insert new album, the params will be passed
-  if(!album) {
-    album = AB.getData()
-  } else {
-    AB.setData(album)
-  }
-  // Mark content editable
-  $album.contentEditable = false
-
-  // Explain items to photos
-  if(items) {
-    photos = AB.covertToPhotos(items)
-  }
-  
-  // Reload photo from remote
-  if(_.isEmpty(photos)) {
-    // Show loading
-    AB.showLoading()
-
-    // Load and rendering
-    //console.log("YTPL:: setting.load")
-    settings.loadVideos(album).then((data)=>{
-      //console.log("load PL videos", data)
-      AB.renderItems(data)
-    })
-  }
-  // Just render
-  else {
-    AB.renderPhotos(photos)
-  }
-}
-////////////////////////////////////////////////////
-function CmdInsertAlbum(editor, ytPlaylist) {
-  if(!ytPlaylist)
-    return
-  
-  // Prepare range
-  let rng = editor.selection.getRng()
-  
-  // Create image fragments
-  let $doc = rng.commonAncestorContainer.ownerDocument
-  let $album = Ti.Dom.createElement({
-    tagName : "div",
-    attrs : {
-      tiAlbumType : "yt-playlist"
-    },
-    className : "wn-media as-yt-playlist"
-  }, $doc)
-
-  // Update INNER HTML
-  UpdateYtPlaylistTagInnerHtml($album, editor.wn_yt_playlist_settings, {
-    album : ytPlaylist
-  })
-  
-  // Remove content
-  if(!rng.collapsed) {
-    rng.deleteContents()
-  }
-
-  // Insert fragments
-  rng.insertNode($album)
-
-}
-////////////////////////////////////////////////////
-function CmdReloadAlbum(editor, settings) {
-  let $album = GetCurrentAlbumElement(editor)
-  // Guard
-  if(!_.isElement($album)) {
-    return
-  }
-  // Reload content
-  UpdateYtPlaylistTagInnerHtml($album, settings)
-}
-////////////////////////////////////////////////////
-function GetCurrentAlbumElement(editor) {
-  let sel = editor.selection
-  let $nd = sel.getNode()
-  // Guard
-  return Ti.Dom.closest($nd, (el)=>{
-    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-yt-playlist")
-  })
-}
-////////////////////////////////////////////////////
-function CmdSetAlbumStyle(editor, css={}) {
-  let $album = GetCurrentAlbumElement(editor)
-  // Guard
-  if(!_.isElement($album)) {
-    return
-  }
-  // Clear float
-  Ti.Dom.setStyle($album, css)
-  // Force sync content
-  editor.__rich_tinymce_com.syncContent()
-}
-////////////////////////////////////////////////////
-async function CmdShowAlbumProp(editor, settings) {
-  let $album = GetCurrentAlbumElement(editor)
-  // Guard
-  if(!_.isElement($album)) {
-    return
-  }
-  // Gen the properties
-  let AB = GetAlbumWidget($album)
-  let data = AB.getData()
-  //console.log(data)
-
-  // Show dialog
-  let reo = await Ti.App.Open({
-    icon  : "fab-youtube-square",
-    title : "编辑播放列表属性",
-    width  : "37%",
-    height : "100%",
-    position : "right",
-    closer : "left",
-    clickMaskToClose : true,
-    result : data,
-    model : {prop:"data", event:"change"},
-    comType : "TiForm",
-    comConf : Ti.Widget.Album.getEditFormConfig(),
-    components : []
-  })
-  //console.log(reo)
-
-  // 用户取消
-  if(!reo)
-    return
-
-  //................................................
-  let photos = AB.getPhotos()
-  UpdateYtPlaylistTagInnerHtml($album, settings, {
-    album:reo, photos
-  })
-  //................................................
-  // clean cache
-  $album.removeAttribute("data-mce-src")
-  $album.removeAttribute("data-mce-style")
-  //................................................
-  // Force sync content
-  editor.__rich_tinymce_com.syncContent()
-}
-////////////////////////////////////////////////////
-const __TI_MOD_EXPORT_VAR_NM = {
-  name : "wn-yt-playlists",
-  //------------------------------------------------
-  init : function(conf={}) {
-  },
-  //------------------------------------------------
-  setup : function(editor, url){
-    //..............................................
-    let settings = _.assign({
-      meta : "~"
-    }, _.get(editor.settings, "wn_yt_playlist_config"));
-    //console.log("setup", editor.settings)
-    //..............................................
-    // Reload meta content
-    settings.loadVideos = async function({id}){
-      if(!this.config) {
-        await this.loadConfig()
-      }
-      return await Wn.Youtube.getAllVideos(this.config, id)
-    }
-    //..............................................
-    settings.loadConfig = async function(){
-      let oMeta = await Wn.Io.loadMeta(this.meta)
-      if(!oMeta) {
-        return await Ti.Toast.Open(`路径[${meta}]不存在`, "warn")
-      }
-      if(oMeta.race != "FILE") {
-        return await Ti.Toast.Open(`对象[${meta}]非法`, "warn")
-      }
-
-      // Load playlists
-      let {domain, channelId} = await Wn.Io.loadContent(oMeta, {as:"json"})
-      this.domain = domain
-      this.channelId = channelId
-      this.config = await Wn.Youtube.loadConfig({
-        domain, channelId
-      })
-      return this.config
-    }
-    //..............................................
-    settings.loadPlaylists = async function(){
-      // Loaded already!
-      if(!this.config) {
-        await this.loadConfig()
-      }
-      return await Wn.Youtube.getAllPlaylists(this.config)
-    }
-    //..............................................
-    editor.wn_yt_playlist_settings = settings
-    //..............................................
-    // Register toolbar actions
-    editor.ui.registry.addButton("WnYtPlaylistPick", {
-      icon : "youtube-square-brands",
-      tooltip : Ti.I18n.text("i18n:album-insert"),
-      onAction : function(menuBtn) {
-        pickYtPlaylistAndInsertToDoc(editor, settings)
-      },
-    })
-    //..............................................
-    let {
-      CMD_SET_STYLE, CMD_RELOAD, CMD_PROP
-    } = Ti.Widget.Album.registryTinyMceMenuItem(editor, {
-      prefix : "YtPlaylists",
-      settings,
-      GetCurrentAlbumElement
-    })
-    //..............................................
-    // Register plugin command
-    editor.addCommand("InsertYtPlaylist", CmdInsertAlbum)
-    editor.addCommand(CMD_SET_STYLE,   CmdSetAlbumStyle)
-    editor.addCommand(CMD_RELOAD,      CmdReloadAlbum)
-    editor.addCommand(CMD_PROP,        CmdShowAlbumProp)
-    //..............................................
-    editor.on("SetContent", function() {
-      let els = editor.$('.wn-media.as-yt-playlist')
-      for(let i=0; i<els.length; i++) {
-        let el = els[i]
-        UpdateYtPlaylistTagInnerHtml(el, settings)
-      }
-    })
-    //..............................................
-    return {
-      getMetadata: function () {
-        return  {
-          name: 'Wn Youtube playlist plugin',
-          url: 'http://site0.cn'
-        };
-      }
-    };
-    //..............................................
-  }
-  //------------------------------------------------
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
 // EXPORT 'ti-combo-sorter-props.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/combo/sorter/ti-combo-sorter-props.mjs'] = (function(){
@@ -4237,6 +3924,333 @@ const _M = {
   //////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'tiny-wn-yt-playlist.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-yt-playlist.mjs'] = (function(){
+const ALBUM_PREFIX = "YtPlaylist";
+////////////////////////////////////////////////////
+async function pickYtPlaylistAndInsertToDoc(editor, settings) {
+  // Load information
+  let playlists = await settings.loadPlaylists()
+
+  // format
+  let items = _.map(playlists, pl=>{
+    return {
+      id: pl.id, title: pl.title, preview: pl.thumbUrl,
+      badges : {
+        NW : "fab-youtube-square",
+        SE : {
+          type : "text",
+          className : "bchc-badge as-label as-year",
+          value : pl.itemCount
+        }
+      }
+    }
+  })
+
+  // Check base
+  let reo = await Ti.App.Open({
+    icon  : "fab-youtube-square",
+    title : "i18n:net-youtube-add-playlist",
+    position : "top",
+    width  : "95%",
+    height : "95%",
+    model : {event:"select"},
+    comType : "TiWall",
+    comConf : {
+      data: items,
+      idBy: "id",
+      multi: false,
+      display: {
+        key : "..",
+        comType : "ti-obj-thumb",
+        comConf : {
+          "..." : "${=..}"
+        }
+      }
+    },
+    components : [
+      "@com:ti/wall"
+    ]
+  })
+
+  // User canceled
+  if(_.isEmpty(reo) || !reo.current) {
+    return
+  }
+  //console.log("YTPlaylist", reo.current)
+  // Do insert
+  editor.execCommand("InsertYtPlaylist", editor, reo.current)
+}
+//--------------------------------------------------
+function GetAlbumWidget($album) {
+  return Ti.Widget.Album.getOrCreate($album, {
+    attrPrefix : "wn-ytpl-",
+    itemToPhoto : {
+      name  : "=title",
+      link  : "->https://www.youtube.com/watch?v=${id}",
+      thumb : "=thumbUrl",
+      src   : "=coverUrl",
+      brief : "=description",
+    }
+  })
+}
+//--------------------------------------------------
+function UpdateYtPlaylistTagInnerHtml(editor, $album, settings, {
+  album, photos, items
+}={}) {
+  console.log("UpdateYtPlaylistTagInnerHtml")
+  // Bind widget and get the data
+  let AB = GetAlbumWidget($album);
+  // If insert new album, the params will be passed
+  if(!album) {
+    album = AB.getData()
+  } else {
+    AB.setData(album)
+  }
+  // Mark content editable
+  $album.contentEditable = false
+
+  // Explain items to photos
+  if(items) {
+    photos = AB.covertToPhotos(items)
+  }
+  
+  // Reload photo from remote
+  if(_.isEmpty(photos)) {
+    // Show loading
+    AB.showLoading()
+
+    // Load and rendering
+    //console.log("YTPL:: setting.load")
+    settings.loadVideos(album).then((data)=>{
+      //console.log("load PL videos", data)
+      AB.renderItems(data)
+      // Force sync content
+      editor.__rich_tinymce_com.syncContent()
+    })
+  }
+  // Just render
+  else {
+    AB.renderPhotos(photos)
+    // Force sync content
+    editor.__rich_tinymce_com.syncContent()
+  }
+}
+////////////////////////////////////////////////////
+function CmdInsertAlbum(editor, ytPlaylist) {
+  if(!ytPlaylist)
+    return
+  
+  // Prepare range
+  let rng = editor.selection.getRng()
+  
+  // Create image fragments
+  let $doc = rng.commonAncestorContainer.ownerDocument
+  let $album = Ti.Dom.createElement({
+    tagName : "div",
+    attrs : {
+      tiAlbumType : "yt-playlist"
+    },
+    className : "wn-media as-yt-playlist"
+  }, $doc)
+
+  // Update INNER HTML
+  UpdateYtPlaylistTagInnerHtml(editor, $album, editor.wn_yt_playlist_settings, {
+    album : ytPlaylist
+  })
+  
+  // Remove content
+  if(!rng.collapsed) {
+    rng.deleteContents()
+  }
+
+  // Insert fragments
+  rng.insertNode($album)
+
+}
+////////////////////////////////////////////////////
+function CmdReloadAlbum(editor, settings) {
+  let $album = GetCurrentAlbumElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  // Reload content
+  UpdateYtPlaylistTagInnerHtml(editor, $album, settings)
+}
+////////////////////////////////////////////////////
+function GetCurrentAlbumElement(editor) {
+  let sel = editor.selection
+  let $nd = sel.getNode()
+  // Guard
+  return Ti.Dom.closest($nd, (el)=>{
+    return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-yt-playlist")
+  })
+}
+////////////////////////////////////////////////////
+function CmdSetAlbumStyle(editor, css={}) {
+  let $album = GetCurrentAlbumElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  // Clear float
+  Ti.Dom.setStyle($album, css)
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+async function CmdShowAlbumProp(editor, settings) {
+  let $album = GetCurrentAlbumElement(editor)
+  // Guard
+  if(!_.isElement($album)) {
+    return
+  }
+  // Gen the properties
+  let AB = GetAlbumWidget($album)
+  let data = AB.getData()
+  //console.log(data)
+
+  // Show dialog
+  let reo = await Ti.App.Open({
+    icon  : "fab-youtube-square",
+    title : "i18n:hmk-w-edit-yt-playlist",
+    width  : "37%",
+    height : "100%",
+    position : "right",
+    closer : "left",
+    clickMaskToClose : true,
+    result : data,
+    model : {prop:"data", event:"change"},
+    comType : "TiForm",
+    comConf : Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
+    components : []
+  })
+  //console.log(reo)
+
+  // 用户取消
+  if(!reo)
+    return
+
+  //................................................
+  let photos = AB.getPhotos()
+  UpdateYtPlaylistTagInnerHtml(editor, $album, settings, {
+    album:reo, photos
+  })
+  //................................................
+  // clean cache
+  $album.removeAttribute("data-mce-src")
+  $album.removeAttribute("data-mce-style")
+  //................................................
+  // Force sync content
+  editor.__rich_tinymce_com.syncContent()
+}
+////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  name : "wn-yt-playlists",
+  //------------------------------------------------
+  init : function(conf={}) {
+  },
+  //------------------------------------------------
+  setup : function(editor, url){
+    //..............................................
+    let settings = _.assign({
+      meta : "~"
+    }, _.get(editor.settings, "wn_yt_playlist_config"));
+    //console.log("setup", editor.settings)
+    //..............................................
+    // Reload meta content
+    settings.loadVideos = async function({id}){
+      if(!this.config) {
+        await this.loadConfig()
+      }
+      return await Wn.Youtube.getAllVideos(this.config, id)
+    }
+    //..............................................
+    settings.loadConfig = async function(){
+      let oMeta = await Wn.Io.loadMeta(this.meta)
+      if(!oMeta) {
+        return await Ti.Toast.Open({
+          content : "i18n:e-ph-noexists",
+          type : "warn",
+          val: meta
+        })
+      }
+      if(oMeta.race != "FILE") {
+        return await Ti.Toast.Open({
+          content : "i18n:e-obj-invalid",
+          type : "warn",
+          val: meta
+        })
+      }
+
+      // Load playlists
+      let {domain, channelId} = await Wn.Io.loadContent(oMeta, {as:"json"})
+      this.domain = domain
+      this.channelId = channelId
+      this.config = await Wn.Youtube.loadConfig({
+        domain, channelId
+      })
+      return this.config
+    }
+    //..............................................
+    settings.loadPlaylists = async function(){
+      // Loaded already!
+      if(!this.config) {
+        await this.loadConfig()
+      }
+      return await Wn.Youtube.getAllPlaylists(this.config)
+    }
+    //..............................................
+    editor.wn_yt_playlist_settings = settings
+    //..............................................
+    // Register toolbar actions
+    editor.ui.registry.addButton("WnYtPlaylistPick", {
+      icon : "youtube-square-brands",
+      tooltip : Ti.I18n.text("i18n:album-insert"),
+      onAction : function(menuBtn) {
+        pickYtPlaylistAndInsertToDoc(editor, settings)
+      },
+    })
+    //..............................................
+    let {
+      CMD_SET_STYLE, CMD_RELOAD, CMD_PROP
+    } = Ti.Widget.Album.registryTinyMceMenuItem(editor, {
+      prefix : ALBUM_PREFIX,
+      settings,
+      GetCurrentAlbumElement
+    })
+    //..............................................
+    // Register plugin command
+    editor.addCommand("InsertYtPlaylist", CmdInsertAlbum)
+    editor.addCommand(CMD_SET_STYLE,   CmdSetAlbumStyle)
+    editor.addCommand(CMD_RELOAD,      CmdReloadAlbum)
+    editor.addCommand(CMD_PROP,        CmdShowAlbumProp)
+    //..............................................
+    editor.on("SetContent", function() {
+      let els = editor.$('.wn-media.as-yt-playlist')
+      for(let i=0; i<els.length; i++) {
+        let el = els[i]
+        UpdateYtPlaylistTagInnerHtml(editor, el, settings)
+      }
+    })
+    //..............................................
+    return {
+      getMetadata: function () {
+        return  {
+          name: 'Wn Youtube playlist plugin',
+          url: 'http://site0.cn'
+        };
+      }
+    };
+    //..............................................
+  }
+  //------------------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'ti-input-datetime.mjs' -> null
@@ -8088,7 +8102,7 @@ async function CmdShowWebImageProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fas-image",
-    title : "编辑图片属性",
+    title : "i18n:hmk-w-edit-img-prop",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -8101,9 +8115,9 @@ async function CmdShowWebImageProp(editor, settings) {
       onlyFields : false,
       spacing : "tiny",
       fields : [{
-        title : "图片信息",
+        title : "i18n:hmk-w-edit-img-info",
         fields: [{
-            title : "图片",
+            title : "i18n:hmk-w-edit-img-pic",
             name  : "id",
             comType : "WnObjPicker",
             comConf : {
@@ -8112,15 +8126,15 @@ async function CmdShowWebImageProp(editor, settings) {
               titleEditable : false
             }
           }, {
-            title : "i18n:title",
+            title : "i18n:hmk-w-edit-img-title",
             name  : "title",
             comType : "TiInput",
             comConf : {
-              placeholder : "请输入图片的标题"
+              placeholder : "i18n:hmk-w-edit-img-title-tip"
             }
           }]
       }, {
-        title : "样式外观",
+        title : "i18n:hmk-aspect",
         fields : [
           Wn.Hm.getCssPropField("margin",{name:"imgStyle.margin"}),
             Wn.Hm.getCssPropField("width",{name:"imgStyle.width"}),
@@ -8129,9 +8143,9 @@ async function CmdShowWebImageProp(editor, settings) {
             Wn.Hm.getCssPropField("object-fit",{name:"imgStyle.objectFit"}),
           ]
       }, {
-        title : "高级样式",
+        title : "i18n:hmk-aspect-more",
         fields : [{
-            title : "图片样式",
+            title : "i18n:hmk-w-edit-img-style",
             name  : "imgStyle",
             type  : "Object",
             emptyAs : null,
@@ -8140,7 +8154,7 @@ async function CmdShowWebImageProp(editor, settings) {
               rules : "#IMG"
             }
           }, {
-            title : "标题样式",
+            title : "i18n:hmk-w-edit-alt-style",
             name  : "altStyle",
             type  : "Object",
             emptyAs : null,
@@ -8217,7 +8231,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     editor.ui.registry.addMenuItem("WnWebImgClrSize", {
       icon : "edit-image",
-      text : "清除图片尺寸",
+      text : Ti.I18n.text("i18n:hmk-w-edit-img-clrsz"),
       onAction() {
         editor.execCommand("SetWebImageStyle", editor, {
           width: "", height: "",
@@ -8228,7 +8242,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnWebImgAutoFitWidth", {
-      text : "自动适应宽度",
+      text : Ti.I18n.text("i18n:hmk-autofit"),
       onAction() {
         editor.execCommand("SetWebImageStyle", editor, {
           width: "100%", height: "",
@@ -8240,7 +8254,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnWebImgAutoScaleByWidth", {
-      text : "恢复比例",
+      text : Ti.I18n.text("i18n:hmk-autoscale"),
       onAction() {
         let $con = GetCurrentWebImageElement(editor)
         let IMC = GetElContext($con)
@@ -8258,25 +8272,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnWebImgFloat', {
-      text: '文本绕图',
+      text : Ti.I18n.text("i18n:hmk-float"),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
           icon : "align-left",
-          text : "居左绕图",
+          text : Ti.I18n.text("i18n:hmk-float-left"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {float:"left"})
           }
         }, {
           type : "menuitem",
           icon : "align-right",
-          text : "居右绕图",
+          text : Ti.I18n.text("i18n:hmk-float-right"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {float:"right"})
           }
         }, {
           type : "menuitem",
-          text : "清除浮动",
+          text : Ti.I18n.text("i18n:hmk-float-clear"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {float:""})
           }
@@ -8285,7 +8299,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnWebImgMargin', {
-      text: '图片边距',
+      text : Ti.I18n.text("i18n:hmk-w-edit-img-margin"),
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
           let $img = GetCurrentWebImageElement(editor)
@@ -8299,7 +8313,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
         return [{
           type : "togglemenuitem",
-          text : "小边距",
+          text : Ti.I18n.text("i18n:hmk-margin-sm"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {margin:"1em"})
           },
@@ -8308,7 +8322,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "togglemenuitem",
-          text : "中等边距",
+          text : Ti.I18n.text("i18n:hmk-margin-md"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {margin:"2em"})
           },
@@ -8317,7 +8331,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "togglemenuitem",
-          text : "较大边距",
+          text : Ti.I18n.text("i18n:hmk-margin-lg"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {margin:"3em"})
           },
@@ -8326,7 +8340,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "menuitem",
-          text : "清除边距",
+          text : Ti.I18n.text("i18n:hmk-margin-no"),
           onAction() {
             editor.execCommand("SetWebImageStyle", editor, {margin:""})
           }
@@ -8335,7 +8349,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnWebImgProp", {
-      text : "图片属性",
+      text : Ti.I18n.text("i18n:hmk-w-edit-img-prop"),
       onAction() {
         editor.execCommand("ShowWebImageProp", editor, settings)
       }
@@ -9285,21 +9299,22 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
-// EXPORT 'tiny-wn-fb-albums.mjs' -> null
+// EXPORT 'tiny-wn-fb-album.mjs' -> null
 // ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-albums.mjs'] = (function(){
+window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-album.mjs'] = (function(){
+const ALBUM_PREFIX = "FbAlbum";
 ////////////////////////////////////////////////////
 async function pickFbAlbumAndInsertToDoc(editor, settings) {
   let {metas} = await settings.load()
   if(metas.length == 0) {
-    return await Ti.Toast.Open("找不到配置信息", "warn")
+    return await Ti.Toast.Open("i18n:hmk-config-nil", "warn")
   }
 
   // Get the meta
   let meta;
   if(metas.length > 1) {
     let metaId = await Ti.App.Open({
-      title : "选择配置信息",
+      title : "i18n:hmk-config-choose",
       width : 480,
       height : 480,
       comType : "TiBulletRadio",
@@ -9349,14 +9364,15 @@ function GetAlbumWidget($album) {
   return Ti.Widget.Album.getOrCreate($album, {
     attrPrefix : "wn-fb-",
     itemToPhoto : {
-      name : "=name",
-      link : "=link",
-      src  : "=thumb_src"
+      name  : "=name",
+      link  : "=link",
+      thumb : "=thumb_src",
+      src   : "=src"
     }
   })
 }
 //--------------------------------------------------
-function UpdateFbAlbumTagInnerHtml($album, settings, {
+function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
   album, photos, items
 }={}) {
   //console.log("UpdateFbAlbumTagInnerHtml")
@@ -9391,12 +9407,16 @@ function UpdateFbAlbumTagInnerHtml($album, settings, {
       }).then((items)=>{
         //console.log(items)
         AB.renderItems(items)
+        // Force sync content
+        editor.__rich_tinymce_com.syncContent()
       })
     })
   }
   // Just render
   else {
     AB.renderPhotos(photos)
+    // Force sync content
+    editor.__rich_tinymce_com.syncContent()
   }
 }
 ////////////////////////////////////////////////////
@@ -9418,7 +9438,7 @@ function CmdInsertAlbum(editor, fbAlbum) {
   }, $doc)
 
   // Update INNER HTML
-  UpdateFbAlbumTagInnerHtml($album, editor.wn_facebook_settings, {
+  UpdateFbAlbumTagInnerHtml(editor, $album, editor.wn_facebook_settings, {
     album : fbAlbum
   })
   
@@ -9439,7 +9459,7 @@ function CmdReloadAlbum(editor, settings) {
     return
   }
   // Reload content
-  UpdateFbAlbumTagInnerHtml($album, settings)
+  UpdateFbAlbumTagInnerHtml(editor, $album, settings)
 }
 ////////////////////////////////////////////////////
 function GetCurrentAlbumElement(editor) {
@@ -9476,7 +9496,7 @@ async function CmdShowAlbumProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fab-facebook",
-    title : "编辑Facebook相册属性",
+    title : "i18n:hmk-w-edit-fb-album-prop",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -9485,7 +9505,7 @@ async function CmdShowAlbumProp(editor, settings) {
     result : data,
     model : {prop:"data", event:"change"},
     comType : "TiForm",
-    comConf : Ti.Widget.Album.getEditFormConfig(),
+    comConf : Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
     components : []
   })
 
@@ -9495,7 +9515,7 @@ async function CmdShowAlbumProp(editor, settings) {
 
   //................................................
   let photos = AB.getPhotos()
-  UpdateFbAlbumTagInnerHtml($album, settings, {
+  UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
     album:reo, photos
   })
   //................................................
@@ -9508,7 +9528,7 @@ async function CmdShowAlbumProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
-  name : "wn-fb-albums",
+  name : "wn-fb-album",
   //------------------------------------------------
   init : function(conf={}) {
   },
@@ -9529,7 +9549,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       let oMeta = await Wn.Io.loadMeta(this.meta)
       if(!oMeta) {
-        return await Ti.Toast.Open(`路径[${this.meta}]不存在`, "warn")
+        return await Ti.Toast.Open({
+          content : "i18n:e-ph-noexists",
+          type : "warn",
+          val: this.meta
+        })
       }
       // DIR, loading setting map
       if("DIR" == oMeta.race) {
@@ -9573,7 +9597,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     let {
       CMD_SET_STYLE, CMD_RELOAD, CMD_PROP
     } = Ti.Widget.Album.registryTinyMceMenuItem(editor, {
-      prefix : "FbAlbums",
+      prefix : ALBUM_PREFIX,
       settings,
       GetCurrentAlbumElement
     })
@@ -9589,14 +9613,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let els = editor.$('.wn-media.as-fb-album')
       for(let i=0; i<els.length; i++) {
         let el = els[i]
-        UpdateFbAlbumTagInnerHtml(el, settings)
+        UpdateFbAlbumTagInnerHtml(editor, el, settings)
       }
     })
     //..............................................
     return {
       getMetadata: function () {
         return  {
-          name: 'Wn Facebook plugin',
+          name: 'Wn Facebook Album plugin',
           url: 'http://site0.cn'
         };
       }
@@ -14479,7 +14503,7 @@ async function CmdShowAttachmentProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fas-paperclip",
-    title : "编辑附件属性",
+    title : "i18n:hmk-w-edit-attachment-prop",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -14501,7 +14525,7 @@ async function CmdShowAttachmentProp(editor, settings) {
       },
       spacing : "tiny",
       fields : [{
-          title : "附件",
+          title : "i18n:attachments",
           name  : "oid",
           comType : "WnObjPicker",
           comConf : {
@@ -14510,42 +14534,42 @@ async function CmdShowAttachmentProp(editor, settings) {
             titleEditable : false
           }
         }, {
-          title : "样式",
+          title : "i18n:style",
           fields: [{
-            title : "文字大小",
+            title : "i18n:font-size",
             name  : "fontSize",
             comType : "TiInput",
             comConf : {
-              placeholder: `譬如: .16rem`
+              placeholder: `Such as: .16rem`
             }
           }, {
-            title : "文字粗细",
+            title : "i18n:font-weight",
             name  : "fontWeight",
             comType : "TiSwitcher",
             comConf : {
               options : [
-                {value: "inherit", text: "继承"},
-                {value: "normal",  text: "正常"},
-                {value: "bold",    text: "加粗"}
+                {value: "inherit", text: "i18n:inherit"},
+                {value: "normal",  text: "i18n:font-w-normal"},
+                {value: "bold",    text: "i18n:font-w-bold"}
               ]
             }
           }, {
-            title : "文字转换",
+            title : "i18n:font-transform",
             name  : "textTransform",
             comType : "TiSwitcher",
             comConf : {
               options : [
-                {value: "inherit",    text: "继承"},
-                {value: "capitalize", text: "首字母大写"},
-                {value: "uppercase",  text: "全大写"},
-                {value: "lowercase",  text: "全小写"}
+                {value: "inherit",    text: "i18n:inherit"},
+                {value: "capitalize", text: "i18n:font-t-capitalize"},
+                {value: "uppercase",  text: "i18n:font-t-uppercase"},
+                {value: "lowercase",  text: "i18n:font-t-lowercase"}
               ]
             }
           }]
         }, {
-          title : "内容设置",
+          title : "i18n:content-setup",
           fields : [{
-            title : "图标",
+            title : "i18n:icon",
             name  : "icon",
             comType : "TiInputIcon",
             comConf : {
@@ -14579,11 +14603,11 @@ async function CmdShowAttachmentProp(editor, settings) {
               ]
             }
           }, {
-            title : "标题",
+            title : "i18n:title",
             name  : "title",
             comType : "TiInput"
           }, {
-            title : "名称",
+            title : "i18n:name",
             name  : "nm"
           }]
         }]
@@ -14676,7 +14700,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnAttachmentClrStyle", {
-      text : "清除附件样式",
+      text : Ti.I18n.text("清除附件样式"),
       onAction() {
         editor.execCommand("CmdSetAttachmentStyle", editor, {
           fontSize : null,
@@ -14687,35 +14711,35 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnAttachmentFontSize', {
-      text: '文字大小',
+      text: Ti.I18n.text("文字大小"),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
-          text : "特小",
+          text : Ti.I18n.text("特小"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontSize:".8em"})
           }
         }, {
           type : "menuitem",
-          text : "较小",
+          text : Ti.I18n.text("较小"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontSize:".9em"})
           }
         }, {
           type : "menuitem",
-          text : "正常",
+          text : Ti.I18n.text("正常"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontSize:"1em"})
           }
         }, {
           type : "menuitem",
-          text : "较大",
+          text : Ti.I18n.text("较大"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontSize:"1.2em"})
           }
         }, {
           type : "menuitem",
-          text : "特大",
+          text : Ti.I18n.text("特大"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontSize:"1.5em"})
           }
@@ -14724,23 +14748,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnAttachmentFontWeight', {
-      text: '文字粗细',
+      text: Ti.I18n.text("文字粗细"),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
-          text : "继承",
+          text : Ti.I18n.text("继承"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontWeight:"inherit"})
           }
         }, {
           type : "menuitem",
-          text : "正常",
+          text : Ti.I18n.text("正常"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontWeight:"normal"})
           }
         }, {
           type : "menuitem",
-          text : "加粗",
+          text : Ti.I18n.text("加粗"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {fontWeight:"bold"})
           }
@@ -14749,11 +14773,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnAttachmentTextTransform', {
-      text: '文字转换',
+      text: Ti.I18n.text("文字转换"),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
-          text : "继承",
+          text : Ti.I18n.text("继承"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {
               textTransform: "inherit"
@@ -14761,7 +14785,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "menuitem",
-          text : "首字母大写",
+          text : Ti.I18n.text("首字母大写"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {
               textTransform: "capitalize"
@@ -14769,7 +14793,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "menuitem",
-          text : "全大写",
+          text : Ti.I18n.text("全大写"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {
               textTransform: "uppercase"
@@ -14777,7 +14801,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "menuitem",
-          text : "全小写",
+          text : Ti.I18n.text("全小写"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {
               textTransform: "lowercase"
@@ -14788,7 +14812,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnAttachmentProp", {
-      text : "附件属性",
+      text : Ti.I18n.text("附件属性"),
       onAction() {
         editor.execCommand("ShowAttachmentProp", editor, settings)
       }
@@ -16707,7 +16731,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         "album" : {
           attrPrefix : "wn-obj-",
           itemToPhoto : {
-            name : "=title|nm",
+            name : "=title",
             link : "#",
             src  : (obj)=>{
               return Ti.WWW.evalObjPreviewSrc(obj, {
@@ -16726,7 +16750,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           itemToPhoto : {
             name : "=name",
             link : "=link",
-            src  : "=thumbSrc"  // "thumb_src" will be camelCase
+            thumb : "=thumbSrc",  // "thumb_src" will be camelCase
+            src   : "=src"
           }
         },
         "yt-playlist" : {
@@ -16734,7 +16759,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           itemToPhoto : {
             name : "=title",
             link : "->https://www.youtube.com/watch?v=${id}",
-            src  : "=thumbUrl",
+            thumb : "=thumbUrl",
+            src   : "=coverUrl",
             brief : "=description",
           }
         }
@@ -16742,7 +16768,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       //
       // Create widget
       //
-      let AB = Ti.Widget.Album.getOrCreate($el, setup)
+      let AB = Ti.Widget.Album.getOrCreate($el, _.assign(setup, {
+        live : true
+      }))
       
       // Redraw
       let items = AB.getItems()
@@ -34947,6 +34975,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'tiny-wn-album.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-album.mjs'] = (function(){
+const ALBUM_PREFIX = "album";
 ////////////////////////////////////////////////////
 async function pickAlbumAndInsertToDoc(editor, {
   base = "~", 
@@ -35002,16 +35031,16 @@ function GetAlbumWidget($album) {
   return Ti.Widget.Album.getOrCreate($album, {
     attrPrefix : "wn-obj-",
     itemToPhoto : {
-      name : "=title|nm",
+      name : "=title",
       link : "#",
-      src  : "->/o/content?str=${thumb}",
-      brief : "=brief"
+      thumb : "->/o/content?str=${thumb}",
+      src  : "->/o/content?str=id:${id}"
     }
   })
 }
 //--------------------------------------------------
-function UpdateAlbumTagInnerHtml($album, settings, {
-  album, photos, items
+async function UpdateAlbumTagInnerHtml(editor, $album, settings, {
+  album, photos, items, reloadMeta
 }={}) {
   //console.log("UpdateAlbumTagInnerHtml")
   // Bind widget and get the data
@@ -35019,7 +35048,13 @@ function UpdateAlbumTagInnerHtml($album, settings, {
   // If insert new album, the params will be passed
   if(!album) {
     album = AB.getData()
+    if(reloadMeta) {
+      album = await Wn.Sys.exec2(`o id:${album.id} @json -cqn`, {as:"json"})
+      album.name = album.title || album.nm
+      AB.setData(album)  
+    }
   } else {
+    album.name = album.title || album.nm
     AB.setData(album)
   }
   // Mark content editable
@@ -35038,11 +35073,15 @@ function UpdateAlbumTagInnerHtml($album, settings, {
     // Load and rendering
     settings.load(album).then((data)=>{
       AB.renderItems(data)
+      // Force sync content
+      editor.__rich_tinymce_com.syncContent()
     })
   }
   // Just render
   else {
     AB.renderPhotos(photos)
+    // Force sync content
+    editor.__rich_tinymce_com.syncContent()
   }
 }
 ////////////////////////////////////////////////////
@@ -35064,7 +35103,7 @@ function CmdInsertAlbum(editor, oAlbum) {
   }, $doc)
   
   // Update INNER HTML
-  UpdateAlbumTagInnerHtml($album, editor.wn_album_settings, {
+  UpdateAlbumTagInnerHtml(editor, $album, editor.wn_album_settings, {
     album : oAlbum
   })
   
@@ -35085,7 +35124,7 @@ function CmdReloadAlbum(editor, settings) {
     return
   }
   // Reload content
-  UpdateAlbumTagInnerHtml($album, settings)
+  UpdateAlbumTagInnerHtml(editor, $album, settings, {reloadMeta:true})
 }
 ////////////////////////////////////////////////////
 function GetCurrentAlbumElement(editor) {
@@ -35124,8 +35163,8 @@ async function CmdShowAlbumProp(editor, settings) {
   // Show dialog
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fab-facebook",
-    title : "编辑相册属性",
+    icon  : "far-images",
+    title : "i18n:hmk-w-edit-album-prop",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -35134,7 +35173,7 @@ async function CmdShowAlbumProp(editor, settings) {
     result : data,
     model : {prop:"data", event:"change"},
     comType : "TiForm",
-    comConf : Ti.Widget.Album.getEditFormConfig(),
+    comConf : Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
     components : []
   })
 
@@ -35144,7 +35183,8 @@ async function CmdShowAlbumProp(editor, settings) {
 
   //................................................
   let photos = AB.getPhotos()
-  UpdateAlbumTagInnerHtml($album, settings, {
+  console.log("AB.getPhotos", photos)
+  UpdateAlbumTagInnerHtml(editor, $album, settings, {
     album:reo, photos
   })
   //................................................
@@ -35176,7 +35216,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         race : "FILE",
         mime : "^image\/"
       })
-      let KF = '^(id|thumb|sha1|nm|title|mime|tp|width|height)$'
+      let KF = '^(id|thumb|sha1|nm|title|mime|tp|width|height|len)$'
       return await Wn.Sys.exec2(
         `o @query '${match}' @json '${KF}' -cqnl`, {
           as:"json"
@@ -35196,7 +35236,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     let {
       CMD_SET_STYLE, CMD_RELOAD, CMD_PROP
     } = Ti.Widget.Album.registryTinyMceMenuItem(editor, {
-      prefix : "album",
+      prefix : ALBUM_PREFIX,
       settings,
       GetCurrentAlbumElement
     })
@@ -35212,7 +35252,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let els = editor.$('.wn-media.as-album')
       for(let i=0; i<els.length; i++) {
         let el = els[i]
-        UpdateAlbumTagInnerHtml(el, settings)
+        UpdateAlbumTagInnerHtml(editor, el, settings)
       }
     })
     //..............................................
@@ -37547,7 +37587,7 @@ async function CmdShowVideoProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fas-film",
-    title : "编辑视频属性",
+    title : "i18n:hmk-w-edit-video-prop",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -37665,39 +37705,39 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnVideoClrSize", {
-      text : "清除视频尺寸",
+      text : Ti.I18n.text("i18n:hmk-w-edit-video-clrsz"),
       onAction() {
         editor.execCommand("SetVideoStyle", editor, {width:""})
       }
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnVideoAutoFitWidth", {
-      text : "自动适应宽度",
+      text : Ti.I18n.text("i18n:hmk-autofit"),
       onAction() {
         editor.execCommand("SetVideoStyle", editor, {width:"100%"})
       }
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnVideoFloat', {
-      text: '文本绕图',
+      text : Ti.I18n.text("i18n:hmk-float"),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
           icon : "align-left",
-          text : "居左绕图",
+          text : Ti.I18n.text("i18n:hmk-float-left"),
           onAction() {
             editor.execCommand("SetVideoStyle", editor, {float:"left"})
           }
         }, {
           type : "menuitem",
           icon : "align-right",
-          text : "居右绕图",
+          text : Ti.I18n.text("i18n:hmk-float-right"),
           onAction() {
             editor.execCommand("SetVideoStyle", editor, {float:"right"})
           }
         }, {
           type : "menuitem",
-          text : "清除浮动",
+          text : Ti.I18n.text("i18n:hmk-float-clear"),
           onAction() {
             editor.execCommand("SetVideoStyle", editor, {float:""})
           }
@@ -37706,7 +37746,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnVideoMargin', {
-      text: '视频边距',
+      text : Ti.I18n.text("i18n:hmk-w-edit-video-margin"),
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
           let $video = GetCurrentVideoElement(editor)
@@ -37720,7 +37760,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
         return [{
           type : "togglemenuitem",
-          text : "小边距",
+          text : Ti.I18n.text("i18n:hmk-margin-sm"),
           onAction() {
             editor.execCommand("SetVideoStyle", editor, {margin:"1em"})
           },
@@ -37729,7 +37769,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "togglemenuitem",
-          text : "中等边距",
+          text : Ti.I18n.text("i18n:hmk-margin-md"),
           onAction() {
             editor.execCommand("SetVideoStyle", editor, {margin:"2em"})
           },
@@ -37738,7 +37778,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "togglemenuitem",
-          text : "较大边距",
+          text : Ti.I18n.text("i18n:hmk-margin-lg"),
           onAction() {
             editor.execCommand("SetVideoStyle", editor, {margin:"3em"})
           },
@@ -37748,14 +37788,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }, {
           type : "menuitem",
           icon : "align-center",
-          text : "边距居中",
+          text : Ti.I18n.text("i18n:hmk-margin-center"),
           onAction() {
             editor.execCommand("SetVideoStyle", editor, {margin:"0 auto"})
           }
         }, {
           type : "menuitem",
           icon : "square-6",
-          text : "清除边距",
+          text : Ti.I18n.text("i18n:hmk-margin-no"),
           onAction() {
             editor.execCommand("SetVideoStyle", editor, {margin:""})
           }
@@ -37764,7 +37804,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnVideoProp", {
-      text : "视频属性",
+      text : Ti.I18n.text("i18n:hmk-w-edit-video-prop"),
       onAction() {
         editor.execCommand("ShowVideoProp", editor, settings)
       }
@@ -40211,7 +40251,7 @@ async function CmdShowImageProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fas-image",
-    title : "编辑图片属性",
+    title : "i18n:hmk-w-edit-img-prop",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -40223,7 +40263,7 @@ async function CmdShowImageProp(editor, settings) {
     comConf : {
       spacing : "tiny",
       fields : [{
-          title : "图片",
+        title : "i18n:hmk-w-edit-img-pic",
           name  : "oid",
           comType : "WnObjPicker",
           comConf : {
@@ -40232,16 +40272,16 @@ async function CmdShowImageProp(editor, settings) {
             titleEditable : false
           }
         }, {
-          title : "尺寸",
+          title : "i18n:hmk-size",
           fields: [{
-            title : "宽度",
+            title : "i18n:width",
             name  : "width",
             comType : "TiInput",
             comConf : {
               placeholder: `${data.displayWidth}/${data.naturalWidth}px`
             }
           }, {
-            title : "高度",
+            title : "i18n:height",
             name  : "height",
             comType : "TiInput",
             comConf : {
@@ -40249,47 +40289,60 @@ async function CmdShowImageProp(editor, settings) {
             }
           }]
         }, {
-          title : "文本绕图",
+          title : "i18n:hmk-float",
           name  : "float",
           comType : "TiSwitcher",
           comConf : {
             allowEmpty : false,
             options : [
-              {value: "none",  text: "不绕图",   icon:"fas-align-justify"},
-              {value: "left",  text: "左绕图", icon:"fas-align-left"},
-              {value: "right", text: "右绕图", icon:"fas-align-right"},]
+              {
+                icon:"fas-align-justify",
+                value: "none",
+                text: "i18n:hmk-float-none"
+              },
+              {
+                icon:"fas-align-left",
+                value: "left",
+                text: "i18n:hmk-float-left"
+              },
+              {
+                icon:"fas-align-right",
+                value: "right",
+                text: "i18n:hmk-float-right"
+              }
+            ]
           }
         }, {
-          title : "图片边距",
+          title : "i18n:hmk-w-edit-img-margin",
           fields : [{
-            title : "上",
-            name  : "marginTop",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "右",
-            name  : "marginRight",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "下",
-            name  : "marginBottom",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "左",
-            name  : "marginLeft",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }]
+              title : "i18n:top",
+              name  : "marginTop",
+              comType : "TiInput",
+              comConf : {
+                placeholder : "0px"
+              }
+            }, {
+              title : "i18n:right",
+              name  : "marginRight",
+              comType : "TiInput",
+              comConf : {
+                placeholder : "0px"
+              }
+            }, {
+              title : "i18n:bottom",
+              name  : "marginBottom",
+              comType : "TiInput",
+              comConf : {
+                placeholder : "0px"
+              }
+            }, {
+              title : "i18n:left",
+              name  : "marginLeft",
+              comType : "TiInput",
+              comConf : {
+                placeholder : "0px"
+              }
+            }]
         }]
     },
     components : [
@@ -40392,39 +40445,39 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     editor.ui.registry.addMenuItem("WnImgClrSize", {
       icon : "edit-image",
-      text : "清除图片尺寸",
+      text : Ti.I18n.text("i18n:hmk-w-edit-img-clrsz"),
       onAction() {
         editor.execCommand("SetImageSize", editor)
       }
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnImgAutoFitWidth", {
-      text : "自动适应宽度",
+      text : Ti.I18n.text("i18n:hmk-autofit"),
       onAction() {
         editor.execCommand("SetImageSize", editor, {width:"100%"})
       }
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnImgFloat', {
-      text: '文本绕图',
+      text: 'i18n:hmk-float',
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
           icon : "align-left",
-          text : "居左绕图",
+          text : Ti.I18n.text("i18n:hmk-float-left"),
           onAction() {
             editor.execCommand("SetImageStyle", editor, {float:"left"})
           }
         }, {
           type : "menuitem",
           icon : "align-right",
-          text : "居右绕图",
+          text : Ti.I18n.text("i18n:hmk-float-right"),
           onAction() {
             editor.execCommand("SetImageStyle", editor, {float:"right"})
           }
         }, {
           type : "menuitem",
-          text : "清除浮动",
+          text : Ti.I18n.text("i18n:hmk-float-clear"),
           onAction() {
             editor.execCommand("SetImageStyle", editor, {float:""})
           }
@@ -40433,7 +40486,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnImgMargin', {
-      text: '图片边距',
+      text : Ti.I18n.text("i18n:hmk-w-edit-img-margin"),
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
           let $img = GetCurrentImageElement(editor)
@@ -40447,7 +40500,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
         return [{
           type : "togglemenuitem",
-          text : "小边距",
+          text : Ti.I18n.text("i18n:hmk-margin-sm"),
           onAction() {
             editor.execCommand("SetImageStyle", editor, {margin:"1em"})
           },
@@ -40456,7 +40509,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "togglemenuitem",
-          text : "中等边距",
+          text : Ti.I18n.text("i18n:hmk-margin-md"),
           onAction() {
             editor.execCommand("SetImageStyle", editor, {margin:"2em"})
           },
@@ -40465,7 +40518,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "togglemenuitem",
-          text : "较大边距",
+          text : Ti.I18n.text("i18n:hmk-margin-lg"),
           onAction() {
             editor.execCommand("SetImageStyle", editor, {margin:"3em"})
           },
@@ -40474,7 +40527,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "menuitem",
-          text : "清除边距",
+          text : Ti.I18n.text("i18n:hmk-margin-no"),
           onAction() {
             editor.execCommand("SetImageStyle", editor, {margin:""})
           }
@@ -40483,7 +40536,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnImgProp", {
-      text : "图片属性",
+      text : Ti.I18n.text("i18n:hmk-w-edit-img-prop"),
       onAction() {
         editor.execCommand("ShowImageProp", editor, settings)
       }
@@ -40670,10 +40723,18 @@ async function pickYoutubeAndInsertToDoc(editor, {
   // Check meta
   let oMeta = await Wn.Io.loadMeta(meta)
   if(!oMeta) {
-    return await Ti.Toast.Open(`路径[${meta}]不存在`, "warn")
+    return await Ti.Toast.Open({
+      content : "i18n:e-ph-noexists",
+      type : "warn",
+      val: meta
+    })
   }
   if(oMeta.race != "FILE") {
-    return await Ti.Toast.Open(`对象[${meta}]非法`, "warn")
+    return await Ti.Toast.Open({
+      content : "i18n:e-obj-invalid",
+      type : "warn",
+      val: meta
+    })
   }
   meta = oMeta
 
@@ -40828,7 +40889,7 @@ async function CmdShowYoutubeProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fab-youtube",
-    title : "编辑Youtube视频属性",
+    title : "i18n:hmk-w-edit-yt-video",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -40841,23 +40902,23 @@ async function CmdShowYoutubeProp(editor, settings) {
       spacing : "tiny",
       fields : [
         {
-          title : "视频特性",
+          title : "i18n:hmk-w-edit-yt-video-features",
           name  : "allow",
           type  : "Array",
           comType : "TiBulletCheckbox",
           comConf : {
             options : [
-              {value: "accelerometer", text: "视频加速"},
-              {value: "autoplay", text: "自动播放"},
-              {value: "clipboard-write", text: "剪贴板写入"},
-              {value: "encrypted-media", text: "媒体加密"},
-              {value: "gyroscope", text: "重播"},
-              {value: "picture-in-picture", text: "画中画"}
+              {value: "accelerometer", text: "i18n:video-accelerometer"},
+              {value: "autoplay", text: "i18n:video-autoplay"},
+              {value: "clipboard-write", text: "i18n:video-clipboard-write"},
+              {value: "encrypted-media", text: "i18n:video-encrypted-media"},
+              {value: "gyroscope", text: "i18n:video-gyroscope"},
+              {value: "picture-in-picture", text: "i18n:video-pic-in-pic"}
             ]
           }
         },
         {
-          title : "允许全屏",
+          title : "i18n:allowfullscreen",
           name  : "allowfullscreen",
           type  : "Boolean",
           comType : "TiToggle"
@@ -40939,39 +41000,39 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnYoutubeClrSize", {
-      text : "清除视频尺寸",
+      text : Ti.I18n.text("i18n:hmk-w-edit-video-clrsz"),
       onAction() {
         editor.execCommand("SetVideoStyle", editor, {width:""})
       }
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnYoutubeAutoFitWidth", {
-      text : "自动适应宽度",
+      text : Ti.I18n.text("i18n:hmk-autofit"),
       onAction() {
         editor.execCommand("SetVideoStyle", editor, {width:"100%"})
       }
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnYoutubeFloat', {
-      text: '文本绕图',
+      text: 'i18n:hmk-float',
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
           icon : "align-left",
-          text : "居左绕图",
+          text : Ti.I18n.text("i18n:hmk-float-left"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {float:"left"})
           }
         }, {
           type : "menuitem",
           icon : "align-right",
-          text : "居右绕图",
+          text : Ti.I18n.text("i18n:hmk-float-right"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {float:"right"})
           }
         }, {
           type : "menuitem",
-          text : "清除浮动",
+          text : Ti.I18n.text("i18n:hmk-float-none"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {float:""})
           }
@@ -40980,7 +41041,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnYoutubeMargin', {
-      text: '视频边距',
+      text: 'i18n:hmk-w-edit-video-margin',
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
           let $video = GetCurrentYoutubeElement(editor)
@@ -40994,7 +41055,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
         return [{
           type : "togglemenuitem",
-          text : "小边距",
+          text : Ti.I18n.text("i18n:hmk-margin-sm"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {margin:"1em"})
           },
@@ -41003,7 +41064,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "togglemenuitem",
-          text : "中等边距",
+          text : Ti.I18n.text("i18n:hmk-margin-md"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {margin:"2em"})
           },
@@ -41012,7 +41073,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "togglemenuitem",
-          text : "较大边距",
+          text : Ti.I18n.text("i18n:hmk-margin-lg"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {margin:"3em"})
           },
@@ -41022,14 +41083,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }, {
           type : "menuitem",
           icon : "align-center",
-          text : "边距居中",
+          text : Ti.I18n.text("i18n:hmk-margin-center"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {margin:"0 auto"})
           }
         }, {
           type : "menuitem",
           icon : "square-6",
-          text : "清除边距",
+          text : Ti.I18n.text("i18n:hmk-margin-no"),
           onAction() {
             editor.execCommand("SetYoutubeStyle", editor, {margin:""})
           }
@@ -41038,7 +41099,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnYoutubeProp", {
-      text : "视频属性",
+      text : Ti.I18n.text("i18n:hmk-w-edit-video-prop"),
       onAction() {
         editor.execCommand("ShowYoutubeProp", editor, settings)
       }
@@ -53737,7 +53798,7 @@ async function CmdShowAudioProp(editor, settings) {
   // Show dialog
   let reo = await Ti.App.Open({
     icon  : "fas-image",
-    title : "编辑音频属性",
+    title : "i18n:hmk-w-edit-audio-prop",
     width  : "37%",
     height : "100%",
     position : "right",
@@ -53749,7 +53810,7 @@ async function CmdShowAudioProp(editor, settings) {
     comConf : {
       spacing : "tiny",
       fields : [{
-          title : "音频",
+          title : "i18n:audio",
           name  : "oid",
           comType : "WnObjPicker",
           comConf : {
@@ -53758,58 +53819,70 @@ async function CmdShowAudioProp(editor, settings) {
             titleEditable : false
           }
         }, {
-          title : "尺寸",
+          title : "i18n:size",
           fields: [{
-            title : "宽度",
+            title : "i18n:width",
             name  : "width",
             comType : "TiInput"
           }, {
-            title : "高度",
+            title : "i18n:height",
             name  : "height",
             comType : "TiInput"
           }]
         }, {
-          title : "文本绕图",
+          title : "i18n:hmk-float",
           name  : "float",
           comType : "TiSwitcher",
           comConf : {
             allowEmpty : false,
             options : [
-              {value: "none",  text: "不绕图", icon:"fas-align-justify"},
-              {value: "left",  text: "左绕图", icon:"fas-align-left"},
-              {value: "right", text: "右绕图", icon:"fas-align-right"},]
+              {
+                icon:"fas-align-justify",
+                value: "none",
+                text: "i18n:hmk-float-none"
+              },
+              {
+                icon:"fas-align-left",
+                value: "left",
+                text: "i18n:hmk-float-left"
+              },
+              {
+                icon:"fas-align-right",
+                value: "right",
+                text: "i18n:hmk-float-right"
+              }]
           }
         }, {
-          title : "音频距",
+          title : "i18n:hmk-w-edit-audio-margin",
           fields : [{
-            title : "上",
-            name  : "marginTop",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "右",
-            name  : "marginRight",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "下",
-            name  : "marginBottom",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }, {
-            title : "左",
-            name  : "marginLeft",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "0px"
-            }
-          }]
+              title : "i18n:top",
+              name  : "marginTop",
+              comType : "TiInput",
+              comConf : {
+                placeholder : "0px"
+              }
+            }, {
+              title : "i18n:right",
+              name  : "marginRight",
+              comType : "TiInput",
+              comConf : {
+                placeholder : "0px"
+              }
+            }, {
+              title : "i18n:bottom",
+              name  : "marginBottom",
+              comType : "TiInput",
+              comConf : {
+                placeholder : "0px"
+              }
+            }, {
+              title : "i18n:left",
+              name  : "marginLeft",
+              comType : "TiInput",
+              comConf : {
+                placeholder : "0px"
+              }
+            }]
         }]
     },
     components : [
@@ -53898,39 +53971,39 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnAudioClrSize", {
-      text : "清除音频尺寸",
+      text : Ti.I18n.text("i18n:hmk-w-edit-audio-clrsz"),
       onAction() {
         editor.execCommand("SetAudioSize", editor)
       }
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnAudioAutoFitWidth", {
-      text : "自动适应宽度",
+      text : Ti.I18n.text("i18n:hmk-autofit"),
       onAction() {
         editor.execCommand("SetAudioSize", editor, {width:"100%"})
       }
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnAudioFloat', {
-      text: '文本绕图',
+      text: 'i18n:hmk-float',
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
           icon : "align-left",
-          text : "居左绕图",
+          text : Ti.I18n.text("i18n:hmk-float-left"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {float:"left"})
           }
         }, {
           type : "menuitem",
           icon : "align-right",
-          text : "居右绕图",
+          text : Ti.I18n.text("i18n:hmk-float-right"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {float:"right"})
           }
         }, {
           type : "menuitem",
-          text : "清除浮动",
+          text : Ti.I18n.text("i18n:hmk-float-clear"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {float:""})
           }
@@ -53939,7 +54012,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnAudioMargin', {
-      text: '音频边距',
+      text : Ti.I18n.text("i18n:hmk-w-edit-audio-margin"),
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
           let $audio = GetCurrentAudioElement(editor)
@@ -53953,7 +54026,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
         return [{
           type : "togglemenuitem",
-          text : "小边距",
+          text : Ti.I18n.text("i18n:hmk-margin-sm"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {margin:"1em"})
           },
@@ -53962,7 +54035,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "togglemenuitem",
-          text : "中等边距",
+          text : Ti.I18n.text("i18n:hmk-margin-md"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {margin:"2em"})
           },
@@ -53971,7 +54044,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "togglemenuitem",
-          text : "较大边距",
+          text : Ti.I18n.text("i18n:hmk-margin-lg"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {margin:"3em"})
           },
@@ -53980,7 +54053,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }, {
           type : "menuitem",
-          text : "清除边距",
+          text : Ti.I18n.text("i18n:hmk-margin-no"),
           onAction() {
             editor.execCommand("SetAudioStyle", editor, {margin:""})
           }
@@ -53989,7 +54062,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnAudioProp", {
-      text : "音频属性",
+      text : Ti.I18n.text("i18n:hmk-w-edit-audio-prop"),
       onAction() {
         editor.execCommand("ShowAudioProp", editor, settings)
       }
@@ -59338,9 +59411,9 @@ Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-attachment.mjs", TI_PACK_
 //========================================
 Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-audio.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-audio.mjs']);
 //========================================
-// JOIN <tiny-wn-fb-albums.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-albums.mjs
+// JOIN <tiny-wn-fb-album.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-album.mjs
 //========================================
-Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-albums.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-albums.mjs']);
+Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-album.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-album.mjs']);
 //========================================
 // JOIN <tiny-wn-image.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-image.mjs
 //========================================
@@ -59358,9 +59431,9 @@ Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-web-image.mjs", TI_PACK_E
 //========================================
 Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-youtube.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-youtube.mjs']);
 //========================================
-// JOIN <tiny-wn-yt-playlists.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-yt-playlists.mjs
+// JOIN <tiny-wn-yt-playlist.mjs> ti/com/ti/text/rich/tinymce/plugin/tiny-wn-yt-playlist.mjs
 //========================================
-Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-yt-playlists.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-yt-playlists.mjs']);
+Ti.Preload("ti/com/ti/text/rich/tinymce/plugin/tiny-wn-yt-playlist.mjs", TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-yt-playlist.mjs']);
 //========================================
 // JOIN <rich-tinymce-obj-resizing.mjs> ti/com/ti/text/rich/tinymce/rich-tinymce-obj-resizing.mjs
 //========================================
@@ -65616,6 +65689,78 @@ Ti.Preload("/a/load/wn.manager/wn-manager.mjs", TI_PACK_EXPORTS['/a/load/wn.mana
 // JOIN <hmaker.i18n.json> ti/i18n/en-us/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
+  "hmk-style-adv" : "高级样式",
+  "hmk-style-outside" : "外部样式",
+  "hmk-style-inside" : "内部样式",
+  "hmk-style-tile" : "瓦片样式",
+  "hmk-style-image" : "图片样式",
+  "hmk-style-title" : "标题样式",
+  "hmk-style-brief" : "摘要样式",
+  "hmk-size" : "尺寸",
+  "hmk-w-edit-alt-style" : "标题样式",
+  "hmk-aspect-more" : "样式外观",
+  "hmk-w-edit-img-prop" : "图片属性",
+  "hmk-w-edit-img-info" : "图片信息",
+  "hmk-w-edit-img-pic" : "图片",
+  "hmk-w-edit-img-title" : "图片标题",
+  "hmk-w-edit-img-title-tip" : "请输入图片的标题",
+  "hmk-w-edit-img-style" : "图片样式",
+  "hmk-w-edit-img-clrsz" : "清除图片尺寸",
+  "hmk-autofit" : "自动适应宽度",
+  "hmk-autoscale" : "恢复比例",
+  "hmk-float" : "文本绕图",
+  "hmk-float-left" : "居左绕图",
+  "hmk-float-right" : "居右绕图",
+  "hmk-float-none" : "不绕图",
+  "hmk-float-clear" : "清除浮动",
+  "hmk-w-edit-img-margin" : "图片边距",
+  "hmk-margin-sm" : "小边距",
+  "hmk-margin-md" : "中等边距",
+  "hmk-margin-lg" : "较大边距",
+  "hmk-margin-no" : "清除边距",
+  "hmk-margin-center" : "边距居中",
+  "hmk-w-edit-video-prop" : "视频属性",
+  "hmk-w-edit-video-clrsz" : "清除视频尺寸",
+  "hmk-w-edit-video-margin" : "视频边距",
+  "hmk-config-nil" : "找不到配置信息",
+  "hmk-config-choose" : "选择配置信息",
+  "hmk-w-edit-album-prop" : "编辑相册属性",
+  "hmk-w-edit-fb-album-prop" : "编辑脸书相册属性",
+  "hmk-w-edit-audio-prop" : "音频属性",
+  "hmk-w-edit-audio-margin" : "音频边距",
+  "hmk-w-edit-audio-clrsz" : "清除音频尺寸",
+  "hmk-w-edit-yt-playlist" : "编辑播放列表属性",
+  "hmk-w-edit-yt-video" : "编辑Youtube视频属性",
+  "hmk-w-edit-attachment" : "附件",
+  "hmk-w-edit-attachment-prop" : "附件属性",
+  "hmk-w-edit-attachment-margin" : "附件边距",
+  "hmk-w-edit-attachment-clrsz" : "清除附件尺寸",
+  "hmk-w-edit-album-fullpreview" : "全屏预览",
+  "hmk-album-info" : "相册信息",
+  "hmk-album-id" : "相册ID",
+  "hmk-album-name" : "相册名称",
+  "hmk-album-clrsz" : "清除相册尺寸",
+  "hmk-album-autofit" : "自动适应宽度",
+  "hmk-album-margin" : "相册边距",
+  "hmk-album-refresh" : "刷新相册内容",
+  "hmk-album-prop" : "相册属性",
+  "hmk-fb-album-info" : "脸书相册信息",
+  "hmk-fb-album-id" : "脸书相册ID",
+  "hmk-fb-album-name" : "脸书相册名称",
+  "hmk-fb-album-clrsz" : "清除脸书相册尺寸",
+  "hmk-fb-album-autofit" : "脸书相册自动适应宽度",
+  "hmk-fb-album-margin" : "脸书相册边距",
+  "hmk-fb-album-refresh" : "刷新脸书相册内容",
+  "hmk-fb-album-prop" : "相册脸书属性",
+  "hmk-yt-playlist-info" : "YT播放列表信息",
+  "hmk-yt-playlist-id" : "列表ID",
+  "hmk-yt-playlist-name" : "列表名称",
+  "hmk-yt-playlists-clrsz" : "清除YT播放列表尺寸",
+  "hmk-yt-playlists-autofit" : "YT播放列表自动适应宽度",
+  "hmk-yt-playlists-margin" : "YT播放列表边距",
+  "hmk-yt-playlists-refresh" : "刷新YT播放列表内容",
+  "hmk-yt-playlists-prop" : "YT播放列表属性",
+  
   "hmk-css-opacity" : "Opacity",
   "hmk-css-object-fit" : "Obj fit",
   "hmk-css-object-fit-fill" : "Fill",
@@ -66427,6 +66572,39 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "layout" : "布局",
+  "widht" : "宽度",
+  "height" : "高度",
+  "top" : "上",
+  "left" : "左",
+  "right" : "右",
+  "bottom" : "下",
+  "size" : "尺寸",
+  "inherit" : "继承",
+  "e-obj-noexists": "对象[${val}]不存在",
+  "e-ph-noexists": "路径[${val}]不存在",
+  "e-obj-invalid": "路径[${val}]非法",
+  "video-features" : "视频特性",
+  "video-accelerometer" : "视频加速",
+  "video-autoplay" : "自动播放",
+  "video-clipboard-write" : "剪贴板写入",
+  "video-encrypted-media" : "媒体加密",
+  "video-gyroscope" : "重播",
+  "video-pic-in-pic" : "画中画",
+  "allowfullscreen" : "允许全屏",
+  "font-size" : "文字大小",
+  "font-weight" : "文字粗细",
+  "font-w-normal" : "正常",
+  "font-w-bold" : "加粗",
+  "font-transform" : "文字转换",
+  "font-t-capitalize" : "首字母大写",
+  "font-t-uppercase" : "全大写",
+  "font-t-lowercase" : "全小写",
+  "album-refresh" : "刷新相册内容",
+  "album-prop" : "相册属性",
+  "album-margin" : "相册边距",
+  "album-clrsz" : "清除相册尺寸",
+
   "exlink" : "Ex-link",
   "exlink-tip" : "Please enter a URL address",
   "exlink-tip-img" : "Please enter an image URL address",
@@ -66492,6 +66670,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "confirm": "Confirm",
   "console": "Console",
   "content": "Content",
+  "content-setup": "Content setup",
   "continue": "Continue",
   "create": "New",
   "create-now": "Create now",
@@ -66896,6 +67075,78 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-cn/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
+  "hmk-style-adv" : "高级样式",
+  "hmk-style-outside" : "外部样式",
+  "hmk-style-inside" : "内部样式",
+  "hmk-style-tile" : "瓦片样式",
+  "hmk-style-image" : "图片样式",
+  "hmk-style-title" : "标题样式",
+  "hmk-style-brief" : "摘要样式",
+  "hmk-size" : "尺寸",
+  "hmk-w-edit-alt-style" : "标题样式",
+  "hmk-aspect-more" : "样式外观",
+  "hmk-w-edit-img-prop" : "图片属性",
+  "hmk-w-edit-img-info" : "图片信息",
+  "hmk-w-edit-img-pic" : "图片",
+  "hmk-w-edit-img-title" : "图片标题",
+  "hmk-w-edit-img-title-tip" : "请输入图片的标题",
+  "hmk-w-edit-img-style" : "图片样式",
+  "hmk-w-edit-img-clrsz" : "清除图片尺寸",
+  "hmk-autofit" : "自动适应宽度",
+  "hmk-autoscale" : "恢复比例",
+  "hmk-float" : "文本绕图",
+  "hmk-float-left" : "居左绕图",
+  "hmk-float-right" : "居右绕图",
+  "hmk-float-none" : "不绕图",
+  "hmk-float-clear" : "清除浮动",
+  "hmk-w-edit-img-margin" : "图片边距",
+  "hmk-margin-sm" : "小边距",
+  "hmk-margin-md" : "中等边距",
+  "hmk-margin-lg" : "较大边距",
+  "hmk-margin-no" : "清除边距",
+  "hmk-margin-center" : "边距居中",
+  "hmk-w-edit-video-prop" : "视频属性",
+  "hmk-w-edit-video-clrsz" : "清除视频尺寸",
+  "hmk-w-edit-video-margin" : "视频边距",
+  "hmk-config-nil" : "找不到配置信息",
+  "hmk-config-choose" : "选择配置信息",
+  "hmk-w-edit-album-prop" : "编辑相册属性",
+  "hmk-w-edit-fb-album-prop" : "编辑脸书相册属性",
+  "hmk-w-edit-audio-prop" : "音频属性",
+  "hmk-w-edit-audio-margin" : "音频边距",
+  "hmk-w-edit-audio-clrsz" : "清除音频尺寸",
+  "hmk-w-edit-yt-playlist" : "编辑播放列表属性",
+  "hmk-w-edit-yt-video" : "编辑Youtube视频属性",
+  "hmk-w-edit-attachment" : "附件",
+  "hmk-w-edit-attachment-prop" : "附件属性",
+  "hmk-w-edit-attachment-margin" : "附件边距",
+  "hmk-w-edit-attachment-clrsz" : "清除附件尺寸",
+  "hmk-w-edit-album-fullpreview" : "全屏预览",
+  "hmk-album-info" : "相册信息",
+  "hmk-album-id" : "相册ID",
+  "hmk-album-name" : "相册名称",
+  "hmk-album-clrsz" : "清除相册尺寸",
+  "hmk-album-autofit" : "自动适应宽度",
+  "hmk-album-margin" : "相册边距",
+  "hmk-album-refresh" : "刷新相册内容",
+  "hmk-album-prop" : "相册属性",
+  "hmk-fb-album-info" : "脸书相册信息",
+  "hmk-fb-album-id" : "脸书相册ID",
+  "hmk-fb-album-name" : "脸书相册名称",
+  "hmk-fb-album-clrsz" : "清除脸书相册尺寸",
+  "hmk-fb-album-autofit" : "脸书相册自动适应宽度",
+  "hmk-fb-album-margin" : "脸书相册边距",
+  "hmk-fb-album-refresh" : "刷新脸书相册内容",
+  "hmk-fb-album-prop" : "相册脸书属性",
+  "hmk-yt-playlist-info" : "YT播放列表信息",
+  "hmk-yt-playlist-id" : "列表ID",
+  "hmk-yt-playlist-name" : "列表名称",
+  "hmk-yt-playlist-clrsz" : "清除YT播放列表尺寸",
+  "hmk-yt-playlist-autofit" : "YT播放列表自动适应宽度",
+  "hmk-yt-playlist-margin" : "YT播放列表边距",
+  "hmk-yt-playlist-refresh" : "刷新YT播放列表内容",
+  "hmk-yt-playlist-prop" : "YT播放列表属性",
+
   "hmk-css-opacity" : "不透明度",
   "hmk-css-object-fit" : "内容缩放",
   "hmk-css-object-fit-fill" : "拉伸",
@@ -67707,6 +67958,39 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "layout" : "布局",
+  "widht" : "宽度",
+  "height" : "高度",
+  "top" : "上",
+  "left" : "左",
+  "right" : "右",
+  "bottom" : "下",
+  "size" : "尺寸",
+  "inherit" : "继承",
+  "e-obj-noexists": "对象[${val}]不存在",
+  "e-ph-noexists": "路径[${val}]不存在",
+  "e-obj-invalid": "路径[${val}]非法",
+  "video-features" : "视频特性",
+  "video-accelerometer" : "视频加速",
+  "video-autoplay" : "自动播放",
+  "video-clipboard-write" : "剪贴板写入",
+  "video-encrypted-media" : "媒体加密",
+  "video-gyroscope" : "重播",
+  "video-pic-in-pic" : "画中画",
+  "allowfullscreen" : "允许全屏",
+  "font-size" : "文字大小",
+  "font-weight" : "文字粗细",
+  "font-w-normal" : "正常",
+  "font-w-bold" : "加粗",
+  "font-transform" : "文字转换",
+  "font-t-capitalize" : "首字母大写",
+  "font-t-uppercase" : "全大写",
+  "font-t-lowercase" : "全小写",
+  "album-refresh" : "刷新相册内容",
+  "album-prop" : "相册属性",
+  "album-margin" : "相册边距",
+  "album-clrsz" : "清除相册尺寸",
+
   "exlink" : "外部链接",
   "exlink-tip" : "请输入一个超链接地址",
   "exlink-tip-img" : "请输入图片超链接地址",
@@ -67772,6 +68056,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "confirm": "确认",
   "console": "控制台",
   "content": "内容",
+  "content-setup": "内容设置",
   "continue": "继续",
   "create": "新建",
   "create-now": "立即创建",
@@ -68176,6 +68461,77 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-hk/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
+   "hmk-style-adv": "高級樣式",
+   "hmk-style-outside": "外部樣式",
+   "hmk-style-inside": "內部樣式",
+   "hmk-style-tile": "瓦片樣式",
+   "hmk-style-image": "圖片樣式",
+   "hmk-style-title": "標題樣式",
+   "hmk-style-brief": "摘要樣式",
+   "hmk-size": "尺寸",
+   "hmk-w-edit-alt-style": "標題樣式",
+   "hmk-aspect-more": "樣式外觀",
+   "hmk-w-edit-img-prop": "圖片屬性",
+   "hmk-w-edit-img-info": "圖片信息",
+   "hmk-w-edit-img-pic": "圖片",
+   "hmk-w-edit-img-title": "圖片標題",
+   "hmk-w-edit-img-title-tip": "請輸入圖片的標題",
+   "hmk-w-edit-img-style": "圖片樣式",
+   "hmk-w-edit-img-clrsz": "清除圖片尺寸",
+   "hmk-autofit": "自動適應寬度",
+   "hmk-autoscale": "恢復比例",
+   "hmk-float": "文本繞圖",
+   "hmk-float-left": "居左繞圖",
+   "hmk-float-right": "居右繞圖",
+   "hmk-float-none": "不繞圖",
+   "hmk-float-clear": "清除浮動",
+   "hmk-w-edit-img-margin": "圖片邊距",
+   "hmk-margin-sm": "小邊距",
+   "hmk-margin-md": "中等邊距",
+   "hmk-margin-lg": "較大邊距",
+   "hmk-margin-no": "清除邊距",
+   "hmk-margin-center": "邊距居中",
+   "hmk-w-edit-video-prop": "視頻屬性",
+   "hmk-w-edit-video-clrsz": "清除視頻尺寸",
+   "hmk-w-edit-video-margin": "視頻邊距",
+   "hmk-config-nil": "找不到配置信息",
+   "hmk-config-choose": "選擇配置信息",
+   "hmk-w-edit-album-prop": "編輯相冊屬性",
+   "hmk-w-edit-fb-album-prop": "編輯臉書相冊屬性",
+   "hmk-w-edit-audio-prop": "音頻屬性",
+   "hmk-w-edit-audio-margin": "音頻邊距",
+   "hmk-w-edit-audio-clrsz": "清除音頻尺寸",
+   "hmk-w-edit-yt-playlist": "編輯播放列表屬性",
+   "hmk-w-edit-yt-video": "編輯Youtube視頻屬性",
+   "hmk-w-edit-attachment": "附件",
+   "hmk-w-edit-attachment-prop": "附件屬性",
+   "hmk-w-edit-attachment-margin": "附件邊距",
+   "hmk-w-edit-attachment-clrsz": "清除附件尺寸",
+   "hmk-w-edit-album-fullpreview": "全屏預覽",
+   "hmk-album-info": "相冊信息",
+   "hmk-album-id": "相冊ID",
+   "hmk-album-name": "相冊名稱",
+   "hmk-album-clrsz": "清除相冊尺寸",
+   "hmk-album-autofit": "自動適應寬度",
+   "hmk-album-margin": "相冊邊距",
+   "hmk-album-refresh": "刷新相冊內容",
+   "hmk-album-prop": "相冊屬性",
+   "hmk-fb-album-info": "臉書相冊信息",
+   "hmk-fb-album-id": "臉書相冊ID",
+   "hmk-fb-album-name": "臉書相冊名稱",
+   "hmk-fb-album-clrsz": "清除臉書相冊尺寸",
+   "hmk-fb-album-autofit": "臉書相冊自動適應寬度",
+   "hmk-fb-album-margin": "臉書相冊邊距",
+   "hmk-fb-album-refresh": "刷新臉書相冊內容",
+   "hmk-fb-album-prop": "相冊臉書屬性",
+   "hmk-yt-playlist-info": "YT播放列表信息",
+   "hmk-yt-playlist-id": "YT播放列表ID",
+   "hmk-yt-playlist-name": "YT播放列表名稱",
+   "hmk-yt-playlist-clrsz": "清除YT播放列表尺寸",
+   "hmk-yt-playlist-autofit": "YT播放列表自動適應寬度",
+   "hmk-yt-playlist-margin": "YT播放列表邊距",
+   "hmk-yt-playlist-refresh": "刷新YT播放列表內容",
+   "hmk-yt-playlist-prop": "YT播放列表屬性",
    "hmk-css-opacity": "不透明度",
    "hmk-css-object-fit": "內容縮放",
    "hmk-css-object-fit-fill": "拉伸",
@@ -68946,6 +69302,38 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
+   "layout": "佈局",
+   "widht": "寬度",
+   "height": "高度",
+   "top": "上",
+   "left": "左",
+   "right": "右",
+   "bottom": "下",
+   "size": "尺寸",
+   "inherit": "繼承",
+   "e-obj-noexists": "對象[${val}]不存在",
+   "e-ph-noexists": "路徑[${val}]不存在",
+   "e-obj-invalid": "路徑[${val}]非法",
+   "video-features": "視頻特性",
+   "video-accelerometer": "視頻加速",
+   "video-autoplay": "自動播放",
+   "video-clipboard-write": "剪貼板寫入",
+   "video-encrypted-media": "媒體加密",
+   "video-gyroscope": "重播",
+   "video-pic-in-pic": "畫中畫",
+   "allowfullscreen": "允許全屏",
+   "font-size": "文字大小",
+   "font-weight": "文字粗細",
+   "font-w-normal": "正常",
+   "font-w-bold": "加粗",
+   "font-transform": "文字轉換",
+   "font-t-capitalize": "首字母大寫",
+   "font-t-uppercase": "全大寫",
+   "font-t-lowercase": "全小寫",
+   "album-refresh": "刷新相冊內容",
+   "album-prop": "相冊屬性",
+   "album-margin": "相冊邊距",
+   "album-clrsz": "清除相冊尺寸",
    "exlink": "外部鏈接",
    "exlink-tip": "請輸入一個超鏈接地址",
    "exlink-tip-img": "請輸入圖片超鏈接地址",
@@ -69011,6 +69399,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "confirm": "確認",
    "console": "控制檯",
    "content": "內容",
+   "content-setup": "內容設置",
    "continue": "繼續",
    "create": "新建",
    "create-now": "立即創建",

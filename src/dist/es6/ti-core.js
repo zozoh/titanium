@@ -1,4 +1,4 @@
-// Pack At: 2021-04-21 12:51:13
+// Pack At: 2021-04-23 03:39:38
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -13385,15 +13385,23 @@ const {Album} = (function(){
       Ti.Dom.addClass($el, ALBUM_CLASS_NAME)
       this.$el = $el
       this.setup = _.assign({
+        live : false,
         attrPrefix : "wn-obj-",
         dftWallClass : DFT_WALL_CLASS,
         itemToPhoto : {
           name  : "=name",
           link  : "=link",
+          thumb : "=thumb",
           src   : "=src",
-          brief : "=brief",
+          brief : "=brief"
         }
       }, setup)
+      // If live album, and fullpreview
+      let fullpreview = $el.getAttribute(`${this.setup.attrPrefix}fullpreview`)
+      if(this.setup.live && "true" == fullpreview) {
+        // TODO 应该做一个标记，这样 web-text-article 可以在加入 dom 后，调用另外一个
+        // 全屏预览的插件
+      }
     }
     //---------------------------------------
     setData(album={}) {
@@ -13411,7 +13419,7 @@ const {Album} = (function(){
     formatData(album={}) {
       let {dftWallClass} = this.setup
       let {
-        id, name, link, layout,
+        id, name, link, layout, fullpreview,
         style, wallStyle, tileStyle, imageStyle,
         titleStyle, briefStyle,
         wallClass
@@ -13429,7 +13437,7 @@ const {Album} = (function(){
       Ti.Dom.formatStyle(briefStyle)
   
       return {
-        id,name,link, layout,
+        id,name,link, layout, fullpreview,
         wallClass  : wallClass.join(" "), 
         style      : Ti.Dom.renderCssRule(style),
         wallStyle  : Ti.Dom.renderCssRule(wallStyle),
@@ -13478,6 +13486,7 @@ const {Album} = (function(){
     //---------------------------------------
     renderItems(items=[]) {
       let photos = this.covertToPhotos(items)
+      //console.log({items, photos})
       this.renderPhotos(photos)
     }
     //---------------------------------------
@@ -13536,21 +13545,24 @@ const {Album} = (function(){
       }
   
       // Prepare style
-      let {tileStyle} = album
+      let {tileStyle, imageStyle, titleStyle, briefStyle} = album
       tileStyle = _.omit(tileStyle, "width", "maxWidth", "minWidth")
+      let photoStyles = {
+        tileStyle, imageStyle, titleStyle, briefStyle
+      }
   
       // Build tils
       for(let i=0; i<photos.length; i++) {
         let gIx = i % count
         let $grp = $fallsGroups[gIx]
-        this.createPhotoTileElement($grp, photos[i], album, attrPrefix)
+        this.createPhotoTileElement($grp, photos[i], photoStyles, attrPrefix)
       }
     }
     //---------------------------------------
     createPhotoTileElement($p, photo, {
       tileStyle, imageStyle, titleStyle, briefStyle
     }, attrPrefix) {
-      let {src, link, name, brief, item} = photo
+      let {thumb, src, link, name, brief, item} = photo
       let $tile = Ti.Dom.createElement({
         $p,
         tagName : "a",
@@ -13567,7 +13579,8 @@ const {Album} = (function(){
         tagName : "img",
         style : imageStyle,
         attrs : {
-          src : src
+          src : thumb || src,
+          srcLarge : src
         }
       })
       if(name && !Ti.S.isBlank(name)) {
@@ -13658,9 +13671,10 @@ const {Album} = (function(){
           }
         })
         list.push({
-          name : $tile.getAttribute("title") || null,
-          link : $tile.getAttribute("href") || null,
-          src  : $img.getAttribute("src") || null,
+          name  : $tile.getAttribute("title") || null,
+          link  : $tile.getAttribute("href") || null,
+          thumb : $img.getAttribute("src") || null,
+          src   : $img.getAttribute("src-large") || null,
           item
         })
       }
@@ -13689,23 +13703,33 @@ const {Album} = (function(){
   ////////////////////////////////////////////////
   const Album = {
     //---------------------------------------
-    getEditFormConfig() {
+    getEditFormConfig(prefix) {
+      let PL = _.kebabCase(prefix)
       return {
         className : "no-status",
         spacing : "tiny",
         fields : [{
-            title : "相册信息",
+            title : `i18n:hmk-${PL}-info`,
             fields: [{
-              title : "ID",
-              name  : "id"
+              title : `i18n:hmk-${PL}-id`,
+              name  : "id",
+              comConf : {
+                className : "is-nowrap",
+                fullField : false
+              }
             }, {
-              title : "Name",
+              title : `i18n:hmk-${PL}-name`,
               name  : "name"
+            }, {
+              title : `i18n:hmk-w-edit-album-fullpreview`,
+              name  : "fullpreview",
+              type  : "Boolean",
+              comType : "TiToggle"
             }]
           }, {
-            title : "相册外观",
+            title : "i18n:hmk-aspect",
             fields : [{
-                title : "布局模式",
+                title : "i18n:layout",
                 name  : "layout",
                 defaultAs : "wall",
                 comType : "TiSwitcher",
@@ -13715,7 +13739,7 @@ const {Album} = (function(){
                     {value: "falls",  text:"i18n:hmk-layout-falls"}]
                 }
               }, {
-                title : "整体风格",
+                title : "i18n:style",
                 name : "wallClass",
                 emptyAs : null,
                 comType : "HmPropClassPicker",
@@ -13813,9 +13837,9 @@ const {Album} = (function(){
                 } // title : "整体风格",
               }]
           }, {
-            title : "相册高级样式",
+            title : "i18n:hmk-style-adv",
             fields : [{
-                title : "外部样式",
+                title : "i18n:hmk-style-outside",
                 name  : "style",
                 type  : "Object",
                 emptyAs : null,
@@ -13824,7 +13848,7 @@ const {Album} = (function(){
                   rules : "#BLOCK"
                 }
               }, {
-                title : "内部样式",
+                title : "i18n:hmk-style-inside",
                 name  : "wallStyle",
                 type  : "Object",
                 emptyAs : null,
@@ -13833,7 +13857,7 @@ const {Album} = (function(){
                   rules : "#BLOCK"
                 }
               }, {
-                title : "瓦片样式",
+                title : "i18n:hmk-style-tile",
                 name  : "tileStyle",
                 type  : "Object",
                 emptyAs : null,
@@ -13842,7 +13866,7 @@ const {Album} = (function(){
                   rules : "#BLOCK"
                 }
               }, {
-                title : "图片样式",
+                title : "i18n:hmk-style-image",
                 name  : "imageStyle",
                 type  : "Object",
                 emptyAs : null,
@@ -13851,7 +13875,7 @@ const {Album} = (function(){
                   rules : "#IMG"
                 }
               }, {
-                title : "标题样式",
+                title : "i18n:hmk-style-title",
                 name  : "titleStyle",
                 type  : "Object",
                 emptyAs : null,
@@ -13860,7 +13884,7 @@ const {Album} = (function(){
                   rules : "#TEXT-BLOCK"
                 }
               }, {
-                title : "摘要样式",
+                title : "i18n:hmk-style-brief",
                 name  : "briefStyle",
                 type  : "Object",
                 emptyAs : null,
@@ -13879,8 +13903,7 @@ const {Album} = (function(){
       GetCurrentAlbumElement
     }) {
       const NM = (...ss)=>{
-        let re = _.camelCase(ss.join("-"))
-        return _.capitalize(re)
+        return _.camelCase(ss.join("-"))
       }
       let NM_MENU = _.kebabCase(["wn", prefix].join("-"))
       let NM_PROP = NM("Wn",prefix,"Prop")
@@ -13893,8 +13916,10 @@ const {Album} = (function(){
       let CMD_RELOAD = NM("Reload",prefix)
       let CMD_PROP = NM("Show",prefix,"Prop")
       //.....................................
+      let LP = _.kebabCase(prefix)
+      //.....................................
       editor.ui.registry.addMenuItem(NM_CLR_SZ, {
-        text : "清除相册尺寸",
+        text : Ti.I18n.text(`i18n:hmk-${LP}-clrsz`),
         onAction() {
           editor.execCommand(CMD_SET_STYLE, editor, {
             width:"", height:"", 
@@ -13905,7 +13930,7 @@ const {Album} = (function(){
       })
       //.....................................
       editor.ui.registry.addMenuItem(NM_AUTO_FIT_WIDTH, {
-        text : "自动适应宽度",
+        text : Ti.I18n.text(`i18n:hmk-${LP}-autofit`),
         onAction() {
           editor.execCommand(CMD_SET_STYLE, editor, {
             width:"100%", maxWidth:"", minWidth:""
@@ -13914,7 +13939,7 @@ const {Album} = (function(){
       })
       //.....................................
       editor.ui.registry.addMenuItem(NM_MARGIN, {
-        text: '相册边距',
+        text: Ti.I18n.text(`i18n:hmk-${LP}-margin`),
         getSubmenuItems: function () {
           const __check_margin_size = function(api, expectSize) {
             let $album = GetCurrentAlbumElement(editor)
@@ -13928,7 +13953,7 @@ const {Album} = (function(){
           }
           return [{
             type : "togglemenuitem",
-            text : "小边距",
+            text : Ti.I18n.text("i18n:hmk-margin-sm"),
             onAction() {
               editor.execCommand(CMD_SET_STYLE, editor, {margin:"1em"})
             },
@@ -13937,7 +13962,7 @@ const {Album} = (function(){
             }
           }, {
             type : "togglemenuitem",
-            text : "中等边距",
+            text : Ti.I18n.text("i18n:hmk-margin-md"),
             onAction() {
               editor.execCommand(CMD_SET_STYLE, editor, {margin:"2em"})
             },
@@ -13946,7 +13971,7 @@ const {Album} = (function(){
             }
           }, {
             type : "togglemenuitem",
-            text : "较大边距",
+            text : Ti.I18n.text("i18n:hmk-margin-lg"),
             onAction() {
               editor.execCommand(CMD_SET_STYLE, editor, {margin:"3em"})
             },
@@ -13956,14 +13981,14 @@ const {Album} = (function(){
           }, {
             type : "menuitem",
             icon : "align-center",
-            text : "边距居中",
+            text : Ti.I18n.text("i18n:hmk-margin-center"),
             onAction() {
               editor.execCommand(CMD_SET_STYLE, editor, {margin:"0 auto"})
             }
           }, {
             type : "menuitem",
             icon : "square-6",
-            text : "清除边距",
+            text : Ti.I18n.text("i18n:hmk-margin-no"),
             onAction() {
               editor.execCommand(CMD_SET_STYLE, editor, {margin:""})
             }
@@ -13973,14 +13998,14 @@ const {Album} = (function(){
       //.....................................
       editor.ui.registry.addMenuItem(NM_RELOAD, {
         icon : "sync-alt-solid",
-        text : "刷新相册内容",
+        text : Ti.I18n.text(`i18n:hmk-${LP}-refresh`),
         onAction() {
           editor.execCommand(CMD_RELOAD, editor, settings)
         }
       })
       //.....................................
       editor.ui.registry.addMenuItem(NM_PROP, {
-        text : "相册属性",
+        text : Ti.I18n.text(`i18n:hmk-${LP}-prop`),
         onAction() {
           editor.execCommand(CMD_PROP, editor, settings)
         }
@@ -14417,29 +14442,58 @@ const {WebAppMain} = (function(){
 // # import Facebook from "./api-facebook.mjs"
 const Facebook = (function(){
   ////////////////////////////////////////////
+  /***
+   * @param images{Array} : [{height,width,source:"https://xxx"}]
+   * @param thumbMinHeight{Integer} :
+   *  The min height, -1 mean the max one, 0 mean the min one.
+   *  If a `>0` number has been given, it will find the closest image
+   */
   function getThumbImage(images=[], thumbMinHeight=320) {
-    // Sort by image height
-    images.sort((im1, im2)=>{
-      return im1.height - im2.height
-    })
     // Find the closest one
+    let minImg;
+    let maxImg;
+    let fitImg;
     for(let img of images) {
-      if(img.height >= thumbMinHeight) {
-        return img
+      // Min image
+      if(!minImg) {
+        minImg = img
+        fitImg = img
+      }
+      else if(img.height < minImg.height) {
+        minImg = img
+      }
+      // Fit image
+      if(thumbMinHeight > 0
+        && fitImg.height > thumbMinHeight
+        && img.height <= thumbMinHeight) {
+        fitImg = img
+      }
+      // Max Image
+      if(!maxImg) {
+        maxImg = img
+      }
+      else if(img.height > maxImg.height) {
+        maxImg = img
       }
     }
-    return _.first(images)
+    if(thumbMinHeight < 0) {
+      return maxImg
+    }
+    if(thumbMinHeight == 0) {
+      return minImg
+    }
+    return fitImg
   }
   //------------------------------------------
   function setImages(obj, images=[], {
     preview = {type : "font", value : "fas-images"},
     thumbMinHeight = 320
   }={}) {
-    let orgImg = _.first(images)
     let thumbImg = getThumbImage(images, thumbMinHeight)
-    obj.width = _.get(orgImg, "width")
-    obj.height = _.get(orgImg, "height")
-    obj.src = _.get(orgImg, "source")
+    let realImg =  getThumbImage(images, -1)
+    obj.width = _.get(realImg, "width")
+    obj.height = _.get(realImg, "height")
+    obj.src = _.get(realImg, "source")
     obj.thumb_src = _.get(thumbImg, "source")
   
     if(obj.thumb_src) {
@@ -14479,7 +14533,7 @@ const Facebook = (function(){
   
       // Setup thumb src
       for(let photo of data) {
-        setImages(photo, photo.images)   
+        TiApiFacebook.setObjPreview(photo, photo.images)
       }
   
       return data
@@ -14554,7 +14608,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210421.125113",
+  "version" : "1.6-20210423.033938",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -156,7 +156,7 @@ export default {
         "album" : {
           attrPrefix : "wn-obj-",
           itemToPhoto : {
-            name : "=title|nm",
+            name : "=title",
             link : "#",
             src  : (obj)=>{
               return Ti.WWW.evalObjPreviewSrc(obj, {
@@ -175,7 +175,8 @@ export default {
           itemToPhoto : {
             name : "=name",
             link : "=link",
-            src  : "=thumbSrc"  // "thumb_src" will be camelCase
+            thumb : "=thumbSrc",  // "thumb_src" will be camelCase
+            src   : "=src"
           }
         },
         "yt-playlist" : {
@@ -183,7 +184,8 @@ export default {
           itemToPhoto : {
             name : "=title",
             link : "->https://www.youtube.com/watch?v=${id}",
-            src  : "=thumbUrl",
+            thumb : "=thumbUrl",
+            src   : "=coverUrl",
             brief : "=description",
           }
         }
@@ -191,7 +193,9 @@ export default {
       //
       // Create widget
       //
-      let AB = Ti.Widget.Album.getOrCreate($el, setup)
+      let AB = Ti.Widget.Album.getOrCreate($el, _.assign(setup, {
+        live : true
+      }))
       
       // Redraw
       let items = AB.getItems()
