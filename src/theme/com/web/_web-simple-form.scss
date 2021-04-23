@@ -86,9 +86,9 @@
         outline:none; border:0; 
         //-----------------------------
         &.is-lack {
-          @include color($color-disable, r, c);
+          @include color($color-disable, c, r);
           cursor: not-allowed;
-          &:hover {@include color($color-disable, r, c);}
+          &:hover {@include color($color-disable, c, r);}
         }
         //-----------------------------
         &.is-short {

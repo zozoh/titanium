@@ -26,14 +26,14 @@
         @include pos-fixed-full;
         display:block; content:"";
         background-color:rgba(0,0,0,0);
-        z-index: $z-mask;
+        z-index: $z-menu;
       }
       //--------------------------------------------
       > .as-children {
         @include color($color-chip, r, c);
         border:1px solid map-get($color-primary, c);
         box-shadow: SZ(4) SZ(6) SZ(10) map-get($color-shadow, c);
-        z-index: $z-menu;
+        z-index: $z-menu + 1;
         padding:1px; min-width: SZ(150);
       }
       //--------------------------------------------

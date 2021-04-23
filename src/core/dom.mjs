@@ -254,6 +254,23 @@ const TiDom = {
     return list.join(";")
   },
   //----------------------------------------------------
+  removeAttrs($el, filter=false) {
+    filter = this.attrFilter(filter)
+    let re = {}
+    for(let i=0; i<$el.attributes.length; i++) {
+      let {name,value} = $el.attributes[i]
+      let key = filter(name, value)
+      if(key) {
+        if(_.isBoolean(key)) {
+          key = name
+        }
+        re[key] = value
+        $el.removeAttribute(name)
+      }
+    }
+    return re
+  },
+  //----------------------------------------------------
   getData($el, filter=true) {
     filter = this.attrFilter(filter)
     let re = {}
