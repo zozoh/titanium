@@ -36,6 +36,10 @@ export default {
     type : [Array, String],
     default : ()=>["prefixIcon", "suffixIcon"]
   },
+  "prefixIconForClean" : {
+    type : Boolean,
+    default : true
+  },
   "autoSelect" : {
     type : Boolean,
     default : undefined
@@ -56,16 +60,12 @@ export default {
     default : false
   },
   "prefixIcon" : {
-    type : [String, Object],
+    type : [String, Object, Boolean],
     default : undefined
   },
   "prefixHoverIcon" : {
     type : String,
     default : "zmdi-close-circle"
-  },
-  "prefixIconForClean" : {
-    type : Boolean,
-    default : true
   },
   "prefixText" : {
     type : String,

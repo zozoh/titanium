@@ -111,6 +111,13 @@ const _M = {
       state.filter = _.cloneDeep(filter)
     },
     //----------------------------------------
+    clearFilter(state) {
+      let flt = _.cloneDeep(state.filter)
+      flt.keyword = null
+      flt.match = {}
+      state.filter = flt
+    },
+    //----------------------------------------
     setSorter(state, sorter) {
       state.sorter = _.cloneDeep(sorter)
     },

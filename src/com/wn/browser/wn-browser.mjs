@@ -263,18 +263,18 @@ export default {
   watch : {
     //------------------------------------------------
     "data" : {
-      handler : function() {
-        this.myList = _.get(this.data, "list")
-        this.myPager = _.get(this.data, "pager")
+      handler : function(newVal, oldVal) {
+        if(_.isUndefined(oldVal) || !_.isEqual(newVal, oldVal)) {
+          this.myList = _.get(this.data, "list")
+          this.myPager = _.get(this.data, "pager")
+          this.$nextTick(()=>{
+            _.delay(()=>{
+              this.doAutoSelectItem()
+            }, 100)
+          })
+        }
       },
       immediate : true
-    },
-    "ComList" : function() {
-      this.$nextTick(()=>{
-        _.delay(()=>{
-          this.doAutoSelectItem()
-        }, 100)
-      })
     },
     "search" : {
       handler : function() {

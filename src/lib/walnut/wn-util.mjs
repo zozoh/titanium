@@ -1,5 +1,20 @@
 ////////////////////////////////////////////
 const WnUtil = {
+  toFuzzyStr(str, strictStart=false) {
+    if(!str || str.startsWith("^"))
+      return str
+
+    if(strictStart)
+      return '^' + str
+    return '^.*' + str
+  },
+  fromFuzzyStr(str) {
+    let m = /^(\^(\.\*)?)(.+)((\.\*)?\$)?$/.exec(str)
+    if(m) {
+      return m[3]
+    }
+    return str
+  },
   isMimeText(mime) {
     return /^text\//.test(mime) 
            || "application/x-javascript" == mime
@@ -309,7 +324,11 @@ const WnUtil = {
     //............................................
     // Eval Filter: match
     if(!_.isEmpty(match)) {
-      _.assign(flt, match)
+      _.forEach(match, (val, key)=>{
+        if(!Ti.Util.isNil(val)) {
+          flt[key] = val
+        }
+      })
     }
     //............................................
     // Eval Filter: major

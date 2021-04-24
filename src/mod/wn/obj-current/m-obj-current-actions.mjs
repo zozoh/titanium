@@ -182,12 +182,15 @@ const _M = {
   },
   //----------------------------------------
   saveSearchSetting({state, commit}, {filter, sorter, pager}={}) {
-    if(filter)
+    if(filter) {
       commit("setFilter", filter)
-    if(sorter)
+    }
+    if(sorter) {
       commit("setSorter", sorter)
-    if(pager)
+    }
+    if(pager) {
       commit("setPager", pager)
+    }
 
     let keepAs = getKeepSearchAs(state.meta)
     if(keepAs) {
@@ -208,6 +211,11 @@ const _M = {
       let {
         filter, sorter, pager
       } = Ti.Storage.session.getObject(keepAs, {})
+
+      pager = _.assign({}, {
+        pageNumber : 1,
+        pageSize   : meta.dft_page_size || 1000
+      }, pager)
 
       commit("setFilter", filter)
       commit("setSorter", sorter)
@@ -279,6 +287,11 @@ const _M = {
       let input;
       if(state.filter) {
         let flt = Wn.Util.getMatchByFilter(state.filter, meta.search_setting)
+        // Empty filter, force update it again
+        if(_.isEmpty(flt)) {
+          commit("clearFilter")
+          dispatch("saveSearchSetting", {filter:state.filter})
+        }
         input = JSON.stringify(flt)
       }
       cmds.push('@json -cqnl')

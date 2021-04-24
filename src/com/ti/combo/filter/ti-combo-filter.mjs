@@ -130,6 +130,7 @@ const _M = {
       //console.log("tryNotifyChanged")
       let val = this.genValue()
       if(!_.isEqual(val, this.value)) {
+        //console.log(val)
         this.$notify("change", val)
       }
     },
@@ -137,12 +138,15 @@ const _M = {
     // Utility
     //-----------------------------------------------
     genValue() {
-      return {
+      let val = {
         majorKey   : this.myMajorKey,
-        majorValue : this.myMajorValue,
         keyword    : this.myFreeValue,
         match      : this.myFormData
       }
+      if(!Ti.Util.isNil(this.myMajorValue)) {
+        val.majorValue = this.myMajorValue
+      }
+      return val
     },
     //-----------------------------------------------
     evalMyValue() {

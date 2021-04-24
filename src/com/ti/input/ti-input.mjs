@@ -61,11 +61,13 @@ const _M = {
     },
     //------------------------------------------------
     ThePrefixIcon() {
+      let icon = Ti.Util.trueGet(this.prefixIcon, 'zmdi-close', this.prefixIcon)
+      let hove = this.prefixHoverIcon
       if("prefixIcon" == this.pointerHover
         && this.isCanHover("prefixIcon")) {
-        return this.prefixHoverIcon || this.prefixIcon
+        return hove || icon
       }
-      return this.prefixIcon
+      return icon
     },
     //------------------------------------------------
     TheHover() {
