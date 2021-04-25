@@ -1,4 +1,4 @@
-// Pack At: 2021-04-23 03:39:38
+// Pack At: 2021-04-26 03:46:18
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3807,6 +3807,23 @@ const {Dom} = (function(){
       return list.join(";")
     },
     //----------------------------------------------------
+    removeAttrs($el, filter=false) {
+      filter = this.attrFilter(filter)
+      let re = {}
+      for(let i=0; i<$el.attributes.length; i++) {
+        let {name,value} = $el.attributes[i]
+        let key = filter(name, value)
+        if(key) {
+          if(_.isBoolean(key)) {
+            key = name
+          }
+          re[key] = value
+          $el.removeAttribute(name)
+        }
+      }
+      return re
+    },
+    //----------------------------------------------------
     getData($el, filter=true) {
       filter = this.attrFilter(filter)
       let re = {}
@@ -5844,6 +5861,7 @@ const {Icons} = (function(){
     "help"       : "zmdi-help-outline",
     "info"       : "zmdi-info-outline",
     "loading"    : "fas-spinner fa-spin",
+    "moved"      : "zmdi-gamepad",
     "processing" : "zmdi-settings zmdi-hc-spin",
     "ok"         : "zmdi-check-circle",
     "prompt"     : "zmdi-keyboard",
@@ -8473,6 +8491,23 @@ const {Util} = (function(){
           var sfnm = path.substring(p0);
           return forceLower ? sfnm.toLowerCase() : sfnm;
       },
+      splitPathToFullAncestorList(ph) {
+        if(!ph) {
+          return []
+        }
+        let re = []
+        let last = 0;
+        let pos = 0
+        while((pos = ph.indexOf('/', pos))>1) {
+          re.push(ph.substring(0, pos))
+          pos ++
+          last = pos
+        }
+        if(last < ph.length) {
+          re.push(ph)
+        }
+        return re
+      },
       /***
        * Merge a group of string to a path.
        * 
@@ -9966,7 +10001,10 @@ const {Util} = (function(){
      */
     genRowIdGetter(idBy, dftKeys=["id", "value"]) {
       if(_.isFunction(idBy)) {
-        return (it, index) => Ti.Types.toStr(idBy(it, index))
+        return (it, index) => {
+          let id = idBy(it, index)
+          return Ti.Types.toStr(id)
+        }
       }
       if(_.isString(idBy)) {
         return (it, index)=>{
@@ -14608,7 +14646,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210423.033938",
+  "version" : "1.6-20210426.034618",
   "dev" : false,
   "appName" : null,
   "session" : {},

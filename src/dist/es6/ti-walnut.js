@@ -1,4 +1,4 @@
-// Pack At: 2021-04-23 03:39:38
+// Pack At: 2021-04-26 03:46:18
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -325,6 +325,116 @@ const Io = (function(){
       return reo
     },
     /***
+     * Move select obj items to a target.
+     * This method will pop-up a dialog to let user choose a target 
+     */
+    async moveTo(metaOrMetaList, {
+      base,
+      confirm = false,
+      title = "i18n:move-to",
+      exposeHidden = false,
+      testBeforeMove = (it, exRemovedIds)=>{
+        // Duck check
+        if(!it || !it.id || !it.nm)
+          return false
+        // Ignore obsolete item
+        if(it.__is && (it.__is.loading || it.__is.removed))
+          return false
+        // Ignore the exRemovedIds
+        if(exRemovedIds[it.id])
+          return false
+        return true
+      },
+      markItemStatus = _.identity,
+      doneMove = _.identity,
+      successTip = "i18n:wn-move-to-ok"
+    }={}) {
+      // Guard
+      if(!base) {
+        return
+      }
+      if(_.isString(base)) {
+        base = await Wn.Io.loadMeta(base)
+      }
+      // Make input as list
+      let list = []
+      if(metaOrMetaList) {
+        if(_.isArray(metaOrMetaList)){
+          list = metaOrMetaList
+        } else {
+          list = [metaOrMetaList]
+        }
+      }
+      // Guard
+      if(_.isEmpty(list)) {
+        return await Ti.Toast.Open('i18n:wn-move-to-none', "warn")
+      }
+  
+      // Confirm
+      if(confirm) {
+        if(!(await Ti.Confirm({
+          text:"i18n:wn-move-to-confirm", 
+          vars:{N:list.length}}, {type: "warn"
+        }))) {
+          return
+        }
+      }
+  
+      // Select target
+      let reo = await Wn.OpenObjTree(base, {
+        title, exposeHidden
+      })
+  
+      // User cancel
+      if(!reo || !reo.id || reo.id == base.id) {
+        return
+      } 
+  
+      let delCount = 0
+      // make removed files. it remove a video
+      // it will auto-remove the `videoc_dir` in serverside also
+      // so, in order to avoid delete the no-exists file, I should
+      // remove the `videoc_dir` ID here, each time loop, check current
+      // match the id set or not, then I will get peace
+      let exRemovedIds = {}
+      try {
+        // Loop items
+        for(let it of list) {
+          // Test ...
+          if(!testBeforeMove(it, exRemovedIds)) {
+            continue
+          }
+          
+          // Mark item is processing
+          markItemStatus(it.id, "loading")
+  
+          // Do delete
+          await Wn.Sys.exec(`mv id:${it.id} id:${reo.id}`)
+  
+          // Mark item removed
+          markItemStatus(it.id, "moved")
+          
+          // If video result folder, mark it at same time
+          let m = /^id:(.+)$/.exec(it.videoc_dir)
+          if(m) {
+            let vdId = m[1]
+            exRemovedIds[vdId] = true
+            this.setItemStatus(vdId, "moved")
+            markItemStatus(vdId, "moved")
+          }
+          // Counting
+          delCount++
+          // Then continue the loop .......^
+        }
+        // Do reload
+        await doneMove()
+      }
+      // End deleting
+      finally {
+        Ti.Toast.Open(successTip, {N:delCount}, "success")
+      }
+    },
+    /***
      *  Get relative path of WnObj to home
      *  path will starts by "~/"
      */
@@ -380,7 +490,7 @@ const Io = (function(){
 // # import Obj     from "./wn-obj.mjs"
 const Obj = (function(){
   ////////////////////////////////////////////////////
-  const FIELDS = {
+  const FORM_FIELDS = {
     //---------------------------------------------
     "id" : {
       title : "i18n:wn-key-id",
@@ -722,7 +832,7 @@ const Obj = (function(){
     },
     //----------------------------------------
     isBuiltInFields(key) {
-      return FIELDS[key] ? true : false
+      return FORM_FIELDS[key] ? true : false
     },
     //----------------------------------------
     getGroupTitle(titleKey) {
@@ -732,8 +842,32 @@ const Obj = (function(){
       return titleKey
     },
     //----------------------------------------
+    getObjThumbDisplay(key="..") {
+      return {
+        key,
+        type : "Object",
+        transformer : {
+          name : "Ti.Types.toObject",
+          args : {
+            icon  : "icon",
+            thumb : "thumb",
+            type  : "tp",
+            mime  : "mime",
+            race  : "race",
+            timestamp : "__updated_time"
+          }
+        },
+        comType  : "wn-obj-icon",
+        comConf : {
+          "..." : "${=value}",
+          "defaultIcon" : "fas-birthday-cake",
+          //"className"   : "thing-icon"
+        }
+      }
+    },
+    //----------------------------------------
     getField(key) {
-      let fld = FIELDS[key]
+      let fld = FORM_FIELDS[key]
       if(fld) {
         return _.cloneDeep(fld)
       }
@@ -1351,6 +1485,21 @@ const Sys = (function(){
 const Util = (function(){
   ////////////////////////////////////////////
   const WnUtil = {
+    toFuzzyStr(str, strictStart=false) {
+      if(!str || str.startsWith("^"))
+        return str
+  
+      if(strictStart)
+        return '^' + str
+      return '^.*' + str
+    },
+    fromFuzzyStr(str) {
+      let m = /^(\^(\.\*)?)(.+)((\.\*)?\$)?$/.exec(str)
+      if(m) {
+        return m[3]
+      }
+      return str
+    },
     isMimeText(mime) {
       return /^text\//.test(mime) 
              || "application/x-javascript" == mime
@@ -1424,6 +1573,7 @@ const Util = (function(){
       candidateIcon,
       timestamp=0
     }={}, dftIcon) {
+      //console.log("getObjThumbIcon", {icon,race, mime})
       // Thumb as image
       if(thumb) {
         let src = `/o/content?str=${thumb}`
@@ -1585,7 +1735,8 @@ const Util = (function(){
         visibility,
         status   : status[meta.id],
         progress : progress[meta.id],
-        badges : WnUtil.getObjBadges(meta, badges)
+        badges : WnUtil.getObjBadges(meta, badges),
+        rawData : meta
       }
     },
     /***
@@ -1660,7 +1811,11 @@ const Util = (function(){
       //............................................
       // Eval Filter: match
       if(!_.isEmpty(match)) {
-        _.assign(flt, match)
+        _.forEach(match, (val, key)=>{
+          if(!Ti.Util.isNil(val)) {
+            flt[key] = val
+          }
+        })
       }
       //............................................
       // Eval Filter: major
@@ -2587,6 +2742,111 @@ const OpenObjSelector = (function(){
   return OpenObjSelector;
 })();
 //##################################################
+// # import OpenObjTree      from "./wn-open-obj-tree.mjs"
+const OpenObjTree = (function(){
+  /***
+   * Open Modal Dialog to explore one or multi files
+   */
+   async function OpenObjTree(pathOrObj="~", {
+    title = "i18n:select",
+    icon = "zmdi-gamepad",
+    type = "info", closer = true,
+    textOk = "i18n:ok",
+    textCancel = "i18n:cancel",
+    position = "top",
+    width=640, height="90%", spacing,
+    multi=false,
+    exposeHidden=false,
+    homePath=Wn.Session.getHomePath(),
+    fallbackPath=Wn.Session.getHomePath(),
+    objMatch = {
+      race : "DIR"
+    },
+    objFilter
+  }={}){
+    //................................................
+    let oHome = await Wn.Io.loadMeta(homePath)
+    //................................................
+    // Load the target object
+    let meta = pathOrObj;
+    if(_.isString(pathOrObj))
+      meta = await Wn.Io.loadMeta(pathOrObj)
+    // Fallback
+    if(!meta && fallbackPath && pathOrObj!=fallbackPath) {
+      meta = await Wn.Io.loadMeta(fallbackPath)
+    }
+    // Fail to load
+    if(!meta) {
+      return await Ti.Toast.Open({
+        content : "i18n:e-io-obj-noexistsf",
+        vars : _.isString(pathOrObj)
+                ? { ph: pathOrObj, nm: Ti.Util.getFileName(pathOrObj)}
+                : pathOrObj.ph
+      }, "warn")
+    }
+    //................................................
+    // Make sure the obj is dir
+    if("DIR" != meta.race) {
+      meta = await Wn.Io.loadMetaById(meta.pid)
+      if(!meta) {
+        return await Ti.Toast.Open({
+          content : "i18n:e-io-obj-noexistsf",
+          vars : {
+            ph : `Parent of id:${meta.id}->pid:${meta.pid}`,
+            nm : `Parent of id:${meta.nm}->pid:${meta.pid}`,
+          }
+        }, "warn")
+      }
+    }
+    //................................................
+    let oP = meta
+    let aph = Wn.Io.getFormedPath(oP);
+    if(aph.startsWith("~/")) {
+      aph = aph.substring(2);
+    }
+    let phs = Ti.Util.splitPathToFullAncestorList(aph)
+    //................................................
+    // Open modal dialog
+    let reo = await Ti.App.Open({
+      //..............................................
+      type, width, height, spacing, position, closer,
+      icon, title, textOk, textCancel,
+      //..............................................
+      model : {event:"select"},
+      //..............................................
+      comType : "WnObjTree",
+      comConf : {
+        meta : oHome,
+        showRoot : false,
+        multi,
+        currentId : oP.id,
+        openedNodePath : phs,
+        objMatch,
+        objFilter : objFilter || function(obj) {
+          // Hidden file
+          if(!exposeHidden && /^\./.test(obj.nm)) {
+            return false
+          }
+          return true
+        }
+      },
+      components : ["@com:wn/obj/tree"]
+    })
+    //................................................
+    if(!reo || _.isEmpty(reo.selected)) {
+      return
+    }
+    //................................................
+    // End of OpenObjTree
+    if(multi) {
+      return reo.selected
+    }
+    return reo.current
+  }
+  ////////////////////////////////////////////
+  return OpenObjTree;
+})();
+//##################################################
 // # import OpenThingManager from "./wn-open-thing-manager.mjs"
 const OpenThingManager = (function(){
   /***
@@ -3348,7 +3608,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210423.033939"
+const WALNUT_VERSION = "1.2-20210426.034618"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
@@ -3358,7 +3618,8 @@ const HOOKs = {
 export const Wn = {
   Version: WALNUT_VERSION,
   Io, Obj, Session, Sys, Util, Dict, Hm,
-  OpenObjSelector, EditObjMeta, EditObjContent, EditObjPrivilege,
+  OpenObjSelector, OpenObjTree,
+  EditObjMeta, EditObjContent, EditObjPrivilege,
   EditTiComponent, OpenThingManager, OpenCmdPanel,
   Youtube, 
   //-------------------------------------

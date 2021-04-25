@@ -1,4 +1,4 @@
-// Pack At: 2021-04-23 03:39:38
+// Pack At: 2021-04-26 03:46:18
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -877,6 +877,88 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'wn-adaptlist.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/adaptlist/wn-adaptlist.mjs'] = (function(){
+/////////////////////////////////////////////////
+const TABLE_FIELDS = {
+  //---------------------------------------------
+  "title" : {
+    title : "i18n:wn-key-title",
+    display : [Wn.Obj.getObjThumbDisplay("rawData"), "title|nm"]
+  },
+  //---------------------------------------------
+  "tp" : {
+    title : "i18n:wn-key-tp",
+    width : -80,
+    display : "rawData.tp::as-tip"
+  },
+  //---------------------------------------------
+  "c" : {
+    title : "i18n:wn-key-c",
+    width : -150,
+    display : "rawData.c::as-tip"
+  },
+  //---------------------------------------------
+  "m" : {
+    title : "i18n:wn-key-",
+    width : -150,
+    display : "rawData.c::as-tip"
+  },
+  //---------------------------------------------
+  "g" : {
+    title : "i18n:wn-key-g",
+    width : -150,
+    display : "rawData.g::as-tip"
+  },
+  //---------------------------------------------
+  "md" : {
+    title : "i18n:wn-key-md",
+    width : 120,
+    display : {
+      key : "rawData.md",
+      transformer : Wn.Obj.modeToStr,
+      comConf : {
+        className : "as-tip"
+      }
+    }
+  },
+  //---------------------------------------------
+  "len" : {
+    title : "i18n:wn-key-len",
+    width : -100,
+    display : {
+      key : "rawData.len",
+      transformer : Ti.S.sizeText,
+      comConf : {
+        className : "as-tip-block align-right",
+      }
+    }
+  },
+  //---------------------------------------------
+  "ct" : {
+    title : "i18n:wn-key-ct",
+    width : -100,
+    display : {
+      key : "rawData.ct",
+      transformer : Ti.DateTime.timeText,
+      comConf : {
+        className : "as-tip-block align-right",
+      }
+    }
+  },
+  //---------------------------------------------
+  "lm" : {
+    title : "i18n:wn-key-lm",
+    width : -100,
+    display : {
+      key : "rawData.lm",
+      transformer : Ti.DateTime.timeText,
+      comConf : {
+        className : "as-tip-block align-right",
+      }
+    }
+  },
+  //---------------------------------------------
+}
+/////////////////////////////////////////////////
 const _M = {
   ////////////////////////////////////////////////
   data: ()=>({
@@ -894,25 +976,91 @@ const _M = {
       return this.getTopClass()
     },
     //--------------------------------------------
-    isReloading() {
-      return _.get(this.status, "reloading")
+    isLoading() {
+      return !this.viewType || _.get(this.status, "reloading")
     },
     //--------------------------------------------
-    WallItemDisplay() {
+    MainComType() {
+      return ({
+        "wall"  : "TiWall",
+        "list"  : "TiList",
+        "table" : "TiTable"
+      })[this.viewType] || "TiWall"
+    },
+    //--------------------------------------------
+    MainComConf() {
+      let thumbDisplay = Wn.Obj.getObjThumbDisplay("rawData")
+      let conf = ({
+        list : ()=>({
+          rowClassBy : "->is-${visibility}",
+          display: [thumbDisplay, "title|nm::flex-auto", "nm::as-tip-block"]
+        }),
+        table : ()=>({
+          rowClassBy : "->is-${visibility}",
+          fields : _.map(this.tableFields, key=>{
+            let fld = _.get(TABLE_FIELDS, key)
+            if(!fld) {
+              if(_.isString(key)) {
+                return {title:key, display:key}
+              }
+              return key
+            }
+            return fld
+          })
+        }),
+        wall : ()=>({
+          spacing : this.spacing,
+          display : {
+            key : "..",
+            // transformer : {
+            //   name : "Wn.Util.getObjThumbInfo",
+            //   args : [{
+            //       status : this.myItemStatus,
+            //       exposeHidden : this.myExposeHidden
+            //     }]
+            // },
+            comType : 'ti-obj-thumb',
+            comConf : {
+              "..." : "${=value}"
+            }
+          }
+        })
+      })[this.viewType]()
+
+      // Extend customized config
+      _.assign(conf, this.listConf)
+      _.assign(conf, _.get(this, `${this.viewType}ViewConf`))
+
+      // Done
+      return conf
+    },
+    //--------------------------------------------
+    // MainComData() {
+    //   if("wall" == this.viewType) {
+    //     return this.WallDataList
+    //   }
+    //   return this.DataList
+    // },
+    //--------------------------------------------
+    CurrentViewType() {
       return {
-        key : "..",
-        // transformer : {
-        //   name : "Wn.Util.getObjThumbInfo",
-        //   args : [{
-        //       status : this.myItemStatus,
-        //       exposeHidden : this.myExposeHidden
-        //     }]
-        // },
-        comType : 'ti-obj-thumb',
-        comConf : {
-          "..." : "${=value}"
-        }
+        type : this.viewType,
+        icon : _.get(this.viewTypeIcons, this.viewType)
       }
+    },
+    //--------------------------------------------
+    TheAvaViewTypes() {
+      let list = []
+      _.forEach(this.avaViewTypes, vt=>{
+        if(vt == this.viewType) {
+          return;
+        }
+        list.push({
+          type : vt,
+          icon : _.get(this.viewTypeIcons, vt)
+        })
+      })
+      return list
     },
     //--------------------------------------------
     UploadingItemDisplay() {
@@ -1030,6 +1178,13 @@ const _M = {
     OnListInit($list){this.$innerList = $list},
     //--------------------------------------------
     // Events
+    //--------------------------------------------
+    OnSwitchViewType(vt) {
+      this.$notify("listviewtype:change", vt)
+      if(_.isFunction(this.onViewTypeChange)) {
+        this.onViewTypeChange(vt)
+      }
+    },
     //--------------------------------------------
     OnItemSelecteItem({currentId, checkedIds, currentIndex}) {
       //console.log("OnSelected", currentId, checkedIds)
@@ -3745,9 +3900,10 @@ const _M = {
     },
     //-----------------------------------------------
     tryNotifyChanged() {
-      //console.log("tryNotifyChanged")
+      console.log("tryNotifyChanged")
       let val = this.genValue()
       if(!_.isEqual(val, this.value)) {
+        //console.log(val)
         this.$notify("change", val)
       }
     },
@@ -3755,12 +3911,15 @@ const _M = {
     // Utility
     //-----------------------------------------------
     genValue() {
-      return {
+      let val = {
         majorKey   : this.myMajorKey,
-        majorValue : this.myMajorValue,
         keyword    : this.myFreeValue,
         match      : this.myFormData
       }
+      if(!Ti.Util.isNil(this.myMajorValue)) {
+        val.majorValue = this.myMajorValue
+      }
+      return val
     },
     //-----------------------------------------------
     evalMyValue() {
@@ -9701,33 +9860,60 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
   },
   "listConf" : {
-    type : Object,
-    default : undefined
+    type : Object
+  },
+  "wallViewConf"  : {
+    type : Object
+  },
+  "listViewConf"  : {
+    type : Object
+  },
+  "tableViewConf" : {
+    type : Object
   },
   "acceptUpload" : {
-    type : Array,
-    default : undefined
+    type : Array
   },
   "exposeHidden" : {
     type : Boolean,
+  },
+  "viewType" : {
+    type : String,
+    default : "wall"
+  },
+  "avaViewTypes" : {
+    type : Array,
+    default : ()=>["wall", "table", "list"]
+  },
+  "tableFields" : {
+    type : Array,
+    default : ()=>["title", "tp", "c", "g", "md", "len", "lm"]
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
   "itemClassName" : {
-    type : String,
-    default : undefined
+    type : String
   },
   "itemBadges" : {
-    type : [Object, Function],
-    default : undefined
+    type : [Object, Function]
+  },
+  "viewTypeIcons" : {
+    type : Object,
+    default : ()=>({
+      "wall"  : "zmdi-apps",
+      "table" : "zmdi-view-list",
+      "list"  : "zmdi-view-headline"
+    })
   },
   //-----------------------------------
   // Callback
   //-----------------------------------
   "beforeUpload" : {
+    type: Function
+  },
+  "onViewTypeChange" : {
     type: Function,
-    default: undefined
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -11075,12 +11261,15 @@ const _M = {
   },
   //----------------------------------------
   saveSearchSetting({state, commit}, {filter, sorter, pager}={}) {
-    if(filter)
+    if(filter) {
       commit("setFilter", filter)
-    if(sorter)
+    }
+    if(sorter) {
       commit("setSorter", sorter)
-    if(pager)
+    }
+    if(pager) {
       commit("setPager", pager)
+    }
 
     let keepAs = getKeepSearchAs(state.meta)
     if(keepAs) {
@@ -11101,6 +11290,11 @@ const _M = {
       let {
         filter, sorter, pager
       } = Ti.Storage.session.getObject(keepAs, {})
+
+      pager = _.assign({}, {
+        pageNumber : 1,
+        pageSize   : meta.dft_page_size || 1000
+      }, pager)
 
       commit("setFilter", filter)
       commit("setSorter", sorter)
@@ -11172,6 +11366,11 @@ const _M = {
       let input;
       if(state.filter) {
         let flt = Wn.Util.getMatchByFilter(state.filter, meta.search_setting)
+        // Empty filter, force update it again
+        if(_.isEmpty(flt)) {
+          commit("clearFilter")
+          dispatch("saveSearchSetting", {filter:state.filter})
+        }
         input = JSON.stringify(flt)
       }
       cmds.push('@json -cqnl')
@@ -18703,6 +18902,13 @@ const _M = {
       state.filter = _.cloneDeep(filter)
     },
     //----------------------------------------
+    clearFilter(state) {
+      let flt = _.cloneDeep(state.filter)
+      flt.keyword = null
+      flt.match = {}
+      state.filter = flt
+    },
+    //----------------------------------------
     setSorter(state, sorter) {
       state.sorter = _.cloneDeep(sorter)
     },
@@ -19583,6 +19789,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : Object,
       default : ()=>({nm:1})
     },
+    "openedNodePath" : {
+      type : [String, Array, Object]
+    },
+    "currentId" : String,
+    "objMatch" : {
+      type : Object
+    },
+    "objFilter" : {
+      type : [Function, Array, Object]
+    },
     //------------------------------------------------
     // Behavior
     //------------------------------------------------
@@ -19669,6 +19885,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return ({id})=>{
         return id == this.myLoadingNodeId
       }
+    },
+    //------------------------------------------------
+    TreeRowClassBy() {
+      return (it)=>{
+        if(/^\./.test(it.name)) {
+          return "is-weak"
+        }
+      }
+    },
+    //------------------------------------------------
+    TreeRowFilter() {
+      if(!this.objFilter) {
+        return ()=>true
+      }
+      return Ti.AutoMatch.parse(this.objFilter)
     }
     //------------------------------------------------
   },
@@ -19834,16 +20065,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if(Ti.Util.isNil(prVal))
         return
 
+      // Get match
+      let match = _.assign({}, this.objMatch)
+      _.set(match, this.referBy, prVal)
+
       // Reload top 
       let query = {
-        skip: 0, limit: 0, sort: this.sortBy, mine:true,
-        match : {
-          [this.referBy] : prVal
-        }
+        skip: 0, limit: 0, sort: this.sortBy, mine:true, match
       }
       let {list} = await Wn.Io.find(query)
+
+      // Filter obj
+      let list2 = _.filter(list, this.TreeRowFilter)
+
       //_.set(obj, this.childrenBy, list);
-      this.$set(obj, this.childrenBy, list)
+      this.$set(obj, this.childrenBy, list2)
     },
     //------------------------------------------------
     async quietOpenNode(path=[], node=this.treeRoot) {
@@ -20043,6 +20279,31 @@ const __TI_MOD_EXPORT_VAR_NM = {
       handler : function(newVal, oldVal) {
         if(!_.isEqual(newVal, oldVal)) {
           this.reload()
+        }
+      },
+      immediate : true
+    },
+    "currentId" : {
+      handler : function(newVal) {
+        this.myCurrentId = newVal
+      },
+      immediate : true
+    },
+    "openedNodePath" : {
+      handler : function(newVal) {
+        // Single path
+        if(_.isString(newVal)) {
+          _.set(this.myOpenedNodePaths, newVal, true)
+        }
+        // Path array
+        else if(_.isArray(newVal)) {
+          for(let ph of newVal) {
+            _.set(this.myOpenedNodePaths, ph, true)
+          }
+        }
+        // Object
+        else {
+          _.assign(this.myOpenedNodePaths, newVal)
         }
       },
       immediate : true
@@ -24424,6 +24685,21 @@ const OBJ = {
 
   },
   //--------------------------------------------
+  async doMoveTo(confirm=false) {
+    let list = this.getCheckedItems()
+    // Guard
+    await Wn.Io.moveTo(list, {
+      base: this.meta,
+      confirm,
+      markItemStatus: (itId, status)=>{
+        this.setItemStatus(itId, status)
+      },
+      doneMove : async ()=>{
+        return await this._run("reload")
+      }
+    })
+  },
+  //--------------------------------------------
   async doUpload(files=[]) {
     if(_.isFunction(this.beforeUpload)) {
       await this.beforeUpload()
@@ -25725,6 +26001,7 @@ const _M = {
         {
           pvg : this.privilege,
           exposeHidden : this.exposeHidden,
+          listViewType : this.listViewType,
           changed      : this.isChanged,
           reloading    : reloading,
           loading      : this.loading
@@ -25835,6 +26112,10 @@ const _M = {
         this.reloadAncestors()
         this.reloadMain()
       }
+    },
+    //--------------------------------------
+    OnArenaListViewTypeChange({type}={}) {
+      Ti.App(this).dispatch("viewport/changeListViewType", type)
     },
     //--------------------------------------
     OnUpdateActions(actions) {
@@ -26619,11 +26900,13 @@ const _M = {
     },
     //------------------------------------------------
     ThePrefixIcon() {
+      let icon = Ti.Util.trueGet(this.prefixIcon, 'zmdi-close', this.prefixIcon)
+      let hove = this.prefixHoverIcon
       if("prefixIcon" == this.pointerHover
         && this.isCanHover("prefixIcon")) {
-        return this.prefixHoverIcon || this.prefixIcon
+        return hove || icon
       }
-      return this.prefixIcon
+      return icon
     },
     //------------------------------------------------
     TheHover() {
@@ -27678,35 +27961,33 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/wn/obj/icon/wn-obj-icon.mjs'] = (function(){
 /////////////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
-  inheritAttrs : false,
   ///////////////////////////////////////////////////
   props : {
     // icon string
     "icon" : {
-      type : String,
-      default : null
+      type : String
     },
     // image thumb: id:xxxx
     "thumb" : {
-      type : String,
-      default : null
+      type : String
     },
     "mime" : {
-      type : String,
-      default : null
+      type : String
     },
     "type" : {
-      type : String,
-      default : null
+      type : String
     },
     "race" : {
-      type : String,
-      default : null
+      type : String
+    },
+    // higher priority then default Icon and {type,mime,race}
+    "candidateIcon" : {
+      type : String
     },
     // default icon string
-    "candidateIcon" : {
+    "defaultIcon" : {
       type : String,
-      default : null
+      default : "fas-cube"
     },
     // timestamp
     "timestamp" : {
@@ -27730,7 +28011,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         mime  : this.mime,
         type  : this.type,
         race  : this.race,
-      }, "fas-cube")
+      }, this.defaultIcon)
     }
     //-----------------------------------------------
   },
@@ -30744,7 +31025,9 @@ const _M = {
         meta      : this.meta,
         content   : this.content,
         data      : this.data,
-        status    : this.status
+        status    : this.status,
+        exposeHidden : this.exposeHidden,
+        viewType : this.listViewType
       }
       //let actions = this.actions
       // Add init hook to store the $main
@@ -33414,7 +33697,14 @@ const LIST_MIXINS = {
       // Then format the list
       let list = []
       _.forEach(data, (it, index)=>{
+        let className;
+        if(this.rowClassBy) {
+          className = Ti.Util.explainObj(it, this.rowClassBy, {
+            evalFunc: true
+          })
+        }
         let item = {
+          className,
           index,
           id      : this.getRowId(it, index),
           rawData : this.getRowData(it),
@@ -33592,6 +33882,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     async selectRow(rowId, {quiet=false, payload}={}) {
+      //console.log("list_mixins:selectRow", rowId)
       let idMap = {}
       let curId = null
       // Change the current & checked
@@ -35396,6 +35687,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "rowClassBy" : {
+    type : [Function, String]
+  },
   "blankAs" : {
     type : Object,
     default : ()=>({
@@ -41564,6 +41858,9 @@ const TI_TREE = {
       type : [String, Object, Array],
       default : "name"
     },
+    "rowClassBy" : {
+      type : [Function, String]
+    },
     // Default to open the node in depth.
     // the top node depth is 1, which is eqausl the path array length.
     // If 0, it will close all top leavel nodes
@@ -45643,6 +45940,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : [String, Function],
       default : "current/query"
     },
+    "viewType" : String,
+    "exposeHidden" : Boolean,
     // TODO ... need to apply those settins below
     // in __on_events
     // "notifyName" : {
@@ -45659,6 +45958,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
+    "tableFields" : undefined,
     "filter" : {
       type : Object,
       default : ()=>({
@@ -45723,7 +46023,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let com = Ti.Util.explainObj(this, this.list)
       _.merge(com, {
         comConf : {
-          onInit : this.OnListInit
+          onInit : this.OnListInit,
+          viewType : this.viewType,
+          exposeHidden : this.exposeHidden,
+          tableFields : this.tableFields
         }
       })
       return com
@@ -45805,9 +46108,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.reload({pager})
     },
     //------------------------------------------------
+    OnListViewTypeChange() {
+      return {name:"listviewtype:change", stop:false}
+    },
+    //------------------------------------------------
     OnSelectItem({currentId}) {
       this.myCurrentId = currentId
-      return false
+      return {name:"select", stop:false}
     },
     //------------------------------------------------
     doAutoSelectItem() {
@@ -45867,18 +46174,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
   watch : {
     //------------------------------------------------
     "data" : {
-      handler : function() {
-        this.myList = _.get(this.data, "list")
-        this.myPager = _.get(this.data, "pager")
+      handler : function(newVal, oldVal) {
+        if(_.isUndefined(oldVal) || !_.isEqual(newVal, oldVal)) {
+          this.myList = _.get(this.data, "list")
+          this.myPager = _.get(this.data, "pager")
+          this.$nextTick(()=>{
+            _.delay(()=>{
+              this.doAutoSelectItem()
+            }, 100)
+          })
+        }
       },
       immediate : true
-    },
-    "ComList" : function() {
-      this.$nextTick(()=>{
-        _.delay(()=>{
-          this.doAutoSelectItem()
-        }, 100)
-      })
     },
     "search" : {
       handler : function() {
@@ -50097,6 +50404,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     setExposeHidden(state, exposeHidden) {
       //console.log("viewport setActivedIds", activedIds)
       state.exposeHidden = exposeHidden
+    },
+    setListViewType(state, vt) {
+      //console.log("viewport setActivedIds", activedIds)
+      state.listViewType = vt
     }
   },
   actions : {
@@ -50106,10 +50417,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
         Ti.Storage.session.set(state.keeyHiddenBy, state.exposeHidden)
       }
     },
+    changeListViewType({state, commit}, vt) {
+      commit("setListViewType", vt)
+      if(state.keeyViewTypeBy) {
+        Ti.Storage.session.set(state.keeyViewTypeBy, state.listViewType)
+      }
+    },
     reload({state, commit}) {
       if(state.keeyHiddenBy) {
         let eh = Ti.Storage.session.getBoolean(state.keeyHiddenBy)
         commit("setExposeHidden", eh)
+      }
+      if(state.keeyViewTypeBy) {
+        let vt = Ti.Storage.session.getString(state.keeyViewTypeBy, "wall")
+        commit("setListViewType", vt)
       }
     }
   }
@@ -51499,6 +51820,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : [Array, String],
     default : ()=>["prefixIcon", "suffixIcon"]
   },
+  "prefixIconForClean" : {
+    type : Boolean,
+    default : true
+  },
   "autoSelect" : {
     type : Boolean,
     default : undefined
@@ -51519,16 +51844,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default : false
   },
   "prefixIcon" : {
-    type : [String, Object],
+    type : [String, Object, Boolean],
     default : undefined
   },
   "prefixHoverIcon" : {
     type : String,
     default : "zmdi-close-circle"
-  },
-  "prefixIconForClean" : {
-    type : Boolean,
-    default : true
   },
   "prefixText" : {
     type : String,
@@ -57650,6 +57971,7 @@ Ti.Preload("ti/com/ti/list/ti-list.html", `<div class="ti-list"
   <template v-else>
     <list-row
       v-for="row in TheData"
+        :class="row.className"
         :key="row.id"
         :row-id="row.id"
         :index="row.index"
@@ -58835,6 +59157,7 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
         :style="TableStyle">
         <table-row
           v-for="row in myData"
+            :class="row.className"
             :key="row.id"
             :row-id="row.id"
             :index="row.index"
@@ -59666,6 +59989,8 @@ Ti.Preload("ti/com/ti/tree/ti-tree.html", `<ti-table
   :current-id="currentId"
   :checked-ids="checkedIds"
   :multi="multi"
+
+  :row-class-by="rowClassBy"
 
   :row-checkable="isNodeCheckable"
   :row-selectable="isNodeSelectable"
@@ -62847,23 +63172,22 @@ Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", `<div class="wn-adaptlist"
   :class="TopClass"
   v-ti-activable>
   <div
-    class="list-con ti-fill-parent"
+    class="wal-con ti-fill-parent"
     v-drop-files.mask="UploadDragAndDropHandler">
     <!--==================================
       Show Loading
     -->
     <ti-loading
-      v-if="isReloading"
+      v-if="isLoading"
         class="as-reloading as-mid-tip"
         text="i18n:reloading"/>
     <!--==================================
       Data List
     -->
-    <ti-wall
+    <component :is="MainComType"
       v-else
         class="ti-fill-parent"
         :data="WallDataList"
-        :spacing="spacing"
         :changed-id="changedId"
         :current-id="myCurrentId"
         :checked-ids="myCheckedIds"
@@ -62871,12 +63195,28 @@ Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", `<div class="wn-adaptlist"
         :checkable="checkable"
         :blurable="blurable"
         :selectable="selectable"
-        :display="WallItemDisplay"
         :puppet-mode="true"
-        v-bind="listConf"
+        v-bind="MainComConf"
         :on-init="OnListInit"
         @select="OnItemSelecteItem"
         @open="OnItemOpen"/>
+    <!--==================================
+      switch view
+    -->
+    <div class="wal-view-switcher">
+      <div class="as-ava-vt-list">
+        <ul>
+          <li
+            v-for="vt in TheAvaViewTypes"
+              @click.left="OnSwitchViewType(vt)">
+              <TiIcon :value="vt.icon"/>
+          </li>
+        </ul>
+      </div>
+      <div class="as-current-vt">
+        <TiIcon :value="CurrentViewType.icon"/>
+      </div>
+    </div>
     <!--==================================
       Hidden file upload control
     -->
@@ -62898,7 +63238,7 @@ Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", `<div class="wn-adaptlist"
         <span>{{'uploading'|i18n}}</span>
       </header>
       <section>
-        <ti-wall 
+        <TiWall
           :data="TheUploadingList"
           :spacing="spacing"
           :selectable="false"
@@ -62928,7 +63268,9 @@ Ti.Preload("ti/com/wn/adaptlist/_com.json", {
   "mixins" : ["./wn-adaptlist.mjs"],
   "components" : [
     "@com:ti/obj/thumb",
-    "@com:ti/wall"]
+    "@com:ti/wall",
+    "@com:ti/list",
+    "@com:ti/table"]
 });
 //========================================
 // JOIN <wn-browser.html> ti/com/wn/browser/wn-browser.html
@@ -62940,6 +63282,7 @@ Ti.Preload("ti/com/wn/browser/wn-browser.html", `<TiGui
   :layout="TheLayout"
   keep-shown-to="chispo-trademark-browser-gui-shown"
   @select="OnSelectItem"
+  @listviewtype:change="OnListViewTypeChange"
   @filter::change="OnFilterChange"
   @sorter::change="OnSorterChange"
   @pager::change="OnPagerChange"/>`);
@@ -64325,6 +64668,7 @@ Ti.Preload("ti/com/wn/obj/tree/wn-obj-tree.html", `<div class="wn-obj-tree"
     :children-by="childrenBy"
     :test-loading="isNodeLoading"
     :display="display"
+    :row-class-by="TreeRowClassBy"
 
     :opened-node-paths="myOpenedNodePaths"
     
@@ -65063,7 +65407,9 @@ Ti.Preload("ti/mod/ti/viewport/ti-viewport.json", {
   "mode" : "desktop",
   "activedIds" : [],
   "exposeHidden" : false,
-  "keeyHiddenBy" : "ti-viewport-expose-hidden"
+  "listViewType" : "wall",
+  "keeyHiddenBy" : "ti-viewport-expose-hidden",
+  "keeyViewTypeBy" : "ti-viewport-view-type"
 });
 //========================================
 // JOIN <ti-viewport.mjs> ti/mod/ti/viewport/ti-viewport.mjs
@@ -65677,6 +66023,7 @@ Ti.Preload("/a/load/wn.manager/wn-manager.html", `<ti-gui
   @open:wn:obj="OnCurrentMetaChange"
   @arena::change="OnCurrentDataChange"
   @arena::select="OnArenaSelect"
+  @listviewtype:change="OnArenaListViewTypeChange"
   @arena::actions:update="OnUpdateActions"
   @arena::indicate="OnArenaIndicate"
   @arena::message="OnArenaMessage"
@@ -66461,12 +66808,16 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
 // JOIN <wn-manager.i18n.json> ti/i18n/en-us/wn-manager.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/wn-manager.i18n.json", {
+  "wn-list-view-type" : "View Type",
   "ti-loading": "Load...",
   "wn-adaptlist": "Object explorer",
   "wn-create-fail": "Fail to create",
   "wn-create-invalid": "Illegal characters in object name",
   "wn-create-ok": "Create ok",
   "wn-create-too-long": "Object name too long",
+  "wn-move-to-none": "Please select at least one file to move!",
+  "wn-move-to-confirm": "Are you sure you want to move the selected ${N} items? This is an irrevocable operation!",
+  "wn-move-to-ok": "${N} objects have been moved",
   "wn-del-confirm": "Are you sure you want to delete the selected ${N} items? This is an irrevocable operation!",
   "wn-del-item": "Deleting: \"${name}\"",
   "wn-del-no-empty-folder": "The directory \"${nm}\" is not empty, do you want to delete all? click \"no\" to skip",
@@ -66572,38 +66923,39 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
-  "layout" : "布局",
-  "widht" : "宽度",
-  "height" : "高度",
-  "top" : "上",
-  "left" : "左",
-  "right" : "右",
-  "bottom" : "下",
-  "size" : "尺寸",
-  "inherit" : "继承",
-  "e-obj-noexists": "对象[${val}]不存在",
-  "e-ph-noexists": "路径[${val}]不存在",
-  "e-obj-invalid": "路径[${val}]非法",
-  "video-features" : "视频特性",
-  "video-accelerometer" : "视频加速",
-  "video-autoplay" : "自动播放",
-  "video-clipboard-write" : "剪贴板写入",
-  "video-encrypted-media" : "媒体加密",
-  "video-gyroscope" : "重播",
-  "video-pic-in-pic" : "画中画",
-  "allowfullscreen" : "允许全屏",
-  "font-size" : "文字大小",
-  "font-weight" : "文字粗细",
-  "font-w-normal" : "正常",
-  "font-w-bold" : "加粗",
-  "font-transform" : "文字转换",
-  "font-t-capitalize" : "首字母大写",
-  "font-t-uppercase" : "全大写",
-  "font-t-lowercase" : "全小写",
-  "album-refresh" : "刷新相册内容",
-  "album-prop" : "相册属性",
-  "album-margin" : "相册边距",
-  "album-clrsz" : "清除相册尺寸",
+  "move-to" : "Move to...",
+  "layout" : "Layout",
+  "widht" : "Width",
+  "height" : "Height",
+  "top" : "Top",
+  "left" : "Left",
+  "right" : "Right",
+  "bottom" : "Bottom",
+  "size" : "Size",
+  "inherit" : "Inherit",
+  "e-obj-noexists": "Object [${val}] not exists",
+  "e-ph-noexists": "Path [${val}] not exists",
+  "e-obj-invalid": "Path [${val}] invalid",
+  "video-features" : "Video feature",
+  "video-accelerometer" : "Video accelerometer",
+  "video-autoplay" : "Autoplay",
+  "video-clipboard-write" : "Clipboard write",
+  "video-encrypted-media" : "Encrypted media",
+  "video-gyroscope" : "Gyroscope",
+  "video-pic-in-pic" : "Pic in pic",
+  "allowfullscreen" : "Allow fullscreen",
+  "font-size" : "Font size",
+  "font-weight" : "Font weight",
+  "font-w-normal" : "Normal",
+  "font-w-bold" : "Bold",
+  "font-transform" : "Text trans",
+  "font-t-capitalize" : "Capitalize",
+  "font-t-uppercase" : "Uppercase",
+  "font-t-lowercase" : "Lowercase",
+  "album-refresh" : "Refresh album",
+  "album-prop" : "Album prop",
+  "album-margin" : "Album margin",
+  "album-clrsz" : "Clear album size",
 
   "exlink" : "Ex-link",
   "exlink-tip" : "Please enter a URL address",
@@ -67847,12 +68199,16 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
 // JOIN <wn-manager.i18n.json> ti/i18n/zh-cn/wn-manager.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/wn-manager.i18n.json", {
+  "wn-list-view-type": "视图类型",
   "ti-loading": "加载中...",
   "wn-adaptlist": "对象浏览器",
   "wn-create-fail": "创建失败",
   "wn-create-invalid": "新对象名称不能包括非法字符",
   "wn-create-ok": "创建成功",
   "wn-create-too-long": "新对象名称过长",
+  "wn-move-to-none": "请选择至少一个对象进行移动!",
+  "wn-move-to-confirm": "您确定要移动选中的${N}个项目吗？这是一个不可撤销的操作！",
+  "wn-move-to-ok": "已有 ${N} 个对象被移动到了新的目标",
   "wn-del-confirm": "您确定要删除选中的${N}个项目吗？这是一个不可撤销的操作！",
   "wn-del-item": "正在删除: \"${name}\"",
   "wn-del-no-empty-folder": "目录\"${nm}\"不是空的，您是否要全部删除？点击\"否\"跳过",
@@ -67958,6 +68314,7 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "move-to" : "移动到...",
   "layout" : "布局",
   "widht" : "宽度",
   "height" : "高度",
@@ -68525,8 +68882,8 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-fb-album-refresh": "刷新臉書相冊內容",
    "hmk-fb-album-prop": "相冊臉書屬性",
    "hmk-yt-playlist-info": "YT播放列表信息",
-   "hmk-yt-playlist-id": "YT播放列表ID",
-   "hmk-yt-playlist-name": "YT播放列表名稱",
+   "hmk-yt-playlist-id": "列表ID",
+   "hmk-yt-playlist-name": "列表名稱",
    "hmk-yt-playlist-clrsz": "清除YT播放列表尺寸",
    "hmk-yt-playlist-autofit": "YT播放列表自動適應寬度",
    "hmk-yt-playlist-margin": "YT播放列表邊距",
@@ -69191,6 +69548,7 @@ Ti.Preload("ti/i18n/zh-hk/web.i18n.json", {
 // JOIN <wn-manager.i18n.json> ti/i18n/zh-hk/wn-manager.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/wn-manager.i18n.json", {
+   "wn-list-view-type": "視圖類型",
    "ti-loading": "加載中...",
    "wn-adaptlist": "對象瀏覽器",
    "wn-create-fail": "創建失敗",
@@ -69302,6 +69660,7 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
+   "move-to": "移動到...",
    "layout": "佈局",
    "widht": "寬度",
    "height": "高度",

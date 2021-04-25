@@ -1,5 +1,3 @@
-import Wn from "../../../lib/walnut/walnut.mjs"
-
 const OBJ = {
   //---------------------------------------
   /***
