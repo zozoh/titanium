@@ -7,5 +7,7 @@
   "mixins" : ["./wn-adaptlist.mjs"],
   "components" : [
     "@com:ti/obj/thumb",
-    "@com:ti/wall"]
+    "@com:ti/wall",
+    "@com:ti/list",
+    "@com:ti/table"]
 }

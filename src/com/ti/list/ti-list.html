@@ -16,6 +16,7 @@
   <template v-else>
     <list-row
       v-for="row in TheData"
+        :class="row.className"
         :key="row.id"
         :row-id="row.id"
         :index="row.index"

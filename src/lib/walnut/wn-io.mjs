@@ -321,6 +321,116 @@ const WnIo = {
     return reo
   },
   /***
+   * Move select obj items to a target.
+   * This method will pop-up a dialog to let user choose a target 
+   */
+  async moveTo(metaOrMetaList, {
+    base,
+    confirm = false,
+    title = "i18n:move-to",
+    exposeHidden = false,
+    testBeforeMove = (it, exRemovedIds)=>{
+      // Duck check
+      if(!it || !it.id || !it.nm)
+        return false
+      // Ignore obsolete item
+      if(it.__is && (it.__is.loading || it.__is.removed))
+        return false
+      // Ignore the exRemovedIds
+      if(exRemovedIds[it.id])
+        return false
+      return true
+    },
+    markItemStatus = _.identity,
+    doneMove = _.identity,
+    successTip = "i18n:wn-move-to-ok"
+  }={}) {
+    // Guard
+    if(!base) {
+      return
+    }
+    if(_.isString(base)) {
+      base = await Wn.Io.loadMeta(base)
+    }
+    // Make input as list
+    let list = []
+    if(metaOrMetaList) {
+      if(_.isArray(metaOrMetaList)){
+        list = metaOrMetaList
+      } else {
+        list = [metaOrMetaList]
+      }
+    }
+    // Guard
+    if(_.isEmpty(list)) {
+      return await Ti.Toast.Open('i18n:wn-move-to-none', "warn")
+    }
+
+    // Confirm
+    if(confirm) {
+      if(!(await Ti.Confirm({
+        text:"i18n:wn-move-to-confirm", 
+        vars:{N:list.length}}, {type: "warn"
+      }))) {
+        return
+      }
+    }
+
+    // Select target
+    let reo = await Wn.OpenObjTree(base, {
+      title, exposeHidden
+    })
+
+    // User cancel
+    if(!reo || !reo.id || reo.id == base.id) {
+      return
+    } 
+
+    let delCount = 0
+    // make removed files. it remove a video
+    // it will auto-remove the `videoc_dir` in serverside also
+    // so, in order to avoid delete the no-exists file, I should
+    // remove the `videoc_dir` ID here, each time loop, check current
+    // match the id set or not, then I will get peace
+    let exRemovedIds = {}
+    try {
+      // Loop items
+      for(let it of list) {
+        // Test ...
+        if(!testBeforeMove(it, exRemovedIds)) {
+          continue
+        }
+        
+        // Mark item is processing
+        markItemStatus(it.id, "loading")
+
+        // Do delete
+        await Wn.Sys.exec(`mv id:${it.id} id:${reo.id}`)
+
+        // Mark item removed
+        markItemStatus(it.id, "moved")
+        
+        // If video result folder, mark it at same time
+        let m = /^id:(.+)$/.exec(it.videoc_dir)
+        if(m) {
+          let vdId = m[1]
+          exRemovedIds[vdId] = true
+          this.setItemStatus(vdId, "moved")
+          markItemStatus(vdId, "moved")
+        }
+        // Counting
+        delCount++
+        // Then continue the loop .......^
+      }
+      // Do reload
+      await doneMove()
+    }
+    // End deleting
+    finally {
+      Ti.Toast.Open(successTip, {N:delCount}, "success")
+    }
+  },
+  /***
    *  Get relative path of WnObj to home
    *  path will starts by "~/"
    */

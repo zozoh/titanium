@@ -74,7 +74,9 @@ const _M = {
         meta      : this.meta,
         content   : this.content,
         data      : this.data,
-        status    : this.status
+        status    : this.status,
+        exposeHidden : this.exposeHidden,
+        viewType : this.listViewType
       }
       //let actions = this.actions
       // Add init hook to store the $main

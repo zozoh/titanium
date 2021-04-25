@@ -1,138 +1,205 @@
 {
-  "comIcon" : "im-archive",
-  "comType" : "@com:wn/adaptlist",
-  "comConf" : {
-    "ancestors" : "=ancestors",
-    "parent"    : "=parent",
-    "meta"      : "=meta",
-    "data"      : "=data",
-    "status"    : "=status",
-    "exposeHidden"  : "=exposeHidden"
+  "comIcon": "im-archive",
+  "comType": "@com:wn/adaptlist",
+  "comConf": {
+    "ancestors": "=ancestors",
+    "parent": "=parent",
+    "meta": "=meta",
+    "data": "=data",
+    "status": "=status",
+    "viewType": "=listViewType",
+    "exposeHidden": "=exposeHidden"
   },
-  "actions" : [{
-      "name" : "reloading",
-      "type" : "action",
-      "icon" : "zmdi-refresh",
-      "text" : "i18n:refresh",
-      "altDisplay" : {
-        "icon" : "zmdi-refresh zmdi-hc-spin",
-        "text" : "i18n:loading"
+  "actions": [
+    {
+      "name": "reloading",
+      "type": "action",
+      "icon": "zmdi-refresh",
+      "text": "i18n:refresh",
+      "altDisplay": {
+        "icon": "zmdi-refresh zmdi-hc-spin",
+        "text": "i18n:loading"
       },
-      "action" : "dispatch:current/reload",
-      "shortcut" : "CTRL+SHIFT+R",
-      "wait" : 500
-    },{
-      "type":"line"
-    }, {
-      "type" : "group",
-      "icon" : "im-menu",
-      "items" : [{
-          "name" : "create",
-          "type" : "action",
-          "icon" : "zmdi-flare",
-          "text" : "i18n:create",
-          "action" : "main:doCreate",
-          "shortcut" : "ALT+SHIFT+N"
-        },{
-          "name" : "deleting",
-          "type" : "action",
-          "icon" : "zmdi-delete",
-          "text" : "i18n:del",
-          "altDisplay" : {
-            "icon" : "zmdi-refresh zmdi-hc-spin",
-            "text" : "i18n:del-ing"
+      "action": "dispatch:current/reload",
+      "shortcut": "CTRL+SHIFT+R",
+      "wait": 500
+    },
+    {
+      "type": "line"
+    },
+    {
+      "type": "group",
+      "icon": "im-menu",
+      "items": [
+        {
+          "name": "create",
+          "type": "action",
+          "icon": "zmdi-flare",
+          "text": "i18n:create",
+          "action": "main:doCreate",
+          "shortcut": "ALT+SHIFT+N"
+        },
+        {
+          "name": "deleting",
+          "type": "action",
+          "icon": "zmdi-delete",
+          "text": "i18n:del",
+          "altDisplay": {
+            "icon": "zmdi-refresh zmdi-hc-spin",
+            "text": "i18n:del-ing"
           },
-          "action" : "main:doDelete",
-          "shortcut" : "CTRL+DELETE"
-        },{
-          "type":"line"
-        },{
-          "name" : "renaming",
-          "type" : "action",
-          "icon" : "zmdi-space-bar",
-          "text" : "i18n:rename",
-          "altDisplay" : {
-            "icon" : "zmdi-refresh zmdi-hc-spin"
+          "action": "main:doDelete",
+          "shortcut": "CTRL+DELETE"
+        },
+        {
+          "type": "line"
+        },
+        {
+          "name": "renaming",
+          "type": "action",
+          "icon": "zmdi-space-bar",
+          "text": "i18n:rename",
+          "altDisplay": {
+            "icon": "zmdi-refresh zmdi-hc-spin"
           },
-          "action" : "main:doRename",
-          "shortcut" : "F2"
-        },{
-          "type":"line"
-        },{
-          "name" : "selectAll",
-          "type" : "action",
-          "icon" : "zmdi-check-all",
-          "text" : "i18n:select-all",
-          "action" : "main:invokeList(checkRow)",
-          "shortcut" : "CTRL+A"
-        },{
-          "name" : "cancelAll",
-          "type" : "action",
-          "text" : "i18n:cancel-all",
-          "action" : "main:invokeList(cancelRow)"
-        },{
-          "type" : "line"
-        },{
-          "name" : "exposeHidden",
-          "type" : "action",
-          "icon" : "zmdi-eye",
-          "text" : "i18n:wn-expose-hidden-on",
-          "altDisplay" : {
-            "icon" : "zmdi-eye-off",
-            "text" : "i18n:wn-expose-hidden-off",
-            "capture" : false
+          "action": "main:doRename",
+          "shortcut": "F2"
+        },
+        {
+          "name": "moveing",
+          "type": "action",
+          "icon": "zmdi-gamepad",
+          "text": "i18n:move-to",
+          "altDisplay": {
+            "icon": "zmdi-refresh zmdi-hc-spin"
           },
-          "action" : "dispatch:viewport/toggleExposeHidden",
-          "shortcut" : "ALT+CTRL+SHIFT+H"
-        },{
-          "type" : "line"
-        },{
-          "name" : "upload",
-          "type" : "action",
-          "icon" : "zmdi-cloud-upload",
-          "text" : "i18n:upload-file",
-          "__action" : "commit:main/showUploadFilePicker",
-          "action" : "main:openLocalFileSelectdDialog",
-          "shortcut" : "ALT+CTRL+SHIFT+U"
-        },{
-          "type" : "line"
-        },{
-          "type" : "action",
-          "icon" : "zmdi-download",
-          "text" : "i18n:download-to-local",
-          "action" : "main:doDownload"
-        },{
-          "type" : "line"
-        },{
-          "type" : "group",
-          "text" : "i18n:wn-admin-tools",
-          "items" : [{
-              "type" : "action",
-              "text" : "i18n:wn-admin-check-obj-thumb",
-              "action" : "root:doCheckDomainObjThumb"
-            }]
-        },{
-          "type" : "line"
-        },{
-          "type" : "action",
-          "icon" : "fas-user-lock",
-          "text" : "i18n:wn-key-pvg",
-          "action" : "main:openCurrentPrivilege",
-          "shortcut" : "ALT+CTRL+SHIFT+P"
-        },{
-          "type" : "line"
-        },{
-          "type" : "action",
-          "icon" : "fas-keyboard",
-          "text" : "i18n:console",
-          "action" : "=>Ti.Be.Open('/a/open/wn.console')",
-          "shortcut" : "ALT+SHIFT+T"
-        },{
-          "type" : "action",
-          "icon" : "zmdi-info-outline",
-          "text" : "i18n:properties",
-          "action" : "main:openCurrentMeta",
-          "shortcut" : "ALT+SHIFT+P"
-        }]
-    }]
+          "action": "main:doMoveTo",
+          "shortcut": "ALT+SHIFT+M"
+        },
+        {
+          "type": "line"
+        },
+        {
+          "name": "selectAll",
+          "type": "action",
+          "icon": "zmdi-check-all",
+          "text": "i18n:select-all",
+          "action": "main:invokeList(checkRow)",
+          "shortcut": "CTRL+A"
+        },
+        {
+          "name": "cancelAll",
+          "type": "action",
+          "text": "i18n:cancel-all",
+          "action": "main:invokeList(cancelRow)"
+        },
+        {
+          "type": "line"
+        },
+        {
+          "name": "listViewType",
+          "type": "switcher",
+          "text": "i18n:wn-list-view-type",
+          "switcher": {
+            "options": [
+              {
+                "value": "wall",
+                "icon": "zmdi-apps"
+              },
+              {
+                "value": "table",
+                "icon": "zmdi-view-list"
+              },
+              {
+                "value": "list",
+                "icon": "zmdi-view-headline"
+              }
+            ]
+          },
+          "notify": "listviewtype:change",
+          "payload": {
+            "type": "=value"
+          }
+        },
+        {
+          "type": "line"
+        },
+        {
+          "name": "exposeHidden",
+          "type": "action",
+          "icon": "zmdi-eye",
+          "text": "i18n:wn-expose-hidden-on",
+          "altDisplay": {
+            "icon": "zmdi-eye-off",
+            "text": "i18n:wn-expose-hidden-off",
+            "capture": false
+          },
+          "action": "dispatch:viewport/toggleExposeHidden",
+          "shortcut": "ALT+CTRL+SHIFT+H"
+        },
+        {
+          "type": "line"
+        },
+        {
+          "name": "upload",
+          "type": "action",
+          "icon": "zmdi-cloud-upload",
+          "text": "i18n:upload-file",
+          "__action": "commit:main/showUploadFilePicker",
+          "action": "main:openLocalFileSelectdDialog",
+          "shortcut": "ALT+CTRL+SHIFT+U"
+        },
+        {
+          "type": "line"
+        },
+        {
+          "type": "action",
+          "icon": "zmdi-download",
+          "text": "i18n:download-to-local",
+          "action": "main:doDownload"
+        },
+        {
+          "type": "line"
+        },
+        {
+          "type": "group",
+          "text": "i18n:wn-admin-tools",
+          "items": [
+            {
+              "type": "action",
+              "text": "i18n:wn-admin-check-obj-thumb",
+              "action": "root:doCheckDomainObjThumb"
+            }
+          ]
+        },
+        {
+          "type": "line"
+        },
+        {
+          "type": "action",
+          "icon": "fas-user-lock",
+          "text": "i18n:wn-key-pvg",
+          "action": "main:openCurrentPrivilege",
+          "shortcut": "ALT+CTRL+SHIFT+P"
+        },
+        {
+          "type": "line"
+        },
+        {
+          "type": "action",
+          "icon": "fas-keyboard",
+          "text": "i18n:console",
+          "action": "=>Ti.Be.Open('/a/open/wn.console')",
+          "shortcut": "ALT+SHIFT+T"
+        },
+        {
+          "type": "action",
+          "icon": "zmdi-info-outline",
+          "text": "i18n:properties",
+          "action": "main:openCurrentMeta",
+          "shortcut": "ALT+SHIFT+P"
+        }
+      ]
+    }
+  ]
 }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////
-const FIELDS = {
+const FORM_FIELDS = {
   //---------------------------------------------
   "id" : {
     title : "i18n:wn-key-id",
@@ -341,7 +341,7 @@ const WnObj = {
   },
   //----------------------------------------
   isBuiltInFields(key) {
-    return FIELDS[key] ? true : false
+    return FORM_FIELDS[key] ? true : false
   },
   //----------------------------------------
   getGroupTitle(titleKey) {
@@ -351,8 +351,32 @@ const WnObj = {
     return titleKey
   },
   //----------------------------------------
+  getObjThumbDisplay(key="..") {
+    return {
+      key,
+      type : "Object",
+      transformer : {
+        name : "Ti.Types.toObject",
+        args : {
+          icon  : "icon",
+          thumb : "thumb",
+          type  : "tp",
+          mime  : "mime",
+          race  : "race",
+          timestamp : "__updated_time"
+        }
+      },
+      comType  : "wn-obj-icon",
+      comConf : {
+        "..." : "${=value}",
+        "defaultIcon" : "fas-birthday-cake",
+        //"className"   : "thing-icon"
+      }
+    }
+  },
+  //----------------------------------------
   getField(key) {
-    let fld = FIELDS[key]
+    let fld = FORM_FIELDS[key]
     if(fld) {
       return _.cloneDeep(fld)
     }

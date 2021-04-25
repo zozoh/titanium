@@ -35,6 +35,8 @@
     @include flex-align-nowrap($ai:stretch);
     position: relative;
     //-----------------------------------------
+    &.is-weak {opacity: 0.4;}
+    //-----------------------------------------
     > .row-actived-indicator {
       @include flex-center;
       width:8px; padding-right:1px; opacity: 0;
@@ -99,6 +101,9 @@
       //--------------------------------------
       .ti-icon.item-0 {
         width: 1.8em;
+        &.is-image {
+          height: 2.6em; 
+        }
       }
       //--------------------------------------
     }

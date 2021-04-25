@@ -50,6 +50,7 @@
         :style="TableStyle">
         <table-row
           v-for="row in myData"
+            :class="row.className"
             :key="row.id"
             :row-id="row.id"
             :index="row.index"

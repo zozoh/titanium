@@ -1,3 +1,85 @@
+/////////////////////////////////////////////////
+const TABLE_FIELDS = {
+  //---------------------------------------------
+  "title" : {
+    title : "i18n:wn-key-title",
+    display : [Wn.Obj.getObjThumbDisplay("rawData"), "title|nm"]
+  },
+  //---------------------------------------------
+  "tp" : {
+    title : "i18n:wn-key-tp",
+    width : -80,
+    display : "rawData.tp::as-tip"
+  },
+  //---------------------------------------------
+  "c" : {
+    title : "i18n:wn-key-c",
+    width : -150,
+    display : "rawData.c::as-tip"
+  },
+  //---------------------------------------------
+  "m" : {
+    title : "i18n:wn-key-",
+    width : -150,
+    display : "rawData.c::as-tip"
+  },
+  //---------------------------------------------
+  "g" : {
+    title : "i18n:wn-key-g",
+    width : -150,
+    display : "rawData.g::as-tip"
+  },
+  //---------------------------------------------
+  "md" : {
+    title : "i18n:wn-key-md",
+    width : 120,
+    display : {
+      key : "rawData.md",
+      transformer : Wn.Obj.modeToStr,
+      comConf : {
+        className : "as-tip"
+      }
+    }
+  },
+  //---------------------------------------------
+  "len" : {
+    title : "i18n:wn-key-len",
+    width : -100,
+    display : {
+      key : "rawData.len",
+      transformer : Ti.S.sizeText,
+      comConf : {
+        className : "as-tip-block align-right",
+      }
+    }
+  },
+  //---------------------------------------------
+  "ct" : {
+    title : "i18n:wn-key-ct",
+    width : -100,
+    display : {
+      key : "rawData.ct",
+      transformer : Ti.DateTime.timeText,
+      comConf : {
+        className : "as-tip-block align-right",
+      }
+    }
+  },
+  //---------------------------------------------
+  "lm" : {
+    title : "i18n:wn-key-lm",
+    width : -100,
+    display : {
+      key : "rawData.lm",
+      transformer : Ti.DateTime.timeText,
+      comConf : {
+        className : "as-tip-block align-right",
+      }
+    }
+  },
+  //---------------------------------------------
+}
+/////////////////////////////////////////////////
 const _M = {
   ////////////////////////////////////////////////
   data: ()=>({
@@ -15,25 +97,91 @@ const _M = {
       return this.getTopClass()
     },
     //--------------------------------------------
-    isReloading() {
-      return _.get(this.status, "reloading")
+    isLoading() {
+      return !this.viewType || _.get(this.status, "reloading")
     },
     //--------------------------------------------
-    WallItemDisplay() {
+    MainComType() {
+      return ({
+        "wall"  : "TiWall",
+        "list"  : "TiList",
+        "table" : "TiTable"
+      })[this.viewType] || "TiWall"
+    },
+    //--------------------------------------------
+    MainComConf() {
+      let thumbDisplay = Wn.Obj.getObjThumbDisplay("rawData")
+      let conf = ({
+        list : ()=>({
+          rowClassBy : "->is-${visibility}",
+          display: [thumbDisplay, "title|nm::flex-auto", "nm::as-tip-block"]
+        }),
+        table : ()=>({
+          rowClassBy : "->is-${visibility}",
+          fields : _.map(this.tableFields, key=>{
+            let fld = _.get(TABLE_FIELDS, key)
+            if(!fld) {
+              if(_.isString(key)) {
+                return {title:key, display:key}
+              }
+              return key
+            }
+            return fld
+          })
+        }),
+        wall : ()=>({
+          spacing : this.spacing,
+          display : {
+            key : "..",
+            // transformer : {
+            //   name : "Wn.Util.getObjThumbInfo",
+            //   args : [{
+            //       status : this.myItemStatus,
+            //       exposeHidden : this.myExposeHidden
+            //     }]
+            // },
+            comType : 'ti-obj-thumb',
+            comConf : {
+              "..." : "${=value}"
+            }
+          }
+        })
+      })[this.viewType]()
+
+      // Extend customized config
+      _.assign(conf, this.listConf)
+      _.assign(conf, _.get(this, `${this.viewType}ViewConf`))
+
+      // Done
+      return conf
+    },
+    //--------------------------------------------
+    // MainComData() {
+    //   if("wall" == this.viewType) {
+    //     return this.WallDataList
+    //   }
+    //   return this.DataList
+    // },
+    //--------------------------------------------
+    CurrentViewType() {
       return {
-        key : "..",
-        // transformer : {
-        //   name : "Wn.Util.getObjThumbInfo",
-        //   args : [{
-        //       status : this.myItemStatus,
-        //       exposeHidden : this.myExposeHidden
-        //     }]
-        // },
-        comType : 'ti-obj-thumb',
-        comConf : {
-          "..." : "${=value}"
-        }
+        type : this.viewType,
+        icon : _.get(this.viewTypeIcons, this.viewType)
       }
+    },
+    //--------------------------------------------
+    TheAvaViewTypes() {
+      let list = []
+      _.forEach(this.avaViewTypes, vt=>{
+        if(vt == this.viewType) {
+          return;
+        }
+        list.push({
+          type : vt,
+          icon : _.get(this.viewTypeIcons, vt)
+        })
+      })
+      return list
     },
     //--------------------------------------------
     UploadingItemDisplay() {
@@ -151,6 +299,13 @@ const _M = {
     OnListInit($list){this.$innerList = $list},
     //--------------------------------------------
     // Events
+    //--------------------------------------------
+    OnSwitchViewType(vt) {
+      this.$notify("listviewtype:change", vt)
+      if(_.isFunction(this.onViewTypeChange)) {
+        this.onViewTypeChange(vt)
+      }
+    },
     //--------------------------------------------
     OnItemSelecteItem({currentId, checkedIds, currentIndex}) {
       //console.log("OnSelected", currentId, checkedIds)

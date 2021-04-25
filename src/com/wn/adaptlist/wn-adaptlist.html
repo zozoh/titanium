@@ -2,23 +2,22 @@
   :class="TopClass"
   v-ti-activable>
   <div
-    class="list-con ti-fill-parent"
+    class="wal-con ti-fill-parent"
     v-drop-files.mask="UploadDragAndDropHandler">
     <!--==================================
       Show Loading
     -->
     <ti-loading
-      v-if="isReloading"
+      v-if="isLoading"
         class="as-reloading as-mid-tip"
         text="i18n:reloading"/>
     <!--==================================
       Data List
     -->
-    <ti-wall
+    <component :is="MainComType"
       v-else
         class="ti-fill-parent"
         :data="WallDataList"
-        :spacing="spacing"
         :changed-id="changedId"
         :current-id="myCurrentId"
         :checked-ids="myCheckedIds"
@@ -26,12 +25,28 @@
         :checkable="checkable"
         :blurable="blurable"
         :selectable="selectable"
-        :display="WallItemDisplay"
         :puppet-mode="true"
-        v-bind="listConf"
+        v-bind="MainComConf"
         :on-init="OnListInit"
         @select="OnItemSelecteItem"
         @open="OnItemOpen"/>
+    <!--==================================
+      switch view
+    -->
+    <div class="wal-view-switcher">
+      <div class="as-ava-vt-list">
+        <ul>
+          <li
+            v-for="vt in TheAvaViewTypes"
+              @click.left="OnSwitchViewType(vt)">
+              <TiIcon :value="vt.icon"/>
+          </li>
+        </ul>
+      </div>
+      <div class="as-current-vt">
+        <TiIcon :value="CurrentViewType.icon"/>
+      </div>
+    </div>
     <!--==================================
       Hidden file upload control
     -->
@@ -53,7 +68,7 @@
         <span>{{'uploading'|i18n}}</span>
       </header>
       <section>
-        <ti-wall 
+        <TiWall
           :data="TheUploadingList"
           :spacing="spacing"
           :selectable="false"

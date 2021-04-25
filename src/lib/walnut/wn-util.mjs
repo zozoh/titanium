@@ -88,6 +88,7 @@ const WnUtil = {
     candidateIcon,
     timestamp=0
   }={}, dftIcon) {
+    //console.log("getObjThumbIcon", {icon,race, mime})
     // Thumb as image
     if(thumb) {
       let src = `/o/content?str=${thumb}`
@@ -249,7 +250,8 @@ const WnUtil = {
       visibility,
       status   : status[meta.id],
       progress : progress[meta.id],
-      badges : WnUtil.getObjBadges(meta, badges)
+      badges : WnUtil.getObjBadges(meta, badges),
+      rawData : meta
     }
   },
   /***

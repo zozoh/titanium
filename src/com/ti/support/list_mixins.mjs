@@ -157,7 +157,14 @@ const LIST_MIXINS = {
       // Then format the list
       let list = []
       _.forEach(data, (it, index)=>{
+        let className;
+        if(this.rowClassBy) {
+          className = Ti.Util.explainObj(it, this.rowClassBy, {
+            evalFunc: true
+          })
+        }
         let item = {
+          className,
           index,
           id      : this.getRowId(it, index),
           rawData : this.getRowData(it),
@@ -335,6 +342,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     async selectRow(rowId, {quiet=false, payload}={}) {
+      //console.log("list_mixins:selectRow", rowId)
       let idMap = {}
       let curId = null
       // Change the current & checked

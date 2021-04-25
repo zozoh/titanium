@@ -1,34 +1,32 @@
 /////////////////////////////////////////////////////
 export default {
-  inheritAttrs : false,
   ///////////////////////////////////////////////////
   props : {
     // icon string
     "icon" : {
-      type : String,
-      default : null
+      type : String
     },
     // image thumb: id:xxxx
     "thumb" : {
-      type : String,
-      default : null
+      type : String
     },
     "mime" : {
-      type : String,
-      default : null
+      type : String
     },
     "type" : {
-      type : String,
-      default : null
+      type : String
     },
     "race" : {
-      type : String,
-      default : null
+      type : String
+    },
+    // higher priority then default Icon and {type,mime,race}
+    "candidateIcon" : {
+      type : String
     },
     // default icon string
-    "candidateIcon" : {
+    "defaultIcon" : {
       type : String,
-      default : null
+      default : "fas-cube"
     },
     // timestamp
     "timestamp" : {
@@ -52,7 +50,7 @@ export default {
         mime  : this.mime,
         type  : this.type,
         race  : this.race,
-      }, "fas-cube")
+      }, this.defaultIcon)
     }
     //-----------------------------------------------
   },

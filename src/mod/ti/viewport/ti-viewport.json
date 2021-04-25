@@ -2,5 +2,7 @@
   "mode" : "desktop",
   "activedIds" : [],
   "exposeHidden" : false,
-  "keeyHiddenBy" : "ti-viewport-expose-hidden"
+  "listViewType" : "wall",
+  "keeyHiddenBy" : "ti-viewport-expose-hidden",
+  "keeyViewTypeBy" : "ti-viewport-view-type"
 }

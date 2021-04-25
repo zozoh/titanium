@@ -102,6 +102,23 @@ const TiPaths = {
       var sfnm = path.substring(p0);
       return forceLower ? sfnm.toLowerCase() : sfnm;
   },
+  splitPathToFullAncestorList(ph) {
+    if(!ph) {
+      return []
+    }
+    let re = []
+    let last = 0;
+    let pos = 0
+    while((pos = ph.indexOf('/', pos))>1) {
+      re.push(ph.substring(0, pos))
+      pos ++
+      last = pos
+    }
+    if(last < ph.length) {
+      re.push(ph)
+    }
+    return re
+  },
   /***
    * Merge a group of string to a path.
    * 

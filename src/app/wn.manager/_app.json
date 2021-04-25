@@ -30,7 +30,8 @@
       },
       "...viewport" : {
         "state" : {
-          "exposeHidden" : "exposeHidden"
+          "exposeHidden" : "exposeHidden",
+          "listViewType" : "listViewType"
         }
       }
     }, "!mjs:./wn-manager-computed.mjs"],

@@ -35,6 +35,16 @@ export default {
       type : Object,
       default : ()=>({nm:1})
     },
+    "openedNodePath" : {
+      type : [String, Array, Object]
+    },
+    "currentId" : String,
+    "objMatch" : {
+      type : Object
+    },
+    "objFilter" : {
+      type : [Function, Array, Object]
+    },
     //------------------------------------------------
     // Behavior
     //------------------------------------------------
@@ -121,6 +131,21 @@ export default {
       return ({id})=>{
         return id == this.myLoadingNodeId
       }
+    },
+    //------------------------------------------------
+    TreeRowClassBy() {
+      return (it)=>{
+        if(/^\./.test(it.name)) {
+          return "is-weak"
+        }
+      }
+    },
+    //------------------------------------------------
+    TreeRowFilter() {
+      if(!this.objFilter) {
+        return ()=>true
+      }
+      return Ti.AutoMatch.parse(this.objFilter)
     }
     //------------------------------------------------
   },
@@ -286,16 +311,21 @@ export default {
       if(Ti.Util.isNil(prVal))
         return
 
+      // Get match
+      let match = _.assign({}, this.objMatch)
+      _.set(match, this.referBy, prVal)
+
       // Reload top 
       let query = {
-        skip: 0, limit: 0, sort: this.sortBy, mine:true,
-        match : {
-          [this.referBy] : prVal
-        }
+        skip: 0, limit: 0, sort: this.sortBy, mine:true, match
       }
       let {list} = await Wn.Io.find(query)
+
+      // Filter obj
+      let list2 = _.filter(list, this.TreeRowFilter)
+
       //_.set(obj, this.childrenBy, list);
-      this.$set(obj, this.childrenBy, list)
+      this.$set(obj, this.childrenBy, list2)
     },
     //------------------------------------------------
     async quietOpenNode(path=[], node=this.treeRoot) {
@@ -495,6 +525,31 @@ export default {
       handler : function(newVal, oldVal) {
         if(!_.isEqual(newVal, oldVal)) {
           this.reload()
+        }
+      },
+      immediate : true
+    },
+    "currentId" : {
+      handler : function(newVal) {
+        this.myCurrentId = newVal
+      },
+      immediate : true
+    },
+    "openedNodePath" : {
+      handler : function(newVal) {
+        // Single path
+        if(_.isString(newVal)) {
+          _.set(this.myOpenedNodePaths, newVal, true)
+        }
+        // Path array
+        else if(_.isArray(newVal)) {
+          for(let ph of newVal) {
+            _.set(this.myOpenedNodePaths, ph, true)
+          }
+        }
+        // Object
+        else {
+          _.assign(this.myOpenedNodePaths, newVal)
         }
       },
       immediate : true

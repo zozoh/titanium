@@ -79,6 +79,9 @@ const TI_TREE = {
       type : [String, Object, Array],
       default : "name"
     },
+    "rowClassBy" : {
+      type : [Function, String]
+    },
     // Default to open the node in depth.
     // the top node depth is 1, which is eqausl the path array length.
     // If 0, it will close all top leavel nodes

@@ -120,6 +120,9 @@ export default {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "rowClassBy" : {
+    type : [Function, String]
+  },
   "blankAs" : {
     type : Object,
     default : ()=>({

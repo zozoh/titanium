@@ -39,6 +39,8 @@ export default {
       type : [String, Function],
       default : "current/query"
     },
+    "viewType" : String,
+    "exposeHidden" : Boolean,
     // TODO ... need to apply those settins below
     // in __on_events
     // "notifyName" : {
@@ -55,6 +57,7 @@ export default {
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
+    "tableFields" : undefined,
     "filter" : {
       type : Object,
       default : ()=>({
@@ -119,7 +122,10 @@ export default {
       let com = Ti.Util.explainObj(this, this.list)
       _.merge(com, {
         comConf : {
-          onInit : this.OnListInit
+          onInit : this.OnListInit,
+          viewType : this.viewType,
+          exposeHidden : this.exposeHidden,
+          tableFields : this.tableFields
         }
       })
       return com
@@ -201,9 +207,13 @@ export default {
       this.reload({pager})
     },
     //------------------------------------------------
+    OnListViewTypeChange() {
+      return {name:"listviewtype:change", stop:false}
+    },
+    //------------------------------------------------
     OnSelectItem({currentId}) {
       this.myCurrentId = currentId
-      return false
+      return {name:"select", stop:false}
     },
     //------------------------------------------------
     doAutoSelectItem() {

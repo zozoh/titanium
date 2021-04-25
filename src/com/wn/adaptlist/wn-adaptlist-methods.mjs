@@ -1,3 +1,5 @@
+import Wn from "../../../lib/walnut/walnut.mjs"
+
 const OBJ = {
   //---------------------------------------
   /***
@@ -216,6 +218,21 @@ const OBJ = {
       Ti.Toast.Open("i18n:wn-del-ok", {N:delCount}, "success")
     }
 
+  },
+  //--------------------------------------------
+  async doMoveTo(confirm=false) {
+    let list = this.getCheckedItems()
+    // Guard
+    await Wn.Io.moveTo(list, {
+      base: this.meta,
+      confirm,
+      markItemStatus: (itId, status)=>{
+        this.setItemStatus(itId, status)
+      },
+      doneMove : async ()=>{
+        return await this._run("reload")
+      }
+    })
   },
   //--------------------------------------------
   async doUpload(files=[]) {

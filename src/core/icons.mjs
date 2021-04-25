@@ -68,6 +68,7 @@ const NAMES = {
   "help"       : "zmdi-help-outline",
   "info"       : "zmdi-info-outline",
   "loading"    : "fas-spinner fa-spin",
+  "moved"      : "zmdi-gamepad",
   "processing" : "zmdi-settings zmdi-hc-spin",
   "ok"         : "zmdi-check-circle",
   "prompt"     : "zmdi-keyboard",

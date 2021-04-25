@@ -64,32 +64,59 @@ export default {
     })
   },
   "listConf" : {
-    type : Object,
-    default : undefined
+    type : Object
+  },
+  "wallViewConf"  : {
+    type : Object
+  },
+  "listViewConf"  : {
+    type : Object
+  },
+  "tableViewConf" : {
+    type : Object
   },
   "acceptUpload" : {
-    type : Array,
-    default : undefined
+    type : Array
   },
   "exposeHidden" : {
     type : Boolean,
+  },
+  "viewType" : {
+    type : String,
+    default : "wall"
+  },
+  "avaViewTypes" : {
+    type : Array,
+    default : ()=>["wall", "table", "list"]
+  },
+  "tableFields" : {
+    type : Array,
+    default : ()=>["title", "tp", "c", "g", "md", "len", "lm"]
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
   "itemClassName" : {
-    type : String,
-    default : undefined
+    type : String
   },
   "itemBadges" : {
-    type : [Object, Function],
-    default : undefined
+    type : [Object, Function]
+  },
+  "viewTypeIcons" : {
+    type : Object,
+    default : ()=>({
+      "wall"  : "zmdi-apps",
+      "table" : "zmdi-view-list",
+      "list"  : "zmdi-view-headline"
+    })
   },
   //-----------------------------------
   // Callback
   //-----------------------------------
   "beforeUpload" : {
+    type: Function
+  },
+  "onViewTypeChange" : {
     type: Function,
-    default: undefined
   }
 }

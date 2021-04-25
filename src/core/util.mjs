@@ -1276,7 +1276,10 @@ const TiUtil = {
    */
   genRowIdGetter(idBy, dftKeys=["id", "value"]) {
     if(_.isFunction(idBy)) {
-      return (it, index) => Ti.Types.toStr(idBy(it, index))
+      return (it, index) => {
+        let id = idBy(it, index)
+        return Ti.Types.toStr(id)
+      }
     }
     if(_.isString(idBy)) {
       return (it, index)=>{

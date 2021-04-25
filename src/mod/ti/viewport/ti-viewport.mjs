@@ -22,6 +22,10 @@ export default {
     setExposeHidden(state, exposeHidden) {
       //console.log("viewport setActivedIds", activedIds)
       state.exposeHidden = exposeHidden
+    },
+    setListViewType(state, vt) {
+      //console.log("viewport setActivedIds", activedIds)
+      state.listViewType = vt
     }
   },
   actions : {
@@ -31,10 +35,20 @@ export default {
         Ti.Storage.session.set(state.keeyHiddenBy, state.exposeHidden)
       }
     },
+    changeListViewType({state, commit}, vt) {
+      commit("setListViewType", vt)
+      if(state.keeyViewTypeBy) {
+        Ti.Storage.session.set(state.keeyViewTypeBy, state.listViewType)
+      }
+    },
     reload({state, commit}) {
       if(state.keeyHiddenBy) {
         let eh = Ti.Storage.session.getBoolean(state.keeyHiddenBy)
         commit("setExposeHidden", eh)
+      }
+      if(state.keeyViewTypeBy) {
+        let vt = Ti.Storage.session.getString(state.keeyViewTypeBy, "wall")
+        commit("setListViewType", vt)
       }
     }
   }

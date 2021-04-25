@@ -6,6 +6,7 @@ import Util    from "./wn-util.mjs"
 import Dict    from "./wn-dict.mjs"
 import Hm      from "./wn-hmaker.mjs"
 import OpenObjSelector  from "./wn-open-obj-selector.mjs"
+import OpenObjTree      from "./wn-open-obj-tree.mjs"
 import OpenThingManager from "./wn-open-thing-manager.mjs"
 import EditObjMeta      from "./wn-edit-obj-meta.mjs"
 import EditObjContent   from "./wn-edit-obj-content.mjs"
@@ -25,7 +26,8 @@ const HOOKs = {
 export const Wn = {
   Version: WALNUT_VERSION,
   Io, Obj, Session, Sys, Util, Dict, Hm,
-  OpenObjSelector, EditObjMeta, EditObjContent, EditObjPrivilege,
+  OpenObjSelector, OpenObjTree,
+  EditObjMeta, EditObjContent, EditObjPrivilege,
   EditTiComponent, OpenThingManager, OpenCmdPanel,
   Youtube, 
   //-------------------------------------

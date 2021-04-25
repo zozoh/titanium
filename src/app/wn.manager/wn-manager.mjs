@@ -118,6 +118,7 @@ const _M = {
         {
           pvg : this.privilege,
           exposeHidden : this.exposeHidden,
+          listViewType : this.listViewType,
           changed      : this.isChanged,
           reloading    : reloading,
           loading      : this.loading
@@ -189,7 +190,7 @@ const _M = {
     },
     //--------------------------------------
     OnArenaSelect({checked}) {
-      console.log("OnArenaSelect", checked)
+      //console.log("OnArenaSelect", checked)
       let n = _.size(checked)
       if(n > 0) {
         this.myIndicator = `${n} selected`
@@ -228,6 +229,10 @@ const _M = {
         this.reloadAncestors()
         this.reloadMain()
       }
+    },
+    //--------------------------------------
+    OnArenaListViewTypeChange({type}={}) {
+      Ti.App(this).dispatch("viewport/changeListViewType", type)
     },
     //--------------------------------------
     OnUpdateActions(actions) {
