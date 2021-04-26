@@ -150,7 +150,7 @@ const TiStr = {
   isBlank(str) {
     if(_.isString(str))
       return !str || /^\s*$/.test(str)
-    return false
+    return str ? false : true
   },
   splitIgnoreBlank(input, sep=",") {
     if(!input || !_.isString(input))

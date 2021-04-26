@@ -167,6 +167,15 @@ export default {
                 dftSrc : this.dftImgSrc
               })
             },
+            thumb: (obj)=> {
+              return Ti.WWW.evalObjPreviewSrc(obj, {
+                previewKey : "thumb",
+                previewObj : "thumbObj",
+                apiTmpl : this.apiTmpl,
+                cdnTmpl : this.cdnTmpl,
+                dftSrc : this.dftImgSrc
+              })
+            },
             brief : "=brief"
           }
         },
@@ -199,8 +208,30 @@ export default {
       
       // Redraw
       let items = AB.getItems()
-      //console.log(items)
+      console.log(items)
       AB.renderItems(items)
+    }
+  },
+  //--------------------------------------
+  bindLiveWidgets($div) {
+    let LIVE_WIDGETS = {
+      "album-fullpreview" : function($el){
+        Ti.Widget.PhotoGallery.bind($el, {
+          titleKey : $el.getAttribute("ti-live-title-key") || "title"
+        })
+      }
+    }
+    let $els = Ti.Dom.findAll('[ti-live-widget]', $div)
+    for(let $el of $els) {
+      let widgetType = $el.getAttribute("ti-live-widget")
+      let initFunc = LIVE_WIDGETS[widgetType]
+      if(_.isFunction(initFunc)) {
+        initFunc($el)
+      }
+      // Invalid live widget type, warn user
+      else {
+        console.warn("Invalid widget type", widgetType)
+      }
     }
   },
   //--------------------------------------
@@ -239,6 +270,9 @@ export default {
 
     // Update the article content
     this.$refs.main.innerHTML = $div.innerHTML
+
+    // Bind Live widget
+    this.bindLiveWidgets(this.$refs.main)
 
     return true
   }

@@ -38,6 +38,7 @@ import {Dict,DictFactory} from "./dict.mjs"
 import {VueEventBubble} from "./vue/vue-event-bubble.mjs"
 import {VueTiCom} from "./vue/vue-ti-com.mjs"
 import {Album} from "./widget/album.mjs"
+import {PhotoGallery} from "./widget/photo-gallery.mjs"
 //---------------------------------------
 import {WalnutAppMain} from "./ti-walnut-app-main.mjs"
 import {WebAppMain} from "./ti-web-app-main.mjs"
@@ -114,7 +115,7 @@ const Ti = {
   Websocket: TiWebsocket,
   //-----------------------------------------------------
   Widget : {
-    Album
+    Album, PhotoGallery
   },
   //-----------------------------------------------------
   Api : {

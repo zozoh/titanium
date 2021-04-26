@@ -55,15 +55,10 @@ export default {
       default: undefined
     },
     // for highlight
-    "path" : {
-      type : String,
-      default: undefined
-    },
+    "value" : String,
     // for highlight
-    "params": {
-      type : Object,
-      default: undefined
-    }
+    "path" : String,
+    "params": Object
   },
   /////////////////////////////////////////
   computed : {
@@ -197,9 +192,10 @@ export default {
         depth,
         base: this.base, 
         idBy: this.idBy,
+        value: this.value,
         iteratee: (li)=>{
-          if(this.path) {
-            li.highlight = li.highlightBy(this.path, this.params)
+          if(this.path || this.value) {
+            li.highlight = li.highlightBy(this)
           }
           //........................................
           // Children highlight cause the parent focused

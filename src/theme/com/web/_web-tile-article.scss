@@ -6,6 +6,10 @@
   background-position: center;
   position: relative;
   //------------------------------------
+  &.auto-center.nil-content > a.as-header {
+    margin: 0;
+  }
+  //------------------------------------
   > a.as-header {
     display: block;
     background-repeat: no-repeat;
@@ -150,5 +154,11 @@
   &.is-header-shadow > a.as-header {
     text-shadow: SZ(1) SZ(1) SZ(2) map-get($color-shadow, heavy);
   }
+  //------------------------------------
+  &.hs-xs .as-header {font-size: SZ(14);}
+  &.hs-sm .as-header {font-size: SZ(18);}
+  &.hs-md .as-header {font-size: SZ(20);}
+  &.hs-lg .as-header {font-size: SZ(24);}
+  &.hs-xl .as-header {font-size: SZ(32);}
   //------------------------------------
 }

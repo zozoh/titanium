@@ -65,7 +65,7 @@ const TiWWW = {
           li.value = path
           li.href = TiWWW.joinHrefParams(aph, it.params, it.anchor)
         }
-        li.highlightBy = TiWWW.evalHighlightBy(it.highlightBy || li.value, it)  
+        li.highlightBy = TiWWW.evalHighlightBy(it.highlightBy || li.value, it)
         if(!li.target && it.newTab) {
           li.target = "_blank"
         }
@@ -73,7 +73,7 @@ const TiWWW = {
       //..........................................
       // Link to URL
       else if('href' == li.type) {
-        li.highlightBy = ()=>false
+        li.highlightBy = TiWWW.evalHighlightBy(it.highlightBy || li.value, it)
         if(!li.href)
           li.href = TiWWW.joinHrefParams(it.value, it.params, it.anchor)
         if(!li.target && it.newTab)
@@ -117,12 +117,16 @@ const TiWWW = {
       if(highlightBy.startsWith("^") 
          || highlightBy.endsWith("$")) {
         let regex = new RegExp(highlightBy)
-        return _.bind(function(path){
-          return this.test(path)
+        return _.bind(function({path, value}){
+          return this.test(value) 
+                 || this.test(path)
         }, regex)
       }
       // Static value
-      return (path, params) => {
+      return ({path, params, value}) => {
+        if(!Ti.Util.isNil(value) && it.value == value) {
+          return true
+        }
         if(!_.isEqual(path, highlightBy))
           return false
         // Need check the params
@@ -136,8 +140,9 @@ const TiWWW = {
     }
     // RegExp
     if(_.isRegExp(highlightBy)) {
-      return _.bind(function(path){
-        return this.test(path)
+      return _.bind(function({path, value}){
+        return this.test(value) 
+                 || this.test(path)
       }, highlightBy)
     }
     // Boolean

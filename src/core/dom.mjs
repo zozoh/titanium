@@ -692,10 +692,19 @@ const TiDom = {
       // Other attribute
       else if(_.isUndefined(val)){
         return
-      } else if(_.isNull(val)) {
+      }
+      // null to remove 
+      else if(_.isNull(val)) {
         $el.removeAttribute(k3)
-      } else {
-        $el.setAttribute(k3, val)
+      }
+      // Save value
+      else {
+        // format val
+        let v2 = val
+        if(_.isArray(val) || _.isPlainObject(val)) {
+          v2 = JSON.stringify(val)
+        }
+        $el.setAttribute(k3, v2)
       }
     })
   },

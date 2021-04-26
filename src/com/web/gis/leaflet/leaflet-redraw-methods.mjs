@@ -11,7 +11,7 @@ export default {
       let icon = Ti.Util.explainObj(obj, markerIcon, {
         evalFunc : true
       })
-      console.log({icon})
+      //console.log({icon})
       if(icon) {
         $marker.setIcon(this.Icon(icon, markerIconOptions))
       }

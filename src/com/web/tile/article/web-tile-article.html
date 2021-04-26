@@ -7,19 +7,25 @@
   <a 
     v-if="title"
       class="as-header"
-      :href="href"
-      :style="HeaderStyle"><span>{{title | i18n}}</span></a>
+      :style="TheHeaderStyle"
+      :target="LinkTarget"
+      :href="href"><span>{{title | i18n}}</span></a>
   <!--
     Content
   -->
-  <article v-if="content" v-html="HtmlContent"></article>
+  <article
+    v-if="hasContent"
+      :style="articleStyle"
+      v-html="HtmlContent"></article>
   <!--
     Button
   -->
-  <footer v-if="hasButton">
-    <a class="as-btn" :href="href">
-      <span v-if="btnText" class="as-text">{{btnText|i18n}}</span>
-      <TiIcon v-if="btnIcon" :value="btnIcon"/>
-    </a>
+  <footer
+    v-if="hasButton"
+      :style="footerStyle">
+      <a class="as-btn" :href="href" :target="LinkTarget">
+        <span v-if="btnText" class="as-text">{{btnText|i18n}}</span>
+        <TiIcon v-if="btnIcon" :value="btnIcon"/>
+      </a>
   </footer>
 </div>

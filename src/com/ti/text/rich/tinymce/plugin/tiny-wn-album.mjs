@@ -95,6 +95,7 @@ async function UpdateAlbumTagInnerHtml(editor, $album, settings, {
 
     // Load and rendering
     settings.load(album).then((data)=>{
+      //console.log(data)
       AB.renderItems(data)
       // Force sync content
       editor.__rich_tinymce_com.syncContent()
@@ -239,9 +240,9 @@ export default {
         race : "FILE",
         mime : "^image\/"
       })
-      let KF = '^(id|thumb|sha1|nm|title|mime|tp|width|height|len)$'
+      let KF = '^(id|thumb(_obj)?|sha1|nm|title|mime|tp|width|height|len)$'
       return await Wn.Sys.exec2(
-        `o @query '${match}' @json '${KF}' -cqnl`, {
+        `o @query '${match}' @refer thumb @json '${KF}' -cqnl`, {
           as:"json"
         })
     }

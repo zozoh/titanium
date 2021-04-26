@@ -24,10 +24,14 @@ class TiAlbum {
       }
     }, setup)
     // If live album, and fullpreview
-    let fullpreview = $el.getAttribute(`${this.setup.attrPrefix}fullpreview`)
-    if(this.setup.live && "true" == fullpreview) {
-      // TODO 应该做一个标记，这样 web-text-article 可以在加入 dom 后，调用另外一个
-      // 全屏预览的插件
+    // Mark the root element. (the element not join the DOM yet)
+    // Client maybe attach the live fullpreview widget to the element later
+    let data = this.getData();
+    if(this.setup.live && data.fullpreview) {
+      Ti.Dom.setAttrs(this.$el, {
+        widget : "album-fullpreview",
+        titleKey : `${this.setup.attrPrefix}title`
+      }, "ti-live-")
     }
   }
   //---------------------------------------
@@ -292,9 +296,16 @@ class TiAlbum {
     for(let i=0; i<$tiles.length; i++) {
       let $tile = $tiles[i]
       let $img = Ti.Dom.find("img", $tile)
-      let item = Ti.Dom.attrs($img, (name)=>{
-        if(name.startsWith(attrPrefix)) {
-          return _.camelCase(name.substring(N))
+      let item = Ti.Dom.attrs($img, (key, val)=>{
+        if(key.startsWith(attrPrefix)) {
+          let name = _.camelCase(key.substring(N))
+          let value = val
+          if(/^\{.*\}$/.test(val)) {
+            try{
+              value = JSON.parse(val)
+            }catch(E){}
+          }
+          return {name, value}
         }
       })
       list.push({
