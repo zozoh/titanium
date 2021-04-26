@@ -29,8 +29,10 @@
     v-if="showMore"
       class="as-more"
       :href="moreHref"
+      :title="moreTip"
+      :target="TheMoreTarget"
       @click.left="OnClickMore">
-      <TiIcon v-if="moreIcon" :value="moreIcon"/>
+      <TiIcon v-if="TheMoreIcon" :value="TheMoreIcon"/>
       <span v-if="moreText">{{moreText | i18n}}</span>
   </a>
 </div>

@@ -2,6 +2,7 @@
   @include flex-align-center;
   @include noselect;
   padding: 1em 0; 
+  position: relative;
   //-----------------------------------------
   .as-icon {
     @include flex-center;
@@ -42,11 +43,30 @@
     font-size:.9em;
     cursor: default;
     text-decoration: none;
+    //---------------------------------------
     &:hover {text-decoration: none;}
+    //---------------------------------------
+    img {
+      border:1px solid transparent;
+      border-radius: 3px; opacity: 0.8;
+      transition: .5s;
+    }
+    //---------------------------------------
     &[href] {
       cursor: pointer; 
-      &:hover {text-decoration: underline;}
+      //-------------------------------------
+      &:hover {
+        text-decoration: underline;
+        img {
+          border-color: map-get($color-line, shallow);
+          opacity: 1; border-radius: 6px;
+          box-shadow: 1px 1px 6px map-get($color-shadow, thin);
+          transform:scale(1.1) translateY(-2px);
+        }
+      }
+      //-------------------------------------
     }
+    //---------------------------------------
   }
   //-----------------------------------------
 }

@@ -8,41 +8,27 @@ export default {
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    "href" : {
-      type: String
-    },
-    "moreHref": {
-      type: String
-    },
+    "href" : String,
+    "moreHref": String,
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "icon": {
-      type : String
-    },
-    "title" : {
-      type : String
-    },
-    "titleIcon" : {
-      type : String
-    },
+    "icon": String,
+    "title" : String,
+    "titleIcon" : String,
     "titleClass": {
       type: [String, Array, Object]
     },
-    "titleStyle": {
-      type: Object
-    },
-    "comment" : {
-      type : String
-    },
-    "more": {
-      type: String
-    },
-    "moreIcon": {
-      type: String
-    },
-    "moreText": {
-      type: String
+    "titleStyle": Object,
+    "comment" : String,
+    "moreTip": String,
+    "moreIconType": String,
+    "moreIcon": [String, Object],
+    "morePreview": Object,
+    "moreText": String,
+    "moreNewTab": {
+      type : Boolean,
+      default: true
     }
   },
   //////////////////////////////////////////
@@ -60,9 +46,24 @@ export default {
     },
     //--------------------------------------
     showMore() {
-      if(this.moreText || this.moreIcon)
+      if(this.TheMoreIcon || this.moreText)
         return true
       return false
+    },
+    //--------------------------------------
+    TheMoreTarget() {
+      return this.moreNewTab ? "_blank" : undefined
+    },
+    //--------------------------------------
+    TheMoreIcon() {
+      let src = Ti.WWW.evalObjPreviewSrc(this.moreIcon, this.morePreview)
+      if(this.moreIconType) {
+        return {
+          type: this.moreIconType,
+          value: src
+        }
+      }
+      return src
     }
     //--------------------------------------
   },
