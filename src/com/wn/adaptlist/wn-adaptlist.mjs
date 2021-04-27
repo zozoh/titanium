@@ -35,7 +35,7 @@ const TABLE_FIELDS = {
     width : 120,
     display : {
       key : "rawData.md",
-      transformer : Wn.Obj.modeToStr,
+      transformer : "Wn.Obj.modeToStr",
       comConf : {
         className : "as-tip"
       }
@@ -47,7 +47,7 @@ const TABLE_FIELDS = {
     width : -100,
     display : {
       key : "rawData.len",
-      transformer : Ti.S.sizeText,
+      transformer : "Ti.S.sizeText",
       comConf : {
         className : "as-tip-block align-right",
       }
@@ -59,7 +59,7 @@ const TABLE_FIELDS = {
     width : -100,
     display : {
       key : "rawData.ct",
-      transformer : Ti.DateTime.timeText,
+      transformer : "Ti.DateTime.timeText",
       comConf : {
         className : "as-tip-block align-right",
       }
@@ -71,7 +71,7 @@ const TABLE_FIELDS = {
     width : -100,
     display : {
       key : "rawData.lm",
-      transformer : Ti.DateTime.timeText,
+      transformer : "Ti.DateTime.timeText",
       comConf : {
         className : "as-tip-block align-right",
       }
