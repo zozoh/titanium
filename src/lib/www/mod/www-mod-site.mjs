@@ -142,6 +142,15 @@ const _M = {
       }
     },
     //--------------------------------------------
+    explainVars(state) {
+      if(state.vars) {
+        if(!state.__vars_input) {
+          state.__vars_input = _.cloneDeep(state.vars)
+        }
+        state.vars = Ti.Util.explainObj(state, state.__vars_input)
+      }
+    },
+    //--------------------------------------------
     setData(state, data) {
       state.data = data
     },
@@ -267,6 +276,7 @@ const _M = {
         
         commit("setLoading", false)
         commit("explainNav")
+        commit("explainVars")
       }
       // navTo::dispatch
       else if("dispatch" == type) {

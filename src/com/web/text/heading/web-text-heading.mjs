@@ -24,6 +24,7 @@ export default {
     "moreTip": String,
     "moreIconType": String,
     "moreIcon": [String, Object],
+    "moreIconStyle": Object,
     "morePreview": Object,
     "moreText": String,
     "moreNewTab": {

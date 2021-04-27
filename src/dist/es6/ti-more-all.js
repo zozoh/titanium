@@ -1,4 +1,4 @@
-// Pack At: 2021-04-27 17:03:56
+// Pack At: 2021-04-27 17:38:04
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -32683,6 +32683,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "moreTip": String,
     "moreIconType": String,
     "moreIcon": [String, Object],
+    "moreIconStyle": Object,
     "morePreview": Object,
     "moreText": String,
     "moreNewTab": {
@@ -35886,6 +35887,7 @@ const _M = {
         "domain"    : state=>state.domain,
         "rs"        : state=>state.rs,
         "nav"       : state=>state.nav,
+        "vars"      : state=>state.vars,
         "data"      : state=>state.data,
         "base"      : state=>state.base,
         "apiBase"   : state=>state.apiBase,
@@ -47498,6 +47500,15 @@ const _M = {
       }
     },
     //--------------------------------------------
+    explainVars(state) {
+      if(state.vars) {
+        if(!state.__vars_input) {
+          state.__vars_input = _.cloneDeep(state.vars)
+        }
+        state.vars = Ti.Util.explainObj(state, state.__vars_input)
+      }
+    },
+    //--------------------------------------------
     setData(state, data) {
       state.data = data
     },
@@ -47623,6 +47634,7 @@ const _M = {
         
         commit("setLoading", false)
         commit("explainNav")
+        commit("explainVars")
       }
       // navTo::dispatch
       else if("dispatch" == type) {
@@ -62662,6 +62674,7 @@ Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-tex
       :href="moreHref"
       :title="moreTip"
       :target="TheMoreTarget"
+      :style="moreIconStyle"
       @click.left="OnClickMore">
       <TiIcon v-if="TheMoreIcon" :value="TheMoreIcon"/>
       <span v-if="moreText">{{moreText | i18n}}</span>

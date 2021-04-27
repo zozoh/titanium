@@ -32,9 +32,9 @@
   }
   //-----------------------------------------
   .as-comment {
-    flex:0 0 auto;
+    flex:0 0 auto; width:100%;
     color:map-get($color-track, c);
-    padding:0 .5em;
+    margin: .5em 0;
   }
   //-----------------------------------------
   .as-more {
