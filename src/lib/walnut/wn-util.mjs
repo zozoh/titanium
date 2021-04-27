@@ -124,7 +124,12 @@ const WnUtil = {
   getObjThumbIcon2(meta, canIcon) {
     //console.log(meta, canIcon)
     if(meta.thumb) {
-      let src = `/o/content?str=${meta.thumb}`
+      let src;
+      if(/^https?:\/\//.test(meta.thumb)) {
+        src = meta.thumb
+      } else {
+        src = `/o/content?str=${meta.thumb}`
+      }
       return {
         type : "image",
         value : src

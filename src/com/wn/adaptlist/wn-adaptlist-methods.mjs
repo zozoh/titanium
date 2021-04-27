@@ -141,7 +141,7 @@ const OBJ = {
     }
   },
   //--------------------------------------------
-  async doDelete(confirm=false) {
+  async doDelete(confirm=false, reloadWhenDone=true) {
     let list = this.getCheckedItems()
     // Guard
     if(_.isEmpty(list)) {
@@ -209,7 +209,9 @@ const OBJ = {
         // Then continue the loop .......^
       }
       // Do reload
-      await this._run("reload")
+      if(reloadWhenDone) {
+        await this._run("reload")
+      }
     }
     // End deleting
     finally {
@@ -218,9 +220,9 @@ const OBJ = {
 
   },
   //--------------------------------------------
-  async doMoveTo(confirm=false) {
+  async doMoveTo(confirm=false, reloadWhenDone=true) {
     let list = this.getCheckedItems()
-    // Guard
+    // Move dialog
     await Wn.Io.moveTo(list, {
       base: this.meta,
       confirm,
@@ -228,7 +230,9 @@ const OBJ = {
         this.setItemStatus(itId, status)
       },
       doneMove : async ()=>{
-        return await this._run("reload")
+        if(reloadWhenDone) {
+          return await this._run("reload")
+        }
       }
     })
   },

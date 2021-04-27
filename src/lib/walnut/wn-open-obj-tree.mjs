@@ -11,11 +11,13 @@
   width=640, height="90%", spacing,
   multi=false,
   exposeHidden=false,
+  treeDisplay,
   homePath=Wn.Session.getHomePath(),
   fallbackPath=Wn.Session.getHomePath(),
   objMatch = {
     race : "DIR"
   },
+  objSort,
   objFilter
 }={}){
   //................................................
@@ -73,9 +75,11 @@
       meta : oHome,
       showRoot : false,
       multi,
+      display: treeDisplay,
       currentId : oP.id,
       openedNodePath : phs,
-      objMatch,
+      objMatch, 
+      sortBy: objSort,
       objFilter : objFilter || function(obj) {
         // Hidden file
         if(!exposeHidden && /^\./.test(obj.nm)) {

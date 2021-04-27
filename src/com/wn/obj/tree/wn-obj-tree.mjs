@@ -39,9 +39,7 @@ export default {
       type : [String, Array, Object]
     },
     "currentId" : String,
-    "objMatch" : {
-      type : Object
-    },
+    "objMatch" : Object,
     "objFilter" : {
       type : [Function, Array, Object]
     },

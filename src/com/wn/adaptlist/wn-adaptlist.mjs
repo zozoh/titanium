@@ -1,10 +1,10 @@
 /////////////////////////////////////////////////
 const TABLE_FIELDS = {
   //---------------------------------------------
-  "title" : {
+  "title" : ()=>({
     title : "i18n:wn-key-title",
     display : [Wn.Obj.getObjThumbDisplay("rawData"), "title|nm"]
-  },
+  }),
   //---------------------------------------------
   "tp" : {
     title : "i18n:wn-key-tp",
@@ -120,6 +120,9 @@ const _M = {
           rowClassBy : "->is-${visibility}",
           fields : _.map(this.tableFields, key=>{
             let fld = _.get(TABLE_FIELDS, key)
+            if(_.isFunction(fld)) {
+              return fld(key)
+            }
             if(!fld) {
               if(_.isString(key)) {
                 return {title:key, display:key}

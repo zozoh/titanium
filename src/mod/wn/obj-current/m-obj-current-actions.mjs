@@ -229,7 +229,13 @@ const _M = {
     return await dispatch("reload")
   },
   //----------------------------------------
-  async reload({state, commit, dispatch}, meta) {
+  async reload({dispatch}, meta) {
+    return dispatch("reloadAll", {meta})
+  },
+  //----------------------------------------
+  async reloadAll({state, commit, dispatch}, {
+    meta, reloadChildren=true
+  }={}) {
     if(state.status.reloading
       || state.status.saving){
       return
@@ -269,7 +275,7 @@ const _M = {
     }
     //......................................
     // For dir
-    else if('DIR' == meta.race) {
+    else if('DIR' == meta.race && reloadChildren) {
       let cmds = [`o @query -p id:${meta.id}`]
       cmds.push('-pager -mine -hidden')
       if(state.pageSize > 0) {

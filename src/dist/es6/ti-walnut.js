@@ -1,4 +1,4 @@
-// Pack At: 2021-04-27 14:58:04
+// Pack At: 2021-04-27 17:03:56
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -329,7 +329,9 @@ const Io = (function(){
      * This method will pop-up a dialog to let user choose a target 
      */
     async moveTo(metaOrMetaList, {
-      base,
+      base, homePath, 
+      objMatch, objFilter, objSort,
+      treeDisplay,
       confirm = false,
       title = "i18n:move-to",
       exposeHidden = false,
@@ -382,7 +384,9 @@ const Io = (function(){
   
       // Select target
       let reo = await Wn.OpenObjTree(base, {
-        title, exposeHidden
+        title, homePath, 
+        objMatch, objFilter, objSort,
+        treeDisplay, exposeHidden
       })
   
       // User cancel
@@ -1609,7 +1613,12 @@ const Util = (function(){
     getObjThumbIcon2(meta, canIcon) {
       //console.log(meta, canIcon)
       if(meta.thumb) {
-        let src = `/o/content?str=${meta.thumb}`
+        let src;
+        if(/^https?:\/\//.test(meta.thumb)) {
+          src = meta.thumb
+        } else {
+          src = `/o/content?str=${meta.thumb}`
+        }
         return {
           type : "image",
           value : src
@@ -2757,11 +2766,13 @@ const OpenObjTree = (function(){
     width=640, height="90%", spacing,
     multi=false,
     exposeHidden=false,
+    treeDisplay,
     homePath=Wn.Session.getHomePath(),
     fallbackPath=Wn.Session.getHomePath(),
     objMatch = {
       race : "DIR"
     },
+    objSort,
     objFilter
   }={}){
     //................................................
@@ -2819,9 +2830,11 @@ const OpenObjTree = (function(){
         meta : oHome,
         showRoot : false,
         multi,
+        display: treeDisplay,
         currentId : oP.id,
         openedNodePath : phs,
-        objMatch,
+        objMatch, 
+        sortBy: objSort,
         objFilter : objFilter || function(obj) {
           // Hidden file
           if(!exposeHidden && /^\./.test(obj.nm)) {
@@ -3608,7 +3621,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210427.145805"
+const WALNUT_VERSION = "1.2-20210427.170356"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

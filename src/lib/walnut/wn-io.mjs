@@ -325,7 +325,9 @@ const WnIo = {
    * This method will pop-up a dialog to let user choose a target 
    */
   async moveTo(metaOrMetaList, {
-    base,
+    base, homePath, 
+    objMatch, objFilter, objSort,
+    treeDisplay,
     confirm = false,
     title = "i18n:move-to",
     exposeHidden = false,
@@ -378,7 +380,9 @@ const WnIo = {
 
     // Select target
     let reo = await Wn.OpenObjTree(base, {
-      title, exposeHidden
+      title, homePath, 
+      objMatch, objFilter, objSort,
+      treeDisplay, exposeHidden
     })
 
     // User cancel

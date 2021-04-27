@@ -1,4 +1,4 @@
-// Pack At: 2021-04-27 14:58:04
+// Pack At: 2021-04-27 17:03:56
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -880,10 +880,10 @@ window.TI_PACK_EXPORTS['ti/com/wn/adaptlist/wn-adaptlist.mjs'] = (function(){
 /////////////////////////////////////////////////
 const TABLE_FIELDS = {
   //---------------------------------------------
-  "title" : {
+  "title" : ()=>({
     title : "i18n:wn-key-title",
     display : [Wn.Obj.getObjThumbDisplay("rawData"), "title|nm"]
-  },
+  }),
   //---------------------------------------------
   "tp" : {
     title : "i18n:wn-key-tp",
@@ -999,6 +999,9 @@ const _M = {
           rowClassBy : "->is-${visibility}",
           fields : _.map(this.tableFields, key=>{
             let fld = _.get(TABLE_FIELDS, key)
+            if(_.isFunction(fld)) {
+              return fld(key)
+            }
             if(!fld) {
               if(_.isString(key)) {
                 return {title:key, display:key}
@@ -11308,7 +11311,13 @@ const _M = {
     return await dispatch("reload")
   },
   //----------------------------------------
-  async reload({state, commit, dispatch}, meta) {
+  async reload({dispatch}, meta) {
+    return dispatch("reloadAll", {meta})
+  },
+  //----------------------------------------
+  async reloadAll({state, commit, dispatch}, {
+    meta, reloadChildren=true
+  }={}) {
     if(state.status.reloading
       || state.status.saving){
       return
@@ -11348,7 +11357,7 @@ const _M = {
     }
     //......................................
     // For dir
-    else if('DIR' == meta.race) {
+    else if('DIR' == meta.race && reloadChildren) {
       let cmds = [`o @query -p id:${meta.id}`]
       cmds.push('-pager -mine -hidden')
       if(state.pageSize > 0) {
@@ -19827,9 +19836,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : [String, Array, Object]
     },
     "currentId" : String,
-    "objMatch" : {
-      type : Object
-    },
+    "objMatch" : Object,
     "objFilter" : {
       type : [Function, Array, Object]
     },
@@ -24642,7 +24649,7 @@ const OBJ = {
     }
   },
   //--------------------------------------------
-  async doDelete(confirm=false) {
+  async doDelete(confirm=false, reloadWhenDone=true) {
     let list = this.getCheckedItems()
     // Guard
     if(_.isEmpty(list)) {
@@ -24710,7 +24717,9 @@ const OBJ = {
         // Then continue the loop .......^
       }
       // Do reload
-      await this._run("reload")
+      if(reloadWhenDone) {
+        await this._run("reload")
+      }
     }
     // End deleting
     finally {
@@ -24719,9 +24728,9 @@ const OBJ = {
 
   },
   //--------------------------------------------
-  async doMoveTo(confirm=false) {
+  async doMoveTo(confirm=false, reloadWhenDone=true) {
     let list = this.getCheckedItems()
-    // Guard
+    // Move dialog
     await Wn.Io.moveTo(list, {
       base: this.meta,
       confirm,
@@ -24729,7 +24738,9 @@ const OBJ = {
         this.setItemStatus(itId, status)
       },
       doneMove : async ()=>{
-        return await this._run("reload")
+        if(reloadWhenDone) {
+          return await this._run("reload")
+        }
       }
     })
   },
