@@ -1,4 +1,4 @@
-// Pack At: 2021-04-26 03:46:18
+// Pack At: 2021-04-27 14:58:04
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -16941,6 +16941,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 dftSrc : this.dftImgSrc
               })
             },
+            thumb: (obj)=> {
+              return Ti.WWW.evalObjPreviewSrc(obj, {
+                previewKey : "thumb",
+                previewObj : "thumbObj",
+                apiTmpl : this.apiTmpl,
+                cdnTmpl : this.cdnTmpl,
+                dftSrc : this.dftImgSrc
+              })
+            },
             brief : "=brief"
           }
         },
@@ -16973,8 +16982,30 @@ const __TI_MOD_EXPORT_VAR_NM = {
       
       // Redraw
       let items = AB.getItems()
-      //console.log(items)
+      console.log(items)
       AB.renderItems(items)
+    }
+  },
+  //--------------------------------------
+  bindLiveWidgets($div) {
+    let LIVE_WIDGETS = {
+      "album-fullpreview" : function($el){
+        Ti.Widget.PhotoGallery.bind($el, {
+          titleKey : $el.getAttribute("ti-live-title-key") || "title"
+        })
+      }
+    }
+    let $els = Ti.Dom.findAll('[ti-live-widget]', $div)
+    for(let $el of $els) {
+      let widgetType = $el.getAttribute("ti-live-widget")
+      let initFunc = LIVE_WIDGETS[widgetType]
+      if(_.isFunction(initFunc)) {
+        initFunc($el)
+      }
+      // Invalid live widget type, warn user
+      else {
+        console.warn("Invalid widget type", widgetType)
+      }
     }
   },
   //--------------------------------------
@@ -17013,6 +17044,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
     // Update the article content
     this.$refs.main.innerHTML = $div.innerHTML
+
+    // Bind Live widget
+    this.bindLiveWidgets(this.$refs.main)
 
     return true
   }
@@ -25709,15 +25743,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       default: undefined
     },
     // for highlight
-    "path" : {
-      type : String,
-      default: undefined
-    },
+    "value" : String,
     // for highlight
-    "params": {
-      type : Object,
-      default: undefined
-    }
+    "path" : String,
+    "params": Object
   },
   /////////////////////////////////////////
   computed : {
@@ -25851,9 +25880,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
         depth,
         base: this.base, 
         idBy: this.idBy,
+        value: this.value,
         iteratee: (li)=>{
-          if(this.path) {
-            li.highlight = li.highlightBy(this.path, this.params)
+          if(this.path || this.value) {
+            li.highlight = li.highlightBy(this)
           }
           //........................................
           // Children highlight cause the parent focused
@@ -27346,14 +27376,8 @@ const _M = {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "title" : {
-      type : String,
-      default : undefined
-    },
-    "content" : {
-      type : String,
-      default : undefined
-    },
+    "title" : String,
+    "content" : String,
     "contentType" : {
       type : String,
       default : "text",
@@ -27362,52 +27386,37 @@ const _M = {
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    "href" : {
-      type : String,
-      default : undefined,
+    "href" : String,
+    "newtab" : {
+      type: Boolean,
+      default: false
     },
-    "emitName" : {
-      type : String,
-      default : undefined,
-    },
+    "emitName" : String,
     "payload" : undefined,
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "btnIcon" : {
-      type : String,
-      default : undefined,
-    },
-    "btnText" : {
-      type : String,
-      default : undefined,
-    },
+    "headerStyle" : Object,
+    "articleStyle" : Object,
+    "footerStyle" : Object,
+    "btnIcon" : String,
+    "btnText" : String,
     "backgroundSrc" : {
-      type : [String, Object],
-      default : undefined
+      type : [String, Object]
     },
-    "backgroundPreview" : {
-      type : Object,
-      default : undefined
-    },
-    "backgroundAtHeader" : {
-      type : Boolean,
-      default : false
-    },
+    "backgroundPreview" : Object,
+    "backgroundAtHeader" : Boolean,
     //-----------------------------------
     // Measure
     //-----------------------------------
     "headerHeight" : {
-      type : [Number, String],
-      default : undefined
+      type : [Number, String]
     },
     "width" : {
-      type : [Number, String],
-      default : undefined
+      type : [Number, String]
     },
     "height" : {
-      type : [Number, String],
-      default : undefined
+      type : [Number, String]
     }
   },
   //////////////////////////////////////////
@@ -27416,7 +27425,11 @@ const _M = {
     TopClass() {
       return this.getTopClass({
         "is-bg-at-top"  : !this.backgroundAtHeader,
-        "is-bg-at-head" : this.backgroundAtHeader
+        "is-bg-at-head" : this.backgroundAtHeader,
+        "has-content" : this.hasContent,
+        "nil-content" : !this.hasContent,
+        "has-button" : this.hasButton,
+        "nil-button" : !this.hasButton,
       })
     },
     //--------------------------------------
@@ -27432,15 +27445,15 @@ const _M = {
       })
     },
     //--------------------------------------
-    HeaderStyle() {
+    TheHeaderStyle() {
       let backgroundImage = null
       if(this.TheBackgroundImageSrc && this.backgroundAtHeader) {
         backgroundImage = `url('${this.TheBackgroundImageSrc}')`
       }
-      return Ti.Css.toStyle({
+      return Ti.Css.toStyle(_.assign({
         height : this.headerHeight,
         backgroundImage
-      })
+      }, this.headerStyle))
     },
     //--------------------------------------
     hasButton() {
@@ -27451,8 +27464,16 @@ const _M = {
       return Ti.WWW.evalObjPreviewSrc(this.backgroundSrc, this.backgroundPreview)
     },
     //--------------------------------------
+    LinkTarget() {
+      return this.newtab ? '_blank' : undefined
+    },
+    //--------------------------------------
+    hasContent() {
+      return !Ti.S.isBlank(this.content)
+    },
+    //--------------------------------------
     HtmlContent() {
-      if(this.content) {
+      if(this.hasContent) {
         if("text" == this.contentType) {
           return this.content.replace(/\r?\n/g, '<br>')
         }
@@ -31179,7 +31200,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let icon = Ti.Util.explainObj(obj, markerIcon, {
         evalFunc : true
       })
-      console.log({icon})
+      //console.log({icon})
       if(icon) {
         $marker.setIcon(this.Icon(icon, markerIconOptions))
       }
@@ -32635,41 +32656,27 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    "href" : {
-      type: String
-    },
-    "moreHref": {
-      type: String
-    },
+    "href" : String,
+    "moreHref": String,
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "icon": {
-      type : String
-    },
-    "title" : {
-      type : String
-    },
-    "titleIcon" : {
-      type : String
-    },
+    "icon": String,
+    "title" : String,
+    "titleIcon" : String,
     "titleClass": {
       type: [String, Array, Object]
     },
-    "titleStyle": {
-      type: Object
-    },
-    "comment" : {
-      type : String
-    },
-    "more": {
-      type: String
-    },
-    "moreIcon": {
-      type: String
-    },
-    "moreText": {
-      type: String
+    "titleStyle": Object,
+    "comment" : String,
+    "moreTip": String,
+    "moreIconType": String,
+    "moreIcon": [String, Object],
+    "morePreview": Object,
+    "moreText": String,
+    "moreNewTab": {
+      type : Boolean,
+      default: true
     }
   },
   //////////////////////////////////////////
@@ -32687,9 +32694,24 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     showMore() {
-      if(this.moreText || this.moreIcon)
+      if(this.TheMoreIcon || this.moreText)
         return true
       return false
+    },
+    //--------------------------------------
+    TheMoreTarget() {
+      return this.moreNewTab ? "_blank" : undefined
+    },
+    //--------------------------------------
+    TheMoreIcon() {
+      let src = Ti.WWW.evalObjPreviewSrc(this.moreIcon, this.morePreview)
+      if(this.moreIconType) {
+        return {
+          type: this.moreIconType,
+          value: src
+        }
+      }
+      return src
     }
     //--------------------------------------
   },
@@ -35363,6 +35385,7 @@ async function UpdateAlbumTagInnerHtml(editor, $album, settings, {
 
     // Load and rendering
     settings.load(album).then((data)=>{
+      //console.log(data)
       AB.renderItems(data)
       // Force sync content
       editor.__rich_tinymce_com.syncContent()
@@ -35507,9 +35530,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
         race : "FILE",
         mime : "^image\/"
       })
-      let KF = '^(id|thumb|sha1|nm|title|mime|tp|width|height|len)$'
+      let KF = '^(id|thumb(_obj)?|sha1|nm|title|mime|tp|width|height|len)$'
       return await Wn.Sys.exec2(
-        `o @query '${match}' @json '${KF}' -cqnl`, {
+        `o @query '${match}' @refer thumb @json '${KF}' -cqnl`, {
           as:"json"
         })
     }
@@ -62626,8 +62649,10 @@ Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-tex
     v-if="showMore"
       class="as-more"
       :href="moreHref"
+      :title="moreTip"
+      :target="TheMoreTarget"
       @click.left="OnClickMore">
-      <TiIcon v-if="moreIcon" :value="moreIcon"/>
+      <TiIcon v-if="TheMoreIcon" :value="TheMoreIcon"/>
       <span v-if="moreText">{{moreText | i18n}}</span>
   </a>
 </div>`);
@@ -62783,20 +62808,26 @@ Ti.Preload("ti/com/web/tile/article/web-tile-article.html", `<div class="web-til
   <a 
     v-if="title"
       class="as-header"
-      :href="href"
-      :style="HeaderStyle"><span>{{title | i18n}}</span></a>
+      :style="TheHeaderStyle"
+      :target="LinkTarget"
+      :href="href"><span>{{title | i18n}}</span></a>
   <!--
     Content
   -->
-  <article v-if="content" v-html="HtmlContent"></article>
+  <article
+    v-if="hasContent"
+      :style="articleStyle"
+      v-html="HtmlContent"></article>
   <!--
     Button
   -->
-  <footer v-if="hasButton">
-    <a class="as-btn" :href="href">
-      <span v-if="btnText" class="as-text">{{btnText|i18n}}</span>
-      <TiIcon v-if="btnIcon" :value="btnIcon"/>
-    </a>
+  <footer
+    v-if="hasButton"
+      :style="footerStyle">
+      <a class="as-btn" :href="href" :target="LinkTarget">
+        <span v-if="btnText" class="as-text">{{btnText|i18n}}</span>
+        <TiIcon v-if="btnIcon" :value="btnIcon"/>
+      </a>
   </footer>
 </div>`);
 //========================================
@@ -69555,6 +69586,9 @@ Ti.Preload("ti/i18n/zh-hk/wn-manager.i18n.json", {
    "wn-create-invalid": "新對象名稱不能包括非法字符",
    "wn-create-ok": "創建成功",
    "wn-create-too-long": "新對象名稱過長",
+   "wn-move-to-none": "請選擇至少一個對象進行移動!",
+   "wn-move-to-confirm": "您確定要移動選中的${N}個項目嗎？這是一個不可撤銷的操作！",
+   "wn-move-to-ok": "已有 ${N} 個對象被移動到了新的目標",
    "wn-del-confirm": "您確定要刪除選中的${N}個項目嗎？這是一個不可撤銷的操作！",
    "wn-del-item": "正在刪除: \"${name}\"",
    "wn-del-no-empty-folder": "目錄\"${nm}\"不是空的，您是否要全部刪除？點擊\"否\"跳過",
