@@ -368,6 +368,7 @@ const WnObj = {
       },
       comType  : "wn-obj-icon",
       comConf : {
+        "className" : "img-contain",
         "..." : "${=value}",
         "defaultIcon" : "fas-birthday-cake",
         //"className"   : "thing-icon"

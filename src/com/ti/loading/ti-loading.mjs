@@ -1,7 +1,7 @@
 export default {
   props : {
     icon : {
-      type : String,
+      type : [String, Object],
       default : "fas-spinner fa-spin"
     },
     text : {

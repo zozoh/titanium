@@ -34,6 +34,7 @@ const _M = {
   methods : {
     //----------------------------------------------
     OnChange(payload) {
+      //console.log("steup change", payload)
       if(_.isFunction(this.serializer)) {
         payload = this.serializer(payload)
       }

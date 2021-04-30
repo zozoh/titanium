@@ -31,6 +31,10 @@ export default {
       type : Array,
       default : ()=>["fullscreen", "newtab", "download", "info"]
     },
+    "browserBuiltIn" : {
+      type : [String, RegExp, Function, Object, Array],
+      default : /^(application\/pdf)$/
+    },
     "showInfo" : {
       type : Boolean,
       default : false
@@ -97,6 +101,20 @@ export default {
       return Wn.Util.getObjDisplayName(this.meta)
     },
     //--------------------------------------
+    BrowserCanPreviewBuiltin() {
+      if(this.browserBuiltIn) {
+        let fn = Ti.AutoMatch.parse(this.browserBuiltIn)
+        let bbf = this.browserBuiltIn
+        if(_.isString(bbf) || _.isRegExp(bbf)) {
+          return (o)=>{
+            return fn(o.mime)
+          }
+        }
+        return fn
+      }
+      return ()=>false
+    },
+    //--------------------------------------
     PreviewCom() {
       if(this.meta) {
         // File
@@ -109,6 +127,17 @@ export default {
             comConf : {
               src : this.DataSource
             }
+          }
+        }
+        // Browser built-in preview
+        if(this.BrowserCanPreviewBuiltin(this.meta)) {
+          return {
+            comType : 'WebWidgetFrame',
+            comConf : {
+              src : `/o/content?str=id:${this.meta.id}&d=raw`,
+              width  : "100%",
+              height : "100%"
+            } 
           }
         }
         // Youtube

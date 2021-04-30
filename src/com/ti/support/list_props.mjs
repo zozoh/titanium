@@ -40,6 +40,8 @@ export default {
     type : Object,
     default : ()=>({})
   },
+  "showLoadMore" : Boolean,
+  "moreLoading" : Boolean,
   //-----------------------------------
   // Behavior
   //-----------------------------------

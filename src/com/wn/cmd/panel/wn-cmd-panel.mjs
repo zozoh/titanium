@@ -5,35 +5,19 @@ const _M = {
   }),
   ////////////////////////////////////////////////////
   props : {
-    "value" : {
-      type : String,
-      default : undefined
-    },
-    "tipText" : {
-      type : String,
-      default : undefined
-    },
-    "tipIcon" : {
-      type : String,
-      default : undefined
-    },
-    "vars" : {
-      type : Object,
-      default: undefined
-    },
+    "value" : String,
+    "tipText" : String,
+    "tipIcon" : String,
+    "vars" : Object,
     "as": {
       type : String,
       default: "text"
     },
-    "emitName": {
-      type : String,
-      default: undefined
-    },
+    "emitName": String,
     "emitPayload" : undefined,
-    "input" : {
-      type : String,
-      default: undefined
-    },
+    "emitSuccess": String,
+    "emitError": String,
+    "input" : String,
     "forceFlushBuffer" : {
       type : Boolean,
       default: true
@@ -42,10 +26,12 @@ const _M = {
       type : Boolean,
       default : true
     },
-    "afterRunCommand" : {
-      type : Function,
-      default : undefined
-    }
+    //
+    // Callback
+    // 
+    "afterRunCommand" : Function,
+    "whenSuccess" : Function,
+    "whenError" : Function
   },
   ////////////////////////////////////////////////////
   computed : {
@@ -80,12 +66,33 @@ const _M = {
       //     this.lines.push(line)
       //   }
       // })
-      let re = await this.exec(this.value)
+      let re ;
+      try{
+        re = await this.exec(this.value)
+        // Success
+        if(_.isFunction(this.whenSuccess)) {
+          await this.whenSuccess(re)
+        }
+        if(this.emitSuccess) {
+          this.$notify(this.emitSuccess, this.emitPayload || re)  
+        }
+      }
+      // Fail
+      catch(err) {
+        if(_.isFunction(this.whenError)) {
+          await this.whenError(re)
+        }
+        if(this.emitError) {
+          this.$notify(this.emitError, this.emitPayload || re)  
+        }
+      }
 
+      //
+      // Always 
+      //
       if(_.isFunction(this.afterRunCommand)) {
         await this.afterRunCommand(re)
       }
-
       if(this.emitName) {
         this.$notify(this.emitName, this.emitPayload || re)
       }

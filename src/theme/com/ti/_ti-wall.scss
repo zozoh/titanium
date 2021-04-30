@@ -1,26 +1,10 @@
 .ti-wall {
   overflow:auto;
-  @include flex-align($ac:flex-start,$ai:flex-start);
   // &.is-only-one-row {
   // }
   position: relative;
   //-------------------------------------
   > div.ti-loading {margin:0;}
-  //-------------------------------------
-  &.is-stretch {
-    @include flex-align($ac:stretch,$ai:stretch);
-  }
-  //-------------------------------------
-  &.is-multi-rows {
-    justify-content: space-around;
-  }
-  //-------------------------------------
-  &.spacing-no >* {margin:0;}
-  &.spacing-xs {padding:SZ(2);  >* {margin:SZ(2);}}
-  &.spacing-sm {padding:SZ(8);  >* {margin:SZ(8);}}
-  &.spacing-md {padding:SZ(16);  >* {margin:SZ(16);}}
-  &.spacing-lg {padding:SZ(24);  >* {margin:SZ(24);}}
-  &.spacing-xl {padding:SZ(32);  >* {margin:SZ(32);}}
   //-------------------------------------
   > .is-empty {
     @include color($color-track, c);
@@ -29,22 +13,48 @@
     .ti-icon {font-size:2em; margin-right:SZ(6);}
   }
   //-------------------------------------
-  > .wall-tile {
-    @include flex($jc:stretch,$ai:stretch);
-    border:0;
-    //----------------------------------
-    &.is-checked {
-      @include color($color-weaktip, r, c);
+  > .wall-con {
+    @include flex-align($ac:flex-start,$ai:flex-start);
+    width: 100%;
+    > .wall-tile {
+      @include flex($jc:stretch,$ai:stretch);
+      border:0;
+      //----------------------------------
+      &.is-checked {
+        @include color($color-weaktip, r, c);
+      }
+      //----------------------------------
+      &.is-removed {opacity:0.4;}
+      &.is-weak {opacity:0.4;}
+      &.is-hide {display:none;}
+      //----------------------------------
+      .tile-con {
+        flex:1 1 auto;
+      }
+      //----------------------------------
     }
-    //----------------------------------
-    &.is-removed {opacity:0.4;}
-    &.is-weak {opacity:0.4;}
-    &.is-hide {display:none;}
-    //----------------------------------
-    .tile-con {
-      flex:1 1 auto;
+  }
+  //-------------------------------------
+  > .as-load-more {
+    padding: SZ(20);
+    //-----------------------------------
+    > .as-load-more-btn {
+      @include flex-align-nowrap($jc:center);
+      @include color($color-primary, r, c);
+      padding: SZ(12); cursor: pointer;
+      font-size: SZ(16);
+      border-radius: SZ(4);
+      //---------------------------------
+      > .as-text {
+        margin:0 SZ(10); letter-spacing: 4px;
+      }
+      //---------------------------------
+      &:hover {
+        @include color($color-secondary, r, c);
+      }
+      //---------------------------------
     }
-    //----------------------------------
+    //-----------------------------------
   }
   //-------------------------------------
   &.show-border {
@@ -56,5 +66,20 @@
       }
     }
   }
+  //-------------------------------------
+  &.is-stretch > .wall-con{
+    @include flex-align($ac:stretch,$ai:stretch);
+  }
+  //-------------------------------------
+  &.is-multi-rows > .wall-con {
+    justify-content: space-around;
+  }
+  //-------------------------------------
+  &.spacing-no > .wall-con >* {margin:0;}
+  &.spacing-xs > .wall-con {padding:SZ(2);  >* {margin:SZ(2);}}
+  &.spacing-sm > .wall-con {padding:SZ(8);  >* {margin:SZ(8);}}
+  &.spacing-md > .wall-con {padding:SZ(16);  >* {margin:SZ(16);}}
+  &.spacing-lg > .wall-con {padding:SZ(24);  >* {margin:SZ(24);}}
+  &.spacing-xl > .wall-con {padding:SZ(32);  >* {margin:SZ(32);}}
   //-------------------------------------
 }

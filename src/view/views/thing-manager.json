@@ -1,136 +1,159 @@
 {
-  "comIcon" : "fas-cubes",
-  "comType" : "@com:wn/thing/manager",
-  "comConf" : {
-    "..." : "=Main"
+  "comIcon": "fas-cubes",
+  "comType": "@com:wn/thing/manager",
+  "comConf": {
+    "...": "=Main"
   },
-  "modType" : "@mod:wn/thing",
-  "actions" : [{
-    "name" : "reloading",
-    "type" : "action",
-    "icon" : "zmdi-refresh",
-    "text" : "i18n:refresh",
-    "altDisplay" : {
-      "icon" : "zmdi-refresh zmdi-hc-spin",
-      "text" : "i18n:loading"
+  "modType": "@mod:wn/thing",
+  "actions": [
+    {
+      "name": "reloading",
+      "type": "action",
+      "icon": "zmdi-refresh",
+      "text": "i18n:refresh",
+      "altDisplay": {
+        "icon": "zmdi-refresh zmdi-hc-spin",
+        "text": "i18n:loading"
+      },
+      "action": "dispatch:main/reloadSearch",
+      "shortcut": "CTRL+SHIFT+R"
     },
-    "action" : "dispatch:main/reloadSearch",
-    "shortcut" : "CTRL+SHIFT+R"
-  }, {
-    "name" : "saving",
-    "type" : "action",
-    "icon" : "zmdi-floppy",
-    "text" : "i18n:save-change",
-    "altDisplay" : {
-      "icon" : "fas-spinner fa-pulse",
-      "text" : "i18n:saving"
+    {
+      "name": "saving",
+      "type": "action",
+      "icon": "zmdi-floppy",
+      "text": "i18n:save-change",
+      "altDisplay": {
+        "icon": "fas-spinner fa-pulse",
+        "text": "i18n:saving"
+      },
+      "enabled": "changed",
+      "action": "dispatch:main/saveCurrent",
+      "shortcut": "CTRL+S"
     },
-    "enabled" : "changed",
-    "action" : "dispatch:main/saveCurrent",
-    "shortcut" : "CTRL+S"
-  }, {
-    "type" : "line"
-  }, {
-    "type" : "group",
-    "icon" : "im-menu",
-    "items" : [{
-        "name" : "create",
-        "type" : "action",
-        "icon" : "zmdi-flare",
-        "text" : "i18n:create",
-        "action" : "main:showBlock(creator)",
-        "shortcut" : "ALT+SHIFT+N"
-      }, {
-        "name" : "deleting",
-        "type" : "action",
-        "icon" : "zmdi-delete",
-        "text" : "i18n:del",
-        "altDisplay" : {
-          "icon" : "zmdi-settings zmdi-hc-spin",
-          "text" : "i18n:del-ing"
+    {
+      "type": "line"
+    },
+    {
+      "type": "group",
+      "icon": "im-menu",
+      "items": [
+        {
+          "name": "create",
+          "type": "action",
+          "icon": "zmdi-flare",
+          "text": "i18n:create",
+          "action": "main:showBlock(creator)",
+          "shortcut": "ALT+SHIFT+N"
         },
-        "action" : "dispatch:main/removeChecked",
-        "shortcut" : "CTRL+DELETE"
-      }, {
-        "type" : "line"
-      }, {
-        "key"  : "batch",
-        "type" : "action",
-        "text" : "i18n:batch-update",
-        "action" : "main:batchUpdate",
-        "shortcut" : "ALT+CTRL+SHIFT+U"
-      }, {
-        "type" : "line"
-      }, {
-        "key"  : "exportData",
-        "type" : "action",
-        "text" : "i18n:export-data",
-        "action" : "dispatch:main/exportData",
-        "shortcut" : "ALT+CTRL+SHIFT+O"
-      }, {
-        "key"  : "openExportDataDir",
-        "type" : "action",
-        "text" : "i18n:thing-export-open-dir",
-        "action" : "dispatch:main/openExportDataDir"
-      }, {
-        "type" : "line"
-      }, {
-        "name" : "inRecycleBin",
-        "type" : "action",
-        "icon" : "fas-recycle",
-        "text" : "i18n:thing-enter-recyclebin",
-        "altDisplay" : {
-          "icon" : "far-arrow-alt-circle-left",
-          "text" : "i18n:thing-leave-recyclebin",
-          "capture" : false
+        {
+          "name": "deleting",
+          "type": "action",
+          "icon": "zmdi-delete",
+          "text": "i18n:del",
+          "altDisplay": {
+            "icon": "zmdi-settings zmdi-hc-spin",
+            "text": "i18n:del-ing"
+          },
+          "action": "dispatch:main/removeChecked",
+          "shortcut": "CTRL+DELETE"
         },
-        "action" : "dispatch:main/toggleInRecycleBin"
-      }, {
-        "name" : "restoring",
-        "type" : "action",
-        "icon" : "zmdi-time-restore",
-        "text" : "i18n:thing-restore",
-        "altDisplay" : {
-          "icon" : "zmdi-time-restore zmdi-hc-spin",
-          "text" : "i18n:thing-restoring"
+        {
+          "type": "line"
         },
-        "action" : "dispatch:main/restoreRecycleBin"
-      }, {
-        "name" : "cleaning",
-        "type" : "action",
-        "icon" : "fas-trash-restore",
-        "text" : "i18n:thing-clean",
-        "altDisplay" : {
-          "icon" : "zmdi-settings zmdi-hc-spin",
-          "text" : "i18n:thing-cleaning"
+        {
+          "key": "batch",
+          "type": "action",
+          "text": "i18n:batch-update",
+          "action": "main:batchUpdate",
+          "shortcut": "ALT+CTRL+SHIFT+U"
         },
-        "action" : "dispatch:main/cleanRecycleBin"
-      },{
-        "type" : "line"
-      },{
-        "type" : "action",
-        "icon" : "zmdi-keyboard",
-        "text" : "i18n:view-resource",
-        "action" : "dispatch:main/openContentEditor",
-        "shortcut" : "ALT+SHIFT+V"
-      },{
-        "type" : "line"
-      }, {
-        "type" : "action",
-        "text" : "i18n:wn-th-recount-media",
-        "action" : "dispatch:main/autoSyncCurrentFilesCount({quiet:false})"
-      }, {
-        "type" : "action",
-        "icon" : "zmdi-keyboard",
-        "text" : "i18n:console",
-        "action" : "=>Ti.Be.Open('/a/open/wn.console')",
-        "shortcut" : "ALT+SHIFT+T"
-      }, {
-        "type" : "action",
-        "icon" : "zmdi-info-outline",
-        "text" : "i18n:properties",
-        "action" : "dispatch:main/openMetaEditor",
-        "shortcut" : "ALT+SHIFT+P"
-      }]
-  }]
+        {
+          "type": "line"
+        },
+        {
+          "key": "exportData",
+          "type": "action",
+          "text": "i18n:export-data",
+          "action": "dispatch:main/exportData",
+          "shortcut": "ALT+CTRL+SHIFT+O"
+        },
+        {
+          "key": "openExportDataDir",
+          "type": "action",
+          "text": "i18n:thing-export-open-dir",
+          "action": "dispatch:main/openExportDataDir"
+        },
+        {
+          "type": "line"
+        },
+        {
+          "name": "inRecycleBin",
+          "type": "action",
+          "icon": "fas-recycle",
+          "text": "i18n:thing-enter-recyclebin",
+          "altDisplay": {
+            "icon": "far-arrow-alt-circle-left",
+            "text": "i18n:thing-leave-recyclebin",
+            "capture": false
+          },
+          "action": "dispatch:main/toggleInRecycleBin"
+        },
+        {
+          "name": "restoring",
+          "type": "action",
+          "icon": "zmdi-time-restore",
+          "text": "i18n:thing-restore",
+          "altDisplay": {
+            "icon": "zmdi-time-restore zmdi-hc-spin",
+            "text": "i18n:thing-restoring"
+          },
+          "action": "dispatch:main/restoreRecycleBin"
+        },
+        {
+          "name": "cleaning",
+          "type": "action",
+          "icon": "fas-trash-restore",
+          "text": "i18n:thing-clean",
+          "altDisplay": {
+            "icon": "zmdi-settings zmdi-hc-spin",
+            "text": "i18n:thing-cleaning"
+          },
+          "action": "dispatch:main/cleanRecycleBin"
+        },
+        {
+          "type": "line"
+        },
+        {
+          "type": "action",
+          "icon": "zmdi-keyboard",
+          "text": "i18n:view-resource",
+          "action": "dispatch:main/openContentEditor",
+          "shortcut": "ALT+SHIFT+V"
+        },
+        {
+          "type": "line"
+        },
+        {
+          "type": "action",
+          "text": "i18n:wn-th-recount-media",
+          "action": "dispatch:main/autoSyncCurrentFilesCount({quiet:false})"
+        },
+        {
+          "type": "action",
+          "icon": "zmdi-keyboard",
+          "text": "i18n:console",
+          "action": "=>Ti.Be.Open('/a/open/wn.console')",
+          "shortcut": "ALT+SHIFT+T"
+        },
+        {
+          "type": "action",
+          "icon": "zmdi-info-outline",
+          "text": "i18n:properties",
+          "action": "dispatch:main/openMetaEditor",
+          "shortcut": "ALT+SHIFT+P"
+        }
+      ]
+    }
+  ]
 }

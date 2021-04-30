@@ -7,6 +7,8 @@ export default {
     myGrantedScopes : undefined,
     myLongLiveAK : undefined,
     myAlbumList : undefined,
+    myAlbumMoreLoading : false,
+    myAlbumCursorAfter : undefined,
     currentAlbumId : undefined,
     myPhotoList : [],
     myFilterKeyword : undefined
@@ -53,10 +55,10 @@ export default {
     "userName" : {
       type : String
     },
-    "userAlbumIds" : {
-      type : Array,
-      default: ()=>[]
-    },
+    // "userAlbumIds" : {
+    //   type : Array,
+    //   default: ()=>[]
+    // },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -211,7 +213,9 @@ export default {
                   }
                 }
               }
-            }
+            },
+            showLoadMore : this.myAlbumCursorAfter ? true :　false,
+            moreLoading : this.myAlbumMoreLoading
           }
         },
         photos: {
@@ -260,6 +264,23 @@ export default {
       if(this.notifyName) {
         this.$notify(this.notifyName, album)
       }
+    },
+    //---------------------------------------------------
+    async OnAlbumLoadMore() {
+      this.myAlbumMoreLoading = true
+      // Invoke api
+      let {data, paging} = await Ti.Api.Facebook.getAlbumList({
+        userId : this.myId,
+        access_token : this.myLongLiveAK,
+        after : this.myAlbumCursorAfter
+      })
+      // Reload cover
+      let albums = data
+      await this.reloadAlbumsCover(albums)
+      // Set to data
+      this.myAlbumList.push(...albums)
+      this.myAlbumCursorAfter = _.get(paging, "cursors.after")
+      this.myAlbumMoreLoading = false
     },
     //---------------------------------------------------
     getAlbum(albumId) {
@@ -352,6 +373,7 @@ export default {
           let photo = photos[photoId];
           // Load from facebook
           if(!photo) {
+            console.log("Get album photo", album, photoId)
             photo = await Ti.Api.Facebook.getPhoto({
               photoId,
               access_token : this.myLongLiveAK
@@ -367,30 +389,39 @@ export default {
       }
       // Cache to local
       if(loadedPhoto) {
+        console.log("save loaded Photos")
         let input = JSON.stringify(photos)
         await Wn.Sys.exec2(`str > ${fph}`, {input})
       }
     },
     //---------------------------------------------------
     async reloadAlbums() {
+      this.myAlbumMoreLoading = false
       this.myAlbumList = undefined
-      let albums = await Ti.Api.Facebook.getAlbumList({
+      // Invoke api
+      let {data, paging} = await Ti.Api.Facebook.getAlbumList({
         userId : this.myId,
         access_token : this.myLongLiveAK
       })
       // Reload cover
+      let albums = data
       await this.reloadAlbumsCover(albums)
+      // Set to data
       this.myAlbumList = albums
+      this.myAlbumCursorAfter = _.get(paging, "cursors.after")
 
+      //
+      // zozoh : too many albums, I think it is not neccessary anymore...
+      //
       // Update albums Ids to profile
-      let aIds = _.map(this.myAlbumList, al => al.id)
-      if(!_.isEqual(aIds, this.userAlbumIds)) {
-        let json = JSON.stringify({
-          userAlbumIds : aIds
-        })
-        let cmdText = `jsonx -qn @read id:${this.meta.id} -auto @set '${json}' > id:${this.meta.id}`
-        await Wn.Sys.exec2(cmdText)
-      }
+      // let aIds = _.map(this.myAlbumList, al => al.id)
+      // if(!_.isEqual(aIds, this.userAlbumIds)) {
+      //   let json = JSON.stringify({
+      //     userAlbumIds : aIds
+      //   })
+      //   let cmdText = `jsonx -qn @read id:${this.meta.id} -auto @set '${json}' > id:${this.meta.id}`
+      //   await Wn.Sys.exec2(cmdText)
+      // }
       // If current album out of the albumn list
       // Maybe user switch the account, then clean the photoList
       if(this.currentAlbumId) {

@@ -10,5 +10,6 @@
     "@com:ti/media/image",
     "@com:ti/media/audio",
     "@com:ti/media/video",
+    "@com:web/widget/frame",
     "@com:net/youtube/player"]
 }

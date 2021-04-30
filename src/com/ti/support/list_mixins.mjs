@@ -93,6 +93,19 @@ const LIST_MIXINS = {
     isRowCancelable() {return Ti.AutoMatch.parse(this.rowCancelable||this.cancelable)},
     isRowHoverable () {return Ti.AutoMatch.parse(this.rowHoverable ||this.hoverable)},
     //-----------------------------------------------
+    LoadingMoreBtn() {
+      if(this.moreLoading) {
+        return {
+          icon : "fas-spinner fa-spin",
+          text : "i18n:loading"
+        }
+      }
+      return {
+        icon : "fas-angle-down",
+        text : "i18n:more"
+      }
+    },
+    //-----------------------------------------------
     // fnSet() {
     //   return _.assign({}, Ti.GlobalFuncs(), this.extendFunctionSet)
     // },
@@ -112,6 +125,12 @@ const LIST_MIXINS = {
   },
   ///////////////////////////////////////////////////
   methods : {
+    //-----------------------------------------------
+    OnClickLoadMore() {
+      if(!this.moreLoading) {
+        this.$notify("load:more")
+      }
+    },
     //-----------------------------------------------
     wrapRowId(rowId) {
       if(_.isNumber(rowId)){

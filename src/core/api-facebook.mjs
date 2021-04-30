@@ -114,16 +114,14 @@ const TiApiFacebook = {
   async getAlbumList({
     userId, 
     access_token,
+    after,
     fields = "id,name,place,created_time,description,link,count,cover_photo"
   }={}) {
     let url = FBAPI(`${userId}/albums`)
-    let reo = await Ti.Http.get(url, {
-      params : {access_token, fields},
+    return await Ti.Http.get(url, {
+      params : {access_token, fields, after},
       as : "json"
     })
-    let {data, paging} = reo
-    
-    return data
   }
   //----------------------------------------
 }

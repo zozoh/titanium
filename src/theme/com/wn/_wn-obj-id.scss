@@ -53,6 +53,12 @@
         @include color($color-primary, r, c);
         text-align: right; 
       }
+      &:nth-child(2) {
+        cursor: pointer;
+        &:hover {
+          @include color($color-weaktip, r, c);
+        }
+      }
       &.as-copy {border-color: transparent;}
     }
     //----------------------------------------

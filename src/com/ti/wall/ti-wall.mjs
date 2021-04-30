@@ -113,8 +113,7 @@ const _M = {
     },
     //--------------------------------------
     OnWallResize() {
-      //console.log("OnWallResize")
-      let $divs = Ti.Dom.findAll(":scope > .wall-tile", this.$el)
+      let $divs = Ti.Dom.findAll(".wall-con > .wall-tile", this.$el)
       // Guard empty
       if(_.isEmpty($divs)) 
         return
@@ -122,11 +121,11 @@ const _M = {
       //console.log("  ~~~ do", this.data)
       let cols  = 0
       let width = 1
-      let top = -1
+      let top = undefined
       let isOnlyOneRow = true
       for(let $div of $divs) {
         let rect = $div.getBoundingClientRect()
-        if(top < 0) {
+        if(_.isUndefined(top)) {
           top  = rect.top
         }
         if(top == rect.top) {
