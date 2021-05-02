@@ -296,7 +296,7 @@ export default {
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnYoutubeFloat', {
-      text: 'i18n:hmk-float',
+      text: Ti.I18n.text('i18n:hmk-float'),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
@@ -323,7 +323,7 @@ export default {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnYoutubeMargin', {
-      text: 'i18n:hmk-w-edit-video-margin',
+      text: Ti.I18n.text('i18n:hmk-w-edit-video-margin'),
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
           let $video = GetCurrentYoutubeElement(editor)
