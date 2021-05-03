@@ -11,6 +11,33 @@
   //-----------------------------------------
   &.has-zoomlen.show-zoomlen .as-zoomlen {display: block;}
   //-----------------------------------------
+  &.of-con-hidden   .as-img-con {overflow: hidden;}
+  &.of-con-visiable .as-img-con {overflow: visible;}
+  //-----------------------------------------
+  &.is-fit-auto img {
+    width: auto; height: auto; 
+    max-height: 100%; max-width: 100%;
+  }
+  &.is-fit-none    img {object-fit: unset;}
+  &.is-fit-contain img {object-fit: contain;}
+  &.is-fit-cover   img {object-fit: cover; }
+  //-----------------------------------------
+  &.primary-img-size {
+    img {
+      width:auto; height:auto; flex:0 0 auto;
+      margin:0 auto;
+    }
+  }
+  //-----------------------------------------
+  &.text-hover-full {
+    .as-text {
+      transition: 0.5s; 
+    }
+    .as-text:hover .as-title {
+      white-space: normal; overflow: hidden;
+    }
+  }
+  //-----------------------------------------
   .as-img-con {
     flex:1 1 auto;
     width:100%; 
@@ -33,27 +60,10 @@
     padding: SZ(6) SZ(6);    
   }
   //-----------------------------------------
-  &.of-con-hidden   .as-img-con {overflow: hidden;}
-  &.of-con-visiable .as-img-con {overflow: visible;}
-  //-----------------------------------------
-  &.is-fit-auto img {
-    width: auto; height: auto; 
-    max-height: 100%; max-width: 100%;
-  }
-  &.is-fit-none    img {object-fit: unset;}
-  &.is-fit-contain img {object-fit: contain;}
-  &.is-fit-cover   img {object-fit: cover; }
-  //-----------------------------------------
-  &.primary-img-size {
-    img {
-      width:auto; height:auto; flex:0 0 auto;
-      margin:0 auto;
-    }
-  }
-  //-----------------------------------------
   .as-text {
     @include flex-center; 
     @include font-nice;
+    user-select: text;
     //---------------------------------------
     .as-title {
       flex:1 1 auto;

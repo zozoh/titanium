@@ -1,6 +1,7 @@
 export default {
   ///////////////////////////////////
   data: ()=>({
+    myMouseIn : false,
     showZoomPick  : false,
     showZoomDock  : false,
     naturalWidth  : -1,
@@ -75,6 +76,10 @@ export default {
     "imageStyle": {
       type: Object
     },
+    "effects": {
+      type: Object,
+      default: ()=>({})
+    },
     "tags": {
       type: [String, Array, Object]
     },
@@ -112,7 +117,7 @@ export default {
         "show-zoomlen" : this.showZoomPick,
         "no-zoomlen"   : this.TheZoomLens ? false : true,
         "has-zoomlen"  : this.TheZoomLens ? true  : false,
-      })
+      }, this.effects)
     },
     //--------------------------------------
     TagsStyle() {
@@ -352,6 +357,7 @@ export default {
     },
     //--------------------------------------
     OnImageMouseEnter() {
+      this.myMouseIn = true
       if(this.EnterNotifyName && this.enterCooling >= 0) {
         let $img = this.$refs.img
         this.myEnterAt = Date.now()
@@ -370,6 +376,7 @@ export default {
       if(this.myEnterNotifed || this.myEnterAt<0) {
         return
       }
+      //console.log("enter image")
       let du = Date.now()  - this.myEnterAt
       if(du >= this.enterCooling) {
         //console.log("du cooling", du, this.enterCooling)
@@ -383,19 +390,75 @@ export default {
     },
     //--------------------------------------
     OnImageMouseLeave() {
-      let $img = this.$refs.img
-      if(this.TheHoverSrc) {
-        $img.src = this.TheSrc
+      //console.log("leave image")
+      this.myMouseIn = false
+      _.delay(()=>{
+        this.delayCheckLeave()
+      }, 20)
+    },
+    //--------------------------------------
+    delayCheckLeave() {
+      if(!this.myMouseIn) {
+        let $img = this.$refs.img
+        if(this.TheHoverSrc) {
+          $img.src = this.TheSrc
+        }
+        if(this.myEnterNotifed && this.LeaveNotifyName) {
+          let payload = _.assign({
+            $el : this.$el,
+            $img : this.$refs.img
+          }, this.notifyPayload)
+          this.$notify(this.LeaveNotifyName, payload)
+        }
+        this.myEnterNotifed = false
+        this.myEnterAt = -1
       }
-      if(this.myEnterNotifed && this.LeaveNotifyName) {
-        let payload = _.assign({
-          $el : this.$el,
-          $img : this.$refs.img
-        }, this.notifyPayload)
-        this.$notify(this.LeaveNotifyName, payload)
+    },
+    //--------------------------------------
+    OnTextMouseEnter() {
+      //console.log("enter text")
+      this.myMouseIn = true
+      if(!this.effects.textHoverFull || !_.isElement(this.$refs.text)) {
+        return
       }
-      this.myEnterNotifed = false
-      this.myEnterAt = -1
+      let view = Ti.Rects.createBy(this.$el)
+      let text = Ti.Rects.createBy(this.$refs.text)
+      Ti.Dom.updateStyle(this.$refs.text, {
+        width: text.width, height: text.height
+      })
+      this.$refs.text.__primary_rect = text
+      _.delay(()=>{
+        Ti.Dom.updateStyle(this.$refs.text, {
+          width: view.width, height: view.height
+        })
+      }, 10)
+    },
+    //--------------------------------------
+    OnTextMouseLeave() {
+      //console.log("leave text")
+      this.myMouseIn = false
+      if(!this.effects.textHoverFull || !_.isElement(this.$refs.text)) {
+        return
+      }
+      let text = this.$refs.text.__primary_rect
+      if(!text) {
+        return
+      }
+      Ti.Dom.updateStyle(this.$refs.text, {
+        width: text.width, height: text.height
+      })
+      _.delay(()=>{
+        this.delayCheckLeave()
+      }, 20)
+    },
+    //--------------------------------------
+    OnTextTransitionend() {
+      if(!this.myMouseIn) {
+        Ti.Dom.updateStyle(this.$refs.text, {
+          width: "", height: ""
+        })
+        this.$refs.text.__primary_rect = undefined
+      }
     }
     //--------------------------------------
   },

@@ -1,28 +1,22 @@
 ///////////////////////////////////////
 const TiCss = {
   //-----------------------------------
-  toPixel(str, base=100, dft=0) {
+  toPixel(input, base=100, dft=0) {
     // Number may `.23` or `300`
-    if(_.isNumber(str)) {
+    if(_.isNumber(input)) {
       // Take (-1, 1) as percent
-      if(str>-1 && str < 1) {
-        return str * base
+      if(input>-1 && input < 1) {
+        return input * base
       }
       // Fixed value
-      return str
+      return input
     }
     // String, may `45px` or `43%`
-    let m = /^(-?[\d.]+)(px)?(%)?$/.exec(str);
-    if(m) {
-      // percent
-      if(m[3]) {
-        return m[1] * base / 100
-      }
-      // fixed value
-      return m[1] * 1
+    let opt = {
+      base, dft,
+      remBase : Ti.Dom.getRemBase()
     }
-    // Fallback to default
-    return dft
+    return TiCss.toAbsPixel(input, opt)
   },
   //-----------------------------------
   toAbsPixel(input, {base=100, dft=0, remBase=100, emBase=14}={}) {
@@ -108,7 +102,7 @@ const TiCss = {
       }
       // String
       else if(_.isString(kla)) {
-        let ss = _.without(_.split(kla, / +/g), "")
+        let ss = _.without(_.split(kla, /\s+/g), "")
         for(let s of ss) {
           klass[s] = true
         }
@@ -123,7 +117,8 @@ const TiCss = {
       else if(_.isPlainObject(kla)) {
         _.forEach(kla, (val, key)=>{
           if(val) {
-            klass[key] = true
+            let name = _.kebabCase(key)
+            klass[name] = true
           }
         })
       }

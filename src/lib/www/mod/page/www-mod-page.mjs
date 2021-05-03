@@ -42,6 +42,10 @@ const _M = {
       _.assign(state, all)
     },
     //--------------------------------------------
+    setActiveElement(state, el) {
+      state.activeElement = el
+    },
+    //--------------------------------------------
     setTitle(state, title) {
       state.title = title
     },

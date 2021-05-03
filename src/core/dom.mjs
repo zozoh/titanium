@@ -873,6 +873,14 @@ const TiDom = {
     }, 0)
   },
   //----------------------------------------------------
+  getRemBase($doc=document) {
+    if(_.isElement($doc) && $doc.ownerDocument) {
+      $doc = $doc.ownerDocument
+    }
+    let fontSize = $doc.documentElement.style.fontSize || "100px"
+    return Ti.Css.toAbsPixel(fontSize)
+  },
+  //----------------------------------------------------
   /**
    * Retrive Current window scrollbar size
    */

@@ -11,10 +11,36 @@ const _M = {
     myShown : {},
     myViewportWidth  : 0,
     myViewportHeight : 0,
-    myBlockMap : {}
+    myBlockMap : {},
+    myPanelVisibles : {}
   }),
   /////////////////////////////////////////
   props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "layout" : {
+      type : Object,
+      default : ()=>({
+        desktop : {},
+        tablet  : "desktop",
+        phone   : "desktop"
+      })
+    },
+    "schema" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "activeElement" : {
+      type : [Element, Object]  /*null type is Object*/
+    },
+    "shown" : {
+      type : Object,
+      default : ()=>({})
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
     "defaultFlex" : {
       type : String,
       default : undefined,
@@ -29,27 +55,11 @@ const _M = {
       type: String,
       default: "ti-fill-parent"
     },
-    "layout" : {
-      type : Object,
-      default : ()=>({
-        desktop : {},
-        tablet  : "desktop",
-        phone   : "desktop"
-      })
-    },
-    "schema" : {
-      type : Object,
-      default : ()=>({})
-    },
     "keepShownTo" : {
       type : String,
       default : undefined
     },
     "actionStatus" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "shown" : {
       type : Object,
       default : ()=>({})
     },
@@ -65,6 +75,9 @@ const _M = {
       type : Boolean,
       default : false
     },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
     // value should be prop of ti-loading
     "loadingAs" : {
       type : [Boolean, Object],
@@ -163,6 +176,12 @@ const _M = {
     //--------------------------------------
     OnMainTypeInit($innerCom) {
       this.$inner = $innerCom
+    },
+    //--------------------------------------
+    OnPanelAfterEnter(pan) {
+      this.myPanelVisibles = _.assign({}, {
+        [pan.key] : pan.visible
+      })
     },
     //--------------------------------------
     joinBlockNames(names={}, blocks=[]) {
@@ -281,6 +300,7 @@ const _M = {
     //--------------------------------------
     syncViewportMeasure() {
       let rect = Ti.Rects.createBy(this.$el);
+      //console.log(rect.toString())
       this.myViewportWidth  = rect.width
       this.myViewportHeight = rect.height
     },
@@ -327,9 +347,14 @@ const _M = {
       handler : function(shown) {
         //console.log("ti-gui shown changed", shown)
         this.syncMyShown(shown)
+        this.$nextTick(()=>{
+          this.syncViewportMeasure();
+        })
       },
       immediate : true
-    }
+    },
+    "loadingAs" : "syncViewportMeasure",
+    "layout" : "syncViewportMeasure"
   },
   //////////////////////////////////////////
   mounted : function() {
@@ -338,9 +363,11 @@ const _M = {
       resize : _.debounce(()=>this.syncViewportMeasure(), 100)
     })
     //......................................
-    this.syncViewportMeasure()
-    //......................................
     this.loadMyStatus()
+    //......................................
+    _.delay(()=>{
+      this.syncViewportMeasure()
+    })
     //......................................
   },
   ///////////////////////////////////////////////////

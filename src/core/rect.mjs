@@ -433,7 +433,6 @@ export class Rect {
     _.defaults(space, {x:0, y:0})
 
     let alg = mode + ":" + axis.x + "/" + axis.y;
-
     ({
       "V:left/top" : ()=>{
         this.right = rect.left - space.x

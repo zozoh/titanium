@@ -29,10 +29,13 @@
     </div>
   </div>
   <!--Text-->
-  <div
+  <div ref="text"
     v-if="TheText || TheBrief"
       class="as-text"
-      :style="TextStyle">
+      :style="TextStyle"
+      @mouseenter="OnTextMouseEnter"
+      @mouseleave="OnTextMouseLeave"
+      @transitionend="OnTextTransitionend">
       <div
         v-if="TheText"
           class="as-title"><span>{{TheText}}</span></div>

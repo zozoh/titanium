@@ -397,7 +397,8 @@ const _M = {
       }
     },
     //--------------------------------------------
-    async runAction({state, dispatch}, {
+    async runAction({state, commit, dispatch}, {
+      mutation,
       action, 
       test,       // AutoMatch
       testMsg="i18n:e-run-action-test-fail",
@@ -406,7 +407,7 @@ const _M = {
       args
     }={}) {
       //....................................
-      if(!action)
+      if(!action && !mutation)
         return;
 
       //....................................
@@ -453,6 +454,9 @@ const _M = {
       //....................................
       if(_.isFunction(action)) {
         await action(pld)
+      }
+      else if(mutation) {
+        commit(mutation, pld)
       }
       // Action
       else {

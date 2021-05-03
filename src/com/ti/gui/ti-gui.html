@@ -45,15 +45,17 @@
   -->
   <template 
     v-for="pan in ThePanels">
-      <transition :name="pan.transName">
+      <transition :name="pan.transName" @after-enter="OnPanelAfterEnter(pan)">
         <ti-gui-panel
           v-if="pan.visible"
             :key="pan.key"
             v-bind="pan.panel"
+            :refer-element="activeElement"
             :viewport-width="myViewportWidth"
             :viewport-height="myViewportHeight"
             :schema="schema"
             :shown="TheShown"
+            :visibles="myPanelVisibles"
             :default-flex="defaultFlex"
             :action-status="actionStatus"/>
       </transition>

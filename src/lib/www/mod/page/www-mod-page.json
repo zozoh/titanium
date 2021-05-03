@@ -17,6 +17,7 @@
     "flex" : "nil",
     "overflow" : "none"
   },
+  "activeElement" : null,
   "contextMenu": true,
   "explainDataKey": [],
   "layout" : {

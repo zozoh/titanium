@@ -128,6 +128,7 @@ const _M = {
         className: page.className,
         defaultFlex: "=page.gui.flex?nil",
         defaultOverflow: "=page.gui.overflow?none",
+        activeElement: "=page.activeElement",
         layout, 
         schema : {},
         canLoading : true

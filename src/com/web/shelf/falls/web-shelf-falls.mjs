@@ -179,9 +179,10 @@ const _M = {
       let elW = this.$el.clientWidth
 
       // Get rem base
-      let $html = this.$el.ownerDocument.documentElement
-      let fontSize = $html.style.fontSize || "100px"
-      let remBase = Ti.Css.toAbsPixel(fontSize)
+      // let $html = this.$el.ownerDocument.documentElement
+      // let fontSize = $html.style.fontSize || "100px"
+      // let remBase = Ti.Css.toAbsPixel(fontSize)
+      let remBase = Ti.Dom.getRemBase()
 
       // Item width list
       let itWs = _.without(_.concat(this.itemWidth), undefined)
