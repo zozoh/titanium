@@ -66,6 +66,9 @@ export default {
       default : undefined,
       validator : (v)=>(_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
     },
+    "order" : {
+      type : Number
+    },
     "schema" : {
       type : Object,
       default : ()=>({})
@@ -101,7 +104,7 @@ export default {
     },
     //--------------------------------------
     TopStyle() {
-      return Ti.Css.toStyle(({
+      let css = ({
         //..................................
         rows:()=>({
           height: this.BlockSize
@@ -115,7 +118,11 @@ export default {
         //..................................
         panel:()=>({})
         //..................................
-      })[this.embedIn]())
+      })[this.embedIn]()
+      if(!Ti.Util.isNil(this.order)) {
+        css.order = this.order
+      }
+      return Ti.Css.toStyle(css)
     },
     //--------------------------------------
     MainConClass() {

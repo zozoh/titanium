@@ -1,5 +1,10 @@
 <div class="web-text-heading"
   :class="TopClass">
+  <!--Back button-->
+  <a
+    v-if="showBackward"
+      class="as-backward"
+      @click.left="OnClickBackward"><i class="fas fa-chevron-left"></i></a>
   <!--Title/Icon-->
   <a
     v-if="title"

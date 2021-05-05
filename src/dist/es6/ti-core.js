@@ -1,4 +1,4 @@
-// Pack At: 2021-04-27 17:59:31
+// Pack At: 2021-05-05 21:38:55
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2459,6 +2459,7 @@ const {App} = (function(){
       // Methods
       //////////////////////////////////////////////
       async open(resolve=_.identity) {
+        console.log("dialog", this.model)
         let TheActions = []
         // Customized actions
         if(this.actions) {
@@ -2748,6 +2749,7 @@ const {App} = (function(){
             },
             //--------------------------------------
             OnEvent(key, payload) {
+              console.log(key, payload)
               let fn = _.get(AppModalEvents, key)
               fn(payload)
             },
@@ -4426,6 +4428,14 @@ const {Dom} = (function(){
       }, 0)
     },
     //----------------------------------------------------
+    getRemBase($doc=document) {
+      if(_.isElement($doc) && $doc.ownerDocument) {
+        $doc = $doc.ownerDocument
+      }
+      let fontSize = $doc.documentElement.style.fontSize || "100px"
+      return Ti.Css.toAbsPixel(fontSize)
+    },
+    //----------------------------------------------------
     /**
      * Retrive Current window scrollbar size
      */
@@ -4888,7 +4898,6 @@ const {Rect,Rects} = (function(){
       _.defaults(space, {x:0, y:0})
   
       let alg = mode + ":" + axis.x + "/" + axis.y;
-  
       ({
         "V:left/top" : ()=>{
           this.right = rect.left - space.x
@@ -11041,7 +11050,8 @@ const {WWW} = (function(){
             "dataKey",
             "dataMerge",
             "rawDataKey",
-            "rawDataMerge"
+            "rawDataMerge",
+            "after"
           ))
           //..........................................
           _.defaults(api, {
@@ -11175,7 +11185,7 @@ const {WWW} = (function(){
         })
         if(_.isFunction(fnTrans)) {
           //console.log("transformer", reo)
-          data = fnTrans(reo)
+          data = await fnTrans(reo)
         }
       }
       //.....................................
@@ -11194,6 +11204,7 @@ const {WWW} = (function(){
       updateData,
       doAction
     } = {}) {
+      console.log("runApi", api)
       //.....................................
       let apiRe;
       //.....................................
@@ -11254,7 +11265,7 @@ const {WWW} = (function(){
         if(key) {
           if(api.rawDataMerge) {
             let d2 = {}
-            _.set(d2, key, data)
+            _.set(d2, key, reo)
             mergeData(d2)
           }
           // Just update
@@ -12004,28 +12015,22 @@ const {Css} = (function(){
   ///////////////////////////////////////
   const TiCss = {
     //-----------------------------------
-    toPixel(str, base=100, dft=0) {
+    toPixel(input, base=100, dft=0) {
       // Number may `.23` or `300`
-      if(_.isNumber(str)) {
+      if(_.isNumber(input)) {
         // Take (-1, 1) as percent
-        if(str>-1 && str < 1) {
-          return str * base
+        if(input>-1 && input < 1) {
+          return input * base
         }
         // Fixed value
-        return str
+        return input
       }
       // String, may `45px` or `43%`
-      let m = /^(-?[\d.]+)(px)?(%)?$/.exec(str);
-      if(m) {
-        // percent
-        if(m[3]) {
-          return m[1] * base / 100
-        }
-        // fixed value
-        return m[1] * 1
+      let opt = {
+        base, dft,
+        remBase : Ti.Dom.getRemBase()
       }
-      // Fallback to default
-      return dft
+      return TiCss.toAbsPixel(input, opt)
     },
     //-----------------------------------
     toAbsPixel(input, {base=100, dft=0, remBase=100, emBase=14}={}) {
@@ -12111,7 +12116,7 @@ const {Css} = (function(){
         }
         // String
         else if(_.isString(kla)) {
-          let ss = _.without(_.split(kla, / +/g), "")
+          let ss = _.without(_.split(kla, /\s+/g), "")
           for(let s of ss) {
             klass[s] = true
           }
@@ -12126,7 +12131,8 @@ const {Css} = (function(){
         else if(_.isPlainObject(kla)) {
           _.forEach(kla, (val, key)=>{
             if(val) {
-              klass[key] = true
+              let name = _.kebabCase(key)
+              klass[name] = true
             }
           })
         }
@@ -15041,16 +15047,14 @@ const Facebook = (function(){
     async getAlbumList({
       userId, 
       access_token,
+      after,
       fields = "id,name,place,created_time,description,link,count,cover_photo"
     }={}) {
       let url = FBAPI(`${userId}/albums`)
-      let reo = await Ti.Http.get(url, {
-        params : {access_token, fields},
+      return await Ti.Http.get(url, {
+        params : {access_token, fields, after},
         as : "json"
       })
-      let {data, paging} = reo
-      
-      return data
     }
     //----------------------------------------
   }
@@ -15092,7 +15096,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210427.175931",
+  "version" : "1.6-20210505.213855",
   "dev" : false,
   "appName" : null,
   "session" : {},

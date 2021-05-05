@@ -16,7 +16,6 @@
       }
       > .it-info-text {
         flex:1 1 auto; 
-        @include text-overflow;
       }
       > .it-status-icon {
         opacity: 0.6; font-size: 0.8em;
@@ -46,4 +45,9 @@
     }
     //----------------------------------
   } // ~ .side-item
+  //------------------------------------
+  &.item-nowrap .side-item .it-info > .it-info-text {
+    @include text-overflow;
+  }
+  //------------------------------------
 }

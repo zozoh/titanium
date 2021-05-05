@@ -20,7 +20,7 @@ const _M = {
         [`tab-at-${this.TheTabAtX}`] : this.isTabMode,
         [`tab-at-${this.TheTabAtY}`] : this.isTabMode
       }, 
-      `as-${this.viewportMode}`,
+      `as-${this.ViewDisplayMode}`,
       `as-spacing-${this.spacing||"comfy"}`
       )
     },
@@ -30,6 +30,13 @@ const _M = {
         width  : this.width,
         height : this.height
       })
+    },
+    //--------------------------------------------------
+    ViewDisplayMode() {
+      if(!this.screenMode || "auto" == this.screenMode) {
+        return this.viewportMode || "desktop"
+      }
+      return this.screenMode
     },
     //--------------------------------------------------
     hasHeader() {

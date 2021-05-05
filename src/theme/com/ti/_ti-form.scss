@@ -10,6 +10,15 @@
     position: relative; 
     transition: all .5s;
     flex: 1 1 auto;
+    //----------------------------------
+    &.as-required {
+      .field-name .name-title:after {
+        @include color($color-error, c);
+        content:"*"; display: inline;
+        font-weight: bold;
+      }
+    }
+    //----------------------------------
   }
   //------------------------------------
   > .form-header {
@@ -167,13 +176,13 @@
       &.as-phone {
         > .field-name {
           @include flex-align-nowrap;
-          @include border(1px, solid, shallow, bottom);
+          padding: SZ(4);
           > .name-icon   {order: 1; padding:0 SZ(6);}
           > .name-title  {order: 2;}
           > .name-status {order: 3;}
         }
         > .field-value {
-          padding:SZ(10) 0;
+          padding:SZ(4) 0;
         }
       }
       //------------------------

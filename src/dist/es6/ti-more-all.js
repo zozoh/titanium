@@ -1,4 +1,4 @@
-// Pack At: 2021-04-27 17:59:31
+// Pack At: 2021-05-05 21:38:55
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1031,8 +1031,8 @@ const _M = {
       })[this.viewType]()
 
       // Extend customized config
-      _.assign(conf, this.listConf)
-      _.assign(conf, _.get(this, `${this.viewType}ViewConf`))
+      _.merge(conf, this.listConf)
+      _.merge(conf, _.get(this, `${this.viewType}ViewConf`))
 
       // Done
       return conf
@@ -5675,7 +5675,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "valueType": {
       type: String,
       default: "idPath",
-      validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
+      validator: v => /^(obj|path|fullPath|idPath|id|wnobj)$/.test(v)
     },
     "base" : {
       type : [Object, String],
@@ -5687,8 +5687,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     // Key of meta to show as text
     // If undefined, use "title -> nm"
-    "textBy" : {
-      type : [String, Array],
+    "titleBy" : {
+      type : [String, Array, Function],
       default : null
     },
     "filterBy" : {
@@ -5713,12 +5713,22 @@ const __TI_MOD_EXPORT_VAR_NM = {
       })
     },
     //--------------------------------------
+    ItemTitleKey() {
+      if(_.isFunction(this.titleBy)) {
+        return this.titleBy()
+      }
+      return this.titleBy
+    },
+    //--------------------------------------
     DisplayItems() {
+      let exposeHidden = _.get(Ti.App(this).$state(), "viewport/exposeHidden")
+      exposeHidden = Ti.Util.fallback(exposeHidden, false)
       let list = []
       for(let i=0; i < this.myItems.length; i++) {
         let obj = this.myItems[i]
         let it = Wn.Util.getObjThumbInfo(obj, {
-          exposeHidden : true,
+          titleKey: this.ItemTitleKey,
+          exposeHidden,
           badges: {
             NW : ["href", "fas-link"],
             SE : ["newtab", "fas-external-link-alt"]
@@ -5760,13 +5770,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Then it should be auto-open the folder
       if(!meta || _.isEmpty(meta)) {
         meta = this.base || "~"
-      } else {
-        meta = `id:${meta.id}`
+        if(_.isString(meta)) {
+          meta = await Wn.Io.loadMeta(meta)
+        }
       }
-
-      // Reload Meta
-      if(_.isPlainObject(meta) && !meta.pid) {
-        meta = await await Wn.Io.loadMetaById(meta.id)
+      // Open the parent folder of the current item
+      else if(meta.pid) {
+        meta = await Wn.Io.loadMeta(`id:${meta.pid}`)
+      }
+      // Reload 
+      else {
+        console.warn("WnObjPicker: Meta without pid", meta)
+        meta = await Wn.Io.loadMeta(`id:${meta.id}`)
       }
 
       // Eval Filter
@@ -5779,9 +5794,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let objs = await Wn.OpenObjSelector(meta, {
         multi    : this.multi,
         selected : this.myItems,
-        filter
+        filter,
+        titleBy : this.ItemTitleKey
       })
-      //console.log(objs)
       // user cancel
       if(_.isEmpty(objs)) {
         return
@@ -6035,6 +6050,10 @@ const _M = {
     //--------------------------------------------
     set(state, all) {
       _.assign(state, all)
+    },
+    //--------------------------------------------
+    setActiveElement(state, el) {
+      state.activeElement = el
     },
     //--------------------------------------------
     setTitle(state, title) {
@@ -19061,35 +19080,19 @@ const _M = {
   }),
   ////////////////////////////////////////////////////
   props : {
-    "value" : {
-      type : String,
-      default : undefined
-    },
-    "tipText" : {
-      type : String,
-      default : undefined
-    },
-    "tipIcon" : {
-      type : String,
-      default : undefined
-    },
-    "vars" : {
-      type : Object,
-      default: undefined
-    },
+    "value" : String,
+    "tipText" : String,
+    "tipIcon" : String,
+    "vars" : Object,
     "as": {
       type : String,
       default: "text"
     },
-    "emitName": {
-      type : String,
-      default: undefined
-    },
+    "emitName": String,
     "emitPayload" : undefined,
-    "input" : {
-      type : String,
-      default: undefined
-    },
+    "emitSuccess": String,
+    "emitError": String,
+    "input" : String,
     "forceFlushBuffer" : {
       type : Boolean,
       default: true
@@ -19098,10 +19101,12 @@ const _M = {
       type : Boolean,
       default : true
     },
-    "afterRunCommand" : {
-      type : Function,
-      default : undefined
-    }
+    //
+    // Callback
+    // 
+    "afterRunCommand" : Function,
+    "whenSuccess" : Function,
+    "whenError" : Function
   },
   ////////////////////////////////////////////////////
   computed : {
@@ -19136,12 +19141,33 @@ const _M = {
       //     this.lines.push(line)
       //   }
       // })
-      let re = await this.exec(this.value)
+      let re ;
+      try{
+        re = await this.exec(this.value)
+        // Success
+        if(_.isFunction(this.whenSuccess)) {
+          await this.whenSuccess(re)
+        }
+        if(this.emitSuccess) {
+          this.$notify(this.emitSuccess, this.emitPayload || re)  
+        }
+      }
+      // Fail
+      catch(err) {
+        if(_.isFunction(this.whenError)) {
+          await this.whenError(re)
+        }
+        if(this.emitError) {
+          this.$notify(this.emitError, this.emitPayload || re)  
+        }
+      }
 
+      //
+      // Always 
+      //
       if(_.isFunction(this.afterRunCommand)) {
         await this.afterRunCommand(re)
       }
-
       if(this.emitName) {
         this.$notify(this.emitName, this.emitPayload || re)
       }
@@ -21758,6 +21784,7 @@ window.TI_PACK_EXPORTS['ti/com/web/media/image/web-media-image.mjs'] = (function
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////
   data: ()=>({
+    myMouseIn : false,
     showZoomPick  : false,
     showZoomDock  : false,
     naturalWidth  : -1,
@@ -21832,6 +21859,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "imageStyle": {
       type: Object
     },
+    "effects": {
+      type: Object,
+      default: ()=>({})
+    },
     "tags": {
       type: [String, Array, Object]
     },
@@ -21869,7 +21900,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         "show-zoomlen" : this.showZoomPick,
         "no-zoomlen"   : this.TheZoomLens ? false : true,
         "has-zoomlen"  : this.TheZoomLens ? true  : false,
-      })
+      }, this.effects)
     },
     //--------------------------------------
     TagsStyle() {
@@ -22109,6 +22140,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     OnImageMouseEnter() {
+      this.myMouseIn = true
       if(this.EnterNotifyName && this.enterCooling >= 0) {
         let $img = this.$refs.img
         this.myEnterAt = Date.now()
@@ -22127,6 +22159,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if(this.myEnterNotifed || this.myEnterAt<0) {
         return
       }
+      //console.log("enter image")
       let du = Date.now()  - this.myEnterAt
       if(du >= this.enterCooling) {
         //console.log("du cooling", du, this.enterCooling)
@@ -22140,19 +22173,75 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     OnImageMouseLeave() {
-      let $img = this.$refs.img
-      if(this.TheHoverSrc) {
-        $img.src = this.TheSrc
+      //console.log("leave image")
+      this.myMouseIn = false
+      _.delay(()=>{
+        this.delayCheckLeave()
+      }, 20)
+    },
+    //--------------------------------------
+    delayCheckLeave() {
+      if(!this.myMouseIn) {
+        let $img = this.$refs.img
+        if(this.TheHoverSrc) {
+          $img.src = this.TheSrc
+        }
+        if(this.myEnterNotifed && this.LeaveNotifyName) {
+          let payload = _.assign({
+            $el : this.$el,
+            $img : this.$refs.img
+          }, this.notifyPayload)
+          this.$notify(this.LeaveNotifyName, payload)
+        }
+        this.myEnterNotifed = false
+        this.myEnterAt = -1
       }
-      if(this.myEnterNotifed && this.LeaveNotifyName) {
-        let payload = _.assign({
-          $el : this.$el,
-          $img : this.$refs.img
-        }, this.notifyPayload)
-        this.$notify(this.LeaveNotifyName, payload)
+    },
+    //--------------------------------------
+    OnTextMouseEnter() {
+      //console.log("enter text")
+      this.myMouseIn = true
+      if(!this.effects.textHoverFull || !_.isElement(this.$refs.text)) {
+        return
       }
-      this.myEnterNotifed = false
-      this.myEnterAt = -1
+      let view = Ti.Rects.createBy(this.$el)
+      let text = Ti.Rects.createBy(this.$refs.text)
+      Ti.Dom.updateStyle(this.$refs.text, {
+        width: text.width, height: text.height
+      })
+      this.$refs.text.__primary_rect = text
+      _.delay(()=>{
+        Ti.Dom.updateStyle(this.$refs.text, {
+          width: view.width, height: view.height
+        })
+      }, 10)
+    },
+    //--------------------------------------
+    OnTextMouseLeave() {
+      //console.log("leave text")
+      this.myMouseIn = false
+      if(!this.effects.textHoverFull || !_.isElement(this.$refs.text)) {
+        return
+      }
+      let text = this.$refs.text.__primary_rect
+      if(!text) {
+        return
+      }
+      Ti.Dom.updateStyle(this.$refs.text, {
+        width: text.width, height: text.height
+      })
+      _.delay(()=>{
+        this.delayCheckLeave()
+      }, 20)
+    },
+    //--------------------------------------
+    OnTextTransitionend() {
+      if(!this.myMouseIn) {
+        Ti.Dom.updateStyle(this.$refs.text, {
+          width: "", height: ""
+        })
+        this.$refs.text.__primary_rect = undefined
+      }
     }
     //--------------------------------------
   },
@@ -22218,6 +22307,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "actions" : {
       type : Array,
       default : ()=>["fullscreen", "newtab", "download", "info"]
+    },
+    "browserBuiltIn" : {
+      type : [String, RegExp, Function, Object, Array],
+      default : /^(application\/pdf)$/
     },
     "showInfo" : {
       type : Boolean,
@@ -22285,6 +22378,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return Wn.Util.getObjDisplayName(this.meta)
     },
     //--------------------------------------
+    BrowserCanPreviewBuiltin() {
+      if(this.browserBuiltIn) {
+        let fn = Ti.AutoMatch.parse(this.browserBuiltIn)
+        let bbf = this.browserBuiltIn
+        if(_.isString(bbf) || _.isRegExp(bbf)) {
+          return (o)=>{
+            return fn(o.mime)
+          }
+        }
+        return fn
+      }
+      return ()=>false
+    },
+    //--------------------------------------
     PreviewCom() {
       if(this.meta) {
         // File
@@ -22297,6 +22404,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
             comConf : {
               src : this.DataSource
             }
+          }
+        }
+        // Browser built-in preview
+        if(this.BrowserCanPreviewBuiltin(this.meta)) {
+          return {
+            comType : 'WebWidgetFrame',
+            comConf : {
+              src : `/o/content?str=id:${this.meta.id}&d=raw`,
+              width  : "100%",
+              height : "100%"
+            } 
           }
         }
         // Youtube
@@ -28527,8 +28645,9 @@ const _M = {
     },
     //-----------------------------------------------
     async doAddNewItem() {
+      console.log("doAddNewItem")
       let reo = await this.openDialogForMeta();
-
+      console.log(reo)
       // User cancel
       if(_.isUndefined(reo))
         return
@@ -28606,27 +28725,36 @@ const _M = {
     },
     //-----------------------------------------------
     async openDialogForMeta(result={}) {
-      let dialog = _.cloneDeep(this.dialog);
-      _.assign(dialog, {
-        result,
-        model : {prop:"data", event:"change"},
-        comType : "TiForm",
-        comConf : this.form
-      })
+      let dialog = _.assign({
+          title  : "i18n:edit",
+          width  : 500,
+          height : 500
+        },
+        this.dialog,
+        {
+          result,
+          model : {prop:"data", event:"change"},
+          comType : "TiForm",
+          comConf : this.form
+        })
 
       return await Ti.App.Open(dialog);
     },
     //-----------------------------------------------
     async openDialogForSource(json='[]') {
-      let dialog = _.cloneDeep(this.dialog);
-      _.assign(dialog, {
-        title : "i18n:edit",
-        result : json,
-        comType : "TiInputText",
-        comConf : {
-          height: "100%"
-        }
-      })
+      let dialog = _.assign({
+          title  : "i18n:edit",
+          width  : 500,
+          height : 500
+        },
+        this.dialog,
+        {
+          result : json,
+          comType : "TiInputText",
+          comConf : {
+            height: "100%"
+          }
+        })
 
       return await Ti.App.Open(dialog);
     },
@@ -29287,35 +29415,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
   inject: ["$gui"],
   /////////////////////////////////////////
+  data: ()=> ({
+    myDockReady: false
+  }),
+  /////////////////////////////////////////
   props : {
-    "captureEvents" : undefined,
-    "title" : {
-      type : String,
-      default : null
-    },
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "title" : String,
     "icon" : {
-      type : [String, Object],
-      default : null
-    },
-    "hideTitle" : {
-      type : Boolean,
-      default : false
-    },
-    "actions" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "actionStatus" : {
-      type : Object,
-      default : ()=>({})
+      type : [String, Object]
     },
     "name" : {
-      type : String,
-      default : null
+      type : String
     },
     "type" : {
       type : String,
-      default : null,
       validator : (v)=>{
         return Ti.Util.isNil(v)
           || /^(cols|rows|tabs)$/.test(v)
@@ -29326,13 +29442,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
       default : ()=>[]
     },
     "body" : {
-      type : [String, Object],
-      default : null
+      type : [String, Object]
     },
-    "mainConClass" : undefined,
-    "mainConStyle" : {
-      type: Object,
-      default: undefined
+    "referElement" : {
+      type : [Element, Object]  /*null type is Object*/
+    },
+    "visibles" : {
+      type : Object,
+      default: ()=>({})
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "autoDock": {
+      type : [Object, String]
+    },
+    "actions" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "actionStatus" : {
+      type : Object,
+      default : ()=>({})
     },
     "adjustable" : {
       type : [Boolean, String],
@@ -29341,31 +29472,32 @@ const __TI_MOD_EXPORT_VAR_NM = {
         return _.isBoolean(v) || /^(x|y)$/.test(v)
       }
     },
+    "clickMaskToClose" : {
+      type : Boolean,
+      default : false
+    },
+    "shown" : {
+      type : Object,
+      default : ()=>({})
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "hideTitle" : {
+      type : Boolean,
+      default : false
+    },
+    "conStyle" : Object,
+    "mainConClass" : undefined,
+    "mainConStyle" : Object,
     "overflow" : {
-      type : String,
-      default : undefined
-    },
-    "width" : {
-      type : [String,Number],
-      default : -1
-    },
-    "height" : {
-      type : [String,Number],
-      default : -1
-    },
-    "viewportWidth" : {
-      type : [String,Number],
-      default : 0
-    },
-    "viewportHeight" : {
-      type : [String,Number],
-      default : 0
+      type : String
     },
     "position" : {
       type : String,
       default : "center",
       validator : (v)=>{
-        return /^(left|right|top|bottom|center)$/.test(v)
+        return /^(left|right|top|bottom|center|free)$/.test(v)
           || /^((left|right)-top|bottom-(left|right))$/.test(v)
       }
     },
@@ -29388,18 +29520,43 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : Boolean,
       default : false
     },
-    "clickMaskToClose" : {
-      type : Boolean,
-      default : false
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "viewportWidth" : {
+      type : [String,Number],
+      default : 0
     },
+    "viewportHeight" : {
+      type : [String,Number],
+      default : 0
+    },
+    "width" : {
+      type : [String,Number]
+    },
+    "height" : {
+      type : [String,Number]
+    },
+    "left" : {
+      type : [String,Number]
+    },
+    "right" : {
+      type : [String,Number]
+    },
+    "top" : {
+      type : [String,Number]
+    },
+    "bottom" : {
+      type : [String,Number]
+    },
+    //-----------------------------------
+    // By Pass
+    //-----------------------------------
     "schema" : {
       type : Object,
       default : ()=>({})
     },
-    "shown" : {
-      type : Object,
-      default : ()=>({})
-    }
+    "captureEvents" : undefined
   },
   //////////////////////////////////////////
   computed : {
@@ -29415,14 +29572,43 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }, `at-${this.position}`)
     },
     //--------------------------------------
+    TopStyle() {
+      let visibility = ""
+      if(this.isAutoDock) {
+        if(this.myDockReady) {
+          visibility = ""
+        } else {
+          visibility = "hidden"
+        }
+      }
+      return Ti.Css.toStyle({
+        left: this.left,
+        right: this.right,
+        top: this.top,
+        bottom: this.bottom,
+        visibility
+      })
+    },
+    //--------------------------------------
     ConStyle() {
-      let width  = Ti.Css.toPixel(this.width, this.viewportWidth, this.width)
-      let height = Ti.Css.toPixel(this.height, this.viewportHeight, this.height)
-      return Ti.Css.toStyle({width, height})
+      let css = _.assign({}, this.conStyle)
+      if(!Ti.Util.isNil(this.width)) {
+        css.width  = Ti.Css.toPixel(this.width, this.viewportWidth, 0)
+      }
+      if(!Ti.Util.isNil(this.height)) {
+        css.height = Ti.Css.toPixel(this.height, this.viewportHeight, 0)
+      }
+      return Ti.Css.toStyle(css)
     },
     //--------------------------------------
     hasCloser() {
       return this.closer ? true : false
+    },
+    //--------------------------------------
+    isAutoDock() {
+      return this.autoDock 
+        && "free"==this.position 
+        && _.isElement(this.referElement)
     },
     //--------------------------------------
     isCloserDefault() {
@@ -29455,8 +29641,33 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if(this.clickMaskToClose) {
         this.$gui.OnBlockHide(this.name)
       }
+    },
+    //--------------------------------------
+    dockPanelToReferElement() {
+      let visi = _.get(this.visibles, this.name)
+      if(visi && this.isAutoDock) {
+        let dockOption = _.assign({}, this.autoDock)
+        if(_.isString(this.autoDock)) {
+          dockOption = {
+            mode  : this.autoDock,
+            space : 10
+          }
+        }
+        this.$nextTick(()=>{
+          Ti.Dom.dockTo(this.$el, this.referElement, dockOption)
+          _.delay(()=>{
+            this.myDockReady = true
+          },10)
+        })
+      }
     }
     //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch : {
+    "autoDock" : "dockPanelToReferElement",
+    "referElement" : "dockPanelToReferElement",
+    "visibles" : "dockPanelToReferElement"
   }
   //////////////////////////////////////////
 }
@@ -31688,8 +31899,7 @@ const _M = {
     },
     //--------------------------------------
     OnWallResize() {
-      //console.log("OnWallResize")
-      let $divs = Ti.Dom.findAll(":scope > .wall-tile", this.$el)
+      let $divs = Ti.Dom.findAll(".wall-con > .wall-tile", this.$el)
       // Guard empty
       if(_.isEmpty($divs)) 
         return
@@ -31697,11 +31907,11 @@ const _M = {
       //console.log("  ~~~ do", this.data)
       let cols  = 0
       let width = 1
-      let top = -1
+      let top = undefined
       let isOnlyOneRow = true
       for(let $div of $divs) {
         let rect = $div.getBoundingClientRect()
-        if(top < 0) {
+        if(_.isUndefined(top)) {
           top  = rect.top
         }
         if(top == rect.top) {
@@ -33667,6 +33877,19 @@ const LIST_MIXINS = {
     isRowCancelable() {return Ti.AutoMatch.parse(this.rowCancelable||this.cancelable)},
     isRowHoverable () {return Ti.AutoMatch.parse(this.rowHoverable ||this.hoverable)},
     //-----------------------------------------------
+    LoadingMoreBtn() {
+      if(this.moreLoading) {
+        return {
+          icon : "fas-spinner fa-spin",
+          text : "i18n:loading"
+        }
+      }
+      return {
+        icon : "fas-angle-down",
+        text : "i18n:more"
+      }
+    },
+    //-----------------------------------------------
     // fnSet() {
     //   return _.assign({}, Ti.GlobalFuncs(), this.extendFunctionSet)
     // },
@@ -33686,6 +33909,12 @@ const LIST_MIXINS = {
   },
   ///////////////////////////////////////////////////
   methods : {
+    //-----------------------------------------------
+    OnClickLoadMore() {
+      if(!this.moreLoading) {
+        this.$notify("load:more")
+      }
+    },
     //-----------------------------------------------
     wrapRowId(rowId) {
       if(_.isNumber(rowId)){
@@ -35642,6 +35871,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : Object,
     default : ()=>({})
   },
+  "showLoadMore" : Boolean,
+  "moreLoading" : Boolean,
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -35997,6 +36228,7 @@ const _M = {
         className: page.className,
         defaultFlex: "=page.gui.flex?nil",
         defaultOverflow: "=page.gui.overflow?none",
+        activeElement: "=page.activeElement",
         layout, 
         schema : {},
         canLoading : true
@@ -36403,6 +36635,7 @@ const _M = {
   methods : {
     //----------------------------------------------
     OnChange(payload) {
+      //console.log("steup change", payload)
       if(_.isFunction(this.serializer)) {
         payload = this.serializer(payload)
       }
@@ -41344,7 +41577,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnYoutubeFloat', {
-      text: 'i18n:hmk-float',
+      text: Ti.I18n.text('i18n:hmk-float'),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
@@ -41371,7 +41604,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnYoutubeMargin', {
-      text: 'i18n:hmk-w-edit-video-margin',
+      text: Ti.I18n.text('i18n:hmk-w-edit-video-margin'),
       getSubmenuItems: function () {
         const __check_margin_size = function(api, expectSize) {
           let $video = GetCurrentYoutubeElement(editor)
@@ -45404,10 +45637,36 @@ const _M = {
     myShown : {},
     myViewportWidth  : 0,
     myViewportHeight : 0,
-    myBlockMap : {}
+    myBlockMap : {},
+    myPanelVisibles : {}
   }),
   /////////////////////////////////////////
   props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "layout" : {
+      type : Object,
+      default : ()=>({
+        desktop : {},
+        tablet  : "desktop",
+        phone   : "desktop"
+      })
+    },
+    "schema" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "activeElement" : {
+      type : [Element, Object]  /*null type is Object*/
+    },
+    "shown" : {
+      type : Object,
+      default : ()=>({})
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
     "defaultFlex" : {
       type : String,
       default : undefined,
@@ -45422,27 +45681,11 @@ const _M = {
       type: String,
       default: "ti-fill-parent"
     },
-    "layout" : {
-      type : Object,
-      default : ()=>({
-        desktop : {},
-        tablet  : "desktop",
-        phone   : "desktop"
-      })
-    },
-    "schema" : {
-      type : Object,
-      default : ()=>({})
-    },
     "keepShownTo" : {
       type : String,
       default : undefined
     },
     "actionStatus" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "shown" : {
       type : Object,
       default : ()=>({})
     },
@@ -45458,6 +45701,9 @@ const _M = {
       type : Boolean,
       default : false
     },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
     // value should be prop of ti-loading
     "loadingAs" : {
       type : [Boolean, Object],
@@ -45556,6 +45802,12 @@ const _M = {
     //--------------------------------------
     OnMainTypeInit($innerCom) {
       this.$inner = $innerCom
+    },
+    //--------------------------------------
+    OnPanelAfterEnter(pan) {
+      this.myPanelVisibles = _.assign({}, {
+        [pan.key] : pan.visible
+      })
     },
     //--------------------------------------
     joinBlockNames(names={}, blocks=[]) {
@@ -45674,6 +45926,7 @@ const _M = {
     //--------------------------------------
     syncViewportMeasure() {
       let rect = Ti.Rects.createBy(this.$el);
+      //console.log(rect.toString())
       this.myViewportWidth  = rect.width
       this.myViewportHeight = rect.height
     },
@@ -45720,9 +45973,14 @@ const _M = {
       handler : function(shown) {
         //console.log("ti-gui shown changed", shown)
         this.syncMyShown(shown)
+        this.$nextTick(()=>{
+          this.syncViewportMeasure();
+        })
       },
       immediate : true
-    }
+    },
+    "loadingAs" : "syncViewportMeasure",
+    "layout" : "syncViewportMeasure"
   },
   //////////////////////////////////////////
   mounted : function() {
@@ -45731,9 +45989,11 @@ const _M = {
       resize : _.debounce(()=>this.syncViewportMeasure(), 100)
     })
     //......................................
-    this.syncViewportMeasure()
-    //......................................
     this.loadMyStatus()
+    //......................................
+    _.delay(()=>{
+      this.syncViewportMeasure()
+    })
     //......................................
   },
   ///////////////////////////////////////////////////
@@ -47755,7 +48015,8 @@ const _M = {
       }
     },
     //--------------------------------------------
-    async runAction({state, dispatch}, {
+    async runAction({state, commit, dispatch}, {
+      mutation,
       action, 
       test,       // AutoMatch
       testMsg="i18n:e-run-action-test-fail",
@@ -47764,7 +48025,7 @@ const _M = {
       args
     }={}) {
       //....................................
-      if(!action)
+      if(!action && !mutation)
         return;
 
       //....................................
@@ -47811,6 +48072,9 @@ const _M = {
       //....................................
       if(_.isFunction(action)) {
         await action(pld)
+      }
+      else if(mutation) {
+        commit(mutation, pld)
       }
       // Action
       else {
@@ -49747,9 +50011,10 @@ const _M = {
       let elW = this.$el.clientWidth
 
       // Get rem base
-      let $html = this.$el.ownerDocument.documentElement
-      let fontSize = $html.style.fontSize || "100px"
-      let remBase = Ti.Css.toAbsPixel(fontSize)
+      // let $html = this.$el.ownerDocument.documentElement
+      // let fontSize = $html.style.fontSize || "100px"
+      // let remBase = Ti.Css.toAbsPixel(fontSize)
+      let remBase = Ti.Dom.getRemBase()
 
       // Item width list
       let itWs = _.without(_.concat(this.itemWidth), undefined)
@@ -50406,7 +50671,7 @@ window.TI_PACK_EXPORTS['ti/com/ti/loading/ti-loading.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   props : {
     icon : {
-      type : String,
+      type : [String, Object],
       default : "fas-spinner fa-spin"
     },
     text : {
@@ -53204,6 +53469,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     myGrantedScopes : undefined,
     myLongLiveAK : undefined,
     myAlbumList : undefined,
+    myAlbumMoreLoading : false,
+    myAlbumCursorAfter : undefined,
     currentAlbumId : undefined,
     myPhotoList : [],
     myFilterKeyword : undefined
@@ -53250,10 +53517,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "userName" : {
       type : String
     },
-    "userAlbumIds" : {
-      type : Array,
-      default: ()=>[]
-    },
+    // "userAlbumIds" : {
+    //   type : Array,
+    //   default: ()=>[]
+    // },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -53408,7 +53675,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
                   }
                 }
               }
-            }
+            },
+            showLoadMore : this.myAlbumCursorAfter ? true :　false,
+            moreLoading : this.myAlbumMoreLoading
           }
         },
         photos: {
@@ -53457,6 +53726,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if(this.notifyName) {
         this.$notify(this.notifyName, album)
       }
+    },
+    //---------------------------------------------------
+    async OnAlbumLoadMore() {
+      this.myAlbumMoreLoading = true
+      // Invoke api
+      let {data, paging} = await Ti.Api.Facebook.getAlbumList({
+        userId : this.myId,
+        access_token : this.myLongLiveAK,
+        after : this.myAlbumCursorAfter
+      })
+      // Reload cover
+      let albums = data
+      await this.reloadAlbumsCover(albums)
+      // Set to data
+      this.myAlbumList.push(...albums)
+      this.myAlbumCursorAfter = _.get(paging, "cursors.after")
+      this.myAlbumMoreLoading = false
     },
     //---------------------------------------------------
     getAlbum(albumId) {
@@ -53549,6 +53835,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           let photo = photos[photoId];
           // Load from facebook
           if(!photo) {
+            console.log("Get album photo", album, photoId)
             photo = await Ti.Api.Facebook.getPhoto({
               photoId,
               access_token : this.myLongLiveAK
@@ -53564,30 +53851,39 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       // Cache to local
       if(loadedPhoto) {
+        console.log("save loaded Photos")
         let input = JSON.stringify(photos)
         await Wn.Sys.exec2(`str > ${fph}`, {input})
       }
     },
     //---------------------------------------------------
     async reloadAlbums() {
+      this.myAlbumMoreLoading = false
       this.myAlbumList = undefined
-      let albums = await Ti.Api.Facebook.getAlbumList({
+      // Invoke api
+      let {data, paging} = await Ti.Api.Facebook.getAlbumList({
         userId : this.myId,
         access_token : this.myLongLiveAK
       })
       // Reload cover
+      let albums = data
       await this.reloadAlbumsCover(albums)
+      // Set to data
       this.myAlbumList = albums
+      this.myAlbumCursorAfter = _.get(paging, "cursors.after")
 
+      //
+      // zozoh : too many albums, I think it is not neccessary anymore...
+      //
       // Update albums Ids to profile
-      let aIds = _.map(this.myAlbumList, al => al.id)
-      if(!_.isEqual(aIds, this.userAlbumIds)) {
-        let json = JSON.stringify({
-          userAlbumIds : aIds
-        })
-        let cmdText = `jsonx -qn @read id:${this.meta.id} -auto @set '${json}' > id:${this.meta.id}`
-        await Wn.Sys.exec2(cmdText)
-      }
+      // let aIds = _.map(this.myAlbumList, al => al.id)
+      // if(!_.isEqual(aIds, this.userAlbumIds)) {
+      //   let json = JSON.stringify({
+      //     userAlbumIds : aIds
+      //   })
+      //   let cmdText = `jsonx -qn @read id:${this.meta.id} -auto @set '${json}' > id:${this.meta.id}`
+      //   await Wn.Sys.exec2(cmdText)
+      // }
       // If current album out of the albumn list
       // Maybe user switch the account, then clean the photoList
       if(this.currentAlbumId) {
@@ -54602,7 +54898,8 @@ Ti.Preload("ti/com/net/facebook/albums/facebook-albums.html", `<ti-gui
   :schema="GuiSchema"
   :can-loading="false"
   @filter::change="OnFilterChange"
-  @albums::select="OnAlbumSelect"/>`);
+  @albums::select="OnAlbumSelect"
+  @albums::load:more="OnAlbumLoadMore"/>`);
 //========================================
 // JOIN <facebook-albums.mjs> ti/com/net/facebook/albums/facebook-albums.mjs
 //========================================
@@ -55971,7 +56268,7 @@ Ti.Preload("ti/com/ti/combo/table/ti-combo-table-props.mjs", TI_PACK_EXPORTS['ti
 //========================================
 // JOIN <ti-combo-table.html> ti/com/ti/combo/table/ti-combo-table.html
 //========================================
-Ti.Preload("ti/com/ti/combo/table/ti-combo-table.html", `<div class="ti-combo-table"
+Ti.Preload("ti/com/ti/combo/table/ti-combo-table.html", `<div class="ti-combo-table full-field"
   :class="TopClass"
   :style="TopStyle">
   <!--wrap-->
@@ -56484,6 +56781,7 @@ Ti.Preload("ti/com/ti/gui/cols/_com.json", {
 //========================================
 Ti.Preload("ti/com/ti/gui/panel/ti-gui-panel.html", `<div class="ti-gui-panel"
   :class="TopClass"
+  :style="TopStyle"
   @click.left="OnClickMask">
   <div class="panel-con"
     :style="ConStyle"
@@ -56669,15 +56967,17 @@ Ti.Preload("ti/com/ti/gui/ti-gui.html", `<div class="ti-gui" :class="TopClass">
   -->
   <template 
     v-for="pan in ThePanels">
-      <transition :name="pan.transName">
+      <transition :name="pan.transName" @after-enter="OnPanelAfterEnter(pan)">
         <ti-gui-panel
           v-if="pan.visible"
             :key="pan.key"
             v-bind="pan.panel"
+            :refer-element="activeElement"
             :viewport-width="myViewportWidth"
             :viewport-height="myViewportHeight"
             :schema="schema"
             :shown="TheShown"
+            :visibles="myPanelVisibles"
             :default-flex="defaultFlex"
             :action-status="actionStatus"/>
       </transition>
@@ -60222,32 +60522,46 @@ Ti.Preload("ti/com/ti/wall/ti-wall.html", `<div class="ti-wall"
   <!--
     Show tiles
   -->
-  <template v-else>
-    <!--tiles-->
-    <wall-tile
-      v-for="row in TheData"
-        :key="row.id"
-        :row-id="row.id"
-        :index="row.index"
-        :display="ItemDisplay"
-        :data="row.rawData"
-        :current-id="theCurrentId"
-        :checked-ids="theCheckedIds"
-        :changed-id="changedId"
-        :checkable="checkable"
-        :selectable="selectable"
-        :openable="openable"
-        :class-name="itemClassName"
-        :width="itemWidth"
-        :height="itemHeight"
-        @select="OnRowSelect"
-        @open="OnRowOpen"/>
-    <!--Blank Tile-->
-    <div v-for="bc in BlankCols"
-      class="wall-tile"
-      :style="bc">
+  <div
+    v-else
+      class="wall-con">
+      <!--tiles-->
+      <wall-tile
+        v-for="row in TheData"
+          :key="row.id"
+          :row-id="row.id"
+          :index="row.index"
+          :display="ItemDisplay"
+          :data="row.rawData"
+          :current-id="theCurrentId"
+          :checked-ids="theCheckedIds"
+          :changed-id="changedId"
+          :checkable="checkable"
+          :selectable="selectable"
+          :openable="openable"
+          :class-name="itemClassName"
+          :width="itemWidth"
+          :height="itemHeight"
+          @select="OnRowSelect"
+          @open="OnRowOpen"/>
+      <!--Blank Tile-->
+      <div v-for="bc in BlankCols"
+        class="wall-tile"
+        :style="bc">
+      </div>
     </div>
-  </template>
+  <!--
+    Show load more
+  -->
+  <div
+    v-if="showLoadMore"
+      class="as-load-more">
+      <div class="as-load-more-btn"
+        @click.left="OnClickLoadMore">
+        <span class="as-icon"><TiIcon :value="LoadingMoreBtn.icon"/></span>
+        <span class="as-text">{{LoadingMoreBtn.text | i18n}}</span>
+      </div>
+  </div>
 </div>`);
 //========================================
 // JOIN <ti-wall.mjs> ti/com/ti/wall/ti-wall.mjs
@@ -60813,10 +61127,13 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
     </div>
   </div>
   <!--Text-->
-  <div
+  <div ref="text"
     v-if="TheText || TheBrief"
       class="as-text"
-      :style="TextStyle">
+      :style="TextStyle"
+      @mouseenter="OnTextMouseEnter"
+      @mouseleave="OnTextMouseLeave"
+      @transitionend="OnTextTransitionend">
       <div
         v-if="TheText"
           class="as-title"><span>{{TheText}}</span></div>
@@ -64312,7 +64629,7 @@ Ti.Preload("ti/com/wn/obj/id/wn-obj-id.html", `<div class="wn-obj-id"
       <tr v-if="OID.homeId"
         class="is-home-id">
         <td>HOME ID</td>
-        <td>{{OID.homeId}}</td>
+        <td @click.left.stop="OnCopyHomeId">{{OID.homeId}}</td>
         <td class="as-copy">
           <a @click.left="OnCopyHomeId">{{'i18n:copy'|i18n}}</a>
         </td>
@@ -64320,7 +64637,7 @@ Ti.Preload("ti/com/wn/obj/id/wn-obj-id.html", `<div class="wn-obj-id"
       <tr
         class="is-my-id">
         <td>MY ID</td>
-        <td>{{OID.myId}}</td>
+        <td @click.left.stop="OnCopyMyId">{{OID.myId}}</td>
         <td class="as-copy">
           <a @click.left="OnCopyMyId">{{'i18n:copy'|i18n}}</a>
         </td>
@@ -64641,6 +64958,7 @@ Ti.Preload("ti/com/wn/obj/preview/_com.json", {
     "@com:ti/media/image",
     "@com:ti/media/audio",
     "@com:ti/media/video",
+    "@com:web/widget/frame",
     "@com:net/youtube/player"]
 });
 //========================================
@@ -65880,6 +66198,7 @@ Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
     "flex" : "nil",
     "overflow" : "none"
   },
+  "activeElement" : null,
   "contextMenu": true,
   "explainDataKey": [],
   "layout" : {
@@ -66133,6 +66452,7 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-w-edit-audio-clrsz" : "清除音频尺寸",
   "hmk-w-edit-yt-playlist" : "编辑播放列表属性",
   "hmk-w-edit-yt-video" : "编辑Youtube视频属性",
+  "hmk-w-edit-yt-video-features" : "视频特性",
   "hmk-w-edit-attachment" : "附件",
   "hmk-w-edit-attachment-prop" : "附件属性",
   "hmk-w-edit-attachment-margin" : "附件边距",
@@ -67524,6 +67844,7 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-w-edit-audio-clrsz" : "清除音频尺寸",
   "hmk-w-edit-yt-playlist" : "编辑播放列表属性",
   "hmk-w-edit-yt-video" : "编辑Youtube视频属性",
+  "hmk-w-edit-yt-video-features" : "视频特性",
   "hmk-w-edit-attachment" : "附件",
   "hmk-w-edit-attachment-prop" : "附件属性",
   "hmk-w-edit-attachment-margin" : "附件边距",

@@ -1,5 +1,9 @@
 export default {
   /////////////////////////////////////////
+  data: ()=>({
+    qrcodeImgSrc: undefined
+  }),
+  /////////////////////////////////////////
   props : {
     "title": {
       type: String,
@@ -8,6 +12,10 @@ export default {
     "items" : {
       type : Array,
       default : ()=>[]
+    },
+    "apiBase" : {
+      type : String,
+      default : "/"
     }
   },
   /////////////////////////////////////////
@@ -56,6 +64,17 @@ export default {
           params : {
             url  : "=url"
           }
+        },
+        //..............................
+        "wechat": {
+          iconClass: "fab fa-weixin",
+          link : ({url})=>{
+            let src = `${this.apiBase}qrcode?s=${url}`
+            this.qrcodeImgSrc = src
+          },
+          params : {
+            url  : "=url"
+          }
         }
         //..............................
       }
@@ -72,8 +91,12 @@ export default {
       let url = window.location.href
       let title = window.document.title
       params = Ti.Util.explainObj({url, title}, params)
-      console.log("haha", params)
-      Ti.Be.Open(link, {params})
+      //console.log("haha", params)
+      if(_.isString(link)) {
+        Ti.Be.Open(link, {params})
+      } else if(_.isFunction(link)) {
+        link(params)
+      }
     },
     //------------------------------------
     evalItems(items) {

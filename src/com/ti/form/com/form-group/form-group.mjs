@@ -3,7 +3,7 @@ export default {
   computed : {
     //----------------------------------------
     TopClass() {
-      let klass = [`as-${this.viewportMode}`]
+      let klass = [`as-${this.screenMode}`]
       if(this.className) {
         klass.push(this.className)
       }

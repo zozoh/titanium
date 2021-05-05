@@ -33,7 +33,7 @@ export default {
     },
     "browserBuiltIn" : {
       type : [String, RegExp, Function, Object, Array],
-      default : /^(application\/pdf)$/
+      default : ()=>/^(application\/pdf)$/
     },
     "showInfo" : {
       type : Boolean,

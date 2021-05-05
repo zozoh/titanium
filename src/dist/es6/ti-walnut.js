@@ -1,4 +1,4 @@
-// Pack At: 2021-04-27 17:59:31
+// Pack At: 2021-05-05 21:38:55
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -479,6 +479,9 @@ const Io = (function(){
         obj() {
           let keys = oRefer || ['id','nm','thumb','title','mime','tp','sha1','len'] 
           return _.pick(meta, keys)
+        },
+        wnobj() {
+          return meta
         }
       })[mode]
       if(!fn) {
@@ -863,6 +866,7 @@ const Obj = (function(){
         },
         comType  : "wn-obj-icon",
         comConf : {
+          "className" : "img-contain",
           "..." : "${=value}",
           "defaultIcon" : "fas-birthday-cake",
           //"className"   : "thing-icon"
@@ -1734,11 +1738,15 @@ const Util = (function(){
           visibility = exposeHidden ? "weak" : "hide"
         }
       }
+      let ttKey = titleKey
+      if(_.isFunction(titleKey)) {
+        ttKey = titleKey()
+      }
       // Generate new Thumb Item
       return {
         id    : meta.id,
         nm    : meta.nm,
-        title : WnUtil.getObjDisplayName(meta, titleKey),
+        title : WnUtil.getObjDisplayName(meta, ttKey),
         preview : WnUtil.genPreviewObj(meta),
         href : WnUtil.getAppLinkStr(meta),
         visibility,
@@ -2684,7 +2692,8 @@ const OpenObjSelector = (function(){
                   "multi"  : multi,
                   "listConf" : {
                     resizeDelay : 200
-                  }
+                  },
+                  "itemTitleKey" : titleBy
                 }
               }
             }
@@ -2700,7 +2709,11 @@ const OpenObjSelector = (function(){
           OnArenaSelect({checked}) {
             //console.log("OnArenaSelect", checked)
             if(_.isFunction(filter))
-              this.myChecked = _.filter(checked, filter)
+              this.myChecked = _.filter(checked, (obj)=>{
+                if(filter(obj))
+                  return true
+                return false
+              })
             else
               this.myChecked = checked
           },
@@ -3621,7 +3634,7 @@ const Youtube = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210427.175931"
+const WALNUT_VERSION = "1.2-20210505.213857"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

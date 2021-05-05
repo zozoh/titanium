@@ -152,8 +152,8 @@ const _M = {
       })[this.viewType]()
 
       // Extend customized config
-      _.assign(conf, this.listConf)
-      _.assign(conf, _.get(this, `${this.viewType}ViewConf`))
+      _.merge(conf, this.listConf)
+      _.merge(conf, _.get(this, `${this.viewType}ViewConf`))
 
       // Done
       return conf

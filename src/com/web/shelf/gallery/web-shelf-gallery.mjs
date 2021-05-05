@@ -14,6 +14,10 @@ const _M = {
       type : Array,
       default : ()=>[]
     },
+    "currentIndex" : {
+      type : Number,
+      default : -1
+    },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -127,7 +131,13 @@ const _M = {
     },
     //--------------------------------------
     OnMouseLeave() {
-      this.myHoverIndex = parseInt(this.DataItems.length / 2)
+      let index = this.currentIndex
+      if(index>=0) {
+        index = _.clamp(this.currentIndex, 0, this.DataItems.length)
+      } else {
+        index = parseInt(this.DataItems.length / 2)
+      }
+      this.myHoverIndex = index
     },
     //--------------------------------------
     OnMouseEnterItem({index}) {
@@ -149,13 +159,21 @@ const _M = {
         })
       })
       this.myItemList = list
-      this.myHoverIndex = parseInt(list.length / 2)
+      if(this.myHoverIndex<0 || this.myHoverIndex>=list.length) {
+        this.myHoverIndex = parseInt(list.length / 2)
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   watch : {
-    "data" : "evalDataItemList"
+    "data" : "evalDataItemList",
+    "currentIndex" : {
+      handler : function(newVal) {
+        this.myHoverIndex = newVal
+      },
+      immediate: true
+    }
   },
   //////////////////////////////////////////
   mounted: function() {

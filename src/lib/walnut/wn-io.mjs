@@ -475,6 +475,9 @@ const WnIo = {
       obj() {
         let keys = oRefer || ['id','nm','thumb','title','mime','tp','sha1','len'] 
         return _.pick(meta, keys)
+      },
+      wnobj() {
+        return meta
       }
     })[mode]
     if(!fn) {

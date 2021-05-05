@@ -17,4 +17,17 @@
         <i :class="it.iconClass"></i>
     </a>
   </div>
+  <!--
+    Weixin QrCode
+  -->
+  <transition name="ti-trans-fade">
+    <div 
+      v-if="qrcodeImgSrc"
+        @click.left="qrcodeImgSrc=undefined"
+        class="as-weixin-qrcode-con">
+        <div class="as-qrcode-img">
+          <img :src="qrcodeImgSrc"/>
+        </div>
+    </div>
+  </transition>
 </div>

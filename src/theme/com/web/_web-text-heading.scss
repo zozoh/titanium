@@ -11,6 +11,15 @@
     margin-right: .2em;
   }
   //-----------------------------------------
+  .as-backward {
+    margin-right: SZ(12);
+    transition: 0.5s;
+    &:hover {
+      @include color($color-primary, c);
+      transform: translateX(-3px);
+    }
+  }
+  //-----------------------------------------
   .as-title {
     @include flex-align-nowrap;
     flex:1 1 auto; font-size:1.2em; cursor: default;

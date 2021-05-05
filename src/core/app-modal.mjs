@@ -76,6 +76,7 @@ export class TiAppModal {
   // Methods
   //////////////////////////////////////////////
   async open(resolve=_.identity) {
+    console.log("dialog", this.model)
     let TheActions = []
     // Customized actions
     if(this.actions) {
@@ -365,6 +366,7 @@ export class TiAppModal {
         },
         //--------------------------------------
         OnEvent(key, payload) {
+          console.log(key, payload)
           let fn = _.get(AppModalEvents, key)
           fn(payload)
         },

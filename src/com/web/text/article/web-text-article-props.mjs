@@ -30,6 +30,9 @@ export default {
     type: String,
     default: undefined
   },
+  "afterRedraw": {
+    type: [String, Object, Function]
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

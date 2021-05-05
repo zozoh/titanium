@@ -4,6 +4,7 @@
   ul {
     @include raw-list;
     @include flex-align-nowrap;
+    flex:1 1 auto;
   }
   //---------------------------------------------
   li {
@@ -30,6 +31,15 @@
     .ti-icon .icon-icon > i {font-size:1.2em;}
     //------------------------------
   }
+  //---------------------------------------------
+  &.flex-auto {
+    li{flex:1 1 auto;}
+  }
+  //---------------------------------------------
+  &.btn-r4  li {border-radius: SZ(4);}
+  &.btn-r6  li {border-radius: SZ(6);}
+  &.btn-r8  li {border-radius: SZ(8);}
+  &.btn-r10 li {border-radius: SZ(10);}
   //---------------------------------------------
   &.as-vertical ul {
     align-items: stretch;

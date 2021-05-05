@@ -57,6 +57,7 @@ const _M = {
         if(_.isFunction(it.handler)) {
           it.handler()
         }
+        console.log(it)
         if(_.isString(it.eventName)) {
           this.$notify(it.eventName, it.payload)
         }

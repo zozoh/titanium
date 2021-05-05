@@ -245,11 +245,15 @@ const WnUtil = {
         visibility = exposeHidden ? "weak" : "hide"
       }
     }
+    let ttKey = titleKey
+    if(_.isFunction(titleKey)) {
+      ttKey = titleKey()
+    }
     // Generate new Thumb Item
     return {
       id    : meta.id,
       nm    : meta.nm,
-      title : WnUtil.getObjDisplayName(meta, titleKey),
+      title : WnUtil.getObjDisplayName(meta, ttKey),
       preview : WnUtil.genPreviewObj(meta),
       href : WnUtil.getAppLinkStr(meta),
       visibility,

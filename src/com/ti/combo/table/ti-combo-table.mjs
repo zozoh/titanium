@@ -110,8 +110,9 @@ const _M = {
     },
     //-----------------------------------------------
     async doAddNewItem() {
+      console.log("doAddNewItem")
       let reo = await this.openDialogForMeta();
-
+      console.log(reo)
       // User cancel
       if(_.isUndefined(reo))
         return
@@ -189,27 +190,36 @@ const _M = {
     },
     //-----------------------------------------------
     async openDialogForMeta(result={}) {
-      let dialog = _.cloneDeep(this.dialog);
-      _.assign(dialog, {
-        result,
-        model : {prop:"data", event:"change"},
-        comType : "TiForm",
-        comConf : this.form
-      })
+      let dialog = _.assign({
+          title  : "i18n:edit",
+          width  : 500,
+          height : 500
+        },
+        this.dialog,
+        {
+          result,
+          model : {prop:"data", event:"change"},
+          comType : "TiForm",
+          comConf : this.form
+        })
 
       return await Ti.App.Open(dialog);
     },
     //-----------------------------------------------
     async openDialogForSource(json='[]') {
-      let dialog = _.cloneDeep(this.dialog);
-      _.assign(dialog, {
-        title : "i18n:edit",
-        result : json,
-        comType : "TiInputText",
-        comConf : {
-          height: "100%"
-        }
-      })
+      let dialog = _.assign({
+          title  : "i18n:edit",
+          width  : 500,
+          height : 500
+        },
+        this.dialog,
+        {
+          result : json,
+          comType : "TiInputText",
+          comConf : {
+            height: "100%"
+          }
+        })
 
       return await Ti.App.Open(dialog);
     },

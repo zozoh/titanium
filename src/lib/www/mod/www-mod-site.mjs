@@ -307,7 +307,7 @@ const _M = {
       if(!AT) {
         return
       }
-
+      //console.log("doAction", AT)
       //....................................
       // Raw function
       //....................................
@@ -398,6 +398,7 @@ const _M = {
     },
     //--------------------------------------------
     async runAction({state, commit, dispatch}, {
+      invoke,
       mutation,
       action, 
       test,       // AutoMatch
@@ -407,7 +408,7 @@ const _M = {
       args
     }={}) {
       //....................................
-      if(!action && !mutation)
+      if(!invoke && !action && !mutation)
         return;
 
       //....................................
@@ -452,7 +453,16 @@ const _M = {
       //....................................
       //console.log("invoke->", action, pld)
       //....................................
-      if(_.isFunction(action)) {
+      if(invoke) {
+        invoke = Ti.Util.genInvoking(invoke, {
+          context: state
+        })
+      }
+      //....................................
+      if(_.isFunction(invoke)) {
+        await invoke.apply({state, commit, dispatch}, [pld])
+      }
+      else if(_.isFunction(action)) {
         await action(pld)
       }
       else if(mutation) {

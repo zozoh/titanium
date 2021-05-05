@@ -10,6 +10,7 @@ export default {
     //-----------------------------------
     "href" : String,
     "moreHref": String,
+    "showBackward": false,
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -58,6 +59,9 @@ export default {
     //--------------------------------------
     TheMoreIcon() {
       let src = Ti.WWW.evalObjPreviewSrc(this.moreIcon, this.morePreview)
+      if(!src) {
+        return
+      }
       if(this.moreIconType) {
         return {
           type: this.moreIconType,
@@ -70,6 +74,12 @@ export default {
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    OnClickBackward() {
+      if(history && _.isFunction(history.back)) {
+        history.back()
+      }
+    },
     //--------------------------------------
     OnClickTitle() {
       if(this.value) {

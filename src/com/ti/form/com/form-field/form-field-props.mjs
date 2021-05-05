@@ -1,4 +1,7 @@
 export default {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
   "type" : {
     type : String,
     default : "String"
@@ -19,10 +22,6 @@ export default {
     type : String,
     default : null
   },
-  "fieldStatus" : {
-    type : Object,
-    default : ()=>({})
-  },
   "message" : {
     type : String,
     default : null
@@ -34,14 +33,6 @@ export default {
   "tip" : {
     type : String,
     default : null
-  },
-  "width" : {
-    type : [String, Number],
-    default : "stretch"
-  },
-  "height" : {
-    type : [String, Number],
-    default : undefined
   },
   "fieldWidth" : {
     type : [String, Number],
@@ -72,18 +63,6 @@ export default {
     type : [String, Object, Boolean],
     default : false
   },
-  // "funcSet" : {
-  //   type : Object,
-  //   default : ()=>({})
-  // },
-  "comType" : {
-    type : String,
-    default : "ti-label"
-  },
-  "comConf" : {
-    type : Object,
-    default : ()=>({})
-  },
   "autoValue" : {
     type : String,
     default : "value"
@@ -100,6 +79,29 @@ export default {
     type : Object,
     default : null
   },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  "fieldStatus" : {
+    type : Object,
+    default : ()=>({})
+  },
+  "comType" : {
+    type : String,
+    default : "ti-label"
+  },
+  "comConf" : {
+    type : Object,
+    default : ()=>({})
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "screenMode" : {
+    type : String,
+    default : "auto",
+    validator : (val)=>/^(auto|desktop|tablet|phone)$/.test(val)
+  },
   "statusIcons" : {
     type : Object,
     default : ()=>({
@@ -108,5 +110,16 @@ export default {
       warn     : 'zmdi-alert-triangle',
       ok       : 'zmdi-check-circle',
     })
+  },
+  //-----------------------------------
+  // Measure
+  //-----------------------------------
+  "width" : {
+    type : [String, Number],
+    default : "stretch"
+  },
+  "height" : {
+    type : [String, Number],
+    default : undefined
   }
 }

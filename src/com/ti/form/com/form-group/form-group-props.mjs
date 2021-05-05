@@ -1,4 +1,7 @@
 export default {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
   "type" : {
     type : String,
     default : "Group"
@@ -19,9 +22,20 @@ export default {
     type : Object,
     default : null
   },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
   "fieldStatus" : {
     type : Object,
     default : ()=>({})
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "screenMode" : {
+    type : String,
+    default : "auto",
+    validator : (val)=>/^(auto|desktop|tablet|phone)$/.test(val)
   },
   "statusIcons" : {
     spinning : 'fas-spinner fa-spin',

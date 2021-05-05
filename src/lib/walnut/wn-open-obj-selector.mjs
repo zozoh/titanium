@@ -215,7 +215,8 @@ async function OpenObjSelector(pathOrObj="~", {
                 "multi"  : multi,
                 "listConf" : {
                   resizeDelay : 200
-                }
+                },
+                "itemTitleKey" : titleBy
               }
             }
           }
@@ -231,7 +232,11 @@ async function OpenObjSelector(pathOrObj="~", {
         OnArenaSelect({checked}) {
           //console.log("OnArenaSelect", checked)
           if(_.isFunction(filter))
-            this.myChecked = _.filter(checked, filter)
+            this.myChecked = _.filter(checked, (obj)=>{
+              if(filter(obj))
+                return true
+              return false
+            })
           else
             this.myChecked = checked
         },

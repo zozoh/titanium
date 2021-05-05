@@ -373,11 +373,13 @@ const TiWWW = {
           "preload",
           "ssr",
           "test",
+          "explainTest",
           "transformer", 
           "dataKey",
           "dataMerge",
           "rawDataKey",
-          "rawDataMerge"
+          "rawDataMerge",
+          "after"
         ))
         //..........................................
         _.defaults(api, {
@@ -511,13 +513,13 @@ const TiWWW = {
       })
       if(_.isFunction(fnTrans)) {
         //console.log("transformer", reo)
-        data = fnTrans(reo)
+        data = await fnTrans(reo)
       }
     }
     //.....................................
     return {reo, data}
 
-  },// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ runApi
+  },
   //---------------------------------------
   async runApiAndPrcessReturn(state={}, api, {
     vars, 
@@ -530,6 +532,7 @@ const TiWWW = {
     updateData,
     doAction
   } = {}) {
+    //console.log("runApi", api)
     //.....................................
     let apiRe;
     //.....................................
@@ -590,7 +593,7 @@ const TiWWW = {
       if(key) {
         if(api.rawDataMerge) {
           let d2 = {}
-          _.set(d2, key, data)
+          _.set(d2, key, reo)
           mergeData(d2)
         }
         // Just update

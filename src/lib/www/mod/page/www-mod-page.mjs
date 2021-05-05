@@ -399,7 +399,7 @@ const _M = {
      * Reload page data by given api keys
      */
     async reloadData({commit, getters, dispatch, rootState}, keys=[]) {
-      //console.log(" # -> page.reloadData", keys)
+      console.log(" # -> page.reloadData", keys)
       //.......................................
       // The api list to reload
       let isAll = _.isEmpty(keys)
@@ -425,8 +425,12 @@ const _M = {
       // Prepare the Promises
       let allApis = []
       for(let api of apis) {
-        // console.log("  # -> page.reloadData -> prepareApi", api)
+        //console.log("  # -> page.reloadData -> prepareApi", api)
         if(api.test && !Ti.AutoMatch.test(api.test, rootState)) {
+          continue;
+        }
+        let test = Ti.Util.explainObj(rootState, api.explainTest)
+        if(test && !Ti.AutoMatch.test(test, rootState)) {
           continue;
         }
         allApis.push(dispatch("__run_api", {api}))

@@ -26,7 +26,7 @@ export default {
     "valueType": {
       type: String,
       default: "idPath",
-      validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
+      validator: v => /^(obj|path|fullPath|idPath|id|wnobj)$/.test(v)
     },
     "base" : {
       type : [Object, String],
@@ -38,8 +38,8 @@ export default {
     },
     // Key of meta to show as text
     // If undefined, use "title -> nm"
-    "textBy" : {
-      type : [String, Array],
+    "titleBy" : {
+      type : [String, Array, Function],
       default : null
     },
     "filterBy" : {
@@ -64,12 +64,22 @@ export default {
       })
     },
     //--------------------------------------
+    ItemTitleKey() {
+      if(_.isFunction(this.titleBy)) {
+        return this.titleBy()
+      }
+      return this.titleBy
+    },
+    //--------------------------------------
     DisplayItems() {
+      let exposeHidden = _.get(Ti.App(this).$state(), "viewport/exposeHidden")
+      exposeHidden = Ti.Util.fallback(exposeHidden, false)
       let list = []
       for(let i=0; i < this.myItems.length; i++) {
         let obj = this.myItems[i]
         let it = Wn.Util.getObjThumbInfo(obj, {
-          exposeHidden : true,
+          titleKey: this.ItemTitleKey,
+          exposeHidden,
           badges: {
             NW : ["href", "fas-link"],
             SE : ["newtab", "fas-external-link-alt"]
@@ -111,13 +121,18 @@ export default {
       // Then it should be auto-open the folder
       if(!meta || _.isEmpty(meta)) {
         meta = this.base || "~"
-      } else {
-        meta = `id:${meta.id}`
+        if(_.isString(meta)) {
+          meta = await Wn.Io.loadMeta(meta)
+        }
       }
-
-      // Reload Meta
-      if(_.isPlainObject(meta) && !meta.pid) {
-        meta = await await Wn.Io.loadMetaById(meta.id)
+      // Open the parent folder of the current item
+      else if(meta.pid) {
+        meta = await Wn.Io.loadMeta(`id:${meta.pid}`)
+      }
+      // Reload 
+      else {
+        console.warn("WnObjPicker: Meta without pid", meta)
+        meta = await Wn.Io.loadMeta(`id:${meta.id}`)
       }
 
       // Eval Filter
@@ -130,9 +145,9 @@ export default {
       let objs = await Wn.OpenObjSelector(meta, {
         multi    : this.multi,
         selected : this.myItems,
-        filter
+        filter,
+        titleBy : this.ItemTitleKey
       })
-      //console.log(objs)
       // user cancel
       if(_.isEmpty(objs)) {
         return

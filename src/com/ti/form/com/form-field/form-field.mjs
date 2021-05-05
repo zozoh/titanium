@@ -14,7 +14,7 @@ const _M = {
         "has-status-icons" : this.hasStatusIcons,
         "is-disabled" : this.disabled
       }, 
-      `as-${this.viewportMode}`,
+      `as-${this.screenMode}`,
       (this.StatusType?`is-${this.StatusType}`:null))
     },
     //----------------------------------------

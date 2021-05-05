@@ -274,6 +274,17 @@ export default {
     // Bind Live widget
     this.bindLiveWidgets(this.$refs.main)
 
+    // Customized redraw
+    if(this.afterRedraw) {
+      let fn = Ti.Util.genInvoking(this.afterRedraw)
+      if(_.isFunction(fn)){
+        fn({
+          $el: this.$el,
+          $main: this.$refs.main
+        })
+      }
+    }
+
     return true
   }
   //--------------------------------------

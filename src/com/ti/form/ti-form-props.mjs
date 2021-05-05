@@ -66,6 +66,11 @@ export default {
     default : "all",
     validator : (val)=>/^(all|tab)$/.test(val)
   },
+  "screenMode" : {
+    type : String,
+    default : "auto",
+    validator : (val)=>/^(auto|desktop|tablet|phone)$/.test(val)
+  },
   "tabAt" : {
     type : String,
     default : "top-center",
