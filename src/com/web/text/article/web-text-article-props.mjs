@@ -33,6 +33,17 @@ export default {
   "afterRedraw": {
     type: [String, Object, Function]
   },
+  "redrawnNotifyName": {
+    type: String,
+    default : "content:redrawn"
+  },
+  "whenReady": {
+    type: [String, Object, Function]
+  },
+  "readyNotifyName": {
+    type: String,
+    default : "content:ready"
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

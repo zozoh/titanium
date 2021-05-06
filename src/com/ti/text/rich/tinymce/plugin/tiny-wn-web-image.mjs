@@ -62,22 +62,35 @@ function GetElContext(el) {
 ////////////////////////////////////////////////////
 function GetWebImageDataByElement(elOrCtx) {
   let IMC = GetElContext(elOrCtx)
-  let obj = Ti.Dom.attrs(IMC.img, name=>{
+  let {img, con} = IMC
+  //
+  // Read from $img
+  //
+  let obj = Ti.Dom.attrs(img, name=>{
     let m = /^(wn-obj-)(.+)$/.exec(name)
     if(m) {
       return _.camelCase(m[2])
     }
   })
+  // Read from $con
+  obj.link = con.getAttribute("href")
+  obj.newtab = "_blank" == con.getAttribute("target")
+  //
+  // Read style
+  //
   obj.imgStyle = _.assign({}, 
     Ti.Dom.getOwnStyle(IMC.con), 
     Ti.Dom.getOwnStyle(IMC.img))
   obj.altStyle = Ti.Dom.getOwnStyle(IMC.alt)
+  //
+  // Done
+  //
   return obj
 }
 ////////////////////////////////////////////////////
 function FormatWebImageObjData(obj) {
   return _.pick(obj, 
-    "id","sha1","title","mime","tp","width","height",
+    "id","sha1","title","link","newtab","mime","tp","width","height",
     "imgStyle", "altStyle")
 }
 ////////////////////////////////////////////////////
@@ -89,13 +102,28 @@ const OUTER_STYLE_NAMES = [
 ////////////////////////////////////////////////////
 function UpdateWebImageStyle(editor, el, data) {
   let IMC = GetElContext(el)
+  let {con, img, alt} = IMC
   //console.log(IMC)
+  // Set data to element
   if(data) {
     let attrs = FormatWebImageObjData(data)
     attrs.imgStyle = null
     attrs.altStyle = null
-    Ti.Dom.setAttrs(IMC.img, attrs, "wn-obj-")
-  } else {
+    //
+    // Update top element
+    let {link, newtab} = attrs
+    Ti.Dom.setAttrs(con, {
+      href: link,
+      target: newtab ? "_blank" : null
+    })
+    //
+    // Update Image data
+    //
+    attrs = _.omit(attrs, "link", "newtab")
+    Ti.Dom.setAttrs(img, attrs, "wn-obj-")
+  }
+  // Get data from element
+  else {
     data = GetWebImageDataByElement(IMC)
   }
   //console.log(data)
@@ -108,8 +136,6 @@ function UpdateWebImageStyle(editor, el, data) {
   let altStyle = Ti.Dom.renderCssRule(data.altStyle)
   conStyle = Ti.Dom.renderCssRule(conStyle)
   imgStyle = Ti.Dom.renderCssRule(imgStyle)
-  //............................................
-  let {con, img, alt} = IMC
   //............................................
   // Wrap image by span
   if(con == img && "IMG" == con.tagName) {
@@ -277,6 +303,18 @@ async function CmdShowWebImageProp(editor, settings) {
             comConf : {
               placeholder : "i18n:hmk-w-edit-img-title-tip"
             }
+          }, {
+            title : "i18n:hmk-w-edit-img-link",
+            name  : "link",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "i18n:hmk-w-edit-img-link-tip"
+            }
+          }, {
+            title : "i18n:hmk-w-edit-img-newtab",
+            name  : "newtab",
+            type  : "Boolean",
+            comType : "TiToggle"
           }]
       }, {
         title : "i18n:hmk-aspect",

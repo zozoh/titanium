@@ -38,6 +38,15 @@
     }
   }
   //-----------------------------------------
+  &.top-hover-full {
+    .as-text {
+      transition: 0.5s; 
+    }
+    &:hover .as-title {
+      white-space: normal; overflow: hidden;
+    }
+  }
+  //-----------------------------------------
   .as-img-con {
     flex:1 1 auto;
     width:100%; 

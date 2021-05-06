@@ -42,6 +42,12 @@ export default {
     },
     //-----------------------------------------------
     theIcon() {
+      if(/^https?:\/\//.test(this.thumb)) {
+        return  {
+          type : "image",
+          value : this.thumb
+        }
+      }
       return Wn.Util.getObjThumbIcon({
         candidateIcon : this.candidateIcon,
         timestamp : this.timestamp,

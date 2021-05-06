@@ -30,6 +30,9 @@ export default {
     //-------------------------------------
     // Behavior
     //-------------------------------------
+    "hasLink" : {
+      type: [Boolean, String, Object]
+    },
     "href": {
       type: String
     },
@@ -276,8 +279,16 @@ export default {
       }
     },
     //--------------------------------------
+    isHasLink() {
+      // Auto
+      if(_.isUndefined(this.hasLink)) {
+        return this.href || _.get(this.navTo, "value") ? true : false
+      }
+      return this.hasLink ? true : false
+    },
+    //--------------------------------------
     TheHref() {
-      if(this.href) {
+      if(this.isHasLink) {
         let href = this.href
         if(_.isPlainObject(this.src)) {
           href = Ti.Util.explainObj(this.src, this.href)
@@ -316,6 +327,9 @@ export default {
     },
     //--------------------------------------
     OnClickTop(evt) {
+      if(!this.isHasLink) {
+        return
+      }
       if(this.navTo && !this.newtab) {
         evt.preventDefault()
         this.$notify("nav:to", this.navTo)
@@ -351,32 +365,38 @@ export default {
       this.showZoomPick = true
     },
     //--------------------------------------
-    OnMouseLeave() {
-      this.showZoomPick = false
-      this.showZoomDock = false
-    },
-    //--------------------------------------
-    OnImageMouseEnter() {
+    OnMouseEnter() {
+      //console.log("> image")
       this.myMouseIn = true
+      this.myEnterAt = Date.now()
+
+      _.delay(()=>{
+        this.delayCheckEnter()
+      }, 10)
+
       if(this.EnterNotifyName && this.enterCooling >= 0) {
-        let $img = this.$refs.img
-        this.myEnterAt = Date.now()
-        if(this.TheHoverSrc) {
-          $img.src = this.TheHoverSrc
-        }
-        // Check layter, it can prevent the event fire too many!
         _.delay(()=>{
-          this.doCheckEnterEvent()
-        }, this.enterCooling)
+          this.delayNotifyEnter()
+        }, this.enterCooling)  
+      } else {
+        this.myEnterNotifed = true
       }
     },
     //--------------------------------------
-    doCheckEnterEvent() {
+    OnMouseLeave() {
+      //console.log("< image")
+      this.myMouseIn = false
+      _.delay(()=>{
+        this.delayCheckLeave()
+      }, 10)
+    },
+    //--------------------------------------
+    delayNotifyEnter() {
       // Guard
-      if(this.myEnterNotifed || this.myEnterAt<0) {
+      if(!this.myMouseIn || this.myEnterNotifed || this.myEnterAt<0) {
+        this.myEnterNotifed = true
         return
       }
-      //console.log("enter image")
       let du = Date.now()  - this.myEnterAt
       if(du >= this.enterCooling) {
         //console.log("du cooling", du, this.enterCooling)
@@ -389,67 +409,109 @@ export default {
       }
     },
     //--------------------------------------
-    OnImageMouseLeave() {
-      //console.log("leave image")
-      this.myMouseIn = false
-      _.delay(()=>{
-        this.delayCheckLeave()
-      }, 20)
+    delayCheckEnter() {
+      if(!this.myMouseIn) {
+        return
+      }
+      //console.log("enter image")
+      //
+      // Full text
+      //
+      if(this.effects.textHoverFull) {
+        let $text = this.$refs.text
+        // Remember the old rect for restore size when mouse leave
+        if($text && !$text.__primary_rect) {
+          let rect = Ti.Rects.createBy(this.$refs.text)
+          $text.__primary_rect = rect
+          $text.__reset_primary = false
+          // Set start size for transition
+          Ti.Dom.updateStyle($text, {
+            width: rect.width, height: rect.height
+          })
+        }
+        // set full text
+        let view = Ti.Rects.createBy(this.$el)
+        _.delay(()=>{
+          Ti.Dom.updateStyle($text, {
+            width: view.width, height: view.height
+          })
+        }, 10)
+      }
+      //
+      // Switch Hover src
+      //
+      let $img = this.$refs.img
+      if($img && this.TheHoverSrc) {
+        $img.src = this.TheHoverSrc
+      }
     },
     //--------------------------------------
     delayCheckLeave() {
-      if(!this.myMouseIn) {
-        let $img = this.$refs.img
-        if(this.TheHoverSrc) {
-          $img.src = this.TheSrc
+      if(this.myMouseIn) {
+        return
+      }
+      this.showZoomPick = false
+      this.showZoomDock = false
+      //console.log("leave image")
+      //
+      // Full text
+      //
+      if(this.effects.textHoverFull) {
+        let $text = this.$refs.text
+        // trans event handler
+        const OnTextTransitionend = ()=>{
+          //console.log("$text transitionend")
+          Ti.Dom.updateStyle($text, {
+            width: "", height: ""
+          })
+          $text.__primary_rect = undefined
+          $text.__reset_primary = true
         }
-        if(this.myEnterNotifed && this.LeaveNotifyName) {
-          let payload = _.assign({
-            $el : this.$el,
-            $img : this.$refs.img
-          }, this.notifyPayload)
-          this.$notify(this.LeaveNotifyName, payload)
+        // Remember the old rect for restore size when mouse leave
+        if($text && $text.__primary_rect) {
+          let rect = $text.__primary_rect
+          // Set callback when transitionend
+          $text.addEventListener("transitionend", OnTextTransitionend, {once: true})
+          // Restore the old size
+          _.delay(()=>{
+            //console.log("restore to ", rect.toString())
+            Ti.Dom.updateStyle($text, {
+              width: rect.width, height: rect.height
+            })
+          }, 10)
+          // Make sure restore to old size
+          _.delay(()=>{
+            if(!$text.__reset_primary && !this.myMouseIn) {
+              //console.log("clean!!!")
+              Ti.Dom.updateStyle($text, {
+                width: "", height: ""
+              })
+              $text.removeEventListener("transitionend", OnTextTransitionend);
+              $text.__primary_rect = undefined
+              $text.__reset_primary = true
+            }
+          }, 1000)
         }
-        this.myEnterNotifed = false
-        this.myEnterAt = -1
       }
-    },
-    //--------------------------------------
-    OnTextMouseEnter() {
-      //console.log("enter text")
-      this.myMouseIn = true
-      if(!this.effects.textHoverFull || !_.isElement(this.$refs.text)) {
-        return
+      //
+      // Switch Hover src
+      //
+      let $img = this.$refs.img
+      if($img && this.TheHoverSrc) {
+        $img.src = this.TheSrc
       }
-      let view = Ti.Rects.createBy(this.$el)
-      let text = Ti.Rects.createBy(this.$refs.text)
-      Ti.Dom.updateStyle(this.$refs.text, {
-        width: text.width, height: text.height
-      })
-      this.$refs.text.__primary_rect = text
-      _.delay(()=>{
-        Ti.Dom.updateStyle(this.$refs.text, {
-          width: view.width, height: view.height
-        })
-      }, 10)
-    },
-    //--------------------------------------
-    OnTextMouseLeave() {
-      //console.log("leave text")
-      this.myMouseIn = false
-      if(!this.effects.textHoverFull || !_.isElement(this.$refs.text)) {
-        return
+      //
+      // Notify Evento
+      //
+      if(this.myEnterNotifed && this.LeaveNotifyName) {
+        let payload = _.assign({
+          $el : this.$el,
+          $img : this.$refs.img
+        }, this.notifyPayload)
+        this.$notify(this.LeaveNotifyName, payload)
       }
-      let text = this.$refs.text.__primary_rect
-      if(!text) {
-        return
-      }
-      Ti.Dom.updateStyle(this.$refs.text, {
-        width: text.width, height: text.height
-      })
-      _.delay(()=>{
-        this.delayCheckLeave()
-      }, 20)
+      this.myEnterNotifed = false
+      this.myEnterAt = -1
     },
     //--------------------------------------
     OnTextTransitionend() {

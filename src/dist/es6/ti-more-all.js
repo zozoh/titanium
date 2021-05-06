@@ -1,4 +1,4 @@
-// Pack At: 2021-05-06 17:40:14
+// Pack At: 2021-05-07 00:42:49
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8122,22 +8122,35 @@ function GetElContext(el) {
 ////////////////////////////////////////////////////
 function GetWebImageDataByElement(elOrCtx) {
   let IMC = GetElContext(elOrCtx)
-  let obj = Ti.Dom.attrs(IMC.img, name=>{
+  let {img, con} = IMC
+  //
+  // Read from $img
+  //
+  let obj = Ti.Dom.attrs(img, name=>{
     let m = /^(wn-obj-)(.+)$/.exec(name)
     if(m) {
       return _.camelCase(m[2])
     }
   })
+  // Read from $con
+  obj.link = con.getAttribute("href")
+  obj.newtab = "_blank" == con.getAttribute("target")
+  //
+  // Read style
+  //
   obj.imgStyle = _.assign({}, 
     Ti.Dom.getOwnStyle(IMC.con), 
     Ti.Dom.getOwnStyle(IMC.img))
   obj.altStyle = Ti.Dom.getOwnStyle(IMC.alt)
+  //
+  // Done
+  //
   return obj
 }
 ////////////////////////////////////////////////////
 function FormatWebImageObjData(obj) {
   return _.pick(obj, 
-    "id","sha1","title","mime","tp","width","height",
+    "id","sha1","title","link","newtab","mime","tp","width","height",
     "imgStyle", "altStyle")
 }
 ////////////////////////////////////////////////////
@@ -8149,13 +8162,28 @@ const OUTER_STYLE_NAMES = [
 ////////////////////////////////////////////////////
 function UpdateWebImageStyle(editor, el, data) {
   let IMC = GetElContext(el)
+  let {con, img, alt} = IMC
   //console.log(IMC)
+  // Set data to element
   if(data) {
     let attrs = FormatWebImageObjData(data)
     attrs.imgStyle = null
     attrs.altStyle = null
-    Ti.Dom.setAttrs(IMC.img, attrs, "wn-obj-")
-  } else {
+    //
+    // Update top element
+    let {link, newtab} = attrs
+    Ti.Dom.setAttrs(con, {
+      href: link,
+      target: newtab ? "_blank" : null
+    })
+    //
+    // Update Image data
+    //
+    attrs = _.omit(attrs, "link", "newtab")
+    Ti.Dom.setAttrs(img, attrs, "wn-obj-")
+  }
+  // Get data from element
+  else {
     data = GetWebImageDataByElement(IMC)
   }
   //console.log(data)
@@ -8168,8 +8196,6 @@ function UpdateWebImageStyle(editor, el, data) {
   let altStyle = Ti.Dom.renderCssRule(data.altStyle)
   conStyle = Ti.Dom.renderCssRule(conStyle)
   imgStyle = Ti.Dom.renderCssRule(imgStyle)
-  //............................................
-  let {con, img, alt} = IMC
   //............................................
   // Wrap image by span
   if(con == img && "IMG" == con.tagName) {
@@ -8337,6 +8363,18 @@ async function CmdShowWebImageProp(editor, settings) {
             comConf : {
               placeholder : "i18n:hmk-w-edit-img-title-tip"
             }
+          }, {
+            title : "i18n:hmk-w-edit-img-link",
+            name  : "link",
+            comType : "TiInput",
+            comConf : {
+              placeholder : "i18n:hmk-w-edit-img-link-tip"
+            }
+          }, {
+            title : "i18n:hmk-w-edit-img-newtab",
+            name  : "newtab",
+            type  : "Boolean",
+            comType : "TiToggle"
           }]
       }, {
         title : "i18n:hmk-aspect",
@@ -17111,6 +17149,24 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Update the article content
     this.$refs.main.innerHTML = $div.innerHTML
 
+    // Found all outer resource
+    let $imgs = Ti.Dom.findAll("img", this.$refs.main)
+    let medias = []
+    for(let i=0; i<$imgs.length; i++) {
+      let $img = $imgs[i]
+      medias[i] = false
+      $img.__resource_index = i
+      $img.addEventListener("load", (evt)=>{
+        let img = evt.target || evt.srcElement
+        let iX = img.__resource_index
+        this.myMedias[iX] = true
+        _.delay(()=>{
+          this.checkContentReady()
+        })
+      }, {once: true})
+    }
+    this.myMedias = medias
+
     // Bind Live widget
     this.bindLiveWidgets(this.$refs.main)
 
@@ -17125,7 +17181,42 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     }
 
+    // Notify
+    if(this.redrawnNotifyName) {
+      this.$notify(this.redrawnNotifyName, {
+        $el: this.$el,
+        $main: this.$refs.main
+      })
+    }
+
     return true
+  },
+  //--------------------------------------
+  checkContentReady() {
+    for(let m of this.myMedias) {
+      if(!m) {
+        return
+      }
+    }
+
+    // Customized redraw
+    if(this.whenReady) {
+      let fn = Ti.Util.genInvoking(this.whenReady)
+      if(_.isFunction(fn)){
+        fn({
+          $el: this.$el,
+          $main: this.$refs.main
+        })
+      }
+    }
+
+    // Notify
+    if(this.readyNotifyName) {
+      this.$notify(this.readyNotifyName, {
+        $el: this.$el,
+        $main: this.$refs.main
+      })
+    }
   }
   //--------------------------------------
 }
@@ -21862,6 +21953,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-------------------------------------
     // Behavior
     //-------------------------------------
+    "hasLink" : {
+      type: [Boolean, String, Object]
+    },
     "href": {
       type: String
     },
@@ -22108,8 +22202,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //--------------------------------------
+    isHasLink() {
+      // Auto
+      if(_.isUndefined(this.hasLink)) {
+        return this.href || _.get(this.navTo, "value") ? true : false
+      }
+      return this.hasLink ? true : false
+    },
+    //--------------------------------------
     TheHref() {
-      if(this.href) {
+      if(this.isHasLink) {
         let href = this.href
         if(_.isPlainObject(this.src)) {
           href = Ti.Util.explainObj(this.src, this.href)
@@ -22148,6 +22250,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     OnClickTop(evt) {
+      if(!this.isHasLink) {
+        return
+      }
       if(this.navTo && !this.newtab) {
         evt.preventDefault()
         this.$notify("nav:to", this.navTo)
@@ -22183,32 +22288,38 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.showZoomPick = true
     },
     //--------------------------------------
-    OnMouseLeave() {
-      this.showZoomPick = false
-      this.showZoomDock = false
-    },
-    //--------------------------------------
-    OnImageMouseEnter() {
+    OnMouseEnter() {
+      //console.log("> image")
       this.myMouseIn = true
+      this.myEnterAt = Date.now()
+
+      _.delay(()=>{
+        this.delayCheckEnter()
+      }, 10)
+
       if(this.EnterNotifyName && this.enterCooling >= 0) {
-        let $img = this.$refs.img
-        this.myEnterAt = Date.now()
-        if(this.TheHoverSrc) {
-          $img.src = this.TheHoverSrc
-        }
-        // Check layter, it can prevent the event fire too many!
         _.delay(()=>{
-          this.doCheckEnterEvent()
-        }, this.enterCooling)
+          this.delayNotifyEnter()
+        }, this.enterCooling)  
+      } else {
+        this.myEnterNotifed = true
       }
     },
     //--------------------------------------
-    doCheckEnterEvent() {
+    OnMouseLeave() {
+      //console.log("< image")
+      this.myMouseIn = false
+      _.delay(()=>{
+        this.delayCheckLeave()
+      }, 10)
+    },
+    //--------------------------------------
+    delayNotifyEnter() {
       // Guard
-      if(this.myEnterNotifed || this.myEnterAt<0) {
+      if(!this.myMouseIn || this.myEnterNotifed || this.myEnterAt<0) {
+        this.myEnterNotifed = true
         return
       }
-      //console.log("enter image")
       let du = Date.now()  - this.myEnterAt
       if(du >= this.enterCooling) {
         //console.log("du cooling", du, this.enterCooling)
@@ -22221,67 +22332,109 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //--------------------------------------
-    OnImageMouseLeave() {
-      //console.log("leave image")
-      this.myMouseIn = false
-      _.delay(()=>{
-        this.delayCheckLeave()
-      }, 20)
+    delayCheckEnter() {
+      if(!this.myMouseIn) {
+        return
+      }
+      //console.log("enter image")
+      //
+      // Full text
+      //
+      if(this.effects.textHoverFull) {
+        let $text = this.$refs.text
+        // Remember the old rect for restore size when mouse leave
+        if($text && !$text.__primary_rect) {
+          let rect = Ti.Rects.createBy(this.$refs.text)
+          $text.__primary_rect = rect
+          $text.__reset_primary = false
+          // Set start size for transition
+          Ti.Dom.updateStyle($text, {
+            width: rect.width, height: rect.height
+          })
+        }
+        // set full text
+        let view = Ti.Rects.createBy(this.$el)
+        _.delay(()=>{
+          Ti.Dom.updateStyle($text, {
+            width: view.width, height: view.height
+          })
+        }, 10)
+      }
+      //
+      // Switch Hover src
+      //
+      let $img = this.$refs.img
+      if($img && this.TheHoverSrc) {
+        $img.src = this.TheHoverSrc
+      }
     },
     //--------------------------------------
     delayCheckLeave() {
-      if(!this.myMouseIn) {
-        let $img = this.$refs.img
-        if(this.TheHoverSrc) {
-          $img.src = this.TheSrc
+      if(this.myMouseIn) {
+        return
+      }
+      this.showZoomPick = false
+      this.showZoomDock = false
+      //console.log("leave image")
+      //
+      // Full text
+      //
+      if(this.effects.textHoverFull) {
+        let $text = this.$refs.text
+        // trans event handler
+        const OnTextTransitionend = ()=>{
+          //console.log("$text transitionend")
+          Ti.Dom.updateStyle($text, {
+            width: "", height: ""
+          })
+          $text.__primary_rect = undefined
+          $text.__reset_primary = true
         }
-        if(this.myEnterNotifed && this.LeaveNotifyName) {
-          let payload = _.assign({
-            $el : this.$el,
-            $img : this.$refs.img
-          }, this.notifyPayload)
-          this.$notify(this.LeaveNotifyName, payload)
+        // Remember the old rect for restore size when mouse leave
+        if($text && $text.__primary_rect) {
+          let rect = $text.__primary_rect
+          // Set callback when transitionend
+          $text.addEventListener("transitionend", OnTextTransitionend, {once: true})
+          // Restore the old size
+          _.delay(()=>{
+            //console.log("restore to ", rect.toString())
+            Ti.Dom.updateStyle($text, {
+              width: rect.width, height: rect.height
+            })
+          }, 10)
+          // Make sure restore to old size
+          _.delay(()=>{
+            if(!$text.__reset_primary && !this.myMouseIn) {
+              //console.log("clean!!!")
+              Ti.Dom.updateStyle($text, {
+                width: "", height: ""
+              })
+              $text.removeEventListener("transitionend", OnTextTransitionend);
+              $text.__primary_rect = undefined
+              $text.__reset_primary = true
+            }
+          }, 1000)
         }
-        this.myEnterNotifed = false
-        this.myEnterAt = -1
       }
-    },
-    //--------------------------------------
-    OnTextMouseEnter() {
-      //console.log("enter text")
-      this.myMouseIn = true
-      if(!this.effects.textHoverFull || !_.isElement(this.$refs.text)) {
-        return
+      //
+      // Switch Hover src
+      //
+      let $img = this.$refs.img
+      if($img && this.TheHoverSrc) {
+        $img.src = this.TheSrc
       }
-      let view = Ti.Rects.createBy(this.$el)
-      let text = Ti.Rects.createBy(this.$refs.text)
-      Ti.Dom.updateStyle(this.$refs.text, {
-        width: text.width, height: text.height
-      })
-      this.$refs.text.__primary_rect = text
-      _.delay(()=>{
-        Ti.Dom.updateStyle(this.$refs.text, {
-          width: view.width, height: view.height
-        })
-      }, 10)
-    },
-    //--------------------------------------
-    OnTextMouseLeave() {
-      //console.log("leave text")
-      this.myMouseIn = false
-      if(!this.effects.textHoverFull || !_.isElement(this.$refs.text)) {
-        return
+      //
+      // Notify Evento
+      //
+      if(this.myEnterNotifed && this.LeaveNotifyName) {
+        let payload = _.assign({
+          $el : this.$el,
+          $img : this.$refs.img
+        }, this.notifyPayload)
+        this.$notify(this.LeaveNotifyName, payload)
       }
-      let text = this.$refs.text.__primary_rect
-      if(!text) {
-        return
-      }
-      Ti.Dom.updateStyle(this.$refs.text, {
-        width: text.width, height: text.height
-      })
-      _.delay(()=>{
-        this.delayCheckLeave()
-      }, 20)
+      this.myEnterNotifed = false
+      this.myEnterAt = -1
     },
     //--------------------------------------
     OnTextTransitionend() {
@@ -28220,6 +28373,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-----------------------------------------------
     theIcon() {
+      if(/^https?:\/\//.test(this.thumb)) {
+        return  {
+          type : "image",
+          value : this.thumb
+        }
+      }
       return Wn.Util.getObjThumbIcon({
         candidateIcon : this.candidateIcon,
         timestamp : this.timestamp,
@@ -29708,6 +29867,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if(this.clickMaskToClose) {
         this.$gui.OnBlockHide(this.name)
       }
+    },
+    //--------------------------------------
+    OnContentReady() {
+      console.log("OnContentReady")
+      this.dockPanelToReferElement()
     },
     //--------------------------------------
     dockPanelToReferElement() {
@@ -44534,6 +44698,12 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
+  data: ()=>({
+    // When media loaded, mark in the array
+    // Then I can known if the whole content ready or not
+    myMedias : []
+  }),
+  //////////////////////////////////////////
   watch : {
     "ArticleHtml" : "redrawContent"
   },
@@ -50910,6 +51080,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "afterRedraw": {
     type: [String, Object, Function]
   },
+  "redrawnNotifyName": {
+    type: String,
+    default : "content:redrawn"
+  },
+  "whenReady": {
+    type: [String, Object, Function]
+  },
+  "readyNotifyName": {
+    type: String,
+    default : "content:ready"
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -56935,7 +57116,8 @@ Ti.Preload("ti/com/ti/gui/panel/ti-gui-panel.html", `<div class="ti-gui-panel"
       :overflow="overflow"
       :schema="schema"
       :shown="shown"
-      :capture-events="captureEvents"/>
+      :capture-events="captureEvents"
+      @content:ready="OnContentReady"/>
     <!--
       Closer
     -->
@@ -61231,6 +61413,7 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   :target="isNewTab ? '_blank' : '_self'"
   @click.left="OnClickTop"
   @mousemove="OnMouseMove"
+  @mouseenter="OnMouseEnter"
   @mouseleave="OnMouseLeave">
   <!--Image-->
   <div class="as-img-con">
@@ -61239,9 +61422,7 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
         :style="ImageStyle"
         :src="TheSrc"
         draggable="false"
-        @load="OnImageLoaded"
-        @mouseenter="OnImageMouseEnter"
-        @mouseleave="OnImageMouseLeave"/>
+        @load="OnImageLoaded"/>
     <!-- Tags -->
     <div
       v-if="TheTags"
@@ -61259,10 +61440,7 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   <div ref="text"
     v-if="TheText || TheBrief"
       class="as-text"
-      :style="TextStyle"
-      @mouseenter="OnTextMouseEnter"
-      @mouseleave="OnTextMouseLeave"
-      @transitionend="OnTextTransitionend">
+      :style="TextStyle">
       <div
         v-if="TheText"
           class="as-title"><span>{{TheText}}</span></div>
@@ -67964,6 +68142,9 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-w-edit-img-pic" : "图片",
   "hmk-w-edit-img-title" : "图片标题",
   "hmk-w-edit-img-title-tip" : "请输入图片的标题",
+  "hmk-w-edit-img-link" : "图片链接",
+  "hmk-w-edit-img-link-tip" : "譬如 http://xxxx",
+  "hmk-w-edit-img-newtab" : "新窗口",
   "hmk-w-edit-img-style" : "图片样式",
   "hmk-w-edit-img-clrsz" : "清除图片尺寸",
   "hmk-autofit" : "自动适应宽度",

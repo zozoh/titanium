@@ -230,6 +230,11 @@ export default {
       }
     },
     //--------------------------------------
+    OnContentReady() {
+      console.log("OnContentReady")
+      this.dockPanelToReferElement()
+    },
+    //--------------------------------------
     dockPanelToReferElement() {
       let visi = _.get(this.visibles, this.name)
       if(visi && this.isAutoDock) {

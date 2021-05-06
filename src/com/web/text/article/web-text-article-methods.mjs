@@ -271,6 +271,24 @@ export default {
     // Update the article content
     this.$refs.main.innerHTML = $div.innerHTML
 
+    // Found all outer resource
+    let $imgs = Ti.Dom.findAll("img", this.$refs.main)
+    let medias = []
+    for(let i=0; i<$imgs.length; i++) {
+      let $img = $imgs[i]
+      medias[i] = false
+      $img.__resource_index = i
+      $img.addEventListener("load", (evt)=>{
+        let img = evt.target || evt.srcElement
+        let iX = img.__resource_index
+        this.myMedias[iX] = true
+        _.delay(()=>{
+          this.checkContentReady()
+        })
+      }, {once: true})
+    }
+    this.myMedias = medias
+
     // Bind Live widget
     this.bindLiveWidgets(this.$refs.main)
 
@@ -285,7 +303,42 @@ export default {
       }
     }
 
+    // Notify
+    if(this.redrawnNotifyName) {
+      this.$notify(this.redrawnNotifyName, {
+        $el: this.$el,
+        $main: this.$refs.main
+      })
+    }
+
     return true
+  },
+  //--------------------------------------
+  checkContentReady() {
+    for(let m of this.myMedias) {
+      if(!m) {
+        return
+      }
+    }
+
+    // Customized redraw
+    if(this.whenReady) {
+      let fn = Ti.Util.genInvoking(this.whenReady)
+      if(_.isFunction(fn)){
+        fn({
+          $el: this.$el,
+          $main: this.$refs.main
+        })
+      }
+    }
+
+    // Notify
+    if(this.readyNotifyName) {
+      this.$notify(this.readyNotifyName, {
+        $el: this.$el,
+        $main: this.$refs.main
+      })
+    }
   }
   //--------------------------------------
 }
