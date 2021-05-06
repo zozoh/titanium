@@ -399,7 +399,7 @@ const _M = {
      * Reload page data by given api keys
      */
     async reloadData({commit, getters, dispatch, rootState}, keys=[]) {
-      console.log(" # -> page.reloadData", keys)
+      //console.log(" # -> page.reloadData", keys)
       //.......................................
       // The api list to reload
       let isAll = _.isEmpty(keys)

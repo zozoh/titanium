@@ -1,4 +1,4 @@
-// Pack At: 2021-05-06 13:04:50
+// Pack At: 2021-05-06 16:02:50
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9026,6 +9026,12 @@ const {Util} = (function(){
     }={}) {
       //......................................
       const ExplainValue = (anyValue)=>{
+        //....................................
+        // Guard
+        if(Ti.Util.isNil(anyValue)) {
+          return anyValue
+        }
+        //....................................
         let theValue = anyValue
         //....................................
         // String : Check the "@BLOCK(xxx)" 
@@ -9157,6 +9163,24 @@ const {Util} = (function(){
             list.push(iteratee(v2))
           }
           return list
+        }
+        // Call the function
+        else if(theValue.__invoke && theValue.name) {
+          let {name, args} = theValue
+          args = Ti.Util.explainObj(context, args)
+          let fn = Ti.Util.genInvoking({name, args}, {context})
+          if(_.isFunction(fn)) {
+            return fn()
+          }
+        }
+        // Invoke function
+        else if(theValue.__function && theValue.name) {
+          let {name, args} = theValue
+          args = Ti.Util.explainObj(context, args)
+          let fn = Ti.Util.genInvoking({name, args}, {context})
+          if(_.isFunction(fn)) {
+            return fn
+          }
         }
         //....................................
         // Object
@@ -15097,7 +15121,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210506.130450",
+  "version" : "1.6-20210506.160250",
   "dev" : false,
   "appName" : null,
   "session" : {},

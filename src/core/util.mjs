@@ -283,6 +283,12 @@ const TiUtil = {
   }={}) {
     //......................................
     const ExplainValue = (anyValue)=>{
+      //....................................
+      // Guard
+      if(Ti.Util.isNil(anyValue)) {
+        return anyValue
+      }
+      //....................................
       let theValue = anyValue
       //....................................
       // String : Check the "@BLOCK(xxx)" 
@@ -414,6 +420,24 @@ const TiUtil = {
           list.push(iteratee(v2))
         }
         return list
+      }
+      // Call the function
+      else if(theValue.__invoke && theValue.name) {
+        let {name, args} = theValue
+        args = Ti.Util.explainObj(context, args)
+        let fn = Ti.Util.genInvoking({name, args}, {context})
+        if(_.isFunction(fn)) {
+          return fn()
+        }
+      }
+      // Invoke function
+      else if(theValue.__function && theValue.name) {
+        let {name, args} = theValue
+        args = Ti.Util.explainObj(context, args)
+        let fn = Ti.Util.genInvoking({name, args}, {context})
+        if(_.isFunction(fn)) {
+          return fn
+        }
       }
       //....................................
       // Object
