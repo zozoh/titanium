@@ -76,7 +76,7 @@ export class TiAppModal {
   // Methods
   //////////////////////////////////////////////
   async open(resolve=_.identity) {
-    console.log("dialog", this.model)
+    //console.log("dialog", this.model)
     let TheActions = []
     // Customized actions
     if(this.actions) {

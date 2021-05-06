@@ -1,4 +1,4 @@
-// Pack At: 2021-05-06 16:02:50
+// Pack At: 2021-05-06 17:40:14
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2459,7 +2459,7 @@ const {App} = (function(){
       // Methods
       //////////////////////////////////////////////
       async open(resolve=_.identity) {
-        console.log("dialog", this.model)
+        //console.log("dialog", this.model)
         let TheActions = []
         // Customized actions
         if(this.actions) {
@@ -15121,7 +15121,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210506.160250",
+  "version" : "1.6-20210506.174014",
   "dev" : false,
   "appName" : null,
   "session" : {},

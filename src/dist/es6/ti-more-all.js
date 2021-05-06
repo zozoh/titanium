@@ -1,4 +1,4 @@
-// Pack At: 2021-05-06 16:02:50
+// Pack At: 2021-05-06 17:40:14
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -56683,7 +56683,8 @@ Ti.Preload("ti/com/ti/form/com/form-group/form-group.html", `<div class="form-gr
         v-bind="fld"
         :data="data"
         :field-status="fieldStatus"
-        :status-icons="statusIcons"/>
+        :status-icons="statusIcons"
+        :screen-mode="screenMode"/>
   </div>
 </div>`);
 //========================================
