@@ -1,4 +1,4 @@
-// Pack At: 2021-05-05 21:38:55
+// Pack At: 2021-05-06 13:04:50
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -560,6 +560,9 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/form/com/form-field/form-field-props.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
   "type" : {
     type : String,
     default : "String"
@@ -580,10 +583,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : String,
     default : null
   },
-  "fieldStatus" : {
-    type : Object,
-    default : ()=>({})
-  },
   "message" : {
     type : String,
     default : null
@@ -595,14 +594,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "tip" : {
     type : String,
     default : null
-  },
-  "width" : {
-    type : [String, Number],
-    default : "stretch"
-  },
-  "height" : {
-    type : [String, Number],
-    default : undefined
   },
   "fieldWidth" : {
     type : [String, Number],
@@ -633,18 +624,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : [String, Object, Boolean],
     default : false
   },
-  // "funcSet" : {
-  //   type : Object,
-  //   default : ()=>({})
-  // },
-  "comType" : {
-    type : String,
-    default : "ti-label"
-  },
-  "comConf" : {
-    type : Object,
-    default : ()=>({})
-  },
   "autoValue" : {
     type : String,
     default : "value"
@@ -661,6 +640,29 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : Object,
     default : null
   },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  "fieldStatus" : {
+    type : Object,
+    default : ()=>({})
+  },
+  "comType" : {
+    type : String,
+    default : "ti-label"
+  },
+  "comConf" : {
+    type : Object,
+    default : ()=>({})
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "screenMode" : {
+    type : String,
+    default : "auto",
+    validator : (val)=>/^(auto|desktop|tablet|phone)$/.test(val)
+  },
   "statusIcons" : {
     type : Object,
     default : ()=>({
@@ -669,6 +671,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
       warn     : 'zmdi-alert-triangle',
       ok       : 'zmdi-check-circle',
     })
+  },
+  //-----------------------------------
+  // Measure
+  //-----------------------------------
+  "width" : {
+    type : [String, Number],
+    default : "stretch"
+  },
+  "height" : {
+    type : [String, Number],
+    default : undefined
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -6409,7 +6422,7 @@ const _M = {
      * Reload page data by given api keys
      */
     async reloadData({commit, getters, dispatch, rootState}, keys=[]) {
-      //console.log(" # -> page.reloadData", keys)
+      console.log(" # -> page.reloadData", keys)
       //.......................................
       // The api list to reload
       let isAll = _.isEmpty(keys)
@@ -6435,8 +6448,12 @@ const _M = {
       // Prepare the Promises
       let allApis = []
       for(let api of apis) {
-        // console.log("  # -> page.reloadData -> prepareApi", api)
+        //console.log("  # -> page.reloadData -> prepareApi", api)
         if(api.test && !Ti.AutoMatch.test(api.test, rootState)) {
+          continue;
+        }
+        let test = Ti.Util.explainObj(rootState, api.explainTest)
+        if(test && !Ti.AutoMatch.test(test, rootState)) {
           continue;
         }
         allApis.push(dispatch("__run_api", {api}))
@@ -6670,6 +6687,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       default : undefined,
       validator : (v)=>(_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
     },
+    "order" : {
+      type : Number
+    },
     "schema" : {
       type : Object,
       default : ()=>({})
@@ -6705,7 +6725,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     TopStyle() {
-      return Ti.Css.toStyle(({
+      let css = ({
         //..................................
         rows:()=>({
           height: this.BlockSize
@@ -6719,7 +6739,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
         //..................................
         panel:()=>({})
         //..................................
-      })[this.embedIn]())
+      })[this.embedIn]()
+      if(!Ti.Util.isNil(this.order)) {
+        css.order = this.order
+      }
+      return Ti.Css.toStyle(css)
     },
     //--------------------------------------
     MainConClass() {
@@ -15429,6 +15453,9 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/form/com/form-group/form-group-props.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
   "type" : {
     type : String,
     default : "Group"
@@ -15449,9 +15476,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : Object,
     default : null
   },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
   "fieldStatus" : {
     type : Object,
     default : ()=>({})
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "screenMode" : {
+    type : String,
+    default : "auto",
+    validator : (val)=>/^(auto|desktop|tablet|phone)$/.test(val)
   },
   "statusIcons" : {
     spinning : 'fas-spinner fa-spin',
@@ -17075,6 +17113,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
     // Bind Live widget
     this.bindLiveWidgets(this.$refs.main)
+
+    // Customized redraw
+    if(this.afterRedraw) {
+      let fn = Ti.Util.genInvoking(this.afterRedraw)
+      if(_.isFunction(fn)){
+        fn({
+          $el: this.$el,
+          $main: this.$refs.main
+        })
+      }
+    }
 
     return true
   }
@@ -19522,7 +19571,7 @@ const _M = {
         "has-status-icons" : this.hasStatusIcons,
         "is-disabled" : this.disabled
       }, 
-      `as-${this.viewportMode}`,
+      `as-${this.screenMode}`,
       (this.StatusType?`is-${this.StatusType}`:null))
     },
     //----------------------------------------
@@ -22310,7 +22359,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     "browserBuiltIn" : {
       type : [String, RegExp, Function, Object, Array],
-      default : /^(application\/pdf)$/
+      default : ()=>/^(application\/pdf)$/
     },
     "showInfo" : {
       type : Boolean,
@@ -23800,6 +23849,10 @@ const _M = {
       type : Array,
       default : ()=>[]
     },
+    "currentIndex" : {
+      type : Number,
+      default : -1
+    },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -23913,7 +23966,13 @@ const _M = {
     },
     //--------------------------------------
     OnMouseLeave() {
-      this.myHoverIndex = parseInt(this.DataItems.length / 2)
+      let index = this.currentIndex
+      if(index>=0) {
+        index = _.clamp(this.currentIndex, 0, this.DataItems.length)
+      } else {
+        index = parseInt(this.DataItems.length / 2)
+      }
+      this.myHoverIndex = index
     },
     //--------------------------------------
     OnMouseEnterItem({index}) {
@@ -23935,13 +23994,21 @@ const _M = {
         })
       })
       this.myItemList = list
-      this.myHoverIndex = parseInt(list.length / 2)
+      if(this.myHoverIndex<0 || this.myHoverIndex>=list.length) {
+        this.myHoverIndex = parseInt(list.length / 2)
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   watch : {
-    "data" : "evalDataItemList"
+    "data" : "evalDataItemList",
+    "currentIndex" : {
+      handler : function(newVal) {
+        this.myHoverIndex = newVal
+      },
+      immediate: true
+    }
   },
   //////////////////////////////////////////
   mounted: function() {
@@ -32210,7 +32277,7 @@ const _M = {
         [`tab-at-${this.TheTabAtX}`] : this.isTabMode,
         [`tab-at-${this.TheTabAtY}`] : this.isTabMode
       }, 
-      `as-${this.viewportMode}`,
+      `as-${this.ViewDisplayMode}`,
       `as-spacing-${this.spacing||"comfy"}`
       )
     },
@@ -32220,6 +32287,13 @@ const _M = {
         width  : this.width,
         height : this.height
       })
+    },
+    //--------------------------------------------------
+    ViewDisplayMode() {
+      if(!this.screenMode || "auto" == this.screenMode) {
+        return this.viewportMode || "desktop"
+      }
+      return this.screenMode
     },
     //--------------------------------------------------
     hasHeader() {
@@ -32879,6 +32953,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------
     "href" : String,
     "moreHref": String,
+    "showBackward": false,
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -32927,6 +33002,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     TheMoreIcon() {
       let src = Ti.WWW.evalObjPreviewSrc(this.moreIcon, this.morePreview)
+      if(!src) {
+        return
+      }
       if(this.moreIconType) {
         return {
           type: this.moreIconType,
@@ -32939,6 +33017,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    OnClickBackward() {
+      if(history && _.isFunction(history.back)) {
+        history.back()
+      }
+    },
     //--------------------------------------
     OnClickTitle() {
       if(this.value) {
@@ -34721,6 +34805,7 @@ const _M = {
         if(_.isFunction(it.handler)) {
           it.handler()
         }
+        console.log(it)
         if(_.isString(it.eventName)) {
           this.$notify(it.eventName, it.payload)
         }
@@ -36000,6 +36085,10 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/web/widget/sharebar/widget-sharebar.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
+  data: ()=>({
+    qrcodeImgSrc: undefined
+  }),
+  /////////////////////////////////////////
   props : {
     "title": {
       type: String,
@@ -36008,6 +36097,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "items" : {
       type : Array,
       default : ()=>[]
+    },
+    "apiBase" : {
+      type : String,
+      default : "/"
     }
   },
   /////////////////////////////////////////
@@ -36056,6 +36149,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
           params : {
             url  : "=url"
           }
+        },
+        //..............................
+        "wechat": {
+          iconClass: "fab fa-weixin",
+          link : ({url})=>{
+            let src = `${this.apiBase}qrcode?s=${url}`
+            this.qrcodeImgSrc = src
+          },
+          params : {
+            url  : "=url"
+          }
         }
         //..............................
       }
@@ -36072,8 +36176,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let url = window.location.href
       let title = window.document.title
       params = Ti.Util.explainObj({url, title}, params)
-      console.log("haha", params)
-      Ti.Be.Open(link, {params})
+      //console.log("haha", params)
+      if(_.isString(link)) {
+        Ti.Be.Open(link, {params})
+      } else if(_.isFunction(link)) {
+        link(params)
+      }
     },
     //------------------------------------
     evalItems(items) {
@@ -41762,7 +41870,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   computed : {
     //----------------------------------------
     TopClass() {
-      let klass = [`as-${this.viewportMode}`]
+      let klass = [`as-${this.screenMode}`]
       if(this.className) {
         klass.push(this.className)
       }
@@ -45476,6 +45584,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default : "all",
     validator : (val)=>/^(all|tab)$/.test(val)
   },
+  "screenMode" : {
+    type : String,
+    default : "auto",
+    validator : (val)=>/^(auto|desktop|tablet|phone)$/.test(val)
+  },
   "tabAt" : {
     type : String,
     default : "top-center",
@@ -47925,7 +48038,7 @@ const _M = {
       if(!AT) {
         return
       }
-
+      //console.log("doAction", AT)
       //....................................
       // Raw function
       //....................................
@@ -48016,6 +48129,7 @@ const _M = {
     },
     //--------------------------------------------
     async runAction({state, commit, dispatch}, {
+      invoke,
       mutation,
       action, 
       test,       // AutoMatch
@@ -48025,7 +48139,7 @@ const _M = {
       args
     }={}) {
       //....................................
-      if(!action && !mutation)
+      if(!invoke && !action && !mutation)
         return;
 
       //....................................
@@ -48070,7 +48184,16 @@ const _M = {
       //....................................
       //console.log("invoke->", action, pld)
       //....................................
-      if(_.isFunction(action)) {
+      if(invoke) {
+        invoke = Ti.Util.genInvoking(invoke, {
+          context: state
+        })
+      }
+      //....................................
+      if(_.isFunction(invoke)) {
+        await invoke.apply({state, commit, dispatch}, [pld])
+      }
+      else if(_.isFunction(action)) {
         await action(pld)
       }
       else if(mutation) {
@@ -50783,6 +50906,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "downTmpl" : {
     type: String,
     default: undefined
+  },
+  "afterRedraw": {
+    type: [String, Object, Function]
   },
   //-----------------------------------
   // Aspect
@@ -56623,6 +56749,7 @@ Ti.Preload("ti/com/ti/form/ti-form.html", `<div class="ti-form"
           :data="data"
           :field-status="fieldStatus"
           :status-icons="statusIcons"
+          :screen-mode="ViewDisplayMode"
           @change="OnFieldChange"/>
         <!--
           For field
@@ -56633,6 +56760,7 @@ Ti.Preload("ti/com/ti/form/ti-form.html", `<div class="ti-form"
           :data="data"
           :field-status="fieldStatus"
           :status-icons="statusIcons"
+          :screen-mode="ViewDisplayMode"
           @change="OnFieldChange"/>
       </template>
     </div>
@@ -62960,6 +63088,11 @@ Ti.Preload("ti/com/web/text/article/_com.json", {
 //========================================
 Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-text-heading"
   :class="TopClass">
+  <!--Back button-->
+  <a
+    v-if="showBackward"
+      class="as-backward"
+      @click.left="OnClickBackward"><i class="fas fa-chevron-left"></i></a>
   <!--Title/Icon-->
   <a
     v-if="title"
@@ -63426,6 +63559,19 @@ Ti.Preload("ti/com/web/widget/sharebar/widget-sharebar.html", `<div class="web-w
         <i :class="it.iconClass"></i>
     </a>
   </div>
+  <!--
+    Weixin QrCode
+  -->
+  <transition name="ti-trans-fade">
+    <div 
+      v-if="qrcodeImgSrc"
+        @click.left="qrcodeImgSrc=undefined"
+        class="as-weixin-qrcode-con">
+        <div class="as-qrcode-img">
+          <img :src="qrcodeImgSrc"/>
+        </div>
+    </div>
+  </transition>
 </div>`);
 //========================================
 // JOIN <widget-sharebar.mjs> ti/com/web/widget/sharebar/widget-sharebar.mjs

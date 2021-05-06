@@ -1,4 +1,4 @@
-// Pack At: 2021-05-05 21:38:55
+// Pack At: 2021-05-06 13:04:50
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -11046,6 +11046,7 @@ const {WWW} = (function(){
             "preload",
             "ssr",
             "test",
+            "explainTest",
             "transformer", 
             "dataKey",
             "dataMerge",
@@ -11191,7 +11192,7 @@ const {WWW} = (function(){
       //.....................................
       return {reo, data}
   
-    },// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ runApi
+    },
     //---------------------------------------
     async runApiAndPrcessReturn(state={}, api, {
       vars, 
@@ -11204,7 +11205,7 @@ const {WWW} = (function(){
       updateData,
       doAction
     } = {}) {
-      console.log("runApi", api)
+      //console.log("runApi", api)
       //.....................................
       let apiRe;
       //.....................................
@@ -15096,7 +15097,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210505.213855",
+  "version" : "1.6-20210506.130450",
   "dev" : false,
   "appName" : null,
   "session" : {},
