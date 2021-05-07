@@ -113,7 +113,7 @@ function UpdateWebImageStyle(editor, el, data) {
     // Update top element
     let {link, newtab} = attrs
     Ti.Dom.setAttrs(con, {
-      href: link,
+      href: link || null,
       target: newtab ? "_blank" : null
     })
     //
@@ -378,6 +378,7 @@ async function CmdShowWebImageProp(editor, settings) {
   //................................................
   // clean cache
   IMC.con.removeAttribute("data-mce-style")
+  IMC.con.removeAttribute("data-mce-href")
   IMC.img.removeAttribute("data-mce-src")
   IMC.img.removeAttribute("data-mce-style")
   //................................................
