@@ -31,7 +31,8 @@ export default {
     // Behavior
     //-------------------------------------
     "hasLink" : {
-      type: [Boolean, String, Object]
+      type: [String, Boolean, Object],
+      default: undefined
     },
     "href": {
       type: String

@@ -1,4 +1,4 @@
-// Pack At: 2021-05-07 00:42:49
+// Pack At: 2021-05-07 13:53:33
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -21954,7 +21954,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Behavior
     //-------------------------------------
     "hasLink" : {
-      type: [Boolean, String, Object]
+      type: [String, Boolean, Object],
+      default: undefined
     },
     "href": {
       type: String
