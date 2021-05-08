@@ -41,7 +41,7 @@ export default {
     //--------------------------------------
     OnJumpTo(pageNumber) {
       if(!this.isInvalidPageNumber(pageNumber)) {
-        console.log("OnJumpTo", pageNumber)
+        //console.log("OnJumpTo", pageNumber)
         this.notifyChange({
           skip :  this.PageValue.pgsz * (pageNumber-1),
           limit :  this.PageValue.pgsz, 

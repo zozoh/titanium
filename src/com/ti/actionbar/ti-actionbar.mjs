@@ -66,6 +66,19 @@ export default {
       }
     },
     //---------------------------------------
+    getBarItems(items=[]) {
+      let list = []
+      let lastItemType;
+      _.forEach(items, it => {
+        let bi = this.evalBarItem(it)
+        if(bi && (bi.type != "line" || bi.type!=lastItemType)) {
+          lastItemType = bi.type
+          list.push(bi)
+        }
+      })
+      return list
+    },
+    //---------------------------------------
     evalBarItem(it){
       // Guard
       if(!it)
@@ -96,13 +109,7 @@ export default {
           })
       }
       if("group" == type && _.isArray(it.items)) {
-        bi.items = []
-        for(let child of it.items) {
-          let ci = this.evalBarItem(child)
-          if(ci) {
-            bi.items.push(ci)
-          }
-        }
+        bi.items = this.getBarItems(it.items)
       }
       return bi
     },

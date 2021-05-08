@@ -252,6 +252,12 @@ export default {
     selectItemByIndex(id) {
       this.$adaptlist.selectItemByIndex(id)
     },
+    checkItem(id) {
+      this.$adaptlist.checkItem(id)
+    },
+    toggleItem(id) {
+      this.$adaptlist.toggleItem(id)
+    },
     invokeList(methodName) {
       this.$adaptlist.invokeList(methodName)
     },

@@ -223,7 +223,7 @@ const OBJ = {
   async doMoveTo(confirm=false, reloadWhenDone=true) {
     let list = this.getCheckedItems()
     // Move dialog
-    await Wn.Io.moveTo(list, {
+    await Wn.Io.moveTo(list, _.assign({}, this.moveToConf, {
       base: this.meta,
       confirm,
       markItemStatus: (itId, status)=>{
@@ -234,7 +234,7 @@ const OBJ = {
           return await this._run("reload")
         }
       }
-    })
+    }))
   },
   //--------------------------------------------
   async doUpload(files=[]) {

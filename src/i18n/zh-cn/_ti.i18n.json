@@ -66,6 +66,8 @@
   "audio-add" : "添加音频",
   "audio-insert" : "插入音频",
   "avatar": "头像",
+  "back": "回退",
+  "back-to-list": "回退到列表",
   "banner": "头图",
   "batch-none": "请从下面列表中选择至少一个对象进行批量更新",
   "batch-update": "批量更新...",

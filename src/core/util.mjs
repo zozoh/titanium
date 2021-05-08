@@ -278,7 +278,7 @@ const TiUtil = {
    * The value `=xxxx` in obj will get the value from context
    */
   explainObj(context={}, obj, {
-    evalFunc = false,
+    evalFunc = true,
     iteratee = _.identity
   }={}) {
     //......................................

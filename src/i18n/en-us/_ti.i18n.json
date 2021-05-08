@@ -66,6 +66,8 @@
   "audio-add" : "Add audio",
   "audio-insert" : "Insert audio",
   "avatar": "Avatar",
+  "back": "Back",
+  "back-to-list": "Back to list",
   "banner": "Banner",
   "batch-none": "Please choose at least one item for batch updating",
   "batch-update": "Batch update...",

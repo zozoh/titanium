@@ -93,6 +93,9 @@ export default {
     type : Array,
     default : ()=>["title", "tp", "c", "g", "md", "len", "lm"]
   },
+  "moveToConf" : {
+    type : Object
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

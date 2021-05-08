@@ -69,6 +69,9 @@ const _M = {
       let re ;
       try{
         re = await this.exec(this.value)
+        if(/^e\./.test(re)) {
+          throw re
+        }
         // Success
         if(_.isFunction(this.whenSuccess)) {
           await this.whenSuccess(re)
@@ -80,10 +83,10 @@ const _M = {
       // Fail
       catch(err) {
         if(_.isFunction(this.whenError)) {
-          await this.whenError(re)
+          await this.whenError(err)
         }
         if(this.emitError) {
-          this.$notify(this.emitError, this.emitPayload || re)  
+          this.$notify(this.emitError, this.emitPayload || err)  
         }
       }
 

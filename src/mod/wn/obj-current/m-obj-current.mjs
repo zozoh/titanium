@@ -79,6 +79,31 @@ const _M = {
       state.data = data
     },
     //----------------------------------------
+    prependDateItem(state, newItem) {
+      console.log("prepend", newItem)
+      if(_.isEmpty(newItem))
+        return
+      let data = state.data
+      let list = _.cloneDeep(data.list) || []
+      let pager = data.pager
+      list = _.concat(newItem, list)
+      state.data = {
+        list, pager
+      }
+    },
+    //----------------------------------------
+    appendDateItem(state, newItem) {
+      if(_.isEmpty(newItem))
+        return
+      let data = state.data
+      let list = _.cloneDeep(data.list) || []
+      let pager = data.pager
+      list = _.concat(list, newItem)
+      state.data = {
+        list, pager
+      }
+    },
+    //----------------------------------------
     setDataItem(state, newItem) {
       // console.log("setDataItem:", newItem)
       // Guard

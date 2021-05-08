@@ -415,11 +415,26 @@ const _M = {
     },
     //--------------------------------------------
     checkItem(id) {
-      this.$innerList.checkRow(id)
+      let ids = {}
+      _.forEach(this.myCheckedIds, (v,k)=>{
+        if(v)
+          ids[k] = true
+      });
+      ids[id] = true
+      this.myCheckedIds = ids
     },
     //--------------------------------------------
     toggleItem(id) {
-      this.$innerList.toggleRow(id)
+      let ids = {}
+      _.forEach(this.myCheckedIds, (v,k)=>{
+        if(k == id) {
+          ids[k] = v ? false : true
+        }
+        else if(v)
+          ids[k] = true
+      });
+      ids[id] = true
+      this.myCheckedIds = ids
     },
     //--------------------------------------------
     setItemSelect(id) {
