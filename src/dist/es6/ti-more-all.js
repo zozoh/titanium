@@ -1,4 +1,4 @@
-// Pack At: 2021-05-09 20:08:23
+// Pack At: 2021-05-09 21:12:17
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -34432,7 +34432,7 @@ const LIST_MIXINS = {
             height: btnH
           })
           // Reach the bottom check delay
-          if(this.myMorePendingExpectTop<=0 && view.height+vsTop >= viewH) {
+          if(this.myMorePendingExpectTop<=0 && Math.ceil(view.height+vsTop) >= viewH) {
             this.myMorePendingExpectTop = vsTop
             //console.log("check in 500ms")
             _.delay(()=>{
