@@ -138,7 +138,8 @@ const LIST_MIXINS = {
   methods : {
     //-----------------------------------------------
     OnClickLoadMore() {
-      if(!this.moreLoading && this.myMoreIsPendingAt<0) {
+      //console.log("load more")
+      if(!this.moreLoading && this.myMorePendingExpectTop<0) {
         this.$notify("load:more")
       }
     },

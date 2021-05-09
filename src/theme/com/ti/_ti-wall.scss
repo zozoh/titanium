@@ -36,6 +36,7 @@
   }
   //-------------------------------------
   > .as-load-more {
+    user-select: none;
     padding: SZ(20); transition: margin-bottom 0.3s;
     //-----------------------------------
     > .as-load-more-btn {

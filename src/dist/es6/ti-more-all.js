@@ -1,4 +1,4 @@
-// Pack At: 2021-05-09 21:12:17
+// Pack At: 2021-05-09 21:50:33
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -33851,7 +33851,8 @@ const LIST_MIXINS = {
   methods : {
     //-----------------------------------------------
     OnClickLoadMore() {
-      if(!this.moreLoading && this.myMoreIsPendingAt<0) {
+      //console.log("load more")
+      if(!this.moreLoading && this.myMorePendingExpectTop<0) {
         this.$notify("load:more")
       }
     },
