@@ -1,6 +1,7 @@
 <div class="ti-wall" 
   :class="TopClass"
   @click="OnClickTop"
+  @scroll="OnScroll"
   v-ti-activable>
   <!--
     Loading
@@ -51,10 +52,11 @@
   <!--
     Show load more
   -->
-  <div
+  <div ref="more"
     v-if="showLoadMore"
       class="as-load-more">
-      <div class="as-load-more-btn"
+      <div ref="moreBtn"
+        class="as-load-more-btn"
         @click.left="OnClickLoadMore">
         <span class="as-icon"><TiIcon :value="LoadingMoreBtn.icon"/></span>
         <span class="as-text">{{LoadingMoreBtn.text | i18n}}</span>

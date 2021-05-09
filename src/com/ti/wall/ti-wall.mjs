@@ -112,6 +112,14 @@ const _M = {
       }
     },
     //--------------------------------------
+    OnScroll() {
+      this.pendingMoreWhenScrolling({
+        $view: this.$el,
+        $more: this.$refs.more,
+        $moreBtn: this.$refs.moreBtn
+      })
+    },
+    //--------------------------------------
     OnWallResize() {
       let $divs = Ti.Dom.findAll(".wall-con > .wall-tile", this.$el)
       // Guard empty
@@ -168,7 +176,7 @@ const _M = {
           }
         })
       }
-    },
+    }
     //--------------------------------------
   },
   //////////////////////////////////////////

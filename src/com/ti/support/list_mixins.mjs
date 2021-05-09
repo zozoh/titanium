@@ -9,7 +9,12 @@ const LIST_MIXINS = {
   data : ()=>({
     myLastIndex: -1,      // The last row index selected by user
     myCurrentId: null,    // Current row ID
-    myCheckedIds: {}      // Which row has been checked
+    myCheckedIds: {},     // Which row has been checked
+
+    myMoreIsPendingAt   : -1,
+    myMorePendingOffset : -1,
+    myMorePendingExpectTop : -1,
+    myMoreBtnOrgHeight  : -1
   }),
   ///////////////////////////////////////////////////
   // props -> list_props.mjs
@@ -100,6 +105,12 @@ const LIST_MIXINS = {
           text : "i18n:loading"
         }
       }
+      if(this.myMorePendingExpectTop > 0) {
+        return {
+          icon : "fas-spinner fa-spin",
+          text : "i18n:load-more-pull"
+        }
+      }
       return {
         icon : "fas-angle-down",
         text : "i18n:more"
@@ -127,7 +138,7 @@ const LIST_MIXINS = {
   methods : {
     //-----------------------------------------------
     OnClickLoadMore() {
-      if(!this.moreLoading) {
+      if(!this.moreLoading && this.myMoreIsPendingAt<0) {
         this.$notify("load:more")
       }
     },
@@ -658,6 +669,84 @@ const LIST_MIXINS = {
     syncCheckedIds() {
       if(!this.puppetMode) {
         this.myCheckedIds = this.getCheckedIdsMap(this.checkedIds)
+      }
+    },
+    //-----------------------------------------------
+    resetMorePending({$more, $moreBtn}={}) {
+      this.myMoreIsPendingAt = -1
+      this.myMorePendingOffset = -1
+      this.myMorePendingExpectTop = -1
+      this.myMoreBtnOrgHeight = -1
+      if(_.isElement($more)) {
+        Ti.Dom.updateStyle($more, {
+          "margin-bottom": ""
+        })
+      }
+      if(_.isElement($moreBtn)) {
+        Ti.Dom.updateStyle($moreBtn, {
+          height: ""
+        })
+      }
+    },
+    //-----------------------------------------------
+    pendingMoreWhenScrolling({$view, $more, $moreBtn}={}) {
+      // Not more
+      if(this.moreLoading 
+        || !this.autoLoadMore 
+        || !_.isElement($more) 
+        || !_.isElement($moreBtn)
+      ) {
+        return
+      }
+      // Get the more position
+      let view  = Ti.Rects.createBy($view)
+      let vsTop = $view.scrollTop
+      let viewH = $view.scrollHeight
+      // Pending more
+      if(this.myMoreIsPendingAt > 0) {
+        // Cancel pendding
+        if(vsTop < this.myMoreIsPendingAt) {
+          //console.log("cancel pending")
+          this.resetMorePending({$more,$moreBtn})
+        }
+        // Add pending
+        else {
+          let orgH = this.myMoreBtnOrgHeight
+          let off = Math.min(orgH*2, vsTop - this.myMoreIsPendingAt)
+          this.myMorePendingOffset = off
+          let btnH = Math.max(orgH, off)
+          Ti.Dom.updateStyle($moreBtn, {
+            height: btnH
+          })
+          // Reach the bottom check delay
+          if(this.myMorePendingExpectTop<=0 && view.height+vsTop >= viewH) {
+            this.myMorePendingExpectTop = vsTop
+            //console.log("check in 500ms")
+            _.delay(()=>{
+              let expTop = this.myMorePendingExpectTop
+              if(expTop>0 && $view.scrollTop >= expTop) {
+                //console.log("fire load more!")
+                this.$notify("load:more")
+                this.resetMorePending({$more,$moreBtn})
+              }
+            }, 500)
+          }
+        }
+        return
+      }
+
+      // Detact pending
+      let more = Ti.Rects.createBy($more)
+      let moin = view.contains(more, -3)
+      //console.log(moin, vsTop, view.toString(), more.toString())
+      if(moin) {
+        this.myMoreIsPendingAt = vsTop
+        this.myMoreBtnOrgHeight = $moreBtn.clientHeight
+        Ti.Dom.updateStyle($more, {
+          "margin-bottom": this.myMoreBtnOrgHeight * 2
+        })
+      } else {
+        this.resetMorePending({$more,$moreBtn})
       }
     }
     //-----------------------------------------------

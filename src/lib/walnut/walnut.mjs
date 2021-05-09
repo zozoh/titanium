@@ -14,6 +14,7 @@ import EditObjPrivilege from "./wn-edit-obj-privilege.mjs"
 import EditTiComponent  from "./wn-edit-ti-component.mjs"
 import OpenCmdPanel     from "./wn-run-cmd-panel.mjs"
 import Youtube  from "./wn-youtube.mjs"
+import FbAlbum  from "./wn-fb-album.mjs"
 
 //---------------------------------------
 const WALNUT_VERSION = "1.2-dev"
@@ -29,7 +30,7 @@ export const Wn = {
   OpenObjSelector, OpenObjTree,
   EditObjMeta, EditObjContent, EditObjPrivilege,
   EditTiComponent, OpenThingManager, OpenCmdPanel,
-  Youtube, 
+  Youtube, FbAlbum,
   //-------------------------------------
   addHook(key, fn) {
     Ti.Util.pushValue(HOOKs, key, fn)

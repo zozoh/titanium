@@ -233,6 +233,8 @@
   "list": "List",
   "lng": "Longitude",
   "loading": "Loading...",
+  "load-more" : "Load more",
+  "load-more-pull" : "Pull for load more",
   "location": "Location",
   "login": "Sign in",
   "login-name": "Login name",

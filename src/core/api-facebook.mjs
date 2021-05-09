@@ -77,13 +77,14 @@ const TiApiFacebook = {
   async getAlbumPhotoList({
     albumId, 
     access_token,
+    after,
     fields = "id,link,name,images,width,height"
   }={}){
     if(!albumId)
       return
     let url = FBAPI(`${albumId}/photos`)
     let reo = await Ti.Http.get(url, {
-      params : {access_token, fields},
+      params : {access_token, fields, after},
       as : "json"
     })
     let {data, paging} = reo
@@ -93,7 +94,7 @@ const TiApiFacebook = {
       TiApiFacebook.setObjPreview(photo, photo.images)
     }
 
-    return data
+    return {data, paging}
   },
   //----------------------------------------
   async getPhoto({

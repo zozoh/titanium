@@ -46,6 +46,8 @@ async function pickFbAlbumAndInsertToDoc(editor, settings) {
       "@com:net/facebook/albums"
     ]
   })
+  // Set the album account
+  reo.account = meta.nm
 
   // User canceled
   if(_.isEmpty(reo)) {
@@ -69,7 +71,7 @@ function GetAlbumWidget($album) {
 }
 //--------------------------------------------------
 function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
-  album, photos, items
+  album, photos, items, force
 }={}) {
   //console.log("UpdateFbAlbumTagInnerHtml")
   // Bind widget and get the data
@@ -90,16 +92,22 @@ function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
   
   // Reload photo from remote
   if(_.isEmpty(photos)) {
+    // Get account name
+    let accountName = $album.getAttribute("wn-fb-account")
     // Show loading
     AB.showLoading()
 
     // Load and rendering
     settings.load().then(({data})=>{
-      let {longLiveAccessToken} = data[album.id].content
+      // Found the account in data
+      let content = data[accountName]
+      let {domain, longLiveAccessToken} = content
       // Reload album items
-      Ti.Api.Facebook.getAlbumPhotoList({
+      Wn.FbAlbum.reloadAllPhotoList({
         albumId : album.id,
-        access_token : longLiveAccessToken
+        domain,
+        access_token : longLiveAccessToken,
+        force
       }).then((items)=>{
         //console.log(items)
         AB.renderItems(items)
@@ -128,7 +136,8 @@ function CmdInsertAlbum(editor, fbAlbum) {
   let $album = Ti.Dom.createElement({
     tagName : "div",
     attrs : {
-      tiAlbumType : "fb-album"
+      tiAlbumType : "fb-album",
+      wnFbAccount : fbAlbum.account
     },
     className : "wn-media as-fb-album"
   }, $doc)
@@ -155,7 +164,9 @@ function CmdReloadAlbum(editor, settings) {
     return
   }
   // Reload content
-  UpdateFbAlbumTagInnerHtml(editor, $album, settings)
+  UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
+    force: true
+  })
 }
 ////////////////////////////////////////////////////
 function GetCurrentAlbumElement(editor) {
@@ -258,7 +269,7 @@ export default {
           `o id:${oMeta.id}`,
             `@query 'tp:"${this.type}"'`,
             `@read -as json`,
-            `@json -cqn'`].join(" ")
+            `@json -cqn`].join(" ")
         this.metas = await Wn.Sys.exec2(cmdText, {as:"json"})
       }
       // FILE, load the single file
@@ -269,13 +280,9 @@ export default {
 
       // Build Album ID data
       this.data = {}
-      for(let meta of this.metas) {
-        let content = _.get(meta, "content")
-        _.forEach(content.userAlbumIds, aId => {
-          this.data[aId] = {meta, content}
-        })
-
-      }
+      _.forEach(this.metas, ({nm, content})=>{
+        this.data[nm] = content
+      })
 
       return {metas: this.metas, data: this.data}
     }

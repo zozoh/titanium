@@ -300,16 +300,21 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
       //---------------------------------
       > .as-icon {
         @include flex-center;
+        flex: 0 0 auto;
         padding-left:SZ(6);
       }
       //---------------------------------
       > .as-title {
-        flex:1 0 auto;
+        flex:1 1 auto; 
         padding:0 SZ(6);
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       //---------------------------------
       > .as-actions {
         @include flex-align-nowrap;
+        flex: 0 0 auto;
         padding:0 SZ(4) 0 0;
         font-size: .9em;
       }

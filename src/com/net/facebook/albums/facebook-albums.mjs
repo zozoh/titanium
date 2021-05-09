@@ -11,6 +11,8 @@ export default {
     myAlbumCursorAfter : undefined,
     currentAlbumId : undefined,
     myPhotoList : [],
+    myPhotoMoreLoading : false,
+    myPhotoCursorAfter : undefined,
     myFilterKeyword : undefined
   }),
   ///////////////////////////////////////////////////////
@@ -101,7 +103,15 @@ export default {
     },
     //---------------------------------------------------
     CurrentAlbumTitle() {
-      return _.get(this.CurrentAlbum, "name") || "i18n:nil"
+      if(this.hasCurrentAlbum) {
+        let title = _.get(this.CurrentAlbum, "name")
+        let count = '..'
+        if(_.isArray(this.myPhotoList)) {
+          count = this.myPhotoList.length
+        }
+        return `${count}📷 ${title}`
+      }
+      return "i18n:nil"
     },
     //---------------------------------------------------
     FilteredAlbumList() {
@@ -140,6 +150,23 @@ export default {
       return this.profileSelectorIds || this.userId || undefined
     },
     //---------------------------------------------------
+    isLoadingAlbums() {
+      return _.isUndefined(this.myAlbumList) || this.myAlbumMoreLoading
+    },
+    //---------------------------------------------------
+    isLoadingPhotos() {
+      return this.hasCurrentAlbum
+        && (_.isUndefined(this.myPhotoList) || this.myPhotoMoreLoading)
+    },
+    //---------------------------------------------------
+    GuiActionStatus() {
+      return {
+        hasAlbum : this.hasCurrentAlbum,
+        albumLoading : this.isLoadingAlbums,
+        photoReloading : this.isLoadingPhotos
+      }
+    },
+    //---------------------------------------------------
     GuiLayout(){
       return {
         type: "cols",
@@ -169,6 +196,18 @@ export default {
           }, {
             icon : "fab-facebook-square",
             title : this.CurrentAlbumTitle,
+            actions : [{
+              name : "photoReloading",
+              icon : "zmdi-refresh",
+              text : "i18n:refresh",
+              altDisplay: {
+                "icon": "zmdi-refresh zmdi-hc-spin"
+              },
+              enabled : "hasAlbum",
+              action : async ()=>{
+                await this.reloadAllPhotos(true)
+              }
+            }],
             name : "photos",
             body : "photos"
           }]
@@ -197,6 +236,7 @@ export default {
             data: this.FilteredAlbumList,
             idBy: "id",
             multi: false,
+            autoLoadMore: true,
             display: {
               key : "..",
               comType : "ti-obj-thumb",
@@ -241,7 +281,9 @@ export default {
                 "border" : "3px solid #EEE",
                 "border-radius" : "6px"
               }
-            }
+            },
+            showLoadMore : this.myPhotoCursorAfter ? true :　false,
+            moreLoading : this.myPhotoMoreLoading
           }
         }
       }
@@ -255,10 +297,10 @@ export default {
       this.myFilterKeyword = _.trim(val) || undefined
     },
     //---------------------------------------------------
-    OnAlbumSelect({currentId}) {
+    async OnAlbumSelect({currentId}) {
       this.currentAlbumId = currentId
 
-      this.reloadPhotos()
+      await this.reloadAllPhotos()
 
       let album = _.cloneDeep(this.CurrentAlbum)
       if(this.notifyName) {
@@ -281,6 +323,20 @@ export default {
       this.myAlbumList.push(...albums)
       this.myAlbumCursorAfter = _.get(paging, "cursors.after")
       this.myAlbumMoreLoading = false
+    },
+    //---------------------------------------------------
+    async OnPhotoLoadMore() {
+      this.myPhotoMoreLoading = true
+      // Invoke api
+      let {data, paging} = await Ti.Api.Facebook.getAlbumPhotoList({
+        albumId : this.currentAlbumId,
+        access_token : this.myLongLiveAK,
+        after : this.myPhotoCursorAfter
+      })
+      // Set to data
+      this.myPhotoList.push(...data)
+      this.myPhotoCursorAfter = _.get(paging, "cursors.after")
+      this.myPhotoMoreLoading = false
     },
     //---------------------------------------------------
     getAlbum(albumId) {
@@ -332,6 +388,41 @@ export default {
       })
     },
     //---------------------------------------------------
+    async reloadAllPhotos(force=false) {
+      if(!this.hasCurrentAlbum) {
+        this.myPhotoList = []
+        return
+      }
+
+      // Reload from cache
+      let fph;
+      if(!force) {
+        let {filePath, photos} = await Wn.FbAlbum.reloadAllPhotosInCache({
+          albumId: this.currentAlbumId,
+          domain : this.domain
+        })
+        if(!_.isEmpty(photos)) {
+          this.myPhotoList = photos
+          return 
+        }
+        fph = filePath
+      }
+
+      // Read the first page
+      await this.reloadPhotos()
+      // Reaload remain pages
+      while(this.myPhotoCursorAfter) {
+        await this.OnPhotoLoadMore()
+      }
+
+      // Save to cache
+      if(!_.isEmpty(this.myPhotoList) && this.domain) {
+        let input = JSON.stringify(this.myPhotoList)
+        let cmdText = `str > ${fph}`
+        await Wn.Sys.exec2(cmdText, {input})
+      }
+    },
+    //---------------------------------------------------
     async reloadPhotos() {
       if(!this.hasCurrentAlbum) {
         this.myPhotoList = []
@@ -340,18 +431,13 @@ export default {
       // Reload albums
       this.myPhotoList = undefined
 
-      this.myPhotoList = await Ti.Api.Facebook.getAlbumPhotoList({
+      let {data, paging} = await Ti.Api.Facebook.getAlbumPhotoList({
         albumId : this.currentAlbumId,
         access_token : this.myLongLiveAK
       })
 
-      // Save to cache
-      if(!_.isEmpty(this.myPhotoList) && this.domain) {
-        let input = JSON.stringify(this.myPhotoList)
-        let fnm = `album.${this.currentAlbumId}.photos.json`
-        let cmdText = `str > ~/.domain/facebook/${this.domain}/${fnm}`
-        await Wn.Sys.exec2(cmdText, {input})
-      }
+      this.myPhotoList = data
+      this.myPhotoCursorAfter = _.get(paging, "cursors.after")
     },
     //---------------------------------------------------
     async reloadAlbumsCover(albums=[], force=false) {
@@ -378,11 +464,13 @@ export default {
               photoId,
               access_token : this.myLongLiveAK
             })
+            if(photo) {
+              loadedPhoto = true
+              photos[photoId] = photo
+            }
           }
           // Set to album
           if(photo && !_.isEmpty(photo.images)) {
-            loadedPhoto = true
-            photos[photoId] = photo
             Ti.Api.Facebook.setObjPreview(album, photo.images)
           }
         }

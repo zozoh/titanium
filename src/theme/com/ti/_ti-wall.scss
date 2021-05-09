@@ -36,11 +36,12 @@
   }
   //-------------------------------------
   > .as-load-more {
-    padding: SZ(20);
+    padding: SZ(20); transition: margin-bottom 0.3s;
     //-----------------------------------
     > .as-load-more-btn {
       @include flex-align-nowrap($jc:center);
       @include color($color-primary, r, c);
+      transition: height 0.3s;
       padding: SZ(12); cursor: pointer;
       font-size: SZ(16);
       border-radius: SZ(4);

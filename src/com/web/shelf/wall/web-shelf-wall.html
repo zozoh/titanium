@@ -41,4 +41,16 @@
         :class="it.className"
         :style="it.style"></div>
   </div> <!--End Row-->
+  <!--
+    Show load more
+  -->
+  <div
+    v-if="showLoadMore"
+      class="as-load-more">
+      <div class="as-load-more-btn"
+        @click.left="OnClickLoadMore">
+        <span class="as-icon"><TiIcon :value="LoadingMoreBtn.icon"/></span>
+        <span class="as-text">{{LoadingMoreBtn.text | i18n}}</span>
+      </div>
+  </div>
 </div>

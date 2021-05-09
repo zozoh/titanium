@@ -16,6 +16,28 @@
     flex:1 1 auto; 
     > * {width:100%;}
   }
+  //-------------------------------------
+  .as-load-more {
+    padding: SZ(20);
+    //-----------------------------------
+    > .as-load-more-btn {
+      @include flex-align-nowrap($jc:center);
+      @include color($color-primary, r, c);
+      padding: SZ(12); cursor: pointer;
+      font-size: SZ(16);
+      border-radius: SZ(4);
+      //---------------------------------
+      > .as-text {
+        margin:0 SZ(10); letter-spacing: 4px;
+      }
+      //---------------------------------
+      &:hover {
+        @include color($color-secondary, r, c);
+      }
+      //---------------------------------
+    }
+    //-----------------------------------
+  }
   //------------------------------------------
   &.item-space-xl  .wall-tile {padding: SZ(30);}
   &.item-space-lg  .wall-tile {padding: SZ(24);}

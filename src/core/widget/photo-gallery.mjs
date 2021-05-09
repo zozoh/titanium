@@ -98,7 +98,7 @@ class TiPhotoGallery {
   }
   //---------------------------------------
   scrollToNext() {
-    console.log("scrollToNext")
+    //console.log("scrollToNext")
     if(this.currentIndex<(this.data.length-1)) {
       this.scrollTo(this.currentIndex+1)
     }

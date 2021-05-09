@@ -4,6 +4,8 @@
   :layout="GuiLayout"
   :schema="GuiSchema"
   :can-loading="false"
+  :action-status="GuiActionStatus"
   @filter::change="OnFilterChange"
   @albums::select="OnAlbumSelect"
-  @albums::load:more="OnAlbumLoadMore"/>
+  @albums::load:more="OnAlbumLoadMore"
+  @photos::load:more="OnPhotoLoadMore"/>

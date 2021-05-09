@@ -14,6 +14,8 @@ const _M = {
       type : Array,
       default : undefined
     },
+    "showLoadMore" : Boolean,
+    "moreLoading" : Boolean,
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -148,7 +150,20 @@ const _M = {
     //--------------------------------------
     isEmpty() {
       return _.isEmpty(this.WallItems)
-    }
+    },
+    //-----------------------------------------------
+    LoadingMoreBtn() {
+      if(this.moreLoading) {
+        return {
+          icon : "fas-spinner fa-spin",
+          text : "i18n:loading"
+        }
+      }
+      return {
+        icon : "fas-angle-down",
+        text : "i18n:more"
+      }
+    },
     //--------------------------------------
   },
   //////////////////////////////////////////
@@ -158,6 +173,12 @@ const _M = {
       this.$nextTick(()=>{
         this.evalWallColumns(this.$refs.group)
       })
+    },
+    //--------------------------------------
+    OnClickLoadMore() {
+      if(!this.moreLoading) {
+        this.$notify("load:more")
+      }
     },
     //--------------------------------------
     evalWallColumns($wallGroup) {
@@ -171,11 +192,11 @@ const _M = {
       let rows = this.isEmpty ? 0 : 1;
       let last = 0;
       if(!_.isEmpty($divs)) {
-        let top = -1;
+        let top = undefined;
         for(let $div of $divs) {
           let rect = $div.getBoundingClientRect()
           let divTop = parseInt(rect.top)
-          if(top < 0) {
+          if(_.isUndefined(top)) {
             top  = divTop
           }
           if(top == divTop) {

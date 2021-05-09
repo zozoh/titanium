@@ -119,6 +119,10 @@ export default {
     type : Function,
     default: undefined
   },
+  "autoLoadMore": {
+    type : Boolean,
+    default: false
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

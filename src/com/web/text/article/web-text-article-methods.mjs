@@ -208,7 +208,7 @@ export default {
       
       // Redraw
       let items = AB.getItems()
-      console.log(items)
+      //console.log(items)
       AB.renderItems(items)
     }
   },

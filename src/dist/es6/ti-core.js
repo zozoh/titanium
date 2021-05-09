@@ -1,4 +1,4 @@
-// Pack At: 2021-05-07 15:33:19
+// Pack At: 2021-05-09 20:08:23
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9021,7 +9021,7 @@ const {Util} = (function(){
      * The value `=xxxx` in obj will get the value from context
      */
     explainObj(context={}, obj, {
-      evalFunc = false,
+      evalFunc = true,
       iteratee = _.identity
     }={}) {
       //......................................
@@ -14246,7 +14246,7 @@ const {PhotoGallery} = (function(){
     }
     //---------------------------------------
     scrollToNext() {
-      console.log("scrollToNext")
+      //console.log("scrollToNext")
       if(this.currentIndex<(this.data.length-1)) {
         this.scrollTo(this.currentIndex+1)
       }
@@ -15035,13 +15035,14 @@ const Facebook = (function(){
     async getAlbumPhotoList({
       albumId, 
       access_token,
+      after,
       fields = "id,link,name,images,width,height"
     }={}){
       if(!albumId)
         return
       let url = FBAPI(`${albumId}/photos`)
       let reo = await Ti.Http.get(url, {
-        params : {access_token, fields},
+        params : {access_token, fields, after},
         as : "json"
       })
       let {data, paging} = reo
@@ -15051,7 +15052,7 @@ const Facebook = (function(){
         TiApiFacebook.setObjPreview(photo, photo.images)
       }
   
-      return data
+      return {data, paging}
     },
     //----------------------------------------
     async getPhoto({
@@ -15121,7 +15122,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210507.153319",
+  "version" : "1.6-20210509.200823",
   "dev" : false,
   "appName" : null,
   "session" : {},
