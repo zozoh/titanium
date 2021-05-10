@@ -38,13 +38,14 @@ class TiAlbum {
   setData(album={}) {
     let {attrPrefix} = this.setup
     let attrs = this.formatData(album)
+    Ti.Dom.setStyle(this.$el, attrs.style)
+    Ti.Dom.setAttrs(this.$el, _.omit(attrs, "style"), attrPrefix)
     // Clean the attribute for re-count the falls columns
-    _.assign(attrs, {
+    // They will be re-gen when renderPhotos()
+    Ti.Dom.setAttrs(this.$el, {
       tiAlbumFallsWidth : null,
       tiAlbumFallsCount : null,
     })
-    Ti.Dom.setStyle(this.$el, attrs.style)
-    Ti.Dom.setAttrs(this.$el, _.omit(attrs, "style"), attrPrefix)
   }
   //---------------------------------------
   formatData(album={}) {
@@ -271,7 +272,7 @@ class TiAlbum {
     let absCtx = {remBase, base: stubW}
 
     // Get tile width
-    let itW = _.get(album, "tileStyle.width") || "2rem"
+    let itW = _.get(album, "tileStyle.width") || "25%"
     let itWpx = Ti.Css.toAbsPixel(itW, absCtx)
 
     if(itWpx > 0) {

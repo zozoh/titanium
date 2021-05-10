@@ -276,9 +276,14 @@ const TiUtil = {
    * 
    * The key `...` in obj will `_.assign` the value
    * The value `=xxxx` in obj will get the value from context
+   * 
+   * !!! the evalFunc default is false, DONT CHANGE IT AGAIN!!!
+   * !!! Because TiWizard/TiApp open will invoke this func.
+   * !!! some properties (like callback in comConf) should keep
+   * !!! as function.
    */
   explainObj(context={}, obj, {
-    evalFunc = true,
+    evalFunc = false,
     iteratee = _.identity
   }={}) {
     //......................................

@@ -1,4 +1,4 @@
-// Pack At: 2021-05-09 21:50:33
+// Pack At: 2021-05-10 20:27:36
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9019,9 +9019,14 @@ const {Util} = (function(){
      * 
      * The key `...` in obj will `_.assign` the value
      * The value `=xxxx` in obj will get the value from context
+     * 
+     * !!! the evalFunc default is false, DONT CHANGE IT AGAIN!!!
+     * !!! Because TiWizard/TiApp open will invoke this func.
+     * !!! some properties (like callback in comConf) should keep
+     * !!! as function.
      */
     explainObj(context={}, obj, {
-      evalFunc = true,
+      evalFunc = false,
       iteratee = _.identity
     }={}) {
       //......................................
@@ -13494,13 +13499,14 @@ const {Album} = (function(){
     setData(album={}) {
       let {attrPrefix} = this.setup
       let attrs = this.formatData(album)
+      Ti.Dom.setStyle(this.$el, attrs.style)
+      Ti.Dom.setAttrs(this.$el, _.omit(attrs, "style"), attrPrefix)
       // Clean the attribute for re-count the falls columns
-      _.assign(attrs, {
+      // They will be re-gen when renderPhotos()
+      Ti.Dom.setAttrs(this.$el, {
         tiAlbumFallsWidth : null,
         tiAlbumFallsCount : null,
       })
-      Ti.Dom.setStyle(this.$el, attrs.style)
-      Ti.Dom.setAttrs(this.$el, _.omit(attrs, "style"), attrPrefix)
     }
     //---------------------------------------
     formatData(album={}) {
@@ -13727,7 +13733,7 @@ const {Album} = (function(){
       let absCtx = {remBase, base: stubW}
   
       // Get tile width
-      let itW = _.get(album, "tileStyle.width") || "2rem"
+      let itW = _.get(album, "tileStyle.width") || "25%"
       let itWpx = Ti.Css.toAbsPixel(itW, absCtx)
   
       if(itWpx > 0) {
@@ -15122,7 +15128,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210509.215033",
+  "version" : "1.6-20210510.202736",
   "dev" : false,
   "appName" : null,
   "session" : {},

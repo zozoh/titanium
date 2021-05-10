@@ -1,4 +1,4 @@
-// Pack At: 2021-05-09 21:50:33
+// Pack At: 2021-05-10 20:27:36
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -9642,6 +9642,9 @@ function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
   // If insert new album, the params will be passed
   if(!album) {
     album = AB.getData()
+    if(force) {
+      AB.setData(album)
+    }
   } else {
     AB.setData(album)
   }
@@ -19099,7 +19102,6 @@ const _M = {
     },
     //----------------------------------------
     prependDateItem(state, newItem) {
-      console.log("prepend", newItem)
       if(_.isEmpty(newItem))
         return
       let data = state.data

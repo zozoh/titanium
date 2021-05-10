@@ -80,7 +80,6 @@ const _M = {
     },
     //----------------------------------------
     prependDateItem(state, newItem) {
-      console.log("prepend", newItem)
       if(_.isEmpty(newItem))
         return
       let data = state.data

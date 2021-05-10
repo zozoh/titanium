@@ -79,6 +79,9 @@ function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
   // If insert new album, the params will be passed
   if(!album) {
     album = AB.getData()
+    if(force) {
+      AB.setData(album)
+    }
   } else {
     AB.setData(album)
   }
