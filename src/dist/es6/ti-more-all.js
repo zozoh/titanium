@@ -1,4 +1,4 @@
-// Pack At: 2021-05-10 20:27:36
+// Pack At: 2021-05-11 16:17:13
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -3931,7 +3931,7 @@ const _M = {
     },
     //-----------------------------------------------
     tryNotifyChanged() {
-      console.log("tryNotifyChanged")
+      //console.log("tryNotifyChanged")
       let val = this.genValue()
       if(!_.isEqual(val, this.value)) {
         //console.log(val)
@@ -64786,7 +64786,7 @@ Ti.Preload("ti/com/wn/obj/form/_com.json", {
 // JOIN <wn-obj-icon.html> ti/com/wn/obj/icon/wn-obj-icon.html
 //========================================
 Ti.Preload("ti/com/wn/obj/icon/wn-obj-icon.html", `<ti-icon 
-  class="wn-obj-icon" 
+  class="wn-obj-icon img-contain" 
   :class="topClass"
   :value="theIcon"/>`);
 //========================================

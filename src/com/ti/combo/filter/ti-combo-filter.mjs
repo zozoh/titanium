@@ -127,7 +127,7 @@ const _M = {
     },
     //-----------------------------------------------
     tryNotifyChanged() {
-      console.log("tryNotifyChanged")
+      //console.log("tryNotifyChanged")
       let val = this.genValue()
       if(!_.isEqual(val, this.value)) {
         //console.log(val)

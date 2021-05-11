@@ -1,4 +1,4 @@
-// Pack At: 2021-05-10 20:27:36
+// Pack At: 2021-05-11 16:17:13
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -14965,42 +14965,47 @@ const Facebook = (function(){
   ////////////////////////////////////////////
   /***
    * @param images{Array} : [{height,width,source:"https://xxx"}]
-   * @param thumbMinHeight{Integer} :
+   * @param thumbMinSize{Integer} :
    *  The min height, -1 mean the max one, 0 mean the min one.
    *  If a `>0` number has been given, it will find the closest image
    */
-  function getThumbImage(images=[], thumbMinHeight=320) {
+  function getThumbImage(images=[], thumbMinSize=500) {
     // Find the closest one
     let minImg;
     let maxImg;
     let fitImg;
     for(let img of images) {
+      // Get the key
+      let szKey = "height"
+      if(img.width < img.height) {
+        szKey = "width"
+      }
       // Min image
       if(!minImg) {
         minImg = img
         fitImg = img
       }
-      else if(img.height < minImg.height) {
+      else if(img[szKey] < minImg[szKey]) {
         minImg = img
       }
       // Fit image
-      if(thumbMinHeight > 0
-        && fitImg.height > thumbMinHeight
-        && img.height <= thumbMinHeight) {
+      if(thumbMinSize > 0
+        && fitImg[szKey] > thumbMinSize
+        && img[szKey] <= thumbMinSize) {
         fitImg = img
       }
       // Max Image
       if(!maxImg) {
         maxImg = img
       }
-      else if(img.height > maxImg.height) {
+      else if(img[szKey] > maxImg[szKey]) {
         maxImg = img
       }
     }
-    if(thumbMinHeight < 0) {
+    if(thumbMinSize < 0) {
       return maxImg
     }
-    if(thumbMinHeight == 0) {
+    if(thumbMinSize == 0) {
       return minImg
     }
     return fitImg
@@ -15008,9 +15013,9 @@ const Facebook = (function(){
   //------------------------------------------
   function setImages(obj, images=[], {
     preview = {type : "font", value : "fas-images"},
-    thumbMinHeight = 320
+    thumbMinSize = 500
   }={}) {
-    let thumbImg = getThumbImage(images, thumbMinHeight)
+    let thumbImg = getThumbImage(images, thumbMinSize)
     let realImg =  getThumbImage(images, -1)
     obj.width = _.get(realImg, "width")
     obj.height = _.get(realImg, "height")
@@ -15128,7 +15133,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210510.202736",
+  "version" : "1.6-20210511.161713",
   "dev" : false,
   "appName" : null,
   "session" : {},
