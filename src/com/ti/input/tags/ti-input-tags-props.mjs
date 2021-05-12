@@ -45,7 +45,7 @@ export default {
   },
   "tagItemDefaultIcon" : {
     type : String,
-    default : undefined
+    default : null
   },
   "tagOptionDefaultIcon" : {
     type : String,

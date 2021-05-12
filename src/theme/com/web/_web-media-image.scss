@@ -61,12 +61,16 @@
   //-----------------------------------------
   .as-tags {
     @include pos-abs($l:0,$t:0);
+    @include flex-align-nowrap;
     font-size: SZ(10);
   }
   //-----------------------------------------
   .as-tag-item {
     @include color($color-primary, r, c);
-    padding: SZ(6) SZ(6);    
+    padding: SZ(6) SZ(6);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
   //-----------------------------------------
   .as-text {
@@ -83,7 +87,7 @@
     //---------------------------------------
     .as-brief {
       @include border(1px, solid, shallow, top);
-      display: block;
+      display: block; width:100%;
       padding: 1em 0; margin-top: 1em;
       font-size: 0.9em; opacity: 0.7; 
       font-weight: normal;

@@ -141,6 +141,59 @@ const OBJ = {
     }
   },
   //--------------------------------------------
+  async doBatchUpdate({reloadWhenDone=true}={}) {
+    let list = this.getCheckedItems()
+    // Guard
+    if(_.isEmpty(list)) {
+      return await Ti.Toast.Open('i18n:nil-item', "warn")
+    }
+    // Open batch update form
+    let meta = await Ti.App.Open({
+      title  : "i18n:edit",
+      width  : "80%",
+      height : "80%",
+      result : {},
+      comType : "TiTextJson",
+      components: [
+        "@com:ti/text/json"
+      ]
+    })
+    // Parse
+    if(_.isString(meta)) {
+      meta = JSON.parse(meta)
+    }
+    // User cancel
+    if(_.isEmpty(meta)) {
+      return
+    }
+
+    // Update each items
+    let metaJson = JSON.stringify(meta)
+    for(let it of list) {
+      // Duck check
+      if(!it || !it.id || !it.nm)
+        continue
+      // Ignore obsolete item
+      if(it.__is && (it.__is.loading || it.__is.removed))
+        continue
+      
+      // Mark item is processing
+      this.setItemStatus(it.id, "loading")
+
+      // Update
+      await Wn.Sys.exec2(`o id:${it.id} @update @json -cqn`, {
+        as:"json", input: metaJson
+      })
+
+      this.setItemStatus(it.id, "ok")
+    }
+
+    // Reload
+    if(reloadWhenDone) {
+      await this._run("reload")
+    }
+  },
+  //--------------------------------------------
   async doDelete(confirm=false, reloadWhenDone=true) {
     let list = this.getCheckedItems()
     // Guard

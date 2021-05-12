@@ -32,7 +32,8 @@
               :value="bdg.value"/>
           <!--Text-->
           <span
-            v-else-if="'text' == bdg.type">{{bdg.value}}</span>
+            v-else-if="'text' == bdg.type"
+              :title="bdg.value">{{bdg.value}}</span>
       </div>
     </div>
     <!--Process bar-->

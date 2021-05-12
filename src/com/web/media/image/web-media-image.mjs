@@ -34,6 +34,9 @@ export default {
       type: [String, Boolean, Object],
       default: undefined
     },
+    "link": {
+      type: String
+    },
     "href": {
       type: String
     },
@@ -281,6 +284,9 @@ export default {
     },
     //--------------------------------------
     isHasLink() {
+      if(this.link) {
+        return true
+      }
       // Auto
       if(_.isUndefined(this.hasLink)) {
         return this.href || _.get(this.navTo, "value") ? true : false
@@ -289,6 +295,9 @@ export default {
     },
     //--------------------------------------
     TheHref() {
+      if(this.link) {
+        return this.link
+      }
       if(this.isHasLink) {
         let href = this.href
         if(_.isPlainObject(this.src)) {
@@ -331,7 +340,7 @@ export default {
       if(!this.isHasLink) {
         return
       }
-      if(this.navTo && !this.newtab) {
+      if(this.navTo && !this.newtab && !this.link) {
         evt.preventDefault()
         this.$notify("nav:to", this.navTo)
       }

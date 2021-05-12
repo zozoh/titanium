@@ -4,6 +4,10 @@
   padding: 1em 0; 
   position: relative;
   //-----------------------------------------
+  &.show-backward {
+    padding-left: SZ(60);
+  }
+  //-----------------------------------------
   .as-icon {
     @include flex-center;
     flex:0 0 auto;
@@ -12,11 +16,11 @@
   }
   //-----------------------------------------
   .as-backward {
-    margin-right: SZ(12);
-    transition: 0.5s;
+    @include pos-abs($l:0,$t:0,$b:0,$w:SZ(50));
+    @include flex-center;
     &:hover {
-      @include color($color-primary, c);
-      transform: translateX(-3px);
+      @include color($color-primary, r, c);
+    
     }
   }
   //-----------------------------------------

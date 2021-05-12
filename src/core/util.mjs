@@ -1038,6 +1038,20 @@ const TiUtil = {
         return arg
     }
   },
+  notEmpty(o) {
+    return !_.isEmpty(o)
+  },
+  notNil(o) {
+    return !Ti.Util.isNil(o)
+  },
+  notEmptyOf(o, key) {
+    let v = _.get(o, key)
+    return !_.isEmpty(v)
+  },
+  notNilOf(o, key) {
+    let v = _.get(o, key)
+    return !Ti.Util.isNil(v)
+  },
   /***
    * Test given input is `null` or `undefined`
    * 

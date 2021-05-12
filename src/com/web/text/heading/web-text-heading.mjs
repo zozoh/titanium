@@ -36,7 +36,9 @@ export default {
   //////////////////////////////////////////
   computed: {
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "show-backward": this.showBackward
+      })
     },
     //--------------------------------------
     TitleClass() {

@@ -39,7 +39,7 @@ export default {
       type : [String, Array, Object]
     },
     "currentId" : String,
-    "objMatch" : Object,
+    "objMatch" : [Object, Function],
     "objFilter" : {
       type : [Function, Array, Object]
     },
@@ -172,7 +172,7 @@ export default {
     async OnNodeOpened({id, leaf, path, rawData}) {
       let hie = this.getHierarchyById(id)
       if(hie) {
-        // console.log(hie)
+        //console.log(hie)
         // Not need reload
         if(!_.isEmpty(_.get(hie.node, this.childrenBy))) {
           return
@@ -310,7 +310,12 @@ export default {
         return
 
       // Get match
-      let match = _.assign({}, this.objMatch)
+      let match = {}
+      if(_.isFunction(this.objMatch)) {
+        _.assign(match, this.objMatch(obj))
+      } else {
+        _.assign(match, this.objMatch)
+      }
       _.set(match, this.referBy, prVal)
 
       // Reload top 

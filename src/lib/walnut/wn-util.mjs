@@ -74,7 +74,7 @@ const WnUtil = {
   getObjIcon(meta, dft) {
     if(!meta)
       return dft
-    return meta.icon || Ti.Icons.get(meta)
+    return meta.icon || Ti.Icons.get(meta, dft)
   },
   /***
    * Get icon or thumb for a WnObj

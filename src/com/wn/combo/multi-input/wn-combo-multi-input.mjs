@@ -45,15 +45,15 @@ export default {
         return this.tagMapping
       }
       return {
-        text  : "title|nm",
+        text  : "title|text|nm",
         icon  : "icon",
-        value : "id"
+        value : "id|value"
       }
     },
     //------------------------------------------------
     TheTagItemIconBy() {
       return this.tagItemIconBy
-               || (meta => Wn.Util.getObjIcon(meta))
+               || (meta => Wn.Util.getObjIcon(meta, this.tagItemDefaultIcon))
      },
     //---------------------------------------------------
     TheDropDisplay() {
