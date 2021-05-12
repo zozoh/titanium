@@ -105,8 +105,8 @@ const _M = {
     OnClickTop($event) {
       if(this.cancelable) {
         // Click The body or top to cancel the row selection
-        if(Ti.Dom.hasOneClass($event.target,
-            'ti-wall', 'wall-tile')) {
+        if(Ti.Dom.is($event.target, '.ti-wall, .wall-tile, .wall-con')
+           || Ti.Dom.closest($event.target, ".ti-loading")) {
           this.cancelRow()
         }
       }

@@ -1,85 +1,4 @@
 /////////////////////////////////////////////////
-const TABLE_FIELDS = {
-  //---------------------------------------------
-  "title" : ()=>({
-    title : "i18n:wn-key-title",
-    display : [Wn.Obj.getObjThumbDisplay("rawData"), "title|nm"]
-  }),
-  //---------------------------------------------
-  "tp" : {
-    title : "i18n:wn-key-tp",
-    width : -80,
-    display : "rawData.tp::as-tip"
-  },
-  //---------------------------------------------
-  "c" : {
-    title : "i18n:wn-key-c",
-    width : -150,
-    display : "rawData.c::as-tip"
-  },
-  //---------------------------------------------
-  "m" : {
-    title : "i18n:wn-key-",
-    width : -150,
-    display : "rawData.c::as-tip"
-  },
-  //---------------------------------------------
-  "g" : {
-    title : "i18n:wn-key-g",
-    width : -150,
-    display : "rawData.g::as-tip"
-  },
-  //---------------------------------------------
-  "md" : {
-    title : "i18n:wn-key-md",
-    width : 120,
-    display : {
-      key : "rawData.md",
-      transformer : "Wn.Obj.modeToStr",
-      comConf : {
-        className : "as-tip"
-      }
-    }
-  },
-  //---------------------------------------------
-  "len" : {
-    title : "i18n:wn-key-len",
-    width : -100,
-    display : {
-      key : "rawData.len",
-      transformer : "Ti.S.sizeText",
-      comConf : {
-        className : "as-tip-block align-right",
-      }
-    }
-  },
-  //---------------------------------------------
-  "ct" : {
-    title : "i18n:wn-key-ct",
-    width : -100,
-    display : {
-      key : "rawData.ct",
-      transformer : "Ti.DateTime.timeText",
-      comConf : {
-        className : "as-tip-block align-right",
-      }
-    }
-  },
-  //---------------------------------------------
-  "lm" : {
-    title : "i18n:wn-key-lm",
-    width : -100,
-    display : {
-      key : "rawData.lm",
-      transformer : "Ti.DateTime.timeText",
-      comConf : {
-        className : "as-tip-block align-right",
-      }
-    }
-  },
-  //---------------------------------------------
-}
-/////////////////////////////////////////////////
 const _M = {
   ////////////////////////////////////////////////
   data: ()=>({
@@ -119,17 +38,7 @@ const _M = {
         table : ()=>({
           rowClassBy : "->is-${visibility}",
           fields : _.map(this.tableFields, key=>{
-            let fld = _.get(TABLE_FIELDS, key)
-            if(_.isFunction(fld)) {
-              return fld(key)
-            }
-            if(!fld) {
-              if(_.isString(key)) {
-                return {title:key, display:key}
-              }
-              return key
-            }
-            return fld
+            return Wn.Obj.getTableField(key)
           })
         }),
         wall : ()=>({

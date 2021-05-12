@@ -90,6 +90,12 @@ export default {
         }
       })
     },
+    "itemClassName" : {
+      type : String
+    },
+    "itemBadges" : {
+      type : [Object, Function]
+    },
     "pager" : {
       type : Object,
       default : ()=>({
@@ -123,6 +129,8 @@ export default {
       _.merge(com, {
         comConf : {
           onInit : this.OnListInit,
+          itemClassName: this.itemClassName,
+          itemBadges: this.itemBadges,
           viewType : this.viewType,
           exposeHidden : this.exposeHidden,
           tableFields : this.tableFields
