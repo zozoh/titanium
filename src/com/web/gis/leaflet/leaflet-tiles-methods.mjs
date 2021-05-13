@@ -27,7 +27,7 @@ const TILES = {
   "GOOGLE_VECTOR" : {
     tmpl : "http://mt{s}.google.cn/vt/lyrs=m&scale=2&hl={lang}&gl=cn&x={x}&y={y}&z={z}",
     vars : {subdomains: "0123", lang: "zh-CN"},
-    coords : "GCJ02"
+    coords : "WGS84"
   },
   // 谷歌路网：
   "GOOGLE_ROADMAP" : {

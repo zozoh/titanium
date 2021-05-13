@@ -1,4 +1,4 @@
-// Pack At: 2021-05-13 18:11:56
+// Pack At: 2021-05-14 01:32:19
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12894,6 +12894,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //
     //--------------------------------------
     evalMapData({val, valType="obj", dftLo}={}) {
+      console.log("hahah")
       // Format the value
       return ({
         //..................................
@@ -12922,6 +12923,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         "pair" : (latlng)=>{
           latlng = latlng || Ti.GIS.objToLatlngPair(dftLo)
           if(this.coords_value_to_tiles) {
+            console.log(this.coords_value_to_tiles)
             return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
           }
           return latlng
@@ -39440,7 +39442,7 @@ const TILES = {
   "GOOGLE_VECTOR" : {
     tmpl : "http://mt{s}.google.cn/vt/lyrs=m&scale=2&hl={lang}&gl=cn&x={x}&y={y}&z={z}",
     vars : {subdomains: "0123", lang: "zh-CN"},
-    coords : "GCJ02"
+    coords : "WGS84"
   },
   // 谷歌路网：
   "GOOGLE_ROADMAP" : {

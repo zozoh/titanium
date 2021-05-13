@@ -224,6 +224,7 @@ export default {
     //
     //--------------------------------------
     evalMapData({val, valType="obj", dftLo}={}) {
+      console.log("hahah")
       // Format the value
       return ({
         //..................................
@@ -252,6 +253,7 @@ export default {
         "pair" : (latlng)=>{
           latlng = latlng || Ti.GIS.objToLatlngPair(dftLo)
           if(this.coords_value_to_tiles) {
+            console.log(this.coords_value_to_tiles)
             return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
           }
           return latlng
