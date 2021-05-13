@@ -231,7 +231,6 @@ export default {
     },
     //--------------------------------------
     OnContentReady() {
-      console.log("OnContentReady")
       this.dockPanelToReferElement()
     },
     //--------------------------------------

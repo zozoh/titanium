@@ -32,9 +32,13 @@
   &.text-hover-full {
     .as-text {
       transition: 0.5s; 
+      align-items: flex-end;
+      align-content: flex-end;
     }
-    .as-text:hover .as-title {
-      white-space: normal; overflow: hidden;
+    .as-text:hover {
+      .as-title {
+        white-space: normal; overflow: hidden;
+      }
     }
   }
   //-----------------------------------------
