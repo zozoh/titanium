@@ -35,6 +35,7 @@
     //-------------------------------------
     > .as-indicator {
       flex:0 0 auto;
+      z-index: 1;
       ul {
         @include flex-align($jc:center);
         padding: SZ(10);

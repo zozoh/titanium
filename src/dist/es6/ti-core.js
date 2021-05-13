@@ -1,4 +1,4 @@
-// Pack At: 2021-05-11 16:17:13
+// Pack At: 2021-05-13 14:20:49
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9781,6 +9781,20 @@ const {Util} = (function(){
           return arg
       }
     },
+    notEmpty(o) {
+      return !_.isEmpty(o)
+    },
+    notNil(o) {
+      return !Ti.Util.isNil(o)
+    },
+    notEmptyOf(o, key) {
+      let v = _.get(o, key)
+      return !_.isEmpty(v)
+    },
+    notNilOf(o, key) {
+      let v = _.get(o, key)
+      return !Ti.Util.isNil(v)
+    },
     /***
      * Test given input is `null` or `undefined`
      * 
@@ -15133,7 +15147,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210511.161713",
+  "version" : "1.6-20210513.142049",
   "dev" : false,
   "appName" : null,
   "session" : {},

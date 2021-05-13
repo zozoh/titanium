@@ -1,4 +1,4 @@
-// Pack At: 2021-05-11 16:17:13
+// Pack At: 2021-05-13 14:20:49
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -891,87 +891,6 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/adaptlist/wn-adaptlist.mjs'] = (function(){
 /////////////////////////////////////////////////
-const TABLE_FIELDS = {
-  //---------------------------------------------
-  "title" : ()=>({
-    title : "i18n:wn-key-title",
-    display : [Wn.Obj.getObjThumbDisplay("rawData"), "title|nm"]
-  }),
-  //---------------------------------------------
-  "tp" : {
-    title : "i18n:wn-key-tp",
-    width : -80,
-    display : "rawData.tp::as-tip"
-  },
-  //---------------------------------------------
-  "c" : {
-    title : "i18n:wn-key-c",
-    width : -150,
-    display : "rawData.c::as-tip"
-  },
-  //---------------------------------------------
-  "m" : {
-    title : "i18n:wn-key-",
-    width : -150,
-    display : "rawData.c::as-tip"
-  },
-  //---------------------------------------------
-  "g" : {
-    title : "i18n:wn-key-g",
-    width : -150,
-    display : "rawData.g::as-tip"
-  },
-  //---------------------------------------------
-  "md" : {
-    title : "i18n:wn-key-md",
-    width : 120,
-    display : {
-      key : "rawData.md",
-      transformer : "Wn.Obj.modeToStr",
-      comConf : {
-        className : "as-tip"
-      }
-    }
-  },
-  //---------------------------------------------
-  "len" : {
-    title : "i18n:wn-key-len",
-    width : -100,
-    display : {
-      key : "rawData.len",
-      transformer : "Ti.S.sizeText",
-      comConf : {
-        className : "as-tip-block align-right",
-      }
-    }
-  },
-  //---------------------------------------------
-  "ct" : {
-    title : "i18n:wn-key-ct",
-    width : -100,
-    display : {
-      key : "rawData.ct",
-      transformer : "Ti.DateTime.timeText",
-      comConf : {
-        className : "as-tip-block align-right",
-      }
-    }
-  },
-  //---------------------------------------------
-  "lm" : {
-    title : "i18n:wn-key-lm",
-    width : -100,
-    display : {
-      key : "rawData.lm",
-      transformer : "Ti.DateTime.timeText",
-      comConf : {
-        className : "as-tip-block align-right",
-      }
-    }
-  },
-  //---------------------------------------------
-}
-/////////////////////////////////////////////////
 const _M = {
   ////////////////////////////////////////////////
   data: ()=>({
@@ -1011,17 +930,7 @@ const _M = {
         table : ()=>({
           rowClassBy : "->is-${visibility}",
           fields : _.map(this.tableFields, key=>{
-            let fld = _.get(TABLE_FIELDS, key)
-            if(_.isFunction(fld)) {
-              return fld(key)
-            }
-            if(!fld) {
-              if(_.isString(key)) {
-                return {title:key, display:key}
-              }
-              return key
-            }
-            return fld
+            return Wn.Obj.getTableField(key)
           })
         }),
         wall : ()=>({
@@ -8858,6 +8767,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         const lastIndex = list.length - 1
         for(let index=0; index<list.length; index++){
           let val = list[index]
+          console.log(index, val)
           let tag;
           // Auto mapping plain object
           if(_.isPlainObject(val)) {
@@ -20058,7 +19968,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : [String, Array, Object]
     },
     "currentId" : String,
-    "objMatch" : Object,
+    "objMatch" : [Object, Function],
     "objFilter" : {
       type : [Function, Array, Object]
     },
@@ -20191,7 +20101,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     async OnNodeOpened({id, leaf, path, rawData}) {
       let hie = this.getHierarchyById(id)
       if(hie) {
-        // console.log(hie)
+        //console.log(hie)
         // Not need reload
         if(!_.isEmpty(_.get(hie.node, this.childrenBy))) {
           return
@@ -20329,7 +20239,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
         return
 
       // Get match
-      let match = _.assign({}, this.objMatch)
+      let match = {}
+      if(_.isFunction(this.objMatch)) {
+        _.assign(match, this.objMatch(obj))
+      } else {
+        _.assign(match, this.objMatch)
+      }
       _.set(match, this.referBy, prVal)
 
       // Reload top 
@@ -22013,6 +21928,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: [String, Boolean, Object],
       default: undefined
     },
+    "link": {
+      type: String
+    },
     "href": {
       type: String
     },
@@ -22260,6 +22178,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     isHasLink() {
+      if(this.link) {
+        return true
+      }
       // Auto
       if(_.isUndefined(this.hasLink)) {
         return this.href || _.get(this.navTo, "value") ? true : false
@@ -22268,6 +22189,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     TheHref() {
+      if(this.link) {
+        return this.link
+      }
       if(this.isHasLink) {
         let href = this.href
         if(_.isPlainObject(this.src)) {
@@ -22310,7 +22234,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if(!this.isHasLink) {
         return
       }
-      if(this.navTo && !this.newtab) {
+      if(this.navTo && !this.newtab && !this.link) {
         evt.preventDefault()
         this.$notify("nav:to", this.navTo)
       }
@@ -24659,6 +24583,59 @@ const OBJ = {
     // reset the status
     finally {
       this.setItemStatus(it.id, null)
+    }
+  },
+  //--------------------------------------------
+  async doBatchUpdate({reloadWhenDone=true}={}) {
+    let list = this.getCheckedItems()
+    // Guard
+    if(_.isEmpty(list)) {
+      return await Ti.Toast.Open('i18n:nil-item', "warn")
+    }
+    // Open batch update form
+    let meta = await Ti.App.Open({
+      title  : "i18n:edit",
+      width  : "80%",
+      height : "80%",
+      result : {},
+      comType : "TiTextJson",
+      components: [
+        "@com:ti/text/json"
+      ]
+    })
+    // Parse
+    if(_.isString(meta)) {
+      meta = JSON.parse(meta)
+    }
+    // User cancel
+    if(_.isEmpty(meta)) {
+      return
+    }
+
+    // Update each items
+    let metaJson = JSON.stringify(meta)
+    for(let it of list) {
+      // Duck check
+      if(!it || !it.id || !it.nm)
+        continue
+      // Ignore obsolete item
+      if(it.__is && (it.__is.loading || it.__is.removed))
+        continue
+      
+      // Mark item is processing
+      this.setItemStatus(it.id, "loading")
+
+      // Update
+      await Wn.Sys.exec2(`o id:${it.id} @update @json -cqn`, {
+        as:"json", input: metaJson
+      })
+
+      this.setItemStatus(it.id, "ok")
+    }
+
+    // Reload
+    if(reloadWhenDone) {
+      await this._run("reload")
     }
   },
   //--------------------------------------------
@@ -31797,8 +31774,8 @@ const _M = {
     OnClickTop($event) {
       if(this.cancelable) {
         // Click The body or top to cancel the row selection
-        if(Ti.Dom.hasOneClass($event.target,
-            'ti-wall', 'wall-tile')) {
+        if(Ti.Dom.is($event.target, '.ti-wall, .wall-tile, .wall-con')
+           || Ti.Dom.closest($event.target, ".ti-loading")) {
           this.cancelRow()
         }
       }
@@ -32826,7 +32803,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
   computed: {
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "show-backward": this.showBackward
+      })
     },
     //--------------------------------------
     TitleClass() {
@@ -40108,7 +40087,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "tagItemDefaultIcon" : {
     type : String,
-    default : undefined
+    default : null
   },
   "tagOptionDefaultIcon" : {
     type : String,
@@ -46354,6 +46333,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
       })
     },
+    "itemClassName" : {
+      type : String
+    },
+    "itemBadges" : {
+      type : [Object, Function]
+    },
     "pager" : {
       type : Object,
       default : ()=>({
@@ -46387,6 +46372,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       _.merge(com, {
         comConf : {
           onInit : this.OnListInit,
+          itemClassName: this.itemClassName,
+          itemBadges: this.itemBadges,
           viewType : this.viewType,
           exposeHidden : this.exposeHidden,
           tableFields : this.tableFields
@@ -51158,15 +51145,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
         return this.tagMapping
       }
       return {
-        text  : "title|nm",
+        text  : "title|text|nm",
         icon  : "icon",
-        value : "id"
+        value : "id|value"
       }
     },
     //------------------------------------------------
     TheTagItemIconBy() {
       return this.tagItemIconBy
-               || (meta => Wn.Util.getObjIcon(meta))
+               || (meta => Wn.Util.getObjIcon(meta, this.tagItemDefaultIcon))
      },
     //---------------------------------------------------
     TheDropDisplay() {
@@ -58930,7 +58917,8 @@ Ti.Preload("ti/com/ti/obj/thumb/ti-obj-thumb.html", `<div class="ti-obj-thumb"
               :value="bdg.value"/>
           <!--Text-->
           <span
-            v-else-if="'text' == bdg.type">{{bdg.value}}</span>
+            v-else-if="'text' == bdg.type"
+              :title="bdg.value">{{bdg.value}}</span>
       </div>
     </div>
     <!--Process bar-->
