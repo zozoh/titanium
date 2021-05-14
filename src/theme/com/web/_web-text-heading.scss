@@ -1,11 +1,11 @@
 .web-text-heading {
   @include flex-align-center;
   @include noselect;
-  padding: 1em 0; 
+  padding: 1em; 
   position: relative;
   //-----------------------------------------
   &.show-backward {
-    padding-left: SZ(60);
+    padding-left: SZ(50);
   }
   //-----------------------------------------
   .as-icon {
@@ -27,7 +27,7 @@
   .as-title {
     @include flex-align-nowrap;
     flex:1 1 auto; font-size:1.2em; cursor: default;
-    text-decoration: none; 
+    text-decoration: none;  margin:0 .5em;
     //---------------------------------------
     &:hover {text-decoration: none;}
     //---------------------------------------
@@ -72,9 +72,9 @@
         text-decoration: underline;
         img {
           border-color: map-get($color-line, shallow);
-          opacity: 1; border-radius: 6px;
+          opacity: 1; border-radius: 8px;
           box-shadow: 1px 1px 6px map-get($color-shadow, thin);
-          transform:scale(1.1) translateY(-2px);
+          transform:translateX(-2px);
         }
       }
       //-------------------------------------
