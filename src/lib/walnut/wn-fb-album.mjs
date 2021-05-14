@@ -1,17 +1,27 @@
 ////////////////////////////////////////////
 const WnFbAlbum = {
   //----------------------------------------
+  getAlbumPhotoCacheInfo({albumId,
+    domain}) {
+    let fnm = `album.${albumId}.photos.json`
+    let fph = `~/.domain/facebook/${domain}/${fnm}`
+    return {
+      fileName: fnm,
+      filePath: fph
+    }
+  },
+  //----------------------------------------
   async reloadAllPhotosInCache({
     albumId,
     domain
   }={}) {
     // Reload from cache
-    let fnm = `album.${albumId}.photos.json`
-    let fph = `~/.domain/facebook/${domain}/${fnm}`
-    let re = {
-      fileName: fnm,
-      filePath: fph
-    }
+    let re = WnFbAlbum.getAlbumPhotoCacheInfo({
+      albumId,
+      domain
+    })
+    let fnm = re.fileName
+    let fph = re.filePath
     re.oCache = await Wn.Io.loadMeta(fph)
     if(re.oCache) {
       re.photos = await Wn.Io.loadContent(re.oCache, {as:"json"})
@@ -37,6 +47,12 @@ const WnFbAlbum = {
         return photos
       }
       fph = filePath
+    } else {
+      let {filePath} = WnFbAlbum.getAlbumPhotoCacheInfo({
+        albumId,
+        domain
+      })
+      fph = filePath
     }
     // Reload
     //console.log("reload force!!!")
@@ -60,6 +76,7 @@ const WnFbAlbum = {
 
     // Save to cache
     if(!_.isEmpty(photos) && domain) {
+      //console.log("save to cache", fph)
       let input = JSON.stringify(photos)
       let cmdText = `str > ${fph}`
       await Wn.Sys.exec2(cmdText, {input})

@@ -1,4 +1,4 @@
-// Pack At: 2021-05-14 13:10:17
+// Pack At: 2021-05-14 14:28:13
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -14988,6 +14988,7 @@ const Facebook = (function(){
     let minImg;
     let maxImg;
     let fitImg;
+    //console.log("getThumbImage", thumbMinSize)
     for(let img of images) {
       // Get the key
       let szKey = "height"
@@ -15147,7 +15148,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210514.131017",
+  "version" : "1.6-20210514.142813",
   "dev" : false,
   "appName" : null,
   "session" : {},

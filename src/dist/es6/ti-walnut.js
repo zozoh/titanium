@@ -1,4 +1,4 @@
-// Pack At: 2021-05-14 13:10:17
+// Pack At: 2021-05-14 14:28:13
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -3775,17 +3775,27 @@ const FbAlbum = (function(){
   ////////////////////////////////////////////
   const WnFbAlbum = {
     //----------------------------------------
+    getAlbumPhotoCacheInfo({albumId,
+      domain}) {
+      let fnm = `album.${albumId}.photos.json`
+      let fph = `~/.domain/facebook/${domain}/${fnm}`
+      return {
+        fileName: fnm,
+        filePath: fph
+      }
+    },
+    //----------------------------------------
     async reloadAllPhotosInCache({
       albumId,
       domain
     }={}) {
       // Reload from cache
-      let fnm = `album.${albumId}.photos.json`
-      let fph = `~/.domain/facebook/${domain}/${fnm}`
-      let re = {
-        fileName: fnm,
-        filePath: fph
-      }
+      let re = WnFbAlbum.getAlbumPhotoCacheInfo({
+        albumId,
+        domain
+      })
+      let fnm = re.fileName
+      let fph = re.filePath
       re.oCache = await Wn.Io.loadMeta(fph)
       if(re.oCache) {
         re.photos = await Wn.Io.loadContent(re.oCache, {as:"json"})
@@ -3811,6 +3821,12 @@ const FbAlbum = (function(){
           return photos
         }
         fph = filePath
+      } else {
+        let {filePath} = WnFbAlbum.getAlbumPhotoCacheInfo({
+          albumId,
+          domain
+        })
+        fph = filePath
       }
       // Reload
       //console.log("reload force!!!")
@@ -3834,6 +3850,7 @@ const FbAlbum = (function(){
   
       // Save to cache
       if(!_.isEmpty(photos) && domain) {
+        //console.log("save to cache", fph)
         let input = JSON.stringify(photos)
         let cmdText = `str > ${fph}`
         await Wn.Sys.exec2(cmdText, {input})
@@ -3849,7 +3866,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210514.131018"
+const WALNUT_VERSION = "1.2-20210514.142813"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

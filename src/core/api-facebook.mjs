@@ -10,6 +10,7 @@ function getThumbImage(images=[], thumbMinSize=500) {
   let minImg;
   let maxImg;
   let fitImg;
+  //console.log("getThumbImage", thumbMinSize)
   for(let img of images) {
     // Get the key
     let szKey = "height"
