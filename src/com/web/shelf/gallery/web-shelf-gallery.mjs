@@ -144,6 +144,12 @@ const _M = {
       this.myHoverIndex = index
     },
     //--------------------------------------
+    getItemClass(index) {
+      return {
+        "is-current" : index == this.myHoverIndex
+      }
+    },
+    //--------------------------------------
     getItemStyle(index) {
       return _.get(this.ItemStyles, index)
     },

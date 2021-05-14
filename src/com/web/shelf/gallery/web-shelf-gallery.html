@@ -11,6 +11,7 @@
         :key="it.index"
         :it-index="it.index"
         class="as-gallary-item"
+        :class="getItemClass(it.index)"
         :style="getItemStyle(it.index)"
         @mouseenter="OnMouseEnterItem(it)">
       <!--

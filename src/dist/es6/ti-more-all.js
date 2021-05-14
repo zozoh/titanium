@@ -1,4 +1,4 @@
-// Pack At: 2021-05-14 01:32:19
+// Pack At: 2021-05-14 13:10:17
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -23731,6 +23731,12 @@ const _M = {
     //--------------------------------------
     OnMouseEnterItem({index}) {
       this.myHoverIndex = index
+    },
+    //--------------------------------------
+    getItemClass(index) {
+      return {
+        "is-current" : index == this.myHoverIndex
+      }
     },
     //--------------------------------------
     getItemStyle(index) {
@@ -62707,6 +62713,7 @@ Ti.Preload("ti/com/web/shelf/gallery/web-shelf-gallery.html", `<div class="web-s
         :key="it.index"
         :it-index="it.index"
         class="as-gallary-item"
+        :class="getItemClass(it.index)"
         :style="getItemStyle(it.index)"
         @mouseenter="OnMouseEnterItem(it)">
       <!--
@@ -63333,7 +63340,8 @@ Ti.Preload("ti/com/web/tile/address/_com.json", {
 //========================================
 Ti.Preload("ti/com/web/tile/article/web-tile-article.html", `<div class="web-tile-article"
   :class="TopClass"
-  :style="TopStyle">
+  :style="TopStyle"
+  :title="title | i18n">
   <!--
     Title
   -->
