@@ -1,0 +1,29 @@
+{
+  "meta": null,
+  "children": [],
+  "chartNameList": [],
+  "chartStatus": {
+    "name" : "-unset-",
+    "type" : "-unset-"
+  },
+  "global": {
+    "keepToLocal": false,
+    "chartStatus": {},
+    "spanOptions": [],
+    "chartDefines": {},
+    "chartTypes": [],
+    "chartOptions": {}
+  },
+  "chart": {
+    "chartStatus": {},
+    "spanOptions": [],
+    "chartDefines": {},
+    "chartTypes": [],
+    "chartOptions": {},
+    "data": null
+  },
+  "chartData": [],
+  "status": {
+    "reloading": false
+  }
+}

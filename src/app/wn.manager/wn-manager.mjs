@@ -255,6 +255,73 @@ const _M = {
       Wn.OpenCmdPanel(cmdText)
     },
     //--------------------------------------
+    async __on_events(name, ...args) {
+      // Guard
+      if(!this.view.events) {
+        return
+      }
+
+      //console.log("__on_events", name, args)
+      // Get the view events dispatcher
+      let at = _.get(this.view.events, name)
+
+      // Get the event dispatcher by candidate names
+      if(!at) {
+        let names = name.split("::")
+        for(let i=1; i<names.length; i++) {
+          let key = names.slice(i).join("::")
+          at = _.get(this.view.events, key)
+          if(at) {
+            break
+          }
+        }
+      }
+      
+      // Guard again
+      if(!at) {
+        return
+      }
+
+      // Prepare the context
+      let ctx = {$args:args}
+      
+      // Batch invoke
+      if(_.isArray(at)) {
+        for(let a of at) {
+          await this.fireAction(a, ctx)
+        }
+      }
+      // Just one invoke
+      else {
+        await this.fireAction(at, ctx)
+      }
+    },
+    //--------------------------------------
+    async fireAction(at, ctx={}) {
+      let app = Ti.App(this)
+      let {global, main, commit, dispatch, payload} = at
+
+      // Explain payload
+      let pld = Ti.Util.explainObj(ctx, payload)
+
+      // commit
+      if(commit) {
+        app.commit(commit, pld)
+      }
+      // Dispatch
+      else if(dispatch) {
+        await app.dispatch(dispatch, pld)
+      }
+      // Global invoke
+      else if(global) {
+        await app.global(global, pld)
+      }
+      // Invoke main com method
+      else if(main) {
+        await app.main(main, pld)
+      }
+    },
+    //--------------------------------------
     async openView(oid) {
       if(!_.isString(oid))
         return

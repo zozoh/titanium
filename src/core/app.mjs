@@ -247,6 +247,7 @@ class OneTiApp {
     try{
       return await this.$store().dispatch(nm, payload)
     } catch (err) {
+      console.error(err)
       await Ti.Toast.Open(err, "error");
     }
   }

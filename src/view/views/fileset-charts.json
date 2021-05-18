@@ -1,0 +1,73 @@
+{
+  "comIcon": "im-archive",
+  "comType": "@com:ti/chart/combo",
+  "comConf": {
+    "nameList": "=Main.chartNameList",
+    "name": "=Main.chartStatus.name",
+    "type": "=Main.chartStatus.type",
+    "date": "=Main.chartStatus.date",
+    "span": "=Main.chartStatus.span",
+    "spanOptions": "=Main.chart.spanOptions",
+    "chartDefines": "=Main.chart.chartDefines",
+    "chartTypes": "=Main.chart.chartTypes",
+    "chartOptions": "=Main.chart.chartOptions",
+    "data": "=Main.chartData"
+  },
+  "modType": "@mod:wn/charts",
+  "events": {
+    "arena::change:chart:type": {
+      "dispatch": "main/updateCurrentChartType",
+      "payload": "=$args[0]"
+    },
+    "arena::change:chart:name": {
+      "dispatch": "main/reloadChart",
+      "payload": "=$args[0]"
+    },
+    "arena::change:chart:datespan": {
+      "dispatch": "main/reloadChartDateSpan",
+      "payload": "=$args[0]"
+    },
+    "arena::reload:data": {
+      "dispatch": "main/reloadChartData",
+      "payload": "=$args[0]"
+    }
+  },
+  "actions": [
+    {
+      "name": "reloading",
+      "type": "action",
+      "icon": "zmdi-refresh",
+      "text": "i18n:refresh",
+      "altDisplay": {
+        "icon": "zmdi-refresh zmdi-hc-spin",
+        "text": "i18n:loading"
+      },
+      "action": "dispatch:main/reload",
+      "shortcut": "CTRL+SHIFT+R",
+      "wait": 500
+    },
+    {
+      "type": "line"
+    },
+    {
+      "type": "group",
+      "icon": "im-menu",
+      "items": [
+        {
+          "type": "action",
+          "icon": "fas-keyboard",
+          "text": "i18n:console",
+          "action": "=>Ti.Be.Open('/a/open/wn.console')",
+          "shortcut": "ALT+SHIFT+T"
+        },
+        {
+          "type": "action",
+          "icon": "zmdi-info-outline",
+          "text": "i18n:properties",
+          "action": "dispatch:main/openCurrentChartConfig",
+          "shortcut": "ALT+SHIFT+P"
+        }
+      ]
+    }
+  ]
+}

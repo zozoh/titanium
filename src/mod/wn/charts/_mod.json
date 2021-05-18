@@ -1,0 +1,7 @@
+{
+  "name" : "wn-charts",
+  "namespaced" : true,
+  "state" : "./m-charts.json",
+  "actions" : "./m-charts-actions.mjs",
+  "mixins" : "./m-charts.mjs"
+}

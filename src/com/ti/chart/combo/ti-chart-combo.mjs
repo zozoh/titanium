@@ -77,6 +77,12 @@ export default {
       }, {
         text  : "90",
         value : "90d"
+      }, {
+        text  : "180",
+        value : "180d"
+      }, {
+        text  : "360",
+        value : "360d"
       }]
     },
     "chartDefines" : {
@@ -123,9 +129,10 @@ export default {
         prefixIconForClean : false,
         keepWidthWhenDrop : true,
         hover: "suffixIcon",
+        iconBy: "icon",
         valueBy : "name",
         textBy  : "title",
-        dropDisplay : "title"
+        dropDisplay : ["<icon:fas-eye>","title"]
       }
     },
     //------------------------------------------------
@@ -264,7 +271,10 @@ export default {
     },
     //------------------------------------------------
     ChartData() {
-      return this.data || []
+      if(_.isArray(this.data)) {
+        return this.data
+      }
+      return []
     }
     //------------------------------------------------
   },
@@ -360,7 +370,7 @@ export default {
         comType : chart.comPath
       })
 
-      console.log({type, chart})
+      //console.log({type, chart})
       // Eval The Chart Com
       let comType = chart.comType
       let comConf = _.assign({}, 
