@@ -28,6 +28,14 @@ export default {
       default: "idPath",
       validator: v => /^(obj|path|fullPath|idPath|id|wnobj)$/.test(v)
     },
+    // avaliable only when valueType=="obj"
+    "valueKeys": {
+      type: Array,
+      default: ()=>[
+        'id','nm','thumb','title','mime','tp','sha1','len',
+        'href', 'newtab'
+      ]
+    },
     "base" : {
       type : [Object, String],
       default : "~"
@@ -237,10 +245,7 @@ export default {
     //--------------------------------------
     notifyChange(items = this.myItems) {
       let value = null;
-      let keys = [
-        'id','nm','thumb','title','mime','tp','sha1','len',
-        'href', 'newtab'
-      ]
+      let keys = this.valueKeys
       if(this.multi) {
         value = []
         for(let it of items) {

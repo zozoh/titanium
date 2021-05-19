@@ -224,7 +224,6 @@ export default {
     //
     //--------------------------------------
     evalMapData({val, valType="obj", dftLo}={}) {
-      console.log("hahah")
       // Format the value
       return ({
         //..................................

@@ -18,7 +18,8 @@ export default {
     "keepShownTo" : {
       type : String,
       default : "keep_shown_${id}"
-    }
+    },
+    "tabAt": undefined
   },
   ////////////////////////////////////////////////////
   computed : {
@@ -26,6 +27,7 @@ export default {
     TabsGUILayout() {
       let gui = {
         type : "tabs",
+        tabAt: this.tabAt,
         blocks : []
       }
       _.forEach(this.myList, o => {

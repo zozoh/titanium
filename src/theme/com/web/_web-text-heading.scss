@@ -27,7 +27,7 @@
   .as-title {
     @include flex-align-nowrap;
     flex:1 1 auto; font-size:1.2em; cursor: default;
-    text-decoration: none;  margin:0 .5em;
+    text-decoration: none;  margin:0 SZ(10);
     //---------------------------------------
     &:hover {text-decoration: none;}
     //---------------------------------------
@@ -47,7 +47,7 @@
   .as-comment {
     flex:0 0 auto; width:100%;
     color:map-get($color-track, c);
-    margin: .5em 0;
+    margin: SZ(10);
   }
   //-----------------------------------------
   .as-more {

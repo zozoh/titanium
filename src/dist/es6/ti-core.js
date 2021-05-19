@@ -1,4 +1,4 @@
-// Pack At: 2021-05-14 14:28:13
+// Pack At: 2021-05-20 03:55:17
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3101,6 +3101,7 @@ const {App} = (function(){
       try{
         return await this.$store().dispatch(nm, payload)
       } catch (err) {
+        console.error(err)
         await Ti.Toast.Open(err, "error");
       }
     }
@@ -15148,7 +15149,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210514.142813",
+  "version" : "1.6-20210520.035517",
   "dev" : false,
   "appName" : null,
   "session" : {},

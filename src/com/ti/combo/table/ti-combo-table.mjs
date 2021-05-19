@@ -110,9 +110,9 @@ const _M = {
     },
     //-----------------------------------------------
     async doAddNewItem() {
-      console.log("doAddNewItem")
+      //console.log("doAddNewItem")
       let reo = await this.openDialogForMeta();
-      console.log(reo)
+      //console.log(reo)
       // User cancel
       if(_.isUndefined(reo))
         return

@@ -1,4 +1,4 @@
-// Pack At: 2021-05-14 14:28:13
+// Pack At: 2021-05-20 03:55:17
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5614,6 +5614,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
       default: "idPath",
       validator: v => /^(obj|path|fullPath|idPath|id|wnobj)$/.test(v)
     },
+    // avaliable only when valueType=="obj"
+    "valueKeys": {
+      type: Array,
+      default: ()=>[
+        'id','nm','thumb','title','mime','tp','sha1','len',
+        'href', 'newtab'
+      ]
+    },
     "base" : {
       type : [Object, String],
       default : "~"
@@ -5823,10 +5831,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     notifyChange(items = this.myItems) {
       let value = null;
-      let keys = [
-        'id','nm','thumb','title','mime','tp','sha1','len',
-        'href', 'newtab'
-      ]
+      let keys = this.valueKeys
       if(this.multi) {
         value = []
         for(let it of items) {
@@ -9220,7 +9225,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "keepShownTo" : {
       type : String,
       default : "keep_shown_${id}"
-    }
+    },
+    "tabAt": undefined
   },
   ////////////////////////////////////////////////////
   computed : {
@@ -9228,6 +9234,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     TabsGUILayout() {
       let gui = {
         type : "tabs",
+        tabAt: this.tabAt,
         blocks : []
       }
       _.forEach(this.myList, o => {
@@ -12093,6 +12100,155 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'm-charts-actions.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/charts/m-charts-actions.mjs'] = (function(){
+////////////////////////////////////////////
+const _M = {
+  //----------------------------------------
+  updateCurrentChartType({commit}, type) {
+    commit("updateChartStatus", {type})
+    commit("saveChartStatus")
+  },
+  //----------------------------------------
+  async reloadChartDateSpan({commit,dispatch}, {date, span}={}) {
+    commit("updateChartStatus", {date, span})
+    commit("saveChartStatus")
+    await dispatch("reloadChartData")
+  },
+  //----------------------------------------
+  async reloadChart({dispatch}, chartName) {
+    await dispatch("reloadChartSetup", chartName)
+    await dispatch("reloadChartData")
+  },
+  //----------------------------------------
+  async reloadChartData({state, commit}, {
+    force, cleanCache, done=_.identity
+  }={}) {
+    if(!state.chart.data) {
+      return
+    }
+    //console.log({force, cleanCache})
+    // 准备时间区间
+    let today = _.get(state, "chartStatus.date") || "today"
+    let span  = _.get(state, "chartStatus.span") || "7d"
+
+    // 准备命令模板
+    let cmdText = Ti.S.renderBy(state.chart.data, {
+      today, span
+    })
+    // 加载数据
+    let data = await Wn.Sys.exec2(cmdText, {as:"json"})
+    commit("setChartData", data)
+
+    // 处理回调
+    done(data)
+  },
+  //----------------------------------------
+  async reloadChartSetup({state, commit}, chartName) {
+    // 更新当前统计视图
+    if(chartName) {
+      commit("updateChartStatus", {name: chartName})
+      commit("saveChartStatus")
+    }
+    // 如果没有 chartName 试图看看缓存
+    else {
+      chartName = _.get(state.chartStatus, "name")
+    }
+
+    // 还是没有的话，从当前可选的 chart 里读取第一个
+    if(!chartName) {
+      chartName = _.get(_.first(state.chartNameList), "name")
+      commit("updateChartStatus", {name: chartName})
+      commit("saveChartStatus")
+    }
+
+    // 还是没有，放其吧
+    if(!chartName) {
+      return
+    }
+    //console.log("reloadChart", chartName)
+    // 读取其数据
+    let ph = `id:${state.meta.id}/${chartName}/charts-setup.json`
+    let oChartSetup = await Wn.Io.loadMeta(ph)
+    let chart = await Wn.Io.loadContent(oChartSetup, {as:"json"})
+
+    // 与全局的配置融合
+    let setup = _.omit(_.cloneDeep(state.global), "keepToLocal")
+    _.defaults(setup, {
+      chartStatus: {},
+      spanOptions: [],
+      chartDefines: {},
+      chartTypes: [],
+      chartOptions: {}
+    })
+    _.merge(setup.chartStatus, chart.chartStatus)
+    _.merge(setup.spanOptions, chart.spanOptions)
+    _.merge(setup.chartDefines, chart.chartDefines)
+    setup.chartTypes = chart.chartTypes || setup.chartTypes
+    _.merge(setup.chartOptions, chart.chartOptions)
+    setup.data = chart.data
+    commit("setChart", setup)
+  },
+  //----------------------------------------
+  async reloadChildren({state, commit}){
+    let reo = await Wn.Io.loadChildren(state.meta, {
+      sort : {sort:1, nm:1},
+      match: {race:"DIR"}
+    })
+    commit("setChildren", reo.list)
+  },
+  //----------------------------------------
+  async reloadSetup({state, commit}){
+    let oSetup = await Wn.Io.loadMeta(`id:${state.meta.id}/global-setup.json`)
+    let global = await Wn.Io.loadContent(oSetup, {as:"json"})
+    commit("setGlobal", global || {})
+  },
+  //----------------------------------------
+  async reload({state, commit, dispatch}, meta) {
+    if(state.reloading){
+      return
+    }
+    //......................................
+    // Use the default meta
+    if(_.isUndefined(meta)) {
+      meta = state.meta
+    }
+    //......................................
+    if(_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+    else if(meta && meta.id) {
+      meta = await Wn.Io.loadMetaById(meta.id)
+    }
+    //......................................
+    // Guard
+    if(!meta) {
+      commit("setMeta", null)
+      return
+    }
+
+    commit("setMeta", meta)
+    commit("setStatus", {reloading:true})
+    //......................................
+    // 加载配置
+    await dispatch("reloadSetup", meta)
+    await dispatch("reloadChildren", meta)
+    commit("loadChartStatus")
+    //......................................
+    // 加载当前图表配置
+    await dispatch("reloadChartSetup")
+    //......................................
+    // 加载图表数据
+    await dispatch("reloadChartData")
+    //......................................
+    commit("setStatus", {reloading:false})
+  }
+  //----------------------------------------
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'ti-sheet-emoji.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/sheet/emoji/ti-sheet-emoji.mjs'] = (function(){
@@ -12894,7 +13050,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //
     //--------------------------------------
     evalMapData({val, valType="obj", dftLo}={}) {
-      console.log("hahah")
       // Format the value
       return ({
         //..................................
@@ -15562,6 +15717,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }, {
         text  : "90",
         value : "90d"
+      }, {
+        text  : "180",
+        value : "180d"
+      }, {
+        text  : "360",
+        value : "360d"
       }]
     },
     "chartDefines" : {
@@ -15608,9 +15769,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
         prefixIconForClean : false,
         keepWidthWhenDrop : true,
         hover: "suffixIcon",
+        iconBy: "icon",
         valueBy : "name",
         textBy  : "title",
-        dropDisplay : "title"
+        dropDisplay : ["<icon:fas-eye>","title"]
       }
     },
     //------------------------------------------------
@@ -15749,7 +15911,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //------------------------------------------------
     ChartData() {
-      return this.data || []
+      if(_.isArray(this.data)) {
+        return this.data
+      }
+      return []
     }
     //------------------------------------------------
   },
@@ -15845,7 +16010,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         comType : chart.comPath
       })
 
-      console.log({type, chart})
+      //console.log({type, chart})
       // Eval The Chart Com
       let comType = chart.comType
       let comConf = _.assign({}, 
@@ -26177,6 +26342,73 @@ const _M = {
       Wn.OpenCmdPanel(cmdText)
     },
     //--------------------------------------
+    async __on_events(name, ...args) {
+      // Guard
+      if(!this.view.events) {
+        return
+      }
+
+      //console.log("__on_events", name, args)
+      // Get the view events dispatcher
+      let at = _.get(this.view.events, name)
+
+      // Get the event dispatcher by candidate names
+      if(!at) {
+        let names = name.split("::")
+        for(let i=1; i<names.length; i++) {
+          let key = names.slice(i).join("::")
+          at = _.get(this.view.events, key)
+          if(at) {
+            break
+          }
+        }
+      }
+      
+      // Guard again
+      if(!at) {
+        return
+      }
+
+      // Prepare the context
+      let ctx = {$args:args}
+      
+      // Batch invoke
+      if(_.isArray(at)) {
+        for(let a of at) {
+          await this.fireAction(a, ctx)
+        }
+      }
+      // Just one invoke
+      else {
+        await this.fireAction(at, ctx)
+      }
+    },
+    //--------------------------------------
+    async fireAction(at, ctx={}) {
+      let app = Ti.App(this)
+      let {global, main, commit, dispatch, payload} = at
+
+      // Explain payload
+      let pld = Ti.Util.explainObj(ctx, payload)
+
+      // commit
+      if(commit) {
+        app.commit(commit, pld)
+      }
+      // Dispatch
+      else if(dispatch) {
+        await app.dispatch(dispatch, pld)
+      }
+      // Global invoke
+      else if(global) {
+        await app.global(global, pld)
+      }
+      // Invoke main com method
+      else if(main) {
+        await app.main(main, pld)
+      }
+    },
+    //--------------------------------------
     async openView(oid) {
       if(!_.isString(oid))
         return
@@ -27856,6 +28088,88 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'm-charts.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/charts/m-charts.mjs'] = (function(){
+const _M = {
+  ////////////////////////////////////////////
+  mutations : {
+    //----------------------------------------
+    setMeta(state, meta) {
+      state.meta = meta
+    },
+    //--------------------------------------------
+    setChildren(state, children) {
+      state.children = children
+      let list = []
+      _.forEach(children, ({nm,title,icon})=>{
+        list.push({name:nm, title, icon})
+      })
+      state.chartNameList = list
+      // Check current chartName
+      let {name} = state.chartStatus
+      if(name && _.findIndex(list, li=>li.name==name)<0) {
+        if(!_.isEmpty(list)) {
+          state.chartStatus.name = _.first(list).name
+        }
+      }
+    },
+    //--------------------------------------------
+    setChartType(state, type) {
+      state.chartStatus.type = type
+    },
+    //--------------------------------------------
+    setChartStatus(state, chartStatus) {
+      state.chartStatus = chartStatus
+    },
+    //--------------------------------------------
+    updateChartStatus(state, chartStatus) {
+      state.chartStatus = _.assign({}, state.chartStatus, chartStatus)
+    },
+    //--------------------------------------------
+    saveChartStatus(state) {
+      if(state.global.keepToLocal) {
+        let key = `wn-chart-status-${state.meta.id}`
+        Ti.Storage.session.setObject(key, state.chartStatus)
+      }
+    },
+    //--------------------------------------------
+    loadChartStatus(state) {
+      if(state.global.keepToLocal) {
+        let key = `wn-chart-status-${state.meta.id}`
+        state.chartStatus = Ti.Storage.session.getObject(key, {})
+      }
+    },
+    //--------------------------------------------
+    setGlobal(state, global) {
+      state.global = global
+    },
+    //--------------------------------------------
+    setChart(state, chart) {
+      state.chart = chart
+
+      // Check current chartType
+      let {type} = state.chartStatus
+      //console.log("check current type:", type)
+      if(!type || _.findIndex(state.chart.chartTypes, ct=>ct==type)<0) {
+        state.chartStatus.type = _.first(state.chart.chartTypes)
+      }
+    },
+    //----------------------------------------
+    setChartData(state, chartData) {
+      state.chartData = chartData
+    },
+    //----------------------------------------
+    setStatus(state, status) {
+      state.status = _.assign({}, state.status, status)
+    }
+    //----------------------------------------
+  }
+  ////////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'web-meta-order.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/meta/order/web-meta-order.mjs'] = (function(){
@@ -28531,9 +28845,9 @@ const _M = {
     },
     //-----------------------------------------------
     async doAddNewItem() {
-      console.log("doAddNewItem")
+      //console.log("doAddNewItem")
       let reo = await this.openDialogForMeta();
-      console.log(reo)
+      //console.log(reo)
       // User cancel
       if(_.isUndefined(reo))
         return
@@ -66008,6 +66322,56 @@ Ti.Preload("ti/mod/ti/viewport/_mod.json", {
   "mixins" : "./ti-viewport.mjs"
 });
 //========================================
+// JOIN <m-charts-actions.mjs> ti/mod/wn/charts/m-charts-actions.mjs
+//========================================
+Ti.Preload("ti/mod/wn/charts/m-charts-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/charts/m-charts-actions.mjs']);
+//========================================
+// JOIN <m-charts.json> ti/mod/wn/charts/m-charts.json
+//========================================
+Ti.Preload("ti/mod/wn/charts/m-charts.json", {
+  "meta": null,
+  "children": [],
+  "chartNameList": [],
+  "chartStatus": {
+    "name" : "-unset-",
+    "type" : "-unset-"
+  },
+  "global": {
+    "keepToLocal": false,
+    "chartStatus": {},
+    "spanOptions": [],
+    "chartDefines": {},
+    "chartTypes": [],
+    "chartOptions": {}
+  },
+  "chart": {
+    "chartStatus": {},
+    "spanOptions": [],
+    "chartDefines": {},
+    "chartTypes": [],
+    "chartOptions": {},
+    "data": null
+  },
+  "chartData": [],
+  "status": {
+    "reloading": false
+  }
+});
+//========================================
+// JOIN <m-charts.mjs> ti/mod/wn/charts/m-charts.mjs
+//========================================
+Ti.Preload("ti/mod/wn/charts/m-charts.mjs", TI_PACK_EXPORTS['ti/mod/wn/charts/m-charts.mjs']);
+//========================================
+// JOIN <_mod.json> ti/mod/wn/charts/_mod.json
+//========================================
+Ti.Preload("ti/mod/wn/charts/_mod.json", {
+  "name" : "wn-charts",
+  "namespaced" : true,
+  "state" : "./m-charts.json",
+  "actions" : "./m-charts-actions.mjs",
+  "mixins" : "./m-charts.mjs"
+});
+//========================================
 // JOIN <m-obj-axis-actions.mjs> ti/mod/wn/obj-axis/m-obj-axis-actions.mjs
 //========================================
 Ti.Preload("ti/mod/wn/obj-axis/m-obj-axis-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj-axis/m-obj-axis-actions.mjs']);
@@ -67868,6 +68232,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "sms-scene-nm-tip": "Only include english letters or numbers or underline, and guarantee unique",
   "sms-setup": "SMS setup",
   "sort": "Sort",
+  "sort-by": "Sort by",
+  "sort-asc": "ASC",
+  "sort-desc": "DESC",
   "sort-tip-asc": "The smaller at first",
   "sort-tip-desc": "The bigger at first",
   "sort-val": "Sort value",
@@ -69267,6 +69634,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "sms-scene-nm-tip": "请用半角英文数字或者下划线组合，并保证唯一",
   "sms-setup": "短信配置",
   "sort": "排序",
+  "sort-by": "排序方式",
+  "sort-asc": "升序",
+  "sort-desc": "降序",
   "sort-tip-asc": "越小越靠前",
   "sort-tip-desc": "越大越靠前",
   "sort-val": "排序值",
