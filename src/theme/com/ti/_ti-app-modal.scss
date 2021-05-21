@@ -94,6 +94,9 @@
       > .as-icon {
         @include flex-center;
         padding-left:SZ(6);
+        .icon-icon img {
+          height: SZ(32); width: SZ(32);
+        }
       }
       //-----------------------------
       > .as-title {
