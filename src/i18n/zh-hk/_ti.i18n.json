@@ -1,4 +1,6 @@
 {
+   "mail": "郵件",
+   "mail-inbox": "收件箱",
    "move-to": "移動到...",
    "layout": "佈局",
    "widht": "寬度",
@@ -356,6 +358,9 @@
    "sms-scene-nm-tip": "請用半角英文數字或者下劃線組合，並保證唯一",
    "sms-setup": "短信配置",
    "sort": "排序",
+   "sort-by": "排序方式",
+   "sort-asc": "升序",
+   "sort-desc": "降序",
    "sort-tip-asc": "越小越靠前",
    "sort-tip-desc": "越大越靠前",
    "sort-val": "排序值",

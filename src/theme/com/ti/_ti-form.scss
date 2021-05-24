@@ -109,6 +109,12 @@
       &.is-warn     {@include color($color-warn,    r);}
       &.is-ok       {@include color($color-success, r);}
       //--------------------------------
+      &.flex-auto {
+        > .field-value > .field-component {
+          width:100px; flex:1 1 auto;
+        }
+      }
+      //--------------------------------
       &.is-disabled {
         opacity: 0.4;
         position: relative;

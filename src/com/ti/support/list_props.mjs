@@ -123,6 +123,14 @@ export default {
     type : Boolean,
     default: false
   },
+  "notifySelectName": {
+    type : String,
+    default: "select"
+  },
+  "notifyOpenName": {
+    type : String,
+    default: "open"
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

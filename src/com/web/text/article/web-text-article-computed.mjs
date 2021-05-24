@@ -17,8 +17,14 @@ export default {
   },
   //--------------------------------------
   ArticleHtml() {
-    if("html" == this.type) {
+    if("html" == this.type || "text/html" == this.type) {
       return this.value
+    }
+    if("text" == this.type || "text/plain" == this.type) {
+      if(!this.value) {
+        return ""
+      }
+      return this.value.replace(/\r?\n/g, '<br>')
     }
     throw `type '${this.type}' not support yet!`
   }

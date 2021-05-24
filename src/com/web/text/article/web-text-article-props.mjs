@@ -9,7 +9,7 @@ export default {
   "type": {
     type : String,
     default : "html",
-    validator : v => /^(html|markdown)$/.test(v)
+    validator : v => /^(text|html|markdown|text\/(plain|html|markdown))$/.test(v)
   },
   //-----------------------------------
   // Behavior

@@ -1,4 +1,6 @@
 {
+  "mail": "Email",
+  "mail-inbox": "Email Inbox",
   "move-to" : "Move to...",
   "layout" : "Layout",
   "widht" : "Width",

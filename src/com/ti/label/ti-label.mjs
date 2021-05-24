@@ -194,6 +194,20 @@ const _M = {
       }
       // Collection
       if(_.isArray(val)) {
+        if(this.format) {
+          let ss = []
+          for(let v of val) {
+            // [{...}, {...}]
+            if(_.isPlainObject(v)) {
+              ss.push(Ti.S.renderBy(this.format, v))  
+            }
+            // ['xxx',  'xxx']
+            else {
+              ss.push(Ti.S.renderBy(this.format, {val: v}))  
+            }
+          }
+          return ss.join(this.multiValSep)
+        }
         if(val.length > 1 && (_.isPlainObject(val[0]) || _.isArray(val[0]))) {
           return JSON.stringify(val)  
         }

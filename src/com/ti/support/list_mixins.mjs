@@ -562,7 +562,9 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     doNotifySelect(emitContext) {
-      this.$notify("select", emitContext)
+      if(this.notifySelectName) {
+        this.$notify(this.notifySelectName, emitContext)
+      }
       if(_.isFunction(this.onSelect)) {
         this.onSelect(emitContext)
       }
@@ -607,7 +609,9 @@ const LIST_MIXINS = {
     OnRowOpen({rowId}={}) {
       let row = this.findRowById(rowId)
       if(row) {
-        this.$notify("open", row)
+        if(this.notifyOpenName) {
+          this.$notify(this.notifyOpenName, row)
+        }
         if(_.isFunction(this.onOpen)) {
           this.onOpen(row)
         }

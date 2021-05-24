@@ -1,6 +1,19 @@
 export default {
   ///////////////////////////////////////////////////
+  data : ()=>({
+    myData : []
+  }),
+  ///////////////////////////////////////////////////
+  props : {
+    // The context of the data if dynamic
+    "value" : {
+      type: Object,
+      default: ()=>({})
+    }
+  },
+  ///////////////////////////////////////////////////
   methods : {
+    //-----------------------------------------------
     explainDisplayItems(display=[]) {
       let displayItems = _.concat(display)
       let list = []
@@ -42,6 +55,40 @@ export default {
         list.push(it)
       })
       return list
+    },
+    //-----------------------------------------------
+    async evalMyData() {
+      // Just array data
+      if(_.isArray(this.data)) {
+        this.myData = _.cloneDeep(this.data)
+        return
+      }
+      // Process function
+      let reo = this.data
+      while(_.isFunction(reo)) {
+        reo = await data(this.value)
+      }
+      // Process command
+      if(_.isString(reo)) {
+        let cmdText = Ti.S.renderBy(reo, this.value)
+        reo = await Wn.Sys.exec2(cmdText, {as:"json"})
+      }
+      // Update my data
+      if(_.isArray(reo)) {
+        this.myData = reo
+      } else if(_.isArray(reo.list)) {
+        this.myData = reo.list
+      } else {
+        this.myData = [reo]
+      }
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "data": {
+      handler : "evalMyData",
+      immediate: true
     }
   }
   ///////////////////////////////////////////////////

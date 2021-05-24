@@ -15,11 +15,20 @@ export default {
 
     // Load extends methods
     if(schema.methods) {
-      let methods = await Ti.Load(schema.methods)
+      let methods = await Ti.Load(schema.methods, {
+        dynamicAlias: new Ti.Config.AliasMapping({
+          "^\./": `/o/content?str=id:${state.meta.id}/`
+        })
+      })
       if(!_.isArray(methods)) {
         methods = [methods]
       }
       schema.methods = methods
+    }
+    // Load extends components
+    if(!_.isEmpty(schema.components)) {
+      let components = _.concat(schema.components)
+      await Ti.App.topInstance().loadView({components})
     }
     //console.log("setSchema", schema)
     commit("setSchema", schema)
