@@ -108,5 +108,23 @@
   &.as-uppercase  {text-transform: uppercase;}
   &.as-lowercase  {text-transform: lowercase;}
   &.as-capitalize {text-transform: capitalize;}
+  //------------------------------------------
+  &.is-success {color: map-get($color-success, c);}
+  &.is-warn    {color: map-get($color-warn, c);}
+  &.is-info    {color: map-get($color-info, c);} 
+  &.is-error   {color: map-get($color-error, c);}
+  &.is-track   {color: map-get($color-track, c);}
+  &.is-disable {color: map-get($color-disable, c);}
+  &.is-text    {color: map-get($color-text, c);}
+  &.is-number  {color: map-get($color-number, c);}
+  //------------------------------------------
+  &.is-success-tag {@include color($color-success, r, c);}
+  &.is-warn-tag    {@include color($color-warn, r, c);}
+  &.is-info-tag    {@include color($color-info, r, c);} 
+  &.is-error-tag   {@include color($color-error, r, c);}
+  &.is-track-tag   {@include color($color-track, r, c);}
+  &.is-disable-tag {@include color($color-disable, r, c);}
+  &.is-text-tag    {@include color($color-text, r, c);}
+  &.is-number-tag  {@include color($color-number, r, c);}
   //-----------------------------------------
 }

@@ -12,9 +12,9 @@ export default {
     //------------------------------------------------
     // Data
     //------------------------------------------------
-    "meta" : {
-      type : Object
-    },
+    // "meta" : {
+    //   type : Object
+    // },
     "data" : {
       type : Object
     },
@@ -58,6 +58,7 @@ export default {
     // Aspect
     //------------------------------------------------
     "tableFields" : undefined,
+    "listDisplay" : undefined,
     "filter" : {
       type : Object,
       default : ()=>({
@@ -133,7 +134,8 @@ export default {
           itemBadges: this.itemBadges,
           viewType : this.viewType,
           exposeHidden : this.exposeHidden,
-          tableFields : this.tableFields
+          tableFields : this.tableFields,
+          listDisplay : this.listDisplay
         }
       })
       return com

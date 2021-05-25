@@ -1,0 +1,7 @@
+{
+  "name" : "wn-obj-browser",
+  "namespaced" : true,
+  "state" : "./m-obj-browser.json",
+  "actions" : "./m-obj-browser-actions.mjs",
+  "mixins" : "./m-obj-browser.mjs"
+}

@@ -32,7 +32,7 @@ const TiComMixin = {
     },
     //-----------------------------------------------
     getTopClass() {
-      return (...klass)=>Ti.Css.mergeClassName({
+      return (...klass)=>Ti.Css.mergeClassNameBy(this, {
         "is-self-actived" : this.isSelfActived,
         "is-actived" : this.isActived
       }, klass, this.className)

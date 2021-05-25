@@ -89,6 +89,10 @@ const TiCss = {
   },
   //-----------------------------------
   mergeClassName(...args) {
+    return TiCss.mergeClassNameBy({}, ...args)
+  },
+  //-----------------------------------
+  mergeClassNameBy(context={}, ...args) {
     let klass = {}
     //.................................
     const __join_class = (kla) => {
@@ -97,7 +101,7 @@ const TiCss = {
         return
       // Function
       if(_.isFunction(kla)) {
-        let re = kla()
+        let re = kla(context)
         __join_class(re)
       }
       // String

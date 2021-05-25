@@ -127,9 +127,33 @@
           }
           //---------------------------------------
           .cell-con {
+            //-------------------------------------
             .ti-tags-item {
               @include color($color-weaktip, r, c);
             }
+            //-------------------------------------
+            .ti-icon {
+              &.is-success {@include color($color-success, r);}
+              &.is-warn    {@include color($color-warn, r);}
+              &.is-info    {@include color($color-info, r);} 
+              &.is-error   {@include color($color-error, r);}
+              &.is-track   {@include color($color-track, r);}
+              &.is-disable {@include color($color-disable, r);}
+              &.is-text    {@include color($color-text, r);}
+              &.is-number  {@include color($color-number, r);}
+            }
+            //-------------------------------------  
+            .ti-label {
+              &.is-success-tag {@include color($color-success, c, r);}
+              &.is-warn-tag    {@include color($color-warn, c, r);}
+              &.is-info-tag    {@include color($color-info, c, r);} 
+              &.is-error-tag   {@include color($color-error, c, r);}
+              &.is-track-tag   {@include color($color-track, c, r);}
+              &.is-disable-tag {@include color($color-disable, c, r);}
+              &.is-text-tag    {@include color($color-text, c, r);}
+              &.is-number-tag  {@include color($color-number, c, r);}
+            }
+            //-------------------------------------  
           }
           //---------------------------------------
         }

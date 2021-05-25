@@ -216,10 +216,15 @@ const _M = {
         pageNumber : 1,
         pageSize   : meta.dft_page_size || 1000
       }, pager)
-
-      commit("setFilter", filter)
-      commit("setSorter", sorter)
-      commit("setPager", pager)
+      if(filter) {
+        commit("setFilter", filter)
+      }
+      if(sorter) {
+        commit("setSorter", sorter)
+      }
+      if(pager) {
+        commit("setPager", pager)
+      }
     }
   },
   //----------------------------------------
@@ -260,6 +265,11 @@ const _M = {
       return
     }
     //console.log("m-obj-current.reload", meta.id)
+    //......................................
+    // Default sorter
+    if(meta.sorter) {
+      commit("setSorter", meta.sorter)
+    }
     //......................................
     // Restore the search setting
     dispatch("recoverSearchSetting", meta)

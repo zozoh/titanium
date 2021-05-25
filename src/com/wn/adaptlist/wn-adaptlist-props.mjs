@@ -89,6 +89,10 @@ export default {
     type : Array,
     default : ()=>["wall", "table", "list"]
   },
+  "listDisplay" : {
+    type : [Array, String, Object],
+    default: ()=>["@<thumb>", "title|nm::flex-auto", "nm::as-tip-block"]
+  },
   "tableFields" : {
     type : Array,
     default : ()=>["title", "tp", "c", "g", "md", "len", "lm"]

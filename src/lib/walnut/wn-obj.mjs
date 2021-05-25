@@ -479,7 +479,7 @@ const WnObj = {
         key : `rawData.${key}`,
         transformer : "Ti.DateTime.timeText",
         comConf : {
-          className : "as-tip-block align-right",
+          className : "as-tip-block align-right is-nowrap",
         }
       }
     }

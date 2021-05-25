@@ -65,7 +65,7 @@ const _M = {
       }
 
       // Self
-      return _.assign(_.pick(it, ["id","key","depth","icon","title","path","view"]), {
+      return _.assign(_.pick(it, ["id","key","depth","icon","title","tip","path","view"]), {
         items,
         groupStatusStoreKey,
         highlightId : this.theHighlightItemId,

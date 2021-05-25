@@ -35,11 +35,11 @@ export default {
       default : null
     },
     "color" : {
-      type : String,
+      type : [String, Function],
       default : ""
     },
     "opacity" : {
-      type : Number,
+      type : [Number, Function],
       default : -1
     },
     "notifyName": {
@@ -121,13 +121,28 @@ export default {
         }
       }
 
+      // Evel the color
+      let color = icn.color || this.color
+      if(_.isFunction(color)) {
+        color = color(this.value)
+      }
+
+      // Evel the opacity
+      let opacity = icn.opacity || this.opacity
+      if(_.isFunction(opacity)) {
+        opacity = opacity(this.value)
+      }
+      if(!_.isNumber(opacity) || opacity<0) {
+        opacity = undefined
+      }
+
+
       // join style:outer
       let width  = icn.width   || this.width
       let height = icn.height  || this.height 
       icn.outerStyle = Ti.Css.toStyle({
         width, height,
-        color   : icn.color || this.color,
-        opacity : icn.opacity || this.opacity >= 0 ? this.opacity : undefined
+        color, opacity
       })
 
       // join style:inner

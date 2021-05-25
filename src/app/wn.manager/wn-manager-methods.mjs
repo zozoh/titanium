@@ -87,7 +87,8 @@ const _M = {
   },
   //.........................................
   async reloadSidebar() {
-    let reo = await Wn.Sys.exec("ti sidebar -cqn", {as:"json"});
+    let cmdText = Wn.Session.env("SIDEBAR_BY") || "ti sidebar -cqn";
+    let reo = await Wn.Sys.exec(cmdText, {as:"json"});
     this.sidebar = reo.sidebar
     this.sidebarStatusStoreKey = reo.statusStoreKey
   },

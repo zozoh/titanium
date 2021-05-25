@@ -1,4 +1,4 @@
-// Pack At: 2021-05-20 03:55:17
+// Pack At: 2021-05-25 21:01:44
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -921,11 +921,16 @@ const _M = {
     },
     //--------------------------------------------
     MainComConf() {
-      let thumbDisplay = Wn.Obj.getObjThumbDisplay("rawData")
+      let listDisplay = _.concat(this.listDisplay)
       let conf = ({
         list : ()=>({
           rowClassBy : "->is-${visibility}",
-          display: [thumbDisplay, "title|nm::flex-auto", "nm::as-tip-block"]
+          display: _.map(listDisplay, li=>{
+            if("@<thumb>" == li) {
+              return Wn.Obj.getObjThumbDisplay("rawData")
+            }
+            return li
+          })
         }),
         table : ()=>({
           rowClassBy : "->is-${visibility}",
@@ -3983,7 +3988,7 @@ const _M = {
       }
 
       // Self
-      return _.assign(_.pick(it, ["id","key","depth","icon","title","path","view"]), {
+      return _.assign(_.pick(it, ["id","key","depth","icon","title","tip","path","view"]), {
         items,
         groupStatusStoreKey,
         highlightId : this.theHighlightItemId,
@@ -9912,6 +9917,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : Array,
     default : ()=>["wall", "table", "list"]
   },
+  "listDisplay" : {
+    type : [Array, String, Object],
+    default: ()=>["@<thumb>", "title|nm::flex-auto", "nm::as-tip-block"]
+  },
   "tableFields" : {
     type : Array,
     default : ()=>["title", "tp", "c", "g", "md", "len", "lm"]
@@ -11325,10 +11334,15 @@ const _M = {
         pageNumber : 1,
         pageSize   : meta.dft_page_size || 1000
       }, pager)
-
-      commit("setFilter", filter)
-      commit("setSorter", sorter)
-      commit("setPager", pager)
+      if(filter) {
+        commit("setFilter", filter)
+      }
+      if(sorter) {
+        commit("setSorter", sorter)
+      }
+      if(pager) {
+        commit("setPager", pager)
+      }
     }
   },
   //----------------------------------------
@@ -11369,6 +11383,11 @@ const _M = {
       return
     }
     //console.log("m-obj-current.reload", meta.id)
+    //......................................
+    // Default sorter
+    if(meta.sorter) {
+      commit("setSorter", meta.sorter)
+    }
     //......................................
     // Restore the search setting
     dispatch("recoverSearchSetting", meta)
@@ -12098,6 +12117,123 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'm-obj-browser.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/obj-browser/m-obj-browser.mjs'] = (function(){
+const _M = {
+  ////////////////////////////////////////////
+  mutations : {
+    //----------------------------------------
+    setMeta(state, meta) {
+      state.meta = meta
+    },
+    //----------------------------------------
+    setKeepSearch(state, keepSearch) {
+      state.keepSearch = keepSearch
+    },
+    //----------------------------------------
+    setPath(state, path) {
+      state.path = path
+    },
+    //----------------------------------------
+    setSearch(state, search) {
+      state.search = _.cloneDeep(search)
+    },
+    //----------------------------------------
+    setFilter(state, filter) {
+      state.filter = _.cloneDeep(filter)
+    },
+    //----------------------------------------
+    clearFilter(state) {
+      let flt = _.cloneDeep(state.filter)
+      flt.keyword = null
+      flt.match = {}
+      state.filter = flt
+    },
+    //----------------------------------------
+    setSorter(state, sorter) {
+      state.sorter = _.cloneDeep(sorter)
+    },
+    //----------------------------------------
+    setPager(state, {pageNumber, pageSize}={}) {
+      if(_.isNumber(pageNumber)) {
+        state.pageNumber =  pageNumber
+      }
+      if(_.isNumber(pageSize)) {
+        state.pageSize =  pageSize
+      }
+    },
+    //----------------------------------------
+    setPageNumber(state, pageNumber=1) {
+      state.pageNumber =  pageNumber
+    },
+    //----------------------------------------
+    setPageSize(state, pageSize=100) {
+      state.pageSize =  pageSize
+    },
+    //----------------------------------------
+    setStatus(state, status) {
+      state.status = _.assign({}, state.status, status)
+    },
+    //----------------------------------------
+    prependDateItem(state, newItem) {
+      if(_.isEmpty(newItem))
+        return
+      let data = state.data
+      let list = _.cloneDeep(data.list) || []
+      let pager = data.pager
+      list = _.concat(newItem, list)
+      state.data = {
+        list, pager
+      }
+    },
+    //----------------------------------------
+    appendDateItem(state, newItem) {
+      if(_.isEmpty(newItem))
+        return
+      let data = state.data
+      let list = _.cloneDeep(data.list) || []
+      let pager = data.pager
+      list = _.concat(list, newItem)
+      state.data = {
+        list, pager
+      }
+    },
+    //----------------------------------------
+    setDataItem(state, newItem) {
+      // console.log("setDataItem:", newItem)
+      // Guard
+      if(!newItem || !newItem.id)
+        return
+
+      let data = state.data
+
+      // Update pager list item of data
+      if(_.isArray(data.list) && data.pager) {
+        let list = _.cloneDeep(data.list)
+        list = _.map(list, li => {
+          if(li.id == newItem.id) {
+            return newItem
+          }
+          return li
+        })
+        state.data = {
+          list,
+          pager : data.pager
+        }
+      }
+    },
+    //----------------------------------------
+    setData(state, data) {
+      state.data = data
+    }
+    //----------------------------------------
+  }
+  ////////////////////////////////////////////
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'm-charts-actions.mjs' -> null
@@ -18928,10 +19064,28 @@ const _M = {
       }
       // Collection
       if(_.isArray(val)) {
+        if(this.format) {
+          let ss = []
+          for(let v of val) {
+            // [{...}, {...}]
+            if(_.isPlainObject(v)) {
+              ss.push(Ti.S.renderBy(this.format, v))  
+            }
+            // ['xxx',  'xxx']
+            else {
+              ss.push(Ti.S.renderBy(this.format, {val: v}))  
+            }
+          }
+          return ss.join(this.multiValSep)
+        }
         if(val.length > 1 && (_.isPlainObject(val[0]) || _.isArray(val[0]))) {
           return JSON.stringify(val)  
         }
         return val.join(this.multiValSep)
+      }
+      // Auto format
+      if(_.isFunction(this.TheFormat)) {
+        return this.TheFormat(val)
       }
       // Object
       if(_.isPlainObject(val)) {
@@ -18944,10 +19098,6 @@ const _M = {
       // Date
       if(_.isDate(val)) {
         return Ti.Types.toStr(val, this.TheFormat)
-      }
-      // Auto format
-      if(_.isFunction(this.TheFormat)) {
-        return this.TheFormat(val)
       }
       // Return & auto-i18n
       return this.autoI18n 
@@ -23588,8 +23738,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   //--------------------------------------
   ArticleHtml() {
-    if("html" == this.type) {
+    if("html" == this.type || "text/html" == this.type) {
       return this.value
+    }
+    if("text" == this.type || "text/plain" == this.type) {
+      if(!this.value) {
+        return ""
+      }
+      return this.value.replace(/\r?\n/g, '<br>')
     }
     throw `type '${this.type}' not support yet!`
   }
@@ -25001,7 +25157,20 @@ return OBJ;;
 window.TI_PACK_EXPORTS['ti/com/wn/support/wn_list_wrapper_mixins.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////
+  data : ()=>({
+    myData : []
+  }),
+  ///////////////////////////////////////////////////
+  props : {
+    // The context of the data if dynamic
+    "value" : {
+      type: Object,
+      default: ()=>({})
+    }
+  },
+  ///////////////////////////////////////////////////
   methods : {
+    //-----------------------------------------------
     explainDisplayItems(display=[]) {
       let displayItems = _.concat(display)
       let list = []
@@ -25043,6 +25212,40 @@ const __TI_MOD_EXPORT_VAR_NM = {
         list.push(it)
       })
       return list
+    },
+    //-----------------------------------------------
+    async evalMyData() {
+      // Just array data
+      if(_.isArray(this.data)) {
+        this.myData = _.cloneDeep(this.data)
+        return
+      }
+      // Process function
+      let reo = this.data
+      while(_.isFunction(reo)) {
+        reo = await data(this.value)
+      }
+      // Process command
+      if(_.isString(reo)) {
+        let cmdText = Ti.S.renderBy(reo, this.value)
+        reo = await Wn.Sys.exec2(cmdText, {as:"json"})
+      }
+      // Update my data
+      if(_.isArray(reo)) {
+        this.myData = reo
+      } else if(_.isArray(reo.list)) {
+        this.myData = reo.list
+      } else {
+        this.myData = [reo]
+      }
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "data": {
+      handler : "evalMyData",
+      immediate: true
     }
   }
   ///////////////////////////////////////////////////
@@ -27739,6 +27942,193 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'm-obj-browser-actions.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/obj-browser/m-obj-browser-actions.mjs'] = (function(){
+////////////////////////////////////////////
+function getKeepSearchAs(state) {
+  if(state.meta && state.keepSearch) {
+    return `browser-search-${state.meta.id}`
+  }
+}
+////////////////////////////////////////////
+const _M = {
+  //----------------------------------------
+  saveSearchSetting({state, commit}, {filter, sorter, pager}={}) {
+    if(filter) {
+      commit("setFilter", filter)
+    }
+    if(sorter) {
+      commit("setSorter", sorter)
+    }
+    if(pager) {
+      commit("setPager", pager)
+    }
+
+    let keepAs = getKeepSearchAs(state)
+    if(keepAs) {
+      Ti.Storage.session.setObject(keepAs, {
+        filter : state.filter,
+        sorter : state.sorter,
+        pager  : {
+          pageNumber : state.pageNumber,
+          pageSize   : state.pageSize
+        }
+      })
+    }
+  },
+  //----------------------------------------
+  recoverSearchSetting({state, commit}) {
+    let keepAs = getKeepSearchAs(state)
+    if(keepAs) {
+      let {
+        filter, sorter, pager
+      } = Ti.Storage.session.getObject(keepAs, {})
+      pager = _.assign({}, {
+        pageNumber : state.pageNumber || 1,
+        pageSize   : state.pageSize   || 1000
+      }, pager)
+      if(filter) {
+        commit("setFilter", filter)
+      }
+      if(sorter) {
+        commit("setSorter", sorter)
+      }
+      if(pager) {
+        commit("setPager", pager)
+      }
+    }
+  },
+  //----------------------------------------
+  async query({dispatch}, search={}){
+    //console.log("browser query", search)
+    dispatch("saveSearchSetting", search)
+    return await dispatch("reloadData")
+  },
+  //----------------------------------------
+  async reloadData({state, commit, dispatch}) {
+    if(state.status.reloading
+      || !state.path){
+      return
+    }
+    //......................................
+    // Init content as null
+    commit("setStatus", {reloading:true})
+    //......................................
+    let cmds = [`o '${state.path}' @query -pager -mine -hidden`]
+    //
+    // Setup pager
+    //
+    if(state.pageSize > 0) {
+      let pgsz = state.pageSize
+      let pn = state.pageNumber || 1
+      let skip = Math.max(0, pgsz * (pn-1))
+      if(skip > 0) {
+        cmds.push(`-skip ${skip}`)
+      }
+      cmds.push(`-limit ${pgsz}`)
+    }
+    //
+    // Setup sort
+    //
+    if(state.sorter) {
+      cmds.push(`-sort '${JSON.stringify(state.sorter)}'`)
+    }
+    //
+    // Query 
+    //
+    let input;
+    if(state.search) {
+      let flt = Wn.Util.getMatchByFilter(state.filter, state.search)
+      // Empty filter, force update it again
+      if(_.isEmpty(flt)) {
+        commit("clearFilter")
+        dispatch("saveSearchSetting", {filter:state.filter})
+      }
+      input = JSON.stringify(flt)
+    }
+    cmds.push('@json -cqnl')
+    let data = await Wn.Sys.exec2(cmds.join(' '), {as:"json", input})
+    commit("setData", data)
+    //......................................
+    // Just update the meta   
+    commit("setStatus", {reloading:false})
+  },
+  //----------------------------------------
+  async reloadSettings({state,commit}) {
+    commit("setStatus", {reloading:true})
+    let config = await Wn.Io.loadContent(state.meta, {as:"json"})
+    //
+    // Default value of configuration
+    //
+    _.defaults(config, {
+      search: {
+        "defaultKey": "nm",
+        "keyword": {
+          "=id": "^[\\d\\w]{26}$",
+          "~nm": "^[a-z0-9]{10}$",
+          "title": "^.+"
+        },
+        "match": {}
+      }
+    })
+    //
+    // Commit to state
+    //
+    commit("setKeepSearch", Ti.Util.fallback(config.keepSearch, true))
+    commit("setPath", config.path)
+    commit("setSearch", config.search || {})
+    commit("setFilter", config.filter || {})
+    commit("setSorter", config.sorter || {nm:1})
+    commit("setPageNumber", Ti.Util.fallback(config.pageNumber,1))
+    commit("setPageSize",   Ti.Util.fallback(config.pageSize,1000))
+    commit("setStatus", {reloading:false})
+  },
+  //----------------------------------------
+  async reload({state, commit, dispatch}, meta) {
+    if(state.status.reloading
+      || state.status.saving){
+      return
+    }
+    //......................................
+    // Use the default meta
+    if(_.isUndefined(meta)) {
+      meta = state.meta
+    }
+    //......................................
+    if(_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+    else if(meta && meta.id) {
+      meta = await Wn.Io.loadMetaById(meta.id)
+    }
+    //......................................
+    // Guard
+    if(!meta) {
+      commit("setMeta", null)
+      return
+    }
+    // Save current meta as config object
+    commit("setMeta", meta)
+    //console.log("m-obj-current.reload", meta.id)
+    //......................................
+    // Reload the config
+    await dispatch("reloadSettings")
+
+    // Reload from local
+    dispatch("recoverSearchSetting")
+
+    // Reload data
+    await dispatch("reloadData")
+    //......................................
+    // Just update the meta   
+    commit("setStatus", {reloading:false})
+  }
+  //----------------------------------------
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'json-tree-item.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/text/json/tree/item/json-tree-item.mjs'] = (function(){
@@ -29325,11 +29715,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
     // Load extends methods
     if(schema.methods) {
-      let methods = await Ti.Load(schema.methods)
+      let methods = await Ti.Load(schema.methods, {
+        dynamicAlias: new Ti.Config.AliasMapping({
+          "^\./": `/o/content?str=id:${state.meta.id}/`
+        })
+      })
       if(!_.isArray(methods)) {
         methods = [methods]
       }
       schema.methods = methods
+    }
+    // Load extends components
+    if(!_.isEmpty(schema.components)) {
+      let components = _.concat(schema.components)
+      await Ti.App.topInstance().loadView({components})
     }
     //console.log("setSchema", schema)
     commit("setSchema", schema)
@@ -31287,6 +31686,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       default:undefined
     },
     "title" : {
+      type:String, 
+      default:undefined
+    },
+    "tip" : {
       type:String, 
       default:undefined
     },
@@ -34577,7 +34980,9 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     doNotifySelect(emitContext) {
-      this.$notify("select", emitContext)
+      if(this.notifySelectName) {
+        this.$notify(this.notifySelectName, emitContext)
+      }
       if(_.isFunction(this.onSelect)) {
         this.onSelect(emitContext)
       }
@@ -34622,7 +35027,9 @@ const LIST_MIXINS = {
     OnRowOpen({rowId}={}) {
       let row = this.findRowById(rowId)
       if(row) {
-        this.$notify("open", row)
+        if(this.notifyOpenName) {
+          this.$notify(this.notifyOpenName, row)
+        }
         if(_.isFunction(this.onOpen)) {
           this.onOpen(row)
         }
@@ -35700,11 +36107,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
       default : null
     },
     "color" : {
-      type : String,
+      type : [String, Function],
       default : ""
     },
     "opacity" : {
-      type : Number,
+      type : [Number, Function],
       default : -1
     },
     "notifyName": {
@@ -35786,13 +36193,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
       }
 
+      // Evel the color
+      let color = icn.color || this.color
+      if(_.isFunction(color)) {
+        color = color(this.value)
+      }
+
+      // Evel the opacity
+      let opacity = icn.opacity || this.opacity
+      if(_.isFunction(opacity)) {
+        opacity = opacity(this.value)
+      }
+      if(!_.isNumber(opacity) || opacity<0) {
+        opacity = undefined
+      }
+
+
       // join style:outer
       let width  = icn.width   || this.width
       let height = icn.height  || this.height 
       icn.outerStyle = Ti.Css.toStyle({
         width, height,
-        color   : icn.color || this.color,
-        opacity : icn.opacity || this.opacity >= 0 ? this.opacity : undefined
+        color, opacity
       })
 
       // join style:inner
@@ -36275,6 +36697,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "autoLoadMore": {
     type : Boolean,
     default: false
+  },
+  "notifySelectName": {
+    type : String,
+    default: "select"
+  },
+  "notifyOpenName": {
+    type : String,
+    default: "open"
   },
   //-----------------------------------
   // Aspect
@@ -44892,7 +45322,8 @@ const _M = {
   },
   //.........................................
   async reloadSidebar() {
-    let reo = await Wn.Sys.exec("ti sidebar -cqn", {as:"json"});
+    let cmdText = Wn.Session.env("SIDEBAR_BY") || "ti sidebar -cqn";
+    let reo = await Wn.Sys.exec(cmdText, {as:"json"});
     this.sidebar = reo.sidebar
     this.sidebarStatusStoreKey = reo.statusStoreKey
   },
@@ -46576,9 +47007,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     // Data
     //------------------------------------------------
-    "meta" : {
-      type : Object
-    },
+    // "meta" : {
+    //   type : Object
+    // },
     "data" : {
       type : Object
     },
@@ -46622,6 +47053,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Aspect
     //------------------------------------------------
     "tableFields" : undefined,
+    "listDisplay" : undefined,
     "filter" : {
       type : Object,
       default : ()=>({
@@ -46697,7 +47129,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           itemBadges: this.itemBadges,
           viewType : this.viewType,
           exposeHidden : this.exposeHidden,
-          tableFields : this.tableFields
+          tableFields : this.tableFields,
+          listDisplay : this.listDisplay
         }
       })
       return com
@@ -51154,7 +51587,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "type": {
     type : String,
     default : "html",
-    validator : v => /^(html|markdown)$/.test(v)
+    validator : v => /^(text|html|markdown|text\/(plain|html|markdown))$/.test(v)
   },
   //-----------------------------------
   // Behavior
@@ -64607,7 +65040,8 @@ Ti.Preload("ti/com/wn/gui/side/nav/com/side-nav-item/side-nav-item.html", `<div 
       class="it-info-text"
       :href="href"
       @click.stop.prevent="OnClickItemInfo">
-      {{title|i18n}}
+      <span class="as-title">{{title|i18n}}</span>
+      <span v-if="tip" class="as-tip">{{tip|i18n}}</span>
     </a>
     <!--
       Group status icon
@@ -64926,6 +65360,7 @@ Ti.Preload("ti/com/wn/label/_com.json", {
 //========================================
 Ti.Preload("ti/com/wn/list/wn-list.html", `<ti-list
   v-bind="this"
+  :data="myData"
   :display="DisplayItems"
   :on-init="OnSubListInit"
   @select="OnSelected"
@@ -65702,6 +66137,7 @@ Ti.Preload("ti/com/wn/support/wn_list_wrapper_mixins.mjs", TI_PACK_EXPORTS['ti/c
 //========================================
 Ti.Preload("ti/com/wn/table/wn-table.html", `<ti-table
   v-bind="this"
+  :data="myData"
   :fields="TheFields"
   :on-init="OnSubListInit"
   @select="OnSelected"
@@ -66401,6 +66837,59 @@ Ti.Preload("ti/mod/wn/obj-axis/_mod.json", {
   "state" : "./m-obj-axis.json",
   "actions" : "./m-obj-axis-actions.mjs",
   "mixins" : "./m-obj-axis.mjs"
+});
+//========================================
+// JOIN <m-obj-browser-actions.mjs> ti/mod/wn/obj-browser/m-obj-browser-actions.mjs
+//========================================
+Ti.Preload("ti/mod/wn/obj-browser/m-obj-browser-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj-browser/m-obj-browser-actions.mjs']);
+//========================================
+// JOIN <m-obj-browser.json> ti/mod/wn/obj-browser/m-obj-browser.json
+//========================================
+Ti.Preload("ti/mod/wn/obj-browser/m-obj-browser.json", {
+  "meta": null,
+  "keepSearch": true,
+  "path": null,
+  "data": {
+    "list": [],
+    "pager": {}
+  },
+  "search": {
+    "defaultKey": "nm",
+    "keyword": {
+      "=id": "^[\\d\\w]{26}$",
+      "~nm": "^[a-z0-9]{10}$",
+      "title": "^.+"
+    },
+    "majorKey": null,
+    "match": {}
+  },
+  "filter": {
+    "keyword": null,
+    "match": null,
+    "majorValue": null
+  },
+  "sorter": {
+    "nm": 1
+  },
+  "pageNumber": 1,
+  "pageSize": 1000,
+  "status": {
+    "reloading": false
+  }
+});
+//========================================
+// JOIN <m-obj-browser.mjs> ti/mod/wn/obj-browser/m-obj-browser.mjs
+//========================================
+Ti.Preload("ti/mod/wn/obj-browser/m-obj-browser.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj-browser/m-obj-browser.mjs']);
+//========================================
+// JOIN <_mod.json> ti/mod/wn/obj-browser/_mod.json
+//========================================
+Ti.Preload("ti/mod/wn/obj-browser/_mod.json", {
+  "name" : "wn-obj-browser",
+  "namespaced" : true,
+  "state" : "./m-obj-browser.json",
+  "actions" : "./m-obj-browser-actions.mjs",
+  "mixins" : "./m-obj-browser.mjs"
 });
 //========================================
 // JOIN <m-obj-current-actions.mjs> ti/mod/wn/obj-current/m-obj-current-actions.mjs
@@ -67874,6 +68363,8 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "mail": "Email",
+  "mail-inbox": "Email Inbox",
   "move-to" : "Move to...",
   "layout" : "Layout",
   "widht" : "Width",
@@ -69276,6 +69767,8 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "mail": "邮件",
+  "mail-inbox": "收件箱",
   "move-to" : "移动到...",
   "layout" : "布局",
   "widht" : "宽度",
@@ -70636,6 +71129,8 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
+   "mail": "郵件",
+   "mail-inbox": "收件箱",
    "move-to": "移動到...",
    "layout": "佈局",
    "widht": "寬度",
@@ -70993,6 +71488,9 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "sms-scene-nm-tip": "請用半角英文數字或者下劃線組合，並保證唯一",
    "sms-setup": "短信配置",
    "sort": "排序",
+   "sort-by": "排序方式",
+   "sort-asc": "升序",
+   "sort-desc": "降序",
    "sort-tip-asc": "越小越靠前",
    "sort-tip-desc": "越大越靠前",
    "sort-val": "排序值",

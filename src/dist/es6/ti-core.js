@@ -1,4 +1,4 @@
-// Pack At: 2021-05-20 03:55:17
+// Pack At: 2021-05-25 21:01:44
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1092,6 +1092,9 @@ const {S} = (function(){
       return str
     },
     isBlank(str) {
+      if(_.isNumber(str) || _.isBoolean(str)) {
+        return false
+      }
       if(_.isString(str))
         return !str || /^\s*$/.test(str)
       return str ? false : true
@@ -7146,6 +7149,16 @@ const {DateTime} = (function(){
       return TiDateTime.setTime(d, 23,59,59,999)
     },
     //---------------------------------------
+    today() {
+      let d = new Date()
+      TiDateTime.setTime(d)
+      return d
+    },
+    //---------------------------------------
+    todayInMs() {
+      return TiDateTime.today().getTime()
+    },
+    //---------------------------------------
     moveYear(d, offset=0) {
       if(_.isDate(d)) {
         d.setFullYear(d.getFullYear + offset)
@@ -12148,6 +12161,10 @@ const {Css} = (function(){
     },
     //-----------------------------------
     mergeClassName(...args) {
+      return TiCss.mergeClassNameBy({}, ...args)
+    },
+    //-----------------------------------
+    mergeClassNameBy(context={}, ...args) {
       let klass = {}
       //.................................
       const __join_class = (kla) => {
@@ -12156,7 +12173,7 @@ const {Css} = (function(){
           return
         // Function
         if(_.isFunction(kla)) {
-          let re = kla()
+          let re = kla(context)
           __join_class(re)
         }
         // String
@@ -13223,7 +13240,7 @@ const {VueTiCom} = (function(){
       },
       //-----------------------------------------------
       getTopClass() {
-        return (...klass)=>Ti.Css.mergeClassName({
+        return (...klass)=>Ti.Css.mergeClassNameBy(this, {
           "is-self-actived" : this.isSelfActived,
           "is-actived" : this.isActived
         }, klass, this.className)
@@ -15149,7 +15166,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210520.035517",
+  "version" : "1.6-20210525.210144",
   "dev" : false,
   "appName" : null,
   "session" : {},

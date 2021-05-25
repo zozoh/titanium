@@ -148,6 +148,9 @@ const TiStr = {
     return str
   },
   isBlank(str) {
+    if(_.isNumber(str) || _.isBoolean(str)) {
+      return false
+    }
     if(_.isString(str))
       return !str || /^\s*$/.test(str)
     return str ? false : true

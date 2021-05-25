@@ -29,11 +29,16 @@ const _M = {
     },
     //--------------------------------------------
     MainComConf() {
-      let thumbDisplay = Wn.Obj.getObjThumbDisplay("rawData")
+      let listDisplay = _.concat(this.listDisplay)
       let conf = ({
         list : ()=>({
           rowClassBy : "->is-${visibility}",
-          display: [thumbDisplay, "title|nm::flex-auto", "nm::as-tip-block"]
+          display: _.map(listDisplay, li=>{
+            if("@<thumb>" == li) {
+              return Wn.Obj.getObjThumbDisplay("rawData")
+            }
+            return li
+          })
         }),
         table : ()=>({
           rowClassBy : "->is-${visibility}",

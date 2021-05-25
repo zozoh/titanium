@@ -231,6 +231,16 @@ const TiDateTime = {
     return TiDateTime.setTime(d, 23,59,59,999)
   },
   //---------------------------------------
+  today() {
+    let d = new Date()
+    TiDateTime.setTime(d)
+    return d
+  },
+  //---------------------------------------
+  todayInMs() {
+    return TiDateTime.today().getTime()
+  },
+  //---------------------------------------
   moveYear(d, offset=0) {
     if(_.isDate(d)) {
       d.setFullYear(d.getFullYear + offset)

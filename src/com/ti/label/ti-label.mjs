@@ -213,6 +213,10 @@ const _M = {
         }
         return val.join(this.multiValSep)
       }
+      // Auto format
+      if(_.isFunction(this.TheFormat)) {
+        return this.TheFormat(val)
+      }
       // Object
       if(_.isPlainObject(val)) {
         return JSON.stringify(val, null, '  ')
@@ -224,10 +228,6 @@ const _M = {
       // Date
       if(_.isDate(val)) {
         return Ti.Types.toStr(val, this.TheFormat)
-      }
-      // Auto format
-      if(_.isFunction(this.TheFormat)) {
-        return this.TheFormat(val)
       }
       // Return & auto-i18n
       return this.autoI18n 

@@ -17,7 +17,8 @@
       class="it-info-text"
       :href="href"
       @click.stop.prevent="OnClickItemInfo">
-      {{title|i18n}}
+      <span class="as-title">{{title|i18n}}</span>
+      <span v-if="tip" class="as-tip">{{tip|i18n}}</span>
     </a>
     <!--
       Group status icon

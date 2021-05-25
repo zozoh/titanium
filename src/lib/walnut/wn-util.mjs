@@ -291,12 +291,17 @@ const WnUtil = {
    *       "~nm"   : "^[a-z0-9]{10}$",
    *       "title" : "^.+"
    *    }, 
-   *    match : {  ...fixed matcher ... }
+   *    match : {  ...fixed matcher ... },
+   *    majorKey : "key_xxx"
    * }
    * ```
    */
   getMatchByFilter({keyword, match, majorKey, majorValue}={}, setting={}) {
     let flt = {}
+    //............................................
+    // compatibable mode, the majorKey can declare in settings also
+    // And in higher priority
+    majorKey = setting.majorKey || majorKey
     //............................................
     // Eval Filter: keyword
     if(keyword) {

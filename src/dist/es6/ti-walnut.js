@@ -1,4 +1,4 @@
-// Pack At: 2021-05-20 03:55:17
+// Pack At: 2021-05-25 21:01:44
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -977,7 +977,7 @@ const Obj = (function(){
           key : `rawData.${key}`,
           transformer : "Ti.DateTime.timeText",
           comConf : {
-            className : "as-tip-block align-right",
+            className : "as-tip-block align-right is-nowrap",
           }
         }
       }
@@ -1921,12 +1921,17 @@ const Util = (function(){
      *       "~nm"   : "^[a-z0-9]{10}$",
      *       "title" : "^.+"
      *    }, 
-     *    match : {  ...fixed matcher ... }
+     *    match : {  ...fixed matcher ... },
+     *    majorKey : "key_xxx"
      * }
      * ```
      */
     getMatchByFilter({keyword, match, majorKey, majorValue}={}, setting={}) {
       let flt = {}
+      //............................................
+      // compatibable mode, the majorKey can declare in settings also
+      // And in higher priority
+      majorKey = setting.majorKey || majorKey
       //............................................
       // Eval Filter: keyword
       if(keyword) {
@@ -3866,7 +3871,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210520.035518"
+const WALNUT_VERSION = "1.2-20210525.210144"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

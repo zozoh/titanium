@@ -31,6 +31,10 @@ export default {
       type:String, 
       default:undefined
     },
+    "tip" : {
+      type:String, 
+      default:undefined
+    },
     "path"  : {
       type:String, 
       default:undefined
