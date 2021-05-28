@@ -1,39 +1,39 @@
 {
-  "pcSkyLogo" : {
-    "comType" : "ti-icon",
-    "comConf" : {
-      "width" : "3em", 
-      "fontSize" : "1.5em", 
-      "value" : "=Logo"
+  "pcSkyLogo": {
+    "comType": "ti-icon",
+    "comConf": {
+      "width": "3em",
+      "fontSize": "1.5em",
+      "value": "=Logo"
     }
   },
-  "pcSkyTitle" : {
-    "comType" : "ti-crumb",
-    "comConf" : "=Crumb"
+  "pcSkyTitle": {
+    "comType": "ti-crumb",
+    "comConf": "=Crumb"
   },
-  "pcSkySession" : {
-    "comType" : "wn-session-badge",
-    "comConf" : "=SessionBadge"
+  "pcSkySession": {
+    "comType": "wn-session-badge",
+    "comConf": "=SessionBadge"
   },
-  "pcSkyMenu" : {
-    "comType" : "ti-actionbar",
-    "comConf" : "=ActionMenu"
+  "pcSkyMenu": {
+    "comType": "ti-actionbar",
+    "comConf": "=ActionMenu"
   },
-  "pcMainSideBar" : {
-    "comType" : "wn-gui-side-nav",
-    "comConf" : {
-      "statusStoreKey" : "=sidebarStatusStoreKey",
-      "items" : "=sidebar",
-      "highlightItemId"   : "=MetaId",
-      "highlightItemPath" : "=MetaPath"
+  "pcMainSideBar": {
+    "comType": "wn-gui-side-nav",
+    "comConf": {
+      "statusStoreKey": "=sidebarStatusStoreKey",
+      "items": "=sidebar",
+      "highlightItemId": "=MetaId",
+      "highlightItemPath": "=MetaPath"
     }
   },
-  "pcMainArena" : {
-    "comType" : "=comType",
-    "comConf" : "=Arena"
+  "pcMainArena": {
+    "comType": "=comType",
+    "comConf": "=Arena"
   },
-  "pcFooter" : {
-    "comType" : "wn-gui-footer",
-    "comConf" : "=Footer"
+  "pcFooter": {
+    "comType": "wn-gui-footer",
+    "comConf": "=Footer"
   }
 }

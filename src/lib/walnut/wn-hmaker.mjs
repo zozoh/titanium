@@ -29,6 +29,34 @@ const BACKGROUND = {
   comType : "ti-input"
 };
 //------------------------------------------------------
+const BACKGROUND_REPEAT = {
+  title : "i18n:hmk-css-background-repeat",
+  name : "background-repeat",
+  comType : "TiDroplist",
+  comConf : {
+    options: "#CssBackgroundRepeats"
+  }
+};
+//------------------------------------------------------
+const BACKGROUND_POSITION = {
+  title : "i18n:hmk-css-background-position",
+  name : "background-position",
+  comType : "TiDroplist",
+  comConf : {
+    options: "#CssBackgroundPositions"
+  }
+};
+//------------------------------------------------------
+const BACKGROUND_SIZE = {
+  title : "i18n:hmk-css-background-size",
+  name : "background-size",
+  width : "full",
+  comType : "TiSwitcher",
+  comConf : {
+    options: "#CssBackgroundSizes"
+  }
+};
+//------------------------------------------------------
 const COLOR = {
   title : "i18n:hmk-css-color",
   name : "color",
@@ -220,6 +248,11 @@ const FONT_SIZE = {
 ////////////////////////////////////////////////////////
 const CSS_PROPS = {
   "background"     : BACKGROUND,
+  "background-position" : BACKGROUND_POSITION,
+  "background-repeat"   : BACKGROUND_REPEAT,
+  "background-size"     : BACKGROUND_SIZE,
+  "background"     : BACKGROUND,
+  "background"     : BACKGROUND,
   "border"         : BORDER,
   "border-radius"  : BORDER_RADIUS,
   "box-shadow"     : BOX_SHADOW,
@@ -254,6 +287,9 @@ const CSS_GROUPING = {
     "border",
     "border-radius",
     "background",
+    "background-position",
+    "background-repeat",
+    "background-size",
     "color",
     "box-shadow",
     "opacity",
@@ -346,6 +382,7 @@ const WnHMaker = {
         fldMap[name] = fld
       }
     })
+    console.log(fldMap)
 
     // Make group
     let re = []

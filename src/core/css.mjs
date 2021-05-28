@@ -84,6 +84,23 @@ const TiCss = {
     return `url("${src}")`
   },
   //-----------------------------------
+  toBackgroundUrlBy(src, tmpl="") {
+    if(!src)
+      return
+    if(tmpl)
+      src = Ti.S.renderBy(tmpl, src)
+    return `url("${src}")`
+  },
+  //-----------------------------------
+  toBackgroundUrlAsPreview(src, apiTmpl, cdnTmpl, dftSrc) {
+    if(!src || _.isEmpty(src))
+      return
+    src = Ti.WWW.evalObjPreviewSrc(src, {
+      apiTmpl, cdnTmpl, dftSrc
+    })
+    return `url("${src}")`
+  },
+  //-----------------------------------
   toNumStyle(obj) {
     return TiCss.toStyle(obj, false)
   },

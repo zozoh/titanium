@@ -1,49 +1,61 @@
 {
-  "desktop" : {
-    "type" : "rows",
-    "border" : true,
-    "blocks" : [{
-      "name" : "sky",
-      "size" : 48,
-      "type" : "cols",
-      "blocks" : [{
-          "name" : "logo",
-          "size" : "auto",
-          "body" : "pcSkyLogo"
-        }, {
-          "name" : "title",
-          "size" : "stretch",
-          "body" : "pcSkyTitle"
-        }, {
-          "name" : "session",
-          "size" : "auto",
-          "body" : "pcSkySession"
-        }, {
-          "name" : "menu",
-          "size" : "auto",
-          "body" : "pcSkyMenu"
-        }]
-    }, {
-      "name" : "main",
-      "size" : "100px",
-      "flex" : "both",
-      "type" : "cols",
-      "border" : true,
-      "blocks" : [{
-          "name"  : "sidebar",
-          "size" : "1.8rem",
-          "body"  : "pcMainSideBar"
-        }, {
-          "name" : "arena",
-          "size" : "stretch",
-          "body" : "pcMainArena"
-        }]
-    }, {
-      "name" : "footer",
-      "size" : ".32rem",
-      "body" : "pcFooter"
-    }]
+  "desktop": {
+    "type": "rows",
+    "border": true,
+    "blocks": [
+      {
+        "name": "sky",
+        "size": 48,
+        "type": "cols",
+        "blocks": [
+          {
+            "name": "logo",
+            "size": "auto",
+            "body": "pcSkyLogo"
+          },
+          {
+            "name": "title",
+            "size": "stretch",
+            "body": "pcSkyTitle"
+          },
+          {
+            "name": "session",
+            "size": "auto",
+            "body": "pcSkySession"
+          },
+          {
+            "name": "menu",
+            "size": "auto",
+            "body": "pcSkyMenu"
+          }
+        ]
+      },
+      {
+        "name": "main",
+        "size": "100px",
+        "flex": "both",
+        "type": "cols",
+        "border": true,
+        "blocks": [
+          {
+            "name": "sidebar",
+            "size": "1.8rem",
+            "body": "pcMainSideBar"
+          },
+          {
+            "name": "arena",
+            "size": "stretch",
+            "body": "pcMainArena"
+          }
+        ]
+      },
+      {
+        "name": "footer",
+        "size": ".32rem",
+        "body": "pcFooter"
+      }
+    ]
   },
-  "tablet" : "desktop",
-  "phone" : "desktop"
+  "tablet": "desktop",
+  "phone": "desktop"
 }
