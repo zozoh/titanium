@@ -1,4 +1,4 @@
-// Pack At: 2021-05-31 15:38:44
+// Pack At: 2021-05-31 16:24:16
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -64588,6 +64588,7 @@ Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-tex
   <a
     v-if="showBackward"
       class="as-backward"
+      href="javascript:void(0)"
       @click.left="OnClickBackward"><i class="fas fa-chevron-left"></i></a>
   <!--Title/Icon-->
   <a
