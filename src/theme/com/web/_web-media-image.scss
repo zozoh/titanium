@@ -126,6 +126,9 @@
   // Hover effect
   //
   //-----------------------------------------
+  &.hover-none {
+    cursor: default;
+  }
   &.hover-to-up {
     transition: transform 0.3s; 
     &:hover {

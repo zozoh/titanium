@@ -348,7 +348,7 @@ const TiUtil = {
             "!=" : (val)=> {
               let re = _.get(context, val)
               if(Ti.Util.isNil(re))
-                return Ti.Util.fallback(m_dft, false)
+                return Ti.Util.fallback(m_dft, true)
               return re ? false : true
             },
             // =xxx   # Get Value Now

@@ -640,6 +640,9 @@ const TiDom = {
   },
   //----------------------------------------------------
   setStyle($el, css={}) {
+    // Guard
+    if(!$el)
+      return
     if(_.isEmpty(css)) {
       $el.style = ""
       return
@@ -649,6 +652,9 @@ const TiDom = {
   },
   //----------------------------------------------------
   updateStyle($el, css={}) {
+    // Guard
+    if(!$el)
+      return
     if(_.isEmpty(css)) {
       $el.style = ""
       return

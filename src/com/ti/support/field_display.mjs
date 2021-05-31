@@ -64,7 +64,7 @@ function __eval_com_conf_item(val, cx={}) {
     if(m){
       let preKey = _.trim(m[2])
       let tmpl = _.trim(m[3])
-      //console.log("haha", preKey, tmpl)
+      // console.log("haha", preKey, tmpl)
       // Only `itemData` contains the preKey, render the value
       if(preKey) {
         // "(age)?xxx"  :: get from itemDAta
@@ -348,6 +348,8 @@ const FieldDisplay = {
     // Add value to comConf
     let reDisplayItem = _.cloneDeep(dis)
     let comConf = {};
+    if(".." == dis.key)
+      console.log(dis)
     //.....................................
     // Customized comConf
     if(_.isFunction(dis.comConf)) {
