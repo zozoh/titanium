@@ -1,7 +1,6 @@
 {
-  "role-add" : "添加角色",
-  "account-add" : "添加账户",
   "account": "账户",
+  "account-add": "添加账户",
   "account-flt-tip": "请输入账号名过滤",
   "account-manage": "账户管理",
   "account-meta": "账户属性",
@@ -325,6 +324,7 @@
   "pubat": "发布日期",
   "read-du": "阅读时长",
   "role": "角色",
+  "role-add": "添加角色",
   "role-as-guest": "访客",
   "role-as-normal": "普通用户",
   "role-as-vip": "VIP用户",

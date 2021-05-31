@@ -1,4 +1,4 @@
-// Pack At: 2021-05-31 16:24:16
+// Pack At: 2021-05-31 23:45:35
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4217,6 +4217,9 @@ const {Dom} = (function(){
     },
     //----------------------------------------------------
     setStyle($el, css={}) {
+      // Guard
+      if(!$el)
+        return
       if(_.isEmpty(css)) {
         $el.style = ""
         return
@@ -4226,6 +4229,9 @@ const {Dom} = (function(){
     },
     //----------------------------------------------------
     updateStyle($el, css={}) {
+      // Guard
+      if(!$el)
+        return
       if(_.isEmpty(css)) {
         $el.style = ""
         return
@@ -9123,7 +9129,7 @@ const {Util} = (function(){
               "!=" : (val)=> {
                 let re = _.get(context, val)
                 if(Ti.Util.isNil(re))
-                  return Ti.Util.fallback(m_dft, false)
+                  return Ti.Util.fallback(m_dft, true)
                 return re ? false : true
               },
               // =xxx   # Get Value Now
@@ -15296,7 +15302,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210531.162416",
+  "version" : "1.6-20210531.234535",
   "dev" : false,
   "appName" : null,
   "session" : {},

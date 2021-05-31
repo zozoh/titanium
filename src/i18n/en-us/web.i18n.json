@@ -1,7 +1,6 @@
 {
-  "role-add" : "Add role",
-  "account-add" : "Add account",
   "account": "Account",
+  "account-add": "Add account",
   "account-flt-tip": "Filter by account name",
   "account-manage": "Accounts",
   "account-meta": "Account properties",
@@ -325,6 +324,7 @@
   "pubat": "Release date",
   "read-du": "Reading spend",
   "role": "Role",
+  "role-add": "Add role",
   "role-as-guest": "Guest",
   "role-as-normal": "Normal",
   "role-as-vip": "VIP",

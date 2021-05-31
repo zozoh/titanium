@@ -1,5 +1,6 @@
 {
    "net-ct": "創建時間",
+   "net-fb-relogin": "重新登錄FB賬戶",
    "net-flt-nil": "查找視頻名稱",
    "net-vod-add-video": "添加視頻",
    "net-vod-cate": "視頻分類",
@@ -10,6 +11,5 @@
    "net-vod-size": "視頻大小",
    "net-vod-video-nil": "請選擇一個視頻查看詳情",
    "net-youtube": "Youtube",
-   "net-youtube-add-video": "添加Youtube視頻",
-   "net-fb-relogin": "重新登錄FB賬戶"
+   "net-youtube-add-video": "添加Youtube視頻"
 }
