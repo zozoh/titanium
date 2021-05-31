@@ -82,13 +82,22 @@ screen:
     // 如果查到了字典项，就会映射为一个对象，并融合
     "fieldName2" : {
       dict : "DictName",
+      // 当 dict 为 Name(=xxx) 这种动态字典时，才会有效
+      dictVars : {...},
       // 映射目标
       target : {
         "fieldA" : "keyOfDictItem1",
         "fieldB" : "keyOfDictItem2",
       },
       // 或者直接挑选字段
-      target : ["fieldA", "fieldB"]
+      target : ["fieldA", "fieldB"],
+      // 这个选项开启，则表示上面的映射目标不是简单的映射
+      // 而是需要通过 Ti.Util.explainObj 来转换
+      // 当然，这个选项只有在 target 为 Object 映射时才有效
+      // 选项的值为一个键，即，在 explainObj 的上下文中，默认是 form.data
+      // 并加入一个当前字段的键。
+      // 因为这个值很可能是从 dictionary 翻译出来的对象或者对象列表
+      explainTargetAs: "item",
     },
     // 如果对应的是一个函数，那么会直接调用，函数支持 async
     "fieldName2" : async function({name, value}, data) {

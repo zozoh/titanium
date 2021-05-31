@@ -163,21 +163,67 @@ const _M = {
         // By dict
         if(val && val.dict && val.target) {
           let {dict, target} = val
+          // Guard
+          if(!target) {
+            return
+          }
           // Get dict
-          let d = Ti.DictFactory.CheckDict(dict)
+          let {name, dynamic, dictKey} = Ti.DictFactory.explainDictName(dict)
+          //.......................................................
+          let getItemFromDict = async function(value, data) {
+            let d;
+            // Dynamic
+            if(dynamic) {
+              let key = _.get(data, dictKey)
+              let vars = Ti.Util.explainObj(data, val.dictVars || {})
+              d = Ti.DictFactory.GetDynamicDict({name, key, vars})
+            }
+            // Static Dictionary
+            else {
+              d = Ti.DictFactory.CheckDict(name)
+            }
+            // Get item data
+            if(d) {
+              // Multi value
+              if(_.isArray(value)) {
+                let list = []
+                for(let v of value) {
+                  let v2 = await d.getItem(v)
+                  list.push(v2)
+                }
+                return list
+              }
+              // Single value
+              return await d.getItem(value)
+            }
+          }
+          //.......................................................
           let fn;
+          //.......................................................
           // Pick
           if(_.isArray(target)) {
-            fn = async function({value}) {
-              let it = (await d.getItem(value)) || {}
+            fn = async function({value}, data) {
+              let it = await getItemFromDict(value, data)
               return _.pick(it, target)
             }
           }
-          // Translate
+          // Explain target
+          else if(val.explainTargetAs) {
+            fn = async function({value, name}, data) {
+              let it = await getItemFromDict(value, data)
+              let ctx = _.assign({}, data, {
+                [val.explainTargetAs] : it
+              })
+              let newVal = Ti.Util.explainObj(ctx, target)
+              //console.log(name, value, "->", newVal)
+              return newVal
+            }
+          }
+          // Simple Translate
           else {
-            fn = async function({value}) {
-              let it = (await d.getItem(value)) || {}
-              return Ti.Util.translate(it, target)
+            fn = async function({value}, data) {
+              let it = await getItemFromDict(value, data)
+              return Ti.Util.translate(it, target, v=>Ti.Util.fallback(v, null))
             }
           }
           // join to map

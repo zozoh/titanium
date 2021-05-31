@@ -2,88 +2,95 @@ export default {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "options" : {
-    type : [String, Array, Function, Ti.Dict],
-    default : ()=>[]
+  "options": {
+    type: [String, Array, Function, Ti.Dict],
+    default: () => []
   },
-  "valueBy" : {
-    type : [String, Function],
-    default : undefined
+  // If dynamic dictionary: options = '#DickName(=varName)'
+  // it will use Ti.DictFactory.CheckDynamicDict,
+  // The key of the instance name, should explain for the vars set
+  "dictVars": {
+    type: Object,
+    default: ()=>({})
   },
-  "textBy" : {
-    type : [String, Function],
-    default : undefined
+  "valueBy": {
+    type: [String, Function],
+    default: undefined
   },
-  "iconBy" : {
-    type : [String, Function],
-    default : undefined
+  "textBy": {
+    type: [String, Function],
+    default: undefined
   },
-  "childrenBy" : {
-    type : [String, Function],
-    default : undefined
+  "iconBy": {
+    type: [String, Function],
+    default: undefined
+  },
+  "childrenBy": {
+    type: [String, Function],
+    default: undefined
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "dropComType" : {
-    type : String,
-    default : undefined
+  "dropComType": {
+    type: String,
+    default: undefined
   },
-  "dropComConf" : {
-    type : Object,
-    default : undefined
+  "dropComConf": {
+    type: Object,
+    default: undefined
   },
-  "mustInList" : {
-    type : Boolean,
-    default : false
+  "mustInList": {
+    type: Boolean,
+    default: false
   },
-  "autoFocusExtended" : {
-    type : Boolean,
-    default : true
+  "autoFocusExtended": {
+    type: Boolean,
+    default: true
   },
-  "filter" : {
-    type : Boolean,
-    default : true
+  "filter": {
+    type: Boolean,
+    default: true
   },
-  "delay" : {
-    type : Number,
-    default : 800
+  "delay": {
+    type: Number,
+    default: 800
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "autoI18n" : {
-    type : Boolean,
-    default : true
+  "autoI18n": {
+    type: Boolean,
+    default: true
   },
-  "statusIcons" : {
-    type : Object,
-    default : ()=>({
-      collapse : "zmdi-chevron-down",
-      extended : "zmdi-chevron-up"
+  "statusIcons": {
+    type: Object,
+    default: () => ({
+      collapse: "zmdi-chevron-down",
+      extended: "zmdi-chevron-up"
     })
   },
-  "dropDisplay" : {
-    type : [Object, String, Array],
-    default : undefined
+  "dropDisplay": {
+    type: [Object, String, Array],
+    default: undefined
   },
-  "dropItemBorder" : {
-    type : Boolean,
-    default : true
+  "dropItemBorder": {
+    type: Boolean,
+    default: true
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "keepWidthWhenDrop" : {
-    type : Boolean, 
-    default : undefined
+  "keepWidthWhenDrop": {
+    type: Boolean,
+    default: undefined
   },
-  "dropWidth" : {
-    type : [Number, String],
-    default : "box"
+  "dropWidth": {
+    type: [Number, String],
+    default: "box"
   },
-  "dropHeight" : {
-    type : [Number, String],
-    default : null
+  "dropHeight": {
+    type: [Number, String],
+    default: null
   }
 }

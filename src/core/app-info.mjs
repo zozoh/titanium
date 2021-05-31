@@ -73,7 +73,11 @@ function __load_linked_obj(input, {
       let linkURI = isTiLink(input)
       //.......................................
       if(linkURI) {
-        let {url, type}  = Ti.Config.cookUrl(linkURI, {dynamicPrefix, dynamicAlias})
+        let cookRe = Ti.Config.cookUrl(linkURI, {dynamicPrefix, dynamicAlias})
+        if(!cookRe) {
+          return
+        }
+        let {url, type}  = cookRe
 
         if(!LT.isAlreadyInLoading(url)) {
           LT.addItem(url)
@@ -133,7 +137,12 @@ function __assemble_linked_obj(
       let linkURI = isTiLink(input)
       //.......................................
       if(linkURI) {
-        let {url, type}  = Ti.Config.cookUrl(linkURI, {dynamicPrefix, dynamicAlias})
+        // Try cook URL
+        let cookRe = Ti.Config.cookUrl(linkURI, {dynamicPrefix, dynamicAlias})
+        if(!cookRe) {
+          return input
+        }
+        let {url, type} = cookRe
         // Guard for infinity import loop
         if(memo[url])
           return

@@ -4,18 +4,41 @@ const WnDict = {
    * @return {Ti.Dict}
    */
   evalOptionsDict({
-    options, findBy, itemBy, childrenBy,
+    options, dictVars,
+    findBy, itemBy, childrenBy,
     valueBy, textBy, iconBy,
     dictShadowed = true
   }, hooks) {
     // Quck Dict Name
     let dictName = Ti.DictFactory.DictReferName(options)
+    // console.log("evalOptionsDict", options)
+    // if("ComDeptJobs" == dictName) {
+    //   console.log("haha", {options, dictKey, dictVars})
+    // }
     if(dictName) {
+      let {name, dynamic, dictKey} = Ti.DictFactory.explainDictName(dictName)
+      //
+      // Dynamic dictionary
+      //
+      if(dynamic) {
+        let key = _.get(dictVars, dictKey)
+        if(!key) {
+          return null
+        }
+        return Ti.DictFactory.CheckDynamicDict({
+          name, key,
+          vars : dictVars
+        })
+      }
+      //
+      // Static dictionary
+      //
       return Ti.DictFactory.CheckDict(dictName, hooks)
     }
 
-    // Explaint 
+    // Explaint anonymity dictionary
     return Ti.DictFactory.CreateDict({
+      dataChildrenKey : options.dataChildrenKey,
       //...............................................
       data  : Wn.Util.genQuery(options, {
         vkey:null,
@@ -49,25 +72,60 @@ const WnDict = {
   setup(dicts) {
     //console.log(dicts)
     _.forEach(dicts, (dict, name)=>{
-      let d = Ti.DictFactory.GetDict(name)
-      if(!d) {
-        //console.log("create", name, dict)
-        Ti.DictFactory.CreateDict({
-          //...............................................
-          data  : Wn.Util.genQuery(dict.data, {vkey:null}),
-          query : Wn.Util.genQuery(dict.query),
-          item  : Wn.Util.genQuery(dict.item, {
-            blankAs: "{}"
-          }),
-          children : Wn.Util.genQuery(dict.children),
-          //...............................................
-          getValue : Ti.Util.genGetter(dict.value),
-          getText  : Ti.Util.genGetter(dict.text),
-          getIcon  : Ti.Util.genGetter(dict.icon),
-          //...............................................
-          shadowed : Ti.Util.fallback(dict.shadowed, true)
-          //...............................................
-        }, {name})
+      //
+      // Dynamic
+      //
+      if(dict.dynamic) {
+        let ddef = _.pick(dict, 
+          "dataChildrenKey",
+          "data", "query", "item", "children",
+          "value", "text", "icon", "shadowed")
+        Ti.DictFactory.CreateDynamicDict(function(vars={}){
+          let dobj = Ti.Util.explainObj(vars, ddef)
+          return Ti.DictFactory.CreateDict({
+            dataChildrenKey : dobj.dataChildrenKey,
+            //...............................................
+            data  : Wn.Util.genQuery(dobj.data, {vkey:null}),
+            query : Wn.Util.genQuery(dobj.query),
+            item  : Wn.Util.genQuery(dobj.item, {
+              blankAs: "{}"
+            }),
+            children : Wn.Util.genQuery(dobj.children),
+            //...............................................
+            getValue : Ti.Util.genGetter(dobj.value),
+            getText  : Ti.Util.genGetter(dobj.text),
+            getIcon  : Ti.Util.genGetter(dobj.icon),
+            //...............................................
+            shadowed : Ti.Util.fallback(dobj.shadowed, true)
+            //...............................................
+          })
+        }, name)
+      }
+      //
+      // Static
+      //
+      else {
+        let d = Ti.DictFactory.GetDict(name)
+        if(!d) {
+          //console.log("create", name, dict)
+          Ti.DictFactory.CreateDict({
+            dataChildrenKey : dict.dataChildrenKey,
+            //...............................................
+            data  : Wn.Util.genQuery(dict.data, {vkey:null}),
+            query : Wn.Util.genQuery(dict.query),
+            item  : Wn.Util.genQuery(dict.item, {
+              blankAs: "{}"
+            }),
+            children : Wn.Util.genQuery(dict.children),
+            //...............................................
+            getValue : Ti.Util.genGetter(dict.value),
+            getText  : Ti.Util.genGetter(dict.text),
+            getIcon  : Ti.Util.genGetter(dict.icon),
+            //...............................................
+            shadowed : Ti.Util.fallback(dict.shadowed, true)
+            //...............................................
+          }, {name})
+        }
       }
     })
   },

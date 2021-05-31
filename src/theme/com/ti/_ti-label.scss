@@ -26,7 +26,6 @@
     flex:1 1 auto; width:100px; 
     > .as-value {
       > a, > span {
-        display: block;
         width:100%;
         white-space: nowrap;
         overflow: hidden;
@@ -85,6 +84,7 @@
     @include flex-align-nowrap;
     padding: 0 SZ(4);
     width:100%;
+    a, span {display: block; flex:1 1 auto;}
     a:hover {text-decoration: underline;}
   }
   //-----------------------------------------

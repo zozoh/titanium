@@ -1,0 +1,14 @@
+{
+  "name" : "wn-droptree",
+  "globally" : true,
+  "template" : "./wn-droptree.html",
+  "props"    : [
+    "@com:ti/input/ti-input-props.mjs",
+    "@com:ti/input/tags/ti-input-tags-props.mjs",
+    "@com:ti/combo/input/ti-combo-input-props.mjs"],
+  "mixins"   : ["./wn-droptree.mjs"],
+  "components" : [
+    "@com:wn/combo/input",
+    "@com:wn/combo/multi-input"
+  ]
+}

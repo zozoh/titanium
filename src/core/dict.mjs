@@ -1,18 +1,21 @@
 ///////////////////////////////////////////////
-const K = {
-  item      : Symbol("item"),
-  data      : Symbol("data"),
-  query     : Symbol("query"),
-  children  : Symbol("children"),
-  getValue  : Symbol("getValue"),
-  getText   : Symbol("getText"),
-  getIcon   : Symbol("getIcon"),
-  isMatched : Symbol("isMatched"),
-  itemCache : Symbol("itemCache"),
-  dataCache : Symbol("dataCache"),
-  hooks     : Symbol("hooks"),
-  shadowed  : Symbol("shadowed")
-}
+// const K = {
+//   item      : Symbol("item"),
+//   data      : Symbol("data"),
+//   query     : Symbol("query"),
+//   children  : Symbol("children"),
+//   getValue  : Symbol("getValue"),
+//   getText   : Symbol("getText"),
+//   getIcon   : Symbol("getIcon"),
+//   isMatched : Symbol("isMatched"),
+//   itemCache : Symbol("itemCache"),
+//   dataCache : Symbol("dataCache"),
+//   hooks     : Symbol("hooks"),
+//   shadowed  : Symbol("shadowed")
+// }
+const K = ["item", "data", "query", "children",
+"getValue", "getText", "getIcon", "isMatched",
+"itemCache", "dataCache", "hooks", "shadowed"]
 ///////////////////////////////////////////////
 const __item_loading = {
   
@@ -21,16 +24,17 @@ const __item_loading = {
 export class Dict {
   //-------------------------------------------
   constructor(){
-    this[K.hooks]     = []
-    this[K.shadowed]  = false
-    this[K.item]      = _.idendity
-    this[K.data]      = ()=>[]
-    this[K.query]     = v =>[]
-    this[K.children]  = v =>[]
-    this[K.getValue]  = v =>Ti.Util.getFallback(v, "value", "id")
-    this[K.getText]   = v =>Ti.Util.getFallback(v, "title", "text", "name", "nm")
-    this[K.getIcon]   = v =>_.get(v, "icon")
-    this[K.isMatched] = (it, v, $dict) => {
+    this.hooks     = []
+    this.shadowed  = false
+    this.item      = _.idendity
+    this.data      = ()=>[]
+    this.dataChildrenKey = null,
+    this.query     = v =>[]
+    this.children  = v =>[]
+    this.getValue  = v =>Ti.Util.getFallback(v, "value", "id")
+    this.getText   = v =>Ti.Util.getFallback(v, "title", "text", "name", "nm")
+    this.getIcon   = v =>_.get(v, "icon")
+    this.isMatched = (it, v, $dict) => {
       //console.log("match", it, v)
       let itV = $dict.getValue(it)
       if(_.isEqual(v, itV))
@@ -41,47 +45,47 @@ export class Dict {
       return false
     }
     //-------------------------------------------
-    this[K.itemCache] = {}    // {val-item}
-    this[K.dataCache] = null  // last query result for data
+    this.itemCache = {}    // {val-item}
+    this.dataCache = null  // last query result for data
   }
   //-------------------------------------------
   // Funcs
   //-------------------------------------------
   setShadowed(shadowed=false) {
-    this[K.shadowed] = shadowed
+    this.shadowed = shadowed
   }
   isShadowed() {
-    return this[K.shadowed]
+    return this.shadowed
   }
   //-------------------------------------------
   addHooks(...hooks) {
     let list = _.flattenDeep(hooks)
     _.forEach(list, hk => {
       if(_.isFunction(hk)){
-        this[K.hooks].push(hk)
+        this.hooks.push(hk)
        }
     })
   }
   //-------------------------------------------
   clearHooks(){
-    this[K.hooks] = []
+    this.hooks = []
    }
   //-------------------------------------------
   doHooks(loading=false) {
-    for(let hk of this[K.hooks]) {
+    for(let hk of this.hooks) {
       hk({loading} )
     }
   }
   //-------------------------------------------
   invoke(methodName, ...args) {
-    let func = this[K[methodName]]
+    let func = this[methodName]
     if(_.isFunction(func)){
       return func.apply(this, [...args, this])
     }
   }
   //-------------------------------------------
   async invokeAsync(methodName, ...args) {
-    let func = this[K[methodName]]
+    let func = this[methodName]
     if(_.isFunction(func)){
       let are = await func.apply(this, [...args, this])
       // console.log("invokeAsync", methodName, ...args)
@@ -93,7 +97,7 @@ export class Dict {
   setFunc(methods) {
     _.forEach(methods, (func, methodName)=>{
       if(_.isFunction(func)){
-        this[K[methodName]] = func
+        this[methodName] = func
       }
     })
   }
@@ -104,17 +108,17 @@ export class Dict {
       d[s_key] = this[s_key]
     })
     if(!hooks) {
-      d[K.hooks] = []
+      d.hooks = []
     }
     if(!cache) {
-      d[K.itemCache] = {}
-      d[K.dataCache] = null
+      d.itemCache = {}
+      d.dataCache = null
     }
     if(!dataCache) {
-      d[K.dataCache] = null
+      d.dataCache = null
     }
     if(!itemCache) {
-      d[K.itemCache] = {}
+      d.itemCache = {}
     }
     return d
   }
@@ -122,7 +126,7 @@ export class Dict {
   // Cache
   //-------------------------------------------
   isItemCached(val) {
-    return !Ti.Util.isNil(this[K.itemCache][val])
+    return !Ti.Util.isNil(this.itemCache[val])
   }
   //-------------------------------------------
   addItemToCache(it, val) {
@@ -133,13 +137,23 @@ export class Dict {
     }
 
     if(!_.isUndefined(it) && !Ti.Util.isNil(itV)) {
-      this[K.itemCache][itV] = it
+      this.itemCache[itV] = it
+    }
+
+    // Cache the children
+    if(this.dataChildrenKey) {
+      let subItems = it[this.dataChildrenKey]
+      if(_.isArray(subItems) && subItems.length > 0) {
+        for(let subIt of subItems) {
+          this.addItemToCache(subIt)
+        }
+      }
     }
   }
   //-------------------------------------------
   clearCache() {
-    this[K.itemCache] = {}    // {val-item}
-    this[K.dataCache] = null  // last query result for data
+    this.itemCache = {}    // {val-item}
+    this.dataCache = null  // last query result for data
   }
   //-------------------------------------------
   // Utility
@@ -165,7 +179,7 @@ export class Dict {
     }
     //console.log("Dict.getItem", val)
     // Match cache
-    let it = this[K.itemCache][val]
+    let it = this.itemCache[val]
     // Not in cache, try getItem
     if(_.isUndefined(it)) {
       // If is loading, return the promise
@@ -208,7 +222,7 @@ export class Dict {
   }
   //-------------------------------------------
   async getData(force=false){
-    let list = this[K.dataCache]
+    let list = this.dataCache
     if(force || _.isEmpty(list)) {
       this.doHooks(true)
       list = await this.invokeAsync("data")
@@ -222,7 +236,7 @@ export class Dict {
         this.addItemToCache(it)
       })
       // Cache list
-      this[K.dataCache] = list
+      this.dataCache = list
     }
     if(this.isShadowed())
       return _.cloneDeep(list) || []
@@ -272,10 +286,10 @@ export class Dict {
     return list || []
   }
   //-------------------------------------------
-  getValue(it)   { return this.invoke("getValue",  it) }
-  getText(it)    { return this.invoke("getText" ,  it) }
-  getIcon(it)    { return this.invoke("getIcon" ,  it) }
-  isMatched(it,v){ return this.invoke("isMatched", it, v) }
+  // getValue(it)   { return this.invoke("getValue",  it) }
+  // getText(it)    { return this.invoke("getText" ,  it) }
+  // getIcon(it)    { return this.invoke("getIcon" ,  it) }
+  // isMatched(it,v){ return this.invoke("isMatched", it, v) }
   //-------------------------------------------
   getBy(vKey=".text", it, dft) {
     // Text
@@ -326,9 +340,39 @@ export class Dict {
   //-------------------------------------------
 }
 ///////////////////////////////////////////////
+/*
+Static dictionary instances
+{
+  $DICT_NAME : {Dict}
+  ...
+}
+*/
 const DICTS = {}
+/*
+Dynamic dictionary instances
+{
+  definations: {
+    $DICT_NAME: Function(input):Dict
+    ...
+  }
+  instances: {
+    $DICT_NAME : {
+      "$INPUT" : Dict
+      ...
+    }
+    ...
+  }
+}
+*/
+const DYNAMIC_DICTS = {
+  definations: {},
+  instances: {}
+}
 ///////////////////////////////////////////////
 export const DictFactory = {
+  //-------------------------------------------
+  __debug_static() {return DICTS},
+  __debug_dynamic() {return DYNAMIC_DICTS},
   //-------------------------------------------
   DictReferName(str) {
     if(_.isString(str)) {
@@ -365,11 +409,13 @@ export const DictFactory = {
   },
   //-------------------------------------------
   CreateDict({
-    data, query, item, children,
+    data, query, item, children, 
+    dataChildrenKey,
     getValue, getText, getIcon, 
     isMatched, shadowed
   }={}, {hooks, name}={}) {
-    //console.log("CreateDict", {data, query, item})
+    if("ComDeptJobs" == name)
+      console.log("CreateDict", {name, dataChildrenKey})
     //.........................................
     if(_.isString(data) || _.isArray(data)) {
       let aryData = Ti.S.toObjList(data)
@@ -382,14 +428,10 @@ export const DictFactory = {
     //.........................................
     if(!item) {
       item = async (val, $dict)=>{
-        let aryData = await $dict.getData()
-        for(let it of aryData) {
-          let itV = $dict.getValue(it)
-          //if(_.isEqual(itV, val)) {
-          if(itV == val || _.isEqual(itV, val)) {
-            return it
-          }
-        }
+        // Load all data
+        await $dict.getData()
+        // Get the item
+        return await $dict.getItem(val)
       }
     }
     //.........................................
@@ -418,6 +460,7 @@ export const DictFactory = {
     // }
     //.........................................
     let d = new Dict()
+    d.dataChildrenKey = dataChildrenKey
     d.setFunc({
       data, query, item, children,
       getValue, getText, getIcon, 
@@ -487,6 +530,7 @@ export const DictFactory = {
     throw `e.dict.noexists : ${dictName}`
   },
   //-------------------------------------------
+  // dickName(args):valueKey
   explainDictName(dictName) {
     let re = {}
     let m = /^([^:()]+)(\(([^)]*)\))?(:(.+))?$/.exec(dictName)
@@ -494,8 +538,57 @@ export const DictFactory = {
       re.name = m[1]
       re.args = Ti.S.joinArgs(m[3])
       re.vkey = m[5]
+      if(re.args.length == 1 && /^=/.test(re.args[0])) {
+        re.dynamic = true
+        re.dictKey = _.trim(re.args[0].substring(1))
+      }
     }
     return re
+  },
+  //-------------------------------------------
+  CreateDynamicDict(factory, name) {
+    if(name && _.isFunction(factory)) {
+      DYNAMIC_DICTS.definations[name] = factory
+    } else {
+      console.error("Can not CreateDynamicDict", {factory, name})
+    }
+  },
+  //-------------------------------------------
+  GetDynamicDict({name, key, vars}={}, hooks) {
+    // Try get
+    let dKey = `${name}.${key}`
+    let d = _.get(DYNAMIC_DICTS.instances, dKey)
+    //console.log("GetDynamicDict", {name, key, vars})
+    // Create New instance
+    if(!d) {
+      let dd = DYNAMIC_DICTS.definations[name]
+      if(!dd) {
+        return null
+      }
+      // Create instance
+      d = dd(vars)
+      if(!d) {
+        return null
+      }
+      // Save instance
+      _.set(DYNAMIC_DICTS.instances, dKey, d)
+    }
+    
+    // Return shadowed ? 
+    if(d && hooks) {
+      d = d.duplicate({hooks:false})
+      d.addHooks(hooks)
+    }
+    return d
+  },
+  //-------------------------------------------
+  CheckDynamicDict({name, key, vars}={}, hooks) {
+    // Already in cache
+    let d = DictFactory.GetDynamicDict({name, key, vars}, hooks)
+    if(d) {
+      return d
+    }
+    throw `e.dict.dynamic.WithoutDefined : ${JSON.stringify({name,key,vars})}`
   },
   //-------------------------------------------
   /***

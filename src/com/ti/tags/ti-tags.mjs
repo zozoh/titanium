@@ -136,7 +136,6 @@ export default {
         const lastIndex = list.length - 1
         for(let index=0; index<list.length; index++){
           let val = list[index]
-          console.log(index, val)
           let tag;
           // Auto mapping plain object
           if(_.isPlainObject(val)) {

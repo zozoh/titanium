@@ -1,9 +1,12 @@
 <component 
-  class="wn-droplist"
+  class="wn-droptree"
   :is="ComType"
   v-bind="this"
+  :value="TheValue"
+  drop-com-type="TiTree",
+  :drop-com-conf="TreeDropComConf"
   :drop-display="TheDropDisplay"
   :can-input="false"
   :must-in-list="true"
   :auto-collapse="true"
-  @change="$notify('change', $event)"/>
+  @change="OnValueChange"/>

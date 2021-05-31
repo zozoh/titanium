@@ -1,0 +1,14 @@
+{
+  "name" : "ti-droptree",
+  "globally" : true,
+  "template" : "./ti-droptree.html",
+  "props"    : [
+    "@com:ti/input/ti-input-props.mjs",
+    "@com:ti/input/tags/ti-input-tags-props.mjs",
+    "@com:ti/combo/input/ti-combo-input-props.mjs"],
+  "mixins"   : ["./ti-droptree.mjs"],
+  "components" : [
+    "@com:ti/combo/input",
+    "@com:ti/combo/multi-input"
+  ]
+}

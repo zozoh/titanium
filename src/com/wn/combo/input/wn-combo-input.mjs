@@ -42,6 +42,9 @@ export default {
     },
     //---------------------------------------------------
     OptionsDict() {
+      if(this.dictKey) {
+        console.log("haha", this)
+      }
       return Wn.Dict.evalOptionsDict(this, ({loading}) => {
         this.loading = loading
       })

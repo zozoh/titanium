@@ -56,24 +56,24 @@ const TABLE_FIELDS = {
   //---------------------------------------------
   "ct" : {
     title : "i18n:wn-key-ct",
-    width : -100,
+    width : -120,
     display : {
       key : "rawData.ct",
       transformer : "Ti.DateTime.timeText",
       comConf : {
-        className : "as-tip-block align-right",
+        className : "as-tip-block align-right is-nowrap",
       }
     }
   },
   //---------------------------------------------
   "lm" : {
     title : "i18n:wn-key-lm",
-    width : -100,
+    width : -120,
     display : {
       key : "rawData.lm",
       transformer : "Ti.DateTime.timeText",
       comConf : {
-        className : "as-tip-block align-right",
+        className : "as-tip-block align-right is-nowrap",
       }
     }
   },
@@ -129,16 +129,29 @@ const FORM_FIELDS = {
     }
   },
   //---------------------------------------------
+  // "thumb" : {
+  //   title : "i18n:wn-key-thumb",
+  //   name  : "thumb",
+  //   checkEquals : false,
+  //   serializer : {
+  //     name : "Ti.Types.toStr",
+  //     args : "id:${id}"
+  //   },
+  //   comType : "wn-imgfile",
+  //   comConf : {
+  //     target : "~/.thumbnail/gen/${id}.jpg",
+  //     filter : "cover(256,256)",
+  //     quality : 0.372
+  //   }
+  // },
   "thumb" : {
     title : "i18n:wn-key-thumb",
     name  : "thumb",
     checkEquals : false,
-    serializer : {
-      name : "Ti.Types.toStr",
-      args : "id:${id}"
-    },
-    comType : "wn-imgfile",
+    comType : "wn-upload-file",
     comConf : {
+      valueType: "idPath",
+      exlink : false,
       target : "~/.thumbnail/gen/${id}.jpg",
       filter : "cover(256,256)",
       quality : 0.372

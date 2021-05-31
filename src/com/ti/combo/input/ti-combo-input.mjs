@@ -257,6 +257,22 @@ const _M = {
       if(_.isString(this.options)) {
         let dictName = Ti.DictFactory.DictReferName(this.options)
         if(dictName) {
+          let {name, dynamic, dictKey} = Ti.DictFactory.explainDictName(dictName)
+          //
+          // Dynamic dictionary
+          //
+          if(dynamic) {
+            let key = _.get(this.dictVars, dictKey)
+            if(!key) {
+              return null
+            }
+            return Ti.DictFactory.GetDynamicDict({
+              name, key,
+              vars : this.dictVars
+            }, ({loading}) => {
+              this.loading = loading
+            })
+          }
           return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
             this.loading = loading
           })
@@ -279,6 +295,7 @@ const _M = {
       } else {
         this.myOptionsData = []
       }
+      return this.myOptionsData
     },
     //-----------------------------------------------
     // Callback

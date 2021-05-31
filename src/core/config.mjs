@@ -137,6 +137,11 @@ const TiConfig = {
 
     let url3 = TiConfig.url(url2, {dynamicPrefix, dynamicAlias})
 
+    // Guard
+    if(!url3){
+      return
+    }
+
     // Try type by suffix
     if(!type) {
       m = /\.(m?js|css|json)$/.exec(url3)
@@ -179,9 +184,13 @@ const TiConfig = {
       return ph;
     let [prefixName, url] = m.slice(2)
     let prefix = dynamicPrefix[prefixName] || CONFIG.prefix[prefixName]
-
-    if(!prefix)
-      throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName)
+    
+    // The prefix has not been supported, maybe the email suffix,
+    // or other text starts with "@"
+    if(!prefix) {
+      //throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName)
+      return
+    }
     //.........................................
     let loadUrl = prefix + url
     //console.log("load::", loadUrl)

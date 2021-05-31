@@ -1,4 +1,7 @@
 {
+   "project-add": "添加項目",
+   "org-add": "添加機構",
+   "dept-add": "添加部門",
    "mail": "郵件",
    "mail-inbox": "收件箱",
    "move-to": "移動到...",

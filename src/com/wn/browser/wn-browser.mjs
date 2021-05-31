@@ -12,9 +12,9 @@ export default {
     //------------------------------------------------
     // Data
     //------------------------------------------------
-    // "meta" : {
-    //   type : Object
-    // },
+    "meta" : {
+      type : Object
+    },
     "data" : {
       type : Object
     },
@@ -279,6 +279,9 @@ export default {
     },
     async openCurrentMeta() {
       return this.$adaptlist.openCurrentMeta()
+    },
+    async openCurrentPrivilege() {
+      return this.$adaptlist.openCurrentPrivilege()
     },
     async doDelete(confirm) {
       return this.$adaptlist.doDelete(confirm)

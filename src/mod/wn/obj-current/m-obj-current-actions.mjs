@@ -266,6 +266,11 @@ const _M = {
     }
     //console.log("m-obj-current.reload", meta.id)
     //......................................
+    // Default filter
+    if(meta.filter) {
+      commit("setFilter", meta.filter)
+    }
+    //......................................
     // Default sorter
     if(meta.sorter) {
       commit("setSorter", meta.sorter)

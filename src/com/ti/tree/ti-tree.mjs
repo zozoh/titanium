@@ -107,7 +107,7 @@ const TI_TREE = {
       default : null
     },
     "checkedIds" : {
-      type : Array,
+      type : [Array, Object],
       default : ()=>[]
     },
     "openedNodePaths" : {
@@ -519,8 +519,12 @@ const TI_TREE = {
       }
     },
     //--------------------------------------
-    OnRowSelect({currentId, checkedIds={}}={}) {
+    OnRowSelect(payload={}) {
       let current, node, selected=[]
+      let {
+        currentId,
+        checkedIds = {}
+      } = payload
       
       // Has selected
       if(currentId) {
@@ -554,11 +558,11 @@ const TI_TREE = {
       }
 
       // Prepare context
-      let evtCtxt = {
+      let evtCtxt = _.assign({}, payload, {
         node,
         current, selected,
         currentId, checkedIds
-      }
+      })
 
       // Callback
       if(_.isFunction(this.onNodeSelect)) {
@@ -603,6 +607,15 @@ const TI_TREE = {
     //--------------------------------------
     selectNodeById(rowId) {
       this.$table.selectRow(rowId)
+    },
+    //--------------------------------------
+    selectPrevRow(options) {
+      this.$table.selectPrevRow(options)
+    },
+    //--------------------------------------
+    selectNextRow(options) {
+      console.log("ti-tree.selectNextRow", options)
+      this.$table.selectNextRow(options)
     },
     //--------------------------------------
     isOpened(rowOrId) {
