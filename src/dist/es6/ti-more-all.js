@@ -1,4 +1,4 @@
-// Pack At: 2021-05-25 21:01:44
+// Pack At: 2021-05-31 14:51:55
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8777,7 +8777,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
         const lastIndex = list.length - 1
         for(let index=0; index<list.length; index++){
           let val = list[index]
-          console.log(index, val)
           let tag;
           // Auto mapping plain object
           if(_.isPlainObject(val)) {
@@ -11384,6 +11383,11 @@ const _M = {
     }
     //console.log("m-obj-current.reload", meta.id)
     //......................................
+    // Default filter
+    if(meta.filter) {
+      commit("setFilter", meta.filter)
+    }
+    //......................................
     // Default sorter
     if(meta.sorter) {
       commit("setSorter", meta.sorter)
@@ -11952,6 +11956,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //---------------------------------------------------
     OptionsDict() {
+      if(this.dictKey) {
+        console.log("haha", this)
+      }
       return Wn.Dict.evalOptionsDict(this, ({loading}) => {
         this.loading = loading
       })
@@ -18428,89 +18435,96 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "options" : {
-    type : [String, Array, Function, Ti.Dict],
-    default : ()=>[]
+  "options": {
+    type: [String, Array, Function, Ti.Dict],
+    default: () => []
   },
-  "valueBy" : {
-    type : [String, Function],
-    default : undefined
+  // If dynamic dictionary: options = '#DickName(=varName)'
+  // it will use Ti.DictFactory.CheckDynamicDict,
+  // The key of the instance name, should explain for the vars set
+  "dictVars": {
+    type: Object,
+    default: ()=>({})
   },
-  "textBy" : {
-    type : [String, Function],
-    default : undefined
+  "valueBy": {
+    type: [String, Function],
+    default: undefined
   },
-  "iconBy" : {
-    type : [String, Function],
-    default : undefined
+  "textBy": {
+    type: [String, Function],
+    default: undefined
   },
-  "childrenBy" : {
-    type : [String, Function],
-    default : undefined
+  "iconBy": {
+    type: [String, Function],
+    default: undefined
+  },
+  "childrenBy": {
+    type: [String, Function],
+    default: undefined
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "dropComType" : {
-    type : String,
-    default : undefined
+  "dropComType": {
+    type: String,
+    default: undefined
   },
-  "dropComConf" : {
-    type : Object,
-    default : undefined
+  "dropComConf": {
+    type: Object,
+    default: undefined
   },
-  "mustInList" : {
-    type : Boolean,
-    default : false
+  "mustInList": {
+    type: Boolean,
+    default: false
   },
-  "autoFocusExtended" : {
-    type : Boolean,
-    default : true
+  "autoFocusExtended": {
+    type: Boolean,
+    default: true
   },
-  "filter" : {
-    type : Boolean,
-    default : true
+  "filter": {
+    type: Boolean,
+    default: true
   },
-  "delay" : {
-    type : Number,
-    default : 800
+  "delay": {
+    type: Number,
+    default: 800
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "autoI18n" : {
-    type : Boolean,
-    default : true
+  "autoI18n": {
+    type: Boolean,
+    default: true
   },
-  "statusIcons" : {
-    type : Object,
-    default : ()=>({
-      collapse : "zmdi-chevron-down",
-      extended : "zmdi-chevron-up"
+  "statusIcons": {
+    type: Object,
+    default: () => ({
+      collapse: "zmdi-chevron-down",
+      extended: "zmdi-chevron-up"
     })
   },
-  "dropDisplay" : {
-    type : [Object, String, Array],
-    default : undefined
+  "dropDisplay": {
+    type: [Object, String, Array],
+    default: undefined
   },
-  "dropItemBorder" : {
-    type : Boolean,
-    default : true
+  "dropItemBorder": {
+    type: Boolean,
+    default: true
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "keepWidthWhenDrop" : {
-    type : Boolean, 
-    default : undefined
+  "keepWidthWhenDrop": {
+    type: Boolean,
+    default: undefined
   },
-  "dropWidth" : {
-    type : [Number, String],
-    default : "box"
+  "dropWidth": {
+    type: [Number, String],
+    default: "box"
   },
-  "dropHeight" : {
-    type : [Number, String],
-    default : null
+  "dropHeight": {
+    type: [Number, String],
+    default: null
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -21783,212 +21797,235 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/wn/obj/privilege/wn-obj-privilege.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
-  data : ()=>({
-    myAccountHome : null,
-    myRoleHome : null,
-    myAccounts : [],
-    myRoles : [],
-    myAccountMap : {},
-    myRoleMap : {},
-    myCurrentId : null,
-    loading : false
+  data: () => ({
+    myPrivilegeData: [],
+    //
+    // Account
+    //
+    myAccountHome: null,
+    myAccounts: [],
+    myAccountMap: {},
+    //
+    // Roles
+    //
+    myRoleHome: null,
+    myRoles: [],
+    myRoleMap: {},
+    //
+    // Companies
+    //
+    myCompanyBy: null,
+    myCompanies: [],
+    myCompanyMap: {},
+    //
+    // Departments
+    //
+    myDeptBy: null,
+    myDeptCache: {}, /*{$ComId: {children:[Department]}}*/
+    myDeptMap: {},  /*{$ComId: {deptId: Department, ...}}*/
+    //
+    // Projects
+    //
+    myProjectBy: null,
+    myProjects: [],
+    myProjectMap: {},
+    //
+    // Status
+    //
+    myCurrentId: null,
+    loading: false
   }),
   //////////////////////////////////////////
-  props : {
-    "value" : {
-      type : Object,
-      default : ()=>({})
+  props: {
+    "value": {
+      type: Object,
+      default: () => ({})
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
-    hasAccounts()  {return !_.isEmpty(this.myAccounts)},
-    hasRoles()  {return !_.isEmpty(this.myRoles)},
+    hasAccounts() { return !_.isEmpty(this.myAccounts) },
+    hasRoles() { return !_.isEmpty(this.myRoles) },
     //--------------------------------------
     TheLoadingAs() {
-      if(this.loading)
+      if (this.loading)
         return true
 
-      if(!this.hasAccounts)
+      if (!this.hasAccounts)
         return {
-          text : "i18n:empty",
-          icon : "fas-border-none"
+          text: "i18n:empty",
+          icon: "fas-border-none"
         }
     },
     //--------------------------------------
     ActionItems() {
-      return [{
-        icon : "fas-user-plus",
-        text : "i18n:account-add",
-        action : ()=>{this.OnAddAccounts()}
+      let items = []
+      if (!_.isEmpty(this.myAccounts)) {
+        items.push({
+          icon: "fas-user-plus",
+          text: "i18n:account-add",
+          action: () => { this.OnAddAccounts() }
+        })
+      }
+      //
+      // Roles
+      //
+      if (items.length > 0) {
+        items.push({ type: "line" })
+      }
+      if (!_.isEmpty(this.myRoles)) {
+        items.push({
+          icon: "fas-ribbon",
+          text: "i18n:role-add",
+          action: () => { this.OnAddRoles() }
+        })
+      }
+      //
+      // Companies
+      //
+      if (items.length > 0) {
+        items.push({ type: "line" })
+      }
+      if (!_.isEmpty(this.myCompanies)) {
+        items.push({
+          icon: "fas-building",
+          text: "i18n:org-add",
+          action: () => { this.OnAddCompanies() }
+        })
+        // Begin Departments
+        if (items.length > 0) {
+          items.push({ type: "line" })
+        }
+        if (!_.isEmpty(this.myDeptBy)) {
+          items.push({
+            icon: "fas-briefcase",
+            text: "i18n:dept-add",
+            action: () => { this.OnAddDepts() }
+          })
+        }
+        // End Departments
+      }
+      //
+      // Projects
+      //
+      if (items.length > 0) {
+        items.push({ type: "line" })
+      }
+      if (!_.isEmpty(this.myProjects)) {
+        items.push({
+          icon: "fas-chess-queen",
+          text: "i18n:project-add",
+          action: () => { this.OnAddProjects() }
+        })
+      }
+
+      //
+      // Delete
+      //
+      items.push({
+        type: "line"
       }, {
-        type : "line"
-      }, {
-        icon : "fas-ribbon",
-        text : "i18n:role-add",
-        action : ()=>{this.OnAddRoles()}
-      }, {
-        type : "line"
-      }, {
-        icon : "far-trash-alt",
-        text : "i18n:del-checked",
-        action : ()=>{this.OnRemoveSelected()}
-      }]
+        icon: "far-trash-alt",
+        text: "i18n:del-checked",
+        action: () => { this.OnRemoveSelected() }
+      })
+
+      return items;
     },
     //--------------------------------------
     Layout() {
       return {
-        type : "rows",
-        border : true,
-        defaultFlex : "both",
-        blocks : [{
-            size : 42,
-            body : "actions"
+        type: "rows",
+        border: true,
+        defaultFlex: "both",
+        blocks: [{
+          size: 42,
+          body: "actions"
+        }, {
+          type: "cols",
+          border: true,
+          blocks: [{
+            name: "list",
+            body: "list"
           }, {
-            type : "cols",
-            border : true,
-            blocks : [{
-              name : "list",
-              body : "list"
-            }, {
-              name : "data",
-              body : "data"
-            }]
+            name: "data",
+            body: "data"
           }]
+        }]
       }
     },
     //--------------------------------------
     Schema() {
       return {
-        actions : {
-          comType : "TiActionbar",
-          comConf : {
-            items : this.ActionItems
+        actions: {
+          comType: "TiActionbar",
+          comConf: {
+            items: this.ActionItems
           }
         },
-        list : {
-          comType : "TiList",
-          comConf : {
-            checkable : true,
-            multi : true,
-            data : this.PrivilegeData,
-            idBy : "key",
-            display : [
+        list: {
+          comType: "TiList",
+          comConf: {
+            checkable: true,
+            multi: true,
+            data: this.myPrivilegeData,
+            idBy: "key",
+            display: [
               "<icon>", "text", "tip::as-tip-block"
             ],
-            onInit : ($list)=>{
+            onInit: ($list) => {
               this.$list = $list
             }
           }
         },
-        data : {
-          comType : "TiForm",
-          comConf : {
-            spacing : "tiny",
-            data : this.CurrentItem,
-            autoShowBlank : true,
-            blankAs : {
-              text : "i18n:blank-to-edit",
-              icon : "fas-arrow-left"
+        data: {
+          comType: "TiForm",
+          comConf: {
+            spacing: "tiny",
+            data: this.CurrentItem,
+            autoShowBlank: true,
+            blankAs: {
+              text: "i18n:blank-to-edit",
+              icon: "fas-arrow-left"
             },
-            fields : [{
-              title : "i18n:type",
-              name : "type"
+            fields: [{
+              title: "i18n:type",
+              name: "type"
             }, {
-              title : "i18n:name",
-              name : "text"
+              title: "i18n:name",
+              name: "text"
             }, {
-              title : "i18n:key",
-              name : "key"
+              title: "i18n:key",
+              name: "key",
+              comConf: {
+                className: "is-nowrap",
+                fullField: false
+              }
             }, {
-              title : "i18n:wn-md-readable",
-              name : "readable",
-              type : "Boolean",
-              comType : "TiToggle"
+              title: "i18n:wn-md-readable",
+              name: "readable",
+              type: "Boolean",
+              comType: "TiToggle"
             }, {
-              title : "i18n:wn-md-writable",
-              name : "writable",
-              type : "Boolean",
-              comType : "TiToggle"
+              title: "i18n:wn-md-writable",
+              name: "writable",
+              type: "Boolean",
+              comType: "TiToggle"
             }, {
-              title : "i18n:wn-md-excutable",
-              name : "excutable",
-              type : "Boolean",
-              comType : "TiToggle"
+              title: "i18n:wn-md-excutable",
+              name: "excutable",
+              type: "Boolean",
+              comType: "TiToggle"
             }]
           }
         }
       }
     },
     //--------------------------------------
-    PrivilegeData() {
-      let list = []
-      _.forEach(this.value, (md, id)=>{
-        let {other} = Wn.Obj.parseMode(md)
-        let tips = []
-        if(other.readable)
-          tips.push(Ti.I18n.get("wn-md-R"))
-        if(other.writable)
-          tips.push(Ti.I18n.get("wn-md-W"))
-        if(other.excutable)
-          tips.push(Ti.I18n.get("wn-md-X"))
-        let tip = tips.join("") || Ti.I18n.get("nil");
-        // Role
-        if(/^@/.test(id)) {
-          let roleName = id.substring(1)
-          let role = _.get(this.myRoleMap, roleName)
-          if(role) {
-            list.push({
-              type  : "role",
-              icon  : role.icon || 'far-smile',
-              text  : role.title || role.nm,
-              key  : id,
-              tip, 
-              ... other
-            })
-          } else {
-            list.push({
-              type  : "role",
-              icon  : 'far-smile',
-              text  : roleName,
-              key  : id,
-              tip,
-              ... other
-            })
-          }
-        }
-        // Account
-        else {
-          let user = _.get(this.myAccountMap, id)
-          if(user) {
-            list.push({
-              type  : "account",
-              icon  : user.icon || 'zmdi-account',
-              thumb : user.thumb,
-              text  : user.nickname || user.nm,
-              key  : id,
-              tip,
-              ... other
-            })
-          } else {
-            list.push({
-              type  : "account",
-              icon  : 'zmdi-account',
-              text  : id,
-              key  : id,
-              tip,
-              ... other
-            })
-          }
-        }
-      })
-      return list
-    },
-    //--------------------------------------
     CurrentItem() {
-      for(let it of this.PrivilegeData) {
-        if(this.myCurrentId == it.key) {
+      for (let it of this.myPrivilegeData) {
+        if (this.myCurrentId == it.key) {
           return it
         }
       }
@@ -21996,9 +22033,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
-    OnListSelect({currentId}) {
+    OnListSelect({ currentId }) {
       this.myCurrentId = currentId
     },
     //--------------------------------------
@@ -22012,158 +22049,517 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     async OnAddAccounts() {
-      let accounts = _.filter(this.myAccounts, acc=>{
+      let accounts = _.filter(this.myAccounts, acc => {
         let md = _.get(this.value, acc.id)
         return _.isUndefined(md)
       })
 
       let reo = await Ti.App.Open({
-        icon : "fas-user-plus",
-        title : "i18n:account-add",
-        position : "top",
-        width : 480,
-        height : "90%",
-        model : {prop:"value", event:"select"},
-        comType : "TiList",
-        comConf : {
-          multi : true,
-          checkable : true,
-          data : accounts,
-          display : ["<icon:zmdi-account>", "nickname", "nm::as-tip-block"]
+        icon: "fas-user-plus",
+        title: "i18n:account-add",
+        position: "top",
+        width: 480,
+        height: "90%",
+        model: { prop: "value", event: "select" },
+        comType: "TiList",
+        comConf: {
+          multi: true,
+          checkable: true,
+          data: accounts,
+          display: ["<icon:zmdi-account>", "nickname", "nm::as-tip-block"]
         }
       })
 
       // User cancel
-      if(!reo)
+      if (!reo)
         return
-      
+
       // Nothing selected
       let checkeds = Ti.Util.truthyKeys(reo.checkedIds)
-      if(_.isEmpty(checkeds)) {
+      if (_.isEmpty(checkeds)) {
         return
       }
 
       // Update value
       let val = _.cloneDeep(this.value)
-      for(let id of checkeds) {
+      for (let id of checkeds) {
         val[id] = 508
       }
       this.$notify("change", val)
     },
     //--------------------------------------
     async OnAddRoles() {
-      let roles = _.filter(this.myRoles, role=>{
+      let roles = _.filter(this.myRoles, role => {
         let md = _.get(this.value, `@${role.nm}`)
         return _.isUndefined(md)
       })
 
       let reo = await Ti.App.Open({
-        icon : "fas-user-plus",
-        title : "i18n:account-add",
-        position : "top",
-        width : 480,
-        height : "90%",
-        model : {prop:"value", event:"select"},
-        comType : "TiList",
-        comConf : {
-          multi : true,
-          checkable : true,
-          idBy : "nm",
-          data : roles,
-          display : ["<icon:far-smile>", "title", "nm::as-tip-block"]
+        icon: "fas-user-plus",
+        title: "i18n:roles-add",
+        position: "top",
+        width: 480,
+        height: "90%",
+        model: { prop: "value", event: "select" },
+        comType: "TiList",
+        comConf: {
+          multi: true,
+          checkable: true,
+          idBy: "nm",
+          data: roles,
+          display: ["<icon:far-smile>", "title|th_nm", "nm::as-tip-block"]
         }
       })
 
       // User cancel
-      if(!reo)
+      if (!reo)
         return
-      
+
       // Nothing selected
       let checkeds = Ti.Util.truthyKeys(reo.checkedIds)
-      if(_.isEmpty(checkeds)) {
+      if (_.isEmpty(checkeds)) {
         return
       }
 
       // Update value
       let val = _.cloneDeep(this.value)
-      for(let nm of checkeds) {
+      for (let nm of checkeds) {
         val[`@${nm}`] = 508
+      }
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    async OnAddCompanies() {
+      let companies = _.filter(this.myCompanies, com => {
+        let md = _.get(this.value, `org:${com.id}`)
+        return _.isUndefined(md)
+      })
+
+      let reo = await Ti.App.Open({
+        icon: "fas-building",
+        title: "i18n:org-add",
+        position: "top",
+        width: 480,
+        height: "90%",
+        model: { prop: "value", event: "select" },
+        comType: "WnList",
+        comConf: {
+          multi: true,
+          checkable: true,
+          idBy: "id",
+          data: companies,
+          display: ["@<thumb>", "title|nm", "id::as-tip-block"]
+        }
+      })
+
+      // User cancel
+      if (!reo)
+        return
+
+      // Nothing selected
+      let checkeds = Ti.Util.truthyKeys(reo.checkedIds)
+      if (_.isEmpty(checkeds)) {
+        return
+      }
+
+      // Update value
+      let val = _.cloneDeep(this.value)
+      for (let id of checkeds) {
+        val[`org:${id}`] = 508
+      }
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    async OnAddDepts() {
+      // Choose one company
+      let reo = await Ti.App.Open({
+        icon: "fas-building",
+        title: "i18n:org-choose",
+        position: "top",
+        width: 480,
+        height: "65%",
+        model: { prop: "value", event: "select" },
+        comType: "WnList",
+        comConf: {
+          multi: false,
+          checkable: false,
+          idBy: "id",
+          data: this.myCompanies,
+          display: ["@<thumb>", "title|nm", "id::as-tip-block"]
+        }
+      })
+      let com = _.get(reo, "current")
+
+      // User canceled
+      if(!com) {
+        return
+      }
+
+      // Prepare the commands
+      let depts = await this.reloadDepartments(com)
+
+      reo = await Ti.App.Open({
+        icon: "fas-briefcase",
+        title: "i18n:dept-add",
+        position: "top",
+        width: 480,
+        height: "90%",
+        model: { prop: "value", event: "select" },
+        comType: "TiTree",
+        comConf: {
+          multi: true,
+          checkable: true,
+          autoOpen: true,
+          defaultOpenDepth: 100,
+          showRoot: false,
+          data: depts,
+          display: [
+            "@<icon>", "name::flex-auto", "id::as-tip-block align-right"]
+        }
+      })
+
+      // User cancel
+      if (!reo)
+        return
+
+      // Nothing selected
+      let checkeds = Ti.Util.truthyKeys(reo.checkedIds)
+      if (_.isEmpty(checkeds)) {
+        return
+      }
+
+      // Update value
+      let val = _.cloneDeep(this.value)
+      for (let id of checkeds) {
+        val[`dept:${com.id}>${id}`] = 508
+      }
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    async OnAddProjects() {
+      let projects = _.filter(this.myProjects, proj => {
+        let md = _.get(this.value, `prj:${proj.id}`)
+        return _.isUndefined(md)
+      })
+
+      let reo = await Ti.App.Open({
+        icon: "fas-chess-queen",
+        title: "i18n:project-add",
+        position: "top",
+        width: 480,
+        height: "90%",
+        model: { prop: "value", event: "select" },
+        comType: "WnList",
+        comConf: {
+          multi: true,
+          checkable: true,
+          idBy: "id",
+          data: projects,
+          display: ["@<thumb>", "title|nm", "id::as-tip-block"]
+        }
+      })
+
+      // User cancel
+      if (!reo)
+        return
+
+      // Nothing selected
+      let checkeds = Ti.Util.truthyKeys(reo.checkedIds)
+      if (_.isEmpty(checkeds)) {
+        return
+      }
+
+      // Update value
+      let val = _.cloneDeep(this.value)
+      for (let id of checkeds) {
+        val[`prj:${id}`] = 508
       }
       this.$notify("change", val)
     },
     //--------------------------------------
     OnRemoveSelected() {
       let checked = this.$list.getChecked()
-      if(_.isEmpty(checked)) {
+      if (_.isEmpty(checked)) {
         Ti.Toast.Open("i18n:nil-obj", "warn")
         return
       }
       // Build key map
       let keyMap = {}
-      _.forEach(checked, it=>{
+      _.forEach(checked, it => {
         keyMap[it.key] = true
       })
 
       // Remove from value
       let val = {}
-      _.forEach(this.value, (md, key)=>{
-          if(!keyMap[key]) {
-            val[key] = md
-          }
+      _.forEach(this.value, (md, key) => {
+        if (!keyMap[key]) {
+          val[key] = md
+        }
       })
-      
+
       this.$notify("change", val)
     },
     //--------------------------------------
-    buildMap(list=[], key="id") {
+    buildMap(list = [], key = "id") {
       let re = {}
-      _.forEach(list, li=>{
-        if(!li)
+      _.forEach(list, li => {
+        if (!li)
           return
         let k = li[key]
-        if(k) {
+        if (k) {
           re[k] = li
         }
       })
       return re
     },
     //--------------------------------------
+    async evalPrivilegeData() {
+      let pvgData = []
+      _.forEach(this.value, (md, id) => {
+        pvgData.push({md, id})
+      })
+
+
+      let list = []
+      for(let pvgIt of pvgData) {
+        let {md, id} = pvgIt
+        //console.log("pvg data", { md, id })
+        let { other } = Wn.Obj.parseMode(md)
+        //
+        // Tip to indicate the RWX
+        //
+        let tips = []
+        if (other.readable)
+          tips.push(Ti.I18n.get("wn-md-R"))
+        if (other.writable)
+          tips.push(Ti.I18n.get("wn-md-W"))
+        if (other.excutable)
+          tips.push(Ti.I18n.get("wn-md-X"))
+        let tip = tips.join("") || Ti.I18n.get("nil");
+        //
+        // Company | Organization
+        let m = /^org:(.+)$/.exec(id)
+        if (m) {
+          let comId = m[1]
+          let com = _.get(this.myCompanyMap, comId)
+          if (com) {
+            list.push({
+              type: "org",
+              icon: Wn.Util.getObjThumbIcon2(com, 'fas-building'),
+              text: com.title || com.nm,
+              key: id,
+              tip,
+              ...other
+            })
+          } else {
+            list.push({
+              type: "org",
+              icon: 'fas-building',
+              text: comId,
+              key: id,
+              tip,
+              ...other
+            })
+          }
+          continue;
+        }
+        //
+        // Department
+        m = /^dept:([^>]+)>(.+)$/.exec(id)
+        console.log(m)
+        if(m) {
+          let comId = m[1]
+          let deptId = m[2]
+          let com = this.myCompanyMap[comId]
+          let dept;
+          if(com) {
+            await this.reloadDepartments(com)
+            dept = _.get(this.myDeptMap, `${comId}.${deptId}`)
+          }
+          if(com && dept) {
+            list.push({
+              type: "dept",
+              icon: Wn.Util.getObjThumbIcon2(dept, 'fas-briefcase'),
+              text: `${com.title||com.nm} > ${dept.name||dept.title||dept.text||dept.nm}`,
+              key: id,
+              tip,
+              ...other
+            })
+          } else {
+            list.push({
+              type: "dept",
+              icon: 'fas-briefcase',
+              text: deptId,
+              key: id,
+              tip,
+              ...other
+            })
+          }
+          continue;
+        }
+        //
+        // Projects
+        m = /^prj:(.+)$/.exec(id)
+        if (m) {
+          let projId = m[1]
+          let proj = _.get(this.myProjectMap, projId)
+          if (proj) {
+            list.push({
+              type: "proj",
+              icon: Wn.Util.getObjThumbIcon2(proj, 'fas-chess-queen'),
+              text: proj.title || proj.nm,
+              key: id,
+              tip,
+              ...other
+            })
+          } else {
+            list.push({
+              type: "org",
+              icon: 'fas-building',
+              text: projId,
+              key: id,
+              tip,
+              ...other
+            })
+          }
+          continue;
+        }
+        // Role
+        m = /^@(.+)$/.exec(id)
+        if (m) {
+          let roleName = m[1]
+          let role = _.get(this.myRoleMap, roleName)
+          if (role) {
+            list.push({
+              type: "role",
+              icon: role.icon || 'far-smile',
+              text: role.title || role.nm,
+              key: id,
+              tip,
+              ...other
+            })
+          } else {
+            list.push({
+              type: "role",
+              icon: 'far-smile',
+              text: roleName,
+              key: id,
+              tip,
+              ...other
+            })
+          }
+          continue;
+        }
+        //
+        // Account
+        let user = _.get(this.myAccountMap, id)
+        if (user) {
+          list.push({
+            type: "account",
+            icon: user.icon || 'zmdi-account',
+            thumb: user.thumb,
+            text: user.nickname || user.nm,
+            key: id,
+            tip,
+            ...other
+          })
+        } else {
+          list.push({
+            type: "account",
+            icon: 'zmdi-account',
+            text: id,
+            key: id,
+            tip,
+            ...other
+          })
+        }
+      }
+      // Update to state
+      this.myPrivilegeData = list
+    },
+    //--------------------------------------
+    async reloadDepartments(com) {
+      let comId = com.id
+      let deptRoot = _.get(this.myDeptCache, comId)
+      if(_.isEmpty(deptRoot)) {
+        let cmdText = Ti.S.renderBy(this.myDeptBy, com)
+        deptRoot = await Wn.Sys.exec2(cmdText, {as:"json"})
+        this.myDeptCache[comId] = deptRoot
+        // Build Map
+        let deptMap = {}
+        Ti.Trees.walkDeep(deptRoot, ({id,node})=>{
+          //console.log("dept", id, node)
+          deptMap[id] = node
+        })
+        this.myDeptMap[comId] = deptMap
+      }
+      return deptRoot
+    },
+    //--------------------------------------
     async reload() {
       this.loading = true
       // Reload accountHome and roleHome
       let cmdText = 'domain site -cqn -keys "^(id|nm|ph|title)$"'
-      let site = await Wn.Sys.exec2(cmdText, {as:"json"})
+      let site = await Wn.Sys.exec2(cmdText, { as: "json" })
       this.myAccountHome = _.get(site, "accountHome")
       this.myRoleHome = _.get(site, "roleHome")
+      this.myCompanyBy = _.get(site, "companyBy")
+      this.myDeptBy = _.get(site, "deptBy")
+      this.myProjectBy = _.get(site, "projectBy")
 
       // Reload Accounts
       let km = '^(id|nm|title|nickname|icon|thumb)$';
-      if(this.myAccountHome) {
+      if (this.myAccountHome) {
         cmdText = `thing id:${this.myAccountHome.id} query -cqn -e '${km}'`
-        this.myAccounts = await Wn.Sys.exec2(cmdText, {as:"json"})
+        this.myAccounts = await Wn.Sys.exec2(cmdText, { as: "json" })
       } else {
         this.myAccounts = []
       }
 
       // Reload Roles
-      if(this.myRoleHome) {
+      if (this.myRoleHome) {
         cmdText = `thing id:${this.myRoleHome.id} query -cqn -e '${km}'`
-        this.myRoles = await Wn.Sys.exec2(cmdText, {as:"json"})
+        this.myRoles = await Wn.Sys.exec2(cmdText, { as: "json" })
       } else {
         this.myRoles = []
+      }
+
+      // Reload companies
+      if (this.myCompanyBy) {
+        cmdText = this.myCompanyBy
+        this.myCompanies = await Wn.Sys.exec2(cmdText, { as: "json" })
+      } else {
+        this.myCompanies = []
+      }
+
+      // Reload projects
+      if (this.myProjectBy) {
+        cmdText = this.myProjectBy
+        this.myProjects = await Wn.Sys.exec2(cmdText, { as: "json" })
+      } else {
+        this.myProjects = []
       }
 
       // Build map
       this.myAccountMap = this.buildMap(this.myAccounts, "id")
       this.myRoleMap = this.buildMap(this.myRoles, "nm")
+      this.myCompanyMap = this.buildMap(this.myCompanies, "id")
+      this.myProjectMap = this.buildMap(this.myProjects, "id")
+
+      // Eval data
+      await this.evalPrivilegeData()
 
       this.loading = false
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  mounted : function() {
-    this.reload()    
+  watch: {
+    "value": "evalPrivilegeData"
+  },
+  //////////////////////////////////////////
+  mounted: function () {
+    this.reload()
   }
   //////////////////////////////////////////
 }
@@ -32968,21 +33364,67 @@ const _M = {
         // By dict
         if(val && val.dict && val.target) {
           let {dict, target} = val
+          // Guard
+          if(!target) {
+            return
+          }
           // Get dict
-          let d = Ti.DictFactory.CheckDict(dict)
+          let {name, dynamic, dictKey} = Ti.DictFactory.explainDictName(dict)
+          //.......................................................
+          let getItemFromDict = async function(value, data) {
+            let d;
+            // Dynamic
+            if(dynamic) {
+              let key = _.get(data, dictKey)
+              let vars = Ti.Util.explainObj(data, val.dictVars || {})
+              d = Ti.DictFactory.GetDynamicDict({name, key, vars})
+            }
+            // Static Dictionary
+            else {
+              d = Ti.DictFactory.CheckDict(name)
+            }
+            // Get item data
+            if(d) {
+              // Multi value
+              if(_.isArray(value)) {
+                let list = []
+                for(let v of value) {
+                  let v2 = await d.getItem(v)
+                  list.push(v2)
+                }
+                return list
+              }
+              // Single value
+              return await d.getItem(value)
+            }
+          }
+          //.......................................................
           let fn;
+          //.......................................................
           // Pick
           if(_.isArray(target)) {
-            fn = async function({value}) {
-              let it = (await d.getItem(value)) || {}
+            fn = async function({value}, data) {
+              let it = await getItemFromDict(value, data)
               return _.pick(it, target)
             }
           }
-          // Translate
+          // Explain target
+          else if(val.explainTargetAs) {
+            fn = async function({value, name}, data) {
+              let it = await getItemFromDict(value, data)
+              let ctx = _.assign({}, data, {
+                [val.explainTargetAs] : it
+              })
+              let newVal = Ti.Util.explainObj(ctx, target)
+              //console.log(name, value, "->", newVal)
+              return newVal
+            }
+          }
+          // Simple Translate
           else {
-            fn = async function({value}) {
-              let it = (await d.getItem(value)) || {}
-              return Ti.Util.translate(it, target)
+            fn = async function({value}, data) {
+              let it = await getItemFromDict(value, data)
+              return Ti.Util.translate(it, target, v=>Ti.Util.fallback(v, null))
             }
           }
           // join to map
@@ -38395,6 +38837,145 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'wn-droptree.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/droptree/wn-droptree.mjs'] = (function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  props : {
+    "multi" : {
+      type : Boolean,
+      default : false
+    },
+    "treeConf": {
+      type : Object
+    },
+    "idBy": {
+      type: String,
+      default: "id"
+    },
+    "nameBy": {
+      type: String,
+      default: "name"
+    },
+    "childrenBy": {
+      type: String,
+      default: "children"
+    },
+    //
+    // - id      : "6dywqcw.."   # Node Id
+    // - path    : "a/b/c"       # Node Path
+    // - axisIds : [ID,ID,ID]    # Node ancestor and self Ids
+    //
+    "valueType": {
+      type: String,
+      default: "id",
+      validator: v => /^(id|path|axisIds)$/.test(v)
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    ComType() {
+      return this.multi
+        ? "wn-combo-multi-input"
+        : "wn-combo-input"
+    },
+    //------------------------------------------------
+    TreeDropComConf() {
+      return _.assign({
+        border: this.dropItemBorder ? "row" : "none",
+        display: this.dropDisplay || [
+          '@<thumb>', 
+          'title|text|nm::flex-auto', 
+          'id|value|nm::as-tip-block align-right'],
+        autoOpen : true,
+        showRoot : false,
+        defaultOpenDepth : 3
+      }, this.treeConf)
+    },
+    //------------------------------------------------
+    TheDropDisplay() {
+      if(this.dropDisplay)
+        return this.dropDisplay;
+
+      return ["@<thumb>", "title|nm"]
+    },
+    //------------------------------------------------
+    TheValue() {
+      if(this.value) {
+        let val = ({
+          id : (val)=> val,
+          path : (val)=> {
+            if(_.isArray(val)) {
+              return val.join("/")
+            }
+            return val
+          },
+          axisIds : (val)=>{
+            if(!_.isArray(val)) {
+              val = val.split(/[,; ]/g)
+            }
+            return _.last(val)
+          }
+        })[this.valueType](this.value)
+        return val
+      }
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods : {
+    OnValueChange(val) {
+      let root = this.getTreeRoot()
+      let hie = Ti.Trees.getById(root, val, {
+        idBy: this.idBy,
+        nameBy: this.nameBy,
+        childrenBy: this.childrenBy
+      })
+      let v;
+      if(hie) {
+        v = ({
+          id : (hie)=> hie.id,
+          path : (hie)=> hie.path,
+          axisIds : (hie)=>{
+            let ids = []
+            // Ancestors
+            _.forEach(hie.ancestors, ({id})=>{
+              if(!Ti.Util.isNil(id)) {
+                ids.push(id)
+              }
+            })
+            // Self
+            if(hie.id) {
+              ids.push(hie.id)
+            }
+            return ids
+          }
+        })[this.valueType](hie)
+      }
+      this.$notify("change", v)
+    },
+    //------------------------------------------------
+    getMyOptionData() {
+      let $comboInput = this.$children[0].$children[0]
+      return $comboInput.myOptionsData || []
+    },
+    //------------------------------------------------
+    getTreeRoot() {
+      let treeData = this.getMyOptionData()
+      if(_.isArray(treeData)) {
+        return {children: treeData}
+      }
+      return treeData
+    }
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'ti-obj-thumb.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/obj/thumb/ti-obj-thumb.mjs'] = (function(){
@@ -41326,6 +41907,31 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'ti-droptree.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/droptree/ti-droptree.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////////////
+  props : {
+    "multi" : {
+      type : Boolean,
+      default : false
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed : {
+    //------------------------------------------------
+    ComType() {
+      return this.multi
+        ? "ti-combo-multi-input"
+        : "ti-combo-input"
+    }
+  }
+  ////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'wn-session-badge.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/session/badge/wn-session-badge.mjs'] = (function(){
@@ -42941,7 +43547,7 @@ const TI_TREE = {
       default : null
     },
     "checkedIds" : {
-      type : Array,
+      type : [Array, Object],
       default : ()=>[]
     },
     "openedNodePaths" : {
@@ -43353,8 +43959,12 @@ const TI_TREE = {
       }
     },
     //--------------------------------------
-    OnRowSelect({currentId, checkedIds={}}={}) {
+    OnRowSelect(payload={}) {
       let current, node, selected=[]
+      let {
+        currentId,
+        checkedIds = {}
+      } = payload
       
       // Has selected
       if(currentId) {
@@ -43388,11 +43998,11 @@ const TI_TREE = {
       }
 
       // Prepare context
-      let evtCtxt = {
+      let evtCtxt = _.assign({}, payload, {
         node,
         current, selected,
         currentId, checkedIds
-      }
+      })
 
       // Callback
       if(_.isFunction(this.onNodeSelect)) {
@@ -43437,6 +44047,15 @@ const TI_TREE = {
     //--------------------------------------
     selectNodeById(rowId) {
       this.$table.selectRow(rowId)
+    },
+    //--------------------------------------
+    selectPrevRow(options) {
+      this.$table.selectPrevRow(options)
+    },
+    //--------------------------------------
+    selectNextRow(options) {
+      console.log("ti-tree.selectNextRow", options)
+      this.$table.selectNextRow(options)
     },
     //--------------------------------------
     isOpened(rowOrId) {
@@ -47007,9 +47626,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     // Data
     //------------------------------------------------
-    // "meta" : {
-    //   type : Object
-    // },
+    "meta" : {
+      type : Object
+    },
     "data" : {
       type : Object
     },
@@ -47274,6 +47893,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     async openCurrentMeta() {
       return this.$adaptlist.openCurrentMeta()
+    },
+    async openCurrentPrivilege() {
+      return this.$adaptlist.openCurrentPrivilege()
     },
     async doDelete(confirm) {
       return this.$adaptlist.doDelete(confirm)
@@ -49816,6 +50438,22 @@ const _M = {
       if(_.isString(this.options)) {
         let dictName = Ti.DictFactory.DictReferName(this.options)
         if(dictName) {
+          let {name, dynamic, dictKey} = Ti.DictFactory.explainDictName(dictName)
+          //
+          // Dynamic dictionary
+          //
+          if(dynamic) {
+            let key = _.get(this.dictVars, dictKey)
+            if(!key) {
+              return null
+            }
+            return Ti.DictFactory.GetDynamicDict({
+              name, key,
+              vars : this.dictVars
+            }, ({loading}) => {
+              this.loading = loading
+            })
+          }
           return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
             this.loading = loading
           })
@@ -49838,6 +50476,7 @@ const _M = {
       } else {
         this.myOptionsData = []
       }
+      return this.myOptionsData
     },
     //-----------------------------------------------
     // Callback
@@ -57356,6 +57995,7 @@ Ti.Preload("ti/com/ti/datetime/_com.json", {
 // JOIN <ti-droplist.html> ti/com/ti/droplist/ti-droplist.html
 //========================================
 Ti.Preload("ti/com/ti/droplist/ti-droplist.html", `<component 
+  class="ti-droplist"
   :is="ComType"
   v-bind="this"
   :can-input="false"
@@ -57378,6 +58018,38 @@ Ti.Preload("ti/com/ti/droplist/_com.json", {
     "@com:ti/input/tags/ti-input-tags-props.mjs",
     "@com:ti/combo/input/ti-combo-input-props.mjs"],
   "mixins"   : ["./ti-droplist.mjs"],
+  "components" : [
+    "@com:ti/combo/input",
+    "@com:ti/combo/multi-input"
+  ]
+});
+//========================================
+// JOIN <ti-droptree.html> ti/com/ti/droptree/ti-droptree.html
+//========================================
+Ti.Preload("ti/com/ti/droptree/ti-droptree.html", `<component
+  class="ti-droptree"
+  :is="ComType"
+  v-bind="this"
+  :can-input="false"
+  :must-in-list="true"
+  :auto-collapse="true"
+  @change="$notify('change', $event)"/>`);
+//========================================
+// JOIN <ti-droptree.mjs> ti/com/ti/droptree/ti-droptree.mjs
+//========================================
+Ti.Preload("ti/com/ti/droptree/ti-droptree.mjs", TI_PACK_EXPORTS['ti/com/ti/droptree/ti-droptree.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/droptree/_com.json
+//========================================
+Ti.Preload("ti/com/ti/droptree/_com.json", {
+  "name" : "ti-droptree",
+  "globally" : true,
+  "template" : "./ti-droptree.html",
+  "props"    : [
+    "@com:ti/input/ti-input-props.mjs",
+    "@com:ti/input/tags/ti-input-tags-props.mjs",
+    "@com:ti/combo/input/ti-combo-input-props.mjs"],
+  "mixins"   : ["./ti-droptree.mjs"],
   "components" : [
     "@com:ti/combo/input",
     "@com:ti/combo/multi-input"
@@ -58571,7 +59243,7 @@ Ti.Preload("ti/com/ti/input/text/ti-input-text.html", `<div class="ti-input-text
     @focus="onInputFocus"
     @blur="onInputBlur"></textarea>
   <!--
-    Suffox
+    Suffix
   -->
   <div class="as-bar is-suffix">
     <!--suffix:text-->
@@ -64803,6 +65475,7 @@ Ti.Preload("ti/com/wn/combo/multi-input/_com.json", {
 // JOIN <wn-droplist.html> ti/com/wn/droplist/wn-droplist.html
 //========================================
 Ti.Preload("ti/com/wn/droplist/wn-droplist.html", `<component 
+  class="wn-droplist"
   :is="ComType"
   v-bind="this"
   :drop-display="TheDropDisplay"
@@ -64826,6 +65499,42 @@ Ti.Preload("ti/com/wn/droplist/_com.json", {
     "@com:ti/input/tags/ti-input-tags-props.mjs",
     "@com:ti/combo/input/ti-combo-input-props.mjs"],
   "mixins"   : ["./wn-droplist.mjs"],
+  "components" : [
+    "@com:wn/combo/input",
+    "@com:wn/combo/multi-input"
+  ]
+});
+//========================================
+// JOIN <wn-droptree.html> ti/com/wn/droptree/wn-droptree.html
+//========================================
+Ti.Preload("ti/com/wn/droptree/wn-droptree.html", `<component 
+  class="wn-droptree"
+  :is="ComType"
+  v-bind="this"
+  :value="TheValue"
+  drop-com-type="TiTree",
+  :drop-com-conf="TreeDropComConf"
+  :drop-display="TheDropDisplay"
+  :can-input="false"
+  :must-in-list="true"
+  :auto-collapse="true"
+  @change="OnValueChange"/>`);
+//========================================
+// JOIN <wn-droptree.mjs> ti/com/wn/droptree/wn-droptree.mjs
+//========================================
+Ti.Preload("ti/com/wn/droptree/wn-droptree.mjs", TI_PACK_EXPORTS['ti/com/wn/droptree/wn-droptree.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/droptree/_com.json
+//========================================
+Ti.Preload("ti/com/wn/droptree/_com.json", {
+  "name" : "wn-droptree",
+  "globally" : true,
+  "template" : "./wn-droptree.html",
+  "props"    : [
+    "@com:ti/input/ti-input-props.mjs",
+    "@com:ti/input/tags/ti-input-tags-props.mjs",
+    "@com:ti/combo/input/ti-combo-input-props.mjs"],
+  "mixins"   : ["./wn-droptree.mjs"],
   "components" : [
     "@com:wn/combo/input",
     "@com:wn/combo/multi-input"
@@ -67329,94 +68038,106 @@ Ti.Preload("ti/lib/www/mod/www-mod-site.mjs", TI_PACK_EXPORTS['ti/lib/www/mod/ww
 // JOIN <layout.json> /a/load/wn.manager/gui/layout.json
 //========================================
 Ti.Preload("/a/load/wn.manager/gui/layout.json", {
-  "desktop" : {
-    "type" : "rows",
-    "border" : true,
-    "blocks" : [{
-      "name" : "sky",
-      "size" : 48,
-      "type" : "cols",
-      "blocks" : [{
-          "name" : "logo",
-          "size" : "auto",
-          "body" : "pcSkyLogo"
-        }, {
-          "name" : "title",
-          "size" : "stretch",
-          "body" : "pcSkyTitle"
-        }, {
-          "name" : "session",
-          "size" : "auto",
-          "body" : "pcSkySession"
-        }, {
-          "name" : "menu",
-          "size" : "auto",
-          "body" : "pcSkyMenu"
-        }]
-    }, {
-      "name" : "main",
-      "size" : "100px",
-      "flex" : "both",
-      "type" : "cols",
-      "border" : true,
-      "blocks" : [{
-          "name"  : "sidebar",
-          "size" : "1.8rem",
-          "body"  : "pcMainSideBar"
-        }, {
-          "name" : "arena",
-          "size" : "stretch",
-          "body" : "pcMainArena"
-        }]
-    }, {
-      "name" : "footer",
-      "size" : ".32rem",
-      "body" : "pcFooter"
-    }]
+  "desktop": {
+    "type": "rows",
+    "border": true,
+    "blocks": [
+      {
+        "name": "sky",
+        "size": 48,
+        "type": "cols",
+        "blocks": [
+          {
+            "name": "logo",
+            "size": "auto",
+            "body": "pcSkyLogo"
+          },
+          {
+            "name": "title",
+            "size": "stretch",
+            "body": "pcSkyTitle"
+          },
+          {
+            "name": "session",
+            "size": "auto",
+            "body": "pcSkySession"
+          },
+          {
+            "name": "menu",
+            "size": "auto",
+            "body": "pcSkyMenu"
+          }
+        ]
+      },
+      {
+        "name": "main",
+        "size": "100px",
+        "flex": "both",
+        "type": "cols",
+        "border": true,
+        "blocks": [
+          {
+            "name": "sidebar",
+            "size": "1.8rem",
+            "body": "pcMainSideBar"
+          },
+          {
+            "name": "arena",
+            "size": "stretch",
+            "body": "pcMainArena"
+          }
+        ]
+      },
+      {
+        "name": "footer",
+        "size": ".32rem",
+        "body": "pcFooter"
+      }
+    ]
   },
-  "tablet" : "desktop",
-  "phone" : "desktop"
+  "tablet": "desktop",
+  "phone": "desktop"
 });
 //========================================
 // JOIN <schema.json> /a/load/wn.manager/gui/schema.json
 //========================================
 Ti.Preload("/a/load/wn.manager/gui/schema.json", {
-  "pcSkyLogo" : {
-    "comType" : "ti-icon",
-    "comConf" : {
-      "width" : "3em", 
-      "fontSize" : "1.5em", 
-      "value" : "=Logo"
+  "pcSkyLogo": {
+    "comType": "ti-icon",
+    "comConf": {
+      "width": "3em",
+      "fontSize": "1.5em",
+      "value": "=Logo"
     }
   },
-  "pcSkyTitle" : {
-    "comType" : "ti-crumb",
-    "comConf" : "=Crumb"
+  "pcSkyTitle": {
+    "comType": "ti-crumb",
+    "comConf": "=Crumb"
   },
-  "pcSkySession" : {
-    "comType" : "wn-session-badge",
-    "comConf" : "=SessionBadge"
+  "pcSkySession": {
+    "comType": "wn-session-badge",
+    "comConf": "=SessionBadge"
   },
-  "pcSkyMenu" : {
-    "comType" : "ti-actionbar",
-    "comConf" : "=ActionMenu"
+  "pcSkyMenu": {
+    "comType": "ti-actionbar",
+    "comConf": "=ActionMenu"
   },
-  "pcMainSideBar" : {
-    "comType" : "wn-gui-side-nav",
-    "comConf" : {
-      "statusStoreKey" : "=sidebarStatusStoreKey",
-      "items" : "=sidebar",
-      "highlightItemId"   : "=MetaId",
-      "highlightItemPath" : "=MetaPath"
+  "pcMainSideBar": {
+    "comType": "wn-gui-side-nav",
+    "comConf": {
+      "statusStoreKey": "=sidebarStatusStoreKey",
+      "items": "=sidebar",
+      "highlightItemId": "=MetaId",
+      "highlightItemPath": "=MetaPath"
     }
   },
-  "pcMainArena" : {
-    "comType" : "=comType",
-    "comConf" : "=Arena"
+  "pcMainArena": {
+    "comType": "=comType",
+    "comConf": "=Arena"
   },
-  "pcFooter" : {
-    "comType" : "wn-gui-footer",
-    "comConf" : "=Footer"
+  "pcFooter": {
+    "comType": "wn-gui-footer",
+    "comConf": "=Footer"
   }
 });
 //========================================
@@ -67610,7 +68331,21 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-css-padding" : "Padding",
   "hmk-css-color" : "Color",
   "hmk-css-background" : "Background",
-  "hmk-css-background-color" : "BgColor",
+  "hmk-css-background-color" : "Bg Color",
+  "hmk-css-background-image": "Bg Image",
+  "hmk-css-background-position": "Bg Pos.",
+  "hmk-css-background-repeat": "Bg Repeat",
+  "hmk-css-background-repeat-no": "No repeat",
+  "hmk-css-background-repeat-space": "Space",
+  "hmk-css-background-repeat-yes": "Repeat",
+  "hmk-css-background-repeat-x": "Repeat X",
+  "hmk-css-background-repeat-y": "Repeat Y",
+  "hmk-css-background-repeat-round": "Round",
+  "hmk-css-background-size": "Bg Size",
+  "hmk-css-background-size-auto": "Auto",
+  "hmk-css-background-size-full": "Full",
+  "hmk-css-background-size-cover": "Cover",
+  "hmk-css-background-size-contain": "Contain",
   "hmk-css-box-shadow" : "Box shadow",
   "hmk-css-text-shadow" : "Text shadow",
   "hmk-css-overflow" : "Overflow",
@@ -68363,74 +69098,77 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "project-add": "Add Project",
+  "org-add": "Add Org",
+  "org-choose": "Choose Organization",
+  "dept-add": "Add Dept",
   "mail": "Email",
   "mail-inbox": "Email Inbox",
-  "move-to" : "Move to...",
-  "layout" : "Layout",
-  "widht" : "Width",
-  "height" : "Height",
-  "top" : "Top",
-  "left" : "Left",
-  "right" : "Right",
-  "bottom" : "Bottom",
-  "size" : "Size",
-  "inherit" : "Inherit",
+  "move-to": "Move to...",
+  "layout": "Layout",
+  "widht": "Width",
+  "height": "Height",
+  "top": "Top",
+  "left": "Left",
+  "right": "Right",
+  "bottom": "Bottom",
+  "size": "Size",
+  "inherit": "Inherit",
   "e-obj-noexists": "Object [${val}] not exists",
   "e-ph-noexists": "Path [${val}] not exists",
   "e-obj-invalid": "Path [${val}] invalid",
-  "video-features" : "Video feature",
-  "video-accelerometer" : "Video accelerometer",
-  "video-autoplay" : "Autoplay",
-  "video-clipboard-write" : "Clipboard write",
-  "video-encrypted-media" : "Encrypted media",
-  "video-gyroscope" : "Gyroscope",
-  "video-pic-in-pic" : "Pic in pic",
-  "allowfullscreen" : "Allow fullscreen",
-  "font-size" : "Font size",
-  "font-weight" : "Font weight",
-  "font-w-normal" : "Normal",
-  "font-w-bold" : "Bold",
-  "font-transform" : "Text trans",
-  "font-t-capitalize" : "Capitalize",
-  "font-t-uppercase" : "Uppercase",
-  "font-t-lowercase" : "Lowercase",
-  "album-refresh" : "Refresh album",
-  "album-prop" : "Album prop",
-  "album-margin" : "Album margin",
-  "album-clrsz" : "Clear album size",
-
-  "exlink" : "Ex-link",
-  "exlink-tip" : "Please enter a URL address",
-  "exlink-tip-img" : "Please enter an image URL address",
-  "key" : "Key",
-  "all" : "All",
-  "attachments" : "Attachments",
-  "attachment-add" : "Add attachmemt",
-  "attachment-insert" : "Insert attachment",
-  "invalid" : "Invalid",
-  "invalid-val" : "Invalid value",
-  "img" : "Image",
-  "img-add" : "Add image",
-  "img-insert" : "Insert image",
-  "img-remove" : "Remove image",
+  "video-features": "Video feature",
+  "video-accelerometer": "Video accelerometer",
+  "video-autoplay": "Autoplay",
+  "video-clipboard-write": "Clipboard write",
+  "video-encrypted-media": "Encrypted media",
+  "video-gyroscope": "Gyroscope",
+  "video-pic-in-pic": "Pic in pic",
+  "allowfullscreen": "Allow fullscreen",
+  "font-size": "Font size",
+  "font-weight": "Font weight",
+  "font-w-normal": "Normal",
+  "font-w-bold": "Bold",
+  "font-transform": "Text trans",
+  "font-t-capitalize": "Capitalize",
+  "font-t-uppercase": "Uppercase",
+  "font-t-lowercase": "Lowercase",
+  "album-refresh": "Refresh album",
+  "album-prop": "Album prop",
+  "album-margin": "Album margin",
+  "album-clrsz": "Clear album size",
+  "exlink": "Ex-link",
+  "exlink-tip": "Please enter a URL address",
+  "exlink-tip-img": "Please enter an image URL address",
+  "key": "Key",
+  "all": "All",
+  "attachments": "Attachments",
+  "attachment-add": "Add attachmemt",
+  "attachment-insert": "Insert attachment",
+  "invalid": "Invalid",
+  "invalid-val": "Invalid value",
+  "img": "Image",
+  "img-add": "Add image",
+  "img-insert": "Insert image",
+  "img-remove": "Remove image",
   "video-add": "Add video",
   "video-insert": "Insert video",
   "video-remove": "Remove video",
-  "copy" : "Copy",
-  "copy-all" : "Copy all",
+  "copy": "Copy",
+  "copy-all": "Copy all",
   "preview": "Preview",
   "add": "Add",
   "add-item": "New item",
   "album": "Album",
   "albums": "Albums",
-  "album-add" : "Add album",
-  "album-insert" : "Insert album",
+  "album-add": "Add album",
+  "album-insert": "Insert album",
   "amount": "Amount",
   "attachment": "Attachment",
   "audio": "Audio",
   "audios": "Audios",
-  "audio-add" : "Add audio",
-  "audio-insert" : "Insert audio",
+  "audio-add": "Add audio",
+  "audio-insert": "Insert audio",
   "avatar": "Avatar",
   "back": "Back",
   "back-to-list": "Back to list",
@@ -68517,7 +69255,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "e-io-obj-exists": "Object already exists",
   "e-io-obj-noexists": "Object does't exists",
   "e-io-obj-noexistsf": "Object[${nm}] does't exists",
-  "e-io-forbidden" : "IO Forbidden",
+  "e-io-forbidden": "IO Forbidden",
   "edit": "Edit",
   "edit-com": "Edit control",
   "email": "Email",
@@ -68549,7 +69287,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "hierarchy": "Hierarchy",
   "history-record": "History record",
   "home": "HOME",
-  "home-index" : "HOME",
+  "home-index": "HOME",
   "i-known": "I known",
   "icon": "Icon",
   "icon-code-tip": "Please key-in code for icon, such as 'zmdi-case'",
@@ -68599,8 +69337,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "list": "List",
   "lng": "Longitude",
   "loading": "Loading...",
-  "load-more" : "Load more",
-  "load-more-pull" : "Pull for load more",
+  "load-more": "Load more",
+  "load-more-pull": "Pull for load more",
   "location": "Location",
   "login": "Sign in",
   "login-name": "Login name",
@@ -68632,9 +69370,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "map-satellite": "SATELLITE",
   "map-terrain": "TERRAIN",
   "map-type": "Map type",
-  "map-location" : "Map location",
-  "map-location-edit" : "Edit map location",
-  "map-location-clear" : "Clear map location",
+  "map-location": "Map location",
+  "map-location-edit": "Edit map location",
+  "map-location-clear": "Clear map location",
   "me": "Me",
   "media": "Media",
   "meta": "Meta data",
@@ -68734,12 +69472,12 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "stat-date-at-oor": "Statistics on this date are not ready yet",
   "stat-date-span": "Date span",
   "stop": "Stop",
-  "style" : "Style",
-  "style-more" : "More style",
+  "style": "Style",
+  "style-more": "More style",
   "structure": "Structure",
   "success": "Success",
   "sys-settings": "System settings",
-  "tags" : "Tags",
+  "tags": "Tags",
   "tablet": "Tablet",
   "terminal": "Terminal",
   "terminate": "Terminate",
@@ -68876,198 +69614,211 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-cn/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
-  "hmk-style-adv" : "高级样式",
-  "hmk-style-outside" : "外部样式",
-  "hmk-style-inside" : "内部样式",
-  "hmk-style-tile" : "瓦片样式",
-  "hmk-style-image" : "图片样式",
-  "hmk-style-title" : "标题样式",
-  "hmk-style-brief" : "摘要样式",
-  "hmk-size" : "尺寸",
-  "hmk-w-edit-alt-style" : "标题样式",
-  "hmk-aspect-more" : "样式外观",
-  "hmk-w-edit-img-prop" : "图片属性",
-  "hmk-w-edit-img-info" : "图片信息",
-  "hmk-w-edit-img-pic" : "图片",
-  "hmk-w-edit-img-title" : "图片标题",
-  "hmk-w-edit-img-title-tip" : "请输入图片的标题",
-  "hmk-w-edit-img-link" : "图片链接",
-  "hmk-w-edit-img-link-tip" : "譬如 http://xxxx",
-  "hmk-w-edit-img-newtab" : "新窗口",
-  "hmk-w-edit-img-style" : "图片样式",
-  "hmk-w-edit-img-clrsz" : "清除图片尺寸",
-  "hmk-autofit" : "自动适应宽度",
-  "hmk-autoscale" : "恢复比例",
-  "hmk-float" : "文本绕图",
-  "hmk-float-left" : "居左绕图",
-  "hmk-float-right" : "居右绕图",
-  "hmk-float-none" : "不绕图",
-  "hmk-float-clear" : "清除浮动",
-  "hmk-w-edit-img-margin" : "图片边距",
-  "hmk-margin-sm" : "小边距",
-  "hmk-margin-md" : "中等边距",
-  "hmk-margin-lg" : "较大边距",
-  "hmk-margin-no" : "清除边距",
-  "hmk-margin-center" : "边距居中",
-  "hmk-w-edit-video-prop" : "视频属性",
-  "hmk-w-edit-video-clrsz" : "清除视频尺寸",
-  "hmk-w-edit-video-margin" : "视频边距",
-  "hmk-config-nil" : "找不到配置信息",
-  "hmk-config-choose" : "选择配置信息",
-  "hmk-w-edit-album-prop" : "编辑相册属性",
-  "hmk-w-edit-fb-album-prop" : "编辑脸书相册属性",
-  "hmk-w-edit-audio-prop" : "音频属性",
-  "hmk-w-edit-audio-margin" : "音频边距",
-  "hmk-w-edit-audio-clrsz" : "清除音频尺寸",
-  "hmk-w-edit-yt-playlist" : "编辑播放列表属性",
-  "hmk-w-edit-yt-video" : "编辑Youtube视频属性",
-  "hmk-w-edit-yt-video-features" : "视频特性",
-  "hmk-w-edit-attachment" : "附件",
-  "hmk-w-edit-attachment-prop" : "附件属性",
-  "hmk-w-edit-attachment-margin" : "附件边距",
-  "hmk-w-edit-attachment-clrsz" : "清除附件尺寸",
-  "hmk-w-edit-album-fullpreview" : "全屏预览",
-  "hmk-album-info" : "相册信息",
-  "hmk-album-id" : "相册ID",
-  "hmk-album-name" : "相册名称",
-  "hmk-album-clrsz" : "清除相册尺寸",
-  "hmk-album-autofit" : "自动适应宽度",
-  "hmk-album-margin" : "相册边距",
-  "hmk-album-refresh" : "刷新相册内容",
-  "hmk-album-prop" : "相册属性",
-  "hmk-fb-album-info" : "脸书相册信息",
-  "hmk-fb-album-id" : "脸书相册ID",
-  "hmk-fb-album-name" : "脸书相册名称",
-  "hmk-fb-album-clrsz" : "清除脸书相册尺寸",
-  "hmk-fb-album-autofit" : "脸书相册自动适应宽度",
-  "hmk-fb-album-margin" : "脸书相册边距",
-  "hmk-fb-album-refresh" : "刷新脸书相册内容",
-  "hmk-fb-album-prop" : "相册脸书属性",
-  "hmk-yt-playlist-info" : "YT播放列表信息",
-  "hmk-yt-playlist-id" : "列表ID",
-  "hmk-yt-playlist-name" : "列表名称",
-  "hmk-yt-playlist-clrsz" : "清除YT播放列表尺寸",
-  "hmk-yt-playlist-autofit" : "YT播放列表自动适应宽度",
-  "hmk-yt-playlist-margin" : "YT播放列表边距",
-  "hmk-yt-playlist-refresh" : "刷新YT播放列表内容",
-  "hmk-yt-playlist-prop" : "YT播放列表属性",
-
-  "hmk-css-opacity" : "不透明度",
-  "hmk-css-object-fit" : "内容缩放",
-  "hmk-css-object-fit-fill" : "拉伸",
-  "hmk-css-object-fit-contain" : "包含",
-  "hmk-css-object-fit-cover" : "封面",
-  "hmk-css-object-fit-none" : "无",
-  "hmk-css-object-fit-scale-down" : "等比",
-  "hmk-css-object-position" : "内容位置",
-  "hmk-class-title-wrap" : "标题折行",
-  "hmk-class-text-wrap" : "文字折行",
-  "hmk-class-text-wrap-auto" : "自动",
-  "hmk-class-text-wrap-clip" : "剪裁",
-  "hmk-class-text-wrap-ellipsis" : "省略号",
-  "hmk-css-text-overflow" : "文字溢出",
-  "hmk-css-text-overflow-clip" : "剪裁",
-  "hmk-css-text-overflow-ellipsis" : "省略号",
-  "hmk-css-white-space" : "文字折行",
-  "hmk-css-white-space-normal" : "正常",
-  "hmk-css-white-space-nowrap" : "不折行",
-  "hmk-css-white-space-pre" : "保持预先格式",
-  "hmk-css-white-space-pre-wrap" : "保持预先格式并自动折行",
-  "hmk-css-white-space-pre-line" : "保持预先格式并按行自动折行",
-  "hmk-css-white-space-break-space" : "保持预先格式并自动折行（除了空格）",
+  "hmk-style-adv": "高级样式",
+  "hmk-style-outside": "外部样式",
+  "hmk-style-inside": "内部样式",
+  "hmk-style-tile": "瓦片样式",
+  "hmk-style-image": "图片样式",
+  "hmk-style-title": "标题样式",
+  "hmk-style-brief": "摘要样式",
+  "hmk-size": "尺寸",
+  "hmk-w-edit-alt-style": "标题样式",
+  "hmk-aspect-more": "样式外观",
+  "hmk-w-edit-img-prop": "图片属性",
+  "hmk-w-edit-img-info": "图片信息",
+  "hmk-w-edit-img-pic": "图片",
+  "hmk-w-edit-img-title": "图片标题",
+  "hmk-w-edit-img-title-tip": "请输入图片的标题",
+  "hmk-w-edit-img-link": "图片链接",
+  "hmk-w-edit-img-link-tip": "譬如 http://xxxx",
+  "hmk-w-edit-img-newtab": "新窗口",
+  "hmk-w-edit-img-style": "图片样式",
+  "hmk-w-edit-img-clrsz": "清除图片尺寸",
+  "hmk-autofit": "自动适应宽度",
+  "hmk-autoscale": "恢复比例",
+  "hmk-float": "文本绕图",
+  "hmk-float-left": "居左绕图",
+  "hmk-float-right": "居右绕图",
+  "hmk-float-none": "不绕图",
+  "hmk-float-clear": "清除浮动",
+  "hmk-w-edit-img-margin": "图片边距",
+  "hmk-margin-sm": "小边距",
+  "hmk-margin-md": "中等边距",
+  "hmk-margin-lg": "较大边距",
+  "hmk-margin-no": "清除边距",
+  "hmk-margin-center": "边距居中",
+  "hmk-w-edit-video-prop": "视频属性",
+  "hmk-w-edit-video-clrsz": "清除视频尺寸",
+  "hmk-w-edit-video-margin": "视频边距",
+  "hmk-config-nil": "找不到配置信息",
+  "hmk-config-choose": "选择配置信息",
+  "hmk-w-edit-album-prop": "编辑相册属性",
+  "hmk-w-edit-fb-album-prop": "编辑脸书相册属性",
+  "hmk-w-edit-audio-prop": "音频属性",
+  "hmk-w-edit-audio-margin": "音频边距",
+  "hmk-w-edit-audio-clrsz": "清除音频尺寸",
+  "hmk-w-edit-yt-playlist": "编辑播放列表属性",
+  "hmk-w-edit-yt-video": "编辑Youtube视频属性",
+  "hmk-w-edit-yt-video-features": "视频特性",
+  "hmk-w-edit-attachment": "附件",
+  "hmk-w-edit-attachment-prop": "附件属性",
+  "hmk-w-edit-attachment-margin": "附件边距",
+  "hmk-w-edit-attachment-clrsz": "清除附件尺寸",
+  "hmk-w-edit-album-fullpreview": "全屏预览",
+  "hmk-album-info": "相册信息",
+  "hmk-album-id": "相册ID",
+  "hmk-album-name": "相册名称",
+  "hmk-album-clrsz": "清除相册尺寸",
+  "hmk-album-autofit": "自动适应宽度",
+  "hmk-album-margin": "相册边距",
+  "hmk-album-refresh": "刷新相册内容",
+  "hmk-album-prop": "相册属性",
+  "hmk-fb-album-info": "脸书相册信息",
+  "hmk-fb-album-id": "脸书相册ID",
+  "hmk-fb-album-name": "脸书相册名称",
+  "hmk-fb-album-clrsz": "清除脸书相册尺寸",
+  "hmk-fb-album-autofit": "脸书相册自动适应宽度",
+  "hmk-fb-album-margin": "脸书相册边距",
+  "hmk-fb-album-refresh": "刷新脸书相册内容",
+  "hmk-fb-album-prop": "相册脸书属性",
+  "hmk-yt-playlist-info": "YT播放列表信息",
+  "hmk-yt-playlist-id": "列表ID",
+  "hmk-yt-playlist-name": "列表名称",
+  "hmk-yt-playlist-clrsz": "清除YT播放列表尺寸",
+  "hmk-yt-playlist-autofit": "YT播放列表自动适应宽度",
+  "hmk-yt-playlist-margin": "YT播放列表边距",
+  "hmk-yt-playlist-refresh": "刷新YT播放列表内容",
+  "hmk-yt-playlist-prop": "YT播放列表属性",
+  "hmk-css-opacity": "不透明度",
+  "hmk-css-object-fit": "内容缩放",
+  "hmk-css-object-fit-fill": "拉伸",
+  "hmk-css-object-fit-contain": "包含",
+  "hmk-css-object-fit-cover": "封面",
+  "hmk-css-object-fit-none": "无",
+  "hmk-css-object-fit-scale-down": "等比",
+  "hmk-css-object-position": "内容位置",
+  "hmk-class-title-wrap": "标题折行",
+  "hmk-class-text-wrap": "文字折行",
+  "hmk-class-text-wrap-auto": "自动",
+  "hmk-class-text-wrap-clip": "剪裁",
+  "hmk-class-text-wrap-ellipsis": "省略号",
+  "hmk-css-text-overflow": "文字溢出",
+  "hmk-css-text-overflow-clip": "剪裁",
+  "hmk-css-text-overflow-ellipsis": "省略号",
+  "hmk-css-white-space": "文字折行",
+  "hmk-css-white-space-normal": "正常",
+  "hmk-css-white-space-nowrap": "不折行",
+  "hmk-css-white-space-pre": "保持预先格式",
+  "hmk-css-white-space-pre-wrap": "保持预先格式并自动折行",
+  "hmk-css-white-space-pre-line": "保持预先格式并按行自动折行",
+  "hmk-css-white-space-break-space": "保持预先格式并自动折行（除了空格）",
   "hmk-layout-cols": "列布局",
   "hmk-layout-rows": "行布局",
   "hmk-layout-tabs": "标签布局",
-  "hmk-layout-wall" : "墙贴",
+  "hmk-layout-wall": "墙贴",
   "hmk-layout-falls": "瀑布",
-  "hmk-class-object-fit" : "对象填充",
-  "hmk-class-object-fit-fill" : "拉伸",
-  "hmk-class-object-fit-cover" : "封面",
-  "hmk-class-object-fit-contain" : "包含",
-  "hmk-class-object-fit-none" : "无",
-  "hmk-css-align-left"  : "左对齐",
+  "hmk-class-object-fit": "对象填充",
+  "hmk-class-object-fit-fill": "拉伸",
+  "hmk-class-object-fit-cover": "封面",
+  "hmk-class-object-fit-contain": "包含",
+  "hmk-class-object-fit-none": "无",
+  "hmk-css-align-left": "左对齐",
   "hmk-css-align-center": "居中",
-  "hmk-css-align-right" : "右对齐",
-  "hmk-css-align-justify" : "两端对齐",
-  "hmk-css-text-align" : "文字排列",
-  "hmk-css-text-transform" : "文字转换",
-  "hmk-css-text-transform-capitalize" : "首大写",
-  "hmk-css-text-transform-uppercase" : "全大写",
-  "hmk-css-text-transform-lowercase" : "全小写",
-  "hmk-css-text-transform-none" : "无",
-  "hmk-css-c-auto" : "自动",
-  "hmk-css-g-inherit" : "继承",
-  "hmk-css-g-initial" : "初始",
-  "hmk-css-g-unset" : "默认",
-  "hmk-css-edit" : "编辑CSS样式",
-  "hmk-css-grp-texting" : "文字设置",
-  "hmk-css-grp-aspect" : "外观设置",
-  "hmk-css-grp-measure" : "尺度设置",
-  "hmk-css-border" : "边框",
-  "hmk-css-border-radius" : "圆角",
-  "hmk-css-float" : "文本绕图",
-  "hmk-css-float-none" : "不绕图",
-  "hmk-css-float-left" : "左浮动",
-  "hmk-css-float-right" : "右浮动",
-  "hmk-css-font-size" : "文字大小",
-  "hmk-css-margin" : "外边距",
-  "hmk-css-padding" : "内边距",
-  "hmk-css-color" : "文字颜色",
-  "hmk-css-background" : "背景",
-  "hmk-css-background-color" : "背景颜色",
-  "hmk-css-box-shadow" : "块阴影",
-  "hmk-css-text-shadow" : "文字阴影",
-  "hmk-css-overflow" : "内容溢出",
-  "hmk-css-overflow-scroll" : "滚动",
-  "hmk-css-overflow-hidden" : "隐藏",
-  "hmk-css-overflow-clip" : "剪裁",
-  "hmk-css-overflow-visible" : "可见",
-  "hmk-css-width" : "宽度",
-  "hmk-css-height" : "高度",
-  "hmk-css-max-width" : "最大宽度",
-  "hmk-css-max-height" : "最大高度",
-  "hmk-css-min-width" : "最小宽度",
-  "hmk-css-min-height" : "最小高度",
-  "hmk-css-line-height" : "行高",
-  "hmk-css-letter-spacing" : "字间距",
-  "hmk-class-pick" : "编辑类选择器",
-  "hmk-class-item-space" : "项间距",
-  "hmk-class-item-margin" : "项外距",
-  "hmk-class-item-padding" : "项内距",
-  "hmk-class-flex" : "自动伸缩",
-  "hmk-class-flex-none" : "关闭",
-  "hmk-class-flex-both" : "双向",
-  "hmk-class-flex-grow" : "伸展",
-  "hmk-class-flex-shrink" : "收缩",
-  "hmk-class-text" : "文字",
-  "hmk-class-text-at" : "文字位置",
-  "hmk-class-text-side" : "文字放置",
-  "hmk-class-text-in" : "居内",
-  "hmk-class-text-out" : "居外",
-  "hmk-class-at" : "位置",
-  "hmk-class-at-center" : "居中",
-  "hmk-class-at-top" : "上部",
-  "hmk-class-at-bottom" : "下部",
-  "hmk-class-at-left" : "左侧",
-  "hmk-class-at-right" : "右侧",
-  "hmk-class-at-bottom-left" : "左下",
-  "hmk-class-at-bottom-right" : "右下",
-  "hmk-class-at-top-left" : "左上",
-  "hmk-class-at-top-right" : "右上",
-  "hmk-class-font-size" : "文字大小",
-  "hmk-class-sz-no" : "无",
-  "hmk-class-sz-xs" : "特小",
-  "hmk-class-sz-sm" : "较小",
-  "hmk-class-sz-md" : "正常",
-  "hmk-class-sz-lg" : "较大",
-  "hmk-class-sz-xl" : "特大",
-  "hmk-class-text-style" : "文字风格",
-  "hmk-class-ts-mask" : "遮罩",
-  "hmk-class-ts-shadow" : "阴影",
-  "hmk-class-hover" : "悬停效果",
-  "hmk-class-hover-to-up" : "上浮",
-  "hmk-class-hover-to-scale" : "放大",
-  "hmk-class-hover-to-zoom" : "缩放",
+  "hmk-css-align-right": "右对齐",
+  "hmk-css-align-justify": "两端对齐",
+  "hmk-css-text-align": "文字排列",
+  "hmk-css-text-transform": "文字转换",
+  "hmk-css-text-transform-capitalize": "首大写",
+  "hmk-css-text-transform-uppercase": "全大写",
+  "hmk-css-text-transform-lowercase": "全小写",
+  "hmk-css-text-transform-none": "无",
+  "hmk-css-c-auto": "自动",
+  "hmk-css-g-inherit": "继承",
+  "hmk-css-g-initial": "初始",
+  "hmk-css-g-unset": "默认",
+  "hmk-css-edit": "编辑CSS样式",
+  "hmk-css-grp-texting": "文字设置",
+  "hmk-css-grp-aspect": "外观设置",
+  "hmk-css-grp-measure": "尺度设置",
+  "hmk-css-border": "边框",
+  "hmk-css-border-radius": "圆角",
+  "hmk-css-float": "文本绕图",
+  "hmk-css-float-none": "不绕图",
+  "hmk-css-float-left": "左浮动",
+  "hmk-css-float-right": "右浮动",
+  "hmk-css-font-size": "文字大小",
+  "hmk-css-margin": "外边距",
+  "hmk-css-padding": "内边距",
+  "hmk-css-color": "文字颜色",
+  "hmk-css-background": "背景",
+  "hmk-css-background-color": "背景颜色",
+  "hmk-css-background-image": "背景图片",
+  "hmk-css-background-position": "背景位置",
+  "hmk-css-background-repeat": "背景重复",
+  "hmk-css-background-repeat-no": "不重复",
+  "hmk-css-background-repeat-space": "自动间隔",
+  "hmk-css-background-repeat-yes": "双向平铺",
+  "hmk-css-background-repeat-x": "横向平铺",
+  "hmk-css-background-repeat-y": "纵向平铺",
+  "hmk-css-background-repeat-round": "填充间隔",
+  "hmk-css-background-size": "背景尺寸",
+  "hmk-css-background-size-auto": "自动",
+  "hmk-css-background-size-full": "拉伸",
+  "hmk-css-background-size-cover": "封面",
+  "hmk-css-background-size-contain": "包含",
+  "hmk-css-box-shadow": "块阴影",
+  "hmk-css-text-shadow": "文字阴影",
+  "hmk-css-overflow": "内容溢出",
+  "hmk-css-overflow-scroll": "滚动",
+  "hmk-css-overflow-hidden": "隐藏",
+  "hmk-css-overflow-clip": "剪裁",
+  "hmk-css-overflow-visible": "可见",
+  "hmk-css-width": "宽度",
+  "hmk-css-height": "高度",
+  "hmk-css-max-width": "最大宽度",
+  "hmk-css-max-height": "最大高度",
+  "hmk-css-min-width": "最小宽度",
+  "hmk-css-min-height": "最小高度",
+  "hmk-css-line-height": "行高",
+  "hmk-css-letter-spacing": "字间距",
+  "hmk-class-pick": "编辑类选择器",
+  "hmk-class-item-space": "项间距",
+  "hmk-class-item-margin": "项外距",
+  "hmk-class-item-padding": "项内距",
+  "hmk-class-flex": "自动伸缩",
+  "hmk-class-flex-none": "关闭",
+  "hmk-class-flex-both": "双向",
+  "hmk-class-flex-grow": "伸展",
+  "hmk-class-flex-shrink": "收缩",
+  "hmk-class-text": "文字",
+  "hmk-class-text-at": "文字位置",
+  "hmk-class-text-side": "文字放置",
+  "hmk-class-text-in": "居内",
+  "hmk-class-text-out": "居外",
+  "hmk-class-at": "位置",
+  "hmk-class-at-center": "居中",
+  "hmk-class-at-top": "上部",
+  "hmk-class-at-bottom": "下部",
+  "hmk-class-at-left": "左侧",
+  "hmk-class-at-right": "右侧",
+  "hmk-class-at-bottom-left": "左下",
+  "hmk-class-at-bottom-right": "右下",
+  "hmk-class-at-top-left": "左上",
+  "hmk-class-at-top-right": "右上",
+  "hmk-class-font-size": "文字大小",
+  "hmk-class-sz-no": "无",
+  "hmk-class-sz-xs": "特小",
+  "hmk-class-sz-sm": "较小",
+  "hmk-class-sz-md": "正常",
+  "hmk-class-sz-lg": "较大",
+  "hmk-class-sz-xl": "特大",
+  "hmk-class-text-style": "文字风格",
+  "hmk-class-ts-mask": "遮罩",
+  "hmk-class-ts-shadow": "阴影",
+  "hmk-class-hover": "悬停效果",
+  "hmk-class-hover-to-up": "上浮",
+  "hmk-class-hover-to-scale": "放大",
+  "hmk-class-hover-to-zoom": "缩放",
   "com-form": "表单",
   "com-label": "标签",
   "com-list": "列表",
@@ -69767,74 +70518,82 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "project-add": "添加项目",
+  "org-add": "添加机构",
+  "org-choose": "选择机构",
+  "dept-add": "添加部门",
   "mail": "邮件",
   "mail-inbox": "收件箱",
-  "move-to" : "移动到...",
-  "layout" : "布局",
-  "widht" : "宽度",
-  "height" : "高度",
-  "top" : "上",
-  "left" : "左",
-  "right" : "右",
-  "bottom" : "下",
-  "size" : "尺寸",
-  "inherit" : "继承",
+  "move-to": "移动到...",
+  "layout": "布局",
+  "widht": "宽度",
+  "height": "高度",
+  "center": "居中",
+  "top": "上",
+  "left-bottom": "右下",
+  "left-top": "左上",
+  "left": "左",
+  "right": "右",
+  "right-bottom": "右下",
+  "right-top": "右上",
+  "bottom": "下",
+  "size": "尺寸",
+  "inherit": "继承",
   "e-obj-noexists": "对象[${val}]不存在",
   "e-ph-noexists": "路径[${val}]不存在",
   "e-obj-invalid": "路径[${val}]非法",
-  "video-features" : "视频特性",
-  "video-accelerometer" : "视频加速",
-  "video-autoplay" : "自动播放",
-  "video-clipboard-write" : "剪贴板写入",
-  "video-encrypted-media" : "媒体加密",
-  "video-gyroscope" : "重播",
-  "video-pic-in-pic" : "画中画",
-  "allowfullscreen" : "允许全屏",
-  "font-size" : "文字大小",
-  "font-weight" : "文字粗细",
-  "font-w-normal" : "正常",
-  "font-w-bold" : "加粗",
-  "font-transform" : "文字转换",
-  "font-t-capitalize" : "首字母大写",
-  "font-t-uppercase" : "全大写",
-  "font-t-lowercase" : "全小写",
-  "album-refresh" : "刷新相册内容",
-  "album-prop" : "相册属性",
-  "album-margin" : "相册边距",
-  "album-clrsz" : "清除相册尺寸",
-
-  "exlink" : "外部链接",
-  "exlink-tip" : "请输入一个超链接地址",
-  "exlink-tip-img" : "请输入图片超链接地址",
-  "key" : "键",
-  "all" : "全部",
-  "attachments" : "附件",
-  "attachment-add" : "添加附件",
-  "attachment-insert" : "插入附件",
-  "invalid" : "不正确的",
-  "invalid-val" : "不正确的值",
-  "img" : "图像",
-  "img-add" : "添加图像",
-  "img-insert" : "插入图像",
-  "img-remove" : "删除图像",
+  "video-features": "视频特性",
+  "video-accelerometer": "视频加速",
+  "video-autoplay": "自动播放",
+  "video-clipboard-write": "剪贴板写入",
+  "video-encrypted-media": "媒体加密",
+  "video-gyroscope": "重播",
+  "video-pic-in-pic": "画中画",
+  "allowfullscreen": "允许全屏",
+  "font-size": "文字大小",
+  "font-weight": "文字粗细",
+  "font-w-normal": "正常",
+  "font-w-bold": "加粗",
+  "font-transform": "文字转换",
+  "font-t-capitalize": "首字母大写",
+  "font-t-uppercase": "全大写",
+  "font-t-lowercase": "全小写",
+  "album-refresh": "刷新相册内容",
+  "album-prop": "相册属性",
+  "album-margin": "相册边距",
+  "album-clrsz": "清除相册尺寸",
+  "exlink": "外部链接",
+  "exlink-tip": "请输入一个超链接地址",
+  "exlink-tip-img": "请输入图片超链接地址",
+  "key": "键",
+  "all": "全部",
+  "attachments": "附件",
+  "attachment-add": "添加附件",
+  "attachment-insert": "插入附件",
+  "invalid": "不正确的",
+  "invalid-val": "不正确的值",
+  "img": "图像",
+  "img-add": "添加图像",
+  "img-insert": "插入图像",
+  "img-remove": "删除图像",
   "video-add": "添加视频",
   "video-insert": "插入视频",
   "video-remove": "删除视频",
-  "copy" : "复制",
-  "copy-all" : "全部复制",
+  "copy": "复制",
+  "copy-all": "全部复制",
   "preview": "预览",
   "add": "添加",
   "add-item": "添加新项",
   "album": "相册",
   "albums": "相册",
-  "album-add" : "添加相册",
-  "album-insert" : "插入相册",
+  "album-add": "添加相册",
+  "album-insert": "插入相册",
   "amount": "数量",
   "attachment": "附件",
   "audio": "音频",
   "audios": "音频",
-  "audio-add" : "添加音频",
-  "audio-insert" : "插入音频",
+  "audio-add": "添加音频",
+  "audio-insert": "插入音频",
   "avatar": "头像",
   "back": "回退",
   "back-to-list": "回退到列表",
@@ -69921,7 +70680,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-io-obj-exists": "但是对象已然存在",
   "e-io-obj-noexists": "对象其实并不存在",
   "e-io-obj-noexistsf": "对象[${nm}]其实并不存在",
-  "e-io-forbidden" : "禁止写入",
+  "e-io-forbidden": "禁止写入",
   "edit": "编辑",
   "edit-com": "编辑控件",
   "email": "邮箱",
@@ -69953,7 +70712,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "hierarchy": "层级",
   "history-record": "历史记录",
   "home": "主目录",
-  "home-index" : "首页",
+  "home-index": "首页",
   "i-known": "我知道了",
   "icon": "图标",
   "icon-code-tip": "请输入图标代码，如 zmdi-case",
@@ -70003,8 +70762,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "list": "列表",
   "lng": "经度",
   "loading": "加载中...",
-  "load-more" : "加载更多",
-  "load-more-pull" : "下拉加载更多",
+  "load-more": "加载更多",
+  "load-more-pull": "下拉加载更多",
   "location": "位置",
   "login": "登录",
   "login-name": "登录名",
@@ -70036,9 +70795,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "map-satellite": "卫星照片",
   "map-terrain": "地形地图",
   "map-type": "地图类型",
-  "map-location" : "地图位置",
-  "map-location-edit" : "编辑地图位置...",
-  "map-location-clear" : "清除地图位置",
+  "map-location": "地图位置",
+  "map-location-edit": "编辑地图位置...",
+  "map-location-clear": "清除地图位置",
   "me": "我",
   "media": "媒体",
   "meta": "元数据",
@@ -70138,12 +70897,12 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "stat-date-at-oor": "这个日期的统计数据还未就绪",
   "stat-date-span": "时间跨度",
   "stop": "停止",
-  "style" : "样式",
-  "style-more" : "更多样式",
+  "style": "样式",
+  "style-more": "更多样式",
   "structure": "结构",
   "success": "成功",
   "sys-settings": "系统设置",
-  "tags" : "标签",
+  "tags": "标签",
   "tablet": "平板",
   "terminal": "终端",
   "terminate": "终止",
@@ -70418,6 +71177,20 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-css-color": "文字顏色",
    "hmk-css-background": "背景",
    "hmk-css-background-color": "背景顏色",
+   "hmk-css-background-image": "背景圖片",
+   "hmk-css-background-position": "背景位置",
+   "hmk-css-background-repeat": "背景重複",
+   "hmk-css-background-repeat-no": "不重複",
+   "hmk-css-background-repeat-space": "自動間隔",
+   "hmk-css-background-repeat-yes": "雙向平鋪",
+   "hmk-css-background-repeat-x": "橫向平鋪",
+   "hmk-css-background-repeat-y": "縱向平鋪",
+   "hmk-css-background-repeat-round": "填充間隔",
+   "hmk-css-background-size": "背景尺寸",
+   "hmk-css-background-size-auto": "自動",
+   "hmk-css-background-size-full": "拉伸",
+   "hmk-css-background-size-cover": "封面",
+   "hmk-css-background-size-contain": "包含",
    "hmk-css-box-shadow": "塊陰影",
    "hmk-css-text-shadow": "文字陰影",
    "hmk-css-overflow": "內容溢出",
@@ -71129,15 +71902,23 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
+   "project-add": "添加項目",
+   "org-add": "添加機構",
+   "dept-add": "添加部門",
    "mail": "郵件",
    "mail-inbox": "收件箱",
    "move-to": "移動到...",
    "layout": "佈局",
    "widht": "寬度",
    "height": "高度",
+   "center": "居中",
    "top": "上",
+   "left-bottom": "右下",
+   "left-top": "左上",
    "left": "左",
    "right": "右",
+   "right-bottom": "右下",
+   "right-top": "右上",
    "bottom": "下",
    "size": "尺寸",
    "inherit": "繼承",

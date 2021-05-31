@@ -1,4 +1,4 @@
-// Pack At: 2021-05-25 21:01:44
+// Pack At: 2021-05-31 14:51:55
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1720,7 +1720,11 @@ const {App} = (function(){
           let linkURI = isTiLink(input)
           //.......................................
           if(linkURI) {
-            let {url, type}  = Ti.Config.cookUrl(linkURI, {dynamicPrefix, dynamicAlias})
+            let cookRe = Ti.Config.cookUrl(linkURI, {dynamicPrefix, dynamicAlias})
+            if(!cookRe) {
+              return
+            }
+            let {url, type}  = cookRe
     
             if(!LT.isAlreadyInLoading(url)) {
               LT.addItem(url)
@@ -1780,7 +1784,12 @@ const {App} = (function(){
           let linkURI = isTiLink(input)
           //.......................................
           if(linkURI) {
-            let {url, type}  = Ti.Config.cookUrl(linkURI, {dynamicPrefix, dynamicAlias})
+            // Try cook URL
+            let cookRe = Ti.Config.cookUrl(linkURI, {dynamicPrefix, dynamicAlias})
+            if(!cookRe) {
+              return input
+            }
+            let {url, type} = cookRe
             // Guard for infinity import loop
             if(memo[url])
               return
@@ -3499,6 +3508,11 @@ const {Config} = (function(){
   
       let url3 = TiConfig.url(url2, {dynamicPrefix, dynamicAlias})
   
+      // Guard
+      if(!url3){
+        return
+      }
+  
       // Try type by suffix
       if(!type) {
         m = /\.(m?js|css|json)$/.exec(url3)
@@ -3541,9 +3555,13 @@ const {Config} = (function(){
         return ph;
       let [prefixName, url] = m.slice(2)
       let prefix = dynamicPrefix[prefixName] || CONFIG.prefix[prefixName]
-  
-      if(!prefix)
-        throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName)
+      
+      // The prefix has not been supported, maybe the email suffix,
+      // or other text starts with "@"
+      if(!prefix) {
+        //throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName)
+        return
+      }
       //.........................................
       let loadUrl = prefix + url
       //console.log("load::", loadUrl)
@@ -10962,7 +10980,9 @@ const {WWW} = (function(){
       }
       // preview obj for sha1
       if(cdnTmpl) {
-        let po = ".." == previewObj ? obj : _.get(obj, previewObj)
+        let po = (".." == previewObj || !previewObj)
+                    ? obj
+                    : _.get(obj, previewObj)
         if(po && po.sha1) {
           po = _.cloneDeep(po)
           // sha1 path
@@ -10978,7 +10998,7 @@ const {WWW} = (function(){
       // preview obj for id
       if(apiTmpl) {
         // 看看有木有对象
-        let oph = ".." == previewKey 
+        let oph = (".." == previewKey || !previewKey)
                     ? obj
                     :_.get(obj, previewKey)
         if(/^https?:\/\//.test(oph)) {
@@ -12156,6 +12176,23 @@ const {Css} = (function(){
       return `url("${src}")`
     },
     //-----------------------------------
+    toBackgroundUrlBy(src, tmpl="") {
+      if(!src)
+        return
+      if(tmpl)
+        src = Ti.S.renderBy(tmpl, src)
+      return `url("${src}")`
+    },
+    //-----------------------------------
+    toBackgroundUrlAsPreview(src, apiTmpl, cdnTmpl, dftSrc) {
+      if(!src || _.isEmpty(src))
+        return
+      src = Ti.WWW.evalObjPreviewSrc(src, {
+        apiTmpl, cdnTmpl, dftSrc
+      })
+      return `url("${src}")`
+    },
+    //-----------------------------------
     toNumStyle(obj) {
       return TiCss.toStyle(obj, false)
     },
@@ -12322,20 +12359,23 @@ const {Mapping} = (function(){
 // # import {Dict,DictFactory} from "./dict.mjs"
 const {Dict,DictFactory} = (function(){
   ///////////////////////////////////////////////
-  const K = {
-    item      : Symbol("item"),
-    data      : Symbol("data"),
-    query     : Symbol("query"),
-    children  : Symbol("children"),
-    getValue  : Symbol("getValue"),
-    getText   : Symbol("getText"),
-    getIcon   : Symbol("getIcon"),
-    isMatched : Symbol("isMatched"),
-    itemCache : Symbol("itemCache"),
-    dataCache : Symbol("dataCache"),
-    hooks     : Symbol("hooks"),
-    shadowed  : Symbol("shadowed")
-  }
+  // const K = {
+  //   item      : Symbol("item"),
+  //   data      : Symbol("data"),
+  //   query     : Symbol("query"),
+  //   children  : Symbol("children"),
+  //   getValue  : Symbol("getValue"),
+  //   getText   : Symbol("getText"),
+  //   getIcon   : Symbol("getIcon"),
+  //   isMatched : Symbol("isMatched"),
+  //   itemCache : Symbol("itemCache"),
+  //   dataCache : Symbol("dataCache"),
+  //   hooks     : Symbol("hooks"),
+  //   shadowed  : Symbol("shadowed")
+  // }
+  const K = ["item", "data", "query", "children",
+  "getValue", "getText", "getIcon", "isMatched",
+  "itemCache", "dataCache", "hooks", "shadowed"]
   ///////////////////////////////////////////////
   const __item_loading = {
     
@@ -12344,16 +12384,17 @@ const {Dict,DictFactory} = (function(){
   class Dict {
     //-------------------------------------------
     constructor(){
-      this[K.hooks]     = []
-      this[K.shadowed]  = false
-      this[K.item]      = _.idendity
-      this[K.data]      = ()=>[]
-      this[K.query]     = v =>[]
-      this[K.children]  = v =>[]
-      this[K.getValue]  = v =>Ti.Util.getFallback(v, "value", "id")
-      this[K.getText]   = v =>Ti.Util.getFallback(v, "title", "text", "name", "nm")
-      this[K.getIcon]   = v =>_.get(v, "icon")
-      this[K.isMatched] = (it, v, $dict) => {
+      this.hooks     = []
+      this.shadowed  = false
+      this.item      = _.idendity
+      this.data      = ()=>[]
+      this.dataChildrenKey = null,
+      this.query     = v =>[]
+      this.children  = v =>[]
+      this.getValue  = v =>Ti.Util.getFallback(v, "value", "id")
+      this.getText   = v =>Ti.Util.getFallback(v, "title", "text", "name", "nm")
+      this.getIcon   = v =>_.get(v, "icon")
+      this.isMatched = (it, v, $dict) => {
         //console.log("match", it, v)
         let itV = $dict.getValue(it)
         if(_.isEqual(v, itV))
@@ -12364,47 +12405,47 @@ const {Dict,DictFactory} = (function(){
         return false
       }
       //-------------------------------------------
-      this[K.itemCache] = {}    // {val-item}
-      this[K.dataCache] = null  // last query result for data
+      this.itemCache = {}    // {val-item}
+      this.dataCache = null  // last query result for data
     }
     //-------------------------------------------
     // Funcs
     //-------------------------------------------
     setShadowed(shadowed=false) {
-      this[K.shadowed] = shadowed
+      this.shadowed = shadowed
     }
     isShadowed() {
-      return this[K.shadowed]
+      return this.shadowed
     }
     //-------------------------------------------
     addHooks(...hooks) {
       let list = _.flattenDeep(hooks)
       _.forEach(list, hk => {
         if(_.isFunction(hk)){
-          this[K.hooks].push(hk)
+          this.hooks.push(hk)
          }
       })
     }
     //-------------------------------------------
     clearHooks(){
-      this[K.hooks] = []
+      this.hooks = []
      }
     //-------------------------------------------
     doHooks(loading=false) {
-      for(let hk of this[K.hooks]) {
+      for(let hk of this.hooks) {
         hk({loading} )
       }
     }
     //-------------------------------------------
     invoke(methodName, ...args) {
-      let func = this[K[methodName]]
+      let func = this[methodName]
       if(_.isFunction(func)){
         return func.apply(this, [...args, this])
       }
     }
     //-------------------------------------------
     async invokeAsync(methodName, ...args) {
-      let func = this[K[methodName]]
+      let func = this[methodName]
       if(_.isFunction(func)){
         let are = await func.apply(this, [...args, this])
         // console.log("invokeAsync", methodName, ...args)
@@ -12416,7 +12457,7 @@ const {Dict,DictFactory} = (function(){
     setFunc(methods) {
       _.forEach(methods, (func, methodName)=>{
         if(_.isFunction(func)){
-          this[K[methodName]] = func
+          this[methodName] = func
         }
       })
     }
@@ -12427,17 +12468,17 @@ const {Dict,DictFactory} = (function(){
         d[s_key] = this[s_key]
       })
       if(!hooks) {
-        d[K.hooks] = []
+        d.hooks = []
       }
       if(!cache) {
-        d[K.itemCache] = {}
-        d[K.dataCache] = null
+        d.itemCache = {}
+        d.dataCache = null
       }
       if(!dataCache) {
-        d[K.dataCache] = null
+        d.dataCache = null
       }
       if(!itemCache) {
-        d[K.itemCache] = {}
+        d.itemCache = {}
       }
       return d
     }
@@ -12445,7 +12486,7 @@ const {Dict,DictFactory} = (function(){
     // Cache
     //-------------------------------------------
     isItemCached(val) {
-      return !Ti.Util.isNil(this[K.itemCache][val])
+      return !Ti.Util.isNil(this.itemCache[val])
     }
     //-------------------------------------------
     addItemToCache(it, val) {
@@ -12456,13 +12497,23 @@ const {Dict,DictFactory} = (function(){
       }
   
       if(!_.isUndefined(it) && !Ti.Util.isNil(itV)) {
-        this[K.itemCache][itV] = it
+        this.itemCache[itV] = it
+      }
+  
+      // Cache the children
+      if(this.dataChildrenKey) {
+        let subItems = it[this.dataChildrenKey]
+        if(_.isArray(subItems) && subItems.length > 0) {
+          for(let subIt of subItems) {
+            this.addItemToCache(subIt)
+          }
+        }
       }
     }
     //-------------------------------------------
     clearCache() {
-      this[K.itemCache] = {}    // {val-item}
-      this[K.dataCache] = null  // last query result for data
+      this.itemCache = {}    // {val-item}
+      this.dataCache = null  // last query result for data
     }
     //-------------------------------------------
     // Utility
@@ -12488,7 +12539,7 @@ const {Dict,DictFactory} = (function(){
       }
       //console.log("Dict.getItem", val)
       // Match cache
-      let it = this[K.itemCache][val]
+      let it = this.itemCache[val]
       // Not in cache, try getItem
       if(_.isUndefined(it)) {
         // If is loading, return the promise
@@ -12531,7 +12582,7 @@ const {Dict,DictFactory} = (function(){
     }
     //-------------------------------------------
     async getData(force=false){
-      let list = this[K.dataCache]
+      let list = this.dataCache
       if(force || _.isEmpty(list)) {
         this.doHooks(true)
         list = await this.invokeAsync("data")
@@ -12545,7 +12596,7 @@ const {Dict,DictFactory} = (function(){
           this.addItemToCache(it)
         })
         // Cache list
-        this[K.dataCache] = list
+        this.dataCache = list
       }
       if(this.isShadowed())
         return _.cloneDeep(list) || []
@@ -12595,10 +12646,10 @@ const {Dict,DictFactory} = (function(){
       return list || []
     }
     //-------------------------------------------
-    getValue(it)   { return this.invoke("getValue",  it) }
-    getText(it)    { return this.invoke("getText" ,  it) }
-    getIcon(it)    { return this.invoke("getIcon" ,  it) }
-    isMatched(it,v){ return this.invoke("isMatched", it, v) }
+    // getValue(it)   { return this.invoke("getValue",  it) }
+    // getText(it)    { return this.invoke("getText" ,  it) }
+    // getIcon(it)    { return this.invoke("getIcon" ,  it) }
+    // isMatched(it,v){ return this.invoke("isMatched", it, v) }
     //-------------------------------------------
     getBy(vKey=".text", it, dft) {
       // Text
@@ -12649,9 +12700,39 @@ const {Dict,DictFactory} = (function(){
     //-------------------------------------------
   }
   ///////////////////////////////////////////////
+  /*
+  Static dictionary instances
+  {
+    $DICT_NAME : {Dict}
+    ...
+  }
+  */
   const DICTS = {}
+  /*
+  Dynamic dictionary instances
+  {
+    definations: {
+      $DICT_NAME: Function(input):Dict
+      ...
+    }
+    instances: {
+      $DICT_NAME : {
+        "$INPUT" : Dict
+        ...
+      }
+      ...
+    }
+  }
+  */
+  const DYNAMIC_DICTS = {
+    definations: {},
+    instances: {}
+  }
   ///////////////////////////////////////////////
   const DictFactory = {
+    //-------------------------------------------
+    __debug_static() {return DICTS},
+    __debug_dynamic() {return DYNAMIC_DICTS},
     //-------------------------------------------
     DictReferName(str) {
       if(_.isString(str)) {
@@ -12688,11 +12769,13 @@ const {Dict,DictFactory} = (function(){
     },
     //-------------------------------------------
     CreateDict({
-      data, query, item, children,
+      data, query, item, children, 
+      dataChildrenKey,
       getValue, getText, getIcon, 
       isMatched, shadowed
     }={}, {hooks, name}={}) {
-      //console.log("CreateDict", {data, query, item})
+      if("ComDeptJobs" == name)
+        console.log("CreateDict", {name, dataChildrenKey})
       //.........................................
       if(_.isString(data) || _.isArray(data)) {
         let aryData = Ti.S.toObjList(data)
@@ -12705,14 +12788,10 @@ const {Dict,DictFactory} = (function(){
       //.........................................
       if(!item) {
         item = async (val, $dict)=>{
-          let aryData = await $dict.getData()
-          for(let it of aryData) {
-            let itV = $dict.getValue(it)
-            //if(_.isEqual(itV, val)) {
-            if(itV == val || _.isEqual(itV, val)) {
-              return it
-            }
-          }
+          // Load all data
+          await $dict.getData()
+          // Get the item
+          return await $dict.getItem(val)
         }
       }
       //.........................................
@@ -12741,6 +12820,7 @@ const {Dict,DictFactory} = (function(){
       // }
       //.........................................
       let d = new Dict()
+      d.dataChildrenKey = dataChildrenKey
       d.setFunc({
         data, query, item, children,
         getValue, getText, getIcon, 
@@ -12810,6 +12890,7 @@ const {Dict,DictFactory} = (function(){
       throw `e.dict.noexists : ${dictName}`
     },
     //-------------------------------------------
+    // dickName(args):valueKey
     explainDictName(dictName) {
       let re = {}
       let m = /^([^:()]+)(\(([^)]*)\))?(:(.+))?$/.exec(dictName)
@@ -12817,8 +12898,57 @@ const {Dict,DictFactory} = (function(){
         re.name = m[1]
         re.args = Ti.S.joinArgs(m[3])
         re.vkey = m[5]
+        if(re.args.length == 1 && /^=/.test(re.args[0])) {
+          re.dynamic = true
+          re.dictKey = _.trim(re.args[0].substring(1))
+        }
       }
       return re
+    },
+    //-------------------------------------------
+    CreateDynamicDict(factory, name) {
+      if(name && _.isFunction(factory)) {
+        DYNAMIC_DICTS.definations[name] = factory
+      } else {
+        console.error("Can not CreateDynamicDict", {factory, name})
+      }
+    },
+    //-------------------------------------------
+    GetDynamicDict({name, key, vars}={}, hooks) {
+      // Try get
+      let dKey = `${name}.${key}`
+      let d = _.get(DYNAMIC_DICTS.instances, dKey)
+      //console.log("GetDynamicDict", {name, key, vars})
+      // Create New instance
+      if(!d) {
+        let dd = DYNAMIC_DICTS.definations[name]
+        if(!dd) {
+          return null
+        }
+        // Create instance
+        d = dd(vars)
+        if(!d) {
+          return null
+        }
+        // Save instance
+        _.set(DYNAMIC_DICTS.instances, dKey, d)
+      }
+      
+      // Return shadowed ? 
+      if(d && hooks) {
+        d = d.duplicate({hooks:false})
+        d.addHooks(hooks)
+      }
+      return d
+    },
+    //-------------------------------------------
+    CheckDynamicDict({name, key, vars}={}, hooks) {
+      // Already in cache
+      let d = DictFactory.GetDynamicDict({name, key, vars}, hooks)
+      if(d) {
+        return d
+      }
+      throw `e.dict.dynamic.WithoutDefined : ${JSON.stringify({name,key,vars})}`
     },
     //-------------------------------------------
     /***
@@ -15166,7 +15296,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210525.210144",
+  "version" : "1.6-20210531.145155",
   "dev" : false,
   "appName" : null,
   "session" : {},

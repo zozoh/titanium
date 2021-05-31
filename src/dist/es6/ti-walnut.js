@@ -1,4 +1,4 @@
-// Pack At: 2021-05-25 21:01:44
+// Pack At: 2021-05-31 14:51:55
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -554,24 +554,24 @@ const Obj = (function(){
     //---------------------------------------------
     "ct" : {
       title : "i18n:wn-key-ct",
-      width : -100,
+      width : -120,
       display : {
         key : "rawData.ct",
         transformer : "Ti.DateTime.timeText",
         comConf : {
-          className : "as-tip-block align-right",
+          className : "as-tip-block align-right is-nowrap",
         }
       }
     },
     //---------------------------------------------
     "lm" : {
       title : "i18n:wn-key-lm",
-      width : -100,
+      width : -120,
       display : {
         key : "rawData.lm",
         transformer : "Ti.DateTime.timeText",
         comConf : {
-          className : "as-tip-block align-right",
+          className : "as-tip-block align-right is-nowrap",
         }
       }
     },
@@ -627,16 +627,29 @@ const Obj = (function(){
       }
     },
     //---------------------------------------------
+    // "thumb" : {
+    //   title : "i18n:wn-key-thumb",
+    //   name  : "thumb",
+    //   checkEquals : false,
+    //   serializer : {
+    //     name : "Ti.Types.toStr",
+    //     args : "id:${id}"
+    //   },
+    //   comType : "wn-imgfile",
+    //   comConf : {
+    //     target : "~/.thumbnail/gen/${id}.jpg",
+    //     filter : "cover(256,256)",
+    //     quality : 0.372
+    //   }
+    // },
     "thumb" : {
       title : "i18n:wn-key-thumb",
       name  : "thumb",
       checkEquals : false,
-      serializer : {
-        name : "Ti.Types.toStr",
-        args : "id:${id}"
-      },
-      comType : "wn-imgfile",
+      comType : "wn-upload-file",
       comConf : {
+        valueType: "idPath",
+        exlink : false,
         target : "~/.thumbnail/gen/${id}.jpg",
         filter : "cover(256,256)",
         quality : 0.372
@@ -2122,18 +2135,41 @@ const Dict = (function(){
      * @return {Ti.Dict}
      */
     evalOptionsDict({
-      options, findBy, itemBy, childrenBy,
+      options, dictVars,
+      findBy, itemBy, childrenBy,
       valueBy, textBy, iconBy,
       dictShadowed = true
     }, hooks) {
       // Quck Dict Name
       let dictName = Ti.DictFactory.DictReferName(options)
+      // console.log("evalOptionsDict", options)
+      // if("ComDeptJobs" == dictName) {
+      //   console.log("haha", {options, dictKey, dictVars})
+      // }
       if(dictName) {
+        let {name, dynamic, dictKey} = Ti.DictFactory.explainDictName(dictName)
+        //
+        // Dynamic dictionary
+        //
+        if(dynamic) {
+          let key = _.get(dictVars, dictKey)
+          if(!key) {
+            return null
+          }
+          return Ti.DictFactory.CheckDynamicDict({
+            name, key,
+            vars : dictVars
+          })
+        }
+        //
+        // Static dictionary
+        //
         return Ti.DictFactory.CheckDict(dictName, hooks)
       }
   
-      // Explaint 
+      // Explaint anonymity dictionary
       return Ti.DictFactory.CreateDict({
+        dataChildrenKey : options.dataChildrenKey,
         //...............................................
         data  : Wn.Util.genQuery(options, {
           vkey:null,
@@ -2167,25 +2203,60 @@ const Dict = (function(){
     setup(dicts) {
       //console.log(dicts)
       _.forEach(dicts, (dict, name)=>{
-        let d = Ti.DictFactory.GetDict(name)
-        if(!d) {
-          //console.log("create", name, dict)
-          Ti.DictFactory.CreateDict({
-            //...............................................
-            data  : Wn.Util.genQuery(dict.data, {vkey:null}),
-            query : Wn.Util.genQuery(dict.query),
-            item  : Wn.Util.genQuery(dict.item, {
-              blankAs: "{}"
-            }),
-            children : Wn.Util.genQuery(dict.children),
-            //...............................................
-            getValue : Ti.Util.genGetter(dict.value),
-            getText  : Ti.Util.genGetter(dict.text),
-            getIcon  : Ti.Util.genGetter(dict.icon),
-            //...............................................
-            shadowed : Ti.Util.fallback(dict.shadowed, true)
-            //...............................................
-          }, {name})
+        //
+        // Dynamic
+        //
+        if(dict.dynamic) {
+          let ddef = _.pick(dict, 
+            "dataChildrenKey",
+            "data", "query", "item", "children",
+            "value", "text", "icon", "shadowed")
+          Ti.DictFactory.CreateDynamicDict(function(vars={}){
+            let dobj = Ti.Util.explainObj(vars, ddef)
+            return Ti.DictFactory.CreateDict({
+              dataChildrenKey : dobj.dataChildrenKey,
+              //...............................................
+              data  : Wn.Util.genQuery(dobj.data, {vkey:null}),
+              query : Wn.Util.genQuery(dobj.query),
+              item  : Wn.Util.genQuery(dobj.item, {
+                blankAs: "{}"
+              }),
+              children : Wn.Util.genQuery(dobj.children),
+              //...............................................
+              getValue : Ti.Util.genGetter(dobj.value),
+              getText  : Ti.Util.genGetter(dobj.text),
+              getIcon  : Ti.Util.genGetter(dobj.icon),
+              //...............................................
+              shadowed : Ti.Util.fallback(dobj.shadowed, true)
+              //...............................................
+            })
+          }, name)
+        }
+        //
+        // Static
+        //
+        else {
+          let d = Ti.DictFactory.GetDict(name)
+          if(!d) {
+            //console.log("create", name, dict)
+            Ti.DictFactory.CreateDict({
+              dataChildrenKey : dict.dataChildrenKey,
+              //...............................................
+              data  : Wn.Util.genQuery(dict.data, {vkey:null}),
+              query : Wn.Util.genQuery(dict.query),
+              item  : Wn.Util.genQuery(dict.item, {
+                blankAs: "{}"
+              }),
+              children : Wn.Util.genQuery(dict.children),
+              //...............................................
+              getValue : Ti.Util.genGetter(dict.value),
+              getText  : Ti.Util.genGetter(dict.text),
+              getIcon  : Ti.Util.genGetter(dict.icon),
+              //...............................................
+              shadowed : Ti.Util.fallback(dict.shadowed, true)
+              //...............................................
+            }, {name})
+          }
         }
       })
     },
@@ -2262,6 +2333,34 @@ const Hm = (function(){
     title : "i18n:hmk-css-background",
     name : "background",
     comType : "ti-input"
+  };
+  //------------------------------------------------------
+  const BACKGROUND_REPEAT = {
+    title : "i18n:hmk-css-background-repeat",
+    name : "background-repeat",
+    comType : "TiDroplist",
+    comConf : {
+      options: "#CssBackgroundRepeats"
+    }
+  };
+  //------------------------------------------------------
+  const BACKGROUND_POSITION = {
+    title : "i18n:hmk-css-background-position",
+    name : "background-position",
+    comType : "TiDroplist",
+    comConf : {
+      options: "#CssBackgroundPositions"
+    }
+  };
+  //------------------------------------------------------
+  const BACKGROUND_SIZE = {
+    title : "i18n:hmk-css-background-size",
+    name : "background-size",
+    width : "full",
+    comType : "TiSwitcher",
+    comConf : {
+      options: "#CssBackgroundSizes"
+    }
   };
   //------------------------------------------------------
   const COLOR = {
@@ -2455,6 +2554,11 @@ const Hm = (function(){
   ////////////////////////////////////////////////////////
   const CSS_PROPS = {
     "background"     : BACKGROUND,
+    "background-position" : BACKGROUND_POSITION,
+    "background-repeat"   : BACKGROUND_REPEAT,
+    "background-size"     : BACKGROUND_SIZE,
+    "background"     : BACKGROUND,
+    "background"     : BACKGROUND,
     "border"         : BORDER,
     "border-radius"  : BORDER_RADIUS,
     "box-shadow"     : BOX_SHADOW,
@@ -2489,6 +2593,9 @@ const Hm = (function(){
       "border",
       "border-radius",
       "background",
+      "background-position",
+      "background-repeat",
+      "background-size",
       "color",
       "box-shadow",
       "opacity",
@@ -2581,6 +2688,7 @@ const Hm = (function(){
           fldMap[name] = fld
         }
       })
+      console.log(fldMap)
   
       // Make group
       let re = []
@@ -3331,7 +3439,8 @@ const EditObjPrivilege = (function(){
     closer = true,
     escape = true,
     position   = "top",
-    width      = 640,
+    width      = "80%",
+    minWidth   = 720,
     height     = "95%", 
     autoSave   = true
   }={}){
@@ -3871,7 +3980,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210525.210144"
+const WALNUT_VERSION = "1.2-20210531.145156"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
