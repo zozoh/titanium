@@ -29,6 +29,10 @@ const _M = {
       type : [String, Function],
       default : "=type"
     },
+    "title" : {
+      type : [String, Function],
+      default : "=title"
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -56,6 +60,10 @@ const _M = {
     //--------------------------------------
     CurrentAudioType() {
       return this.getItemValueBy(this.CurrentAudioData, this.type)
+    },
+    //--------------------------------------
+    CurrentAudioTitle() {
+      return this.getItemValueBy(this.CurrentAudioData, this.title)
     },
     //--------------------------------------
     CurrentAudioCom() {

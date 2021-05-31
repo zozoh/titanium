@@ -1,4 +1,4 @@
-// Pack At: 2021-05-31 14:51:55
+// Pack At: 2021-05-31 15:38:44
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -47974,6 +47974,10 @@ const _M = {
       type : [String, Function],
       default : "=type"
     },
+    "title" : {
+      type : [String, Function],
+      default : "=title"
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -48001,6 +48005,10 @@ const _M = {
     //--------------------------------------
     CurrentAudioType() {
       return this.getItemValueBy(this.CurrentAudioData, this.type)
+    },
+    //--------------------------------------
+    CurrentAudioTitle() {
+      return this.getItemValueBy(this.CurrentAudioData, this.title)
     },
     //--------------------------------------
     CurrentAudioCom() {
@@ -63988,6 +63996,10 @@ Ti.Preload("ti/com/web/shelf/audio-icons/web-shelf-audio-icons.html", `<div clas
     Show Audios
   -->
   <template v-else>
+    <!--title-->
+    <div 
+      v-if="CurrentAudioTitle"
+        class="as-audio-title">{{CurrentAudioTitle|i18n}}</div>
     <!--
       Player
     -->
@@ -64002,11 +64014,11 @@ Ti.Preload("ti/com/web/shelf/audio-icons/web-shelf-audio-icons.html", `<div clas
       v-if="hasMultiAudios"
         class="as-audio-icons">
         <div
-          v-for="it in AudioItems"
+          v-for="(it, index) in AudioItems"
             class="as-audio-item"
             :class="it.className"
             @click.left="OnGoTo(it)">
-              <span>{{it.title}}</span>
+              <span>{{index+1}}</span>
         </div>
     </div>
   </template>

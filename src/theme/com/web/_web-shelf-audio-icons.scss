@@ -14,6 +14,12 @@
     margin:0 SZ(8);
   }
   //-----------------------------------------
+  .as-audio-title {
+    flex:0 0 auto; width:100%;
+    padding: SZ(6); font-size: SZ(12); 
+    opacity: 0.6;
+  }
+  //-----------------------------------------
   .as-current-audio-player {
     flex: 1 1 auto;
   }

@@ -13,6 +13,10 @@
     Show Audios
   -->
   <template v-else>
+    <!--title-->
+    <div 
+      v-if="CurrentAudioTitle"
+        class="as-audio-title">{{CurrentAudioTitle|i18n}}</div>
     <!--
       Player
     -->
@@ -27,11 +31,11 @@
       v-if="hasMultiAudios"
         class="as-audio-icons">
         <div
-          v-for="it in AudioItems"
+          v-for="(it, index) in AudioItems"
             class="as-audio-item"
             :class="it.className"
             @click.left="OnGoTo(it)">
-              <span>{{it.title}}</span>
+              <span>{{index+1}}</span>
         </div>
     </div>
   </template>
