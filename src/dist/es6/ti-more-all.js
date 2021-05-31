@@ -1,4 +1,4 @@
-// Pack At: 2021-05-31 23:45:35
+// Pack At: 2021-06-01 00:12:47
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -432,8 +432,6 @@ const FieldDisplay = {
     // Add value to comConf
     let reDisplayItem = _.cloneDeep(dis)
     let comConf = {};
-    if(".." == dis.key)
-      console.log(dis)
     //.....................................
     // Customized comConf
     if(_.isFunction(dis.comConf)) {

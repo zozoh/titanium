@@ -348,8 +348,6 @@ const FieldDisplay = {
     // Add value to comConf
     let reDisplayItem = _.cloneDeep(dis)
     let comConf = {};
-    if(".." == dis.key)
-      console.log(dis)
     //.....................................
     // Customized comConf
     if(_.isFunction(dis.comConf)) {
