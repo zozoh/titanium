@@ -2,5 +2,8 @@
   "name" : "web-media-player",
   "globally" : true,
   "template" : "./web-media-player.html",
-  "mixins"   : ["./web-media-player.mjs"]
+  "mixins"   : ["./web-media-player.mjs"],
+  "components": [
+    "@com:net/youtube/player"
+  ]
 }

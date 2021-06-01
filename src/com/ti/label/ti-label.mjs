@@ -22,7 +22,20 @@ const _M = {
     "multiValSep" : {
       type : String,
       default: ", "
-    }
+    },
+    "hoverable": {
+      type: Boolean,
+      default: false
+    },
+    "enterNotifyName": {
+      type: String,
+      default: "enter"
+    },
+    "leaveNotifyName": {
+      type: String,
+      default: "leave"
+    },
+    "hoverNotifyPayload": undefined
   },
   //////////////////////////////////////////
   computed : {
@@ -70,7 +83,7 @@ const _M = {
         return null
       return this.myDisplayIcon || this.prefixIcon
     },
-    //------------------------------------------------
+    //--------------------------------------
     TheHover() {
       let map = {}
       let hos = _.concat(this.hover)
@@ -109,7 +122,27 @@ const _M = {
   },
   //////////////////////////////////////////
   methods : {
-    //------------------------------------------------
+    //--------------------------------------
+    OnMouseEnter() {
+      if(this.hoverable && this.enterNotifyName) {
+        let pld = _.assign({
+          $el : this.$el,
+          value: this.value,
+        }, this.hoverNotifyPayload)
+        this.$notify(this.enterNotifyName, pld)
+      }
+    },
+    //--------------------------------------
+    OnMouseLeave() {
+      if(this.hoverable && this.leaveNotifyName) {
+        let pld = _.assign({
+          $el : this.$el,
+          value: this.value,
+        }, this.hoverNotifyPayload)
+        this.$notify(this.leaveNotifyName, pld)
+      }
+    },
+    //--------------------------------------
     isCanHover(hoverName) {
       return this.TheHover[hoverName] ? true : false
     },

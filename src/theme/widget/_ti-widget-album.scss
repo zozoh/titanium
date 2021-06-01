@@ -121,3 +121,23 @@
   &.flex-shrink .wall-tile {flex:0 1 auto;}
   //-----------------------------------------
 }
+/////////////////////////////////////////////
+// Add decorater icon to album items
+.ti-widget-album.as-yt-playlist .photo-wall {
+  .wall-tile {
+    &:after {
+      @include pos-abs-full;
+      @include flex-center;
+      z-index: $z-over;
+      font-family: 'Font Awesome 5 Brands';
+      font-weight: 900;
+      content: "\f167";
+      font-size: SZ(48);
+      color: #F00; opacity: 0.5;
+      transition: 0.5s;
+    }
+    &:hover::after {
+      opacity: 1;
+    }
+  }
+}

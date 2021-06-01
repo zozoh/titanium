@@ -131,6 +131,28 @@
   .ti-widget-album > .photo-wall.flex-shrink .wall-tile {
     flex: 0 1 auto; }
 
+.ti-widget-album.as-yt-playlist .photo-wall .wall-tile:after {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+  z-index: 100;
+  font-family: 'Font Awesome 5 Brands';
+  font-weight: 900;
+  content: "\f167";
+  font-size: 0.48rem;
+  color: #F00;
+  opacity: 0.5;
+  transition: 0.5s; }
+.ti-widget-album.as-yt-playlist .photo-wall .wall-tile:hover::after {
+  opacity: 1; }
+
 html {
   color: #444;
   background-color: #F0F0F0;

@@ -30,6 +30,10 @@ export default {
     type: String,
     default: undefined
   },
+  "ytPlayerTmpl" : {
+    type: String,
+    default: "https://www.youtube.com/watch?v=${id}"
+  },
   "afterRedraw": {
     type: [String, Object, Function]
   },

@@ -1,36 +1,45 @@
 <div class="web-text-heading"
   :class="TopClass">
-  <!--Back button-->
+  <!--
+    Back button
+  -->
   <a
     v-if="showBackward"
       class="as-backward"
       href="javascript:void(0)"
       @click.left="OnClickBackward"><i class="fas fa-chevron-left"></i></a>
-  <!--Title/Icon-->
-  <a
-    v-if="title"
-      class="as-title"
-      :class="TitleClass"
-      :style="TitleStyle"
-      :href="href"
-      @click.left="OnClickTitle">
-        <TiIcon
-          v-if="icon"
-            class="at-0"
-            :value="icon"/>
-        <span
-          v-if="title"
-            class="as-title-text">{{title | i18n}}</span>
-        <TiIcon
-          v-if="titleIcon"
-            class="at-1"
-            :value="titleIcon"/>
-  </a>
-  <!--Comments-->
-  <div
-    v-if="comment"
-      class="as-comment"><span>{{comment | i18n}}</span></div>
-  <!--View more-->
+  <!--
+    Main part
+  -->
+  <div class="as-main-part">
+    <!--Title/Icon-->
+    <a
+      v-if="title"
+        class="as-title"
+        :class="TitleClass"
+        :style="TitleStyle"
+        :href="href"
+        @click.left="OnClickTitle">
+          <TiIcon
+            v-if="icon"
+              class="at-0"
+              :value="icon"/>
+          <span
+            v-if="title"
+              class="as-title-text">{{title | i18n}}</span>
+          <TiIcon
+            v-if="titleIcon"
+              class="at-1"
+              :value="titleIcon"/>
+    </a>
+    <!--Comments-->
+    <div
+      v-if="comment"
+        class="as-comment"><span>{{comment | i18n}}</span></div>
+  </div>
+  <!--
+    View more
+  -->
   <a
     v-if="showMore"
       class="as-more"

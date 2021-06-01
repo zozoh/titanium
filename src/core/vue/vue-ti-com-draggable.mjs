@@ -58,7 +58,7 @@ function TiDraggable($el, setup, {context}) {
       POINTER_DOWN : "touchstart",
       POINTER_MOVE : "touchmove",
       POINTER_UP   : "touchend",
-      //POINT_CLICK  : "click",
+      //POINTER_CLICK  : "click",
       getPointerEvent : evt => evt.touches[0]
     })
   } else {
@@ -66,26 +66,27 @@ function TiDraggable($el, setup, {context}) {
       POINTER_DOWN : "mousedown",
       POINTER_MOVE : "mousemove",
       POINTER_UP   : "mouseup",
-      POINT_CLICK  : "click",
+      POINTER_CLICK: "click",
       getPointerEvent : evt => evt
     })
   }
   //console.log(EVENTS)
   //-----------------------------------------------
   $el.addEventListener(EVENTS.POINTER_DOWN, function(evt){
-    //console.log(EVENTS.POINTER_DOWN, evt)
+    //console.log(EVENTS.POINTER_DOWN, evt, {activedRadius, activedDelay})
     // Find the trigger
     let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, vm.$el)
     if(!_.isElement($trigger)) {
       return
     }
     // Enter dragmode
+    let $doc = $el.ownerDocument;
     let $body = $el.ownerDocument.body
     let $viewport = findBy($trigger, viewport, $el)
     let $handler  = findBy($trigger, handler, $el)
     let context = {}
     _.assign(context, {
-      $body, $viewport, $handler, $trigger
+      $doc, $body, $viewport, $handler, $trigger
     })
     EVENTS.setClientXY(context, evt)
     context.$src = evt.srcElement
@@ -192,6 +193,14 @@ function TiDraggable($el, setup, {context}) {
     }
     //---------------------------------------------
     function OnBodyMouseMove(evt) {
+      // Test if leave
+      let p = {x:context.clientX, y:context.clientY}
+      //console.log("OnBodyMouseMove", p)
+      if(!context.viewport.hasPoint(p)) {
+        RemoveDraggle(evt)
+        return
+      }
+
       EVENTS.setClientXY(context, evt)
       context.evalScale()
       if(context.actived) {
@@ -199,8 +208,8 @@ function TiDraggable($el, setup, {context}) {
           actived(context)
           context.__already_call_actived = true
           // Then hold $src
-          if(EVENTS.POINT_CLICK) {
-            context.$src.addEventListener(EVENTS.POINT_CLICK, PreventClick, {
+          if(EVENTS.POINTER_CLICK) {
+            context.$src.addEventListener(EVENTS.POINTER_CLICK, PreventClick, {
               capture: true, once: true
             })
           }
@@ -210,25 +219,26 @@ function TiDraggable($el, setup, {context}) {
     }
     //---------------------------------------------
     function RemoveDraggle(evt) {
-      $body.removeEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
-      $body.removeEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
+      //console.log("RemoveDraggle", context.actived)
+      $doc.removeEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
+      $doc.removeEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
 
       context.clientX = evt.clientX
       context.clientY = evt.clientY
 
       if(context.actived) {
-        if(EVENTS.POINT_CLICK) {
-          context.$src.removeEventListener(EVENTS.POINT_CLICK, PreventClick)
+        if(EVENTS.POINTER_CLICK) {
+          context.$src.removeEventListener(EVENTS.POINTER_CLICK, PreventClick)
         }
         done(context)
       }
     }
     //---------------------------------------------
-    // Watch dragging in body
-    $body.addEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
+    // Watch dragging in doc
+    $doc.addEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
     
     // Quit 
-    $body.addEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
+    $doc.addEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
   })
   //-----------------------------------------------
 }

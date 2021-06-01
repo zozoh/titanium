@@ -365,6 +365,11 @@ const TiStr = {
     //...............................................
     // Must by string
     let str = trimed ? _.trim(v) : v
+    let dftAsNil = false
+    if(str.endsWith("?")) {
+      dftAsNil = true
+      str = str.substring(0, str.length-1).trim()
+    }
     //...............................................
     // autoNil
     if(autoNil) {
@@ -381,7 +386,7 @@ const TiStr = {
     //...............................................
     // Try to get from context
     let re = _.get(context, str)
-    if(!_.isUndefined(re)) {
+    if(!_.isUndefined(re) || dftAsNil) {
       return re
     }
     //...............................................

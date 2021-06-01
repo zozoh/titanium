@@ -192,7 +192,7 @@ export default {
           attrPrefix : "wn-ytpl-",
           itemToPhoto : {
             name : "=title",
-            link : "->https://www.youtube.com/watch?v=${id}",
+            link : `->${this.ytPlayerTmpl}`,
             thumb : "=thumbUrl",
             src   : "=coverUrl",
             brief : "=description",

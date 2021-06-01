@@ -691,6 +691,21 @@ export class Rect {
         && (this.bottom - border) >= rect.bottom
   }
   //--------------------------------------
+  hasPoint({x,y}={}, border=0) {
+    return this.hasPointX(x, border)
+        && this.hasPointY(y, border)
+  }
+  //--------------------------------------
+  hasPointX(x=0, border=0) {
+    return (this.left  + border) <= x
+        && (this.right - border) >= x
+  }
+  //--------------------------------------
+  hasPointY(y=0, border=0) {
+    return (this.top    + border) <= y
+        && (this.bottom - border) >= y
+  }
+  //--------------------------------------
   isOverlap(rect) {
     return this.overlap(rect).area() > 0
   }

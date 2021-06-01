@@ -1,4 +1,4 @@
-// Pack At: 2021-06-01 16:45:02
+// Pack At: 2021-06-02 01:54:24
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -17319,7 +17319,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           attrPrefix : "wn-ytpl-",
           itemToPhoto : {
             name : "=title",
-            link : "->https://www.youtube.com/watch?v=${id}",
+            link : `->${this.ytPlayerTmpl}`,
             thumb : "=thumbUrl",
             src   : "=coverUrl",
             brief : "=description",
@@ -18906,7 +18906,20 @@ const _M = {
     "multiValSep" : {
       type : String,
       default: ", "
-    }
+    },
+    "hoverable": {
+      type: Boolean,
+      default: false
+    },
+    "enterNotifyName": {
+      type: String,
+      default: "enter"
+    },
+    "leaveNotifyName": {
+      type: String,
+      default: "leave"
+    },
+    "hoverNotifyPayload": undefined
   },
   //////////////////////////////////////////
   computed : {
@@ -18954,7 +18967,7 @@ const _M = {
         return null
       return this.myDisplayIcon || this.prefixIcon
     },
-    //------------------------------------------------
+    //--------------------------------------
     TheHover() {
       let map = {}
       let hos = _.concat(this.hover)
@@ -18993,7 +19006,27 @@ const _M = {
   },
   //////////////////////////////////////////
   methods : {
-    //------------------------------------------------
+    //--------------------------------------
+    OnMouseEnter() {
+      if(this.hoverable && this.enterNotifyName) {
+        let pld = _.assign({
+          $el : this.$el,
+          value: this.value,
+        }, this.hoverNotifyPayload)
+        this.$notify(this.enterNotifyName, pld)
+      }
+    },
+    //--------------------------------------
+    OnMouseLeave() {
+      if(this.hoverable && this.leaveNotifyName) {
+        let pld = _.assign({
+          $el : this.$el,
+          value: this.value,
+        }, this.hoverNotifyPayload)
+        this.$notify(this.leaveNotifyName, pld)
+      }
+    },
+    //--------------------------------------
     isCanHover(hoverName) {
       return this.TheHover[hoverName] ? true : false
     },
@@ -38498,9 +38531,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   props : {
     //-----------------------------------
     // Data: {id:"QH3zuJCW3Lo", thumbUrl:"https://i.ytimg.com/vi/QH3z..."}
+    // Or "QH3zuJCW3Lo"
     //-----------------------------------
     "value" : {
-      type : Object
+      type : [Object, String]
     },
     //-----------------------------------
     // Behavior
@@ -38540,13 +38574,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //---------------------------------------------------
+    TheValue() {
+      if(_.isString(this.value)) {
+        return {id: this.value}
+      }
+      return this.value
+    },
+    //---------------------------------------------------
     hasValue() {
-      return (this.value && this.value.id) ? true : false
+      return (this.TheValue && this.TheValue.id) ? true : false
     },
     //---------------------------------------------------
     VideoSrc() {
       if(this.hasValue) {
-        return `//www.youtube.com/embed/${this.value.id}`
+        return `//www.youtube.com/embed/${this.TheValue.id}`
       }
     },
     //---------------------------------------------------
@@ -52257,6 +52298,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: String,
     default: undefined
   },
+  "ytPlayerTmpl" : {
+    type: String,
+    default: "https://www.youtube.com/watch?v=${id}"
+  },
   "afterRedraw": {
     type: [String, Object, Function]
   },
@@ -59488,6 +59533,8 @@ Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
   :class="TopClass"
   :style="TopStyle"
   @dblclick.left="OnDblClick"
+  @mouseenter="OnMouseEnter"
+  @mouseleave="OnMouseLeave"
   :title="myDisplayText">
   <!--prefix:icon-->
   <div v-if="ThePrefixIcon"
@@ -62800,7 +62847,10 @@ Ti.Preload("ti/com/web/media/player/_com.json", {
   "name" : "web-media-player",
   "globally" : true,
   "template" : "./web-media-player.html",
-  "mixins"   : ["./web-media-player.mjs"]
+  "mixins"   : ["./web-media-player.mjs"],
+  "components": [
+    "@com:net/youtube/player"
+  ]
 });
 //========================================
 // JOIN <web-media.html> ti/com/web/media/web-media.html
@@ -64586,37 +64636,46 @@ Ti.Preload("ti/com/web/text/article/_com.json", {
 //========================================
 Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-text-heading"
   :class="TopClass">
-  <!--Back button-->
+  <!--
+    Back button
+  -->
   <a
     v-if="showBackward"
       class="as-backward"
       href="javascript:void(0)"
       @click.left="OnClickBackward"><i class="fas fa-chevron-left"></i></a>
-  <!--Title/Icon-->
-  <a
-    v-if="title"
-      class="as-title"
-      :class="TitleClass"
-      :style="TitleStyle"
-      :href="href"
-      @click.left="OnClickTitle">
-        <TiIcon
-          v-if="icon"
-            class="at-0"
-            :value="icon"/>
-        <span
-          v-if="title"
-            class="as-title-text">{{title | i18n}}</span>
-        <TiIcon
-          v-if="titleIcon"
-            class="at-1"
-            :value="titleIcon"/>
-  </a>
-  <!--Comments-->
-  <div
-    v-if="comment"
-      class="as-comment"><span>{{comment | i18n}}</span></div>
-  <!--View more-->
+  <!--
+    Main part
+  -->
+  <div class="as-main-part">
+    <!--Title/Icon-->
+    <a
+      v-if="title"
+        class="as-title"
+        :class="TitleClass"
+        :style="TitleStyle"
+        :href="href"
+        @click.left="OnClickTitle">
+          <TiIcon
+            v-if="icon"
+              class="at-0"
+              :value="icon"/>
+          <span
+            v-if="title"
+              class="as-title-text">{{title | i18n}}</span>
+          <TiIcon
+            v-if="titleIcon"
+              class="at-1"
+              :value="titleIcon"/>
+    </a>
+    <!--Comments-->
+    <div
+      v-if="comment"
+        class="as-comment"><span>{{comment | i18n}}</span></div>
+  </div>
+  <!--
+    View more
+  -->
   <a
     v-if="showMore"
       class="as-more"

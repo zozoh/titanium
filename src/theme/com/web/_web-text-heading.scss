@@ -1,27 +1,32 @@
 .web-text-heading {
-  @include flex-align-center;
+  @include flex-align-center($wp:nowrap);
   @include noselect;
-  padding: 1em; 
   position: relative;
   //-----------------------------------------
   &.show-backward {
     padding-left: SZ(50);
+    .as-main-part {padding-left:0;}
   }
   //-----------------------------------------
   .as-icon {
     @include flex-center;
     flex:0 0 auto;
     width: 1.4em; font-size:2em;
-    margin-right: .2em;
+    padding:.5em;
   }
   //-----------------------------------------
   .as-backward {
     @include pos-abs($l:0,$t:0,$b:0,$w:SZ(50));
     @include flex-center;
+    flex:0 0 auto; 
     &:hover {
       @include color($color-primary, r, c);
-    
+      text-decoration: none;
     }
+  }
+  //-----------------------------------------
+  .as-main-part {
+    flex:1 1 auto; padding:1em;
   }
   //-----------------------------------------
   .as-title {
@@ -45,13 +50,12 @@
   }
   //-----------------------------------------
   .as-comment {
-    flex:0 0 auto; width:100%;
     color:map-get($color-track, c);
     margin: SZ(10);
   }
   //-----------------------------------------
   .as-more {
-    @include flex($jc:flex-end, $ai:center);
+    flex:0 0 auto;
     padding:0 .5em;
     font-size:.9em;
     cursor: default;

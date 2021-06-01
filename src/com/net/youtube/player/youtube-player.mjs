@@ -7,9 +7,10 @@ export default {
   props : {
     //-----------------------------------
     // Data: {id:"QH3zuJCW3Lo", thumbUrl:"https://i.ytimg.com/vi/QH3z..."}
+    // Or "QH3zuJCW3Lo"
     //-----------------------------------
     "value" : {
-      type : Object
+      type : [Object, String]
     },
     //-----------------------------------
     // Behavior
@@ -49,13 +50,20 @@ export default {
       }
     },
     //---------------------------------------------------
+    TheValue() {
+      if(_.isString(this.value)) {
+        return {id: this.value}
+      }
+      return this.value
+    },
+    //---------------------------------------------------
     hasValue() {
-      return (this.value && this.value.id) ? true : false
+      return (this.TheValue && this.TheValue.id) ? true : false
     },
     //---------------------------------------------------
     VideoSrc() {
       if(this.hasValue) {
-        return `//www.youtube.com/embed/${this.value.id}`
+        return `//www.youtube.com/embed/${this.TheValue.id}`
       }
     },
     //---------------------------------------------------

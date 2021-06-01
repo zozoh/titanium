@@ -1,4 +1,4 @@
-// Pack At: 2021-06-01 16:45:02
+// Pack At: 2021-06-02 01:54:24
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1309,6 +1309,11 @@ const {S} = (function(){
       //...............................................
       // Must by string
       let str = trimed ? _.trim(v) : v
+      let dftAsNil = false
+      if(str.endsWith("?")) {
+        dftAsNil = true
+        str = str.substring(0, str.length-1).trim()
+      }
       //...............................................
       // autoNil
       if(autoNil) {
@@ -1325,7 +1330,7 @@ const {S} = (function(){
       //...............................................
       // Try to get from context
       let re = _.get(context, str)
-      if(!_.isUndefined(re)) {
+      if(!_.isUndefined(re) || dftAsNil) {
         return re
       }
       //...............................................
@@ -5182,6 +5187,21 @@ const {Rect,Rects} = (function(){
     containsY(rect, border=0) {
       return (this.top    + border) <= rect.top
           && (this.bottom - border) >= rect.bottom
+    }
+    //--------------------------------------
+    hasPoint({x,y}={}, border=0) {
+      return this.hasPointX(x, border)
+          && this.hasPointY(y, border)
+    }
+    //--------------------------------------
+    hasPointX(x=0, border=0) {
+      return (this.left  + border) <= x
+          && (this.right - border) >= x
+    }
+    //--------------------------------------
+    hasPointY(y=0, border=0) {
+      return (this.top    + border) <= y
+          && (this.bottom - border) >= y
     }
     //--------------------------------------
     isOverlap(rect) {
@@ -13167,7 +13187,7 @@ const {VueTiCom} = (function(){
           POINTER_DOWN : "touchstart",
           POINTER_MOVE : "touchmove",
           POINTER_UP   : "touchend",
-          //POINT_CLICK  : "click",
+          //POINTER_CLICK  : "click",
           getPointerEvent : evt => evt.touches[0]
         })
       } else {
@@ -13175,26 +13195,27 @@ const {VueTiCom} = (function(){
           POINTER_DOWN : "mousedown",
           POINTER_MOVE : "mousemove",
           POINTER_UP   : "mouseup",
-          POINT_CLICK  : "click",
+          POINTER_CLICK: "click",
           getPointerEvent : evt => evt
         })
       }
       //console.log(EVENTS)
       //-----------------------------------------------
       $el.addEventListener(EVENTS.POINTER_DOWN, function(evt){
-        //console.log(EVENTS.POINTER_DOWN, evt)
+        //console.log(EVENTS.POINTER_DOWN, evt, {activedRadius, activedDelay})
         // Find the trigger
         let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, vm.$el)
         if(!_.isElement($trigger)) {
           return
         }
         // Enter dragmode
+        let $doc = $el.ownerDocument;
         let $body = $el.ownerDocument.body
         let $viewport = findBy($trigger, viewport, $el)
         let $handler  = findBy($trigger, handler, $el)
         let context = {}
         _.assign(context, {
-          $body, $viewport, $handler, $trigger
+          $doc, $body, $viewport, $handler, $trigger
         })
         EVENTS.setClientXY(context, evt)
         context.$src = evt.srcElement
@@ -13301,6 +13322,14 @@ const {VueTiCom} = (function(){
         }
         //---------------------------------------------
         function OnBodyMouseMove(evt) {
+          // Test if leave
+          let p = {x:context.clientX, y:context.clientY}
+          //console.log("OnBodyMouseMove", p)
+          if(!context.viewport.hasPoint(p)) {
+            RemoveDraggle(evt)
+            return
+          }
+    
           EVENTS.setClientXY(context, evt)
           context.evalScale()
           if(context.actived) {
@@ -13308,8 +13337,8 @@ const {VueTiCom} = (function(){
               actived(context)
               context.__already_call_actived = true
               // Then hold $src
-              if(EVENTS.POINT_CLICK) {
-                context.$src.addEventListener(EVENTS.POINT_CLICK, PreventClick, {
+              if(EVENTS.POINTER_CLICK) {
+                context.$src.addEventListener(EVENTS.POINTER_CLICK, PreventClick, {
                   capture: true, once: true
                 })
               }
@@ -13319,25 +13348,26 @@ const {VueTiCom} = (function(){
         }
         //---------------------------------------------
         function RemoveDraggle(evt) {
-          $body.removeEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
-          $body.removeEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
+          //console.log("RemoveDraggle", context.actived)
+          $doc.removeEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
+          $doc.removeEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
     
           context.clientX = evt.clientX
           context.clientY = evt.clientY
     
           if(context.actived) {
-            if(EVENTS.POINT_CLICK) {
-              context.$src.removeEventListener(EVENTS.POINT_CLICK, PreventClick)
+            if(EVENTS.POINTER_CLICK) {
+              context.$src.removeEventListener(EVENTS.POINTER_CLICK, PreventClick)
             }
             done(context)
           }
         }
         //---------------------------------------------
-        // Watch dragging in body
-        $body.addEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
+        // Watch dragging in doc
+        $doc.addEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
         
         // Quit 
-        $body.addEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
+        $doc.addEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
       })
       //-----------------------------------------------
     }
@@ -15302,7 +15332,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210601.164502",
+  "version" : "1.6-20210602.015424",
   "dev" : false,
   "appName" : null,
   "session" : {},
