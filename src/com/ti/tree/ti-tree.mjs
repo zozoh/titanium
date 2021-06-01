@@ -585,11 +585,13 @@ const TI_TREE = {
       }
     },
     //--------------------------------------
-    OnRowOpen({id}={}) {
+    OnRowOpen(payload={}) {
+      let {id} = payload
       let row = this.findTableRow(id)
       if(row && !row.leaf && !row.opened) {
         this.openRow(row)
       }
+      return {stop:false}
     },
     //--------------------------------------
     openRow(rowOrId) {

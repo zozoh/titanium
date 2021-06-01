@@ -1,4 +1,4 @@
-// Pack At: 2021-06-01 00:12:47
+// Pack At: 2021-06-01 16:45:02
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -44025,11 +44025,13 @@ const TI_TREE = {
       }
     },
     //--------------------------------------
-    OnRowOpen({id}={}) {
+    OnRowOpen(payload={}) {
+      let {id} = payload
       let row = this.findTableRow(id)
       if(row && !row.leaf && !row.opened) {
         this.openRow(row)
       }
+      return {stop:false}
     },
     //--------------------------------------
     openRow(rowOrId) {
