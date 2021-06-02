@@ -18,7 +18,7 @@
         "text": "i18n:saving"
       },
       "enabled": "changed",
-      "action": "dispatch:current/save",
+      "action": "dispatch:main/save",
       "shortcut": "CTRL+S"
     },
     {
@@ -37,7 +37,7 @@
             "icon": "zmdi-refresh zmdi-hc-spin",
             "text": "i18n:loading"
           },
-          "action": "dispatch:current/reload",
+          "action": "dispatch:main/reload",
           "shortcut": "CTRL+SHIFT+R"
         },
         {

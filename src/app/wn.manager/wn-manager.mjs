@@ -139,6 +139,8 @@ const _M = {
     Main() {
       return this.$store.state.main
     },
+    MainData() {return _.get(this.Main, "data")},
+    MainContent() {return _.get(this.Main, "content")},
     Current() {
       return this.$store.state.current
     },
@@ -204,7 +206,10 @@ const _M = {
     },
     //--------------------------------------
     OnCurrentDataChange(data){
-      this.execEvent("arena::change", data, "dispatch:current/changeContent")
+      if(this.view.mod) {
+        console.log("haha")
+        this.execEvent("arena::change", data, "dispatch:main/changeContent")
+      }
     },
     //--------------------------------------
     OnArenaViewStatusUpdated(status) {
@@ -352,21 +357,23 @@ const _M = {
   },
   //////////////////////////////////////////////
   watch : {
-    "meta" : async function(newVal, oldVal) {
+    "meta" : function(newVal, oldVal) {
       let newId = _.get(newVal, "id")
       let oldId = _.get(oldVal, "id")
       let isSameId = _.isEqual(newId, oldId) 
       if(newVal) {
         //console.log("metaChanged", newVal, oldVal)
         // Update the ancestors path
-        if(!isSameId) {
-          await this.reloadAncestors()
-        }
-        // Reload Current Main
-        if(!isSameId || this.isChanged) {
-          await this.reloadMain()
-          this.pushHistory(newVal)
-        }
+        _.delay(async ()=>{
+          if(!isSameId) {
+            await this.reloadAncestors()
+          }
+          // Reload Current Main
+          if(!isSameId || this.isChanged) {
+            await this.reloadMain()
+            this.pushHistory(newVal)
+          }
+        })
       }
     }
   },

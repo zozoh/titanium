@@ -445,7 +445,8 @@ export default {
       }
     })
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-audio", function() {
       //console.log("SetContent audio")
       let els = editor.$('.wn-media.as-audio')
       for(let i=0; i<els.length; i++) {

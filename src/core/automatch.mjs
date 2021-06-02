@@ -111,31 +111,47 @@ function NumberRangeMatch(input) {
   if(!m) {
     return function(){return false}
   }
-  let vals = JSON.parse('['+m[2]+']')
+  let str = _.trim(m[2])
+  let vals = str.split(/[,:;~]/g)
   let left = {
-    val  : _.first(vals),
+    val  : _.trim(_.first(vals)),
     open : '(' == m[1]
   }
   let right = {
-    val  : _.last(vals),
+    val  : vals.length > 1 ? _.trim(_.last(vals)) : NaN,
     open : ')' == m[3]
   }
+  if(_.isString(left.val) && left.val) {
+    left.val *= 1
+  } else {
+    left.val = NaN
+  }
+  if(_.isString(right.val) && right.val) {
+    right.val *= 1
+  } else {
+    right.val = NaN
+  }
+
   return function(val) {
     let n = val * 1
     if(isNaN(n))
       return false
     
-    if(left.open && n <= left.val)
-      return false
-    
-    if(n < left.val)
-      return false
+    if(!isNaN(left.val)) {
+      if(left.open && n <= left.val)
+        return false
+      
+      if(n < left.val)
+        return false
+    }
 
-    if(right.open && n >= right.val)
-      return false
+    if(!isNaN(right.val)) {
+      if(right.open && n >= right.val)
+        return false
 
-    if(n > right.val)
-      return false
+      if(n > right.val)
+        return false
+    }
 
     return true
   }

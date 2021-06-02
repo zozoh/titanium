@@ -1,12 +1,13 @@
 {
   "comIcon": "im-archive",
+  "modType" : "@mod:wn/obj-children",
   "comType": "@com:wn/adaptlist",
   "comConf": {
     "ancestors": "=ancestors",
     "parent": "=parent",
     "meta": "=meta",
-    "data": "=data",
-    "status": "=status",
+    "data": "=Main.data",
+    "status": "=Main.status",
     "viewType": "=listViewType",
     "exposeHidden": "=exposeHidden"
   },
@@ -20,7 +21,7 @@
         "icon": "zmdi-refresh zmdi-hc-spin",
         "text": "i18n:loading"
       },
-      "action": "dispatch:current/reload",
+      "action": "dispatch:main/reload",
       "shortcut": "CTRL+SHIFT+R",
       "wait": 500
     },

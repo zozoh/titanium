@@ -9,9 +9,17 @@ DIV.ti-widget-photo-gallery
 |-- DIV.photo-gallery-con
 |   |-- DIV.as-viewport
 |   |   |-- DIV.as-scroller
-|   |   |   |-- A.as-tile
+|   |   |   |-- DIV.as-tile
 |   |   |   |   |-- IMG
 |   |   |   |   |-- HEADER
+|   |   |-- DIV.as-opener
+|   |   |   |-- A.href = Current.Link
+|   |   |   |   |-- I.zmdi-open-in-new
+|   |   |-- DIV.as-toolbar
+|   |   |   |-- A.as-zoom-in
+|   |   |   |   |-- I.zmdi-zoom-in
+|   |   |   |-- A.as-zoom-out
+|   |   |   |   |-- I.zmdi-zoom-out
 |   |-- DIV.as-indicator
 |   |   |-- UL
 |   |   |   |-- LI
@@ -24,7 +32,7 @@ DIV.ti-widget-photo-gallery
 |   |   |   |-- SPAN
 |   |   |   |   |-- I.zmdi-chevron-right
 |   |-- DIV.as-closer
-|   |   |-- SPAN
+|   |   |-- A
 |   |   |   |-- I.zmdi-close
 */
 ////////////////////////////////////////////////
@@ -47,10 +55,15 @@ class TiPhotoGallery {
       indicatorLiImgStyle : {},
       thumbKey : "src",
       largeKey : "src-large",
-      titleKey : "title"
+      titleKey : "title",
+      zoomStep : -0.1
     }, setup)
     // live element, if shown, it will be a Element
     this.$top = null
+    // Current zoom level
+    this.zoomScale = 1
+    this.translateX = 0
+    this.translateY = 0
   }
   //---------------------------------------
   getData() {
@@ -106,6 +119,10 @@ class TiPhotoGallery {
   //---------------------------------------
   scrollTo(index=this.currentIndex) {
     this.resizePhotos(this.$scroller)
+    this.zoomScale = 1
+    this.translateX = 0
+    this.translateY = 0
+    this.applyImageTransform()
     //
     // Scroller left
     //
@@ -118,22 +135,25 @@ class TiPhotoGallery {
     //
     // Current Image
     //
-    let $img = Ti.Dom.find(`.as-tile[gallery-index="${I}"] img`, this.$scroller)
+    let $img = this.getImage(I)
     if($img) {
       let srcLarge = $img.getAttribute("src-large")
       if(srcLarge) {
         Ti.Dom.setAttrs($img, {src: srcLarge})
       }
+      let href = _.trim($img.parentElement.getAttribute("href")) || null
+      Ti.Dom.setAttrs(this.$opener, {href})
     }
+    this.$currentImg = $img
 
     //
     // Current indicator
     //
-    let $li = Ti.Dom.find(`li.is-current`, this.$indicatorUl)
+    let $li = Ti.Dom.find(`a.is-current`, this.$indicatorUl)
     if($li) {
       Ti.Dom.removeClass($li, "is-current")
     }
-    $li = Ti.Dom.find(`li[gallery-index="${I}"]`, this.$indicatorUl)
+    $li = Ti.Dom.find(`a[href="#${I}"]`, this.$indicatorUl)
     if($li) {
       Ti.Dom.addClass($li, "is-current")
     }
@@ -148,10 +168,36 @@ class TiPhotoGallery {
       Ti.Dom.removeClass(this.$top, "no-prev")
     }
     if(this.currentIndex >= (this.data.length-1)) {
-      Ti.Dom.addClass(this.$top, "no-next")
+      Ti.Dom.addClass(this.$scroller, "no-next")
     } else {
-      Ti.Dom.removeClass(this.$top, "no-next")
+      Ti.Dom.removeClass(this.$scroller, "no-next")
     }
+  }
+  //---------------------------------------
+  getImage(index=this.currentIndex) {
+    return Ti.Dom.find(`.as-tile[gallery-index="${index}"] img`, this.$scroller)
+  }
+  //---------------------------------------
+  applyImageTransform() {
+    let css = {
+      transform: this.zoomScale!=1 ? `scale(${this.zoomScale})` : "",
+      left : this.translateX ? `${this.translateX}px` : "",
+      top  : this.translateY ? `${this.translateY}px` : "",
+    }
+    Ti.Dom.updateStyle(this.$currentImg, css)
+  }
+  //---------------------------------------
+  changeZoomScale(delta) {
+    // Zoom in
+    if(delta > 0) {
+      this.zoomScale += (this.zoomScale * this.setup.zoomStep)
+    }
+    // Zoom out
+    else if(delta<0) {
+      this.zoomScale -= (this.zoomScale * this.setup.zoomStep)
+      this.zoomScale = Math.max(0, this.zoomScale)
+    }
+    this.applyImageTransform()
   }
   //---------------------------------------
   resizePhotos($div=this.$scroller) {
@@ -189,7 +235,7 @@ class TiPhotoGallery {
         //
         let $an = Ti.Dom.createElement({
           $p: $div,
-          tagName: "a",
+          tagName: "div",
           className : "as-tile",
           style : tileStyle,
           attrs: {
@@ -220,9 +266,10 @@ class TiPhotoGallery {
         //
         let $li = Ti.Dom.createElement({
           $p: $ul,
-          tagName: "li",
+          tagName: "a",
           style: indicatorLiStyle,
           attrs : {
+            href: `#${index}`,
             galleryIndex: index
           }
         })
@@ -273,12 +320,49 @@ class TiPhotoGallery {
       className : "as-viewport",
       style : viewportStyle
     })
+    //......................................
     this.$scroller = Ti.Dom.createElement({
       $p : this.$viewport,
       tagName : "div",
       className : "as-scroller",
       style : scrollerStyle
     })
+    //......................................
+    this.$opener = Ti.Dom.createElement({
+      $p : this.$viewport,
+      tagName : "a",
+      className : "as-opener",
+      attrs: {
+        target: "_blank"
+      }
+    })
+    this.$opener.innerHTML = `<i class="zmdi zmdi-open-in-new"></i>`
+    //......................................
+    this.$toolbar = Ti.Dom.createElement({
+      $p : this.$viewport,
+      tagName : "div",
+      className : "as-toolbar"
+    })
+    //......................................
+    this.$zoomIn = Ti.Dom.createElement({
+      $p : this.$toolbar,
+      tagName : "a",
+      className : "as-zoom-in",
+      attrs: {
+        href: "javascript:void(0)"
+      }
+    })
+    this.$zoomIn.innerHTML = `<i class="fas fa-search-plus"></i>`
+    //......................................
+    this.$zoomOut = Ti.Dom.createElement({
+      $p : this.$toolbar,
+      tagName : "a",
+      className : "as-zoom-out",
+      attrs: {
+        href: "javascript:void(0)"
+      }
+    })
+    this.$zoomOut.innerHTML = `<i class="fas fa-search-minus"></i>`
     //......................................
     // Create indicator
     this.$indicator = Ti.Dom.createElement({
@@ -321,7 +405,7 @@ class TiPhotoGallery {
       tagName : "div",
       className : "as-closer"
     })
-    this.$closer.innerHTML = `<span><i class="zmdi zmdi-close"></i></span>`
+    this.$closer.innerHTML = `<a href="javascript:void(0)"><i class="zmdi zmdi-close"></i></a>`
     //......................................
     // Append to DOM
     Ti.Dom.appendTo(this.$top, this.$doc.body)
@@ -359,6 +443,7 @@ class TiPhotoGallery {
     // Resize
     //
     let PG = this
+    //......................................
     this.OnResize = function() {
       Ti.Dom.addClass(PG.$top, "is-resizing")
       PG.resizePhotos()
@@ -367,13 +452,64 @@ class TiPhotoGallery {
         Ti.Dom.removeClass(PG.$top, "is-resizing")
       }, 100)
     }
-    this.$doc.defaultView.addEventListener("resize", this.OnResize)
+    //......................................
+    this.OnWheel = function(evt) {
+      //let {deltaMode, deltaX, deltaY, deltaZ} = evt
+      //console.log("wheel", {mode:deltaMode,x:deltaX,y:deltaY,z:deltaZ})
+      evt.preventDefault()
+      evt.stopPropagation()
+      this.changeZoomScale(evt.deltaY)
+    }
     //......................................
     // render wrapper
     _.delay(()=>{
       Ti.Dom.removeClass(this.$top, "no-ready")
       Ti.Dom.addClass(this.$top, "is-ready")
     })
+  }
+  //---------------------------------------
+  watchEvents() {
+    this.$doc.defaultView.addEventListener("resize", this.OnResize, true)
+    this.$top.onwheel = (evt)=>{this.OnWheel(evt)}
+    this.$top.ondblclick = (evt)=>{
+      if(Ti.Dom.closest(evt.srcElement, ".as-toolbar")) {
+        return
+      }
+      this.zoomScale = 1
+      this.translateX = 0
+      this.translateY = 0
+      this.applyImageTransform()
+    }
+    this.$zoomIn.onclick = (evt)=>{
+      evt.stopPropagation()
+      this.changeZoomScale(-1)
+    }
+    this.$zoomOut.onclick = (evt)=>{
+      evt.stopPropagation()
+      this.changeZoomScale(1)
+    }
+    Ti.Be.Draggable(this.$top, {
+      prepare: (drg)=>{
+        drg.$event.preventDefault()
+        drg._x = this.translateX
+        drg._y = this.translateY
+      },
+      actived: ()=>{
+        Ti.Dom.addClass(this.$scroller, "is-moving")
+      },
+      dragging: ({_x,_y,offsetX, offsetY})=>{
+        this.translateX = _x + offsetX
+        this.translateY = _y + offsetY
+        this.applyImageTransform()
+      },
+      done: ()=>{
+        Ti.Dom.removeClass(this.$scroller, "is-moving")
+      }
+    })
+  }
+  //---------------------------------------
+  unwatchEvents() {
+    this.$doc.defaultView.removeEventListener("resize", this.OnResize, true)
   }
   //---------------------------------------
   close() {
@@ -384,7 +520,8 @@ class TiPhotoGallery {
       }, {once: true})
       Ti.Dom.removeClass(this.$top, "is-ready");
       Ti.Dom.addClass(this.$top, "no-ready");
-      this.$doc.defaultView.removeEventListener("resize", this.OnResize)
+      
+      this.unwatchEvents()
     }
   }
   //---------------------------------------
@@ -402,6 +539,7 @@ export const PhotoGallery = {
         evt.preventDefault()
         evt.stopPropagation()
         PG.redraw()
+        PG.watchEvents()
         // Find photo index
         let $img = evt.srcElement
         PG.currentIndex = Math.max(0, PG.findPhotoIndex($img))

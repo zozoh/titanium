@@ -13,7 +13,9 @@ const _M = {
     }]
     */
     myOutlineTree : undefined,
-    myCurrentHeadingId : undefined
+    myCurrentHeadingId : undefined,
+    myContentCallbacks : {},
+    myContentDirty: true
   }),
   ///////////////////////////////////////////////////
   computed : {
@@ -369,6 +371,7 @@ const _M = {
         },
         setup : (editor)=>{
           editor.__rich_tinymce_com = this
+          editor.on("SetContent", this.OnEditorSetContent)
           // Event: change
           editor.on("Change", (evt)=>{
             //console.log("Change ", evt)
@@ -467,6 +470,7 @@ const _M = {
 
       // init content
       if(this.value) {
+        this.myContentDirty = true
         this.myHtmlCode = this.value
         this.$editor.setContent(this.value)
 
@@ -474,6 +478,19 @@ const _M = {
         this.evalOutline()
       }
       //.............................................
+    },
+    //-----------------------------------------------
+    registerContentCallback(name, callback) {
+      this.myContentCallbacks[name] = callback
+    },
+    //-----------------------------------------------
+    tellPluginsContentChange() {
+      if(_.isArray(this.myPlugins)) {
+        let funcs = _.values(this.myContentCallbacks)
+        for(let func of funcs) {
+          func(this.$editor)
+        }
+      }
     }
     //-----------------------------------------------
   },
@@ -500,9 +517,11 @@ const _M = {
       if(!this.$editor) {
         return
       }
-      //console.log("value", {newVal, oldVal})
+      console.log("value", {newVal, oldVal})
       if(!this.myHtmlCode ||
         (!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.myHtmlCode))) {
+          console.log("dirty it")
+          this.myContentDirty = true
           this.myHtmlCode = newVal
           this.$editor.setContent(newVal||"")
       }
@@ -510,7 +529,15 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   created : function() {
-    
+    this.OnEditorSetContent = ()=>{
+      console.log("OnEditorSetContent", this.myContentDirty)
+      if(this.myContentDirty) {
+        this.tellPluginsContentChange()
+        this.myContentDirty = false
+      } else {
+        console.log("???")
+      }
+    }
   },
   ///////////////////////////////////////////////////
   mounted : async function() {
@@ -518,7 +545,6 @@ const _M = {
       let list = _.map(this.plugins, this.ExplainPluginUrl)
       this.myPlugins = await Ti.Load(list)
     }
-   
     await this.initEditor()
   }
   ///////////////////////////////////////////////////

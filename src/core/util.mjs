@@ -1204,8 +1204,9 @@ const TiUtil = {
    */
   genInvoking(str, {
     context={},
+    dft=()=>str,
     funcSet = window,
-    partial = "left"  // "left" | "right" | "right?" | Falsy
+    partial = "left"  // "left" | "right" | "right?" | Falsy,
   }={}) {
     //.............................................
     if(_.isFunction(str)) {
@@ -1265,7 +1266,7 @@ const TiUtil = {
     }
 
     // Not invokeing, just return str self
-    return ()=>str
+    return dft
   },
   /***
    * @param matchBy{Function|String|Array}

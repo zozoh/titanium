@@ -396,7 +396,8 @@ export default {
       }
     })
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-video", function() {
       //console.log("SetContent video")
       let els = editor.$('.wn-media.as-video')
       for(let i=0; i<els.length; i++) {

@@ -521,6 +521,9 @@ const _M = {
       pinfo.path = pinfo.path || path
       pinfo.name = Ti.Util.getMajorName(pinfo.path)
       pinfo.href = path
+      _.defaults(pinfo, {
+        contextMenu: rootState.contextMenu
+      })
       //.....................................
       // Update Path url
       let {pageUriWithParams, pageAnchorTo} = json

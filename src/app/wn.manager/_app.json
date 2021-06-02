@@ -22,8 +22,6 @@
       "...current" : {
         "state" : {
           "meta"    : "meta",
-          "content" : "content",
-          "data"    : "data",
           "status"  : "status",
           "fieldStatus"  : "fieldStatus"
         }

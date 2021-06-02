@@ -155,6 +155,7 @@ const _M = {
     },
     //--------------------------------------
     evalDataItemList() {
+      this.myHoverIndex = this.currentIndex;
       let list = []
       _.forEach(this.data, (it, index) => {
         let comType = Ti.Util.explainObj(it, this.comType)

@@ -47,7 +47,6 @@ export const TiVue = {
     let sc = Ti.Util.merge({
       modules : {}
     }, conf.mixins);
-
     // Pick the necessary fields
     if(conf.state || !sc.state) {
       sc.state = Ti.Util.genObj(conf.state)

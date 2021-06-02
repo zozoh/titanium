@@ -16,7 +16,7 @@
             "icon" : "zmdi-refresh zmdi-hc-spin",
             "text" : "i18n:loading"
           },
-          "action" : "dispatch:current/reload",
+          "action" : "dispatch:main/reload",
           "shortcut" : "CTRL+SHIFT+R"
         },{
           "type" : "line"
@@ -24,7 +24,7 @@
           "type" : "action",
           "icon" : "zmdi-keyboard",
           "text" : "i18n:view-resource",
-          "action" : "dispatch:current/openContentEditor",
+          "action" : "dispatch:main/openContentEditor",
           "shortcut" : "ALT+SHIFT+V"
         },{
           "type" : "line"

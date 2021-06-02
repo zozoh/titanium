@@ -1,8 +1,9 @@
 {
   "comIcon" : "im-edit",
+  "modType" : "@mod:wn/obj-content",
   "comType" : "@com:ti/text/json",
   "comConf" : {
-    "value" : "=content"
+    "value" : "=Main.content"
   },
   "actions" : [{
       "name"  : "saving",
@@ -14,7 +15,7 @@
         "text" : "i18n:saving"
       },
       "enabled" : "changed",
-      "action" : "dispatch:current/save",
+      "action" : "dispatch:main/save",
       "shortcut" : "CTRL+S"
     }, {
       "type" : "line"
@@ -30,7 +31,7 @@
             "icon" : "zmdi-refresh zmdi-hc-spin",
             "text" : "i18n:loading"
           },
-          "action" : "dispatch:current/reload",
+          "action" : "dispatch:main/reload",
           "shortcut" : "CTRL+SHIFT+R"
         },{
           "type" : "line"

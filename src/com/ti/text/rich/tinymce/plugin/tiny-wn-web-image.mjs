@@ -557,7 +557,8 @@ export default {
       }
     })
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-web-image", function() {
       //console.log("SetContent image")
       let els = editor.$('img[wn-obj-mime]')
       for(let i=0; i<els.length; i++) {

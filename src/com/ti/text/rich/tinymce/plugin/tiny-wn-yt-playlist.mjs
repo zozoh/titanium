@@ -299,7 +299,8 @@ export default {
     editor.addCommand(CMD_RELOAD,      CmdReloadAlbum)
     editor.addCommand(CMD_PROP,        CmdShowAlbumProp)
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-yt-playlists", function() {
       let els = editor.$('.wn-media.as-yt-playlist')
       for(let i=0; i<els.length; i++) {
         let el = els[i]

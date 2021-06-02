@@ -1,6 +1,6 @@
 .ti-widget-photo-gallery {
   @include pos-fixed-full;
-  z-index : $z-over;
+  z-index : $z-top;
   background: #000;
   opacity: 0;
   transition: opacity 0.5s;
@@ -43,10 +43,13 @@
           width:100%; height:100%; object-fit: cover;
           border:2px solid transparent; border-radius: 4px;
         }
-        li {
+        a {
+          display: block;
           width: SZ(50); height: SZ(50); opacity: 0.6;
           cursor: pointer; transition: 0.3s; 
+          text-decoration: none;
           &:hover {
+            text-decoration: none;
             opacity: 1; transform: translateY(-3px) scale(1.2); 
             img {
               border-color: rgba(255,255,255, 0.6);
@@ -67,7 +70,7 @@
     position: relative; transition: 0.3s;
     height:100%;
     //-------------------------------------
-    a.as-tile {
+    .as-tile {
       @include flex-center;
       position: relative;
       flex:0 0 auto;
@@ -83,10 +86,52 @@
       img {
         border:0; width:100%; height:100%;
         object-fit: contain;
+        transition: 0.3s;
+        cursor: move;
+        position: relative;
       }
       //-----------------------------------
     }
     //-------------------------------------
+    &.is-moving .as-tile img {
+      transition: unset;
+    }
+    //-------------------------------------
+  }
+  //---------------------------------------
+  a.as-opener {
+    @include pos-abs($t:0,$l:0);
+    padding: SZ(10); z-index: 2;
+    display: none; text-decoration: none;
+    &[href] {
+      @include flex-center;
+      width: SZ(64); height: SZ(64);
+      color: #FFF; opacity: 0.6;
+      font-size: SZ(24); font-weight: bold;
+      cursor: pointer; transition: 0.3s;
+      &:hover {
+        opacity: 1;
+        text-decoration: none;
+      }
+    }
+  }
+  //---------------------------------------
+  div.as-toolbar {
+    @include pos-abs($r:0,$b:0);
+    @include flex-align-nowrap;
+    padding: SZ(10); z-index: 3;
+    a {
+      @include flex-center;
+      width: SZ(42); height: SZ(42);
+      color: #FFF; opacity: 0.6;
+      font-size: SZ(24); font-weight: bold;
+      cursor: pointer; transition: 0.3s;
+      text-decoration: none;
+      &:hover {
+        opacity: 1; transform:scale(1.2);
+        text-decoration: none;
+      }
+    }
   }
   //---------------------------------------
   div.as-switcher-btn {
@@ -111,8 +156,9 @@
   div.as-closer {
     @include pos-abs($t:0,$r:0);
     //-------------------------------------
-    span {
+    a {
       @include flex-center;
+      text-decoration: none;
       width: SZ(64); height: SZ(64);
       color: #CCC;
       font-size: SZ(40); font-weight: bold;
@@ -120,6 +166,7 @@
       &:hover {
         transform: rotate(180deg) scale(1.2);
         color: #FFF;
+        text-decoration: none;
       }
     }
     //-------------------------------------

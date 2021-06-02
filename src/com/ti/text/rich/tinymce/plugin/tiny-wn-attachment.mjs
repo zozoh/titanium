@@ -499,7 +499,8 @@ export default {
       }
     })
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-attachment", function() {
       //console.log("SetContent attachment")
       let els = editor.$('.wn-attachment')
       for(let i=0; i<els.length; i++) {

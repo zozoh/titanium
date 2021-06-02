@@ -1,4 +1,4 @@
-// Pack At: 2021-06-02 01:54:24
+// Pack At: 2021-06-03 04:40:49
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -4334,7 +4334,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     editor.addCommand(CMD_RELOAD,      CmdReloadAlbum)
     editor.addCommand(CMD_PROP,        CmdShowAlbumProp)
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-yt-playlists", function() {
       let els = editor.$('.wn-media.as-yt-playlist')
       for(let i=0; i<els.length; i++) {
         let el = els[i]
@@ -5333,6 +5334,133 @@ const _M = {
     this.$bar.freeGroup(this)
   }
   ///////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
+// EXPORT 'm-obj-content-actions.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/obj-content/m-obj-content-actions.mjs'] = (function(){
+////////////////////////////////////////////
+const _M = {
+  //----------------------------------------
+  // Combin Mutations
+  //----------------------------------------
+  onChanged({dispatch}, payload) {
+    dispatch("changeContent", payload)
+  },
+  //----------------------------------------
+  changeContent({commit}, payload) {
+    commit("setContent", payload)
+    commit("syncStatusChanged");
+  },
+  //----------------------------------------
+  updateContent({commit}, content) {
+    commit("setContent", content)
+    commit("setSavedContent", content)
+    commit("syncStatusChanged")
+  },
+  //--------------------------------------------
+  // User Interactivity
+  //--------------------------------------------
+  async openContentEditor({state, dispatch}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    // Open Editor
+    let newContent = await Wn.EditObjContent(state.meta, {
+      content : state.content
+    })
+
+    // Cancel the editing
+    if(_.isUndefined(newContent)) {
+      return
+    }
+
+    // Update the current editing
+    await dispatch("changeContent", newContent)
+  },
+  //--------------------------------------------
+  // Reload & Save
+  //--------------------------------------------
+  // async setCurrent({state, commit,dispatch}, {
+  //   meta=null, force=false
+  // }={}) {
+  //   //console.log("setCurrent", meta, loadContent)
+
+  //   // Not need to reload
+  //   if(state.meta && meta && state.meta.id == meta.id) {
+  //     if((_.isString(state.content)) && !force) {
+  //       return
+  //     }
+  //   }
+
+  //   // do reload
+  //   await dispatch("reload", meta)
+
+  // },
+  //----------------------------------------
+  async save({state, commit}) {
+    if(state.status.saving || !state.status.changed){
+      return
+    }
+
+    commit("setStatus", {saving:true})
+
+    let meta = state.meta
+    let content = state.content
+    let newMeta = await Wn.Io.saveContentAsText(meta, content)
+
+    commit("setStatus", {saving:false})
+    commit("setMeta", newMeta)
+    commit("setSavedContent", content)
+    commit("syncStatusChanged")
+
+    // return the new meta
+    return newMeta
+  },
+  //----------------------------------------
+  async reload({state,commit,dispatch}, meta) {
+    if(state.status.reloading
+      || state.status.saving){
+      return
+    }
+    //......................................
+    // Use the default meta
+    if(!meta) {
+      meta = state.meta
+    }
+    //......................................
+    if(_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+    //......................................
+    // Guard
+    if(!meta) {
+      commit("setMeta", null)
+      commit("setContent", null)
+      return
+    }
+    //console.log("m-obj-current.reload", meta.id)
+    //......................................
+    // Init content as null
+    let content = null
+    commit("setStatus", {reloading:true})
+    //......................................
+    // For file
+    if("FILE" == meta.race) {
+      // need to be reload content
+      content = await Wn.Io.loadContent(meta)
+    }
+    //......................................
+    // Just update the meta
+    commit("setMeta", meta)
+    commit("setStatus", {reloading:false})
+    // Update content and sync state
+    dispatch("updateContent", content)
+  }
+  //----------------------------------------
 }
 return _M;;
 })()
@@ -8551,7 +8679,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     })
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-web-image", function() {
       //console.log("SetContent image")
       let els = editor.$('img[wn-obj-mime]')
       for(let i=0; i<els.length; i++) {
@@ -9798,7 +9927,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     editor.addCommand(CMD_RELOAD,      CmdReloadAlbum)
     editor.addCommand(CMD_PROP,        CmdShowAlbumProp)
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-fb-album", function() {
       //console.log("SetContent facebook")
       let els = editor.$('.wn-media.as-fb-album')
       for(let i=0; i<els.length; i++) {
@@ -9887,7 +10017,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "routers" : {
     type : Object,
     default : ()=>({
-      "reload" : "dispatch:current/reload"
+      "reload" : "dispatch:main/reload"
     })
   },
   "listConf" : {
@@ -11116,43 +11246,15 @@ return _M;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/obj-current/m-obj-current-actions.mjs'] = (function(){
 ////////////////////////////////////////////
-function getKeepSearchAs(meta) {
-  if(meta && meta.keep_search_as) {
-    let keepAs = meta.keep_search_as
-    if(_.isBoolean(keepAs)) {
-      keepAs = `search-${meta.id}`
-    }
-    return keepAs
-  }
-}
-////////////////////////////////////////////
 const _M = {
   //----------------------------------------
   // Combin Mutations
-  //----------------------------------------
-  onChanged({dispatch}, payload) {
-    dispatch("changeContent", payload)
-  },
-  //----------------------------------------
-  changeContent({commit}, payload) {
-    commit("setContent", payload)
-    commit("syncStatusChanged");
-  },
   //----------------------------------------
   changeMeta({commit}, {name, value}={}) {
     if(name) {
       let meta = _.set({}, name, value)
       commit("mergeMeta", meta)
-      commit("syncStatusChanged")
     }
-  },
-  //----------------------------------------
-  updateContent({state, commit}, content) {
-    commit("setContent", content)
-    if(state.meta && "FILE" == state.meta.race) {
-      commit("setSavedContent", content)
-    }
-    commit("syncStatusChanged")
   },
   //--------------------------------------------
   // User Interactivity
@@ -11174,25 +11276,6 @@ const _M = {
     if(reo.saved) {
       await dispatch("reload", reo.data)
     }
-  },
-  //--------------------------------------------
-  async openContentEditor({state, dispatch}) {
-    // Guard
-    if(!state.meta) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-    // Open Editor
-    let newContent = await Wn.EditObjContent(state.meta, {
-      content : state.content
-    })
-
-    // Cancel the editing
-    if(_.isUndefined(newContent)) {
-      return
-    }
-
-    // Update the current editing
-    await dispatch("changeContent", newContent)
   },
   //--------------------------------------------
   async openPrivilegeEditor({state, dispatch}) {
@@ -11259,114 +11342,15 @@ const _M = {
     })
   },
   //--------------------------------------------
-  // Reload & Save
+  // Reload
   //--------------------------------------------
-  // async setCurrent({state, commit,dispatch}, {
-  //   meta=null, force=false
-  // }={}) {
-  //   //console.log("setCurrent", meta, loadContent)
-
-  //   // Not need to reload
-  //   if(state.meta && meta && state.meta.id == meta.id) {
-  //     if((_.isString(state.content)) && !force) {
-  //       return
-  //     }
-  //   }
-
-  //   // do reload
-  //   await dispatch("reload", meta)
-
-  // },
-  //----------------------------------------
-  async save({state, commit}) {
-    if(state.status.saving || !state.status.changed){
-      return
-    }
-
-    commit("setStatus", {saving:true})
-
-    let meta = state.meta
-    let content = state.content
-    let newMeta = await Wn.Io.saveContentAsText(meta, content)
-
-    commit("setStatus", {saving:false})
-    commit("setMeta", newMeta)
-    commit("setSavedContent", content)
-    commit("syncStatusChanged")
-
-    // return the new meta
-    return newMeta
-  },
-  //----------------------------------------
-  saveSearchSetting({state, commit}, {filter, sorter, pager}={}) {
-    if(filter) {
-      commit("setFilter", filter)
-    }
-    if(sorter) {
-      commit("setSorter", sorter)
-    }
-    if(pager) {
-      commit("setPager", pager)
-    }
-
-    let keepAs = getKeepSearchAs(state.meta)
-    if(keepAs) {
-      Ti.Storage.session.setObject(keepAs, {
-        filter : state.filter,
-        sorter : state.sorter,
-        pager  : {
-          pageNumber : state.pageNumber,
-          pageSize   : state.pageSize
-        }
-      })
-    }
-  },
-  //----------------------------------------
-  recoverSearchSetting({commit}, meta) {
-    let keepAs = getKeepSearchAs(meta)
-    if(keepAs) {
-      let {
-        filter, sorter, pager
-      } = Ti.Storage.session.getObject(keepAs, {})
-
-      pager = _.assign({}, {
-        pageNumber : 1,
-        pageSize   : meta.dft_page_size || 1000
-      }, pager)
-      if(filter) {
-        commit("setFilter", filter)
-      }
-      if(sorter) {
-        commit("setSorter", sorter)
-      }
-      if(pager) {
-        commit("setPager", pager)
-      }
-    }
-  },
-  //----------------------------------------
-  async query({dispatch}, search={}){
-    //console.log("query", search)
-    dispatch("saveSearchSetting", search)
-    return await dispatch("reload")
-  },
-  //----------------------------------------
-  async reload({dispatch}, meta) {
-    return dispatch("reloadAll", {meta})
-  },
-  //----------------------------------------
-  async reloadAll({state, commit, dispatch}, {
-    meta, reloadChildren=true
-  }={}) {
-    if(state.status.reloading
-      || state.status.saving){
-      return
-    }
+  async reload({state,commit}, meta) {
     //......................................
     // Use the default meta
     if(_.isUndefined(meta)) {
       meta = state.meta
     }
+    commit("setStatus", {reloading:true})
     //......................................
     if(_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
@@ -11375,73 +11359,10 @@ const _M = {
       meta = await Wn.Io.loadMetaById(meta.id)
     }
     //......................................
-    // Guard
-    if(!meta) {
-      commit("setMeta", null)
-      commit("setContent", null)
-      return
-    }
-    //console.log("m-obj-current.reload", meta.id)
-    //......................................
-    // Default filter
-    if(meta.filter) {
-      commit("setFilter", meta.filter)
-    }
-    //......................................
-    // Default sorter
-    if(meta.sorter) {
-      commit("setSorter", meta.sorter)
-    }
-    //......................................
-    // Restore the search setting
-    dispatch("recoverSearchSetting", meta)
-
-    // Init content as null
-    let content = null
-    commit("setStatus", {reloading:true})
-    //......................................
-    // For file
-    if("FILE" == meta.race) {
-      // need to be reload content
-      content = await Wn.Io.loadContent(meta)
-    }
-    //......................................
-    // For dir
-    else if('DIR' == meta.race && reloadChildren) {
-      let cmds = [`o @query -p id:${meta.id}`]
-      cmds.push('-pager -mine -hidden')
-      if(state.pageSize > 0) {
-        let pgsz = state.pageSize
-        let pn = state.pageNumber || 1
-        let skip = Math.max(0, pgsz * (pn-1))
-        if(skip > 0) {
-          cmds.push(`-skip ${skip}`)
-        }
-        cmds.push(`-limit ${pgsz}`)
-      }
-      if(state.sorter) {
-        cmds.push(`-sort '${JSON.stringify(state.sorter)}'`)
-      }
-      let input;
-      if(state.filter) {
-        let flt = Wn.Util.getMatchByFilter(state.filter, meta.search_setting)
-        // Empty filter, force update it again
-        if(_.isEmpty(flt)) {
-          commit("clearFilter")
-          dispatch("saveSearchSetting", {filter:state.filter})
-        }
-        input = JSON.stringify(flt)
-      }
-      cmds.push('@json -cqnl')
-      content = await Wn.Sys.exec2(cmds.join(' '), {as:"json", input})
-    }
-    //......................................
     // Just update the meta
     commit("setMeta", meta)
     commit("setStatus", {reloading:false})
     commit("clearFieldStatus")
-    // Update content and sync state
-    dispatch("updateContent", content)
   }
   //----------------------------------------
 }
@@ -15361,7 +15282,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     })
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-attachment", function() {
       //console.log("SetContent attachment")
       let els = editor.$('.wn-attachment')
       for(let i=0; i<els.length; i++) {
@@ -19310,165 +19232,8 @@ const _M = {
       state.meta = _.merge({}, state.meta, meta);
     },
     //----------------------------------------
-    setContent(state, content) {
-      let meta = state.meta;
-      //console.log("setContent", content)
-      // Guard
-      if(!meta || _.isUndefined(content)) {
-        state.content = null
-        state.data = null
-        state.__saved_content = null
-        state.status.changed = false
-        return
-      }
-      //......................................
-      // DIR
-      if("DIR" == meta.race) {
-        state.content = null
-        state.__saved_content = null
-        state.data = content
-      }
-      //......................................
-      // File
-      else if("FILE" == meta.race) {
-        //....................................
-        // String content
-        if(_.isString(content)) {
-          state.content = content
-          // JSON
-          if(Wn.Util.isMimeJson(meta.mime)) {
-            try{
-              state.data = JSON.parse(content)
-            } catch(E) {
-              state.data = null
-            }
-          }
-          // Pure Text
-          else if(Wn.Util.isMimeText(meta.mime)) {
-            state.data = null
-          }
-        }
-        //....................................
-        // null value
-        else if(Ti.Util.isNil(content)) {
-          state.content = ""
-          state.data = null
-        }
-        //....................................
-        // Take content as plain object or Array
-        else {
-          state.content = JSON.stringify(content, null, '  ')
-          // JSON
-          if(Wn.Util.isMimeJson(meta.mime)) {
-            state.data = content
-          }
-          // Pure Text
-          else if(Wn.Util.isMimeText(meta.mime)) {
-            state.data = null
-          }
-        }
-        //....................................
-      }
-    },
-    //----------------------------------------
-    setData(state, data) {
-      state.data = data
-    },
-    //----------------------------------------
-    prependDateItem(state, newItem) {
-      if(_.isEmpty(newItem))
-        return
-      let data = state.data
-      let list = _.cloneDeep(data.list) || []
-      let pager = data.pager
-      list = _.concat(newItem, list)
-      state.data = {
-        list, pager
-      }
-    },
-    //----------------------------------------
-    appendDateItem(state, newItem) {
-      if(_.isEmpty(newItem))
-        return
-      let data = state.data
-      let list = _.cloneDeep(data.list) || []
-      let pager = data.pager
-      list = _.concat(list, newItem)
-      state.data = {
-        list, pager
-      }
-    },
-    //----------------------------------------
-    setDataItem(state, newItem) {
-      // console.log("setDataItem:", newItem)
-      // Guard
-      if(!newItem || !newItem.id)
-        return
-
-      let data = state.data
-
-      // Update pager list item of data
-      if(_.isArray(data.list) && data.pager) {
-        let list = _.cloneDeep(data.list)
-        list = _.map(list, li => {
-          if(li.id == newItem.id) {
-            return newItem
-          }
-          return li
-        })
-        state.data = {
-          list,
-          pager : data.pager
-        }
-      }
-    },
-    //----------------------------------------
-    setSavedContent(state, content) {
-      state.__saved_content = content
-    },
-    //----------------------------------------
-    setFilter(state, filter) {
-      state.filter = _.cloneDeep(filter)
-    },
-    //----------------------------------------
-    clearFilter(state) {
-      let flt = _.cloneDeep(state.filter)
-      flt.keyword = null
-      flt.match = {}
-      state.filter = flt
-    },
-    //----------------------------------------
-    setSorter(state, sorter) {
-      state.sorter = _.cloneDeep(sorter)
-    },
-    //----------------------------------------
-    setPager(state, {pageNumber, pageSize}={}) {
-      if(_.isNumber(pageNumber)) {
-        state.pageNumber =  pageNumber
-      }
-      if(_.isNumber(pageSize)) {
-        state.pageSize =  pageSize
-      }
-    },
-    //----------------------------------------
-    setPagerNumber(state, pageNumber=1) {
-      state.pageNumber =  pageNumber
-    },
-    //----------------------------------------
-    setPageSize(state, pageSize=100) {
-      state.pageSize =  pageSize
-    },
-    //----------------------------------------
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)
-    },
-    //----------------------------------------
-    syncStatusChanged(state){
-      if(Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
-        state.status.changed = false
-      } else {
-        state.status.changed = !_.isEqual(state.content, state.__saved_content)
-      }
     },
     //----------------------------------------
     setFieldStatus(state, {name, type, text}={}) {
@@ -24494,6 +24259,7 @@ const _M = {
     },
     //--------------------------------------
     evalDataItemList() {
+      this.myHoverIndex = this.currentIndex;
       let list = []
       _.forEach(this.data, (it, index) => {
         let comType = Ti.Util.explainObj(it, this.comType)
@@ -26858,6 +26624,8 @@ const _M = {
     Main() {
       return this.$store.state.main
     },
+    MainData() {return _.get(this.Main, "data")},
+    MainContent() {return _.get(this.Main, "content")},
     Current() {
       return this.$store.state.current
     },
@@ -26923,7 +26691,10 @@ const _M = {
     },
     //--------------------------------------
     OnCurrentDataChange(data){
-      this.execEvent("arena::change", data, "dispatch:current/changeContent")
+      if(this.view.mod) {
+        console.log("haha")
+        this.execEvent("arena::change", data, "dispatch:main/changeContent")
+      }
     },
     //--------------------------------------
     OnArenaViewStatusUpdated(status) {
@@ -27071,21 +26842,23 @@ const _M = {
   },
   //////////////////////////////////////////////
   watch : {
-    "meta" : async function(newVal, oldVal) {
+    "meta" : function(newVal, oldVal) {
       let newId = _.get(newVal, "id")
       let oldId = _.get(oldVal, "id")
       let isSameId = _.isEqual(newId, oldId) 
       if(newVal) {
         //console.log("metaChanged", newVal, oldVal)
         // Update the ancestors path
-        if(!isSameId) {
-          await this.reloadAncestors()
-        }
-        // Reload Current Main
-        if(!isSameId || this.isChanged) {
-          await this.reloadMain()
-          this.pushHistory(newVal)
-        }
+        _.delay(async ()=>{
+          if(!isSameId) {
+            await this.reloadAncestors()
+          }
+          // Reload Current Main
+          if(!isSameId || this.isChanged) {
+            await this.reloadMain()
+            this.pushHistory(newVal)
+          }
+        })
       }
     }
   },
@@ -27277,6 +27050,210 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'm-obj-current.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/__del_obj-current/m-obj-current.mjs'] = (function(){
+const _M = {
+  ////////////////////////////////////////////
+  mutations : {
+    //----------------------------------------
+    setMeta(state, meta) {
+      state.meta = meta
+    },
+    //--------------------------------------------
+    assignMeta(state, meta) {
+      state.meta = _.assign({}, state.meta, meta);
+    },
+    //--------------------------------------------
+    mergeMeta(state, meta) {
+      state.meta = _.merge({}, state.meta, meta);
+    },
+    //----------------------------------------
+    setContent(state, content) {
+      let meta = state.meta;
+      //console.log("setContent", content)
+      // Guard
+      if(!meta || _.isUndefined(content)) {
+        state.content = null
+        state.data = null
+        state.__saved_content = null
+        state.status.changed = false
+        return
+      }
+      //......................................
+      // DIR
+      if("DIR" == meta.race) {
+        state.content = null
+        state.__saved_content = null
+        state.data = content
+      }
+      //......................................
+      // File
+      else if("FILE" == meta.race) {
+        //....................................
+        // String content
+        if(_.isString(content)) {
+          state.content = content
+          // JSON
+          if(Wn.Util.isMimeJson(meta.mime)) {
+            try{
+              state.data = JSON.parse(content)
+            } catch(E) {
+              state.data = null
+            }
+          }
+          // Pure Text
+          else if(Wn.Util.isMimeText(meta.mime)) {
+            state.data = null
+          }
+        }
+        //....................................
+        // null value
+        else if(Ti.Util.isNil(content)) {
+          state.content = ""
+          state.data = null
+        }
+        //....................................
+        // Take content as plain object or Array
+        else {
+          state.content = JSON.stringify(content, null, '  ')
+          // JSON
+          if(Wn.Util.isMimeJson(meta.mime)) {
+            state.data = content
+          }
+          // Pure Text
+          else if(Wn.Util.isMimeText(meta.mime)) {
+            state.data = null
+          }
+        }
+        //....................................
+      }
+    },
+    //----------------------------------------
+    setData(state, data) {
+      state.data = data
+    },
+    //----------------------------------------
+    prependDateItem(state, newItem) {
+      if(_.isEmpty(newItem))
+        return
+      let data = state.data
+      let list = _.cloneDeep(data.list) || []
+      let pager = data.pager
+      list = _.concat(newItem, list)
+      state.data = {
+        list, pager
+      }
+    },
+    //----------------------------------------
+    appendDateItem(state, newItem) {
+      if(_.isEmpty(newItem))
+        return
+      let data = state.data
+      let list = _.cloneDeep(data.list) || []
+      let pager = data.pager
+      list = _.concat(list, newItem)
+      state.data = {
+        list, pager
+      }
+    },
+    //----------------------------------------
+    setDataItem(state, newItem) {
+      // console.log("setDataItem:", newItem)
+      // Guard
+      if(!newItem || !newItem.id)
+        return
+
+      let data = state.data
+
+      // Update pager list item of data
+      if(_.isArray(data.list) && data.pager) {
+        let list = _.cloneDeep(data.list)
+        list = _.map(list, li => {
+          if(li.id == newItem.id) {
+            return newItem
+          }
+          return li
+        })
+        state.data = {
+          list,
+          pager : data.pager
+        }
+      }
+    },
+    //----------------------------------------
+    setSavedContent(state, content) {
+      state.__saved_content = content
+    },
+    //----------------------------------------
+    setFilter(state, filter) {
+      state.filter = _.cloneDeep(filter)
+    },
+    //----------------------------------------
+    clearFilter(state) {
+      let flt = _.cloneDeep(state.filter)
+      flt.keyword = null
+      flt.match = {}
+      state.filter = flt
+    },
+    //----------------------------------------
+    setSorter(state, sorter) {
+      state.sorter = _.cloneDeep(sorter)
+    },
+    //----------------------------------------
+    setPager(state, {pageNumber, pageSize}={}) {
+      if(_.isNumber(pageNumber)) {
+        state.pageNumber =  pageNumber
+      }
+      if(_.isNumber(pageSize)) {
+        state.pageSize =  pageSize
+      }
+    },
+    //----------------------------------------
+    setPagerNumber(state, pageNumber=1) {
+      state.pageNumber =  pageNumber
+    },
+    //----------------------------------------
+    setPageSize(state, pageSize=100) {
+      state.pageSize =  pageSize
+    },
+    //----------------------------------------
+    setStatus(state, status) {
+      state.status = _.assign({}, state.status, status)
+    },
+    //----------------------------------------
+    syncStatusChanged(state){
+      if(Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
+        state.status.changed = false
+      } else {
+        state.status.changed = !_.isEqual(state.content, state.__saved_content)
+      }
+    },
+    //----------------------------------------
+    setFieldStatus(state, {name, type, text}={}) {
+      if(name){
+        let ukey = _.concat(name).join("-")
+        Vue.set(state.fieldStatus, ukey, {type, text})
+      }
+    },
+    //----------------------------------------
+    clearFieldStatus(state, names=[]) {
+      // Clean All
+      if(_.isEmpty(names)) {
+        state.fieldStatus = {}
+      }
+      // Clear one
+      else {
+        state.fieldStatus = _.omit(state.fieldStatus, names)
+      }
+    },
+    //----------------------------------------
+  }
+  ////////////////////////////////////////////
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'ti-obj-pair.mjs' -> null
@@ -28487,6 +28464,7 @@ const _M = {
   async reloadSettings({state,commit}) {
     commit("setStatus", {reloading:true})
     let config = await Wn.Io.loadContent(state.meta, {as:"json"})
+    commit("setStatus", {reloading:false})
     //
     // Default value of configuration
     //
@@ -28504,14 +28482,13 @@ const _M = {
     //
     // Commit to state
     //
-    commit("setKeepSearch", Ti.Util.fallback(config.keepSearch, true))
-    commit("setPath", config.path)
-    commit("setSearch", config.search || {})
-    commit("setFilter", config.filter || {})
-    commit("setSorter", config.sorter || {nm:1})
-    commit("setPageNumber", Ti.Util.fallback(config.pageNumber,1))
-    commit("setPageSize",   Ti.Util.fallback(config.pageSize,1000))
-    commit("setStatus", {reloading:false})
+    commit("setKeepSearch", Ti.Util.fallback(
+      config.keepSearch, state.keepSearch, true))
+    commit("setSearch", Ti.Util.fallback(config.search, state.search, {}))
+    commit("setFilter", Ti.Util.fallback(config.filter, state.filter, {}))
+    commit("setSorter", Ti.Util.fallback(config.sorter, state.sorter, {nm:1}))
+    commit("setPageNumber", Ti.Util.fallback(config.pageNumber, state.pageNumber, 1))
+    commit("setPageSize", Ti.Util.fallback(config.pageSize, state.pageSize, 1000))
   },
   //----------------------------------------
   async reload({state, commit, dispatch}, meta) {
@@ -28800,6 +28777,9 @@ const _M = {
     "defaultValue" : {
       type : Number,
       default : 0
+    },
+    "placeholder" : {
+      type : [Number, String]
     },
     "maxValue" : {
       type : Number,
@@ -30706,6 +30686,119 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'm-obj-children.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/obj-children/m-obj-children.mjs'] = (function(){
+const _M = {
+  ////////////////////////////////////////////
+  mutations : {
+    //----------------------------------------
+    setMeta(state, meta) {
+      state.meta = meta
+    },
+    //----------------------------------------
+    setKeepSearch(state, keepSearch) {
+      state.keepSearch = keepSearch
+    },
+    //----------------------------------------
+    setSearch(state, search) {
+      state.search = _.cloneDeep(search)
+    },
+    //----------------------------------------
+    setFilter(state, filter) {
+      state.filter = _.cloneDeep(filter)
+    },
+    //----------------------------------------
+    clearFilter(state) {
+      let flt = _.cloneDeep(state.filter)
+      flt.keyword = null
+      flt.match = {}
+      state.filter = flt
+    },
+    //----------------------------------------
+    setSorter(state, sorter) {
+      state.sorter = _.cloneDeep(sorter)
+    },
+    //----------------------------------------
+    setPager(state, {pageNumber, pageSize}={}) {
+      if(_.isNumber(pageNumber)) {
+        state.pageNumber =  pageNumber
+      }
+      if(_.isNumber(pageSize)) {
+        state.pageSize =  pageSize
+      }
+    },
+    //----------------------------------------
+    setPageNumber(state, pageNumber=1) {
+      state.pageNumber =  pageNumber
+    },
+    //----------------------------------------
+    setPageSize(state, pageSize=100) {
+      state.pageSize =  pageSize
+    },
+    //----------------------------------------
+    setStatus(state, status) {
+      state.status = _.assign({}, state.status, status)
+    },
+    //----------------------------------------
+    prependDateItem(state, newItem) {
+      if(_.isEmpty(newItem))
+        return
+      let data = state.data
+      let list = _.cloneDeep(data.list) || []
+      let pager = data.pager
+      list = _.concat(newItem, list)
+      state.data = {
+        list, pager
+      }
+    },
+    //----------------------------------------
+    appendDateItem(state, newItem) {
+      if(_.isEmpty(newItem))
+        return
+      let data = state.data
+      let list = _.cloneDeep(data.list) || []
+      let pager = data.pager
+      list = _.concat(list, newItem)
+      state.data = {
+        list, pager
+      }
+    },
+    //----------------------------------------
+    setDataItem(state, newItem) {
+      // console.log("setDataItem:", newItem)
+      // Guard
+      if(!newItem || !newItem.id)
+        return
+
+      let data = state.data
+
+      // Update pager list item of data
+      if(_.isArray(data.list) && data.pager) {
+        let list = _.cloneDeep(data.list)
+        list = _.map(list, li => {
+          if(li.id == newItem.id) {
+            return newItem
+          }
+          return li
+        })
+        state.data = {
+          list,
+          pager : data.pager
+        }
+      }
+    },
+    //----------------------------------------
+    setData(state, data) {
+      state.data = data
+    }
+    //----------------------------------------
+  }
+  ////////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'web-nav-side.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/nav/side/web-nav-side.mjs'] = (function(){
@@ -32302,8 +32395,8 @@ const _M = {
         ancestors : this.ancestors,
         parent    : this.parent,
         meta      : this.meta,
-        content   : this.content,
-        data      : this.data,
+        content   : this.MainContent,
+        data      : this.MainData,
         status    : this.status,
         exposeHidden : this.exposeHidden,
         viewType : this.listViewType
@@ -33027,6 +33120,342 @@ const _M = {
     Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
+// EXPORT 'm-obj-current-actions.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/__del_obj-current/m-obj-current-actions.mjs'] = (function(){
+////////////////////////////////////////////
+function getKeepSearchAs(meta) {
+  if(meta && meta.keep_search_as) {
+    let keepAs = meta.keep_search_as
+    if(_.isBoolean(keepAs)) {
+      keepAs = `search-${meta.id}`
+    }
+    return keepAs
+  }
+}
+////////////////////////////////////////////
+const _M = {
+  //----------------------------------------
+  // Combin Mutations
+  //----------------------------------------
+  onChanged({dispatch}, payload) {
+    dispatch("changeContent", payload)
+  },
+  //----------------------------------------
+  changeContent({commit}, payload) {
+    commit("setContent", payload)
+    commit("syncStatusChanged");
+  },
+  //----------------------------------------
+  changeMeta({commit}, {name, value}={}) {
+    if(name) {
+      let meta = _.set({}, name, value)
+      commit("mergeMeta", meta)
+      commit("syncStatusChanged")
+    }
+  },
+  //----------------------------------------
+  updateContent({state, commit}, content) {
+    commit("setContent", content)
+    if(state.meta && "FILE" == state.meta.race) {
+      commit("setSavedContent", content)
+    }
+    commit("syncStatusChanged")
+  },
+  //--------------------------------------------
+  // User Interactivity
+  //--------------------------------------------
+  async openMetaEditor({state, dispatch}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    // Open Editor
+    let reo = await Wn.EditObjMeta(state.meta, {fields:"auto"})
+
+    // Cancel the editing
+    if(_.isUndefined(reo)) {
+      return
+    }
+
+    // Update the current editing
+    if(reo.saved) {
+      await dispatch("reload", reo.data)
+    }
+  },
+  //--------------------------------------------
+  async openContentEditor({state, dispatch}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    // Open Editor
+    let newContent = await Wn.EditObjContent(state.meta, {
+      content : state.content
+    })
+
+    // Cancel the editing
+    if(_.isUndefined(newContent)) {
+      return
+    }
+
+    // Update the current editing
+    await dispatch("changeContent", newContent)
+  },
+  //--------------------------------------------
+  async openPrivilegeEditor({state, dispatch}) {
+    // Guard
+    if(!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    // Open Editor
+    let newMeta = await Wn.EditObjPrivilege(state.meta)
+
+    // Cancel the editing
+    if(_.isUndefined(newMeta)) {
+      return
+    }
+
+    // Update the current editing
+    await dispatch("reload", newMeta)
+  },
+  //--------------------------------------------
+  // Update to remote
+  //----------------------------------------
+  async updateMeta({commit, dispatch}, {name, value}={}) {
+    let data = Ti.Types.toObjByPair({name, value})
+    await dispatch("updateMetas", data)
+  },
+  //----------------------------------------
+  async updateMetas({state, commit}, data={}) {
+    // Check Necessary
+    if(_.isMatchWith(state.meta, data, _.isEqual)) {
+      return
+    }
+
+    // Mark field status
+    _.forEach(data, (val, name)=>{
+      commit("setFieldStatus", {name, type:"spinning", text:"i18n:saving"})
+    })
+
+    // Do the update
+    let json = JSON.stringify(data)
+    let id  = state.meta.id
+    let cmdText = `o id:${id} @update @json -cqn`
+    let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
+    let isError = reo instanceof Error;
+
+    if(!isError && !Ti.Util.isNil(reo)) {
+      commit("setMeta", reo)
+    }
+
+    _.forEach(data, (val, name)=>{
+      if(isError) {
+        commit("setFieldStatus", {
+          name, 
+          type: "warn", 
+          text: reo.message || "i18n:fail"
+        })
+      } else {
+        commit("setFieldStatus", {
+          name, 
+          type: "ok", 
+          text: "i18n:ok"
+        })
+        _.delay(()=>{commit("clearFieldStatus", name)}, 500)
+      }
+    })
+  },
+  //--------------------------------------------
+  // Reload & Save
+  //--------------------------------------------
+  // async setCurrent({state, commit,dispatch}, {
+  //   meta=null, force=false
+  // }={}) {
+  //   //console.log("setCurrent", meta, loadContent)
+
+  //   // Not need to reload
+  //   if(state.meta && meta && state.meta.id == meta.id) {
+  //     if((_.isString(state.content)) && !force) {
+  //       return
+  //     }
+  //   }
+
+  //   // do reload
+  //   await dispatch("reload", meta)
+
+  // },
+  //----------------------------------------
+  async save({state, commit}) {
+    if(state.status.saving || !state.status.changed){
+      return
+    }
+
+    commit("setStatus", {saving:true})
+
+    let meta = state.meta
+    let content = state.content
+    let newMeta = await Wn.Io.saveContentAsText(meta, content)
+
+    commit("setStatus", {saving:false})
+    commit("setMeta", newMeta)
+    commit("setSavedContent", content)
+    commit("syncStatusChanged")
+
+    // return the new meta
+    return newMeta
+  },
+  //----------------------------------------
+  saveSearchSetting({state, commit}, {filter, sorter, pager}={}) {
+    if(filter) {
+      commit("setFilter", filter)
+    }
+    if(sorter) {
+      commit("setSorter", sorter)
+    }
+    if(pager) {
+      commit("setPager", pager)
+    }
+
+    let keepAs = getKeepSearchAs(state.meta)
+    if(keepAs) {
+      Ti.Storage.session.setObject(keepAs, {
+        filter : state.filter,
+        sorter : state.sorter,
+        pager  : {
+          pageNumber : state.pageNumber,
+          pageSize   : state.pageSize
+        }
+      })
+    }
+  },
+  //----------------------------------------
+  recoverSearchSetting({commit}, meta) {
+    let keepAs = getKeepSearchAs(meta)
+    if(keepAs) {
+      let {
+        filter, sorter, pager
+      } = Ti.Storage.session.getObject(keepAs, {})
+
+      pager = _.assign({}, {
+        pageNumber : 1,
+        pageSize   : meta.dft_page_size || 1000
+      }, pager)
+      if(filter) {
+        commit("setFilter", filter)
+      }
+      if(sorter) {
+        commit("setSorter", sorter)
+      }
+      if(pager) {
+        commit("setPager", pager)
+      }
+    }
+  },
+  //----------------------------------------
+  async query({dispatch}, search={}){
+    //console.log("query", search)
+    dispatch("saveSearchSetting", search)
+    return await dispatch("reload")
+  },
+  //----------------------------------------
+  async reload({dispatch}, meta) {
+    return dispatch("reloadAll", {meta})
+  },
+  //----------------------------------------
+  async reloadAll({state, commit, dispatch}, {
+    meta, reloadChildren=true
+  }={}) {
+    if(state.status.reloading
+      || state.status.saving){
+      return
+    }
+    //......................................
+    // Use the default meta
+    if(_.isUndefined(meta)) {
+      meta = state.meta
+    }
+    //......................................
+    if(_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+    else if(meta && meta.id) {
+      meta = await Wn.Io.loadMetaById(meta.id)
+    }
+    //......................................
+    // Guard
+    if(!meta) {
+      commit("setMeta", null)
+      commit("setContent", null)
+      return
+    }
+    //console.log("m-obj-current.reload", meta.id)
+    //......................................
+    // Default filter
+    if(meta.filter) {
+      commit("setFilter", meta.filter)
+    }
+    //......................................
+    // Default sorter
+    if(meta.sorter) {
+      commit("setSorter", meta.sorter)
+    }
+    //......................................
+    // Restore the search setting
+    dispatch("recoverSearchSetting", meta)
+
+    // Init content as null
+    let content = null
+    commit("setStatus", {reloading:true})
+    //......................................
+    // For file
+    if("FILE" == meta.race) {
+      // need to be reload content
+      content = await Wn.Io.loadContent(meta)
+    }
+    //......................................
+    // For dir
+    else if('DIR' == meta.race && reloadChildren) {
+      let cmds = [`o @query -p id:${meta.id}`]
+      cmds.push('-pager -mine -hidden')
+      if(state.pageSize > 0) {
+        let pgsz = state.pageSize
+        let pn = state.pageNumber || 1
+        let skip = Math.max(0, pgsz * (pn-1))
+        if(skip > 0) {
+          cmds.push(`-skip ${skip}`)
+        }
+        cmds.push(`-limit ${pgsz}`)
+      }
+      if(state.sorter) {
+        cmds.push(`-sort '${JSON.stringify(state.sorter)}'`)
+      }
+      let input;
+      if(state.filter) {
+        let flt = Wn.Util.getMatchByFilter(state.filter, meta.search_setting)
+        // Empty filter, force update it again
+        if(_.isEmpty(flt)) {
+          commit("clearFilter")
+          dispatch("saveSearchSetting", {filter:state.filter})
+        }
+        input = JSON.stringify(flt)
+      }
+      cmds.push('@json -cqnl')
+      content = await Wn.Sys.exec2(cmds.join(' '), {as:"json", input})
+    }
+    //......................................
+    // Just update the meta
+    commit("setMeta", meta)
+    commit("setStatus", {reloading:false})
+    commit("clearFieldStatus")
+    // Update content and sync state
+    dispatch("updateContent", content)
+  }
+  //----------------------------------------
 }
 return _M;;
 })()
@@ -37021,8 +37450,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
     editor.addCommand(CMD_RELOAD,   CmdReloadAlbum)
     editor.addCommand(CMD_PROP, CmdShowAlbumProp)
     //..............................................
-    editor.on("SetContent", function() {
-      //console.log("SetContent album")
+    // editor.on("SetContent", function() {
+    //   console.log("SetContent album")
+    //   let els = editor.$('.wn-media.as-album')
+    //   for(let i=0; i<els.length; i++) {
+    //     let el = els[i]
+    //     UpdateAlbumTagInnerHtml(editor, el, settings)
+    //   }
+    // })
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-album", function() {
+      console.log("SetContent album", editor.isDirty())
       let els = editor.$('.wn-media.as-album')
       for(let i=0; i<els.length; i++) {
         let el = els[i]
@@ -39796,7 +40234,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     })
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-video", function() {
       //console.log("SetContent video")
       let els = editor.$('.wn-media.as-video')
       for(let i=0; i<els.length; i++) {
@@ -40226,7 +40665,9 @@ const _M = {
     }]
     */
     myOutlineTree : undefined,
-    myCurrentHeadingId : undefined
+    myCurrentHeadingId : undefined,
+    myContentCallbacks : {},
+    myContentDirty: true
   }),
   ///////////////////////////////////////////////////
   computed : {
@@ -40582,6 +41023,7 @@ const _M = {
         },
         setup : (editor)=>{
           editor.__rich_tinymce_com = this
+          editor.on("SetContent", this.OnEditorSetContent)
           // Event: change
           editor.on("Change", (evt)=>{
             //console.log("Change ", evt)
@@ -40680,6 +41122,7 @@ const _M = {
 
       // init content
       if(this.value) {
+        this.myContentDirty = true
         this.myHtmlCode = this.value
         this.$editor.setContent(this.value)
 
@@ -40687,6 +41130,19 @@ const _M = {
         this.evalOutline()
       }
       //.............................................
+    },
+    //-----------------------------------------------
+    registerContentCallback(name, callback) {
+      this.myContentCallbacks[name] = callback
+    },
+    //-----------------------------------------------
+    tellPluginsContentChange() {
+      if(_.isArray(this.myPlugins)) {
+        let funcs = _.values(this.myContentCallbacks)
+        for(let func of funcs) {
+          func(this.$editor)
+        }
+      }
     }
     //-----------------------------------------------
   },
@@ -40713,9 +41169,11 @@ const _M = {
       if(!this.$editor) {
         return
       }
-      //console.log("value", {newVal, oldVal})
+      console.log("value", {newVal, oldVal})
       if(!this.myHtmlCode ||
         (!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.myHtmlCode))) {
+          console.log("dirty it")
+          this.myContentDirty = true
           this.myHtmlCode = newVal
           this.$editor.setContent(newVal||"")
       }
@@ -40723,7 +41181,15 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   created : function() {
-    
+    this.OnEditorSetContent = ()=>{
+      console.log("OnEditorSetContent", this.myContentDirty)
+      if(this.myContentDirty) {
+        this.tellPluginsContentChange()
+        this.myContentDirty = false
+      } else {
+        console.log("???")
+      }
+    }
   },
   ///////////////////////////////////////////////////
   mounted : async function() {
@@ -40731,7 +41197,6 @@ const _M = {
       let list = _.map(this.plugins, this.ExplainPluginUrl)
       this.myPlugins = await Ti.Load(list)
     }
-   
     await this.initEditor()
   }
   ///////////////////////////////////////////////////
@@ -40780,6 +41245,198 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'm-obj-children-actions.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/obj-children/m-obj-children-actions.mjs'] = (function(){
+////////////////////////////////////////////
+function getKeepSearchAs(state) {
+  if(state.meta && state.keepSearch) {
+    return `browser-search-${state.meta.id}`
+  }
+}
+////////////////////////////////////////////
+const _M = {
+  //----------------------------------------
+  saveSearchSetting({state, commit}, {filter, sorter, pager}={}) {
+    if(filter) {
+      commit("setFilter", filter)
+    }
+    if(sorter) {
+      commit("setSorter", sorter)
+    }
+    if(pager) {
+      commit("setPager", pager)
+    }
+
+    let keepAs = getKeepSearchAs(state)
+    if(keepAs) {
+      Ti.Storage.session.setObject(keepAs, {
+        filter : state.filter,
+        sorter : state.sorter,
+        pager  : {
+          pageNumber : state.pageNumber,
+          pageSize   : state.pageSize
+        }
+      })
+    }
+  },
+  //----------------------------------------
+  recoverSearchSetting({state, commit}) {
+    let keepAs = getKeepSearchAs(state)
+    if(keepAs) {
+      let {
+        filter, sorter, pager
+      } = Ti.Storage.session.getObject(keepAs, {})
+      pager = _.assign({}, {
+        pageNumber : state.pageNumber || 1,
+        pageSize   : state.pageSize   || 1000
+      }, pager)
+      if(filter) {
+        commit("setFilter", filter)
+      }
+      if(sorter) {
+        commit("setSorter", sorter)
+      }
+      if(pager) {
+        commit("setPager", pager)
+      }
+    }
+  },
+  //----------------------------------------
+  async query({dispatch}, search={}){
+    //console.log("browser query", search)
+    dispatch("saveSearchSetting", search)
+    return await dispatch("reloadData")
+  },
+  //----------------------------------------
+  async reloadData({state, commit, dispatch}) {
+    if(state.status.reloading || !state.meta){
+      return
+    }
+    //......................................
+    // Init content as null
+    commit("setStatus", {reloading:true})
+    //......................................
+    let cmds = [`o 'id:${state.meta.id}' @query -pager -mine -hidden`]
+    //
+    // Setup pager
+    //
+    if(state.pageSize > 0) {
+      let pgsz = state.pageSize
+      let pn = state.pageNumber || 1
+      let skip = Math.max(0, pgsz * (pn-1))
+      if(skip > 0) {
+        cmds.push(`-skip ${skip}`)
+      }
+      cmds.push(`-limit ${pgsz}`)
+    }
+    //
+    // Setup sort
+    //
+    if(state.sorter) {
+      cmds.push(`-sort '${JSON.stringify(state.sorter)}'`)
+    }
+    //
+    // Query 
+    //
+    let input;
+    if(state.search) {
+      let flt = Wn.Util.getMatchByFilter(state.filter, state.search)
+      // Empty filter, force update it again
+      if(_.isEmpty(flt)) {
+        commit("clearFilter")
+        dispatch("saveSearchSetting", {filter:state.filter})
+      }
+      input = JSON.stringify(flt)
+    }
+    cmds.push('@json -cqnl')
+    let data = await Wn.Sys.exec2(cmds.join(' '), {as:"json", input})
+    commit("setData", data)
+    //......................................
+    // Just update the meta   
+    commit("setStatus", {reloading:false})
+  },
+  //----------------------------------------
+  async reloadSettings({state,commit}) {
+    let config = {}
+    if(state.meta.search_settings) {
+      commit("setStatus", {reloading:true})
+      let oSettings = await Wn.Io.loadMeta(state.meta.search_settings);
+      if(oSettings) {
+        config = await Wn.Io.loadContent(oSettings, {as:"json"})
+      }
+      commit("setStatus", {reloading:false})
+    }
+    //
+    // Default value of configuration
+    //
+    _.defaults(config, {
+      search: {
+        "defaultKey": "nm",
+        "keyword": {
+          "=id": "^[\\d\\w]{26}$",
+          "~nm": "^[a-z0-9]{10}$",
+          "title": "^.+"
+        },
+        "match": {}
+      }
+    })
+    //
+    // Commit to state
+    //
+    commit("setKeepSearch", Ti.Util.fallback(
+      config.keepSearch, state.meta.keep_search, state.keepSearch, false))
+    commit("setSearch", Ti.Util.fallback(config.search, state.search, {}))
+    commit("setFilter", Ti.Util.fallback(config.filter, state.filter, {}))
+    commit("setSorter", Ti.Util.fallback(config.sorter, state.sorter, {nm:1}))
+    commit("setPageNumber", Ti.Util.fallback(config.pageNumber, state.pageNumber, 1))
+    commit("setPageSize", Ti.Util.fallback(config.pageSize, state.pageSize, 1000))
+  },
+  //----------------------------------------
+  async reload({state, commit, dispatch}, meta) {
+    if(state.status.reloading
+      || state.status.saving){
+      return
+    }
+    //......................................
+    // Use the default meta
+    if(_.isUndefined(meta)) {
+      meta = state.meta
+    }
+    //......................................
+    if(_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+    else if(meta && meta.id) {
+      meta = await Wn.Io.loadMetaById(meta.id)
+    }
+    //......................................
+    // Guard
+    if(!meta) {
+      commit("setMeta", null)
+      return
+    }
+    // Save current meta as config object
+    commit("setMeta", meta)
+    //console.log("m-obj-current.reload", meta.id)
+    //......................................
+    // Reload the config
+    await dispatch("reloadSettings")
+
+    // Reload from local
+    dispatch("recoverSearchSetting")
+
+    // Reload data
+    await dispatch("reloadData")
+    //......................................
+    // Just update the meta   
+    commit("setStatus", {reloading:false})
+  }
+  //----------------------------------------
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'leaflet-tiles-methods.mjs' -> null
@@ -42555,7 +43212,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     })
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-image", function() {
       //console.log("SetContent image")
       let els = editor.$('img[wn-obj-mime]')
       for(let i=0; i<els.length; i++) {
@@ -43116,7 +43774,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     })
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-youtube", function() {
       //console.log("SetContent youtube")
       let els = editor.$('.wn-media.as-youtube')
       for(let i=0; i<els.length; i++) {
@@ -45943,8 +46602,24 @@ const _M = {
       //..................................
       // Load the main view
       let viewInfo = await Wn.Sys.exec2(cmdText, {as:"json"})
+      let {modState, modSetup} = viewInfo;
       let $app = Ti.App(this)
-      let view = await $app.loadView(viewInfo)
+      let view = await $app.loadView(viewInfo, {
+        setupMod: (moConf)=>{
+          //console.log("setup:", moConf)
+          _.merge(moConf.state, modState)
+          if(modSetup) {
+            let setupFunc = Ti.Util.genInvoking(modSetup, {
+              dft: null,
+              partial:"right"
+            })
+            if(_.isFunction(setupFunc)) {
+              return setupFunc({moConf, meta, viewInfo})
+            }
+          }
+          return moConf
+        }
+      })
       //..................................
       if(Ti.IsInfo("app/wn.manager")) {
         console.log("TiView Loaded:", view)
@@ -45952,8 +46627,8 @@ const _M = {
       //..................................
       // register main module
       if(view && view.modType) {
-        //console.log("load main!!!")
         this.$store.registerModule("main", view.mod)
+
         await $app.dispatch("main/reload", meta)
       }
       //..................................
@@ -47461,6 +48136,104 @@ const _M = {
     Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
+// EXPORT 'm-obj-content.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/obj-content/m-obj-content.mjs'] = (function(){
+const _M = {
+  ////////////////////////////////////////////
+  mutations : {
+    //----------------------------------------
+    setMeta(state, meta) {
+      state.meta = meta
+    },
+    //----------------------------------------
+    setContent(state, content) {
+      let meta = state.meta;
+      //console.log("setContent", content)
+      // Guard
+      if(!meta || _.isUndefined(content)) {
+        state.content = null
+        state.data = null
+        state.__saved_content = null
+        state.status.changed = false
+        return
+      }
+      //......................................
+      // DIR
+      if("DIR" == meta.race) {
+        state.content = null
+        state.__saved_content = null
+        state.data = content
+      }
+      //......................................
+      // File
+      else if("FILE" == meta.race) {
+        //....................................
+        // String content
+        if(_.isString(content)) {
+          state.content = content
+          // JSON
+          if(Wn.Util.isMimeJson(meta.mime)) {
+            try{
+              state.data = JSON.parse(content)
+            } catch(E) {
+              state.data = null
+            }
+          }
+          // Pure Text
+          else if(Wn.Util.isMimeText(meta.mime)) {
+            state.data = null
+          }
+        }
+        //....................................
+        // null value
+        else if(Ti.Util.isNil(content)) {
+          state.content = ""
+          state.data = null
+        }
+        //....................................
+        // Take content as plain object or Array
+        else {
+          state.content = JSON.stringify(content, null, '  ')
+          // JSON
+          if(Wn.Util.isMimeJson(meta.mime)) {
+            state.data = content
+          }
+          // Pure Text
+          else if(Wn.Util.isMimeText(meta.mime)) {
+            state.data = null
+          }
+        }
+        //....................................
+      }
+    },
+    //----------------------------------------
+    setData(state, data) {
+      state.data = data
+    },
+    //----------------------------------------
+    setSavedContent(state, content) {
+      state.__saved_content = content
+    },
+    //----------------------------------------
+    setStatus(state, status) {
+      state.status = _.assign({}, state.status, status)
+    },
+    //----------------------------------------
+    syncStatusChanged(state){
+      if(Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
+        state.status.changed = false
+      } else {
+        state.status.changed = !_.isEqual(state.content, state.__saved_content)
+      }
+    }
+    //----------------------------------------
+  }
+  ////////////////////////////////////////////
 }
 return _M;;
 })()
@@ -56366,7 +57139,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     })
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-audio", function() {
       //console.log("SetContent audio")
       let els = editor.$('.wn-media.as-audio')
       for(let i=0; i<els.length; i++) {
@@ -59154,6 +59928,7 @@ Ti.Preload("ti/com/ti/input/num/ti-input-num.html", `<div
     <input 
       spellcheck="false" 
       :value="TheValue"
+      :placeholder="placeholder"
       @change="onChanged">
   </div>
   <!--
@@ -67675,6 +68450,90 @@ Ti.Preload("ti/mod/wn/obj-browser/_mod.json", {
   "mixins" : "./m-obj-browser.mjs"
 });
 //========================================
+// JOIN <m-obj-children-actions.mjs> ti/mod/wn/obj-children/m-obj-children-actions.mjs
+//========================================
+Ti.Preload("ti/mod/wn/obj-children/m-obj-children-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj-children/m-obj-children-actions.mjs']);
+//========================================
+// JOIN <m-obj-children.json> ti/mod/wn/obj-children/m-obj-children.json
+//========================================
+Ti.Preload("ti/mod/wn/obj-children/m-obj-children.json", {
+  "meta": null,
+  "keepSearch": false,
+  "data": {
+    "list": [],
+    "pager": {}
+  },
+  "search": {
+    "defaultKey": "nm",
+    "keyword": {
+      "=id": "^[\\d\\w]{26}$",
+      "~nm": "^[a-z0-9]{10}$",
+      "title": "^.+"
+    },
+    "majorKey": null,
+    "match": {}
+  },
+  "filter": {
+    "keyword": null,
+    "match": null,
+    "majorValue": null
+  },
+  "sorter": {
+    "nm": 1
+  },
+  "pageNumber": 1,
+  "pageSize": 1000,
+  "status": {
+    "reloading": false
+  }
+});
+//========================================
+// JOIN <m-obj-children.mjs> ti/mod/wn/obj-children/m-obj-children.mjs
+//========================================
+Ti.Preload("ti/mod/wn/obj-children/m-obj-children.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj-children/m-obj-children.mjs']);
+//========================================
+// JOIN <_mod.json> ti/mod/wn/obj-children/_mod.json
+//========================================
+Ti.Preload("ti/mod/wn/obj-children/_mod.json", {
+  "name" : "wn-obj-children",
+  "namespaced" : true,
+  "state" : "./m-obj-children.json",
+  "actions" : "./m-obj-children-actions.mjs",
+  "mixins" : "./m-obj-children.mjs"
+});
+//========================================
+// JOIN <m-obj-content-actions.mjs> ti/mod/wn/obj-content/m-obj-content-actions.mjs
+//========================================
+Ti.Preload("ti/mod/wn/obj-content/m-obj-content-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj-content/m-obj-content-actions.mjs']);
+//========================================
+// JOIN <m-obj-content.json> ti/mod/wn/obj-content/m-obj-content.json
+//========================================
+Ti.Preload("ti/mod/wn/obj-content/m-obj-content.json", {
+  "meta" : null,
+  "content" : null,
+  "data" : null,
+  "__saved_content" : null,
+  "status" : {
+    "changed"   : false,
+    "saving"    : false,
+    "reloading" : false
+  }
+});
+//========================================
+// JOIN <m-obj-content.mjs> ti/mod/wn/obj-content/m-obj-content.mjs
+//========================================
+Ti.Preload("ti/mod/wn/obj-content/m-obj-content.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj-content/m-obj-content.mjs']);
+//========================================
+// JOIN <_mod.json> ti/mod/wn/obj-content/_mod.json
+//========================================
+Ti.Preload("ti/mod/wn/obj-content/_mod.json", {
+  "name" : "wn-obj-content",
+  "namespaced" : true,
+  "state" : "./m-obj-content.json",
+  "actions" : "./m-obj-content-actions.mjs",
+  "mixins" : "./m-obj-content.mjs"
+});
+//========================================
 // JOIN <m-obj-current-actions.mjs> ti/mod/wn/obj-current/m-obj-current-actions.mjs
 //========================================
 Ti.Preload("ti/mod/wn/obj-current/m-obj-current-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj-current/m-obj-current-actions.mjs']);
@@ -67683,20 +68542,10 @@ Ti.Preload("ti/mod/wn/obj-current/m-obj-current-actions.mjs", TI_PACK_EXPORTS['t
 //========================================
 Ti.Preload("ti/mod/wn/obj-current/m-obj-current.json", {
   "meta" : null,
-  "content" : null,
-  "data" : null,
-  "__saved_content" : null,
-  "filter" : {},
-  "sorter" : {
-    "nm" : 1
-  },
-  "pageNumber" : 1,
-  "pageSize" : 1000,
   "status" : {
     "changed"   : false,
     "saving"    : false,
-    "reloading" : false,
-    "publishing" : false
+    "reloading" : false
   },
   "fieldStatus" : {}
 });
@@ -67944,6 +68793,46 @@ Ti.Preload("ti/mod/wn/thing/_mod.json", {
     "search" : "./mod/search",
     "current" : "./mod/current"
   }
+});
+//========================================
+// JOIN <m-obj-current-actions.mjs> ti/mod/wn/__del_obj-current/m-obj-current-actions.mjs
+//========================================
+Ti.Preload("ti/mod/wn/__del_obj-current/m-obj-current-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/__del_obj-current/m-obj-current-actions.mjs']);
+//========================================
+// JOIN <m-obj-current.json> ti/mod/wn/__del_obj-current/m-obj-current.json
+//========================================
+Ti.Preload("ti/mod/wn/__del_obj-current/m-obj-current.json", {
+  "meta" : null,
+  "content" : null,
+  "data" : null,
+  "__saved_content" : null,
+  "filter" : {},
+  "sorter" : {
+    "nm" : 1
+  },
+  "pageNumber" : 1,
+  "pageSize" : 1000,
+  "status" : {
+    "changed"   : false,
+    "saving"    : false,
+    "reloading" : false,
+    "publishing" : false
+  },
+  "fieldStatus" : {}
+});
+//========================================
+// JOIN <m-obj-current.mjs> ti/mod/wn/__del_obj-current/m-obj-current.mjs
+//========================================
+Ti.Preload("ti/mod/wn/__del_obj-current/m-obj-current.mjs", TI_PACK_EXPORTS['ti/mod/wn/__del_obj-current/m-obj-current.mjs']);
+//========================================
+// JOIN <_mod.json> ti/mod/wn/__del_obj-current/_mod.json
+//========================================
+Ti.Preload("ti/mod/wn/__del_obj-current/_mod.json", {
+  "name" : "wn-obj-current",
+  "namespaced" : true,
+  "state" : "./m-obj-current.json",
+  "actions" : "./m-obj-current-actions.mjs",
+  "mixins" : "./m-obj-current.mjs"
 });
 //========================================
 // JOIN <site-main.html> ti/lib/www/com/site-main.html

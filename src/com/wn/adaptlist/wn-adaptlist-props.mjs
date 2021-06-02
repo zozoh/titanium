@@ -60,7 +60,7 @@ export default {
   "routers" : {
     type : Object,
     default : ()=>({
-      "reload" : "dispatch:current/reload"
+      "reload" : "dispatch:main/reload"
     })
   },
   "listConf" : {

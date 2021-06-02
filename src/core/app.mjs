@@ -316,7 +316,9 @@ class OneTiApp {
   //    comType: "@com:xx.xx", 
   //    components: ["@com:xx/xx"]
   // }
-  async loadView(view) {
+  async loadView(view, {
+    setupMod = _.identity
+  }={}) {
     // [Optional] Load the module
     //.....................................
     let mod, comName;
@@ -331,7 +333,8 @@ class OneTiApp {
       if(!moConf.state) {
         moConf.state = {}
       }
-      
+      moConf = await setupMod(moConf) || moConf
+      //console.log("get mod conf", moConf)
       // Formed
       mod = TiVue.StoreConfig(moConf, true)
       // this.$store().registerModule(name, mo)

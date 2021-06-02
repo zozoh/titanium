@@ -6,6 +6,9 @@ const _M = {
       type : Number,
       default : 0
     },
+    "placeholder" : {
+      type : [Number, String]
+    },
     "maxValue" : {
       type : Number,
       default : undefined

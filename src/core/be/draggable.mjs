@@ -1,5 +1,5 @@
-function TiDraggable($el, setup, {context}) {
-  let vm = context
+function TiDraggable($el, setup={}) {
+  //let vm = context
   let {
     trigger,     // Which element will trigger the behavior
     viewport,    // The dragging viewport, default is $el
@@ -24,7 +24,7 @@ function TiDraggable($el, setup, {context}) {
     actived = _.identity,
     // Function(context)
     done =  _.identity,
-  } = setup.value
+  } = setup
   //-----------------------------------------------
   // Format actived radius
   let AR = {}
@@ -75,7 +75,7 @@ function TiDraggable($el, setup, {context}) {
   $el.addEventListener(EVENTS.POINTER_DOWN, function(evt){
     //console.log(EVENTS.POINTER_DOWN, evt, {activedRadius, activedDelay})
     // Find the trigger
-    let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, vm.$el)
+    let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, $el)
     if(!_.isElement($trigger)) {
       return
     }
@@ -86,6 +86,7 @@ function TiDraggable($el, setup, {context}) {
     let $handler  = findBy($trigger, handler, $el)
     let context = {}
     _.assign(context, {
+      $event: evt,
       $doc, $body, $viewport, $handler, $trigger
     })
     EVENTS.setClientXY(context, evt)

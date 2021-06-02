@@ -46,8 +46,24 @@ const _M = {
       //..................................
       // Load the main view
       let viewInfo = await Wn.Sys.exec2(cmdText, {as:"json"})
+      let {modState, modSetup} = viewInfo;
       let $app = Ti.App(this)
-      let view = await $app.loadView(viewInfo)
+      let view = await $app.loadView(viewInfo, {
+        setupMod: (moConf)=>{
+          //console.log("setup:", moConf)
+          _.merge(moConf.state, modState)
+          if(modSetup) {
+            let setupFunc = Ti.Util.genInvoking(modSetup, {
+              dft: null,
+              partial:"right"
+            })
+            if(_.isFunction(setupFunc)) {
+              return setupFunc({moConf, meta, viewInfo})
+            }
+          }
+          return moConf
+        }
+      })
       //..................................
       if(Ti.IsInfo("app/wn.manager")) {
         console.log("TiView Loaded:", view)
@@ -55,8 +71,8 @@ const _M = {
       //..................................
       // register main module
       if(view && view.modType) {
-        //console.log("load main!!!")
         this.$store.registerModule("main", view.mod)
+
         await $app.dispatch("main/reload", meta)
       }
       //..................................

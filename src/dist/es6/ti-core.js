@@ -1,4 +1,4 @@
-// Pack At: 2021-06-02 01:54:24
+// Pack At: 2021-06-03 04:40:49
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -532,7 +532,257 @@ const {Toast} = (function(){
 //##################################################
 // # import {Be}           from "./behaviors.mjs"
 const {Be} = (function(){
+  //################################################
+  // # import Draggable from "./be/draggable.mjs"
+  const Draggable = (function(){
+    function TiDraggable($el, setup, {context}) {
+      let vm = context
+      let {
+        trigger,     // Which element will trigger the behavior
+        viewport,    // The dragging viewport, default is $el
+        handler = null,  // Dragging handle default is trigger
+        // Speed Unit, move 1px per 1ms
+        // default 100, mean: move 1px in 1ms, it was 100
+        speed = 100,
+        // If the moved distance (offsetX or offsetY) over the value(in PX)
+        // it will active dragging
+        // If object form like {x:50, y:-1}
+        // just actived when x move distance over the indicated value 
+        activedRadius = 0,
+        // If the dragging duration (duInMs) over the value(in MS), 
+        // it will active dragging
+        activedDelay = 0,
+        // Callback to dealwith dragging
+        // Function(context)
+        dragging = _.identity,
+        // Function(context)
+        prepare = _.identity,
+        // Function(context)  call once first time context actived
+        actived = _.identity,
+        // Function(context)
+        done =  _.identity,
+      } = setup.value
+      //-----------------------------------------------
+      // Format actived radius
+      let AR = {}
+      if(_.isNumber(activedRadius)) {
+        AR.x = activedRadius;
+        AR.y = activedRadius;
+      } else {
+        _.assign(AR, {x:-1, y:-1}, _.pick(activedRadius, "x", "y"))
+      }
+      //console.log(AR)
+      //-----------------------------------------------
+      const findBy = function($trigger, find, $dft) {
+        if(_.isFunction(find)) {
+          return find($trigger) || $dft
+        }
+        if(_.isString(find)) {
+          return Ti.Dom.find(find, $el) || $dft
+        }
+        return $dft
+      }
+      //-----------------------------------------------
+      let EVENTS = {
+        setClientXY : function(ctx, evt) {
+          let pe = this.getPointerEvent(evt)
+          ctx.clientX = pe.clientX
+          ctx.clientY = pe.clientY
+        }
+      }
+      if(Ti.Dom.isTouchDevice()) {
+        _.assign(EVENTS, {
+          POINTER_DOWN : "touchstart",
+          POINTER_MOVE : "touchmove",
+          POINTER_UP   : "touchend",
+          //POINTER_CLICK  : "click",
+          getPointerEvent : evt => evt.touches[0]
+        })
+      } else {
+        _.assign(EVENTS, {
+          POINTER_DOWN : "mousedown",
+          POINTER_MOVE : "mousemove",
+          POINTER_UP   : "mouseup",
+          POINTER_CLICK: "click",
+          getPointerEvent : evt => evt
+        })
+      }
+      //console.log(EVENTS)
+      //-----------------------------------------------
+      $el.addEventListener(EVENTS.POINTER_DOWN, function(evt){
+        //console.log(EVENTS.POINTER_DOWN, evt, {activedRadius, activedDelay})
+        // Find the trigger
+        let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, vm.$el)
+        if(!_.isElement($trigger)) {
+          return
+        }
+        // Enter dragmode
+        let $doc = $el.ownerDocument;
+        let $body = $el.ownerDocument.body
+        let $viewport = findBy($trigger, viewport, $el)
+        let $handler  = findBy($trigger, handler, $el)
+        let context = {}
+        _.assign(context, {
+          $doc, $body, $viewport, $handler, $trigger
+        })
+        EVENTS.setClientXY(context, evt)
+        context.$src = evt.srcElement
+    
+        // Guard
+        if(!_.isElement($viewport) || !_.isElement($handler)) {
+          return
+        }
+    
+        // Count the view/handler
+        context.__already_call_actived = false
+        context.viewport = Ti.Rects.createBy($viewport)
+        context.handler = Ti.Rects.createBy($handler)
+        context.startInMs = Date.now()
+        //........................................
+        context.initScale = function() {
+          let {left, top} = this.viewport
+          this.nowInMs = Date.now()
+          this.duInMs = this.nowInMs - this.startInMs
+          let x = this.clientX - left
+          let y = this.clientY - top
+          // First time, to init 
+          this.startX = x
+          this.startY = y
+          this.x = x
+          this.y = y
+          this.offsetX = 0
+          this.offsetY = 0
+          this.movetX = 0
+          this.movetY = 0
+          this.scaleX = 0
+          this.scaleY = 0
+        }
+        //........................................
+        context.evalScale = function() {
+          let {width, height, left, top} = this.viewport
+          //console.log(this.viewport.tagName, {width, left, clientX:this.clientX})
+          this.nowInMs = Date.now()
+          this.duInMs = this.nowInMs - this.startInMs
+          let x = this.clientX - left
+          let y = this.clientY - top
+          
+          this.offsetX = x - this.startX
+          this.offsetY = y - this.startY
+          this.offsetDistance  = Math.sqrt(Math.pow(this.offsetX,2)+ Math.pow(this.offsetY,2))
+          this.moveX = x - this.x
+          this.moveY = y - this.y
+          this.moveDistance  = Math.sqrt(Math.pow(this.moveX,2)+ Math.pow(this.moveY,2))
+    
+          this.directionX = this.moveX < 0 ? "left" : "right"
+          this.directionY = this.moveY < 0 ? "up"   : "down"
+          this.speed = this.moveDistance * speed / this.duInMs
+          //console.log("move:", this.speed, this.moveDistance+'px', this.duInMs+'ms')
+          
+          this.x = this.clientX - left
+          this.y = this.clientY - top
+          this.scaleX = x / width
+          this.scaleY = y / height
+          // Eval actived status
+          if(!this.actived) {
+            let offX = Math.abs(this.offsetX)
+            let offY = Math.abs(this.offsetY)
+            if(this.duInMs > activedDelay) {
+              if(AR.x < 0 || offX > AR.x) {
+                if(AR.y < 0 || offY > AR.y) {
+                  this.actived = true
+                }
+              }
+            }
+          }
+        }
+        //........................................
+        context.evalLeftBySpeed = function(left=0) {
+          let {viewport, $trigger, offsetX, speed} = this
+          if(speed > 1) {
+            //console.log(left, speed * offsetX, {offsetX, speed})
+            left += speed * offsetX
+          }
+          let wScroller = $trigger.scrollWidth
+          let minLeft = viewport.width - wScroller
+          left = _.clamp(left, minLeft, 0);
+          return left
+        }
+        //........................................
+        context.evalTopBySpeed = function(top=0) {
+          let {viewport, $trigger, offsetY, speed} = this
+          if(speed > 1) {
+            top += speed * offsetY
+          }
+          let hScroller = $trigger.scrollHeight
+          let minTop = viewport.height - hScroller
+          top = _.clamp(top, minTop, 0);
+          return top
+        }
+        //........................................
+        // Prepare
+        context.initScale();
+        context = prepare(context) || context
+        //---------------------------------------------
+        function PreventClick(evt) {
+          //console.log("PreventClick", evt)
+          evt.preventDefault()
+          evt.stopPropagation()
+        }
+        //---------------------------------------------
+        function OnBodyMouseMove(evt) {
+          // Test if leave
+          let p = {x:context.clientX, y:context.clientY}
+          //console.log("OnBodyMouseMove", p)
+          if(!context.viewport.hasPoint(p)) {
+            RemoveDraggle(evt)
+            return
+          }
+    
+          EVENTS.setClientXY(context, evt)
+          context.evalScale()
+          if(context.actived) {
+            if(!context.__already_call_actived) {
+              actived(context)
+              context.__already_call_actived = true
+              // Then hold $src
+              if(EVENTS.POINTER_CLICK) {
+                context.$src.addEventListener(EVENTS.POINTER_CLICK, PreventClick, {
+                  capture: true, once: true
+                })
+              }
+            }
+            dragging(context)
+          }
+        }
+        //---------------------------------------------
+        function RemoveDraggle(evt) {
+          //console.log("RemoveDraggle", context.actived)
+          $doc.removeEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
+          $doc.removeEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
+    
+          context.clientX = evt.clientX
+          context.clientY = evt.clientY
+    
+          if(context.actived) {
+            if(EVENTS.POINTER_CLICK) {
+              context.$src.removeEventListener(EVENTS.POINTER_CLICK, PreventClick)
+            }
+            done(context)
+          }
+        }
+        //---------------------------------------------
+        // Watch dragging in doc
+        $doc.addEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
+        
+        // Quit 
+        $doc.addEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
+      })
+      //-----------------------------------------------
+    }
+    return TiDraggable;
+  })();
   const TiBehaviors = {
+    Draggable,
     /***
      * Open URL, it simulate user behavior by create 
      * undocumented `form` and call its `submit` method.
@@ -2135,7 +2385,6 @@ const {App} = (function(){
         let sc = Ti.Util.merge({
           modules : {}
         }, conf.mixins);
-    
         // Pick the necessary fields
         if(conf.state || !sc.state) {
           sc.state = Ti.Util.genObj(conf.state)
@@ -3187,7 +3436,9 @@ const {App} = (function(){
     //    comType: "@com:xx.xx", 
     //    components: ["@com:xx/xx"]
     // }
-    async loadView(view) {
+    async loadView(view, {
+      setupMod = _.identity
+    }={}) {
       // [Optional] Load the module
       //.....................................
       let mod, comName;
@@ -3202,7 +3453,8 @@ const {App} = (function(){
         if(!moConf.state) {
           moConf.state = {}
         }
-        
+        moConf = await setupMod(moConf) || moConf
+        //console.log("get mod conf", moConf)
         // Formed
         mod = TiVue.StoreConfig(moConf, true)
         // this.$store().registerModule(name, mo)
@@ -6806,31 +7058,47 @@ const {AutoMatch} = (function(){
     if(!m) {
       return function(){return false}
     }
-    let vals = JSON.parse('['+m[2]+']')
+    let str = _.trim(m[2])
+    let vals = str.split(/[,:;~]/g)
     let left = {
-      val  : _.first(vals),
+      val  : _.trim(_.first(vals)),
       open : '(' == m[1]
     }
     let right = {
-      val  : _.last(vals),
+      val  : vals.length > 1 ? _.trim(_.last(vals)) : NaN,
       open : ')' == m[3]
     }
+    if(_.isString(left.val) && left.val) {
+      left.val *= 1
+    } else {
+      left.val = NaN
+    }
+    if(_.isString(right.val) && right.val) {
+      right.val *= 1
+    } else {
+      right.val = NaN
+    }
+  
     return function(val) {
       let n = val * 1
       if(isNaN(n))
         return false
       
-      if(left.open && n <= left.val)
-        return false
-      
-      if(n < left.val)
-        return false
+      if(!isNaN(left.val)) {
+        if(left.open && n <= left.val)
+          return false
+        
+        if(n < left.val)
+          return false
+      }
   
-      if(right.open && n >= right.val)
-        return false
+      if(!isNaN(right.val)) {
+        if(right.open && n >= right.val)
+          return false
   
-      if(n > right.val)
-        return false
+        if(n > right.val)
+          return false
+      }
   
       return true
     }
@@ -10005,8 +10273,9 @@ const {Util} = (function(){
      */
     genInvoking(str, {
       context={},
+      dft=()=>str,
       funcSet = window,
-      partial = "left"  // "left" | "right" | "right?" | Falsy
+      partial = "left"  // "left" | "right" | "right?" | Falsy,
     }={}) {
       //.............................................
       if(_.isFunction(str)) {
@@ -10066,7 +10335,7 @@ const {Util} = (function(){
       }
   
       // Not invokeing, just return str self
-      return ()=>str
+      return dft
     },
     /***
      * @param matchBy{Function|String|Array}
@@ -13124,256 +13393,6 @@ const {VueEventBubble} = (function(){
 //##################################################
 // # import {VueTiCom} from "./vue/vue-ti-com.mjs"
 const {VueTiCom} = (function(){
-  //################################################
-  // # import TiDraggable from "./vue-ti-com-draggable.mjs"
-  const TiDraggable = (function(){
-    function TiDraggable($el, setup, {context}) {
-      let vm = context
-      let {
-        trigger,     // Which element will trigger the behavior
-        viewport,    // The dragging viewport, default is $el
-        handler = null,  // Dragging handle default is trigger
-        // Speed Unit, move 1px per 1ms
-        // default 100, mean: move 1px in 1ms, it was 100
-        speed = 100,
-        // If the moved distance (offsetX or offsetY) over the value(in PX)
-        // it will active dragging
-        // If object form like {x:50, y:-1}
-        // just actived when x move distance over the indicated value 
-        activedRadius = 0,
-        // If the dragging duration (duInMs) over the value(in MS), 
-        // it will active dragging
-        activedDelay = 0,
-        // Callback to dealwith dragging
-        // Function(context)
-        dragging = _.identity,
-        // Function(context)
-        prepare = _.identity,
-        // Function(context)  call once first time context actived
-        actived = _.identity,
-        // Function(context)
-        done =  _.identity,
-      } = setup.value
-      //-----------------------------------------------
-      // Format actived radius
-      let AR = {}
-      if(_.isNumber(activedRadius)) {
-        AR.x = activedRadius;
-        AR.y = activedRadius;
-      } else {
-        _.assign(AR, {x:-1, y:-1}, _.pick(activedRadius, "x", "y"))
-      }
-      //console.log(AR)
-      //-----------------------------------------------
-      const findBy = function($trigger, find, $dft) {
-        if(_.isFunction(find)) {
-          return find($trigger) || $dft
-        }
-        if(_.isString(find)) {
-          return Ti.Dom.find(find, $el) || $dft
-        }
-        return $dft
-      }
-      //-----------------------------------------------
-      let EVENTS = {
-        setClientXY : function(ctx, evt) {
-          let pe = this.getPointerEvent(evt)
-          ctx.clientX = pe.clientX
-          ctx.clientY = pe.clientY
-        }
-      }
-      if(Ti.Dom.isTouchDevice()) {
-        _.assign(EVENTS, {
-          POINTER_DOWN : "touchstart",
-          POINTER_MOVE : "touchmove",
-          POINTER_UP   : "touchend",
-          //POINTER_CLICK  : "click",
-          getPointerEvent : evt => evt.touches[0]
-        })
-      } else {
-        _.assign(EVENTS, {
-          POINTER_DOWN : "mousedown",
-          POINTER_MOVE : "mousemove",
-          POINTER_UP   : "mouseup",
-          POINTER_CLICK: "click",
-          getPointerEvent : evt => evt
-        })
-      }
-      //console.log(EVENTS)
-      //-----------------------------------------------
-      $el.addEventListener(EVENTS.POINTER_DOWN, function(evt){
-        //console.log(EVENTS.POINTER_DOWN, evt, {activedRadius, activedDelay})
-        // Find the trigger
-        let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, vm.$el)
-        if(!_.isElement($trigger)) {
-          return
-        }
-        // Enter dragmode
-        let $doc = $el.ownerDocument;
-        let $body = $el.ownerDocument.body
-        let $viewport = findBy($trigger, viewport, $el)
-        let $handler  = findBy($trigger, handler, $el)
-        let context = {}
-        _.assign(context, {
-          $doc, $body, $viewport, $handler, $trigger
-        })
-        EVENTS.setClientXY(context, evt)
-        context.$src = evt.srcElement
-    
-        // Guard
-        if(!_.isElement($viewport) || !_.isElement($handler)) {
-          return
-        }
-    
-        // Count the view/handler
-        context.__already_call_actived = false
-        context.viewport = Ti.Rects.createBy($viewport)
-        context.handler = Ti.Rects.createBy($handler)
-        context.startInMs = Date.now()
-        //........................................
-        context.initScale = function() {
-          let {left, top} = this.viewport
-          this.nowInMs = Date.now()
-          this.duInMs = this.nowInMs - this.startInMs
-          let x = this.clientX - left
-          let y = this.clientY - top
-          // First time, to init 
-          this.startX = x
-          this.startY = y
-          this.x = x
-          this.y = y
-          this.offsetX = 0
-          this.offsetY = 0
-          this.movetX = 0
-          this.movetY = 0
-          this.scaleX = 0
-          this.scaleY = 0
-        }
-        //........................................
-        context.evalScale = function() {
-          let {width, height, left, top} = this.viewport
-          //console.log(this.viewport.tagName, {width, left, clientX:this.clientX})
-          this.nowInMs = Date.now()
-          this.duInMs = this.nowInMs - this.startInMs
-          let x = this.clientX - left
-          let y = this.clientY - top
-          
-          this.offsetX = x - this.startX
-          this.offsetY = y - this.startY
-          this.offsetDistance  = Math.sqrt(Math.pow(this.offsetX,2)+ Math.pow(this.offsetY,2))
-          this.moveX = x - this.x
-          this.moveY = y - this.y
-          this.moveDistance  = Math.sqrt(Math.pow(this.moveX,2)+ Math.pow(this.moveY,2))
-    
-          this.directionX = this.moveX < 0 ? "left" : "right"
-          this.directionY = this.moveY < 0 ? "up"   : "down"
-          this.speed = this.moveDistance * speed / this.duInMs
-          //console.log("move:", this.speed, this.moveDistance+'px', this.duInMs+'ms')
-          
-          this.x = this.clientX - left
-          this.y = this.clientY - top
-          this.scaleX = x / width
-          this.scaleY = y / height
-          // Eval actived status
-          if(!this.actived) {
-            let offX = Math.abs(this.offsetX)
-            let offY = Math.abs(this.offsetY)
-            if(this.duInMs > activedDelay) {
-              if(AR.x < 0 || offX > AR.x) {
-                if(AR.y < 0 || offY > AR.y) {
-                  this.actived = true
-                }
-              }
-            }
-          }
-        }
-        //........................................
-        context.evalLeftBySpeed = function(left=0) {
-          let {viewport, $trigger, offsetX, speed} = this
-          if(speed > 1) {
-            //console.log(left, speed * offsetX, {offsetX, speed})
-            left += speed * offsetX
-          }
-          let wScroller = $trigger.scrollWidth
-          let minLeft = viewport.width - wScroller
-          left = _.clamp(left, minLeft, 0);
-          return left
-        }
-        //........................................
-        context.evalTopBySpeed = function(top=0) {
-          let {viewport, $trigger, offsetY, speed} = this
-          if(speed > 1) {
-            top += speed * offsetY
-          }
-          let hScroller = $trigger.scrollHeight
-          let minTop = viewport.height - hScroller
-          top = _.clamp(top, minTop, 0);
-          return top
-        }
-        //........................................
-        // Prepare
-        context.initScale();
-        context = prepare(context) || context
-        //---------------------------------------------
-        function PreventClick(evt) {
-          //console.log("PreventClick", evt)
-          evt.preventDefault()
-          evt.stopPropagation()
-        }
-        //---------------------------------------------
-        function OnBodyMouseMove(evt) {
-          // Test if leave
-          let p = {x:context.clientX, y:context.clientY}
-          //console.log("OnBodyMouseMove", p)
-          if(!context.viewport.hasPoint(p)) {
-            RemoveDraggle(evt)
-            return
-          }
-    
-          EVENTS.setClientXY(context, evt)
-          context.evalScale()
-          if(context.actived) {
-            if(!context.__already_call_actived) {
-              actived(context)
-              context.__already_call_actived = true
-              // Then hold $src
-              if(EVENTS.POINTER_CLICK) {
-                context.$src.addEventListener(EVENTS.POINTER_CLICK, PreventClick, {
-                  capture: true, once: true
-                })
-              }
-            }
-            dragging(context)
-          }
-        }
-        //---------------------------------------------
-        function RemoveDraggle(evt) {
-          //console.log("RemoveDraggle", context.actived)
-          $doc.removeEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
-          $doc.removeEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
-    
-          context.clientX = evt.clientX
-          context.clientY = evt.clientY
-    
-          if(context.actived) {
-            if(EVENTS.POINTER_CLICK) {
-              context.$src.removeEventListener(EVENTS.POINTER_CLICK, PreventClick)
-            }
-            done(context)
-          }
-        }
-        //---------------------------------------------
-        // Watch dragging in doc
-        $doc.addEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
-        
-        // Quit 
-        $doc.addEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
-      })
-      //-----------------------------------------------
-    }
-    return TiDraggable;
-  })();
-  
   /////////////////////////////////////////////////////
   const TiComMixin = {
     inheritAttrs : false,
@@ -13646,7 +13665,7 @@ const {VueTiCom} = (function(){
       //...............................................
       // Directive: v-ti-on-actived="this"
       Vue.directive("tiDraggable", {
-        bind : TiDraggable
+        bind : Ti.Be.Draggable
       })
       //...............................................
     }
@@ -14361,9 +14380,12 @@ const {PhotoGallery} = (function(){
   |-- DIV.photo-gallery-con
   |   |-- DIV.as-viewport
   |   |   |-- DIV.as-scroller
-  |   |   |   |-- A.as-tile
+  |   |   |   |-- DIV.as-tile
   |   |   |   |   |-- IMG
   |   |   |   |   |-- HEADER
+  |   |   |-- DIV.as-opener
+  |   |   |   |-- A.href = Current.Link
+  |   |   |   |   |-- I.zmdi-open-in-new
   |   |-- DIV.as-indicator
   |   |   |-- UL
   |   |   |   |-- LI
@@ -14376,7 +14398,7 @@ const {PhotoGallery} = (function(){
   |   |   |   |-- SPAN
   |   |   |   |   |-- I.zmdi-chevron-right
   |   |-- DIV.as-closer
-  |   |   |-- SPAN
+  |   |   |-- A
   |   |   |   |-- I.zmdi-close
   */
   ////////////////////////////////////////////////
@@ -14403,6 +14425,8 @@ const {PhotoGallery} = (function(){
       }, setup)
       // live element, if shown, it will be a Element
       this.$top = null
+      // Current zoom level
+      this.zoomScale = 1
     }
     //---------------------------------------
     getData() {
@@ -14470,22 +14494,24 @@ const {PhotoGallery} = (function(){
       //
       // Current Image
       //
-      let $img = Ti.Dom.find(`.as-tile[gallery-index="${I}"] img`, this.$scroller)
+      let $img = this.getImage(I)
       if($img) {
         let srcLarge = $img.getAttribute("src-large")
         if(srcLarge) {
           Ti.Dom.setAttrs($img, {src: srcLarge})
         }
+        let href = _.trim($img.parentElement.getAttribute("href")) || null
+        Ti.Dom.setAttrs(this.$opener, {href})
       }
   
       //
       // Current indicator
       //
-      let $li = Ti.Dom.find(`li.is-current`, this.$indicatorUl)
+      let $li = Ti.Dom.find(`a.is-current`, this.$indicatorUl)
       if($li) {
         Ti.Dom.removeClass($li, "is-current")
       }
-      $li = Ti.Dom.find(`li[gallery-index="${I}"]`, this.$indicatorUl)
+      $li = Ti.Dom.find(`a[href="#${I}"]`, this.$indicatorUl)
       if($li) {
         Ti.Dom.addClass($li, "is-current")
       }
@@ -14504,6 +14530,10 @@ const {PhotoGallery} = (function(){
       } else {
         Ti.Dom.removeClass(this.$top, "no-next")
       }
+    }
+    //---------------------------------------
+    getImage(index=this.currentIndex) {
+      return Ti.Dom.find(`.as-tile[gallery-index="${index}"] img`, this.$scroller)
     }
     //---------------------------------------
     resizePhotos($div=this.$scroller) {
@@ -14541,7 +14571,7 @@ const {PhotoGallery} = (function(){
           //
           let $an = Ti.Dom.createElement({
             $p: $div,
-            tagName: "a",
+            tagName: "div",
             className : "as-tile",
             style : tileStyle,
             attrs: {
@@ -14572,9 +14602,10 @@ const {PhotoGallery} = (function(){
           //
           let $li = Ti.Dom.createElement({
             $p: $ul,
-            tagName: "li",
+            tagName: "a",
             style: indicatorLiStyle,
             attrs : {
+              href: `#${index}`,
               galleryIndex: index
             }
           })
@@ -14631,6 +14662,15 @@ const {PhotoGallery} = (function(){
         className : "as-scroller",
         style : scrollerStyle
       })
+      this.$opener = Ti.Dom.createElement({
+        $p : this.$viewport,
+        tagName : "a",
+        className : "as-opener",
+        attrs: {
+          target: "_blank"
+        }
+      })
+      this.$opener.innerHTML = `<i class="zmdi zmdi-open-in-new"></i>`
       //......................................
       // Create indicator
       this.$indicator = Ti.Dom.createElement({
@@ -14673,7 +14713,7 @@ const {PhotoGallery} = (function(){
         tagName : "div",
         className : "as-closer"
       })
-      this.$closer.innerHTML = `<span><i class="zmdi zmdi-close"></i></span>`
+      this.$closer.innerHTML = `<a href="javascript:void(0)"><i class="zmdi zmdi-close"></i></a>`
       //......................................
       // Append to DOM
       Ti.Dom.appendTo(this.$top, this.$doc.body)
@@ -14719,13 +14759,30 @@ const {PhotoGallery} = (function(){
           Ti.Dom.removeClass(PG.$top, "is-resizing")
         }, 100)
       }
-      this.$doc.defaultView.addEventListener("resize", this.OnResize)
+      //......................................
+      this.OnWheel = function(evt) {
+        let {deltaMode, deltaX, deltaY, deltaZ} = evt
+        console.log("wheel", {
+          mode: deltaMode, x: deltaX, y: deltaY, z: deltaZ
+        })
+        evt.preventDefault()
+        evt.stopPropagation()
+      }
       //......................................
       // render wrapper
       _.delay(()=>{
         Ti.Dom.removeClass(this.$top, "no-ready")
         Ti.Dom.addClass(this.$top, "is-ready")
       })
+    }
+    //---------------------------------------
+    watchEvents() {
+      this.$doc.defaultView.addEventListener("resize", this.OnResize, true)
+      this.$top.onwheel = this.OnWheel
+    }
+    //---------------------------------------
+    unwatchEvents() {
+      this.$doc.defaultView.removeEventListener("resize", this.OnResize, true)
     }
     //---------------------------------------
     close() {
@@ -14736,7 +14793,8 @@ const {PhotoGallery} = (function(){
         }, {once: true})
         Ti.Dom.removeClass(this.$top, "is-ready");
         Ti.Dom.addClass(this.$top, "no-ready");
-        this.$doc.defaultView.removeEventListener("resize", this.OnResize)
+        
+        this.unwatchEvents()
       }
     }
     //---------------------------------------
@@ -14754,6 +14812,7 @@ const {PhotoGallery} = (function(){
           evt.preventDefault()
           evt.stopPropagation()
           PG.redraw()
+          PG.watchEvents()
           // Find photo index
           let $img = evt.srcElement
           PG.currentIndex = Math.max(0, PG.findPhotoIndex($img))
@@ -15332,7 +15391,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210602.015424",
+  "version" : "1.6-20210603.044049",
   "dev" : false,
   "appName" : null,
   "session" : {},

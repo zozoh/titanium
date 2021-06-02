@@ -11,7 +11,7 @@
         "text" : "i18n:saving"
       },
       "enabled" : "changed",
-      "action" : "dispatch:current/save",
+      "action" : "dispatch:main/save",
       "shortcut" : "CTRL+S"
     }, {
       "name"  : "reloading",
@@ -22,14 +22,14 @@
         "icon" : "zmdi-refresh zmdi-hc-spin",
         "text" : "i18n:loading"
       },
-      "action" : "dispatch:current/reload",
+      "action" : "dispatch:main/reload",
       "shortcut" : "CTRL+SHIFT+R"
     }, {
       "name"  : "viewsource",
       "type" : "action",
       "icon" : "far-file-alt",
       "text" : "i18n:view-resource",
-      "action" : "dispatch:current/openContentEditor",
+      "action" : "dispatch:main/openContentEditor",
       "shortcut" : "ALT+CTRL+V"
     },{
       "type" : "action",

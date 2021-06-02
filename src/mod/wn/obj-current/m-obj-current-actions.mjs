@@ -1,41 +1,13 @@
 ////////////////////////////////////////////
-function getKeepSearchAs(meta) {
-  if(meta && meta.keep_search_as) {
-    let keepAs = meta.keep_search_as
-    if(_.isBoolean(keepAs)) {
-      keepAs = `search-${meta.id}`
-    }
-    return keepAs
-  }
-}
-////////////////////////////////////////////
 const _M = {
   //----------------------------------------
   // Combin Mutations
-  //----------------------------------------
-  onChanged({dispatch}, payload) {
-    dispatch("changeContent", payload)
-  },
-  //----------------------------------------
-  changeContent({commit}, payload) {
-    commit("setContent", payload)
-    commit("syncStatusChanged");
-  },
   //----------------------------------------
   changeMeta({commit}, {name, value}={}) {
     if(name) {
       let meta = _.set({}, name, value)
       commit("mergeMeta", meta)
-      commit("syncStatusChanged")
     }
-  },
-  //----------------------------------------
-  updateContent({state, commit}, content) {
-    commit("setContent", content)
-    if(state.meta && "FILE" == state.meta.race) {
-      commit("setSavedContent", content)
-    }
-    commit("syncStatusChanged")
   },
   //--------------------------------------------
   // User Interactivity
@@ -57,25 +29,6 @@ const _M = {
     if(reo.saved) {
       await dispatch("reload", reo.data)
     }
-  },
-  //--------------------------------------------
-  async openContentEditor({state, dispatch}) {
-    // Guard
-    if(!state.meta) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-    // Open Editor
-    let newContent = await Wn.EditObjContent(state.meta, {
-      content : state.content
-    })
-
-    // Cancel the editing
-    if(_.isUndefined(newContent)) {
-      return
-    }
-
-    // Update the current editing
-    await dispatch("changeContent", newContent)
   },
   //--------------------------------------------
   async openPrivilegeEditor({state, dispatch}) {
@@ -142,114 +95,15 @@ const _M = {
     })
   },
   //--------------------------------------------
-  // Reload & Save
+  // Reload
   //--------------------------------------------
-  // async setCurrent({state, commit,dispatch}, {
-  //   meta=null, force=false
-  // }={}) {
-  //   //console.log("setCurrent", meta, loadContent)
-
-  //   // Not need to reload
-  //   if(state.meta && meta && state.meta.id == meta.id) {
-  //     if((_.isString(state.content)) && !force) {
-  //       return
-  //     }
-  //   }
-
-  //   // do reload
-  //   await dispatch("reload", meta)
-
-  // },
-  //----------------------------------------
-  async save({state, commit}) {
-    if(state.status.saving || !state.status.changed){
-      return
-    }
-
-    commit("setStatus", {saving:true})
-
-    let meta = state.meta
-    let content = state.content
-    let newMeta = await Wn.Io.saveContentAsText(meta, content)
-
-    commit("setStatus", {saving:false})
-    commit("setMeta", newMeta)
-    commit("setSavedContent", content)
-    commit("syncStatusChanged")
-
-    // return the new meta
-    return newMeta
-  },
-  //----------------------------------------
-  saveSearchSetting({state, commit}, {filter, sorter, pager}={}) {
-    if(filter) {
-      commit("setFilter", filter)
-    }
-    if(sorter) {
-      commit("setSorter", sorter)
-    }
-    if(pager) {
-      commit("setPager", pager)
-    }
-
-    let keepAs = getKeepSearchAs(state.meta)
-    if(keepAs) {
-      Ti.Storage.session.setObject(keepAs, {
-        filter : state.filter,
-        sorter : state.sorter,
-        pager  : {
-          pageNumber : state.pageNumber,
-          pageSize   : state.pageSize
-        }
-      })
-    }
-  },
-  //----------------------------------------
-  recoverSearchSetting({commit}, meta) {
-    let keepAs = getKeepSearchAs(meta)
-    if(keepAs) {
-      let {
-        filter, sorter, pager
-      } = Ti.Storage.session.getObject(keepAs, {})
-
-      pager = _.assign({}, {
-        pageNumber : 1,
-        pageSize   : meta.dft_page_size || 1000
-      }, pager)
-      if(filter) {
-        commit("setFilter", filter)
-      }
-      if(sorter) {
-        commit("setSorter", sorter)
-      }
-      if(pager) {
-        commit("setPager", pager)
-      }
-    }
-  },
-  //----------------------------------------
-  async query({dispatch}, search={}){
-    //console.log("query", search)
-    dispatch("saveSearchSetting", search)
-    return await dispatch("reload")
-  },
-  //----------------------------------------
-  async reload({dispatch}, meta) {
-    return dispatch("reloadAll", {meta})
-  },
-  //----------------------------------------
-  async reloadAll({state, commit, dispatch}, {
-    meta, reloadChildren=true
-  }={}) {
-    if(state.status.reloading
-      || state.status.saving){
-      return
-    }
+  async reload({state,commit}, meta) {
     //......................................
     // Use the default meta
     if(_.isUndefined(meta)) {
       meta = state.meta
     }
+    commit("setStatus", {reloading:true})
     //......................................
     if(_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
@@ -258,73 +112,10 @@ const _M = {
       meta = await Wn.Io.loadMetaById(meta.id)
     }
     //......................................
-    // Guard
-    if(!meta) {
-      commit("setMeta", null)
-      commit("setContent", null)
-      return
-    }
-    //console.log("m-obj-current.reload", meta.id)
-    //......................................
-    // Default filter
-    if(meta.filter) {
-      commit("setFilter", meta.filter)
-    }
-    //......................................
-    // Default sorter
-    if(meta.sorter) {
-      commit("setSorter", meta.sorter)
-    }
-    //......................................
-    // Restore the search setting
-    dispatch("recoverSearchSetting", meta)
-
-    // Init content as null
-    let content = null
-    commit("setStatus", {reloading:true})
-    //......................................
-    // For file
-    if("FILE" == meta.race) {
-      // need to be reload content
-      content = await Wn.Io.loadContent(meta)
-    }
-    //......................................
-    // For dir
-    else if('DIR' == meta.race && reloadChildren) {
-      let cmds = [`o @query -p id:${meta.id}`]
-      cmds.push('-pager -mine -hidden')
-      if(state.pageSize > 0) {
-        let pgsz = state.pageSize
-        let pn = state.pageNumber || 1
-        let skip = Math.max(0, pgsz * (pn-1))
-        if(skip > 0) {
-          cmds.push(`-skip ${skip}`)
-        }
-        cmds.push(`-limit ${pgsz}`)
-      }
-      if(state.sorter) {
-        cmds.push(`-sort '${JSON.stringify(state.sorter)}'`)
-      }
-      let input;
-      if(state.filter) {
-        let flt = Wn.Util.getMatchByFilter(state.filter, meta.search_setting)
-        // Empty filter, force update it again
-        if(_.isEmpty(flt)) {
-          commit("clearFilter")
-          dispatch("saveSearchSetting", {filter:state.filter})
-        }
-        input = JSON.stringify(flt)
-      }
-      cmds.push('@json -cqnl')
-      content = await Wn.Sys.exec2(cmds.join(' '), {as:"json", input})
-    }
-    //......................................
     // Just update the meta
     commit("setMeta", meta)
     commit("setStatus", {reloading:false})
     commit("clearFieldStatus")
-    // Update content and sync state
-    dispatch("updateContent", content)
   }
   //----------------------------------------
 }

@@ -60,15 +60,14 @@ const _M = {
   },
   //----------------------------------------
   async reloadData({state, commit, dispatch}) {
-    if(state.status.reloading
-      || !state.path){
+    if(state.status.reloading || !state.meta){
       return
     }
     //......................................
     // Init content as null
     commit("setStatus", {reloading:true})
     //......................................
-    let cmds = [`o '${state.path}' @query -pager -mine -hidden`]
+    let cmds = [`o 'id:${state.meta.id}' @query -pager -mine -hidden`]
     //
     // Setup pager
     //
@@ -109,9 +108,15 @@ const _M = {
   },
   //----------------------------------------
   async reloadSettings({state,commit}) {
-    commit("setStatus", {reloading:true})
-    let config = await Wn.Io.loadContent(state.meta, {as:"json"})
-    commit("setStatus", {reloading:false})
+    let config = {}
+    if(state.meta.search_settings) {
+      commit("setStatus", {reloading:true})
+      let oSettings = await Wn.Io.loadMeta(state.meta.search_settings);
+      if(oSettings) {
+        config = await Wn.Io.loadContent(oSettings, {as:"json"})
+      }
+      commit("setStatus", {reloading:false})
+    }
     //
     // Default value of configuration
     //
@@ -130,7 +135,7 @@ const _M = {
     // Commit to state
     //
     commit("setKeepSearch", Ti.Util.fallback(
-      config.keepSearch, state.keepSearch, true))
+      config.keepSearch, state.meta.keep_search, state.keepSearch, false))
     commit("setSearch", Ti.Util.fallback(config.search, state.search, {}))
     commit("setFilter", Ti.Util.fallback(config.filter, state.filter, {}))
     commit("setSorter", Ti.Util.fallback(config.sorter, state.sorter, {nm:1}))

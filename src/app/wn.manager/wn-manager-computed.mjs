@@ -72,8 +72,8 @@ const _M = {
         ancestors : this.ancestors,
         parent    : this.parent,
         meta      : this.meta,
-        content   : this.content,
-        data      : this.data,
+        content   : this.MainContent,
+        data      : this.MainData,
         status    : this.status,
         exposeHidden : this.exposeHidden,
         viewType : this.listViewType

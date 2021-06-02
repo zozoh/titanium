@@ -1,0 +1,7 @@
+{
+  "name" : "wn-obj-children",
+  "namespaced" : true,
+  "state" : "./m-obj-children.json",
+  "actions" : "./m-obj-children-actions.mjs",
+  "mixins" : "./m-obj-children.mjs"
+}

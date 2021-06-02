@@ -1,0 +1,31 @@
+{
+  "meta": null,
+  "keepSearch": false,
+  "data": {
+    "list": [],
+    "pager": {}
+  },
+  "search": {
+    "defaultKey": "nm",
+    "keyword": {
+      "=id": "^[\\d\\w]{26}$",
+      "~nm": "^[a-z0-9]{10}$",
+      "title": "^.+"
+    },
+    "majorKey": null,
+    "match": {}
+  },
+  "filter": {
+    "keyword": null,
+    "match": null,
+    "majorValue": null
+  },
+  "sorter": {
+    "nm": 1
+  },
+  "pageNumber": 1,
+  "pageSize": 1000,
+  "status": {
+    "reloading": false
+  }
+}

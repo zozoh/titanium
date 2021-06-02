@@ -1,4 +1,6 @@
+import Draggable from "./be/draggable.mjs"
 const TiBehaviors = {
+  Draggable,
   /***
    * Open URL, it simulate user behavior by create 
    * undocumented `form` and call its `submit` method.

@@ -314,7 +314,8 @@ export default {
     editor.addCommand(CMD_RELOAD,      CmdReloadAlbum)
     editor.addCommand(CMD_PROP,        CmdShowAlbumProp)
     //..............................................
-    editor.on("SetContent", function() {
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-fb-album", function() {
       //console.log("SetContent facebook")
       let els = editor.$('.wn-media.as-fb-album')
       for(let i=0; i<els.length; i++) {

@@ -271,8 +271,17 @@ export default {
     editor.addCommand(CMD_RELOAD,   CmdReloadAlbum)
     editor.addCommand(CMD_PROP, CmdShowAlbumProp)
     //..............................................
-    editor.on("SetContent", function() {
-      //console.log("SetContent album")
+    // editor.on("SetContent", function() {
+    //   console.log("SetContent album")
+    //   let els = editor.$('.wn-media.as-album')
+    //   for(let i=0; i<els.length; i++) {
+    //     let el = els[i]
+    //     UpdateAlbumTagInnerHtml(editor, el, settings)
+    //   }
+    // })
+    let $vm = editor.__rich_tinymce_com
+    $vm.registerContentCallback("wn-album", function() {
+      console.log("SetContent album", editor.isDirty())
       let els = editor.$('.wn-media.as-album')
       for(let i=0; i<els.length; i++) {
         let el = els[i]
