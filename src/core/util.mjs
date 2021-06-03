@@ -357,7 +357,7 @@ const TiUtil = {
                 return context
               }
               let re = Ti.Util.getOrPick(context, val)
-              if(Ti.Util.isNil(re) && !_.isUndefined(dft)){
+              if(Ti.Util.isBlank(re) && !_.isUndefined(dft)){
                 return dft
               }
               return re
