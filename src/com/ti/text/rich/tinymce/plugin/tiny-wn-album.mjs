@@ -281,7 +281,7 @@ export default {
     // })
     let $vm = editor.__rich_tinymce_com
     $vm.registerContentCallback("wn-album", function() {
-      console.log("SetContent album", editor.isDirty())
+      //console.log("SetContent album", editor.isDirty())
       let els = editor.$('.wn-media.as-album')
       for(let i=0; i<els.length; i++) {
         let el = els[i]

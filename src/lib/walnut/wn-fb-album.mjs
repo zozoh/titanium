@@ -1,8 +1,10 @@
 ////////////////////////////////////////////
 const WnFbAlbum = {
   //----------------------------------------
-  getAlbumPhotoCacheInfo({albumId,
-    domain}) {
+  getAlbumPhotoCacheInfo({
+    albumId,
+    domain
+  }) {
     let fnm = `album.${albumId}.photos.json`
     let fph = `~/.domain/facebook/${domain}/${fnm}`
     return {
@@ -20,7 +22,6 @@ const WnFbAlbum = {
       albumId,
       domain
     })
-    let fnm = re.fileName
     let fph = re.filePath
     re.oCache = await Wn.Io.loadMeta(fph)
     if(re.oCache) {
@@ -75,15 +76,29 @@ const WnFbAlbum = {
     }
 
     // Save to cache
-    if(!_.isEmpty(photos) && domain) {
-      //console.log("save to cache", fph)
-      let input = JSON.stringify(photos)
-      let cmdText = `str > ${fph}`
-      await Wn.Sys.exec2(cmdText, {input})
-    }
+    await WnFbAlbum.savePhotoListToCache(photos, {
+      albumId, domain
+    })
 
     // Done 
     return photos
+  },
+  //----------------------------------------
+  async savePhotoListToCache(photos, {
+    albumId,
+    domain
+  }) {
+    let {filePath} = WnFbAlbum.getAlbumPhotoCacheInfo({
+      albumId,
+      domain
+    })
+    if(!_.isEmpty(photos) && domain && filePath) {
+      console.log("save to cache", filePath)
+      let input = JSON.stringify(photos)
+      let cmdText = `str > ${filePath}`
+      await Wn.Sys.exec2(cmdText, {input})
+      await Ti.Toast.Open(`${photos.length} photos cached`, "success");
+    }
   }
   //----------------------------------------
 }

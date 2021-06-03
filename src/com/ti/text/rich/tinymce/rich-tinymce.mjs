@@ -517,10 +517,10 @@ const _M = {
       if(!this.$editor) {
         return
       }
-      console.log("value", {newVal, oldVal})
+      //console.log("value", {newVal, oldVal})
       if(!this.myHtmlCode ||
         (!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.myHtmlCode))) {
-          console.log("dirty it")
+          //console.log("dirty it")
           this.myContentDirty = true
           this.myHtmlCode = newVal
           this.$editor.setContent(newVal||"")
@@ -530,12 +530,12 @@ const _M = {
   ///////////////////////////////////////////////////
   created : function() {
     this.OnEditorSetContent = ()=>{
-      console.log("OnEditorSetContent", this.myContentDirty)
+      //console.log("OnEditorSetContent", this.myContentDirty)
       if(this.myContentDirty) {
         this.tellPluginsContentChange()
         this.myContentDirty = false
       } else {
-        console.log("???")
+        //console.log("???")
       }
     }
   },

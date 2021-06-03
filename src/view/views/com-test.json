@@ -1,5 +1,6 @@
 {
   "comIcon" : "im-flask",
+  "modType" : "@mod:wn/obj-content",
   "comType" : "@Test:com-test-case",
   "actions" : [{
       "name"  : "saving",

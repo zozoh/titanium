@@ -1,8 +1,9 @@
 {
   "comIcon" : "zmdi-chart",
+  "modType" : "@mod:wn/obj-content",
   "comType" : "@com:wn/chart/combo",
   "comConf" : {
-    "..." : "=data"
+    "..." : "=Main.data"
   },
   "actions" : [{
       "type" : "group",

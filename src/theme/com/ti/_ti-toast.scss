@@ -46,6 +46,7 @@
   //---------------------------------
   &.as-bar > .toast-con {
     @include flex-align-nowrap;
+    border:1px solid map-get($color-sky, r);
     min-width: SZ(450); max-width:SZ(800);
     padding:SZ(10) SZ(6);
     > .toast-icon {

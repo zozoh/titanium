@@ -1,4 +1,4 @@
-// Pack At: 2021-06-03 04:40:49
+// Pack At: 2021-06-04 01:51:52
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -535,8 +535,8 @@ const {Be} = (function(){
   //################################################
   // # import Draggable from "./be/draggable.mjs"
   const Draggable = (function(){
-    function TiDraggable($el, setup, {context}) {
-      let vm = context
+    function TiDraggable($el, setup={}) {
+      //let vm = context
       let {
         trigger,     // Which element will trigger the behavior
         viewport,    // The dragging viewport, default is $el
@@ -561,7 +561,7 @@ const {Be} = (function(){
         actived = _.identity,
         // Function(context)
         done =  _.identity,
-      } = setup.value
+      } = setup
       //-----------------------------------------------
       // Format actived radius
       let AR = {}
@@ -612,7 +612,7 @@ const {Be} = (function(){
       $el.addEventListener(EVENTS.POINTER_DOWN, function(evt){
         //console.log(EVENTS.POINTER_DOWN, evt, {activedRadius, activedDelay})
         // Find the trigger
-        let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, vm.$el)
+        let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, $el)
         if(!_.isElement($trigger)) {
           return
         }
@@ -623,6 +623,7 @@ const {Be} = (function(){
         let $handler  = findBy($trigger, handler, $el)
         let context = {}
         _.assign(context, {
+          $event: evt,
           $doc, $body, $viewport, $handler, $trigger
         })
         EVENTS.setClientXY(context, evt)
@@ -13665,7 +13666,9 @@ const {VueTiCom} = (function(){
       //...............................................
       // Directive: v-ti-on-actived="this"
       Vue.directive("tiDraggable", {
-        bind : Ti.Be.Draggable
+        bind : function($el, {value}, {context}) {
+          Ti.Be.Draggable($el, value)
+        }
       })
       //...............................................
     }
@@ -14386,6 +14389,11 @@ const {PhotoGallery} = (function(){
   |   |   |-- DIV.as-opener
   |   |   |   |-- A.href = Current.Link
   |   |   |   |   |-- I.zmdi-open-in-new
+  |   |   |-- DIV.as-toolbar
+  |   |   |   |-- A.as-zoom-in
+  |   |   |   |   |-- I.zmdi-zoom-in
+  |   |   |   |-- A.as-zoom-out
+  |   |   |   |   |-- I.zmdi-zoom-out
   |   |-- DIV.as-indicator
   |   |   |-- UL
   |   |   |   |-- LI
@@ -14421,12 +14429,15 @@ const {PhotoGallery} = (function(){
         indicatorLiImgStyle : {},
         thumbKey : "src",
         largeKey : "src-large",
-        titleKey : "title"
+        titleKey : "title",
+        zoomStep : -0.1
       }, setup)
       // live element, if shown, it will be a Element
       this.$top = null
       // Current zoom level
       this.zoomScale = 1
+      this.translateX = 0
+      this.translateY = 0
     }
     //---------------------------------------
     getData() {
@@ -14482,6 +14493,10 @@ const {PhotoGallery} = (function(){
     //---------------------------------------
     scrollTo(index=this.currentIndex) {
       this.resizePhotos(this.$scroller)
+      this.zoomScale = 1
+      this.translateX = 0
+      this.translateY = 0
+      this.applyImageTransform()
       //
       // Scroller left
       //
@@ -14503,6 +14518,7 @@ const {PhotoGallery} = (function(){
         let href = _.trim($img.parentElement.getAttribute("href")) || null
         Ti.Dom.setAttrs(this.$opener, {href})
       }
+      this.$currentImg = $img
   
       //
       // Current indicator
@@ -14526,14 +14542,36 @@ const {PhotoGallery} = (function(){
         Ti.Dom.removeClass(this.$top, "no-prev")
       }
       if(this.currentIndex >= (this.data.length-1)) {
-        Ti.Dom.addClass(this.$top, "no-next")
+        Ti.Dom.addClass(this.$scroller, "no-next")
       } else {
-        Ti.Dom.removeClass(this.$top, "no-next")
+        Ti.Dom.removeClass(this.$scroller, "no-next")
       }
     }
     //---------------------------------------
     getImage(index=this.currentIndex) {
       return Ti.Dom.find(`.as-tile[gallery-index="${index}"] img`, this.$scroller)
+    }
+    //---------------------------------------
+    applyImageTransform() {
+      let css = {
+        transform: this.zoomScale!=1 ? `scale(${this.zoomScale})` : "",
+        left : this.translateX ? `${this.translateX}px` : "",
+        top  : this.translateY ? `${this.translateY}px` : "",
+      }
+      Ti.Dom.updateStyle(this.$currentImg, css)
+    }
+    //---------------------------------------
+    changeZoomScale(delta) {
+      // Zoom in
+      if(delta > 0) {
+        this.zoomScale += (this.zoomScale * this.setup.zoomStep)
+      }
+      // Zoom out
+      else if(delta<0) {
+        this.zoomScale -= (this.zoomScale * this.setup.zoomStep)
+        this.zoomScale = Math.max(0, this.zoomScale)
+      }
+      this.applyImageTransform()
     }
     //---------------------------------------
     resizePhotos($div=this.$scroller) {
@@ -14656,12 +14694,14 @@ const {PhotoGallery} = (function(){
         className : "as-viewport",
         style : viewportStyle
       })
+      //......................................
       this.$scroller = Ti.Dom.createElement({
         $p : this.$viewport,
         tagName : "div",
         className : "as-scroller",
         style : scrollerStyle
       })
+      //......................................
       this.$opener = Ti.Dom.createElement({
         $p : this.$viewport,
         tagName : "a",
@@ -14671,6 +14711,32 @@ const {PhotoGallery} = (function(){
         }
       })
       this.$opener.innerHTML = `<i class="zmdi zmdi-open-in-new"></i>`
+      //......................................
+      this.$toolbar = Ti.Dom.createElement({
+        $p : this.$viewport,
+        tagName : "div",
+        className : "as-toolbar"
+      })
+      //......................................
+      this.$zoomIn = Ti.Dom.createElement({
+        $p : this.$toolbar,
+        tagName : "a",
+        className : "as-zoom-in",
+        attrs: {
+          href: "javascript:void(0)"
+        }
+      })
+      this.$zoomIn.innerHTML = `<i class="fas fa-search-plus"></i>`
+      //......................................
+      this.$zoomOut = Ti.Dom.createElement({
+        $p : this.$toolbar,
+        tagName : "a",
+        className : "as-zoom-out",
+        attrs: {
+          href: "javascript:void(0)"
+        }
+      })
+      this.$zoomOut.innerHTML = `<i class="fas fa-search-minus"></i>`
       //......................................
       // Create indicator
       this.$indicator = Ti.Dom.createElement({
@@ -14751,6 +14817,7 @@ const {PhotoGallery} = (function(){
       // Resize
       //
       let PG = this
+      //......................................
       this.OnResize = function() {
         Ti.Dom.addClass(PG.$top, "is-resizing")
         PG.resizePhotos()
@@ -14761,12 +14828,11 @@ const {PhotoGallery} = (function(){
       }
       //......................................
       this.OnWheel = function(evt) {
-        let {deltaMode, deltaX, deltaY, deltaZ} = evt
-        console.log("wheel", {
-          mode: deltaMode, x: deltaX, y: deltaY, z: deltaZ
-        })
+        //let {deltaMode, deltaX, deltaY, deltaZ} = evt
+        //console.log("wheel", {mode:deltaMode,x:deltaX,y:deltaY,z:deltaZ})
         evt.preventDefault()
         evt.stopPropagation()
+        this.changeZoomScale(evt.deltaY)
       }
       //......................................
       // render wrapper
@@ -14778,7 +14844,42 @@ const {PhotoGallery} = (function(){
     //---------------------------------------
     watchEvents() {
       this.$doc.defaultView.addEventListener("resize", this.OnResize, true)
-      this.$top.onwheel = this.OnWheel
+      this.$top.onwheel = (evt)=>{this.OnWheel(evt)}
+      this.$top.ondblclick = (evt)=>{
+        if(Ti.Dom.closest(evt.srcElement, ".as-toolbar")) {
+          return
+        }
+        this.zoomScale = 1
+        this.translateX = 0
+        this.translateY = 0
+        this.applyImageTransform()
+      }
+      this.$zoomIn.onclick = (evt)=>{
+        evt.stopPropagation()
+        this.changeZoomScale(-1)
+      }
+      this.$zoomOut.onclick = (evt)=>{
+        evt.stopPropagation()
+        this.changeZoomScale(1)
+      }
+      Ti.Be.Draggable(this.$top, {
+        prepare: (drg)=>{
+          drg.$event.preventDefault()
+          drg._x = this.translateX
+          drg._y = this.translateY
+        },
+        actived: ()=>{
+          Ti.Dom.addClass(this.$scroller, "is-moving")
+        },
+        dragging: ({_x,_y,offsetX, offsetY})=>{
+          this.translateX = _x + offsetX
+          this.translateY = _y + offsetY
+          this.applyImageTransform()
+        },
+        done: ()=>{
+          Ti.Dom.removeClass(this.$scroller, "is-moving")
+        }
+      })
     }
     //---------------------------------------
     unwatchEvents() {
@@ -15296,6 +15397,12 @@ const Facebook = (function(){
   ////////////////////////////////////////////
   const TiApiFacebook = {
     //----------------------------------------
+    setObjListPreview(objs, options) {
+      _.forEach(objs, obj=>{
+        TiApiFacebook.setObjPreview(obj, obj.images, options)
+      })
+    },
+    //----------------------------------------
     setObjPreview(obj, images, options) {
       setImages(obj, images, options)
       return obj
@@ -15314,14 +15421,15 @@ const Facebook = (function(){
         params : {access_token, fields, after},
         as : "json"
       })
-      let {data, paging} = reo
+      return reo
+      // let {data, paging} = reo
   
-      // Setup thumb src
-      for(let photo of data) {
-        TiApiFacebook.setObjPreview(photo, photo.images)
-      }
+      // // Setup thumb src
+      // for(let photo of data) {
+      //   TiApiFacebook.setObjPreview(photo, photo.images)
+      // }
   
-      return {data, paging}
+      // return {data, paging}
     },
     //----------------------------------------
     async getPhoto({
@@ -15391,7 +15499,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210603.044049",
+  "version" : "1.6-20210604.015152",
   "dev" : false,
   "appName" : null,
   "session" : {},

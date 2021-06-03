@@ -75,6 +75,12 @@ function FBAPI(path, version="v10.0") {
 ////////////////////////////////////////////
 const TiApiFacebook = {
   //----------------------------------------
+  setObjListPreview(objs, options) {
+    _.forEach(objs, obj=>{
+      TiApiFacebook.setObjPreview(obj, obj.images, options)
+    })
+  },
+  //----------------------------------------
   setObjPreview(obj, images, options) {
     setImages(obj, images, options)
     return obj
@@ -93,14 +99,15 @@ const TiApiFacebook = {
       params : {access_token, fields, after},
       as : "json"
     })
-    let {data, paging} = reo
+    return reo
+    // let {data, paging} = reo
 
-    // Setup thumb src
-    for(let photo of data) {
-      TiApiFacebook.setObjPreview(photo, photo.images)
-    }
+    // // Setup thumb src
+    // for(let photo of data) {
+    //   TiApiFacebook.setObjPreview(photo, photo.images)
+    // }
 
-    return {data, paging}
+    // return {data, paging}
   },
   //----------------------------------------
   async getPhoto({

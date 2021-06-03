@@ -167,6 +167,19 @@ export default {
       }
     },
     //---------------------------------------------------
+    AlbumPhotoData() {
+      if(!_.isArray(this.myPhotoList)) {
+        return
+      }
+      let re = []
+      _.forEach(this.myPhotoList, photo=>{
+        let p2 = _.cloneDeep(photo)
+        Ti.Api.Facebook.setObjPreview(p2, p2.images)
+        re.push(p2)
+      })
+      return re
+    },
+    //---------------------------------------------------
     GuiLayout(){
       return {
         type: "cols",
@@ -266,7 +279,7 @@ export default {
               "overflow" : "auto",
               "padding"  : ".1rem"
             },
-            data: this.myPhotoList,
+            data: this.AlbumPhotoData,
             itemWidth : "2rem",
             itemHeight : "1.5rem",
             comType : "WebMediaImage",
@@ -326,16 +339,19 @@ export default {
     },
     //---------------------------------------------------
     async OnPhotoLoadMore() {
+      if(!this.myPhotoCursorAfter) {
+        console.warn("Without after cursor")
+        return
+      }
       this.myPhotoMoreLoading = true
       // Invoke api
-      let {data, paging} = await Ti.Api.Facebook.getAlbumPhotoList({
-        albumId : this.currentAlbumId,
-        access_token : this.myLongLiveAK,
-        after : this.myPhotoCursorAfter
+      let {list,after} = await this.reloadAllPhotos({
+        after: this.myPhotoCursorAfter
       })
+
       // Set to data
-      this.myPhotoList.push(...data)
-      this.myPhotoCursorAfter = _.get(paging, "cursors.after")
+      this.myPhotoList.push(...list)
+      this.myPhotoCursorAfter = after
       this.myPhotoMoreLoading = false
     },
     //---------------------------------------------------
@@ -393,57 +409,65 @@ export default {
         this.myPhotoList = []
         return
       }
-
+      let cacheHint = {
+        albumId: this.currentAlbumId,
+        domain : this.domain
+      }
       // Reload from cache
-      let fph;
       if(!force) {
-        let {filePath, photos} = await Wn.FbAlbum.reloadAllPhotosInCache({
-          albumId: this.currentAlbumId,
-          domain : this.domain
-        })
+        let {photos} = await Wn.FbAlbum.reloadAllPhotosInCache(cacheHint)
         if(!_.isEmpty(photos)) {
           this.myPhotoList = photos
           return 
         }
-        fph = filePath
       }
 
+      // Mark to loading
+      this.myPhotoList = undefined
+
       // Read the first page
-      await this.reloadPhotos()
+      let {list, after} = await this.reloadPhotos()
+      this.myPhotoList = list
       // Reaload remain pages
-      while(this.myPhotoCursorAfter) {
-        await this.OnPhotoLoadMore()
+      while(after) {
+        this.myPhotoMoreLoading = true
+        let reo = await this.reloadAllPhotos({after})
+        after = reo.after
+        this.myPhotoList.push(...reo.list)
+        this.myPhotoCursorAfter = after
+        this.myPhotoMoreLoading = false
       }
 
       // Save to cache
-      if(!_.isEmpty(this.myPhotoList) && this.domain) {
-        let input = JSON.stringify(this.myPhotoList)
-        let cmdText = `str > ${fph}`
-        await Wn.Sys.exec2(cmdText, {input})
-      }
+      await Wn.FbAlbum.savePhotoListToCache(this.myPhotoList, {
+        albumId : this.currentAlbumId,
+        domain  : this.domain
+      })
     },
     //---------------------------------------------------
-    async reloadPhotos() {
+    async reloadPhotos({after}={}) {
       if(!this.hasCurrentAlbum) {
-        this.myPhotoList = []
-        return
+        return {list:[]}
       }
       // Reload albums
-      this.myPhotoList = undefined
-
       let {data, paging} = await Ti.Api.Facebook.getAlbumPhotoList({
         albumId : this.currentAlbumId,
-        access_token : this.myLongLiveAK
+        access_token : this.myLongLiveAK,
+        after
       })
 
-      this.myPhotoList = data
-      this.myPhotoCursorAfter = _.get(paging, "cursors.after")
+      return {
+        list  : data,
+        prev  : _.get(paging, "cursors.before"),
+        next  : _.get(paging, "cursors.after")
+      }
     },
     //---------------------------------------------------
     async reloadAlbumsCover(albums=[], force=false) {
       // Load Cache
       let fnm = `user.${this.myId}.albums.cover_photos.json`
       let fph = `~/.domain/facebook/${this.domain}/${fnm}`
+      //console.log("reloadAlbumsCover:", fph)
       let photos = {}
       if(!force) {
         let oPhotos = await Wn.Io.loadMeta(fph)
@@ -459,7 +483,7 @@ export default {
           let photo = photos[photoId];
           // Load from facebook
           if(!photo) {
-            console.log("Get album photo", album, photoId)
+            //console.log("Get album photo", album, photoId)
             photo = await Ti.Api.Facebook.getPhoto({
               photoId,
               access_token : this.myLongLiveAK
@@ -477,13 +501,13 @@ export default {
       }
       // Cache to local
       if(loadedPhoto) {
-        console.log("save loaded Photos")
+        //console.log("save loaded Photos")
         let input = JSON.stringify(photos)
         await Wn.Sys.exec2(`str > ${fph}`, {input})
       }
     },
     //---------------------------------------------------
-    async reloadAlbums() {
+    async reloadAlbums(forceReloadCover=false) {
       this.myAlbumMoreLoading = false
       this.myAlbumList = undefined
       // Invoke api
@@ -493,7 +517,7 @@ export default {
       })
       // Reload cover
       let albums = data
-      await this.reloadAlbumsCover(albums)
+      await this.reloadAlbumsCover(albums, forceReloadCover)
       // Set to data
       this.myAlbumList = albums
       this.myAlbumCursorAfter = _.get(paging, "cursors.after")
@@ -564,6 +588,10 @@ export default {
         })
         cmdText = `o id:${this.meta.id} @update`
         await Wn.Sys.exec2(cmdText, {input:objMeta})
+
+        // Reload data
+        await Ti.App(this).dispatch("current/reload")
+        await Ti.App(this).dispatch("main/reload", this.meta)
       }
       // Error
       else {

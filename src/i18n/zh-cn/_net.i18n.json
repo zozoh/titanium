@@ -1,5 +1,6 @@
 {
   "net-ct": "创建时间",
+  "net-fb-reload-album-cover": "强制刷新相册封面",
   "net-fb-relogin": "重新登录FB账户",
   "net-flt-nil": "查找视频名称",
   "net-vod-add-video": "添加视频",
