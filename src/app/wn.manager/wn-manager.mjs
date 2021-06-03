@@ -207,7 +207,6 @@ const _M = {
     //--------------------------------------
     OnCurrentDataChange(data){
       if(this.view.mod) {
-        console.log("haha")
         this.execEvent("arena::change", data, "dispatch:main/changeContent")
       }
     },

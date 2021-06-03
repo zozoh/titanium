@@ -430,8 +430,9 @@ export default {
       this.myPhotoList = list
       // Reaload remain pages
       while(after) {
+        console.log("load more", this.myPhotoList.length, after)
         this.myPhotoMoreLoading = true
-        let reo = await this.reloadAllPhotos({after})
+        let reo = await this.reloadPhotos({after})
         after = reo.after
         this.myPhotoList.push(...reo.list)
         this.myPhotoCursorAfter = after
@@ -457,9 +458,9 @@ export default {
       })
 
       return {
-        list  : data,
-        prev  : _.get(paging, "cursors.before"),
-        next  : _.get(paging, "cursors.after")
+        list   : data,
+        before : _.get(paging, "cursors.before"),
+        after  : _.get(paging, "cursors.after")
       }
     },
     //---------------------------------------------------
