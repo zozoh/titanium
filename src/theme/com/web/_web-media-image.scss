@@ -165,6 +165,9 @@
   //-----------------------------------------
   &.ts-shadow .as-text {text-shadow: 2px 2px 6px rgba(0,0,0,0.6);}
   &.ts-mask .as-text {background-color:rgba(0,0,0,0.4);}
+  &.ts-wrap .as-text .as-title {
+    white-space: normal;
+  }
   //-----------------------------------------
   &.text-in .as-img-con {height:100%;}
   &.text-in.at-center .as-text {@include pos-abs-full;}

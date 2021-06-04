@@ -15,7 +15,7 @@
     @include pos-fixed-full;
     @include flex-center;
     @include color($color-mask, r, bushy);
-    z-index: $z-mask;
+    z-index: $z-top;
     .as-qrcode-img {
       text-align: center;
     }
