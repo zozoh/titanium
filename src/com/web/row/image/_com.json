@@ -1,0 +1,6 @@
+{
+  "name" : "web-row-image",
+  "globally" : true,
+  "template" : "./web-row-image.html",
+  "mixins"   : ["./web-row-image.mjs"]
+}

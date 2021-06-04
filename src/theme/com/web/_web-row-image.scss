@@ -1,0 +1,134 @@
+.web-row-image {
+  @include flex-align-nowrap($ai:stretch);
+  position: relative;
+  //-----------------------------------------
+  &.of-con-hidden   .as-img-con {overflow: hidden;}
+  &.of-con-visiable .as-img-con {overflow: visible;}
+  //-----------------------------------------
+  &.is-fit-auto .as-image-con img {
+    width: auto; height: auto; 
+    max-height: 100%; max-width: 100%;
+  }
+  &.is-fit-none    .as-image-con img {object-fit: unset;}
+  &.is-fit-contain .as-image-con img {object-fit: contain;}
+  &.is-fit-cover   .as-image-con img {object-fit: cover; }
+  //-----------------------------------------
+  &.primary-img-size {
+    img {
+      width:auto; height:auto; flex:0 0 auto;
+      margin:0 auto;
+    }
+  }
+  //-----------------------------------------
+  .as-part {
+    padding: SZ(10); position: relative;
+    //---------------------------------------
+    &.at-left {
+      width:37.2%; flex:0 0 auto;
+    }
+    //---------------------------------------
+    &.at-right {
+      flex:1 1 auto;
+    }
+    //---------------------------------------  
+  }
+  //-----------------------------------------
+  .as-img-con {
+    flex:1 1 auto;
+    width:100%; 
+    overflow: hidden;
+  }
+  img {
+    flex:1 1 auto; margin:0 auto;
+    width:100%; height:100%;
+    object-fit: cover;
+    display:block;
+    border-radius: SZ(8);
+  }
+  //-----------------------------------------
+  .as-tags {
+    @include pos-abs($l:0,$t:0);
+    @include flex-align-nowrap;
+    font-size: SZ(10);
+  }
+  //-----------------------------------------
+  .as-tag-item {
+    @include color($color-primary, r, c);
+    padding: SZ(6) SZ(6);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  //-----------------------------------------
+  .as-part.at-right {
+    @include font-nice;
+    user-select: text; 
+  }
+  //-----------------------------------------
+  .as-title {
+    padding: SZ(6);
+    font-size: 1.6em;
+    font-weight: bold;
+  }
+  //-----------------------------------------
+  .as-brief {
+    @include border(1px, solid, shallow, top);
+    display: block; width:100%;
+    padding: 1em 0; margin-top: 1em;
+    font-size: 0.9em; opacity: 0.7; 
+    font-weight: normal;
+    text-decoration: none;
+    &:hover {text-decoration: none;}
+  }
+  //-----------------------------------------
+  .as-cooling-tip {
+    @include pos-abs($r:0, $t:0);
+    color: rgba(200,200,200,0.6);
+    padding: SZ(4); opacity: 0.8;
+    font-size: SZ(24);
+  }
+  //-----------------------------------------
+  //
+  // Hover effect
+  //
+  //-----------------------------------------
+  &.hover-none {
+    cursor: default;
+  }
+  &.hover-to-up {
+    transition: transform 0.3s; 
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
+    }
+  }
+  &.hover-to-up-img {
+    .as-img-con img {transition: transform 0.3s; }
+    &:hover .as-img-con img {
+      transform: translateY(-3px);
+      box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
+    }
+  }
+  //-----------------------------------------
+  &.hover-to-zoom {
+    .as-img-con img {transition: transform 0.5s; }
+    &:hover .as-img-con img {
+      transform: scale(1.2);
+    }
+  }
+  //-----------------------------------------
+  &.hover-to-scale {
+    transition: transform 0.3s; 
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
+    }
+  }
+  //-----------------------------------------
+  &.fs-xs .as-text {font-size: SZ(12);}
+  &.fs-sm .as-text {font-size: SZ(14);}
+  &.fs-md .as-text {font-size: SZ(16);}
+  &.fs-lg .as-text {font-size: SZ(18);}
+  &.fs-xl .as-text {font-size: SZ(20);}
+  //-----------------------------------------
+}

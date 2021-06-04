@@ -33,7 +33,7 @@ const _M = {
     },
     "transName" : {
       type: String,
-      default: "slide-right",
+      default: undefined,
       validator: v => (!v || /^(fade|((slide)-(left|right|down|up)))$/.test(v))
     },
     "transSpeed" : {

@@ -1,0 +1,54 @@
+<div class="web-row-image"
+  :class="TopClass"
+  @mousemove="OnMouseMove"
+  @mouseenter="OnMouseEnter"
+  @mouseleave="OnMouseLeave">
+  <!--
+    Left
+  -->
+  <div class="as-part at-left" :style="LeftPartStyle">
+    <div class="as-img-con">
+      <a 
+        :href="TheHref"
+        :target="LinkTarget"
+        @click.left="OnClickLink">
+        <img ref="img"
+          v-if="TheSrc"
+            :style="ImageStyle"
+            :src="TheSrc"
+            draggable="false"
+            @load="OnImageLoaded"/>
+      </a>
+    </div>
+    <!-- Tags -->
+    <div
+      v-if="TheTags"
+        class="as-tags">
+        <div
+          v-for="tag of TheTags"
+            class="as-tag-item"
+            :class="tag.className"
+            :style="tag.style">
+            <span>{{tag.text}}</span>
+        </div>
+    </div>
+  </div>
+  <!--
+    Right: 
+  -->
+  <div class="as-part at-right" :style="RightPartStyle" ref="text">
+      <div
+        v-if="TheText"
+          class="as-title"
+          :style="TextStyle">
+          <a 
+            :href="TheHref"
+            :target="LinkTarget"
+            @click.left="OnClickLink">{{TheText}}</a>
+      </div>
+      <div
+        v-if="TheBrief"
+          class="as-brief"
+          :style="BriefStyle"><span>{{TheBrief}}</span></div>
+  </div>
+</div>

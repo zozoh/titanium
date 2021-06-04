@@ -102,11 +102,17 @@ export default {
     evalItems(items) {
       let list = []
       _.forEach(items, (it, index)=>{
-        //................................
-        let li = _.get(this.ShareTargets, it)
-        //................................
-        if(li)
-          list.push(li)
+        // Customized item
+        if(_.isPlainObject(it)) {
+          list.push(it)
+        }
+        // built-in
+        else {
+          let li = _.get(this.ShareTargets, it)
+          //................................
+          if(li)
+            list.push(li)
+        }
         //................................
       })
       return list
