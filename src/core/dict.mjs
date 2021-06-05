@@ -17,13 +17,10 @@ const K = ["item", "data", "query", "children",
 "getValue", "getText", "getIcon", "isMatched",
 "itemCache", "dataCache", "hooks", "shadowed"]
 ///////////////////////////////////////////////
-const __item_loading = {
-  
-}
-///////////////////////////////////////////////
 export class Dict {
   //-------------------------------------------
   constructor(){
+    this.__item_loading = {}
     this.hooks     = []
     this.shadowed  = false
     this.item      = _.idendity
@@ -183,7 +180,7 @@ export class Dict {
     // Not in cache, try getItem
     if(_.isUndefined(it)) {
       // If is loading, return the promise
-      let loading = __item_loading[val]
+      let loading = this.__item_loading[val]
       if(loading) {
         return await new Promise((resolve)=>{
           loading.push(resolve)
@@ -192,7 +189,7 @@ export class Dict {
 
       // Setup loading
       loading = []
-      __item_loading[val] = loading
+      this.__item_loading[val] = loading
 
       // Do load item ...
       //console.log("getItem", val)
@@ -207,7 +204,7 @@ export class Dict {
       for(let resolve of loading) {
         resolve(it || null)
       }
-      delete __item_loading[val]
+      delete this.__item_loading[val]
     }
     // Warn !!
     // 不知道什么时候，在 anju 项目，总出现返回值为空数组 `[]`
@@ -414,8 +411,8 @@ export const DictFactory = {
     getValue, getText, getIcon, 
     isMatched, shadowed
   }={}, {hooks, name}={}) {
-    if("ComDeptJobs" == name)
-      console.log("CreateDict", {name, dataChildrenKey})
+    // if(!name)
+    //   console.log("CreateDict", {data, dataChildrenKey})
     //.........................................
     if(_.isString(data) || _.isArray(data)) {
       let aryData = Ti.S.toObjList(data)

@@ -225,8 +225,9 @@ const _M = {
     },
     //-----------------------------------------------
     async evalMyItem(val=this.value) {
+      //console.log("before evalMyItem", val)
       let it = await this.Dict.getItem(val)
-      //console.log("evalMyItem", val)
+      //console.log("after evalMyItem: it", it)
       if(_.isArray(it)) {
         console.error("!!!!!!! kao ~~~~~~~")
         it = null
@@ -249,6 +250,7 @@ const _M = {
     },
     //------------------------------------------------
     createDict() {
+      //console.log("createDict in combo-input")
       // Customized
       if(this.options instanceof Ti.Dict) {
         return this.options
