@@ -46,6 +46,19 @@ const LIST_MIXINS = {
       return Ti.Util.genRowDataGetter(this.rawDataBy)
     },
     //-----------------------------------------------
+    testRowAsGroupTitle() {
+      if(this.rowAsGroupTitle) {
+        return Ti.AutoMatch.parse(this.rowAsGroupTitle)
+      }
+      return ()=>false
+    },
+    //-----------------------------------------------
+    RowGroupTitleDisplay() {
+      if(this.rowGroupTitleDisplay) {
+        return this.evalFieldDisplay(this.rowGroupTitleDisplay, "..")
+      }
+    },
+    //-----------------------------------------------
     isDataLoading() {
       return _.isUndefined(this.data)
     },
@@ -187,6 +200,7 @@ const LIST_MIXINS = {
       //............................................
       // Then format the list
       let list = []
+      let displayIndex = 0
       _.forEach(data, (it, index)=>{
         let className;
         if(this.rowClassBy) {
@@ -194,9 +208,9 @@ const LIST_MIXINS = {
             evalFunc: true
           })
         }
+        let asGroupTitle = this.testRowAsGroupTitle(it)
         let item = {
-          className,
-          index,
+          className, index, displayIndex, asGroupTitle,
           id      : this.getRowId(it, index),
           rawData : this.getRowData(it),
           checkable  : this.isRowCheckable(it),
@@ -207,6 +221,10 @@ const LIST_MIXINS = {
           item : it
         }
         item = iteratee(item) || item
+        // Increase display index
+        if(!asGroupTitle) {
+          displayIndex++
+        }
         // Join
         list.push(item)
       })

@@ -1,10 +1,29 @@
 export default {
   inject: ["$vars"],
   ///////////////////////////////////////////////////
+  data: ()=>({
+    groupTitleComs: []
+  }),
+  ///////////////////////////////////////////////////
   props : {
     "index" : {
       type : Number,
       default : -1
+    },
+    "displayIndex" : {
+      type : Number,
+      default : -1
+    },
+    "rowNumberBase" : {
+      type : Number,
+      default : undefined
+    },
+    "asGroupTitle" : {
+      type : Boolean,
+      default: false
+    },
+    "groupTitleDisplay" : {
+      type : Array
     },
     "rowId" : {
       type : String,
@@ -61,6 +80,20 @@ export default {
         "is-changed" : this.isChanged,
         "no-checked" : !this.isChecked
       }, klass)
+    },
+    //-----------------------------------------------
+    hasRowNumber() {
+      return !this.asGroupTitle && _.isNumber(this.rowNumberBase)
+    },
+    //-----------------------------------------------
+    RowNumber() {
+      if(this.hasRowNumber) {
+        return this.rowNumberBase + this.displayIndex
+      }
+    },
+    //-----------------------------------------------
+    hasGroupTitleComs() {
+      return !_.isEmpty(this.groupTitleComs)
     },
     //-----------------------------------------------
     hasRowId() {
@@ -128,6 +161,25 @@ export default {
       if(!this.isActived && this.isCurrent) {
         this.setActived()
       }
+    },
+    //-----------------------------------------------
+    async evalGroupTitleDisplayCom() {
+      if(this.asGroupTitle && !_.isEmpty(this.groupTitleDisplay)) {
+        let coms = []
+        for(let displayItem of this.groupTitleDisplay) {
+          let com = await this.$parent.evalDataForFieldDisplayItem({
+            itemData : this.data, 
+            displayItem, 
+            vars : {
+              "rowId"     : this.rowId,
+              "isCurrent" : this.isCurrent
+            },
+            autoIgnoreNil : false,
+          })
+          coms.push(com)
+        }
+        this.groupTitleComs = coms;
+      }
     }
     //-----------------------------------------------
   },
@@ -135,11 +187,14 @@ export default {
   watch : {
     "isCurrent" : function() {
       this.doAutoActived()
-    }
+    },
+    "data" : "evalGroupTitleDisplayCom",
+    "groupTitleDisplay" : "evalGroupTitleDisplayCom"
   },
   ///////////////////////////////////////////////////
-  mounted : function() {
+  mounted : async function() {
     this.doAutoActived()
+    await this.evalGroupTitleDisplayCom()
   }
   ///////////////////////////////////////////////////
 }

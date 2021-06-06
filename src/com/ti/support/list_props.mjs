@@ -32,6 +32,12 @@ export default {
     type : String,
     default : null
   },
+  "rowAsGroupTitle" : {
+    type : [String, Object, Array, Function]
+  },
+  "rowGroupTitleDisplay" : {
+    type : [String, Object, Array, Function]
+  },
   // "extendFunctionSet" : {
   //   type : Object,
   //   default : ()=>({})

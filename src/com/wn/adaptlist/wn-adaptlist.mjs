@@ -428,9 +428,9 @@ const _M = {
       // Update to current list
       if(newMeta) {
         if(this.meta.id == newMeta.id)  {
-          await Ti.App(this).dispatch("current/reload", newMeta)
+          await Ti.App(this).dispatch("main/reload", newMeta)
         } else {
-          await Ti.App(this).commit("current/setDataItem", newMeta)
+          await Ti.App(this).commit("main/setDataItem", newMeta)
           //this.setItem(newMeta)
         }
         return newMeta

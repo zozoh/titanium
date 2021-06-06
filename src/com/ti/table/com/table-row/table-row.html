@@ -4,43 +4,60 @@
   @dblclick.left="OnDblClickRow"
   v-ti-activable>
   <!--
+    Group title
+  -->
+  <td 
+    v-if="asGroupTitle && hasGroupTitleComs"
+      class="as-row-group-title"
+      :colspan="fields.length">
+      <div class="row-group-title-con">
+        <component
+          v-for="(it, index) in groupTitleComs"
+            :key="index"
+            :is="it.comType"
+            v-bind="it.comConf"/>
+      </div>
+  </td>
+  <!--
     Cells
   -->
-  <table-cell v-for="fld in fields"
-    :key="fld.index"
-    v-bind="fld"
-    :row-id="rowId"
-    :row-index="index"
-    :is-current="isCurrent"
-    :is-checked="isChecked"
-    :data="data">
-    <template v-if="fld.index == 0">
-      <div class="table-row-head">
-        <!--current actived row indicator-->
-        <div class="row-actived-indicator"></div>
-        <!-- Indents -->
-        <div v-for="n in indent"
-            class="row-indent"></div>
-        <!--ICON: Handler-->
-        <template v-if="icon">
-          <ti-icon
-            v-if="hasRealIcon"
-              class="row-icon row-handler"
-              :value="icon"
-              @click.native.left.stop="OnClickIcon"/>
-          <div v-else
-            class="row-icon"></div>
-        </template>
-        <!--ICON: Checker-->
-        <ti-icon v-if="checkable"
-            class="row-checker"
-            :value="theCheckIcon"
-            @click.native.left.stop="OnClickChecker"/>
-        <!--Row Number-->
-        <div 
-          v-if="hasRowNumber"
-            class="row-number">{{RowNumber}}</div>
-      </div>
-    </template>
-  </table-cell>
+  <template v-else>
+    <table-cell v-for="fld in fields"
+      :key="fld.index"
+      v-bind="fld"
+      :row-id="rowId"
+      :row-index="index"
+      :is-current="isCurrent"
+      :is-checked="isChecked"
+      :data="data">
+      <template v-if="fld.index == 0">
+        <div class="table-row-head">
+          <!--current actived row indicator-->
+          <div class="row-actived-indicator"></div>
+          <!-- Indents -->
+          <div v-for="n in indent"
+              class="row-indent"></div>
+          <!--ICON: Handler-->
+          <template v-if="icon">
+            <ti-icon
+              v-if="hasRealIcon"
+                class="row-icon row-handler"
+                :value="icon"
+                @click.native.left.stop="OnClickIcon"/>
+            <div v-else
+              class="row-icon"></div>
+          </template>
+          <!--ICON: Checker-->
+          <ti-icon v-if="checkable"
+              class="row-checker"
+              :value="theCheckIcon"
+              @click.native.left.stop="OnClickChecker"/>
+          <!--Row Number-->
+          <div 
+            v-if="hasRowNumber"
+              class="row-number">{{RowNumber}}</div>
+        </div>
+      </template>
+    </table-cell>
+  </template>
 </tr>
