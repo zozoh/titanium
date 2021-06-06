@@ -365,17 +365,20 @@ const LIST_MIXINS = {
       let checked = []
       let current = null
       let currentIndex = -1
+      let currentDisplayIndex = -1
       for(let row of this.TheData) {
         if(row.id == currentId) {
           current = row.rawData
           currentIndex = row.index
+          currentDisplayIndex = row.displayIndex
         }
         if(checkedIds[row.id]) {
           checked.push(row.rawData)
         }
       }
       return {
-        current, currentId, currentIndex,
+        currentIndex, currentDisplayIndex,
+        current, currentId, 
         checked, checkedIds
       }
     },

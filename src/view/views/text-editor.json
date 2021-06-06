@@ -1,10 +1,11 @@
 {
   "comIcon": "im-edit",
+  "modType" : "@mod:wn/obj-content",
   "comType": "@com:ti/text/raw",
   "comConf": {
     "icon": "=>Wn.Util.getObjIcon(meta)",
     "title": "=meta.title|meta.nm",
-    "value": "=content",
+    "value": "=MainContent",
     "status": "=status"
   },
   "actions": [
