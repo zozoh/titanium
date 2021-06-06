@@ -146,7 +146,6 @@ async function OpenObjSelector(pathOrObj = "~", {
             "data"]),
           //--------------------------------------
           CrumbData() {
-            console.log("hha")
             let crumbs = Wn.Obj.evalCrumbData({
               meta: this.meta,
               ancestors: this.ancestors,

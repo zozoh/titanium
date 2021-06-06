@@ -68,7 +68,7 @@ export default {
     default : "zmdi-close-circle"
   },
   "prefixText" : {
-    type : String,
+    type : [String, Number],
     default : undefined
   },
   "suffixIcon" : {
@@ -76,7 +76,7 @@ export default {
     default : undefined
   },
   "suffixText" : {
-    type : String,
+    type : [String, Number],
     default : undefined
   },
   //-----------------------------------

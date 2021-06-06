@@ -70,6 +70,14 @@ export default {
       extended: "zmdi-chevron-up"
     })
   },
+  "inputValueDisplay": {
+    type: [Object, String, Function],
+    default: undefined
+  },
+  "inputSuffixTextDisplay": {
+    type: [Object, String, Function],
+    default: undefined
+  },
   "dropDisplay": {
     type: [Object, String, Array],
     default: undefined

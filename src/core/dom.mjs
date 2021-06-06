@@ -280,10 +280,18 @@ const TiDom = {
         name = _.camelCase(name.substring(5))
         let key = filter(name, value)
         if(key) {
+          // return : true
           if(_.isBoolean(key)) {
-            key = name
+            re[name] = value
           }
-          re[key] = value
+          // return : {name, value}
+          else if(key.name) {
+            re[key.name] = key.value
+          }
+          // return: New name
+          else {
+            re[key] = value
+          }
         }
       }
     }

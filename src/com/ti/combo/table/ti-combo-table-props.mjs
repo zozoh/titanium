@@ -2,69 +2,73 @@ export default {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "value" : {
-    type : [Array, String],
-    default : ()=>[]
+  "value": {
+    type: [Array, String],
+    default: () => []
   },
-  "valueType" : {
-    type : String,
-    default : "Array",
-    validator : v => /^(Array|String)$/.test(v)
+  "valueType": {
+    type: String,
+    default: "Array",
+    validator: v => /^(Array|String)$/.test(v)
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "form" : {
-    type : Object,
-    default : ()=>({})
+  "form": {
+    type: Object,
+    default: () => ({})
   },
-  "list" : {
-    type : Object,
-    default : ()=>({})
+  "list": {
+    type: Object,
+    default: () => ({})
   },
-  "dialog" : {
-    type : Object,
-    default : ()=>({
-      title  : "i18n:edit",
-      width  : 500,
-      height : 500
+  "dialog": {
+    type: Object,
+    default: () => ({
+      title: "i18n:edit",
+      width: 500,
+      height: 500
     })
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "blankAs" : {
-    type : Object,
-    default : ()=>({
-      icon : "fab-deezer",
-      text : "empty-data"
+  "blankAs": {
+    type: Object,
+    default: () => ({
+      icon: "fab-deezer",
+      text: "empty-data"
     })
   },
-  "blankClass" : {
-    type : String,
-    default : "as-mid-tip"
+  "blankClass": {
+    type: String,
+    default: "as-mid-tip"
   },
-  "actionAlign" : {
-    type : String,
-    default : undefined
+  "actionAlign": {
+    type: String,
+    default: undefined
   },
-  "newItemIcon" : {
-    type : String,
-    default : "fas-plus"
+  "newItemIcon": {
+    type: String,
+    default: "fas-plus"
   },
-  "newItemText" : {
-    type : String,
-    default : "i18n:new-item"
+  "newItemText": {
+    type: String,
+    default: "i18n:new-item"
+  },
+  "itemEditable": {
+    type: Boolean,
+    default: true
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "width" : {
-    type : [Number, String],
-    default : undefined
+  "width": {
+    type: [Number, String],
+    default: undefined
   },
-  "height" : {
-    type : [Number, String],
-    default : undefined
+  "height": {
+    type: [Number, String],
+    default: undefined
   }
 }

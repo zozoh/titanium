@@ -21,9 +21,9 @@ const _M = {
         "show-border"  : !this.hideBorder,
         "hide-border"  : this.hideBorder,
         "has-prefix-icon" : this.prefixIcon,
-        "has-prefix-text" : this.prefixText,
+        "has-prefix-text" : !Ti.Util.isNil(this.prefixText),
         "has-suffix-icon" : this.suffixIcon,
-        "has-suffix-text" : this.suffixText,
+        "has-suffix-text" : !Ti.Util.isNil(this.suffixText),
       })
     },
     //------------------------------------------------

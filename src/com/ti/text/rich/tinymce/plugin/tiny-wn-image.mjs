@@ -150,7 +150,7 @@ async function CmdShowImageProp(editor, settings) {
     comConf : {
       spacing : "tiny",
       fields : [{
-        title : "i18n:hmk-w-edit-img-pic",
+          title : "i18n:hmk-w-edit-img-pic",
           name  : "oid",
           comType : "WnObjPicker",
           comConf : {
@@ -346,7 +346,7 @@ export default {
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnImgFloat', {
-      text: 'i18n:hmk-float',
+      text: Ti.I18n.text('i18n:hmk-css-float'),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
