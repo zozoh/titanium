@@ -98,7 +98,9 @@ export default {
               major: {
                 placeholder : "Choose Playlist",
                 options : this.ytPlaylists,
-                width : .4,
+                style: {
+                  width : "50%"
+                },
                 iconBy : "thumbUrl",
                 textBy : "title",
                 valueBy : "id",

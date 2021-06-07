@@ -10,8 +10,8 @@ export default {
     "ArticleHtml" : "redrawContent"
   },
   //////////////////////////////////////////
-  mounted: function() {
-    this.redrawContent()
+  mounted: async function() {
+    await this.redrawContent()
   }
   //////////////////////////////////////////
 }

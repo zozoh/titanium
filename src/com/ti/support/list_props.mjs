@@ -159,8 +159,8 @@ export default {
     type : Object,
     default : ()=>({
       className : "as-nil-mask as-big-mask",
-      icon : undefined,
-      text : undefined
+      icon : "fas-spinner fa-spin",
+      text : "i18n:loading"
     })
   },
   "rowNumberBase" : {

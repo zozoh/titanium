@@ -59,8 +59,8 @@ const LIST_MIXINS = {
       }
     },
     //-----------------------------------------------
-    isDataLoading() {
-      return _.isUndefined(this.data)
+    isDataPending() {
+      return Ti.Util.isNil(this.data)
     },
     //-----------------------------------------------
     isDataEmpty() {

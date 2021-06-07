@@ -207,7 +207,7 @@ async function CmdShowAlbumProp(editor, settings) {
 
   //................................................
   let photos = AB.getPhotos()
-  console.log("AB.getPhotos", photos)
+  //console.log("AB.getPhotos", photos)
   UpdateAlbumTagInnerHtml(editor, $album, settings, {
     album:reo, photos
   })

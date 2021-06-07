@@ -656,6 +656,9 @@ const TiTypes = {
   //.......................................
   // precision: if less then 0, keep original
   toFloat(val, {precision=2, dft=NaN}={}) {
+    if(Ti.Util.isNil(val)) {
+      return dft
+    }
     let n = val * 1
     if(isNaN(n)){
       return dft

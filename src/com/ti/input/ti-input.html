@@ -42,7 +42,7 @@
     <div v-if="suffixText"
       class="as-input-text at-suffix"
       :class="getHoverClass('suffixText')"
-      @click.left="OnClickSuffixIcon"
+      @click.left="OnClickSuffixText"
       @mouseenter="pointerHover='suffixText'"
       @mouseleave="pointerHover=null">
       <span>{{suffixText|i18n}}</span>

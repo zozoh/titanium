@@ -16,6 +16,10 @@ export default {
     "apiBase" : {
       type : String,
       default : "/"
+    },
+    "params": {
+      type : Object,
+      default : ()=>({})
     }
   },
   /////////////////////////////////////////
@@ -95,7 +99,7 @@ export default {
       if(_.isString(link)) {
         Ti.Be.Open(link, {params})
       } else if(_.isFunction(link)) {
-        link(params)
+        link.apply(this, [params])
       }
     },
     //------------------------------------
@@ -107,11 +111,17 @@ export default {
           list.push(it)
         }
         // built-in
-        else {
+        else if(_.isString(it)) {
           let li = _.get(this.ShareTargets, it)
+          let params = _.get(this.params, it)
           //................................
-          if(li)
-            list.push(li)
+          if(li) {
+            let it = _.cloneDeep(li);
+            if(params) {
+              _.assign(it, {params})
+            }
+            list.push(it)
+          }
         }
         //................................
       })

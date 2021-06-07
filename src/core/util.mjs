@@ -341,7 +341,7 @@ const TiUtil = {
             "==" : (val)=> {
               let re = _.get(context, val)
               if(Ti.Util.isNil(re))
-                return Ti.Util.fallback(m_dft, false)
+                return Ti.Util.fallbackNil(m_dft, false)
               return re ? true : false
             },
             // !=xxx  # Revert Boolean value now

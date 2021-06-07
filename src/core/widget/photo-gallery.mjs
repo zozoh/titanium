@@ -104,7 +104,7 @@ class TiPhotoGallery {
   }
   //---------------------------------------
   scrollToPrev() {
-    console.log("scrollToPrev")
+    //console.log("scrollToPrev")
     if(this.currentIndex>0) {
       this.scrollTo(this.currentIndex-1)
     }

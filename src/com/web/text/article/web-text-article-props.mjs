@@ -7,9 +7,9 @@ export default {
     default: undefined
   },
   "type": {
-    type : String,
-    default : "html",
-    validator : v => /^(text|html|markdown|text\/(plain|html|markdown))$/.test(v)
+    type: String,
+    default: "html",
+    validator: v => /^(text|html|markdown|text\/(plain|html|markdown))$/.test(v)
   },
   //-----------------------------------
   // Behavior
@@ -26,11 +26,15 @@ export default {
     type: String,
     default: undefined
   },
-  "downTmpl" : {
+  "downTmpl": {
     type: String,
     default: undefined
   },
-  "ytPlayerTmpl" : {
+  "fbAlbumApiTmpl": {
+    type: String,
+    default: undefined
+  },
+  "ytPlayerTmpl": {
     type: String,
     default: "https://www.youtube.com/watch?v=${id}"
   },
@@ -39,38 +43,38 @@ export default {
   },
   "redrawnNotifyName": {
     type: String,
-    default : "content:redrawn"
+    default: "content:redrawn"
   },
   "whenReady": {
     type: [String, Object, Function]
   },
   "readyNotifyName": {
     type: String,
-    default : "content:ready"
+    default: "content:ready"
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
   "theme": {
-    type : String,
+    type: String,
     default: "nice"
   },
-  "loadingAs" : {
-    type : Object,
-    default : ()=>({
-      className : "as-nil-mask as-big",
-      icon : undefined,
-      text : undefined
+  "loadingAs": {
+    type: Object,
+    default: () => ({
+      className: "as-nil-mask as-big-mask",
+      icon: "fas-spinner fa-spin",
+      text: "i18n:loading"
     })
   },
-  "blankAs" : {
-    type : Object,
-    default : ()=>({
-      comType : "TiLoading",
-      comConf : {
-        className : "as-nil-mask as-big",
-        icon : "fas-coffee",
-        text : null
+  "blankAs": {
+    type: Object,
+    default: () => ({
+      comType: "TiLoading",
+      comConf: {
+        className: "as-nil-mask as-big",
+        icon: "fas-coffee",
+        text: null
       }
     })
   }

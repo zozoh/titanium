@@ -28,6 +28,18 @@ export default {
       type: Object,
       default: undefined
     },
+    "video" : {
+      type: Object,
+      default: undefined
+    },
+    "audio" : {
+      type: Object,
+      default: undefined
+    },
+    "youtube" : {
+      type: Object,
+      default: undefined
+    },
     "showIconPrev" : {
       type : Boolean,
       default : false
@@ -118,10 +130,10 @@ export default {
         return {
           comType : "NetYoutubePlayer",
           comConf : {
-            value : {
+            value : _.assign({}, this.youtube, {
               id : this.src.yt_video_id,
               thumbUrl : this.src.thumb
-            }
+            })
           }
         }
       }
@@ -142,10 +154,10 @@ export default {
       if(/^video\/.+$/.test(mime)) {
         return {
           comType : "TiMediaVideo",
-          comConf : {
+          comConf : _.assign({}, this.video, {
             src  : this.MediaSrc,
             mime : this.MediaMime
-          }
+          })
         }
       }
       //
@@ -154,9 +166,9 @@ export default {
       if(/^audio\/.+$/.test(mime)) {
         return {
           comType : "TiMediaAudio",
-          comConf : {
+          comConf : _.assign({}, this.audio, {
             src : this.MediaSrc
-          }
+          })
         }
       }
       //

@@ -70,7 +70,7 @@ const _M = {
             evalFunc: true
           })
         }
-        return this.Dict.getValue(this.myItem)
+        //return this.Dict.getValue(this.myItem)
       }
       return this.suffixText
     },
