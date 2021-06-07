@@ -58,7 +58,7 @@ export default {
     "value" : String,
     // for highlight
     "path" : String,
-    "params": Object
+    "params": [Object, String, Number, Array]
   },
   /////////////////////////////////////////
   computed : {
@@ -174,7 +174,7 @@ export default {
     OnClickLink(evt, linkInfo) {
       evt.stopPropagation();
       let {type, value} = linkInfo
-      if(/^(page|action)$/.test(type)) {
+      if(/^(page|action|invoke|mutation)$/.test(type)) {
         evt.preventDefault()
         //console.log("onClickLink", "nav:to", {type,value})
         if(value) {

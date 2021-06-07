@@ -164,19 +164,32 @@ const _M = {
       if(this.prefixIconForClean) {
         this.$notify("change", null)
       }
-      this.$notify("prefix:icon")
+      if(this.prefixIconNotifyName)
+        this.$notify(this.prefixIconNotifyName)
     },
     //------------------------------------------------
     OnClickPrefixText() {
-      this.$notify("prefix:text")
+      if(this.prefixTextNotifyName)
+        this.$notify(this.prefixTextNotifyName)
     },
     //------------------------------------------------
     OnClickSuffixIcon() {
-      this.$notify("suffix:icon")
+      if(this.suffixIconNotifyName)
+        this.$notify(this.suffixIconNotifyName)
     },
     //------------------------------------------------
     OnClickSuffixText() {
-      this.$notify("suffix:text")
+      if(this.suffixTextNotifyName)
+        this.$notify(this.suffixTextNotifyName)
+    },
+    //------------------------------------------------
+    OnInputKeyPress($event) {
+      if(13 == $event.which) {
+        if(this.enterKeyNotifyName) {
+          let val = this.getInputValue(this.autoJsValue)
+          this.$notify(this.enterKeyNotifyName, val)
+        }
+      }
     },
     //------------------------------------------------
     // Utility

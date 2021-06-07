@@ -1,16 +1,6 @@
 export default {
   ///////////////////////////////////////////
   props : {
-    "value" : {
-      type : Object,
-      default : ()=>({
-        pn : 0,     // Page Number
-        pgsz : 0,   // PageSize
-        pgc : 0,    // page count
-        sum : 0,    // Total
-        count : 0   // Record in page
-      })
-    },
     "maxNumber": {
       type : Number,
       default : 10
@@ -28,12 +18,12 @@ export default {
     //--------------------------------------
     // 1base
     PN() {
-      return _.get(this.value, "pn")
+      return _.get(this.PageValue, "pageNumber")
     },
     //--------------------------------------
     // 1base
     LastPN() {
-      return _.get(this.value, "pgc")
+      return _.get(this.PageValue, "pageCount")
     },
     //--------------------------------------
     isFirstPage() {
@@ -103,10 +93,10 @@ export default {
     JumpTo(pn) {
       if(pn!=this.PN && pn>=1 && pn<=this.LastPN) {
         this.$notify("change", {
-          skip :  this.value.pgsz * (pn-1),
-          limit :  this.value.pgsz, 
+          skip :  this.PageValue.pageSize * (pn-1),
+          limit :  this.PageValue.pageSize, 
           pn   : pn, 
-          pgsz : this.value.pgsz
+          pgsz : this.PageValue.pageSize
         })
       }
     }

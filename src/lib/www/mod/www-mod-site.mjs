@@ -164,6 +164,7 @@ const _M = {
       state.data = _.assign({}, state.data, vobj)
     },
     //--------------------------------------------
+    // key support path like "a.b.c"
     updateDataBy(state, {key, value}) {
       if(!key || _.isUndefined(value)) {
         return
@@ -278,9 +279,13 @@ const _M = {
         commit("explainNav")
         commit("explainVars")
       }
-      // navTo::dispatch
-      else if("dispatch" == type) {
+      // navTo::invoke
+      else if("invoke" == type) {
         await dispatch(value, params)
+      }
+      // navTo::mutation
+      else if("mutation" == type) {
+        await commit(value, params)
       }
     },
     //--------------------------------------------
@@ -485,7 +490,7 @@ const _M = {
         payload : {} | [] | ...
       } 
       */
-      //console.log("invokeAction", name, args)
+      console.log("invokeAction", name, args)
       let actions = getters.actions;
       let AT = _.get(actions, name)
 

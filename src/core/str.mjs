@@ -590,6 +590,21 @@ const TiStr = {
       ignoreNil, keys
     }))
   },
+  /**
+   * Auto lower and add prefix "^.*"
+   * 
+   * @param input input keywords
+   */
+  autoPrefixSearchStr(input) {
+    let str = _.toLower(_.trim(input))
+    if(!str) {
+      return
+    }
+    if(!str.startsWith("^")) {
+      return "^.*" + str
+    }
+    return str
+  },
   /***
    * Get the display text for bytes
    */

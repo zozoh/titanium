@@ -136,6 +136,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
     @include color($color-mask, null, thin);
     @include pos-abs(0,0,100%,100%);
     z-index: $z-mask;
+    &.at-free   {position: absolute;}
     &.at-center {padding-bottom:10%;}
     &.at-left   {@include flex-as($j:flex-start);}
     &.at-right  {@include flex-as($j:flex-end);}
@@ -160,6 +161,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
       @include border(1px,solid,dark);
     }
     //---------------------------------
+    &.at-free   {position: absolute;}
     &.at-left   {@include pos-abs($l:0,$t:0,$b:0); >.panel-con{border-left:0;}}
     &.at-right  {@include pos-abs($r:0,$t:0,$b:0); >.panel-con{border-right:0;}}
     &.at-top    {@include pos-abs($l:0,$t:0,$r:0); >.panel-con{border-top:0;}}
@@ -170,6 +172,9 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
     &.at-bottom-right {@include pos-abs($b:0,$r:0); >.panel-con{border-bottom:0;border-right:0;}}
     //---------------------------------
   }
+  //-----------------------------------
+  &.flex-align-top {align-items: flex-start; align-content: flex-start;}
+  &.flex-align-bottom {align-items: flex-end; align-content: flex-end;}
   //-----------------------------------
   &.is-fixed {
     position: fixed;

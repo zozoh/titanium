@@ -9,21 +9,18 @@
     class="it-info"
     @click.left="OnClickItemInfo">
     <!--Icon-->
-    <span
+    <a
       v-if="icon"
-        class="it-info-icon">
+        class="it-info-icon"
+        :href="href"
+        @click.left="OnClickItemLink($event)">
         <ti-icon :value="icon"/>
-    </span>
-    <!--Group-->
-    <span
-      v-if="!hasHrefOrValue"
-        class="it-info-text">{{title|i18n}}</span>
+    </a>
     <!--Item-->
     <a
-      v-else
-        class="it-info-text"
-        :href="href"
-        @click.left="OnClickItemLink($event)">{{title|i18n}}</a>
+      class="it-info-text"
+      :href="href"
+      @click.left="OnClickItemLink($event)">{{title|i18n}}</a>
   </div>
   <!--
     Sub Container

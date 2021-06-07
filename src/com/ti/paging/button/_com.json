@@ -2,5 +2,7 @@
   "name" : "ti-paging-button",
   "globally" : true,
   "template" : "./ti-paging-button.html",
-  "mixins" : ["./ti-paging-button.mjs"]
+  "mixins" : [
+    "@com:ti/paging/support/ti-paging-mixins.mjs",
+    "./ti-paging-button.mjs"]
 }

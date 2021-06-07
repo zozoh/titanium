@@ -31,10 +31,7 @@ const _M = {
       type:String, 
       default:undefined
     },
-    "params"  : {
-      type: Object, 
-      default:undefined
-    },
+    "params": [Object, String, Number, Array],
     "href"  : {
       type:String, 
       default:undefined

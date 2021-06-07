@@ -44,6 +44,26 @@ export default {
     type : Boolean,
     default : undefined
   },
+  "prefixIconNotifyName": {
+    type: String,
+    default: "prefix:icon"
+  },
+  "prefixTextNotifyName": {
+    type: String,
+    default: "prefix:text"
+  },
+  "suffixIconNotifyName": {
+    type: String,
+    default: "suffix:icon"
+  },
+  "suffixTextNotifyName": {
+    type: String,
+    default: "suffix:text"
+  },
+  "enterKeyNotifyName": {
+    type: String,
+    default: "key:enter:fired"
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
