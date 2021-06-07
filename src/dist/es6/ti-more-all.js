@@ -1,4 +1,4 @@
-// Pack At: 2021-06-04 23:06:56
+// Pack At: 2021-06-07 14:32:06
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1320,9 +1320,9 @@ const _M = {
       // Update to current list
       if(newMeta) {
         if(this.meta.id == newMeta.id)  {
-          await Ti.App(this).dispatch("current/reload", newMeta)
+          await Ti.App(this).dispatch("main/reload", newMeta)
         } else {
-          await Ti.App(this).commit("current/setDataItem", newMeta)
+          await Ti.App(this).commit("main/setDataItem", newMeta)
           //this.setItem(newMeta)
         }
         return newMeta
@@ -18429,6 +18429,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
       extended: "zmdi-chevron-up"
     })
   },
+  "inputValueDisplay": {
+    type: [Object, String, Function],
+    default: undefined
+  },
+  "inputSuffixTextDisplay": {
+    type: [Object, String, Function],
+    default: undefined
+  },
   "dropDisplay": {
     type: [Object, String, Array],
     default: undefined
@@ -27743,9 +27751,9 @@ const _M = {
         "show-border"  : !this.hideBorder,
         "hide-border"  : this.hideBorder,
         "has-prefix-icon" : this.prefixIcon,
-        "has-prefix-text" : this.prefixText,
+        "has-prefix-text" : !Ti.Util.isNil(this.prefixText),
         "has-suffix-icon" : this.suffixIcon,
-        "has-suffix-text" : this.suffixText,
+        "has-suffix-text" : !Ti.Util.isNil(this.suffixText),
       })
     },
     //------------------------------------------------
@@ -29537,7 +29545,7 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/combo/table/ti-combo-table.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -29551,56 +29559,67 @@ const _M = {
     },
     //------------------------------------------------
     ActionItems() {
-      return [{
-        icon : this.newItemIcon,
-        text : this.newItemText,
-        action : ()=>{
-          this.doAddNewItem()
+      let items = [
+        {
+          icon: this.newItemIcon,
+          text: this.newItemText,
+          action: () => {
+            this.doAddNewItem()
+          }
+        },
+        { type: "line" },
+        {
+          icon: "far-trash-alt",
+          tip: "i18n:del-checked",
+          action: () => {
+            this.removeChecked()
+          }
         }
-      }, {
-        type : "line"
-      }, {
-        icon : "far-trash-alt",
-        tip : "i18n:del-checked",
-        action : ()=>{
-          this.removeChecked()
+      ]
+      if (this.itemEditable) {
+        items.push(
+          {
+            icon: "far-edit",
+            tip: "i18n:edit",
+            action: () => {
+              this.doEditCurrentMeta()
+            }
+          },
+          { type: "line" }
+        )
+      }
+      items.push(
+        {
+          icon: "fas-long-arrow-alt-up",
+          tip: "i18n:move-up",
+          action: () => {
+            this.moveCheckedUp()
+          }
+        },
+        {
+          icon: "fas-long-arrow-alt-down",
+          tip: "i18n:move-down",
+          action: () => {
+            this.moveCheckedDown()
+          }
+        },
+        { type: "line" },
+        {
+          icon: "fas-code",
+          tip: "i18n:source",
+          action: () => {
+            this.doEditCurrentSource()
+          }
         }
-      }, {
-        icon : "far-edit",
-        tip : "i18n:edit",
-        action : ()=>{
-          this.doEditCurrentMeta()
-        }
-      }, {
-        type : "line"
-      }, {
-        icon : "fas-long-arrow-alt-up",
-        tip : "i18n:move-up",
-        action : ()=>{
-          this.moveCheckedUp()
-        }
-      }, {
-        icon : "fas-long-arrow-alt-down",
-        tip : "i18n:move-down",
-        action : ()=>{
-          this.moveCheckedDown()
-        }
-      }, {
-        type : "line"
-      }, {
-        icon : "fas-code",
-        tip : "i18n:source",
-        action : ()=>{
-          this.doEditCurrentSource()
-        }
-      }]
+      )
+      return items
     },
     //------------------------------------------------
     TheValue() {
-      if(!this.value) {
+      if (!this.value) {
         return []
       }
-      if(_.isString(this.value)) {
+      if (_.isString(this.value)) {
         return JSON.parse(this.value)
       }
       return this.value
@@ -29610,38 +29629,38 @@ const _M = {
       let config = _.cloneDeep(this.list)
       config.data = this.TheValue
       _.defaults(config, {
-        blankAs    : this.blankAs,
-        blankClass : this.blankClass,
-        multi : true,
-        checkable : true
+        blankAs: this.blankAs,
+        blankClass: this.blankClass,
+        multi: true,
+        checkable: true
       })
       return config
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //-----------------------------------------------
     OnInitTable($table) {
       this.$table = $table
     },
     //-----------------------------------------------
-    OnTableRowSelect({currentId, current, currentIndex, checkedIds}) {
+    OnTableRowSelect({ currentId, current, currentIndex, checkedIds }) {
       // this.myCurrentData = current
       // this.myCurrentId = currentId
       // this.myCurrentIndex = currentIndex
       // this.myCheckedIds = checkedIds
     },
     //-----------------------------------------------
-    async OnTableRowOpen({index, rawData}) {
+    async OnTableRowOpen({ index, rawData }) {
       let reo = await this.openDialogForMeta(rawData);
 
       // User cancel
-      if(_.isUndefined(reo))
+      if (_.isUndefined(reo))
         return
 
       // Join to 
-      let list = _.cloneDeep(this.TheValue||[])
+      let list = _.cloneDeep(this.TheValue || [])
       list.splice(index, 1, reo)
       this.notifyChange(list)
     },
@@ -29651,42 +29670,42 @@ const _M = {
       let reo = await this.openDialogForMeta();
       //console.log(reo)
       // User cancel
-      if(_.isUndefined(reo))
+      if (_.isUndefined(reo))
         return
 
       // Join to 
-      let list = _.cloneDeep(this.TheValue||[])
-      let val = _.concat(list||[], reo)
+      let list = _.cloneDeep(this.TheValue || [])
+      let val = _.concat(list || [], reo)
       this.notifyChange(val)
     },
     //-----------------------------------------------
     async doEditCurrentMeta() {
       let row = this.$table.getCurrentRow()
-      if(!row) {
+      if (!row) {
         return await Ti.Toast.Open("i18n:nil-item", "warn")
       }
-      let {rawData, index} = row
+      let { rawData, index } = row
       let reo = await this.openDialogForMeta(rawData);
 
       // User cancel
-      if(_.isUndefined(reo))
+      if (_.isUndefined(reo))
         return
 
       // Join to 
-      let list = _.cloneDeep(this.TheValue||[])
+      let list = _.cloneDeep(this.TheValue || [])
       list.splice(index, 1, reo)
       this.notifyChange(list)
     },
     //-----------------------------------------------
     async doEditCurrentSource() {
       let json = this.value || "[]"
-      if(!_.isString(json)) {
+      if (!_.isString(json)) {
         json = JSON.stringify(json, null, '   ')
       }
       json = await this.openDialogForSource(json);
 
       // User cancel
-      if(_.isUndefined(json))
+      if (_.isUndefined(json))
         return
 
       // Join to 
@@ -29695,65 +29714,65 @@ const _M = {
         this.notifyChange(list)
       }
       // Invalid json
-      catch(E) {
+      catch (E) {
         await Ti.Toast.Open("" + E)
       }
     },
     //-----------------------------------------------
     removeChecked() {
-      let {checked, remains} = this.$table.removeChecked()
-      if(_.isEmpty(checked))
+      let { checked, remains } = this.$table.removeChecked()
+      if (_.isEmpty(checked))
         return
 
       this.notifyChange(remains)
     },
     //-----------------------------------------------
     moveCheckedUp() {
-      let {list, nextCheckedIds} = this.$table.moveChecked(-1)
+      let { list, nextCheckedIds } = this.$table.moveChecked(-1)
 
       this.notifyChange(list)
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.$table.checkRow(nextCheckedIds)
       })
     },
     //-----------------------------------------------
     moveCheckedDown() {
-      let {list, nextCheckedIds} = this.$table.moveChecked(1)
+      let { list, nextCheckedIds } = this.$table.moveChecked(1)
 
       this.notifyChange(list)
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.$table.checkRow(nextCheckedIds)
       })
     },
     //-----------------------------------------------
-    async openDialogForMeta(result={}) {
+    async openDialogForMeta(result = {}) {
       let dialog = _.assign({
-          title  : "i18n:edit",
-          width  : 500,
-          height : 500
-        },
+        title: "i18n:edit",
+        width: 500,
+        height: 500
+      },
         this.dialog,
         {
           result,
-          model : {prop:"data", event:"change"},
-          comType : "TiForm",
-          comConf : this.form
+          model: { prop: "data", event: "change" },
+          comType: "TiForm",
+          comConf: this.form
         })
 
       return await Ti.App.Open(dialog);
     },
     //-----------------------------------------------
-    async openDialogForSource(json='[]') {
+    async openDialogForSource(json = '[]') {
       let dialog = _.assign({
-          title  : "i18n:edit",
-          width  : 500,
-          height : 500
-        },
+        title: "i18n:edit",
+        width: 500,
+        height: 500
+      },
         this.dialog,
         {
-          result : json,
-          comType : "TiInputText",
-          comConf : {
+          result: json,
+          comType: "TiInputText",
+          comConf: {
             height: "100%"
           }
         })
@@ -29761,8 +29780,8 @@ const _M = {
       return await Ti.App.Open(dialog);
     },
     //-----------------------------------------------
-    notifyChange(val=[]) {
-      if("String" == this.valueType) {
+    notifyChange(val = []) {
+      if ("String" == this.valueType) {
         val = JSON.stringify(val, null, '   ')
       }
       this.$notify("change", val)
@@ -29770,7 +29789,7 @@ const _M = {
     //-----------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
+  watch: {
     //----------------------------------------------- 
     //-----------------------------------------------
   }
@@ -35371,6 +35390,19 @@ const LIST_MIXINS = {
       return Ti.Util.genRowDataGetter(this.rawDataBy)
     },
     //-----------------------------------------------
+    testRowAsGroupTitle() {
+      if(this.rowAsGroupTitle) {
+        return Ti.AutoMatch.parse(this.rowAsGroupTitle)
+      }
+      return ()=>false
+    },
+    //-----------------------------------------------
+    RowGroupTitleDisplay() {
+      if(this.rowGroupTitleDisplay) {
+        return this.evalFieldDisplay(this.rowGroupTitleDisplay, "..")
+      }
+    },
+    //-----------------------------------------------
     isDataLoading() {
       return _.isUndefined(this.data)
     },
@@ -35512,6 +35544,7 @@ const LIST_MIXINS = {
       //............................................
       // Then format the list
       let list = []
+      let displayIndex = 0
       _.forEach(data, (it, index)=>{
         let className;
         if(this.rowClassBy) {
@@ -35519,9 +35552,9 @@ const LIST_MIXINS = {
             evalFunc: true
           })
         }
+        let asGroupTitle = this.testRowAsGroupTitle(it)
         let item = {
-          className,
-          index,
+          className, index, displayIndex, asGroupTitle,
           id      : this.getRowId(it, index),
           rawData : this.getRowData(it),
           checkable  : this.isRowCheckable(it),
@@ -35532,6 +35565,10 @@ const LIST_MIXINS = {
           item : it
         }
         item = iteratee(item) || item
+        // Increase display index
+        if(!asGroupTitle) {
+          displayIndex++
+        }
         // Join
         list.push(item)
       })
@@ -35672,17 +35709,20 @@ const LIST_MIXINS = {
       let checked = []
       let current = null
       let currentIndex = -1
+      let currentDisplayIndex = -1
       for(let row of this.TheData) {
         if(row.id == currentId) {
           current = row.rawData
           currentIndex = row.index
+          currentDisplayIndex = row.displayIndex
         }
         if(checkedIds[row.id]) {
           checked.push(row.rawData)
         }
       }
       return {
-        current, currentId, currentIndex,
+        currentIndex, currentDisplayIndex,
+        current, currentId, 
         checked, checkedIds
       }
     },
@@ -36356,7 +36396,6 @@ const _M = {
         if(_.isFunction(it.handler)) {
           it.handler()
         }
-        console.log(it)
         if(_.isString(it.eventName)) {
           this.$notify(it.eventName, it.payload)
         }
@@ -37522,6 +37561,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "changedId" : {
     type : String,
     default : null
+  },
+  "rowAsGroupTitle" : {
+    type : [String, Object, Array, Function]
+  },
+  "rowGroupTitleDisplay" : {
+    type : [String, Object, Array, Function]
   },
   // "extendFunctionSet" : {
   //   type : Object,
@@ -42925,7 +42970,7 @@ async function CmdShowImageProp(editor, settings) {
     comConf : {
       spacing : "tiny",
       fields : [{
-        title : "i18n:hmk-w-edit-img-pic",
+          title : "i18n:hmk-w-edit-img-pic",
           name  : "oid",
           comType : "WnObjPicker",
           comConf : {
@@ -43121,7 +43166,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnImgFloat', {
-      text: 'i18n:hmk-float',
+      text: Ti.I18n.text('i18n:hmk-css-float'),
       getSubmenuItems: function () {
         return [{
           type : "menuitem",
@@ -43982,10 +44027,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "fields" : {
       type : Array,
       default : ()=>[]
-    },
-    "rowNumberBase" : {
-      type : Number,
-      default : undefined
     }
   },
   ///////////////////////////////////////////////////
@@ -43999,16 +44040,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------------------
     hasRealIcon() {
       return this.icon && _.isString(this.icon)
-    },
-    //-----------------------------------------------
-    hasRowNumber() {
-      return _.isNumber(this.rowNumberBase)
-    },
-    //-----------------------------------------------
-    RowNumber() {
-      if(this.hasRowNumber) {
-        return this.rowNumberBase + this.index
-      }
     }
     //-----------------------------------------------
   },
@@ -51014,61 +51045,79 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/combo/input/ti-combo-input.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    myDropStatus   : "collapse",
-    myItem         : null,
-    myFreeValue    : null,
-    myFilterValue  : null,
-    myOptionsData  : null,
-    myCurrentId    : null,
-    myCheckedIds   : {},
+  data: () => ({
+    myDropStatus: "collapse",
+    myItem: null,
+    myFreeValue: null,
+    myFilterValue: null,
+    myOptionsData: null,
+    myCurrentId: null,
+    myCheckedIds: {},
 
-    myOldValue : undefined,
-    myDict : undefined,
-    loading : false
+    myOldValue: undefined,
+    myDict: undefined,
+    loading: false
   }),
   ////////////////////////////////////////////////////
-  props : {
-    "canInput" : {
-      type : Boolean,
-      default : true
+  props: {
+    "canInput": {
+      type: Boolean,
+      default: true
     },
-    "autoCollapse" : {
-      type : Boolean,
-      default : false
+    "autoCollapse": {
+      type: Boolean,
+      default: false
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
-    isCollapse() {return "collapse"==this.myDropStatus},
-    isExtended() {return "extended"==this.myDropStatus},
+    isCollapse() { return "collapse" == this.myDropStatus },
+    isExtended() { return "extended" == this.myDropStatus },
     //------------------------------------------------
     TopClass() {
       return this.getTopClass()
     },
     //------------------------------------------------
-    TheInputProps(){
+    TheInputProps() {
       return _.assign({}, this, {
-        readonly : !this.canInput || this.readonly,
-        autoI18n : this.autoI18n,
-        placeholder : this.placeholder,
+        readonly: !this.canInput || this.readonly,
+        autoI18n: this.autoI18n,
+        placeholder: this.placeholder,
         hover: this.hover,
-        prefixIconForClean : this.prefixIconForClean,
+        prefixIconForClean: this.prefixIconForClean,
         width: this.width,
         height: this.height
       })
     },
     //------------------------------------------------
     InputValue() {
-      if(!Ti.Util.isNil(this.myFilterValue)) {
+      if (!Ti.Util.isNil(this.myFilterValue)) {
         return this.myFilterValue
       }
-      if(this.myItem) {
-        return this.Dict.getText(this.myItem)
-               || this.Dict.getValue(this.myItem)
+      if (this.myItem) {
+        let text  = this.Dict.getText(this.myItem)
+        let value = this.Dict.getValue(this.myItem)
+        if(this.inputValueDisplay) {
+          return Ti.Util.explainObj(this.myItem, this.inputValueDisplay, {
+            evalFunc: true
+          })
+        }
+        return text || value
       }
       return this.myFreeValue
+    },
+    //------------------------------------------------
+    InputSuffixText() {
+      if (this.myItem) {
+        if(!_.isUndefined(this.inputSuffixTextDisplay)) {
+          return Ti.Util.explainObj(this.myItem, this.inputSuffixTextDisplay, {
+            evalFunc: true
+          })
+        }
+        return this.Dict.getValue(this.myItem)
+      }
+      return this.suffixText
     },
     //------------------------------------------------
     GetValueBy() {
@@ -51076,11 +51125,11 @@ const _M = {
     },
     //------------------------------------------------
     ThePrefixIcon() {
-      if(this.loading) {
+      if (this.loading) {
         return "zmdi-settings zmdi-hc-spin"
       }
       let icon = this.prefixIcon;
-      if(this.myItem) {
+      if (this.myItem) {
         icon = this.Dict.getIcon(this.myItem) || icon
       }
       return icon || "zmdi-minus"
@@ -51090,25 +51139,28 @@ const _M = {
       return this.statusIcons[this.myDropStatus]
     },
     //------------------------------------------------
-    DropComType() {return this.dropComType || "ti-list"},
+    DropComType() { return this.dropComType || "ti-list" },
     DropComConf() {
       return _.assign({
-        display    : this.dropDisplay || "text",
-        border     : this.dropItemBorder
+        display: this.dropDisplay || [
+          "title|text|nm::flex-auto",
+          "id|value::as-tip-block align-right"
+        ],
+        border: this.dropItemBorder
       }, this.dropComConf, {
-        data : this.myOptionsData,
-        currentId  : this.myCurrentId,
-        checkedIds : this.myCheckedIds,
-        idBy       : this.GetValueBy,
-        multi      : false,
-        hoverable  : true,
-        checkable  : false,
-        autoCheckCurrent : true
+        data: this.myOptionsData,
+        currentId: this.myCurrentId,
+        checkedIds: this.myCheckedIds,
+        idBy: this.GetValueBy,
+        multi: false,
+        hoverable: true,
+        checkable: false,
+        autoCheckCurrent: true
       })
     },
     //------------------------------------------------
     Dict() {
-      if(!this.myDict) {
+      if (!this.myDict) {
         this.myDict = this.createDict()
       }
       return this.myDict
@@ -51116,23 +51168,23 @@ const _M = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //-----------------------------------------------
-    OnDropListInit($dropList){this.$dropList=$dropList},
+    OnDropListInit($dropList) { this.$dropList = $dropList },
     //------------------------------------------------
-    OnCollapse() {this.doCollapse()},
+    OnCollapse() { this.doCollapse() },
     //-----------------------------------------------
     OnInputInputing(val) {
-      if(this.filter) {
+      if (this.filter) {
         this.myFilterValue = val
         // Auto extends
-        if(this.autoFocusExtended) {
-          if(!this.isExtended) {
+        if (this.autoFocusExtended) {
+          if (!this.isExtended) {
             this.doExtend(false)
           }
         }
         // Reload options data
-        if(this.isExtended) {
+        if (this.isExtended) {
           this.debReload()
         }
       }
@@ -51143,7 +51195,7 @@ const _M = {
       // Clean filter
       this.myFilterValue = null
       // Clean
-      if(!val) {
+      if (!val) {
         this.myItem = null
         this.myFreeValue = null
         this.myCheckedIds = {}
@@ -51153,157 +51205,159 @@ const _M = {
       else {
         let it = await this.Dict.getItem(val)
         // Matched tag
-        if(it) {
+        if (it) {
           this.myItem = it
           this.myFreeValue = null
         }
-        else if(!this.mustInList) {
+        else if (!this.mustInList) {
           this.myItem = null
           this.myFreeValue = val
         }
       }
-      if(!byKeyboardArrow)
+      if (!byKeyboardArrow)
         this.tryNotifyChanged()
     },
     //-----------------------------------------------
     async OnInputFocused() {
-      if(this.autoFocusExtended && !this.isExtended) {
+      if (this.autoFocusExtended && !this.isExtended) {
         await this.doExtend()
       }
     },
     //-----------------------------------------------
     async OnClickStatusIcon() {
-      if(this.isExtended) {
+      if (this.isExtended) {
         await this.doCollapse()
       } else {
         await this.doExtend()
       }
     },
     //-----------------------------------------------
-    async OnDropListSelected({currentId, byKeyboardArrow}={}) {
+    async OnDropListSelected({ currentId, byKeyboardArrow } = {}) {
       //console.log({currentId, byKeyboardArrow})
       this.myCurrentId = currentId
       await this.OnInputChanged(currentId, byKeyboardArrow)
-      if(this.autoCollapse && !byKeyboardArrow) {
-        await this.doCollapse({escaped:true})
+      if (this.autoCollapse && !byKeyboardArrow) {
+        await this.doCollapse({ escaped: true })
       }
     },
     //-----------------------------------------------
     // Core Methods
     //-----------------------------------------------
-    async doExtend(tryReload=true) {
+    async doExtend(tryReload = true) {
       this.myOldValue = this.evalMyValue()
       // Try reload options again
-      if(tryReload && _.isEmpty(this.myOptionsData)) {
+      if (tryReload && _.isEmpty(this.myOptionsData)) {
         await this.reloadMyOptionData(true)
       }
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.myDropStatus = "extended"
       })
     },
     //-----------------------------------------------
-    async doCollapse({escaped=false}={}) {
-      if(escaped) {
+    async doCollapse({ escaped = false } = {}) {
+      if (escaped) {
         this.evalMyItem(this.myOldValue)
       }
       // Try notify
-      else  {
+      else {
         this.tryNotifyChanged()
       }
       this.myDropStatus = "collapse"
-      this.myOldValue   = undefined
+      this.myOldValue = undefined
     },
     //-----------------------------------------------
     tryNotifyChanged() {
       let val = this.evalMyValue()
       //console.log("tryNotifyChanged", val)
-      if(Ti.Util.isNil(val) && Ti.Util.isNil(this.value))
+      if (Ti.Util.isNil(val) && Ti.Util.isNil(this.value))
         return
-      if(!_.isEqual(val, this.value)) {
+      if (!_.isEqual(val, this.value)) {
         this.$notify("change", val)
       }
     },
     //-----------------------------------------------
     // Utility
     //-----------------------------------------------
-    evalMyValue(item=this.myItem, freeValue=this.myFreeValue) {
+    evalMyValue(item = this.myItem, freeValue = this.myFreeValue) {
       //console.log("evalMyValue", item, freeValue)
       // Item
-      if(item) {
+      if (item) {
         return this.Dict.getValue(item)
       }
       // Ignore free values
-      return this.mustInList 
-              ? null
-              : freeValue
+      return this.mustInList
+        ? null
+        : freeValue
     },
     //-----------------------------------------------
-    async evalMyItem(val=this.value) {
+    async evalMyItem(val = this.value) {
+      //console.log("before evalMyItem", val)
       let it = await this.Dict.getItem(val)
-      //console.log("evalMyItem", val)
-      if(_.isArray(it)) {
+      //console.log("after evalMyItem: it", it)
+      if (_.isArray(it)) {
         console.error("!!!!!!! kao ~~~~~~~")
         it = null
       }
       // Update state
-      if(it) {
+      if (it) {
         let itV = this.Dict.getValue(it)
         this.myItem = it
         this.myFreeValue = null
-        this.myCurrentId  = itV
-        this.myCheckedIds = {[itV]: true}
+        this.myCurrentId = itV
+        this.myCheckedIds = { [itV]: true }
       }
       // Clean
       else {
         this.myItem = null
         this.myFreeValue = this.mustInList ? null : val
-        this.myCurrentId  = null
+        this.myCurrentId = null
         this.myCheckedIds = {}
       }
     },
     //------------------------------------------------
     createDict() {
+      //console.log("createDict in combo-input")
       // Customized
-      if(this.options instanceof Ti.Dict) {
+      if (this.options instanceof Ti.Dict) {
         return this.options
       }
       // Refer dict
-      if(_.isString(this.options)) {
+      if (_.isString(this.options)) {
         let dictName = Ti.DictFactory.DictReferName(this.options)
-        if(dictName) {
-          let {name, dynamic, dictKey} = Ti.DictFactory.explainDictName(dictName)
+        if (dictName) {
+          let { name, dynamic, dictKey } = Ti.DictFactory.explainDictName(dictName)
           //
           // Dynamic dictionary
           //
-          if(dynamic) {
+          if (dynamic) {
             let key = _.get(this.dictVars, dictKey)
-            if(!key) {
+            if (!key) {
               return null
             }
             return Ti.DictFactory.GetDynamicDict({
               name, key,
-              vars : this.dictVars
-            }, ({loading}) => {
+              vars: this.dictVars
+            }, ({ loading }) => {
               this.loading = loading
             })
           }
-          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
+          return Ti.DictFactory.CheckDict(dictName, ({ loading }) => {
             this.loading = loading
           })
         }
       }
       // Auto Create
       return Ti.DictFactory.CreateDict({
-        data : this.options,
-        getValue : Ti.Util.genGetter(this.valueBy || "value"),
-        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
-        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
+        data: this.options,
+        getValue: Ti.Util.genGetter(this.valueBy || "value"),
+        getText: Ti.Util.genGetter(this.textBy || "text|name"),
+        getIcon: Ti.Util.genGetter(this.iconBy || "icon")
       })
     },
     //-----------------------------------------------
-    async reloadMyOptionData(force=false) {
+    async reloadMyOptionData(force = false) {
       //console.log("reloadMyOptionData")
-      if(force || this.isExtended) {
+      if (force || this.isExtended) {
         let list = await this.Dict.queryData(this.myFilterValue)
         this.myOptionsData = list
       } else {
@@ -51317,65 +51371,65 @@ const _M = {
     __ti_shortcut(uniqKey) {
       //console.log("ti-combo-multi-input", uniqKey)
       //....................................
-      if("ESCAPE" == uniqKey) {
-        this.doCollapse({escaped:true})
-        return {prevent:true, stop:true, quit:true}
+      if ("ESCAPE" == uniqKey) {
+        this.doCollapse({ escaped: true })
+        return { prevent: true, stop: true, quit: true }
       }
       //....................................
       // If droplist is actived, should collapse it
-      if("ENTER" == uniqKey) {
+      if ("ENTER" == uniqKey) {
         //if(this.$dropList && this.$dropList.isActived) {
-          this.doCollapse()
-          return {stop:true, quit:false}
+        this.doCollapse()
+        return { stop: true, quit: false }
         //}
       }
       //....................................
-      if("ARROWUP" == uniqKey) {
-        if(this.$dropList) {
+      if ("ARROWUP" == uniqKey) {
+        if (this.$dropList) {
           this.$dropList.selectPrevRow({
-            payload: {byKeyboardArrow: true}
+            payload: { byKeyboardArrow: true }
           })
         }
-        return {prevent:true, stop:true, quit:true}
+        return { prevent: true, stop: true, quit: true }
       }
       //....................................
-      if("ARROWDOWN" == uniqKey) {
-        if(this.$dropList && this.isExtended) {
+      if ("ARROWDOWN" == uniqKey) {
+        if (this.$dropList && this.isExtended) {
           this.$dropList.selectNextRow({
-            payload: {byKeyboardArrow: true}
+            payload: { byKeyboardArrow: true }
           })
         } else {
           this.doExtend()
         }
-        return {prevent:true, stop:true, quit:true}
+        return { prevent: true, stop: true, quit: true }
       }
     }
     //-----------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
+  watch: {
     //-----------------------------------------------
-    "value" : {
-      handler: function(){
-        this.$nextTick(()=>{
+    "value": {
+      handler: function () {
+        this.$nextTick(() => {
           this.evalMyItem()
         })
       },
-      immediate : true
+      immediate: true
     },
     //-----------------------------------------------
-    "myOptionsData" : function(){
-      this.$nextTick(()=>{
+    "myOptionsData": function () {
+      this.$nextTick(() => {
         this.evalMyItem()
       })
     },
     //-----------------------------------------------
-    "options" : function(newval, oldval) {
-      if(!_.isEqual(newval, oldval)) {
+    "options": function (newval, oldval) {
+      if (!_.isEqual(newval, oldval)) {
         this.myDict = this.createDict()
         this.myOptionsData = []
-        if(this.isExtended) {
-          this.$nextTick(()=>{
+        if (this.isExtended) {
+          this.$nextTick(() => {
             this.reloadMyOptionData(true)
           })
         }
@@ -51384,8 +51438,8 @@ const _M = {
     //-----------------------------------------------
   },
   ////////////////////////////////////////////////////
-  created : function() {
-    this.debReload = _.debounce(val=>{
+  created: function () {
+    this.debReload = _.debounce(val => {
       this.reloadMyOptionData()
     }, this.delay)
   }
@@ -52460,10 +52514,29 @@ window.TI_PACK_EXPORTS['ti/com/ti/support/list_item_mixins.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   inject: ["$vars"],
   ///////////////////////////////////////////////////
+  data: ()=>({
+    groupTitleComs: []
+  }),
+  ///////////////////////////////////////////////////
   props : {
     "index" : {
       type : Number,
       default : -1
+    },
+    "displayIndex" : {
+      type : Number,
+      default : -1
+    },
+    "rowNumberBase" : {
+      type : Number,
+      default : undefined
+    },
+    "asGroupTitle" : {
+      type : Boolean,
+      default: false
+    },
+    "groupTitleDisplay" : {
+      type : Array
     },
     "rowId" : {
       type : String,
@@ -52520,6 +52593,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
         "is-changed" : this.isChanged,
         "no-checked" : !this.isChecked
       }, klass)
+    },
+    //-----------------------------------------------
+    hasRowNumber() {
+      return !this.asGroupTitle && _.isNumber(this.rowNumberBase)
+    },
+    //-----------------------------------------------
+    RowNumber() {
+      if(this.hasRowNumber) {
+        return this.rowNumberBase + this.displayIndex
+      }
+    },
+    //-----------------------------------------------
+    hasGroupTitleComs() {
+      return !_.isEmpty(this.groupTitleComs)
     },
     //-----------------------------------------------
     hasRowId() {
@@ -52587,6 +52674,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if(!this.isActived && this.isCurrent) {
         this.setActived()
       }
+    },
+    //-----------------------------------------------
+    async evalGroupTitleDisplayCom() {
+      if(this.asGroupTitle && !_.isEmpty(this.groupTitleDisplay)) {
+        let coms = []
+        for(let displayItem of this.groupTitleDisplay) {
+          let com = await this.$parent.evalDataForFieldDisplayItem({
+            itemData : this.data, 
+            displayItem, 
+            vars : {
+              "rowId"     : this.rowId,
+              "isCurrent" : this.isCurrent
+            },
+            autoIgnoreNil : false,
+          })
+          coms.push(com)
+        }
+        this.groupTitleComs = coms;
+      }
     }
     //-----------------------------------------------
   },
@@ -52594,11 +52700,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
   watch : {
     "isCurrent" : function() {
       this.doAutoActived()
-    }
+    },
+    "data" : "evalGroupTitleDisplayCom",
+    "groupTitleDisplay" : "evalGroupTitleDisplayCom"
   },
   ///////////////////////////////////////////////////
-  mounted : function() {
+  mounted : async function() {
     this.doAutoActived()
+    await this.evalGroupTitleDisplayCom()
   }
   ///////////////////////////////////////////////////
 }
@@ -54945,7 +55054,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default : "zmdi-close-circle"
   },
   "prefixText" : {
-    type : String,
+    type : [String, Number],
     default : undefined
   },
   "suffixIcon" : {
@@ -54953,7 +55062,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default : undefined
   },
   "suffixText" : {
-    type : String,
+    type : [String, Number],
     default : undefined
   },
   //-----------------------------------
@@ -57126,70 +57235,74 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "value" : {
-    type : [Array, String],
-    default : ()=>[]
+  "value": {
+    type: [Array, String],
+    default: () => []
   },
-  "valueType" : {
-    type : String,
-    default : "Array",
-    validator : v => /^(Array|String)$/.test(v)
+  "valueType": {
+    type: String,
+    default: "Array",
+    validator: v => /^(Array|String)$/.test(v)
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "form" : {
-    type : Object,
-    default : ()=>({})
+  "form": {
+    type: Object,
+    default: () => ({})
   },
-  "list" : {
-    type : Object,
-    default : ()=>({})
+  "list": {
+    type: Object,
+    default: () => ({})
   },
-  "dialog" : {
-    type : Object,
-    default : ()=>({
-      title  : "i18n:edit",
-      width  : 500,
-      height : 500
+  "dialog": {
+    type: Object,
+    default: () => ({
+      title: "i18n:edit",
+      width: 500,
+      height: 500
     })
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "blankAs" : {
-    type : Object,
-    default : ()=>({
-      icon : "fab-deezer",
-      text : "empty-data"
+  "blankAs": {
+    type: Object,
+    default: () => ({
+      icon: "fab-deezer",
+      text: "empty-data"
     })
   },
-  "blankClass" : {
-    type : String,
-    default : "as-mid-tip"
+  "blankClass": {
+    type: String,
+    default: "as-mid-tip"
   },
-  "actionAlign" : {
-    type : String,
-    default : undefined
+  "actionAlign": {
+    type: String,
+    default: undefined
   },
-  "newItemIcon" : {
-    type : String,
-    default : "fas-plus"
+  "newItemIcon": {
+    type: String,
+    default: "fas-plus"
   },
-  "newItemText" : {
-    type : String,
-    default : "i18n:new-item"
+  "newItemText": {
+    type: String,
+    default: "i18n:new-item"
+  },
+  "itemEditable": {
+    type: Boolean,
+    default: true
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "width" : {
-    type : [Number, String],
-    default : undefined
+  "width": {
+    type: [Number, String],
+    default: undefined
   },
-  "height" : {
-    type : [Number, String],
-    default : undefined
+  "height": {
+    type: [Number, String],
+    default: undefined
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -58843,6 +58956,7 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box
 
       :value="InputValue"
       :prefix-icon="ThePrefixIcon"
+      :suffix-text="InputSuffixText"
       :suffix-icon="TheSuffixIcon"
 
       @change="OnInputChanged"
@@ -62184,45 +62298,62 @@ Ti.Preload("ti/com/ti/table/com/table-row/table-row.html", `<tr class="table-row
   @dblclick.left="OnDblClickRow"
   v-ti-activable>
   <!--
+    Group title
+  -->
+  <td 
+    v-if="asGroupTitle && hasGroupTitleComs"
+      class="as-row-group-title"
+      :colspan="fields.length">
+      <div class="row-group-title-con">
+        <component
+          v-for="(it, index) in groupTitleComs"
+            :key="index"
+            :is="it.comType"
+            v-bind="it.comConf"/>
+      </div>
+  </td>
+  <!--
     Cells
   -->
-  <table-cell v-for="fld in fields"
-    :key="fld.index"
-    v-bind="fld"
-    :row-id="rowId"
-    :row-index="index"
-    :is-current="isCurrent"
-    :is-checked="isChecked"
-    :data="data">
-    <template v-if="fld.index == 0">
-      <div class="table-row-head">
-        <!--current actived row indicator-->
-        <div class="row-actived-indicator"></div>
-        <!-- Indents -->
-        <div v-for="n in indent"
-            class="row-indent"></div>
-        <!--ICON: Handler-->
-        <template v-if="icon">
-          <ti-icon
-            v-if="hasRealIcon"
-              class="row-icon row-handler"
-              :value="icon"
-              @click.native.left.stop="OnClickIcon"/>
-          <div v-else
-            class="row-icon"></div>
-        </template>
-        <!--ICON: Checker-->
-        <ti-icon v-if="checkable"
-            class="row-checker"
-            :value="theCheckIcon"
-            @click.native.left.stop="OnClickChecker"/>
-        <!--Row Number-->
-        <div 
-          v-if="hasRowNumber"
-            class="row-number">{{RowNumber}}</div>
-      </div>
-    </template>
-  </table-cell>
+  <template v-else>
+    <table-cell v-for="fld in fields"
+      :key="fld.index"
+      v-bind="fld"
+      :row-id="rowId"
+      :row-index="index"
+      :is-current="isCurrent"
+      :is-checked="isChecked"
+      :data="data">
+      <template v-if="fld.index == 0">
+        <div class="table-row-head">
+          <!--current actived row indicator-->
+          <div class="row-actived-indicator"></div>
+          <!-- Indents -->
+          <div v-for="n in indent"
+              class="row-indent"></div>
+          <!--ICON: Handler-->
+          <template v-if="icon">
+            <ti-icon
+              v-if="hasRealIcon"
+                class="row-icon row-handler"
+                :value="icon"
+                @click.native.left.stop="OnClickIcon"/>
+            <div v-else
+              class="row-icon"></div>
+          </template>
+          <!--ICON: Checker-->
+          <ti-icon v-if="checkable"
+              class="row-checker"
+              :value="theCheckIcon"
+              @click.native.left.stop="OnClickChecker"/>
+          <!--Row Number-->
+          <div 
+            v-if="hasRowNumber"
+              class="row-number">{{RowNumber}}</div>
+        </div>
+      </template>
+    </table-cell>
+  </template>
 </tr>`);
 //========================================
 // JOIN <table-row.mjs> ti/com/ti/table/com/table-row/table-row.mjs
@@ -62446,6 +62577,9 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
             :key="row.id"
             :row-id="row.id"
             :index="row.index"
+            :display-index="row.displayIndex"
+            :as-group-title="row.asGroupTitle"
+            :group-title-display="RowGroupTitleDisplay"
             :icon="row.icon"
             :indent="row.indent"
             :data="row.rawData"
@@ -71056,7 +71190,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "vu-v": "Volt",
   "warn": "Warn",
   "website": "Website",
-  "widht": "Width",
+  "width": "Width",
   "www-admin-login": "Admin login GUI",
   "www-home": "WWW home",
   "www-title": "Website",
@@ -72482,7 +72616,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "vu-v": "伏特",
   "warn": "警告",
   "website": "网站",
-  "widht": "宽度",
+  "width": "宽度",
   "www-admin-login": "后台登录界面",
   "www-home": "网站目录",
   "www-title": "前端网站",
@@ -73866,7 +74000,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "vu-v": "伏特",
    "warn": "警告",
    "website": "網站",
-   "widht": "寬度",
+   "width": "寬度",
    "www-admin-login": "後臺登錄界面",
    "www-home": "網站目錄",
    "www-title": "前端網站",

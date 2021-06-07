@@ -1,4 +1,4 @@
-// Pack At: 2021-06-04 23:06:56
+// Pack At: 2021-06-07 14:32:06
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -2873,7 +2873,6 @@ const OpenObjSelector = (function(){
               "data"]),
             //--------------------------------------
             CrumbData() {
-              console.log("hha")
               let crumbs = Wn.Obj.evalCrumbData({
                 meta: this.meta,
                 ancestors: this.ancestors,
@@ -4001,7 +4000,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210604.230656"
+const WALNUT_VERSION = "1.2-20210607.143208"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

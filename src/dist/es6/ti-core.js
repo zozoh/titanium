@@ -1,4 +1,4 @@
-// Pack At: 2021-06-04 23:06:56
+// Pack At: 2021-06-07 14:32:06
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4115,10 +4115,18 @@ const {Dom} = (function(){
           name = _.camelCase(name.substring(5))
           let key = filter(name, value)
           if(key) {
+            // return : true
             if(_.isBoolean(key)) {
-              key = name
+              re[name] = value
             }
-            re[key] = value
+            // return : {name, value}
+            else if(key.name) {
+              re[key.name] = key.value
+            }
+            // return: New name
+            else {
+              re[key] = value
+            }
           }
         }
       }
@@ -12673,13 +12681,10 @@ const {Dict,DictFactory} = (function(){
   "getValue", "getText", "getIcon", "isMatched",
   "itemCache", "dataCache", "hooks", "shadowed"]
   ///////////////////////////////////////////////
-  const __item_loading = {
-    
-  }
-  ///////////////////////////////////////////////
   class Dict {
     //-------------------------------------------
     constructor(){
+      this.__item_loading = {}
       this.hooks     = []
       this.shadowed  = false
       this.item      = _.idendity
@@ -12839,7 +12844,7 @@ const {Dict,DictFactory} = (function(){
       // Not in cache, try getItem
       if(_.isUndefined(it)) {
         // If is loading, return the promise
-        let loading = __item_loading[val]
+        let loading = this.__item_loading[val]
         if(loading) {
           return await new Promise((resolve)=>{
             loading.push(resolve)
@@ -12848,7 +12853,7 @@ const {Dict,DictFactory} = (function(){
   
         // Setup loading
         loading = []
-        __item_loading[val] = loading
+        this.__item_loading[val] = loading
   
         // Do load item ...
         //console.log("getItem", val)
@@ -12863,7 +12868,7 @@ const {Dict,DictFactory} = (function(){
         for(let resolve of loading) {
           resolve(it || null)
         }
-        delete __item_loading[val]
+        delete this.__item_loading[val]
       }
       // Warn !!
       // 不知道什么时候，在 anju 项目，总出现返回值为空数组 `[]`
@@ -13070,8 +13075,8 @@ const {Dict,DictFactory} = (function(){
       getValue, getText, getIcon, 
       isMatched, shadowed
     }={}, {hooks, name}={}) {
-      if("ComDeptJobs" == name)
-        console.log("CreateDict", {name, dataChildrenKey})
+      // if(!name)
+      //   console.log("CreateDict", {data, dataChildrenKey})
       //.........................................
       if(_.isString(data) || _.isArray(data)) {
         let aryData = Ti.S.toObjList(data)
@@ -15499,7 +15504,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210604.230656",
+  "version" : "1.6-20210607.143206",
   "dev" : false,
   "appName" : null,
   "session" : {},
