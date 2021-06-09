@@ -1,4 +1,4 @@
-// Pack At: 2021-06-09 19:54:37
+// Pack At: 2021-06-09 20:57:48
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -46730,7 +46730,7 @@ const _M = {
       let view = await $app.loadView(viewInfo, {
         setupMod: (moConf) => {
           //console.log("setup:", moConf)
-          _.merge(moConf.state, modState)
+          _.assign(moConf.state, modState)
           if (modSetup) {
             let setupFunc = Ti.Util.genInvoking(modSetup, {
               dft: null,
