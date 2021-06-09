@@ -244,6 +244,9 @@ export default {
             space : 10
           }
         }
+        // _.assign(dockOption, {
+        //   position: "fixed"
+        // })
         this.$nextTick(()=>{
           Ti.Dom.dockTo(this.$el, this.referElement, dockOption)
           _.delay(()=>{

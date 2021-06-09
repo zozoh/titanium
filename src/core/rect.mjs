@@ -116,6 +116,10 @@ export class Rect {
     return this.toString()
   }
   //--------------------------------------
+  update(mode) {
+    return this.updateBy(mode)
+  }
+  //--------------------------------------
   updateBy(mode="tlwh") {
     let ary = QKM.explainToArray(mode)
     let alg = ary.join("/");

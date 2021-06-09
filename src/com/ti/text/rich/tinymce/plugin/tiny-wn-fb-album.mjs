@@ -109,6 +109,7 @@ function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
       Wn.FbAlbum.reloadAllPhotoList({
         albumId : album.id,
         domain,
+        accountName,
         access_token : longLiveAccessToken,
         force
       }).then((items)=>{
@@ -280,6 +281,13 @@ export default {
       else {
         oMeta.content = await Wn.Io.loadContent(oMeta, {as:"json"})
         this.metas = [oMeta]
+      }
+
+      // Read long live access token for each meta content
+      for(let o of this.metas) {
+        let domain = o.content.domain
+        let oAK = await Wn.Io.loadMeta(`~/.xapi/facebook/${domain}/long_live_access_token`)
+        o.content.longLiveAccessToken = oAK.ticket
       }
 
       // Build Album ID data

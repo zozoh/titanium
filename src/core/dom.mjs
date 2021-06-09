@@ -813,10 +813,12 @@ const TiDom = {
     if(!_.isElement($src) || !_.isElement($ta)) {
       return
     }
+    //console.log("dockTo", $src)
     // Force position
     if(position) {
       $src.style.position = position
     }
+    // Compute the real position style
     //console.log(mode, axis, space, position)
     // Get the rect
     let rect = {
@@ -879,6 +881,15 @@ const TiDom = {
         x: rect.ta.left * -1,
         y: rect.ta.top * -1
       })
+    }
+    // If absolute, it should considering the window scrollTop
+    else {
+      let realStyle = window.getComputedStyle($src)
+      //console.log(realStyle.position, window.pageYOffset)
+      if("absolute" == realStyle.position && window.pageYOffset>0) {
+        rect.src.top += window.pageYOffset
+        rect.src.update()
+      }
     }
 
     //console.log("do DockTo", dockedRect+"")

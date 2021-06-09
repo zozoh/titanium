@@ -1,4 +1,4 @@
-// Pack At: 2021-06-08 06:36:12
+// Pack At: 2021-06-09 12:14:28
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4663,10 +4663,12 @@ const {Dom} = (function(){
       if(!_.isElement($src) || !_.isElement($ta)) {
         return
       }
+      //console.log("dockTo", $src)
       // Force position
       if(position) {
         $src.style.position = position
       }
+      // Compute the real position style
       //console.log(mode, axis, space, position)
       // Get the rect
       let rect = {
@@ -4729,6 +4731,15 @@ const {Dom} = (function(){
           x: rect.ta.left * -1,
           y: rect.ta.top * -1
         })
+      }
+      // If absolute, it should considering the window scrollTop
+      else {
+        let realStyle = window.getComputedStyle($src)
+        //console.log(realStyle.position, window.pageYOffset)
+        if("absolute" == realStyle.position && window.pageYOffset>0) {
+          rect.src.top += window.pageYOffset
+          rect.src.update()
+        }
       }
   
       //console.log("do DockTo", dockedRect+"")
@@ -4888,6 +4899,10 @@ const {Rect,Rects} = (function(){
     }
     valueOf(){
       return this.toString()
+    }
+    //--------------------------------------
+    update(mode) {
+      return this.updateBy(mode)
     }
     //--------------------------------------
     updateBy(mode="tlwh") {
@@ -15600,7 +15615,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210608.063612",
+  "version" : "1.6-20210609.121428",
   "dev" : false,
   "appName" : null,
   "session" : {},

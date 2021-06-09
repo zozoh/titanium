@@ -3,10 +3,11 @@ const WnFbAlbum = {
   //----------------------------------------
   getAlbumPhotoCacheInfo({
     albumId,
-    domain
+    domain,
+    accountName
   }) {
-    let fnm = `album.${albumId}.photos.json`
-    let fph = `~/.domain/facebook/${domain}/${fnm}`
+    let fnm = `${domain}.album.${albumId}.photos.json`
+    let fph = `~/.domain/facebook/${accountName}/${fnm}`
     return {
       fileName: fnm,
       filePath: fph
@@ -15,12 +16,14 @@ const WnFbAlbum = {
   //----------------------------------------
   async reloadAllPhotosInCache({
     albumId,
-    domain
+    domain,
+    accountName
   }={}) {
     // Reload from cache
     let re = WnFbAlbum.getAlbumPhotoCacheInfo({
       albumId,
-      domain
+      domain,
+      accountName
     })
     let fph = re.filePath
     re.oCache = await Wn.Io.loadMeta(fph)
@@ -35,13 +38,14 @@ const WnFbAlbum = {
   async reloadAllPhotoList({
     albumId,
     domain,
+    accountName,
     access_token,
     force= false
   }={}) {
     let fph;
     if(!force) {
       let {filePath, photos} = await WnFbAlbum.reloadAllPhotosInCache({
-        albumId, domain
+        albumId, domain, accountName
       })
       if(!_.isEmpty(photos)) {
         //console.log("In cache")
@@ -51,7 +55,8 @@ const WnFbAlbum = {
     } else {
       let {filePath} = WnFbAlbum.getAlbumPhotoCacheInfo({
         albumId,
-        domain
+        domain,
+        accountName
       })
       fph = filePath
     }
@@ -77,7 +82,7 @@ const WnFbAlbum = {
 
     // Save to cache
     await WnFbAlbum.savePhotoListToCache(photos, {
-      albumId, domain
+      albumId, domain, accountName
     })
 
     // Done 
@@ -86,11 +91,13 @@ const WnFbAlbum = {
   //----------------------------------------
   async savePhotoListToCache(photos, {
     albumId,
-    domain
+    domain,
+    accountName
   }) {
     let {filePath} = WnFbAlbum.getAlbumPhotoCacheInfo({
       albumId,
-      domain
+      domain,
+      accountName
     })
     if(!_.isEmpty(photos) && domain && filePath) {
       console.log("save to cache", filePath)

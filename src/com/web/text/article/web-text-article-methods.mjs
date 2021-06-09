@@ -212,8 +212,9 @@ export default {
 
       // Reload album data
       if(this.fbAlbumApiTmpl && "fb-album" == album.type) {
+        console.log(album)
         let url = Ti.S.renderBy(this.fbAlbumApiTmpl, album)
-        //console.log(url)
+        console.log(url)
         items = await Ti.Http.get(url, {as: "json"})
         Ti.Api.Facebook.setObjListPreview(items)
       }

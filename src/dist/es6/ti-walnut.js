@@ -1,4 +1,4 @@
-// Pack At: 2021-06-08 06:36:12
+// Pack At: 2021-06-09 12:14:28
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -2688,7 +2688,7 @@ const Hm = (function(){
           fldMap[name] = fld
         }
       })
-      console.log(fldMap)
+      //console.log(fldMap)
   
       // Make group
       let re = []
@@ -3896,10 +3896,11 @@ const FbAlbum = (function(){
     //----------------------------------------
     getAlbumPhotoCacheInfo({
       albumId,
-      domain
+      domain,
+      accountName
     }) {
-      let fnm = `album.${albumId}.photos.json`
-      let fph = `~/.domain/facebook/${domain}/${fnm}`
+      let fnm = `${domain}.album.${albumId}.photos.json`
+      let fph = `~/.domain/facebook/${accountName}/${fnm}`
       return {
         fileName: fnm,
         filePath: fph
@@ -3908,12 +3909,14 @@ const FbAlbum = (function(){
     //----------------------------------------
     async reloadAllPhotosInCache({
       albumId,
-      domain
+      domain,
+      accountName
     }={}) {
       // Reload from cache
       let re = WnFbAlbum.getAlbumPhotoCacheInfo({
         albumId,
-        domain
+        domain,
+        accountName
       })
       let fph = re.filePath
       re.oCache = await Wn.Io.loadMeta(fph)
@@ -3928,13 +3931,14 @@ const FbAlbum = (function(){
     async reloadAllPhotoList({
       albumId,
       domain,
+      accountName,
       access_token,
       force= false
     }={}) {
       let fph;
       if(!force) {
         let {filePath, photos} = await WnFbAlbum.reloadAllPhotosInCache({
-          albumId, domain
+          albumId, domain, accountName
         })
         if(!_.isEmpty(photos)) {
           //console.log("In cache")
@@ -3944,7 +3948,8 @@ const FbAlbum = (function(){
       } else {
         let {filePath} = WnFbAlbum.getAlbumPhotoCacheInfo({
           albumId,
-          domain
+          domain,
+          accountName
         })
         fph = filePath
       }
@@ -3970,7 +3975,7 @@ const FbAlbum = (function(){
   
       // Save to cache
       await WnFbAlbum.savePhotoListToCache(photos, {
-        albumId, domain
+        albumId, domain, accountName
       })
   
       // Done 
@@ -3979,11 +3984,13 @@ const FbAlbum = (function(){
     //----------------------------------------
     async savePhotoListToCache(photos, {
       albumId,
-      domain
+      domain,
+      accountName
     }) {
       let {filePath} = WnFbAlbum.getAlbumPhotoCacheInfo({
         albumId,
-        domain
+        domain,
+        accountName
       })
       if(!_.isEmpty(photos) && domain && filePath) {
         console.log("save to cache", filePath)
@@ -4000,7 +4007,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210608.063612"
+const WALNUT_VERSION = "1.2-20210609.121428"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

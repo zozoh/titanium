@@ -382,7 +382,7 @@ const WnHMaker = {
         fldMap[name] = fld
       }
     })
-    console.log(fldMap)
+    //console.log(fldMap)
 
     // Make group
     let re = []

@@ -1,4 +1,4 @@
-// Pack At: 2021-06-08 06:36:12
+// Pack At: 2021-06-09 12:14:28
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6658,7 +6658,7 @@ const _M = {
       //console.log(" #### page.loaded", _.cloneDeep(page))
       //.....................................
       // Notify: Prepare
-      //console.log("@page:prepare ...")
+      console.log("@page:prepare ...")
       commit("setReady", 1)
       await dispatch("invokeAction", { name: "@page:prepare" }, { root: true })
       //.....................................
@@ -9739,6 +9739,7 @@ function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
       Wn.FbAlbum.reloadAllPhotoList({
         albumId : album.id,
         domain,
+        accountName,
         access_token : longLiveAccessToken,
         force
       }).then((items)=>{
@@ -9910,6 +9911,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
       else {
         oMeta.content = await Wn.Io.loadContent(oMeta, {as:"json"})
         this.metas = [oMeta]
+      }
+
+      // Read long live access token for each meta content
+      for(let o of this.metas) {
+        let domain = o.content.domain
+        let oAK = await Wn.Io.loadMeta(`~/.xapi/facebook/${domain}/long_live_access_token`)
+        o.content.longLiveAccessToken = oAK.ticket
       }
 
       // Build Album ID data
@@ -17279,8 +17287,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       // Reload album data
       if(this.fbAlbumApiTmpl && "fb-album" == album.type) {
+        console.log(album)
         let url = Ti.S.renderBy(this.fbAlbumApiTmpl, album)
-        //console.log(url)
+        console.log(url)
         items = await Ti.Http.get(url, {as: "json"})
         Ti.Api.Facebook.setObjListPreview(items)
       }
@@ -30743,6 +30752,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
             space : 10
           }
         }
+        // _.assign(dockOption, {
+        //   position: "fixed"
+        // })
         this.$nextTick(()=>{
           Ti.Dom.dockTo(this.$el, this.referElement, dockOption)
           _.delay(()=>{
@@ -56447,6 +56459,14 @@ window.TI_PACK_EXPORTS['ti/com/net/facebook/albums/facebook-albums.mjs'] = (func
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////////
   data : ()=>({
+   appId: null, 
+   appSecret: null,
+   grantedScopes: null,
+   longLiveAccessToken: null,
+   tokenExpiresIn: 5183967,
+   tokenType: "bearer",
+   tokenExpireAt: 0,
+
     myId : undefined,
     myName : undefined,
     myGrantedScopes : undefined,
@@ -56471,30 +56491,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "domain": {
       type : String
     },
-    "appId" : {
-      type : String
-    },
-    "appSecret" : {
-      type : String
-    },
     "scope" : {
       type : String
-    },
-    "grantedScopes" : {
-      type : String
-    },
-    "longLiveAccessToken": {
-      type : String
-    },
-    "tokenExpiresIn" : {
-      type : Number,
-    },
-    "tokenType" : {
-      type : String
-    },
-    "tokenExpireAt" : {
-      type : Number,
-      default : 0
     },
     "userId" : {
       type : String
@@ -56541,6 +56539,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
     hasCurrentAlbum() {
       return this.currentAlbumId ? true : false
+    },
+    //---------------------------------------------------
+    AccountName() {
+      return _.get(this.meta, "nm")
     },
     //---------------------------------------------------
     CurrentAlbum() {
@@ -56771,7 +56773,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Invoke api
       let {data, paging} = await Ti.Api.Facebook.getAlbumList({
         userId : this.myId,
-        access_token : this.myLongLiveAK,
+        access_token : this.longLiveAccessToken,
         after : this.myAlbumCursorAfter
       })
       // Reload cover
@@ -56856,7 +56858,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       let cacheHint = {
         albumId: this.currentAlbumId,
-        domain : this.domain
+        domain : this.domain,
+        accountName: this.AccountName
       }
       // Reload from cache
       if(!force) {
@@ -56887,7 +56890,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Save to cache
       await Wn.FbAlbum.savePhotoListToCache(this.myPhotoList, {
         albumId : this.currentAlbumId,
-        domain  : this.domain
+        domain  : this.domain,
+        accountName: this.AccountName
       })
     },
     //---------------------------------------------------
@@ -56898,7 +56902,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Reload albums
       let {data, paging} = await Ti.Api.Facebook.getAlbumPhotoList({
         albumId : this.currentAlbumId,
-        access_token : this.myLongLiveAK,
+        access_token : this.longLiveAccessToken,
         after
       })
 
@@ -56911,8 +56915,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
     async reloadAlbumsCover(albums=[], force=false) {
       // Load Cache
-      let fnm = `user.${this.myId}.albums.cover_photos.json`
-      let fph = `~/.domain/facebook/${this.domain}/${fnm}`
+      let fnm = `${this.domain}.user.${this.myId}.albums.cover_photos.json`
+      let fph = `~/.domain/facebook/${this.AccountName}/${fnm}`
       //console.log("reloadAlbumsCover:", fph)
       let photos = {}
       if(!force) {
@@ -56932,7 +56936,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
             //console.log("Get album photo", album, photoId)
             photo = await Ti.Api.Facebook.getPhoto({
               photoId,
-              access_token : this.myLongLiveAK
+              access_token : this.longLiveAccessToken
             })
             if(photo) {
               loadedPhoto = true
@@ -56959,7 +56963,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Invoke api
       let {data, paging} = await Ti.Api.Facebook.getAlbumList({
         userId : this.myId,
-        access_token : this.myLongLiveAK
+        access_token : this.longLiveAccessToken
       })
       // Reload cover
       let albums = data
@@ -57009,35 +57013,41 @@ const __TI_MOD_EXPORT_VAR_NM = {
         as : "json"
       })
       // Grap Long live access token
-      this.myLongLiveAK = reo.access_token
+      this.longLiveAccessToken = reo.access_token
 
       // Save to remote
       if(reo.access_token) {
         let expireAt = Date.now() + reo.expires_in * 1000
+        //
         // Update file content
+        //
         let jsonToken = JSON.stringify({
           userId : this.myId,
           userName : this.myName,
           scope : this.ApiScope,
-          grantedScopes : this.myGrantedScopes,
-          longLiveAccessToken : reo.access_token,
-          tokenExpiresIn : reo.expires_in,
-          tokenType : reo.token_type,
-          tokenExpireAt : expireAt
+          grantedScopes : this.myGrantedScopes
         })
         let cmdText = `jsonx -qn @read id:${this.meta.id} -auto @set '${jsonToken}' > id:${this.meta.id}`
         await Wn.Sys.exec2(cmdText)
+        //
         // Update file meta
+        //
+        let akPh = `~/.xapi/facebook/${this.domain}/long_live_access_token`
         let objMeta = JSON.stringify({
-          title : this.myName,
-          token_expire_at : expireAt
+          ticket : reo.access_token,
+          expiAtMs : expireAt,
+          expiTime : reo.expires_in,
+          expiTimeUnit: "s"
         })
-        cmdText = `o id:${this.meta.id} @update`
+        // 确保文件存在
+        await Wn.Sys.exec2(`touch '${akPh}'`)
+        // 更新文件元数据
+        cmdText = `o '${akPh}' @update`
         await Wn.Sys.exec2(cmdText, {input:objMeta})
 
         // Reload data
-        await Ti.App(this).dispatch("current/reload")
-        await Ti.App(this).dispatch("main/reload", this.meta)
+        // await Ti.App(this).dispatch("current/reload")
+        // await Ti.App(this).dispatch("main/reload", this.meta)
       }
       // Error
       else {
@@ -57073,19 +57083,33 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       // Has a valid LongLiveAK
       else {
-        this.myLongLiveAK = this.longLiveAccessToken
         this.reloadAlbums()
       }
     },
     //---------------------------------------------------
-    initFBSdk() {
-      // Get config file
+    async initFBSdk() {
+      // load token by domain 
+      let pph = `~/.xapi/facebook/${this.domain}/`
+      let conf = await Wn.Sys.exec2(`cat ${pph}config.json`, {as:"json"})
+      this.appId = _.get(conf, "appId")
+      this.appSecret = _.get(conf, "appSecret")
+      let llAK = await Wn.Io.loadMeta(`${pph}long_live_access_token`)
+      console.log(llAK)
+      if(llAK) {
+        this.longLiveAccessToken = llAK.ticket
+        this.tokenExpiresIn = llAK.expiTime
+        this.tokenExpireAt = llAK.expiAtMs
+        this.tokenType = llAK.token_type || "bearer"
+      }
+
+      // INIT SDK
       FB.init({
         appId            : this.appId,
         autoLogAppEvents : this.autoLogAppEvents,
         xfbml            : this.xfbml,
         version          : this.apiVersion
       });
+
 
       // Login
       this.checkdLongLiveAccessToken()
@@ -57102,8 +57126,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     }
   },
   ///////////////////////////////////////////////////////
-  mounted : function() {
-    this.initFBSdk()
+  mounted : async function() {
+    await this.initFBSdk()
   }
   ///////////////////////////////////////////////////////
 }

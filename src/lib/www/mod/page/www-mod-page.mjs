@@ -573,7 +573,7 @@ const _M = {
       //console.log(" #### page.loaded", _.cloneDeep(page))
       //.....................................
       // Notify: Prepare
-      //console.log("@page:prepare ...")
+      console.log("@page:prepare ...")
       commit("setReady", 1)
       await dispatch("invokeAction", { name: "@page:prepare" }, { root: true })
       //.....................................
