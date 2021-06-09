@@ -1,4 +1,4 @@
-// Pack At: 2021-06-09 16:58:06
+// Pack At: 2021-06-09 19:33:35
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4594,15 +4594,22 @@ const {Dom} = (function(){
     },
     //----------------------------------------------------
     is($el, selector) {
-      let doc = $el.ownerDocument
-      let win = doc.defaultView
-      let sheet = doc.styleSheets[doc.styleSheets.length-1];
-      let magic = 918918351;
-      sheet.insertRule(`${selector} {z-index: ${magic} !important;}`, sheet.rules.length)
-      let style = win.getComputedStyle($el)
-      let re = (style.zIndex == magic)
-      sheet.removeRule(sheet.rules.length-1)
-      return re
+      // console.log("before is", $el.tagName, selector)
+      if($el.matches) {
+        return  $el.matches(selector)
+      }
+      throw "Slot Element matched"
+      // console.warn("slow is!")
+      // let doc = $el.ownerDocument
+      // let win = doc.defaultView
+      // let sheet = doc.styleSheets[doc.styleSheets.length-1];
+      // let magic = 918918351;
+      // sheet.insertRule(`${selector} {z-index: ${magic} !important;}`, sheet.rules.length)
+      // let style = win.getComputedStyle($el)
+      // let re = (style.zIndex == magic)
+      // sheet.removeRule(sheet.rules.length-1)
+      // console.log("after is", $el.tagName, selector)
+      // return re
     },
     //----------------------------------------------------
     isBody($el) {
@@ -14560,12 +14567,16 @@ const {PhotoGallery} = (function(){
       let {thumbKey, largeKey, titleKey} = this.setup
       let list = []
       let $imgs = Ti.Dom.findAll('img[src]', this.$el)
+      console.log(`getData in ${$imgs.length} image elements`)
       for(let $img of $imgs) {
         let srcThumb = $img.getAttribute(thumbKey)
         let srcLarge = $img.getAttribute(largeKey)
         let title = $img.getAttribute(titleKey)
         let link;
+        console.log("before cloest")
         let $link = Ti.Dom.closest($img, "a[href]")
+        //let $link = $($img).closest("a[href]")[0]
+        console.log("after cloest", $link)
         if($link) {
           link = $link.getAttribute("href")
           if("#" == link || "void(0)" == link) {
@@ -14578,6 +14589,7 @@ const {PhotoGallery} = (function(){
           src : srcLarge || srcThumb
         })
       }
+      console.log("get list data", list.length)
       return list
     }
     //---------------------------------------
@@ -14710,9 +14722,9 @@ const {PhotoGallery} = (function(){
         tileStyle, imgStyle, 
         indicatorLiStyle, indicatorLiImgStyle
       } = this.setup
-      let $div = Ti.Dom.createElement({
-        tagName : "div"
-      })
+      // let $div = Ti.Dom.createElement({
+      //   tagName : "div"
+      // })
       let $ul = Ti.Dom.createElement({
         tagName : "ul"
       })
@@ -14724,7 +14736,7 @@ const {PhotoGallery} = (function(){
           // Create Tile
           //
           let $an = Ti.Dom.createElement({
-            $p: $div,
+            $p: this.$scroller,
             tagName: "div",
             className : "as-tile",
             style : tileStyle,
@@ -14735,15 +14747,15 @@ const {PhotoGallery} = (function(){
             }
           })
           // Image
-          Ti.Dom.createElement({
-            $p: $an,
-            tagName: "img",
-            style: imgStyle,
-            attrs: {
-              src: it.srcThumb,
-              srcLarge: it.srcLarge
-            }
-          })
+          // Ti.Dom.createElement({
+          //   $p: $an,
+          //   tagName: "img",
+          //   style: imgStyle,
+          //   attrs: {
+          //     src: it.srcThumb,
+          //     srcLarge: it.srcLarge
+          //   }
+          // })
           // TITLE
           if(it.title) {
             Ti.Dom.createElement({
@@ -14774,9 +14786,12 @@ const {PhotoGallery} = (function(){
         }
       }
       this.currentIndex = 0;
-      this.$scroller.innerHTML = $div.innerHTML
+      console.log("before set InnerHTML")
+      //this.$scroller.innerHTML = $div.innerHTML
       this.$indicatorUl.innerHTML = $ul.innerHTML
+      console.log("after set InnerHTML")
       this.resizePhotos()
+      console.log("after resize")
     }
     //---------------------------------------
     redraw() {
@@ -14786,6 +14801,7 @@ const {PhotoGallery} = (function(){
       }
       //......................................
       // Create top
+      console.log("enter redraw")
       let {
         className, topStyle, viewportStyle, scrollerStyle,
         indicatorStyle, indicatorUlStyle
@@ -14899,14 +14915,20 @@ const {PhotoGallery} = (function(){
       //......................................
       // Append to DOM
       Ti.Dom.appendTo(this.$top, this.$doc.body)
+      
       //......................................
       // Get the data
+      console.log("get data")
       this.data = this.getData()
+      
       //......................................
       // Render photos
+      console.log("renderPhotos")
       this.renderPhotos()
+      
       //......................................
       // Bind Events
+      console.log("bind event")
       this.$closer.addEventListener("click", ()=>this.close())
       //
       // Switch
@@ -14933,6 +14955,7 @@ const {PhotoGallery} = (function(){
       // Resize
       //
       let PG = this
+      console.log("Resize")
       //......................................
       this.OnResize = function() {
         Ti.Dom.addClass(PG.$top, "is-resizing")
@@ -14955,7 +14978,7 @@ const {PhotoGallery} = (function(){
       _.delay(()=>{
         Ti.Dom.removeClass(this.$top, "no-ready")
         Ti.Dom.addClass(this.$top, "is-ready")
-      })
+      }, 0)
     }
     //---------------------------------------
     watchEvents() {
@@ -15024,16 +15047,21 @@ const {PhotoGallery} = (function(){
         // Create instance
         let PG = new TiPhotoGallery($el, setup)
         // listen events trigger
+        console.log("PhotoGallery bind click")
         $el.addEventListener("click", function(evt) {
-          //console.log(evt, "Photo gallery", this, evt.srcElement)
+          console.log(evt, "Photo gallery", this, evt.srcElement)
           evt.preventDefault()
           evt.stopPropagation()
+          console.log("PG.redraw() >>>>>>>>>>>>")
           PG.redraw()
           PG.watchEvents()
+          console.log("<<<<<<<<<<<<<<<<< PG.redraw()")
           // Find photo index
           let $img = evt.srcElement
           PG.currentIndex = Math.max(0, PG.findPhotoIndex($img))
+          console.log("findPhotoIndex", PG.currentIndex)
           PG.scrollTo()
+          console.log("PG.scrollTo()")
         }, true)
         // bind the host element for multi-binding prevention.
         $el.__ti_photo_gallery = PG
@@ -15615,7 +15643,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210609.165806",
+  "version" : "1.6-20210609.193335",
   "dev" : false,
   "appName" : null,
   "session" : {},

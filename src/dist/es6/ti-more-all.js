@@ -1,4 +1,4 @@
-// Pack At: 2021-06-09 16:58:06
+// Pack At: 2021-06-09 19:33:35
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6509,7 +6509,7 @@ const _M = {
      * Reload page data by given api keys
      */
     async reloadData({ commit, getters, dispatch, rootState }, keys = []) {
-      console.log(" # -> page.reloadData", keys)
+      //console.log(" # -> page.reloadData", keys)
       //.......................................
       // The api list to reload
       let isAll = _.isEmpty(keys)
@@ -17299,9 +17299,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Reload album data
       if(this.fbAlbumApiTmpl && "fb-album" == album.type) {
         console.log(album)
+        console.log("local items", AB.getItems())
+
         let url = Ti.S.renderBy(this.fbAlbumApiTmpl, album)
         console.log(url)
         items = await Ti.Http.get(url, {as: "json"})
+        console.log("server items", items)
         Ti.Api.Facebook.setObjListPreview(items)
       }
       // Get data from album DOM
@@ -17412,6 +17415,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
         $main: this.$refs.main
       })
     }
+
+    console.log("redraw article done")
 
     // Auto first open
     let selector = [
