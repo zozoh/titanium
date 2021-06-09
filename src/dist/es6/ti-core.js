@@ -1,4 +1,4 @@
-// Pack At: 2021-06-09 19:33:35
+// Pack At: 2021-06-09 19:38:43
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -14787,7 +14787,7 @@ const {PhotoGallery} = (function(){
       }
       this.currentIndex = 0;
       console.log("before set InnerHTML")
-      //this.$scroller.innerHTML = $div.innerHTML
+      this.$scroller.innerHTML = $div.innerHTML
       this.$indicatorUl.innerHTML = $ul.innerHTML
       console.log("after set InnerHTML")
       this.resizePhotos()
@@ -15643,7 +15643,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210609.193335",
+  "version" : "1.6-20210609.193843",
   "dev" : false,
   "appName" : null,
   "session" : {},

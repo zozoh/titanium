@@ -290,7 +290,7 @@ class TiPhotoGallery {
     }
     this.currentIndex = 0;
     console.log("before set InnerHTML")
-    //this.$scroller.innerHTML = $div.innerHTML
+    this.$scroller.innerHTML = $div.innerHTML
     this.$indicatorUl.innerHTML = $ul.innerHTML
     console.log("after set InnerHTML")
     this.resizePhotos()
