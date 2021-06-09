@@ -489,7 +489,7 @@ const _M = {
       params = {}
     } = {}) {
       //console.log(rootGetters.routerList)
-      console.log(" # -> page.reload", { path, params, anchor })
+      //console.log(" # -> page.reload", { path, params, anchor })
       let pinfo;
       //.....................................
       // Apply routerList
@@ -573,7 +573,7 @@ const _M = {
       //console.log(" #### page.loaded", _.cloneDeep(page))
       //.....................................
       // Notify: Prepare
-      console.log("@page:prepare ...")
+      //console.log("@page:prepare ...")
       commit("setReady", 1)
       await dispatch("invokeAction", { name: "@page:prepare" }, { root: true })
       //.....................................

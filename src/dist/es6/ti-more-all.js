@@ -1,4 +1,4 @@
-// Pack At: 2021-06-09 19:38:43
+// Pack At: 2021-06-09 19:54:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6585,7 +6585,7 @@ const _M = {
       params = {}
     } = {}) {
       //console.log(rootGetters.routerList)
-      console.log(" # -> page.reload", { path, params, anchor })
+      //console.log(" # -> page.reload", { path, params, anchor })
       let pinfo;
       //.....................................
       // Apply routerList
@@ -6669,7 +6669,7 @@ const _M = {
       //console.log(" #### page.loaded", _.cloneDeep(page))
       //.....................................
       // Notify: Prepare
-      console.log("@page:prepare ...")
+      //console.log("@page:prepare ...")
       commit("setReady", 1)
       await dispatch("invokeAction", { name: "@page:prepare" }, { root: true })
       //.....................................
@@ -17298,13 +17298,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       // Reload album data
       if(this.fbAlbumApiTmpl && "fb-album" == album.type) {
-        console.log(album)
-        console.log("local items", AB.getItems())
+        //console.log(album)
+        //console.log("local items", AB.getItems())
 
         let url = Ti.S.renderBy(this.fbAlbumApiTmpl, album)
-        console.log(url)
+        //console.log(url)
         items = await Ti.Http.get(url, {as: "json"})
-        console.log("server items", items)
+        //console.log("server items", items)
         Ti.Api.Facebook.setObjListPreview(items)
       }
       // Get data from album DOM
@@ -17416,7 +17416,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       })
     }
 
-    console.log("redraw article done")
+    //console.log("redraw article done")
 
     // Auto first open
     let selector = [

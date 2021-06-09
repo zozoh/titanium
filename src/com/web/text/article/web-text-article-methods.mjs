@@ -212,13 +212,13 @@ export default {
 
       // Reload album data
       if(this.fbAlbumApiTmpl && "fb-album" == album.type) {
-        console.log(album)
-        console.log("local items", AB.getItems())
+        //console.log(album)
+        //console.log("local items", AB.getItems())
 
         let url = Ti.S.renderBy(this.fbAlbumApiTmpl, album)
-        console.log(url)
+        //console.log(url)
         items = await Ti.Http.get(url, {as: "json"})
-        console.log("server items", items)
+        //console.log("server items", items)
         Ti.Api.Facebook.setObjListPreview(items)
       }
       // Get data from album DOM
@@ -330,7 +330,7 @@ export default {
       })
     }
 
-    console.log("redraw article done")
+    //console.log("redraw article done")
 
     // Auto first open
     let selector = [

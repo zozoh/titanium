@@ -1,4 +1,4 @@
-// Pack At: 2021-06-09 19:38:43
+// Pack At: 2021-06-09 19:54:37
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -14567,16 +14567,16 @@ const {PhotoGallery} = (function(){
       let {thumbKey, largeKey, titleKey} = this.setup
       let list = []
       let $imgs = Ti.Dom.findAll('img[src]', this.$el)
-      console.log(`getData in ${$imgs.length} image elements`)
+      //console.log(`getData in ${$imgs.length} image elements`)
       for(let $img of $imgs) {
         let srcThumb = $img.getAttribute(thumbKey)
         let srcLarge = $img.getAttribute(largeKey)
         let title = $img.getAttribute(titleKey)
         let link;
-        console.log("before cloest")
+        //console.log("before cloest")
         let $link = Ti.Dom.closest($img, "a[href]")
         //let $link = $($img).closest("a[href]")[0]
-        console.log("after cloest", $link)
+        //console.log("after cloest", $link)
         if($link) {
           link = $link.getAttribute("href")
           if("#" == link || "void(0)" == link) {
@@ -14589,7 +14589,7 @@ const {PhotoGallery} = (function(){
           src : srcLarge || srcThumb
         })
       }
-      console.log("get list data", list.length)
+      //console.log("get list data", list.length)
       return list
     }
     //---------------------------------------
@@ -14722,9 +14722,9 @@ const {PhotoGallery} = (function(){
         tileStyle, imgStyle, 
         indicatorLiStyle, indicatorLiImgStyle
       } = this.setup
-      // let $div = Ti.Dom.createElement({
-      //   tagName : "div"
-      // })
+      let $div = Ti.Dom.createElement({
+        tagName : "div"
+      })
       let $ul = Ti.Dom.createElement({
         tagName : "ul"
       })
@@ -14736,7 +14736,7 @@ const {PhotoGallery} = (function(){
           // Create Tile
           //
           let $an = Ti.Dom.createElement({
-            $p: this.$scroller,
+            $p: $div,
             tagName: "div",
             className : "as-tile",
             style : tileStyle,
@@ -14747,15 +14747,15 @@ const {PhotoGallery} = (function(){
             }
           })
           // Image
-          // Ti.Dom.createElement({
-          //   $p: $an,
-          //   tagName: "img",
-          //   style: imgStyle,
-          //   attrs: {
-          //     src: it.srcThumb,
-          //     srcLarge: it.srcLarge
-          //   }
-          // })
+          Ti.Dom.createElement({
+            $p: $an,
+            tagName: "img",
+            style: imgStyle,
+            attrs: {
+              src: it.srcThumb,
+              srcLarge: it.srcLarge
+            }
+          })
           // TITLE
           if(it.title) {
             Ti.Dom.createElement({
@@ -14786,12 +14786,12 @@ const {PhotoGallery} = (function(){
         }
       }
       this.currentIndex = 0;
-      console.log("before set InnerHTML")
+      //console.log("before set InnerHTML")
       this.$scroller.innerHTML = $div.innerHTML
       this.$indicatorUl.innerHTML = $ul.innerHTML
-      console.log("after set InnerHTML")
+      //console.log("after set InnerHTML")
       this.resizePhotos()
-      console.log("after resize")
+      //console.log("after resize")
     }
     //---------------------------------------
     redraw() {
@@ -14801,7 +14801,7 @@ const {PhotoGallery} = (function(){
       }
       //......................................
       // Create top
-      console.log("enter redraw")
+      //console.log("enter redraw")
       let {
         className, topStyle, viewportStyle, scrollerStyle,
         indicatorStyle, indicatorUlStyle
@@ -14918,17 +14918,17 @@ const {PhotoGallery} = (function(){
       
       //......................................
       // Get the data
-      console.log("get data")
+      //console.log("get data")
       this.data = this.getData()
       
       //......................................
       // Render photos
-      console.log("renderPhotos")
+      //console.log("renderPhotos")
       this.renderPhotos()
       
       //......................................
       // Bind Events
-      console.log("bind event")
+      //console.log("bind event")
       this.$closer.addEventListener("click", ()=>this.close())
       //
       // Switch
@@ -14955,7 +14955,7 @@ const {PhotoGallery} = (function(){
       // Resize
       //
       let PG = this
-      console.log("Resize")
+      //console.log("Resize")
       //......................................
       this.OnResize = function() {
         Ti.Dom.addClass(PG.$top, "is-resizing")
@@ -14975,10 +14975,10 @@ const {PhotoGallery} = (function(){
       }
       //......................................
       // render wrapper
-      _.delay(()=>{
+      //_.delay(()=>{
         Ti.Dom.removeClass(this.$top, "no-ready")
         Ti.Dom.addClass(this.$top, "is-ready")
-      }, 0)
+      //}, 0)
     }
     //---------------------------------------
     watchEvents() {
@@ -15047,21 +15047,21 @@ const {PhotoGallery} = (function(){
         // Create instance
         let PG = new TiPhotoGallery($el, setup)
         // listen events trigger
-        console.log("PhotoGallery bind click")
+        //console.log("PhotoGallery bind click")
         $el.addEventListener("click", function(evt) {
-          console.log(evt, "Photo gallery", this, evt.srcElement)
+          //console.log(evt, "Photo gallery", this, evt.srcElement)
           evt.preventDefault()
           evt.stopPropagation()
-          console.log("PG.redraw() >>>>>>>>>>>>")
+          //console.log("PG.redraw() >>>>>>>>>>>>")
           PG.redraw()
           PG.watchEvents()
-          console.log("<<<<<<<<<<<<<<<<< PG.redraw()")
+          //console.log("<<<<<<<<<<<<<<<<< PG.redraw()")
           // Find photo index
           let $img = evt.srcElement
           PG.currentIndex = Math.max(0, PG.findPhotoIndex($img))
-          console.log("findPhotoIndex", PG.currentIndex)
+          //console.log("findPhotoIndex", PG.currentIndex)
           PG.scrollTo()
-          console.log("PG.scrollTo()")
+          //console.log("PG.scrollTo()")
         }, true)
         // bind the host element for multi-binding prevention.
         $el.__ti_photo_gallery = PG
@@ -15643,7 +15643,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210609.193843",
+  "version" : "1.6-20210609.195437",
   "dev" : false,
   "appName" : null,
   "session" : {},
