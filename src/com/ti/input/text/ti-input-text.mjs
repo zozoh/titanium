@@ -1,116 +1,120 @@
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    "inputCompositionstart" : false,
-    "isFocused" : false,
-    "pointerHover" : null
+  data: () => ({
+    "inputCompositionstart": false,
+    "isFocused": false,
+    "pointerHover": null
   }),
   ////////////////////////////////////////////////////
-  watch : {
-    "focus" : function(v) {
+  watch: {
+    "focus": function (v) {
       this.isFocused = v
     }
   },
   ////////////////////////////////////////////////////
-  props : {
-    "value" : null,
-    "format" : {
-      type : [String, Array, Object],
-      default : undefined
+  props: {
+    "value": null,
+    "format": {
+      type: [String, Array, Object],
+      default: undefined
     },
-    "readonly" : {
+    "joinBy": {
+      type: String,
+      default: ","
+    },
+    "readonly": {
       type: Boolean,
-      default : false
+      default: false
     },
-    "valueCase" : {
-      type : String,
-      default : null,
-      validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
+    "valueCase": {
+      type: String,
+      default: null,
+      validator: (cs) => (Ti.Util.isNil(cs) || Ti.S.isValidCase(cs))
     },
-    "placeholder" : {
-      type : [String, Number],
-      default : null
+    "placeholder": {
+      type: [String, Number],
+      default: null
     },
-    "trimed" : {
-      type : Boolean,
-      default : true
+    "trimed": {
+      type: Boolean,
+      default: true
     },
-    "autoJsValue" : {
-      type : Boolean,
-      default : false
+    "autoJsValue": {
+      type: Boolean,
+      default: false
     },
-    "hideBorder" : {
-      type : Boolean,
-      default : false
+    "hideBorder": {
+      type: Boolean,
+      default: false
     },
-    "width" : {
-      type : [Number, String],
-      default : null
+    "width": {
+      type: [Number, String],
+      default: null
     },
-    "height" : {
-      type : [Number, String],
-      default : null
+    "height": {
+      type: [Number, String],
+      default: null
     },
-    "prefixHoverIcon" : {
-      type : String,
-      default : "zmdi-close-circle"
+    "prefixHoverIcon": {
+      type: String,
+      default: "zmdi-close-circle"
     },
-    "prefixIconForClean" : {
-      type : Boolean,
-      default : true
+    "prefixIconForClean": {
+      type: Boolean,
+      default: true
     },
-    "prefixIcon" : {
-      type : String,
-      default : null
+    "prefixIcon": {
+      type: String,
+      default: null
     },
-    "prefixText" : {
-      type : String,
-      default : null
+    "prefixText": {
+      type: String,
+      default: null
     },
-    "suffixText" : {
-      type : String,
-      default : null
+    "suffixText": {
+      type: String,
+      default: null
     },
-    "suffixIcon" : {
-      type : String,
-      default : null
+    "suffixIcon": {
+      type: String,
+      default: null
     },
-    "focus" : {
-      type : Boolean,
-      default : false
+    "focus": {
+      type: Boolean,
+      default: false
     },
-    "hover" : {
-      type : [Array, String],
-      default : ()=>["prefixIcon", "suffixIcon"]
+    "hover": {
+      type: [Array, String],
+      default: () => ["prefixIcon", "suffixIcon"]
     },
-    "autoSelect" : {
-      type : Boolean,
-      default : false
+    "autoSelect": {
+      type: Boolean,
+      default: false
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName(this.className, {
-        "is-self-actived" : this.isSelfActived,
-        "is-actived"   : this.isActived,
-        "is-focused"   : this.isFocused,
-        "is-blurred"   : !this.isFocused,
-        "is-readonly"  : this.readonly,
-        "show-border"  : !this.hideBorder,
-        "hide-border"  : this.hideBorder,
-        "has-prefix-icon" : this.thePrefixIcon,
-        "has-prefix-text" : this.prefixText,
-        "has-suffix-icon" : this.suffixIcon,
-        "has-suffix-text" : this.suffixText,
+        "is-self-actived": this.isSelfActived,
+        "is-actived": this.isActived,
+        "is-focused": this.isFocused,
+        "is-blurred": !this.isFocused,
+        "is-readonly": this.readonly,
+        "show-border": !this.hideBorder,
+        "hide-border": this.hideBorder,
+        "has-prefix-icon": this.thePrefixIcon,
+        "has-prefix-text": this.prefixText,
+        "has-suffix-icon": this.suffixIcon,
+        "has-suffix-text": this.suffixText,
       })
     },
     //------------------------------------------------
     topStyle() {
       return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
+        width: this.width,
+        height: this.height
       })
     },
     //------------------------------------------------
@@ -119,11 +123,14 @@ const _M = {
       // if(_.isArray(this.value)) {
       //   return this.value.join("\r\n")
       // }
+      if(_.isArray(this.value)) {
+        return this.value.join(this.joinBy)
+      }
       return Ti.Types.toStr(this.value, this.format)
     },
     //------------------------------------------------
     thePrefixIcon() {
-      if("prefixIcon" == this.pointerHover
+      if ("prefixIcon" == this.pointerHover
         && this.isCanHover("prefixIcon")) {
         return this.prefixHoverIcon || this.prefixIcon
       }
@@ -133,8 +140,8 @@ const _M = {
     theHover() {
       let map = {}
       let hos = _.concat(this.hover)
-      for(let ho of hos) {
-        if(ho) {
+      for (let ho of hos) {
+        if (ho) {
           map[ho] = true
         }
       }
@@ -143,7 +150,7 @@ const _M = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     isCanHover(hoverName) {
       return this.theHover[hoverName] ? true : false
@@ -152,40 +159,40 @@ const _M = {
     getHoverClass(hoverName) {
       let canHover = this.isCanHover(hoverName)
       return {
-        "can-hover" : canHover,
-        "for-look"  : !canHover
+        "can-hover": canHover,
+        "for-look": !canHover
       }
     },
     //------------------------------------------------
-    onInputCompositionStart(){
+    onInputCompositionStart() {
       this.inputCompositionstart = true
     },
     //------------------------------------------------
-    onInputCompositionEnd(){
+    onInputCompositionEnd() {
       this.inputCompositionstart = false
       this.doWhenInput()
     },
     //------------------------------------------------
     onInputing($event) {
-      if(!this.inputCompositionstart) {
+      if (!this.inputCompositionstart) {
         this.doWhenInput()
       }
     },
     //------------------------------------------------
-    doWhenInput(emitName="inputing") {
-      if(_.isElement(this.$refs.input)) {
+    doWhenInput(emitName = "inputing") {
+      if (_.isElement(this.$refs.input)) {
         //console.log("doWhenInput", emitName)
         let val = this.$refs.input.value
         // Auto js value
-        if(this.autoJsValue) {
+        if (this.autoJsValue) {
           val = Ti.S.toJsValue(val, {
-            autoNil  : true,
-            autoDate : false,
-            trimed : this.trimed
+            autoNil: true,
+            autoDate: false,
+            trimed: this.trimed
           })
         }
         // Trim
-        else if(this.trimed) {
+        else if (this.trimed) {
           val = _.trim(val)
         }
         // case
@@ -196,9 +203,9 @@ const _M = {
     },
     //------------------------------------------------
     onInputKeyDown($event) {
-      let payload = _.pick($event, 
-        "code","key","keyCode",
-        "altKey","ctrlKey","metaKey","shiftKey")
+      let payload = _.pick($event,
+        "code", "key", "keyCode",
+        "altKey", "ctrlKey", "metaKey", "shiftKey")
       payload.uniqueKey = Ti.Shortcut.getUniqueKey(payload)
       payload.$event = $event
       this.$notify("keypress", payload)
@@ -209,8 +216,8 @@ const _M = {
     },
     //------------------------------------------------
     onInputFocus() {
-      if(!this.readonly) {
-        if(this.autoSelect) {
+      if (!this.readonly) {
+        if (this.autoSelect) {
           this.$refs.input.select()
         } else {
           this.$refs.input.focus()
@@ -219,7 +226,7 @@ const _M = {
       this.isFocused = true
       this.$notify("input:focus")
       // Auto Actived
-      if(!this.isActived) {
+      if (!this.isActived) {
         this.setActived()
       }
     },
@@ -230,7 +237,7 @@ const _M = {
     },
     //------------------------------------------------
     onClickPrefixIcon() {
-      if(this.prefixIconForClean) {
+      if (this.prefixIconForClean) {
         this.$notify("change", null)
       }
       this.$notify("prefix:icon")
@@ -249,20 +256,24 @@ const _M = {
     },
     //------------------------------------------------
     doAutoFocus() {
-      if(this.focus && !this.isFocused) {
+      if (this.focus && !this.isFocused) {
         this.onInputFocus()
-      }  
+      }
+    },
+    //--------------------------------------
+    __ti_shortcut(uniqKey) {
+      return {stop:true, quit:true}
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
-    "focus" : function() {
+  watch: {
+    "focus": function () {
       this.doAutoFocus()
     }
   },
   ////////////////////////////////////////////////////
-  mounted : function(){
+  mounted: function () {
     this.doAutoFocus()
   }
   ////////////////////////////////////////////////////

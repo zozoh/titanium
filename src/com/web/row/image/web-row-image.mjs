@@ -70,9 +70,6 @@ export default {
     //-------------------------------------
     // Aspect
     //-------------------------------------
-    "imageStyle": {
-      type: Object
-    },
     "effects": {
       type: Object,
       default: ()=>({})
@@ -81,6 +78,12 @@ export default {
       type: Object
     },
     "rightPartStyle": {
+      type: Object
+    },
+    "imageConStyle": {
+      type: Object
+    },
+    "imageStyle": {
       type: Object
     },
     "tagsStyle": {

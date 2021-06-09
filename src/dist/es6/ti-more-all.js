@@ -1,4 +1,4 @@
-// Pack At: 2021-06-09 12:14:28
+// Pack At: 2021-06-09 16:58:06
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2787,117 +2787,121 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/input/text/ti-input-text.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    "inputCompositionstart" : false,
-    "isFocused" : false,
-    "pointerHover" : null
+  data: () => ({
+    "inputCompositionstart": false,
+    "isFocused": false,
+    "pointerHover": null
   }),
   ////////////////////////////////////////////////////
-  watch : {
-    "focus" : function(v) {
+  watch: {
+    "focus": function (v) {
       this.isFocused = v
     }
   },
   ////////////////////////////////////////////////////
-  props : {
-    "value" : null,
-    "format" : {
-      type : [String, Array, Object],
-      default : undefined
+  props: {
+    "value": null,
+    "format": {
+      type: [String, Array, Object],
+      default: undefined
     },
-    "readonly" : {
+    "joinBy": {
+      type: String,
+      default: ","
+    },
+    "readonly": {
       type: Boolean,
-      default : false
+      default: false
     },
-    "valueCase" : {
-      type : String,
-      default : null,
-      validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
+    "valueCase": {
+      type: String,
+      default: null,
+      validator: (cs) => (Ti.Util.isNil(cs) || Ti.S.isValidCase(cs))
     },
-    "placeholder" : {
-      type : [String, Number],
-      default : null
+    "placeholder": {
+      type: [String, Number],
+      default: null
     },
-    "trimed" : {
-      type : Boolean,
-      default : true
+    "trimed": {
+      type: Boolean,
+      default: true
     },
-    "autoJsValue" : {
-      type : Boolean,
-      default : false
+    "autoJsValue": {
+      type: Boolean,
+      default: false
     },
-    "hideBorder" : {
-      type : Boolean,
-      default : false
+    "hideBorder": {
+      type: Boolean,
+      default: false
     },
-    "width" : {
-      type : [Number, String],
-      default : null
+    "width": {
+      type: [Number, String],
+      default: null
     },
-    "height" : {
-      type : [Number, String],
-      default : null
+    "height": {
+      type: [Number, String],
+      default: null
     },
-    "prefixHoverIcon" : {
-      type : String,
-      default : "zmdi-close-circle"
+    "prefixHoverIcon": {
+      type: String,
+      default: "zmdi-close-circle"
     },
-    "prefixIconForClean" : {
-      type : Boolean,
-      default : true
+    "prefixIconForClean": {
+      type: Boolean,
+      default: true
     },
-    "prefixIcon" : {
-      type : String,
-      default : null
+    "prefixIcon": {
+      type: String,
+      default: null
     },
-    "prefixText" : {
-      type : String,
-      default : null
+    "prefixText": {
+      type: String,
+      default: null
     },
-    "suffixText" : {
-      type : String,
-      default : null
+    "suffixText": {
+      type: String,
+      default: null
     },
-    "suffixIcon" : {
-      type : String,
-      default : null
+    "suffixIcon": {
+      type: String,
+      default: null
     },
-    "focus" : {
-      type : Boolean,
-      default : false
+    "focus": {
+      type: Boolean,
+      default: false
     },
-    "hover" : {
-      type : [Array, String],
-      default : ()=>["prefixIcon", "suffixIcon"]
+    "hover": {
+      type: [Array, String],
+      default: () => ["prefixIcon", "suffixIcon"]
     },
-    "autoSelect" : {
-      type : Boolean,
-      default : false
+    "autoSelect": {
+      type: Boolean,
+      default: false
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName(this.className, {
-        "is-self-actived" : this.isSelfActived,
-        "is-actived"   : this.isActived,
-        "is-focused"   : this.isFocused,
-        "is-blurred"   : !this.isFocused,
-        "is-readonly"  : this.readonly,
-        "show-border"  : !this.hideBorder,
-        "hide-border"  : this.hideBorder,
-        "has-prefix-icon" : this.thePrefixIcon,
-        "has-prefix-text" : this.prefixText,
-        "has-suffix-icon" : this.suffixIcon,
-        "has-suffix-text" : this.suffixText,
+        "is-self-actived": this.isSelfActived,
+        "is-actived": this.isActived,
+        "is-focused": this.isFocused,
+        "is-blurred": !this.isFocused,
+        "is-readonly": this.readonly,
+        "show-border": !this.hideBorder,
+        "hide-border": this.hideBorder,
+        "has-prefix-icon": this.thePrefixIcon,
+        "has-prefix-text": this.prefixText,
+        "has-suffix-icon": this.suffixIcon,
+        "has-suffix-text": this.suffixText,
       })
     },
     //------------------------------------------------
     topStyle() {
       return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
+        width: this.width,
+        height: this.height
       })
     },
     //------------------------------------------------
@@ -2906,11 +2910,14 @@ const _M = {
       // if(_.isArray(this.value)) {
       //   return this.value.join("\r\n")
       // }
+      if(_.isArray(this.value)) {
+        return this.value.join(this.joinBy)
+      }
       return Ti.Types.toStr(this.value, this.format)
     },
     //------------------------------------------------
     thePrefixIcon() {
-      if("prefixIcon" == this.pointerHover
+      if ("prefixIcon" == this.pointerHover
         && this.isCanHover("prefixIcon")) {
         return this.prefixHoverIcon || this.prefixIcon
       }
@@ -2920,8 +2927,8 @@ const _M = {
     theHover() {
       let map = {}
       let hos = _.concat(this.hover)
-      for(let ho of hos) {
-        if(ho) {
+      for (let ho of hos) {
+        if (ho) {
           map[ho] = true
         }
       }
@@ -2930,7 +2937,7 @@ const _M = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     isCanHover(hoverName) {
       return this.theHover[hoverName] ? true : false
@@ -2939,40 +2946,40 @@ const _M = {
     getHoverClass(hoverName) {
       let canHover = this.isCanHover(hoverName)
       return {
-        "can-hover" : canHover,
-        "for-look"  : !canHover
+        "can-hover": canHover,
+        "for-look": !canHover
       }
     },
     //------------------------------------------------
-    onInputCompositionStart(){
+    onInputCompositionStart() {
       this.inputCompositionstart = true
     },
     //------------------------------------------------
-    onInputCompositionEnd(){
+    onInputCompositionEnd() {
       this.inputCompositionstart = false
       this.doWhenInput()
     },
     //------------------------------------------------
     onInputing($event) {
-      if(!this.inputCompositionstart) {
+      if (!this.inputCompositionstart) {
         this.doWhenInput()
       }
     },
     //------------------------------------------------
-    doWhenInput(emitName="inputing") {
-      if(_.isElement(this.$refs.input)) {
+    doWhenInput(emitName = "inputing") {
+      if (_.isElement(this.$refs.input)) {
         //console.log("doWhenInput", emitName)
         let val = this.$refs.input.value
         // Auto js value
-        if(this.autoJsValue) {
+        if (this.autoJsValue) {
           val = Ti.S.toJsValue(val, {
-            autoNil  : true,
-            autoDate : false,
-            trimed : this.trimed
+            autoNil: true,
+            autoDate: false,
+            trimed: this.trimed
           })
         }
         // Trim
-        else if(this.trimed) {
+        else if (this.trimed) {
           val = _.trim(val)
         }
         // case
@@ -2983,9 +2990,9 @@ const _M = {
     },
     //------------------------------------------------
     onInputKeyDown($event) {
-      let payload = _.pick($event, 
-        "code","key","keyCode",
-        "altKey","ctrlKey","metaKey","shiftKey")
+      let payload = _.pick($event,
+        "code", "key", "keyCode",
+        "altKey", "ctrlKey", "metaKey", "shiftKey")
       payload.uniqueKey = Ti.Shortcut.getUniqueKey(payload)
       payload.$event = $event
       this.$notify("keypress", payload)
@@ -2996,8 +3003,8 @@ const _M = {
     },
     //------------------------------------------------
     onInputFocus() {
-      if(!this.readonly) {
-        if(this.autoSelect) {
+      if (!this.readonly) {
+        if (this.autoSelect) {
           this.$refs.input.select()
         } else {
           this.$refs.input.focus()
@@ -3006,7 +3013,7 @@ const _M = {
       this.isFocused = true
       this.$notify("input:focus")
       // Auto Actived
-      if(!this.isActived) {
+      if (!this.isActived) {
         this.setActived()
       }
     },
@@ -3017,7 +3024,7 @@ const _M = {
     },
     //------------------------------------------------
     onClickPrefixIcon() {
-      if(this.prefixIconForClean) {
+      if (this.prefixIconForClean) {
         this.$notify("change", null)
       }
       this.$notify("prefix:icon")
@@ -3036,20 +3043,24 @@ const _M = {
     },
     //------------------------------------------------
     doAutoFocus() {
-      if(this.focus && !this.isFocused) {
+      if (this.focus && !this.isFocused) {
         this.onInputFocus()
-      }  
+      }
+    },
+    //--------------------------------------
+    __ti_shortcut(uniqKey) {
+      return {stop:true, quit:true}
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
-    "focus" : function() {
+  watch: {
+    "focus": function () {
       this.doAutoFocus()
     }
   },
   ////////////////////////////////////////////////////
-  mounted : function(){
+  mounted: function () {
     this.doAutoFocus()
   }
   ////////////////////////////////////////////////////
@@ -6498,7 +6509,7 @@ const _M = {
      * Reload page data by given api keys
      */
     async reloadData({ commit, getters, dispatch, rootState }, keys = []) {
-      //console.log(" # -> page.reloadData", keys)
+      console.log(" # -> page.reloadData", keys)
       //.......................................
       // The api list to reload
       let isAll = _.isEmpty(keys)
@@ -41381,82 +41392,82 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/mod/wn/obj-children/m-obj-children-actions.mjs'] = (function(){
 ////////////////////////////////////////////
 function getKeepSearchAs(state) {
-  if(state.meta && state.keepSearch) {
+  if (state.meta && state.keepSearch) {
     return `browser-search-${state.meta.id}`
   }
 }
 ////////////////////////////////////////////
 const _M = {
   //----------------------------------------
-  saveSearchSetting({state, commit}, {filter, sorter, pager}={}) {
-    if(filter) {
+  saveSearchSetting({ state, commit }, { filter, sorter, pager } = {}) {
+    if (filter) {
       commit("setFilter", filter)
     }
-    if(sorter) {
+    if (sorter) {
       commit("setSorter", sorter)
     }
-    if(pager) {
+    if (pager) {
       commit("setPager", pager)
     }
 
     let keepAs = getKeepSearchAs(state)
-    if(keepAs) {
+    if (keepAs) {
       Ti.Storage.session.setObject(keepAs, {
-        filter : state.filter,
-        sorter : state.sorter,
-        pager  : {
-          pageNumber : state.pageNumber,
-          pageSize   : state.pageSize
+        filter: state.filter,
+        sorter: state.sorter,
+        pager: {
+          pageNumber: state.pageNumber,
+          pageSize: state.pageSize
         }
       })
     }
   },
   //----------------------------------------
-  recoverSearchSetting({state, commit}) {
+  recoverSearchSetting({ state, commit }) {
     let keepAs = getKeepSearchAs(state)
-    if(keepAs) {
+    if (keepAs) {
       let {
         filter, sorter, pager
       } = Ti.Storage.session.getObject(keepAs, {})
       pager = _.assign({}, {
-        pageNumber : state.pageNumber || 1,
-        pageSize   : state.pageSize   || 1000
+        pageNumber: state.pageNumber || 1,
+        pageSize: state.pageSize || 1000
       }, pager)
-      if(filter) {
+      if (filter) {
         commit("setFilter", filter)
       }
-      if(sorter) {
+      if (sorter) {
         commit("setSorter", sorter)
       }
-      if(pager) {
+      if (pager) {
         commit("setPager", pager)
       }
     }
   },
   //----------------------------------------
-  async query({dispatch}, search={}){
+  async query({ dispatch }, search = {}) {
     //console.log("browser query", search)
     dispatch("saveSearchSetting", search)
     return await dispatch("reloadData")
   },
   //----------------------------------------
-  async reloadData({state, commit, dispatch}) {
-    if(state.status.reloading || !state.meta){
+  async reloadData({ state, commit, dispatch }) {
+    if (state.status.reloading || !state.meta) {
       return
     }
     //......................................
     // Init content as null
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
     //......................................
     let cmds = [`o 'id:${state.meta.id}' @query -pager -mine -hidden`]
     //
     // Setup pager
     //
-    if(state.pageSize > 0) {
+    if (state.pageSize > 0) {
       let pgsz = state.pageSize
       let pn = state.pageNumber || 1
-      let skip = Math.max(0, pgsz * (pn-1))
-      if(skip > 0) {
+      let skip = Math.max(0, pgsz * (pn - 1))
+      if (skip > 0) {
         cmds.push(`-skip ${skip}`)
       }
       cmds.push(`-limit ${pgsz}`)
@@ -41464,39 +41475,40 @@ const _M = {
     //
     // Setup sort
     //
-    if(state.sorter) {
+    if (state.sorter) {
       cmds.push(`-sort '${JSON.stringify(state.sorter)}'`)
     }
     //
     // Query 
     //
     let input;
-    if(state.search) {
+    if (state.search) {
       let flt = Wn.Util.getMatchByFilter(state.filter, state.search)
       // Empty filter, force update it again
-      if(_.isEmpty(flt)) {
+      if (_.isEmpty(flt)) {
         commit("clearFilter")
-        dispatch("saveSearchSetting", {filter:state.filter})
+        dispatch("saveSearchSetting", { filter: state.filter })
       }
       input = JSON.stringify(flt)
     }
     cmds.push('@json -cqnl')
-    let data = await Wn.Sys.exec2(cmds.join(' '), {as:"json", input})
+    let data = await Wn.Sys.exec2(cmds.join(' '), { as: "json", input })
+
     commit("setData", data)
     //......................................
     // Just update the meta   
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   },
   //----------------------------------------
-  async reloadSettings({state,commit}) {
+  async reloadSettings({ state, commit }) {
     let config = {}
-    if(state.meta.search_settings) {
-      commit("setStatus", {reloading:true})
+    if (state.meta.search_settings) {
+      commit("setStatus", { reloading: true })
       let oSettings = await Wn.Io.loadMeta(state.meta.search_settings);
-      if(oSettings) {
-        config = await Wn.Io.loadContent(oSettings, {as:"json"})
+      if (oSettings) {
+        config = await Wn.Io.loadContent(oSettings, { as: "json" })
       }
-      commit("setStatus", {reloading:false})
+      commit("setStatus", { reloading: false })
     }
     //
     // Default value of configuration
@@ -41519,31 +41531,32 @@ const _M = {
       config.keepSearch, state.meta.keep_search, state.keepSearch, false))
     commit("setSearch", Ti.Util.fallback(config.search, state.search, {}))
     commit("setFilter", Ti.Util.fallback(config.filter, state.filter, {}))
-    commit("setSorter", Ti.Util.fallback(config.sorter, state.sorter, {nm:1}))
+    commit("setSorter", Ti.Util.fallback(config.sorter, state.sorter, { nm: 1 }))
     commit("setPageNumber", Ti.Util.fallback(config.pageNumber, state.pageNumber, 1))
     commit("setPageSize", Ti.Util.fallback(config.pageSize, state.pageSize, 1000))
   },
   //----------------------------------------
-  async reload({state, commit, dispatch}, meta) {
-    if(state.status.reloading
-      || state.status.saving){
+  async reload({ state, commit, dispatch }, meta) {
+    if (state.status.reloading
+      || state.status.saving) {
       return
     }
+    console.log("obj-children reload", _.get(meta, "ph"), meta)
     //......................................
     // Use the default meta
-    if(_.isUndefined(meta)) {
+    if (_.isUndefined(meta)) {
       meta = state.meta
     }
     //......................................
-    if(_.isString(meta)) {
+    if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
     }
-    else if(meta && meta.id) {
+    else if (meta && meta.id) {
       meta = await Wn.Io.loadMetaById(meta.id)
     }
     //......................................
     // Guard
-    if(!meta) {
+    if (!meta) {
       commit("setMeta", null)
       return
     }
@@ -41561,7 +41574,7 @@ const _M = {
     await dispatch("reloadData")
     //......................................
     // Just update the meta   
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   }
   //----------------------------------------
 }
@@ -46674,12 +46687,12 @@ const _M = {
   async reloadMain() {
     // Check meta
     let meta = this.meta
-    if(!meta) {
+    if (!meta) {
       return await Ti.Toast.Open("i18n:wn-manager-no-meta", "warn")
     }
 
     // Guard loading
-    if(this.isLoading) {
+    if (this.isLoading) {
       console.log("!!!")
       return await Ti.Toast.Open("i18n:wn-manager-is-loading", "warn")
     }
@@ -46688,15 +46701,6 @@ const _M = {
     this.comType = "ti-loading"
     this.comConf = {}
     try {
-      //....................................
-      // then try to unregisterModule safely
-      if(this.view && this.view.modType) {
-        try{
-          this.$store.unregisterModule("main")
-        }catch(E){
-          console.error("Error when unregisterModule", E)
-        }
-      }
       //..................................
       // Get back the viewName from hash
       // User can use `#!text-editor` to force open any view
@@ -46706,44 +46710,66 @@ const _M = {
       //..................................
       // Prepare to read view detail from server
       let cmdText;
-      if(viewName) {
+      if (viewName) {
         cmdText = `ti views -cqn -name '${viewName}'`
       }
       // Query by current object
       else {
         cmdText = `ti views -cqn id:${meta.id}`
       }
-
       //..................................
       // Load the main view
-      let viewInfo = await Wn.Sys.exec2(cmdText, {as:"json"})
-      let {modState, modSetup} = viewInfo;
+      let viewInfo = await Wn.Sys.exec2(cmdText, { as: "json" })
+      let { modState, modSetup } = viewInfo;
       let $app = Ti.App(this)
       let view = await $app.loadView(viewInfo, {
-        setupMod: (moConf)=>{
+        setupMod: (moConf) => {
           //console.log("setup:", moConf)
           _.merge(moConf.state, modState)
-          if(modSetup) {
+          if (modSetup) {
             let setupFunc = Ti.Util.genInvoking(modSetup, {
               dft: null,
-              partial:"right"
+              partial: "right"
             })
-            if(_.isFunction(setupFunc)) {
-              return setupFunc({moConf, meta, viewInfo})
+            if (_.isFunction(setupFunc)) {
+              return setupFunc({ moConf, meta, viewInfo })
             }
           }
           return moConf
         }
       })
       //..................................
-      if(Ti.IsInfo("app/wn.manager")) {
+      if (Ti.IsInfo("app/wn.manager")) {
         console.log("TiView Loaded:", view)
       }
+      //....................................
+      // then try to unregisterModule safely
+      // if(this.view && this.view.modType) {
+      //   console.log("depose modType", this.view.modType)
+      //   try{
+      //     this.$store.unregisterModule("main")
+      //   }catch(E){
+      //     console.error("Error when unregisterModule", E)
+      //   }
+      // }
       //..................................
       // register main module
-      if(view && view.modType) {
-        this.$store.registerModule("main", view.mod)
-
+      if (view && view.modType) {
+        if (this.view && this.view.modType && this.view.modType != view.modType) {
+          try {
+            console.log(`switch modType ${this.view.modType} => ${view.modType}`)
+            this.$store.unregisterModule("main")
+            this.$store.registerModule("main", view.mod)
+          } catch (E) {
+            console.error("Error when unregisterModule", E)
+          }
+        }
+        // First regiester mod
+        else if (!this.view || !this.view.modType) {
+          console.log("regiest modType", view.modType)
+          this.$store.registerModule("main", view.mod)
+        }
+        // Reload mod data
         await $app.dispatch("main/reload", meta)
       }
       //..................................
@@ -46755,7 +46781,7 @@ const _M = {
       this.myIndicator = null
       this.mainViewStatus = {}
       this.OnUpdateActions(view.actions)
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.myViewReady = true
       })
     }
@@ -46766,7 +46792,7 @@ const _M = {
   },
   //.........................................
   async reloadAncestors() {
-    if(this.hasMeta) {
+    if (this.hasMeta) {
       // this.ancestors = await Wn.Io.loadAncestors("id:"+this.MetaId)
       // this.parent = _.last(this.ancestors)
       await Ti.App(this).dispatch("axis/reload", this.meta)
@@ -46775,13 +46801,13 @@ const _M = {
   //.........................................
   async reloadSidebar() {
     let cmdText = Wn.Session.env("SIDEBAR_BY") || "ti sidebar -cqn";
-    let reo = await Wn.Sys.exec(cmdText, {as:"json"});
+    let reo = await Wn.Sys.exec(cmdText, { as: "json" });
     this.sidebar = reo.sidebar
     this.sidebarStatusStoreKey = reo.statusStoreKey
   },
   //.........................................
   async reloadPrivilege() {
-    this.privilege = await Wn.Sys.exec("www pvg -cqn", {as:"json"});
+    this.privilege = await Wn.Sys.exec("www pvg -cqn", { as: "json" });
   },
   //.........................................
   async reloadCurrent() {
@@ -46800,14 +46826,14 @@ const _M = {
   pushHistory(meta) {
     // Push history to update the browser address bar
     let his = window.history
-    if(his && meta) {
+    if (his && meta) {
       // Done push duplicate state
-      if(his.state && his.state.id == meta.id){
+      if (his.state && his.state.id == meta.id) {
         return
       }
       // Push to history stack
       let newLink = Wn.Util.getAppLink(meta.id)
-      let title =  Wn.Util.getObjDisplayName(meta)
+      let title = Wn.Util.getObjDisplayName(meta)
       let obj = _.cloneDeep(meta)
       //console.log(title , "->", newLink)
       his.pushState(obj, title, newLink)
@@ -52869,9 +52895,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-------------------------------------
     // Aspect
     //-------------------------------------
-    "imageStyle": {
-      type: Object
-    },
     "effects": {
       type: Object,
       default: ()=>({})
@@ -52880,6 +52903,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: Object
     },
     "rightPartStyle": {
+      type: Object
+    },
+    "imageConStyle": {
+      type: Object
+    },
+    "imageStyle": {
       type: Object
     },
     "tagsStyle": {
@@ -65587,7 +65616,7 @@ Ti.Preload("ti/com/web/row/image/web-row-image.html", `<div class="web-row-image
     Left
   -->
   <div class="as-part at-left" :style="LeftPartStyle">
-    <div class="as-img-con">
+    <div class="as-img-con" :style="imageConStyle">
       <a 
         :href="TheHref"
         :target="LinkTarget"

@@ -3,12 +3,12 @@ const _M = {
   async reloadMain() {
     // Check meta
     let meta = this.meta
-    if(!meta) {
+    if (!meta) {
       return await Ti.Toast.Open("i18n:wn-manager-no-meta", "warn")
     }
 
     // Guard loading
-    if(this.isLoading) {
+    if (this.isLoading) {
       console.log("!!!")
       return await Ti.Toast.Open("i18n:wn-manager-is-loading", "warn")
     }
@@ -17,15 +17,6 @@ const _M = {
     this.comType = "ti-loading"
     this.comConf = {}
     try {
-      //....................................
-      // then try to unregisterModule safely
-      if(this.view && this.view.modType) {
-        try{
-          this.$store.unregisterModule("main")
-        }catch(E){
-          console.error("Error when unregisterModule", E)
-        }
-      }
       //..................................
       // Get back the viewName from hash
       // User can use `#!text-editor` to force open any view
@@ -35,44 +26,66 @@ const _M = {
       //..................................
       // Prepare to read view detail from server
       let cmdText;
-      if(viewName) {
+      if (viewName) {
         cmdText = `ti views -cqn -name '${viewName}'`
       }
       // Query by current object
       else {
         cmdText = `ti views -cqn id:${meta.id}`
       }
-
       //..................................
       // Load the main view
-      let viewInfo = await Wn.Sys.exec2(cmdText, {as:"json"})
-      let {modState, modSetup} = viewInfo;
+      let viewInfo = await Wn.Sys.exec2(cmdText, { as: "json" })
+      let { modState, modSetup } = viewInfo;
       let $app = Ti.App(this)
       let view = await $app.loadView(viewInfo, {
-        setupMod: (moConf)=>{
+        setupMod: (moConf) => {
           //console.log("setup:", moConf)
           _.merge(moConf.state, modState)
-          if(modSetup) {
+          if (modSetup) {
             let setupFunc = Ti.Util.genInvoking(modSetup, {
               dft: null,
-              partial:"right"
+              partial: "right"
             })
-            if(_.isFunction(setupFunc)) {
-              return setupFunc({moConf, meta, viewInfo})
+            if (_.isFunction(setupFunc)) {
+              return setupFunc({ moConf, meta, viewInfo })
             }
           }
           return moConf
         }
       })
       //..................................
-      if(Ti.IsInfo("app/wn.manager")) {
+      if (Ti.IsInfo("app/wn.manager")) {
         console.log("TiView Loaded:", view)
       }
+      //....................................
+      // then try to unregisterModule safely
+      // if(this.view && this.view.modType) {
+      //   console.log("depose modType", this.view.modType)
+      //   try{
+      //     this.$store.unregisterModule("main")
+      //   }catch(E){
+      //     console.error("Error when unregisterModule", E)
+      //   }
+      // }
       //..................................
       // register main module
-      if(view && view.modType) {
-        this.$store.registerModule("main", view.mod)
-
+      if (view && view.modType) {
+        if (this.view && this.view.modType && this.view.modType != view.modType) {
+          try {
+            console.log(`switch modType ${this.view.modType} => ${view.modType}`)
+            this.$store.unregisterModule("main")
+            this.$store.registerModule("main", view.mod)
+          } catch (E) {
+            console.error("Error when unregisterModule", E)
+          }
+        }
+        // First regiester mod
+        else if (!this.view || !this.view.modType) {
+          console.log("regiest modType", view.modType)
+          this.$store.registerModule("main", view.mod)
+        }
+        // Reload mod data
         await $app.dispatch("main/reload", meta)
       }
       //..................................
@@ -84,7 +97,7 @@ const _M = {
       this.myIndicator = null
       this.mainViewStatus = {}
       this.OnUpdateActions(view.actions)
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.myViewReady = true
       })
     }
@@ -95,7 +108,7 @@ const _M = {
   },
   //.........................................
   async reloadAncestors() {
-    if(this.hasMeta) {
+    if (this.hasMeta) {
       // this.ancestors = await Wn.Io.loadAncestors("id:"+this.MetaId)
       // this.parent = _.last(this.ancestors)
       await Ti.App(this).dispatch("axis/reload", this.meta)
@@ -104,13 +117,13 @@ const _M = {
   //.........................................
   async reloadSidebar() {
     let cmdText = Wn.Session.env("SIDEBAR_BY") || "ti sidebar -cqn";
-    let reo = await Wn.Sys.exec(cmdText, {as:"json"});
+    let reo = await Wn.Sys.exec(cmdText, { as: "json" });
     this.sidebar = reo.sidebar
     this.sidebarStatusStoreKey = reo.statusStoreKey
   },
   //.........................................
   async reloadPrivilege() {
-    this.privilege = await Wn.Sys.exec("www pvg -cqn", {as:"json"});
+    this.privilege = await Wn.Sys.exec("www pvg -cqn", { as: "json" });
   },
   //.........................................
   async reloadCurrent() {
@@ -129,14 +142,14 @@ const _M = {
   pushHistory(meta) {
     // Push history to update the browser address bar
     let his = window.history
-    if(his && meta) {
+    if (his && meta) {
       // Done push duplicate state
-      if(his.state && his.state.id == meta.id){
+      if (his.state && his.state.id == meta.id) {
         return
       }
       // Push to history stack
       let newLink = Wn.Util.getAppLink(meta.id)
-      let title =  Wn.Util.getObjDisplayName(meta)
+      let title = Wn.Util.getObjDisplayName(meta)
       let obj = _.cloneDeep(meta)
       //console.log(title , "->", newLink)
       his.pushState(obj, title, newLink)
