@@ -1,4 +1,4 @@
-// Pack At: 2021-06-11 03:29:34
+// Pack At: 2021-06-11 04:20:36
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -22659,6 +22659,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
           transition: "transform 0.3s", 
           transform: transform.join(" "),
           zIndex
+        }
+      }
+      // Return
+      else if(this.EffectsHoverUp || this.EffectsHoverScale){
+        return {
+          transition: "transform 0.3s"
         }
       }
     },

@@ -190,6 +190,12 @@ export default {
           zIndex
         }
       }
+      // Return
+      else if(this.EffectsHoverUp || this.EffectsHoverScale){
+        return {
+          transition: "transform 0.3s"
+        }
+      }
     },
     //--------------------------------------
     TagsStyle() {
