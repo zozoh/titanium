@@ -108,7 +108,7 @@ const _M = {
       if(!reo)
         return
 
-      console.log(reo)
+      //console.log(reo)
 
       // Cover to classObject
       let css = {}
@@ -125,7 +125,7 @@ const _M = {
           css[k] = true
         }
       })
-      console.log("CSS", css)
+      //console.log("CSS", css)
 
       // Normlized to value
       let val = this.normalizeValue(css)

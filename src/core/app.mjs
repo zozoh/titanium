@@ -469,7 +469,7 @@ TiApp.allInstance = function(iteratee=_.identity) {
 }
 //---------------------------------------
 TiApp.Open = function(options) {
-  console.log(_.cloneDeep(options))
+  //console.log(_.cloneDeep(options))
   return new Promise((resolve)=>{
     let $m = new TiAppModal()
     _.assign($m, options)

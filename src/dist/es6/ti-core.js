@@ -1,4 +1,4 @@
-// Pack At: 2021-06-11 04:20:36
+// Pack At: 2021-06-11 05:02:30
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3605,7 +3605,7 @@ const {App} = (function(){
   }
   //---------------------------------------
   TiApp.Open = function(options) {
-    console.log(_.cloneDeep(options))
+    //console.log(_.cloneDeep(options))
     return new Promise((resolve)=>{
       let $m = new TiAppModal()
       _.assign($m, options)
@@ -15669,7 +15669,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210611.042036",
+  "version" : "1.6-20210611.050230",
   "dev" : false,
   "appName" : null,
   "session" : {},

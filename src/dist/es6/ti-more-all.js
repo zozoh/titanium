@@ -1,4 +1,4 @@
-// Pack At: 2021-06-11 04:20:36
+// Pack At: 2021-06-11 05:02:30
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -70302,6 +70302,9 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-class-text-wrap-auto": "Auto",
   "hmk-class-text-wrap-clip": "Clip",
   "hmk-class-text-wrap-ellipsis": "Ellipsis",
+  "hmk-class-word-break-all": "Break All",
+  "hmk-class-word-break-word": "Break Word",
+  "hmk-class-word-keep-all": "Keep All",
   "hmk-class-title-wrap": "Title wrap",
   "hmk-class-ts-mask": "Mask",
   "hmk-class-ts-shadow": "Shadow",
@@ -71729,6 +71732,9 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-class-text-wrap-auto": "自动",
   "hmk-class-text-wrap-clip": "剪裁",
   "hmk-class-text-wrap-ellipsis": "省略号",
+  "hmk-class-word-break-all": "按字母",
+  "hmk-class-word-break-word": "按单词",
+  "hmk-class-word-keep-all": "不折行",
   "hmk-class-title-wrap": "标题折行",
   "hmk-class-ts-mask": "遮罩",
   "hmk-class-ts-shadow": "阴影",
@@ -73148,6 +73154,9 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-class-text-wrap-auto": "自動",
    "hmk-class-text-wrap-clip": "剪裁",
    "hmk-class-text-wrap-ellipsis": "省略號",
+   "hmk-class-word-break-all": "按字母",
+   "hmk-class-word-break-word": "按單詞",
+   "hmk-class-word-keep-all": "不折行",
    "hmk-class-title-wrap": "標題折行",
    "hmk-class-ts-mask": "遮罩",
    "hmk-class-ts-shadow": "陰影",
