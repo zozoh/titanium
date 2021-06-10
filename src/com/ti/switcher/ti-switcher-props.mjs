@@ -40,6 +40,10 @@ export default {
     type: [Boolean, String],
     default: true
   },
+  "joinBy": {
+    type: [String, Function],
+    default: undefined
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

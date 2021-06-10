@@ -35,24 +35,40 @@
         <!--
           For Group
         -->
-        <form-group v-if="'Group' == fld.type"
-          v-bind="fld"
-          :data="data"
-          :field-status="fieldStatus"
-          :status-icons="statusIcons"
-          :screen-mode="ViewDisplayMode"
-          @change="OnFieldChange"/>
+        <form-group
+          v-if="'Group' == fld.type"
+            v-bind="fld"
+            :data="data"
+            :field-status="fieldStatus"
+            :status-icons="statusIcons"
+            :screen-mode="ViewDisplayMode"
+            @change="OnFieldChange"/>
+        <!---
+          Lable
+        -->
+        <div 
+          v-else-if="'Label' == fld.type"
+            class="form-label">
+            <ti-icon
+              v-if="fld.icon" 
+                class="as-label-icon"
+                :value="fld.icon"/>
+            <span
+              v-if="fld.title"
+                class="as-label-text">{{fld.title|i18n}}</span>
+        </div>
         <!--
           For field
         -->
-        <ti-form-field v-else
-          :key="fld.key"
-          v-bind="fld"
-          :data="data"
-          :field-status="fieldStatus"
-          :status-icons="statusIcons"
-          :screen-mode="ViewDisplayMode"
-          @change="OnFieldChange"/>
+        <ti-form-field
+          v-else
+            :key="fld.key"
+            v-bind="fld"
+            :data="data"
+            :field-status="fieldStatus"
+            :status-icons="statusIcons"
+            :screen-mode="ViewDisplayMode"
+            @change="OnFieldChange"/>
       </template>
     </div>
   </template>

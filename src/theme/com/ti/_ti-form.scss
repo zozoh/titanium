@@ -53,6 +53,18 @@
   //------------------------------------
   > .form-body {
     //----------------------------------
+    > .form-label {
+      @include flex-align;
+      @include color($color-bar, r, c);
+      padding: SZ(12); margin: SZ(12) 0;
+      .as-label-icon {
+        margin: 0 SZ(4);
+      }
+      .as-label-text {
+        margin: 0 SZ(4);
+      }
+    }
+    //----------------------------------
     > .form-group {
       &:last-child {
         border:0
@@ -149,7 +161,7 @@
       //--------------------------------
       &.as-desktop, &.as-tablet {
         @include flex-align-nowrap($ai:stretch,$ac:stretch);
-        @include border(1px, dashed, shallow, top);
+        @include border(1px, dashed, shallow, bottom);
         &:first-child {border:0;}
         > .field-name  {
           @include flex-align-nowrap($ai:flex-start,$ac:flex-start);

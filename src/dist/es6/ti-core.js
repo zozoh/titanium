@@ -1,4 +1,4 @@
-// Pack At: 2021-06-09 20:57:48
+// Pack At: 2021-06-11 03:29:34
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3605,6 +3605,7 @@ const {App} = (function(){
   }
   //---------------------------------------
   TiApp.Open = function(options) {
+    console.log(_.cloneDeep(options))
     return new Promise((resolve)=>{
       let $m = new TiAppModal()
       _.assign($m, options)
@@ -6993,7 +6994,7 @@ const {Validate} = (function(){
 const {AutoMatch} = (function(){
   ///////////////////////////////////////
   function DoAutoMatch(input) {
-    // null
+    // nil
     if (Ti.Util.isNil(input)) {
       return new NilMatch();
     }
@@ -7022,6 +7023,12 @@ const {AutoMatch} = (function(){
       }
       if(input["$NotNil"]) {
         return NotNilMatch(input["$NotNil"])
+      }
+      if(input["$Null"]) {
+        return NulllMatch(input["$Null"])
+      }
+      if(input["$Undefined"]) {
+        return UndefinedMatch(input["$Undefined"])
       }
       // General Map Match
       return MapMatch(input);
@@ -7192,6 +7199,25 @@ const {AutoMatch} = (function(){
     return val => {
       let v = _.get(val, input)
       return Ti.Util.isNil(v)
+    }
+  }
+  function NulllMatch(input) {
+    if(!input) {
+      return val => _.isNull(val)
+    }
+    return val => {
+      let v = _.get(val, input)
+      return _.isNull(v)
+    }
+  }
+  function UndefinedMatch(input) {
+    if(!input) {
+      return val => _.isUndefined(val)
+    }
+    return val => {
+      //console.log("undefined match ", val)
+      let v = _.get(val, input)
+      return _.isUndefined(v)
     }
   }
   function NotMatch(m) {
@@ -15643,7 +15669,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210609.205748",
+  "version" : "1.6-20210611.032935",
   "dev" : false,
   "appName" : null,
   "session" : {},

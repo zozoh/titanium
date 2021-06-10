@@ -2,7 +2,8 @@ const _M = {
   //////////////////////////////////////////////////////
   data : ()=>({
     myTexts : {},
-    myNames : {}
+    myNames : {},
+    myBools : {}
   }),
   //////////////////////////////////////////////////////
   props : {
@@ -78,7 +79,14 @@ const _M = {
       let result = {}
       let keys = Ti.Util.truthyKeys(this.ValueData)
       for(let key of keys) {
-        let k = this.myNames[key]
+        // Boolean name
+        let k = this.myBools[key]
+        if(k) {
+          result[k] = true
+          continue
+        }
+        // Normal name
+        k = this.myNames[key]
         if(k) {
           result[k] = key
         }
@@ -100,20 +108,24 @@ const _M = {
       if(!reo)
         return
 
+      console.log(reo)
+
       // Cover to classObject
       let css = {}
       _.forEach(reo, (val, key)=>{
         if(!val)
           return
-        
+        let k = _.kebabCase(key)
         if(_.isBoolean(val)) {
-          css[key] = true
+          css[k] = true
         }
         // grouped class name
         else {
-          css[val] = true
+          k = _.kebabCase(val)
+          css[k] = true
         }
       })
+      console.log("CSS", css)
 
       // Normlized to value
       let val = this.normalizeValue(css)
@@ -137,6 +149,7 @@ const _M = {
     evalOptions() {
       let texts = {}
       let names = {}
+      let bools = {}
       const grouping = (fields)=>{
         // Guard
         if(!_.isArray(fields)) {
@@ -146,6 +159,9 @@ const _M = {
         for(let fld of fields) {
           if(fld.name) {
             let targetKey = fld.name
+            //
+            // Options
+            //
             let options = _.get(fld, "comConf.options")
             if(_.isArray(options)) {
               for(let it of options) {
@@ -155,6 +171,13 @@ const _M = {
                 }
               }
             }
+            //
+            // Toggle
+            else if("Boolean" == fld.type) {
+              let k = _.kebabCase(fld.name)
+              bools[k] = fld.name
+              texts[k] = Ti.I18n.text(fld.title)
+            }
           }
           // Recur
           grouping(fld.fields)
@@ -163,6 +186,7 @@ const _M = {
       grouping(this.form.fields)
       this.myNames = names
       this.myTexts = texts
+      this.myBools = bools
     }
     //--------------------------------------------------
   },

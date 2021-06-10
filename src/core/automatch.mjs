@@ -1,6 +1,6 @@
 ///////////////////////////////////////
 function DoAutoMatch(input) {
-  // null
+  // nil
   if (Ti.Util.isNil(input)) {
     return new NilMatch();
   }
@@ -29,6 +29,12 @@ function DoAutoMatch(input) {
     }
     if(input["$NotNil"]) {
       return NotNilMatch(input["$NotNil"])
+    }
+    if(input["$Null"]) {
+      return NulllMatch(input["$Null"])
+    }
+    if(input["$Undefined"]) {
+      return UndefinedMatch(input["$Undefined"])
     }
     // General Map Match
     return MapMatch(input);
@@ -199,6 +205,25 @@ function NilMatch(input) {
   return val => {
     let v = _.get(val, input)
     return Ti.Util.isNil(v)
+  }
+}
+function NulllMatch(input) {
+  if(!input) {
+    return val => _.isNull(val)
+  }
+  return val => {
+    let v = _.get(val, input)
+    return _.isNull(v)
+  }
+}
+function UndefinedMatch(input) {
+  if(!input) {
+    return val => _.isUndefined(val)
+  }
+  return val => {
+    //console.log("undefined match ", val)
+    let v = _.get(val, input)
+    return _.isUndefined(v)
   }
 }
 function NotMatch(m) {

@@ -352,6 +352,10 @@ const _M = {
       return "Group" == fld.type || _.isArray(fld.fields)
     },
     //--------------------------------------------------
+    isLabel(fld) {
+      return "Label" == fld.type || !fld.name
+    },
+    //--------------------------------------------------
     evalFormField(fld={}, nbs=[]) {
       // Hide or disabled
       if(fld.hidden) {
@@ -391,6 +395,18 @@ const _M = {
         })
         // Done
         return _.isEmpty(group.fields) ? null : group
+      }
+      //............................................
+      // Label
+      if(this.isLabel(fld)) {
+        return {
+          disabled,
+          type        : "Label",
+          key         : fldKey,
+          className   : fld.className,
+          icon        : fld.icon,
+          title       : fld.title
+        }
       }
       //............................................
       // For Normal Field

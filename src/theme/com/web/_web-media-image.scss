@@ -56,7 +56,6 @@
   }
   //-----------------------------------------
   .as-img-con {
-    flex:1 1 auto;
     width:100%; 
     overflow: hidden;
   }
@@ -84,7 +83,7 @@
   .as-text {
     @include flex-center; 
     @include font-nice;
-    user-select: text;
+    user-select: text; flex:1 1 auto;
     //---------------------------------------
     .as-title {
       flex:1 1 auto;
@@ -160,6 +159,7 @@
     &:hover {
       transform: scale(1.1);
       box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
+      z-index: $z-above;
     }
   }
   //-----------------------------------------
@@ -182,7 +182,8 @@
   &.ts-shadow .as-text {text-shadow: 2px 2px 6px rgba(0,0,0,0.6);}
   &.ts-mask .as-text {background-color:rgba(0,0,0,0.4);}
   &.ts-wrap .as-text .as-title {
-    white-space: normal;
+    white-space: normal; word-break: break-all;
+    overflow: visible;
   }
   &.ts-hide .as-text {display: none;}
   //-----------------------------------------

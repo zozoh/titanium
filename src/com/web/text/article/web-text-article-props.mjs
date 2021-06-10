@@ -62,7 +62,7 @@ export default {
   "loadingAs": {
     type: Object,
     default: () => ({
-      className: "as-nil-mask as-big-mask",
+      className: "as-nil-mask as-big",
       icon: "fas-spinner fa-spin",
       text: "i18n:loading"
     })

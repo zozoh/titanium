@@ -1,4 +1,4 @@
-// Pack At: 2021-06-09 20:57:48
+// Pack At: 2021-06-11 03:29:34
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -22471,26 +22471,27 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/web/media/image/web-media-image.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////
-  data: ()=>({
-    myMouseIn : false,
-    showZoomPick  : false,
-    showZoomDock  : false,
-    naturalWidth  : -1,
-    naturalHeight : -1,
-    clientWidth  : -1,
-    clientHeight : -1,
-    imgLoading : true,
-    pickRect : {},
-    myEnterAt : -1,    // AMS mouse enter for cooling
-    myEnterNotifed : false
+  data: () => ({
+    myRotate: 0,
+    myMouseIn: false,
+    showZoomPick: false,
+    showZoomDock: false,
+    naturalWidth: -1,
+    naturalHeight: -1,
+    clientWidth: -1,
+    clientHeight: -1,
+    imgLoading: true,
+    pickRect: {},
+    myEnterAt: -1,    // AMS mouse enter for cooling
+    myEnterNotifed: false
   }),
   /////////////////////////////////////////
-  props : {
+  props: {
     //-------------------------------------
     // Data
     //-------------------------------------
-    "src" : {
-      type : [String, Object]
+    "src": {
+      type: [String, Object]
     },
     "preview": {
       type: Object
@@ -22501,7 +22502,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-------------------------------------
     // Behavior
     //-------------------------------------
-    "hasLink" : {
+    "hasLink": {
       type: [String, Boolean, Object],
       default: undefined
     },
@@ -22529,23 +22530,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
     - pickStyle : {...}  // ex style for picker
     - dockStyle : {...}  // ex style for docker
     */
-    "zoomLens" : {
-      type : Object,
-      default : undefined
+    "zoomLens": {
+      type: Object,
+      default: undefined
     },
-    "enterNotify" : {
-      type : [String, Boolean]
+    "enterNotify": {
+      type: [String, Boolean]
       /*default: "media:enter"*/
     },
-    "notifyPayload" : {
-      type : [Object, String, Number]
+    "notifyPayload": {
+      type: [Object, String, Number]
     },
-    "enterCooling" : {
-      type : Number,
-      default : 500
+    "enterCooling": {
+      type: Number,
+      default: 500
     },
-    "leaveNotify" : {
-      type : [String, Boolean]
+    "leaveNotify": {
+      type: [String, Boolean]
       /*default: "media:leave"*/
     },
     //-------------------------------------
@@ -22554,9 +22555,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "imageStyle": {
       type: Object
     },
+    /*
+    {textHoverFull, randomRotate}
+    */
     "effects": {
       type: Object,
-      default: ()=>({})
+      default: () => ({})
     },
     "tags": {
       type: [String, Array, Object]
@@ -22586,16 +22590,77 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // ...
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "has-href" : this.TheHref ? true : false,
-        "no-href"  : this.TheHref ? false : true,
-        "show-zoomlen" : this.showZoomPick,
-        "no-zoomlen"   : this.TheZoomLens ? false : true,
-        "has-zoomlen"  : this.TheZoomLens ? true  : false,
+        "has-href": this.TheHref ? true : false,
+        "no-href": this.TheHref ? false : true,
+        "show-zoomlen": this.showZoomPick,
+        "no-zoomlen": this.TheZoomLens ? false : true,
+        "has-zoomlen": this.TheZoomLens ? true : false,
       }, this.effects)
+    },
+    //--------------------------------------
+    EffectsHoverUp() {
+      if(this.effects && this.effects.hoverUp)
+        return Ti.Css.toSize(this.effects.hoverUp)
+    },
+    EffectsHoverScale() {
+      if(this.effects 
+          && _.isNumber(this.effects.hoverScale) 
+          && this.effects.hoverScale != 1)
+            return this.effects.hoverScale
+    },
+    //--------------------------------------
+    TopStyle() {
+      let zIndex;
+      //
+      // Mouse in
+      //
+      let transform = []
+      if(this.myMouseIn) {
+        // Random rotate, it will restore to normal when mouse enter
+        if(this.myRotate) {
+          transform.push(`rotate(0deg)`)
+        }
+        // Customized hover effect
+        if(this.effects) {
+          // Customized translateY
+          if(this.EffectsHoverUp) {
+            transform.push(`translateY(${this.EffectsHoverUp})`)
+          }
+          // Customized scale
+          if(this.EffectsHoverScale) {
+            transform.push(`scale(${this.EffectsHoverScale})`)
+          }
+        }
+      }
+      // Normal (mouse out)
+      else {
+        if(this.myRotate) {
+          transform.push(`rotate(${this.myRotate}deg)`)
+        }
+      }
+      if(transform.length>0) {
+        // The effect declared by CSS selector
+        // I have to declare in here since the TopStyle will override the CSS rule
+        if(this.myMouseIn) {
+          if(!this.EffectsHoverUp && Ti.Dom.hasClass(this.$el, "hover-to-up")) {
+            transform.push("translateY(-10px)")
+          }
+          if(!this.EffectsHoverScale && Ti.Dom.hasClass(this.$el, "hover-to-scale")) {
+            transform.push("scale(1.1)")
+          }
+          zIndex = 1
+        }
+        // Done
+        return {
+          transition: "transform 0.3s", 
+          transform: transform.join(" "),
+          zIndex
+        }
+      }
     },
     //--------------------------------------
     TagsStyle() {
@@ -22615,9 +22680,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     TheZoomLens() {
-      if(!this.zoomLens || this.clientWidth<=0 || this.clientHeight<=0)
+      if (!this.zoomLens || this.clientWidth <= 0 || this.clientHeight <= 0)
         return
-      
+
       let pickW = _.get(this.zoomLens, "pickWidth", .618)
       let pickH = _.get(this.zoomLens, "pickHeight", -1)
       let followPicker = _.get(this.zoomLens, "followPicker", false)
@@ -22627,20 +22692,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let zl = {
         followPicker, dockStyle, pickStyle
       }
-      zl.pickWidth = pickW < 1 
-            ? this.clientWidth * pickW
-            : pickW;
+      zl.pickWidth = pickW < 1
+        ? this.clientWidth * pickW
+        : pickW;
       zl.pickHeight = pickH <= 0
-            ? zl.pickWidth
-            : (pickH < 1 ? this.clientHeight*pickH : pickH)
-      
+        ? zl.pickWidth
+        : (pickH < 1 ? this.clientHeight * pickH : pickH)
+
       let scale = _.get(this.zoomLens, "scale", 2)
-      zl.dockWidth  = zl.pickWidth  * scale
+      zl.dockWidth = zl.pickWidth * scale
       zl.dockHeight = zl.pickHeight * scale
 
       _.defaults(zl, {
-        dockMode  : "V",
-        dockSpace : {x: 10, y:0},
+        dockMode: "V",
+        dockSpace: { x: 10, y: 0 },
         dockPosListY: ["top", "bottom"]
       })
 
@@ -22648,23 +22713,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     ZoomLenPickStyle() {
-      if(this.zoomLens && !_.isEmpty(this.pickRect)){
+      if (this.zoomLens && !_.isEmpty(this.pickRect)) {
         return Ti.Css.toStyle({
-          visibility : this.showZoomPick ? "visible" : "hidden",
-          top    : this.pickRect.top,
-          left   : this.pickRect.left,
-          width  : this.TheZoomLens.pickWidth,
-          height : this.TheZoomLens.pickHeight,
+          visibility: this.showZoomPick ? "visible" : "hidden",
+          top: this.pickRect.top,
+          left: this.pickRect.left,
+          width: this.TheZoomLens.pickWidth,
+          height: this.TheZoomLens.pickHeight,
           ... this.TheZoomLens.pickStyle
         })
       }
     },
     //--------------------------------------
     ZoomLenDockStyle() {
-      if(this.zoomLens){
-        if(_.isEmpty(this.pickRect)) {
+      if (this.zoomLens) {
+        if (_.isEmpty(this.pickRect)) {
           return {
-            visibility : this.showZoomDock ? "visible" : "hidden",
+            visibility: this.showZoomDock ? "visible" : "hidden",
             backgroundImage: `url("${this.TheSrc}")`
           }
         } else {
@@ -22672,14 +22737,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
           let cW = this.clientWidth
           let cH = this.clientHeight
           let pLeft = this.pickRect.left
-          let pTop  = this.pickRect.top
+          let pTop = this.pickRect.top
           return Ti.Css.toStyle({
-            visibility : this.showZoomDock ? "visible" : "hidden",
-            width  : this.TheZoomLens.dockWidth,
-            height : this.TheZoomLens.dockHeight,
+            visibility: this.showZoomDock ? "visible" : "hidden",
+            width: this.TheZoomLens.dockWidth,
+            height: this.TheZoomLens.dockHeight,
             backgroundImage: `url("${this.TheSrc}")`,
-            backgroundSize : `${cW*scale}px ${cH*scale}px`,
-            backgroundPosition: `${pLeft*scale*-1}px ${pTop*scale*-1}px`,
+            backgroundSize: `${cW * scale}px ${cH * scale}px`,
+            backgroundPosition: `${pLeft * scale * -1}px ${pTop * scale * -1}px`,
             ... this.TheZoomLens.dockStyle
           })
         }
@@ -22703,25 +22768,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     TheTags() {
-      if(this.tags) {
+      if (this.tags) {
         let tags = _.concat(this.tags)
         let list = []
-        for(let tag of tags) {
-          if(_.isString(tag)) {
+        for (let tag of tags) {
+          if (_.isString(tag)) {
             list.push({
-              className : undefined,
-              text : tag
+              className: undefined,
+              text: tag
             })
           } else {
-            let {text,color,className} = tag
-            if(!text) {
+            let { text, color, className } = tag
+            if (!text) {
               continue
             }
             let style;
-            if(color) {
-              style = {"background-color" : color}
+            if (color) {
+              style = { "background-color": color }
             }
-            list.push({text, style, className})
+            list.push({ text, style, className })
           }
         }
         return list
@@ -22729,12 +22794,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     TheText() {
-      if(this.text) {
+      if (this.text) {
         let str = this.text
-        if(_.isPlainObject(this.src)) {
+        if (_.isPlainObject(this.src)) {
           str = Ti.Util.explainObj(this.src, this.text)
         }
-        if(this.i18n) {
+        if (this.i18n) {
           str = Ti.I18n.text(str)
         }
         return str
@@ -22742,36 +22807,40 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     TheBrief() {
-      if(this.brief) {
+      if (this.brief) {
         let str = this.brief
-        if(_.isPlainObject(this.src)) {
+        if (_.isPlainObject(this.src)) {
           str = Ti.Util.explainObj(this.src, this.brief)
         }
-        if(this.i18n) {
+        if (this.i18n) {
           str = Ti.I18n.text(str)
         }
         return str
       }
     },
     //--------------------------------------
+    isCssTextIn() {
+      return this.$el && Ti.Dom.hasClass(this.$el, "text-in")
+    },
+    //--------------------------------------
     isHasLink() {
-      if(this.link) {
+      if (this.link) {
         return true
       }
       // Auto
-      if(_.isUndefined(this.hasLink)) {
+      if (_.isUndefined(this.hasLink)) {
         return this.href || _.get(this.navTo, "value") ? true : false
       }
       return this.hasLink ? true : false
     },
     //--------------------------------------
     TheHref() {
-      if(this.link) {
+      if (this.link) {
         return this.link
       }
-      if(this.isHasLink) {
+      if (this.isHasLink) {
         let href = this.href
-        if(_.isPlainObject(this.src)) {
+        if (_.isPlainObject(this.src)) {
           href = Ti.Util.explainObj(this.src, this.href)
         }
         return href
@@ -22780,8 +22849,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     isNewTab() {
       let newtab = this.newtab
-      if(_.isString(newtab)) {
-        if(_.isPlainObject(this.src)) {
+      if (_.isString(newtab)) {
+        if (_.isPlainObject(this.src)) {
           newtab = Ti.Util.explainObj(this.src, this.newtab)
         }
       }
@@ -22794,51 +22863,51 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnImageLoaded() {
       let $img = this.$refs.img
-      if($img) {
-        this.naturalWidth  = $img.naturalWidth
+      if ($img) {
+        this.naturalWidth = $img.naturalWidth
         this.naturalHeight = $img.naturalHeight
-        this.clientWidth  = $img.clientWidth
+        this.clientWidth = $img.clientWidth
         this.clientHeight = $img.clientHeight
         this.imgLoading = false
       }
     },
     //--------------------------------------
     OnClickTop(evt) {
-      if(!this.isHasLink) {
+      if (!this.isHasLink) {
         return
       }
-      if(this.navTo && !this.newtab && !this.link) {
+      if (this.navTo && !this.newtab && !this.link) {
         evt.preventDefault()
         this.$notify("nav:to", this.navTo)
       }
     },
     //--------------------------------------
     OnMouseMove($event) {
-      if(!_.isElement(this.$refs.img) || !_.isElement(this.$refs.pick)) {
+      if (!_.isElement(this.$refs.img) || !_.isElement(this.$refs.pick)) {
         return
       }
       let imRect = Ti.Rects.createBy(this.$refs.img)
       let pkRect = Ti.Rects.createBy(this.$refs.pick)
-      let {clientX, clientY} = $event
+      let { clientX, clientY } = $event
 
       let rect = Ti.Rects.create({
         x: clientX, y: clientY,
-        width  : pkRect.width, 
-        height : pkRect.height
+        width: pkRect.width,
+        height: pkRect.height
       })
       imRect.wrap(rect)
       rect.relative(imRect)
 
-      if(this.TheZoomLens && this.TheZoomLens.followPicker) {
+      if (this.TheZoomLens && this.TheZoomLens.followPicker) {
         Ti.Dom.dockTo(this.$refs.dock, this.$refs.pick, {
-          mode  : this.TheZoomLens.dockMode,
-          space : this.TheZoomLens.dockSpace,
-          posListX : this.TheZoomLens.dockPosListX,
-          posListY : this.TheZoomLens.dockPosListY
+          mode: this.TheZoomLens.dockMode,
+          space: this.TheZoomLens.dockSpace,
+          posListX: this.TheZoomLens.dockPosListX,
+          posListY: this.TheZoomLens.dockPosListY
         })
       }
 
@@ -22851,14 +22920,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.myMouseIn = true
       this.myEnterAt = Date.now()
 
-      _.delay(()=>{
+      _.delay(() => {
         this.delayCheckEnter()
       }, 10)
 
-      if(this.EnterNotifyName && this.enterCooling >= 0) {
-        _.delay(()=>{
+      if (this.EnterNotifyName && this.enterCooling >= 0) {
+        _.delay(() => {
           this.delayNotifyEnter()
-        }, this.enterCooling)  
+        }, this.enterCooling)
       } else {
         this.myEnterNotifed = true
       }
@@ -22867,41 +22936,41 @@ const __TI_MOD_EXPORT_VAR_NM = {
     OnMouseLeave() {
       //console.log("< image")
       this.myMouseIn = false
-      _.delay(()=>{
+      _.delay(() => {
         this.delayCheckLeave()
       }, 10)
     },
     //--------------------------------------
     delayNotifyEnter() {
       // Guard
-      if(!this.myMouseIn || this.myEnterNotifed || this.myEnterAt<0) {
+      if (!this.myMouseIn || this.myEnterNotifed || this.myEnterAt < 0) {
         this.myEnterNotifed = true
         return
       }
-      let du = Date.now()  - this.myEnterAt
-      if(du >= this.enterCooling) {
+      let du = Date.now() - this.myEnterAt
+      if (du >= this.enterCooling) {
         //console.log("du cooling", du, this.enterCooling)
         this.myEnterNotifed = true
         let payload = _.assign({
-          $el : this.$el,
-          $img : this.$refs.img
+          $el: this.$el,
+          $img: this.$refs.img
         }, this.notifyPayload)
         this.$notify(this.EnterNotifyName, payload)
       }
     },
     //--------------------------------------
     delayCheckEnter() {
-      if(!this.myMouseIn) {
+      if (!this.myMouseIn) {
         return
       }
       //console.log("enter image")
       //
       // Full text
       //
-      if(this.effects.textHoverFull) {
+      if (this.effects.textHoverFull && this.isCssTextIn) {
         let $text = this.$refs.text
         // Remember the old rect for restore size when mouse leave
-        if($text && !$text.__primary_rect) {
+        if ($text && !$text.__primary_rect) {
           let rect = Ti.Rects.createBy(this.$refs.text)
           $text.__primary_rect = rect
           $text.__reset_primary = false
@@ -22912,7 +22981,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
         // set full text
         let view = Ti.Rects.createBy(this.$el)
-        _.delay(()=>{
+        _.delay(() => {
           Ti.Dom.updateStyle($text, {
             width: view.width, height: view.height
           })
@@ -22922,13 +22991,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Switch Hover src
       //
       let $img = this.$refs.img
-      if($img && this.TheHoverSrc) {
+      if ($img && this.TheHoverSrc) {
         $img.src = this.TheHoverSrc
       }
     },
     //--------------------------------------
     delayCheckLeave() {
-      if(this.myMouseIn) {
+      if (this.myMouseIn) {
         return
       }
       this.showZoomPick = false
@@ -22937,10 +23006,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       //
       // Full text
       //
-      if(this.effects.textHoverFull) {
+      if (this.effects.textHoverFull && this.isCssTextIn) {
         let $text = this.$refs.text
         // trans event handler
-        const OnTextTransitionend = ()=>{
+        const OnTextTransitionend = () => {
           //console.log("$text transitionend")
           Ti.Dom.updateStyle($text, {
             width: "", height: ""
@@ -22949,20 +23018,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
           $text.__reset_primary = true
         }
         // Remember the old rect for restore size when mouse leave
-        if($text && $text.__primary_rect) {
+        if ($text && $text.__primary_rect) {
           let rect = $text.__primary_rect
           // Set callback when transitionend
-          $text.addEventListener("transitionend", OnTextTransitionend, {once: true})
+          $text.addEventListener("transitionend", OnTextTransitionend, { once: true })
           // Restore the old size
-          _.delay(()=>{
+          _.delay(() => {
             //console.log("restore to ", rect.toString())
             Ti.Dom.updateStyle($text, {
               width: rect.width, height: rect.height
             })
           }, 10)
           // Make sure restore to old size
-          _.delay(()=>{
-            if(!$text.__reset_primary && !this.myMouseIn) {
+          _.delay(() => {
+            if (!$text.__reset_primary && !this.myMouseIn) {
               //console.log("clean!!!")
               Ti.Dom.updateStyle($text, {
                 width: "", height: ""
@@ -22978,16 +23047,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Switch Hover src
       //
       let $img = this.$refs.img
-      if($img && this.TheHoverSrc) {
+      if ($img && this.TheHoverSrc) {
         $img.src = this.TheSrc
       }
       //
       // Notify Evento
       //
-      if(this.myEnterNotifed && this.LeaveNotifyName) {
+      if (this.myEnterNotifed && this.LeaveNotifyName) {
         let payload = _.assign({
-          $el : this.$el,
-          $img : this.$refs.img
+          $el: this.$el,
+          $img: this.$refs.img
         }, this.notifyPayload)
         this.$notify(this.LeaveNotifyName, payload)
       }
@@ -22996,28 +23065,45 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     OnTextTransitionend() {
-      if(!this.myMouseIn) {
+      if (!this.myMouseIn) {
         Ti.Dom.updateStyle(this.$refs.text, {
           width: "", height: ""
         })
         this.$refs.text.__primary_rect = undefined
       }
+    },
+    //--------------------------------------
+    evalEffects() {
+      // Guard
+      if (!this.effects) {
+        return
+      }
+
+      // Auto rotate
+      if (this.effects.randomRotate) {
+        let rr1 = this.effects.randomRotate
+        let rr0 = rr1 * -1
+        let rr = [rr0, rr1].sort()
+        this.myRotate = _.random(...rr)
+      } else {
+        this.myRotate = 0
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "showZoomPick" : function(newVal) {
-      if(newVal && this.zoomLens) {
-        this.$nextTick(()=>{
-          if(this.TheZoomLens && this.TheZoomLens.followPicker) {
+  watch: {
+    "showZoomPick": function (newVal) {
+      if (newVal && this.zoomLens) {
+        this.$nextTick(() => {
+          if (this.TheZoomLens && this.TheZoomLens.followPicker) {
             Ti.Dom.dockTo(this.$refs.dock, this.$refs.img, {
-              mode  : this.TheZoomLens.dockMode,
-              space : this.TheZoomLens.dockSpace,
-              posListX : this.TheZoomLens.dockPosListX,
-              posListY : this.TheZoomLens.dockPosListY
+              mode: this.TheZoomLens.dockMode,
+              space: this.TheZoomLens.dockSpace,
+              posListX: this.TheZoomLens.dockPosListX,
+              posListY: this.TheZoomLens.dockPosListY
             })
-            _.delay(()=>{
+            _.delay(() => {
               this.showZoomDock = true
             }, 100)
           } else {
@@ -23025,7 +23111,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         })
       }
-    }
+    },
+    "effects": "evalEffects"
+  },
+  //////////////////////////////////////////
+  mounted: function () {
+    this.evalEffects()
   }
   //////////////////////////////////////////
 }
@@ -34118,6 +34209,10 @@ const _M = {
       return "Group" == fld.type || _.isArray(fld.fields)
     },
     //--------------------------------------------------
+    isLabel(fld) {
+      return "Label" == fld.type || !fld.name
+    },
+    //--------------------------------------------------
     evalFormField(fld={}, nbs=[]) {
       // Hide or disabled
       if(fld.hidden) {
@@ -34157,6 +34252,18 @@ const _M = {
         })
         // Done
         return _.isEmpty(group.fields) ? null : group
+      }
+      //............................................
+      // Label
+      if(this.isLabel(fld)) {
+        return {
+          disabled,
+          type        : "Label",
+          key         : fldKey,
+          className   : fld.className,
+          icon        : fld.icon,
+          title       : fld.title
+        }
       }
       //............................................
       // For Normal Field
@@ -35224,8 +35331,22 @@ const __TI_MOD_EXPORT_VAR_NM = {
     tryNotifyChanged() {
       let vals = Ti.Util.truthyKeys(this.myValueMap)
       if(!_.isEqual(vals, this.Values)) {
-        let v = this.multi ? vals : vals.join(",")
-        this.$notify("change", v)
+        let v;
+        if(_.isFunction(this.joinBy)) {
+          v = this.joinBy(vals)
+        } else if(this.multi) {
+          if(this.joinBy) {
+            v = vals.join(this.joinBy)
+          } else {
+            v = vals
+          }
+        } else {
+          v = vals.join(this.joinBy || ",")
+        }
+        //console.log("tryNotifyChanged", v)
+        if(!_.isEqual(v, this.value)) {
+          this.$notify("change", v)
+        }
       }
     },
     //......................................
@@ -41546,7 +41667,7 @@ const _M = {
       || state.status.saving) {
       return
     }
-    console.log("obj-children reload", _.get(meta, "ph"), meta)
+    // console.log("obj-children reload", _.get(meta, "ph"), meta)
     //......................................
     // Use the default meta
     if (_.isUndefined(meta)) {
@@ -53803,7 +53924,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "loadingAs": {
     type: Object,
     default: () => ({
-      className: "as-nil-mask as-big-mask",
+      className: "as-nil-mask as-big",
       icon: "fas-spinner fa-spin",
       text: "i18n:loading"
     })
@@ -54203,6 +54324,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "autoSplitValue": {
     type: [Boolean, String],
     default: true
+  },
+  "joinBy": {
+    type: [String, Function],
+    default: undefined
   },
   //-----------------------------------
   // Aspect
@@ -59814,24 +59939,40 @@ Ti.Preload("ti/com/ti/form/ti-form.html", `<div class="ti-form"
         <!--
           For Group
         -->
-        <form-group v-if="'Group' == fld.type"
-          v-bind="fld"
-          :data="data"
-          :field-status="fieldStatus"
-          :status-icons="statusIcons"
-          :screen-mode="ViewDisplayMode"
-          @change="OnFieldChange"/>
+        <form-group
+          v-if="'Group' == fld.type"
+            v-bind="fld"
+            :data="data"
+            :field-status="fieldStatus"
+            :status-icons="statusIcons"
+            :screen-mode="ViewDisplayMode"
+            @change="OnFieldChange"/>
+        <!---
+          Lable
+        -->
+        <div 
+          v-else-if="'Label' == fld.type"
+            class="form-label">
+            <ti-icon
+              v-if="fld.icon" 
+                class="as-label-icon"
+                :value="fld.icon"/>
+            <span
+              v-if="fld.title"
+                class="as-label-text">{{fld.title|i18n}}</span>
+        </div>
         <!--
           For field
         -->
-        <ti-form-field v-else
-          :key="fld.key"
-          v-bind="fld"
-          :data="data"
-          :field-status="fieldStatus"
-          :status-icons="statusIcons"
-          :screen-mode="ViewDisplayMode"
-          @change="OnFieldChange"/>
+        <ti-form-field
+          v-else
+            :key="fld.key"
+            v-bind="fld"
+            :data="data"
+            :field-status="fieldStatus"
+            :status-icons="statusIcons"
+            :screen-mode="ViewDisplayMode"
+            @change="OnFieldChange"/>
       </template>
     </div>
   </template>
@@ -64342,6 +64483,7 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   :class="TopClass"
   :href="TheHref"
   :target="isNewTab ? '_blank' : '_self'"
+  :style="TopStyle"
   @click.left="OnClickTop"
   @mousemove="OnMouseMove"
   @mouseenter="OnMouseEnter"
@@ -70125,10 +70267,10 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-class-flex-none": "None",
   "hmk-class-flex-shrink": "Shrink",
   "hmk-class-font-size": "Size",
-  "hmk-class-hover": "Hover",
-  "hmk-class-hover-to-scale": "Scale",
-  "hmk-class-hover-to-up": "Up",
-  "hmk-class-hover-to-zoom": "Zoom",
+  "hmk-class-hover": "Hover effect",
+  "hmk-class-hover-to-scale": "Hover Scale",
+  "hmk-class-hover-to-up": "Hover Up",
+  "hmk-class-hover-to-zoom": "Hover Zoom",
   "hmk-class-item-margin": "Item margin",
   "hmk-class-item-padding": "Item padding",
   "hmk-class-item-space": "Item space",
@@ -71553,9 +71695,9 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-class-flex-shrink": "收缩",
   "hmk-class-font-size": "文字大小",
   "hmk-class-hover": "悬停效果",
-  "hmk-class-hover-to-scale": "放大",
-  "hmk-class-hover-to-up": "上浮",
-  "hmk-class-hover-to-zoom": "缩放",
+  "hmk-class-hover-to-scale": "悬停放大",
+  "hmk-class-hover-to-up": "悬停上浮",
+  "hmk-class-hover-to-zoom": "悬停缩放",
   "hmk-class-item-margin": "项外距",
   "hmk-class-item-padding": "项内距",
   "hmk-class-item-space": "项间距",
@@ -72972,9 +73114,9 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-class-flex-shrink": "收縮",
    "hmk-class-font-size": "文字大小",
    "hmk-class-hover": "懸停效果",
-   "hmk-class-hover-to-scale": "放大",
-   "hmk-class-hover-to-up": "上浮",
-   "hmk-class-hover-to-zoom": "縮放",
+   "hmk-class-hover-to-scale": "懸停放大",
+   "hmk-class-hover-to-up": "懸停上浮",
+   "hmk-class-hover-to-zoom": "懸停縮放",
    "hmk-class-item-margin": "項外距",
    "hmk-class-item-padding": "項內距",
    "hmk-class-item-space": "項間距",

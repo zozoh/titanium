@@ -132,8 +132,22 @@ export default {
     tryNotifyChanged() {
       let vals = Ti.Util.truthyKeys(this.myValueMap)
       if(!_.isEqual(vals, this.Values)) {
-        let v = this.multi ? vals : vals.join(",")
-        this.$notify("change", v)
+        let v;
+        if(_.isFunction(this.joinBy)) {
+          v = this.joinBy(vals)
+        } else if(this.multi) {
+          if(this.joinBy) {
+            v = vals.join(this.joinBy)
+          } else {
+            v = vals
+          }
+        } else {
+          v = vals.join(this.joinBy || ",")
+        }
+        //console.log("tryNotifyChanged", v)
+        if(!_.isEqual(v, this.value)) {
+          this.$notify("change", v)
+        }
       }
     },
     //......................................
