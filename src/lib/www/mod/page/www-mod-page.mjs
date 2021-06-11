@@ -485,7 +485,7 @@ const _M = {
      */
     async reload({ commit, dispatch, getters, rootGetters, rootState }, {
       path,
-      anchor,
+      anchor=null,
       params = {}
     } = {}) {
       //console.log(rootGetters.routerList)

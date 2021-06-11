@@ -194,9 +194,9 @@ export default {
         idBy: this.idBy,
         value: this.value,
         iteratee: (li)=>{
-          if(this.path || this.value) {
+          //if(this.path || this.value) {
             li.highlight = li.highlightBy(this)
-          }
+          //}
           //........................................
           // Children highlight cause the parent focused
           let current = this.CurrentIdMap[li.id]

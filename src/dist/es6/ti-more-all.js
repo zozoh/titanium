@@ -1,4 +1,4 @@
-// Pack At: 2021-06-11 05:02:30
+// Pack At: 2021-06-11 13:25:42
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6581,7 +6581,7 @@ const _M = {
      */
     async reload({ commit, dispatch, getters, rootGetters, rootState }, {
       path,
-      anchor,
+      anchor=null,
       params = {}
     } = {}) {
       //console.log(rootGetters.routerList)
@@ -26619,9 +26619,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
         idBy: this.idBy,
         value: this.value,
         iteratee: (li)=>{
-          if(this.path || this.value) {
+          //if(this.path || this.value) {
             li.highlight = li.highlightBy(this)
-          }
+          //}
           //........................................
           // Children highlight cause the parent focused
           let current = this.CurrentIdMap[li.id]

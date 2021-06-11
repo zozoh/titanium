@@ -1,4 +1,4 @@
-// Pack At: 2021-06-11 05:02:30
+// Pack At: 2021-06-11 13:25:42
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9095,11 +9095,8 @@ const {Util} = (function(){
   const TiLink = (function(){
     class TiLinkObj {
       constructor({url, params, anchor}={}){
-        this.url = url
-        this.params = params
-        this.anchor = anchor
         this.__S = null
-        this.set({url, params})
+        this.set({url, params, anchor})
       }
       set({url="", params={}, anchor}={}) {
         this.url = url
@@ -11254,6 +11251,12 @@ const {WWW} = (function(){
           }
           // Then ok
           return true
+        }
+      }
+      // Nil
+      if(Ti.Util.isNil(highlightBy)) {
+        return ({value})=>{
+          return Ti.Util.isNil(value)
         }
       }
       // RegExp
@@ -15669,7 +15672,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210611.050230",
+  "version" : "1.6-20210611.132542",
   "dev" : false,
   "appName" : null,
   "session" : {},

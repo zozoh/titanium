@@ -138,6 +138,12 @@ const TiWWW = {
         return true
       }
     }
+    // Nil
+    if(Ti.Util.isNil(highlightBy)) {
+      return ({value})=>{
+        return Ti.Util.isNil(value)
+      }
+    }
     // RegExp
     if(_.isRegExp(highlightBy)) {
       return _.bind(function({path, value}){

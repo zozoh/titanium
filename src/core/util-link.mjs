@@ -1,10 +1,7 @@
 class TiLinkObj {
   constructor({url, params, anchor}={}){
-    this.url = url
-    this.params = params
-    this.anchor = anchor
     this.__S = null
-    this.set({url, params})
+    this.set({url, params, anchor})
   }
   set({url="", params={}, anchor}={}) {
     this.url = url
