@@ -18,6 +18,10 @@ export default {
     type: Object,
     default: () => ({})
   },
+  "quickTable": {
+    type: Boolean,
+    default: false
+  },
   "list": {
     type: Object,
     default: () => ({})

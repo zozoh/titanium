@@ -37,7 +37,7 @@ export default {
     },
     "reloadBy" : {
       type : [String, Function],
-      default : "current/query"
+      default : "main/query"
     },
     "viewType" : String,
     "exposeHidden" : Boolean,

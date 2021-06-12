@@ -10,12 +10,22 @@
       :items="ActionItems"
       :align="actionAlign"/>
     <!--
-      Table
+      Quick Table
+    -->
+    <TiTableQuick
+      v-if="quickTable"
+        v-bind="TableConfig"
+        :on-init="OnInitTable"
+        @select="OnTableRowSelect"
+        @open="OnTableRowOpen"/>
+    <!--
+      Normal Table
     -->
     <TiTable
-      v-bind="TableConfig"
-      :on-init="OnInitTable"
-      @select="OnTableRowSelect"
-      @open="OnTableRowOpen"/>
+      v-else
+        v-bind="TableConfig"
+        :on-init="OnInitTable"
+        @select="OnTableRowSelect"
+        @open="OnTableRowOpen"/>
   </div>
 </div>

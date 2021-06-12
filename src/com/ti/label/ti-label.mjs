@@ -84,6 +84,14 @@ const _M = {
       return this.myDisplayIcon || this.prefixIcon
     },
     //--------------------------------------
+    ThePrefixText() {
+      return Ti.Util.explainObj(this, this.prefixText)
+    },
+    //--------------------------------------
+    TheSuffixText() {
+      return Ti.Util.explainObj(this, this.suffixText)
+    },
+    //--------------------------------------
     TheHover() {
       let map = {}
       let hos = _.concat(this.hover)
@@ -191,6 +199,9 @@ const _M = {
     },
     //--------------------------------------
     async evalDisplay(val) {
+      if(_.isString(val) && Ti.S.isBlank(val)) {
+        return  Ti.I18n.get("blank")
+      }
       // By Dict Item
       if(this.Dict) {
         // Array value

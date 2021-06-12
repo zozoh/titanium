@@ -49,7 +49,8 @@
             :key="row.id"
             :index="row.index"
             :class="row.className"
-            @click.left="OnClickRow(row, $event)">
+            @click.left="OnClickRow(row, $event)"
+            @dblclick.left="OnDblClickRow(row, $event)">
             <!-- Begin Cell -->
             <td
               v-for="cell in row.cells"

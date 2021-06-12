@@ -1,5 +1,18 @@
 export default {
   //-----------------------------------------------
+  OnDblClickRow(row={}) {
+    let rowId = row.id
+    row = this.findRowById(rowId)
+    if(row) {
+      if(this.notifyOpenName) {
+        this.$notify(this.notifyOpenName, row)
+      }
+      if(_.isFunction(this.onOpen)) {
+        this.onOpen(row)
+      }
+    }
+  },
+  //-----------------------------------------------
   OnClickRow(row, $event) {
     let rowId  = row.id
     let shift  = $event.shiftKey
@@ -25,7 +38,6 @@ export default {
   OnClickRowChecker(row, $event) {
     let rowId  = row.id
     let shift  = $event.shiftKey
-    console.log("haha")
     if(this.multi) {
       // Shift Mode
       if(shift) {
@@ -43,7 +55,6 @@ export default {
   },
   //--------------------------------------
   OnClickHeadChecker() {
-    console.log("hahaha")
     // Cancel All
     if(this.isAllChecked) {
       this.cancelRow()
@@ -256,7 +267,9 @@ export default {
   },
   //-----------------------------------------------
   doNotifySelect(emitContext) {
-    this.$notify("select", emitContext)
+    if(this.notifySelectName) {
+      this.$notify(this.notifySelectName, emitContext)
+    }
     if(_.isFunction(this.onSelect)) {
       this.onSelect(emitContext)
     }

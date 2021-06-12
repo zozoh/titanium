@@ -162,7 +162,6 @@
       &.as-desktop, &.as-tablet {
         @include flex-align-nowrap($ai:stretch,$ac:stretch);
         @include border(1px, dashed, shallow, bottom);
-        &:first-child {border:0;}
         > .field-name  {
           @include flex-align-nowrap($ai:flex-start,$ac:flex-start);
           position: relative;

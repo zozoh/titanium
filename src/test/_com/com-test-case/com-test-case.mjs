@@ -58,11 +58,11 @@ const _M = {
         if(_.isDate(val)) {
           val = Ti.Types.formatDateTime(val)
         }
-        Ti.App(this).dispatch("current/changeContent", val)
+        Ti.App(this).dispatch("main/changeContent", val)
       } else {
         let da = _.cloneDeep(this.data)
         _.set(da, this.ComChanged, val)
-        Ti.App(this).dispatch("current/changeContent", da)
+        Ti.App(this).dispatch("main/changeContent", da)
       }
     },
     //----------------------------------------

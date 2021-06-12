@@ -57,6 +57,22 @@ export default {
     type : Boolean,
     default : true
   },
+  "onSelect": {
+    type : Function,
+    default: undefined
+  },
+  "onOpen": {
+    type : Function,
+    default: undefined
+  },
+  "notifySelectName": {
+    type : String,
+    default: "select"
+  },
+  "notifyOpenName": {
+    type : String,
+    default: "open"
+  },
   //-----------------------------------
   // Callback
   //-----------------------------------

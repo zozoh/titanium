@@ -1,6 +1,6 @@
 const _M = {
   ///////////////////////////////////////////////////
-  data : ()=>({
+  data: () => ({
     myLastIndex: -1,      // The last row index selected by user
     myCurrentId: null,    // Current row ID
     myCheckedIds: {}      // Which row has been checked
@@ -8,15 +8,15 @@ const _M = {
   ///////////////////////////////////////////////////
   // props -> ti-table-props.mjs
   ///////////////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-checkable"   : this.checkable,
-        "is-selectable"  : this.selectable,
-        "is-openable"    : this.openable,
-        "is-cancelable"  : this.cancelable,
-        "is-hoverable"   : this.hoverable
+        "is-checkable": this.checkable,
+        "is-selectable": this.selectable,
+        "is-openable": this.openable,
+        "is-cancelable": this.cancelable,
+        "is-hoverable": this.hoverable
       }, [
         `is-border-${this.border}`
       ])
@@ -49,38 +49,38 @@ const _M = {
       let base = showNumber ? this.rowNumberBase : -1
       let list = _.map(this.data, (obj, index) => {
         let id = this.getRowId(obj, index)
-        if(Ti.Util.isNil(id)) {
+        if (Ti.Util.isNil(id)) {
           id = `Row-${index}`
         }
         let checked = !!this.myCheckedIds[id]
         let changed = (this.changedId == id)
         let current = (this.myCurrentId == id)
         let className = {
-          "is-checked" : checked,
-          "is-current" : current,
-          "is-changed" : changed
+          "is-checked": checked,
+          "is-current": current,
+          "is-changed": changed
         }
-        
+
         let number;
-        if(base >= 0) {
+        if (base >= 0) {
           number = base + index
         }
 
-        let cells = _.map(this.TableFields, fld=>{
+        let cells = _.map(this.TableFields, fld => {
           let items = _.map(fld.display, ({
-            index, type, getClassName, getValue, 
+            index, type, getClassName, getValue,
             transform, tidy
-          })=>{
-            let it = {index, type}
+          }) => {
+            let it = { index, type }
             // Item value
             it.value = getValue(obj)
             // ClassName
-            if(getClassName) {
+            if (getClassName) {
               it.className = getClassName(it.value)
             }
             // Transform
             let disval = it.value
-            if(transform) {
+            if (transform) {
               disval = transform(disval)
             }
             disval = tidy(disval)
@@ -90,15 +90,15 @@ const _M = {
             return it
           }) // End Items
 
-          return {... fld, items}
+          return { ...fld, items }
         }) // End cells
 
         return {
           showNumber,
-          number, index, 
+          number, index,
           id, className, cells,
           checked, changed, current,
-          rawData : obj
+          rawData: obj
         }
       })
 
@@ -115,16 +115,16 @@ const _M = {
     //-----------------------------------------------
     isAllChecked() {
       // Empty list, nothing checked
-      if(this.isDataEmpty) {
-        return false 
+      if (this.isDataEmpty) {
+        return false
       }
-      if(_.size(this.myCheckedIds) != _.size(this.TableData)) {
+      if (_.size(this.myCheckedIds) != _.size(this.TableData)) {
         return false
       }
       // Checking ...
-      for(let row of this.TableData){
-        if(!this.myCheckedIds[row.id])
-          return false;  
+      for (let row of this.TableData) {
+        if (!this.myCheckedIds[row.id])
+          return false;
       }
       return true
     },
@@ -134,10 +134,10 @@ const _M = {
     },
     //--------------------------------------
     HeadCheckerIcon() {
-      if(this.isAllChecked) {
+      if (this.isAllChecked) {
         return "fas-check-square"
       }
-      if(this.hasChecked) {
+      if (this.hasChecked) {
         return "fas-minus-square"
       }
       return "far-square"
@@ -145,27 +145,46 @@ const _M = {
     //--------------------------------------
     TableFields() {
       //....................................
-      const evalFldDisplay = (dis={}, index)=>{
-        if(_.isString(dis)) {
-          dis = {key:dis}
+      const evalQuickStrDisplay = (str) => {
+        //  key.className
+        let m = /^([\w\d_-]+)(\.([\w\d_-]+))?/.exec(str)
+        if (m) {
+          return {
+            key: m[1],
+            className: m[3]
+          }
         }
-        let {key, type, className, transformer} = dis
+        // <icon:fas-xxx>?
+        m = /^<([^:>=]*)(:([^>:]+))?(:([^>:]+))?>(\?)?$/.exec(str)
+        if (m) {
+          return {
+            type: "icon",
+            key: m[1],
+            defaultAs: m[3],
+            className: m[5],
+            ignoreNil: "?" == m[6]
+          }
+        }
+        // Default
+        return { key: str }
+      }
+      //....................................
+      const evalFldDisplay = (dis = {}, index) => {
+        // Quick string mode
+        if (_.isString(dis)) {
+          dis = evalQuickStrDisplay(dis)
+        }
 
-        // Key
-        let m = /^([\w\d_-]+)(\.([\w\d_-]+))?/.exec(key)
-        if(m) {
-          key = m[1]
-          className = className || m[3]
-        }
+        let { key, type, className, transformer, defaultAs, ignoreNil } = dis
 
         // Default type as text
         type = type || "text"
 
         // Get value
         let getValue;
-        if(".." == key){
+        if (".." == key) {
           getValue = obj => obj
-        } else if(_.isArray(key)) {
+        } else if (_.isArray(key)) {
           getValue = obj => _.pick(obj, key)
         } else {
           getValue = obj => _.get(obj, key)
@@ -173,21 +192,21 @@ const _M = {
 
         // ClassName
         let getClassName;
-        if(_.isFunction(className)) {
+        if (_.isFunction(className)) {
           getClassName = className
-        } else if(_.isString(className)) {
-          getClassName = ()=>className
-        } else if(className){
+        } else if (_.isString(className)) {
+          getClassName = () => className
+        } else if (className) {
           let cans = []
-          _.forEach(className, (key, val)=>{
+          _.forEach(className, (key, val) => {
             cans.push({
-              className : key,
-              match : Ti.AutoMatch.parse(val)
+              className: key,
+              match: Ti.AutoMatch.parse(val)
             })
           })
           getClassName = (val) => {
-            for(let can of cans) {
-              if(can.match(val))
+            for (let can of cans) {
+              if (can.match(val))
                 return can.className
             }
           }
@@ -195,46 +214,47 @@ const _M = {
 
         // transformer
         let transFunc;
-        if(transformer) {
+        if (transformer) {
           transFunc = Ti.Util.genInvoking(transformer, {
-            context: this, 
+            context: this,
             partial: "right"
           })
         }
 
         // Tidy Value by type
-        let tidyFunc =({
-          "text" : v => v,
-          "icon" : v => Ti.Icons.parseFontIcon(v),
-          "img"  : v => v
+        let tidyFunc = ({
+          "text": v => v,
+          "icon": v => Ti.Icons.parseFontIcon(v),
+          "img": v => v
         })[type]
 
-        if(!tidyFunc) {
+        if (!tidyFunc) {
           throw "Invalid display type: " + type
         }
 
         return {
-          index, type, 
-          getClassName, 
-          getValue, 
+          index, type,
+          getClassName,
+          getValue,
           transform: transFunc,
-          tidy: tidyFunc
+          tidy: tidyFunc,
+          defaultAs, ignoreNil
         }
       }
       //....................................
       let fields = _.map(this.fields, (fld, index) => {
         let diss = [].concat(fld.display)
-        let display = _.map(diss, (dis,index) => {
+        let display = _.map(diss, (dis, index) => {
           return evalFldDisplay(dis, index)
         })
         return {
-          ... fld,
-          headStyle : Ti.Css.toStyle({
-            width : fld.width
+          ...fld,
+          headStyle: Ti.Css.toStyle({
+            width: fld.width
           }),
           index, display,
-          className : {
-            "is-nowrap" : fld.nowrap
+          className: {
+            "is-nowrap": fld.nowrap
           }
         }
       })
@@ -244,15 +264,15 @@ const _M = {
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClickTop($event) {
-      if(this.cancelable) {
+      if (this.cancelable) {
         // Click The body or top to cancel the row selection
-        if(Ti.Dom.hasOneClass($event.target,
-            'ti-table', 'table-body',
-            'table-head-cell',
-            'table-head-cell-text')) {
+        if (Ti.Dom.hasOneClass($event.target,
+          'ti-table', 'table-body',
+          'table-head-cell',
+          'table-head-cell-text')) {
           this.cancelRow()
         }
       }
@@ -261,8 +281,8 @@ const _M = {
     // Publish methods
     //--------------------------------------
     findRowIndexById(rowId) {
-      for(let row of this.TableData) {
-        if(row.id == rowId) {
+      for (let row of this.TableData) {
+        if (row.id == rowId) {
           return row.index
         }
       }
@@ -270,28 +290,31 @@ const _M = {
     },
     //--------------------------------------
     findRowById(rowId) {
-      for(let row of this.TableData) {
-        if(row.id == rowId) {
+      for (let row of this.TableData) {
+        if (row.id == rowId) {
           return row
         }
       }
     },
     //--------------------------------------
-    getRow(index=0) {
+    getRow(index = 0) {
       return _.nth(this.TableData, index)
+    },
+    getCurrentRow(currentId = this.myCurrentId) {
+      return this.findRowById(currentId)
     },
     //--------------------------------------
     // Utility
     //--------------------------------------
     scrollCurrentIntoView() {
       //console.log("scrollCurrentIntoView", this.myLastIndex)
-      if(this.autoScrollIntoView && this.myCurrentId) {
+      if (this.autoScrollIntoView && this.myCurrentId) {
         let index = this.findRowIndexById(this.myCurrentId)
         //console.log("scroll", index)
         let $view = this.$el
-        let $row  = Ti.Dom.find(`.table-row:nth-child(${index+1})`, $view)
+        let $row = Ti.Dom.find(`.table-row:nth-child(${index + 1})`, $view)
 
-        if(!_.isElement($view) || !_.isElement($row)) {
+        if (!_.isElement($view) || !_.isElement($row)) {
           return
         }
 
@@ -299,9 +322,9 @@ const _M = {
         let r_row = Ti.Rects.createBy($row)
 
         // test it need to scroll or not
-        if(!r_view.contains(r_row)) {
+        if (!r_view.contains(r_row)) {
           // at bottom
-          if(r_row.bottom > r_view.bottom) {
+          if (r_row.bottom > r_view.bottom) {
             $view.scrollTop += r_row.bottom - r_view.bottom
           }
           // at top
@@ -314,28 +337,28 @@ const _M = {
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "currentId" : {
-      handler : function(newVal, oldVal){
-        if(!_.isEqual(newVal, oldVal)) {
+  watch: {
+    "currentId": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
           this.myCurrentId = newVal
         }
       },
-      immediate : true
+      immediate: true
     },
-    "checkedIds" : {
-      handler : function(newVal, oldVal){
-        if(!_.isEqual(newVal, oldVal)) {
+    "checkedIds": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
           this.myCheckedIds = newVal
         }
       },
-      immediate : true
+      immediate: true
     }
   },
   ///////////////////////////////////////////////////
-  mounted : function() {
-    if(this.autoScrollIntoView) {
-      _.delay(()=>{
+  mounted: function () {
+    if (this.autoScrollIntoView) {
+      _.delay(() => {
         this.scrollCurrentIntoView()
       }, 0)
     }

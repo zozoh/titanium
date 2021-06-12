@@ -60,8 +60,8 @@
   }
   //-------------------------------------
   &.show-border {
-    > .wall-tile {
-      border:1px solid transparent;
+    > .wall-con > .wall-tile {
+      border:1px solid transparent; 
       &.is-current {
         border-style: dotted;
         border-color: map-get($color-primary, c);

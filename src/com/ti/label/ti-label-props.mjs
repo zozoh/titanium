@@ -55,7 +55,7 @@ export default {
     default : undefined
   },
   "prefixText" : {
-    type : String,
+    type : [String, Number],
     default : undefined
   },
   "suffixText" : {
@@ -63,7 +63,7 @@ export default {
     default : undefined
   },
   "suffixIcon" : {
-    type : String,
+    type : [String, Number],
     default : undefined
   },
   //-----------------------------------
