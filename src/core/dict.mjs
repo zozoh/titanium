@@ -31,12 +31,12 @@ export class Dict {
     this.getValue  = v =>Ti.Util.getFallback(v, "value", "id")
     this.getText   = v =>Ti.Util.getFallback(v, "title", "text", "name", "nm")
     this.getIcon   = v =>_.get(v, "icon")
-    this.isMatched = (it, v, $dict) => {
+    this.isMatched = (it, v) => {
       //console.log("match", it, v)
-      let itV = $dict.getValue(it)
+      let itV = this.getValue(it)
       if(_.isEqual(v, itV))
         return true
-      let itT = $dict.getText(it)
+      let itT = this.getText(it)
       if(itT && itT.indexOf(v)>=0)
         return true
       return false
@@ -428,7 +428,8 @@ export const DictFactory = {
         // Load all data
         await $dict.getData()
         // Get the item
-        return await $dict.getItem(val)
+        //return await $dict.getItem(val)
+        return $dict.itemCache[val]
       }
     }
     //.........................................

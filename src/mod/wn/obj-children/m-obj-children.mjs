@@ -1,3 +1,52 @@
+//----------------------------------------
+function UpsertDataItemAt(state, newItem, atPos=1) {
+  // Guard
+  if(_.isEmpty(newItem) || !newItem || !newItem.id) {
+    return
+  }
+  // Batch upsert
+  if(_.isArray(newItem)) {
+    for(let it of newItem) {
+      UpsertDataItemAt(state, it, atTail)
+    }
+    return
+  }
+  // upsert one
+  let data = state.data
+  // Update pager list item of data
+  if(_.isArray(data.list) && data.pager) {
+    let list = _.cloneDeep(data.list)
+    let list2 = []
+    let found = false
+    for(let li of list) {
+      if(!found && (li.id == newItem.id || li.nm == newItem.nm)) {
+        list2.push(newItem)
+        found = true
+      } else {
+        list2.push(li)
+      }
+    }
+    if(!found) {
+      if(atPos>0) {
+        list2.push(newItem)
+      } else if (atPos<0){
+        list2 = _.concat(newItem, list2)
+      }
+    }
+    state.data = {
+      list: list2,
+      pager : data.pager
+    }
+  }
+  // Just insert
+  else {
+    state.data = {
+      list: newItems,
+      pager : data.pager
+    }
+  }
+}
+//////////////////////////////////////////////
 const _M = {
   ////////////////////////////////////////////
   mutations : {
@@ -51,51 +100,15 @@ const _M = {
     },
     //----------------------------------------
     prependDateItem(state, newItem) {
-      if(_.isEmpty(newItem))
-        return
-      let data = state.data
-      let list = _.cloneDeep(data.list) || []
-      let pager = data.pager
-      list = _.concat(newItem, list)
-      state.data = {
-        list, pager
-      }
+      UpsertDataItemAt(state, newItem, -1)
     },
     //----------------------------------------
     appendDateItem(state, newItem) {
-      if(_.isEmpty(newItem))
-        return
-      let data = state.data
-      let list = _.cloneDeep(data.list) || []
-      let pager = data.pager
-      list = _.concat(list, newItem)
-      state.data = {
-        list, pager
-      }
+      UpsertDataItemAt(state, newItem, 1)
     },
     //----------------------------------------
     setDataItem(state, newItem) {
-      // console.log("setDataItem:", newItem)
-      // Guard
-      if(!newItem || !newItem.id)
-        return
-
-      let data = state.data
-
-      // Update pager list item of data
-      if(_.isArray(data.list) && data.pager) {
-        let list = _.cloneDeep(data.list)
-        list = _.map(list, li => {
-          if(li.id == newItem.id) {
-            return newItem
-          }
-          return li
-        })
-        state.data = {
-          list,
-          pager : data.pager
-        }
-      }
+      UpsertDataItemAt(state, newItem, 0)
     },
     //----------------------------------------
     setData(state, data) {

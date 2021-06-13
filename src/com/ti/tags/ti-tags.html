@@ -1,17 +1,24 @@
 <div class="ti-tags"
   :class="TopClass">
   <!--
+    Empty
+  -->
+  <span
+    v-if="!hasItems">{{placeholder | i18n}}</span>
+  <!--
     Loop piece
   -->
-  <tags-item v-for="tag in myTags"
-    :key="tag.index"
-    v-bind="tag"
-    :cancel-bubble="cancelItemBubble"
-    :option-default-icon="optionDefaultIcon"
-    :removable="removable"
-    :remove-icon="removeIcon"
-    :status-icons="statusIcons"
-    @change="OnItemChanged"
-    @remove="OnItemRemoved"
-    @fire="OnItemFired"/>
+  <tags-item
+    v-else
+      v-for="tag in myTags"
+        :key="tag.index"
+        v-bind="tag"
+        :cancel-bubble="cancelItemBubble"
+        :option-default-icon="optionDefaultIcon"
+        :removable="removable"
+        :remove-icon="removeIcon"
+        :status-icons="statusIcons"
+        @change="OnItemChanged"
+        @remove="OnItemRemoved"
+        @fire="OnItemFired"/>
 </div>
