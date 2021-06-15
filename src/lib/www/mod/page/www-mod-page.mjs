@@ -76,11 +76,11 @@ const _M = {
       state.data = data
     },
     //--------------------------------------------
-    removeDataKeys(state, keys=[]) {
+    removeDataKeys(state, keys = []) {
       let ks = _.concat(keys)
       let data = _.cloneDeep(state.data)
-      for(let k of ks) {
-        if(k) {
+      for (let k of ks) {
+        if (k) {
           _.set(data, k, undefined)
         }
       }
@@ -273,6 +273,7 @@ const _M = {
     },
     //--------------------------------------------
     mergeItemToData({ commit }, payload) {
+      //console.log("mergeItemToData", payload)
       commit("mergeToDataList", payload)
     },
     //--------------------------------------------
@@ -347,7 +348,7 @@ const _M = {
       Ti.Be.ScrollWindowTo({ y: 0 })
     },
     //--------------------------------------------
-    async doApi({ getters, commit, dispatch }, {
+    async doApi({ state, getters, commit, dispatch }, {
       key,        // The Api Key
       params = {},  // params will override the defaults
       vars = {},
@@ -379,7 +380,7 @@ const _M = {
     // Run One Page API
     //
     //--------------------------------------------
-    async __run_api({ commit, dispatch, rootState }, {
+    async __run_api({ state, commit, dispatch, rootState }, {
       api,
       vars,
       params,
@@ -485,7 +486,7 @@ const _M = {
      */
     async reload({ commit, dispatch, getters, rootGetters, rootState }, {
       path,
-      anchor=null,
+      anchor = null,
       params = {}
     } = {}) {
       //console.log(rootGetters.routerList)
