@@ -1,4 +1,4 @@
-// Pack At: 2021-06-15 08:29:16
+// Pack At: 2021-06-15 12:47:59
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -30680,167 +30680,168 @@ const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
   inject: ["$gui"],
   /////////////////////////////////////////
-  data: ()=> ({
-    myDockReady: false
+  data: () => ({
+    myDockReady: false,
+    myConStyle: undefined
   }),
   /////////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "title" : String,
-    "icon" : {
-      type : [String, Object]
+    "title": String,
+    "icon": {
+      type: [String, Object]
     },
-    "name" : {
-      type : String
+    "name": {
+      type: String
     },
-    "type" : {
-      type : String,
-      validator : (v)=>{
+    "type": {
+      type: String,
+      validator: (v) => {
         return Ti.Util.isNil(v)
           || /^(cols|rows|tabs)$/.test(v)
       }
     },
-    "blocks" : {
-      type : Array,
-      default : ()=>[]
+    "blocks": {
+      type: Array,
+      default: () => []
     },
-    "body" : {
-      type : [String, Object]
+    "body": {
+      type: [String, Object]
     },
-    "referElement" : {
-      type : [Element, Object]  /*null type is Object*/
+    "referElement": {
+      type: [Element, Object]  /*null type is Object*/
     },
-    "visibles" : {
-      type : Object,
-      default: ()=>({})
+    "visibles": {
+      type: Object,
+      default: () => ({})
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
     "autoDock": {
-      type : [Object, String]
+      type: [Object, String]
     },
-    "actions" : {
-      type : Array,
-      default : ()=>[]
+    "actions": {
+      type: Array,
+      default: () => []
     },
-    "actionStatus" : {
-      type : Object,
-      default : ()=>({})
+    "actionStatus": {
+      type: Object,
+      default: () => ({})
     },
-    "adjustable" : {
-      type : [Boolean, String],
-      default : true,
-      validator : (v)=>{
+    "adjustable": {
+      type: [Boolean, String],
+      default: true,
+      validator: (v) => {
         return _.isBoolean(v) || /^(x|y)$/.test(v)
       }
     },
-    "clickMaskToClose" : {
-      type : Boolean,
-      default : false
+    "clickMaskToClose": {
+      type: Boolean,
+      default: false
     },
-    "shown" : {
-      type : Object,
-      default : ()=>({})
+    "shown": {
+      type: Object,
+      default: () => ({})
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "hideTitle" : {
-      type : Boolean,
-      default : false
+    "hideTitle": {
+      type: Boolean,
+      default: false
     },
-    "conStyle" : Object,
-    "mainConClass" : undefined,
-    "mainConStyle" : Object,
-    "overflow" : {
-      type : String
+    "conStyle": Object,
+    "mainConClass": undefined,
+    "mainConStyle": Object,
+    "overflow": {
+      type: String
     },
-    "position" : {
-      type : String,
-      default : "center",
-      validator : (v)=>{
+    "position": {
+      type: String,
+      default: "center",
+      validator: (v) => {
         return /^(left|right|top|bottom|center|free)$/.test(v)
           || /^((left|right)-top|bottom-(left|right))$/.test(v)
       }
     },
-    "fixed" : {
-      type : Boolean,
+    "fixed": {
+      type: Boolean,
       default: false
     },
-    "closer" : {
-      type : String,
-      default : "default",
-      validator : (v)=>(
+    "closer": {
+      type: String,
+      default: "default",
+      validator: (v) => (
         _.isNull(v) || /^(default|bottom|top|left|right)$/.test(v)
       )
     },
-    "mask" : {
-      type : Boolean,
-      default : false
+    "mask": {
+      type: Boolean,
+      default: false
     },
     "transparent": {
-      type : Boolean,
-      default : false
+      type: Boolean,
+      default: false
     },
     //-----------------------------------
     // Measure
     //-----------------------------------
-    "viewportWidth" : {
-      type : [String,Number],
-      default : 0
+    "viewportWidth": {
+      type: [String, Number],
+      default: 0
     },
-    "viewportHeight" : {
-      type : [String,Number],
-      default : 0
+    "viewportHeight": {
+      type: [String, Number],
+      default: 0
     },
-    "width" : {
-      type : [String,Number]
+    "width": {
+      type: [String, Number]
     },
-    "height" : {
-      type : [String,Number]
+    "height": {
+      type: [String, Number]
     },
-    "left" : {
-      type : [String,Number]
+    "left": {
+      type: [String, Number]
     },
-    "right" : {
-      type : [String,Number]
+    "right": {
+      type: [String, Number]
     },
-    "top" : {
-      type : [String,Number]
+    "top": {
+      type: [String, Number]
     },
-    "bottom" : {
-      type : [String,Number]
+    "bottom": {
+      type: [String, Number]
     },
     //-----------------------------------
     // By Pass
     //-----------------------------------
-    "schema" : {
-      type : Object,
-      default : ()=>({})
+    "schema": {
+      type: Object,
+      default: () => ({})
     },
-    "captureEvents" : undefined
+    "captureEvents": undefined
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "show-mask" : this.mask,
-        "no-mask"   : !this.mask,
+        "show-mask": this.mask,
+        "no-mask": !this.mask,
         "is-bg-transparent": this.transparent,
         "is-bg-opaque": !this.transparent,
-        "is-closer-default" : this.isCloserDefault,
-        "is-fixed" : this.fixed
+        "is-closer-default": this.isCloserDefault,
+        "is-fixed": this.fixed
       }, `at-${this.position}`)
     },
     //--------------------------------------
     TopStyle() {
       let visibility = ""
-      if(this.isAutoDock) {
-        if(this.myDockReady) {
+      if (this.isAutoDock) {
+        if (this.myDockReady) {
           visibility = ""
         } else {
           visibility = "hidden"
@@ -30855,24 +30856,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
       })
     },
     //--------------------------------------
-    ConStyle() {
-      let css = _.assign({}, this.conStyle)
-      if(!Ti.Util.isNil(this.width)) {
-        css.width  = Ti.Css.toPixel(this.width, this.viewportWidth, 0)
-      }
-      if(!Ti.Util.isNil(this.height)) {
-        css.height = Ti.Css.toPixel(this.height, this.viewportHeight, 0)
-      }
-      return Ti.Css.toStyle(css)
-    },
-    //--------------------------------------
     hasCloser() {
       return this.closer ? true : false
     },
     //--------------------------------------
     isAutoDock() {
-      return this.autoDock 
-        && "free"==this.position 
+      return this.autoDock
+        && "free" == this.position
         && _.isElement(this.referElement)
     },
     //--------------------------------------
@@ -30882,9 +30872,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     CloserClass() {
       return Ti.Css.mergeClassName({
-        'as-lamp-cord' : !this.isCloserDefault,
-        'as-default'   : this.isCloserDefault,
-        [`at-${this.closer}`] : !this.isCloserDefault
+        'as-lamp-cord': !this.isCloserDefault,
+        'as-default': this.isCloserDefault,
+        [`at-${this.closer}`]: !this.isCloserDefault
       })
     }
     //--------------------------------------
@@ -30896,14 +30886,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClose() {
       this.$gui.OnBlockHide(this.name)
     },
     //--------------------------------------
     OnClickMask() {
-      if(this.clickMaskToClose) {
+      if (this.clickMaskToClose) {
         this.$gui.OnBlockHide(this.name)
       }
     },
@@ -30912,34 +30902,65 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.dockPanelToReferElement()
     },
     //--------------------------------------
+    evalConStyle() {
+      // Guard
+      if (!_.isElement(this.$el)) {
+        return
+      }
+      let css = _.assign({}, this.conStyle)
+      let $win = this.$el.ownerDocument.defaultView
+      if (!Ti.Util.isNil(this.width)) {
+        if (this.fixed) {
+          css.width = Ti.Css.toPixel(this.width, $win.innerWidth, 0)
+        } else {
+          css.width = Ti.Css.toPixel(this.width, this.viewportWidth, 0)
+        }
+      }
+      if (!Ti.Util.isNil(this.height)) {
+        if (this.fixed) {
+          css.height = Ti.Css.toPixel(this.height, $win.innerHeight, 0)
+        } else {
+          css.height = Ti.Css.toPixel(this.height, this.viewportHeight, 0)
+        }
+      }
+      this.myConStyle = Ti.Css.toStyle(css)
+    },
+    //--------------------------------------
     dockPanelToReferElement() {
       let visi = _.get(this.visibles, this.name)
-      if(visi && this.isAutoDock) {
+      if (visi && this.isAutoDock) {
         let dockOption = _.assign({}, this.autoDock)
-        if(_.isString(this.autoDock)) {
+        if (_.isString(this.autoDock)) {
           dockOption = {
-            mode  : this.autoDock,
-            space : 10
+            mode: this.autoDock,
+            space: 10
           }
         }
         // _.assign(dockOption, {
         //   position: "fixed"
         // })
-        this.$nextTick(()=>{
+        this.$nextTick(() => {
           Ti.Dom.dockTo(this.$el, this.referElement, dockOption)
-          _.delay(()=>{
+          _.delay(() => {
             this.myDockReady = true
-          },10)
+          }, 0)
         })
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "autoDock" : "dockPanelToReferElement",
-    "referElement" : "dockPanelToReferElement",
-    "visibles" : "dockPanelToReferElement"
+  watch: {
+    "autoDock": "dockPanelToReferElement",
+    "referElement": "dockPanelToReferElement",
+    "visibles": "dockPanelToReferElement",
+    "fixed": "evalConStyle",
+    "width": "evalConStyle",
+    "height": "evalConStyle"
+  },
+  //////////////////////////////////////////
+  mounted: function () {
+    this.evalConStyle()
   }
   //////////////////////////////////////////
 }
@@ -34697,7 +34718,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/web/text/heading/web-text-heading.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Data
     //-----------------------------------
@@ -34705,20 +34726,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    "href" : String,
+    "href": String,
     "moreHref": String,
     "showBackward": false,
+    "titleNotifyName": {
+      type: String,
+      default: "fire"
+    },
+    "moreNotifyName": {
+      type: String,
+      default: "more"
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
     "icon": String,
-    "title" : String,
-    "titleIcon" : String,
+    "title": String,
+    "titleIcon": String,
     "titleClass": {
       type: [String, Array, Object]
     },
     "titleStyle": Object,
-    "comment" : String,
+    "comment": String,
     "moreTip": String,
     "moreIconType": String,
     "moreIcon": [String, Object],
@@ -34726,7 +34755,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "morePreview": Object,
     "moreText": String,
     "moreNewTab": {
-      type : Boolean,
+      type: Boolean,
       default: true
     }
   },
@@ -34747,7 +34776,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     showMore() {
-      if(this.TheMoreIcon || this.moreText)
+      if (this.TheMoreIcon || this.moreText)
         return true
       return false
     },
@@ -34758,10 +34787,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     TheMoreIcon() {
       let src = Ti.WWW.evalObjPreviewSrc(this.moreIcon, this.morePreview)
-      if(!src) {
+      if (!src) {
         return
       }
-      if(this.moreIconType) {
+      if (this.moreIconType) {
         return {
           type: this.moreIconType,
           value: src
@@ -34772,23 +34801,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClickBackward() {
-      if(history && _.isFunction(history.back)) {
+      if (history && _.isFunction(history.back)) {
         history.back()
       }
     },
     //--------------------------------------
     OnClickTitle() {
-      if(this.value) {
-        this.$notify("fire", this.value)
+      if (this.titleNotifyName) {
+        this.$notify(this.titleNotifyName, this.value)
       }
     },
     //--------------------------------------
     OnClickMore() {
-      if(this.more) {
-        this.$notify("more", this.value)
+      if (this.moreNotifyName) {
+        this.$notify(this.moreNotifyName, this.value)
       }
     }
     //--------------------------------------
@@ -48328,6 +48357,9 @@ const _M = {
       if(_.isArray(panels) && panels.length > 0) {
         for(let i=0; i<panels.length; i++) {
           let pan = panels[i]
+          if(!pan) {
+            continue;
+          }
           let pos = Ti.Util.fallback(pan.position, "center")
           let index = list.length
           list.push({
@@ -60230,7 +60262,7 @@ Ti.Preload("ti/com/ti/gui/panel/ti-gui-panel.html", `<div class="ti-gui-panel"
   :style="TopStyle"
   @click.left="OnClickMask">
   <div class="panel-con"
-    :style="ConStyle"
+    :style="myConStyle"
     @click.left.stop>
     <!--
       Block

@@ -125,10 +125,10 @@
     }
   }
   //-----------------------------------------
-  &.fs-xs .as-text {font-size: SZ(12);}
-  &.fs-sm .as-text {font-size: SZ(14);}
-  &.fs-md .as-text {font-size: SZ(16);}
-  &.fs-lg .as-text {font-size: SZ(18);}
-  &.fs-xl .as-text {font-size: SZ(20);}
+  &.fs-xs .as-part {font-size: SZ(12);}
+  &.fs-sm .as-part {font-size: SZ(14);}
+  &.fs-md .as-part {font-size: SZ(16);}
+  &.fs-lg .as-part {font-size: SZ(18);}
+  &.fs-xl .as-part {font-size: SZ(20);}
   //-----------------------------------------
 }

@@ -1,6 +1,6 @@
 export default {
   /////////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Data
     //-----------------------------------
@@ -8,20 +8,28 @@ export default {
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    "href" : String,
+    "href": String,
     "moreHref": String,
     "showBackward": false,
+    "titleNotifyName": {
+      type: String,
+      default: "fire"
+    },
+    "moreNotifyName": {
+      type: String,
+      default: "more"
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
     "icon": String,
-    "title" : String,
-    "titleIcon" : String,
+    "title": String,
+    "titleIcon": String,
     "titleClass": {
       type: [String, Array, Object]
     },
     "titleStyle": Object,
-    "comment" : String,
+    "comment": String,
     "moreTip": String,
     "moreIconType": String,
     "moreIcon": [String, Object],
@@ -29,7 +37,7 @@ export default {
     "morePreview": Object,
     "moreText": String,
     "moreNewTab": {
-      type : Boolean,
+      type: Boolean,
       default: true
     }
   },
@@ -50,7 +58,7 @@ export default {
     },
     //--------------------------------------
     showMore() {
-      if(this.TheMoreIcon || this.moreText)
+      if (this.TheMoreIcon || this.moreText)
         return true
       return false
     },
@@ -61,10 +69,10 @@ export default {
     //--------------------------------------
     TheMoreIcon() {
       let src = Ti.WWW.evalObjPreviewSrc(this.moreIcon, this.morePreview)
-      if(!src) {
+      if (!src) {
         return
       }
-      if(this.moreIconType) {
+      if (this.moreIconType) {
         return {
           type: this.moreIconType,
           value: src
@@ -75,23 +83,23 @@ export default {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClickBackward() {
-      if(history && _.isFunction(history.back)) {
+      if (history && _.isFunction(history.back)) {
         history.back()
       }
     },
     //--------------------------------------
     OnClickTitle() {
-      if(this.value) {
-        this.$notify("fire", this.value)
+      if (this.titleNotifyName) {
+        this.$notify(this.titleNotifyName, this.value)
       }
     },
     //--------------------------------------
     OnClickMore() {
-      if(this.more) {
-        this.$notify("more", this.value)
+      if (this.moreNotifyName) {
+        this.$notify(this.moreNotifyName, this.value)
       }
     }
     //--------------------------------------

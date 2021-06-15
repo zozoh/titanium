@@ -150,7 +150,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
   //-----------------------------------
   &.no-mask {
     // If center, it should be mask by transparent
-    z-index: $z-over;
+    z-index: $z-mask;
     &.at-center {
       @include pos-abs(0,0,100%,100%);
       @include flex-center;

@@ -1,4 +1,4 @@
-// Pack At: 2021-06-15 08:29:16
+// Pack At: 2021-06-15 12:47:59
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -14998,6 +14998,7 @@ const {PhotoGallery} = (function(){
       // Indicator
       //
       this.$indicator.addEventListener("click", ({srcElement})=>{
+        console.log("hahahah")
         let $tile = Ti.Dom.closest(srcElement, "[gallery-index]")
         if($tile) {
           let index = $tile.getAttribute("gallery-index") * 1
@@ -15056,24 +15057,26 @@ const {PhotoGallery} = (function(){
         evt.stopPropagation()
         this.changeZoomScale(1)
       }
-      Ti.Be.Draggable(this.$top, {
-        prepare: (drg)=>{
-          drg.$event.preventDefault()
-          drg._x = this.translateX
-          drg._y = this.translateY
-        },
-        actived: ()=>{
-          Ti.Dom.addClass(this.$scroller, "is-moving")
-        },
-        dragging: ({_x,_y,offsetX, offsetY})=>{
-          this.translateX = _x + offsetX
-          this.translateY = _y + offsetY
-          this.applyImageTransform()
-        },
-        done: ()=>{
-          Ti.Dom.removeClass(this.$scroller, "is-moving")
-        }
-      })
+      if("desktop" == this.$doc.documentElement.getAttribute("as")) {
+        Ti.Be.Draggable(this.$top, {
+          prepare: (drg)=>{
+            drg.$event.preventDefault()
+            drg._x = this.translateX
+            drg._y = this.translateY
+          },
+          actived: ()=>{
+            Ti.Dom.addClass(this.$scroller, "is-moving")
+          },
+          dragging: ({_x,_y,offsetX, offsetY})=>{
+            this.translateX = _x + offsetX
+            this.translateY = _y + offsetY
+            this.applyImageTransform()
+          },
+          done: ()=>{
+            Ti.Dom.removeClass(this.$scroller, "is-moving")
+          }
+        })
+      }
     }
     //---------------------------------------
     unwatchEvents() {
@@ -15698,7 +15701,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210615.082916",
+  "version" : "1.6-20210615.124759",
   "dev" : false,
   "appName" : null,
   "session" : {},

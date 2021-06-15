@@ -208,6 +208,9 @@ const _M = {
       if(_.isArray(panels) && panels.length > 0) {
         for(let i=0; i<panels.length; i++) {
           let pan = panels[i]
+          if(!pan) {
+            continue;
+          }
           let pos = Ti.Util.fallback(pan.position, "center")
           let index = list.length
           list.push({

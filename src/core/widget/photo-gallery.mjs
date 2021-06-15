@@ -446,6 +446,7 @@ class TiPhotoGallery {
     // Indicator
     //
     this.$indicator.addEventListener("click", ({srcElement})=>{
+      console.log("hahahah")
       let $tile = Ti.Dom.closest(srcElement, "[gallery-index]")
       if($tile) {
         let index = $tile.getAttribute("gallery-index") * 1
@@ -504,24 +505,26 @@ class TiPhotoGallery {
       evt.stopPropagation()
       this.changeZoomScale(1)
     }
-    Ti.Be.Draggable(this.$top, {
-      prepare: (drg)=>{
-        drg.$event.preventDefault()
-        drg._x = this.translateX
-        drg._y = this.translateY
-      },
-      actived: ()=>{
-        Ti.Dom.addClass(this.$scroller, "is-moving")
-      },
-      dragging: ({_x,_y,offsetX, offsetY})=>{
-        this.translateX = _x + offsetX
-        this.translateY = _y + offsetY
-        this.applyImageTransform()
-      },
-      done: ()=>{
-        Ti.Dom.removeClass(this.$scroller, "is-moving")
-      }
-    })
+    if("desktop" == this.$doc.documentElement.getAttribute("as")) {
+      Ti.Be.Draggable(this.$top, {
+        prepare: (drg)=>{
+          drg.$event.preventDefault()
+          drg._x = this.translateX
+          drg._y = this.translateY
+        },
+        actived: ()=>{
+          Ti.Dom.addClass(this.$scroller, "is-moving")
+        },
+        dragging: ({_x,_y,offsetX, offsetY})=>{
+          this.translateX = _x + offsetX
+          this.translateY = _y + offsetY
+          this.applyImageTransform()
+        },
+        done: ()=>{
+          Ti.Dom.removeClass(this.$scroller, "is-moving")
+        }
+      })
+    }
   }
   //---------------------------------------
   unwatchEvents() {
