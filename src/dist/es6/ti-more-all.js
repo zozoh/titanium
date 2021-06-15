@@ -1,4 +1,4 @@
-// Pack At: 2021-06-15 15:08:03
+// Pack At: 2021-06-15 19:36:58
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -22557,6 +22557,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "hoverPreview": {
       type: Object
     },
+    "textStyle": {
+      type: Object
+    },
+    "tags": {
+      type: [String, Array, Object]
+    },
+    "text": {
+      type: String
+    },
+    "brief": {
+      type: String
+    },
     //-------------------------------------
     // Behavior
     //-------------------------------------
@@ -22610,6 +22622,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-------------------------------------
     // Aspect
     //-------------------------------------
+    "imageConStyle": {
+      type: Object
+    },
     "imageStyle": {
       type: Object
     },
@@ -22620,20 +22635,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: Object,
       default: () => ({})
     },
-    "tags": {
-      type: [String, Array, Object]
-    },
     "tagsStyle": {
       type: Object
-    },
-    "text": {
-      type: String
-    },
-    "textStyle": {
-      type: Object
-    },
-    "brief": {
-      type: String
     },
     "briefStyle": {
       type: Object
@@ -22661,14 +22664,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     EffectsHoverUp() {
-      if(this.effects && this.effects.hoverUp)
+      if (this.effects && this.effects.hoverUp)
         return Ti.Css.toSize(this.effects.hoverUp)
     },
     EffectsHoverScale() {
-      if(this.effects 
-          && _.isNumber(this.effects.hoverScale) 
-          && this.effects.hoverScale != 1)
-            return this.effects.hoverScale
+      if (this.effects
+        && _.isNumber(this.effects.hoverScale)
+        && this.effects.hoverScale != 1)
+        return this.effects.hoverScale
     },
     //--------------------------------------
     TopStyle() {
@@ -22677,70 +22680,54 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Mouse in
       //
       let transform = []
-      if(this.myMouseIn) {
+      if (this.myMouseIn) {
         // Random rotate, it will restore to normal when mouse enter
-        if(this.myRotate) {
+        if (this.myRotate) {
           transform.push(`rotate(0deg)`)
         }
         // Customized hover effect
-        if(this.effects) {
+        if (this.effects) {
           // Customized translateY
-          if(this.EffectsHoverUp) {
+          if (this.EffectsHoverUp) {
             transform.push(`translateY(${this.EffectsHoverUp})`)
           }
           // Customized scale
-          if(this.EffectsHoverScale) {
+          if (this.EffectsHoverScale) {
             transform.push(`scale(${this.EffectsHoverScale})`)
           }
         }
       }
       // Normal (mouse out)
       else {
-        if(this.myRotate) {
+        if (this.myRotate) {
           transform.push(`rotate(${this.myRotate}deg)`)
         }
       }
-      if(transform.length>0) {
+      if (transform.length > 0) {
         // The effect declared by CSS selector
         // I have to declare in here since the TopStyle will override the CSS rule
-        if(this.myMouseIn) {
-          if(!this.EffectsHoverUp && Ti.Dom.hasClass(this.$el, "hover-to-up")) {
+        if (this.myMouseIn) {
+          if (!this.EffectsHoverUp && Ti.Dom.hasClass(this.$el, "hover-to-up")) {
             transform.push("translateY(-10px)")
           }
-          if(!this.EffectsHoverScale && Ti.Dom.hasClass(this.$el, "hover-to-scale")) {
+          if (!this.EffectsHoverScale && Ti.Dom.hasClass(this.$el, "hover-to-scale")) {
             transform.push("scale(1.1)")
           }
           zIndex = 1
         }
         // Done
         return {
-          transition: "transform 0.3s", 
+          transition: "transform 0.3s",
           transform: transform.join(" "),
           zIndex
         }
       }
       // Return
-      else if(this.EffectsHoverUp || this.EffectsHoverScale){
+      else if (this.EffectsHoverUp || this.EffectsHoverScale) {
         return {
           transition: "transform 0.3s"
         }
       }
-    },
-    //--------------------------------------
-    TagsStyle() {
-      return Ti.Css.toStyle(this.tagsStyle)
-    },
-    //--------------------------------------
-    ImageStyle() {
-      return Ti.Css.toStyle(this.imageStyle)
-    },
-    //--------------------------------------
-    TextStyle() {
-      return Ti.Css.toStyle(this.textStyle)
-    },
-    //--------------------------------------
-    BriefStyle() {
-      return Ti.Css.toStyle(this.briefStyle)
     },
     //--------------------------------------
     TheZoomLens() {
@@ -64637,17 +64624,19 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   @mouseenter="OnMouseEnter"
   @mouseleave="OnMouseLeave">
   <!--Image-->
-  <div class="as-img-con">
+  <div class="as-img-con"
+    :style="imageConStyle">
     <img ref="img"
       v-if="TheSrc"
-        :style="ImageStyle"
+        :style="imageStyle"
         :src="TheSrc"
         draggable="false"
         @load="OnImageLoaded"/>
     <!-- Tags -->
     <div
       v-if="TheTags"
-        class="as-tags">
+        class="as-tags"
+        :style="tagsStyle">
         <div
           v-for="tag of TheTags"
             class="as-tag-item"
@@ -64661,14 +64650,14 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   <div ref="text"
     v-if="TheText || TheBrief"
       class="as-text"
-      :style="TextStyle">
+      :style="textStyle">
       <div
         v-if="TheText"
           class="as-title"><span>{{TheText}}</span></div>
       <div
         v-if="TheBrief"
           class="as-brief"
-          :style="BriefStyle"><span>{{TheBrief}}</span></div>
+          :style="briefStyle"><span>{{TheBrief}}</span></div>
   </div>
   <!--Zoom len-->
   <div

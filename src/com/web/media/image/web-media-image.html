@@ -8,17 +8,19 @@
   @mouseenter="OnMouseEnter"
   @mouseleave="OnMouseLeave">
   <!--Image-->
-  <div class="as-img-con">
+  <div class="as-img-con"
+    :style="imageConStyle">
     <img ref="img"
       v-if="TheSrc"
-        :style="ImageStyle"
+        :style="imageStyle"
         :src="TheSrc"
         draggable="false"
         @load="OnImageLoaded"/>
     <!-- Tags -->
     <div
       v-if="TheTags"
-        class="as-tags">
+        class="as-tags"
+        :style="tagsStyle">
         <div
           v-for="tag of TheTags"
             class="as-tag-item"
@@ -32,14 +34,14 @@
   <div ref="text"
     v-if="TheText || TheBrief"
       class="as-text"
-      :style="TextStyle">
+      :style="textStyle">
       <div
         v-if="TheText"
           class="as-title"><span>{{TheText}}</span></div>
       <div
         v-if="TheBrief"
           class="as-brief"
-          :style="BriefStyle"><span>{{TheBrief}}</span></div>
+          :style="briefStyle"><span>{{TheBrief}}</span></div>
   </div>
   <!--Zoom len-->
   <div

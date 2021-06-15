@@ -28,6 +28,18 @@ export default {
     "hoverPreview": {
       type: Object
     },
+    "textStyle": {
+      type: Object
+    },
+    "tags": {
+      type: [String, Array, Object]
+    },
+    "text": {
+      type: String
+    },
+    "brief": {
+      type: String
+    },
     //-------------------------------------
     // Behavior
     //-------------------------------------
@@ -81,6 +93,9 @@ export default {
     //-------------------------------------
     // Aspect
     //-------------------------------------
+    "imageConStyle": {
+      type: Object
+    },
     "imageStyle": {
       type: Object
     },
@@ -91,20 +106,8 @@ export default {
       type: Object,
       default: () => ({})
     },
-    "tags": {
-      type: [String, Array, Object]
-    },
     "tagsStyle": {
       type: Object
-    },
-    "text": {
-      type: String
-    },
-    "textStyle": {
-      type: Object
-    },
-    "brief": {
-      type: String
     },
     "briefStyle": {
       type: Object
@@ -132,14 +135,14 @@ export default {
     },
     //--------------------------------------
     EffectsHoverUp() {
-      if(this.effects && this.effects.hoverUp)
+      if (this.effects && this.effects.hoverUp)
         return Ti.Css.toSize(this.effects.hoverUp)
     },
     EffectsHoverScale() {
-      if(this.effects 
-          && _.isNumber(this.effects.hoverScale) 
-          && this.effects.hoverScale != 1)
-            return this.effects.hoverScale
+      if (this.effects
+        && _.isNumber(this.effects.hoverScale)
+        && this.effects.hoverScale != 1)
+        return this.effects.hoverScale
     },
     //--------------------------------------
     TopStyle() {
@@ -148,70 +151,54 @@ export default {
       // Mouse in
       //
       let transform = []
-      if(this.myMouseIn) {
+      if (this.myMouseIn) {
         // Random rotate, it will restore to normal when mouse enter
-        if(this.myRotate) {
+        if (this.myRotate) {
           transform.push(`rotate(0deg)`)
         }
         // Customized hover effect
-        if(this.effects) {
+        if (this.effects) {
           // Customized translateY
-          if(this.EffectsHoverUp) {
+          if (this.EffectsHoverUp) {
             transform.push(`translateY(${this.EffectsHoverUp})`)
           }
           // Customized scale
-          if(this.EffectsHoverScale) {
+          if (this.EffectsHoverScale) {
             transform.push(`scale(${this.EffectsHoverScale})`)
           }
         }
       }
       // Normal (mouse out)
       else {
-        if(this.myRotate) {
+        if (this.myRotate) {
           transform.push(`rotate(${this.myRotate}deg)`)
         }
       }
-      if(transform.length>0) {
+      if (transform.length > 0) {
         // The effect declared by CSS selector
         // I have to declare in here since the TopStyle will override the CSS rule
-        if(this.myMouseIn) {
-          if(!this.EffectsHoverUp && Ti.Dom.hasClass(this.$el, "hover-to-up")) {
+        if (this.myMouseIn) {
+          if (!this.EffectsHoverUp && Ti.Dom.hasClass(this.$el, "hover-to-up")) {
             transform.push("translateY(-10px)")
           }
-          if(!this.EffectsHoverScale && Ti.Dom.hasClass(this.$el, "hover-to-scale")) {
+          if (!this.EffectsHoverScale && Ti.Dom.hasClass(this.$el, "hover-to-scale")) {
             transform.push("scale(1.1)")
           }
           zIndex = 1
         }
         // Done
         return {
-          transition: "transform 0.3s", 
+          transition: "transform 0.3s",
           transform: transform.join(" "),
           zIndex
         }
       }
       // Return
-      else if(this.EffectsHoverUp || this.EffectsHoverScale){
+      else if (this.EffectsHoverUp || this.EffectsHoverScale) {
         return {
           transition: "transform 0.3s"
         }
       }
-    },
-    //--------------------------------------
-    TagsStyle() {
-      return Ti.Css.toStyle(this.tagsStyle)
-    },
-    //--------------------------------------
-    ImageStyle() {
-      return Ti.Css.toStyle(this.imageStyle)
-    },
-    //--------------------------------------
-    TextStyle() {
-      return Ti.Css.toStyle(this.textStyle)
-    },
-    //--------------------------------------
-    BriefStyle() {
-      return Ti.Css.toStyle(this.briefStyle)
     },
     //--------------------------------------
     TheZoomLens() {
