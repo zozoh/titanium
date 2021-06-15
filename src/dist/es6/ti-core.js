@@ -1,4 +1,4 @@
-// Pack At: 2021-06-11 13:25:42
+// Pack At: 2021-06-15 08:29:16
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -12466,11 +12466,36 @@ const {Css} = (function(){
   ///////////////////////////////////////
   const TiCss = {
     //-----------------------------------
-    toPixel(input, base=100, dft=0) {
+    /**
+     * @param scale{Float} : the rate of width/height
+     * @param W{Integer} : width 
+     * @param H{Integer} : height
+     */
+    scaleSize(scale = 1.0, W, H) {
+      if (H && W) {
+        return {
+          width: W, height: H
+        }
+      }
+      if (H) {
+        return {
+          width: scale * H,
+          height: H
+        }
+      }
+      if (W) {
+        return {
+          width: W,
+          height: W / scale
+        }
+      }
+    },
+    //-----------------------------------
+    toPixel(input, base = 100, dft = 0) {
       // Number may `.23` or `300`
-      if(_.isNumber(input)) {
+      if (_.isNumber(input)) {
         // Take (-1, 1) as percent
-        if(input>-1 && input < 1) {
+        if (input > -1 && input < 1) {
           return input * base
         }
         // Fixed value
@@ -12479,25 +12504,25 @@ const {Css} = (function(){
       // String, may `45px` or `43%`
       let opt = {
         base, dft,
-        remBase : Ti.Dom.getRemBase()
+        remBase: Ti.Dom.getRemBase()
       }
       return TiCss.toAbsPixel(input, opt)
     },
     //-----------------------------------
-    toAbsPixel(input, {base=100, dft=0, remBase=100, emBase=14}={}) {
-      if(_.isNumber(input)) {
+    toAbsPixel(input, { base = 100, dft = 0, remBase = 100, emBase = 14 } = {}) {
+      if (_.isNumber(input)) {
         return input
       }
       let m = /^(-?[\d.]+)(px|rem|em|%)?$/.exec(input);
-      if(m) {
+      if (m) {
         let v = m[1] * 1
         let fn = ({
-          px  : v => v,
-          rem : v => v * remBase,
-          em  : v => v * emBase,
-          '%' : v => v * base / 100
+          px: v => v,
+          rem: v => v * remBase,
+          em: v => v * emBase,
+          '%': v => v * base / 100
         })[m[2]]
-        if(fn) {
+        if (fn) {
           return fn(v)
         }
         return v
@@ -12506,15 +12531,15 @@ const {Css} = (function(){
       return dft
     },
     //-----------------------------------
-    toSize(sz, {autoPercent=true, remBase=0}={}) {
-      if(_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
-        if(0 == sz)
+    toSize(sz, { autoPercent = true, remBase = 0 } = {}) {
+      if (_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
+        if (0 == sz)
           return sz
-        if(autoPercent && sz>=-1 && sz<=1) {
-          return sz*100 + "%"
+        if (autoPercent && sz >= -1 && sz <= 1) {
+          return sz * 100 + "%"
         }
-        if(remBase>0) {
-          return (sz/remBase) + "rem"
+        if (remBase > 0) {
+          return (sz / remBase) + "rem"
         }
         return sz + "px"
       }
@@ -12522,14 +12547,14 @@ const {Css} = (function(){
     },
     //-----------------------------------
     toSizeRem100(sz, options) {
-      let opt = _.assign({}, options, {remBase:100})
+      let opt = _.assign({}, options, { remBase: 100 })
       return TiCss.toSize(sz, opt);
     },
     //-----------------------------------
     toStyle(obj, options) {
-      return _.mapValues(obj, (val, key)=>{
+      return _.mapValues(obj, (val, key) => {
         let ck = _.kebabCase(key)
-        if(/^(opacity|z-index|order)$/.test(ck)){
+        if (/^(opacity|z-index|order)$/.test(ck)) {
           return val
         }
         return TiCss.toSize(val, options)
@@ -12537,28 +12562,28 @@ const {Css} = (function(){
     },
     //-----------------------------------
     toStyleRem100(obj, options) {
-      let opt = _.assign({}, options, {remBase:100})
+      let opt = _.assign({}, options, { remBase: 100 })
       return TiCss.toStyle(obj, opt);
     },
     //-----------------------------------
-    toBackgroundUrl(src, base="") {
-      if(!src)
+    toBackgroundUrl(src, base = "") {
+      if (!src)
         return
-      if(base)
+      if (base)
         src = Ti.Util.appendPath(base, src)
       return `url("${src}")`
     },
     //-----------------------------------
-    toBackgroundUrlBy(src, tmpl="") {
-      if(!src)
+    toBackgroundUrlBy(src, tmpl = "") {
+      if (!src)
         return
-      if(tmpl)
+      if (tmpl)
         src = Ti.S.renderBy(tmpl, src)
       return `url("${src}")`
     },
     //-----------------------------------
     toBackgroundUrlAsPreview(src, apiTmpl, cdnTmpl, dftSrc) {
-      if(!src || _.isEmpty(src))
+      if (!src || _.isEmpty(src))
         return
       src = Ti.WWW.evalObjPreviewSrc(src, {
         apiTmpl, cdnTmpl, dftSrc
@@ -12574,35 +12599,35 @@ const {Css} = (function(){
       return TiCss.mergeClassNameBy({}, ...args)
     },
     //-----------------------------------
-    mergeClassNameBy(context={}, ...args) {
+    mergeClassNameBy(context = {}, ...args) {
       let klass = {}
       //.................................
       const __join_class = (kla) => {
         // Guard
-        if(Ti.Util.isNil(kla))
+        if (Ti.Util.isNil(kla))
           return
         // Function
-        if(_.isFunction(kla)) {
+        if (_.isFunction(kla)) {
           let re = kla(context)
           __join_class(re)
         }
         // String
-        else if(_.isString(kla)) {
+        else if (_.isString(kla)) {
           let ss = _.without(_.split(kla, /\s+/g), "")
-          for(let s of ss) {
+          for (let s of ss) {
             klass[s] = true
           }
         }
         // Array
-        else if(_.isArray(kla)) {
-          for(let a of kla) {
+        else if (_.isArray(kla)) {
+          for (let a of kla) {
             __join_class(a)
           }
         }
         // Object
-        else if(_.isPlainObject(kla)) {
-          _.forEach(kla, (val, key)=>{
-            if(val) {
+        else if (_.isPlainObject(kla)) {
+          _.forEach(kla, (val, key) => {
+            if (val) {
               let name = _.kebabCase(key)
               klass[name] = true
             }
@@ -12618,8 +12643,8 @@ const {Css} = (function(){
     joinClassNames(...args) {
       let klass = TiCss.mergeClassName(...args)
       let names = []
-      _.forEach(klass, (enabled, key)=>{
-        if(enabled)
+      _.forEach(klass, (enabled, key) => {
+        if (enabled)
           names.push(key)
       })
       return names.join(" ")
@@ -12764,12 +12789,12 @@ const {Dict,DictFactory} = (function(){
       this.getValue  = v =>Ti.Util.getFallback(v, "value", "id")
       this.getText   = v =>Ti.Util.getFallback(v, "title", "text", "name", "nm")
       this.getIcon   = v =>_.get(v, "icon")
-      this.isMatched = (it, v, $dict) => {
+      this.isMatched = (it, v) => {
         //console.log("match", it, v)
-        let itV = $dict.getValue(it)
+        let itV = this.getValue(it)
         if(_.isEqual(v, itV))
           return true
-        let itT = $dict.getText(it)
+        let itT = this.getText(it)
         if(itT && itT.indexOf(v)>=0)
           return true
         return false
@@ -13161,7 +13186,8 @@ const {Dict,DictFactory} = (function(){
           // Load all data
           await $dict.getData()
           // Get the item
-          return await $dict.getItem(val)
+          //return await $dict.getItem(val)
+          return $dict.itemCache[val]
         }
       }
       //.........................................
@@ -15672,7 +15698,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210611.132542",
+  "version" : "1.6-20210615.082916",
   "dev" : false,
   "appName" : null,
   "session" : {},

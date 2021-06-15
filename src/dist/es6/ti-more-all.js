@@ -1,4 +1,4 @@
-// Pack At: 2021-06-11 13:25:42
+// Pack At: 2021-06-15 08:29:16
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8798,123 +8798,133 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/tags/ti-tags.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
-  data: ()=>({
-    myTags   : [],
-    myValues : []
+  data: () => ({
+    myTags: [],
+    myValues: []
   }),
   ////////////////////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "value" : {
-      type : [Array, String],
-      default : ()=>[]
+    "value": {
+      type: [Array, String],
+      default: () => []
     },
-    "dict" : {
-      type : [String, Ti.Dict],
-      default : null
+    "dict": {
+      type: [String, Ti.Dict],
+      default: null
     },
-    "mapping" : {
-      type : Object,
-      default : undefined
+    "mapping": {
+      type: Object,
+      default: undefined
     },
-    "itemOptions" : {
-      type : Array,
-      default : ()=>[]
+    "itemOptions": {
+      type: Array,
+      default: () => []
+    },
+    "placeholder": {
+      type: String,
+      default: "i18n:nil"
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    "cancelItemBubble" : {
-      type : Boolean,
-      default : false
+    "cancelItemBubble": {
+      type: Boolean,
+      default: false
     },
-    "removable" : {
-      type : Boolean,
-      default : false
+    "removable": {
+      type: Boolean,
+      default: false
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "itemIconBy" : {
-      type : [String, Function],
-      default : undefined
+    "itemIconBy": {
+      type: [String, Function],
+      default: undefined
     },
-    "optionDefaultIcon" : {
-      type : String,
-      default : undefined
+    "optionDefaultIcon": {
+      type: String,
+      default: undefined
     },
-    "itemDefaultIcon" : {
-      type : String,
-      default : undefined
+    "itemDefaultIcon": {
+      type: String,
+      default: undefined
     },
-    "removeIcon" : {
-      type : String,
-      default : "zmdi-close"
+    "removeIcon": {
+      type: String,
+      default: "zmdi-close"
     },
-    "statusIcons" : {
-      type : Object,
-      default : ()=>({
-        collapse : "zmdi-chevron-down",
-        extended : "zmdi-chevron-up"
+    "statusIcons": {
+      type: Object,
+      default: () => ({
+        collapse: "zmdi-chevron-down",
+        extended: "zmdi-chevron-up"
       })
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
-      if(this.className)
-        return this.className
+      return this.getTopClass({
+        "has-items": this.hasItems,
+        "nil-items": !this.hasItems
+      })
+    },
+    //------------------------------------------------
+    hasItems() {
+      return !_.isEmpty(this.myTags)
     },
     //------------------------------------------------
     getTagItemIcon() {
-      if(_.isFunction(this.itemIconBy)) {
+      if (_.isFunction(this.itemIconBy)) {
         return it => this.itemIconBy(it)
       }
-      if(_.isString(this.itemIconBy)) {
+      if (_.isString(this.itemIconBy)) {
         return it => _.get(it, this.itemIconBy)
       }
       return it => null
     },
     //--------------------------------------
     Dict() {
-      if(this.dict) {
+      if (this.dict) {
         // Already Dict
-        if(this.dict instanceof Ti.Dict) {
+        if (this.dict instanceof Ti.Dict) {
           return this.dict
         }
         // Get back
-        let {name} = Ti.DictFactory.explainDictName(this.dict)
+        let { name } = Ti.DictFactory.explainDictName(this.dict)
         return Ti.DictFactory.CheckDict(name)
       }
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
-    OnItemChanged({index, value}={}) {
-      if(index >= 0) {
+    OnItemChanged({ index, value } = {}) {
+      if (index >= 0) {
         let values = this.getMyValues()
         values[index] = Ti.Util.fallback(value, null)
         this.$notify("change", values)
       }
     },
     //------------------------------------------------
-    OnItemRemoved({index}={}) {
-      if(index >= 0) {
+    OnItemRemoved({ index } = {}) {
+      if (index >= 0) {
         let values = this.getMyValues()
         _.pullAt(values, index)
         this.$notify("change", values)
       }
     },
     //------------------------------------------------
-    OnItemFired({index=-1}={}) {
-      if(index >= 0) {
+    OnItemFired({ index = -1 } = {}) {
+      if (index >= 0) {
         let it = _.nth(this.theData, index)
-        if(it) {
+        if (it) {
           this.$notify("item:actived", it)
         }
       }
@@ -8923,47 +8933,47 @@ const __TI_MOD_EXPORT_VAR_NM = {
     async evalMyData() {
       const tags = []
       let list;
-      if(_.isArray(this.value)) {
+      if (_.isArray(this.value)) {
         list = this.value
-      } else if(_.isString(this.value)) {
+      } else if (_.isString(this.value)) {
         list = _.without(this.value.split(","), "")
       } else {
         list = []
       }
-      if(!_.isEmpty(list)) {
+      if (!_.isEmpty(list)) {
         const lastIndex = list.length - 1
-        for(let index=0; index<list.length; index++){
+        for (let index = 0; index < list.length; index++) {
           let val = list[index]
           let tag;
           // Auto mapping plain object
-          if(_.isPlainObject(val)) {
-            tag = this.mapping 
-                    ? Ti.Util.translate(val, this.mapping)
-                    : _.cloneDeep(val)
+          if (_.isPlainObject(val)) {
+            tag = this.mapping
+              ? Ti.Util.translate(val, this.mapping)
+              : _.cloneDeep(val)
             // Customized the icon
-            if(!tag.icon) {
+            if (!tag.icon) {
               tag.icon = this.getTagItemIcon(val)
             }
           }
           // Lookup Dict
-          else if(this.Dict) {
+          else if (this.Dict) {
             let it = await this.Dict.getItem(val)
             tag = _.defaults({
-              icon  : this.Dict.getIcon(it),
-              text  : this.Dict.getText(it) || val,
-              value : val
+              icon: this.Dict.getIcon(it),
+              text: this.Dict.getText(it) || val,
+              value: val
             })
           }
           // Auto gen object for simple value
           else {
-            tag = {text: val, value: val}
+            tag = { text: val, value: val }
           }
           // Join default value
           _.defaults(tag, {
             index,
-            icon    : this.itemDefaultIcon,
-            options : this.itemOptions,
-            atLast  : index == lastIndex
+            icon: this.itemDefaultIcon,
+            options: this.itemOptions,
+            atLast: index == lastIndex
           })
           // Join to tags
           tags.push(tag)
@@ -8975,7 +8985,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     getMyValues() {
       const vals = []
-      for(let tag of this.myTags) {
+      for (let tag of this.myTags) {
         vals.push(Ti.Util.fallback(tag.value, null))
       }
       return vals
@@ -8983,10 +8993,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
-    "value" : {
-      handler : "evalMyData",
-      immediate : true
+  watch: {
+    "value": {
+      handler: "evalMyData",
+      immediate: true
     }
   }
   ////////////////////////////////////////////////////
@@ -16505,6 +16515,19 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/table/quick/ti-table-quick-action.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------------------
+  OnDblClickRow(row={}) {
+    let rowId = row.id
+    row = this.findRowById(rowId)
+    if(row) {
+      if(this.notifyOpenName) {
+        this.$notify(this.notifyOpenName, row)
+      }
+      if(_.isFunction(this.onOpen)) {
+        this.onOpen(row)
+      }
+    }
+  },
+  //-----------------------------------------------
   OnClickRow(row, $event) {
     let rowId  = row.id
     let shift  = $event.shiftKey
@@ -16530,7 +16553,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   OnClickRowChecker(row, $event) {
     let rowId  = row.id
     let shift  = $event.shiftKey
-    console.log("haha")
     if(this.multi) {
       // Shift Mode
       if(shift) {
@@ -16548,7 +16570,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   //--------------------------------------
   OnClickHeadChecker() {
-    console.log("hahaha")
     // Cancel All
     if(this.isAllChecked) {
       this.cancelRow()
@@ -16761,7 +16782,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   //-----------------------------------------------
   doNotifySelect(emitContext) {
-    this.$notify("select", emitContext)
+    if(this.notifySelectName) {
+      this.$notify(this.notifySelectName, emitContext)
+    }
     if(_.isFunction(this.onSelect)) {
       this.onSelect(emitContext)
     }
@@ -17982,7 +18005,7 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/table/quick/ti-table-quick.mjs'] = (function(){
 const _M = {
   ///////////////////////////////////////////////////
-  data : ()=>({
+  data: () => ({
     myLastIndex: -1,      // The last row index selected by user
     myCurrentId: null,    // Current row ID
     myCheckedIds: {}      // Which row has been checked
@@ -17990,15 +18013,15 @@ const _M = {
   ///////////////////////////////////////////////////
   // props -> ti-table-props.mjs
   ///////////////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-checkable"   : this.checkable,
-        "is-selectable"  : this.selectable,
-        "is-openable"    : this.openable,
-        "is-cancelable"  : this.cancelable,
-        "is-hoverable"   : this.hoverable
+        "is-checkable": this.checkable,
+        "is-selectable": this.selectable,
+        "is-openable": this.openable,
+        "is-cancelable": this.cancelable,
+        "is-hoverable": this.hoverable
       }, [
         `is-border-${this.border}`
       ])
@@ -18031,38 +18054,38 @@ const _M = {
       let base = showNumber ? this.rowNumberBase : -1
       let list = _.map(this.data, (obj, index) => {
         let id = this.getRowId(obj, index)
-        if(Ti.Util.isNil(id)) {
+        if (Ti.Util.isNil(id)) {
           id = `Row-${index}`
         }
         let checked = !!this.myCheckedIds[id]
         let changed = (this.changedId == id)
         let current = (this.myCurrentId == id)
         let className = {
-          "is-checked" : checked,
-          "is-current" : current,
-          "is-changed" : changed
+          "is-checked": checked,
+          "is-current": current,
+          "is-changed": changed
         }
-        
+
         let number;
-        if(base >= 0) {
+        if (base >= 0) {
           number = base + index
         }
 
-        let cells = _.map(this.TableFields, fld=>{
+        let cells = _.map(this.TableFields, fld => {
           let items = _.map(fld.display, ({
-            index, type, getClassName, getValue, 
+            index, type, getClassName, getValue,
             transform, tidy
-          })=>{
-            let it = {index, type}
+          }) => {
+            let it = { index, type }
             // Item value
             it.value = getValue(obj)
             // ClassName
-            if(getClassName) {
+            if (getClassName) {
               it.className = getClassName(it.value)
             }
             // Transform
             let disval = it.value
-            if(transform) {
+            if (transform) {
               disval = transform(disval)
             }
             disval = tidy(disval)
@@ -18072,15 +18095,15 @@ const _M = {
             return it
           }) // End Items
 
-          return {... fld, items}
+          return { ...fld, items }
         }) // End cells
 
         return {
           showNumber,
-          number, index, 
+          number, index,
           id, className, cells,
           checked, changed, current,
-          rawData : obj
+          rawData: obj
         }
       })
 
@@ -18097,16 +18120,16 @@ const _M = {
     //-----------------------------------------------
     isAllChecked() {
       // Empty list, nothing checked
-      if(this.isDataEmpty) {
-        return false 
+      if (this.isDataEmpty) {
+        return false
       }
-      if(_.size(this.myCheckedIds) != _.size(this.TableData)) {
+      if (_.size(this.myCheckedIds) != _.size(this.TableData)) {
         return false
       }
       // Checking ...
-      for(let row of this.TableData){
-        if(!this.myCheckedIds[row.id])
-          return false;  
+      for (let row of this.TableData) {
+        if (!this.myCheckedIds[row.id])
+          return false;
       }
       return true
     },
@@ -18116,10 +18139,10 @@ const _M = {
     },
     //--------------------------------------
     HeadCheckerIcon() {
-      if(this.isAllChecked) {
+      if (this.isAllChecked) {
         return "fas-check-square"
       }
-      if(this.hasChecked) {
+      if (this.hasChecked) {
         return "fas-minus-square"
       }
       return "far-square"
@@ -18127,27 +18150,46 @@ const _M = {
     //--------------------------------------
     TableFields() {
       //....................................
-      const evalFldDisplay = (dis={}, index)=>{
-        if(_.isString(dis)) {
-          dis = {key:dis}
+      const evalQuickStrDisplay = (str) => {
+        //  key.className
+        let m = /^([\w\d_-]+)(\.([\w\d_-]+))?/.exec(str)
+        if (m) {
+          return {
+            key: m[1],
+            className: m[3]
+          }
         }
-        let {key, type, className, transformer} = dis
+        // <icon:fas-xxx>?
+        m = /^<([^:>=]*)(:([^>:]+))?(:([^>:]+))?>(\?)?$/.exec(str)
+        if (m) {
+          return {
+            type: "icon",
+            key: m[1],
+            defaultAs: m[3],
+            className: m[5],
+            ignoreNil: "?" == m[6]
+          }
+        }
+        // Default
+        return { key: str }
+      }
+      //....................................
+      const evalFldDisplay = (dis = {}, index) => {
+        // Quick string mode
+        if (_.isString(dis)) {
+          dis = evalQuickStrDisplay(dis)
+        }
 
-        // Key
-        let m = /^([\w\d_-]+)(\.([\w\d_-]+))?/.exec(key)
-        if(m) {
-          key = m[1]
-          className = className || m[3]
-        }
+        let { key, type, className, transformer, defaultAs, ignoreNil } = dis
 
         // Default type as text
         type = type || "text"
 
         // Get value
         let getValue;
-        if(".." == key){
+        if (".." == key) {
           getValue = obj => obj
-        } else if(_.isArray(key)) {
+        } else if (_.isArray(key)) {
           getValue = obj => _.pick(obj, key)
         } else {
           getValue = obj => _.get(obj, key)
@@ -18155,21 +18197,21 @@ const _M = {
 
         // ClassName
         let getClassName;
-        if(_.isFunction(className)) {
+        if (_.isFunction(className)) {
           getClassName = className
-        } else if(_.isString(className)) {
-          getClassName = ()=>className
-        } else if(className){
+        } else if (_.isString(className)) {
+          getClassName = () => className
+        } else if (className) {
           let cans = []
-          _.forEach(className, (key, val)=>{
+          _.forEach(className, (key, val) => {
             cans.push({
-              className : key,
-              match : Ti.AutoMatch.parse(val)
+              className: key,
+              match: Ti.AutoMatch.parse(val)
             })
           })
           getClassName = (val) => {
-            for(let can of cans) {
-              if(can.match(val))
+            for (let can of cans) {
+              if (can.match(val))
                 return can.className
             }
           }
@@ -18177,46 +18219,47 @@ const _M = {
 
         // transformer
         let transFunc;
-        if(transformer) {
+        if (transformer) {
           transFunc = Ti.Util.genInvoking(transformer, {
-            context: this, 
+            context: this,
             partial: "right"
           })
         }
 
         // Tidy Value by type
-        let tidyFunc =({
-          "text" : v => v,
-          "icon" : v => Ti.Icons.parseFontIcon(v),
-          "img"  : v => v
+        let tidyFunc = ({
+          "text": v => v,
+          "icon": v => Ti.Icons.parseFontIcon(v),
+          "img": v => v
         })[type]
 
-        if(!tidyFunc) {
+        if (!tidyFunc) {
           throw "Invalid display type: " + type
         }
 
         return {
-          index, type, 
-          getClassName, 
-          getValue, 
+          index, type,
+          getClassName,
+          getValue,
           transform: transFunc,
-          tidy: tidyFunc
+          tidy: tidyFunc,
+          defaultAs, ignoreNil
         }
       }
       //....................................
       let fields = _.map(this.fields, (fld, index) => {
         let diss = [].concat(fld.display)
-        let display = _.map(diss, (dis,index) => {
+        let display = _.map(diss, (dis, index) => {
           return evalFldDisplay(dis, index)
         })
         return {
-          ... fld,
-          headStyle : Ti.Css.toStyle({
-            width : fld.width
+          ...fld,
+          headStyle: Ti.Css.toStyle({
+            width: fld.width
           }),
           index, display,
-          className : {
-            "is-nowrap" : fld.nowrap
+          className: {
+            "is-nowrap": fld.nowrap
           }
         }
       })
@@ -18226,15 +18269,15 @@ const _M = {
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClickTop($event) {
-      if(this.cancelable) {
+      if (this.cancelable) {
         // Click The body or top to cancel the row selection
-        if(Ti.Dom.hasOneClass($event.target,
-            'ti-table', 'table-body',
-            'table-head-cell',
-            'table-head-cell-text')) {
+        if (Ti.Dom.hasOneClass($event.target,
+          'ti-table', 'table-body',
+          'table-head-cell',
+          'table-head-cell-text')) {
           this.cancelRow()
         }
       }
@@ -18243,8 +18286,8 @@ const _M = {
     // Publish methods
     //--------------------------------------
     findRowIndexById(rowId) {
-      for(let row of this.TableData) {
-        if(row.id == rowId) {
+      for (let row of this.TableData) {
+        if (row.id == rowId) {
           return row.index
         }
       }
@@ -18252,28 +18295,31 @@ const _M = {
     },
     //--------------------------------------
     findRowById(rowId) {
-      for(let row of this.TableData) {
-        if(row.id == rowId) {
+      for (let row of this.TableData) {
+        if (row.id == rowId) {
           return row
         }
       }
     },
     //--------------------------------------
-    getRow(index=0) {
+    getRow(index = 0) {
       return _.nth(this.TableData, index)
+    },
+    getCurrentRow(currentId = this.myCurrentId) {
+      return this.findRowById(currentId)
     },
     //--------------------------------------
     // Utility
     //--------------------------------------
     scrollCurrentIntoView() {
       //console.log("scrollCurrentIntoView", this.myLastIndex)
-      if(this.autoScrollIntoView && this.myCurrentId) {
+      if (this.autoScrollIntoView && this.myCurrentId) {
         let index = this.findRowIndexById(this.myCurrentId)
         //console.log("scroll", index)
         let $view = this.$el
-        let $row  = Ti.Dom.find(`.table-row:nth-child(${index+1})`, $view)
+        let $row = Ti.Dom.find(`.table-row:nth-child(${index + 1})`, $view)
 
-        if(!_.isElement($view) || !_.isElement($row)) {
+        if (!_.isElement($view) || !_.isElement($row)) {
           return
         }
 
@@ -18281,9 +18327,9 @@ const _M = {
         let r_row = Ti.Rects.createBy($row)
 
         // test it need to scroll or not
-        if(!r_view.contains(r_row)) {
+        if (!r_view.contains(r_row)) {
           // at bottom
-          if(r_row.bottom > r_view.bottom) {
+          if (r_row.bottom > r_view.bottom) {
             $view.scrollTop += r_row.bottom - r_view.bottom
           }
           // at top
@@ -18296,28 +18342,28 @@ const _M = {
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "currentId" : {
-      handler : function(newVal, oldVal){
-        if(!_.isEqual(newVal, oldVal)) {
+  watch: {
+    "currentId": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
           this.myCurrentId = newVal
         }
       },
-      immediate : true
+      immediate: true
     },
-    "checkedIds" : {
-      handler : function(newVal, oldVal){
-        if(!_.isEqual(newVal, oldVal)) {
+    "checkedIds": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
           this.myCheckedIds = newVal
         }
       },
-      immediate : true
+      immediate: true
     }
   },
   ///////////////////////////////////////////////////
-  mounted : function() {
-    if(this.autoScrollIntoView) {
-      _.delay(()=>{
+  mounted: function () {
+    if (this.autoScrollIntoView) {
+      _.delay(() => {
         this.scrollCurrentIntoView()
       }, 0)
     }
@@ -18966,6 +19012,14 @@ const _M = {
       return this.myDisplayIcon || this.prefixIcon
     },
     //--------------------------------------
+    ThePrefixText() {
+      return Ti.Util.explainObj(this, this.prefixText)
+    },
+    //--------------------------------------
+    TheSuffixText() {
+      return Ti.Util.explainObj(this, this.suffixText)
+    },
+    //--------------------------------------
     TheHover() {
       let map = {}
       let hos = _.concat(this.hover)
@@ -19073,6 +19127,9 @@ const _M = {
     },
     //--------------------------------------
     async evalDisplay(val) {
+      if(_.isString(val) && Ti.S.isBlank(val)) {
+        return  Ti.I18n.get("blank")
+      }
       // By Dict Item
       if(this.Dict) {
         // Array value
@@ -21735,10 +21792,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       //
       // Roles
       //
-      if (items.length > 0) {
-        items.push({ type: "line" })
-      }
       if (!_.isEmpty(this.myRoles)) {
+        if (items.length > 0) {
+          items.push({ type: "line" })
+        }
         items.push({
           icon: "fas-ribbon",
           text: "i18n:role-add",
@@ -21748,10 +21805,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       //
       // Companies
       //
-      if (items.length > 0) {
-        items.push({ type: "line" })
-      }
       if (!_.isEmpty(this.myCompanies)) {
+        if (items.length > 0) {
+          items.push({ type: "line" })
+        }
         items.push({
           icon: "fas-building",
           text: "i18n:org-add",
@@ -21773,10 +21830,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       //
       // Projects
       //
-      if (items.length > 0) {
-        items.push({ type: "line" })
-      }
       if (!_.isEmpty(this.myProjects)) {
+        if (items.length > 0) {
+          items.push({ type: "line" })
+        }
         items.push({
           icon: "fas-chess-queen",
           text: "i18n:project-add",
@@ -21906,7 +21963,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     OnDataChange(data) {
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
-      let md = (m0 << 6) | (m0 << 3) | (m0)
+      let md = (7 << 6) | (m0 << 3) | (m0)
       let val = _.cloneDeep(this.value)
       val[key] = md
       this.$notify("change", val)
@@ -22055,7 +22112,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let com = _.get(reo, "current")
 
       // User canceled
-      if(!com) {
+      if (!com) {
         return
       }
 
@@ -22180,13 +22237,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     async evalPrivilegeData() {
       let pvgData = []
       _.forEach(this.value, (md, id) => {
-        pvgData.push({md, id})
+        pvgData.push({ md, id })
       })
 
 
       let list = []
-      for(let pvgIt of pvgData) {
-        let {md, id} = pvgIt
+      for (let pvgIt of pvgData) {
+        let { md, id } = pvgIt
         //console.log("pvg data", { md, id })
         let { other } = Wn.Obj.parseMode(md)
         //
@@ -22231,20 +22288,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
         // Department
         m = /^dept:([^>]+)>(.+)$/.exec(id)
         console.log(m)
-        if(m) {
+        if (m) {
           let comId = m[1]
           let deptId = m[2]
           let com = this.myCompanyMap[comId]
           let dept;
-          if(com) {
+          if (com) {
             await this.reloadDepartments(com)
             dept = _.get(this.myDeptMap, `${comId}.${deptId}`)
           }
-          if(com && dept) {
+          if (com && dept) {
             list.push({
               type: "dept",
               icon: Wn.Util.getObjThumbIcon2(dept, 'fas-briefcase'),
-              text: `${com.title||com.nm} > ${dept.name||dept.title||dept.text||dept.nm}`,
+              text: `${com.title || com.nm} > ${dept.name || dept.title || dept.text || dept.nm}`,
               key: id,
               tip,
               ...other
@@ -22345,13 +22402,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     async reloadDepartments(com) {
       let comId = com.id
       let deptRoot = _.get(this.myDeptCache, comId)
-      if(_.isEmpty(deptRoot)) {
+      if (_.isEmpty(deptRoot)) {
         let cmdText = Ti.S.renderBy(this.myDeptBy, com)
-        deptRoot = await Wn.Sys.exec2(cmdText, {as:"json"})
+        deptRoot = await Wn.Sys.exec2(cmdText, { as: "json" })
         this.myDeptCache[comId] = deptRoot
         // Build Map
         let deptMap = {}
-        Ti.Trees.walkDeep(deptRoot, ({id,node})=>{
+        Ti.Trees.walkDeep(deptRoot, ({ id, node }) => {
           //console.log("dept", id, node)
           deptMap[id] = node
         })
@@ -23585,7 +23642,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default : undefined
   },
   "prefixText" : {
-    type : String,
+    type : [String, Number],
     default : undefined
   },
   "suffixText" : {
@@ -23593,7 +23650,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default : undefined
   },
   "suffixIcon" : {
-    type : String,
+    type : [String, Number],
     default : undefined
   },
   //-----------------------------------
@@ -30892,6 +30949,55 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'm-obj-children.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/obj-children/m-obj-children.mjs'] = (function(){
+//----------------------------------------
+function UpsertDataItemAt(state, newItem, atPos=1) {
+  // Guard
+  if(_.isEmpty(newItem) || !newItem || !newItem.id) {
+    return
+  }
+  // Batch upsert
+  if(_.isArray(newItem)) {
+    for(let it of newItem) {
+      UpsertDataItemAt(state, it, atTail)
+    }
+    return
+  }
+  // upsert one
+  let data = state.data
+  // Update pager list item of data
+  if(_.isArray(data.list) && data.pager) {
+    let list = _.cloneDeep(data.list)
+    let list2 = []
+    let found = false
+    for(let li of list) {
+      if(!found && (li.id == newItem.id || li.nm == newItem.nm)) {
+        list2.push(newItem)
+        found = true
+      } else {
+        list2.push(li)
+      }
+    }
+    if(!found) {
+      if(atPos>0) {
+        list2.push(newItem)
+      } else if (atPos<0){
+        list2 = _.concat(newItem, list2)
+      }
+    }
+    state.data = {
+      list: list2,
+      pager : data.pager
+    }
+  }
+  // Just insert
+  else {
+    state.data = {
+      list: newItems,
+      pager : data.pager
+    }
+  }
+}
+//////////////////////////////////////////////
 const _M = {
   ////////////////////////////////////////////
   mutations : {
@@ -30945,51 +31051,15 @@ const _M = {
     },
     //----------------------------------------
     prependDateItem(state, newItem) {
-      if(_.isEmpty(newItem))
-        return
-      let data = state.data
-      let list = _.cloneDeep(data.list) || []
-      let pager = data.pager
-      list = _.concat(newItem, list)
-      state.data = {
-        list, pager
-      }
+      UpsertDataItemAt(state, newItem, -1)
     },
     //----------------------------------------
     appendDateItem(state, newItem) {
-      if(_.isEmpty(newItem))
-        return
-      let data = state.data
-      let list = _.cloneDeep(data.list) || []
-      let pager = data.pager
-      list = _.concat(list, newItem)
-      state.data = {
-        list, pager
-      }
+      UpsertDataItemAt(state, newItem, 1)
     },
     //----------------------------------------
     setDataItem(state, newItem) {
-      // console.log("setDataItem:", newItem)
-      // Guard
-      if(!newItem || !newItem.id)
-        return
-
-      let data = state.data
-
-      // Update pager list item of data
-      if(_.isArray(data.list) && data.pager) {
-        let list = _.cloneDeep(data.list)
-        list = _.map(list, li => {
-          if(li.id == newItem.id) {
-            return newItem
-          }
-          return li
-        })
-        state.data = {
-          list,
-          pager : data.pager
-        }
-      }
+      UpsertDataItemAt(state, newItem, 0)
     },
     //----------------------------------------
     setData(state, data) {
@@ -34499,6 +34569,22 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "autoCheckCurrent" : {
     type : Boolean,
     default : true
+  },
+  "onSelect": {
+    type : Function,
+    default: undefined
+  },
+  "onOpen": {
+    type : Function,
+    default: undefined
+  },
+  "notifySelectName": {
+    type : String,
+    default: "select"
+  },
+  "notifyOpenName": {
+    type : String,
+    default: "open"
   },
   //-----------------------------------
   // Callback
@@ -48740,7 +48826,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     "reloadBy" : {
       type : [String, Function],
-      default : "current/query"
+      default : "main/query"
     },
     "viewType" : String,
     "exposeHidden" : Boolean,
@@ -57532,6 +57618,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Object,
     default: () => ({})
   },
+  "quickTable": {
+    type: Boolean,
+    default: false
+  },
   "list": {
     type: Object,
     default: () => ({})
@@ -59573,13 +59663,23 @@ Ti.Preload("ti/com/ti/combo/table/ti-combo-table.html", `<div class="ti-combo-ta
       :items="ActionItems"
       :align="actionAlign"/>
     <!--
-      Table
+      Quick Table
+    -->
+    <TiTableQuick
+      v-if="quickTable"
+        v-bind="TableConfig"
+        :on-init="OnInitTable"
+        @select="OnTableRowSelect"
+        @open="OnTableRowOpen"/>
+    <!--
+      Normal Table
     -->
     <TiTable
-      v-bind="TableConfig"
-      :on-init="OnInitTable"
-      @select="OnTableRowSelect"
-      @open="OnTableRowOpen"/>
+      v-else
+        v-bind="TableConfig"
+        :on-init="OnInitTable"
+        @select="OnTableRowSelect"
+        @open="OnTableRowOpen"/>
   </div>
 </div>`);
 //========================================
@@ -59598,6 +59698,7 @@ Ti.Preload("ti/com/ti/combo/table/_com.json", {
   "components" : [
     "@com:ti/actionbar",
     "@com:ti/table",
+    "@com:ti/table/quick",
     "@com:ti/form"]
 });
 //========================================
@@ -61237,11 +61338,11 @@ Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
     <ti-icon :value="ThePrefixIcon"/>
   </div>
   <!--prefix:text-->
-  <div v-if="prefixText" 
+  <div v-if="ThePrefixText" 
     class="as-text at-prefix"
     :class="getHoverClass('prefixText')"
     @click.left="OnClickPrefixText">
-    <span>{{prefixText|i18n}}</span>
+    <span>{{ThePrefixText|i18n}}</span>
   </div>
   <!--Text-->
   <div class="as-value"
@@ -61256,11 +61357,11 @@ Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
     <span v-else>{{myDisplayText}}</span>
   </div>
   <!--suffix:text-->
-  <div v-if="suffixText"
+  <div v-if="TheSuffixText"
     class="as-text at-suffix"
     :class="getHoverClass('suffixText')"
     @click.left="OnClickSuffixIcon">
-    <span>{{suffixText|i18n}}</span>
+    <span>{{TheSuffixText|i18n}}</span>
   </div>
   <!--suffix:icon-->
   <div v-if="suffixIcon"
@@ -62742,7 +62843,8 @@ Ti.Preload("ti/com/ti/table/quick/ti-table-quick.html", `<div class="ti-table as
             :key="row.id"
             :index="row.index"
             :class="row.className"
-            @click.left="OnClickRow(row, $event)">
+            @click.left="OnClickRow(row, $event)"
+            @dblclick.left="OnDblClickRow(row, $event)">
             <!-- Begin Cell -->
             <td
               v-for="cell in row.cells"
@@ -63017,19 +63119,26 @@ Ti.Preload("ti/com/ti/tags/com/tags-item/_com.json", {
 Ti.Preload("ti/com/ti/tags/ti-tags.html", `<div class="ti-tags"
   :class="TopClass">
   <!--
+    Empty
+  -->
+  <span
+    v-if="!hasItems">{{placeholder | i18n}}</span>
+  <!--
     Loop piece
   -->
-  <tags-item v-for="tag in myTags"
-    :key="tag.index"
-    v-bind="tag"
-    :cancel-bubble="cancelItemBubble"
-    :option-default-icon="optionDefaultIcon"
-    :removable="removable"
-    :remove-icon="removeIcon"
-    :status-icons="statusIcons"
-    @change="OnItemChanged"
-    @remove="OnItemRemoved"
-    @fire="OnItemFired"/>
+  <tags-item
+    v-else
+      v-for="tag in myTags"
+        :key="tag.index"
+        v-bind="tag"
+        :cancel-bubble="cancelItemBubble"
+        :option-default-icon="optionDefaultIcon"
+        :removable="removable"
+        :remove-icon="removeIcon"
+        :status-icons="statusIcons"
+        @change="OnItemChanged"
+        @remove="OnItemRemoved"
+        @fire="OnItemFired"/>
 </div>`);
 //========================================
 // JOIN <ti-tags.mjs> ti/com/ti/tags/ti-tags.mjs

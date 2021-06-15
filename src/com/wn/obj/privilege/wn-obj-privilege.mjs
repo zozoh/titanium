@@ -74,10 +74,10 @@ export default {
       //
       // Roles
       //
-      if (items.length > 0) {
-        items.push({ type: "line" })
-      }
       if (!_.isEmpty(this.myRoles)) {
+        if (items.length > 0) {
+          items.push({ type: "line" })
+        }
         items.push({
           icon: "fas-ribbon",
           text: "i18n:role-add",
@@ -87,10 +87,10 @@ export default {
       //
       // Companies
       //
-      if (items.length > 0) {
-        items.push({ type: "line" })
-      }
       if (!_.isEmpty(this.myCompanies)) {
+        if (items.length > 0) {
+          items.push({ type: "line" })
+        }
         items.push({
           icon: "fas-building",
           text: "i18n:org-add",
@@ -112,10 +112,10 @@ export default {
       //
       // Projects
       //
-      if (items.length > 0) {
-        items.push({ type: "line" })
-      }
       if (!_.isEmpty(this.myProjects)) {
+        if (items.length > 0) {
+          items.push({ type: "line" })
+        }
         items.push({
           icon: "fas-chess-queen",
           text: "i18n:project-add",
@@ -245,7 +245,7 @@ export default {
     OnDataChange(data) {
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
-      let md = (m0 << 6) | (m0 << 3) | (m0)
+      let md = (7 << 6) | (m0 << 3) | (m0)
       let val = _.cloneDeep(this.value)
       val[key] = md
       this.$notify("change", val)
@@ -394,7 +394,7 @@ export default {
       let com = _.get(reo, "current")
 
       // User canceled
-      if(!com) {
+      if (!com) {
         return
       }
 
@@ -519,13 +519,13 @@ export default {
     async evalPrivilegeData() {
       let pvgData = []
       _.forEach(this.value, (md, id) => {
-        pvgData.push({md, id})
+        pvgData.push({ md, id })
       })
 
 
       let list = []
-      for(let pvgIt of pvgData) {
-        let {md, id} = pvgIt
+      for (let pvgIt of pvgData) {
+        let { md, id } = pvgIt
         //console.log("pvg data", { md, id })
         let { other } = Wn.Obj.parseMode(md)
         //
@@ -570,20 +570,20 @@ export default {
         // Department
         m = /^dept:([^>]+)>(.+)$/.exec(id)
         console.log(m)
-        if(m) {
+        if (m) {
           let comId = m[1]
           let deptId = m[2]
           let com = this.myCompanyMap[comId]
           let dept;
-          if(com) {
+          if (com) {
             await this.reloadDepartments(com)
             dept = _.get(this.myDeptMap, `${comId}.${deptId}`)
           }
-          if(com && dept) {
+          if (com && dept) {
             list.push({
               type: "dept",
               icon: Wn.Util.getObjThumbIcon2(dept, 'fas-briefcase'),
-              text: `${com.title||com.nm} > ${dept.name||dept.title||dept.text||dept.nm}`,
+              text: `${com.title || com.nm} > ${dept.name || dept.title || dept.text || dept.nm}`,
               key: id,
               tip,
               ...other
@@ -684,13 +684,13 @@ export default {
     async reloadDepartments(com) {
       let comId = com.id
       let deptRoot = _.get(this.myDeptCache, comId)
-      if(_.isEmpty(deptRoot)) {
+      if (_.isEmpty(deptRoot)) {
         let cmdText = Ti.S.renderBy(this.myDeptBy, com)
-        deptRoot = await Wn.Sys.exec2(cmdText, {as:"json"})
+        deptRoot = await Wn.Sys.exec2(cmdText, { as: "json" })
         this.myDeptCache[comId] = deptRoot
         // Build Map
         let deptMap = {}
-        Ti.Trees.walkDeep(deptRoot, ({id,node})=>{
+        Ti.Trees.walkDeep(deptRoot, ({ id, node }) => {
           //console.log("dept", id, node)
           deptMap[id] = node
         })
