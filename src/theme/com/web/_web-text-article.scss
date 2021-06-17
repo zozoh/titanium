@@ -12,6 +12,10 @@ article.ti-article {
     .as-title {margin: 0 .1em;}
   }
   //---------------------------------------
+  .wn-media {
+    max-width: 100%;
+  }
+  //---------------------------------------
   .wn-media.as-image-con {
     display: inline-block;
     img {display: block; width:100%; height:100%;}

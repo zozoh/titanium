@@ -622,17 +622,26 @@ const TiDom = {
     }, 1)
   },
   //----------------------------------------------------
-  formatStyle(css={}) {
+  formatStyle(css={}, caseMode) {
+    let reCss = {}
+    let keyFn = Ti.S.getCaseFunc(caseMode)
     let keys = _.keys(css)
     for(let key of keys) {
       let val = css[key]
-      if(/^(opacity|z-index|order)$/.test(key)){
-        css[key] = val * 1
+      if(keyFn) {
+        key = keyFn(key)
+      }
+      if(/^(opacity|z-index|zIndex|order)$/.test(key)){
+        reCss[key] = val * 1
       }
       else if(_.isNumber(val) || /^\d+(\.\d+)?$/.test(val)) {
-        css[key] = `${val}px`
+        reCss[key] = `${val}px`
+      }
+      else {
+        reCss[key] = val
       }
     }
+    return reCss
   },
   //----------------------------------------------------
   setStyleValue($el, name, val, oldVal) {

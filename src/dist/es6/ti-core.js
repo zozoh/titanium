@@ -1,4 +1,4 @@
-// Pack At: 2021-06-15 19:36:58
+// Pack At: 2021-06-17 14:13:03
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4473,17 +4473,26 @@ const {Dom} = (function(){
       }, 1)
     },
     //----------------------------------------------------
-    formatStyle(css={}) {
+    formatStyle(css={}, caseMode) {
+      let reCss = {}
+      let keyFn = Ti.S.getCaseFunc(caseMode)
       let keys = _.keys(css)
       for(let key of keys) {
         let val = css[key]
-        if(/^(opacity|z-index|order)$/.test(key)){
-          css[key] = val * 1
+        if(keyFn) {
+          key = keyFn(key)
+        }
+        if(/^(opacity|z-index|zIndex|order)$/.test(key)){
+          reCss[key] = val * 1
         }
         else if(_.isNumber(val) || /^\d+(\.\d+)?$/.test(val)) {
-          css[key] = `${val}px`
+          reCss[key] = `${val}px`
+        }
+        else {
+          reCss[key] = val
         }
       }
+      return reCss
     },
     //----------------------------------------------------
     setStyleValue($el, name, val, oldVal) {
@@ -13842,12 +13851,12 @@ const {Album} = (function(){
         dftList: dftWallClass
       })
   
-      Ti.Dom.formatStyle(style)
-      Ti.Dom.formatStyle(wallStyle)
-      Ti.Dom.formatStyle(tileStyle)
-      Ti.Dom.formatStyle(imageStyle)
-      Ti.Dom.formatStyle(titleStyle)
-      Ti.Dom.formatStyle(briefStyle)
+      style = Ti.Dom.formatStyle(style)
+      wallStyle = Ti.Dom.formatStyle(wallStyle)
+      tileStyle = Ti.Dom.formatStyle(tileStyle)
+      imageStyle = Ti.Dom.formatStyle(imageStyle)
+      titleStyle = Ti.Dom.formatStyle(titleStyle)
+      briefStyle = Ti.Dom.formatStyle(briefStyle)
   
       return {
         id, name, link, layout, fullpreview, autoopen,
@@ -15701,7 +15710,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210615.193658",
+  "version" : "1.6-20210617.141303",
   "dev" : false,
   "appName" : null,
   "session" : {},

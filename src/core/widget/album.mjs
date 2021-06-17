@@ -61,12 +61,12 @@ class TiAlbum {
       dftList: dftWallClass
     })
 
-    Ti.Dom.formatStyle(style)
-    Ti.Dom.formatStyle(wallStyle)
-    Ti.Dom.formatStyle(tileStyle)
-    Ti.Dom.formatStyle(imageStyle)
-    Ti.Dom.formatStyle(titleStyle)
-    Ti.Dom.formatStyle(briefStyle)
+    style = Ti.Dom.formatStyle(style)
+    wallStyle = Ti.Dom.formatStyle(wallStyle)
+    tileStyle = Ti.Dom.formatStyle(tileStyle)
+    imageStyle = Ti.Dom.formatStyle(imageStyle)
+    titleStyle = Ti.Dom.formatStyle(titleStyle)
+    briefStyle = Ti.Dom.formatStyle(briefStyle)
 
     return {
       id, name, link, layout, fullpreview, autoopen,

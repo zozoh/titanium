@@ -44,4 +44,11 @@
     //---------------------------------------
   }
   //------------------------------------------
+  &.item-space-xl  .list-item {padding: SZ(30);}
+  &.item-space-lg  .list-item {padding: SZ(24);}
+  &.item-space-md  .list-item {padding: SZ(16);}
+  &.item-space-sm  .list-item {padding: SZ(10);}
+  &.item-space-xs  .list-item {padding: SZ(4);}
+  &.item-space-no  .list-item {padding: 0;}
+  //------------------------------------------
 }

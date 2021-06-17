@@ -74,6 +74,9 @@ const _M = {
     commit("setSavedContent", content)
     commit("syncStatusChanged")
 
+    // Notify user
+    Ti.Toast.Open("i18n:save-done", "success")
+
     // return the new meta
     return newMeta
   },

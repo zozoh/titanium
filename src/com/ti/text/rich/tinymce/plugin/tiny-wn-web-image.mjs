@@ -128,8 +128,8 @@ function UpdateWebImageStyle(editor, el, data) {
   }
   //console.log(data)
   //............................................
-  Ti.Dom.formatStyle(data.imgStyle)
-  Ti.Dom.formatStyle(data.altStyle)
+  data.imgStyle = Ti.Dom.formatStyle(data.imgStyle, "camel")
+  data.altStyle = Ti.Dom.formatStyle(data.altStyle, "camel")
   //............................................
   let conStyle = _.pick(data.imgStyle, OUTER_STYLE_NAMES)
   let imgStyle = _.omit(data.imgStyle, OUTER_STYLE_NAMES)

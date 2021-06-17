@@ -1,4 +1,4 @@
-// Pack At: 2021-06-15 19:36:58
+// Pack At: 2021-06-17 14:13:03
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5428,6 +5428,9 @@ const _M = {
     commit("setSavedContent", content)
     commit("syncStatusChanged")
 
+    // Notify user
+    Ti.Toast.Open("i18n:save-done", "success")
+
     // return the new meta
     return newMeta
   },
@@ -8279,8 +8282,8 @@ function UpdateWebImageStyle(editor, el, data) {
   }
   //console.log(data)
   //............................................
-  Ti.Dom.formatStyle(data.imgStyle)
-  Ti.Dom.formatStyle(data.altStyle)
+  data.imgStyle = Ti.Dom.formatStyle(data.imgStyle, "camel")
+  data.altStyle = Ti.Dom.formatStyle(data.altStyle, "camel")
   //............................................
   let conStyle = _.pick(data.imgStyle, OUTER_STYLE_NAMES)
   let imgStyle = _.omit(data.imgStyle, OUTER_STYLE_NAMES)
@@ -10100,7 +10103,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "tableFields" : {
     type : Array,
-    default : ()=>["title", "tp", "c", "g", "md", "len", "lm"]
+    default : ()=>["title", "c", "g", "tp", "len", "lm"]
   },
   "moveToConf" : {
     type : Object
@@ -10117,8 +10120,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "viewTypeIcons" : {
     type : Object,
     default : ()=>({
-      "wall"  : "zmdi-apps",
-      "table" : "zmdi-view-list",
+      "wall"  : "zmdi-view-module",
+      "table" : "zmdi-view-subtitles",
       "list"  : "zmdi-view-headline"
     })
   },
@@ -46928,7 +46931,7 @@ const _M = {
 
     // Guard loading
     if (this.isLoading) {
-      console.log("!!!")
+      //console.log("!!!")
       return await Ti.Toast.Open("i18n:wn-manager-is-loading", "warn")
     }
     // Mark loading
@@ -46992,7 +46995,7 @@ const _M = {
       if (view && view.modType) {
         if (this.view && this.view.modType && this.view.modType != view.modType) {
           try {
-            console.log(`switch modType ${this.view.modType} => ${view.modType}`)
+            //console.log(`switch modType ${this.view.modType} => ${view.modType}`)
             this.$store.unregisterModule("main")
             this.$store.registerModule("main", view.mod)
           } catch (E) {
@@ -47001,7 +47004,7 @@ const _M = {
         }
         // First regiester mod
         else if (!this.view || !this.view.modType) {
-          console.log("regiest modType", view.modType)
+          //console.log("regiest modType", view.modType)
           this.$store.registerModule("main", view.mod)
         }
         // Reload mod data

@@ -95,7 +95,7 @@ export default {
   },
   "tableFields" : {
     type : Array,
-    default : ()=>["title", "tp", "c", "g", "md", "len", "lm"]
+    default : ()=>["title", "c", "g", "tp", "len", "lm"]
   },
   "moveToConf" : {
     type : Object
@@ -112,8 +112,8 @@ export default {
   "viewTypeIcons" : {
     type : Object,
     default : ()=>({
-      "wall"  : "zmdi-apps",
-      "table" : "zmdi-view-list",
+      "wall"  : "zmdi-view-module",
+      "table" : "zmdi-view-subtitles",
       "list"  : "zmdi-view-headline"
     })
   },

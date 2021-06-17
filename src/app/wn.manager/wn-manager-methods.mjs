@@ -9,7 +9,7 @@ const _M = {
 
     // Guard loading
     if (this.isLoading) {
-      console.log("!!!")
+      //console.log("!!!")
       return await Ti.Toast.Open("i18n:wn-manager-is-loading", "warn")
     }
     // Mark loading
@@ -73,7 +73,7 @@ const _M = {
       if (view && view.modType) {
         if (this.view && this.view.modType && this.view.modType != view.modType) {
           try {
-            console.log(`switch modType ${this.view.modType} => ${view.modType}`)
+            //console.log(`switch modType ${this.view.modType} => ${view.modType}`)
             this.$store.unregisterModule("main")
             this.$store.registerModule("main", view.mod)
           } catch (E) {
@@ -82,7 +82,7 @@ const _M = {
         }
         // First regiester mod
         else if (!this.view || !this.view.modType) {
-          console.log("regiest modType", view.modType)
+          //console.log("regiest modType", view.modType)
           this.$store.registerModule("main", view.mod)
         }
         // Reload mod data

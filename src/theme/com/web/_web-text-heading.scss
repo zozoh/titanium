@@ -8,6 +8,10 @@
     .as-main-part {padding-left:0;}
   }
   //-----------------------------------------
+  &.as-wrap-part {
+    flex-wrap: wrap;
+  }
+  //-----------------------------------------
   .as-icon {
     @include flex-center;
     flex:0 0 auto;
