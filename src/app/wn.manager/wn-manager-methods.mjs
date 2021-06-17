@@ -71,13 +71,18 @@ const _M = {
       //..................................
       // register main module
       if (view && view.modType) {
-        if (this.view && this.view.modType && this.view.modType != view.modType) {
-          try {
-            //console.log(`switch modType ${this.view.modType} => ${view.modType}`)
-            this.$store.unregisterModule("main")
-            this.$store.registerModule("main", view.mod)
-          } catch (E) {
-            console.error("Error when unregisterModule", E)
+        if (this.view && this.view.modType) {
+          // May need re-config the main state
+          if(this.view.modType != view.modType
+            || view.modSetup
+            || !_.isEqual(this.view.modState, view.modState)){
+            try {
+              //console.log(`switch modType ${this.view.modType} => ${view.modType}`)
+              this.$store.unregisterModule("main")
+              this.$store.registerModule("main", view.mod)
+            } catch (E) {
+              console.error("Error when unregisterModule", E)
+            }
           }
         }
         // First regiester mod
