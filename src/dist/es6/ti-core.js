@@ -1,4 +1,4 @@
-// Pack At: 2021-06-18 16:04:02
+// Pack At: 2021-06-18 17:54:08
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -14750,7 +14750,7 @@ const {PhotoGallery} = (function(){
       if($li) {
         Ti.Dom.removeClass($li, "is-current")
       }
-      $li = Ti.Dom.find(`a[href="#${I}"]`, this.$indicatorUl)
+      $li = Ti.Dom.find(`a[gallery-index="${I}"]`, this.$indicatorUl)
       if($li) {
         Ti.Dom.addClass($li, "is-current")
       }
@@ -14913,7 +14913,7 @@ const {PhotoGallery} = (function(){
             tagName: "a",
             style: indicatorItStyle,
             attrs : {
-              href: `#${index}`,
+              href: `javascript:void(${index})`,
               galleryIndex: index,
               srcThumb: it.srcThumb,
               imgNil: "yes"
@@ -15202,10 +15202,16 @@ const {PhotoGallery} = (function(){
     }
     //---------------------------------------
     close() {
+      if(_.isFunction(this.setup.onBeforeClose)) {
+        this.setup.onBeforeClose()
+      }
       if(this.$top) {
         this.$top.addEventListener("transitionend", ()=>{
           Ti.Dom.remove(this.$top)
           this.$top = null
+          if(_.isFunction(this.setup.onClosed)) {
+            this.setup.onClosed()
+          }
         }, {once: true})
         Ti.Dom.removeClass(this.$top, "is-ready");
         Ti.Dom.addClass(this.$top, "no-ready");
@@ -15819,7 +15825,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210618.160402",
+  "version" : "1.6-20210618.175408",
   "dev" : false,
   "appName" : null,
   "session" : {},

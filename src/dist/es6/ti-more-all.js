@@ -1,4 +1,4 @@
-// Pack At: 2021-06-18 16:04:02
+// Pack At: 2021-06-18 17:54:08
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -9768,7 +9768,7 @@ function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
         access_token : longLiveAccessToken,
         force
       }).then((items)=>{
-        console.log(items)
+        //console.log(items)
         Ti.Api.Facebook.setObjListPreview(items)
         AB.renderItems(items)
         // Force sync content
@@ -17346,10 +17346,27 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   //--------------------------------------
   bindLiveWidgets($div) {
+    let vm = this
     let LIVE_WIDGETS = {
       "album-fullpreview": function ($el) {
         Ti.Widget.PhotoGallery.bind($el, {
-          titleKey: $el.getAttribute("ti-live-title-key") || "title"
+          titleKey: $el.getAttribute("ti-live-title-key") || "title",
+          onBeforeClose: ()=>{
+            if(vm.albumBeforeCloseNotifyName) {
+              vm.$notify(vm.albumBeforeCloseNotifyName)
+            }
+            if(_.isFunction(vm.whenAlbumBeforeClose)) {
+              vm.whenAlbumBeforeClose()
+            }
+          },
+          onClosed: ()=>{
+            if(vm.albumClosedNotifyName) {
+              vm.$notify(vm.albumClosedNotifyName)
+            }
+            if(_.isFunction(vm.whenAlbumClosed)) {
+              vm.whenAlbumClosed()
+            }
+          }
         })
       }
     }
@@ -25927,7 +25944,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         force
       })
 
-      let playlists = await Wn.Youtube.getAllPlaylists(config)
+      let playlists = await Wn.Youtube.getAllPlaylists(config, {force})
       let plId = this.currentPlayListId
       if(playlists.length > 0) {
         let pl = this.getPlaylistObj(plId, playlists)
@@ -54033,6 +54050,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "readyNotifyName": {
     type: String,
     default: "content:ready"
+  },
+  "whenAlbumBeforeClose": {
+    type: Function
+  },
+  "albumBeforeCloseNotifyName": {
+    type: String 
+  },
+  "whenAlbumClosed": {
+    type: Function
+  },
+  "albumClosedNotifyName": {
+    type: String 
   },
   //-----------------------------------
   // Aspect

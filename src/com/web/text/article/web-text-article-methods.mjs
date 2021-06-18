@@ -233,10 +233,27 @@ export default {
   },
   //--------------------------------------
   bindLiveWidgets($div) {
+    let vm = this
     let LIVE_WIDGETS = {
       "album-fullpreview": function ($el) {
         Ti.Widget.PhotoGallery.bind($el, {
-          titleKey: $el.getAttribute("ti-live-title-key") || "title"
+          titleKey: $el.getAttribute("ti-live-title-key") || "title",
+          onBeforeClose: ()=>{
+            if(vm.albumBeforeCloseNotifyName) {
+              vm.$notify(vm.albumBeforeCloseNotifyName)
+            }
+            if(_.isFunction(vm.whenAlbumBeforeClose)) {
+              vm.whenAlbumBeforeClose()
+            }
+          },
+          onClosed: ()=>{
+            if(vm.albumClosedNotifyName) {
+              vm.$notify(vm.albumClosedNotifyName)
+            }
+            if(_.isFunction(vm.whenAlbumClosed)) {
+              vm.whenAlbumClosed()
+            }
+          }
         })
       }
     }

@@ -183,7 +183,7 @@ class TiPhotoGallery {
     if($li) {
       Ti.Dom.removeClass($li, "is-current")
     }
-    $li = Ti.Dom.find(`a[href="#${I}"]`, this.$indicatorUl)
+    $li = Ti.Dom.find(`a[gallery-index="${I}"]`, this.$indicatorUl)
     if($li) {
       Ti.Dom.addClass($li, "is-current")
     }
@@ -346,7 +346,7 @@ class TiPhotoGallery {
           tagName: "a",
           style: indicatorItStyle,
           attrs : {
-            href: `#${index}`,
+            href: `javascript:void(${index})`,
             galleryIndex: index,
             srcThumb: it.srcThumb,
             imgNil: "yes"
@@ -635,10 +635,16 @@ class TiPhotoGallery {
   }
   //---------------------------------------
   close() {
+    if(_.isFunction(this.setup.onBeforeClose)) {
+      this.setup.onBeforeClose()
+    }
     if(this.$top) {
       this.$top.addEventListener("transitionend", ()=>{
         Ti.Dom.remove(this.$top)
         this.$top = null
+        if(_.isFunction(this.setup.onClosed)) {
+          this.setup.onClosed()
+        }
       }, {once: true})
       Ti.Dom.removeClass(this.$top, "is-ready");
       Ti.Dom.addClass(this.$top, "no-ready");

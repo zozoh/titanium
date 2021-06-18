@@ -113,7 +113,7 @@ function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
         access_token : longLiveAccessToken,
         force
       }).then((items)=>{
-        console.log(items)
+        //console.log(items)
         Ti.Api.Facebook.setObjListPreview(items)
         AB.renderItems(items)
         // Force sync content

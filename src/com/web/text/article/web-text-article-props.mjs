@@ -52,6 +52,18 @@ export default {
     type: String,
     default: "content:ready"
   },
+  "whenAlbumBeforeClose": {
+    type: Function
+  },
+  "albumBeforeCloseNotifyName": {
+    type: String 
+  },
+  "whenAlbumClosed": {
+    type: Function
+  },
+  "albumClosedNotifyName": {
+    type: String 
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

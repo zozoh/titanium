@@ -263,7 +263,7 @@ export default {
         force
       })
 
-      let playlists = await Wn.Youtube.getAllPlaylists(config)
+      let playlists = await Wn.Youtube.getAllPlaylists(config, {force})
       let plId = this.currentPlayListId
       if(playlists.length > 0) {
         let pl = this.getPlaylistObj(plId, playlists)
