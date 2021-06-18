@@ -5,13 +5,13 @@
   &.of-con-hidden   .as-img-con {overflow: hidden;}
   &.of-con-visiable .as-img-con {overflow: visible;}
   //-----------------------------------------
-  &.is-fit-auto .as-image-con img {
+  &.is-fit-auto .as-img-con img {
     width: auto; height: auto; 
     max-height: 100%; max-width: 100%;
   }
-  &.is-fit-none    .as-image-con img {object-fit: unset;}
-  &.is-fit-contain .as-image-con img {object-fit: contain;}
-  &.is-fit-cover   .as-image-con img {object-fit: cover; }
+  &.is-fit-none    .as-img-con img {object-fit: unset;}
+  &.is-fit-contain .as-img-con img {object-fit: contain;}
+  &.is-fit-cover   .as-img-con img {object-fit: cover; }
   //-----------------------------------------
   &.primary-img-size {
     img {
@@ -75,7 +75,7 @@
     @include border(1px, solid, shallow, top);
     display: block; width:100%;
     padding: 1em 0; margin-top: 1em;
-    font-size: 0.9em; opacity: 0.7; 
+    opacity: 0.7; 
     font-weight: normal;
     text-decoration: none;
     &:hover {text-decoration: none;}
@@ -95,6 +95,7 @@
   &.hover-none {
     cursor: default;
   }
+  //-----------------------------------------
   &.hover-to-up {
     transition: transform 0.3s; 
     &:hover {
@@ -102,6 +103,7 @@
       box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
     }
   }
+  //-----------------------------------------
   &.hover-to-up-img {
     .as-img-con img {transition: transform 0.3s; }
     &:hover .as-img-con img {
@@ -121,7 +123,17 @@
     transition: transform 0.3s; 
     &:hover {
       transform: scale(1.1);
-      box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
+      box-shadow: SZ(2) SZ(2) SZ(6) map-get($color-shadow, thin);
+      z-index:1;
+    }
+  }
+  //-----------------------------------------
+  &.hover-to-scale-img {
+    .as-img-con {transition: transform 0.3s; }
+    &:hover .as-img-con {
+      transform: scale(1.1);
+      box-shadow: SZ(2) SZ(2) SZ(6) map-get($color-shadow, thin);
+      z-index:1;
     }
   }
   //-----------------------------------------

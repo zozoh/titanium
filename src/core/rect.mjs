@@ -711,7 +711,13 @@ export class Rect {
   }
   //--------------------------------------
   isOverlap(rect) {
-    return this.overlap(rect).area() > 0
+    let t = Math.max(this.top, rect.top)
+    let l = Math.max(this.left, rect.left)
+    let r = Math.min(this.right, rect.right)
+    let b = Math.min(this.bottom, rect.bottom)
+    let w = r - l
+    let h = b - t
+    return w>0 && h>0
   }
   //--------------------------------------
   /***

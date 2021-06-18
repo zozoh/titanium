@@ -1,4 +1,4 @@
-// Pack At: 2021-06-17 18:08:07
+// Pack At: 2021-06-18 16:04:02
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -5513,7 +5513,13 @@ const {Rect,Rects} = (function(){
     }
     //--------------------------------------
     isOverlap(rect) {
-      return this.overlap(rect).area() > 0
+      let t = Math.max(this.top, rect.top)
+      let l = Math.max(this.left, rect.left)
+      let r = Math.min(this.right, rect.right)
+      let b = Math.min(this.bottom, rect.bottom)
+      let w = r - l
+      let h = b - t
+      return w>0 && h>0
     }
     //--------------------------------------
     /***
@@ -14582,9 +14588,12 @@ const {PhotoGallery} = (function(){
   |   |   |   |-- A.as-zoom-out
   |   |   |   |   |-- I.zmdi-zoom-out
   |   |-- DIV.as-indicator
-  |   |   |-- UL
-  |   |   |   |-- LI
-  |   |   |   |   |-- IMG
+  |   |   |-- DIV.as-indi-con
+  |   |   |   |-- UL
+  |   |   |   |   |-- A
+  |   |   |   |   |   |-- IMG
+  |   |   |-- DIV.as-indi-btn to-prev
+  |   |   |-- DIV.as-indi-btn to-next
   |   |-- DIV.as-switcher
   |   |   |-- DIV.as-switcher-btn is-prev
   |   |   |   |-- SPAN
@@ -14612,8 +14621,8 @@ const {PhotoGallery} = (function(){
         imgStyle         : {},
         indicatorStyle   : {},
         indicatorUlStyle : {},
-        indicatorLiStyle : {},
-        indicatorLiImgStyle : {},
+        indicatorItStyle : {},
+        indicatorItImgStyle : {},
         thumbKey : "src",
         largeKey : "src-large",
         titleKey : "title",
@@ -14684,6 +14693,7 @@ const {PhotoGallery} = (function(){
     }
     //---------------------------------------
     scrollTo(index=this.currentIndex) {
+      let {imgStyle} = this.setup
       this.resizePhotos(this.$scroller)
       this.zoomScale = 1
       this.translateX = 0
@@ -14701,16 +14711,37 @@ const {PhotoGallery} = (function(){
       //
       // Current Image
       //
-      let $img = this.getImage(I)
-      if($img) {
-        let srcLarge = $img.getAttribute("src-large")
-        if(srcLarge) {
-          Ti.Dom.setAttrs($img, {src: srcLarge})
+      let $tile = this.getImageTile(I)
+      if($tile) {
+        if("yes" == $tile.getAttribute("img-nil")) {
+          // Render image
+          let srcThumb = $tile.getAttribute("src-thumb")
+          let $nil = Ti.Dom.find("span", $tile)
+          if($nil) {
+            Ti.Dom.updateStyle($nil, {
+              "backgroundImage": `url(${srcThumb})`
+            })
+          }
+          let srcLarge = $tile.getAttribute("src-large")
+          //$tile.innerHTML = ""
+          let $img = Ti.Dom.createElement({
+            $p: $tile,
+            tagName: "img",
+            style: imgStyle,
+            attrs: {
+              src: srcLarge
+            }
+          })
+          $img.addEventListener("load", ()=>{
+            $tile.removeAttribute("img-nil")
+            $tile.setAttribute("img-loaded", "yes")
+          }, {once:true})
+          // Update href
+          let href = _.trim($tile.getAttribute("href")) || null
+          Ti.Dom.setAttrs(this.$opener, {href})
         }
-        let href = _.trim($img.parentElement.getAttribute("href")) || null
-        Ti.Dom.setAttrs(this.$opener, {href})
       }
-      this.$currentImg = $img
+      this.$currentImg = Ti.Dom.find("img", $tile)
   
       //
       // Current indicator
@@ -14740,8 +14771,22 @@ const {PhotoGallery} = (function(){
       }
     }
     //---------------------------------------
-    getImage(index=this.currentIndex) {
-      return Ti.Dom.find(`.as-tile[gallery-index="${index}"] img`, this.$scroller)
+    scrollIndicatorToPage(direction=-1) {
+      let left = Ti.Css.toPixel(this.$indicatorUl.style.left||0)
+      let width = this.$indicatorCon.clientWidth
+      this.scrollIndicatorTo(left + width * direction)
+    }
+    //---------------------------------------
+    scrollIndicatorTo(x=0) {
+      let minLeft = this.$indicatorCon.clientWidth - this.$indicatorCon.scrollWidth;
+      let maxLeft = 0
+      //console.log({minLeft, maxLeft})
+      let left = _.clamp(x, minLeft, maxLeft)
+      this.$indicatorUl.style.left = `${left}px`
+    }
+    //---------------------------------------
+    getImageTile(index=this.currentIndex) {
+      return Ti.Dom.find(`.as-tile[gallery-index="${index}"]`, this.$scroller)
     }
     //---------------------------------------
     applyImageTransform() {
@@ -14779,13 +14824,46 @@ const {PhotoGallery} = (function(){
         $tile.style.width  = tileW
         $tile.style.height = tileH
       }
+  
+      // The indicator overview
+      let indi = this.$indicatorCon
+      if(indi.scrollWidth > indi.clientWidth) {
+        this.$indicator.setAttribute("item-overflow", "yes")
+      } else {
+        this.$indicator.removeAttribute("item-overflow")
+      }
+      
+      // Only load photo image in indicator viewport
+      this.renderClipIndicatorPhotos()
+    }
+    //---------------------------------------
+    renderClipIndicatorPhotos() {
+      let {indicatorItImgStyle} = this.setup
+      let conRect = Ti.Rects.createBy(this.$indicatorCon)
+      let $list = Ti.Dom.findAll("a[img-nil]", this.$indicatorUl)
+      //console.log("viewport:", conRect.toString(), "find img-nil:", $list.length)
+      for(let i=0; i<$list.length; i++) {
+        let $li = $list[i]
+        let liRect = Ti.Rects.createBy($li)
+        //console.log(i, liRect.toString())
+        if(conRect.isOverlap(liRect)) {
+          let src = $li.getAttribute("src-thumb")
+          $li.innerHTML = ""
+          $li.removeAttribute("img-nil")
+          Ti.Dom.createElement({
+            $p: $li,
+            tagName: "img",
+            style: indicatorItImgStyle,
+            attrs: {
+              src
+            }
+          })
+        }
+      }
     }
     //---------------------------------------
     renderPhotos(data=this.data) {
-      let {
-        tileStyle, imgStyle, 
-        indicatorLiStyle, indicatorLiImgStyle
-      } = this.setup
+      let {tileStyle, indicatorItStyle} = this.setup
       let $div = Ti.Dom.createElement({
         tagName : "div"
       })
@@ -14807,19 +14885,19 @@ const {PhotoGallery} = (function(){
             attrs: {
               galleryIndex: index,
               href: it.link,
-              target: "_blank"
+              target: "_blank",
+              srcThumb: it.srcThumb,
+              srcLarge: it.srcLarge,
+              imgNil: "yes"
             }
           })
-          // Image
-          Ti.Dom.createElement({
+          // Image Placeholder
+          let $nil = Ti.Dom.createElement({
             $p: $an,
-            tagName: "img",
-            style: imgStyle,
-            attrs: {
-              src: it.srcThumb,
-              srcLarge: it.srcLarge
-            }
+            tagName: "span",
+            className: "nil-img"
           })
+          $nil.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`
           // TITLE
           if(it.title) {
             Ti.Dom.createElement({
@@ -14833,19 +14911,18 @@ const {PhotoGallery} = (function(){
           let $li = Ti.Dom.createElement({
             $p: $ul,
             tagName: "a",
-            style: indicatorLiStyle,
+            style: indicatorItStyle,
             attrs : {
               href: `#${index}`,
-              galleryIndex: index
+              galleryIndex: index,
+              srcThumb: it.srcThumb,
+              imgNil: "yes"
             }
           })
           Ti.Dom.createElement({
             $p: $li,
-            tagName: "img",
-            style: indicatorLiImgStyle,
-            attrs: {
-              src: it.srcThumb
-            }
+            tagName: "span",
+            className: "nil-img"
           })
         }
       }
@@ -14942,11 +15019,32 @@ const {PhotoGallery} = (function(){
         style : indicatorStyle
       })
       //......................................
-      this.$indicatorUl = Ti.Dom.createElement({
-        $p: this.$indicator,
-        tagName: "ul",
-        style: indicatorUlStyle
+      // Create indicator
+      this.$indicatorCon = Ti.Dom.createElement({
+        $p : this.$indicator,
+        tagName : "div",
+        className : "as-indi-con"
       })
+      //......................................
+      this.$indicatorUl = Ti.Dom.createElement({
+        $p: this.$indicatorCon,
+        tagName: "ul",
+        style: _.assign({left:0}, indicatorUlStyle)
+      })
+      //......................................
+      this.$indiBtnToPrev = Ti.Dom.createElement({
+        $p: this.$indicator,
+        tagName: "div",
+        className: "as-indi-btn to-prev"
+      })
+      this.$indiBtnToPrev.innerHTML = `<span><i class="fas fa-chevron-left"></i></span>`
+      //......................................
+      this.$indiBtnToNext = Ti.Dom.createElement({
+        $p: this.$indicator,
+        tagName: "div",
+        className: "as-indi-btn to-next"
+      })
+      this.$indiBtnToNext.innerHTML = `<span><i class="fas fa-chevron-right"></i></span>`
       //......................................
       // Create switcher
       this.$switcher = Ti.Dom.createElement({
@@ -15007,13 +15105,21 @@ const {PhotoGallery} = (function(){
       // Indicator
       //
       this.$indicator.addEventListener("click", ({srcElement})=>{
-        console.log("hahahah")
+        //console.log("hahahah")
+        // Scroll to photo
         let $tile = Ti.Dom.closest(srcElement, "[gallery-index]")
         if($tile) {
           let index = $tile.getAttribute("gallery-index") * 1
           if(index >= 0) {
             this.scrollTo(index)
           }
+          return
+        }
+        // Scroll indicator UL
+        let $btn = Ti.Dom.closest(srcElement, ".as-indi-btn")
+        if($btn) {
+          let direction = Ti.Dom.hasClass($btn, "to-prev") ? 1 : -1
+          this.scrollIndicatorToPage(direction)
         }
       })
       //
@@ -15066,6 +15172,9 @@ const {PhotoGallery} = (function(){
         evt.stopPropagation()
         this.changeZoomScale(1)
       }
+      this.$indicatorUl.addEventListener("transitionend", _.debounce(()=>{
+        this.renderClipIndicatorPhotos()
+      }, 500))
       if("desktop" == this.$doc.documentElement.getAttribute("as")) {
         Ti.Be.Draggable(this.$top, {
           prepare: (drg)=>{
@@ -15710,7 +15819,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210617.180807",
+  "version" : "1.6-20210618.160402",
   "dev" : false,
   "appName" : null,
   "session" : {},
