@@ -195,6 +195,16 @@ export default {
         pager  : this.ComPager,
         detail : this.ComDetail
       }
+    },
+    //------------------------------------------------
+    CurrentObj() {
+      if(this.myCurrentId && _.isArray(this.myList)) {
+        for(let li of this.myList) {
+          if(li.id == this.myCurrentId) {
+            return li
+          }
+        }
+      }
     }
     //------------------------------------------------
   },
@@ -282,6 +292,18 @@ export default {
     },
     async openCurrentPrivilege() {
       return this.$adaptlist.openCurrentPrivilege()
+    },
+    async doCreate() {
+      return this.$adaptlist.doCreate()
+    },
+    async doRename() {
+      return this.$adaptlist.doRename()
+    },
+    async doBatchUpdate() {
+      return this.$adaptlist.doBatchUpdate()
+    },
+    async doMoveTo() {
+      return this.$adaptlist.doMoveTo()
     },
     async doDelete(confirm) {
       return this.$adaptlist.doDelete(confirm)

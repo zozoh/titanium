@@ -8,6 +8,6 @@
   "components" : [
     "@com:ti/obj/thumb",
     "@com:ti/wall",
-    "@com:ti/list",
-    "@com:ti/table"]
+    "@com:wn/list",
+    "@com:wn/table"]
 }

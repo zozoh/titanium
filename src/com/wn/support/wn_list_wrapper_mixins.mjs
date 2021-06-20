@@ -24,11 +24,20 @@ export default {
         }
         // Quick: table.field.display:: thumb->icon
         if(_.isString(it)) {
-          let m = /^@<thumb(:([^>]*))?>$/.exec(it)
+          let m = /^@<thumb(:([^>:]*))?(:([^>]*))?>$/.exec(it)
           if(m) {
             let candidateIcon = m[2] || undefined
+            let key = m[4]
+            if(!key) {
+              key = ["icon", "thumb", "tp", "mime", "race", "__updated_time"]
+            } else {
+              key = key.split(",")
+              if(key.length == 1) {
+                key = key[0]
+              }
+            }
             list.push({
-              key : ["icon", "thumb", "tp", "mime", "race", "__updated_time"],
+              key,
               type : "Object",
               transformer : {
                 name : "Ti.Types.toObject",

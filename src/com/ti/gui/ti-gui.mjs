@@ -82,6 +82,9 @@ const _M = {
     "loadingAs" : {
       type : [Boolean, Object],
       default : undefined
+    },
+    "loading": {
+      type: Boolean
     }
   },
   //////////////////////////////////////////
@@ -158,7 +161,7 @@ const _M = {
     //--------------------------------------
     isLoading() {
       return this.canLoading 
-             && this.loadingAs 
+             && (this.loadingAs || this.loading)
                   ? true 
                   : false
     },

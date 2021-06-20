@@ -49,7 +49,9 @@ const _M = {
     //---------------------------------------
     // Status
     //---------------------------------------
-    isLoading() {return this.loading || this.isReloading},
+    isLoading() {
+      return this.loading || this.isReloading || this.isGuiLoading
+    },
     isViewReady() {return this.myViewReady},
     //---------------------------------------
     isChanged() {
@@ -62,6 +64,7 @@ const _M = {
     //---------------------------------------
     isSaving()    {return _.get(this.status, "saving")},
     isReloading() {return _.get(this.status, "reloading")},
+    isGuiLoading() {return _.get(this.status, "guiLoading")},
     //---------------------------------------
     hasActions(){return !_.isEmpty(this.actions)},
     hasView()   {return this.view   ? true : false},

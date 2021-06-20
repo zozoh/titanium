@@ -23,8 +23,8 @@ const _M = {
     MainComType() {
       return ({
         "wall"  : "TiWall",
-        "list"  : "TiList",
-        "table" : "TiTable"
+        "list"  : "WnList",
+        "table" : "WnTable"
       })[this.viewType] || "TiWall"
     },
     //--------------------------------------------

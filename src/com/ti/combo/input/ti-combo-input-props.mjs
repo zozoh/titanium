@@ -74,6 +74,10 @@ export default {
     type: [Object, String, Function],
     default: undefined
   },
+  "inputPrefixTextDisplay": {
+    type: [Object, String, Function],
+    default: undefined
+  },
   "inputSuffixTextDisplay": {
     type: [Object, String, Function],
     default: undefined

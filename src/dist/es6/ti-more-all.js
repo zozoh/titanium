@@ -1,4 +1,4 @@
-// Pack At: 2021-06-18 17:54:08
+// Pack At: 2021-06-21 02:23:06
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -915,8 +915,8 @@ const _M = {
     MainComType() {
       return ({
         "wall"  : "TiWall",
-        "list"  : "TiList",
-        "table" : "TiTable"
+        "list"  : "WnList",
+        "table" : "WnTable"
       })[this.viewType] || "TiWall"
     },
     //--------------------------------------------
@@ -3882,7 +3882,7 @@ const _M = {
       let val = _.assign({}, this.value)
       this.myFreeValue = val.keyword
       this.myFormData  = val.match
-      this.myMajorKey   = val.majorKey
+      this.myMajorKey   = val.majorKey || this.majorKey
       this.myMajorValue = val.majorValue
     },
     //-----------------------------------------------
@@ -12125,6 +12125,10 @@ const _M = {
       state.filter = _.cloneDeep(filter)
     },
     //----------------------------------------
+    setFilterBy(state, filterBy) {
+      state.filterBy = filterBy
+    },
+    //----------------------------------------
     clearFilter(state) {
       let flt = _.cloneDeep(state.filter)
       flt.keyword = null
@@ -18564,6 +18568,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: [Object, String, Function],
     default: undefined
   },
+  "inputPrefixTextDisplay": {
+    type: [Object, String, Function],
+    default: undefined
+  },
   "inputSuffixTextDisplay": {
     type: [Object, String, Function],
     default: undefined
@@ -18949,27 +18957,27 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/label/ti-label.mjs'] = (function(){
 const _M = {
   //////////////////////////////////////////
-  data : ()=>({
-    myDisplayIcon : undefined,
-    myDisplayText : undefined,
-    myDictValKey  : undefined
+  data: () => ({
+    myDisplayIcon: undefined,
+    myDisplayText: undefined,
+    myDictValKey: undefined
   }),
   //////////////////////////////////////////
   props: {
     "autoLoadDictIcon": {
-      type : Boolean,
+      type: Boolean,
       default: true
     },
-    "valueClickable" : {
-      type : Boolean,
+    "valueClickable": {
+      type: Boolean,
       default: false
     },
     "fullField": {
-      type : Boolean,
-      default : true
+      type: Boolean,
+      default: true
     },
-    "multiValSep" : {
-      type : String,
+    "multiValSep": {
+      type: String,
       default: ", "
     },
     "hoverable": {
@@ -18987,35 +18995,35 @@ const _M = {
     "hoverNotifyPayload": undefined
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-blank"   : !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue),
-        "is-nowrap"  : this.valueMaxWidth>0,
-        "full-field" : this.fullField
+        "is-blank": !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue),
+        "is-nowrap": this.valueMaxWidth > 0,
+        "full-field": this.fullField
       })
     },
     //--------------------------------------
     TopStyle() {
       return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
+        width: this.width,
+        height: this.height
       })
     },
     //--------------------------------------
     TheFormat() {
-      if(_.isFunction(this.format)) {
+      if (_.isFunction(this.format)) {
         return this.format
       }
-      if(this.format) {
-        if(this.autoI18n) {
+      if (this.format) {
+        if (this.autoI18n) {
           let str = Ti.I18n.text(this.format)
-          return (val)=> {
+          return (val) => {
             return Ti.S.renderVars(val, str)
           }
         }
-        return (val)=> {
+        return (val) => {
           return Ti.S.renderVars(val, this.format)
         }
       }
@@ -19023,12 +19031,12 @@ const _M = {
     //--------------------------------------
     ValueStyle() {
       return Ti.Css.toStyle({
-        maxWidth : this.valueMaxWidth
+        maxWidth: this.valueMaxWidth
       })
     },
     //--------------------------------------
     ThePrefixIcon() {
-      if(null === this.prefixIcon)
+      if (null === this.prefixIcon)
         return null
       return this.myDisplayIcon || this.prefixIcon
     },
@@ -19044,8 +19052,8 @@ const _M = {
     TheHover() {
       let map = {}
       let hos = _.concat(this.hover)
-      for(let ho of hos) {
-        if(ho) {
+      for (let ho of hos) {
+        if (ho) {
           map[ho] = true
         }
       }
@@ -19055,7 +19063,7 @@ const _M = {
     TheValue() {
       let str = this.value
       // Auto trim
-      if(this.trim && _.isString(str)) {
+      if (this.trim && _.isString(str)) {
         return _.trim(str)
       }
       // Return it directly
@@ -19063,14 +19071,14 @@ const _M = {
     },
     //--------------------------------------
     Dict() {
-      if(this.dict) {
+      if (this.dict) {
         // Already Dict
-        if(this.dict instanceof Ti.Dict) {
+        if (this.dict instanceof Ti.Dict) {
           this.myDictValKey = ".text"
           return this.dict
         }
         // Get back
-        let {name, vKey} = Ti.DictFactory.explainDictName(this.dict)
+        let { name, vKey } = Ti.DictFactory.explainDictName(this.dict)
         this.myDictValKey = vKey || ".text"
         return Ti.DictFactory.CheckDict(name)
       }
@@ -19078,12 +19086,12 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnMouseEnter() {
-      if(this.hoverable && this.enterNotifyName) {
+      if (this.hoverable && this.enterNotifyName) {
         let pld = _.assign({
-          $el : this.$el,
+          $el: this.$el,
           value: this.value,
         }, this.hoverNotifyPayload)
         this.$notify(this.enterNotifyName, pld)
@@ -19091,9 +19099,9 @@ const _M = {
     },
     //--------------------------------------
     OnMouseLeave() {
-      if(this.hoverable && this.leaveNotifyName) {
+      if (this.hoverable && this.leaveNotifyName) {
         let pld = _.assign({
-          $el : this.$el,
+          $el: this.$el,
           value: this.value,
         }, this.hoverNotifyPayload)
         this.$notify(this.leaveNotifyName, pld)
@@ -19107,17 +19115,17 @@ const _M = {
     getHoverClass(hoverName) {
       let canHover = this.isCanHover(hoverName)
       return {
-        "can-hover" : canHover,
-        "for-look"  : !canHover,
-        "is-prefix-icon-hover" : "prefixIcon" == hoverName
+        "can-hover": canHover,
+        "for-look": !canHover,
+        "is-prefix-icon-hover": "prefixIcon" == hoverName
       }
     },
     //--------------------------------------
     OnDblClick() {
-      if(this.editable) {
+      if (this.editable) {
         Ti.Be.EditIt(this.$el, {
           text: this.TheValue,
-          ok : (newVal)=> {
+          ok: (newVal) => {
             let val = Ti.S.toCase(newVal, this.valueCase)
             this.$notify("change", val)
           }
@@ -19134,7 +19142,7 @@ const _M = {
     },
     //------------------------------------------------
     OnClickValue() {
-      if(this.valueClickable) {
+      if (this.valueClickable) {
         this.$notify("click:value")
       }
     },
@@ -19148,84 +19156,91 @@ const _M = {
     },
     //--------------------------------------
     async evalDisplay(val) {
-      if(_.isString(val) && Ti.S.isBlank(val)) {
-        return  Ti.I18n.get("blank")
+      if (_.isString(val) && Ti.S.isBlank(val)) {
+        return Ti.I18n.get("blank")
       }
       // By Dict Item
-      if(this.Dict) {
+      if (this.Dict) {
         // Array value
-        if(_.isArray(val)) {
+        if (_.isArray(val)) {
           this.myDisplayIcon = undefined
           let ss = []
-          for(let v of val) {
+          for (let v of val) {
             let it = await this.Dict.getItem(v)
             let s = this.Dict.getBy(this.myDictValKey, it, v)
-            ss.push(s)
+            if (!Ti.Util.isNil(s) || this.valueMustInDict) {
+              ss.push(s)
+            } else {
+              ss.push(v)
+            }
           }
           val = ss.join(this.multiValSep)
         }
         // Single value
         else {
           let it = await this.Dict.getItem(val)
-          if(it) {
-            if(this.autoLoadDictIcon) {
+          if (it) {
+            if (this.autoLoadDictIcon) {
               this.myDisplayIcon = this.Dict.getIcon(it)
             }
-            val = this.Dict.getBy(this.myDictValKey, it, val)
-          } else {
+            let v2 = this.Dict.getBy(this.myDictValKey, it, val)
+            if (!Ti.Util.isNil(v2) || this.valueMustInDict) {
+              val = v2
+            }
+          } else if (this.valueMustInDict) {
             val = null
             this.myDisplayIcon = null
           }
         }
       }
       // Number
-      if(_.isNumber(val)) {
-        if(this.TheFormat) {
+      if (_.isNumber(val)) {
+        if (this.TheFormat) {
           return Ti.Types.toStr(val, this.TheFormat)
         }
         return val
       }
       // Collection
-      if(_.isArray(val)) {
-        if(this.format) {
+      if (_.isArray(val)) {
+        if (this.format) {
           let ss = []
-          for(let v of val) {
+          for (let v of val) {
             // [{...}, {...}]
-            if(_.isPlainObject(v)) {
-              ss.push(Ti.S.renderBy(this.format, v))  
+            if (_.isPlainObject(v)) {
+              ss.push(Ti.S.renderBy(this.format, v))
             }
             // ['xxx',  'xxx']
             else {
-              ss.push(Ti.S.renderBy(this.format, {val: v}))  
+              ss.push(Ti.S.renderBy(this.format, { val: v }))
             }
           }
           return ss.join(this.multiValSep)
         }
-        if(val.length > 1 && (_.isPlainObject(val[0]) || _.isArray(val[0]))) {
-          return JSON.stringify(val)  
+        if (val.length > 1 && (_.isPlainObject(val[0]) || _.isArray(val[0]))) {
+          return JSON.stringify(val)
         }
         return val.join(this.multiValSep)
       }
       // Auto format
-      if(_.isFunction(this.TheFormat)) {
+      if (_.isFunction(this.TheFormat)) {
         return this.TheFormat(val)
       }
       // Object
-      if(_.isPlainObject(val)) {
+      if (_.isPlainObject(val)) {
         return JSON.stringify(val, null, '  ')
       }
       // Normal value
-      if(Ti.Util.isNil(val)) {
+      if (Ti.Util.isNil(val)) {
         return Ti.I18n.text(this.placeholder)
       }
       // Date
-      if(_.isDate(val)) {
+      if (_.isDate(val)) {
         return Ti.Types.toStr(val, this.TheFormat)
       }
       // Return & auto-i18n
-      return this.autoI18n 
-              ? Ti.I18n.text(val)
-              : val
+      return this.autoI18n
+        ? Ti.I18n.text(val)
+        : val
     },
     //--------------------------------------
     async reloadMyDisplay() {
@@ -19235,10 +19250,10 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "value" : {
-      handler   : "reloadMyDisplay",
-      immediate : true
+  watch: {
+    "value": {
+      handler: "reloadMyDisplay",
+      immediate: true
     }
   }
   //////////////////////////////////////////
@@ -21984,7 +21999,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     OnDataChange(data) {
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
-      let md = (7 << 6) | (m0 << 3) | (m0)
+      let md = (7 << 6) | (7 << 3) | (m0)
       let val = _.cloneDeep(this.value)
       val[key] = md
       this.$notify("change", val)
@@ -22308,7 +22323,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
         //
         // Department
         m = /^dept:([^>]+)>(.+)$/.exec(id)
-        console.log(m)
         if (m) {
           let comId = m[1]
           let deptId = m[2]
@@ -23597,84 +23611,88 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "value" : null,
-  "dict" : {
-    type : [String, Ti.Dict],
-    default : undefined
+  "value": null,
+  "dict": {
+    type: [String, Ti.Dict],
+    default: undefined
   },
-  "valueCase" : {
-    type : String,
-    default : undefined,
-    validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
+  "valueMustInDict": {
+    type: Boolean,
+    default: true
   },
-  "trimed" : {
-    type : Boolean,
-    default : true
+  "valueCase": {
+    type: String,
+    default: undefined,
+    validator: (cs) => (Ti.Util.isNil(cs) || Ti.S.isValidCase(cs))
   },
-  "format" : {
-    type : [String, Function],
-    default : undefined
+  "trimed": {
+    type: Boolean,
+    default: true
+  },
+  "format": {
+    type: [String, Function],
+    default: undefined
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "href" : {
-    type : String,
-    default : undefined
+  "href": {
+    type: String,
+    default: undefined
   },
-  "newTab" : {
-    type : Boolean,
-    default : false
+  "newTab": {
+    type: Boolean,
+    default: false
   },
-  "editable" : {
-    type : Boolean,
-    default : false
+  "editable": {
+    type: Boolean,
+    default: false
   },
-  "hover" : {
-    type : [Array, String],
-    default : ()=>["suffixIcon"]
+  "hover": {
+    type: [Array, String],
+    default: () => ["suffixIcon"]
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "placeholder" : {
-    type : [String, Number],
-    default : "i18n:nil"
+  "placeholder": {
+    type: [String, Number],
+    default: "i18n:nil"
   },
-  "autoI18n" : {
-    type : Boolean,
-    default : true
+  "autoI18n": {
+    type: Boolean,
+    default: true
   },
-  "prefixIcon" : {
-    type : String,
-    default : undefined
+  "prefixIcon": {
+    type: String,
+    default: undefined
   },
-  "prefixText" : {
-    type : [String, Number],
-    default : undefined
+  "prefixText": {
+    type: [String, Number],
+    default: undefined
   },
-  "suffixText" : {
-    type : String,
-    default : undefined
+  "suffixText": {
+    type: String,
+    default: undefined
   },
-  "suffixIcon" : {
-    type : [String, Number],
-    default : undefined
+  "suffixIcon": {
+    type: [String, Number],
+    default: undefined
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "width" : {
-    type : [Number, String],
-    default : undefined
+  "width": {
+    type: [Number, String],
+    default: undefined
   },
-  "height" : {
-    type : [Number, String],
-    default : undefined
+  "height": {
+    type: [Number, String],
+    default: undefined
   },
-  "valueMaxWidth" : {
-    type : [Number, String],
-    default : undefined
+  "valueMaxWidth": {
+    type: [Number, String],
+    default: undefined
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -25604,11 +25622,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
         // Quick: table.field.display:: thumb->icon
         if(_.isString(it)) {
-          let m = /^@<thumb(:([^>]*))?>$/.exec(it)
+          let m = /^@<thumb(:([^>:]*))?(:([^>]*))?>$/.exec(it)
           if(m) {
             let candidateIcon = m[2] || undefined
+            let key = m[4]
+            if(!key) {
+              key = ["icon", "thumb", "tp", "mime", "race", "__updated_time"]
+            } else {
+              key = key.split(",")
+              if(key.length == 1) {
+                key = key[0]
+              }
+            }
             list.push({
-              key : ["icon", "thumb", "tp", "mime", "race", "__updated_time"],
+              key,
               type : "Object",
               transformer : {
                 name : "Ti.Types.toObject",
@@ -26764,7 +26791,9 @@ const _M = {
     //---------------------------------------
     // Status
     //---------------------------------------
-    isLoading() {return this.loading || this.isReloading},
+    isLoading() {
+      return this.loading || this.isReloading || this.isGuiLoading
+    },
     isViewReady() {return this.myViewReady},
     //---------------------------------------
     isChanged() {
@@ -26777,6 +26806,7 @@ const _M = {
     //---------------------------------------
     isSaving()    {return _.get(this.status, "saving")},
     isReloading() {return _.get(this.status, "reloading")},
+    isGuiLoading() {return _.get(this.status, "guiLoading")},
     //---------------------------------------
     hasActions(){return !_.isEmpty(this.actions)},
     hasView()   {return this.view   ? true : false},
@@ -28029,6 +28059,14 @@ const _M = {
       }
       return icon
     },
+    //--------------------------------------
+    ThePrefixText() {
+      return Ti.Util.explainObj(this, this.prefixText)
+    },
+    //--------------------------------------
+    TheSuffixText() {
+      return Ti.Util.explainObj(this, this.suffixText)
+    },
     //------------------------------------------------
     TheHover() {
       let map = {}
@@ -28667,15 +28705,18 @@ const _M = {
   },
   //----------------------------------------
   async reloadData({state, commit, dispatch}) {
-    if(state.status.reloading
-      || !state.path){
+    if(state.status.reloading) {
       return
     }
     //......................................
     // Init content as null
     commit("setStatus", {reloading:true})
     //......................................
-    let cmds = [`o '${state.path}' @query -pager -mine -hidden`]
+    let cmds = ['o']
+    if(state.path) {
+      cmds.push(`'${state.path}'`)
+    }
+    cmds.push('@query -pager -mine -hidden')
     //
     // Setup pager
     //
@@ -28705,6 +28746,12 @@ const _M = {
         commit("clearFilter")
         dispatch("saveSearchSetting", {filter:state.filter})
       }
+      //console.log("customized filter", flt)
+      // Customized filter
+      let filterBy = Ti.Util.explainObj(state, state.filterBy)
+      if (_.isFunction(filterBy)) {
+        flt = filterBy({ state }, flt) || flt
+      }
       input = JSON.stringify(flt)
     }
     cmds.push('@json -cqnl')
@@ -28720,26 +28767,13 @@ const _M = {
     let config = await Wn.Io.loadContent(state.meta, {as:"json"})
     commit("setStatus", {reloading:false})
     //
-    // Default value of configuration
-    //
-    _.defaults(config, {
-      search: {
-        "defaultKey": "nm",
-        "keyword": {
-          "=id": "^[\\d\\w]{26}$",
-          "~nm": "^[a-z0-9]{10}$",
-          "title": "^.+"
-        },
-        "match": {}
-      }
-    })
-    //
     // Commit to state
     //
     commit("setKeepSearch", Ti.Util.fallback(
       config.keepSearch, state.keepSearch, true))
     commit("setSearch", Ti.Util.fallback(config.search, state.search, {}))
     commit("setFilter", Ti.Util.fallback(config.filter, state.filter, {}))
+    commit("setFilterBy", Ti.Util.fallback(config.filterBy, state.filterBy))
     commit("setSorter", Ti.Util.fallback(config.sorter, state.sorter, {nm:1}))
     commit("setPageNumber", Ti.Util.fallback(config.pageNumber, state.pageNumber, 1))
     commit("setPageSize", Ti.Util.fallback(config.pageSize, state.pageSize, 1000))
@@ -28766,7 +28800,6 @@ const _M = {
     // Guard
     if(!meta) {
       commit("setMeta", null)
-      return
     }
     // Save current meta as config object
     commit("setMeta", meta)
@@ -41711,10 +41744,12 @@ const _M = {
       return
     }
     //......................................
+    let { meta } = state
+    //......................................
     // Init content as null
     commit("setStatus", { reloading: true })
     //......................................
-    let cmds = [`o 'id:${state.meta.id}' @query -pager -mine -hidden`]
+    let cmds = ['o', '@query -pager -mine -hidden']
     //
     // Setup pager
     //
@@ -41744,6 +41779,13 @@ const _M = {
         commit("clearFilter")
         dispatch("saveSearchSetting", { filter: state.filter })
       }
+      // Add the parentID
+      flt.pid = meta.id
+      // Customized filter
+      let filterBy = Ti.Util.explainObj(state, state.filterBy)
+      if (_.isFunction(filterBy)) {
+        flt = filterBy({ state }, flt) || flt
+      }
       input = JSON.stringify(flt)
     }
     cmds.push('@json -cqnl')
@@ -41765,20 +41807,6 @@ const _M = {
       }
       commit("setStatus", { reloading: false })
     }
-    //
-    // Default value of configuration
-    //
-    _.defaults(config, {
-      search: {
-        "defaultKey": "nm",
-        "keyword": {
-          "=id": "^[\\d\\w]{26}$",
-          "~nm": "^[a-z0-9]{10}$",
-          "title": "^.+"
-        },
-        "match": {}
-      }
-    })
     //
     // Commit to state
     //
@@ -48244,6 +48272,9 @@ const _M = {
     "loadingAs" : {
       type : [Boolean, Object],
       default : undefined
+    },
+    "loading": {
+      type: Boolean
     }
   },
   //////////////////////////////////////////
@@ -48320,7 +48351,7 @@ const _M = {
     //--------------------------------------
     isLoading() {
       return this.canLoading 
-             && this.loadingAs 
+             && (this.loadingAs || this.loading)
                   ? true 
                   : false
     },
@@ -49029,6 +49060,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
         pager  : this.ComPager,
         detail : this.ComDetail
       }
+    },
+    //------------------------------------------------
+    CurrentObj() {
+      if(this.myCurrentId && _.isArray(this.myList)) {
+        for(let li of this.myList) {
+          if(li.id == this.myCurrentId) {
+            return li
+          }
+        }
+      }
     }
     //------------------------------------------------
   },
@@ -49116,6 +49157,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     async openCurrentPrivilege() {
       return this.$adaptlist.openCurrentPrivilege()
+    },
+    async doCreate() {
+      return this.$adaptlist.doCreate()
+    },
+    async doRename() {
+      return this.$adaptlist.doRename()
+    },
+    async doBatchUpdate() {
+      return this.$adaptlist.doBatchUpdate()
+    },
+    async doMoveTo() {
+      return this.$adaptlist.doMoveTo()
     },
     async doDelete(confirm) {
       return this.$adaptlist.doDelete(confirm)
@@ -51477,6 +51530,19 @@ const _M = {
       return this.myFreeValue
     },
     //------------------------------------------------
+    InputPrefixText() {
+      if (this.myItem) {
+        if(!_.isUndefined(this.inputPrefixTextDisplay)) {
+          return Ti.Util.explainObj(this.myItem, this.inputPrefixTextDisplay, {
+            evalFunc: true
+          })
+        }
+        return Ti.Util.explainObj(this.myItem, this.prefixText)
+        //return this.Dict.getValue(this.myItem)
+      }
+      return Ti.Util.explainObj(this, this.prefixText)
+    },
+    //------------------------------------------------
     InputSuffixText() {
       if (this.myItem) {
         if(!_.isUndefined(this.inputSuffixTextDisplay)) {
@@ -51484,9 +51550,10 @@ const _M = {
             evalFunc: true
           })
         }
+        return Ti.Util.explainObj(this.myItem, this.suffixText)
         //return this.Dict.getValue(this.myItem)
       }
-      return this.suffixText
+      return Ti.Util.explainObj(this, this.suffixText)
     },
     //------------------------------------------------
     GetValueBy() {
@@ -55100,42 +55167,46 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'ti-combo-filter-props.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/combo/filter/ti-combo-filter-props.mjs'] = (function(){
-const _M  = {
-  "major" : {
-    type : Object,
-    default : undefined
+const _M = {
+  "major": {
+    type: Object,
+    default: undefined
   },
-  "form" : {
-    type : Object,
-    default : undefined
+  "majorKey": {
+    type: String,
+    default: undefined
   },
-  "autoCollapse" : {
-    type : Boolean,
-    default : false
+  "form": {
+    type: Object,
+    default: undefined
   },
-  "statusIcons" : {
-    type : Object,
-    default : ()=>({
-      collapse : "zmdi-chevron-down",
-      extended : "zmdi-chevron-up"
+  "autoCollapse": {
+    type: Boolean,
+    default: false
+  },
+  "statusIcons": {
+    type: Object,
+    default: () => ({
+      collapse: "zmdi-chevron-down",
+      extended: "zmdi-chevron-up"
     })
   },
   "autoFocusExtended": {
     type: Boolean,
     default: true
   },
-  "spacing" : {
-    type : String,
-    default : "tiny",
-    validator : v => /^(none|comfy|tiny)$/.test(v)
+  "spacing": {
+    type: String,
+    default: "tiny",
+    validator: v => /^(none|comfy|tiny)$/.test(v)
   },
-  "dropWidth" : {
-    type : [Number, String],
-    default : "box"
+  "dropWidth": {
+    type: [Number, String],
+    default: "box"
   },
-  "dropHeight" : {
-    type : [Number, String],
-    default : undefined
+  "dropHeight": {
+    type: [Number, String],
+    default: undefined
   }
 }
 return _M;;
@@ -59384,6 +59455,7 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box
 
       :value="InputValue"
       :prefix-icon="ThePrefixIcon"
+      :prefix-text="InputPrefixText"
       :suffix-text="InputSuffixText"
       :suffix-icon="TheSuffixIcon"
 
@@ -61206,13 +61278,13 @@ Ti.Preload("ti/com/ti/input/ti-input.html", `<div class="ti-input full-field"
     <ti-icon :value="ThePrefixIcon"/>
   </div>
   <!--prefix:text-->
-  <div v-if="prefixText" 
+  <div v-if="ThePrefixText" 
     class="as-input-text at-prefix"
     :class="getHoverClass('prefixText')"
     @click.left="OnClickPrefixText"
     @mouseenter="pointerHover='prefixText'"
     @mouseleave="pointerHover=null">
-    <span>{{prefixText|i18n}}</span>
+    <span>{{ThePrefixText|i18n}}</span>
   </div>
   <!--PreSlot-->
   <slot></slot>
@@ -61233,13 +61305,13 @@ Ti.Preload("ti/com/ti/input/ti-input.html", `<div class="ti-input full-field"
       @blur="OnInputBlur"
       @keypress="OnInputKeyPress">
     <!--suffix:text-->
-    <div v-if="suffixText"
+    <div v-if="TheSuffixText"
       class="as-input-text at-suffix"
       :class="getHoverClass('suffixText')"
       @click.left="OnClickSuffixText"
       @mouseenter="pointerHover='suffixText'"
       @mouseleave="pointerHover=null">
-      <span>{{suffixText|i18n}}</span>
+      <span>{{TheSuffixText|i18n}}</span>
     </div>
     <!--suffix:icon-->
     <div v-if="suffixIcon"
@@ -67311,8 +67383,8 @@ Ti.Preload("ti/com/wn/adaptlist/_com.json", {
   "components" : [
     "@com:ti/obj/thumb",
     "@com:ti/wall",
-    "@com:ti/list",
-    "@com:ti/table"]
+    "@com:wn/list",
+    "@com:wn/table"]
 });
 //========================================
 // JOIN <wn-browser.html> ti/com/wn/browser/wn-browser.html
@@ -69611,6 +69683,7 @@ Ti.Preload("ti/mod/wn/obj-browser/m-obj-browser.json", {
     "majorKey": null,
     "match": {}
   },
+  "filterBy": null,
   "filter": {
     "keyword": null,
     "match": null,
@@ -69649,6 +69722,7 @@ Ti.Preload("ti/mod/wn/obj-children/m-obj-children-actions.mjs", TI_PACK_EXPORTS[
 Ti.Preload("ti/mod/wn/obj-children/m-obj-children.json", {
   "meta": null,
   "keepSearch": false,
+  "filterBy": null,
   "data": {
     "list": [],
     "pager": {}
@@ -69735,7 +69809,8 @@ Ti.Preload("ti/mod/wn/obj-current/m-obj-current.json", {
   "status" : {
     "changed"   : false,
     "saving"    : false,
-    "reloading" : false
+    "reloading" : false,
+    "guiLoading" : false
   },
   "fieldStatus" : {}
 });
@@ -70330,6 +70405,7 @@ Ti.Preload("/a/load/wn.manager/wn-manager.html", `<ti-gui
   :shown="GuiShown"
   :can-loading="GuiCanLoading"
   :loading-as="GuiLoadingAs"
+  :loading="isGuiLoading"
   @sky::menu::update:me:vars="OnUpdateMyVars"
   @do:logout="OnLogout"
   @item:active="OnCurrentMetaChange"
@@ -71111,6 +71187,10 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "role-as-guest": "Guest",
   "role-as-normal": "Normal",
   "role-as-vip": "VIP",
+  "role-as-domain": "Domain role",
+  "role-as-domain-admin": "Admin",
+  "role-as-domain-member": "Member",
+  "role-as-domain-guest": "Guest",
   "role-dft": "Default role",
   "role-flt-tip": "Filter by role name",
   "role-manage": "Roles",
@@ -72541,6 +72621,10 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "role-as-guest": "访客",
   "role-as-normal": "普通用户",
   "role-as-vip": "VIP用户",
+  "role-as-domain": "域角色",
+  "role-as-domain-admin": "管理员",
+  "role-as-domain-member": "成员",
+  "role-as-domain-guest": "访客",
   "role-dft": "默认角色",
   "role-flt-tip": "请输入角色名过滤",
   "role-manage": "角色管理",
@@ -73930,6 +74014,10 @@ Ti.Preload("ti/i18n/zh-hk/web.i18n.json", {
    "role-as-guest": "訪客",
    "role-as-normal": "普通用戶",
    "role-as-vip": "VIP用戶",
+   "role-as-domain": "域角色",
+   "role-as-domain-admin": "域管理員",
+   "role-as-domain-member": "域成員",
+   "role-as-domain-guest": "域訪客",
    "role-dft": "默認角色",
    "role-flt-tip": "請輸入角色名過濾",
    "role-manage": "角色管理",

@@ -64,10 +64,12 @@ const _M = {
       return
     }
     //......................................
+    let { meta } = state
+    //......................................
     // Init content as null
     commit("setStatus", { reloading: true })
     //......................................
-    let cmds = [`o 'id:${state.meta.id}' @query -pager -mine -hidden`]
+    let cmds = ['o', '@query -pager -mine -hidden']
     //
     // Setup pager
     //
@@ -97,6 +99,13 @@ const _M = {
         commit("clearFilter")
         dispatch("saveSearchSetting", { filter: state.filter })
       }
+      // Add the parentID
+      flt.pid = meta.id
+      // Customized filter
+      let filterBy = Ti.Util.explainObj(state, state.filterBy)
+      if (_.isFunction(filterBy)) {
+        flt = filterBy({ state }, flt) || flt
+      }
       input = JSON.stringify(flt)
     }
     cmds.push('@json -cqnl')
@@ -118,20 +127,6 @@ const _M = {
       }
       commit("setStatus", { reloading: false })
     }
-    //
-    // Default value of configuration
-    //
-    _.defaults(config, {
-      search: {
-        "defaultKey": "nm",
-        "keyword": {
-          "=id": "^[\\d\\w]{26}$",
-          "~nm": "^[a-z0-9]{10}$",
-          "title": "^.+"
-        },
-        "match": {}
-      }
-    })
     //
     // Commit to state
     //

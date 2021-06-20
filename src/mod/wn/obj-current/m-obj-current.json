@@ -3,7 +3,8 @@
   "status" : {
     "changed"   : false,
     "saving"    : false,
-    "reloading" : false
+    "reloading" : false,
+    "guiLoading" : false
   },
   "fieldStatus" : {}
 }

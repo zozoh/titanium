@@ -1,4 +1,4 @@
-// Pack At: 2021-06-18 17:54:08
+// Pack At: 2021-06-21 02:23:06
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1313,8 +1313,8 @@ const Session = (function(){
   ////////////////////////////////////////////
   const WnSession = {
     //----------------------------------------
-    setup({id,uid,unm,grp,envs={}}={}) {
-      _.assign(SESSION, {id,uid,unm,grp})
+    setup({id,uid,unm,me,grp,envs={}}={}) {
+      _.assign(SESSION, {id,uid,unm,me,grp})
       WnSession.env(envs)
     },
     //----------------------------------------
@@ -1340,6 +1340,10 @@ const Session = (function(){
     getMyId() {return SESSION.uid},
     getMyName() {return SESSION.unm},
     getMyGroup() {return SESSION.grp},
+    //----------------------------------------
+    getMe() {
+      return SESSION.me
+    },
     //----------------------------------------
     getHomePath() {
       return WnSession.env("HOME")
@@ -4009,7 +4013,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210618.175408"
+const WALNUT_VERSION = "1.2-20210621.022306"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

@@ -22,6 +22,10 @@ const _M = {
       state.filter = _.cloneDeep(filter)
     },
     //----------------------------------------
+    setFilterBy(state, filterBy) {
+      state.filterBy = filterBy
+    },
+    //----------------------------------------
     clearFilter(state) {
       let flt = _.cloneDeep(state.filter)
       flt.keyword = null

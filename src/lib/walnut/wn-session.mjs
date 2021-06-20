@@ -4,8 +4,8 @@ const SESSION = {}
 ////////////////////////////////////////////
 const WnSession = {
   //----------------------------------------
-  setup({id,uid,unm,grp,envs={}}={}) {
-    _.assign(SESSION, {id,uid,unm,grp})
+  setup({id,uid,unm,me,grp,envs={}}={}) {
+    _.assign(SESSION, {id,uid,unm,me,grp})
     WnSession.env(envs)
   },
   //----------------------------------------
@@ -31,6 +31,10 @@ const WnSession = {
   getMyId() {return SESSION.uid},
   getMyName() {return SESSION.unm},
   getMyGroup() {return SESSION.grp},
+  //----------------------------------------
+  getMe() {
+    return SESSION.me
+  },
   //----------------------------------------
   getHomePath() {
     return WnSession.env("HOME")

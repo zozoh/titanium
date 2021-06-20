@@ -16,6 +16,7 @@
     "majorKey": null,
     "match": {}
   },
+  "filterBy": null,
   "filter": {
     "keyword": null,
     "match": null,

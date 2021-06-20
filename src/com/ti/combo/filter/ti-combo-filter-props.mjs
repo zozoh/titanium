@@ -1,39 +1,43 @@
-const _M  = {
-  "major" : {
-    type : Object,
-    default : undefined
+const _M = {
+  "major": {
+    type: Object,
+    default: undefined
   },
-  "form" : {
-    type : Object,
-    default : undefined
+  "majorKey": {
+    type: String,
+    default: undefined
   },
-  "autoCollapse" : {
-    type : Boolean,
-    default : false
+  "form": {
+    type: Object,
+    default: undefined
   },
-  "statusIcons" : {
-    type : Object,
-    default : ()=>({
-      collapse : "zmdi-chevron-down",
-      extended : "zmdi-chevron-up"
+  "autoCollapse": {
+    type: Boolean,
+    default: false
+  },
+  "statusIcons": {
+    type: Object,
+    default: () => ({
+      collapse: "zmdi-chevron-down",
+      extended: "zmdi-chevron-up"
     })
   },
   "autoFocusExtended": {
     type: Boolean,
     default: true
   },
-  "spacing" : {
-    type : String,
-    default : "tiny",
-    validator : v => /^(none|comfy|tiny)$/.test(v)
+  "spacing": {
+    type: String,
+    default: "tiny",
+    validator: v => /^(none|comfy|tiny)$/.test(v)
   },
-  "dropWidth" : {
-    type : [Number, String],
-    default : "box"
+  "dropWidth": {
+    type: [Number, String],
+    default: "box"
   },
-  "dropHeight" : {
-    type : [Number, String],
-    default : undefined
+  "dropHeight": {
+    type: [Number, String],
+    default: undefined
   }
 }
 export default _M;

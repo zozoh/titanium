@@ -245,7 +245,7 @@ export default {
     OnDataChange(data) {
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
-      let md = (7 << 6) | (m0 << 3) | (m0)
+      let md = (7 << 6) | (7 << 3) | (m0)
       let val = _.cloneDeep(this.value)
       val[key] = md
       this.$notify("change", val)
@@ -569,7 +569,6 @@ export default {
         //
         // Department
         m = /^dept:([^>]+)>(.+)$/.exec(id)
-        console.log(m)
         if (m) {
           let comId = m[1]
           let deptId = m[2]

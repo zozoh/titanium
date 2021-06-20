@@ -12,13 +12,13 @@
     <ti-icon :value="ThePrefixIcon"/>
   </div>
   <!--prefix:text-->
-  <div v-if="prefixText" 
+  <div v-if="ThePrefixText" 
     class="as-input-text at-prefix"
     :class="getHoverClass('prefixText')"
     @click.left="OnClickPrefixText"
     @mouseenter="pointerHover='prefixText'"
     @mouseleave="pointerHover=null">
-    <span>{{prefixText|i18n}}</span>
+    <span>{{ThePrefixText|i18n}}</span>
   </div>
   <!--PreSlot-->
   <slot></slot>
@@ -39,13 +39,13 @@
       @blur="OnInputBlur"
       @keypress="OnInputKeyPress">
     <!--suffix:text-->
-    <div v-if="suffixText"
+    <div v-if="TheSuffixText"
       class="as-input-text at-suffix"
       :class="getHoverClass('suffixText')"
       @click.left="OnClickSuffixText"
       @mouseenter="pointerHover='suffixText'"
       @mouseleave="pointerHover=null">
-      <span>{{suffixText|i18n}}</span>
+      <span>{{TheSuffixText|i18n}}</span>
     </div>
     <!--suffix:icon-->
     <div v-if="suffixIcon"

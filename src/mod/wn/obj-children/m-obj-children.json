@@ -1,6 +1,7 @@
 {
   "meta": null,
   "keepSearch": false,
+  "filterBy": null,
   "data": {
     "list": [],
     "pager": {}

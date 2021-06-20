@@ -63,6 +63,19 @@ const _M = {
       return this.myFreeValue
     },
     //------------------------------------------------
+    InputPrefixText() {
+      if (this.myItem) {
+        if(!_.isUndefined(this.inputPrefixTextDisplay)) {
+          return Ti.Util.explainObj(this.myItem, this.inputPrefixTextDisplay, {
+            evalFunc: true
+          })
+        }
+        return Ti.Util.explainObj(this.myItem, this.prefixText)
+        //return this.Dict.getValue(this.myItem)
+      }
+      return Ti.Util.explainObj(this, this.prefixText)
+    },
+    //------------------------------------------------
     InputSuffixText() {
       if (this.myItem) {
         if(!_.isUndefined(this.inputSuffixTextDisplay)) {
@@ -70,9 +83,10 @@ const _M = {
             evalFunc: true
           })
         }
+        return Ti.Util.explainObj(this.myItem, this.suffixText)
         //return this.Dict.getValue(this.myItem)
       }
-      return this.suffixText
+      return Ti.Util.explainObj(this, this.suffixText)
     },
     //------------------------------------------------
     GetValueBy() {

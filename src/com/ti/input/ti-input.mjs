@@ -69,6 +69,14 @@ const _M = {
       }
       return icon
     },
+    //--------------------------------------
+    ThePrefixText() {
+      return Ti.Util.explainObj(this, this.prefixText)
+    },
+    //--------------------------------------
+    TheSuffixText() {
+      return Ti.Util.explainObj(this, this.suffixText)
+    },
     //------------------------------------------------
     TheHover() {
       let map = {}

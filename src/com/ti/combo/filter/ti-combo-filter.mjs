@@ -153,7 +153,7 @@ const _M = {
       let val = _.assign({}, this.value)
       this.myFreeValue = val.keyword
       this.myFormData  = val.match
-      this.myMajorKey   = val.majorKey
+      this.myMajorKey   = val.majorKey || this.majorKey
       this.myMajorValue = val.majorValue
     },
     //-----------------------------------------------
