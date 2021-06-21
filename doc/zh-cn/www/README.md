@@ -253,7 +253,13 @@ DIV(@app)             # Vue(root) : index.wnml
       // 有时候，你还想把transformer之前的数据也存起来，方便别的控件使用
       // 可以声明这个字段，它的意义与dataKey一样，只不过保存的是api的原始数据
       "rawDataKey": null,
-      "rawDataMerge" : false
+      "rawDataMerge" : false,
+      // 请求前是否自动清空数据（dataKey, 和 rawDataKey）指定的数据
+      //  - true: 请求前一定清除
+      //  - false: 请求前一定不清除
+      //  - "GET": 只有 GET 请求才清除
+      // 默认 GET
+      "autoResetData" : "GET"
     }
   },
   //-----------------------------------------

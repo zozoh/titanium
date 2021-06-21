@@ -269,6 +269,7 @@ const _M = {
     },
     //--------------------------------------------
     updateItemToData({ commit }, payload) {
+      console.log("updateItemToData", payload)
       commit("updateToDataList", payload)
     },
     //--------------------------------------------
@@ -389,7 +390,16 @@ const _M = {
       ok, fail }) {
       //.....................................  
       // Preset api result
-      commit("removeDataKeys", [api.dataKey, api.rawDataKey])
+      if(api.autoResetData) {
+        let needResetData = true
+        if(_.isString(api.autoResetData)) {
+          let method = (api.method || "GET").toUpperCase()
+          needResetData = method == api.autoResetData.toUpperCase()
+        }
+        if(needResetData) {
+          commit("removeDataKeys", [api.dataKey, api.rawDataKey])
+        }
+      }
       //.....................................  
       await Ti.WWW.runApiAndPrcessReturn(rootState, api, {
         vars,
