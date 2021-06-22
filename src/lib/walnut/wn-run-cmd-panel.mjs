@@ -2,20 +2,23 @@
  * Open Modal Dialog to explore one or multi files
  */
 async function OpenCmdPanel(cmdText, {
-  title = "i18n:run", 
+  title = "i18n:run",
   icon = "fas-running",
   type = "info", closer = true,
   textCancel = "i18n:close",
   position = "top",
-  width="80%", height="90%", spacing,
+  width = "80%", height = "90%", spacing,
   vars,
   input,
   forceFlushBuffer, showRunTip,
   cmdTipText,
   cmdTipIcon,
   onBodyReady,
+  afterRunCommand,
+  whenSuccess,
+  whenError,
   beforeClosed
-}={}){
+} = {}) {
   //................................................
   // Open modal dialog
   await Ti.App.Open({
@@ -24,25 +27,28 @@ async function OpenCmdPanel(cmdText, {
     icon, title, textCancel,
     textOk: null,
     //------------------------------------------
-    model : null,
+    model: null,
     //------------------------------------------
-    ready : (app)=> {
-      if(_.isFunction(onBodyReady)) {
+    ready: (app) => {
+      if (_.isFunction(onBodyReady)) {
         onBodyReady(app)
       }
     },
     //------------------------------------------
     beforeClosed,
     //------------------------------------------
-    comType : "WnCmdPanel",
-    comConf : {
-      "value" : cmdText,
-      "tipText" : cmdTipText,
-      "tipIcon"  : cmdTipIcon,
-      vars, input, forceFlushBuffer, showRunTip
+    comType: "WnCmdPanel",
+    comConf: {
+      "value": cmdText,
+      "tipText": cmdTipText,
+      "tipIcon": cmdTipIcon,
+      vars, input, forceFlushBuffer, showRunTip,
+      afterRunCommand,
+      whenSuccess,
+      whenError
     },
     //------------------------------------------
-    components : ["@com:wn/cmd/panel"]
+    components: ["@com:wn/cmd/panel"]
     //------------------------------------------
   })
 }
