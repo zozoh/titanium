@@ -64,6 +64,18 @@ export default {
   "albumClosedNotifyName": {
     type: String 
   },
+  "photoGalleryShowOpener": {
+    type: Boolean,
+    default: true
+  },
+  "deconTable": {
+    type: Boolean,
+    default: false
+  },
+  "mediaRawSize": {
+    type: Boolean,
+    default: false
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

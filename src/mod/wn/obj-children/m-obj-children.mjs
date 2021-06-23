@@ -111,6 +111,33 @@ const _M = {
       UpsertDataItemAt(state, newItem, 0)
     },
     //----------------------------------------
+    removeDataItems(state, items=[]) {
+      let data = state.data
+      // Build Id Map
+      if(!_.isArray(items)) {
+        items = [items]
+      }
+      let idMap = {}
+      _.forEach(items, it=>{
+        if(_.isString(it)) {
+          idMap[it] = true
+        } else if(it.id) {
+          idMap[it.id] = true
+        }
+      })
+      if(_.isArray(data.list) && data.pager && !_.isEmpty(idMap)) {
+        let list = []
+        _.forEach(data.list, li=>{
+          if(!idMap[li.id]) {
+            list.push(li)
+          }
+        })
+        state.data = {
+          list, pager: data.pager
+        }
+      }
+    },
+    //----------------------------------------
     setData(state, data) {
       state.data = data
     }

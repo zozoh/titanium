@@ -1,5 +1,58 @@
 export default {
   //--------------------------------------
+  cleanMediaSize($div) {
+    let $medias = Ti.Dom.findAll(".wn-media", $div)
+    for(let $media of $medias) {
+      Ti.Dom.updateStyle($media, {
+        width: "", height: ""
+      })
+    }
+  },
+  //--------------------------------------
+  deconstructTable($div) {
+    let $tables = Ti.Dom.findAll(":scope > table, :scope > * > table", $div)
+    let $freg = new DocumentFragment()
+    for(let $table of $tables) {
+      // Found thead
+      let $theadRow = Ti.Dom.find('thead > tr', $table)
+      let headers = []
+      if($theadRow) {
+        let $ths = Ti.Dom.findAll("td,th", $theadRow)
+        for(let $th of $ths) {
+          headers.push($th.innerHTML)
+        }
+        Ti.Dom.remove($theadRow)
+      }
+      console.log($table)
+      // Decon each row
+      let $rows = Ti.Dom.findAll("tr", $table)
+      for(let $row of $rows) {
+        // Each cell
+        let $cells = Ti.Dom.findAll("td", $row)
+        for(let i=0; i<$cells.length; i++) {
+          let $cell = $cells[i]
+          let html = _.trim($cell.innerHTML)
+          // Ignore the empty cell
+          if(!html || "&nbsp;" == html) {
+            continue;
+          }
+          let $p = Ti.Dom.createElement({
+            tagName: "p",
+          })
+          let headHtml = _.get(headers, i)
+          if(headHtml) {
+            html = headHtml + '<span>:</span> ' + html
+          }
+          $p.innerHTML = html
+          $freg.appendChild($p)
+        }
+      }
+      // Insert before table
+      $table.parentElement.insertBefore($freg, $table)
+      Ti.Dom.remove($table)
+    }
+  },
+  //--------------------------------------
   explainWnImage($div) {
     let $imgs = Ti.Dom.findAll("img[wn-obj-id]", $div);
     for (let $img of $imgs) {
@@ -238,6 +291,7 @@ export default {
       "album-fullpreview": function ($el) {
         Ti.Widget.PhotoGallery.bind($el, {
           titleKey: $el.getAttribute("ti-live-title-key") || "title",
+          showOpener: vm.photoGalleryShowOpener,
           onBeforeClose: ()=>{
             if(vm.albumBeforeCloseNotifyName) {
               vm.$notify(vm.albumBeforeCloseNotifyName)
@@ -285,6 +339,16 @@ export default {
     let html = this.ArticleHtml || ""
     html = html.replace("<script", "[SCRIPT")
     $div.innerHTML = html
+
+    // Auto Decon-Table
+    if(this.deconTable) {
+      this.deconstructTable($div)
+    }
+
+    // Media raw-size
+    if(this.mediaRawSize) {
+      this.cleanMediaSize($div)
+    }
 
     // Image
     this.explainWnImage($div)

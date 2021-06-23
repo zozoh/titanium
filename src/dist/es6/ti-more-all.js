@@ -1,4 +1,4 @@
-// Pack At: 2021-06-21 15:10:06
+// Pack At: 2021-06-24 02:08:01
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13353,6 +13353,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //
     //--------------------------------------
     fitBounds(bounds) {
+      //console.log("fitBounts", bounds)
       this.$map.fitBounds(bounds, this.fitBoundsBy)
     },
     //--------------------------------------
@@ -13383,6 +13384,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     initMapView(data=this.MapData) {
+      //console.log("initMapView")
       // Get current zoom, keep the last user zoom state
       let zoom = this.geo.zoom || this.zoom
 
@@ -17127,6 +17129,59 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article-methods.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //--------------------------------------
+  cleanMediaSize($div) {
+    let $medias = Ti.Dom.findAll(".wn-media", $div)
+    for(let $media of $medias) {
+      Ti.Dom.updateStyle($media, {
+        width: "", height: ""
+      })
+    }
+  },
+  //--------------------------------------
+  deconstructTable($div) {
+    let $tables = Ti.Dom.findAll(":scope > table, :scope > * > table", $div)
+    let $freg = new DocumentFragment()
+    for(let $table of $tables) {
+      // Found thead
+      let $theadRow = Ti.Dom.find('thead > tr', $table)
+      let headers = []
+      if($theadRow) {
+        let $ths = Ti.Dom.findAll("td,th", $theadRow)
+        for(let $th of $ths) {
+          headers.push($th.innerHTML)
+        }
+        Ti.Dom.remove($theadRow)
+      }
+      console.log($table)
+      // Decon each row
+      let $rows = Ti.Dom.findAll("tr", $table)
+      for(let $row of $rows) {
+        // Each cell
+        let $cells = Ti.Dom.findAll("td", $row)
+        for(let i=0; i<$cells.length; i++) {
+          let $cell = $cells[i]
+          let html = _.trim($cell.innerHTML)
+          // Ignore the empty cell
+          if(!html || "&nbsp;" == html) {
+            continue;
+          }
+          let $p = Ti.Dom.createElement({
+            tagName: "p",
+          })
+          let headHtml = _.get(headers, i)
+          if(headHtml) {
+            html = headHtml + '<span>:</span> ' + html
+          }
+          $p.innerHTML = html
+          $freg.appendChild($p)
+        }
+      }
+      // Insert before table
+      $table.parentElement.insertBefore($freg, $table)
+      Ti.Dom.remove($table)
+    }
+  },
+  //--------------------------------------
   explainWnImage($div) {
     let $imgs = Ti.Dom.findAll("img[wn-obj-id]", $div);
     for (let $img of $imgs) {
@@ -17365,6 +17420,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       "album-fullpreview": function ($el) {
         Ti.Widget.PhotoGallery.bind($el, {
           titleKey: $el.getAttribute("ti-live-title-key") || "title",
+          showOpener: vm.photoGalleryShowOpener,
           onBeforeClose: ()=>{
             if(vm.albumBeforeCloseNotifyName) {
               vm.$notify(vm.albumBeforeCloseNotifyName)
@@ -17412,6 +17468,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
     let html = this.ArticleHtml || ""
     html = html.replace("<script", "[SCRIPT")
     $div.innerHTML = html
+
+    // Auto Decon-Table
+    if(this.deconTable) {
+      this.deconstructTable($div)
+    }
+
+    // Media raw-size
+    if(this.mediaRawSize) {
+      this.cleanMediaSize($div)
+    }
 
     // Image
     this.explainWnImage($div)
@@ -25490,6 +25556,7 @@ const OBJ = {
       if(reloadWhenDone) {
         await this._run("reload")
       }
+      return list
     }
     // End deleting
     finally {
@@ -31134,6 +31201,33 @@ const _M = {
       UpsertDataItemAt(state, newItem, 0)
     },
     //----------------------------------------
+    removeDataItems(state, items=[]) {
+      let data = state.data
+      // Build Id Map
+      if(!_.isArray(items)) {
+        items = [items]
+      }
+      let idMap = {}
+      _.forEach(items, it=>{
+        if(_.isString(it)) {
+          idMap[it] = true
+        } else if(it.id) {
+          idMap[it.id] = true
+        }
+      })
+      if(_.isArray(data.list) && data.pager && !_.isEmpty(idMap)) {
+        let list = []
+        _.forEach(data.list, li=>{
+          if(!idMap[li.id]) {
+            list.push(li)
+          }
+        })
+        state.data = {
+          list, pager: data.pager
+        }
+      }
+    },
+    //----------------------------------------
     setData(state, data) {
       state.data = data
     }
@@ -31923,6 +32017,9 @@ const _M = {
       type : String,
       default : "login_by_phone"
     },
+    "nameTip": {
+      type : String
+    },
     "captcha" : {
       type : String,
       required : true,
@@ -31970,7 +32067,7 @@ const _M = {
       if("login_by_passwd" == this.currentMode) {
         return {
           "title"     : "i18n:auth-passwd-title",
-          "nameTip"   : (
+          "nameTip"   : this.nameTip || (
             "login_by_email" == this.toggleMode
               ? "i18n:auth-passwd-name-email-tip"
               : "i18n:auth-passwd-name-phone-tip"
@@ -32899,7 +32996,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     }
     // Customized popup
-    if(this.markerPopup) {
+    if(markerPopup) {
       let popup = Ti.Util.explainObj(obj, markerPopup, {
         evalFunc : true
       })
@@ -38270,6 +38367,13 @@ const _M = {
     ...Vuex.mapState("page", [
       "pageUri"
     ]),
+    ...Vuex.mapGetters("viewport", [
+      "isViewportModeDesktop",
+      "isViewportModeTablet",
+      "isViewportModePhone",
+      "isViewportModeDesktopOrTablet",
+      "isViewportModePhoneOrTablet"
+    ]),
     //-------------------------------------
     PayReturnUrl: function() {
       let st = this.$store.state
@@ -42181,6 +42285,10 @@ const _M = {
       type : Array,
       default : undefined
     },
+    "dynamicData": {
+      type: Boolean,
+      default: false
+    },
     // Item comType
     "comType": {
       type: String,
@@ -42238,6 +42346,10 @@ const _M = {
     ItemList() {
       if(!_.isArray(this.data))
         return []
+
+      if(this.dynamicData) {
+        return this.data
+      }
       
       let list = []      
       for(let i=0; i < this.data.length; i++) {
@@ -54139,6 +54251,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "albumClosedNotifyName": {
     type: String 
+  },
+  "photoGalleryShowOpener": {
+    type: Boolean,
+    default: true
+  },
+  "deconTable": {
+    type: Boolean,
+    default: false
+  },
+  "mediaRawSize": {
+    type: Boolean,
+    default: false
   },
   //-----------------------------------
   // Aspect

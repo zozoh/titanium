@@ -1,4 +1,4 @@
-// Pack At: 2021-06-21 15:10:06
+// Pack At: 2021-06-24 02:08:01
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -3545,20 +3545,23 @@ const OpenCmdPanel = (function(){
    * Open Modal Dialog to explore one or multi files
    */
   async function OpenCmdPanel(cmdText, {
-    title = "i18n:run", 
+    title = "i18n:run",
     icon = "fas-running",
     type = "info", closer = true,
     textCancel = "i18n:close",
     position = "top",
-    width="80%", height="90%", spacing,
+    width = "80%", height = "90%", spacing,
     vars,
     input,
     forceFlushBuffer, showRunTip,
     cmdTipText,
     cmdTipIcon,
     onBodyReady,
+    afterRunCommand,
+    whenSuccess,
+    whenError,
     beforeClosed
-  }={}){
+  } = {}) {
     //................................................
     // Open modal dialog
     await Ti.App.Open({
@@ -3567,25 +3570,28 @@ const OpenCmdPanel = (function(){
       icon, title, textCancel,
       textOk: null,
       //------------------------------------------
-      model : null,
+      model: null,
       //------------------------------------------
-      ready : (app)=> {
-        if(_.isFunction(onBodyReady)) {
+      ready: (app) => {
+        if (_.isFunction(onBodyReady)) {
           onBodyReady(app)
         }
       },
       //------------------------------------------
       beforeClosed,
       //------------------------------------------
-      comType : "WnCmdPanel",
-      comConf : {
-        "value" : cmdText,
-        "tipText" : cmdTipText,
-        "tipIcon"  : cmdTipIcon,
-        vars, input, forceFlushBuffer, showRunTip
+      comType: "WnCmdPanel",
+      comConf: {
+        "value": cmdText,
+        "tipText": cmdTipText,
+        "tipIcon": cmdTipIcon,
+        vars, input, forceFlushBuffer, showRunTip,
+        afterRunCommand,
+        whenSuccess,
+        whenError
       },
       //------------------------------------------
-      components : ["@com:wn/cmd/panel"]
+      components: ["@com:wn/cmd/panel"]
       //------------------------------------------
     })
   }
@@ -3727,12 +3733,12 @@ const Youtube = (function(){
       }
       // load key fields in config
       let { domain } = config
+      let list = [];
       // Load cache file
       let noexists = true
       if (!force) {
         let ytHome = `~/.domain/youtube/${domain}`
         let oFile = await Wn.Io.loadMeta(`${ytHome}/playlists.json`)
-        let list = [];
         if (oFile) {
           list = await Wn.Io.loadContent(oFile, { as: "json" })
           noexists = false
@@ -4013,7 +4019,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210621.151006"
+const WALNUT_VERSION = "1.2-20210624.020801"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

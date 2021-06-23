@@ -17,7 +17,7 @@ export default {
       }
     }
     // Customized popup
-    if(this.markerPopup) {
+    if(markerPopup) {
       let popup = Ti.Util.explainObj(obj, markerPopup, {
         evalFunc : true
       })

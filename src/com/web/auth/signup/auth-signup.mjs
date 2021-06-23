@@ -27,6 +27,9 @@ const _M = {
       type : String,
       default : "login_by_phone"
     },
+    "nameTip": {
+      type : String
+    },
     "captcha" : {
       type : String,
       required : true,
@@ -74,7 +77,7 @@ const _M = {
       if("login_by_passwd" == this.currentMode) {
         return {
           "title"     : "i18n:auth-passwd-title",
-          "nameTip"   : (
+          "nameTip"   : this.nameTip || (
             "login_by_email" == this.toggleMode
               ? "i18n:auth-passwd-name-email-tip"
               : "i18n:auth-passwd-name-phone-tip"

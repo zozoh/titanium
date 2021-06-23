@@ -265,6 +265,7 @@ const OBJ = {
       if(reloadWhenDone) {
         await this._run("reload")
       }
+      return list
     }
     // End deleting
     finally {

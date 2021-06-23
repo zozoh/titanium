@@ -130,12 +130,12 @@ const WnYoutube = {
     }
     // load key fields in config
     let { domain } = config
+    let list = [];
     // Load cache file
     let noexists = true
     if (!force) {
       let ytHome = `~/.domain/youtube/${domain}`
       let oFile = await Wn.Io.loadMeta(`${ytHome}/playlists.json`)
-      let list = [];
       if (oFile) {
         list = await Wn.Io.loadContent(oFile, { as: "json" })
         noexists = false

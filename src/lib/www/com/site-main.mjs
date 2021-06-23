@@ -40,6 +40,13 @@ const _M = {
     ...Vuex.mapState("page", [
       "pageUri"
     ]),
+    ...Vuex.mapGetters("viewport", [
+      "isViewportModeDesktop",
+      "isViewportModeTablet",
+      "isViewportModePhone",
+      "isViewportModeDesktopOrTablet",
+      "isViewportModePhoneOrTablet"
+    ]),
     //-------------------------------------
     PayReturnUrl: function() {
       let st = this.$store.state

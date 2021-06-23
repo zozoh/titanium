@@ -5,6 +5,10 @@ const _M = {
       type : Array,
       default : undefined
     },
+    "dynamicData": {
+      type: Boolean,
+      default: false
+    },
     // Item comType
     "comType": {
       type: String,
@@ -62,6 +66,10 @@ const _M = {
     ItemList() {
       if(!_.isArray(this.data))
         return []
+
+      if(this.dynamicData) {
+        return this.data
+      }
       
       let list = []      
       for(let i=0; i < this.data.length; i++) {

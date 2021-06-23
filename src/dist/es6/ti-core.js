@@ -1,4 +1,4 @@
-// Pack At: 2021-06-21 15:10:06
+// Pack At: 2021-06-24 02:08:01
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -11612,7 +11612,7 @@ const {WWW} = (function(){
       }
       //.....................................
       // Join the http send Promise
-      console.log(`will send to "${url}"`, options)
+      //console.log(`will send to "${url}"`, options)
       let reo;
       let data;
       // Invoke Action
@@ -14739,8 +14739,10 @@ const {PhotoGallery} = (function(){
             $tile.setAttribute("img-loaded", "yes")
           }, {once:true})
           // Update href
-          let href = _.trim($tile.getAttribute("href")) || null
-          Ti.Dom.setAttrs(this.$opener, {href})
+          if(_.isElement(this.$opener)) {
+            let href = _.trim($tile.getAttribute("href")) || null
+            Ti.Dom.setAttrs(this.$opener, {href})
+          }
         }
       }
       this.$currentImg = Ti.Dom.find("img", $tile)
@@ -14947,7 +14949,8 @@ const {PhotoGallery} = (function(){
       //console.log("enter redraw")
       let {
         className, topStyle, viewportStyle, scrollerStyle,
-        indicatorStyle, indicatorUlStyle
+        indicatorStyle, indicatorUlStyle,
+        showOpener
       } = this.setup
       this.$top = Ti.Dom.createElement({
         tagName : "div",
@@ -14977,15 +14980,17 @@ const {PhotoGallery} = (function(){
         style : scrollerStyle
       })
       //......................................
-      this.$opener = Ti.Dom.createElement({
-        $p : this.$viewport,
-        tagName : "a",
-        className : "as-opener",
-        attrs: {
-          target: "_blank"
-        }
-      })
-      this.$opener.innerHTML = `<i class="zmdi zmdi-open-in-new"></i>`
+      if(showOpener) {
+        this.$opener = Ti.Dom.createElement({
+          $p : this.$viewport,
+          tagName : "a",
+          className : "as-opener",
+          attrs: {
+            target: "_blank"
+          }
+        })
+        this.$opener.innerHTML = `<i class="zmdi zmdi-open-in-new"></i>`
+      }
       //......................................
       this.$toolbar = Ti.Dom.createElement({
         $p : this.$viewport,
@@ -15827,7 +15832,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210621.151006",
+  "version" : "1.6-20210624.020801",
   "dev" : false,
   "appName" : null,
   "session" : {},

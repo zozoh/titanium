@@ -170,8 +170,10 @@ class TiPhotoGallery {
           $tile.setAttribute("img-loaded", "yes")
         }, {once:true})
         // Update href
-        let href = _.trim($tile.getAttribute("href")) || null
-        Ti.Dom.setAttrs(this.$opener, {href})
+        if(_.isElement(this.$opener)) {
+          let href = _.trim($tile.getAttribute("href")) || null
+          Ti.Dom.setAttrs(this.$opener, {href})
+        }
       }
     }
     this.$currentImg = Ti.Dom.find("img", $tile)
@@ -378,7 +380,8 @@ class TiPhotoGallery {
     //console.log("enter redraw")
     let {
       className, topStyle, viewportStyle, scrollerStyle,
-      indicatorStyle, indicatorUlStyle
+      indicatorStyle, indicatorUlStyle,
+      showOpener
     } = this.setup
     this.$top = Ti.Dom.createElement({
       tagName : "div",
@@ -408,15 +411,17 @@ class TiPhotoGallery {
       style : scrollerStyle
     })
     //......................................
-    this.$opener = Ti.Dom.createElement({
-      $p : this.$viewport,
-      tagName : "a",
-      className : "as-opener",
-      attrs: {
-        target: "_blank"
-      }
-    })
-    this.$opener.innerHTML = `<i class="zmdi zmdi-open-in-new"></i>`
+    if(showOpener) {
+      this.$opener = Ti.Dom.createElement({
+        $p : this.$viewport,
+        tagName : "a",
+        className : "as-opener",
+        attrs: {
+          target: "_blank"
+        }
+      })
+      this.$opener.innerHTML = `<i class="zmdi zmdi-open-in-new"></i>`
+    }
     //......................................
     this.$toolbar = Ti.Dom.createElement({
       $p : this.$viewport,

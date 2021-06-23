@@ -36,6 +36,7 @@
   .as-img-con {
     flex:1 1 auto;
     width:100%; 
+    border-radius: SZ(8);
     overflow: hidden;
   }
   img {
@@ -43,7 +44,6 @@
     width:100%; height:100%;
     object-fit: cover;
     display:block;
-    border-radius: SZ(8);
   }
   //-----------------------------------------
   .as-tags {

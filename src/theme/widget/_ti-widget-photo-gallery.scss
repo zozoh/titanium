@@ -48,13 +48,15 @@
         //---------------------------------
         &.to-prev {left:0;}
         &.to-prev:hover {
-          @include color($color-primary, r, c);
+          color: #FFF;
+          background-color: rgba(50,50,50,0.2);
           span{transform: translateX(-2px) scale(1.1);}
         }
         //---------------------------------
         &.to-next {right:0;}
         &.to-next:hover {
-          @include color($color-primary, r, c);
+          color: #FFF;
+          background-color: rgba(120,120,120,0.4);
           span{transform: translateX(2px) scale(1.1);}
         }
         //---------------------------------
@@ -218,10 +220,12 @@
       display: block; width:SZ(64); height: SZ(64);
       border-radius: 50%; text-align: center;
       font-size: SZ(64);
-      cursor: pointer; color:rgba(255,255,255,0.2);
+      cursor: pointer; 
+      color: #FFF;
+      opacity: 0.6;
       &:hover {
         background-color: rgba(240,240,240,0.2);
-        color: #FFF;
+        opacity: 1;        
       }
     }
   }

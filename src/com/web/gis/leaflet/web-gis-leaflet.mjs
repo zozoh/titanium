@@ -398,6 +398,7 @@ export default {
     //
     //--------------------------------------
     fitBounds(bounds) {
+      //console.log("fitBounts", bounds)
       this.$map.fitBounds(bounds, this.fitBoundsBy)
     },
     //--------------------------------------
@@ -428,6 +429,7 @@ export default {
     },
     //--------------------------------------
     initMapView(data=this.MapData) {
+      //console.log("initMapView")
       // Get current zoom, keep the last user zoom state
       let zoom = this.geo.zoom || this.zoom
 
