@@ -1,4 +1,4 @@
-// Pack At: 2021-06-24 23:57:30
+// Pack At: 2021-06-25 00:43:12
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -22681,9 +22681,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "hoverPreview": {
       type: Object
     },
-    "textStyle": {
-      type: Object
-    },
     "tags": {
       type: [String, Array, Object]
     },
@@ -22746,12 +22743,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-------------------------------------
     // Aspect
     //-------------------------------------
-    "imageConStyle": {
-      type: Object
-    },
-    "imageStyle": {
-      type: Object
-    },
     /*
     {textHoverFull, randomRotate}
     */
@@ -22759,7 +22750,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: Object,
       default: () => ({})
     },
+    "imageConStyle": {
+      type: Object
+    },
+    "imageStyle": {
+      type: Object
+    },
     "tagsStyle": {
+      type: Object
+    },
+    "textStyle": {
+      type: Object
+    },
+    "titleStyle": {
       type: Object
     },
     "briefStyle": {
@@ -65275,7 +65278,8 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
       :style="textStyle">
       <div
         v-if="TheText"
-          class="as-title"><span>{{TheText}}</span></div>
+          class="as-title"
+          :style="titleStyle"><span>{{TheText}}</span></div>
       <div
         v-if="TheBrief"
           class="as-brief"

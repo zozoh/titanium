@@ -37,7 +37,8 @@
       :style="textStyle">
       <div
         v-if="TheText"
-          class="as-title"><span>{{TheText}}</span></div>
+          class="as-title"
+          :style="titleStyle"><span>{{TheText}}</span></div>
       <div
         v-if="TheBrief"
           class="as-brief"

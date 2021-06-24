@@ -28,9 +28,6 @@ export default {
     "hoverPreview": {
       type: Object
     },
-    "textStyle": {
-      type: Object
-    },
     "tags": {
       type: [String, Array, Object]
     },
@@ -93,12 +90,6 @@ export default {
     //-------------------------------------
     // Aspect
     //-------------------------------------
-    "imageConStyle": {
-      type: Object
-    },
-    "imageStyle": {
-      type: Object
-    },
     /*
     {textHoverFull, randomRotate}
     */
@@ -106,7 +97,19 @@ export default {
       type: Object,
       default: () => ({})
     },
+    "imageConStyle": {
+      type: Object
+    },
+    "imageStyle": {
+      type: Object
+    },
     "tagsStyle": {
+      type: Object
+    },
+    "textStyle": {
+      type: Object
+    },
+    "titleStyle": {
       type: Object
     },
     "briefStyle": {
