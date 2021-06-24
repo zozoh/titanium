@@ -1,4 +1,4 @@
-// Pack At: 2021-06-24 02:08:01
+// Pack At: 2021-06-24 23:57:30
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -540,6 +540,7 @@ const {Be} = (function(){
       let {
         trigger,     // Which element will trigger the behavior
         viewport,    // The dragging viewport, default is $el
+        watchZone,   // The dragging viewport, default is $el
         handler = null,  // Dragging handle default is trigger
         // Speed Unit, move 1px per 1ms
         // default 100, mean: move 1px in 1ms, it was 100
@@ -620,6 +621,7 @@ const {Be} = (function(){
         let $doc = $el.ownerDocument;
         let $body = $el.ownerDocument.body
         let $viewport = findBy($trigger, viewport, $el)
+        let $watchZone = findBy($trigger, watchZone, $el.ownerDocument.body)
         let $handler  = findBy($trigger, handler, $el)
         let context = {}
         _.assign(context, {
@@ -636,6 +638,7 @@ const {Be} = (function(){
     
         // Count the view/handler
         context.__already_call_actived = false
+        context.watchZone = Ti.Rects.createBy($watchZone)
         context.viewport = Ti.Rects.createBy($viewport)
         context.handler = Ti.Rects.createBy($handler)
         context.startInMs = Date.now()
@@ -734,7 +737,7 @@ const {Be} = (function(){
           // Test if leave
           let p = {x:context.clientX, y:context.clientY}
           //console.log("OnBodyMouseMove", p)
-          if(!context.viewport.hasPoint(p)) {
+          if(!context.watchZone.hasPoint(p)) {
             RemoveDraggle(evt)
             return
           }
@@ -4057,52 +4060,13 @@ const {Dom} = (function(){
     },
     //----------------------------------------------------
     parseCssRule(rule="", filter=true) {
-      rule = _.trim(rule)
-      if(Ti.S.isBlank(rule)) {
-        return {}
-      }
-      filter = this.attrFilter(filter)
-      let re = {}
-      let ss = rule.split(";")
-      for(let s of ss) {
-        if(Ti.S.isBlank(s))
-          continue
-        let [name, value] = s.split(":");
-        name  = _.trim(name)
-        value = _.trim(value)
-        let key = filter(name, value)
-        if(key) {
-          if(_.isBoolean(key)) {
-            key = _.camelCase(name)
-          }
-          re[key] = value
-        }
-      }
-      return re
+      console.warn("!Deprecate call: Ti.Dom.parseCssRule -> Ti.Css.parseCssRule")
+      return Ti.Css.parseCssRule(rule, filter)
     },
     //----------------------------------------------------
     renderCssRule(css={}) {
-      if(_.isString(css)) {
-        return css
-      }
-      let list = []
-      _.forEach(css, (val, key)=>{
-        if(_.isNull(val) || _.isUndefined(val) || Ti.S.isBlank(val)) 
-          return
-        let pnm = _.kebabCase(key)
-        if(/^(opacity|z-index|order)$/.test(pnm)){
-          list.push(`${pnm}:${val}`)
-        }
-        // Empty string to remove one propperty
-        else if(_.isNumber(val)) {
-          list.push(`${pnm}:${val}px`)
-        }
-        // Set the property
-        else {
-          list.push(`${pnm}:${val}`)
-        }
-      })
-      return list.join(";")
+      console.warn("!Deprecate call: Ti.Dom.renderCssRule -> Ti.Css.renderCssRule")
+      return Ti.Css.renderCssRule(css)
     },
     //----------------------------------------------------
     removeAttrs($el, filter=false) {
@@ -11362,6 +11326,9 @@ const {WWW} = (function(){
       cdnTmpl,        // the cdn url tmpl for previewObj
       dftSrc,
     } = {}) {
+      if(!obj) {
+        return
+      }
       // obj is the src
       if (_.isString(obj)) {
         return obj
@@ -12509,6 +12476,9 @@ const {Css} = (function(){
     },
     //-----------------------------------
     toPixel(input, base = 100, dft = 0) {
+      if(Ti.Util.isNil(input)) {
+        return input
+      }
       // Number may `.23` or `300`
       if (_.isNumber(input)) {
         // Take (-1, 1) as percent
@@ -12527,6 +12497,9 @@ const {Css} = (function(){
     },
     //-----------------------------------
     toAbsPixel(input, { base = 100, dft = 0, remBase = 100, emBase = 14 } = {}) {
+      if(Ti.Util.isNil(input)) {
+        return input
+      }
       if (_.isNumber(input)) {
         return input
       }
@@ -12665,6 +12638,88 @@ const {Css} = (function(){
           names.push(key)
       })
       return names.join(" ")
+    },
+    //----------------------------------------------------
+    parseCssRule(rule="", filter=true) {
+      rule = _.trim(rule)
+      if(Ti.S.isBlank(rule)) {
+        return {}
+      }
+      filter = this.attrFilter(filter)
+      let re = {}
+      let ss = rule.split(";")
+      for(let s of ss) {
+        if(Ti.S.isBlank(s))
+          continue
+        let [name, value] = s.split(":");
+        name  = _.trim(name)
+        value = _.trim(value)
+        let key = filter(name, value)
+        if(key) {
+          if(_.isBoolean(key)) {
+            key = _.camelCase(name)
+          }
+          re[key] = value
+        }
+      }
+      return re
+    },
+    //----------------------------------------------------
+    renderCssRule(css={}) {
+      if(_.isEmpty(css)) {
+        return ""
+      }
+      if(_.isString(css)) {
+        return css
+      }
+      let list = []
+      _.forEach(css, (val, key)=>{
+        if(_.isNull(val) || _.isUndefined(val) || Ti.S.isBlank(val)) 
+          return
+        let pnm = _.kebabCase(key)
+        if(/^(opacity|z-index|order)$/.test(pnm)){
+          list.push(`${pnm}:${val}`)
+        }
+        // Empty string to remove one propperty
+        else if(_.isNumber(val)) {
+          list.push(`${pnm}:${val}px`)
+        }
+        // Set the property
+        else {
+          list.push(`${pnm}:${val}`)
+        }
+      })
+      return list.join(";")
+    },
+    //----------------------------------------------------
+    /**
+     * Render a full style sheet by object like:
+     * 
+     * ```js
+     * [{
+     *    selector: ["selector A", "selector B"],
+     *    rules: {
+     *       "background": "red"
+     *    }
+     * }]
+     * ```
+     * 
+     * @param sheet{Array} : style selecor and rules
+     */
+    renderCssStyleSheet(sheet=[]) {
+      sheet = _.concat(sheet)
+      let re = []
+      for(let it of sheet) {
+        let {selectors, rules} = it
+        selectors = _.concat(selectors)
+        if(_.isEmpty(selectors) || _.isEmpty(rules)){
+          continue;
+        }
+        re.push(selectors.join(",") + "{")
+        re.push(TiCss.renderCssRule(rules))
+        re.push("}")
+      }
+      return re.join("\n")
     }
     //-----------------------------------
   }
@@ -15832,7 +15887,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210624.020801",
+  "version" : "1.6-20210624.235730",
   "dev" : false,
   "appName" : null,
   "session" : {},

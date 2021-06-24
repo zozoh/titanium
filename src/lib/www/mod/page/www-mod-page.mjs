@@ -546,9 +546,6 @@ const _M = {
       pinfo.path = pinfo.path || path
       pinfo.name = Ti.Util.getMajorName(pinfo.path)
       pinfo.href = path
-      _.defaults(pinfo, {
-        contextMenu: rootState.contextMenu
-      })
       //.....................................
       // Update Path url
       let { pageUriWithParams, pageAnchorTo } = json
@@ -565,7 +562,9 @@ const _M = {
         "title": null,
         "apis": {},
         "data": {},
-        "contextMenu": true,
+        "contextMenu": Ti.Util.fallback(rootState.contextMenu, true),
+        "forbidCopy":  Ti.Util.fallback(rootState.forbidCopy, false),
+        "bodyStyle": rootState.bodyStyle,
         "explainDataKey": [],
         "layout": {},
         "params": {},
@@ -573,6 +572,18 @@ const _M = {
         "schema": {},
         "actions": {}
       }, json, pinfo)
+      //.....................................
+      // Forbid copy content
+      let preventContentCopy = function(evt){
+        evt.preventDefault()
+      }
+      if(page.forbidCopy) {
+        document.body.addEventListener("copy", preventContentCopy, true)
+        document.body.addEventListener("cut", preventContentCopy, true)
+      } else {
+        document.body.removeEventListener("copy", preventContentCopy, true)
+        document.body.removeEventListener("cut", preventContentCopy, true)
+      }
       //.....................................
       // Prepare anchor to data
       if (pageAnchorTo && anchor) {

@@ -3,9 +3,12 @@ export default {
   cleanMediaSize($div) {
     let $medias = Ti.Dom.findAll(".wn-media", $div)
     for(let $media of $medias) {
-      Ti.Dom.updateStyle($media, {
-        width: "", height: ""
-      })
+      let css = {width: "", height: ""}
+      if($media.style.float && "none"!=$media.style.float) {
+        css.float = ""
+        Ti.Dom.addClass($media, "as-phone-block")
+      }
+      Ti.Dom.updateStyle($media, css)
     }
   },
   //--------------------------------------

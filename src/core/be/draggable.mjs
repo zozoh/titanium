@@ -3,6 +3,7 @@ function TiDraggable($el, setup={}) {
   let {
     trigger,     // Which element will trigger the behavior
     viewport,    // The dragging viewport, default is $el
+    watchZone,   // The dragging viewport, default is $el
     handler = null,  // Dragging handle default is trigger
     // Speed Unit, move 1px per 1ms
     // default 100, mean: move 1px in 1ms, it was 100
@@ -83,6 +84,7 @@ function TiDraggable($el, setup={}) {
     let $doc = $el.ownerDocument;
     let $body = $el.ownerDocument.body
     let $viewport = findBy($trigger, viewport, $el)
+    let $watchZone = findBy($trigger, watchZone, $el.ownerDocument.body)
     let $handler  = findBy($trigger, handler, $el)
     let context = {}
     _.assign(context, {
@@ -99,6 +101,7 @@ function TiDraggable($el, setup={}) {
 
     // Count the view/handler
     context.__already_call_actived = false
+    context.watchZone = Ti.Rects.createBy($watchZone)
     context.viewport = Ti.Rects.createBy($viewport)
     context.handler = Ti.Rects.createBy($handler)
     context.startInMs = Date.now()
@@ -197,7 +200,7 @@ function TiDraggable($el, setup={}) {
       // Test if leave
       let p = {x:context.clientX, y:context.clientY}
       //console.log("OnBodyMouseMove", p)
-      if(!context.viewport.hasPoint(p)) {
+      if(!context.watchZone.hasPoint(p)) {
         RemoveDraggle(evt)
         return
       }

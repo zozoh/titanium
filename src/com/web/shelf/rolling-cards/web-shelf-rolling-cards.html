@@ -1,0 +1,47 @@
+<div class="web-shelf-rolling-cards"
+  :class="TopClass"
+  v-ti-draggable="Draggable">
+  <!--
+    Show Main part
+  -->
+  <div ref="con" class="part-main" :style="MainStyle">
+    <!--
+      Loading
+    -->
+    <ti-loading
+      v-if="isLoading"
+        class="as-big"
+        v-bind="loadingAs"/>
+    <!--
+      Blank
+    -->
+    <ti-loading
+      v-else-if="isEmpty"
+        class="as-big"
+        v-bind="blankAs"/>
+    <!--
+      Each component container
+    -->
+    <template v-else>
+      <div
+        v-for="card in myDisplayCards"
+          class="part-card"
+          :class="card.className"
+          :key="card.id"
+          :card-index="card.index"
+          :style="card.style">
+        <!--
+          Component
+        -->
+        <compnent
+          v-if="card.comType"
+            class="ti-fill-parent"
+            :is="card.comType"
+            v-bind="card.comConf"/>
+        <!--
+          Placeholder
+        -->
+        <span v-else>Item {{it.index}}</span>
+      </div>
+    </template>
+</div></div>

@@ -232,6 +232,9 @@ const TiWWW = {
     cdnTmpl,        // the cdn url tmpl for previewObj
     dftSrc,
   } = {}) {
+    if(!obj) {
+      return
+    }
     // obj is the src
     if (_.isString(obj)) {
       return obj

@@ -27,6 +27,9 @@ const TiCss = {
   },
   //-----------------------------------
   toPixel(input, base = 100, dft = 0) {
+    if(Ti.Util.isNil(input)) {
+      return input
+    }
     // Number may `.23` or `300`
     if (_.isNumber(input)) {
       // Take (-1, 1) as percent
@@ -45,6 +48,9 @@ const TiCss = {
   },
   //-----------------------------------
   toAbsPixel(input, { base = 100, dft = 0, remBase = 100, emBase = 14 } = {}) {
+    if(Ti.Util.isNil(input)) {
+      return input
+    }
     if (_.isNumber(input)) {
       return input
     }
@@ -183,6 +189,88 @@ const TiCss = {
         names.push(key)
     })
     return names.join(" ")
+  },
+  //----------------------------------------------------
+  parseCssRule(rule="", filter=true) {
+    rule = _.trim(rule)
+    if(Ti.S.isBlank(rule)) {
+      return {}
+    }
+    filter = this.attrFilter(filter)
+    let re = {}
+    let ss = rule.split(";")
+    for(let s of ss) {
+      if(Ti.S.isBlank(s))
+        continue
+      let [name, value] = s.split(":");
+      name  = _.trim(name)
+      value = _.trim(value)
+      let key = filter(name, value)
+      if(key) {
+        if(_.isBoolean(key)) {
+          key = _.camelCase(name)
+        }
+        re[key] = value
+      }
+    }
+    return re
+  },
+  //----------------------------------------------------
+  renderCssRule(css={}) {
+    if(_.isEmpty(css)) {
+      return ""
+    }
+    if(_.isString(css)) {
+      return css
+    }
+    let list = []
+    _.forEach(css, (val, key)=>{
+      if(_.isNull(val) || _.isUndefined(val) || Ti.S.isBlank(val)) 
+        return
+      let pnm = _.kebabCase(key)
+      if(/^(opacity|z-index|order)$/.test(pnm)){
+        list.push(`${pnm}:${val}`)
+      }
+      // Empty string to remove one propperty
+      else if(_.isNumber(val)) {
+        list.push(`${pnm}:${val}px`)
+      }
+      // Set the property
+      else {
+        list.push(`${pnm}:${val}`)
+      }
+    })
+    return list.join(";")
+  },
+  //----------------------------------------------------
+  /**
+   * Render a full style sheet by object like:
+   * 
+   * ```js
+   * [{
+   *    selector: ["selector A", "selector B"],
+   *    rules: {
+   *       "background": "red"
+   *    }
+   * }]
+   * ```
+   * 
+   * @param sheet{Array} : style selecor and rules
+   */
+  renderCssStyleSheet(sheet=[]) {
+    sheet = _.concat(sheet)
+    let re = []
+    for(let it of sheet) {
+      let {selectors, rules} = it
+      selectors = _.concat(selectors)
+      if(_.isEmpty(selectors) || _.isEmpty(rules)){
+        continue;
+      }
+      re.push(selectors.join(",") + "{")
+      re.push(TiCss.renderCssRule(rules))
+      re.push("}")
+    }
+    return re.join("\n")
   }
   //-----------------------------------
 }

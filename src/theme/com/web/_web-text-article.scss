@@ -18,11 +18,19 @@ article.ti-article {
   //---------------------------------------
   .wn-media.as-image-con {
     display: inline-block;
+    //-------------------------------------
     img {display: block; width:100%; height:100%;}
+    //-------------------------------------
     .as-img-alt {
       display: block; padding: .5em; text-align: center;
       opacity: 0.8;
     }
+    //-------------------------------------
+    &.as-phone-block {
+      text-align: center; display: block;
+      img {display: inline-block; width: auto; height: auto;}
+    }
+    //-------------------------------------
   }
   //---------------------------------------
   .wn-media.as-video {

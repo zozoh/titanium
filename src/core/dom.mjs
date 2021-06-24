@@ -206,52 +206,13 @@ const TiDom = {
   },
   //----------------------------------------------------
   parseCssRule(rule="", filter=true) {
-    rule = _.trim(rule)
-    if(Ti.S.isBlank(rule)) {
-      return {}
-    }
-    filter = this.attrFilter(filter)
-    let re = {}
-    let ss = rule.split(";")
-    for(let s of ss) {
-      if(Ti.S.isBlank(s))
-        continue
-      let [name, value] = s.split(":");
-      name  = _.trim(name)
-      value = _.trim(value)
-      let key = filter(name, value)
-      if(key) {
-        if(_.isBoolean(key)) {
-          key = _.camelCase(name)
-        }
-        re[key] = value
-      }
-    }
-    return re
+    console.warn("!Deprecate call: Ti.Dom.parseCssRule -> Ti.Css.parseCssRule")
+    return Ti.Css.parseCssRule(rule, filter)
   },
   //----------------------------------------------------
   renderCssRule(css={}) {
-    if(_.isString(css)) {
-      return css
-    }
-    let list = []
-    _.forEach(css, (val, key)=>{
-      if(_.isNull(val) || _.isUndefined(val) || Ti.S.isBlank(val)) 
-        return
-      let pnm = _.kebabCase(key)
-      if(/^(opacity|z-index|order)$/.test(pnm)){
-        list.push(`${pnm}:${val}`)
-      }
-      // Empty string to remove one propperty
-      else if(_.isNumber(val)) {
-        list.push(`${pnm}:${val}px`)
-      }
-      // Set the property
-      else {
-        list.push(`${pnm}:${val}`)
-      }
-    })
-    return list.join(";")
+    console.warn("!Deprecate call: Ti.Dom.renderCssRule -> Ti.Css.renderCssRule")
+    return Ti.Css.renderCssRule(css)
   },
   //----------------------------------------------------
   removeAttrs($el, filter=false) {

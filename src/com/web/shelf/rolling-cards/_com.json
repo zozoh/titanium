@@ -1,0 +1,6 @@
+{
+  "name" : "web-shelf-rolling-cards",
+  "globally" : true,
+  "template" : "./web-shelf-rolling-cards.html",
+  "mixins" : ["./web-shelf-rolling-cards.mjs"]
+}

@@ -19,6 +19,7 @@
   },
   "activeElement" : null,
   "contextMenu": true,
+  "forbidCopy": false,
   "explainDataKey": [],
   "layout" : {
     "desktop" : {},

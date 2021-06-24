@@ -1,0 +1,19 @@
+.web-shelf-rolling-cards {
+  padding: SZ(20); overflow: hidden;
+  //-----------------------------------------
+  > .part-main {
+    position: relative; width:100%; 
+  }
+  //-----------------------------------------
+  > .part-main > .part-card {
+    position: absolute;
+    box-shadow: SZ(3) SZ(3) SZ(8) rgba(0,0,0,0.2);
+  }
+  //-----------------------------------------
+  &.no-dragging {
+    > .part-main > .part-card {
+      transition: 0.3s;
+    }
+  }
+  //-----------------------------------------
+}

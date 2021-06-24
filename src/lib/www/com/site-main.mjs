@@ -234,6 +234,29 @@ const _M = {
       //...................................
     },
     //-------------------------------------
+    updateBodyStyle() {
+      let bodyStyleSheet = {}
+      if(this.page.bodyStyle) {
+        bodyStyleSheet = Ti.Util.explainObj(this, this.page.bodyStyle)
+      }
+      let cssRule = Ti.Css.renderCssStyleSheet(bodyStyleSheet)
+      console.log("cssRule", cssRule)
+      // Find the body style rule
+      let $style = Ti.Dom.find('style.ti-site-body')
+      if(!_.isElement($style)) {
+        $style = Ti.Dom.createElement({
+          $p: this.$el.ownerDocument.body,
+          className: "ti-site-body",
+          tagName: "style",
+          props: {
+            rel : "stylesheet",
+            type : "text/css"
+          }
+        })
+      }
+      $style.innerHTML = cssRule
+    },
+    //-------------------------------------
     invokeAnalyzers() {
       // Guard
       if(_.isEmpty(this.analyzers))
@@ -269,6 +292,8 @@ const _M = {
       let pageTitle = Ti.Util.explainObj(this, this.page.title)
       document.title = pageTitle
       this.pushBrowserHistory(pageTitle)
+
+      this.updateBodyStyle()
 
       // TODO : Maybe here to embed the BaiDu Tongji Code
       this.invokeAnalyzers()

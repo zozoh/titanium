@@ -1,4 +1,4 @@
-// Pack At: 2021-06-24 02:08:01
+// Pack At: 2021-06-24 23:57:30
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6645,9 +6645,6 @@ const _M = {
       pinfo.path = pinfo.path || path
       pinfo.name = Ti.Util.getMajorName(pinfo.path)
       pinfo.href = path
-      _.defaults(pinfo, {
-        contextMenu: rootState.contextMenu
-      })
       //.....................................
       // Update Path url
       let { pageUriWithParams, pageAnchorTo } = json
@@ -6664,7 +6661,9 @@ const _M = {
         "title": null,
         "apis": {},
         "data": {},
-        "contextMenu": true,
+        "contextMenu": Ti.Util.fallback(rootState.contextMenu, true),
+        "forbidCopy":  Ti.Util.fallback(rootState.forbidCopy, false),
+        "bodyStyle": rootState.bodyStyle,
         "explainDataKey": [],
         "layout": {},
         "params": {},
@@ -6672,6 +6671,18 @@ const _M = {
         "schema": {},
         "actions": {}
       }, json, pinfo)
+      //.....................................
+      // Forbid copy content
+      let preventContentCopy = function(evt){
+        evt.preventDefault()
+      }
+      if(page.forbidCopy) {
+        document.body.addEventListener("copy", preventContentCopy, true)
+        document.body.addEventListener("cut", preventContentCopy, true)
+      } else {
+        document.body.removeEventListener("copy", preventContentCopy, true)
+        document.body.removeEventListener("cut", preventContentCopy, true)
+      }
       //.....................................
       // Prepare anchor to data
       if (pageAnchorTo && anchor) {
@@ -17132,9 +17143,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   cleanMediaSize($div) {
     let $medias = Ti.Dom.findAll(".wn-media", $div)
     for(let $media of $medias) {
-      Ti.Dom.updateStyle($media, {
-        width: "", height: ""
-      })
+      let css = {width: "", height: ""}
+      if($media.style.float && "none"!=$media.style.float) {
+        css.float = ""
+        Ti.Dom.addClass($media, "as-phone-block")
+      }
+      Ti.Dom.updateStyle($media, css)
     }
   },
   //--------------------------------------
@@ -34051,6 +34065,346 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'web-shelf-rolling-cards.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/shelf/rolling-cards/web-shelf-rolling-cards.mjs'] = (function(){
+const _M = {
+  //////////////////////////////////////////
+  data: () => ({
+    myCurrentIndex: -1,
+    myRect: undefined,
+    myDisplayCards: [],
+    myCardWidth: undefined,
+    myCardHeight: undefined,
+    myDraggingOffset: 0,
+    isInDragging: false
+  }),
+  //////////////////////////////////////////
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "data": {
+      type: Array,
+      default: () => []
+    },
+    "currentIndex": {
+      type: Number,
+      default: -1
+    },
+    // Indicate the id key, in order to trace card lifecycle
+    "idBy": {
+      type: String,
+      default: "id"
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "comType": {
+      type: String,
+      default: undefined
+    },
+    "comConf": {
+      type: Object,
+      default: () => ({})
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "cardMaxNumber": {
+      type: Number,
+      default: 20
+    },
+    "blankAs": {
+      type: [Object, Boolean],
+      default: () => ({
+        text: "i18n:empty",
+        icon: "fas-box-open"
+      })
+    },
+    "loadingAs": {
+      type: [Object, Boolean],
+      default: () => ({})
+    },
+    "mainStyle": {
+      type: Object
+    },
+    "cardStyle": {
+      type: Object
+    },
+    //-----------------------------------
+    // Measure
+    // cardScale/cardHeight/cardWidth must have 2 properties 
+    //-----------------------------------
+    // cardWidth/cardHeight
+    "cardScale": {
+      type: Number,
+      default: 0.5
+    },
+    // The candidate card scale down
+    "cardScaleDown": {
+      type: Number,
+      default: 0.9
+    },
+    // Auto eval by cardWidth/cardScale
+    // If indicate the value, it is higher priority
+    "cardWidth": {
+      type: [Number, String],
+      default: "61.8%"
+    },
+    // Auto eval by cardWidth/cardScale
+    // If indicate the value, it is higher priority
+    "cardHeight": {
+      type: [Number, String],
+      default: undefined
+    },
+    // Stack card offsetX the percent base one cardWidth/Height
+    "cardOffsetX": {
+      type: [Number, String],
+      default: "10%"
+    }
+  },
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "in-dragging": this.isInDragging,
+        "no-dragging": !this.isInDragging
+      })
+    },
+    //--------------------------------------
+    MainStyle() {
+      return Ti.Css.toStyle(_.assign({
+        height: this.myCardHeight
+      }, this.mainStyle))
+    },
+    //--------------------------------------
+    DataItems() {
+      return this.data || []
+    },
+    //--------------------------------------
+    isLoading() {
+      return _.isUndefined(this.myDisplayCards)
+    },
+    //--------------------------------------
+    isEmpty() {
+      return _.isEmpty(this.myDisplayCards)
+    },
+    //--------------------------------------
+    // Eval the card id/comType/comConf
+    CardData() {
+      if (_.isEmpty(this.data)) {
+        return []
+      }
+      // Measure: viewport sizing
+      let list = []
+      _.forEach(this.data, (it, index) => {
+        let id = _.get(it, this.idBy) || `card-${index}`
+        let comType = it.comType || this.comType
+        let comConf;
+        // Customized it comConf
+        if (it.comConf) {
+          comConf = it.comConf
+        }
+        // Explain comConf
+        else {
+          comConf = Ti.Util.explainObj(it, this.comConf)
+        }
+
+        list.push({
+          id, index, comType, comConf, data: it
+        })
+      })
+      return list
+    },
+    //--------------------------------------
+    Draggable() {
+      return {
+        trigger: ".part-card",
+        viewport: ($trigger) => {
+          return Ti.Dom.closest($trigger, ".part-main")
+        },
+        actived: (ctx) => {
+          this.isInDragging = true
+        },
+        dragging: (ctx) => {
+          let { offsetX } = ctx
+          if (Math.abs(offsetX) > 5) {
+            this.myDraggingOffset = offsetX
+          } else {
+            this.myDraggingOffset = 0
+          }
+          //console.log("dragging", offsetX)
+          this.evalMyDisplayCards()
+        },
+        done: (ctx) => {
+          //let {viewport, $trigger, $viewport, offsetX, speed} = ctx
+          let { offsetX } = ctx
+          //console.log("dragging done", offsetX)
+          let threshold = this.myCardWidth / -2
+          if (offsetX < threshold) {
+            this.myCurrentIndex++
+          }
+          this.isInDragging = false
+          this.myDraggingOffset = 0
+          this.evalMyDisplayCards()
+        }
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    OnResize() {
+      let rect = Ti.Rects.createBy(this.$refs.con)
+      this.evalCardMeasure(rect)
+      this.myRect = rect
+    },
+    //--------------------------------------
+    evalCardMeasure(rect = this.myRect) {
+      // Eval the card width & height
+      let remBase = Ti.Dom.getRemBase(this.$el)
+      let cdW = Ti.Css.toAbsPixel(this.cardWidth, {
+        base: rect.width, remBase
+      })
+      let cdH = Ti.Css.toAbsPixel(this.cardHeight, {
+        base: rect.height, remBase
+      })
+      if (!cdW || cdW <= 0) {
+        cdW = cdH * this.cardScale
+      }
+      if (!cdH || cdH <= 0) {
+        cdH = cdW / this.cardScale
+      }
+      this.myCardWidth = cdW
+      this.myCardHeight = cdH
+    },
+    //--------------------------------------
+    evalMyDisplayCards() {
+      // Guard
+      if (_.isEmpty(this.myRect)) {
+        this.myDisplayCards = undefined
+        return
+      }
+      //...............................................
+      // Guard 2
+      if (_.isEmpty(this.CardData)) {
+        this.myDisplayCards = []
+        return
+      }
+      //...............................................
+      let cdW = this.myCardWidth
+      let cdH = this.myCardHeight
+      //...............................................
+      // Eval each card diff
+      let remBase = Ti.Dom.getRemBase(this.$el)
+      let offsetX = Ti.Css.toAbsPixel(this.cardOffsetX, {
+        base: cdW, remBase
+      })
+      //...............................................
+      // Count start position
+      let len = Math.min(this.CardData.length, this.cardMaxNumber)
+      let opacity = _.clamp(this.myDraggingOffset / this.myCardWidth, -1, 0)
+      opacity = 1 + opacity
+      //...............................................
+      let width = cdW
+      let height = cdH
+      let left = 0
+      let right = width
+      let csdw = this.cardScaleDown
+      //...............................................
+      let list = []
+      for (let i = 0; i < len; i++) {
+        let cardI = Ti.Num.scrollIndex(i + this.myCurrentIndex, len)
+        let card = _.cloneDeep(this.CardData[cardI])
+
+        // Position Y
+        let top = (cdH - height) / 2
+        card.style = _.assign({}, this.cardStyle, {
+          top: `${top}px`,
+          left: `${left}px`,
+          width: `${width}px`,
+          height: `${height}px`,
+          zIndex: len - i + 1
+        })
+
+        // Mark current class
+        card.className = {
+          "is-current": i == 0,
+          "is-candidate": i != 0
+        }
+
+        // transform the first card (current card)
+        if (i == 0 && this.myDraggingOffset != 0) {
+          card.style.opacity = opacity
+          let transX = Math.min(this.myDraggingOffset, 0)
+          if (transX < 0) {
+            card.style.transform = `translateX(${transX}px)`
+          }
+        }
+
+        // Add to list
+        list.push(card)
+
+        // Precard mesure
+        let preWidth = width
+        let preHeight = height
+        let preRight = right
+
+        // Scale down the second card
+        csdw = csdw * this.cardScaleDown
+        width = cdW * csdw
+        height = cdH * csdw
+        right += offsetX * csdw
+        // In dragging, zoom dynamicly
+        if (opacity < 1) {
+          let dragScale = 1 - opacity
+          let diffW = preWidth - width
+          let diffH = preHeight - height
+          let diffR = preRight - right
+          width  = Math.min(width  + diffW * dragScale, preWidth)
+          height = Math.min(height + diffH * dragScale, preHeight)
+          right  = Math.max(right  + diffR * dragScale / 2, preRight)
+          //console.log(i, opacity, right, preRight)
+        }
+        left = right - width
+      }
+
+      this.myDisplayCards = list
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "myRect": "evalMyDisplayCards",
+    "data": "evalMyDisplayCards",
+    "myCurrentIndex": "evalMyDisplayCards",
+    "currentIndex": {
+      handler: function (newVal) {
+        this.myCurrentIndex = newVal
+      },
+      immediate: true
+    }
+  },
+  //////////////////////////////////////////
+  mounted: function () {
+    this.OnResize()
+
+    Ti.Viewport.watch(this, {
+      resize: _.debounce(() => this.OnResize(), 10)
+    })
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy: function () {
+    Ti.Viewport.unwatch(this)
+  }
+  //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'wn-transfer.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/transfer/wn-transfer.mjs'] = (function(){
@@ -38561,6 +38915,29 @@ const _M = {
       //...................................
     },
     //-------------------------------------
+    updateBodyStyle() {
+      let bodyStyleSheet = {}
+      if(this.page.bodyStyle) {
+        bodyStyleSheet = Ti.Util.explainObj(this, this.page.bodyStyle)
+      }
+      let cssRule = Ti.Css.renderCssStyleSheet(bodyStyleSheet)
+      console.log("cssRule", cssRule)
+      // Find the body style rule
+      let $style = Ti.Dom.find('style.ti-site-body')
+      if(!_.isElement($style)) {
+        $style = Ti.Dom.createElement({
+          $p: this.$el.ownerDocument.body,
+          className: "ti-site-body",
+          tagName: "style",
+          props: {
+            rel : "stylesheet",
+            type : "text/css"
+          }
+        })
+      }
+      $style.innerHTML = cssRule
+    },
+    //-------------------------------------
     invokeAnalyzers() {
       // Guard
       if(_.isEmpty(this.analyzers))
@@ -38596,6 +38973,8 @@ const _M = {
       let pageTitle = Ti.Util.explainObj(this, this.page.title)
       document.title = pageTitle
       this.pushBrowserHistory(pageTitle)
+
+      this.updateBodyStyle()
 
       // TODO : Maybe here to embed the BaiDu Tongji Code
       this.invokeAnalyzers()
@@ -66377,8 +66756,7 @@ Ti.Preload("ti/com/web/shelf/gallery/web-shelf-gallery.html", `<div class="web-s
         v-if="it.comType"
           class="ti-fill-parent"
           :is="it.comType"
-          v-bind="it.comConf"
-          :abc="it.comConf.abc"/>
+          v-bind="it.comConf"/>
       <!--
         Placeholder
       -->
@@ -66573,6 +66951,69 @@ Ti.Preload("ti/com/web/shelf/preview-scroller/_com.json", {
   "components" : [
     "@com:web/media"
   ]
+});
+//========================================
+// JOIN <web-shelf-rolling-cards.html> ti/com/web/shelf/rolling-cards/web-shelf-rolling-cards.html
+//========================================
+Ti.Preload("ti/com/web/shelf/rolling-cards/web-shelf-rolling-cards.html", `<div class="web-shelf-rolling-cards"
+  :class="TopClass"
+  v-ti-draggable="Draggable">
+  <!--
+    Show Main part
+  -->
+  <div ref="con" class="part-main" :style="MainStyle">
+    <!--
+      Loading
+    -->
+    <ti-loading
+      v-if="isLoading"
+        class="as-big"
+        v-bind="loadingAs"/>
+    <!--
+      Blank
+    -->
+    <ti-loading
+      v-else-if="isEmpty"
+        class="as-big"
+        v-bind="blankAs"/>
+    <!--
+      Each component container
+    -->
+    <template v-else>
+      <div
+        v-for="card in myDisplayCards"
+          class="part-card"
+          :class="card.className"
+          :key="card.id"
+          :card-index="card.index"
+          :style="card.style">
+        <!--
+          Component
+        -->
+        <compnent
+          v-if="card.comType"
+            class="ti-fill-parent"
+            :is="card.comType"
+            v-bind="card.comConf"/>
+        <!--
+          Placeholder
+        -->
+        <span v-else>Item {{it.index}}</span>
+      </div>
+    </template>
+</div></div>`);
+//========================================
+// JOIN <web-shelf-rolling-cards.mjs> ti/com/web/shelf/rolling-cards/web-shelf-rolling-cards.mjs
+//========================================
+Ti.Preload("ti/com/web/shelf/rolling-cards/web-shelf-rolling-cards.mjs", TI_PACK_EXPORTS['ti/com/web/shelf/rolling-cards/web-shelf-rolling-cards.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/web/shelf/rolling-cards/_com.json
+//========================================
+Ti.Preload("ti/com/web/shelf/rolling-cards/_com.json", {
+  "name" : "web-shelf-rolling-cards",
+  "globally" : true,
+  "template" : "./web-shelf-rolling-cards.html",
+  "mixins" : ["./web-shelf-rolling-cards.mjs"]
 });
 //========================================
 // JOIN <web-shelf-scroller.html> ti/com/web/shelf/scroller/web-shelf-scroller.html
@@ -70336,6 +70777,7 @@ Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   },
   "activeElement" : null,
   "contextMenu": true,
+  "forbidCopy": false,
   "explainDataKey": [],
   "layout" : {
     "desktop" : {},
