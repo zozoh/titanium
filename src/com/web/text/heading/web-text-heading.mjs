@@ -34,6 +34,7 @@ export default {
     "moreIconType": String,
     "moreIcon": [String, Object],
     "moreIconStyle": Object,
+    "moreIconConf": Object,
     "morePreview": Object,
     "moreText": String,
     "moreNewTab": {

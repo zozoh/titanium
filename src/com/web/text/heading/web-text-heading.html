@@ -48,7 +48,10 @@
       :target="TheMoreTarget"
       :style="moreIconStyle"
       @click.left="OnClickMore">
-      <TiIcon v-if="TheMoreIcon" :value="TheMoreIcon"/>
+      <TiIcon
+        v-if="TheMoreIcon"
+          v-bind="moreIconConf"
+          :value="TheMoreIcon"/>
       <span v-if="moreText">{{moreText | i18n}}</span>
   </a>
 </div>

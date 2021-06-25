@@ -1,4 +1,4 @@
-// Pack At: 2021-06-25 12:03:32
+// Pack At: 2021-06-25 12:50:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -17143,7 +17143,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   cleanMediaSize($div) {
     let $medias = Ti.Dom.findAll(".wn-media", $div)
     for(let $media of $medias) {
-      let css = {width: "", height: ""}
+      let css = {width: "", height: "", margin:""}
       if($media.style.float && "none"!=$media.style.float) {
         css.float = ""
         Ti.Dom.addClass($media, "as-phone-block")
@@ -35257,6 +35257,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "moreIconType": String,
     "moreIcon": [String, Object],
     "moreIconStyle": Object,
+    "moreIconConf": Object,
     "morePreview": Object,
     "moreText": String,
     "moreNewTab": {
@@ -67300,7 +67301,10 @@ Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-tex
       :target="TheMoreTarget"
       :style="moreIconStyle"
       @click.left="OnClickMore">
-      <TiIcon v-if="TheMoreIcon" :value="TheMoreIcon"/>
+      <TiIcon
+        v-if="TheMoreIcon"
+          v-bind="moreIconConf"
+          :value="TheMoreIcon"/>
       <span v-if="moreText">{{moreText | i18n}}</span>
   </a>
 </div>`);
