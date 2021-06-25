@@ -15,8 +15,12 @@ export default {
   deconstructTable($div) {
     let $tables = Ti.Dom.findAll(":scope > table, :scope > * > table", $div)
     let $freg = new DocumentFragment()
-    const tidyHtml = function(html){
-      return html.replace(/(<p[^>]*>)|(<\/p>)/g, "")
+    const tidyHtml = function(el){
+      let html = el.innerHTML
+      if(1 == el.childElementCount) {
+        return html.replace(/(<p[^>]*>)|(<\/p>)/g, "")
+      }
+      return _.trim(html)
     }
     const createHr = function() {
       return Ti.Dom.createElement({tagName:"hr"})
@@ -28,7 +32,7 @@ export default {
       if($theadRow) {
         let $ths = Ti.Dom.findAll("td,th", $theadRow)
         for(let $th of $ths) {
-          let headHtml = tidyHtml($th.innerHTML)
+          let headHtml = tidyHtml($th)
           headers.push(headHtml)
         }
         Ti.Dom.remove($theadRow)
@@ -43,8 +47,7 @@ export default {
         let $cells = Ti.Dom.findAll("td", $row)
         for(let i=0; i<$cells.length; i++) {
           let $cell = $cells[i]
-          let html = _.trim($cell.innerHTML)
-          html = tidyHtml(html)
+          let html = tidyHtml($cell)
           // Ignore the empty cell
           if(!html || "&nbsp;" == html) {
             continue;

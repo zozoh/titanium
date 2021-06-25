@@ -1,4 +1,4 @@
-// Pack At: 2021-06-25 22:32:30
+// Pack At: 2021-06-25 23:01:19
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -17155,8 +17155,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   deconstructTable($div) {
     let $tables = Ti.Dom.findAll(":scope > table, :scope > * > table", $div)
     let $freg = new DocumentFragment()
-    const tidyHtml = function(html){
-      return html.replace(/(<p[^>]*>)|(<\/p>)/g, "")
+    const tidyHtml = function(el){
+      let html = el.innerHTML
+      if(1 == el.childElementCount) {
+        return html.replace(/(<p[^>]*>)|(<\/p>)/g, "")
+      }
+      return _.trim(html)
     }
     const createHr = function() {
       return Ti.Dom.createElement({tagName:"hr"})
@@ -17168,7 +17172,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if($theadRow) {
         let $ths = Ti.Dom.findAll("td,th", $theadRow)
         for(let $th of $ths) {
-          let headHtml = tidyHtml($th.innerHTML)
+          let headHtml = tidyHtml($th)
           headers.push(headHtml)
         }
         Ti.Dom.remove($theadRow)
@@ -17183,8 +17187,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         let $cells = Ti.Dom.findAll("td", $row)
         for(let i=0; i<$cells.length; i++) {
           let $cell = $cells[i]
-          let html = _.trim($cell.innerHTML)
-          html = tidyHtml(html)
+          let html = tidyHtml($cell)
           // Ignore the empty cell
           if(!html || "&nbsp;" == html) {
             continue;
