@@ -1,4 +1,4 @@
-// Pack At: 2021-06-25 15:26:06
+// Pack At: 2021-06-25 22:32:30
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -17155,6 +17155,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   deconstructTable($div) {
     let $tables = Ti.Dom.findAll(":scope > table, :scope > * > table", $div)
     let $freg = new DocumentFragment()
+    const tidyHtml = function(html){
+      return html.replace(/(<p[^>]*>)|(<\/p>)/g, "")
+    }
+    const createHr = function() {
+      return Ti.Dom.createElement({tagName:"hr"})
+    }
     for(let $table of $tables) {
       // Found thead
       let $theadRow = Ti.Dom.find('thead > tr', $table)
@@ -17162,11 +17168,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if($theadRow) {
         let $ths = Ti.Dom.findAll("td,th", $theadRow)
         for(let $th of $ths) {
-          headers.push($th.innerHTML)
+          let headHtml = tidyHtml($th.innerHTML)
+          headers.push(headHtml)
         }
         Ti.Dom.remove($theadRow)
       }
-      console.log($table)
+      //console.log($table)
+      // Begin Table
+      $freg.appendChild(createHr())
       // Decon each row
       let $rows = Ti.Dom.findAll("tr", $table)
       for(let $row of $rows) {
@@ -17175,6 +17184,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         for(let i=0; i<$cells.length; i++) {
           let $cell = $cells[i]
           let html = _.trim($cell.innerHTML)
+          html = tidyHtml(html)
           // Ignore the empty cell
           if(!html || "&nbsp;" == html) {
             continue;
@@ -17189,6 +17199,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           $p.innerHTML = html
           $freg.appendChild($p)
         }
+        // End row
+        $freg.appendChild(createHr())
       }
       // Insert before table
       $table.parentElement.insertBefore($freg, $table)
@@ -34258,7 +34270,7 @@ const _M = {
           //let {viewport, $trigger, $viewport, offsetX, speed} = ctx
           let { offsetX } = ctx
           //console.log("dragging done", offsetX)
-          let threshold = this.myCardWidth / -2
+          let threshold = this.myCardWidth / -4
           if (offsetX < threshold) {
             this.myCurrentIndex++
           }
@@ -42719,16 +42731,16 @@ const _M = {
       type: [Object, Boolean],
       default: ()=>({})
     },
-    "transName" : {
-      type: String,
-      default: undefined,
-      validator: v => (!v || /^(fade|((slide)-(left|right|down|up)))$/.test(v))
-    },
-    "transSpeed" : {
-      type: String,
-      default: "normal",
-      validator: v => /^(slow|normal|fast)$/.test(v)
-    }
+    // "transName" : {
+    //   type: String,
+    //   default: undefined,
+    //   validator: v => (!v || /^(fade|((slide)-(left|right|down|up)))$/.test(v))
+    // },
+    // "transSpeed" : {
+    //   type: String,
+    //   default: "normal",
+    //   validator: v => /^(slow|normal|fast)$/.test(v)
+    // }
   },
   //////////////////////////////////////////
   computed : {
@@ -42736,16 +42748,16 @@ const _M = {
     TopClass() {
       return this.getTopClass()
     },
-    //--------------------------------------
-    ItemTransName() {
-      if(this.transName) {
-        return `ti-trans-${this.transName}`
-      }
-    },
-    //--------------------------------------
-    ItemTransSpeedClassName() {
-      return `is-speed-${this.transSpeed}`
-    },
+    // //--------------------------------------
+    // ItemTransName() {
+    //   if(this.transName) {
+    //     return `ti-trans-${this.transName}`
+    //   }
+    // },
+    // //--------------------------------------
+    // ItemTransSpeedClassName() {
+    //   return `is-speed-${this.transSpeed}`
+    // },
     //--------------------------------------
     ItemList() {
       if(!_.isArray(this.data))
@@ -66913,7 +66925,7 @@ Ti.Preload("ti/com/web/shelf/list/web-shelf-list.html", `<div class="web-shelf-l
       v-bind="blankAs"/>
   <!--
     Each Items in trans
-  -->
+  
   <template v-else-if="ItemTransName">
     <transition-group
       tag="div"
@@ -66922,7 +66934,7 @@ Ti.Preload("ti/com/web/shelf/list/web-shelf-list.html", `<div class="web-shelf-l
       <div
         v-for="it in ItemList"
           class="list-item"
-          :class="ItemTransSpeedClassName"
+          :class="it.className"
           :key="it.key">
           <component
             :is="it.comType"
@@ -66930,21 +66942,20 @@ Ti.Preload("ti/com/web/shelf/list/web-shelf-list.html", `<div class="web-shelf-l
       </div>
     </transition-group>
   </template>
+  -->
   <!--
     Each Items no trans
   -->
-  <div
-    v-else
-      class="list-con">
-      <div
-        v-for="it in ItemList"
-          class="list-item"
-          :class="ItemTransSpeedClassName"
-          :key="it.key">
-          <component
-            :is="it.comType"
-            v-bind="it.comConf"/>    
-      </div>
+  <div class="list-con">
+    <div
+      v-for="it in ItemList"
+        class="list-item"
+        :class="it.className"
+        :key="it.key">
+        <component
+          :is="it.comType"
+          v-bind="it.comConf"/>    
+    </div>
   </div>
 </div>`);
 //========================================

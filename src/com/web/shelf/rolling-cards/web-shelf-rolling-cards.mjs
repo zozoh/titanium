@@ -172,7 +172,7 @@ const _M = {
           //let {viewport, $trigger, $viewport, offsetX, speed} = ctx
           let { offsetX } = ctx
           //console.log("dragging done", offsetX)
-          let threshold = this.myCardWidth / -2
+          let threshold = this.myCardWidth / -4
           if (offsetX < threshold) {
             this.myCurrentIndex++
           }

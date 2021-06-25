@@ -15,6 +15,12 @@ export default {
   deconstructTable($div) {
     let $tables = Ti.Dom.findAll(":scope > table, :scope > * > table", $div)
     let $freg = new DocumentFragment()
+    const tidyHtml = function(html){
+      return html.replace(/(<p[^>]*>)|(<\/p>)/g, "")
+    }
+    const createHr = function() {
+      return Ti.Dom.createElement({tagName:"hr"})
+    }
     for(let $table of $tables) {
       // Found thead
       let $theadRow = Ti.Dom.find('thead > tr', $table)
@@ -22,11 +28,14 @@ export default {
       if($theadRow) {
         let $ths = Ti.Dom.findAll("td,th", $theadRow)
         for(let $th of $ths) {
-          headers.push($th.innerHTML)
+          let headHtml = tidyHtml($th.innerHTML)
+          headers.push(headHtml)
         }
         Ti.Dom.remove($theadRow)
       }
-      console.log($table)
+      //console.log($table)
+      // Begin Table
+      $freg.appendChild(createHr())
       // Decon each row
       let $rows = Ti.Dom.findAll("tr", $table)
       for(let $row of $rows) {
@@ -35,6 +44,7 @@ export default {
         for(let i=0; i<$cells.length; i++) {
           let $cell = $cells[i]
           let html = _.trim($cell.innerHTML)
+          html = tidyHtml(html)
           // Ignore the empty cell
           if(!html || "&nbsp;" == html) {
             continue;
@@ -49,6 +59,8 @@ export default {
           $p.innerHTML = html
           $freg.appendChild($p)
         }
+        // End row
+        $freg.appendChild(createHr())
       }
       // Insert before table
       $table.parentElement.insertBefore($freg, $table)

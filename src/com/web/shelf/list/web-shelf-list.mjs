@@ -35,16 +35,16 @@ const _M = {
       type: [Object, Boolean],
       default: ()=>({})
     },
-    "transName" : {
-      type: String,
-      default: undefined,
-      validator: v => (!v || /^(fade|((slide)-(left|right|down|up)))$/.test(v))
-    },
-    "transSpeed" : {
-      type: String,
-      default: "normal",
-      validator: v => /^(slow|normal|fast)$/.test(v)
-    }
+    // "transName" : {
+    //   type: String,
+    //   default: undefined,
+    //   validator: v => (!v || /^(fade|((slide)-(left|right|down|up)))$/.test(v))
+    // },
+    // "transSpeed" : {
+    //   type: String,
+    //   default: "normal",
+    //   validator: v => /^(slow|normal|fast)$/.test(v)
+    // }
   },
   //////////////////////////////////////////
   computed : {
@@ -52,16 +52,16 @@ const _M = {
     TopClass() {
       return this.getTopClass()
     },
-    //--------------------------------------
-    ItemTransName() {
-      if(this.transName) {
-        return `ti-trans-${this.transName}`
-      }
-    },
-    //--------------------------------------
-    ItemTransSpeedClassName() {
-      return `is-speed-${this.transSpeed}`
-    },
+    // //--------------------------------------
+    // ItemTransName() {
+    //   if(this.transName) {
+    //     return `ti-trans-${this.transName}`
+    //   }
+    // },
+    // //--------------------------------------
+    // ItemTransSpeedClassName() {
+    //   return `is-speed-${this.transSpeed}`
+    // },
     //--------------------------------------
     ItemList() {
       if(!_.isArray(this.data))
