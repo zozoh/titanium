@@ -52,6 +52,10 @@ export default {
     "newtab": {
       type: [String, Boolean]
     },
+    "clickToNotify": {
+      type: String,
+      default: undefined
+    },
     "enterNotify" : {
       type : [String, Boolean]
       /*default: "media:enter"*/
@@ -263,7 +267,30 @@ export default {
       }
     },
     //--------------------------------------
+    OnClickTop(evt) {
+      if(this.clickToNotify) {
+        evt.preventDefault()
+        let payload = _.assign({
+          $el : this.$el,
+          $partLeft : this.$refs.partLeft,
+          $partRight : this.$refs.partRight
+        }, this.notifyPayload)
+        this.$notify(this.clickToNotify, payload)
+        return
+      }
+    },
+    //--------------------------------------
     OnClickLink(evt) {
+      if(this.clickToNotify) {
+        evt.preventDefault()
+        let payload = _.assign({
+          $el : this.$el,
+          $partLeft : this.$refs.partLeft,
+          $partRight : this.$refs.partRight
+        }, this.notifyPayload)
+        this.$notify(this.clickToNotify, payload)
+        return
+      }
       if(!this.isHasLink) {
         return
       }
@@ -340,7 +367,8 @@ export default {
         this.myEnterNotifed = true
         let payload = _.assign({
           $el : this.$el,
-          $img : this.$refs.img
+          $partLeft : this.$refs.partLeft,
+          $partRight : this.$refs.partRight
         }, this.notifyPayload)
         this.$notify(this.EnterNotifyName, payload)
       }
@@ -355,10 +383,10 @@ export default {
       // Full text
       //
       if(this.effects.textHoverFull) {
-        let $text = this.$refs.text
+        let $text = this.$refs.partRight
         // Remember the old rect for restore size when mouse leave
         if($text && !$text.__primary_rect) {
-          let rect = Ti.Rects.createBy(this.$refs.text)
+          let rect = Ti.Rects.createBy(this.$refs.partRight)
           $text.__primary_rect = rect
           $text.__reset_primary = false
           // Set start size for transition
@@ -394,7 +422,7 @@ export default {
       // Full text
       //
       if(this.effects.textHoverFull) {
-        let $text = this.$refs.text
+        let $text = this.$refs.partRight
         // trans event handler
         const OnTextTransitionend = ()=>{
           //console.log("$text transitionend")
@@ -443,7 +471,8 @@ export default {
       if(this.myEnterNotifed && this.LeaveNotifyName) {
         let payload = _.assign({
           $el : this.$el,
-          $img : this.$refs.img
+          $partLeft : this.$refs.partLeft,
+          $partRight : this.$refs.partRight
         }, this.notifyPayload)
         this.$notify(this.LeaveNotifyName, payload)
       }
@@ -453,10 +482,10 @@ export default {
     //--------------------------------------
     OnTextTransitionend() {
       if(!this.myMouseIn) {
-        Ti.Dom.updateStyle(this.$refs.text, {
+        Ti.Dom.updateStyle(this.$refs.partRight, {
           width: "", height: ""
         })
-        this.$refs.text.__primary_rect = undefined
+        this.$refs.partRight.__primary_rect = undefined
       }
     }
     //--------------------------------------

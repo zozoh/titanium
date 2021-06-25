@@ -1,12 +1,13 @@
 <div class="web-row-image"
   :class="TopClass"
+  @click.left="OnClickTop"
   @mousemove="OnMouseMove"
   @mouseenter="OnMouseEnter"
   @mouseleave="OnMouseLeave">
   <!--
     Left
   -->
-  <div class="as-part at-left" :style="LeftPartStyle">
+  <div class="as-part at-left" :style="LeftPartStyle" ref="partLeft">
     <div class="as-img-con" :style="imageConStyle">
       <a 
         :href="TheHref"
@@ -36,7 +37,7 @@
   <!--
     Right: 
   -->
-  <div class="as-part at-right" :style="RightPartStyle" ref="text">
+  <div class="as-part at-right" :style="RightPartStyle" ref="partRight">
       <div
         v-if="TheText"
           class="as-title"

@@ -48,6 +48,14 @@ const _M = {
       "isViewportModePhoneOrTablet"
     ]),
     //-------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "as-phone": this.isViewportModePhone,
+        "as-tablet": this.isViewportModeTablet,
+        "as-desktop": this.isViewportModeDesktop
+      })
+    },
+    //-------------------------------------
     PayReturnUrl: function() {
       let st = this.$store.state
       if(st.payReturnUrl) {

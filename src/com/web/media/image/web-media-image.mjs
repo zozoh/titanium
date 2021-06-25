@@ -56,6 +56,10 @@ export default {
     "newtab": {
       type: [String, Boolean]
     },
+    "clickToNotify": {
+      type: String,
+      default: undefined
+    },
     /*
     Show zoom lens and dock aside to the image
     - pickWidth : (0-1) percent | >1 for pixcle
@@ -402,6 +406,15 @@ export default {
     },
     //--------------------------------------
     OnClickTop(evt) {
+      if(this.clickToNotify) {
+        evt.preventDefault()
+        let payload = _.assign({
+          $el: this.$el,
+          $img: this.$refs.img
+        }, this.notifyPayload)
+        this.$notify(this.clickToNotify, payload)
+        return
+      }
       if (!this.isHasLink) {
         return
       }

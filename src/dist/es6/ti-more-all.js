@@ -1,4 +1,4 @@
-// Pack At: 2021-06-25 12:50:37
+// Pack At: 2021-06-25 14:03:52
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -22709,6 +22709,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "newtab": {
       type: [String, Boolean]
     },
+    "clickToNotify": {
+      type: String,
+      default: undefined
+    },
     /*
     Show zoom lens and dock aside to the image
     - pickWidth : (0-1) percent | >1 for pixcle
@@ -23055,6 +23059,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     OnClickTop(evt) {
+      if(this.clickToNotify) {
+        evt.preventDefault()
+        let payload = _.assign({
+          $el: this.$el,
+          $img: this.$refs.img
+        }, this.notifyPayload)
+        this.$notify(this.clickToNotify, payload)
+        return
+      }
       if (!this.isHasLink) {
         return
       }
@@ -38733,6 +38746,14 @@ const _M = {
       "isViewportModePhoneOrTablet"
     ]),
     //-------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "as-phone": this.isViewportModePhone,
+        "as-tablet": this.isViewportModeTablet,
+        "as-desktop": this.isViewportModeDesktop
+      })
+    },
+    //-------------------------------------
     PayReturnUrl: function() {
       let st = this.$store.state
       if(st.payReturnUrl) {
@@ -53712,6 +53733,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "newtab": {
       type: [String, Boolean]
     },
+    "clickToNotify": {
+      type: String,
+      default: undefined
+    },
     "enterNotify" : {
       type : [String, Boolean]
       /*default: "media:enter"*/
@@ -53923,7 +53948,30 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //--------------------------------------
+    OnClickTop(evt) {
+      if(this.clickToNotify) {
+        evt.preventDefault()
+        let payload = _.assign({
+          $el : this.$el,
+          $partLeft : this.$refs.partLeft,
+          $partRight : this.$refs.partRight
+        }, this.notifyPayload)
+        this.$notify(this.clickToNotify, payload)
+        return
+      }
+    },
+    //--------------------------------------
     OnClickLink(evt) {
+      if(this.clickToNotify) {
+        evt.preventDefault()
+        let payload = _.assign({
+          $el : this.$el,
+          $partLeft : this.$refs.partLeft,
+          $partRight : this.$refs.partRight
+        }, this.notifyPayload)
+        this.$notify(this.clickToNotify, payload)
+        return
+      }
       if(!this.isHasLink) {
         return
       }
@@ -54000,7 +54048,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
         this.myEnterNotifed = true
         let payload = _.assign({
           $el : this.$el,
-          $img : this.$refs.img
+          $partLeft : this.$refs.partLeft,
+          $partRight : this.$refs.partRight
         }, this.notifyPayload)
         this.$notify(this.EnterNotifyName, payload)
       }
@@ -54015,10 +54064,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Full text
       //
       if(this.effects.textHoverFull) {
-        let $text = this.$refs.text
+        let $text = this.$refs.partRight
         // Remember the old rect for restore size when mouse leave
         if($text && !$text.__primary_rect) {
-          let rect = Ti.Rects.createBy(this.$refs.text)
+          let rect = Ti.Rects.createBy(this.$refs.partRight)
           $text.__primary_rect = rect
           $text.__reset_primary = false
           // Set start size for transition
@@ -54054,7 +54103,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Full text
       //
       if(this.effects.textHoverFull) {
-        let $text = this.$refs.text
+        let $text = this.$refs.partRight
         // trans event handler
         const OnTextTransitionend = ()=>{
           //console.log("$text transitionend")
@@ -54103,7 +54152,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if(this.myEnterNotifed && this.LeaveNotifyName) {
         let payload = _.assign({
           $el : this.$el,
-          $img : this.$refs.img
+          $partLeft : this.$refs.partLeft,
+          $partRight : this.$refs.partRight
         }, this.notifyPayload)
         this.$notify(this.LeaveNotifyName, payload)
       }
@@ -54113,10 +54163,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     OnTextTransitionend() {
       if(!this.myMouseIn) {
-        Ti.Dom.updateStyle(this.$refs.text, {
+        Ti.Dom.updateStyle(this.$refs.partRight, {
           width: "", height: ""
         })
-        this.$refs.text.__primary_rect = undefined
+        this.$refs.partRight.__primary_rect = undefined
       }
     }
     //--------------------------------------
@@ -66520,13 +66570,14 @@ Ti.Preload("ti/com/web/row/article/_com.json", {
 //========================================
 Ti.Preload("ti/com/web/row/image/web-row-image.html", `<div class="web-row-image"
   :class="TopClass"
+  @click.left="OnClickTop"
   @mousemove="OnMouseMove"
   @mouseenter="OnMouseEnter"
   @mouseleave="OnMouseLeave">
   <!--
     Left
   -->
-  <div class="as-part at-left" :style="LeftPartStyle">
+  <div class="as-part at-left" :style="LeftPartStyle" ref="partLeft">
     <div class="as-img-con" :style="imageConStyle">
       <a 
         :href="TheHref"
@@ -66556,7 +66607,7 @@ Ti.Preload("ti/com/web/row/image/web-row-image.html", `<div class="web-row-image
   <!--
     Right: 
   -->
-  <div class="as-part at-right" :style="RightPartStyle" ref="text">
+  <div class="as-part at-right" :style="RightPartStyle" ref="partRight">
       <div
         v-if="TheText"
           class="as-title"
@@ -70685,7 +70736,9 @@ Ti.Preload("ti/mod/wn/__del_obj-current/_mod.json", {
 //========================================
 // JOIN <site-main.html> ti/lib/www/com/site-main.html
 //========================================
-Ti.Preload("ti/lib/www/com/site-main.html", `<div class="site-main" @click.right="OnMouseRightClick">
+Ti.Preload("ti/lib/www/com/site-main.html", `<div class="site-main"
+  :class="TopClass" 
+  @click.right="OnMouseRightClick">
   <ti-gui 
     class="site-page"
     v-bind="PageGUI"

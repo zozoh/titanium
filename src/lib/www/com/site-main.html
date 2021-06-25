@@ -1,4 +1,6 @@
-<div class="site-main" @click.right="OnMouseRightClick">
+<div class="site-main"
+  :class="TopClass" 
+  @click.right="OnMouseRightClick">
   <ti-gui 
     class="site-page"
     v-bind="PageGUI"
