@@ -240,7 +240,7 @@ const _M = {
         bodyStyleSheet = Ti.Util.explainObj(this, this.page.bodyStyle)
       }
       let cssRule = Ti.Css.renderCssStyleSheet(bodyStyleSheet)
-      console.log("cssRule", cssRule)
+      //console.log("cssRule", cssRule)
       // Find the body style rule
       let $style = Ti.Dom.find('style.ti-site-body')
       if(!_.isElement($style)) {

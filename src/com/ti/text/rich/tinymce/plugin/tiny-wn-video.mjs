@@ -236,7 +236,7 @@ async function CmdShowVideoProp(editor, settings) {
   }
   //................................................
   // Styling
-  let style = Ti.Dom.renderCssRule(reo.style)
+  let style = Ti.Css.renderCssRule(reo.style)
   //console.log("style:", style)
   $video.style = style
   //................................................

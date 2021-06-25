@@ -1,4 +1,4 @@
-// Pack At: 2021-06-25 00:43:12
+// Pack At: 2021-06-25 12:03:32
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4055,7 +4055,7 @@ const {Dom} = (function(){
     //----------------------------------------------------
     getOwnStyle($el, filter=true) {
       if(_.isElement($el)) {
-        return TiDom.parseCssRule($el.getAttribute("style"), filter)
+        return Ti.Css.parseCssRule($el.getAttribute("style"), filter)
       }
     },
     //----------------------------------------------------
@@ -4479,7 +4479,7 @@ const {Dom} = (function(){
         $el.style = ""
         return
       }
-      let cssStyle = TiDom.renderCssRule(css)
+      let cssStyle = Ti.Css.renderCssRule(css)
       $el.style = cssStyle
     },
     //----------------------------------------------------
@@ -4523,7 +4523,7 @@ const {Dom} = (function(){
           if(Ti.Util.isNil(val)) {
             $el.removeAttribute("style")
           } else {
-            let cssStyle = TiDom.renderCssRule(val)
+            let cssStyle = Ti.Css.renderCssRule(val)
             $el.style = cssStyle
           }
         }
@@ -12645,7 +12645,7 @@ const {Css} = (function(){
       if(Ti.S.isBlank(rule)) {
         return {}
       }
-      filter = this.attrFilter(filter)
+      filter = Ti.Dom.attrFilter(filter)
       let re = {}
       let ss = rule.split(";")
       for(let s of ss) {
@@ -13924,12 +13924,12 @@ const {Album} = (function(){
       return {
         id, name, link, layout, fullpreview, autoopen,
         wallClass: wallClass.join(" "),
-        style: Ti.Dom.renderCssRule(style),
-        wallStyle: Ti.Dom.renderCssRule(wallStyle),
-        tileStyle: Ti.Dom.renderCssRule(tileStyle),
-        imageStyle: Ti.Dom.renderCssRule(imageStyle),
-        titleStyle: Ti.Dom.renderCssRule(titleStyle),
-        briefStyle: Ti.Dom.renderCssRule(briefStyle),
+        style: Ti.Css.renderCssRule(style),
+        wallStyle: Ti.Css.renderCssRule(wallStyle),
+        tileStyle: Ti.Css.renderCssRule(tileStyle),
+        imageStyle: Ti.Css.renderCssRule(imageStyle),
+        titleStyle: Ti.Css.renderCssRule(titleStyle),
+        briefStyle: Ti.Css.renderCssRule(briefStyle),
       }
     }
     //---------------------------------------
@@ -13949,12 +13949,12 @@ const {Album} = (function(){
         titleStyle, briefStyle,
       } = album
       album.wallClass = Ti.Dom.getClassList(wallClass).join(" ")
-      album.style = Ti.Dom.parseCssRule(style)
-      album.wallStyle = Ti.Dom.parseCssRule(wallStyle)
-      album.tileStyle = Ti.Dom.parseCssRule(tileStyle)
-      album.imageStyle = Ti.Dom.parseCssRule(imageStyle)
-      album.titleStyle = Ti.Dom.parseCssRule(titleStyle)
-      album.briefStyle = Ti.Dom.parseCssRule(briefStyle)
+      album.style = Ti.Css.parseCssRule(style)
+      album.wallStyle = Ti.Css.parseCssRule(wallStyle)
+      album.tileStyle = Ti.Css.parseCssRule(tileStyle)
+      album.imageStyle = Ti.Css.parseCssRule(imageStyle)
+      album.titleStyle = Ti.Css.parseCssRule(titleStyle)
+      album.briefStyle = Ti.Css.parseCssRule(briefStyle)
       album.type = this.$el.getAttribute("ti-album-type")
       return album
     }
@@ -15887,7 +15887,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210625.004312",
+  "version" : "1.6-20210625.120332",
   "dev" : false,
   "appName" : null,
   "session" : {},

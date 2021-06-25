@@ -1,4 +1,4 @@
-// Pack At: 2021-06-25 00:43:12
+// Pack At: 2021-06-25 12:03:32
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8308,9 +8308,9 @@ function UpdateWebImageStyle(editor, el, data) {
   //............................................
   let conStyle = _.pick(data.imgStyle, OUTER_STYLE_NAMES)
   let imgStyle = _.omit(data.imgStyle, OUTER_STYLE_NAMES)
-  let altStyle = Ti.Dom.renderCssRule(data.altStyle)
-  conStyle = Ti.Dom.renderCssRule(conStyle)
-  imgStyle = Ti.Dom.renderCssRule(imgStyle)
+  let altStyle = Ti.Css.renderCssRule(data.altStyle)
+  conStyle = Ti.Css.renderCssRule(conStyle)
+  imgStyle = Ti.Css.renderCssRule(imgStyle)
   //............................................
   // Wrap image by span
   if(con == img && "IMG" == con.tagName) {
@@ -38924,7 +38924,7 @@ const _M = {
         bodyStyleSheet = Ti.Util.explainObj(this, this.page.bodyStyle)
       }
       let cssRule = Ti.Css.renderCssStyleSheet(bodyStyleSheet)
-      console.log("cssRule", cssRule)
+      //console.log("cssRule", cssRule)
       // Find the body style rule
       let $style = Ti.Dom.find('style.ti-site-body')
       if(!_.isElement($style)) {
@@ -40998,7 +40998,7 @@ async function CmdShowVideoProp(editor, settings) {
   }
   //................................................
   // Styling
-  let style = Ti.Dom.renderCssRule(reo.style)
+  let style = Ti.Css.renderCssRule(reo.style)
   //console.log("style:", style)
   $video.style = style
   //................................................
@@ -44543,7 +44543,7 @@ async function CmdShowYoutubeProp(editor, settings) {
   Ti.Dom.setAttrs($video, attrs)
   //................................................
   // Styling
-  let style = Ti.Dom.renderCssRule(reo.style)
+  let style = Ti.Css.renderCssRule(reo.style)
   //console.log("style:", style)
   $video.style = style
   //................................................

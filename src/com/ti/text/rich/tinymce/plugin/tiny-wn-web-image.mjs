@@ -133,9 +133,9 @@ function UpdateWebImageStyle(editor, el, data) {
   //............................................
   let conStyle = _.pick(data.imgStyle, OUTER_STYLE_NAMES)
   let imgStyle = _.omit(data.imgStyle, OUTER_STYLE_NAMES)
-  let altStyle = Ti.Dom.renderCssRule(data.altStyle)
-  conStyle = Ti.Dom.renderCssRule(conStyle)
-  imgStyle = Ti.Dom.renderCssRule(imgStyle)
+  let altStyle = Ti.Css.renderCssRule(data.altStyle)
+  conStyle = Ti.Css.renderCssRule(conStyle)
+  imgStyle = Ti.Css.renderCssRule(imgStyle)
   //............................................
   // Wrap image by span
   if(con == img && "IMG" == con.tagName) {

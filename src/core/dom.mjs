@@ -201,7 +201,7 @@ const TiDom = {
   //----------------------------------------------------
   getOwnStyle($el, filter=true) {
     if(_.isElement($el)) {
-      return TiDom.parseCssRule($el.getAttribute("style"), filter)
+      return Ti.Css.parseCssRule($el.getAttribute("style"), filter)
     }
   },
   //----------------------------------------------------
@@ -625,7 +625,7 @@ const TiDom = {
       $el.style = ""
       return
     }
-    let cssStyle = TiDom.renderCssRule(css)
+    let cssStyle = Ti.Css.renderCssRule(css)
     $el.style = cssStyle
   },
   //----------------------------------------------------
@@ -669,7 +669,7 @@ const TiDom = {
         if(Ti.Util.isNil(val)) {
           $el.removeAttribute("style")
         } else {
-          let cssStyle = TiDom.renderCssRule(val)
+          let cssStyle = Ti.Css.renderCssRule(val)
           $el.style = cssStyle
         }
       }

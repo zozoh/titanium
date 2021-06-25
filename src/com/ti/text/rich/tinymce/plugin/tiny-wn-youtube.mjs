@@ -242,7 +242,7 @@ async function CmdShowYoutubeProp(editor, settings) {
   Ti.Dom.setAttrs($video, attrs)
   //................................................
   // Styling
-  let style = Ti.Dom.renderCssRule(reo.style)
+  let style = Ti.Css.renderCssRule(reo.style)
   //console.log("style:", style)
   $video.style = style
   //................................................

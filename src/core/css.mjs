@@ -196,7 +196,7 @@ const TiCss = {
     if(Ti.S.isBlank(rule)) {
       return {}
     }
-    filter = this.attrFilter(filter)
+    filter = Ti.Dom.attrFilter(filter)
     let re = {}
     let ss = rule.split(";")
     for(let s of ss) {

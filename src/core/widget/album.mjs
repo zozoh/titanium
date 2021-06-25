@@ -71,12 +71,12 @@ class TiAlbum {
     return {
       id, name, link, layout, fullpreview, autoopen,
       wallClass: wallClass.join(" "),
-      style: Ti.Dom.renderCssRule(style),
-      wallStyle: Ti.Dom.renderCssRule(wallStyle),
-      tileStyle: Ti.Dom.renderCssRule(tileStyle),
-      imageStyle: Ti.Dom.renderCssRule(imageStyle),
-      titleStyle: Ti.Dom.renderCssRule(titleStyle),
-      briefStyle: Ti.Dom.renderCssRule(briefStyle),
+      style: Ti.Css.renderCssRule(style),
+      wallStyle: Ti.Css.renderCssRule(wallStyle),
+      tileStyle: Ti.Css.renderCssRule(tileStyle),
+      imageStyle: Ti.Css.renderCssRule(imageStyle),
+      titleStyle: Ti.Css.renderCssRule(titleStyle),
+      briefStyle: Ti.Css.renderCssRule(briefStyle),
     }
   }
   //---------------------------------------
@@ -96,12 +96,12 @@ class TiAlbum {
       titleStyle, briefStyle,
     } = album
     album.wallClass = Ti.Dom.getClassList(wallClass).join(" ")
-    album.style = Ti.Dom.parseCssRule(style)
-    album.wallStyle = Ti.Dom.parseCssRule(wallStyle)
-    album.tileStyle = Ti.Dom.parseCssRule(tileStyle)
-    album.imageStyle = Ti.Dom.parseCssRule(imageStyle)
-    album.titleStyle = Ti.Dom.parseCssRule(titleStyle)
-    album.briefStyle = Ti.Dom.parseCssRule(briefStyle)
+    album.style = Ti.Css.parseCssRule(style)
+    album.wallStyle = Ti.Css.parseCssRule(wallStyle)
+    album.tileStyle = Ti.Css.parseCssRule(tileStyle)
+    album.imageStyle = Ti.Css.parseCssRule(imageStyle)
+    album.titleStyle = Ti.Css.parseCssRule(titleStyle)
+    album.briefStyle = Ti.Css.parseCssRule(briefStyle)
     album.type = this.$el.getAttribute("ti-album-type")
     return album
   }
