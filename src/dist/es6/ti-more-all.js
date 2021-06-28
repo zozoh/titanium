@@ -1,4 +1,4 @@
-// Pack At: 2021-06-25 23:01:19
+// Pack At: 2021-06-28 22:44:27
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -31118,6 +31118,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "referElement": "dockPanelToReferElement",
     "visibles": "dockPanelToReferElement",
     "fixed": "evalConStyle",
+    "viewportWidth": "evalConStyle",
     "width": "evalConStyle",
     "height": "evalConStyle"
   },

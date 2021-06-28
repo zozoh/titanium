@@ -277,6 +277,7 @@ export default {
     "referElement": "dockPanelToReferElement",
     "visibles": "dockPanelToReferElement",
     "fixed": "evalConStyle",
+    "viewportWidth": "evalConStyle",
     "width": "evalConStyle",
     "height": "evalConStyle"
   },
