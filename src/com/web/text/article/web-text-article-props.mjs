@@ -14,6 +14,10 @@ export default {
   //-----------------------------------
   // Behavior
   //-----------------------------------
+  "ignoreBlank": {
+    type: Boolean,
+    default: false
+  },
   "apiTmpl": {
     type: String,
     default: undefined
@@ -75,6 +79,10 @@ export default {
   "mediaRawSize": {
     type: Boolean,
     default: false
+  },
+  "showImageGallery": {
+    type: Boolean,
+    default: true
   },
   //-----------------------------------
   // Aspect

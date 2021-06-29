@@ -134,9 +134,15 @@
       //-----------------------------------
       header {
         @include pos-abs($t:0,$l:0,$r:0);
-        padding: SZ(24); font-size: SZ(24);
-        font-weight: bold; text-align: center;
-        color: #FFF;
+        padding: SZ(24) SZ(60); font-size: SZ(20);
+        text-align: justify;
+        color: #FFF; background: rgba(0,0,0,0.3);
+        z-index: 1;
+        transition: 0.5s;
+      }
+      //-----------------------------------
+      &[img-zoom] header {
+        opacity: 0;
       }
       //-----------------------------------
       img {
@@ -232,6 +238,7 @@
   //---------------------------------------
   div.as-closer {
     @include pos-abs($t:0,$r:0);
+    z-index: 2;
     //-------------------------------------
     a {
       @include flex-center;

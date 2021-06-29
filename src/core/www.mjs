@@ -512,6 +512,8 @@ const TiWWW = {
     //.....................................
     // Eval api transformer
     if (api.transformer) {
+      if("BCHC.TagsToDict" == api.transformer)
+      console.log("transform", api.transformer)
       let trans = _.cloneDeep(api.transformer)
       let partial = Ti.Util.fallback(trans.partial, "right")
       // PreExplain args

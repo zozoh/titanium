@@ -2,9 +2,9 @@ export default {
   //--------------------------------------
   cleanMediaSize($div) {
     let $medias = Ti.Dom.findAll(".wn-media", $div)
-    for(let $media of $medias) {
-      let css = {width: "", height: "", margin:""}
-      if($media.style.float && "none"!=$media.style.float) {
+    for (let $media of $medias) {
+      let css = { width: "", height: "", margin: "" }
+      if ($media.style.float && "none" != $media.style.float) {
         css.float = ""
         Ti.Dom.addClass($media, "as-phone-block")
       }
@@ -15,23 +15,37 @@ export default {
   deconstructTable($div) {
     let $tables = Ti.Dom.findAll(":scope > table, :scope > * > table", $div)
     let $freg = new DocumentFragment()
-    const tidyHtml = function(el){
+    const tidyHtml = function (el) {
       let html = el.innerHTML
-      if(1 == el.childElementCount) {
+      if (1 == el.childElementCount) {
         return html.replace(/(<p[^>]*>)|(<\/p>)/g, "")
       }
       return _.trim(html)
     }
-    const createHr = function() {
-      return Ti.Dom.createElement({tagName:"hr"})
+    const createHr = function () {
+      return Ti.Dom.createElement({
+        tagName: "hr",
+        className: "decon-table as-table-tr"
+      })
     }
-    for(let $table of $tables) {
+    for (let $table of $tables) {
+      // Table caption
+      let $caption = Ti.Dom.find("caption", $table)
+      if ($caption) {
+        let $caP = Ti.Dom.createElement({
+          tagName: "p",
+          className: "decon-table as-table-caption"
+        })
+        $caP.innerHTML = $caption.innerHTML
+        $freg.appendChild(createHr())
+        $freg.appendChild($caP)
+      }
       // Found thead
       let $theadRow = Ti.Dom.find('thead > tr', $table)
       let headers = []
-      if($theadRow) {
+      if ($theadRow) {
         let $ths = Ti.Dom.findAll("td,th", $theadRow)
-        for(let $th of $ths) {
+        for (let $th of $ths) {
           let headHtml = tidyHtml($th)
           headers.push(headHtml)
         }
@@ -42,21 +56,22 @@ export default {
       $freg.appendChild(createHr())
       // Decon each row
       let $rows = Ti.Dom.findAll("tr", $table)
-      for(let $row of $rows) {
+      for (let $row of $rows) {
         // Each cell
         let $cells = Ti.Dom.findAll("td", $row)
-        for(let i=0; i<$cells.length; i++) {
+        for (let i = 0; i < $cells.length; i++) {
           let $cell = $cells[i]
           let html = tidyHtml($cell)
           // Ignore the empty cell
-          if(!html || "&nbsp;" == html) {
+          if (!html || "&nbsp;" == html) {
             continue;
           }
           let $p = Ti.Dom.createElement({
             tagName: "p",
+            className: "decon-table as-table-cess"
           })
           let headHtml = _.get(headers, i)
-          if(headHtml) {
+          if (headHtml) {
             html = headHtml + '<span>:</span> ' + html
           }
           $p.innerHTML = html
@@ -217,78 +232,87 @@ export default {
     }
   },
   //--------------------------------------
+  getTiAlbumObj($el) {
+    let albumType = $el.getAttribute("ti-album-type")
+    //
+    // Get album setup by type
+    //
+    let setup = ({
+      "album": {
+        attrPrefix: "wn-obj-",
+        itemToPhoto: {
+          name: "=title",
+          link: "#",
+          src: (obj) => {
+            return Ti.WWW.evalObjPreviewSrc(obj, {
+              previewKey: "..",
+              previewObj: "..",
+              apiTmpl: this.apiTmpl,
+              cdnTmpl: this.cdnTmpl,
+              dftSrc: this.dftImgSrc
+            })
+          },
+          thumb: (obj) => {
+            return Ti.WWW.evalObjPreviewSrc(obj, {
+              previewKey: "thumb",
+              previewObj: "thumbObj",
+              apiTmpl: this.apiTmpl,
+              cdnTmpl: this.cdnTmpl,
+              dftSrc: this.dftImgSrc
+            })
+          },
+          brief: "=brief"
+        }
+      },
+      "fb-album": {
+        attrPrefix: "wn-fb-",
+        itemToPhoto: {
+          name: "=name",
+          link: "=link",
+          thumb: "=thumbSrc",  // "thumb_src" will be camelCase
+          src: "=src"
+        }
+      },
+      "yt-playlist": {
+        attrPrefix: "wn-ytpl-",
+        itemToPhoto: {
+          name: "=title",
+          link: `->${this.ytPlayerTmpl}`,
+          thumb: "=thumbUrl",
+          src: "=coverUrl",
+          brief: "=description",
+        }
+      }
+    })[albumType || "album"]
+
+    //
+    // Create widget
+    //
+    return Ti.Widget.Album.getOrCreate($el, _.assign(setup, {
+      live: true
+    }))
+  },
+  //--------------------------------------
   async explainTiAlbum($div) {
     let $els = Ti.Dom.findAll(".ti-widget-album", $div);
     for (let $el of $els) {
       //
-      // Get album setup by type
-      //
-      let setup = ({
-        "album": {
-          attrPrefix: "wn-obj-",
-          itemToPhoto: {
-            name: "=title",
-            link: "#",
-            src: (obj) => {
-              return Ti.WWW.evalObjPreviewSrc(obj, {
-                previewKey: "..",
-                previewObj: "..",
-                apiTmpl: this.apiTmpl,
-                cdnTmpl: this.cdnTmpl,
-                dftSrc: this.dftImgSrc
-              })
-            },
-            thumb: (obj) => {
-              return Ti.WWW.evalObjPreviewSrc(obj, {
-                previewKey: "thumb",
-                previewObj: "thumbObj",
-                apiTmpl: this.apiTmpl,
-                cdnTmpl: this.cdnTmpl,
-                dftSrc: this.dftImgSrc
-              })
-            },
-            brief: "=brief"
-          }
-        },
-        "fb-album": {
-          attrPrefix: "wn-fb-",
-          itemToPhoto: {
-            name: "=name",
-            link: "=link",
-            thumb: "=thumbSrc",  // "thumb_src" will be camelCase
-            src: "=src"
-          }
-        },
-        "yt-playlist": {
-          attrPrefix: "wn-ytpl-",
-          itemToPhoto: {
-            name: "=title",
-            link: `->${this.ytPlayerTmpl}`,
-            thumb: "=thumbUrl",
-            src: "=coverUrl",
-            brief: "=description",
-          }
-        }
-      })[$el.getAttribute("ti-album-type") || "album"]
-      //
       // Create widget
       //
-      let AB = Ti.Widget.Album.getOrCreate($el, _.assign(setup, {
-        live: true
-      }))
+      let AB = this.getTiAlbumObj($el)
 
       // Get album info
       let album = AB.getData()
       let items;
 
       // Reload album data
-      if(this.fbAlbumApiTmpl && "fb-album" == album.type) {
+      if (this.fbAlbumApiTmpl && "fb-album" == album.type) {
         //console.log(album)
         //console.log("local items", AB.getItems())
 
         let url = Ti.S.renderBy(this.fbAlbumApiTmpl, album)
         //console.log(url)
-        items = await Ti.Http.get(url, {as: "json"})
+        items = await Ti.Http.get(url, { as: "json" })
         //console.log("server items", items)
         Ti.Api.Facebook.setObjListPreview(items)
       }
@@ -305,30 +329,52 @@ export default {
   //--------------------------------------
   bindLiveWidgets($div) {
     let vm = this
+    //................................................
+    const OnWidgetBeforeClose = () => {
+      if (vm.albumBeforeCloseNotifyName) {
+        vm.$notify(vm.albumBeforeCloseNotifyName)
+      }
+      if (_.isFunction(vm.whenAlbumBeforeClose)) {
+        vm.whenAlbumBeforeClose()
+      }
+    }
+    //................................................
+    const OnWidgetClosed = () => {
+      if (vm.albumClosedNotifyName) {
+        vm.$notify(vm.albumClosedNotifyName)
+      }
+      if (_.isFunction(vm.whenAlbumClosed)) {
+        vm.whenAlbumClosed()
+      }
+    }
+    //................................................
     let LIVE_WIDGETS = {
       "album-fullpreview": function ($el) {
         Ti.Widget.PhotoGallery.bind($el, {
           titleKey: $el.getAttribute("ti-live-title-key") || "title",
           showOpener: vm.photoGalleryShowOpener,
-          onBeforeClose: ()=>{
-            if(vm.albumBeforeCloseNotifyName) {
-              vm.$notify(vm.albumBeforeCloseNotifyName)
-            }
-            if(_.isFunction(vm.whenAlbumBeforeClose)) {
-              vm.whenAlbumBeforeClose()
-            }
+          getData: function () {
+            let AB = vm.getTiAlbumObj($el)
+            let items = AB.getItems()
+            return _.map(items, (it, index) => {
+              return {
+                index,
+                srcThumb: it.thumbSrc,
+                srcLarge: it.src,
+                src: it.src,
+                title: it.name,
+                link: it.link
+              }
+            })
           },
-          onClosed: ()=>{
-            if(vm.albumClosedNotifyName) {
-              vm.$notify(vm.albumClosedNotifyName)
-            }
-            if(_.isFunction(vm.whenAlbumClosed)) {
-              vm.whenAlbumClosed()
-            }
-          }
+          onBeforeClose: OnWidgetBeforeClose,
+          onClosed: OnWidgetClosed
         })
       }
     }
+    //
+    // Open album photo gallery
+    //
     let $els = Ti.Dom.findAll('[ti-live-widget]', $div)
     for (let $el of $els) {
       let widgetType = $el.getAttribute("ti-live-widget")
@@ -341,6 +387,39 @@ export default {
         console.warn("Invalid widget type", widgetType)
       }
     }
+    //
+    // Open image photo gallery
+    // It will browser all page image as on gallery
+    //
+    if (this.showImageGallery) {
+      $els = Ti.Dom.findAll('img.wn-media.as-image', $div)
+      let arMediaImages = _.map($els, ($el, index) => {
+        let src = $el.getAttribute("src")
+        let $link = Ti.Dom.closest($el, "a.wn-media")
+        let $alt = Ti.Dom.find($link, ".as-img-alt")
+        let link, title;
+        if ($link) {
+          link = $link.getAttribute("href")
+        }
+        if ($alt) {
+          title = $alt.innerText
+        }
+        return {
+          index, link, title,
+          src, srcThumb: src, srcLarge: src,
+        }
+      })
+      for (let $el of $els) {
+        Ti.Widget.PhotoGallery.bind($el, {
+          showOpener: vm.photoGalleryShowOpener,
+          getData: function () {
+            return arMediaImages
+          },
+          onBeforeClose: OnWidgetBeforeClose,
+          onClosed: OnWidgetClosed
+        })
+      }
+    }
   },
   //--------------------------------------
   async redrawContent() {
@@ -348,23 +427,26 @@ export default {
     if (!_.isElement(this.$refs.main))
       return false;
 
+    // Prepare HTML
+    let html = this.ArticleHtml || ""
+    html = html.replace("<script", "[SCRIPT")
+    if (this.ignoreBlank && Ti.S.isBlank(html)) {
+      return
+    }
+
     // Create fragment 
     let $div = Ti.Dom.createElement({
       tagName: "div"
     })
-
-    // Prepare HTML
-    let html = this.ArticleHtml || ""
-    html = html.replace("<script", "[SCRIPT")
     $div.innerHTML = html
 
     // Auto Decon-Table
-    if(this.deconTable) {
+    if (this.deconTable) {
       this.deconstructTable($div)
     }
 
     // Media raw-size
-    if(this.mediaRawSize) {
+    if (this.mediaRawSize) {
       this.cleanMediaSize($div)
     }
 
@@ -388,6 +470,7 @@ export default {
 
     // Update the article content
     this.$refs.main.innerHTML = $div.innerHTML
+    //console.log("redrawContent", this.$el.className, `【${$div.innerHTML}】`)
 
     // Found all outer resource
     let $imgs = Ti.Dom.findAll("img", this.$refs.main)

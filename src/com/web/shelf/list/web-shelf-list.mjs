@@ -1,13 +1,16 @@
 const _M = {
   //////////////////////////////////////////
-  props : {
-    "data" : {
-      type : Array,
-      default : undefined
+  props: {
+    "data": {
+      type: Array,
+      default: undefined
     },
     "dynamicData": {
       type: Boolean,
       default: false
+    },
+    "vars": {
+      type: Object
     },
     // Item comType
     "comType": {
@@ -16,24 +19,24 @@ const _M = {
     },
     "comConf": {
       type: [Object, String],
-      default: ()=>({
+      default: () => ({
         value: "=.."
       })
     },
     "itemKeyBy": {
-      type : String,
+      type: String,
       default: "id"
     },
     "blankAs": {
       type: [Object, Boolean],
-      default: ()=>({
+      default: () => ({
         text: "i18n:empty",
         icon: "fas-box-open"
       })
     },
     "loadingAs": {
       type: [Object, Boolean],
-      default: ()=>({})
+      default: () => ({})
     },
     // "transName" : {
     //   type: String,
@@ -47,7 +50,7 @@ const _M = {
     // }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -64,26 +67,35 @@ const _M = {
     // },
     //--------------------------------------
     ItemList() {
-      if(!_.isArray(this.data))
+      if (!_.isArray(this.data))
         return []
 
-      if(this.dynamicData) {
+      if (this.dynamicData) {
         return this.data
       }
-      
-      let list = []      
-      for(let i=0; i < this.data.length; i++) {
+
+      let hasVars = !_.isEmpty(this.vars);
+
+      let list = []
+      for (let i = 0; i < this.data.length; i++) {
         let it = this.data[i]
-        let comConf = Ti.Util.explainObj(it, this.comConf)
+        let itVars = it
+        if(hasVars) {
+          itVars = _.assign({
+            "$vars" : this.vars
+          }, it)
+        }
+
+        let comConf = Ti.Util.explainObj(itVars, this.comConf)
         let key = `It-${i}`
-        if(this.itemKeyBy) {
+        if (this.itemKeyBy) {
           key = Ti.Util.fallbackNil(it[this.itemKeyBy], key)
         }
         list.push({
           key,
           comType: this.comType,
           comConf
-        })        
+        })
       }
       // Get the result
       return list
@@ -99,7 +111,7 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     //--------------------------------------
   }

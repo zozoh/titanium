@@ -1,4 +1,4 @@
-// Pack At: 2021-06-29 15:52:13
+// Pack At: 2021-06-30 02:54:38
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -11606,6 +11606,8 @@ const {WWW} = (function(){
       //.....................................
       // Eval api transformer
       if (api.transformer) {
+        if("BCHC.TagsToDict" == api.transformer)
+        console.log("transform", api.transformer)
         let trans = _.cloneDeep(api.transformer)
         let partial = Ti.Util.fallback(trans.partial, "right")
         // PreExplain args
@@ -14670,20 +14672,20 @@ const {PhotoGallery} = (function(){
       this.$doc = $el.ownerDocument
       this.$el = $el
       this.setup = _.assign({
-        className : "ti-widget-photo-gallery",
-        topStyle         : {},
-        viewportStyle    : {},
-        scrollerStyle    : {},
-        tileStyle        : {},
-        imgStyle         : {},
-        indicatorStyle   : {},
-        indicatorUlStyle : {},
-        indicatorItStyle : {},
-        indicatorItImgStyle : {},
-        thumbKey : "src",
-        largeKey : "src-large",
-        titleKey : "title",
-        zoomStep : -0.1
+        className: "ti-widget-photo-gallery",
+        topStyle: {},
+        viewportStyle: {},
+        scrollerStyle: {},
+        tileStyle: {},
+        imgStyle: {},
+        indicatorStyle: {},
+        indicatorUlStyle: {},
+        indicatorItStyle: {},
+        indicatorItImgStyle: {},
+        thumbKey: "src",
+        largeKey: "src-large",
+        titleKey: "title",
+        zoomStep: -0.1
       }, setup)
       // live element, if shown, it will be a Element
       this.$top = null
@@ -14694,11 +14696,16 @@ const {PhotoGallery} = (function(){
     }
     //---------------------------------------
     getData() {
-      let {thumbKey, largeKey, titleKey} = this.setup
+      let { thumbKey, largeKey, titleKey, getData } = this.setup
+      if (_.isFunction(getData)) {
+        return getData(this)
+      }
+      // Use default
       let list = []
       let $imgs = Ti.Dom.findAll('img[src]', this.$el)
       //console.log(`getData in ${$imgs.length} image elements`)
-      for(let $img of $imgs) {
+      for (let i = 0; i < $imgs.length; i++) {
+        let $img = $imgs[i]
         let srcThumb = $img.getAttribute(thumbKey)
         let srcLarge = $img.getAttribute(largeKey)
         let title = $img.getAttribute(titleKey)
@@ -14707,27 +14714,32 @@ const {PhotoGallery} = (function(){
         let $link = Ti.Dom.closest($img, "a[href]")
         //let $link = $($img).closest("a[href]")[0]
         //console.log("after cloest", $link)
-        if($link) {
+        if ($link) {
           link = $link.getAttribute("href")
-          if("#" == link || "void(0)" == link) {
+          if ("#" == link || "void(0)" == link) {
             link = undefined
           }
         }
         list.push({
-          $img, $link,
+          //$img, $link,
+          index: i,
           srcThumb, srcLarge, link, title,
-          src : srcLarge || srcThumb
+          src: srcLarge || srcThumb
         })
       }
       //console.log("get list data", list.length)
       return list
     }
     //---------------------------------------
-    findPhotoIndex($img, data=this.data) {
-      if(_.isArray(data)) {
-        for(let i=0; i<data.length; i++) {
+    findPhotoIndex($img, data = this.data) {
+      let src = $img
+      if (_.isElement(src)) {
+        src = src.getAttribute("src")
+      }
+      if (_.isArray(data)) {
+        for (let i = 0; i < data.length; i++) {
           let it = data[i]
-          if(it.$img == $img || it.$link == $img) {
+          if (it.srcLarge == src || it.srcThumb == src) {
             return i
           }
         }
@@ -14737,20 +14749,20 @@ const {PhotoGallery} = (function(){
     //---------------------------------------
     scrollToPrev() {
       //console.log("scrollToPrev")
-      if(this.currentIndex>0) {
-        this.scrollTo(this.currentIndex-1)
+      if (this.currentIndex > 0) {
+        this.scrollTo(this.currentIndex - 1)
       }
     }
     //---------------------------------------
     scrollToNext() {
       //console.log("scrollToNext")
-      if(this.currentIndex<(this.data.length-1)) {
-        this.scrollTo(this.currentIndex+1)
+      if (this.currentIndex < (this.data.length - 1)) {
+        this.scrollTo(this.currentIndex + 1)
       }
     }
     //---------------------------------------
-    scrollTo(index=this.currentIndex) {
-      let {imgStyle} = this.setup
+    scrollTo(index = this.currentIndex) {
+      let { imgStyle } = this.setup
       this.resizePhotos(this.$scroller)
       this.zoomScale = 1
       this.translateX = 0
@@ -14769,12 +14781,12 @@ const {PhotoGallery} = (function(){
       // Current Image
       //
       let $tile = this.getImageTile(I)
-      if($tile) {
-        if("yes" == $tile.getAttribute("img-nil")) {
+      if ($tile) {
+        if ("yes" == $tile.getAttribute("img-nil")) {
           // Render image
           let srcThumb = $tile.getAttribute("src-thumb")
           let $nil = Ti.Dom.find("span", $tile)
-          if($nil) {
+          if ($nil) {
             Ti.Dom.updateStyle($nil, {
               "backgroundImage": `url(${srcThumb})`
             })
@@ -14789,14 +14801,14 @@ const {PhotoGallery} = (function(){
               src: srcLarge
             }
           })
-          $img.addEventListener("load", ()=>{
+          $img.addEventListener("load", () => {
             $tile.removeAttribute("img-nil")
             $tile.setAttribute("img-loaded", "yes")
-          }, {once:true})
+          }, { once: true })
           // Update href
-          if(_.isElement(this.$opener)) {
+          if (_.isElement(this.$opener)) {
             let href = _.trim($tile.getAttribute("href")) || null
-            Ti.Dom.setAttrs(this.$opener, {href})
+            Ti.Dom.setAttrs(this.$opener, { href })
           }
         }
       }
@@ -14806,37 +14818,37 @@ const {PhotoGallery} = (function(){
       // Current indicator
       //
       let $li = Ti.Dom.find(`a.is-current`, this.$indicatorUl)
-      if($li) {
+      if ($li) {
         Ti.Dom.removeClass($li, "is-current")
       }
       $li = Ti.Dom.find(`a[gallery-index="${I}"]`, this.$indicatorUl)
-      if($li) {
+      if ($li) {
         Ti.Dom.addClass($li, "is-current")
       }
-      
+  
   
       //
       // Switcher btn
       //
-      if(0 == this.currentIndex) {
+      if (0 == this.currentIndex) {
         Ti.Dom.addClass(this.$top, "no-prev")
       } else {
         Ti.Dom.removeClass(this.$top, "no-prev")
       }
-      if(this.currentIndex >= (this.data.length-1)) {
+      if (this.currentIndex >= (this.data.length - 1)) {
         Ti.Dom.addClass(this.$scroller, "no-next")
       } else {
         Ti.Dom.removeClass(this.$scroller, "no-next")
       }
     }
     //---------------------------------------
-    scrollIndicatorToPage(direction=-1) {
-      let left = Ti.Css.toPixel(this.$indicatorUl.style.left||0)
+    scrollIndicatorToPage(direction = -1) {
+      let left = Ti.Css.toPixel(this.$indicatorUl.style.left || 0)
       let width = this.$indicatorCon.clientWidth
       this.scrollIndicatorTo(left + width * direction)
     }
     //---------------------------------------
-    scrollIndicatorTo(x=0) {
+    scrollIndicatorTo(x = 0) {
       let minLeft = this.$indicatorCon.clientWidth - this.$indicatorCon.scrollWidth;
       let maxLeft = 0
       //console.log({minLeft, maxLeft})
@@ -14844,33 +14856,44 @@ const {PhotoGallery} = (function(){
       this.$indicatorUl.style.left = `${left}px`
     }
     //---------------------------------------
-    getImageTile(index=this.currentIndex) {
+    getImageTile(index = this.currentIndex) {
       return Ti.Dom.find(`.as-tile[gallery-index="${index}"]`, this.$scroller)
     }
     //---------------------------------------
     applyImageTransform() {
       let css = {
-        transform: this.zoomScale!=1 ? `scale(${this.zoomScale})` : "",
-        left : this.translateX ? `${this.translateX}px` : "",
-        top  : this.translateY ? `${this.translateY}px` : "",
+        transform: this.zoomScale != 1 ? `scale(${this.zoomScale})` : "",
+        left: this.translateX ? `${this.translateX}px` : "",
+        top: this.translateY ? `${this.translateY}px` : "",
       }
       Ti.Dom.updateStyle(this.$currentImg, css)
+  
+      let $tile = Ti.Dom.closest(this.$currentImg, ".as-tile")
+      if($tile) {
+        if (this.zoomScale > 1) {
+          $tile.setAttribute("img-zoom", "in")
+        } else if (this.zoomScale < 1) {
+          $tile.setAttribute("img-zoom", "out")
+        } else {
+          $tile.removeAttribute("img-zoom")
+        }
+      }
     }
     //---------------------------------------
     changeZoomScale(delta) {
       // Zoom in
-      if(delta > 0) {
+      if (delta > 0) {
         this.zoomScale += (this.zoomScale * this.setup.zoomStep)
       }
       // Zoom out
-      else if(delta<0) {
+      else if (delta < 0) {
         this.zoomScale -= (this.zoomScale * this.setup.zoomStep)
         this.zoomScale = Math.max(0, this.zoomScale)
       }
       this.applyImageTransform()
     }
     //---------------------------------------
-    resizePhotos($div=this.$scroller) {
+    resizePhotos($div = this.$scroller) {
       // Get the viewport width
       let w = this.$viewport.clientWidth
       let h = this.$viewport.clientHeight
@@ -14879,33 +14902,33 @@ const {PhotoGallery} = (function(){
   
       // Setup Each tile
       let $tiles = Ti.Dom.findAll(".as-tile", $div)
-      for(let $tile of $tiles) {
-        $tile.style.width  = tileW
+      for (let $tile of $tiles) {
+        $tile.style.width = tileW
         $tile.style.height = tileH
       }
   
       // The indicator overview
       let indi = this.$indicatorCon
-      if(indi.scrollWidth > indi.clientWidth) {
+      if (indi.scrollWidth > indi.clientWidth) {
         this.$indicator.setAttribute("item-overflow", "yes")
       } else {
         this.$indicator.removeAttribute("item-overflow")
       }
-      
+  
       // Only load photo image in indicator viewport
       this.renderClipIndicatorPhotos()
     }
     //---------------------------------------
     renderClipIndicatorPhotos() {
-      let {indicatorItImgStyle} = this.setup
+      let { indicatorItImgStyle } = this.setup
       let conRect = Ti.Rects.createBy(this.$indicatorCon)
       let $list = Ti.Dom.findAll("a[img-nil]", this.$indicatorUl)
       //console.log("viewport:", conRect.toString(), "find img-nil:", $list.length)
-      for(let i=0; i<$list.length; i++) {
+      for (let i = 0; i < $list.length; i++) {
         let $li = $list[i]
         let liRect = Ti.Rects.createBy($li)
         //console.log(i, liRect.toString())
-        if(conRect.isOverlap(liRect)) {
+        if (conRect.isOverlap(liRect)) {
           let src = $li.getAttribute("src-thumb")
           $li.innerHTML = ""
           $li.removeAttribute("img-nil")
@@ -14921,17 +14944,17 @@ const {PhotoGallery} = (function(){
       }
     }
     //---------------------------------------
-    renderPhotos(data=this.data) {
-      let {tileStyle, indicatorItStyle} = this.setup
+    renderPhotos(data = this.data) {
+      let { tileStyle, indicatorItStyle } = this.setup
       let $div = Ti.Dom.createElement({
-        tagName : "div"
+        tagName: "div"
       })
       let $ul = Ti.Dom.createElement({
-        tagName : "ul"
+        tagName: "ul"
       })
-      if(_.isArray(data)) {
-        let i=0;
-        for(let it of data) {
+      if (_.isArray(data)) {
+        let i = 0;
+        for (let it of data) {
           let index = i++
           //
           // Create Tile
@@ -14939,8 +14962,8 @@ const {PhotoGallery} = (function(){
           let $an = Ti.Dom.createElement({
             $p: $div,
             tagName: "div",
-            className : "as-tile",
-            style : tileStyle,
+            className: "as-tile",
+            style: tileStyle,
             attrs: {
               galleryIndex: index,
               href: it.link,
@@ -14958,10 +14981,10 @@ const {PhotoGallery} = (function(){
           })
           $nil.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`
           // TITLE
-          if(it.title) {
+          if (it.title) {
             Ti.Dom.createElement({
               $p: $an,
-              tagName : "header"
+              tagName: "header"
             }).innerText = it.title.replace(/\r?\n/g, " ")
           }
           //
@@ -14971,7 +14994,7 @@ const {PhotoGallery} = (function(){
             $p: $ul,
             tagName: "a",
             style: indicatorItStyle,
-            attrs : {
+            attrs: {
               href: `javascript:void(${index})`,
               galleryIndex: index,
               srcThumb: it.srcThumb,
@@ -14996,7 +15019,7 @@ const {PhotoGallery} = (function(){
     //---------------------------------------
     redraw() {
       // Guard
-      if(this.$top) {
+      if (this.$top) {
         return
       }
       //......................................
@@ -15008,38 +15031,38 @@ const {PhotoGallery} = (function(){
         showOpener
       } = this.setup
       this.$top = Ti.Dom.createElement({
-        tagName : "div",
-        className : className || "ti-widget-photo-gallery",
-        style : topStyle
+        tagName: "div",
+        className: className || "ti-widget-photo-gallery",
+        style: topStyle
       })
       Ti.Dom.addClass(this.$top, "no-ready")
       //......................................
       this.$con = Ti.Dom.createElement({
-        $p : this.$top,
-        tagName : "div",
-        className : "photo-gallery-con"
+        $p: this.$top,
+        tagName: "div",
+        className: "photo-gallery-con"
       })
       //......................................
       // Create viewport
       this.$viewport = Ti.Dom.createElement({
-        $p : this.$con,
-        tagName : "div",
-        className : "as-viewport",
-        style : viewportStyle
+        $p: this.$con,
+        tagName: "div",
+        className: "as-viewport",
+        style: viewportStyle
       })
       //......................................
       this.$scroller = Ti.Dom.createElement({
-        $p : this.$viewport,
-        tagName : "div",
-        className : "as-scroller",
-        style : scrollerStyle
+        $p: this.$viewport,
+        tagName: "div",
+        className: "as-scroller",
+        style: scrollerStyle
       })
       //......................................
-      if(showOpener) {
+      if (showOpener) {
         this.$opener = Ti.Dom.createElement({
-          $p : this.$viewport,
-          tagName : "a",
-          className : "as-opener",
+          $p: this.$viewport,
+          tagName: "a",
+          className: "as-opener",
           attrs: {
             target: "_blank"
           }
@@ -15048,15 +15071,15 @@ const {PhotoGallery} = (function(){
       }
       //......................................
       this.$toolbar = Ti.Dom.createElement({
-        $p : this.$viewport,
-        tagName : "div",
-        className : "as-toolbar"
+        $p: this.$viewport,
+        tagName: "div",
+        className: "as-toolbar"
       })
       //......................................
       this.$zoomIn = Ti.Dom.createElement({
-        $p : this.$toolbar,
-        tagName : "a",
-        className : "as-zoom-in",
+        $p: this.$toolbar,
+        tagName: "a",
+        className: "as-zoom-in",
         attrs: {
           href: "javascript:void(0)"
         }
@@ -15064,9 +15087,9 @@ const {PhotoGallery} = (function(){
       this.$zoomIn.innerHTML = `<i class="fas fa-search-plus"></i>`
       //......................................
       this.$zoomOut = Ti.Dom.createElement({
-        $p : this.$toolbar,
-        tagName : "a",
-        className : "as-zoom-out",
+        $p: this.$toolbar,
+        tagName: "a",
+        className: "as-zoom-out",
         attrs: {
           href: "javascript:void(0)"
         }
@@ -15075,23 +15098,23 @@ const {PhotoGallery} = (function(){
       //......................................
       // Create indicator
       this.$indicator = Ti.Dom.createElement({
-        $p : this.$con,
-        tagName : "div",
-        className : "as-indicator",
-        style : indicatorStyle
+        $p: this.$con,
+        tagName: "div",
+        className: "as-indicator",
+        style: indicatorStyle
       })
       //......................................
       // Create indicator
       this.$indicatorCon = Ti.Dom.createElement({
-        $p : this.$indicator,
-        tagName : "div",
-        className : "as-indi-con"
+        $p: this.$indicator,
+        tagName: "div",
+        className: "as-indi-con"
       })
       //......................................
       this.$indicatorUl = Ti.Dom.createElement({
         $p: this.$indicatorCon,
         tagName: "ul",
-        style: _.assign({left:0}, indicatorUlStyle)
+        style: _.assign({ left: 0 }, indicatorUlStyle)
       })
       //......................................
       this.$indiBtnToPrev = Ti.Dom.createElement({
@@ -15110,76 +15133,76 @@ const {PhotoGallery} = (function(){
       //......................................
       // Create switcher
       this.$switcher = Ti.Dom.createElement({
-        $p : this.$con,
-        tagName : "div",
-        className : "as-switcher"
+        $p: this.$con,
+        tagName: "div",
+        className: "as-switcher"
       })
       //......................................
       this.$btnPrev = Ti.Dom.createElement({
-        $p : this.$switcher,
-        tagName : "div",
-        className : "as-switcher-btn is-prev"
+        $p: this.$switcher,
+        tagName: "div",
+        className: "as-switcher-btn is-prev"
       })
       this.$btnPrev.innerHTML = `<span><i class="zmdi zmdi-chevron-left"></i></span>`
       //......................................
       this.$btnNext = Ti.Dom.createElement({
-        $p : this.$switcher,
-        tagName : "div",
-        className : "as-switcher-btn is-next"
+        $p: this.$switcher,
+        tagName: "div",
+        className: "as-switcher-btn is-next"
       })
       this.$btnNext.innerHTML = `<span><i class="zmdi zmdi-chevron-right"></i></span>`
       //......................................
       // Create closer
       this.$closer = Ti.Dom.createElement({
-        $p : this.$con,
-        tagName : "div",
-        className : "as-closer"
+        $p: this.$con,
+        tagName: "div",
+        className: "as-closer"
       })
       this.$closer.innerHTML = `<a href="javascript:void(0)"><i class="zmdi zmdi-close"></i></a>`
       //......................................
       // Append to DOM
       Ti.Dom.appendTo(this.$top, this.$doc.body)
-      
+  
       //......................................
       // Get the data
       //console.log("get data")
       this.data = this.getData()
-      
+  
       //......................................
       // Render photos
       //console.log("renderPhotos")
       this.renderPhotos()
-      
+  
       //......................................
       // Bind Events
       //console.log("bind event")
-      this.$closer.addEventListener("click", ()=>this.close())
+      this.$closer.addEventListener("click", () => this.close())
       //
       // Switch
       //
-      Ti.Dom.find('span', this.$btnPrev).addEventListener("click", ()=>{
+      Ti.Dom.find('span', this.$btnPrev).addEventListener("click", () => {
         this.scrollToPrev()
       })
-      Ti.Dom.find('span', this.$btnNext).addEventListener("click", ()=>{
+      Ti.Dom.find('span', this.$btnNext).addEventListener("click", () => {
         this.scrollToNext()
       })
       //
       // Indicator
       //
-      this.$indicator.addEventListener("click", ({srcElement})=>{
+      this.$indicator.addEventListener("click", ({ srcElement }) => {
         //console.log("hahahah")
         // Scroll to photo
         let $tile = Ti.Dom.closest(srcElement, "[gallery-index]")
-        if($tile) {
+        if ($tile) {
           let index = $tile.getAttribute("gallery-index") * 1
-          if(index >= 0) {
+          if (index >= 0) {
             this.scrollTo(index)
           }
           return
         }
         // Scroll indicator UL
         let $btn = Ti.Dom.closest(srcElement, ".as-indi-btn")
-        if($btn) {
+        if ($btn) {
           let direction = Ti.Dom.hasClass($btn, "to-prev") ? 1 : -1
           this.scrollIndicatorToPage(direction)
         }
@@ -15190,16 +15213,16 @@ const {PhotoGallery} = (function(){
       let PG = this
       //console.log("Resize")
       //......................................
-      this.OnResize = function() {
+      this.OnResize = function () {
         Ti.Dom.addClass(PG.$top, "is-resizing")
         PG.resizePhotos()
         PG.scrollTo()
-        _.delay(()=>{
+        _.delay(() => {
           Ti.Dom.removeClass(PG.$top, "is-resizing")
         }, 100)
       }
       //......................................
-      this.OnWheel = function(evt) {
+      this.OnWheel = function (evt) {
         //let {deltaMode, deltaX, deltaY, deltaZ} = evt
         //console.log("wheel", {mode:deltaMode,x:deltaX,y:deltaY,z:deltaZ})
         evt.preventDefault()
@@ -15209,16 +15232,16 @@ const {PhotoGallery} = (function(){
       //......................................
       // render wrapper
       //_.delay(()=>{
-        Ti.Dom.removeClass(this.$top, "no-ready")
-        Ti.Dom.addClass(this.$top, "is-ready")
+      Ti.Dom.removeClass(this.$top, "no-ready")
+      Ti.Dom.addClass(this.$top, "is-ready")
       //}, 0)
     }
     //---------------------------------------
     watchEvents() {
       this.$doc.defaultView.addEventListener("resize", this.OnResize, true)
-      this.$top.onwheel = (evt)=>{this.OnWheel(evt)}
-      this.$top.ondblclick = (evt)=>{
-        if(Ti.Dom.closest(evt.srcElement, ".as-toolbar")) {
+      this.$top.onwheel = (evt) => { this.OnWheel(evt) }
+      this.$top.ondblclick = (evt) => {
+        if (Ti.Dom.closest(evt.srcElement, ".as-toolbar")) {
           return
         }
         this.zoomScale = 1
@@ -15226,33 +15249,33 @@ const {PhotoGallery} = (function(){
         this.translateY = 0
         this.applyImageTransform()
       }
-      this.$zoomIn.onclick = (evt)=>{
+      this.$zoomIn.onclick = (evt) => {
         evt.stopPropagation()
         this.changeZoomScale(-1)
       }
-      this.$zoomOut.onclick = (evt)=>{
+      this.$zoomOut.onclick = (evt) => {
         evt.stopPropagation()
         this.changeZoomScale(1)
       }
-      this.$indicatorUl.addEventListener("transitionend", _.debounce(()=>{
+      this.$indicatorUl.addEventListener("transitionend", _.debounce(() => {
         this.renderClipIndicatorPhotos()
       }, 500))
-      if("desktop" == this.$doc.documentElement.getAttribute("as")) {
+      if ("desktop" == this.$doc.documentElement.getAttribute("as")) {
         Ti.Be.Draggable(this.$top, {
-          prepare: (drg)=>{
+          prepare: (drg) => {
             drg.$event.preventDefault()
             drg._x = this.translateX
             drg._y = this.translateY
           },
-          actived: ()=>{
+          actived: () => {
             Ti.Dom.addClass(this.$scroller, "is-moving")
           },
-          dragging: ({_x,_y,offsetX, offsetY})=>{
+          dragging: ({ _x, _y, offsetX, offsetY }) => {
             this.translateX = _x + offsetX
             this.translateY = _y + offsetY
             this.applyImageTransform()
           },
-          done: ()=>{
+          done: () => {
             Ti.Dom.removeClass(this.$scroller, "is-moving")
           }
         })
@@ -15264,35 +15287,35 @@ const {PhotoGallery} = (function(){
     }
     //---------------------------------------
     close() {
-      if(_.isFunction(this.setup.onBeforeClose)) {
+      if (_.isFunction(this.setup.onBeforeClose)) {
         this.setup.onBeforeClose()
       }
-      if(this.$top) {
-        this.$top.addEventListener("transitionend", ()=>{
+      if (this.$top) {
+        this.$top.addEventListener("transitionend", () => {
           Ti.Dom.remove(this.$top)
           this.$top = null
-          if(_.isFunction(this.setup.onClosed)) {
+          if (_.isFunction(this.setup.onClosed)) {
             this.setup.onClosed()
           }
-        }, {once: true})
+        }, { once: true })
         Ti.Dom.removeClass(this.$top, "is-ready");
         Ti.Dom.addClass(this.$top, "no-ready");
-        
+  
         this.unwatchEvents()
       }
     }
     //---------------------------------------
   }
   ////////////////////////////////////////////////
-  const PhotoGallery = { 
+  const PhotoGallery = {
     //---------------------------------------
-    bind($el, setup={}) {
-      if(!$el.__ti_photo_gallery) {
+    bind($el, setup = {}) {
+      if (!$el.__ti_photo_gallery) {
         // Create instance
         let PG = new TiPhotoGallery($el, setup)
         // listen events trigger
         //console.log("PhotoGallery bind click")
-        $el.addEventListener("click", function(evt) {
+        $el.addEventListener("click", function (evt) {
           //console.log(evt, "Photo gallery", this, evt.srcElement)
           evt.preventDefault()
           evt.stopPropagation()
@@ -15887,7 +15910,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210629.155213",
+  "version" : "1.6-20210630.025438",
   "dev" : false,
   "appName" : null,
   "session" : {},
