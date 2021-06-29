@@ -23,7 +23,7 @@
     max-height: 100%; max-width: 100%;
   }
   &.is-fit-none    img {object-fit: unset;}
-  &.is-fit-contain img {object-fit: contain;}
+  &.is-fit-contain img {object-fit: contain;} 
   &.is-fit-cover   img {object-fit: cover; }
   //-----------------------------------------
   &.primary-img-size {
