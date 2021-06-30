@@ -1,0 +1,7 @@
+{
+  "name" : "web-widget-rawhtml",
+  "globally" : true,
+  "template" : "./widget-rawhtml.html",
+  "mixins"   : ["./widget-rawhtml.mjs"],
+  "components" : []
+}
