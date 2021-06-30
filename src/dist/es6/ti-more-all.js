@@ -1,4 +1,4 @@
-// Pack At: 2021-06-30 02:54:38
+// Pack At: 2021-06-30 17:51:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -27718,6 +27718,55 @@ const _M = {
   ////////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'widget-rawhtml.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/widget/rawhtml/widget-rawhtml.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "html": {
+      type : String,
+      default: undefined
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  methods: {
+    //-------------------------------------
+    renderHTML(html = this.html) {
+      if(this.$el) {
+        this.$el.innerHTML = html || ""
+      }
+    }
+    //-------------------------------------
+  },
+  /////////////////////////////////////////
+  watch: {
+    "html": {
+      handler: function(newVal, oldVal){
+        this.renderHTML(newVal)
+      }
+    }
+  },
+  /////////////////////////////////////////
+  mounted: function() {
+    this.renderHTML()
+  }
+  /////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'ti-obj-pair.mjs' -> null
@@ -67874,6 +67923,25 @@ Ti.Preload("ti/com/web/widget/input/text/_com.json", {
   "mixins" : ["./widget-input-text.mjs"],
   "components" : [
     "@com:ti/sheet/emoji"]
+});
+//========================================
+// JOIN <widget-rawhtml.html> ti/com/web/widget/rawhtml/widget-rawhtml.html
+//========================================
+Ti.Preload("ti/com/web/widget/rawhtml/widget-rawhtml.html", `<div class="web-widget-rawhtml"
+  :class="TopClass"></div>`);
+//========================================
+// JOIN <widget-rawhtml.mjs> ti/com/web/widget/rawhtml/widget-rawhtml.mjs
+//========================================
+Ti.Preload("ti/com/web/widget/rawhtml/widget-rawhtml.mjs", TI_PACK_EXPORTS['ti/com/web/widget/rawhtml/widget-rawhtml.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/web/widget/rawhtml/_com.json
+//========================================
+Ti.Preload("ti/com/web/widget/rawhtml/_com.json", {
+  "name" : "web-widget-rawhtml",
+  "globally" : true,
+  "template" : "./widget-rawhtml.html",
+  "mixins"   : ["./widget-rawhtml.mjs"],
+  "components" : []
 });
 //========================================
 // JOIN <widget-sharebar.html> ti/com/web/widget/sharebar/widget-sharebar.html
