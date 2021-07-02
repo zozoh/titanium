@@ -7,7 +7,9 @@ const _M = {
   //////////////////////////////////////////////////////
   data : ()=>({
     myKeysInFields: [],
-    currentTabIndex : 0
+    currentTabIndex : 0,
+    isEvalMeasure : false,
+    myFormFields : []
   }),
   //////////////////////////////////////////////////////
   computed : {
@@ -21,14 +23,16 @@ const _M = {
         [`tab-at-${this.TheTabAtY}`] : this.isTabMode
       }, 
       `as-${this.ViewDisplayMode}`,
-      `as-spacing-${this.spacing||"comfy"}`
+      `as-spacing-${this.spacing||"comfy"}`,
+      `field-border-${this.fieldBorder}`
       )
     },
     //--------------------------------------------------
     TopStyle() {
       return Ti.Css.toStyle({
         width  : this.width,
-        height : this.height
+        height : this.height,
+        visibility: this.isEvalMeasure ? "hidden" : "initial"
       })
     },
     //--------------------------------------------------
@@ -55,42 +59,11 @@ const _M = {
     TheTabAtX(){return this.TheTabAt[1]},
     TheTabAtY(){return this.TheTabAt[0]},
     //--------------------------------------------------
-    TheFields() {
-      let list = []
-      let keys = []
-      //................................................
-      _.forEach(this.fields, (fld, index)=>{
-        let fld2 = this.evalFormField(fld, [index])
-        if(fld2) {
-          list.push(fld2)
-          // Gather keys
-          if(!fld2.disabled) {
-            // Field group ...
-            if("Group" == fld2.type) {
-              _.forEach(fld2.fields, ({disabled, name})=>{
-                if(!disabled) {
-                  keys.push(name)
-                }
-              })
-            }
-            // The fields
-            else {
-              keys.push(fld2.name)
-            }
-          }
-        }
-      })
-      //................................................
-      this.myKeysInFields = _.flattenDeep(keys)
-      //................................................
-      return list
-    },
-    //--------------------------------------------------
     TabList() {
       let list = []
       let otherFields = []
       if(this.isTabMode) {
-        for(let fld of this.TheFields) {
+        for(let fld of this.myFormFields) {
           if(fld.type == "Group") {
             list.push(fld)
           }
@@ -119,9 +92,9 @@ const _M = {
       _.forEach(this.TabList, (li, index)=>{
         let isCurrent = (index == currentIndex)
         items.push(_.assign({}, li, {
-          index, isCurrent, className: {
+          index, isCurrent, className: Ti.Css.mergeClassName({
             "is-current" : isCurrent
-          }
+          }, li.className)
         }))
       })
       return items
@@ -136,11 +109,18 @@ const _M = {
     },
     //--------------------------------------------------
     FormBodyClass() {
-      let klass = Ti.Css.mergeClassName(`has-${this.FieldsInCurrentTab.length}-fields`)
       if(this.isTabMode && this.CurrentTab) {
-        klass[`tab-body-${this.CurrentTab.index}`] = true
+        return Ti.Css.mergeClassName(
+          this.bodyClass,
+          `has-${this.FieldsInCurrentTab.length}-fields`,
+          `tab-body-${this.CurrentTab.index}`,
+          this.CurrentTab.className
+        )
       }
-      return klass
+      return Ti.Css.mergeClassName(
+        this.bodyClass,
+        `has-${this.FieldsInCurrentTab.length}-fields`
+      )
     },
     //--------------------------------------------------
     FieldsInCurrentTab() {
@@ -153,7 +133,7 @@ const _M = {
       }
       // Show All
       else {
-        return this.TheFields
+        return this.myFormFields
       }
     },
     //--------------------------------------------------
@@ -270,6 +250,7 @@ const _M = {
   methods : {
     //--------------------------------------------------
     OnClickTab(tab) {
+      this.isEvalMeasure = this.currentTabIndex!=tab.index
       this.currentTabIndex = tab.index
       this.$notify("tab:change", tab)
     },
@@ -356,6 +337,40 @@ const _M = {
       return "Label" == fld.type || !fld.name
     },
     //--------------------------------------------------
+    evalFormFieldList() {
+      let list = []
+      let keys = []
+      this.isEvalMeasure = true
+      //................................................
+      _.forEach(this.fields, (fld, index)=>{
+        let fld2 = this.evalFormField(fld, [index])
+        if(fld2) {
+          list.push(fld2)
+          // Gather keys
+          if(!fld2.disabled) {
+            // Field group ...
+            if("Group" == fld2.type) {
+              _.forEach(fld2.fields, ({disabled, name})=>{
+                if(!disabled) {
+                  keys.push(name)
+                }
+              })
+            }
+            // The fields
+            else {
+              keys.push(fld2.name)
+            }
+          }
+        }
+      })
+      //................................................
+      this.myKeysInFields = _.flattenDeep(keys)
+      //................................................
+      this.myFormFields = list
+      //................................................
+      this.__adjust_fields_width()
+    },
+    //--------------------------------------------------
     evalFormField(fld={}, nbs=[]) {
       // Hide or disabled
       if(fld.hidden) {
@@ -381,7 +396,7 @@ const _M = {
           disabled,
           type        : "Group",
           key         : fldKey,
-          className   : fld.className,
+          className   : Ti.Css.mergeClassName(fld.className, this.defaultGroupClass),
           icon        : fld.icon,
           title       : fld.title,
           fields      : []
@@ -455,6 +470,9 @@ const _M = {
       // Guard
       if(!_.isElement(this.$el))
         return
+
+      this.isEvalMeasure = true
+      //console.log("__adjust_fields_width")
       //
       // Find the max width in all form
       //
@@ -500,6 +518,10 @@ const _M = {
           Ti.Dom.setStyle($fldnm, {width:maxWidth})
         }
       }
+
+      this.$nextTick(()=>{
+        this.isEvalMeasure = false
+      })
     },
     //--------------------------------------------------
     adjustFieldsWidth() {
@@ -532,8 +554,8 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   watch : {
-    "TheFields" : function(){
-      this.adjustFieldsWidth()
+    "fields" : function(){
+      this.evalFormFieldList();
     },
     "currentTab" : function(index){
       this.currentTabIndex = index
@@ -563,7 +585,7 @@ const _M = {
       this.__debounce_adjust_fields_width()
     }})
     //--------------------------------------------------
-    this.adjustFieldsWidth()
+    this.evalFormFieldList();
     //--------------------------------------------------
   },
   //////////////////////////////////////////////////////

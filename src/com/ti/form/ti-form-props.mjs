@@ -61,6 +61,12 @@ export default {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "bodyClass": {
+    type : [String, Object, Array]
+  },
+  "defaultGroupClass": {
+    type : [String, Object, Array]
+  },
   "mode" : {
     type : String,
     default : "all",
@@ -75,6 +81,11 @@ export default {
     type : String,
     default : "top-center",
     validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
+  },
+  "fieldBorder": {
+    type : String,
+    default : "bottom",
+    validator : (v)=>/^(none|top|bottom)$/.test(v)
   },
   "blankAs" : {
     type : Object,

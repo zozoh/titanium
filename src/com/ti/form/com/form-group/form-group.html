@@ -11,12 +11,33 @@
         class="name-title">{{title|i18n}}</span>
   </div>
   <div class="group-fields">
-      <ti-form-field v-for="fld in fields"
-        :key="fld.key"
-        v-bind="fld"
-        :data="data"
-        :field-status="fieldStatus"
-        :status-icons="statusIcons"
-        :screen-mode="screenMode"/>
+    <template
+      v-for="fld in fields">
+        <!--
+          Show Label
+        -->
+        <div 
+          v-if="'Label' == fld.type"
+            class="form-label">
+            <ti-icon
+              v-if="fld.icon" 
+                class="as-label-icon"
+                :value="fld.icon"/>
+            <span
+              v-if="fld.title"
+                class="as-label-text">{{fld.title|i18n}}</span>
+        </div>
+        <!--
+          Show Field
+        -->
+        <ti-form-field
+          v-else
+            :key="fld.key"
+            v-bind="fld"
+            :data="data"
+            :field-status="fieldStatus"
+            :status-icons="statusIcons"
+            :screen-mode="screenMode"/>
+    </template>
   </div>
 </div>

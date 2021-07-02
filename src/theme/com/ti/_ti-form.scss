@@ -53,10 +53,11 @@
   //------------------------------------
   > .form-body {
     //----------------------------------
-    > .form-label {
+    .form-label {
       @include flex-align;
       @include color($color-bar, r, c);
       padding: SZ(12); margin: SZ(12) 0;
+      width: 100%; 
       .as-label-icon {
         margin: 0 SZ(4);
       }
@@ -69,6 +70,7 @@
       &:last-child {
         border:0
       }
+      //--------------------------------
       > .group-title {
         @include noselect;
         @include flex-align-nowrap;
@@ -76,38 +78,44 @@
         @include color($color-bar, r, c);
         > .ti-icon {margin-right:SZ(8); opacity: 0.4;}
       }
+      //--------------------------------
       // .group-fields {
       // }
       //--------------------------------
+      // &.as-columns {
+      //   @include flex-align-nowrap($ai:stretch, $ac:stretch);
+      //   > .group-title {
+      //     span {writing-mode:vertical-lr;}
+      //   }
+      //   > .group-fields {
+      //     @include flex-align-nowrap;
+      //   }
+      // }
+      //--------------------------------
       &.as-columns {
-        @include flex-align-nowrap($ai:stretch, $ac:stretch);
-        > .group-title {
-          span {writing-mode:vertical-lr;}
-        }
         > .group-fields {
-          @include flex-align-nowrap;
+          @include flex-align($ai:flex-start, $ac:flex-start);
+
         }
+        &.col-1 .form-field {width: 100%;}
+        &.col-2 .form-field {width: 50%;}
+        &.col-3 .form-field {width: 33.3%;}
+        &.col-4 .form-field {width: 25%;}
+        &.col-5 .form-field {width: 20%;}
       }
       //--------------------------------
-      &.as-vertical {
-        > .group-fields {
-          @include flex-align;
-        }
-        &.col-2 .form-field {width: 50%; 
-          &:nth-child(2){border:0;}}
-        &.col-3 .form-field {width: 33.3%;
-          &:nth-child(2){border:0;}
-          &:nth-child(3){border:0;}}
-        &.col-4 .form-field {width: 25%;
-          &:nth-child(2){border:0;}
-          &:nth-child(3){border:0;}
-          &:nth-child(4){border:0;}}
-        &.col-5 .form-field {width: 20%;
-          &:nth-child(2){border:0;}
-          &:nth-child(3){border:0;}
-          &:nth-child(4){border:0;}
-          &:nth-child(5){border:0;}}
-      }
+    }
+    //----------------------------------
+    &.as-columns {
+      @include flex-align($ai:flex-start, $ac:flex-start);
+      //--------------------------------
+      > .form-group {width:100%;}
+      //--------------------------------
+      &.col-1 .form-field {width: 100%;}
+      &.col-2 .form-field {width: 50%;}
+      &.col-3 .form-field {width: 33.3%;}
+      &.col-4 .form-field {width: 25%;}
+      &.col-5 .form-field {width: 20%;}
       //--------------------------------
     }
     //----------------------------------
@@ -161,7 +169,6 @@
       //--------------------------------
       &.as-desktop, &.as-tablet {
         @include flex-align-nowrap($ai:stretch,$ac:stretch);
-        @include border(1px, dashed, shallow, bottom);
         > .field-name  {
           @include flex-align-nowrap($ai:flex-start,$ac:flex-start);
           position: relative;
@@ -283,5 +290,8 @@
        padding-left: SZ(10);
      }
   }
+  //------------------------------------
+  &.field-border-top    .form-field {@include border(1px, dashed, shallow, top);}
+  &.field-border-bottom .form-field {@include border(1px, dashed, shallow, bottom);}
   //------------------------------------
 }

@@ -78,15 +78,15 @@
     }
   }
   //---------------------------------------------
-  &.at-center {@include flex-center;}
-  &.at-left   {@include flex-center($jc:flex-start);}
-  &.at-top    {@include flex-center($ac:flex-start);}
-  &.at-bottom {@include flex-center($ac:flex-end);}
-  &.at-right  {@include flex-center($jc:flex-end);}
+  &.at-center ul {@include flex-center;}
+  &.at-left   ul {@include flex-center($jc:flex-start);}
+  &.at-top    ul {@include flex-center($ac:flex-start);}
+  &.at-bottom ul {@include flex-center($ac:flex-end);}
+  &.at-right  ul {@include flex-center($jc:flex-end);}
   //---------------------------------------------
-  &.at-left-top     {@include flex($jc:flex-start,$ac:flex-start);}
-  &.at-right-top    {@include flex($jc:flex-end  ,$ac:flex-start);}
-  &.at-bottom-left  {@include flex($jc:flex-start,$ac:flex-end);}
-  &.at-bottom-right {@include flex($jc:flex-end  ,$ac:flex-end);}
+  &.at-left-top     ul {@include flex($jc:flex-start,$ac:flex-start);}
+  &.at-right-top    ul {@include flex($jc:flex-end  ,$ac:flex-start);}
+  &.at-bottom-left  ul {@include flex($jc:flex-start,$ac:flex-end);}
+  &.at-bottom-right ul {@include flex($jc:flex-end  ,$ac:flex-end);}
   //---------------------------------------------
 }

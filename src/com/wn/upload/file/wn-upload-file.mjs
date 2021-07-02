@@ -213,7 +213,7 @@ const _M = {
       // console.log("it will upload ", file)
       //................................
       // Check for support Types
-      let type = Ti.Util.getSuffixName(file.name)
+      let type = Ti.Util.getSuffixName(file.name, true)
       if(!await this.assertListHas(
         this.AcceptTypes, type, 
         'i18n:wn-invalid-types',

@@ -111,7 +111,6 @@ export default {
         return items
       }
       // Sorting 
-      its = _.sortBy(its, this.SortItemBy)
       its = SortItems(its)
       // Mapping items
       const MappingItems = items => {
