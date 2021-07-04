@@ -205,15 +205,12 @@ const _M = {
         title: "i18n:edit",
         width: 500,
         height: 500
-      },
-        this.dialog,
-        {
-          result,
-          model: { prop: "data", event: "change" },
-          comType: "TiForm",
-          comConf: this.form
-        })
-
+      }, this.dialog, {
+        result,
+        model: { prop: "data", event: "change" },
+        comType: "TiForm",
+        comConf: this.form
+      })
       return await Ti.App.Open(dialog);
     },
     //-----------------------------------------------
@@ -222,15 +219,13 @@ const _M = {
         title: "i18n:edit",
         width: 500,
         height: 500
-      },
-        this.dialog,
-        {
-          result: json,
-          comType: "TiInputText",
-          comConf: {
-            height: "100%"
-          }
-        })
+      }, this.dialog, {
+        result: json,
+        comType: "TiInputText",
+        comConf: {
+          height: "100%"
+        }
+      })
 
       return await Ti.App.Open(dialog);
     },

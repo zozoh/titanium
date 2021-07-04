@@ -1,4 +1,4 @@
-// Pack At: 2021-06-30 17:51:37
+// Pack At: 2021-07-04 21:27:58
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13465,10 +13465,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       // Create the main bg-layer
       if(this.baseTileLayer) {
-        this.createTileLayer(this.baseTileLayer).addTo(this.$map)
+        this.createTileLayer(this.baseTileLayer, this.baseTileVars).addTo(this.$map)
       }
       if(this.noteTileLayer) {
-        this.createTileLayer(this.noteTileLayer).addTo(this.$map)
+        this.createTileLayer(this.noteTileLayer, this.noteTileVars).addTo(this.$map)
       }
       
       // Events
@@ -26833,7 +26833,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
         return items
       }
       // Sorting 
-      its = _.sortBy(its, this.SortItemBy)
       its = SortItems(its)
       // Mapping items
       const MappingItems = items => {
@@ -30280,15 +30279,12 @@ const _M = {
         title: "i18n:edit",
         width: 500,
         height: 500
-      },
-        this.dialog,
-        {
-          result,
-          model: { prop: "data", event: "change" },
-          comType: "TiForm",
-          comConf: this.form
-        })
-
+      }, this.dialog, {
+        result,
+        model: { prop: "data", event: "change" },
+        comType: "TiForm",
+        comConf: this.form
+      })
       return await Ti.App.Open(dialog);
     },
     //-----------------------------------------------
@@ -30297,15 +30293,13 @@ const _M = {
         title: "i18n:edit",
         width: 500,
         height: 500
-      },
-        this.dialog,
-        {
-          result: json,
-          comType: "TiInputText",
-          comConf: {
-            height: "100%"
-          }
-        })
+      }, this.dialog, {
+        result: json,
+        comType: "TiInputText",
+        comConf: {
+          height: "100%"
+        }
+      })
 
       return await Ti.App.Open(dialog);
     },
@@ -30543,10 +30537,10 @@ const _M = {
     },
     //--------------------------------------
     async OnUpload(file) {
-      // console.log("it will upload ", file)
+      //console.log("it will upload ", file)
       //................................
       // Check for support Types
-      let type = Ti.Util.getSuffixName(file.name)
+      let type = Ti.Util.getSuffixName(file.name, true)
       if(!await this.assertListHas(
         this.AcceptTypes, type, 
         'i18n:wn-invalid-types',
@@ -34627,7 +34621,9 @@ const _M = {
   //////////////////////////////////////////////////////
   data : ()=>({
     myKeysInFields: [],
-    currentTabIndex : 0
+    currentTabIndex : 0,
+    isEvalMeasure : false,
+    myFormFields : []
   }),
   //////////////////////////////////////////////////////
   computed : {
@@ -34641,14 +34637,16 @@ const _M = {
         [`tab-at-${this.TheTabAtY}`] : this.isTabMode
       }, 
       `as-${this.ViewDisplayMode}`,
-      `as-spacing-${this.spacing||"comfy"}`
+      `as-spacing-${this.spacing||"comfy"}`,
+      `field-border-${this.fieldBorder}`
       )
     },
     //--------------------------------------------------
     TopStyle() {
       return Ti.Css.toStyle({
         width  : this.width,
-        height : this.height
+        height : this.height,
+        visibility: this.isEvalMeasure ? "hidden" : "initial"
       })
     },
     //--------------------------------------------------
@@ -34675,42 +34673,11 @@ const _M = {
     TheTabAtX(){return this.TheTabAt[1]},
     TheTabAtY(){return this.TheTabAt[0]},
     //--------------------------------------------------
-    TheFields() {
-      let list = []
-      let keys = []
-      //................................................
-      _.forEach(this.fields, (fld, index)=>{
-        let fld2 = this.evalFormField(fld, [index])
-        if(fld2) {
-          list.push(fld2)
-          // Gather keys
-          if(!fld2.disabled) {
-            // Field group ...
-            if("Group" == fld2.type) {
-              _.forEach(fld2.fields, ({disabled, name})=>{
-                if(!disabled) {
-                  keys.push(name)
-                }
-              })
-            }
-            // The fields
-            else {
-              keys.push(fld2.name)
-            }
-          }
-        }
-      })
-      //................................................
-      this.myKeysInFields = _.flattenDeep(keys)
-      //................................................
-      return list
-    },
-    //--------------------------------------------------
     TabList() {
       let list = []
       let otherFields = []
       if(this.isTabMode) {
-        for(let fld of this.TheFields) {
+        for(let fld of this.myFormFields) {
           if(fld.type == "Group") {
             list.push(fld)
           }
@@ -34739,9 +34706,9 @@ const _M = {
       _.forEach(this.TabList, (li, index)=>{
         let isCurrent = (index == currentIndex)
         items.push(_.assign({}, li, {
-          index, isCurrent, className: {
+          index, isCurrent, className: Ti.Css.mergeClassName({
             "is-current" : isCurrent
-          }
+          }, li.className)
         }))
       })
       return items
@@ -34756,11 +34723,18 @@ const _M = {
     },
     //--------------------------------------------------
     FormBodyClass() {
-      let klass = Ti.Css.mergeClassName(`has-${this.FieldsInCurrentTab.length}-fields`)
       if(this.isTabMode && this.CurrentTab) {
-        klass[`tab-body-${this.CurrentTab.index}`] = true
+        return Ti.Css.mergeClassName(
+          this.bodyClass,
+          `has-${this.FieldsInCurrentTab.length}-fields`,
+          `tab-body-${this.CurrentTab.index}`,
+          this.CurrentTab.className
+        )
       }
-      return klass
+      return Ti.Css.mergeClassName(
+        this.bodyClass,
+        `has-${this.FieldsInCurrentTab.length}-fields`
+      )
     },
     //--------------------------------------------------
     FieldsInCurrentTab() {
@@ -34773,7 +34747,7 @@ const _M = {
       }
       // Show All
       else {
-        return this.TheFields
+        return this.myFormFields
       }
     },
     //--------------------------------------------------
@@ -34890,6 +34864,7 @@ const _M = {
   methods : {
     //--------------------------------------------------
     OnClickTab(tab) {
+      this.isEvalMeasure = this.currentTabIndex!=tab.index
       this.currentTabIndex = tab.index
       this.$notify("tab:change", tab)
     },
@@ -34976,6 +34951,40 @@ const _M = {
       return "Label" == fld.type || !fld.name
     },
     //--------------------------------------------------
+    evalFormFieldList() {
+      let list = []
+      let keys = []
+      this.isEvalMeasure = true
+      //................................................
+      _.forEach(this.fields, (fld, index)=>{
+        let fld2 = this.evalFormField(fld, [index])
+        if(fld2) {
+          list.push(fld2)
+          // Gather keys
+          if(!fld2.disabled) {
+            // Field group ...
+            if("Group" == fld2.type) {
+              _.forEach(fld2.fields, ({disabled, name})=>{
+                if(!disabled) {
+                  keys.push(name)
+                }
+              })
+            }
+            // The fields
+            else {
+              keys.push(fld2.name)
+            }
+          }
+        }
+      })
+      //................................................
+      this.myKeysInFields = _.flattenDeep(keys)
+      //................................................
+      this.myFormFields = list
+      //................................................
+      this.__adjust_fields_width()
+    },
+    //--------------------------------------------------
     evalFormField(fld={}, nbs=[]) {
       // Hide or disabled
       if(fld.hidden) {
@@ -35001,7 +35010,7 @@ const _M = {
           disabled,
           type        : "Group",
           key         : fldKey,
-          className   : fld.className,
+          className   : Ti.Css.mergeClassName(fld.className, this.defaultGroupClass),
           icon        : fld.icon,
           title       : fld.title,
           fields      : []
@@ -35075,6 +35084,9 @@ const _M = {
       // Guard
       if(!_.isElement(this.$el))
         return
+
+      this.isEvalMeasure = true
+      //console.log("__adjust_fields_width")
       //
       // Find the max width in all form
       //
@@ -35120,6 +35132,10 @@ const _M = {
           Ti.Dom.setStyle($fldnm, {width:maxWidth})
         }
       }
+
+      this.$nextTick(()=>{
+        this.isEvalMeasure = false
+      })
     },
     //--------------------------------------------------
     adjustFieldsWidth() {
@@ -35152,8 +35168,11 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   watch : {
-    "TheFields" : function(){
-      this.adjustFieldsWidth()
+    "data": function() {
+      this.evalFormFieldList();
+    },
+    "fields" : function(){
+      this.evalFormFieldList();
     },
     "currentTab" : function(index){
       this.currentTabIndex = index
@@ -35183,7 +35202,11 @@ const _M = {
       this.__debounce_adjust_fields_width()
     }})
     //--------------------------------------------------
-    this.adjustFieldsWidth()
+    this.evalFormFieldList();
+    //--------------------------------------------------
+    this.$nextTick(()=>{
+      this.__adjust_fields_width()
+    })
     //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
@@ -42559,9 +42582,15 @@ const TILES = {
     coords : "GCJ02"
   },
   // 谷歌矢量：
-  "GOOGLE_VECTOR" : {
+  "GOOGLE_VECTOR_CN" : {
     tmpl : "http://mt{s}.google.cn/vt/lyrs=m&scale=2&hl={lang}&gl=cn&x={x}&y={y}&z={z}",
     vars : {subdomains: "0123", lang: "zh-CN"},
+    coords : "WGS84"
+  },
+  // 谷歌矢量：
+  "GOOGLE_VECTOR" : {
+    tmpl : "http://mt{s}.google.com/vt/lyrs=m&scale=2&hl={lang}&gl=cn&x={x}&y={y}&z={z}",
+    vars : {subdomains: "0123", lang: "en-US"},
     coords : "WGS84"
   },
   // 谷歌路网：
@@ -48706,6 +48735,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "bodyClass": {
+    type : [String, Object, Array]
+  },
+  "defaultGroupClass": {
+    type : [String, Object, Array]
+  },
   "mode" : {
     type : String,
     default : "all",
@@ -48720,6 +48755,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : String,
     default : "top-center",
     validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
+  },
+  "fieldBorder": {
+    type : String,
+    default : "bottom",
+    validator : (v)=>/^(none|top|bottom)$/.test(v)
   },
   "blankAs" : {
     type : Object,
@@ -50971,9 +51011,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : String,
     default: "QQ_VECTOR_NOTE"
   },
+  "baseTileVars" : {
+    type : Object
+  },
   "noteTileLayer" : {
     type : String,
     default: null
+  },
+  "noteTileVars" : {
+    type : Object
   },
   "aspect" : {
     type : Object,
@@ -60833,13 +60879,34 @@ Ti.Preload("ti/com/ti/form/com/form-group/form-group.html", `<div class="form-gr
         class="name-title">{{title|i18n}}</span>
   </div>
   <div class="group-fields">
-      <ti-form-field v-for="fld in fields"
-        :key="fld.key"
-        v-bind="fld"
-        :data="data"
-        :field-status="fieldStatus"
-        :status-icons="statusIcons"
-        :screen-mode="screenMode"/>
+    <template
+      v-for="fld in fields">
+        <!--
+          Show Label
+        -->
+        <div 
+          v-if="'Label' == fld.type"
+            class="form-label">
+            <ti-icon
+              v-if="fld.icon" 
+                class="as-label-icon"
+                :value="fld.icon"/>
+            <span
+              v-if="fld.title"
+                class="as-label-text">{{fld.title|i18n}}</span>
+        </div>
+        <!--
+          Show Field
+        -->
+        <ti-form-field
+          v-else
+            :key="fld.key"
+            v-bind="fld"
+            :data="data"
+            :field-status="fieldStatus"
+            :status-icons="statusIcons"
+            :screen-mode="screenMode"/>
+    </template>
   </div>
 </div>`);
 //========================================
@@ -60851,7 +60918,7 @@ Ti.Preload("ti/com/ti/form/com/form-group/form-group.mjs", TI_PACK_EXPORTS['ti/c
 //========================================
 Ti.Preload("ti/com/ti/form/com/form-group/_com.json", {
   "name" : "form-group",
-  "globally" : false,
+  "globally" : true,
   "template" : "./form-group.html",
   "props" : "./form-group-props.mjs",
   "mixins" : ["./form-group.mjs"]

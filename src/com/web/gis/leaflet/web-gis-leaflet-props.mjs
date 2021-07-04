@@ -164,9 +164,15 @@ export default {
     type : String,
     default: "QQ_VECTOR_NOTE"
   },
+  "baseTileVars" : {
+    type : Object
+  },
   "noteTileLayer" : {
     type : String,
     default: null
+  },
+  "noteTileVars" : {
+    type : Object
   },
   "aspect" : {
     type : Object,

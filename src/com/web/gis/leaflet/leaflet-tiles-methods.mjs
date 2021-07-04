@@ -24,9 +24,15 @@ const TILES = {
     coords : "GCJ02"
   },
   // 谷歌矢量：
-  "GOOGLE_VECTOR" : {
+  "GOOGLE_VECTOR_CN" : {
     tmpl : "http://mt{s}.google.cn/vt/lyrs=m&scale=2&hl={lang}&gl=cn&x={x}&y={y}&z={z}",
     vars : {subdomains: "0123", lang: "zh-CN"},
+    coords : "WGS84"
+  },
+  // 谷歌矢量：
+  "GOOGLE_VECTOR" : {
+    tmpl : "http://mt{s}.google.com/vt/lyrs=m&scale=2&hl={lang}&gl=cn&x={x}&y={y}&z={z}",
+    vars : {subdomains: "0123", lang: "en-US"},
     coords : "WGS84"
   },
   // 谷歌路网：

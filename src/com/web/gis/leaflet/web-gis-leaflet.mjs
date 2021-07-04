@@ -499,10 +499,10 @@ export default {
 
       // Create the main bg-layer
       if(this.baseTileLayer) {
-        this.createTileLayer(this.baseTileLayer).addTo(this.$map)
+        this.createTileLayer(this.baseTileLayer, this.baseTileVars).addTo(this.$map)
       }
       if(this.noteTileLayer) {
-        this.createTileLayer(this.noteTileLayer).addTo(this.$map)
+        this.createTileLayer(this.noteTileLayer, this.noteTileVars).addTo(this.$map)
       }
       
       // Events

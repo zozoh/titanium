@@ -210,7 +210,7 @@ const _M = {
     },
     //--------------------------------------
     async OnUpload(file) {
-      // console.log("it will upload ", file)
+      //console.log("it will upload ", file)
       //................................
       // Check for support Types
       let type = Ti.Util.getSuffixName(file.name, true)
