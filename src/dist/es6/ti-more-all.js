@@ -1,4 +1,4 @@
-// Pack At: 2021-07-05 13:00:50
+// Pack At: 2021-07-05 16:40:51
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -17169,7 +17169,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       })
     }
     for (let $table of $tables) {
+      //
       // Table caption
+      //
       let $caption = Ti.Dom.find("caption", $table)
       if ($caption) {
         let $caP = Ti.Dom.createElement({
@@ -17180,22 +17182,42 @@ const __TI_MOD_EXPORT_VAR_NM = {
         $freg.appendChild(createHr())
         $freg.appendChild($caP)
       }
+      //
       // Found thead
-      let $theadRow = Ti.Dom.find('thead > tr', $table)
+      //
+      let $rows;
+      let $thead = Ti.Dom.find('thead', $table)
       let headers = []
-      if ($theadRow) {
-        let $ths = Ti.Dom.findAll("td,th", $theadRow)
-        for (let $th of $ths) {
-          let headHtml = tidyHtml($th)
-          headers.push(headHtml)
+      if($thead) {
+        $rows = Ti.Dom.findAll('tr', $thead)
+        if (!_.isEmpty($rows)) {
+          for(let $row of $rows) {
+            let $cells = Ti.Dom.findAll("td,th", $row)
+            let offX = 0;
+            for(let x=0; x<$cells.length; x++) {
+              let $cell = $cells[x]
+              let span = $cell.getAttribute("colspan")*1 || 1
+              let cellHtml = tidyHtml($cell)
+              for(let i=0; i<span; i++) {
+                let headHtml = headers[offX]
+                if(headHtml && "&nbsp;"!=headHtml) {
+                  headHtml += " " + cellHtml  
+                } else {
+                  headHtml = cellHtml
+                }
+                headers[offX] = headHtml
+                offX++;
+              }
+            }
+          }
         }
-        Ti.Dom.remove($theadRow)
+        Ti.Dom.remove($thead)
       }
       //console.log($table)
       // Begin Table
       $freg.appendChild(createHr())
       // Decon each row
-      let $rows = Ti.Dom.findAll("tr", $table)
+      $rows = Ti.Dom.findAll("tr", $table)
       for (let $row of $rows) {
         // Each cell
         let $cells = Ti.Dom.findAll("td", $row)
