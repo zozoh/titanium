@@ -396,9 +396,9 @@ const WnHMaker = {
       }
       if(fields.length > 0) {
         let className = ({
-          aspect  : "as-vertical col-2",
-          measure : "as-vertical col-2",
-          texting : "as-vertical col-2"
+          aspect  : "as-columns col-2",
+          measure : "as-columns col-2",
+          texting : "as-columns col-2"
         })[gnm]
         re.push({
           title : `i18n:hmk-css-grp-${gnm}`,

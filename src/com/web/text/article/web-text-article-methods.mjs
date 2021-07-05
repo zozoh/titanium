@@ -355,11 +355,11 @@ export default {
           showOpener: vm.photoGalleryShowOpener,
           getData: function () {
             let AB = vm.getTiAlbumObj($el)
-            let items = AB.getItems()
-            return _.map(items, (it, index) => {
+            let photos = AB.getPhotos()
+            return _.map(photos, (it, index) => {
               return {
                 index,
-                srcThumb: it.thumbSrc,
+                srcThumb: it.thumb,
                 srcLarge: it.src,
                 src: it.src,
                 title: it.name,
@@ -377,6 +377,7 @@ export default {
     //
     let $els = Ti.Dom.findAll('[ti-live-widget]', $div)
     for (let $el of $els) {
+
       let widgetType = $el.getAttribute("ti-live-widget")
       let initFunc = LIVE_WIDGETS[widgetType]
       if (_.isFunction(initFunc)) {

@@ -1,4 +1,4 @@
-// Pack At: 2021-07-04 21:27:58
+// Pack At: 2021-07-05 13:00:50
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -2706,9 +2706,9 @@ const Hm = (function(){
         }
         if(fields.length > 0) {
           let className = ({
-            aspect  : "as-vertical col-2",
-            measure : "as-vertical col-2",
-            texting : "as-vertical col-2"
+            aspect  : "as-columns col-2",
+            measure : "as-columns col-2",
+            texting : "as-columns col-2"
           })[gnm]
           re.push({
             title : `i18n:hmk-css-grp-${gnm}`,
@@ -4019,7 +4019,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210704.212758"
+const WALNUT_VERSION = "1.2-20210705.130050"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
