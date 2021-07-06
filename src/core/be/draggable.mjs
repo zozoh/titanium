@@ -84,15 +84,17 @@ function TiDraggable($el, setup={}) {
     let $doc = $el.ownerDocument;
     let $body = $el.ownerDocument.body
     let $viewport = findBy($trigger, viewport, $el)
-    let $watchZone = findBy($trigger, watchZone, $el.ownerDocument.body)
+    let $watchZone = findBy($trigger, watchZone, $el.ownerDocument)
     let $handler  = findBy($trigger, handler, $el)
     let context = {}
     _.assign(context, {
       $event: evt,
-      $doc, $body, $viewport, $handler, $trigger
+      $doc, $body, $viewport, $handler, $trigger, $watchZone
     })
     EVENTS.setClientXY(context, evt)
     context.$src = evt.srcElement
+
+    //console.log(context)
 
     // Guard
     if(!_.isElement($viewport) || !_.isElement($handler)) {
