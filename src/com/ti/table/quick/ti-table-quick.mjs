@@ -147,11 +147,11 @@ const _M = {
       //....................................
       const evalQuickStrDisplay = (str) => {
         //  key.className
-        let m = /^([\w\d_-]+)(\.([\w\d_-]+))?/.exec(str)
+        let m = /^([\w\d_-]+)((\.|::)([\w\d\s_-]+))?/.exec(str)
         if (m) {
           return {
             key: m[1],
-            className: m[3]
+            className: m[4]
           }
         }
         // <icon:fas-xxx>?
@@ -174,7 +174,6 @@ const _M = {
         if (_.isString(dis)) {
           dis = evalQuickStrDisplay(dis)
         }
-
         let { key, type, className, transformer, defaultAs, ignoreNil } = dis
 
         // Default type as text

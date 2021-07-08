@@ -135,6 +135,12 @@ export const VueTiCom = {
       }
       return Ti.I18n.getf(val, vars)
     })
+    Vue.filter("i18nTxt", function(val, vars={}){
+      if(/^i18n:(.+)/.test(val)) {
+        return Ti.I18n.textf(val, vars)
+      }
+      return val
+    })
     // Filter: percent
     Vue.filter("percent", function(val, fixed=2, auto=true){
       return Ti.S.toPercent(val*1, {fixed, auto})

@@ -3,6 +3,7 @@ export default {
   inject: ["$gui"],
   /////////////////////////////////////////
   data: () => ({
+    myBlockTitle: undefined,
     myDockReady: false,
     myConStyle: undefined
   }),
@@ -11,7 +12,7 @@ export default {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "title": String,
+    "title": [String, Function, Object],
     "icon": {
       type: [String, Object]
     },
@@ -52,6 +53,9 @@ export default {
     "actionStatus": {
       type: Object,
       default: () => ({})
+    },
+    "actionVars": {
+      type: [Object, Function]
     },
     "adjustable": {
       type: [Boolean, String],
@@ -224,6 +228,12 @@ export default {
       this.dockPanelToReferElement()
     },
     //--------------------------------------
+    async evalBlockTitle() {
+      if(this.title) {
+        this.myBlockTitle = await Ti.Util.explainObj(this.$gui.vars, this.title)
+      }
+    },
+    //--------------------------------------
     evalConStyle() {
       // Guard
       if (!_.isElement(this.$el)) {
@@ -283,6 +293,7 @@ export default {
   },
   //////////////////////////////////////////
   mounted: function () {
+    this.evalBlockTitle()
     this.evalConStyle()
   }
   //////////////////////////////////////////

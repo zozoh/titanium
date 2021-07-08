@@ -80,8 +80,15 @@ const _M = {
       return this.value
     },
     //------------------------------------------------
+    isQuickTable() {
+      if(_.isString(this.quickTable)) {
+        return Ti.Util.explainObj(this, this.quickTable)
+      }
+      return Ti.AutoMatch.test(this.quickTable, this.vars)
+    },
+    //------------------------------------------------
     TableConfig() {
-      let config = _.cloneDeep(this.list)
+      let config = this.getDataByVars(this.list)
       config.data = this.TheValue
       _.defaults(config, {
         blankAs: this.blankAs,
@@ -201,17 +208,19 @@ const _M = {
     },
     //-----------------------------------------------
     async openDialogForMeta(result = {}) {
-      let dialog = _.assign({
+      let dialog = this.getDataByVars(this.dialog) 
+      let form = this.getDataByVars(this.form)
+      let dialogSetting = _.assign({
         title: "i18n:edit",
         width: 500,
         height: 500
-      }, this.dialog, {
+      }, dialog, {
         result,
         model: { prop: "data", event: "change" },
         comType: "TiForm",
-        comConf: this.form
+        comConf: form
       })
-      return await Ti.App.Open(dialog);
+      return await Ti.App.Open(dialogSetting);
     },
     //-----------------------------------------------
     async openDialogForSource(json = '[]') {
@@ -228,6 +237,23 @@ const _M = {
       })
 
       return await Ti.App.Open(dialog);
+    },
+    //-----------------------------------------------
+    //
+    // Utility
+    //
+    //-----------------------------------------------
+    getDataByVars(cans=[]) {
+      if(_.isArray(cans)) {
+        for(let can of cans) {
+          let {test, data} = can
+          if(Ti.AutoMatch.test(test, this.vars)) {
+            return _.cloneDeep(data)
+          }
+        }
+        return _.cloneDeep(_.last(cans))
+      }
+      return _.cloneDeep(cans)
     },
     //-----------------------------------------------
     notifyChange(val = []) {

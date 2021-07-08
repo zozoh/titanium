@@ -1052,6 +1052,12 @@ const TiUtil = {
     let v = _.get(o, key)
     return !Ti.Util.isNil(v)
   },
+  isEqual(o1, o2) {
+    return _.isEqual(o1, o2)
+  },
+  notEqual(o1, o2) {
+    return !_.isEqual(o1, o2)
+  },
   /***
    * Test given input is `null` or `undefined`
    * 

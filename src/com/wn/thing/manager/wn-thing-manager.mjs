@@ -82,6 +82,10 @@ const _M = {
       }
     },
     //--------------------------------------
+    TheGuiVars() {
+      return this
+    },
+    //--------------------------------------
     CurrentIsDead() {
       return -1 == _.get(this.current, "meta.th_live")
     },

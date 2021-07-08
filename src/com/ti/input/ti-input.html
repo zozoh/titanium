@@ -18,7 +18,7 @@
     @click.left="OnClickPrefixText"
     @mouseenter="pointerHover='prefixText'"
     @mouseleave="pointerHover=null">
-    <span>{{ThePrefixText|i18n}}</span>
+    <span>{{ThePrefixText|i18nTxt}}</span>
   </div>
   <!--PreSlot-->
   <slot></slot>
@@ -30,7 +30,7 @@
       spellcheck="false" 
       :readonly="readonly"
       :value="TheValue"
-      :placeholder="placeholder|i18n"
+      :placeholder="placeholder|i18nTxt"
       @compositionstart="OnInputCompositionStart"
       @compositionend="OnInputCompositionEnd"
       @input="OnInputing"
@@ -45,7 +45,7 @@
       @click.left="OnClickSuffixText"
       @mouseenter="pointerHover='suffixText'"
       @mouseleave="pointerHover=null">
-      <span>{{TheSuffixText|i18n}}</span>
+      <span>{{TheSuffixText|i18nTxt}}</span>
     </div>
     <!--suffix:icon-->
     <div v-if="suffixIcon"

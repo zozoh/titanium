@@ -81,10 +81,12 @@
                       <!--
                         Icon
                       -->
-                      <i
-                        v-if="'icon' == it.type"
-                          :class="[it.className, it.displayValue.className]"
-                          >{{it.displayValue.text||""}}</i>
+                      <template v-if="'icon' == it.type">
+                        <i
+                          v-if="it.value"
+                            :class="[it.className, it.displayValue.className]"
+                            >{{it.displayValue.text||""}}</i>
+                      </template>
                       <!--
                         Image
                       -->

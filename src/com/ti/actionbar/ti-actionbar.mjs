@@ -17,6 +17,9 @@ export default {
       type : Array,
       default : ()=>[]
     },
+    "vars" :{
+      type : [Object, Function]
+    },
     "align" : {
       type : String,
       default : "left",

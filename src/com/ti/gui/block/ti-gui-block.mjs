@@ -31,6 +31,9 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "actionVars" : {
+      type: [Object, Function]
+    },
     "name" : {
       type : String,
       default : null
@@ -200,6 +203,20 @@ export default {
       return !_.isEmpty(this.actions)
     },
     //--------------------------------------
+    TheActionVars() {
+      if(this.actionVars) {
+        return ()=>{
+          let ctx = {
+            $main : this.$main(),
+            state : Ti.App(this).$state()
+          }
+          return Ti.Util.explainObj(ctx, this.actionVars, {
+            evalFunc: true
+          })
+        }
+      }
+    },
+    //--------------------------------------
     TheCom() {
       //....................................
       // Body -> Component
@@ -250,7 +267,7 @@ export default {
     },
     //--------------------------------------
     $main() {
-      return _.nth(this.$children, 0)
+      return _.last(this.$children)
     }
     //--------------------------------------
   },

@@ -17,7 +17,7 @@
     class="as-text at-prefix"
     :class="getHoverClass('prefixText')"
     @click.left="OnClickPrefixText">
-    <span>{{ThePrefixText|i18n}}</span>
+    <span>{{ThePrefixText|i18nTxt}}</span>
   </div>
   <!--Text-->
   <div class="as-value"
@@ -36,7 +36,7 @@
     class="as-text at-suffix"
     :class="getHoverClass('suffixText')"
     @click.left="OnClickSuffixIcon">
-    <span>{{TheSuffixText|i18n}}</span>
+    <span>{{TheSuffixText|i18nTxt}}</span>
   </div>
   <!--suffix:icon-->
   <div v-if="suffixIcon"

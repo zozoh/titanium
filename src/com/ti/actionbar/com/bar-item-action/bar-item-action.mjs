@@ -2,7 +2,7 @@ const _M = {
   ///////////////////////////////////////
   inject: ["$bar"],
   ///////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Same as <bar-item-info>
     //-----------------------------------
@@ -14,7 +14,7 @@ const _M = {
       type: String,
       default: undefined
     },
-    "hideIcon" : {
+    "hideIcon": {
       type: Boolean,
       default: false
     },
@@ -26,9 +26,9 @@ const _M = {
       type: String,
       default: undefined
     },
-    "altDisplay" : {
+    "altDisplay": {
       type: [Object, Array],
-      default: ()=>[]
+      default: () => []
     },
     "enabled": {
       type: [String, Array, Object],
@@ -42,7 +42,7 @@ const _M = {
       type: [String, Array, Object],
       default: undefined
     },
-    "value" : {
+    "value": {
       type: [Boolean, String, Number, Array],
       default: true
     },
@@ -50,32 +50,32 @@ const _M = {
       type: Number,
       default: 0
     },
-    "status" : {
-      type : Object,
-      default : ()=>({})
+    "status": {
+      type: Object,
+      default: () => ({})
     },
     //-----------------------------------
     // Self Props
     //-----------------------------------
-    "action" : {
-      type : [String, Object, Function],
+    "action": {
+      type: [String, Object, Function],
       default: undefined
     },
-    "notifyChange" : {
-      type : [Boolean, String],
+    "notifyChange": {
+      type: [Boolean, String],
       default: false
     },
-    "eventName" : {
-      type : String,
+    "eventName": {
+      type: String,
       default: undefined
     },
-    "payload" : undefined,
-    "wait" : {
-      type : Number,
+    "payload": undefined,
+    "wait": {
+      type: Number,
       default: 0
     },
-    "delay" : {
-      type : Number,
+    "delay": {
+      type: Number,
       default: 0
     },
     "shortcut": {
@@ -87,73 +87,81 @@ const _M = {
   computed: {
     //-----------------------------------
     NotifyChangeName() {
-      if(this.notifyChange) {
+      if (this.notifyChange) {
         return _.isString(this.notifyChange)
-                ? this.notifyChange
-                : this.name;
+          ? this.notifyChange
+          : this.name;
       }
     },
     //-----------------------------------
     TheAction() {
-      if(_.isFunction(this.action) && this.wait > 0) {
-        return _.debounce(this.action, this.wait, {leading:true})
+      if (_.isFunction(this.action) && this.wait > 0) {
+        return _.debounce(this.action, this.wait, { leading: true })
       }
       return this.action
     }
     //-----------------------------------
   },
   ///////////////////////////////////////
-  methods : {
+  methods: {
     OnFired(val) {
+      let app = Ti.App(this)
+      let argContext = app.$state()
+      if (this.$bar.vars) {
+        console.log("eval bar vars")
+        argContext = Ti.Util.explainObj(app.$state(), this.$bar.vars, {
+          evalFunc: true
+        })
+      }
       // Call Action
-      if(this.action) {
-        let app = Ti.App(this)
+      if (this.action) {
         let invoking = Ti.Shortcut.genActionInvoking(this.TheAction, {
-          $com : this.$bar.$parent,
-          argContext: app.$state()
+          $com: this.$bar.$parent,
+          argContext
         })
         // Invoke it
-        _.delay(()=>{
+        _.delay(() => {
           invoking(val)
         }, this.delay)
       }
 
       // notify: name/value object
-      if(this.NotifyChangeName) {    
-        _.delay(()=>{
+      if (this.NotifyChangeName) {
+        _.delay(() => {
           this.$bar.notifyChange({
-            name  : this.NotifyChangeName,
-            value : val
+            name: this.NotifyChangeName,
+            value: val
           })
         }, this.delay)
       }
 
       // notify: eventName
-      if(this.eventName) {
+      if (this.eventName) {
         let payload = this.payload
-        if(payload) {
+        if (payload) {
           payload = Ti.Util.explainObj({
-            name  : this.name,
-            value : val
+            name: this.name,
+            value: val,
+            vars: argContext
           }, payload)
         }
-        _.delay(()=>{
+        _.delay(() => {
           this.$bar.$notify(this.eventName, payload)
         }, this.delay)
       }
     }
   },
   ///////////////////////////////////////
-  mounted : function() {
-    if(this.shortcut) {
-      Ti.App(this).guardShortcut(this, this.shortcut, ()=>{
+  mounted: function () {
+    if (this.shortcut) {
+      Ti.App(this).guardShortcut(this, this.shortcut, () => {
         return this.isEnabled
       })
     }
   },
   ///////////////////////////////////////
-  destroyed : function(){
-    if(this.shortcut) {
+  destroyed: function () {
+    if (this.shortcut) {
       Ti.App(this).pulloutShortcut(this)
     }
   }

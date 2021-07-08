@@ -11,23 +11,27 @@ export default {
     default: "Array",
     validator: v => /^(Array|String)$/.test(v)
   },
+  "vars": {
+    type: Object,
+    default: () => ({})
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
   "form": {
-    type: Object,
+    type: [Object, Array],
     default: () => ({})
   },
   "quickTable": {
-    type: Boolean,
+    type: [Boolean, String, Function, Object, Array],
     default: false
   },
   "list": {
-    type: Object,
+    type: [Object, Array],
     default: () => ({})
   },
   "dialog": {
-    type: Object,
+    type: [Object, Array],
     default: () => ({
       title: "i18n:edit",
       width: 500,
