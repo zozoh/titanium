@@ -1,4 +1,4 @@
-// Pack At: 2021-07-06 17:42:18
+// Pack At: 2021-07-09 03:35:19
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10174,6 +10174,12 @@ const {Util} = (function(){
       let v = _.get(o, key)
       return !Ti.Util.isNil(v)
     },
+    isEqual(o1, o2) {
+      return _.isEqual(o1, o2)
+    },
+    notEqual(o1, o2) {
+      return !_.isEqual(o1, o2)
+    },
     /***
      * Test given input is `null` or `undefined`
      * 
@@ -13707,6 +13713,12 @@ const {VueTiCom} = (function(){
         }
         return Ti.I18n.getf(val, vars)
       })
+      Vue.filter("i18nTxt", function(val, vars={}){
+        if(/^i18n:(.+)/.test(val)) {
+          return Ti.I18n.textf(val, vars)
+        }
+        return val
+      })
       // Filter: percent
       Vue.filter("percent", function(val, fixed=2, auto=true){
         return Ti.S.toPercent(val*1, {fixed, auto})
@@ -13909,7 +13921,9 @@ const {Album} = (function(){
       let { dftWallClass } = this.setup
       let {
         id, name, link, layout, fullpreview, autoopen,
-        style, wallStyle, tileStyle, imageStyle,
+        style, wallStyle, 
+        partLeftStyle, partRightStyle,
+        tileStyle, imageStyle,
         titleStyle, briefStyle,
         wallClass
       } = album
@@ -13921,6 +13935,8 @@ const {Album} = (function(){
       style = Ti.Dom.formatStyle(style)
       wallStyle = Ti.Dom.formatStyle(wallStyle)
       tileStyle = Ti.Dom.formatStyle(tileStyle)
+      partLeftStyle = Ti.Dom.formatStyle(partLeftStyle)
+      partRightStyle = Ti.Dom.formatStyle(partRightStyle)
       imageStyle = Ti.Dom.formatStyle(imageStyle)
       titleStyle = Ti.Dom.formatStyle(titleStyle)
       briefStyle = Ti.Dom.formatStyle(briefStyle)
@@ -13931,6 +13947,8 @@ const {Album} = (function(){
         style: Ti.Css.renderCssRule(style),
         wallStyle: Ti.Css.renderCssRule(wallStyle),
         tileStyle: Ti.Css.renderCssRule(tileStyle),
+        partLeftStyle: Ti.Css.renderCssRule(partLeftStyle),
+        partRightStyle: Ti.Css.renderCssRule(partRightStyle),
         imageStyle: Ti.Css.renderCssRule(imageStyle),
         titleStyle: Ti.Css.renderCssRule(titleStyle),
         briefStyle: Ti.Css.renderCssRule(briefStyle),
@@ -13949,13 +13967,17 @@ const {Album} = (function(){
         }
       })
       let {
-        style, wallClass, wallStyle, tileStyle, imageStyle,
+        style, wallClass, wallStyle, 
+        partLeftStyle, partRightStyle,
+        tileStyle, imageStyle,
         titleStyle, briefStyle,
       } = album
       album.wallClass = Ti.Dom.getClassList(wallClass).join(" ")
       album.style = Ti.Css.parseCssRule(style)
       album.wallStyle = Ti.Css.parseCssRule(wallStyle)
       album.tileStyle = Ti.Css.parseCssRule(tileStyle)
+      album.partLeftStyle = Ti.Css.parseCssRule(partLeftStyle)
+      album.partRightStyle = Ti.Css.parseCssRule(partRightStyle)
       album.imageStyle = Ti.Css.parseCssRule(imageStyle)
       album.titleStyle = Ti.Css.parseCssRule(titleStyle)
       album.briefStyle = Ti.Css.parseCssRule(briefStyle)
@@ -13997,6 +14019,8 @@ const {Album} = (function(){
       // Render photos
       if ("falls" == album.layout) {
         this.renderPhotosAsFalls(photos, { $wall, album, attrPrefix })
+      } else if ("rows" == album.layout) {
+        this.renderPhotosAsRows(photos, { $wall, album, attrPrefix })
       } else {
         this.renderPhotosAsWall(photos, { $wall, album, attrPrefix })
       }
@@ -14007,6 +14031,13 @@ const {Album} = (function(){
     }
     //---------------------------------------
     renderPhotosAsWall(photos = [], { $wall, album, attrPrefix }) {
+      // Build tils
+      for (let i = 0; i < photos.length; i++) {
+        this.createPhotoTileElement($wall, photos[i], album, attrPrefix)
+      }
+    }
+    //---------------------------------------
+    renderPhotosAsRows(photos = [], { $wall, album, attrPrefix }) {
       // Build tils
       for (let i = 0; i < photos.length; i++) {
         this.createPhotoTileElement($wall, photos[i], album, attrPrefix)
@@ -14050,7 +14081,9 @@ const {Album} = (function(){
     }
     //---------------------------------------
     createPhotoTileElement($p, photo, {
-      tileStyle, imageStyle, titleStyle, briefStyle
+      layout, tileStyle, 
+      partLeftStyle, partRightStyle,
+      imageStyle, titleStyle, briefStyle
     }, attrPrefix) {
       let { thumb, src, link, name, brief, item } = photo
       let $tile = Ti.Dom.createElement({
@@ -14064,8 +14097,17 @@ const {Album} = (function(){
           target: "_blank"
         }
       })
+      let $partL = $tile
+      if ("rows" == layout) {
+        $partL = Ti.Dom.createElement({
+          $p: $tile,
+          tagName: "span",
+          className: "part-left",
+          style: partLeftStyle
+        })
+      }
       let $img = Ti.Dom.createElement({
-        $p: $tile,
+        $p: $partL,
         tagName: "img",
         style: imageStyle,
         attrs: {
@@ -14073,10 +14115,19 @@ const {Album} = (function(){
           srcLarge: src
         }
       })
+      let $partR = $tile
+      if ("rows" == layout) {
+        $partR = Ti.Dom.createElement({
+          $p: $tile,
+          tagName: "span",
+          className: "part-right",
+          style: partRightStyle
+        })
+      }
       if (name && !Ti.S.isBlank(name)) {
         let $title = Ti.Dom.createElement({
-          $p: $tile,
-          tagName: "div",
+          $p: $partR,
+          tagName: "span",
           className: "tile-title",
           style: titleStyle
         })
@@ -14084,8 +14135,8 @@ const {Album} = (function(){
       }
       if (brief && !Ti.S.isBlank(brief)) {
         let $title = Ti.Dom.createElement({
-          $p: $tile,
-          tagName: "div",
+          $p: $partR,
+          tagName: "span",
           className: "tile-brief",
           style: briefStyle
         })
@@ -14154,7 +14205,9 @@ const {Album} = (function(){
         return this.getFallsPhotos()
       }
       // Wall photos
-      return this.getWallPhotos()
+      let photos = this.getWallPhotos()
+      console.log("getPhotos", photos)
+      return photos
     }
     //---------------------------------------
     getFallsPhotos() {
@@ -14204,6 +14257,7 @@ const {Album} = (function(){
       let attrPrefix = this.setup.attrPrefix
       let N = attrPrefix.length
       let $img = Ti.Dom.find("img", $tile)
+      let $brief = Ti.Dom.find(".tile-brief", $tile)
       let item = Ti.Dom.attrs($img, (key, val) => {
         if (key.startsWith(attrPrefix)) {
           let name = _.camelCase(key.substring(N))
@@ -14218,6 +14272,7 @@ const {Album} = (function(){
       })
       return {
         name: $tile.getAttribute("title") || null,
+        brief: $brief ? $brief.innerText : null,
         link: $tile.getAttribute("href") || null,
         thumb: $img.getAttribute("src") || null,
         src: $img.getAttribute("src-large") || null,
@@ -14291,6 +14346,7 @@ const {Album} = (function(){
             comConf: {
               options: [
                 { value: "wall", text: "i18n:hmk-layout-wall" },
+                { value: "rows", text: "i18n:hmk-layout-rows" },
                 { value: "falls", text: "i18n:hmk-layout-falls" }]
             }
           },
@@ -14303,98 +14359,99 @@ const {Album} = (function(){
               valueType: "String",
               dialogHeight: 600,
               form: {
-                fields: [{
-                  title: "i18n:hmk-class-flex",
-                  name: "flexMode",
-                  comType: "TiSwitcher",
-                  comConf: {
-                    options: [
-                      { value: "flex-none", text: "i18n:hmk-class-flex-none" },
-                      { value: "flex-both", text: "i18n:hmk-class-flex-both" },
-                      { value: "flex-grow", text: "i18n:hmk-class-flex-grow" },
-                      { value: "flex-shrink", text: "i18n:hmk-class-flex-shrink" }]
-                  }
-                },
-                {
-                  title: "i18n:hmk-class-item-padding",
-                  name: "itemPadding",
-                  comType: "TiSwitcher",
-                  comConf: {
-                    options: [
-                      { value: "item-padding-no", text: "i18n:hmk-class-sz-no" },
-                      { value: "item-padding-xs", text: "i18n:hmk-class-sz-xs" },
-                      { value: "item-padding-sm", text: "i18n:hmk-class-sz-sm" },
-                      { value: "item-padding-md", text: "i18n:hmk-class-sz-md" },
-                      { value: "item-padding-lg", text: "i18n:hmk-class-sz-lg" },
-                      { value: "item-padding-xl", text: "i18n:hmk-class-sz-xl" }
-                    ]
-                  }
-                },
-                {
-                  title: "i18n:hmk-class-item-margin",
-                  name: "itemMargin",
-                  comType: "TiSwitcher",
-                  comConf: {
-                    options: [
-                      { value: "item-margin-no", text: "i18n:hmk-class-sz-no" },
-                      { value: "item-margin-xs", text: "i18n:hmk-class-sz-xs" },
-                      { value: "item-margin-sm", text: "i18n:hmk-class-sz-sm" },
-                      { value: "item-margin-md", text: "i18n:hmk-class-sz-md" },
-                      { value: "item-margin-lg", text: "i18n:hmk-class-sz-lg" },
-                      { value: "item-margin-xl", text: "i18n:hmk-class-sz-xl" }
-                    ]
-                  }
-                },
-                {
-                  title: "i18n:hmk-class-text-at",
-                  name: "textAt",
-                  comType: "TiSwitcher",
-                  comConf: {
-                    options: [
-                      { value: "at-top", text: "i18n:hmk-class-at-top" },
-                      { value: "at-center", text: "i18n:hmk-class-at-center" },
-                      { value: "at-bottom", text: "i18n:hmk-class-at-bottom" }
-                    ]
-                  }
-                },
-                {
-                  title: "i18n:hmk-class-title-wrap",
-                  name: "titleWrap",
-                  defaultAs: "title-warp",
-                  comType: "TiSwitcher",
-                  comConf: {
-                    options: [
-                      { value: "title-wrap-auto", text: "i18n:hmk-class-text-wrap-auto" },
-                      { value: "title-wrap-clip", text: "i18n:hmk-class-text-wrap-clip" },
-                      { value: "title-wrap-ellipsis", text: "i18n:hmk-class-text-wrap-ellipsis" }
-                    ]
-                  }
-                },
-                {
-                  title: "i18n:hmk-class-object-fit",
-                  name: "picFit",
-                  comType: "TiSwitcher",
-                  comConf: {
-                    options: [
-                      { value: "pic-fit-fill", text: "i18n:hmk-class-object-fit-fill" },
-                      { value: "pic-fit-cover", text: "i18n:hmk-class-object-fit-cover" },
-                      { value: "pic-fit-contain", text: "i18n:hmk-class-object-fit-contain" },
-                      { value: "pic-fit-none", text: "i18n:hmk-class-object-fit-none" }
-                    ]
-                  }
-                },
-                {
-                  title: "i18n:hmk-class-hover",
-                  name: "textHover",
-                  comType: "TiSwitcher",
-                  comConf: {
-                    options: [
-                      { value: "hover-to-up", text: "i18n:hmk-class-hover-to-up" },
-                      { value: "hover-to-scale", text: "i18n:hmk-class-hover-to-scale" },
-                      { value: "hover-to-zoom", text: "i18n:hmk-class-hover-to-zoom" }
-                    ]
-                  }
-                }]
+                fields: [
+                  {
+                    title: "i18n:hmk-class-flex",
+                    name: "flexMode",
+                    comType: "TiSwitcher",
+                    comConf: {
+                      options: [
+                        { value: "flex-none", text: "i18n:hmk-class-flex-none" },
+                        { value: "flex-both", text: "i18n:hmk-class-flex-both" },
+                        { value: "flex-grow", text: "i18n:hmk-class-flex-grow" },
+                        { value: "flex-shrink", text: "i18n:hmk-class-flex-shrink" }]
+                    }
+                  },
+                  {
+                    title: "i18n:hmk-class-item-padding",
+                    name: "itemPadding",
+                    comType: "TiSwitcher",
+                    comConf: {
+                      options: [
+                        { value: "item-padding-no", text: "i18n:hmk-class-sz-no" },
+                        { value: "item-padding-xs", text: "i18n:hmk-class-sz-xs" },
+                        { value: "item-padding-sm", text: "i18n:hmk-class-sz-sm" },
+                        { value: "item-padding-md", text: "i18n:hmk-class-sz-md" },
+                        { value: "item-padding-lg", text: "i18n:hmk-class-sz-lg" },
+                        { value: "item-padding-xl", text: "i18n:hmk-class-sz-xl" }
+                      ]
+                    }
+                  },
+                  {
+                    title: "i18n:hmk-class-item-margin",
+                    name: "itemMargin",
+                    comType: "TiSwitcher",
+                    comConf: {
+                      options: [
+                        { value: "item-margin-no", text: "i18n:hmk-class-sz-no" },
+                        { value: "item-margin-xs", text: "i18n:hmk-class-sz-xs" },
+                        { value: "item-margin-sm", text: "i18n:hmk-class-sz-sm" },
+                        { value: "item-margin-md", text: "i18n:hmk-class-sz-md" },
+                        { value: "item-margin-lg", text: "i18n:hmk-class-sz-lg" },
+                        { value: "item-margin-xl", text: "i18n:hmk-class-sz-xl" }
+                      ]
+                    }
+                  },
+                  {
+                    title: "i18n:hmk-class-text-at",
+                    name: "textAt",
+                    comType: "TiSwitcher",
+                    comConf: {
+                      options: [
+                        { value: "at-top", text: "i18n:hmk-class-at-top" },
+                        { value: "at-center", text: "i18n:hmk-class-at-center" },
+                        { value: "at-bottom", text: "i18n:hmk-class-at-bottom" }
+                      ]
+                    }
+                  },
+                  {
+                    title: "i18n:hmk-class-title-wrap",
+                    name: "titleWrap",
+                    defaultAs: "title-warp",
+                    comType: "TiSwitcher",
+                    comConf: {
+                      options: [
+                        { value: "title-wrap-auto", text: "i18n:hmk-class-text-wrap-auto" },
+                        { value: "title-wrap-clip", text: "i18n:hmk-class-text-wrap-clip" },
+                        { value: "title-wrap-ellipsis", text: "i18n:hmk-class-text-wrap-ellipsis" }
+                      ]
+                    }
+                  },
+                  {
+                    title: "i18n:hmk-class-object-fit",
+                    name: "picFit",
+                    comType: "TiSwitcher",
+                    comConf: {
+                      options: [
+                        { value: "pic-fit-fill", text: "i18n:hmk-class-object-fit-fill" },
+                        { value: "pic-fit-cover", text: "i18n:hmk-class-object-fit-cover" },
+                        { value: "pic-fit-contain", text: "i18n:hmk-class-object-fit-contain" },
+                        { value: "pic-fit-none", text: "i18n:hmk-class-object-fit-none" }
+                      ]
+                    }
+                  },
+                  {
+                    title: "i18n:hmk-class-hover",
+                    name: "textHover",
+                    comType: "TiSwitcher",
+                    comConf: {
+                      options: [
+                        { value: "hover-to-up", text: "i18n:hmk-class-hover-to-up" },
+                        { value: "hover-to-scale", text: "i18n:hmk-class-hover-to-scale" },
+                        { value: "hover-to-zoom", text: "i18n:hmk-class-hover-to-zoom" }
+                      ]
+                    }
+                  }]
               }
             } // title : "整体风格",
           }]
@@ -14426,6 +14483,32 @@ const {Album} = (function(){
             name: "tileStyle",
             type: "Object",
             emptyAs: null,
+            comType: "HmPropCssRules",
+            comConf: {
+              rules: "#BLOCK"
+            }
+          },
+          {
+            title: "i18n:hmk-style-part-left",
+            name: "partLeftStyle",
+            type: "Object",
+            emptyAs: null,
+            hidden: {
+              "!layout": "rows"
+            },
+            comType: "HmPropCssRules",
+            comConf: {
+              rules: "#BLOCK"
+            }
+          },
+          {
+            title: "i18n:hmk-style-part-right",
+            name: "partRightStyle",
+            type: "Object",
+            emptyAs: null,
+            hidden: {
+              "!layout": "rows"
+            },
             comType: "HmPropCssRules",
             comConf: {
               rules: "#BLOCK"
@@ -15912,7 +15995,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210706.174218",
+  "version" : "1.6-20210709.033519",
   "dev" : false,
   "appName" : null,
   "session" : {},

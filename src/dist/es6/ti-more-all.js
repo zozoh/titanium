@@ -1,4 +1,4 @@
-// Pack At: 2021-07-06 17:42:18
+// Pack At: 2021-07-09 03:35:19
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6767,6 +6767,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : Object,
       default : ()=>({})
     },
+    "actionVars" : {
+      type: [Object, Function]
+    },
     "name" : {
       type : String,
       default : null
@@ -6936,6 +6939,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return !_.isEmpty(this.actions)
     },
     //--------------------------------------
+    TheActionVars() {
+      if(this.actionVars) {
+        return ()=>{
+          let ctx = {
+            $main : this.$main(),
+            state : Ti.App(this).$state()
+          }
+          return Ti.Util.explainObj(ctx, this.actionVars, {
+            evalFunc: true
+          })
+        }
+      }
+    },
+    //--------------------------------------
     TheCom() {
       //....................................
       // Body -> Component
@@ -6986,7 +7003,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     $main() {
-      return _.nth(this.$children, 0)
+      return _.last(this.$children)
     }
     //--------------------------------------
   },
@@ -18033,6 +18050,10 @@ const _M = {
       }
     },
     //--------------------------------------
+    TheGuiVars() {
+      return this
+    },
+    //--------------------------------------
     CurrentIsDead() {
       return -1 == _.get(this.current, "meta.th_live")
     },
@@ -18388,11 +18409,11 @@ const _M = {
       //....................................
       const evalQuickStrDisplay = (str) => {
         //  key.className
-        let m = /^([\w\d_-]+)(\.([\w\d_-]+))?/.exec(str)
+        let m = /^([\w\d_-]+)((\.|::)([\w\d\s_-]+))?/.exec(str)
         if (m) {
           return {
             key: m[1],
-            className: m[3]
+            className: m[4]
           }
         }
         // <icon:fas-xxx>?
@@ -18415,7 +18436,6 @@ const _M = {
         if (_.isString(dis)) {
           dis = evalQuickStrDisplay(dis)
         }
-
         let { key, type, className, transformer, defaultAs, ignoreNil } = dis
 
         // Default type as text
@@ -30177,8 +30197,15 @@ const _M = {
       return this.value
     },
     //------------------------------------------------
+    isQuickTable() {
+      if(_.isString(this.quickTable)) {
+        return Ti.Util.explainObj(this, this.quickTable)
+      }
+      return Ti.AutoMatch.test(this.quickTable, this.vars)
+    },
+    //------------------------------------------------
     TableConfig() {
-      let config = _.cloneDeep(this.list)
+      let config = this.getDataByVars(this.list)
       config.data = this.TheValue
       _.defaults(config, {
         blankAs: this.blankAs,
@@ -30298,17 +30325,19 @@ const _M = {
     },
     //-----------------------------------------------
     async openDialogForMeta(result = {}) {
-      let dialog = _.assign({
+      let dialog = this.getDataByVars(this.dialog) 
+      let form = this.getDataByVars(this.form)
+      let dialogSetting = _.assign({
         title: "i18n:edit",
         width: 500,
         height: 500
-      }, this.dialog, {
+      }, dialog, {
         result,
         model: { prop: "data", event: "change" },
         comType: "TiForm",
-        comConf: this.form
+        comConf: form
       })
-      return await Ti.App.Open(dialog);
+      return await Ti.App.Open(dialogSetting);
     },
     //-----------------------------------------------
     async openDialogForSource(json = '[]') {
@@ -30325,6 +30354,23 @@ const _M = {
       })
 
       return await Ti.App.Open(dialog);
+    },
+    //-----------------------------------------------
+    //
+    // Utility
+    //
+    //-----------------------------------------------
+    getDataByVars(cans=[]) {
+      if(_.isArray(cans)) {
+        for(let can of cans) {
+          let {test, data} = can
+          if(Ti.AutoMatch.test(test, this.vars)) {
+            return _.cloneDeep(data)
+          }
+        }
+        return _.cloneDeep(_.last(cans))
+      }
+      return _.cloneDeep(cans)
     },
     //-----------------------------------------------
     notifyChange(val = []) {
@@ -30993,6 +31039,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   inject: ["$gui"],
   /////////////////////////////////////////
   data: () => ({
+    myBlockTitle: undefined,
     myDockReady: false,
     myConStyle: undefined
   }),
@@ -31001,7 +31048,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "title": String,
+    "title": [String, Function, Object],
     "icon": {
       type: [String, Object]
     },
@@ -31042,6 +31089,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "actionStatus": {
       type: Object,
       default: () => ({})
+    },
+    "actionVars": {
+      type: [Object, Function]
     },
     "adjustable": {
       type: [Boolean, String],
@@ -31214,6 +31264,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.dockPanelToReferElement()
     },
     //--------------------------------------
+    async evalBlockTitle() {
+      if(this.title) {
+        this.myBlockTitle = await Ti.Util.explainObj(this.$gui.vars, this.title)
+      }
+    },
+    //--------------------------------------
     evalConStyle() {
       // Guard
       if (!_.isElement(this.$el)) {
@@ -31273,6 +31329,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   //////////////////////////////////////////
   mounted: function () {
+    this.evalBlockTitle()
     this.evalConStyle()
   }
   //////////////////////////////////////////
@@ -40831,6 +40888,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : Array,
       default : ()=>[]
     },
+    "vars" :{
+      type : [Object, Function]
+    },
     "align" : {
       type : String,
       default : "left",
@@ -48966,6 +49026,10 @@ const _M = {
     "shown" : {
       type : Object,
       default : ()=>({})
+    },
+    "vars" : {
+      type : Object,
+      default: ()=>({})
     },
     //-----------------------------------
     // Behavior
@@ -57408,7 +57472,7 @@ const _M = {
   ///////////////////////////////////////
   inject: ["$bar"],
   ///////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Same as <bar-item-info>
     //-----------------------------------
@@ -57420,7 +57484,7 @@ const _M = {
       type: String,
       default: undefined
     },
-    "hideIcon" : {
+    "hideIcon": {
       type: Boolean,
       default: false
     },
@@ -57432,9 +57496,9 @@ const _M = {
       type: String,
       default: undefined
     },
-    "altDisplay" : {
+    "altDisplay": {
       type: [Object, Array],
-      default: ()=>[]
+      default: () => []
     },
     "enabled": {
       type: [String, Array, Object],
@@ -57448,7 +57512,7 @@ const _M = {
       type: [String, Array, Object],
       default: undefined
     },
-    "value" : {
+    "value": {
       type: [Boolean, String, Number, Array],
       default: true
     },
@@ -57456,32 +57520,32 @@ const _M = {
       type: Number,
       default: 0
     },
-    "status" : {
-      type : Object,
-      default : ()=>({})
+    "status": {
+      type: Object,
+      default: () => ({})
     },
     //-----------------------------------
     // Self Props
     //-----------------------------------
-    "action" : {
-      type : [String, Object, Function],
+    "action": {
+      type: [String, Object, Function],
       default: undefined
     },
-    "notifyChange" : {
-      type : [Boolean, String],
+    "notifyChange": {
+      type: [Boolean, String],
       default: false
     },
-    "eventName" : {
-      type : String,
+    "eventName": {
+      type: String,
       default: undefined
     },
-    "payload" : undefined,
-    "wait" : {
-      type : Number,
+    "payload": undefined,
+    "wait": {
+      type: Number,
       default: 0
     },
-    "delay" : {
-      type : Number,
+    "delay": {
+      type: Number,
       default: 0
     },
     "shortcut": {
@@ -57493,73 +57557,81 @@ const _M = {
   computed: {
     //-----------------------------------
     NotifyChangeName() {
-      if(this.notifyChange) {
+      if (this.notifyChange) {
         return _.isString(this.notifyChange)
-                ? this.notifyChange
-                : this.name;
+          ? this.notifyChange
+          : this.name;
       }
     },
     //-----------------------------------
     TheAction() {
-      if(_.isFunction(this.action) && this.wait > 0) {
-        return _.debounce(this.action, this.wait, {leading:true})
+      if (_.isFunction(this.action) && this.wait > 0) {
+        return _.debounce(this.action, this.wait, { leading: true })
       }
       return this.action
     }
     //-----------------------------------
   },
   ///////////////////////////////////////
-  methods : {
+  methods: {
     OnFired(val) {
+      let app = Ti.App(this)
+      let argContext = app.$state()
+      if (this.$bar.vars) {
+        console.log("eval bar vars")
+        argContext = Ti.Util.explainObj(app.$state(), this.$bar.vars, {
+          evalFunc: true
+        })
+      }
       // Call Action
-      if(this.action) {
-        let app = Ti.App(this)
+      if (this.action) {
         let invoking = Ti.Shortcut.genActionInvoking(this.TheAction, {
-          $com : this.$bar.$parent,
-          argContext: app.$state()
+          $com: this.$bar.$parent,
+          argContext
         })
         // Invoke it
-        _.delay(()=>{
+        _.delay(() => {
           invoking(val)
         }, this.delay)
       }
 
       // notify: name/value object
-      if(this.NotifyChangeName) {    
-        _.delay(()=>{
+      if (this.NotifyChangeName) {
+        _.delay(() => {
           this.$bar.notifyChange({
-            name  : this.NotifyChangeName,
-            value : val
+            name: this.NotifyChangeName,
+            value: val
           })
         }, this.delay)
       }
 
       // notify: eventName
-      if(this.eventName) {
+      if (this.eventName) {
         let payload = this.payload
-        if(payload) {
+        if (payload) {
           payload = Ti.Util.explainObj({
-            name  : this.name,
-            value : val
+            name: this.name,
+            value: val,
+            vars: argContext
           }, payload)
         }
-        _.delay(()=>{
+        _.delay(() => {
           this.$bar.$notify(this.eventName, payload)
         }, this.delay)
       }
     }
   },
   ///////////////////////////////////////
-  mounted : function() {
-    if(this.shortcut) {
-      Ti.App(this).guardShortcut(this, this.shortcut, ()=>{
+  mounted: function () {
+    if (this.shortcut) {
+      Ti.App(this).guardShortcut(this, this.shortcut, () => {
         return this.isEnabled
       })
     }
   },
   ///////////////////////////////////////
-  destroyed : function(){
-    if(this.shortcut) {
+  destroyed: function () {
+    if (this.shortcut) {
       Ti.App(this).pulloutShortcut(this)
     }
   }
@@ -58533,23 +58605,27 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default: "Array",
     validator: v => /^(Array|String)$/.test(v)
   },
+  "vars": {
+    type: Object,
+    default: () => ({})
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
   "form": {
-    type: Object,
+    type: [Object, Array],
     default: () => ({})
   },
   "quickTable": {
-    type: Boolean,
+    type: [Boolean, String, Function, Object, Array],
     default: false
   },
   "list": {
-    type: Object,
+    type: [Object, Array],
     default: () => ({})
   },
   "dialog": {
-    type: Object,
+    type: [Object, Array],
     default: () => ({
       title: "i18n:edit",
       width: 500,
@@ -61105,6 +61181,7 @@ Ti.Preload("ti/com/ti/gui/block/ti-gui-block.html", `<div class="ti-gui-block"
     <div class="as-actions" v-if="hasActions">
       <ti-actionbar 
         :items="actions"
+        :vars="TheActionVars"
         :status="actionStatus"/>
     </div>
   </div>
@@ -61183,11 +61260,12 @@ Ti.Preload("ti/com/ti/gui/panel/ti-gui-panel.html", `<div class="ti-gui-panel"
       embed-in="panel"
       flex="none"
       :type="type"
-      :title="title"
+      :title="myBlockTitle"
       :icon="icon"
       :hide-title="hideTitle"
       :actions="actions"
       :action-status="actionStatus"
+      :action-vars="actionVars"
       :name="name"
       :blocks="blocks"
       :body="body"
@@ -62099,7 +62177,7 @@ Ti.Preload("ti/com/ti/input/ti-input.html", `<div class="ti-input full-field"
     @click.left="OnClickPrefixText"
     @mouseenter="pointerHover='prefixText'"
     @mouseleave="pointerHover=null">
-    <span>{{ThePrefixText|i18n}}</span>
+    <span>{{ThePrefixText|i18nTxt}}</span>
   </div>
   <!--PreSlot-->
   <slot></slot>
@@ -62111,7 +62189,7 @@ Ti.Preload("ti/com/ti/input/ti-input.html", `<div class="ti-input full-field"
       spellcheck="false" 
       :readonly="readonly"
       :value="TheValue"
-      :placeholder="placeholder|i18n"
+      :placeholder="placeholder|i18nTxt"
       @compositionstart="OnInputCompositionStart"
       @compositionend="OnInputCompositionEnd"
       @input="OnInputing"
@@ -62126,7 +62204,7 @@ Ti.Preload("ti/com/ti/input/ti-input.html", `<div class="ti-input full-field"
       @click.left="OnClickSuffixText"
       @mouseenter="pointerHover='suffixText'"
       @mouseleave="pointerHover=null">
-      <span>{{TheSuffixText|i18n}}</span>
+      <span>{{TheSuffixText|i18nTxt}}</span>
     </div>
     <!--suffix:icon-->
     <div v-if="suffixIcon"
@@ -62286,7 +62364,7 @@ Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
     class="as-text at-prefix"
     :class="getHoverClass('prefixText')"
     @click.left="OnClickPrefixText">
-    <span>{{ThePrefixText|i18n}}</span>
+    <span>{{ThePrefixText|i18nTxt}}</span>
   </div>
   <!--Text-->
   <div class="as-value"
@@ -62305,7 +62383,7 @@ Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
     class="as-text at-suffix"
     :class="getHoverClass('suffixText')"
     @click.left="OnClickSuffixIcon">
-    <span>{{TheSuffixText|i18n}}</span>
+    <span>{{TheSuffixText|i18nTxt}}</span>
   </div>
   <!--suffix:icon-->
   <div v-if="suffixIcon"
@@ -63819,10 +63897,12 @@ Ti.Preload("ti/com/ti/table/quick/ti-table-quick.html", `<div class="ti-table as
                       <!--
                         Icon
                       -->
-                      <i
-                        v-if="'icon' == it.type"
-                          :class="[it.className, it.displayValue.className]"
-                          >{{it.displayValue.text||""}}</i>
+                      <template v-if="'icon' == it.type">
+                        <i
+                          v-if="it.value"
+                            :class="[it.className, it.displayValue.className]"
+                            >{{it.displayValue.text||""}}</i>
+                      </template>
                       <!--
                         Image
                       -->
@@ -70091,6 +70171,7 @@ Ti.Preload("ti/com/wn/thing/manager/wn-thing-manager.html", `<ti-gui
   v-ti-activable
   :layout="TheLayout"
   :schema="TheSchema"
+  :vars="TheGuiVars"
   :shown="TheShown"
   :can-loading="true"
   :loading-as="GuiLoadingAs"
@@ -71534,10 +71615,10 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-css-white-space-pre-line": "Keep primary and wrap by line",
   "hmk-css-white-space-pre-wrap": "Keep primary and wrap",
   "hmk-css-width": "Width",
-  "hmk-currentTab": "当前标签",
-  "hmk-data": "数据",
-  "hmk-dict": "数据字典",
-  "hmk-editable": "可编辑",
+  "hmk-currentTab": "Current tab",
+  "hmk-data": "Data",
+  "hmk-dict": "Dictionary",
+  "hmk-editable": "Editable",
   "hmk-fb-album-autofit": "Facebook album auto fit width",
   "hmk-fb-album-clrsz": "Clear facebook album size",
   "hmk-fb-album-id": "Facebook album ID",
@@ -71569,14 +71650,14 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-float-left": "Float left",
   "hmk-float-none": "Float none",
   "hmk-float-right": "Float right",
-  "hmk-form-data": "数据源",
-  "hmk-form-height": "表单高度",
-  "hmk-form-onlyFields": "仅声明字段",
-  "hmk-form-width": "表单宽度",
-  "hmk-format": "格式化",
-  "hmk-height": "控件高度",
-  "hmk-href": "超链接",
-  "hmk-icon": "表单图标",
+  "hmk-form-data": "Data",
+  "hmk-form-height": "Form height",
+  "hmk-form-onlyFields": "Fields only",
+  "hmk-form-width": "Form width",
+  "hmk-format": "Format",
+  "hmk-height": "Height",
+  "hmk-href": "Link",
+  "hmk-icon": "Form icon",
   "hmk-layout-cols": "Columns",
   "hmk-layout-falls": "Falls",
   "hmk-layout-rows": "Rows",
@@ -71587,38 +71668,40 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-margin-md": "Middle margin",
   "hmk-margin-no": "No margin",
   "hmk-margin-sm": "Small margin",
-  "hmk-measure": "尺寸",
-  "hmk-mode": "显示方式",
-  "hmk-mode-all": "全部",
-  "hmk-mode-tab": "标签",
-  "hmk-newTab": "新窗口",
-  "hmk-placeholder": "占位文本",
-  "hmk-prefixIcon": "前缀图标",
-  "hmk-prefixText": "前缀文字",
+  "hmk-measure": "Measure",
+  "hmk-mode": "Display mode",
+  "hmk-mode-all": "All",
+  "hmk-mode-tab": "Tab",
+  "hmk-newTab": "New tab",
+  "hmk-placeholder": "Placeholder",
+  "hmk-prefixIcon": "Prefix icon",
+  "hmk-prefixText": "Prefix text",
   "hmk-size": "Size",
-  "hmk-spacing": "间距",
-  "hmk-spacing-comfy": "舒适",
-  "hmk-spacing-tiny": "紧凑",
+  "hmk-spacing": "Spacing",
+  "hmk-spacing-comfy": "Comfy",
+  "hmk-spacing-tiny": "Tiny",
   "hmk-style-adv": "Adv style",
   "hmk-style-brief": "Brief style",
   "hmk-style-image": "Image style",
   "hmk-style-inside": "Inner style",
   "hmk-style-outside": "Outer style",
+  "hmk-style-part-left": "Left part",
+  "hmk-style-part-right": "Right part",
   "hmk-style-tile": "Tile style",
   "hmk-style-title": "Title style",
-  "hmk-suffixIcon": "后缀图标",
-  "hmk-suffixText": "后缀文字",
-  "hmk-tabAt": "标签位置",
-  "hmk-tabAt-bottom-center": "下部居中",
-  "hmk-tabAt-bottom-left": "下部居左",
-  "hmk-tabAt-bottom-right": "下部居右",
-  "hmk-tabAt-top-center": "上部居中",
-  "hmk-tabAt-top-left": "上部居左",
-  "hmk-tabAt-top-right": "上部居右",
-  "hmk-title": "表单标题",
-  "hmk-trimed": "修剪空白",
-  "hmk-value": "输入值",
-  "hmk-valueMaxWidth": "值最大宽度",
+  "hmk-suffixIcon": "Suffix icon",
+  "hmk-suffixText": "Suffix text",
+  "hmk-tabAt": "Tab at",
+  "hmk-tabAt-bottom-center": "Bottom Center",
+  "hmk-tabAt-bottom-left": "Bottom Left",
+  "hmk-tabAt-bottom-right": "Bottom Right",
+  "hmk-tabAt-top-center": "Top Center",
+  "hmk-tabAt-top-left": "Top Left",
+  "hmk-tabAt-top-right": "Top Right",
+  "hmk-title": "Form title",
+  "hmk-trimed": "Trimed",
+  "hmk-value": "Value",
+  "hmk-valueMaxWidth": "Val Max-W",
   "hmk-w-edit-album-autoopen": "Auto open",
   "hmk-w-edit-album-fullpreview": "Full screen",
   "hmk-w-edit-album-prop": "Edit album properties",
@@ -71648,7 +71731,7 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-w-edit-yt-playlist": "Edit playlist properties",
   "hmk-w-edit-yt-video": "Edit Youtube video proerties",
   "hmk-w-edit-yt-video-features": "Video features",
-  "hmk-width": "控件宽度",
+  "hmk-width": "Width",
   "hmk-yt-playlist-autofit": "YT playlist auto fit width",
   "hmk-yt-playlist-clrsz": "Clear YT playlist size",
   "hmk-yt-playlist-id": "Playlist ID",
@@ -72826,6 +72909,7 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-album-clrsz": "清除相册尺寸",
   "hmk-album-id": "相册ID",
   "hmk-album-info": "相册信息",
+  "hmk-album-list-mode": "列表模式",
   "hmk-album-margin": "相册边距",
   "hmk-album-name": "相册名称",
   "hmk-album-prop": "相册属性",
@@ -73038,6 +73122,8 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-style-image": "图片样式",
   "hmk-style-inside": "内部样式",
   "hmk-style-outside": "外部样式",
+  "hmk-style-part-left": "左部样式",
+  "hmk-style-part-right": "右部样式",
   "hmk-style-tile": "瓦片样式",
   "hmk-style-title": "标题样式",
   "hmk-suffixIcon": "后缀图标",
@@ -74252,6 +74338,7 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-album-clrsz": "清除相冊尺寸",
    "hmk-album-id": "相冊ID",
    "hmk-album-info": "相冊信息",
+   "hmk-album-list-mode": "列表模式",
    "hmk-album-margin": "相冊邊距",
    "hmk-album-name": "相冊名稱",
    "hmk-album-prop": "相冊屬性",
@@ -74464,6 +74551,8 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-style-image": "圖片樣式",
    "hmk-style-inside": "內部樣式",
    "hmk-style-outside": "外部樣式",
+   "hmk-style-part-left": "左部樣式",
+   "hmk-style-part-right": "右部樣式",
    "hmk-style-tile": "瓦片樣式",
    "hmk-style-title": "標題樣式",
    "hmk-suffixIcon": "後綴圖標",
@@ -74918,9 +75007,9 @@ Ti.Preload("ti/i18n/zh-hk/web.i18n.json", {
    "role-as-normal": "普通用戶",
    "role-as-vip": "VIP用戶",
    "role-as-domain": "域角色",
-   "role-as-domain-admin": "域管理員",
-   "role-as-domain-member": "域成員",
-   "role-as-domain-guest": "域訪客",
+   "role-as-domain-admin": "管理員",
+   "role-as-domain-member": "成員",
+   "role-as-domain-guest": "訪客",
    "role-dft": "默認角色",
    "role-flt-tip": "請輸入角色名過濾",
    "role-manage": "角色管理",

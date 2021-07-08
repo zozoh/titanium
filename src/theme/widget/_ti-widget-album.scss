@@ -18,6 +18,9 @@
     padding: SZ(10);
     width: SZ(200); height: SZ(200);
     position: relative;
+    color: inherit;
+    //---------------------------------------
+    &:hover {text-decoration: none; color: inherit;}
     //---------------------------------------
     img {
       width:100%; height: 100%;
@@ -27,8 +30,14 @@
     //---------------------------------------
     .tile-title {
       @include pos-abs($l:0,$r:0);
+      display: block;
       color: #CCC; font-size: SZ(12);
       line-height: 1.5em; padding: .5em;
+      transition: 0.5s;
+    }
+    //---------------------------------------
+    .tile-brief {
+      display: block;
     }
     //---------------------------------------
   }
@@ -55,6 +64,21 @@
   }
   //-----------------------------------------
   //
+  // Normal wall style
+  // 
+  //-----------------------------------------
+  &.layout-wall {
+    .wall-tile:hover {
+      .tile-title {
+        background-color: rgba(0,0,0,0.7);
+        color: #FFF;
+        white-space: normal;
+        word-break: break-word;
+      }
+    }
+  }
+  //-----------------------------------------
+  //
   // Waterfalls Style
   // 
   //-----------------------------------------
@@ -66,6 +90,48 @@
         flex:1 1 auto; height:unset; width: unset;
       }
     }
+  }
+  //-----------------------------------------
+  //
+  // Rows Style
+  // 
+  //-----------------------------------------
+  &.layout-rows {
+    display:block;
+    //---------------------------------------
+    .wall-tile {
+      @include flex-align-nowrap($ai:flex-start);
+      @include border(1px, solid, shallow, bottom);
+      width: unset;  height: unset;
+      padding: SZ(20) 0;
+      //-------------------------------------
+      .part-left {
+        overflow: hidden; width: SZ(256);
+        flex:0 0 auto; position: relative;
+      }
+      //-------------------------------------
+      .part-right {
+        flex: 1 1 auto; padding: 0 SZ(20);
+      }
+      //-------------------------------------
+      .tile-title, .tile-brief {position: relative;}
+      //-------------------------------------
+      .tile-title {
+        font-size: 1.4em; color: inherit;
+        padding: 0; white-space: normal;
+      }
+      //-------------------------------------
+      .tile-brief {
+        font-size: 1em; color: inherit;
+        padding: SZ(20);
+      }
+      //-------------------------------------
+    }
+    //---------------------------------------
+    &.hover-to-zoom .wall-tile {
+      overflow: unset; 
+    }
+    //---------------------------------------
   }
   //-----------------------------------------
   //
@@ -124,6 +190,7 @@
 /////////////////////////////////////////////
 // Add decorater icon to album items
 .ti-widget-album.as-yt-playlist .photo-wall {
+  //-----------------------------------------
   .wall-tile {
     &:after {
       @include pos-abs-full;
@@ -140,4 +207,25 @@
       opacity: 1;
     }
   }
+  //-----------------------------------------
+  &.layout-rows {
+    .wall-tile:after {
+      display: none; content: unset;
+    }
+    .wall-tile .part-left:after {
+      @include pos-abs-full;
+      @include flex-center;
+      z-index: $z-over;
+      font-family: 'Font Awesome 5 Brands';
+      font-weight: 900;
+      content: "\f167";
+      font-size: SZ(48);
+      color: #F00; opacity: 0.5;
+      transition: 0.5s;
+    }
+    .wall-tile:hover .part-left:after {
+      opacity: 1;
+    }
+  }
+  //-----------------------------------------
 }

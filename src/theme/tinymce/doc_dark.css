@@ -24,7 +24,11 @@
     padding: 0.1rem;
     width: 2rem;
     height: 2rem;
-    position: relative; }
+    position: relative;
+    color: inherit; }
+    .ti-widget-album > .photo-wall .wall-tile:hover {
+      text-decoration: none;
+      color: inherit; }
     .ti-widget-album > .photo-wall .wall-tile img {
       width: 100%;
       height: 100%;
@@ -34,10 +38,14 @@
       position: absolute;
       left: 0;
       right: 0;
+      display: block;
       color: #CCC;
       font-size: 0.12rem;
       line-height: 1.5em;
-      padding: .5em; }
+      padding: .5em;
+      transition: 0.5s; }
+    .ti-widget-album > .photo-wall .wall-tile .tile-brief {
+      display: block; }
   .ti-widget-album > .photo-wall.at-top .wall-tile .tile-title {
     top: 0; }
   .ti-widget-album > .photo-wall.at-center .wall-tile .tile-title {
@@ -60,6 +68,11 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis; }
+  .ti-widget-album > .photo-wall.layout-wall .wall-tile:hover .tile-title {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #FFF;
+    white-space: normal;
+    word-break: break-word; }
   .ti-widget-album > .photo-wall.layout-falls {
     flex-wrap: nowrap;
     align-items: flex-start; }
@@ -74,6 +87,39 @@
         flex: 1 1 auto;
         height: unset;
         width: unset; }
+  .ti-widget-album > .photo-wall.layout-rows {
+    display: block; }
+    .ti-widget-album > .photo-wall.layout-rows .wall-tile {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      align-content: center;
+      flex-wrap: nowrap;
+      border-bottom: 1px solid rgba(210, 210, 210, 0.1);
+      width: unset;
+      height: unset;
+      padding: 0.2rem 0; }
+      .ti-widget-album > .photo-wall.layout-rows .wall-tile .part-left {
+        overflow: hidden;
+        width: 2.56rem;
+        flex: 0 0 auto;
+        position: relative; }
+      .ti-widget-album > .photo-wall.layout-rows .wall-tile .part-right {
+        flex: 1 1 auto;
+        padding: 0 0.2rem; }
+      .ti-widget-album > .photo-wall.layout-rows .wall-tile .tile-title, .ti-widget-album > .photo-wall.layout-rows .wall-tile .tile-brief {
+        position: relative; }
+      .ti-widget-album > .photo-wall.layout-rows .wall-tile .tile-title {
+        font-size: 1.4em;
+        color: inherit;
+        padding: 0;
+        white-space: normal; }
+      .ti-widget-album > .photo-wall.layout-rows .wall-tile .tile-brief {
+        font-size: 1em;
+        color: inherit;
+        padding: 0.2rem; }
+    .ti-widget-album > .photo-wall.layout-rows.hover-to-zoom .wall-tile {
+      overflow: unset; }
   .ti-widget-album > .photo-wall.hover-to-up .wall-tile {
     transition: transform 0.5s; }
     .ti-widget-album > .photo-wall.hover-to-up .wall-tile:hover {
@@ -151,6 +197,30 @@
   opacity: 0.5;
   transition: 0.5s; }
 .ti-widget-album.as-yt-playlist .photo-wall .wall-tile:hover::after {
+  opacity: 1; }
+.ti-widget-album.as-yt-playlist .photo-wall.layout-rows .wall-tile:after {
+  display: none;
+  content: unset; }
+.ti-widget-album.as-yt-playlist .photo-wall.layout-rows .wall-tile .part-left:after {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+  z-index: 100;
+  font-family: 'Font Awesome 5 Brands';
+  font-weight: 900;
+  content: "\f167";
+  font-size: 0.48rem;
+  color: #F00;
+  opacity: 0.5;
+  transition: 0.5s; }
+.ti-widget-album.as-yt-playlist .photo-wall.layout-rows .wall-tile:hover .part-left:after {
   opacity: 1; }
 
 html {
