@@ -100,11 +100,13 @@
       height: unset;
       padding: 0.2rem 0; }
       .ti-widget-album > .photo-wall.layout-rows .wall-tile .part-left {
+        display: block;
         overflow: hidden;
         width: 2.56rem;
         flex: 0 0 auto;
         position: relative; }
       .ti-widget-album > .photo-wall.layout-rows .wall-tile .part-right {
+        display: block;
         flex: 1 1 auto;
         padding: 0 0.2rem; }
       .ti-widget-album > .photo-wall.layout-rows .wall-tile .tile-title, .ti-widget-album > .photo-wall.layout-rows .wall-tile .tile-brief {
@@ -222,6 +224,15 @@
   transition: 0.5s; }
 .ti-widget-album.as-yt-playlist .photo-wall.layout-rows .wall-tile:hover .part-left:after {
   opacity: 1; }
+
+[as="phone"] .ti-widget-album > .photo-wall.layout-rows .wall-tile {
+  display: block; }
+  [as="phone"] .ti-widget-album > .photo-wall.layout-rows .wall-tile .part-left {
+    width: unset; }
+  [as="phone"] .ti-widget-album > .photo-wall.layout-rows .wall-tile .part-right {
+    padding: 0.2rem 0; }
+  [as="phone"] .ti-widget-album > .photo-wall.layout-rows .wall-tile .tile-brief {
+    padding: 0.2rem 0 0 0; }
 
 html {
   color: #444;

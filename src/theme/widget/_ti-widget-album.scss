@@ -106,11 +106,13 @@
       padding: SZ(20) 0;
       //-------------------------------------
       .part-left {
+        display: block;
         overflow: hidden; width: SZ(256);
         flex:0 0 auto; position: relative;
       }
       //-------------------------------------
       .part-right {
+        display: block;
         flex: 1 1 auto; padding: 0 SZ(20);
       }
       //-------------------------------------
@@ -226,6 +228,17 @@
     .wall-tile:hover .part-left:after {
       opacity: 1;
     }
+  }
+  //-----------------------------------------
+}
+//-------------------------------------------
+[as="phone"] .ti-widget-album > .photo-wall.layout-rows {
+  //-----------------------------------------
+  .wall-tile {
+    display: block;
+    .part-left {width: unset;}
+    .part-right {padding: SZ(20) 0;}
+    .tile-brief {padding: SZ(20) 0 0 0;}
   }
   //-----------------------------------------
 }
