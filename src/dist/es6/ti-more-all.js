@@ -1,4 +1,4 @@
-// Pack At: 2021-07-09 03:35:19
+// Pack At: 2021-07-09 22:44:12
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -27321,7 +27321,14 @@ const _M = {
     async openView(oid) {
       if(!_.isString(oid))
         return
-      // Guard it
+
+      // Guard for changed
+      if(this.isChanged) {
+        await Ti.Toast.Open("i18n:wn-obj-nosaved", "warn", "left")
+        return
+      }
+
+      // Guard for fure
       let bombed = await Ti.Fuse.fire()
       if(!bombed) {
         return
@@ -42046,6 +42053,7 @@ const _M = {
     },
     //-----------------------------------------------
     syncContent() {
+      console.log("tinymce syncContent")
       // Clear the style cache
       this.$editor.$("[data-mce-style]").attr({
         "data-mce-style" : null
@@ -42227,7 +42235,14 @@ const _M = {
           // Event: change
           editor.on("Change", (evt)=>{
             //console.log("Change ", evt)
-            this.myHtmlCode = editor.getContent()
+            //this.myHtmlCode = editor.getContent()
+            editor.__rich_tinymce_com.debounceSyncContent();
+          })
+          editor.on("keyup", (evt)=>{
+            editor.__rich_tinymce_com.debounceSyncContent();
+          })
+          editor.on("paste", (evt)=>{
+            editor.__rich_tinymce_com.debounceSyncContent();
           })
           // Event: get outline
           editor.on("input", (evt)=>{
@@ -42390,6 +42405,11 @@ const _M = {
         //console.log("???")
       }
     }
+    //
+    // Debound sync content
+    this.debounceSyncContent = _.debounce(()=>{
+      this.syncContent()
+    }, 500)
   },
   ///////////////////////////////////////////////////
   mounted : async function() {

@@ -194,6 +194,7 @@ const _M = {
     },
     //-----------------------------------------------
     syncContent() {
+      console.log("tinymce syncContent")
       // Clear the style cache
       this.$editor.$("[data-mce-style]").attr({
         "data-mce-style" : null
@@ -375,7 +376,14 @@ const _M = {
           // Event: change
           editor.on("Change", (evt)=>{
             //console.log("Change ", evt)
-            this.myHtmlCode = editor.getContent()
+            //this.myHtmlCode = editor.getContent()
+            editor.__rich_tinymce_com.debounceSyncContent();
+          })
+          editor.on("keyup", (evt)=>{
+            editor.__rich_tinymce_com.debounceSyncContent();
+          })
+          editor.on("paste", (evt)=>{
+            editor.__rich_tinymce_com.debounceSyncContent();
           })
           // Event: get outline
           editor.on("input", (evt)=>{
@@ -538,6 +546,11 @@ const _M = {
         //console.log("???")
       }
     }
+    //
+    // Debound sync content
+    this.debounceSyncContent = _.debounce(()=>{
+      this.syncContent()
+    }, 500)
   },
   ///////////////////////////////////////////////////
   mounted : async function() {
