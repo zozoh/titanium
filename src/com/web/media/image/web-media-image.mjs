@@ -241,6 +241,14 @@ export default {
       return zl
     },
     //--------------------------------------
+    ZoomLenConStyle() {
+      if(!this.showZoomDock || !this.showZoomPick) {
+        return {
+          display: "none"
+        }
+      }
+    },
+    //--------------------------------------
     ZoomLenPickStyle() {
       if (this.zoomLens && !_.isEmpty(this.pickRect)) {
         return Ti.Css.toStyle({
@@ -250,6 +258,8 @@ export default {
           width: this.TheZoomLens.pickWidth,
           height: this.TheZoomLens.pickHeight,
           ... this.TheZoomLens.pickStyle
+        }, {
+          autoPercent: false
         })
       }
     },
@@ -441,6 +451,7 @@ export default {
       rect.relative(imRect)
 
       if (this.TheZoomLens && this.TheZoomLens.followPicker) {
+        console.log(TheZoomLens)
         Ti.Dom.dockTo(this.$refs.dock, this.$refs.pick, {
           mode: this.TheZoomLens.dockMode,
           space: this.TheZoomLens.dockSpace,
@@ -450,6 +461,8 @@ export default {
       }
 
       this.pickRect = rect
+      this.clientWidth = this.$refs.img.clientWidth
+      this.clientHeight = this.$refs.img.clientHeight
       this.showZoomPick = true
     },
     //--------------------------------------
@@ -647,6 +660,16 @@ export default {
           } else {
             this.showZoomDock = true
           }
+        })
+      }
+    },
+    "showZoomDock": function(newVal, oldVal) {
+      if(newVal && newVal != oldVal && this.TheZoomLens) {
+        Ti.Dom.dockTo(this.$refs.dock, this.$refs.img, {
+          mode: this.TheZoomLens.dockMode,
+          space: this.TheZoomLens.dockSpace,
+          posListX: this.TheZoomLens.dockPosListX,
+          posListY: this.TheZoomLens.dockPosListY
         })
       }
     },

@@ -18,12 +18,12 @@ export default {
     //--------------------------------------
     // 1base
     PN() {
-      return _.get(this.PageValue, "pageNumber")
+      return _.get(this.PageValue, "pn")
     },
     //--------------------------------------
     // 1base
     LastPN() {
-      return _.get(this.PageValue, "pageCount")
+      return _.get(this.PageValue, "pgc")
     },
     //--------------------------------------
     isFirstPage() {
@@ -93,10 +93,10 @@ export default {
     JumpTo(pn) {
       if(pn!=this.PN && pn>=1 && pn<=this.LastPN) {
         this.$notify("change", {
-          skip :  this.PageValue.pageSize * (pn-1),
-          limit :  this.PageValue.pageSize, 
+          skip :  this.PageValue.pgsz * (pn-1),
+          limit :  this.PageValue.pgsz, 
           pn   : pn, 
-          pgsz : this.PageValue.pageSize
+          pgsz : this.PageValue.pgsz
         })
       }
     }

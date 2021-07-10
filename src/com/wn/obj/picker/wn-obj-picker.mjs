@@ -1,23 +1,23 @@
 export default {
   /////////////////////////////////////////
-  data : ()=>({
-    "loading"  : false,
-    "dragging" : false,
-    "skipReload" : false,
-    "myItems" : []
+  data: () => ({
+    "loading": false,
+    "dragging": false,
+    "skipReload": false,
+    "myItems": []
   }),
   /////////////////////////////////////////
-  props : {
-    "empty" :{
-      type : Object,
-      default : ()=>({
-        text  : "i18n:no-selected",
-        value : undefined
+  props: {
+    "empty": {
+      type: Object,
+      default: () => ({
+        text: "i18n:no-selected",
+        value: undefined
       })
     },
-    "value" : {
-      type : [Object, String, Array],
-      default : null
+    "value": {
+      type: [Object, String, Array],
+      default: null
     },
     // raw value is WnObj
     // If declare the valueType
@@ -31,49 +31,53 @@ export default {
     // avaliable only when valueType=="obj"
     "valueKeys": {
       type: Array,
-      default: ()=>[
-        'id','nm','thumb','title','mime','tp','sha1','len',
+      default: () => [
+        'id', 'nm', 'thumb', 'title', 'mime', 'tp', 'sha1', 'len',
         'href', 'newtab'
       ]
     },
-    "base" : {
-      type : [Object, String],
-      default : "~"
+    "base": {
+      type: [Object, String],
+      default: "~"
     },
-    "multi" : {
-      type : Boolean,
-      default : false
+    "asThingSet": {
+      type: Boolean,
+      default: false
+    },
+    "multi": {
+      type: Boolean,
+      default: false
     },
     // Key of meta to show as text
     // If undefined, use "title -> nm"
-    "titleBy" : {
-      type : [String, Array, Function],
-      default : null
+    "titleBy": {
+      type: [String, Array, Function],
+      default: null
     },
-    "filterBy" : {
-      type : [Object, String, Function, Boolean],
-      default : ()=>({
-        "race" : ["isEqual", "FILE"]
+    "filterBy": {
+      type: [Object, String, Function, Boolean],
+      default: () => ({
+        "race": ["isEqual", "FILE"]
       })
     },
-    "titleEditable" : {
-      type : Boolean,
-      default : true
+    "titleEditable": {
+      type: Boolean,
+      default: true
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-multi"    : this.multi,
-        "is-single"   : !this.multi,
-        "is-dragging" : this.dragging
+        "is-multi": this.multi,
+        "is-single": !this.multi,
+        "is-dragging": this.dragging
       })
     },
     //--------------------------------------
     ItemTitleKey() {
-      if(_.isFunction(this.titleBy)) {
+      if (_.isFunction(this.titleBy)) {
         return this.titleBy()
       }
       return this.titleBy
@@ -83,21 +87,21 @@ export default {
       let exposeHidden = _.get(Ti.App(this).$state(), "viewport/exposeHidden")
       exposeHidden = Ti.Util.fallback(exposeHidden, false)
       let list = []
-      for(let i=0; i < this.myItems.length; i++) {
+      for (let i = 0; i < this.myItems.length; i++) {
         let obj = this.myItems[i]
         let it = Wn.Util.getObjThumbInfo(obj, {
           titleKey: this.ItemTitleKey,
           exposeHidden,
           badges: {
-            NW : ["href", "fas-link"],
-            SE : ["newtab", "fas-external-link-alt"]
+            NW: ["href", "fas-link"],
+            SE: ["newtab", "fas-external-link-alt"]
           }
         })
         it.index = i;
         it._key = `${it.id}_${it.index}`
         it.removeIcon = "im-x-mark"
-        if(this.titleEditable) {
-          it.onTitle = (payload)=>{
+        if (this.titleEditable) {
+          it.onTitle = (payload) => {
             this.OnEditItem(payload)
           }
         }
@@ -121,49 +125,64 @@ export default {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     async OnPickItem() {
-      let meta = this.FirstItem
-      // Use base to open the folder
-      // Then it should be auto-open the folder
-      if(!meta || _.isEmpty(meta)) {
-        meta = this.base || "~"
-        if(_.isString(meta)) {
-          meta = await Wn.Io.loadMeta(meta)
-        }
+      // Prepare result
+      let objs;
+
+      // ThingSet
+      if (this.asThingSet) {
+        let reo = await Wn.OpenThingManager(this.base, {
+          multi: this.multi
+        })
+        objs = _.get(reo, "checked")
       }
-      // Open the parent folder of the current item
-      else if(meta.pid) {
-        meta = await Wn.Io.loadMeta(`id:${meta.pid}`)
-      }
-      // Reload 
+      // Normal DIR
       else {
-        console.warn("WnObjPicker: Meta without pid", meta)
-        meta = await Wn.Io.loadMeta(`id:${meta.id}`)
+        let meta = this.FirstItem
+        // Use base to open the folder
+        // Then it should be auto-open the folder
+        if (!meta || _.isEmpty(meta)) {
+          meta = this.base || "~"
+          if (_.isString(meta)) {
+            meta = await Wn.Io.loadMeta(meta)
+          }
+        }
+        // Open the parent folder of the current item
+        else if (meta.pid) {
+          meta = await Wn.Io.loadMeta(`id:${meta.pid}`)
+        }
+        // Reload 
+        else {
+          console.warn("WnObjPicker: Meta without pid", meta)
+          meta = await Wn.Io.loadMeta(`id:${meta.id}`)
+        }
+
+        // Eval Filter
+        //console.log("hahha")
+        let filter;
+        if (this.filterBy) {
+          filter = Ti.AutoMatch.parse(this.filterBy)
+        }
+
+        // Pick objs
+        objs = await Wn.OpenObjSelector(meta, {
+          multi: this.multi,
+          selected: this.myItems,
+          filter,
+          titleBy: this.ItemTitleKey
+        })
       }
 
-      // Eval Filter
-      //console.log("hahha")
-      let filter;
-      if(this.filterBy) {
-        filter = Ti.AutoMatch.parse(this.filterBy)
-      }
-
-      let objs = await Wn.OpenObjSelector(meta, {
-        multi    : this.multi,
-        selected : this.myItems,
-        filter,
-        titleBy : this.ItemTitleKey
-      })
       // user cancel
-      if(_.isEmpty(objs)) {
+      if (_.isEmpty(objs)) {
         return
       }
 
       // format value
       let items;
-      if(this.multi) {
+      if (this.multi) {
         items = _.concat(this.myItems, objs)
       }
       // Single value
@@ -178,11 +197,11 @@ export default {
       this.OnPickItem()
     },
     //--------------------------------------
-    OnRemoveItem({id, index}={}) {
+    OnRemoveItem({ id, index } = {}) {
       let items = []
-      for(let i=0; i<this.myItems.length; i++) {
+      for (let i = 0; i < this.myItems.length; i++) {
         let it = this.myItems[i]
-        if(index != i){
+        if (index != i) {
           items.push(it)
         }
       }
@@ -193,43 +212,43 @@ export default {
       this.notifyChange([])
     },
     //--------------------------------------
-    async OnEditItem({index}) {
+    async OnEditItem({ index }) {
       let it = this.myItems[index]
 
       let reo = await Ti.App.Open({
-        title : "i18n:edit",
-        width  : 640,
-        height : 480,
-        result : _.pick(it, "title", "href", "newtab"),
-        model : {prop:"data", event:"change"},
-        comType : "ti-form",
-        comConf : {
+        title: "i18n:edit",
+        width: 640,
+        height: 480,
+        result: _.pick(it, "title", "href", "newtab"),
+        model: { prop: "data", event: "change" },
+        comType: "ti-form",
+        comConf: {
           fields: [{
-            title : "i18n:title",
-            name  : "title",
-            comType : "ti-input"
+            title: "i18n:title",
+            name: "title",
+            comType: "ti-input"
           }, {
-            title : "i18n:href",
-            name  : "href",
-            comType : "ti-input"
+            title: "i18n:href",
+            name: "href",
+            comType: "ti-input"
           }, {
-            title : "i18n:newtab",
-            name  : "newtab",
-            type  : "Boolean",
-            comType : "ti-toggle"
+            title: "i18n:newtab",
+            name: "newtab",
+            type: "Boolean",
+            comType: "ti-toggle"
           }]
         }
       })
 
       //console.log(reo)
       // User Cancel
-      if(_.isUndefined(reo)) {
-        return 
+      if (_.isUndefined(reo)) {
+        return
       }
 
       it = _.cloneDeep(it)
       it.title = reo.title
-      it.href  = reo.href
+      it.href = reo.href
       it.newtab = reo.newtab
 
       let items = _.cloneDeep(this.myItems)
@@ -238,7 +257,7 @@ export default {
       this.skipReload = true
 
       this.notifyChange()
-      _.delay(()=>{
+      _.delay(() => {
         this.skipReload = false
       }, 100)
     },
@@ -246,9 +265,9 @@ export default {
     notifyChange(items = this.myItems) {
       let value = null;
       let keys = this.valueKeys
-      if(this.multi) {
+      if (this.multi) {
         value = []
-        for(let it of items) {
+        for (let it of items) {
           let v = Wn.Io.formatObjPath(it, this.valueType, keys)
           value.push(v)
         }
@@ -262,10 +281,10 @@ export default {
     },
     //--------------------------------------
     switchItem(fromIndex, toIndex) {
-      if(fromIndex != toIndex) {
+      if (fromIndex != toIndex) {
         let items = _.cloneDeep(this.myItems)
         let it = items[fromIndex]
-        items = _.filter(items, (v, i)=>i!=fromIndex)
+        items = _.filter(items, (v, i) => i != fromIndex)
         items.splice(toIndex, 0, it)
         this.myItems = items
         this.notifyChange()
@@ -273,18 +292,18 @@ export default {
     },
     //--------------------------------------
     initSortable() {
-      if(this.multi && this.$refs.itemsCon) {
+      if (this.multi && this.$refs.itemsCon) {
         new Sortable(this.$refs.itemsCon, {
           animation: 300,
-          filter : ".as-empty-item",
-          onStart: ()=>{
+          filter: ".as-empty-item",
+          onStart: () => {
             this.dragging = true
           },
-          onEnd: ({oldIndex, newIndex})=> {
+          onEnd: ({ oldIndex, newIndex }) => {
             this.dragging = false
             this.skipReload = true
             this.switchItem(oldIndex, newIndex)
-            _.delay(()=>{
+            _.delay(() => {
               this.skipReload = false
             }, 100)
           }
@@ -292,7 +311,7 @@ export default {
       }
     },
     //--------------------------------------
-    async reload(){
+    async reload() {
       this.loading = true
       await this.doReload()
       this.loading = false
@@ -302,11 +321,11 @@ export default {
       let vals = this.value ? [].concat(this.value) : []
       let items = []
       // Loop each value item
-      for(let it of vals) {
+      for (let it of vals) {
         let it2 = await this.reloadItem(it)
-        if(it2)
+        if (it2)
           items.push(it2)
-        if(!this.multi && items.length > 0)
+        if (!this.multi && items.length > 0)
           break
       }
       // Update value, it will be trigger the computed attribute
@@ -316,14 +335,14 @@ export default {
     },
     //--------------------------------------
     async reloadItem(it) {
-      if(!it || _.isEmpty(it))
+      if (!it || _.isEmpty(it))
         return null
       // path id:xxxx
-      if(_.isString(it)){
+      if (_.isString(it)) {
         return await Wn.Io.loadMetaBy(it)
       }
       // object {id:xxx}
-      else if(it.id){
+      else if (it.id) {
         // let obj = await Wn.Io.loadMetaById(it.id)
         // obj.title = it.title || obj.title || obj.nm
         // obj.href = it.href
@@ -332,28 +351,28 @@ export default {
       }
       // Unsupported form of value
       else {
-         throw Ti.Err.make("e-wn-obj-picker-unsupported-value-form", it)
+        throw Ti.Err.make("e-wn-obj-picker-unsupported-value-form", it)
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "value" : function(newVal, oldVal){
-      if(!_.isEqual(newVal, oldVal) && !this.skipReload) {
+  watch: {
+    "value": function (newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal) && !this.skipReload) {
         this.reload()
       }
     },
-    "hasItems" : function(newVal, oldVal) {
-      if(newVal && !oldVal) {
-        this.$nextTick(()=>{
+    "hasItems": function (newVal, oldVal) {
+      if (newVal && !oldVal) {
+        this.$nextTick(() => {
           this.initSortable()
         })
       }
     }
   },
   /////////////////////////////////////////
-  mounted : async function(){
+  mounted: async function () {
     await this.reload()
   }
   /////////////////////////////////////////

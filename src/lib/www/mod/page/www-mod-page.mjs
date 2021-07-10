@@ -494,7 +494,7 @@ const _M = {
     /***
      * Reload whole page
      */
-    async reload({ commit, dispatch, getters, rootGetters, rootState }, {
+    async reload({ state, commit, dispatch, getters, rootGetters, rootState }, {
       path,
       anchor = null,
       params = {}
@@ -549,6 +549,10 @@ const _M = {
       //.....................................
       // Update Path url
       let { pageUriWithParams, pageAnchorTo } = json
+      pageUriWithParams = Ti.Util.fallback(
+        state.pageUriWithParams, 
+        rootState.pageUriWithParams,
+        true)
       let base = rootState.base
       let link = Ti.Util.Link({
         url: path,

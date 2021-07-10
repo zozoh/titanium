@@ -52,7 +52,8 @@
   </div>
   <!--Zoom len-->
   <div v-if="zoomLens"
-    class="as-zoomlen">
+    class="as-zoomlen"
+    :style="ZoomLenConStyle">
       <!--Picker-->
       <div ref="pick"
         class="as-zoom-pick"

@@ -98,7 +98,7 @@
         @include flex-center;
         @include color($color-mask, r, bushy);
         font-family: 'Font Awesome 5 Free';
-        font-weight: 900; font-size: SZ(32);
+        font-weight: 900; font-size: SZ(24);
         content: "\f077";
       }
     }
@@ -113,6 +113,12 @@
     //---------------------------------------
     > * {flex:1 1 auto;}
     //---------------------------------------
+  }
+  //-----------------------------------------
+  &.hide-current-indicator {
+    .scroller-tile.is-current::after {
+      display: none;
+    }
   }
   //-----------------------------------------
 }

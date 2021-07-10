@@ -1,4 +1,4 @@
-// Pack At: 2021-07-09 22:44:12
+// Pack At: 2021-07-11 05:03:41
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5733,24 +5733,24 @@ return _M;
 window.TI_PACK_EXPORTS['ti/com/wn/obj/picker/wn-obj-picker.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
-  data : ()=>({
-    "loading"  : false,
-    "dragging" : false,
-    "skipReload" : false,
-    "myItems" : []
+  data: () => ({
+    "loading": false,
+    "dragging": false,
+    "skipReload": false,
+    "myItems": []
   }),
   /////////////////////////////////////////
-  props : {
-    "empty" :{
-      type : Object,
-      default : ()=>({
-        text  : "i18n:no-selected",
-        value : undefined
+  props: {
+    "empty": {
+      type: Object,
+      default: () => ({
+        text: "i18n:no-selected",
+        value: undefined
       })
     },
-    "value" : {
-      type : [Object, String, Array],
-      default : null
+    "value": {
+      type: [Object, String, Array],
+      default: null
     },
     // raw value is WnObj
     // If declare the valueType
@@ -5764,49 +5764,53 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // avaliable only when valueType=="obj"
     "valueKeys": {
       type: Array,
-      default: ()=>[
-        'id','nm','thumb','title','mime','tp','sha1','len',
+      default: () => [
+        'id', 'nm', 'thumb', 'title', 'mime', 'tp', 'sha1', 'len',
         'href', 'newtab'
       ]
     },
-    "base" : {
-      type : [Object, String],
-      default : "~"
+    "base": {
+      type: [Object, String],
+      default: "~"
     },
-    "multi" : {
-      type : Boolean,
-      default : false
+    "asThingSet": {
+      type: Boolean,
+      default: false
+    },
+    "multi": {
+      type: Boolean,
+      default: false
     },
     // Key of meta to show as text
     // If undefined, use "title -> nm"
-    "titleBy" : {
-      type : [String, Array, Function],
-      default : null
+    "titleBy": {
+      type: [String, Array, Function],
+      default: null
     },
-    "filterBy" : {
-      type : [Object, String, Function, Boolean],
-      default : ()=>({
-        "race" : ["isEqual", "FILE"]
+    "filterBy": {
+      type: [Object, String, Function, Boolean],
+      default: () => ({
+        "race": ["isEqual", "FILE"]
       })
     },
-    "titleEditable" : {
-      type : Boolean,
-      default : true
+    "titleEditable": {
+      type: Boolean,
+      default: true
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-multi"    : this.multi,
-        "is-single"   : !this.multi,
-        "is-dragging" : this.dragging
+        "is-multi": this.multi,
+        "is-single": !this.multi,
+        "is-dragging": this.dragging
       })
     },
     //--------------------------------------
     ItemTitleKey() {
-      if(_.isFunction(this.titleBy)) {
+      if (_.isFunction(this.titleBy)) {
         return this.titleBy()
       }
       return this.titleBy
@@ -5816,21 +5820,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let exposeHidden = _.get(Ti.App(this).$state(), "viewport/exposeHidden")
       exposeHidden = Ti.Util.fallback(exposeHidden, false)
       let list = []
-      for(let i=0; i < this.myItems.length; i++) {
+      for (let i = 0; i < this.myItems.length; i++) {
         let obj = this.myItems[i]
         let it = Wn.Util.getObjThumbInfo(obj, {
           titleKey: this.ItemTitleKey,
           exposeHidden,
           badges: {
-            NW : ["href", "fas-link"],
-            SE : ["newtab", "fas-external-link-alt"]
+            NW: ["href", "fas-link"],
+            SE: ["newtab", "fas-external-link-alt"]
           }
         })
         it.index = i;
         it._key = `${it.id}_${it.index}`
         it.removeIcon = "im-x-mark"
-        if(this.titleEditable) {
-          it.onTitle = (payload)=>{
+        if (this.titleEditable) {
+          it.onTitle = (payload) => {
             this.OnEditItem(payload)
           }
         }
@@ -5854,49 +5858,64 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     async OnPickItem() {
-      let meta = this.FirstItem
-      // Use base to open the folder
-      // Then it should be auto-open the folder
-      if(!meta || _.isEmpty(meta)) {
-        meta = this.base || "~"
-        if(_.isString(meta)) {
-          meta = await Wn.Io.loadMeta(meta)
-        }
+      // Prepare result
+      let objs;
+
+      // ThingSet
+      if (this.asThingSet) {
+        let reo = await Wn.OpenThingManager(this.base, {
+          multi: this.multi
+        })
+        objs = _.get(reo, "checked")
       }
-      // Open the parent folder of the current item
-      else if(meta.pid) {
-        meta = await Wn.Io.loadMeta(`id:${meta.pid}`)
-      }
-      // Reload 
+      // Normal DIR
       else {
-        console.warn("WnObjPicker: Meta without pid", meta)
-        meta = await Wn.Io.loadMeta(`id:${meta.id}`)
+        let meta = this.FirstItem
+        // Use base to open the folder
+        // Then it should be auto-open the folder
+        if (!meta || _.isEmpty(meta)) {
+          meta = this.base || "~"
+          if (_.isString(meta)) {
+            meta = await Wn.Io.loadMeta(meta)
+          }
+        }
+        // Open the parent folder of the current item
+        else if (meta.pid) {
+          meta = await Wn.Io.loadMeta(`id:${meta.pid}`)
+        }
+        // Reload 
+        else {
+          console.warn("WnObjPicker: Meta without pid", meta)
+          meta = await Wn.Io.loadMeta(`id:${meta.id}`)
+        }
+
+        // Eval Filter
+        //console.log("hahha")
+        let filter;
+        if (this.filterBy) {
+          filter = Ti.AutoMatch.parse(this.filterBy)
+        }
+
+        // Pick objs
+        objs = await Wn.OpenObjSelector(meta, {
+          multi: this.multi,
+          selected: this.myItems,
+          filter,
+          titleBy: this.ItemTitleKey
+        })
       }
 
-      // Eval Filter
-      //console.log("hahha")
-      let filter;
-      if(this.filterBy) {
-        filter = Ti.AutoMatch.parse(this.filterBy)
-      }
-
-      let objs = await Wn.OpenObjSelector(meta, {
-        multi    : this.multi,
-        selected : this.myItems,
-        filter,
-        titleBy : this.ItemTitleKey
-      })
       // user cancel
-      if(_.isEmpty(objs)) {
+      if (_.isEmpty(objs)) {
         return
       }
 
       // format value
       let items;
-      if(this.multi) {
+      if (this.multi) {
         items = _.concat(this.myItems, objs)
       }
       // Single value
@@ -5911,11 +5930,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.OnPickItem()
     },
     //--------------------------------------
-    OnRemoveItem({id, index}={}) {
+    OnRemoveItem({ id, index } = {}) {
       let items = []
-      for(let i=0; i<this.myItems.length; i++) {
+      for (let i = 0; i < this.myItems.length; i++) {
         let it = this.myItems[i]
-        if(index != i){
+        if (index != i) {
           items.push(it)
         }
       }
@@ -5926,43 +5945,43 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.notifyChange([])
     },
     //--------------------------------------
-    async OnEditItem({index}) {
+    async OnEditItem({ index }) {
       let it = this.myItems[index]
 
       let reo = await Ti.App.Open({
-        title : "i18n:edit",
-        width  : 640,
-        height : 480,
-        result : _.pick(it, "title", "href", "newtab"),
-        model : {prop:"data", event:"change"},
-        comType : "ti-form",
-        comConf : {
+        title: "i18n:edit",
+        width: 640,
+        height: 480,
+        result: _.pick(it, "title", "href", "newtab"),
+        model: { prop: "data", event: "change" },
+        comType: "ti-form",
+        comConf: {
           fields: [{
-            title : "i18n:title",
-            name  : "title",
-            comType : "ti-input"
+            title: "i18n:title",
+            name: "title",
+            comType: "ti-input"
           }, {
-            title : "i18n:href",
-            name  : "href",
-            comType : "ti-input"
+            title: "i18n:href",
+            name: "href",
+            comType: "ti-input"
           }, {
-            title : "i18n:newtab",
-            name  : "newtab",
-            type  : "Boolean",
-            comType : "ti-toggle"
+            title: "i18n:newtab",
+            name: "newtab",
+            type: "Boolean",
+            comType: "ti-toggle"
           }]
         }
       })
 
       //console.log(reo)
       // User Cancel
-      if(_.isUndefined(reo)) {
-        return 
+      if (_.isUndefined(reo)) {
+        return
       }
 
       it = _.cloneDeep(it)
       it.title = reo.title
-      it.href  = reo.href
+      it.href = reo.href
       it.newtab = reo.newtab
 
       let items = _.cloneDeep(this.myItems)
@@ -5971,7 +5990,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.skipReload = true
 
       this.notifyChange()
-      _.delay(()=>{
+      _.delay(() => {
         this.skipReload = false
       }, 100)
     },
@@ -5979,9 +5998,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     notifyChange(items = this.myItems) {
       let value = null;
       let keys = this.valueKeys
-      if(this.multi) {
+      if (this.multi) {
         value = []
-        for(let it of items) {
+        for (let it of items) {
           let v = Wn.Io.formatObjPath(it, this.valueType, keys)
           value.push(v)
         }
@@ -5995,10 +6014,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     switchItem(fromIndex, toIndex) {
-      if(fromIndex != toIndex) {
+      if (fromIndex != toIndex) {
         let items = _.cloneDeep(this.myItems)
         let it = items[fromIndex]
-        items = _.filter(items, (v, i)=>i!=fromIndex)
+        items = _.filter(items, (v, i) => i != fromIndex)
         items.splice(toIndex, 0, it)
         this.myItems = items
         this.notifyChange()
@@ -6006,18 +6025,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     initSortable() {
-      if(this.multi && this.$refs.itemsCon) {
+      if (this.multi && this.$refs.itemsCon) {
         new Sortable(this.$refs.itemsCon, {
           animation: 300,
-          filter : ".as-empty-item",
-          onStart: ()=>{
+          filter: ".as-empty-item",
+          onStart: () => {
             this.dragging = true
           },
-          onEnd: ({oldIndex, newIndex})=> {
+          onEnd: ({ oldIndex, newIndex }) => {
             this.dragging = false
             this.skipReload = true
             this.switchItem(oldIndex, newIndex)
-            _.delay(()=>{
+            _.delay(() => {
               this.skipReload = false
             }, 100)
           }
@@ -6025,7 +6044,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //--------------------------------------
-    async reload(){
+    async reload() {
       this.loading = true
       await this.doReload()
       this.loading = false
@@ -6035,11 +6054,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let vals = this.value ? [].concat(this.value) : []
       let items = []
       // Loop each value item
-      for(let it of vals) {
+      for (let it of vals) {
         let it2 = await this.reloadItem(it)
-        if(it2)
+        if (it2)
           items.push(it2)
-        if(!this.multi && items.length > 0)
+        if (!this.multi && items.length > 0)
           break
       }
       // Update value, it will be trigger the computed attribute
@@ -6049,14 +6068,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     async reloadItem(it) {
-      if(!it || _.isEmpty(it))
+      if (!it || _.isEmpty(it))
         return null
       // path id:xxxx
-      if(_.isString(it)){
+      if (_.isString(it)) {
         return await Wn.Io.loadMetaBy(it)
       }
       // object {id:xxx}
-      else if(it.id){
+      else if (it.id) {
         // let obj = await Wn.Io.loadMetaById(it.id)
         // obj.title = it.title || obj.title || obj.nm
         // obj.href = it.href
@@ -6065,28 +6084,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       // Unsupported form of value
       else {
-         throw Ti.Err.make("e-wn-obj-picker-unsupported-value-form", it)
+        throw Ti.Err.make("e-wn-obj-picker-unsupported-value-form", it)
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "value" : function(newVal, oldVal){
-      if(!_.isEqual(newVal, oldVal) && !this.skipReload) {
+  watch: {
+    "value": function (newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal) && !this.skipReload) {
         this.reload()
       }
     },
-    "hasItems" : function(newVal, oldVal) {
-      if(newVal && !oldVal) {
-        this.$nextTick(()=>{
+    "hasItems": function (newVal, oldVal) {
+      if (newVal && !oldVal) {
+        this.$nextTick(() => {
           this.initSortable()
         })
       }
     }
   },
   /////////////////////////////////////////
-  mounted : async function(){
+  mounted: async function () {
     await this.reload()
   }
   /////////////////////////////////////////
@@ -6593,7 +6612,7 @@ const _M = {
     /***
      * Reload whole page
      */
-    async reload({ commit, dispatch, getters, rootGetters, rootState }, {
+    async reload({ state, commit, dispatch, getters, rootGetters, rootState }, {
       path,
       anchor = null,
       params = {}
@@ -6648,6 +6667,10 @@ const _M = {
       //.....................................
       // Update Path url
       let { pageUriWithParams, pageAnchorTo } = json
+      pageUriWithParams = Ti.Util.fallback(
+        state.pageUriWithParams, 
+        rootState.pageUriWithParams,
+        true)
       let base = rootState.base
       let link = Ti.Util.Link({
         url: path,
@@ -19515,12 +19538,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     // 1base
     PN() {
-      return _.get(this.PageValue, "pageNumber")
+      return _.get(this.PageValue, "pn")
     },
     //--------------------------------------
     // 1base
     LastPN() {
-      return _.get(this.PageValue, "pageCount")
+      return _.get(this.PageValue, "pgc")
     },
     //--------------------------------------
     isFirstPage() {
@@ -19590,10 +19613,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     JumpTo(pn) {
       if(pn!=this.PN && pn>=1 && pn<=this.LastPN) {
         this.$notify("change", {
-          skip :  this.PageValue.pageSize * (pn-1),
-          limit :  this.PageValue.pageSize, 
+          skip :  this.PageValue.pgsz * (pn-1),
+          limit :  this.PageValue.pgsz, 
           pn   : pn, 
-          pgsz : this.PageValue.pageSize
+          pgsz : this.PageValue.pgsz
         })
       }
     }
@@ -23035,6 +23058,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return zl
     },
     //--------------------------------------
+    ZoomLenConStyle() {
+      if(!this.showZoomDock || !this.showZoomPick) {
+        return {
+          display: "none"
+        }
+      }
+    },
+    //--------------------------------------
     ZoomLenPickStyle() {
       if (this.zoomLens && !_.isEmpty(this.pickRect)) {
         return Ti.Css.toStyle({
@@ -23044,6 +23075,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           width: this.TheZoomLens.pickWidth,
           height: this.TheZoomLens.pickHeight,
           ... this.TheZoomLens.pickStyle
+        }, {
+          autoPercent: false
         })
       }
     },
@@ -23235,6 +23268,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       rect.relative(imRect)
 
       if (this.TheZoomLens && this.TheZoomLens.followPicker) {
+        console.log(TheZoomLens)
         Ti.Dom.dockTo(this.$refs.dock, this.$refs.pick, {
           mode: this.TheZoomLens.dockMode,
           space: this.TheZoomLens.dockSpace,
@@ -23244,6 +23278,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
 
       this.pickRect = rect
+      this.clientWidth = this.$refs.img.clientWidth
+      this.clientHeight = this.$refs.img.clientHeight
       this.showZoomPick = true
     },
     //--------------------------------------
@@ -23441,6 +23477,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
           } else {
             this.showZoomDock = true
           }
+        })
+      }
+    },
+    "showZoomDock": function(newVal, oldVal) {
+      if(newVal && newVal != oldVal && this.TheZoomLens) {
+        Ti.Dom.dockTo(this.$refs.dock, this.$refs.img, {
+          mode: this.TheZoomLens.dockMode,
+          space: this.TheZoomLens.dockSpace,
+          posListX: this.TheZoomLens.dockPosListX,
+          posListY: this.TheZoomLens.dockPosListY
         })
       }
     },
@@ -65692,7 +65738,8 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   </div>
   <!--Zoom len-->
   <div v-if="zoomLens"
-    class="as-zoomlen">
+    class="as-zoomlen"
+    :style="ZoomLenConStyle">
       <!--Picker-->
       <div ref="pick"
         class="as-zoom-pick"
@@ -66339,7 +66386,6 @@ Ti.Preload("ti/com/web/nav/links/nav-links.html", `<nav class="web-nav-links"
   <LinkItem
     v-for="it in TheItems"
       :key="it.id"
-      class="link-item"
       v-bind="it"
       :opened-ids="myOpenedIds"
       @click:item="OnClickLink"

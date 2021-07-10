@@ -57,7 +57,7 @@
   }
   //------------------------------------
   .link-item.is-dock-show > .it-con {
-    transition: .3s; opacity: 1;
+    transition: opacity .3s; opacity: 1;
   }
   //------------------------------------
   .it-con-wrapper {

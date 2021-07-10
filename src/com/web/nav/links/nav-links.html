@@ -3,7 +3,6 @@
   <LinkItem
     v-for="it in TheItems"
       :key="it.id"
-      class="link-item"
       v-bind="it"
       :opened-ids="myOpenedIds"
       @click:item="OnClickLink"
