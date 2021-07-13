@@ -194,7 +194,7 @@ const _M = {
     },
     //-----------------------------------------------
     syncContent() {
-      console.log("tinymce syncContent")
+      //console.log("tinymce syncContent")
       // Clear the style cache
       this.$editor.$("[data-mce-style]").attr({
         "data-mce-style" : null

@@ -1,4 +1,4 @@
-// Pack At: 2021-07-11 05:03:41
+// Pack At: 2021-07-13 19:10:43
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -35271,11 +35271,11 @@ const _M = {
       })
     },
     //--------------------------------------------------
-    adjustFieldsWidth() {
-      if(this.adjustDelay > 0) {
+    adjustFieldsWidth(delay=this.adjustDelay) {
+      if(delay > 0) {
         _.delay(()=>{
           this.__adjust_fields_width()
-        }, this.adjustDelay)
+        }, delay)
       } else {
         this.$nextTick(()=>{
           this.__adjust_fields_width()
@@ -35303,9 +35303,11 @@ const _M = {
   watch : {
     "data": function() {
       this.evalFormFieldList();
+      this.adjustFieldsWidth()
     },
     "fields" : function(){
       this.evalFormFieldList();
+      this.adjustFieldsWidth()
     },
     "currentTab" : function(index){
       this.currentTabIndex = index
@@ -42099,7 +42101,7 @@ const _M = {
     },
     //-----------------------------------------------
     syncContent() {
-      console.log("tinymce syncContent")
+      //console.log("tinymce syncContent")
       // Clear the style cache
       this.$editor.$("[data-mce-style]").attr({
         "data-mce-style" : null

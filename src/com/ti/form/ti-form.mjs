@@ -524,11 +524,11 @@ const _M = {
       })
     },
     //--------------------------------------------------
-    adjustFieldsWidth() {
-      if(this.adjustDelay > 0) {
+    adjustFieldsWidth(delay=this.adjustDelay) {
+      if(delay > 0) {
         _.delay(()=>{
           this.__adjust_fields_width()
-        }, this.adjustDelay)
+        }, delay)
       } else {
         this.$nextTick(()=>{
           this.__adjust_fields_width()
@@ -556,9 +556,11 @@ const _M = {
   watch : {
     "data": function() {
       this.evalFormFieldList();
+      this.adjustFieldsWidth()
     },
     "fields" : function(){
       this.evalFormFieldList();
+      this.adjustFieldsWidth()
     },
     "currentTab" : function(index){
       this.currentTabIndex = index
