@@ -1,4 +1,4 @@
-// Pack At: 2021-07-15 11:01:28
+// Pack At: 2021-07-15 20:52:13
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10164,7 +10164,7 @@ const {Util} = (function(){
       return !_.isEmpty(o)
     },
     notNil(o) {
-      return !Ti.Util.isNil(o)
+      return !TiUtil.isNil(o)
     },
     notEmptyOf(o, key) {
       let v = _.get(o, key)
@@ -10172,7 +10172,7 @@ const {Util} = (function(){
     },
     notNilOf(o, key) {
       let v = _.get(o, key)
-      return !Ti.Util.isNil(v)
+      return !TiUtil.isNil(v)
     },
     isEqual(o1, o2) {
       return _.isEqual(o1, o2)
@@ -10195,6 +10195,9 @@ const {Util} = (function(){
             || _.isNull(o)
             || "" === o
             || /^[ \t]*$/.test(o)
+    },
+    notBlank(o) {
+      return !TiUtil.isBlank(o)
     },
     /***
      * Get or set one object value.
@@ -15995,7 +15998,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210715.110128",
+  "version" : "1.6-20210715.205213",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -1,4 +1,4 @@
-// Pack At: 2021-07-15 11:01:28
+// Pack At: 2021-07-15 20:52:13
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6646,7 +6646,7 @@ const _M = {
       params = {}
     } = {}) {
       //console.log(rootGetters.routerList)
-      //console.log(" # -> page.reload", { path, params, anchor })
+      console.log(" # -> page.reload", { path, params, anchor })
       let pinfo;
       //.....................................
       // Apply routerList
@@ -40508,7 +40508,6 @@ const _M = {
         viewport : ($trigger) => {
           return Ti.Dom.closest($trigger, ".scroller-outer")
         },
-        activedRadius : 5,
         actived  : (ctx)=>{
           //console.log("dragging begin", ctx, ctx.x, ctx.startX)
           this.evalScrolling();
@@ -58608,9 +58607,18 @@ const _M = {
     //-----------------------------------
     // Aspect
     //-----------------------------------
+    "previewComClass" : {
+      type : [Object, String, Array]
+    },
+    "previewComStyle": {
+      type : Object
+    },
     "scrollerClass" : {
       type : [Object, String, Array],
       default : "btn-at-inner btn-as-circle"
+    },
+    "scrollerStyle": {
+      type : Object
     }
   },
   //////////////////////////////////////////
@@ -67424,8 +67432,10 @@ Ti.Preload("ti/com/web/shelf/preview-scroller/web-shelf-preview-scroller.html", 
     <!--
       Current item preview
     -->
-    <component class="as-preview" 
-      :is="previewComType" 
+    <component :is="previewComType" 
+      class="as-preview" 
+      :class="previewComClass"
+      :style="previewComStyle"
       v-bind="CurrentPreviewComConf"
       @go:prev="OnGoPrev"
       @go:next="OnGoNext"/>
@@ -67436,6 +67446,7 @@ Ti.Preload("ti/com/web/shelf/preview-scroller/web-shelf-preview-scroller.html", 
       v-if="hasMultiData"
         class="as-scroller"
         :class="scrollerClass"
+        :style="scrollerStyle"
         v-bind="ScrollerComConf"/>
 </div>`);
 //========================================

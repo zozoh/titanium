@@ -32,9 +32,18 @@ const _M = {
     //-----------------------------------
     // Aspect
     //-----------------------------------
+    "previewComClass" : {
+      type : [Object, String, Array]
+    },
+    "previewComStyle": {
+      type : Object
+    },
     "scrollerClass" : {
       type : [Object, String, Array],
       default : "btn-at-inner btn-as-circle"
+    },
+    "scrollerStyle": {
+      type : Object
     }
   },
   //////////////////////////////////////////

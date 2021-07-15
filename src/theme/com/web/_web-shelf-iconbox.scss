@@ -34,6 +34,10 @@
     //----------------------------------
   }
   //------------------------------------
+  &.align-left {justify-content: flex-start;}
+  &.align-center {justify-content: center;}
+  &.align-right {justify-content: flex-end;}
+  //------------------------------------
   &.is-mode-left > .as-panel  {
     left:0; 
     > .as-con > .as-closer {right:0;}

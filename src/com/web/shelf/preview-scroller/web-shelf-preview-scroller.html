@@ -3,8 +3,10 @@
     <!--
       Current item preview
     -->
-    <component class="as-preview" 
-      :is="previewComType" 
+    <component :is="previewComType" 
+      class="as-preview" 
+      :class="previewComClass"
+      :style="previewComStyle"
       v-bind="CurrentPreviewComConf"
       @go:prev="OnGoPrev"
       @go:next="OnGoNext"/>
@@ -15,5 +17,6 @@
       v-if="hasMultiData"
         class="as-scroller"
         :class="scrollerClass"
+        :style="scrollerStyle"
         v-bind="ScrollerComConf"/>
 </div>

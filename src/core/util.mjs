@@ -1042,7 +1042,7 @@ const TiUtil = {
     return !_.isEmpty(o)
   },
   notNil(o) {
-    return !Ti.Util.isNil(o)
+    return !TiUtil.isNil(o)
   },
   notEmptyOf(o, key) {
     let v = _.get(o, key)
@@ -1050,7 +1050,7 @@ const TiUtil = {
   },
   notNilOf(o, key) {
     let v = _.get(o, key)
-    return !Ti.Util.isNil(v)
+    return !TiUtil.isNil(v)
   },
   isEqual(o1, o2) {
     return _.isEqual(o1, o2)
@@ -1073,6 +1073,9 @@ const TiUtil = {
           || _.isNull(o)
           || "" === o
           || /^[ \t]*$/.test(o)
+  },
+  notBlank(o) {
+    return !TiUtil.isBlank(o)
   },
   /***
    * Get or set one object value.

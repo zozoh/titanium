@@ -147,7 +147,6 @@ const _M = {
         viewport : ($trigger) => {
           return Ti.Dom.closest($trigger, ".scroller-outer")
         },
-        activedRadius : 5,
         actived  : (ctx)=>{
           //console.log("dragging begin", ctx, ctx.x, ctx.startX)
           this.evalScrolling();

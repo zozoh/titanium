@@ -500,7 +500,7 @@ const _M = {
       params = {}
     } = {}) {
       //console.log(rootGetters.routerList)
-      //console.log(" # -> page.reload", { path, params, anchor })
+      console.log(" # -> page.reload", { path, params, anchor })
       let pinfo;
       //.....................................
       // Apply routerList
