@@ -164,10 +164,11 @@
   }
   //-----------------------------------------
   &.hover-mask {
+    .as-text {z-index: 1;}
     &:after {
       @include pos-abs-full;
       background: #000;
-      opacity: 0; transition: 0.3;
+      opacity: 0; transition: 0.3s;
       display: block; content: "";
     }
     &:hover:after {

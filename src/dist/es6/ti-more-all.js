@@ -1,4 +1,4 @@
-// Pack At: 2021-07-13 19:10:43
+// Pack At: 2021-07-15 11:01:28
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1364,6 +1364,15 @@ const _M = {
     "exposeHidden" : {
       handler : function(eh){
         this.myExposeHidden = eh
+      },
+      immediate : true
+    },
+    //--------------------------------------------
+    "currentId": {
+      handler : function(newVal, oldVal){
+        if(!_.isEqual(newVal, oldVal)) {
+          this.myCurrentId = newVal
+        }
       },
       immediate : true
     }
@@ -5759,7 +5768,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "valueType": {
       type: String,
       default: "idPath",
-      validator: v => /^(obj|path|fullPath|idPath|id|wnobj)$/.test(v)
+      validator: v => /^(obj|path|fullPath|idPath|id|nm|wnobj)$/.test(v)
     },
     // avaliable only when valueType=="obj"
     "valueKeys": {
@@ -5768,6 +5777,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
         'id', 'nm', 'thumb', 'title', 'mime', 'tp', 'sha1', 'len',
         'href', 'newtab'
       ]
+    },
+    "dict": {
+      type: [String, Ti.Dict],
+      default: undefined
     },
     "base": {
       type: [Object, String],
@@ -5854,6 +5867,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     theChooseIcon() {
       return _.isEmpty(this.myItems) ? this.chooseIcon : null
+    },
+    //--------------------------------------
+    Dict() {
+      if (this.dict) {
+        // Already Dict
+        if (this.dict instanceof Ti.Dict) {
+          return this.dict
+        }
+        // Get back
+        let { name } = Ti.DictFactory.explainDictName(this.dict)
+        return Ti.DictFactory.CheckDict(name)
+      }
     }
     //--------------------------------------
   },
@@ -6072,6 +6097,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
         return null
       // path id:xxxx
       if (_.isString(it)) {
+        if (this.Dict) {
+          return await this.Dict.getItem(it)
+        }
         return await Wn.Io.loadMetaBy(it)
       }
       // object {id:xxx}
@@ -7932,7 +7960,7 @@ const _M = {
   /***
    * Open current object source editor
    */
-  async openContentEditor({state, getters, dispatch}) {
+  async openContentEditor({state, getters, dispatch, commit}) {
     // Guard
     if(!state.meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
@@ -7950,6 +7978,7 @@ const _M = {
 
       // Update the current editing
       await dispatch("current/changeContent", newContent)
+      commit("syncStatusChanged")
       return
     }
 
@@ -10078,6 +10107,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // {list:[], pager:{..}}
   "data" : {
     type : [Object, Array],
+    default : null
+  },
+  "currentId" : {
+    type : String,
     default : null
   },
   "changedId" : {
@@ -22848,6 +22881,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "tags": {
       type: [String, Array, Object]
     },
+    "tip": {
+      type: String
+    },
     "text": {
       type: String
     },
@@ -23059,7 +23095,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     ZoomLenConStyle() {
-      if(!this.showZoomDock || !this.showZoomPick) {
+      if (!this.showZoomDock || !this.showZoomPick) {
         return {
           display: "none"
         }
@@ -23233,7 +23269,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     OnClickTop(evt) {
-      if(this.clickToNotify) {
+      if (this.clickToNotify) {
         evt.preventDefault()
         let payload = _.assign({
           $el: this.$el,
@@ -23480,8 +23516,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
         })
       }
     },
-    "showZoomDock": function(newVal, oldVal) {
-      if(newVal && newVal != oldVal && this.TheZoomLens) {
+    "showZoomDock": function (newVal, oldVal) {
+      if (newVal && newVal != oldVal && this.TheZoomLens) {
         Ti.Dom.dockTo(this.$refs.dock, this.$refs.img, {
           mode: this.TheZoomLens.dockMode,
           space: this.TheZoomLens.dockSpace,
@@ -31469,6 +31505,10 @@ const _M = {
       state.filter = flt
     },
     //----------------------------------------
+    setCurrentId(state, currentId) {
+      state.currentId = currentId
+    },
+    //----------------------------------------
     setSorter(state, sorter) {
       state.sorter = _.cloneDeep(sorter)
     },
@@ -35551,7 +35591,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Behavior
     //-----------------------------------
     "href": String,
-    "moreHref": String,
     "showBackward": false,
     "titleNotifyName": {
       type: String,
@@ -35574,11 +35613,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "comment": String,
     "moreTip": String,
     "moreIconType": String,
-    "moreIcon": [String, Object],
+    "moreIcon": [String, Object, Array],
     "moreIconStyle": Object,
     "moreIconConf": Object,
     "morePreview": Object,
     "moreText": String,
+    "moreHref": String,
     "moreNewTab": {
       type: Boolean,
       default: true
@@ -35600,10 +35640,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return Ti.Css.toStyle(this.titleStyle)
     },
     //--------------------------------------
-    showMore() {
-      if (this.TheMoreIcon || this.moreText)
-        return true
-      return false
+    showMoreIcon() {
+      return !_.isEmpty(this.TheMoreIcon)
     },
     //--------------------------------------
     TheMoreTarget() {
@@ -35611,17 +35649,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     TheMoreIcon() {
-      let src = Ti.WWW.evalObjPreviewSrc(this.moreIcon, this.morePreview)
-      if (!src) {
-        return
-      }
-      if (this.moreIconType) {
-        return {
-          type: this.moreIconType,
+      let list = []
+      let icons = _.concat(this.moreIcon)
+      for (let moreIcon of icons) {
+        if (!moreIcon) {
+          continue
+        }
+        let src = Ti.WWW.evalObjPreviewSrc(moreIcon, this.morePreview)
+        if (!src) {
+          continue
+        }
+        let icon = {
+          type: this.moreIconType || "image",
           value: src
         }
+        icon.tip = Ti.Util.explainObj(moreIcon, this.moreTip)
+        icon.href = Ti.Util.explainObj(moreIcon, this.moreHref)
+        list.push(icon)
       }
-      return src
+      return list
     }
     //--------------------------------------
   },
@@ -35640,9 +35686,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //--------------------------------------
-    OnClickMore() {
+    OnClickMore(moreIcon={}) {
       if (this.moreNotifyName) {
-        this.$notify(this.moreNotifyName, this.value)
+        this.$notify(this.moreNotifyName, moreIcon)
       }
     }
     //--------------------------------------
@@ -42583,6 +42629,7 @@ const _M = {
     if (state.status.reloading || !state.meta) {
       return
     }
+    //console.log("obj-children reloadData")
     //......................................
     let { meta } = state
     //......................................
@@ -64742,6 +64789,9 @@ Ti.Preload("ti/com/ti/text/rich/tinymce/_com.json", {
   "props" : "./rich-tinymce-props.mjs",
   "methods" : "./rich-tinymce-obj-resizing.mjs",
   "mixins" : "./rich-tinymce.mjs",
+  "components": [
+    "@com:hm/prop/css-rules"
+  ],
   "deps" : [
     "@deps:tinymce/5.6.2/tinymce.min.js"
   ]
@@ -65688,6 +65738,7 @@ Ti.Preload("ti/com/web/gis/leaflet/_com.json", {
 //========================================
 Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-image"
   :class="TopClass"
+  :title="tip"
   :href="TheHref"
   :target="isNewTab ? '_blank' : '_self'"
   :style="TopStyle"
@@ -67737,22 +67788,30 @@ Ti.Preload("ti/com/web/text/heading/web-text-heading.html", `<div class="web-tex
         class="as-comment"><span>{{comment | i18n}}</span></div>
   </div>
   <!--
-    View more
+    View more Icon
+  -->
+  <template v-if="showMoreIcon">
+    <a
+      v-for="moreIcon in TheMoreIcon"
+        class="as-more"
+        :href="moreIcon.href"
+        :title="moreIcon.tip"
+        :target="TheMoreTarget"
+        :style="moreIconStyle"
+        @click.left="OnClickMore(moreIcon)">
+        <TiIcon
+            v-bind="moreIconConf"
+            :value="moreIcon"/>
+    </a>
+  </template>
+  <!--
+    view more text
   -->
   <a
-    v-if="showMore"
-      class="as-more"
-      :href="moreHref"
-      :title="moreTip"
+    v-if="moreText"
+      class="as-more-text"
       :target="TheMoreTarget"
-      :style="moreIconStyle"
-      @click.left="OnClickMore">
-      <TiIcon
-        v-if="TheMoreIcon"
-          v-bind="moreIconConf"
-          :value="TheMoreIcon"/>
-      <span v-if="moreText">{{moreText | i18n}}</span>
-  </a>
+      :href="moreHref">{{moreText|i18nTxt}}</a>
 </div>`);
 //========================================
 // JOIN <web-text-heading.mjs> ti/com/web/text/heading/web-text-heading.mjs
@@ -70770,6 +70829,7 @@ Ti.Preload("ti/mod/wn/obj-children/m-obj-children-actions.mjs", TI_PACK_EXPORTS[
 //========================================
 Ti.Preload("ti/mod/wn/obj-children/m-obj-children.json", {
   "meta": null,
+  "currentId": null,
   "keepSearch": false,
   "filterBy": null,
   "data": {

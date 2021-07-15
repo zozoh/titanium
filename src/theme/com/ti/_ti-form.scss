@@ -5,6 +5,9 @@
   .field-component > .full-field {
     width:100%;
   } 
+  .field-component > .ti-label.is-nowrap.full-field {
+    width:100px;
+  } 
   //------------------------------------
   .form-field {
     position: relative; 

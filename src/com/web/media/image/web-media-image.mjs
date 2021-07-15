@@ -31,6 +31,9 @@ export default {
     "tags": {
       type: [String, Array, Object]
     },
+    "tip": {
+      type: String
+    },
     "text": {
       type: String
     },
@@ -242,7 +245,7 @@ export default {
     },
     //--------------------------------------
     ZoomLenConStyle() {
-      if(!this.showZoomDock || !this.showZoomPick) {
+      if (!this.showZoomDock || !this.showZoomPick) {
         return {
           display: "none"
         }
@@ -416,7 +419,7 @@ export default {
     },
     //--------------------------------------
     OnClickTop(evt) {
-      if(this.clickToNotify) {
+      if (this.clickToNotify) {
         evt.preventDefault()
         let payload = _.assign({
           $el: this.$el,
@@ -663,8 +666,8 @@ export default {
         })
       }
     },
-    "showZoomDock": function(newVal, oldVal) {
-      if(newVal && newVal != oldVal && this.TheZoomLens) {
+    "showZoomDock": function (newVal, oldVal) {
+      if (newVal && newVal != oldVal && this.TheZoomLens) {
         Ti.Dom.dockTo(this.$refs.dock, this.$refs.img, {
           mode: this.TheZoomLens.dockMode,
           space: this.TheZoomLens.dockSpace,

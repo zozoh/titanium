@@ -474,6 +474,15 @@ const _M = {
         this.myExposeHidden = eh
       },
       immediate : true
+    },
+    //--------------------------------------------
+    "currentId": {
+      handler : function(newVal, oldVal){
+        if(!_.isEqual(newVal, oldVal)) {
+          this.myCurrentId = newVal
+        }
+      },
+      immediate : true
     }
     //--------------------------------------------
   },

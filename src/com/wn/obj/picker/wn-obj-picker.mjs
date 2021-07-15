@@ -26,7 +26,7 @@ export default {
     "valueType": {
       type: String,
       default: "idPath",
-      validator: v => /^(obj|path|fullPath|idPath|id|wnobj)$/.test(v)
+      validator: v => /^(obj|path|fullPath|idPath|id|nm|wnobj)$/.test(v)
     },
     // avaliable only when valueType=="obj"
     "valueKeys": {
@@ -35,6 +35,10 @@ export default {
         'id', 'nm', 'thumb', 'title', 'mime', 'tp', 'sha1', 'len',
         'href', 'newtab'
       ]
+    },
+    "dict": {
+      type: [String, Ti.Dict],
+      default: undefined
     },
     "base": {
       type: [Object, String],
@@ -121,6 +125,18 @@ export default {
     //--------------------------------------
     theChooseIcon() {
       return _.isEmpty(this.myItems) ? this.chooseIcon : null
+    },
+    //--------------------------------------
+    Dict() {
+      if (this.dict) {
+        // Already Dict
+        if (this.dict instanceof Ti.Dict) {
+          return this.dict
+        }
+        // Get back
+        let { name } = Ti.DictFactory.explainDictName(this.dict)
+        return Ti.DictFactory.CheckDict(name)
+      }
     }
     //--------------------------------------
   },
@@ -339,6 +355,9 @@ export default {
         return null
       // path id:xxxx
       if (_.isString(it)) {
+        if (this.Dict) {
+          return await this.Dict.getItem(it)
+        }
         return await Wn.Io.loadMetaBy(it)
       }
       // object {id:xxx}

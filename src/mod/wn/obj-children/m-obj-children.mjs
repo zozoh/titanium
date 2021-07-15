@@ -74,6 +74,10 @@ const _M = {
       state.filter = flt
     },
     //----------------------------------------
+    setCurrentId(state, currentId) {
+      state.currentId = currentId
+    },
+    //----------------------------------------
     setSorter(state, sorter) {
       state.sorter = _.cloneDeep(sorter)
     },

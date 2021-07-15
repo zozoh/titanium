@@ -11,6 +11,10 @@ export default {
     type : [Object, Array],
     default : null
   },
+  "currentId" : {
+    type : String,
+    default : null
+  },
   "changedId" : {
     type : String,
     default : null

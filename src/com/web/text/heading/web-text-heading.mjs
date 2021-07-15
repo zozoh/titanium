@@ -9,7 +9,6 @@ export default {
     // Behavior
     //-----------------------------------
     "href": String,
-    "moreHref": String,
     "showBackward": false,
     "titleNotifyName": {
       type: String,
@@ -32,11 +31,12 @@ export default {
     "comment": String,
     "moreTip": String,
     "moreIconType": String,
-    "moreIcon": [String, Object],
+    "moreIcon": [String, Object, Array],
     "moreIconStyle": Object,
     "moreIconConf": Object,
     "morePreview": Object,
     "moreText": String,
+    "moreHref": String,
     "moreNewTab": {
       type: Boolean,
       default: true
@@ -58,10 +58,8 @@ export default {
       return Ti.Css.toStyle(this.titleStyle)
     },
     //--------------------------------------
-    showMore() {
-      if (this.TheMoreIcon || this.moreText)
-        return true
-      return false
+    showMoreIcon() {
+      return !_.isEmpty(this.TheMoreIcon)
     },
     //--------------------------------------
     TheMoreTarget() {
@@ -69,17 +67,25 @@ export default {
     },
     //--------------------------------------
     TheMoreIcon() {
-      let src = Ti.WWW.evalObjPreviewSrc(this.moreIcon, this.morePreview)
-      if (!src) {
-        return
-      }
-      if (this.moreIconType) {
-        return {
-          type: this.moreIconType,
+      let list = []
+      let icons = _.concat(this.moreIcon)
+      for (let moreIcon of icons) {
+        if (!moreIcon) {
+          continue
+        }
+        let src = Ti.WWW.evalObjPreviewSrc(moreIcon, this.morePreview)
+        if (!src) {
+          continue
+        }
+        let icon = {
+          type: this.moreIconType || "image",
           value: src
         }
+        icon.tip = Ti.Util.explainObj(moreIcon, this.moreTip)
+        icon.href = Ti.Util.explainObj(moreIcon, this.moreHref)
+        list.push(icon)
       }
-      return src
+      return list
     }
     //--------------------------------------
   },
@@ -98,9 +104,9 @@ export default {
       }
     },
     //--------------------------------------
-    OnClickMore() {
+    OnClickMore(moreIcon={}) {
       if (this.moreNotifyName) {
-        this.$notify(this.moreNotifyName, this.value)
+        this.$notify(this.moreNotifyName, moreIcon)
       }
     }
     //--------------------------------------

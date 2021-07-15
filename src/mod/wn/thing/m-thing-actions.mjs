@@ -310,7 +310,7 @@ const _M = {
   /***
    * Open current object source editor
    */
-  async openContentEditor({state, getters, dispatch}) {
+  async openContentEditor({state, getters, dispatch, commit}) {
     // Guard
     if(!state.meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
@@ -328,6 +328,7 @@ const _M = {
 
       // Update the current editing
       await dispatch("current/changeContent", newContent)
+      commit("syncStatusChanged")
       return
     }
 

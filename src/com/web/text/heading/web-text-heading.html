@@ -38,20 +38,28 @@
         class="as-comment"><span>{{comment | i18n}}</span></div>
   </div>
   <!--
-    View more
+    View more Icon
+  -->
+  <template v-if="showMoreIcon">
+    <a
+      v-for="moreIcon in TheMoreIcon"
+        class="as-more"
+        :href="moreIcon.href"
+        :title="moreIcon.tip"
+        :target="TheMoreTarget"
+        :style="moreIconStyle"
+        @click.left="OnClickMore(moreIcon)">
+        <TiIcon
+            v-bind="moreIconConf"
+            :value="moreIcon"/>
+    </a>
+  </template>
+  <!--
+    view more text
   -->
   <a
-    v-if="showMore"
-      class="as-more"
-      :href="moreHref"
-      :title="moreTip"
+    v-if="moreText"
+      class="as-more-text"
       :target="TheMoreTarget"
-      :style="moreIconStyle"
-      @click.left="OnClickMore">
-      <TiIcon
-        v-if="TheMoreIcon"
-          v-bind="moreIconConf"
-          :value="TheMoreIcon"/>
-      <span v-if="moreText">{{moreText | i18n}}</span>
-  </a>
+      :href="moreHref">{{moreText|i18nTxt}}</a>
 </div>
