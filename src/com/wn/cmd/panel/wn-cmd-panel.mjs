@@ -26,6 +26,10 @@ const _M = {
       type : Boolean,
       default : true
     },
+    "showTailRunTip": {
+      type : Boolean,
+      default : undefined
+    },
     //
     // Callback
     // 
@@ -74,7 +78,7 @@ const _M = {
         }
         // Success
         if(_.isFunction(this.whenSuccess)) {
-          await this.whenSuccess(re)
+          await this.whenSuccess(re, {$panel:this})
         }
         if(this.emitSuccess) {
           this.$notify(this.emitSuccess, this.emitPayload || re)  
@@ -83,7 +87,7 @@ const _M = {
       // Fail
       catch(err) {
         if(_.isFunction(this.whenError)) {
-          await this.whenError(err)
+          await this.whenError(err, {$panel:this})
         }
         if(this.emitError) {
           this.$notify(this.emitError, this.emitPayload || err)  
@@ -94,7 +98,7 @@ const _M = {
       // Always 
       //
       if(_.isFunction(this.afterRunCommand)) {
-        await this.afterRunCommand(re)
+        await this.afterRunCommand(re, {$panel:this})
       }
       if(this.emitName) {
         this.$notify(this.emitName, this.emitPayload || re)
@@ -121,8 +125,11 @@ const _M = {
           this.lines.push(line)
         }
       })
-
-      if(this.showRunTip || options.showRunTip) {
+      let showTailRunTip = Ti.Util.fallback(
+        this.showTailRunTip, options.showTailRunTip,
+        this.showRunTip, options.showRunTip
+      )
+      if(showTailRunTip) {
         this.printHR()
         this.lines.push("> " + cmdText)
         this.printHR()
