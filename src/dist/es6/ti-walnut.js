@@ -1,4 +1,4 @@
-// Pack At: 2021-07-15 20:52:13
+// Pack At: 2021-07-18 19:29:46
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -3556,7 +3556,8 @@ const OpenCmdPanel = (function(){
     width = "80%", height = "90%", spacing,
     vars,
     input,
-    forceFlushBuffer, showRunTip,
+    forceFlushBuffer, 
+    showRunTip, showTailRunTip,
     cmdTipText,
     cmdTipIcon,
     onBodyReady,
@@ -3588,7 +3589,8 @@ const OpenCmdPanel = (function(){
         "value": cmdText,
         "tipText": cmdTipText,
         "tipIcon": cmdTipIcon,
-        vars, input, forceFlushBuffer, showRunTip,
+        vars, input, forceFlushBuffer,
+        showRunTip, showTailRunTip,
         afterRunCommand,
         whenSuccess,
         whenError
@@ -4022,7 +4024,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210715.205213"
+const WALNUT_VERSION = "1.2-20210718.192946"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

@@ -71,7 +71,10 @@
           "icon" : "fas-keyboard",
           "text" : "i18n:console",
           "action" : "=>Ti.Be.Open('/a/open/wn.console')",
-          "shortcut" : "ALT+SHIFT+T"
+          "shortcut" : "ALT+SHIFT+T",
+          "visible": {
+            "ENABLE_CONSOLE" : "yes"
+          }
         },{
           "type" : "action",
           "icon" : "zmdi-info-outline",

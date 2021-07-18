@@ -43,13 +43,14 @@ A sidebar is a quick access object set which needed by `app/wn.manager`. You can
         defaultTitle : 'i18n:xxx',
         // [optional] Item default view
         defaultView : null,
-        // [optional] Additionaly privilege setting. 
+        // [optional] Additionaly privilege setting. (By server)
         // If setted, current session must matched one of the rule,
         // else the item will be dropped also.
         // If the rule is empty, it will be taken as unsetted.
         roles : {
             "ADMIN"  : ".",    // must be admin of current path
-            "MEMBER" : "~/some/path"
+            "MEMBER" : "~/some/path",
+            "ADMIN"  : "@op"   // must be admin of 'op' group
         }
     },
     // Dynamic items, it will process a customized command

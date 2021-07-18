@@ -243,6 +243,7 @@ const _M = {
     },
     //--------------------------------------------
     OnItemOpen() {
+      console.log("open item")
       let obj = this.getCurrentItem()
       if(obj) {
         this.$notify("open:wn:obj", obj)
@@ -261,7 +262,7 @@ const _M = {
         // Find my checked files
         let objs = []
         if(this.hasDataList){
-          _.forEach(this.myData.list, it=>{
+          _.forEach(this.DataList, it=>{
             if(this.myCheckedIds[it.id]){
               objs.push(it)
             }
@@ -282,24 +283,28 @@ const _M = {
     //--------------------------------------------
     getCurrentItem() {
       if(this.myCurrentId && this.hasDataList) {
-        return _.find(this.myData.list, it=>it.id == this.myCurrentId)
+        return _.find(this.DataList, it=>it.id == this.myCurrentId)
       }
     },
     //--------------------------------------------
     getCheckedItems() {
       if(this.hasDataList)
-        return _.filter(this.myData.list, it=>this.myCheckedIds[it.id])
+        return _.filter(this.DataList, it=>this.myCheckedIds[it.id])
       return []
     },
     //--------------------------------------------
     setItem(newItem) {
       if(newItem && this.hasDataList) {
-        let list = _.map(this.myData.list, it => {
+        let list = _.map(this.DataList, it => {
           return it.id == newItem.id
             ? newItem
             : it
         })
-        this.myData = _.assign({}, this.myData, {list})
+        if(_.isArray(this.myData)) {
+          this.myData = list
+        } else {
+          this.myData = _.assign({}, this.myData, {list})
+        }
       }
     },
     //--------------------------------------------

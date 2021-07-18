@@ -68,7 +68,10 @@
           "icon" : "zmdi-keyboard",
           "text" : "i18n:console",
           "action" : "dispatch:openConsole",
-          "shortcut" : "ALT+SHIFT+T"
+          "shortcut" : "ALT+SHIFT+T",
+          "visible": {
+            "ENABLE_CONSOLE" : "yes"
+          }
         },{
           "type" : "action",
           "icon" : "zmdi-info-outline",

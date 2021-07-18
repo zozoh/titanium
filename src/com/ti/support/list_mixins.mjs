@@ -628,6 +628,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     OnRowOpen({rowId}={}) {
+      console.log("OnRowOpen", rowId)
       let row = this.findRowById(rowId)
       if(row) {
         if(this.notifyOpenName) {
