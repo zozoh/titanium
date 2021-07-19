@@ -209,9 +209,11 @@ const LIST_MIXINS = {
           })
         }
         let asGroupTitle = this.testRowAsGroupTitle(it)
+        let itemId = this.getRowId(it, index)
+        //console.log("evalDataItem", index, itemId)
         let item = {
           className, index, displayIndex, asGroupTitle,
-          id      : this.getRowId(it, index),
+          id      : itemId,
           rawData : this.getRowData(it),
           checkable  : this.isRowCheckable(it),
           selectable : this.isRowSelectable(it),
@@ -628,7 +630,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     OnRowOpen({rowId}={}) {
-      console.log("OnRowOpen", rowId)
+      //console.log("OnRowOpen", rowId)
       let row = this.findRowById(rowId)
       if(row) {
         if(this.notifyOpenName) {
