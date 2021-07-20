@@ -1,43 +1,43 @@
 const _M = {
   //////////////////////////////////////////////////////
-  model : {
-    prop  : "data",
-    event : "change"
+  model: {
+    prop: "data",
+    event: "change"
   },
   //////////////////////////////////////////////////////
-  data : ()=>({
+  data: () => ({
     myKeysInFields: [],
-    currentTabIndex : 0,
-    isEvalMeasure : false,
-    myFormFields : []
+    currentTabIndex: 0,
+    isEvalMeasure: false,
+    myFormFields: []
   }),
   //////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------------------
     TopClass() {
       return this.getTopClass({
         "is-tab-mode": this.isTabMode,
         "is-all-mode": this.isAllMode,
-        [`tab-at-${this.tabAt}`]  : this.isTabMode,
-        [`tab-at-${this.TheTabAtX}`] : this.isTabMode,
-        [`tab-at-${this.TheTabAtY}`] : this.isTabMode
-      }, 
-      `as-${this.ViewDisplayMode}`,
-      `as-spacing-${this.spacing||"comfy"}`,
-      `field-border-${this.fieldBorder}`
+        [`tab-at-${this.tabAt}`]: this.isTabMode,
+        [`tab-at-${this.TheTabAtX}`]: this.isTabMode,
+        [`tab-at-${this.TheTabAtY}`]: this.isTabMode
+      },
+        `as-${this.ViewDisplayMode}`,
+        `as-spacing-${this.spacing || "comfy"}`,
+        `field-border-${this.fieldBorder}`
       )
     },
     //--------------------------------------------------
     TopStyle() {
       return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height,
+        width: this.width,
+        height: this.height,
         visibility: this.isEvalMeasure ? "hidden" : "initial"
       })
     },
     //--------------------------------------------------
     ViewDisplayMode() {
-      if(!this.screenMode || "auto" == this.screenMode) {
+      if (!this.screenMode || "auto" == this.screenMode) {
         return this.viewportMode || "desktop"
       }
       return this.screenMode
@@ -51,20 +51,20 @@ const _M = {
       return !Ti.Util.isNil(this.data)
     },
     //--------------------------------------------------
-    isTabMode() {return 'tab' == this.mode},
-    isAllMode() {return 'all' == (this.mode || "all")},
-    isAutoShowBlank() {return Ti.Util.fallback(this.autoShowBlank, false)},
+    isTabMode() { return 'tab' == this.mode },
+    isAllMode() { return 'all' == (this.mode || "all") },
+    isAutoShowBlank() { return Ti.Util.fallback(this.autoShowBlank, false) },
     //--------------------------------------------------
-    TheTabAt() {return this.tabAt.split("-")},
-    TheTabAtX(){return this.TheTabAt[1]},
-    TheTabAtY(){return this.TheTabAt[0]},
+    TheTabAt() { return this.tabAt.split("-") },
+    TheTabAtX() { return this.TheTabAt[1] },
+    TheTabAtY() { return this.TheTabAt[0] },
     //--------------------------------------------------
     TabList() {
       let list = []
       let otherFields = []
-      if(this.isTabMode) {
-        for(let fld of this.myFormFields) {
-          if(fld.type == "Group") {
+      if (this.isTabMode) {
+        for (let fld of this.myFormFields) {
+          if (fld.type == "Group") {
             list.push(fld)
           }
           // Collect to others
@@ -73,11 +73,11 @@ const _M = {
           }
         }
         // Join others
-        if(!_.isEmpty(otherFields)) {
+        if (!_.isEmpty(otherFields)) {
           list.push({
-            type : "Group",
-            title : "i18n:others",
-            fields : otherFields
+            type: "Group",
+            title: "i18n:others",
+            fields: otherFields
           })
         }
       }
@@ -89,11 +89,11 @@ const _M = {
       let items = []
       let maxTabIndex = this.TabList.length - 1
       let currentIndex = Math.min(maxTabIndex, this.currentTabIndex)
-      _.forEach(this.TabList, (li, index)=>{
+      _.forEach(this.TabList, (li, index) => {
         let isCurrent = (index == currentIndex)
         items.push(_.assign({}, li, {
           index, isCurrent, className: Ti.Css.mergeClassName({
-            "is-current" : isCurrent
+            "is-current": isCurrent
           }, li.className)
         }))
       })
@@ -101,15 +101,15 @@ const _M = {
     },
     //--------------------------------------------------
     CurrentTab() {
-      for(let tab of this.TabItems) {
-        if(tab.isCurrent) {
+      for (let tab of this.TabItems) {
+        if (tab.isCurrent) {
           return tab
         }
       }
     },
     //--------------------------------------------------
     FormBodyClass() {
-      if(this.isTabMode && this.CurrentTab) {
+      if (this.isTabMode && this.CurrentTab) {
         return Ti.Css.mergeClassName(
           this.bodyClass,
           `has-${this.FieldsInCurrentTab.length}-fields`,
@@ -125,8 +125,8 @@ const _M = {
     //--------------------------------------------------
     FieldsInCurrentTab() {
       // Current Tab
-      if(this.isTabMode) {
-        if(this.CurrentTab) {
+      if (this.isTabMode) {
+        if (this.CurrentTab) {
           return this.CurrentTab.fields || []
         }
         return []
@@ -139,35 +139,35 @@ const _M = {
     //--------------------------------------------------
     FormLinkFields() {
       let re = {}
-      _.forEach(this.linkFields, (val, key)=>{
+      _.forEach(this.linkFields, (val, key) => {
         // By dict
-        if(val && val.dict && val.target) {
-          let {dict, target} = val
+        if (val && val.dict && val.target) {
+          let { dict, target } = val
           // Guard
-          if(!target) {
+          if (!target) {
             return
           }
           // Get dict
-          let {name, dynamic, dictKey} = Ti.DictFactory.explainDictName(dict)
+          let { name, dynamic, dictKey } = Ti.DictFactory.explainDictName(dict)
           //.......................................................
-          let getItemFromDict = async function(value, data) {
+          let getItemFromDict = async function (value, data) {
             let d;
             // Dynamic
-            if(dynamic) {
+            if (dynamic) {
               let key = _.get(data, dictKey)
               let vars = Ti.Util.explainObj(data, val.dictVars || {})
-              d = Ti.DictFactory.GetDynamicDict({name, key, vars})
+              d = Ti.DictFactory.GetDynamicDict({ name, key, vars })
             }
             // Static Dictionary
             else {
               d = Ti.DictFactory.CheckDict(name)
             }
             // Get item data
-            if(d) {
+            if (d) {
               // Multi value
-              if(_.isArray(value)) {
+              if (_.isArray(value)) {
                 let list = []
-                for(let v of value) {
+                for (let v of value) {
                   let v2 = await d.getItem(v)
                   list.push(v2)
                 }
@@ -181,18 +181,18 @@ const _M = {
           let fn;
           //.......................................................
           // Pick
-          if(_.isArray(target)) {
-            fn = async function({value}, data) {
+          if (_.isArray(target)) {
+            fn = async function ({ value }, data) {
               let it = await getItemFromDict(value, data)
               return _.pick(it, target)
             }
           }
           // Explain target
-          else if(val.explainTargetAs) {
-            fn = async function({value, name}, data) {
+          else if (val.explainTargetAs) {
+            fn = async function ({ value, name }, data) {
               let it = await getItemFromDict(value, data)
               let ctx = _.assign({}, data, {
-                [val.explainTargetAs] : it
+                [val.explainTargetAs]: it
               })
               let newVal = Ti.Util.explainObj(ctx, target)
               //console.log(name, value, "->", newVal)
@@ -201,25 +201,25 @@ const _M = {
           }
           // Simple Translate
           else {
-            fn = async function({value}, data) {
+            fn = async function ({ value }, data) {
               let it = await getItemFromDict(value, data)
-              return Ti.Util.translate(it, target, v=>Ti.Util.fallback(v, null))
+              return Ti.Util.translate(it, target, v => Ti.Util.fallback(v, null))
             }
           }
           // join to map
           re[key] = fn
         }
         // Statice value
-        else if(val && val.target) {
-          re[key] = ({name, value}, data)=>{
-            if(val.test && !Ti.AutoMatch.test(val.test, data)) {
+        else if (val && val.target) {
+          re[key] = ({ name, value }, data) => {
+            if (val.test && !Ti.AutoMatch.test(val.test, data)) {
               return
             }
             return Ti.Util.explainObj(data, val.target)
           }
         }
         // Customized Function
-        else if(_.isFunction(val)) {
+        else if (_.isFunction(val)) {
           re[key] = val
         }
       })
@@ -236,8 +236,8 @@ const _M = {
     // },
     //--------------------------------------------------
     TheData() {
-      if(this.data) {
-        if(this.onlyFields) {
+      if (this.data) {
+        if (this.onlyFields) {
           return _.pick(this.data, this.myKeysInFields)
         }
         return this.data
@@ -247,57 +247,57 @@ const _M = {
     //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------------------
     OnClickTab(tab) {
-      this.isEvalMeasure = this.currentTabIndex!=tab.index
+      this.isEvalMeasure = this.currentTabIndex != tab.index
       this.currentTabIndex = tab.index
       this.$notify("tab:change", tab)
     },
     //--------------------------------------------------
-    async OnFieldChange({name, value}={}) {
+    async OnFieldChange({ name, value } = {}) {
       // Notify at first
       //console.log("notify field", {name, value})
-      this.$notify("field:change", {name, value})
+      this.$notify("field:change", { name, value })
 
       // Link fields
       let linkFunc = this.FormLinkFields[name]
       let obj;
-      if(linkFunc) {
-        obj = await linkFunc({name, value}, this.data)
-        if(!_.isEmpty(obj)) {
-          _.forEach(obj, (v,k)=>{
-            this.$notify("field:change", {name:k, value:v})
+      if (linkFunc) {
+        obj = await linkFunc({ name, value }, this.data)
+        if (!_.isEmpty(obj)) {
+          _.forEach(obj, (v, k) => {
+            this.$notify("field:change", { name: k, value: v })
           })
         }
       }
 
       // Notify later ...
       // Wait for a tick to give a chance to parent of 'data' updating
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         //console.log("notify data")
-        let data = this.getData({name, value})
+        let data = this.getData({ name, value })
         _.assign(data, obj)
         this.$notify("change", data)
       })
     },
     //--------------------------------------
-    getData({name, value}={}) {
+    getData({ name, value } = {}) {
       let data = _.cloneDeep(this.TheData)
 
       // Signle value
-      if(name && _.isString(name)) {
+      if (name && _.isString(name)) {
         // Whole data
-        if(".." == name) {
+        if (".." == name) {
           _.assign(data, value)
         }
         // Statci value
-        else if(/^'[^']+'$/.test(name)) {
+        else if (/^'[^']+'$/.test(name)) {
           return
         }
         // Dynamic value
         else {
-          if(_.isUndefined(value)) {
+          if (_.isUndefined(value)) {
             data = _.omit(data, name)
           } else if (name.startsWith(".")) {
             data[name] = value
@@ -307,23 +307,23 @@ const _M = {
         }
       }
       // Object
-      else if(_.isArray(name)) {
+      else if (_.isArray(name)) {
         let omitKeys = []
-        for(let k of name) {
+        for (let k of name) {
           let v = _.get(value, k)
-          if(_.isUndefined(v)) {
-            omitKeys.push(k) 
+          if (_.isUndefined(v)) {
+            omitKeys.push(k)
           } else {
             _.set(data, k, v)
           }
         }
-        if(omitKeys.length > 0) {
+        if (omitKeys.length > 0) {
           data = _.omit(data, omitKeys)
         }
       }
 
       // Join the fixed data
-      if(this.fixed) {
+      if (this.fixed) {
         _.assign(data, fixed)
       }
       return data
@@ -342,26 +342,19 @@ const _M = {
       let keys = []
       this.isEvalMeasure = true
       //................................................
-      _.forEach(this.fields, (fld, index)=>{
+      _.forEach(this.fields, (fld, index) => {
         let fld2 = this.evalFormField(fld, [index])
-        if(fld2) {
+        if (fld2) {
           list.push(fld2)
-          // Gather keys
-          if(!fld2.disabled) {
-            // Field group ...
-            if("Group" == fld2.type) {
-              _.forEach(fld2.fields, ({disabled, name})=>{
-                if(!disabled) {
-                  keys.push(name)
-                }
-              })
-            }
-            // The fields
-            else {
-              keys.push(fld2.name)
-            }
-          }
         }
+        // Gather keys
+        keys.push(fld.name)
+        // Join sub-group keys
+        _.forEach(fld.fields, ({ name }) => {
+          if (name) {
+            keys.push(name)
+          }
+        })
       })
       //................................................
       this.myKeysInFields = _.flattenDeep(keys)
@@ -371,40 +364,40 @@ const _M = {
       this.__adjust_fields_width()
     },
     //--------------------------------------------------
-    evalFormField(fld={}, nbs=[]) {
+    evalFormField(fld = {}, nbs = []) {
       // Hide or disabled
-      if(fld.hidden) {
-        if(Ti.AutoMatch.test(fld.hidden, this.data)) {
+      if (fld.hidden) {
+        if (Ti.AutoMatch.test(fld.hidden, this.data)) {
           return
         }
       }
       // Disable
       let disabled = false
-      if(fld.disabled) {
+      if (fld.disabled) {
         disabled = Ti.AutoMatch.test(fld.disabled, this.data)
       }
 
       // The key
-      let fldKey = Ti.Util.anyKey(fld.name||nbs, "ti-fld")
+      let fldKey = Ti.Util.anyKey(fld.name || nbs, "ti-fld")
       // let fldKey = fld.name
       //   ? [].concat(fld.name).join("-")
       //   : "ti-fld-" + nbs.join("-")
       //............................................
       // For group
-      if(this.isGroup(fld)) {
+      if (this.isGroup(fld)) {
         let group = {
           disabled,
-          type        : "Group",
-          key         : fldKey,
-          className   : Ti.Css.mergeClassName(fld.className, this.defaultGroupClass),
-          icon        : fld.icon,
-          title       : fld.title,
-          fields      : []
+          type: "Group",
+          key: fldKey,
+          className: Ti.Css.mergeClassName(fld.className, this.defaultGroupClass),
+          icon: fld.icon,
+          title: fld.title,
+          fields: []
         }
         // Group fields
-        _.forEach(fld.fields, (subfld, index)=>{
+        _.forEach(fld.fields, (subfld, index) => {
           let newSubFld = this.evalFormField(subfld, [...nbs, index])
-          if(newSubFld) {
+          if (newSubFld) {
             group.fields.push(newSubFld)
           }
         })
@@ -413,22 +406,22 @@ const _M = {
       }
       //............................................
       // Label
-      if(this.isLabel(fld)) {
+      if (this.isLabel(fld)) {
         return {
           disabled,
-          type        : "Label",
-          key         : fldKey,
-          className   : fld.className,
-          icon        : fld.icon,
-          title       : fld.title
+          type: "Label",
+          key: fldKey,
+          className: fld.className,
+          icon: fld.icon,
+          title: fld.title
         }
       }
       //............................................
       // For Normal Field
-      if(fld.name) {
+      if (fld.name) {
         let field = _.defaults(_.omit(fld, "disabled"), {
-          type    : this.defaultFieldType || "String",
-          comType : this.defaultComType   || "TiLabel",
+          type: this.defaultFieldType || "String",
+          comType: this.defaultComType || "TiLabel",
           disabled
         })
 
@@ -444,22 +437,22 @@ const _M = {
         // }
 
         // Default
-        if(!field.serializer) {
-          let fnName = Ti.Types.getFuncByType(field.type||"String", "serializer")
+        if (!field.serializer) {
+          let fnName = Ti.Types.getFuncByType(field.type || "String", "serializer")
           field.serializer = `Ti.Types.${fnName}`
         }
-        if(!field.transformer) {
-          let fnName = Ti.Types.getFuncByType(field.type||"String", "transformer")
+        if (!field.transformer) {
+          let fnName = Ti.Types.getFuncByType(field.type || "String", "transformer")
           field.transformer = `Ti.Types.${fnName}`
-        }        
+        }
 
         // Tidy form function
         const invokeOpt = {
           context: this,
           partial: "right"
         }
-        field.serializer  = Ti.Util.genInvoking(field.serializer, invokeOpt)
-        field.transformer = Ti.Util.genInvoking(field.transformer,invokeOpt)
+        field.serializer = Ti.Util.genInvoking(field.serializer, invokeOpt)
+        field.transformer = Ti.Util.genInvoking(field.transformer, invokeOpt)
 
         // Done
         return field
@@ -468,7 +461,7 @@ const _M = {
     //--------------------------------------------------
     __adjust_fields_width() {
       // Guard
-      if(!_.isElement(this.$el))
+      if (!_.isElement(this.$el))
         return
 
       this.isEvalMeasure = true
@@ -480,20 +473,20 @@ const _M = {
       let $fldNames = Ti.Dom.findAll(".form-field > .field-name", this.$el)
 
       // Reset them to org-width
-      for(let $fldnm of $fldNames) {
-        Ti.Dom.setStyle($fldnm, {width:""})
+      for (let $fldnm of $fldNames) {
+        Ti.Dom.setStyle($fldnm, { width: "" })
       }
 
       // Get the max-width of them
       let maxWidth = 0
-      for(let $fldnm of $fldNames) {
+      for (let $fldnm of $fldNames) {
         let rect = Ti.Rects.createBy($fldnm)
         // If in vertical group
         let $pp = $fldnm.parentElement.parentElement.parentElement
-        if(Ti.Dom.hasClass($pp, "form-group")
-           && Ti.Dom.hasOneClass($pp, "as-columns", "as-vertical")
-        ){
-          let maxw = $pp.getAttribute("fld-name-max-width")*1 || 0
+        if (Ti.Dom.hasClass($pp, "form-group")
+          && Ti.Dom.hasOneClass($pp, "as-columns", "as-vertical")
+        ) {
+          let maxw = $pp.getAttribute("fld-name-max-width") * 1 || 0
           maxw = Math.max(maxw, rect.width)
           $pp.setAttribute("fld-name-max-width", maxw)
         }
@@ -506,31 +499,31 @@ const _M = {
 
 
       // Wait for whole view rendered, and align the field-name
-      for(let $fldnm of $fldNames) {
+      for (let $fldnm of $fldNames) {
         // If in group
         let $pp = $fldnm.parentElement.parentElement.parentElement
         let maxw = $pp.getAttribute("fld-name-max-width")
-        if(maxw) {
-          Ti.Dom.setStyle($fldnm, {width:maxw*1})
+        if (maxw) {
+          Ti.Dom.setStyle($fldnm, { width: maxw * 1 })
         }
         // For whole form
         else {
-          Ti.Dom.setStyle($fldnm, {width:maxWidth})
+          Ti.Dom.setStyle($fldnm, { width: maxWidth })
         }
       }
 
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.isEvalMeasure = false
       })
     },
     //--------------------------------------------------
-    adjustFieldsWidth(delay=this.adjustDelay) {
-      if(delay > 0) {
-        _.delay(()=>{
+    adjustFieldsWidth(delay = this.adjustDelay) {
+      if (delay > 0) {
+        _.delay(() => {
           this.__adjust_fields_width()
         }, delay)
       } else {
-        this.$nextTick(()=>{
+        this.$nextTick(() => {
           this.__adjust_fields_width()
         })
       }
@@ -540,12 +533,12 @@ const _M = {
     //--------------------------------------------------
     __ti_shortcut(uniqKey) {
       //console.log("ti-form", uniqKey)
-      if("ENTER" == uniqKey) {
+      if ("ENTER" == uniqKey) {
         // It should wait a while before submit
         // <ti-input> will apply change at @change event
         // And the @change event will be fired when ENTER 
         // bubble fade away
-        _.delay(()=>{
+        _.delay(() => {
           this.$notify("submit")
         }, 100)
       }
@@ -553,52 +546,54 @@ const _M = {
     //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
-  watch : {
-    "data": function() {
+  watch: {
+    "data": function () {
       this.evalFormFieldList();
       this.adjustFieldsWidth()
     },
-    "fields" : function(){
+    "fields": function () {
       this.evalFormFieldList();
       this.adjustFieldsWidth()
     },
-    "currentTab" : function(index){
+    "currentTab": function (index) {
       this.currentTabIndex = index
     },
-    "currentTabIndex" : function(index){
-      if(this.keepTabIndexBy) {
+    "currentTabIndex": function (index) {
+      if (this.keepTabIndexBy) {
         Ti.Storage.session.set(this.keepTabIndexBy, index)
       }
       this.adjustFieldsWidth()
     }
   },
   //////////////////////////////////////////////////////
-  created : function() {
-    this.__debounce_adjust_fields_width = _.debounce(()=>{
+  created: function () {
+    this.__debounce_adjust_fields_width = _.debounce(() => {
       this.__adjust_fields_width()
     }, 500)
   },
   //////////////////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     //--------------------------------------------------
-    this.currentTabIndex = 
+    this.currentTabIndex =
       Ti.Storage.session.getInt(
-          this.keepTabIndexBy, this.currentTab
+        this.keepTabIndexBy, this.currentTab
       )
     //--------------------------------------------------
-    Ti.Viewport.watch(this, {resize:()=>{
-      this.__debounce_adjust_fields_width()
-    }})
+    Ti.Viewport.watch(this, {
+      resize: () => {
+        this.__debounce_adjust_fields_width()
+      }
+    })
     //--------------------------------------------------
     this.evalFormFieldList();
     //--------------------------------------------------
-    this.$nextTick(()=>{
+    this.$nextTick(() => {
       this.__adjust_fields_width()
     })
     //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
-  beforeDestroy : function(){
+  beforeDestroy: function () {
     Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////////////////
