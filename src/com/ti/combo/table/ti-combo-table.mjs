@@ -97,6 +97,12 @@ const _M = {
         checkable: true
       })
       return config
+    },
+    //------------------------------------------------
+    GenNewItemId() {
+      if(this.newItemIdBy) {
+        return Ti.Util.genInvoking(this.newItemIdBy)
+      }
     }
     //------------------------------------------------
   },
@@ -134,6 +140,12 @@ const _M = {
       // User cancel
       if (_.isUndefined(reo))
         return
+      
+      // Assign new ID
+      if(_.isFunction(this.GenNewItemId)) {
+        let itemId = this.GenNewItemId()
+        _.set(reo, this.newItemIdKey, itemId)
+      }
 
       // Join to 
       let list = _.cloneDeep(this.TheValue || [])

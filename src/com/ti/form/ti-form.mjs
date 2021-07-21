@@ -9,7 +9,8 @@ const _M = {
     myKeysInFields: [],
     currentTabIndex: 0,
     isEvalMeasure: false,
-    myFormFields: []
+    myFormFields: [],
+    myFormColumHint: -1
   }),
   //////////////////////////////////////////////////////
   computed: {
@@ -34,6 +35,20 @@ const _M = {
         height: this.height,
         visibility: this.isEvalMeasure ? "hidden" : "initial"
       })
+    },
+    //--------------------------------------------------
+    FormColumnGrid() {
+      if (this.autoColummGrid) {
+        if (_.isBoolean(this.autoColummGrid)) {
+          return [
+            320,     // 300px: col-0
+            640,     // 300px: col-1
+            960,     // 300px: col-2
+            1200,    // 300px: col-3
+          ]
+        }
+        return this.autoColummGrid
+      }
     },
     //--------------------------------------------------
     ViewDisplayMode() {
@@ -377,6 +392,9 @@ const _M = {
         disabled = Ti.AutoMatch.test(fld.disabled, this.data)
       }
 
+      let maxColumnHint = Ti.Util.fallback(fld.maxColumnHint, this.maxColumnHint, 3)
+      let columnHint = Math.min(maxColumnHint, this.myFormColumHint)
+
       // The key
       let fldKey = Ti.Util.anyKey(fld.name || nbs, "ti-fld")
       // let fldKey = fld.name
@@ -389,7 +407,9 @@ const _M = {
           disabled,
           type: "Group",
           key: fldKey,
-          className: Ti.Css.mergeClassName(fld.className, this.defaultGroupClass),
+          className: Ti.Css.mergeClassName(fld.className, this.defaultGroupClass, {
+            [`col-${columnHint}`]: columnHint >= 0
+          }),
           icon: fld.icon,
           title: fld.title,
           fields: []
@@ -411,7 +431,7 @@ const _M = {
           disabled,
           type: "Label",
           key: fldKey,
-          className: fld.className,
+          className: Ti.Css.mergeClassName(fld.className),
           icon: fld.icon,
           title: fld.title
         }
@@ -421,6 +441,10 @@ const _M = {
       if (fld.name) {
         let field = _.defaults(_.omit(fld, "disabled"), {
           type: this.defaultFieldType || "String",
+          className: Ti.Css.mergeClassName(fld.className, {
+            "as-narrow": columnHint == 0,
+            "as-wide": columnHint > 0,
+          }),
           comType: this.defaultComType || "TiLabel",
           disabled
         })
@@ -459,6 +483,30 @@ const _M = {
       }
     },
     //--------------------------------------------------
+    evalCoumnHint() {
+      // Guard
+      if (!_.isElement(this.$el))
+        return
+
+      if (this.FormColumnGrid) {
+        let { width } = Ti.Rects.createBy(this.$el)
+        let i = 0
+        for (; i < this.FormColumnGrid.length; i++) {
+          let hintW = this.FormColumnGrid[i]
+          if (width > hintW) {
+            continue;
+          }
+          break
+        }
+        this.myFormColumHint = Math.min(this.maxColumnHint, i)
+        // console.log("evalCoumnHint", {
+        //   width, hint: this.myFormColumHint,
+        //   max: this.maxColumnHint,
+        //   i
+        // })
+      }
+    },
+    //--------------------------------------------------
     __adjust_fields_width() {
       // Guard
       if (!_.isElement(this.$el))
@@ -471,6 +519,12 @@ const _M = {
       //
       // Find all field-name Elements
       let $fldNames = Ti.Dom.findAll(".form-field > .field-name", this.$el)
+      let $grps = Ti.Dom.findAll('[fld-name-max-width]', this.$el)
+      if (!_.isEmpty($grps)) {
+        for (let $grp of $grps) {
+          $grp.removeAttribute("fld-name-max-width")
+        }
+      }
 
       // Reset them to org-width
       for (let $fldnm of $fldNames) {
@@ -567,8 +621,9 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   created: function () {
-    this.__debounce_adjust_fields_width = _.debounce(() => {
-      this.__adjust_fields_width()
+    this.__debounce_adjust_fields = _.debounce(() => {
+      this.evalCoumnHint()
+      this.evalFormFieldList()
     }, 500)
   },
   //////////////////////////////////////////////////////
@@ -581,10 +636,11 @@ const _M = {
     //--------------------------------------------------
     Ti.Viewport.watch(this, {
       resize: () => {
-        this.__debounce_adjust_fields_width()
+        this.__debounce_adjust_fields()
       }
     })
     //--------------------------------------------------
+    this.evalCoumnHint();
     this.evalFormFieldList();
     //--------------------------------------------------
     this.$nextTick(() => {

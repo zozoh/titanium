@@ -111,10 +111,11 @@ export default {
   explainWnImage($div) {
     let $imgs = Ti.Dom.findAll("img[wn-obj-id]", $div);
     for (let $img of $imgs) {
+      console.log($img)
       // Prepare the obj
       let obj = Ti.Dom.attrs($img, (key) => {
         if (key.startsWith("wn-obj-")) {
-          return key.substring(7)
+          return _.camelCase(key.substring(7))
         }
       })
       // Eval the src

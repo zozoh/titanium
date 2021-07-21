@@ -58,6 +58,14 @@ export default {
     type : Number,
     default : 0
   },
+  "autoColummGrid": {
+    type : [Boolean, Array],
+    default: true
+  },
+  "maxColumnHint": {
+    type : Number,
+    default: 3
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

@@ -100,6 +100,7 @@
           @include flex-align($ai:flex-start, $ac:flex-start);
 
         }
+        &.col-0 .form-field {width: 100%;}
         &.col-1 .form-field {width: 100%;}
         &.col-2 .form-field {width: 50%;}
         &.col-3 .form-field {width: 33.3%;}
@@ -114,6 +115,7 @@
       //--------------------------------
       > .form-group {width:100%;}
       //--------------------------------
+      &.col-0 .form-field {width: 100%;}
       &.col-1 .form-field {width: 100%;}
       &.col-2 .form-field {width: 50%;}
       &.col-3 .form-field {width: 33.3%;}
@@ -124,6 +126,7 @@
     //----------------------------------
     > .form-group > .group-fields > .form-field,
     > .form-field {
+      flex:0 1 auto;
       //--------------------------------
       &.no-padding {padding:0;}
       //--------------------------------
@@ -170,7 +173,7 @@
         //------------------------------
       }
       //--------------------------------
-      &.as-desktop, &.as-tablet {
+      &.as-wide {
         @include flex-align-nowrap($ai:stretch,$ac:stretch);
         > .field-name  {
           @include flex-align-nowrap($ai:flex-start,$ac:flex-start);
@@ -200,7 +203,7 @@
         }
       }
       //------------------------
-      &.as-phone {
+      &.as-narrow {
         > .field-name {
           @include flex-align-nowrap;
           padding: SZ(4);

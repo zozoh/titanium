@@ -38,6 +38,13 @@ export default {
       height: 500
     })
   },
+  "newItemIdBy": {
+    type: [String, Object, Function]
+  },
+  "newItemIdKey": {
+    type: String,
+    default: "id"
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
