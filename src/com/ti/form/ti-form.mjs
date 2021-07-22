@@ -265,6 +265,7 @@ const _M = {
   methods: {
     //--------------------------------------------------
     OnClickTab(tab) {
+      //console.log("OnClickTab", tab)
       this.isEvalMeasure = this.currentTabIndex != tab.index
       this.currentTabIndex = tab.index
       this.$notify("tab:change", tab)
@@ -535,6 +536,12 @@ const _M = {
       let maxWidth = 0
       for (let $fldnm of $fldNames) {
         let rect = Ti.Rects.createBy($fldnm)
+        //
+        // Only one column
+        if(this.myFormColumHint >= 0 && this.myFormColumHint<=1) {
+          maxWidth = Math.ceil(Math.max(rect.width, maxWidth))
+          continue;
+        }
         // If in vertical group
         let $pp = $fldnm.parentElement.parentElement.parentElement
         if (Ti.Dom.hasClass($pp, "form-group")
@@ -572,6 +579,7 @@ const _M = {
     },
     //--------------------------------------------------
     adjustFieldsWidth(delay = this.adjustDelay) {
+      //console.log("adjustFieldsWidth", {delay})
       if (delay > 0) {
         _.delay(() => {
           this.__adjust_fields_width()
@@ -613,10 +621,17 @@ const _M = {
       this.currentTabIndex = index
     },
     "currentTabIndex": function (index) {
+      //console.log("currentTabIndex changed to", index)
       if (this.keepTabIndexBy) {
         Ti.Storage.session.set(this.keepTabIndexBy, index)
       }
       this.adjustFieldsWidth()
+      this.isEvalMeasure = false
+    },
+    "myFormColumHint": function(newVal, oldVal) {
+      if(newVal != oldVal) {
+        this.adjustFieldsWidth()
+      }
     }
   },
   //////////////////////////////////////////////////////

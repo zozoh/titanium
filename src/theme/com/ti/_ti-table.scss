@@ -286,8 +286,10 @@
         &.align-center > .cell-wrapper > .cell-con {justify-content: center;}
         &.align-right  > .cell-wrapper > .cell-con {justify-content: flex-end;}
         //-------------------------------------------
-        &.not-align  > .cell-wrapper > .cell-con > *:last-child {
-          flex:1 1 auto; width:10px;
+        &.not-align  > .cell-wrapper > .cell-con {
+          > .ti-label:last-child {
+            flex:1 1 auto; width:10px;
+          }
         }
         //-------------------------------------------
       } // .table-cell
