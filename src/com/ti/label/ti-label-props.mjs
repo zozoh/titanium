@@ -63,7 +63,7 @@ export default {
     default: undefined
   },
   "suffixText": {
-    type: String,
+    type: [String, Number],
     default: undefined
   },
   "suffixIcon": {

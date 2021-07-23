@@ -1,4 +1,4 @@
-// Pack At: 2021-07-22 18:53:13
+// Pack At: 2021-07-24 02:39:06
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -572,7 +572,7 @@ const {Be} = (function(){
       } else {
         _.assign(AR, {x:-1, y:-1}, _.pick(activedRadius, "x", "y"))
       }
-      //console.log(AR)
+      console.log(AR)
       //-----------------------------------------------
       const findBy = function($trigger, find, $dft) {
         if(_.isFunction(find)) {
@@ -658,8 +658,8 @@ const {Be} = (function(){
           this.y = y
           this.offsetX = 0
           this.offsetY = 0
-          this.movetX = 0
-          this.movetY = 0
+          this.moveX = 0
+          this.moveY = 0
           this.scaleX = 0
           this.scaleY = 0
         }
@@ -768,6 +768,7 @@ const {Be} = (function(){
     
           context.clientX = evt.clientX
           context.clientY = evt.clientY
+          context.$stopEvent = evt
     
           if(context.actived) {
             if(EVENTS.POINTER_CLICK) {
@@ -15998,7 +15999,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210722.185313",
+  "version" : "1.6-20210724.023906",
   "dev" : false,
   "appName" : null,
   "session" : {},

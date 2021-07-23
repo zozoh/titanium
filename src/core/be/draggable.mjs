@@ -35,7 +35,7 @@ function TiDraggable($el, setup={}) {
   } else {
     _.assign(AR, {x:-1, y:-1}, _.pick(activedRadius, "x", "y"))
   }
-  //console.log(AR)
+  console.log(AR)
   //-----------------------------------------------
   const findBy = function($trigger, find, $dft) {
     if(_.isFunction(find)) {
@@ -121,8 +121,8 @@ function TiDraggable($el, setup={}) {
       this.y = y
       this.offsetX = 0
       this.offsetY = 0
-      this.movetX = 0
-      this.movetY = 0
+      this.moveX = 0
+      this.moveY = 0
       this.scaleX = 0
       this.scaleY = 0
     }
@@ -231,6 +231,7 @@ function TiDraggable($el, setup={}) {
 
       context.clientX = evt.clientX
       context.clientY = evt.clientY
+      context.$stopEvent = evt
 
       if(context.actived) {
         if(EVENTS.POINTER_CLICK) {

@@ -1,4 +1,4 @@
-// Pack At: 2021-07-22 18:53:13
+// Pack At: 2021-07-24 02:39:06
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -24014,7 +24014,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default: undefined
   },
   "suffixText": {
-    type: String,
+    type: [String, Number],
     default: undefined
   },
   "suffixIcon": {
