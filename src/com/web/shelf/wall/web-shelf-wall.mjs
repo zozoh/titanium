@@ -14,8 +14,6 @@ const _M = {
       type : Array,
       default : undefined
     },
-    "showLoadMore" : Boolean,
-    "moreLoading" : Boolean,
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -30,6 +28,8 @@ const _M = {
         value: "=.."
       })
     },
+    "showLoadMore" : Boolean,
+    "moreLoading" : Boolean,
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -168,6 +168,18 @@ const _M = {
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    OnScroll() {
+      if(this.showLoadMore) {
+        let rev = Ti.Dom.pendingMoreWhenScrolling({
+          $view: this.$el,
+          $more: this.$refs.more
+        })
+        if(rev >= 1) {
+          this.$notify("load:more")
+        }
+      }
+    },
     //--------------------------------------
     OnWallResize() {
       this.$nextTick(()=>{

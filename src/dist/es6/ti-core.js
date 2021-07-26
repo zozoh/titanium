@@ -1,4 +1,4 @@
-// Pack At: 2021-07-26 21:09:47
+// Pack At: 2021-07-27 02:16:59
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -572,7 +572,6 @@ const {Be} = (function(){
       } else {
         _.assign(AR, {x:-1, y:-1}, _.pick(activedRadius, "x", "y"))
       }
-      console.log(AR)
       //-----------------------------------------------
       const findBy = function($trigger, find, $dft) {
         if(_.isFunction(find)) {
@@ -4738,6 +4737,39 @@ const {Dom} = (function(){
       }
       let fontSize = $doc.documentElement.style.fontSize || "100px"
       return Ti.Css.toAbsPixel(fontSize)
+    },
+    //----------------------------------------------------
+    /*
+    Regiest this method to "scroll" event handler
+    Each time it be call, it will return a value (0-1), to indicate
+    how many percent the more expost in view port
+  
+    +---------------------+
+    |                     |
+    |                     |
+    |                     |
+    |  +---------------+  |  <- 
+    |  |               |  |  Percent
+    +---------------------+
+       |               |
+       +---------------+
+    */
+    pendingMoreWhenScrolling({$view, $more}={}) {
+      if(!_.isElement($view) || !_.isElement($more)) {
+        return
+      }
+      // Get the more position
+      let view  = Ti.Rects.createBy($view)
+      let vwBottom = view.bottom
+  
+      let more = Ti.Rects.createBy($more)
+      let mrTop = more.top
+      let mrBottom = more.bottom
+      let bottom = Math.min(vwBottom, mrBottom)
+      let h = Math.max(bottom - mrTop, 0)
+      let rev = h / more.height
+      //console.log(rev, {vwBottom, mrTop, mrBottom})
+      return rev
     },
     //----------------------------------------------------
     /**
@@ -16008,7 +16040,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210726.210947",
+  "version" : "1.6-20210727.021659",
   "dev" : false,
   "appName" : null,
   "session" : {},

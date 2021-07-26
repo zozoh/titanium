@@ -1,4 +1,4 @@
-// Pack At: 2021-07-26 21:09:47
+// Pack At: 2021-07-27 02:16:59
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -17354,7 +17354,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Prepare the obj
       let obj = Ti.Dom.attrs($el, (key) => {
         if (key.startsWith("wn-obj-")) {
-          return key.substring(7)
+          return _.camelCase(key.substring(7))
         }
       })
       // Eval the src
@@ -17385,7 +17385,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Prepare the obj
       let obj = Ti.Dom.attrs($el, (key) => {
         if (key.startsWith("wn-obj-")) {
-          return key.substring(7)
+          return _.camelCase(key.substring(7))
         }
       })
       // Eval the src
@@ -17418,9 +17418,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Prepare the obj
       let obj = Ti.Dom.attrs($el, (key) => {
         if (key.startsWith("wn-obj-")) {
-          return key.substring(7)
+          return _.camelCase(key.substring(7))
         }
       })
+      console.log(obj)
       // Eval the src
       let src = Ti.WWW.evalObjPreviewSrc(obj, {
         previewKey: "..",
@@ -24271,8 +24272,6 @@ const _M = {
       type : Array,
       default : undefined
     },
-    "showLoadMore" : Boolean,
-    "moreLoading" : Boolean,
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -24287,6 +24286,8 @@ const _M = {
         value: "=.."
       })
     },
+    "showLoadMore" : Boolean,
+    "moreLoading" : Boolean,
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -24425,6 +24426,18 @@ const _M = {
   },
   //////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    OnScroll() {
+      if(this.showLoadMore) {
+        let rev = Ti.Dom.pendingMoreWhenScrolling({
+          $view: this.$el,
+          $more: this.$refs.more
+        })
+        if(rev >= 1) {
+          this.$notify("load:more")
+        }
+      }
+    },
     //--------------------------------------
     OnWallResize() {
       this.$nextTick(()=>{
@@ -67856,7 +67869,8 @@ Ti.Preload("ti/com/web/shelf/slide/_com.json", {
 // JOIN <web-shelf-wall.html> ti/com/web/shelf/wall/web-shelf-wall.html
 //========================================
 Ti.Preload("ti/com/web/shelf/wall/web-shelf-wall.html", `<div class="web-shelf-wall"
-  :class="TopClass">
+  :class="TopClass"
+  @scroll="OnScroll">
   <!--
     Loading
   -->
@@ -67901,10 +67915,11 @@ Ti.Preload("ti/com/web/shelf/wall/web-shelf-wall.html", `<div class="web-shelf-w
   <!--
     Show load more
   -->
-  <div
+  <div ref="more"
     v-if="showLoadMore"
       class="as-load-more">
-      <div class="as-load-more-btn"
+      <div ref="moreBtn"
+        class="as-load-more-btn"
         @click.left="OnClickLoadMore">
         <span class="as-icon"><TiIcon :value="LoadingMoreBtn.icon"/></span>
         <span class="as-text">{{LoadingMoreBtn.text | i18n}}</span>

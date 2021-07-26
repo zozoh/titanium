@@ -883,6 +883,39 @@ const TiDom = {
     return Ti.Css.toAbsPixel(fontSize)
   },
   //----------------------------------------------------
+  /*
+  Regiest this method to "scroll" event handler
+  Each time it be call, it will return a value (0-1), to indicate
+  how many percent the more expost in view port
+
+  +---------------------+
+  |                     |
+  |                     |
+  |                     |
+  |  +---------------+  |  <- 
+  |  |               |  |  Percent
+  +---------------------+
+     |               |
+     +---------------+
+  */
+  pendingMoreWhenScrolling({$view, $more}={}) {
+    if(!_.isElement($view) || !_.isElement($more)) {
+      return
+    }
+    // Get the more position
+    let view  = Ti.Rects.createBy($view)
+    let vwBottom = view.bottom
+
+    let more = Ti.Rects.createBy($more)
+    let mrTop = more.top
+    let mrBottom = more.bottom
+    let bottom = Math.min(vwBottom, mrBottom)
+    let h = Math.max(bottom - mrTop, 0)
+    let rev = h / more.height
+    //console.log(rev, {vwBottom, mrTop, mrBottom})
+    return rev
+  },
+  //----------------------------------------------------
   /**
    * Retrive Current window scrollbar size
    */

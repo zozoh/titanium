@@ -136,7 +136,7 @@ export default {
       // Prepare the obj
       let obj = Ti.Dom.attrs($el, (key) => {
         if (key.startsWith("wn-obj-")) {
-          return key.substring(7)
+          return _.camelCase(key.substring(7))
         }
       })
       // Eval the src
@@ -167,7 +167,7 @@ export default {
       // Prepare the obj
       let obj = Ti.Dom.attrs($el, (key) => {
         if (key.startsWith("wn-obj-")) {
-          return key.substring(7)
+          return _.camelCase(key.substring(7))
         }
       })
       // Eval the src
@@ -200,9 +200,10 @@ export default {
       // Prepare the obj
       let obj = Ti.Dom.attrs($el, (key) => {
         if (key.startsWith("wn-obj-")) {
-          return key.substring(7)
+          return _.camelCase(key.substring(7))
         }
       })
+      console.log(obj)
       // Eval the src
       let src = Ti.WWW.evalObjPreviewSrc(obj, {
         previewKey: "..",

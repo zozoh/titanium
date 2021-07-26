@@ -35,7 +35,6 @@ function TiDraggable($el, setup={}) {
   } else {
     _.assign(AR, {x:-1, y:-1}, _.pick(activedRadius, "x", "y"))
   }
-  console.log(AR)
   //-----------------------------------------------
   const findBy = function($trigger, find, $dft) {
     if(_.isFunction(find)) {
