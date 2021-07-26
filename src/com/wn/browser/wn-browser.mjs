@@ -1,46 +1,49 @@
 export default {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    myList  : [],
-    myPager : {},
+  data: () => ({
+    myList: [],
+    myPager: {},
     /*{filter: {}, sorter: {ct: -1}}*/
-    mySearch : {},
-    myCurrentId : undefined
+    mySearch: {},
+    myCurrentId: undefined
   }),
   ////////////////////////////////////////////////////
-  props : {
+  props: {
     //------------------------------------------------
     // Data
     //------------------------------------------------
-    "meta" : {
-      type : Object
+    "meta": {
+      type: Object
     },
-    "data" : {
-      type : Object
+    "data": {
+      type: Object
     },
-    "search" : {
-      type : Object
+    "search": {
+      type: Object
     },
-    "status" : {
-      type : Object,
-      default : ()=>({})
+    "status": {
+      type: Object,
+      default: () => ({})
+    },
+    "currentId": {
+      type: String,
     },
     //------------------------------------------------
     // Behavior
     //------------------------------------------------
-    "autoSelect" : {
-      type : Boolean,
-      default : false
+    "autoSelect": {
+      type: Boolean,
+      default: false
     },
-    "multi" : {
-      type : Boolean
+    "multi": {
+      type: Boolean
     },
-    "reloadBy" : {
-      type : [String, Function],
-      default : "main/query"
+    "reloadBy": {
+      type: [String, Function],
+      default: "main/query"
     },
-    "viewType" : String,
-    "exposeHidden" : Boolean,
+    "viewType": String,
+    "exposeHidden": Boolean,
     // TODO ... need to apply those settins below
     // in __on_events
     // "notifyName" : {
@@ -57,15 +60,15 @@ export default {
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
-    "tableFields" : undefined,
-    "listDisplay" : undefined,
-    "filter" : {
-      type : Object,
-      default : ()=>({
-        comType : "WnThingFilter",
-        comConf : {
-          "placeholder" : "i18n:filter",
-          "status" : "=status",
+    "tableFields": undefined,
+    "listDisplay": undefined,
+    "filter": {
+      type: Object,
+      default: () => ({
+        comType: "WnThingFilter",
+        comConf: {
+          "placeholder": "i18n:filter",
+          "status": "=status",
           "value": "=mySearch",
           "sorter": {
             "options": [
@@ -76,131 +79,140 @@ export default {
         }
       })
     },
-    "list" : {
-      type : Object,
-      default : ()=>({
-        comType : "WnAdaptlist",
-        comConf : {
-          "meta" : "=meta",
-          "data" : {
-            list : "=myList",
-            pager : "=myPager"
+    "list": {
+      type: Object,
+      default: () => ({
+        comType: "WnAdaptlist",
+        comConf: {
+          "meta": "=meta",
+          "currentId": "=currentId",
+          "data": {
+            list: "=myList",
+            pager: "=myPager"
           },
-          "multi" : "=multi",
-          "status" : "=status"
+          "multi": "=multi",
+          "status": "=status"
         }
       })
     },
-    "itemClassName" : {
-      type : String
+    "itemClassName": {
+      type: String
     },
-    "itemBadges" : {
-      type : [Object, Function]
+    "itemBadges": {
+      type: [Object, Function]
     },
-    "pager" : {
-      type : Object,
-      default : ()=>({
-        comType : "TiPagingJumper",
-        comConf : {
-          "value" : "=myPager",
-          "valueType" : "longName"
+    "pager": {
+      type: Object,
+      default: () => ({
+        comType: "TiPagingJumper",
+        comConf: {
+          "value": "=myPager",
+          "valueType": "longName"
         }
       })
     },
-    "detail" : {
-      type : Object,
-      default : ()=>({
-        comType : "TiLabel",
-        comConf : {
-          "value" : "I am detail"
+    "detail": {
+      type: Object,
+      default: () => ({
+        comType: "TiLabel",
+        comConf: {
+          "value": "I am detail"
         }
       })
+    },
+    "leftBlock": {
+      type: Object,
+      default: () => ({})
+    },
+    "detailBlock": {
+      type: Object,
+      default: () => ({})
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return this.getTopClass()
     },
     //------------------------------------------------
-    ComFilter() {return Ti.Util.explainObj(this, this.filter)},
+    ComFilter() { return Ti.Util.explainObj(this, this.filter) },
     ComList() {
       let com = Ti.Util.explainObj(this, this.list)
       _.merge(com, {
-        comConf : {
-          onInit : this.OnListInit,
+        comConf: {
+          onInit: this.OnListInit,
           itemClassName: this.itemClassName,
           itemBadges: this.itemBadges,
-          viewType : this.viewType,
-          exposeHidden : this.exposeHidden,
-          tableFields : this.tableFields,
-          listDisplay : this.listDisplay
+          viewType: this.viewType,
+          exposeHidden: this.exposeHidden,
+          tableFields: this.tableFields,
+          listDisplay: this.listDisplay
         }
       })
       return com
     },
-    ComPager() {return Ti.Util.explainObj(this, this.pager)},
-    ComDetail() {return Ti.Util.explainObj(this, this.detail)},
+    ComPager() { return Ti.Util.explainObj(this, this.pager) },
+    ComDetail() { return Ti.Util.explainObj(this, this.detail) },
     //------------------------------------------------
     TheLayout() {
       let left = []
-      if(this.ComFilter) {
+      if (this.ComFilter) {
         left.push({
-          name : "filter",
-          size : 43,
-          body : "filter"
+          name: "filter",
+          size: 43,
+          body: "filter"
         })
       }
       left.push({
-        name : "list",
-        size : "stretch",
-        overflow : "cover",
-        body : "list"
+        name: "list",
+        size: "stretch",
+        overflow: "cover",
+        body: "list"
       })
-      if(this.ComPager) {
+      if (this.ComPager) {
         left.push({
-          name : "pager",
-          size : "auto",
-          body : "pager"
+          name: "pager",
+          size: "auto",
+          body: "pager"
         })
       }
-      if(this.ComDetail) {
+      if (this.ComDetail) {
         return {
-          type : "cols",
+          type: "cols",
           border: true,
-          blocks: [{
-              type : "rows",
-              size : "61.8%",
-              border : true,
-              blocks : left
-            }, {
-              name : "detail",
-              size : "38.2%",
-              body : "detail"
-            }]
+          blocks: [_.assign({
+            size: "61.8%",
+            border: true,
+          }, this.leftBlock, {
+            type: "rows",
+            blocks: left
+          }), _.assign({}, this.detailBlock, {
+            name: "detail",
+            body: "detail"
+          })]
         }
       }
       return {
-        type : "rows",
-        size : "61.8%",
-        blocks : left
+        type: "rows",
+        size: "61.8%",
+        blocks: left
       }
     },
     //------------------------------------------------
     TheSchema() {
       return {
-        filter : this.ComFilter,
-        list   : this.ComList,
-        pager  : this.ComPager,
-        detail : this.ComDetail
+        filter: this.ComFilter,
+        list: this.ComList,
+        pager: this.ComPager,
+        detail: this.ComDetail
       }
     },
     //------------------------------------------------
     CurrentObj() {
-      if(this.myCurrentId && _.isArray(this.myList)) {
-        for(let li of this.myList) {
-          if(li.id == this.myCurrentId) {
+      if (this.myCurrentId && _.isArray(this.myList)) {
+        for (let li of this.myList) {
+          if (li.id == this.myCurrentId) {
             return li
           }
         }
@@ -209,41 +221,41 @@ export default {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     OnListInit($adaptlist) {
       this.$adaptlist = $adaptlist
     },
     //------------------------------------------------
     OnFilterChange(filter) {
-      this.reload({filter, pager:{pageNumber:1}})
+      this.reload({ filter, pager: { pageNumber: 1 } })
     },
     //------------------------------------------------
     OnSorterChange(sorter) {
-      this.reload({sorter, pager:{pageNumber:1}})
+      this.reload({ sorter, pager: { pageNumber: 1 } })
     },
     //------------------------------------------------
     OnPagerChange(pager) {
-      this.reload({pager})
+      this.reload({ pager })
     },
     //------------------------------------------------
     OnListViewTypeChange() {
-      return {name:"listviewtype:change", stop:false}
+      return { name: "listviewtype:change", stop: false }
     },
     //------------------------------------------------
-    OnSelectItem({currentId}) {
+    OnSelectItem({ currentId }) {
       this.myCurrentId = currentId
-      return {name:"select", stop:false}
+      return { name: "select", stop: false }
     },
     //------------------------------------------------
     doAutoSelectItem() {
       // Guard
-      if(!this.autoSelect) 
+      if (!this.autoSelect)
         return
       // Try the last current Id
-      if(this.myCurrentId) {
+      if (this.myCurrentId) {
         let row = this.$adaptlist.findRowById(this.myCurrentId)
-        if(row) {
+        if (row) {
           this.selectItem(row.id)
           return
         }
@@ -252,14 +264,14 @@ export default {
       this.selectItemByIndex(0)
     },
     //------------------------------------------------
-    async reload({filter, sorter, pager}={}) {
-      if(_.isString(this.reloadBy)) {
+    async reload({ filter, sorter, pager } = {}) {
+      if (_.isString(this.reloadBy)) {
         return await Ti.App(this).dispatch(this.reloadBy, {
           filter, sorter, pager
         })
       }
       // Customized reloading
-      return await this.reloadBy({filter, sorter, pager})
+      return await this.reloadBy({ filter, sorter, pager })
     },
     //------------------------------------------------
     // Delegate methods
@@ -311,34 +323,34 @@ export default {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
+  watch: {
     //------------------------------------------------
-    "data" : {
-      handler : function(newVal, oldVal) {
-        if(_.isUndefined(oldVal) || !_.isEqual(newVal, oldVal)) {
+    "data": {
+      handler: function (newVal, oldVal) {
+        if (_.isUndefined(oldVal) || !_.isEqual(newVal, oldVal)) {
           this.myList = _.get(this.data, "list")
           this.myPager = _.get(this.data, "pager")
-          this.$nextTick(()=>{
-            _.delay(()=>{
+          this.$nextTick(() => {
+            _.delay(() => {
               this.doAutoSelectItem()
             }, 100)
           })
         }
       },
-      immediate : true
+      immediate: true
     },
-    "search" : {
-      handler : function() {
+    "search": {
+      handler: function () {
         this.mySearch = _.cloneDeep(this.search)
       },
-      immediate : true
+      immediate: true
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  mounted : function() {
-    this.$nextTick(()=>{
-      _.delay(()=>{
+  mounted: function () {
+    this.$nextTick(() => {
+      _.delay(() => {
         this.doAutoSelectItem()
       }, 100)
     })

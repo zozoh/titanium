@@ -7,6 +7,61 @@ function getKeepSearchAs(state) {
 ////////////////////////////////////////////
 const _M = {
   //----------------------------------------
+  async updateCurrentMeta({ dispatch }, { name, value }) {
+    if (name) {
+      await dispatch("updateCurrentMetas", {
+        [name]: value
+      })
+    }
+  },
+  //----------------------------------------
+  async updateCurrentMetas({ state, commit }, data = {}) {
+    //console.log("I will update current by", data)
+    if (state.data && state.currentId && !_.isEmpty(data)) {
+      // Get current 
+      let current = _.find(state.data.list, ({ id }) => id == state.currentId)
+      //console.log("find current", current)
+      // Check Necessary
+      if (_.isMatchWith(current, data, _.isEqual)) {
+        return
+      }
+
+      // Mark field status
+      _.forEach(data, (val, name) => {
+        commit("setFieldStatus", { name, type: "spinning", text: "i18n:saving" })
+      })
+
+      // Save current meta field
+      let json = JSON.stringify(data)
+      let id = current.id
+      let cmdText = `o id:${id} @update @json -cqn`
+      let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+      let isError = reo instanceof Error;
+
+      // Update state
+      if (!isError && !Ti.Util.isNil(reo)) {
+        commit("setDataItem", reo)
+      }
+
+      _.forEach(data, (val, name) => {
+        if (isError) {
+          commit("setFieldStatus", {
+            name,
+            type: "warn",
+            text: reo.message || "i18n:fail"
+          })
+        } else {
+          commit("setFieldStatus", {
+            name,
+            type: "ok",
+            text: "i18n:ok"
+          })
+          _.delay(() => { commit("clearFieldStatus", name) }, 500)
+        }
+      })
+    }
+  },
+  //----------------------------------------
   saveSearchSetting({ state, commit }, { filter, sorter, pager } = {}) {
     if (filter) {
       commit("setFilter", filter)

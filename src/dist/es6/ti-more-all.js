@@ -1,4 +1,4 @@
-// Pack At: 2021-07-24 02:39:06
+// Pack At: 2021-07-26 21:09:47
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -25637,8 +25637,9 @@ const OBJ = {
         await this._run("reload")
 
         // Make it checked
-        this.myCheckedIds = [newMeta.id]
-        this.myCurrentId = newMeta.id
+        // this.myCheckedIds = [newMeta.id]
+        // this.myCurrentId = newMeta.id
+        this.$innerList.selectRow(newMeta.id)
       }
     }  // ~ if(newName)
   },
@@ -27278,14 +27279,16 @@ const _M = {
       this.doLogout()
     },
     //--------------------------------------
-    OnArenaSelect({checked}) {
-      //console.log("OnArenaSelect", checked)
+    OnArenaSelect(payload={}) {
+      let {checked} = payload
+      //console.log("OnArenaSelect", this.view)
       let n = _.size(checked)
       if(n > 0) {
         this.myIndicator = `${n} selected`
       } else {
         this.myIndicator = null
       }
+      this.__on_events("arena::select", payload)
     },
     //--------------------------------------
     OnCurrentMetaChange({id, path, value}={}) {
@@ -31455,14 +31458,14 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/obj-children/m-obj-children.mjs'] = (function(){
 //----------------------------------------
-function UpsertDataItemAt(state, newItem, atPos=1) {
+function UpsertDataItemAt(state, newItem, atPos = 1) {
   // Guard
-  if(_.isEmpty(newItem) || !newItem || !newItem.id) {
+  if (_.isEmpty(newItem) || !newItem || !newItem.id) {
     return
   }
   // Batch upsert
-  if(_.isArray(newItem)) {
-    for(let it of newItem) {
+  if (_.isArray(newItem)) {
+    for (let it of newItem) {
       UpsertDataItemAt(state, it, atTail)
     }
     return
@@ -31470,42 +31473,42 @@ function UpsertDataItemAt(state, newItem, atPos=1) {
   // upsert one
   let data = state.data
   // Update pager list item of data
-  if(_.isArray(data.list) && data.pager) {
+  if (_.isArray(data.list) && data.pager) {
     let list = _.cloneDeep(data.list)
     let list2 = []
     let found = false
-    for(let li of list) {
-      if(!found && (li.id == newItem.id || li.nm == newItem.nm)) {
+    for (let li of list) {
+      if (!found && (li.id == newItem.id || li.nm == newItem.nm)) {
         list2.push(newItem)
         found = true
       } else {
         list2.push(li)
       }
     }
-    if(!found) {
-      if(atPos>0) {
+    if (!found) {
+      if (atPos > 0) {
         list2.push(newItem)
-      } else if (atPos<0){
+      } else if (atPos < 0) {
         list2 = _.concat(newItem, list2)
       }
     }
     state.data = {
       list: list2,
-      pager : data.pager
+      pager: data.pager
     }
   }
   // Just insert
   else {
     state.data = {
       list: newItems,
-      pager : data.pager
+      pager: data.pager
     }
   }
 }
 //////////////////////////////////////////////
 const _M = {
   ////////////////////////////////////////////
-  mutations : {
+  mutations: {
     //----------------------------------------
     setMeta(state, meta) {
       state.meta = meta
@@ -31538,21 +31541,21 @@ const _M = {
       state.sorter = _.cloneDeep(sorter)
     },
     //----------------------------------------
-    setPager(state, {pageNumber, pageSize}={}) {
-      if(_.isNumber(pageNumber)) {
-        state.pageNumber =  pageNumber
+    setPager(state, { pageNumber, pageSize } = {}) {
+      if (_.isNumber(pageNumber)) {
+        state.pageNumber = pageNumber
       }
-      if(_.isNumber(pageSize)) {
-        state.pageSize =  pageSize
+      if (_.isNumber(pageSize)) {
+        state.pageSize = pageSize
       }
     },
     //----------------------------------------
-    setPageNumber(state, pageNumber=1) {
-      state.pageNumber =  pageNumber
+    setPageNumber(state, pageNumber = 1) {
+      state.pageNumber = pageNumber
     },
     //----------------------------------------
-    setPageSize(state, pageSize=100) {
-      state.pageSize =  pageSize
+    setPageSize(state, pageSize = 100) {
+      state.pageSize = pageSize
     },
     //----------------------------------------
     setStatus(state, status) {
@@ -31571,38 +31574,69 @@ const _M = {
       UpsertDataItemAt(state, newItem, 0)
     },
     //----------------------------------------
-    removeDataItems(state, items=[]) {
-      let data = state.data
-      // Build Id Map
-      if(!_.isArray(items)) {
-        items = [items]
+    mergeDataItem(state, theItem) {
+      // Update pager list item of data
+      if (state.currentId && _.isArray(state.data.list)) {
+        let data = _.cloneDeep(state.data)
+        for (let li of data.list) {
+          if (state.currentId == li.id) {
+            _.assign(li, theItem)
+          }
+        state.data = data
       }
-      let idMap = {}
-      _.forEach(items, it=>{
-        if(_.isString(it)) {
-          idMap[it] = true
-        } else if(it.id) {
-          idMap[it.id] = true
+    }
+  },
+  //----------------------------------------
+  removeDataItems(state, items = []) {
+    let data = state.data
+    // Build Id Map
+    if (!_.isArray(items)) {
+      items = [items]
+    }
+    let idMap = {}
+    _.forEach(items, it => {
+      if (_.isString(it)) {
+        idMap[it] = true
+      } else if (it.id) {
+        idMap[it.id] = true
+      }
+    })
+    if (_.isArray(data.list) && data.pager && !_.isEmpty(idMap)) {
+      let list = []
+      _.forEach(data.list, li => {
+        if (!idMap[li.id]) {
+          list.push(li)
         }
       })
-      if(_.isArray(data.list) && data.pager && !_.isEmpty(idMap)) {
-        let list = []
-        _.forEach(data.list, li=>{
-          if(!idMap[li.id]) {
-            list.push(li)
-          }
-        })
-        state.data = {
-          list, pager: data.pager
-        }
+      state.data = {
+        list, pager: data.pager
       }
-    },
-    //----------------------------------------
-    setData(state, data) {
-      state.data = data
     }
-    //----------------------------------------
-  }
+  },
+  //----------------------------------------
+  setData(state, data) {
+    state.data = data
+  },
+  //----------------------------------------
+  setFieldStatus(state, {name, type, text}={}) {
+    if(name){
+      let ukey = _.concat(name).join("-")
+      Vue.set(state.fieldStatus, ukey, {type, text})
+    }
+  },
+  //----------------------------------------
+  clearFieldStatus(state, names=[]) {
+    // Clean All
+    if(_.isEmpty(names)) {
+      state.fieldStatus = {}
+    }
+    // Clear one
+    else {
+      state.fieldStatus = _.omit(state.fieldStatus, names)
+    }
+  },
+  //----------------------------------------
+}
   ////////////////////////////////////////////
 }
 return _M;;
@@ -34621,6 +34655,7 @@ const _M = {
     //--------------------------------------
     evalCardMeasure(rect = this.myRect) {
       // Eval the card width & height
+      //console.log("evalCardMeasure")
       let remBase = Ti.Dom.getRemBase(this.$el)
       let cdW = Ti.Css.toAbsPixel(this.cardWidth, {
         base: rect.width, remBase
@@ -34737,6 +34772,12 @@ const _M = {
     "myRect": "evalMyDisplayCards",
     "data": "evalMyDisplayCards",
     "myCurrentIndex": "evalMyDisplayCards",
+    "cardWidth": function() {
+      this.evalCardMeasure()
+    },
+    "cardHeight": function() {
+      this.evalCardMeasure()
+    },
     "currentIndex": {
       handler: function (newVal) {
         this.myCurrentIndex = newVal
@@ -42666,6 +42707,61 @@ function getKeepSearchAs(state) {
 ////////////////////////////////////////////
 const _M = {
   //----------------------------------------
+  async updateCurrentMeta({ dispatch }, { name, value }) {
+    if (name) {
+      await dispatch("updateCurrentMetas", {
+        [name]: value
+      })
+    }
+  },
+  //----------------------------------------
+  async updateCurrentMetas({ state, commit }, data = {}) {
+    //console.log("I will update current by", data)
+    if (state.data && state.currentId && !_.isEmpty(data)) {
+      // Get current 
+      let current = _.find(state.data.list, ({ id }) => id == state.currentId)
+      //console.log("find current", current)
+      // Check Necessary
+      if (_.isMatchWith(current, data, _.isEqual)) {
+        return
+      }
+
+      // Mark field status
+      _.forEach(data, (val, name) => {
+        commit("setFieldStatus", { name, type: "spinning", text: "i18n:saving" })
+      })
+
+      // Save current meta field
+      let json = JSON.stringify(data)
+      let id = current.id
+      let cmdText = `o id:${id} @update @json -cqn`
+      let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+      let isError = reo instanceof Error;
+
+      // Update state
+      if (!isError && !Ti.Util.isNil(reo)) {
+        commit("setDataItem", reo)
+      }
+
+      _.forEach(data, (val, name) => {
+        if (isError) {
+          commit("setFieldStatus", {
+            name,
+            type: "warn",
+            text: reo.message || "i18n:fail"
+          })
+        } else {
+          commit("setFieldStatus", {
+            name,
+            type: "ok",
+            text: "i18n:ok"
+          })
+          _.delay(() => { commit("clearFieldStatus", name) }, 500)
+        }
+      })
+    }
+  },
+  //----------------------------------------
   saveSearchSetting({ state, commit }, { filter, sorter, pager } = {}) {
     if (filter) {
       commit("setFilter", filter)
@@ -48967,23 +49063,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "data" : {
-    type : Object,
-    default : undefined
+  "data": {
+    type: Object,
+    default: undefined
   },
-  "fields" : {
-    type : Array,
-    default : ()=>[]
+  "fields": {
+    type: Array,
+    default: () => []
   },
-  "fieldStatus" : {
-    type : Object,
-    default : ()=>({})
+  "fieldStatus": {
+    type: Object,
+    default: () => ({})
   },
   // "extendFunctionSet" : {
   //   type : Object,
   //   default : undefined
   // },
-  "onlyFields" : {
+  "onlyFields": {
     type: Boolean,
     default: true
   },
@@ -48992,113 +49088,113 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Object,
     default: undefined
   },
-  "defaultFieldType" : {
-    type : String,
-    default : "String"
+  "defaultFieldType": {
+    type: String,
+    default: "String"
   },
-  "linkFields" : {
-    type : Object,
-    default : undefined
+  "linkFields": {
+    type: Object,
+    default: undefined
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "keepTabIndexBy" : {
-    type : String,
-    default : undefined
+  "keepTabIndexBy": {
+    type: String,
+    default: undefined
   },
-  "defaultComType" : {
-    type : String,
-    default : "ti-label"
+  "defaultComType": {
+    type: String,
+    default: "ti-label"
   },
-  "autoShowBlank" : {
-    type : Boolean,
-    default : undefined
+  "autoShowBlank": {
+    type: Boolean,
+    default: undefined
   },
-  "currentTab" : {
-    type : Number,
-    default : 0
+  "currentTab": {
+    type: Number,
+    default: 0
   },
-  "adjustDelay" : {
-    type : Number,
-    default : 0
+  "adjustDelay": {
+    type: Number,
+    default: 0
   },
   "autoColummGrid": {
-    type : [Boolean, Array],
+    type: [Boolean, Array],
     default: true
   },
   "maxColumnHint": {
-    type : Number,
+    type: Number,
     default: 3
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
   "bodyClass": {
-    type : [String, Object, Array]
+    type: [String, Object, Array]
   },
   "defaultGroupClass": {
-    type : [String, Object, Array]
+    type: [String, Object, Array]
   },
-  "mode" : {
-    type : String,
-    default : "all",
-    validator : (val)=>/^(all|tab)$/.test(val)
+  "mode": {
+    type: String,
+    default: "all",
+    validator: (val) => /^(all|tab)$/.test(val)
   },
-  "screenMode" : {
-    type : String,
-    default : "auto",
-    validator : (val)=>/^(auto|desktop|tablet|phone)$/.test(val)
+  "screenMode": {
+    type: String,
+    default: "auto",
+    validator: (val) => /^(auto|desktop|tablet|phone)$/.test(val)
   },
-  "tabAt" : {
-    type : String,
-    default : "top-center",
-    validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
+  "tabAt": {
+    type: String,
+    default: "top-center",
+    validator: (v) => /^(top|bottom)-(left|center|right)$/.test(v)
   },
   "fieldBorder": {
-    type : String,
-    default : "bottom",
-    validator : (v)=>/^(none|top|bottom)$/.test(v)
+    type: String,
+    default: "bottom",
+    validator: (v) => /^(none|top|bottom)$/.test(v)
   },
-  "blankAs" : {
-    type : Object,
-    default : ()=>({
-      icon : "fab-deezer",
-      text : "i18n:empty"
+  "blankAs": {
+    type: Object,
+    default: () => ({
+      icon: "fab-deezer",
+      text: "i18n:empty"
     })
   },
-  "icon" : {
-    type : String,
-    default : undefined
+  "icon": {
+    type: String,
+    default: undefined
   },
-  "title" : {
-    type : String,
-    default : undefined
+  "title": {
+    type: String,
+    default: undefined
   },
-  "statusIcons" : {
-    type : Object,
-    default : ()=>({
-      spinning : 'fas-spinner fa-spin',
-      error    : 'zmdi-alert-polygon',
-      warn     : 'zmdi-alert-triangle',
-      ok       : 'zmdi-check-circle',
+  "statusIcons": {
+    type: Object,
+    default: () => ({
+      spinning: 'fas-spinner fa-spin',
+      error: 'zmdi-alert-polygon',
+      warn: 'zmdi-alert-triangle',
+      ok: 'zmdi-check-circle',
     })
   },
-  "spacing" : {
-    type : String,
-    default : "comfy",
-    validator : v => /^(comfy|tiny)$/.test(v)
+  "spacing": {
+    type: String,
+    default: "comfy",
+    validator: v => /^(comfy|tiny)$/.test(v)
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "width" : {
-    type : [Number, String],
-    default : undefined
+  "width": {
+    type: [Number, String],
+    default: undefined
   },
-  "height" : {
-    type : [Number, String],
-    default : undefined
+  "height": {
+    type: [Number, String],
+    default: undefined
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -49884,47 +49980,50 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/wn/browser/wn-browser.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    myList  : [],
-    myPager : {},
+  data: () => ({
+    myList: [],
+    myPager: {},
     /*{filter: {}, sorter: {ct: -1}}*/
-    mySearch : {},
-    myCurrentId : undefined
+    mySearch: {},
+    myCurrentId: undefined
   }),
   ////////////////////////////////////////////////////
-  props : {
+  props: {
     //------------------------------------------------
     // Data
     //------------------------------------------------
-    "meta" : {
-      type : Object
+    "meta": {
+      type: Object
     },
-    "data" : {
-      type : Object
+    "data": {
+      type: Object
     },
-    "search" : {
-      type : Object
+    "search": {
+      type: Object
     },
-    "status" : {
-      type : Object,
-      default : ()=>({})
+    "status": {
+      type: Object,
+      default: () => ({})
+    },
+    "currentId": {
+      type: String,
     },
     //------------------------------------------------
     // Behavior
     //------------------------------------------------
-    "autoSelect" : {
-      type : Boolean,
-      default : false
+    "autoSelect": {
+      type: Boolean,
+      default: false
     },
-    "multi" : {
-      type : Boolean
+    "multi": {
+      type: Boolean
     },
-    "reloadBy" : {
-      type : [String, Function],
-      default : "main/query"
+    "reloadBy": {
+      type: [String, Function],
+      default: "main/query"
     },
-    "viewType" : String,
-    "exposeHidden" : Boolean,
+    "viewType": String,
+    "exposeHidden": Boolean,
     // TODO ... need to apply those settins below
     // in __on_events
     // "notifyName" : {
@@ -49941,15 +50040,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
-    "tableFields" : undefined,
-    "listDisplay" : undefined,
-    "filter" : {
-      type : Object,
-      default : ()=>({
-        comType : "WnThingFilter",
-        comConf : {
-          "placeholder" : "i18n:filter",
-          "status" : "=status",
+    "tableFields": undefined,
+    "listDisplay": undefined,
+    "filter": {
+      type: Object,
+      default: () => ({
+        comType: "WnThingFilter",
+        comConf: {
+          "placeholder": "i18n:filter",
+          "status": "=status",
           "value": "=mySearch",
           "sorter": {
             "options": [
@@ -49960,131 +50059,140 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
       })
     },
-    "list" : {
-      type : Object,
-      default : ()=>({
-        comType : "WnAdaptlist",
-        comConf : {
-          "meta" : "=meta",
-          "data" : {
-            list : "=myList",
-            pager : "=myPager"
+    "list": {
+      type: Object,
+      default: () => ({
+        comType: "WnAdaptlist",
+        comConf: {
+          "meta": "=meta",
+          "currentId": "=currentId",
+          "data": {
+            list: "=myList",
+            pager: "=myPager"
           },
-          "multi" : "=multi",
-          "status" : "=status"
+          "multi": "=multi",
+          "status": "=status"
         }
       })
     },
-    "itemClassName" : {
-      type : String
+    "itemClassName": {
+      type: String
     },
-    "itemBadges" : {
-      type : [Object, Function]
+    "itemBadges": {
+      type: [Object, Function]
     },
-    "pager" : {
-      type : Object,
-      default : ()=>({
-        comType : "TiPagingJumper",
-        comConf : {
-          "value" : "=myPager",
-          "valueType" : "longName"
+    "pager": {
+      type: Object,
+      default: () => ({
+        comType: "TiPagingJumper",
+        comConf: {
+          "value": "=myPager",
+          "valueType": "longName"
         }
       })
     },
-    "detail" : {
-      type : Object,
-      default : ()=>({
-        comType : "TiLabel",
-        comConf : {
-          "value" : "I am detail"
+    "detail": {
+      type: Object,
+      default: () => ({
+        comType: "TiLabel",
+        comConf: {
+          "value": "I am detail"
         }
       })
+    },
+    "leftBlock": {
+      type: Object,
+      default: () => ({})
+    },
+    "detailBlock": {
+      type: Object,
+      default: () => ({})
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return this.getTopClass()
     },
     //------------------------------------------------
-    ComFilter() {return Ti.Util.explainObj(this, this.filter)},
+    ComFilter() { return Ti.Util.explainObj(this, this.filter) },
     ComList() {
       let com = Ti.Util.explainObj(this, this.list)
       _.merge(com, {
-        comConf : {
-          onInit : this.OnListInit,
+        comConf: {
+          onInit: this.OnListInit,
           itemClassName: this.itemClassName,
           itemBadges: this.itemBadges,
-          viewType : this.viewType,
-          exposeHidden : this.exposeHidden,
-          tableFields : this.tableFields,
-          listDisplay : this.listDisplay
+          viewType: this.viewType,
+          exposeHidden: this.exposeHidden,
+          tableFields: this.tableFields,
+          listDisplay: this.listDisplay
         }
       })
       return com
     },
-    ComPager() {return Ti.Util.explainObj(this, this.pager)},
-    ComDetail() {return Ti.Util.explainObj(this, this.detail)},
+    ComPager() { return Ti.Util.explainObj(this, this.pager) },
+    ComDetail() { return Ti.Util.explainObj(this, this.detail) },
     //------------------------------------------------
     TheLayout() {
       let left = []
-      if(this.ComFilter) {
+      if (this.ComFilter) {
         left.push({
-          name : "filter",
-          size : 43,
-          body : "filter"
+          name: "filter",
+          size: 43,
+          body: "filter"
         })
       }
       left.push({
-        name : "list",
-        size : "stretch",
-        overflow : "cover",
-        body : "list"
+        name: "list",
+        size: "stretch",
+        overflow: "cover",
+        body: "list"
       })
-      if(this.ComPager) {
+      if (this.ComPager) {
         left.push({
-          name : "pager",
-          size : "auto",
-          body : "pager"
+          name: "pager",
+          size: "auto",
+          body: "pager"
         })
       }
-      if(this.ComDetail) {
+      if (this.ComDetail) {
         return {
-          type : "cols",
+          type: "cols",
           border: true,
-          blocks: [{
-              type : "rows",
-              size : "61.8%",
-              border : true,
-              blocks : left
-            }, {
-              name : "detail",
-              size : "38.2%",
-              body : "detail"
-            }]
+          blocks: [_.assign({
+            size: "61.8%",
+            border: true,
+          }, this.leftBlock, {
+            type: "rows",
+            blocks: left
+          }), _.assign({}, this.detailBlock, {
+            name: "detail",
+            body: "detail"
+          })]
         }
       }
       return {
-        type : "rows",
-        size : "61.8%",
-        blocks : left
+        type: "rows",
+        size: "61.8%",
+        blocks: left
       }
     },
     //------------------------------------------------
     TheSchema() {
       return {
-        filter : this.ComFilter,
-        list   : this.ComList,
-        pager  : this.ComPager,
-        detail : this.ComDetail
+        filter: this.ComFilter,
+        list: this.ComList,
+        pager: this.ComPager,
+        detail: this.ComDetail
       }
     },
     //------------------------------------------------
     CurrentObj() {
-      if(this.myCurrentId && _.isArray(this.myList)) {
-        for(let li of this.myList) {
-          if(li.id == this.myCurrentId) {
+      if (this.myCurrentId && _.isArray(this.myList)) {
+        for (let li of this.myList) {
+          if (li.id == this.myCurrentId) {
             return li
           }
         }
@@ -50093,41 +50201,41 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     OnListInit($adaptlist) {
       this.$adaptlist = $adaptlist
     },
     //------------------------------------------------
     OnFilterChange(filter) {
-      this.reload({filter, pager:{pageNumber:1}})
+      this.reload({ filter, pager: { pageNumber: 1 } })
     },
     //------------------------------------------------
     OnSorterChange(sorter) {
-      this.reload({sorter, pager:{pageNumber:1}})
+      this.reload({ sorter, pager: { pageNumber: 1 } })
     },
     //------------------------------------------------
     OnPagerChange(pager) {
-      this.reload({pager})
+      this.reload({ pager })
     },
     //------------------------------------------------
     OnListViewTypeChange() {
-      return {name:"listviewtype:change", stop:false}
+      return { name: "listviewtype:change", stop: false }
     },
     //------------------------------------------------
-    OnSelectItem({currentId}) {
+    OnSelectItem({ currentId }) {
       this.myCurrentId = currentId
-      return {name:"select", stop:false}
+      return { name: "select", stop: false }
     },
     //------------------------------------------------
     doAutoSelectItem() {
       // Guard
-      if(!this.autoSelect) 
+      if (!this.autoSelect)
         return
       // Try the last current Id
-      if(this.myCurrentId) {
+      if (this.myCurrentId) {
         let row = this.$adaptlist.findRowById(this.myCurrentId)
-        if(row) {
+        if (row) {
           this.selectItem(row.id)
           return
         }
@@ -50136,14 +50244,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.selectItemByIndex(0)
     },
     //------------------------------------------------
-    async reload({filter, sorter, pager}={}) {
-      if(_.isString(this.reloadBy)) {
+    async reload({ filter, sorter, pager } = {}) {
+      if (_.isString(this.reloadBy)) {
         return await Ti.App(this).dispatch(this.reloadBy, {
           filter, sorter, pager
         })
       }
       // Customized reloading
-      return await this.reloadBy({filter, sorter, pager})
+      return await this.reloadBy({ filter, sorter, pager })
     },
     //------------------------------------------------
     // Delegate methods
@@ -50195,34 +50303,34 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
+  watch: {
     //------------------------------------------------
-    "data" : {
-      handler : function(newVal, oldVal) {
-        if(_.isUndefined(oldVal) || !_.isEqual(newVal, oldVal)) {
+    "data": {
+      handler: function (newVal, oldVal) {
+        if (_.isUndefined(oldVal) || !_.isEqual(newVal, oldVal)) {
           this.myList = _.get(this.data, "list")
           this.myPager = _.get(this.data, "pager")
-          this.$nextTick(()=>{
-            _.delay(()=>{
+          this.$nextTick(() => {
+            _.delay(() => {
               this.doAutoSelectItem()
             }, 100)
           })
         }
       },
-      immediate : true
+      immediate: true
     },
-    "search" : {
-      handler : function() {
+    "search": {
+      handler: function () {
         this.mySearch = _.cloneDeep(this.search)
       },
-      immediate : true
+      immediate: true
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  mounted : function() {
-    this.$nextTick(()=>{
-      _.delay(()=>{
+  mounted: function () {
+    this.$nextTick(() => {
+      _.delay(() => {
         this.doAutoSelectItem()
       }, 100)
     })
@@ -70978,7 +71086,8 @@ Ti.Preload("ti/mod/wn/obj-children/m-obj-children.json", {
   "pageSize": 1000,
   "status": {
     "reloading": false
-  }
+  },
+  "fieldStatus": {}
 });
 //========================================
 // JOIN <m-obj-children.mjs> ti/mod/wn/obj-children/m-obj-children.mjs

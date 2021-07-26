@@ -1,4 +1,4 @@
-// Pack At: 2021-07-24 02:39:06
+// Pack At: 2021-07-26 21:09:47
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -7012,6 +7012,9 @@ const {AutoMatch} = (function(){
       if(input["$Undefined"]) {
         return UndefinedMatch(input["$Undefined"])
       }
+      if(input["$Type"]) {
+        return TypeMatch(input["$Type"])
+      }
       // General Map Match
       return MapMatch(input);
     }
@@ -7205,6 +7208,12 @@ const {AutoMatch} = (function(){
   function NotMatch(m) {
     return function(input) {
       return !m(input)
+    }
+  }
+  function TypeMatch(input) {
+    let expectType = input
+    return val => {
+      return expectType == (typeof val)
     }
   }
   function ParallelMatch(...ms) {
@@ -15999,7 +16008,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210724.023906",
+  "version" : "1.6-20210726.210947",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -36,6 +36,9 @@ function DoAutoMatch(input) {
     if(input["$Undefined"]) {
       return UndefinedMatch(input["$Undefined"])
     }
+    if(input["$Type"]) {
+      return TypeMatch(input["$Type"])
+    }
     // General Map Match
     return MapMatch(input);
   }
@@ -229,6 +232,12 @@ function UndefinedMatch(input) {
 function NotMatch(m) {
   return function(input) {
     return !m(input)
+  }
+}
+function TypeMatch(input) {
+  let expectType = input
+  return val => {
+    return expectType == (typeof val)
   }
 }
 function ParallelMatch(...ms) {

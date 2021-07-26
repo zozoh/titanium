@@ -1,12 +1,12 @@
 //----------------------------------------
-function UpsertDataItemAt(state, newItem, atPos=1) {
+function UpsertDataItemAt(state, newItem, atPos = 1) {
   // Guard
-  if(_.isEmpty(newItem) || !newItem || !newItem.id) {
+  if (_.isEmpty(newItem) || !newItem || !newItem.id) {
     return
   }
   // Batch upsert
-  if(_.isArray(newItem)) {
-    for(let it of newItem) {
+  if (_.isArray(newItem)) {
+    for (let it of newItem) {
       UpsertDataItemAt(state, it, atTail)
     }
     return
@@ -14,42 +14,42 @@ function UpsertDataItemAt(state, newItem, atPos=1) {
   // upsert one
   let data = state.data
   // Update pager list item of data
-  if(_.isArray(data.list) && data.pager) {
+  if (_.isArray(data.list) && data.pager) {
     let list = _.cloneDeep(data.list)
     let list2 = []
     let found = false
-    for(let li of list) {
-      if(!found && (li.id == newItem.id || li.nm == newItem.nm)) {
+    for (let li of list) {
+      if (!found && (li.id == newItem.id || li.nm == newItem.nm)) {
         list2.push(newItem)
         found = true
       } else {
         list2.push(li)
       }
     }
-    if(!found) {
-      if(atPos>0) {
+    if (!found) {
+      if (atPos > 0) {
         list2.push(newItem)
-      } else if (atPos<0){
+      } else if (atPos < 0) {
         list2 = _.concat(newItem, list2)
       }
     }
     state.data = {
       list: list2,
-      pager : data.pager
+      pager: data.pager
     }
   }
   // Just insert
   else {
     state.data = {
       list: newItems,
-      pager : data.pager
+      pager: data.pager
     }
   }
 }
 //////////////////////////////////////////////
 const _M = {
   ////////////////////////////////////////////
-  mutations : {
+  mutations: {
     //----------------------------------------
     setMeta(state, meta) {
       state.meta = meta
@@ -82,21 +82,21 @@ const _M = {
       state.sorter = _.cloneDeep(sorter)
     },
     //----------------------------------------
-    setPager(state, {pageNumber, pageSize}={}) {
-      if(_.isNumber(pageNumber)) {
-        state.pageNumber =  pageNumber
+    setPager(state, { pageNumber, pageSize } = {}) {
+      if (_.isNumber(pageNumber)) {
+        state.pageNumber = pageNumber
       }
-      if(_.isNumber(pageSize)) {
-        state.pageSize =  pageSize
+      if (_.isNumber(pageSize)) {
+        state.pageSize = pageSize
       }
     },
     //----------------------------------------
-    setPageNumber(state, pageNumber=1) {
-      state.pageNumber =  pageNumber
+    setPageNumber(state, pageNumber = 1) {
+      state.pageNumber = pageNumber
     },
     //----------------------------------------
-    setPageSize(state, pageSize=100) {
-      state.pageSize =  pageSize
+    setPageSize(state, pageSize = 100) {
+      state.pageSize = pageSize
     },
     //----------------------------------------
     setStatus(state, status) {
@@ -115,38 +115,69 @@ const _M = {
       UpsertDataItemAt(state, newItem, 0)
     },
     //----------------------------------------
-    removeDataItems(state, items=[]) {
-      let data = state.data
-      // Build Id Map
-      if(!_.isArray(items)) {
-        items = [items]
+    mergeDataItem(state, theItem) {
+      // Update pager list item of data
+      if (state.currentId && _.isArray(state.data.list)) {
+        let data = _.cloneDeep(state.data)
+        for (let li of data.list) {
+          if (state.currentId == li.id) {
+            _.assign(li, theItem)
+          }
+        state.data = data
       }
-      let idMap = {}
-      _.forEach(items, it=>{
-        if(_.isString(it)) {
-          idMap[it] = true
-        } else if(it.id) {
-          idMap[it.id] = true
+    }
+  },
+  //----------------------------------------
+  removeDataItems(state, items = []) {
+    let data = state.data
+    // Build Id Map
+    if (!_.isArray(items)) {
+      items = [items]
+    }
+    let idMap = {}
+    _.forEach(items, it => {
+      if (_.isString(it)) {
+        idMap[it] = true
+      } else if (it.id) {
+        idMap[it.id] = true
+      }
+    })
+    if (_.isArray(data.list) && data.pager && !_.isEmpty(idMap)) {
+      let list = []
+      _.forEach(data.list, li => {
+        if (!idMap[li.id]) {
+          list.push(li)
         }
       })
-      if(_.isArray(data.list) && data.pager && !_.isEmpty(idMap)) {
-        let list = []
-        _.forEach(data.list, li=>{
-          if(!idMap[li.id]) {
-            list.push(li)
-          }
-        })
-        state.data = {
-          list, pager: data.pager
-        }
+      state.data = {
+        list, pager: data.pager
       }
-    },
-    //----------------------------------------
-    setData(state, data) {
-      state.data = data
     }
-    //----------------------------------------
-  }
+  },
+  //----------------------------------------
+  setData(state, data) {
+    state.data = data
+  },
+  //----------------------------------------
+  setFieldStatus(state, {name, type, text}={}) {
+    if(name){
+      let ukey = _.concat(name).join("-")
+      Vue.set(state.fieldStatus, ukey, {type, text})
+    }
+  },
+  //----------------------------------------
+  clearFieldStatus(state, names=[]) {
+    // Clean All
+    if(_.isEmpty(names)) {
+      state.fieldStatus = {}
+    }
+    // Clear one
+    else {
+      state.fieldStatus = _.omit(state.fieldStatus, names)
+    }
+  },
+  //----------------------------------------
+}
   ////////////////////////////////////////////
 }
 export default _M;

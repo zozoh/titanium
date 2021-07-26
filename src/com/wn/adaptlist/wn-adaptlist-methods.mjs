@@ -80,8 +80,9 @@ const OBJ = {
         await this._run("reload")
 
         // Make it checked
-        this.myCheckedIds = [newMeta.id]
-        this.myCurrentId = newMeta.id
+        // this.myCheckedIds = [newMeta.id]
+        // this.myCurrentId = newMeta.id
+        this.$innerList.selectRow(newMeta.id)
       }
     }  // ~ if(newName)
   },

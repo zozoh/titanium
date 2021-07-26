@@ -32,6 +32,34 @@
         &.at-sw {@include pos-abs($b:$bdgPad, $l:$bdgPad);}
         &.at-se {@include pos-abs($b:$bdgPad, $r:$bdgPad);}
         //----------------------------------------
+        &.as-label-10 {opacity: 0.1;}
+        &.as-label-20 {opacity: 0.2;}
+        &.as-label-30 {opacity: 0.3;}
+        &.as-label-40 {opacity: 0.4;}
+        &.as-label-50 {opacity: 0.5;}
+        &.as-label-60 {opacity: 0.6;}
+        &.as-label-70 {opacity: 0.7;}
+        &.as-label-80 {opacity: 0.8;}
+        &.as-label-90 {opacity: 0.9;}
+        //----------------------------------------
+        &.as-circle {
+          @include flex-center;
+          border-radius: 50%; overflow: hidden;
+          height: SZ(18); line-height: SZ(18);
+          min-width: SZ(18); font-size: SZ(10);
+        }
+        //----------------------------------------
+        &.is-primary  { @include color($color-primary, r, c);} 
+        &.is-secondary{ @include color($color-secondary, r, c);} 
+        &.is-success  { @include color($color-success, r, c);}
+        &.is-warn     { @include color($color-warn, r, c);}
+        &.is-info     { @include color($color-info, r, c);}
+        &.is-error    { @include color($color-error, r, c);}
+        &.is-track    { @include color($color-track, r, c);}  
+        &.is-disable  { @include color($color-disable, r, c);}
+        &.is-text     { @include color($color-text, r, c);}   
+        &.is-number   { @include color($color-number, r, c);} 
+        //----------------------------------------
       }
       //------------------------------------------
     }

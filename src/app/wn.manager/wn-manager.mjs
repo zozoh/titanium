@@ -194,14 +194,16 @@ const _M = {
       this.doLogout()
     },
     //--------------------------------------
-    OnArenaSelect({checked}) {
-      //console.log("OnArenaSelect", checked)
+    OnArenaSelect(payload={}) {
+      let {checked} = payload
+      //console.log("OnArenaSelect", this.view)
       let n = _.size(checked)
       if(n > 0) {
         this.myIndicator = `${n} selected`
       } else {
         this.myIndicator = null
       }
+      this.__on_events("arena::select", payload)
     },
     //--------------------------------------
     OnCurrentMetaChange({id, path, value}={}) {

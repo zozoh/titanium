@@ -29,5 +29,6 @@
   "pageSize": 1000,
   "status": {
     "reloading": false
-  }
+  },
+  "fieldStatus": {}
 }

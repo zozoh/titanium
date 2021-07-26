@@ -195,6 +195,7 @@ const _M = {
     //--------------------------------------
     evalCardMeasure(rect = this.myRect) {
       // Eval the card width & height
+      //console.log("evalCardMeasure")
       let remBase = Ti.Dom.getRemBase(this.$el)
       let cdW = Ti.Css.toAbsPixel(this.cardWidth, {
         base: rect.width, remBase
@@ -311,6 +312,12 @@ const _M = {
     "myRect": "evalMyDisplayCards",
     "data": "evalMyDisplayCards",
     "myCurrentIndex": "evalMyDisplayCards",
+    "cardWidth": function() {
+      this.evalCardMeasure()
+    },
+    "cardHeight": function() {
+      this.evalCardMeasure()
+    },
     "currentIndex": {
       handler: function (newVal) {
         this.myCurrentIndex = newVal

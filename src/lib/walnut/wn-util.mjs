@@ -203,6 +203,7 @@ const WnUtil = {
       }
       // Auto match badge
       else if(_.isPlainObject(BD) && BD.value) {
+        //console.log("haha", BD)
         if(BD.test && !Ti.AutoMatch.test(BD.test, meta)) {
           return
         }

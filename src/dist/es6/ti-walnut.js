@@ -1,4 +1,4 @@
-// Pack At: 2021-07-24 02:39:06
+// Pack At: 2021-07-26 21:09:47
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1853,6 +1853,7 @@ const Util = (function(){
         }
         // Auto match badge
         else if(_.isPlainObject(BD) && BD.value) {
+          //console.log("haha", BD)
           if(BD.test && !Ti.AutoMatch.test(BD.test, meta)) {
             return
           }
@@ -4024,7 +4025,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210724.023906"
+const WALNUT_VERSION = "1.2-20210726.210947"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
