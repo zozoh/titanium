@@ -137,16 +137,22 @@ const _M = {
       }
     },
     //---------------------------------------
-    // Main Modules
+    // Modules
+    //---------------------------------------
+    RootState() {
+      return this.$store.state
+    },
     //---------------------------------------
     Main() {
       return this.$store.state.main
     },
     MainData() {return _.get(this.Main, "data")},
     MainContent() {return _.get(this.Main, "content")},
+    //---------------------------------------
     Current() {
       return this.$store.state.current
     },
+    //---------------------------------------
     Axis() {
       return this.$store.state.axis
     },

@@ -5,6 +5,15 @@
   &.is-blank {
     @include noselect;
     opacity: 0.4;
+    &.hide-blank {
+      display: none; 
+    }
+  }
+  //-----------------------------------------
+  &.is-nil-display {
+    &.hide-nil {
+      display: none;
+    }
   }
   //-----------------------------------------
   &.is-break-line {

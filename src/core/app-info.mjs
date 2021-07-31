@@ -193,6 +193,9 @@ function __assemble_linked_obj(
 export function LoadTiLinkedObj(input, {
   dynamicPrefix, dynamicAlias
 }={}) { 
+  if(_.isEmpty(input)) {
+    return {}
+  }
   return new Promise((resolve, reject)=>{
     // Prapare the loading table
     // And register a callback function

@@ -35,9 +35,9 @@ const _M = {
       editor.session.setValue(this.value || "")
 
       // Events
-      editor.session.on("change", (delta)=>{
-        console.log(delta)
-      })
+      // editor.session.on("change", (delta)=>{
+      //   console.log(delta)
+      // })
 
       // Save instance
       this.$editor = editor
@@ -57,7 +57,7 @@ const _M = {
       }
     },
     "value" : function(newVal){
-      this.editor.session.setValue(newVal || "")
+      this.$editor.session.setValue(newVal || "")
     }
   },
   ///////////////////////////////////////////////////

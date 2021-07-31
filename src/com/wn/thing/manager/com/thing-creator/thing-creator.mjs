@@ -1,3 +1,5 @@
+import _M from "../../../../../../app/wn.manager/wn-manager.mjs"
+
 export default {
   ///////////////////////////////////////////
   data : ()=>({
@@ -14,9 +16,9 @@ export default {
       type : Object,
       default : ()=>({})
     },
-    "onlyFields" : {
-      type: Boolean,
-      default: false
+    "form": {
+      type : Object,
+      default : ()=>({})
     },
     "fixed": {
       type: Object,
@@ -27,6 +29,12 @@ export default {
   computed: {
     TheData() {
       return this.myData || this.data
+    },
+    TheForm() {
+      return _.assign({
+        onlyFields: false,
+        adjustDelay: 0
+      }, this.form)
     }
   },
   ///////////////////////////////////////////

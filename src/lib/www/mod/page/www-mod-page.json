@@ -12,6 +12,7 @@
   "params" : {},
   "anchor" : null,
   "apis" : {},
+  "moduleNames": [],
   "data" : {},
   "gui" : {
     "flex" : "nil",

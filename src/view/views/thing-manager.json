@@ -2,6 +2,7 @@
   "comIcon": "fas-cubes",
   "comType": "@com:wn/thing/manager",
   "comConf": {
+    "rootState": "=RootState",
     "...": "=Main"
   },
   "modType": "@mod:wn/thing",

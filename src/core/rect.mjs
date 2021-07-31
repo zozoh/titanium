@@ -314,8 +314,6 @@ export class Rect {
     else {
         nW = w;
         nH = h;
-        x = 0;
-        y = 0;
     }
 
     this.width  = nW;

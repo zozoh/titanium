@@ -660,6 +660,10 @@ const _M = {
     //--------------------------------------------------
     this.$nextTick(() => {
       this.__adjust_fields_width()
+      _.delay(()=>{
+        this.evalCoumnHint()
+        this.evalFormFieldList()
+      }, this.adjustDelay)
     })
     //--------------------------------------------------
   },

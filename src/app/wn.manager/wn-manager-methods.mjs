@@ -36,24 +36,9 @@ const _M = {
       //..................................
       // Load the main view
       let viewInfo = await Wn.Sys.exec2(cmdText, { as: "json" })
-      let { modState, modSetup } = viewInfo;
       let $app = Ti.App(this)
-      let view = await $app.loadView(viewInfo, {
-        setupMod: (moConf) => {
-          //console.log("setup:", moConf)
-          _.assign(moConf.state, modState)
-          if (modSetup) {
-            let setupFunc = Ti.Util.genInvoking(modSetup, {
-              dft: null,
-              partial: "right"
-            })
-            if (_.isFunction(setupFunc)) {
-              return setupFunc({ moConf, meta, viewInfo })
-            }
-          }
-          return moConf
-        }
-      })
+      let view = await $app.loadView(viewInfo)
+      //console.log("after loadView", view)
       //..................................
       if (Ti.IsInfo("app/wn.manager")) {
         console.log("TiView Loaded:", view)
@@ -71,6 +56,9 @@ const _M = {
       //..................................
       // register main module
       if (view && view.modType) {
+        //
+        // Main module
+        //
         if (this.view && this.view.modType) {
           this.$store.unregisterModule("main")
           this.$store.registerModule("main", view.mod)
@@ -80,6 +68,21 @@ const _M = {
           //console.log("regiest modType", view.modType)
           this.$store.registerModule("main", view.mod)
         }
+        // 
+        // Extends modules
+        //
+        if(this.view && !_.isEmpty(this.view.modules)) {
+          for(let moName in this.view.modules) {
+            this.$store.unregisterModule(moName)
+          }
+        }
+        if(view && view.modules) {
+          for(let moName in view.modules) {
+            let mod = view.modules[moName]
+            this.$store.registerModule(moName, mod)
+          }
+        }
+
         // Reload mod data
         await $app.dispatch("main/reload", meta)
       }

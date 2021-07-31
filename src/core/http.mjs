@@ -111,7 +111,7 @@ const TiHttp = {
         } 
         // if declare body, the params -> query string
         // you can send XML/JSON by this branch
-        else if(body) {
+        else if(!Ti.Util.isNil(body)) {
           return {
             urlToSend : [url,TiHttp.encodeFormData(params)].join("?"),
             sendData  : body

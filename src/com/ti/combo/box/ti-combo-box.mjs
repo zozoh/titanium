@@ -76,7 +76,7 @@ const _M = {
     topStyle() {
       let width;
       if(this.keepWidthWhenDrop)
-        width = this.box.width
+        width = Ti.Util.fallback(this.box.width, this.width)
       let height = this.box.height
       return Ti.Css.toStyle({width, height})
     },

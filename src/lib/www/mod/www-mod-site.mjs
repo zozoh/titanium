@@ -1,31 +1,31 @@
 const _M = {
   ////////////////////////////////////////////////
-  getters : {
+  getters: {
     //--------------------------------------------
     // Pre-compiled Site Routers
     routerList(state) {
       let list = []
       _.forEach(state.router, ({
-        match, names=[], page={}
-      }={})=>{
+        match, names = [], page = {}
+      } = {}) => {
         let regex = new RegExp(match)
         // Pre-compiled
-        let li = function(path){
+        let li = function (path) {
           let m = regex.exec(path)
           // Match page
-          if(m) {
+          if (m) {
             // Build Context
             let context = {}
-            for(let i=0; i<m.length; i++) {
+            for (let i = 0; i < m.length; i++) {
               let val = m[i]
               context[i] = val
               let key = _.nth(names, i)
-              if(key) {
+              if (key) {
                 _.set(context, key, val)
               }
             }
             // Render page info
-            return Ti.Util.explainObj(context, page)        
+            return Ti.Util.explainObj(context, page)
           }
         }
 
@@ -37,9 +37,9 @@ const _M = {
     //--------------------------------------------
     globalApis(state) {
       return Ti.WWW.hydrateApi({
-        base : state.apiBase,
-        siteApis : state.apis,
-        apis : state.global
+        base: state.apiBase,
+        siteApis: state.apis,
+        apis: state.global
       })
     },
     //--------------------------------------------
@@ -50,37 +50,37 @@ const _M = {
       let map = _.cloneDeep(state.actions)
 
       // Evalue the actions
-      map = _.mapValues(map, (val)=>
+      map = _.mapValues(map, (val) =>
         _.isString(val)
-          ? {action:val}
+          ? { action: val }
           : val)
-      
+
       // Merge action set with the defination in page
       let page = state.page
-      if(page) {
-        _.forEach(page.actions, (val, key)=>{
+      if (page) {
+        _.forEach(page.actions, (val, key) => {
           let act = val
           // format val
-          if(_.isString(val)) {
-            act = {action : val}
+          if (_.isString(val)) {
+            act = { action: val }
           }
 
           // do merge
           let gAction = map[key]
           // Array+?
-          if(_.isArray(gAction)) {
+          if (_.isArray(gAction)) {
             // Array+Array
-            if(_.isArray(act)) {
-              if(act.length > 0) {
+            if (_.isArray(act)) {
+              if (act.length > 0) {
                 // Concat Array
-                if("+" == act[0]) {
-                  for(let z=1;z<act.length;z++) {
+                if ("+" == act[0]) {
+                  for (let z = 1; z < act.length; z++) {
                     gAction.push(act[z])
                   }
                 }
                 // Replace Array
                 else {
-                  map[key] = act      
+                  map[key] = act
                 }
               }
             }
@@ -99,14 +99,14 @@ const _M = {
     },
     //--------------------------------------------
     getUrl(state) {
-      return (path)=>{
+      return (path) => {
         return Ti.Util.appendPath(state.base, path)
       }
     },
     //--------------------------------------------
     getApiUrl(state) {
-      return (path)=>{
-        if(path.startsWith("/")) {
+      return (path) => {
+        if (path.startsWith("/")) {
           return path
         }
         return Ti.Util.appendPath(state.apiBase, path)
@@ -115,7 +115,7 @@ const _M = {
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
-  mutations : {
+  mutations: {
     //--------------------------------------------
     setSiteId(state, siteId) {
       state.siteId = siteId
@@ -123,8 +123,8 @@ const _M = {
     //--------------------------------------------
     setDomain(state, domain) {
       state.domain = domain
-      state.base = Ti.S.renderBy(state.base||"/www/${domain}/", {domain})
-      state.apiBase = Ti.S.renderBy(state.apiBase||"/api/${domain}/", {domain})
+      state.base = Ti.S.renderBy(state.base || "/www/${domain}/", { domain })
+      state.apiBase = Ti.S.renderBy(state.apiBase || "/api/${domain}/", { domain })
     },
     //--------------------------------------------
     setLang(state, lang) {
@@ -134,8 +134,8 @@ const _M = {
     },
     //--------------------------------------------
     explainNav(state) {
-      if(state.nav) {
-        if(!state.__nav_input) {
+      if (state.nav) {
+        if (!state.__nav_input) {
           state.__nav_input = _.cloneDeep(state.nav)
         }
         state.nav = Ti.Util.explainObj(state, state.__nav_input)
@@ -143,8 +143,8 @@ const _M = {
     },
     //--------------------------------------------
     explainVars(state) {
-      if(state.vars) {
-        if(!state.__vars_input) {
+      if (state.vars) {
+        if (!state.__vars_input) {
           state.__vars_input = _.cloneDeep(state.vars)
         }
         state.vars = Ti.Util.explainObj(state, state.__vars_input)
@@ -155,9 +155,9 @@ const _M = {
       state.data = data
     },
     //--------------------------------------------
-    updateData(state, {key, value}={}) {
+    updateData(state, { key, value } = {}) {
       // kay-value pair is required
-      if(!key || _.isUndefined(value)) {
+      if (!key || _.isUndefined(value)) {
         return
       }
       let vobj = _.set({}, key, value)
@@ -165,8 +165,8 @@ const _M = {
     },
     //--------------------------------------------
     // key support path like "a.b.c"
-    updateDataBy(state, {key, value}) {
-      if(!key || _.isUndefined(value)) {
+    updateDataBy(state, { key, value }) {
+      if (!key || _.isUndefined(value)) {
         return
       }
       let data = _.cloneDeep(state.data)
@@ -180,30 +180,30 @@ const _M = {
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
-  actions : {
+  actions: {
     //--------------------------------------------
-    async __run_gloabl_api({commit, dispatch, state}, {
-      api, 
-      vars, 
-      params, 
-      headers, 
+    async __run_gloabl_api({ commit, dispatch, state }, {
+      api,
+      vars,
+      params,
+      headers,
       body,
-      ok, fail}) {
+      ok, fail }) {
       //.....................................  
       await Ti.WWW.runApiAndPrcessReturn(state, api, {
-        vars, 
-        params, 
-        headers, 
-        body, 
+        vars,
+        params,
+        headers,
+        body,
         dispatch,
         ok, fail,
-        mergeData : function(payload) {
+        mergeData: function (payload) {
           commit("mergeData", payload)
         },
-        updateData : function(payload) {
+        updateData: function (payload) {
           commit("updateData", payload)
         },
-        doAction : async function(at) {
+        doAction: async function (at) {
           await dispatch("doAction", at)
         }
       })
@@ -212,37 +212,37 @@ const _M = {
     /***
      * Reload page data by given api keys
      */
-    async reloadGlobalData({state, commit, getters, dispatch}, keys=[]) {
+    async reloadGlobalData({ state, commit, getters, dispatch }, keys = []) {
       commit("setLoading", true)
-      
+
       let apis = []
-      for(let key of keys) {
+      for (let key of keys) {
         let api = _.get(getters.globalApis, key)
-        if(!api) {
+        if (!api) {
           continue;
         }
         //console.log("  # -> page.reloadData -> prepareApi", api)
-        if(api.preloadWhen) {
-          if(!Ti.AutoMatch.test(api.preloadWhen, state)) {
+        if (api.preloadWhen) {
+          if (!Ti.AutoMatch.test(api.preloadWhen, state)) {
             continue;
           }
         }
-        apis.push(dispatch("__run_gloabl_api", {api}))
+        apis.push(dispatch("__run_gloabl_api", { api }))
       }
-      if(!_.isEmpty(apis)) {
+      if (!_.isEmpty(apis)) {
         await Promise.all(apis)
       }
       commit("setLoading", false)
     },
     //--------------------------------------------
     navBackward() {
-      if(window.history) {
+      if (window.history) {
         window.history.back()
       }
     },
     //--------------------------------------------
-    async openUrl({state}, {
-      url, target="_self", method="GET", params={}, delay=0
+    async openUrl({ state }, {
+      url, target = "_self", method = "GET", params = {}, delay = 0
     }) {
       await Ti.Be.Open(url, {
         target, method, params, delay
@@ -250,19 +250,19 @@ const _M = {
     },
     //--------------------------------------------
     // Only handle the "page|dispatch"
-    async navTo({commit, dispatch}, {
-      type="page",
+    async navTo({ commit, dispatch }, {
+      type = "page",
       value,    // page path
       anchor,   // page anchor
       data,     // page.data
       params    // page.params
-    }={}) {
+    } = {}) {
       //console.log("navToPage::", value)
       // Guarding
-      if(!value)
+      if (!value)
         return
       // navTo::page
-      if("page" == type) {
+      if ("page" == type) {
         commit("setLoading", true)
 
         // maybe value is  full url with query string and hash
@@ -274,17 +274,17 @@ const _M = {
         // Reload
         //console.log("@page:reload ...", _.cloneDeep(state.auth))
         await dispatch("page/reload", href)
-        
+
         commit("setLoading", false)
         commit("explainNav")
         commit("explainVars")
       }
       // navTo::invoke
-      else if("invoke" == type) {
+      else if ("invoke" == type) {
         await dispatch(value, params)
       }
       // navTo::mutation
-      else if("mutation" == type) {
+      else if ("mutation" == type) {
         await commit(value, params)
       }
     },
@@ -307,24 +307,24 @@ const _M = {
      * 
      * @return {void}
      */
-    async doAction({dispatch, state}, AT){
+    async doAction({ dispatch, state }, AT) {
       // Guard nil
-      if(!AT) {
+      if (!AT) {
         return
       }
       //console.log("doAction", AT)
       //....................................
       // Raw function
       //....................................
-      if(_.isFunction(AT)) {
+      if (_.isFunction(AT)) {
         return await AT()
       }
 
       // Fire another action
-      if(AT.fire) {
-        let {name, args, memo} = AT
+      if (AT.fire) {
+        let { name, args, memo } = AT
         // Guard for Infinite recursion
-        if(_.indexOf(memo, name) >= 0) {
+        if (_.indexOf(memo, name) >= 0) {
           console.warn("May Infinite recursion invokeAction", {
             name, args, memo
           })
@@ -332,14 +332,14 @@ const _M = {
         }
         // Prepare to call another action
         memo.push(name)
-        try{
+        try {
           //console.log("fire At", AT)
           let args2 = Ti.Util.explainObj(state, args)
           await dispatch("invokeAction", {
             name, args: args2, memo
           })
         }
-        catch(E) {
+        catch (E) {
           console.warn(`Fail to doAction[${name}]`, {
             name, args, memo
           })
@@ -348,52 +348,52 @@ const _M = {
         finally {
           memo.pop()
         }
-        return 
+        return
       }
 
       //....................................
       // Combo: [F(), args] or [{action}, args]
       //....................................
-      if(_.isArray(AT) && AT.length == 2) {
+      if (_.isArray(AT) && AT.length == 2) {
         let actn = AT[0]
         let args = AT[1]
         // Make sure it is not batch action call
-        if(args && !args.action && !_.isFunction(args)) {
+        if (args && !args.action && !_.isFunction(args)) {
           // Force args to array
-          if(!_.isUndefined(args) && !_.isArray(args)) {
+          if (!_.isUndefined(args) && !_.isArray(args)) {
             args = [args]
           }
           // Normlize action form
-          if(_.isFunction(actn)) {
+          if (_.isFunction(actn)) {
             AT = {
               action: actn,
               args
             }
           }
           // Grouping Action
-          else if(_.isArray(actn)) {
+          else if (_.isArray(actn)) {
             AT = []
-            for(let an of actn) {
-              AT.push(_.assign({}, an, {args}))
+            for (let an of actn) {
+              AT.push(_.assign({}, an, { args }))
             }
           }
           // Merge
           else {
-            AT = _.assign({}, actn, {args})
+            AT = _.assign({}, actn, { args })
           }
         }
       }
       //....................................
       // String
-      if(_.isString(AT)) {
-        AT = {action: AT}
+      if (_.isString(AT)) {
+        AT = { action: AT }
       }
 
       //....................................
       // Groupping
-      if(_.isArray(AT)) {
-        for(let a of AT) {
-          await dispatch("runAction", a)  
+      if (_.isArray(AT)) {
+        for (let a of AT) {
+          await dispatch("runAction", a)
         }
       }
       // Run action
@@ -402,28 +402,28 @@ const _M = {
       }
     },
     //--------------------------------------------
-    async runAction({state, commit, dispatch}, {
+    async runAction({ state, commit, dispatch }, {
       invoke,
       mutation,
-      action, 
+      action,
       test,       // AutoMatch
-      testMsg="i18n:e-run-action-test-fail",
+      testMsg = "i18n:e-run-action-test-fail",
       confirm,
       payload,
       args
-    }={}) {
+    } = {}) {
       //....................................
-      if(!invoke && !action && !mutation)
+      if (!invoke && !action && !mutation)
         return;
 
       //....................................
       // Test precondition
-      if(test) {
-        let ctx = _.assign({}, state, {payload, args})
+      if (test) {
+        let ctx = _.assign({}, state, { payload, args })
         let t2 = Ti.Util.explainObj(ctx, test)
-        if(!Ti.AutoMatch.test(t2, state)) {
+        if (!Ti.AutoMatch.test(t2, state)) {
           // Warn user
-          if(testMsg) {
+          if (testMsg) {
             return await Ti.Toast.Open(testMsg, "warn")
           }
           // Skip quietly
@@ -432,8 +432,8 @@ const _M = {
       }
       //....................................
       // Confirm the operation with user
-      if(confirm) {
-        if(!(await Ti.Confirm(confirm, {type:"warn"}))) {
+      if (confirm) {
+        if (!(await Ti.Confirm(confirm, { type: "warn" }))) {
           return
         }
       }
@@ -442,47 +442,52 @@ const _M = {
       let pld;
 
       // Use args directrly cause payload without defined
-      if(_.isUndefined(payload) || _.isNull(payload)) {
+      if (_.isUndefined(payload) || _.isNull(payload)) {
         pld = _.cloneDeep(_.nth(args, 0))
       }
       //....................................
       // Explain payload
       else {
         let context = _.assign({}, state, {
-          $args : args
+          $args: args
         })
         pld = Ti.Util.explainObj(context, payload, {
-          evalFunc : false
+          evalFunc: false
         })
       }
       //....................................
       //console.log("invoke->", action, pld)
       //....................................
-      if(invoke) {
+      if (invoke) {
         invoke = Ti.Util.genInvoking(invoke, {
           context: state
         })
       }
       //....................................
-      if(_.isFunction(invoke)) {
-        await invoke.apply({state, commit, dispatch}, [pld])
+      if (_.isFunction(invoke)) {
+        await invoke.apply({ state, commit, dispatch }, [pld])
       }
-      else if(_.isFunction(action)) {
-        await action(pld)
-      }
-      else if(mutation) {
+      //....................................
+      if (mutation) {
         commit(mutation, pld)
       }
+      //....................................
       // Action
-      else {
-        await dispatch(action, pld)
+      if (action) {
+        if (_.isFunction(action)) {
+          await action(pld)
+        }
+        // Dispath
+        else if (_.isString(action)) {
+          await dispatch(action, pld)
+        }
       }
     },
     //--------------------------------------------
     /***
      * Invoke action by given name
      */
-    async invokeAction({getters, dispatch}, {name="", args=[], memo=[]}={}){
+    async invokeAction({ getters, dispatch }, { name = "", args = [], memo = [] } = {}) {
       /*
       The action should like
       {
@@ -495,13 +500,13 @@ const _M = {
       let AT = _.get(actions, name)
 
       // Try fallback
-      if(!AT) {
+      if (!AT) {
         let canNames = _.split(name, "::")
-        while(canNames.length > 1) {
+        while (canNames.length > 1) {
           let [, ...names] = canNames
           let aName = names.join("::")
           AT = _.get(actions, aName)
-          if(AT){
+          if (AT) {
             break
           }
           canNames = names
@@ -509,23 +514,23 @@ const _M = {
       }
 
       // Guard
-      if(!AT)
+      if (!AT)
         return;
-        
+
       // Invoke it
       try {
         // Batch call
-        if(_.isArray(AT)) {
-          for(let a of AT) {
-            let da = {...a, memo}
-            if(!_.isEmpty(args)) {
+        if (_.isArray(AT)) {
+          for (let a of AT) {
+            let da = { ...a, memo }
+            if (!_.isEmpty(args)) {
               da.args = args
             }
             await dispatch("doAction", da)
           }
         }
         // Direct call : String
-        else if(_.isString(AT)) {
+        else if (_.isString(AT)) {
           await dispatch("doAction", {
             action: AT,
             args,
@@ -535,19 +540,19 @@ const _M = {
         // Direct call : Object
         else {
           await dispatch("doAction", {
-            ... AT,
+            ...AT,
             args,
             memo
           })
         }
       }
       // For Error
-      catch(e) {
+      catch (e) {
         console.error(e)
       }
     },
     //--------------------------------------------
-    async reload({state, commit, dispatch, getters}, {loc, lang}={}) {
+    async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
       console.log("site.reload", state.entry, state.base, state.lang)
       //---------------------------------------
       // Looking for the entry page
@@ -555,7 +560,7 @@ const _M = {
       loc = loc || Ti.Util.parseHref(window.location.href)
       //---------------------------------------
       // Format lang to the expect case: snake/kebab/camel
-      if(lang) {
+      if (lang) {
         commit("setLang", lang)
       }
       //---------------------------------------
@@ -563,27 +568,27 @@ const _M = {
       commit("explainNav")
       //---------------------------------------
       // Setup dictionary
-      if(state.dictionary) {
-        _.forEach(state.dictionary, (dict, name)=>{
+      if (state.dictionary) {
+        _.forEach(state.dictionary, (dict, name) => {
           let d = Ti.DictFactory.GetDict(name)
-          if(!d) {
+          if (!d) {
             //console.log("create", name, dict)
             Ti.DictFactory.CreateDict({
               //...............................................
-              data  : Ti.WWW.genQuery(dict.data, {vkey:null}),
-              query : Ti.WWW.genQuery(dict.query),
-              item  : Ti.WWW.genQuery(dict.item, {
+              data: Ti.WWW.genQuery(dict.data, { vkey: null }),
+              query: Ti.WWW.genQuery(dict.query),
+              item: Ti.WWW.genQuery(dict.item, {
                 blankAs: "{}"
               }),
-              children : Ti.WWW.genQuery(dict.children),
+              children: Ti.WWW.genQuery(dict.children),
               //...............................................
-              getValue : Ti.Util.genGetter(dict.value),
-              getText  : Ti.Util.genGetter(dict.text),
-              getIcon  : Ti.Util.genGetter(dict.icon),
+              getValue: Ti.Util.genGetter(dict.value),
+              getText: Ti.Util.genGetter(dict.text),
+              getIcon: Ti.Util.genGetter(dict.icon),
               //...............................................
-              shadowed : Ti.Util.fallback(dict.shadowed, true)
+              shadowed: Ti.Util.fallback(dict.shadowed, true)
               //...............................................
-            }, {name})
+            }, { name })
           }
         })
       }
@@ -592,32 +597,32 @@ const _M = {
       commit("auth/mergePaths", state.authPaths)
 
       // Reload the global data
-      let {preloads, afterLoads} = Ti.WWW.groupPreloadApis(getters.globalApis)
+      let { preloads, afterLoads } = Ti.WWW.groupPreloadApis(getters.globalApis)
       //..........................................
       // init global data
-      for(let keys of preloads) {
+      for (let keys of preloads) {
         await dispatch("reloadGlobalData", keys)
       }
 
       // Eval the entry page
       let entry = state.entry
-      if(loc.path.startsWith(state.base)) {
+      if (loc.path.startsWith(state.base)) {
         entry = loc.path.substring(state.base.length) || entry;
       }
 
       // nav to page
       await dispatch("navTo", {
-        type   : "page",
-        value  : entry,
-        params : loc.params,
-        hash   : loc.hash,
-        anchor : loc.anchor,
-        pushHistory : false
+        type: "page",
+        value: entry,
+        params: loc.params,
+        hash: loc.hash,
+        anchor: loc.anchor,
+        pushHistory: false
       })
 
       //..........................................
       // Load the after page completed
-      if(!_.isEmpty(afterLoads.length)) {
+      if (!_.isEmpty(afterLoads.length)) {
         dispatch("reloadGlobalData", afterLoads)
       }
     }

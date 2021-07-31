@@ -66,6 +66,10 @@ const _M = {
       state.params = params
     },
     //--------------------------------------------
+    setModuleNames(state, names=[]) {
+      state.moduleNames = names
+    },
+    //--------------------------------------------
     mergeParams(state, params) {
       if (!_.isEmpty(params) && _.isPlainObject(params)) {
         state.params = _.merge({}, state.params, params)
@@ -532,10 +536,31 @@ const _M = {
         json = await Ti.Load(`@Site:${jsonPath}`)
       }
       //.....................................
+      let $store = TiWebApp.$store()
+      //.....................................
       // Load page components
-      let { components } = json
-      if (!_.isEmpty(components)) {
-        await TiWebApp.loadView({ components })
+      let { components, extModules } = json
+      //console.log({ components, extModules })
+      let view = await TiWebApp.loadView({ components, extModules })
+      //console.log(view)
+      //.....................................
+      // Remove old moudle
+      if(state.moduleNames) {
+        for(let name of state.moduleNames) {
+          $store.unregisterModule(name)
+        }
+      }
+      //.....................................
+      // Add new module
+      if(!_.isEmpty(view.modules)) {
+        // Append new
+        let names = []
+        for(let modName in view.modules) {
+          let mod = view.modules[modName]
+          $store.registerModule(modName, mod)
+          names.push(modName)
+        }
+        commit("setModuleNames", names)
       }
       //.....................................
       // merge info

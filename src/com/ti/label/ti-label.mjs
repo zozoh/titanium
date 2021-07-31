@@ -1,6 +1,7 @@
 const _M = {
   //////////////////////////////////////////
   data: () => ({
+    isNilDisplay: false,
     myDisplayIcon: undefined,
     myDisplayText: undefined,
     myDictValKey: undefined
@@ -42,6 +43,7 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
+        "is-nil-display": this.isNilDisplay,
         "is-blank": !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue),
         "is-nowrap": this.valueMaxWidth > 0,
         "full-field": this.fullField
@@ -177,29 +179,40 @@ const _M = {
     },
     //------------------------------------------------
     OnClickPrefixIcon() {
-      this.$notify("prefix:icon")
+      this.$notify("prefix:icon", {
+        value: this.TheValue
+      })
     },
     //------------------------------------------------
     OnClickPrefixText() {
-      this.$notify("prefix:text")
+      this.$notify("prefix:text", {
+        value: this.TheValue
+      })
     },
     //------------------------------------------------
     OnClickValue() {
       if (this.valueClickable) {
-        this.$notify("click:value")
+        this.$notify("click:value", {
+          value: this.TheValue
+        })
       }
     },
     //------------------------------------------------
     OnClickSuffixIcon() {
-      this.$notify("suffix:icon")
+      this.$notify("suffix:icon", {
+        value: this.TheValue
+      })
     },
     //------------------------------------------------
     OnClickSuffixText() {
-      this.$notify("suffix:text")
+      this.$notify("suffix:text", {
+        value: this.TheValue
+      })
     },
     //--------------------------------------
     async evalDisplay(val) {
       if (_.isString(val) && Ti.S.isBlank(val)) {
+        this.isNilDisplay = true
         return Ti.I18n.get("blank")
       }
       // By Dict Item
@@ -236,6 +249,8 @@ const _M = {
           }
         }
       }
+      // Test nil display
+      this.isNilDisplay = false
       // Number
       if (_.isNumber(val)) {
         if (this.TheFormat) {
@@ -274,6 +289,7 @@ const _M = {
       }
       // Normal value
       if (Ti.Util.isNil(val)) {
+        this.isNilDisplay = true
         return Ti.I18n.text(this.placeholder)
       }
       // Date

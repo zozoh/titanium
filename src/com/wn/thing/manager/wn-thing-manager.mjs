@@ -32,6 +32,9 @@ const _M = {
       type : Object,
       default : ()=>({})
     },
+    "rootState": {
+      type : Object
+    },
     "config" : {
       type : Object,
       default : ()=>({})
