@@ -1,75 +1,97 @@
 const _M = {
   ///////////////////////////////////////////
-  provide : function() {
+  provide: function () {
     return {
-      $ThingManager : this
+      $ThingManager: this
     }
   },
   ///////////////////////////////////////////
-  data: ()=>({
+  data: () => ({
     "myRouting": {}
   }),
   ///////////////////////////////////////////
-  props : {
+  props: {
     // Thing Set Home
-    "meta" : {
-      type : Object,
-      default : ()=>({})
+    "meta": {
+      type: Object,
+      default: () => ({})
     },
-    "currentDataHome" : {
-      type : String,
-      default : undefined
+    "moduleName": {
+      type: String,
+      default: "main"
     },
-    "currentDataHomeObj" : {
-      type : Object,
-      default : undefined
+    "currentDataHome": {
+      type: String,
+      default: undefined
     },
-    "currentDataDir" : {
-      type : String,
-      default : undefined
+    "currentDataHomeObj": {
+      type: Object,
+      default: undefined
     },
-    "status" : {
-      type : Object,
-      default : ()=>({})
+    "currentDataDir": {
+      type: String,
+      default: undefined
+    },
+    "status": {
+      type: Object,
+      default: () => ({})
     },
     "rootState": {
-      type : Object
+      type: Object
     },
-    "config" : {
-      type : Object,
-      default : ()=>({})
+    "config": {
+      type: Object,
+      default: () => ({})
     },
-    "search" : {
-      type : Object,
-      default : ()=>({})
+    "search": {
+      type: Object,
+      default: () => ({})
     },
-    "current" : {
-      type : Object,
-      default : ()=>({})
+    "current": {
+      type: Object,
+      default: () => ({})
     },
-    "files" : {
-      type : Object,
-      default : ()=>({})
+    "files": {
+      type: Object,
+      default: () => ({})
     },
-    "preview" : {
-      type : Object,
-      default : ()=>({})
+    "preview": {
+      type: Object,
+      default: () => ({})
     },
     "emitChange": {
-      type : Boolean,
+      type: Boolean,
       default: false
     },
     "keepLastSelection": {
       type: Boolean,
       default: true
+    },
+    //-----------------------------------
+    // Callback
+    //-----------------------------------
+    "whenCreated": {
+      type: Function
+    },
+    "whenMounted": {
+      type: Function
+    },
+    "whenBeforeDestroy": {
+      type: Function
     }
   },
   ///////////////////////////////////////////
-  computed : {
-    ...Vuex.mapGetters("main/search", [
-      "currentItem", 
-      "checkedItems"
-    ]),
+  computed: {
+    //--------------------------------------
+    currentItem() {
+      let path = Ti.Util.appendPath(this.moduleName, "search/currentItem")
+      return Ti.App(this).$store().getters[path]
+    },
+    //--------------------------------------
+    checkedItems() {
+      let path = Ti.Util.appendPath(this.moduleName, "search/checkedItems")
+      return Ti.App(this).$store().getters[path]
+    },
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -80,7 +102,7 @@ const _M = {
     },
     //--------------------------------------
     TheKeepLastKey() {
-      if(this.keepLastSelection) {
+      if (this.keepLastSelection) {
         return _.get(this.meta, "id") + ":currentId";
       }
     },
@@ -94,7 +116,7 @@ const _M = {
     },
     //--------------------------------------
     CurrentHeadClass() {
-      if(this.CurrentIsDead) {
+      if (this.CurrentIsDead) {
         return "current-in-recyclebin"
       }
     },
@@ -109,46 +131,46 @@ const _M = {
     //--------------------------------------
     TheLoadingAs() {
       return _.assign({
-        "reloading" : {
-          icon : "fas-spinner fa-spin",
-          text : "i18n:loading"
+        "reloading": {
+          icon: "fas-spinner fa-spin",
+          text: "i18n:loading"
         },
-        "saving" : {
-          icon : "zmdi-settings fa-spin",
-          text : "i18n:saving"
+        "saving": {
+          icon: "zmdi-settings fa-spin",
+          text: "i18n:saving"
         },
-        "deleting" : {
-          icon : "zmdi-refresh fa-spin",
-          text : "i18n:del-ing"
+        "deleting": {
+          icon: "zmdi-refresh fa-spin",
+          text: "i18n:del-ing"
         },
-        "publishing" : {
-          icon : "zmdi-settings zmdi-hc-spin",
-          text : "i18n:publishing"
+        "publishing": {
+          icon: "zmdi-settings zmdi-hc-spin",
+          text: "i18n:publishing"
         },
-        "restoring" : {
-          icon : "zmdi-time-restore zmdi-hc-spin",
-          text : "i18n:thing-restoring"
+        "restoring": {
+          icon: "zmdi-time-restore zmdi-hc-spin",
+          text: "i18n:thing-restoring"
         },
-        "cleaning" : {
-          icon : "zmdi-settings zmdi-hc-spin",
-          text : "i18n:thing-cleaning"
+        "cleaning": {
+          icon: "zmdi-settings zmdi-hc-spin",
+          text: "i18n:thing-cleaning"
         }
       }, _.get(this.TheSchema, "loadingAs"))
     },
     //--------------------------------------
     ChangedRowId() {
-      if(this.currentItem && this.current.status.changed) {
+      if (this.currentItem && this.current.status.changed) {
         return this.currentItem.id
       }
     },
     //--------------------------------------
     GuiLoadingAs() {
-      let key = _.findKey(this.status, (v)=>v)
+      let key = _.findKey(this.status, (v) => v)
       return _.get(this.TheLoadingAs, key)
     },
     //--------------------------------------
     curentThumbTarget() {
-      if(this.currentItem) {
+      if (this.currentItem) {
         let th_set = this.meta.id
         return `id:${th_set}/data/${this.currentItem.id}/thumb.jpg`
       }
@@ -156,7 +178,7 @@ const _M = {
     },
     //--------------------------------------
     SchemaMethods() {
-      if(this.TheSchema && this.TheSchema.methods) {
+      if (this.TheSchema && this.TheSchema.methods) {
         return Ti.Util.merge({}, this.TheSchema.methods)
       }
       return {}
@@ -164,67 +186,64 @@ const _M = {
     //--------------------------------------
     EventRouting() {
       return _.assign({
-        "block:show"      : "showBlock",
-        "block:hide"      : "hideBlock",
-        "block:shown"     : "changeShown",
-        "filter::change"  : "OnFilterChange",
-        "sorter::change"  : "OnSorterChange",
-        "list::select"    : "OnListSelect",
-        "list::open"      : "OnListOpen",
-        "content::change" : "OnContentChange",
-        "pager::change"   : "OnPagerChange"
+        "block:show": "showBlock",
+        "block:hide": "hideBlock",
+        "block:shown": "changeShown",
+        "filter::change": "OnFilterChange",
+        "sorter::change": "OnSorterChange",
+        "list::select": "OnListSelect",
+        "list::open": "OnListOpen",
+        "content::change": "OnContentChange",
+        "pager::change": "OnPagerChange"
       }, _.get(this.TheSchema, "events"), this.myRouting)
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     //
     //  Event handler
     //
     //--------------------------------------
     async OnFilterChange(filter) {
-      Ti.App(this).commit("main/search/setFilter", filter)
-      await Ti.App(this).dispatch("main/reloadSearch")
+      this.commit("search/setFilter", filter)
+      await this.dispatch("reloadSearch")
     },
     //--------------------------------------
-    async OnSorterChange(sort={}) {
-      Ti.App(this).commit("main/search/setSorter", sort)
-      await Ti.App(this).dispatch("main/reloadSearch")
+    async OnSorterChange(sort = {}) {
+      this.commit("search/setSorter", sort)
+      await this.dispatch("reloadSearch")
     },
     //--------------------------------------
-    OnListSelect({current, currentId, checkedIds, checked}) {
+    OnListSelect({ current, currentId, checkedIds, checked }) {
       //console.log("OnListSelect", current)
-      Ti.App(this).dispatch("main/setCurrentThing", {
-        meta: current, 
+      this.dispatch("setCurrentThing", {
+        meta: current,
         currentId,
         checkedIds
       })
 
-      if(this.emitChange) {
-        this.$emit("change", {current, currentId, checkedIds, checked})
+      if (this.emitChange) {
+        this.$emit("change", { current, currentId, checkedIds, checked })
       }
     },
     //--------------------------------------
-    OnListOpen({rawData}) {
-      let app = Ti.App(this)
-      app.dispatch("main/config/updateShown", this.config.listOpen)
+    OnListOpen({ rawData }) {
+      this.dispatch("config/updateShown", this.config.listOpen)
       // Update Current
-      app.dispatch("main/setCurrentThing", {meta: rawData})
+      this.dispatch("setCurrentThing", { meta: rawData })
     },
     //--------------------------------------
     OnContentChange(content) {
-      let app = Ti.App(this)
-      app.dispatch("main/current/changeContent", content)
-      app.commit("main/syncStatusChanged")
+      this.dispatch("current/changeContent", content)
+      this.commit("syncStatusChanged")
     },
     //--------------------------------------
-    OnPagerChange({pn, pgsz}={}) {
+    OnPagerChange({ pn, pgsz } = {}) {
       //console.log("OnPagerChange", {pn, pgsz})
-      let app = Ti.App(this)
-      app.commit("main/search/updatePager", {pn, pgsz})
-      app.dispatch("main/reloadSearch")
+      this.commit("search/updatePager", { pn, pgsz })
+      this.dispatch("reloadSearch")
     },
     //--------------------------------------
     OnViewCurrentSource() {
@@ -239,8 +258,16 @@ const _M = {
       this.$set(this.myRouting, eventName, handler)
     },
     removeEventRouting(...names) {
-      let routing = _.omitBy(this.myRouting, (_, key)=>names.indexOf(key)>=0)
+      let routing = _.omitBy(this.myRouting, (_, key) => names.indexOf(key) >= 0)
       this.myRouting = routing
+    },
+    async dispatch(name, payload) {
+      let path = Ti.Util.appendPath(this.moduleName, name)
+      return await Ti.App(this).dispatch(path, payload)
+    },
+    commit(name, payload) {
+      let path = Ti.Util.appendPath(this.moduleName, name)
+      return Ti.App(this).commit(path, payload)
     },
     //--------------------------------------
     //
@@ -252,12 +279,12 @@ const _M = {
       //console.log("__on_events", name)
       // Try to get handler
       let fn = _.get(this.EventRouting, name)
-      if(!fn) {
+      if (!fn) {
         fn = this.$tiEventTryFallback(name, this.EventRouting)
       }
 
       // callPath -> Function
-      if(_.isString(fn)) {
+      if (_.isString(fn)) {
         return _.get(this, fn)
       }
       return fn
@@ -265,8 +292,8 @@ const _M = {
     // Shortcut 
     __ti_shortcut(uniqKey) {
       //console.log("ti-form", uniqKey)
-      if("ESCAPE" == uniqKey) {
-        if(this.TheShown.creator) {
+      if ("ESCAPE" == uniqKey) {
+        if (this.TheShown.creator) {
           this.hideBlock("creator")
         }
       }
@@ -274,7 +301,13 @@ const _M = {
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  mounted : function() {
+  created: function () {
+    if (_.isFunction(this.whenCreated)) {
+      this.whenCreated(this)
+    }
+  },
+  ///////////////////////////////////////////
+  mounted: async function () {
     // Mark self in order to let `thing-files` set self
     // to root `wn-thing-manager` instance
     // then `openLocalFileSelectdDialogToUploadFiles`
@@ -283,8 +316,18 @@ const _M = {
 
     // Update the customized actions
     let actions = _.get(this.config, "actions")
-    if(_.isArray(actions)) {
+    if (_.isArray(actions)) {
       this.$notify("actions:update", actions)
+    }
+
+    if (_.isFunction(this.whenMounted)) {
+      this.whenMounted(this)
+    }
+  },
+  ///////////////////////////////////////////
+  beforeDestroy: function () {
+    if (_.isFunction(this.whenBeforeDestroy)) {
+      this.whenBeforeDestroy(this)
     }
   }
   ///////////////////////////////////////////

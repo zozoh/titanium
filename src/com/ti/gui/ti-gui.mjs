@@ -1,112 +1,112 @@
 const _M = {
   ///////////////////////////////////////////
-  provide : function() {
+  provide: function () {
     return {
-      "$gui" : this
+      "$gui": this
     }
   },
   /////////////////////////////////////////
-  data: ()=>({
-    $inner : undefined,
-    myShown : {},
-    myViewportWidth  : 0,
-    myViewportHeight : 0,
-    myBlockMap : {},
-    myPanelVisibles : {}
+  data: () => ({
+    $inner: undefined,
+    myShown: {},
+    myViewportWidth: 0,
+    myViewportHeight: 0,
+    myBlockMap: {},
+    myPanelVisibles: {}
   }),
   /////////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "layout" : {
-      type : Object,
-      default : ()=>({
-        desktop : {},
-        tablet  : "desktop",
-        phone   : "desktop"
+    "layout": {
+      type: Object,
+      default: () => ({
+        desktop: {},
+        tablet: "desktop",
+        phone: "desktop"
       })
     },
-    "schema" : {
-      type : Object,
-      default : ()=>({})
+    "schema": {
+      type: Object,
+      default: () => ({})
     },
-    "activeElement" : {
-      type : [Element, Object]  /*null type is Object*/
+    "activeElement": {
+      type: [Element, Object]  /*null type is Object*/
     },
-    "shown" : {
-      type : Object,
-      default : ()=>({})
+    "shown": {
+      type: Object,
+      default: () => ({})
     },
-    "vars" : {
-      type : Object,
-      default: ()=>({})
+    "vars": {
+      type: Object,
+      default: () => ({})
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    "defaultFlex" : {
-      type : String,
-      default : undefined,
-      validator : (v)=>(_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
+    "defaultFlex": {
+      type: String,
+      default: undefined,
+      validator: (v) => (_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
     },
-    "defaultOverflow" : {
-      type : String,
-      default : undefined,
-      validator : (v)=>(_.isUndefined(v) || /^(auto|none|fill|cover)$/.test(v))
+    "defaultOverflow": {
+      type: String,
+      default: undefined,
+      validator: (v) => (_.isUndefined(v) || /^(auto|none|fill|cover)$/.test(v))
     },
     "defaultComClass": {
       type: String,
       default: "ti-fill-parent"
     },
-    "keepShownTo" : {
-      type : String,
-      default : undefined
+    "keepShownTo": {
+      type: String,
+      default: undefined
     },
-    "actionStatus" : {
-      type : Object,
-      default : ()=>({})
+    "actionStatus": {
+      type: Object,
+      default: () => ({})
     },
-    "shownEmitName" : {
-      type : String,
-      default : undefined
+    "shownEmitName": {
+      type: String,
+      default: undefined
     },
-    "shownNotifyName" : {
-      type : String,
-      default : undefined
+    "shownNotifyName": {
+      type: String,
+      default: undefined
     },
-    "canLoading" : {
-      type : Boolean,
-      default : false
+    "canLoading": {
+      type: Boolean,
+      default: false
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
     // value should be prop of ti-loading
-    "loadingAs" : {
-      type : [Boolean, Object],
-      default : undefined
+    "loadingAs": {
+      type: [Boolean, Object],
+      default: undefined
     },
     "loading": {
       type: Boolean
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-loading" : this.isLoading
+        "is-loading": this.isLoading
       })
     },
     //--------------------------------------
     TheLayout() {
       let lay = {}
-      if(_.isEmpty(this.layout))
+      if (_.isEmpty(this.layout))
         return lay
       //....................................
       // Raw layout
-      if(/^(rows|cols|tabs)$/.test(this.layout.type)) {
+      if (/^(rows|cols|tabs)$/.test(this.layout.type)) {
         lay = this.layout
       }
       //....................................
@@ -114,29 +114,31 @@ const _M = {
       else {
         lay = this.layout[this.viewportMode]
         // Refer onece
-        if(_.isString(lay)) {
+        if (_.isString(lay)) {
           lay = this.layout[lay]
         }
         // Refer twice (I think it is enough for most of cases)
-        if(_.isString(lay)) {
+        if (_.isString(lay)) {
           lay = this.layout[lay]
         }
       }
       //....................................
       // Filter block
-      lay = _.cloneDeep(lay)
-      lay.blocks = this.filterBlocks(lay.blocks, lay.type)
+      if (lay) {
+        lay = _.cloneDeep(lay)
+        lay.blocks = this.filterBlocks(lay.blocks, lay.type)
+      }
       //....................................
       // Done
       return lay || {}
     },
     //--------------------------------------
-    isRowsLayout() {return "rows"==this.TheLayout.type},
-    isColsLayout() {return "cols"==this.TheLayout.type},
-    isTabsLayout() {return "tabs"==this.TheLayout.type},
+    isRowsLayout() { return "rows" == this.TheLayout.type },
+    isColsLayout() { return "cols" == this.TheLayout.type },
+    isTabsLayout() { return "tabs" == this.TheLayout.type },
     //--------------------------------------
     BlockNames() {
-      if(!this.layout) {
+      if (!this.layout) {
         return {}
       }
       return this.joinBlockNames({}, this.layout.blocks)
@@ -149,7 +151,7 @@ const _M = {
       this.joinThePanels(list, this.layout.panels, "G")
 
       // Join Current Mode Panels
-      if(this.layout != this.TheLayout) {
+      if (this.layout != this.TheLayout) {
         this.joinThePanels(list, this.TheLayout.panels, this.viewportMode)
       }
 
@@ -164,14 +166,14 @@ const _M = {
     },
     //--------------------------------------
     isLoading() {
-      return this.canLoading 
-             && (this.loadingAs || this.loading)
-                  ? true 
-                  : false
+      return this.canLoading
+        && (this.loadingAs || this.loading)
+        ? true
+        : false
     },
     //--------------------------------------
     TheLoading() {
-      if(_.isPlainObject(this.loadingAs)) {
+      if (_.isPlainObject(this.loadingAs)) {
         return this.loadingAs
       }
       return {}
@@ -179,7 +181,7 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnMainTypeInit($innerCom) {
       this.$inner = $innerCom
@@ -187,16 +189,16 @@ const _M = {
     //--------------------------------------
     OnPanelAfterEnter(pan) {
       this.myPanelVisibles = _.assign({}, {
-        [pan.key] : pan.visible
+        [pan.key]: pan.visible
       })
     },
     //--------------------------------------
-    joinBlockNames(names={}, blocks=[]) {
-      _.forEach(blocks, ({name, blocks}={}) => {
-        if(name) {
+    joinBlockNames(names = {}, blocks = []) {
+      _.forEach(blocks, ({ name, blocks } = {}) => {
+        if (name) {
           names[name] = true
         }
-        if(_.isArray(blocks)) {
+        if (_.isArray(blocks)) {
           this.joinBlockNames(names, blocks)
         }
       })
@@ -204,28 +206,28 @@ const _M = {
     },
     //--------------------------------------
     isShown(...names) {
-      for(let name of names) {
-        if(this.TheShown[name])
+      for (let name of names) {
+        if (this.TheShown[name])
           return true
       }
       return false
     },
     //--------------------------------------
-    joinThePanels(list=[], panels=[], keyPrefix="") {
-      if(_.isArray(panels) && panels.length > 0) {
-        for(let i=0; i<panels.length; i++) {
+    joinThePanels(list = [], panels = [], keyPrefix = "") {
+      if (_.isArray(panels) && panels.length > 0) {
+        for (let i = 0; i < panels.length; i++) {
           let pan = panels[i]
-          if(!pan) {
+          if (!pan) {
             continue;
           }
           let pos = Ti.Util.fallback(pan.position, "center")
           let index = list.length
           list.push({
             index,
-            visible   : this.isShown(pan.name),
-            key       : pan.name || `panel-${keyPrefix}-${index}`,
-            transName : `ti-gui-panel-${pos}`,
-            panel     : pan
+            visible: this.isShown(pan.name),
+            key: pan.name || `panel-${keyPrefix}-${index}`,
+            transName: `ti-gui-panel-${pos}`,
+            panel: pan
           })
         }
       }
@@ -238,8 +240,8 @@ const _M = {
     //--------------------------------------
     OnBlockShow(name) {
       // Update privated status
-      if(this.keepShownTo) {
-        this.updateShown({[name]:true})
+      if (this.keepShownTo) {
+        this.updateShown({ [name]: true })
       }
       // Leave it to parent
       else {
@@ -249,8 +251,8 @@ const _M = {
     //--------------------------------------
     OnBlockHide(name) {
       // Update privated status
-      if(this.keepShownTo) {
-        this.updateShown({[name]:false})
+      if (this.keepShownTo) {
+        this.updateShown({ [name]: false })
       }
       // Leave it to parent
       else {
@@ -261,7 +263,7 @@ const _M = {
     OnBlockShownUpdate(shown) {
       //console.log(shown)
       // Update privated status
-      if(this.keepShownTo) {
+      if (this.keepShownTo) {
         this.updateShown(shown)
       }
       // Leave it to parent
@@ -270,39 +272,39 @@ const _M = {
       }
     },
     //--------------------------------------
-    filterShown(shown={}) {
-      return _.omitBy(shown, (v, k)=>{
-        if(!v)
+    filterShown(shown = {}) {
+      return _.omitBy(shown, (v, k) => {
+        if (!v)
           return true
-        if(!this.BlockNames[k])
+        if (!this.BlockNames[k])
           return true
         return false
       })
     },
     //--------------------------------------
     syncMyShown(...showns) {
-      if(this.keepShownTo) {
-        let shown  = _.assign({}, this.myShown, ...showns)
+      if (this.keepShownTo) {
+        let shown = _.assign({}, this.myShown, ...showns)
         this.myShown = shown
-        if(this.shownEmitName) {
+        if (this.shownEmitName) {
           this.$emit(this.shownEmitName, this.myShown)
         }
-  
-        if(this.shownNotifyName) {
+
+        if (this.shownNotifyName) {
           this.$notify(this.shownNotifyName, this.myShown)
         }
       }
     },
     //--------------------------------------
     persistMyStatus() {
-      if(this.keepShownTo) {
+      if (this.keepShownTo) {
         let shown = this.filterShown(this.myShown)
         Ti.Storage.session.setObject(this.keepShownTo, shown)
       }
     },
     //--------------------------------------
     loadMyStatus() {
-      if(this.keepShownTo) {
+      if (this.keepShownTo) {
         let shown = Ti.Storage.session.getObject(this.keepShownTo)
         this.syncMyShown(this.shown, shown)
       }
@@ -311,7 +313,7 @@ const _M = {
     syncViewportMeasure() {
       let rect = Ti.Rects.createBy(this.$el);
       //console.log(rect.toString())
-      this.myViewportWidth  = rect.width
+      this.myViewportWidth = rect.width
       this.myViewportHeight = rect.height
     },
     //--------------------------------------
@@ -321,13 +323,13 @@ const _M = {
       _.forEach(blocks, bl => {
         //console.log(bl.name, shown)
         let isShow = true
-        if("tabs" != type && bl.name) {
+        if ("tabs" != type && bl.name) {
           isShow = _.get(this.TheShown, bl.name)
           isShow = Ti.Util.fallback(isShow, true)
         }
-        if(isShow) {
+        if (isShow) {
           reBlocks.push(bl)
-          if(bl.blocks) {
+          if (bl.blocks) {
             bl.blocks = this.filterBlocks(bl.blocks, bl.type)
           }
         }
@@ -345,43 +347,43 @@ const _M = {
     },
     //--------------------------------------
     unregisterBlock(name) {
-      if(this.myBlockMap[name]) {
+      if (this.myBlockMap[name]) {
         delete this.myBlockMap[name]
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "shown" : {
-      handler : function(shown) {
+  watch: {
+    "shown": {
+      handler: function (shown) {
         //console.log("ti-gui shown changed", shown)
         this.syncMyShown(shown)
-        this.$nextTick(()=>{
+        this.$nextTick(() => {
           this.syncViewportMeasure();
         })
       },
-      immediate : true
+      immediate: true
     },
-    "loadingAs" : "syncViewportMeasure",
-    "layout" : "syncViewportMeasure"
+    "loadingAs": "syncViewportMeasure",
+    "layout": "syncViewportMeasure"
   },
   //////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     //......................................
     Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.syncViewportMeasure(), 100)
+      resize: _.debounce(() => this.syncViewportMeasure(), 100)
     })
     //......................................
     this.loadMyStatus()
     //......................................
-    _.delay(()=>{
+    _.delay(() => {
       this.syncViewportMeasure()
     })
     //......................................
   },
   ///////////////////////////////////////////////////
-  beforeDestroy : function(){
+  beforeDestroy: function () {
     Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////

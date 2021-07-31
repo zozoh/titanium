@@ -11,6 +11,9 @@ export default {
     setSchema(state, schema) {
       state.schema = schema
     },
+    mergeSchema(state, schema) {
+      state.schema = _.merge({}, state.schema, schema)
+    },
     setLayout(state, layout) {
       state.layout = _.pick(layout, ["desktop","tablet","phone"])
       state.shown = layout.shown || {}

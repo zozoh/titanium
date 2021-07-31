@@ -1,5 +1,5 @@
 function saveToLocal(meta, key, val) {
-  if(!meta) {
+  if (!meta) {
     return
   }
   //console.log("saveToLocal", key, val)
@@ -15,12 +15,12 @@ function saveToLocal(meta, key, val) {
 //---------------------------------------
 const _M = {
   ///////////////////////////////////////////////////////
-  getters : {
+  getters: {
     //---------------------------------------------------
     currentItem(state) {
-      if(state.currentId) {
-        for(let it of state.list) {
-          if(it.id == state.currentId) {
+      if (state.currentId) {
+        for (let it of state.list) {
+          if (it.id == state.currentId) {
             return it
           }
         }
@@ -31,13 +31,13 @@ const _M = {
     checkedItems(state) {
       // Make the idsMap
       let checkedMap = {}
-      for(let id of state.checkedIds) {
+      for (let id of state.checkedIds) {
         checkedMap[id] = true
       }
       // Join the items
       let list = []
-      for(let it of state.list) {
-        if(checkedMap[it.id]) {
+      for (let it of state.list) {
+        if (checkedMap[it.id]) {
           list.push(it)
         }
       }
@@ -49,13 +49,17 @@ const _M = {
       return state.pager && state.pager.pn > 0 && state.pager.pgsz > 0
     },
     //---------------------------------------------------
-    filterObj(state, getters, rootState) {
-      let setting = _.get(rootState, "main.config.schema.behavior") || {}
-      let flt = Wn.Util.getMatchByFilter(state.filter, setting)
-      
+    filterObj(state) {
+      let flt = Wn.Util.getMatchByFilter(state.filter, {
+        match: state.fixedMatch,
+        majorKey: state.majorKey,
+        defaultKey: state.defaultKey,
+        keyword: state.keyword
+      })
+
       // InRecycleBin 
       flt.th_live = state.inRecycleBin ? -1 : 1
-      
+
       return flt
     },
     //---------------------------------------------------
@@ -68,7 +72,7 @@ const _M = {
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
-  mutations : {
+  mutations: {
     setMeta(state, meta) {
       state.meta = meta
     },
@@ -77,12 +81,25 @@ const _M = {
       state.status = _.assign({}, state.status, status)
     },
     //---------------------------------------------------
-    setFilter(state, filter={}) {
+    setFixedMatch(state, match) {
+      state.fixedMatch = _.cloneDeep(match)
+    },
+    setMajorKey(state, majorKey) {
+      state.majorKey = majorKey
+    },
+    setDefaultKey(state, defaultKey) {
+      state.defaultKey = defaultKey
+    },
+    setKeyword(state, keyword) {
+      state.keyword = keyword || {}
+    },
+    //---------------------------------------------------
+    setFilter(state, filter = {}) {
       //console.log("setFilter", JSON.stringify(filter))
       state.filter = filter
       saveToLocal(state.meta, "filter", state.filter)
     },
-    updateFilter(state, flt={}) {
+    updateFilter(state, flt = {}) {
       //console.log("updateFilter", JSON.stringify(flt))
       state.filter = _.assign({}, state.filter, flt)
       saveToLocal(state.meta, "filter", state.filter)
@@ -100,7 +117,7 @@ const _M = {
       state.pager = _.defaults({}, pg, state.pager)
     },
     //---------------------------------------------------
-    setInRecycleBin(state, inRecycleBin=false) {
+    setInRecycleBin(state, inRecycleBin = false) {
       state.inRecycleBin = inRecycleBin
     },
     //---------------------------------------------------
@@ -113,32 +130,32 @@ const _M = {
       state.currentId = id || null
     },
     //---------------------------------------------------
-    setShowKeys(state, showKeys) {
+    setShowKeys(state, showKeys = null) {
       state.showKeys = showKeys
     },
     //---------------------------------------------------
-    setCheckedIds(state, ids=[]) {
+    setCheckedIds(state, ids = []) {
       state.checkedIds = _.union(ids)
     },
     //---------------------------------------------------
     selectItem(state, id) {
-      if(state.currentId != id) {
+      if (state.currentId != id) {
         state.currentId = id
         state.checkedIds = []
-        if(id) {
+        if (id) {
           state.checkedIds.push(id)
         }
       }
     },
     //---------------------------------------------------
-    removeItems(state, ids=[]) {
+    removeItems(state, ids = []) {
       // Find the current item index, and take as the next Item index
       //console.log("search.remove", ids)
       let index = -1
-      if(state.currentId) {
-        for(let i=0; i<state.list.length; i++) {
+      if (state.currentId) {
+        for (let i = 0; i < state.list.length; i++) {
           let it = state.list[i]
-          if(it.id == state.currentId) {
+          if (it.id == state.currentId) {
             index = i
             break
           }
@@ -146,47 +163,47 @@ const _M = {
       }
       // Make the idsMap
       let idsMap = {}
-      if(_.isArray(ids)) {
-        for(let id of ids) {
+      if (_.isArray(ids)) {
+        for (let id of ids) {
           idsMap[id] = true
         }
-      } else if (_.isPlainObject(ids)){
+      } else if (_.isPlainObject(ids)) {
         idsMap = ids
       }
       // Remove the ids
       let list2 = []
-      for(let it of state.list) {
-        if(!idsMap[it.id]) {
+      for (let it of state.list) {
+        if (!idsMap[it.id]) {
           list2.push(it)
         }
       }
       // Then get back the current
-      index = Math.min(index, list2.length-1)
+      index = Math.min(index, list2.length - 1)
       let nextCurrent = null
-      if(index >= 0) {
+      if (index >= 0) {
         nextCurrent = list2[index]
         state.currentId = nextCurrent.id
         state.checkedIds = [nextCurrent.id]
       }
       // No currentId
       else {
-        state.currentId  = null
+        state.currentId = null
         state.checkedIds = []
       }
       // Reset the list
       state.list = list2
-      if(state.pager) {
+      if (state.pager) {
         state.pager.count = list2.length
-        state.pager.sum = state.pager.pgsz * (state.pager.pgc-1) + list2.length
+        state.pager.sum = state.pager.pgsz * (state.pager.pgc - 1) + list2.length
       }
       // console.log("the next current", nextCurrent)
     },
     //---------------------------------------------------
     updateItem(state, it) {
       let list = []
-      for(let li of state.list) {
-        if(li.id == it.id) {
-          list.push({...it, __updated_time:Date.now()})
+      for (let li of state.list) {
+        if (li.id == it.id) {
+          list.push({ ...it, __updated_time: Date.now() })
         } else {
           list.push(li)
         }
@@ -195,13 +212,13 @@ const _M = {
     },
     //---------------------------------------------------
     appendToList(state, it) {
-      if(it) {
+      if (it) {
         state.list = [].concat(state.list, it)
       }
     },
     //---------------------------------------------------
     prependToList(state, it) {
-      if(it) {
+      if (it) {
         state.list = [].concat(it, state.list)
       }
     }

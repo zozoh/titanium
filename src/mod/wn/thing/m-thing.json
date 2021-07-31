@@ -1,16 +1,18 @@
 {
   "meta": null,
-  "currentDataDir"  : null,
-  "currentDataHome" : null,
-  "currentDataHomeObj" : null,
-  "status" : {
-    "reloading" : false,
-    "doing"     : false,
-    "saving"    : false,
-    "deleting"  : false,
-    "changed"   : false,
-    "restoring" : false,
-    "cleaning"  : false,
-    "inRecycleBin" : false
+  "moduleName": "main",
+  "currentDataDir": null,
+  "currentDataHome": null,
+  "currentDataHomeObj": null,
+  "fixedSchema": {},
+  "status": {
+    "reloading": false,
+    "doing": false,
+    "saving": false,
+    "deleting": false,
+    "changed": false,
+    "restoring": false,
+    "cleaning": false,
+    "inRecycleBin": false
   }
 }

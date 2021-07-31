@@ -14,6 +14,10 @@ const _M = {
       state.meta = _.merge({}, state.meta, meta);
     },
     //----------------------------------------
+    setThingSetId(state, thingSetId) {
+      state.thingSetId = thingSetId
+    },
+    //----------------------------------------
     setContent(state, content) {
       let meta = state.meta;
       // Guard

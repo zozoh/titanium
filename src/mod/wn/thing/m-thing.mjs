@@ -14,6 +14,9 @@ export default {
     setMeta(state, meta) {
       state.meta = meta
     },
+    setFixedSchema(state, schema={}) {
+      state.fixedSchema = _.cloneDeep(schema)
+    },
     setCurrentDataDir(state, dirName) {
       state.currentDataDir = dirName
       if(state.meta) {

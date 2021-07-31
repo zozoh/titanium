@@ -1,6 +1,6 @@
-import _M from "../../../../../../app/wn.manager/wn-manager.mjs"
-
 export default {
+  ///////////////////////////////////////////
+  inject: ["$ThingManager"],
   ///////////////////////////////////////////
   data : ()=>({
     "myData" : undefined,
@@ -56,7 +56,7 @@ export default {
     //--------------------------------------
     async OnCreate() {
       this.creating = true
-      let reo = await Ti.App(this).dispatch("main/create", this.myData)
+      let reo = await this.$ThingManager.dispatch("create", this.myData)
       this.creating = false
       if(reo && !(reo instanceof Error)) {
         this.$notify("block:hide", "creator")

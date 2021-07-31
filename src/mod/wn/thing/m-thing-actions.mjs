@@ -14,7 +14,7 @@ const _M = {
    * Update current thing meta data to search/meta
    */
   async updateCurrent({state, commit, dispatch, getters}, {name, value}={}) {
-    // console.log("hupdateCurrentahah", {name, value})
+    // console.log("updateCurrent", {name, value})
     // if(window.lastMS && (Date.now() - window.lastMS) < 5000) {
     //   console.log("!!!! dup-call", {name, value})
     // }
@@ -62,12 +62,14 @@ const _M = {
   //--------------------------------------------
   setCurrentMeta({state, commit}, meta) {
     //console.log(" -> setCurrentMeta", meta)
+    commit("current/setThingSetId", state.meta.id)
     commit("current/setMeta", meta)
     commit("syncStatusChanged")
     commit("search/updateItem", state.current.meta)
   },
   //--------------------------------------------
   setCurrentContent({state, commit, dispatch}, content) {
+    commit("current/setThingSetId", state.meta.id)
     dispatch("current/onChanged", content)
     commit("syncStatusChanged")
     commit("search/updateItem", state.current.meta)
@@ -445,6 +447,7 @@ const _M = {
     }
     //..........................................
     // Reload Current
+    commit("current/setThingSetId", state.meta.id)
     let currentMeta = _.cloneDeep(meta)
     // Reload if show content
     if(_.get(state.config, "shown.content")) {
@@ -480,6 +483,11 @@ const _M = {
    */
   async reload({state, commit, dispatch, getters}, meta) {
     //console.log("thing-manager.reload", state)
+    // Reload meta
+    if(_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+
     // Update New Meta
     if(meta) {
       commit("setMeta", meta)
@@ -491,12 +499,16 @@ const _M = {
     // meta is home
     let home = meta
 
+    // Update current module thingSetId
+    commit("current/setThingSetId", state.meta.id)
+
     // Mark reloading
     commit("setStatus", {reloading:true})
 
     // Reload Config
     //console.log("reload config")
     await dispatch("config/reload", meta)
+    commit("config/mergeSchema", state.fixedSchema)
 
     // Update the default filesDirName
     let localDirNameKey = `${meta.id}_dirname`
@@ -514,35 +526,40 @@ const _M = {
       sorter: {},
       pager: {}
     })
+
+    // Customized behavior
+    let behavior =  _.get(state.config.schema, "behavior") || {}
+
     // Setup default filter and sorter
-    let filter = _.get(state.config.schema, "behavior.filter") || {}
-    let filter2 = _.assign({}, filter, local.filter)
-    if(!filter.majorKey) {
-      delete filter2.majorKey;
+    let filter = _.assign({}, behavior.filter, local.filter)
+    if(!_.get(behavior.filter, "majorKey")) {
+      delete filter.majorKey;
     }
-    if(!_.isEmpty(filter2)) {
-      commit("search/setFilter", filter2)
+    if(!_.isEmpty(filter)) {
+      commit("search/setFilter", filter)
     }
+    // Fixed match
+    commit("search/setFixedMatch", behavior.match)
+    commit("search/setMajorKey", behavior.majorKey)
+    commit("search/setDefaultKey", behavior.defaultKey)
+    commit("search/setKeyword", behavior.keyword)
+
+
     // Sorter
-    let sorter = _.get(state.config.schema, "behavior.sorter") || {}
     if(!_.isEmpty(local.sorter)) {
       commit("search/setSorter", local.sorter)
     }
-    else if(!_.isEmpty(sorter)) {
-      commit("search/setSorter", sorter)
+    else if(!_.isEmpty(behavior.sorter)) {
+      commit("search/setSorter", behavior.sorter)
     }
 
     // Pager
-    let pager = _.get(state.config.schema, "behavior.pager")
-    if(pager) {
-      commit("search/updatePager", pager)
+    if(behavior.pager) {
+      commit("search/updatePager", behavior.pager)
     }
 
-    // Show keys
-    let showKeys = _.get(state.config.schema, "behavior.showKeys")
-    if(showKeys) {
-      commit("search/setShowKeys", showKeys)
-    }
+    // Show keys to filter obj output
+    commit("search/setShowKeys", behavior.showKeys)
 
     // If pager is enabled, try load from local
     //console.log("root Getters", getters) 

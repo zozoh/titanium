@@ -299,6 +299,7 @@ const WnUtil = {
    */
   getMatchByFilter({keyword, match, majorKey, majorValue}={}, setting={}) {
     let flt = {}
+    //console.log("getMatchByFilter", {match, setting})
     //............................................
     // compatibable mode, the majorKey can declare in settings also
     // And in higher priority

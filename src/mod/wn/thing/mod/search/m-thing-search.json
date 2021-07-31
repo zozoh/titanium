@@ -1,26 +1,33 @@
 {
   "meta": null,
-  "filter" : {},
-  "sorter" : {
-    "ct" : -1
+  "fixedMatch": {},
+  "majorKey": null,
+  "defaultKey": "nm",
+  "keyword": {
+    "=id": "^[\\d\\w]{26}(:[\\d\\w]{26})?$",
+    "title": "^.+"
   },
-  "inRecycleBin" : false,
-  "pager" : {
-    "pn"   : 1,
-    "pgsz" : 50,
-    "pgc"  : 0,
-    "sum"  : 0,
-    "skip" : 0,
+  "filter": {},
+  "sorter": {
+    "ct": -1
+  },
+  "inRecycleBin": false,
+  "pager": {
+    "pn": 1,
+    "pgsz": 50,
+    "pgc": 0,
+    "sum": 0,
+    "skip": 0,
     "count": 0
   },
-  "showKeys" : null,
-  "count" : 0,
-  "currentId" : null,
-  "checkedIds" : [],
-  "list" : [],
-  "status" : {
-    "reloading" : false,
-    "saving"    : false,
-    "deleting"  : false
+  "showKeys": null,
+  "count": 0,
+  "currentId": null,
+  "checkedIds": [],
+  "list": [],
+  "status": {
+    "reloading": false,
+    "saving": false,
+    "deleting": false
   }
 }

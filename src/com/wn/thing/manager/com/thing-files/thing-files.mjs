@@ -71,7 +71,7 @@ const _M = {
     // Events
     //--------------------------------------
     OnDirNameChanged(dirName) {
-      Ti.App(this).commit("main/setCurrentDataDir", dirName)
+      this.$ThingManager.commit("setCurrentDataDir", dirName)
       
       this.$nextTick(()=>{
         this.reloadData()
@@ -93,7 +93,7 @@ const _M = {
         this.$adaptlist.myCurrentId = f.id
         this.myCurrentId = f.id
       }
-      await Ti.App(this).dispatch("main/autoSyncCurrentFilesCount")
+      await this.$ThingManager.dispatch("autoSyncCurrentFilesCount")
     },
     //--------------------------------------
     // Untility
@@ -106,7 +106,7 @@ const _M = {
     //--------------------------------------
     async doDeleteSelected(){
       await this.$adaptlist.doDelete()
-      await Ti.App(this).dispatch("main/autoSyncCurrentFilesCount")
+      await this.$ThingManager.dispatch("autoSyncCurrentFilesCount")
     },
     //--------------------------------------
     async checkDataDir() {
@@ -130,7 +130,7 @@ const _M = {
         let dataHomeObj = await Wn.Io.loadMetaBy(this.dataHome)
 
         // Update local state
-        Ti.App(this).commit("main/setCurrentDataHomeObj", dataHomeObj)
+        this.$ThingManager.commit("setCurrentDataHomeObj", dataHomeObj)
         this.myDataDirObj = dataDirObj
       }
     },

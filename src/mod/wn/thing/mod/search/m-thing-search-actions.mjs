@@ -2,16 +2,15 @@
 ////////////////////////////////////////////////
 export default {
   //--------------------------------------------
-  async reloadPage({state, commit, dispatch}, pg) {
+  async reloadPage({ state, commit, dispatch }, pg) {
     commit("updatePager", pg)
     await dispatch("reload")
   },
   //--------------------------------------------
-  async reload({state, commit, getters, rootState}, meta) {
-    //console.log("thing-manager-search.reload", meta)
+  async reload({ state, commit, getters }, meta) {
     //............................................
     // Update New Meta
-    if(meta) {
+    if (meta) {
       commit("setMeta", meta)
     }
     // Get meta back
@@ -20,20 +19,20 @@ export default {
     }
     //............................................
     // Mark reloading
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
     //............................................
     let cmds = [`thing id:${meta.id} query -cqn`]
     //............................................
     // Eval Sorter
-    if(!_.isEmpty(state.sorter)) {
+    if (!_.isEmpty(state.sorter)) {
       let sort = JSON.stringify(state.sorter)
       cmds.push(`-sort '${sort}'`)
     }
     //............................................
     // Eval Pager
-    if(getters.isPagerEnabled) {
+    if (getters.isPagerEnabled) {
       let limit = state.pager.pgsz
-      let skip  = state.pager.pgsz * (state.pager.pn - 1)
+      let skip = state.pager.pgsz * (state.pager.pn - 1)
       cmds.push(' -pager')
       cmds.push(`-limit ${limit}`)
       cmds.push(`-skip  ${skip}`)
@@ -41,24 +40,24 @@ export default {
 
     //............................................
     // Eval Showkeys
-    if(state.showKeys) {
+    if (state.showKeys) {
       cmds.push(` -e '${state.showKeys}'`)
     }
-    
+
     //............................................
     // Run Command
     let input = getters.filterStr
     let cmdText = cmds.join(" ")
-    let reo = await Wn.Sys.exec2(cmdText, {input, as:"json"})
+    let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
     //............................................
     // All done
-    if(getters.isPagerEnabled) {
+    if (getters.isPagerEnabled) {
       commit("setPager", reo.pager)
       commit("setList", reo.list)
     } else {
       commit("setList", reo)
     }
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   }
   //--------------------------------------------
 }

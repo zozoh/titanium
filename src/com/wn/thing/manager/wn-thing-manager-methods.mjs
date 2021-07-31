@@ -129,7 +129,7 @@ const _M = {
     //....................................
     if(!_.isEmpty(updates)) {
       // Get all checkes
-      await Ti.App(this).dispatch("main/batchUpdateMetas", updates)
+      await this.dispatch("batchUpdateMetas", updates)
     }
   },
   //--------------------------------------
@@ -138,7 +138,7 @@ const _M = {
   //
   //--------------------------------------
   changeShown(shown={}) {
-    Ti.App(this).dispatch("main/doChangeShown", shown)
+    this.dispatch("doChangeShown", shown)
   },
   //--------------------------------------
   showBlock(name) {
@@ -155,22 +155,21 @@ const _M = {
       }
     }
     if("files" == name) {
-      Ti.App(this).dispatch("main/reloadFiles")
+      this.dispatch("reloadFiles")
     }
     else if("content" == name) {
-      //Ti.App(this).dispatch("main/reloadFiles")
-      Ti.App(this).dispatch("main/current/reload")
+      this.dispatch("current/reload")
     }
     // Mark block
-    Ti.App(this).dispatch("main/doChangeShown", {[name]:true})
+    this.dispatch("doChangeShown", {[name]:true})
   },
   //--------------------------------------
   hideBlock(name) {
-    Ti.App(this).dispatch("main/doChangeShown", {[name]:false})
+    this.dispatch("doChangeShown", {[name]:false})
   },
   //--------------------------------------
   toggleBlock(name) {
-    Ti.App(this).dispatch("main/doChangeShown", {
+    this.dispatch("doChangeShown", {
       [name]: !this.TheShown[name]
     })
   },
