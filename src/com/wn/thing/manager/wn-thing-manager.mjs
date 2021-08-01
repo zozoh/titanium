@@ -275,8 +275,8 @@ const _M = {
     //
     //--------------------------------------
     // For Event Bubble Dispatching
-    __on_events(name) {
-      //console.log("__on_events", name)
+    __on_events(name, payload) {
+      //console.log("__on_events", name, payload)
       // Try to get handler
       let fn = _.get(this.EventRouting, name)
       if (!fn) {
@@ -284,10 +284,25 @@ const _M = {
       }
 
       // callPath -> Function
+      let func;
       if (_.isString(fn)) {
-        return _.get(this, fn)
+        func = _.get(this, fn)
+        if (!_.isFunction(func)) {
+          func = Ti.Util.genInvoking(fn, {
+            context: this.currentItem,
+            dft: null,
+            funcSet: this
+          })
+        }
       }
-      return fn
+      if(_.isFunction(func)) {
+        if(!_.isUndefined(payload)) {
+          return ()=>{
+            func(payload)
+          }
+        }
+        return func
+      }
     },
     // Shortcut 
     __ti_shortcut(uniqKey) {

@@ -178,12 +178,12 @@ const _M = {
   //           Utility: Others
   // 
   //--------------------------------------
-  async invoke(fnName) {
-    //console.log("invoke ", fnName)
+  async invoke(fnName, ...args) {
+    //console.log("invoke ", fnName, args)
     let fn = _.get(this.SchemaMethods, fnName)
     // Invoke the method
     if(_.isFunction(fn)) {
-      return await fn.apply(this, [])
+      return await fn.apply(this, args)
     }
     // Throw the error
     else {

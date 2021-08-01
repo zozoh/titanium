@@ -134,7 +134,10 @@ const _M = {
       }
       return Ti.Css.mergeClassName(
         this.bodyClass,
-        `has-${this.FieldsInCurrentTab.length}-fields`
+        `has-${this.FieldsInCurrentTab.length}-fields`,
+        {
+          [`col-${this.myFormColumHint}`]: this.myFormColumHint >= 0
+        }
       )
     },
     //--------------------------------------------------
@@ -538,7 +541,7 @@ const _M = {
         let rect = Ti.Rects.createBy($fldnm)
         //
         // Only one column
-        if(this.myFormColumHint >= 0 && this.myFormColumHint<=1) {
+        if (this.myFormColumHint >= 0 && this.myFormColumHint <= 1) {
           maxWidth = Math.ceil(Math.max(rect.width, maxWidth))
           continue;
         }
@@ -628,8 +631,8 @@ const _M = {
       this.adjustFieldsWidth()
       this.isEvalMeasure = false
     },
-    "myFormColumHint": function(newVal, oldVal) {
-      if(newVal != oldVal) {
+    "myFormColumHint": function (newVal, oldVal) {
+      if (newVal != oldVal) {
         this.adjustFieldsWidth()
       }
     }
@@ -660,7 +663,7 @@ const _M = {
     //--------------------------------------------------
     this.$nextTick(() => {
       this.__adjust_fields_width()
-      _.delay(()=>{
+      _.delay(() => {
         this.evalCoumnHint()
         this.evalFormFieldList()
       }, this.adjustDelay)

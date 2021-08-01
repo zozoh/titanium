@@ -7,6 +7,7 @@
   },
   "types" : {
     "thing_set"   : "thing-manager",
+    "thing_view"  : "thing-manager",
     "comt"        : "com-test",
     "charts"      : "fileset-charts",
     "hmaker_site" : "hmaker-site",

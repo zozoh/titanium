@@ -17,6 +17,9 @@ export default {
     setFixedSchema(state, schema={}) {
       state.fixedSchema = _.cloneDeep(schema)
     },
+    mergeFixedSchema(state, schema={}) {
+      state.fixedSchema = _.merge({}, state.fixedSchema, schema)
+    },
     setCurrentDataDir(state, dirName) {
       state.currentDataDir = dirName
       if(state.meta) {
@@ -29,6 +32,9 @@ export default {
     },
     setCurrentDataHomeObj(state, dataHomeObj) {
       state.currentDataHomeObj = _.cloneDeep(dataHomeObj)
+    },
+    setAutoSelect(state, autoSelect) {
+      state.autoSelect = Ti.Util.fallback(autoSelect, false)
     },
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)

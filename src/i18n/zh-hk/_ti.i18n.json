@@ -195,6 +195,7 @@
    "json-Object": "對象",
    "json-String": "字符串",
    "json-new-key": "請輸入一個新鍵名",
+   "json-syntax-err-tip": "語法錯誤，請切換源碼視圖檢查",
    "key": "鍵",
    "label": "標籤",
    "lang": "語言",

@@ -195,6 +195,7 @@
   "json-Object": "对象",
   "json-String": "字符串",
   "json-new-key": "请输入一个新键名",
+  "json-syntax-err-tip": "语法错误，请切换源码视图检查",
   "key": "键",
   "label": "标签",
   "lang": "语言",

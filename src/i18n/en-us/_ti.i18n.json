@@ -195,6 +195,7 @@
   "json-Object": "Object",
   "json-String": "String",
   "json-new-key": "Enter a new key",
+  "json-syntax-err-tip": "Syntax Error! please switch source view to verify",
   "key": "Key",
   "label": "Label",
   "lang": "Language",

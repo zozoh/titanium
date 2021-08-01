@@ -3,64 +3,64 @@ const _M = {
   /***
    * Save current thing detail
    */
-  async saveCurrent({commit, dispatch}) {
-    commit("setStatus", {saving:true})
+  async saveCurrent({ commit, dispatch }) {
+    commit("setStatus", { saving: true })
     await dispatch("current/save")
-    commit("setStatus", {saving:false})
+    commit("setStatus", { saving: false })
     commit("syncStatusChanged")
   },
   //--------------------------------------------
   /***
    * Update current thing meta data to search/meta
    */
-  async updateCurrent({state, commit, dispatch, getters}, {name, value}={}) {
+  async updateCurrent({ state, commit, dispatch, getters }, { name, value } = {}) {
     // console.log("updateCurrent", {name, value})
     // if(window.lastMS && (Date.now() - window.lastMS) < 5000) {
     //   console.log("!!!! dup-call", {name, value})
     // }
     // window.lastMS = Date.now()
-    if(getters.hasCurrent) {
-      await dispatch("current/updateMeta", {name,value})
+    if (getters.hasCurrent) {
+      await dispatch("current/updateMeta", { name, value })
       commit("search/updateItem", state.current.meta)
     }
   },
   //--------------------------------------------
-  async updateCurrentMetas({state, commit, dispatch, getters}, data={}) {
-    if(getters.hasCurrent) {
+  async updateCurrentMetas({ state, commit, dispatch, getters }, data = {}) {
+    if (getters.hasCurrent) {
       //console.log({name, value})
       await dispatch("current/updateMetas", data)
       commit("search/updateItem", state.current.meta)
     }
   },
   //--------------------------------------------
-  async batchUpdateMetas({state, commit, getters}, updates={}){
+  async batchUpdateMetas({ state, commit, getters }, updates = {}) {
     let checkedItems = getters["search/checkedItems"]
     // Guard
-    if(_.isEmpty(checkedItems) || _.isEmpty(updates)) {
+    if (_.isEmpty(checkedItems) || _.isEmpty(updates)) {
       return
     }
 
     // Mark loading
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
 
     // Gen commands
     let currentId = _.get(state.current, "meta.id")
     let input = JSON.stringify(updates)
     let tsId = state.meta.id
-    for(let it of checkedItems) {
+    for (let it of checkedItems) {
       let cmdText = `thing ${tsId} update ${it.id} -fields -cqn`
-      let newIt = await Wn.Sys.exec2(cmdText, {as:"json", input})
+      let newIt = await Wn.Sys.exec2(cmdText, { as: "json", input })
       commit("search/updateItem", newIt)
-      if(newIt.id == currentId) {
+      if (newIt.id == currentId) {
         commit("current/setMeta", newIt)
       }
     }
 
     // Mark loading
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   },
   //--------------------------------------------
-  setCurrentMeta({state, commit}, meta) {
+  setCurrentMeta({ state, commit }, meta) {
     //console.log(" -> setCurrentMeta", meta)
     commit("current/setThingSetId", state.meta.id)
     commit("current/setMeta", meta)
@@ -68,7 +68,7 @@ const _M = {
     commit("search/updateItem", state.current.meta)
   },
   //--------------------------------------------
-  setCurrentContent({state, commit, dispatch}, content) {
+  setCurrentContent({ state, commit, dispatch }, content) {
     commit("current/setThingSetId", state.meta.id)
     dispatch("current/onChanged", content)
     commit("syncStatusChanged")
@@ -78,30 +78,30 @@ const _M = {
   /***
    * Files: sync the file count and update to search/meta
    */
-  async autoSyncCurrentFilesCount({state, commit, dispatch}, {quiet=true}={}) {
+  async autoSyncCurrentFilesCount({ state, commit, dispatch }, { quiet = true } = {}) {
     let oTh = state.current.meta
     let dirName = state.currentDataDir
     // Guard
-    if(!dirName) {
+    if (!dirName) {
       console.warn("thing file -ufc without 'dirName'");
       return Ti.Toast.Open("thing file -ufc without 'dirName'")
     }
     // sync current media count
-    if(oTh && oTh.id && dirName) {
-      commit("setStatus", {reloading:true})
+    if (oTh && oTh.id && dirName) {
+      commit("setStatus", { reloading: true })
 
       // run command
       let th_set = oTh.th_set
       let cmdText = `thing ${th_set} file ${oTh.id} -dir '${dirName}' -ufc -cqn`
-      let oNew = await Wn.Sys.exec2(cmdText, {as:"json"})
+      let oNew = await Wn.Sys.exec2(cmdText, { as: "json" })
       // Set current meta
       dispatch("setCurrentMeta", oNew)
 
-      commit("setStatus", {reloading:false})
+      commit("setStatus", { reloading: false })
 
-      if(!quiet) {
+      if (!quiet) {
         await Ti.Toast.Open('i18n:wn-th-recount-media-done', {
-          vars: {n: oNew.th_media_nb||0}
+          vars: { n: oNew.th_media_nb || 0 }
         })
       }
     }
@@ -110,27 +110,27 @@ const _M = {
   /***
    * Toggle enter/outer RecycleBin
    */
-  async toggleInRecycleBin({state, commit, dispatch, getters}) {
+  async toggleInRecycleBin({ state, commit, dispatch, getters }) {
     //console.log("thing-manager-toggleInRecycleBin")
     // Update Search
     let inRecycleBin = !getters.isInRecycleBin
     commit("search/setInRecycleBin", inRecycleBin)
 
     // Update status
-    commit("setStatus", {inRecycleBin, reloading:true})
+    commit("setStatus", { inRecycleBin, reloading: true })
     // Reload List
     await dispatch("search/reload")
 
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   },
   //--------------------------------------------
   /***
    * Create one new thing
    */
-  async create({state, commit, dispatch}, obj={}) {
+  async create({ state, commit, dispatch }, obj = {}) {
     // Special setting for create
     let beCreate = _.get(state.config, "schema.behavior.create") || {}
-    let {unique,after,fixed} = beCreate
+    let { unique, after, fixed } = beCreate
 
     // Prepare the command
     let json = JSON.stringify(obj)
@@ -138,37 +138,37 @@ const _M = {
     let cmds = [`thing ${th_set} create -cqn -fields`]
 
     // Join `-unique`
-    if(!_.isEmpty(unique) && _.isString(unique)) {
+    if (!_.isEmpty(unique) && _.isString(unique)) {
       cmds.push(` -unique '${unique}'`)
     }
 
     // Join `-fixed`
-    if(!_.isEmpty(fixed) && _.isString(unique)) {
+    if (!_.isEmpty(fixed) && _.isString(unique)) {
       cmds.push(` -fixed '${JSON.stringify(fixed)}'`)
     }
 
     // Join `-after`
-    if(!_.isEmpty(after) && _.isString(after)) {
+    if (!_.isEmpty(after) && _.isString(after)) {
       cmds.push(` -after '${after}'`)
     }
 
     // Mark reloading
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
 
     // Do Create
     let cmdText = cmds.join(" ")
-    let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
+    let newMeta = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
 
-    if(newMeta && !(newMeta instanceof Error)) {
+    if (newMeta && !(newMeta instanceof Error)) {
       // Append To Search List as the first 
       commit("search/prependToList", newMeta)
-      
+
       // Set it as current
-      await dispatch("setCurrentThing", {meta:newMeta})
+      await dispatch("setCurrentThing", { meta: newMeta })
     }
 
     // Mark reloading
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
 
     // Return the new object
     return newMeta
@@ -177,9 +177,9 @@ const _M = {
   /***
    * Search: Remove Checked Items
    */
-  async removeChecked({state, commit, dispatch, getters}, hard=false) {
+  async removeChecked({ state, commit, dispatch, getters }, hard = false) {
     let ids = _.cloneDeep(state.search.checkedIds)
-    if(_.isEmpty(ids)) {
+    if (_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
     }
 
@@ -188,23 +188,23 @@ const _M = {
     hard |= beh.hardRemove
 
     // If hard, warn at first
-    if(hard || state.status.inRecycleBin) {
-      if(! (await Ti.Confirm('i18n:del-hard'))) {
+    if (hard || state.status.inRecycleBin) {
+      if (!(await Ti.Confirm('i18n:del-hard'))) {
         return
       }
     }
 
-    commit("setStatus", {deleting:true})
+    commit("setStatus", { deleting: true })
 
     // Prepare the ids which fail to remove
     let failIds = {}
 
     // Prepare the cmds
     let th_set = state.meta.id
-    let cmdText = `thing ${th_set} delete ${hard?"-hard":""} -cqn -l ${ids.join(" ")}`
+    let cmdText = `thing ${th_set} delete ${hard ? "-hard" : ""} -cqn -l ${ids.join(" ")}`
     let reo = await Wn.Sys.exec2(cmdText, {
-      as:"json",
-      errorAs: ({data})=>{
+      as: "json",
+      errorAs: ({ data }) => {
         let id = _.trim(data)
         failIds[id] = true
       }
@@ -215,57 +215,57 @@ const _M = {
     //console.log("removeIds:", removeIds)
 
     // Remove it from search list
-    if(!_.isEmpty(removeIds)) {
+    if (!_.isEmpty(removeIds)) {
       commit("search/removeItems", removeIds)
     }
     let current = getters["search/currentItem"]
     //console.log("getback current", current)
     // Update current
-    await dispatch("setCurrentThing", {meta:current})
+    await dispatch("setCurrentThing", { meta: current })
 
-    commit("setStatus", {deleting:false})
+    commit("setStatus", { deleting: false })
   },
   //--------------------------------------------
   /***
    * RecycleBin: restore
    */
-  async restoreRecycleBin({state, commit, dispatch, getters}) {
+  async restoreRecycleBin({ state, commit, dispatch, getters }) {
     // Require user to select some things at first
     let ids = state.search.checkedIds
-    if(_.isEmpty(ids)) {
+    if (_.isEmpty(ids)) {
       return await Ti.Alert('i18n:thing-restore-none')
     }
-    commit("setStatus", {restoring:true})
+    commit("setStatus", { restoring: true })
 
     // Run command
     let th_set = state.meta.id
     let cmdText = `thing ${th_set} restore -quiet -cqn -l ${ids.join(" ")}`
-    let reo = await Wn.Sys.exec2(cmdText, {as:"json"})
+    let reo = await Wn.Sys.exec2(cmdText, { as: "json" })
 
     // Reload
     await dispatch("search/reload")
 
     // Get back current
     let current = getters["search/currentItem"]
-    
+
     // Update current
     await dispatch("current/reload", current)
 
-    commit("setStatus", {restoring:false})
+    commit("setStatus", { restoring: false })
   },
   //--------------------------------------------
   /***
    * RecycleBin: clean
    */
-  async cleanRecycleBin({state, commit, dispatch}) {
-    commit("setStatus", {cleaning:true})
+  async cleanRecycleBin({ state, commit, dispatch }) {
+    commit("setStatus", { cleaning: true })
 
     // Run command
     let th_set = state.meta.id
     let cmdText = `thing ${th_set} clean -limit 3000`
     await Wn.Sys.exec2(cmdText)
 
-    commit("setStatus", {cleaning:false})
+    commit("setStatus", { cleaning: false })
 
     await dispatch("reload")
   },
@@ -275,28 +275,28 @@ const _M = {
   /***
    * Open meta editor, if has current, use it
    */
-  async openMetaEditor({state, getters, dispatch}) {
+  async openMetaEditor({ state, getters, dispatch }) {
     // Guard
-    if(!state.meta) {
+    if (!state.meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
     //.........................................
     // For current selected
     //.........................................
-    if(getters.hasCurrent) {
+    if (getters.hasCurrent) {
       // Edit current meta
       let reo = await Wn.EditObjMeta(state.current.meta, {
-        fields:"default", autoSave:false
+        fields: "default", autoSave: false
       })
 
       // Cancel the editing
-      if(_.isUndefined(reo)) {
+      if (_.isUndefined(reo)) {
         return
       }
 
       // Update the current editing
-      let {updates} = reo
-      if(!_.isEmpty(updates)) {
+      let { updates } = reo
+      if (!_.isEmpty(updates)) {
         await dispatch("updateCurrentMetas", updates)
       }
       return
@@ -305,26 +305,26 @@ const _M = {
     // For Whole thing thing
     //.........................................
     await Wn.EditObjMeta(state.meta, {
-      fields:"auto", autoSave:true
+      fields: "auto", autoSave: true
     })
   },
   //--------------------------------------------
   /***
    * Open current object source editor
    */
-  async openContentEditor({state, getters, dispatch, commit}) {
+  async openContentEditor({ state, getters, dispatch, commit }) {
     // Guard
-    if(!state.meta) {
+    if (!state.meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
-    if(getters.hasCurrent) {
+    if (getters.hasCurrent) {
       // Open Editor
       let newContent = await Wn.EditObjContent(state.current.meta, {
-        content : state.current.content
+        content: state.current.content
       })
 
       // Cancel the editing
-      if(_.isUndefined(newContent)) {
+      if (_.isUndefined(newContent)) {
         return
       }
 
@@ -341,13 +341,13 @@ const _M = {
   /***
    * Reload files
    */
-  async reloadFiles({state,commit,dispatch, getters}, {force=false}={}) {
+  async reloadFiles({ state, commit, dispatch, getters }, { force = false } = {}) {
     //console.log("reloadFiles")
     let current = _.get(state.current, "meta")
     let thingId = _.get(current, "id")
     let dirName = state.filesName
     // No current
-    if(!thingId || !dirName) {
+    if (!thingId || !dirName) {
       commit("files/reset")
     }
     // Reload the files
@@ -355,19 +355,19 @@ const _M = {
       let thSetId = state.meta.id
       // get the parent DIR
       let oDir = state.files.meta
-      if(!oDir || !oDir.ph || !oDir.ph.endsWith(`/data/${thingId}/${dirName}`)) {
+      if (!oDir || !oDir.ph || !oDir.ph.endsWith(`/data/${thingId}/${dirName}`)) {
         let dataHome = `id:${thSetId}/data`
         let dirPath = `${thingId}/${dirName}`
         // Create or fetch the dir
         let newMeta = {
-          race : "DIR",
-          nm   : dirPath
+          race: "DIR",
+          nm: dirPath
         }
         let json = JSON.stringify(newMeta)
         let cmdText = `obj "${dataHome}" -IfNoExists -new '${json}' -cqno`
-        oDir = await Wn.Sys.exec2(cmdText, {as:"json"})
-        if(!oDir) {
-          return 
+        oDir = await Wn.Sys.exec2(cmdText, { as: "json" })
+        if (!oDir) {
+          return
         }
       } // ~ if(!oDir || !oDir.ph
       // Try to reload the children
@@ -381,30 +381,30 @@ const _M = {
   /***
    * Reload search list
    */
-  async reloadSearch({state, commit, dispatch}) {
+  async reloadSearch({ state, commit, dispatch }) {
     let meta = state.meta
 
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
 
     await dispatch("search/reload", meta)
 
     // Sometimes, current object will not in the list
     // we need remove it
-    if(state.current.meta) {
+    if (state.current.meta) {
       // find new meta
       let currentId = state.current.meta.id
       let current = null
-      for(let it of state.search.list) {
-        if(it.id == currentId) {
+      for (let it of state.search.list) {
+        if (it.id == currentId) {
           current = it
           break
         }
       }
       // Update the meta
-      await dispatch("setCurrentThing", {meta : current})
+      await dispatch("setCurrentThing", { meta: current })
     }
 
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   },
   //--------------------------------------------
   /***
@@ -412,15 +412,15 @@ const _M = {
    * 
    * It will load content if "content" is shown
    */
-  async setCurrentThing({state, commit, dispatch}, {
-    meta=null, 
-    checkedIds={}
-  }={}) {
+  async setCurrentThing({ state, commit, dispatch }, {
+    meta = null,
+    checkedIds = {}
+  } = {}) {
     //..........................................
     // Update selected item in search list
     let curId = meta ? meta.id : null
     let ckIds = Ti.Util.truthyKeys(checkedIds)
-    if(!Ti.Util.isNil(curId)) {
+    if (!Ti.Util.isNil(curId)) {
       ckIds.push(curId)
     }
     commit("search/setCurrentId", curId)
@@ -438,7 +438,7 @@ const _M = {
     //..........................................
     // Keep last
     let lastKey = `${home.id}:currentId`
-    if(!_.get(state.config.schema, "keepLastOff")) {
+    if (!_.get(state.config.schema, "keepLastOff")) {
       Ti.Storage.session.set(lastKey, curId);
     }
     // Clean local storage
@@ -450,7 +450,7 @@ const _M = {
     commit("current/setThingSetId", state.meta.id)
     let currentMeta = _.cloneDeep(meta)
     // Reload if show content
-    if(_.get(state.config, "shown.content")) {
+    if (_.get(state.config, "shown.content")) {
       await dispatch("current/reload", currentMeta)
     }
     // Just update the meta
@@ -465,13 +465,13 @@ const _M = {
    * 
    * If show content/files, it may check if need to be reload data
    */
-  async doChangeShown({state, commit, dispatch}, shown) {
+  async doChangeShown({ state, commit, dispatch }, shown) {
     let oldShownContent = _.get(state, "config.shown.content") || false
     // Just mark the shown
     dispatch("config/updateShown", shown)
 
     // If show changed, and content is true
-    if(!oldShownContent && shown.content) {
+    if (!oldShownContent && shown.content) {
       //console.log("reload current content")
       await dispatch("current/reload")
       commit("syncStatusChanged")
@@ -481,15 +481,36 @@ const _M = {
   /***
    * Reload All
    */
-  async reload({state, commit, dispatch, getters}, meta) {
+  async reload({ state, commit, dispatch, getters }, meta) {
     //console.log("thing-manager.reload", state)
     // Reload meta
-    if(_.isString(meta)) {
+    if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
     }
 
+    // Relod setting from thing view
+    let thAutoSelect = Ti.Util.fallbackNil(state.autoSelect, false)
+    if ("FILE" == meta.race) {
+      let view = await Wn.Io.loadContent(meta, { as: "json" })
+      let { path, schema, autoSelect } = view
+      meta = await Wn.Io.loadMeta(path)
+      if (schema) {
+        commit("mergeFixedSchema", schema)
+      }
+      if (!Ti.Util.isNil(autoSelect)) {
+        thAutoSelect = Ti.Types.toBoolean(autoSelect)
+      }
+    }
+    // Update auto-select by meta
+    else if (!Ti.Util.isNil(meta.th_auto_select)) {
+      thAutoSelect = Ti.Types.toBoolean(meta.th_auto_select)
+    }
+
+    // commit auto-select to state
+    commit("setAutoSelect", thAutoSelect)
+
     // Update New Meta
-    if(meta) {
+    if (meta) {
       commit("setMeta", meta)
     }
     // Get meta back
@@ -503,7 +524,7 @@ const _M = {
     commit("current/setThingSetId", state.meta.id)
 
     // Mark reloading
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
 
     // Reload Config
     //console.log("reload config")
@@ -513,9 +534,9 @@ const _M = {
     // Update the default filesDirName
     let localDirNameKey = `${meta.id}_dirname`
     let dirName = Ti.Storage.session.getString(localDirNameKey)
-    if(!dirName) {
+    if (!dirName) {
       dirName = _.get(state.config, "schema.behavior.filesDirName")
-                || "media"
+        || "media"
     }
     commit("setCurrentDataDir", dirName || "media")
 
@@ -528,14 +549,14 @@ const _M = {
     })
 
     // Customized behavior
-    let behavior =  _.get(state.config.schema, "behavior") || {}
+    let behavior = _.get(state.config.schema, "behavior") || {}
 
     // Setup default filter and sorter
     let filter = _.assign({}, behavior.filter, local.filter)
-    if(!_.get(behavior.filter, "majorKey")) {
+    if (!_.get(behavior.filter, "majorKey")) {
       delete filter.majorKey;
     }
-    if(!_.isEmpty(filter)) {
+    if (!_.isEmpty(filter)) {
       commit("search/setFilter", filter)
     }
     // Fixed match
@@ -546,15 +567,15 @@ const _M = {
 
 
     // Sorter
-    if(!_.isEmpty(local.sorter)) {
+    if (!_.isEmpty(local.sorter)) {
       commit("search/setSorter", local.sorter)
     }
-    else if(!_.isEmpty(behavior.sorter)) {
+    else if (!_.isEmpty(behavior.sorter)) {
       commit("search/setSorter", behavior.sorter)
     }
 
     // Pager
-    if(behavior.pager) {
+    if (behavior.pager) {
       commit("search/updatePager", behavior.pager)
     }
 
@@ -563,8 +584,8 @@ const _M = {
 
     // If pager is enabled, try load from local
     //console.log("root Getters", getters) 
-    if(getters["search/isPagerEnabled"]) {
-      if(!_.isEmpty(local.pager)) {
+    if (getters["search/isPagerEnabled"]) {
+      if (!_.isEmpty(local.pager)) {
         commit("search/setPager", local.pager)
       }
     }
@@ -574,31 +595,31 @@ const _M = {
     await dispatch("reloadSearch")
 
     // Auto Select the first item
-    if(_.get(state, "meta.th_auto_select")) {
-      if(!state.current.meta && !_.isEmpty(state.search.list)) {
+    if (state.autoSelect) {
+      if (!state.current.meta && !_.isEmpty(state.search.list)) {
         // Get last
         let lastKey = `${home.id}:currentId`
         let curId = Ti.Storage.session.getString(lastKey);
         let current;
 
         // Find by id
-        if(curId)
-          current = _.find(state.search.list, li=>li.id == curId)
+        if (curId)
+          current = _.find(state.search.list, li => li.id == curId)
 
         // use the first one
-        if(!current)
+        if (!current)
           current = _.first(state.search.list)
-        
+
         // Highlight it
         await dispatch("setCurrentThing", {
-          meta : current, 
-          force : false
+          meta: current,
+          force: false
         })
       }
     }
 
     // All done
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   }
   //--------------------------------------------
 }

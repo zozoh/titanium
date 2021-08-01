@@ -379,6 +379,11 @@ const TiStr = {
         return null
     }
     //...............................................
+    // The whole context
+    if(".." == str) {
+      return context
+    }
+    //...............................................
     // Number
     if (/^-?[\d.]+$/.test(str)) {
         return str * 1;

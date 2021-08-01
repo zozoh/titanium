@@ -45,7 +45,7 @@
           "type": "action",
           "icon": "zmdi-keyboard",
           "text": "i18n:view-resource",
-          "action": "dispatch:current/openContentEditor",
+          "action": "dispatch:main/openContentEditor",
           "shortcut": "ALT+SHIFT+V"
         },
         {

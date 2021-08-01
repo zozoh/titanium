@@ -5,6 +5,7 @@
   "currentDataHome": null,
   "currentDataHomeObj": null,
   "fixedSchema": {},
+  "autoSelect": false,
   "status": {
     "reloading": false,
     "doing": false,
