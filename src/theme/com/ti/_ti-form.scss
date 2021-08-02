@@ -11,7 +11,7 @@
   //------------------------------------
   .form-field {
     position: relative; 
-    transition: all .5s;
+    transition: opacity .5s;
     flex: 1 1 auto;
     //----------------------------------
     &.as-required {
