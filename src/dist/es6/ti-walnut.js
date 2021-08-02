@@ -1,4 +1,4 @@
-// Pack At: 2021-07-27 02:16:59
+// Pack At: 2021-08-02 09:33:46
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1949,6 +1949,7 @@ const Util = (function(){
      */
     getMatchByFilter({keyword, match, majorKey, majorValue}={}, setting={}) {
       let flt = {}
+      //console.log("getMatchByFilter", {match, setting})
       //............................................
       // compatibable mode, the majorKey can declare in settings also
       // And in higher priority
@@ -4025,7 +4026,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210727.021659"
+const WALNUT_VERSION = "1.2-20210802.093346"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

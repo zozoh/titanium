@@ -1,4 +1,4 @@
-// Pack At: 2021-07-27 02:16:59
+// Pack At: 2021-08-02 09:33:46
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1579,6 +1579,11 @@ const {S} = (function(){
           return null
       }
       //...............................................
+      // The whole context
+      if(".." == str) {
+        return context
+      }
+      //...............................................
       // Number
       if (/^-?[\d.]+$/.test(str)) {
           return str * 1;
@@ -1919,8 +1924,8 @@ const {S} = (function(){
 // # import {App}          from "./app.mjs"
 const {App} = (function(){
   //################################################
-  // # import {LoadTiAppInfo, LoadTiLinkedObj} from "./app-info.mjs"
-  const {LoadTiAppInfo, LoadTiLinkedObj} = (function(){
+  // # import { LoadTiAppInfo, LoadTiLinkedObj } from "./app-info.mjs"
+  const { LoadTiAppInfo, LoadTiLinkedObj } = (function(){
     //---------------------------------------
     function isTiLink(str) {
       // Remote Link @http://xxx
@@ -2116,6 +2121,9 @@ const {App} = (function(){
     function LoadTiLinkedObj(input, {
       dynamicPrefix, dynamicAlias
     }={}) { 
+      if(_.isEmpty(input)) {
+        return {}
+      }
       return new Promise((resolve, reject)=>{
         // Prapare the loading table
         // And register a callback function
@@ -2156,8 +2164,8 @@ const {App} = (function(){
     return {LoadTiLinkedObj, LoadTiAppInfo};
   })();
   //################################################
-  // # import {TiAppActionShortcuts} from "./app-action-shortcuts.mjs"
-  const {TiAppActionShortcuts} = (function(){
+  // # import { TiAppActionShortcuts } from "./app-action-shortcuts.mjs"
+  const { TiAppActionShortcuts } = (function(){
     class TiAppActionShortcuts {
       //////////////////////////////////////////////
       // Attributes
@@ -2355,8 +2363,8 @@ const {App} = (function(){
     return {TiAppActionShortcuts};
   })();
   //################################################
-  // # import {TiVue}      from "./polyfill-ti-vue.mjs"
-  const {TiVue} = (function(){
+  // # import { TiVue } from "./polyfill-ti-vue.mjs"
+  const { TiVue } = (function(){
     //---------------------------------------
     function do_map_xxx(modPath, setting) {
       const re = {}
@@ -2666,8 +2674,8 @@ const {App} = (function(){
     return {TiVue};
   })();
   //################################################
-  // # import {TiAppModal} from "./app-modal.mjs"
-  const {TiAppModal} = (function(){
+  // # import { TiAppModal } from "./app-modal.mjs"
+  const { TiAppModal } = (function(){
     class TiAppModal {
       //////////////////////////////////////////////
       // Attributes
@@ -3144,11 +3152,11 @@ const {App} = (function(){
     return {TiAppModal};
   })();
   //---------------------------------------
-  const TI_APP     = Symbol("ti-app")
-  const TI_INFO    = Symbol("ti-info")
-  const TI_CONF    = Symbol("ti-conf")
-  const TI_STORE   = Symbol("ti-store")
-  const TI_VM      = Symbol("ti-vm")
+  const TI_APP = Symbol("ti-app")
+  const TI_INFO = Symbol("ti-info")
+  const TI_CONF = Symbol("ti-conf")
+  const TI_STORE = Symbol("ti-store")
+  const TI_VM = Symbol("ti-vm")
   const TI_VM_MAIN = Symbol("ti-vm-main")
   const TI_VM_ACTIVED = Symbol("ti-vm-actived")
   //---------------------------------------
@@ -3156,7 +3164,7 @@ const {App} = (function(){
   Encapsulate all stuffs of Titanium Application
   */
   class OneTiApp {
-    constructor(tinfo={}, decorator){
+    constructor(tinfo = {}, decorator) {
       this.appDecorator = decorator
       this.$info(tinfo)
       this.$conf(null)
@@ -3173,17 +3181,17 @@ const {App} = (function(){
       // })
     }
     //---------------------------------------
-    name () {return this.$info().name}
+    name() { return this.$info().name }
     //---------------------------------------
-    $info (info)   {return Ti.Util.geset(this, TI_INFO ,   info)}
-    $conf (conf)   {return Ti.Util.geset(this, TI_CONF ,   conf)}
-    $store (store) {return Ti.Util.geset(this, TI_STORE,   store)}
-    $vm    (vm)    {return Ti.Util.geset(this, TI_VM   ,   vm)}
-    $vmMain(mvm)   {return Ti.Util.geset(this, TI_VM_MAIN, mvm)}
+    $info(info) { return Ti.Util.geset(this, TI_INFO, info) }
+    $conf(conf) { return Ti.Util.geset(this, TI_CONF, conf) }
+    $store(store) { return Ti.Util.geset(this, TI_STORE, store) }
+    $vm(vm) { return Ti.Util.geset(this, TI_VM, vm) }
+    $vmMain(mvm) { return Ti.Util.geset(this, TI_VM_MAIN, mvm) }
     //---------------------------------------
-    $state() {return this.$store().state}
+    $state() { return this.$store().state }
     //---------------------------------------
-    async init(){
+    async init() {
       // App Must has a name
       let info = this.$info()
       // if(!info.name) {
@@ -3193,34 +3201,34 @@ const {App} = (function(){
       let conf = await LoadTiAppInfo(info)
       await this.appDecorator(conf)
       this.$conf(conf)
-      if(Ti.IsInfo("TiApp")) {
+      if (Ti.IsInfo("TiApp")) {
         console.log("Ti.$conf", this.$conf())
       }
   
       // Auto add i18n message map
-      if(conf.i18n) {
+      if (conf.i18n) {
         let i18nList = _.concat(conf.i18n)
-        for(let i18nMap of i18nList) {
+        for (let i18nMap of i18nList) {
           Ti.I18n.put(i18nMap)
         }
       }
   
       // Import global methods
-      if(conf.importMethods) {
+      if (conf.importMethods) {
         _.assign(window, conf.importMethods)
       }
   
       // Store instance
       let store
-      if(conf.store) {
+      if (conf.store) {
         let sc = TiVue.StoreConfig(conf.store)
-        if(Ti.IsInfo("TiApp")) {
+        if (Ti.IsInfo("TiApp")) {
           console.log("TiVue.StoreConfig:", sc)
         }
         store = TiVue.CreateStore(sc)
         this.$store(store)
         store[TI_APP] = this
-        if(Ti.IsInfo("TiApp")) {
+        if (Ti.IsInfo("TiApp")) {
           console.log("Ti.$store", this.$store())
         }
       }
@@ -3231,12 +3239,12 @@ const {App} = (function(){
   
       // Vue instance
       let setup = TiVue.Setup(conf, store)
-      if(Ti.IsInfo("TiApp")) {
+      if (Ti.IsInfo("TiApp")) {
         console.log("TiVue.VueSetup(conf)")
         console.log(" -- global:", setup.global)
         console.log(" -- options:", setup.options)
       }
-      let vm = TiVue.CreateInstance(setup, (com)=>{
+      let vm = TiVue.CreateInstance(setup, (com) => {
         Ti.Config.decorate(com)
       })
       vm[TI_APP] = this
@@ -3258,22 +3266,22 @@ const {App} = (function(){
       this.$el[TI_APP] = this
     }
     //---------------------------------------
-    destroy(removeDom=false){
+    destroy(removeDom = false) {
       this.$vm().$destroy()
       this.$el[TI_APP] = null
-      if(removeDom) {
+      if (removeDom) {
         Ti.Dom.remove(this.$el)
       }
     }
     //---------------------------------------
-    setActivedVm(vm=null) {
+    setActivedVm(vm = null) {
       this[TI_VM_ACTIVED] = vm
       let aIds = vm.tiActivableComIdPath()
       this.$store().commit("viewport/setActivedIds", aIds)
     }
     //---------------------------------------
-    setBlurredVm(vm=null) {
-      if(this[TI_VM_ACTIVED] == vm){
+    setBlurredVm(vm = null) {
+      if (this[TI_VM_ACTIVED] == vm) {
         let $pvm = vm.tiParentActivableCom()
         this[TI_VM_ACTIVED] = $pvm
         let aIds = $pvm ? $pvm.tiActivableComIdPath() : []
@@ -3285,14 +3293,14 @@ const {App} = (function(){
       return this[TI_VM_ACTIVED]
     }
     //---------------------------------------
-    reWatchShortcut(actions=[]) {
+    reWatchShortcut(actions = []) {
       this.unwatchShortcut()
       this.watchShortcut(actions)
     }
     //---------------------------------------
-    watchShortcut(actions=[]) {
+    watchShortcut(actions = []) {
       this.$shortcuts.watch(this, actions, {
-        $com: ()=>this.$vmMain(),
+        $com: () => this.$vmMain(),
         argContext: this.$state()
       })
     }
@@ -3317,22 +3325,22 @@ const {App} = (function(){
     fireShortcut(uniqKey, $event) {
       //......................................
       let st = {
-        stop    :false,
-        prevent : false,
-        quit    : false
+        stop: false,
+        prevent: false,
+        quit: false
       }
       //......................................
       // Actived VM shortcut
       let vm = this.getActivedVm()
-      if(vm) {
+      if (vm) {
         let vmPath = vm.tiActivableComPath(false)
-        for(let aVm of vmPath) {
-          if(_.isFunction(aVm.__ti_shortcut)) {
+        for (let aVm of vmPath) {
+          if (_.isFunction(aVm.__ti_shortcut)) {
             let re = aVm.__ti_shortcut(uniqKey) || {}
-            st.stop    |= re.stop
+            st.stop |= re.stop
             st.prevent |= re.prevent
-            st.quit    |= re.quit
-            if(st.quit) {
+            st.quit |= re.quit
+            if (st.quit) {
               break
             }
           }
@@ -3341,10 +3349,10 @@ const {App} = (function(){
       //......................................
       this.$shortcuts.fire(this, uniqKey, st)
       //......................................
-      if(st.prevent && $event && _.isFunction($event.preventDefault)) {
+      if (st.prevent && $event && _.isFunction($event.preventDefault)) {
         $event.preventDefault()
       }
-      if(st.stop && $event && _.isFunction($event.stopPropagation)) {
+      if (st.stop && $event && _.isFunction($event.stopPropagation)) {
         $event.stopPropagation()
       }
       //......................................
@@ -3365,27 +3373,27 @@ const {App} = (function(){
     async exec(cmd, payload) {
       let ta = cmd
       //...................
-      if(_.isString(ta)) {
+      if (_.isString(ta)) {
         let m = /^(commit|dispatch|root|main):(.+)$/.exec(ta)
-        if(!m)
+        if (!m)
           return
         ta = {
-          method : m[1],
-          name   : m[2]
+          method: m[1],
+          name: m[2]
         }
       }
       //...................
       return await this[ta.method](ta.name, payload)
     }
     //---------------------------------------
-    commit(nm, payload){
+    commit(nm, payload) {
       this.$store().commit(nm, payload)
     }
     async dispatch(nm, payload) {
-      if(Ti.IsInfo("TiApp")) {
+      if (Ti.IsInfo("TiApp")) {
         console.log("TiApp.dispatch", nm, payload)
       }
-      try{
+      try {
         return await this.$store().dispatch(nm, payload)
       } catch (err) {
         console.error(err)
@@ -3394,40 +3402,40 @@ const {App} = (function(){
     }
     //---------------------------------------
     root(nm, payload) {
-      if(Ti.IsInfo("TiApp")) {
+      if (Ti.IsInfo("TiApp")) {
         console.log("TiApp.self", nm, payload)
       }
       let vm = this.$vm()
       let fn = vm[nm]
-      if(_.isFunction(fn)){
+      if (_.isFunction(fn)) {
         return fn(payload)
       }
       // Properties
-      else if(!_.isUndefined(fn)) {
+      else if (!_.isUndefined(fn)) {
         return fn
       }
       // report error
       else {
-        throw Ti.Err.make("e-ti-app-self", {nm, payload})
+        throw Ti.Err.make("e-ti-app-self", { nm, payload })
       }
     }
     //---------------------------------------
     main(nm, payload) {
-      if(Ti.IsInfo("TiApp")) {
+      if (Ti.IsInfo("TiApp")) {
         console.log("TiApp.main", nm, payload)
       }
       let vm = this.$vmMain()
       let fn = vm[nm]
-      if(_.isFunction(fn)){
+      if (_.isFunction(fn)) {
         return fn(payload)
       }
       // Properties
-      else if(!_.isUndefined(fn)) {
+      else if (!_.isUndefined(fn)) {
         return fn
       }
       // report error
       else {
-        throw Ti.Err.make("e-ti-app-main", {nm, payload})
+        throw Ti.Err.make("e-ti-app-main", { nm, payload })
       }
     }
     //---------------------------------------
@@ -3436,17 +3444,17 @@ const {App} = (function(){
       // Find the function in window
       let fn = _.get(window, nm)
       // Fire the function
-      if(_.isFunction(fn)) {
+      if (_.isFunction(fn)) {
         return fn.apply(this, args)
       }
       // report error
       else {
-        throw Ti.Err.make("e-ti-app-main", {nm, args})
+        throw Ti.Err.make("e-ti-app-main", { nm, args })
       }
     }
     //---------------------------------------
     get(key) {
-      if(!key) {
+      if (!key) {
         return this.$vm()
       }
       return this.$vm()[key]
@@ -3457,13 +3465,25 @@ const {App} = (function(){
     //    comType: "@com:xx.xx", 
     //    components: ["@com:xx/xx"]
     // }
-    async loadView(view, {
-      setupMod = _.identity
-    }={}) {
+    async loadView(view) {
       // [Optional] Load the module
+      const setupMod = (moConf, { modState, modSetup }={}) => {
+        //console.log("setup:", moConf)
+        _.assign(moConf.state, modState)
+        if (modSetup) {
+          let setupFunc = Ti.Util.genInvoking(modSetup, {
+            dft: null,
+            partial: "right"
+          })
+          if (_.isFunction(setupFunc)) {
+            return setupFunc({ moConf, meta, viewInfo })
+          }
+        }
+        return moConf
+      }
       //.....................................
       let mod, comName;
-      if(view.modType) {
+      if (view.modType) {
         let moInfo = await Ti.Load(view.modType)
         let moConf = await LoadTiLinkedObj(moInfo, {
           dynamicAlias: new Ti.Config.AliasMapping({
@@ -3471,24 +3491,47 @@ const {App} = (function(){
           })
         })
         // Default state
-        if(!moConf.state) {
+        if (!moConf.state) {
           moConf.state = {}
         }
-        moConf = await setupMod(moConf) || moConf
+        moConf = await setupMod(moConf, view) || moConf
         //console.log("get mod conf", moConf)
         // Formed
         mod = TiVue.StoreConfig(moConf, true)
         // this.$store().registerModule(name, mo)
       }
       //.....................................
+      // Load extends modules
+      if (view.extModules) {
+        let modules = {}
+        for (let moName in view.extModules) {
+          let moInfo = view.extModules[moName] || {}
+          let { modType } = moInfo
+          if (!modType) {
+            continue
+          }
+          let moConf = await LoadTiLinkedObj(modType, {
+            dynamicAlias: new Ti.Config.AliasMapping({
+              "^\./": moInfo.modType + "/"
+            })
+          })
+          moConf = await setupMod(moConf, moInfo) || moConf
+          let extMod = TiVue.StoreConfig(moConf, true)
+          modules[moName] = extMod
+        }
+        view.modules = modules
+      }
+      //.....................................
       // Load the component
       let comInfo = {}
-      if(view.comType) {
+      if (view.comType) {
         comInfo = await Ti.Load(view.comType)
       }
       //.....................................
       // Push View dependance components
-      Ti.Util.pushValue(comInfo, "components", view.components)
+      if (!_.isEmpty(view.components)) {
+        Ti.Util.pushValue(comInfo, "components", view.components)
+      }
       //.....................................
       // Load all relative stuff
       let comConf = await LoadTiLinkedObj(comInfo, {
@@ -3504,11 +3547,11 @@ const {App} = (function(){
       let setup = TiVue.Setup(comConf)
       //.....................................
       // Get the formed comName
-      if(view.comType) {
-        comName = setup.options.name 
-                      || Ti.Util.getLinkName(view.comType)
+      if (view.comType) {
+        comName = setup.options.name
+          || Ti.Util.getLinkName(view.comType)
         //.....................................
-        if(Ti.IsInfo("TiApp")) {
+        if (Ti.IsInfo("TiApp")) {
           console.log("TiApp.loadView:", comName)
           console.log(" -- global:", setup.global)
           console.log(" -- options:", setup.options)
@@ -3523,11 +3566,11 @@ const {App} = (function(){
         TiVue.registerComponent(comName, setup.options)
       }
       //.....................................
-      _.map(setup.global.components, com=>{
+      _.map(setup.global.components, com => {
         //Ti.I18n.put(com.i18n)
         // Decorate it
         Ti.Config.decorate(com)
-        
+  
         // Regist it
         //console.log("define com:", com.name)
         //Vue.component(com.name, com)
@@ -3544,74 +3587,74 @@ const {App} = (function(){
     //---------------------------------------
   }
   //---------------------------------------
-  const TiApp = function(a0, decorator=_.identity) {
+  const TiApp = function (a0, decorator = _.identity) {
     // Guard it
-    if(Ti.Util.isNil(a0)) {
+    if (Ti.Util.isNil(a0)) {
       return null
     }
     // load the app info 
-    if(_.isString(a0)) {
-      return Ti.Load(a0).then(info=>{
+    if (_.isString(a0)) {
+      return Ti.Load(a0).then(info => {
         return new OneTiApp(info, decorator)
       })
     }
     // Get back App from Element
-    if(_.isElement(a0)){
+    if (_.isElement(a0)) {
       let $el = a0
       let app = $el[TI_APP]
-      while(!app && $el.parentElement) {
+      while (!app && $el.parentElement) {
         $el = $el.parentElement
         app = $el[TI_APP]
       }
       return app
     }
     // for Vue or Vuex
-    if(a0 instanceof Vue) {
+    if (a0 instanceof Vue) {
       return a0.$root[TI_APP]
     }
     // for Vue or Vuex
-    if(a0 instanceof Vuex.Store) {
+    if (a0 instanceof Vuex.Store) {
       return a0[TI_APP]
     }
     // return the app instance directly
-    if(_.isPlainObject(a0)) {
+    if (_.isPlainObject(a0)) {
       return new OneTiApp(a0, decorator)
     }
   }
   //---------------------------------------
   const APP_STACK = []
   //---------------------------------------
-  TiApp.pushInstance = function(app) {
-    if(app) {
+  TiApp.pushInstance = function (app) {
+    if (app) {
       APP_STACK.push(app)
     }
   }
   //---------------------------------------
-  TiApp.pullInstance = function(app) {
-    if(app) {
+  TiApp.pullInstance = function (app) {
+    if (app) {
       _.pull(APP_STACK, app)
     }
   }
   //---------------------------------------
-  TiApp.topInstance = function() {
+  TiApp.topInstance = function () {
     return _.last(APP_STACK)
   }
   //---------------------------------------
-  TiApp.hasTopInstance = function() {
+  TiApp.hasTopInstance = function () {
     return APP_STACK.length > 0
   }
   //---------------------------------------
-  TiApp.eachInstance = function(iteratee=_.identity) {
+  TiApp.eachInstance = function (iteratee = _.identity) {
     _.forEach(APP_STACK, iteratee)
   }
   //---------------------------------------
-  TiApp.allInstance = function(iteratee=_.identity) {
+  TiApp.allInstance = function (iteratee = _.identity) {
     return APP_STACK
   }
   //---------------------------------------
-  TiApp.Open = function(options) {
+  TiApp.Open = function (options) {
     //console.log(_.cloneDeep(options))
-    return new Promise((resolve)=>{
+    return new Promise((resolve) => {
       let $m = new TiAppModal()
       _.assign($m, options)
       $m.open(resolve)
@@ -5115,8 +5158,6 @@ const {Rect,Rects} = (function(){
       else {
           nW = w;
           nH = h;
-          x = 0;
-          y = 0;
       }
   
       this.width  = nW;
@@ -5940,7 +5981,7 @@ const {Http} = (function(){
           } 
           // if declare body, the params -> query string
           // you can send XML/JSON by this branch
-          else if(body) {
+          else if(!Ti.Util.isNil(body)) {
             return {
               urlToSend : [url,TiHttp.encodeFormData(params)].join("?"),
               sendData  : body
@@ -9180,26 +9221,26 @@ const {Util} = (function(){
      * @return
      *  The `obj` which be passed on.
      */
-    merge(obj={}, ...args){
+    merge(obj = {}, ...args) {
       return TiUtil.mergeWith(undefined, obj, ...args)
     },
-    mergeWith(customizer=_.identity, obj={}, ...args) {
+    mergeWith(customizer = _.identity, obj = {}, ...args) {
       const list = _.flattenDeep(args)
-      for(let arg of list) {
-        if(!arg) {
+      for (let arg of list) {
+        if (!arg) {
           continue
         }
         let val = customizer(arg)
         // Array
-        if(_.isArray(val)) {
+        if (_.isArray(val)) {
           TiUtil.merge(obj, ...val)
         }
         // Function
-        else if(_.isFunction(val)) {
+        else if (_.isFunction(val)) {
           obj[val.name] = val
         }
         // Plain Object
-        else if(_.isPlainObject(val)) {
+        else if (_.isPlainObject(val)) {
           _.merge(obj, val)
         }
         // Another types will be ignore
@@ -9209,9 +9250,9 @@ const {Util} = (function(){
     /***
      * Unlike the `_.merge`, it will replace `Array` value
      */
-    deepMergeObj(obj={}, ...others) {
-      return _.mergeWith(obj, ...others, (objValue, srcValue)=>{
-        if(_.isArray(objValue) || _.isArray(srcValue)) {
+    deepMergeObj(obj = {}, ...others) {
+      return _.mergeWith(obj, ...others, (objValue, srcValue) => {
+        if (_.isArray(objValue) || _.isArray(srcValue)) {
           return srcValue
         }
       })
@@ -9219,17 +9260,17 @@ const {Util} = (function(){
     /***
      * Group a given list to map by special key
      */
-    grouping(list=[], groupKey, {
-      titles=[],
-      otherTitle={value:"Others",text:"Others"},
-      asList=false
-    }={}) {
-      let reMap  = {}
+    grouping(list = [], groupKey, {
+      titles = [],
+      otherTitle = { value: "Others", text: "Others" },
+      asList = false
+    } = {}) {
+      let reMap = {}
       //...............................................
       // Build title map
       let titleMap = []
       _.forEach(titles, tit => {
-        if(tit.text && !Ti.Util.isNil(tit.value)) {
+        if (tit.text && !Ti.Util.isNil(tit.value)) {
           titleMap[tit.value] = tit
         }
       })
@@ -9238,15 +9279,15 @@ const {Util} = (function(){
       //...............................................
       _.forEach(list, li => {
         let gk = _.get(li, groupKey)
-        if(!gk) {
+        if (!gk) {
           others.push(li)
         } else {
-          let tit = titleMap[gk] || {text:gk, value:gk}
+          let tit = titleMap[gk] || { text: gk, value: gk }
           let grp = reMap[gk]
-          if(!grp) {
+          if (!grp) {
             grp = {
               ...tit,
-              list:[]
+              list: []
             }
             reMap[gk] = grp
           }
@@ -9254,13 +9295,13 @@ const {Util} = (function(){
         }
       })
       //...............................................
-      if(!_.isEmpty(others)) {
+      if (!_.isEmpty(others)) {
         reMap[otherTitle.value] = {
-          ... otherTitle, list: others
+          ...otherTitle, list: others
         }
       }
       //...............................................
-      if(asList) {
+      if (asList) {
         return _.values(reMap)
       }
       return reMap
@@ -9279,22 +9320,22 @@ const {Util} = (function(){
      * 
      * @return the index which to insert the items
      */
-    insertToArray(list=[], pos=-1, ...items) {
+    insertToArray(list = [], pos = -1, ...items) {
       // Guard
-      if(!_.isArray(list) || _.isEmpty(items))
+      if (!_.isArray(list) || _.isEmpty(items))
         return -1
   
       // Empty array
-      if(_.isEmpty(list)) {
+      if (_.isEmpty(list)) {
         list.push(...items)
         return 0
       }
   
       // Find the position
-      let index = Ti.Num.scrollIndex(pos, list.length+1)
+      let index = Ti.Num.scrollIndex(pos, list.length + 1)
   
       // At the tail
-      if(list.length == index) {
+      if (list.length == index) {
         list.push(...items)
       }
       // Insert before the index
@@ -9315,13 +9356,13 @@ const {Util} = (function(){
      * 
      * @return number or pair to add
      */
-    appendToObject(obj={}, key=null, data={}) {
+    appendToObject(obj = {}, key = null, data = {}) {
       let stub = {}
       // Insert after key
-      if(!Ti.Util.isNil(key)) {
-        _.forEach(obj, (v, k)=>{
+      if (!Ti.Util.isNil(key)) {
+        _.forEach(obj, (v, k) => {
           stub[k] = v
-          if(key == k) {
+          if (key == k) {
             _.assign(stub, data)
           }
         })
@@ -9330,29 +9371,29 @@ const {Util} = (function(){
       else {
         _.assign(stub, obj, data)
       }
-      
+  
       return stub
     },
     /***
      * @param input{Any}
      * @param iteratee{Function} - (val, path) 
      */
-    walk(input={}, {
+    walk(input = {}, {
       root = _.identity,
-      all  = _.identity,
+      all = _.identity,
       leaf = _.identity,
       node = _.identity,
-    }={}) {
+    } = {}) {
       //..............................
-      const WalkAny = (input, path=[])=>{
+      const WalkAny = (input, path = []) => {
         let isArray = _.isArray(input)
-        let isPojo  = _.isPlainObject(input)
+        let isPojo = _.isPlainObject(input)
   
         all(input, path)
   
         // For Node
-        if(isArray || isPojo) {
-          if(_.isEmpty(path)) {
+        if (isArray || isPojo) {
+          if (_.isEmpty(path)) {
             root(input, path)
           }
           else {
@@ -9365,19 +9406,19 @@ const {Util} = (function(){
         }
   
         // Array
-        if(isArray) {
-          for(let i=0; i<input.length; i++) {
+        if (isArray) {
+          for (let i = 0; i < input.length; i++) {
             let val = input[i]
-            let ph  = path.concat(i)
+            let ph = path.concat(i)
             WalkAny(val, ph)
           }
         }
         // Object
-        else if(isPojo) {
+        else if (isPojo) {
           let keys = _.keys(input)
-          for(let k of keys) {
+          for (let k of keys) {
             let val = input[k]
-            let ph  = path.concat(k)
+            let ph = path.concat(k)
             WalkAny(val, ph)
           }
         }
@@ -9418,18 +9459,18 @@ const {Util} = (function(){
      * if array returned, it will join the return array
      * @return the new Array instance
      */
-    inset(list=[], iteratee=_.identity) {
+    inset(list = [], iteratee = _.identity) {
       let list2 = []
-      for(let li of list) {
+      for (let li of list) {
         let li2 = iteratee(li)
         // Multi values returned
-        if(_.isArray(li2) && !_.isEmpty(li2)) {
-          for(let li22 of li2){
+        if (_.isArray(li2) && !_.isEmpty(li2)) {
+          for (let li22 of li2) {
             list2.push(li22)
           }
         }
         // value returned
-        if(!_.isUndefined(li2)){
+        if (!_.isUndefined(li2)) {
           list2.push(li2)
         }
       }
@@ -9446,103 +9487,103 @@ const {Util} = (function(){
      * !!! some properties (like callback in comConf) should keep
      * !!! as function.
      */
-    explainObj(context={}, obj, {
+    explainObj(context = {}, obj, {
       evalFunc = false,
       iteratee = _.identity
-    }={}) {
+    } = {}) {
       //......................................
-      const ExplainValue = (anyValue)=>{
+      const ExplainValue = (anyValue) => {
         //....................................
         // Guard
-        if(Ti.Util.isNil(anyValue)) {
+        if (Ti.Util.isNil(anyValue)) {
           return anyValue
         }
         //....................................
         let theValue = anyValue
         //....................................
         // String : Check the "@BLOCK(xxx)" 
-        if(_.isString(theValue)) {
+        if (_.isString(theValue)) {
           // Escape
           let m = /^:(:*(=|==|!=|=>>?|->)(.+))$/.exec(theValue)
-          if(m) {
+          if (m) {
             return iteratee(m[1])
           }
   
           let m_type, m_val, m_dft;
           // Match template
           m = /^(==>|=>>?|->)(.+)$/.exec(theValue)
-          if(m) {
+          if (m) {
             m_type = m[1]
-            m_val  = _.trim(m[2])
+            m_val = _.trim(m[2])
           }
           // Find key in context
           else {
             m = /^(==?|!=)([^?]+)(\?(.*))?$/.exec(theValue)
-            if(m) {
+            if (m) {
               m_type = m[1]
-              m_val  = _.trim(m[2])
-              m_dft  = m[4]
+              m_val = _.trim(m[2])
+              m_dft = m[4]
               // starts with "=" auto covert to JS value
-              if(/^=/.test(m_dft) || "==" == m_type) {
+              if (/^=/.test(m_dft) || "==" == m_type) {
                 m_dft = Ti.S.toJsValue(m_dft)
-              } else if(m_dft) {
-                m_dft = _.trim(m_dft)  
+              } else if (m_dft) {
+                m_dft = _.trim(m_dft)
               }
             }
           }
           // Matched
-          if(m_type) {
+          if (m_type) {
             //................................
             let fn = ({
               // Just get function
-              "==>" : (val)=> {
+              "==>": (val) => {
                 let func = _.get(window, val)
-                if(_.isFunction(func)) {
+                if (_.isFunction(func)) {
                   return func
                 }
               },
               // ==xxx  # Get Boolean value now
-              "==" : (val)=> {
+              "==": (val) => {
                 let re = _.get(context, val)
-                if(Ti.Util.isNil(re))
+                if (Ti.Util.isNil(re))
                   return Ti.Util.fallbackNil(m_dft, false)
                 return re ? true : false
               },
               // !=xxx  # Revert Boolean value now
-              "!=" : (val)=> {
+              "!=": (val) => {
                 let re = _.get(context, val)
-                if(Ti.Util.isNil(re))
+                if (Ti.Util.isNil(re))
                   return Ti.Util.fallback(m_dft, true)
                 return re ? false : true
               },
               // =xxx   # Get Value Now
-              "=" : (val, dft)=>{
-                if(".." == val) {
+              "=": (val, dft) => {
+                if (".." == val) {
                   return context
                 }
                 let re = Ti.Util.getOrPick(context, val)
-                if(Ti.Util.isBlank(re) && !_.isUndefined(dft)){
+                if (Ti.Util.isBlank(re) && !_.isUndefined(dft)) {
                   return dft
                 }
                 return re
               },
               // =>Ti.Types.toStr(meta)
-              "=>>" : (val) => {
-                let fn = Ti.Util.genInvoking(val, {context, partial: "right"})
+              "=>>": (val) => {
+                let fn = Ti.Util.genInvoking(val, { context, partial: "right" })
                 return fn()
               },
               // =>Ti.Types.toStr(meta)
-              "=>" : (val) => {
-                let fn = Ti.Util.genInvoking(val, {context, partial: "left"})
+              "=>": (val) => {
+                let fn = Ti.Util.genInvoking(val, { context, partial: "left" })
                 return fn()
               },
               // Render template
-              "->" : (val)=>{
+              "->": (val) => {
                 let m2 = /^(([\w\d_.]+)\?\?)?(.+)$/.exec(val)
                 let test = m2[2]
                 let tmpl = m2[3]
-                if(test) {
-                  if(Ti.Util.isNil(_.get(context, test))) {
+                if (test) {
+                  if (Ti.Util.isNil(_.get(context, test))) {
                     return
                   }
                 }
@@ -9561,7 +9602,7 @@ const {Util} = (function(){
             })[m_type]
             //................................
             // Check Function
-            if(_.isFunction(fn)) {
+            if (_.isFunction(fn)) {
               return fn(m_val, m_dft)
             }
             //................................
@@ -9573,8 +9614,8 @@ const {Util} = (function(){
         }
         //....................................
         // Function  
-        else if(_.isFunction(theValue)) {
-          if(evalFunc) {
+        else if (_.isFunction(theValue)) {
+          if (evalFunc) {
             let re = theValue(context)
             return iteratee(re)
           }
@@ -9582,49 +9623,49 @@ const {Util} = (function(){
         }
         //....................................
         // Array 
-        else if(_.isArray(theValue)) {
+        else if (_.isArray(theValue)) {
           let list = []
-          for(let li of theValue) {
+          for (let li of theValue) {
             let v2 = ExplainValue(li)
             list.push(iteratee(v2))
           }
           return list
         }
         // Call the function
-        else if(theValue.__invoke && theValue.name) {
-          let {name, args} = theValue
+        else if (theValue.__invoke && theValue.name) {
+          let { name, args } = theValue
           args = Ti.Util.explainObj(context, args)
-          let fn = Ti.Util.genInvoking({name, args}, {context})
-          if(_.isFunction(fn)) {
+          let fn = Ti.Util.genInvoking({ name, args }, { context })
+          if (_.isFunction(fn)) {
             return fn()
           }
         }
         // Invoke function
-        else if(theValue.__function && theValue.name) {
-          let {name, args} = theValue
+        else if (theValue.__function && theValue.name) {
+          let { name, args } = theValue
           args = Ti.Util.explainObj(context, args)
-          let fn = Ti.Util.genInvoking({name, args}, {context})
-          if(_.isFunction(fn)) {
+          let fn = Ti.Util.genInvoking({ name, args }, { context })
+          if (_.isFunction(fn)) {
             return fn
           }
         }
         //....................................
         // Object
-        else if(_.isPlainObject(theValue)) {
+        else if (_.isPlainObject(theValue)) {
           let o2 = {}
-          _.forEach(theValue, (v2, k2)=>{
+          _.forEach(theValue, (v2, k2) => {
             let v3 = ExplainValue(v2)
             let v4 = iteratee(v3)
             // key `...` -> assign o1
-            if("..." == k2) {
-              if(_.isPlainObject(v4)) {
+            if ("..." == k2) {
+              if (_.isPlainObject(v4)) {
                 _.assign(o2, v4)
               } else {
                 o2[k2] = v4
               }
             }
             // escape the "..."
-            else if(/^\.{3,}$/.test(k2)) {
+            else if (/^\.{3,}$/.test(k2)) {
               o2[k2.substring(1)] = v4
             }
             // set value
@@ -9646,10 +9687,10 @@ const {Util} = (function(){
     /***
      * Call explainObj for each element if input is Array
      */
-    explainObjs(context=[], obj={}, options) {
-      if(_.isArray(context)){
+    explainObjs(context = [], obj = {}, options) {
+      if (_.isArray(context)) {
         let re = []
-        for(let li of context) {
+        for (let li of context) {
           let it = TiUtil.explainObj(li, obj, options)
           re.push(it)
         }
@@ -9667,8 +9708,8 @@ const {Util} = (function(){
      * 
      * @return `Function`, nil arguments and return the new copy of given object.
      */
-    genObj(obj={}) {
-      return  _.partial(_.cloneDeep, obj)
+    genObj(obj = {}) {
+      return _.partial(_.cloneDeep, obj)
     },
     /***
      * Group a batch of functions as one function.
@@ -9679,51 +9720,51 @@ const {Util} = (function(){
      */
     groupCall(...fns) {
       const list = _.flattenDeep(fns)
-                      .filter(fn=>_.isFunction(fn))
+        .filter(fn => _.isFunction(fn))
       // Nothing
-      if(list.length == 0) {
+      if (list.length == 0) {
         return undefined
       }
       // Only One
-      if(list.length == 1) {
+      if (list.length == 1) {
         return list[0]
       }
-      return function(...args) {
-        for(let fn of list) {
+      return function (...args) {
+        for (let fn of list) {
           fn.apply(this, args)
         }
       }
     },
-    pushValue(obj, key, val, rawSet=false) {
+    pushValue(obj, key, val, rawSet = false) {
       let old = _.get(obj, key) || []
-      if(rawSet) {
-        obj[key] = _.concat(old, val||[])
+      if (rawSet) {
+        obj[key] = _.concat(old, val || [])
       } else {
-        _.set(obj, key, _.concat(old, val||[]))
+        _.set(obj, key, _.concat(old, val || []))
       }
     },
-    pushValueBefore(obj, key, val, rawSet=false) {
+    pushValueBefore(obj, key, val, rawSet = false) {
       let old = _.get(obj, key) || []
-      if(rawSet) {
-        obj[key] = _.concat(val||[], old)
+      if (rawSet) {
+        obj[key] = _.concat(val || [], old)
       } else {
-        _.set(obj, key, _.concat(val||[], old))
+        _.set(obj, key, _.concat(val || [], old))
       }
     },
-    pushUniqValue(obj, key, val, rawSet=false) {
+    pushUniqValue(obj, key, val, rawSet = false) {
       let old = _.get(obj, key) || []
-      if(rawSet) {
-        obj[key] = _.uniq(_.concat(old, val||[]))
+      if (rawSet) {
+        obj[key] = _.uniq(_.concat(old, val || []))
       } else {
-        _.set(obj, key, _.uniq(_.concat(old, val||[])))
+        _.set(obj, key, _.uniq(_.concat(old, val || [])))
       }
     },
-    pushUniqValueBefore(obj, key, val, rawSet=false) {
+    pushUniqValueBefore(obj, key, val, rawSet = false) {
       let old = _.get(obj, key) || []
-      if(rawSet) {
-        obj[key] = _.uniq(_.concat(val||[], old))
+      if (rawSet) {
+        obj[key] = _.uniq(_.concat(val || [], old))
       } else {
-        _.set(obj, key, _.uniq(_.concat(val||[], old)))
+        _.set(obj, key, _.uniq(_.concat(val || [], old)))
       }
     },
     /***
@@ -9733,16 +9774,16 @@ const {Util} = (function(){
      * @TODO zozoh: I think this function will cause many `Hard Reading Code`, 
      * should remove it
      */
-    setTo(obj={}, key, val, dft) {
+    setTo(obj = {}, key, val, dft) {
       // String mode
-      if(_.isString(key) && !_.isUndefined(val)) {
+      if (_.isString(key) && !_.isUndefined(val)) {
         obj[key] = _.isNull(val) ? dft : val
       }
       // Object mode
-      else if(_.isPlainObject(key)) {
+      else if (_.isPlainObject(key)) {
         dft = val
-        _.forOwn(key, (v, k)=>{
-          if(!_.isUndefined(v)) {
+        _.forOwn(key, (v, k) => {
+          if (!_.isUndefined(v)) {
             obj[k] = _.isNull(v) ? dft : v
           }
         })
@@ -9758,11 +9799,11 @@ const {Util} = (function(){
      * 
      * @return item
      */
-    nth(list=[], index=0, dft=null) {
+    nth(list = [], index = 0, dft = null) {
       let len = list.length
-      if(len <= 0)
+      if (len <= 0)
         return dft
-      
+  
       let x = Ti.Num.scrollIndex(index, len)
   
       return list[x]
@@ -9776,19 +9817,19 @@ const {Util} = (function(){
      * 
      * @return unique key for input object
      */
-    anyKey(obj, prefix, sep="-") {
+    anyKey(obj, prefix, sep = "-") {
       // Guard
-      if(TiUtil.isNil(obj)) {
+      if (TiUtil.isNil(obj)) {
         return obj
       }
       // Prefix
       let ks = []
-      if(prefix){
+      if (prefix) {
         ks.push(prefix)
       }
       // Object of Array, join values
-      if(_.isArray(obj) || _.isPlainObject(obj)){
-        _.forEach(obj, v=>ks.push(v))
+      if (_.isArray(obj) || _.isPlainObject(obj)) {
+        _.forEach(obj, v => ks.push(v))
         return ks.join("-")
       }
       // Others to string
@@ -9802,9 +9843,9 @@ const {Util} = (function(){
      * 
      * @return `Object`
      */
-    reverMapping(mapping={}) {
+    reverMapping(mapping = {}) {
       let re = {}
-      _.forEach(mapping, (v, k)=>{
+      _.forEach(mapping, (v, k) => {
         re[v] = k
       })
       return re
@@ -9820,14 +9861,14 @@ const {Util} = (function(){
      * 
      * @return `Object|Array`
      */
-    translate(source={}, mapping={}, customizer=_.identity) {
-      if(_.isEmpty(mapping)) {
+    translate(source = {}, mapping = {}, customizer = _.identity) {
+      if (_.isEmpty(mapping)) {
         return _.cloneDeep(source)
       }
       // Array
-      if(_.isArray(source)) {
+      if (_.isArray(source)) {
         let list = []
-        for(let i=0; i<source.length; i++) {
+        for (let i = 0; i < source.length; i++) {
           let it = source[i]
           let result = TiUtil.translate(it, mapping, customizer)
           list.push(result)
@@ -9836,13 +9877,13 @@ const {Util} = (function(){
       }
       // Mapping String like:
       // "A=a;B=2;"
-      if(_.isString(mapping)) {
+      if (_.isString(mapping)) {
         let ss = mapping.split(/[:;]/g)
         let map = {}
-        for(let s of ss) {
+        for (let s of ss) {
           s = _.trim(s)
           let m = /^([^=]+)=(.+)$/.exec(s)
-          if(m) {
+          if (m) {
             map[m[1]] = m[2]
           }
         }
@@ -9850,15 +9891,15 @@ const {Util} = (function(){
       }
       // If source is string, just get the value
       // translate('A', {A:1,B:2}) => 1
-      if(_.isString(source)) {
+      if (_.isString(source)) {
         return _.get(mapping, source)
       }
       // Take as plain object
       let re = {}
-      _.forEach(mapping, (val, key)=>{
+      _.forEach(mapping, (val, key) => {
         let v2;
         // Whole Context
-        if(".." == val) {
+        if (".." == val) {
           v2 = source
         }
         // Get the value
@@ -9877,20 +9918,20 @@ const {Util} = (function(){
      */
     pureCloneDeep(obj) {
       // Array to recur
-      if(_.isArray(obj)){
+      if (_.isArray(obj)) {
         let re = []
-        _.forEach(obj, (v, i)=>{
-          if(!_.isUndefined(v) && !_.isFunction(v)){
+        _.forEach(obj, (v, i) => {
+          if (!_.isUndefined(v) && !_.isFunction(v)) {
             re[i] = TiUtil.pureCloneDeep(v)
           }
         })
         return re
       }
       // Object to omit the function
-      if(_.isPlainObject(obj)) {
+      if (_.isPlainObject(obj)) {
         let re = {}
-        _.forEach(obj, (v, k)=>{
-          if(!_.isUndefined(v) && !_.isFunction(v)){
+        _.forEach(obj, (v, k) => {
+          if (!_.isUndefined(v) && !_.isFunction(v)) {
             re[k] = TiUtil.pureCloneDeep(v)
           }
         })
@@ -9908,22 +9949,22 @@ const {Util} = (function(){
      * 
      * @return new Object or array
      */
-    setKey(source={}, path, newKey) {
+    setKey(source = {}, path, newKey) {
       // Define the iteratee
-      const set_key_by = function(src, keys=[], offset=0, newKey) {
+      const set_key_by = function (src, keys = [], offset = 0, newKey) {
         // Guard it
-        if(offset >= keys.length) {
+        if (offset >= keys.length) {
           return src
         }
         //.....................................
         // For Array : call-down
-        if(_.isArray(src)) {
+        if (_.isArray(src)) {
           let list = []
           let theIndex = parseInt(keys[offset])
-          for(let i=0; i<src.length; i++) {
+          for (let i = 0; i < src.length; i++) {
             // call-down
-            if(i == theIndex) {
-              let val = set_key_by(src[i], keys, offset+1, newKey)
+            if (i == theIndex) {
+              let val = set_key_by(src[i], keys, offset + 1, newKey)
               list.push(val)
             }
             // Just copy it
@@ -9935,16 +9976,16 @@ const {Util} = (function(){
         }
         //.....................................
         // For Object
-        if(_.isPlainObject(src)) {
+        if (_.isPlainObject(src)) {
           let reo = {}
           let srcKeys = _.keys(src)
           // Find the replace key
-          if(keys.length == (offset+1)) {
+          if (keys.length == (offset + 1)) {
             let theKey = keys[offset]
-            for(let key of srcKeys) {
+            for (let key of srcKeys) {
               let val = src[key]
               // Now replace it
-              if(theKey == key) {
+              if (theKey == key) {
                 reo[newKey] = val
               }
               // Just copy it
@@ -9955,9 +9996,9 @@ const {Util} = (function(){
           }
           // Call-down
           else {
-            for(let key of srcKeys) {
+            for (let key of srcKeys) {
               let val = src[key]
-              let v2 = set_key_by(val, keys, offset+1, newKey)
+              let v2 = set_key_by(val, keys, offset + 1, newKey)
               reo[key] = v2
             }
           }
@@ -9968,7 +10009,7 @@ const {Util} = (function(){
         return src;
       }
       // Call in
-      if(_.isString(path)) {
+      if (_.isString(path)) {
         path = path.split(".")
       }
       return set_key_by(source, path, 0, newKey)
@@ -9983,18 +10024,18 @@ const {Util} = (function(){
      */
     getValue(obj, ...keys) {
       // Get value for array
-      if(_.isArray(obj)) {
+      if (_.isArray(obj)) {
         let re = []
-        for(let o of obj) {
+        for (let o of obj) {
           let v = TiUtil.getValue(o, keys)
           re.push(v)
         }
         return re
       }
       // Single object
-      for(let k of keys) {
+      for (let k of keys) {
         let v = _.get(obj, k)
-        if(!_.isUndefined(v) && !_.isNull(v)) {
+        if (!_.isUndefined(v) && !_.isNull(v)) {
           return v
         }
       }
@@ -10010,19 +10051,19 @@ const {Util} = (function(){
      */
     getValueAs(tmpl, obj, ...keys) {
       // Get value for array
-      if(_.isArray(obj)) {
+      if (_.isArray(obj)) {
         let re = []
-        for(let o of obj) {
+        for (let o of obj) {
           let v = TiUtil.getValueAs(tmpl, o, keys)
           re.push(v)
         }
         return re
       }
       // Single object
-      for(let k of keys) {
+      for (let k of keys) {
         let v = _.get(obj, k)
-        if(!_.isUndefined(v) && !_.isNull(v)) {
-          return Ti.S.renderBy(tmpl, {val:v})
+        if (!_.isUndefined(v) && !_.isNull(v)) {
+          return Ti.S.renderBy(tmpl, { val: v })
         }
       }
       return tmpl
@@ -10036,18 +10077,18 @@ const {Util} = (function(){
      */
     getOrPick(obj, key, dft) {
       // Array to pick
-      if(_.isArray(key)) {
+      if (_.isArray(key)) {
         return Ti.Util.fallback(_.pick(obj, key), dft)
       }
       // Function to eval
-      if(_.isFunction(key)) {
+      if (_.isFunction(key)) {
         return Ti.Util.fallback(key(obj), dft)
       }
       // String
-      if(_.isString(key)) {
+      if (_.isString(key)) {
         // get multi candicate
         let keys = key.split("|")
-        if(keys.length > 1) {
+        if (keys.length > 1) {
           return Ti.Util.fallback(Ti.Util.getFallbackNil(obj, keys), dft)
         }
       }
@@ -10063,18 +10104,18 @@ const {Util} = (function(){
      */
     getOrPickNoBlank(obj, key, dft) {
       // Array to pick
-      if(_.isArray(key)) {
+      if (_.isArray(key)) {
         return Ti.Util.fallback(_.pick(obj, key), dft)
       }
       // Function to eval
-      if(_.isFunction(key)) {
+      if (_.isFunction(key)) {
         return Ti.Util.fallback(key(obj), dft)
       }
       // String
-      if(_.isString(key)) {
+      if (_.isString(key)) {
         // get multi candicate
         let keys = key.split("|")
-        if(keys.length > 1) {
+        if (keys.length > 1) {
           return Ti.Util.fallback(Ti.Util.getFallbackBlank(obj, keys), dft)
         }
       }
@@ -10084,10 +10125,10 @@ const {Util} = (function(){
     /***
      * @param obj{Object}
      */
-    truthyKeys(obj={}) {
+    truthyKeys(obj = {}) {
       let keys = []
-      _.forEach(obj, (v, k)=>{
-        if(v) {
+      _.forEach(obj, (v, k) => {
+        if (v) {
           keys.push(k)
         }
       })
@@ -10099,7 +10140,7 @@ const {Util} = (function(){
      * 
      * @return String seperated by given seperator
      */
-    joinTruthyKeys(obj={}, sep=",") {
+    joinTruthyKeys(obj = {}, sep = ",") {
       let keys = TiUtil.truthyKeys(obj)
       return keys.join(sep)
     },
@@ -10113,50 +10154,50 @@ const {Util} = (function(){
      */
     getFallback(obj, ...keys) {
       let ks = _.flattenDeep(keys)
-      for(let k of ks) {
-        if(k) {
+      for (let k of ks) {
+        if (k) {
           let v = _.get(obj, k)
-          if(!_.isUndefined(v))
+          if (!_.isUndefined(v))
             return v
         }
       }
     },
     getFallbackNil(obj, ...keys) {
       let ks = _.flattenDeep(keys)
-      for(let k of ks) {
-        if(k) {
+      for (let k of ks) {
+        if (k) {
           let v = _.get(obj, k)
-          if(!TiUtil.isNil(v))
+          if (!TiUtil.isNil(v))
             return v
         }
       }
     },
     getFallbackEmpty(obj, ...keys) {
       let ks = _.flattenDeep(keys)
-      for(let k of ks) {
-        if(k) {
+      for (let k of ks) {
+        if (k) {
           let v = _.get(obj, k)
-          if(!_.isEmpty(v))
+          if (!_.isEmpty(v))
             return v
         }
       }
     },
     getFallbackBlank(obj, ...keys) {
       let ks = _.flattenDeep(keys)
-      for(let k of ks) {
-        if(k) {
+      for (let k of ks) {
+        if (k) {
           let v = _.get(obj, k)
-          if(!Ti.Util.isBlank(v))
+          if (!Ti.Util.isBlank(v))
             return v
         }
       }
     },
     getFallbackNaN(obj, ...keys) {
       let ks = _.flattenDeep(keys)
-      for(let k of ks) {
-        if(k) {
+      for (let k of ks) {
+        if (k) {
           let v = _.get(obj, k)
-          if(!isNaN(v))
+          if (!isNaN(v))
             return v
         }
       }
@@ -10167,38 +10208,38 @@ const {Util} = (function(){
      * @return The first one which is not undefined
      */
     fallback(...args) {
-      for(let arg of args) {
-        if(!_.isUndefined(arg))
+      for (let arg of args) {
+        if (!_.isUndefined(arg))
           return arg
       }
     },
     fallbackNil(...args) {
-      for(let arg of args) {
-        if(!TiUtil.isNil(arg))
+      for (let arg of args) {
+        if (!TiUtil.isNil(arg))
           return arg
       }
     },
-    trueGet(test=false, val, dft) {
-      if(_.isBoolean(test)) {
+    trueGet(test = false, val, dft) {
+      if (_.isBoolean(test)) {
         return test ? val : dft
       }
       return test
     },
     fallbackEmpty(...args) {
-      for(let arg of args) {
-        if(!_.isEmpty(arg))
+      for (let arg of args) {
+        if (!_.isEmpty(arg))
           return arg
       }
     },
     fallbackBlank(...args) {
-      for(let arg of args) {
-        if(!Ti.S.isBlank(arg))
+      for (let arg of args) {
+        if (!Ti.S.isBlank(arg))
           return arg
       }
     },
     fallbackNaN(...args) {
-      for(let arg of args) {
-        if(!isNaN(arg))
+      for (let arg of args) {
+        if (!isNaN(arg))
           return arg
       }
     },
@@ -10234,9 +10275,9 @@ const {Util} = (function(){
     },
     isBlank(o) {
       return _.isUndefined(o)
-            || _.isNull(o)
-            || "" === o
-            || /^[ \t]*$/.test(o)
+        || _.isNull(o)
+        || "" === o
+        || /^[ \t]*$/.test(o)
     },
     notBlank(o) {
       return !TiUtil.isBlank(o)
@@ -10255,23 +10296,23 @@ const {Util} = (function(){
      * 
      * @return the value when play as `getter`, and `obj` self when play as `setter`
      */
-    geset(obj={}, key, val) {
+    geset(obj = {}, key, val) {
       // Set by pairs
-      if(_.isPlainObject(key)) {
+      if (_.isPlainObject(key)) {
         _.assign(obj, key)
         return obj
       }
       // Pick mode
-      else if(_.isArray(key)) {
+      else if (_.isArray(key)) {
         return _.pick(obj, key)
       }
       // Set the value
-      else if(!_.isUndefined(val)){
+      else if (!_.isUndefined(val)) {
         obj[key] = val
         return obj
       }
       // Return self
-      else if(_.isUndefined(key)) {
+      else if (_.isUndefined(key)) {
         return obj
       }
       // As general getter
@@ -10280,9 +10321,9 @@ const {Util} = (function(){
     /***
      * Invoke function in Object or Map
      */
-    async invoke(fnSet={}, name, args=[], context=this) {
+    async invoke(fnSet = {}, name, args = [], context = this) {
       let fn = _.get(fnSet, name)
-      if(_.isFunction(fn)) {
+      if (_.isFunction(fn)) {
         let as = _.concat(args)
         await fn.apply(context, as)
       }
@@ -10290,16 +10331,16 @@ const {Util} = (function(){
     /***
      * @return Get first element if input is array, or input self
      */
-    first(input=[]) {
-      if(_.isArray(input))
+    first(input = []) {
+      if (_.isArray(input))
         return _.first(input)
       return input
     },
     /***
      * @return Get last element if input is array, or input self
      */
-    last(input=[]) {
-      if(_.isArray(input))
+    last(input = []) {
+      if (_.isArray(input))
         return _.last(input)
       return input
     },
@@ -10312,27 +10353,27 @@ const {Util} = (function(){
      */
     genGetter(key, {
       indexPrefix,
-      dftKeys=[],
-      context={},
+      dftKeys = [],
+      context = {},
       funcSet = window,
       dftValue,
-      notNil=false,
+      notNil = false,
       partial = "right"  // "left" | "right" | Falsy
-    }={}) {
+    } = {}) {
       //.............................................
       // Customized Function
-      if(_.isFunction(key)) {
+      if (_.isFunction(key)) {
         return it => key(it)
       }
       //.............................................
       // String || Array
-      if(key) {
+      if (key) {
         //...........................................
         // Index Mode: for `Row-0`, ti-table getRowId
-        if(indexPrefix) {
-          return (it, index)=>{
+        if (indexPrefix) {
+          return (it, index) => {
             return Ti.Util.fallbackNil(
-              Ti.Types.toStr(_.get(it, key)), 
+              Ti.Types.toStr(_.get(it, key)),
               `${indexPrefix}${index}`
             )
           }
@@ -10340,13 +10381,13 @@ const {Util} = (function(){
         //...........................................
         // Static value
         let m = /^'(.+)'$/.exec(key)
-        if(m) {
-          return ()=>m[1]
+        if (m) {
+          return () => m[1]
         }
         //...........................................
         // Invoke mode
         m = /^=>(.+)$/.exec(key)
-        if(m) {
+        if (m) {
           let invoke = m[1]
           return TiUtil.genInvoking(invoke, {
             context, funcSet, partial
@@ -10358,17 +10399,17 @@ const {Util} = (function(){
       }
       //.............................................
       // Default Keys
-      if(!_.isEmpty(dftKeys)) {
+      if (!_.isEmpty(dftKeys)) {
         return it => Ti.Util.getFallback(it, ...dftKeys)
       }
       //.............................................
       // Keep return default value
-      if(!_.isUndefined(dftValue) || notNil) {
+      if (!_.isUndefined(dftValue) || notNil) {
         return it => dftValue
       }
     },
     genGetterNotNil(key, setup) {
-      return Ti.Util.genGetter(key, _.assign({}, setup, {notNil:true}))
+      return Ti.Util.genGetter(key, _.assign({}, setup, { notNil: true }))
     },
     /***
      * "Ti.Types.toStr(abc)" -> Function
@@ -10376,26 +10417,26 @@ const {Util} = (function(){
      * {name:"xxx", args:[..]} -> Function
      */
     genInvoking(str, {
-      context={},
-      dft=()=>str,
+      context = {},
+      dft = () => str,
       funcSet = window,
       partial = "left"  // "left" | "right" | "right?" | Falsy,
-    }={}) {
+    } = {}) {
       //.............................................
-      if(_.isFunction(str)) {
+      if (_.isFunction(str)) {
         return str
       }
       //.............................................
       let callPath, callArgs;
       // Object mode
-      if(str.name && !_.isUndefined(str.args)) {
+      if (str.name && !_.isUndefined(str.args)) {
         callPath = str.name
         callArgs = _.concat(str.args)
       }
       // String mode
       else {
         let m = /^([^()]+)(\((.+)\))?$/.exec(str)
-        if(m) {
+        if (m) {
           callPath = _.trim(m[1])
           callArgs = _.trim(m[3])
         }
@@ -10403,37 +10444,39 @@ const {Util} = (function(){
       //.............................................
       //console.log(callPath, callArgs)
       let func = _.get(funcSet, callPath)
-      if(_.isFunction(func)) {
-        let args = Ti.S.joinArgs(callArgs, [], v=>{
-          if(_.isString(v) || _.isArray(v))
-            return Ti.S.toJsValue(v, {context})
+      if (_.isFunction(func)) {
+        let args = Ti.S.joinArgs(callArgs, [], v => {
+          if (_.isString(v) || _.isArray(v))
+            return Ti.S.toJsValue(v, { context })
           return v
         })
-        if(!_.isEmpty(args)) {
+        if (!_.isEmpty(args)) {
           // [ ? --> ... ]
-          if("right" == partial) {
-            return  function(input){
+          if ("right" == partial) {
+            return function (input) {
               let as = _.concat([input], args);
               return func.apply(this, as)
             }
           }
-          else if("right?" == partial) {
-            return  function(input){
+          else if ("right?" == partial) {
+            return function (input) {
               let as = _.isUndefined(input)
-                        ? args
-                        : _.concat([input], args);
+                ? args
+                : _.concat([input], args);
               return func.apply(this, as)
             }
           }
           // [ ... <-- ?]
-          else if("left" == partial) {
-            return  function(input){
-              let as = _.concat(args, [input])
+          else if ("left" == partial) {
+            return function (input) {
+              let as = _.isUndefined(input)
+                ? args
+                : _.concat([input], args);
               return func.apply(this, as)
             }
           }
           // [..]
-          return ()=>func(...args)
+          return () => func(...args)
         }
         return func
       }
@@ -10447,32 +10490,32 @@ const {Util} = (function(){
      * 
      * @return Function to match value
      */
-    genItemMatcher(matchBy, partially=false) {
-      if(_.isFunction(matchBy)) {
-        return (it, str)=>matchBy(it, str)
+    genItemMatcher(matchBy, partially = false) {
+      if (_.isFunction(matchBy)) {
+        return (it, str) => matchBy(it, str)
       }
-      if(_.isString(matchBy)) {
+      if (_.isString(matchBy)) {
         return partially
-          ? (it, str)=>_.indexOf(Ti.Util.getOrPick(it, matchBy), str)>=0
-          : (it, str)=>_.isEqual(Ti.Util.getOrPick(it, matchBy), str)
+          ? (it, str) => _.indexOf(Ti.Util.getOrPick(it, matchBy), str) >= 0
+          : (it, str) => _.isEqual(Ti.Util.getOrPick(it, matchBy), str)
       }
-      if(_.isArray(matchBy)) {
-        return (it, str)=>{
-          for(let k of matchBy) {
+      if (_.isArray(matchBy)) {
+        return (it, str) => {
+          for (let k of matchBy) {
             let v = Ti.Util.getOrPick(it, k)
-            if(partially) {
-              if(_.indexOf(v, str)>=0)
+            if (partially) {
+              if (_.indexOf(v, str) >= 0)
                 return true
             }
             else {
-              if(_.isEqual(v, str))
+              if (_.isEqual(v, str))
                 return true
             }
           }
           return false
         }
       }
-      return (it, str)=>false
+      return (it, str) => false
     },
     /***
      * @param valueBy{Function|String|Array}
@@ -10480,31 +10523,31 @@ const {Util} = (function(){
      * @return Function to pick value
      */
     genItemValueGetter(valueBy, dftVal) {
-      if(_.isFunction(valueBy)) {
+      if (_.isFunction(valueBy)) {
         return it => valueBy(it, dftVal)
       }
-      if(_.isString(valueBy)) {
+      if (_.isString(valueBy)) {
         return it => Ti.Util.getOrPick(it, valueBy, dftVal)
       }
-      return function(){return dftVal;}
+      return function () { return dftVal; }
     },
     /***
      * @return Function to get row Id
      */
-    genRowIdGetter(idBy, dftKeys=["id", "value"]) {
-      if(_.isFunction(idBy)) {
+    genRowIdGetter(idBy, dftKeys = ["id", "value"]) {
+      if (_.isFunction(idBy)) {
         return (it, index) => {
           let id = idBy(it, index)
           return Ti.Types.toStr(id)
         }
       }
-      if(_.isString(idBy)) {
-        return (it, index)=>{
+      if (_.isString(idBy)) {
+        return (it, index) => {
           return Ti.Util.fallbackNil(
             Ti.Types.toStr(_.get(it, idBy)), `Row-${index}`)
         }
       }
-      if(!_.isEmpty(dftKeys)) {
+      if (!_.isEmpty(dftKeys)) {
         return it => Ti.Util.getFallback(it, ...dftKeys)
       }
     },
@@ -10512,13 +10555,13 @@ const {Util} = (function(){
      * @return Function to get row data
      */
     genRowDataGetter(rawDataBy) {
-      if(_.isFunction(rawDataBy)) {
+      if (_.isFunction(rawDataBy)) {
         return it => rawDataBy(it)
       }
-      if(_.isString(rawDataBy)) {
+      if (_.isString(rawDataBy)) {
         return it => _.get(it, rawDataBy)
       }
-      if(_.isObject(rawDataBy)) {
+      if (_.isObject(rawDataBy)) {
         return it => Ti.Util.translate(it, rawDataBy)
       }
       return it => it
@@ -16040,7 +16083,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210727.021659",
+  "version" : "1.6-20210802.093346",
   "dev" : false,
   "appName" : null,
   "session" : {},

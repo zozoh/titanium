@@ -1,4 +1,4 @@
-// Pack At: 2021-07-27 02:16:59
+// Pack At: 2021-08-02 09:33:46
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5593,7 +5593,7 @@ const _M = {
     // Events
     //--------------------------------------
     OnDirNameChanged(dirName) {
-      Ti.App(this).commit("main/setCurrentDataDir", dirName)
+      this.$ThingManager.commit("setCurrentDataDir", dirName)
       
       this.$nextTick(()=>{
         this.reloadData()
@@ -5615,7 +5615,7 @@ const _M = {
         this.$adaptlist.myCurrentId = f.id
         this.myCurrentId = f.id
       }
-      await Ti.App(this).dispatch("main/autoSyncCurrentFilesCount")
+      await this.$ThingManager.dispatch("autoSyncCurrentFilesCount")
     },
     //--------------------------------------
     // Untility
@@ -5628,7 +5628,7 @@ const _M = {
     //--------------------------------------
     async doDeleteSelected(){
       await this.$adaptlist.doDelete()
-      await Ti.App(this).dispatch("main/autoSyncCurrentFilesCount")
+      await this.$ThingManager.dispatch("autoSyncCurrentFilesCount")
     },
     //--------------------------------------
     async checkDataDir() {
@@ -5652,7 +5652,7 @@ const _M = {
         let dataHomeObj = await Wn.Io.loadMetaBy(this.dataHome)
 
         // Update local state
-        Ti.App(this).commit("main/setCurrentDataHomeObj", dataHomeObj)
+        this.$ThingManager.commit("setCurrentDataHomeObj", dataHomeObj)
         this.myDataDirObj = dataDirObj
       }
     },
@@ -6217,6 +6217,10 @@ const _M = {
       state.params = params
     },
     //--------------------------------------------
+    setModuleNames(state, names=[]) {
+      state.moduleNames = names
+    },
+    //--------------------------------------------
     mergeParams(state, params) {
       if (!_.isEmpty(params) && _.isPlainObject(params)) {
         state.params = _.merge({}, state.params, params)
@@ -6683,10 +6687,31 @@ const _M = {
         json = await Ti.Load(`@Site:${jsonPath}`)
       }
       //.....................................
+      let $store = TiWebApp.$store()
+      //.....................................
       // Load page components
-      let { components } = json
-      if (!_.isEmpty(components)) {
-        await TiWebApp.loadView({ components })
+      let { components, extModules } = json
+      //console.log({ components, extModules })
+      let view = await TiWebApp.loadView({ components, extModules })
+      //console.log(view)
+      //.....................................
+      // Remove old moudle
+      if(state.moduleNames) {
+        for(let name of state.moduleNames) {
+          $store.unregisterModule(name)
+        }
+      }
+      //.....................................
+      // Add new module
+      if(!_.isEmpty(view.modules)) {
+        // Append new
+        let names = []
+        for(let modName in view.modules) {
+          let mod = view.modules[modName]
+          $store.registerModule(modName, mod)
+          names.push(modName)
+        }
+        commit("setModuleNames", names)
       }
       //.....................................
       // merge info
@@ -7658,71 +7683,73 @@ const _M = {
   /***
    * Save current thing detail
    */
-  async saveCurrent({commit, dispatch}) {
-    commit("setStatus", {saving:true})
+  async saveCurrent({ commit, dispatch }) {
+    commit("setStatus", { saving: true })
     await dispatch("current/save")
-    commit("setStatus", {saving:false})
+    commit("setStatus", { saving: false })
     commit("syncStatusChanged")
   },
   //--------------------------------------------
   /***
    * Update current thing meta data to search/meta
    */
-  async updateCurrent({state, commit, dispatch, getters}, {name, value}={}) {
-    // console.log("hupdateCurrentahah", {name, value})
+  async updateCurrent({ state, commit, dispatch, getters }, { name, value } = {}) {
+    // console.log("updateCurrent", {name, value})
     // if(window.lastMS && (Date.now() - window.lastMS) < 5000) {
     //   console.log("!!!! dup-call", {name, value})
     // }
     // window.lastMS = Date.now()
-    if(getters.hasCurrent) {
-      await dispatch("current/updateMeta", {name,value})
+    if (getters.hasCurrent) {
+      await dispatch("current/updateMeta", { name, value })
       commit("search/updateItem", state.current.meta)
     }
   },
   //--------------------------------------------
-  async updateCurrentMetas({state, commit, dispatch, getters}, data={}) {
-    if(getters.hasCurrent) {
+  async updateCurrentMetas({ state, commit, dispatch, getters }, data = {}) {
+    if (getters.hasCurrent) {
       //console.log({name, value})
       await dispatch("current/updateMetas", data)
       commit("search/updateItem", state.current.meta)
     }
   },
   //--------------------------------------------
-  async batchUpdateMetas({state, commit, getters}, updates={}){
+  async batchUpdateMetas({ state, commit, getters }, updates = {}) {
     let checkedItems = getters["search/checkedItems"]
     // Guard
-    if(_.isEmpty(checkedItems) || _.isEmpty(updates)) {
+    if (_.isEmpty(checkedItems) || _.isEmpty(updates)) {
       return
     }
 
     // Mark loading
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
 
     // Gen commands
     let currentId = _.get(state.current, "meta.id")
     let input = JSON.stringify(updates)
     let tsId = state.meta.id
-    for(let it of checkedItems) {
+    for (let it of checkedItems) {
       let cmdText = `thing ${tsId} update ${it.id} -fields -cqn`
-      let newIt = await Wn.Sys.exec2(cmdText, {as:"json", input})
+      let newIt = await Wn.Sys.exec2(cmdText, { as: "json", input })
       commit("search/updateItem", newIt)
-      if(newIt.id == currentId) {
+      if (newIt.id == currentId) {
         commit("current/setMeta", newIt)
       }
     }
 
     // Mark loading
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   },
   //--------------------------------------------
-  setCurrentMeta({state, commit}, meta) {
+  setCurrentMeta({ state, commit }, meta) {
     //console.log(" -> setCurrentMeta", meta)
+    commit("current/setThingSetId", state.meta.id)
     commit("current/setMeta", meta)
     commit("syncStatusChanged")
     commit("search/updateItem", state.current.meta)
   },
   //--------------------------------------------
-  setCurrentContent({state, commit, dispatch}, content) {
+  setCurrentContent({ state, commit, dispatch }, content) {
+    commit("current/setThingSetId", state.meta.id)
     dispatch("current/onChanged", content)
     commit("syncStatusChanged")
     commit("search/updateItem", state.current.meta)
@@ -7731,30 +7758,30 @@ const _M = {
   /***
    * Files: sync the file count and update to search/meta
    */
-  async autoSyncCurrentFilesCount({state, commit, dispatch}, {quiet=true}={}) {
+  async autoSyncCurrentFilesCount({ state, commit, dispatch }, { quiet = true } = {}) {
     let oTh = state.current.meta
     let dirName = state.currentDataDir
     // Guard
-    if(!dirName) {
+    if (!dirName) {
       console.warn("thing file -ufc without 'dirName'");
       return Ti.Toast.Open("thing file -ufc without 'dirName'")
     }
     // sync current media count
-    if(oTh && oTh.id && dirName) {
-      commit("setStatus", {reloading:true})
+    if (oTh && oTh.id && dirName) {
+      commit("setStatus", { reloading: true })
 
       // run command
       let th_set = oTh.th_set
       let cmdText = `thing ${th_set} file ${oTh.id} -dir '${dirName}' -ufc -cqn`
-      let oNew = await Wn.Sys.exec2(cmdText, {as:"json"})
+      let oNew = await Wn.Sys.exec2(cmdText, { as: "json" })
       // Set current meta
       dispatch("setCurrentMeta", oNew)
 
-      commit("setStatus", {reloading:false})
+      commit("setStatus", { reloading: false })
 
-      if(!quiet) {
+      if (!quiet) {
         await Ti.Toast.Open('i18n:wn-th-recount-media-done', {
-          vars: {n: oNew.th_media_nb||0}
+          vars: { n: oNew.th_media_nb || 0 }
         })
       }
     }
@@ -7763,27 +7790,27 @@ const _M = {
   /***
    * Toggle enter/outer RecycleBin
    */
-  async toggleInRecycleBin({state, commit, dispatch, getters}) {
+  async toggleInRecycleBin({ state, commit, dispatch, getters }) {
     //console.log("thing-manager-toggleInRecycleBin")
     // Update Search
     let inRecycleBin = !getters.isInRecycleBin
     commit("search/setInRecycleBin", inRecycleBin)
 
     // Update status
-    commit("setStatus", {inRecycleBin, reloading:true})
+    commit("setStatus", { inRecycleBin, reloading: true })
     // Reload List
     await dispatch("search/reload")
 
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   },
   //--------------------------------------------
   /***
    * Create one new thing
    */
-  async create({state, commit, dispatch}, obj={}) {
+  async create({ state, commit, dispatch }, obj = {}) {
     // Special setting for create
     let beCreate = _.get(state.config, "schema.behavior.create") || {}
-    let {unique,after,fixed} = beCreate
+    let { unique, after, fixed } = beCreate
 
     // Prepare the command
     let json = JSON.stringify(obj)
@@ -7791,37 +7818,37 @@ const _M = {
     let cmds = [`thing ${th_set} create -cqn -fields`]
 
     // Join `-unique`
-    if(!_.isEmpty(unique) && _.isString(unique)) {
+    if (!_.isEmpty(unique) && _.isString(unique)) {
       cmds.push(` -unique '${unique}'`)
     }
 
     // Join `-fixed`
-    if(!_.isEmpty(fixed) && _.isString(unique)) {
+    if (!_.isEmpty(fixed) && _.isString(unique)) {
       cmds.push(` -fixed '${JSON.stringify(fixed)}'`)
     }
 
     // Join `-after`
-    if(!_.isEmpty(after) && _.isString(after)) {
+    if (!_.isEmpty(after) && _.isString(after)) {
       cmds.push(` -after '${after}'`)
     }
 
     // Mark reloading
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
 
     // Do Create
     let cmdText = cmds.join(" ")
-    let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
+    let newMeta = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
 
-    if(newMeta && !(newMeta instanceof Error)) {
+    if (newMeta && !(newMeta instanceof Error)) {
       // Append To Search List as the first 
       commit("search/prependToList", newMeta)
-      
+
       // Set it as current
-      await dispatch("setCurrentThing", {meta:newMeta})
+      await dispatch("setCurrentThing", { meta: newMeta })
     }
 
     // Mark reloading
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
 
     // Return the new object
     return newMeta
@@ -7830,9 +7857,9 @@ const _M = {
   /***
    * Search: Remove Checked Items
    */
-  async removeChecked({state, commit, dispatch, getters}, hard=false) {
+  async removeChecked({ state, commit, dispatch, getters }, hard = false) {
     let ids = _.cloneDeep(state.search.checkedIds)
-    if(_.isEmpty(ids)) {
+    if (_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
     }
 
@@ -7841,23 +7868,23 @@ const _M = {
     hard |= beh.hardRemove
 
     // If hard, warn at first
-    if(hard || state.status.inRecycleBin) {
-      if(! (await Ti.Confirm('i18n:del-hard'))) {
+    if (hard || state.status.inRecycleBin) {
+      if (!(await Ti.Confirm('i18n:del-hard'))) {
         return
       }
     }
 
-    commit("setStatus", {deleting:true})
+    commit("setStatus", { deleting: true })
 
     // Prepare the ids which fail to remove
     let failIds = {}
 
     // Prepare the cmds
     let th_set = state.meta.id
-    let cmdText = `thing ${th_set} delete ${hard?"-hard":""} -cqn -l ${ids.join(" ")}`
+    let cmdText = `thing ${th_set} delete ${hard ? "-hard" : ""} -cqn -l ${ids.join(" ")}`
     let reo = await Wn.Sys.exec2(cmdText, {
-      as:"json",
-      errorAs: ({data})=>{
+      as: "json",
+      errorAs: ({ data }) => {
         let id = _.trim(data)
         failIds[id] = true
       }
@@ -7868,57 +7895,57 @@ const _M = {
     //console.log("removeIds:", removeIds)
 
     // Remove it from search list
-    if(!_.isEmpty(removeIds)) {
+    if (!_.isEmpty(removeIds)) {
       commit("search/removeItems", removeIds)
     }
     let current = getters["search/currentItem"]
     //console.log("getback current", current)
     // Update current
-    await dispatch("setCurrentThing", {meta:current})
+    await dispatch("setCurrentThing", { meta: current })
 
-    commit("setStatus", {deleting:false})
+    commit("setStatus", { deleting: false })
   },
   //--------------------------------------------
   /***
    * RecycleBin: restore
    */
-  async restoreRecycleBin({state, commit, dispatch, getters}) {
+  async restoreRecycleBin({ state, commit, dispatch, getters }) {
     // Require user to select some things at first
     let ids = state.search.checkedIds
-    if(_.isEmpty(ids)) {
+    if (_.isEmpty(ids)) {
       return await Ti.Alert('i18n:thing-restore-none')
     }
-    commit("setStatus", {restoring:true})
+    commit("setStatus", { restoring: true })
 
     // Run command
     let th_set = state.meta.id
     let cmdText = `thing ${th_set} restore -quiet -cqn -l ${ids.join(" ")}`
-    let reo = await Wn.Sys.exec2(cmdText, {as:"json"})
+    let reo = await Wn.Sys.exec2(cmdText, { as: "json" })
 
     // Reload
     await dispatch("search/reload")
 
     // Get back current
     let current = getters["search/currentItem"]
-    
+
     // Update current
     await dispatch("current/reload", current)
 
-    commit("setStatus", {restoring:false})
+    commit("setStatus", { restoring: false })
   },
   //--------------------------------------------
   /***
    * RecycleBin: clean
    */
-  async cleanRecycleBin({state, commit, dispatch}) {
-    commit("setStatus", {cleaning:true})
+  async cleanRecycleBin({ state, commit, dispatch }) {
+    commit("setStatus", { cleaning: true })
 
     // Run command
     let th_set = state.meta.id
     let cmdText = `thing ${th_set} clean -limit 3000`
     await Wn.Sys.exec2(cmdText)
 
-    commit("setStatus", {cleaning:false})
+    commit("setStatus", { cleaning: false })
 
     await dispatch("reload")
   },
@@ -7928,28 +7955,28 @@ const _M = {
   /***
    * Open meta editor, if has current, use it
    */
-  async openMetaEditor({state, getters, dispatch}) {
+  async openMetaEditor({ state, getters, dispatch }) {
     // Guard
-    if(!state.meta) {
+    if (!state.meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
     //.........................................
     // For current selected
     //.........................................
-    if(getters.hasCurrent) {
+    if (getters.hasCurrent) {
       // Edit current meta
       let reo = await Wn.EditObjMeta(state.current.meta, {
-        fields:"default", autoSave:false
+        fields: "default", autoSave: false
       })
 
       // Cancel the editing
-      if(_.isUndefined(reo)) {
+      if (_.isUndefined(reo)) {
         return
       }
 
       // Update the current editing
-      let {updates} = reo
-      if(!_.isEmpty(updates)) {
+      let { updates } = reo
+      if (!_.isEmpty(updates)) {
         await dispatch("updateCurrentMetas", updates)
       }
       return
@@ -7958,26 +7985,26 @@ const _M = {
     // For Whole thing thing
     //.........................................
     await Wn.EditObjMeta(state.meta, {
-      fields:"auto", autoSave:true
+      fields: "auto", autoSave: true
     })
   },
   //--------------------------------------------
   /***
    * Open current object source editor
    */
-  async openContentEditor({state, getters, dispatch, commit}) {
+  async openContentEditor({ state, getters, dispatch, commit }) {
     // Guard
-    if(!state.meta) {
+    if (!state.meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
-    if(getters.hasCurrent) {
+    if (getters.hasCurrent) {
       // Open Editor
       let newContent = await Wn.EditObjContent(state.current.meta, {
-        content : state.current.content
+        content: state.current.content
       })
 
       // Cancel the editing
-      if(_.isUndefined(newContent)) {
+      if (_.isUndefined(newContent)) {
         return
       }
 
@@ -7994,13 +8021,13 @@ const _M = {
   /***
    * Reload files
    */
-  async reloadFiles({state,commit,dispatch, getters}, {force=false}={}) {
+  async reloadFiles({ state, commit, dispatch, getters }, { force = false } = {}) {
     //console.log("reloadFiles")
     let current = _.get(state.current, "meta")
     let thingId = _.get(current, "id")
     let dirName = state.filesName
     // No current
-    if(!thingId || !dirName) {
+    if (!thingId || !dirName) {
       commit("files/reset")
     }
     // Reload the files
@@ -8008,19 +8035,19 @@ const _M = {
       let thSetId = state.meta.id
       // get the parent DIR
       let oDir = state.files.meta
-      if(!oDir || !oDir.ph || !oDir.ph.endsWith(`/data/${thingId}/${dirName}`)) {
+      if (!oDir || !oDir.ph || !oDir.ph.endsWith(`/data/${thingId}/${dirName}`)) {
         let dataHome = `id:${thSetId}/data`
         let dirPath = `${thingId}/${dirName}`
         // Create or fetch the dir
         let newMeta = {
-          race : "DIR",
-          nm   : dirPath
+          race: "DIR",
+          nm: dirPath
         }
         let json = JSON.stringify(newMeta)
         let cmdText = `obj "${dataHome}" -IfNoExists -new '${json}' -cqno`
-        oDir = await Wn.Sys.exec2(cmdText, {as:"json"})
-        if(!oDir) {
-          return 
+        oDir = await Wn.Sys.exec2(cmdText, { as: "json" })
+        if (!oDir) {
+          return
         }
       } // ~ if(!oDir || !oDir.ph
       // Try to reload the children
@@ -8034,30 +8061,30 @@ const _M = {
   /***
    * Reload search list
    */
-  async reloadSearch({state, commit, dispatch}) {
+  async reloadSearch({ state, commit, dispatch }) {
     let meta = state.meta
 
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
 
     await dispatch("search/reload", meta)
 
     // Sometimes, current object will not in the list
     // we need remove it
-    if(state.current.meta) {
+    if (state.current.meta) {
       // find new meta
       let currentId = state.current.meta.id
       let current = null
-      for(let it of state.search.list) {
-        if(it.id == currentId) {
+      for (let it of state.search.list) {
+        if (it.id == currentId) {
           current = it
           break
         }
       }
       // Update the meta
-      await dispatch("setCurrentThing", {meta : current})
+      await dispatch("setCurrentThing", { meta: current })
     }
 
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   },
   //--------------------------------------------
   /***
@@ -8065,15 +8092,15 @@ const _M = {
    * 
    * It will load content if "content" is shown
    */
-  async setCurrentThing({state, commit, dispatch}, {
-    meta=null, 
-    checkedIds={}
-  }={}) {
+  async setCurrentThing({ state, commit, dispatch }, {
+    meta = null,
+    checkedIds = {}
+  } = {}) {
     //..........................................
     // Update selected item in search list
     let curId = meta ? meta.id : null
     let ckIds = Ti.Util.truthyKeys(checkedIds)
-    if(!Ti.Util.isNil(curId)) {
+    if (!Ti.Util.isNil(curId)) {
       ckIds.push(curId)
     }
     commit("search/setCurrentId", curId)
@@ -8091,7 +8118,7 @@ const _M = {
     //..........................................
     // Keep last
     let lastKey = `${home.id}:currentId`
-    if(!_.get(state.config.schema, "keepLastOff")) {
+    if (!_.get(state.config.schema, "keepLastOff")) {
       Ti.Storage.session.set(lastKey, curId);
     }
     // Clean local storage
@@ -8100,9 +8127,10 @@ const _M = {
     }
     //..........................................
     // Reload Current
+    commit("current/setThingSetId", state.meta.id)
     let currentMeta = _.cloneDeep(meta)
     // Reload if show content
-    if(_.get(state.config, "shown.content")) {
+    if (_.get(state.config, "shown.content")) {
       await dispatch("current/reload", currentMeta)
     }
     // Just update the meta
@@ -8117,13 +8145,13 @@ const _M = {
    * 
    * If show content/files, it may check if need to be reload data
    */
-  async doChangeShown({state, commit, dispatch}, shown) {
+  async doChangeShown({ state, commit, dispatch }, shown) {
     let oldShownContent = _.get(state, "config.shown.content") || false
     // Just mark the shown
     dispatch("config/updateShown", shown)
 
     // If show changed, and content is true
-    if(!oldShownContent && shown.content) {
+    if (!oldShownContent && shown.content) {
       //console.log("reload current content")
       await dispatch("current/reload")
       commit("syncStatusChanged")
@@ -8133,10 +8161,36 @@ const _M = {
   /***
    * Reload All
    */
-  async reload({state, commit, dispatch, getters}, meta) {
+  async reload({ state, commit, dispatch, getters }, meta) {
     //console.log("thing-manager.reload", state)
+    // Reload meta
+    if (_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+
+    // Relod setting from thing view
+    let thAutoSelect = Ti.Util.fallbackNil(state.autoSelect, false)
+    if ("FILE" == meta.race) {
+      let view = await Wn.Io.loadContent(meta, { as: "json" })
+      let { path, schema, autoSelect } = view
+      meta = await Wn.Io.loadMeta(path)
+      if (schema) {
+        commit("mergeFixedSchema", schema)
+      }
+      if (!Ti.Util.isNil(autoSelect)) {
+        thAutoSelect = Ti.Types.toBoolean(autoSelect)
+      }
+    }
+    // Update auto-select by meta
+    else if (!Ti.Util.isNil(meta.th_auto_select)) {
+      thAutoSelect = Ti.Types.toBoolean(meta.th_auto_select)
+    }
+
+    // commit auto-select to state
+    commit("setAutoSelect", thAutoSelect)
+
     // Update New Meta
-    if(meta) {
+    if (meta) {
       commit("setMeta", meta)
     }
     // Get meta back
@@ -8146,19 +8200,23 @@ const _M = {
     // meta is home
     let home = meta
 
+    // Update current module thingSetId
+    commit("current/setThingSetId", state.meta.id)
+
     // Mark reloading
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
 
     // Reload Config
     //console.log("reload config")
     await dispatch("config/reload", meta)
+    commit("config/mergeSchema", state.fixedSchema)
 
     // Update the default filesDirName
     let localDirNameKey = `${meta.id}_dirname`
     let dirName = Ti.Storage.session.getString(localDirNameKey)
-    if(!dirName) {
+    if (!dirName) {
       dirName = _.get(state.config, "schema.behavior.filesDirName")
-                || "media"
+        || "media"
     }
     commit("setCurrentDataDir", dirName || "media")
 
@@ -8169,40 +8227,45 @@ const _M = {
       sorter: {},
       pager: {}
     })
+
+    // Customized behavior
+    let behavior = _.get(state.config.schema, "behavior") || {}
+
     // Setup default filter and sorter
-    let filter = _.get(state.config.schema, "behavior.filter") || {}
-    let filter2 = _.assign({}, filter, local.filter)
-    if(!filter.majorKey) {
-      delete filter2.majorKey;
+    let filter = _.assign({}, behavior.filter, local.filter)
+    if (!_.get(behavior.filter, "majorKey")) {
+      delete filter.majorKey;
     }
-    if(!_.isEmpty(filter2)) {
-      commit("search/setFilter", filter2)
+    if (!_.isEmpty(filter)) {
+      commit("search/setFilter", filter)
     }
+    // Fixed match
+    commit("search/setFixedMatch", behavior.match)
+    commit("search/setMajorKey", behavior.majorKey)
+    commit("search/setDefaultKey", behavior.defaultKey)
+    commit("search/setKeyword", behavior.keyword)
+
+
     // Sorter
-    let sorter = _.get(state.config.schema, "behavior.sorter") || {}
-    if(!_.isEmpty(local.sorter)) {
+    if (!_.isEmpty(local.sorter)) {
       commit("search/setSorter", local.sorter)
     }
-    else if(!_.isEmpty(sorter)) {
-      commit("search/setSorter", sorter)
+    else if (!_.isEmpty(behavior.sorter)) {
+      commit("search/setSorter", behavior.sorter)
     }
 
     // Pager
-    let pager = _.get(state.config.schema, "behavior.pager")
-    if(pager) {
-      commit("search/updatePager", pager)
+    if (behavior.pager) {
+      commit("search/updatePager", behavior.pager)
     }
 
-    // Show keys
-    let showKeys = _.get(state.config.schema, "behavior.showKeys")
-    if(showKeys) {
-      commit("search/setShowKeys", showKeys)
-    }
+    // Show keys to filter obj output
+    commit("search/setShowKeys", behavior.showKeys)
 
     // If pager is enabled, try load from local
     //console.log("root Getters", getters) 
-    if(getters["search/isPagerEnabled"]) {
-      if(!_.isEmpty(local.pager)) {
+    if (getters["search/isPagerEnabled"]) {
+      if (!_.isEmpty(local.pager)) {
         commit("search/setPager", local.pager)
       }
     }
@@ -8212,31 +8275,31 @@ const _M = {
     await dispatch("reloadSearch")
 
     // Auto Select the first item
-    if(_.get(state, "meta.th_auto_select")) {
-      if(!state.current.meta && !_.isEmpty(state.search.list)) {
+    if (state.autoSelect) {
+      if (!state.current.meta && !_.isEmpty(state.search.list)) {
         // Get last
         let lastKey = `${home.id}:currentId`
         let curId = Ti.Storage.session.getString(lastKey);
         let current;
 
         // Find by id
-        if(curId)
-          current = _.find(state.search.list, li=>li.id == curId)
+        if (curId)
+          current = _.find(state.search.list, li => li.id == curId)
 
         // use the first one
-        if(!current)
+        if (!current)
           current = _.first(state.search.list)
-        
+
         // Highlight it
         await dispatch("setCurrentThing", {
-          meta : current, 
-          force : false
+          meta: current,
+          force: false
         })
       }
     }
 
     // All done
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   }
   //--------------------------------------------
 }
@@ -11179,7 +11242,7 @@ return _M;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/thing/mod/search/m-thing-search.mjs'] = (function(){
 function saveToLocal(meta, key, val) {
-  if(!meta) {
+  if (!meta) {
     return
   }
   //console.log("saveToLocal", key, val)
@@ -11195,12 +11258,12 @@ function saveToLocal(meta, key, val) {
 //---------------------------------------
 const _M = {
   ///////////////////////////////////////////////////////
-  getters : {
+  getters: {
     //---------------------------------------------------
     currentItem(state) {
-      if(state.currentId) {
-        for(let it of state.list) {
-          if(it.id == state.currentId) {
+      if (state.currentId) {
+        for (let it of state.list) {
+          if (it.id == state.currentId) {
             return it
           }
         }
@@ -11211,13 +11274,13 @@ const _M = {
     checkedItems(state) {
       // Make the idsMap
       let checkedMap = {}
-      for(let id of state.checkedIds) {
+      for (let id of state.checkedIds) {
         checkedMap[id] = true
       }
       // Join the items
       let list = []
-      for(let it of state.list) {
-        if(checkedMap[it.id]) {
+      for (let it of state.list) {
+        if (checkedMap[it.id]) {
           list.push(it)
         }
       }
@@ -11229,13 +11292,17 @@ const _M = {
       return state.pager && state.pager.pn > 0 && state.pager.pgsz > 0
     },
     //---------------------------------------------------
-    filterObj(state, getters, rootState) {
-      let setting = _.get(rootState, "main.config.schema.behavior") || {}
-      let flt = Wn.Util.getMatchByFilter(state.filter, setting)
-      
+    filterObj(state) {
+      let flt = Wn.Util.getMatchByFilter(state.filter, {
+        match: state.fixedMatch,
+        majorKey: state.majorKey,
+        defaultKey: state.defaultKey,
+        keyword: state.keyword
+      })
+
       // InRecycleBin 
       flt.th_live = state.inRecycleBin ? -1 : 1
-      
+
       return flt
     },
     //---------------------------------------------------
@@ -11248,7 +11315,7 @@ const _M = {
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
-  mutations : {
+  mutations: {
     setMeta(state, meta) {
       state.meta = meta
     },
@@ -11257,12 +11324,25 @@ const _M = {
       state.status = _.assign({}, state.status, status)
     },
     //---------------------------------------------------
-    setFilter(state, filter={}) {
+    setFixedMatch(state, match) {
+      state.fixedMatch = _.cloneDeep(match)
+    },
+    setMajorKey(state, majorKey) {
+      state.majorKey = majorKey
+    },
+    setDefaultKey(state, defaultKey) {
+      state.defaultKey = defaultKey
+    },
+    setKeyword(state, keyword) {
+      state.keyword = keyword || {}
+    },
+    //---------------------------------------------------
+    setFilter(state, filter = {}) {
       //console.log("setFilter", JSON.stringify(filter))
       state.filter = filter
       saveToLocal(state.meta, "filter", state.filter)
     },
-    updateFilter(state, flt={}) {
+    updateFilter(state, flt = {}) {
       //console.log("updateFilter", JSON.stringify(flt))
       state.filter = _.assign({}, state.filter, flt)
       saveToLocal(state.meta, "filter", state.filter)
@@ -11280,7 +11360,7 @@ const _M = {
       state.pager = _.defaults({}, pg, state.pager)
     },
     //---------------------------------------------------
-    setInRecycleBin(state, inRecycleBin=false) {
+    setInRecycleBin(state, inRecycleBin = false) {
       state.inRecycleBin = inRecycleBin
     },
     //---------------------------------------------------
@@ -11293,32 +11373,32 @@ const _M = {
       state.currentId = id || null
     },
     //---------------------------------------------------
-    setShowKeys(state, showKeys) {
+    setShowKeys(state, showKeys = null) {
       state.showKeys = showKeys
     },
     //---------------------------------------------------
-    setCheckedIds(state, ids=[]) {
+    setCheckedIds(state, ids = []) {
       state.checkedIds = _.union(ids)
     },
     //---------------------------------------------------
     selectItem(state, id) {
-      if(state.currentId != id) {
+      if (state.currentId != id) {
         state.currentId = id
         state.checkedIds = []
-        if(id) {
+        if (id) {
           state.checkedIds.push(id)
         }
       }
     },
     //---------------------------------------------------
-    removeItems(state, ids=[]) {
+    removeItems(state, ids = []) {
       // Find the current item index, and take as the next Item index
       //console.log("search.remove", ids)
       let index = -1
-      if(state.currentId) {
-        for(let i=0; i<state.list.length; i++) {
+      if (state.currentId) {
+        for (let i = 0; i < state.list.length; i++) {
           let it = state.list[i]
-          if(it.id == state.currentId) {
+          if (it.id == state.currentId) {
             index = i
             break
           }
@@ -11326,47 +11406,47 @@ const _M = {
       }
       // Make the idsMap
       let idsMap = {}
-      if(_.isArray(ids)) {
-        for(let id of ids) {
+      if (_.isArray(ids)) {
+        for (let id of ids) {
           idsMap[id] = true
         }
-      } else if (_.isPlainObject(ids)){
+      } else if (_.isPlainObject(ids)) {
         idsMap = ids
       }
       // Remove the ids
       let list2 = []
-      for(let it of state.list) {
-        if(!idsMap[it.id]) {
+      for (let it of state.list) {
+        if (!idsMap[it.id]) {
           list2.push(it)
         }
       }
       // Then get back the current
-      index = Math.min(index, list2.length-1)
+      index = Math.min(index, list2.length - 1)
       let nextCurrent = null
-      if(index >= 0) {
+      if (index >= 0) {
         nextCurrent = list2[index]
         state.currentId = nextCurrent.id
         state.checkedIds = [nextCurrent.id]
       }
       // No currentId
       else {
-        state.currentId  = null
+        state.currentId = null
         state.checkedIds = []
       }
       // Reset the list
       state.list = list2
-      if(state.pager) {
+      if (state.pager) {
         state.pager.count = list2.length
-        state.pager.sum = state.pager.pgsz * (state.pager.pgc-1) + list2.length
+        state.pager.sum = state.pager.pgsz * (state.pager.pgc - 1) + list2.length
       }
       // console.log("the next current", nextCurrent)
     },
     //---------------------------------------------------
     updateItem(state, it) {
       let list = []
-      for(let li of state.list) {
-        if(li.id == it.id) {
-          list.push({...it, __updated_time:Date.now()})
+      for (let li of state.list) {
+        if (li.id == it.id) {
+          list.push({ ...it, __updated_time: Date.now() })
         } else {
           list.push(li)
         }
@@ -11375,13 +11455,13 @@ const _M = {
     },
     //---------------------------------------------------
     appendToList(state, it) {
-      if(it) {
+      if (it) {
         state.list = [].concat(state.list, it)
       }
     },
     //---------------------------------------------------
     prependToList(state, it) {
-      if(it) {
+      if (it) {
         state.list = [].concat(it, state.list)
       }
     }
@@ -15774,6 +15854,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     setSchema(state, schema) {
       state.schema = schema
     },
+    mergeSchema(state, schema) {
+      state.schema = _.merge({}, state.schema, schema)
+    },
     setLayout(state, layout) {
       state.layout = _.pick(layout, ["desktop","tablet","phone"])
       state.shown = layout.shown || {}
@@ -18031,73 +18114,98 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/wn/thing/manager/wn-thing-manager.mjs'] = (function(){
 const _M = {
   ///////////////////////////////////////////
-  provide : function() {
+  provide: function () {
     return {
-      $ThingManager : this
+      $ThingManager: this
     }
   },
   ///////////////////////////////////////////
-  data: ()=>({
+  data: () => ({
     "myRouting": {}
   }),
   ///////////////////////////////////////////
-  props : {
+  props: {
     // Thing Set Home
-    "meta" : {
-      type : Object,
-      default : ()=>({})
+    "meta": {
+      type: Object,
+      default: () => ({})
     },
-    "currentDataHome" : {
-      type : String,
-      default : undefined
+    "moduleName": {
+      type: String,
+      default: "main"
     },
-    "currentDataHomeObj" : {
-      type : Object,
-      default : undefined
+    "currentDataHome": {
+      type: String,
+      default: undefined
     },
-    "currentDataDir" : {
-      type : String,
-      default : undefined
+    "currentDataHomeObj": {
+      type: Object,
+      default: undefined
     },
-    "status" : {
-      type : Object,
-      default : ()=>({})
+    "currentDataDir": {
+      type: String,
+      default: undefined
     },
-    "config" : {
-      type : Object,
-      default : ()=>({})
+    "status": {
+      type: Object,
+      default: () => ({})
     },
-    "search" : {
-      type : Object,
-      default : ()=>({})
+    "rootState": {
+      type: Object
     },
-    "current" : {
-      type : Object,
-      default : ()=>({})
+    "config": {
+      type: Object,
+      default: () => ({})
     },
-    "files" : {
-      type : Object,
-      default : ()=>({})
+    "search": {
+      type: Object,
+      default: () => ({})
     },
-    "preview" : {
-      type : Object,
-      default : ()=>({})
+    "current": {
+      type: Object,
+      default: () => ({})
+    },
+    "files": {
+      type: Object,
+      default: () => ({})
+    },
+    "preview": {
+      type: Object,
+      default: () => ({})
     },
     "emitChange": {
-      type : Boolean,
+      type: Boolean,
       default: false
     },
     "keepLastSelection": {
       type: Boolean,
       default: true
+    },
+    //-----------------------------------
+    // Callback
+    //-----------------------------------
+    "whenCreated": {
+      type: Function
+    },
+    "whenMounted": {
+      type: Function
+    },
+    "whenBeforeDestroy": {
+      type: Function
     }
   },
   ///////////////////////////////////////////
-  computed : {
-    ...Vuex.mapGetters("main/search", [
-      "currentItem", 
-      "checkedItems"
-    ]),
+  computed: {
+    //--------------------------------------
+    currentItem() {
+      let path = Ti.Util.appendPath(this.moduleName, "search/currentItem")
+      return Ti.App(this).$store().getters[path]
+    },
+    //--------------------------------------
+    checkedItems() {
+      let path = Ti.Util.appendPath(this.moduleName, "search/checkedItems")
+      return Ti.App(this).$store().getters[path]
+    },
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -18108,7 +18216,7 @@ const _M = {
     },
     //--------------------------------------
     TheKeepLastKey() {
-      if(this.keepLastSelection) {
+      if (this.keepLastSelection) {
         return _.get(this.meta, "id") + ":currentId";
       }
     },
@@ -18122,7 +18230,7 @@ const _M = {
     },
     //--------------------------------------
     CurrentHeadClass() {
-      if(this.CurrentIsDead) {
+      if (this.CurrentIsDead) {
         return "current-in-recyclebin"
       }
     },
@@ -18137,46 +18245,46 @@ const _M = {
     //--------------------------------------
     TheLoadingAs() {
       return _.assign({
-        "reloading" : {
-          icon : "fas-spinner fa-spin",
-          text : "i18n:loading"
+        "reloading": {
+          icon: "fas-spinner fa-spin",
+          text: "i18n:loading"
         },
-        "saving" : {
-          icon : "zmdi-settings fa-spin",
-          text : "i18n:saving"
+        "saving": {
+          icon: "zmdi-settings fa-spin",
+          text: "i18n:saving"
         },
-        "deleting" : {
-          icon : "zmdi-refresh fa-spin",
-          text : "i18n:del-ing"
+        "deleting": {
+          icon: "zmdi-refresh fa-spin",
+          text: "i18n:del-ing"
         },
-        "publishing" : {
-          icon : "zmdi-settings zmdi-hc-spin",
-          text : "i18n:publishing"
+        "publishing": {
+          icon: "zmdi-settings zmdi-hc-spin",
+          text: "i18n:publishing"
         },
-        "restoring" : {
-          icon : "zmdi-time-restore zmdi-hc-spin",
-          text : "i18n:thing-restoring"
+        "restoring": {
+          icon: "zmdi-time-restore zmdi-hc-spin",
+          text: "i18n:thing-restoring"
         },
-        "cleaning" : {
-          icon : "zmdi-settings zmdi-hc-spin",
-          text : "i18n:thing-cleaning"
+        "cleaning": {
+          icon: "zmdi-settings zmdi-hc-spin",
+          text: "i18n:thing-cleaning"
         }
       }, _.get(this.TheSchema, "loadingAs"))
     },
     //--------------------------------------
     ChangedRowId() {
-      if(this.currentItem && this.current.status.changed) {
+      if (this.currentItem && this.current.status.changed) {
         return this.currentItem.id
       }
     },
     //--------------------------------------
     GuiLoadingAs() {
-      let key = _.findKey(this.status, (v)=>v)
+      let key = _.findKey(this.status, (v) => v)
       return _.get(this.TheLoadingAs, key)
     },
     //--------------------------------------
     curentThumbTarget() {
-      if(this.currentItem) {
+      if (this.currentItem) {
         let th_set = this.meta.id
         return `id:${th_set}/data/${this.currentItem.id}/thumb.jpg`
       }
@@ -18184,7 +18292,7 @@ const _M = {
     },
     //--------------------------------------
     SchemaMethods() {
-      if(this.TheSchema && this.TheSchema.methods) {
+      if (this.TheSchema && this.TheSchema.methods) {
         return Ti.Util.merge({}, this.TheSchema.methods)
       }
       return {}
@@ -18192,67 +18300,64 @@ const _M = {
     //--------------------------------------
     EventRouting() {
       return _.assign({
-        "block:show"      : "showBlock",
-        "block:hide"      : "hideBlock",
-        "block:shown"     : "changeShown",
-        "filter::change"  : "OnFilterChange",
-        "sorter::change"  : "OnSorterChange",
-        "list::select"    : "OnListSelect",
-        "list::open"      : "OnListOpen",
-        "content::change" : "OnContentChange",
-        "pager::change"   : "OnPagerChange"
+        "block:show": "showBlock",
+        "block:hide": "hideBlock",
+        "block:shown": "changeShown",
+        "filter::change": "OnFilterChange",
+        "sorter::change": "OnSorterChange",
+        "list::select": "OnListSelect",
+        "list::open": "OnListOpen",
+        "content::change": "OnContentChange",
+        "pager::change": "OnPagerChange"
       }, _.get(this.TheSchema, "events"), this.myRouting)
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     //
     //  Event handler
     //
     //--------------------------------------
     async OnFilterChange(filter) {
-      Ti.App(this).commit("main/search/setFilter", filter)
-      await Ti.App(this).dispatch("main/reloadSearch")
+      this.commit("search/setFilter", filter)
+      await this.dispatch("reloadSearch")
     },
     //--------------------------------------
-    async OnSorterChange(sort={}) {
-      Ti.App(this).commit("main/search/setSorter", sort)
-      await Ti.App(this).dispatch("main/reloadSearch")
+    async OnSorterChange(sort = {}) {
+      this.commit("search/setSorter", sort)
+      await this.dispatch("reloadSearch")
     },
     //--------------------------------------
-    OnListSelect({current, currentId, checkedIds, checked}) {
+    OnListSelect({ current, currentId, checkedIds, checked }) {
       //console.log("OnListSelect", current)
-      Ti.App(this).dispatch("main/setCurrentThing", {
-        meta: current, 
+      this.dispatch("setCurrentThing", {
+        meta: current,
         currentId,
         checkedIds
       })
 
-      if(this.emitChange) {
-        this.$emit("change", {current, currentId, checkedIds, checked})
+      if (this.emitChange) {
+        this.$emit("change", { current, currentId, checkedIds, checked })
       }
     },
     //--------------------------------------
-    OnListOpen({rawData}) {
-      let app = Ti.App(this)
-      app.dispatch("main/config/updateShown", this.config.listOpen)
+    OnListOpen({ rawData }) {
+      this.dispatch("config/updateShown", this.config.listOpen)
       // Update Current
-      app.dispatch("main/setCurrentThing", {meta: rawData})
+      this.dispatch("setCurrentThing", { meta: rawData })
     },
     //--------------------------------------
     OnContentChange(content) {
-      let app = Ti.App(this)
-      app.dispatch("main/current/changeContent", content)
-      app.commit("main/syncStatusChanged")
+      this.dispatch("current/changeContent", content)
+      this.commit("syncStatusChanged")
     },
     //--------------------------------------
-    OnPagerChange({pn, pgsz}={}) {
+    OnPagerChange({ pn, pgsz } = {}) {
       //console.log("OnPagerChange", {pn, pgsz})
-      let app = Ti.App(this)
-      app.commit("main/search/updatePager", {pn, pgsz})
-      app.dispatch("main/reloadSearch")
+      this.commit("search/updatePager", { pn, pgsz })
+      this.dispatch("reloadSearch")
     },
     //--------------------------------------
     OnViewCurrentSource() {
@@ -18267,8 +18372,16 @@ const _M = {
       this.$set(this.myRouting, eventName, handler)
     },
     removeEventRouting(...names) {
-      let routing = _.omitBy(this.myRouting, (_, key)=>names.indexOf(key)>=0)
+      let routing = _.omitBy(this.myRouting, (_, key) => names.indexOf(key) >= 0)
       this.myRouting = routing
+    },
+    async dispatch(name, payload) {
+      let path = Ti.Util.appendPath(this.moduleName, name)
+      return await Ti.App(this).dispatch(path, payload)
+    },
+    commit(name, payload) {
+      let path = Ti.Util.appendPath(this.moduleName, name)
+      return Ti.App(this).commit(path, payload)
     },
     //--------------------------------------
     //
@@ -18276,25 +18389,40 @@ const _M = {
     //
     //--------------------------------------
     // For Event Bubble Dispatching
-    __on_events(name) {
-      //console.log("__on_events", name)
+    __on_events(name, payload) {
+      //console.log("__on_events", name, payload)
       // Try to get handler
       let fn = _.get(this.EventRouting, name)
-      if(!fn) {
+      if (!fn) {
         fn = this.$tiEventTryFallback(name, this.EventRouting)
       }
 
       // callPath -> Function
-      if(_.isString(fn)) {
-        return _.get(this, fn)
+      let func;
+      if (_.isString(fn)) {
+        func = _.get(this, fn)
+        if (!_.isFunction(func)) {
+          func = Ti.Util.genInvoking(fn, {
+            context: this.currentItem,
+            dft: null,
+            funcSet: this
+          })
+        }
       }
-      return fn
+      if(_.isFunction(func)) {
+        if(!_.isUndefined(payload)) {
+          return ()=>{
+            func(payload)
+          }
+        }
+        return func
+      }
     },
     // Shortcut 
     __ti_shortcut(uniqKey) {
       //console.log("ti-form", uniqKey)
-      if("ESCAPE" == uniqKey) {
-        if(this.TheShown.creator) {
+      if ("ESCAPE" == uniqKey) {
+        if (this.TheShown.creator) {
           this.hideBlock("creator")
         }
       }
@@ -18302,7 +18430,13 @@ const _M = {
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  mounted : function() {
+  created: function () {
+    if (_.isFunction(this.whenCreated)) {
+      this.whenCreated(this)
+    }
+  },
+  ///////////////////////////////////////////
+  mounted: async function () {
     // Mark self in order to let `thing-files` set self
     // to root `wn-thing-manager` instance
     // then `openLocalFileSelectdDialogToUploadFiles`
@@ -18311,8 +18445,18 @@ const _M = {
 
     // Update the customized actions
     let actions = _.get(this.config, "actions")
-    if(_.isArray(actions)) {
+    if (_.isArray(actions)) {
       this.$notify("actions:update", actions)
+    }
+
+    if (_.isFunction(this.whenMounted)) {
+      this.whenMounted(this)
+    }
+  },
+  ///////////////////////////////////////////
+  beforeDestroy: function () {
+    if (_.isFunction(this.whenBeforeDestroy)) {
+      this.whenBeforeDestroy(this)
     }
   }
   ///////////////////////////////////////////
@@ -19252,6 +19396,7 @@ window.TI_PACK_EXPORTS['ti/com/ti/label/ti-label.mjs'] = (function(){
 const _M = {
   //////////////////////////////////////////
   data: () => ({
+    isNilDisplay: false,
     myDisplayIcon: undefined,
     myDisplayText: undefined,
     myDictValKey: undefined
@@ -19293,6 +19438,7 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
+        "is-nil-display": this.isNilDisplay,
         "is-blank": !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue),
         "is-nowrap": this.valueMaxWidth > 0,
         "full-field": this.fullField
@@ -19428,29 +19574,40 @@ const _M = {
     },
     //------------------------------------------------
     OnClickPrefixIcon() {
-      this.$notify("prefix:icon")
+      this.$notify("prefix:icon", {
+        value: this.TheValue
+      })
     },
     //------------------------------------------------
     OnClickPrefixText() {
-      this.$notify("prefix:text")
+      this.$notify("prefix:text", {
+        value: this.TheValue
+      })
     },
     //------------------------------------------------
     OnClickValue() {
       if (this.valueClickable) {
-        this.$notify("click:value")
+        this.$notify("click:value", {
+          value: this.TheValue
+        })
       }
     },
     //------------------------------------------------
     OnClickSuffixIcon() {
-      this.$notify("suffix:icon")
+      this.$notify("suffix:icon", {
+        value: this.TheValue
+      })
     },
     //------------------------------------------------
     OnClickSuffixText() {
-      this.$notify("suffix:text")
+      this.$notify("suffix:text", {
+        value: this.TheValue
+      })
     },
     //--------------------------------------
     async evalDisplay(val) {
       if (_.isString(val) && Ti.S.isBlank(val)) {
+        this.isNilDisplay = true
         return Ti.I18n.get("blank")
       }
       // By Dict Item
@@ -19487,6 +19644,8 @@ const _M = {
           }
         }
       }
+      // Test nil display
+      this.isNilDisplay = false
       // Number
       if (_.isNumber(val)) {
         if (this.TheFormat) {
@@ -19525,6 +19684,7 @@ const _M = {
       }
       // Normal value
       if (Ti.Util.isNil(val)) {
+        this.isNilDisplay = true
         return Ti.I18n.text(this.placeholder)
       }
       // Date
@@ -21957,7 +22117,7 @@ const _M = {
     //....................................
     if(!_.isEmpty(updates)) {
       // Get all checkes
-      await Ti.App(this).dispatch("main/batchUpdateMetas", updates)
+      await this.dispatch("batchUpdateMetas", updates)
     }
   },
   //--------------------------------------
@@ -21966,7 +22126,7 @@ const _M = {
   //
   //--------------------------------------
   changeShown(shown={}) {
-    Ti.App(this).dispatch("main/doChangeShown", shown)
+    this.dispatch("doChangeShown", shown)
   },
   //--------------------------------------
   showBlock(name) {
@@ -21983,22 +22143,21 @@ const _M = {
       }
     }
     if("files" == name) {
-      Ti.App(this).dispatch("main/reloadFiles")
+      this.dispatch("reloadFiles")
     }
     else if("content" == name) {
-      //Ti.App(this).dispatch("main/reloadFiles")
-      Ti.App(this).dispatch("main/current/reload")
+      this.dispatch("current/reload")
     }
     // Mark block
-    Ti.App(this).dispatch("main/doChangeShown", {[name]:true})
+    this.dispatch("doChangeShown", {[name]:true})
   },
   //--------------------------------------
   hideBlock(name) {
-    Ti.App(this).dispatch("main/doChangeShown", {[name]:false})
+    this.dispatch("doChangeShown", {[name]:false})
   },
   //--------------------------------------
   toggleBlock(name) {
-    Ti.App(this).dispatch("main/doChangeShown", {
+    this.dispatch("doChangeShown", {
       [name]: !this.TheShown[name]
     })
   },
@@ -22007,12 +22166,12 @@ const _M = {
   //           Utility: Others
   // 
   //--------------------------------------
-  async invoke(fnName) {
-    //console.log("invoke ", fnName)
+  async invoke(fnName, ...args) {
+    //console.log("invoke ", fnName, args)
     let fn = _.get(this.SchemaMethods, fnName)
     // Invoke the method
     if(_.isFunction(fn)) {
-      return await fn.apply(this, [])
+      return await fn.apply(this, args)
     }
     // Throw the error
     else {
@@ -27235,16 +27394,22 @@ const _M = {
       }
     },
     //---------------------------------------
-    // Main Modules
+    // Modules
+    //---------------------------------------
+    RootState() {
+      return this.$store.state
+    },
     //---------------------------------------
     Main() {
       return this.$store.state.main
     },
     MainData() {return _.get(this.Main, "data")},
     MainContent() {return _.get(this.Main, "content")},
+    //---------------------------------------
     Current() {
       return this.$store.state.current
     },
+    //---------------------------------------
     Axis() {
       return this.$store.state.axis
     },
@@ -28825,6 +28990,8 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/wn/thing/manager/com/thing-creator/thing-creator.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////
+  inject: ["$ThingManager"],
+  ///////////////////////////////////////////
   data : ()=>({
     "myData" : undefined,
     "creating" : false
@@ -28839,9 +29006,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : Object,
       default : ()=>({})
     },
-    "onlyFields" : {
-      type: Boolean,
-      default: false
+    "form": {
+      type : Object,
+      default : ()=>({})
     },
     "fixed": {
       type: Object,
@@ -28852,6 +29019,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   computed: {
     TheData() {
       return this.myData || this.data
+    },
+    TheForm() {
+      return _.assign({
+        onlyFields: false,
+        adjustDelay: 0
+      }, this.form)
     }
   },
   ///////////////////////////////////////////
@@ -28873,7 +29046,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     async OnCreate() {
       this.creating = true
-      let reo = await Ti.App(this).dispatch("main/create", this.myData)
+      let reo = await this.$ThingManager.dispatch("create", this.myData)
       this.creating = false
       if(reo && !(reo instanceof Error)) {
         this.$notify("block:hide", "creator")
@@ -30109,13 +30282,13 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/text/json/ti-text-json.mjs'] = (function(){
 const _M = {
   //////////////////////////////////////////
-  props : {
-    "tabAt" : {
-      type : String,
-      default : "bottom-left",
-      validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
+  props: {
+    "tabAt": {
+      type: String,
+      default: "bottom-left",
+      validator: (v) => /^(top|bottom)-(left|center|right)$/.test(v)
     },
-    "value" : undefined,
+    "value": undefined,
     "valueType": {
       type: String,
       default: "text",
@@ -30125,73 +30298,87 @@ const _M = {
       type: String,
       default: '   '
     },
-    "tree" : {
-      type : Object,
-      default : ()=>({})
+    "tree": {
+      type: Object,
+      default: () => ({})
     }
   },
   //////////////////////////////////////////
-  computed : {
-    //--------------------------------------
-    TheContent() {
-      if(!Ti.Util.isNil(this.value)) {
-        return this.value
-      }
-      return ""
-    },
+  computed: {
     //--------------------------------------
     TheData() {
-      if(!Ti.Util.isNil(this.value)) {
-        return Ti.Types.safeParseJson(this.value, null)
+      if (!Ti.Util.isNil(this.value)) {
+        if (_.isString(this.value)) {
+          return Ti.Types.safeParseJson(this.value, Ti.Err.make("e.json.syntax"))
+        }
+        return this.value
       }
       return null
     },
     //--------------------------------------
+    isSyntaxError() {
+      return this.TheData instanceof Error
+    },
+    //--------------------------------------
     TheSource() {
-      if(this.TheData){
-        return JSON.stringify(this.TheData, null, '   ')
+      if (!Ti.Util.isNil(this.value)) {
+        if (_.isString(this.value)) {
+          return this.value
+        }
+        return JSON.stringify(this.value)
       }
       return ""
     },
     //--------------------------------------
     TheLayout() {
       return {
-        type : "tabs",
-        tabAt : this.tabAt,
-        blocks : [{
-          title : "i18n:structure",
-          name  : "tree",
-          body  : "desktop-tree"
+        type: "tabs",
+        tabAt: this.tabAt,
+        blocks: [{
+          title: "i18n:structure",
+          name: "tree",
+          body: "desktop-tree"
         }, {
-          title : "i18n:source-code",
-          name  : "source",
-          body  : "desktop-source"
+          title: "i18n:source-code",
+          name: "source",
+          body: "desktop-source"
         }]
       }
     },
     //--------------------------------------
     TheSchema() {
       //....................................
-      // Tree Conf
-      let treeConf = _.assign({}, this.tree, {
-        value: this.TheData
-      })
-      //....................................
       // Source Conf
-      let sourceConf = {
-        showTitle : false,
-        value    : this.TheSource
+      let desktopTree;
+      if (this.isSyntaxError) {
+        desktopTree = {
+          comType: "ti-loading",
+          comConf: {
+            className: "is-error",
+            icon: "im-warning",
+            text: "i18n:json-syntax-err-tip"
+          }
+        }
+      }
+      //
+      else {
+        desktopTree = {
+          comType: "ti-text-json-tree",
+          comConf: _.assign({}, this.tree, {
+            value: this.TheData
+          })
+        }
       }
       //....................................
       // Done
       return {
-        "desktop-tree" : {
-          comType : "ti-text-json-tree", 
-          comConf : treeConf
-        },
-        "desktop-source" : {
-          comType : "ti-text-raw",
-          comConf : sourceConf
+        "desktop-tree": desktopTree,
+        "desktop-source": {
+          comType: "ti-text-raw",
+          comConf: {
+            showTitle: false,
+            value: this.TheSource
+          }
         }
       }
       //....................................
@@ -30199,29 +30386,25 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnChange(payload) {
       //console.log("TiObjJson->OnChange", payload)
-      // If string, try parse
-      let val = payload
-      if(_.isString(payload)) {
-        try{
-          val = JSON.parse(payload)
-        }catch(E){
-          // wait for valid input
-          return
+      if ("obj" == this.valueType) {
+        if (_.isString(payload)) {
+          try {
+            payload = JSON.parse(payload)
+          } catch (E) {
+            return
+          }
         }
+        this.$notify("change", payload)
       }
-      // obey the valueType
-      if("text" == this.valueType) {
-        if(this.jsonIndent) {
-          val = JSON.stringify(val, null, this.jsonIndent)
-        } else {
-          val = JSON.stringify(val)
-        }
+      // Pure text
+      else {
+        payload = Ti.Util.fallback(payload, null)
+        this.$notify('change', payload)
       }
-      this.$notify('change', val)
     }
     //--------------------------------------
   }
@@ -31781,9 +31964,9 @@ const _M = {
       editor.session.setValue(this.value || "")
 
       // Events
-      editor.session.on("change", (delta)=>{
-        console.log(delta)
-      })
+      // editor.session.on("change", (delta)=>{
+      //   console.log(delta)
+      // })
 
       // Save instance
       this.$editor = editor
@@ -31803,7 +31986,7 @@ const _M = {
       }
     },
     "value" : function(newVal){
-      this.editor.session.setValue(newVal || "")
+      this.$editor.session.setValue(newVal || "")
     }
   },
   ///////////////////////////////////////////////////
@@ -35000,7 +35183,10 @@ const _M = {
       }
       return Ti.Css.mergeClassName(
         this.bodyClass,
-        `has-${this.FieldsInCurrentTab.length}-fields`
+        `has-${this.FieldsInCurrentTab.length}-fields`,
+        {
+          [`col-${this.myFormColumHint}`]: this.myFormColumHint >= 0
+        }
       )
     },
     //--------------------------------------------------
@@ -35404,7 +35590,7 @@ const _M = {
         let rect = Ti.Rects.createBy($fldnm)
         //
         // Only one column
-        if(this.myFormColumHint >= 0 && this.myFormColumHint<=1) {
+        if (this.myFormColumHint >= 0 && this.myFormColumHint <= 1) {
           maxWidth = Math.ceil(Math.max(rect.width, maxWidth))
           continue;
         }
@@ -35494,8 +35680,8 @@ const _M = {
       this.adjustFieldsWidth()
       this.isEvalMeasure = false
     },
-    "myFormColumHint": function(newVal, oldVal) {
-      if(newVal != oldVal) {
+    "myFormColumHint": function (newVal, oldVal) {
+      if (newVal != oldVal) {
         this.adjustFieldsWidth()
       }
     }
@@ -35526,6 +35712,10 @@ const _M = {
     //--------------------------------------------------
     this.$nextTick(() => {
       this.__adjust_fields_width()
+      _.delay(() => {
+        this.evalCoumnHint()
+        this.evalFormFieldList()
+      }, this.adjustDelay)
     })
     //--------------------------------------------------
   },
@@ -36124,26 +36314,26 @@ const _M = {
   //----------------------------------------
   // Combin Mutations
   //----------------------------------------
-  onChanged({dispatch}, payload) {
+  onChanged({ dispatch }, payload) {
     dispatch("changeContent", payload)
   },
   //----------------------------------------
-  changeContent({commit}, payload) {
+  changeContent({ commit }, payload) {
     commit("setContent", payload)
     commit("syncStatusChanged");
   },
   //----------------------------------------
-  changeMeta({commit}, {name, value}={}) {
-    if(name) {
+  changeMeta({ commit }, { name, value } = {}) {
+    if (name) {
       let meta = _.set({}, name, value)
       commit("mergeMeta", meta)
       commit("syncStatusChanged")
     }
   },
   //----------------------------------------
-  updateContent({state, commit}, content) {
+  updateContent({ state, commit }, content) {
     commit("setContent", content)
-    if(state.meta && "FILE" == state.meta.race) {
+    if (state.meta && "FILE" == state.meta.race) {
       commit("setSavedContent", content)
     }
     commit("syncStatusChanged")
@@ -36151,37 +36341,37 @@ const _M = {
   //--------------------------------------------
   // User Interactivity
   //--------------------------------------------
-  async openMetaEditor({state, dispatch}) {
+  async openMetaEditor({ state, dispatch }) {
     // Guard
-    if(!state.meta) {
+    if (!state.meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
     // Open Editor
-    let reo = await Wn.EditObjMeta(state.meta, {fields:"auto"})
+    let reo = await Wn.EditObjMeta(state.meta, { fields: "auto" })
 
     // Cancel the editing
-    if(_.isUndefined(reo)) {
+    if (_.isUndefined(reo)) {
       return
     }
 
     // Update the current editing
-    if(reo.saved) {
+    if (reo.saved) {
       await dispatch("reload", reo.data)
     }
   },
   //--------------------------------------------
-  async openContentEditor({state, dispatch}) {
+  async openContentEditor({ state, dispatch }) {
     // Guard
-    if(!state.meta) {
+    if (!state.meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
     // Open Editor
     let newContent = await Wn.EditObjContent(state.meta, {
-      content : state.content
+      content: state.content
     })
 
     // Cancel the editing
-    if(_.isUndefined(newContent)) {
+    if (_.isUndefined(newContent)) {
       return
     }
 
@@ -36191,48 +36381,57 @@ const _M = {
   //--------------------------------------------
   // Update to remote
   //----------------------------------------
-  async updateMeta({commit, dispatch}, {name, value}={}) {
-    let data = Ti.Types.toObjByPair({name, value})
+  async updateMeta({ commit, dispatch }, { name, value } = {}) {
+    //console.log("current.updateMeta", { name, value })
+    let data = Ti.Types.toObjByPair({ name, value })
     await dispatch("updateMetas", data)
   },
   //----------------------------------------
-  async updateMetas({state, commit, rootState}, data={}) {
+  async updateMetas({ state, commit }, data = {}) {
     // Check Necessary
-    if(_.isMatchWith(state.meta, data, _.isEqual)) {
+    if (_.isMatchWith(state.meta, data, _.isEqual)) {
       return
     }
 
+    if (!state.meta) {
+      return await Ti.Toast.Open("Thing.Current.meta without defined", "warn")
+    }
+
+    if (!state.thingSetId) {
+      return await Ti.Toast.Open("Thing.Current.thingSetId without defined", "warn")
+    }
+
     // Mark field status
-    _.forEach(data, (val, name)=>{
-      commit("setFieldStatus", {name, type:"spinning", text:"i18n:saving"})
+    _.forEach(data, (val, name) => {
+      commit("setFieldStatus", { name, type: "spinning", text: "i18n:saving" })
     })
 
     // Do the update
     let json = JSON.stringify(data)
-    let th_set = rootState.main.meta.id
-    let th_id  = state.meta.id
+    let th_set = state.thingSetId
+    let th_id = state.meta.id
     let cmdText = `thing id:${th_set} update ${th_id} -fields -cqn`
-    let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
+    let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
     let isError = reo instanceof Error;
 
-    if(!isError && !Ti.Util.isNil(reo)) {
+    if (!isError && !Ti.Util.isNil(reo)) {
       commit("setMeta", reo)
     }
 
-    _.forEach(data, (val, name)=>{
-      if(isError) {
+    _.forEach(data, (val, name) => {
+      if (isError) {
         commit("setFieldStatus", {
-          name, 
-          type: "warn", 
+          name,
+          type: "warn",
           text: reo.message || "i18n:fail"
         })
       } else {
         commit("setFieldStatus", {
-          name, 
-          type: "ok", 
+          name,
+          type: "ok",
           text: "i18n:ok"
         })
-        _.delay(()=>{commit("clearFieldStatus", name)}, 500)
+        _.delay(() => { commit("clearFieldStatus", name) }, 500)
       }
     })
   },
@@ -36256,18 +36455,18 @@ const _M = {
 
   // },
   //----------------------------------------
-  async save({state, commit}) {
-    if(state.status.saving || !state.status.changed){
+  async save({ state, commit }) {
+    if (state.status.saving || !state.status.changed) {
       return
     }
 
-    commit("setStatus", {saving:true})
+    commit("setStatus", { saving: true })
 
     let meta = state.meta
     let content = state.content
     let newMeta = await Wn.Io.saveContentAsText(meta, content)
 
-    commit("setStatus", {saving:false})
+    commit("setStatus", { saving: false })
     commit("setMeta", newMeta)
     commit("setSavedContent", content)
     commit("syncStatusChanged")
@@ -36276,14 +36475,14 @@ const _M = {
     return newMeta
   },
   //----------------------------------------
-  async reload({state, commit, dispatch}, meta) {
-    if(state.status.reloading
-      || state.status.saving){
+  async reload({ state, commit, dispatch }, meta) {
+    if (state.status.reloading
+      || state.status.saving) {
       return
     }
     //......................................
     // Use the default meta
-    if(_.isUndefined(meta)) {
+    if (_.isUndefined(meta)) {
       meta = state.meta
     }
     //......................................
@@ -36293,34 +36492,34 @@ const _M = {
     commit("setContent", preContent)
     commit("setSavedContent", preContent)
     //......................................
-    if(_.isString(meta)) {
+    if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
     }
-    else if(meta && meta.id) {
+    else if (meta && meta.id) {
       meta = await Wn.Io.loadMetaById(meta.id)
     }
     //......................................
     // Guard
-    if(!meta) {
+    if (!meta) {
       return
     }
     // Init content as null
     let content = null
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
     //......................................
     // For file
-    if("FILE" == meta.race) {
+    if ("FILE" == meta.race) {
       // need to be reload content
       content = await Wn.Io.loadContent(meta)
     }
     //......................................
     // For dir
-    else if('DIR' == meta.race) {
+    else if ('DIR' == meta.race) {
       content = await Wn.Io.loadChildren(meta)
     }
     //......................................
     // Just update the meta
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
     commit("setMeta", meta)
     commit("clearFieldStatus")
     // Update content and sync state
@@ -36578,6 +36777,10 @@ const _M = {
     //--------------------------------------------
     mergeMeta(state, meta) {
       state.meta = _.merge({}, state.meta, meta);
+    },
+    //----------------------------------------
+    setThingSetId(state, thingSetId) {
+      state.thingSetId = thingSetId
     },
     //----------------------------------------
     setContent(state, content) {
@@ -37681,36 +37884,80 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/button/ti-button.mjs'] = (function(){
 const _M = {
   /////////////////////////////////////////
-  props : {
-    "size" :{
-      type : String,
-      default : "normal",
-      validator: v=>/^(big|normal|small|tiny)$/.test(v)
+  props: {
+    "size": {
+      type: String,
+      default: "normal",
+      validator: v => /^(big|normal|small|tiny)$/.test(v)
     },
     // center|top|left|right|bottom|
     // left-top|right-top|bottom-left|bottom-right
-    "align" :{
-      type : String,
-      default : "center"
+    "align": {
+      type: String,
+      default: "center"
     },
-    "setup" : {
-      type : [Array, Object],
-      default : ()=>[]
-    }
+    "setup": {
+      type: [Array, Object],
+      default: () => []
+    },
+    "icon": {
+      type: [Object, String]
+    },
+    "text": {
+      type: String
+    },
+    "disabled": {
+      type: Boolean,
+      default: undefined
+    },
+    "handler": {
+      type: Function
+    },
+    "eventName": {
+      type: String
+    },
+    "payload": {
+      type: [String, Object, Array, Boolean, Number],
+      default: undefined
+    },
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //......................................
-    topClass() {
-      return Ti.Css.mergeClassName([
-        `is-${this.size}`, `at-${this.align}`
-      ], this.className)
+    TopClass() {
+      return this.getTopClass(`is-${this.size}`, `at-${this.align}`)
     },
     //......................................
-    items() {
-      let list = [].concat(this.setup)
-      let re = []
-      _.forEach(list, (li, index)=>{
+    ButtonItems() {
+      let re = [];
+      let list = []
+      // Default setting
+      let dft = {}
+      if(!Ti.Util.isNil(this.icon)) {
+        dft.icon = this.icon
+      }
+      if(!Ti.Util.isNil(this.text)) {
+        dft.text = this.text
+      }
+      if(!Ti.Util.isNil(this.disabled)) {
+        dft.disabled = this.disabled
+      }
+      if(!Ti.Util.isNil(this.handler)) {
+        dft.handler = this.handler
+      }
+      if(!Ti.Util.isNil(this.eventName)) {
+        dft.eventName = this.eventName
+      }
+      if(!Ti.Util.isNil(this.payload)) {
+        dft.payload = this.payload
+      }
+      if(!_.isEmpty(dft)) {
+        dft.name = "_DFT_BTN_ITEM_"
+        list.push(dft)
+      }
+      // More setup
+      let setup = _.concat([], list, this.setup)
+      _.forEach(setup, (li, index) => {
         let it = {}
         it.name = li.name || `item-${index}`
         it.eventName = li.eventName || it.name
@@ -37720,10 +37967,10 @@ const _M = {
         it.disabled = li.disabled
         it.handler = li.handler
         it.buttonClass = {
-          [`as-do-${it.name}`] : true,
-          "is-enabled"      : !li.disabled  ? true : false,
-          "is-disabled"     : li.disabled   ? true : false,
-          "is-invert-icon"  : li.invertIcon ? true : false 
+          [`as-do-${it.name}`]: true,
+          "is-enabled": !li.disabled ? true : false,
+          "is-disabled": li.disabled ? true : false,
+          "is-invert-icon": li.invertIcon ? true : false
         }
         re.push(it)
       })
@@ -37732,13 +37979,13 @@ const _M = {
     //......................................
   },
   //////////////////////////////////////////
-  methods :{
+  methods: {
     OnClickItem(it) {
-      if(!it.disabled) {
-        if(_.isFunction(it.handler)) {
+      if (!it.disabled) {
+        if (_.isFunction(it.handler)) {
           it.handler()
         }
-        if(_.isString(it.eventName)) {
+        if (_.isString(it.eventName)) {
           this.$notify(it.eventName, it.payload)
         }
       }
@@ -39198,36 +39445,36 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/lib/www/com/site-main.mjs'] = (function(){
 const _M = {
   /////////////////////////////////////////
-  provide : function() {
+  provide: function () {
     return Ti.Util.explainObj(this.$store.state, this.provide)
   },
   /////////////////////////////////////////
-  computed : {
+  computed: {
     ...Vuex.mapState({
-        "siteId"    : state=>state.siteId,
-        "logo"      : state=>state.logo,
-        "lang"      : state=>state.lang,
-        "analyzers" : state=>state.analyzers,
-        "langName"  : state=>state.langName,
-        "utils"     : state=>state.utils,
-        "page"      : state=>state.page,
-        "shop"      : state=>state.shop,
-        "auth"      : state=>state.auth,
-        "domain"    : state=>state.domain,
-        "rs"        : state=>state.rs,
-        "nav"       : state=>state.nav,
-        "vars"      : state=>state.vars,
-        "data"      : state=>state.data,
-        "base"      : state=>state.base,
-        "apiBase"   : state=>state.apiBase,
-        "cdnTmpl"   : state=>state.cdnTmpl,
-        "captcha"   : state=>state.captcha,
-        "schema"    : state=>state.schema,
-        "provide"   : state=>state.provide,
-        "blocks"    : state=>state.blocks,
-        "loading"   : state=>state.loading,
-        "pageReady" : state=>state.pageReady
-      }),
+      "siteId": state => state.siteId,
+      "logo": state => state.logo,
+      "lang": state => state.lang,
+      "analyzers": state => state.analyzers,
+      "langName": state => state.langName,
+      "utils": state => state.utils,
+      "page": state => state.page,
+      "shop": state => state.shop,
+      "auth": state => state.auth,
+      "domain": state => state.domain,
+      "rs": state => state.rs,
+      "nav": state => state.nav,
+      "vars": state => state.vars,
+      "data": state => state.data,
+      "base": state => state.base,
+      "apiBase": state => state.apiBase,
+      "cdnTmpl": state => state.cdnTmpl,
+      "captcha": state => state.captcha,
+      "schema": state => state.schema,
+      "provide": state => state.provide,
+      "blocks": state => state.blocks,
+      "loading": state => state.loading,
+      "pageReady": state => state.pageReady
+    }),
     //-------------------------------------
     // Mapp The Getters
     ...Vuex.mapGetters([
@@ -39235,16 +39482,16 @@ const _M = {
       "getUrl",
       "getApiUrl"
     ]),
-    ...Vuex.mapState("page", [
-      "pageUri"
-    ]),
-    ...Vuex.mapGetters("viewport", [
-      "isViewportModeDesktop",
-      "isViewportModeTablet",
-      "isViewportModePhone",
-      "isViewportModeDesktopOrTablet",
-      "isViewportModePhoneOrTablet"
-    ]),
+    // ...Vuex.mapState("page", [
+    //   "pageUri"
+    // ]),
+    // ...Vuex.mapGetters("viewport", [
+    //   "isViewportModeDesktop",
+    //   "isViewportModeTablet",
+    //   "isViewportModePhone",
+    //   "isViewportModeDesktopOrTablet",
+    //   "isViewportModePhoneOrTablet"
+    // ]),
     //-------------------------------------
     TopClass() {
       return this.getTopClass({
@@ -39254,15 +39501,19 @@ const _M = {
       })
     },
     //-------------------------------------
-    PayReturnUrl: function() {
+    State() {
+      return Ti.App(this).$store().state
+    },
+    //-------------------------------------
+    PayReturnUrl: function () {
       let st = this.$store.state
-      if(st.payReturnUrl) {
+      if (st.payReturnUrl) {
         return Ti.Util.explainObj(st, st.payReturnUrl)
       }
     },
     //-------------------------------------
     SiteLogo() {
-      if(this.logo && /\.(png|jpe?g)$/.test(this.logo))
+      if (this.logo && /\.(png|jpe?g)$/.test(this.logo))
         return this.getUrl(this.logo)
       return this.logo || "zmdi-globe"
     },
@@ -39278,15 +39529,15 @@ const _M = {
     //-------------------------------------
     // The template of captcha to prevent robot
     SiteCaptcha() {
-      let path = Ti.S.renderBy(this.captcha, {site:this.siteId})
-      if(path.startsWith("/"))
+      let path = Ti.S.renderBy(this.captcha, { site: this.siteId })
+      if (path.startsWith("/"))
         return path
       return this.getApiUrl(path)
     },
     //-------------------------------------
     SiteLoginMode() {
       // Already login, then bind the phone 
-      if(this.auth.me) {
+      if (this.auth.me) {
         return "bind_phone"
       }
       return "login_by_passwd"
@@ -39297,12 +39548,37 @@ const _M = {
       return Ti.GlobalFuncs()
     },
     //-------------------------------------
+    GUIContext() {
+      return _.assign({
+        PayReturnUrl: this.PayReturnUrl,
+        SiteLogo: this.SiteLogo,
+        SiteCaptcha: this.SiteCaptcha,
+        SiteLoginMode: this.SiteLoginMode,
+        PageFnSet: this.PageFnSet,
+        ...Vuex.mapGetters([
+          "actions",
+          "getUrl",
+          "getApiUrl"
+        ]),
+        ...Vuex.mapState("page", [
+          "pageUri"
+        ]),
+        ...Vuex.mapGetters("viewport", [
+          "isViewportModeDesktop",
+          "isViewportModeTablet",
+          "isViewportModePhone",
+          "isViewportModeDesktopOrTablet",
+          "isViewportModePhoneOrTablet"
+        ]),
+      }, this.State)
+    },
+    //-------------------------------------
     // Format current pageGUI
     PageGUI() {
       let page = this.page
       //.....................................
       // Without current page
-      if(!page || !page.layout) {
+      if (!page || !page.layout) {
         return {}
       }
       //.....................................
@@ -39310,23 +39586,23 @@ const _M = {
       let layout = page.layout
       //.....................................
       // Apply "@BLOCK(xxx)" in panels and layout blocks
-      if(layout) {
+      if (layout) {
         // Define the methods
-        const ExplainBlock = (anyValue)=>{
+        const ExplainBlock = (anyValue) => {
           // String : Check the "@BLOCK(xxx)" 
-          if(_.isString(anyValue)) {
+          if (_.isString(anyValue)) {
             let m = /^@BLOCK\(([^ ]+)\)$/.exec(anyValue)
-            if(m) {
+            if (m) {
               let blockName = m[1]
               return _.get(this.blocks, blockName)
             }
           }
           // Array 
-          else if(_.isArray(anyValue)) {
-            return _.map(anyValue, ExplainBlock)  
+          else if (_.isArray(anyValue)) {
+            return _.map(anyValue, ExplainBlock)
           }
           // Object
-          else if(_.isPlainObject(anyValue)) {
+          else if (_.isPlainObject(anyValue)) {
             return _.mapValues(anyValue, ExplainBlock)
           }
           // Others return directly
@@ -39342,19 +39618,19 @@ const _M = {
         defaultFlex: "=page.gui.flex?nil",
         defaultOverflow: "=page.gui.overflow?none",
         activeElement: "=page.activeElement",
-        layout, 
-        schema : {},
-        canLoading : true
+        layout,
+        schema: {},
+        canLoading: true
       }
-     
+
       //.....................................
       // assign schema
       _.assign(gui.schema, this.schema, page.schema)
-      
+
       //.....................................
       // explain it
       //console.log("site-main: explain it!", gui);
-      let theGUI = Ti.Util.explainObj(this, gui, {
+      let theGUI = Ti.Util.explainObj(this.GUIContext, gui, {
         fnSet: this.PageFnSet
       })
       //console.log("pageGUI", formedGUI)
@@ -39362,21 +39638,21 @@ const _M = {
     },
     //-------------------------------------
     PageShown() {
-      let re = Ti.Util.explainObj(this, this.page.shown)
-      return  re
+      let re = Ti.Util.explainObj(this.GUIContext, this.page.shown)
+      return re
     }
     //-------------------------------------
   },
   /////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnMouseRightClick($evn) {
       // Forbid context menu
-      if(false === this.page.contextMenu) {
+      if (false === this.page.contextMenu) {
         $evn.preventDefault();
       }
       // Forbid context menu and show alert
-      else if(_.isString(this.page.contextMenu)) {
+      else if (_.isString(this.page.contextMenu)) {
         $evn.preventDefault();
         Ti.Toast.Open(this.page.contextMenu, "warn");
       }
@@ -39394,22 +39670,22 @@ const _M = {
     __on_events(name, ...args) {
       //console.log("site-main.__on_events", name, ...args)
       // ShowBlock
-      if("block:show" == name) {
+      if ("block:show" == name) {
         return blockName => this.showBlock(blockName)
       }
       // HideBlock
-      else if("block:hide" == name) {
+      else if ("block:hide" == name) {
         return blockName => this.hideBlock(blockName)
       }
       // Dispatch actions
       else {
-        return (...args)=>{
+        return (...args) => {
           this.invokeAction(name, args)
-        }        
+        }
       }
     },
     //-------------------------------------
-    async invokeAction(name, args=[]) {
+    async invokeAction(name, args = []) {
       await Ti.App(this).dispatch("invokeAction", {
         name, args
       })
@@ -39418,7 +39694,7 @@ const _M = {
     pushBrowserHistory(pageTitle) {
       let his = window.history
       //...................................
-      if(!his) {
+      if (!his) {
         return
       }
       //...................................
@@ -39429,8 +39705,8 @@ const _M = {
       //let pgLink = this.getUrl(this.pageLink)
       let pgLink = this.pageUri
       //...................................
-      if(loPath != pgLink || !his.state) {
-        let pg = _.pick(this.page, "pageUri","href", "path", "params", "anchor");
+      if (loPath != pgLink || !his.state) {
+        let pg = _.pick(this.page, "pageUri", "href", "path", "params", "anchor");
         pg = _.cloneDeep(pg)
         //console.log("pg", JSON.stringify(pg))
         // console.log("pageTitle", pageTitle)
@@ -39442,21 +39718,21 @@ const _M = {
     //-------------------------------------
     updateBodyStyle() {
       let bodyStyleSheet = {}
-      if(this.page.bodyStyle) {
+      if (this.page.bodyStyle) {
         bodyStyleSheet = Ti.Util.explainObj(this, this.page.bodyStyle)
       }
       let cssRule = Ti.Css.renderCssStyleSheet(bodyStyleSheet)
       //console.log("cssRule", cssRule)
       // Find the body style rule
       let $style = Ti.Dom.find('style.ti-site-body')
-      if(!_.isElement($style)) {
+      if (!_.isElement($style)) {
         $style = Ti.Dom.createElement({
           $p: this.$el.ownerDocument.body,
           className: "ti-site-body",
           tagName: "style",
           props: {
-            rel : "stylesheet",
-            type : "text/css"
+            rel: "stylesheet",
+            type: "text/css"
           }
         })
       }
@@ -39465,25 +39741,25 @@ const _M = {
     //-------------------------------------
     invokeAnalyzers() {
       // Guard
-      if(_.isEmpty(this.analyzers))
+      if (_.isEmpty(this.analyzers))
         return
 
       // Clean all
       let $scripts = Ti.Dom.findAll('script[ti-analyzer]')
-      for(let $script of $scripts) {
+      for (let $script of $scripts) {
         Ti.Dom.remove($script)
       }
 
       // Create
-      for(let an of this.analyzers) {
+      for (let an of this.analyzers) {
         //console.log("an:", an)
         let src = an
         let $script = Ti.Dom.createElement({
-          tagName : "script",
-          attrs : {
-            "ti-analyzer" : true
+          tagName: "script",
+          attrs: {
+            "ti-analyzer": true
           },
-          props : {src}
+          props: { src }
         })
         Ti.Dom.appendToHead($script)
       }
@@ -39491,9 +39767,9 @@ const _M = {
     //-------------------------------------
   },
   /////////////////////////////////////////
-  watch : {
+  watch: {
     // Page changd, update document title
-    "page.finger" : function() {
+    "page.finger": function () {
       //console.log("-> ", this.page.title)
       let pageTitle = Ti.Util.explainObj(this, this.page.title)
       document.title = pageTitle
@@ -39506,20 +39782,20 @@ const _M = {
     }
   },
   /////////////////////////////////////////
-  mounted : function(){
+  mounted: function () {
     // Watch the browser "Forward/Backward"
     // The state(page) pushed by $store.dispath("navTo")
-    window.onpopstate = (evt)=>{
+    window.onpopstate = (evt) => {
       let page = evt.state
       //console.log("popstate", page)
-      if(page && page.href) {
+      if (page && page.href) {
         //console.log("window.onpopstate", page)
         let app = Ti.App(this)
         app.dispatch("navTo", {
-          type   : "page",
-          value  : page.href,
-          params : page.params,
-          anchor : page.anchor
+          type: "page",
+          value: page.href,
+          params: page.params,
+          anchor: page.anchor
         })
       }
     }
@@ -45358,6 +45634,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     setMeta(state, meta) {
       state.meta = meta
     },
+    setFixedSchema(state, schema={}) {
+      state.fixedSchema = _.cloneDeep(schema)
+    },
+    mergeFixedSchema(state, schema={}) {
+      state.fixedSchema = _.merge({}, state.fixedSchema, schema)
+    },
     setCurrentDataDir(state, dirName) {
       state.currentDataDir = dirName
       if(state.meta) {
@@ -45370,6 +45652,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     setCurrentDataHomeObj(state, dataHomeObj) {
       state.currentDataHomeObj = _.cloneDeep(dataHomeObj)
+    },
+    setAutoSelect(state, autoSelect) {
+      state.autoSelect = Ti.Util.fallback(autoSelect, false)
     },
     setStatus(state, status) {
       state.status = _.assign({}, state.status, status)
@@ -48118,24 +48403,9 @@ const _M = {
       //..................................
       // Load the main view
       let viewInfo = await Wn.Sys.exec2(cmdText, { as: "json" })
-      let { modState, modSetup } = viewInfo;
       let $app = Ti.App(this)
-      let view = await $app.loadView(viewInfo, {
-        setupMod: (moConf) => {
-          //console.log("setup:", moConf)
-          _.assign(moConf.state, modState)
-          if (modSetup) {
-            let setupFunc = Ti.Util.genInvoking(modSetup, {
-              dft: null,
-              partial: "right"
-            })
-            if (_.isFunction(setupFunc)) {
-              return setupFunc({ moConf, meta, viewInfo })
-            }
-          }
-          return moConf
-        }
-      })
+      let view = await $app.loadView(viewInfo)
+      //console.log("after loadView", view)
       //..................................
       if (Ti.IsInfo("app/wn.manager")) {
         console.log("TiView Loaded:", view)
@@ -48153,6 +48423,9 @@ const _M = {
       //..................................
       // register main module
       if (view && view.modType) {
+        //
+        // Main module
+        //
         if (this.view && this.view.modType) {
           this.$store.unregisterModule("main")
           this.$store.registerModule("main", view.mod)
@@ -48162,6 +48435,21 @@ const _M = {
           //console.log("regiest modType", view.modType)
           this.$store.registerModule("main", view.mod)
         }
+        // 
+        // Extends modules
+        //
+        if(this.view && !_.isEmpty(this.view.modules)) {
+          for(let moName in this.view.modules) {
+            this.$store.unregisterModule(moName)
+          }
+        }
+        if(view && view.modules) {
+          for(let moName in view.modules) {
+            let mod = view.modules[moName]
+            this.$store.registerModule(moName, mod)
+          }
+        }
+
         // Reload mod data
         await $app.dispatch("main/reload", meta)
       }
@@ -49314,113 +49602,113 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/gui/ti-gui.mjs'] = (function(){
 const _M = {
   ///////////////////////////////////////////
-  provide : function() {
+  provide: function () {
     return {
-      "$gui" : this
+      "$gui": this
     }
   },
   /////////////////////////////////////////
-  data: ()=>({
-    $inner : undefined,
-    myShown : {},
-    myViewportWidth  : 0,
-    myViewportHeight : 0,
-    myBlockMap : {},
-    myPanelVisibles : {}
+  data: () => ({
+    $inner: undefined,
+    myShown: {},
+    myViewportWidth: 0,
+    myViewportHeight: 0,
+    myBlockMap: {},
+    myPanelVisibles: {}
   }),
   /////////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "layout" : {
-      type : Object,
-      default : ()=>({
-        desktop : {},
-        tablet  : "desktop",
-        phone   : "desktop"
+    "layout": {
+      type: Object,
+      default: () => ({
+        desktop: {},
+        tablet: "desktop",
+        phone: "desktop"
       })
     },
-    "schema" : {
-      type : Object,
-      default : ()=>({})
+    "schema": {
+      type: Object,
+      default: () => ({})
     },
-    "activeElement" : {
-      type : [Element, Object]  /*null type is Object*/
+    "activeElement": {
+      type: [Element, Object]  /*null type is Object*/
     },
-    "shown" : {
-      type : Object,
-      default : ()=>({})
+    "shown": {
+      type: Object,
+      default: () => ({})
     },
-    "vars" : {
-      type : Object,
-      default: ()=>({})
+    "vars": {
+      type: Object,
+      default: () => ({})
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    "defaultFlex" : {
-      type : String,
-      default : undefined,
-      validator : (v)=>(_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
+    "defaultFlex": {
+      type: String,
+      default: undefined,
+      validator: (v) => (_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
     },
-    "defaultOverflow" : {
-      type : String,
-      default : undefined,
-      validator : (v)=>(_.isUndefined(v) || /^(auto|none|fill|cover)$/.test(v))
+    "defaultOverflow": {
+      type: String,
+      default: undefined,
+      validator: (v) => (_.isUndefined(v) || /^(auto|none|fill|cover)$/.test(v))
     },
     "defaultComClass": {
       type: String,
       default: "ti-fill-parent"
     },
-    "keepShownTo" : {
-      type : String,
-      default : undefined
+    "keepShownTo": {
+      type: String,
+      default: undefined
     },
-    "actionStatus" : {
-      type : Object,
-      default : ()=>({})
+    "actionStatus": {
+      type: Object,
+      default: () => ({})
     },
-    "shownEmitName" : {
-      type : String,
-      default : undefined
+    "shownEmitName": {
+      type: String,
+      default: undefined
     },
-    "shownNotifyName" : {
-      type : String,
-      default : undefined
+    "shownNotifyName": {
+      type: String,
+      default: undefined
     },
-    "canLoading" : {
-      type : Boolean,
-      default : false
+    "canLoading": {
+      type: Boolean,
+      default: false
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
     // value should be prop of ti-loading
-    "loadingAs" : {
-      type : [Boolean, Object],
-      default : undefined
+    "loadingAs": {
+      type: [Boolean, Object],
+      default: undefined
     },
     "loading": {
       type: Boolean
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-loading" : this.isLoading
+        "is-loading": this.isLoading
       })
     },
     //--------------------------------------
     TheLayout() {
       let lay = {}
-      if(_.isEmpty(this.layout))
+      if (_.isEmpty(this.layout))
         return lay
       //....................................
       // Raw layout
-      if(/^(rows|cols|tabs)$/.test(this.layout.type)) {
+      if (/^(rows|cols|tabs)$/.test(this.layout.type)) {
         lay = this.layout
       }
       //....................................
@@ -49428,29 +49716,31 @@ const _M = {
       else {
         lay = this.layout[this.viewportMode]
         // Refer onece
-        if(_.isString(lay)) {
+        if (_.isString(lay)) {
           lay = this.layout[lay]
         }
         // Refer twice (I think it is enough for most of cases)
-        if(_.isString(lay)) {
+        if (_.isString(lay)) {
           lay = this.layout[lay]
         }
       }
       //....................................
       // Filter block
-      lay = _.cloneDeep(lay)
-      lay.blocks = this.filterBlocks(lay.blocks, lay.type)
+      if (lay) {
+        lay = _.cloneDeep(lay)
+        lay.blocks = this.filterBlocks(lay.blocks, lay.type)
+      }
       //....................................
       // Done
       return lay || {}
     },
     //--------------------------------------
-    isRowsLayout() {return "rows"==this.TheLayout.type},
-    isColsLayout() {return "cols"==this.TheLayout.type},
-    isTabsLayout() {return "tabs"==this.TheLayout.type},
+    isRowsLayout() { return "rows" == this.TheLayout.type },
+    isColsLayout() { return "cols" == this.TheLayout.type },
+    isTabsLayout() { return "tabs" == this.TheLayout.type },
     //--------------------------------------
     BlockNames() {
-      if(!this.layout) {
+      if (!this.layout) {
         return {}
       }
       return this.joinBlockNames({}, this.layout.blocks)
@@ -49463,7 +49753,7 @@ const _M = {
       this.joinThePanels(list, this.layout.panels, "G")
 
       // Join Current Mode Panels
-      if(this.layout != this.TheLayout) {
+      if (this.layout != this.TheLayout) {
         this.joinThePanels(list, this.TheLayout.panels, this.viewportMode)
       }
 
@@ -49478,14 +49768,14 @@ const _M = {
     },
     //--------------------------------------
     isLoading() {
-      return this.canLoading 
-             && (this.loadingAs || this.loading)
-                  ? true 
-                  : false
+      return this.canLoading
+        && (this.loadingAs || this.loading)
+        ? true
+        : false
     },
     //--------------------------------------
     TheLoading() {
-      if(_.isPlainObject(this.loadingAs)) {
+      if (_.isPlainObject(this.loadingAs)) {
         return this.loadingAs
       }
       return {}
@@ -49493,7 +49783,7 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnMainTypeInit($innerCom) {
       this.$inner = $innerCom
@@ -49501,16 +49791,16 @@ const _M = {
     //--------------------------------------
     OnPanelAfterEnter(pan) {
       this.myPanelVisibles = _.assign({}, {
-        [pan.key] : pan.visible
+        [pan.key]: pan.visible
       })
     },
     //--------------------------------------
-    joinBlockNames(names={}, blocks=[]) {
-      _.forEach(blocks, ({name, blocks}={}) => {
-        if(name) {
+    joinBlockNames(names = {}, blocks = []) {
+      _.forEach(blocks, ({ name, blocks } = {}) => {
+        if (name) {
           names[name] = true
         }
-        if(_.isArray(blocks)) {
+        if (_.isArray(blocks)) {
           this.joinBlockNames(names, blocks)
         }
       })
@@ -49518,28 +49808,28 @@ const _M = {
     },
     //--------------------------------------
     isShown(...names) {
-      for(let name of names) {
-        if(this.TheShown[name])
+      for (let name of names) {
+        if (this.TheShown[name])
           return true
       }
       return false
     },
     //--------------------------------------
-    joinThePanels(list=[], panels=[], keyPrefix="") {
-      if(_.isArray(panels) && panels.length > 0) {
-        for(let i=0; i<panels.length; i++) {
+    joinThePanels(list = [], panels = [], keyPrefix = "") {
+      if (_.isArray(panels) && panels.length > 0) {
+        for (let i = 0; i < panels.length; i++) {
           let pan = panels[i]
-          if(!pan) {
+          if (!pan) {
             continue;
           }
           let pos = Ti.Util.fallback(pan.position, "center")
           let index = list.length
           list.push({
             index,
-            visible   : this.isShown(pan.name),
-            key       : pan.name || `panel-${keyPrefix}-${index}`,
-            transName : `ti-gui-panel-${pos}`,
-            panel     : pan
+            visible: this.isShown(pan.name),
+            key: pan.name || `panel-${keyPrefix}-${index}`,
+            transName: `ti-gui-panel-${pos}`,
+            panel: pan
           })
         }
       }
@@ -49552,8 +49842,8 @@ const _M = {
     //--------------------------------------
     OnBlockShow(name) {
       // Update privated status
-      if(this.keepShownTo) {
-        this.updateShown({[name]:true})
+      if (this.keepShownTo) {
+        this.updateShown({ [name]: true })
       }
       // Leave it to parent
       else {
@@ -49563,8 +49853,8 @@ const _M = {
     //--------------------------------------
     OnBlockHide(name) {
       // Update privated status
-      if(this.keepShownTo) {
-        this.updateShown({[name]:false})
+      if (this.keepShownTo) {
+        this.updateShown({ [name]: false })
       }
       // Leave it to parent
       else {
@@ -49575,7 +49865,7 @@ const _M = {
     OnBlockShownUpdate(shown) {
       //console.log(shown)
       // Update privated status
-      if(this.keepShownTo) {
+      if (this.keepShownTo) {
         this.updateShown(shown)
       }
       // Leave it to parent
@@ -49584,39 +49874,39 @@ const _M = {
       }
     },
     //--------------------------------------
-    filterShown(shown={}) {
-      return _.omitBy(shown, (v, k)=>{
-        if(!v)
+    filterShown(shown = {}) {
+      return _.omitBy(shown, (v, k) => {
+        if (!v)
           return true
-        if(!this.BlockNames[k])
+        if (!this.BlockNames[k])
           return true
         return false
       })
     },
     //--------------------------------------
     syncMyShown(...showns) {
-      if(this.keepShownTo) {
-        let shown  = _.assign({}, this.myShown, ...showns)
+      if (this.keepShownTo) {
+        let shown = _.assign({}, this.myShown, ...showns)
         this.myShown = shown
-        if(this.shownEmitName) {
+        if (this.shownEmitName) {
           this.$emit(this.shownEmitName, this.myShown)
         }
-  
-        if(this.shownNotifyName) {
+
+        if (this.shownNotifyName) {
           this.$notify(this.shownNotifyName, this.myShown)
         }
       }
     },
     //--------------------------------------
     persistMyStatus() {
-      if(this.keepShownTo) {
+      if (this.keepShownTo) {
         let shown = this.filterShown(this.myShown)
         Ti.Storage.session.setObject(this.keepShownTo, shown)
       }
     },
     //--------------------------------------
     loadMyStatus() {
-      if(this.keepShownTo) {
+      if (this.keepShownTo) {
         let shown = Ti.Storage.session.getObject(this.keepShownTo)
         this.syncMyShown(this.shown, shown)
       }
@@ -49625,7 +49915,7 @@ const _M = {
     syncViewportMeasure() {
       let rect = Ti.Rects.createBy(this.$el);
       //console.log(rect.toString())
-      this.myViewportWidth  = rect.width
+      this.myViewportWidth = rect.width
       this.myViewportHeight = rect.height
     },
     //--------------------------------------
@@ -49635,13 +49925,13 @@ const _M = {
       _.forEach(blocks, bl => {
         //console.log(bl.name, shown)
         let isShow = true
-        if("tabs" != type && bl.name) {
+        if ("tabs" != type && bl.name) {
           isShow = _.get(this.TheShown, bl.name)
           isShow = Ti.Util.fallback(isShow, true)
         }
-        if(isShow) {
+        if (isShow) {
           reBlocks.push(bl)
-          if(bl.blocks) {
+          if (bl.blocks) {
             bl.blocks = this.filterBlocks(bl.blocks, bl.type)
           }
         }
@@ -49659,43 +49949,43 @@ const _M = {
     },
     //--------------------------------------
     unregisterBlock(name) {
-      if(this.myBlockMap[name]) {
+      if (this.myBlockMap[name]) {
         delete this.myBlockMap[name]
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "shown" : {
-      handler : function(shown) {
+  watch: {
+    "shown": {
+      handler: function (shown) {
         //console.log("ti-gui shown changed", shown)
         this.syncMyShown(shown)
-        this.$nextTick(()=>{
+        this.$nextTick(() => {
           this.syncViewportMeasure();
         })
       },
-      immediate : true
+      immediate: true
     },
-    "loadingAs" : "syncViewportMeasure",
-    "layout" : "syncViewportMeasure"
+    "loadingAs": "syncViewportMeasure",
+    "layout": "syncViewportMeasure"
   },
   //////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     //......................................
     Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.syncViewportMeasure(), 100)
+      resize: _.debounce(() => this.syncViewportMeasure(), 100)
     })
     //......................................
     this.loadMyStatus()
     //......................................
-    _.delay(()=>{
+    _.delay(() => {
       this.syncViewportMeasure()
     })
     //......................................
   },
   ///////////////////////////////////////////////////
-  beforeDestroy : function(){
+  beforeDestroy: function () {
     Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////
@@ -51481,32 +51771,32 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/lib/www/mod/www-mod-site.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////
-  getters : {
+  getters: {
     //--------------------------------------------
     // Pre-compiled Site Routers
     routerList(state) {
       let list = []
       _.forEach(state.router, ({
-        match, names=[], page={}
-      }={})=>{
+        match, names = [], page = {}
+      } = {}) => {
         let regex = new RegExp(match)
         // Pre-compiled
-        let li = function(path){
+        let li = function (path) {
           let m = regex.exec(path)
           // Match page
-          if(m) {
+          if (m) {
             // Build Context
             let context = {}
-            for(let i=0; i<m.length; i++) {
+            for (let i = 0; i < m.length; i++) {
               let val = m[i]
               context[i] = val
               let key = _.nth(names, i)
-              if(key) {
+              if (key) {
                 _.set(context, key, val)
               }
             }
             // Render page info
-            return Ti.Util.explainObj(context, page)        
+            return Ti.Util.explainObj(context, page)
           }
         }
 
@@ -51518,9 +51808,9 @@ const _M = {
     //--------------------------------------------
     globalApis(state) {
       return Ti.WWW.hydrateApi({
-        base : state.apiBase,
-        siteApis : state.apis,
-        apis : state.global
+        base: state.apiBase,
+        siteApis: state.apis,
+        apis: state.global
       })
     },
     //--------------------------------------------
@@ -51531,37 +51821,37 @@ const _M = {
       let map = _.cloneDeep(state.actions)
 
       // Evalue the actions
-      map = _.mapValues(map, (val)=>
+      map = _.mapValues(map, (val) =>
         _.isString(val)
-          ? {action:val}
+          ? { action: val }
           : val)
-      
+
       // Merge action set with the defination in page
       let page = state.page
-      if(page) {
-        _.forEach(page.actions, (val, key)=>{
+      if (page) {
+        _.forEach(page.actions, (val, key) => {
           let act = val
           // format val
-          if(_.isString(val)) {
-            act = {action : val}
+          if (_.isString(val)) {
+            act = { action: val }
           }
 
           // do merge
           let gAction = map[key]
           // Array+?
-          if(_.isArray(gAction)) {
+          if (_.isArray(gAction)) {
             // Array+Array
-            if(_.isArray(act)) {
-              if(act.length > 0) {
+            if (_.isArray(act)) {
+              if (act.length > 0) {
                 // Concat Array
-                if("+" == act[0]) {
-                  for(let z=1;z<act.length;z++) {
+                if ("+" == act[0]) {
+                  for (let z = 1; z < act.length; z++) {
                     gAction.push(act[z])
                   }
                 }
                 // Replace Array
                 else {
-                  map[key] = act      
+                  map[key] = act
                 }
               }
             }
@@ -51580,14 +51870,14 @@ const _M = {
     },
     //--------------------------------------------
     getUrl(state) {
-      return (path)=>{
+      return (path) => {
         return Ti.Util.appendPath(state.base, path)
       }
     },
     //--------------------------------------------
     getApiUrl(state) {
-      return (path)=>{
-        if(path.startsWith("/")) {
+      return (path) => {
+        if (path.startsWith("/")) {
           return path
         }
         return Ti.Util.appendPath(state.apiBase, path)
@@ -51596,7 +51886,7 @@ const _M = {
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
-  mutations : {
+  mutations: {
     //--------------------------------------------
     setSiteId(state, siteId) {
       state.siteId = siteId
@@ -51604,8 +51894,8 @@ const _M = {
     //--------------------------------------------
     setDomain(state, domain) {
       state.domain = domain
-      state.base = Ti.S.renderBy(state.base||"/www/${domain}/", {domain})
-      state.apiBase = Ti.S.renderBy(state.apiBase||"/api/${domain}/", {domain})
+      state.base = Ti.S.renderBy(state.base || "/www/${domain}/", { domain })
+      state.apiBase = Ti.S.renderBy(state.apiBase || "/api/${domain}/", { domain })
     },
     //--------------------------------------------
     setLang(state, lang) {
@@ -51615,8 +51905,8 @@ const _M = {
     },
     //--------------------------------------------
     explainNav(state) {
-      if(state.nav) {
-        if(!state.__nav_input) {
+      if (state.nav) {
+        if (!state.__nav_input) {
           state.__nav_input = _.cloneDeep(state.nav)
         }
         state.nav = Ti.Util.explainObj(state, state.__nav_input)
@@ -51624,8 +51914,8 @@ const _M = {
     },
     //--------------------------------------------
     explainVars(state) {
-      if(state.vars) {
-        if(!state.__vars_input) {
+      if (state.vars) {
+        if (!state.__vars_input) {
           state.__vars_input = _.cloneDeep(state.vars)
         }
         state.vars = Ti.Util.explainObj(state, state.__vars_input)
@@ -51636,9 +51926,9 @@ const _M = {
       state.data = data
     },
     //--------------------------------------------
-    updateData(state, {key, value}={}) {
+    updateData(state, { key, value } = {}) {
       // kay-value pair is required
-      if(!key || _.isUndefined(value)) {
+      if (!key || _.isUndefined(value)) {
         return
       }
       let vobj = _.set({}, key, value)
@@ -51646,8 +51936,8 @@ const _M = {
     },
     //--------------------------------------------
     // key support path like "a.b.c"
-    updateDataBy(state, {key, value}) {
-      if(!key || _.isUndefined(value)) {
+    updateDataBy(state, { key, value }) {
+      if (!key || _.isUndefined(value)) {
         return
       }
       let data = _.cloneDeep(state.data)
@@ -51661,30 +51951,30 @@ const _M = {
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
-  actions : {
+  actions: {
     //--------------------------------------------
-    async __run_gloabl_api({commit, dispatch, state}, {
-      api, 
-      vars, 
-      params, 
-      headers, 
+    async __run_gloabl_api({ commit, dispatch, state }, {
+      api,
+      vars,
+      params,
+      headers,
       body,
-      ok, fail}) {
+      ok, fail }) {
       //.....................................  
       await Ti.WWW.runApiAndPrcessReturn(state, api, {
-        vars, 
-        params, 
-        headers, 
-        body, 
+        vars,
+        params,
+        headers,
+        body,
         dispatch,
         ok, fail,
-        mergeData : function(payload) {
+        mergeData: function (payload) {
           commit("mergeData", payload)
         },
-        updateData : function(payload) {
+        updateData: function (payload) {
           commit("updateData", payload)
         },
-        doAction : async function(at) {
+        doAction: async function (at) {
           await dispatch("doAction", at)
         }
       })
@@ -51693,37 +51983,37 @@ const _M = {
     /***
      * Reload page data by given api keys
      */
-    async reloadGlobalData({state, commit, getters, dispatch}, keys=[]) {
+    async reloadGlobalData({ state, commit, getters, dispatch }, keys = []) {
       commit("setLoading", true)
-      
+
       let apis = []
-      for(let key of keys) {
+      for (let key of keys) {
         let api = _.get(getters.globalApis, key)
-        if(!api) {
+        if (!api) {
           continue;
         }
         //console.log("  # -> page.reloadData -> prepareApi", api)
-        if(api.preloadWhen) {
-          if(!Ti.AutoMatch.test(api.preloadWhen, state)) {
+        if (api.preloadWhen) {
+          if (!Ti.AutoMatch.test(api.preloadWhen, state)) {
             continue;
           }
         }
-        apis.push(dispatch("__run_gloabl_api", {api}))
+        apis.push(dispatch("__run_gloabl_api", { api }))
       }
-      if(!_.isEmpty(apis)) {
+      if (!_.isEmpty(apis)) {
         await Promise.all(apis)
       }
       commit("setLoading", false)
     },
     //--------------------------------------------
     navBackward() {
-      if(window.history) {
+      if (window.history) {
         window.history.back()
       }
     },
     //--------------------------------------------
-    async openUrl({state}, {
-      url, target="_self", method="GET", params={}, delay=0
+    async openUrl({ state }, {
+      url, target = "_self", method = "GET", params = {}, delay = 0
     }) {
       await Ti.Be.Open(url, {
         target, method, params, delay
@@ -51731,19 +52021,19 @@ const _M = {
     },
     //--------------------------------------------
     // Only handle the "page|dispatch"
-    async navTo({commit, dispatch}, {
-      type="page",
+    async navTo({ commit, dispatch }, {
+      type = "page",
       value,    // page path
       anchor,   // page anchor
       data,     // page.data
       params    // page.params
-    }={}) {
+    } = {}) {
       //console.log("navToPage::", value)
       // Guarding
-      if(!value)
+      if (!value)
         return
       // navTo::page
-      if("page" == type) {
+      if ("page" == type) {
         commit("setLoading", true)
 
         // maybe value is  full url with query string and hash
@@ -51755,17 +52045,17 @@ const _M = {
         // Reload
         //console.log("@page:reload ...", _.cloneDeep(state.auth))
         await dispatch("page/reload", href)
-        
+
         commit("setLoading", false)
         commit("explainNav")
         commit("explainVars")
       }
       // navTo::invoke
-      else if("invoke" == type) {
+      else if ("invoke" == type) {
         await dispatch(value, params)
       }
       // navTo::mutation
-      else if("mutation" == type) {
+      else if ("mutation" == type) {
         await commit(value, params)
       }
     },
@@ -51788,24 +52078,24 @@ const _M = {
      * 
      * @return {void}
      */
-    async doAction({dispatch, state}, AT){
+    async doAction({ dispatch, state }, AT) {
       // Guard nil
-      if(!AT) {
+      if (!AT) {
         return
       }
       //console.log("doAction", AT)
       //....................................
       // Raw function
       //....................................
-      if(_.isFunction(AT)) {
+      if (_.isFunction(AT)) {
         return await AT()
       }
 
       // Fire another action
-      if(AT.fire) {
-        let {name, args, memo} = AT
+      if (AT.fire) {
+        let { name, args, memo } = AT
         // Guard for Infinite recursion
-        if(_.indexOf(memo, name) >= 0) {
+        if (_.indexOf(memo, name) >= 0) {
           console.warn("May Infinite recursion invokeAction", {
             name, args, memo
           })
@@ -51813,14 +52103,14 @@ const _M = {
         }
         // Prepare to call another action
         memo.push(name)
-        try{
+        try {
           //console.log("fire At", AT)
           let args2 = Ti.Util.explainObj(state, args)
           await dispatch("invokeAction", {
             name, args: args2, memo
           })
         }
-        catch(E) {
+        catch (E) {
           console.warn(`Fail to doAction[${name}]`, {
             name, args, memo
           })
@@ -51829,52 +52119,52 @@ const _M = {
         finally {
           memo.pop()
         }
-        return 
+        return
       }
 
       //....................................
       // Combo: [F(), args] or [{action}, args]
       //....................................
-      if(_.isArray(AT) && AT.length == 2) {
+      if (_.isArray(AT) && AT.length == 2) {
         let actn = AT[0]
         let args = AT[1]
         // Make sure it is not batch action call
-        if(args && !args.action && !_.isFunction(args)) {
+        if (args && !args.action && !_.isFunction(args)) {
           // Force args to array
-          if(!_.isUndefined(args) && !_.isArray(args)) {
+          if (!_.isUndefined(args) && !_.isArray(args)) {
             args = [args]
           }
           // Normlize action form
-          if(_.isFunction(actn)) {
+          if (_.isFunction(actn)) {
             AT = {
               action: actn,
               args
             }
           }
           // Grouping Action
-          else if(_.isArray(actn)) {
+          else if (_.isArray(actn)) {
             AT = []
-            for(let an of actn) {
-              AT.push(_.assign({}, an, {args}))
+            for (let an of actn) {
+              AT.push(_.assign({}, an, { args }))
             }
           }
           // Merge
           else {
-            AT = _.assign({}, actn, {args})
+            AT = _.assign({}, actn, { args })
           }
         }
       }
       //....................................
       // String
-      if(_.isString(AT)) {
-        AT = {action: AT}
+      if (_.isString(AT)) {
+        AT = { action: AT }
       }
 
       //....................................
       // Groupping
-      if(_.isArray(AT)) {
-        for(let a of AT) {
-          await dispatch("runAction", a)  
+      if (_.isArray(AT)) {
+        for (let a of AT) {
+          await dispatch("runAction", a)
         }
       }
       // Run action
@@ -51883,28 +52173,28 @@ const _M = {
       }
     },
     //--------------------------------------------
-    async runAction({state, commit, dispatch}, {
+    async runAction({ state, commit, dispatch }, {
       invoke,
       mutation,
-      action, 
+      action,
       test,       // AutoMatch
-      testMsg="i18n:e-run-action-test-fail",
+      testMsg = "i18n:e-run-action-test-fail",
       confirm,
       payload,
       args
-    }={}) {
+    } = {}) {
       //....................................
-      if(!invoke && !action && !mutation)
+      if (!invoke && !action && !mutation)
         return;
 
       //....................................
       // Test precondition
-      if(test) {
-        let ctx = _.assign({}, state, {payload, args})
+      if (test) {
+        let ctx = _.assign({}, state, { payload, args })
         let t2 = Ti.Util.explainObj(ctx, test)
-        if(!Ti.AutoMatch.test(t2, state)) {
+        if (!Ti.AutoMatch.test(t2, state)) {
           // Warn user
-          if(testMsg) {
+          if (testMsg) {
             return await Ti.Toast.Open(testMsg, "warn")
           }
           // Skip quietly
@@ -51913,8 +52203,8 @@ const _M = {
       }
       //....................................
       // Confirm the operation with user
-      if(confirm) {
-        if(!(await Ti.Confirm(confirm, {type:"warn"}))) {
+      if (confirm) {
+        if (!(await Ti.Confirm(confirm, { type: "warn" }))) {
           return
         }
       }
@@ -51923,47 +52213,52 @@ const _M = {
       let pld;
 
       // Use args directrly cause payload without defined
-      if(_.isUndefined(payload) || _.isNull(payload)) {
+      if (_.isUndefined(payload) || _.isNull(payload)) {
         pld = _.cloneDeep(_.nth(args, 0))
       }
       //....................................
       // Explain payload
       else {
         let context = _.assign({}, state, {
-          $args : args
+          $args: args
         })
         pld = Ti.Util.explainObj(context, payload, {
-          evalFunc : false
+          evalFunc: false
         })
       }
       //....................................
       //console.log("invoke->", action, pld)
       //....................................
-      if(invoke) {
+      if (invoke) {
         invoke = Ti.Util.genInvoking(invoke, {
           context: state
         })
       }
       //....................................
-      if(_.isFunction(invoke)) {
-        await invoke.apply({state, commit, dispatch}, [pld])
+      if (_.isFunction(invoke)) {
+        await invoke.apply({ state, commit, dispatch }, [pld])
       }
-      else if(_.isFunction(action)) {
-        await action(pld)
-      }
-      else if(mutation) {
+      //....................................
+      if (mutation) {
         commit(mutation, pld)
       }
+      //....................................
       // Action
-      else {
-        await dispatch(action, pld)
+      if (action) {
+        if (_.isFunction(action)) {
+          await action(pld)
+        }
+        // Dispath
+        else if (_.isString(action)) {
+          await dispatch(action, pld)
+        }
       }
     },
     //--------------------------------------------
     /***
      * Invoke action by given name
      */
-    async invokeAction({getters, dispatch}, {name="", args=[], memo=[]}={}){
+    async invokeAction({ getters, dispatch }, { name = "", args = [], memo = [] } = {}) {
       /*
       The action should like
       {
@@ -51976,13 +52271,13 @@ const _M = {
       let AT = _.get(actions, name)
 
       // Try fallback
-      if(!AT) {
+      if (!AT) {
         let canNames = _.split(name, "::")
-        while(canNames.length > 1) {
+        while (canNames.length > 1) {
           let [, ...names] = canNames
           let aName = names.join("::")
           AT = _.get(actions, aName)
-          if(AT){
+          if (AT) {
             break
           }
           canNames = names
@@ -51990,23 +52285,23 @@ const _M = {
       }
 
       // Guard
-      if(!AT)
+      if (!AT)
         return;
-        
+
       // Invoke it
       try {
         // Batch call
-        if(_.isArray(AT)) {
-          for(let a of AT) {
-            let da = {...a, memo}
-            if(!_.isEmpty(args)) {
+        if (_.isArray(AT)) {
+          for (let a of AT) {
+            let da = { ...a, memo }
+            if (!_.isEmpty(args)) {
               da.args = args
             }
             await dispatch("doAction", da)
           }
         }
         // Direct call : String
-        else if(_.isString(AT)) {
+        else if (_.isString(AT)) {
           await dispatch("doAction", {
             action: AT,
             args,
@@ -52016,19 +52311,19 @@ const _M = {
         // Direct call : Object
         else {
           await dispatch("doAction", {
-            ... AT,
+            ...AT,
             args,
             memo
           })
         }
       }
       // For Error
-      catch(e) {
+      catch (e) {
         console.error(e)
       }
     },
     //--------------------------------------------
-    async reload({state, commit, dispatch, getters}, {loc, lang}={}) {
+    async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
       console.log("site.reload", state.entry, state.base, state.lang)
       //---------------------------------------
       // Looking for the entry page
@@ -52036,7 +52331,7 @@ const _M = {
       loc = loc || Ti.Util.parseHref(window.location.href)
       //---------------------------------------
       // Format lang to the expect case: snake/kebab/camel
-      if(lang) {
+      if (lang) {
         commit("setLang", lang)
       }
       //---------------------------------------
@@ -52044,27 +52339,27 @@ const _M = {
       commit("explainNav")
       //---------------------------------------
       // Setup dictionary
-      if(state.dictionary) {
-        _.forEach(state.dictionary, (dict, name)=>{
+      if (state.dictionary) {
+        _.forEach(state.dictionary, (dict, name) => {
           let d = Ti.DictFactory.GetDict(name)
-          if(!d) {
+          if (!d) {
             //console.log("create", name, dict)
             Ti.DictFactory.CreateDict({
               //...............................................
-              data  : Ti.WWW.genQuery(dict.data, {vkey:null}),
-              query : Ti.WWW.genQuery(dict.query),
-              item  : Ti.WWW.genQuery(dict.item, {
+              data: Ti.WWW.genQuery(dict.data, { vkey: null }),
+              query: Ti.WWW.genQuery(dict.query),
+              item: Ti.WWW.genQuery(dict.item, {
                 blankAs: "{}"
               }),
-              children : Ti.WWW.genQuery(dict.children),
+              children: Ti.WWW.genQuery(dict.children),
               //...............................................
-              getValue : Ti.Util.genGetter(dict.value),
-              getText  : Ti.Util.genGetter(dict.text),
-              getIcon  : Ti.Util.genGetter(dict.icon),
+              getValue: Ti.Util.genGetter(dict.value),
+              getText: Ti.Util.genGetter(dict.text),
+              getIcon: Ti.Util.genGetter(dict.icon),
               //...............................................
-              shadowed : Ti.Util.fallback(dict.shadowed, true)
+              shadowed: Ti.Util.fallback(dict.shadowed, true)
               //...............................................
-            }, {name})
+            }, { name })
           }
         })
       }
@@ -52073,32 +52368,32 @@ const _M = {
       commit("auth/mergePaths", state.authPaths)
 
       // Reload the global data
-      let {preloads, afterLoads} = Ti.WWW.groupPreloadApis(getters.globalApis)
+      let { preloads, afterLoads } = Ti.WWW.groupPreloadApis(getters.globalApis)
       //..........................................
       // init global data
-      for(let keys of preloads) {
+      for (let keys of preloads) {
         await dispatch("reloadGlobalData", keys)
       }
 
       // Eval the entry page
       let entry = state.entry
-      if(loc.path.startsWith(state.base)) {
+      if (loc.path.startsWith(state.base)) {
         entry = loc.path.substring(state.base.length) || entry;
       }
 
       // nav to page
       await dispatch("navTo", {
-        type   : "page",
-        value  : entry,
-        params : loc.params,
-        hash   : loc.hash,
-        anchor : loc.anchor,
-        pushHistory : false
+        type: "page",
+        value: entry,
+        params: loc.params,
+        hash: loc.hash,
+        anchor: loc.anchor,
+        pushHistory: false
       })
 
       //..........................................
       // Load the after page completed
-      if(!_.isEmpty(afterLoads.length)) {
+      if (!_.isEmpty(afterLoads.length)) {
         dispatch("reloadGlobalData", afterLoads)
       }
     }
@@ -52328,7 +52623,7 @@ const _M = {
     topStyle() {
       let width;
       if(this.keepWidthWhenDrop)
-        width = this.box.width
+        width = Ti.Util.fallback(this.box.width, this.width)
       let height = this.box.height
       return Ti.Css.toStyle({width, height})
     },
@@ -55089,16 +55384,15 @@ window.TI_PACK_EXPORTS['ti/mod/wn/thing/mod/search/m-thing-search-actions.mjs'] 
 ////////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
   //--------------------------------------------
-  async reloadPage({state, commit, dispatch}, pg) {
+  async reloadPage({ state, commit, dispatch }, pg) {
     commit("updatePager", pg)
     await dispatch("reload")
   },
   //--------------------------------------------
-  async reload({state, commit, getters, rootState}, meta) {
-    //console.log("thing-manager-search.reload", meta)
+  async reload({ state, commit, getters }, meta) {
     //............................................
     // Update New Meta
-    if(meta) {
+    if (meta) {
       commit("setMeta", meta)
     }
     // Get meta back
@@ -55107,20 +55401,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
     }
     //............................................
     // Mark reloading
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
     //............................................
     let cmds = [`thing id:${meta.id} query -cqn`]
     //............................................
     // Eval Sorter
-    if(!_.isEmpty(state.sorter)) {
+    if (!_.isEmpty(state.sorter)) {
       let sort = JSON.stringify(state.sorter)
       cmds.push(`-sort '${sort}'`)
     }
     //............................................
     // Eval Pager
-    if(getters.isPagerEnabled) {
+    if (getters.isPagerEnabled) {
       let limit = state.pager.pgsz
-      let skip  = state.pager.pgsz * (state.pager.pn - 1)
+      let skip = state.pager.pgsz * (state.pager.pn - 1)
       cmds.push(' -pager')
       cmds.push(`-limit ${limit}`)
       cmds.push(`-skip  ${skip}`)
@@ -55128,24 +55422,24 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
     //............................................
     // Eval Showkeys
-    if(state.showKeys) {
+    if (state.showKeys) {
       cmds.push(` -e '${state.showKeys}'`)
     }
-    
+
     //............................................
     // Run Command
     let input = getters.filterStr
     let cmdText = cmds.join(" ")
-    let reo = await Wn.Sys.exec2(cmdText, {input, as:"json"})
+    let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
     //............................................
     // All done
-    if(getters.isPagerEnabled) {
+    if (getters.isPagerEnabled) {
       commit("setPager", reo.pager)
       commit("setList", reo.list)
     } else {
       commit("setList", reo)
     }
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   }
   //--------------------------------------------
 }
@@ -60080,9 +60374,9 @@ Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list"
 // JOIN <ti-button.html> ti/com/ti/button/ti-button.html
 //========================================
 Ti.Preload("ti/com/ti/button/ti-button.html", `<div class="ti-button"
-  :class="topClass">
+  :class="TopClass">
   <ul>
-    <li v-for="it in items"
+    <li v-for="it in ButtonItems"
       :key="it.name"
       :class="it.buttonClass"
       @click="OnClickItem(it)">
@@ -70337,8 +70631,8 @@ Ti.Preload("ti/com/wn/table/_com.json", {
 //========================================
 Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/thing-creator.html", `<div class="thing-creator ti-box-relative">
   <ti-form
+    v-bind="TheForm"
     :fields="fields"
-    :only-fields="onlyFields"
     :fixed="fixed"
     :data="TheData"
     :on-init="OnFormInit"
@@ -71253,18 +71547,21 @@ Ti.Preload("ti/mod/wn/thing/m-thing-export.mjs", TI_PACK_EXPORTS['ti/mod/wn/thin
 //========================================
 Ti.Preload("ti/mod/wn/thing/m-thing.json", {
   "meta": null,
-  "currentDataDir"  : null,
-  "currentDataHome" : null,
-  "currentDataHomeObj" : null,
-  "status" : {
-    "reloading" : false,
-    "doing"     : false,
-    "saving"    : false,
-    "deleting"  : false,
-    "changed"   : false,
-    "restoring" : false,
-    "cleaning"  : false,
-    "inRecycleBin" : false
+  "moduleName": "main",
+  "currentDataDir": null,
+  "currentDataHome": null,
+  "currentDataHomeObj": null,
+  "fixedSchema": {},
+  "autoSelect": false,
+  "status": {
+    "reloading": false,
+    "doing": false,
+    "saving": false,
+    "deleting": false,
+    "changed": false,
+    "restoring": false,
+    "cleaning": false,
+    "inRecycleBin": false
   }
 });
 //========================================
@@ -71322,17 +71619,18 @@ Ti.Preload("ti/mod/wn/thing/mod/current/m-thing-current-actions.mjs", TI_PACK_EX
 // JOIN <m-thing-current.json> ti/mod/wn/thing/mod/current/m-thing-current.json
 //========================================
 Ti.Preload("ti/mod/wn/thing/mod/current/m-thing-current.json", {
-  "meta" : null,
-  "content" : null,
-  "data" : null,
-  "__saved_content" : null,
-  "status" : {
-    "changed"   : false,
-    "saving"    : false,
-    "reloading" : false,
-    "publishing" : false
+  "meta": null,
+  "thingSetId": null,
+  "content": null,
+  "data": null,
+  "__saved_content": null,
+  "status": {
+    "changed": false,
+    "saving": false,
+    "reloading": false,
+    "publishing": false
   },
-  "fieldStatus" : {}
+  "fieldStatus": {}
 });
 //========================================
 // JOIN <m-thing-current.mjs> ti/mod/wn/thing/mod/current/m-thing-current.mjs
@@ -71356,28 +71654,35 @@ Ti.Preload("ti/mod/wn/thing/mod/search/m-thing-search-actions.mjs", TI_PACK_EXPO
 //========================================
 Ti.Preload("ti/mod/wn/thing/mod/search/m-thing-search.json", {
   "meta": null,
-  "filter" : {},
-  "sorter" : {
-    "ct" : -1
+  "fixedMatch": {},
+  "majorKey": null,
+  "defaultKey": "nm",
+  "keyword": {
+    "=id": "^[\\d\\w]{26}(:[\\d\\w]{26})?$",
+    "title": "^.+"
   },
-  "inRecycleBin" : false,
-  "pager" : {
-    "pn"   : 1,
-    "pgsz" : 50,
-    "pgc"  : 0,
-    "sum"  : 0,
-    "skip" : 0,
+  "filter": {},
+  "sorter": {
+    "ct": -1
+  },
+  "inRecycleBin": false,
+  "pager": {
+    "pn": 1,
+    "pgsz": 50,
+    "pgc": 0,
+    "sum": 0,
+    "skip": 0,
     "count": 0
   },
-  "showKeys" : null,
-  "count" : 0,
-  "currentId" : null,
-  "checkedIds" : [],
-  "list" : [],
-  "status" : {
-    "reloading" : false,
-    "saving"    : false,
-    "deleting"  : false
+  "showKeys": null,
+  "count": 0,
+  "currentId": null,
+  "checkedIds": [],
+  "list": [],
+  "status": {
+    "reloading": false,
+    "saving": false,
+    "deleting": false
   }
 });
 //========================================
@@ -71550,6 +71855,7 @@ Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "params" : {},
   "anchor" : null,
   "apis" : {},
+  "moduleNames": [],
   "data" : {},
   "gui" : {
     "flex" : "nil",
@@ -72892,6 +73198,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "json-Object": "Object",
   "json-String": "String",
   "json-new-key": "Enter a new key",
+  "json-syntax-err-tip": "Syntax Error! please switch source view to verify",
   "key": "Key",
   "label": "Label",
   "lang": "Language",
@@ -74329,6 +74636,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "json-Object": "对象",
   "json-String": "字符串",
   "json-new-key": "请输入一个新键名",
+  "json-syntax-err-tip": "语法错误，请切换源码视图检查",
   "key": "键",
   "label": "标签",
   "lang": "语言",
@@ -75725,6 +76033,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "json-Object": "對象",
    "json-String": "字符串",
    "json-new-key": "請輸入一個新鍵名",
+   "json-syntax-err-tip": "語法錯誤，請切換源碼視圖檢查",
    "key": "鍵",
    "label": "標籤",
    "lang": "語言",
