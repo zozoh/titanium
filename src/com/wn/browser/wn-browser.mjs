@@ -299,6 +299,9 @@ export default {
     getCheckedItems() {
       return this.$adaptlist.getCheckedItems()
     },
+    openLocalFileSelectdDialog() {
+      return this.$adaptlist.openLocalFileSelectdDialog()
+    },
     async openCurrentMeta() {
       return this.$adaptlist.openCurrentMeta()
     },

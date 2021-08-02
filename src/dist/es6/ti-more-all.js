@@ -1,4 +1,4 @@
-// Pack At: 2021-08-02 13:28:01
+// Pack At: 2021-08-02 16:02:54
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -50581,6 +50581,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     getCheckedItems() {
       return this.$adaptlist.getCheckedItems()
+    },
+    openLocalFileSelectdDialog() {
+      return this.$adaptlist.openLocalFileSelectdDialog()
     },
     async openCurrentMeta() {
       return this.$adaptlist.openCurrentMeta()
