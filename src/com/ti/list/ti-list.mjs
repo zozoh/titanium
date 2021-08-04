@@ -1,60 +1,60 @@
 export default {
   //////////////////////////////////////////
-  data : ()=>({
-    myData : [],
+  data: () => ({
+    myData: [],
   }),
   //////////////////////////////////////////
-  props : {
-    "iconBy" : {
-      type : [String, Function],
-      default : null
+  props: {
+    "iconBy": {
+      type: [String, Function],
+      default: null
     },
-    "indentBy" : {
-      type : [String, Function],
-      default : null
+    "indentBy": {
+      type: [String, Function],
+      default: null
     },
-    "itemClassName" : undefined,
-    "display" : {
-      type : [Object, String, Array],
-      default : ()=>({
-        key : "..",
-        comType : "ti-label"
+    "itemClassName": undefined,
+    "display": {
+      type: [Object, String, Array],
+      default: () => ({
+        key: "..",
+        comType: "ti-label"
       })
     },
-    "border" : {
-      type : Boolean,
-      default : true
+    "border": {
+      type: Boolean,
+      default: true
     },
-    "autoScrollIntoView" : {
-      type : Boolean,
-      default : true
+    "autoScrollIntoView": {
+      type: Boolean,
+      default: true
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-hoverable"    : this.hoverable,
-        "show-border"     : this.border
+        "is-hoverable": this.hoverable,
+        "show-border": this.border
       })
     },
     //--------------------------------------
     getRowIndent() {
-      if(_.isFunction(this.indentBy)) {
+      if (_.isFunction(this.indentBy)) {
         return it => this.indentBy(it)
       }
-      if(_.isString(this.indentBy)) {
+      if (_.isString(this.indentBy)) {
         return it => _.get(it, this.indentBy)
       }
       return it => 0
     },
     //--------------------------------------
     getRowIcon() {
-      if(_.isFunction(this.iconBy)) {
+      if (_.isFunction(this.iconBy)) {
         return it => this.iconBy(it)
       }
-      if(_.isString(this.iconBy)) {
+      if (_.isString(this.iconBy)) {
         return it => _.get(it, this.iconBy)
       }
       return it => null
@@ -65,9 +65,9 @@ export default {
       // Prepare the return list
       let items = []
       // Loop each items
-      for(let dis of diss) {
+      for (let dis of diss) {
         let item = this.evalFieldDisplayItem(dis)
-        if(item) {
+        if (item) {
           items.push(item)
         }
       }
@@ -81,13 +81,13 @@ export default {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClickTop($event) {
-      if(this.cancelable) {
+      if (this.cancelable) {
         // Click The body or top to cancel the row selection
-        if(Ti.Dom.hasOneClass($event.target,
-            'ti-list', 'list-item')) {
+        if (Ti.Dom.hasOneClass($event.target,
+          'ti-list', 'list-item')) {
           this.cancelRow()
         }
       }
@@ -95,14 +95,14 @@ export default {
     //--------------------------------------
     scrollCurrentIntoView() {
       // Guard
-      if(!this.autoScrollIntoView || Ti.Util.isNil(this.myCurrentId)) {
+      if (!this.autoScrollIntoView || Ti.Util.isNil(this.myCurrentId)) {
         return;
       }
       let [$first] = Ti.Dom.findAll(".list-row.is-current", this.$el)
-      if($first) {
+      if ($first) {
         let rect = Ti.Rects.createBy($first)
         let view = Ti.Rects.createBy(this.$el)
-        if(!view.contains(rect)) {
+        if (!view.contains(rect)) {
           this.$el.scrollTop += rect.top - view.top
         }
       }
@@ -110,45 +110,51 @@ export default {
     //--------------------------------------
     __ti_shortcut(uniqKey) {
       //console.log("ti-list", uniqKey)
-      if("ARROWUP" == uniqKey) {
+      if ("ARROWUP" == uniqKey) {
         this.selectPrevRow({
-          payload: {byKeyboardArrow: true}
+          payload: { byKeyboardArrow: true }
         })
         this.scrollCurrentIntoView()
-        return {prevent:true, stop:true, quit:true}
+        return { prevent: true, stop: true, quit: true }
       }
 
-      if("ARROWDOWN" == uniqKey) {
-        this.selectNextRow({payload:{byKeyboardArrow:true}})
+      if ("ARROWDOWN" == uniqKey) {
+        this.selectNextRow({ payload: { byKeyboardArrow: true } })
         this.scrollCurrentIntoView()
-        return {prevent:true, stop:true, quit:true}
+        return { prevent: true, stop: true, quit: true }
+      }
+    },
+    //--------------------------------------
+    async evalListData(newVal, oldVal) {
+      let isSame = _.isEqual(newVal, oldVal)
+      if (!isSame) {
+        //console.log("!!!list data changed", {newVal, oldVal})
+        this.myData = await this.evalData((it) => {
+          it.icon = this.getRowIcon(it.item)
+          it.indent = this.getRowIndent(it.item)
+        })
+
+        this.$nextTick(() => {
+          _.delay(() => {
+            this.scrollCurrentIntoView()
+          }, 300)
+        })
       }
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "data" : {
-      handler : async function(newVal, oldVal){
-        let isSame = _.isEqual(newVal, oldVal)
-        if(!isSame) {
-          //console.log("!!!list data changed", {newVal, oldVal})
-          this.myData = await this.evalData((it)=>{
-            it.icon = this.getRowIcon(it.item)
-            it.indent = this.getRowIndent(it.item)
-          })
-
-          this.$nextTick(()=>{
-            _.delay(()=>{
-              this.scrollCurrentIntoView()
-            }, 300)
-          })
-        }
-      },
-      immediate : true
+  watch: {
+    "data": {
+      handler: "evalListData",
+      immediate: true
     },
-    "myCurrentId" : function() {
-      this.$nextTick(()=>{
+    "dict": {
+      handler: "evalListData",
+      immediate: true
+    },
+    "myCurrentId": function () {
+      this.$nextTick(() => {
         this.scrollCurrentIntoView()
       })
     }

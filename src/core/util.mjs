@@ -141,6 +141,105 @@ const TiUtil = {
     // done
     return index
   },
+  /**
+   * @param state Vuex state object with "data: {list,pager}"
+   * @param items Item(or ID) to remove, unique key is "id"
+   */
+  RemoveStateDataItems(state, items = []) {
+    let data = state.data
+    // Build Id Map
+    if (!_.isArray(items)) {
+      items = [items]
+    }
+    let idMap = {}
+    _.forEach(items, it => {
+      if (_.isString(it)) {
+        idMap[it] = true
+      } else if (it.id) {
+        idMap[it.id] = true
+      }
+    })
+    if (_.isArray(data.list) && data.pager && !_.isEmpty(idMap)) {
+      let list = []
+      _.forEach(data.list, li => {
+        if (!idMap[li.id]) {
+          list.push(li)
+        }
+      })
+      state.data = {
+        list, pager: data.pager
+      }
+    }
+  },
+  /**
+   * @param state Vuex state object with "data: {list,pager},currentId:"XXX""   
+   * @param theItem Item to merge, unique key is "id"
+   */
+  MergeStateDataItem(state, theItem) {
+    // Update pager list item of data
+    if (state.currentId && _.isArray(state.data.list)) {
+      let data = _.cloneDeep(state.data)
+      for (let li of data.list) {
+        if (state.currentId == li.id) {
+          _.assign(li, theItem)
+        }
+        state.data = data
+      }
+    }
+  },
+  /**
+   * 
+   * @param state Vuex state object with "data: {list,pager}"
+   * @param newItem Item to upsert, unique key is "id"
+   * @param atPos  insert position: -1: before, 1: after, 0: in place
+   */
+  UpsertStateDataItemAt(state, newItem, atPos = 1) {
+    // Guard
+    if (_.isEmpty(newItem) || !newItem || !newItem.id) {
+      return
+    }
+    // Batch upsert
+    if (_.isArray(newItem)) {
+      for (let it of newItem) {
+        TiUtil.UpsertStateDataItemAt(state, it, atTail)
+      }
+      return
+    }
+    // upsert one
+    let data = state.data
+    // Update pager list item of data
+    if (_.isArray(data.list) && data.pager) {
+      let list = _.cloneDeep(data.list)
+      let list2 = []
+      let found = false
+      for (let li of list) {
+        if (!found && (li.id == newItem.id || li.nm == newItem.nm)) {
+          list2.push(newItem)
+          found = true
+        } else {
+          list2.push(li)
+        }
+      }
+      if (!found) {
+        if (atPos > 0) {
+          list2.push(newItem)
+        } else if (atPos < 0) {
+          list2 = _.concat(newItem, list2)
+        }
+      }
+      state.data = {
+        list: list2,
+        pager: data.pager
+      }
+    }
+    // Just insert
+    else {
+      state.data = {
+        list: newItems,
+        pager: data.pager
+      }
+    }
+  },
   /***
    * Insert one or more elements after specific position of object.
    * It will return new object.

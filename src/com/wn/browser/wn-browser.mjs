@@ -57,6 +57,7 @@ export default {
     // "notifyPayload" : {
     //   type : [Object, Function]
     // },
+    "events": Object,
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
@@ -111,6 +112,9 @@ export default {
         }
       })
     },
+    "nav": {
+      type: Object
+    },
     "detail": {
       type: Object,
       default: () => ({
@@ -120,7 +124,11 @@ export default {
         }
       })
     },
-    "leftBlock": {
+    "navBlock": {
+      type: Object,
+      default: () => ({})
+    },
+    "mainBlock": {
       type: Object,
       default: () => ({})
     },
@@ -136,6 +144,7 @@ export default {
       return this.getTopClass()
     },
     //------------------------------------------------
+    ComNav() { return Ti.Util.explainObj(this, this.nav) },
     ComFilter() { return Ti.Util.explainObj(this, this.filter) },
     ComList() {
       let com = Ti.Util.explainObj(this, this.list)
@@ -156,52 +165,86 @@ export default {
     ComDetail() { return Ti.Util.explainObj(this, this.detail) },
     //------------------------------------------------
     TheLayout() {
-      let left = []
+      let columns = []
+      //
+      // Nav Block
+      //
+      if (this.ComNav) {
+        columns.push(_.assign(
+          {
+            size: "16%",
+            border: true,
+          },
+          this.navBlock,
+          {
+            name: "nav",
+            body: "nav"
+          }
+        ))
+      }
+      //
+      // Main Block
+      //
+      let main = []
       if (this.ComFilter) {
-        left.push({
+        main.push({
           name: "filter",
           size: 43,
           body: "filter"
         })
       }
-      left.push({
+      main.push({
         name: "list",
         size: "stretch",
         overflow: "cover",
         body: "list"
       })
       if (this.ComPager) {
-        left.push({
+        main.push({
           name: "pager",
           size: "auto",
           body: "pager"
         })
       }
+      // Join to columns
+      columns.push(_.assign(
+        {
+          size: "61.8%",
+          border: true,
+        },
+        this.mainBlock,
+        {
+          type: "rows",
+          blocks: main
+        }
+      ))
+      //
+      // Detail Block
+      //
       if (this.ComDetail) {
+        columns.push(_.assign({},
+          this.detailBlock,
+          {
+            name: "detail",
+            body: "detail"
+          }
+        ))
+      }
+      // Multi columns
+      if (columns.length > 1) {
         return {
           type: "cols",
           border: true,
-          blocks: [_.assign({
-            size: "61.8%",
-            border: true,
-          }, this.leftBlock, {
-            type: "rows",
-            blocks: left
-          }), _.assign({}, this.detailBlock, {
-            name: "detail",
-            body: "detail"
-          })]
+          blocks: columns
         }
       }
-      return {
-        type: "rows",
-        size: "61.8%",
-        blocks: left
-      }
+      // Single column, (main only)
+      return columns[0]
     },
     //------------------------------------------------
     TheSchema() {
       return {
+        nav: this.ComNav,
         filter: this.ComFilter,
         list: this.ComList,
         pager: this.ComPager,
@@ -217,6 +260,10 @@ export default {
           }
         }
       }
+    },
+    //------------------------------------------------
+    EventRouting() {
+      return _.assign({}, this.events)
     }
     //------------------------------------------------
   },
@@ -245,7 +292,7 @@ export default {
     //------------------------------------------------
     OnSelectItem({ currentId }) {
       this.myCurrentId = currentId
-      return { name: "select", stop: false }
+      return { stop: false }
     },
     //------------------------------------------------
     doAutoSelectItem() {
@@ -323,6 +370,29 @@ export default {
     async doDelete(confirm) {
       return this.$adaptlist.doDelete(confirm)
     },
+    //--------------------------------------
+    //
+    // Callback & Events
+    //
+    //--------------------------------------
+    // For Event Bubble Dispatching
+    __on_events(name, ...args) {
+      //console.log("__on_events", name, args)
+      // Try to get handler
+      let fn = _.get(this.EventRouting, name)
+      if (!fn) {
+        fn = this.$tiEventTryFallback(name, this.EventRouting)
+      }
+
+      // Gen invoking
+      return Ti.Shortcut.genEventActionInvoking(fn, {
+        app: Ti.App(this),
+        context: _.assign({
+          $args: args
+        }, this.CurrentObj),
+        funcSet: this
+      })
+    }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
@@ -345,6 +415,14 @@ export default {
     "search": {
       handler: function () {
         this.mySearch = _.cloneDeep(this.search)
+      },
+      immediate: true
+    },
+    "currentId": {
+      handler: function (newVal, oldVal) {
+        if(!_.isEqual(newVal, oldVal)) {
+          this.myCurrentId = newVal
+        }
       },
       immediate: true
     }

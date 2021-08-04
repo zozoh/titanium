@@ -6,7 +6,7 @@
         embed-in="rows"
         v-bind="block"
         :schema="schema"
-        :action-status="actionStatus"
+        :action-status="block.actionStatus || actionStatus"
         :shown="shown"/>
     </template>
   </template>

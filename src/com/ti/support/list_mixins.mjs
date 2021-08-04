@@ -60,11 +60,11 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     isDataPending() {
-      return Ti.Util.isNil(this.data)
+      return Ti.Util.isNil(this.TheData)
     },
     //-----------------------------------------------
     isDataEmpty() {
-      return !_.isArray(this.data) || _.isEmpty(this.data)
+      return !_.isArray(this.TheData) || _.isEmpty(this.TheData)
     },
     //-----------------------------------------------
     isAllChecked() {

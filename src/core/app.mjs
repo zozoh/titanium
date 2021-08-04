@@ -316,7 +316,7 @@ class OneTiApp {
   //    comType: "@com:xx.xx", 
   //    components: ["@com:xx/xx"]
   // }
-  async loadView(view) {
+  async loadView(view, meta) {
     // [Optional] Load the module
     const setupMod = (moConf, { modState, modSetup }={}) => {
       //console.log("setup:", moConf)
@@ -327,7 +327,7 @@ class OneTiApp {
           partial: "right"
         })
         if (_.isFunction(setupFunc)) {
-          return setupFunc({ moConf, meta, viewInfo })
+          return setupFunc({ moConf, meta, view })
         }
       }
       return moConf

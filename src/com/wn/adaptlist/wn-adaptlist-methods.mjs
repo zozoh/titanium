@@ -329,6 +329,10 @@ const OBJ = {
       this.myUploadigFiles = []
     }, 1000)
 
+    if(!ok) {
+      return
+    }
+
     // Tell user ...
     Ti.Toast.Open("i18n:upload-done", "success")
 

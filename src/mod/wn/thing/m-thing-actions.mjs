@@ -490,20 +490,22 @@ const _M = {
 
     // Relod setting from thing view
     let thAutoSelect = Ti.Util.fallbackNil(state.autoSelect, false)
-    if ("FILE" == meta.race) {
-      let view = await Wn.Io.loadContent(meta, { as: "json" })
-      let { path, schema, autoSelect } = view
-      meta = await Wn.Io.loadMeta(path)
-      if (schema) {
-        commit("mergeFixedSchema", schema)
+    if (meta) {
+      if ("FILE" == meta.race) {
+        let view = await Wn.Io.loadContent(meta, { as: "json" })
+        let { path, schema, autoSelect } = view
+        meta = await Wn.Io.loadMeta(path)
+        if (schema) {
+          commit("mergeFixedSchema", schema)
+        }
+        if (!Ti.Util.isNil(autoSelect)) {
+          thAutoSelect = Ti.Types.toBoolean(autoSelect)
+        }
       }
-      if (!Ti.Util.isNil(autoSelect)) {
-        thAutoSelect = Ti.Types.toBoolean(autoSelect)
+      // Update auto-select by meta
+      if (!Ti.Util.isNil(meta.th_auto_select)) {
+        thAutoSelect = Ti.Types.toBoolean(meta.th_auto_select)
       }
-    }
-    // Update auto-select by meta
-    else if (!Ti.Util.isNil(meta.th_auto_select)) {
-      thAutoSelect = Ti.Types.toBoolean(meta.th_auto_select)
     }
 
     // commit auto-select to state

@@ -1,5 +1,6 @@
 {
   "meta": null,
+  "currentId": null,
   "keepSearch": true,
   "path": null,
   "data": {
@@ -29,5 +30,6 @@
   "pageSize": 1000,
   "status": {
     "reloading": false
-  }
+  },
+  "fieldStatus": {}
 }

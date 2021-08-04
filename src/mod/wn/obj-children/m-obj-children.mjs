@@ -1,51 +1,3 @@
-//----------------------------------------
-function UpsertDataItemAt(state, newItem, atPos = 1) {
-  // Guard
-  if (_.isEmpty(newItem) || !newItem || !newItem.id) {
-    return
-  }
-  // Batch upsert
-  if (_.isArray(newItem)) {
-    for (let it of newItem) {
-      UpsertDataItemAt(state, it, atTail)
-    }
-    return
-  }
-  // upsert one
-  let data = state.data
-  // Update pager list item of data
-  if (_.isArray(data.list) && data.pager) {
-    let list = _.cloneDeep(data.list)
-    let list2 = []
-    let found = false
-    for (let li of list) {
-      if (!found && (li.id == newItem.id || li.nm == newItem.nm)) {
-        list2.push(newItem)
-        found = true
-      } else {
-        list2.push(li)
-      }
-    }
-    if (!found) {
-      if (atPos > 0) {
-        list2.push(newItem)
-      } else if (atPos < 0) {
-        list2 = _.concat(newItem, list2)
-      }
-    }
-    state.data = {
-      list: list2,
-      pager: data.pager
-    }
-  }
-  // Just insert
-  else {
-    state.data = {
-      list: newItems,
-      pager: data.pager
-    }
-  }
-}
 //////////////////////////////////////////////
 const _M = {
   ////////////////////////////////////////////
@@ -61,6 +13,27 @@ const _M = {
     //----------------------------------------
     setSearch(state, search) {
       state.search = _.cloneDeep(search)
+    },
+    //----------------------------------------
+    setSearchMatch(state, match) {
+      let search = _.cloneDeep(state.search)
+      search.match = match || {}
+      state.search = search
+    },
+    //----------------------------------------
+    mergeSearchMatch(state, match) {
+      let search = _.cloneDeep(state.search)
+      _.merge(search.match, match)
+      state.search = search
+    },
+    //----------------------------------------
+    mergeSearchMatchOmitNil(state, match) {
+      let search = _.cloneDeep(state.search)
+      _.merge(search.match, match)
+      search.match = _.omitBy(search.match, (val) => {
+        return Ti.Util.isNil(val)
+      })
+      state.search = search
     },
     //----------------------------------------
     setFilter(state, filter) {
@@ -104,80 +77,48 @@ const _M = {
     },
     //----------------------------------------
     prependDateItem(state, newItem) {
-      UpsertDataItemAt(state, newItem, -1)
+      Ti.Util.UpsertStateDataItemAt(state, newItem, -1)
     },
     //----------------------------------------
     appendDateItem(state, newItem) {
-      UpsertDataItemAt(state, newItem, 1)
+      Ti.Util.UpsertStateDataItemAt(state, newItem, 1)
     },
     //----------------------------------------
     setDataItem(state, newItem) {
-      UpsertDataItemAt(state, newItem, 0)
+      Ti.Util.UpsertStateDataItemAt(state, newItem, 0)
     },
     //----------------------------------------
     mergeDataItem(state, theItem) {
-      // Update pager list item of data
-      if (state.currentId && _.isArray(state.data.list)) {
-        let data = _.cloneDeep(state.data)
-        for (let li of data.list) {
-          if (state.currentId == li.id) {
-            _.assign(li, theItem)
-          }
-        state.data = data
+      Ti.Util.MergeStateDataItem(state, theItem)
+    },
+    //----------------------------------------
+    removeDataItems(state, items = []) {
+      Ti.Util.RemoveStateDataItems(state, items)
+    },
+    //----------------------------------------
+    setData(state, data) {
+      state.data = data
+    },
+    //----------------------------------------
+    setFieldStatus(state, { name, type, text } = {}) {
+      if (name) {
+        let ukey = _.concat(name).join("-")
+        Vue.set(state.fieldStatus, ukey, { type, text })
+      }
+    },
+    //----------------------------------------
+    clearFieldStatus(state, names = []) {
+      // Clean All
+      if (_.isEmpty(names)) {
+        state.fieldStatus = {}
+      }
+      // Clear one
+      else {
+        state.fieldStatus = _.omit(state.fieldStatus, names)
       }
     }
-  },
-  //----------------------------------------
-  removeDataItems(state, items = []) {
-    let data = state.data
-    // Build Id Map
-    if (!_.isArray(items)) {
-      items = [items]
-    }
-    let idMap = {}
-    _.forEach(items, it => {
-      if (_.isString(it)) {
-        idMap[it] = true
-      } else if (it.id) {
-        idMap[it.id] = true
-      }
-    })
-    if (_.isArray(data.list) && data.pager && !_.isEmpty(idMap)) {
-      let list = []
-      _.forEach(data.list, li => {
-        if (!idMap[li.id]) {
-          list.push(li)
-        }
-      })
-      state.data = {
-        list, pager: data.pager
-      }
-    }
-  },
-  //----------------------------------------
-  setData(state, data) {
-    state.data = data
-  },
-  //----------------------------------------
-  setFieldStatus(state, {name, type, text}={}) {
-    if(name){
-      let ukey = _.concat(name).join("-")
-      Vue.set(state.fieldStatus, ukey, {type, text})
-    }
-  },
-  //----------------------------------------
-  clearFieldStatus(state, names=[]) {
-    // Clean All
-    if(_.isEmpty(names)) {
-      state.fieldStatus = {}
-    }
-    // Clear one
-    else {
-      state.fieldStatus = _.omit(state.fieldStatus, names)
-    }
-  },
-  //----------------------------------------
-}
+    //----------------------------------------
+  }
   ////////////////////////////////////////////
 }
 export default _M;

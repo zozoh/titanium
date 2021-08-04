@@ -94,6 +94,15 @@ const _M = {
       return Ti.Util.explainObj(this, this.suffixText)
     },
     //--------------------------------------
+    TheSuffixIcon() {
+      if (this.suffixIcon) {
+        return this.suffixIcon
+      }
+      if (this.suffixIconForCopy) {
+        return 'far-copy'
+      }
+    },
+    //--------------------------------------
     TheHover() {
       let map = {}
       let hos = _.concat(this.hover)
@@ -199,9 +208,17 @@ const _M = {
     },
     //------------------------------------------------
     OnClickSuffixIcon() {
-      this.$notify("suffix:icon", {
-        value: this.TheValue
-      })
+      if (this.suffixIconForCopy) {
+        let val = this.TheValue
+        Ti.Be.BlinkIt(this.$refs.value)
+        Ti.Be.writeToClipboard(val)
+      }
+      // Notify
+      else {
+        this.$notify("suffix:icon", {
+          value: this.TheValue
+        })
+      }
     },
     //------------------------------------------------
     OnClickSuffixText() {

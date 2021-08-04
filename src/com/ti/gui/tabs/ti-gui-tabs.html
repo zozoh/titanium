@@ -25,7 +25,7 @@
     <ti-gui-block 
       embed-in="tabs"
       v-bind="CurrentBlock"
-      :action-status="actionStatus"
+      :action-status="CurrentBlock.actionStatus || actionStatus"
       :schema="schema"
       :shown="shown"/>
   </section>

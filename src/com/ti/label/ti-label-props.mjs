@@ -43,6 +43,10 @@ export default {
     type: [Array, String],
     default: () => ["suffixIcon"]
   },
+  "suffixIconForCopy": {
+    type: Boolean,
+    default: false
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

@@ -37,7 +37,7 @@ const _M = {
       // Load the main view
       let viewInfo = await Wn.Sys.exec2(cmdText, { as: "json" })
       let $app = Ti.App(this)
-      let view = await $app.loadView(viewInfo)
+      let view = await $app.loadView(viewInfo, meta)
       //console.log("after loadView", view)
       //..................................
       if (Ti.IsInfo("app/wn.manager")) {

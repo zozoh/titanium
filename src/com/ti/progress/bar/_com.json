@@ -1,0 +1,6 @@
+{
+  "name" : "ti-progress-bar",
+  "globally" : true,
+  "template" : "./ti-progress-bar.html",
+  "mixins" : ["./ti-progress-bar.mjs"]
+}

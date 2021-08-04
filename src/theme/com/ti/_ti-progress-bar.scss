@@ -1,18 +1,44 @@
 .ti-progress-bar {
+  //----------------------------------------------
   .bar-tip {
     display:block; text-align:center;
     padding:0.04rem; line-height:1.6em;
     white-space: nowrap;
     font-size:SZ(10);
-    @include color($color-mask, r, thin);
+    text-shadow: 1px 1px 0 map-get($color-shadow, heavy);
+    color: map-get($color-secondary, c);
   }
+  //----------------------------------------------
   .bar-outer {
     display:block; border:1px solid map-get($color-line, shallow);
     @include color($color-success, c, r);
   }
+  //----------------------------------------------
   .bar-inner {
     display:block; 
     background: map-get($color-success, c);
     min-height:4px;
   }
+  //----------------------------------------------
+  &.tip-mask {
+    .bar-tip {
+      @include color($color-mask, r, thin);
+    }
+  }
+  //----------------------------------------------
+  &.fs-xs .bar-tip {font-size: .6em;}
+  &.fs-sm .bar-tip {font-size: .8em;}
+  &.fs-md .bar-tip {font-size: 1em;}
+  &.fs-lg .bar-tip {font-size: 1.2em;}
+  &.fs-xl .bar-tip {font-size: 1.5em;}
+  //----------------------------------------------
+  &.is-success .bar-tip {color: map-get($color-success, c);}
+  &.is-warn    .bar-tip {color: map-get($color-warn, c);}
+  &.is-info    .bar-tip {color: map-get($color-info, c);} 
+  &.is-error   .bar-tip {color: map-get($color-error, c);}
+  &.is-track   .bar-tip {color: map-get($color-track, c);}
+  &.is-disable .bar-tip {color: map-get($color-disable, c);}
+  &.is-text    .bar-tip {color: map-get($color-text, c);}
+  &.is-number  .bar-tip {color: map-get($color-number, c);}
+  //----------------------------------------------
 }

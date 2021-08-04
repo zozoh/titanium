@@ -1,35 +1,35 @@
 const _M = {
   ///////////////////////////////////////////////////
-  provide : function(){
+  provide: function () {
     return {
-      "$table" : this
+      "$table": this
     }
   },
   ///////////////////////////////////////////////////
-  data : ()=>({
+  data: () => ({
     myTableRect: null,
-    myData : []
+    myData: []
   }),
   ///////////////////////////////////////////////////
   // props -> ti-table-props.mjs
   ///////////////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       let klass = this.getTopClass({
         // "is-cells-no-ready" : !this.myCellsReady,
         // "is-layout-ready" : this.myCellsReady,
-        "is-hoverable"   : this.hoverable
+        "is-hoverable": this.hoverable
       }, [
         `is-border-${this.border}`,
-        `is-head-${this.head||"none"}`
+        `is-head-${this.head || "none"}`
       ])
       // Auto judgement table layout
-      if(!klass['is-layout-fixed'] && !klass['is-layout-auto']) {
+      if (!klass['is-layout-fixed'] && !klass['is-layout-auto']) {
         let tableLayout = "auto"
-        for(let i=0; i< this.fields.length; i++) {
+        for (let i = 0; i < this.fields.length; i++) {
           let fld = this.fields[i]
-          if(!Ti.Util.isNil(fld.width)){
+          if (!Ti.Util.isNil(fld.width)) {
             tableLayout = "fixed"
             break
           }
@@ -47,28 +47,28 @@ const _M = {
     },
     //--------------------------------------
     TableStyle() {
-      if(this.myTableWidth>0) {
+      if (this.myTableWidth > 0) {
         return Ti.Css.toStyle({
-          "width" : this.myTableWidth
+          "width": this.myTableWidth
         })
       }
     },
     //--------------------------------------
     getRowIndent() {
-      if(_.isFunction(this.indentBy)) {
+      if (_.isFunction(this.indentBy)) {
         return it => this.indentBy(it)
       }
-      if(_.isString(this.indentBy)) {
+      if (_.isString(this.indentBy)) {
         return it => _.get(it, this.indentBy)
       }
       return it => 0
     },
     //--------------------------------------
     getRowIcon() {
-      if(_.isFunction(this.iconBy)) {
+      if (_.isFunction(this.iconBy)) {
         return it => this.iconBy(it)
       }
-      if(_.isString(this.iconBy)) {
+      if (_.isString(this.iconBy)) {
         return it => _.get(it, this.iconBy)
       }
       return it => null
@@ -83,57 +83,57 @@ const _M = {
     },
     //--------------------------------------
     HeadCheckerIcon() {
-      if(this.isAllChecked) {
+      if (this.isAllChecked) {
         return "fas-check-square"
       }
-      if(this.hasChecked) {
+      if (this.hasChecked) {
         return "fas-minus-square"
       }
       return "far-square"
     },
     //--------------------------------------
     TableFields() {
-      if(!this.myTableRect) {
+      if (!this.myTableRect) {
         return
       }
       let fields = []
-      for(let i=0; i< this.fields.length; i++) {
+      for (let i = 0; i < this.fields.length; i++) {
         let fld = this.fields[i]
         //..................................
         let display = this.evalFieldDisplay(fld.display, fld.name)
         //..................................
         let fldWidth = Ti.Util.fallbackNil(fld.width, "stretch")
         //..................................
-        if(_.isString(fldWidth)) {
+        if (_.isString(fldWidth)) {
           // Percent
-          if(/^\d+(\.\d+)?%$/.test(fldWidth)) {
-            fldWidth = fldWidth.substring(0, fldWidth.length-1)/100;
+          if (/^\d+(\.\d+)?%$/.test(fldWidth)) {
+            fldWidth = fldWidth.substring(0, fldWidth.length - 1) / 100;
           }
           // Auto or stretch
-          else if(!/^(auto|stretch)$/.test(fldWidth)) {
+          else if (!/^(auto|stretch)$/.test(fldWidth)) {
             fldWidth = "stretch"
           }
         }
         // Must be number
-        else if(!_.isNumber(fldWidth)) {
+        else if (!_.isNumber(fldWidth)) {
           fldWidth = "stretch"
         }
         //..................................
         let cell = {
-          index  : i,
-          title  : fld.title,
-          nowrap : fld.nowrap,
-          width  : fldWidth,
-          className : fld.className,
+          index: i,
+          title: fld.title,
+          nowrap: fld.nowrap,
+          width: fldWidth,
+          className: fld.className,
           //.....................
-          name : fld.name,
+          name: fld.name,
           display,
           //.....................
-          type : fld.type,
-          comType : fld.comType,
-          comConf : fld.comConf,
-          transformer : fld.transformer,
-          serializer  : fld.serializer
+          type: fld.type,
+          comType: fld.comType,
+          comConf: fld.comConf,
+          transformer: fld.transformer,
+          serializer: fld.serializer
         }
         //..................................
         cell.headStyle = this.getHeadCellStyle(cell)
@@ -146,11 +146,11 @@ const _M = {
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClickHeadChecker() {
       // Cancel All
-      if(this.isAllChecked) {
+      if (this.isAllChecked) {
         this.cancelRow()
       }
       // Check All
@@ -160,12 +160,12 @@ const _M = {
     },
     //--------------------------------------
     OnClickTop($event) {
-      if(this.cancelable) {
+      if (this.cancelable) {
         // Click The body or top to cancel the row selection
-        if(Ti.Dom.hasOneClass($event.target,
-            'ti-table', 'table-body',
-            'table-head-cell',
-            'table-head-cell-text')) {
+        if (Ti.Dom.hasOneClass($event.target,
+          'ti-table', 'table-body',
+          'table-head-cell',
+          'table-head-cell-text')) {
           this.cancelRow()
         }
       }
@@ -176,41 +176,41 @@ const _M = {
     },
     //--------------------------------------
     getHeadCellStyle(fld) {
-      if(fld && !Ti.Util.isNil(fld.width) 
-          && this.myTableRect && this.myTableRect.width > 0) {
-          // Copy width
-          let width = fld.width
+      if (fld && !Ti.Util.isNil(fld.width)
+        && this.myTableRect && this.myTableRect.width > 0) {
+        // Copy width
+        let width = fld.width
 
-          // Number
-          if(_.isNumber(width)) {
-            // -100: it will conver to percent
-            if(width < 0) {
-              let per = Math.abs(width / this.myTableRect.width)
-              width = Math.round(per * 100) + "%"
-            }
-            // 0-1: => Percent
-            else if(width>=0 && width < 1) {
-              width = Math.round(width * 100) + "%"
-            }
-            // 100: => pixcel
-            else {
-              width = `${width}px`
-            }
+        // Number
+        if (_.isNumber(width)) {
+          // -100: it will conver to percent
+          if (width < 0) {
+            let per = Math.abs(width / this.myTableRect.width)
+            width = Math.round(per * 100) + "%"
           }
+          // 0-1: => Percent
+          else if (width >= 0 && width < 1) {
+            width = Math.round(width * 100) + "%"
+          }
+          // 100: => pixcel
+          else {
+            width = `${width}px`
+          }
+        }
 
-          return {width}
+        return { width }
       }
     },
     //--------------------------------------
-    evalFieldDisplay(displayItems=[], defaultKey) {
+    evalFieldDisplay(displayItems = [], defaultKey) {
       // Force to Array
       displayItems = _.concat(displayItems)
       // Prepare the return list
       let items = []
       // Loop each items
-      for(let li of displayItems) {
-        let item = this.evalFieldDisplayItem(li, {defaultKey})
-        if(item) {
+      for (let li of displayItems) {
+        let item = this.evalFieldDisplayItem(li, { defaultKey })
+        if (item) {
           items.push(item)
         }
       }
@@ -225,13 +225,13 @@ const _M = {
     //--------------------------------------
     scrollCurrentIntoView() {
       //console.log("scrollCurrentIntoView", this.myLastIndex)
-      if(this.autoScrollIntoView && this.theCurrentId) {
+      if (this.autoScrollIntoView && this.theCurrentId) {
         let index = this.findRowIndexById(this.theCurrentId)
         //console.log("scroll", index)
         let $view = this.$el
-        let $row  = Ti.Dom.find(`.table-row:nth-child(${index+1})`, $view)
+        let $row = Ti.Dom.find(`.table-row:nth-child(${index + 1})`, $view)
 
-        if(!_.isElement($view) || !_.isElement($row)) {
+        if (!_.isElement($view) || !_.isElement($row)) {
           return
         }
 
@@ -239,9 +239,9 @@ const _M = {
         let r_row = Ti.Rects.createBy($row)
 
         // test it need to scroll or not
-        if(!r_view.contains(r_row)) {
+        if (!r_view.contains(r_row)) {
           // at bottom
-          if(r_row.bottom > r_view.bottom) {
+          if (r_row.bottom > r_view.bottom) {
             $view.scrollTop += r_row.bottom - r_view.bottom
           }
           // at top
@@ -258,54 +258,66 @@ const _M = {
     //--------------------------------------
     __ti_shortcut(uniqKey) {
       //console.log("ti-table", uniqKey)
-      if("ARROWUP" == uniqKey) {
+      if ("ARROWUP" == uniqKey) {
         this.selectPrevRow({
-          payload: {byKeyboardArrow: true}
+          payload: { byKeyboardArrow: true }
         })
         this.scrollCurrentIntoView()
-        return {prevent:true, stop:true, quit:true}
+        return { prevent: true, stop: true, quit: true }
       }
 
-      if("ARROWDOWN" == uniqKey) {
+      if ("ARROWDOWN" == uniqKey) {
         this.selectNextRow({
-          payload: {byKeyboardArrow: true}
+          payload: { byKeyboardArrow: true }
         })
         this.scrollCurrentIntoView()
-        return {prevent:true, stop:true, quit:true}
+        return { prevent: true, stop: true, quit: true }
       }
+    },
+    //--------------------------------------
+    async evalListData(newVal, oldVal) {
+      let isSame = _.isEqual(newVal, oldVal)
+      if (!isSame) {
+        //console.log("!!!table data changed", {newVal, oldVal})
+        this.myData = await this.evalData((it) => {
+          it.icon = this.getRowIcon(it.item)
+          it.indent = this.getRowIndent(it.item)
+        })
+      }
+      // Check ready 
+      if (_.isEmpty(this.data)) {
+        this.$nextTick(() => {
+          this.myCellsReady = true
+        })
+      }
+      // Resize fields
+      this.OnResize()
+      // Scroll into view
+      _.delay(() => {
+        this.scrollCurrentIntoView()
+      }, 300)
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "data" : {
-      handler : async function(newVal, oldVal){
-        let isSame = _.isEqual(newVal, oldVal)
-        if(!isSame) {
-          //console.log("!!!table data changed", {newVal, oldVal})
-          this.myData = await this.evalData((it)=>{
-            it.icon = this.getRowIcon(it.item)
-            it.indent = this.getRowIndent(it.item)
-          })
-        }
-        // Check ready 
-        if(_.isEmpty(this.data)) {
-          this.$nextTick(()=>{
-            this.myCellsReady = true
-          })
-        }
-      },
-      immediate : true
+  watch: {
+    "data": {
+      handler: "evalListData",
+      immediate: true
+    },
+    "dict": {
+      handler: "evalListData",
+      immediate: true
     }
   },
   ///////////////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.OnResize(), 10)
+      resize: _.debounce(() => this.OnResize(), 10)
     })
-    this.$nextTick(()=>this.OnResize())
-    if(this.autoScrollIntoView) {
-      _.delay(()=>{
+    this.$nextTick(() => this.OnResize())
+    if (this.autoScrollIntoView) {
+      _.delay(() => {
         this.scrollCurrentIntoView()
       }, 0)
     }
@@ -313,7 +325,7 @@ const _M = {
     this.myTableRect = Ti.Rects.createBy(this.$el)
   },
   ///////////////////////////////////////////////////
-  beforeDestroy : function(){
+  beforeDestroy: function () {
     Ti.Viewport.unwatch(this)
   }
   ///////////////////////////////////////////////////

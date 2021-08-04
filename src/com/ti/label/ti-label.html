@@ -20,7 +20,7 @@
     <span>{{ThePrefixText|i18nTxt}}</span>
   </div>
   <!--Text-->
-  <div class="as-value"
+  <div class="as-value" ref="value"
     :style="ValueStyle"
     @click.left="OnClickValue">
     <!--Link-->
@@ -39,10 +39,10 @@
     <span>{{TheSuffixText|i18nTxt}}</span>
   </div>
   <!--suffix:icon-->
-  <div v-if="suffixIcon"
+  <div v-if="TheSuffixIcon"
     class="as-icon at-suffix"
     :class="getHoverClass('suffixIcon')"
     @click.left="OnClickSuffixIcon">
-    <ti-icon :value="suffixIcon"/>
+    <ti-icon :value="TheSuffixIcon"/>
   </div>
 </div>
