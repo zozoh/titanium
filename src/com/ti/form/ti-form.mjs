@@ -612,13 +612,17 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   watch: {
-    "data": function () {
-      this.evalFormFieldList();
-      this.adjustFieldsWidth()
+    "data": function (newVal, oldVal) {
+      if (!oldVal || !_.isEqual(newVal, oldVal)) {
+        this.evalFormFieldList();
+        this.adjustFieldsWidth()
+      }
     },
-    "fields": function () {
-      this.evalFormFieldList();
-      this.adjustFieldsWidth()
+    "fields": function (newVal, oldVal) {
+      if (!oldVal || !_.isEqual(newVal, oldVal)) {
+        this.evalFormFieldList();
+        this.adjustFieldsWidth()
+      }
     },
     "currentTab": function (index) {
       this.currentTabIndex = index
