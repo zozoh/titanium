@@ -110,9 +110,9 @@
   &.align-right  > .as-value span {text-align: right;}
   //-----------------------------------------
   &.flex-grow   {flex:1 0 auto;}
-  &.flex-shrink {flex:0 1 auto;}
+  &.flex-shrink {flex:0 1 auto; width:unset;}
   &.flex-auto   {flex:1 1 auto;}
-  &.flex-none   {flex:0 0 auto;}
+  &.flex-none   {flex:0 0 auto; width:unset;}
   //-----------------------------------------
   &.as-uppercase  {text-transform: uppercase;}
   &.as-lowercase  {text-transform: lowercase;}
