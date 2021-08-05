@@ -8,6 +8,12 @@
   }
   .tob-title {
     @include font-fixed(1.4em);
+    text-align: center;
+    // white-space: nowrap;
+    // text-overflow: ellipsis;
+    // overflow: hidden;
+    width: 100%;
+    word-break: break-all;
     padding:SZ(10);
   }
   .tob-actions > a{
