@@ -8,70 +8,70 @@ const OBJ = {
     let {
       types,
       freeCreate
-    } = await Wn.Sys.exec(`ti creation -cqn id:${this.meta.id}`, {as:"json"})
+    } = await Wn.Sys.exec(`ti creation -cqn id:${this.meta.id}`, { as: "json" })
 
     let no = await Ti.App.Open({
-      title : "i18n:create",
-      type  : "info",
+      title: "i18n:create",
+      type: "info",
       position: "top",
-      width  : 640,
-      height : "61.8%",
-      comType : "wn-obj-creation",
-      comConf : {
+      width: 640,
+      height: "61.8%",
+      comType: "wn-obj-creation",
+      comConf: {
         types, freeCreate,
-        autoFocus : true,
-        enterEvent : "ok"
+        autoFocus: true,
+        enterEvent: "ok"
       },
-      components : ["@com:wn/obj/creation"]
+      components: ["@com:wn/obj/creation"]
     })
 
     // console.log(no)
-   
+
     // Do Create
     // Check the newName
-    if(no && no.name) {
+    if (no && no.name) {
       // Check the newName contains the invalid char
-      if(no.name.search(/[%;:"'*?`\t^<>\/\\]/)>=0) {
+      if (no.name.search(/[%;:"'*?`\t^<>\/\\]/) >= 0) {
         return await Ti.Alert('i18n:wn-create-invalid')
       }
       // Check the newName length
-      if(no.length > 256) {
+      if (no.length > 256) {
         return await Ti.Alert('i18n:wn-create-too-long')
       }
 
       // Default Race
       no.race = no.race || "FILE"
 
-      if("folder" == no.type) {
+      if ("folder" == no.type) {
         no.type = undefined
       }
-      
+
       // Auto type
-      if("FILE" == no.race) {
-        if(!no.type) {
+      if ("FILE" == no.race) {
+        if (!no.type) {
           no.type = Ti.Util.getSuffixName(no.name)
         }
 
         // Auto append suffix name
-        if(!no.name.endsWith(no.type)) {
+        if (!no.name.endsWith(no.type)) {
           no.name += `.${no.type}`
         }
       }
-      
+
       // Do the creation
       let json = JSON.stringify({
-        ... no.meta,
-        nm : no.name,
-        tp : no.type,
-        race : no.race,
-        mime : no.mime
+        ...no.meta,
+        nm: no.name,
+        tp: no.type,
+        race: no.race,
+        mime: no.mime
       })
       // console.log(json)
       let newMeta = await Wn.Sys.exec2(
-          `o @create -p id:${this.meta.id} @json -cqn`,
-          {as:"json", input: json})
+        `o @create -p id:${this.meta.id} @json -cqn`,
+        { as: "json", input: json })
       // Error
-      if(newMeta instanceof Error) {
+      if (newMeta instanceof Error) {
         Ti.Toast.Open("i18n:wn-create-fail", "error")
       }
       // Replace the data
@@ -89,32 +89,32 @@ const OBJ = {
   //--------------------------------------------
   async doRename() {
     let it = this.getCurrentItem()
-    if(!it) {
+    if (!it) {
       return await Ti.Toast.Open('i18n:wn-rename-none', "warn")
     }
     this.setItemStatus(it.id, "renaming")
     try {
       // Get newName from User input
       let newName = await Ti.Prompt({
-          text : 'i18n:wn-rename',
-          vars : {name:it.nm}
-        }, {
-          title : "i18n:rename",
-          placeholder : it.nm,
-          value : it.nm
-        })
+        text: 'i18n:wn-rename',
+        vars: { name: it.nm }
+      }, {
+        title: "i18n:rename",
+        placeholder: it.nm,
+        value: it.nm
+      })
       // Check the newName
-      if(newName) {
+      if (newName) {
         // Check name invalid or not
-        if(!Wn.Obj.isValidName(newName)) {
+        if (!Wn.Obj.isValidName(newName)) {
           return
         }
         // Check the suffix Name
         let oldSuffix = Ti.Util.getSuffix(it.nm)
         let newSuffix = Ti.Util.getSuffix(newName)
-        if('FILE' == it.race && oldSuffix && oldSuffix != newSuffix) {
+        if ('FILE' == it.race && oldSuffix && oldSuffix != newSuffix) {
           let repair = await Ti.Confirm("i18n:wn-rename-suffix-changed")
-          if(repair) {
+          if (repair) {
             newName += oldSuffix
           }
         }
@@ -122,10 +122,10 @@ const OBJ = {
         this.setItemStatus(it.id, "loading")
         // Do the rename
         let newMeta = await Wn.Sys.exec2(
-            `obj id:${it.id} -cqno -u 'nm:"${newName}"'`,
-            {as:"json"})
+          `obj id:${it.id} -cqno -u 'nm:"${newName}"'`,
+          { as: "json" })
         // Error
-        if(newMeta instanceof Error) {
+        if (newMeta instanceof Error) {
           await Ti.Toast.Open("i18n:wn-rename-fail", "error")
         }
         // Replace the data
@@ -133,7 +133,7 @@ const OBJ = {
           await Ti.Toast.Open("i18n:wn-rename-ok", "success")
           this.setItem(newMeta)
         }
-        this.setItemStatus({id:it.id, status:{loading:false}})
+        this.setItemStatus({ id: it.id, status: { loading: false } })
       }  // ~ if(newName)
     }
     // reset the status
@@ -142,71 +142,73 @@ const OBJ = {
     }
   },
   //--------------------------------------------
-  async doBatchUpdate({reloadWhenDone=true}={}) {
+  async doBatchUpdate({ reloadWhenDone = true } = {}) {
     let list = this.getCheckedItems()
     // Guard
-    if(_.isEmpty(list)) {
+    if (_.isEmpty(list)) {
       return await Ti.Toast.Open('i18n:nil-item', "warn")
     }
     // Open batch update form
     let meta = await Ti.App.Open({
-      title  : "i18n:edit",
-      width  : "80%",
-      height : "80%",
-      result : {},
-      comType : "TiTextJson",
+      title: "i18n:edit",
+      width: "80%",
+      height: "80%",
+      result: {},
+      comType: "TiTextJson",
       components: [
         "@com:ti/text/json"
       ]
     })
     // Parse
-    if(_.isString(meta)) {
+    if (_.isString(meta)) {
       meta = JSON.parse(meta)
     }
     // User cancel
-    if(_.isEmpty(meta)) {
+    if (_.isEmpty(meta)) {
       return
     }
 
     // Update each items
     let metaJson = JSON.stringify(meta)
-    for(let it of list) {
+    for (let it of list) {
       // Duck check
-      if(!it || !it.id || !it.nm)
+      if (!it || !it.id || !it.nm)
         continue
       // Ignore obsolete item
-      if(it.__is && (it.__is.loading || it.__is.removed))
+      if (it.__is && (it.__is.loading || it.__is.removed))
         continue
-      
+
       // Mark item is processing
       this.setItemStatus(it.id, "loading")
 
       // Update
       await Wn.Sys.exec2(`o id:${it.id} @update @json -cqn`, {
-        as:"json", input: metaJson
+        as: "json", input: metaJson
       })
 
       this.setItemStatus(it.id, "ok")
     }
 
     // Reload
-    if(reloadWhenDone) {
+    if (reloadWhenDone) {
       await this._run("reload")
     }
   },
   //--------------------------------------------
-  async doDelete(confirm=false, reloadWhenDone=true) {
+  async doDelete(confirm = false, reloadWhenDone = true) {
     let list = this.getCheckedItems()
     // Guard
-    if(_.isEmpty(list)) {
+    if (_.isEmpty(list)) {
       return await Ti.Toast.Open('i18n:wn-del-none', "warn")
     }
 
     // Confirm
-    if(confirm) {
-      if(!(await Ti.Confirm({
-        text:"i18n:wn-del-confirm", 
-        vars:{N:list.length}}, {type: "warn"
+    if (confirm) {
+      if (!(await Ti.Confirm({
+        text: "i18n:wn-del-confirm",
+        vars: { N: list.length }
+      }, {
+        type: "warn"
       }))) {
         return
       }
@@ -221,39 +223,40 @@ const OBJ = {
     let exRemovedIds = {}
     try {
       // Loop items
-      for(let it of list) {
+      for (let it of list) {
         // Duck check
-        if(!it || !it.id || !it.nm)
+        if (!it || !it.id || !it.nm)
           continue
         // Ignore obsolete item
-        if(it.__is && (it.__is.loading || it.__is.removed))
+        if (it.__is && (it.__is.loading || it.__is.removed))
           continue
         // Ignore the exRemovedIds
-        if(exRemovedIds[it.id])
+        if (exRemovedIds[it.id])
           continue
-        
+
         // Mark item is processing
         this.setItemStatus(it.id, "loading")
         // If DIR, check it is empty or not
-        if('DIR' == it.race) {
+        if ('DIR' == it.race) {
           let count = await Wn.Sys.exec(`count -A id:${it.id}`)
           count = parseInt(count)
-          if(count > 0) {
+          if (count > 0) {
             // If user confirmed, then rm it recurently
-            if(!(await Ti.Confirm({
-                text:'i18n:wn-del-no-empty-folder', vars:{nm:it.nm}}))) {
+            if (!(await Ti.Confirm({
+              text: 'i18n:wn-del-no-empty-folder', vars: { nm: it.nm }
+            }))) {
               this.setItemStatus(it.id, null)
               continue
             }
           }
         }
         // Do delete
-        await Wn.Sys.exec(`rm ${'DIR'==it.race?"-r":""} id:${it.id}`)
+        await Wn.Sys.exec(`rm ${'DIR' == it.race ? "-r" : ""} id:${it.id}`)
         // Mark item removed
         this.setItemStatus(it.id, "removed")
         // If video result folder, mark it at same time
         let m = /^id:(.+)$/.exec(it.videoc_dir)
-        if(m) {
+        if (m) {
           let vdId = m[1]
           exRemovedIds[vdId] = true
           this.setItemStatus(vdId, "removed")
@@ -263,46 +266,46 @@ const OBJ = {
         // Then continue the loop .......^
       }
       // Do reload
-      if(reloadWhenDone) {
+      if (reloadWhenDone) {
         await this._run("reload")
       }
       return list
     }
     // End deleting
     finally {
-      Ti.Toast.Open("i18n:wn-del-ok", {N:delCount}, "success")
+      Ti.Toast.Open("i18n:wn-del-ok", { N: delCount }, "success")
     }
 
   },
   //--------------------------------------------
-  async doMoveTo(confirm=false, reloadWhenDone=true) {
+  async doMoveTo(confirm = false, reloadWhenDone = true) {
     let list = this.getCheckedItems()
     // Move dialog
     await Wn.Io.moveTo(list, _.assign({}, this.moveToConf, {
       base: this.meta,
       confirm,
-      markItemStatus: (itId, status)=>{
+      markItemStatus: (itId, status) => {
         this.setItemStatus(itId, status)
       },
-      doneMove : async ()=>{
-        if(reloadWhenDone) {
+      doneMove: async () => {
+        if (reloadWhenDone) {
           return await this._run("reload")
         }
       }
     }))
   },
   //--------------------------------------------
-  async doUpload(files=[]) {
-    if(_.isFunction(this.beforeUpload)) {
+  async doUpload(files = []) {
+    if (_.isFunction(this.beforeUpload)) {
       await this.beforeUpload()
     }
 
     // Prepare the list
-    let ups = _.map(files, (file, index)=>({
-      id : `U${index}_${Ti.Random.str(6)}`,
-      file : file,
-      total : file.size,
-      current : 0
+    let ups = _.map(files, (file, index) => ({
+      id: `U${index}_${Ti.Random.str(6)}`,
+      file: file,
+      total: file.size,
+      current: 0
     }))
 
     // Show Uploading
@@ -311,25 +314,25 @@ const OBJ = {
     // Prepare the list
     let newIds = {}
     // Do upload file one by one
-    for(let up of ups) {
+    for (let up of ups) {
       let file = up.file
-      let {ok, data} = await Wn.Io.uploadFile(file, {
-        target : `id:${this.meta.id}`,
-        progress : function(pe){
+      let { ok, data } = await Wn.Io.uploadFile(file, {
+        target: `id:${this.meta.id}`,
+        progress: function (pe) {
           up.current = pe.loaded
         }
       })
-      if(ok) {
+      if (ok) {
         newIds[data.id] = true
       }
     }
 
     // All done, hide upload
-    _.delay(()=>{
+    _.delay(() => {
       this.myUploadigFiles = []
     }, 1000)
 
-    if(!ok) {
+    if (_.isEmpty(newIds)) {
       return
     }
 
@@ -342,35 +345,36 @@ const OBJ = {
 
     // Make it checked
     let checkIds = Ti.Util.truthyKeys(newIds)
-    if(!this.multi) {
+    if (!this.multi) {
       checkIds = _.first(checkIds)
     }
-    this.$innerList.checkRow(checkIds, {reset:true})
+    this.$innerList.checkRow(checkIds, { reset: true })
   },
   //--------------------------------------------
   async doDownload() {
     let list = this.getCheckedItems()
-    if(_.isEmpty(list)) {
+    if (_.isEmpty(list)) {
       return await Ti.Toast.Open('i18n:wn-download-none', "warn")
     }
     // Too many, confirm at first
-    if(list.length > 5) {
-      if(!await Ti.Confirm({
-        text : "i18n:wn-download-too-many",
-        vars : {N:list.length}})) {
+    if (list.length > 5) {
+      if (!await Ti.Confirm({
+        text: "i18n:wn-download-too-many",
+        vars: { N: list.length }
+      })) {
         return
       }
     }
     // Do the download
-    for(let it of list) {
-      if('FILE' != it.race) {
-        if(!await Ti.Confirm({
-            text : "i18n:wn-download-dir",
-            vars : it
-          }, {
-            textYes : "i18n:continue",
-            textNo  : "i18n:terminate"
-          })){
+    for (let it of list) {
+      if ('FILE' != it.race) {
+        if (!await Ti.Confirm({
+          text: "i18n:wn-download-dir",
+          vars: it
+        }, {
+          textYes: "i18n:continue",
+          textNo: "i18n:terminate"
+        })) {
           return
         }
         continue;

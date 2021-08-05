@@ -6,6 +6,7 @@
   "mixins" : ["./wn-obj-preview.mjs"],
   "components" : [
     "./com/preview-info-field",
+    "@com:ti/progress/bar",
     "@com:ti/media/binary",
     "@com:ti/media/image",
     "@com:ti/media/audio",

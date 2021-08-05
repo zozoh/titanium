@@ -1,4 +1,4 @@
-// Pack At: 2021-08-02 16:02:54
+// Pack At: 2021-08-05 08:22:05
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1135,7 +1135,7 @@ const _M = {
     },
     //--------------------------------------------
     OnItemOpen() {
-      console.log("open item")
+      //console.log("open item")
       let obj = this.getCurrentItem()
       if(obj) {
         this.$notify("open:wn:obj", obj)
@@ -8170,20 +8170,22 @@ const _M = {
 
     // Relod setting from thing view
     let thAutoSelect = Ti.Util.fallbackNil(state.autoSelect, false)
-    if ("FILE" == meta.race) {
-      let view = await Wn.Io.loadContent(meta, { as: "json" })
-      let { path, schema, autoSelect } = view
-      meta = await Wn.Io.loadMeta(path)
-      if (schema) {
-        commit("mergeFixedSchema", schema)
+    if (meta) {
+      if ("FILE" == meta.race) {
+        let view = await Wn.Io.loadContent(meta, { as: "json" })
+        let { path, schema, autoSelect } = view
+        meta = await Wn.Io.loadMeta(path)
+        if (schema) {
+          commit("mergeFixedSchema", schema)
+        }
+        if (!Ti.Util.isNil(autoSelect)) {
+          thAutoSelect = Ti.Types.toBoolean(autoSelect)
+        }
       }
-      if (!Ti.Util.isNil(autoSelect)) {
-        thAutoSelect = Ti.Types.toBoolean(autoSelect)
+      // Update auto-select by meta
+      if (!Ti.Util.isNil(meta.th_auto_select)) {
+        thAutoSelect = Ti.Types.toBoolean(meta.th_auto_select)
       }
-    }
-    // Update auto-select by meta
-    else if (!Ti.Util.isNil(meta.th_auto_select)) {
-      thAutoSelect = Ti.Types.toBoolean(meta.th_auto_select)
     }
 
     // commit auto-select to state
@@ -12282,7 +12284,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/mod/wn/obj-browser/m-obj-browser.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////
-  mutations : {
+  mutations: {
     //----------------------------------------
     setMeta(state, meta) {
       state.meta = meta
@@ -12300,6 +12302,27 @@ const _M = {
       state.search = _.cloneDeep(search)
     },
     //----------------------------------------
+    setSearchMatch(state, match) {
+      let search = _.cloneDeep(state.search)
+      search.match = match || {}
+      state.search = search
+    },
+    //----------------------------------------
+    mergeSearchMatch(state, match) {
+      let search = _.cloneDeep(state.search)
+      _.merge(search.match, match)
+      state.search = search
+    },
+    //----------------------------------------
+    mergeSearchMatchOmitNil(state, match) {
+      let search = _.cloneDeep(state.search)
+      _.merge(search.match, match)
+      search.match = _.omitBy(search.match, (val) => {
+        return Ti.Util.isNil(val)
+      })
+      state.search = search
+    },
+    //----------------------------------------
     setFilter(state, filter) {
       state.filter = _.cloneDeep(filter)
     },
@@ -12315,25 +12338,29 @@ const _M = {
       state.filter = flt
     },
     //----------------------------------------
+    setCurrentId(state, currentId) {
+      state.currentId = currentId
+    },
+    //----------------------------------------
     setSorter(state, sorter) {
       state.sorter = _.cloneDeep(sorter)
     },
     //----------------------------------------
-    setPager(state, {pageNumber, pageSize}={}) {
-      if(_.isNumber(pageNumber)) {
-        state.pageNumber =  pageNumber
+    setPager(state, { pageNumber, pageSize } = {}) {
+      if (_.isNumber(pageNumber)) {
+        state.pageNumber = pageNumber
       }
-      if(_.isNumber(pageSize)) {
-        state.pageSize =  pageSize
+      if (_.isNumber(pageSize)) {
+        state.pageSize = pageSize
       }
     },
     //----------------------------------------
-    setPageNumber(state, pageNumber=1) {
-      state.pageNumber =  pageNumber
+    setPageNumber(state, pageNumber = 1) {
+      state.pageNumber = pageNumber
     },
     //----------------------------------------
-    setPageSize(state, pageSize=100) {
-      state.pageSize =  pageSize
+    setPageSize(state, pageSize = 100) {
+      state.pageSize = pageSize
     },
     //----------------------------------------
     setStatus(state, status) {
@@ -12341,55 +12368,45 @@ const _M = {
     },
     //----------------------------------------
     prependDateItem(state, newItem) {
-      if(_.isEmpty(newItem))
-        return
-      let data = state.data
-      let list = _.cloneDeep(data.list) || []
-      let pager = data.pager
-      list = _.concat(newItem, list)
-      state.data = {
-        list, pager
-      }
+      Ti.Util.UpsertStateDataItemAt(state, newItem, -1)
     },
     //----------------------------------------
     appendDateItem(state, newItem) {
-      if(_.isEmpty(newItem))
-        return
-      let data = state.data
-      let list = _.cloneDeep(data.list) || []
-      let pager = data.pager
-      list = _.concat(list, newItem)
-      state.data = {
-        list, pager
-      }
+      Ti.Util.UpsertStateDataItemAt(state, newItem, 1)
     },
     //----------------------------------------
     setDataItem(state, newItem) {
-      // console.log("setDataItem:", newItem)
-      // Guard
-      if(!newItem || !newItem.id)
-        return
-
-      let data = state.data
-
-      // Update pager list item of data
-      if(_.isArray(data.list) && data.pager) {
-        let list = _.cloneDeep(data.list)
-        list = _.map(list, li => {
-          if(li.id == newItem.id) {
-            return newItem
-          }
-          return li
-        })
-        state.data = {
-          list,
-          pager : data.pager
-        }
-      }
+      Ti.Util.UpsertStateDataItemAt(state, newItem, 0)
+    },
+    //----------------------------------------
+    mergeDataItem(state, theItem) {
+      Ti.Util.MergeStateDataItem(state, theItem)
+    },
+    //----------------------------------------
+    removeDataItems(state, items = []) {
+      Ti.Util.RemoveStateDataItems(state, items)
     },
     //----------------------------------------
     setData(state, data) {
       state.data = data
+    },
+    //----------------------------------------
+    setFieldStatus(state, { name, type, text } = {}) {
+      if (name) {
+        let ukey = _.concat(name).join("-")
+        Vue.set(state.fieldStatus, ukey, { type, text })
+      }
+    },
+    //----------------------------------------
+    clearFieldStatus(state, names = []) {
+      // Clean All
+      if (_.isEmpty(names)) {
+        state.fieldStatus = {}
+      }
+      // Clear one
+      else {
+        state.fieldStatus = _.omit(state.fieldStatus, names)
+      }
     }
     //----------------------------------------
   }
@@ -19489,6 +19506,15 @@ const _M = {
       return Ti.Util.explainObj(this, this.suffixText)
     },
     //--------------------------------------
+    TheSuffixIcon() {
+      if (this.suffixIcon) {
+        return this.suffixIcon
+      }
+      if (this.suffixIconForCopy) {
+        return 'far-copy'
+      }
+    },
+    //--------------------------------------
     TheHover() {
       let map = {}
       let hos = _.concat(this.hover)
@@ -19594,9 +19620,17 @@ const _M = {
     },
     //------------------------------------------------
     OnClickSuffixIcon() {
-      this.$notify("suffix:icon", {
-        value: this.TheValue
-      })
+      if (this.suffixIconForCopy) {
+        let val = this.TheValue
+        Ti.Be.BlinkIt(this.$refs.value)
+        Ti.Be.writeToClipboard(val)
+      }
+      // Notify
+      else {
+        this.$notify("suffix:icon", {
+          value: this.TheValue
+        })
+      }
     },
     //------------------------------------------------
     OnClickSuffixText() {
@@ -23715,96 +23749,113 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/wn/obj/preview/wn-obj-preview.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
-  data : ()=>({
-    isInFullScreen : false,
-    isShowInfo     : false,
-    isFloatInfo    : false
+  data: () => ({
+    isInFullScreen: false,
+    isShowInfo: false,
+    isFloatInfo: false,
+    uploading: 0,
+    uploadedTimestamp: undefined
   }),
   //////////////////////////////////////////
-  props : {
-    "meta" : {
-      type : Object,
-      default : ()=>({})
+  props: {
+    "meta": {
+      type: Object,
+      default: () => ({})
     },
-    "status" : {
-      type : Object,
-      default : ()=>({})
+    "status": {
+      type: Object,
+      default: () => ({})
     },
-    "blankAs" : {
-      type : Object,
-      default : ()=>({
-        icon : "fas-braille",
-        text : "i18n:empty"
+    "blankAs": {
+      type: Object,
+      default: () => ({
+        icon: "fas-braille",
+        text: "i18n:empty"
       })
     },
     "blankClass": {
       type: String,
       default: "as-big",
-      validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
+      validator: v => /^as-(big|hug|big-mask|mid-tip)$/.test(v)
     },
-    "actions" : {
-      type : Array,
-      default : ()=>["fullscreen", "newtab", "download", "info"]
+    "actions": {
+      type: Array,
+      default: () => ["fullscreen", "newtab", "download", "info"]
     },
-    "browserBuiltIn" : {
-      type : [String, RegExp, Function, Object, Array],
-      default : ()=>/^(application\/pdf)$/
+    "writable": {
+      type: Boolean,
+      default: false
     },
-    "showInfo" : {
-      type : Boolean,
-      default : false
+    "browserBuiltIn": {
+      type: [String, RegExp, Function, Object, Array],
+      default: () => /^(application\/pdf)$/
     },
-    "floatInfo" : {
-      type : Boolean,
-      default : false
+    "showInfo": {
+      type: Boolean,
+      default: false
     },
-    "editInfoBy" : {
-      type : [Function, String],
-      default : null
+    "floatInfo": {
+      type: Boolean,
+      default: false
     },
-    "infoPosition" : {
-      type : String,
-      default : "bottom",
-      validator: (val)=>/^(bottom|left)$/.test(val)
+    "editInfoBy": {
+      type: [Function, String],
+      default: null
     },
-    "infoNameWidth" : {
-      type : [String, Number],
-      default : 50
+    "infoPosition": {
+      type: String,
+      default: "bottom",
+      validator: (val) => /^(bottom|left)$/.test(val)
     },
-    "infoValueWidth" : {
-      type : [String, Number],
-      default : 200
+    "infoNameWidth": {
+      type: [String, Number],
+      default: 50
     },
-    "infoFields" : {
-      type : Array,
-      default : ()=>["nm", "tp", "mime", "width", "height", "len", "duration"]
+    "infoValueWidth": {
+      type: [String, Number],
+      default: 200
+    },
+    "infoFields": {
+      type: Array,
+      default: () => ["nm", "tp", "mime", "width", "height", "len", "duration"]
     },
     // Store the status in Local
-    "stateLocalKey" : {
-      type : String,
-      default : null
+    "stateLocalKey": {
+      type: String,
+      default: null
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     hasMeta() {
       return _.isEmpty(this.meta) ? false : true
     },
     //--------------------------------------
+    MetaId() {
+      return _.get(this.meta, "id")
+    },
+    //--------------------------------------
+    MetaMime() {
+      return _.get(this.meta, "mime")
+    },
+    //--------------------------------------
     TopClass() {
       return {
-        "is-fullscreen" : this.isInFullScreen,
-        "is-show-info"  : this.isShowInfo,
-        "is-float-info" : this.isFloatInfo,
-        [`is-info-at-${this.infoPosition}`] : true        
+        "is-fullscreen": this.isInFullScreen,
+        "is-show-info": this.isShowInfo,
+        "is-float-info": this.isFloatInfo,
+        [`is-info-at-${this.infoPosition}`]: true
       }
     },
     //--------------------------------------
     DataSource() {
-      if(!this.meta)
+      if (!this.meta)
         return ""
-      let link = Wn.Util.getDownloadLink(this.meta, {mode:"auto"})
+      let link = Wn.Util.getDownloadLink(this.meta, {
+        mode: "auto",
+        timestamp: this.uploadedTimestamp
+      })
       return link.toString();
     },
     //--------------------------------------
@@ -23817,56 +23868,56 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     BrowserCanPreviewBuiltin() {
-      if(this.browserBuiltIn) {
+      if (this.browserBuiltIn) {
         let fn = Ti.AutoMatch.parse(this.browserBuiltIn)
         let bbf = this.browserBuiltIn
-        if(_.isString(bbf) || _.isRegExp(bbf)) {
-          return (o)=>{
+        if (_.isString(bbf) || _.isRegExp(bbf)) {
+          return (o) => {
             return fn(o.mime)
           }
         }
         return fn
       }
-      return ()=>false
+      return () => false
     },
     //--------------------------------------
     PreviewCom() {
-      if(this.meta) {
+      if (this.meta) {
         // File
         let mime = this.meta.mime || ""
         let m = /^(video|audio|image)\/.+$/.exec(mime)
         // Video/Audio/Image
-        if(m){
+        if (m) {
           return {
-            comType : `ti-media-${m[1]}`,
-            comConf : {
-              src : this.DataSource
+            comType: `ti-media-${m[1]}`,
+            comConf: {
+              src: this.DataSource
             }
           }
         }
         // Browser built-in preview
-        if(this.BrowserCanPreviewBuiltin(this.meta)) {
+        if (this.BrowserCanPreviewBuiltin(this.meta)) {
           return {
-            comType : 'WebWidgetFrame',
-            comConf : {
-              src : `/o/content?str=id:${this.meta.id}&d=raw`,
-              width  : "100%",
-              height : "100%"
-            } 
+            comType: 'WebWidgetFrame',
+            comConf: {
+              src: `/o/content?str=id:${this.meta.id}&d=raw`,
+              width: "100%",
+              height: "100%"
+            }
           }
         }
         // Youtube
-        if("youtube" == this.meta.tp && this.meta.yt_video_id) {
+        if ("youtube" == this.meta.tp && this.meta.yt_video_id) {
           let thumbUrl;
           let preview = Wn.Util.genPreviewObj(this.meta)
-          if("image" == preview.type) {
+          if ("image" == preview.type) {
             thumbUrl = preview.value
           }
           return {
-            comType : "NetYoutubePlayer",
-            comConf : {
-              value : {
-                id : this.meta.yt_video_id,
+            comType: "NetYoutubePlayer",
+            comConf: {
+              value: {
+                id: this.meta.yt_video_id,
                 thumbUrl
               }
             }
@@ -23874,100 +23925,100 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
         // Binary
         return {
-          comType : "ti-media-binary",
-          comConf : {
-            src : this.DataSource,
-            icon : this.DataIcon,
-            title : this.DataTitle,
-            download : this.meta.race == 'FILE'
+          comType: "ti-media-binary",
+          comConf: {
+            src: this.DataSource,
+            icon: this.DataIcon,
+            title: this.DataTitle,
+            download: this.meta.race == 'FILE'
           }
         }
       }
     },
     //--------------------------------------
     PreviewInfoPinIcon() {
-      return this.isFloatInfo 
+      return this.isFloatInfo
         ? 'fas-thumbtack'
         : 'zmdi-layers'
     },
     //--------------------------------------
     PrevewInfoFields() {
-      return Wn.Obj.evalFields(this.meta, this.infoFields, (fld)=>{
-        if(fld.quickName  && _.isUndefined(fld.value)) {
+      return Wn.Obj.evalFields(this.meta, this.infoFields, (fld) => {
+        if (fld.quickName && _.isUndefined(fld.value)) {
           return
         }
-        if("Group" == fld.type) {
+        if ("Group" == fld.type) {
           return fld
         }
         return _.defaults(fld, {
-          nameWidth  : this.infoNameWidth,
-          valueWidth : this.infoValueWidth
+          nameWidth: this.infoNameWidth,
+          valueWidth: this.infoValueWidth
         })
       })
     },
     //--------------------------------------
     TheActions() {
       let list = []
-      if(this.hasMeta) {
-        _.forEach(this.actions, (it)=>{
+      if (this.hasMeta) {
+        _.forEach(this.actions, (it) => {
           //..........................
           // full screen
-          if("fullscreen" == it) {
-            if(!this.isInFullScreen) {
+          if ("fullscreen" == it) {
+            if (!this.isInFullScreen) {
               list.push({
-                icon : "zmdi-fullscreen",
-                text : "i18n:wop-fullscreen-enter",
-                action : ()=>this.enterFullscreen()
+                icon: "zmdi-fullscreen",
+                text: "i18n:wop-fullscreen-enter",
+                action: () => this.enterFullscreen()
               })
             }
             // Exit FullScreen
             else {
               list.push({
-                icon : "zmdi-fullscreen-exit",
-                text : "i18n:wop-fullscreen-quit",
-                action : ()=>this.exitFullscreen()
+                icon: "zmdi-fullscreen-exit",
+                text: "i18n:wop-fullscreen-quit",
+                action: () => this.exitFullscreen()
               })
             }
           }
           //..........................
           // Open
-          else if("newtab" == it) {
+          else if ("newtab" == it) {
             list.push({
-              icon : "zmdi-open-in-new",
-              text : "i18n:open-newtab",
-              action : ()=>this.openInNewTab()
+              icon: "zmdi-open-in-new",
+              text: "i18n:open-newtab",
+              action: () => this.openInNewTab()
             })
           }
           //..........................
           // Download
-          else if("download" == it) {
+          else if ("download" == it) {
             list.push({
-              icon : "zmdi-download",
-              text : "i18n:download-to-local",
-              action : ()=>this.download()
+              icon: "zmdi-download",
+              text: "i18n:download-to-local",
+              action: () => this.download()
             })
           }
           //..........................
           // Toggle Info
-          else if("info" == it) {
-            if(!this.isShowInfo) {
+          else if ("info" == it) {
+            if (!this.isShowInfo) {
               list.push({
-                icon : "zmdi-info",
-                text : "i18n:info",
-                action : ()=>this.doShowInfo()
+                icon: "zmdi-info",
+                text: "i18n:info",
+                action: () => this.doShowInfo()
               })
             }
             // Show Info
             else {
               list.push({
-                icon : "zmdi-info-outline",
-                text : "i18n:info",
-                action : ()=>this.doHideInfo()
+                icon: "zmdi-info-outline",
+                text: "i18n:info",
+                action: () => this.doHideInfo()
               })
             }
           }
           //..........................
-          else if(_.isPlainObject(it) && it.action) {
+          else if (_.isPlainObject(it) && it.action) {
             list.push(it)
           }
           //..........................
@@ -23975,31 +24026,37 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       //................................
       return list
+    },
+    //--------------------------------------
+    UploadDragAndDropHandler() {
+      if (this.writable) {
+        return this.OnDropFile
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnAction(action) {
       // Exec command
-      if(_.isString(action)) {
+      if (_.isString(action)) {
         Ti.App(this).exec(actionName)
       }
       // Call function
-      else if(_.isFunction(action)) {
+      else if (_.isFunction(action)) {
         action()
       }
     },
     //--------------------------------------
     OnEditInfo() {
-      if(this.meta) {
+      if (this.meta) {
         // Command
-        if(_.isString(this.editInfoBy)) {
+        if (_.isString(this.editInfoBy)) {
           Ti.App(this).exec(this.editInfoBy, this.meta)
         }
         // Function Invoking
-        else if(_.isFunction(this.editInfoBy)) {
+        else if (_.isFunction(this.editInfoBy)) {
           this.editInfoBy(this.meta)
         }
         // Default to open the dialog
@@ -24007,6 +24064,45 @@ const __TI_MOD_EXPORT_VAR_NM = {
           Wn.EditObjMeta(this.meta)
         }
       }
+    },
+    //--------------------------------------
+    async OnDropFile(files) {
+      // console.log("OnDropFiles", files)
+      if (!this.writable || !this.MetaId)
+        return
+
+      // It will upload the first file
+      let file = _.first(files)
+      let total = file.size
+      //console.log("Drop file", file)
+
+      if (!file || this.MetaMime != file.type) {
+        return Ti.Toast.Open("Type miss match", "warn");
+      }
+
+      let { ok, data } = await Wn.Io.uploadFile(file, {
+        target: `id:${this.MetaId}`,
+        mode: "s",
+        progress: ({ loaded = 0 } = {}) => {
+          this.uploading = loaded / total
+          console.log(this.uploading)
+        }
+      })
+
+      if (ok) {
+        this.$notify("obj:write", data)
+        this.uploading = 0
+        this.uploadedTimestamp = Date.now()
+      }
+    },
+    //--------------------------------------
+    async OnSelectLocalFilesToUpload(evt) {
+      await this.OnDropFile(evt.target.files)
+      this.$refs.file.value = ""
+    },
+    //--------------------------------------
+    openLocalFileSelectdDialog() {
+      this.$refs.file.click()
     },
     //--------------------------------------
     enterFullscreen() {
@@ -24038,9 +24134,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     resizeMediaViewport() {
-      for(let $child of this.$children) {
-        if(_.isFunction($child.onResizeViewport)) {
-          this.$nextTick(()=>{
+      for (let $child of this.$children) {
+        if (_.isFunction($child.onResizeViewport)) {
+          this.$nextTick(() => {
             $child.onResizeViewport()
           })
         }
@@ -24058,10 +24154,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     saveStateToLocal() {
-      if(this.stateLocalKey) {
+      if (this.stateLocalKey) {
         Ti.Storage.session.mergeObject(this.stateLocalKey, {
-          isShowInfo     : this.isShowInfo,
-          isFloatInfo    : this.isFloatInfo
+          isShowInfo: this.isShowInfo,
+          isFloatInfo: this.isFloatInfo
         })
         // let state = Ti.Storage.session.getObject(this.stateLocalKey)
         // console.log("-> saveStateToLocal", state)
@@ -24069,35 +24165,35 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     loadStateFromLocal() {
-      if(this.stateLocalKey) {
+      if (this.stateLocalKey) {
         let state = Ti.Storage.session.getObject(this.stateLocalKey)
         //console.log("<- loadStateFromLocal", state)
         _.defaults(state, {
-          isShowInfo     : this.isShowInfo,
-          isFloatInfo    : this.isFloatInfo
+          isShowInfo: this.isShowInfo,
+          isFloatInfo: this.isFloatInfo
         })
-        this.isShowInfo  = state.isShowInfo
+        this.isShowInfo = state.isShowInfo
         this.isFloatInfo = state.isFloatInfo
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "showInfo" : function(val) {
+  watch: {
+    "showInfo": function (val) {
       console.log("showInfo watched")
       this.isShowInfo = val
     },
-    "floatInfo" : function(val) {
+    "floatInfo": function (val) {
       console.log("floatInfo watched")
       this.isFloatInfo = val
     }
   },
   //////////////////////////////////////////
-  mounted : function() {
-    this.isShowInfo  = this.showInfo
+  mounted: function () {
+    this.isShowInfo = this.showInfo
     this.isFloatInfo = this.floatInfo
-    this.$nextTick(()=>{
+    this.$nextTick(() => {
       this.loadStateFromLocal()
     })
   }
@@ -24153,6 +24249,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "hover": {
     type: [Array, String],
     default: () => ["suffixIcon"]
+  },
+  "suffixIconForCopy": {
+    type: Boolean,
+    default: false
   },
   //-----------------------------------
   // Aspect
@@ -25737,70 +25837,70 @@ const OBJ = {
     let {
       types,
       freeCreate
-    } = await Wn.Sys.exec(`ti creation -cqn id:${this.meta.id}`, {as:"json"})
+    } = await Wn.Sys.exec(`ti creation -cqn id:${this.meta.id}`, { as: "json" })
 
     let no = await Ti.App.Open({
-      title : "i18n:create",
-      type  : "info",
+      title: "i18n:create",
+      type: "info",
       position: "top",
-      width  : 640,
-      height : "61.8%",
-      comType : "wn-obj-creation",
-      comConf : {
+      width: 640,
+      height: "61.8%",
+      comType: "wn-obj-creation",
+      comConf: {
         types, freeCreate,
-        autoFocus : true,
-        enterEvent : "ok"
+        autoFocus: true,
+        enterEvent: "ok"
       },
-      components : ["@com:wn/obj/creation"]
+      components: ["@com:wn/obj/creation"]
     })
 
     // console.log(no)
-   
+
     // Do Create
     // Check the newName
-    if(no && no.name) {
+    if (no && no.name) {
       // Check the newName contains the invalid char
-      if(no.name.search(/[%;:"'*?`\t^<>\/\\]/)>=0) {
+      if (no.name.search(/[%;:"'*?`\t^<>\/\\]/) >= 0) {
         return await Ti.Alert('i18n:wn-create-invalid')
       }
       // Check the newName length
-      if(no.length > 256) {
+      if (no.length > 256) {
         return await Ti.Alert('i18n:wn-create-too-long')
       }
 
       // Default Race
       no.race = no.race || "FILE"
 
-      if("folder" == no.type) {
+      if ("folder" == no.type) {
         no.type = undefined
       }
-      
+
       // Auto type
-      if("FILE" == no.race) {
-        if(!no.type) {
+      if ("FILE" == no.race) {
+        if (!no.type) {
           no.type = Ti.Util.getSuffixName(no.name)
         }
 
         // Auto append suffix name
-        if(!no.name.endsWith(no.type)) {
+        if (!no.name.endsWith(no.type)) {
           no.name += `.${no.type}`
         }
       }
-      
+
       // Do the creation
       let json = JSON.stringify({
-        ... no.meta,
-        nm : no.name,
-        tp : no.type,
-        race : no.race,
-        mime : no.mime
+        ...no.meta,
+        nm: no.name,
+        tp: no.type,
+        race: no.race,
+        mime: no.mime
       })
       // console.log(json)
       let newMeta = await Wn.Sys.exec2(
-          `o @create -p id:${this.meta.id} @json -cqn`,
-          {as:"json", input: json})
+        `o @create -p id:${this.meta.id} @json -cqn`,
+        { as: "json", input: json })
       // Error
-      if(newMeta instanceof Error) {
+      if (newMeta instanceof Error) {
         Ti.Toast.Open("i18n:wn-create-fail", "error")
       }
       // Replace the data
@@ -25818,32 +25918,32 @@ const OBJ = {
   //--------------------------------------------
   async doRename() {
     let it = this.getCurrentItem()
-    if(!it) {
+    if (!it) {
       return await Ti.Toast.Open('i18n:wn-rename-none', "warn")
     }
     this.setItemStatus(it.id, "renaming")
     try {
       // Get newName from User input
       let newName = await Ti.Prompt({
-          text : 'i18n:wn-rename',
-          vars : {name:it.nm}
-        }, {
-          title : "i18n:rename",
-          placeholder : it.nm,
-          value : it.nm
-        })
+        text: 'i18n:wn-rename',
+        vars: { name: it.nm }
+      }, {
+        title: "i18n:rename",
+        placeholder: it.nm,
+        value: it.nm
+      })
       // Check the newName
-      if(newName) {
+      if (newName) {
         // Check name invalid or not
-        if(!Wn.Obj.isValidName(newName)) {
+        if (!Wn.Obj.isValidName(newName)) {
           return
         }
         // Check the suffix Name
         let oldSuffix = Ti.Util.getSuffix(it.nm)
         let newSuffix = Ti.Util.getSuffix(newName)
-        if('FILE' == it.race && oldSuffix && oldSuffix != newSuffix) {
+        if ('FILE' == it.race && oldSuffix && oldSuffix != newSuffix) {
           let repair = await Ti.Confirm("i18n:wn-rename-suffix-changed")
-          if(repair) {
+          if (repair) {
             newName += oldSuffix
           }
         }
@@ -25851,10 +25951,10 @@ const OBJ = {
         this.setItemStatus(it.id, "loading")
         // Do the rename
         let newMeta = await Wn.Sys.exec2(
-            `obj id:${it.id} -cqno -u 'nm:"${newName}"'`,
-            {as:"json"})
+          `obj id:${it.id} -cqno -u 'nm:"${newName}"'`,
+          { as: "json" })
         // Error
-        if(newMeta instanceof Error) {
+        if (newMeta instanceof Error) {
           await Ti.Toast.Open("i18n:wn-rename-fail", "error")
         }
         // Replace the data
@@ -25862,7 +25962,7 @@ const OBJ = {
           await Ti.Toast.Open("i18n:wn-rename-ok", "success")
           this.setItem(newMeta)
         }
-        this.setItemStatus({id:it.id, status:{loading:false}})
+        this.setItemStatus({ id: it.id, status: { loading: false } })
       }  // ~ if(newName)
     }
     // reset the status
@@ -25871,71 +25971,73 @@ const OBJ = {
     }
   },
   //--------------------------------------------
-  async doBatchUpdate({reloadWhenDone=true}={}) {
+  async doBatchUpdate({ reloadWhenDone = true } = {}) {
     let list = this.getCheckedItems()
     // Guard
-    if(_.isEmpty(list)) {
+    if (_.isEmpty(list)) {
       return await Ti.Toast.Open('i18n:nil-item', "warn")
     }
     // Open batch update form
     let meta = await Ti.App.Open({
-      title  : "i18n:edit",
-      width  : "80%",
-      height : "80%",
-      result : {},
-      comType : "TiTextJson",
+      title: "i18n:edit",
+      width: "80%",
+      height: "80%",
+      result: {},
+      comType: "TiTextJson",
       components: [
         "@com:ti/text/json"
       ]
     })
     // Parse
-    if(_.isString(meta)) {
+    if (_.isString(meta)) {
       meta = JSON.parse(meta)
     }
     // User cancel
-    if(_.isEmpty(meta)) {
+    if (_.isEmpty(meta)) {
       return
     }
 
     // Update each items
     let metaJson = JSON.stringify(meta)
-    for(let it of list) {
+    for (let it of list) {
       // Duck check
-      if(!it || !it.id || !it.nm)
+      if (!it || !it.id || !it.nm)
         continue
       // Ignore obsolete item
-      if(it.__is && (it.__is.loading || it.__is.removed))
+      if (it.__is && (it.__is.loading || it.__is.removed))
         continue
-      
+
       // Mark item is processing
       this.setItemStatus(it.id, "loading")
 
       // Update
       await Wn.Sys.exec2(`o id:${it.id} @update @json -cqn`, {
-        as:"json", input: metaJson
+        as: "json", input: metaJson
       })
 
       this.setItemStatus(it.id, "ok")
     }
 
     // Reload
-    if(reloadWhenDone) {
+    if (reloadWhenDone) {
       await this._run("reload")
     }
   },
   //--------------------------------------------
-  async doDelete(confirm=false, reloadWhenDone=true) {
+  async doDelete(confirm = false, reloadWhenDone = true) {
     let list = this.getCheckedItems()
     // Guard
-    if(_.isEmpty(list)) {
+    if (_.isEmpty(list)) {
       return await Ti.Toast.Open('i18n:wn-del-none', "warn")
     }
 
     // Confirm
-    if(confirm) {
-      if(!(await Ti.Confirm({
-        text:"i18n:wn-del-confirm", 
-        vars:{N:list.length}}, {type: "warn"
+    if (confirm) {
+      if (!(await Ti.Confirm({
+        text: "i18n:wn-del-confirm",
+        vars: { N: list.length }
+      }, {
+        type: "warn"
       }))) {
         return
       }
@@ -25950,39 +26052,40 @@ const OBJ = {
     let exRemovedIds = {}
     try {
       // Loop items
-      for(let it of list) {
+      for (let it of list) {
         // Duck check
-        if(!it || !it.id || !it.nm)
+        if (!it || !it.id || !it.nm)
           continue
         // Ignore obsolete item
-        if(it.__is && (it.__is.loading || it.__is.removed))
+        if (it.__is && (it.__is.loading || it.__is.removed))
           continue
         // Ignore the exRemovedIds
-        if(exRemovedIds[it.id])
+        if (exRemovedIds[it.id])
           continue
-        
+
         // Mark item is processing
         this.setItemStatus(it.id, "loading")
         // If DIR, check it is empty or not
-        if('DIR' == it.race) {
+        if ('DIR' == it.race) {
           let count = await Wn.Sys.exec(`count -A id:${it.id}`)
           count = parseInt(count)
-          if(count > 0) {
+          if (count > 0) {
             // If user confirmed, then rm it recurently
-            if(!(await Ti.Confirm({
-                text:'i18n:wn-del-no-empty-folder', vars:{nm:it.nm}}))) {
+            if (!(await Ti.Confirm({
+              text: 'i18n:wn-del-no-empty-folder', vars: { nm: it.nm }
+            }))) {
               this.setItemStatus(it.id, null)
               continue
             }
           }
         }
         // Do delete
-        await Wn.Sys.exec(`rm ${'DIR'==it.race?"-r":""} id:${it.id}`)
+        await Wn.Sys.exec(`rm ${'DIR' == it.race ? "-r" : ""} id:${it.id}`)
         // Mark item removed
         this.setItemStatus(it.id, "removed")
         // If video result folder, mark it at same time
         let m = /^id:(.+)$/.exec(it.videoc_dir)
-        if(m) {
+        if (m) {
           let vdId = m[1]
           exRemovedIds[vdId] = true
           this.setItemStatus(vdId, "removed")
@@ -25992,46 +26095,46 @@ const OBJ = {
         // Then continue the loop .......^
       }
       // Do reload
-      if(reloadWhenDone) {
+      if (reloadWhenDone) {
         await this._run("reload")
       }
       return list
     }
     // End deleting
     finally {
-      Ti.Toast.Open("i18n:wn-del-ok", {N:delCount}, "success")
+      Ti.Toast.Open("i18n:wn-del-ok", { N: delCount }, "success")
     }
 
   },
   //--------------------------------------------
-  async doMoveTo(confirm=false, reloadWhenDone=true) {
+  async doMoveTo(confirm = false, reloadWhenDone = true) {
     let list = this.getCheckedItems()
     // Move dialog
     await Wn.Io.moveTo(list, _.assign({}, this.moveToConf, {
       base: this.meta,
       confirm,
-      markItemStatus: (itId, status)=>{
+      markItemStatus: (itId, status) => {
         this.setItemStatus(itId, status)
       },
-      doneMove : async ()=>{
-        if(reloadWhenDone) {
+      doneMove: async () => {
+        if (reloadWhenDone) {
           return await this._run("reload")
         }
       }
     }))
   },
   //--------------------------------------------
-  async doUpload(files=[]) {
-    if(_.isFunction(this.beforeUpload)) {
+  async doUpload(files = []) {
+    if (_.isFunction(this.beforeUpload)) {
       await this.beforeUpload()
     }
 
     // Prepare the list
-    let ups = _.map(files, (file, index)=>({
-      id : `U${index}_${Ti.Random.str(6)}`,
-      file : file,
-      total : file.size,
-      current : 0
+    let ups = _.map(files, (file, index) => ({
+      id: `U${index}_${Ti.Random.str(6)}`,
+      file: file,
+      total: file.size,
+      current: 0
     }))
 
     // Show Uploading
@@ -26040,23 +26143,27 @@ const OBJ = {
     // Prepare the list
     let newIds = {}
     // Do upload file one by one
-    for(let up of ups) {
+    for (let up of ups) {
       let file = up.file
-      let {ok, data} = await Wn.Io.uploadFile(file, {
-        target : `id:${this.meta.id}`,
-        progress : function(pe){
+      let { ok, data } = await Wn.Io.uploadFile(file, {
+        target: `id:${this.meta.id}`,
+        progress: function (pe) {
           up.current = pe.loaded
         }
       })
-      if(ok) {
+      if (ok) {
         newIds[data.id] = true
       }
     }
 
     // All done, hide upload
-    _.delay(()=>{
+    _.delay(() => {
       this.myUploadigFiles = []
     }, 1000)
+
+    if (_.isEmpty(newIds)) {
+      return
+    }
 
     // Tell user ...
     Ti.Toast.Open("i18n:upload-done", "success")
@@ -26067,35 +26174,36 @@ const OBJ = {
 
     // Make it checked
     let checkIds = Ti.Util.truthyKeys(newIds)
-    if(!this.multi) {
+    if (!this.multi) {
       checkIds = _.first(checkIds)
     }
-    this.$innerList.checkRow(checkIds, {reset:true})
+    this.$innerList.checkRow(checkIds, { reset: true })
   },
   //--------------------------------------------
   async doDownload() {
     let list = this.getCheckedItems()
-    if(_.isEmpty(list)) {
+    if (_.isEmpty(list)) {
       return await Ti.Toast.Open('i18n:wn-download-none', "warn")
     }
     // Too many, confirm at first
-    if(list.length > 5) {
-      if(!await Ti.Confirm({
-        text : "i18n:wn-download-too-many",
-        vars : {N:list.length}})) {
+    if (list.length > 5) {
+      if (!await Ti.Confirm({
+        text: "i18n:wn-download-too-many",
+        vars: { N: list.length }
+      })) {
         return
       }
     }
     // Do the download
-    for(let it of list) {
-      if('FILE' != it.race) {
-        if(!await Ti.Confirm({
-            text : "i18n:wn-download-dir",
-            vars : it
-          }, {
-            textYes : "i18n:continue",
-            textNo  : "i18n:terminate"
-          })){
+    for (let it of list) {
+      if ('FILE' != it.race) {
+        if (!await Ti.Confirm({
+          text: "i18n:wn-download-dir",
+          vars: it
+        }, {
+          textYes: "i18n:continue",
+          textNo: "i18n:terminate"
+        })) {
           return
         }
         continue;
@@ -27466,7 +27574,7 @@ const _M = {
       } else {
         this.myIndicator = null
       }
-      this.__on_events("arena::select", payload)
+      //this.__on_events("arena::select", payload)
     },
     //--------------------------------------
     OnCurrentMetaChange({id, path, value}={}) {
@@ -27527,71 +27635,29 @@ const _M = {
       Wn.OpenCmdPanel(cmdText)
     },
     //--------------------------------------
-    async __on_events(name, ...args) {
+    __on_events(name, payload) {
+      //console.log("__on_events", name, payload)
+      // Special event 
+      if(/^main::arena::(.+::)?select$/.test(name)) {
+        return this.OnArenaSelect
+      }
+
       // Guard
-      if(!this.view.events) {
+      if(!this.view || _.isEmpty(this.view.events)) {
         return
       }
-
-      //console.log("__on_events", name, args)
-      // Get the view events dispatcher
-      let at = _.get(this.view.events, name)
-
-      // Get the event dispatcher by candidate names
-      if(!at) {
-        let names = name.split("::")
-        for(let i=1; i<names.length; i++) {
-          let key = names.slice(i).join("::")
-          at = _.get(this.view.events, key)
-          if(at) {
-            break
-          }
-        }
-      }
-      
-      // Guard again
-      if(!at) {
-        return
+      // Get candidate func invoking
+      let fn = _.get(this.view.events, name)
+      if (!fn) {
+        fn = this.$tiEventTryFallback(name, this.view.events)
       }
 
-      // Prepare the context
-      let ctx = {$args:args}
-      
-      // Batch invoke
-      if(_.isArray(at)) {
-        for(let a of at) {
-          await this.fireAction(a, ctx)
-        }
-      }
-      // Just one invoke
-      else {
-        await this.fireAction(at, ctx)
-      }
-    },
-    //--------------------------------------
-    async fireAction(at, ctx={}) {
-      let app = Ti.App(this)
-      let {global, main, commit, dispatch, payload} = at
-
-      // Explain payload
-      let pld = Ti.Util.explainObj(ctx, payload)
-
-      // commit
-      if(commit) {
-        app.commit(commit, pld)
-      }
-      // Dispatch
-      else if(dispatch) {
-        await app.dispatch(dispatch, pld)
-      }
-      // Global invoke
-      else if(global) {
-        await app.global(global, pld)
-      }
-      // Invoke main com method
-      else if(main) {
-        await app.main(main, pld)
-      }
+      // Gen invoking
+      return Ti.Shortcut.genEventActionInvoking(fn, {
+        app: Ti.App(this),
+        context: _.assign({}, payload, this.RootState),
+        funcSet: this
+      })
     },
     //--------------------------------------
     async openView(oid) {
@@ -29232,86 +29298,147 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/mod/wn/obj-browser/m-obj-browser-actions.mjs'] = (function(){
 ////////////////////////////////////////////
 function getKeepSearchAs(state) {
-  if(state.meta && state.keepSearch) {
+  if (state.meta && state.keepSearch) {
     return `browser-search-${state.meta.id}`
   }
 }
 ////////////////////////////////////////////
 const _M = {
   //----------------------------------------
-  saveSearchSetting({state, commit}, {filter, sorter, pager}={}) {
-    if(filter) {
-      commit("setFilter", filter)
+  async updateCurrentMeta({ dispatch }, { name, value }) {
+    console.log("hahah", name, value)
+    if (name) {
+      await dispatch("updateCurrentMetas", {
+        [name]: value
+      })
     }
-    if(sorter) {
-      commit("setSorter", sorter)
-    }
-    if(pager) {
-      commit("setPager", pager)
-    }
+  },
+  //----------------------------------------
+  async updateCurrentMetas({ state, commit }, data = {}) {
+    //console.log("I will update current by", data)
+    if (state.data && state.currentId && !_.isEmpty(data)) {
+      // Get current 
+      let current = _.find(state.data.list, ({ id }) => id == state.currentId)
+      //console.log("find current", current)
+      // Check Necessary
+      if (_.isMatchWith(current, data, _.isEqual)) {
+        return
+      }
 
-    let keepAs = getKeepSearchAs(state)
-    if(keepAs) {
-      Ti.Storage.session.setObject(keepAs, {
-        filter : state.filter,
-        sorter : state.sorter,
-        pager  : {
-          pageNumber : state.pageNumber,
-          pageSize   : state.pageSize
+      // Mark field status
+      _.forEach(data, (val, name) => {
+        commit("setFieldStatus", { name, type: "spinning", text: "i18n:saving" })
+      })
+
+      // Save current meta field
+      let json = JSON.stringify(data)
+      let id = current.id
+      let cmdText = `o id:${id} @update @json -cqn`
+      let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+      let isError = reo instanceof Error;
+
+      // Update state
+      if (!isError && !Ti.Util.isNil(reo)) {
+        commit("setDataItem", reo)
+      }
+
+      _.forEach(data, (val, name) => {
+        if (isError) {
+          commit("setFieldStatus", {
+            name,
+            type: "warn",
+            text: reo.message || "i18n:fail"
+          })
+        } else {
+          commit("setFieldStatus", {
+            name,
+            type: "ok",
+            text: "i18n:ok"
+          })
+          _.delay(() => { commit("clearFieldStatus", name) }, 500)
         }
       })
     }
   },
   //----------------------------------------
-  recoverSearchSetting({state, commit}) {
+  saveSearchSetting({ state, commit }, { filter, sorter, pager } = {}) {
+    if (filter) {
+      commit("setFilter", filter)
+    }
+    if (sorter) {
+      commit("setSorter", sorter)
+    }
+    if (pager) {
+      commit("setPager", pager)
+    }
+
     let keepAs = getKeepSearchAs(state)
-    if(keepAs) {
+    if (keepAs) {
+      Ti.Storage.session.setObject(keepAs, {
+        filter: state.filter,
+        sorter: state.sorter,
+        pager: {
+          pageNumber: state.pageNumber,
+          pageSize: state.pageSize
+        }
+      })
+    }
+  },
+  //----------------------------------------
+  recoverSearchSetting({ state, commit }) {
+    let keepAs = getKeepSearchAs(state)
+    if (keepAs) {
       let {
         filter, sorter, pager
       } = Ti.Storage.session.getObject(keepAs, {})
       pager = _.assign({}, {
-        pageNumber : state.pageNumber || 1,
-        pageSize   : state.pageSize   || 1000
+        pageNumber: state.pageNumber || 1,
+        pageSize: state.pageSize || 1000
       }, pager)
-      if(filter) {
+      if (filter) {
         commit("setFilter", filter)
       }
-      if(sorter) {
+      if (sorter) {
         commit("setSorter", sorter)
       }
-      if(pager) {
+      if (pager) {
         commit("setPager", pager)
       }
     }
   },
   //----------------------------------------
-  async query({dispatch}, search={}){
+  async mergeSearchMatchOmitNilAndQuery({commit, dispatch}, match) {
+    commit("mergeSearchMatchOmitNil", match)
+    await dispatch("reloadData")
+  },
+  //----------------------------------------
+  async query({ dispatch }, search = {}) {
     //console.log("browser query", search)
     dispatch("saveSearchSetting", search)
     return await dispatch("reloadData")
   },
   //----------------------------------------
-  async reloadData({state, commit, dispatch}) {
-    if(state.status.reloading) {
+  async reloadData({ state, commit, dispatch }) {
+    if (state.status.reloading) {
       return
     }
     //......................................
     // Init content as null
-    commit("setStatus", {reloading:true})
+    commit("setStatus", { reloading: true })
     //......................................
     let cmds = ['o']
-    if(state.path) {
+    if (state.path) {
       cmds.push(`'${state.path}'`)
     }
     cmds.push('@query -pager -mine -hidden')
     //
     // Setup pager
     //
-    if(state.pageSize > 0) {
+    if (state.pageSize > 0) {
       let pgsz = state.pageSize
       let pn = state.pageNumber || 1
-      let skip = Math.max(0, pgsz * (pn-1))
-      if(skip > 0) {
+      let skip = Math.max(0, pgsz * (pn - 1))
+      if (skip > 0) {
         cmds.push(`-skip ${skip}`)
       }
       cmds.push(`-limit ${pgsz}`)
@@ -29319,19 +29446,19 @@ const _M = {
     //
     // Setup sort
     //
-    if(state.sorter) {
+    if (state.sorter) {
       cmds.push(`-sort '${JSON.stringify(state.sorter)}'`)
     }
     //
     // Query 
     //
     let input;
-    if(state.search) {
+    if (state.search) {
       let flt = Wn.Util.getMatchByFilter(state.filter, state.search)
       // Empty filter, force update it again
-      if(_.isEmpty(flt)) {
+      if (_.isEmpty(flt)) {
         commit("clearFilter")
-        dispatch("saveSearchSetting", {filter:state.filter})
+        dispatch("saveSearchSetting", { filter: state.filter })
       }
       //console.log("customized filter", flt)
       // Customized filter
@@ -29342,17 +29469,17 @@ const _M = {
       input = JSON.stringify(flt)
     }
     cmds.push('@json -cqnl')
-    let data = await Wn.Sys.exec2(cmds.join(' '), {as:"json", input})
+    let data = await Wn.Sys.exec2(cmds.join(' '), { as: "json", input })
     commit("setData", data)
     //......................................
     // Just update the meta   
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   },
   //----------------------------------------
-  async reloadSettings({state,commit}) {
-    commit("setStatus", {reloading:true})
-    let config = await Wn.Io.loadContent(state.meta, {as:"json"})
-    commit("setStatus", {reloading:false})
+  async reloadSettings({ state, commit }) {
+    commit("setStatus", { reloading: true })
+    let config = await Wn.Io.loadContent(state.meta, { as: "json" })
+    commit("setStatus", { reloading: false })
     //
     // Commit to state
     //
@@ -29361,31 +29488,31 @@ const _M = {
     commit("setSearch", Ti.Util.fallback(config.search, state.search, {}))
     commit("setFilter", Ti.Util.fallback(config.filter, state.filter, {}))
     commit("setFilterBy", Ti.Util.fallback(config.filterBy, state.filterBy))
-    commit("setSorter", Ti.Util.fallback(config.sorter, state.sorter, {nm:1}))
+    commit("setSorter", Ti.Util.fallback(config.sorter, state.sorter, { nm: 1 }))
     commit("setPageNumber", Ti.Util.fallback(config.pageNumber, state.pageNumber, 1))
     commit("setPageSize", Ti.Util.fallback(config.pageSize, state.pageSize, 1000))
   },
   //----------------------------------------
-  async reload({state, commit, dispatch}, meta) {
-    if(state.status.reloading
-      || state.status.saving){
+  async reload({ state, commit, dispatch }, meta) {
+    if (state.status.reloading
+      || state.status.saving) {
       return
     }
     //......................................
     // Use the default meta
-    if(_.isUndefined(meta)) {
+    if (_.isUndefined(meta)) {
       meta = state.meta
     }
     //......................................
-    if(_.isString(meta)) {
+    if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
     }
-    else if(meta && meta.id) {
+    else if (meta && meta.id) {
       meta = await Wn.Io.loadMetaById(meta.id)
     }
     //......................................
     // Guard
-    if(!meta) {
+    if (!meta) {
       commit("setMeta", null)
     }
     // Save current meta as config object
@@ -29402,7 +29529,7 @@ const _M = {
     await dispatch("reloadData")
     //......................................
     // Just update the meta   
-    commit("setStatus", {reloading:false})
+    commit("setStatus", { reloading: false })
   }
   //----------------------------------------
 }
@@ -31653,54 +31780,6 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'm-obj-children.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/obj-children/m-obj-children.mjs'] = (function(){
-//----------------------------------------
-function UpsertDataItemAt(state, newItem, atPos = 1) {
-  // Guard
-  if (_.isEmpty(newItem) || !newItem || !newItem.id) {
-    return
-  }
-  // Batch upsert
-  if (_.isArray(newItem)) {
-    for (let it of newItem) {
-      UpsertDataItemAt(state, it, atTail)
-    }
-    return
-  }
-  // upsert one
-  let data = state.data
-  // Update pager list item of data
-  if (_.isArray(data.list) && data.pager) {
-    let list = _.cloneDeep(data.list)
-    let list2 = []
-    let found = false
-    for (let li of list) {
-      if (!found && (li.id == newItem.id || li.nm == newItem.nm)) {
-        list2.push(newItem)
-        found = true
-      } else {
-        list2.push(li)
-      }
-    }
-    if (!found) {
-      if (atPos > 0) {
-        list2.push(newItem)
-      } else if (atPos < 0) {
-        list2 = _.concat(newItem, list2)
-      }
-    }
-    state.data = {
-      list: list2,
-      pager: data.pager
-    }
-  }
-  // Just insert
-  else {
-    state.data = {
-      list: newItems,
-      pager: data.pager
-    }
-  }
-}
 //////////////////////////////////////////////
 const _M = {
   ////////////////////////////////////////////
@@ -31716,6 +31795,27 @@ const _M = {
     //----------------------------------------
     setSearch(state, search) {
       state.search = _.cloneDeep(search)
+    },
+    //----------------------------------------
+    setSearchMatch(state, match) {
+      let search = _.cloneDeep(state.search)
+      search.match = match || {}
+      state.search = search
+    },
+    //----------------------------------------
+    mergeSearchMatch(state, match) {
+      let search = _.cloneDeep(state.search)
+      _.merge(search.match, match)
+      state.search = search
+    },
+    //----------------------------------------
+    mergeSearchMatchOmitNil(state, match) {
+      let search = _.cloneDeep(state.search)
+      _.merge(search.match, match)
+      search.match = _.omitBy(search.match, (val) => {
+        return Ti.Util.isNil(val)
+      })
+      state.search = search
     },
     //----------------------------------------
     setFilter(state, filter) {
@@ -31759,80 +31859,48 @@ const _M = {
     },
     //----------------------------------------
     prependDateItem(state, newItem) {
-      UpsertDataItemAt(state, newItem, -1)
+      Ti.Util.UpsertStateDataItemAt(state, newItem, -1)
     },
     //----------------------------------------
     appendDateItem(state, newItem) {
-      UpsertDataItemAt(state, newItem, 1)
+      Ti.Util.UpsertStateDataItemAt(state, newItem, 1)
     },
     //----------------------------------------
     setDataItem(state, newItem) {
-      UpsertDataItemAt(state, newItem, 0)
+      Ti.Util.UpsertStateDataItemAt(state, newItem, 0)
     },
     //----------------------------------------
     mergeDataItem(state, theItem) {
-      // Update pager list item of data
-      if (state.currentId && _.isArray(state.data.list)) {
-        let data = _.cloneDeep(state.data)
-        for (let li of data.list) {
-          if (state.currentId == li.id) {
-            _.assign(li, theItem)
-          }
-        state.data = data
+      Ti.Util.MergeStateDataItem(state, theItem)
+    },
+    //----------------------------------------
+    removeDataItems(state, items = []) {
+      Ti.Util.RemoveStateDataItems(state, items)
+    },
+    //----------------------------------------
+    setData(state, data) {
+      state.data = data
+    },
+    //----------------------------------------
+    setFieldStatus(state, { name, type, text } = {}) {
+      if (name) {
+        let ukey = _.concat(name).join("-")
+        Vue.set(state.fieldStatus, ukey, { type, text })
+      }
+    },
+    //----------------------------------------
+    clearFieldStatus(state, names = []) {
+      // Clean All
+      if (_.isEmpty(names)) {
+        state.fieldStatus = {}
+      }
+      // Clear one
+      else {
+        state.fieldStatus = _.omit(state.fieldStatus, names)
       }
     }
-  },
-  //----------------------------------------
-  removeDataItems(state, items = []) {
-    let data = state.data
-    // Build Id Map
-    if (!_.isArray(items)) {
-      items = [items]
-    }
-    let idMap = {}
-    _.forEach(items, it => {
-      if (_.isString(it)) {
-        idMap[it] = true
-      } else if (it.id) {
-        idMap[it.id] = true
-      }
-    })
-    if (_.isArray(data.list) && data.pager && !_.isEmpty(idMap)) {
-      let list = []
-      _.forEach(data.list, li => {
-        if (!idMap[li.id]) {
-          list.push(li)
-        }
-      })
-      state.data = {
-        list, pager: data.pager
-      }
-    }
-  },
-  //----------------------------------------
-  setData(state, data) {
-    state.data = data
-  },
-  //----------------------------------------
-  setFieldStatus(state, {name, type, text}={}) {
-    if(name){
-      let ukey = _.concat(name).join("-")
-      Vue.set(state.fieldStatus, ukey, {type, text})
-    }
-  },
-  //----------------------------------------
-  clearFieldStatus(state, names=[]) {
-    // Clean All
-    if(_.isEmpty(names)) {
-      state.fieldStatus = {}
-    }
-    // Clear one
-    else {
-      state.fieldStatus = _.omit(state.fieldStatus, names)
-    }
-  },
-  //----------------------------------------
-}
+    //----------------------------------------
+  }
   ////////////////////////////////////////////
 }
 return _M;;
@@ -33954,66 +34022,66 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/wall/ti-wall.mjs'] = (function(){
 const _M = {
   ///////////////////////////////////////////////////
-  provide : function(){
+  provide: function () {
     return {
-      "$wall" : this
+      "$wall": this
     }
   },
   //////////////////////////////////////////
-  data : ()=>({
-    myData : [],
+  data: () => ({
+    myData: [],
 
-    myColCount : 0,
-    myColWidth : 0,
-    isOnlyOneRow : false,
+    myColCount: 0,
+    myColWidth: 0,
+    isOnlyOneRow: false,
 
-    myCellsReport : {},
-    myNeedResize : true
+    myCellsReport: {},
+    myNeedResize: true
   }),
   //////////////////////////////////////////
-  props : {
-    "itemClassName" : undefined,
-    "display" : {
-      type : [Object, String],
-      default : ()=>({
-        key : "..",
-        comType : "ti-label"
+  props: {
+    "itemClassName": undefined,
+    "display": {
+      type: [Object, String],
+      default: () => ({
+        key: "..",
+        comType: "ti-label"
       })
     },
-    "border" : {
-      type : Boolean,
-      default : true
+    "border": {
+      type: Boolean,
+      default: true
     },
     // aspect: list item spacing
     // `no|xs|sm|md|lg|xl`
-    "spacing" : {
-      type : String,
-      default : "sm"
+    "spacing": {
+      type: String,
+      default: "sm"
     },
     // Wall-Tile width
-    "itemWidth" : {
-      type : [String, Number],
-      default : null
+    "itemWidth": {
+      type: [String, Number],
+      default: null
     },
     // Wall-Tile height
-    "itemHeight" : {
-      type : [String, Number],
-      default : null
+    "itemHeight": {
+      type: [String, Number],
+      default: null
     },
-    "resizeDelay" : {
-      type : Number,
-      default : 0
+    "resizeDelay": {
+      type: Number,
+      default: 0
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-hoverable"    : this.hoverable,
-        "show-border"     : this.border,
-        "is-only-one-row" : this.isOnlyOneRow,
-        "is-multi-rows"   : !this.isOnlyOneRow
+        "is-hoverable": this.hoverable,
+        "show-border": this.border,
+        "is-only-one-row": this.isOnlyOneRow,
+        "is-multi-rows": !this.isOnlyOneRow
       }, [
         `spacing-${this.spacing}`
       ])
@@ -34033,17 +34101,17 @@ const _M = {
     //--------------------------------------
     BlankCols() {
       let list = []
-      if(!_.isEmpty(this.TheData) 
-        && this.myColCount > 0 
+      if (!_.isEmpty(this.TheData)
+        && this.myColCount > 0
         && this.myColWidth > 1
         && !this.isOnlyOneRow) {
         // get list real count
         let n = this.ListRealCount % this.myColCount
-        if(n > 0) {
+        if (n > 0) {
           let nr = this.myColCount - n
-          for(let i=0; i<nr; i++) {
+          for (let i = 0; i < nr; i++) {
             list.push({
-              width : `${this.myColWidth}px`
+              width: `${this.myColWidth}px`
             })
           }
         }
@@ -34054,13 +34122,13 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClickTop($event) {
-      if(this.cancelable) {
+      if (this.cancelable) {
         // Click The body or top to cancel the row selection
-        if(Ti.Dom.is($event.target, '.ti-wall, .wall-tile, .wall-con')
-           || Ti.Dom.closest($event.target, ".ti-loading")) {
+        if (Ti.Dom.is($event.target, '.ti-wall, .wall-tile, .wall-con')
+          || Ti.Dom.closest($event.target, ".ti-loading")) {
           this.cancelRow()
         }
       }
@@ -34077,21 +34145,21 @@ const _M = {
     OnWallResize() {
       let $divs = Ti.Dom.findAll(".wall-con > .wall-tile", this.$el)
       // Guard empty
-      if(_.isEmpty($divs)) 
+      if (_.isEmpty($divs))
         return
       // Eval the cols and width
       //console.log("  ~~~ do", this.data)
-      let cols  = 0
+      let cols = 0
       let width = 1
       let top = undefined
       let isOnlyOneRow = true
-      for(let $div of $divs) {
+      for (let $div of $divs) {
         let rect = $div.getBoundingClientRect()
-        if(_.isUndefined(top)) {
-          top  = rect.top
+        if (_.isUndefined(top)) {
+          top = rect.top
         }
-        if(top == rect.top) {
-          cols ++
+        if (top == rect.top) {
+          cols++
           width = Math.max(rect.width, width)
         }
         // Find the next row
@@ -34101,61 +34169,68 @@ const _M = {
         }
       }
       //console.log({cols, width, top})
-      if(width > 1) {
+      if (width > 1) {
         this.myColCount = cols
         this.myColWidth = width
         this.isOnlyOneRow = isOnlyOneRow
       }
     },
     //--------------------------------------
-    reportReady(rowIndex=-1, isDone=false) {
+    reportReady(rowIndex = -1, isDone = false) {
       let key = `R${rowIndex}`
       //console.log(key, isDone)
-      if(isDone) {
+      if (isDone) {
         delete this.myCellsReport[key]
       } else {
         this.myCellsReport[key] = false
         this.myNeedResize = true
       }
       // Check the status
-      if(isDone) {
-        _.delay(()=>{
+      if (isDone) {
+        _.delay(() => {
           let allReady = _.isEmpty(this.myCellsReport)
           // Do resize
-          if(allReady && this.myNeedResize) {
-            _.delay(()=>{
+          if (allReady && this.myNeedResize) {
+            _.delay(() => {
               this.OnWallResize()
             }, this.resizeDelay)
             this.myNeedResize = false
           }
         })
       }
+    },
+    //--------------------------------------
+    async evalListData(newVal, oldVal) {
+      let isSame = _.isEqual(newVal, oldVal)
+      if (!isSame) {
+        //console.log("!!!wall data changed", {newVal, oldVal})
+        this.myData = await this.evalData()
+      }
+      this.OnWallResize()
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "data" : {
-      handler : async function(newVal, oldVal){
-        let isSame = _.isEqual(newVal, oldVal)
-        if(!isSame) {
-          //console.log("!!!wall data changed", {newVal, oldVal})
-          this.myData = await this.evalData()
-        }
-      },
-      immediate : true
+  watch: {
+    "data": {
+      handler: "evalListData",
+      immediate: true
+    },
+    "dict": {
+      handler: "evalListData",
+      immediate: true
     }
   },
   //////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     //.................................
     Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.OnWallResize(), 20)
+      resize: _.debounce(() => this.OnWallResize(), 20)
     })
     //.................................
   },
   //////////////////////////////////////////
-  destroyed : function() {
+  destroyed: function () {
     Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////
@@ -36307,6 +36382,64 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'ti-progress-bar.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/progress/bar/ti-progress-bar.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////////////
+  props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
+    // a float number between 0-1 to present the percentage
+    "value": {
+      type: Number,
+      default: null
+    },
+    // default 1 to indicate number will round to 0.1
+    "precision": {
+      type: Number,
+      default: 1
+    },
+    //------------------------------------------------
+    // Aspect
+    //------------------------------------------------
+    "tipStyle": {
+      type: Object
+    },
+    "barOuterStyle": {
+      type: Object
+    },
+    "barInnerStyle": {
+      type: Object
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    ProgressTip() {
+      return Ti.S.toPercent(this.value, {
+        fixed: this.precision,
+        auto: false
+      })
+    },
+    //------------------------------------------------
+    ProgressStyle() {
+      return _.assign({}, this.barInnerStyle, {
+        width: this.ProgressTip
+      })
+    },
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'm-thing-current-actions.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/thing/mod/current/m-thing-current-actions.mjs'] = (function(){
@@ -36946,11 +37079,11 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     isDataPending() {
-      return Ti.Util.isNil(this.data)
+      return Ti.Util.isNil(this.TheData)
     },
     //-----------------------------------------------
     isDataEmpty() {
-      return !_.isArray(this.data) || _.isEmpty(this.data)
+      return !_.isArray(this.TheData) || _.isEmpty(this.TheData)
     },
     //-----------------------------------------------
     isAllChecked() {
@@ -42213,61 +42346,61 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/list/ti-list.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
-  data : ()=>({
-    myData : [],
+  data: () => ({
+    myData: [],
   }),
   //////////////////////////////////////////
-  props : {
-    "iconBy" : {
-      type : [String, Function],
-      default : null
+  props: {
+    "iconBy": {
+      type: [String, Function],
+      default: null
     },
-    "indentBy" : {
-      type : [String, Function],
-      default : null
+    "indentBy": {
+      type: [String, Function],
+      default: null
     },
-    "itemClassName" : undefined,
-    "display" : {
-      type : [Object, String, Array],
-      default : ()=>({
-        key : "..",
-        comType : "ti-label"
+    "itemClassName": undefined,
+    "display": {
+      type: [Object, String, Array],
+      default: () => ({
+        key: "..",
+        comType: "ti-label"
       })
     },
-    "border" : {
-      type : Boolean,
-      default : true
+    "border": {
+      type: Boolean,
+      default: true
     },
-    "autoScrollIntoView" : {
-      type : Boolean,
-      default : true
+    "autoScrollIntoView": {
+      type: Boolean,
+      default: true
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-hoverable"    : this.hoverable,
-        "show-border"     : this.border
+        "is-hoverable": this.hoverable,
+        "show-border": this.border
       })
     },
     //--------------------------------------
     getRowIndent() {
-      if(_.isFunction(this.indentBy)) {
+      if (_.isFunction(this.indentBy)) {
         return it => this.indentBy(it)
       }
-      if(_.isString(this.indentBy)) {
+      if (_.isString(this.indentBy)) {
         return it => _.get(it, this.indentBy)
       }
       return it => 0
     },
     //--------------------------------------
     getRowIcon() {
-      if(_.isFunction(this.iconBy)) {
+      if (_.isFunction(this.iconBy)) {
         return it => this.iconBy(it)
       }
-      if(_.isString(this.iconBy)) {
+      if (_.isString(this.iconBy)) {
         return it => _.get(it, this.iconBy)
       }
       return it => null
@@ -42278,9 +42411,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Prepare the return list
       let items = []
       // Loop each items
-      for(let dis of diss) {
+      for (let dis of diss) {
         let item = this.evalFieldDisplayItem(dis)
-        if(item) {
+        if (item) {
           items.push(item)
         }
       }
@@ -42294,13 +42427,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClickTop($event) {
-      if(this.cancelable) {
+      if (this.cancelable) {
         // Click The body or top to cancel the row selection
-        if(Ti.Dom.hasOneClass($event.target,
-            'ti-list', 'list-item')) {
+        if (Ti.Dom.hasOneClass($event.target,
+          'ti-list', 'list-item')) {
           this.cancelRow()
         }
       }
@@ -42308,14 +42441,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     scrollCurrentIntoView() {
       // Guard
-      if(!this.autoScrollIntoView || Ti.Util.isNil(this.myCurrentId)) {
+      if (!this.autoScrollIntoView || Ti.Util.isNil(this.myCurrentId)) {
         return;
       }
       let [$first] = Ti.Dom.findAll(".list-row.is-current", this.$el)
-      if($first) {
+      if ($first) {
         let rect = Ti.Rects.createBy($first)
         let view = Ti.Rects.createBy(this.$el)
-        if(!view.contains(rect)) {
+        if (!view.contains(rect)) {
           this.$el.scrollTop += rect.top - view.top
         }
       }
@@ -42323,45 +42456,51 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     __ti_shortcut(uniqKey) {
       //console.log("ti-list", uniqKey)
-      if("ARROWUP" == uniqKey) {
+      if ("ARROWUP" == uniqKey) {
         this.selectPrevRow({
-          payload: {byKeyboardArrow: true}
+          payload: { byKeyboardArrow: true }
         })
         this.scrollCurrentIntoView()
-        return {prevent:true, stop:true, quit:true}
+        return { prevent: true, stop: true, quit: true }
       }
 
-      if("ARROWDOWN" == uniqKey) {
-        this.selectNextRow({payload:{byKeyboardArrow:true}})
+      if ("ARROWDOWN" == uniqKey) {
+        this.selectNextRow({ payload: { byKeyboardArrow: true } })
         this.scrollCurrentIntoView()
-        return {prevent:true, stop:true, quit:true}
+        return { prevent: true, stop: true, quit: true }
+      }
+    },
+    //--------------------------------------
+    async evalListData(newVal, oldVal) {
+      let isSame = _.isEqual(newVal, oldVal)
+      if (!isSame) {
+        //console.log("!!!list data changed", {newVal, oldVal})
+        this.myData = await this.evalData((it) => {
+          it.icon = this.getRowIcon(it.item)
+          it.indent = this.getRowIndent(it.item)
+        })
+
+        this.$nextTick(() => {
+          _.delay(() => {
+            this.scrollCurrentIntoView()
+          }, 300)
+        })
       }
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "data" : {
-      handler : async function(newVal, oldVal){
-        let isSame = _.isEqual(newVal, oldVal)
-        if(!isSame) {
-          //console.log("!!!list data changed", {newVal, oldVal})
-          this.myData = await this.evalData((it)=>{
-            it.icon = this.getRowIcon(it.item)
-            it.indent = this.getRowIndent(it.item)
-          })
-
-          this.$nextTick(()=>{
-            _.delay(()=>{
-              this.scrollCurrentIntoView()
-            }, 300)
-          })
-        }
-      },
-      immediate : true
+  watch: {
+    "data": {
+      handler: "evalListData",
+      immediate: true
     },
-    "myCurrentId" : function() {
-      this.$nextTick(()=>{
+    "dict": {
+      handler: "evalListData",
+      immediate: true
+    },
+    "myCurrentId": function () {
+      this.$nextTick(() => {
         this.scrollCurrentIntoView()
       })
     }
@@ -48404,7 +48543,7 @@ const _M = {
       // Load the main view
       let viewInfo = await Wn.Sys.exec2(cmdText, { as: "json" })
       let $app = Ti.App(this)
-      let view = await $app.loadView(viewInfo)
+      let view = await $app.loadView(viewInfo, meta)
       //console.log("after loadView", view)
       //..................................
       if (Ti.IsInfo("app/wn.manager")) {
@@ -50340,6 +50479,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // "notifyPayload" : {
     //   type : [Object, Function]
     // },
+    "events": Object,
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
@@ -50394,6 +50534,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
       })
     },
+    "nav": {
+      type: Object
+    },
     "detail": {
       type: Object,
       default: () => ({
@@ -50403,7 +50546,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
       })
     },
-    "leftBlock": {
+    "navBlock": {
+      type: Object,
+      default: () => ({})
+    },
+    "mainBlock": {
       type: Object,
       default: () => ({})
     },
@@ -50419,6 +50566,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return this.getTopClass()
     },
     //------------------------------------------------
+    ComNav() { return Ti.Util.explainObj(this, this.nav) },
     ComFilter() { return Ti.Util.explainObj(this, this.filter) },
     ComList() {
       let com = Ti.Util.explainObj(this, this.list)
@@ -50439,52 +50587,86 @@ const __TI_MOD_EXPORT_VAR_NM = {
     ComDetail() { return Ti.Util.explainObj(this, this.detail) },
     //------------------------------------------------
     TheLayout() {
-      let left = []
+      let columns = []
+      //
+      // Nav Block
+      //
+      if (this.ComNav) {
+        columns.push(_.assign(
+          {
+            size: "16%",
+            border: true,
+          },
+          this.navBlock,
+          {
+            name: "nav",
+            body: "nav"
+          }
+        ))
+      }
+      //
+      // Main Block
+      //
+      let main = []
       if (this.ComFilter) {
-        left.push({
+        main.push({
           name: "filter",
           size: 43,
           body: "filter"
         })
       }
-      left.push({
+      main.push({
         name: "list",
         size: "stretch",
         overflow: "cover",
         body: "list"
       })
       if (this.ComPager) {
-        left.push({
+        main.push({
           name: "pager",
           size: "auto",
           body: "pager"
         })
       }
+      // Join to columns
+      columns.push(_.assign(
+        {
+          size: "61.8%",
+          border: true,
+        },
+        this.mainBlock,
+        {
+          type: "rows",
+          blocks: main
+        }
+      ))
+      //
+      // Detail Block
+      //
       if (this.ComDetail) {
+        columns.push(_.assign({},
+          this.detailBlock,
+          {
+            name: "detail",
+            body: "detail"
+          }
+        ))
+      }
+      // Multi columns
+      if (columns.length > 1) {
         return {
           type: "cols",
           border: true,
-          blocks: [_.assign({
-            size: "61.8%",
-            border: true,
-          }, this.leftBlock, {
-            type: "rows",
-            blocks: left
-          }), _.assign({}, this.detailBlock, {
-            name: "detail",
-            body: "detail"
-          })]
+          blocks: columns
         }
       }
-      return {
-        type: "rows",
-        size: "61.8%",
-        blocks: left
-      }
+      // Single column, (main only)
+      return columns[0]
     },
     //------------------------------------------------
     TheSchema() {
       return {
+        nav: this.ComNav,
         filter: this.ComFilter,
         list: this.ComList,
         pager: this.ComPager,
@@ -50500,6 +50682,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         }
       }
+    },
+    //------------------------------------------------
+    EventRouting() {
+      return _.assign({}, this.events)
     }
     //------------------------------------------------
   },
@@ -50528,7 +50714,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     OnSelectItem({ currentId }) {
       this.myCurrentId = currentId
-      return { name: "select", stop: false }
+      return { stop: false }
     },
     //------------------------------------------------
     doAutoSelectItem() {
@@ -50606,6 +50792,29 @@ const __TI_MOD_EXPORT_VAR_NM = {
     async doDelete(confirm) {
       return this.$adaptlist.doDelete(confirm)
     },
+    //--------------------------------------
+    //
+    // Callback & Events
+    //
+    //--------------------------------------
+    // For Event Bubble Dispatching
+    __on_events(name, ...args) {
+      //console.log("__on_events", name, args)
+      // Try to get handler
+      let fn = _.get(this.EventRouting, name)
+      if (!fn) {
+        fn = this.$tiEventTryFallback(name, this.EventRouting)
+      }
+
+      // Gen invoking
+      return Ti.Shortcut.genEventActionInvoking(fn, {
+        app: Ti.App(this),
+        context: _.assign({
+          $args: args
+        }, this.CurrentObj),
+        funcSet: this
+      })
+    }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
@@ -50628,6 +50837,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "search": {
       handler: function () {
         this.mySearch = _.cloneDeep(this.search)
+      },
+      immediate: true
+    },
+    "currentId": {
+      handler: function (newVal, oldVal) {
+        if(!_.isEqual(newVal, oldVal)) {
+          this.myCurrentId = newVal
+        }
       },
       immediate: true
     }
@@ -53736,36 +53953,36 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/table/ti-table.mjs'] = (function(){
 const _M = {
   ///////////////////////////////////////////////////
-  provide : function(){
+  provide: function () {
     return {
-      "$table" : this
+      "$table": this
     }
   },
   ///////////////////////////////////////////////////
-  data : ()=>({
+  data: () => ({
     myTableRect: null,
-    myData : []
+    myData: []
   }),
   ///////////////////////////////////////////////////
   // props -> ti-table-props.mjs
   ///////////////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       let klass = this.getTopClass({
         // "is-cells-no-ready" : !this.myCellsReady,
         // "is-layout-ready" : this.myCellsReady,
-        "is-hoverable"   : this.hoverable
+        "is-hoverable": this.hoverable
       }, [
         `is-border-${this.border}`,
-        `is-head-${this.head||"none"}`
+        `is-head-${this.head || "none"}`
       ])
       // Auto judgement table layout
-      if(!klass['is-layout-fixed'] && !klass['is-layout-auto']) {
+      if (!klass['is-layout-fixed'] && !klass['is-layout-auto']) {
         let tableLayout = "auto"
-        for(let i=0; i< this.fields.length; i++) {
+        for (let i = 0; i < this.fields.length; i++) {
           let fld = this.fields[i]
-          if(!Ti.Util.isNil(fld.width)){
+          if (!Ti.Util.isNil(fld.width)) {
             tableLayout = "fixed"
             break
           }
@@ -53783,28 +54000,28 @@ const _M = {
     },
     //--------------------------------------
     TableStyle() {
-      if(this.myTableWidth>0) {
+      if (this.myTableWidth > 0) {
         return Ti.Css.toStyle({
-          "width" : this.myTableWidth
+          "width": this.myTableWidth
         })
       }
     },
     //--------------------------------------
     getRowIndent() {
-      if(_.isFunction(this.indentBy)) {
+      if (_.isFunction(this.indentBy)) {
         return it => this.indentBy(it)
       }
-      if(_.isString(this.indentBy)) {
+      if (_.isString(this.indentBy)) {
         return it => _.get(it, this.indentBy)
       }
       return it => 0
     },
     //--------------------------------------
     getRowIcon() {
-      if(_.isFunction(this.iconBy)) {
+      if (_.isFunction(this.iconBy)) {
         return it => this.iconBy(it)
       }
-      if(_.isString(this.iconBy)) {
+      if (_.isString(this.iconBy)) {
         return it => _.get(it, this.iconBy)
       }
       return it => null
@@ -53819,57 +54036,57 @@ const _M = {
     },
     //--------------------------------------
     HeadCheckerIcon() {
-      if(this.isAllChecked) {
+      if (this.isAllChecked) {
         return "fas-check-square"
       }
-      if(this.hasChecked) {
+      if (this.hasChecked) {
         return "fas-minus-square"
       }
       return "far-square"
     },
     //--------------------------------------
     TableFields() {
-      if(!this.myTableRect) {
+      if (!this.myTableRect) {
         return
       }
       let fields = []
-      for(let i=0; i< this.fields.length; i++) {
+      for (let i = 0; i < this.fields.length; i++) {
         let fld = this.fields[i]
         //..................................
         let display = this.evalFieldDisplay(fld.display, fld.name)
         //..................................
         let fldWidth = Ti.Util.fallbackNil(fld.width, "stretch")
         //..................................
-        if(_.isString(fldWidth)) {
+        if (_.isString(fldWidth)) {
           // Percent
-          if(/^\d+(\.\d+)?%$/.test(fldWidth)) {
-            fldWidth = fldWidth.substring(0, fldWidth.length-1)/100;
+          if (/^\d+(\.\d+)?%$/.test(fldWidth)) {
+            fldWidth = fldWidth.substring(0, fldWidth.length - 1) / 100;
           }
           // Auto or stretch
-          else if(!/^(auto|stretch)$/.test(fldWidth)) {
+          else if (!/^(auto|stretch)$/.test(fldWidth)) {
             fldWidth = "stretch"
           }
         }
         // Must be number
-        else if(!_.isNumber(fldWidth)) {
+        else if (!_.isNumber(fldWidth)) {
           fldWidth = "stretch"
         }
         //..................................
         let cell = {
-          index  : i,
-          title  : fld.title,
-          nowrap : fld.nowrap,
-          width  : fldWidth,
-          className : fld.className,
+          index: i,
+          title: fld.title,
+          nowrap: fld.nowrap,
+          width: fldWidth,
+          className: fld.className,
           //.....................
-          name : fld.name,
+          name: fld.name,
           display,
           //.....................
-          type : fld.type,
-          comType : fld.comType,
-          comConf : fld.comConf,
-          transformer : fld.transformer,
-          serializer  : fld.serializer
+          type: fld.type,
+          comType: fld.comType,
+          comConf: fld.comConf,
+          transformer: fld.transformer,
+          serializer: fld.serializer
         }
         //..................................
         cell.headStyle = this.getHeadCellStyle(cell)
@@ -53882,11 +54099,11 @@ const _M = {
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClickHeadChecker() {
       // Cancel All
-      if(this.isAllChecked) {
+      if (this.isAllChecked) {
         this.cancelRow()
       }
       // Check All
@@ -53896,12 +54113,12 @@ const _M = {
     },
     //--------------------------------------
     OnClickTop($event) {
-      if(this.cancelable) {
+      if (this.cancelable) {
         // Click The body or top to cancel the row selection
-        if(Ti.Dom.hasOneClass($event.target,
-            'ti-table', 'table-body',
-            'table-head-cell',
-            'table-head-cell-text')) {
+        if (Ti.Dom.hasOneClass($event.target,
+          'ti-table', 'table-body',
+          'table-head-cell',
+          'table-head-cell-text')) {
           this.cancelRow()
         }
       }
@@ -53912,41 +54129,41 @@ const _M = {
     },
     //--------------------------------------
     getHeadCellStyle(fld) {
-      if(fld && !Ti.Util.isNil(fld.width) 
-          && this.myTableRect && this.myTableRect.width > 0) {
-          // Copy width
-          let width = fld.width
+      if (fld && !Ti.Util.isNil(fld.width)
+        && this.myTableRect && this.myTableRect.width > 0) {
+        // Copy width
+        let width = fld.width
 
-          // Number
-          if(_.isNumber(width)) {
-            // -100: it will conver to percent
-            if(width < 0) {
-              let per = Math.abs(width / this.myTableRect.width)
-              width = Math.round(per * 100) + "%"
-            }
-            // 0-1: => Percent
-            else if(width>=0 && width < 1) {
-              width = Math.round(width * 100) + "%"
-            }
-            // 100: => pixcel
-            else {
-              width = `${width}px`
-            }
+        // Number
+        if (_.isNumber(width)) {
+          // -100: it will conver to percent
+          if (width < 0) {
+            let per = Math.abs(width / this.myTableRect.width)
+            width = Math.round(per * 100) + "%"
           }
+          // 0-1: => Percent
+          else if (width >= 0 && width < 1) {
+            width = Math.round(width * 100) + "%"
+          }
+          // 100: => pixcel
+          else {
+            width = `${width}px`
+          }
+        }
 
-          return {width}
+        return { width }
       }
     },
     //--------------------------------------
-    evalFieldDisplay(displayItems=[], defaultKey) {
+    evalFieldDisplay(displayItems = [], defaultKey) {
       // Force to Array
       displayItems = _.concat(displayItems)
       // Prepare the return list
       let items = []
       // Loop each items
-      for(let li of displayItems) {
-        let item = this.evalFieldDisplayItem(li, {defaultKey})
-        if(item) {
+      for (let li of displayItems) {
+        let item = this.evalFieldDisplayItem(li, { defaultKey })
+        if (item) {
           items.push(item)
         }
       }
@@ -53961,13 +54178,13 @@ const _M = {
     //--------------------------------------
     scrollCurrentIntoView() {
       //console.log("scrollCurrentIntoView", this.myLastIndex)
-      if(this.autoScrollIntoView && this.theCurrentId) {
+      if (this.autoScrollIntoView && this.theCurrentId) {
         let index = this.findRowIndexById(this.theCurrentId)
         //console.log("scroll", index)
         let $view = this.$el
-        let $row  = Ti.Dom.find(`.table-row:nth-child(${index+1})`, $view)
+        let $row = Ti.Dom.find(`.table-row:nth-child(${index + 1})`, $view)
 
-        if(!_.isElement($view) || !_.isElement($row)) {
+        if (!_.isElement($view) || !_.isElement($row)) {
           return
         }
 
@@ -53975,9 +54192,9 @@ const _M = {
         let r_row = Ti.Rects.createBy($row)
 
         // test it need to scroll or not
-        if(!r_view.contains(r_row)) {
+        if (!r_view.contains(r_row)) {
           // at bottom
-          if(r_row.bottom > r_view.bottom) {
+          if (r_row.bottom > r_view.bottom) {
             $view.scrollTop += r_row.bottom - r_view.bottom
           }
           // at top
@@ -53994,54 +54211,66 @@ const _M = {
     //--------------------------------------
     __ti_shortcut(uniqKey) {
       //console.log("ti-table", uniqKey)
-      if("ARROWUP" == uniqKey) {
+      if ("ARROWUP" == uniqKey) {
         this.selectPrevRow({
-          payload: {byKeyboardArrow: true}
+          payload: { byKeyboardArrow: true }
         })
         this.scrollCurrentIntoView()
-        return {prevent:true, stop:true, quit:true}
+        return { prevent: true, stop: true, quit: true }
       }
 
-      if("ARROWDOWN" == uniqKey) {
+      if ("ARROWDOWN" == uniqKey) {
         this.selectNextRow({
-          payload: {byKeyboardArrow: true}
+          payload: { byKeyboardArrow: true }
         })
         this.scrollCurrentIntoView()
-        return {prevent:true, stop:true, quit:true}
+        return { prevent: true, stop: true, quit: true }
       }
+    },
+    //--------------------------------------
+    async evalListData(newVal, oldVal) {
+      let isSame = _.isEqual(newVal, oldVal)
+      if (!isSame) {
+        //console.log("!!!table data changed", {newVal, oldVal})
+        this.myData = await this.evalData((it) => {
+          it.icon = this.getRowIcon(it.item)
+          it.indent = this.getRowIndent(it.item)
+        })
+      }
+      // Check ready 
+      if (_.isEmpty(this.data)) {
+        this.$nextTick(() => {
+          this.myCellsReady = true
+        })
+      }
+      // Resize fields
+      this.OnResize()
+      // Scroll into view
+      _.delay(() => {
+        this.scrollCurrentIntoView()
+      }, 300)
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "data" : {
-      handler : async function(newVal, oldVal){
-        let isSame = _.isEqual(newVal, oldVal)
-        if(!isSame) {
-          //console.log("!!!table data changed", {newVal, oldVal})
-          this.myData = await this.evalData((it)=>{
-            it.icon = this.getRowIcon(it.item)
-            it.indent = this.getRowIndent(it.item)
-          })
-        }
-        // Check ready 
-        if(_.isEmpty(this.data)) {
-          this.$nextTick(()=>{
-            this.myCellsReady = true
-          })
-        }
-      },
-      immediate : true
+  watch: {
+    "data": {
+      handler: "evalListData",
+      immediate: true
+    },
+    "dict": {
+      handler: "evalListData",
+      immediate: true
     }
   },
   ///////////////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.OnResize(), 10)
+      resize: _.debounce(() => this.OnResize(), 10)
     })
-    this.$nextTick(()=>this.OnResize())
-    if(this.autoScrollIntoView) {
-      _.delay(()=>{
+    this.$nextTick(() => this.OnResize())
+    if (this.autoScrollIntoView) {
+      _.delay(() => {
         this.scrollCurrentIntoView()
       }, 0)
     }
@@ -54049,7 +54278,7 @@ const _M = {
     this.myTableRect = Ti.Rects.createBy(this.$el)
   },
   ///////////////////////////////////////////////////
-  beforeDestroy : function(){
+  beforeDestroy: function () {
     Ti.Viewport.unwatch(this)
   }
   ///////////////////////////////////////////////////
@@ -61874,7 +62103,7 @@ Ti.Preload("ti/com/ti/gui/cols/ti-gui-cols.html", `<div class="ti-gui-cols" :cla
         embed-in="cols"
         v-bind="block"
         :schema="schema"
-        :action-status="actionStatus"
+        :action-status="block.actionStatus || actionStatus"
         :shown="shown"/>
       </template>
   </template>
@@ -61964,7 +62193,7 @@ Ti.Preload("ti/com/ti/gui/rows/ti-gui-rows.html", `<div class="ti-gui-rows" :cla
         embed-in="rows"
         v-bind="block"
         :schema="schema"
-        :action-status="actionStatus"
+        :action-status="block.actionStatus || actionStatus"
         :shown="shown"/>
     </template>
   </template>
@@ -62013,7 +62242,7 @@ Ti.Preload("ti/com/ti/gui/tabs/ti-gui-tabs.html", `<div class="ti-gui-tabs" :cla
     <ti-gui-block 
       embed-in="tabs"
       v-bind="CurrentBlock"
-      :action-status="actionStatus"
+      :action-status="CurrentBlock.actionStatus || actionStatus"
       :schema="schema"
       :shown="shown"/>
   </section>
@@ -63017,7 +63246,7 @@ Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
     <span>{{ThePrefixText|i18nTxt}}</span>
   </div>
   <!--Text-->
-  <div class="as-value"
+  <div class="as-value" ref="value"
     :style="ValueStyle"
     @click.left="OnClickValue">
     <!--Link-->
@@ -63036,11 +63265,11 @@ Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
     <span>{{TheSuffixText|i18nTxt}}</span>
   </div>
   <!--suffix:icon-->
-  <div v-if="suffixIcon"
+  <div v-if="TheSuffixIcon"
     class="as-icon at-suffix"
     :class="getHoverClass('suffixIcon')"
     @click.left="OnClickSuffixIcon">
-    <ti-icon :value="suffixIcon"/>
+    <ti-icon :value="TheSuffixIcon"/>
   </div>
 </div>`);
 //========================================
@@ -64087,6 +64316,30 @@ Ti.Preload("ti/com/ti/paging/jumper/_com.json", {
 // JOIN <ti-paging-mixins.mjs> ti/com/ti/paging/support/ti-paging-mixins.mjs
 //========================================
 Ti.Preload("ti/com/ti/paging/support/ti-paging-mixins.mjs", TI_PACK_EXPORTS['ti/com/ti/paging/support/ti-paging-mixins.mjs']);
+//========================================
+// JOIN <ti-progress-bar.html> ti/com/ti/progress/bar/ti-progress-bar.html
+//========================================
+Ti.Preload("ti/com/ti/progress/bar/ti-progress-bar.html", `<div class="ti-progress-bar"
+  :class="TopClass">
+  <span class="bar-tip" :style="tipStyle">{{ProgressTip}}</span>
+  <b class="bar-outer" :style="barOuterStyle">
+    <em class="bar-inner" 
+        :style="ProgressStyle"></em>
+  </b>
+</div>`);
+//========================================
+// JOIN <ti-progress-bar.mjs> ti/com/ti/progress/bar/ti-progress-bar.mjs
+//========================================
+Ti.Preload("ti/com/ti/progress/bar/ti-progress-bar.mjs", TI_PACK_EXPORTS['ti/com/ti/progress/bar/ti-progress-bar.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/progress/bar/_com.json
+//========================================
+Ti.Preload("ti/com/ti/progress/bar/_com.json", {
+  "name" : "ti-progress-bar",
+  "globally" : true,
+  "template" : "./ti-progress-bar.html",
+  "mixins" : ["./ti-progress-bar.mjs"]
+});
 //========================================
 // JOIN <ti-roadblock.html> ti/com/ti/roadblock/ti-roadblock.html
 //========================================
@@ -69042,7 +69295,7 @@ Ti.Preload("ti/com/wn/browser/wn-browser.html", `<TiGui
   :schema="TheSchema"
   :layout="TheLayout"
   keep-shown-to="chispo-trademark-browser-gui-shown"
-  @select="OnSelectItem"
+  @list::select="OnSelectItem"
   @listviewtype:change="OnListViewTypeChange"
   @filter::change="OnFilterChange"
   @sorter::change="OnSorterChange"
@@ -70316,47 +70569,73 @@ Ti.Preload("ti/com/wn/obj/preview/wn-obj-preview.html", `<div class="wn-obj-prev
   <!--
     With content
   -->
-  <div class="wop-con" v-if="hasMeta">
-    <!--Main View-->
-    <component class="as-main"
-      :is="PreviewCom.comType"
-      v-bind="PreviewCom.comConf"/>
-    <!--ActionBar at top-->
-    <div class="as-abar">
-      <ul>
-        <li v-for="it in TheActions"
-          @click.left="OnAction(it.action)">
-          <ti-icon class="it-icon" :value="it.icon"/>
-        </li>
-      </ul>
-    </div>
-    <!--Meta at bottom-->
-    <div class="as-info" v-if="isShowInfo">
+  <div
+    v-if="hasMeta"
+      class="wop-con"
+      v-drop-files.mask="UploadDragAndDropHandler">
       <!--
-        Head
+        Main View
       -->
-      <div class="info-head">
-        <!--Pin Status Icon-->
-        <span class="it-icon" @click.left="toggleInfoFloat">
-          <ti-icon :value="PreviewInfoPinIcon"/>
-        </span>
-        <!--Head text-->
-        <span class="it-text">{{'i18n:info'|i18n}}</span>
-        <!--Edit Button-->
-        <span class="it-edit"
-          @click.left="OnEditInfo">{{'i18n:edit'|i18n}}</span>
+      <component class="as-main"
+        :is="PreviewCom.comType"
+        v-bind="PreviewCom.comConf"/>
+      <!--
+        ActionBar at top
+      -->
+      <div class="as-abar">
+        <ul>
+          <li v-for="it in TheActions"
+            @click.left="OnAction(it.action)">
+            <ti-icon class="it-icon" :value="it.icon"/>
+          </li>
+        </ul>
       </div>
       <!--
-        Fields
+        Meta at bottom
       -->
-      <div class="info-field-con">
-        <wn-obj-preview-info-field
-          v-for="fld in PrevewInfoFields"
-          :key="fld.name"
-          v-bind="fld"
-          :data="meta"/>
+      <div class="as-info" v-if="isShowInfo">
+        <!--
+          Head
+        -->
+        <div class="info-head">
+          <!--Pin Status Icon-->
+          <span class="it-icon" @click.left="toggleInfoFloat">
+            <ti-icon :value="PreviewInfoPinIcon"/>
+          </span>
+          <!--Head text-->
+          <span class="it-text">{{'i18n:info'|i18n}}</span>
+          <!--Edit Button-->
+          <span class="it-edit"
+            @click.left="OnEditInfo">{{'i18n:edit'|i18n}}</span>
+        </div>
+        <!--
+          Fields
+        -->
+        <div class="info-field-con">
+          <wn-obj-preview-info-field
+            v-for="fld in PrevewInfoFields"
+            :key="fld.name"
+            v-bind="fld"
+            :data="meta"/>
+        </div>
       </div>
-    </div>
+      <!--
+        Process bar
+      -->
+      <div class="as-progress" v-if="uploading>0">
+        <TiProgressBar
+          class="fs-lg tip-mask"
+          :value="uploading"/>
+      </div>
+      <!--==================================
+        Hidden file upload control
+      -->
+      <input 
+        type="file" 
+        ref="file" 
+        class="ti-hide"
+        :accept="MetaMime"
+        @change.stop.seft="OnSelectLocalFilesToUpload">
   </div>
   <!--
     Blank 
@@ -70382,6 +70661,7 @@ Ti.Preload("ti/com/wn/obj/preview/_com.json", {
   "mixins" : ["./wn-obj-preview.mjs"],
   "components" : [
     "./com/preview-info-field",
+    "@com:ti/progress/bar",
     "@com:ti/media/binary",
     "@com:ti/media/image",
     "@com:ti/media/audio",
@@ -71315,6 +71595,7 @@ Ti.Preload("ti/mod/wn/obj-browser/m-obj-browser-actions.mjs", TI_PACK_EXPORTS['t
 //========================================
 Ti.Preload("ti/mod/wn/obj-browser/m-obj-browser.json", {
   "meta": null,
+  "currentId": null,
   "keepSearch": true,
   "path": null,
   "data": {
@@ -71344,7 +71625,8 @@ Ti.Preload("ti/mod/wn/obj-browser/m-obj-browser.json", {
   "pageSize": 1000,
   "status": {
     "reloading": false
-  }
+  },
+  "fieldStatus": {}
 });
 //========================================
 // JOIN <m-obj-browser.mjs> ti/mod/wn/obj-browser/m-obj-browser.mjs
@@ -71379,7 +71661,7 @@ Ti.Preload("ti/mod/wn/obj-children/m-obj-children.json", {
   "search": {
     "defaultKey": "nm",
     "keyword": {
-      "=id": "^[\\d\\w]{26}$",
+      "=id": "^[\\d\\w]{26}(:.+)?$",
       "~nm": "^[a-z0-9]{10}$",
       "title": "^.+"
     },
@@ -72076,7 +72358,6 @@ Ti.Preload("/a/load/wn.manager/wn-manager.html", `<ti-gui
   @item:active="OnCurrentMetaChange"
   @open:wn:obj="OnCurrentMetaChange"
   @arena::change="OnCurrentDataChange"
-  @arena::select="OnArenaSelect"
   @listviewtype:change="OnArenaListViewTypeChange"
   @arena::actions:update="OnUpdateActions"
   @arena::indicate="OnArenaIndicate"

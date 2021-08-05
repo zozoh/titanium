@@ -1,4 +1,4 @@
-// Pack At: 2021-08-02 16:02:54
+// Pack At: 2021-08-05 08:22:05
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1650,35 +1650,35 @@ const Sys = (function(){
 const Util = (function(){
   ////////////////////////////////////////////
   const WnUtil = {
-    toFuzzyStr(str, strictStart=false) {
-      if(!str || str.startsWith("^"))
+    toFuzzyStr(str, strictStart = false) {
+      if (!str || str.startsWith("^"))
         return str
   
-      if(strictStart)
+      if (strictStart)
         return '^' + str
       return '^.*' + str
     },
     fromFuzzyStr(str) {
       let m = /^(\^(\.\*)?)(.+)((\.\*)?\$)?$/.exec(str)
-      if(m) {
+      if (m) {
         return m[3]
       }
       return str
     },
     isMimeText(mime) {
-      return /^text\//.test(mime) 
-             || "application/x-javascript" == mime
-             || "application/json" == mime
+      return /^text\//.test(mime)
+        || "application/x-javascript" == mime
+        || "application/json" == mime
     },
     isMimeJson(mime) {
       return "text/json" == mime
-             || "application/json" == mime
+        || "application/json" == mime
     },
     // adapt for old versiton walnut icon attribute
     getIconName(iconHtml) {
       let m = /^<i +class=["'] *(fa|zmdi|im) +(fa|zmdi|im)-([^" ]+) *["']> *<\/i>$/
-                .exec(iconHtml)
-      if(m) {
+        .exec(iconHtml)
+      if (m) {
         return m[3]
       }
       return iconHtml
@@ -1688,41 +1688,41 @@ const Util = (function(){
      */
     genPreviewObj(meta) {
       // Uploaded thumb preview
-      if(meta.thumb) {
+      if (meta.thumb) {
         // Remove image resource
-        if(/https?:\/\//.test(meta.thumb)) {
+        if (/https?:\/\//.test(meta.thumb)) {
           return {
-            type : "image",
-            value : meta.thumb
+            type: "image",
+            value: meta.thumb
           }
         }
   
         // Load walnut obj thunbmail
         return {
-          type : "image",
-          value : '/o/thumbnail/id:' + meta.id
+          type: "image",
+          value: '/o/thumbnail/id:' + meta.id
         }
       }
       // Customized Icon
-      if(meta.icon) {
+      if (meta.icon) {
         let icon = WnUtil.getIconName(meta.icon)
         return Ti.Icons.get(icon, {
-          type  : "font",
-          value : icon
+          type: "font",
+          value: icon
         })
       }
       // Default
       return Ti.Icons.get(meta)
     },
     getIconObj(meta) {
-      if(meta && meta.icon) {
+      if (meta && meta.icon) {
         return meta.icon
       }
       // return default
       return Ti.Icons.get(meta)
     },
     getObjIcon(meta, dft) {
-      if(!meta)
+      if (!meta)
         return dft
       return meta.icon || Ti.Icons.get(meta, dft)
     },
@@ -1734,63 +1734,63 @@ const Util = (function(){
       thumb,
       mime,
       type,
-      race, 
+      race,
       candidateIcon,
-      timestamp=0
-    }={}, dftIcon) {
+      timestamp = 0
+    } = {}, dftIcon) {
       //console.log("getObjThumbIcon", {icon,race, mime})
       // Thumb as image
-      if(thumb) {
+      if (thumb) {
         let src = `/o/content?str=${thumb}`
-        if(timestamp > 0) {
+        if (timestamp > 0) {
           src += `&_t=${timestamp}`
         }
         return {
-          type : "image",
-          value : src
+          type: "image",
+          value: src
         }
       }
       //.............................................
       // Icon
-      if(icon) {
+      if (icon) {
         return {
-          type  : "font",
-          value  : icon
+          type: "font",
+          value: icon
         }
       }
       //.............................................
       // Force Default
-      if(candidateIcon) {
+      if (candidateIcon) {
         return candidateIcon
       }
       //.............................................
       // Auto get by type
-      if(type || mime || race) {
-        return Ti.Icons.get({type, mime, race})
+      if (type || mime || race) {
+        return Ti.Icons.get({ type, mime, race })
       }
       // Default
       return dftIcon
     },
     getObjThumbIcon2(meta, canIcon) {
       //console.log(meta, canIcon)
-      if(meta.thumb) {
+      if (meta.thumb) {
         let src;
-        if(/^https?:\/\//.test(meta.thumb)) {
+        if (/^https?:\/\//.test(meta.thumb)) {
           src = meta.thumb
         } else {
           src = `/o/content?str=${meta.thumb}`
         }
         return {
-          type : "image",
-          value : src
+          type: "image",
+          value: src
         }
       }
   
-      if(meta.icon) {
+      if (meta.icon) {
         return meta.icon
       }
   
-      if(canIcon)
+      if (canIcon)
         return canIcon
   
       return Ti.Icons.get(meta)
@@ -1798,7 +1798,7 @@ const Util = (function(){
     /***
      * return the object readable name
      */
-    getObjDisplayName(meta, keys=[]) {
+    getObjDisplayName(meta, keys = []) {
       return Ti.Util.getFallbackEmpty(meta, keys, "title", "nm")
     },
     /***
@@ -1811,50 +1811,50 @@ const Util = (function(){
     getAppLink(meta, {
       appName = "wn.manager",
       encoded = false
-    }={}) {
+    } = {}) {
       return WnUtil.getLink(`/a/open/${appName}`, meta, {
-        pathKey : "ph",
+        pathKey: "ph",
         encoded
       })
     },
     getAppLinkStr(meta, options) {
       return WnUtil.getAppLink(meta, options).toString()
     },
-    getObjBadges(meta={}, setup) {
+    getObjBadges(meta = {}, setup) {
       // Totaly customized
-      if(_.isFunction(setup)) {
+      if (_.isFunction(setup)) {
         return setup(meta)
       }
   
       let {
-        NW= null,
-        NE= ["ln", "zmdi-open-in-new"],
-        SW= null,
-        SE= null
+        NW = null,
+        NE = ["ln", "zmdi-open-in-new"],
+        SW = null,
+        SE = null
       } = (setup || {})
   
       let badges = {}
   
-      let _eval_badge = function(name, BD){
-        if(_.isFunction(BD)) {
+      let _eval_badge = function (name, BD) {
+        if (_.isFunction(BD)) {
           BD = BD(meta)
         }
-        if(!BD)
+        if (!BD)
           return;
   
         // Quick badge
-        if(_.isArray(BD)) {
-          if(BD.length == 1){
+        if (_.isArray(BD)) {
+          if (BD.length == 1) {
             badges[name] = BD[0]
           }
-          else if(BD.length > 1 && meta[BD[0]]) {
+          else if (BD.length > 1 && meta[BD[0]]) {
             badges[name] = BD[1]
           }
         }
         // Auto match badge
-        else if(_.isPlainObject(BD) && BD.value) {
+        else if (_.isPlainObject(BD) && BD.value) {
           //console.log("haha", BD)
-          if(BD.test && !Ti.AutoMatch.test(BD.test, meta)) {
+          if (BD.test && !Ti.AutoMatch.test(BD.test, meta)) {
             return
           }
           let bag = Ti.Util.explainObj(meta, {
@@ -1862,7 +1862,7 @@ const Util = (function(){
             className: BD.className,
             value: BD.value
           })
-          if(bag)
+          if (bag)
             badges[name] = bag
         }
         // Static badge
@@ -1875,53 +1875,56 @@ const Util = (function(){
       _eval_badge("NE", NE);
       _eval_badge("SW", SW);
       _eval_badge("SE", SE);
-      
+  
       return badges
     },
-    getObjThumbInfo(meta={}, {
+    getObjThumbInfo(meta = {}, {
       exposeHidden = false,
       status = {},
       progress = {},
-      badges=undefined,
-      titleKey=undefined
-    }={}) {
+      badges = undefined,
+      titleKey = undefined
+    } = {}) {
       // Guard
-      if(!meta || !meta.nm) {
+      if (!meta || !meta.nm) {
         return
       }
       // Check the visibility
       let visibility = "show"
-      if(meta.nm.startsWith(".")) {
-        if(exposeHidden) {
+      if (meta.nm.startsWith(".")) {
+        if (exposeHidden) {
           visibility = exposeHidden ? "weak" : "hide"
         }
       }
       let ttKey = titleKey
-      if(_.isFunction(titleKey)) {
+      if (_.isFunction(titleKey)) {
         ttKey = titleKey()
       }
       // Generate new Thumb Item
       return {
-        id    : meta.id,
-        nm    : meta.nm,
-        title : WnUtil.getObjDisplayName(meta, ttKey),
-        preview : WnUtil.genPreviewObj(meta),
-        href : WnUtil.getAppLinkStr(meta),
+        id: meta.id,
+        nm: meta.nm,
+        title: WnUtil.getObjDisplayName(meta, ttKey),
+        preview: WnUtil.genPreviewObj(meta),
+        href: WnUtil.getAppLinkStr(meta),
         visibility,
-        status   : status[meta.id],
-        progress : progress[meta.id],
-        badges : WnUtil.getObjBadges(meta, badges),
-        rawData : meta
+        status: status[meta.id],
+        progress: progress[meta.id],
+        badges: WnUtil.getObjBadges(meta, badges),
+        rawData: meta
       }
     },
     /***
      * Get object link for download
      */
-    getDownloadLink(meta, {mode="force"}={}) {
+    getDownloadLink(meta, { mode = "force", timestamp } = {}) {
       return WnUtil.getLink(`/o/content`, meta, {
-        pathKey : "str",
-        encoded : true,
-        params : {d:mode}
+        pathKey: "str",
+        encoded: true,
+        params: {
+          d: mode,
+          _ts: timestamp
+        }
       })
     },
     /**
@@ -1947,7 +1950,7 @@ const Util = (function(){
      * }
      * ```
      */
-    getMatchByFilter({keyword, match, majorKey, majorValue}={}, setting={}) {
+    getMatchByFilter({ keyword, match, majorKey, majorValue } = {}, setting = {}) {
       let flt = {}
       //console.log("getMatchByFilter", {match, setting})
       //............................................
@@ -1956,8 +1959,8 @@ const Util = (function(){
       majorKey = setting.majorKey || majorKey
       //............................................
       // Eval Filter: keyword
-      if(keyword) {
-        if(/"^[\d\w]{26}(:.+)?$"/.test(keyword)) {
+      if (keyword) {
+        if (/"^[\d\w]{26}(:.+)?$"/.test(keyword)) {
           flt.id = keyword
         }
         // Find
@@ -1966,47 +1969,47 @@ const Util = (function(){
           let keywordSet = _.cloneDeep(setting.keyword)
           let keys = _.keys(keywordSet)
           //........................................
-          for(let k of keys) {
+          for (let k of keys) {
             let val = keywordSet[k]
-            if(new RegExp(val).test(keyword)) {
+            if (new RegExp(val).test(keyword)) {
               knm = k;
               break;
             }
           }
           //........................................
           // Accurate equal
-          if(knm.startsWith("=")) {
+          if (knm.startsWith("=")) {
             flt[knm.substring(1).trim()] = keyword
           }
           // Startwith
-          else if(knm.startsWith("~")) {
-            flt[knm.substring(1).trim()] = "^"+keyword
+          else if (knm.startsWith("~")) {
+            flt[knm.substring(1).trim()] = "^" + keyword
           }
           // Default is like
           else {
-            flt[knm] = "^.*"+keyword;
+            flt[knm] = "^.*" + keyword;
           }
           //........................................
         }
       }
       //............................................
       // Eval Filter: match
-      if(!_.isEmpty(match)) {
-        _.forEach(match, (val, key)=>{
-          if(!Ti.Util.isNil(val)) {
+      if (!_.isEmpty(match)) {
+        _.forEach(match, (val, key) => {
+          if (!Ti.Util.isNil(val)) {
             flt[key] = val
           }
         })
       }
       //............................................
       // Eval Filter: major
-      if(majorKey && !Ti.Util.isNil(majorValue)) {
+      if (majorKey && !Ti.Util.isNil(majorValue)) {
         _.set(flt, majorKey, majorValue)
       }
       //............................................
       // Fix filter
       let fixedMatch = setting.match
-      if(!_.isEmpty(fixedMatch)) {
+      if (!_.isEmpty(fixedMatch)) {
         _.assign(flt, fixedMatch)
       }
       //............................................
@@ -2029,36 +2032,36 @@ const Util = (function(){
       pathKey = "ph",
       encoded = false,
       params = {}
-    }={}) {
-      let params2 = {...params}
-      if(!meta) {
-        return {url, params2}
+    } = {}) {
+      let params2 = { ...params }
+      if (!meta) {
+        return { url, params2 }
       }
-      const __V = (val)=>{
+      const __V = (val) => {
         return encoded
           ? encodeURIComponent(val)
           : val
       }
       // META: "~/path/to/obj"
-      if(/^(\/|~|id:)/.test(meta)) {
+      if (/^(\/|~|id:)/.test(meta)) {
         params2[pathKey] = __V(meta)
       }
       // META: "478e..6ea2"
-      else if(_.isString(meta)) {
+      else if (_.isString(meta)) {
         params2[pathKey] = `id:${meta}`
       }
       // META: {id:"478e..6ea2"}
-      else if(meta.id){
+      else if (meta.id) {
         params2[pathKey] = `id:${meta.id}`
       }
       // META: {ph:"/path/to/obj"}
-      else if(meta.ph){
+      else if (meta.ph) {
         params2[pathKey] = __V(meta.ph)
       }
       // Default return
       return Ti.Util.Link({
-        url, 
-        params : params2,
+        url,
+        params: params2,
       })
     },
     /***
@@ -2069,17 +2072,17 @@ const Util = (function(){
      * @return TreeNode: {id,name,leaf,rawData,children}
      */
     wrapTreeNode(meta) {
-      if(_.isPlainObject(meta)) {
+      if (_.isPlainObject(meta)) {
         let node = {
-          id : meta.id,
-          name : meta.nm,
-          leaf : 'DIR' != meta.race,
-          rawData : meta
+          id: meta.id,
+          name: meta.nm,
+          leaf: 'DIR' != meta.race,
+          rawData: meta
         }
-        if(!node.leaf) {
+        if (!node.leaf) {
           node.children = []
         }
-        if(node.id && node.name) {
+        if (node.id && node.name) {
           return node
         }
       }
@@ -2088,32 +2091,32 @@ const Util = (function(){
      * @param query{String|Function}
      */
     genQuery(query, {
-      vkey="val", 
-      wrapArray=false, 
+      vkey = "val",
+      wrapArray = false,
       errorAs,
-      blankAs= '[]'
-    }={}) {
+      blankAs = '[]'
+    } = {}) {
       // Customized query
-      if(_.isFunction(query)) {
+      if (_.isFunction(query)) {
         return query
       }
       // Array
-      if(_.isArray(query)) {
-        if(wrapArray) {
-          return ()=>query
+      if (_.isArray(query)) {
+        if (wrapArray) {
+          return () => query
         }
         return query
       }
       // Command template
-      if(_.isString(query)) {
+      if (_.isString(query)) {
         // Query by value 
-        if(vkey) {
+        if (vkey) {
           return async (v) => {
-            let cmdText = Ti.S.renderBy(query, {[vkey]:v})
+            let cmdText = Ti.S.renderBy(query, { [vkey]: v })
             //console.log("exec", cmdText)
             return await Wn.Sys.exec2(cmdText, {
-              as : "json",
-              input : v,
+              as: "json",
+              input: v,
               errorAs,
               blankAs
             })
@@ -2123,7 +2126,7 @@ const Util = (function(){
         else {
           return async (v) => {
             return await Wn.Sys.exec2(query, {
-              as : "json",
+              as: "json",
               errorAs,
               blankAs
             })
@@ -4026,7 +4029,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210802.160255"
+const WALNUT_VERSION = "1.2-20210805.082206"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

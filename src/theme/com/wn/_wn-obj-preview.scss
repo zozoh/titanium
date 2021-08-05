@@ -16,6 +16,12 @@
       }
     }
     //------------------------------------------------
+    > .as-progress {
+      @include pos-abs($b:0,$l:0,$r:0);
+      @include flex-center;
+      .ti-progress-bar {width:100%;}
+    }
+    //------------------------------------------------
     > .as-abar {
       @include pos-abs($t:0,$r:0);
       @include color($float-color, fr, bg);

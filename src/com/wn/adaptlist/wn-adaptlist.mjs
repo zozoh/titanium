@@ -243,7 +243,7 @@ const _M = {
     },
     //--------------------------------------------
     OnItemOpen() {
-      console.log("open item")
+      //console.log("open item")
       let obj = this.getCurrentItem()
       if(obj) {
         this.$notify("open:wn:obj", obj)

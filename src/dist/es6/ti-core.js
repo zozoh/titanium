@@ -1,4 +1,4 @@
-// Pack At: 2021-08-02 16:02:54
+// Pack At: 2021-08-05 08:22:05
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3465,7 +3465,7 @@ const {App} = (function(){
     //    comType: "@com:xx.xx", 
     //    components: ["@com:xx/xx"]
     // }
-    async loadView(view) {
+    async loadView(view, meta) {
       // [Optional] Load the module
       const setupMod = (moConf, { modState, modSetup }={}) => {
         //console.log("setup:", moConf)
@@ -3476,7 +3476,7 @@ const {App} = (function(){
             partial: "right"
           })
           if (_.isFunction(setupFunc)) {
-            return setupFunc({ moConf, meta, viewInfo })
+            return setupFunc({ moConf, meta, view })
           }
         }
         return moConf
@@ -6624,6 +6624,140 @@ const {Shortcut} = (function(){
   ///////////////////////////////////////
   const TiShortcut = {
     /***
+     * Routing events by setup:
+     * 
+     * {
+     *    //...............................
+     *    // Object call
+     *    "$EventName1" : {
+     *       "global": "Ti.Aler",
+     *       "root": "methodNameInRootInstance",
+     *       "main": "methodNameInMainCom",
+     *       "dispatch": "main/xxx"
+     *       "commit": "main/xxxx",
+     *       "payload": {
+     *          "someKey": "=$args[0].id"
+     *       }
+     *    },
+     *    //...............................
+     *    // String => GenInvoking
+     *    "$EventName2" : "Ti.Alert('haha')",
+     *    //...............................
+     *    // Customized Function
+     *    "$EventName3" : function(){...}
+     *    //...............................
+     *    // Batch Call
+     *    "$EventName1" : [
+     *        Object,
+     *        String,
+     *        Function
+     *    ]
+     *    //...............................
+     * }
+     */
+    genEventActionInvoking(at, input = {}) {
+      // Guard
+      if (!at) {
+        return
+      }
+      let { app, context, funcSet } = input
+      let funcList = []
+      //---------------------------------
+      // Batch call
+      if (_.isArray(at)) {
+        for (let a of at) {
+          let func = TiShortcut.genEventActionInvoking(a, input)
+          if (func) {
+            funcList.push(func)
+          }
+        }
+      }
+      //---------------------------------
+      // pick one invoke mode ...
+      else {
+        //-------------------------------
+        // String => GenInvoking
+        if (_.isString(at)) {
+          let func = Ti.Util.genInvoking(fn, {
+            context,
+            dft: null,
+            funcSet
+          })
+          if (func)
+            funcList.push(func)
+        }
+        //-------------------------------
+        // Customized Function
+        else if (_.isFunction(at)) {
+          funcList.push(at)
+        }
+        //-------------------------------
+        // Eval payload
+        else {
+          let pld = Ti.Util.explainObj(context, at.payload, { evalFunc: true })
+          //-----------------------------
+          // Object call: commit
+          if (at.commit) {
+            funcList.push(function(){
+              app.commit(at.commit, pld)
+            })
+          }
+          //-----------------------------
+          // Object call: dispatch
+          if (at.dispatch) {
+            funcList.push(function(){
+              app.dispatch(at.dispatch, pld)
+            })
+          }
+          //-----------------------------
+          // Object call: global
+          if (at.global) {
+            funcList.push(function(){
+              app.global(at.global, pld)
+            })
+          }
+          //-----------------------------
+          // Object call: main
+          if (at.main) {
+            funcList.push(function(){
+              app.main(at.main, pld)
+            })
+          }
+          //-----------------------------
+          // Object call: root
+          if (at.root) {
+            funcList.push(function(){
+              app.root(at.root, pld)
+            })
+          }
+          //-----------------------------
+          // Rewrite event bubble
+          if(!Ti.Util.isNil(at.eventRewrite)) {
+            funcList.push(function(){
+              return at.eventRewrite
+            })
+          }
+          //-----------------------------
+        }
+        //-------------------------------
+      }
+      //---------------------------------
+      // Then return the action call
+      if (!_.isEmpty(funcList)) {
+        if (funcList.length == 1) {
+          return funcList[0]
+        }
+        return async function (...args) {
+          let re;
+          for (let func of funcList) {
+            re = await func.apply(context, args)
+          }
+          return re
+        }
+      }
+      //---------------------------------
+    },
+    /***
      * Get the function from action
      * 
      * @param action{String|Object|Function}
@@ -6635,36 +6769,36 @@ const {Shortcut} = (function(){
      */
     genActionInvoking(action, {
       $com,
-      argContext={},
-      wait=0,
-    }={}) {
+      argContext = {},
+      wait = 0,
+    } = {}) {
       // if(action.indexOf("projIssuesImport") > 0)
       //   console.log("genActionInvoking", action)
       //..........................................
       const __bind_it = fn => {
         return wait > 0
-          ? _.debounce(fn, wait, {leading:true})
+          ? _.debounce(fn, wait, { leading: true })
           : fn
       }
       //..........................................
       const __vm = com => {
-        if(_.isFunction(com))
+        if (_.isFunction(com))
           return com()
         return com
       }
       //..........................................
       // Command in Function
-      if(_.isFunction(action)) {
+      if (_.isFunction(action)) {
         return __bind_it(action)
       }
       //..........................................
       let mode, name, args;
       //..........................................
       // Command in String
-      if(_.isString(action)) {
+      if (_.isString(action)) {
         let m = /^((global|commit|dispatch|root|main|\$\w+):|=>)([^()]+)(\((.*)\))?$/.exec(action)
-        if(!m){
-          throw Ti.Err.make("e.action.invalid : " + action, {action})
+        if (!m) {
+          throw Ti.Err.make("e.action.invalid : " + action, { action })
         }
         mode = m[2] || m[1]
         name = m[3]
@@ -6672,48 +6806,48 @@ const {Shortcut} = (function(){
       }
       //..........................................
       // Command in object
-      else if(_.isPlainObject(action)) {
+      else if (_.isPlainObject(action)) {
         mode = action.mode
         name = action.name
         args = action.args
       }
       //..........................................
       // explain args
-      let __as = Ti.S.joinArgs(args, [], v=>{
-        return Ti.S.toJsValue(v, {context:argContext})
+      let __as = Ti.S.joinArgs(args, [], v => {
+        return Ti.S.toJsValue(v, { context: argContext })
       })
       let func;
       //..........................................
       // Arrow invoke
-      if("=>" == mode) {
+      if ("=>" == mode) {
         let fn = _.get(window, name)
-        if(!_.isFunction(fn)) {
-          throw Ti.Err.make("e.action.invoke.NotFunc : " + action, {action})
+        if (!_.isFunction(fn)) {
+          throw Ti.Err.make("e.action.invoke.NotFunc : " + action, { action })
         }
-        func = ()=>{
+        func = () => {
           let vm = __vm($com)
           fn.apply(vm, __as)
         }
       }
       //..........................................
       // $emit:
-      else if("$emit" == mode || "$notify" == mode) {
-        func = ()=>{
+      else if ("$emit" == mode || "$notify" == mode) {
+        func = () => {
           let vm = __vm($com)
-          if(!vm) {
-            throw Ti.Err.make("e.action.emit.NoCom : " + action, {action})
+          if (!vm) {
+            throw Ti.Err.make("e.action.emit.NoCom : " + action, { action })
           }
           vm[mode](name, ...__as)
         }
       }
       //..........................................
       // $parent: method
-      else if("$parent" == mode) {
-        func = ()=>{
+      else if ("$parent" == mode) {
+        func = () => {
           let vm = __vm($com)
           let fn = vm[name]
-          if(!_.isFunction(fn)) {
-            throw Ti.Err.make("e.action.call.NotFunc : " + action, {action})
+          if (!_.isFunction(fn)) {
+            throw Ti.Err.make("e.action.call.NotFunc : " + action, { action })
           }
           fn.apply(vm, __as)
         }
@@ -6721,18 +6855,18 @@ const {Shortcut} = (function(){
       //..........................................
       // App Methods
       else {
-        func = ()=>{
+        func = () => {
           let vm = __vm($com)
-          let app  = Ti.App(vm)
-          let fn   = app[mode]
+          let app = Ti.App(vm)
+          let fn = app[mode]
           let _as2 = _.concat(name, __as)
           fn.apply(app, _as2)
         }
       }
       //..........................................
       // Gurad
-      if(!_.isFunction(func)) {
-        throw Ti.Err.make("e.invalid.action : " + action, {action})
+      if (!_.isFunction(func)) {
+        throw Ti.Err.make("e.invalid.action : " + action, { action })
       }
       //..........................................
       return __bind_it(func)
@@ -6755,16 +6889,16 @@ const {Shortcut} = (function(){
      * 
      * @return Unique Key as string
      */
-    getUniqueKey($event, {sep="+", mode="upper"}={}) {
+    getUniqueKey($event, { sep = "+", mode = "upper" } = {}) {
       let keys = []
-      if($event.altKey) {keys.push("ALT")}
-      if($event.ctrlKey) {keys.push("CTRL")}
-      if($event.metaKey) {keys.push("META")}
-      if($event.shiftKey) {keys.push("SHIFT")}
+      if ($event.altKey) { keys.push("ALT") }
+      if ($event.ctrlKey) { keys.push("CTRL") }
+      if ($event.metaKey) { keys.push("META") }
+      if ($event.shiftKey) { keys.push("SHIFT") }
   
       let k = Ti.S.toCase($event.key, mode)
   
-      if(!/^(ALT|CTRL|CONTROL|SHIFT|META)$/.test(k)) {
+      if (!/^(ALT|CTRL|CONTROL|SHIFT|META)$/.test(k)) {
         keys.push(" " === k ? "SPACE" : k)
       }
   
@@ -6775,18 +6909,18 @@ const {Shortcut} = (function(){
      */
     startListening() {
       // Prevent multiple listening
-      if(this.isListening)
+      if (this.isListening)
         return
       // Do listen
-      window.addEventListener("keydown", ($event)=>{
+      window.addEventListener("keydown", ($event) => {
         // get the unify key code
         let uniqKey = TiShortcut.getUniqueKey($event)
   
         // Top App
         let app = Ti.App.topInstance()
-        
+  
         // Then try to find the action
-        if(app) {
+        if (app) {
           app.fireShortcut(uniqKey, $event)
         }
       })
@@ -9345,6 +9479,105 @@ const {Util} = (function(){
   
       // done
       return index
+    },
+    /**
+     * @param state Vuex state object with "data: {list,pager}"
+     * @param items Item(or ID) to remove, unique key is "id"
+     */
+    RemoveStateDataItems(state, items = []) {
+      let data = state.data
+      // Build Id Map
+      if (!_.isArray(items)) {
+        items = [items]
+      }
+      let idMap = {}
+      _.forEach(items, it => {
+        if (_.isString(it)) {
+          idMap[it] = true
+        } else if (it.id) {
+          idMap[it.id] = true
+        }
+      })
+      if (_.isArray(data.list) && data.pager && !_.isEmpty(idMap)) {
+        let list = []
+        _.forEach(data.list, li => {
+          if (!idMap[li.id]) {
+            list.push(li)
+          }
+        })
+        state.data = {
+          list, pager: data.pager
+        }
+      }
+    },
+    /**
+     * @param state Vuex state object with "data: {list,pager},currentId:"XXX""   
+     * @param theItem Item to merge, unique key is "id"
+     */
+    MergeStateDataItem(state, theItem) {
+      // Update pager list item of data
+      if (state.currentId && _.isArray(state.data.list)) {
+        let data = _.cloneDeep(state.data)
+        for (let li of data.list) {
+          if (state.currentId == li.id) {
+            _.assign(li, theItem)
+          }
+          state.data = data
+        }
+      }
+    },
+    /**
+     * 
+     * @param state Vuex state object with "data: {list,pager}"
+     * @param newItem Item to upsert, unique key is "id"
+     * @param atPos  insert position: -1: before, 1: after, 0: in place
+     */
+    UpsertStateDataItemAt(state, newItem, atPos = 1) {
+      // Guard
+      if (_.isEmpty(newItem) || !newItem || !newItem.id) {
+        return
+      }
+      // Batch upsert
+      if (_.isArray(newItem)) {
+        for (let it of newItem) {
+          TiUtil.UpsertStateDataItemAt(state, it, atTail)
+        }
+        return
+      }
+      // upsert one
+      let data = state.data
+      // Update pager list item of data
+      if (_.isArray(data.list) && data.pager) {
+        let list = _.cloneDeep(data.list)
+        let list2 = []
+        let found = false
+        for (let li of list) {
+          if (!found && (li.id == newItem.id || li.nm == newItem.nm)) {
+            list2.push(newItem)
+            found = true
+          } else {
+            list2.push(li)
+          }
+        }
+        if (!found) {
+          if (atPos > 0) {
+            list2.push(newItem)
+          } else if (atPos < 0) {
+            list2 = _.concat(newItem, list2)
+          }
+        }
+        state.data = {
+          list: list2,
+          pager: data.pager
+        }
+      }
+      // Just insert
+      else {
+        state.data = {
+          list: newItems,
+          pager: data.pager
+        }
+      }
     },
     /***
      * Insert one or more elements after specific position of object.
@@ -13566,10 +13799,10 @@ const {Dict,DictFactory} = (function(){
 // # import {VueEventBubble} from "./vue/vue-event-bubble.mjs"
 const {VueEventBubble} = (function(){
   ///////////////////////////////////////////////////
-  const TryBubble = function(vm, event, stop=false) {
-    if(vm.$parent && !stop) {
+  const TryBubble = function (vm, event, stop = false) {
+    if (vm.$parent && !stop) {
       // Customized bubble
-      if(_.isFunction(vm.__before_bubble)) {
+      if (_.isFunction(vm.__before_bubble)) {
         event = vm.__before_bubble(event) || event
       }
       // Notify parent
@@ -13577,49 +13810,62 @@ const {VueEventBubble} = (function(){
     }
   }
   ///////////////////////////////////////////////////
-  const Notify = function(name, ...args) {
+  const Notify = function (name, ...args) {
     // if(name.endsWith("select"))
     //   console.log("Notify:", 
     //   `${_.padStart(name, 30, '~')} @ <${_.padEnd(this.tiComId, 15, ' ')}>`,
     //   args)
     // Prepare the return object, if stop=true will cancel the bubble
-    let event = {name, args}
+    let event = { name, args }
     let stop = false
     let handler;
+    //console.log("EventBubble", name, args)
   
     // Handle by customized dispatcher
-    if(_.isFunction(this.__on_events)) {
+    if (_.isFunction(this.__on_events)) {
       handler = this.__on_events(name, ...args)
     }
     // Handle by Vue primary listeners
-    if(!_.isFunction(handler)) {
+    if (!_.isFunction(handler)) {
       handler = _.get(this.$listeners, name)
     }
     // Then try fallback
-    if(!_.isFunction(handler)){
+    if (!_.isFunction(handler)) {
       handler = this.$tiEventTryFallback(name, this.$listeners)
     }
   
     // Invoke handler or bubble the event
-    if(_.isFunction(handler)){
+    if (_.isFunction(handler)) {
+      let vm = this
+      const callNext = function (reo) {
+        stop = true
+        // handler indicate the stop bubble
+        if (_.isBoolean(reo)) {
+          stop = reo
+        }
+        // {stop:true}
+        else if (reo && _.isBoolean(reo.stop)) {
+          stop = reo.stop
+          event.name = reo.name || event.name
+        }
+        // Try bubble
+        TryBubble(vm, event, stop)
+      }
       // If find a event handler, dont't bubble it
       // unless the handler tell me to bubble by return:
       //  - true/false
       //  - {stop:false}
       // If return undefined, treat it as {stop:true}
       let reo = handler(...event.args)
-      stop = true
-      // handler indicate the stop bubble
-      if(_.isBoolean(reo)) {
-        stop = reo
+      // Async call
+      if (reo instanceof Promise) {
+        reo.then(callNext)
       }
-      // {stop:true}
-      else if(reo && _.isBoolean(reo.stop)) {
-        stop = reo.stop
-        event.name = reo.name || event.name
+      // Sync call
+      else {
+        callNext(reo)
       }
-      // Try bubble
-      TryBubble(this, event, stop)
+  
     }
     // Then bubble it
     else {
@@ -13628,31 +13874,38 @@ const {VueEventBubble} = (function(){
   }
   ///////////////////////////////////////////////////
   const VueEventBubble = {
-    install(Vue, {overrideEmit=false}={}) {
+    install(Vue, { overrideEmit = false } = {}) {
       // Append the methods
       _.assign(Vue.prototype, {
         //...........................................
-        $notify : Notify,
+        $notify: Notify,
         //...........................................
-        $tiEventTryFallback(name, routing={}){
+        $tiEventTryFallback(name, routing = {}) {
           let canNames = _.split(name, "::")
-          while(canNames.length > 1) {
+          while (canNames.length > 1) {
             let [, ...names] = canNames
             let hdName = names.join("::")
             let handler = _.get(routing, hdName)
-            if(handler){
+            if (handler) {
               return handler
             }
             canNames = names
+          }
+          // wild match
+          let keys = _.keys(routing);
+          for (let key of keys) {
+            if (Ti.AutoMatch.test(key, name)) {
+              return routing[key]
+            }
           }
         }
         //...........................................
       })
   
       // Override emit
-      if(overrideEmit) {
+      if (overrideEmit) {
         Vue.mixin({
-          created : function() {
+          created: function () {
             this.$emit = Notify
           }
         })
@@ -16083,7 +16336,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210802.160254",
+  "version" : "1.6-20210805.082205",
   "dev" : false,
   "appName" : null,
   "session" : {},
