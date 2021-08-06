@@ -1,5 +1,16 @@
 const _M = {
   ////////////////////////////////////////////
+  getters: {
+    currentObj(state) {
+      if(state.currentId) {
+        let list = _.get(state.data, "list")
+        return _.find(list, li => {
+          return li.id == state.currentId
+        })
+      }
+    }
+  },
+  ////////////////////////////////////////////
   mutations: {
     //----------------------------------------
     setMeta(state, meta) {

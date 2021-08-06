@@ -1,4 +1,4 @@
-// Pack At: 2021-08-06 14:58:14
+// Pack At: 2021-08-06 22:09:11
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12287,6 +12287,17 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/obj-browser/m-obj-browser.mjs'] = (function(){
 const _M = {
+  ////////////////////////////////////////////
+  getters: {
+    currentObj(state) {
+      if(state.currentId) {
+        let list = _.get(state.data, "list")
+        return _.find(list, li => {
+          return li.id == state.currentId
+        })
+      }
+    }
+  },
   ////////////////////////////////////////////
   mutations: {
     //----------------------------------------
@@ -31793,6 +31804,17 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/mod/wn/obj-children/m-obj-children.mjs'] = (function(){
 //////////////////////////////////////////////
 const _M = {
+  ////////////////////////////////////////////
+  getters: {
+    currentObj(state) {
+      if(state.currentId) {
+        let list = _.get(state.data, "list")
+        return _.find(list, li => {
+          return li.id == state.currentId
+        })
+      }
+    }
+  },
   ////////////////////////////////////////////
   mutations: {
     //----------------------------------------
