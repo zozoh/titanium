@@ -59,8 +59,7 @@ const _M = {
             ].join(' '),
             ['WnYoutubePick','WnYtPlaylistPick', 'WnFbAlubmPick'].join(' '),
             'superscript subscript',
-            'edit removeformat',
-            'TiPreview']
+            'edit removeformat']
         })[tbName]
         return tbd ? tbd.join("|") : false
       }

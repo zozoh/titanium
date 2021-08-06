@@ -121,6 +121,9 @@ const _M = {
       // Pure text
       else {
         payload = Ti.Util.fallback(payload, null)
+        if(!_.isString(payload)) {
+          payload = JSON.stringify(payload)
+        }
         this.$notify('change', payload)
       }
     }

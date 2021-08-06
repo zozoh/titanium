@@ -1,4 +1,4 @@
-// Pack At: 2021-08-05 10:55:19
+// Pack At: 2021-08-06 11:07:45
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6655,7 +6655,7 @@ const _M = {
       params = {}
     } = {}) {
       //console.log(rootGetters.routerList)
-      console.log(" # -> page.reload", { path, params, anchor })
+      //console.log(" # -> page.reload", { path, params, anchor })
       let pinfo;
       //.....................................
       // Apply routerList
@@ -17429,7 +17429,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   explainWnImage($div) {
     let $imgs = Ti.Dom.findAll("img[wn-obj-id]", $div);
     for (let $img of $imgs) {
-      console.log($img)
+      //console.log($img)
       // Prepare the obj
       let obj = Ti.Dom.attrs($img, (key) => {
         if (key.startsWith("wn-obj-")) {
@@ -30534,6 +30534,9 @@ const _M = {
       // Pure text
       else {
         payload = Ti.Util.fallback(payload, null)
+        if(!_.isString(payload)) {
+          payload = JSON.stringify(payload)
+        }
         this.$notify('change', payload)
       }
     }
@@ -35518,10 +35521,19 @@ const _M = {
           return
         }
       }
+      // Visiblity
+      if (fld.visible) {
+        if (!Ti.AutoMatch.test(fld.visible, this.data)) {
+          return
+        }
+      }
       // Disable
       let disabled = false
       if (fld.disabled) {
         disabled = Ti.AutoMatch.test(fld.disabled, this.data)
+      }
+      if (fld.enabled) {
+        disabled = !Ti.AutoMatch.test(fld.enabled, this.data)
       }
 
       let maxColumnHint = Ti.Util.fallback(fld.maxColumnHint, this.maxColumnHint, 3)
@@ -39616,12 +39628,22 @@ const _M = {
       "loading": state => state.loading,
       "pageReady": state => state.pageReady
     }),
+    ...Vuex.mapState("page", [
+      "pageUri"
+    ]),
     //-------------------------------------
     // Mapp The Getters
     ...Vuex.mapGetters([
       "actions",
       "getUrl",
       "getApiUrl"
+    ]),
+    ...Vuex.mapGetters("viewport", [
+      "isViewportModeDesktop",
+      "isViewportModeTablet",
+      "isViewportModePhone",
+      "isViewportModeDesktopOrTablet",
+      "isViewportModePhoneOrTablet"
     ]),
     // ...Vuex.mapState("page", [
     //   "pageUri"
@@ -39696,21 +39718,11 @@ const _M = {
         SiteCaptcha: this.SiteCaptcha,
         SiteLoginMode: this.SiteLoginMode,
         PageFnSet: this.PageFnSet,
-        ...Vuex.mapGetters([
-          "actions",
-          "getUrl",
-          "getApiUrl"
-        ]),
-        ...Vuex.mapState("page", [
-          "pageUri"
-        ]),
-        ...Vuex.mapGetters("viewport", [
-          "isViewportModeDesktop",
-          "isViewportModeTablet",
-          "isViewportModePhone",
-          "isViewportModeDesktopOrTablet",
-          "isViewportModePhoneOrTablet"
-        ]),
+        isViewportModeDesktop: this.isViewportModeDesktop,
+        isViewportModeTablet: this.isViewportModeTablet,
+        isViewportModePhone: this.isViewportModePhone,
+        isViewportModeDesktopOrTablet: this.isViewportModeDesktopOrTablet,
+        isViewportModePhoneOrTablet: this.isViewportModePhoneOrTablet
       }, this.State)
     },
     //-------------------------------------
@@ -42582,8 +42594,7 @@ const _M = {
             ].join(' '),
             ['WnYoutubePick','WnYtPlaylistPick', 'WnFbAlubmPick'].join(' '),
             'superscript subscript',
-            'edit removeformat',
-            'TiPreview']
+            'edit removeformat']
         })[tbName]
         return tbd ? tbd.join("|") : false
       }
@@ -48498,7 +48509,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }),
   //////////////////////////////////////////
   watch : {
-    "ArticleHtml" : "redrawContent"
+    "ArticleHtml" : "redrawContent",
+    "viewportMode": function(newVal, oldVal) {
+      if(oldVal && !_.isEqual(newVal, oldVal)) {
+        this.redrawContent()
+      }
+    }
   },
   //////////////////////////////////////////
   mounted: async function() {

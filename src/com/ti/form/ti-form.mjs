@@ -390,10 +390,19 @@ const _M = {
           return
         }
       }
+      // Visiblity
+      if (fld.visible) {
+        if (!Ti.AutoMatch.test(fld.visible, this.data)) {
+          return
+        }
+      }
       // Disable
       let disabled = false
       if (fld.disabled) {
         disabled = Ti.AutoMatch.test(fld.disabled, this.data)
+      }
+      if (fld.enabled) {
+        disabled = !Ti.AutoMatch.test(fld.enabled, this.data)
       }
 
       let maxColumnHint = Ti.Util.fallback(fld.maxColumnHint, this.maxColumnHint, 3)

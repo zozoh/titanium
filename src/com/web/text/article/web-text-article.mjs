@@ -7,7 +7,12 @@ export default {
   }),
   //////////////////////////////////////////
   watch : {
-    "ArticleHtml" : "redrawContent"
+    "ArticleHtml" : "redrawContent",
+    "viewportMode": function(newVal, oldVal) {
+      if(oldVal && !_.isEqual(newVal, oldVal)) {
+        this.redrawContent()
+      }
+    }
   },
   //////////////////////////////////////////
   mounted: async function() {

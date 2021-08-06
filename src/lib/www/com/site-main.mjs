@@ -30,12 +30,22 @@ const _M = {
       "loading": state => state.loading,
       "pageReady": state => state.pageReady
     }),
+    ...Vuex.mapState("page", [
+      "pageUri"
+    ]),
     //-------------------------------------
     // Mapp The Getters
     ...Vuex.mapGetters([
       "actions",
       "getUrl",
       "getApiUrl"
+    ]),
+    ...Vuex.mapGetters("viewport", [
+      "isViewportModeDesktop",
+      "isViewportModeTablet",
+      "isViewportModePhone",
+      "isViewportModeDesktopOrTablet",
+      "isViewportModePhoneOrTablet"
     ]),
     // ...Vuex.mapState("page", [
     //   "pageUri"
@@ -110,21 +120,11 @@ const _M = {
         SiteCaptcha: this.SiteCaptcha,
         SiteLoginMode: this.SiteLoginMode,
         PageFnSet: this.PageFnSet,
-        ...Vuex.mapGetters([
-          "actions",
-          "getUrl",
-          "getApiUrl"
-        ]),
-        ...Vuex.mapState("page", [
-          "pageUri"
-        ]),
-        ...Vuex.mapGetters("viewport", [
-          "isViewportModeDesktop",
-          "isViewportModeTablet",
-          "isViewportModePhone",
-          "isViewportModeDesktopOrTablet",
-          "isViewportModePhoneOrTablet"
-        ]),
+        isViewportModeDesktop: this.isViewportModeDesktop,
+        isViewportModeTablet: this.isViewportModeTablet,
+        isViewportModePhone: this.isViewportModePhone,
+        isViewportModeDesktopOrTablet: this.isViewportModeDesktopOrTablet,
+        isViewportModePhoneOrTablet: this.isViewportModePhoneOrTablet
       }, this.State)
     },
     //-------------------------------------

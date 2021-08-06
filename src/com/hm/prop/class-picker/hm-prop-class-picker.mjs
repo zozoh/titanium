@@ -33,11 +33,11 @@ const _M = {
     //-----------------------------------
     "dialogWidth" : {
       type : [String, Number],
-      default : 500
+      default : "5rem"
     },
     "dialogHeight" : {
       type : [String, Number],
-      default : 500
+      default : "5rem"
     }
   },
   //////////////////////////////////////////////////////

@@ -135,7 +135,7 @@ const _M = {
       // Open dialog
       let reo = await Ti.App.Open({
         title : "i18n:hmk-css-edit",
-        width : 720,
+        width : "8rem",
         height : "95%",
         position : "top",
         result,
@@ -161,7 +161,7 @@ const _M = {
       // Open dialog
       let re = await Ti.App.Open({
         title : "i18n:hmk-css-edit",
-        width : 500,
+        width : "6.4rem",
         height : "95%",
         position : "top",
         result,

@@ -8,11 +8,7 @@
   .json-value {
     @include font-fixed;
     @include flex-align-nowrap($ai:stretch);
-    position: relative; 
-    //---------------------------------------------
-    > .as-editing {
-      flex:1 1 auto; 
-    }
+    position: relative; flex:1 1 auto; 
     //---------------------------------------------
     > .as-actions {
       @include pos-abs($t:0,$b:0,$r:0);
