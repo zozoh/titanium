@@ -1,11 +1,13 @@
 .wn-obj-icon {
   @include flex-center;
-  width:36px; height:36px;
+  width:SZ(36);height:SZ(36);
   font-size:SZ(18);
-  img {
-    width:32px; height:32px;
-    object-fit: cover;
-    border:1px solid map-get($color-line, shallow);
-    border-radius: 2px;
+  .icon-icon {
+    img {
+      width:SZ(32); height:SZ(32);
+      object-fit: cover;
+      border:1px solid map-get($color-line, shallow);
+      border-radius: 2px;
+    }
   }
 }

@@ -25,7 +25,8 @@
       <!--Badge-->
       <div
         v-for="bdg in ThumbBadges"
-          :class="bdg.className">
+          :class="bdg.className"
+          :style="bdg.style">
           <!--Icon-->
           <ti-icon
             v-if="'icon' == bdg.type"

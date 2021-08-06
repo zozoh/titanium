@@ -122,7 +122,7 @@ const _M = {
       else {
         payload = Ti.Util.fallback(payload, null)
         if(!_.isString(payload)) {
-          payload = JSON.stringify(payload)
+          payload = JSON.stringify(payload, null, '  ')
         }
         this.$notify('change', payload)
       }

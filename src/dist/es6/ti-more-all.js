@@ -1,4 +1,4 @@
-// Pack At: 2021-08-06 11:07:45
+// Pack At: 2021-08-06 14:58:14
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -893,16 +893,16 @@ window.TI_PACK_EXPORTS['ti/com/wn/adaptlist/wn-adaptlist.mjs'] = (function(){
 /////////////////////////////////////////////////
 const _M = {
   ////////////////////////////////////////////////
-  data: ()=>({
-    myCurrentId  : null,
-    myCheckedIds : {},
-    myUploadigFiles : [],
-    myItemStatus : {},
-    myExposeHidden : true,
-    myData : null
+  data: () => ({
+    myCurrentId: null,
+    myCheckedIds: {},
+    myUploadigFiles: [],
+    myItemStatus: {},
+    myExposeHidden: true,
+    myData: null
   }),
   ////////////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -914,34 +914,38 @@ const _M = {
     //--------------------------------------------
     MainComType() {
       return ({
-        "wall"  : "TiWall",
-        "list"  : "WnList",
-        "table" : "WnTable"
+        "wall": "TiWall",
+        "list": "WnList",
+        "table": "WnTable"
       })[this.viewType] || "TiWall"
     },
     //--------------------------------------------
     MainComConf() {
       let listDisplay = _.concat(this.listDisplay)
       let conf = ({
-        list : ()=>({
-          rowClassBy : "->is-${visibility}",
-          display: _.map(listDisplay, li=>{
-            if("@<thumb>" == li) {
-              return Wn.Obj.getObjThumbDisplay("rawData")
+        list: () => ({
+          rowClassBy: "->is-${visibility}",
+          display: _.map(listDisplay, li => {
+            let m = /^@<thumb(:([^:]*)(:([^:]*))?)?>$/.exec(li)
+            if (m) {
+              return Wn.Obj.getObjThumbDisplay("rawData", {
+                dftIcon: m[2] || undefined,
+                className: m[4] || undefined
+              })
             }
             return li
           })
         }),
-        table : ()=>({
-          rowClassBy : "->is-${visibility}",
-          fields : _.map(this.tableFields, key=>{
+        table: () => ({
+          rowClassBy: "->is-${visibility}",
+          fields: _.map(this.tableFields, key => {
             return Wn.Obj.getTableField(key)
           })
         }),
-        wall : ()=>({
-          spacing : this.spacing,
-          display : {
-            key : "..",
+        wall: () => ({
+          spacing: this.spacing,
+          display: {
+            key: "..",
             // transformer : {
             //   name : "Wn.Util.getObjThumbInfo",
             //   args : [{
@@ -949,9 +953,9 @@ const _M = {
             //       exposeHidden : this.myExposeHidden
             //     }]
             // },
-            comType : 'ti-obj-thumb',
-            comConf : {
-              "..." : "${=value}"
+            comType: 'ti-obj-thumb',
+            comConf: {
+              "...": "${=value}"
             }
           }
         })
@@ -974,20 +978,20 @@ const _M = {
     //--------------------------------------------
     CurrentViewType() {
       return {
-        type : this.viewType,
-        icon : _.get(this.viewTypeIcons, this.viewType)
+        type: this.viewType,
+        icon: _.get(this.viewTypeIcons, this.viewType)
       }
     },
     //--------------------------------------------
     TheAvaViewTypes() {
       let list = []
-      _.forEach(this.avaViewTypes, vt=>{
-        if(vt == this.viewType) {
+      _.forEach(this.avaViewTypes, vt => {
+        if (vt == this.viewType) {
           return;
         }
         list.push({
-          type : vt,
-          icon : _.get(this.viewTypeIcons, vt)
+          type: vt,
+          icon: _.get(this.viewTypeIcons, vt)
         })
       })
       return list
@@ -995,21 +999,21 @@ const _M = {
     //--------------------------------------------
     UploadingItemDisplay() {
       return {
-        key : "..",
-        comType : 'ti-obj-thumb',
-        comConf : {
-          "..." : "${=value}"
+        key: "..",
+        comType: 'ti-obj-thumb',
+        comConf: {
+          "...": "${=value}"
         }
       }
     },
     //--------------------------------------------
     DataList() {
       //console.log("eval DataList")
-      if(this.myData) {
-        if(_.isArray(this.myData)) {
+      if (this.myData) {
+        if (_.isArray(this.myData)) {
           return this.myData
         }
-        if(_.isArray(this.myData.list)) {
+        if (_.isArray(this.myData.list)) {
           return this.myData.list
         }
       }
@@ -1021,18 +1025,18 @@ const _M = {
     },
     //--------------------------------------------
     WallDataList() {
-      if(!this.hasDataList) {
+      if (!this.hasDataList) {
         return []
       }
       //console.log("eval WallDataList", this.DataList.length)
       let list = []
-      for(let it of this.DataList) {
-        if(!this.isHiddenItem(it)) {
+      for (let it of this.DataList) {
+        if (!this.isHiddenItem(it)) {
           let li = Wn.Util.getObjThumbInfo(it, {
-            status : this.myItemStatus,
-            exposeHidden : this.myExposeHidden,
-            titleKey : this.itemTitleKey,
-            badges : this.itemBadges
+            status: this.myItemStatus,
+            exposeHidden: this.myExposeHidden,
+            titleKey: this.itemTitleKey,
+            badges: this.itemBadges
           })
           list.push(li)
           //list.push(it)
@@ -1047,26 +1051,26 @@ const _M = {
     TheUploadingList() {
       let list = this.myUploadigFiles
       let re = []
-      if(_.isArray(list)) {
-        for(let it of list) {
+      if (_.isArray(list)) {
+        for (let it of list) {
           // Gen Preview for local image
           let mime = it.file.type
           let tp = Ti.Util.getSuffixName(it.file.name)
           let preview;
-          if(/^image\//.test(mime)) {
+          if (/^image\//.test(mime)) {
             preview = {
-              type : "localFile",
-              value : it.file
+              type: "localFile",
+              value: it.file
             }
           } else {
-            preview = Ti.Icons.get({tp, mime})
+            preview = Ti.Icons.get({ tp, mime })
           }
           // Join to result list
           re.push({
-            id    : it.id,
-            title : it.file.name,
+            id: it.id,
+            title: it.file.name,
             preview,
-            progress : (it.current/it.total)
+            progress: (it.current / it.total)
           })
         }
       }
@@ -1074,11 +1078,11 @@ const _M = {
     },
     //--------------------------------------------
     AcceptUploadFiles() {
-      if(this.acceptUpload) {
-        if(_.isString(this.acceptUpload)) {
+      if (this.acceptUpload) {
+        if (_.isString(this.acceptUpload)) {
           return this.acceptUpload
         }
-        if(_.isArray(this.acceptUpload)) {
+        if (_.isArray(this.acceptUpload)) {
           return this.acceptUpload.join(",")
         }
       }
@@ -1096,66 +1100,66 @@ const _M = {
     },
     //--------------------------------------------
     UploadDragAndDropHandler() {
-      if(this.droppable) {
+      if (this.droppable) {
         return this.OnDropFiles
       }
     }
     //--------------------------------------------
   },  // ~ computed
   ////////////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------------
-    OnListInit($list){this.$innerList = $list},
+    OnListInit($list) { this.$innerList = $list },
     //--------------------------------------------
     // Events
     //--------------------------------------------
     OnSwitchViewType(vt) {
       this.$notify("listviewtype:change", vt)
-      if(_.isFunction(this.onViewTypeChange)) {
+      if (_.isFunction(this.onViewTypeChange)) {
         this.onViewTypeChange(vt)
       }
     },
     //--------------------------------------------
-    OnItemSelecteItem({currentId, checkedIds, currentIndex}) {
+    OnItemSelecteItem({ currentId, checkedIds, currentIndex }) {
       //console.log("OnSelected", currentId, checkedIds)
       // For Desktop
-      this.myCurrentId  = currentId
+      this.myCurrentId = currentId
       this.myCheckedIds = checkedIds
 
       let context = {
-        current : this.getCurrentItem(),
-        checked : this.getCheckedItems(),
+        current: this.getCurrentItem(),
+        checked: this.getCheckedItems(),
         checkedIds, currentId, currentIndex,
       }
 
       // Notify the real objects
       this.$notify("select", context)
 
-      return {stop:true}
+      return { stop: true }
     },
     //--------------------------------------------
     OnItemOpen() {
       //console.log("open item")
       let obj = this.getCurrentItem()
-      if(obj) {
+      if (obj) {
         this.$notify("open:wn:obj", obj)
       }
     },
     //--------------------------------------------
     async OnDropFiles(files) {
       // console.log("OnDropFiles", files)
-      if(!this.droppable)
+      if (!this.droppable)
         return
       let fs = [...files]
       await this.doUpload(fs)
-      
+
       // Wait the computed result and notify
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         // Find my checked files
         let objs = []
-        if(this.hasDataList){
-          _.forEach(this.DataList, it=>{
-            if(this.myCheckedIds[it.id]){
+        if (this.hasDataList) {
+          _.forEach(this.DataList, it => {
+            if (this.myCheckedIds[it.id]) {
               objs.push(it)
             }
           })
@@ -1166,7 +1170,7 @@ const _M = {
       })
     },
     //--------------------------------------------
-    async OnSelectLocalFilesToUpload(evt){
+    async OnSelectLocalFilesToUpload(evt) {
       await this.OnDropFiles(evt.target.files)
       this.$refs.file.value = ""
     },
@@ -1174,35 +1178,35 @@ const _M = {
     // Getters
     //--------------------------------------------
     getCurrentItem() {
-      if(this.myCurrentId && this.hasDataList) {
-        return _.find(this.DataList, it=>it.id == this.myCurrentId)
+      if (this.myCurrentId && this.hasDataList) {
+        return _.find(this.DataList, it => it.id == this.myCurrentId)
       }
     },
     //--------------------------------------------
     getCheckedItems() {
-      if(this.hasDataList)
-        return _.filter(this.DataList, it=>this.myCheckedIds[it.id])
+      if (this.hasDataList)
+        return _.filter(this.DataList, it => this.myCheckedIds[it.id])
       return []
     },
     //--------------------------------------------
     setItem(newItem) {
-      if(newItem && this.hasDataList) {
+      if (newItem && this.hasDataList) {
         let list = _.map(this.DataList, it => {
           return it.id == newItem.id
             ? newItem
             : it
         })
-        if(_.isArray(this.myData)) {
+        if (_.isArray(this.myData)) {
           this.myData = list
         } else {
-          this.myData = _.assign({}, this.myData, {list})
+          this.myData = _.assign({}, this.myData, { list })
         }
       }
     },
     //--------------------------------------------
-    setItemStatus(id, status="loading") {
+    setItemStatus(id, status = "loading") {
       this.myItemStatus = _.assign({}, this.myItemStatus, {
-        [id] : status
+        [id]: status
       })
     },
     //--------------------------------------------
@@ -1212,7 +1216,7 @@ const _M = {
     //--------------------------------------------
     getItemById(id) {
       let row = this.$innerList.findRowById(id)
-      if(row) {
+      if (row) {
         return row.rawData
       }
     },
@@ -1227,8 +1231,8 @@ const _M = {
     //--------------------------------------------
     checkItem(id) {
       let ids = {}
-      _.forEach(this.myCheckedIds, (v,k)=>{
-        if(v)
+      _.forEach(this.myCheckedIds, (v, k) => {
+        if (v)
           ids[k] = true
       });
       ids[id] = true
@@ -1237,11 +1241,11 @@ const _M = {
     //--------------------------------------------
     toggleItem(id) {
       let ids = {}
-      _.forEach(this.myCheckedIds, (v,k)=>{
-        if(k == id) {
+      _.forEach(this.myCheckedIds, (v, k) => {
+        if (k == id) {
           ids[k] = v ? false : true
         }
-        else if(v)
+        else if (v)
           ids[k] = true
       });
       ids[id] = true
@@ -1258,7 +1262,7 @@ const _M = {
     },
     //--------------------------------------------
     isHiddenItem(it) {
-      if(it && it.nm && it.nm.startsWith(".") && !this.myExposeHidden) {
+      if (it && it.nm && it.nm.startsWith(".") && !this.myExposeHidden) {
         return true
       }
       return false
@@ -1267,13 +1271,13 @@ const _M = {
     // Utility
     //--------------------------------------------
     async _run(nm, payload) {
-      let target = (this.routers||{})[nm]
+      let target = (this.routers || {})[nm]
       // Run by customized function
-      if(_.isFunction(target)) {
+      if (_.isFunction(target)) {
         await target()
       }
       // In app
-      else if(target) {
+      else if (target) {
         let app = Ti.App(this)
         return await app.exec(target, payload)
       }
@@ -1287,23 +1291,23 @@ const _M = {
     //   }
     // },
     //--------------------------------------------
-    openLocalFileSelectdDialog(){
+    openLocalFileSelectdDialog() {
       this.$refs.file.click()
     },
     //--------------------------------------------
     async openCurrentMeta() {
       let meta = this.getCurrentItem() || this.meta
 
-      if(!meta) {
+      if (!meta) {
         await Ti.Toast.Open("i18n:nil-obj")
         return
       }
 
-      let reo = await Wn.EditObjMeta(meta, {fields:"auto"})
-      
+      let reo = await Wn.EditObjMeta(meta, { fields: "auto" })
+
       // Update to current list
-      if(reo) {
-        let {updates, data} = reo
+      if (reo) {
+        let { updates, data } = reo
         // TODO if update the "thumb" may need to force reload the preview
         // Update to list
         this.setItem(data)
@@ -1315,16 +1319,16 @@ const _M = {
     async openCurrentPrivilege() {
       let meta = this.getCurrentItem() || this.meta
 
-      if(!meta) {
+      if (!meta) {
         await Ti.Toast.Open("i18n:nil-obj")
         return
       }
 
       let newMeta = await Wn.EditObjPrivilege(meta)
-      
+
       // Update to current list
-      if(newMeta) {
-        if(this.meta.id == newMeta.id)  {
+      if (newMeta) {
+        if (this.meta.id == newMeta.id) {
           await Ti.App(this).dispatch("main/reload", newMeta)
         } else {
           await Ti.App(this).commit("main/setDataItem", newMeta)
@@ -1361,38 +1365,38 @@ const _M = {
     //   console.log("myData Changed", newVal)
     // },
     //--------------------------------------------
-    "data" : {
-      handler : "syncMyData",
-      immediate : true
+    "data": {
+      handler: "syncMyData",
+      immediate: true
     },
     //--------------------------------------------
-    "exposeHidden" : {
-      handler : function(eh){
+    "exposeHidden": {
+      handler: function (eh) {
         this.myExposeHidden = eh
       },
-      immediate : true
+      immediate: true
     },
     //--------------------------------------------
     "currentId": {
-      handler : function(newVal, oldVal){
-        if(!_.isEqual(newVal, oldVal)) {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
           this.myCurrentId = newVal
         }
       },
-      immediate : true
+      immediate: true
     }
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
-  mounted : function(){
+  mounted: function () {
     //--------------------------------------------
     // Guart the uploading
     Ti.Fuse.getOrCreate().add({
-      key : "wn-list-adaptview-check-uploading",
-      everythingOk : ()=>{
+      key: "wn-list-adaptview-check-uploading",
+      everythingOk: () => {
         return !this.hasUploading
       },
-      fail : ()=>{
+      fail: () => {
         Ti.Toast.Open("i18n:upload-nofinished", "warn")
       }
     })
@@ -1402,7 +1406,7 @@ const _M = {
     // }
   },
   //--------------------------------------------
-  beforeDestroy : function(){
+  beforeDestroy: function () {
     Ti.Fuse.get().remove("wn-list-adaptview-check-uploading")
   }
   //--------------------------------------------
@@ -30535,7 +30539,7 @@ const _M = {
       else {
         payload = Ti.Util.fallback(payload, null)
         if(!_.isString(payload)) {
-          payload = JSON.stringify(payload)
+          payload = JSON.stringify(payload, null, '  ')
         }
         this.$notify('change', payload)
       }
@@ -35172,10 +35176,10 @@ const _M = {
       if (this.autoColummGrid) {
         if (_.isBoolean(this.autoColummGrid)) {
           return [
-            320,     // 300px: col-0
-            640,     // 300px: col-1
-            960,     // 300px: col-2
-            1200,    // 300px: col-3
+            320,     // col-0
+            720,     // col-1
+            1200,    // col-2
+            1600,    // col-3
           ]
         }
         return this.autoColummGrid
@@ -35631,7 +35635,6 @@ const _M = {
       // Guard
       if (!_.isElement(this.$el))
         return
-
       if (this.FormColumnGrid) {
         let { width } = Ti.Rects.createBy(this.$el)
         let i = 0
@@ -35722,7 +35725,7 @@ const _M = {
     },
     //--------------------------------------------------
     adjustFieldsWidth(delay = this.adjustDelay) {
-      //console.log("adjustFieldsWidth", {delay})
+      //console.log("adjustFieldsWidth", {hint: this.myFormColumHint})
       if (delay > 0) {
         _.delay(() => {
           this.__adjust_fields_width()
@@ -64119,7 +64122,8 @@ Ti.Preload("ti/com/ti/obj/thumb/ti-obj-thumb.html", `<div class="ti-obj-thumb"
       <!--Badge-->
       <div
         v-for="bdg in ThumbBadges"
-          :class="bdg.className">
+          :class="bdg.className"
+          :style="bdg.style">
           <!--Icon-->
           <ti-icon
             v-if="'icon' == bdg.type"
@@ -70276,7 +70280,7 @@ Ti.Preload("ti/com/wn/obj/form/_com.json", {
 // JOIN <wn-obj-icon.html> ti/com/wn/obj/icon/wn-obj-icon.html
 //========================================
 Ti.Preload("ti/com/wn/obj/icon/wn-obj-icon.html", `<ti-icon 
-  class="wn-obj-icon img-contain" 
+  class="wn-obj-icon" 
   :class="topClass"
   :value="theIcon"/>`);
 //========================================

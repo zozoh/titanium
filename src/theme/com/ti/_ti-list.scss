@@ -99,10 +99,10 @@
       flex:1 1 auto;
       line-height: 2.6em; min-height:2.6em;
       //--------------------------------------
-      .ti-icon.item-0 {
-        width: 1.8em;
+      .ti-icon {
+        width: SZ(26); flex:0 0 auto;
         &.is-image {
-          height: 2.6em; 
+          height: SZ(26); 
         }
       }
       //--------------------------------------

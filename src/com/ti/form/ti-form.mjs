@@ -41,10 +41,10 @@ const _M = {
       if (this.autoColummGrid) {
         if (_.isBoolean(this.autoColummGrid)) {
           return [
-            320,     // 300px: col-0
-            640,     // 300px: col-1
-            960,     // 300px: col-2
-            1200,    // 300px: col-3
+            320,     // col-0
+            720,     // col-1
+            1200,    // col-2
+            1600,    // col-3
           ]
         }
         return this.autoColummGrid
@@ -500,7 +500,6 @@ const _M = {
       // Guard
       if (!_.isElement(this.$el))
         return
-
       if (this.FormColumnGrid) {
         let { width } = Ti.Rects.createBy(this.$el)
         let i = 0
@@ -591,7 +590,7 @@ const _M = {
     },
     //--------------------------------------------------
     adjustFieldsWidth(delay = this.adjustDelay) {
-      //console.log("adjustFieldsWidth", {delay})
+      //console.log("adjustFieldsWidth", {hint: this.myFormColumHint})
       if (delay > 0) {
         _.delay(() => {
           this.__adjust_fields_width()

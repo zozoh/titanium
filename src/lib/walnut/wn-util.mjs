@@ -210,6 +210,7 @@ const WnUtil = {
         let bag = Ti.Util.explainObj(meta, {
           type: BD.type || "icon",
           className: BD.className,
+          style: BD.style,
           value: BD.value
         })
         if (bag)
