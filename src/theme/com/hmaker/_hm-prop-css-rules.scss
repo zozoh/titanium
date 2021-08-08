@@ -35,6 +35,7 @@
       //-------------------------------------
       &.as-title-cell {
         color:map-get($color-track, c);
+        white-space: nowrap;
       }
       //-------------------------------------
       &.as-value-cell {

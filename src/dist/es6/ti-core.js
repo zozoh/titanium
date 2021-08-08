@@ -1,4 +1,4 @@
-// Pack At: 2021-08-06 22:09:11
+// Pack At: 2021-08-08 20:22:34
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -12807,7 +12807,7 @@ const {Css} = (function(){
     },
     //-----------------------------------
     toPixel(input, base = 100, dft = 0) {
-      if(Ti.Util.isNil(input)) {
+      if (Ti.Util.isNil(input)) {
         return input
       }
       // Number may `.23` or `300`
@@ -12828,7 +12828,7 @@ const {Css} = (function(){
     },
     //-----------------------------------
     toAbsPixel(input, { base = 100, dft = 0, remBase = 100, emBase = 14 } = {}) {
-      if(Ti.Util.isNil(input)) {
+      if (Ti.Util.isNil(input)) {
         return input
       }
       if (_.isNumber(input)) {
@@ -12971,23 +12971,26 @@ const {Css} = (function(){
       return names.join(" ")
     },
     //----------------------------------------------------
-    parseCssRule(rule="", filter=true) {
+    parseCssRule(rule = "", filter = true) {
       rule = _.trim(rule)
-      if(Ti.S.isBlank(rule)) {
+      if (Ti.S.isBlank(rule)) {
         return {}
       }
       filter = Ti.Dom.attrFilter(filter)
       let re = {}
       let ss = rule.split(";")
-      for(let s of ss) {
-        if(Ti.S.isBlank(s))
+      for (let s of ss) {
+        if (Ti.S.isBlank(s))
           continue
-        let [name, value] = s.split(":");
-        name  = _.trim(name)
-        value = _.trim(value)
+        let pos = s.indexOf(':')
+        if (pos <= 0) {
+          continue
+        }
+        let name = _.trim(s.substring(0, pos))
+        let value = _.trim(s.substring(pos + 1))
         let key = filter(name, value)
-        if(key) {
-          if(_.isBoolean(key)) {
+        if (key) {
+          if (_.isBoolean(key)) {
             key = _.camelCase(name)
           }
           re[key] = value
@@ -12996,23 +12999,135 @@ const {Css} = (function(){
       return re
     },
     //----------------------------------------------------
-    renderCssRule(css={}) {
-      if(_.isEmpty(css)) {
+    parseAndTidyCssRule(rule = {}, {
+      filter, parseBackground = true, nameCase = "kebab",
+      urlRewrite
+    } = {}) {
+      if (_.isString(rule)) {
+        rule = TiCss.parseCssRule(rule, filter)
+      }
+      if (parseBackground) {
+        let toNameCase = Ti.S.getCaseFunc(nameCase)
+        if (rule.background) {
+          let bg = TiCss.parseBackground(rule.background, { nameCase });
+          delete rule.background
+          _.assign(rule, bg)
+        }
+  
+        // Rewruite url
+        let bgImgKey = toNameCase("background-image")
+        if (rule[bgImgKey] && _.isFunction(urlRewrite)) {
+          rule[bgImgKey] = urlRewrite(rule[bgImgKey])
+        }
+  
+  
+        let bgPosKey = toNameCase("background-position")
+        if (rule[bgPosKey]) {
+          const toPosName = function (str, cans = []) {
+            if (/^0(%|px|rem|em|pt)?$/.test(str)) {
+              return cans[0]
+            }
+            if ("50%" == str) {
+              return cans[1]
+            }
+            if ("100%" == str) {
+              return cans[2]
+            }
+            return str
+          }
+          let poss = rule[bgPosKey].split(/\s+/)
+          let posX = _.first(poss)
+          let posY = _.last(poss)
+          delete rule[bgPosKey]
+          rule[toNameCase("background-position-x")] = toPosName(posX,
+            ["left", "center", "right"])
+          rule[toNameCase("background-position-y")] = toPosName(posY,
+            ["top", "center", "bottom"])
+        }
+      }
+      return rule
+    },
+    //----------------------------------------------------
+    parseBackground(str = "", { nameCase = "kebab" } = {}) {
+      let toNameCase = Ti.S.getCaseFunc(nameCase)
+      // 首先整理字符串，去掉多余的空格，确保 backgroundPosition|backgroundSize 之间是没有空格的
+      let s = (str || "")
+        .replace(/[ ]{2,}/g, " ")
+        .replace(/[ ]*([\/,])[ ]*/g, "$1")
+        .replace(/[ ]\)/g, ")")
+        .replace(/\([ ]/g, "(");
+  
+      // 正则表达式拼装
+      // 1: backgroundColor
+      let R = "(#[0-9a-f]{3,}|rgba?\\([\\d, .]+\\))";
+      // 2: backgroundImage
+      R += "|(url\\([^\\)]+\\))";
+      // 3: 组合 backgroundPosition / backgroundSize 的组合
+      R += "|(";
+      // 4: backgroundPositionX
+      R += "(left|right|center|\\d+(%|em|px|cm|ch))";
+      // 6: backgroundPositionX
+      R += " *(top|bottom|center|\\d+(%|em|px|cm|ch)?)";
+      // 8: backgroundSize : 3 子表达式
+      R += "/(auto|cover|contain|\\d+(%|em|px)( \\d+(%|em|px))?|auto( auto)?)";
+      R += ")";
+      // 13: backgroundRepeat
+      R += "|(repeat|no-repeat)";
+      // 14: backgroundOrigin : 1 子表达式
+      R += "|((padding|border|content)-box)";
+      // 16: backgroundAttachment
+      R += "|(scroll|fixed)";
+      let regex = new RegExp(R, "gi");
+  
+      // 准备赋值
+      let indexes = {
+        backgroundColor: 1,
+        backgroundImage: 2,
+        backgroundPositionX: 4,
+        backgroundPositionY: 6,
+        backgroundSize: 8,
+        backgroundRepeat: 13,
+        backgroundOrigin: 14,
+        backgroundAttachment: 16
+      };
+  
+      // 准备返回对象
+      let bg = {};
+  
+      // 循环解析字符串
+      let m;
+      while ((m = regex.exec(s)) !== null) {
+        //console.log(m)
+        for (var key in indexes) {
+          var index = indexes[key];
+          if (m[index]) {
+            let k2 = toNameCase(key)
+            bg[k2] = m[index];
+          }
+        }
+      }
+  
+      // 搞定收工
+      return bg;
+    },
+    //----------------------------------------------------
+    renderCssRule(css = {}) {
+      if (_.isEmpty(css)) {
         return ""
       }
-      if(_.isString(css)) {
+      if (_.isString(css)) {
         return css
       }
       let list = []
-      _.forEach(css, (val, key)=>{
-        if(_.isNull(val) || _.isUndefined(val) || Ti.S.isBlank(val)) 
+      _.forEach(css, (val, key) => {
+        if (_.isNull(val) || _.isUndefined(val) || Ti.S.isBlank(val))
           return
         let pnm = _.kebabCase(key)
-        if(/^(opacity|z-index|order)$/.test(pnm)){
+        if (/^(opacity|z-index|order)$/.test(pnm)) {
           list.push(`${pnm}:${val}`)
         }
         // Empty string to remove one propperty
-        else if(_.isNumber(val)) {
+        else if (_.isNumber(val)) {
           list.push(`${pnm}:${val}px`)
         }
         // Set the property
@@ -13037,13 +13152,13 @@ const {Css} = (function(){
      * 
      * @param sheet{Array} : style selecor and rules
      */
-    renderCssStyleSheet(sheet=[]) {
+    renderCssStyleSheet(sheet = []) {
       sheet = _.concat(sheet)
       let re = []
-      for(let it of sheet) {
-        let {selectors, rules} = it
+      for (let it of sheet) {
+        let { selectors, rules } = it
         selectors = _.concat(selectors)
-        if(_.isEmpty(selectors) || _.isEmpty(rules)){
+        if (_.isEmpty(selectors) || _.isEmpty(rules)) {
           continue;
         }
         re.push(selectors.join(",") + "{")
@@ -14247,6 +14362,7 @@ const {Album} = (function(){
     //---------------------------------------
     setData(album = {}) {
       let { attrPrefix } = this.setup
+      console.log("album.setData", album)
       let attrs = this.formatData(album)
       Ti.Dom.setStyle(this.$el, attrs.style)
       Ti.Dom.setAttrs(this.$el, _.omit(attrs, "style"), attrPrefix)
@@ -14262,7 +14378,7 @@ const {Album} = (function(){
       let { dftWallClass } = this.setup
       let {
         id, name, link, layout, fullpreview, autoopen,
-        style, wallStyle, 
+        style, wallStyle,
         partLeftStyle, partRightStyle,
         tileStyle, imageStyle,
         titleStyle, briefStyle,
@@ -14297,7 +14413,7 @@ const {Album} = (function(){
     }
     //---------------------------------------
     getData() {
-      let { attrPrefix } = this.setup
+      let { attrPrefix, styleUrlRewrite } = this.setup
       let N = attrPrefix.length
       let album = Ti.Dom.attrs(this.$el, (name) => {
         if ("style" == name) {
@@ -14307,21 +14423,25 @@ const {Album} = (function(){
           return _.camelCase(name.substring(N))
         }
       })
+      let settings = {
+        urlRewrite: styleUrlRewrite,
+        nameCase: "camel"
+      }
       let {
-        style, wallClass, wallStyle, 
+        style, wallClass, wallStyle,
         partLeftStyle, partRightStyle,
         tileStyle, imageStyle,
         titleStyle, briefStyle,
       } = album
       album.wallClass = Ti.Dom.getClassList(wallClass).join(" ")
-      album.style = Ti.Css.parseCssRule(style)
-      album.wallStyle = Ti.Css.parseCssRule(wallStyle)
-      album.tileStyle = Ti.Css.parseCssRule(tileStyle)
-      album.partLeftStyle = Ti.Css.parseCssRule(partLeftStyle)
-      album.partRightStyle = Ti.Css.parseCssRule(partRightStyle)
-      album.imageStyle = Ti.Css.parseCssRule(imageStyle)
-      album.titleStyle = Ti.Css.parseCssRule(titleStyle)
-      album.briefStyle = Ti.Css.parseCssRule(briefStyle)
+      album.style = Ti.Css.parseAndTidyCssRule(style, settings)
+      album.wallStyle = Ti.Css.parseAndTidyCssRule(wallStyle, settings)
+      album.tileStyle = Ti.Css.parseAndTidyCssRule(tileStyle, settings)
+      album.partLeftStyle = Ti.Css.parseAndTidyCssRule(partLeftStyle, settings)
+      album.partRightStyle = Ti.Css.parseAndTidyCssRule(partRightStyle, settings)
+      album.imageStyle = Ti.Css.parseAndTidyCssRule(imageStyle, settings)
+      album.titleStyle = Ti.Css.parseAndTidyCssRule(titleStyle, settings)
+      album.briefStyle = Ti.Css.parseAndTidyCssRule(briefStyle, settings)
       album.type = this.$el.getAttribute("ti-album-type")
       return album
     }
@@ -14347,13 +14467,18 @@ const {Album} = (function(){
       let { attrPrefix } = this.setup
       let album = this.getData()
   
+      // Default wall class
+      let className = Ti.Css.mergeClassName(album.wallClass) || {}
+      className[WALL_CLASS_NAME] = true
+      className[`layout-${album.layout || "wall"}`] = true
+      if(!className["text-in"] && !className["text-out"]) {
+        className["text-in"] = true
+      }
+  
       // Build OUTER
       let $wall = Ti.Dom.createElement({
         tagName: "div",
-        className: [
-          WALL_CLASS_NAME, album.wallClass,
-          `layout-${album.layout || "wall"}`
-        ],
+        className,
         style: album.wallStyle
       })
   
@@ -14422,7 +14547,7 @@ const {Album} = (function(){
     }
     //---------------------------------------
     createPhotoTileElement($p, photo, {
-      layout, tileStyle, 
+      layout, tileStyle,
       partLeftStyle, partRightStyle,
       imageStyle, titleStyle, briefStyle
     }, attrPrefix) {
@@ -14547,7 +14672,6 @@ const {Album} = (function(){
       }
       // Wall photos
       let photos = this.getWallPhotos()
-      console.log("getPhotos", photos)
       return photos
     }
     //---------------------------------------
@@ -14698,7 +14822,7 @@ const {Album} = (function(){
             comType: "HmPropClassPicker",
             comConf: {
               valueType: "String",
-              dialogHeight: 600,
+              dialogHeight: 640,
               form: {
                 fields: [
                   {
@@ -14740,6 +14864,29 @@ const {Album} = (function(){
                         { value: "item-margin-md", text: "i18n:hmk-class-sz-md" },
                         { value: "item-margin-lg", text: "i18n:hmk-class-sz-lg" },
                         { value: "item-margin-xl", text: "i18n:hmk-class-sz-xl" }
+                      ]
+                    }
+                  },
+                  {
+                    title: "i18n:hmk-class-text-at",
+                    name: "textAt",
+                    comType: "TiSwitcher",
+                    comConf: {
+                      options: [
+                        { value: "at-top", text: "i18n:hmk-class-at-top" },
+                        { value: "at-center", text: "i18n:hmk-class-at-center" },
+                        { value: "at-bottom", text: "i18n:hmk-class-at-bottom" }
+                      ]
+                    }
+                  },
+                  {
+                    title: "i18n:hmk-class-text-mode",
+                    name: "textMode",
+                    comType: "TiSwitcher",
+                    comConf: {
+                      options: [
+                        { value: "text-in", text: "i18n:hmk-class-text-in" },
+                        { value: "text-out", text: "i18n:hmk-class-text-out" }
                       ]
                     }
                   },
@@ -15038,6 +15185,7 @@ const {Album} = (function(){
     },
     //---------------------------------------
     getOrCreate($el, setup = {}) {
+      //console.log("getOrCreate", setup)
       if (!$el.__ti_photo_wall) {
         $el.__ti_photo_wall = new TiAlbum($el, setup)
       }
@@ -16336,7 +16484,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210806.220911",
+  "version" : "1.6-20210808.202234",
   "dev" : false,
   "appName" : null,
   "session" : {},

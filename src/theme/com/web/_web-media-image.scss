@@ -36,8 +36,6 @@
   &.text-hover-full {
     .as-text {
       transition: 0.5s; 
-      align-items: flex-end;
-      align-content: flex-end;
     }
     .as-text:hover {
       .as-title {
@@ -80,13 +78,16 @@
     overflow: hidden;
   }
   //-----------------------------------------
+  //
+  // Texting
+  //
+  //-----------------------------------------
   .as-text {
-    @include flex-center; 
+    @include flex-align-v-nowrap($jc:center,$ai:center,$ac:center); 
     @include font-nice;
-    user-select: text; flex:1 1 auto;
+    user-select: text; 
     //---------------------------------------
     .as-title {
-      flex:1 1 auto;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -94,7 +95,7 @@
     //---------------------------------------
     .as-brief {
       @include border(1px, solid, shallow, top);
-      display: block; width:100%;
+      display: block; 
       padding: 1em 0; margin-top: 1em;
       font-size: 0.9em; opacity: 0.7; 
       font-weight: normal;
@@ -102,6 +103,10 @@
       &:hover {text-decoration: none;}
     }
     //---------------------------------------  
+  }
+  &.brief-at-top .as-text {
+    .as-title {order: 2;}
+    .as-brief {order: 1;}
   }
   //-----------------------------------------
   .as-zoom-pick {
@@ -196,7 +201,7 @@
   &.ts-hide .as-text {display: none;}
   //-----------------------------------------
   &.text-in .as-img-con {height:100%;}
-  &.text-in.at-center .as-text {@include pos-abs-full;}
+  &.text-in.at-center .as-text {@include pos-abs-full; text-align: center;}
   &.text-in.at-top    .as-text {@include pos-abs($l:0,$r:0,$t:0);}
   &.text-in.at-bottom .as-text {@include pos-abs($l:0,$r:0,$b:0);}
   &.text-in.at-left   .as-text {@include pos-abs($l:0,$t:0,$b:0);}

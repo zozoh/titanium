@@ -6,7 +6,8 @@
   "methods" : "./rich-tinymce-obj-resizing.mjs",
   "mixins" : "./rich-tinymce.mjs",
   "components": [
-    "@com:hm/prop/css-rules"
+    "@com:hm/prop/css-rules",
+    "@com:hm/prop/class-picker"
   ],
   "deps" : [
     "@deps:tinymce/5.6.2/tinymce.min.js"

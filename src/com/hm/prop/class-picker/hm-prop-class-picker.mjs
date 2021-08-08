@@ -37,7 +37,7 @@ const _M = {
     },
     "dialogHeight" : {
       type : [String, Number],
-      default : "5rem"
+      default : "6.4rem"
     }
   },
   //////////////////////////////////////////////////////

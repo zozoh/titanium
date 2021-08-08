@@ -258,6 +258,18 @@ export default {
   //--------------------------------------
   getTiAlbumObj($el) {
     let albumType = $el.getAttribute("ti-album-type")
+    let styleUrlRewrite;
+    if(this.apiTmpl) {
+      styleUrlRewrite = (bgUrl)=>{
+        let m = /^url\(['"]?\/o\/content\?str=id:([^&'")]+)([^)'"]*)['"]?\)?$/.exec(bgUrl)
+        if(m) {
+          let id = m[1]
+          let src = Ti.S.renderBy(this.apiTmpl, {id})
+          return `url('${src}')`
+        }
+        return bgUrl
+      }
+    }
     //
     // Get album setup by type
     //
@@ -286,7 +298,8 @@ export default {
             })
           },
           brief: "=brief"
-        }
+        },
+        styleUrlRewrite
       },
       "fb-album": {
         attrPrefix: "wn-fb-",
@@ -295,7 +308,8 @@ export default {
           link: "=link",
           thumb: "=thumbSrc",  // "thumb_src" will be camelCase
           src: "=src"
-        }
+        },
+        styleUrlRewrite
       },
       "yt-playlist": {
         attrPrefix: "wn-ytpl-",
@@ -305,7 +319,8 @@ export default {
           thumb: "=thumbUrl",
           src: "=coverUrl",
           brief: "=description",
-        }
+        },
+        styleUrlRewrite
       }
     })[albumType || "album"]
 
@@ -344,6 +359,9 @@ export default {
       else {
         items = AB.getItems()
       }
+
+      // Rewrite style
+      Ti.Dom.setStyle($el, album.style)
 
       // Redraw
       //console.log(album, items)

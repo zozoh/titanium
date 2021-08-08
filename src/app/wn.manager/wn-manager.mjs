@@ -274,7 +274,7 @@ const _M = {
       //console.log("__on_events", name, payload)
       // Special event 
       if(/^main::arena::(.+::)?select$/.test(name)) {
-        return this.OnArenaSelect
+        this.OnArenaSelect(payload)
       }
 
       // Guard

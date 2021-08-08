@@ -1,4 +1,4 @@
-// Pack At: 2021-08-06 22:09:11
+// Pack At: 2021-08-08 20:22:34
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5783,7 +5783,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "valueKeys": {
       type: Array,
       default: () => [
-        'id', 'nm', 'thumb', 'title', 'mime', 'tp', 'sha1', 'len',
+        'id', 'nm', 'thumb', 'title', 'brief', 'mime', 'tp', 'sha1', 'len',
         'href', 'newtab'
       ]
     },
@@ -5986,24 +5986,33 @@ const __TI_MOD_EXPORT_VAR_NM = {
         title: "i18n:edit",
         width: 640,
         height: 480,
-        result: _.pick(it, "title", "href", "newtab"),
+        result: _.pick(it, "title", "brief", "href", "newtab"),
         model: { prop: "data", event: "change" },
         comType: "ti-form",
         comConf: {
-          fields: [{
-            title: "i18n:title",
-            name: "title",
-            comType: "ti-input"
-          }, {
-            title: "i18n:href",
-            name: "href",
-            comType: "ti-input"
-          }, {
-            title: "i18n:newtab",
-            name: "newtab",
-            type: "Boolean",
-            comType: "ti-toggle"
-          }]
+          fields: [
+            {
+              title: "i18n:title",
+              name: "title",
+              comType: "ti-input"
+            },
+            {
+              title: "i18n:brief",
+              name: "brief",
+              comType: "ti-input"
+            },
+            {
+              title: "i18n:href",
+              name: "href",
+              comType: "ti-input"
+            },
+            {
+              title: "i18n:newtab",
+              name: "newtab",
+              type: "Boolean",
+              comType: "ti-toggle"
+            }
+          ]
         }
       })
 
@@ -6015,6 +6024,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       it = _.cloneDeep(it)
       it.title = reo.title
+      it.brief = reo.brief
       it.href = reo.href
       it.newtab = reo.newtab
 
@@ -17591,6 +17601,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //--------------------------------------
   getTiAlbumObj($el) {
     let albumType = $el.getAttribute("ti-album-type")
+    let styleUrlRewrite;
+    if(this.apiTmpl) {
+      styleUrlRewrite = (bgUrl)=>{
+        let m = /^url\(['"]?\/o\/content\?str=id:([^&'")]+)([^)'"]*)['"]?\)?$/.exec(bgUrl)
+        if(m) {
+          let id = m[1]
+          let src = Ti.S.renderBy(this.apiTmpl, {id})
+          return `url('${src}')`
+        }
+        return bgUrl
+      }
+    }
     //
     // Get album setup by type
     //
@@ -17619,7 +17641,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
             })
           },
           brief: "=brief"
-        }
+        },
+        styleUrlRewrite
       },
       "fb-album": {
         attrPrefix: "wn-fb-",
@@ -17628,7 +17651,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           link: "=link",
           thumb: "=thumbSrc",  // "thumb_src" will be camelCase
           src: "=src"
-        }
+        },
+        styleUrlRewrite
       },
       "yt-playlist": {
         attrPrefix: "wn-ytpl-",
@@ -17638,7 +17662,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           thumb: "=thumbUrl",
           src: "=coverUrl",
           brief: "=description",
-        }
+        },
+        styleUrlRewrite
       }
     })[albumType || "album"]
 
@@ -17677,6 +17702,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       else {
         items = AB.getItems()
       }
+
+      // Rewrite style
+      Ti.Dom.setStyle($el, album.style)
 
       // Redraw
       //console.log(album, items)
@@ -27658,7 +27686,7 @@ const _M = {
       //console.log("__on_events", name, payload)
       // Special event 
       if(/^main::arena::(.+::)?select$/.test(name)) {
-        return this.OnArenaSelect
+        this.OnArenaSelect(payload)
       }
 
       // Guard
@@ -55903,6 +55931,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "articleStyle": {
+    type : Object
+  },
   "theme": {
     type: String,
     default: "nice"
@@ -65628,7 +65659,8 @@ Ti.Preload("ti/com/ti/text/rich/tinymce/_com.json", {
   "methods" : "./rich-tinymce-obj-resizing.mjs",
   "mixins" : "./rich-tinymce.mjs",
   "components": [
-    "@com:hm/prop/css-rules"
+    "@com:hm/prop/css-rules",
+    "@com:hm/prop/class-picker"
   ],
   "deps" : [
     "@deps:tinymce/5.6.2/tinymce.min.js"
@@ -68567,7 +68599,8 @@ Ti.Preload("ti/com/web/text/article/web-text-article.html", `<div class="web-tex
   <!-- Render content -->
   <article ref="main"
     class="ti-article"
-    :class="ArticleClass"></article>
+    :class="ArticleClass"
+    :style="articleStyle"></article>
 </div>`);
 //========================================
 // JOIN <web-text-article.mjs> ti/com/web/text/article/web-text-article.mjs
@@ -72536,6 +72569,7 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-class-text-at": "Text at",
   "hmk-class-text-in": "Inside",
   "hmk-class-text-out": "Outside",
+  "hmk-class-text-mode": "Text mode",
   "hmk-class-text-side": "Text side",
   "hmk-class-text-style": "Text style",
   "hmk-class-text-wrap": "Text wrap",
@@ -72558,6 +72592,8 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-css-background-color": "Bg Color",
   "hmk-css-background-image": "Bg Image",
   "hmk-css-background-position": "Bg Pos.",
+  "hmk-css-background-position-x": "Bg Pos X",
+  "hmk-css-background-position-y": "Bg Pos Y",
   "hmk-css-background-repeat": "Bg Repeat",
   "hmk-css-background-repeat-no": "No repeat",
   "hmk-css-background-repeat-round": "Round",
@@ -72585,6 +72621,7 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-css-g-initial": "initial",
   "hmk-css-g-unset": "unset",
   "hmk-css-grp-aspect": "Aspect setup",
+  "hmk-css-grp-background": "Background setup",
   "hmk-css-grp-measure": "Measure setup",
   "hmk-css-grp-texting": "Text setup",
   "hmk-css-height": "Height",
@@ -73974,6 +74011,7 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-class-text-at": "文字位置",
   "hmk-class-text-in": "居内",
   "hmk-class-text-out": "居外",
+  "hmk-class-text-mode": "文字模式",
   "hmk-class-text-side": "文字放置",
   "hmk-class-text-style": "文字风格",
   "hmk-class-text-wrap": "文字折行",
@@ -73996,6 +74034,8 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-css-background-color": "背景颜色",
   "hmk-css-background-image": "背景图片",
   "hmk-css-background-position": "背景位置",
+  "hmk-css-background-position-x": "背景X轴位置",
+  "hmk-css-background-position-y": "背景Y轴位置",
   "hmk-css-background-repeat": "背景重复",
   "hmk-css-background-repeat-no": "不重复",
   "hmk-css-background-repeat-round": "填充间隔",
@@ -74023,6 +74063,7 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-css-g-initial": "初始",
   "hmk-css-g-unset": "默认",
   "hmk-css-grp-aspect": "外观设置",
+  "hmk-css-grp-background": "背景设置",
   "hmk-css-grp-measure": "尺度设置",
   "hmk-css-grp-texting": "文字设置",
   "hmk-css-height": "高度",

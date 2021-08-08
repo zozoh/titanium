@@ -37,6 +37,7 @@ class TiAlbum {
   //---------------------------------------
   setData(album = {}) {
     let { attrPrefix } = this.setup
+    console.log("album.setData", album)
     let attrs = this.formatData(album)
     Ti.Dom.setStyle(this.$el, attrs.style)
     Ti.Dom.setAttrs(this.$el, _.omit(attrs, "style"), attrPrefix)
@@ -52,7 +53,7 @@ class TiAlbum {
     let { dftWallClass } = this.setup
     let {
       id, name, link, layout, fullpreview, autoopen,
-      style, wallStyle, 
+      style, wallStyle,
       partLeftStyle, partRightStyle,
       tileStyle, imageStyle,
       titleStyle, briefStyle,
@@ -87,7 +88,7 @@ class TiAlbum {
   }
   //---------------------------------------
   getData() {
-    let { attrPrefix } = this.setup
+    let { attrPrefix, styleUrlRewrite } = this.setup
     let N = attrPrefix.length
     let album = Ti.Dom.attrs(this.$el, (name) => {
       if ("style" == name) {
@@ -97,21 +98,25 @@ class TiAlbum {
         return _.camelCase(name.substring(N))
       }
     })
+    let settings = {
+      urlRewrite: styleUrlRewrite,
+      nameCase: "camel"
+    }
     let {
-      style, wallClass, wallStyle, 
+      style, wallClass, wallStyle,
       partLeftStyle, partRightStyle,
       tileStyle, imageStyle,
       titleStyle, briefStyle,
     } = album
     album.wallClass = Ti.Dom.getClassList(wallClass).join(" ")
-    album.style = Ti.Css.parseCssRule(style)
-    album.wallStyle = Ti.Css.parseCssRule(wallStyle)
-    album.tileStyle = Ti.Css.parseCssRule(tileStyle)
-    album.partLeftStyle = Ti.Css.parseCssRule(partLeftStyle)
-    album.partRightStyle = Ti.Css.parseCssRule(partRightStyle)
-    album.imageStyle = Ti.Css.parseCssRule(imageStyle)
-    album.titleStyle = Ti.Css.parseCssRule(titleStyle)
-    album.briefStyle = Ti.Css.parseCssRule(briefStyle)
+    album.style = Ti.Css.parseAndTidyCssRule(style, settings)
+    album.wallStyle = Ti.Css.parseAndTidyCssRule(wallStyle, settings)
+    album.tileStyle = Ti.Css.parseAndTidyCssRule(tileStyle, settings)
+    album.partLeftStyle = Ti.Css.parseAndTidyCssRule(partLeftStyle, settings)
+    album.partRightStyle = Ti.Css.parseAndTidyCssRule(partRightStyle, settings)
+    album.imageStyle = Ti.Css.parseAndTidyCssRule(imageStyle, settings)
+    album.titleStyle = Ti.Css.parseAndTidyCssRule(titleStyle, settings)
+    album.briefStyle = Ti.Css.parseAndTidyCssRule(briefStyle, settings)
     album.type = this.$el.getAttribute("ti-album-type")
     return album
   }
@@ -137,13 +142,18 @@ class TiAlbum {
     let { attrPrefix } = this.setup
     let album = this.getData()
 
+    // Default wall class
+    let className = Ti.Css.mergeClassName(album.wallClass) || {}
+    className[WALL_CLASS_NAME] = true
+    className[`layout-${album.layout || "wall"}`] = true
+    if(!className["text-in"] && !className["text-out"]) {
+      className["text-in"] = true
+    }
+
     // Build OUTER
     let $wall = Ti.Dom.createElement({
       tagName: "div",
-      className: [
-        WALL_CLASS_NAME, album.wallClass,
-        `layout-${album.layout || "wall"}`
-      ],
+      className,
       style: album.wallStyle
     })
 
@@ -212,7 +222,7 @@ class TiAlbum {
   }
   //---------------------------------------
   createPhotoTileElement($p, photo, {
-    layout, tileStyle, 
+    layout, tileStyle,
     partLeftStyle, partRightStyle,
     imageStyle, titleStyle, briefStyle
   }, attrPrefix) {
@@ -337,7 +347,6 @@ class TiAlbum {
     }
     // Wall photos
     let photos = this.getWallPhotos()
-    console.log("getPhotos", photos)
     return photos
   }
   //---------------------------------------
@@ -488,7 +497,7 @@ export const Album = {
           comType: "HmPropClassPicker",
           comConf: {
             valueType: "String",
-            dialogHeight: 600,
+            dialogHeight: 640,
             form: {
               fields: [
                 {
@@ -530,6 +539,29 @@ export const Album = {
                       { value: "item-margin-md", text: "i18n:hmk-class-sz-md" },
                       { value: "item-margin-lg", text: "i18n:hmk-class-sz-lg" },
                       { value: "item-margin-xl", text: "i18n:hmk-class-sz-xl" }
+                    ]
+                  }
+                },
+                {
+                  title: "i18n:hmk-class-text-at",
+                  name: "textAt",
+                  comType: "TiSwitcher",
+                  comConf: {
+                    options: [
+                      { value: "at-top", text: "i18n:hmk-class-at-top" },
+                      { value: "at-center", text: "i18n:hmk-class-at-center" },
+                      { value: "at-bottom", text: "i18n:hmk-class-at-bottom" }
+                    ]
+                  }
+                },
+                {
+                  title: "i18n:hmk-class-text-mode",
+                  name: "textMode",
+                  comType: "TiSwitcher",
+                  comConf: {
+                    options: [
+                      { value: "text-in", text: "i18n:hmk-class-text-in" },
+                      { value: "text-out", text: "i18n:hmk-class-text-out" }
                     ]
                   }
                 },
@@ -828,6 +860,7 @@ export const Album = {
   },
   //---------------------------------------
   getOrCreate($el, setup = {}) {
+    //console.log("getOrCreate", setup)
     if (!$el.__ti_photo_wall) {
       $el.__ti_photo_wall = new TiAlbum($el, setup)
     }

@@ -87,6 +87,9 @@ export default {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "articleStyle": {
+    type : Object
+  },
   "theme": {
     type: String,
     default: "nice"

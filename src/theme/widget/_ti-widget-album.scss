@@ -29,7 +29,6 @@
     }
     //---------------------------------------
     .tile-title {
-      @include pos-abs($l:0,$r:0);
       display: block;
       color: #CCC; font-size: SZ(12);
       line-height: 1.5em; padding: .5em;
@@ -40,6 +39,18 @@
       display: block;
     }
     //---------------------------------------
+  }
+  //-----------------------------------------
+  &.text-out {
+    .wall-tile .tile-title {
+      position: relative;
+    }
+  }
+  //-----------------------------------------
+  &.text-in {
+    .wall-tile .tile-title {
+      @include pos-abs($l:0,$r:0); 
+    }
   }
   //-----------------------------------------
   &.at-top    .wall-tile .tile-title {top:0;}
@@ -67,7 +78,7 @@
   // Normal wall style
   // 
   //-----------------------------------------
-  &.layout-wall {
+  &.layout-wall.text-in {
     .wall-tile:hover {
       .tile-title {
         background-color: rgba(0,0,0,0.7);

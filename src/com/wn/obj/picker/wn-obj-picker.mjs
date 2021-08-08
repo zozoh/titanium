@@ -32,7 +32,7 @@ export default {
     "valueKeys": {
       type: Array,
       default: () => [
-        'id', 'nm', 'thumb', 'title', 'mime', 'tp', 'sha1', 'len',
+        'id', 'nm', 'thumb', 'title', 'brief', 'mime', 'tp', 'sha1', 'len',
         'href', 'newtab'
       ]
     },
@@ -235,24 +235,33 @@ export default {
         title: "i18n:edit",
         width: 640,
         height: 480,
-        result: _.pick(it, "title", "href", "newtab"),
+        result: _.pick(it, "title", "brief", "href", "newtab"),
         model: { prop: "data", event: "change" },
         comType: "ti-form",
         comConf: {
-          fields: [{
-            title: "i18n:title",
-            name: "title",
-            comType: "ti-input"
-          }, {
-            title: "i18n:href",
-            name: "href",
-            comType: "ti-input"
-          }, {
-            title: "i18n:newtab",
-            name: "newtab",
-            type: "Boolean",
-            comType: "ti-toggle"
-          }]
+          fields: [
+            {
+              title: "i18n:title",
+              name: "title",
+              comType: "ti-input"
+            },
+            {
+              title: "i18n:brief",
+              name: "brief",
+              comType: "ti-input"
+            },
+            {
+              title: "i18n:href",
+              name: "href",
+              comType: "ti-input"
+            },
+            {
+              title: "i18n:newtab",
+              name: "newtab",
+              type: "Boolean",
+              comType: "ti-toggle"
+            }
+          ]
         }
       })
 
@@ -264,6 +273,7 @@ export default {
 
       it = _.cloneDeep(it)
       it.title = reo.title
+      it.brief = reo.brief
       it.href = reo.href
       it.newtab = reo.newtab
 
