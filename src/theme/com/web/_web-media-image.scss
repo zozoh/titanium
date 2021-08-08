@@ -37,11 +37,6 @@
     .as-text {
       transition: 0.5s; 
     }
-    .as-text:hover {
-      .as-title {
-        white-space: normal; overflow: hidden;
-      }
-    }
   }
   //-----------------------------------------
   &.top-hover-full {
@@ -88,6 +83,7 @@
     user-select: text; 
     //---------------------------------------
     .as-title {
+      width:100%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -103,6 +99,11 @@
       &:hover {text-decoration: none;}
     }
     //---------------------------------------  
+  }
+  &:hover .as-text {
+    .as-title {
+      white-space: normal; overflow: hidden;
+    }
   }
   &.brief-at-top .as-text {
     .as-title {order: 2;}
