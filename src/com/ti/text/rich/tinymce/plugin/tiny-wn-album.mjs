@@ -55,7 +55,7 @@ function GetAlbumWidget($album) {
     attrPrefix : "wn-obj-",
     itemToPhoto : {
       name : "=title",
-      link : "#",
+      link : "=href",
       thumb : "->/o/content?str=${thumb}",
       src  : "->/o/content?str=id:${id}"
     }
@@ -148,7 +148,7 @@ function CmdReloadAlbum(editor, settings) {
     return
   }
   // Reload content
-  UpdateAlbumTagInnerHtml(editor, $album, settings, {reloadMeta:true})
+  UpdateAlbumTagInnerHtml(editor, $album, settings)
 }
 ////////////////////////////////////////////////////
 function GetCurrentAlbumElement(editor) {
@@ -229,7 +229,10 @@ export default {
   setup : function(editor, url){
     //..............................................
     let settings = _.assign({
-        meta : "~"
+        meta : "~",
+        sort : {
+          "sort": 1
+        }
       }, _.get(editor.settings, "wn_album_config"));
     //..............................................
     // Reload meta content
@@ -240,9 +243,10 @@ export default {
         race : "FILE",
         mime : "^image\/"
       })
-      let KF = '^(id|thumb(_obj)?|sha1|nm|title|mime|tp|width|height|len)$'
+      let KF = '^(id|thumb(_obj)?|sha1|href|nm|title|mime|tp|width|height|len)$'
+      let sortJson = JSON.stringify(settings.sort) || "{}"
       return await Wn.Sys.exec2(
-        `o @query '${match}' @refer thumb @json '${KF}' -cqnl`, {
+        `o @query '${match}' -sort '${sortJson}' @refer thumb @json '${KF}' -cqnl`, {
           as:"json"
         })
     }

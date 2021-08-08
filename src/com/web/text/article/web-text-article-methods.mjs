@@ -278,7 +278,7 @@ export default {
         attrPrefix: "wn-obj-",
         itemToPhoto: {
           name: "=title",
-          link: "#",
+          link: "=href",
           src: (obj) => {
             return Ti.WWW.evalObjPreviewSrc(obj, {
               previewKey: "..",

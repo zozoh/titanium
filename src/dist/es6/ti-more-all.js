@@ -1,4 +1,4 @@
-// Pack At: 2021-08-08 20:22:34
+// Pack At: 2021-08-08 21:36:26
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6740,7 +6740,7 @@ const _M = {
       // Update Path url
       let { pageUriWithParams, pageAnchorTo } = json
       pageUriWithParams = Ti.Util.fallback(
-        state.pageUriWithParams, 
+        pageUriWithParams, 
         rootState.pageUriWithParams,
         true)
       let base = rootState.base
@@ -6750,6 +6750,7 @@ const _M = {
         anchor
       })
       pinfo.pageUri = Ti.Util.appendPath(base, link.toString())
+      pinfo.pageUriWithParams = pageUriWithParams
       //.....................................
       let page = _.merge({
         "className": null,
@@ -17621,7 +17622,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         attrPrefix: "wn-obj-",
         itemToPhoto: {
           name: "=title",
-          link: "#",
+          link: "=href",
           src: (obj) => {
             return Ti.WWW.evalObjPreviewSrc(obj, {
               previewKey: "..",
@@ -39071,7 +39072,7 @@ function GetAlbumWidget($album) {
     attrPrefix : "wn-obj-",
     itemToPhoto : {
       name : "=title",
-      link : "#",
+      link : "=href",
       thumb : "->/o/content?str=${thumb}",
       src  : "->/o/content?str=id:${id}"
     }
@@ -39164,7 +39165,7 @@ function CmdReloadAlbum(editor, settings) {
     return
   }
   // Reload content
-  UpdateAlbumTagInnerHtml(editor, $album, settings, {reloadMeta:true})
+  UpdateAlbumTagInnerHtml(editor, $album, settings)
 }
 ////////////////////////////////////////////////////
 function GetCurrentAlbumElement(editor) {
@@ -39245,7 +39246,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   setup : function(editor, url){
     //..............................................
     let settings = _.assign({
-        meta : "~"
+        meta : "~",
+        sort : {
+          "sort": 1
+        }
       }, _.get(editor.settings, "wn_album_config"));
     //..............................................
     // Reload meta content
@@ -39256,9 +39260,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
         race : "FILE",
         mime : "^image\/"
       })
-      let KF = '^(id|thumb(_obj)?|sha1|nm|title|mime|tp|width|height|len)$'
+      let KF = '^(id|thumb(_obj)?|sha1|href|nm|title|mime|tp|width|height|len)$'
+      let sortJson = JSON.stringify(settings.sort) || "{}"
       return await Wn.Sys.exec2(
-        `o @query '${match}' @refer thumb @json '${KF}' -cqnl`, {
+        `o @query '${match}' -sort '${sortJson}' @refer thumb @json '${KF}' -cqnl`, {
           as:"json"
         })
     }

@@ -575,7 +575,7 @@ const _M = {
       // Update Path url
       let { pageUriWithParams, pageAnchorTo } = json
       pageUriWithParams = Ti.Util.fallback(
-        state.pageUriWithParams, 
+        pageUriWithParams, 
         rootState.pageUriWithParams,
         true)
       let base = rootState.base
@@ -585,6 +585,7 @@ const _M = {
         anchor
       })
       pinfo.pageUri = Ti.Util.appendPath(base, link.toString())
+      pinfo.pageUriWithParams = pageUriWithParams
       //.....................................
       let page = _.merge({
         "className": null,

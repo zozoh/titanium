@@ -128,6 +128,9 @@ class TiAlbum {
         evalFunc: true
       })
       po.item = it
+      if(it.href)
+      console.log(po)
+      
       return po
     })
   }
