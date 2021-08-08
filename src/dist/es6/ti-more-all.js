@@ -1,4 +1,4 @@
-// Pack At: 2021-08-08 21:47:41
+// Pack At: 2021-08-08 22:20:52
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -73538,6 +73538,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "history-record": "History record",
   "home": "HOME",
   "home-index": "HOME",
+  "href": "Link",
   "i-known": "I known",
   "icon": "Icon",
   "icon-code-tip": "Please key-in code for icon, such as 'zmdi-case'",
@@ -73653,6 +73654,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "name": "Name",
   "new-item": "New item",
   "newsfeed": "Newfeed",
+  "newtab": "New tab",
   "next": "Next",
   "nil": "Nil",
   "nil-content": "Nil content",
@@ -74980,6 +74982,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "history-record": "历史记录",
   "home": "主目录",
   "home-index": "首页",
+  "href": "超链接",
   "i-known": "我知道了",
   "icon": "图标",
   "icon-code-tip": "请输入图标代码，如 zmdi-case",
@@ -75095,6 +75098,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "name": "名称",
   "new-item": "新项目",
   "newsfeed": "消息流",
+  "newtab": "新窗口",
   "next": "下一步",
   "nil": "无",
   "nil-content": "无内容",
@@ -75450,6 +75454,7 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-class-text-at": "文字位置",
    "hmk-class-text-in": "居內",
    "hmk-class-text-out": "居外",
+   "hmk-class-text-mode": "文字模式",
    "hmk-class-text-side": "文字放置",
    "hmk-class-text-style": "文字風格",
    "hmk-class-text-wrap": "文字折行",
@@ -75472,6 +75477,8 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-css-background-color": "背景顏色",
    "hmk-css-background-image": "背景圖片",
    "hmk-css-background-position": "背景位置",
+   "hmk-css-background-position-x": "背景X軸位置",
+   "hmk-css-background-position-y": "背景Y軸位置",
    "hmk-css-background-repeat": "背景重複",
    "hmk-css-background-repeat-no": "不重複",
    "hmk-css-background-repeat-round": "填充間隔",
@@ -75499,6 +75506,7 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-css-g-initial": "初始",
    "hmk-css-g-unset": "默認",
    "hmk-css-grp-aspect": "外觀設置",
+   "hmk-css-grp-background": "背景設置",
    "hmk-css-grp-measure": "尺度設置",
    "hmk-css-grp-texting": "文字設置",
    "hmk-css-height": "高度",
@@ -76377,6 +76385,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "history-record": "歷史記錄",
    "home": "主目錄",
    "home-index": "首頁",
+   "href": "超鏈接",
    "i-known": "我知道了",
    "icon": "圖標",
    "icon-code-tip": "請輸入圖標代碼，如 zmdi-case",
@@ -76492,6 +76501,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "name": "名稱",
    "new-item": "新項目",
    "newsfeed": "消息流",
+   "newtab": "新窗口",
    "next": "下一步",
    "nil": "無",
    "nil-content": "無內容",

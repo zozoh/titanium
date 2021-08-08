@@ -127,10 +127,7 @@ class TiAlbum {
       let po = Ti.Util.explainObj(it, itemToPhoto, {
         evalFunc: true
       })
-      po.item = it
-      if(it.href)
-      console.log(po)
-      
+      po.item = it     
       return po
     })
   }

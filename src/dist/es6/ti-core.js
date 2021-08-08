@@ -1,4 +1,4 @@
-// Pack At: 2021-08-08 21:47:41
+// Pack At: 2021-08-08 22:20:52
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -14452,10 +14452,7 @@ const {Album} = (function(){
         let po = Ti.Util.explainObj(it, itemToPhoto, {
           evalFunc: true
         })
-        po.item = it
-        if(it.href)
-        console.log(po)
-        
+        po.item = it     
         return po
       })
     }
@@ -16487,7 +16484,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210808.214741",
+  "version" : "1.6-20210808.222052",
   "dev" : false,
   "appName" : null,
   "session" : {},
