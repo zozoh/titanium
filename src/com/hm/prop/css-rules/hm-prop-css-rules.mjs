@@ -1,45 +1,57 @@
 const _M = {
   //////////////////////////////////////////////////////
-  data : ()=>({
+  data: () => ({
   }),
   //////////////////////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "value" : {
-      type : Object
+    "value": {
+      type: Object
     },
-    "keyType" : {
-      type : String,
-      default : "kebab",
-      validator : v => /^(kebab|camel|snake)$/.test(v)
+    "keyType": {
+      type: String,
+      default: "kebab",
+      validator: v => /^(kebab|camel|snake)$/.test(v)
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    "form" : {
-      type : Object,
-      default : ()=>({})
+    "form": {
+      type: Object,
+      default: () => ({})
     },
-    "rules" : {
-      type : [Array, String, Object, Boolean, RegExp],
-      default : true
+    "rules": {
+      type: [Array, String, Object, Boolean, RegExp],
+      default: true
+    },
+    "getCssPropTitle": {
+      type: Function,
+      default: undefined
+    },
+    "findRuleFields": {
+      type: Function,
+      default: undefined
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "blankAs" : {
-      type : Object,
-      default : ()=>({
-        className : "as-mid",
-        icon : "fas-ruler-combined",
-        text : "empty-data"
+    "autoI18nRuleTitle": {
+      type: Boolean,
+      default: true
+    },
+    "blankAs": {
+      type: Object,
+      default: () => ({
+        className: "as-mid",
+        icon: "fas-ruler-combined",
+        text: "empty-data"
       })
     }
   },
   //////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -47,17 +59,26 @@ const _M = {
     //--------------------------------------------------
     ValueObj() {
       let re = {}
-      _.forEach(this.value, (value, k)=>{
-        let key = _.kebabCase(k)
+      _.forEach(this.value, (value, k) => {
+        let key = this.FormatKey(k)
         re[key] = value
       })
       return re;
     },
     //--------------------------------------------------
     ValueTable() {
+      let getTitle = this.getCssPropTitle
+              || _.get(window, "Wn.Hm.getCssPropTitle")
+              || function (v) {return v}
       let re = []
-      _.forEach(this.ValueObj, (value, name)=>{
-        let title = Wn.Hm.getCssPropTitle(name)
+      _.forEach(this.ValueObj, (value, name) => {
+        let title = getTitle(name)
+        if(/^i18n:(.+)/.test(title)) {
+          title = Ti.I18n.text(title)
+        }
+        else if(this.autoI18nRuleTitle) {
+          title = Ti.I18n.get(title)
+        }
         re.push({
           title, name, value
         })
@@ -67,9 +88,9 @@ const _M = {
     //--------------------------------------------------
     FormatKey() {
       return ({
-        "kebab" : _.kebabCase,
-        "camel" : _.camelCase,
-        "snake" : _.snakeCase
+        "kebab": _.kebabCase,
+        "camel": _.camelCase,
+        "snake": _.snakeCase
       })[this.keyType]
     },
     //--------------------------------------------------
@@ -79,20 +100,20 @@ const _M = {
     //--------------------------------------------------
     ActionItems() {
       return [{
-        icon : "fas-drafting-compass",
-        text : "i18n:edit",
-        action : ()=>{
+        icon: "fas-drafting-compass",
+        text: "i18n:edit",
+        action: () => {
           this.openCssFormDialog()
         }
       }, {
-        icon : "fas-code",
-        action : ()=>{
+        icon: "fas-code",
+        action: () => {
           this.openCssCodeDialog()
         }
       }, {
-        icon : "far-trash-alt",
+        icon: "far-trash-alt",
         text: "i18n:clear",
-        action : ()=>{
+        action: () => {
           this.clearValue()
         }
       }]
@@ -100,9 +121,9 @@ const _M = {
     //--------------------------------------------------
     EmptyButtonSetup() {
       return [{
-        icon : "fas-drafting-compass",
-        text : "i18n:edit",
-        handler : ()=>{
+        icon: "fas-drafting-compass",
+        text: "i18n:edit",
+        handler: () => {
           this.openCssFormDialog()
         }
       }]
@@ -111,19 +132,22 @@ const _M = {
     FormConfig() {
       let conf = _.cloneDeep(this.form)
       _.defaults(conf, {
-        spacing : "tiny"
+        spacing: "tiny"
       })
-      if(_.isEmpty(conf.fields)) {
-        conf.fields = Wn.Hm.findCssPropFields(this.rules)
+      let findRuleFields = this.findRuleFields
+              || _.get(window, "Wn.Hm.findCssPropFields")
+              || function () {return []}
+      if (_.isEmpty(conf.fields)) {
+        conf.fields = findRuleFields(this.rules)
       }
       return conf
     }
     //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------------------
-    OnRemoveValue({name}) {
+    OnRemoveValue({ name }) {
       let val = _.omit(this.ValueObj, name)
       this.$notify("change", val)
     },
@@ -134,22 +158,22 @@ const _M = {
 
       // Open dialog
       let reo = await Ti.App.Open({
-        title : "i18n:hmk-css-edit",
-        width : "8rem",
-        height : "95%",
-        position : "top",
+        title: "i18n:hmk-css-edit",
+        width: "8rem",
+        height: "95%",
+        position: "top",
         result,
-        model : {prop:"data", event:"change"},
-        comType : "TiForm",
-        comConf : this.FormConfig
+        model: { prop: "data", event: "change" },
+        comType: "TiForm",
+        comConf: this.FormConfig
       })
-      
+
       // User cancle
-      if(!reo)
+      if (!reo)
         return
 
       // Normlized to value
-      console.log(reo)
+      //console.log(reo)
       let val = this.normalizeValue(reo)
 
       this.$notify("change", val)
@@ -161,19 +185,19 @@ const _M = {
 
       // Open dialog
       let re = await Ti.App.Open({
-        title : "i18n:hmk-css-edit",
-        width : "6.4rem",
-        height : "95%",
-        position : "top",
+        title: "i18n:hmk-css-edit",
+        width: "6.4rem",
+        height: "95%",
+        position: "top",
         result,
-        comType : "TiTextJson",
-        comConf : {
+        comType: "TiTextJson",
+        comConf: {
         },
         components: ["@com:ti/text/json"]
       })
-      
+
       // User cancle
-      if(!re)
+      if (!re)
         return
 
       // Normlized to value
@@ -185,13 +209,13 @@ const _M = {
     //--------------------------------------------------
     normalizeValue(css) {
       let re = {}
-      _.forEach(css, (v, k)=>{
-        if(Ti.Util.isNil(v) || Ti.S.isBlank(v))
+      _.forEach(css, (v, k) => {
+        if (Ti.Util.isNil(v) || Ti.S.isBlank(v))
           return
         let key = this.FormatKey(k)
         re[key] = v
       })
-      if(_.isEmpty(re))
+      if (_.isEmpty(re))
         return null
       return re
     },

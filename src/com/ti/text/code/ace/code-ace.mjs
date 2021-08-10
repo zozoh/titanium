@@ -1,10 +1,10 @@
 const _M = {
   ///////////////////////////////////////////////////
-  data : ()=>({
-    
+  data: () => ({
+    myValue: undefined
   }),
   ///////////////////////////////////////////////////
-  computed : {
+  computed: {
     //-----------------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -13,7 +13,7 @@ const _M = {
     BlankComStyle() {
       return {
         position: "absolute",
-        top:0, right:0, bottom:0, left:0,
+        top: 0, right: 0, bottom: 0, left: 0,
         zIndex: 10
       }
     },
@@ -24,7 +24,7 @@ const _M = {
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  methods : {
+  methods: {
     //-----------------------------------------------
     initEditor() {
       // Create editor
@@ -35,9 +35,11 @@ const _M = {
       editor.session.setValue(this.value || "")
 
       // Events
-      // editor.session.on("change", (delta)=>{
-      //   console.log(delta)
-      // })
+      editor.session.on("change", (delta) => {
+        let str = editor.getValue() || ""
+        this.myValue = str
+        this.$notify("change", str)
+      })
 
       // Save instance
       this.$editor = editor
@@ -45,23 +47,25 @@ const _M = {
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "mode" : function(newVal, oldVal){
-      if(newVal && newVal != oldVal) {
+  watch: {
+    "mode": function (newVal, oldVal) {
+      if (newVal && newVal != oldVal) {
         this.$editor.session.setMode(`ace/mode/${newVal}`)
       }
     },
-    "theme" : function(newVal, oldVal){
-      if(newVal && newVal != oldVal) {
+    "theme": function (newVal, oldVal) {
+      if (newVal && newVal != oldVal) {
         this.$editor.setTheme(`ace/theme/${newVal}`)
       }
     },
-    "value" : function(newVal){
-      this.$editor.session.setValue(newVal || "")
+    "value": function (newVal) {
+      if (Ti.Util.isNil(this.myValue) || newVal != this.myValue) {
+        this.$editor.session.setValue(newVal || "")
+      }
     }
   },
   ///////////////////////////////////////////////////
-  mounted : async function() {
+  mounted: async function () {
     this.initEditor()
   }
   ///////////////////////////////////////////////////
