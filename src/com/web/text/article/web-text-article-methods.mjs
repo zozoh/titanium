@@ -395,6 +395,12 @@ export default {
         Ti.Widget.PhotoGallery.bind($el, {
           titleKey: $el.getAttribute("ti-live-title-key") || "title",
           showOpener: vm.photoGalleryShowOpener,
+          ignoreSrcElement: ($el)=>{
+            if(Ti.Dom.closest($el, ".album-ex-link")) {
+              return true
+            }
+            return false
+          },
           getData: function () {
             let AB = vm.getTiAlbumObj($el)
             let photos = AB.getPhotos()

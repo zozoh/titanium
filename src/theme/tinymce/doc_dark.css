@@ -1,5 +1,19 @@
 .ti-widget-album {
   position: relative; }
+  .ti-widget-album > a.album-ex-link[href] {
+    position: absolute;
+    top: 0.1rem;
+    right: 0.1rem;
+    color: #FFF;
+    background-color: #F48;
+    display: block;
+    padding: 0.08rem 0.14rem;
+    cursor: pointer;
+    opacity: 0.6;
+    border-radius: 0.08rem;
+    text-decoration: none; }
+    .ti-widget-album > a.album-ex-link[href]:hover {
+      opacity: 1; }
 
 .ti-widget-album .album-loading-stub {
   display: flex;
@@ -15,8 +29,8 @@
 .ti-widget-album > .photo-wall {
   display: flex;
   justify-content: flex-start;
-  align-items: center;
-  align-content: center;
+  align-items: stretch;
+  align-content: stretch;
   flex-wrap: wrap;
   padding: 0.1rem; }
   .ti-widget-album > .photo-wall .wall-tile {

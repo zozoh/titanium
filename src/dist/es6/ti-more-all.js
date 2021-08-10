@@ -1,4 +1,4 @@
-// Pack At: 2021-08-08 22:20:52
+// Pack At: 2021-08-10 19:36:15
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -17739,6 +17739,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
         Ti.Widget.PhotoGallery.bind($el, {
           titleKey: $el.getAttribute("ti-live-title-key") || "title",
           showOpener: vm.photoGalleryShowOpener,
+          ignoreSrcElement: ($el)=>{
+            if(Ti.Dom.closest($el, ".album-ex-link")) {
+              return true
+            }
+            return false
+          },
           getData: function () {
             let AB = vm.getTiAlbumObj($el)
             let photos = AB.getPhotos()
@@ -39074,7 +39080,8 @@ function GetAlbumWidget($album) {
       name : "=title",
       link : "=href",
       thumb : "->/o/content?str=${thumb}",
-      src  : "->/o/content?str=id:${id}"
+      src  : "->/o/content?str=id:${id}",
+      brief: "=brief"
     }
   })
 }
@@ -39260,7 +39267,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         race : "FILE",
         mime : "^image\/"
       })
-      let KF = '^(id|thumb(_obj)?|sha1|href|nm|title|mime|tp|width|height|len)$'
+      let KF = '^(id|thumb(_obj)?|sha1|href|nm|title|brief|mime|tp|width|height|len)$'
       let sortJson = JSON.stringify(settings.sort) || "{}"
       return await Wn.Sys.exec2(
         `o @query '${match}' -sort '${sortJson}' @refer thumb @json '${KF}' -cqnl`, {
@@ -72736,6 +72743,7 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-spacing-tiny": "Tiny",
   "hmk-style-adv": "Adv style",
   "hmk-style-brief": "Brief style",
+  "hmk-style-exlink": "Ex-Link",
   "hmk-style-image": "Image style",
   "hmk-style-inside": "Inner style",
   "hmk-style-outside": "Outer style",
@@ -73538,7 +73546,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "history-record": "History record",
   "home": "HOME",
   "home-index": "HOME",
-  "href": "Link",
+  "href": "Link URL",
+  "href-text": "Link Text",
   "i-known": "I known",
   "icon": "Icon",
   "icon-code-tip": "Please key-in code for icon, such as 'zmdi-case'",
@@ -74180,6 +74189,7 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-spacing-tiny": "紧凑",
   "hmk-style-adv": "高级样式",
   "hmk-style-brief": "摘要样式",
+  "hmk-style-exlink": "扩展链接",
   "hmk-style-image": "图片样式",
   "hmk-style-inside": "内部样式",
   "hmk-style-outside": "外部样式",
@@ -74983,6 +74993,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "home": "主目录",
   "home-index": "首页",
   "href": "超链接",
+  "href-text": "链接文字",
   "i-known": "我知道了",
   "icon": "图标",
   "icon-code-tip": "请输入图标代码，如 zmdi-case",
@@ -75616,6 +75627,7 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-spacing-tiny": "緊湊",
    "hmk-style-adv": "高級樣式",
    "hmk-style-brief": "摘要樣式",
+   "hmk-style-exlink": "擴展鏈接",
    "hmk-style-image": "圖片樣式",
    "hmk-style-inside": "內部樣式",
    "hmk-style-outside": "外部樣式",
@@ -76386,6 +76398,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "home": "主目錄",
    "home-index": "首頁",
    "href": "超鏈接",
+   "href-text": "鏈接文字",
    "i-known": "我知道了",
    "icon": "圖標",
    "icon-code-tip": "請輸入圖標代碼，如 zmdi-case",

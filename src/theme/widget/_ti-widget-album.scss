@@ -1,6 +1,19 @@
 //-----------------------------------------
 .ti-widget-album {
   position: relative;
+  //---------------------------------------
+  > a.album-ex-link[href] {
+    @include pos-abs($r:SZ(10), $t: SZ(10));
+    @include color($color-secondary, r, c);
+    display:block; padding: SZ(8) SZ(14);
+    cursor: pointer; opacity: 0.6;
+    border-radius: SZ(8);
+    text-decoration: none;
+    &:hover {
+      opacity: 1;
+    }
+  }
+  //---------------------------------------
 }
 //-----------------------------------------
 .ti-widget-album .album-loading-stub {
@@ -10,7 +23,7 @@
 }
 //-----------------------------------------
 .ti-widget-album > .photo-wall {
-  @include flex-align($ai:center, $ac: center);
+  @include flex-align($ai:stretch, $ac: stretch);
   padding: SZ(10);
   //-----------------------------------------
   .wall-tile {

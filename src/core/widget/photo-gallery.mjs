@@ -691,6 +691,11 @@ export const PhotoGallery = {
       //console.log("PhotoGallery bind click")
       $el.addEventListener("click", function (evt) {
         //console.log(evt, "Photo gallery", this, evt.srcElement)
+        if(_.isFunction(setup.ignoreSrcElement)) {
+          if(setup.ignoreSrcElement(evt.srcElement)){
+            return
+          }
+        }
         evt.preventDefault()
         evt.stopPropagation()
         //console.log("PG.redraw() >>>>>>>>>>>>")

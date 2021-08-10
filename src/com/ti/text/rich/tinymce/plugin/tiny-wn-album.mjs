@@ -57,7 +57,8 @@ function GetAlbumWidget($album) {
       name : "=title",
       link : "=href",
       thumb : "->/o/content?str=${thumb}",
-      src  : "->/o/content?str=id:${id}"
+      src  : "->/o/content?str=id:${id}",
+      brief: "=brief"
     }
   })
 }
@@ -243,7 +244,7 @@ export default {
         race : "FILE",
         mime : "^image\/"
       })
-      let KF = '^(id|thumb(_obj)?|sha1|href|nm|title|mime|tp|width|height|len)$'
+      let KF = '^(id|thumb(_obj)?|sha1|href|nm|title|brief|mime|tp|width|height|len)$'
       let sortJson = JSON.stringify(settings.sort) || "{}"
       return await Wn.Sys.exec2(
         `o @query '${match}' -sort '${sortJson}' @refer thumb @json '${KF}' -cqnl`, {

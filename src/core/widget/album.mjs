@@ -23,6 +23,7 @@ class TiAlbum {
         brief: "=brief"
       }
     }, setup)
+    //console.log(this.setup)
     // If live album, and fullpreview
     // Mark the root element. (the element not join the DOM yet)
     // Client maybe attach the live fullpreview widget to the element later
@@ -37,7 +38,7 @@ class TiAlbum {
   //---------------------------------------
   setData(album = {}) {
     let { attrPrefix } = this.setup
-    console.log("album.setData", album)
+    //console.log("album.setData", album)
     let attrs = this.formatData(album)
     Ti.Dom.setStyle(this.$el, attrs.style)
     Ti.Dom.setAttrs(this.$el, _.omit(attrs, "style"), attrPrefix)
@@ -52,8 +53,11 @@ class TiAlbum {
   formatData(album = {}) {
     let { dftWallClass } = this.setup
     let {
-      id, name, link, layout, fullpreview, autoopen,
-      style, wallStyle,
+      id, name,
+      link, linkText, newtab,
+      layout, fullpreview, autoopen,
+      style, exLinkStyle,
+      wallStyle,
       partLeftStyle, partRightStyle,
       tileStyle, imageStyle,
       titleStyle, briefStyle,
@@ -65,6 +69,7 @@ class TiAlbum {
     })
 
     style = Ti.Dom.formatStyle(style)
+    exLinkStyle = Ti.Dom.formatStyle(exLinkStyle)
     wallStyle = Ti.Dom.formatStyle(wallStyle)
     tileStyle = Ti.Dom.formatStyle(tileStyle)
     partLeftStyle = Ti.Dom.formatStyle(partLeftStyle)
@@ -74,9 +79,12 @@ class TiAlbum {
     briefStyle = Ti.Dom.formatStyle(briefStyle)
 
     return {
-      id, name, link, layout, fullpreview, autoopen,
+      id, name,
+      link, linkText, newtab,
+      layout, fullpreview, autoopen,
       wallClass: wallClass.join(" "),
       style: Ti.Css.renderCssRule(style),
+      exLinkStyle: Ti.Css.renderCssRule(exLinkStyle),
       wallStyle: Ti.Css.renderCssRule(wallStyle),
       tileStyle: Ti.Css.renderCssRule(tileStyle),
       partLeftStyle: Ti.Css.renderCssRule(partLeftStyle),
@@ -103,13 +111,14 @@ class TiAlbum {
       nameCase: "camel"
     }
     let {
-      style, wallClass, wallStyle,
+      style, wallClass, wallStyle, exLinkStyle,
       partLeftStyle, partRightStyle,
       tileStyle, imageStyle,
       titleStyle, briefStyle,
     } = album
     album.wallClass = Ti.Dom.getClassList(wallClass).join(" ")
     album.style = Ti.Css.parseAndTidyCssRule(style, settings)
+    album.exLinkStyle = Ti.Css.parseAndTidyCssRule(exLinkStyle, settings)
     album.wallStyle = Ti.Css.parseAndTidyCssRule(wallStyle, settings)
     album.tileStyle = Ti.Css.parseAndTidyCssRule(tileStyle, settings)
     album.partLeftStyle = Ti.Css.parseAndTidyCssRule(partLeftStyle, settings)
@@ -127,7 +136,9 @@ class TiAlbum {
       let po = Ti.Util.explainObj(it, itemToPhoto, {
         evalFunc: true
       })
-      po.item = it     
+      po.item = it
+      if (it.brief)
+        console.log(po)
       return po
     })
   }
@@ -141,12 +152,13 @@ class TiAlbum {
   renderPhotos(photos = []) {
     let { attrPrefix } = this.setup
     let album = this.getData()
+    console.log(album)
 
     // Default wall class
     let className = Ti.Css.mergeClassName(album.wallClass) || {}
     className[WALL_CLASS_NAME] = true
     className[`layout-${album.layout || "wall"}`] = true
-    if(!className["text-in"] && !className["text-out"]) {
+    if (!className["text-in"] && !className["text-out"]) {
       className["text-in"] = true
     }
 
@@ -169,6 +181,26 @@ class TiAlbum {
     // Update content
     this.$el.innerHTML = ""
     Ti.Dom.appendTo($wall, this.$el)
+
+    // Extend link
+    if (album.link) {
+      let $link = Ti.Dom.createElement({
+        $p: this.$el,
+        tagName: "a",
+        className: "album-ex-link",
+        style: album.exLinkStyle,
+        attrs: {
+          href: album.link,
+          target: album.newtab ? "_blank" : undefined
+        }
+      })
+      let linkText = album.linkText || album.name
+      $link.innerText = linkText
+    }
+    // Remove link
+    else {
+      Ti.Dom.remove(".album-ex-link", this.$el)
+    }
   }
   //---------------------------------------
   renderPhotosAsWall(photos = [], { $wall, album, attrPrefix }) {
@@ -272,7 +304,10 @@ class TiAlbum {
         className: "tile-title",
         style: titleStyle
       })
-      $title.innerText = name.replace(/\r?\n/g, " ")
+      let nameHtml = name
+        .replace('<', '&lt;')
+        .replace(/(\r?\n|(\\r)?\\n)/g, "<br>")
+      $title.innerHTML = nameHtml
     }
     if (brief && !Ti.S.isBlank(brief)) {
       let $title = Ti.Dom.createElement({
@@ -461,6 +496,22 @@ export const Album = {
           {
             title: `i18n:hmk-${PL}-name`,
             name: "name"
+          },
+          {
+            title: "i18n:href",
+            name: "link",
+            comType: "ti-input"
+          },
+          {
+            title: "i18n:href-text",
+            name: "linkText",
+            comType: "ti-input"
+          },
+          {
+            title: "i18n:newtab",
+            name: "newtab",
+            type: "Boolean",
+            comType: "ti-toggle"
           },
           {
             title: `i18n:hmk-w-edit-album-fullpreview`,
@@ -700,6 +751,16 @@ export const Album = {
         {
           title: "i18n:hmk-style-brief",
           name: "briefStyle",
+          type: "Object",
+          emptyAs: null,
+          comType: "HmPropCssRules",
+          comConf: {
+            rules: "#TEXT-BLOCK"
+          }
+        },
+        {
+          title: "i18n:hmk-style-exlink",
+          name: "exLinkStyle",
           type: "Object",
           emptyAs: null,
           comType: "HmPropCssRules",
