@@ -29,6 +29,8 @@
   "wn-en-his-utp": "User type",
   "wn-fsc-mail-scene-new": "New a email scenario",
   "wn-fsc-mail-tmpl-new": "Enter new unique name (such as 'signup')",
+  "wn-invalid-fsize-max": "最大上传文件尺寸为 ${maxSize}，但是您上传的文件尺寸为 ${fileSize}",
+  "wn-invalid-fsize-min": "最小上传文件尺寸为 ${minSize}，但是您上传的文件尺寸为 ${fileSize}",
   "wn-invalid-mimes": "Unsupported mime \"${current}\", only \"${supports}\" allowed",
   "wn-invalid-types": "Unsupported type \"${current}\", only \"${supports}\" allowed",
   "wn-key-c": "Creater",

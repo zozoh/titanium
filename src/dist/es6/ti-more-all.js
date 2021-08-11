@@ -1,4 +1,4 @@
-// Pack At: 2021-08-10 22:53:39
+// Pack At: 2021-08-11 21:28:05
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -30893,18 +30893,18 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/wn/upload/file/wn-upload-file.mjs'] = (function(){
 const _M = {
   /////////////////////////////////////////
-  data : ()=>({
-    srcAsUrl : false,
-    src_ts : null,
-    oFile     : null,
-    uploadFile : null,
-    progress   : -1
+  data: () => ({
+    srcAsUrl: false,
+    src_ts: null,
+    oFile: null,
+    uploadFile: null,
+    progress: -1
   }),
   /////////////////////////////////////////
-  props : {
-    "value" : {
-      type : [String, Object],
-      default : null
+  props: {
+    "value": {
+      type: [String, Object],
+      default: null
     },
     // raw value is WnObj
     // If declare the valueType
@@ -30916,119 +30916,127 @@ const _M = {
       validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
     // Input a image link directly
-    "exlink" : {
-      type : Boolean,
-      default : false
+    "exlink": {
+      type: Boolean,
+      default: false
     },
-    "maxWidth" : {
-      type : [String, Number],
-      default : undefined
+    "maxWidth": {
+      type: [String, Number],
+      default: undefined
     },
-    "maxHeight" : {
-      type : [String, Number],
-      default : undefined
+    "maxHeight": {
+      type: [String, Number],
+      default: undefined
     },
     // Display width
-    "width" : {
-      type : [String, Number],
-      default : undefined
+    "width": {
+      type: [String, Number],
+      default: undefined
     },
     // Display height
-    "height" : {
-      type : [String, Number],
-      default : undefined
+    "height": {
+      type: [String, Number],
+      default: undefined
     },
     // support remove the objects
-    "removable" : {
-      type : Boolean,
-      default : true
+    "removable": {
+      type: Boolean,
+      default: true
     },
     // Indicate the upload target when upload new value
     // Of cause, if the `value` exists, replace it
     // The `target` must be a path to a image object,
     // it will auto transfrom the image format by `cmd_imagic`
-    "target" : {
-      type : String,
-      default : null
+    "target": {
+      type: String,
+      default: null
     },
     // which type supported to upload
     // nulll or empty array will support any types
-    "supportTypes" : {
-      type : [String, Array],
-      default : ()=>[]
+    "supportTypes": {
+      type: [String, Array],
+      default: () => []
       //default : ()=>["png","jpg","jpeg","gif"]
+    },
+    "minFileSize": {
+      type: Number,
+      default: 0
+    },
+    "maxFileSize": {
+      type: Number,
+      default: 0
     },
     // which mime supported to upload
     // nulll or empty array will support any mimes
-    "supportMimes" : {
-      type : [String, Array],
-      default : ()=>[]
+    "supportMimes": {
+      type: [String, Array],
+      default: () => []
       //default : ()=>["image/png","image/jpeg","image/gif"]
     },
     // Image object only: it will auto apply image filter
     // just like clip the image size etc..
     // @see cmd_imagic for more detail about the filter
-    "filter" : {
-      type : [Array, String],
-      default : null
+    "filter": {
+      type: [Array, String],
+      default: null
     },
     // Image object only: if `>0 and <=1` mean output quality
     // if not match the range, will depends on the `cmd_imagic` default
-    "quality" : {
-      type : Number,
-      default : 0
+    "quality": {
+      type: Number,
+      default: 0
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     AcceptTypes() {
-      if(_.isString(this.supportTypes))
+      if (_.isString(this.supportTypes))
         return this.supportTypes.split(",")
       return this.supportTypes
     },
     //--------------------------------------
     AcceptMimes() {
-      if(_.isString(this.supportMimes))
+      if (_.isString(this.supportMimes))
         return this.supportMimes.split(",")
       return this.supportMimes
     },
     //--------------------------------------
     ImageFilter() {
-      if(!this.filter)
+      if (!this.filter)
         return []
       return [].concat(this.filter)
     },
     //--------------------------------------
     // Display image for <ti-thumb>
     PreviewIcon() {
-      if(this.srcAsUrl) {
+      if (this.srcAsUrl) {
         return {
           type: "image", value: this.value
         }
       }
       //....................................
-      if(this.oFile) {
+      if (this.oFile) {
         //..................................
         // Image
-        if(Wn.Obj.isMime(this.oFile, /^(image\/)/)) {
+        if (Wn.Obj.isMime(this.oFile, /^(image\/)/)) {
           let ss = ["/o/content?str=id:", this.oFile.id]
-          if(this.src_ts) {
+          if (this.src_ts) {
             ss.push("&_t=")
             ss.push(this.src_ts)
-          }          
+          }
           return {
             type: "image", value: ss.join("")
           }
         }
         //..................................
         // Video
-        if(Wn.Obj.isMime(this.oFile, /^(video\/)/)) {
+        if (Wn.Obj.isMime(this.oFile, /^(video\/)/)) {
           let ss = ["/o/content?str=id:", this.oFile.video_cover]
-          if(this.src_ts) {
+          if (this.src_ts) {
             ss.push("&_t=")
             ss.push(this.src_ts)
-          }          
+          }
           return {
             type: "image", value: ss.join("")
           }
@@ -31045,21 +31053,21 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     async assertListHas(list, str, invalidMsg, vars) {
-      if(!_.isEmpty(list)) {
-        let invalid  = true
-        for(let li of list) {
-          if(li == str) {
+      if (!_.isEmpty(list)) {
+        let invalid = true
+        for (let li of list) {
+          if (li == str) {
             invalid = false
             break
           }
         }
-        if(invalid) {
+        if (invalid) {
           await Ti.Alert(invalidMsg, {
-            type:"warn",
-            icon:"zmdi-alert-triangle",
+            type: "warn",
+            icon: "zmdi-alert-triangle",
             vars
           })
           return false
@@ -31075,27 +31083,27 @@ const _M = {
         value
       }))
       // User cancel
-      if(!src)
+      if (!src)
         return
-      
+
       this.$notify("change", src)
     },
     //--------------------------------------
     async OnOpen() {
-      if(this.srcAsUrl) {
+      if (this.srcAsUrl) {
         await Ti.Be.Open(this.value)
       }
       // remove the thumb file
-      else if(this.oFile) {
+      else if (this.oFile) {
         let link = Wn.Util.getAppLink(this.oFile)
         //console.log("it will open ", link)
-        await Ti.Be.Open(link.url, {params:link.params})
+        await Ti.Be.Open(link.url, { params: link.params })
       }
     },
     //--------------------------------------
     async OnRemove() {
       // remove the thumb file
-      if(this.oFile) {
+      if (this.oFile) {
         await Wn.Sys.exec2(`rm id:${this.oFile.id}`)
       }
       // Notify the change
@@ -31103,21 +31111,44 @@ const _M = {
     },
     //--------------------------------------
     async OnUpload(file) {
-      //console.log("it will upload ", file)
+      console.log("it will upload ", file)
+      //................................
+      // Check file size
+      let fileSize = file.size
+      if (this.minFileSize > 0 && fileSize < this.minFileSize) {
+        return await Ti.Alert("i18n:wn-invalid-fsize-min", {
+          type: "warn",
+          icon: "zmdi-alert-triangle",
+          vars: {
+            minSize: Ti.S.sizeText(this.minFileSize),
+            fileSize: Ti.S.sizeText(fileSize)
+          }
+        })
+      }
+      if (this.maxFileSize > 0 && fileSize >= this.maxFileSize) {
+        return await Ti.Alert("i18n:wn-invalid-fsize-max", {
+          type: "warn",
+          icon: "zmdi-alert-triangle",
+          vars: {
+            maxSize: Ti.S.sizeText(this.maxFileSize),
+            fileSize: Ti.S.sizeText(fileSize)
+          }
+        })
+      }
       //................................
       // Check for support Types
       let type = Ti.Util.getSuffixName(file.name, true)
-      if(!await this.assertListHas(
-        this.AcceptTypes, type, 
+      if (!await this.assertListHas(
+        this.AcceptTypes, type,
         'i18n:wn-invalid-types',
-        {current: type, supports: this.AcceptTypes.join(", ")})
+        { current: type, supports: this.AcceptTypes.join(", ") })
       ) {
         return
       }
-      if(!await this.assertListHas(
-        this.AcceptMimes, file.type, 
+      if (!await this.assertListHas(
+        this.AcceptMimes, file.type,
         'i18n:wn-invalid-mimes',
-        {current:file.type, supports:this.AcceptMimes.join(", ")})
+        { current: file.type, supports: this.AcceptMimes.join(", ") })
       ) {
         return
       }
@@ -31125,9 +31156,9 @@ const _M = {
       //................................
       // Eval the target
       let taPath = Ti.S.renderBy(this.target, {
-        type, 
-        name : file.name,
-        majorName : Ti.Util.getMajorName(file.name)
+        type,
+        name: file.name,
+        majorName: Ti.Util.getMajorName(file.name)
       })
 
       //................................
@@ -31135,10 +31166,10 @@ const _M = {
       this.uploadFile = file
       this.progress = 0
 
-      let {ok, msg, data} = await Wn.Io.uploadFile(file, {
-        target : taPath,
-        mode   : "r",
-        progress : (pe)=> {
+      let { ok, msg, data } = await Wn.Io.uploadFile(file, {
+        target: taPath,
+        mode: "r",
+        progress: (pe) => {
           this.progress = pe.loaded / pe.total
         }
       })
@@ -31150,18 +31181,18 @@ const _M = {
 
       //................................
       // Fail to upload
-      if(!ok) {
-        await Ti.Alert(`i18n:${msg}`, {type:"warn", icon:"zmdi-alert-triangle"})
+      if (!ok) {
+        await Ti.Alert(`i18n:${msg}`, { type: "warn", icon: "zmdi-alert-triangle" })
         return
       }
 
       //................................
       // do Filter
-      if(!_.isEmpty(this.ImageFilter)) {
+      if (!_.isEmpty(this.ImageFilter)) {
         let cmd = [
-          "imagic", `id:${data.id}`, 
-          `-filter "${this.ImageFilter.join(" ")}"`]       
-        if(this.quality>0 && this.quality<=1) {
+          "imagic", `id:${data.id}`,
+          `-filter "${this.ImageFilter.join(" ")}"`]
+        if (this.quality > 0 && this.quality <= 1) {
           cmd.push(`-qa ${this.quality}`)
         }
         cmd.push("-out inplace")
@@ -31184,14 +31215,14 @@ const _M = {
     //--------------------------------------
     async reload() {
       this.srcAsUrl = /^https?:\/\//.test(this.value)
-      if(this.srcAsUrl) {
+      if (this.srcAsUrl) {
         return
       }
-      if(_.isString(this.value)) {
+      if (_.isString(this.value)) {
         this.oFile = await Wn.Io.loadMetaBy(this.value)
       }
       // Object
-      else if(this.value && this.value.id && this.value.mime) {
+      else if (this.value && this.value.id && this.value.mime) {
         this.oFile = _.cloneDeep(this.value)
       }
       // Reset
@@ -31202,13 +31233,13 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "value" : function() {
+  watch: {
+    "value": function () {
       this.reload()
     }
   },
   //////////////////////////////////////////
-  mounted : async function(){
+  mounted: async function () {
     await this.reload()
   }
   //////////////////////////////////////////
@@ -37103,33 +37134,33 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/support/list_mixins.mjs'] = (function(){
 const LIST_MIXINS = {
   ///////////////////////////////////////////////////
-  provide : function(){
+  provide: function () {
     return {
-      "$vars" : this.vars || {}
+      "$vars": this.vars || {}
     }
   },
   ///////////////////////////////////////////////////
-  data : ()=>({
+  data: () => ({
     myLastIndex: -1,      // The last row index selected by user
     myCurrentId: null,    // Current row ID
     myCheckedIds: {},     // Which row has been checked
 
-    myMoreIsPendingAt   : -1,
-    myMorePendingOffset : -1,
-    myMorePendingExpectTop : -1,
-    myMoreBtnOrgHeight  : -1
+    myMoreIsPendingAt: -1,
+    myMorePendingOffset: -1,
+    myMorePendingExpectTop: -1,
+    myMoreBtnOrgHeight: -1
   }),
   ///////////////////////////////////////////////////
   // props -> list_props.mjs
   ///////////////////////////////////////////////////
-  computed : {
+  computed: {
     //-----------------------------------------------
     TopStyle() {
       let w = this.width
       let h = this.height
       return Ti.Css.toStyle({
-        width  : w,
-        height : h
+        width: w,
+        height: h
       })
     },
     //-----------------------------------------------
@@ -37150,14 +37181,14 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     testRowAsGroupTitle() {
-      if(this.rowAsGroupTitle) {
+      if (this.rowAsGroupTitle) {
         return Ti.AutoMatch.parse(this.rowAsGroupTitle)
       }
-      return ()=>false
+      return () => false
     },
     //-----------------------------------------------
     RowGroupTitleDisplay() {
-      if(this.rowGroupTitleDisplay) {
+      if (this.rowGroupTitleDisplay) {
         return this.evalFieldDisplay(this.rowGroupTitleDisplay, "..")
       }
     },
@@ -37172,22 +37203,22 @@ const LIST_MIXINS = {
     //-----------------------------------------------
     isAllChecked() {
       // Empty list, nothing checked
-      if(this.isDataEmpty) {
-        return false 
+      if (this.isDataEmpty) {
+        return false
       }
       // Checking ...
-      for(let row of this.TheData){
-        if(!this.theCheckedIds[row.id])
-          return false;  
+      for (let row of this.TheData) {
+        if (!this.theCheckedIds[row.id])
+          return false;
       }
       return true
     },
     //-----------------------------------------------
     hasChecked() {
-      for(let it of this.data){
+      for (let it of this.data) {
         let itId = this.getRowId(it)
-        if(this.theCheckedIds[itId])
-          return true  
+        if (this.theCheckedIds[itId])
+          return true
       }
       return false
     },
@@ -37196,40 +37227,60 @@ const LIST_MIXINS = {
       return this.wrapRowId(this.currentId)
     },
     //-----------------------------------------------
-    theCurrentId()  {
-      return this.puppetMode 
-              ? this.theCurrentRowId 
-              : this.myCurrentId
+    theCurrentId() {
+      return this.puppetMode
+        ? this.theCurrentRowId
+        : this.myCurrentId
     },
     //-----------------------------------------------
     theCheckedIds() {
-      return this.puppetMode 
+      return this.puppetMode
         ? this.getCheckedIdsMap(this.checkedIds)
-        : this.myCheckedIds 
+        : this.myCheckedIds
     },
     //-----------------------------------------------
-    isRowCheckable () {return Ti.AutoMatch.parse(this.rowCheckable ||this.checkable)},
-    isRowSelectable() {return Ti.AutoMatch.parse(this.rowSelectable||this.selectable)},
-    isRowOpenable  () {return Ti.AutoMatch.parse(this.rowOpenable  ||this.openable)},
-    isRowCancelable() {return Ti.AutoMatch.parse(this.rowCancelable||this.cancelable)},
-    isRowHoverable () {return Ti.AutoMatch.parse(this.rowHoverable ||this.hoverable)},
+    isRowCheckable() {
+      return Ti.AutoMatch.parse(
+        this.rowCheckable
+        || (() => this.checkable))
+    },
+    isRowSelectable() {
+      return Ti.AutoMatch.parse(
+        this.rowSelectable
+        || (() => this.selectable))
+    },
+    isRowOpenable() {
+      return Ti.AutoMatch.parse(
+        this.rowOpenable
+        || (() => this.openable))
+    },
+    isRowCancelable() {
+      return Ti.AutoMatch.parse(
+        this.rowCancelable
+        || (() => this.cancelable))
+    },
+    isRowHoverable() {
+      return Ti.AutoMatch.parse(
+        this.rowHoverable
+        || (() => this.hoverable))
+    },
     //-----------------------------------------------
     LoadingMoreBtn() {
-      if(this.moreLoading) {
+      if (this.moreLoading) {
         return {
-          icon : "fas-spinner fa-spin",
-          text : "i18n:loading"
+          icon: "fas-spinner fa-spin",
+          text: "i18n:loading"
         }
       }
-      if(this.myMorePendingExpectTop > 0) {
+      if (this.myMorePendingExpectTop > 0) {
         return {
-          icon : "fas-spinner fa-spin",
-          text : "i18n:load-more-pull"
+          icon: "fas-spinner fa-spin",
+          text: "i18n:load-more-pull"
         }
       }
       return {
-        icon : "fas-angle-down",
-        text : "i18n:more"
+        icon: "fas-angle-down",
+        text: "i18n:more"
       }
     },
     //-----------------------------------------------
@@ -37238,53 +37289,53 @@ const LIST_MIXINS = {
     // },
     //-----------------------------------------------
     Dict() {
-      if(this.dict) {
+      if (this.dict) {
         // Already Dict
-        if(this.dict instanceof Ti.Dict) {
+        if (this.dict instanceof Ti.Dict) {
           return this.dict
         }
         // Get back
-        let {name} = Ti.DictFactory.explainDictName(this.dict)
+        let { name } = Ti.DictFactory.explainDictName(this.dict)
         return Ti.DictFactory.CheckDict(name)
       }
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  methods : {
+  methods: {
     //-----------------------------------------------
     OnClickLoadMore() {
       //console.log("load more")
-      if(!this.moreLoading && this.myMorePendingExpectTop<0) {
+      if (!this.moreLoading && this.myMorePendingExpectTop < 0) {
         this.$notify("load:more")
       }
     },
     //-----------------------------------------------
     wrapRowId(rowId) {
-      if(_.isNumber(rowId)){
-        return ""+rowId
+      if (_.isNumber(rowId)) {
+        return "" + rowId
       }
       return rowId
     },
     //-----------------------------------------------
-    async evalData(iteratee=_.identity) {
+    async evalData(iteratee = _.identity) {
       let data = this.data
       //............................................
       // May need translate
-      if(this.Dict) {
+      if (this.Dict) {
         // Query by value
-        if(_.isString(data)) {
+        if (_.isString(data)) {
           data = await this.Dict.queryData(data)
         }
         // Check Each data item
-        else if(_.isArray(data)) {
+        else if (_.isArray(data)) {
           let data2 = []
-          for(let i=0; i<data.length; i++) {
+          for (let i = 0; i < data.length; i++) {
             let it = data[i]
             // Check the real item
-            if(_.isString(it)) {
+            if (_.isString(it)) {
               let it2 = await this.Dict.getItem(it)
-              if(it2) {
+              if (it2) {
                 data2.push(it2)
               }
             }
@@ -37304,9 +37355,9 @@ const LIST_MIXINS = {
       // Then format the list
       let list = []
       let displayIndex = 0
-      _.forEach(data, (it, index)=>{
+      _.forEach(data, (it, index) => {
         let className;
-        if(this.rowClassBy) {
+        if (this.rowClassBy) {
           className = Ti.Util.explainObj(it, this.rowClassBy, {
             evalFunc: true
           })
@@ -37316,18 +37367,18 @@ const LIST_MIXINS = {
         //console.log("evalDataItem", index, itemId)
         let item = {
           className, index, displayIndex, asGroupTitle,
-          id      : itemId,
-          rawData : this.getRowData(it),
-          checkable  : this.isRowCheckable(it),
-          selectable : this.isRowSelectable(it),
-          openable   : this.isRowOpenable(it),
-          cancelable : this.isRowCancelable(it),
-          hoverable  : this.isRowHoverable(it),
-          item : it
+          id: itemId,
+          rawData: this.getRowData(it),
+          checkable: this.isRowCheckable(it),
+          selectable: this.isRowSelectable(it),
+          openable: this.isRowOpenable(it),
+          cancelable: this.isRowCancelable(it),
+          hoverable: this.isRowHoverable(it),
+          item: it
         }
         item = iteratee(item) || item
         // Increase display index
-        if(!asGroupTitle) {
+        if (!asGroupTitle) {
           displayIndex++
         }
         // Join
@@ -37338,8 +37389,8 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     findRowIndexById(rowId) {
-      for(let row of this.TheData) {
-        if(row.id == rowId) {
+      for (let row of this.TheData) {
+        if (row.id == rowId) {
           return row.index
         }
       }
@@ -37347,44 +37398,44 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     findRowById(rowId) {
-      for(let row of this.TheData) {
-        if(row.id == rowId) {
+      for (let row of this.TheData) {
+        if (row.id == rowId) {
           return row
         }
       }
     },
     //-----------------------------------------------
-    getRow(index=0) {
+    getRow(index = 0) {
       return _.nth(this.TheData, index)
     },
     //------------------------------------------
-    getCurrentRow(currentId=this.theCurrentId) {
+    getCurrentRow(currentId = this.theCurrentId) {
       return this.findRowById(currentId)
     },
     //------------------------------------------
-    getCurrent(currentId=this.theCurrentId) {
+    getCurrent(currentId = this.theCurrentId) {
       let row = this.getCurrentRow(currentId)
-      return row 
-              ? row.rawData
-              : null
+      return row
+        ? row.rawData
+        : null
     },
     //------------------------------------------
-    getCheckedRow(idMap=this.theCheckedIds) {
+    getCheckedRow(idMap = this.theCheckedIds) {
       let list = []
-      for(let row of this.TheData) {
-        if(idMap[row.id]) {
+      for (let row of this.TheData) {
+        if (idMap[row.id]) {
           list.push(row)
         }
       }
       return list
     },
     //------------------------------------------
-    getChecked(idMap=this.theCheckedIds) {
+    getChecked(idMap = this.theCheckedIds) {
       let rows = this.getCheckedRow(idMap)
-      return _.map(rows, row=>row.rawData)
+      return _.map(rows, row => row.rawData)
     },
     //-----------------------------------------------
-    removeCheckedRow(idMap=this.theCheckedIds) {
+    removeCheckedRow(idMap = this.theCheckedIds) {
       let checkedIds = this.getCheckedIdsMap(idMap, false)
       let minIndex = -1
       let maxIndex = -1
@@ -37392,14 +37443,14 @@ const LIST_MIXINS = {
       let checkedRows = []
 
       _.forEach(this.TheData, row => {
-        if(idMap[row.id]) {
-          minIndex = minIndex < 0 
-                      ? row.index
-                      : Math.min(row.index, minIndex);
+        if (idMap[row.id]) {
+          minIndex = minIndex < 0
+            ? row.index
+            : Math.min(row.index, minIndex);
 
           maxIndex = maxIndex < 0
-                      ? row.index
-                      : Math.max(row.index, maxIndex);
+            ? row.index
+            : Math.max(row.index, maxIndex);
 
           checkedRows.push(row)
         } else {
@@ -37412,18 +37463,18 @@ const LIST_MIXINS = {
       }
     },
     //-----------------------------------------------
-    removeChecked(idMap=this.theCheckedIds) {
+    removeChecked(idMap = this.theCheckedIds) {
       let re = this.removeCheckedRow(idMap)
       re.remains = _.map(re.remainsRows, row => row.rawData)
       re.checked = _.map(re.checkedRows, row => row.rawData)
       return re
     },
     //-----------------------------------------------
-    moveCheckedRow(offset=0, idMap=this.theCheckedIds) {
+    moveCheckedRow(offset = 0, idMap = this.theCheckedIds) {
       idMap = this.getCheckedIdsMap(idMap, false)
       //console.log(idMap)
-      if(offset==0 || _.isEmpty(idMap))
-        return {rows:this.TheData, nextCheckedIds:idMap}
+      if (offset == 0 || _.isEmpty(idMap))
+        return { rows: this.TheData, nextCheckedIds: idMap }
 
       let {
         checkedIds,
@@ -37434,77 +37485,77 @@ const LIST_MIXINS = {
       } = this.removeCheckedRow(idMap)
 
       // targetIndex in remains[] list
-      let targetIndex = Math.max(0, minIndex-1)
-      if(offset > 0) {
+      let targetIndex = Math.max(0, minIndex - 1)
+      if (offset > 0) {
         targetIndex = Math.min(maxIndex - checkedRows.length + 2, remainsRows.length)
       }
       // Insert
       let rows = _.cloneDeep(remainsRows)
       rows.splice(targetIndex, 0, ...checkedRows)
 
-      if(_.isEmpty(rows))
-        return {rows:[], nextCheckedIds:{}}
+      if (_.isEmpty(rows))
+        return { rows: [], nextCheckedIds: {} }
 
       // If the index style ID, adjust them
       let nextCheckedIds = checkedIds
-      if(/^Row-\d+$/.test(rows[0].id)) {
+      if (/^Row-\d+$/.test(rows[0].id)) {
         nextCheckedIds = {}
-        for(let i=0; i<checkedRows.length; i++){
+        for (let i = 0; i < checkedRows.length; i++) {
           nextCheckedIds[`Row-${i + targetIndex}`] = true
         }
       }
 
-      return {rows, nextCheckedIds}
+      return { rows, nextCheckedIds }
     },
     //-----------------------------------------------
-    moveChecked(offset=0, idMap=this.theCheckedIds) {
+    moveChecked(offset = 0, idMap = this.theCheckedIds) {
       let re = this.moveCheckedRow(offset, idMap)
       re.list = _.map(re.rows, row => row.rawData)
       return re
     },
     //-----------------------------------------------
     getEmitContext(
-      currentId, 
-      checkedIds={}
+      currentId,
+      checkedIds = {}
     ) {
       let checked = []
       let current = null
       let currentIndex = -1
       let currentDisplayIndex = -1
-      for(let row of this.TheData) {
-        if(row.id == currentId) {
+      for (let row of this.TheData) {
+        if (row.id == currentId) {
           current = row.rawData
           currentIndex = row.index
           currentDisplayIndex = row.displayIndex
         }
-        if(checkedIds[row.id]) {
+        if (checkedIds[row.id]) {
           checked.push(row.rawData)
         }
       }
       return {
         currentIndex, currentDisplayIndex,
-        current, currentId, 
+        current, currentId,
         checked, checkedIds
       }
     },
     //-----------------------------------------------
     async canSelectRow(payload) {
-      if(_.isFunction(this.onBeforeChangeSelect)) {
+      if (_.isFunction(this.onBeforeChangeSelect)) {
         let canSelect = await this.onBeforeChangeSelect(payload)
-        if(false === canSelect) {
+        if (false === canSelect) {
           return false
         }
       }
       return true
     },
     //-----------------------------------------------
-    async selectRow(rowId, {quiet=false, payload}={}) {
+    async selectRow(rowId, { quiet = false, payload } = {}) {
       //console.log("list_mixins:selectRow", rowId)
       let idMap = {}
       let curId = null
       // Change the current & checked
-      if(this.autoCheckCurrent) {
-        idMap = rowId ? {[rowId]:true} : {}
+      if (this.autoCheckCurrent) {
+        idMap = rowId ? { [rowId]: true } : {}
         curId = rowId || null
       }
       // Just change to current
@@ -37515,18 +37566,18 @@ const LIST_MIXINS = {
 
       let emitContext = this.getEmitContext(curId, idMap)
 
-      if(!(await this.canSelectRow(emitContext))) {
+      if (!(await this.canSelectRow(emitContext))) {
         return;
       }
 
       // Private Mode
-      if(!this.puppetMode) {
+      if (!this.puppetMode) {
         this.myCheckedIds = idMap
-        this.myCurrentId  = curId
+        this.myCurrentId = curId
       }
-      this.myLastIndex  = this.findRowIndexById(rowId)
+      this.myLastIndex = this.findRowIndexById(rowId)
       // Notify Changes
-      if(!quiet) {
+      if (!quiet) {
         _.defaults(emitContext, payload)
         this.doNotifySelect(emitContext)
       }
@@ -37535,85 +37586,85 @@ const LIST_MIXINS = {
     selectRowByIndex(rowIndex, options) {
       //console.log(rowIndex)
       let index = rowIndex
-      if(this.scrollIndex) {
+      if (this.scrollIndex) {
         index = Ti.Num.scrollIndex(rowIndex, this.TheData.length)
       }
-      if(_.inRange(index, 0, this.TheData.length)) {
+      if (_.inRange(index, 0, this.TheData.length)) {
         let row = this.TheData[index]
         this.selectRow(row.id, options)
       }
     },
     //-----------------------------------------------
     selectPrevRow(options) {
-      this.selectRowByIndex(Math.max(-1, this.myLastIndex-1), options)
+      this.selectRowByIndex(Math.max(-1, this.myLastIndex - 1), options)
     },
     //-----------------------------------------------
     selectNextRow(options) {
-      this.selectRowByIndex(this.myLastIndex+1, options)
+      this.selectRowByIndex(this.myLastIndex + 1, options)
     },
     //-----------------------------------------------
     selectRowsToCurrent(rowId) {
       let idMap = _.cloneDeep(this.theCheckedIds)
       let curId = this.theCurrentId
       let index = this.findRowIndexById(rowId)
-      if(index >= 0) {
+      if (index >= 0) {
         let fromIndex = Math.min(index, this.myLastIndex)
-        let toIndex   = Math.max(index, this.myLastIndex)
-        if(fromIndex < 0) {
+        let toIndex = Math.max(index, this.myLastIndex)
+        if (fromIndex < 0) {
           fromIndex = 0
         }
-        for(let i=fromIndex; i<=toIndex; i++) {
+        for (let i = fromIndex; i <= toIndex; i++) {
           let row = this.TheData[i]
           idMap[row.id] = true
         }
         // Eval context
         let emitContext = this.getEmitContext(curId, idMap)
         // Private Mode
-        if(!this.puppetMode) {
+        if (!this.puppetMode) {
           this.myCheckedIds = idMap
-          this.myCurrentId  = curId
+          this.myCurrentId = curId
         }
-        this.myLastIndex  = index
+        this.myLastIndex = index
         // Notify Changes
         this.doNotifySelect(emitContext)
       }
     },
     //-----------------------------------------------
-    checkRow(rowId, {quiet=false, payload, reset=false}={}) {
+    checkRow(rowId, { quiet = false, payload, reset = false } = {}) {
       let idMap = _.cloneDeep(this.theCheckedIds)
       let curId = this.theCurrentId
       let index = this.myLastIndex
       let rowIndex = this.findRowIndexById(rowId)
 
       // Reset
-      if(reset) {
+      if (reset) {
         curId = null
         idMap = {}
       }
 
       // All rows
-      if(_.isUndefined(rowId)) {
+      if (_.isUndefined(rowId)) {
         idMap = {}
-        _.forEach(this.TheData, (row)=>{
+        _.forEach(this.TheData, (row) => {
           idMap[row.id] = true
         })
       }
       // Multi rows
-      else if(_.isArray(rowId)) {
+      else if (_.isArray(rowId)) {
         let lastRowId = _.last(rowId)
-        _.forEach(rowId, (r_id)=>{
+        _.forEach(rowId, (r_id) => {
           idMap[r_id] = true
         })
-        if(this.autoCheckCurrent) {
+        if (this.autoCheckCurrent) {
           index = this.findRowIndexById(lastRowId)
         }
       }
       // Object
-      else if(_.isPlainObject(rowId)) {
+      else if (_.isPlainObject(rowId)) {
         idMap = _.cloneDeep(rowId)
-        if(this.autoCheckCurrent) {
+        if (this.autoCheckCurrent) {
           let lastRowId = undefined
-          for(let key in idMap) {
+          for (let key in idMap) {
             lastRowId = key
             break;
           }
@@ -37623,31 +37674,31 @@ const LIST_MIXINS = {
       // Single row
       else {
         idMap[rowId] = true
-        if(this.autoCheckCurrent) {
+        if (this.autoCheckCurrent) {
           index = rowIndex
         }
       }
       // Eval context
       let emitContext = this.getEmitContext(curId, idMap)
       // Private Mode
-      if(!this.puppetMode) {
+      if (!this.puppetMode) {
         this.myCheckedIds = idMap
-        this.myCurrentId  = curId
+        this.myCurrentId = curId
       }
-      this.myLastIndex  = rowIndex
+      this.myLastIndex = rowIndex
       // Notify Changes
-      if(!quiet) {
+      if (!quiet) {
         _.defaults(emitContext, payload)
         this.doNotifySelect(emitContext)
       }
     },
     //-----------------------------------------------
-    async cancelRow(rowId, {quiet=false, payload}={}) {
+    async cancelRow(rowId, { quiet = false, payload } = {}) {
       let idMap = _.cloneDeep(this.theCheckedIds)
-      let curId  = this.theCurrentId
+      let curId = this.theCurrentId
       let index = -1
       //console.log("cancelRow", rowId)
-      if(Ti.Util.isNil(rowId)) {
+      if (Ti.Util.isNil(rowId)) {
         idMap = {}
         curId = null
       }
@@ -37655,51 +37706,51 @@ const LIST_MIXINS = {
       else {
         index = this.findRowIndexById(rowId)
         idMap[rowId] = false
-        if(this.autoCheckCurrent && curId == rowId) {
+        if (this.autoCheckCurrent && curId == rowId) {
           curId = null
         }
       }
       // Eval context
       let emitContext = this.getEmitContext(curId, idMap)
 
-      if(!(await this.canSelectRow(emitContext))) {
+      if (!(await this.canSelectRow(emitContext))) {
         return;
       }
 
       // Private Mode
-      if(!this.puppetMode) {
+      if (!this.puppetMode) {
         this.myCheckedIds = idMap
-        this.myCurrentId  = curId
-        this.myLastIndex  = index
+        this.myCurrentId = curId
+        this.myLastIndex = index
       }
       // Notify Changes
-      if(!quiet) {
+      if (!quiet) {
         _.defaults(emitContext, payload)
         this.doNotifySelect(emitContext)
       }
     },
     //-----------------------------------------------
-    toggleRow(rowId, {quiet=false, payload}={}) {
-      if(this.theCheckedIds[rowId]) {
-        this.cancelRow(rowId, {quiet, payload})
+    toggleRow(rowId, { quiet = false, payload } = {}) {
+      if (this.theCheckedIds[rowId]) {
+        this.cancelRow(rowId, { quiet, payload })
       } else {
-        this.checkRow(rowId, {quiet, payload})
+        this.checkRow(rowId, { quiet, payload })
       }
     },
     //-----------------------------------------------
     doNotifySelect(emitContext) {
-      if(this.notifySelectName) {
+      if (this.notifySelectName) {
         this.$notify(this.notifySelectName, emitContext)
       }
-      if(_.isFunction(this.onSelect)) {
+      if (_.isFunction(this.onSelect)) {
         this.onSelect(emitContext)
       }
     },
     //-----------------------------------------------
-    OnRowCheckerClick({rowId, shift}={}) {
-      if(this.multi) {
+    OnRowCheckerClick({ rowId, shift } = {}) {
+      if (this.multi) {
         // Shift Mode
-        if(shift) {
+        if (shift) {
           this.selectRowsToCurrent(rowId)
         }
         // Simple Toggle Mode
@@ -37713,17 +37764,18 @@ const LIST_MIXINS = {
       }
     },
     //-----------------------------------------------
-    OnRowSelect({rowId, shift, toggle}={}) {
+    OnRowSelect({ rowId, shift, toggle } = {}) {
+      //console.log("OnRowSelect", rowId)
       // Multi + Shift Mode
-      if(shift && this.multi) {
+      if (shift && this.multi) {
         this.selectRowsToCurrent(rowId)
       }
       // Multi + Toggle Mode
-      else if(toggle && this.multi) {
+      else if (toggle && this.multi) {
         this.toggleRow(rowId)
       }
       // Toggle Mode
-      else if(!Ti.Util.isNil(rowId) && !this.autoCheckCurrent) {
+      else if (!Ti.Util.isNil(rowId) && !this.autoCheckCurrent) {
         this.toggleRow(rowId)
       }
       // Single Mode
@@ -37732,65 +37784,65 @@ const LIST_MIXINS = {
       }
     },
     //-----------------------------------------------
-    OnRowOpen({rowId}={}) {
+    OnRowOpen({ rowId } = {}) {
       //console.log("OnRowOpen", rowId)
       let row = this.findRowById(rowId)
-      if(row) {
-        if(this.notifyOpenName) {
+      if (row) {
+        if (this.notifyOpenName) {
           this.$notify(this.notifyOpenName, row)
         }
-        if(_.isFunction(this.onOpen)) {
+        if (_.isFunction(this.onOpen)) {
           this.onOpen(row)
         }
       }
     },
     //-----------------------------------------------
-    getCheckedIdsMap(idList=[], autoCheckCurrent=this.autoCheckCurrent) {
+    getCheckedIdsMap(idList = [], autoCheckCurrent = this.autoCheckCurrent) {
       let idMap = {}
       // ID List
-      if(_.isArray(idList)) {
-        _.forEach(idList, (rowId)=>{
+      if (_.isArray(idList)) {
+        _.forEach(idList, (rowId) => {
           idMap[rowId] = true
         })
       }
       // Map
       else {
-        _.forEach(idList, (checked, rowId)=>{
-          if(checked) {
+        _.forEach(idList, (checked, rowId) => {
+          if (checked) {
             idMap[rowId] = true
           }
         })
       }
       // Force to check current
-      if(autoCheckCurrent && !Ti.Util.isNil(this.theCurrentId)) {
+      if (autoCheckCurrent && !Ti.Util.isNil(this.theCurrentId)) {
         idMap[this.theCurrentId] = true
       }
       return idMap
     },
     //-----------------------------------------------
-    setRowSelect({currentId, checkedIds={}, quiet}={}) {
+    setRowSelect({ currentId, checkedIds = {}, quiet } = {}) {
       console.log("haha")
       let idMap = {}
-      if(_.isArray(checkedIds)) {
-        for(let id of checkedIds) {
+      if (_.isArray(checkedIds)) {
+        for (let id of checkedIds) {
           idMap[id] = true
         }
       } else {
         _.assign(idMap, checkedIds)
       }
 
-      if(currentId) {
-        this.selectRow(currentId, {quiet})
+      if (currentId) {
+        this.selectRow(currentId, { quiet })
       } else {
-        this.cancelRow(currentId, {quiet})
+        this.cancelRow(currentId, { quiet })
       }
       this.myCheckedIds = idMap
     },
     //-----------------------------------------------
     syncCurrentId() {
-      if(!this.puppetMode && this.theCurrentId != this.theCurrentRowId) {
+      if (!this.puppetMode && this.theCurrentId != this.theCurrentRowId) {
         //console.log("syncCurrentId", this.theCurrentRowId)
-        this.selectRow(this.theCurrentRowId, {quiet:true})
+        this.selectRow(this.theCurrentRowId, { quiet: true })
       }
       // Just update the last
       else {
@@ -37799,67 +37851,67 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     syncCheckedIds() {
-      if(!this.puppetMode) {
+      if (!this.puppetMode) {
         this.myCheckedIds = this.getCheckedIdsMap(this.checkedIds)
       }
     },
     //-----------------------------------------------
-    resetMorePending({$more, $moreBtn}={}) {
+    resetMorePending({ $more, $moreBtn } = {}) {
       this.myMoreIsPendingAt = -1
       this.myMorePendingOffset = -1
       this.myMorePendingExpectTop = -1
       this.myMoreBtnOrgHeight = -1
-      if(_.isElement($more)) {
+      if (_.isElement($more)) {
         Ti.Dom.updateStyle($more, {
           "margin-bottom": ""
         })
       }
-      if(_.isElement($moreBtn)) {
+      if (_.isElement($moreBtn)) {
         Ti.Dom.updateStyle($moreBtn, {
           height: ""
         })
       }
     },
     //-----------------------------------------------
-    pendingMoreWhenScrolling({$view, $more, $moreBtn}={}) {
+    pendingMoreWhenScrolling({ $view, $more, $moreBtn } = {}) {
       // Not more
-      if(this.moreLoading 
-        || !this.autoLoadMore 
-        || !_.isElement($more) 
+      if (this.moreLoading
+        || !this.autoLoadMore
+        || !_.isElement($more)
         || !_.isElement($moreBtn)
       ) {
         return
       }
       // Get the more position
-      let view  = Ti.Rects.createBy($view)
+      let view = Ti.Rects.createBy($view)
       let vsTop = $view.scrollTop
       let viewH = $view.scrollHeight
       // Pending more
-      if(this.myMoreIsPendingAt > 0) {
+      if (this.myMoreIsPendingAt > 0) {
         // Cancel pendding
-        if(vsTop < this.myMoreIsPendingAt) {
+        if (vsTop < this.myMoreIsPendingAt) {
           //console.log("cancel pending")
-          this.resetMorePending({$more,$moreBtn})
+          this.resetMorePending({ $more, $moreBtn })
         }
         // Add pending
         else {
           let orgH = this.myMoreBtnOrgHeight
-          let off = Math.min(orgH*2, vsTop - this.myMoreIsPendingAt)
+          let off = Math.min(orgH * 2, vsTop - this.myMoreIsPendingAt)
           this.myMorePendingOffset = off
           let btnH = Math.max(orgH, off)
           Ti.Dom.updateStyle($moreBtn, {
             height: btnH
           })
           // Reach the bottom check delay
-          if(this.myMorePendingExpectTop<=0 && Math.ceil(view.height+vsTop) >= viewH) {
+          if (this.myMorePendingExpectTop <= 0 && Math.ceil(view.height + vsTop) >= viewH) {
             this.myMorePendingExpectTop = vsTop
             //console.log("check in 500ms")
-            _.delay(()=>{
+            _.delay(() => {
               let expTop = this.myMorePendingExpectTop
-              if(expTop>0 && $view.scrollTop >= expTop) {
+              if (expTop > 0 && $view.scrollTop >= expTop) {
                 //console.log("fire load more!")
                 this.$notify("load:more")
-                this.resetMorePending({$more,$moreBtn})
+                this.resetMorePending({ $more, $moreBtn })
               }
             }, 500)
           }
@@ -37871,39 +37923,39 @@ const LIST_MIXINS = {
       let more = Ti.Rects.createBy($more)
       let moin = view.contains(more, -3)
       //console.log(moin, vsTop, view.toString(), more.toString())
-      if(moin) {
+      if (moin) {
         this.myMoreIsPendingAt = vsTop
         this.myMoreBtnOrgHeight = $moreBtn.clientHeight
         Ti.Dom.updateStyle($more, {
           "margin-bottom": this.myMoreBtnOrgHeight * 2
         })
       } else {
-        this.resetMorePending({$more,$moreBtn})
+        this.resetMorePending({ $more, $moreBtn })
       }
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "currentId" : function() {
+  watch: {
+    "currentId": function () {
       this.syncCurrentId()
     },
-    "checkedIds" : function() {
+    "checkedIds": function () {
       this.syncCheckedIds()
     },
-    "data" : function() {
-      if(this.theCurrentId) {
+    "data": function () {
+      if (this.theCurrentId) {
         this.myLastIndex = this.findRowIndexById(this.theCurrentId)
       }
     }
   },
   ///////////////////////////////////////////////////
-  mounted : async function() {
+  mounted: async function () {
     //.................................
     this.syncCheckedIds()
     this.syncCurrentId()
     //.................................
-   }
+  }
   ///////////////////////////////////////////////////
 }
 return LIST_MIXINS;
@@ -73852,6 +73904,8 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-en-his-utp": "User type",
   "wn-fsc-mail-scene-new": "New a email scenario",
   "wn-fsc-mail-tmpl-new": "Enter new unique name (such as 'signup')",
+  "wn-invalid-fsize-max": "最大上传文件尺寸为 ${maxSize}，但是您上传的文件尺寸为 ${fileSize}",
+  "wn-invalid-fsize-min": "最小上传文件尺寸为 ${minSize}，但是您上传的文件尺寸为 ${fileSize}",
   "wn-invalid-mimes": "Unsupported mime \"${current}\", only \"${supports}\" allowed",
   "wn-invalid-types": "Unsupported type \"${current}\", only \"${supports}\" allowed",
   "wn-key-c": "Creater",
@@ -75298,6 +75352,8 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-en-his-utp": "用户类型",
   "wn-fsc-mail-scene-new": "新建一个邮件场景",
   "wn-fsc-mail-tmpl-new": "请输入新邮件模板的名称(要唯一，譬如 signup)",
+  "wn-invalid-fsize-max": "The maximum upload file size is ${maxSize}, but your file size is ${fileSize}",  
+  "wn-invalid-fsize-min": "The minimum upload file size is ${minSize}, but your file size is ${fileSize}",  
   "wn-invalid-mimes": "不支持的文件内容类型 \"${current}\"，仅能支持 \"${supports}\"",
   "wn-invalid-types": "不支持的文件扩展名 \"${current}\"，仅能支持 \"${supports}\"",
   "wn-key-c": "创建者",
@@ -76703,6 +76759,8 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-en-his-utp": "用戶類型",
    "wn-fsc-mail-scene-new": "新建一個郵件場景",
    "wn-fsc-mail-tmpl-new": "請輸入新郵件模板的名稱(要唯一，譬如 signup)",
+   "wn-invalid-fsize-max": "The maximum upload file size is ${maxSize}, but your file size is ${fileSize}",
+   "wn-invalid-fsize-min": "The minimum upload file size is ${minSize}, but your file size is ${fileSize}",
    "wn-invalid-mimes": "不支持的文件內容類型 \"${current}\"，僅能支持 \"${supports}\"",
    "wn-invalid-types": "不支持的文件擴展名 \"${current}\"，僅能支持 \"${supports}\"",
    "wn-key-c": "創建者",

@@ -29,6 +29,8 @@
    "wn-en-his-utp": "用戶類型",
    "wn-fsc-mail-scene-new": "新建一個郵件場景",
    "wn-fsc-mail-tmpl-new": "請輸入新郵件模板的名稱(要唯一，譬如 signup)",
+   "wn-invalid-fsize-max": "The maximum upload file size is ${maxSize}, but your file size is ${fileSize}",
+   "wn-invalid-fsize-min": "The minimum upload file size is ${minSize}, but your file size is ${fileSize}",
    "wn-invalid-mimes": "不支持的文件內容類型 \"${current}\"，僅能支持 \"${supports}\"",
    "wn-invalid-types": "不支持的文件擴展名 \"${current}\"，僅能支持 \"${supports}\"",
    "wn-key-c": "創建者",

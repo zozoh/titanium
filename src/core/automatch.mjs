@@ -98,8 +98,8 @@ function BlankMatch() {
 function BooleanMatch(bool) {
   let b = bool ? true : false
   return function(val) {
-    let ib = val ? true : false
-    return ib === b
+    //let ib = val ? true : false
+    return b === val
   }
 }
 function NumberMatch(n) {

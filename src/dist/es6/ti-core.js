@@ -1,4 +1,4 @@
-// Pack At: 2021-08-10 22:53:39
+// Pack At: 2021-08-11 21:28:05
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -7281,8 +7281,8 @@ const {AutoMatch} = (function(){
   function BooleanMatch(bool) {
     let b = bool ? true : false
     return function(val) {
-      let ib = val ? true : false
-      return ib === b
+      //let ib = val ? true : false
+      return b === val
     }
   }
   function NumberMatch(n) {
@@ -16550,7 +16550,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210810.225339",
+  "version" : "1.6-20210811.212806",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -1,17 +1,17 @@
 const _M = {
   /////////////////////////////////////////
-  data : ()=>({
-    srcAsUrl : false,
-    src_ts : null,
-    oFile     : null,
-    uploadFile : null,
-    progress   : -1
+  data: () => ({
+    srcAsUrl: false,
+    src_ts: null,
+    oFile: null,
+    uploadFile: null,
+    progress: -1
   }),
   /////////////////////////////////////////
-  props : {
-    "value" : {
-      type : [String, Object],
-      default : null
+  props: {
+    "value": {
+      type: [String, Object],
+      default: null
     },
     // raw value is WnObj
     // If declare the valueType
@@ -23,119 +23,127 @@ const _M = {
       validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
     // Input a image link directly
-    "exlink" : {
-      type : Boolean,
-      default : false
+    "exlink": {
+      type: Boolean,
+      default: false
     },
-    "maxWidth" : {
-      type : [String, Number],
-      default : undefined
+    "maxWidth": {
+      type: [String, Number],
+      default: undefined
     },
-    "maxHeight" : {
-      type : [String, Number],
-      default : undefined
+    "maxHeight": {
+      type: [String, Number],
+      default: undefined
     },
     // Display width
-    "width" : {
-      type : [String, Number],
-      default : undefined
+    "width": {
+      type: [String, Number],
+      default: undefined
     },
     // Display height
-    "height" : {
-      type : [String, Number],
-      default : undefined
+    "height": {
+      type: [String, Number],
+      default: undefined
     },
     // support remove the objects
-    "removable" : {
-      type : Boolean,
-      default : true
+    "removable": {
+      type: Boolean,
+      default: true
     },
     // Indicate the upload target when upload new value
     // Of cause, if the `value` exists, replace it
     // The `target` must be a path to a image object,
     // it will auto transfrom the image format by `cmd_imagic`
-    "target" : {
-      type : String,
-      default : null
+    "target": {
+      type: String,
+      default: null
     },
     // which type supported to upload
     // nulll or empty array will support any types
-    "supportTypes" : {
-      type : [String, Array],
-      default : ()=>[]
+    "supportTypes": {
+      type: [String, Array],
+      default: () => []
       //default : ()=>["png","jpg","jpeg","gif"]
+    },
+    "minFileSize": {
+      type: Number,
+      default: 0
+    },
+    "maxFileSize": {
+      type: Number,
+      default: 0
     },
     // which mime supported to upload
     // nulll or empty array will support any mimes
-    "supportMimes" : {
-      type : [String, Array],
-      default : ()=>[]
+    "supportMimes": {
+      type: [String, Array],
+      default: () => []
       //default : ()=>["image/png","image/jpeg","image/gif"]
     },
     // Image object only: it will auto apply image filter
     // just like clip the image size etc..
     // @see cmd_imagic for more detail about the filter
-    "filter" : {
-      type : [Array, String],
-      default : null
+    "filter": {
+      type: [Array, String],
+      default: null
     },
     // Image object only: if `>0 and <=1` mean output quality
     // if not match the range, will depends on the `cmd_imagic` default
-    "quality" : {
-      type : Number,
-      default : 0
+    "quality": {
+      type: Number,
+      default: 0
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     AcceptTypes() {
-      if(_.isString(this.supportTypes))
+      if (_.isString(this.supportTypes))
         return this.supportTypes.split(",")
       return this.supportTypes
     },
     //--------------------------------------
     AcceptMimes() {
-      if(_.isString(this.supportMimes))
+      if (_.isString(this.supportMimes))
         return this.supportMimes.split(",")
       return this.supportMimes
     },
     //--------------------------------------
     ImageFilter() {
-      if(!this.filter)
+      if (!this.filter)
         return []
       return [].concat(this.filter)
     },
     //--------------------------------------
     // Display image for <ti-thumb>
     PreviewIcon() {
-      if(this.srcAsUrl) {
+      if (this.srcAsUrl) {
         return {
           type: "image", value: this.value
         }
       }
       //....................................
-      if(this.oFile) {
+      if (this.oFile) {
         //..................................
         // Image
-        if(Wn.Obj.isMime(this.oFile, /^(image\/)/)) {
+        if (Wn.Obj.isMime(this.oFile, /^(image\/)/)) {
           let ss = ["/o/content?str=id:", this.oFile.id]
-          if(this.src_ts) {
+          if (this.src_ts) {
             ss.push("&_t=")
             ss.push(this.src_ts)
-          }          
+          }
           return {
             type: "image", value: ss.join("")
           }
         }
         //..................................
         // Video
-        if(Wn.Obj.isMime(this.oFile, /^(video\/)/)) {
+        if (Wn.Obj.isMime(this.oFile, /^(video\/)/)) {
           let ss = ["/o/content?str=id:", this.oFile.video_cover]
-          if(this.src_ts) {
+          if (this.src_ts) {
             ss.push("&_t=")
             ss.push(this.src_ts)
-          }          
+          }
           return {
             type: "image", value: ss.join("")
           }
@@ -152,21 +160,21 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     async assertListHas(list, str, invalidMsg, vars) {
-      if(!_.isEmpty(list)) {
-        let invalid  = true
-        for(let li of list) {
-          if(li == str) {
+      if (!_.isEmpty(list)) {
+        let invalid = true
+        for (let li of list) {
+          if (li == str) {
             invalid = false
             break
           }
         }
-        if(invalid) {
+        if (invalid) {
           await Ti.Alert(invalidMsg, {
-            type:"warn",
-            icon:"zmdi-alert-triangle",
+            type: "warn",
+            icon: "zmdi-alert-triangle",
             vars
           })
           return false
@@ -182,27 +190,27 @@ const _M = {
         value
       }))
       // User cancel
-      if(!src)
+      if (!src)
         return
-      
+
       this.$notify("change", src)
     },
     //--------------------------------------
     async OnOpen() {
-      if(this.srcAsUrl) {
+      if (this.srcAsUrl) {
         await Ti.Be.Open(this.value)
       }
       // remove the thumb file
-      else if(this.oFile) {
+      else if (this.oFile) {
         let link = Wn.Util.getAppLink(this.oFile)
         //console.log("it will open ", link)
-        await Ti.Be.Open(link.url, {params:link.params})
+        await Ti.Be.Open(link.url, { params: link.params })
       }
     },
     //--------------------------------------
     async OnRemove() {
       // remove the thumb file
-      if(this.oFile) {
+      if (this.oFile) {
         await Wn.Sys.exec2(`rm id:${this.oFile.id}`)
       }
       // Notify the change
@@ -210,21 +218,44 @@ const _M = {
     },
     //--------------------------------------
     async OnUpload(file) {
-      //console.log("it will upload ", file)
+      console.log("it will upload ", file)
+      //................................
+      // Check file size
+      let fileSize = file.size
+      if (this.minFileSize > 0 && fileSize < this.minFileSize) {
+        return await Ti.Alert("i18n:wn-invalid-fsize-min", {
+          type: "warn",
+          icon: "zmdi-alert-triangle",
+          vars: {
+            minSize: Ti.S.sizeText(this.minFileSize),
+            fileSize: Ti.S.sizeText(fileSize)
+          }
+        })
+      }
+      if (this.maxFileSize > 0 && fileSize >= this.maxFileSize) {
+        return await Ti.Alert("i18n:wn-invalid-fsize-max", {
+          type: "warn",
+          icon: "zmdi-alert-triangle",
+          vars: {
+            maxSize: Ti.S.sizeText(this.maxFileSize),
+            fileSize: Ti.S.sizeText(fileSize)
+          }
+        })
+      }
       //................................
       // Check for support Types
       let type = Ti.Util.getSuffixName(file.name, true)
-      if(!await this.assertListHas(
-        this.AcceptTypes, type, 
+      if (!await this.assertListHas(
+        this.AcceptTypes, type,
         'i18n:wn-invalid-types',
-        {current: type, supports: this.AcceptTypes.join(", ")})
+        { current: type, supports: this.AcceptTypes.join(", ") })
       ) {
         return
       }
-      if(!await this.assertListHas(
-        this.AcceptMimes, file.type, 
+      if (!await this.assertListHas(
+        this.AcceptMimes, file.type,
         'i18n:wn-invalid-mimes',
-        {current:file.type, supports:this.AcceptMimes.join(", ")})
+        { current: file.type, supports: this.AcceptMimes.join(", ") })
       ) {
         return
       }
@@ -232,9 +263,9 @@ const _M = {
       //................................
       // Eval the target
       let taPath = Ti.S.renderBy(this.target, {
-        type, 
-        name : file.name,
-        majorName : Ti.Util.getMajorName(file.name)
+        type,
+        name: file.name,
+        majorName: Ti.Util.getMajorName(file.name)
       })
 
       //................................
@@ -242,10 +273,10 @@ const _M = {
       this.uploadFile = file
       this.progress = 0
 
-      let {ok, msg, data} = await Wn.Io.uploadFile(file, {
-        target : taPath,
-        mode   : "r",
-        progress : (pe)=> {
+      let { ok, msg, data } = await Wn.Io.uploadFile(file, {
+        target: taPath,
+        mode: "r",
+        progress: (pe) => {
           this.progress = pe.loaded / pe.total
         }
       })
@@ -257,18 +288,18 @@ const _M = {
 
       //................................
       // Fail to upload
-      if(!ok) {
-        await Ti.Alert(`i18n:${msg}`, {type:"warn", icon:"zmdi-alert-triangle"})
+      if (!ok) {
+        await Ti.Alert(`i18n:${msg}`, { type: "warn", icon: "zmdi-alert-triangle" })
         return
       }
 
       //................................
       // do Filter
-      if(!_.isEmpty(this.ImageFilter)) {
+      if (!_.isEmpty(this.ImageFilter)) {
         let cmd = [
-          "imagic", `id:${data.id}`, 
-          `-filter "${this.ImageFilter.join(" ")}"`]       
-        if(this.quality>0 && this.quality<=1) {
+          "imagic", `id:${data.id}`,
+          `-filter "${this.ImageFilter.join(" ")}"`]
+        if (this.quality > 0 && this.quality <= 1) {
           cmd.push(`-qa ${this.quality}`)
         }
         cmd.push("-out inplace")
@@ -291,14 +322,14 @@ const _M = {
     //--------------------------------------
     async reload() {
       this.srcAsUrl = /^https?:\/\//.test(this.value)
-      if(this.srcAsUrl) {
+      if (this.srcAsUrl) {
         return
       }
-      if(_.isString(this.value)) {
+      if (_.isString(this.value)) {
         this.oFile = await Wn.Io.loadMetaBy(this.value)
       }
       // Object
-      else if(this.value && this.value.id && this.value.mime) {
+      else if (this.value && this.value.id && this.value.mime) {
         this.oFile = _.cloneDeep(this.value)
       }
       // Reset
@@ -309,13 +340,13 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "value" : function() {
+  watch: {
+    "value": function () {
       this.reload()
     }
   },
   //////////////////////////////////////////
-  mounted : async function(){
+  mounted: async function () {
     await this.reload()
   }
   //////////////////////////////////////////
