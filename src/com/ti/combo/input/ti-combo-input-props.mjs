@@ -54,7 +54,7 @@ export default {
   },
   "delay": {
     type: Number,
-    default: 800
+    default: 500
   },
   //-----------------------------------
   // Aspect

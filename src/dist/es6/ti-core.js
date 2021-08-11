@@ -1,4 +1,4 @@
-// Pack At: 2021-08-11 21:28:05
+// Pack At: 2021-08-12 02:31:02
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -13305,13 +13305,20 @@ const {Dict,DictFactory} = (function(){
       this.query     = v =>[]
       this.children  = v =>[]
       this.getValue  = v =>Ti.Util.getFallback(v, "value", "id")
-      this.getText   = v =>Ti.Util.getFallback(v, "title", "text", "name", "nm")
+      this.getText   = v =>Ti.Util.getFallback(v, "text", "title", "name", "nm")
       this.getIcon   = v =>_.get(v, "icon")
       this.isMatched = (it, v) => {
         //console.log("match", it, v)
         let itV = this.getValue(it)
         if(_.isEqual(v, itV))
           return true
+        if(_.isString(itV) && _.isString(v)) {
+          let itV2 = _.toLower(itV)
+          let v2 = _.toLower(v)
+          if(itV2.indexOf(v2) >= 0) {
+            return true
+          }  
+        }
         let itT = this.getText(it)
         if(itT && itT.indexOf(v)>=0)
           return true
@@ -16550,7 +16557,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210811.212806",
+  "version" : "1.6-20210812.023102",
   "dev" : false,
   "appName" : null,
   "session" : {},

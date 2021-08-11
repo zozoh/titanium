@@ -112,7 +112,7 @@ const _M = {
     DropComConf() {
       return _.assign({
         display: this.dropDisplay || [
-          "title|text|nm::flex-auto",
+          "text|title|nm::flex-auto",
           "id|value::as-tip-block align-right"
         ],
         border: this.dropItemBorder
@@ -233,6 +233,8 @@ const _M = {
       }
       this.myDropStatus = "collapse"
       this.myOldValue = undefined
+      this.myFilterValue = null
+      this.myOptionsData = null
     },
     //-----------------------------------------------
     tryNotifyChanged() {

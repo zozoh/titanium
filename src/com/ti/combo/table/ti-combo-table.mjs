@@ -259,7 +259,7 @@ const _M = {
       if(_.isArray(cans)) {
         for(let can of cans) {
           let {test, data} = can
-          if(Ti.AutoMatch.test(test, this.vars)) {
+          if(Ti.Util.isNil(test) || Ti.AutoMatch.test(test, this.vars)) {
             return _.cloneDeep(data)
           }
         }

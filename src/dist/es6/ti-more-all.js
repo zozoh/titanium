@@ -1,4 +1,4 @@
-// Pack At: 2021-08-11 21:28:05
+// Pack At: 2021-08-12 02:31:02
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -19053,7 +19053,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "delay": {
     type: Number,
-    default: 800
+    default: 500
   },
   //-----------------------------------
   // Aspect
@@ -30861,7 +30861,7 @@ const _M = {
       if(_.isArray(cans)) {
         for(let can of cans) {
           let {test, data} = can
-          if(Ti.AutoMatch.test(test, this.vars)) {
+          if(Ti.Util.isNil(test) || Ti.AutoMatch.test(test, this.vars)) {
             return _.cloneDeep(data)
           }
         }
@@ -53385,7 +53385,7 @@ const _M = {
     DropComConf() {
       return _.assign({
         display: this.dropDisplay || [
-          "title|text|nm::flex-auto",
+          "text|title|nm::flex-auto",
           "id|value::as-tip-block align-right"
         ],
         border: this.dropItemBorder
@@ -53506,6 +53506,8 @@ const _M = {
       }
       this.myDropStatus = "collapse"
       this.myOldValue = undefined
+      this.myFilterValue = null
+      this.myOptionsData = null
     },
     //-----------------------------------------------
     tryNotifyChanged() {

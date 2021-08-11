@@ -1,4 +1,4 @@
-// Pack At: 2021-08-11 21:28:05
+// Pack At: 2021-08-12 02:31:02
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -4071,7 +4071,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210811.212807"
+const WALNUT_VERSION = "1.2-20210812.023102"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
