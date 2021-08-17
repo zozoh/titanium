@@ -379,6 +379,8 @@ const _M = {
             editor.__rich_tinymce_com.debounceSyncContent();
           })
           editor.on("keyup", (evt)=>{
+            //console.log("keyup", evt.key, evt.which)
+            editor.__rich_tinymce_com.$notify("keyup", evt)
             editor.__rich_tinymce_com.debounceSyncContent();
           })
           editor.on("paste", (evt)=>{

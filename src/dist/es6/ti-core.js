@@ -1,4 +1,4 @@
-// Pack At: 2021-08-13 11:21:43
+// Pack At: 2021-08-18 01:11:20
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -6678,7 +6678,22 @@ const {Shortcut} = (function(){
         //-------------------------------
         // String => GenInvoking
         if (_.isString(at)) {
-          let func = Ti.Util.genInvoking(fn, {
+          let m = /^(commit|dispatch|root|main):([^()]+)(\((.+)\))?$/.exec(at)
+          if(m) {
+            let mode = m[1]
+            let callPath = _.trim(m[2])
+            let callArgs = _.trim(m[4])
+            let args = Ti.S.joinArgs(callArgs, [], v => {
+              if (_.isString(v) || _.isArray(v))
+                return Ti.S.toJsValue(v, { context })
+              return v
+            })
+            return function(){
+              app[mode](callPath, ...args)
+            }
+          }
+          // Default as normalized Global invokeing 
+          let func = Ti.Util.genInvoking(at, {
             context,
             dft: null,
             funcSet
@@ -14484,7 +14499,6 @@ const {Album} = (function(){
     renderPhotos(photos = []) {
       let { attrPrefix } = this.setup
       let album = this.getData()
-      console.log(album)
   
       // Default wall class
       let className = Ti.Css.mergeClassName(album.wallClass) || {}
@@ -16557,7 +16571,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210813.112143",
+  "version" : "1.6-20210818.011120",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -43,7 +43,7 @@ const _M = {
         if (_.isString(this.value)) {
           return this.value
         }
-        return JSON.stringify(this.value)
+        return JSON.stringify(this.value, null, '  ')
       }
       return ""
     },

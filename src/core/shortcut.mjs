@@ -55,7 +55,22 @@ const TiShortcut = {
       //-------------------------------
       // String => GenInvoking
       if (_.isString(at)) {
-        let func = Ti.Util.genInvoking(fn, {
+        let m = /^(commit|dispatch|root|main):([^()]+)(\((.+)\))?$/.exec(at)
+        if(m) {
+          let mode = m[1]
+          let callPath = _.trim(m[2])
+          let callArgs = _.trim(m[4])
+          let args = Ti.S.joinArgs(callArgs, [], v => {
+            if (_.isString(v) || _.isArray(v))
+              return Ti.S.toJsValue(v, { context })
+            return v
+          })
+          return function(){
+            app[mode](callPath, ...args)
+          }
+        }
+        // Default as normalized Global invokeing 
+        let func = Ti.Util.genInvoking(at, {
           context,
           dft: null,
           funcSet

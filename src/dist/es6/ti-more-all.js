@@ -1,4 +1,4 @@
-// Pack At: 2021-08-13 11:21:43
+// Pack At: 2021-08-18 01:11:20
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8249,7 +8249,9 @@ const _M = {
     let behavior = _.get(state.config.schema, "behavior") || {}
 
     // Setup default filter and sorter
-    let filter = _.assign({}, behavior.filter, local.filter)
+    let filter = _.assign({}, behavior.filter, local.filter, {
+      majorKey: _.get(behavior, "filter.majorKey")
+    })
     if (!_.get(behavior.filter, "majorKey")) {
       delete filter.majorKey;
     }
@@ -30506,7 +30508,7 @@ const _M = {
         if (_.isString(this.value)) {
           return this.value
         }
-        return JSON.stringify(this.value)
+        return JSON.stringify(this.value, null, '  ')
       }
       return ""
     },
@@ -43035,6 +43037,8 @@ const _M = {
             editor.__rich_tinymce_com.debounceSyncContent();
           })
           editor.on("keyup", (evt)=>{
+            //console.log("keyup", evt.key, evt.which)
+            editor.__rich_tinymce_com.$notify("keyup", evt)
             editor.__rich_tinymce_com.debounceSyncContent();
           })
           editor.on("paste", (evt)=>{
@@ -43386,7 +43390,7 @@ const _M = {
     if (state.status.reloading || !state.meta) {
       return
     }
-    console.log("obj-children reloadData")
+    //console.log("obj-children reloadData")
     //......................................
     let { meta } = state
     //......................................

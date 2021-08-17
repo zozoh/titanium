@@ -152,7 +152,6 @@ class TiAlbum {
   renderPhotos(photos = []) {
     let { attrPrefix } = this.setup
     let album = this.getData()
-    console.log(album)
 
     // Default wall class
     let className = Ti.Css.mergeClassName(album.wallClass) || {}

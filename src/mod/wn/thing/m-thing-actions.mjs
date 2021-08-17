@@ -554,7 +554,9 @@ const _M = {
     let behavior = _.get(state.config.schema, "behavior") || {}
 
     // Setup default filter and sorter
-    let filter = _.assign({}, behavior.filter, local.filter)
+    let filter = _.assign({}, behavior.filter, local.filter, {
+      majorKey: _.get(behavior, "filter.majorKey")
+    })
     if (!_.get(behavior.filter, "majorKey")) {
       delete filter.majorKey;
     }
