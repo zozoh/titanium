@@ -56,18 +56,16 @@ const _M = {
       //..................................
       // register main module
       if (view && view.modType) {
+        if(this.Main) {
+          this.$store.unregisterModule("main")
+        }
         //
         // Main module
         //
-        if (this.view && this.view.modType) {
-          this.$store.unregisterModule("main")
+        if (view && view.mod) {
           this.$store.registerModule("main", view.mod)
         }
-        // First regiester mod
-        else if (!this.view || !this.view.modType) {
-          //console.log("regiest modType", view.modType)
-          this.$store.registerModule("main", view.mod)
-        }
+        
         // 
         // Extends modules
         //
