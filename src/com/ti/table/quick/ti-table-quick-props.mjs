@@ -33,6 +33,10 @@ export default {
     type : Boolean,
     default : false
   },
+  "autoCheckCurrent" : {
+    type : Boolean,
+    default : true
+  },
   "checkable" : {
     type : Boolean,
     default : false

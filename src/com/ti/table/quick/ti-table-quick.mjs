@@ -303,6 +303,108 @@ const _M = {
       return this.findRowById(currentId)
     },
     //--------------------------------------
+    removeCheckedRow(idMap = this.myCheckedIds) {
+      let checkedIds = this.getCheckedIdsMap(idMap, false)
+      let minIndex = -1
+      let maxIndex = -1
+      let remainsRows = []
+      let checkedRows = []
+
+      _.forEach(this.TableData, row => {
+        if (idMap[row.id]) {
+          minIndex = minIndex < 0
+            ? row.index
+            : Math.min(row.index, minIndex);
+
+          maxIndex = maxIndex < 0
+            ? row.index
+            : Math.max(row.index, maxIndex);
+
+          checkedRows.push(row)
+        } else {
+          remainsRows.push(row)
+        }
+      })
+
+      return {
+        remainsRows, checkedRows, minIndex, maxIndex, checkedIds
+      }
+    },
+    //-----------------------------------------------
+    removeChecked(idMap = this.myCheckedIds) {
+      let re = this.removeCheckedRow(idMap)
+      re.remains = _.map(re.remainsRows, row => row.rawData)
+      re.checked = _.map(re.checkedRows, row => row.rawData)
+      return re
+    },
+    //-----------------------------------------------
+    moveCheckedRow(offset = 0, idMap = this.myCheckedIds) {
+      idMap = this.getCheckedIdsMap(idMap, false)
+      //console.log(idMap)
+      if (offset == 0 || _.isEmpty(idMap))
+        return { rows: this.TheData, nextCheckedIds: idMap }
+
+      let {
+        checkedIds,
+        minIndex,
+        maxIndex,
+        remainsRows,
+        checkedRows
+      } = this.removeCheckedRow(idMap)
+
+      // targetIndex in remains[] list
+      let targetIndex = Math.max(0, minIndex - 1)
+      if (offset > 0) {
+        targetIndex = Math.min(maxIndex - checkedRows.length + 2, remainsRows.length)
+      }
+      // Insert
+      let rows = _.cloneDeep(remainsRows)
+      rows.splice(targetIndex, 0, ...checkedRows)
+
+      if (_.isEmpty(rows))
+        return { rows: [], nextCheckedIds: {} }
+
+      // If the index style ID, adjust them
+      let nextCheckedIds = checkedIds
+      if (/^Row-\d+$/.test(rows[0].id)) {
+        nextCheckedIds = {}
+        for (let i = 0; i < checkedRows.length; i++) {
+          nextCheckedIds[`Row-${i + targetIndex}`] = true
+        }
+      }
+
+      return { rows, nextCheckedIds }
+    },
+    //-----------------------------------------------
+    moveChecked(offset = 0, idMap = this.myCheckedIds) {
+      let re = this.moveCheckedRow(offset, idMap)
+      re.list = _.map(re.rows, row => row.rawData)
+      return re
+    },
+    //-----------------------------------------------
+    getCheckedIdsMap(idList = [], autoCheckCurrent = this.autoCheckCurrent) {
+      let idMap = {}
+      // ID List
+      if (_.isArray(idList)) {
+        _.forEach(idList, (rowId) => {
+          idMap[rowId] = true
+        })
+      }
+      // Map
+      else {
+        _.forEach(idList, (checked, rowId) => {
+          if (checked) {
+            idMap[rowId] = true
+          }
+        })
+      }
+      // Force to check current
+      if (autoCheckCurrent && !Ti.Util.isNil(this.myCurrentId)) {
+        idMap[this.myCurrentId] = true
+      }
+      return idMap
+    },
+    //--------------------------------------
     // Utility
     //--------------------------------------
     scrollCurrentIntoView() {
