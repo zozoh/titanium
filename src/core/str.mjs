@@ -641,6 +641,8 @@ const TiStr = {
   /***
    * Get the display percent text for a float number
    * @param n Float number
+   * @param fixed fixed float position
+   * @param auto Auto cut the ending zero '0.34000' => '0.34'
    */
   toPercent(n, {fixed=2, auto=true}={}){
     if(!_.isNumber(n))

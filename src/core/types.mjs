@@ -427,6 +427,19 @@ export class TiColor {
       _.clamp(a, 0, 1),
     ])
   }
+  updateByHSL({h, s, l}={}) {
+    let hsl = this.toHSL()
+    if(_.isNumber(h)) {
+      hsl.h = _.clamp(h, 0, 1)
+    }
+    if(_.isNumber(s)) {
+      hsl.s = _.clamp(s, 0, 1)
+    }
+    if(_.isNumber(l)) {
+      hsl.l = _.clamp(l, 0, 1)
+    }
+    return this.fromHSL(hsl)
+  }
   adjustByHSL({h=0, s=0, l=0}={}) {
     let hsl = this.toHSL()
     hsl.h = _.clamp(hsl.h + h, 0, 1)

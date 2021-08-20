@@ -141,12 +141,13 @@ const _M = {
     },
     //--------------------------------------------
     OnChange(val) {
-      // Customized value
-      let v2 = val
+      // apply default
+      let v2 = this.evalInputValue(val)
+
       try {
-        //console.log("this.serializer(val):", val)
-        v2 = this.serializer(val)
-        //console.log("field changed", val, v2)
+        // console.log("this.serializer(val):", v2)
+        v2 = this.serializer(v2)
+        // console.log("field changed", val, v2)
       }
       // Invalid 
       catch (error) {

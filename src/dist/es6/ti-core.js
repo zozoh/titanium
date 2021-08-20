@@ -1,4 +1,4 @@
-// Pack At: 2021-08-18 01:11:20
+// Pack At: 2021-08-20 18:20:13
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1841,6 +1841,8 @@ const {S} = (function(){
     /***
      * Get the display percent text for a float number
      * @param n Float number
+     * @param fixed fixed float position
+     * @param auto Auto cut the ending zero '0.34000' => '0.34'
      */
     toPercent(n, {fixed=2, auto=true}={}){
       if(!_.isNumber(n))
@@ -8336,6 +8338,19 @@ const {Types} = (function(){
         _.clamp(Math.round(b), 0, 255),
         _.clamp(a, 0, 1),
       ])
+    }
+    updateByHSL({h, s, l}={}) {
+      let hsl = this.toHSL()
+      if(_.isNumber(h)) {
+        hsl.h = _.clamp(h, 0, 1)
+      }
+      if(_.isNumber(s)) {
+        hsl.s = _.clamp(s, 0, 1)
+      }
+      if(_.isNumber(l)) {
+        hsl.l = _.clamp(l, 0, 1)
+      }
+      return this.fromHSL(hsl)
     }
     adjustByHSL({h=0, s=0, l=0}={}) {
       let hsl = this.toHSL()
@@ -16571,7 +16586,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210818.011120",
+  "version" : "1.6-20210820.182013",
   "dev" : false,
   "appName" : null,
   "session" : {},
