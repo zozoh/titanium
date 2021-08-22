@@ -341,6 +341,9 @@ const TiDateTime = {
     i18n=Ti.I18n.get("time")
   }={}) {
     d = TiDateTime.parse(d)
+    if(!_.isDate(d)) {
+      return null
+    }
     let ams = d.getTime()
     let now = Date.now()
     let du_ms  = now - ams;

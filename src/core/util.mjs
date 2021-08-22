@@ -405,7 +405,7 @@ const TiUtil = {
 
         let m_type, m_val, m_dft;
         // Match template
-        m = /^(==>|=>>?|->)(.+)$/.exec(theValue)
+        m = /^(==>>?|=>>?|->)(.+)$/.exec(theValue)
         if (m) {
           m_type = m[1]
           m_val = _.trim(m[2])
@@ -429,12 +429,17 @@ const TiUtil = {
         if (m_type) {
           //................................
           let fn = ({
-            // Just get function
+            // Just get function: partial left
             "==>": (val) => {
               let func = _.get(window, val)
               if (_.isFunction(func)) {
                 return func
               }
+              return Ti.Util.genInvoking(val, { context, partial: "left" })
+            },
+            // Just get function: partial right
+            "==>>": (val) => {
+              return Ti.Util.genInvoking(val, { context, partial: "right" })
             },
             // ==xxx  # Get Boolean value now
             "==": (val) => {
