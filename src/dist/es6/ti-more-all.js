@@ -1,4 +1,4 @@
-// Pack At: 2021-08-24 10:02:38
+// Pack At: 2021-08-24 17:04:50
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -54162,6 +54162,10 @@ const _M = {
           // Customized
           if(_.isFunction(btn.enabled)) {
             btn.enabled = btn.enabled()
+          }
+          // Directly
+          else if(_.isBoolean(btn.enabled)) {
+            btn.enabled = btn.enabled
           }
           // Eval enabled
           else if(btn.enabled) {

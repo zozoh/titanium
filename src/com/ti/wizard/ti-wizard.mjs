@@ -264,6 +264,10 @@ const _M = {
           if(_.isFunction(btn.enabled)) {
             btn.enabled = btn.enabled()
           }
+          // Directly
+          else if(_.isBoolean(btn.enabled)) {
+            btn.enabled = btn.enabled
+          }
           // Eval enabled
           else if(btn.enabled) {
             btn.enabled = Ti.AutoMatch.test(btn.enabled, this.value)
