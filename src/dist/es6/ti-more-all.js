@@ -1,4 +1,4 @@
-// Pack At: 2021-08-24 17:04:50
+// Pack At: 2021-08-26 22:18:24
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -30035,7 +30035,8 @@ const _M = {
         else {
           let val = str ? str * 1 : this.defaultValue
           if(!isNaN(val)) {
-            this.$notify("change", val)  
+            let v2 = this.getValue(val)
+            this.$notify("change", v2)  
           }
         }
       }
@@ -34946,7 +34947,8 @@ const _M = {
     myCardWidth: undefined,
     myCardHeight: undefined,
     myDraggingOffset: 0,
-    isInDragging: false
+    isInDragging: false,
+    lastCardIn: true
   }),
   //////////////////////////////////////////
   props: {
@@ -35053,6 +35055,8 @@ const _M = {
       return this.data || []
     },
     //--------------------------------------
+    hasMultiItems() { return this.CardData.length > 1 },
+    //--------------------------------------
     isLoading() {
       return _.isUndefined(this.myDisplayCards)
     },
@@ -35095,9 +35099,15 @@ const _M = {
           return Ti.Dom.closest($trigger, ".part-main")
         },
         actived: (ctx) => {
+          if(!this.hasMultiItems) {
+            return
+          }
           this.isInDragging = true
         },
         dragging: (ctx) => {
+          if(!this.hasMultiItems) {
+            return
+          }
           let { offsetX } = ctx
           if (Math.abs(offsetX) > 5) {
             this.myDraggingOffset = offsetX
@@ -35108,6 +35118,9 @@ const _M = {
           this.evalMyDisplayCards()
         },
         done: (ctx) => {
+          if(!this.hasMultiItems) {
+            return
+          }
           //let {viewport, $trigger, $viewport, offsetX, speed} = ctx
           let { offsetX } = ctx
           //console.log("dragging done", offsetX)
@@ -35117,7 +35130,11 @@ const _M = {
           }
           this.isInDragging = false
           this.myDraggingOffset = 0
+          this.lastCardIn = false
           this.evalMyDisplayCards()
+          _.delay(()=>{
+            this.lastCardIn = true
+          }, 10)
         }
       }
     }
@@ -35184,21 +35201,43 @@ const _M = {
       let left = 0
       let right = width
       let csdw = this.cardScaleDown
+      let lastI = len - 1
       //...............................................
       let list = []
       for (let i = 0; i < len; i++) {
         let cardI = Ti.Num.scrollIndex(i + this.myCurrentIndex, len)
         let card = _.cloneDeep(this.CardData[cardI])
+        let cardLeft = `${left}px`
+        let zIndex = len - i + 1
+
+        // For last card
+        if(i == lastI) {
+          zIndex = 0
+          if(!this.lastCardIn) {
+            cardLeft = this.myRect.width + 'px'
+          }
+        }
 
         // Position Y
         let top = (cdH - height) / 2
         card.style = _.assign({}, this.cardStyle, {
           top: `${top}px`,
-          left: `${left}px`,
-          width: `${width}px`,
-          height: `${height}px`,
-          zIndex: len - i + 1
+          left: cardLeft, 
+          zIndex
         })
+        // Multi items, follow the card stack
+        if (this.hasMultiItems) {
+          _.assign(card.style, {
+            width: `${width}px`,
+            height: `${height}px`,
+          })
+        }
+        // Signle item, fit to main
+        else {
+          _.assign(card.style, {
+            right: 0, bottom: 0
+          })
+        }
 
         // Mark current class
         card.className = {
@@ -35234,9 +35273,9 @@ const _M = {
           let diffW = preWidth - width
           let diffH = preHeight - height
           let diffR = preRight - right
-          width  = Math.min(width  + diffW * dragScale, preWidth)
+          width = Math.min(width + diffW * dragScale, preWidth)
           height = Math.min(height + diffH * dragScale, preHeight)
-          right  = Math.max(right  + diffR * dragScale / 2, preRight)
+          right = Math.max(right + diffR * dragScale / 2, preRight)
           //console.log(i, opacity, right, preRight)
         }
         left = right - width
@@ -35251,10 +35290,11 @@ const _M = {
     "myRect": "evalMyDisplayCards",
     "data": "evalMyDisplayCards",
     "myCurrentIndex": "evalMyDisplayCards",
-    "cardWidth": function() {
+    "lastCardIn": "evalMyDisplayCards",
+    "cardWidth": function () {
       this.evalCardMeasure()
     },
-    "cardHeight": function() {
+    "cardHeight": function () {
       this.evalCardMeasure()
     },
     "currentIndex": {
@@ -50580,7 +50620,9 @@ const _M = {
     },
     //--------------------------------------
     isLeftEnabled() {return true;},
-    isRightEnabled() {return true},
+    isRightEnabled() {return true;},
+    //--------------------------------------
+    hasMultiItems() {return this.ItemList.length > 1},
     //--------------------------------------
     BtnLeftClass() {
       return {
@@ -68646,7 +68688,7 @@ Ti.Preload("ti/com/web/shelf/slide/web-shelf-slide.html", `<div class="web-shelf
   <!--
     Item List
   -->
-  <div class="as-indicator">
+  <div class="as-indicator" v-if="hasMultiItems">
     <div
       v-for="it in ItemList"
         class="as-item"
@@ -68657,13 +68699,13 @@ Ti.Preload("ti/com/web/shelf/slide/web-shelf-slide.html", `<div class="web-shelf
   <!--
     Btn: Prev
   -->
-  <div class="as-btn is-prev" @click.left="prevItem">
+  <div class="as-btn is-prev" @click.left="prevItem" v-if="hasMultiItems">
     <i class="im im-angle-left"></i>
   </div>
   <!--
     Btn: Next
   -->
-  <div class="as-btn is-next" @click.left="nextItem">
+  <div class="as-btn is-next" @click.left="nextItem" v-if="hasMultiItems">
     <i class="im im-angle-right"></i>
   </div>
 </div>`);

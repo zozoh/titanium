@@ -16,7 +16,7 @@
   <!--
     Item List
   -->
-  <div class="as-indicator">
+  <div class="as-indicator" v-if="hasMultiItems">
     <div
       v-for="it in ItemList"
         class="as-item"
@@ -27,13 +27,13 @@
   <!--
     Btn: Prev
   -->
-  <div class="as-btn is-prev" @click.left="prevItem">
+  <div class="as-btn is-prev" @click.left="prevItem" v-if="hasMultiItems">
     <i class="im im-angle-left"></i>
   </div>
   <!--
     Btn: Next
   -->
-  <div class="as-btn is-next" @click.left="nextItem">
+  <div class="as-btn is-next" @click.left="nextItem" v-if="hasMultiItems">
     <i class="im im-angle-right"></i>
   </div>
 </div>

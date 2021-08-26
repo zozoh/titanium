@@ -52,7 +52,9 @@ const _M = {
     },
     //--------------------------------------
     isLeftEnabled() {return true;},
-    isRightEnabled() {return true},
+    isRightEnabled() {return true;},
+    //--------------------------------------
+    hasMultiItems() {return this.ItemList.length > 1},
     //--------------------------------------
     BtnLeftClass() {
       return {

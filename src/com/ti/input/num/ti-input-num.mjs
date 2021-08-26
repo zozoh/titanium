@@ -103,7 +103,8 @@ const _M = {
         else {
           let val = str ? str * 1 : this.defaultValue
           if(!isNaN(val)) {
-            this.$notify("change", val)  
+            let v2 = this.getValue(val)
+            this.$notify("change", v2)  
           }
         }
       }

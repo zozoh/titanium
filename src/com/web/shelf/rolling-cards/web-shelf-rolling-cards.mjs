@@ -7,7 +7,8 @@ const _M = {
     myCardWidth: undefined,
     myCardHeight: undefined,
     myDraggingOffset: 0,
-    isInDragging: false
+    isInDragging: false,
+    lastCardIn: true
   }),
   //////////////////////////////////////////
   props: {
@@ -114,6 +115,8 @@ const _M = {
       return this.data || []
     },
     //--------------------------------------
+    hasMultiItems() { return this.CardData.length > 1 },
+    //--------------------------------------
     isLoading() {
       return _.isUndefined(this.myDisplayCards)
     },
@@ -156,9 +159,15 @@ const _M = {
           return Ti.Dom.closest($trigger, ".part-main")
         },
         actived: (ctx) => {
+          if(!this.hasMultiItems) {
+            return
+          }
           this.isInDragging = true
         },
         dragging: (ctx) => {
+          if(!this.hasMultiItems) {
+            return
+          }
           let { offsetX } = ctx
           if (Math.abs(offsetX) > 5) {
             this.myDraggingOffset = offsetX
@@ -169,6 +178,9 @@ const _M = {
           this.evalMyDisplayCards()
         },
         done: (ctx) => {
+          if(!this.hasMultiItems) {
+            return
+          }
           //let {viewport, $trigger, $viewport, offsetX, speed} = ctx
           let { offsetX } = ctx
           //console.log("dragging done", offsetX)
@@ -178,7 +190,11 @@ const _M = {
           }
           this.isInDragging = false
           this.myDraggingOffset = 0
+          this.lastCardIn = false
           this.evalMyDisplayCards()
+          _.delay(()=>{
+            this.lastCardIn = true
+          }, 10)
         }
       }
     }
@@ -245,21 +261,43 @@ const _M = {
       let left = 0
       let right = width
       let csdw = this.cardScaleDown
+      let lastI = len - 1
       //...............................................
       let list = []
       for (let i = 0; i < len; i++) {
         let cardI = Ti.Num.scrollIndex(i + this.myCurrentIndex, len)
         let card = _.cloneDeep(this.CardData[cardI])
+        let cardLeft = `${left}px`
+        let zIndex = len - i + 1
+
+        // For last card
+        if(i == lastI) {
+          zIndex = 0
+          if(!this.lastCardIn) {
+            cardLeft = this.myRect.width + 'px'
+          }
+        }
 
         // Position Y
         let top = (cdH - height) / 2
         card.style = _.assign({}, this.cardStyle, {
           top: `${top}px`,
-          left: `${left}px`,
-          width: `${width}px`,
-          height: `${height}px`,
-          zIndex: len - i + 1
+          left: cardLeft, 
+          zIndex
         })
+        // Multi items, follow the card stack
+        if (this.hasMultiItems) {
+          _.assign(card.style, {
+            width: `${width}px`,
+            height: `${height}px`,
+          })
+        }
+        // Signle item, fit to main
+        else {
+          _.assign(card.style, {
+            right: 0, bottom: 0
+          })
+        }
 
         // Mark current class
         card.className = {
@@ -295,9 +333,9 @@ const _M = {
           let diffW = preWidth - width
           let diffH = preHeight - height
           let diffR = preRight - right
-          width  = Math.min(width  + diffW * dragScale, preWidth)
+          width = Math.min(width + diffW * dragScale, preWidth)
           height = Math.min(height + diffH * dragScale, preHeight)
-          right  = Math.max(right  + diffR * dragScale / 2, preRight)
+          right = Math.max(right + diffR * dragScale / 2, preRight)
           //console.log(i, opacity, right, preRight)
         }
         left = right - width
@@ -312,10 +350,11 @@ const _M = {
     "myRect": "evalMyDisplayCards",
     "data": "evalMyDisplayCards",
     "myCurrentIndex": "evalMyDisplayCards",
-    "cardWidth": function() {
+    "lastCardIn": "evalMyDisplayCards",
+    "cardWidth": function () {
       this.evalCardMeasure()
     },
-    "cardHeight": function() {
+    "cardHeight": function () {
       this.evalCardMeasure()
     },
     "currentIndex": {
