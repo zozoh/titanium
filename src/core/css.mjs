@@ -87,6 +87,10 @@ const TiCss = {
     return sz
   },
   //-----------------------------------
+  toSize2(sz) {
+    return TiCss.toSize(sz, { autoPercent: false })
+  },
+  //-----------------------------------
   toSizeRem100(sz, options) {
     let opt = _.assign({}, options, { remBase: 100 })
     return TiCss.toSize(sz, opt);

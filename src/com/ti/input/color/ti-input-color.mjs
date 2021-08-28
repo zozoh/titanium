@@ -13,6 +13,10 @@ export default {
     "autoCollapse" : {
       type : Boolean,
       default : true
+    },
+    "showAlpha" : {
+      type: Boolean,
+      default: true
     }
   },
   ////////////////////////////////////////////////////

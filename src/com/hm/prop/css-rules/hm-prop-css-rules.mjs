@@ -41,6 +41,10 @@ const _M = {
       type: Boolean,
       default: true
     },
+    "dialog": {
+      type: Object,
+      default: () => ({})
+    },
     "blankAs": {
       type: Object,
       default: () => ({
@@ -68,15 +72,15 @@ const _M = {
     //--------------------------------------------------
     ValueTable() {
       let getTitle = this.getCssPropTitle
-              || _.get(window, "Wn.Hm.getCssPropTitle")
-              || function (v) {return v}
+        || _.get(window, "Wn.Hm.getCssPropTitle")
+        || function (v) { return v }
       let re = []
       _.forEach(this.ValueObj, (value, name) => {
         let title = getTitle(name)
-        if(/^i18n:(.+)/.test(title)) {
+        if (/^i18n:(.+)/.test(title)) {
           title = Ti.I18n.text(title)
         }
-        else if(this.autoI18nRuleTitle) {
+        else if (this.autoI18nRuleTitle) {
           title = Ti.I18n.get(title)
         }
         re.push({
@@ -135,8 +139,8 @@ const _M = {
         spacing: "tiny"
       })
       let findRuleFields = this.findRuleFields
-              || _.get(window, "Wn.Hm.findCssPropFields")
-              || function () {return []}
+        || _.get(window, "Wn.Hm.findCssPropFields")
+        || function () { return [] }
       if (_.isEmpty(conf.fields)) {
         conf.fields = findRuleFields(this.rules)
       }
@@ -157,16 +161,17 @@ const _M = {
       let result = this.ValueObj
 
       // Open dialog
-      let reo = await Ti.App.Open({
+      let reo = await Ti.App.Open(_.assign({
         title: "i18n:hmk-css-edit",
         width: "8rem",
         height: "95%",
         position: "top",
+      }, this.dialog, {
         result,
         model: { prop: "data", event: "change" },
         comType: "TiForm",
         comConf: this.FormConfig
-      })
+      }))
 
       // User cancle
       if (!reo)
@@ -184,17 +189,18 @@ const _M = {
       let result = JSON.stringify(this.ValueObj, null, '   ')
 
       // Open dialog
-      let re = await Ti.App.Open({
+      let re = await Ti.App.Open(_.assign({
         title: "i18n:hmk-css-edit",
         width: "6.4rem",
         height: "95%",
         position: "top",
+      }, this.dialog, {
         result,
         comType: "TiTextJson",
         comConf: {
         },
         components: ["@com:ti/text/json"]
-      })
+      }))
 
       // User cancle
       if (!re)

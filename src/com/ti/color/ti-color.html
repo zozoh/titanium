@@ -43,7 +43,7 @@
           :value="theHex"
           @change="onHexChanged"/>
     </div>
-    <div class="as-alpha">
+    <div class="as-alpha" v-if="showAlpha">
       <ti-input-num 
         :value="theAlpha"
         :max-value="100"
