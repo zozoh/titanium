@@ -1,4 +1,4 @@
-// Pack At: 2021-08-26 22:18:24
+// Pack At: 2021-08-30 01:14:15
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -12905,6 +12905,10 @@ const {Css} = (function(){
       return sz
     },
     //-----------------------------------
+    toSize2(sz) {
+      return TiCss.toSize(sz, { autoPercent: false })
+    },
+    //-----------------------------------
     toSizeRem100(sz, options) {
       let opt = _.assign({}, options, { remBase: 100 })
       return TiCss.toSize(sz, opt);
@@ -16594,7 +16598,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210826.221824",
+  "version" : "1.6-20210830.011415",
   "dev" : false,
   "appName" : null,
   "session" : {},
