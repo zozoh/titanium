@@ -54,9 +54,10 @@ function Preload(url, anyObj) {
 //---------------------------------------
 let RS_PREFIXs = [];
 function AddResourcePrefix(...prefixes) {
-  for(let prefix of prefixes) {
-    if(prefix) {
-      if(!prefix.endsWith("/")) {
+  let list = _.flattenDeep(prefixes)
+  for(let prefix of list) {
+    if(!Ti.Util.isNil(prefix) && _.indexOf(RS_PREFIXs, prefix)<0) {
+      if(prefix && !prefix.endsWith("/")) {
         RS_PREFIXs.push(prefix + "/")
       } else {
         RS_PREFIXs.push(prefix)
@@ -70,7 +71,7 @@ function MatchCache(url) {
     return
   }
   for(let prefix of RS_PREFIXs) {
-    if(prefix && url.startsWith(prefix)) {
+    if(!Ti.Util.isNil(prefix) && url.startsWith(prefix)) {
       url = url.substring(prefix.length)
       break
     }

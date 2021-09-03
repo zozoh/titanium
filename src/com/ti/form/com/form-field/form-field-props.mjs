@@ -6,6 +6,10 @@ export default {
     type : String,
     default : "String"
   },
+  "required" : {
+    type : Boolean,
+    default : false
+  },
   "disabled" : {
     type : Boolean,
     default : false

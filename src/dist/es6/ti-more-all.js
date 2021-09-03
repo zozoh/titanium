@@ -1,4 +1,4 @@
-// Pack At: 2021-08-30 01:14:15
+// Pack At: 2021-09-03 22:48:32
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -566,6 +566,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "type" : {
     type : String,
     default : "String"
+  },
+  "required" : {
+    type : Boolean,
+    default : false
   },
   "disabled" : {
     type : Boolean,
@@ -2555,6 +2559,247 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'hm-prop-css-rules.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/hm/prop/css-rules/hm-prop-css-rules.mjs'] = (function(){
+const _M = {
+  //////////////////////////////////////////////////////
+  data: () => ({
+  }),
+  //////////////////////////////////////////////////////
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "value": {
+      type: Object
+    },
+    "keyType": {
+      type: String,
+      default: "kebab",
+      validator: v => /^(kebab|camel|snake)$/.test(v)
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "form": {
+      type: Object,
+      default: () => ({})
+    },
+    "rules": {
+      type: [Array, String, Object, Boolean, RegExp],
+      default: true
+    },
+    "getCssPropTitle": {
+      type: Function,
+      default: undefined
+    },
+    "findRuleFields": {
+      type: Function,
+      default: undefined
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "autoI18nRuleTitle": {
+      type: Boolean,
+      default: true
+    },
+    "dialog": {
+      type: Object,
+      default: () => ({})
+    },
+    "blankAs": {
+      type: Object,
+      default: () => ({
+        className: "as-mid",
+        icon: "fas-ruler-combined",
+        text: "empty-data"
+      })
+    }
+  },
+  //////////////////////////////////////////////////////
+  computed: {
+    //--------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------------------
+    ValueObj() {
+      let re = {}
+      _.forEach(this.value, (value, k) => {
+        let key = this.FormatKey(k)
+        re[key] = value
+      })
+      return re;
+    },
+    //--------------------------------------------------
+    ValueTable() {
+      let getTitle = this.getCssPropTitle
+        || _.get(window, "Wn.Hm.getCssPropTitle")
+        || function (v) { return v }
+      let re = []
+      _.forEach(this.ValueObj, (value, name) => {
+        let title = getTitle(name)
+        if (/^i18n:(.+)/.test(title)) {
+          title = Ti.I18n.text(title)
+        }
+        else if (this.autoI18nRuleTitle) {
+          title = Ti.I18n.get(title)
+        }
+        re.push({
+          title, name, value
+        })
+      })
+      return re;
+    },
+    //--------------------------------------------------
+    FormatKey() {
+      return ({
+        "kebab": _.kebabCase,
+        "camel": _.camelCase,
+        "snake": _.snakeCase
+      })[this.keyType]
+    },
+    //--------------------------------------------------
+    isEmpty() {
+      return _.isEmpty(this.ValueTable)
+    },
+    //--------------------------------------------------
+    ActionItems() {
+      return [{
+        icon: "fas-drafting-compass",
+        text: "i18n:edit",
+        action: () => {
+          this.openCssFormDialog()
+        }
+      }, {
+        icon: "fas-code",
+        action: () => {
+          this.openCssCodeDialog()
+        }
+      }, {
+        icon: "far-trash-alt",
+        text: "i18n:clear",
+        action: () => {
+          this.clearValue()
+        }
+      }]
+    },
+    //--------------------------------------------------
+    EmptyButtonSetup() {
+      return [{
+        icon: "fas-drafting-compass",
+        text: "i18n:edit",
+        handler: () => {
+          this.openCssFormDialog()
+        }
+      }]
+    },
+    //--------------------------------------------------
+    FormConfig() {
+      let conf = _.cloneDeep(this.form)
+      _.defaults(conf, {
+        spacing: "tiny"
+      })
+      let findRuleFields = this.findRuleFields
+        || _.get(window, "Wn.Hm.findCssPropFields")
+        || function () { return [] }
+      if (_.isEmpty(conf.fields)) {
+        conf.fields = findRuleFields(this.rules)
+      }
+      return conf
+    }
+    //--------------------------------------------------
+  },
+  //////////////////////////////////////////////////////
+  methods: {
+    //--------------------------------------------------
+    OnRemoveValue({ name }) {
+      let val = _.omit(this.ValueObj, name)
+      this.$notify("change", val)
+    },
+    //--------------------------------------------------
+    async openCssFormDialog() {
+      // Eval result
+      let result = this.ValueObj
+
+      // Open dialog
+      let reo = await Ti.App.Open(_.assign({
+        title: "i18n:hmk-css-edit",
+        width: "8rem",
+        height: "95%",
+        position: "top",
+      }, this.dialog, {
+        result,
+        model: { prop: "data", event: "change" },
+        comType: "TiForm",
+        comConf: this.FormConfig
+      }))
+
+      // User cancle
+      if (!reo)
+        return
+
+      // Normlized to value
+      //console.log(reo)
+      let val = this.normalizeValue(reo)
+
+      this.$notify("change", val)
+    },
+    //--------------------------------------------------
+    async openCssCodeDialog() {
+      // Eval result
+      let result = JSON.stringify(this.ValueObj, null, '   ')
+
+      // Open dialog
+      let re = await Ti.App.Open(_.assign({
+        title: "i18n:hmk-css-edit",
+        width: "6.4rem",
+        height: "95%",
+        position: "top",
+      }, this.dialog, {
+        result,
+        comType: "TiTextJson",
+        comConf: {
+        },
+        components: ["@com:ti/text/json"]
+      }))
+
+      // User cancle
+      if (!re)
+        return
+
+      // Normlized to value
+      let css = JSON.parse(re)
+      let val = this.normalizeValue(css)
+
+      this.$notify("change", val)
+    },
+    //--------------------------------------------------
+    normalizeValue(css) {
+      let re = {}
+      _.forEach(css, (v, k) => {
+        if (Ti.Util.isNil(v) || Ti.S.isBlank(v))
+          return
+        let key = this.FormatKey(k)
+        re[key] = v
+      })
+      if (_.isEmpty(re))
+        return null
+      return re
+    },
+    //--------------------------------------------------
+    clearValue() {
+      this.$notify("change", null)
+    }
+    //--------------------------------------------------
+  }
+  //////////////////////////////////////////////////////
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'ti-chart-raw.mjs' -> null
@@ -22057,6 +22302,286 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'io-ix-dao.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/hm/config/io/ix/dao/io-ix-dao.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  data: ()=>({
+  }),
+  /////////////////////////////////////////
+  props : {
+    "value" : {
+      type: [String, Object],
+      default: undefined
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //------------------------------------
+    TheData() {
+      if(_.isString(this.value)) {
+        return JSON.stringify(this.value)
+      }
+      return _.cloneDeep(this.value)
+    },
+    //------------------------------------
+    FormConf() {
+      return {
+        mode : "tab",
+        keepTabIndexBy : "hm-config-io-ix-dao-tabIndex",
+        fields: [{
+          //............................
+          // 基本设置
+          //............................
+          title : "基本",
+          fields : [{
+              title : "数据源",
+              name  : "dao",
+              comType : "ti-input"
+            }, {
+              title : "数据表",
+              name  : "tableName",
+              comType : "ti-input"
+            }, {
+              title : "自动建表",
+              name  : "autoCreate",
+              type  : "Boolean",
+              tip   : "第一次访问时，会自动检查并确保数据库里有这个表",
+              comType : "ti-toggle"
+            }, {
+              title : "主键",
+              name  : "pks",
+              type  : "Array",
+              tip   : "默认为 `id` 字段",
+              comType : "ti-input-tags"
+            }]
+          },
+          //............................
+          // 映射字段
+          //............................
+          {
+            title : "映射字段",
+            fields : [{
+                name : "fields",
+                type : "Array",
+                comType : "ti-combo-table",
+                comConf : {
+                  className : "ti-cover-parent",
+                  form : {
+                    fields : [{
+                      title : "字段名",
+                      name  : "name",
+                      comType : "ti-input"
+                    }, {
+                      title : "数据类型",
+                      name  : "type",
+                      tip : "程序内存中的数据类型",
+                      defaultAs : "String",
+                      comType : "ti-droplist",
+                      comConf : {
+                        options: "#JavaTypes",
+                        dropDisplay : ["text::flex-auto", "value::as-tip"]
+                      }
+                    }, {
+                      title : "存储字段名",
+                      name  : "columnName",
+                      emptyAs : "~~undefined~~",
+                      comType : "ti-input",
+                      comConf : {
+                        placeholder : "与字段名相同"
+                      }
+                    }, {
+                      title : "存储类型",
+                      name  : "columnType",
+                      tip : "数据库中的字段数据类型",
+                      defaultAs : "AUTO",
+                      comType : "ti-droplist",
+                      comConf : {
+                        options: "#ColumnTypes",
+                        dropDisplay : ["text::flex-auto", "value::as-tip"]
+                      }
+                    }, {
+                      title : "存储长度",
+                      name  : "width",
+                      type  : "Integer",
+                      tip : "数据库存储该字段所占的空间",
+                      width  : 120,
+                      comType : "ti-input"
+                    }, {
+                      title : "不可为空",
+                      name  : "notNull",
+                      type  : "Boolean",
+                      defaultAs : false,
+                      comType : "ti-toggle"
+                    }, {
+                      title : "可插入",
+                      name  : "insert",
+                      type  : "Boolean",
+                      defaultAs : true,
+                      comType : "ti-toggle"
+                    }, {
+                      title : "可更新",
+                      name  : "update",
+                      type  : "Boolean",
+                      defaultAs : true,
+                      comType : "ti-toggle"
+                    }, {
+                      title : "包裹名称",
+                      name  : "wrapName",
+                      tip : "生成 SQL 的时候，是否要用引号包裹名称",
+                      type  : "Boolean",
+                      defaultAs : false,
+                      comType : "ti-toggle"
+                    }]
+                  },
+                  list : {
+                    fields : [{
+                      title : "字段名",
+                      display : ["name", "columnName::as-tip"]
+                    }, {
+                      title : "数据类型",
+                      display : {
+                        key : "type",
+                        defaultAs : "String",
+                        comType : "ti-label",
+                        comConf : {
+                          dict : "JavaTypes"
+                        }
+                      }
+                    }, {
+                      title : "存储类型",
+                      display : {
+                        key : "columnType",
+                        defaultAs : "AUTO",
+                        comType : "ti-label",
+                        comConf : {
+                          dict : "ColumnTypes"
+                        }
+                      }
+                    }, {
+                      title : "存储长度",
+                      width : 100,
+                      display : "width::align-right"
+                    }, {
+                      title : "不可为空",
+                      width : 80,
+                      display : "<=TiLabel:notNull>.align-center=>Ti.Types.toBoolStr(null,'i18n:yes')"
+                    }, {
+                      title : "可插入",
+                      width : 50,
+                      display : "<=TiLabel:insert>.align-center=>Ti.Types.toBoolStr(null,'i18n:yes')"
+                    }, {
+                      title : "可更新",
+                      width : 50,
+                      display : "<=TiLabel:update>.align-center=>Ti.Types.toBoolStr(null,'i18n:yes')"
+                    }]
+                  },
+                  dialog : {
+                    title  : "编辑字段",
+                    width  : 640,
+                    height : 0.8
+                  }
+                }
+              }]
+          },
+          //............................
+          // 内置字段
+          //............................
+          {
+            title : "内置字段",
+            fields : [{
+              name : "objKeys",
+              type : "Array",
+              comType : "ti-bullet-checkbox",
+              comConf : {
+                className : "ti-cover-parent",
+                options: "#BuiltInFields",
+                style : {
+                  padding : "1em"
+                }
+              }
+            }]
+          },
+          //............................
+          // 索引
+          //............................
+          {
+            title : "索引",
+            fields : [{
+              name : "indexes",
+              type : "Array",
+              comType : "ti-combo-table",
+              comConf : {
+                className : "ti-fill-parent",
+                form : {
+                  fields : [{
+                      title : "唯一性索引",
+                      name  : "unique",
+                      type  : "Boolean",
+                      comType : "ti-toggle"
+                    }, {
+                      title : "索引名称",
+                      name  : "name",
+                      comType : "ti-input"
+                    }, {
+                      title : "索引字段",
+                      name  : "fields",
+                      type  : "Array",
+                      comType : "ti-input-tags"
+                    }]
+                },
+                list : {
+                  fields: [{
+                    title : "索引名称",
+                    display : [
+                      "<=TiIcon:notNull>=>Ti.Types.toBoolStr(null,'fas-exclamation')",
+                      "name"]
+                  }, {
+                    title : "索引字段",
+                    display : "fields"
+                  }, {
+                    title : "唯一性",
+                    display : "<=TiLabel:unique>=>Ti.Types.toBoolStr(null,'唯一')"
+                  }]
+                },
+                dialog : {
+                  title  : "编辑索引",
+                  width  : 420,
+                  height : 500
+                }
+              }
+            }]
+          }
+          //............................
+        ]
+      }
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  methods : {
+    //------------------------------------
+    OnFormChange(payload) {
+      //console.log("change", payload)
+      let json = JSON.stringify(payload, null, '   ')
+      this.$notify("change", json)
+    },
+    //------------------------------------
+    OnFormFieldChange(payload){
+      //console.log("field:change", payload)
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  watch : {
+    
+  }
+  /////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-media-image.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/media/image/ti-media-image.mjs'] = (function(){
@@ -30706,6 +31231,80 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'config-io-detail.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/hm/config/io/detail/config-io-detail.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  data: ()=>({
+  }),
+  /////////////////////////////////////////
+  props : {
+    "value" : {
+      type: [String, Object],
+      default: undefined
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //------------------------------------
+    MainData() {
+      if(_.isString(this.value)) {
+        let str = _.trim(this.value)
+        if(!str) {
+          return {}
+        }
+        return JSON.parse(str)
+      }
+      return _.cloneDeep(this.value)
+    },
+    //------------------------------------
+    MainCom() {
+      // Nil
+      if(!this.MainData) {
+        return {
+          comType : 'TiLoading',
+          comConf : {
+            className : "as-big",
+            icon: "zmdi-arrow-left",
+            text: "i18n:nil-detail"
+          }
+        }
+      }
+      // Dao Mapping
+      if(this.MainData.dao && _.isArray(this.MainData.fields)) {
+        return {
+          comType : 'HmConfigIoIxDao',
+          comConf : {
+            value : this.MainData
+          }
+        }
+      }
+      // Default as JSON
+      return {
+        comType : "TiTextJson",
+        comConf : {
+          value : this.MainData
+        }
+      }
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  methods : {
+    //------------------------------------
+    
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  watch : {
+    
+  }
+  /////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-combo-table.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/combo/table/ti-combo-table.mjs'] = (function(){
@@ -35865,6 +36464,13 @@ const _M = {
         }
         field.serializer = Ti.Util.genInvoking(field.serializer, invokeOpt)
         field.transformer = Ti.Util.genInvoking(field.transformer, invokeOpt)
+        if(fld.required) {
+          if(_.isBoolean(fld.required)) {
+            field.required = true
+          } else {
+            field.required = Ti.AutoMatch.test(fld.required, this.data)
+          }
+        }
 
         // Done
         return field
@@ -36705,6 +37311,213 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'hm-prop-class-picker.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/hm/prop/class-picker/hm-prop-class-picker.mjs'] = (function(){
+const _M = {
+  //////////////////////////////////////////////////////
+  data : ()=>({
+    myTexts : {},
+    myNames : {},
+    myBools : {}
+  }),
+  //////////////////////////////////////////////////////
+  props : {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "value" : {
+      type : [Object, String, Array]
+    },
+    "dftValue" : {
+      type : [Object, String, Array]
+    },
+    "valueType" : {
+      type : String,
+      default : "auto",
+      validator : v => /^(auto|String|Object|Array)$/.test(v)
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "form" : {
+      type : Object,
+      default : ()=>({})
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "dialogWidth" : {
+      type : [String, Number],
+      default : "5rem"
+    },
+    "dialogHeight" : {
+      type : [String, Number],
+      default : "6.4rem"
+    }
+  },
+  //////////////////////////////////////////////////////
+  computed : {
+    //--------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------------------
+    InputValueType() {
+      return _.upperFirst(typeof this.value)
+    },
+    //--------------------------------------------------
+    TheValueType() {
+      return "auto" == this.valueType
+        ? this.InputValueType
+        : this.valueType
+    },
+    //--------------------------------------------------
+    ValueData() {
+      let val = this.value
+      if(_.isEmpty(val)) {
+        val = this.dftValue
+      }
+      return Ti.Css.mergeClassName(val)
+    },
+    //--------------------------------------------------
+    ValueTexts() {
+      let names = Ti.Util.truthyKeys(this.ValueData)
+      return _.map(names, nm=>this.myTexts[nm])
+    }
+    //--------------------------------------------------
+  },
+  //////////////////////////////////////////////////////
+  methods : {
+    //--------------------------------------------------
+    async OnClickTop() {
+      // Eval result
+      let result = {}
+      let keys = Ti.Util.truthyKeys(this.ValueData)
+      for(let key of keys) {
+        // Boolean name
+        let k = this.myBools[key]
+        if(k) {
+          result[k] = true
+          continue
+        }
+        // Normal name
+        k = this.myNames[key]
+        if(k) {
+          result[k] = key
+        }
+      }
+
+      // Open dialog
+      let reo = await Ti.App.Open({
+        title : "i18n:hmk-class-pick",
+        width : this.dialogWidth,
+        height : this.dialogHeight,
+        position : "top",
+        result,
+        model : {prop:"data", event:"change"},
+        comType : "TiForm",
+        comConf : this.form
+      })
+      
+      // User cancle
+      if(!reo)
+        return
+
+      //console.log(reo)
+
+      // Cover to classObject
+      let css = {}
+      _.forEach(reo, (val, key)=>{
+        if(!val)
+          return
+        let k = _.kebabCase(key)
+        if(_.isBoolean(val)) {
+          css[k] = true
+        }
+        // grouped class name
+        else {
+          k = _.kebabCase(val)
+          css[k] = true
+        }
+      })
+      //console.log("CSS", css)
+
+      // Normlized to value
+      let val = this.normalizeValue(css)
+
+      this.$notify("change", val)
+    },
+    //--------------------------------------------------
+    OnClickCleaner() {
+      let val = this.normalizeValue({})
+      this.$notify("change", val)
+    },
+    //--------------------------------------------------
+    normalizeValue(css) {
+      return ({
+        "Object" : css => css,
+        "Array"  : css => Ti.Util.truthyKeys(css),
+        "String" : css => Ti.Util.truthyKeys(css).join(" "),
+      })[this.TheValueType](css)
+    },
+    //--------------------------------------------------
+    evalOptions() {
+      let texts = {}
+      let names = {}
+      let bools = {}
+      const grouping = (fields)=>{
+        // Guard
+        if(!_.isArray(fields)) {
+          return
+        }
+        // Loop
+        for(let fld of fields) {
+          if(fld.name) {
+            let targetKey = fld.name
+            //
+            // Options
+            //
+            let options = _.get(fld, "comConf.options")
+            if(_.isArray(options)) {
+              for(let it of options) {
+                if(it.value) {
+                  names[it.value] = targetKey
+                  texts[it.value] = Ti.I18n.text(it.text)
+                }
+              }
+            }
+            //
+            // Toggle
+            else if("Boolean" == fld.type) {
+              let k = _.kebabCase(fld.name)
+              bools[k] = fld.name
+              texts[k] = Ti.I18n.text(fld.title)
+            }
+          }
+          // Recur
+          grouping(fld.fields)
+        }
+      };
+      grouping(this.form.fields)
+      this.myNames = names
+      this.myTexts = texts
+      this.myBools = bools
+    }
+    //--------------------------------------------------
+  },
+  //////////////////////////////////////////////////////
+  watch : {
+    "form" : {
+      handler : "evalOptions",
+      immediate : true
+    }
+  }
+  //////////////////////////////////////////////////////
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'm-thing-current-actions.mjs' -> null
@@ -40499,6 +41312,128 @@ const _M = {
   ///////////////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'hm-config-io.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/hm/config/io/hm-config-io.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  data: ()=>({
+    oHome : undefined
+  }),
+  /////////////////////////////////////////
+  props : {
+    "home" : {
+      type: [String, Object],
+      default: undefined
+    }
+  },
+  /////////////////////////////////////////
+  computed : {
+    //------------------------------------
+    isViewReady() {
+      return this.oHome ? true : false
+    },
+    //------------------------------------
+    FilesetListConf() {
+      return {
+        meta : "=meta",
+        viewReady : this.isViewReady,
+        metaType : null,
+        createTip : "请输入新项目的名称",
+        listTitle : "映射列表",
+        listSize : 200,
+        detailIcon  : "fas-traffic-light",
+        detailTitle : "映射详情",
+        detailType : "HmConfigIoDetail",
+        detailConf : {
+          
+        }
+      }
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  methods : {
+    //------------------------------------
+    OnTabsInit($tabs) {
+      this.$tabs = $tabs;
+    },
+    //------------------------------------------------
+    doCreate(payload) {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        $mcom.doCreate(payload)
+      }
+    },
+    //------------------------------------------------
+    doDelete(payload) {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        $mcom.doDelete(payload)
+      }
+    },
+    //------------------------------------------------
+    doRename(payload) {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        $mcom.doRename(payload)
+      }
+    },
+    //------------------------------------------------
+    async openContentEditor() {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom && $mcom.hasCurrent) {
+        return await $mcom.openContentEditor()
+      }
+    },
+    //------------------------------------------------
+    async openCurrentMeta() {
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom && $mcom.hasCurrent) {
+        return await $mcom.openCurrentMeta()
+      }
+      await Ti.App(this).dispatch("current/openMetaEditor")
+    },
+    //------------------------------------------------
+    async reloadAll() {
+      Ti.App(this).commit("current/setStatus", {reloading:true})
+      // Reload self
+      await this.reload()
+
+      // Reload tabs
+      await this.$tabs.reload()
+
+      // Reload main
+      let $mcom = this.$tabs.$MainCom()
+      if($mcom) {
+        await $mcom.reload()
+      }
+      Ti.App(this).commit("current/setStatus", {reloading:false})
+    },
+    //------------------------------------
+    async reload() {
+      if(this.home) {
+        if(_.isString(this.home)) {
+          this.oHome = await Wn.Io.loadMeta(this.home)
+        } else {
+          this.oHome = _.cloneDeep(this.home)
+        }
+      }
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  watch : {
+    "home" : {
+      handler : "reload",
+      immediate : true
+    }
+  }
+  /////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'site-config.mjs' -> null
@@ -60346,6 +61281,167 @@ return __TI_MOD_EXPORT_VAR_NM;;
 })();   // ~ windows.TI_EXPORTS
 (function(){
 //========================================
+// JOIN <config-io-detail.html> ti/com/hm/config/io/detail/config-io-detail.html
+//========================================
+Ti.Preload("ti/com/hm/config/io/detail/config-io-detail.html", `<div class="config-io-detail">
+  <component
+    class="ti-fill-parent"
+    :is="MainCom.comType"
+    v-bind="MainCom.comConf"/>
+</div>`);
+//========================================
+// JOIN <config-io-detail.mjs> ti/com/hm/config/io/detail/config-io-detail.mjs
+//========================================
+Ti.Preload("ti/com/hm/config/io/detail/config-io-detail.mjs", TI_PACK_EXPORTS['ti/com/hm/config/io/detail/config-io-detail.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/hm/config/io/detail/_com.json
+//========================================
+Ti.Preload("ti/com/hm/config/io/detail/_com.json", {
+  "name" : "hm-config-io-detail",
+  "globally" : true,
+  "template" : "./config-io-detail.html",
+  "mixins"   : ["./config-io-detail.mjs"],
+  "components" : [
+    "@com:ti/text/json",
+    "@com:hm/config/io/ix/dao"
+  ]
+});
+//========================================
+// JOIN <hm-config-io.html> ti/com/hm/config/io/hm-config-io.html
+//========================================
+Ti.Preload("ti/com/hm/config/io/hm-config-io.html", `<WnFilesetTabs
+  :meta="oHome"
+  :view-ready="isViewReady"
+  com-type="wn-fileset-list"
+  :com-conf="FilesetListConf"
+  :on-init="OnTabsInit"/>`);
+//========================================
+// JOIN <hm-config-io.mjs> ti/com/hm/config/io/hm-config-io.mjs
+//========================================
+Ti.Preload("ti/com/hm/config/io/hm-config-io.mjs", TI_PACK_EXPORTS['ti/com/hm/config/io/hm-config-io.mjs']);
+//========================================
+// JOIN <io-ix-dao.html> ti/com/hm/config/io/ix/dao/io-ix-dao.html
+//========================================
+Ti.Preload("ti/com/hm/config/io/ix/dao/io-ix-dao.html", `<TiForm
+  class="hm-config-io-ix-dao auto-fit-tab-field no-pad-tab-body"
+  v-bind="FormConf"
+  :data="TheData"
+  @change="OnFormChange"
+  @field:change="OnFormFieldChange"/>`);
+//========================================
+// JOIN <io-ix-dao.mjs> ti/com/hm/config/io/ix/dao/io-ix-dao.mjs
+//========================================
+Ti.Preload("ti/com/hm/config/io/ix/dao/io-ix-dao.mjs", TI_PACK_EXPORTS['ti/com/hm/config/io/ix/dao/io-ix-dao.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/hm/config/io/ix/dao/_com.json
+//========================================
+Ti.Preload("ti/com/hm/config/io/ix/dao/_com.json", {
+  "name" : "hm-config-io-ix-dao",
+  "globally" : true,
+  "template" : "./io-ix-dao.html",
+  "mixins"   : ["./io-ix-dao.mjs"],
+  "components" : [
+    "@com:ti/combo/table",
+    "@com:ti/bullet/checkbox"
+  ]
+});
+//========================================
+// JOIN <_com.json> ti/com/hm/config/io/_com.json
+//========================================
+Ti.Preload("ti/com/hm/config/io/_com.json", {
+  "name" : "hm-config-io",
+  "globally" : true,
+  "template" : "./hm-config-io.html",
+  "mixins"   : ["./hm-config-io.mjs"],
+  "components" : [
+    "@com:hm/config/io/detail"
+  ]
+});
+//========================================
+// JOIN <hm-prop-class-picker.html> ti/com/hm/prop/class-picker/hm-prop-class-picker.html
+//========================================
+Ti.Preload("ti/com/hm/prop/class-picker/hm-prop-class-picker.html", `<div class="hm-prop-class-picker full-field"
+  :class="TopClass"
+  @click.left="OnClickTop"
+  v-ti-activable>
+  <div
+    v-for="txt of ValueTexts"
+      class="as-name-item"><span>{{txt}}</span></div>
+  <!--
+    Clean btn
+  -->
+  <div class="as-cleaner"
+    @click.left.stop="OnClickCleaner">
+    <span><i class="zmdi zmdi-close"></i></span>
+  </div>
+</div>`);
+//========================================
+// JOIN <hm-prop-class-picker.mjs> ti/com/hm/prop/class-picker/hm-prop-class-picker.mjs
+//========================================
+Ti.Preload("ti/com/hm/prop/class-picker/hm-prop-class-picker.mjs", TI_PACK_EXPORTS['ti/com/hm/prop/class-picker/hm-prop-class-picker.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/hm/prop/class-picker/_com.json
+//========================================
+Ti.Preload("ti/com/hm/prop/class-picker/_com.json", {
+  "name" : "hm-prop-class-picker",
+  "globally" : true,
+  "template" : "./hm-prop-class-picker.html",
+  "mixins" : ["./hm-prop-class-picker.mjs"],
+  "components" : [
+    "@com:ti/form"]
+});
+//========================================
+// JOIN <hm-prop-css-rules.html> ti/com/hm/prop/css-rules/hm-prop-css-rules.html
+//========================================
+Ti.Preload("ti/com/hm/prop/css-rules/hm-prop-css-rules.html", `<div class="hm-prop-css-rules full-field"
+  :class="TopClass"
+  v-ti-activable>
+  <!--
+    ActionBar
+  -->
+  <TiActionbar :items="ActionItems"/>
+  <!--
+    Empty
+  -->
+  <TiButton
+    v-if="isEmpty"
+      size="small"
+      :setup="EmptyButtonSetup"/>
+  <!--
+    Value table
+  -->
+  <table
+    v-else>
+      <tr
+        v-for="row in ValueTable">
+          <td class="as-title-cell">
+            <span class="as-title">{{row.title}}</span>
+          </td>
+          <td class="as-value-cell">
+            <span class="as-value">{{row.value}}</span>
+            <span class="as-remove" @click.left="OnRemoveValue(row)">
+              <i class="zmdi zmdi-close"></i>
+            </span>
+          </td>
+      </tr>
+  </table>
+</div>`);
+//========================================
+// JOIN <hm-prop-css-rules.mjs> ti/com/hm/prop/css-rules/hm-prop-css-rules.mjs
+//========================================
+Ti.Preload("ti/com/hm/prop/css-rules/hm-prop-css-rules.mjs", TI_PACK_EXPORTS['ti/com/hm/prop/css-rules/hm-prop-css-rules.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/hm/prop/css-rules/_com.json
+//========================================
+Ti.Preload("ti/com/hm/prop/css-rules/_com.json", {
+  "name" : "hm-prop-css-rules",
+  "globally" : true,
+  "template" : "./hm-prop-css-rules.html",
+  "mixins" : ["./hm-prop-css-rules.mjs"],
+  "components" : [
+    "@com:ti/form"]
+});
+//========================================
 // JOIN <vod-manager.html> ti/com/net/aliyun/vod/manager/vod-manager.html
 //========================================
 Ti.Preload("ti/com/net/aliyun/vod/manager/vod-manager.html", `<ti-gui
@@ -62091,7 +63187,7 @@ Ti.Preload("ti/com/ti/form/com/form-field/form-field.html", `<div class="form-fi
     Field Name
   -->
   <div 
-    v-if="isShowTitle"
+    v-if="isShowTitle || required"
       class="field-name"
       :title="StatusText">
         <!--Status Icon-->
@@ -62101,7 +63197,13 @@ Ti.Preload("ti/com/ti/form/com/form-field/form-field.html", `<div class="form-fi
             <ti-icon :value="StatusIcon"/>
         </span>
         <!--Title Text-->
-        <span class="name-title">{{TheTitle|i18n}}</span>
+        <span
+          v-if="isShowTitle"
+            class="name-title">{{TheTitle|i18n}}</span>
+        <!--Required-->
+        <span
+          v-if="required"
+            class="name-required">*</span>
         <!--Field Icon-->
         <span 
           v-if="isShowIcon" 

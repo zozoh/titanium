@@ -413,7 +413,6 @@ class OneTiApp {
       //.....................................
       // Define the com
       //console.log("define com:", comName)
-      //Vue.component(comName, setup.options)
       TiVue.registerComponent(comName, setup.options)
     }
     //.....................................
@@ -424,7 +423,6 @@ class OneTiApp {
 
       // Regist it
       //console.log("define com:", com.name)
-      //Vue.component(com.name, com)
       TiVue.registerComponent(com.name, com)
     })
     //.....................................

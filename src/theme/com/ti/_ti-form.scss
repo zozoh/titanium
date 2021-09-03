@@ -14,12 +14,12 @@
     transition: opacity .5s;
     flex: 1 1 auto;
     //----------------------------------
-    &.as-required {
-      .field-name .name-title:after {
-        @include color($color-error, c);
-        content:"*"; display: inline;
-        font-weight: bold;
-      }
+    > .field-name .name-required {
+      @include font-fixed;
+      @include color($color-error, c);
+      content:"*"; display: inline;
+      font-weight: bold;
+      margin:0 0 0 .06rem;
     }
     //----------------------------------
   }

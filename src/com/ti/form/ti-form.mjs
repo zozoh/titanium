@@ -490,6 +490,13 @@ const _M = {
         }
         field.serializer = Ti.Util.genInvoking(field.serializer, invokeOpt)
         field.transformer = Ti.Util.genInvoking(field.transformer, invokeOpt)
+        if(fld.required) {
+          if(_.isBoolean(fld.required)) {
+            field.required = true
+          } else {
+            field.required = Ti.AutoMatch.test(fld.required, this.data)
+          }
+        }
 
         // Done
         return field

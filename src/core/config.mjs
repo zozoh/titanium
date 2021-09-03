@@ -187,7 +187,7 @@ const TiConfig = {
     
     // The prefix has not been supported, maybe the email suffix,
     // or other text starts with "@"
-    if(!prefix) {
+    if(Ti.Util.isNil(prefix)) {
       //throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName)
       return
     }

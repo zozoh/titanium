@@ -6,7 +6,7 @@
     Field Name
   -->
   <div 
-    v-if="isShowTitle"
+    v-if="isShowTitle || required"
       class="field-name"
       :title="StatusText">
         <!--Status Icon-->
@@ -16,7 +16,13 @@
             <ti-icon :value="StatusIcon"/>
         </span>
         <!--Title Text-->
-        <span class="name-title">{{TheTitle|i18n}}</span>
+        <span
+          v-if="isShowTitle"
+            class="name-title">{{TheTitle|i18n}}</span>
+        <!--Required-->
+        <span
+          v-if="required"
+            class="name-required">*</span>
         <!--Field Icon-->
         <span 
           v-if="isShowIcon" 

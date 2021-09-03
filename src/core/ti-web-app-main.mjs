@@ -78,9 +78,9 @@ export async function WebAppMain({
     suffix : {
       "^@theme:"              : ".css",
       "^@app:"                : "/_app.json",
-      "(^@mod:|[\/:]mod\/)"   : "/_mod.json",
-      "(^@com:|[\/:]com\/)"   : "/_com.json",
-      "(^@i18n:|[\/:]i18n\/)" : ".i18n.json"
+      "(^@mod:|(^|[\/:])mod\/)"   : "/_mod.json",
+      "(^@com:|(^|[\/:])com\/)"   : "/_com.json",
+      "(^@i18n:|(^|[\/:])i18n\/)" : ".i18n.json"
     },
     lang
   })

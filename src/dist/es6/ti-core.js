@@ -1,4 +1,4 @@
-// Pack At: 2021-08-30 01:14:15
+// Pack At: 2021-09-03 22:48:32
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3564,7 +3564,6 @@ const {App} = (function(){
         //.....................................
         // Define the com
         //console.log("define com:", comName)
-        //Vue.component(comName, setup.options)
         TiVue.registerComponent(comName, setup.options)
       }
       //.....................................
@@ -3575,7 +3574,6 @@ const {App} = (function(){
   
         // Regist it
         //console.log("define com:", com.name)
-        //Vue.component(com.name, com)
         TiVue.registerComponent(com.name, com)
       })
       //.....................................
@@ -3882,7 +3880,7 @@ const {Config} = (function(){
       
       // The prefix has not been supported, maybe the email suffix,
       // or other text starts with "@"
-      if(!prefix) {
+      if(Ti.Util.isNil(prefix)) {
         //throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName)
         return
       }
@@ -16322,9 +16320,9 @@ const {WebAppMain} = (function(){
       suffix : {
         "^@theme:"              : ".css",
         "^@app:"                : "/_app.json",
-        "(^@mod:|[\/:]mod\/)"   : "/_mod.json",
-        "(^@com:|[\/:]com\/)"   : "/_com.json",
-        "(^@i18n:|[\/:]i18n\/)" : ".i18n.json"
+        "(^@mod:|(^|[\/:])mod\/)"   : "/_mod.json",
+        "(^@com:|(^|[\/:])com\/)"   : "/_com.json",
+        "(^@i18n:|(^|[\/:])i18n\/)" : ".i18n.json"
       },
       lang
     })
@@ -16573,9 +16571,10 @@ function Preload(url, anyObj) {
 //---------------------------------------
 let RS_PREFIXs = [];
 function AddResourcePrefix(...prefixes) {
-  for(let prefix of prefixes) {
-    if(prefix) {
-      if(!prefix.endsWith("/")) {
+  let list = _.flattenDeep(prefixes)
+  for(let prefix of list) {
+    if(!Ti.Util.isNil(prefix) && _.indexOf(RS_PREFIXs, prefix)<0) {
+      if(prefix && !prefix.endsWith("/")) {
         RS_PREFIXs.push(prefix + "/")
       } else {
         RS_PREFIXs.push(prefix)
@@ -16589,7 +16588,7 @@ function MatchCache(url) {
     return
   }
   for(let prefix of RS_PREFIXs) {
-    if(prefix && url.startsWith(prefix)) {
+    if(!Ti.Util.isNil(prefix) && url.startsWith(prefix)) {
       url = url.substring(prefix.length)
       break
     }
@@ -16598,7 +16597,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210830.011415",
+  "version" : "1.6-20210903.224832",
   "dev" : false,
   "appName" : null,
   "session" : {},

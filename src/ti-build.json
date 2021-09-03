@@ -10,7 +10,7 @@
       }, {
         "path": "com",
         "prefix": "ti/com/",
-        "includes": "^(hmaker|ti|net|web|wn)/.+$",
+        "includes": "^(hm|net|ti|web|wn)/.+$",
         "target": "all"
       }, {
         "path": "mod",
