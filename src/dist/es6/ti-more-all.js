@@ -1,4 +1,4 @@
-// Pack At: 2021-09-03 22:48:32
+// Pack At: 2021-09-10 20:11:05
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12719,7 +12719,7 @@ const _M = {
     if(!state.chart.data) {
       return
     }
-    //console.log({force, cleanCache})
+    // console.log({force, cleanCache, done})
     // 准备时间区间
     let today = _.get(state, "chartStatus.date") || "today"
     let span  = _.get(state, "chartStatus.span") || "7d"
@@ -16590,6 +16590,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.$notify("reload:data", {
         force, cleanCache, 
         done: ()=>{
+          // console.log("reloadData done!")
           this.myActionStatus = {}
         }
       })
@@ -28323,7 +28324,7 @@ const _M = {
     },
     //--------------------------------------
     __on_events(name, payload) {
-      //console.log("__on_events", name, payload)
+      // console.log("__on_events", name, payload)
       // Special event 
       if(/^main::arena::(.+::)?select$/.test(name)) {
         this.OnArenaSelect(payload)
@@ -28342,7 +28343,9 @@ const _M = {
       // Gen invoking
       return Ti.Shortcut.genEventActionInvoking(fn, {
         app: Ti.App(this),
-        context: _.assign({}, payload, this.RootState),
+        context: _.assign({
+          $args: [payload]
+        }, payload, this.RootState),
         funcSet: this
       })
     },

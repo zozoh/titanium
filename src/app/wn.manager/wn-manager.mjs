@@ -271,7 +271,7 @@ const _M = {
     },
     //--------------------------------------
     __on_events(name, payload) {
-      //console.log("__on_events", name, payload)
+      // console.log("__on_events", name, payload)
       // Special event 
       if(/^main::arena::(.+::)?select$/.test(name)) {
         this.OnArenaSelect(payload)
@@ -290,7 +290,9 @@ const _M = {
       // Gen invoking
       return Ti.Shortcut.genEventActionInvoking(fn, {
         app: Ti.App(this),
-        context: _.assign({}, payload, this.RootState),
+        context: _.assign({
+          $args: [payload]
+        }, payload, this.RootState),
         funcSet: this
       })
     },

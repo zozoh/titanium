@@ -23,7 +23,7 @@ const _M = {
     if(!state.chart.data) {
       return
     }
-    //console.log({force, cleanCache})
+    // console.log({force, cleanCache, done})
     // 准备时间区间
     let today = _.get(state, "chartStatus.date") || "today"
     let span  = _.get(state, "chartStatus.span") || "7d"
