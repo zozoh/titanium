@@ -271,6 +271,17 @@ const _M = {
     },
     //--------------------------------------
     //
+    // Events
+    //
+    //--------------------------------------
+    fire(name, payload) {
+      let func = this.__on_events(name, payload)
+      if(_.isFunction(func)) {
+        func.apply(this, [payload])
+      }
+    },
+    //--------------------------------------
+    //
     // Callback
     //
     //--------------------------------------

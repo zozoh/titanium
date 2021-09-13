@@ -1,4 +1,4 @@
-// Pack At: 2021-09-10 20:11:05
+// Pack At: 2021-09-13 14:00:22
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -18700,6 +18700,17 @@ const _M = {
     commit(name, payload) {
       let path = Ti.Util.appendPath(this.moduleName, name)
       return Ti.App(this).commit(path, payload)
+    },
+    //--------------------------------------
+    //
+    // Events
+    //
+    //--------------------------------------
+    fire(name, payload) {
+      let func = this.__on_events(name, payload)
+      if(_.isFunction(func)) {
+        func.apply(this, [payload])
+      }
     },
     //--------------------------------------
     //
