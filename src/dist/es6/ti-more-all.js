@@ -1,4 +1,4 @@
-// Pack At: 2021-09-13 14:00:22
+// Pack At: 2021-09-14 00:10:36
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -75242,6 +75242,8 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-th-acc-pwd-done": "Password has been reset for ${n} users",
   "wn-th-acc-pwd-invalid": "Illegal characters found in password",
   "wn-th-acc-pwd-reset-tip": "Reset password to",
+  "wn-th-acc-pwd-reset-tip-1": "Reset password of [${name}] to",
+  "wn-th-acc-pwd-reset-tip-N": "Reset the passwords of [${name}] and other ${N} accounts to",
   "wn-th-acc-pwd-too-short": "Password too short, no less than 6 digits, better contains alphanumeric & special chars",
   "wn-th-recount-media": "Recalculate file number",
   "wn-th-recount-media-done": "Current number of files: ${n}"
@@ -76690,6 +76692,8 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-th-acc-pwd-done": "已经为${n}名用户重置了密码",
   "wn-th-acc-pwd-invalid": "密码中不得包含单双引号星号等非法字符",
   "wn-th-acc-pwd-reset-tip": "将密码重置为",
+  "wn-th-acc-pwd-reset-tip-1": "将【${name}】的密码重置为",
+  "wn-th-acc-pwd-reset-tip-N": "将【${name}】等${N}个账号的密码统统重置为",
   "wn-th-acc-pwd-too-short": "您输入的密码过短，不能少于6位，最好为数字字母以及特殊字符的组合",
   "wn-th-recount-media": "重新计算当前文件数量",
   "wn-th-recount-media-done": "当前文件数量: ${n}"
@@ -78097,6 +78101,8 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-th-acc-pwd-done": "已經爲${n}名用戶重置了密碼",
    "wn-th-acc-pwd-invalid": "密碼中不得包含單雙引號星號等非法字符",
    "wn-th-acc-pwd-reset-tip": "將密碼重置爲",
+   "wn-th-acc-pwd-reset-tip-1": "將【${name}】的密碼重置爲",
+   "wn-th-acc-pwd-reset-tip-N": "將【${name}】等${N}個賬號的密碼統統重置爲",
    "wn-th-acc-pwd-too-short": "您輸入的密碼過短，不能少於6位，最好爲數字字母以及特殊字符的組合",
    "wn-th-recount-media": "重新計算當前文件數量",
    "wn-th-recount-media-done": "當前文件數量: ${n}"

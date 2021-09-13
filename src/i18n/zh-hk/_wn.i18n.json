@@ -86,6 +86,8 @@
    "wn-th-acc-pwd-done": "已經爲${n}名用戶重置了密碼",
    "wn-th-acc-pwd-invalid": "密碼中不得包含單雙引號星號等非法字符",
    "wn-th-acc-pwd-reset-tip": "將密碼重置爲",
+   "wn-th-acc-pwd-reset-tip-1": "將【${name}】的密碼重置爲",
+   "wn-th-acc-pwd-reset-tip-N": "將【${name}】等${N}個賬號的密碼統統重置爲",
    "wn-th-acc-pwd-too-short": "您輸入的密碼過短，不能少於6位，最好爲數字字母以及特殊字符的組合",
    "wn-th-recount-media": "重新計算當前文件數量",
    "wn-th-recount-media-done": "當前文件數量: ${n}"
