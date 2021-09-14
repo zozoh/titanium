@@ -18,7 +18,7 @@ async function EditObjPrivilege(pathOrObj="~", {
     meta = await Wn.Io.loadMeta(pathOrObj)
   }
   //............................................
-  let theTitle = Ti.I18n.text(title) + " : " + (meta.title||meta.nm)
+  let theTitle = Ti.I18n.text(title) + " : " + Ti.I18n.text(meta.title||meta.nm)
   //............................................
   let pvg = await Ti.App.Open({
     //------------------------------------------

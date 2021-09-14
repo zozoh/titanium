@@ -332,6 +332,7 @@
   "role-as-domain-admin": "管理员",
   "role-as-domain-member": "成员",
   "role-as-domain-guest": "访客",
+  "role-as-op": "运维角色",
   "role-dft": "默认角色",
   "role-flt-tip": "请输入角色名过滤",
   "role-manage": "角色管理",

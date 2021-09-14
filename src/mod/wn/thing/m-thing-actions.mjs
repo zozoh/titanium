@@ -75,6 +75,31 @@ const _M = {
     commit("search/updateItem", state.current.meta)
   },
   //--------------------------------------------
+  async openCurrentPrivilege({ state, dispatch }) {
+    let meta = _.get(state.current, "meta") || state.meta
+
+    if (!meta) {
+      await Ti.Toast.Open("i18n:nil-obj")
+      return
+    }
+
+    let newMeta = await Wn.EditObjPrivilege(meta)
+
+    // Update to current list
+    if (newMeta) {
+      // Update ThingSet
+      if (state.meta.id == newMeta.id) {
+        await dispatch("reload", newMeta)
+      }
+      // Update Selected item
+      else {
+        await dispatch("setCurrentMeta", newMeta)
+      }
+    }
+
+    return newMeta
+  },
+  //--------------------------------------------
   /***
    * Files: sync the file count and update to search/meta
    */

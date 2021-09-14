@@ -332,6 +332,7 @@
   "role-as-domain-admin": "Admin",
   "role-as-domain-member": "Member",
   "role-as-domain-guest": "Guest",
+  "role-as-op": "Op role",
   "role-dft": "Default role",
   "role-flt-tip": "Filter by role name",
   "role-manage": "Roles",
