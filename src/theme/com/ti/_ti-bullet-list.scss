@@ -25,6 +25,12 @@
     .ti-icon {
       margin-right: 1em; height: 1.8em;
       > i {transition: transform 0.5s;}
+      &.is-image .icon-icon {
+        height: 100%;
+        img {
+          width:1.8em;
+        }
+      }
     }
     //-----------------------------------
   }
