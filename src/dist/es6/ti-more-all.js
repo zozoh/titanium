@@ -1,4 +1,4 @@
-// Pack At: 2021-09-14 00:10:36
+// Pack At: 2021-09-14 16:57:48
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8015,6 +8015,31 @@ const _M = {
     commit("search/updateItem", state.current.meta)
   },
   //--------------------------------------------
+  async openCurrentPrivilege({ state, dispatch }) {
+    let meta = _.get(state.current, "meta") || state.meta
+
+    if (!meta) {
+      await Ti.Toast.Open("i18n:nil-obj")
+      return
+    }
+
+    let newMeta = await Wn.EditObjPrivilege(meta)
+
+    // Update to current list
+    if (newMeta) {
+      // Update ThingSet
+      if (state.meta.id == newMeta.id) {
+        await dispatch("reload", newMeta)
+      }
+      // Update Selected item
+      else {
+        await dispatch("setCurrentMeta", newMeta)
+      }
+    }
+
+    return newMeta
+  },
+  //--------------------------------------------
   /***
    * Files: sync the file count and update to search/meta
    */
@@ -8421,7 +8446,7 @@ const _M = {
   /***
    * Reload All
    */
-  async reload({ state, commit, dispatch, getters }, meta) {
+  async reload({ state, commit, dispatch, getters, rootState }, meta) {
     //console.log("thing-manager.reload", state)
     // Reload meta
     if (_.isString(meta)) {
@@ -8492,6 +8517,11 @@ const _M = {
 
     // Customized behavior
     let behavior = _.get(state.config.schema, "behavior") || {}
+    behavior = Ti.Util.explainObj({
+      root: rootState,
+      state,
+      meta
+    }, behavior)
 
     // Setup default filter and sorter
     let filter = _.assign({}, behavior.filter, local.filter, {
@@ -18558,7 +18588,17 @@ const _M = {
     },
     //--------------------------------------
     TheSchema() {
-      return Ti.Util.explainObj(this, this.config.schema)
+      // schema.behavior has been explain already when store reload
+      // here we need skip it
+      let schema = {}
+      _.forEach(this.config.schema, (val, key)=>{
+        if(/^(behavior)$/.test(key)) {
+          return
+        }
+        let v2 = Ti.Util.explainObj(this, val)
+        schema[key] = v2
+      })
+      return schema
     },
     //--------------------------------------
     TheLoadingAs() {
@@ -74576,6 +74616,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "role-as-domain-admin": "Admin",
   "role-as-domain-member": "Member",
   "role-as-domain-guest": "Guest",
+  "role-as-op": "Op role",
   "role-dft": "Default role",
   "role-flt-tip": "Filter by role name",
   "role-manage": "Roles",
@@ -76026,6 +76067,7 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "role-as-domain-admin": "管理员",
   "role-as-domain-member": "成员",
   "role-as-domain-guest": "访客",
+  "role-as-op": "运维角色",
   "role-dft": "默认角色",
   "role-flt-tip": "请输入角色名过滤",
   "role-manage": "角色管理",
@@ -77435,6 +77477,7 @@ Ti.Preload("ti/i18n/zh-hk/web.i18n.json", {
    "role-as-domain-admin": "管理員",
    "role-as-domain-member": "成員",
    "role-as-domain-guest": "訪客",
+   "role-as-op": "運維角色",
    "role-dft": "默認角色",
    "role-flt-tip": "請輸入角色名過濾",
    "role-manage": "角色管理",

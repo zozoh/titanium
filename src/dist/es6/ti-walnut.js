@@ -1,4 +1,4 @@
-// Pack At: 2021-09-14 00:10:36
+// Pack At: 2021-09-14 16:57:48
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1319,8 +1319,14 @@ const Session = (function(){
   ////////////////////////////////////////////
   const WnSession = {
     //----------------------------------------
-    setup({id,uid,unm,me,grp,envs={}}={}) {
-      _.assign(SESSION, {id,uid,unm,me,grp})
+    setup({
+      id, uid, unm, me, grp, 
+      by_tp, by_val, envs={}
+    }={}) {
+      _.assign(SESSION, {
+        id, uid, unm, me, grp, 
+        by_tp, by_val
+      })
       WnSession.env(envs)
     },
     //----------------------------------------
@@ -1347,8 +1353,50 @@ const Session = (function(){
     getMyName() {return SESSION.unm},
     getMyGroup() {return SESSION.grp},
     //----------------------------------------
+    getByType() {return SESSION.by_tp},
+    isByType(type) {
+      if(_.isRegExp(type)) {
+        return type.test(SESSION.by_tp)
+      }
+      if(_.isString(type) && type.startsWith("^")) {
+        return new RegExp(type).test(SESSION.by_tp)
+      }
+      return type == SESSION.by_tp
+    },
+    //----------------------------------------
+    getByValue() {return SESSION.by_val},
+    isByValue(val) {
+      if(_.isRegExp(val)) {
+        return val.test(SESSION.by_val)
+      }
+      if(_.isString(val) && val.startsWith("^")) {
+        return new RegExp(val).test(SESSION.by_val)
+      }
+      return val == SESSION.by_val
+    },
+    //----------------------------------------
     getMe() {
       return SESSION.me
+    },
+    //----------------------------------------
+    I_am_domain_ADMIN() {
+      let rid = _.get(SESSION.me, "roleInDomain")
+      return "ADMIN" == rid
+    },
+    //----------------------------------------
+    I_am_domain_MEMBER() {
+      let rid = _.get(SESSION.me, "roleInDomain")
+      return /^(ADMIN|MEMEBER)$/.test(rid)
+    },
+    //----------------------------------------
+    I_am_op_ADMIN() {
+      let rid = _.get(SESSION.me, "roleInOp")
+      return "ADMIN" == rid
+    },
+    //----------------------------------------
+    I_am_op_MEMBER() {
+      let rid = _.get(SESSION.me, "roleInOp")
+      return /^(ADMIN|MEMEBER)$/.test(rid)
     },
     //----------------------------------------
     getHomePath() {
@@ -3510,7 +3558,7 @@ const EditObjPrivilege = (function(){
       meta = await Wn.Io.loadMeta(pathOrObj)
     }
     //............................................
-    let theTitle = Ti.I18n.text(title) + " : " + (meta.title||meta.nm)
+    let theTitle = Ti.I18n.text(title) + " : " + Ti.I18n.text(meta.title||meta.nm)
     //............................................
     let pvg = await Ti.App.Open({
       //------------------------------------------
@@ -4071,7 +4119,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20210914.001036"
+const WALNUT_VERSION = "1.2-20210914.165748"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

@@ -126,7 +126,17 @@ const _M = {
     },
     //--------------------------------------
     TheSchema() {
-      return Ti.Util.explainObj(this, this.config.schema)
+      // schema.behavior has been explain already when store reload
+      // here we need skip it
+      let schema = {}
+      _.forEach(this.config.schema, (val, key)=>{
+        if(/^(behavior)$/.test(key)) {
+          return
+        }
+        let v2 = Ti.Util.explainObj(this, val)
+        schema[key] = v2
+      })
+      return schema
     },
     //--------------------------------------
     TheLoadingAs() {

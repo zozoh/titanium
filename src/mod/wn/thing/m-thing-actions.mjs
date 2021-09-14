@@ -506,7 +506,7 @@ const _M = {
   /***
    * Reload All
    */
-  async reload({ state, commit, dispatch, getters }, meta) {
+  async reload({ state, commit, dispatch, getters, rootState }, meta) {
     //console.log("thing-manager.reload", state)
     // Reload meta
     if (_.isString(meta)) {
@@ -577,6 +577,11 @@ const _M = {
 
     // Customized behavior
     let behavior = _.get(state.config.schema, "behavior") || {}
+    behavior = Ti.Util.explainObj({
+      root: rootState,
+      state,
+      meta
+    }, behavior)
 
     // Setup default filter and sorter
     let filter = _.assign({}, behavior.filter, local.filter, {
