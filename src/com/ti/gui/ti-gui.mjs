@@ -356,12 +356,14 @@ const _M = {
   //////////////////////////////////////////
   watch: {
     "shown": {
-      handler: function (shown) {
-        //console.log("ti-gui shown changed", shown)
-        this.syncMyShown(shown)
-        this.$nextTick(() => {
-          this.syncViewportMeasure();
-        })
+      handler: function (shown, old) {
+        if (old && !_.isEqual(shown, old)) {
+          console.log(`ti-gui: ${this.$parent.tiComId} shown changed`, shown)
+          this.syncMyShown(shown)
+          this.$nextTick(() => {
+            this.syncViewportMeasure();
+          })
+        }
       },
       immediate: true
     },

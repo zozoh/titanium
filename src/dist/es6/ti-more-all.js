@@ -1,4 +1,4 @@
-// Pack At: 2021-09-14 16:57:48
+// Pack At: 2021-09-15 23:55:06
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -51383,12 +51383,14 @@ const _M = {
   //////////////////////////////////////////
   watch: {
     "shown": {
-      handler: function (shown) {
-        //console.log("ti-gui shown changed", shown)
-        this.syncMyShown(shown)
-        this.$nextTick(() => {
-          this.syncViewportMeasure();
-        })
+      handler: function (shown, old) {
+        if (old && !_.isEqual(shown, old)) {
+          console.log(`ti-gui: ${this.$parent.tiComId} shown changed`, shown)
+          this.syncMyShown(shown)
+          this.$nextTick(() => {
+            this.syncViewportMeasure();
+          })
+        }
       },
       immediate: true
     },
