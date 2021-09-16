@@ -1,14 +1,62 @@
 const _M = {
   //--------------------------------------------
-  async doCheckMe({commit, dispatch, getters, rootState}, {
+  async showMyInfo({ state }) {
+    let me = state.me
+    if (!me) {
+      return await Ti.Toast.Open("Without session user", "warn")
+    }
+    let data = _.pick(me, "nm", "nickname", "email", "phone")
+    data.id = _.get(me.OID, "myId") || me.id
+    data.sex = _.nth(["i18n:unknown","i18n:male","i18n:female"], me.sex||0)
+    await Ti.App.Open({
+      title: "i18n:account",
+      position: "top",
+      width: "6.4rem",
+      height: "80%",
+      textOk: null,
+      textCancel: "i18n:close",
+      comType: "TiForm",
+      comConf: {
+        data,
+        fields: [
+          {
+            title: "ID",
+            name: "id"
+          },
+          {
+            title: "me-k-nickname",
+            name: "nickname"
+          },
+          {
+            title: "me-k-nm",
+            name: "nm"
+          },
+          {
+            title: "me-k-phone",
+            name: "phone"
+          },
+          {
+            title: "me-k-email",
+            name: "email"
+          },
+          {
+            title: "me-k-sex",
+            name: "sex"
+          }
+        ]
+      }
+    })
+  },
+  //--------------------------------------------
+  async doCheckMe({ commit, dispatch, getters, rootState }, {
     force = false,
     ok, fail, nophone, noemail
-  }={}) {
+  } = {}) {
     //console.log("I am doCheckMe", {force, ok, fail, nophone})
     // console.log(" -urls", getters.urls)
     // Guard SiteId
-    let siteId  = rootState.siteId
-    if(!siteId) {
+    let siteId = rootState.siteId
+    if (!siteId) {
       Ti.Alert("Without siteId!!!")
       return
     }
@@ -17,83 +65,83 @@ const _M = {
     let ticket = Ti.Storage.local.getString(`www-ticket-${siteId}`, "")
 
     // Check to remote
-    commit("setLoading", true, {root:true})
+    commit("setLoading", true, { root: true })
     // Current Session ...
     let reo = getters.sessionState
     // Need to re-checkme from remote
-    if(ticket && (force || !reo.ok)) {
+    if (ticket && (force || !reo.ok)) {
       reo = await Ti.Http.get(getters.urls["checkme"], {
-        params : {
-          site : siteId,
-          ticket 
+        params: {
+          site: siteId,
+          ticket
         },
-        as : "json"
+        as: "json"
       })
     }
-    commit("setLoading", false, {root:true})
+    commit("setLoading", false, { root: true })
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // success
-    if(reo.ok) {
+    if (reo.ok) {
       //console.log("checkme OK", reo)
       commit("setTicket", reo.data.ticket)
-      commit("setExpi",   reo.data.expi)
-      commit("setMe",     reo.data.me)
+      commit("setExpi", reo.data.expi)
+      commit("setMe", reo.data.me)
 
       // Check Phone
-      if(nophone) {
+      if (nophone) {
         let me = reo.data.me
-        if(!me.phone) {
-          return await dispatch("doAction", [nophone,reo], {root:true})
+        if (!me.phone) {
+          return await dispatch("doAction", [nophone, reo], { root: true })
         }
       }
       // Check Phone
-      if(noemail) {
+      if (noemail) {
         let me = reo.data.me
-        if(!me.email) {
-          return await dispatch("doAction", [noemail,reo], {root:true})
+        if (!me.email) {
+          return await dispatch("doAction", [noemail, reo], { root: true })
         }
       }
 
       // Success
-      if(ok) {
-        return await dispatch("doAction", [ok,reo], {root:true})
+      if (ok) {
+        return await dispatch("doAction", [ok, reo], { root: true })
       }
     }
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Fail
-    else if(fail){
-      return await dispatch("doAction", [fail,reo], {root:true})
+    else if (fail) {
+      return await dispatch("doAction", [fail, reo], { root: true })
     }
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   },
   //--------------------------------------------
-  async autoCheckmeOrAuthByWxghCode({dispatch}, {
+  async autoCheckmeOrAuthByWxghCode({ dispatch }, {
     codeKey = "code",
     codeTypeBy = "ct",
     force = false,
     fail, nophone, noemail
-  }={}) {
+  } = {}) {
     //console.log("autoCheckmeOrAuthByWxghCode")
     dispatch("doCheckMe", {
       force,
-      fail : {
-        action : "auth/authByWxghCode",
-        payload : {
+      fail: {
+        action: "auth/authByWxghCode",
+        payload: {
           codeKey, codeTypeBy,
           //......................................
           fail,
           //......................................
-          ok : async (reo={})=>{
+          ok: async (reo = {}) => {
             let me = reo.data
             console.log("autoCheckmeOrAuthByWxghCode->ok:me", me)
-            if(nophone) {
-              if(!me.phone) {
-                return await dispatch("doAction", [nophone,reo], {root:true})
+            if (nophone) {
+              if (!me.phone) {
+                return await dispatch("doAction", [nophone, reo], { root: true })
               }
             }
-            if(noemail) {
-              if(!me.email) {
-                return await dispatch("doAction", [noemail,reo], {root:true})
+            if (noemail) {
+              if (!me.email) {
+                return await dispatch("doAction", [noemail, reo], { root: true })
               }
             }
           }
@@ -103,14 +151,14 @@ const _M = {
     })
   },
   //--------------------------------------------
-  async authByWxghCode({commit, dispatch, getters, rootState}, {
+  async authByWxghCode({ commit, dispatch, getters, rootState }, {
     codeKey = "code",
     codeTypeBy = "ct",
     done, ok, fail, invalid, others
-  }={}) {
+  } = {}) {
     // Guard code
     let code = rootState.page.params[codeKey]
-    if(!code) {
+    if (!code) {
       return
     }
 
@@ -120,7 +168,7 @@ const _M = {
 
     // Guard SiteId
     let siteId = rootState.siteId
-    if(!siteId) {
+    if (!siteId) {
       Ti.Alert("Without siteId!!!")
       return
     }
@@ -128,19 +176,19 @@ const _M = {
     let url = getters.urls["login_by_wxcode"]
 
     let params = {
-      site : siteId,
-      code : code,
-      ct   : codeType
+      site: siteId,
+      code: code,
+      ct: codeType
     }
 
-    let reo = await Ti.Http.get(url, {params, as:"json"})
+    let reo = await Ti.Http.get(url, { params, as: "json" })
     console.log(reo)
 
     // Callback: done
-    await dispatch("doAction", [done, reo], {root:true})
+    await dispatch("doAction", [done, reo], { root: true })
 
     // Success
-    if(reo.ok && reo.data) {
+    if (reo.ok && reo.data) {
       // save ticket
       Ti.Storage.local.set(
         `www-ticket-${siteId}`,
@@ -148,36 +196,36 @@ const _M = {
       )
       // Save session info
       commit("setTicket", reo.data.ticket)
-      commit("setExpi",   reo.data.expi)
-      commit("setMe",     reo.data.me)
+      commit("setExpi", reo.data.expi)
+      commit("setMe", reo.data.me)
       // Callback
-      await dispatch("doAction", [ok, reo], {root:true})
+      await dispatch("doAction", [ok, reo], { root: true })
     }
     // Fail 
     else {
       // Fail : invalid
-      if(/^e.www.login.invalid/.test(reo.errCode)) {
-        await dispatch("doAction", [invalid, reo], {root:true})
+      if (/^e.www.login.invalid/.test(reo.errCode)) {
+        await dispatch("doAction", [invalid, reo], { root: true })
       }
       // Fail : others
       else {
-        await dispatch("doAction", [others, reo], {root:true})
+        await dispatch("doAction", [others, reo], { root: true })
       }
       // Callback
-      await dispatch("doAction", [fail, reo], {root:true})
+      await dispatch("doAction", [fail, reo], { root: true })
     }
   },
   //--------------------------------------------
-  async doAuth({commit, dispatch, getters, rootState}, {
-    type="login_by_passwd",
+  async doAuth({ commit, dispatch, getters, rootState }, {
+    type = "login_by_passwd",
     name, passwd,
     done, ok, fail, noexist, invalid, others
-  }={}) {
+  } = {}) {
     // console.log("doAuth", name, passwd)
 
     // Guard SiteId
     let siteId = rootState.siteId
-    if(!siteId) {
+    if (!siteId) {
       Ti.Alert("Without siteId!!!")
       return
     }
@@ -188,34 +236,34 @@ const _M = {
     // Prepare params
     let ticket = Ti.Storage.local.getString(`www-ticket-${siteId}`, "")
     let passKey = ({
-      "login_by_passwd" : "passwd",
-      "login_by_phone"  : "vcode",
-      "login_by_email"  : "vcode",
-      "bind_phone"      : "vcode",
-      "bind_email"      : "vcode"
+      "login_by_passwd": "passwd",
+      "login_by_phone": "vcode",
+      "login_by_email": "vcode",
+      "bind_phone": "vcode",
+      "bind_email": "vcode"
     })[type]
 
-    if(!passKey) {
+    if (!passKey) {
       throw "Unknown auth type: " + type
     }
 
     let params = {
-      site : siteId,
-      name, 
-      [passKey] : passwd,
+      site: siteId,
+      name,
+      [passKey]: passwd,
       ticket,
       ajax: true
     }
 
     // Call Remote
-    let reo = await Ti.Http.post(url, {params, as:"json"})
+    let reo = await Ti.Http.post(url, { params, as: "json" })
     //console.log(reo)
 
     // Callback: done
-    await dispatch("doAction", [done, reo], {root:true})
+    await dispatch("doAction", [done, reo], { root: true })
 
     // Success
-    if(reo.ok && reo.data) {
+    if (reo.ok && reo.data) {
       // save ticket
       Ti.Storage.local.set(
         `www-ticket-${siteId}`,
@@ -223,87 +271,87 @@ const _M = {
       )
       // Commit session to local
       commit("setTicket", reo.data.ticket)
-      commit("setExpi",   reo.data.expi)
-      commit("setMe",     reo.data.me)
+      commit("setExpi", reo.data.expi)
+      commit("setMe", reo.data.me)
       // Callback
-      await dispatch("doAction", [ok, reo], {root:true})
+      await dispatch("doAction", [ok, reo], { root: true })
     }
     // Fail 
     else {
       // Fail : noexist
-      if("e.www.login.noexists" == reo.errCode) {
-        await dispatch("doAction", [noexist, reo], {root:true})
+      if ("e.www.login.noexists" == reo.errCode) {
+        await dispatch("doAction", [noexist, reo], { root: true })
       }
       // Fail : invalid
-      else if(/^e.www.login.invalid/.test(reo.errCode)) {
-        await dispatch("doAction", [invalid, reo], {root:true})
+      else if (/^e.www.login.invalid/.test(reo.errCode)) {
+        await dispatch("doAction", [invalid, reo], { root: true })
       }
       // Fail : others
       else {
-        await dispatch("doAction", [others, reo], {root:true})
+        await dispatch("doAction", [others, reo], { root: true })
       }
       // Callback
-      await dispatch("doAction", [fail, reo], {root:true})
+      await dispatch("doAction", [fail, reo], { root: true })
     }
   },
   //--------------------------------------------
-  async doGetVcode({getters, dispatch, rootState}, {
-    type="login_by_phone",
-    scene="auth",
+  async doGetVcode({ getters, dispatch, rootState }, {
+    type = "login_by_phone",
+    scene = "auth",
     account, captcha,
     done, ok, fail, error
-  }={}) {
-    console.log("getVcode", {type,scene, account, captcha})
+  } = {}) {
+    console.log("getVcode", { type, scene, account, captcha })
 
     // Guard SiteId
     let siteId = rootState.siteId
-    if(!siteId) {
+    if (!siteId) {
       Ti.Alert("Without siteId!!!")
       return
     }
 
     // Eval URL
     let api = ({
-      "login_by_phone" : "get_sms_vcode",
-      "login_by_email" : "get_email_vcode",
-      "bind_phone"     : "get_sms_vcode",
-      "bind_email"     : "get_email_vcode",
-      "phone"          : "get_sms_vcode",
-      "email"          : "get_email_vcode"
+      "login_by_phone": "get_sms_vcode",
+      "login_by_email": "get_email_vcode",
+      "bind_phone": "get_sms_vcode",
+      "bind_email": "get_email_vcode",
+      "phone": "get_sms_vcode",
+      "email": "get_email_vcode"
     })[type]
     let url = getters.urls[api]
 
-    if(!api || !url) {
+    if (!api || !url) {
       return await Ti.Toast.Open(`Invalid type: ${type}`, "error");
     }
 
     // Prepare params
     let params = {
-      site : siteId,
+      site: siteId,
       scene, account, captcha
     }
 
     // Call Remote
     let reo;
-    try{
-      reo = await Ti.Http.get(url, {params, as:"json"})
+    try {
+      reo = await Ti.Http.get(url, { params, as: "json" })
       //console.log(reo)
 
       // Success
-      if(reo.ok && reo.data) {
-        await dispatch("doAction", [ok, reo.data], {root:true})
+      if (reo.ok && reo.data) {
+        await dispatch("doAction", [ok, reo.data], { root: true })
       }
       // Fail 
       else {
-        await dispatch("doAction", [fail, reo], {root:true})
+        await dispatch("doAction", [fail, reo], { root: true })
       }
     }
     // Error
-    catch(err) {
+    catch (err) {
       reo = err
       // Customized error handling
-      if(error) {
-        await dispatch("doAction", [error, err], {root:true})
+      if (error) {
+        await dispatch("doAction", [error, err], { root: true })
       } else {
         await Ti.Alert(err.responseText, "error");
       }
@@ -311,28 +359,28 @@ const _M = {
     // Done
     finally {
       // Callback: done
-      await dispatch("doAction", [done, reo], {root:true})
+      await dispatch("doAction", [done, reo], { root: true })
     }
   },
   //--------------------------------------------
-  async doResetPasswd({getters, dispatch, rootState}, {
-    scene="resetpasswd",
+  async doResetPasswd({ getters, dispatch, rootState }, {
+    scene = "resetpasswd",
     account, vcode, newpwd, oldpwd,
     done, ok, fail
-  }={}) {
+  } = {}) {
     //console.log("doResetPasswd", {scene, account, vcode, newpwd, oldpwd})
 
     // Guard SiteId
     let siteId = rootState.siteId
-    if(!siteId) {
+    if (!siteId) {
       Ti.Alert("Without siteId!!!")
       return
     }
 
     // Guard Ticket
     let ticket = rootState.auth.ticket
-    let me =  rootState.auth.me
-    if(!me) {
+    let me = rootState.auth.me
+    if (!me) {
       Ti.Alert("Without Login!!!")
       return
     }
@@ -340,14 +388,14 @@ const _M = {
     // Eval URL
     let url = getters.urls.resetpasswd
 
-    if(!url) {
+    if (!url) {
       console.error("doResetPasswd url is nil")
       return
     }
 
     // Prepare params
     let params = {
-      site : siteId,
+      site: siteId,
       ticket
     }
     let body = {
@@ -356,40 +404,40 @@ const _M = {
 
     // Call Remote
     let reo = await Ti.Http.post(url, {
-      params, 
+      params,
       body: JSON.stringify(body),
-      as:"json"
-    }).catch(({responseText})=>{
-      return {ok:false, errCode:_.trim(responseText)}
+      as: "json"
+    }).catch(({ responseText }) => {
+      return { ok: false, errCode: _.trim(responseText) }
     })
     //console.log(reo)
 
     // Callback: done
-    await dispatch("doAction", [done, reo], {root:true})
+    await dispatch("doAction", [done, reo], { root: true })
 
     // Success
-    if(reo.ok) {
-      await dispatch("doAction", [ok, reo], {root:true})
+    if (reo.ok) {
+      await dispatch("doAction", [ok, reo], { root: true })
     }
     // Fail 
     else {
-      await dispatch("doAction", [fail, reo], {root:true})
+      await dispatch("doAction", [fail, reo], { root: true })
     }
   },
   //--------------------------------------------
-  async doLogout({state, commit, dispatch, getters, rootState}, {
+  async doLogout({ state, commit, dispatch, getters, rootState }, {
     done, ok, fail
-  }={}) {
+  } = {}) {
     //console.log("doLogout")
     // Guard SiteId
     let siteId = rootState.siteId
-    if(!siteId) {
+    if (!siteId) {
       Ti.Alert("Without siteId!!!")
       return
     }
 
     // Confirm with user
-    if(!(await Ti.Confirm("i18n:auth-logout-confirm"))) {
+    if (!(await Ti.Confirm("i18n:auth-logout-confirm"))) {
       return
     }
 
@@ -397,40 +445,40 @@ const _M = {
     Ti.Storage.local.remove(`www-ticket-${siteId}`)
 
     // No Session, ignore
-    if(!getters.hasSession) {
-      dispatch("invokeAction", fail, {root:true})
+    if (!getters.hasSession) {
+      dispatch("invokeAction", fail, { root: true })
       return
     }
 
     // Eval URL
     let url = getters.urls["logout"]
     let params = {
-      site   : siteId,
-      ticket : state.ticket
+      site: siteId,
+      ticket: state.ticket
     }
 
-    commit("setLoading", {text:"i18n:logout-ing"}, {root:true})
+    commit("setLoading", { text: "i18n:logout-ing" }, { root: true })
 
     // Call Remote
-    let reo = await Ti.Http.get(url, {params, as:"json"})
+    let reo = await Ti.Http.get(url, { params, as: "json" })
     //console.log(reo)
 
     commit("setTicket", null)
-    commit("setExpi",   0)
-    commit("setMe",     null)
+    commit("setExpi", 0)
+    commit("setMe", null)
 
-    commit("setLoading", false, {root:true})
+    commit("setLoading", false, { root: true })
 
     // Callback: done
-    await dispatch("doAction", [done, reo], {root:true})
+    await dispatch("doAction", [done, reo], { root: true })
 
     // Success
-    if(reo.ok) {
-      dispatch("doAction", [ok, reo], {root:true})
+    if (reo.ok) {
+      dispatch("doAction", [ok, reo], { root: true })
     }
     // Fail 
     else {
-      dispatch("doAction", [fail, reo], {root:true})
+      dispatch("doAction", [fail, reo], { root: true })
     }
   }
   //--------------------------------------------

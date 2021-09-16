@@ -358,7 +358,7 @@ const _M = {
     "shown": {
       handler: function (shown, old) {
         if (old && !_.isEqual(shown, old)) {
-          console.log(`ti-gui: ${this.$parent.tiComId} shown changed`, shown)
+          //console.log(`ti-gui: ${this.$parent.tiComId} shown changed`, shown)
           this.syncMyShown(shown)
           this.$nextTick(() => {
             this.syncViewportMeasure();
