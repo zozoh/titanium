@@ -1,6 +1,6 @@
 .ti-transfer {
   @include flex-align-nowrap($ai:stretch);
-  min-height: SZ(200);
+  min-height: SZ(200); width:100%;
   padding:SZ(6);
   //---------------------------------
   > .as-box {
