@@ -385,13 +385,13 @@ const _M = {
     //--------------------------------------------------
     evalFormField(fld = {}, nbs = []) {
       // Hide or disabled
-      if (fld.hidden) {
+      if (!Ti.Util.isNil(fld.hidden)) {
         if (Ti.AutoMatch.test(fld.hidden, this.data)) {
           return
         }
       }
       // Visiblity
-      if (fld.visible) {
+      if (!Ti.Util.isNil(fld.visible)) {
         if (!Ti.AutoMatch.test(fld.visible, this.data)) {
           return
         }

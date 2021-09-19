@@ -36,6 +36,10 @@ const TI_TREE = {
       type : String,
       default : "children"
     },
+    "otherGroup" : {
+      type : Object,
+      default: undefined
+    },
     "idBy" : {
       type : [String, Function],
       default : "id"
@@ -462,6 +466,9 @@ const TI_TREE = {
       // Clone data
       data = _.cloneDeep(data)
 
+      // Other data
+      let others = []
+
       // Build map
       let map = {}
       _.forEach(data, it=>{
@@ -481,12 +488,23 @@ const TI_TREE = {
           if(pIt) {
             Ti.Util.pushValue(pIt, this.autoGroupTo, it);
           }
+          // Join to others
+          else {
+            others.push(it)
+          }
         }
         // Join to tops
         else {
           tops.push(it)
         }
       })
+
+      // Auto show others
+      if(this.otherGroup && !_.isEmpty(others)) {
+        let topOther = _.cloneDeep(this.otherGroup)
+        _.set(topOther, this.autoGroupTo, others)
+        tops.push(topOther)
+      }
 
       // done
       if(!_.isEmpty(tops))

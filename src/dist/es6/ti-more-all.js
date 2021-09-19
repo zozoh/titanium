@@ -1,4 +1,4 @@
-// Pack At: 2021-09-17 15:22:52
+// Pack At: 2021-09-19 17:02:35
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -36413,13 +36413,13 @@ const _M = {
     //--------------------------------------------------
     evalFormField(fld = {}, nbs = []) {
       // Hide or disabled
-      if (fld.hidden) {
+      if (!Ti.Util.isNil(fld.hidden)) {
         if (Ti.AutoMatch.test(fld.hidden, this.data)) {
           return
         }
       }
       // Visiblity
-      if (fld.visible) {
+      if (!Ti.Util.isNil(fld.visible)) {
         if (!Ti.AutoMatch.test(fld.visible, this.data)) {
           return
         }
@@ -47409,6 +47409,10 @@ const TI_TREE = {
       type : String,
       default : "children"
     },
+    "otherGroup" : {
+      type : Object,
+      default: undefined
+    },
     "idBy" : {
       type : [String, Function],
       default : "id"
@@ -47835,6 +47839,9 @@ const TI_TREE = {
       // Clone data
       data = _.cloneDeep(data)
 
+      // Other data
+      let others = []
+
       // Build map
       let map = {}
       _.forEach(data, it=>{
@@ -47854,12 +47861,23 @@ const TI_TREE = {
           if(pIt) {
             Ti.Util.pushValue(pIt, this.autoGroupTo, it);
           }
+          // Join to others
+          else {
+            others.push(it)
+          }
         }
         // Join to tops
         else {
           tops.push(it)
         }
       })
+
+      // Auto show others
+      if(this.otherGroup && !_.isEmpty(others)) {
+        let topOther = _.cloneDeep(this.otherGroup)
+        _.set(topOther, this.autoGroupTo, others)
+        tops.push(topOther)
+      }
 
       // done
       if(!_.isEmpty(tops))
@@ -53828,7 +53846,7 @@ const _M = {
         payload : {} | [] | ...
       } 
       */
-      //console.log("invokeAction", name, args)
+      console.log("invokeAction", name, args)
       let actions = getters.actions;
       let AT = _.get(actions, name)
 
