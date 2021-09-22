@@ -4,8 +4,8 @@ function URL(actionName) {
 }
 //-----------------------------------------
 function AJAX_RETURN(reo, invalid) {
-  if(!reo.ok) {
-    if(_.isUndefined(invalid))
+  if (!reo.ok) {
+    if (_.isUndefined(invalid))
       throw reo
     return invalid
   }
@@ -23,22 +23,22 @@ const WnIo = {
    * Get object meta by id(fullobjId) or path
    */
   async loadMetaBy(idOrPath, oRefer) {
-    if(WnIo.isFullObjId(idOrPath)) {
+    if (WnIo.isFullObjId(idOrPath)) {
       return await WnIo.loadMetaById(idOrPath)
     }
     // Absolute path
-    if(/^(id:|\/|~)/.test(idOrPath)) {
+    if (/^(id:|\/|~)/.test(idOrPath)) {
       return await WnIo.loadMeta(idOrPath)
     }
     // Relative path
     let base;
-    if(oRefer) {
+    if (oRefer) {
       // Refer by path
-      if(_.isString(oRefer)) {
+      if (_.isString(oRefer)) {
         base = Ti.Util.getParentPath(oRefer)
       }
       // Refer by FILE
-      else if("FILE" == oRefer.race) {
+      else if ("FILE" == oRefer.race) {
         base = "id:" + oRefer.pid
       }
       // Refer by DIR
@@ -48,7 +48,7 @@ const WnIo = {
     }
     // Refer to home
     else {
-        base = "~"
+      base = "~"
     }
     // Load the obj by absolute path
     let aph = Ti.Util.appendPath(base, idOrPath)
@@ -58,7 +58,7 @@ const WnIo = {
    * Get object meta by id
    */
   async loadMetaById(id) {
-    return await WnIo.loadMeta("id:"+id)
+    return await WnIo.loadMeta("id:" + id)
   },
   /***
    * Get object meta by full path
@@ -66,10 +66,11 @@ const WnIo = {
   async loadMeta(path) {
     let url = URL("fetch")
     let reo = await Ti.Http.get(url, {
-      params:{
-        str : path
-      }, 
-      as:"json"})
+      params: {
+        str: path
+      },
+      as: "json"
+    })
     return AJAX_RETURN(reo, null)
   },
   /***
@@ -80,7 +81,7 @@ const WnIo = {
     let aph = path;
 
     // Relative to refer (path is not absolute)
-    if(refer && !(/^(~\/|\/|id:)/.test(path))) {
+    if (refer && !(/^(~\/|\/|id:)/.test(path))) {
       aph = `id:${refer.pid}/${path}`
     }
     // Do load
@@ -92,28 +93,30 @@ const WnIo = {
   async loadAncestors(str) {
     let url = URL("ancestors")
     let reo = await Ti.Http.get(url, {
-      params: {str}, 
-      as:"json"})
+      params: { str },
+      as: "json"
+    })
     return AJAX_RETURN(reo, [])
   },
   /***
    * Get obj children by meta
    */
-  async loadChildren(meta, {skip, limit, sort={nm:1}, mine, match={}}={}) {
-    if(!meta)
+  async loadChildren(meta, { skip, limit, sort = { nm: 1 }, mine, match = {} } = {}) {
+    if (!meta)
       return null
-    if('DIR' != meta.race)
+    if ('DIR' != meta.race)
       return 0 === limit ? [] : {}
     //......................................
     // Load children when linked obj
-    if(meta.mnt || meta.ln) {
+    if (meta.mnt || meta.ln) {
       let url = URL("children")
       let reo = await Ti.Http.get(url, {
         params: {
-          "str" :  `id:${meta.id}`,
-          "pg"  : true
-        }, 
-        as:"json"})
+          "str": `id:${meta.id}`,
+          "pg": true
+        },
+        as: "json"
+      })
       return AJAX_RETURN(reo)
     }
     //......................................
@@ -122,11 +125,11 @@ const WnIo = {
     match.pid = meta.id
 
     // find them
-    let reo = await WnIo.find({skip, limit, sort, mine, match})
+    let reo = await WnIo.find({ skip, limit, sort, mine, match })
     // Auto set reo path if noexists
-    if(meta.ph && reo && _.isArray(reo.list)) {
-      for(let child of reo.list) {
-        if(!child.ph) {
+    if (meta.ph && reo && _.isArray(reo.list)) {
+      for (let child of reo.list) {
+        if (!child.ph) {
           child.ph = Ti.Util.appendPath(meta.ph, child.nm)
         }
       }
@@ -136,21 +139,22 @@ const WnIo = {
   /***
    * Query object list
    */
-  async find({skip=0, limit=100, sort={}, mine=true, match={}}={}) {
+  async find({ skip = 0, limit = 100, sort = {}, mine = true, match = {} } = {}) {
     let url = URL("find")
     let reo = await Ti.Http.get(url, {
       params: _.assign({}, match, {
-        _l  : limit, 
-        _o  : skip,
-        _me : mine,
-        _s  : JSON.stringify(sort)
-      }), 
-      as:"json"})
+        _l: limit,
+        _o: skip,
+        _me: mine,
+        _s: JSON.stringify(sort)
+      }),
+      as: "json"
+    })
     return AJAX_RETURN(reo)
   },
-  async findList(query={}) {
+  async findList(query = {}) {
     let reo = await WnIo.find(query)
-    if(reo && _.isArray(reo.list)) {
+    if (reo && _.isArray(reo.list)) {
       return reo.list
     }
     return []
@@ -159,41 +163,41 @@ const WnIo = {
    * Query object list by value
    */
   async findInBy(value, parent, {
-    skip=0, limit=100, sort={}, mine=true, match={},
+    skip = 0, limit = 100, sort = {}, mine = true, match = {},
     keys = {
-      "^[0-9a-v]{26}(:.+)$" : ["id", "${val}"]
+      "^[0-9a-v]{26}(:.+)$": ["id", "${val}"]
     },
     dftKey = ["nm", "^.*${val}.*$"]
-  }={}) {
+  } = {}) {
     // Join Key To Match
-    if(!_.isUndefined(value)) {
+    if (!_.isUndefined(value)) {
       let key = dftKey;
-      for(let regex of _.keys(keys)) {
-        if(new RegExp(regex).test(value)) {
+      for (let regex of _.keys(keys)) {
+        if (new RegExp(regex).test(value)) {
           key = keys[regex]
           break
         }
       }
       let k = key[0]
-      let v = Ti.S.renderBy(key[1], {val:value})
+      let v = Ti.S.renderBy(key[1], { val: value })
       match[k] = v
     }
     // Eval Parent
-    if(parent && parent.id && parent.ph) {
+    if (parent && parent.id && parent.ph) {
       match.pid = parent.id
     }
     // Parent patn => get back id
-    else if(_.isString(parent)) {
+    else if (_.isString(parent)) {
       let oP = await WnIo.loadMeta(parent)
       match.pid = oP.id
     }
 
     // Do Find
-    return await WnIo.find({skip,limit,sort,mine,match})
+    return await WnIo.find({ skip, limit, sort, mine, match })
   },
-  async findListInBy(value, parent, query={}) {
+  async findListInBy(value, parent, query = {}) {
     let reo = await WnIo.findInBy(value, parent, query)
-    if(reo && _.isArray(reo.list)) {
+    if (reo && _.isArray(reo.list)) {
       return reo.list
     }
     return []
@@ -201,25 +205,26 @@ const WnIo = {
   /***
    * Get obj content by meta:
    */
-  async loadContent(meta, {as="text"}={}) {
+  async loadContent(meta, { as = "text" } = {}) {
     // Load by path
-    if(_.isString(meta)) {
+    if (_.isString(meta)) {
       meta = await WnIo.loadMeta(meta)
     }
     // un-readable
-    if(!meta || 'DIR' == meta.race) {
+    if (!meta || 'DIR' == meta.race) {
       return null
     }
     // Do load
     let mime = meta.mime || 'application/octet-stream'
     // PureText
-    if(Wn.Util.isMimeText(mime)) {
+    if (Wn.Util.isMimeText(mime)) {
       let url = URL("content")
       let content = await Ti.Http.get(url, {
         params: {
-          str : "id:" + meta.id,
-          d   : "raw"
-        }, as})
+          str: "id:" + meta.id,
+          d: "raw"
+        }, as
+      })
       // Others just return pure text content
       return content
     }
@@ -230,29 +235,29 @@ const WnIo = {
   /***
    * Save obj content
    */
-  async update(meta, fields={}) {
+  async update(meta, fields = {}) {
     // Guard
-    if(!meta || _.isEmpty(fields)) {
+    if (!meta || _.isEmpty(fields)) {
       return
     }
     // Load meta 
-    if(_.isString(meta)) {
+    if (_.isString(meta)) {
       meta = await WnIo.loadMetaBy(meta)
     }
-    if(!_.isPlainObject(meta)) {
+    if (!_.isPlainObject(meta)) {
       throw Ti.Err.make('e-wn-io-invalidUpdateTarget', meta)
     }
     // do send
     let url = URL("/update")
     let reo = await Ti.Http.post(url, {
-      params : {
-        str : "id:"+meta.id
+      params: {
+        str: "id:" + meta.id
       },
-      body : JSON.stringify(fields),
-      as:"json"
+      body: JSON.stringify(fields),
+      as: "json"
     })
 
-    if(!reo.ok) {
+    if (!reo.ok) {
       throw Ti.Err.make(reo.errCode, reo.data, reo.msg)
     }
 
@@ -261,34 +266,43 @@ const WnIo = {
   /***
    * Save obj content
    */
-  async saveContentAsText(meta, content) {
+  async saveContentAsText(metaOrPath, content, {
+    createIfNoExists = false,
+    asBase64 = false
+  } = {}) {
     // Guard
-    if(!meta) {
+    if (!metaOrPath) {
       return
     }
-    if(Ti.Util.isNil(content)) {
+    if (Ti.Util.isNil(content)) {
       content = ""
     }
     // Load meta 
-    if(_.isString(meta)) {
-      meta = await WnIo.loadMetaBy(meta)
+    let targetPath;
+    if (metaOrPath.id && metaOrPath.ph) {
+      let {id,nm,ph,race} = metaOrPath
+      if ('DIR' == race) {
+        throw Ti.Err.make('e-wn-io-writeNoFile', ph || nm)
+      }
+      targetPath = `id:${id}`
     }
-    if(!_.isPlainObject(meta)) {
-      throw Ti.Err.make('e-wn-io-invalidTarget', meta)
+    // Get Path
+    else {
+      targetPath = metaOrPath
     }
-    if('DIR' == meta.race) {
-      throw Ti.Err.make('e-wn-io-writeNoFile', meta.ph || meta.nm)
-    }
+
     // Prepare params
     let params = {
-      str : "id:"+meta.id,
-      content
+      str: targetPath,
+      content,
+      cine: createIfNoExists,
+      base64: asBase64
     }
     // do send
     let url = URL("/save/text")
-    let reo = await Ti.Http.post(url, {params, as:"json"})
+    let reo = await Ti.Http.post(url, { params, as: "json" })
 
-    if(!reo.ok) {
+    if (!reo.ok) {
       throw Ti.Err.make(reo.errCode, reo.data, reo.msg)
     }
 
@@ -302,21 +316,21 @@ const WnIo = {
     mode = "a",
     tmpl = "${major}(${nb})${suffix}",
     progress = _.identity
-  }={}) {
+  } = {}) {
     // do send
     let url = URL("/save/stream")
     let reo = await Ti.Http.post(url, {
-      file, 
+      file,
       progress,
-      params : {
-        str  : target,
-        nm   : file.name,
-        sz   : file.size,
-        mime : file.type,
-        m    : mode,
+      params: {
+        str: target,
+        nm: file.uploadName || file.name,
+        sz: file.size,
+        mime: file.type,
+        m: mode,
         tmpl
       },
-      as:"json"
+      as: "json"
     })
     return reo
   },
@@ -325,54 +339,56 @@ const WnIo = {
    * This method will pop-up a dialog to let user choose a target 
    */
   async moveTo(metaOrMetaList, {
-    base, homePath, 
+    base, homePath,
     objMatch, objFilter, objSort,
     treeDisplay,
     confirm = false,
     title = "i18n:move-to",
     exposeHidden = false,
-    testBeforeMove = (it, exRemovedIds)=>{
+    testBeforeMove = (it, exRemovedIds) => {
       // Duck check
-      if(!it || !it.id || !it.nm)
+      if (!it || !it.id || !it.nm)
         return false
       // Ignore obsolete item
-      if(it.__is && (it.__is.loading || it.__is.removed))
+      if (it.__is && (it.__is.loading || it.__is.removed))
         return false
       // Ignore the exRemovedIds
-      if(exRemovedIds[it.id])
+      if (exRemovedIds[it.id])
         return false
       return true
     },
     markItemStatus = _.identity,
     doneMove = _.identity,
     successTip = "i18n:wn-move-to-ok"
-  }={}) {
+  } = {}) {
     // Guard
-    if(!base) {
+    if (!base) {
       return
     }
-    if(_.isString(base)) {
+    if (_.isString(base)) {
       base = await Wn.Io.loadMeta(base)
     }
     // Make input as list
     let list = []
-    if(metaOrMetaList) {
-      if(_.isArray(metaOrMetaList)){
+    if (metaOrMetaList) {
+      if (_.isArray(metaOrMetaList)) {
         list = metaOrMetaList
       } else {
         list = [metaOrMetaList]
       }
     }
     // Guard
-    if(_.isEmpty(list)) {
+    if (_.isEmpty(list)) {
       return await Ti.Toast.Open('i18n:wn-move-to-none', "warn")
     }
 
     // Confirm
-    if(confirm) {
-      if(!(await Ti.Confirm({
-        text:"i18n:wn-move-to-confirm", 
-        vars:{N:list.length}}, {type: "warn"
+    if (confirm) {
+      if (!(await Ti.Confirm({
+        text: "i18n:wn-move-to-confirm",
+        vars: { N: list.length }
+      }, {
+        type: "warn"
       }))) {
         return
       }
@@ -380,15 +396,15 @@ const WnIo = {
 
     // Select target
     let reo = await Wn.OpenObjTree(base, {
-      title, homePath, 
+      title, homePath,
       objMatch, objFilter, objSort,
       treeDisplay, exposeHidden
     })
 
     // User cancel
-    if(!reo || !reo.id || reo.id == base.id) {
+    if (!reo || !reo.id || reo.id == base.id) {
       return
-    } 
+    }
 
     let delCount = 0
     // make removed files. it remove a video
@@ -399,12 +415,12 @@ const WnIo = {
     let exRemovedIds = {}
     try {
       // Loop items
-      for(let it of list) {
+      for (let it of list) {
         // Test ...
-        if(!testBeforeMove(it, exRemovedIds)) {
+        if (!testBeforeMove(it, exRemovedIds)) {
           continue
         }
-        
+
         // Mark item is processing
         markItemStatus(it.id, "loading")
 
@@ -413,10 +429,10 @@ const WnIo = {
 
         // Mark item removed
         markItemStatus(it.id, "moved")
-        
+
         // If video result folder, mark it at same time
         let m = /^id:(.+)$/.exec(it.videoc_dir)
-        if(m) {
+        if (m) {
           let vdId = m[1]
           exRemovedIds[vdId] = true
           this.setItemStatus(vdId, "moved")
@@ -431,7 +447,7 @@ const WnIo = {
     }
     // End deleting
     finally {
-      Ti.Toast.Open(successTip, {N:delCount}, "success")
+      Ti.Toast.Open(successTip, { N: delCount }, "success")
     }
   },
   /***
@@ -458,7 +474,7 @@ const WnIo = {
     //console.log("formatObjPath", {meta, mode, oRefer})
     let fn = ({
       path() {
-        if(oRefer) {
+        if (oRefer) {
           return Ti.Util.getRelativePath(oRefer.ph, meta.ph)
         }
         return WnIo.getFormedPath(meta.ph)
@@ -476,14 +492,14 @@ const WnIo = {
         return meta.nm
       },
       obj() {
-        let keys = oRefer || ['id','nm','thumb','title','mime','tp','sha1','len'] 
+        let keys = oRefer || ['id', 'nm', 'thumb', 'title', 'mime', 'tp', 'sha1', 'len']
         return _.pick(meta, keys)
       },
       wnobj() {
         return meta
       }
     })[mode]
-    if(!fn) {
+    if (!fn) {
       throw "Invalid mode : " + mode
     }
     return fn()

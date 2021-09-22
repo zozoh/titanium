@@ -77,6 +77,10 @@ function CmdInsertImage(editor, oImgs) {
 
 }
 ////////////////////////////////////////////////////
+function PastImageData(editor, content) {
+
+}
+////////////////////////////////////////////////////
 function GetCurrentImageElement(editor) {
   let sel = editor.selection
   let $img = sel.getNode()
@@ -443,6 +447,42 @@ export default {
           ].join(" | ")
         }
         return []
+      }
+    })
+    //..............................................
+    editor.on("ExecCommand", async function({command, value}={}){
+      if("mceInsertContent" == command && value.content) {
+        let REG = /^<img +src="data:(image\/(png|jpeg));base64, *([^"]+)" *\/>$/
+        let m = REG.exec(value.content)
+        if(m) {
+          let mime = m[1]
+          let base64 = m[3]
+          // Save image content
+          let ftp = ({
+            "image/png" : "png",
+            "image/jpeg" : "jpg"
+          })[mime] || "png"
+          let fnm = Ti.DateTime.format(new Date(), "'Snapshot'-yyyyMMdd-HHmmss")
+          let fph = Ti.Util.appendPath(settings.base, fnm + "." + ftp)
+          // Show loading
+          let $loading = Ti.Dom.createElement({
+            tagName: "span",
+            className: "wn-media as-loading",
+            attrs: {
+              "ti-tinymce-no-select": true
+            }
+          })
+          $loading.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'
+          let rng = editor.selection.getRng()
+          rng.insertNode($loading)
+          // Upload
+          let obj = await Wn.Io.saveContentAsText(fph, base64, {
+            createIfNoExists:true,
+            asBase64:true
+          })
+          // Insert
+          editor.execCommand("InsertImage", editor, [obj])
+        }
       }
     })
     //..............................................

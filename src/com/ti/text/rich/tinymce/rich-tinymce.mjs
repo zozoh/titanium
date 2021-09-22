@@ -160,6 +160,14 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   methods : {
+    //--------------------------------------
+    OnClipBoardPoste({ clipboardData } = {}) {
+      console.log("OnClipBoardPoste", clipboardData)
+      let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
+      if(imgF) {
+        console.log(imgF)
+      }
+    },
     //-----------------------------------------------
     OnHeadingChange($h) {
       this.evalOutline()
@@ -400,7 +408,7 @@ const _M = {
           })
           // Event: watch the command to update
           editor.on("ExecCommand", (evt)=>{
-            console.log("command fired!!", evt)
+            //console.log("command fired!!", evt)
             this.myHtmlCode = editor.getContent()
             this.evalOutline()
           })
@@ -536,6 +544,12 @@ const _M = {
       }
     }
   },
+  //////////////////////////////////////////
+  created: function () {
+    this.OnPaste = evt => {
+      this.OnClipBoardPoste(evt)
+    }
+  },
   ///////////////////////////////////////////////////
   created : function() {
     this.OnEditorSetContent = ()=>{
@@ -560,6 +574,10 @@ const _M = {
       this.myPlugins = await Ti.Load(list)
     }
     await this.initEditor()
+  },
+  //////////////////////////////////////////
+  beforeDestroy: function () {
+    window.removeEventListener("paste", this.OnPaste)
   }
   ///////////////////////////////////////////////////
 }

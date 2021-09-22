@@ -28,6 +28,14 @@ body.mce-content-body {
   max-width: 1000px; margin:0 auto;
   padding: 2em;
   //-----------------------------------------------------
+  span.wn-media.as-loading {
+    @include border(1px, dotted, shallow);
+    display: inline-block;
+    border-radius: 4px; font-size: 32px;
+    padding: 50px;
+    background: #AAA; color:#EEE;
+  }
+  //-----------------------------------------------------
   &[ti-tinymce-no-select] {
     user-select: none;
   }

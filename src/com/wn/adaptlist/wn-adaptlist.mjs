@@ -260,8 +260,8 @@ const _M = {
       let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
       if(imgF) {
         let imgTp = Ti.Util.getSuffix(imgF.name)
-        let dateS = Ti.DateTime.format(new Date(), "snapshot-yyyy-MM-dd_HHmmss")
-        imgF.name = dateS + imgTp
+        let dateS = Ti.DateTime.format(new Date(), "'Snapshot'-yyyyMMdd-HHmmss")
+        imgF.uploadName = dateS + imgTp
         this.OnDropFiles([imgF])
       }
     },

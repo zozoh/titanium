@@ -282,6 +282,14 @@ body.mce-content-body {
   max-width: 1000px;
   margin: 0 auto;
   padding: 2em; }
+  body.mce-content-body span.wn-media.as-loading {
+    border: 1px dotted rgba(210, 210, 210, 0.1);
+    display: inline-block;
+    border-radius: 4px;
+    font-size: 32px;
+    padding: 50px;
+    background: #AAA;
+    color: #EEE; }
   body.mce-content-body[ti-tinymce-no-select] {
     user-select: none; }
   body.mce-content-body.mce-content-body:not([dir=rtl])[data-mce-placeholder]:not(.mce-visualblocks)::before {

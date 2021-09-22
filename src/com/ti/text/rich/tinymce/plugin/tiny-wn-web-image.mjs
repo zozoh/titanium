@@ -557,6 +557,29 @@ export default {
       }
     })
     //..............................................
+    editor.on("ExecCommand", async function({command, value}={}){
+      if("mceInsertContent" == command && value.content) {
+        let REG = /^<img +src="data:(image\/(png|jpeg));base64, *([^"]+)" *\/>$/
+        let m = REG.exec(value.content)
+        if(m) {
+          let mime = m[1]
+          let base64 = m[3]
+          // Save image content
+          let ftp = ({
+            "image/png" : "png",
+            "image/jpeg" : "jpg"
+          })[mime] || "png"
+          let fnm = Ti.DateTime.format(new Date(), "'Snapshot'-yyyyMMdd-HHmmss")
+          let fph = Ti.Util.appendPath(settings.base, fnm + "." + ftp)
+          let obj = Wn.Io.saveContentAsText(fph, base64, {
+            createIfNoExists:true,
+            asBase64:true
+          })
+          editor.execCommand("InsertWebImage", editor, [obj])
+        }
+      }
+    })
+    //..............................................
     let $vm = editor.__rich_tinymce_com
     $vm.registerContentCallback("wn-web-image", function() {
       //console.log("SetContent image")
