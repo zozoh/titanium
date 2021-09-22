@@ -1,4 +1,6 @@
 {
+  "wn-o-type-miss-match": "新文件类型【${newType}】与原始类型【${oldType}】不匹配",
+  "wn-o-type-miss-match-convimg": "新图片类型【${newType}】与原始类型【${oldType}】不匹配，将会被自动转换，点击【是】继续上传数据，点击【否】将放弃本次操作",
   "wn-admin-check-obj-thumb": "检查图像缩略图...",
   "wn-admin-tools": "管理工具",
   "wn-ctt-css-text": "CSS样式文件",

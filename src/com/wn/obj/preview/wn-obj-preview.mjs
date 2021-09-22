@@ -135,7 +135,7 @@ export default {
     PreviewCom() {
       if (this.meta) {
         // File
-        let mime = this.meta.mime || ""
+        let mime = this.MetaMime
         let m = /^(video|audio|image)\/.+$/.exec(mime)
         // Video/Audio/Image
         if (m) {
@@ -289,6 +289,18 @@ export default {
   //////////////////////////////////////////
   methods: {
     //--------------------------------------
+    OnClipBoardPoste({ clipboardData } = {}) {
+      // Guard
+      if (!/^image\//.test(this.MetaMime)) {
+        return
+      }
+      //console.log("OnClipBoardPoste", clipboardData)
+      let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
+      if(imgF) {
+        this.OnDropFile([imgF])
+      }
+    },
+    //--------------------------------------
     OnAction(action) {
       // Exec command
       if (_.isString(action)) {
@@ -327,8 +339,24 @@ export default {
       let total = file.size
       //console.log("Drop file", file)
 
+      let needConvImg = false
       if (!file || this.MetaMime != file.type) {
-        return Ti.Toast.Open("Type miss match", "warn");
+        let vars = {newType: file.type, oldType: this.MetaMime}
+        needConvImg = /^image\//.test(this.MetaMime)
+        // Maybe I can auto-covert image for user ...
+        if (needConvImg) {
+          if (!(await Ti.Confirm("i18n:wn-o-type-miss-match-convimg", {
+            vars, type: "warn"
+          }))) {
+            return
+          }
+        }
+        // not image, can not auto-convert
+        else {
+          return await Ti.Toast.Open("i18n:wn-o-type-miss-match", {
+            vars, type: "warn"
+          });
+        }
       }
 
       let { ok, data } = await Wn.Io.uploadFile(file, {
@@ -341,6 +369,15 @@ export default {
       })
 
       if (ok) {
+        // Auto covert image
+        if (needConvImg) {
+          let oph = `id:${this.meta.id}`
+          let ofmt = this.meta.tp || "jpeg"
+          let cmdText = `imagic ${oph} -format ${ofmt} -out inplace; o ${oph} @json -cqn`
+          data = await Wn.Sys.exec2(cmdText, {as:"json"}) 
+        }
+
+        // Notify change
         this.$notify("obj:write", data)
         this.uploading = 0
         this.uploadedTimestamp = Date.now()
@@ -432,12 +469,18 @@ export default {
   //////////////////////////////////////////
   watch: {
     "showInfo": function (val) {
-      console.log("showInfo watched")
+      //console.log("showInfo watched")
       this.isShowInfo = val
     },
     "floatInfo": function (val) {
-      console.log("floatInfo watched")
+      //console.log("floatInfo watched")
       this.isFloatInfo = val
+    }
+  },
+  //////////////////////////////////////////
+  created: function () {
+    this.OnPaste = evt => {
+      this.OnClipBoardPoste(evt)
     }
   },
   //////////////////////////////////////////
@@ -447,6 +490,12 @@ export default {
     this.$nextTick(() => {
       this.loadStateFromLocal()
     })
+    // Watch the clipboard
+    window.addEventListener("paste", this.OnPaste)
+  },
+  //////////////////////////////////////////
+  beforeDestroy: function () {
+    window.removeEventListener("paste", this.OnPaste)
   }
   //////////////////////////////////////////
 }

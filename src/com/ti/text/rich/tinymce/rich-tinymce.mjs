@@ -400,7 +400,7 @@ const _M = {
           })
           // Event: watch the command to update
           editor.on("ExecCommand", (evt)=>{
-            // console.log("command fired!!", evt)
+            console.log("command fired!!", evt)
             this.myHtmlCode = editor.getContent()
             this.evalOutline()
           })

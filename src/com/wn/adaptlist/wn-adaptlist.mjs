@@ -253,6 +253,18 @@ const _M = {
         this.$notify("open:wn:obj", obj)
       }
     },
+    //--------------------------------------
+    OnClipBoardPoste({ clipboardData } = {}) {
+      // Guard
+      console.log("OnClipBoardPoste", clipboardData)
+      let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
+      if(imgF) {
+        let imgTp = Ti.Util.getSuffix(imgF.name)
+        let dateS = Ti.DateTime.format(new Date(), "snapshot-yyyy-MM-dd_HHmmss")
+        imgF.name = dateS + imgTp
+        this.OnDropFiles([imgF])
+      }
+    },
     //--------------------------------------------
     async OnDropFiles(files) {
       // console.log("OnDropFiles", files)
@@ -496,6 +508,12 @@ const _M = {
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
+  created: function () {
+    this.OnPaste = evt => {
+      this.OnClipBoardPoste(evt)
+    }
+  },
+  ////////////////////////////////////////////////
   mounted: function () {
     //--------------------------------------------
     // Guart the uploading
@@ -508,6 +526,8 @@ const _M = {
         Ti.Toast.Open("i18n:upload-nofinished", "warn")
       }
     })
+    // Watch the clipboard
+    window.addEventListener("paste", this.OnPaste)
     // Restore the exposeHidden
     // if(this.keeyHiddenBy) {
     //   this.myExposeHidden = Ti.Storage.session.getBoolean(this.keeyHiddenBy)
@@ -516,6 +536,7 @@ const _M = {
   //--------------------------------------------
   beforeDestroy: function () {
     Ti.Fuse.get().remove("wn-list-adaptview-check-uploading")
+    window.removeEventListener("paste", this.OnPaste)
   }
   //--------------------------------------------
   ////////////////////////////////////////////////

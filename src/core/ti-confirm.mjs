@@ -2,6 +2,7 @@
 async function TiConfirm(msg="", {
   title, 
   icon,
+  vars,
   closer = false,
   type  = "info", 
   position = "center",
@@ -9,7 +10,9 @@ async function TiConfirm(msg="", {
   textNo  = "i18n:no",
   width=480, height}={}){
   //............................................
-  let text = Ti.I18n.text(msg)
+  let text = _.isEmpty(vars)
+               ? Ti.I18n.text(msg)
+               : Ti.I18n.textf(msg, vars);
   let theIcon  = icon  || "zmdi-help"
   let theTitle = title || "i18n:confirm"
   //............................................

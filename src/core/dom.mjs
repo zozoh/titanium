@@ -123,6 +123,13 @@ const TiDom = {
     throw "Unsupport attrFilter: " + filter
   },
   //----------------------------------------------------
+  attr($el, name, dft) {
+    if(!name || !_.isElement($el)) {
+      return dft
+    }
+    return $el.getAttribute(name)
+  },
+  //----------------------------------------------------
   attrs($el, filter=true) {
     filter = this.attrFilter(filter)
     let re = {}
@@ -914,6 +921,28 @@ const TiDom = {
     let rev = h / more.height
     //console.log(rev, {vwBottom, mrTop, mrBottom})
     return rev
+  },
+  //----------------------------------------------------
+  getFromClipBoard(clipboardData, filter) {
+    let items = clipboardData && clipboardData.items;
+    if(!_.isFunction(filter) || _.isEmpty(items)){
+      return
+    }
+    for(let i=0; i<items.length; i++) {
+      let it = items[i]
+      let re = filter(it, i)
+      if(re) {
+        return re;
+      }
+    }
+  },
+  //----------------------------------------------------
+  getImageDataFromClipBoard(clipboardData) {
+    return TiDom.getFromClipBoard(clipboardData, (it, index)=>{
+      if(it && /^image\//.test(it.type)) {
+        return it.getAsFile()
+      }
+    })
   },
   //----------------------------------------------------
   /**
