@@ -330,7 +330,7 @@ const TiDom = {
       return
     }
     // remove single element
-    if(_.isElement(selectorOrElement))
+    if(_.isElement(selectorOrElement.parentNode))
       selectorOrElement.parentNode.removeChild(selectorOrElement)
   },
   //----------------------------------------------------

@@ -1,4 +1,4 @@
-// Pack At: 2021-09-23 09:52:39
+// Pack At: 2021-09-23 12:18:44
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -46595,8 +46595,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
             createIfNoExists:true,
             asBase64:true
           })
+          editor.selection.select($loading)
           // Insert
           editor.execCommand("InsertImage", editor, [obj])
+          Ti.Dom.remove($loading)
         }
       }
     })

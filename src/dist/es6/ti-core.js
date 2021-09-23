@@ -1,4 +1,4 @@
-// Pack At: 2021-09-23 09:52:39
+// Pack At: 2021-09-23 12:18:44
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4232,7 +4232,7 @@ const {Dom} = (function(){
         return
       }
       // remove single element
-      if(_.isElement(selectorOrElement))
+      if(_.isElement(selectorOrElement.parentNode))
         selectorOrElement.parentNode.removeChild(selectorOrElement)
     },
     //----------------------------------------------------
@@ -16641,7 +16641,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210923.095239",
+  "version" : "1.6-20210923.121844",
   "dev" : false,
   "appName" : null,
   "session" : {},

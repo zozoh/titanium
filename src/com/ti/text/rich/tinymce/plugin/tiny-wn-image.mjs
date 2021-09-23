@@ -480,8 +480,10 @@ export default {
             createIfNoExists:true,
             asBase64:true
           })
+          editor.selection.select($loading)
           // Insert
           editor.execCommand("InsertImage", editor, [obj])
+          Ti.Dom.remove($loading)
         }
       }
     })
