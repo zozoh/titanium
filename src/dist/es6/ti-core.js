@@ -1,4 +1,4 @@
-// Pack At: 2021-09-19 17:02:35
+// Pack At: 2021-09-23 09:52:39
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -56,6 +56,7 @@ const {Confirm} = (function(){
   async function TiConfirm(msg="", {
     title, 
     icon,
+    vars,
     closer = false,
     type  = "info", 
     position = "center",
@@ -63,7 +64,9 @@ const {Confirm} = (function(){
     textNo  = "i18n:no",
     width=480, height}={}){
     //............................................
-    let text = Ti.I18n.text(msg)
+    let text = _.isEmpty(vars)
+                 ? Ti.I18n.text(msg)
+                 : Ti.I18n.textf(msg, vars);
     let theIcon  = icon  || "zmdi-help"
     let theTitle = title || "i18n:confirm"
     //............................................
@@ -4022,6 +4025,13 @@ const {Dom} = (function(){
       throw "Unsupport attrFilter: " + filter
     },
     //----------------------------------------------------
+    attr($el, name, dft) {
+      if(!name || !_.isElement($el)) {
+        return dft
+      }
+      return $el.getAttribute(name)
+    },
+    //----------------------------------------------------
     attrs($el, filter=true) {
       filter = this.attrFilter(filter)
       let re = {}
@@ -4813,6 +4823,28 @@ const {Dom} = (function(){
       let rev = h / more.height
       //console.log(rev, {vwBottom, mrTop, mrBottom})
       return rev
+    },
+    //----------------------------------------------------
+    getFromClipBoard(clipboardData, filter) {
+      let items = clipboardData && clipboardData.items;
+      if(!_.isFunction(filter) || _.isEmpty(items)){
+        return
+      }
+      for(let i=0; i<items.length; i++) {
+        let it = items[i]
+        let re = filter(it, i)
+        if(re) {
+          return re;
+        }
+      }
+    },
+    //----------------------------------------------------
+    getImageDataFromClipBoard(clipboardData) {
+      return TiDom.getFromClipBoard(clipboardData, (it, index)=>{
+        if(it && /^image\//.test(it.type)) {
+          return it.getAsFile()
+        }
+      })
     },
     //----------------------------------------------------
     /**
@@ -16609,7 +16641,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210919.170235",
+  "version" : "1.6-20210923.095239",
   "dev" : false,
   "appName" : null,
   "session" : {},
