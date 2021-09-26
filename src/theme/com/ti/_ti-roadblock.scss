@@ -1,7 +1,7 @@
 .ti-roadblock {
   @include noselect;
-  @include color($color-disable, c, r);
   @include flex-center;
+  color: map-get($color-disable, c);
   width: 100%;
   height: 100%;
   padding-bottom: 20%; 
@@ -21,4 +21,13 @@
   &.is-big > .as-main {font-size: SZ(32);}
   &.is-normal > .as-main {font-size: SZ(24);}
   &.is-small > .as-main {font-size: SZ(18);}
+  //------------------------------------------
+  &.is-success {color: map-get($color-success, c);}
+  &.is-warn    {color: map-get($color-warn, c);}
+  &.is-info    {color: map-get($color-info, c);} 
+  &.is-error   {color: map-get($color-error, c);}
+  &.is-track   {color: map-get($color-track, c);}
+  &.is-disable {color: map-get($color-disable, c);}
+  &.is-text    {color: map-get($color-text, c);}
+  &.is-number  {color: map-get($color-number, c);}
 }
