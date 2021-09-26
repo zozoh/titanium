@@ -1,0 +1,42 @@
+{
+  "comType": "ti-form",
+  "comConf": {
+    "autoShowBlank": false,
+    "data": "=data",
+    "fields": [
+      {
+        "title": "堆叠（水平多值）",
+        "name": "stackH_multi",
+        "type": "Object",
+        "comType": "ti-slide-stack",
+        "comConf": {
+          "capacity": 10000,
+          "precision": 0,
+          "stacks": [
+            {
+              "title": "主分区",
+              "name": "major",
+              "min": 100,
+              "max": 5000,
+              "dft": 500
+            },
+            {
+              "title": "扩展分区",
+              "name": "ext",
+              "min": 0,
+              "max": 5000,
+              "dft": 3000
+            },
+            {
+              "title": "交换分区",
+              "name": "swap",
+              "min": 128,
+              "max": 1000,
+              "dft": 300
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

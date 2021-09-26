@@ -1,51 +1,57 @@
 {
-  "comIcon" : "im-flask",
-  "modType" : "@mod:wn/obj-content",
-  "comType" : "@Test:com-test-case",
-  "actions" : [{
-      "name"  : "saving",
-      "type" : "action",
-      "icon" : "zmdi-floppy",
-      "text" : "i18n:save-change",
-      "altDisplay" : {
-        "icon" : "fas-spinner fa-pulse",
-        "text" : "i18n:saving"
+  "comIcon": "im-flask",
+  "modType": "@mod:wn/obj-content",
+  "comType": "@Test:com-test-case",
+  "actions": [
+    {
+      "name": "saving",
+      "type": "action",
+      "icon": "zmdi-floppy",
+      "text": "i18n:save-change",
+      "altDisplay": {
+        "icon": "fas-spinner fa-pulse",
+        "text": "i18n:saving"
       },
-      "enabled" : "changed",
-      "action" : "dispatch:main/save",
-      "shortcut" : "CTRL+S"
-    }, {
-      "name"  : "reloading",
-      "type" : "action",
-      "icon" : "zmdi-refresh",
-      "text" : "i18n:refresh",
-      "altDisplay" : {
-        "icon" : "zmdi-refresh zmdi-hc-spin",
-        "text" : "i18n:loading"
+      "enabled": "changed",
+      "action": "dispatch:main/save",
+      "shortcut": "CTRL+S"
+    },
+    {
+      "name": "reloading",
+      "type": "action",
+      "icon": "zmdi-refresh",
+      "text": "i18n:refresh",
+      "altDisplay": {
+        "icon": "zmdi-refresh zmdi-hc-spin",
+        "text": "i18n:loading"
       },
-      "action" : "dispatch:main/reload",
-      "shortcut" : "CTRL+SHIFT+R"
-    }, {
-      "name"  : "viewsource",
-      "type" : "action",
-      "icon" : "far-file-alt",
-      "text" : "i18n:view-resource",
-      "action" : "dispatch:main/openContentEditor",
-      "shortcut" : "ALT+CTRL+V"
-    },{
-      "type" : "action",
-      "icon" : "zmdi-keyboard",
-      "text" : "i18n:console",
-      "action" : "=>Ti.Be.Open('/a/open/wn.console')",
-      "shortcut" : "ALT+SHIFT+T",
+      "action": "dispatch:main/reload",
+      "shortcut": "CTRL+SHIFT+R"
+    },
+    {
+      "name": "viewsource",
+      "type": "action",
+      "icon": "far-file-alt",
+      "text": "i18n:view-resource",
+      "action": "dispatch:main/openContentEditor",
+      "shortcut": "ALT+CTRL+V"
+    },
+    {
+      "type": "action",
+      "icon": "zmdi-keyboard",
+      "text": "i18n:console",
+      "action": "=>Ti.Be.Open('/a/open/wn.console')",
+      "shortcut": "ALT+SHIFT+T",
       "visible": {
-        "ENABLE_CONSOLE" : "yes"
+        "ENABLE_CONSOLE": "yes"
       }
-    },{
-      "type" : "action",
-      "icon" : "zmdi-info-outline",
-      "text" : "i18n:properties",
-      "action" : "dispatch:current/openMetaEditor",
-      "shortcut" : "ALT+SHIFT+P"
-    }]
+    },
+    {
+      "type": "action",
+      "icon": "zmdi-info-outline",
+      "text": "i18n:properties",
+      "action": "dispatch:current/openMetaEditor",
+      "shortcut": "ALT+SHIFT+P"
+    }
+  ]
 }

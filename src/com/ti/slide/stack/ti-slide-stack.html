@@ -1,0 +1,51 @@
+<div class="ti-slide-stack" 
+  :class="TopClass"
+  v-ti-activable
+  v-ti-draggable="Draggable">
+  <!--
+    Main part to contains stack items
+  -->
+  <div class="as-main ti-fill-parent" ref="main">
+    <!--
+      Stack item
+    -->
+    <div
+      v-for="it in DisplayStackItems"
+        class="stack-item"
+        :key="it.name"
+        :style="it.barStyle"
+        :item-index="it.index">
+        <!--Display text-->
+        <span
+          class="stack-item-text"
+          :style="it.textStyle">{{it.valueText}}</span>
+    </div><!--// Stack item-->
+  </div>
+  <!--
+    Legend part 
+  -->
+  <div class="as-legend">
+    <table>
+      <!--
+        Stack item
+      -->
+      <tr
+        v-for="it in DisplayStackItems"
+          class="legend-item"
+          :key="it.name"
+          :style="it.style"
+          :item-index="it.index">
+          <!--Legend name-->
+          <td class="legend-name"><div>
+            <span class="as-dot" :style="it.legendNameStyle"></span>
+            <span class="as-txt">{{it.title}}</span>
+          </div></td>
+          <!--Item value-->
+          <td class="legend-value"><input 
+              @change="OnItemChange(it.name, $event)" :value="it.value"/></td>
+          <!--Item Tip-->
+          <td class="legend-tip">({{it.min}}-{{it.max}})</td>
+      </tr><!--// Legend item-->
+    </table>
+  </div>
+</div>

@@ -1,0 +1,71 @@
+.ti-slide-stack {
+  width:100%; 
+  //-------------------------------------------------
+  // Horizontal mode
+  //
+  &.is-mode-H {
+    & > .as-main{
+      @include flex-align-nowrap($ai:stretch);
+      width:100%; height: SZ(40);
+      //---------------------------------------------
+      .stack-item {
+        &:first-child {border-radius: SZ(10) 0 0 SZ(10);}
+        &:last-child  {border-radius: 0 SZ(10) SZ(10) 0;}
+      }
+      //---------------------------------------------
+    }
+  }
+  //-------------------------------------------------
+  // Vertical mode
+  //
+  &.is-mode-V {
+    & > .as-main{
+      @include flex-align-v-nowrap;
+      width: SZ(100); height: SZ(300); 
+    }
+  }
+  //-------------------------------------------------
+  .as-main {
+    //-----------------------------------------------
+    .stack-item {
+      @include flex-center;
+      flex:0 0 auto;
+    }
+    //-----------------------------------------------
+    .stack-item-text {
+      @include font-fixed;
+      font-size: SZ(12); 
+    }
+    //-----------------------------------------------
+  }
+  //-------------------------------------------------
+  .as-legend {
+    padding: SZ(10);
+    table {
+      border: 0;
+    }
+    .legend-name > div {
+      @include flex-align-nowrap($ai:center);
+      .as-dot {
+        display: block; border-radius: SZ(4);
+        width: SZ(16); height: SZ(16);
+      }
+      .as-txt {
+        white-space: nowrap;
+        padding: 0 SZ(6);
+      }
+    }
+    input {
+      @include text-input;
+      font-size: SZ(12); 
+      padding: SZ(4);
+      width: SZ(180);
+    }
+    .legend-tip {
+      @include font-fixed($sz:SZ(12));
+      @include color($color-track, c);
+      white-space: nowrap;
+    }
+  }
+  //------------------------------------------------- 
+}

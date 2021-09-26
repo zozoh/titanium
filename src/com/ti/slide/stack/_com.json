@@ -1,0 +1,6 @@
+{
+  "name" : "ti-slide-stack",
+  "globally" : true,
+  "template" : "./ti-slide-stack.html",
+  "mixins" : ["./ti-slide-stack.mjs"]
+}

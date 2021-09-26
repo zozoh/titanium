@@ -1,10 +1,12 @@
 {
-  "name" : "com-test-case",
-  "globally" : true,
-  "i18n" : "@i18n:hmaker",
-  "template" : "./com-test-case.html",
-  "mixins" : ["./com-test-case.mjs"],
-  "components" : [
+  "name": "com-test-case",
+  "globally": true,
+  "i18n": "@i18n:hmaker",
+  "template": "./com-test-case.html",
+  "mixins": [
+    "./com-test-case.mjs"
+  ],
+  "components": [
     "@com:ti/form",
     "@com:ti/wizard",
     "@com:ti/calendar",
@@ -21,6 +23,8 @@
     "@com:wn/transfer",
     "@com:wn/droplist",
     "@com:ti/lbs/route",
+    "@com:ti/slide/bar",
+    "@com:ti/slide/stack",
     "@com:wn/combo/input",
     "@com:wn/combo/multi-input",
     "@com:wn/upload/file",
