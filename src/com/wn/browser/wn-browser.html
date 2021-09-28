@@ -1,8 +1,11 @@
 <TiGui
-  class="chispo-trademark-browser"
+  class="wn-browser"
   :class="TopClass"
   :schema="TheSchema"
   :layout="TheLayout"
+  :canLoading="canLoading"
+  :loadingAs="loadingAs"
+  :loading="loading"
   keep-shown-to="chispo-trademark-browser-gui-shown"
   @list::select="OnSelectItem"
   @listviewtype:change="OnListViewTypeChange"

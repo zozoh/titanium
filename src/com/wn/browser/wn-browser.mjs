@@ -58,9 +58,12 @@ export default {
     //   type : [Object, Function]
     // },
     "events": Object,
+    "canLoading": Boolean,
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
+    "loading": Boolean,
+    "loadingAs": Object,
     "tableFields": undefined,
     "listDisplay": undefined,
     "filter": {

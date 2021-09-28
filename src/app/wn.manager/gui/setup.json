@@ -8,7 +8,7 @@
     "phone"   : {}
   },
   "canLoading" : true,
-  "loadingAs" : false,
+  "loadingAs" : {},
   "firstCrumbIndex" : 1,
   "crumbTitleBy" : "title",
   "logo" : "<:home>"

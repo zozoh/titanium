@@ -8,13 +8,21 @@
 
   > .as-main {
     font-size: SZ(32);
-    > .as-icon {
+    .as-icon {
       font-size: 5em;
       padding: .1em;
     }
-    > .as-text {
+    .as-text {
       font-size: 1em;
       text-align:center;
+    }
+    .as-links {
+      padding: SZ(20); font-size: .8em;
+      .link-item a {
+        @include flex-align;
+        padding: SZ(10);
+        .link-icon {width: SZ(32);}
+      }
     }
   }
 

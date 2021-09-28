@@ -1,4 +1,4 @@
-//import {importModule} from "./polyfill-dynamic-import.mjs"
+import {importModule} from "./polyfill-dynamic-import.mjs"
 /////////////////////////////////////////
 // One resource load only once
 class UnifyResourceLoading {
@@ -51,7 +51,11 @@ const MjsLoading = new UnifyResourceLoading(async (url)=>{
     // TODO: QQBrowser will drop cookie when import the module js
     // I need auto-dected the browser type to decide in runtime
     // for use the polyfill-dynamic-import or native one
-    //return await importModule(url)
+    let UA = window.navigator.userAgent || "";
+    if(UA.indexOf("QQBrowser") > 0) {
+      //console.log("QQBrowser dynamic importModule:", url)
+      return await importModule(url)      
+    }
     return await import(url)
   }
   catch(E) {

@@ -1,11 +1,28 @@
 <div class="ti-roadblock"
   :class="TopClass">
   <div class="as-main">
-    <div v-if="icon" class="as-icon">
-      <ti-icon :value="icon"/>
-    </div>
-    <div v-if="text" class="as-text">
-      <span>{{text | i18n}}</span>
+    <!--Icon-->
+    <div
+      v-if="icon"
+        class="as-icon"><ti-icon :value="icon"/></div>
+    <!--Text-->
+    <div
+      v-if="text"
+        class="as-text"><span>{{text | i18n}}</span></div>
+    <!--Links-->
+    <div
+      v-if="hasLinks"
+        class="as-links">
+        <div
+          v-for="li in TheLinks"
+            class="link-item">
+            <a :href="li.href" :target="li.target">
+              <!--Link Icon-->
+              <ti-icon v-if="li.icon" class="link-icon" :value="li.icon"/>
+              <!--Link Text-->
+              <span v-if="li.text" class="link-text">{{li.text}}</span>
+            </a>
+        </div>
     </div>
   </div>
 </div>

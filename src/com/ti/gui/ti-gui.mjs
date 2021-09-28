@@ -84,11 +84,12 @@ const _M = {
     //-----------------------------------
     // value should be prop of ti-loading
     "loadingAs": {
-      type: [Boolean, Object],
+      type: Object,
       default: undefined
     },
     "loading": {
-      type: Boolean
+      type: Boolean,
+      default: false
     }
   },
   //////////////////////////////////////////
@@ -166,17 +167,11 @@ const _M = {
     },
     //--------------------------------------
     isLoading() {
-      return this.canLoading
-        && (this.loadingAs || this.loading)
-        ? true
-        : false
+      return this.canLoading && this.loading
     },
     //--------------------------------------
     TheLoading() {
-      if (_.isPlainObject(this.loadingAs)) {
-        return this.loadingAs
-      }
-      return {}
+      return this.loadingAs || {}
     }
     //--------------------------------------
   },
@@ -368,6 +363,7 @@ const _M = {
       immediate: true
     },
     "loadingAs": "syncViewportMeasure",
+    "loading": "syncViewportMeasure",
     "layout": "syncViewportMeasure"
   },
   //////////////////////////////////////////

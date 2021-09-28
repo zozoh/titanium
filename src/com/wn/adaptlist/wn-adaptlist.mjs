@@ -256,7 +256,7 @@ const _M = {
     //--------------------------------------
     OnClipBoardPoste({ clipboardData } = {}) {
       // Guard
-      console.log("OnClipBoardPoste", clipboardData)
+      //console.log("OnClipBoardPoste", clipboardData)
       let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
       if(imgF) {
         let imgTp = Ti.Util.getSuffix(imgF.name)
