@@ -1,4 +1,4 @@
-// Pack At: 2021-09-23 12:18:44
+// Pack At: 2021-09-29 11:54:09
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -5671,7 +5671,52 @@ const {Rect,Rects} = (function(){
 //##################################################
 // # import {Load}         from "./load.mjs"
 const {Load} = (function(){
-  //import {importModule} from "./polyfill-dynamic-import.mjs"
+  //################################################
+  // # import {importModule} from "./polyfill-dynamic-import.mjs"
+  const {importModule} = (function(){
+    // Following code copy from https://github.com/uupaa/dynamic-import-polyfill
+    function toAbsoluteURL(url) {
+      const a = document.createElement("a");
+      a.setAttribute("href", url);
+      return a.cloneNode(false).href;
+    }
+    
+    function importModule(url) {
+      return new Promise((resolve, reject) => {
+        const vector = "$importModule$" + Math.random().toString(32).slice(2);
+        const script = document.createElement("script");
+        const destructor = () => {
+          delete window[vector];
+          script.onerror = null;
+          script.onload = null;
+          script.remove();
+          URL.revokeObjectURL(script.src);
+          script.src = "";
+        };
+        script.defer = "defer";
+        script.type = "module";
+        // For QQBrowser: if send /a/load/xxx, it will drop the cookie
+        // to cause session losted.
+        // add the "crossOrigin" will force send the cookie
+        script.crossOrigin = "use-credentials"
+        script.onerror = () => {
+          reject(new Error(`Failed to import: ${url}`));
+          destructor();
+        };
+        script.onload = () => {
+          resolve(window[vector]);
+          destructor();
+        };
+        const absURL = toAbsoluteURL(url);
+        const loader = `import * as m from "${absURL}"; window.${vector} = m;`;
+        const blob = new Blob([loader], { type: "text/javascript" });
+        script.src = URL.createObjectURL(blob);
+    
+        document.head.appendChild(script);
+      });
+    }
+    return {importModule};
+  })();
   /////////////////////////////////////////
   // One resource load only once
   class UnifyResourceLoading {
@@ -5724,7 +5769,11 @@ const {Load} = (function(){
       // TODO: QQBrowser will drop cookie when import the module js
       // I need auto-dected the browser type to decide in runtime
       // for use the polyfill-dynamic-import or native one
-      //return await importModule(url)
+      let UA = window.navigator.userAgent || "";
+      if(UA.indexOf("QQBrowser") > 0) {
+        //console.log("QQBrowser dynamic importModule:", url)
+        return await importModule(url)      
+      }
       return await import(url)
     }
     catch(E) {
@@ -16641,7 +16690,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210923.121844",
+  "version" : "1.6-20210929.115409",
   "dev" : false,
   "appName" : null,
   "session" : {},

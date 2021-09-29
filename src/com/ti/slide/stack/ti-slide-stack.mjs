@@ -1,11 +1,11 @@
 /////////////////////////////////////////////////////////
-const DFT_BG = ["#08F", "#080", "#F80", "#AA0", "#0AA", "#A0A"]
+const DFT_BG = ["#08F", "#F80", "#080", "#AA0", "#0AA", "#A0A"]
 /////////////////////////////////////////////////////////
 export default {
   ///////////////////////////////////////////////////////
   data: () => ({
     myRect: null,
-    myValue: null
+    myValue: {}
   }),
   ///////////////////////////////////////////////////////
   props: {
@@ -57,13 +57,27 @@ export default {
     //-----------------------------------
     // Measure
     //-----------------------------------
-
+    "inputWidth": {
+      type: [String, Number]
+    }
   },
   ///////////////////////////////////////////////////////
   computed: {
     //---------------------------------------------------
     TopClass() {
-      return this.getTopClass(`is-mode-${this.mode}`)
+      let multi = this.StackItems.length > 1
+      return this.getTopClass({
+        "is-stack-single": !multi,
+        "is-stack-multi": multi
+      }, `is-mode-${this.mode}`)
+    },
+    //---------------------------------------------------
+    LegendInputStyle() {
+      if(this.inputWidth) {
+        return Ti.Css.toStyle({
+          width: this.inputWidth
+        })
+      }
     },
     //---------------------------------------------------
     TheValueType() {
@@ -137,7 +151,7 @@ export default {
         let {
           title, index, name, color, background, min, max
         } = it
-        let val = this.myValue[name]
+        let val = _.get(this.myValue, name)
         let valueText = this.FormatValue(val)
         let percent = val / this.LogicMax
         let li = {
@@ -219,18 +233,67 @@ export default {
     OnItemChange(name, $event) {
       let v = _.trim($event.srcElement.value)
       let si = this.StackMap[name]
+      //console.log(si)
       let v0 = v * 1
-      console.log(si)
-      if(isNaN(v0)) {
+      if (isNaN(v0)) {
         return
       }
       let v1 = Ti.Num.precise(v0, this.precision)
       let v2 = _.clamp(v1, si.min, si.max)
-      let newVal = _.cloneDeep(this.myValue)
-      newVal[name] = v2
-      this.myValue = this.evalMyVal(newVal)
-
+      let new0 = _.cloneDeep(this.myValue)
+      new0[name] = v2
+      let new1 = this.evalMyVal(new0)
+      let new2 = this.padMyValToCapacity(new1, si.index)
+      this.myValue = new2
       this.notifyChange()
+    },
+    //---------------------------------------------------
+    // If capacity defined, auto pad the value to fit capcity
+    padMyValToCapacity(val, fixIndex) {
+      // Guard
+      if (!(this.capacity > 0)) {
+        return val
+      }
+
+      // 1. Get value sum
+      let sum = 0;
+      _.forEach(val, v => sum += v)
+
+      // 2. Get remain
+      let remain = this.capacity - sum
+
+      if (remain == 0) {
+        return val
+      }
+
+      // 3. Prepare the stack items
+      let offset = Ti.Util.fallback(fixIndex, 0)
+      let items = []
+      let N = this.StackItems.length
+      for (let i = 0; i < N; i++) {
+        let itI = Ti.Num.scrollIndex(i + offset, N);
+        if (itI != fixIndex) {
+          let it = this.StackItems[itI]
+          items.push(it)
+        }
+      }
+
+      // 4. Assign remain
+      let rev = _.cloneDeep(val)
+      for (let it of items) {
+        let { name, min, max, dft } = it
+        let v = Ti.Util.fallback(val[name], dft)
+        let v1 = v + remain
+        let v2 = _.clamp(v1, min, max)
+        rev[name] = v2
+        let vd = v2 - v
+        remain -= vd
+        if (!remain) {
+          break
+        }
+      }
+
+      return rev
     },
     //---------------------------------------------------
     // make val to {V0: v ...}
@@ -265,37 +328,6 @@ export default {
           }
         })
       }
-      // If defined the capacity, fit it
-      if (this.capacity > 0) {
-        // Get the total
-        let total = 0;
-        _.forEach(re, v => total += v)
-        // Percent 
-        let percents = []
-        _.forEach(this.StackItems, ({ name }) => {
-          let v = re[name]
-          let p = v / total
-          percents.push(p)
-        })
-        
-        // Reset the value by percents
-        let vals = []
-        _.forEach(this.StackItems, ({ name, index, min, max }) => {
-          let p = percents[index]
-          let v = p * this.capacity
-          let v1 = _.clamp(v, min, max)
-          let v2 = Ti.Num.precise(v1, this.precision)
-          re[name] = v2
-          vals.push(v2)
-        })
-
-        // Pad to capacity
-        let sum = _.sum(vals)
-        let mod = this.capacity - sum
-        let firstName = _.first(this.StackItems).name
-        re[firstName] = re[firstName] + mod
-      }
-
       // Done
       return re
     },

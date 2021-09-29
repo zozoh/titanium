@@ -1,4 +1,4 @@
-// Pack At: 2021-09-23 12:18:44
+// Pack At: 2021-09-29 11:54:09
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1152,7 +1152,7 @@ const _M = {
     //--------------------------------------
     OnClipBoardPoste({ clipboardData } = {}) {
       // Guard
-      console.log("OnClipBoardPoste", clipboardData)
+      //console.log("OnClipBoardPoste", clipboardData)
       let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
       if(imgF) {
         let imgTp = Ti.Util.getSuffix(imgF.name)
@@ -2363,6 +2363,400 @@ const _M = {
   },
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'ti-slide-stack.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/slide/stack/ti-slide-stack.mjs'] = (function(){
+/////////////////////////////////////////////////////////
+const DFT_BG = ["#08F", "#F80", "#080", "#AA0", "#0AA", "#A0A"]
+/////////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////////
+  data: () => ({
+    myRect: null,
+    myValue: {}
+  }),
+  ///////////////////////////////////////////////////////
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "value": {
+      type: [Number, Object, Array],
+      default: undefined
+    },
+    "valueType": {
+      type: String,
+      default: "auto",
+      validator: v => /^(auto|Number|Array|Object)$/.test(v)
+    },
+    "precision": {
+      type: Number,
+      default: 2
+    },
+    "stacks": {
+      type: [Array, Object],
+      default: undefined
+    },
+    "capacity": {
+      type: Number,
+      default: undefined
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    // 0 : notify when dragging done
+    // > 0 : notify during dragging with throttle
+    "notifyFrequency": {
+      type: Number,
+      default: 0
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "mode": {
+      type: String,
+      default: "H",
+      validator: v => /^(H|V)$/.test(v)
+    },
+    "format": {
+      type: [Function, String],
+      default: undefined
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "inputWidth": {
+      type: [String, Number]
+    }
+  },
+  ///////////////////////////////////////////////////////
+  computed: {
+    //---------------------------------------------------
+    TopClass() {
+      let multi = this.StackItems.length > 1
+      return this.getTopClass({
+        "is-stack-single": !multi,
+        "is-stack-multi": multi
+      }, `is-mode-${this.mode}`)
+    },
+    //---------------------------------------------------
+    LegendInputStyle() {
+      if(this.inputWidth) {
+        return Ti.Css.toStyle({
+          width: this.inputWidth
+        })
+      }
+    },
+    //---------------------------------------------------
+    TheValueType() {
+      if ("auto" == this.valueType) {
+        let N = this.StackItems.length
+        if (N <= 1) {
+          return "Number"
+        }
+        if (this.StackItems[0].name) {
+          return "Object"
+        }
+        return "Array"
+      }
+      return this.valueType
+    },
+    //---------------------------------------------------
+    StackItems() {
+      let list = _.concat(this.stacks)
+      let items = []
+      _.forEach(list, (li, index) => {
+        if (!li)
+          return
+        let name = li.name || `V${index}`
+        let min = li.min || 0
+        let max = li.max || 100
+        let dft = Ti.Util.fallback(li.dft, max)
+        let background = li.background
+        if (!background) {
+          background = Ti.Util.nth(DFT_BG, index, "#000")
+        }
+        items.push({
+          title: li.title,
+          index, name, min, max, dft,
+          color: li.color || "#FFF",
+          background
+        })
+      })
+      return items;
+    },
+    //---------------------------------------------------
+    StackMap() {
+      let re = {}
+      _.forEach(this.StackItems, (it) => {
+        re[it.name] = it
+      })
+      return re
+    },
+    //---------------------------------------------------
+    LogicMax() {
+      if (this.capacity > 0) {
+        return this.capacity
+      }
+      let re = 0
+      _.forEach(this.StackItems, ({ max }) => {
+        re += max
+      })
+      return re;
+    },
+    //---------------------------------------------------
+    DisplaySize() {
+      if ("V" == this.mode) {
+        return _.get(this.myRect, "height")
+      }
+      return _.get(this.myRect, "width")
+    },
+    //---------------------------------------------------
+    DisplayStackItems() {
+      let list = []
+      let sizeKey = "V" == this.mode ? "height" : "width"
+      _.forEach(this.StackItems, it => {
+        let {
+          title, index, name, color, background, min, max
+        } = it
+        let val = _.get(this.myValue, name)
+        let valueText = this.FormatValue(val)
+        let percent = val / this.LogicMax
+        let li = {
+          title, index, name, min, max,
+          value: val,
+          valueText,
+          percent,
+          barStyle: {
+            [sizeKey]: `${percent * 100}%`,
+            background, color
+          },
+          legendNameStyle: {
+            background, color
+          }
+        }
+        list.push(li)
+      })
+      return list
+    },
+    //---------------------------------------------------
+    FormatValue() {
+      if (_.isString(this.format)) {
+        if (this.format.startsWith("=>")) {
+          let str = this.format.substring(2).trim()
+          return Ti.Util.genInvoking(str, { partial: "right" })
+        }
+        return (val) => {
+          return Ti.S.renderBy(this.format, { val })
+        }
+      }
+      if (_.isFunction(this.format)) {
+        return this.format;
+      }
+      return v => v
+    },
+    //---------------------------------------------------
+    ThrottleSetVal() {
+      if (this.notifyFrequency > 0) {
+        return _.throttle(scale => {
+          this.evalMyVal(scale)
+        }, this.notifyFrequency)
+      }
+    },
+    //---------------------------------------------------
+    Draggable() {
+      return {
+        trigger: ".as-hdl",
+        viewport: ".as-con",
+        prepare: ({ scaleX }) => {
+          let scale = _.clamp(scaleX, 0, 1)
+          let value = this.calValue(scale)
+          this.$notify("drag:begin", { value, scale })
+        },
+        dragging: ({ scaleX }) => {
+          this.evalMyHdlLeft(scaleX)
+          if (this.ThrottleSetVal) {
+            this.ThrottleSetVal(this.myHdlLeft)
+          }
+        },
+        done: ({ scaleX }) => {
+          this.evalMyHdlLeft(scaleX)
+          this.evalMyVal(scaleX)
+          this.$notify("drag:end", {
+            value: this.myValue,
+            scale: this.myHdlLeft
+          })
+        }
+      }
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods: {
+    //---------------------------------------------------
+    OnResize() {
+      this.myRect = Ti.Rects.createBy(this.$refs.main)
+    },
+    //---------------------------------------------------
+    OnItemChange(name, $event) {
+      let v = _.trim($event.srcElement.value)
+      let si = this.StackMap[name]
+      //console.log(si)
+      let v0 = v * 1
+      if (isNaN(v0)) {
+        return
+      }
+      let v1 = Ti.Num.precise(v0, this.precision)
+      let v2 = _.clamp(v1, si.min, si.max)
+      let new0 = _.cloneDeep(this.myValue)
+      new0[name] = v2
+      let new1 = this.evalMyVal(new0)
+      let new2 = this.padMyValToCapacity(new1, si.index)
+      this.myValue = new2
+      this.notifyChange()
+    },
+    //---------------------------------------------------
+    // If capacity defined, auto pad the value to fit capcity
+    padMyValToCapacity(val, fixIndex) {
+      // Guard
+      if (!(this.capacity > 0)) {
+        return val
+      }
+
+      // 1. Get value sum
+      let sum = 0;
+      _.forEach(val, v => sum += v)
+
+      // 2. Get remain
+      let remain = this.capacity - sum
+
+      if (remain == 0) {
+        return val
+      }
+
+      // 3. Prepare the stack items
+      let offset = Ti.Util.fallback(fixIndex, 0)
+      let items = []
+      let N = this.StackItems.length
+      for (let i = 0; i < N; i++) {
+        let itI = Ti.Num.scrollIndex(i + offset, N);
+        if (itI != fixIndex) {
+          let it = this.StackItems[itI]
+          items.push(it)
+        }
+      }
+
+      // 4. Assign remain
+      let rev = _.cloneDeep(val)
+      for (let it of items) {
+        let { name, min, max, dft } = it
+        let v = Ti.Util.fallback(val[name], dft)
+        let v1 = v + remain
+        let v2 = _.clamp(v1, min, max)
+        rev[name] = v2
+        let vd = v2 - v
+        remain -= vd
+        if (!remain) {
+          break
+        }
+      }
+
+      return rev
+    },
+    //---------------------------------------------------
+    // make val to {V0: v ...}
+    evalMyVal(val) {
+      // Integer
+      if (_.isNumber(val)) {
+        val = [val]
+      }
+      let re = {};
+      // Assign default value
+      _.forEach(this.StackItems, ({ name, dft }) => {
+        re[name] = dft
+      })
+      // Array
+      if (_.isArray(val)) {
+        let n = Math.min(val.length, this.StackItems.length)
+        for (let i = 0; i < n; i++) {
+          let si = this.StackItems[i]
+          let v = val[i]
+          if (v >= 0) {
+            let k = si.name
+            re[k] = Ti.Num.precise(v, this.precision)
+          }
+        }
+      }
+      // Must by Plain Object
+      else {
+        _.forEach(val, (v, k) => {
+          let si = this.StackMap[k]
+          if (si) {
+            re[k] = Ti.Num.precise(v, this.precision)
+          }
+        })
+      }
+      // Done
+      return re
+    },
+    //---------------------------------------------------
+    notifyChange() {
+      let fn = ({
+        "Number": () => {
+          let si = _.first(this.StackItems)
+          return Ti.Util.fallback(this.myValue[si.name], si.dft)
+        },
+        "Array": () => {
+          let vs = []
+          _.forEach(this.StackItems, ({ name, dft }) => {
+            let v = Ti.Util.fallback(this.myValue[name], dft)
+            vs.push(v)
+          })
+          return vs
+        },
+        "Object": () => {
+          let re = {}
+          _.forEach(this.StackItems, ({ name, dft }) => {
+            let v = Ti.Util.fallback(this.myValue[name], dft)
+            re[name] = v
+          })
+          return re;
+        }
+      })[this.TheValueType]
+      let v = fn()
+      this.$notify("change", v)
+    }
+    //---------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    "value": {
+      handler: function (newVal, oldVal) {
+        if (Ti.Util.isNil(oldVal) || !_.isEqual(newVal, oldVal)) {
+          this.myValue = this.evalMyVal(newVal)
+        }
+      },
+      immediate: true
+    }
+  },
+  ///////////////////////////////////////////////////////
+  mounted: function () {
+    Ti.Viewport.watch(this, {
+      resize: () => {
+        this.OnResize()
+      }
+    })
+    this.OnResize()
+  },
+  ///////////////////////////////////////////////////////
+  beforeDestroy: function () {
+    Ti.Viewport.unwatch(this)
+  }
+  ///////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'web-meta-preview.mjs' -> null
@@ -16179,28 +16573,52 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'ti-roadblock.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/roadblock/ti-roadblock.mjs'] = (function(){
-/***
- * In Building ....
- */
 const __TI_MOD_EXPORT_VAR_NM = {
-  /////////////////////////////////////////
-  props : {
-    "icon" : {
+  ////////////////////////////////////////////////////
+  props: {
+    "icon": {
       type: String,
       default: "fas-exclamation-triangle"
     },
-    "text" : {
+    "text": {
       type: String,
       default: null
+    },
+    /**
+     * {icon,text,href,newtab}
+     */
+    "links": {
+      type: [Object, Array],
+      default: () => []
     }
   },
-  //////////////////////////////////////////
-  computed : {
+  /////////////////////////////////////////////////////
+  computed: {
+    //-------------------------------------------------
     TopClass() {
       return this.getTopClass()
+    },
+    //-------------------------------------------------
+    hasLinks() {
+      return !_.isEmpty(this.links)
+    },
+    //-------------------------------------------------
+    TheLinks() {
+      if (!this.hasLinks) {
+        return []
+      }
+      let links = _.concat(this.links)
+      let list = []
+      _.forEach(links, li => {
+        let it = _.cloneDeep(li)
+        it.target = li.newtab ? "_blank" : null
+        list.push(it)
+      })
+      return list;
     }
+    //-------------------------------------------------
   }
-  //////////////////////////////////////////
+  /////////////////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -31966,7 +32384,7 @@ const _M = {
     },
     //--------------------------------------
     async OnUpload(file) {
-      console.log("it will upload ", file)
+      //console.log("it will upload ", file)
       //................................
       // Check file size
       let fileSize = file.size
@@ -51330,11 +51748,12 @@ const _M = {
     //-----------------------------------
     // value should be prop of ti-loading
     "loadingAs": {
-      type: [Boolean, Object],
+      type: Object,
       default: undefined
     },
     "loading": {
-      type: Boolean
+      type: Boolean,
+      default: false
     }
   },
   //////////////////////////////////////////
@@ -51412,17 +51831,11 @@ const _M = {
     },
     //--------------------------------------
     isLoading() {
-      return this.canLoading
-        && (this.loadingAs || this.loading)
-        ? true
-        : false
+      return this.canLoading && this.loading
     },
     //--------------------------------------
     TheLoading() {
-      if (_.isPlainObject(this.loadingAs)) {
-        return this.loadingAs
-      }
-      return {}
+      return this.loadingAs || {}
     }
     //--------------------------------------
   },
@@ -51614,6 +52027,7 @@ const _M = {
       immediate: true
     },
     "loadingAs": "syncViewportMeasure",
+    "loading": "syncViewportMeasure",
     "layout": "syncViewportMeasure"
   },
   //////////////////////////////////////////
@@ -51989,9 +52403,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //   type : [Object, Function]
     // },
     "events": Object,
+    "canLoading": Boolean,
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
+    "loading": Boolean,
+    "loadingAs": Object,
     "tableFields": undefined,
     "listDisplay": undefined,
     "filter": {
@@ -53999,7 +54416,7 @@ const _M = {
         payload : {} | [] | ...
       } 
       */
-      console.log("invokeAction", name, args)
+      // console.log("invokeAction", name, args)
       let actions = getters.actions;
       let AT = _.get(actions, name)
 
@@ -66037,11 +66454,28 @@ Ti.Preload("ti/com/ti/progress/bar/_com.json", {
 Ti.Preload("ti/com/ti/roadblock/ti-roadblock.html", `<div class="ti-roadblock"
   :class="TopClass">
   <div class="as-main">
-    <div v-if="icon" class="as-icon">
-      <ti-icon :value="icon"/>
-    </div>
-    <div v-if="text" class="as-text">
-      <span>{{text | i18n}}</span>
+    <!--Icon-->
+    <div
+      v-if="icon"
+        class="as-icon"><ti-icon :value="icon"/></div>
+    <!--Text-->
+    <div
+      v-if="text"
+        class="as-text"><span>{{text | i18n}}</span></div>
+    <!--Links-->
+    <div
+      v-if="hasLinks"
+        class="as-links">
+        <div
+          v-for="li in TheLinks"
+            class="link-item">
+            <a :href="li.href" :target="li.target">
+              <!--Link Icon-->
+              <ti-icon v-if="li.icon" class="link-icon" :value="li.icon"/>
+              <!--Link Text-->
+              <span v-if="li.text" class="link-text">{{li.text}}</span>
+            </a>
+        </div>
     </div>
   </div>
 </div>`);
@@ -66203,6 +66637,75 @@ Ti.Preload("ti/com/ti/slide/bar/_com.json", {
   "globally" : true,
   "template" : "./ti-slide-bar.html",
   "mixins" : ["./ti-slide-bar.mjs"]
+});
+//========================================
+// JOIN <ti-slide-stack.html> ti/com/ti/slide/stack/ti-slide-stack.html
+//========================================
+Ti.Preload("ti/com/ti/slide/stack/ti-slide-stack.html", `<div class="ti-slide-stack" 
+  :class="TopClass"
+  v-ti-activable
+  v-ti-draggable="Draggable">
+  <!--
+    Main part to contains stack items
+  -->
+  <div class="as-main ti-fill-parent" ref="main">
+    <!--
+      Stack item
+    -->
+    <div
+      v-for="it in DisplayStackItems"
+        class="stack-item"
+        :key="it.name"
+        :style="it.barStyle"
+        :item-index="it.index">
+        <!--Display text-->
+        <span
+          class="stack-item-text"
+          :style="it.textStyle">{{it.valueText}}</span>
+    </div><!--// Stack item-->
+  </div>
+  <!--
+    Legend part 
+  -->
+  <div class="as-legend">
+    <table>
+      <!--
+        Stack item
+      -->
+      <tr
+        v-for="it in DisplayStackItems"
+          class="legend-item"
+          :key="it.name"
+          :style="it.style"
+          :item-index="it.index">
+          <!--Legend name-->
+          <td class="legend-name"><div>
+            <span class="as-dot" :style="it.legendNameStyle"></span>
+            <span class="as-txt">{{it.title}}</span>
+          </div></td>
+          <!--Item value-->
+          <td class="legend-value"><input
+              :style="LegendInputStyle"
+              :value="it.value"
+              @change="OnItemChange(it.name, $event)"/></td>
+          <!--Item Tip-->
+          <td class="legend-tip">({{it.min}}-{{it.max}})</td>
+      </tr><!--// Legend item-->
+    </table>
+  </div>
+</div>`);
+//========================================
+// JOIN <ti-slide-stack.mjs> ti/com/ti/slide/stack/ti-slide-stack.mjs
+//========================================
+Ti.Preload("ti/com/ti/slide/stack/ti-slide-stack.mjs", TI_PACK_EXPORTS['ti/com/ti/slide/stack/ti-slide-stack.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/slide/stack/_com.json
+//========================================
+Ti.Preload("ti/com/ti/slide/stack/_com.json", {
+  "name" : "ti-slide-stack",
+  "globally" : true,
+  "template" : "./ti-slide-stack.html",
+  "mixins" : ["./ti-slide-stack.mjs"]
 });
 //========================================
 // JOIN <field_display.mjs> ti/com/ti/support/field_display.mjs
@@ -70983,10 +71486,13 @@ Ti.Preload("ti/com/wn/adaptlist/_com.json", {
 // JOIN <wn-browser.html> ti/com/wn/browser/wn-browser.html
 //========================================
 Ti.Preload("ti/com/wn/browser/wn-browser.html", `<TiGui
-  class="chispo-trademark-browser"
+  class="wn-browser"
   :class="TopClass"
   :schema="TheSchema"
   :layout="TheLayout"
+  :canLoading="canLoading"
+  :loadingAs="loadingAs"
+  :loading="loading"
   keep-shown-to="chispo-trademark-browser-gui-shown"
   @list::select="OnSelectItem"
   @listviewtype:change="OnListViewTypeChange"
@@ -73744,7 +74250,8 @@ Ti.Preload("ti/lib/www/com/site-main.html", `<div class="site-main"
   <ti-gui 
     class="site-page"
     v-bind="PageGUI"
-    :loading-as="loading"
+    :can-loading="true"
+    :loading="loading"
     :shown="PageShown"/>
   <!--pre>{{page}}</pre-->
 </div>`);
@@ -74021,7 +74528,7 @@ Ti.Preload("/a/load/wn.manager/gui/setup.json", {
     "phone"   : {}
   },
   "canLoading" : true,
-  "loadingAs" : false,
+  "loadingAs" : {},
   "firstCrumbIndex" : 1,
   "crumbTitleBy" : "title",
   "logo" : "<:home>"

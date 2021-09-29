@@ -16,25 +16,41 @@
             {
               "title": "主分区",
               "name": "major",
-              "min": 100,
-              "max": 5000,
-              "dft": 500
+              "min": 2000,
+              "max": 8000,
+              "dft": 3000
             },
             {
               "title": "扩展分区",
               "name": "ext",
               "min": 0,
-              "max": 5000,
-              "dft": 3000
+              "max": 8000,
+              "dft": 5000
             },
             {
               "title": "交换分区",
               "name": "swap",
               "min": 128,
               "max": 1000,
-              "dft": 300
+              "dft": 500
             }
           ]
+        }
+      },
+      {
+        "title": "堆叠（水平单值）",
+        "name": "stackH_single",
+        "type": "Integer",
+        "comType": "ti-slide-stack",
+        "comConf": {
+          "precision": 0,
+          "stacks": {
+            "title": "内存",
+            "name": "memory",
+            "min": 500,
+            "max": 1000,
+            "dft": 600
+          }
         }
       }
     ]

@@ -41,8 +41,10 @@
             <span class="as-txt">{{it.title}}</span>
           </div></td>
           <!--Item value-->
-          <td class="legend-value"><input 
-              @change="OnItemChange(it.name, $event)" :value="it.value"/></td>
+          <td class="legend-value"><input
+              :style="LegendInputStyle"
+              :value="it.value"
+              @change="OnItemChange(it.name, $event)"/></td>
           <!--Item Tip-->
           <td class="legend-tip">({{it.min}}-{{it.max}})</td>
       </tr><!--// Legend item-->

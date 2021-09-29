@@ -218,7 +218,7 @@ const _M = {
     },
     //--------------------------------------
     async OnUpload(file) {
-      console.log("it will upload ", file)
+      //console.log("it will upload ", file)
       //................................
       // Check file size
       let fileSize = file.size
