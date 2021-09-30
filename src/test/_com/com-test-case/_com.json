@@ -28,6 +28,7 @@
     "@com:wn/combo/input",
     "@com:wn/combo/multi-input",
     "@com:wn/upload/file",
+    "@com:wn/upload/multi-files",
     "@Test:test-app-modal"
   ]
 }

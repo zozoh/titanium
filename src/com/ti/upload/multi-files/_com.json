@@ -1,0 +1,6 @@
+{
+  "name" : "ti-upload-multi-files",
+  "globally" : true,
+  "template" : "./ti-upload-multi-files.html",
+  "mixins" : ["./ti-upload-multi-files.mjs"]
+}

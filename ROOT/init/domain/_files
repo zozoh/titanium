@@ -55,7 +55,7 @@
 #                    测试场
 #
 ##########################################################
-@DIR mock/media/ 'i18n:media/<fas-photo-video>'
+@DIR media/ 'i18n:media/<fas-photo-video>'
 @DIR mock/components/ '组件测试/<fas-vials>'
 #---------------------------------------------------------
 @FILE mock/components/gis/web-gis-leaflet.comt 'GIS-LEAFLET'
@@ -154,9 +154,11 @@
 @FILE mock/components/wn-form/wn-transfer.comt 'TRANSFER'
 {com:'/rs/ti/test/components/wn-form/demo-wn-transfer.json'}
 #---------------------------------------------------------
-@FILE mock/components/wn-form/wn-upload.comt 'UPLOAD'
-{com:'/rs/ti/test/components/wn-form/demo-wn-upload.json'}
-
+@FILE mock/components/wn-form/wn-upload-file.comt 'UPLOAD-FILE'
+{com:'/rs/ti/test/components/wn-form/demo-wn-upload-file.json'}
+#---------------------------------------------------------
+@FILE mock/components/wn-form/wn-upload-multi-files.comt 'UPLOAD-MULTI-FILES'
+{com:'/rs/ti/test/components/wn-form/demo-wn-upload-multi-files.json'}
 #---------------------------------------------------------
 ##########################################################
 #

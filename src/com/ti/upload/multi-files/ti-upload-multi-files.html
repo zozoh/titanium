@@ -1,0 +1,71 @@
+<div 
+  class="ti-upload-multi-files full-field"
+  :class="TopClass"><div class="as-wrapper">
+  <!--
+    Hidden input file to choose files
+  -->
+  <input 
+    type="file" 
+    ref="file" 
+    class="ti-hide"
+    multiple
+    @change.stop.seft="OnSelectLocalFilesToUpload">
+  <!--
+    Main container
+  -->
+  <div class="as-main" v-drop-files.mask="OnDropFiles" ref="itemsCon">
+    <!--
+      Show items (Uploaded and Uploading)
+    -->
+    <div
+      v-for="(it,index) in PreviewItems"
+        :key="it.key || it.id || index"
+        class="file-item as-item"
+        :class="it.className">
+        <!--Preview-->
+        <TiObjThumb
+          :style="ItemStyle"
+          :preview="it.thumb"
+          :title="it.text"
+          :progress="it.progress"
+          :show-footer="showItemText"
+          :previewStyle="ItemPreviewStyle"/>
+        <!--Actions-->
+        <div
+          v-if="'obj' == it.type"
+            class="item-actions"><ul>
+              <!--Action:Remove-->
+              <li @click.left="OnRemoveItem(it)">
+                <i class="zmdi zmdi-close-circle"></i>
+                <span>{{'i18n:remove'|i18n}}</span>
+              </li>
+              <!--Action:Open-->
+              <li @click.left="OnOpenItem(it)" v-if="it.id">
+                <i class="zmdi zmdi-open-in-new"></i>
+                <span>{{'i18n:open'|i18n}}</span>
+              </li>
+        </ul></div>
+    </div>
+    <!--
+      Show the new icon
+    -->
+    <div 
+      v-if="isShowAddBtn"
+        class="file-item as-new"
+        :style="ItemStyle"
+        @click.left="OnClickAdd"><i class="zmdi zmdi-plus"></i></div>
+  </div>
+  <!--
+    Global actions
+  -->
+  <div
+    v-if="isShowActions"
+      class="as-actions">
+      <!--Clean-->
+      <div class="action-item" @click.left="OnClean">
+        <i class="fas fa-trash-alt"></i>
+        <span>{{'i18n:clean'|i18n}}</span>
+      </div>
+  </div>
+  <div>{{dragging}}</div>
+</div></div>

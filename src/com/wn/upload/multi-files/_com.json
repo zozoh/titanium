@@ -1,0 +1,10 @@
+{
+  "name" : "wn-upload-multi-files",
+  "globally" : true,
+  "template" : "./wn-upload-multi-files.html",
+  "mixins" : ["./wn-upload-multi-files.mjs"],
+  "components" : [
+    "@com:ti/upload/multi-files"
+  ],
+  "deps": ["@deps:sortable.js"]
+}

@@ -9,6 +9,14 @@ const TiBehaviors = {
    * it will be removed immdiataly
    */
   Open(url, {target="_blank", method="GET", params={}, delay=100}={}) {
+    if(url && url.url) {
+      let link = url
+      url = link.url
+      if(!_.isEmpty(link.params)) {
+        params = link.params
+      }
+      target = link.target || target
+    }
     return new Promise((resolve)=>{
       // Join to DOM
       let $form = Ti.Dom.createElement({

@@ -1,77 +1,80 @@
 const _M = {
   ////////////////////////////////////////////////
-  props : {
-    "index" : {
-      type : Number,
-      default : -1
+  props: {
+    "index": {
+      type: Number,
+      default: -1
     },
-    "id" : {
-      type : String,
-      default : undefined
+    "id": {
+      type: String,
+      default: undefined
     },
     // The text to present the object
-    "title" : {
-      type : String,
-      default : undefined
+    "title": {
+      type: String,
+      default: undefined
     },
     // The URL of thumb
-    "preview" : {
-      type : [String, Object, Function],
-      default : "broken_image"
+    "preview": {
+      type: [String, Object, Function],
+      default: "broken_image"
     },
-    "href" : {
-      type : String,
-      default : undefined
+    "href": {
+      type: String,
+      default: undefined
     },
-    "status" : {
-      type : [String, Object],
-      default : undefined
+    "status": {
+      type: [String, Object],
+      default: undefined
     },
-    "progress" : {
-      type : Number,
-      default : -1
+    "progress": {
+      type: Number,
+      default: -1
     },
-    "visibility" : {
-      type : String,
-      default : "show"  // `show|weak|hide`
+    "visibility": {
+      type: String,
+      default: "show"  // `show|weak|hide`
     },
     // true - alwasy show the footer part
-    "showFooter" : {
-      type : Boolean,
-      default : true
+    "showFooter": {
+      type: Boolean,
+      default: true
     },
-    "badges" : {
-      type : Object,
-      default: ()=>({
-        "NW" : null,
-        "NE" : null,
-        "SW" : null,
-        "SE" : null
+    "badges": {
+      type: Object,
+      default: () => ({
+        "NW": null,
+        "NE": null,
+        "SW": null,
+        "SE": null
       })
     },
-    "removeIcon" : {
-      type : [String, Object],
-      default : undefined
+    "removeIcon": {
+      type: [String, Object],
+      default: undefined
     },
-    "onTitle" : {
-      type : [String, Function, Boolean],
-      default : undefined
+    "onTitle": {
+      type: [String, Function, Boolean],
+      default: undefined
+    },
+    "previewStyle": {
+      type: Object
     }
   },
   ////////////////////////////////////////////////
-  watch : {
-    "preview" : function() {
+  watch: {
+    "preview": function () {
       this.renderLocalFile()
     }
   },
   ////////////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-hide" : ('hide' == this.visibility),
-        "is-weak" : ('weak' == this.visibility)
-      }, ()=>this.status ? `is-status-${this.status}` : null)
+        "is-hide": ('hide' == this.visibility),
+        "is-weak": ('weak' == this.visibility)
+      }, () => this.status ? `is-status-${this.status}` : null)
     },
     //--------------------------------------------
     PreviewType() {
@@ -88,50 +91,50 @@ const _M = {
     },
     //--------------------------------------------
     LocalFile() {
-      if(this.isLocalFile) {
+      if (this.isLocalFile) {
         return this.preview.value
       }
     },
     //--------------------------------------------
     LocalFileIcon() {
-      if(this.isLocalFile) {
+      if (this.isLocalFile) {
         let file = this.LocalFile
         let oF = {
-          type : Ti.Util.getSuffixName(file.name),
-          mime : file.type,
-          race : Ti.Util.isNil(file.type) ? "DIR" : "FILE"
+          type: Ti.Util.getSuffixName(file.name),
+          mime: file.type,
+          race: Ti.Util.isNil(file.type) ? "DIR" : "FILE"
         }
         return Ti.Icons.get(oF)
       }
     },
     //--------------------------------------------
     isShowProgress() {
-      return this.progress>=0;
+      return this.progress >= 0;
     },
     //--------------------------------------------
     ProgressTip() {
-      return Ti.S.toPercent(this.progress, {fixed:1, auto:false})
+      return Ti.S.toPercent(this.progress, { fixed: 1, auto: false })
     },
     //--------------------------------------------
     ProgressStyle() {
-      return {width:this.ProgressTip}
+      return { width: this.ProgressTip }
     },
     //--------------------------------------------
     ThumbBadges() {
       let list = []
-      _.forEach(this.badges, (v, k)=> {
-        if(!v)
+      _.forEach(this.badges, (v, k) => {
+        if (!v)
           return
-        if(_.isString(v)) {
+        if (_.isString(v)) {
           list.push({
-            type:"icon", value:v,
+            type: "icon", value: v,
             className: `as-badge at-${k.toLowerCase()}`
           })
         } else {
           list.push({
-            ...v, 
+            ...v,
             className: [
-              `as-badge at-${k.toLowerCase()}`, 
+              `as-badge at-${k.toLowerCase()}`,
               v.className
             ].join(" ")
           })
@@ -154,7 +157,7 @@ const _M = {
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------------
     OnRemove() {
       let context = this.genEventContext()
@@ -164,15 +167,15 @@ const _M = {
     OnClickTitle($event) {
       let context = this.genEventContext()
       // String -> Emit event
-      if(false === this.onTitle) {
+      if (false === this.onTitle) {
         $event.stopPropagation()
       }
       // Notify
-      else if(_.isString(this.onTitle)) {
+      else if (_.isString(this.onTitle)) {
         this.$notify(this.onTitle, context)
       }
       // Function -> Handle
-      else if(_.isFunction(this.onTitle)) {
+      else if (_.isFunction(this.onTitle)) {
         $event.stopPropagation()
         this.onTitle(context)
       }
@@ -188,10 +191,10 @@ const _M = {
     //--------------------------------------------
     renderLocalFile() {
       //console.log(this.LocalFile)
-      if(this.isLocalImage) {
+      if (this.isLocalImage) {
         let reader = new FileReader();
-        reader.onload = (evt)=>{
-          if(this.$refs.localImage) {
+        reader.onload = (evt) => {
+          if (this.$refs.localImage) {
             this.$refs.localImage.src = evt.target.result
           }
         }
@@ -201,7 +204,7 @@ const _M = {
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
-  mounted : function(){
+  mounted: function () {
     this.renderLocalFile()
   }
   ////////////////////////////////////////////////

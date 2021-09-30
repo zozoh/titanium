@@ -6,7 +6,7 @@
     "items" : [{
         "path" : "~/mock/components"
       }, {
-        "path" : "~/mock/media"
+        "path" : "~/media"
       }]
   }, {
     "key" : "sites",

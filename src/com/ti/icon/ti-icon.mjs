@@ -154,10 +154,9 @@ export default {
       }
       // font size
       else if('font' == icn.type) {
+        let fsz = icn.fontSize || this.fontSize 
         icn.innerStyle = {
-          "font-size" : this.fontSize 
-                          ? Ti.Css.toSize(this.fontSize) 
-                          : undefined
+          "font-size" : Ti.Css.toSize(fsz)
         }
       }
 

@@ -1,0 +1,15 @@
+<TiUploadMultiFiles
+  :items="FileItems"
+  :sortable="sortable"
+  :removable="sortable"
+  :progress="myUploadProgress"
+  :showItemText="showItemText"
+  :limit="limit"
+  :itemWidth="itemWidth"
+  :itemHeight="itemHeight"
+  :previewStyle="previewStyle"
+  :fileFilter="LocalFileFilter"
+  @upload="OnUploadFiles"
+  @remove="OnRemove"
+  @open="OnOpen"
+  @clean="OnClean"/>

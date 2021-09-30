@@ -1,4 +1,4 @@
-// Pack At: 2021-09-29 11:54:09
+// Pack At: 2021-09-30 23:09:55
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -4607,6 +4607,291 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'ti-upload-multi-files.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/upload/multi-files/ti-upload-multi-files.mjs'] = (function(){
+const _M = {
+  /////////////////////////////////////////
+  data: () => ({
+    "loading": false,
+    "dragging": false
+  }),
+  /////////////////////////////////////////
+  props: {
+    //-------------------------------------
+    // Data
+    //-------------------------------------
+    /**
+     * Each item as :
+     * 
+     * ```js
+     * {
+     *    id: "xxx",              // Unique key
+     *    src: "http://xxx...",   // Src to preview
+     *    file: File,             // Local file, for prerender duraing uploading
+     *    value: "id:xxx"         // Value of the item, could be String or Object
+     *    link: "/path/to/open"   // Link to open in newtab
+     * }
+     * ```
+     */
+    "items": {
+      type: Array,
+      default: () => []
+    },
+    /**
+     * Show the process `0.0-1.0` during the uploading
+     * 
+     * ```js
+     * {
+     *    itemId: 0,              // `0.0-1.0` during the uploading
+     * }
+     * ```
+     */
+    "progress": {
+      type: Object,
+      default: () => ({})
+    },
+    // check function => {ok:false, msg:"xxx"}
+    "fileFilter": {
+      type: Function
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "sortable": {
+      type: Boolean,
+      default: true
+    },
+    // support remove the objects
+    "removable": {
+      type: Boolean,
+      default: true
+    },
+    "limit": {
+      type: Number,
+      default: 0
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "showItemText": {
+      type: Boolean,
+      default: true
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "itemWidth": {
+      type: [Number, String],
+      default: undefined
+    },
+    "itemHeight": {
+      type: [Number, String],
+      default: undefined
+    },
+    "previewStyle": {
+      type: Object
+    }
+  },
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-dragging": this.dragging,
+        "no-dragging": !this.dragging,
+        "is-show-text": this.showItemText,
+        "no-show-text": !this.showItemText
+      })
+    },
+    //--------------------------------------
+    ItemStyle() {
+      return Ti.Css.toStyle({
+        width: this.itemWidth,
+        height: this.itemHeight
+      })
+    },
+    //--------------------------------------
+    ItemPreviewStyle() {
+      return Ti.Css.toStyle(this.previewStyle)
+    },
+    //--------------------------------------
+    PreviewItems() {
+      let list = []
+      _.forEach(this.items, (it, index) => {
+        let { id, src, icon, file, value, link, text } = it
+        let type = value ? "obj" : "local";
+        let thumb;
+        // Show local file
+        if (file) {
+          thumb = { type: "localFile", value: file }
+        }
+        // Show icon
+        else if (icon) {
+          thumb = icon
+        }
+        // Show image
+        else {
+          thumb = { type: "image", value: src }
+        }
+        // Get progress
+        let progress = _.get(this.progress, id)
+        // Join item
+        list.push({
+          index,
+          id, src, file, value, link, text,
+          type, thumb, progress,
+          className: `is-${type}`
+        })
+      })
+      return list
+    },
+    //--------------------------------------
+    Values() {
+      let list = []
+      _.forEach(this.items, ({ value }) => {
+        list.push(value)
+      })
+      return list
+    },
+    //--------------------------------------
+    hasItems() {
+      return !_.isEmpty(this.items)
+    },
+    //--------------------------------------
+    isShowAddBtn() {
+      return this.AvaCapCount != 0
+    },
+    //--------------------------------------
+    AvaCapCount() {
+      if (this.dragging) {
+        return 0;
+      }
+      if (this.limit > 0) {
+        return this.limit - this.Values.length
+      }
+      return -1
+    },
+    //--------------------------------------
+    isShowActions() {
+      return this.removable && this.hasItems
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    async OnClickAdd() {
+      this.$refs.file.click()
+    },
+    //--------------------------------------
+    async OnDropFiles(files) {
+      if (!_.isEmpty(files) && this.isShowAddBtn) {
+        let fs;
+        // Do Filter
+        if (_.isFunction(this.fileFilter)) {
+          fs = []
+          for (let f of files) {
+            let re = this.fileFilter(f)
+            if (re.ok) {
+              fs.push(f)
+            }
+            // Show Error
+            else {
+              return await Ti.Alert(re.msg, { type: "warn" })
+            }
+          }
+        } else {
+          fs = files
+        }
+
+        // Guard
+        if (_.isEmpty(fs)) {
+          return
+        }
+
+        // Auto match the limit
+        if (this.AvaCapCount > 0 && fs.length > this.AvaCapCount) {
+          fs = _.slice(fs, 0, this.AvaCapCount)
+        }
+        this.$notify("upload", fs)
+      }
+    },
+    //--------------------------------------
+    async OnSelectLocalFilesToUpload(evt) {
+      await this.OnDropFiles(evt.target.files)
+      this.$refs.file.value = ""
+    },
+    //--------------------------------------
+    OnRemoveItem(it) {
+      this.$notify("remove", it)
+    },
+    //--------------------------------------
+    OnOpenItem(it) {
+      this.$notify("open", it)
+    },
+    //--------------------------------------
+    OnClean() {
+      this.$notify("clean")
+    },
+    //--------------------------------------
+    switchItem(fromIndex, toIndex) {
+      if (fromIndex != toIndex) {
+        //console.log("switch item", { fromIndex, toIndex })
+        let values = []
+        for (let it of this.PreviewItems) {
+          let { value, index } = it
+          if (index == fromIndex) {
+            index = toIndex
+          } else if (index == toIndex) {
+            index = fromIndex
+          }
+          values[index] = value
+        }
+        _.remove(values, v => v ? false : true)
+        console.log("switchItem:", values)
+        this.$notify("change", values)
+      }
+    },
+    //--------------------------------------
+    initSortable() {
+      if (this.sortable && this.$refs.itemsCon) {
+        new Sortable(this.$refs.itemsCon, {
+          animation: 300,
+          filter: ".as-new, .as-local",
+          onStart: () => {
+            this.$refs.itemsCon.turnOffTiDropFile = true
+            this.dragging = true
+          },
+          onEnd: ({ oldIndex, newIndex }) => {
+            this.$refs.itemsCon.turnOffTiDropFile = false
+            this.switchItem(oldIndex, newIndex)
+            _.delay(() => {
+              this.dragging = false
+            }, 100)
+          }
+        })
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "isShowAddBtn": function (newVal) {
+      if (this.$refs.itemsCon) {
+        this.$refs.itemsCon.turnOffTiDropFile = !newVal
+      }
+    }
+  },
+  //////////////////////////////////////////
+  mounted: function () {
+    this.initSortable()
+  }
+  //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'wn-gui-side-nav.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/gui/side/nav/wn-gui-side-nav.mjs'] = (function(){
@@ -5369,6 +5654,487 @@ const _M = {
       return _.cloneDeep(v)
     }
     //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
+// EXPORT 'wn-upload-multi-files.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/upload/multi-files/wn-upload-multi-files.mjs'] = (function(){
+const _M = {
+  /////////////////////////////////////////
+  data: () => ({
+    myFileObjs: {},
+    myUploadFiles: [],
+    myUploadProgress: {},
+    myUploadDone: {}
+  }),
+  /////////////////////////////////////////
+  props: {
+    "value": {
+      type: Array,
+      default: () => []
+    },
+    // raw value is WnObj
+    // If declare the valueType
+    // It will transform the WnObj
+    // to relaitve value mode
+    "valueType": {
+      type: String,
+      default: "idPath",
+      validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "sortable": {
+      type: Boolean,
+      default: true
+    },
+    // support remove the objects
+    "removable": {
+      type: Boolean,
+      default: true
+    },
+    "limit": {
+      type: Number,
+      default: 0
+    },
+    // Indicate the upload target when upload new value
+    // Of cause, if the `value` exists, replace it
+    // The `target` must be a path to a image object,
+    // it will auto transfrom the image format by `cmd_imagic`
+    "target": {
+      type: String,
+      default: null
+    },
+    // which type supported to upload
+    // nulll or empty array will support any types
+    "supportTypes": {
+      type: [String, Array],
+      default: () => []
+      //default : ()=>["png","jpg","jpeg","gif"]
+    },
+    "minFileSize": {
+      type: Number,
+      default: 0
+    },
+    "maxFileSize": {
+      type: Number,
+      default: 0
+    },
+    // which mime supported to upload
+    // nulll or empty array will support any mimes
+    "supportMimes": {
+      type: [String, Array],
+      default: () => []
+      //default : ()=>["image/png","image/jpeg","image/gif"]
+    },
+    // Image object only: it will auto apply image filter
+    // just like clip the image size etc..
+    // @see cmd_imagic for more detail about the filter
+    "filter": {
+      type: [Array, String],
+      default: null
+    },
+    // Image object only: if `>0 and <=1` mean output quality
+    // if not match the range, will depends on the `cmd_imagic` default
+    "quality": {
+      type: Number,
+      default: 0
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "textBy": {
+      type: [String, Function],
+      default: "title|nm"
+    },
+    "showItemText": {
+      type: Boolean,
+      default: true
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "itemWidth": {
+      type: [Number, String],
+      default: undefined
+    },
+    "itemHeight": {
+      type: [Number, String],
+      default: undefined
+    },
+    "previewStyle": {
+      type: Object
+    }
+  },
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    AcceptTypes() {
+      if (_.isString(this.supportTypes))
+        return this.supportTypes.split(",")
+      return this.supportTypes
+    },
+    //--------------------------------------
+    AcceptMimes() {
+      if (_.isString(this.supportMimes))
+        return this.supportMimes.split(",")
+      return this.supportMimes
+    },
+    //--------------------------------------
+    ImageFilter() {
+      if (!this.filter)
+        return []
+      return [].concat(this.filter)
+    },
+    //--------------------------------------
+    LocalFileFilter() {
+      return (file) => {
+        //................................
+        // Check file size
+        let fileSize = file.size
+        if (this.minFileSize > 0 && fileSize < this.minFileSize) {
+          return {
+            ok: false,
+            msg: Ti.I18n.getf("i18n:wn-invalid-fsize-min", {
+              minSize: Ti.S.sizeText(this.minFileSize),
+              fileSize: Ti.S.sizeText(fileSize)
+            })
+          }
+        }
+        if (this.maxFileSize > 0 && fileSize >= this.maxFileSize) {
+          return {
+            ok: false,
+            msg: Ti.I18n.getf("i18n:wn-invalid-fsize-max", {
+              maxSize: Ti.S.sizeText(this.maxFileSize),
+              fileSize: Ti.S.sizeText(fileSize)
+            })
+          }
+        }
+        //................................
+        // Check for support Types
+        let type = Ti.Util.getSuffixName(file.name, true)
+        let re = this.checkTypeInGivenList(
+          this.AcceptTypes, type,
+          'i18n:wn-invalid-types',
+          {
+            current: type,
+            supports: this.AcceptTypes.join(", ")
+          })
+        if (!re.ok)
+          return re;
+        //................................
+        // Check for support mimes
+        return this.checkTypeInGivenList(
+          this.AcceptMimes, file.type,
+          'i18n:wn-invalid-mimes',
+          {
+            current: file.type,
+            supports: this.AcceptMimes.join(", ")
+          })
+      }
+    },
+    //--------------------------------------
+    GetObjText() {
+      if (_.isFunction(this.textBy)) {
+        return this.textBy
+      }
+      if (_.isString(this.textBy)) {
+        return (obj) => {
+          return Ti.Util.getOrPickNoBlank(obj, this.textBy)
+        }
+      }
+      return (obj = {}) => {
+        return obj.title || obj.nm || obj.id
+      }
+    },
+    //--------------------------------------
+    hasItems() {
+      return !_.isEmpty(this.value)
+    },
+    //--------------------------------------
+    // Display image for <ti-thumb>
+    FileItems() {
+      // Guard
+      if (this.isEmpty) {
+        return []
+      }
+      //
+      // Join remote items
+      //
+      let list = []
+      for (let val of this.value) {
+        let obj = this.myFileObjs[val]
+        let oid = _.get(obj, "id")
+        let it = {
+          id: oid,
+          key: oid || val,
+          value: val,
+        }
+        //..................................
+        // Gone
+        if (!obj) {
+          it.icon = {
+            type: "font",
+            value: "fas-birthday-cake",
+            opacity: 0.382,
+            fontSize: ".16rem"
+          }
+        }
+        //..................................
+        // Image
+        else if (Wn.Obj.isMime(obj, /^(image\/)/)) {
+          let ss = ["/o/content?str=id:", obj.id]
+          it.src = ss.join("")
+        }
+        //..................................
+        // Video
+        else if (Wn.Obj.isMime(obj, /^(video\/)/)) {
+          let ss = ["/o/content?str=id:", obj.video_cover]
+          it.src = ss.join("")
+        }
+        //..................................
+        // Others just get the icon font
+        else {
+          it.icon = Wn.Util.getObjIcon(obj)
+        }
+        //..................................
+        // Add link
+        if (obj) {
+          it.link = Wn.Util.getAppLink(obj)
+          if (this.showItemText) {
+            it.text = this.GetObjText(obj)
+          }
+        }
+        //..................................
+        // Join item
+        list.push(it)
+      }
+      //
+      // Uploaded item
+      //
+      list.push(...this.myUploadFiles)
+      // Done
+      return list
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    async OnOpen({ link } = {}) {
+      if (link) {
+        await Ti.Be.Open(link)
+      }
+    },
+    //--------------------------------------
+    async OnRemove({ index, id } = {}) {
+      //console.log("remove", index, id)
+      // The value should obey the `valueType` prop
+      // but it can indicate if the item is obj or just local
+      if (id) {
+        await Wn.Sys.exec2(`rm id:${id}`)
+      }
+
+      let val = _.filter(this.value, (it, i) => {
+        return i != index
+      })
+
+      // Notify the change
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    async OnClean() {
+      let cmds = []
+      _.forEach(this.FileItems, ({ id, value } = {}) => {
+        if (value) {
+          cmds.push(`rm id:${id}`)
+        }
+      })
+      if (_.isEmpty(cmds)) {
+        return
+      }
+      let cmdText = cmds.join(";")
+      await Wn.Sys.exec2(cmdText)
+      // Notify the Change
+      this.$notify("change", null)
+    },
+    //--------------------------------------
+    setFileObj(key, obj = null) {
+      if (key && obj && obj.id) {
+        let objs = _.cloneDeep(this.myFileObjs)
+        objs[key] = obj
+        this.myFileObjs = objs
+      }
+    },
+    //--------------------------------------
+    setUploadProgress(id, progress = 0) {
+      let pr = _.cloneDeep(this.myUploadProgress)
+      pr[id] = progress
+      this.myUploadProgress = pr
+    },
+    //--------------------------------------
+    setUploadDone(id, done = true) {
+      let ud = _.cloneDeep(this.myUploadDone)
+      ud[id] = done
+      this.myUploadDone = ud
+    },
+    //--------------------------------------
+    async OnUploadFiles(files = []) {
+      // Guard
+      if (!_.isEmpty(this.myUploadFiles)) {
+        return await Ti.Toast.Open("file uploading, please try later!", "warn")
+      }
+
+      let list = _.map(files, f => f)
+
+      // Add to upload list
+      let uploadItems = []
+      for (let i = 0; i < list.length; i++) {
+        let li = list[i]
+        uploadItems.push({
+          id: `UP-${i}`,
+          file: li,
+          index: i
+        })
+      }
+
+      this.myUploadFiles = uploadItems
+      this.myUploadProgress = {}  // {"UP-0":.387, "UP-1": 1}
+      this.myUploadDone = {}
+
+      // Upload each file
+      let newVals = []
+      for (let it of uploadItems) {
+        let val = await this.uploadOneFile(it)
+        newVals.push(val)
+      }
+
+      // Clean
+      this.myUploadFiles = []
+      this.myUploadProgress = {}
+      this.myUploadDone = {}
+
+      // Notify Change
+      let val = _.concat(this.value || [], newVals)
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    checkTypeInGivenList(list, str, invalidMsg, vars) {
+      if (!_.isEmpty(list)) {
+        let invalid = true
+        for (let li of list) {
+          if (li == str) {
+            invalid = false
+            break
+          }
+        }
+        if (invalid) {
+          return {
+            ok: false,
+            msg: Ti.I18n.textf(invalidMsg, vars)
+          }
+        }
+      }
+      return { ok: true }
+    },
+    //--------------------------------------
+    async uploadOneFile(uploadItem = {}) {
+      let { id, file } = uploadItem
+      let uploadDone = _.get(this.myUploadDone, id)
+
+      // Guard
+      if (uploadDone) {
+        return
+      }
+      //................................
+      // Eval the target
+      let type = Ti.Util.getSuffixName(file.name, true)
+      let taPath = Ti.S.renderBy(this.target, {
+        type,
+        name: file.name,
+        majorName: Ti.Util.getMajorName(file.name)
+      })
+
+      //................................
+      // Upload file to destination
+      this.setUploadProgress(id)
+
+      let { ok, msg, data } = await Wn.Io.uploadFile(file, {
+        target: taPath,
+        mode: "r",
+        progress: (pe) => {
+          let progress = pe.loaded / pe.total
+          this.setUploadProgress(id, progress)
+        }
+      })
+
+      //................................
+      // Mark done
+      this.setUploadProgress(id, 100)
+
+      //................................
+      // Fail to upload
+      if (!ok) {
+        await Ti.Alert(`i18n:${msg}`, { type: "warn", icon: "zmdi-alert-triangle" })
+        return
+      }
+
+      //................................
+      // do Filter
+      if (!_.isEmpty(this.ImageFilter)) {
+        let cmd = [
+          "imagic", `id:${data.id}`,
+          `-filter "${this.ImageFilter.join(" ")}"`]
+        if (this.quality > 0 && this.quality <= 1) {
+          cmd.push(`-qa ${this.quality}`)
+        }
+        cmd.push("-out inplace")
+        let cmdText = cmd.join(" ")
+        await Wn.Sys.exec2(cmdText)
+      }
+
+      //................................
+      // Transform value
+      let val = Wn.Io.formatObjPath(data, this.valueType)
+
+      //................................
+      // Save obj
+      this.setUploadDone(id, true)
+      this.setFileObj(val, data)
+
+      //................................
+      return val
+    },
+    //--------------------------------------
+    async reload() {
+      // Guard
+      if (_.isEmpty(this.value)) {
+        return
+      }
+      // Load each obj
+      let objs = {}
+      for (let val of this.value) {
+        let obj = await Wn.Io.loadObjAs(val, this.valueType)
+        objs[val] = obj
+      }
+      this.myFileObjs = objs
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "value": function () {
+      this.reload()
+    }
+  },
+  //////////////////////////////////////////
+  mounted: async function () {
+    await this.reload()
   }
   //////////////////////////////////////////
 }
@@ -40560,10 +41326,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       // font size
       else if('font' == icn.type) {
+        let fsz = icn.fontSize || this.fontSize 
         icn.innerStyle = {
-          "font-size" : this.fontSize 
-                          ? Ti.Css.toSize(this.fontSize) 
-                          : undefined
+          "font-size" : Ti.Css.toSize(fsz)
         }
       }
 
@@ -43107,78 +43872,81 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/obj/thumb/ti-obj-thumb.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////
-  props : {
-    "index" : {
-      type : Number,
-      default : -1
+  props: {
+    "index": {
+      type: Number,
+      default: -1
     },
-    "id" : {
-      type : String,
-      default : undefined
+    "id": {
+      type: String,
+      default: undefined
     },
     // The text to present the object
-    "title" : {
-      type : String,
-      default : undefined
+    "title": {
+      type: String,
+      default: undefined
     },
     // The URL of thumb
-    "preview" : {
-      type : [String, Object, Function],
-      default : "broken_image"
+    "preview": {
+      type: [String, Object, Function],
+      default: "broken_image"
     },
-    "href" : {
-      type : String,
-      default : undefined
+    "href": {
+      type: String,
+      default: undefined
     },
-    "status" : {
-      type : [String, Object],
-      default : undefined
+    "status": {
+      type: [String, Object],
+      default: undefined
     },
-    "progress" : {
-      type : Number,
-      default : -1
+    "progress": {
+      type: Number,
+      default: -1
     },
-    "visibility" : {
-      type : String,
-      default : "show"  // `show|weak|hide`
+    "visibility": {
+      type: String,
+      default: "show"  // `show|weak|hide`
     },
     // true - alwasy show the footer part
-    "showFooter" : {
-      type : Boolean,
-      default : true
+    "showFooter": {
+      type: Boolean,
+      default: true
     },
-    "badges" : {
-      type : Object,
-      default: ()=>({
-        "NW" : null,
-        "NE" : null,
-        "SW" : null,
-        "SE" : null
+    "badges": {
+      type: Object,
+      default: () => ({
+        "NW": null,
+        "NE": null,
+        "SW": null,
+        "SE": null
       })
     },
-    "removeIcon" : {
-      type : [String, Object],
-      default : undefined
+    "removeIcon": {
+      type: [String, Object],
+      default: undefined
     },
-    "onTitle" : {
-      type : [String, Function, Boolean],
-      default : undefined
+    "onTitle": {
+      type: [String, Function, Boolean],
+      default: undefined
+    },
+    "previewStyle": {
+      type: Object
     }
   },
   ////////////////////////////////////////////////
-  watch : {
-    "preview" : function() {
+  watch: {
+    "preview": function () {
       this.renderLocalFile()
     }
   },
   ////////////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-hide" : ('hide' == this.visibility),
-        "is-weak" : ('weak' == this.visibility)
-      }, ()=>this.status ? `is-status-${this.status}` : null)
+        "is-hide": ('hide' == this.visibility),
+        "is-weak": ('weak' == this.visibility)
+      }, () => this.status ? `is-status-${this.status}` : null)
     },
     //--------------------------------------------
     PreviewType() {
@@ -43195,50 +43963,50 @@ const _M = {
     },
     //--------------------------------------------
     LocalFile() {
-      if(this.isLocalFile) {
+      if (this.isLocalFile) {
         return this.preview.value
       }
     },
     //--------------------------------------------
     LocalFileIcon() {
-      if(this.isLocalFile) {
+      if (this.isLocalFile) {
         let file = this.LocalFile
         let oF = {
-          type : Ti.Util.getSuffixName(file.name),
-          mime : file.type,
-          race : Ti.Util.isNil(file.type) ? "DIR" : "FILE"
+          type: Ti.Util.getSuffixName(file.name),
+          mime: file.type,
+          race: Ti.Util.isNil(file.type) ? "DIR" : "FILE"
         }
         return Ti.Icons.get(oF)
       }
     },
     //--------------------------------------------
     isShowProgress() {
-      return this.progress>=0;
+      return this.progress >= 0;
     },
     //--------------------------------------------
     ProgressTip() {
-      return Ti.S.toPercent(this.progress, {fixed:1, auto:false})
+      return Ti.S.toPercent(this.progress, { fixed: 1, auto: false })
     },
     //--------------------------------------------
     ProgressStyle() {
-      return {width:this.ProgressTip}
+      return { width: this.ProgressTip }
     },
     //--------------------------------------------
     ThumbBadges() {
       let list = []
-      _.forEach(this.badges, (v, k)=> {
-        if(!v)
+      _.forEach(this.badges, (v, k) => {
+        if (!v)
           return
-        if(_.isString(v)) {
+        if (_.isString(v)) {
           list.push({
-            type:"icon", value:v,
+            type: "icon", value: v,
             className: `as-badge at-${k.toLowerCase()}`
           })
         } else {
           list.push({
-            ...v, 
+            ...v,
             className: [
-              `as-badge at-${k.toLowerCase()}`, 
+              `as-badge at-${k.toLowerCase()}`,
               v.className
             ].join(" ")
           })
@@ -43261,7 +44029,7 @@ const _M = {
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------------
     OnRemove() {
       let context = this.genEventContext()
@@ -43271,15 +44039,15 @@ const _M = {
     OnClickTitle($event) {
       let context = this.genEventContext()
       // String -> Emit event
-      if(false === this.onTitle) {
+      if (false === this.onTitle) {
         $event.stopPropagation()
       }
       // Notify
-      else if(_.isString(this.onTitle)) {
+      else if (_.isString(this.onTitle)) {
         this.$notify(this.onTitle, context)
       }
       // Function -> Handle
-      else if(_.isFunction(this.onTitle)) {
+      else if (_.isFunction(this.onTitle)) {
         $event.stopPropagation()
         this.onTitle(context)
       }
@@ -43295,10 +44063,10 @@ const _M = {
     //--------------------------------------------
     renderLocalFile() {
       //console.log(this.LocalFile)
-      if(this.isLocalImage) {
+      if (this.isLocalImage) {
         let reader = new FileReader();
-        reader.onload = (evt)=>{
-          if(this.$refs.localImage) {
+        reader.onload = (evt) => {
+          if (this.$refs.localImage) {
             this.$refs.localImage.src = evt.target.result
           }
         }
@@ -43308,7 +44076,7 @@ const _M = {
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
-  mounted : function(){
+  mounted: function () {
     this.renderLocalFile()
   }
   ////////////////////////////////////////////////
@@ -66182,7 +66950,7 @@ Ti.Preload("ti/com/ti/obj/thumb/ti-obj-thumb.html", `<div class="ti-obj-thumb"
   -->
   <header>
     <!--Preview Part-->
-    <div class="as-preview">
+    <div class="as-preview" :style="previewStyle">
       <!-- Local Image -->
       <template v-if="isLocalImage">
         <img ref="localImage" is-local-file>
@@ -68085,6 +68853,93 @@ Ti.Preload("ti/com/ti/upload/file/_com.json", {
   "globally" : true,
   "template" : "./ti-upload-file.html",
   "mixins" : ["./ti-upload-file.mjs"]
+});
+//========================================
+// JOIN <ti-upload-multi-files.html> ti/com/ti/upload/multi-files/ti-upload-multi-files.html
+//========================================
+Ti.Preload("ti/com/ti/upload/multi-files/ti-upload-multi-files.html", `<div 
+  class="ti-upload-multi-files full-field"
+  :class="TopClass"><div class="as-wrapper">
+  <!--
+    Hidden input file to choose files
+  -->
+  <input 
+    type="file" 
+    ref="file" 
+    class="ti-hide"
+    multiple
+    @change.stop.seft="OnSelectLocalFilesToUpload">
+  <!--
+    Main container
+  -->
+  <div class="as-main" v-drop-files.mask="OnDropFiles" ref="itemsCon">
+    <!--
+      Show items (Uploaded and Uploading)
+    -->
+    <div
+      v-for="(it,index) in PreviewItems"
+        :key="it.key || it.id || index"
+        class="file-item as-item"
+        :class="it.className">
+        <!--Preview-->
+        <TiObjThumb
+          :style="ItemStyle"
+          :preview="it.thumb"
+          :title="it.text"
+          :progress="it.progress"
+          :show-footer="showItemText"
+          :previewStyle="ItemPreviewStyle"/>
+        <!--Actions-->
+        <div
+          v-if="'obj' == it.type"
+            class="item-actions"><ul>
+              <!--Action:Remove-->
+              <li @click.left="OnRemoveItem(it)">
+                <i class="zmdi zmdi-close-circle"></i>
+                <span>{{'i18n:remove'|i18n}}</span>
+              </li>
+              <!--Action:Open-->
+              <li @click.left="OnOpenItem(it)" v-if="it.id">
+                <i class="zmdi zmdi-open-in-new"></i>
+                <span>{{'i18n:open'|i18n}}</span>
+              </li>
+        </ul></div>
+    </div>
+    <!--
+      Show the new icon
+    -->
+    <div 
+      v-if="isShowAddBtn"
+        class="file-item as-new"
+        :style="ItemStyle"
+        @click.left="OnClickAdd"><i class="zmdi zmdi-plus"></i></div>
+  </div>
+  <!--
+    Global actions
+  -->
+  <div
+    v-if="isShowActions"
+      class="as-actions">
+      <!--Clean-->
+      <div class="action-item" @click.left="OnClean">
+        <i class="fas fa-trash-alt"></i>
+        <span>{{'i18n:clean'|i18n}}</span>
+      </div>
+  </div>
+  <div>{{dragging}}</div>
+</div></div>`);
+//========================================
+// JOIN <ti-upload-multi-files.mjs> ti/com/ti/upload/multi-files/ti-upload-multi-files.mjs
+//========================================
+Ti.Preload("ti/com/ti/upload/multi-files/ti-upload-multi-files.mjs", TI_PACK_EXPORTS['ti/com/ti/upload/multi-files/ti-upload-multi-files.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/upload/multi-files/_com.json
+//========================================
+Ti.Preload("ti/com/ti/upload/multi-files/_com.json", {
+  "name" : "ti-upload-multi-files",
+  "globally" : true,
+  "template" : "./ti-upload-multi-files.html",
+  "mixins" : ["./ti-upload-multi-files.mjs"]
 });
 //========================================
 // JOIN <wall-tile.html> ti/com/ti/wall/com/wall-tile/wall-tile.html
@@ -71825,7 +72680,7 @@ Ti.Preload("ti/com/wn/fileset/list/wn-fileset-list.html", `<TiGui
   :layout="GUILayout"
   :schema="GUISchema"
   :can-loading="true"
-  :loading-as="isGUILoading"
+  :loading="isGUILoading"
   :action-status="DetailActionStatus"
   @list::select="OnListSelect"
   @list::open="OnListOpen"
@@ -73439,6 +74294,41 @@ Ti.Preload("ti/com/wn/upload/file/_com.json", {
   "components" : [
     "@com:ti/upload/file"
   ]
+});
+//========================================
+// JOIN <wn-upload-multi-files.html> ti/com/wn/upload/multi-files/wn-upload-multi-files.html
+//========================================
+Ti.Preload("ti/com/wn/upload/multi-files/wn-upload-multi-files.html", `<TiUploadMultiFiles
+  :items="FileItems"
+  :sortable="sortable"
+  :removable="sortable"
+  :progress="myUploadProgress"
+  :showItemText="showItemText"
+  :limit="limit"
+  :itemWidth="itemWidth"
+  :itemHeight="itemHeight"
+  :previewStyle="previewStyle"
+  :fileFilter="LocalFileFilter"
+  @upload="OnUploadFiles"
+  @remove="OnRemove"
+  @open="OnOpen"
+  @clean="OnClean"/>`);
+//========================================
+// JOIN <wn-upload-multi-files.mjs> ti/com/wn/upload/multi-files/wn-upload-multi-files.mjs
+//========================================
+Ti.Preload("ti/com/wn/upload/multi-files/wn-upload-multi-files.mjs", TI_PACK_EXPORTS['ti/com/wn/upload/multi-files/wn-upload-multi-files.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/upload/multi-files/_com.json
+//========================================
+Ti.Preload("ti/com/wn/upload/multi-files/_com.json", {
+  "name" : "wn-upload-multi-files",
+  "globally" : true,
+  "template" : "./wn-upload-multi-files.html",
+  "mixins" : ["./wn-upload-multi-files.mjs"],
+  "components" : [
+    "@com:ti/upload/multi-files"
+  ],
+  "deps": ["@deps:sortable.js"]
 });
 Ti.Preload("ti/com/ti/text/markdown/richeditor2/blot/br.blot.mjs", TI_PACK_EXPORTS['ti/com/ti/text/markdown/richeditor2/blot/br.blot.mjs']);
 //========================================

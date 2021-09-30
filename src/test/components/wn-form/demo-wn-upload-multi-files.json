@@ -1,0 +1,20 @@
+{
+  "comType" : "ti-form",
+  "comConf" : {
+    "autoShowBlank" : false,
+    "data" : "=data",
+    "fields" : [{
+        "title" : "最多5个JPEG",
+        "name"  : "max5jpg",
+        "type"  : "Array",
+        "comType" : "wn-upload-multi-files",
+        "comConf" : {
+          "target" : "~/media/",
+          "valueType": "idPath",
+          "limit": 5,
+          "supportTypes": ["jpeg", "jpg"],
+          "showItemText": true
+        }
+      }]
+  }
+}

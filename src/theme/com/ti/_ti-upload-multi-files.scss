@@ -1,0 +1,117 @@
+.ti-upload-multi-files {
+  //---------------------------------------------
+  .as-wrapper {position: relative;}
+  //---------------------------------------------
+  .as-main {
+    @include flex-align($ai:stretch, $ac:stretch);
+    @include noselect;
+    //-------------------------------------------
+    .file-item {
+      @include border(1px, solid, dark);
+      flex: 0 0 auto; margin: SZ(8);
+      //-----------------------------------------
+      &.as-item {
+        @include color($color-chip, r, c);
+        position: relative;
+        //---------------------------------------
+        .ti-obj-thumb {
+          border:0;
+          header .as-preview {
+            border-radius: 0;
+          }
+        }
+        //---------------------------------------
+        .item-actions {
+          @include pos-abs-full;
+          @include color($color-mask, r, bushy);
+          transition: 0.3s; opacity: 0;
+          overflow: hidden;
+          ul {
+            @include flex-align-v-nowrap($jc:center);
+            position: relative;
+            width:100%; height:100%;
+            top: SZ(100); transition: 0.3s;
+          }
+          li {
+            @include flex-align-nowrap($jc:center);
+            margin: SZ(4); white-space: nowrap;
+            padding: SZ(4) SZ(6);
+            font-size: SZ(12);
+            border-radius: SZ(4);
+            span{ margin-left:SZ(4); }
+            cursor:pointer;
+            &:hover {
+              @include color($color-secondary, r, c);
+            }
+          }
+        } // .item-actions {
+        //---------------------------------------
+      } // &.as-item {
+      //-----------------------------------------
+      &.as-new {
+        @include border(1px, dashed, dark);
+        @include flex-center;
+        width: SZ(42); min-height: SZ(64);
+        color: map-get($color-track, c);
+        cursor: pointer; font-size: SZ(24);
+        &:hover {
+          @include color($color-secondary, c);
+          border-color: map-get($color-secondary, c);
+          font-size: SZ(32);
+        }
+      }
+      //-----------------------------------------  
+    }
+    //-------------------------------------------
+  } // .as-main
+  &.no-dragging .as-main .file-item.as-item:hover {
+    .item-actions {
+      opacity: 1;
+      ul {
+        top: 0;
+      }
+    }
+  }
+  //---------------------------------------------
+  &.is-show-text .as-main .file-item {
+    .ti-obj-thumb {
+      width: SZ(96); min-height: SZ(96);
+      header .as-preview {
+        @include border(1px, solid, shallow, bottom);
+        background-color: map-get($color-mask, weak);
+        width:100%; padding:0;
+      }
+      footer .as-title {font-size:SZ(11);} 
+    }
+  }
+  //---------------------------------------------
+  &.no-show-text .as-main .file-item {
+    .ti-obj-thumb {
+      width: SZ(64); height: SZ(64);
+      > header {
+        width:100%; height:100%; padding:0;
+        .as-preview {
+          padding:0; width:100%; height:100%;
+        }
+      }
+    }
+  }
+  //---------------------------------------------
+  .as-actions {
+    @include pos-abs($r:0,$t:0);
+    //-------------------------------------------
+    .action-item {
+      @include color($color-track, c);
+      font-size: SZ(12);
+      padding: SZ(6); cursor: pointer;
+      border-radius: SZ(4);
+      span {display: none;}
+      &:hover {
+        @include color($color-primary, r, c);
+        span { display: inline;}
+      }
+    }
+    //-------------------------------------------
+  }
+  //---------------------------------------------
+}

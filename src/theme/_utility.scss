@@ -132,8 +132,7 @@
     @include color($color-secondary, c); 
     @include border(.04rem, dashed, hightlight);
     z-index: $z-top;
-    font-size:2em; line-height: 1.1em;
-    padding:.2rem .2rem 20% .2rem;
+    font-size:SZ(18);
   }
 }
 //...................................................

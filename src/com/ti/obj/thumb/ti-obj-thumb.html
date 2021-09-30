@@ -5,7 +5,7 @@
   -->
   <header>
     <!--Preview Part-->
-    <div class="as-preview">
+    <div class="as-preview" :style="previewStyle">
       <!-- Local Image -->
       <template v-if="isLocalImage">
         <img ref="localImage" is-local-file>

@@ -503,6 +503,42 @@ const WnIo = {
       throw "Invalid mode : " + mode
     }
     return fn()
+  },
+  /***
+   * @param input: obj id or path or meta
+   * @param mode{String}: 
+   *  - path : relative to home like "~/xxx/xxx"
+   *  - fullPath : "/home/xiaobai/xxx/xxx"
+   *  - idPath : "id:67u8..98a1"
+   *  - id   : "67u8..98a1"
+   * @param oRefer{WnObj} - meta refer, may nil
+   */
+  async loadObjAs(input, mode) {
+    //console.log("formatObjPath", {meta, mode, oRefer})
+    let fn = ({
+      path() {
+        return WnIo.loadMeta(input)
+      },
+      fullPath() {
+        return WnIo.loadMeta(input)
+      },
+      idPath() {
+        return WnIo.loadMeta(input)
+      },
+      id() {
+        return WnIo.loadMetaById(input)
+      },
+      obj() {
+        return WnIo.loadMetaById(input.id)
+      },
+      wnobj() {
+        return _.cloneDeep(input)
+      }
+    })[mode]
+    if (!fn) {
+      throw "Invalid mode : " + mode
+    }
+    return await fn()
   }
 }
 ////////////////////////////////////////////
