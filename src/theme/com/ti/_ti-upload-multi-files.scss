@@ -7,7 +7,7 @@
     @include noselect;
     //-------------------------------------------
     .file-item {
-      @include border(1px, solid, dark);
+      @include border(2px, solid, shallow);
       flex: 0 0 auto; margin: SZ(8);
       //-----------------------------------------
       &.as-item {
@@ -49,9 +49,9 @@
       } // &.as-item {
       //-----------------------------------------
       &.as-new {
-        @include border(1px, dashed, dark);
+        @include border(2px, dashed, dark);
         @include flex-center;
-        width: SZ(42); min-height: SZ(64);
+        width: SZ(64); min-height: SZ(64);
         color: map-get($color-track, c);
         cursor: pointer; font-size: SZ(24);
         &:hover {

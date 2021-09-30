@@ -1,4 +1,4 @@
-// Pack At: 2021-09-30 23:09:55
+// Pack At: 2021-09-30 23:34:20
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -68926,7 +68926,6 @@ Ti.Preload("ti/com/ti/upload/multi-files/ti-upload-multi-files.html", `<div
         <span>{{'i18n:clean'|i18n}}</span>
       </div>
   </div>
-  <div>{{dragging}}</div>
 </div></div>`);
 //========================================
 // JOIN <ti-upload-multi-files.mjs> ti/com/ti/upload/multi-files/ti-upload-multi-files.mjs
