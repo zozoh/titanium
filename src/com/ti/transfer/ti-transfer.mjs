@@ -140,7 +140,7 @@ const _M = {
     },
     //---------------------------------------------------
     async OnFilterChanged(val) {
-      console.log("OnFilterChanged", val)
+      //console.log("OnFilterChanged", val)
       this.myFilterValue = val
       this.myOptionsData = await this.Dict.queryData(val)
       this.evalShownCanList()
