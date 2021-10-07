@@ -441,21 +441,16 @@ export const DictFactory = {
     }
     //.........................................
     if (!query) {
-      if (_.isFunction(data)) {
-        query = data
-      }
       // Look up each item
-      else {
-        query = async (v, $dict) => {
-          let aryData = await $dict.getData()
-          let list = []
-          for (let it of aryData) {
-            if ($dict.isMatched(it, v)) {
-              list.push(it)
-            }
+      query = async (v, $dict) => {
+        let aryData = await $dict.getData()
+        let list = []
+        for (let it of aryData) {
+          if ($dict.isMatched(it, v)) {
+            list.push(it)
           }
-          return list
         }
+        return list
       }
     }
     //.........................................

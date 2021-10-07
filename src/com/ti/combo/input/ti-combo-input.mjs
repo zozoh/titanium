@@ -35,14 +35,35 @@ const _M = {
     },
     //------------------------------------------------
     TheInputProps() {
-      return _.assign({}, this, {
-        readonly: !this.canInput || this.readonly,
-        autoI18n: this.autoI18n,
-        placeholder: this.placeholder,
-        hover: this.hover,
-        prefixIconForClean: this.prefixIconForClean,
-        width: this.width,
-        height: this.height
+      return _.assign({}, {
+        // Data
+        "format": undefined,
+        "valueCase": this.valueCase,
+        "trimed": this.trimed,
+        "autoJsValue": this.autoJsValue,
+        "validator": this.validator,
+        // Behavior
+        "readonly": !this.canInput || this.readonly,
+        "hover": this.hover,
+        "prefixIconForClean": this.prefixIconForClean,
+        "autoSelect": this.autoSelect,
+        "prefixIconNotifyName": this.prefixIconNotifyName,
+        "prefixTextNotifyName": this.prefixTextNotifyName,
+        "suffixIconNotifyName": this.suffixIconNotifyName,
+        "suffixTextNotifyName": this.suffixTextNotifyName,
+        "enterKeyNotifyName": this.enterKeyNotifyName,
+        // Aspect
+        "placeholder": this.placeholder,
+        "autoI18n": this.autoI18n,
+        "hideBorder": this.hideBorder,
+        "prefixIcon": this.prefixIcon,
+        "prefixHoverIcon": this.prefixHoverIcon,
+        "prefixText": this.prefixText,
+        "suffixIcon": this.suffixIcon,
+        "suffixText": this.suffixText,
+        // Measure
+        "width": this.width,
+        "height": this.height
       })
     },
     //------------------------------------------------
@@ -51,9 +72,9 @@ const _M = {
         return this.myFilterValue
       }
       if (this.myItem) {
-        let text  = this.Dict.getText(this.myItem)
+        let text = this.Dict.getText(this.myItem)
         let value = this.Dict.getValue(this.myItem)
-        if(this.inputValueDisplay) {
+        if (this.inputValueDisplay) {
           return Ti.Util.explainObj(this.myItem, this.inputValueDisplay, {
             evalFunc: true
           })
@@ -65,7 +86,7 @@ const _M = {
     //------------------------------------------------
     InputPrefixText() {
       if (this.myItem) {
-        if(!_.isUndefined(this.inputPrefixTextDisplay)) {
+        if (!_.isUndefined(this.inputPrefixTextDisplay)) {
           return Ti.Util.explainObj(this.myItem, this.inputPrefixTextDisplay, {
             evalFunc: true
           })
@@ -78,7 +99,7 @@ const _M = {
     //------------------------------------------------
     InputSuffixText() {
       if (this.myItem) {
-        if(!_.isUndefined(this.inputSuffixTextDisplay)) {
+        if (!_.isUndefined(this.inputSuffixTextDisplay)) {
           return Ti.Util.explainObj(this.myItem, this.inputSuffixTextDisplay, {
             evalFunc: true
           })
@@ -160,7 +181,7 @@ const _M = {
     },
     //-----------------------------------------------
     async OnInputChanged(val, byKeyboardArrow) {
-      //console.log("haha")
+      console.log("haha", {val, byKeyboardArrow})
       // Clean filter
       this.myFilterValue = null
       // Clean
@@ -225,7 +246,11 @@ const _M = {
     //-----------------------------------------------
     async doCollapse({ escaped = false } = {}) {
       if (escaped) {
-        this.evalMyItem(this.myOldValue)
+        await this.evalMyItem(this.myOldValue)
+      }
+      if(this.myFilterValue && !_.isEqual(this.myFilterValue, this.myOldValue)) {
+        await this.evalMyItem(this.myFilterValue)
+        this.tryNotifyChanged()
       }
       // Try notify
       else {
