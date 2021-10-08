@@ -181,7 +181,7 @@ const _M = {
     },
     //-----------------------------------------------
     async OnInputChanged(val, byKeyboardArrow) {
-      console.log("haha", {val, byKeyboardArrow})
+      //console.log("haha", {val, byKeyboardArrow})
       // Clean filter
       this.myFilterValue = null
       // Clean
@@ -248,7 +248,7 @@ const _M = {
       if (escaped) {
         await this.evalMyItem(this.myOldValue)
       }
-      if(this.myFilterValue && !_.isEqual(this.myFilterValue, this.myOldValue)) {
+      else if(this.myFilterValue && !_.isEqual(this.myFilterValue, this.myOldValue)) {
         await this.evalMyItem(this.myFilterValue)
         this.tryNotifyChanged()
       }
