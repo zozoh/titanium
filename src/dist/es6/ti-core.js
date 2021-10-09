@@ -1,4 +1,4 @@
-// Pack At: 2021-09-30 23:34:20
+// Pack At: 2021-10-09 09:11:23
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -13431,37 +13431,37 @@ const {Dict,DictFactory} = (function(){
   //   shadowed  : Symbol("shadowed")
   // }
   const K = ["item", "data", "query", "children",
-  "getValue", "getText", "getIcon", "isMatched",
-  "itemCache", "dataCache", "hooks", "shadowed"]
+    "getValue", "getText", "getIcon", "isMatched",
+    "itemCache", "dataCache", "hooks", "shadowed"]
   ///////////////////////////////////////////////
   class Dict {
     //-------------------------------------------
-    constructor(){
+    constructor() {
       this.__item_loading = {}
-      this.hooks     = []
-      this.shadowed  = false
-      this.item      = _.idendity
-      this.data      = ()=>[]
+      this.hooks = []
+      this.shadowed = false
+      this.item = _.idendity
+      this.data = () => []
       this.dataChildrenKey = null,
-      this.query     = v =>[]
-      this.children  = v =>[]
-      this.getValue  = v =>Ti.Util.getFallback(v, "value", "id")
-      this.getText   = v =>Ti.Util.getFallback(v, "text", "title", "name", "nm")
-      this.getIcon   = v =>_.get(v, "icon")
+        this.query = v => []
+      this.children = v => []
+      this.getValue = v => Ti.Util.getFallback(v, "value", "id")
+      this.getText = v => Ti.Util.getFallback(v, "text", "title", "name", "nm")
+      this.getIcon = v => _.get(v, "icon")
       this.isMatched = (it, v) => {
         //console.log("match", it, v)
         let itV = this.getValue(it)
-        if(_.isEqual(v, itV))
+        if (_.isEqual(v, itV))
           return true
-        if(_.isString(itV) && _.isString(v)) {
+        if (_.isString(itV) && _.isString(v)) {
           let itV2 = _.toLower(itV)
           let v2 = _.toLower(v)
-          if(itV2.indexOf(v2) >= 0) {
+          if (itV2.indexOf(v2) >= 0) {
             return true
-          }  
+          }
         }
         let itT = this.getText(it)
-        if(itT && itT.indexOf(v)>=0)
+        if (itT && itT.indexOf(v) >= 0)
           return true
         return false
       }
@@ -13472,7 +13472,7 @@ const {Dict,DictFactory} = (function(){
     //-------------------------------------------
     // Funcs
     //-------------------------------------------
-    setShadowed(shadowed=false) {
+    setShadowed(shadowed = false) {
       this.shadowed = shadowed
     }
     isShadowed() {
@@ -13482,32 +13482,32 @@ const {Dict,DictFactory} = (function(){
     addHooks(...hooks) {
       let list = _.flattenDeep(hooks)
       _.forEach(list, hk => {
-        if(_.isFunction(hk)){
+        if (_.isFunction(hk)) {
           this.hooks.push(hk)
-         }
+        }
       })
     }
     //-------------------------------------------
-    clearHooks(){
+    clearHooks() {
       this.hooks = []
-     }
+    }
     //-------------------------------------------
-    doHooks(loading=false) {
-      for(let hk of this.hooks) {
-        hk({loading} )
+    doHooks(loading = false) {
+      for (let hk of this.hooks) {
+        hk({ loading })
       }
     }
     //-------------------------------------------
     invoke(methodName, ...args) {
       let func = this[methodName]
-      if(_.isFunction(func)){
+      if (_.isFunction(func)) {
         return func.apply(this, [...args, this])
       }
     }
     //-------------------------------------------
     async invokeAsync(methodName, ...args) {
       let func = this[methodName]
-      if(_.isFunction(func)){
+      if (_.isFunction(func)) {
         let are = await func.apply(this, [...args, this])
         // console.log("invokeAsync", methodName, ...args)
         // console.log(" ==>", are)
@@ -13516,29 +13516,29 @@ const {Dict,DictFactory} = (function(){
     }
     //-------------------------------------------
     setFunc(methods) {
-      _.forEach(methods, (func, methodName)=>{
-        if(_.isFunction(func)){
+      _.forEach(methods, (func, methodName) => {
+        if (_.isFunction(func)) {
           this[methodName] = func
         }
       })
     }
     //-------------------------------------------
-    duplicate({hooks=false, cache=true, dataCache=true, itemCache=true}={}) {
+    duplicate({ hooks = false, cache = true, dataCache = true, itemCache = true } = {}) {
       let d = new Dict()
-      _.forEach(K, (s_key)=>{
+      _.forEach(K, (s_key) => {
         d[s_key] = this[s_key]
       })
-      if(!hooks) {
+      if (!hooks) {
         d.hooks = []
       }
-      if(!cache) {
+      if (!cache) {
         d.itemCache = {}
         d.dataCache = null
       }
-      if(!dataCache) {
+      if (!dataCache) {
         d.dataCache = null
       }
-      if(!itemCache) {
+      if (!itemCache) {
         d.itemCache = {}
       }
       return d
@@ -13553,19 +13553,19 @@ const {Dict,DictFactory} = (function(){
     addItemToCache(it, val) {
       it = Ti.Util.fallback(it, null)
       let itV = val
-      if(Ti.Util.isNil(itV)) {
+      if (Ti.Util.isNil(itV)) {
         itV = this.getValue(it)
       }
   
-      if(!_.isUndefined(it) && !Ti.Util.isNil(itV)) {
+      if (!_.isUndefined(it) && !Ti.Util.isNil(itV)) {
         this.itemCache[itV] = it
       }
   
       // Cache the children
-      if(this.dataChildrenKey) {
+      if (this.dataChildrenKey) {
         let subItems = it[this.dataChildrenKey]
-        if(_.isArray(subItems) && subItems.length > 0) {
-          for(let subIt of subItems) {
+        if (_.isArray(subItems) && subItems.length > 0) {
+          for (let subIt of subItems) {
             this.addItemToCache(subIt)
           }
         }
@@ -13579,10 +13579,10 @@ const {Dict,DictFactory} = (function(){
     //-------------------------------------------
     // Utility
     //-------------------------------------------
-    findItem(val, list=[]) {
-      for(let it of list) {
+    findItem(val, list = []) {
+      for (let it of list) {
         let itV = this.getValue(it)
-        if(_.isEqual(val, itV)) {
+        if (_.isEqual(val, itV)) {
           return it
         }
       }
@@ -13595,20 +13595,20 @@ const {Dict,DictFactory} = (function(){
       //   console.log("!!! getItem")
       // }
       // Guard
-      if(Ti.Util.isNil(val)) {
+      if (Ti.Util.isNil(val)) {
         return null
       }
       //console.log("Dict.getItem", val)
       // Match cache
       let it = this.itemCache[val]
       // Not in cache, try getItem
-      if(_.isUndefined(it)) {
+      if (_.isUndefined(it)) {
         // If is loading, return the promise
         let loading = this.__item_loading[val]
-        if(loading) {
-          return await new Promise((resolve)=>{
+        if (loading) {
+          return await new Promise((resolve) => {
             loading.push(resolve)
-          }) 
+          })
         }
   
         // Setup loading
@@ -13620,12 +13620,12 @@ const {Dict,DictFactory} = (function(){
         this.doHooks(true)
         it = await this.invokeAsync("item", val)
         this.doHooks(false)
-        if(it && _.isPlainObject(it)) {
+        if (it && _.isPlainObject(it)) {
           this.addItemToCache(it, val)
         }
   
         // Release loading
-        for(let resolve of loading) {
+        for (let resolve of loading) {
           resolve(it || null)
         }
         delete this.__item_loading[val]
@@ -13633,25 +13633,25 @@ const {Dict,DictFactory} = (function(){
       // Warn !!
       // 不知道什么时候，在 anju 项目，总出现返回值为空数组 `[]`
       // 诡异啊，加个 log 观察一下
-      if(_.isArray(it)) {
+      if (_.isArray(it)) {
         console.warn("!!!! Dict.getItem=>[] !!! 靠，又出现了 val=", val)
       }
   
-      if(this.isShadowed())
+      if (this.isShadowed())
         return _.cloneDeep(it)
       return it
     }
     //-------------------------------------------
-    async getData(force=false){
+    async getData(force = false) {
       let list = this.dataCache
-      if(force || _.isEmpty(list)) {
+      if (force || _.isEmpty(list)) {
         this.doHooks(true)
         list = await this.invokeAsync("data")
         this.doHooks(false)
         // Cache items
         _.forEach(list, (it, index) => {
-          if(!_.isPlainObject(it)) {
-            it = {text:it, value:it}
+          if (!_.isPlainObject(it)) {
+            it = { text: it, value: it }
             list[index] = it
           }
           this.addItemToCache(it)
@@ -13659,17 +13659,17 @@ const {Dict,DictFactory} = (function(){
         // Cache list
         this.dataCache = list
       }
-      if(this.isShadowed())
+      if (this.isShadowed())
         return _.cloneDeep(list) || []
       return list || []
     }
     //-------------------------------------------
-    async queryData(str){
+    async queryData(str) {
       //console.log("@Dict.queryData", str)
       // Empty string will take as query all
       let s = _.trim(str)
       let list;
-      if(!s) {
+      if (!s) {
         list = await this.getData()
         return list
       }
@@ -13682,15 +13682,15 @@ const {Dict,DictFactory} = (function(){
         this.addItemToCache(it)
       })
   
-      if(this.isShadowed())
+      if (this.isShadowed())
         return _.cloneDeep(list) || []
       return list || []
     }
     //-------------------------------------------
-    async getChildren(val){
+    async getChildren(val) {
       //console.log("@Dict.queryData", str)
       // Empty string will take as query all
-      if(!val) {
+      if (!val) {
         return await this.getData()
       }
       // Find by string
@@ -13702,7 +13702,7 @@ const {Dict,DictFactory} = (function(){
         this.addItemToCache(it)
       })
   
-      if(this.isShadowed())
+      if (this.isShadowed())
         return _.cloneDeep(list) || []
       return list || []
     }
@@ -13712,17 +13712,17 @@ const {Dict,DictFactory} = (function(){
     // getIcon(it)    { return this.invoke("getIcon" ,  it) }
     // isMatched(it,v){ return this.invoke("isMatched", it, v) }
     //-------------------------------------------
-    getBy(vKey=".text", it, dft) {
+    getBy(vKey = ".text", it, dft) {
       // Text
-      if(!vKey || ".text" == vKey) {
+      if (!vKey || ".text" == vKey) {
         return this.getText(it)
       }
       // Icon
-      if(".icon" == vKey) {
+      if (".icon" == vKey) {
         return this.getIcon(it)
       }
       // Value
-      if(".value" == vKey) {
+      if (".value" == vKey) {
         return this.getValue(it)
       }
       // Other key
@@ -13731,8 +13731,8 @@ const {Dict,DictFactory} = (function(){
     //-------------------------------------------
     async checkItem(val) {
       let it = await this.getItem(val)
-      if(!it) {
-        throw Ti.Err.make("e.dict.no-item", {dictName, val})
+      if (!it) {
+        throw Ti.Err.make("e.dict.no-item", { dictName, val })
       }
       return it
     }
@@ -13740,21 +13740,21 @@ const {Dict,DictFactory} = (function(){
     async getItemText(val) {
       let it = await this.getItem(val)
       //console.log("getItemText", {it,val})
-      if(it) {
+      if (it) {
         return this.getText(it)
       }
     }
     //-------------------------------------------
     async getItemIcon(val) {
       let it = await this.getItem(val)
-      if(it) {
+      if (it) {
         return this.getIcon(it)
       }
     }
     //-------------------------------------------
     async getItemAs(vKey, val) {
       let it = await this.getItem(val)
-      if(it) {
+      if (it) {
         return this.getBy(vKey, it, val)
       }
     }
@@ -13792,63 +13792,63 @@ const {Dict,DictFactory} = (function(){
   ///////////////////////////////////////////////
   const DictFactory = {
     //-------------------------------------------
-    __debug_static() {return DICTS},
-    __debug_dynamic() {return DYNAMIC_DICTS},
+    __debug_static() { return DICTS },
+    __debug_dynamic() { return DYNAMIC_DICTS },
     //-------------------------------------------
     DictReferName(str) {
-      if(_.isString(str)) {
+      if (_.isString(str)) {
         let m = /^(@Dict:|#)(.+)$/.exec(str)
-        if(m) {
+        if (m) {
           return _.trim(m[2])
         }
       }
     },
     //-------------------------------------------
-    GetOrCreate(options={}, {hooks, name}={}){
+    GetOrCreate(options = {}, { hooks, name } = {}) {
       let d;
       // Aready a dict
-      if(options.data instanceof Dict) {
+      if (options.data instanceof Dict) {
         d = options.data
       }
       // Pick by Name
       else {
         let dictName = name || DictFactory.DictReferName(options.data)
-        if(dictName) {
+        if (dictName) {
           d = DICTS[dictName]
         }
       }
       // Try return 
-      if(d) {
-        if(hooks) {
-          d = d.duplicate({hooks:false})
+      if (d) {
+        if (hooks) {
+          d = d.duplicate({ hooks: false })
           d.addHooks(hooks)
         }
         return d
       }
       // Create New One
-      return DictFactory.CreateDict(options, {hooks, name})
+      return DictFactory.CreateDict(options, { hooks, name })
     },
     //-------------------------------------------
     CreateDict({
-      data, query, item, children, 
+      data, query, item, children,
       dataChildrenKey,
-      getValue, getText, getIcon, 
+      getValue, getText, getIcon,
       isMatched, shadowed
-    }={}, {hooks, name}={}) {
+    } = {}, { hooks, name } = {}) {
       // if(!name)
       //   console.log("CreateDict", {data, dataChildrenKey})
       //.........................................
-      if(_.isString(data) || _.isArray(data)) {
+      if (_.isString(data) || _.isArray(data)) {
         let aryData = Ti.S.toObjList(data)
         data = () => aryData
       }
       // Default data
-      else if(!data) {
+      else if (!data) {
         data = () => []
       }
       //.........................................
-      if(!item) {
-        item = async (val, $dict)=>{
+      if (!item) {
+        item = async (val, $dict) => {
           // Load all data
           await $dict.getData()
           // Get the item
@@ -13857,12 +13857,13 @@ const {Dict,DictFactory} = (function(){
         }
       }
       //.........................................
-      if(!query) {
-        query = async (v, $dict)=> {
+      if (!query) {
+        // Look up each item
+        query = async (v, $dict) => {
           let aryData = await $dict.getData()
           let list = []
-          for(let it of aryData) {
-            if($dict.isMatched(it, v)){
+          for (let it of aryData) {
+            if ($dict.isMatched(it, v)) {
               list.push(it)
             }
           }
@@ -13870,8 +13871,8 @@ const {Dict,DictFactory} = (function(){
         }
       }
       //.........................................
-      if(!children) {
-        children = ()=> []
+      if (!children) {
+        children = () => []
       }
       //.........................................
       // if(!isMatched) {
@@ -13885,19 +13886,19 @@ const {Dict,DictFactory} = (function(){
       d.dataChildrenKey = dataChildrenKey
       d.setFunc({
         data, query, item, children,
-        getValue, getText, getIcon, 
+        getValue, getText, getIcon,
         isMatched
       })
       //.........................................
-      if(name) {
+      if (name) {
         DICTS[name] = d
       }
       //.........................................
-      if(shadowed) {
+      if (shadowed) {
         d.setShadowed(shadowed)
       }
       //.........................................
-      if(hooks) {
+      if (hooks) {
         d.addHooks(hooks)
       }
       return d
@@ -13913,10 +13914,10 @@ const {Dict,DictFactory} = (function(){
     GetDict(name, hooks) {
       // Try get
       let d = DICTS[name]
-      
+  
       // Return shadowed ? 
-      if(d && hooks) {
-        d = d.duplicate({hooks:false})
+      if (d && hooks) {
+        d = d.duplicate({ hooks: false })
         d.addHooks(hooks)
       }
       return d
@@ -13925,19 +13926,19 @@ const {Dict,DictFactory} = (function(){
     CheckDict(dictName, hooks) {
       // Already in cache
       let d = DictFactory.GetDict(dictName, hooks)
-      if(d) {
+      if (d) {
         return d
       }
       // Maybe should create a shadow one.
-      let {name, args} = DictFactory.explainDictName(dictName)
+      let { name, args } = DictFactory.explainDictName(dictName)
       d = DictFactory.GetDict(name, hooks)
-      if(d) {
+      if (d) {
         // Return the mask dict
         // args[0] will -> getData -> getChildren(args[0])
-        if(!_.isEmpty(args)) {
-          let d2 = d.duplicate({hooks:true, dataCache:false})
+        if (!_.isEmpty(args)) {
+          let d2 = d.duplicate({ hooks: true, dataCache: false })
           d2.setFunc({
-            data: function(){
+            data: function () {
               return this.getChildren(...args)
             }
           })
@@ -13956,11 +13957,11 @@ const {Dict,DictFactory} = (function(){
     explainDictName(dictName) {
       let re = {}
       let m = /^([^:()]+)(\(([^)]*)\))?(:(.+))?$/.exec(dictName)
-      if(m) {
+      if (m) {
         re.name = m[1]
         re.args = Ti.S.joinArgs(m[3])
         re.vkey = m[5]
-        if(re.args.length == 1 && /^=/.test(re.args[0])) {
+        if (re.args.length == 1 && /^=/.test(re.args[0])) {
           re.dynamic = true
           re.dictKey = _.trim(re.args[0].substring(1))
         }
@@ -13969,48 +13970,48 @@ const {Dict,DictFactory} = (function(){
     },
     //-------------------------------------------
     CreateDynamicDict(factory, name) {
-      if(name && _.isFunction(factory)) {
+      if (name && _.isFunction(factory)) {
         DYNAMIC_DICTS.definations[name] = factory
       } else {
-        console.error("Can not CreateDynamicDict", {factory, name})
+        console.error("Can not CreateDynamicDict", { factory, name })
       }
     },
     //-------------------------------------------
-    GetDynamicDict({name, key, vars}={}, hooks) {
+    GetDynamicDict({ name, key, vars } = {}, hooks) {
       // Try get
       let dKey = `${name}.${key}`
       let d = _.get(DYNAMIC_DICTS.instances, dKey)
       //console.log("GetDynamicDict", {name, key, vars})
       // Create New instance
-      if(!d) {
+      if (!d) {
         let dd = DYNAMIC_DICTS.definations[name]
-        if(!dd) {
+        if (!dd) {
           return null
         }
         // Create instance
         d = dd(vars)
-        if(!d) {
+        if (!d) {
           return null
         }
         // Save instance
         _.set(DYNAMIC_DICTS.instances, dKey, d)
       }
-      
+  
       // Return shadowed ? 
-      if(d && hooks) {
-        d = d.duplicate({hooks:false})
+      if (d && hooks) {
+        d = d.duplicate({ hooks: false })
         d.addHooks(hooks)
       }
       return d
     },
     //-------------------------------------------
-    CheckDynamicDict({name, key, vars}={}, hooks) {
+    CheckDynamicDict({ name, key, vars } = {}, hooks) {
       // Already in cache
-      let d = DictFactory.GetDynamicDict({name, key, vars}, hooks)
-      if(d) {
+      let d = DictFactory.GetDynamicDict({ name, key, vars }, hooks)
+      if (d) {
         return d
       }
-      throw `e.dict.dynamic.WithoutDefined : ${JSON.stringify({name,key,vars})}`
+      throw `e.dict.dynamic.WithoutDefined : ${JSON.stringify({ name, key, vars })}`
     },
     //-------------------------------------------
     /***
@@ -14018,11 +14019,11 @@ const {Dict,DictFactory} = (function(){
      */
     async getBy(dName, val) {
       // Guard 1
-      if(Ti.Util.isNil(val)) {
+      if (Ti.Util.isNil(val)) {
         return val
       }
       // Check if the name indicate the itemValueKey
-      let {name, vKey} = DictFactory.explainDictName(dName)
+      let { name, vKey } = DictFactory.explainDictName(dName)
       let $dict = DictFactory.CheckDict(name)
       return await $dict.getItemAs(vKey, val)
     },
@@ -14031,7 +14032,7 @@ const {Dict,DictFactory} = (function(){
       try {
         let $dict = DictFactory.CheckDict(dictName)
         return await $dict.getData()
-      } catch(E) {
+      } catch (E) {
         console.error(`e.dict.getAll : ${dictName}`, E)
       }
     },
@@ -14040,7 +14041,7 @@ const {Dict,DictFactory} = (function(){
       try {
         let $dict = DictFactory.CheckDict(dictName)
         return await $dict.getItemText(val)
-      } catch(E) {
+      } catch (E) {
         console.error(`e.dict.getText : ${dictName}`, E)
       }
     },
@@ -14049,7 +14050,7 @@ const {Dict,DictFactory} = (function(){
       try {
         let $dict = DictFactory.CheckDict(dictName)
         return await $dict.getItemIcon(val)
-      } catch(E) {
+      } catch (E) {
         console.error(`e.dict.getIcon : ${dictName}`, E)
       }
     },
@@ -16710,7 +16711,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20210930.233420",
+  "version" : "1.6-20211009.091123",
   "dev" : false,
   "appName" : null,
   "session" : {},
