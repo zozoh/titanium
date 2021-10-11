@@ -103,9 +103,14 @@ const _M = {
           return Ti.DictFactory.CheckDict(dictName, _hook_loading)
         }
       }
+      let query;
+      if(_.isFunction(this.options)) {
+        query = this.options
+      }
       // Auto Create
       return Ti.DictFactory.CreateDict({
         data: this.options,
+        query,
         getValue : Ti.Util.genGetter(this.valueBy || "value"),
         getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
         getIcon  : Ti.Util.genGetter(this.textBy  || "icon")
