@@ -42,7 +42,10 @@ const _M = {
     DropComType() {return this.dropComType || "ti-list"},
     DropComConf() {
       return _.assign({
-        display    : this.dropDisplay || "text",
+        display: this.dropDisplay || [
+          "text|title|nm::flex-auto",
+          "id|value::as-tip-block align-right"
+        ],
         border     : this.dropItemBorder
       }, this.dropComConf, {
         data : this.myOptionsData,
@@ -227,7 +230,8 @@ const _M = {
     //-----------------------------------------------
     async reloadMyOptionData(force=false) {
       if(force || this.isExtended) {
-        this.myOptionsData = await this.Dict.queryData(this.myFilterValue)
+        let list = await this.Dict.queryData(this.myFilterValue)
+        this.myOptionsData = list
       } else {
         this.myOptionsData = []
       }

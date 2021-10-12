@@ -237,7 +237,6 @@ const _M = {
           values[index] = value
         }
         _.remove(values, v => v ? false : true)
-        console.log("switchItem:", values)
         this.$notify("change", values)
       }
     },

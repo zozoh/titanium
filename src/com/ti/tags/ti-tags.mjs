@@ -1,6 +1,7 @@
 export default {
   ////////////////////////////////////////////////////
   data: () => ({
+    dragging: false,
     myTags: [],
     myValues: []
   }),
@@ -20,6 +21,10 @@ export default {
     "mapping": {
       type: Object,
       default: undefined
+    },
+    "explainMapping": {
+      type: Boolean,
+      default: false
     },
     "itemOptions": {
       type: Array,
@@ -133,6 +138,7 @@ export default {
     },
     //------------------------------------------------
     async evalMyData() {
+      //console.log("evalMyData", _.map(this.value, it=>it.value))
       const tags = []
       let list;
       if (_.isArray(this.value)) {
@@ -149,9 +155,15 @@ export default {
           let tag;
           // Auto mapping plain object
           if (_.isPlainObject(val)) {
-            tag = this.mapping
-              ? Ti.Util.translate(val, this.mapping)
-              : _.cloneDeep(val)
+            if (this.mapping) {
+              if (this.explainMapping) {
+                tag = Ti.Util.explainObj(val, this.mapping)
+              } else {
+                tag = Ti.Util.translate(val, this.mapping)
+              }
+            } else {
+              tag = _.cloneDeep(val)
+            }
             // Customized the icon
             if (!tag.icon) {
               tag.icon = this.getTagItemIcon(val)
@@ -191,6 +203,32 @@ export default {
         vals.push(Ti.Util.fallback(tag.value, null))
       }
       return vals
+    },
+    //--------------------------------------
+    switchItem(fromIndex, toIndex) {
+      if (fromIndex != toIndex) {
+        let values = this.getMyValues()
+        Ti.Util.moveInArray(values, fromIndex, toIndex)
+        this.$notify("change", values)
+      }
+    },
+    //--------------------------------------
+    initSortable() {
+      if (this.removable && _.isElement(this.$el)) {
+        new Sortable(this.$el, {
+          animation: 300,
+          filter: ".as-nil-tip",
+          onStart: () => {
+            this.dragging = true
+          },
+          onEnd: ({ oldIndex, newIndex }) => {
+            this.switchItem(oldIndex, newIndex)
+            _.delay(() => {
+              this.dragging = false
+            }, 100)
+          }
+        })
+      }
     }
     //------------------------------------------------
   },
@@ -200,6 +238,10 @@ export default {
       handler: "evalMyData",
       immediate: true
     }
+  },
+  ////////////////////////////////////////////////////
+  mounted: function () {
+    this.initSortable()
   }
   ////////////////////////////////////////////////////
 }

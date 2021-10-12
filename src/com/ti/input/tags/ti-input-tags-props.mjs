@@ -25,6 +25,10 @@ export default {
     type : Object,
     default : undefined
   },
+  "tagExplainMapping": {
+    type: Boolean,
+    default: false
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

@@ -1,4 +1,4 @@
-// Pack At: 2021-10-09 09:11:23
+// Pack At: 2021-10-12 23:27:25
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -108,7 +108,7 @@ function _render_iteratee({
 function __eval_com_conf_item(val, cx={}) {
   // String valu3
   if(_.isString(val)) {
-    if(/^([-=]|[!=]=|->|==?>)/.test(val)) {
+    if(/^:*([-=]|[!=]=|->|==?>)/.test(val)) {
       return Ti.Util.explainObj({
         ...cx,
         item: cx.itemData
@@ -4849,7 +4849,6 @@ const _M = {
           values[index] = value
         }
         _.remove(values, v => v ? false : true)
-        console.log("switchItem:", values)
         this.$notify("change", values)
       }
     },
@@ -8667,9 +8666,14 @@ const _M = {
           return Ti.DictFactory.CheckDict(dictName, _hook_loading)
         }
       }
+      let query;
+      if(_.isFunction(this.options)) {
+        query = this.options
+      }
       // Auto Create
       return Ti.DictFactory.CreateDict({
         data: this.options,
+        query,
         getValue : Ti.Util.genGetter(this.valueBy || "value"),
         getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
         getIcon  : Ti.Util.genGetter(this.textBy  || "icon")
@@ -10459,6 +10463,7 @@ window.TI_PACK_EXPORTS['ti/com/ti/tags/ti-tags.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
   data: () => ({
+    dragging: false,
     myTags: [],
     myValues: []
   }),
@@ -10478,6 +10483,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "mapping": {
       type: Object,
       default: undefined
+    },
+    "explainMapping": {
+      type: Boolean,
+      default: false
     },
     "itemOptions": {
       type: Array,
@@ -10591,6 +10600,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //------------------------------------------------
     async evalMyData() {
+      //console.log("evalMyData", _.map(this.value, it=>it.value))
       const tags = []
       let list;
       if (_.isArray(this.value)) {
@@ -10607,9 +10617,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
           let tag;
           // Auto mapping plain object
           if (_.isPlainObject(val)) {
-            tag = this.mapping
-              ? Ti.Util.translate(val, this.mapping)
-              : _.cloneDeep(val)
+            if (this.mapping) {
+              if (this.explainMapping) {
+                tag = Ti.Util.explainObj(val, this.mapping)
+              } else {
+                tag = Ti.Util.translate(val, this.mapping)
+              }
+            } else {
+              tag = _.cloneDeep(val)
+            }
             // Customized the icon
             if (!tag.icon) {
               tag.icon = this.getTagItemIcon(val)
@@ -10649,6 +10665,32 @@ const __TI_MOD_EXPORT_VAR_NM = {
         vals.push(Ti.Util.fallback(tag.value, null))
       }
       return vals
+    },
+    //--------------------------------------
+    switchItem(fromIndex, toIndex) {
+      if (fromIndex != toIndex) {
+        let values = this.getMyValues()
+        Ti.Util.moveInArray(values, fromIndex, toIndex)
+        this.$notify("change", values)
+      }
+    },
+    //--------------------------------------
+    initSortable() {
+      if (this.removable && _.isElement(this.$el)) {
+        new Sortable(this.$el, {
+          animation: 300,
+          filter: ".as-nil-tip",
+          onStart: () => {
+            this.dragging = true
+          },
+          onEnd: ({ oldIndex, newIndex }) => {
+            this.switchItem(oldIndex, newIndex)
+            _.delay(() => {
+              this.dragging = false
+            }, 100)
+          }
+        })
+      }
     }
     //------------------------------------------------
   },
@@ -10658,6 +10700,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       handler: "evalMyData",
       immediate: true
     }
+  },
+  ////////////////////////////////////////////////////
+  mounted: function () {
+    this.initSortable()
   }
   ////////////////////////////////////////////////////
 }
@@ -18585,7 +18631,10 @@ const _M = {
     DropComType() {return this.dropComType || "ti-list"},
     DropComConf() {
       return _.assign({
-        display    : this.dropDisplay || "text",
+        display: this.dropDisplay || [
+          "text|title|nm::flex-auto",
+          "id|value::as-tip-block align-right"
+        ],
         border     : this.dropItemBorder
       }, this.dropComConf, {
         data : this.myOptionsData,
@@ -18770,7 +18819,8 @@ const _M = {
     //-----------------------------------------------
     async reloadMyOptionData(force=false) {
       if(force || this.isExtended) {
-        this.myOptionsData = await this.Dict.queryData(this.myFilterValue)
+        let list = await this.Dict.queryData(this.myFilterValue)
+        this.myOptionsData = list
       } else {
         this.myOptionsData = []
       }
@@ -46632,6 +46682,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : Object,
     default : undefined
   },
+  "tagExplainMapping": {
+    type: Boolean,
+    default: false
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -64162,6 +64216,7 @@ Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", `<ti-combo-b
         :value-unique="valueUnique"
         :tag-options="tagOptions"
         :tag-mapping="tagMapping"
+        :tag-explain-mapping="tagExplainMapping"
 
       :readonly="readonly"
       :focused="focused"
@@ -65826,6 +65881,7 @@ Ti.Preload("ti/com/ti/input/tags/ti-input-tags.html", `<ti-input
       :item-default-icon="tagItemDefaultIcon"
       :option-default-icon="tagOptionDefaultIcon"
       :mapping="tagMapping"
+      :explainMapping="tagExplainMapping"
       :cancel-item-bubble="cancelTagBubble"
       @change="$notify('change', $event)"/>
   </div>
@@ -68036,6 +68092,7 @@ Ti.Preload("ti/com/ti/tags/ti-tags.html", `<div class="ti-tags"
     Empty
   -->
   <span
+    class="as-nil-tip"
     v-if="!hasItems">{{placeholder | i18n}}</span>
   <!--
     Loop piece
@@ -68043,7 +68100,7 @@ Ti.Preload("ti/com/ti/tags/ti-tags.html", `<div class="ti-tags"
   <tags-item
     v-else
       v-for="tag in myTags"
-        :key="tag.index"
+        :key="tag.value"
         v-bind="tag"
         :cancel-bubble="cancelItemBubble"
         :option-default-icon="optionDefaultIcon"

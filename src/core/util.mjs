@@ -142,6 +142,23 @@ const TiUtil = {
     return index
   },
   /**
+   * Move array element in-place
+   * 
+   * @param list the input Array
+   * @param fromIndex org index
+   * @param toIndex target index
+   */
+  moveInArray(list = [], fromIndex, toIndex) {
+    // Guard
+    if (fromIndex == toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= list.length || toIndex >= list.length) {
+      return
+    }
+    let v = list[fromIndex]
+    list.splice(fromIndex, 1)
+    list.splice(toIndex, 0, v)
+    return list
+  },
+  /**
    * @param state Vuex state object with "data: {list,pager}"
    * @param items Item(or ID) to remove, unique key is "id"
    */

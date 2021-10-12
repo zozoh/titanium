@@ -1,4 +1,4 @@
-// Pack At: 2021-10-09 09:11:23
+// Pack At: 2021-10-12 23:27:25
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9613,6 +9613,23 @@ const {Util} = (function(){
       return index
     },
     /**
+     * Move array element in-place
+     * 
+     * @param list the input Array
+     * @param fromIndex org index
+     * @param toIndex target index
+     */
+    moveInArray(list = [], fromIndex, toIndex) {
+      // Guard
+      if (fromIndex == toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= list.length || toIndex >= list.length) {
+        return
+      }
+      let v = list[fromIndex]
+      list.splice(fromIndex, 1)
+      list.splice(toIndex, 0, v)
+      return list
+    },
+    /**
      * @param state Vuex state object with "data: {list,pager}"
      * @param items Item(or ID) to remove, unique key is "id"
      */
@@ -13451,7 +13468,7 @@ const {Dict,DictFactory} = (function(){
       this.isMatched = (it, v) => {
         //console.log("match", it, v)
         let itV = this.getValue(it)
-        if (_.isEqual(v, itV))
+        if ( v == itV || _.isEqual(v, itV))
           return true
         if (_.isString(itV) && _.isString(v)) {
           let itV2 = _.toLower(itV)
@@ -16711,7 +16728,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20211009.091123",
+  "version" : "1.6-20211012.232725",
   "dev" : false,
   "appName" : null,
   "session" : {},

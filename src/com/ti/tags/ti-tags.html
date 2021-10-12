@@ -4,6 +4,7 @@
     Empty
   -->
   <span
+    class="as-nil-tip"
     v-if="!hasItems">{{placeholder | i18n}}</span>
   <!--
     Loop piece
@@ -11,7 +12,7 @@
   <tags-item
     v-else
       v-for="tag in myTags"
-        :key="tag.index"
+        :key="tag.value"
         v-bind="tag"
         :cancel-bubble="cancelItemBubble"
         :option-default-icon="optionDefaultIcon"

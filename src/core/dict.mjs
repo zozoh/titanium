@@ -34,7 +34,7 @@ export class Dict {
     this.isMatched = (it, v) => {
       //console.log("match", it, v)
       let itV = this.getValue(it)
-      if (_.isEqual(v, itV))
+      if ( v == itV || _.isEqual(v, itV))
         return true
       if (_.isString(itV) && _.isString(v)) {
         let itV2 = _.toLower(itV)
