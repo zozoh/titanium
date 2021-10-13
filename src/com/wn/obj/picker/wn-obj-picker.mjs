@@ -309,9 +309,7 @@ export default {
     switchItem(fromIndex, toIndex) {
       if (fromIndex != toIndex) {
         let items = _.cloneDeep(this.myItems)
-        let it = items[fromIndex]
-        items = _.filter(items, (v, i) => i != fromIndex)
-        items.splice(toIndex, 0, it)
+        Ti.Util.moveInArray(items, fromIndex, toIndex)
         this.myItems = items
         this.notifyChange()
       }

@@ -226,17 +226,8 @@ const _M = {
     switchItem(fromIndex, toIndex) {
       if (fromIndex != toIndex) {
         //console.log("switch item", { fromIndex, toIndex })
-        let values = []
-        for (let it of this.PreviewItems) {
-          let { value, index } = it
-          if (index == fromIndex) {
-            index = toIndex
-          } else if (index == toIndex) {
-            index = fromIndex
-          }
-          values[index] = value
-        }
-        _.remove(values, v => v ? false : true)
+        let values = _.map(this.PreviewItems, it => it.value)
+        Ti.Util.moveInArray(values, fromIndex, toIndex)
         this.$notify("change", values)
       }
     },

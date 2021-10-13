@@ -1,4 +1,4 @@
-// Pack At: 2021-10-13 12:13:58
+// Pack At: 2021-10-13 21:22:49
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -4838,17 +4838,8 @@ const _M = {
     switchItem(fromIndex, toIndex) {
       if (fromIndex != toIndex) {
         //console.log("switch item", { fromIndex, toIndex })
-        let values = []
-        for (let it of this.PreviewItems) {
-          let { value, index } = it
-          if (index == fromIndex) {
-            index = toIndex
-          } else if (index == toIndex) {
-            index = fromIndex
-          }
-          values[index] = value
-        }
-        _.remove(values, v => v ? false : true)
+        let values = _.map(this.PreviewItems, it => it.value)
+        Ti.Util.moveInArray(values, fromIndex, toIndex)
         this.$notify("change", values)
       }
     },
@@ -7485,9 +7476,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     switchItem(fromIndex, toIndex) {
       if (fromIndex != toIndex) {
         let items = _.cloneDeep(this.myItems)
-        let it = items[fromIndex]
-        items = _.filter(items, (v, i) => i != fromIndex)
-        items.splice(toIndex, 0, it)
+        Ti.Util.moveInArray(items, fromIndex, toIndex)
         this.myItems = items
         this.notifyChange()
       }
@@ -20686,6 +20675,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "options": {
     type: [String, Array, Function, Ti.Dict],
     default: () => []
+  },
+  "optionFilter": {
+    type : Function,
+    default: undefined
   },
   // If dynamic dictionary: options = '#DickName(=varName)'
   // it will use Ti.DictFactory.CheckDynamicDict,
@@ -56235,6 +56228,21 @@ const _M = {
       //console.log("reloadMyOptionData")
       if (force || this.isExtended) {
         let list = await this.Dict.queryData(this.myFilterValue)
+        if(_.isFunction(this.optionFilter)) {
+          let list2 = []
+          for(let li of list) {
+            let li2 = this.optionFilter(li)
+            if(!li2) {
+              continue;
+            }
+            if(_.isBoolean(li2)) {
+              list2.push(li)
+            } else {
+              list2.push(li2)
+            }
+          }
+          list = list2
+        }
         this.myOptionsData = list
       } else {
         this.myOptionsData = []

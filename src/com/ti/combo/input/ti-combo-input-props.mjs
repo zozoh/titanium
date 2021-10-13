@@ -6,6 +6,10 @@ export default {
     type: [String, Array, Function, Ti.Dict],
     default: () => []
   },
+  "optionFilter": {
+    type : Function,
+    default: undefined
+  },
   // If dynamic dictionary: options = '#DickName(=varName)'
   // it will use Ti.DictFactory.CheckDynamicDict,
   // The key of the instance name, should explain for the vars set

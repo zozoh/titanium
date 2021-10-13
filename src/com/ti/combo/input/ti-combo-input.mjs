@@ -355,6 +355,21 @@ const _M = {
       //console.log("reloadMyOptionData")
       if (force || this.isExtended) {
         let list = await this.Dict.queryData(this.myFilterValue)
+        if(_.isFunction(this.optionFilter)) {
+          let list2 = []
+          for(let li of list) {
+            let li2 = this.optionFilter(li)
+            if(!li2) {
+              continue;
+            }
+            if(_.isBoolean(li2)) {
+              list2.push(li)
+            } else {
+              list2.push(li2)
+            }
+          }
+          list = list2
+        }
         this.myOptionsData = list
       } else {
         this.myOptionsData = []
