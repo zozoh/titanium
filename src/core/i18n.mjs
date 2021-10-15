@@ -13,6 +13,9 @@ function __MSG(key) {
 }
 //-----------------------------------
 const Ti18n = {
+  all() {
+    return I18N
+  },
   put(msgs) {
     // Multi set
     if(_.isArray(msgs)) {
