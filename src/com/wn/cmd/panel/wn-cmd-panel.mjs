@@ -131,7 +131,7 @@ const _M = {
       )
       if(showTailRunTip) {
         this.printHR()
-        this.lines.push("> " + cmdText)
+        this.lines.push("--> " + cmdText)
         this.printHR()
         this.lines.push(Ti.I18n.get("run-finished"))
       }

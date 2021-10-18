@@ -590,6 +590,22 @@ const _M = {
     if (!_.get(behavior.filter, "majorKey")) {
       delete filter.majorKey;
     }
+
+    // Update filter and sorter from page#Anchor
+    let loc = Ti.Util.parseHref(window.location.href)
+    let afo = Ti.Util.parseAnchorFilter(loc.anchor)
+    console.log(filter)
+    if (afo) {
+      filter = filter || {}
+      filter.keyword = afo.keyword || filter.keyword
+      filter.match = afo.match || filter.match
+
+      if (!_.isEmpty(afo.sort)) {
+        local.sorter = afo.sort
+      }
+    }
+
+    //
     if (!_.isEmpty(filter)) {
       commit("search/setFilter", filter)
     }

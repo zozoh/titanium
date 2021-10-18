@@ -66,8 +66,7 @@ const _M = {
       default: false
     },
     "eventName": {
-      type: String,
-      default: undefined
+      type: String
     },
     "payload": undefined,
     "wait": {

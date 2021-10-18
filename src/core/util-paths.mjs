@@ -277,6 +277,13 @@ const TiPaths = {
       return link
     }
     return {path:href}
+  },
+  //---------------------------------
+  parseAnchorFilter(input) {
+    if(!input) {
+      return null
+    }
+    return Ti.Util.AnchorFilter(input)
   }
 }
 //-----------------------------------

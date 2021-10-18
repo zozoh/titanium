@@ -8,37 +8,43 @@ const TiBehaviors = {
    * Once the `form.sumit` has been invoked, 
    * it will be removed immdiataly
    */
-  Open(url, {target="_blank", method="GET", params={}, delay=100}={}) {
-    if(url && url.url) {
+  Open(url, { target = "_blank", method = "GET", params = {}, anchor, delay = 100 } = {}) {
+    if (url && url.url) {
       let link = url
       url = link.url
-      if(!_.isEmpty(link.params)) {
+      if (!_.isEmpty(link.params)) {
         params = link.params
       }
+      anchor = link.anchor || anchor
       target = link.target || target
     }
-    return new Promise((resolve)=>{
+    let actionUrl = url
+    if (anchor) {
+      actionUrl = [url, anchor].join("#")
+    }
+    //console.log("actionUrl", actionUrl)
+    return new Promise((resolve) => {
       // Join to DOM
       let $form = Ti.Dom.createElement({
-        $p : document.body,
-        tagName : 'form',
-        attrs : {target, method, action:url},
-        props : {style: "display:none;"}
+        $p: document.body,
+        tagName: 'form',
+        attrs: { target, method, action: actionUrl },
+        props: { style: "display:none;" }
       })
       // Add params
-      _.forEach(params, (value,name)=>{
+      _.forEach(params, (value, name) => {
         let $in = Ti.Dom.createElement({
-          $p : $form,
-          tagName : 'input',
-          props : {
-            name, 
-            value, 
-            type:"hidden"
+          $p: $form,
+          tagName: 'input',
+          props: {
+            name,
+            value,
+            type: "hidden"
           }
         })
       })
       // await for a while
-      _.delay(function(){
+      _.delay(function () {
         // Submit it
         $form.submit()
         // Remove it
@@ -54,16 +60,17 @@ const TiBehaviors = {
   /***
    * Open the url described by `TiLinkObj`
    */
-  OpenLink(link, {target="_blank", method="GET", delay=100}={}) {
+  OpenLink(link, { target = "_blank", method = "GET", delay = 100 } = {}) {
     return TiBehaviors.Open(link.url, {
       target, method, delay,
-      params:link.params
+      params: link.params,
+      anchor: link.anchor
     })
   },
   /***
    * Scroll window to ...
    */
-  ScrollWindowTo({x=0,y=0}={}) {
+  ScrollWindowTo({ x = 0, y = 0 } = {}) {
     window.scrollTo(x, y);
   },
   /**
@@ -72,42 +79,42 @@ const TiBehaviors = {
    * @param str content to be write to clipboard
    */
   writeToClipboard(str) {
-    if(!_.isString(str)) {
+    if (!_.isString(str)) {
       str = Ti.Types.toStr(str)
     }
 
     // Copy to clipboard
-    if(navigator.clipboard) {
+    if (navigator.clipboard) {
       navigator.clipboard.writeText(str)
     }
     // Hack copy
     else {
       let $t = Ti.Dom.createElement({
-        tagName : "textarea",
-        style : {
-          position : "fixed",
-          top : "-100000px",
-          left : "0px",
-          width : "300px",
-          height : "300px",
-          opacity : -0,
-          zIndex : 10000
+        tagName: "textarea",
+        style: {
+          position: "fixed",
+          top: "-100000px",
+          left: "0px",
+          width: "300px",
+          height: "300px",
+          opacity: -0,
+          zIndex: 10000
         },
-        props : {
-          value : str
+        props: {
+          value: str
         },
-        $p : document.body
+        $p: document.body
       });
       $t.focus();
       $t.select();
 
       try {
-          if(!document.execCommand('copy')) {
-            console.warn('fail to execCommand("copy") for text: ', str);
-          }
-          //console.log(re)
+        if (!document.execCommand('copy')) {
+          console.warn('fail to execCommand("copy") for text: ', str);
+        }
+        //console.log(re)
       } catch (err) {
-          console.warn('fail to copy text: ', err);
+        console.warn('fail to copy text: ', err);
       }
 
       Ti.Dom.remove($t)
@@ -125,17 +132,17 @@ const TiBehaviors = {
     jq = $(jq);
 
     if (jq.length == 0)
-        return;
+      return;
 
     opt = opt || {};
     if (typeof opt == "function") {
-        opt = {
-            after: opt
-        };
+      opt = {
+        after: opt
+      };
     } else if (typeof opt == "number") {
-        opt = {
-            speed: opt
-        };
+      opt = {
+        speed: opt
+      };
     }
     // 得到文档中的
     var off = jq.offset();
@@ -143,24 +150,24 @@ const TiBehaviors = {
     var jDoc = $(owDoc);
     // 样式
     var css = {
-        "width": jq.outerWidth(),
-        "height": jq.outerHeight(),
-        "border-color": "#FF0",
-        "background": "#FFA",
-        "opacity": 0.8,
-        "position": "fixed",
-        "top": off.top - jDoc.scrollTop(),
-        "left": off.left - jDoc.scrollLeft(),
-        "z-index": 9999999
+      "width": jq.outerWidth(),
+      "height": jq.outerHeight(),
+      "border-color": "#FF0",
+      "background": "#FFA",
+      "opacity": 0.8,
+      "position": "fixed",
+      "top": off.top - jDoc.scrollTop(),
+      "left": off.left - jDoc.scrollLeft(),
+      "z-index": 9999999
     };
     // 建立闪烁层
     var lg = $(opt.html || '<div class="z_blink_light">&nbsp;</div>');
     lg.css(css).appendTo(owDoc.body);
     lg.animate({
-        opacity: 0.1
+      opacity: 0.1
     }, opt.speed || 500, function () {
-        $(this).remove();
-        if (typeof opt.after == "function") opt.after.apply(jq);
+      $(this).remove();
+      if (typeof opt.after == "function") opt.after.apply(jq);
     });
   },
   /**
@@ -187,34 +194,34 @@ const TiBehaviors = {
   }
   * 如果 opt 为函数，相当于 {after:F()}
   */
-  EditIt(ele, opt={}) {
+  EditIt(ele, opt = {}) {
     //.........................................
     // 处理参数
     var jEle = $(ele);
     if (jEle.length == 0 || jEle.hasClass("is-be-editing"))
-        return;
+      return;
     //.........................................
     // Mark
     jEle.addClass("is-be-editing")
     //.........................................
     // Set default value
     _.defaults(opt, {
-      text   : null,   // 初始文字，如果没有给定，采用 ele 的文本
-      width  : 0,      // 指定宽度，没有指定则默认采用宿主元素的宽度
-      height : 0,      // 指定高度，没有指定则默认采用宿主元素的高度
-      extendWidth : true,    // 自动延伸宽度
-      takePlace : true,      // 是否代替宿主的位置，如果代替那么将不用绝对位置和遮罩
-      selectOnFocus : true,  // 当显示输入框，是否全选文字
+      text: null,   // 初始文字，如果没有给定，采用 ele 的文本
+      width: 0,      // 指定宽度，没有指定则默认采用宿主元素的宽度
+      height: 0,      // 指定高度，没有指定则默认采用宿主元素的高度
+      extendWidth: true,    // 自动延伸宽度
+      takePlace: true,      // 是否代替宿主的位置，如果代替那么将不用绝对位置和遮罩
+      selectOnFocus: true,  // 当显示输入框，是否全选文字
       // How many css-prop should be copied
-      copyStyle : [
-        "letter-spacing", "margin", "border", 
+      copyStyle: [
+        "letter-spacing", "margin", "border",
         "font-size", "font-family", "line-height", "text-align"],
       // 确认后回调
-      ok : function(newVal, oldVal){
+      ok: function (newVal, oldVal) {
         this.innerText = newVal
       },
       // 回调上下文，默认$ele
-      context : jEle[0]
+      context: jEle[0]
     })
     //.........................................
     // Build-in callback set
@@ -222,21 +229,21 @@ const TiBehaviors = {
     const Editing = {
       //.......................................
       jEle,
-      $el : jEle[0],
-      options  : opt,
-      oldValue : Ti.Util.fallback(opt.text, jEle.text()),
+      $el: jEle[0],
+      options: opt,
+      oldValue: Ti.Util.fallback(opt.text, jEle.text()),
       //.......................................
       onCancel() {
         this.jMask.remove()
         this.jDiv.remove()
         this.jEle.css({
-          visibility:""
+          visibility: ""
         }).removeClass("is-be-editing")
       },
       //.......................................
       onOk() {
         let newVal = _.trim(this.jInput.val())
-        if(newVal != this.oldValue) {
+        if (newVal != this.oldValue) {
           opt.ok.apply(opt.context, [newVal, opt.oldValue, opt])
         }
         this.onCancel()
@@ -251,53 +258,53 @@ const TiBehaviors = {
     let rect = Ti.Rects.createBy(Editing.$el)
     //.........................................
     // Display the input-box
-    let boxW = opt.width  || rect.width;
+    let boxW = opt.width || rect.width;
     let boxH = opt.height || rect.height;
     //.........................................
     const jDiv = $(html)
     const jInput = jDiv.find("input")
-    const jMask  = $(`<div class="ti-be-editing as-mask"></div>`)
+    const jMask = $(`<div class="ti-be-editing as-mask"></div>`)
     //.........................................
     _.assign(Editing, {
       jDiv, jInput, jMask,
-      $div   : jDiv[0],
-      $input : jInput[0],
-      $mask  : jMask[0],
-      primaryWidth  : boxW,
-      primaryHeight : boxH
+      $div: jDiv[0],
+      $input: jInput[0],
+      $mask: jMask[0],
+      primaryWidth: boxW,
+      primaryHeight: boxH
     })
     //.........................................
     jMask.css({
       position: "fixed",
-      zIndex : 999999,
-      top:0, left:0, right:0, bottom:0      
+      zIndex: 999999,
+      top: 0, left: 0, right: 0, bottom: 0
     })
     //.........................................
     jDiv.css({
       position: "fixed",
-      zIndex : 1000000,
-      top    : rect.top, 
-      left   : rect.left,
-      width  : boxW, 
-      height : boxH,
+      zIndex: 1000000,
+      top: rect.top,
+      left: rect.left,
+      width: boxW,
+      height: boxH,
     })
     //.........................................
     jInput.css({
-      width      : "100%",
-      height     : "100%", 
-      outline    : "none",
-      resize     : "none", 
-      overflow   : "hidden",
-      padding    : "0 .06rem",
-      background : "rgba(255,255,50,0.8)",
-      color      : "#000",
-      lineHeight : boxH
+      width: "100%",
+      height: "100%",
+      outline: "none",
+      resize: "none",
+      overflow: "hidden",
+      padding: "0 .06rem",
+      background: "rgba(255,255,50,0.8)",
+      color: "#000",
+      lineHeight: boxH
     }).attr({
-      spellcheck : false
+      spellcheck: false
     }).val(Editing.oldValue)
     //.........................................
     // Copy the target style to display
-    if(!_.isEmpty(opt.copyStyle)) {
+    if (!_.isEmpty(opt.copyStyle)) {
       const styles = window.getComputedStyle(Editing.$el)
       // Prepare the css-set
       let css = _.pick(styles, opt.copyStyle)
@@ -308,28 +315,28 @@ const TiBehaviors = {
     Editing.jMask.appendTo(document.body)
     Editing.jDiv.appendTo(document.body)
     Editing.jEle.css({
-      visibility : "hidden"
+      visibility: "hidden"
     })
     //.........................................
     // Auto focus
-    if(opt.selectOnFocus) {
+    if (opt.selectOnFocus) {
       Editing.$input.select()
     } else {
       Editing.$input.focus()
     }
     //.........................................
     // Join the events
-    jInput.one("blur", ()=>{
+    jInput.one("blur", () => {
       Editing.onOk()
     })
-    jInput.on("keydown", ($evt)=>{
+    jInput.on("keydown", ($evt) => {
       let keyCode = $evt.which
       // Esc
-      if(27 == keyCode) {
+      if (27 == keyCode) {
         Editing.onCancel()
       }
       // Enter
-      else if(13 == keyCode) {
+      else if (13 == keyCode) {
         Editing.onOk()
       }
     })

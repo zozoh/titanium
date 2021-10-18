@@ -11,11 +11,6 @@
   <div
     v-if="hasValue"
       class="as-text">
-      <template v-if="i18n">
-        <div v-for="li in TheValue">{{li | i18n}}</div>
-      </template>
-      <template v-else>
-        <div v-for="li in TheValue">{{li}}</div>
-      </template>
+      <div v-for="li in TheValue">{{li}}</div>
   </div>
 </div>

@@ -87,24 +87,45 @@ const _M = {
   },
   //----------------------------------------
   recoverSearchSetting({ state, commit }) {
+    let loc = Ti.Util.parseHref(window.location.href)
+    let afo = Ti.Util.parseAnchorFilter(loc.anchor)
+
     let keepAs = getKeepSearchAs(state)
     if (keepAs) {
+      //................................
       let {
         filter, sorter, pager
       } = Ti.Storage.session.getObject(keepAs, {})
+      //................................
+      if (afo) {
+        filter = filter || {}
+        filter.keyword = afo.keyword || filter.keyword
+        filter.match = afo.match || filter.match
+
+        if (!_.isEmpty(afo.sort)) {
+          sorter = afo.sort
+        }
+      }
+      //................................
       pager = _.assign({}, {
         pageNumber: state.pageNumber || 1,
         pageSize: state.pageSize || 1000
       }, pager)
+      //................................
       if (filter) {
+        //console.log("filter", filter)
         commit("setFilter", filter)
       }
+      //................................
       if (sorter) {
+        //console.log("sorter", sorter)
         commit("setSorter", sorter)
       }
+      //................................
       if (pager) {
         commit("setPager", pager)
       }
+      //................................
     }
   },
   //----------------------------------------

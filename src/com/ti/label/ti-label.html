@@ -24,10 +24,17 @@
     :style="ValueStyle"
     @click.left="OnClickValue">
     <!--Link-->
-    <a v-if="href || valueClickable"
+    <template v-if="href || valueClickable">
+      <a
+        v-if="editable"
+          class="as-value-edit"
+          :title="'i18n:edit'|i18n"
+          @click.left.prevent="OnDblClick">
+            <i class="far fa-edit"></i></a>
+      <a 
         :href="href"
-        :taget="newTab ? '_blank' : undefined"
-        @click.left.prevent>{{myDisplayText}}</a>
+        :target="newTab ? '_blank' : undefined">{{myDisplayText}}</a>
+    </template>
     <!--Normal Text-->
     <span v-else>{{myDisplayText}}</span>
   </div>

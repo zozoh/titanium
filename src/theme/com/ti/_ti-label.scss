@@ -94,6 +94,7 @@
     padding: 0 SZ(4);
     width:100%;
     a, span {display: block; flex:1 1 auto;}
+    a.as-value-edit {flex:0 0 auto; width:SZ(24);}
     a:hover {text-decoration: underline;}
   }
   //-----------------------------------------
