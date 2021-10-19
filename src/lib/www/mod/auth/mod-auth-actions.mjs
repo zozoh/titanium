@@ -457,7 +457,7 @@ const _M = {
       ticket: state.ticket
     }
 
-    commit("setLoading", { text: "i18n:logout-ing" }, { root: true })
+    commit("setLoading", true, { root: true })
 
     // Call Remote
     let reo = await Ti.Http.get(url, { params, as: "json" })

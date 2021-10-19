@@ -1,4 +1,4 @@
-// Pack At: 2021-10-18 13:23:26
+// Pack At: 2021-10-19 15:10:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -50362,7 +50362,7 @@ const _M = {
       ticket: state.ticket
     }
 
-    commit("setLoading", { text: "i18n:logout-ing" }, { root: true })
+    commit("setLoading", true, { root: true })
 
     // Call Remote
     let reo = await Ti.Http.get(url, { params, as: "json" })

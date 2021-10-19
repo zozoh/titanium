@@ -48,7 +48,7 @@ const TiBehaviors = {
         // Submit it
         $form.submit()
         // Remove it
-        //Ti.Dom.remove($form)
+        Ti.Dom.remove($form)
 
         // Done
         resolve({

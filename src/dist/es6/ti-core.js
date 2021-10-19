@@ -1,4 +1,4 @@
-// Pack At: 2021-10-18 13:23:26
+// Pack At: 2021-10-19 15:10:37
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -839,7 +839,7 @@ const {Be} = (function(){
           // Submit it
           $form.submit()
           // Remove it
-          //Ti.Dom.remove($form)
+          Ti.Dom.remove($form)
   
           // Done
           resolve({
@@ -16804,7 +16804,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20211018.132326",
+  "version" : "1.6-20211019.151037",
   "dev" : false,
   "appName" : null,
   "session" : {},
