@@ -14,6 +14,10 @@ const _M = {
       type : Array,
       default : undefined
     },
+    "vars" : {
+      type : Object,
+      default : undefined
+    },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -114,17 +118,24 @@ const _M = {
     WallItems() {
       if(!_.isArray(this.data))
         return []
-      
+      let vars = _.cloneDeep(this.vars)
       let list = []      
       for(let i=0; i < this.data.length; i++) {
         let stl = this.getItemStyle(i)
         let it = this.data[i]
+        let comConf;
+        if(vars) {
+          vars.item = it
+          comConf = Ti.Util.explainObj(vars, this.comConf) 
+        } else {
+          comConf = Ti.Util.explainObj(it, this.comConf)
+        }
         list.push({
           key: `It-${i}`,
           className : this.getItemClass(i),
           style : stl,
           comType: this.comType,
-          comConf: Ti.Util.explainObj(it, this.comConf)
+          comConf
         })        
       }
       

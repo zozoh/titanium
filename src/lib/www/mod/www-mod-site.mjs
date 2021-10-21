@@ -6,7 +6,7 @@ const _M = {
     routerList(state) {
       let list = []
       _.forEach(state.router, ({
-        match, names = [], page = {}
+        match, names = [], page = {}, preload
       } = {}) => {
         let regex = new RegExp(match)
         // Pre-compiled
@@ -25,7 +25,10 @@ const _M = {
               }
             }
             // Render page info
-            return Ti.Util.explainObj(context, page)
+            //return Ti.Util.explainObj(context, page)
+            return {
+              context, page, preload
+            }
           }
         }
 

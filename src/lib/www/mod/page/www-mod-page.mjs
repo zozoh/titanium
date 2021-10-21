@@ -66,7 +66,7 @@ const _M = {
       state.params = params
     },
     //--------------------------------------------
-    setModuleNames(state, names=[]) {
+    setModuleNames(state, names = []) {
       state.moduleNames = names
     },
     //--------------------------------------------
@@ -394,13 +394,13 @@ const _M = {
       ok, fail }) {
       //.....................................  
       // Preset api result
-      if(api.autoResetData) {
+      if (api.autoResetData) {
         let needResetData = true
-        if(_.isString(api.autoResetData)) {
+        if (_.isString(api.autoResetData)) {
           let method = (api.method || "GET").toUpperCase()
           needResetData = method == api.autoResetData.toUpperCase()
         }
-        if(needResetData) {
+        if (needResetData) {
           commit("removeDataKeys", [api.dataKey, api.rawDataKey])
         }
       }
@@ -505,15 +505,38 @@ const _M = {
     } = {}) {
       //console.log(rootGetters.routerList)
       //console.log(" # -> page.reload", { path, params, anchor })
-      let pinfo;
+      let roInfo;
       //.....................................
       // Apply routerList
       for (let router of rootGetters.routerList) {
-        pinfo = router(path)
-        if (pinfo && pinfo.path) {
+        roInfo = router(path)
+        if (roInfo) {
           break
         }
       }
+      //.....................................
+      // Preload page data by router info
+      let roDataKey;
+      if (roInfo.preload) {
+        let roApiName = roInfo.preload.apiName;
+        roDataKey = roInfo.preload.dataKey;
+        if (roApiName) {
+          let roApi = _.get(rootGetters.globalApis, roApiName)
+          let roParams = Ti.Util.explainObj(roInfo.context, roInfo.preload.params);
+          let reo = await Ti.WWW.runApi(rootState, roApi, {
+            params: roParams,
+            dispatch
+          })
+          roInfo.context.resp = reo
+        }
+      }
+      //.....................................
+      // Explain the page Info
+      let pinfo = Ti.Util.explainObj(roInfo.context, roInfo.page);
+      //.....................................
+      // The router declare "apiName", it will preload data
+      // because the data will indicate the specific page json Path
+      // Then the "path" template will 
       //.....................................
       if (!pinfo || !pinfo.path) {
         return await Ti.Toast.Open("Page ${path} not found!", {
@@ -545,17 +568,17 @@ const _M = {
       //console.log(view)
       //.....................................
       // Remove old moudle
-      if(state.moduleNames) {
-        for(let name of state.moduleNames) {
+      if (state.moduleNames) {
+        for (let name of state.moduleNames) {
           $store.unregisterModule(name)
         }
       }
       //.....................................
       // Add new module
-      if(!_.isEmpty(view.modules)) {
+      if (!_.isEmpty(view.modules)) {
         // Append new
         let names = []
-        for(let modName in view.modules) {
+        for (let modName in view.modules) {
           let mod = view.modules[modName]
           $store.registerModule(modName, mod)
           names.push(modName)
@@ -575,7 +598,7 @@ const _M = {
       // Update Path url
       let { pageUriWithParams, pageAnchorTo } = json
       pageUriWithParams = Ti.Util.fallback(
-        pageUriWithParams, 
+        pageUriWithParams,
         rootState.pageUriWithParams,
         true)
       let base = rootState.base
@@ -593,7 +616,7 @@ const _M = {
         "apis": {},
         "data": {},
         "contextMenu": Ti.Util.fallback(rootState.contextMenu, true),
-        "forbidCopy":  Ti.Util.fallback(rootState.forbidCopy, false),
+        "forbidCopy": Ti.Util.fallback(rootState.forbidCopy, false),
         "bodyStyle": rootState.bodyStyle,
         "explainDataKey": [],
         "layout": {},
@@ -604,10 +627,10 @@ const _M = {
       }, json, pinfo)
       //.....................................
       // Forbid copy content
-      let preventContentCopy = function(evt){
+      let preventContentCopy = function (evt) {
         evt.preventDefault()
       }
-      if(page.forbidCopy) {
+      if (page.forbidCopy) {
         document.body.addEventListener("copy", preventContentCopy, true)
         document.body.addEventListener("cut", preventContentCopy, true)
       } else {
@@ -624,14 +647,24 @@ const _M = {
       commit("set", page)
       //console.log(" #### page.loaded", _.cloneDeep(page))
       //.....................................
+      // Update page data by router api preload data
+      if(roDataKey) {
+        commit("updateData", {
+          key: roDataKey,
+          value: roInfo.context.resp.data
+        }) 
+      }
+      //.....................................
       // Notify: Prepare
       //console.log("@page:prepare ...")
       commit("setReady", 1)
       await dispatch("invokeAction", { name: "@page:prepare" }, { root: true })
       //.....................................
       // Conclude the api loading keys
-      let { preloads, afterLoads } = Ti.WWW.groupPreloadApis(getters.pageApis)
-      //console.log(keyGroups)
+      let { preloads, afterLoads } = Ti.WWW.groupPreloadApis(getters.pageApis, (k)=>{
+        return !roDataKey || roDataKey != k
+      })
+      //console.log({ preloads, afterLoads })
       //.....................................
       // init: data
       for (let keys of preloads) {

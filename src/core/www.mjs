@@ -645,10 +645,13 @@ const TiWWW = {
    * }
    * </pre>
    */
-  groupPreloadApis(apis) {
+  groupPreloadApis(apis, filter=()=>true) {
     let preloads = []
     let afterLoads = []
     _.forEach(apis, (api, k) => {
+      if(!filter(k, api)) {
+        return
+      }
       let preload = api.preload
       // Considering preload=true
       if (_.isBoolean(preload)) {
