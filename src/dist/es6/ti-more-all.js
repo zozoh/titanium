@@ -1,4 +1,4 @@
-// Pack At: 2021-10-24 12:16:49
+// Pack At: 2021-10-24 23:11:08
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -42192,6 +42192,7 @@ const _M = {
       "siteId": state => state.siteId,
       "logo": state => state.logo,
       "lang": state => state.lang,
+      "formatPageUrl": state => state.formatPageUrl,
       "analyzers": state => state.analyzers,
       "langName": state => state.langName,
       "utils": state => state.utils,
@@ -42442,6 +42443,13 @@ const _M = {
       //...................................
       //let pgLink = this.getUrl(this.pageLink)
       let pgLink = this.pageUri
+      //...................................
+      if(this.formatPageUrl) {
+        let fmtUrl = Ti.Util.genInvoking(this.formatPageUrl)
+        if(_.isFunction(fmtUrl)) {
+          pgLink = fmtUrl(pgLink, this.page)
+        }
+      }
       //...................................
       if (loPath != pgLink || !his.state) {
         let pg = _.pick(this.page, "pageUri", "href", "path", "params", "anchor");
