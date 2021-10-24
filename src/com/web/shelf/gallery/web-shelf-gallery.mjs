@@ -18,6 +18,10 @@ const _M = {
       type : Number,
       default : -1
     },
+    "vars" : {
+      type : Object,
+      default : undefined
+    },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -156,10 +160,17 @@ const _M = {
     //--------------------------------------
     evalDataItemList() {
       this.myHoverIndex = this.currentIndex;
+      let vars = _.cloneDeep(this.vars)
       let list = []
       _.forEach(this.data, (it, index) => {
         let comType = Ti.Util.explainObj(it, this.comType)
-        let comConf = Ti.Util.explainObj(it, this.comConf)
+        let comConf;
+        if(vars) {
+          vars.item = it
+          comConf = Ti.Util.explainObj(vars, this.comConf) 
+        } else {
+          comConf = Ti.Util.explainObj(it, this.comConf)
+        }
         list.push({
           index,
           comType, comConf

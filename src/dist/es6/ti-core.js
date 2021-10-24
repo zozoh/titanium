@@ -1,4 +1,4 @@
-// Pack At: 2021-10-19 15:10:37
+// Pack At: 2021-10-24 12:16:49
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10916,25 +10916,24 @@ const {Util} = (function(){
         if (!_.isEmpty(args)) {
           // [ ? --> ... ]
           if ("right" == partial) {
-            return function (input) {
-              let as = _.concat([input], args);
+            return function (...input) {
+              let ins = _.without(input, undefined)
+              let as = _.concat([], ins, args);
               return func.apply(this, as)
             }
           }
           else if ("right?" == partial) {
-            return function (input) {
-              let as = _.isUndefined(input)
-                ? args
-                : _.concat([input], args);
+            return function (...input) {
+              let ins = _.without(input, undefined)
+              let as = _.concat([], ins, args);
               return func.apply(this, as)
             }
           }
           // [ ... <-- ?]
           else if ("left" == partial) {
             return function (input) {
-              let as = _.isUndefined(input)
-                ? args
-                : _.concat([input], args);
+              let ins = _.without(input, undefined)
+              let as = _.concat([], ins, args);
               return func.apply(this, as)
             }
           }
@@ -11885,7 +11884,7 @@ const {WWW} = (function(){
       cdnTmpl,        // the cdn url tmpl for previewObj
       dftSrc,
     } = {}) {
-      if(!obj) {
+      if (!obj) {
         return
       }
       // obj is the src
@@ -12036,6 +12035,7 @@ const {WWW} = (function(){
         _.assign(api, _.pick(pageApi,
           "body",
           "preload",
+          "force",
           "ssr",
           "test",
           "explainTest",
@@ -12165,8 +12165,8 @@ const {WWW} = (function(){
       //.....................................
       // Eval api transformer
       if (api.transformer) {
-        if("BCHC.TagsToDict" == api.transformer)
-        console.log("transform", api.transformer)
+        if ("BCHC.TagsToDict" == api.transformer)
+          console.log("transform", api.transformer)
         let trans = _.cloneDeep(api.transformer)
         let partial = Ti.Util.fallback(trans.partial, "right")
         // PreExplain args
@@ -12298,10 +12298,13 @@ const {WWW} = (function(){
      * }
      * </pre>
      */
-    groupPreloadApis(apis) {
+    groupPreloadApis(apis, filter = () => true) {
       let preloads = []
       let afterLoads = []
       _.forEach(apis, (api, k) => {
+        if (!filter(k, api)) {
+          return
+        }
         let preload = api.preload
         // Considering preload=true
         if (_.isBoolean(preload)) {
@@ -16804,7 +16807,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20211019.151037",
+  "version" : "1.6-20211024.121649",
   "dev" : false,
   "appName" : null,
   "session" : {},

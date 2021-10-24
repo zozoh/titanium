@@ -1,67 +1,67 @@
 export default {
   /////////////////////////////////////////
-  props : {
+  props: {
     // The items appeared at the head
-    "headItems" : {
-      type : Array,
-      default : ()=>[]
+    "headItems": {
+      type: Array,
+      default: () => []
     },
     // The items appeared at the tail
-    "tailItems" : {
-      type : Array,
-      default : ()=>[]
+    "tailItems": {
+      type: Array,
+      default: () => []
     },
     /*
     {text, icon, href, newtab, path, payload}
     */
-    "items" : {
-      type : Array,
-      default : ()=>[]
+    "items": {
+      type: Array,
+      default: () => []
     },
-    "translateHead" : {
-      type : Boolean,
-      default : false
+    "translateHead": {
+      type: Boolean,
+      default: false
     },
-    "translateTail" : {
-      type : Boolean,
-      default : false
+    "translateTail": {
+      type: Boolean,
+      default: false
     },
-    "mapping" : {
-      type : [Object, Function],
-      default : undefined
+    "mapping": {
+      type: [Object, Function],
+      default: undefined
     },
-    "idBy" : {
-      type : String,
-      default : "=id"
+    "idBy": {
+      type: String,
+      default: "=id"
     },
-    "childrenBy" : {
-      type : String,
-      default : "items"
+    "childrenBy": {
+      type: String,
+      default: "items"
     },
-    "sortBy" : {
-      type : [Function, String],
-      default : undefined
+    "sortBy": {
+      type: [Function, String],
+      default: undefined
     },
-    "notifyName" : {
-      type : String
+    "notifyName": {
+      type: String
     },
     // Store current array
     // could be Array<Object> Or Object or String
-    "currentIds" : {
-      type : [Array, Object, String]
+    "currentIds": {
+      type: [Array, Object, String]
     },
     "base": {
       type: String,
       default: undefined
     },
     // for highlight
-    "value" : String,
+    "value": String,
     // for highlight
-    "path" : String,
+    "path": String,
     "params": [Object, String, Number, Array]
   },
   /////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -70,11 +70,11 @@ export default {
     CurrentIdMap() {
       let cids = _.concat(this.currentIds)
       let re = {}
-      for(let cid of cids) {
-        if(!cid) {
+      for (let cid of cids) {
+        if (!cid) {
           continue;
         }
-        if(_.isString(cid)) {
+        if (_.isString(cid)) {
           re[cid] = true
         } else {
           cid = Ti.Util.explainObj(cid, this.idBy);
@@ -89,7 +89,7 @@ export default {
       // Head
       //
       let itHead = this.headItems
-      if(this.translateHead) {
+      if (this.translateHead) {
         itHead = this.ItemMapping(itHead)
       }
       //
@@ -97,11 +97,11 @@ export default {
       //
       let its = _.cloneDeep(this.items)
       const SortItems = items => {
-        if(this.SortItemsBy) {
+        if (this.SortItemsBy) {
           let list = _.sortBy(items, this.SortItemsBy)
-          for(let li of list) {
+          for (let li of list) {
             let subs = _.get(li, this.childrenBy)
-            if(_.isArray(subs)){
+            if (_.isArray(subs)) {
               let subs2 = SortItems(subs)
               _.set(li, this.childrenBy, subs2)
             }
@@ -113,14 +113,21 @@ export default {
       // Sorting 
       its = SortItems(its)
       // Mapping items
-      const MappingItems = items => {
+      const MappingItems = (items, parents = []) => {
         let list = []
-        for(let it of items) {
-          let it2 = this.ItemMappingBy(it)
+        for (let i = 0; i < items.length; i++) {
+          let it = items[i];
+          let it2 = this.ItemMappingBy(it, {
+            index: i,
+            parents,
+            items,
+            base: this.base
+          })
           it2.rawData = it
           let subs = _.get(it, this.childrenBy)
-          if(_.isArray(subs)){
-            subs = MappingItems(subs)
+          if (_.isArray(subs)) {
+            let pAxis = _.concat(parents, it)
+            subs = MappingItems(subs, pAxis)
             it2.items = subs
           }
           list.push(it2)
@@ -133,7 +140,7 @@ export default {
       // Tail
       //
       let itTail = this.tailItems
-      if(this.translateTail) {
+      if (this.translateTail) {
         itTail = this.ItemMapping(itTail)
       }
       //
@@ -144,20 +151,20 @@ export default {
     },
     //------------------------------------
     SortItemsBy() {
-      if(_.isString(this.sortBy)) {
+      if (_.isString(this.sortBy)) {
         return it => _.get(it, this.sortBy)
       }
-      if(_.isFunction(this.sortBy)) {
+      if (_.isFunction(this.sortBy)) {
         return it => this.sortBy(it)
       }
-   },
+    },
     //------------------------------------
     ItemMappingBy() {
-      if(_.isFunction(this.mapping)) {
+      if (_.isFunction(this.mapping)) {
         return this.mapping
       }
 
-      if(this.mapping) {
+      if (this.mapping) {
         return item => {
           return Ti.Util.explainObjs(item, this.mapping)
         }
@@ -168,40 +175,44 @@ export default {
     //------------------------------------
   },
   /////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------
     OnClickLink(evt, linkInfo) {
+      // Guard
+      if(!evt || !_.isFunction(evt.stopPropagation)) {
+        return
+      }
       evt.stopPropagation();
-      let {type, value} = linkInfo
-      if(/^(page|action|invoke|mutation)$/.test(type)) {
+      let { type, value } = linkInfo
+      if (/^(page|action|invoke|mutation)$/.test(type)) {
         evt.preventDefault()
         //console.log("onClickLink", "nav:to", {type,value})
-        if(value) {
+        if (value) {
           let notiName = this.notifyName || "nav:to"
           this.$notify(notiName, linkInfo)
         }
-      } else if(this.notifyName) {
+      } else if (this.notifyName) {
         this.$notify(this.notifyName, linkInfo)
       }
     },
     //------------------------------------
-    evalItems(items, depth=0) {
+    evalItems(items, depth = 0) {
       // Explain first
       return Ti.WWW.explainNavigation(items, {
         depth,
-        base: this.base, 
+        base: this.base,
         idBy: this.idBy,
         value: this.value,
-        iteratee: (li)=>{
+        iteratee: (li) => {
           //if(this.path || this.value) {
-            li.highlight = li.highlightBy(this)
+          li.highlight = li.highlightBy(this)
           //}
           //........................................
           // Children highlight cause the parent focused
           let current = this.CurrentIdMap[li.id]
-          if(!current && !_.isEmpty(li.items)) {
-            for(let it of li.items) {
-              if(it.current || it.highlight) {
+          if (!current && !_.isEmpty(li.items)) {
+            for (let it of li.items) {
+              if (it.current || it.highlight) {
                 current = true
                 break
               }

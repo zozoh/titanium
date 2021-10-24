@@ -1,17 +1,21 @@
 const DFT_ITEM_WIDTH = 200
 const _M = {
   //////////////////////////////////////////
-  data: ()=>({
-    myColWidths : [],
-    myCols : 0
+  data: () => ({
+    myColWidths: [],
+    myCols: 0
   }),
   //////////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "data" : {
-      type : Array
+    "data": {
+      type: Array
+    },
+    "vars": {
+      type: Object,
+      default: undefined
     },
     //-----------------------------------
     // Behavior
@@ -23,55 +27,55 @@ const _M = {
     },
     "comConf": {
       type: [Object, String],
-      default: ()=>({
+      default: () => ({
         value: "=.."
       })
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "cols" : {
-      type : [Number, String]
+    "cols": {
+      type: [Number, String]
     },
-    "itemClass" : {
-      type : [String, Array]
+    "itemClass": {
+      type: [String, Array]
     },
-    "itemStyle" : {
-      type : [Object, Array]
+    "itemStyle": {
+      type: [Object, Array]
     },
-    "itemWidth" : {
-      type : [String, Number, Array],
-      default : DFT_ITEM_WIDTH
+    "itemWidth": {
+      type: [String, Number, Array],
+      default: DFT_ITEM_WIDTH
     },
-    "itemMaxHeight" : {
-      type : [String, Number, Array]
+    "itemMaxHeight": {
+      type: [String, Number, Array]
     },
     "blankAs": {
       type: Object,
-      default: ()=>({
+      default: () => ({
         text: "i18n:empty",
         icon: "fas-box-open"
       })
     },
     "loadingAs": {
       type: [Object, Boolean],
-      default: ()=>({})
+      default: () => ({})
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "has-data" : this.FallsData
+        "has-data": this.FallsData
       })
     },
     //--------------------------------------
     getItemClass() {
       let itKlass = _.without(_.concat(this.itemClass))
-      return (index)=> {
+      return (index) => {
         let i;
-        if(itKlass.length > 0) {
+        if (itKlass.length > 0) {
           i = Ti.Num.scrollIndex(index, itKlass.length)
           return itKlass[i]
         }
@@ -81,18 +85,18 @@ const _M = {
     getItemStyle() {
       let itHs = _.without(_.concat(this.itemMaxHeight), undefined)
       let itStyles = _.without(_.concat(this.itemStyle), undefined)
-      return (index)=> {
+      return (index) => {
         let h, sty, i;
-        if(itHs.length > 0) {
+        if (itHs.length > 0) {
           i = Ti.Num.scrollIndex(index, itHs.length)
           h = itHs[i]
         }
-        if(itStyles.length > 0) {
+        if (itStyles.length > 0) {
           i = Ti.Num.scrollIndex(index, itStyles.length)
           sty = itStyles[i]
         }
         let css = _.cloneDeep(sty) || {}
-        if(!Ti.Util.isNil(h)) {
+        if (!Ti.Util.isNil(h)) {
           css.maxHeight = Ti.Css.toSize(h)
         }
         return css
@@ -100,43 +104,50 @@ const _M = {
     },
     //--------------------------------------
     FallsData() {
-      if(!this.hasData)
+      if (!this.hasData)
         return []
 
       let C = this.myCols
       let groups = []
       // Init Groups
-      for(let i=0; i < C; i++) {
+      for (let i = 0; i < C; i++) {
         let gW = _.nth(this.myColWidths, i)
         let style;
-        if(gW) {
-          style = {width: gW + 'px'}
+        if (gW) {
+          style = { width: gW + 'px' }
         }
         groups.push({
-          style, items : []
+          style, items: []
         })
       }
 
       // Each data
-      for(let i=0; i < this.data.length; i++) {
+      let vars = _.cloneDeep(this.vars)
+      for (let i = 0; i < this.data.length; i++) {
         let cIX = i % C
         let grp = groups[cIX]
         let stl = this.getItemStyle(i)
         let it = this.data[i]
-        let comConf = Ti.Util.explainObj(it, this.comConf)
-        if(stl.maxHeight) {
+        let comConf;
+        if (vars) {
+          vars.item = it
+          comConf = Ti.Util.explainObj(vars, this.comConf)
+        } else {
+          comConf = Ti.Util.explainObj(it, this.comConf)
+        }
+        if (stl.maxHeight) {
           comConf.style = _.assign({}, comConf.style, {
-            maxHeight : stl.maxHeight
+            maxHeight: stl.maxHeight
           })
         }
         grp.items.push({
           key: `It-${i}`,
-          className : this.getItemClass(i),
-          style : stl,
+          className: this.getItemClass(i),
+          style: stl,
           comType: this.comType, comConf
-        })        
+        })
       }
-      
+
       return groups
     },
     //--------------------------------------
@@ -154,10 +165,10 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnWallResize() {
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.evalWallColumns()
       })
     },
@@ -165,13 +176,13 @@ const _M = {
     evalWallColumns() {
       //console.log("evalWallColumns")
       // Specific cols
-      if(this.cols > 0) {
+      if (this.cols > 0) {
         this.myCols = parseInt(this.cols * 1)
         this.myColWidths = []
         return
       }
       // Guard
-      if(!_.isElement(this.$el) || !this.data || this.data.length <= 0) {
+      if (!_.isElement(this.$el) || !this.data || this.data.length <= 0) {
         return
       }
 
@@ -189,10 +200,10 @@ const _M = {
 
       let sumW = 0;
       let colWidths = []
-      for(let i=0; i<this.data.length; i++) {
+      for (let i = 0; i < this.data.length; i++) {
         // Get item width by index
         let w;
-        if(itWs.length > 0) {
+        if (itWs.length > 0) {
           let x = Ti.Num.scrollIndex(i, itWs.length)
           w = Ti.Css.toAbsPixel(itWs[x], {
             remBase, base: elW
@@ -202,12 +213,12 @@ const _M = {
         }
         // Add up
         sumW += w
-        if(sumW > elW) {
+        if (sumW > elW) {
           break
         }
         colWidths.push(w)
       }
-      
+
       // Done
       this.myCols = colWidths.length
       this.myColWidths = colWidths
@@ -215,23 +226,23 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "data" : "OnWallResize",
-    "cols" :  "OnWallResize",
-    "itemWidth" : "OnWallResize"
+  watch: {
+    "data": "OnWallResize",
+    "cols": "OnWallResize",
+    "itemWidth": "OnWallResize"
   },
   //////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     //.................................
     Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.OnWallResize(), 20)
+      resize: _.debounce(() => this.OnWallResize(), 20)
     })
     //.................................
     this.OnWallResize()
     //.................................
   },
   //////////////////////////////////////////
-  destroyed : function() {
+  destroyed: function () {
     Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////

@@ -232,7 +232,7 @@ const TiWWW = {
     cdnTmpl,        // the cdn url tmpl for previewObj
     dftSrc,
   } = {}) {
-    if(!obj) {
+    if (!obj) {
       return
     }
     // obj is the src
@@ -383,6 +383,7 @@ const TiWWW = {
       _.assign(api, _.pick(pageApi,
         "body",
         "preload",
+        "force",
         "ssr",
         "test",
         "explainTest",
@@ -512,8 +513,8 @@ const TiWWW = {
     //.....................................
     // Eval api transformer
     if (api.transformer) {
-      if("BCHC.TagsToDict" == api.transformer)
-      console.log("transform", api.transformer)
+      if ("BCHC.TagsToDict" == api.transformer)
+        console.log("transform", api.transformer)
       let trans = _.cloneDeep(api.transformer)
       let partial = Ti.Util.fallback(trans.partial, "right")
       // PreExplain args
@@ -645,11 +646,11 @@ const TiWWW = {
    * }
    * </pre>
    */
-  groupPreloadApis(apis, filter=()=>true) {
+  groupPreloadApis(apis, filter = () => true) {
     let preloads = []
     let afterLoads = []
     _.forEach(apis, (api, k) => {
-      if(!filter(k, api)) {
+      if (!filter(k, api)) {
         return
       }
       let preload = api.preload

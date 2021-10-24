@@ -73,20 +73,17 @@ const _M = {
       if (this.dynamicData) {
         return this.data
       }
-
-      let hasVars = !_.isEmpty(this.vars);
-
+      let vars = _.cloneDeep(this.vars)
       let list = []
       for (let i = 0; i < this.data.length; i++) {
         let it = this.data[i]
-        let itVars = it
-        if(hasVars) {
-          itVars = _.assign({
-            "$vars" : this.vars
-          }, it)
+        let comConf;
+        if(vars) {
+          vars.item = it
+          comConf = Ti.Util.explainObj(vars, this.comConf) 
+        } else {
+          comConf = Ti.Util.explainObj(it, this.comConf)
         }
-
-        let comConf = Ti.Util.explainObj(itVars, this.comConf)
         let key = `It-${i}`
         if (this.itemKeyBy) {
           key = Ti.Util.fallbackNil(it[this.itemKeyBy], key)

@@ -1369,25 +1369,24 @@ const TiUtil = {
       if (!_.isEmpty(args)) {
         // [ ? --> ... ]
         if ("right" == partial) {
-          return function (input) {
-            let as = _.concat([input], args);
+          return function (...input) {
+            let ins = _.without(input, undefined)
+            let as = _.concat([], ins, args);
             return func.apply(this, as)
           }
         }
         else if ("right?" == partial) {
-          return function (input) {
-            let as = _.isUndefined(input)
-              ? args
-              : _.concat([input], args);
+          return function (...input) {
+            let ins = _.without(input, undefined)
+            let as = _.concat([], ins, args);
             return func.apply(this, as)
           }
         }
         // [ ... <-- ?]
         else if ("left" == partial) {
           return function (input) {
-            let as = _.isUndefined(input)
-              ? args
-              : _.concat([input], args);
+            let ins = _.without(input, undefined)
+            let as = _.concat([], ins, args);
             return func.apply(this, as)
           }
         }

@@ -661,8 +661,8 @@ const _M = {
       await dispatch("invokeAction", { name: "@page:prepare" }, { root: true })
       //.....................................
       // Conclude the api loading keys
-      let { preloads, afterLoads } = Ti.WWW.groupPreloadApis(getters.pageApis, (k)=>{
-        return !roDataKey || roDataKey != k
+      let { preloads, afterLoads } = Ti.WWW.groupPreloadApis(getters.pageApis, (k, api)=>{
+        return api.force || !roDataKey || roDataKey != k
       })
       //console.log({ preloads, afterLoads })
       //.....................................

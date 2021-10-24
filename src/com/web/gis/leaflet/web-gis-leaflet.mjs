@@ -1,10 +1,10 @@
 export default {
   ///////////////////////////////////
-  data: ()=>({
-    $map  : null,
-    $live : null,
-    pointerClick : {/*lat:0, lng:0*/},
-    pointerHover : {/*lat:0, lng:0*/},
+  data: () => ({
+    $map: null,
+    $live: null,
+    pointerClick: {/*lat:0, lng:0*/ },
+    pointerHover: {/*lat:0, lng:0*/ },
     geo: {
       center: {},
       SW: {},
@@ -15,12 +15,12 @@ export default {
       E: 0,
       S: 0,
       N: 0,
-      zoom : 0
+      zoom: 0
     },
-    lastMove : undefined
+    lastMove: undefined
   }),
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({})
@@ -28,8 +28,8 @@ export default {
     //--------------------------------------
     TopStyle() {
       return Ti.Css.toSizeRem100({
-        width  : this.width,
-        height : this.height
+        width: this.width,
+        height: this.height
       })
     },
     //--------------------------------------
@@ -39,36 +39,36 @@ export default {
     //--------------------------------------
     // value -> trans to fit the -> base tile
     coords_value_to_tiles() {
-      if(this.valueCoords != this.TileCoords) {
+      if (this.valueCoords != this.TileCoords) {
         return `${this.valueCoords}_TO_${this.TileCoords}`
       }
     },
     //--------------------------------------
     // base tile -> trans to fit the -> value
     coords_tiles_to_value() {
-      if(this.valueCoords != this.TileCoords) {
+      if (this.valueCoords != this.TileCoords) {
         return `${this.TileCoords}_TO_${this.valueCoords}`
       }
     },
     //--------------------------------------
-    RedrawFuncName(){
+    RedrawFuncName() {
       return _.snakeCase("draw_" + this.valueType + "_as_" + this.displayType)
     },
     //--------------------------------------
     MapData() {
       let val = this.value
-      if(_.isEmpty(val)) {
+      if (_.isEmpty(val)) {
         val = undefined
       }
       // Guard
-      if(val && !this.defaultLocation) {
+      if (val && !this.defaultLocation) {
         return null
       }
 
       return this.evalMapData({
-        val, 
-        valType : this.valueType, 
-        dftLo   : this.defaultLocation
+        val,
+        valType: this.valueType,
+        dftLo: this.defaultLocation
       })
     },
     //--------------------------------------
@@ -76,22 +76,22 @@ export default {
       return !_.isEmpty(this.MapData)
     },
     //--------------------------------------
-    RedrawObjName(){
+    RedrawObjName() {
       return _.snakeCase("draw_" + this.objType + "_as_" + this.objDisplay)
     },
     //--------------------------------------
     ObjData() {
-      if(this.objValue) {
+      if (this.objValue) {
         return this.evalMapData({
-          val     : this.objValue, 
-          valType : this.objType, 
-          dftLo   : undefined
+          val: this.objValue,
+          valType: this.objType,
+          dftLo: undefined
         })
       }
     },
     //--------------------------------------
     hasObjData() {
-      return !_.isEmpty(this.ObjData) 
+      return !_.isEmpty(this.ObjData)
     },
     //--------------------------------------
     isShowInfo() {
@@ -99,25 +99,25 @@ export default {
     },
     //--------------------------------------
     ShowInfo() {
-      if(!this.showInfo)
+      if (!this.showInfo)
         return {}
-      
+
       let si = true === this.showInfo ? {} : this.showInfo
-        
+
       return {
-        zoom     : true,
-        center   : false,
-        latRange : false,
-        lngRange : false,
-        pointerHover  : false,
-        pointerClick  : false,
-        ... si
+        zoom: true,
+        center: false,
+        latRange: false,
+        lngRange: false,
+        pointerHover: false,
+        pointerClick: false,
+        ...si
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     //
     // Events
@@ -128,8 +128,8 @@ export default {
       let now = Date.now()
       let bou = this.$map.getBounds()
       this.geo = {
-        zoom   : this.$map.getZoom(),
-        center : bou.getCenter(),
+        zoom: this.$map.getZoom(),
+        center: bou.getCenter(),
         SW: bou.getSouthWest(),
         SE: bou.getSouthEast(),
         NE: bou.getNorthEast(),
@@ -140,13 +140,13 @@ export default {
         N: bou.getNorth()
       }
       // Keep zoom in local
-      if(this.keepZoomBy) {
+      if (this.keepZoomBy) {
         Ti.Storage.local.set(this.keepZoomBy, this.geo.zoom)
       }
       // If cooling, notify
-      if(!this.__check_cooling && this.cooling > 0) {
+      if (!this.__check_cooling && this.cooling > 0) {
         this.__check_cooling = true
-        window.setTimeout(()=>{
+        window.setTimeout(() => {
           this.checkMoveCooling()
         }, this.cooling + 10)
       }
@@ -165,12 +165,12 @@ export default {
     checkMoveCooling() {
       let now = Date.now()
       let isCooling = (now - this.lastMove) > this.cooling
-      if(isCooling || !this.lastMove) {
+      if (isCooling || !this.lastMove) {
         this.__check_cooling = false
         //console.log("notify map move", this.geo)
         this.$notify("map:move", this.geo)
       } else {
-        window.setTimeout(()=>{
+        window.setTimeout(() => {
           this.checkMoveCooling()
         }, this.cooling / 2)
       }
@@ -186,18 +186,18 @@ export default {
 
       // Clear live layer
       this.$live.clearLayers()
-      
+
       // Draw data
-      if(this.hasMapData) {
+      if (this.hasMapData) {
         let func = this[this.RedrawFuncName]
-        if(_.isFunction(func)) {
+        if (_.isFunction(func)) {
           func(this.MapData, {
-            autoFitBounds      : this.autoFitBounds,
-            showMarker         : this.showMarker,
-            markerIcon         : this.markerIcon,
-            markerIconOptions  : this.markerIconOptions,
-            markerPopup        : this.markerPopup,
-            markerPopupOptions : this.markerPopupOptions
+            autoFitBounds: this.autoFitBounds,
+            showMarker: this.showMarker,
+            markerIcon: this.markerIcon,
+            markerIconOptions: this.markerIconOptions,
+            markerPopup: this.markerPopup,
+            markerPopupOptions: this.markerPopupOptions
           })
         } else {
           throw `Invalid RedrawFuncName="${this.RedrawFuncName}"`
@@ -205,15 +205,15 @@ export default {
       }
 
       // Draw obj
-      if(this.hasObjData) {
+      if (this.hasObjData) {
         let func = this[this.RedrawObjName]
-        if(_.isFunction(func)) {
+        if (_.isFunction(func)) {
           func(this.ObjData, {
-            showMarker         : this.objShowMarker,
-            markerIcon         : this.objMarkerIcon,
-            markerIconOptions  : this.objMarkerIconOptions,
-            markerPopup        : this.objMarkerPopup,
-            markerPopupOptions : this.objMarkerPopupOptions
+            showMarker: this.objShowMarker,
+            markerIcon: this.objMarkerIcon,
+            markerIconOptions: this.objMarkerIconOptions,
+            markerPopup: this.objMarkerPopup,
+            markerPopupOptions: this.objMarkerPopupOptions
           })
         }
       }
@@ -223,57 +223,57 @@ export default {
     // GEO Function
     //
     //--------------------------------------
-    evalMapData({val, valType="obj", dftLo}={}) {
+    evalMapData({ val, valType = "obj", dftLo } = {}) {
       // Format the value
       return ({
         //..................................
-        "obj" : (latlng)=>{
+        "obj": (latlng) => {
           latlng = latlng || dftLo
-          if(Ti.Util.isNil(latlng.lat) || Ti.Util.isNil(latlng.lng)) {
+          if (Ti.Util.isNil(latlng.lat) || Ti.Util.isNil(latlng.lng)) {
             return {}
           }
-          if(this.coords_value_to_tiles) {
+          if (this.coords_value_to_tiles) {
             return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
           }
           return latlng
         },
         //..................................
-        "obj-list" : (list=[])=>{
-          if(!list)
+        "obj-list": (list = []) => {
+          if (!list)
             return []
-          if(this.coords_value_to_tiles) {
-            return _.map(list, (latlng)=>{
+          if (this.coords_value_to_tiles) {
+            return _.map(list, (latlng) => {
               return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
             })
           }
           return list
         },
         //..................................
-        "pair" : (latlng)=>{
+        "pair": (latlng) => {
           latlng = latlng || Ti.GIS.objToLatlngPair(dftLo)
-          if(this.coords_value_to_tiles) {
+          if (this.coords_value_to_tiles) {
             console.log(this.coords_value_to_tiles)
             return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
           }
           return latlng
         },
         //..................................
-        "pair-list" : (list=[]) => {
-          if(!list)
+        "pair-list": (list = []) => {
+          if (!list)
             return []
-          if(this.coords_value_to_tiles) {
-            return _.map(list, (latlng)=>{
+          if (this.coords_value_to_tiles) {
+            return _.map(list, (latlng) => {
               return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
             })
           }
           return list
         },
         //..................................
-        "geojson" : (geojson) => {
-          if(!geojson) {
+        "geojson": (geojson) => {
+          if (!geojson) {
             return {
-              type : "Point",
-              coordinates : Ti.GIS.objToLnglatPair(dftLo)
+              type: "Point",
+              coordinates: Ti.GIS.objToLnglatPair(dftLo)
             }
           }
 
@@ -288,8 +288,8 @@ export default {
     // Utility
     //
     //--------------------------------------
-    GeoStr(v, precise=this.latlngPrecise) {
-      if(_.isUndefined(v))
+    GeoStr(v, precise = this.latlngPrecise) {
+      if (_.isUndefined(v))
         return ""
       let s = '' + Ti.Num.precise(v, precise)
       let ss = s.split('.')
@@ -298,14 +298,14 @@ export default {
     },
     //--------------------------------------
     LatlngForDi(latlng) {
-      if(this.coords_value_to_tiles) {
+      if (this.coords_value_to_tiles) {
         return Ti.GIS.transLatlng(latlng, this.coords_value_to_tiles)
       }
       return latlng
     },
     //--------------------------------------
     GetIconSrc(src) {
-      if(/^(https?:\/\/|\/)/.test(src)) {
+      if (/^(https?:\/\/|\/)/.test(src)) {
         return src
       }
       return `${this.imageIconBase}${src}`
@@ -320,41 +320,41 @@ export default {
       shadow = true,
       shadowSize = [41, 41],
       shadowAnchor = [12, 41]
-    }={}) {
-      if(!urlOrIcon)
+    } = {}) {
+      if (!urlOrIcon)
         return new L.Icon.Default()
 
       // Eval the icon
-      let {type, value} = Ti.Icons.evalIconObj(urlOrIcon)
+      let { type, value } = Ti.Icons.evalIconObj(urlOrIcon)
 
       // Font icon
-      if("font" == type) {
+      if ("font" == type) {
         let html = Ti.Icons.fontIconHtml(value)
         let ansz = size / 2
         return L.divIcon({
           className: `ti-gsi-mark-icon 
                       is-size-${size} 
                       is-color-${color}
-                      ${shadow?'has-shadow':''}`,
+                      ${shadow ? 'has-shadow' : ''}`,
           html,
-          iconSize : [size, size],
+          iconSize: [size, size],
           iconAnchor: [ansz, ansz]
         })
       }
 
       // Image Icon
-      if("image" == type) {
+      if ("image" == type) {
         let shadowUrl;
-        if(shadow) {
+        if (shadow) {
           shadowUrl = shadow
-          if(_.isBoolean(shadow)) {
+          if (_.isBoolean(shadow)) {
             let [_, nmPath, suffix] = /^([^.]+)\.(\w+)$/.exec(value)
             shadowUrl = `${nmPath}-shadow.${suffix}`
           }
           shadowUrl = this.GetIconSrc(shadowUrl)
         }
         return L.icon({
-          iconUrl : this.GetIconSrc(value),
+          iconUrl: this.GetIconSrc(value),
           className,
           iconSize, iconAnchor,
           shadowUrl, shadowSize, shadowAnchor
@@ -366,28 +366,28 @@ export default {
     },
     //--------------------------------------
     trans_obj_from_value_to_tiles(obj) {
-      if(this.coords_value_to_tiles) {
+      if (this.coords_value_to_tiles) {
         return Ti.GIS.transLatlngObj(obj, this.coords_value_to_tiles, true)
       }
       return obj
     },
     //--------------------------------------
     trans_pair_from_value_to_tiles(pair) {
-      if(this.coords_value_to_tiles) {
+      if (this.coords_value_to_tiles) {
         return Ti.GIS.transLatlngPair(pair, this.coords_value_to_tiles)
       }
       return pair
     },
     //--------------------------------------
     trans_obj_from_tiles_to_value(obj) {
-      if(this.coords_tiles_to_value) {
+      if (this.coords_tiles_to_value) {
         return Ti.GIS.transLatlngObj(obj, this.coords_tiles_to_value, true)
       }
       return obj
     },
     //--------------------------------------
     trans_pair_from_tiles_to_value(pair) {
-      if(this.coords_tiles_to_value) {
+      if (this.coords_tiles_to_value) {
         return Ti.GIS.transLatlngPair(pair, this.coords_tiles_to_value)
       }
       return pair
@@ -406,17 +406,17 @@ export default {
       let vm = this
       let MockButton = L.Control.extend({
         options: {
-            position: 'topright'
-     
+          position: 'topright'
+
         },
         initialize: function (options) {
           L.Util.extend(this.options, options);
-  
+
         },
-        onAdd: function(map) {
+        onAdd: function (map) {
           let $con = Ti.Dom.createElement({})
           $con.innerHTML = `<b>hahaha</b>`
-          $($con).on("click", function(evt){
+          $($con).on("click", function (evt) {
             let list = vm.mockPairList(1000)
             vm.$notify("change", list)
           })
@@ -428,13 +428,13 @@ export default {
       mm.addTo(this.$map)
     },
     //--------------------------------------
-    initMapView(data=this.MapData) {
+    initMapView(data = this.MapData) {
       //console.log("initMapView")
       // Get current zoom, keep the last user zoom state
       let zoom = this.geo.zoom || this.zoom
 
       // Default view
-      if(!this.hasMapData) {
+      if (!this.hasMapData && this.$map) {
         let dftCenter = Ti.GIS.transLatlngObj(this.defaultLocation || {
           lat: 39.97773512677837,
           lng: 116.3385673945887
@@ -446,36 +446,36 @@ export default {
       // Auto fit the data
       ({
         //..................................
-        "obj" : (latlng)=>{
+        "obj": (latlng) => {
           this.$map.setView(latlng, zoom)
         },
         //..................................
-        "obj-list" : (list=[])=>{
-          if(list.length > 1) {
+        "obj-list": (list = []) => {
+          if (list.length > 1) {
             let gr = Ti.GIS.getLatlngObjBounds(list)
-            let {SW,NE} = gr
+            let { SW, NE } = gr
             this.fitBounds([SW, NE])
-          } else if(list.length == 1) {
+          } else if (list.length == 1) {
             let latlng = list[0]
             this.$map.setView(latlng, zoom)
           }
         },
         //..................................
-        "pair" : (latlng)=>{
+        "pair": (latlng) => {
           this.$map.setView(latlng, zoom)
         },
         //..................................
-        "pair-list" : (list=[]) => {
-          if(list.length > 1) {
-            let {SW,NE} = Ti.GIS.getLatlngObjBounds(list)
+        "pair-list": (list = []) => {
+          if (list.length > 1) {
+            let { SW, NE } = Ti.GIS.getLatlngObjBounds(list)
             this.fitBounds([SW, NE])
-          } else if(list.length == 1) {
+          } else if (list.length == 1) {
             let latlng = list[0]
             this.$map.setView(latlng, zoom)
           }
         },
         //..................................
-        "geojson" : (geojson) => {
+        "geojson": (geojson) => {
           throw "Not implement geojson get center"
         }
         //..................................
@@ -486,29 +486,29 @@ export default {
       // Create Map
       this.$map = L.map(this.$refs.main, {
         ... this.mapOptions,
-        attributionControl : false,
-        minZoom : this.minZoom,
-        maxZoom : this.maxZoom
+        attributionControl: false,
+        minZoom: this.minZoom,
+        maxZoom: this.maxZoom
       });
 
       L.control.scale({
-        metric : true,
-        imperial : false,
-        updateWhenIdle : true
+        metric: true,
+        imperial: false,
+        updateWhenIdle: true
       }).addTo(this.$map);
 
       // Create the main bg-layer
-      if(this.baseTileLayer) {
+      if (this.baseTileLayer) {
         this.createTileLayer(this.baseTileLayer, this.baseTileVars).addTo(this.$map)
       }
-      if(this.noteTileLayer) {
+      if (this.noteTileLayer) {
         this.createTileLayer(this.noteTileLayer, this.noteTileVars).addTo(this.$map)
       }
-      
+
       // Events
-      this.$map.on("move", (evt) => {this.OnMapMove(evt)})
-      this.$map.on("click", (evt) => {this.OnMapPointerClick(evt)})
-      this.$map.on("mousemove", (evt) => {this.OnMapPointerMove(evt)})
+      this.$map.on("move", (evt) => { this.OnMapMove(evt) })
+      this.$map.on("click", (evt) => { this.OnMapPointerClick(evt) })
+      this.$map.on("mousemove", (evt) => { this.OnMapPointerMove(evt) })
 
       // Prepare live layer for the presentation of value data 
       this.$live = L.layerGroup().addTo(this.$map)
@@ -525,32 +525,36 @@ export default {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "MapData": function() {
-      if(this.autoFitBounds) {
+  watch: {
+    "MapData": function () {
+      // Guard
+      if(!this.$map) {
+        return
+      }
+      if (this.autoFitBounds) {
         this.initMapView()
       }
       this.redraw()
     }
   },
   //////////////////////////////////////////
-  created : function() {
+  created: function () {
     // Restore the Kept zoom in local
-    if(this.keepZoomBy) {
+    if (this.keepZoomBy) {
       let zoom = Ti.Storage.local.getInt(this.keepZoomBy, this.zoom)
       this.geo.zoom = zoom
     }
   },
   //////////////////////////////////////////
-  mounted : async function() {
-    if("Cluster" == this.displayType) {
+  mounted: async function () {
+    if ("Cluster" == this.displayType) {
       await Ti.Load([
         "@deps:leaflet/leaflet.markercluster-src.js",
         "@deps:leaflet/marker-cluster.css",
         "@deps:leaflet/marker-cluster.default.css"
       ])
     }
-    
+
     this.initMap()
   }
   //////////////////////////////////////////

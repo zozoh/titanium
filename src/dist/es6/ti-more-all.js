@@ -1,4 +1,4 @@
-// Pack At: 2021-10-19 15:10:37
+// Pack At: 2021-10-24 12:16:49
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7645,7 +7645,7 @@ const _M = {
       state.params = params
     },
     //--------------------------------------------
-    setModuleNames(state, names=[]) {
+    setModuleNames(state, names = []) {
       state.moduleNames = names
     },
     //--------------------------------------------
@@ -7973,13 +7973,13 @@ const _M = {
       ok, fail }) {
       //.....................................  
       // Preset api result
-      if(api.autoResetData) {
+      if (api.autoResetData) {
         let needResetData = true
-        if(_.isString(api.autoResetData)) {
+        if (_.isString(api.autoResetData)) {
           let method = (api.method || "GET").toUpperCase()
           needResetData = method == api.autoResetData.toUpperCase()
         }
-        if(needResetData) {
+        if (needResetData) {
           commit("removeDataKeys", [api.dataKey, api.rawDataKey])
         }
       }
@@ -8084,15 +8084,38 @@ const _M = {
     } = {}) {
       //console.log(rootGetters.routerList)
       //console.log(" # -> page.reload", { path, params, anchor })
-      let pinfo;
+      let roInfo;
       //.....................................
       // Apply routerList
       for (let router of rootGetters.routerList) {
-        pinfo = router(path)
-        if (pinfo && pinfo.path) {
+        roInfo = router(path)
+        if (roInfo) {
           break
         }
       }
+      //.....................................
+      // Preload page data by router info
+      let roDataKey;
+      if (roInfo.preload) {
+        let roApiName = roInfo.preload.apiName;
+        roDataKey = roInfo.preload.dataKey;
+        if (roApiName) {
+          let roApi = _.get(rootGetters.globalApis, roApiName)
+          let roParams = Ti.Util.explainObj(roInfo.context, roInfo.preload.params);
+          let reo = await Ti.WWW.runApi(rootState, roApi, {
+            params: roParams,
+            dispatch
+          })
+          roInfo.context.resp = reo
+        }
+      }
+      //.....................................
+      // Explain the page Info
+      let pinfo = Ti.Util.explainObj(roInfo.context, roInfo.page);
+      //.....................................
+      // The router declare "apiName", it will preload data
+      // because the data will indicate the specific page json Path
+      // Then the "path" template will 
       //.....................................
       if (!pinfo || !pinfo.path) {
         return await Ti.Toast.Open("Page ${path} not found!", {
@@ -8124,17 +8147,17 @@ const _M = {
       //console.log(view)
       //.....................................
       // Remove old moudle
-      if(state.moduleNames) {
-        for(let name of state.moduleNames) {
+      if (state.moduleNames) {
+        for (let name of state.moduleNames) {
           $store.unregisterModule(name)
         }
       }
       //.....................................
       // Add new module
-      if(!_.isEmpty(view.modules)) {
+      if (!_.isEmpty(view.modules)) {
         // Append new
         let names = []
-        for(let modName in view.modules) {
+        for (let modName in view.modules) {
           let mod = view.modules[modName]
           $store.registerModule(modName, mod)
           names.push(modName)
@@ -8154,7 +8177,7 @@ const _M = {
       // Update Path url
       let { pageUriWithParams, pageAnchorTo } = json
       pageUriWithParams = Ti.Util.fallback(
-        pageUriWithParams, 
+        pageUriWithParams,
         rootState.pageUriWithParams,
         true)
       let base = rootState.base
@@ -8172,7 +8195,7 @@ const _M = {
         "apis": {},
         "data": {},
         "contextMenu": Ti.Util.fallback(rootState.contextMenu, true),
-        "forbidCopy":  Ti.Util.fallback(rootState.forbidCopy, false),
+        "forbidCopy": Ti.Util.fallback(rootState.forbidCopy, false),
         "bodyStyle": rootState.bodyStyle,
         "explainDataKey": [],
         "layout": {},
@@ -8183,10 +8206,10 @@ const _M = {
       }, json, pinfo)
       //.....................................
       // Forbid copy content
-      let preventContentCopy = function(evt){
+      let preventContentCopy = function (evt) {
         evt.preventDefault()
       }
-      if(page.forbidCopy) {
+      if (page.forbidCopy) {
         document.body.addEventListener("copy", preventContentCopy, true)
         document.body.addEventListener("cut", preventContentCopy, true)
       } else {
@@ -8203,14 +8226,24 @@ const _M = {
       commit("set", page)
       //console.log(" #### page.loaded", _.cloneDeep(page))
       //.....................................
+      // Update page data by router api preload data
+      if(roDataKey) {
+        commit("updateData", {
+          key: roDataKey,
+          value: roInfo.context.resp.data
+        }) 
+      }
+      //.....................................
       // Notify: Prepare
       //console.log("@page:prepare ...")
       commit("setReady", 1)
       await dispatch("invokeAction", { name: "@page:prepare" }, { root: true })
       //.....................................
       // Conclude the api loading keys
-      let { preloads, afterLoads } = Ti.WWW.groupPreloadApis(getters.pageApis)
-      //console.log(keyGroups)
+      let { preloads, afterLoads } = Ti.WWW.groupPreloadApis(getters.pageApis, (k, api)=>{
+        return api.force || !roDataKey || roDataKey != k
+      })
+      //console.log({ preloads, afterLoads })
       //.....................................
       // init: data
       for (let keys of preloads) {
@@ -14702,11 +14735,11 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/web/gis/leaflet/web-gis-leaflet.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////
-  data: ()=>({
-    $map  : null,
-    $live : null,
-    pointerClick : {/*lat:0, lng:0*/},
-    pointerHover : {/*lat:0, lng:0*/},
+  data: () => ({
+    $map: null,
+    $live: null,
+    pointerClick: {/*lat:0, lng:0*/ },
+    pointerHover: {/*lat:0, lng:0*/ },
     geo: {
       center: {},
       SW: {},
@@ -14717,12 +14750,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       E: 0,
       S: 0,
       N: 0,
-      zoom : 0
+      zoom: 0
     },
-    lastMove : undefined
+    lastMove: undefined
   }),
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({})
@@ -14730,8 +14763,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     TopStyle() {
       return Ti.Css.toSizeRem100({
-        width  : this.width,
-        height : this.height
+        width: this.width,
+        height: this.height
       })
     },
     //--------------------------------------
@@ -14741,36 +14774,36 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     // value -> trans to fit the -> base tile
     coords_value_to_tiles() {
-      if(this.valueCoords != this.TileCoords) {
+      if (this.valueCoords != this.TileCoords) {
         return `${this.valueCoords}_TO_${this.TileCoords}`
       }
     },
     //--------------------------------------
     // base tile -> trans to fit the -> value
     coords_tiles_to_value() {
-      if(this.valueCoords != this.TileCoords) {
+      if (this.valueCoords != this.TileCoords) {
         return `${this.TileCoords}_TO_${this.valueCoords}`
       }
     },
     //--------------------------------------
-    RedrawFuncName(){
+    RedrawFuncName() {
       return _.snakeCase("draw_" + this.valueType + "_as_" + this.displayType)
     },
     //--------------------------------------
     MapData() {
       let val = this.value
-      if(_.isEmpty(val)) {
+      if (_.isEmpty(val)) {
         val = undefined
       }
       // Guard
-      if(val && !this.defaultLocation) {
+      if (val && !this.defaultLocation) {
         return null
       }
 
       return this.evalMapData({
-        val, 
-        valType : this.valueType, 
-        dftLo   : this.defaultLocation
+        val,
+        valType: this.valueType,
+        dftLo: this.defaultLocation
       })
     },
     //--------------------------------------
@@ -14778,22 +14811,22 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return !_.isEmpty(this.MapData)
     },
     //--------------------------------------
-    RedrawObjName(){
+    RedrawObjName() {
       return _.snakeCase("draw_" + this.objType + "_as_" + this.objDisplay)
     },
     //--------------------------------------
     ObjData() {
-      if(this.objValue) {
+      if (this.objValue) {
         return this.evalMapData({
-          val     : this.objValue, 
-          valType : this.objType, 
-          dftLo   : undefined
+          val: this.objValue,
+          valType: this.objType,
+          dftLo: undefined
         })
       }
     },
     //--------------------------------------
     hasObjData() {
-      return !_.isEmpty(this.ObjData) 
+      return !_.isEmpty(this.ObjData)
     },
     //--------------------------------------
     isShowInfo() {
@@ -14801,25 +14834,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     ShowInfo() {
-      if(!this.showInfo)
+      if (!this.showInfo)
         return {}
-      
+
       let si = true === this.showInfo ? {} : this.showInfo
-        
+
       return {
-        zoom     : true,
-        center   : false,
-        latRange : false,
-        lngRange : false,
-        pointerHover  : false,
-        pointerClick  : false,
-        ... si
+        zoom: true,
+        center: false,
+        latRange: false,
+        lngRange: false,
+        pointerHover: false,
+        pointerClick: false,
+        ...si
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     //
     // Events
@@ -14830,8 +14863,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let now = Date.now()
       let bou = this.$map.getBounds()
       this.geo = {
-        zoom   : this.$map.getZoom(),
-        center : bou.getCenter(),
+        zoom: this.$map.getZoom(),
+        center: bou.getCenter(),
         SW: bou.getSouthWest(),
         SE: bou.getSouthEast(),
         NE: bou.getNorthEast(),
@@ -14842,13 +14875,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
         N: bou.getNorth()
       }
       // Keep zoom in local
-      if(this.keepZoomBy) {
+      if (this.keepZoomBy) {
         Ti.Storage.local.set(this.keepZoomBy, this.geo.zoom)
       }
       // If cooling, notify
-      if(!this.__check_cooling && this.cooling > 0) {
+      if (!this.__check_cooling && this.cooling > 0) {
         this.__check_cooling = true
-        window.setTimeout(()=>{
+        window.setTimeout(() => {
           this.checkMoveCooling()
         }, this.cooling + 10)
       }
@@ -14867,12 +14900,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     checkMoveCooling() {
       let now = Date.now()
       let isCooling = (now - this.lastMove) > this.cooling
-      if(isCooling || !this.lastMove) {
+      if (isCooling || !this.lastMove) {
         this.__check_cooling = false
         //console.log("notify map move", this.geo)
         this.$notify("map:move", this.geo)
       } else {
-        window.setTimeout(()=>{
+        window.setTimeout(() => {
           this.checkMoveCooling()
         }, this.cooling / 2)
       }
@@ -14888,18 +14921,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       // Clear live layer
       this.$live.clearLayers()
-      
+
       // Draw data
-      if(this.hasMapData) {
+      if (this.hasMapData) {
         let func = this[this.RedrawFuncName]
-        if(_.isFunction(func)) {
+        if (_.isFunction(func)) {
           func(this.MapData, {
-            autoFitBounds      : this.autoFitBounds,
-            showMarker         : this.showMarker,
-            markerIcon         : this.markerIcon,
-            markerIconOptions  : this.markerIconOptions,
-            markerPopup        : this.markerPopup,
-            markerPopupOptions : this.markerPopupOptions
+            autoFitBounds: this.autoFitBounds,
+            showMarker: this.showMarker,
+            markerIcon: this.markerIcon,
+            markerIconOptions: this.markerIconOptions,
+            markerPopup: this.markerPopup,
+            markerPopupOptions: this.markerPopupOptions
           })
         } else {
           throw `Invalid RedrawFuncName="${this.RedrawFuncName}"`
@@ -14907,15 +14940,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
 
       // Draw obj
-      if(this.hasObjData) {
+      if (this.hasObjData) {
         let func = this[this.RedrawObjName]
-        if(_.isFunction(func)) {
+        if (_.isFunction(func)) {
           func(this.ObjData, {
-            showMarker         : this.objShowMarker,
-            markerIcon         : this.objMarkerIcon,
-            markerIconOptions  : this.objMarkerIconOptions,
-            markerPopup        : this.objMarkerPopup,
-            markerPopupOptions : this.objMarkerPopupOptions
+            showMarker: this.objShowMarker,
+            markerIcon: this.objMarkerIcon,
+            markerIconOptions: this.objMarkerIconOptions,
+            markerPopup: this.objMarkerPopup,
+            markerPopupOptions: this.objMarkerPopupOptions
           })
         }
       }
@@ -14925,57 +14958,57 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // GEO Function
     //
     //--------------------------------------
-    evalMapData({val, valType="obj", dftLo}={}) {
+    evalMapData({ val, valType = "obj", dftLo } = {}) {
       // Format the value
       return ({
         //..................................
-        "obj" : (latlng)=>{
+        "obj": (latlng) => {
           latlng = latlng || dftLo
-          if(Ti.Util.isNil(latlng.lat) || Ti.Util.isNil(latlng.lng)) {
+          if (Ti.Util.isNil(latlng.lat) || Ti.Util.isNil(latlng.lng)) {
             return {}
           }
-          if(this.coords_value_to_tiles) {
+          if (this.coords_value_to_tiles) {
             return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
           }
           return latlng
         },
         //..................................
-        "obj-list" : (list=[])=>{
-          if(!list)
+        "obj-list": (list = []) => {
+          if (!list)
             return []
-          if(this.coords_value_to_tiles) {
-            return _.map(list, (latlng)=>{
+          if (this.coords_value_to_tiles) {
+            return _.map(list, (latlng) => {
               return Ti.GIS.transLatlngObj(latlng, this.coords_value_to_tiles, true)
             })
           }
           return list
         },
         //..................................
-        "pair" : (latlng)=>{
+        "pair": (latlng) => {
           latlng = latlng || Ti.GIS.objToLatlngPair(dftLo)
-          if(this.coords_value_to_tiles) {
+          if (this.coords_value_to_tiles) {
             console.log(this.coords_value_to_tiles)
             return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
           }
           return latlng
         },
         //..................................
-        "pair-list" : (list=[]) => {
-          if(!list)
+        "pair-list": (list = []) => {
+          if (!list)
             return []
-          if(this.coords_value_to_tiles) {
-            return _.map(list, (latlng)=>{
+          if (this.coords_value_to_tiles) {
+            return _.map(list, (latlng) => {
               return Ti.GIS.transLatlngPair(latlng, this.coords_value_to_tiles)
             })
           }
           return list
         },
         //..................................
-        "geojson" : (geojson) => {
-          if(!geojson) {
+        "geojson": (geojson) => {
+          if (!geojson) {
             return {
-              type : "Point",
-              coordinates : Ti.GIS.objToLnglatPair(dftLo)
+              type: "Point",
+              coordinates: Ti.GIS.objToLnglatPair(dftLo)
             }
           }
 
@@ -14990,8 +15023,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Utility
     //
     //--------------------------------------
-    GeoStr(v, precise=this.latlngPrecise) {
-      if(_.isUndefined(v))
+    GeoStr(v, precise = this.latlngPrecise) {
+      if (_.isUndefined(v))
         return ""
       let s = '' + Ti.Num.precise(v, precise)
       let ss = s.split('.')
@@ -15000,14 +15033,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     LatlngForDi(latlng) {
-      if(this.coords_value_to_tiles) {
+      if (this.coords_value_to_tiles) {
         return Ti.GIS.transLatlng(latlng, this.coords_value_to_tiles)
       }
       return latlng
     },
     //--------------------------------------
     GetIconSrc(src) {
-      if(/^(https?:\/\/|\/)/.test(src)) {
+      if (/^(https?:\/\/|\/)/.test(src)) {
         return src
       }
       return `${this.imageIconBase}${src}`
@@ -15022,41 +15055,41 @@ const __TI_MOD_EXPORT_VAR_NM = {
       shadow = true,
       shadowSize = [41, 41],
       shadowAnchor = [12, 41]
-    }={}) {
-      if(!urlOrIcon)
+    } = {}) {
+      if (!urlOrIcon)
         return new L.Icon.Default()
 
       // Eval the icon
-      let {type, value} = Ti.Icons.evalIconObj(urlOrIcon)
+      let { type, value } = Ti.Icons.evalIconObj(urlOrIcon)
 
       // Font icon
-      if("font" == type) {
+      if ("font" == type) {
         let html = Ti.Icons.fontIconHtml(value)
         let ansz = size / 2
         return L.divIcon({
           className: `ti-gsi-mark-icon 
                       is-size-${size} 
                       is-color-${color}
-                      ${shadow?'has-shadow':''}`,
+                      ${shadow ? 'has-shadow' : ''}`,
           html,
-          iconSize : [size, size],
+          iconSize: [size, size],
           iconAnchor: [ansz, ansz]
         })
       }
 
       // Image Icon
-      if("image" == type) {
+      if ("image" == type) {
         let shadowUrl;
-        if(shadow) {
+        if (shadow) {
           shadowUrl = shadow
-          if(_.isBoolean(shadow)) {
+          if (_.isBoolean(shadow)) {
             let [_, nmPath, suffix] = /^([^.]+)\.(\w+)$/.exec(value)
             shadowUrl = `${nmPath}-shadow.${suffix}`
           }
           shadowUrl = this.GetIconSrc(shadowUrl)
         }
         return L.icon({
-          iconUrl : this.GetIconSrc(value),
+          iconUrl: this.GetIconSrc(value),
           className,
           iconSize, iconAnchor,
           shadowUrl, shadowSize, shadowAnchor
@@ -15068,28 +15101,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     trans_obj_from_value_to_tiles(obj) {
-      if(this.coords_value_to_tiles) {
+      if (this.coords_value_to_tiles) {
         return Ti.GIS.transLatlngObj(obj, this.coords_value_to_tiles, true)
       }
       return obj
     },
     //--------------------------------------
     trans_pair_from_value_to_tiles(pair) {
-      if(this.coords_value_to_tiles) {
+      if (this.coords_value_to_tiles) {
         return Ti.GIS.transLatlngPair(pair, this.coords_value_to_tiles)
       }
       return pair
     },
     //--------------------------------------
     trans_obj_from_tiles_to_value(obj) {
-      if(this.coords_tiles_to_value) {
+      if (this.coords_tiles_to_value) {
         return Ti.GIS.transLatlngObj(obj, this.coords_tiles_to_value, true)
       }
       return obj
     },
     //--------------------------------------
     trans_pair_from_tiles_to_value(pair) {
-      if(this.coords_tiles_to_value) {
+      if (this.coords_tiles_to_value) {
         return Ti.GIS.transLatlngPair(pair, this.coords_tiles_to_value)
       }
       return pair
@@ -15108,17 +15141,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let vm = this
       let MockButton = L.Control.extend({
         options: {
-            position: 'topright'
-     
+          position: 'topright'
+
         },
         initialize: function (options) {
           L.Util.extend(this.options, options);
-  
+
         },
-        onAdd: function(map) {
+        onAdd: function (map) {
           let $con = Ti.Dom.createElement({})
           $con.innerHTML = `<b>hahaha</b>`
-          $($con).on("click", function(evt){
+          $($con).on("click", function (evt) {
             let list = vm.mockPairList(1000)
             vm.$notify("change", list)
           })
@@ -15130,13 +15163,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
       mm.addTo(this.$map)
     },
     //--------------------------------------
-    initMapView(data=this.MapData) {
+    initMapView(data = this.MapData) {
       //console.log("initMapView")
       // Get current zoom, keep the last user zoom state
       let zoom = this.geo.zoom || this.zoom
 
       // Default view
-      if(!this.hasMapData) {
+      if (!this.hasMapData && this.$map) {
         let dftCenter = Ti.GIS.transLatlngObj(this.defaultLocation || {
           lat: 39.97773512677837,
           lng: 116.3385673945887
@@ -15148,36 +15181,36 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Auto fit the data
       ({
         //..................................
-        "obj" : (latlng)=>{
+        "obj": (latlng) => {
           this.$map.setView(latlng, zoom)
         },
         //..................................
-        "obj-list" : (list=[])=>{
-          if(list.length > 1) {
+        "obj-list": (list = []) => {
+          if (list.length > 1) {
             let gr = Ti.GIS.getLatlngObjBounds(list)
-            let {SW,NE} = gr
+            let { SW, NE } = gr
             this.fitBounds([SW, NE])
-          } else if(list.length == 1) {
+          } else if (list.length == 1) {
             let latlng = list[0]
             this.$map.setView(latlng, zoom)
           }
         },
         //..................................
-        "pair" : (latlng)=>{
+        "pair": (latlng) => {
           this.$map.setView(latlng, zoom)
         },
         //..................................
-        "pair-list" : (list=[]) => {
-          if(list.length > 1) {
-            let {SW,NE} = Ti.GIS.getLatlngObjBounds(list)
+        "pair-list": (list = []) => {
+          if (list.length > 1) {
+            let { SW, NE } = Ti.GIS.getLatlngObjBounds(list)
             this.fitBounds([SW, NE])
-          } else if(list.length == 1) {
+          } else if (list.length == 1) {
             let latlng = list[0]
             this.$map.setView(latlng, zoom)
           }
         },
         //..................................
-        "geojson" : (geojson) => {
+        "geojson": (geojson) => {
           throw "Not implement geojson get center"
         }
         //..................................
@@ -15188,29 +15221,29 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Create Map
       this.$map = L.map(this.$refs.main, {
         ... this.mapOptions,
-        attributionControl : false,
-        minZoom : this.minZoom,
-        maxZoom : this.maxZoom
+        attributionControl: false,
+        minZoom: this.minZoom,
+        maxZoom: this.maxZoom
       });
 
       L.control.scale({
-        metric : true,
-        imperial : false,
-        updateWhenIdle : true
+        metric: true,
+        imperial: false,
+        updateWhenIdle: true
       }).addTo(this.$map);
 
       // Create the main bg-layer
-      if(this.baseTileLayer) {
+      if (this.baseTileLayer) {
         this.createTileLayer(this.baseTileLayer, this.baseTileVars).addTo(this.$map)
       }
-      if(this.noteTileLayer) {
+      if (this.noteTileLayer) {
         this.createTileLayer(this.noteTileLayer, this.noteTileVars).addTo(this.$map)
       }
-      
+
       // Events
-      this.$map.on("move", (evt) => {this.OnMapMove(evt)})
-      this.$map.on("click", (evt) => {this.OnMapPointerClick(evt)})
-      this.$map.on("mousemove", (evt) => {this.OnMapPointerMove(evt)})
+      this.$map.on("move", (evt) => { this.OnMapMove(evt) })
+      this.$map.on("click", (evt) => { this.OnMapPointerClick(evt) })
+      this.$map.on("mousemove", (evt) => { this.OnMapPointerMove(evt) })
 
       // Prepare live layer for the presentation of value data 
       this.$live = L.layerGroup().addTo(this.$map)
@@ -15227,32 +15260,36 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "MapData": function() {
-      if(this.autoFitBounds) {
+  watch: {
+    "MapData": function () {
+      // Guard
+      if(!this.$map) {
+        return
+      }
+      if (this.autoFitBounds) {
         this.initMapView()
       }
       this.redraw()
     }
   },
   //////////////////////////////////////////
-  created : function() {
+  created: function () {
     // Restore the Kept zoom in local
-    if(this.keepZoomBy) {
+    if (this.keepZoomBy) {
       let zoom = Ti.Storage.local.getInt(this.keepZoomBy, this.zoom)
       this.geo.zoom = zoom
     }
   },
   //////////////////////////////////////////
-  mounted : async function() {
-    if("Cluster" == this.displayType) {
+  mounted: async function () {
+    if ("Cluster" == this.displayType) {
       await Ti.Load([
         "@deps:leaflet/leaflet.markercluster-src.js",
         "@deps:leaflet/marker-cluster.css",
         "@deps:leaflet/marker-cluster.default.css"
       ])
     }
-    
+
     this.initMap()
   }
   //////////////////////////////////////////
@@ -26627,6 +26664,10 @@ const _M = {
       type : Array,
       default : undefined
     },
+    "vars" : {
+      type : Object,
+      default : undefined
+    },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -26727,17 +26768,24 @@ const _M = {
     WallItems() {
       if(!_.isArray(this.data))
         return []
-      
+      let vars = _.cloneDeep(this.vars)
       let list = []      
       for(let i=0; i < this.data.length; i++) {
         let stl = this.getItemStyle(i)
         let it = this.data[i]
+        let comConf;
+        if(vars) {
+          vars.item = it
+          comConf = Ti.Util.explainObj(vars, this.comConf) 
+        } else {
+          comConf = Ti.Util.explainObj(it, this.comConf)
+        }
         list.push({
           key: `It-${i}`,
           className : this.getItemClass(i),
           style : stl,
           comType: this.comType,
-          comConf: Ti.Util.explainObj(it, this.comConf)
+          comConf
         })        
       }
       
@@ -27078,6 +27126,10 @@ const _M = {
       type : Number,
       default : -1
     },
+    "vars" : {
+      type : Object,
+      default : undefined
+    },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -27216,10 +27268,17 @@ const _M = {
     //--------------------------------------
     evalDataItemList() {
       this.myHoverIndex = this.currentIndex;
+      let vars = _.cloneDeep(this.vars)
       let list = []
       _.forEach(this.data, (it, index) => {
         let comType = Ti.Util.explainObj(it, this.comType)
-        let comConf = Ti.Util.explainObj(it, this.comConf)
+        let comConf;
+        if(vars) {
+          vars.item = it
+          comConf = Ti.Util.explainObj(vars, this.comConf) 
+        } else {
+          comConf = Ti.Util.explainObj(it, this.comConf)
+        }
         list.push({
           index,
           comType, comConf
@@ -29237,68 +29296,68 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/web/nav/support/web-nav-mixins.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
-  props : {
+  props: {
     // The items appeared at the head
-    "headItems" : {
-      type : Array,
-      default : ()=>[]
+    "headItems": {
+      type: Array,
+      default: () => []
     },
     // The items appeared at the tail
-    "tailItems" : {
-      type : Array,
-      default : ()=>[]
+    "tailItems": {
+      type: Array,
+      default: () => []
     },
     /*
     {text, icon, href, newtab, path, payload}
     */
-    "items" : {
-      type : Array,
-      default : ()=>[]
+    "items": {
+      type: Array,
+      default: () => []
     },
-    "translateHead" : {
-      type : Boolean,
-      default : false
+    "translateHead": {
+      type: Boolean,
+      default: false
     },
-    "translateTail" : {
-      type : Boolean,
-      default : false
+    "translateTail": {
+      type: Boolean,
+      default: false
     },
-    "mapping" : {
-      type : [Object, Function],
-      default : undefined
+    "mapping": {
+      type: [Object, Function],
+      default: undefined
     },
-    "idBy" : {
-      type : String,
-      default : "=id"
+    "idBy": {
+      type: String,
+      default: "=id"
     },
-    "childrenBy" : {
-      type : String,
-      default : "items"
+    "childrenBy": {
+      type: String,
+      default: "items"
     },
-    "sortBy" : {
-      type : [Function, String],
-      default : undefined
+    "sortBy": {
+      type: [Function, String],
+      default: undefined
     },
-    "notifyName" : {
-      type : String
+    "notifyName": {
+      type: String
     },
     // Store current array
     // could be Array<Object> Or Object or String
-    "currentIds" : {
-      type : [Array, Object, String]
+    "currentIds": {
+      type: [Array, Object, String]
     },
     "base": {
       type: String,
       default: undefined
     },
     // for highlight
-    "value" : String,
+    "value": String,
     // for highlight
-    "path" : String,
+    "path": String,
     "params": [Object, String, Number, Array]
   },
   /////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -29307,11 +29366,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     CurrentIdMap() {
       let cids = _.concat(this.currentIds)
       let re = {}
-      for(let cid of cids) {
-        if(!cid) {
+      for (let cid of cids) {
+        if (!cid) {
           continue;
         }
-        if(_.isString(cid)) {
+        if (_.isString(cid)) {
           re[cid] = true
         } else {
           cid = Ti.Util.explainObj(cid, this.idBy);
@@ -29326,7 +29385,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Head
       //
       let itHead = this.headItems
-      if(this.translateHead) {
+      if (this.translateHead) {
         itHead = this.ItemMapping(itHead)
       }
       //
@@ -29334,11 +29393,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
       //
       let its = _.cloneDeep(this.items)
       const SortItems = items => {
-        if(this.SortItemsBy) {
+        if (this.SortItemsBy) {
           let list = _.sortBy(items, this.SortItemsBy)
-          for(let li of list) {
+          for (let li of list) {
             let subs = _.get(li, this.childrenBy)
-            if(_.isArray(subs)){
+            if (_.isArray(subs)) {
               let subs2 = SortItems(subs)
               _.set(li, this.childrenBy, subs2)
             }
@@ -29350,14 +29409,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Sorting 
       its = SortItems(its)
       // Mapping items
-      const MappingItems = items => {
+      const MappingItems = (items, parents = []) => {
         let list = []
-        for(let it of items) {
-          let it2 = this.ItemMappingBy(it)
+        for (let i = 0; i < items.length; i++) {
+          let it = items[i];
+          let it2 = this.ItemMappingBy(it, {
+            index: i,
+            parents,
+            items,
+            base: this.base
+          })
           it2.rawData = it
           let subs = _.get(it, this.childrenBy)
-          if(_.isArray(subs)){
-            subs = MappingItems(subs)
+          if (_.isArray(subs)) {
+            let pAxis = _.concat(parents, it)
+            subs = MappingItems(subs, pAxis)
             it2.items = subs
           }
           list.push(it2)
@@ -29370,7 +29436,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Tail
       //
       let itTail = this.tailItems
-      if(this.translateTail) {
+      if (this.translateTail) {
         itTail = this.ItemMapping(itTail)
       }
       //
@@ -29381,20 +29447,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //------------------------------------
     SortItemsBy() {
-      if(_.isString(this.sortBy)) {
+      if (_.isString(this.sortBy)) {
         return it => _.get(it, this.sortBy)
       }
-      if(_.isFunction(this.sortBy)) {
+      if (_.isFunction(this.sortBy)) {
         return it => this.sortBy(it)
       }
-   },
+    },
     //------------------------------------
     ItemMappingBy() {
-      if(_.isFunction(this.mapping)) {
+      if (_.isFunction(this.mapping)) {
         return this.mapping
       }
 
-      if(this.mapping) {
+      if (this.mapping) {
         return item => {
           return Ti.Util.explainObjs(item, this.mapping)
         }
@@ -29405,40 +29471,44 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------
   },
   /////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------
     OnClickLink(evt, linkInfo) {
+      // Guard
+      if(!evt || !_.isFunction(evt.stopPropagation)) {
+        return
+      }
       evt.stopPropagation();
-      let {type, value} = linkInfo
-      if(/^(page|action|invoke|mutation)$/.test(type)) {
+      let { type, value } = linkInfo
+      if (/^(page|action|invoke|mutation)$/.test(type)) {
         evt.preventDefault()
         //console.log("onClickLink", "nav:to", {type,value})
-        if(value) {
+        if (value) {
           let notiName = this.notifyName || "nav:to"
           this.$notify(notiName, linkInfo)
         }
-      } else if(this.notifyName) {
+      } else if (this.notifyName) {
         this.$notify(this.notifyName, linkInfo)
       }
     },
     //------------------------------------
-    evalItems(items, depth=0) {
+    evalItems(items, depth = 0) {
       // Explain first
       return Ti.WWW.explainNavigation(items, {
         depth,
-        base: this.base, 
+        base: this.base,
         idBy: this.idBy,
         value: this.value,
-        iteratee: (li)=>{
+        iteratee: (li) => {
           //if(this.path || this.value) {
-            li.highlight = li.highlightBy(this)
+          li.highlight = li.highlightBy(this)
           //}
           //........................................
           // Children highlight cause the parent focused
           let current = this.CurrentIdMap[li.id]
-          if(!current && !_.isEmpty(li.items)) {
-            for(let it of li.items) {
-              if(it.current || it.highlight) {
+          if (!current && !_.isEmpty(li.items)) {
+            for (let it of li.items) {
+              if (it.current || it.highlight) {
                 current = true
                 break
               }
@@ -46449,20 +46519,17 @@ const _M = {
       if (this.dynamicData) {
         return this.data
       }
-
-      let hasVars = !_.isEmpty(this.vars);
-
+      let vars = _.cloneDeep(this.vars)
       let list = []
       for (let i = 0; i < this.data.length; i++) {
         let it = this.data[i]
-        let itVars = it
-        if(hasVars) {
-          itVars = _.assign({
-            "$vars" : this.vars
-          }, it)
+        let comConf;
+        if(vars) {
+          vars.item = it
+          comConf = Ti.Util.explainObj(vars, this.comConf) 
+        } else {
+          comConf = Ti.Util.explainObj(it, this.comConf)
         }
-
-        let comConf = Ti.Util.explainObj(itVars, this.comConf)
         let key = `It-${i}`
         if (this.itemKeyBy) {
           key = Ti.Util.fallbackNil(it[this.itemKeyBy], key)
@@ -54819,7 +54886,7 @@ const _M = {
     routerList(state) {
       let list = []
       _.forEach(state.router, ({
-        match, names = [], page = {}
+        match, names = [], page = {}, preload
       } = {}) => {
         let regex = new RegExp(match)
         // Pre-compiled
@@ -54838,7 +54905,10 @@ const _M = {
               }
             }
             // Render page info
-            return Ti.Util.explainObj(context, page)
+            //return Ti.Util.explainObj(context, page)
+            return {
+              context, page, preload
+            }
           }
         }
 
@@ -57160,17 +57230,21 @@ window.TI_PACK_EXPORTS['ti/com/web/shelf/falls/web-shelf-falls.mjs'] = (function
 const DFT_ITEM_WIDTH = 200
 const _M = {
   //////////////////////////////////////////
-  data: ()=>({
-    myColWidths : [],
-    myCols : 0
+  data: () => ({
+    myColWidths: [],
+    myCols: 0
   }),
   //////////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "data" : {
-      type : Array
+    "data": {
+      type: Array
+    },
+    "vars": {
+      type: Object,
+      default: undefined
     },
     //-----------------------------------
     // Behavior
@@ -57182,55 +57256,55 @@ const _M = {
     },
     "comConf": {
       type: [Object, String],
-      default: ()=>({
+      default: () => ({
         value: "=.."
       })
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "cols" : {
-      type : [Number, String]
+    "cols": {
+      type: [Number, String]
     },
-    "itemClass" : {
-      type : [String, Array]
+    "itemClass": {
+      type: [String, Array]
     },
-    "itemStyle" : {
-      type : [Object, Array]
+    "itemStyle": {
+      type: [Object, Array]
     },
-    "itemWidth" : {
-      type : [String, Number, Array],
-      default : DFT_ITEM_WIDTH
+    "itemWidth": {
+      type: [String, Number, Array],
+      default: DFT_ITEM_WIDTH
     },
-    "itemMaxHeight" : {
-      type : [String, Number, Array]
+    "itemMaxHeight": {
+      type: [String, Number, Array]
     },
     "blankAs": {
       type: Object,
-      default: ()=>({
+      default: () => ({
         text: "i18n:empty",
         icon: "fas-box-open"
       })
     },
     "loadingAs": {
       type: [Object, Boolean],
-      default: ()=>({})
+      default: () => ({})
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "has-data" : this.FallsData
+        "has-data": this.FallsData
       })
     },
     //--------------------------------------
     getItemClass() {
       let itKlass = _.without(_.concat(this.itemClass))
-      return (index)=> {
+      return (index) => {
         let i;
-        if(itKlass.length > 0) {
+        if (itKlass.length > 0) {
           i = Ti.Num.scrollIndex(index, itKlass.length)
           return itKlass[i]
         }
@@ -57240,18 +57314,18 @@ const _M = {
     getItemStyle() {
       let itHs = _.without(_.concat(this.itemMaxHeight), undefined)
       let itStyles = _.without(_.concat(this.itemStyle), undefined)
-      return (index)=> {
+      return (index) => {
         let h, sty, i;
-        if(itHs.length > 0) {
+        if (itHs.length > 0) {
           i = Ti.Num.scrollIndex(index, itHs.length)
           h = itHs[i]
         }
-        if(itStyles.length > 0) {
+        if (itStyles.length > 0) {
           i = Ti.Num.scrollIndex(index, itStyles.length)
           sty = itStyles[i]
         }
         let css = _.cloneDeep(sty) || {}
-        if(!Ti.Util.isNil(h)) {
+        if (!Ti.Util.isNil(h)) {
           css.maxHeight = Ti.Css.toSize(h)
         }
         return css
@@ -57259,43 +57333,50 @@ const _M = {
     },
     //--------------------------------------
     FallsData() {
-      if(!this.hasData)
+      if (!this.hasData)
         return []
 
       let C = this.myCols
       let groups = []
       // Init Groups
-      for(let i=0; i < C; i++) {
+      for (let i = 0; i < C; i++) {
         let gW = _.nth(this.myColWidths, i)
         let style;
-        if(gW) {
-          style = {width: gW + 'px'}
+        if (gW) {
+          style = { width: gW + 'px' }
         }
         groups.push({
-          style, items : []
+          style, items: []
         })
       }
 
       // Each data
-      for(let i=0; i < this.data.length; i++) {
+      let vars = _.cloneDeep(this.vars)
+      for (let i = 0; i < this.data.length; i++) {
         let cIX = i % C
         let grp = groups[cIX]
         let stl = this.getItemStyle(i)
         let it = this.data[i]
-        let comConf = Ti.Util.explainObj(it, this.comConf)
-        if(stl.maxHeight) {
+        let comConf;
+        if (vars) {
+          vars.item = it
+          comConf = Ti.Util.explainObj(vars, this.comConf)
+        } else {
+          comConf = Ti.Util.explainObj(it, this.comConf)
+        }
+        if (stl.maxHeight) {
           comConf.style = _.assign({}, comConf.style, {
-            maxHeight : stl.maxHeight
+            maxHeight: stl.maxHeight
           })
         }
         grp.items.push({
           key: `It-${i}`,
-          className : this.getItemClass(i),
-          style : stl,
+          className: this.getItemClass(i),
+          style: stl,
           comType: this.comType, comConf
-        })        
+        })
       }
-      
+
       return groups
     },
     //--------------------------------------
@@ -57313,10 +57394,10 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnWallResize() {
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.evalWallColumns()
       })
     },
@@ -57324,13 +57405,13 @@ const _M = {
     evalWallColumns() {
       //console.log("evalWallColumns")
       // Specific cols
-      if(this.cols > 0) {
+      if (this.cols > 0) {
         this.myCols = parseInt(this.cols * 1)
         this.myColWidths = []
         return
       }
       // Guard
-      if(!_.isElement(this.$el) || !this.data || this.data.length <= 0) {
+      if (!_.isElement(this.$el) || !this.data || this.data.length <= 0) {
         return
       }
 
@@ -57348,10 +57429,10 @@ const _M = {
 
       let sumW = 0;
       let colWidths = []
-      for(let i=0; i<this.data.length; i++) {
+      for (let i = 0; i < this.data.length; i++) {
         // Get item width by index
         let w;
-        if(itWs.length > 0) {
+        if (itWs.length > 0) {
           let x = Ti.Num.scrollIndex(i, itWs.length)
           w = Ti.Css.toAbsPixel(itWs[x], {
             remBase, base: elW
@@ -57361,12 +57442,12 @@ const _M = {
         }
         // Add up
         sumW += w
-        if(sumW > elW) {
+        if (sumW > elW) {
           break
         }
         colWidths.push(w)
       }
-      
+
       // Done
       this.myCols = colWidths.length
       this.myColWidths = colWidths
@@ -57374,23 +57455,23 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "data" : "OnWallResize",
-    "cols" :  "OnWallResize",
-    "itemWidth" : "OnWallResize"
+  watch: {
+    "data": "OnWallResize",
+    "cols": "OnWallResize",
+    "itemWidth": "OnWallResize"
   },
   //////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     //.................................
     Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.OnWallResize(), 20)
+      resize: _.debounce(() => this.OnWallResize(), 20)
     })
     //.................................
     this.OnWallResize()
     //.................................
   },
   //////////////////////////////////////////
-  destroyed : function() {
+  destroyed: function () {
     Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////
