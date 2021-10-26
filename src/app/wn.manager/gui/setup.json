@@ -1,15 +1,16 @@
 {
-  "shown" : {
-    "desktop" : {
-      "logo"    : "==Logo",
-      "session" : "==SessionBadge"
+  "shown": {
+    "desktop": {
+      "logo": "==Logo",
+      "session": "==SessionBadge"
     },
-    "tablet"  : {},
-    "phone"   : {}
+    "tablet": {},
+    "phone": {}
   },
-  "canLoading" : true,
-  "loadingAs" : {},
-  "firstCrumbIndex" : 1,
-  "crumbTitleBy" : "title",
-  "logo" : "<:home>"
+  "canLoading": true,
+  "loadingAs": {},
+  "firstCrumbIndex": 1,
+  "crumbTitleBy": "title",
+  "logo": "<:home>",
+  "listViewType": "wall"
 }

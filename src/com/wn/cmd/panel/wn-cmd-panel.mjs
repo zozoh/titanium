@@ -106,7 +106,9 @@ const _M = {
     },
     //------------------------------------------------
     async exec(cmdText, options={}) {
-      cmdText = Ti.S.renderBy(cmdText, this.vars)
+      if(this.vars) {
+        cmdText = Ti.S.renderBy(cmdText, this.vars)
+      }
       if(this.showRunTip || options.showRunTip) {
         this.printHR()
         this.lines.push("> " + cmdText)

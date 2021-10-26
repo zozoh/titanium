@@ -107,6 +107,10 @@ export default {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "rowNumberBase": {
+    type: Number,
+    default: undefined
+  },
   "itemClassName" : {
     type : String
   },

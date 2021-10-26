@@ -88,6 +88,7 @@ export default {
       default: () => ({
         comType: "WnAdaptlist",
         comConf: {
+          "rowNumberBase": "=rowNumberBase",
           "meta": "=meta",
           "currentId": "=currentId",
           "data": {
@@ -98,6 +99,10 @@ export default {
           "status": "=status"
         }
       })
+    },
+    "rowNumberBase": {
+      type: Number,
+      default: undefined
     },
     "itemClassName": {
       type: String
@@ -423,7 +428,7 @@ export default {
     },
     "currentId": {
       handler: function (newVal, oldVal) {
-        if(!_.isEqual(newVal, oldVal)) {
+        if (!_.isEqual(newVal, oldVal)) {
           this.myCurrentId = newVal
         }
       },

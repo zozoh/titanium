@@ -18,6 +18,14 @@ export default {
       type : Number,
       default : undefined
     },
+    "rowCount" : {
+      type : Number,
+      default : undefined
+    },
+    "rowNumberWidth" : {
+      type : Number,
+      default : undefined
+    },
     "asGroupTitle" : {
       type : Boolean,
       default: false
@@ -88,7 +96,11 @@ export default {
     //-----------------------------------------------
     RowNumber() {
       if(this.hasRowNumber) {
-        return this.rowNumberBase + this.displayIndex
+        let n = this.rowNumberBase + this.displayIndex
+        if(this.rowNumberWidth > 1) {
+          return _.padStart(n, this.rowNumberWidth, '0');
+        }
+        return n
       }
     },
     //-----------------------------------------------

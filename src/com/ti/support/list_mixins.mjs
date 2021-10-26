@@ -59,6 +59,25 @@ const LIST_MIXINS = {
       }
     },
     //-----------------------------------------------
+    RowNumberWidth() {
+      if(this.rowNumberBase >= 0 && !_.isEmpty(this.myData)) {
+        let lastI = this.rowNumberBase + this.myData.length;
+        if(lastI >= 1000) {
+          return 4;
+        }
+        if(lastI >= 100) {
+          return 3;
+        }
+        if(lastI >= 10) {
+          return 2;
+        }
+        if(lastI > 0) {
+          return 1;
+        }
+        return 0;
+      }
+    },
+    //-----------------------------------------------
     isDataPending() {
       return Ti.Util.isNil(this.TheData)
     },

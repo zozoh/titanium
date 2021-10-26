@@ -357,6 +357,11 @@ const _M = {
   ///////////////////////////////////////////
   mounted : async function(){
     //......................................
+    // Update default listViewType
+    if(this.setup.listViewType) {
+      Ti.App(this).commit("viewport/setListViewType", this.setup.listViewType)
+    }
+    //......................................
     this.reloadSidebar()
     this.reloadPrivilege()
     //......................................

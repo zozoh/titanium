@@ -47,8 +47,10 @@ export default {
         commit("setExposeHidden", eh)
       }
       if(state.keeyViewTypeBy) {
-        let vt = Ti.Storage.session.getString(state.keeyViewTypeBy, "wall")
-        commit("setListViewType", vt)
+        let vt = Ti.Storage.session.getString(state.keeyViewTypeBy, null)
+        if(/^(table|wall|list)$/.test(vt)) {
+          commit("setListViewType", vt)
+        }
       }
     }
   }
