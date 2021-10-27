@@ -1,4 +1,4 @@
-// Pack At: 2021-10-26 08:33:26
+// Pack At: 2021-10-27 10:40:39
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -11858,6 +11858,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Aspect
   //-----------------------------------
+  "rowNumberBase": {
+    type: Number,
+    default: undefined
+  },
   "itemClassName" : {
     type : String
   },
@@ -21838,7 +21842,9 @@ const _M = {
     },
     //------------------------------------------------
     async exec(cmdText, options={}) {
-      cmdText = Ti.S.renderBy(cmdText, this.vars)
+      if(this.vars) {
+        cmdText = Ti.S.renderBy(cmdText, this.vars)
+      }
       if(this.showRunTip || options.showRunTip) {
         this.printHR()
         this.lines.push("> " + cmdText)
@@ -29887,6 +29893,11 @@ const _M = {
   },
   ///////////////////////////////////////////
   mounted : async function(){
+    //......................................
+    // Update default listViewType
+    if(this.setup.listViewType) {
+      Ti.App(this).commit("viewport/setListViewType", this.setup.listViewType)
+    }
     //......................................
     this.reloadSidebar()
     this.reloadPrivilege()
@@ -39655,6 +39666,25 @@ const LIST_MIXINS = {
     RowGroupTitleDisplay() {
       if (this.rowGroupTitleDisplay) {
         return this.evalFieldDisplay(this.rowGroupTitleDisplay, "..")
+      }
+    },
+    //-----------------------------------------------
+    RowNumberWidth() {
+      if(this.rowNumberBase >= 0 && !_.isEmpty(this.myData)) {
+        let lastI = this.rowNumberBase + this.myData.length;
+        if(lastI >= 1000) {
+          return 4;
+        }
+        if(lastI >= 100) {
+          return 3;
+        }
+        if(lastI >= 10) {
+          return 2;
+        }
+        if(lastI > 0) {
+          return 1;
+        }
+        return 0;
       }
     },
     //-----------------------------------------------
@@ -53400,6 +53430,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       default: () => ({
         comType: "WnAdaptlist",
         comConf: {
+          "rowNumberBase": "=rowNumberBase",
           "meta": "=meta",
           "currentId": "=currentId",
           "data": {
@@ -53410,6 +53441,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
           "status": "=status"
         }
       })
+    },
+    "rowNumberBase": {
+      type: Number,
+      default: undefined
     },
     "itemClassName": {
       type: String
@@ -53735,7 +53770,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     "currentId": {
       handler: function (newVal, oldVal) {
-        if(!_.isEqual(newVal, oldVal)) {
+        if (!_.isEqual(newVal, oldVal)) {
           this.myCurrentId = newVal
         }
       },
@@ -57597,6 +57632,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : Number,
       default : undefined
     },
+    "rowCount" : {
+      type : Number,
+      default : undefined
+    },
+    "rowNumberWidth" : {
+      type : Number,
+      default : undefined
+    },
     "asGroupTitle" : {
       type : Boolean,
       default: false
@@ -57667,7 +57710,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------------------
     RowNumber() {
       if(this.hasRowNumber) {
-        return this.rowNumberBase + this.displayIndex
+        let n = this.rowNumberBase + this.displayIndex
+        if(this.rowNumberWidth > 1) {
+          return _.padStart(n, this.rowNumberWidth, '0');
+        }
+        return n
       }
     },
     //-----------------------------------------------
@@ -58710,8 +58757,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
         commit("setExposeHidden", eh)
       }
       if(state.keeyViewTypeBy) {
-        let vt = Ti.Storage.session.getString(state.keeyViewTypeBy, "wall")
-        commit("setListViewType", vt)
+        let vt = Ti.Storage.session.getString(state.keeyViewTypeBy, null)
+        if(/^(table|wall|list)$/.test(vt)) {
+          commit("setListViewType", vt)
+        }
       }
     }
   }
@@ -68150,7 +68199,9 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
             :indent="row.indent"
             :data="row.rawData"
             :item="row.item"
-            :row-number-base="rowNumberBase"
+            :rowNumberBase="rowNumberBase"
+            :rowCount="myData.length"
+            :rowNumberWidth="RowNumberWidth"
 
             :checkable="row.checkable"
             :selectable="row.selectable"
@@ -72517,6 +72568,7 @@ Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.html", `<div class="wn-adaptlist"
         :blurable="blurable"
         :selectable="selectable"
         :puppet-mode="true"
+        :rowNumberBase="rowNumberBase"
         v-bind="MainComConf"
         :on-init="OnListInit"
         @select="OnItemSelecteItem"
@@ -75665,19 +75717,20 @@ Ti.Preload("/a/load/wn.manager/gui/schema.json", {
 // JOIN <setup.json> /a/load/wn.manager/gui/setup.json
 //========================================
 Ti.Preload("/a/load/wn.manager/gui/setup.json", {
-  "shown" : {
-    "desktop" : {
-      "logo"    : "==Logo",
-      "session" : "==SessionBadge"
+  "shown": {
+    "desktop": {
+      "logo": "==Logo",
+      "session": "==SessionBadge"
     },
-    "tablet"  : {},
-    "phone"   : {}
+    "tablet": {},
+    "phone": {}
   },
-  "canLoading" : true,
-  "loadingAs" : {},
-  "firstCrumbIndex" : 1,
-  "crumbTitleBy" : "title",
-  "logo" : "<:home>"
+  "canLoading": true,
+  "loadingAs": {},
+  "firstCrumbIndex": 1,
+  "crumbTitleBy": "title",
+  "logo": "<:home>",
+  "listViewType": "wall"
 });
 //========================================
 // JOIN <wn-manager-computed.mjs> /a/load/wn.manager/wn-manager-computed.mjs
