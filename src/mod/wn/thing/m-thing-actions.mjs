@@ -594,7 +594,6 @@ const _M = {
     // Update filter and sorter from page#Anchor
     let loc = Ti.Util.parseHref(window.location.href)
     let afo = Ti.Util.parseAnchorFilter(loc.anchor)
-    console.log(filter)
     if (afo) {
       filter = filter || {}
       filter.keyword = afo.keyword || filter.keyword

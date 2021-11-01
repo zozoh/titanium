@@ -141,6 +141,12 @@ const _M = {
       )
     },
     //--------------------------------------------------
+    FormBodyStyle() {
+      if(this.bodyStyle) {
+        return this.bodyStyle
+      }
+    },
+    //--------------------------------------------------
     FieldsInCurrentTab() {
       // Current Tab
       if (this.isTabMode) {

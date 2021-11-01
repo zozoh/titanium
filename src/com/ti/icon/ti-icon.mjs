@@ -57,7 +57,7 @@ export default {
     TopClass() {
       return this.getTopClass({
         "can-click": this.notifyName ? true : false
-      }, `is-${this.Icon.type}`)
+      }, `is-${this.Icon.type}`, this.Icon.iconClass)
     },
     //---------------------------------------------------
     Dict() {
@@ -111,8 +111,11 @@ export default {
 
       // Join `className / text` to show icon font
       if('font' == icn.type) {
+        let iconClass = icn.className
         let val = Ti.Icons.getByName(icn.value, icn.value)
-        _.assign(icn, Ti.Icons.parseFontIcon(val))
+        _.assign(icn, Ti.Icons.parseFontIcon(val), {
+          iconClass, iconClass
+        })
       }
       // Join base
       else if('image' == icn.type) {

@@ -72,6 +72,9 @@ export default {
   "bodyClass": {
     type: [String, Object, Array]
   },
+  "bodyStyle": {
+    type: Object
+  },
   "defaultGroupClass": {
     type: [String, Object, Array]
   },

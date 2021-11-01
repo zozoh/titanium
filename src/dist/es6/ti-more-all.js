@@ -1,4 +1,4 @@
-// Pack At: 2021-10-27 10:40:39
+// Pack At: 2021-11-01 12:05:17
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -9741,7 +9741,6 @@ const _M = {
     // Update filter and sorter from page#Anchor
     let loc = Ti.Util.parseHref(window.location.href)
     let afo = Ti.Util.parseAnchorFilter(loc.anchor)
-    console.log(filter)
     if (afo) {
       filter = filter || {}
       filter.keyword = afo.keyword || filter.keyword
@@ -37626,6 +37625,12 @@ const _M = {
       )
     },
     //--------------------------------------------------
+    FormBodyStyle() {
+      if(this.bodyStyle) {
+        return this.bodyStyle
+      }
+    },
+    //--------------------------------------------------
     FieldsInCurrentTab() {
       // Current Tab
       if (this.isTabMode) {
@@ -41428,7 +41433,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     TopClass() {
       return this.getTopClass({
         "can-click": this.notifyName ? true : false
-      }, `is-${this.Icon.type}`)
+      }, `is-${this.Icon.type}`, this.Icon.iconClass)
     },
     //---------------------------------------------------
     Dict() {
@@ -41482,8 +41487,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       // Join `className / text` to show icon font
       if('font' == icn.type) {
+        let iconClass = icn.className
         let val = Ti.Icons.getByName(icn.value, icn.value)
-        _.assign(icn, Ti.Icons.parseFontIcon(val))
+        _.assign(icn, Ti.Icons.parseFontIcon(val), {
+          iconClass, iconClass
+        })
       }
       // Join base
       else if('image' == icn.type) {
@@ -52492,6 +52500,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   "bodyClass": {
     type: [String, Object, Array]
+  },
+  "bodyStyle": {
+    type: Object
   },
   "defaultGroupClass": {
     type: [String, Object, Array]
@@ -65116,7 +65127,7 @@ Ti.Preload("ti/com/ti/form/ti-form.html", `<div class="ti-form"
     <!--
       Form Fields
     -->
-    <div class="form-body" :class="FormBodyClass">
+    <div class="form-body" :class="FormBodyClass" :style="FormBodyStyle">
       <template v-for="fld in FieldsInCurrentTab">
         <!--
           For Group
