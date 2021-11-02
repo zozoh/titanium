@@ -129,8 +129,8 @@ const _M = {
       // schema.behavior has been explain already when store reload
       // here we need skip it
       let schema = {}
-      _.forEach(this.config.schema, (val, key)=>{
-        if(/^(behavior)$/.test(key)) {
+      _.forEach(this.config.schema, (val, key) => {
+        if (/^(behavior)$/.test(key)) {
           return
         }
         let v2 = Ti.Util.explainObj(this, val)
@@ -144,6 +144,10 @@ const _M = {
         "reloading": {
           icon: "fas-spinner fa-spin",
           text: "i18n:loading"
+        },
+        "doing": {
+          icon: "zmdi-settings fa-spin",
+          text: "i18n:doing"
         },
         "saving": {
           icon: "zmdi-settings fa-spin",
@@ -175,8 +179,22 @@ const _M = {
     },
     //--------------------------------------
     GuiLoadingAs() {
+      let key = _.findKey(this.status, v => v ? true : false)
+      let val = this.status[key]
+      if(_.isBoolean(val)) {
+        return _.get(this.TheLoadingAs, key)
+      }
+      if(_.isPlainObject(val)) {
+        return _.assign({
+          icon: "fas-spinner fa-spin",
+          text: "i18n:loading"
+        }, val)
+      }
+    },
+    //--------------------------------------
+    GuiIsLoading() {
       let key = _.findKey(this.status, (v) => v)
-      return _.get(this.TheLoadingAs, key)
+      return key ? true : false
     },
     //--------------------------------------
     curentThumbTarget() {
@@ -286,7 +304,7 @@ const _M = {
     //--------------------------------------
     fire(name, payload) {
       let func = this.__on_events(name, payload)
-      if(_.isFunction(func)) {
+      if (_.isFunction(func)) {
         func.apply(this, [payload])
       }
     },
@@ -316,9 +334,9 @@ const _M = {
           })
         }
       }
-      if(_.isFunction(func)) {
-        if(!_.isUndefined(payload)) {
-          return ()=>{
+      if (_.isFunction(func)) {
+        if (!_.isUndefined(payload)) {
+          return () => {
             func(payload)
           }
         }

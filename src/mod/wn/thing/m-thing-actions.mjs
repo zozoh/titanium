@@ -444,7 +444,12 @@ const _M = {
     //..........................................
     // Update selected item in search list
     let curId = meta ? meta.id : null
-    let ckIds = Ti.Util.truthyKeys(checkedIds)
+    let ckIds;
+    if (_.isArray(checkedIds)) {
+      ckIds = _.cloneDeep(checkedIds)
+    } else {
+      ckIds = Ti.Util.truthyKeys(checkedIds)
+    }
     if (!Ti.Util.isNil(curId)) {
       ckIds.push(curId)
     }
