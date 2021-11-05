@@ -135,7 +135,7 @@ const _M = {
         if (this.minFileSize > 0 && fileSize < this.minFileSize) {
           return {
             ok: false,
-            msg: Ti.I18n.getf("i18n:wn-invalid-fsize-min", {
+            msg: Ti.I18n.textf("i18n:wn-invalid-fsize-min", {
               minSize: Ti.S.sizeText(this.minFileSize),
               fileSize: Ti.S.sizeText(fileSize)
             })
@@ -144,7 +144,7 @@ const _M = {
         if (this.maxFileSize > 0 && fileSize >= this.maxFileSize) {
           return {
             ok: false,
-            msg: Ti.I18n.getf("i18n:wn-invalid-fsize-max", {
+            msg: Ti.I18n.textf("i18n:wn-invalid-fsize-max", {
               maxSize: Ti.S.sizeText(this.maxFileSize),
               fileSize: Ti.S.sizeText(fileSize)
             })
