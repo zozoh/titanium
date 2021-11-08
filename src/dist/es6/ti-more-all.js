@@ -1,4 +1,4 @@
-// Pack At: 2021-11-08 11:09:00
+// Pack At: 2021-11-08 22:16:07
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -32978,7 +32978,7 @@ const _M = {
     //-----------------------------------------------
     async doAddNewItem() {
       //console.log("doAddNewItem")
-      let reo = await this.openDialogForMeta();
+      let reo = await this.openDialogForMeta(this.newItemData);
       //console.log(reo)
       // User cancel
       if (_.isUndefined(reo))
@@ -62522,6 +62522,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "vars": {
     type: Object,
     default: () => ({})
+  },
+  "newItemData": {
+    type: Object
   },
   //-----------------------------------
   // Behavior

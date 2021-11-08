@@ -15,6 +15,9 @@ export default {
     type: Object,
     default: () => ({})
   },
+  "newItemData": {
+    type: Object
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
