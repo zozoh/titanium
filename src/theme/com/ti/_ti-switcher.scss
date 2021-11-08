@@ -1,13 +1,16 @@
 .ti-switcher {
   @include noselect;
   @include flex-align-center;
+  //--------------------------------------------------
   > .switcher-con {
     @include flex-center;
+    //------------------------------------------------
     ul {
       @include raw-list;
       @include flex-align($wp:nowrap);
       @include border(1px, solid, shallow);
     }
+    //------------------------------------------------
     li {
       @include color($color-disable, c, r);
       @include border(1px, solid, shallow, left);
@@ -26,5 +29,11 @@
       }
       > .it-text {padding:0 SZ(4);}
     }
+    //------------------------------------------------
   }
+  //--------------------------------------------------
+  &.align-left { justify-content: flex-start;}
+  &.align-center { justify-content: center;}
+  &.align-right { justify-content: flex-end;}
+  //--------------------------------------------------
 }
