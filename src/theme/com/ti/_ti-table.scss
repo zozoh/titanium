@@ -60,15 +60,6 @@
   &.is-layout-auto > table {
     table-layout: auto;
   }
-  //-------------------------------------------
-  > .as-checker {
-    @include pos-abs($t:0,$l:0,$w:$thead, $h:$thead);
-    @include flex-center;
-    @include border(1px, solid, shallow, right);
-    cursor: pointer;
-    z-index: $z-above + 1;
-    &:hover {@include color($color-weaktip, r, c);}
-  }
   //---------------------------------------------
   //
   //                The Table Part
@@ -95,8 +86,34 @@
           display:block; white-space: nowrap;
         }
         //---------------------------------------
+        > .as-checker {
+          @include pos-abs($t:0,$l:0,$w:$thead, $h:$thead);
+          @include flex-center;
+          @include border(1px, solid, shallow, right);
+          cursor: pointer;
+          z-index: $z-above + 1;
+          &:hover {@include color($color-weaktip, r, c);}
+        }
+        //---------------------------------------
+        > .as-customized-btn {
+          @include pos-abs($t:0,$r:0,$w:$thead, $h:$thead);
+          @include flex-center;
+          @include border(1px, solid, shallow, left);
+          @include color($color-paper, r, c);
+          cursor: pointer;
+          z-index: $z-above + 1;
+          opacity: 0; transition: opacity 0.3s;
+          &:hover {
+            @include color($color-secondary, r, c);
+            opacity: 1;
+          }
+        }
+        //---------------------------------------
       }
       //-----------------------------------------
+      &:hover {
+        th > .as-customized-btn {opacity: 0.8;}
+      }
     }
     //---------------------------------------------
     > tbody {

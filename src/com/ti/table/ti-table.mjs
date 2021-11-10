@@ -7,6 +7,10 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   data: () => ({
+    myFieldKeys: undefined,
+
+    allFields: [],
+    myFields: [],
     myTableRect: null,
     myData: []
   }),
@@ -27,8 +31,8 @@ const _M = {
       // Auto judgement table layout
       if (!klass['is-layout-fixed'] && !klass['is-layout-auto']) {
         let tableLayout = "auto"
-        for (let i = 0; i < this.fields.length; i++) {
-          let fld = this.fields[i]
+        for (let i = 0; i < this.myFields.length; i++) {
+          let fld = this.myFields[i]
           if (!Ti.Util.isNil(fld.width)) {
             tableLayout = "fixed"
             break
@@ -97,8 +101,9 @@ const _M = {
         return
       }
       let fields = []
-      for (let i = 0; i < this.fields.length; i++) {
-        let fld = this.fields[i]
+      let lastI = this.myFields.length - 1
+      for (let i = 0; i < this.myFields.length; i++) {
+        let fld = this.myFields[i]
         //..................................
         let display = this.evalFieldDisplay(fld.display, fld.name)
         //..................................
@@ -121,6 +126,8 @@ const _M = {
         //..................................
         let cell = {
           index: i,
+          isFirst: 0 == i,
+          isLast: lastI == i,
           title: fld.title,
           nowrap: fld.nowrap,
           width: fldWidth,
@@ -171,8 +178,44 @@ const _M = {
       }
     },
     //--------------------------------------
-    onItemChanged(payload) {
-      this.$notify("item:change", payload)
+    async OnCustomizeFields() {
+      // Found all avaliable fields
+      let cans = _.map(this.allFields, ({ title, key }) => {
+        return { text: title, value: key }
+      })
+      let vals = _.map(this.myFields, fld => fld.key)
+
+      // Show the dialog
+      let reo = await Ti.App.Open({
+        title: "Choose fields",
+        width: "6.4rem",
+        height: "90%",
+        position: "top",
+        result: vals,
+        comType: "TiTransfer",
+        comConf: {
+          options: cans
+        },
+        components: [
+          "@com:ti/transfer"
+        ]
+      })
+
+      // User cancel
+      if (!reo) {
+        return
+      }
+
+      // Store to local
+      if (this.keepCustomizedTo) {
+        this.myFieldKeys = reo
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        cuo.shownFieldKeys = reo
+        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
+      }
+
+      // Update the new field key
+      this.updateMyFieldsByKey(reo)
     },
     //--------------------------------------
     getHeadCellStyle(fld) {
@@ -296,6 +339,52 @@ const _M = {
       _.delay(() => {
         this.scrollCurrentIntoView()
       }, 300)
+    },
+    //--------------------------------------
+    updateMyFieldsByKey(keys = []) {
+      let list;
+      // Empty to all fields
+      if (_.isEmpty(keys)) {
+        list = []
+        _.forEach(this.allFields, fld => {
+          if (!fld.candidate) {
+            list.push(fld)
+          }
+        })
+      }
+      // Pick fields
+      else {
+        // Make Map by all fields
+        let fldMap = {}
+        for (let fld of this.allFields) {
+          fldMap[fld.key] = fld
+        }
+        // Load the field
+        list = _.map(keys, k => _.cloneDeep(fldMap[k]))
+      }
+      // Merge first column display
+      if (list.length > 0 && this.headDisplay) {
+        list[0].display = _.concat(this.headDisplay, list[0].display)
+      }
+      // Up to data
+      this.myFields = list
+    },
+    //--------------------------------------
+    setupAllFields(fields = []) {
+      let list = []
+      _.forEach(fields, (fld, i) => {
+        let f2 = _.cloneDeep(fld)
+        f2.key = f2.key || `C${i}`
+        list.push(f2)
+      })
+      this.allFields = list
+    },
+    //--------------------------------------
+    restoreLocalSettings() {
+      if (this.keepCustomizedTo) {
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo) || {}
+        this.myShownFieldKeys = cuo.shownFieldKeys
+      }
     }
     //--------------------------------------
   },
@@ -307,6 +396,16 @@ const _M = {
     },
     "dict": {
       handler: "evalListData",
+      immediate: true
+    },
+    "fields": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
+          this.restoreLocalSettings()
+          this.setupAllFields(newVal)
+          this.updateMyFieldsByKey(this.myShownFieldKeys)
+        }
+      },
       immediate: true
     }
   },

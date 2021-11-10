@@ -22,13 +22,6 @@
     Show thead/tbody
   -->
   <template v-else>
-    <!--checker-->
-    <div
-      v-if="checkable && multi && isShowHead"
-        class="as-checker"
-        @click.left="OnClickHeadChecker">
-        <ti-icon :value="HeadCheckerIcon"/>
-    </div>
     <!--
       Table
     -->
@@ -45,7 +38,22 @@
             v-for="fld in TableFields"
               :style="fld.headStyle"
               :col-index="fld.index">
+            <!--[0] checker-->
+            <div
+              v-if="checkable && multi && isShowHead && fld.isFirst"
+                class="as-checker"
+                @click.left="OnClickHeadChecker">
+                <ti-icon :value="HeadCheckerIcon"/>
+            </div>
+            <!-- field title -->
             <span class="table-head-cell-text">{{fld.title|i18n}}</span>
+            <!--[-1] customized button-->
+            <div
+              v-if="canCustomizedFields && isShowHead && fld.isLast"
+                class="as-customized-btn"
+                @click.left="OnCustomizeFields">
+                <i class="fas fa-cog"></i>
+            </div>
           </th>
         </tr>
       </thead>

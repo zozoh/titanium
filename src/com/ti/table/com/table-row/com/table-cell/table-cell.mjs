@@ -188,7 +188,8 @@ const _M = {
       handler : "evalCellDisplayItems",
       immediate : true
     },
-    "isCurrent" : "evalCellDisplayItems"
+    "isCurrent" : "evalCellDisplayItems",
+    "display" : "evalCellDisplayItems"
   }
   ///////////////////////////////////////////////////
 }
