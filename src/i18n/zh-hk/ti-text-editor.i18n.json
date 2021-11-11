@@ -1,12 +1,12 @@
 {
-  "wordp-h0": "正文",
-  "wordp-h1": "標題 1",
-  "wordp-h2": "標題 2",
-  "wordp-h3": "標題 3",
-  "wordp-h4": "標題 4",
-  "wordp-h5": "標題 5",
-  "wordp-h6": "標題 6",
-  "wordp-heading": "標題級別",
-  "wordp-link": "超鏈接",
-  "wordp-nil-sel": "請先選擇一段文字"
+   "wordp-h0": "正文",
+   "wordp-h1": "標題 1",
+   "wordp-h2": "標題 2",
+   "wordp-h3": "標題 3",
+   "wordp-h4": "標題 4",
+   "wordp-h5": "標題 5",
+   "wordp-h6": "標題 6",
+   "wordp-heading": "標題級別",
+   "wordp-link": "超鏈接",
+   "wordp-nil-sel": "請先選擇一段文字"
 }

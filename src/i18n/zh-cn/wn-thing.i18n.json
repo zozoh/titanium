@@ -1,4 +1,5 @@
 {
+  "e-thing-ukey-duplicated": "违反唯一键约束",
   "thing-clean": "清空回收站",
   "thing-cleaning": "正在清空...",
   "thing-content": "对象内容",
