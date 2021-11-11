@@ -76,17 +76,22 @@
         @include color($color-body, r, c);
         @include border(1px, solid, shallow, right);
         @include border(1px, solid, shallow, bottom);
-        //---------------------------------------
-        padding:0 SZ(6); font-weight: normal;
+        font-weight: normal;
         //---------------------------------------
         &:last-child {border-right:0;}
+        //---------------------------------------
+        .th-con {
+          position: relative; padding:0 SZ(6);
+        }
         //---------------------------------------
         .table-head-cell-text {
           font-size: 0.9em; font-weight: bold;
           display:block; white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         //---------------------------------------
-        > .as-checker {
+        .as-checker {
           @include pos-abs($t:0,$l:0,$w:$thead, $h:$thead);
           @include flex-center;
           @include border(1px, solid, shallow, right);
@@ -95,7 +100,7 @@
           &:hover {@include color($color-weaktip, r, c);}
         }
         //---------------------------------------
-        > .as-customized-btn {
+        .as-customized-btn {
           @include pos-abs($t:0,$r:0,$w:$thead, $h:$thead);
           @include flex-center;
           @include border(1px, solid, shallow, left);
@@ -107,6 +112,12 @@
             @include color($color-secondary, r, c);
             opacity: 1;
           }
+        }
+        //---------------------------------------
+        .as-column-resize-hdl {
+          @include pos-abs($t:0,$b:0,$r:SZ(-5),$w:SZ(10));
+          z-index: $z-above;
+          cursor: ew-resize;
         }
         //---------------------------------------
       }
@@ -313,4 +324,11 @@
     }
   } // .table-body
   //---------------------------------------------
+}
+//
+// Column resize indicat bar 
+//
+.ti-table-resizing-indicbar {
+  @include color($color-secondary, r, c);
+  position: fixed; opacity: 0.4;
 }

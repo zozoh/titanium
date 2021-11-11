@@ -27,6 +27,10 @@ export default {
     type: Boolean,
     default: true
   },
+  "columnResizable": {
+    type: Boolean,
+    default: false
+  },
   "canCustomizedFields": {
     type: Boolean,
     default: false

@@ -59,6 +59,29 @@ export default {
     // },
     "events": Object,
     "canLoading": Boolean,
+    //..........................
+    // Table about prop
+    //..........................
+    "autoScrollIntoView": {
+      type: Boolean,
+      default: true
+    },
+    "columnResizable": {
+      type: Boolean,
+      default: false
+    },
+    "canCustomizedFields": {
+      type: Boolean,
+      default: false
+    },
+    "headDisplay": {
+      type: [String, Object, Array],
+      default: undefined
+    },
+    "keepCustomizedTo": {
+      type: String,
+      default: undefined
+    },
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
@@ -164,7 +187,15 @@ export default {
           viewType: this.viewType,
           exposeHidden: this.exposeHidden,
           tableFields: this.tableFields,
-          listDisplay: this.listDisplay
+          listDisplay: this.listDisplay,
+          // Table prop
+          tableViewConf: {
+            autoScrollIntoView: this.autoScrollIntoView,
+            columnResizable: this.columnResizable,
+            canCustomizedFields: this.canCustomizedFields,
+            headDisplay: this.headDisplay,
+            keepCustomizedTo: this.keepCustomizedTo
+          }
         }
       })
       return com

@@ -1,4 +1,4 @@
-// Pack At: 2021-11-10 10:19:48
+// Pack At: 2021-11-11 12:37:32
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -25132,33 +25132,49 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/table/ti-table-props.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
-  "iconBy" : {
-    type : [String, Function],
-    default : null
+  "iconBy": {
+    type: [String, Function],
+    default: null
   },
-  "indentBy" : {
-    type : [String, Function],
-    default : null
+  "indentBy": {
+    type: [String, Function],
+    default: null
   },
-  "fields" : {
-    type : Array,
-    default : ()=>[]
+  "fields": {
+    type: Array,
+    default: () => []
   },
-  "head" : {
-    type : String,
-    default : "frozen",
-    validator : v =>
-      Ti.Util.isNil(v) 
+  "head": {
+    type: String,
+    default: "frozen",
+    validator: v =>
+      Ti.Util.isNil(v)
       || /^(frozen|none|normal)$/.test(v)
   },
-  "border" : {
-    type : String,
-    default : "cell",
-    validator : v => /^(row|column|cell|none)$/.test(v)
+  "border": {
+    type: String,
+    default: "cell",
+    validator: v => /^(row|column|cell|none)$/.test(v)
   },
-  "autoScrollIntoView" : {
-    type : Boolean,
-    default : true
+  "autoScrollIntoView": {
+    type: Boolean,
+    default: true
+  },
+  "columnResizable": {
+    type: Boolean,
+    default: false
+  },
+  "canCustomizedFields": {
+    type: Boolean,
+    default: false
+  },
+  "headDisplay": {
+    type: [String, Object, Array],
+    default: undefined
+  },
+  "keepCustomizedTo": {
+    type: String,
+    default: undefined
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -51419,7 +51435,8 @@ const _M = {
       handler : "evalCellDisplayItems",
       immediate : true
     },
-    "isCurrent" : "evalCellDisplayItems"
+    "isCurrent" : "evalCellDisplayItems",
+    "display" : "evalCellDisplayItems"
   }
   ///////////////////////////////////////////////////
 }
@@ -53435,6 +53452,29 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // },
     "events": Object,
     "canLoading": Boolean,
+    //..........................
+    // Table about prop
+    //..........................
+    "autoScrollIntoView": {
+      type: Boolean,
+      default: true
+    },
+    "columnResizable": {
+      type: Boolean,
+      default: false
+    },
+    "canCustomizedFields": {
+      type: Boolean,
+      default: false
+    },
+    "headDisplay": {
+      type: [String, Object, Array],
+      default: undefined
+    },
+    "keepCustomizedTo": {
+      type: String,
+      default: undefined
+    },
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
@@ -53540,7 +53580,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
           viewType: this.viewType,
           exposeHidden: this.exposeHidden,
           tableFields: this.tableFields,
-          listDisplay: this.listDisplay
+          listDisplay: this.listDisplay,
+          // Table prop
+          tableViewConf: {
+            autoScrollIntoView: this.autoScrollIntoView,
+            columnResizable: this.columnResizable,
+            canCustomizedFields: this.canCustomizedFields,
+            headDisplay: this.headDisplay,
+            keepCustomizedTo: this.keepCustomizedTo
+          }
         }
       })
       return com
@@ -56975,6 +57023,11 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   data: () => ({
+    myFieldKeys: undefined,
+    myFieldWidths: undefined,
+
+    allFields: [],
+    myFields: [],
     myTableRect: null,
     myData: []
   }),
@@ -56995,8 +57048,8 @@ const _M = {
       // Auto judgement table layout
       if (!klass['is-layout-fixed'] && !klass['is-layout-auto']) {
         let tableLayout = "auto"
-        for (let i = 0; i < this.fields.length; i++) {
-          let fld = this.fields[i]
+        for (let i = 0; i < this.myFields.length; i++) {
+          let fld = this.myFields[i]
           if (!Ti.Util.isNil(fld.width)) {
             tableLayout = "fixed"
             break
@@ -57065,12 +57118,14 @@ const _M = {
         return
       }
       let fields = []
-      for (let i = 0; i < this.fields.length; i++) {
-        let fld = this.fields[i]
+      let lastI = this.myFields.length - 1
+      for (let i = 0; i < this.myFields.length; i++) {
+        let fld = this.myFields[i]
         //..................................
         let display = this.evalFieldDisplay(fld.display, fld.name)
         //..................................
-        let fldWidth = Ti.Util.fallbackNil(fld.width, "stretch")
+        let fldWidth = _.nth(this.myFieldWidths, i)
+        fldWidth = Ti.Util.fallbackNil(fldWidth, fld.width, "stretch")
         //..................................
         if (_.isString(fldWidth)) {
           // Percent
@@ -57089,6 +57144,8 @@ const _M = {
         //..................................
         let cell = {
           index: i,
+          isFirst: 0 == i,
+          isLast: lastI == i,
           title: fld.title,
           nowrap: fld.nowrap,
           width: fldWidth,
@@ -57139,8 +57196,165 @@ const _M = {
       }
     },
     //--------------------------------------
-    onItemChanged(payload) {
-      this.$notify("item:change", payload)
+    async OnCustomizeFields() {
+      // Found all avaliable fields
+      let cans = _.map(this.allFields, ({ title, key }) => {
+        return { text: title, value: key }
+      })
+      let vals = _.map(this.myFields, fld => fld.key)
+
+      // Show the dialog
+      let reo = await Ti.App.Open({
+        title: "Choose fields",
+        width: "6.4rem",
+        height: "90%",
+        position: "top",
+        result: vals,
+        comType: "TiTransfer",
+        comConf: {
+          options: cans
+        },
+        components: [
+          "@com:ti/transfer"
+        ]
+      })
+
+      // User cancel
+      if (!reo) {
+        return
+      }
+
+      // Store to local
+      if (this.keepCustomizedTo) {
+        this.myFieldKeys = reo
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        cuo.shownFieldKeys = reo
+        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
+      }
+
+      // Update the new field key
+      this.updateMyFieldsByKey(reo)
+    },
+    //--------------------------------------
+    OnColumnResizeBegin(index) {
+      // Get Each column width
+      let vm = this;
+      let $doc = this.$el.ownerDocument;
+      let $ths = Ti.Dom.findAll("thead th", this.$refs.table)
+      let colWidths = []
+      for (let $th of $ths) {
+        let w = $th.getBoundingClientRect().width
+        colWidths.push(w)
+      }
+      let TW = _.sum(colWidths)
+      //
+      // Prepare the dragging context
+      //
+      let DRG = {
+        // Sum the column width 
+        viewWidth: TW,
+        // Get a virtual rect (remove the scrollbar width)
+        // so it should be TableRect + SUM(columnsWith)
+        vRect: Ti.Rects.create(_.assign({}, this.myTableRect, {
+          width: TW
+        }, "tlwh")),
+        // Get the current column left
+        left: _.sum(colWidths.slice(0, index + 1))
+      }
+      //
+      // evel the indic-bar rect
+      //
+      let R = 1.5
+      DRG.moveLeft = DRG.left + DRG.vRect.left
+      DRG.indicBarRect = Ti.Rects.create({
+        top: DRG.vRect.top,
+        left: DRG.moveLeft - R,
+        width: R * 2,
+        height: DRG.vRect.height
+      })
+      //
+      // Create indicBar
+      //
+      DRG.$indic = Ti.Dom.createElement({
+        $p: $doc.body,
+        tagName: "DIV",
+        className: "ti-table-resizing-indicbar",
+        style: {
+          zIndex: 99999999,
+          ...DRG.indicBarRect.toCss()
+        }
+      })
+      //
+      // Update indicBar
+      //
+      DRG.updateIndicBar = function () {
+        let mvL = this.moveLeft - R
+        Ti.Dom.setStyleValue(this.$indic, "left", mvL)
+      }
+      // 
+      // Mouse move 
+      //
+      const OnBodyMouseMove = function ({ clientX }) {
+        let { left, right } = DRG.vRect
+        DRG.moveLeft = _.clamp(clientX, left, right)
+        DRG.updateIndicBar()
+      }
+      //
+      // Rlease
+      //
+      const DeposAll = function () {
+        $doc.removeEventListener("mousemove", OnBodyMouseMove, true)
+        $doc.removeEventListener("mouseup", DeposAll, true)
+        Ti.Dom.remove(DRG.$indic)
+        // Is need to update fields width?
+        let rL0 = Math.round(DRG.left)
+        let rL1 = Math.round(DRG.moveLeft - DRG.vRect.left)
+        if (Math.abs(rL0 - rL1) > R) {
+          vm.updateColumnWidth({
+            index, colWidths, left: rL1
+          })
+        }
+      }
+      //
+      // Bind events
+      //
+      $doc.addEventListener("mousemove", OnBodyMouseMove, true)
+      $doc.addEventListener("mouseup", DeposAll, true)
+    },
+    //--------------------------------------
+    updateColumnWidth({ index, colWidths, left }) {
+      let TW = _.sum(colWidths)
+      // Get the ajacent columns
+      let ajColsWs = colWidths.slice(index, index + 2)
+      let ajLeft = _.sum(colWidths.slice(0, index))
+      let ajSumW = _.sum(ajColsWs)
+      // Aj-Columns with after resize
+      let ajColsW2 = []
+      ajColsW2[0] = _.clamp(left - ajLeft, 0, ajSumW)
+      ajColsW2[1] = ajSumW - ajColsW2[0]
+
+      // Merge together
+      let colWs = _.concat(colWidths)
+      colWs[index] = ajColsW2[0]
+      colWs[index + 1] = ajColsW2[1]
+
+      // Eval each coumns percent
+      let sumW = _.sum(colWs)
+      let colPs = _.map(colWs, w => w / sumW)
+      // console.log({
+      //   index,
+      //   before: ajColsWs.join(", "),
+      //   after: ajColsW2.join(", "),
+      //   ps: colPs.join(", "),
+      //   psum: _.sum(colPs)
+      // })
+      this.myFieldWidths = _.map(colPs, p => Ti.S.toPercent(p))
+      // Persistance
+      if(this.keepCustomizedTo) {
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        cuo.setFieldsWidth = this.myFieldWidths
+        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
+      }
     },
     //--------------------------------------
     getHeadCellStyle(fld) {
@@ -57264,6 +57478,53 @@ const _M = {
       _.delay(() => {
         this.scrollCurrentIntoView()
       }, 300)
+    },
+    //--------------------------------------
+    updateMyFieldsByKey(keys = []) {
+      let list;
+      // Empty to all fields
+      if (_.isEmpty(keys)) {
+        list = []
+        _.forEach(this.allFields, fld => {
+          if (!fld.candidate) {
+            list.push(_.cloneDeep(fld))
+          }
+        })
+      }
+      // Pick fields
+      else {
+        // Make Map by all fields
+        let fldMap = {}
+        for (let fld of this.allFields) {
+          fldMap[fld.key] = fld
+        }
+        // Load the field
+        list = _.map(keys, k => _.cloneDeep(fldMap[k]))
+      }
+      // Merge first column display
+      if (list.length > 0 && this.headDisplay) {
+        list[0].display = _.concat(this.headDisplay, list[0].display)
+      }
+      // Up to data
+      this.myFields = list
+    },
+    //--------------------------------------
+    setupAllFields(fields = []) {
+      let list = []
+      _.forEach(fields, (fld, i) => {
+        let f2 = _.cloneDeep(fld)
+        f2.key = f2.key || `C${i}`
+        list.push(f2)
+      })
+      this.allFields = list
+    },
+    //--------------------------------------
+    restoreLocalSettings() {
+      if (this.keepCustomizedTo) {
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo) || {}
+        this.myShownFieldKeys = cuo.shownFieldKeys
+        this.myFieldWidths = cuo.setFieldsWidth
+      }
     }
     //--------------------------------------
   },
@@ -57275,6 +57536,16 @@ const _M = {
     },
     "dict": {
       handler: "evalListData",
+      immediate: true
+    },
+    "fields": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
+          this.restoreLocalSettings()
+          this.setupAllFields(newVal)
+          this.updateMyFieldsByKey(this.myShownFieldKeys)
+        }
+      },
       immediate: true
     }
   },
@@ -68190,13 +68461,6 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
     Show thead/tbody
   -->
   <template v-else>
-    <!--checker-->
-    <div
-      v-if="checkable && multi && isShowHead"
-        class="as-checker"
-        @click.left="OnClickHeadChecker">
-        <ti-icon :value="HeadCheckerIcon"/>
-    </div>
     <!--
       Table
     -->
@@ -68210,11 +68474,31 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
         <!--field titles-->
         <tr>
           <th
-            v-for="fld in TableFields"
+            v-for="(fld, index) in TableFields"
               :style="fld.headStyle"
-              :col-index="fld.index">
+              :col-index="fld.index"><div class="th-con">
+            <!--[0] checker-->
+            <div
+              v-if="checkable && multi && isShowHead && fld.isFirst"
+                class="as-checker"
+                @click.left="OnClickHeadChecker">
+                <ti-icon :value="HeadCheckerIcon"/>
+            </div>
+            <!-- field title -->
             <span class="table-head-cell-text">{{fld.title|i18n}}</span>
-          </th>
+            <!--[-1] customized button-->
+            <div
+              v-if="canCustomizedFields && isShowHead && fld.isLast"
+                class="as-customized-btn"
+                @click.left="OnCustomizeFields">
+                <i class="fas fa-cog"></i>
+            </div>
+            <!--[N] resize column handle-->
+            <div
+              v-if="columnResizable && !fld.isLast"
+                class="as-column-resize-hdl"
+                @mousedown.left="OnColumnResizeBegin(index, fld)"></div>
+          </div></th>
         </tr>
       </thead>
       <!--

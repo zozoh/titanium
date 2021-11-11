@@ -1,4 +1,4 @@
-// Pack At: 2021-11-10 10:19:48
+// Pack At: 2021-11-11 12:37:32
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -613,7 +613,7 @@ const {Be} = (function(){
       //console.log(EVENTS)
       //-----------------------------------------------
       $el.addEventListener(EVENTS.POINTER_DOWN, function(evt){
-        //console.log(EVENTS.POINTER_DOWN, evt, {activedRadius, activedDelay})
+        console.log(EVENTS.POINTER_DOWN, evt, {activedRadius, activedDelay})
         // Find the trigger
         let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, $el)
         if(!_.isElement($trigger)) {
@@ -16808,7 +16808,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20211110.101948",
+  "version" : "1.6-20211111.123732",
   "dev" : false,
   "appName" : null,
   "session" : {},

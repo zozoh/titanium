@@ -8,6 +8,7 @@ const _M = {
   ///////////////////////////////////////////////////
   data: () => ({
     myFieldKeys: undefined,
+    myFieldWidths: undefined,
 
     allFields: [],
     myFields: [],
@@ -107,7 +108,8 @@ const _M = {
         //..................................
         let display = this.evalFieldDisplay(fld.display, fld.name)
         //..................................
-        let fldWidth = Ti.Util.fallbackNil(fld.width, "stretch")
+        let fldWidth = _.nth(this.myFieldWidths, i)
+        fldWidth = Ti.Util.fallbackNil(fldWidth, fld.width, "stretch")
         //..................................
         if (_.isString(fldWidth)) {
           // Percent
@@ -216,6 +218,127 @@ const _M = {
 
       // Update the new field key
       this.updateMyFieldsByKey(reo)
+    },
+    //--------------------------------------
+    OnColumnResizeBegin(index) {
+      // Get Each column width
+      let vm = this;
+      let $doc = this.$el.ownerDocument;
+      let $ths = Ti.Dom.findAll("thead th", this.$refs.table)
+      let colWidths = []
+      for (let $th of $ths) {
+        let w = $th.getBoundingClientRect().width
+        colWidths.push(w)
+      }
+      let TW = _.sum(colWidths)
+      //
+      // Prepare the dragging context
+      //
+      let DRG = {
+        // Sum the column width 
+        viewWidth: TW,
+        // Get a virtual rect (remove the scrollbar width)
+        // so it should be TableRect + SUM(columnsWith)
+        vRect: Ti.Rects.create(_.assign({}, this.myTableRect, {
+          width: TW
+        }, "tlwh")),
+        // Get the current column left
+        left: _.sum(colWidths.slice(0, index + 1))
+      }
+      //
+      // evel the indic-bar rect
+      //
+      let R = 1.5
+      DRG.moveLeft = DRG.left + DRG.vRect.left
+      DRG.indicBarRect = Ti.Rects.create({
+        top: DRG.vRect.top,
+        left: DRG.moveLeft - R,
+        width: R * 2,
+        height: DRG.vRect.height
+      })
+      //
+      // Create indicBar
+      //
+      DRG.$indic = Ti.Dom.createElement({
+        $p: $doc.body,
+        tagName: "DIV",
+        className: "ti-table-resizing-indicbar",
+        style: {
+          zIndex: 99999999,
+          ...DRG.indicBarRect.toCss()
+        }
+      })
+      //
+      // Update indicBar
+      //
+      DRG.updateIndicBar = function () {
+        let mvL = this.moveLeft - R
+        Ti.Dom.setStyleValue(this.$indic, "left", mvL)
+      }
+      // 
+      // Mouse move 
+      //
+      const OnBodyMouseMove = function ({ clientX }) {
+        let { left, right } = DRG.vRect
+        DRG.moveLeft = _.clamp(clientX, left, right)
+        DRG.updateIndicBar()
+      }
+      //
+      // Rlease
+      //
+      const DeposAll = function () {
+        $doc.removeEventListener("mousemove", OnBodyMouseMove, true)
+        $doc.removeEventListener("mouseup", DeposAll, true)
+        Ti.Dom.remove(DRG.$indic)
+        // Is need to update fields width?
+        let rL0 = Math.round(DRG.left)
+        let rL1 = Math.round(DRG.moveLeft - DRG.vRect.left)
+        if (Math.abs(rL0 - rL1) > R) {
+          vm.updateColumnWidth({
+            index, colWidths, left: rL1
+          })
+        }
+      }
+      //
+      // Bind events
+      //
+      $doc.addEventListener("mousemove", OnBodyMouseMove, true)
+      $doc.addEventListener("mouseup", DeposAll, true)
+    },
+    //--------------------------------------
+    updateColumnWidth({ index, colWidths, left }) {
+      let TW = _.sum(colWidths)
+      // Get the ajacent columns
+      let ajColsWs = colWidths.slice(index, index + 2)
+      let ajLeft = _.sum(colWidths.slice(0, index))
+      let ajSumW = _.sum(ajColsWs)
+      // Aj-Columns with after resize
+      let ajColsW2 = []
+      ajColsW2[0] = _.clamp(left - ajLeft, 0, ajSumW)
+      ajColsW2[1] = ajSumW - ajColsW2[0]
+
+      // Merge together
+      let colWs = _.concat(colWidths)
+      colWs[index] = ajColsW2[0]
+      colWs[index + 1] = ajColsW2[1]
+
+      // Eval each coumns percent
+      let sumW = _.sum(colWs)
+      let colPs = _.map(colWs, w => w / sumW)
+      // console.log({
+      //   index,
+      //   before: ajColsWs.join(", "),
+      //   after: ajColsW2.join(", "),
+      //   ps: colPs.join(", "),
+      //   psum: _.sum(colPs)
+      // })
+      this.myFieldWidths = _.map(colPs, p => Ti.S.toPercent(p))
+      // Persistance
+      if(this.keepCustomizedTo) {
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        cuo.setFieldsWidth = this.myFieldWidths
+        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
+      }
     },
     //--------------------------------------
     getHeadCellStyle(fld) {
@@ -348,7 +471,7 @@ const _M = {
         list = []
         _.forEach(this.allFields, fld => {
           if (!fld.candidate) {
-            list.push(fld)
+            list.push(_.cloneDeep(fld))
           }
         })
       }
@@ -384,6 +507,7 @@ const _M = {
       if (this.keepCustomizedTo) {
         let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo) || {}
         this.myShownFieldKeys = cuo.shownFieldKeys
+        this.myFieldWidths = cuo.setFieldsWidth
       }
     }
     //--------------------------------------

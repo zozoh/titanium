@@ -35,9 +35,9 @@
         <!--field titles-->
         <tr>
           <th
-            v-for="fld in TableFields"
+            v-for="(fld, index) in TableFields"
               :style="fld.headStyle"
-              :col-index="fld.index">
+              :col-index="fld.index"><div class="th-con">
             <!--[0] checker-->
             <div
               v-if="checkable && multi && isShowHead && fld.isFirst"
@@ -54,7 +54,12 @@
                 @click.left="OnCustomizeFields">
                 <i class="fas fa-cog"></i>
             </div>
-          </th>
+            <!--[N] resize column handle-->
+            <div
+              v-if="columnResizable && !fld.isLast"
+                class="as-column-resize-hdl"
+                @mousedown.left="OnColumnResizeBegin(index, fld)"></div>
+          </div></th>
         </tr>
       </thead>
       <!--
