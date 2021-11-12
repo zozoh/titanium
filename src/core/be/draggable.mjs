@@ -73,7 +73,7 @@ function TiDraggable($el, setup={}) {
   //console.log(EVENTS)
   //-----------------------------------------------
   $el.addEventListener(EVENTS.POINTER_DOWN, function(evt){
-    console.log(EVENTS.POINTER_DOWN, evt, {activedRadius, activedDelay})
+    //console.log(EVENTS.POINTER_DOWN, evt, {activedRadius, activedDelay})
     // Find the trigger
     let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, $el)
     if(!_.isElement($trigger)) {
