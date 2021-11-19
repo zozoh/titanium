@@ -1,7 +1,7 @@
 const CONFIG = {
-  prefix  : {},
-  alias   : {},
-  suffix  : {}
+  prefix: {},
+  alias: {},
+  suffix: {}
 }
 /////////////////////////////////////////////////
 class AliasMapping {
@@ -9,20 +9,20 @@ class AliasMapping {
     this.list = []
     this.reset(alias)
   }
-  reset(alias={}) {
+  reset(alias = {}) {
     this.list = []
-    _.forOwn(alias, (val, key)=>{
+    _.forOwn(alias, (val, key) => {
       this.list.push({
-        regex  : new RegExp(key),
-        newstr : val
+        regex: new RegExp(key),
+        newstr: val
       })
     })
     return this
   }
-  get(url="", dft) {
+  get(url = "", dft) {
     let u2 = url
-    for(let li of this.list) {
-      if(li.regex.test(u2)){
+    for (let li of this.list) {
+      if (li.regex.test(u2)) {
         u2 = u2.replace(li.regex, li.newstr)
       }
     }
@@ -36,20 +36,20 @@ class SuffixMapping {
     this.list = []
     this.reset(suffix)
   }
-  reset(suffix={}) {
-    _.forOwn(suffix, (val, key)=>{
+  reset(suffix = {}) {
+    _.forOwn(suffix, (val, key) => {
       // console.log("suffix", key, val)
       this.list.push({
-        regex  : new RegExp(key),
-        suffix : val
+        regex: new RegExp(key),
+        suffix: val
       })
     })
     return this
   }
-  get(url="", dft) {
+  get(url = "", dft) {
     let u2 = url
-    for(let li of this.list) {
-      if(li.regex.test(u2) && !u2.endsWith(li.suffix)){
+    for (let li of this.list) {
+      if (li.regex.test(u2) && !u2.endsWith(li.suffix)) {
         u2 += li.suffix
         break
       }
@@ -66,44 +66,44 @@ const TiConfig = {
     return CONFIG.version
   },
   //.................................
-  set({prefix, alias, suffix, lang }={}) {
-    if(prefix)
+  set({ prefix, alias, suffix, lang } = {}) {
+    if (prefix)
       CONFIG.prefix = prefix
 
-    if(alias) {
+    if (alias) {
       CONFIG.alias = alias
       ALIAS.reset(CONFIG.alias)
     }
 
-    if(suffix) {
+    if (suffix) {
       CONFIG.suffix = suffix
       SUFFIX.reset(CONFIG.suffix)
     }
 
-    if(lang)
+    if (lang)
       CONFIG.lang = lang
   },
   //.................................
-  update({prefix, alias, suffix, lang}={}) {
-    if(prefix)
+  update({ prefix, alias, suffix, lang } = {}) {
+    if (prefix)
       _.assign(CONFIG.prefix, prefix)
 
-    if(alias) {
+    if (alias) {
       _.assign(CONFIG.alias, alias)
       ALIAS.reset(CONFIG.alias)
     }
 
-    if(suffix) {
+    if (suffix) {
       _.assign(CONFIG.suffix, suffix)
       SUFFIX.reset(CONFIG.suffix)
     }
 
-    if(lang)
+    if (lang)
       CONFIG.lang = lang
   },
   //.................................
-  get(key=null) {
-    if(key) {
+  get(key = null) {
+    if (key) {
       return _.get(CONFIG, key);
     }
     return CONFIG;
@@ -114,8 +114,8 @@ const TiConfig = {
     // push the computed prop to get the name
     let comName = com.name || "Unkown"
     Ti.Util.pushValue(com, "mixins", {
-      computed : {
-        tiComType : ()=>comName
+      computed: {
+        tiComType: () => _.upperFirst(_.camelCase(comName))
       }
     })
   },
@@ -124,26 +124,26 @@ const TiConfig = {
     return TiConfig.get("lang") || "zh-cn"
   },
   //...............................
-  cookUrl(url, {dynamicPrefix={}, dynamicAlias}={}) {
+  cookUrl(url, { dynamicPrefix = {}, dynamicAlias } = {}) {
     // url prefix indicate the type
     let url2 = url
 
     // try type by prefix
     let type, m = /^(!(m?js|json|css|text):)?(.+)$/.exec(url)
-    if(m) {
+    if (m) {
       type = m[2]
       url2 = m[3]
     }
 
-    let url3 = TiConfig.url(url2, {dynamicPrefix, dynamicAlias})
+    let url3 = TiConfig.url(url2, { dynamicPrefix, dynamicAlias })
 
     // Guard
-    if(!url3){
+    if (!url3) {
       return
     }
 
     // Try type by suffix
-    if(!type) {
+    if (!type) {
       m = /\.(m?js|css|json)$/.exec(url3)
       type = m ? m[1] : "text"
     }
@@ -153,10 +153,10 @@ const TiConfig = {
     }
   },
   //...............................
-  url(path="", {dynamicPrefix={}, dynamicAlias}={}) {
+  url(path = "", { dynamicPrefix = {}, dynamicAlias } = {}) {
     //.........................................
     // Full-url, just return
-    if(/^(((https?|vscode-webview):)?\/\/)/.test(path)) {
+    if (/^(((https?|vscode-webview):)?\/\/)/.test(path)) {
       return path
     }
     //.........................................
@@ -164,30 +164,30 @@ const TiConfig = {
     let ph = path
     //.........................................
     // amend the url dynamically
-    if(dynamicAlias) {
-      let a_map = (dynamicAlias instanceof AliasMapping) 
-                    ? dynamicAlias 
-                    : new AliasMapping().reset(dynamicAlias)
+    if (dynamicAlias) {
+      let a_map = (dynamicAlias instanceof AliasMapping)
+        ? dynamicAlias
+        : new AliasMapping().reset(dynamicAlias)
       ph = a_map.get(path, null)
     }
     // amend the url statictly
     ph = ALIAS.get(ph || path)
     //.........................................
     // expend suffix
-    if(!/^.+\.(css|js|mjs|json|txt|text|html|xml)$/.test(ph)) {
+    if (!/^.+\.(css|js|mjs|json|txt|text|html|xml)$/.test(ph)) {
       ph = SUFFIX.get(ph)
     }
     //.........................................
     // expend prefix
     let m = /^(@([^:]+):?)(.*)/.exec(ph)
-    if(!m)
+    if (!m)
       return ph;
     let [prefixName, url] = m.slice(2)
     let prefix = dynamicPrefix[prefixName] || CONFIG.prefix[prefixName]
-    
+
     // The prefix has not been supported, maybe the email suffix,
     // or other text starts with "@"
-    if(Ti.Util.isNil(prefix)) {
+    if (Ti.Util.isNil(prefix)) {
       //throw Ti.Err.make("e-ti-config-prefix_without_defined", prefixName)
       return
     }

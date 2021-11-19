@@ -259,6 +259,7 @@ const _M = {
      * @param args{Object|Array} : `{name,value}` Object or Array
      */
     changeData({ commit }, args) {
+      //console.log("changeData", args)
       let data = Ti.Util.merge({}, args)
       commit("mergeData", data)
     },

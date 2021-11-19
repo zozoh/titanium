@@ -115,6 +115,33 @@ const TiComMethods = {
       Ti.App(this).setActivedVm(this)
       //this.$notify("com:actived", this)
     }
+  },
+  //-----------------------------------------------
+  findComBy(flt = () => true) {
+    if (this.$children && this.$children.length > 0) {
+      for (let $child of this.$children) {
+        if (flt($child)) {
+          return $child
+        }
+        let $re = $child.findComBy(flt)
+        if ($re) {
+          return $re
+        }
+      }
+    }
+  },
+  //-----------------------------------------------
+  findComListBy(flt = () => true, list = []) {
+    if (this.$children && this.$children.length > 0) {
+      for (let $child of this.$children) {
+        if (flt($child)) {
+          list.push($child)
+        } else {
+          this.findComListBy(flt, list)
+        }
+      }
+    }
+    return list
   }
   //-----------------------------------------------
 }
