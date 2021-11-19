@@ -81,7 +81,7 @@ const _M = {
     },
     //------------------------------------------------
     isQuickTable() {
-      if(_.isString(this.quickTable)) {
+      if (_.isString(this.quickTable)) {
         return Ti.Util.explainObj(this, this.quickTable)
       }
       return Ti.AutoMatch.test(this.quickTable, this.vars)
@@ -100,7 +100,7 @@ const _M = {
     },
     //------------------------------------------------
     GenNewItemId() {
-      if(this.newItemIdBy) {
+      if (this.newItemIdBy) {
         return Ti.Util.genInvoking(this.newItemIdBy)
       }
     }
@@ -135,14 +135,21 @@ const _M = {
     //-----------------------------------------------
     async doAddNewItem() {
       //console.log("doAddNewItem")
-      let reo = await this.openDialogForMeta(this.newItemData);
+      let newIt = _.assign({}, _.cloneDeep(this.newItemData))
+      if (this.newItemIdKey) {
+        let newItId = this.GenNewItemId()
+        if (newItId) {
+          newIt[this.newItemIdKey] = newItId
+        }
+      }
+      let reo = await this.openDialogForMeta(newIt);
       //console.log(reo)
       // User cancel
       if (_.isUndefined(reo))
         return
-      
+
       // Assign new ID
-      if(_.isFunction(this.GenNewItemId)) {
+      if (_.isFunction(this.GenNewItemId)) {
         let itemId = this.GenNewItemId()
         _.set(reo, this.newItemIdKey, itemId)
       }
@@ -220,7 +227,7 @@ const _M = {
     },
     //-----------------------------------------------
     async openDialogForMeta(result = {}) {
-      let dialog = this.getDataByVars(this.dialog) 
+      let dialog = this.getDataByVars(this.dialog)
       let form = this.getDataByVars(this.form)
       let dialogSetting = _.assign({
         title: "i18n:edit",
@@ -255,11 +262,11 @@ const _M = {
     // Utility
     //
     //-----------------------------------------------
-    getDataByVars(cans=[]) {
-      if(_.isArray(cans)) {
-        for(let can of cans) {
-          let {test, data} = can
-          if(Ti.Util.isNil(test) || Ti.AutoMatch.test(test, this.vars)) {
+    getDataByVars(cans = []) {
+      if (_.isArray(cans)) {
+        for (let can of cans) {
+          let { test, data } = can
+          if (Ti.Util.isNil(test) || Ti.AutoMatch.test(test, this.vars)) {
             return _.cloneDeep(data)
           }
         }

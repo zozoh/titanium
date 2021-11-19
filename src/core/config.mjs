@@ -156,7 +156,7 @@ const TiConfig = {
   url(path="", {dynamicPrefix={}, dynamicAlias}={}) {
     //.........................................
     // Full-url, just return
-    if(/^((https?:)?\/\/)/.test(path)) {
+    if(/^(((https?|vscode-webview):)?\/\/)/.test(path)) {
       return path
     }
     //.........................................

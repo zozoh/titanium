@@ -1,4 +1,4 @@
-// Pack At: 2021-11-12 21:38:50
+// Pack At: 2021-11-19 08:53:01
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3867,7 +3867,7 @@ const {Config} = (function(){
     url(path="", {dynamicPrefix={}, dynamicAlias}={}) {
       //.........................................
       // Full-url, just return
-      if(/^((https?:)?\/\/)/.test(path)) {
+      if(/^(((https?|vscode-webview):)?\/\/)/.test(path)) {
         return path
       }
       //.........................................
@@ -16808,7 +16808,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20211112.213850",
+  "version" : "1.6-20211119.085301",
   "dev" : false,
   "appName" : null,
   "session" : {},
