@@ -260,6 +260,14 @@ const FieldDisplay = {
       dis.$dictValueKey = vKey || ".text"
     }
     //........................................
+    if (dis.visible) {
+      dis.visibleFn = Ti.AutoMatch.parse(dis.visible)
+    }
+    //........................................
+    if (dis.hidden) {
+      dis.hiddenFn = Ti.AutoMatch.parse(dis.hidden)
+    }
+    //........................................
     // Then return
     return dis
   },
@@ -336,6 +344,18 @@ const FieldDisplay = {
     // Ignore the undefined/null
     if (autoIgnoreNil && Ti.Util.isNil(value)) {
       if (Ti.Util.fallback(dis.ignoreNil, true)) {
+        return
+      }
+    }
+    //.....................................
+    // Visibility
+    if (_.isFunction(dis.visibleFn)) {
+      if (!dis.visibleFn(itemData)) {
+        return
+      }
+    }
+    if (_.isFunction(dis.hiddenFn)) {
+      if (dis.hiddenFn(itemData)) {
         return
       }
     }

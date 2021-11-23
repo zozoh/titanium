@@ -241,6 +241,7 @@ const _M = {
         }
       }
       //....................................
+      let lastI = this.fields.length - 1
       let fields = _.map(this.fields, (fld, index) => {
         let diss = [].concat(fld.display)
         let display = _.map(diss, (dis, index) => {
@@ -252,6 +253,8 @@ const _M = {
             width: fld.width
           }),
           index, display,
+          isFirst: 0 == index,
+          isLast: lastI == index,
           className: {
             "is-nowrap": fld.nowrap
           }

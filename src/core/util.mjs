@@ -1179,6 +1179,14 @@ const TiUtil = {
   notEqual(o1, o2) {
     return !_.isEqual(o1, o2)
   },
+  notEquals(o1, ...o2) {
+    for(let i=0; i<o2.length; i++) {
+      if(_.isEqual(o1, o2[i])){
+        return false
+      }
+    }
+    return true
+  },
   /***
    * Test given input is `null` or `undefined`
    * 
@@ -1384,7 +1392,7 @@ const TiUtil = {
         }
         // [ ... <-- ?]
         else if ("left" == partial) {
-          return function (input) {
+          return function (...input) {
             let ins = _.without(input, undefined)
             let as = _.concat([], ins, args);
             return func.apply(this, as)

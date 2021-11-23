@@ -9,6 +9,14 @@ const TiBank = {
     })[cur]
   },
   //-----------------------------------
+  toYuanText(cent=0.0) {
+    let n = Math.round(cent)
+    let y = Math.floor(n/100)
+    let c = cent - y * 100
+    console.log(y, c)
+    return `${y}.${_.padStart(c, 2, '0')}`
+  },
+  //-----------------------------------
   isValidPayType(payType) {
     return ({
       "wx.qrcode"  : true,

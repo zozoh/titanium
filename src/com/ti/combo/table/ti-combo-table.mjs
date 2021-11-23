@@ -136,7 +136,7 @@ const _M = {
     async doAddNewItem() {
       //console.log("doAddNewItem")
       let newIt = _.assign({}, _.cloneDeep(this.newItemData))
-      if (this.newItemIdKey) {
+      if (this.newItemIdKey && _.isFunction(this.GenNewItemId)) {
         let newItId = this.GenNewItemId()
         if (newItId) {
           newIt[this.newItemIdKey] = newItId

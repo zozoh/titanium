@@ -14,13 +14,6 @@
     Show thead/tbody
   -->
   <template v-else>
-    <!--checker-->
-    <div
-      v-if="checkable && multi"
-        class="as-checker"
-        @click.left="OnClickHeadChecker">
-        <ti-icon :value="HeadCheckerIcon"/>
-    </div>
     <!--
       Table
     -->
@@ -34,9 +27,17 @@
           <th
             v-for="fld in TableFields"
               :style="fld.headStyle"
-              :col-index="fld.index">
+              :col-index="fld.index"><div class="th-con">
+            <!--[0] checker-->
+            <div
+              v-if="checkable && multi && fld.isFirst"
+                class="as-checker"
+                @click.left="OnClickHeadChecker">
+                <ti-icon :value="HeadCheckerIcon"/>
+            </div>
+            <!-- field title -->
             <span class="table-head-cell-text">{{fld.title|i18n}}</span>
-          </th>
+          </div></th>
         </tr>
       </thead>
       <!--

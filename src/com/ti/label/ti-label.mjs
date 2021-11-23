@@ -330,6 +330,9 @@ const _M = {
     "value": {
       handler: "reloadMyDisplay",
       immediate: true
+    },
+    "dict": {
+      handler: "reloadMyDisplay"
     }
   }
   //////////////////////////////////////////

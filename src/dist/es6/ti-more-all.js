@@ -1,4 +1,4 @@
-// Pack At: 2021-11-19 13:00:50
+// Pack At: 2021-11-23 11:55:50
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -344,6 +344,14 @@ const FieldDisplay = {
       dis.$dictValueKey = vKey || ".text"
     }
     //........................................
+    if (dis.visible) {
+      dis.visibleFn = Ti.AutoMatch.parse(dis.visible)
+    }
+    //........................................
+    if (dis.hidden) {
+      dis.hiddenFn = Ti.AutoMatch.parse(dis.hidden)
+    }
+    //........................................
     // Then return
     return dis
   },
@@ -420,6 +428,18 @@ const FieldDisplay = {
     // Ignore the undefined/null
     if (autoIgnoreNil && Ti.Util.isNil(value)) {
       if (Ti.Util.fallback(dis.ignoreNil, true)) {
+        return
+      }
+    }
+    //.....................................
+    // Visibility
+    if (_.isFunction(dis.visibleFn)) {
+      if (!dis.visibleFn(itemData)) {
+        return
+      }
+    }
+    if (_.isFunction(dis.hiddenFn)) {
+      if (dis.hiddenFn(itemData)) {
         return
       }
     }
@@ -7838,6 +7858,7 @@ const _M = {
      * @param args{Object|Array} : `{name,value}` Object or Array
      */
     changeData({ commit }, args) {
+      //console.log("changeData", args)
       let data = Ti.Util.merge({}, args)
       commit("mergeData", data)
     },
@@ -20425,6 +20446,7 @@ const _M = {
         }
       }
       //....................................
+      let lastI = this.fields.length - 1
       let fields = _.map(this.fields, (fld, index) => {
         let diss = [].concat(fld.display)
         let display = _.map(diss, (dis, index) => {
@@ -20436,6 +20458,8 @@ const _M = {
             width: fld.width
           }),
           index, display,
+          isFirst: 0 == index,
+          isLast: lastI == index,
           className: {
             "is-nowrap": fld.nowrap
           }
@@ -21546,6 +21570,9 @@ const _M = {
     "value": {
       handler: "reloadMyDisplay",
       immediate: true
+    },
+    "dict": {
+      handler: "reloadMyDisplay"
     }
   }
   //////////////////////////////////////////
@@ -32995,7 +33022,7 @@ const _M = {
     async doAddNewItem() {
       //console.log("doAddNewItem")
       let newIt = _.assign({}, _.cloneDeep(this.newItemData))
-      if (this.newItemIdKey) {
+      if (this.newItemIdKey && _.isFunction(this.GenNewItemId)) {
         let newItId = this.GenNewItemId()
         if (newItId) {
           newIt[this.newItemIdKey] = newItId
@@ -68320,13 +68347,6 @@ Ti.Preload("ti/com/ti/table/quick/ti-table-quick.html", `<div class="ti-table as
     Show thead/tbody
   -->
   <template v-else>
-    <!--checker-->
-    <div
-      v-if="checkable && multi"
-        class="as-checker"
-        @click.left="OnClickHeadChecker">
-        <ti-icon :value="HeadCheckerIcon"/>
-    </div>
     <!--
       Table
     -->
@@ -68340,9 +68360,17 @@ Ti.Preload("ti/com/ti/table/quick/ti-table-quick.html", `<div class="ti-table as
           <th
             v-for="fld in TableFields"
               :style="fld.headStyle"
-              :col-index="fld.index">
+              :col-index="fld.index"><div class="th-con">
+            <!--[0] checker-->
+            <div
+              v-if="checkable && multi && fld.isFirst"
+                class="as-checker"
+                @click.left="OnClickHeadChecker">
+                <ti-icon :value="HeadCheckerIcon"/>
+            </div>
+            <!-- field title -->
             <span class="table-head-cell-text">{{fld.title|i18n}}</span>
-          </th>
+          </div></th>
         </tr>
       </thead>
       <!--
