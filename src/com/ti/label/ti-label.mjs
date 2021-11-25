@@ -36,7 +36,13 @@ const _M = {
       type: String,
       default: "leave"
     },
-    "hoverNotifyPayload": undefined
+    "hoverNotifyPayload": undefined,
+    "cancelClickBubble": false,
+    "cancelDblClickBubble": false,
+    "hoverCopy": {
+      type: Boolean,
+      default: undefined
+    }
   },
   //////////////////////////////////////////
   computed: {
@@ -44,6 +50,7 @@ const _M = {
     TopClass() {
       return this.getTopClass({
         "is-nil-display": this.isNilDisplay,
+        "is-hover-copy": this.isHoverCopy,
         "is-blank": !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue),
         "is-nowrap": this.valueMaxWidth > 0,
         "full-field": this.fullField
@@ -124,6 +131,16 @@ const _M = {
       return str
     },
     //--------------------------------------
+    isHoverCopy() {
+      if (_.isBoolean(this.hoverCopy)) {
+        return this.hoverCopy
+      }
+      if (this.Dict || this.suffixIconForCopy || this.isNilDisplay) {
+        return false
+      }
+      return true
+    },
+    //--------------------------------------
     Dict() {
       if (this.dict) {
         // Already Dict
@@ -175,7 +192,24 @@ const _M = {
       }
     },
     //--------------------------------------
-    OnDblClick() {
+    OnClick(evt) {
+      let ck = evt.ctrlKey || evt.metaKey
+      // Cancel bubble
+      let cancelBub = Ti.Util.fallback(this.cancelClickBubble, ck, false)
+      if (cancelBub) {
+        evt.stopPropagation()
+      }
+      // Copy value
+      if (this.isHoverCopy && ck) {
+        this.copyValueToClipboard()
+      }
+    },
+    //--------------------------------------
+    OnDblClick(evt) {
+      let cancelBub = Ti.Util.fallback(this.cancelDblClickBubble, this.editable, false)
+      if (cancelBub) {
+        evt.stopPropagation()
+      }
       if (this.editable) {
         Ti.Be.EditIt(this.$el, {
           text: this.TheValue,
@@ -209,9 +243,7 @@ const _M = {
     //------------------------------------------------
     OnClickSuffixIcon() {
       if (this.suffixIconForCopy) {
-        let val = this.TheValue
-        Ti.Be.BlinkIt(this.$refs.value)
-        Ti.Be.writeToClipboard(val)
+        this.copyValueToClipboard()
       }
       // Notify
       else {
@@ -225,6 +257,12 @@ const _M = {
       this.$notify("suffix:text", {
         value: this.TheValue
       })
+    },
+    //--------------------------------------
+    copyValueToClipboard() {
+      let val = this.TheValue
+      Ti.Be.BlinkIt(this.$refs.value)
+      Ti.Be.writeToClipboard(val)
     },
     //--------------------------------------
     async evalDisplay(val) {

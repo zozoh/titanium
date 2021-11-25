@@ -101,7 +101,7 @@ const TiComMethods = {
   },
   //-----------------------------------------------
   tiParentCom(comType) {
-    let ct = _.kebabCase(comType)
+    let ct = _.upperFirst(_.camelCase(comType))
     let $pvm = this.$parent
     while ($pvm && $pvm.tiComType != ct) {
       $pvm = $pvm.$parent

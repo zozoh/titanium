@@ -1,10 +1,18 @@
 <div class="ti-label"
   :class="TopClass"
   :style="TopStyle"
+  @click.left="OnClick"
   @dblclick.left="OnDblClick"
   @mouseenter="OnMouseEnter"
   @mouseleave="OnMouseLeave"
   :title="myDisplayText">
+  <!--Hover copy indicator-->
+  <div
+    v-if="isHoverCopy"
+      class="as-hover-copy"
+      @click.left.stop="copyValueToClipboard">
+      <i class="fas fa-copy"></i>
+  </div>
   <!--prefix:icon-->
   <div v-if="ThePrefixIcon"
     class="as-icon at-prefix"

@@ -48,6 +48,9 @@ export default {
     type: String,
     default: "id"
   },
+  "onAddNewItem": {
+    type: [String, Function]
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

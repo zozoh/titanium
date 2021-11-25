@@ -7,7 +7,10 @@ const _M = {
   },
   ///////////////////////////////////////////
   data: () => ({
-    "myRouting": {}
+    "myRouting": {},
+    "myHandlers": {
+      // SAVE | DELETE | VIEWSOURCE | PROP
+    }
   }),
   ///////////////////////////////////////////
   props: {
@@ -91,6 +94,10 @@ const _M = {
     checkedItems() {
       let path = Ti.Util.appendPath(this.moduleName, "search/checkedItems")
       return Ti.App(this).$store().getters[path]
+    },
+    //--------------------------------------
+    StoreState() {
+      return Ti.App(this).$store().state[this.moduleName]
     },
     //--------------------------------------
     TopClass() {
@@ -181,10 +188,10 @@ const _M = {
     GuiLoadingAs() {
       let key = _.findKey(this.status, v => v ? true : false)
       let val = this.status[key]
-      if(_.isBoolean(val)) {
+      if (_.isBoolean(val)) {
         return _.get(this.TheLoadingAs, key)
       }
-      if(_.isPlainObject(val)) {
+      if (_.isPlainObject(val)) {
         return _.assign({
           icon: "fas-spinner fa-spin",
           text: "i18n:loading"
@@ -193,7 +200,7 @@ const _M = {
     },
     //--------------------------------------
     GuiIsLoading() {
-      let key = _.findKey(this.status, (v) => v)
+      let key = _.findKey(this.status, (v, key) => v && !/^(changed)$/.test(key))
       return key ? true : false
     },
     //--------------------------------------
@@ -276,6 +283,54 @@ const _M = {
     //--------------------------------------
     OnViewCurrentSource() {
       this.viewCurrentSource()
+    },
+    //--------------------------------------
+    //
+    //  Actions
+    //
+    //--------------------------------------
+    getCustomizedHandlerPayload() {
+      return {
+        config: this.config,
+        search: this.search,
+        current: this.current,
+        currentItem: this.currentItem,
+        checkedItems: this.checkedItems,
+        commit: this.commit,
+        dispatch: this.dispatch,
+        fire: this.fire,
+        app: Ti.App(this)
+      }
+    },
+    //--------------------------------------
+    async doSaveChange() {
+      let fn = this.myHandlers["SAVE"]
+      if (_.isFunction(fn)) {
+        let pld = this.getCustomizedHandlerPayload()
+        await fn(pld)
+      } else {
+        await this.dispatch("saveCurrent")
+      }
+    },
+    //--------------------------------------
+    //
+    //  Inside Handlers
+    //
+    //--------------------------------------
+    __set_handler(name, callback) {
+      this.myHandlers[name] = callback
+    },
+    setSaveHandler(callback) {
+      this.__set_handler("SAVE", callback)
+    },
+    setDeleteHandler(callback) {
+      this.__set_handler("DEL", callback)
+    },
+    setViewsourceHandler(callback) {
+      this.__set_handler("VIEWSOURCE", callback)
+    },
+    setPropHandler(callback) {
+      this.__set_handler("PROP", callback)
     },
     //--------------------------------------
     //

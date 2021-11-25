@@ -135,28 +135,49 @@ const _M = {
     //-----------------------------------------------
     async doAddNewItem() {
       //console.log("doAddNewItem")
-      let newIt = _.assign({}, _.cloneDeep(this.newItemData))
-      if (this.newItemIdKey && _.isFunction(this.GenNewItemId)) {
-        let newItId = this.GenNewItemId()
-        if (newItId) {
-          newIt[this.newItemIdKey] = newItId
+      let newItHandle;
+      if (_.isFunction(this.onAddNewItem)) {
+        newItHandle = this.onAddNewItem
+      }
+      // Dynamic string
+      else if (_.isString(this.onAddNewItem)) {
+        newItHandle = Ti.Util.genInvoking(this.onAddNewItem)
+      }
+      // Default
+      else {
+        newItHandle = async () => {
+          let newIt = _.assign({}, _.cloneDeep(this.newItemData))
+          if (this.newItemIdKey && _.isFunction(this.GenNewItemId)) {
+            let newItId = this.GenNewItemId()
+            if (newItId) {
+              newIt[this.newItemIdKey] = newItId
+            }
+          }
+          return await this.openDialogForMeta(newIt);
         }
       }
-      let reo = await this.openDialogForMeta(newIt);
+
+      // Do add
+      let reo = await newItHandle(this.TheValue)
+
       //console.log(reo)
       // User cancel
       if (_.isUndefined(reo))
         return
 
+      let newItems = _.concat([], reo)
+
       // Assign new ID
-      if (_.isFunction(this.GenNewItemId)) {
-        let itemId = this.GenNewItemId()
-        _.set(reo, this.newItemIdKey, itemId)
+      if (_.isFunction(this.GenNewItemId) && !_.isEmpty(newItems)) {
+        for (let it of newItems) {
+          let itemId = this.GenNewItemId()
+          _.set(it, this.newItemIdKey, itemId)
+        }
       }
 
       // Join to 
       let list = _.cloneDeep(this.TheValue || [])
-      let val = _.concat(list || [], reo)
+      let val = _.concat(list || [], newItems)
       this.notifyChange(val)
     },
     //-----------------------------------------------

@@ -1,6 +1,21 @@
 .ti-label {
   @include flex-align-nowrap($ai:stretch);
   line-height: 1.5em;  min-height: 2em;
+  position: relative;
+  //-----------------------------------------
+  &.is-hover-copy {
+    cursor: pointer;
+    > .as-hover-copy {
+      @include pos-abs($t:0,$r:0);
+      @include color($color-weaktip, r, c);
+      border-radius: 0 0 0 SZ(6);
+      padding:SZ(4);
+      opacity: 0;
+      transition: opacity 0.3s;
+      line-height: SZ(9); font-size: SZ(9);
+    }
+    &:hover > .as-hover-copy {opacity: 0.38;}
+  }
   //-----------------------------------------
   &.is-blank {
     @include noselect;

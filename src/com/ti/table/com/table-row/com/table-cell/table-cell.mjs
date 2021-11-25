@@ -174,6 +174,7 @@ const _M = {
     OnItemChanged(item, payload) {
       this.$table.$notify("cell:item:change", {
         rowId     : this.rowId,
+        rowData   : this.data,
         cellIndex : this.index,
         index     : this.rowIndex,
         name      : item.key,

@@ -67,6 +67,7 @@ const _M = {
     let fields = _.get(this.config, batch.fields)
     //....................................
     // Define the filter processing
+    let vm = this
     const do_filter_fields = function(flds=[], filter) {
       let list = []
       for(let fld of flds) {
@@ -80,7 +81,8 @@ const _M = {
         }
         // Fields
         else if(filter(fld)) {
-          list.push(fld)
+          let f2 = Ti.Util.explainObj(vm, fld)
+          list.push(f2)
         }
       }
       return list
