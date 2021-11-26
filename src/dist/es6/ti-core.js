@@ -1,4 +1,4 @@
-// Pack At: 2021-11-23 11:55:50
+// Pack At: 2021-11-26 09:21:48
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -12895,7 +12895,6 @@ const {Bank} = (function(){
       let n = Math.round(cent)
       let y = Math.floor(n/100)
       let c = cent - y * 100
-      console.log(y, c)
       return `${y}.${_.padStart(c, 2, '0')}`
     },
     //-----------------------------------
@@ -14396,7 +14395,7 @@ const {VueTiCom} = (function(){
     },
     //-----------------------------------------------
     tiParentCom(comType) {
-      let ct = _.kebabCase(comType)
+      let ct = _.upperFirst(_.camelCase(comType))
       let $pvm = this.$parent
       while ($pvm && $pvm.tiComType != ct) {
         $pvm = $pvm.$parent
@@ -16851,7 +16850,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20211123.115550",
+  "version" : "1.6-20211126.092148",
   "dev" : false,
   "appName" : null,
   "session" : {},

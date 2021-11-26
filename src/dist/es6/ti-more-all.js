@@ -1,4 +1,4 @@
-// Pack At: 2021-11-23 11:55:50
+// Pack At: 2021-11-26 09:21:48
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -19818,7 +19818,10 @@ const _M = {
   },
   ///////////////////////////////////////////
   data: () => ({
-    "myRouting": {}
+    "myRouting": {},
+    "myHandlers": {
+      // SAVE | DELETE | VIEWSOURCE | PROP
+    }
   }),
   ///////////////////////////////////////////
   props: {
@@ -19902,6 +19905,10 @@ const _M = {
     checkedItems() {
       let path = Ti.Util.appendPath(this.moduleName, "search/checkedItems")
       return Ti.App(this).$store().getters[path]
+    },
+    //--------------------------------------
+    StoreState() {
+      return Ti.App(this).$store().state[this.moduleName]
     },
     //--------------------------------------
     TopClass() {
@@ -19992,10 +19999,10 @@ const _M = {
     GuiLoadingAs() {
       let key = _.findKey(this.status, v => v ? true : false)
       let val = this.status[key]
-      if(_.isBoolean(val)) {
+      if (_.isBoolean(val)) {
         return _.get(this.TheLoadingAs, key)
       }
-      if(_.isPlainObject(val)) {
+      if (_.isPlainObject(val)) {
         return _.assign({
           icon: "fas-spinner fa-spin",
           text: "i18n:loading"
@@ -20004,7 +20011,7 @@ const _M = {
     },
     //--------------------------------------
     GuiIsLoading() {
-      let key = _.findKey(this.status, (v) => v)
+      let key = _.findKey(this.status, (v, key) => v && !/^(changed)$/.test(key))
       return key ? true : false
     },
     //--------------------------------------
@@ -20087,6 +20094,54 @@ const _M = {
     //--------------------------------------
     OnViewCurrentSource() {
       this.viewCurrentSource()
+    },
+    //--------------------------------------
+    //
+    //  Actions
+    //
+    //--------------------------------------
+    getCustomizedHandlerPayload() {
+      return {
+        config: this.config,
+        search: this.search,
+        current: this.current,
+        currentItem: this.currentItem,
+        checkedItems: this.checkedItems,
+        commit: this.commit,
+        dispatch: this.dispatch,
+        fire: this.fire,
+        app: Ti.App(this)
+      }
+    },
+    //--------------------------------------
+    async doSaveChange() {
+      let fn = this.myHandlers["SAVE"]
+      if (_.isFunction(fn)) {
+        let pld = this.getCustomizedHandlerPayload()
+        await fn(pld)
+      } else {
+        await this.dispatch("saveCurrent")
+      }
+    },
+    //--------------------------------------
+    //
+    //  Inside Handlers
+    //
+    //--------------------------------------
+    __set_handler(name, callback) {
+      this.myHandlers[name] = callback
+    },
+    setSaveHandler(callback) {
+      this.__set_handler("SAVE", callback)
+    },
+    setDeleteHandler(callback) {
+      this.__set_handler("DEL", callback)
+    },
+    setViewsourceHandler(callback) {
+      this.__set_handler("VIEWSOURCE", callback)
+    },
+    setPropHandler(callback) {
+      this.__set_handler("PROP", callback)
     },
     //--------------------------------------
     //
@@ -21276,7 +21331,13 @@ const _M = {
       type: String,
       default: "leave"
     },
-    "hoverNotifyPayload": undefined
+    "hoverNotifyPayload": undefined,
+    "cancelClickBubble": false,
+    "cancelDblClickBubble": false,
+    "hoverCopy": {
+      type: Boolean,
+      default: undefined
+    }
   },
   //////////////////////////////////////////
   computed: {
@@ -21284,6 +21345,7 @@ const _M = {
     TopClass() {
       return this.getTopClass({
         "is-nil-display": this.isNilDisplay,
+        "is-hover-copy": this.isHoverCopy,
         "is-blank": !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue),
         "is-nowrap": this.valueMaxWidth > 0,
         "full-field": this.fullField
@@ -21364,6 +21426,16 @@ const _M = {
       return str
     },
     //--------------------------------------
+    isHoverCopy() {
+      if (_.isBoolean(this.hoverCopy)) {
+        return this.hoverCopy
+      }
+      if (this.Dict || this.suffixIconForCopy || this.isNilDisplay) {
+        return false
+      }
+      return true
+    },
+    //--------------------------------------
     Dict() {
       if (this.dict) {
         // Already Dict
@@ -21415,7 +21487,24 @@ const _M = {
       }
     },
     //--------------------------------------
-    OnDblClick() {
+    OnClick(evt) {
+      let ck = evt.ctrlKey || evt.metaKey
+      // Cancel bubble
+      let cancelBub = Ti.Util.fallback(this.cancelClickBubble, ck, false)
+      if (cancelBub) {
+        evt.stopPropagation()
+      }
+      // Copy value
+      if (this.isHoverCopy && ck) {
+        this.copyValueToClipboard()
+      }
+    },
+    //--------------------------------------
+    OnDblClick(evt) {
+      let cancelBub = Ti.Util.fallback(this.cancelDblClickBubble, this.editable, false)
+      if (cancelBub) {
+        evt.stopPropagation()
+      }
       if (this.editable) {
         Ti.Be.EditIt(this.$el, {
           text: this.TheValue,
@@ -21449,9 +21538,7 @@ const _M = {
     //------------------------------------------------
     OnClickSuffixIcon() {
       if (this.suffixIconForCopy) {
-        let val = this.TheValue
-        Ti.Be.BlinkIt(this.$refs.value)
-        Ti.Be.writeToClipboard(val)
+        this.copyValueToClipboard()
       }
       // Notify
       else {
@@ -21465,6 +21552,12 @@ const _M = {
       this.$notify("suffix:text", {
         value: this.TheValue
       })
+    },
+    //--------------------------------------
+    copyValueToClipboard() {
+      let val = this.TheValue
+      Ti.Be.BlinkIt(this.$refs.value)
+      Ti.Be.writeToClipboard(val)
     },
     //--------------------------------------
     async evalDisplay(val) {
@@ -24228,6 +24321,7 @@ const _M = {
     let fields = _.get(this.config, batch.fields)
     //....................................
     // Define the filter processing
+    let vm = this
     const do_filter_fields = function(flds=[], filter) {
       let list = []
       for(let fld of flds) {
@@ -24241,7 +24335,8 @@ const _M = {
         }
         // Fields
         else if(filter(fld)) {
-          list.push(fld)
+          let f2 = Ti.Util.explainObj(vm, fld)
+          list.push(f2)
         }
       }
       return list
@@ -33021,28 +33116,49 @@ const _M = {
     //-----------------------------------------------
     async doAddNewItem() {
       //console.log("doAddNewItem")
-      let newIt = _.assign({}, _.cloneDeep(this.newItemData))
-      if (this.newItemIdKey && _.isFunction(this.GenNewItemId)) {
-        let newItId = this.GenNewItemId()
-        if (newItId) {
-          newIt[this.newItemIdKey] = newItId
+      let newItHandle;
+      if (_.isFunction(this.onAddNewItem)) {
+        newItHandle = this.onAddNewItem
+      }
+      // Dynamic string
+      else if (_.isString(this.onAddNewItem)) {
+        newItHandle = Ti.Util.genInvoking(this.onAddNewItem)
+      }
+      // Default
+      else {
+        newItHandle = async () => {
+          let newIt = _.assign({}, _.cloneDeep(this.newItemData))
+          if (this.newItemIdKey && _.isFunction(this.GenNewItemId)) {
+            let newItId = this.GenNewItemId()
+            if (newItId) {
+              newIt[this.newItemIdKey] = newItId
+            }
+          }
+          return await this.openDialogForMeta(newIt);
         }
       }
-      let reo = await this.openDialogForMeta(newIt);
+
+      // Do add
+      let reo = await newItHandle(this.TheValue)
+
       //console.log(reo)
       // User cancel
       if (_.isUndefined(reo))
         return
 
+      let newItems = _.concat([], reo)
+
       // Assign new ID
-      if (_.isFunction(this.GenNewItemId)) {
-        let itemId = this.GenNewItemId()
-        _.set(reo, this.newItemIdKey, itemId)
+      if (_.isFunction(this.GenNewItemId) && !_.isEmpty(newItems)) {
+        for (let it of newItems) {
+          let itemId = this.GenNewItemId()
+          _.set(it, this.newItemIdKey, itemId)
+        }
       }
 
       // Join to 
       let list = _.cloneDeep(this.TheValue || [])
-      let val = _.concat(list || [], reo)
+      let val = _.concat(list || [], newItems)
       this.notifyChange(val)
     },
     //-----------------------------------------------
@@ -51455,6 +51571,7 @@ const _M = {
     OnItemChanged(item, payload) {
       this.$table.$notify("cell:item:change", {
         rowId     : this.rowId,
+        rowData   : this.data,
         cellIndex : this.index,
         index     : this.rowIndex,
         name      : item.key,
@@ -62861,6 +62978,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: String,
     default: "id"
   },
+  "onAddNewItem": {
+    type: [String, Function]
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -66747,10 +66867,18 @@ Ti.Preload("ti/com/ti/label/ti-label-props.mjs", TI_PACK_EXPORTS['ti/com/ti/labe
 Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
   :class="TopClass"
   :style="TopStyle"
+  @click.left="OnClick"
   @dblclick.left="OnDblClick"
   @mouseenter="OnMouseEnter"
   @mouseleave="OnMouseLeave"
   :title="myDisplayText">
+  <!--Hover copy indicator-->
+  <div
+    v-if="isHoverCopy"
+      class="as-hover-copy"
+      @click.left.stop="copyValueToClipboard">
+      <i class="fas fa-copy"></i>
+  </div>
   <!--prefix:icon-->
   <div v-if="ThePrefixIcon"
     class="as-icon at-prefix"
