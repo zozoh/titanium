@@ -108,8 +108,9 @@ const _M = {
     let dirName = state.currentDataDir
     // Guard
     if (!dirName) {
-      console.warn("thing file -ufc without 'dirName'");
-      return Ti.Toast.Open("thing file -ufc without 'dirName'")
+      // console.warn("thing file -ufc without 'dirName'");
+      // return Ti.Toast.Open("thing file -ufc without 'dirName'")
+      return
     }
     // sync current media count
     if (oTh && oTh.id && dirName) {
@@ -458,7 +459,8 @@ const _M = {
     //..........................................
     // Update the currentDataHome
     let home = state.meta
-    let dataHome = curId ? `id:${home.id}/data/${curId}` : null
+    let oid = Wn.Io.OID(curId)
+    let dataHome = curId ? `id:${home.id}/data/${oid.myId}` : null
     commit("setCurrentDataHome", dataHome)
 
     // Try get current dataHomeObj
@@ -567,10 +569,9 @@ const _M = {
     let localDirNameKey = `${meta.id}_dirname`
     let dirName = Ti.Storage.session.getString(localDirNameKey)
     if (!dirName) {
-      dirName = _.get(state.config, "schema.behavior.filesDirName")
-        || "media"
+      dirName = _.get(state.config, "schema.behavior.filesDirName") || null
     }
-    commit("setCurrentDataDir", dirName || "media")
+    commit("setCurrentDataDir", dirName)
 
     // Load local status
     let local = Ti.Storage.session.getObject(meta.id) || {}

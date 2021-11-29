@@ -24,24 +24,7 @@ export default {
     },
     //-----------------------------------------------
     OID() {
-      if(!this.value) {
-        return {}
-      }
-      // One stage ID
-      let str = _.trim(this.value)
-      let pos = str.indexOf(':');
-      if (pos < 0) {
-          return {
-            id : str,
-            myId : str
-          }
-      }
-      // Two stage ID
-      return {
-        id: str,
-        homeId : str.substring(0, pos).trim(),
-        myId : str.substring(pos + 1).trim()
-      }
+      return Wn.Io.OID(this.value)
     }
     //-----------------------------------------------
   },

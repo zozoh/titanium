@@ -21,6 +21,10 @@ const _M = {
       return this.dataHome ? true : false
     },
     //--------------------------------------
+    hasDirNameOptions() {
+      return !_.isEmpty(this.dirNameOptions)
+    },
+    //--------------------------------------
     CurrentFile(){
       if(this.myCurrentId && this.myData.list){
         for(let it of this.myData.list) {
@@ -83,7 +87,6 @@ const _M = {
     },
     //--------------------------------------
     OnFileOpen(obj) {
-      console.log("haha", obj)
       this.$notify("file:open", obj)
     },
     //--------------------------------------
@@ -171,7 +174,7 @@ const _M = {
     // Reloading
     //--------------------------------------
     async reloadData() {
-      if(this.dataHome && this.dirName) {
+      if(this.dataHome) {
         this.myStatus.reloading = true
         let hmph = Ti.Util.appendPath(this.dataHome, this.dirName)
         //console.log("reloadData:", hmph)

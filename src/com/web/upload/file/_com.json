@@ -1,0 +1,9 @@
+{
+  "name" : "web-upload-file",
+  "globally" : true,
+  "template" : "./web-upload-file.html",
+  "mixins" : ["./web-upload-file.mjs"],
+  "components" : [
+    "@com:ti/upload/file"
+  ]
+}

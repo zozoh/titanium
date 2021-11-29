@@ -1,6 +1,11 @@
 {
-  "name" : "ti-upload-file",
-  "globally" : true,
-  "template" : "./ti-upload-file.html",
-  "mixins" : ["./ti-upload-file.mjs"]
+  "name": "ti-upload-file",
+  "globally": true,
+  "template": "./ti-upload-file.html",
+  "mixins": [
+    "./ti-upload-file.mjs"
+  ],
+  "components": [
+    "@com:ti/obj/thumb"
+  ]
 }

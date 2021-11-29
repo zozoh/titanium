@@ -13,7 +13,7 @@
         <span>{{dirNameTip|i18n}}</span>
       </div>
       <!--Left: select files home dirName-->
-      <div class="as-name">
+      <div class="as-name" v-if="hasDataHome && hasDirNameOptions">
         <component 
           :is="dirNameComType"
           height=".3rem"

@@ -13,6 +13,29 @@ function AJAX_RETURN(reo, invalid) {
 }
 ////////////////////////////////////////////
 const WnIo = {
+  OID(id) {
+    if(!id) {
+      return {}
+    }
+    // One stage ID
+    let str = _.trim(id)
+    let pos = str.indexOf(':');
+    if (pos < 0) {
+        return {
+          id : str,
+          myId : str
+        }
+    }
+    // Two stage ID
+    return {
+      id: str,
+      homeId : str.substring(0, pos).trim(),
+      myId : str.substring(pos + 1).trim()
+    }
+  },
+  getObjMyId(id) {
+    return WnIo.OID(id).myId
+  },
   isFullObjId(id) {
     return /^[0-9a-v]{26}(:.+)?$/.test(id)
   },
