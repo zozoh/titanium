@@ -1,4 +1,4 @@
-// Pack At: 2021-11-26 09:21:48
+// Pack At: 2021-12-03 08:39:55
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -17,6 +17,29 @@ const Io = (function(){
   }
   ////////////////////////////////////////////
   const WnIo = {
+    OID(id) {
+      if(!id) {
+        return {}
+      }
+      // One stage ID
+      let str = _.trim(id)
+      let pos = str.indexOf(':');
+      if (pos < 0) {
+          return {
+            id : str,
+            myId : str
+          }
+      }
+      // Two stage ID
+      return {
+        id: str,
+        homeId : str.substring(0, pos).trim(),
+        myId : str.substring(pos + 1).trim()
+      }
+    },
+    getObjMyId(id) {
+      return WnIo.OID(id).myId
+    },
     isFullObjId(id) {
       return /^[0-9a-v]{26}(:.+)?$/.test(id)
     },
@@ -4173,7 +4196,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20211126.092148"
+const WALNUT_VERSION = "1.2-20211203.083955"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
