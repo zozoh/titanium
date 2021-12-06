@@ -1,4 +1,4 @@
-// Pack At: 2021-12-03 08:39:55
+// Pack At: 2021-12-06 21:41:54
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -4533,7 +4533,7 @@ const _M = {
     //-----------------------------------------------
     OnFormChange(formData) {
       //console.log("filter form chanaged", formData)
-      this.myFormData = formData
+      this.myFormData = _.cloneDeep(formData)
     },
     //-----------------------------------------------
     // Core Methods
@@ -4577,6 +4577,7 @@ const _M = {
     },
     //-----------------------------------------------
     evalMyValue() {
+      //console.log("evalMyVal", this.value)
       let val = _.assign({}, this.value)
       this.myFreeValue = val.keyword
       this.myFormData  = val.match

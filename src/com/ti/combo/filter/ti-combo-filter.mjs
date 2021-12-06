@@ -106,7 +106,7 @@ const _M = {
     //-----------------------------------------------
     OnFormChange(formData) {
       //console.log("filter form chanaged", formData)
-      this.myFormData = formData
+      this.myFormData = _.cloneDeep(formData)
     },
     //-----------------------------------------------
     // Core Methods
@@ -150,6 +150,7 @@ const _M = {
     },
     //-----------------------------------------------
     evalMyValue() {
+      //console.log("evalMyVal", this.value)
       let val = _.assign({}, this.value)
       this.myFreeValue = val.keyword
       this.myFormData  = val.match
