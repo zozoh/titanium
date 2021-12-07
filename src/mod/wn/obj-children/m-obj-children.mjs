@@ -87,11 +87,11 @@ const _M = {
       state.status = _.assign({}, state.status, status)
     },
     //----------------------------------------
-    prependDateItem(state, newItem) {
+    prependDataItem(state, newItem) {
       Ti.Util.UpsertStateDataItemAt(state, newItem, -1)
     },
     //----------------------------------------
-    appendDateItem(state, newItem) {
+    appendDataItem(state, newItem) {
       Ti.Util.UpsertStateDataItemAt(state, newItem, 1)
     },
     //----------------------------------------

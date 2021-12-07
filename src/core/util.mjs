@@ -161,9 +161,10 @@ const TiUtil = {
   /**
    * @param state Vuex state object with "data: {list,pager}"
    * @param items Item(or ID) to remove, unique key is "id"
+   * @param dataKey the dataKey in `state`, default as "data"
    */
-  RemoveStateDataItems(state, items = []) {
-    let data = state.data
+  RemoveStateDataItems(state, items = [], dataKey = "data") {
+    let data = state[dataKey]
     // Build Id Map
     if (!_.isArray(items)) {
       items = [items]
@@ -183,7 +184,7 @@ const TiUtil = {
           list.push(li)
         }
       })
-      state.data = {
+      state[dataKey] = {
         list, pager: data.pager
       }
     }
@@ -191,16 +192,17 @@ const TiUtil = {
   /**
    * @param state Vuex state object with "data: {list,pager},currentId:"XXX""   
    * @param theItem Item to merge, unique key is "id"
+   * @param dataKey the dataKey in `state`, default as "data"
    */
-  MergeStateDataItem(state, theItem) {
+  MergeStateDataItem(state, theItem, dataKey = "data") {
     // Update pager list item of data
     if (state.currentId && _.isArray(state.data.list)) {
-      let data = _.cloneDeep(state.data)
+      let data = _.cloneDeep(state[dataKey])
       for (let li of data.list) {
         if (state.currentId == li.id) {
           _.assign(li, theItem)
         }
-        state.data = data
+        state[dataKey] = data
       }
     }
   },
@@ -209,8 +211,9 @@ const TiUtil = {
    * @param state Vuex state object with "data: {list,pager}"
    * @param newItem Item to upsert, unique key is "id"
    * @param atPos  insert position: -1: before, 1: after, 0: in place
+   * @param dataKey the dataKey in `state`, default as "data"
    */
-  UpsertStateDataItemAt(state, newItem, atPos = 1) {
+  UpsertStateDataItemAt(state, newItem, atPos = 1, dataKey = "data") {
     // Guard
     if (_.isEmpty(newItem) || !newItem || !newItem.id) {
       return
@@ -223,7 +226,7 @@ const TiUtil = {
       return
     }
     // upsert one
-    let data = state.data
+    let data = state[dataKey]
     // Update pager list item of data
     if (_.isArray(data.list) && data.pager) {
       let list = _.cloneDeep(data.list)
@@ -244,14 +247,14 @@ const TiUtil = {
           list2 = _.concat(newItem, list2)
         }
       }
-      state.data = {
+      state[dataKey] = {
         list: list2,
         pager: data.pager
       }
     }
     // Just insert
     else {
-      state.data = {
+      state[dataKey] = {
         list: newItems,
         pager: data.pager
       }
@@ -1180,8 +1183,8 @@ const TiUtil = {
     return !_.isEqual(o1, o2)
   },
   notEquals(o1, ...o2) {
-    for(let i=0; i<o2.length; i++) {
-      if(_.isEqual(o1, o2[i])){
+    for (let i = 0; i < o2.length; i++) {
+      if (_.isEqual(o1, o2[i])) {
         return false
       }
     }

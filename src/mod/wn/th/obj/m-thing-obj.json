@@ -5,9 +5,23 @@
   "content": null,
   "data": null,
   "__saved_content": null,
-  "currentDataDir": null,
-  "currentDataHome": null,
-  "currentDataHomeObj": null,
+  "dataHome": null,
+  "dataHomeObj": null,
+  "keepDataDirNameToLocal": true,
+  "dataDirName": null,
+  "dataDirFiles": {
+    "list": [],
+    "pager": {
+      "pn": 1,
+      "pgsz": 50,
+      "pgc": 0,
+      "sum": 0,
+      "skip": 0,
+      "count": 0
+    }
+  },
+  "dataDirCurrentId": null,
+  "dataDirCheckedIds": {},
   "status": {
     "reloading": false,
     "doing": false,
@@ -17,5 +31,7 @@
     "restoring": false,
     "inRecycleBin": false
   },
-  "fieldStatus": {}
+  "fieldStatus": {},
+  "useMetaSchemaAs": "meta",
+  "metaSchema": {}
 }
