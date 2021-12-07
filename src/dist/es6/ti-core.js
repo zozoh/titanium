@@ -1,4 +1,4 @@
-// Pack At: 2021-12-07 12:26:58
+// Pack At: 2021-12-07 23:35:44
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9708,9 +9708,10 @@ const {Util} = (function(){
     /**
      * @param state Vuex state object with "data: {list,pager}"
      * @param items Item(or ID) to remove, unique key is "id"
+     * @param dataKey the dataKey in `state`, default as "data"
      */
-    RemoveStateDataItems(state, items = []) {
-      let data = state.data
+    RemoveStateDataItems(state, items = [], dataKey = "data") {
+      let data = state[dataKey]
       // Build Id Map
       if (!_.isArray(items)) {
         items = [items]
@@ -9730,7 +9731,7 @@ const {Util} = (function(){
             list.push(li)
           }
         })
-        state.data = {
+        state[dataKey] = {
           list, pager: data.pager
         }
       }
@@ -9738,16 +9739,17 @@ const {Util} = (function(){
     /**
      * @param state Vuex state object with "data: {list,pager},currentId:"XXX""   
      * @param theItem Item to merge, unique key is "id"
+     * @param dataKey the dataKey in `state`, default as "data"
      */
-    MergeStateDataItem(state, theItem) {
+    MergeStateDataItem(state, theItem, dataKey = "data") {
       // Update pager list item of data
       if (state.currentId && _.isArray(state.data.list)) {
-        let data = _.cloneDeep(state.data)
+        let data = _.cloneDeep(state[dataKey])
         for (let li of data.list) {
           if (state.currentId == li.id) {
             _.assign(li, theItem)
           }
-          state.data = data
+          state[dataKey] = data
         }
       }
     },
@@ -9756,8 +9758,9 @@ const {Util} = (function(){
      * @param state Vuex state object with "data: {list,pager}"
      * @param newItem Item to upsert, unique key is "id"
      * @param atPos  insert position: -1: before, 1: after, 0: in place
+     * @param dataKey the dataKey in `state`, default as "data"
      */
-    UpsertStateDataItemAt(state, newItem, atPos = 1) {
+    UpsertStateDataItemAt(state, newItem, atPos = 1, dataKey = "data") {
       // Guard
       if (_.isEmpty(newItem) || !newItem || !newItem.id) {
         return
@@ -9770,7 +9773,7 @@ const {Util} = (function(){
         return
       }
       // upsert one
-      let data = state.data
+      let data = state[dataKey]
       // Update pager list item of data
       if (_.isArray(data.list) && data.pager) {
         let list = _.cloneDeep(data.list)
@@ -9791,14 +9794,14 @@ const {Util} = (function(){
             list2 = _.concat(newItem, list2)
           }
         }
-        state.data = {
+        state[dataKey] = {
           list: list2,
           pager: data.pager
         }
       }
       // Just insert
       else {
-        state.data = {
+        state[dataKey] = {
           list: newItems,
           pager: data.pager
         }
@@ -10727,8 +10730,8 @@ const {Util} = (function(){
       return !_.isEqual(o1, o2)
     },
     notEquals(o1, ...o2) {
-      for(let i=0; i<o2.length; i++) {
-        if(_.isEqual(o1, o2[i])){
+      for (let i = 0; i < o2.length; i++) {
+        if (_.isEqual(o1, o2[i])) {
           return false
         }
       }
@@ -16850,7 +16853,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20211207.122658",
+  "version" : "1.6-20211207.233544",
   "dev" : false,
   "appName" : null,
   "session" : {},
