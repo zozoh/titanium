@@ -1,0 +1,21 @@
+{
+  "meta": null,
+  "moduleName": "main",
+  "thingSetId": null,
+  "content": null,
+  "data": null,
+  "__saved_content": null,
+  "currentDataDir": null,
+  "currentDataHome": null,
+  "currentDataHomeObj": null,
+  "status": {
+    "reloading": false,
+    "doing": false,
+    "saving": false,
+    "deleting": false,
+    "changed": false,
+    "restoring": false,
+    "inRecycleBin": false
+  },
+  "fieldStatus": {}
+}

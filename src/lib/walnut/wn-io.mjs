@@ -14,23 +14,23 @@ function AJAX_RETURN(reo, invalid) {
 ////////////////////////////////////////////
 const WnIo = {
   OID(id) {
-    if(!id) {
+    if (!id) {
       return {}
     }
     // One stage ID
     let str = _.trim(id)
     let pos = str.indexOf(':');
     if (pos < 0) {
-        return {
-          id : str,
-          myId : str
-        }
+      return {
+        id: str,
+        myId: str
+      }
     }
     // Two stage ID
     return {
       id: str,
-      homeId : str.substring(0, pos).trim(),
-      myId : str.substring(pos + 1).trim()
+      homeId: str.substring(0, pos).trim(),
+      myId: str.substring(pos + 1).trim()
     }
   },
   getObjMyId(id) {
@@ -45,13 +45,13 @@ const WnIo = {
   /***
    * Get object meta by id(fullobjId) or path
    */
-  async loadMetaBy(idOrPath, oRefer) {
+  async loadMetaBy(idOrPath, oRefer, setup) {
     if (WnIo.isFullObjId(idOrPath)) {
-      return await WnIo.loadMetaById(idOrPath)
+      return await WnIo.loadMetaById(idOrPath, setup)
     }
     // Absolute path
     if (/^(id:|\/|~)/.test(idOrPath)) {
-      return await WnIo.loadMeta(idOrPath)
+      return await WnIo.loadMeta(idOrPath, setup)
     }
     // Relative path
     let base;
@@ -80,14 +80,14 @@ const WnIo = {
   /***
    * Get object meta by id
    */
-  async loadMetaById(id) {
-    return await WnIo.loadMeta("id:" + id)
+  async loadMetaById(id, setup) {
+    return await WnIo.loadMeta("id:" + id, setup)
   },
   /***
    * Get object meta by full path
    */
-  async loadMeta(path) {
-    let url = URL("fetch")
+  async loadMeta(path, { loadPath = false } = {}) {
+    let url = URL(loadPath ? "fetch2" : "fetch")
     let reo = await Ti.Http.get(url, {
       params: {
         str: path
@@ -303,7 +303,7 @@ const WnIo = {
     // Load meta 
     let targetPath;
     if (metaOrPath.id && metaOrPath.ph) {
-      let {id,nm,ph,race} = metaOrPath
+      let { id, nm, ph, race } = metaOrPath
       if ('DIR' == race) {
         throw Ti.Err.make('e-wn-io-writeNoFile', ph || nm)
       }

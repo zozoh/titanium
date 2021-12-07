@@ -133,6 +133,9 @@ export default {
     "itemBadges": {
       type: [Object, Function]
     },
+    "moveToConf": {
+      type: Object
+    },
     "pager": {
       type: Object,
       default: () => ({
@@ -188,6 +191,7 @@ export default {
           exposeHidden: this.exposeHidden,
           tableFields: this.tableFields,
           listDisplay: this.listDisplay,
+          moveToConf: this.moveToConf,
           // Table prop
           tableViewConf: {
             autoScrollIntoView: this.autoScrollIntoView,

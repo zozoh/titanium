@@ -1,4 +1,4 @@
-// Pack At: 2021-12-06 21:41:54
+// Pack At: 2021-12-07 12:26:58
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -30610,6 +30610,77 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'm-thing-obj-mutations.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-thing-obj-mutations.mjs'] = (function(){
+const _M = {
+  //--------------------------------------------
+  setMeta(state, meta) {
+    state.meta = meta
+  },
+  //--------------------------------------------
+  setThingSetId(state, thingSetId) {
+    state.thingSetId = thingSetId
+  },
+  //--------------------------------------------
+  setModuleName(state, moduleName) {
+    state.moduleName = moduleName
+  },
+  //--------------------------------------------
+  setContent(state, content) {
+    state.content = content
+  },
+  //--------------------------------------------
+  setData(state, data) {
+    state.data = data
+  },
+  //--------------------------------------------
+  setSavedContent(state, content) {
+    state.__saved_content = content
+  },
+  //--------------------------------------------
+  setStatus(state, status) {
+    state.status = _.assign({}, state.status, status)
+  },
+  //--------------------------------------------
+  syncStatusChanged(state){
+    if(Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
+      state.status.changed = false
+    } else {
+      state.status.changed = !_.isEqual(state.content, state.__saved_content)
+    }
+  },
+  //--------------------------------------------
+  setFieldStatus(state, {name, type, text}={}) {
+    if(name){
+      let ukey = _.concat(name).join("-")
+      Vue.set(state.fieldStatus, ukey, {type, text})
+    }
+  },
+  //--------------------------------------------
+  clearFieldStatus(state, names=[]) {
+    // Clean All
+    if(_.isEmpty(names)) {
+      state.fieldStatus = {}
+    }
+    // Clear one
+    else {
+      state.fieldStatus = _.omit(state.fieldStatus, names)
+    }
+  },
+  //--------------------------------------------
+  //--------------------------------------------
+  //--------------------------------------------
+  //--------------------------------------------
+  //--------------------------------------------
+  //--------------------------------------------
+  //--------------------------------------------
+  //--------------------------------------------
+}
+return _M;
+;
+})()
+// ============================================================
 // EXPORT 'ti-media-binary.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/media/binary/ti-media-binary.mjs'] = (function(){
@@ -30648,210 +30719,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'm-obj-current.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/mod/wn/__del_obj-current/m-obj-current.mjs'] = (function(){
-const _M = {
-  ////////////////////////////////////////////
-  mutations : {
-    //----------------------------------------
-    setMeta(state, meta) {
-      state.meta = meta
-    },
-    //--------------------------------------------
-    assignMeta(state, meta) {
-      state.meta = _.assign({}, state.meta, meta);
-    },
-    //--------------------------------------------
-    mergeMeta(state, meta) {
-      state.meta = _.merge({}, state.meta, meta);
-    },
-    //----------------------------------------
-    setContent(state, content) {
-      let meta = state.meta;
-      //console.log("setContent", content)
-      // Guard
-      if(!meta || _.isUndefined(content)) {
-        state.content = null
-        state.data = null
-        state.__saved_content = null
-        state.status.changed = false
-        return
-      }
-      //......................................
-      // DIR
-      if("DIR" == meta.race) {
-        state.content = null
-        state.__saved_content = null
-        state.data = content
-      }
-      //......................................
-      // File
-      else if("FILE" == meta.race) {
-        //....................................
-        // String content
-        if(_.isString(content)) {
-          state.content = content
-          // JSON
-          if(Wn.Util.isMimeJson(meta.mime)) {
-            try{
-              state.data = JSON.parse(content)
-            } catch(E) {
-              state.data = null
-            }
-          }
-          // Pure Text
-          else if(Wn.Util.isMimeText(meta.mime)) {
-            state.data = null
-          }
-        }
-        //....................................
-        // null value
-        else if(Ti.Util.isNil(content)) {
-          state.content = ""
-          state.data = null
-        }
-        //....................................
-        // Take content as plain object or Array
-        else {
-          state.content = JSON.stringify(content, null, '  ')
-          // JSON
-          if(Wn.Util.isMimeJson(meta.mime)) {
-            state.data = content
-          }
-          // Pure Text
-          else if(Wn.Util.isMimeText(meta.mime)) {
-            state.data = null
-          }
-        }
-        //....................................
-      }
-    },
-    //----------------------------------------
-    setData(state, data) {
-      state.data = data
-    },
-    //----------------------------------------
-    prependDateItem(state, newItem) {
-      if(_.isEmpty(newItem))
-        return
-      let data = state.data
-      let list = _.cloneDeep(data.list) || []
-      let pager = data.pager
-      list = _.concat(newItem, list)
-      state.data = {
-        list, pager
-      }
-    },
-    //----------------------------------------
-    appendDateItem(state, newItem) {
-      if(_.isEmpty(newItem))
-        return
-      let data = state.data
-      let list = _.cloneDeep(data.list) || []
-      let pager = data.pager
-      list = _.concat(list, newItem)
-      state.data = {
-        list, pager
-      }
-    },
-    //----------------------------------------
-    setDataItem(state, newItem) {
-      // console.log("setDataItem:", newItem)
-      // Guard
-      if(!newItem || !newItem.id)
-        return
-
-      let data = state.data
-
-      // Update pager list item of data
-      if(_.isArray(data.list) && data.pager) {
-        let list = _.cloneDeep(data.list)
-        list = _.map(list, li => {
-          if(li.id == newItem.id) {
-            return newItem
-          }
-          return li
-        })
-        state.data = {
-          list,
-          pager : data.pager
-        }
-      }
-    },
-    //----------------------------------------
-    setSavedContent(state, content) {
-      state.__saved_content = content
-    },
-    //----------------------------------------
-    setFilter(state, filter) {
-      state.filter = _.cloneDeep(filter)
-    },
-    //----------------------------------------
-    clearFilter(state) {
-      let flt = _.cloneDeep(state.filter)
-      flt.keyword = null
-      flt.match = {}
-      state.filter = flt
-    },
-    //----------------------------------------
-    setSorter(state, sorter) {
-      state.sorter = _.cloneDeep(sorter)
-    },
-    //----------------------------------------
-    setPager(state, {pageNumber, pageSize}={}) {
-      if(_.isNumber(pageNumber)) {
-        state.pageNumber =  pageNumber
-      }
-      if(_.isNumber(pageSize)) {
-        state.pageSize =  pageSize
-      }
-    },
-    //----------------------------------------
-    setPagerNumber(state, pageNumber=1) {
-      state.pageNumber =  pageNumber
-    },
-    //----------------------------------------
-    setPageSize(state, pageSize=100) {
-      state.pageSize =  pageSize
-    },
-    //----------------------------------------
-    setStatus(state, status) {
-      state.status = _.assign({}, state.status, status)
-    },
-    //----------------------------------------
-    syncStatusChanged(state){
-      if(Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
-        state.status.changed = false
-      } else {
-        state.status.changed = !_.isEqual(state.content, state.__saved_content)
-      }
-    },
-    //----------------------------------------
-    setFieldStatus(state, {name, type, text}={}) {
-      if(name){
-        let ukey = _.concat(name).join("-")
-        Vue.set(state.fieldStatus, ukey, {type, text})
-      }
-    },
-    //----------------------------------------
-    clearFieldStatus(state, names=[]) {
-      // Clean All
-      if(_.isEmpty(names)) {
-        state.fieldStatus = {}
-      }
-      // Clear one
-      else {
-        state.fieldStatus = _.omit(state.fieldStatus, names)
-      }
-    },
-    //----------------------------------------
-  }
-  ////////////////////////////////////////////
-}
-return _M;;
 })()
 // ============================================================
 // EXPORT 'widget-rawhtml.mjs' -> null
@@ -36446,6 +36313,693 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'm-thing-obj-actions.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-thing-obj-actions.mjs'] = (function(){
+const _M = {
+  //--------------------------------------------
+  /***
+   * Save current thing detail
+   */
+  async saveCurrent({ commit, dispatch }) {
+    commit("setStatus", { saving: true })
+    await dispatch("current/save")
+    commit("setStatus", { saving: false })
+    commit("syncStatusChanged")
+  },
+  //--------------------------------------------
+  /***
+   * Update current thing meta data to search/meta
+   */
+  async updateCurrent({ state, commit, dispatch, getters }, { name, value } = {}) {
+    // console.log("updateCurrent", {name, value})
+    // if(window.lastMS && (Date.now() - window.lastMS) < 5000) {
+    //   console.log("!!!! dup-call", {name, value})
+    // }
+    // window.lastMS = Date.now()
+    if (getters.hasCurrent) {
+      await dispatch("current/updateMeta", { name, value })
+      commit("search/updateItem", state.current.meta)
+    }
+  },
+  //--------------------------------------------
+  async updateCurrentMetas({ state, commit, dispatch, getters }, data = {}) {
+    if (getters.hasCurrent) {
+      //console.log({name, value})
+      await dispatch("current/updateMetas", data)
+      commit("search/updateItem", state.current.meta)
+    }
+  },
+  //--------------------------------------------
+  async batchUpdateMetas({ state, commit, getters }, updates = {}) {
+    let checkedItems = getters["search/checkedItems"]
+    // Guard
+    if (_.isEmpty(checkedItems) || _.isEmpty(updates)) {
+      return
+    }
+
+    // Mark loading
+    commit("setStatus", { reloading: true })
+
+    // Gen commands
+    let currentId = _.get(state.current, "meta.id")
+    let input = JSON.stringify(updates)
+    let tsId = state.meta.id
+    for (let it of checkedItems) {
+      let cmdText = `thing ${tsId} update ${it.id} -fields -cqn`
+      let newIt = await Wn.Sys.exec2(cmdText, { as: "json", input })
+      commit("search/updateItem", newIt)
+      if (newIt.id == currentId) {
+        commit("current/setMeta", newIt)
+      }
+    }
+
+    // Mark loading
+    commit("setStatus", { reloading: false })
+  },
+  //--------------------------------------------
+  setCurrentMeta({ state, commit }, meta) {
+    //console.log(" -> setCurrentMeta", meta)
+    commit("current/setThingSetId", state.meta.id)
+    commit("current/setMeta", meta)
+    commit("syncStatusChanged")
+    commit("search/updateItem", state.current.meta)
+  },
+  //--------------------------------------------
+  setCurrentContent({ state, commit, dispatch }, content) {
+    commit("current/setThingSetId", state.meta.id)
+    dispatch("current/onChanged", content)
+    commit("syncStatusChanged")
+    commit("search/updateItem", state.current.meta)
+  },
+  //--------------------------------------------
+  async openCurrentPrivilege({ state, dispatch }) {
+    let meta = _.get(state.current, "meta") || state.meta
+
+    if (!meta) {
+      await Ti.Toast.Open("i18n:nil-obj")
+      return
+    }
+
+    let newMeta = await Wn.EditObjPrivilege(meta)
+
+    // Update to current list
+    if (newMeta) {
+      // Update ThingSet
+      if (state.meta.id == newMeta.id) {
+        await dispatch("reload", newMeta)
+      }
+      // Update Selected item
+      else {
+        await dispatch("setCurrentMeta", newMeta)
+      }
+    }
+
+    return newMeta
+  },
+  //--------------------------------------------
+  /***
+   * Files: sync the file count and update to search/meta
+   */
+  async autoSyncCurrentFilesCount({ state, commit, dispatch }, { quiet = true } = {}) {
+    let oTh = state.current.meta
+    let dirName = state.currentDataDir
+    // Guard
+    if (!dirName) {
+      // console.warn("thing file -ufc without 'dirName'");
+      // return Ti.Toast.Open("thing file -ufc without 'dirName'")
+      return
+    }
+    // sync current media count
+    if (oTh && oTh.id && dirName) {
+      commit("setStatus", { reloading: true })
+
+      // run command
+      let th_set = oTh.th_set
+      let cmdText = `thing ${th_set} file ${oTh.id} -dir '${dirName}' -ufc -cqn`
+      let oNew = await Wn.Sys.exec2(cmdText, { as: "json" })
+      // Set current meta
+      dispatch("setCurrentMeta", oNew)
+
+      commit("setStatus", { reloading: false })
+
+      if (!quiet) {
+        await Ti.Toast.Open('i18n:wn-th-recount-media-done', {
+          vars: { n: oNew.th_media_nb || 0 }
+        })
+      }
+    }
+  },
+  //--------------------------------------------
+  /***
+   * Toggle enter/outer RecycleBin
+   */
+  async toggleInRecycleBin({ state, commit, dispatch, getters }) {
+    //console.log("thing-manager-toggleInRecycleBin")
+    // Update Search
+    let inRecycleBin = !getters.isInRecycleBin
+    commit("search/setInRecycleBin", inRecycleBin)
+
+    // Update status
+    commit("setStatus", { inRecycleBin, reloading: true })
+    // Reload List
+    await dispatch("search/reload")
+
+    commit("setStatus", { reloading: false })
+  },
+  //--------------------------------------------
+  /***
+   * Create one new thing
+   */
+  async create({ state, commit, dispatch }, obj = {}) {
+    // Special setting for create
+    let beCreate = _.get(state.config, "schema.behavior.create") || {}
+    let { unique, after, fixed } = beCreate
+
+    // Prepare the command
+    let json = JSON.stringify(obj)
+    let th_set = state.meta.id
+    let cmds = [`thing ${th_set} create -cqn -fields`]
+
+    // Join `-unique`
+    if (!_.isEmpty(unique) && _.isString(unique)) {
+      cmds.push(` -unique '${unique}'`)
+    }
+
+    // Join `-fixed`
+    if (!_.isEmpty(fixed) && _.isString(unique)) {
+      cmds.push(` -fixed '${JSON.stringify(fixed)}'`)
+    }
+
+    // Join `-after`
+    if (!_.isEmpty(after) && _.isString(after)) {
+      cmds.push(` -after '${after}'`)
+    }
+
+    // Mark reloading
+    commit("setStatus", { reloading: true })
+
+    // Do Create
+    let cmdText = cmds.join(" ")
+    let newMeta = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+
+    if (newMeta && !(newMeta instanceof Error)) {
+      // Append To Search List as the first 
+      commit("search/prependToList", newMeta)
+
+      // Set it as current
+      await dispatch("setCurrentThing", { meta: newMeta })
+    }
+
+    // Mark reloading
+    commit("setStatus", { reloading: false })
+
+    // Return the new object
+    return newMeta
+  },
+  //--------------------------------------------
+  /***
+   * Search: Remove Checked Items
+   */
+  async removeChecked({ state, commit, dispatch, getters }, hard = false) {
+    let ids = _.cloneDeep(state.search.checkedIds)
+    if (_.isEmpty(ids)) {
+      return await Ti.Alert('i18n:del-none')
+    }
+
+    // Config is hard
+    let beh = _.get(state, "config.schema.behavior") || {}
+    hard |= beh.hardRemove
+
+    // If hard, warn at first
+    if (hard || state.status.inRecycleBin) {
+      if (!(await Ti.Confirm('i18n:del-hard'))) {
+        return
+      }
+    }
+
+    commit("setStatus", { deleting: true })
+
+    // Prepare the ids which fail to remove
+    let failIds = {}
+
+    // Prepare the cmds
+    let th_set = state.meta.id
+    let cmdText = `thing ${th_set} delete ${hard ? "-hard" : ""} -cqn -l ${ids.join(" ")}`
+    let reo = await Wn.Sys.exec2(cmdText, {
+      as: "json",
+      errorAs: ({ data }) => {
+        let id = _.trim(data)
+        failIds[id] = true
+      }
+    })
+
+    // Get the removeIds
+    let removeIds = _.filter(ids, id => !failIds[id])
+    //console.log("removeIds:", removeIds)
+
+    // Remove it from search list
+    if (!_.isEmpty(removeIds)) {
+      commit("search/removeItems", removeIds)
+    }
+    let current = getters["search/currentItem"]
+    //console.log("getback current", current)
+    // Update current
+    await dispatch("setCurrentThing", { meta: current })
+
+    commit("setStatus", { deleting: false })
+  },
+  //--------------------------------------------
+  /***
+   * RecycleBin: restore
+   */
+  async restoreRecycleBin({ state, commit, dispatch, getters }) {
+    // Require user to select some things at first
+    let ids = state.search.checkedIds
+    if (_.isEmpty(ids)) {
+      return await Ti.Alert('i18n:thing-restore-none')
+    }
+    commit("setStatus", { restoring: true })
+
+    // Run command
+    let th_set = state.meta.id
+    let cmdText = `thing ${th_set} restore -quiet -cqn -l ${ids.join(" ")}`
+    let reo = await Wn.Sys.exec2(cmdText, { as: "json" })
+
+    // Reload
+    await dispatch("search/reload")
+
+    // Get back current
+    let current = getters["search/currentItem"]
+
+    // Update current
+    await dispatch("current/reload", current)
+
+    commit("setStatus", { restoring: false })
+  },
+  //--------------------------------------------
+  /***
+   * RecycleBin: clean
+   */
+  async cleanRecycleBin({ state, commit, dispatch }) {
+    commit("setStatus", { cleaning: true })
+
+    // Run command
+    let th_set = state.meta.id
+    let cmdText = `thing ${th_set} clean -limit 3000`
+    await Wn.Sys.exec2(cmdText)
+
+    commit("setStatus", { cleaning: false })
+
+    await dispatch("reload")
+  },
+  //--------------------------------------------
+  // User Interactivity
+  //--------------------------------------------
+  /***
+   * Open meta editor, if has current, use it
+   */
+  async openMetaEditor({ state, getters, dispatch }) {
+    // Guard
+    if (!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    //.........................................
+    // For current selected
+    //.........................................
+    if (getters.hasCurrent) {
+      // Edit current meta
+      let reo = await Wn.EditObjMeta(state.current.meta, {
+        fields: "default", autoSave: false
+      })
+
+      // Cancel the editing
+      if (_.isUndefined(reo)) {
+        return
+      }
+
+      // Update the current editing
+      let { updates } = reo
+      if (!_.isEmpty(updates)) {
+        await dispatch("updateCurrentMetas", updates)
+      }
+      return
+    }
+    //.........................................
+    // For Whole thing thing
+    //.........................................
+    await Wn.EditObjMeta(state.meta, {
+      fields: "auto", autoSave: true
+    })
+  },
+  //--------------------------------------------
+  /***
+   * Open current object source editor
+   */
+  async openContentEditor({ state, getters, dispatch, commit }) {
+    // Guard
+    if (!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    if (getters.hasCurrent) {
+      // Open Editor
+      let newContent = await Wn.EditObjContent(state.current.meta, {
+        content: state.current.content
+      })
+
+      // Cancel the editing
+      if (_.isUndefined(newContent)) {
+        return
+      }
+
+      // Update the current editing
+      await dispatch("current/changeContent", newContent)
+      commit("syncStatusChanged")
+      return
+    }
+
+    // Warn user
+    return await Ti.Toast.Open("i18n:nil-obj", "warn")
+  },
+  //--------------------------------------------
+  /***
+   * Reload files
+   */
+  async reloadFiles({ state, commit, dispatch, getters }, { force = false } = {}) {
+    //console.log("reloadFiles")
+    let current = _.get(state.current, "meta")
+    let thingId = _.get(current, "id")
+    let dirName = state.filesName
+    // No current
+    if (!thingId || !dirName) {
+      commit("files/reset")
+    }
+    // Reload the files
+    else {
+      let thSetId = state.meta.id
+      // get the parent DIR
+      let oDir = state.files.meta
+      if (!oDir || !oDir.ph || !oDir.ph.endsWith(`/data/${thingId}/${dirName}`)) {
+        let dataHome = `id:${thSetId}/data`
+        let dirPath = `${thingId}/${dirName}`
+        // Create or fetch the dir
+        let newMeta = {
+          race: "DIR",
+          nm: dirPath
+        }
+        let json = JSON.stringify(newMeta)
+        let cmdText = `obj "${dataHome}" -IfNoExists -new '${json}' -cqno`
+        oDir = await Wn.Sys.exec2(cmdText, { as: "json" })
+        if (!oDir) {
+          return
+        }
+      } // ~ if(!oDir || !oDir.ph
+      // Try to reload the children
+      await dispatch("files/reload", oDir)
+      // let cuId = getters["files/autoCurrentItemId"]
+      // //commit("files/selectItem", cuId)
+      // dispatch("selectCurrentPreviewItem", cuId)
+    }
+  },
+  //--------------------------------------------
+  /***
+   * Reload search list
+   */
+  async reloadSearch({ state, commit, dispatch }) {
+    let meta = state.meta
+
+    commit("setStatus", { reloading: true })
+
+    await dispatch("search/reload", meta)
+
+    // Sometimes, current object will not in the list
+    // we need remove it
+    if (state.current.meta) {
+      // find new meta
+      let currentId = state.current.meta.id
+      let current = null
+      for (let it of state.search.list) {
+        if (it.id == currentId) {
+          current = it
+          break
+        }
+      }
+      // Update the meta
+      await dispatch("setCurrentThing", { meta: current })
+    }
+
+    commit("setStatus", { reloading: false })
+  },
+  //--------------------------------------------
+  /***
+   * Set Current Thing
+   * 
+   * It will load content if "content" is shown
+   */
+  async setCurrentThing({ state, commit, dispatch }, {
+    meta = null,
+    checkedIds = {}
+  } = {}) {
+    //..........................................
+    // Update selected item in search list
+    let curId = meta ? meta.id : null
+    let ckIds;
+    if (_.isArray(checkedIds)) {
+      ckIds = _.cloneDeep(checkedIds)
+    } else {
+      ckIds = Ti.Util.truthyKeys(checkedIds)
+    }
+    if (!Ti.Util.isNil(curId)) {
+      ckIds.push(curId)
+    }
+    commit("search/setCurrentId", curId)
+    commit("search/setCheckedIds", ckIds)
+    //..........................................
+    // Update the currentDataHome
+    let home = state.meta
+    let oid = Wn.Io.OID(curId)
+    let dataHome = curId ? `id:${home.id}/data/${oid.myId}` : null
+    commit("setCurrentDataHome", dataHome)
+
+    // Try get current dataHomeObj
+    let dataHomeObj = await Wn.Io.loadMeta(dataHome)
+    commit("setCurrentDataHomeObj", dataHomeObj)
+
+    //..........................................
+    // Keep last
+    let lastKey = `${home.id}:currentId`
+    if (!_.get(state.config.schema, "keepLastOff")) {
+      Ti.Storage.session.set(lastKey, curId);
+    }
+    // Clean local storage
+    else {
+      Ti.Storage.session.remove(lastKey);
+    }
+    //..........................................
+    // Reload Current
+    commit("current/setThingSetId", state.meta.id)
+    let currentMeta = _.cloneDeep(meta)
+    // Reload if show content
+    if (_.get(state.config, "shown.content")) {
+      await dispatch("current/reload", currentMeta)
+    }
+    // Just update the meta
+    else {
+      commit("current/setMeta", currentMeta)
+    }
+    //..........................................
+  },
+  //--------------------------------------------
+  /***
+   * Do Change Block Shown:
+   * 
+   * If show content/files, it may check if need to be reload data
+   */
+  async doChangeShown({ state, commit, dispatch }, shown) {
+    let oldShownContent = _.get(state, "config.shown.content") || false
+    // Just mark the shown
+    dispatch("config/updateShown", shown)
+
+    // If show changed, and content is true
+    if (!oldShownContent && shown.content) {
+      //console.log("reload current content")
+      await dispatch("current/reload")
+      commit("syncStatusChanged")
+    }
+  },
+  //--------------------------------------------
+  /***
+   * Reload All
+   */
+  async reload({ state, commit, dispatch, getters, rootState }, meta) {
+    //console.log("thing-manager.reload", state)
+    // Reload meta
+    if (_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+
+    // Relod setting from thing view
+    let thAutoSelect = Ti.Util.fallbackNil(state.autoSelect, false)
+    if (meta) {
+      if ("FILE" == meta.race) {
+        let view = await Wn.Io.loadContent(meta, { as: "json" })
+        let { path, schema, autoSelect } = view
+        meta = await Wn.Io.loadMeta(path)
+        if (schema) {
+          commit("mergeFixedSchema", schema)
+        }
+        if (!Ti.Util.isNil(autoSelect)) {
+          thAutoSelect = Ti.Types.toBoolean(autoSelect)
+        }
+      }
+      // Update auto-select by meta
+      if (!Ti.Util.isNil(meta.th_auto_select)) {
+        thAutoSelect = Ti.Types.toBoolean(meta.th_auto_select)
+      }
+    }
+
+    // commit auto-select to state
+    commit("setAutoSelect", thAutoSelect)
+
+    // Update New Meta
+    if (meta) {
+      commit("setMeta", meta)
+    }
+    // Get meta back
+    else {
+      meta = state.meta
+    }
+    // meta is home
+    let home = meta
+
+    // Update current module thingSetId
+    commit("current/setThingSetId", state.meta.id)
+
+    // Mark reloading
+    commit("setStatus", { reloading: true })
+
+    // Reload Config
+    //console.log("reload config")
+    await dispatch("config/reload", meta)
+    commit("config/mergeSchema", state.fixedSchema)
+
+    // Update the default filesDirName
+    let localDirNameKey = `${meta.id}_dirname`
+    let dirName = Ti.Storage.session.getString(localDirNameKey)
+    if (!dirName) {
+      dirName = _.get(state.config, "schema.behavior.filesDirName") || null
+    }
+    commit("setCurrentDataDir", dirName)
+
+    // Load local status
+    let local = Ti.Storage.session.getObject(meta.id) || {}
+    _.defaults(local, {
+      filter: {},
+      sorter: {},
+      pager: {}
+    })
+
+    // Customized behavior
+    let behavior = _.get(state.config.schema, "behavior") || {}
+    behavior = Ti.Util.explainObj({
+      root: rootState,
+      state,
+      meta
+    }, behavior)
+
+    // Setup default filter and sorter
+    let filter = _.assign({}, behavior.filter, local.filter, {
+      majorKey: _.get(behavior, "filter.majorKey")
+    })
+    if (!_.get(behavior.filter, "majorKey")) {
+      delete filter.majorKey;
+    }
+
+    // Update filter and sorter from page#Anchor
+    let loc = Ti.Util.parseHref(window.location.href)
+    let afo = Ti.Util.parseAnchorFilter(loc.anchor)
+    if (afo) {
+      filter = filter || {}
+      filter.keyword = afo.keyword || filter.keyword
+      filter.match = afo.match || filter.match
+
+      if (!_.isEmpty(afo.sort)) {
+        local.sorter = afo.sort
+      }
+    }
+
+    //
+    if (!_.isEmpty(filter)) {
+      commit("search/setFilter", filter)
+    }
+    // Fixed match
+    commit("search/setFixedMatch", behavior.match)
+    commit("search/setMajorKey", behavior.majorKey)
+    commit("search/setDefaultKey", behavior.defaultKey)
+    commit("search/setKeyword", behavior.keyword)
+
+
+    // Sorter
+    if (!_.isEmpty(local.sorter)) {
+      commit("search/setSorter", local.sorter)
+    }
+    else if (!_.isEmpty(behavior.sorter)) {
+      commit("search/setSorter", behavior.sorter)
+    }
+
+    // Pager
+    if (behavior.pager) {
+      commit("search/updatePager", behavior.pager)
+    }
+
+    // Show keys to filter obj output
+    commit("search/setShowKeys", behavior.showKeys)
+
+    // If pager is enabled, try load from local
+    //console.log("root Getters", getters) 
+    if (getters["search/isPagerEnabled"]) {
+      if (!_.isEmpty(local.pager)) {
+        commit("search/setPager", local.pager)
+      }
+    }
+
+    // Reload Search
+    //console.log("reload search")
+    await dispatch("reloadSearch")
+
+    // Auto Select the first item
+    if (state.autoSelect) {
+      if (!state.current.meta && !_.isEmpty(state.search.list)) {
+        // Get last
+        let lastKey = `${home.id}:currentId`
+        let curId = Ti.Storage.session.getString(lastKey);
+        let current;
+
+        // Find by id
+        if (curId)
+          current = _.find(state.search.list, li => li.id == curId)
+
+        // use the first one
+        if (!current)
+          current = _.first(state.search.list)
+
+        // Highlight it
+        await dispatch("setCurrentThing", {
+          meta: current,
+          force: false
+        })
+      }
+    }
+
+    // All done
+    commit("setStatus", { reloading: false })
+  }
+  //--------------------------------------------
+}
+return _M;
+;
+})()
+// ============================================================
 // EXPORT 'ti-month.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/month/ti-month.mjs'] = (function(){
@@ -37148,342 +37702,6 @@ const _M = {
     Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////
-}
-return _M;;
-})()
-// ============================================================
-// EXPORT 'm-obj-current-actions.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/mod/wn/__del_obj-current/m-obj-current-actions.mjs'] = (function(){
-////////////////////////////////////////////
-function getKeepSearchAs(meta) {
-  if(meta && meta.keep_search_as) {
-    let keepAs = meta.keep_search_as
-    if(_.isBoolean(keepAs)) {
-      keepAs = `search-${meta.id}`
-    }
-    return keepAs
-  }
-}
-////////////////////////////////////////////
-const _M = {
-  //----------------------------------------
-  // Combin Mutations
-  //----------------------------------------
-  onChanged({dispatch}, payload) {
-    dispatch("changeContent", payload)
-  },
-  //----------------------------------------
-  changeContent({commit}, payload) {
-    commit("setContent", payload)
-    commit("syncStatusChanged");
-  },
-  //----------------------------------------
-  changeMeta({commit}, {name, value}={}) {
-    if(name) {
-      let meta = _.set({}, name, value)
-      commit("mergeMeta", meta)
-      commit("syncStatusChanged")
-    }
-  },
-  //----------------------------------------
-  updateContent({state, commit}, content) {
-    commit("setContent", content)
-    if(state.meta && "FILE" == state.meta.race) {
-      commit("setSavedContent", content)
-    }
-    commit("syncStatusChanged")
-  },
-  //--------------------------------------------
-  // User Interactivity
-  //--------------------------------------------
-  async openMetaEditor({state, dispatch}) {
-    // Guard
-    if(!state.meta) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-    // Open Editor
-    let reo = await Wn.EditObjMeta(state.meta, {fields:"auto"})
-
-    // Cancel the editing
-    if(_.isUndefined(reo)) {
-      return
-    }
-
-    // Update the current editing
-    if(reo.saved) {
-      await dispatch("reload", reo.data)
-    }
-  },
-  //--------------------------------------------
-  async openContentEditor({state, dispatch}) {
-    // Guard
-    if(!state.meta) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-    // Open Editor
-    let newContent = await Wn.EditObjContent(state.meta, {
-      content : state.content
-    })
-
-    // Cancel the editing
-    if(_.isUndefined(newContent)) {
-      return
-    }
-
-    // Update the current editing
-    await dispatch("changeContent", newContent)
-  },
-  //--------------------------------------------
-  async openPrivilegeEditor({state, dispatch}) {
-    // Guard
-    if(!state.meta) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-    // Open Editor
-    let newMeta = await Wn.EditObjPrivilege(state.meta)
-
-    // Cancel the editing
-    if(_.isUndefined(newMeta)) {
-      return
-    }
-
-    // Update the current editing
-    await dispatch("reload", newMeta)
-  },
-  //--------------------------------------------
-  // Update to remote
-  //----------------------------------------
-  async updateMeta({commit, dispatch}, {name, value}={}) {
-    let data = Ti.Types.toObjByPair({name, value})
-    await dispatch("updateMetas", data)
-  },
-  //----------------------------------------
-  async updateMetas({state, commit}, data={}) {
-    // Check Necessary
-    if(_.isMatchWith(state.meta, data, _.isEqual)) {
-      return
-    }
-
-    // Mark field status
-    _.forEach(data, (val, name)=>{
-      commit("setFieldStatus", {name, type:"spinning", text:"i18n:saving"})
-    })
-
-    // Do the update
-    let json = JSON.stringify(data)
-    let id  = state.meta.id
-    let cmdText = `o id:${id} @update @json -cqn`
-    let reo = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
-    let isError = reo instanceof Error;
-
-    if(!isError && !Ti.Util.isNil(reo)) {
-      commit("setMeta", reo)
-    }
-
-    _.forEach(data, (val, name)=>{
-      if(isError) {
-        commit("setFieldStatus", {
-          name, 
-          type: "warn", 
-          text: reo.message || "i18n:fail"
-        })
-      } else {
-        commit("setFieldStatus", {
-          name, 
-          type: "ok", 
-          text: "i18n:ok"
-        })
-        _.delay(()=>{commit("clearFieldStatus", name)}, 500)
-      }
-    })
-  },
-  //--------------------------------------------
-  // Reload & Save
-  //--------------------------------------------
-  // async setCurrent({state, commit,dispatch}, {
-  //   meta=null, force=false
-  // }={}) {
-  //   //console.log("setCurrent", meta, loadContent)
-
-  //   // Not need to reload
-  //   if(state.meta && meta && state.meta.id == meta.id) {
-  //     if((_.isString(state.content)) && !force) {
-  //       return
-  //     }
-  //   }
-
-  //   // do reload
-  //   await dispatch("reload", meta)
-
-  // },
-  //----------------------------------------
-  async save({state, commit}) {
-    if(state.status.saving || !state.status.changed){
-      return
-    }
-
-    commit("setStatus", {saving:true})
-
-    let meta = state.meta
-    let content = state.content
-    let newMeta = await Wn.Io.saveContentAsText(meta, content)
-
-    commit("setStatus", {saving:false})
-    commit("setMeta", newMeta)
-    commit("setSavedContent", content)
-    commit("syncStatusChanged")
-
-    // return the new meta
-    return newMeta
-  },
-  //----------------------------------------
-  saveSearchSetting({state, commit}, {filter, sorter, pager}={}) {
-    if(filter) {
-      commit("setFilter", filter)
-    }
-    if(sorter) {
-      commit("setSorter", sorter)
-    }
-    if(pager) {
-      commit("setPager", pager)
-    }
-
-    let keepAs = getKeepSearchAs(state.meta)
-    if(keepAs) {
-      Ti.Storage.session.setObject(keepAs, {
-        filter : state.filter,
-        sorter : state.sorter,
-        pager  : {
-          pageNumber : state.pageNumber,
-          pageSize   : state.pageSize
-        }
-      })
-    }
-  },
-  //----------------------------------------
-  recoverSearchSetting({commit}, meta) {
-    let keepAs = getKeepSearchAs(meta)
-    if(keepAs) {
-      let {
-        filter, sorter, pager
-      } = Ti.Storage.session.getObject(keepAs, {})
-
-      pager = _.assign({}, {
-        pageNumber : 1,
-        pageSize   : meta.dft_page_size || 1000
-      }, pager)
-      if(filter) {
-        commit("setFilter", filter)
-      }
-      if(sorter) {
-        commit("setSorter", sorter)
-      }
-      if(pager) {
-        commit("setPager", pager)
-      }
-    }
-  },
-  //----------------------------------------
-  async query({dispatch}, search={}){
-    //console.log("query", search)
-    dispatch("saveSearchSetting", search)
-    return await dispatch("reload")
-  },
-  //----------------------------------------
-  async reload({dispatch}, meta) {
-    return dispatch("reloadAll", {meta})
-  },
-  //----------------------------------------
-  async reloadAll({state, commit, dispatch}, {
-    meta, reloadChildren=true
-  }={}) {
-    if(state.status.reloading
-      || state.status.saving){
-      return
-    }
-    //......................................
-    // Use the default meta
-    if(_.isUndefined(meta)) {
-      meta = state.meta
-    }
-    //......................................
-    if(_.isString(meta)) {
-      meta = await Wn.Io.loadMeta(meta)
-    }
-    else if(meta && meta.id) {
-      meta = await Wn.Io.loadMetaById(meta.id)
-    }
-    //......................................
-    // Guard
-    if(!meta) {
-      commit("setMeta", null)
-      commit("setContent", null)
-      return
-    }
-    //console.log("m-obj-current.reload", meta.id)
-    //......................................
-    // Default filter
-    if(meta.filter) {
-      commit("setFilter", meta.filter)
-    }
-    //......................................
-    // Default sorter
-    if(meta.sorter) {
-      commit("setSorter", meta.sorter)
-    }
-    //......................................
-    // Restore the search setting
-    dispatch("recoverSearchSetting", meta)
-
-    // Init content as null
-    let content = null
-    commit("setStatus", {reloading:true})
-    //......................................
-    // For file
-    if("FILE" == meta.race) {
-      // need to be reload content
-      content = await Wn.Io.loadContent(meta)
-    }
-    //......................................
-    // For dir
-    else if('DIR' == meta.race && reloadChildren) {
-      let cmds = [`o @query -p id:${meta.id}`]
-      cmds.push('-pager -mine -hidden')
-      if(state.pageSize > 0) {
-        let pgsz = state.pageSize
-        let pn = state.pageNumber || 1
-        let skip = Math.max(0, pgsz * (pn-1))
-        if(skip > 0) {
-          cmds.push(`-skip ${skip}`)
-        }
-        cmds.push(`-limit ${pgsz}`)
-      }
-      if(state.sorter) {
-        cmds.push(`-sort '${JSON.stringify(state.sorter)}'`)
-      }
-      let input;
-      if(state.filter) {
-        let flt = Wn.Util.getMatchByFilter(state.filter, meta.search_setting)
-        // Empty filter, force update it again
-        if(_.isEmpty(flt)) {
-          commit("clearFilter")
-          dispatch("saveSearchSetting", {filter:state.filter})
-        }
-        input = JSON.stringify(flt)
-      }
-      cmds.push('@json -cqnl')
-      content = await Wn.Sys.exec2(cmds.join(' '), {as:"json", input})
-    }
-    //......................................
-    // Just update the meta
-    commit("setMeta", meta)
-    commit("setStatus", {reloading:false})
-    commit("clearFieldStatus")
-    // Update content and sync state
-    dispatch("updateContent", content)
-  }
-  //----------------------------------------
 }
 return _M;;
 })()
@@ -54064,6 +54282,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "itemBadges": {
       type: [Object, Function]
     },
+    "moveToConf": {
+      type: Object
+    },
     "pager": {
       type: Object,
       default: () => ({
@@ -54119,6 +54340,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           exposeHidden: this.exposeHidden,
           tableFields: this.tableFields,
           listDisplay: this.listDisplay,
+          moveToConf: this.moveToConf,
           // Table prop
           tableViewConf: {
             autoScrollIntoView: this.autoScrollIntoView,
@@ -62122,6 +62344,62 @@ const _M = {
   ///////////////////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'm-thing-obj.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-thing-obj.mjs'] = (function(){
+//---------------------------------------
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////
+  getters : {
+    hasCurrent(state) {
+      return state.current && state.current.meta
+    },
+    isInRecycleBin(state) {
+      return state.search.inRecycleBin
+    }
+  },
+  ////////////////////////////////////////////
+  mutations : {
+    setMeta(state, meta) {
+      state.meta = meta
+    },
+    setFixedSchema(state, schema={}) {
+      state.fixedSchema = _.cloneDeep(schema)
+    },
+    mergeFixedSchema(state, schema={}) {
+      state.fixedSchema = _.merge({}, state.fixedSchema, schema)
+    },
+    setCurrentDataDir(state, dirName) {
+      state.currentDataDir = dirName
+      if(state.meta) {
+        let localDirNameKey = `${state.meta.id}_dirname`
+        Ti.Storage.session.set(localDirNameKey, dirName)
+      }
+    },
+    setCurrentDataHome(state, dataHome) {
+      state.currentDataHome = dataHome
+    },
+    setCurrentDataHomeObj(state, dataHomeObj) {
+      state.currentDataHomeObj = _.cloneDeep(dataHomeObj)
+    },
+    setAutoSelect(state, autoSelect) {
+      state.autoSelect = Ti.Util.fallback(autoSelect, false)
+    },
+    setStatus(state, status) {
+      state.status = _.assign({}, state.status, status)
+    },
+    syncStatusChanged(state){
+      if(state.current) {
+        //console.log("do sync")
+        state.status.changed = state.current.status.changed
+      }
+    }
+  }
+  ////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'web-pay-choose.mjs' -> null
@@ -76125,6 +76403,53 @@ Ti.Preload("ti/mod/wn/session/_mod.json", {
   "mixins" : ["./m-session.mjs"]
 });
 //========================================
+// JOIN <m-thing-obj-actions.mjs> ti/mod/wn/th/obj/m-thing-obj-actions.mjs
+//========================================
+Ti.Preload("ti/mod/wn/th/obj/m-thing-obj-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-thing-obj-actions.mjs']);
+//========================================
+// JOIN <m-thing-obj-mutations.mjs> ti/mod/wn/th/obj/m-thing-obj-mutations.mjs
+//========================================
+Ti.Preload("ti/mod/wn/th/obj/m-thing-obj-mutations.mjs", TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-thing-obj-mutations.mjs']);
+//========================================
+// JOIN <m-thing-obj.json> ti/mod/wn/th/obj/m-thing-obj.json
+//========================================
+Ti.Preload("ti/mod/wn/th/obj/m-thing-obj.json", {
+  "meta": null,
+  "moduleName": "main",
+  "thingSetId": null,
+  "content": null,
+  "data": null,
+  "__saved_content": null,
+  "currentDataDir": null,
+  "currentDataHome": null,
+  "currentDataHomeObj": null,
+  "status": {
+    "reloading": false,
+    "doing": false,
+    "saving": false,
+    "deleting": false,
+    "changed": false,
+    "restoring": false,
+    "inRecycleBin": false
+  },
+  "fieldStatus": {}
+});
+//========================================
+// JOIN <m-thing-obj.mjs> ti/mod/wn/th/obj/m-thing-obj.mjs
+//========================================
+Ti.Preload("ti/mod/wn/th/obj/m-thing-obj.mjs", TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-thing-obj.mjs']);
+//========================================
+// JOIN <_mod.json> ti/mod/wn/th/obj/_mod.json
+//========================================
+Ti.Preload("ti/mod/wn/th/obj/_mod.json", {
+  "name": "wn-th-obj",
+  "namespaced": true,
+  "state": "./m-th-obj.json",
+  "mutations": "./m-th-obj-mutations.mjs",
+  "actions": "./m-th-obj-actions.mjs",
+  "mixins": "./m-th-obj.mjs"
+});
+//========================================
 // JOIN <m-thing-actions.mjs> ti/mod/wn/thing/m-thing-actions.mjs
 //========================================
 Ti.Preload("ti/mod/wn/thing/m-thing-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/thing/m-thing-actions.mjs']);
@@ -76309,46 +76634,6 @@ Ti.Preload("ti/mod/wn/thing/_mod.json", {
     "search" : "./mod/search",
     "current" : "./mod/current"
   }
-});
-//========================================
-// JOIN <m-obj-current-actions.mjs> ti/mod/wn/__del_obj-current/m-obj-current-actions.mjs
-//========================================
-Ti.Preload("ti/mod/wn/__del_obj-current/m-obj-current-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/__del_obj-current/m-obj-current-actions.mjs']);
-//========================================
-// JOIN <m-obj-current.json> ti/mod/wn/__del_obj-current/m-obj-current.json
-//========================================
-Ti.Preload("ti/mod/wn/__del_obj-current/m-obj-current.json", {
-  "meta" : null,
-  "content" : null,
-  "data" : null,
-  "__saved_content" : null,
-  "filter" : {},
-  "sorter" : {
-    "nm" : 1
-  },
-  "pageNumber" : 1,
-  "pageSize" : 1000,
-  "status" : {
-    "changed"   : false,
-    "saving"    : false,
-    "reloading" : false,
-    "publishing" : false
-  },
-  "fieldStatus" : {}
-});
-//========================================
-// JOIN <m-obj-current.mjs> ti/mod/wn/__del_obj-current/m-obj-current.mjs
-//========================================
-Ti.Preload("ti/mod/wn/__del_obj-current/m-obj-current.mjs", TI_PACK_EXPORTS['ti/mod/wn/__del_obj-current/m-obj-current.mjs']);
-//========================================
-// JOIN <_mod.json> ti/mod/wn/__del_obj-current/_mod.json
-//========================================
-Ti.Preload("ti/mod/wn/__del_obj-current/_mod.json", {
-  "name" : "wn-obj-current",
-  "namespaced" : true,
-  "state" : "./m-obj-current.json",
-  "actions" : "./m-obj-current-actions.mjs",
-  "mixins" : "./m-obj-current.mjs"
 });
 //========================================
 // JOIN <site-main.html> ti/lib/www/com/site-main.html

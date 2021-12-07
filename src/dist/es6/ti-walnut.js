@@ -1,4 +1,4 @@
-// Pack At: 2021-12-06 21:41:54
+// Pack At: 2021-12-07 12:26:58
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -18,23 +18,23 @@ const Io = (function(){
   ////////////////////////////////////////////
   const WnIo = {
     OID(id) {
-      if(!id) {
+      if (!id) {
         return {}
       }
       // One stage ID
       let str = _.trim(id)
       let pos = str.indexOf(':');
       if (pos < 0) {
-          return {
-            id : str,
-            myId : str
-          }
+        return {
+          id: str,
+          myId: str
+        }
       }
       // Two stage ID
       return {
         id: str,
-        homeId : str.substring(0, pos).trim(),
-        myId : str.substring(pos + 1).trim()
+        homeId: str.substring(0, pos).trim(),
+        myId: str.substring(pos + 1).trim()
       }
     },
     getObjMyId(id) {
@@ -49,13 +49,13 @@ const Io = (function(){
     /***
      * Get object meta by id(fullobjId) or path
      */
-    async loadMetaBy(idOrPath, oRefer) {
+    async loadMetaBy(idOrPath, oRefer, setup) {
       if (WnIo.isFullObjId(idOrPath)) {
-        return await WnIo.loadMetaById(idOrPath)
+        return await WnIo.loadMetaById(idOrPath, setup)
       }
       // Absolute path
       if (/^(id:|\/|~)/.test(idOrPath)) {
-        return await WnIo.loadMeta(idOrPath)
+        return await WnIo.loadMeta(idOrPath, setup)
       }
       // Relative path
       let base;
@@ -84,14 +84,14 @@ const Io = (function(){
     /***
      * Get object meta by id
      */
-    async loadMetaById(id) {
-      return await WnIo.loadMeta("id:" + id)
+    async loadMetaById(id, setup) {
+      return await WnIo.loadMeta("id:" + id, setup)
     },
     /***
      * Get object meta by full path
      */
-    async loadMeta(path) {
-      let url = URL("fetch")
+    async loadMeta(path, { loadPath = false } = {}) {
+      let url = URL(loadPath ? "fetch2" : "fetch")
       let reo = await Ti.Http.get(url, {
         params: {
           str: path
@@ -307,7 +307,7 @@ const Io = (function(){
       // Load meta 
       let targetPath;
       if (metaOrPath.id && metaOrPath.ph) {
-        let {id,nm,ph,race} = metaOrPath
+        let { id, nm, ph, race } = metaOrPath
         if ('DIR' == race) {
           throw Ti.Err.make('e-wn-io-writeNoFile', ph || nm)
         }
@@ -3203,55 +3203,61 @@ const OpenObjTree = (function(){
   /***
    * Open Modal Dialog to explore one or multi files
    */
-   async function OpenObjTree(pathOrObj="~", {
+  async function OpenObjTree(pathOrObj = "~", {
     title = "i18n:select",
     icon = "zmdi-gamepad",
     type = "info", closer = true,
     textOk = "i18n:ok",
     textCancel = "i18n:cancel",
     position = "top",
-    width=640, height="90%", spacing,
-    multi=false,
-    exposeHidden=false,
+    width = 640, height = "90%", spacing,
+    multi = false,
+    exposeHidden = false,
     treeDisplay,
-    homePath=Wn.Session.getHomePath(),
-    fallbackPath=Wn.Session.getHomePath(),
+    homePath = Wn.Session.getHomePath(),
+    fallbackPath = Wn.Session.getHomePath(),
     objMatch = {
-      race : "DIR"
+      race: "DIR"
     },
     objSort,
     objFilter
-  }={}){
+  } = {}) {
     //................................................
-    let oHome = await Wn.Io.loadMeta(homePath)
+    let oHome = await Wn.Io.loadMeta(homePath, { loadPath: true })
     //................................................
     // Load the target object
     let meta = pathOrObj;
-    if(_.isString(pathOrObj))
-      meta = await Wn.Io.loadMeta(pathOrObj)
+    // String as path
+    if (_.isString(pathOrObj)) {
+      meta = await Wn.Io.loadMeta(pathOrObj, { loadPath: true })
+    }
+    // Without path
+    else if (meta && meta.id && !meta.ph) {
+      meta = await Wn.Io.loadMetaById(meta.id, { loadPath: true })
+    }
     // Fallback
-    if(!meta && fallbackPath && pathOrObj!=fallbackPath) {
+    if (!meta && fallbackPath && pathOrObj != fallbackPath) {
       meta = await Wn.Io.loadMeta(fallbackPath)
     }
     // Fail to load
-    if(!meta) {
+    if (!meta) {
       return await Ti.Toast.Open({
-        content : "i18n:e-io-obj-noexistsf",
-        vars : _.isString(pathOrObj)
-                ? { ph: pathOrObj, nm: Ti.Util.getFileName(pathOrObj)}
-                : pathOrObj.ph
+        content: "i18n:e-io-obj-noexistsf",
+        vars: _.isString(pathOrObj)
+          ? { ph: pathOrObj, nm: Ti.Util.getFileName(pathOrObj) }
+          : pathOrObj.ph
       }, "warn")
     }
     //................................................
     // Make sure the obj is dir
-    if("DIR" != meta.race) {
+    if ("DIR" != meta.race) {
       meta = await Wn.Io.loadMetaById(meta.pid)
-      if(!meta) {
+      if (!meta) {
         return await Ti.Toast.Open({
-          content : "i18n:e-io-obj-noexistsf",
-          vars : {
-            ph : `Parent of id:${meta.id}->pid:${meta.pid}`,
-            nm : `Parent of id:${meta.nm}->pid:${meta.pid}`,
+          content: "i18n:e-io-obj-noexistsf",
+          vars: {
+            ph: `Parent of id:${meta.id}->pid:${meta.pid}`,
+            nm: `Parent of id:${meta.nm}->pid:${meta.pid}`,
           }
         }, "warn")
       }
@@ -3259,7 +3265,7 @@ const OpenObjTree = (function(){
     //................................................
     let oP = meta
     let aph = Wn.Io.getFormedPath(oP);
-    if(aph.startsWith("~/")) {
+    if (aph.startsWith("~/")) {
       aph = aph.substring(2);
     }
     let phs = Ti.Util.splitPathToFullAncestorList(aph)
@@ -3270,35 +3276,35 @@ const OpenObjTree = (function(){
       type, width, height, spacing, position, closer,
       icon, title, textOk, textCancel,
       //..............................................
-      model : {event:"select"},
+      model: { event: "select" },
       //..............................................
-      comType : "WnObjTree",
-      comConf : {
-        meta : oHome,
-        showRoot : false,
+      comType: "WnObjTree",
+      comConf: {
+        meta: oHome,
+        showRoot: false,
         multi,
         display: treeDisplay,
-        currentId : oP.id,
-        openedNodePath : phs,
-        objMatch, 
+        currentId: oP.id,
+        openedNodePath: phs,
+        objMatch,
         sortBy: objSort,
-        objFilter : objFilter || function(obj) {
+        objFilter: objFilter || function (obj) {
           // Hidden file
-          if(!exposeHidden && /^\./.test(obj.nm)) {
+          if (!exposeHidden && /^\./.test(obj.nm)) {
             return false
           }
           return true
         }
       },
-      components : ["@com:wn/obj/tree"]
+      components: ["@com:wn/obj/tree"]
     })
     //................................................
-    if(!reo || _.isEmpty(reo.selected)) {
+    if (!reo || _.isEmpty(reo.selected)) {
       return
     }
     //................................................
     // End of OpenObjTree
-    if(multi) {
+    if (multi) {
       return reo.selected
     }
     return reo.current
@@ -4196,7 +4202,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20211206.214155"
+const WALNUT_VERSION = "1.2-20211207.122658"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

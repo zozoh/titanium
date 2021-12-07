@@ -1,0 +1,8 @@
+{
+  "name": "wn-th-obj",
+  "namespaced": true,
+  "state": "./m-th-obj.json",
+  "mutations": "./m-th-obj-mutations.mjs",
+  "actions": "./m-th-obj-actions.mjs",
+  "mixins": "./m-th-obj.mjs"
+}
