@@ -72,12 +72,30 @@ const _M = {
     state.dataHomeObj = _.cloneDeep(dataHomeObj)
   },
   //----------------------------------------
-  setUseMetaSchemaAs(state, useMetaSchemaAs) {
-    state.useMetaSchemaAs = useMetaSchemaAs
+  setActionsPath(state, actionsPath) {
+    state.actionsPath = actionsPath
+  },
+  setLayoutPath(state, layoutPath) {
+    state.layoutPath = layoutPath
+  },
+  setSchemaPath(state, schemaPath) {
+    state.schemaPath = schemaPath
+  },
+  setMethodsPaths(state, methodsPaths) {
+    state.methodsPath = methodsPaths
   },
   //----------------------------------------
-  setMetaSchema(state, metaSchema={}) {
-    state.metaSchema = metaSchema
+  setThingActions(state, thingActions = {}) {
+    state.thingActions = thingActions
+  },
+  setLayout(state, layout = {}) {
+    state.layout = layout
+  },
+  setSchema(state, schema = {}) {
+    state.schema = schema
+  },
+  setThingMethods(state, thingMethods = {}) {
+    state.thingMethods = thingMethods
   },
   //----------------------------------------
   //

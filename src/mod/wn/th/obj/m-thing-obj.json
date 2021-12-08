@@ -32,6 +32,12 @@
     "inRecycleBin": false
   },
   "fieldStatus": {},
-  "useMetaSchemaAs": "meta",
-  "metaSchema": {}
+  "actionsPath": "thing-actions.json",
+  "layoutPath": "thing-layout.json",
+  "schemaPath": "thing-schema.json",
+  "methodsPaths": "thing-methods.mjs",
+  "thingActions": [],
+  "layout": {},
+  "schema": {},
+  "thingMethods": {}
 }
