@@ -1,0 +1,29 @@
+<div class="ti-filerbar" :class="TopClass">
+  <!--
+    Show marjor filter conditions
+  -->
+  <div
+    v-if="hasMajor"
+      class="as-major">
+
+  </div>
+  <!--
+    Input and filtered tags
+    +---------------------------------------------+
+    | Tag | Tag | Tag |    Input value      | Adv |
+    +---------------------------------------------+
+  -->
+  <div class="as-filter">
+    <TiInputTags v-bind="FilterInputConf"/>
+  </div>
+  <!--
+    Sorter
+  -->
+  <div
+    v-if="hasSorter"
+      class="as-sorter">
+      <TiComboSorter
+        v-bind="sorterConf"
+        :value="sorter"/>
+  </div>
+</div>

@@ -163,7 +163,7 @@ const WnUtil = {
     encoded = false
   } = {}) {
     return WnUtil.getLink(`/a/open/${appName}`, meta, {
-      pathKey: "ph",
+      pathKey: "id",
       encoded
     })
   },
@@ -399,11 +399,11 @@ const WnUtil = {
     }
     // META: "478e..6ea2"
     else if (_.isString(meta)) {
-      params2[pathKey] = `id:${meta}`
+      params2[pathKey] = "id" == pathKey ? meta : `id:${meta}`
     }
     // META: {id:"478e..6ea2"}
     else if (meta.id) {
-      params2[pathKey] = `id:${meta.id}`
+      params2[pathKey] = "id" == pathKey ? meta.id : `id:${meta.id}`
     }
     // META: {ph:"/path/to/obj"}
     else if (meta.ph) {

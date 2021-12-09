@@ -1,0 +1,12 @@
+{
+  "name": "wn-th-adaptor",
+  "globally": true,
+  "i18n": "@i18n:wn-thing",
+  "template": "./wn-th-adaptor.html",
+  "props": "./wn-th-adaptor-prop.mjs",
+  "mixins": [
+    "./wn-th-adaptor.mjs",
+    "./wn-th-adaptor-gui.mjs"
+  ],
+  "components": []
+}

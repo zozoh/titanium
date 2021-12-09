@@ -32,7 +32,7 @@
     :style="ValueStyle"
     @click.left="OnClickValue">
     <!--Link-->
-    <template v-if="href || valueClickable">
+    <template v-if="TheHref || valueClickable">
       <a
         v-if="editable"
           class="as-value-edit"
@@ -40,8 +40,9 @@
           @click.left.prevent="OnDblClick">
             <i class="far fa-edit"></i></a>
       <a 
-        :href="href"
-        :target="newTab ? '_blank' : undefined">{{myDisplayText}}</a>
+        :href="TheHref"
+        :target="newTab ? '_blank' : undefined"
+        @click.left="OnClickLink">{{myDisplayText}}</a>
     </template>
     <!--Normal Text-->
     <span v-else>{{myDisplayText}}</span>

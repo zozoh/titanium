@@ -1,14 +1,30 @@
 {
-  "meta": null,
   "moduleName": "main",
+  "oTs": null,
   "thingSetId": null,
+  "fixedMatch": {},
+  "filter": {},
+  "sorter": {
+    "ct": -1
+  },
+  "list": [],
+  "currentId": null,
+  "checkedIds": {},
+  "pager": {
+    "pn": 1,
+    "pgsz": 50,
+    "pgc": 0,
+    "sum": 0,
+    "skip": 0,
+    "count": 0
+  },
+  "meta": null,
   "content": null,
-  "data": null,
   "__saved_content": null,
   "dataHome": null,
   "dataHomeObj": null,
-  "keepDataDirNameToLocal": true,
   "dataDirName": null,
+  "keepDataDirNameToLocal": true,
   "dataDirFiles": {
     "list": [],
     "pager": {
@@ -35,7 +51,7 @@
   "actionsPath": "thing-actions.json",
   "layoutPath": "thing-layout.json",
   "schemaPath": "thing-schema.json",
-  "methodsPaths": "thing-methods.mjs",
+  "methodPaths": "thing-methods.mjs",
   "thingActions": [],
   "layout": {},
   "schema": {},

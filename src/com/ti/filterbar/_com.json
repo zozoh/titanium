@@ -1,0 +1,11 @@
+{
+  "name": "ti-filterbar",
+  "globally": true,
+  "template": "./ti-filterbar.html",
+  "props": "./ti-filter-props.mjs",
+  "mixins": "./ti-filterbar.mjs",
+  "components": [
+    "@com:ti/input/tags",
+    "@com:ti/combo/sorter"
+  ]
+}

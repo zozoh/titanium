@@ -1,15 +1,36 @@
 const _M = {
   //----------------------------------------
-  setMeta(state, meta) {
-    state.meta = meta
+  setModuleName(state, moduleName) {
+    state.moduleName = moduleName
   },
   //----------------------------------------
   setThingSetId(state, thingSetId) {
     state.thingSetId = thingSetId
   },
   //----------------------------------------
-  setModuleName(state, moduleName) {
-    state.moduleName = moduleName
+  setThingSet(state, oTs) {
+    state.oTs = oTs
+  },
+  //----------------------------------------
+  //
+  // Search
+  //
+  //----------------------------------------
+  //----------------------------------------
+  //
+  // Meta / Date
+  //
+  //----------------------------------------
+  setMeta(state, meta) {
+    state.meta = meta
+  },
+  //--------------------------------------------
+  assignMeta(state, meta) {
+    state.meta = _.assign({}, state.meta, meta);
+  },
+  //--------------------------------------------
+  mergeMeta(state, meta) {
+    state.meta = _.merge({}, state.meta, meta);
   },
   //----------------------------------------
   setContent(state, content) {
@@ -54,6 +75,10 @@ const _M = {
     }
   },
   //----------------------------------------
+  //
+  // Files
+  //
+  //----------------------------------------
   setKeepDataDirNameToLocal(state, kddtl) {
     state.keepDataDirNameToLocal = kddtl
   },
@@ -72,6 +97,10 @@ const _M = {
     state.dataHomeObj = _.cloneDeep(dataHomeObj)
   },
   //----------------------------------------
+  //
+  // GUI Settings
+  //
+  //----------------------------------------
   setActionsPath(state, actionsPath) {
     state.actionsPath = actionsPath
   },
@@ -81,8 +110,8 @@ const _M = {
   setSchemaPath(state, schemaPath) {
     state.schemaPath = schemaPath
   },
-  setMethodsPaths(state, methodsPaths) {
-    state.methodsPath = methodsPaths
+  setMethodPaths(state, methodPaths) {
+    state.methodPath = methodPaths
   },
   //----------------------------------------
   setThingActions(state, thingActions = {}) {

@@ -1,4 +1,4 @@
-// Pack At: 2021-12-07 23:35:44
+// Pack At: 2021-12-09 22:55:35
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6261,6 +6261,90 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'wn-th-adaptor-prop.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/th/adaptor/wn-th-adaptor-prop.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  "moduleName": {
+    type: String,
+    default: "main"
+  },
+  "thingSetId": {
+    type: String
+  },
+  //-----------------------------------
+  // Current Thing Meta/Content
+  //-----------------------------------
+  "meta": Object,
+  "content": String,
+  //-----------------------------------
+  // Current Thing Data Files
+  //-----------------------------------
+  "dataHome": String,
+  "dataHomeObj": Object,
+  "dataDirName": String,
+  /*
+  Current DataDir File List with pager
+  */
+  "dataDirFiles": {
+    type: Object,
+    default: () => ({
+      "list": [],
+      "pager": {
+        "pn": 1,
+        "pgsz": 50,
+        "pgc": 0,
+        "sum": 0,
+        "skip": 0,
+        "count": 0
+      }
+    })
+  },
+  "dataDirCurrentId": {
+    type: [String]
+  },
+  "dataDirCheckedIds": {
+    type: Object,
+    default: () => ({})
+  },
+  //-----------------------------------
+  // Gloable Status
+  //-----------------------------------
+  "status": {
+    type: Object,
+    default: () => ({
+      "reloading": false,
+      "doing": false,
+      "saving": false,
+      "deleting": false,
+      "changed": false,
+      "restoring": false,
+      "inRecycleBin": false
+    })
+  },
+  "fieldStatus": {
+    type: Object,
+    default: () => ({})
+  },
+  //-----------------------------------
+  // Customized GUI
+  //-----------------------------------
+  "thingActions": {
+    type: Array, default: () => []
+  },
+  "layout": {
+    type: Object, default: () => ({})
+  },
+  "schema": {
+    type: Object, default: () => ({})
+  },
+  "thingMethods": {
+    type: Object, default: () => ({})
+  }
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'web-pay-done.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/pay/done/web-pay-done.mjs'] = (function(){
@@ -8603,6 +8687,179 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'm-th-obj-mutations.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj-mutations.mjs'] = (function(){
+const _M = {
+  //----------------------------------------
+  setModuleName(state, moduleName) {
+    state.moduleName = moduleName
+  },
+  //----------------------------------------
+  setThingSetId(state, thingSetId) {
+    state.thingSetId = thingSetId
+  },
+  //----------------------------------------
+  setThingSet(state, oTs) {
+    state.oTs = oTs
+  },
+  //----------------------------------------
+  //
+  // Search
+  //
+  //----------------------------------------
+  //----------------------------------------
+  //
+  // Meta / Date
+  //
+  //----------------------------------------
+  setMeta(state, meta) {
+    state.meta = meta
+  },
+  //--------------------------------------------
+  assignMeta(state, meta) {
+    state.meta = _.assign({}, state.meta, meta);
+  },
+  //--------------------------------------------
+  mergeMeta(state, meta) {
+    state.meta = _.merge({}, state.meta, meta);
+  },
+  //----------------------------------------
+  setContent(state, content) {
+    state.content = content
+  },
+  //----------------------------------------
+  setData(state, data) {
+    state.data = data
+  },
+  //----------------------------------------
+  setSavedContent(state, content) {
+    state.__saved_content = content
+  },
+  //----------------------------------------
+  setStatus(state, status) {
+    state.status = _.assign({}, state.status, status)
+  },
+  //----------------------------------------
+  syncStatusChanged(state) {
+    if (Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
+      state.status.changed = false
+    } else {
+      state.status.changed = !_.isEqual(state.content, state.__saved_content)
+    }
+  },
+  //----------------------------------------
+  setFieldStatus(state, { name, type, text } = {}) {
+    if (name) {
+      let ukey = _.concat(name).join("-")
+      Vue.set(state.fieldStatus, ukey, { type, text })
+    }
+  },
+  //----------------------------------------
+  clearFieldStatus(state, names = []) {
+    // Clean All
+    if (_.isEmpty(names)) {
+      state.fieldStatus = {}
+    }
+    // Clear one
+    else {
+      state.fieldStatus = _.omit(state.fieldStatus, names)
+    }
+  },
+  //----------------------------------------
+  //
+  // Files
+  //
+  //----------------------------------------
+  setKeepDataDirNameToLocal(state, kddtl) {
+    state.keepDataDirNameToLocal = kddtl
+  },
+  //----------------------------------------
+  setDataDirName(state, dirName) {
+    state.dataDirName = dirName
+    if (state.meta && state.keepDataDirNameToLocal) {
+      let localDirNameKey = `${state.meta.id}_thobj_dirname`
+      Ti.Storage.session.set(localDirNameKey, dirName)
+    }
+  },
+  setDataHome(state, dataHome) {
+    state.dataHome = dataHome
+  },
+  setDataHomeObj(state, dataHomeObj) {
+    state.dataHomeObj = _.cloneDeep(dataHomeObj)
+  },
+  //----------------------------------------
+  //
+  // GUI Settings
+  //
+  //----------------------------------------
+  setActionsPath(state, actionsPath) {
+    state.actionsPath = actionsPath
+  },
+  setLayoutPath(state, layoutPath) {
+    state.layoutPath = layoutPath
+  },
+  setSchemaPath(state, schemaPath) {
+    state.schemaPath = schemaPath
+  },
+  setMethodPaths(state, methodPaths) {
+    state.methodPath = methodPaths
+  },
+  //----------------------------------------
+  setThingActions(state, thingActions = {}) {
+    state.thingActions = thingActions
+  },
+  setLayout(state, layout = {}) {
+    state.layout = layout
+  },
+  setSchema(state, schema = {}) {
+    state.schema = schema
+  },
+  setThingMethods(state, thingMethods = {}) {
+    state.thingMethods = thingMethods
+  },
+  //----------------------------------------
+  //
+  // Operations for dataDirFiles
+  //
+  //----------------------------------------
+  setDataDirFiles(state, files = []) {
+    state.dataDirFiles = files
+  },
+  //----------------------------------------
+  setDataDirCurrentId(state, currentId) {
+    state.dataDirCurrentId = currentId
+  },
+  //----------------------------------------
+  setDataDirCheckedIds(state, checkedIds = {}) {
+    state.dataDirCheckedIds = _.pickBy(checkedIds, v => v)
+  },
+  //----------------------------------------
+  prependDataDirFile(state, newItem) {
+    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "dataDirFiles")
+  },
+  //----------------------------------------
+  appendDataDirFile(state, newItem) {
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "dataDirFiles")
+  },
+  //----------------------------------------
+  setDataDirFile(state, newItem) {
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "dataDirFiles")
+  },
+  //----------------------------------------
+  mergeDataDirFile(state, theItem) {
+    Ti.Util.MergeStateDataDirFile(state, theItem, "dataDirFiles")
+  },
+  //----------------------------------------
+  removeDataItems(state, items = []) {
+    Ti.Util.RemoveStateDataItems(state, items, "dataDirFiles")
+  },
+  //----------------------------------------
+}
+return _M;
+;
 })()
 // ============================================================
 // EXPORT 'ti-transfer.mjs' -> null
@@ -11419,6 +11676,86 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
   }
   ///////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'ti-filterbar.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/filterbar/ti-filterbar.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //////////////////////////////////////////
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    /* {a:100, b:99 ...} */
+    "filter": {
+      type: Object
+    },
+    /* {ct:-1} */
+    "sorter": {
+      type: Object
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    /*
+     Test the input keyword, auto get the filter key
+     [{test:RegExp, key:""}]
+    */
+    "matchKeyword": {
+      type: Array,
+      default: () => ({})
+    },
+    /*
+     Major filter items:
+     {key:"abc", placeholder:"xxx", options:"#xxx", width:200}
+    */
+    "marjor": {
+      type: [Object, Array],
+      default: () => []
+    },
+    /*
+     How to show the filter data as readable tags
+     {xyz: Function|Template|Dict}
+    */
+    "filterTags": {
+      type: Object,
+      default: () => ({})
+    },
+    /* 
+    Advance search dialog form. If declared, show the [Suffix Icon]
+    */
+    "advanceForm": {
+      type: Object,
+      default: null
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "placeholder": {
+      type: [String, Number],
+      default: "i18n:nil"
+    },
+    // Advance search dialog setting
+    "dialog": {
+      type: Object,
+      default: false
+    },
+    "prefixIcon": {
+      type: String,
+      default: "im-filter"
+    },
+    "suffixIcon": {
+      type: String,
+      default: "fas-cog"
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+  },
+  //////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -17560,6 +17897,98 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'wn-th-adaptor-gui.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/th/adaptor/wn-th-adaptor-gui.mjs'] = (function(){
+const _M = {
+  ///////////////////////////////////////////
+  data: () => ({
+  }),
+  ///////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    GuiExplainContext() {
+      return {
+        meta: this.meta,
+        moduleName: this.moduleName,
+        thingSetId: this.thingSetId,
+        content: this.content,
+        dataHome: this.dataHome,
+        dataHomeObj: this.dataHomeObj,
+        dataDirName: this.dataDirName,
+        dataDirCurrentId: this.dataDirCurrentId,
+        dataDirCheckedIds: this.dataDirCheckedIds,
+        status: this.status,
+        fieldStatus: this.fieldStatus,
+      }
+    },
+    //--------------------------------------
+    GuiLayout() {
+      let c = this.GuiExplainContext
+      return Ti.Util.explainObj(c, this.layout)
+    },
+    //--------------------------------------
+    GuiSchema() {
+      let c = this.GuiExplainContext
+      let schema = _.omit(this.schema, "components")
+      return Ti.Util.explainObj(c, schema)
+    },
+    //--------------------------------------
+    GuiVars() {
+      return {}
+    },
+    //--------------------------------------
+    GuiShown() {
+      return {}
+    },
+    //--------------------------------------
+    GuiLoadingAs() {
+      return {
+        "reloading": {
+          icon: "fas-spinner fa-spin",
+          text: "i18n:loading"
+        },
+        "doing": {
+          icon: "zmdi-settings fa-spin",
+          text: "i18n:doing"
+        },
+        "saving": {
+          icon: "zmdi-settings fa-spin",
+          text: "i18n:saving"
+        },
+        "deleting": {
+          icon: "zmdi-refresh fa-spin",
+          text: "i18n:del-ing"
+        },
+        "publishing": {
+          icon: "zmdi-settings zmdi-hc-spin",
+          text: "i18n:publishing"
+        },
+        "restoring": {
+          icon: "zmdi-time-restore zmdi-hc-spin",
+          text: "i18n:thing-restoring"
+        },
+        "cleaning": {
+          icon: "zmdi-settings zmdi-hc-spin",
+          text: "i18n:thing-cleaning"
+        }
+      }
+    },
+    //--------------------------------------
+    GuiIsLoading() {
+      return false
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////
+  methods: {
+
+  }
+  ///////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'form-group-props.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/form/com/form-group/form-group-props.mjs'] = (function(){
@@ -21830,6 +22259,20 @@ const _M = {
       return str
     },
     //--------------------------------------
+    TheHref() {
+      if (this.href) {
+        let c;
+        if (_.isString(this.TheValue)) {
+          c = { val: this.TheValue }
+        } else {
+          c = _.assign({}, this.TheValue)
+        }
+        return Ti.Util.explainObj(c, this.href, {
+          evalFunc: true
+        })
+      }
+    },
+    //--------------------------------------
     isHoverCopy() {
       if (_.isBoolean(this.hoverCopy)) {
         return this.hoverCopy
@@ -21917,6 +22360,12 @@ const _M = {
             this.$notify("change", val)
           }
         })
+      }
+    },
+    //------------------------------------------------
+    OnClickLink(evt) {
+      if(this.editable || !this.navigable) {
+        evt.preventDefault()
       }
     },
     //------------------------------------------------
@@ -26938,7 +27387,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // Behavior
   //-----------------------------------
   "href": {
-    type: String,
+    type: [String, Function],
     default: undefined
   },
   "newTab": {
@@ -26946,6 +27395,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default: false
   },
   "editable": {
+    type: Boolean,
+    default: false
+  },
+  "navigable": {
     type: Boolean,
     default: false
   },
@@ -30608,132 +31061,6 @@ const _M = {
   ////////////////////////////////////////////////////
 }
 return _M;;
-})()
-// ============================================================
-// EXPORT 'm-thing-obj-mutations.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-thing-obj-mutations.mjs'] = (function(){
-const _M = {
-  //----------------------------------------
-  setMeta(state, meta) {
-    state.meta = meta
-  },
-  //----------------------------------------
-  setThingSetId(state, thingSetId) {
-    state.thingSetId = thingSetId
-  },
-  //----------------------------------------
-  setModuleName(state, moduleName) {
-    state.moduleName = moduleName
-  },
-  //----------------------------------------
-  setContent(state, content) {
-    state.content = content
-  },
-  //----------------------------------------
-  setData(state, data) {
-    state.data = data
-  },
-  //----------------------------------------
-  setSavedContent(state, content) {
-    state.__saved_content = content
-  },
-  //----------------------------------------
-  setStatus(state, status) {
-    state.status = _.assign({}, state.status, status)
-  },
-  //----------------------------------------
-  syncStatusChanged(state) {
-    if (Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
-      state.status.changed = false
-    } else {
-      state.status.changed = !_.isEqual(state.content, state.__saved_content)
-    }
-  },
-  //----------------------------------------
-  setFieldStatus(state, { name, type, text } = {}) {
-    if (name) {
-      let ukey = _.concat(name).join("-")
-      Vue.set(state.fieldStatus, ukey, { type, text })
-    }
-  },
-  //----------------------------------------
-  clearFieldStatus(state, names = []) {
-    // Clean All
-    if (_.isEmpty(names)) {
-      state.fieldStatus = {}
-    }
-    // Clear one
-    else {
-      state.fieldStatus = _.omit(state.fieldStatus, names)
-    }
-  },
-  //----------------------------------------
-  setKeepDataDirNameToLocal(state, kddtl) {
-    state.keepDataDirNameToLocal = kddtl
-  },
-  //----------------------------------------
-  setDataDirName(state, dirName) {
-    state.dataDirName = dirName
-    if (state.meta && state.keepDataDirNameToLocal) {
-      let localDirNameKey = `${state.meta.id}_thobj_dirname`
-      Ti.Storage.session.set(localDirNameKey, dirName)
-    }
-  },
-  setDataHome(state, dataHome) {
-    state.dataHome = dataHome
-  },
-  setDataHomeObj(state, dataHomeObj) {
-    state.dataHomeObj = _.cloneDeep(dataHomeObj)
-  },
-  //----------------------------------------
-  setUseMetaSchemaAs(state, useMetaSchemaAs) {
-    state.useMetaSchemaAs = useMetaSchemaAs
-  },
-  //----------------------------------------
-  setMetaSchema(state, metaSchema={}) {
-    state.metaSchema = metaSchema
-  },
-  //----------------------------------------
-  //
-  // Operations for dataDirFiles
-  //
-  //----------------------------------------
-  setDataDirFiles(state, files = []) {
-    state.dataDirFiles = files
-  },
-  //----------------------------------------
-  setDataDirCurrentId(state, currentId) {
-    state.dataDirCurrentId = currentId
-  },
-  //----------------------------------------
-  setDataDirCheckedIds(state, checkedIds = {}) {
-    state.dataDirCheckedIds = _.pickBy(checkedIds, v => v)
-  },
-  //----------------------------------------
-  prependDataDirFile(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "dataDirFiles")
-  },
-  //----------------------------------------
-  appendDataDirFile(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "dataDirFiles")
-  },
-  //----------------------------------------
-  setDataDirFile(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "dataDirFiles")
-  },
-  //----------------------------------------
-  mergeDataDirFile(state, theItem) {
-    Ti.Util.MergeStateDataDirFile(state, theItem, "dataDirFiles")
-  },
-  //----------------------------------------
-  removeDataItems(state, items = []) {
-    Ti.Util.RemoveStateDataItems(state, items, "dataDirFiles")
-  },
-  //----------------------------------------
-}
-return _M;
-;
 })()
 // ============================================================
 // EXPORT 'ti-media-binary.mjs' -> null
@@ -36368,89 +36695,6 @@ const _M = {
 return _M;;
 })()
 // ============================================================
-// EXPORT 'm-thing-obj-actions.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-thing-obj-actions.mjs'] = (function(){
-const _M = {
-  //--------------------------------------------
-  async loadMetaSchema({ state, commit }) {
-    //console.log("reloadSchema")
-    let tsId = state.thingSetId
-    let aph = `id:${tsId}/thing-schema.json`
-    let obj = await Wn.Io.loadMeta(aph)
-    let schema = await Wn.Io.loadContent(obj, { as: "json" })
-
-    // Load extends components
-    if (!_.isEmpty(schema.components)) {
-      let components = _.concat(schema.components)
-      await Ti.App.topInstance().loadView({ components })
-    }
-    //console.log("setSchema", schema)
-    commit("setSchema", schema[state.useMetaSchemaAs])
-  },
-  //--------------------------------------------
-  async loadThingSetId({ state, commit }) {
-    let meta = state.meta
-    if (!meta) {
-      return
-    }
-    if (_.isString(meta.th_set)) {
-      commit("setThingSetId", meta.th_set)
-    }
-    // Load thingset ancestor by meta
-    let ans = await Wn.Sys.exec2(`o id:${meta.id} @ancestors -um '{tp:"thing_set"}' @json -cqnl`)
-    let first = _.first(ans)
-    if (first && first.tp == "thing_set") {
-      commit("setThingSetId", first.id)
-    }
-  },
-  //--------------------------------------------
-  /***
-   * Reload All
-   */
-  async reload({ state, commit, dispatch, getters, rootState }, meta) {
-    // Guard
-    if (_.isString(meta)) {
-      meta = await Wn.Io.loadMeta(meta)
-    }
-    if (!meta) {
-      return await Ti.Toast.Open("Nil Meta", "warn")
-    }
-    if (!meta.id) {
-      return await Ti.Toast.Open("Meta without ID", "warn")
-    }
-
-    // CheckThingSet ID
-    commit("setMeta", meta)
-    commit("setThingSetId", null)
-    await dispatch("loadThingSetId")
-
-    if (!state.thingSetId) {
-      return await Ti.Toast.Open("Meta OutOfThingSet: " + meta.id, "warn")
-    }
-
-    // Reload meta schema
-    if (state.useMetaSchemaAs) {
-      await dispatch("loadMetaSchema")
-    }
-    // Reset schema
-    else {
-      commit("setMetaSchema", {})
-    }
-
-    //
-
-
-
-    // All done
-    commit("setStatus", { reloading: false })
-  }
-  //--------------------------------------------
-}
-return _M;
-;
-})()
-// ============================================================
 // EXPORT 'ti-month.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/month/ti-month.mjs'] = (function(){
@@ -41616,6 +41860,260 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'm-th-obj-actions.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj-actions.mjs'] = (function(){
+////////////////////////////////////////////////
+async function loadConfigJson(state, key, dft) {
+  // Guard
+  let path = state[key]
+  if (!path) {
+    return dft
+  }
+  // Load
+  let tsId = state.thingSetId
+  let aph = `id:${tsId}/${path}`
+  let re = await Wn.Sys.exec(`cat ${aph}`)
+  re = _.trim(re)
+
+  // Not exists
+  if (!re || /^e\./.test(re)) {
+    return dft
+  }
+
+  // Parse As JSON
+  return JSON.parse(re)
+}
+////////////////////////////////////////////////
+const _M = {
+  //----------------------------------------
+  changeMeta({ commit }, { name, value } = {}) {
+    if (name) {
+      let meta = _.set({}, name, value)
+      commit("mergeMeta", meta)
+      commit("syncStatusChanged")
+    }
+  },
+  //--------------------------------------------
+  async updateMeta({ commit, dispatch }, { name, value } = {}) {
+    //console.log("current.updateMeta", { name, value })
+    let data = Ti.Types.toObjByPair({ name, value })
+    await dispatch("updateMetas", data)
+  },
+  //--------------------------------------------
+  async updateMetas({ state, commit }, data = {}) {
+    // Check Necessary
+    if (_.isMatchWith(state.meta, data, _.isEqual)) {
+      return
+    }
+
+    if (!state.meta) {
+      return await Ti.Toast.Open("ThObj meta without defined", "warn")
+    }
+
+    if (!state.thingSetId) {
+      return await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
+    }
+
+    // Mark field status
+    _.forEach(data, (val, name) => {
+      commit("setFieldStatus", { name, type: "spinning", text: "i18n:saving" })
+    })
+
+    // Do the update
+    let json = JSON.stringify(data)
+    let th_set = state.thingSetId
+    let th_id = state.meta.id
+    let cmdText = `thing id:${th_set} update ${th_id} -fields -cqn`
+    let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+    let isError = reo instanceof Error;
+
+    if (!isError && !Ti.Util.isNil(reo)) {
+      commit("setMeta", reo)
+    }
+
+    _.forEach(data, (val, name) => {
+      if (isError) {
+        commit("setFieldStatus", {
+          name,
+          type: "warn",
+          text: reo.message || "i18n:fail"
+        })
+      } else {
+        commit("setFieldStatus", {
+          name,
+          type: "ok",
+          text: "i18n:ok"
+        })
+        _.delay(() => { commit("clearFieldStatus", name) }, 500)
+      }
+    })
+  },
+  //--------------------------------------------
+  changeContent({ commit }, payload) {
+    commit("setContent", payload)
+    commit("syncStatusChanged");
+  },
+  //----------------------------------------
+  updateContent({ commit }, content) {
+    commit("setContent", content)
+    commit("setSavedContent", content)
+    commit("syncStatusChanged")
+  },
+  //--------------------------------------------
+  async saveContent({ state, commit }) {
+    if (state.status.saving || !state.status.changed) {
+      return
+    }
+
+    commit("setStatus", { saving: true })
+
+    let meta = state.meta
+    let content = state.content
+    let newMeta = await Wn.Io.saveContentAsText(meta, content)
+
+    commit("setStatus", { saving: false })
+    commit("setMeta", newMeta)
+    commit("setSavedContent", content)
+    commit("syncStatusChanged")
+
+    // return the new meta
+    return newMeta
+  },
+  //--------------------------------------------
+  async loadContent({ state, commit }) {
+    // Guard
+    let meta = state.meta
+    if (!meta) {
+      return
+    }
+    // Load meta content
+    commit("setStatus", { reloading: true })
+    let content = await Wn.Io.loadContent(meta)
+    dispatch("updateContent", content)
+    commit("setStatus", { reloading: false })
+  },
+  //--------------------------------------------
+  async loadSchema({ state, commit }) {
+    let reo = await loadConfigJson(state, "schemaPath", {})
+
+    // Load extends components
+    if (!_.isEmpty(reo.components)) {
+      let components = _.concat(reo.components)
+      await Ti.App.topInstance().loadView({ components })
+    }
+    //console.log("setSchema", schema)
+    commit("setSchema", reo)
+  },
+  //--------------------------------------------
+  async loadLayout({ state, commit }) {
+    let reo = await loadConfigJson(state, "layoutPath", {})
+    commit("setLayout", reo)
+  },
+  //--------------------------------------------
+  async loadThingActions({ state, commit }) {
+    let reo = await loadConfigJson(state, "actionsPath", [])
+    commit("setThingActions", reo)
+  },
+  //--------------------------------------------
+  async loadThingMethods({ state, commit }) {
+    // Guard
+    let reo = {}
+
+    // Load
+    if (state.methodPaths) {
+      let methodsUri = `./${state.methodPaths}`
+      let methods = await Ti.Load(methodsUri, {
+        dynamicAlias: new Ti.Config.AliasMapping({
+          "^\./": `/o/content?str=id:${state.thingSetId}/`
+        })
+      })
+      // Merge methods
+      if (_.isArray(methods)) {
+        for (let mt of methods) {
+          _.assign(reo, mt)
+        }
+      } else {
+        _.assign(reo, methods)
+      }
+    }
+
+    // Done
+    commit("setThingMethods", reo)
+  },
+  //--------------------------------------------
+  async loadThingSetId({ state, commit }) {
+    let meta = state.meta
+    if (!meta) {
+      return
+    }
+    if (_.isString(meta.th_set)) {
+      commit("setThingSetId", meta.th_set)
+    }
+    // Load thingset ancestor by meta
+    let ans = await Wn.Sys.exec2(`o id:${meta.id} @ancestors -um '{tp:"thing_set"}' @json -cqnl`)
+    let first = _.first(ans)
+    if (first && first.tp == "thing_set") {
+      commit("setThingSetId", first.id)
+    }
+  },
+  //--------------------------------------------
+  async loadThingList({state, commit}) {
+
+  },
+  //--------------------------------------------
+  /***
+   * Reload All
+   */
+  async reload({ state, commit, dispatch, getters, rootState }, meta) {
+    // Guard
+    if (_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+    if (!meta) {
+      return await Ti.Toast.Open("Nil Meta", "warn")
+    }
+    if (!meta.id) {
+      return await Ti.Toast.Open("Meta without ID", "warn")
+    }
+
+    // Analyze meta : oTs
+    if ("thing_set" == meta.tp && "DIR" == meta.race) {
+      commit("setThingSet", meta)
+      commit("setThingSetId", meta.id)
+      await dispatch("loadThingList")
+    }
+    // Then meta should be a thing
+    else {
+      // CheckThingSet ID
+      commit("setMeta", meta)
+      commit("setThingSetId", null)
+      await dispatch("loadThingSetId")
+    }
+
+    if (!state.thingSetId) {
+      return await Ti.Toast.Open("Meta OutOfThingSet: " + meta.id, "warn")
+    }
+
+    // Reload Configurations
+    await dispatch("loadSchema")
+    await dispatch("loadLayout")
+    await dispatch("loadThingActions")
+    await dispatch("loadThingMethods")
+
+    // 
+
+
+
+    // All done
+    commit("setStatus", { reloading: false })
+  }
+  //--------------------------------------------
+}
+return _M;
+;
+})()
+// ============================================================
 // EXPORT 'ti-icon.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/icon/ti-icon.mjs'] = (function(){
@@ -42832,6 +43330,22 @@ const _M = {
   /////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'm-th-obj.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj.mjs'] = (function(){
+//---------------------------------------
+const __TI_MOD_EXPORT_VAR_NM = {
+  getters: {
+    //--------------------------------------------
+    isMetaInRecycleBin(state) {
+      return -1 == _.get(state.meta, "th_live")
+    }
+    //--------------------------------------------
+  }
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'md-quill.mjs' -> null
@@ -54714,6 +55228,61 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'wn-th-adaptor.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/th/adaptor/wn-th-adaptor.mjs'] = (function(){
+const _M = {
+  ///////////////////////////////////////////
+  data: () => ({
+  }),
+  ///////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    //
+    //  Utility
+    //
+    //--------------------------------------
+
+    //--------------------------------------
+    //
+    // Callback
+    //
+    //--------------------------------------
+    // For Event Bubble Dispatching
+    // __on_events(name, payload) {
+    // },
+    //--------------------------------------
+    // __ti_shortcut(uniqKey) {      
+    // }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////
+  created: function () {
+  },
+  ///////////////////////////////////////////
+  mounted: async function () {
+    // Update the customized actions
+    let actions = this.thingActions || []
+    if (_.isArray(actions)) {
+      this.$notify("actions:update", actions)
+    }
+  },
+  ///////////////////////////////////////////
+  beforeDestroy: function () {
+  }
+  ///////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'ti-slide-bar.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/slide/bar/ti-slide-bar.mjs'] = (function(){
@@ -61797,62 +62366,6 @@ const _M = {
 return _M;;
 })()
 // ============================================================
-// EXPORT 'm-thing-obj.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-thing-obj.mjs'] = (function(){
-//---------------------------------------
-const __TI_MOD_EXPORT_VAR_NM = {
-  ////////////////////////////////////////////
-  getters : {
-    hasCurrent(state) {
-      return state.current && state.current.meta
-    },
-    isInRecycleBin(state) {
-      return state.search.inRecycleBin
-    }
-  },
-  ////////////////////////////////////////////
-  mutations : {
-    setMeta(state, meta) {
-      state.meta = meta
-    },
-    setFixedSchema(state, schema={}) {
-      state.fixedSchema = _.cloneDeep(schema)
-    },
-    mergeFixedSchema(state, schema={}) {
-      state.fixedSchema = _.merge({}, state.fixedSchema, schema)
-    },
-    setCurrentDataDir(state, dirName) {
-      state.currentDataDir = dirName
-      if(state.meta) {
-        let localDirNameKey = `${state.meta.id}_dirname`
-        Ti.Storage.session.set(localDirNameKey, dirName)
-      }
-    },
-    setCurrentDataHome(state, dataHome) {
-      state.currentDataHome = dataHome
-    },
-    setCurrentDataHomeObj(state, dataHomeObj) {
-      state.currentDataHomeObj = _.cloneDeep(dataHomeObj)
-    },
-    setAutoSelect(state, autoSelect) {
-      state.autoSelect = Ti.Util.fallback(autoSelect, false)
-    },
-    setStatus(state, status) {
-      state.status = _.assign({}, state.status, status)
-    },
-    syncStatusChanged(state){
-      if(state.current) {
-        //console.log("do sync")
-        state.status.changed = state.current.status.changed
-      }
-    }
-  }
-  ////////////////////////////////////////////
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
 // EXPORT 'web-pay-choose.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/pay/choose/web-pay-choose.mjs'] = (function(){
@@ -65513,6 +66026,38 @@ Ti.Preload("ti/com/ti/droptree/_com.json", {
   ]
 });
 //========================================
+// JOIN <ti-filterbar.html> ti/com/ti/filterbar/ti-filterbar.html
+//========================================
+Ti.Preload("ti/com/ti/filterbar/ti-filterbar.html", `<div class="ti-filerbar" :class="TopClass">
+  <!--
+    Show marjor filter conditions
+  -->
+
+  <!--
+    Input and filtered tags
+    +---------------------------------------------+
+    | Tag | Tag | Tag |    Input value      | Adv |
+    +---------------------------------------------+
+  -->
+
+  <!--
+    Sorter
+  -->
+</div>`);
+//========================================
+// JOIN <ti-filterbar.mjs> ti/com/ti/filterbar/ti-filterbar.mjs
+//========================================
+Ti.Preload("ti/com/ti/filterbar/ti-filterbar.mjs", TI_PACK_EXPORTS['ti/com/ti/filterbar/ti-filterbar.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/filterbar/_com.json
+//========================================
+Ti.Preload("ti/com/ti/filterbar/_com.json", {
+  "name" : "ti-filterbar",
+  "globally" : true,
+  "template" : "./ti-filterbar.html",
+  "mixins" : ["./ti-filterbar.mjs"]
+});
+//========================================
 // JOIN <form-field-props.mjs> ti/com/ti/form/com/form-field/form-field-props.mjs
 //========================================
 Ti.Preload("ti/com/ti/form/com/form-field/form-field-props.mjs", TI_PACK_EXPORTS['ti/com/ti/form/com/form-field/form-field-props.mjs']);
@@ -67014,7 +67559,7 @@ Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
     :style="ValueStyle"
     @click.left="OnClickValue">
     <!--Link-->
-    <template v-if="href || valueClickable">
+    <template v-if="TheHref || valueClickable">
       <a
         v-if="editable"
           class="as-value-edit"
@@ -67022,8 +67567,9 @@ Ti.Preload("ti/com/ti/label/ti-label.html", `<div class="ti-label"
           @click.left.prevent="OnDblClick">
             <i class="far fa-edit"></i></a>
       <a 
-        :href="href"
-        :target="newTab ? '_blank' : undefined">{{myDisplayText}}</a>
+        :href="TheHref"
+        :target="newTab ? '_blank' : undefined"
+        @click.left="OnClickLink">{{myDisplayText}}</a>
     </template>
     <!--Normal Text-->
     <span v-else>{{myDisplayText}}</span>
@@ -74911,6 +75457,47 @@ Ti.Preload("ti/com/wn/table/_com.json", {
     "@com:ti/table"]
 });
 //========================================
+// JOIN <wn-th-adaptor-gui.mjs> ti/com/wn/th/adaptor/wn-th-adaptor-gui.mjs
+//========================================
+Ti.Preload("ti/com/wn/th/adaptor/wn-th-adaptor-gui.mjs", TI_PACK_EXPORTS['ti/com/wn/th/adaptor/wn-th-adaptor-gui.mjs']);
+//========================================
+// JOIN <wn-th-adaptor-prop.mjs> ti/com/wn/th/adaptor/wn-th-adaptor-prop.mjs
+//========================================
+Ti.Preload("ti/com/wn/th/adaptor/wn-th-adaptor-prop.mjs", TI_PACK_EXPORTS['ti/com/wn/th/adaptor/wn-th-adaptor-prop.mjs']);
+//========================================
+// JOIN <wn-th-adaptor.html> ti/com/wn/th/adaptor/wn-th-adaptor.html
+//========================================
+Ti.Preload("ti/com/wn/th/adaptor/wn-th-adaptor.html", `<ti-gui
+  class="wn-th-obj"
+  :class="TopClass"
+  :layout="GuiLayout"
+  :schema="GuiSchema"
+  :vars="GuiVars"
+  :shown="GuiShown"
+  :can-loading="true"
+  :loading-as="GuiLoadingAs"
+  :loading="GuiIsLoading"
+  :action-status="status"/>`);
+//========================================
+// JOIN <wn-th-adaptor.mjs> ti/com/wn/th/adaptor/wn-th-adaptor.mjs
+//========================================
+Ti.Preload("ti/com/wn/th/adaptor/wn-th-adaptor.mjs", TI_PACK_EXPORTS['ti/com/wn/th/adaptor/wn-th-adaptor.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/th/adaptor/_com.json
+//========================================
+Ti.Preload("ti/com/wn/th/adaptor/_com.json", {
+  "name": "wn-th-adaptor",
+  "globally": true,
+  "i18n": "@i18n:wn-thing",
+  "template": "./wn-th-adaptor.html",
+  "props": "./wn-th-adaptor-prop.mjs",
+  "mixins": [
+    "./wn-th-adaptor.mjs",
+    "./wn-th-adaptor-gui.mjs"
+  ],
+  "components": []
+});
+//========================================
 // JOIN <thing-creator.html> ti/com/wn/thing/manager/com/thing-creator/thing-creator.html
 //========================================
 Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/thing-creator.html", `<div class="thing-creator ti-box-relative">
@@ -75854,27 +76441,43 @@ Ti.Preload("ti/mod/wn/session/_mod.json", {
   "mixins" : ["./m-session.mjs"]
 });
 //========================================
-// JOIN <m-thing-obj-actions.mjs> ti/mod/wn/th/obj/m-thing-obj-actions.mjs
+// JOIN <m-th-obj-actions.mjs> ti/mod/wn/th/obj/m-th-obj-actions.mjs
 //========================================
-Ti.Preload("ti/mod/wn/th/obj/m-thing-obj-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-thing-obj-actions.mjs']);
+Ti.Preload("ti/mod/wn/th/obj/m-th-obj-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj-actions.mjs']);
 //========================================
-// JOIN <m-thing-obj-mutations.mjs> ti/mod/wn/th/obj/m-thing-obj-mutations.mjs
+// JOIN <m-th-obj-mutations.mjs> ti/mod/wn/th/obj/m-th-obj-mutations.mjs
 //========================================
-Ti.Preload("ti/mod/wn/th/obj/m-thing-obj-mutations.mjs", TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-thing-obj-mutations.mjs']);
+Ti.Preload("ti/mod/wn/th/obj/m-th-obj-mutations.mjs", TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj-mutations.mjs']);
 //========================================
-// JOIN <m-thing-obj.json> ti/mod/wn/th/obj/m-thing-obj.json
+// JOIN <m-th-obj.json> ti/mod/wn/th/obj/m-th-obj.json
 //========================================
-Ti.Preload("ti/mod/wn/th/obj/m-thing-obj.json", {
-  "meta": null,
+Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "moduleName": "main",
+  "oTs": null,
   "thingSetId": null,
+  "fixedMatch": {},
+  "filter": {},
+  "sorter": {
+    "ct": -1
+  },
+  "list": [],
+  "currentId": null,
+  "checkedIds": {},
+  "pager": {
+    "pn": 1,
+    "pgsz": 50,
+    "pgc": 0,
+    "sum": 0,
+    "skip": 0,
+    "count": 0
+  },
+  "meta": null,
   "content": null,
-  "data": null,
   "__saved_content": null,
   "dataHome": null,
   "dataHomeObj": null,
-  "keepDataDirNameToLocal": true,
   "dataDirName": null,
+  "keepDataDirNameToLocal": true,
   "dataDirFiles": {
     "list": [],
     "pager": {
@@ -75898,13 +76501,19 @@ Ti.Preload("ti/mod/wn/th/obj/m-thing-obj.json", {
     "inRecycleBin": false
   },
   "fieldStatus": {},
-  "useMetaSchemaAs": "meta",
-  "metaSchema": {}
+  "actionsPath": "thing-actions.json",
+  "layoutPath": "thing-layout.json",
+  "schemaPath": "thing-schema.json",
+  "methodPaths": "thing-methods.mjs",
+  "thingActions": [],
+  "layout": {},
+  "schema": {},
+  "thingMethods": {}
 });
 //========================================
-// JOIN <m-thing-obj.mjs> ti/mod/wn/th/obj/m-thing-obj.mjs
+// JOIN <m-th-obj.mjs> ti/mod/wn/th/obj/m-th-obj.mjs
 //========================================
-Ti.Preload("ti/mod/wn/th/obj/m-thing-obj.mjs", TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-thing-obj.mjs']);
+Ti.Preload("ti/mod/wn/th/obj/m-th-obj.mjs", TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj.mjs']);
 //========================================
 // JOIN <_mod.json> ti/mod/wn/th/obj/_mod.json
 //========================================

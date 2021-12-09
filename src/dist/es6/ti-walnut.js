@@ -1,4 +1,4 @@
-// Pack At: 2021-12-07 23:35:44
+// Pack At: 2021-12-09 22:55:35
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -1941,7 +1941,7 @@ const Util = (function(){
       encoded = false
     } = {}) {
       return WnUtil.getLink(`/a/open/${appName}`, meta, {
-        pathKey: "ph",
+        pathKey: "id",
         encoded
       })
     },
@@ -2177,11 +2177,11 @@ const Util = (function(){
       }
       // META: "478e..6ea2"
       else if (_.isString(meta)) {
-        params2[pathKey] = `id:${meta}`
+        params2[pathKey] = "id" == pathKey ? meta : `id:${meta}`
       }
       // META: {id:"478e..6ea2"}
       else if (meta.id) {
-        params2[pathKey] = `id:${meta.id}`
+        params2[pathKey] = "id" == pathKey ? meta.id : `id:${meta.id}`
       }
       // META: {ph:"/path/to/obj"}
       else if (meta.ph) {
@@ -4202,7 +4202,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20211207.233544"
+const WALNUT_VERSION = "1.2-20211209.225536"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

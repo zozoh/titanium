@@ -28,7 +28,7 @@ export default {
   // Behavior
   //-----------------------------------
   "href": {
-    type: String,
+    type: [String, Function],
     default: undefined
   },
   "newTab": {
@@ -36,6 +36,10 @@ export default {
     default: false
   },
   "editable": {
+    type: Boolean,
+    default: false
+  },
+  "navigable": {
     type: Boolean,
     default: false
   },

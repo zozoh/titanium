@@ -131,6 +131,20 @@ const _M = {
       return str
     },
     //--------------------------------------
+    TheHref() {
+      if (this.href) {
+        let c;
+        if (_.isString(this.TheValue)) {
+          c = { val: this.TheValue }
+        } else {
+          c = _.assign({}, this.TheValue)
+        }
+        return Ti.Util.explainObj(c, this.href, {
+          evalFunc: true
+        })
+      }
+    },
+    //--------------------------------------
     isHoverCopy() {
       if (_.isBoolean(this.hoverCopy)) {
         return this.hoverCopy
@@ -218,6 +232,12 @@ const _M = {
             this.$notify("change", val)
           }
         })
+      }
+    },
+    //------------------------------------------------
+    OnClickLink(evt) {
+      if(this.editable || !this.navigable) {
+        evt.preventDefault()
       }
     },
     //------------------------------------------------

@@ -1,8 +1,10 @@
 {
-  "name" : "ti-combo-sorter",
-  "globally" : true,
-  "template" : "./ti-combo-sorter.html",
-  "props"    : "@com:ti/combo/sorter/ti-combo-sorter-props.mjs",
-  "mixins"   : "./ti-combo-sorter.mjs",
-  "components" : ["@com:ti/combo/box"]
+  "name": "ti-combo-sorter",
+  "globally": true,
+  "template": "./ti-combo-sorter.html",
+  "props": "@com:ti/combo/sorter/ti-combo-sorter-props.mjs",
+  "mixins": "./ti-combo-sorter.mjs",
+  "components": [
+    "@com:ti/combo/box"
+  ]
 }
