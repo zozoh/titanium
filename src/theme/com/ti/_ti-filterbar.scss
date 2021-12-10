@@ -1,3 +1,69 @@
 .ti-filterbar {
-  
+  $PP: SZ(1); padding: SZ(4);
+  //-------------------------------------------
+  &.is-mode-v {
+    > .filterbar-part {
+      padding: $PP 0;
+      &.ti-droplist:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+  //-------------------------------------------
+  &.is-mode-h {
+    @include flex-align-nowrap;
+    > .as-filter {
+      flex: 1 1 auto; overflow: hidden;
+    }
+  }
+  //-------------------------------------------
+  > .as-majors {
+    @include flex-align-nowrap;
+    //-----------------------------------------
+    > .ti-droplist {
+      margin-right: $PP * 2;
+    }
+  }
+  //-------------------------------------------
+  > .as-filter {
+    //-----------------------------------------
+    > .ti-input {
+      flex-wrap: wrap;
+      //---------------------------------------
+      .ti-tags {
+        overflow: hidden;
+      }
+      //---------------------------------------
+      .as-input-icon,
+      .as-input {
+        min-height: SZ(32);
+      }
+      //---------------------------------------
+    }
+    //-----------------------------------------
+  }
+  //-------------------------------------------
+  &.is-nowrap > .as-filter {
+    //-----------------------------------------
+    > .ti-input {
+      flex-wrap: nowrap;
+      //---------------------------------------
+      .ti-tags {
+        overflow: hidden;
+        flex-wrap: nowrap;
+        .ti-tags-item > .as-text {
+          max-width: 1rem; overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+      //---------------------------------------
+      .as-input {
+        min-width: SZ(120);
+      }
+      //---------------------------------------
+    }
+    //-----------------------------------------
+  }
+  //-------------------------------------------
 }

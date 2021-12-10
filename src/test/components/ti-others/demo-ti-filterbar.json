@@ -1,0 +1,119 @@
+{
+  "comPath": "@com:ti/filterbar",
+  "dataEvents": {
+    "change:filter": "filter",
+    "change:sorter": "sorter"
+  },
+  "comType": "ti-filterbar",
+  "comConf": {
+    "className": "is-nowrap",
+    "filter": "=data.filter",
+    "sorter": "=data.sorter",
+    "placeholder": "请输入查询关键字",
+    "matchKeywords": [
+      {
+        "test": "^(name)[:=](.+)$",
+        "key": "${1}",
+        "val": "${2}"
+      },
+      {
+        "test": "[-10,10]",
+        "key": "type",
+        "type": "Integer"
+      },
+      {
+        "key": "title",
+        "mode": "~~"
+      }
+    ],
+    "filterTags": {
+      "type": ":->类型${val}",
+      "name": ":->名称【${val}】",
+      "title": ":->标题【${val}】",
+      "address": ":=val",
+      "age": ":->${val}岁",
+      "birthday": ":=>Ti.DateTime.formatMsDateRange(val, 'yyyy年M月d日','未知日期范围','至','','从','','')"
+    },
+    "majors": [
+      {
+        "key": "user",
+        "placeholder": "用户",
+        "options": "#Accounts",
+        "dropDisplay": [
+          "nickname|phone|email::flex-auto",
+          "nm::flex-none as-tip-block is-nowrap align-right"
+        ],
+        "width": "1.6rem",
+        "dropWidth": "3rem"
+      },
+      {
+        "key": "sex",
+        "placeholder": "性别",
+        "width": ".9rem",
+        "options": [
+          {
+            "value": 1,
+            "text": "男"
+          },
+          {
+            "value": 2,
+            "text": "女"
+          }
+        ]
+      }
+    ],
+    "advanceForm": {
+      "defaultComType": "TiInput",
+      "fields": [
+        {
+          "title": "年龄",
+          "name": "age",
+          "type": "Integer"
+        },
+        {
+          "title": "生日",
+          "name": "birthday",
+          "comType": "TiInputDaterange",
+          "comConf": {
+            "matrixCount": 4
+          }
+        },
+        {
+          "title": "家庭住址",
+          "name": "address"
+        }
+      ]
+    },
+    "advanceComponents": [
+      "@com:ti/input/daterange"
+    ],
+    "sorterConf": {
+      "options": [
+        {
+          "value": "doc_code",
+          "text": "我方案号"
+        },
+        {
+          "value": "case_seq",
+          "text": "历史序号"
+        },
+        {
+          "value": "case_date",
+          "text": "立案日期"
+        },
+        {
+          "value": "report_date",
+          "text": "上报日期"
+        },
+        {
+          "value": "ct",
+          "text": "创建时间"
+        },
+        {
+          "value": "lm",
+          "text": "最后修改"
+        }
+      ]
+    }
+  }
+}

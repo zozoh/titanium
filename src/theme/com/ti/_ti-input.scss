@@ -12,6 +12,8 @@
     border-color: map-get($color-line, highlight);
   }
   //-----------------------------------------
+  
+  //-----------------------------------------
   .as-input-icon {
     @include flex-center($ai:stretch, $ac:stretch);
     flex:0 0 auto; width:2em; 

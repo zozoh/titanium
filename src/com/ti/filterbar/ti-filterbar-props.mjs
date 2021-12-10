@@ -15,7 +15,23 @@ export default {
   //-----------------------------------
   /*
    Test the input keyword, auto get the filter key
-   [{test:"^(cate):(.+)$", key:"${1}", val:"${2}", type:"Integer", mode:"=="}, {key:"id"}]
+   [{
+      // If without declare, take it as default case
+      // If RegExp, it will update match group $0,$1...
+      // Then the key/val can get the render context
+      // {test:'^(name)=(.+)', key:"${1}", val:"${2}"}
+      // Else, the match group only has the `${0}` as input value
+      test  : AutoMatch | RegExp,
+      match : "^xxx",
+      key:"${1}", 
+      val:"${2}", 
+      type:"Integer", 
+      mode:"=="
+    },
+    {
+      key:"id"
+    }
+  ]
    [mode]
      == : Actually equal
      ~= : Ends with: "^.*xxx$"
@@ -30,13 +46,13 @@ export default {
    Major filter items:
    {key:"abc", placeholder:"xxx", options:"#xxx", width:200}
   */
-  "marjors": {
+  "majors": {
     type: [Object, Array],
     default: () => []
   },
   /*
    How to show the filter data as readable tags
-   {xyz: Function|Template|Dict}
+   {xyz: Function|Explain|Dict}
   */
   "filterTags": {
     type: Object,
@@ -49,6 +65,10 @@ export default {
     type: Object,
     default: undefined
   },
+  // The dependance components which the advanceForm relay on
+  "advanceComponents": {
+    type: [String, Array]
+  },
   "sorterConf": {
     type: Object,
     default: undefined
@@ -60,10 +80,21 @@ export default {
     type: [String, Number],
     default: "i18n:nil"
   },
+  "mode": {
+    type: String,
+    default: "H",
+    validator: v => /^[V|H]$/.test(v)
+  },
   // Advance search dialog setting
   "dialog": {
     type: Object,
-    default: false
+    default: () => ({
+      icon: "fas-search",
+      title: "i18n:search-adv",
+      position: "top",
+      width: "6.4rem",
+      height: "61.8%"
+    })
   },
   "prefixIcon": {
     type: String,

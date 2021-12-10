@@ -9,7 +9,15 @@
    "hm-type-Number": "數字",
    "hm-type-Object": "對象",
    "hm-type-String": "文本",
-   "hm-type-icons": "{\"Array\":\"zmdi-format-list-bulleted\",\"Boolean\":\"zmdi-toll\",\"Group\":\"zmdi-collection-bookmark\",\"Integer\":\"zmdi-n-6-square\",\"Number\":\"zmdi-input-svideo\",\"Object\":\"zmdi-toys\",\"String\":\"zmdi-translate\"}",
+   "hm-type-icons": {
+      "Array": "zmdi-format-list-bulleted",
+      "Boolean": "zmdi-toll",
+      "Group": "zmdi-collection-bookmark",
+      "Integer": "zmdi-n-6-square",
+      "Number": "zmdi-input-svideo",
+      "Object": "zmdi-toys",
+      "String": "zmdi-translate"
+   },
    "hmaker-com-conf-blank": "請選擇一個控件設置其詳情",
    "hmaker-com-type-blank": "選擇一個控件",
    "hmaker-edit-form-del-group-all": "組以及全部字段",

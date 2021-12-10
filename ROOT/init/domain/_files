@@ -145,6 +145,9 @@
 @FILE mock/components/ti-others/ti-rich-tinymce.comt 'RICH-TINYMCE'
 {com:'/rs/ti/test/components/ti-others/demo-ti-rich-tinymce.json'}
 #---------------------------------------------------------
+@FILE mock/components/ti-others/ti-filterbar.comt 'FILTERBAR'
+{com:'/rs/ti/test/components/ti-others/demo-ti-filterbar.json'}
+#---------------------------------------------------------
 @FILE mock/components/wn-form/wn-combo-input.comt 'COMBO-INPUT'
 {com:'/rs/ti/test/components/wn-form/demo-wn-combo-input.json'}
 #---------------------------------------------------------

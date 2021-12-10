@@ -1,4 +1,7 @@
-<component
-  :is="ComType"
-    v-bind="ComConf"
-    @change="OnChanged"/>
+<div class="ti-com-test-case ti-fillparent"
+  :style="myCom.style">
+  <component
+    :is="ComType"
+      v-bind="ComConf"
+      @change="OnChanged"/>
+  </div>

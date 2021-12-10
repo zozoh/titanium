@@ -182,6 +182,12 @@ export default {
           else {
             tag = { text: val, value: val }
           }
+          // Make the key
+          if ("object" == (typeof tag.val)) {
+            tag.key = JSON.stringify(tag.val).replace(/\s+/g, '')
+          } else {
+            tag.key = tag.val
+          }
           // Join default value
           _.defaults(tag, {
             index,

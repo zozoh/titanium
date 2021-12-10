@@ -1,11 +1,15 @@
-<div class="ti-filerbar" :class="TopClass">
+<div class="ti-filterbar" :class="TopClass">
   <!--
     Show marjor filter conditions
   -->
   <div
-    v-if="hasMajor"
-      class="as-major">
-
+    v-if="hasMajors"
+      class="filterbar-part as-majors">
+      <TiDroplist
+        v-for="it in MajorDropList"
+          :key="it.index"
+          v-bind="it.comConf"
+          @change="OnMajorChange($event, it)"/>
   </div>
   <!--
     Input and filtered tags
@@ -13,17 +17,23 @@
     | Tag | Tag | Tag |    Input value      | Adv |
     +---------------------------------------------+
   -->
-  <div class="as-filter">
-    <TiInputTags v-bind="FilterInputConf"/>
+  <div class="filterbar-part as-filter">
+    <TiInput v-bind="FilterInputConf"
+      @change="OnInputChange"
+      @input:clean="OnInputClean"
+      @open:advance="OnOpenAdvance">
+      <TiTags v-bind="FilterTagConf" :value="myTags" @change="OnTagsChange"/>
+    </TiInput>
   </div>
   <!--
     Sorter
   -->
   <div
-    v-if="hasSorter"
-      class="as-sorter">
+    v-if="showSorter"
+      class="filterbar-part as-sorter">
       <TiComboSorter
         v-bind="sorterConf"
-        :value="sorter"/>
+        :value="sorter"
+        @change="OnSorterChange"/>
   </div>
 </div>

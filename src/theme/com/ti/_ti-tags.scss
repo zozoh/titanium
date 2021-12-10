@@ -4,6 +4,7 @@
   padding:SZ(2);
   //-------------------------------------------
   &.nil-items {
+    @include flex-center;
     padding:0; font-size: 0.9em;
     opacity: 0.4;
   }

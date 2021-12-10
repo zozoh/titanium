@@ -1,4 +1,4 @@
-// Pack At: 2021-12-09 22:55:35
+// Pack At: 2021-12-10 17:44:09
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7042,6 +7042,122 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'ti-filterbar-props.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/filterbar/ti-filterbar-props.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
+  /* {a:100, b:99 ...} */
+  "filter": {
+    type: Object
+  },
+  /* {ct:-1} */
+  "sorter": {
+    type: Object
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  /*
+   Test the input keyword, auto get the filter key
+   [{
+      // If without declare, take it as default case
+      // If RegExp, it will update match group $0,$1...
+      // Then the key/val can get the render context
+      // {test:'^(name)=(.+)', key:"${1}", val:"${2}"}
+      // Else, the match group only has the `${0}` as input value
+      test  : AutoMatch | RegExp,
+      match : "^xxx",
+      key:"${1}", 
+      val:"${2}", 
+      type:"Integer", 
+      mode:"=="
+    },
+    {
+      key:"id"
+    }
+  ]
+   [mode]
+     == : Actually equal
+     ~= : Ends with: "^.*xxx$"
+     =~ : Starts with: "^xxx"
+     ~~ : Contains: "^.*xxx"
+  */
+  "matchKeywords": {
+    type: Array,
+    default: () => []
+  },
+  /*
+   Major filter items:
+   {key:"abc", placeholder:"xxx", options:"#xxx", width:200}
+  */
+  "majors": {
+    type: [Object, Array],
+    default: () => []
+  },
+  /*
+   How to show the filter data as readable tags
+   {xyz: Function|Explain|Dict}
+  */
+  "filterTags": {
+    type: Object,
+    default: () => ({})
+  },
+  /* 
+  Advance search dialog form. If declared, show the [Suffix Icon]
+  */
+  "advanceForm": {
+    type: Object,
+    default: undefined
+  },
+  // The dependance components which the advanceForm relay on
+  "advanceComponents": {
+    type: [String, Array]
+  },
+  "sorterConf": {
+    type: Object,
+    default: undefined
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "placeholder": {
+    type: [String, Number],
+    default: "i18n:nil"
+  },
+  "mode": {
+    type: String,
+    default: "H",
+    validator: v => /^[V|H]$/.test(v)
+  },
+  // Advance search dialog setting
+  "dialog": {
+    type: Object,
+    default: () => ({
+      icon: "fas-search",
+      title: "i18n:search-adv",
+      position: "top",
+      width: "6.4rem",
+      height: "61.8%"
+    })
+  },
+  "prefixIcon": {
+    type: String,
+    default: "im-filter"
+  },
+  "suffixIcon": {
+    type: String,
+    default: "fas-cog"
+  },
+  //-----------------------------------
+  // Measure
+  //-----------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'thing-files.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/thing/manager/com/thing-files/thing-files.mjs'] = (function(){
@@ -10969,6 +11085,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
           else {
             tag = { text: val, value: val }
           }
+          // Make the key
+          if ("object" == (typeof tag.val)) {
+            tag.key = JSON.stringify(tag.val).replace(/\s+/g, '')
+          } else {
+            tag.key = tag.val
+          }
           // Join default value
           _.defaults(tag, {
             index,
@@ -11685,76 +11807,268 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/filterbar/ti-filterbar.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
-  props: {
-    //-----------------------------------
-    // Data
-    //-----------------------------------
-    /* {a:100, b:99 ...} */
-    "filter": {
-      type: Object
+  data: () => ({
+    myMajorValues: [],
+    myTags: []
+  }),
+  //////////////////////////////////////////
+  computed: {
+    //-------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-mode-v": "V" == this.mode,
+        "is-mode-h": "H" == this.mode
+      })
     },
-    /* {ct:-1} */
-    "sorter": {
-      type: Object
+    //-------------------------------------
+    MajorItems() {
+      let list = []
+      if (this.majors) {
+        if (_.isArray(this.majors)) {
+          list.push(...this.majors)
+        } else {
+          list.push(this.majors)
+        }
+      }
+      return _.filter(list, li => li.key)
     },
-    //-----------------------------------
-    // Behavior
-    //-----------------------------------
-    /*
-     Test the input keyword, auto get the filter key
-     [{test:RegExp, key:""}]
-    */
-    "matchKeyword": {
-      type: Array,
-      default: () => ({})
+    //-------------------------------------
+    MajorIndexMap() {
+      let re = {}
+      _.forEach(this.MajorItems, (it, index) => {
+        re[it.key] = index
+      })
+      return re
     },
-    /*
-     Major filter items:
-     {key:"abc", placeholder:"xxx", options:"#xxx", width:200}
-    */
-    "marjor": {
-      type: [Object, Array],
-      default: () => []
+    //-------------------------------------
+    MajorDropList() {
+      let list = []
+      _.forEach(this.MajorItems, (it, index) => {
+        let value = _.get(this.myMajorValues, index)
+        let li = {
+          key: it.key,
+          index,
+          comConf: {
+            placeholder: it.placeholder,
+            options: it.options,
+            width: it.width,
+            dropWidth: it.dropWidth,
+            dropDisplay: it.dropDisplay,
+            value
+          }
+        }
+        list.push(li)
+      })
+      return list
     },
-    /*
-     How to show the filter data as readable tags
-     {xyz: Function|Template|Dict}
-    */
-    "filterTags": {
-      type: Object,
-      default: () => ({})
+    //-------------------------------------
+    FilterInputConf() {
+      let comConf = {
+        placeholder: this.placeholder,
+        prefixIcon: this.prefixIcon,
+        prefixIconForClean: false,
+        prefixIconNotifyName: "input:clean",
+        suffixIconNotifyName: "open:advance"
+      }
+      if (!_.isEmpty(this.advanceForm)) {
+        comConf.suffixIcon = this.suffixIcon
+      }
+      return comConf
     },
-    /* 
-    Advance search dialog form. If declared, show the [Suffix Icon]
-    */
-    "advanceForm": {
-      type: Object,
-      default: null
+    //-------------------------------------
+    FilterTagConf() {
+      return {
+        placeholder: null,
+        removable: true
+      }
     },
-    //-----------------------------------
-    // Aspect
-    //-----------------------------------
-    "placeholder": {
-      type: [String, Number],
-      default: "i18n:nil"
+    //-------------------------------------
+    hasMajors() {
+      return !_.isEmpty(this.MajorItems)
     },
-    // Advance search dialog setting
-    "dialog": {
-      type: Object,
-      default: false
+    //-------------------------------------
+    hasFilter() {
+      return !_.isEmpty(this.filter)
     },
-    "prefixIcon": {
-      type: String,
-      default: "im-filter"
+    //-------------------------------------
+    hasSorter() {
+      return !_.isEmpty(this.sorter)
     },
-    "suffixIcon": {
-      type: String,
-      default: "fas-cog"
-    },
-    //-----------------------------------
-    // Measure
-    //-----------------------------------
+    //-------------------------------------
+    showSorter() {
+      return !_.isEmpty(this.sorterConf)
+    }
+    //-------------------------------------
   },
+  //////////////////////////////////////////
+  methods: {
+    //-------------------------------------
+    OnSorterChange(val) {
+      this.$notify("change:sorter", val)
+    },
+    //-------------------------------------
+    OnMajorChange(val, it) {
+      let { index } = it
+      this.myMajorValues[index] = val
+      this.notifyFilterChange()
+    },
+    //-------------------------------------
+    OnInputChange(val) {
+      let str = _.trim(val)
+      let newFlt = this.evalKeywords(str)
+      this.notifyFilterChange({ newFlt })
+    },
+    //-------------------------------------
+    OnTagsChange(val) {
+      let newFlt = {}
+      _.forEach(val, ({ key, val }) => {
+        newFlt[key] = val
+      })
+      this.notifyFilterChange({ newFlt, withTags: false })
+    },
+    //-------------------------------------
+    OnInputClean() {
+      this.notifyFilterChange({ withTags: false })
+    },
+    //-------------------------------------
+    async OnOpenAdvance() {
+      let reo = await Ti.App.Open(_.assign({}, this.dialog, {
+        result: this.filter,
+        model: { event: "change", prop: "data" },
+        comType: "TiForm",
+        comConf: this.advanceForm,
+        components: this.advanceComponents
+      }))
+      // User cancel
+      if (!reo) {
+        return
+      }
+      // Notify change
+      this.notifyFilterChange({ newFlt: reo, withTags: false })
+    },
+    //-------------------------------------
+    notifyFilterChange({ newFlt = {}, withTags = true } = {}) {
+      let flt = {}
+      // Get the majorValue
+      _.forEach(this.MajorDropList, ({ index, key }) => {
+        let val = _.get(this.myMajorValues, index)
+        if (!Ti.Util.isNil(val)) {
+          flt[key] = val
+        }
+      })
+      // Get the tags value
+      if (withTags) {
+        _.forEach(this.myTags, (tag) => {
+          let { key, val } = tag.value
+          flt[key] = val
+        })
+      }
+      // Merge with new filter
+      _.assign(flt, newFlt)
+
+      // Do Notify
+      if (!_.isEqual(this.filter, flt)) {
+        this.$notify("change:filter", flt)
+      }
+    },
+    //-------------------------------------
+    evalKeywords(input) {
+      let flt = _.cloneDeep(this.filter)
+      for (let mk of this.matchKeywords) {
+        let { test, key, val = "${0}", type, mode = "==" } = mk
+        let m = [input];
+        console.log(m)
+        if (test) {
+          if (_.isRegExp(test) || /^\^/.test(test)) {
+            let reg = new RegExp(test)
+            m = reg.exec(input)
+          }
+          // Auto Test
+          else if (!Ti.AutoMatch.test(test, input)) {
+            continue;
+          }
+        }
+        if (m) {
+          // Prepare the render context
+          let c = {}
+          _.forEach(m, (v, i) => c[i] = v)
+          // Render key and value
+          let k = Ti.S.renderBy(key, c)
+          if (!k) {
+            continue;
+          }
+          let v = Ti.S.renderBy(val, c)
+          // Covert to type
+          if (type) {
+            let toType = Ti.Types.getFuncByType(type)
+            v = Ti.Types[toType](v)
+          }
+          let v2 = ({
+            "==": v => v,
+            "~=": v => `^.*${v}$`,
+            "=~": v => `^${v}`,
+            "~~": v => `^.*${v}`,
+          })[mode](v)
+          // Set to result
+          flt[k] = v2
+          break;
+        }
+      }
+      return flt
+    },
+    //-------------------------------------
+    async evalFilter() {
+      let mjvs = []
+      let tags = []
+      let keys = _.keys(this.filter)
+      for (let key of keys) {
+        let val = this.filter[key]
+        // Is Major
+        let mi = this.MajorIndexMap[key]
+        if (mi >= 0) {
+          mjvs[mi] = val
+          continue
+        }
+        // Defined tag display
+        let ft = this.filterTags[key]
+
+        // Default value
+        if (!ft) {
+          tags.push({ text: `${key}=${val}`, value: { key, val } })
+          continue
+        }
+
+        // Customized function
+        if (_.isFunction(ft)) {
+          let text = await ft(val, key)
+          tags.push({ text, value: { key, val } })
+          continue;
+        }
+
+        // Dict
+        let dictName = Ti.DictFactory.DictReferName()
+        if (dictName) {
+          let d = Ti.DictFactory.CheckDict(dictName)
+          let text = await d.getItemText(val)
+          tags.push({ text, value: { key, val } })
+          continue
+        }
+        // Template
+        let text = Ti.Util.explainObj({ key, val }, ft)
+        tags.push({ text, value: { key, val } })
+      }
+      this.myMajorValues = mjvs
+      this.myTags = tags
+    }
+    //-------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "filter": {
+      handler: "evalFilter",
+      immediate: true
+    }
+  }
   //////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -65776,12 +66090,14 @@ Ti.Preload("ti/com/ti/combo/sorter/ti-combo-sorter.mjs", TI_PACK_EXPORTS['ti/com
 // JOIN <_com.json> ti/com/ti/combo/sorter/_com.json
 //========================================
 Ti.Preload("ti/com/ti/combo/sorter/_com.json", {
-  "name" : "ti-combo-sorter",
-  "globally" : true,
-  "template" : "./ti-combo-sorter.html",
-  "props"    : "@com:ti/combo/sorter/ti-combo-sorter-props.mjs",
-  "mixins"   : "./ti-combo-sorter.mjs",
-  "components" : ["@com:ti/combo/box"]
+  "name": "ti-combo-sorter",
+  "globally": true,
+  "template": "./ti-combo-sorter.html",
+  "props": "@com:ti/combo/sorter/ti-combo-sorter-props.mjs",
+  "mixins": "./ti-combo-sorter.mjs",
+  "components": [
+    "@com:ti/combo/box"
+  ]
 });
 //========================================
 // JOIN <ti-combo-table-props.mjs> ti/com/ti/combo/table/ti-combo-table-props.mjs
@@ -66026,23 +66342,50 @@ Ti.Preload("ti/com/ti/droptree/_com.json", {
   ]
 });
 //========================================
+// JOIN <ti-filterbar-props.mjs> ti/com/ti/filterbar/ti-filterbar-props.mjs
+//========================================
+Ti.Preload("ti/com/ti/filterbar/ti-filterbar-props.mjs", TI_PACK_EXPORTS['ti/com/ti/filterbar/ti-filterbar-props.mjs']);
+//========================================
 // JOIN <ti-filterbar.html> ti/com/ti/filterbar/ti-filterbar.html
 //========================================
-Ti.Preload("ti/com/ti/filterbar/ti-filterbar.html", `<div class="ti-filerbar" :class="TopClass">
+Ti.Preload("ti/com/ti/filterbar/ti-filterbar.html", `<div class="ti-filterbar" :class="TopClass">
   <!--
     Show marjor filter conditions
   -->
-
+  <div
+    v-if="hasMajors"
+      class="filterbar-part as-majors">
+      <TiDroplist
+        v-for="it in MajorDropList"
+          :key="it.index"
+          v-bind="it.comConf"
+          @change="OnMajorChange($event, it)"/>
+  </div>
   <!--
     Input and filtered tags
     +---------------------------------------------+
     | Tag | Tag | Tag |    Input value      | Adv |
     +---------------------------------------------+
   -->
-
+  <div class="filterbar-part as-filter">
+    <TiInput v-bind="FilterInputConf"
+      @change="OnInputChange"
+      @input:clean="OnInputClean"
+      @open:advance="OnOpenAdvance">
+      <TiTags v-bind="FilterTagConf" :value="myTags" @change="OnTagsChange"/>
+    </TiInput>
+  </div>
   <!--
     Sorter
   -->
+  <div
+    v-if="showSorter"
+      class="filterbar-part as-sorter">
+      <TiComboSorter
+        v-bind="sorterConf"
+        :value="sorter"
+        @change="OnSorterChange"/>
+  </div>
 </div>`);
 //========================================
 // JOIN <ti-filterbar.mjs> ti/com/ti/filterbar/ti-filterbar.mjs
@@ -66052,10 +66395,16 @@ Ti.Preload("ti/com/ti/filterbar/ti-filterbar.mjs", TI_PACK_EXPORTS['ti/com/ti/fi
 // JOIN <_com.json> ti/com/ti/filterbar/_com.json
 //========================================
 Ti.Preload("ti/com/ti/filterbar/_com.json", {
-  "name" : "ti-filterbar",
-  "globally" : true,
-  "template" : "./ti-filterbar.html",
-  "mixins" : ["./ti-filterbar.mjs"]
+  "name": "ti-filterbar",
+  "globally": true,
+  "template": "./ti-filterbar.html",
+  "props": "./ti-filterbar-props.mjs",
+  "mixins": "./ti-filterbar.mjs",
+  "components": [
+    "@com:ti/input",
+    "@com:ti/tags",
+    "@com:ti/combo/sorter"
+  ]
 });
 //========================================
 // JOIN <form-field-props.mjs> ti/com/ti/form/com/form-field/form-field-props.mjs
@@ -69470,14 +69819,14 @@ Ti.Preload("ti/com/ti/tags/ti-tags.html", `<div class="ti-tags"
   -->
   <span
     class="as-nil-tip"
-    v-if="!hasItems">{{placeholder | i18n}}</span>
+      v-if="!hasItems && placeholder">{{placeholder | i18n}}</span>
   <!--
     Loop piece
   -->
   <tags-item
     v-else
       v-for="tag in myTags"
-        :key="tag.value"
+        :key="tag.key"
         v-bind="tag"
         :cancel-bubble="cancelItemBubble"
         :option-default-icon="optionDefaultIcon"
@@ -78314,6 +78663,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "saving": "Saving ...",
   "score": "Score",
   "score-count": "Score count",
+  "search": "Search",
+  "search-adv": "Advance search",
   "select": "Select",
   "select-all": "Select all",
   "send": "Send",
@@ -79766,6 +80117,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "saving": "正在保存...",
   "score": "评分",
   "score-count": "打分人数",
+  "search": "搜索",
+  "search-adv": "高级搜索",
   "select": "选择",
   "select-all": "全部选中",
   "send": "发送",
@@ -79957,7 +80310,15 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hm-type-Number": "數字",
    "hm-type-Object": "對象",
    "hm-type-String": "文本",
-   "hm-type-icons": "{\"Array\":\"zmdi-format-list-bulleted\",\"Boolean\":\"zmdi-toll\",\"Group\":\"zmdi-collection-bookmark\",\"Integer\":\"zmdi-n-6-square\",\"Number\":\"zmdi-input-svideo\",\"Object\":\"zmdi-toys\",\"String\":\"zmdi-translate\"}",
+   "hm-type-icons": {
+      "Array": "zmdi-format-list-bulleted",
+      "Boolean": "zmdi-toll",
+      "Group": "zmdi-collection-bookmark",
+      "Integer": "zmdi-n-6-square",
+      "Number": "zmdi-input-svideo",
+      "Object": "zmdi-toys",
+      "String": "zmdi-translate"
+   },
    "hmaker-com-conf-blank": "請選擇一個控件設置其詳情",
    "hmaker-com-type-blank": "選擇一個控件",
    "hmaker-edit-form-del-group-all": "組以及全部字段",
@@ -80313,9 +80674,42 @@ Ti.Preload("ti/i18n/zh-hk/ti-datetime.i18n.json", {
    "blank-month": "請選擇月份",
    "blank-time": "請選擇時間",
    "blank-time-range": "請選擇時間範圍",
-   "cal": "{\"abbr\":{\"Apr\":\"四月\",\"Aug\":\"八月\",\"Dec\":\"十二\",\"Feb\":\"二月\",\"Jan\":\"一月\",\"Jul\":\"七月\",\"Jun\":\"六月\",\"Mar\":\"三月\",\"May\":\"五月\",\"Nov\":\"十一\",\"Oct\":\"十月\",\"Sep\":\"九月\"},\"d-range-beyond-days\":\"${yy0}年${MM0}月${dd0}至${dd1}日\",\"d-range-beyond-months\":\"${yy0}年${MM0}月${dd0}日至${MM1}月${dd1}日\",\"d-range-beyond-years\":\"${yy0}年${MM0}月${dd0}日至${yy1}年${MM1}月${dd1}日\",\"d-range-in-same-day\":\"${yy0}年${MM0}月${dd0}日全天\",\"m-range-beyond-months\":\"${yy0}年${MT0}至${MT1}\",\"m-range-beyond-years\":\"${yy0}年${MT0}至${yy1}年${MT1}\",\"week\":[\"日\", \"一\", \"二\", \"三\", \"四\", \"五\", \"六\"]}",
+   "cal": {
+      "abbr": {
+         "Apr": "四月",
+         "Aug": "八月",
+         "Dec": "十二",
+         "Feb": "二月",
+         "Jan": "一月",
+         "Jul": "七月",
+         "Jun": "六月",
+         "Mar": "三月",
+         "May": "五月",
+         "Nov": "十一",
+         "Oct": "十月",
+         "Sep": "九月"
+      },
+      "d-range-beyond-days": "${yy0}年${MM0}月${dd0}至${dd1}日",
+      "d-range-beyond-months": "${yy0}年${MM0}月${dd0}日至${MM1}月${dd1}日",
+      "d-range-beyond-years": "${yy0}年${MM0}月${dd0}日至${yy1}年${MM1}月${dd1}日",
+      "d-range-in-same-day": "${yy0}年${MM0}月${dd0}日全天",
+      "m-range-beyond-months": "${yy0}年${MT0}至${MT1}",
+      "m-range-beyond-years": "${yy0}年${MT0}至${yy1}年${MT1}",
+      "week": ["日", "一", "二", "三", "四", "五", "六"]
+   },
    "du-in-min": "${n}分鐘",
-   "time": "{\"any-time\":\"yyyy年M月d日\",\"in-year\":\"M月d日\",\"past-in-min\":\"剛剛\",\"past-in-hour\":\"${min}分鐘前\",\"past-in-day\":\"${hour}小時前\",\"past-in-week\":\"${day}天前\",\"future-in-min\":\"即將\",\"future-in-hour\":\"${min}分鐘後\",\"future-in-day\":\"${hour}小時後\",\"future-in-week\":\"${day}天后\"}",
+   "time": {
+      "any-time": "yyyy年M月d日",
+      "in-year": "M月d日",
+      "past-in-min": "剛剛",
+      "past-in-hour": "${min}分鐘前",
+      "past-in-day": "${hour}小時前",
+      "past-in-week": "${day}天前",
+      "future-in-min": "即將",
+      "future-in-hour": "${min}分鐘後",
+      "future-in-day": "${hour}小時後",
+      "future-in-week": "${day}天后"
+   },
    "time-begin": "開始時間",
    "time-end": "結束時間",
    "time-ms": "毫秒",
@@ -81179,6 +81573,8 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "saving": "正在保存...",
    "score": "評分",
    "score-count": "打分人數",
+   "search": "搜索",
+   "search-adv": "高級搜索",
    "select": "選擇",
    "select-all": "全部選中",
    "send": "發送",
