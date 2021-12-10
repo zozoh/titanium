@@ -1,8 +1,39 @@
+////////////////////////////////////////////////
+function saveLocalBehavior(state, key, val) {
+  if (state.lbkAt && !state.lbkOff) {
+    let be = Ti.Storage.session.getObject(state.lbkAt)
+    be[key] = val
+    Ti.Storage.session.setObject(state.lbkAt, be)
+  }
+}
+////////////////////////////////////////////////
 const _M = {
   //----------------------------------------
   setModuleName(state, moduleName) {
     state.moduleName = moduleName
   },
+  //----------------------------------------
+  setLocalBehaviorKeepAt(state, keyAt) {
+    state.localBehaviorKeepAt = keyAt
+  },
+  //----------------------------------------
+  explainLocalBehaviorKeepAt(state) {
+    let keyAt = state.localBehaviorKeepAt;
+    state.lbkAt = Ti.Util.explainObj(state, keyAt)
+  },
+  //----------------------------------------
+  setLbkOff(state, off = true) { state.lbkOff = off },
+  setLbkOn(state, on = true) { state.lbkOff = !on },
+  //----------------------------------------
+  setGuiShown(state, shown) {
+    let guiShown = _.pickBy(shown, v => v)
+    state.guiShown = guiShown
+    saveLocalBehavior(state, "guiShown", guiShown)
+  },
+  //----------------------------------------
+  //
+  // Thing Set
+  //
   //----------------------------------------
   setThingSetId(state, thingSetId) {
     state.thingSetId = thingSetId
@@ -16,10 +47,96 @@ const _M = {
   // Search
   //
   //----------------------------------------
+  setFixedMatch(state, fm) {
+    state.fixedMatch = _.cloneDeep(fm)
+  },
+  //----------------------------------------
+  setFilter(state, filter) {
+    state.filter = filter
+    saveLocalBehavior(state, "filter", filter)
+  },
+  //----------------------------------------
+  setSorter(state, sorter) {
+    state.sorter = sorter
+    saveLocalBehavior(state, "sorter", sorter)
+  },
+  //----------------------------------------
+  setThingObjKeys(state, thingObjKeys) {
+    state.thingObjKeys = thingObjKeys
+  },
+  //----------------------------------------
+  setList(state, list) {
+    state.list = list
+  },
+  //----------------------------------------
+  prependListItem(state, newItem) {
+    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "..")
+  },
+  //----------------------------------------
+  appendListItem(state, newItem) {
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "..")
+  },
+  //----------------------------------------
+  setListItem(state, newItem) {
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "..")
+  },
+  //----------------------------------------
+  mergeListItem(state, theItem) {
+    Ti.Util.MergeStateDataItem(state, theItem, "..")
+  },
+  //----------------------------------------
+  removeListItems(state, items = []) {
+    Ti.Util.RemoveStateDataItems(state, items, "..")
+  },
+  //----------------------------------------
+  setCurrentId(state, currentId) {
+    state.currentId = currentId
+    saveLocalBehavior(state, "currentId", currentId)
+  },
+  //----------------------------------------
+  setCheckedIds(state, checkedIds) {
+    let ids = _.pickBy(checkedIds, v => v)
+    state.checkedIds = ids
+    saveLocalBehavior(state, "checkedIds", ids)
+  },
+  //----------------------------------------
+  setPager(state, pager) {
+    state.pager = pager
+    let pageSize = _.get(state.pager, "pgsz") || 0
+    saveLocalBehavior(state, "pageSize", pageSize)
+  },
+  //----------------------------------------
+  assignPager(state, pager) {
+    state.pager = _.assign({}, state.pager, pager)
+    let pageSize = _.get(state.pager, "pgsz") || 0
+    saveLocalBehavior(state, "pageSize", pageSize)
+  },
   //----------------------------------------
   //
   // Meta / Date
   //
+  //----------------------------------------
+  setCurrentMeta(state) {
+    let currentId = state.currentId
+    // Clear current meta
+    if (Ti.Util.isNil(currentId) || _.isEmpty(state.list)) {
+      state.meta = null
+    }
+    // Find current meta
+    else {
+      let found = false
+      for (let it of state.list) {
+        if (it.id == currentId) {
+          state.meta = it
+          found = true
+          break
+        }
+      }
+      if (!found) {
+        state.meta = null
+      }
+    }
+  },
   //----------------------------------------
   setMeta(state, meta) {
     state.meta = meta
@@ -79,16 +196,9 @@ const _M = {
   // Files
   //
   //----------------------------------------
-  setKeepDataDirNameToLocal(state, kddtl) {
-    state.keepDataDirNameToLocal = kddtl
-  },
-  //----------------------------------------
   setDataDirName(state, dirName) {
     state.dataDirName = dirName
-    if (state.meta && state.keepDataDirNameToLocal) {
-      let localDirNameKey = `${state.meta.id}_thobj_dirname`
-      Ti.Storage.session.set(localDirNameKey, dirName)
-    }
+    saveLocalBehavior(state, "dataDirName", dirName)
   },
   setDataHome(state, dataHome) {
     state.dataHome = dataHome
@@ -137,10 +247,13 @@ const _M = {
   //----------------------------------------
   setDataDirCurrentId(state, currentId) {
     state.dataDirCurrentId = currentId
+    saveLocalBehavior(state, "dataDirCurrentId", currentId)
   },
   //----------------------------------------
   setDataDirCheckedIds(state, checkedIds = {}) {
-    state.dataDirCheckedIds = _.pickBy(checkedIds, v => v)
+    let ids = _.pickBy(checkedIds, v => v)
+    state.dataDirCheckedIds = ids
+    saveLocalBehavior(state, "dataDirCheckedIds", ids)
   },
   //----------------------------------------
   prependDataDirFile(state, newItem) {

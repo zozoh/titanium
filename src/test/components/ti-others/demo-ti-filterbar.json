@@ -1,8 +1,8 @@
 {
   "comPath": "@com:ti/filterbar",
   "dataEvents": {
-    "change:filter": "filter",
-    "change:sorter": "sorter"
+    "filter:change": "filter",
+    "sorter:change": "sorter"
   },
   "comType": "ti-filterbar",
   "comConf": {
@@ -10,30 +10,6 @@
     "filter": "=data.filter",
     "sorter": "=data.sorter",
     "placeholder": "请输入查询关键字",
-    "matchKeywords": [
-      {
-        "test": "^(name)[:=](.+)$",
-        "key": "${1}",
-        "val": "${2}"
-      },
-      {
-        "test": "[-10,10]",
-        "key": "type",
-        "type": "Integer"
-      },
-      {
-        "key": "title",
-        "mode": "~~"
-      }
-    ],
-    "filterTags": {
-      "type": ":->类型${val}",
-      "name": ":->名称【${val}】",
-      "title": ":->标题【${val}】",
-      "address": ":=val",
-      "age": ":->${val}岁",
-      "birthday": ":=>Ti.DateTime.formatMsDateRange(val, 'yyyy年M月d日','未知日期范围','至','','从','','')"
-    },
     "majors": [
       {
         "key": "user",
@@ -62,6 +38,30 @@
         ]
       }
     ],
+    "matchKeywords": [
+      {
+        "test": "^(name)[:=](.+)$",
+        "key": "${1}",
+        "val": "${2}"
+      },
+      {
+        "test": "[-10,10]",
+        "key": "type",
+        "type": "Integer"
+      },
+      {
+        "key": "title",
+        "mode": "~~"
+      }
+    ],
+    "filterTags": {
+      "type": ":->类型${val}",
+      "name": ":->名称【${val}】",
+      "title": ":->标题【${val}】",
+      "address": ":=val",
+      "age": ":->${val}岁",
+      "birthday": ":=>Ti.DateTime.formatMsDateRange(val, 'yyyy年M月d日','未知日期范围','至','','从','','')"
+    },
     "advanceForm": {
       "defaultComType": "TiInput",
       "fields": [

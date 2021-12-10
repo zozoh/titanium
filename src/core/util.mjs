@@ -162,9 +162,19 @@ const TiUtil = {
    * @param state Vuex state object with "data: {list,pager}"
    * @param items Item(or ID) to remove, unique key is "id"
    * @param dataKey the dataKey in `state`, default as "data"
+   * @param listKey the listKey in `state[dataKey]`, default as "list"
+   * @param pagerKey the pagerKey in `state[dataKey]`, default as "pager"
    */
-  RemoveStateDataItems(state, items = [], dataKey = "data") {
-    let data = state[dataKey]
+  RemoveStateDataItems(state, items = [],
+    dataKey = "data", listKey = "list", pagerKey = "pager",) {
+
+    let dataList;
+    if (".." == dataKey) {
+      dataList = state[listKey]
+    } else {
+      dataList = _.get(state, `${dataKey}.${listKey}`)
+    }
+
     // Build Id Map
     if (!_.isArray(items)) {
       items = [items]
@@ -177,15 +187,23 @@ const TiUtil = {
         idMap[it.id] = true
       }
     })
-    if (_.isArray(data.list) && data.pager && !_.isEmpty(idMap)) {
+
+    if (_.isArray(dataList) && !_.isEmpty(idMap)) {
       let list = []
-      _.forEach(data.list, li => {
+      _.forEach(dataList, li => {
         if (!idMap[li.id]) {
           list.push(li)
         }
       })
-      state[dataKey] = {
-        list, pager: data.pager
+
+      if (".." == dataKey) {
+        state[listKey] = _.cloneDeep(dataList)
+      } else {
+        let pager = state[dataKey][pagerKey]
+        state[dataKey] = {
+          [listKey]: list,
+          [pagerKey]: pager
+        }
       }
     }
   },
@@ -193,16 +211,42 @@ const TiUtil = {
    * @param state Vuex state object with "data: {list,pager},currentId:"XXX""   
    * @param theItem Item to merge, unique key is "id"
    * @param dataKey the dataKey in `state`, default as "data"
+   * @param listKey the listKey in `state[dataKey]`, default as "list"
+   * @param pagerKey the pagerKey in `state[dataKey]`, default as "pager"
+   * @param currentKey the currentKey in `state`, default as "currentId"
    */
-  MergeStateDataItem(state, theItem, dataKey = "data") {
+  MergeStateDataItem(state, theItem,
+    dataKey = "data", listKey = "list", pagerKey = "pager",
+    currentKey = "currentId") {
+    let dataList;
+    if (".." == dataKey) {
+      dataList = state[listKey]
+    } else {
+      dataList = _.get(state, `${dataKey}.${listKey}`)
+    }
     // Update pager list item of data
-    if (state.currentId && _.isArray(state.data.list)) {
-      let data = _.cloneDeep(state[dataKey])
-      for (let li of data.list) {
-        if (state.currentId == li.id) {
-          _.assign(li, theItem)
+    let currentId = state[currentKey]
+    let found = false
+    let list = []
+    if (_.isArray(dataList)) {
+      for (let li of dataList) {
+        if (currentId == li.id) {
+          list.push(_.assign({}, li, theItem))
+          found = true
+        } else {
+          list.push(li)
         }
-        state[dataKey] = data
+      }
+    }
+    if (found) {
+      if (".." == dataKey) {
+        state[listKey] = _.cloneDeep(dataList)
+      } else {
+        let pager = state[dataKey][pagerKey]
+        state[dataKey] = {
+          [listKey]: list,
+          [pagerKey]: pager
+        }
       }
     }
   },
@@ -212,8 +256,11 @@ const TiUtil = {
    * @param newItem Item to upsert, unique key is "id"
    * @param atPos  insert position: -1: before, 1: after, 0: in place
    * @param dataKey the dataKey in `state`, default as "data"
+   * @param listKey the listKey in `state[dataKey]`, default as "list"
+   * @param pagerKey the pagerKey in `state[dataKey]`, default as "pager"
    */
-  UpsertStateDataItemAt(state, newItem, atPos = 1, dataKey = "data") {
+  UpsertStateDataItemAt(state, newItem, atPos = 1,
+    dataKey = "data", listKey = "list", pagerKey = "pager") {
     // Guard
     if (_.isEmpty(newItem) || !newItem || !newItem.id) {
       return
@@ -221,42 +268,53 @@ const TiUtil = {
     // Batch upsert
     if (_.isArray(newItem)) {
       for (let it of newItem) {
-        TiUtil.UpsertStateDataItemAt(state, it, atTail)
+        TiUtil.UpsertStateDataItemAt(state, it, atPos)
       }
       return
     }
     // upsert one
-    let data = state[dataKey]
-    // Update pager list item of data
-    if (_.isArray(data.list) && data.pager) {
-      let list = _.cloneDeep(data.list)
-      let list2 = []
+    let dataList;
+    if (".." == dataKey) {
+      dataList = state[listKey]
+    } else {
+      dataList = _.get(state, `${dataKey}.${listKey}`)
+    }
+
+    // 
+    let list;
+    if (_.isArray(dataList)) {
+      dataList = _.cloneDeep(dataList)
+      list = []
       let found = false
-      for (let li of list) {
+      for (let li of dataList) {
         if (!found && (li.id == newItem.id || li.nm == newItem.nm)) {
-          list2.push(newItem)
+          list.push(newItem)
           found = true
         } else {
-          list2.push(li)
+          list.push(li)
         }
       }
       if (!found) {
         if (atPos > 0) {
-          list2.push(newItem)
+          list.push(newItem)
         } else if (atPos < 0) {
-          list2 = _.concat(newItem, list2)
+          list = _.concat(newItem, list2)
         }
-      }
-      state[dataKey] = {
-        list: list2,
-        pager: data.pager
       }
     }
     // Just insert
     else {
+      list = [newItem]
+    }
+
+    // Update
+    if (".." == dataKey) {
+      state[listKey] = list
+    } else {
+      let pager = state[dataKey][pagerKey]
       state[dataKey] = {
-        list: newItems,
-        pager: data.pager
+        [listKey]: list,
+        [pagerKey]: pager
       }
     }
   },
@@ -1397,7 +1455,7 @@ const TiUtil = {
         else if ("left" == partial) {
           return function (...input) {
             let ins = _.without(input, undefined)
-            let as = _.concat([], ins, args);
+            let as = _.concat([], args, ins);
             return func.apply(this, as)
           }
         }

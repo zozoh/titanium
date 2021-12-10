@@ -3,6 +3,10 @@
   "namespaced": true,
   "state": "./m-th-obj.json",
   "mutations": "./m-th-obj-mutations.mjs",
-  "actions": "./m-th-obj-actions.mjs",
+  "actions": [
+    "./m-th-obj-actions.mjs",
+    "./m-th-obj-crud.mjs",
+    "./m-th-obj-search.mjs"
+  ],
   "mixins": "./m-th-obj.mjs"
 }

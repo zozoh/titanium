@@ -1,12 +1,17 @@
 {
   "moduleName": "main",
-  "oTs": null,
+  "guiShown": {},
+  "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
+  "lbkAt": null,
+  "lbkOff": false,
   "thingSetId": null,
+  "oTs": null,
   "fixedMatch": {},
   "filter": {},
   "sorter": {
     "ct": -1
   },
+  "thingObjKeys": null,
   "list": [],
   "currentId": null,
   "checkedIds": {},
@@ -44,8 +49,7 @@
     "saving": false,
     "deleting": false,
     "changed": false,
-    "restoring": false,
-    "inRecycleBin": false
+    "restoring": false
   },
   "fieldStatus": {},
   "actionsPath": "thing-actions.json",

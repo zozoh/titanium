@@ -7,6 +7,10 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
+    },
+    //--------------------------------------
+    EventRouting() {
+      return _.get(this.schema, "events") || {}
     }
     //--------------------------------------
   },
@@ -17,15 +21,69 @@ const _M = {
     //  Utility
     //
     //--------------------------------------
-
+    async dispatch(name, payload) {
+      let path = Ti.Util.appendPath(this.moduleName, name)
+      return await Ti.App(this).dispatch(path, payload)
+    },
+    //--------------------------------------
+    commit(name, payload) {
+      let path = Ti.Util.appendPath(this.moduleName, name)
+      return Ti.App(this).commit(path, payload)
+    },
+    //--------------------------------------
+    async invoke(fnName, ...args) {
+      //console.log("invoke ", fnName, args)
+      let fn = _.get(this.thingMethods, fnName)
+      // Invoke the method
+      if(_.isFunction(fn)) {
+        return await fn.apply(this, args)
+      }
+      // Throw the error
+      else {
+        throw Ti.Err.make("e.thing.fail-to-invoke", fnName)
+      }
+    },
     //--------------------------------------
     //
-    // Callback
+    // Events / Callback
     //
+    //--------------------------------------
+    fire(name, payload) {
+      let func = this.__on_events(name, payload)
+      if (_.isFunction(func)) {
+        func.apply(this, [payload])
+      }
+    },
     //--------------------------------------
     // For Event Bubble Dispatching
-    // __on_events(name, payload) {
-    // },
+    __on_events(name, payload) {
+      console.log("WnThAdaptor.__on_events", name, payload)
+      let fn = _.get(this.EventRouting, name)
+      if (!fn) {
+        fn = this.$tiEventTryFallback(name, this.EventRouting)
+      }
+
+      // callPath -> Function
+      let func;
+      if (_.isString(fn)) {
+        func = _.get(this, fn)
+        if (!_.isFunction(func)) {
+          func = Ti.Util.genInvoking(fn, {
+            context: this.GuiExplainContext,
+            dft: null,
+            funcSet: this
+          })
+        }
+      }
+      if (_.isFunction(func)) {
+        if (!_.isUndefined(payload)) {
+          return () => {
+            func(payload)
+          }
+        }
+        return func
+      }
+    },
     //--------------------------------------
     // __ti_shortcut(uniqKey) {      
     // }

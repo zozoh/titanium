@@ -97,7 +97,7 @@ export default {
   methods: {
     //-------------------------------------
     OnSorterChange(val) {
-      this.$notify("change:sorter", val)
+      this.$notify("sorter:change", val)
     },
     //-------------------------------------
     OnMajorChange(val, it) {
@@ -161,7 +161,7 @@ export default {
 
       // Do Notify
       if (!_.isEqual(this.filter, flt)) {
-        this.$notify("change:filter", flt)
+        this.$notify("filter:change", flt)
       }
     },
     //-------------------------------------

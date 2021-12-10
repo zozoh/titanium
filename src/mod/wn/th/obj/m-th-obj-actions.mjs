@@ -21,100 +21,6 @@ async function loadConfigJson(state, key, dft) {
 }
 ////////////////////////////////////////////////
 const _M = {
-  //----------------------------------------
-  changeMeta({ commit }, { name, value } = {}) {
-    if (name) {
-      let meta = _.set({}, name, value)
-      commit("mergeMeta", meta)
-      commit("syncStatusChanged")
-    }
-  },
-  //--------------------------------------------
-  async updateMeta({ commit, dispatch }, { name, value } = {}) {
-    //console.log("current.updateMeta", { name, value })
-    let data = Ti.Types.toObjByPair({ name, value })
-    await dispatch("updateMetas", data)
-  },
-  //--------------------------------------------
-  async updateMetas({ state, commit }, data = {}) {
-    // Check Necessary
-    if (_.isMatchWith(state.meta, data, _.isEqual)) {
-      return
-    }
-
-    if (!state.meta) {
-      return await Ti.Toast.Open("ThObj meta without defined", "warn")
-    }
-
-    if (!state.thingSetId) {
-      return await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
-    }
-
-    // Mark field status
-    _.forEach(data, (val, name) => {
-      commit("setFieldStatus", { name, type: "spinning", text: "i18n:saving" })
-    })
-
-    // Do the update
-    let json = JSON.stringify(data)
-    let th_set = state.thingSetId
-    let th_id = state.meta.id
-    let cmdText = `thing id:${th_set} update ${th_id} -fields -cqn`
-    let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
-    let isError = reo instanceof Error;
-
-    if (!isError && !Ti.Util.isNil(reo)) {
-      commit("setMeta", reo)
-    }
-
-    _.forEach(data, (val, name) => {
-      if (isError) {
-        commit("setFieldStatus", {
-          name,
-          type: "warn",
-          text: reo.message || "i18n:fail"
-        })
-      } else {
-        commit("setFieldStatus", {
-          name,
-          type: "ok",
-          text: "i18n:ok"
-        })
-        _.delay(() => { commit("clearFieldStatus", name) }, 500)
-      }
-    })
-  },
-  //--------------------------------------------
-  changeContent({ commit }, payload) {
-    commit("setContent", payload)
-    commit("syncStatusChanged");
-  },
-  //----------------------------------------
-  updateContent({ commit }, content) {
-    commit("setContent", content)
-    commit("setSavedContent", content)
-    commit("syncStatusChanged")
-  },
-  //--------------------------------------------
-  async saveContent({ state, commit }) {
-    if (state.status.saving || !state.status.changed) {
-      return
-    }
-
-    commit("setStatus", { saving: true })
-
-    let meta = state.meta
-    let content = state.content
-    let newMeta = await Wn.Io.saveContentAsText(meta, content)
-
-    commit("setStatus", { saving: false })
-    commit("setMeta", newMeta)
-    commit("setSavedContent", content)
-    commit("syncStatusChanged")
-
-    // return the new meta
-    return newMeta
-  },
   //--------------------------------------------
   async loadContent({ state, commit }) {
     // Guard
@@ -130,15 +36,19 @@ const _M = {
   },
   //--------------------------------------------
   async loadSchema({ state, commit }) {
-    let reo = await loadConfigJson(state, "schemaPath", {})
+    let schema = await loadConfigJson(state, "schemaPath", {})
 
     // Load extends components
-    if (!_.isEmpty(reo.components)) {
-      let components = _.concat(reo.components)
+    if (!_.isEmpty(schema.components)) {
+      let components = _.concat(schema.components)
       await Ti.App.topInstance().loadView({ components })
     }
     //console.log("setSchema", schema)
-    commit("setSchema", reo)
+    commit("setSchema", schema)
+
+    if (schema.localBehaviorKeepAt) {
+      commit("setLocalBehaviorKeepAt", schema.localBehaviorKeepAt)
+    }
   },
   //--------------------------------------------
   async loadLayout({ state, commit }) {
@@ -193,14 +103,92 @@ const _M = {
     }
   },
   //--------------------------------------------
-  async loadThingList({state, commit}) {
+  applyBehavior({ state, commit }, be = {}) {
+    // Eval behavior dynamicly
+    let {
+      filter, sorter, match,
+      currentId, checkedIds,
+      pageSize,
+      dataDirName,
+      dataDirCurrentId, dataDirCheckedIds
+    } = be
 
+    // Apply filter
+    if (!_.isEmpty(filter)) {
+      commit("setFilter", filter)
+    }
+
+    // Apply sorter
+    if (!_.isEmpty(sorter)) {
+      commit("setSorter", sorter)
+    }
+
+    // Apply fixed match
+    if (!_.isEmpty(match)) {
+      commit("setFixedMatch", match)
+    }
+
+    // Checked and current
+    if (!Ti.Util.isNil(currentId)) {
+      commit("setCurrentId", currentId)
+    }
+    if (!_.isEmpty(checkedIds)) {
+      commit("setCheckedIds", checkedIds)
+    }
+
+    // Data Dir
+    if (!Ti.Util.isNil(dataDirName)) {
+      commit("setDataDirName", dataDirName)
+    }
+    if (!Ti.Util.isNil(dataDirCurrentId)) {
+      commit("setDataDirCurrentId", dataDirCurrentId)
+    }
+    if (!Ti.Util.isNil(dataDirCheckedIds)) {
+      commit("setDataDirCheckedIds", dataDirCheckedIds)
+    }
+
+
+    // Apply pager
+    let pager = {}
+    if (pageSize > 0) {
+      pager.pn = 1
+      pager.pgsz = pageSize
+    }
+    commit("assignPager", pager)
+  },
+  //--------------------------------------------
+  updateSchemaBehavior({ state, commit, dispatch }) {
+    let be = _.get(state.schema, "behavior") || {}
+    be = Ti.Util.explainObj(state, be)
+    if (!_.isEmpty(be)) {
+      commit("setLbkOff")
+      dispatch("applyBehavior", be)
+      commit("setLbkOn")
+    }
+  },
+  //--------------------------------------------
+  restoreLocalBehavior({ state, dispatch }) {
+    // Guard
+    if (!state.lbkAt) {
+      return
+    }
+    // Load local setting
+    let be = Ti.Storage.session.getObject(state.lbkAt)
+    if (!_.isEmpty(be)) {
+      dispatch("applyBehavior", be)
+    }
+  },
+  //--------------------------------------------
+  async reloadData({ state, commit, dispatch }) {
+    if (state.oTs) {
+      await dispatch("queryList");
+    }
   },
   //--------------------------------------------
   /***
    * Reload All
    */
-  async reload({ state, commit, dispatch, getters, rootState }, meta) {
+  async reload({ state, commit, dispatch }, meta) {
     // Guard
     if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
@@ -216,7 +204,6 @@ const _M = {
     if ("thing_set" == meta.tp && "DIR" == meta.race) {
       commit("setThingSet", meta)
       commit("setThingSetId", meta.id)
-      await dispatch("loadThingList")
     }
     // Then meta should be a thing
     else {
@@ -236,9 +223,13 @@ const _M = {
     await dispatch("loadThingActions")
     await dispatch("loadThingMethods")
 
-    // 
+    // Behavior
+    commit("explainLocalBehaviorKeepAt")
+    dispatch("updateSchemaBehavior")
+    dispatch("restoreLocalBehavior")
 
-
+    // Reload thing list
+    await dispatch("reloadData");
 
     // All done
     commit("setStatus", { reloading: false })

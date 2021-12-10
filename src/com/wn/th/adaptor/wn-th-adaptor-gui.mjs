@@ -7,15 +7,28 @@ const _M = {
     //--------------------------------------
     GuiExplainContext() {
       return {
-        meta: this.meta,
         moduleName: this.moduleName,
+        //------------------------------
         thingSetId: this.thingSetId,
+        oTs: this.oTs,
+        //------------------------------
+        fixedMatch: this.fixedMatch,
+        filter: this.filter,
+        sorter: this.sorter,
+        list: this.list,
+        currentId: this.currentId,
+        checkedIds: this.checkedIds,
+        pager: this.pager,
+        //------------------------------
+        meta: this.meta,
         content: this.content,
+        //------------------------------
         dataHome: this.dataHome,
         dataHomeObj: this.dataHomeObj,
         dataDirName: this.dataDirName,
         dataDirCurrentId: this.dataDirCurrentId,
         dataDirCheckedIds: this.dataDirCheckedIds,
+        //------------------------------
         status: this.status,
         fieldStatus: this.fieldStatus,
       }
@@ -33,10 +46,6 @@ const _M = {
     },
     //--------------------------------------
     GuiVars() {
-      return {}
-    },
-    //--------------------------------------
-    GuiShown() {
       return {}
     },
     //--------------------------------------
@@ -74,7 +83,13 @@ const _M = {
     },
     //--------------------------------------
     GuiIsLoading() {
-      return false
+      return this.status.reloading
+        || this.status.doing
+        || this.status.saving
+        || this.status.deleting
+        || this.status.publishing
+        || this.status.restoring
+        || this.status.cleaning
     }
     //--------------------------------------
   },

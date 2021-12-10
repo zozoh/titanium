@@ -3,9 +3,24 @@ export default {
     type: String,
     default: "main"
   },
+  "guiShown": Object,
+  //-----------------------------------
+  // The Thingset
+  //-----------------------------------
   "thingSetId": {
     type: String
   },
+  "oTs": Object,
+  //-----------------------------------
+  // The search list
+  //-----------------------------------
+  "fixedMatch": Object,
+  "filter": Object,
+  "sorter": Object,
+  "list": Array,
+  "currentId": [String, Number],
+  "checkedIds": Object,
+  "pager": Object,
   //-----------------------------------
   // Current Thing Meta/Content
   //-----------------------------------
