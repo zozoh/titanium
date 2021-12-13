@@ -10,12 +10,40 @@ const _M = {
     },
     //--------------------------------------
     EventRouting() {
-      return _.get(this.schema, "events") || {}
+      let routing = _.get(this.schema, "events") || {}
+      return _.assign({
+        "block:show": "showBlock",
+        "block:hide": "hideBlock"
+      }, routing)
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
   methods: {
+    //--------------------------------------
+    //
+    //  Show/Hide block
+    //
+    //--------------------------------------
+    showBlock(blockName) {
+      let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
+      //console.log(blockNames)
+      let guiShown = {}
+      _.forEach(blockNames, nm => {
+        guiShown[nm] = true
+      })
+      this.commit("setGuiShown", guiShown)
+    },
+    //--------------------------------------
+    hideBlock(blockName) {
+      let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
+      //console.log(blockNames)
+      let guiShown = _.cloneDeep(this.guiShown) || {}
+      _.forEach(blockNames, nm => {
+        guiShown[nm] = false
+      })
+      this.commit("setGuiShown", guiShown)
+    },
     //--------------------------------------
     //
     //  Utility
@@ -29,19 +57,6 @@ const _M = {
     commit(name, payload) {
       let path = Ti.Util.appendPath(this.moduleName, name)
       return Ti.App(this).commit(path, payload)
-    },
-    //--------------------------------------
-    async invoke(fnName, ...args) {
-      //console.log("invoke ", fnName, args)
-      let fn = _.get(this.thingMethods, fnName)
-      // Invoke the method
-      if(_.isFunction(fn)) {
-        return await fn.apply(this, args)
-      }
-      // Throw the error
-      else {
-        throw Ti.Err.make("e.thing.fail-to-invoke", fnName)
-      }
     },
     //--------------------------------------
     //

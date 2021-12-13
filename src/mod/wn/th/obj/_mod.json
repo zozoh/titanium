@@ -5,7 +5,7 @@
   "mutations": "./m-th-obj-mutations.mjs",
   "actions": [
     "./m-th-obj-actions.mjs",
-    "./m-th-obj-crud.mjs",
+    "./m-th-obj-cud.mjs",
     "./m-th-obj-search.mjs"
   ],
   "mixins": "./m-th-obj.mjs"

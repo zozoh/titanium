@@ -197,7 +197,7 @@ const TiUtil = {
       })
 
       if (".." == dataKey) {
-        state[listKey] = _.cloneDeep(dataList)
+        state[listKey] = list
       } else {
         let pager = state[dataKey][pagerKey]
         state[dataKey] = {
@@ -240,7 +240,7 @@ const TiUtil = {
     }
     if (found) {
       if (".." == dataKey) {
-        state[listKey] = _.cloneDeep(dataList)
+        state[listKey] = list
       } else {
         let pager = state[dataKey][pagerKey]
         state[dataKey] = {
@@ -298,7 +298,7 @@ const TiUtil = {
         if (atPos > 0) {
           list.push(newItem)
         } else if (atPos < 0) {
-          list = _.concat(newItem, list2)
+          list = _.concat(newItem, dataList)
         }
       }
     }

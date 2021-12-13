@@ -13,6 +13,7 @@
   "thing-export-c-expi-3d": "三天",
   "thing-export-c-expi-7d": "七天",
   "thing-export-c-expi-off": "永远",
+  "thing-export-c-limit": "数量限制",
   "thing-export-c-mapping": "映射方式",
   "thing-export-c-mode": "导出模式",
   "thing-export-c-mode-csv": "CSV文件",

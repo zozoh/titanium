@@ -51,10 +51,7 @@ export default {
     hasAccounts() { return !_.isEmpty(this.myAccounts) },
     hasRoles() { return !_.isEmpty(this.myRoles) },
     //--------------------------------------
-    TheLoadingAs() {
-      if (this.loading)
-        return true
-
+    GuiLoadingAs() {
       if (!this.hasAccounts)
         return {
           text: "i18n:empty",

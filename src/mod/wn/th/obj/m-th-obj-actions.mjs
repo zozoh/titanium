@@ -110,7 +110,8 @@ const _M = {
       currentId, checkedIds,
       pageSize,
       dataDirName,
-      dataDirCurrentId, dataDirCheckedIds
+      dataDirCurrentId, dataDirCheckedIds,
+      guiShown
     } = be
 
     // Apply filter
@@ -145,6 +146,11 @@ const _M = {
     }
     if (!Ti.Util.isNil(dataDirCheckedIds)) {
       commit("setDataDirCheckedIds", dataDirCheckedIds)
+    }
+
+    // Apply shown
+    if(!_.isEmpty(guiShown)) {
+      commit("setGuiShown", guiShown)
     }
 
 

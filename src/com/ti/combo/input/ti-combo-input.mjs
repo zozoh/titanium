@@ -133,7 +133,7 @@ const _M = {
     DropComConf() {
       return _.assign({
         display: this.dropDisplay || [
-          "text|title|nm::flex-auto",
+          "text|title|nm::flex-auto is-nowrap",
           "id|value::as-tip-block align-right"
         ],
         border: this.dropItemBorder

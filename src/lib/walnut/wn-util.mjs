@@ -384,10 +384,10 @@ const WnUtil = {
     encoded = false,
     params = {}
   } = {}) {
-    let params2 = { ...params }
-    if (!meta) {
-      return { url, params2 }
+    if (_.isEmpty(meta)) {
+      return { url, params }
     }
+    let params2 = { ...params }
     const __V = (val) => {
       return encoded
         ? encodeURIComponent(val)
