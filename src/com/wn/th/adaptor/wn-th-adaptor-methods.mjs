@@ -30,8 +30,8 @@ export default {
   //--------------------------------------------
   async exportData({
     target,
-    mode = "csv;xls;json;zip",
-    page = "current;all",
+    mode = "xls;csv;json;zip",
+    page = "checked;current;all",
     name = "${title|nm}-${time}",
     mappingDir = "id:${id}/export/"
   } = {}) {
@@ -39,18 +39,8 @@ export default {
     if (!this.oTs) {
       throw `ThingSet[${this.thingSetId}] without oTs`
     }
-    let cmds = [`thing id:${this.thingSetId} query -cqn`]
     //............................................
     let taDir = target || `id:${this.thingSetId}/export_data`
-    //............................................
-    // Eval Sorter
-    if (!_.isEmpty(this.sorter)) {
-      let sort = JSON.stringify(this.sorter)
-      cmds.push(`-sort '${sort}'`)
-    }
-    //............................................
-    // Eval filter
-    let fltInput = JSON.stringify(_.assign({}, this.filter, this.fixedMatch))
     //............................................
     // Eval default export name
     let enVars = {
@@ -69,14 +59,18 @@ export default {
       oMapplingItems = (await Wn.Io.loadChildren(oMappingDir)).list;
     }
     //............................................
+    // The checked id list
+    let checkedIds = Ti.Util.truthyKeys(this.checkedIds)
+    console.log(checkedIds)
+    //............................................
     // Prepare the result
     let result = {
-      mode: "csv",
-      page: "current",
+      mode: "xls",
+      page: _.isEmpty(checkedIds) ? "current" : "checked",
       limit: 1000,
       name: exportName,
       expiIn: 3,
-      fltInput,
+      fltInput: null,
       cmdText: undefined,
       outPath: undefined,
       target: undefined
@@ -85,8 +79,8 @@ export default {
     // Eval modes options
     let modeNames = mode.split(";")
     let modeMap = {
-      csv: { value: "csv", text: "i18n:thing-export-c-mode-csv" },
       xls: { value: "xls", text: "i18n:thing-export-c-mode-xls" },
+      csv: { value: "csv", text: "i18n:thing-export-c-mode-csv" },
       json: { value: "json", text: "i18n:thing-export-c-mode-json" },
       zip: { value: "zip", text: "i18n:thing-export-c-mode-zip" }
     }
@@ -95,11 +89,12 @@ export default {
       if (modeMap[nm])
         modeOptions.push(modeMap[nm])
     })
-    result.mode = _.first(modeOptions).value
+    //result.mode = _.first(modeOptions).value
     //............................................
     // Eval page options
     let pageModes = page.split(";")
     let pageMap = {
+      checked: { value: "checked", text: "i18n:thing-export-c-page-checked" },
       current: { value: "current", text: "i18n:thing-export-c-page-current" },
       all: { value: "all", text: "i18n:thing-export-c-page-all" }
     }
@@ -108,7 +103,7 @@ export default {
       if (pageMap[md])
         pageOptions.push(pageMap[md])
     })
-    result.page = _.first(pageOptions).value
+    //result.page = _.first(pageOptions).value
     //............................................
     // Make the config form fields
     let formFields = [];
@@ -206,8 +201,24 @@ export default {
             },
             handler: function () {
               let outPath = `${taDir}/${this.value.name}.${this.value.mode}`
+              let cmds = [`thing id:${vm.thingSetId} query -cqn`]
+              //............................................
+              // Eval Sorter
+              if (!_.isEmpty(vm.sorter)) {
+                let sort = JSON.stringify(vm.sorter)
+                cmds.push(`-sort '${sort}'`)
+              }
+              //............................................
+              // Eval filter
+              let fltInput = JSON.stringify(_.assign({}, vm.filter, vm.fixedMatch))
+              // Checked ids
+              if ("checked" == this.value.page) {
+                fltInput = JSON.stringify({
+                  id: checkedIds
+                })
+              }
               // Join pager
-              if ("current" == this.value.page) {
+              else if ("current" == this.value.page) {
                 let limit = vm.pager.pgsz
                 let skip = vm.pager.pgsz * (vm.pager.pn - 1)
                 cmds.push(`-limit ${limit}`)
@@ -241,7 +252,8 @@ export default {
               this.$notify("change", {
                 ...this.value,
                 outPath,
-                cmdText
+                cmdText,
+                fltInput
               })
 
               // Go to run command
@@ -253,7 +265,7 @@ export default {
           comType: "WnCmdPanel",
           comConf: {
             value: ":=cmdText",
-            input: fltInput,
+            input: ":=fltInput",
             tipText: "i18n:thing-export-ing-tip",
             tipIcon: "fas-bullhorn",
             emitName: "step:change",

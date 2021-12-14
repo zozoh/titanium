@@ -24,6 +24,7 @@
   "thing-export-c-page": "数据范围",
   "thing-export-c-page-all": "全部页",
   "thing-export-c-page-current": "当前页",
+  "thing-export-c-page-checked": "选中记录",
   "thing-export-done": "完成",
   "thing-export-done-ok": "导出成功",
   "thing-export-done-tip": "请点击下载链接下载",

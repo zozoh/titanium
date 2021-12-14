@@ -72,7 +72,7 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      console.log("WnThAdaptor.__on_events", name, payload)
+      //console.log("WnThAdaptor.__on_events", name, payload)
       let fn = _.get(this.EventRouting, name)
       if (!fn) {
         fn = this.$tiEventTryFallback(name, this.EventRouting)
