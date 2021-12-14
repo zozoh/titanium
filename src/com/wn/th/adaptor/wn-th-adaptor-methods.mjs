@@ -59,7 +59,7 @@ export default {
       time: Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
     }
     let exportName = Ti.S.renderBy(name, enVars)
-    console.log(exportName)
+    //console.log(exportName)
     //............................................
     // Try load export mapping template
     let phMappingDir = Ti.S.renderBy(mappingDir, this.oTs)

@@ -149,7 +149,7 @@ const _M = {
     }
 
     // Apply shown
-    if(!_.isEmpty(guiShown)) {
+    if (!_.isEmpty(guiShown)) {
       commit("setGuiShown", guiShown)
     }
 
@@ -236,6 +236,9 @@ const _M = {
 
     // Reload thing list
     await dispatch("reloadData");
+
+    // Update dataHome
+    commit("autoDataHome")
 
     // All done
     commit("setStatus", { reloading: false })

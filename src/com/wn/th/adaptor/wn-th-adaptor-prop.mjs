@@ -30,7 +30,6 @@ export default {
   // Current Thing Data Files
   //-----------------------------------
   "dataHome": String,
-  "dataHomeObj": Object,
   "dataDirName": String,
   /*
   Current DataDir File List with pager

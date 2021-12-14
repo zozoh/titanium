@@ -67,7 +67,7 @@ const _M = {
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
     commit("setCurrentMeta")
-
+    commit("autoDataHome")
     // ? Load current content
 
     // ? Load current data dir

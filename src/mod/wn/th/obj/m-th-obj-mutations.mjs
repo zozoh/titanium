@@ -95,7 +95,14 @@ const _M = {
   },
   //----------------------------------------
   setCheckedIds(state, checkedIds) {
-    let ids = _.pickBy(checkedIds, v => v)
+    let ids
+    if (_.isArray(checkedIds)) {
+      ids = {}
+      let c2 = _.filter(checkedIds, v => v)
+      _.forEach(c2, v => ids[v] = true)
+    } else {
+      ids = _.pickBy(checkedIds, v => v)
+    }
     state.checkedIds = ids
     saveLocalBehavior(state, "checkedIds", ids)
   },
@@ -203,8 +210,12 @@ const _M = {
   setDataHome(state, dataHome) {
     state.dataHome = dataHome
   },
-  setDataHomeObj(state, dataHomeObj) {
-    state.dataHomeObj = _.cloneDeep(dataHomeObj)
+  autoDataHome(state, dataHome) {
+    if (state.thingSetId && state.meta && state.meta.id) {
+      state.dataHome = `id:${state.thingSetId}/data/${state.meta.id}/`
+    } else {
+      state.dataHome = null
+    }
   },
   //----------------------------------------
   //

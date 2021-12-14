@@ -31,6 +31,12 @@ const _M = {
         //------------------------------
         status: this.status,
         fieldStatus: this.fieldStatus,
+        //------------------------------
+        // Adapte old thing set data model
+        //------------------------------
+        currentDataHome: this.dataHome,
+        currentDataHomeObj: this.dataHomeObj,
+        currentDataDirName: this.dataDirName
       }
     },
     //--------------------------------------
@@ -83,13 +89,15 @@ const _M = {
     },
     //--------------------------------------
     GuiIsLoading() {
-      return this.status.reloading
+      return (this.status.reloading
         || this.status.doing
         || this.status.saving
         || this.status.deleting
         || this.status.publishing
         || this.status.restoring
-        || this.status.cleaning
+        || this.status.cleaning)
+        ? true
+        : false;
     }
     //--------------------------------------
   },

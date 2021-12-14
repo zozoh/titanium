@@ -107,7 +107,7 @@ const _M = {
       let app = Ti.App(this)
       let argContext = app.$state()
       if (this.$bar.vars) {
-        console.log("eval bar vars")
+        //console.log("eval bar vars")
         argContext = Ti.Util.explainObj(app.$state(), this.$bar.vars, {
           evalFunc: true
         })

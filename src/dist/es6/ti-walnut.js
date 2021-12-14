@@ -1,4 +1,4 @@
-// Pack At: 2021-12-10 17:44:09
+// Pack At: 2021-12-14 10:39:22
 //##################################################
 // # import Io      from "./wn-io.mjs"
 const Io = (function(){
@@ -2162,10 +2162,10 @@ const Util = (function(){
       encoded = false,
       params = {}
     } = {}) {
-      let params2 = { ...params }
-      if (!meta) {
-        return { url, params2 }
+      if (_.isEmpty(meta)) {
+        return { url, params }
       }
+      let params2 = { ...params }
       const __V = (val) => {
         return encoded
           ? encodeURIComponent(val)
@@ -4202,7 +4202,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20211210.174409"
+const WALNUT_VERSION = "1.2-20211214.103923"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
