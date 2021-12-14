@@ -40,7 +40,7 @@
   }
   //-------------------------------------------
   > .as-text {
-    @include flex-center;
+    @include flex-align-nowrap;
     color: inherit; text-decoration: inherit;
     padding:0;
     &:hover {text-decoration: inherit;}
