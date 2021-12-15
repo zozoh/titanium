@@ -1,4 +1,4 @@
-// Pack At: 2021-12-15 00:09:34
+// Pack At: 2021-12-15 14:35:40
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7149,13 +7149,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // Advance search dialog setting
   "dialog": {
     type: Object,
-    default: () => ({
-      icon: "fas-search",
-      title: "i18n:search-adv",
-      position: "top",
-      width: "6.4rem",
-      height: "61.8%"
-    })
+    default: undefined
   },
   "prefixIcon": {
     type: String,
@@ -12070,7 +12064,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-------------------------------------
     async OnOpenAdvance() {
-      let reo = await Ti.App.Open(_.assign({}, this.dialog, {
+      let reo = await Ti.App.Open(_.assign({
+        icon: "fas-search",
+        title: "i18n:search-adv",
+        position: "top",
+        width: "6.4rem",
+        height: "61.8%"
+      }, this.dialog, {
         result: this.filter,
         model: { event: "change", prop: "data" },
         comType: "TiForm",

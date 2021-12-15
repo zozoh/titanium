@@ -125,7 +125,13 @@ export default {
     },
     //-------------------------------------
     async OnOpenAdvance() {
-      let reo = await Ti.App.Open(_.assign({}, this.dialog, {
+      let reo = await Ti.App.Open(_.assign({
+        icon: "fas-search",
+        title: "i18n:search-adv",
+        position: "top",
+        width: "6.4rem",
+        height: "61.8%"
+      }, this.dialog, {
         result: this.filter,
         model: { event: "change", prop: "data" },
         comType: "TiForm",

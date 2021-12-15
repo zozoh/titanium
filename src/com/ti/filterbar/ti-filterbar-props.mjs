@@ -88,13 +88,7 @@ export default {
   // Advance search dialog setting
   "dialog": {
     type: Object,
-    default: () => ({
-      icon: "fas-search",
-      title: "i18n:search-adv",
-      position: "top",
-      width: "6.4rem",
-      height: "61.8%"
-    })
+    default: undefined
   },
   "prefixIcon": {
     type: String,
