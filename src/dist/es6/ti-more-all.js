@@ -1,4 +1,4 @@
-// Pack At: 2021-12-15 14:35:40
+// Pack At: 2021-12-18 02:48:29
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -30959,20 +30959,20 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/bullet/ti-bullet-mixin.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    myDict : undefined,
-    myOptionsData  : [],
-    loading : false
+  data: () => ({
+    myDict: undefined,
+    myOptionsData: [],
+    loading: false
   }),
   ////////////////////////////////////////////////////
   props: {
     "value": undefined,
-    "options" : {
-      type : [String, Array, Function, Ti.Dict],
-      default : ()=>[]
+    "options": {
+      type: [String, Array, Function, Ti.Dict],
+      default: () => []
     },
     // Item ignore by the AutoMatch
-    "ignoreBy" : undefined,
+    "ignoreBy": undefined,
     /*
      {
        title : "title",
@@ -30980,53 +30980,53 @@ const _M = {
        items : "items"
      } 
      */
-    "groupBy" : {
-      type : [Object, Function, Boolean],
-      default : undefined
+    "groupBy": {
+      type: [Object, Function, Boolean],
+      default: undefined
     },
-    "valueBy" : {
-      type : [String, Function],
-      default : "value|id"
+    "valueBy": {
+      type: [String, Function],
+      default: "value|id"
     },
-    "textBy" : {
-      type : [String, Function],
-      default : "text|name|title"
+    "textBy": {
+      type: [String, Function],
+      default: "text|name|title"
     },
-    "iconeBy" : {
-      type : [String, Function],
-      default : "icon"
+    "iconeBy": {
+      type: [String, Function],
+      default: "icon"
     },
-    "bulletIconOn" : {
-      type : String,
-      default : "fas-check-circle"
+    "bulletIconOn": {
+      type: String,
+      default: "fas-check-circle"
     },
-    "bulletIconOff" : {
-      type : String,
-      default : "far-circle"
+    "bulletIconOff": {
+      type: String,
+      default: "far-circle"
     },
-    "blankAs" : {
-      type : Object,
-      default : ()=>({
-        icon : "far-list-alt",
-        text : "empty-data"
+    "blankAs": {
+      type: Object,
+      default: () => ({
+        icon: "far-list-alt",
+        text: "empty-data"
       })
     },
     "blankClass": {
       type: String,
       default: "as-big",
-      validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
+      validator: v => /^as-(big|hug|big-mask|mid-tip)$/.test(v)
     },
-    "width" : {
-      type : [Number, String],
-      default : undefined
+    "width": {
+      type: [Number, String],
+      default: undefined
     },
-    "height" : {
-      type : [Number, String],
-      default : undefined
+    "height": {
+      type: [Number, String],
+      default: undefined
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return this.getTopClass(this.myTypeName)
@@ -31034,49 +31034,49 @@ const _M = {
     //------------------------------------------------
     TopStyle() {
       return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
+        width: this.width,
+        height: this.height
       })
     },
     //-----------------------------------------------
     Grouping() {
-      if(this.groupBy) {
-        if(_.isFunction(this.groupBy)) {
+      if (this.groupBy) {
+        if (_.isFunction(this.groupBy)) {
           return this.groupBy
         }
-        if(_.isPlainObject(this.groupBy)) {
+        if (_.isPlainObject(this.groupBy)) {
           return (obj) => {
             let title = _.get(obj, this.groupBy.title)
             let key = _.get(obj, this.groupBy.key)
             let items = _.get(obj, this.groupBy.items)
-            if(key && !_.isEmpty(items)) {
-              return {title, key, items}
+            if (key && !_.isEmpty(items)) {
+              return { title, key, items }
             }
           }
         }
-        return (obj)=>_.pick(obj, "title", "key", "items")
+        return (obj) => _.pick(obj, "title", "key", "items")
       }
     },
     //-----------------------------------------------
     IgnoreItem() {
-      if(this.ignoreBy) {
+      if (this.ignoreBy) {
         return Ti.AutoMatch.parse(this.ignoreBy)
       }
-      return ()=>false
+      return () => false
     },
     //-----------------------------------------------
-    getItemIcon()  {
-      if(this.myDict)
+    getItemIcon() {
+      if (this.myDict)
         return it => this.myDict.getIcon(it)
       return Ti.Util.genGetterNotNil(this.iconBy)
     },
-    getItemText()  {
-      if(this.myDict)
+    getItemText() {
+      if (this.myDict)
         return it => this.myDict.getText(it)
       return Ti.Util.genGetterNotNil(this.textBy)
     },
     getItemValue() {
-      if(this.myDict)
+      if (this.myDict)
         return it => this.myDict.getValue(it)
       return Ti.Util.genGetterNotNil(this.valueBy)
     },
@@ -31086,12 +31086,12 @@ const _M = {
     },
     //------------------------------------------------
     ItemGroups() {
-      if(this.Grouping) {
+      if (this.Grouping) {
         let list = []
-        for(let data of this.myOptionsData) {
-          let {title,key,items} = this.Grouping(data)
+        for (let data of this.myOptionsData) {
+          let { title, key, items } = this.Grouping(data)
           items = this.evalItems(items)
-          list.push({title, key, items})
+          list.push({ title, key, items })
         }
         return list
       }
@@ -31107,19 +31107,26 @@ const _M = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
-    evalItems(items=[]) {
+    evalItems(items = []) {
       let list = []
       _.forEach(items, li => {
-        if(this.IgnoreItem(li))
+        if (this.IgnoreItem(li))
           return
-        let it = {
-          icon  : this.getItemIcon(li),
-          text  : this.getItemText(li),
-          value : this.getItemValue(li)
+        let it;
+        if (_.isString(li) || _.isNumber(li)) {
+          it = {
+            text: li, value: li
+          }
+        } else {
+          it = {
+            icon: this.getItemIcon(li),
+            text: this.getItemText(li),
+            value: this.getItemValue(li)
+          }
         }
-        if(this.isItemChecked(it.value, this.value)) {
+        if (this.isItemChecked(it.value, this.value)) {
           it.className = "is-checked"
           it.bullet = this.bulletIconOn
         } else {
@@ -31132,14 +31139,14 @@ const _M = {
     //------------------------------------------------
     createDict() {
       // Customized
-      if(this.options instanceof Ti.Dict) {
+      if (this.options instanceof Ti.Dict) {
         return this.options
       }
       // Refer dict
-      if(_.isString(this.options)) {
+      if (_.isString(this.options)) {
         let dictName = Ti.DictFactory.DictReferName(this.options)
-        if(dictName) {
-          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
+        if (dictName) {
+          return Ti.DictFactory.CheckDict(dictName, ({ loading }) => {
             this.loading = loading
           })
         }
@@ -31155,23 +31162,23 @@ const _M = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
-    "options" : {
-      handler : async function(newval, oldval) {
-        if(!_.isEqual(newval, oldval)) {
+  watch: {
+    "options": {
+      handler: async function (newval, oldval) {
+        if (!_.isEqual(newval, oldval)) {
           this.myDict = this.createDict()
-          if(this.myDict) {
+          if (this.myDict) {
             this.loading = true
             this.myOptionsData = await this.myDict.getData()
           } else {
             this.myOptionsData = newval
           }
-          this.$nextTick(()=>{
+          this.$nextTick(() => {
             this.loading = false
           })
         }
       },
-      immediate : true
+      immediate: true
     }
   }
   ////////////////////////////////////////////////////
