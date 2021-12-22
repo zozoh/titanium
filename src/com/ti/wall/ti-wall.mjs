@@ -179,11 +179,11 @@ const _M = {
     },
     //--------------------------------------
     async evalListData(newVal, oldVal) {
-      let isSame = _.isEqual(newVal, oldVal)
-      if (!isSame) {
-        //console.log("!!!wall data changed", {newVal, oldVal})
-        this.myData = await this.evalData()
-      }
+      //let isSame = _.isEqual(newVal, oldVal)
+      //if (!isSame) {
+      //console.log("!!!wall data changed", {newVal, oldVal})
+      this.myData = await this.evalData()
+      //}
       this.OnWallResize()
     }
     //--------------------------------------
@@ -191,13 +191,17 @@ const _M = {
   //////////////////////////////////////////
   watch: {
     "data": {
-      handler: "evalListData",
+      handler: "evalListDataWhenMarkChanged",
       immediate: true
     },
     "dict": {
-      handler: "evalListData",
+      handler: "evalListDataWhenMarkChanged",
       immediate: true
-    }
+    },
+    "selectable": "evalListDataWhenMarkChanged",
+    "checkable": "evalListDataWhenMarkChanged",
+    "hoverable": "evalListDataWhenMarkChanged",
+    "filterValue": "evalListDataWhenMarkChanged"
   },
   //////////////////////////////////////////
   mounted: function () {

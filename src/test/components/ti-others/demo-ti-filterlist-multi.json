@@ -1,0 +1,7 @@
+{
+  "comType": "ti-filterlist",
+  "comConf": {
+    "data": "=>Ti.Bank.getCurrencyList",
+    "multi": true
+  }
+}

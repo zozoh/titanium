@@ -1,0 +1,16 @@
+{
+  "name": "ti-adaptlist",
+  "globally": true,
+  "template": "./ti-adaptlist.html",
+  "props": "./ti-adaptlist-props.mjs",
+  "methods": "./ti-adaptlist-methods.mjs",
+  "mixins": [
+    "./ti-adaptlist.mjs"
+  ],
+  "components": [
+    "@com:ti/obj/thumb",
+    "@com:ti/wall",
+    "@com:ti/list",
+    "@com:ti/table"
+  ]
+}

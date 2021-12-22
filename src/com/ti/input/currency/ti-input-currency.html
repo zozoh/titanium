@@ -1,0 +1,16 @@
+<ti-input
+  class="ti-input-currency"
+  :class="TopClass"
+  :value="ValDisplay"
+  :placeholder="placeholder"
+  :prefixIcon="ValIcon"
+  :suffixText="ValCurrency"
+  :autoSelect="autoSelect"
+  :readonly="readonly"
+  :focused="focused"
+  :width="width"
+  :height="height"
+  :hover="['prefixIcon', 'suffixText']"
+  suffixTextNotifyName="click:suffix"
+  @change="OnInputChange"
+  @click:suffix="OnClickSuffix"/>

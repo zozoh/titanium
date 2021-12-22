@@ -1,0 +1,47 @@
+{
+  "comType": "ti-form",
+  "comConf": {
+    "autoShowBlank": false,
+    "data": "=data",
+    "fields": [
+      {
+        "title": "货币（对象）",
+        "name": "cuObj",
+        "type": "Object",
+        "comType": "TiInputCurrency",
+        "comConf": {
+          "autoSelect": true,
+          "focused": true,
+          "unit": 1,
+          "currency": "USD",
+          "valueType": "obj"
+        }
+      },
+      {
+        "title": "货币（文本）",
+        "name": "cuStr",
+        "type": "String",
+        "comType": "TiInputCurrency",
+        "comConf": {
+          "autoSelect": true,
+          "focused": true,
+          "currency": "RMB",
+          "valueType": "str"
+        }
+      },
+      {
+        "title": "货币（数字）",
+        "name": "cuNum",
+        "type": "Number",
+        "comType": "TiInputCurrency",
+        "comConf": {
+          "autoSelect": true,
+          "focused": true,
+          "unit": 1,
+          "currency": "GBP",
+          "valueType": "num"
+        }
+      }
+    ]
+  }
+}

@@ -4,33 +4,6 @@ export default {
     myData: [],
   }),
   //////////////////////////////////////////
-  props: {
-    "iconBy": {
-      type: [String, Function],
-      default: null
-    },
-    "indentBy": {
-      type: [String, Function],
-      default: null
-    },
-    "itemClassName": undefined,
-    "display": {
-      type: [Object, String, Array],
-      default: () => ({
-        key: "..",
-        comType: "ti-label"
-      })
-    },
-    "border": {
-      type: Boolean,
-      default: true
-    },
-    "autoScrollIntoView": {
-      type: Boolean,
-      default: true
-    }
-  },
-  //////////////////////////////////////////
   computed: {
     //--------------------------------------
     TopClass() {
@@ -125,39 +98,39 @@ export default {
       }
     },
     //--------------------------------------
-    async evalListData(newVal, oldVal) {
-      let isSame = _.isEqual(newVal, oldVal)
-      if (!isSame) {
-        //console.log("!!!list data changed", {newVal, oldVal})
-        this.myData = await this.evalData((it) => {
-          it.icon = this.getRowIcon(it.item)
-          it.indent = this.getRowIndent(it.item)
-        })
+    async evalListData() {
+      this.myData = await this.evalData((it) => {
+        it.icon = this.getRowIcon(it.item)
+        it.indent = this.getRowIndent(it.item)
+      })
 
-        this.$nextTick(() => {
-          _.delay(() => {
-            this.scrollCurrentIntoView()
-          }, 300)
-        })
-      }
+      this.$nextTick(() => {
+        _.delay(() => {
+          this.scrollCurrentIntoView()
+        }, 300)
+      })
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
   watch: {
     "data": {
-      handler: "evalListData",
+      handler: "evalListDataWhenMarkChanged",
       immediate: true
     },
     "dict": {
-      handler: "evalListData",
+      handler: "evalListDataWhenMarkChanged",
       immediate: true
     },
     "myCurrentId": function () {
       this.$nextTick(() => {
         this.scrollCurrentIntoView()
       })
-    }
+    },
+    "selectable": "evalListDataWhenMarkChanged",
+    "checkable": "evalListDataWhenMarkChanged",
+    "hoverable": "evalListDataWhenMarkChanged",
+    "filterValue": "evalListDataWhenMarkChanged"
   }
   //////////////////////////////////////////
 }

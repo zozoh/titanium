@@ -111,6 +111,9 @@
 @FILE mock/components/ti-form/ti-form.comt 'FORM'
 {com:'/rs/ti/test/components/ti-form/demo-ti-form.json'}
 #---------------------------------------------------------
+@FILE mock/components/ti-form/ti-form-ext.comt 'FORM EXT'
+{com:'/rs/ti/test/components/ti-form/demo-ti-form-ext.json'}
+#---------------------------------------------------------
 @FILE mock/components/ti-form/ti-transfer.comt 'TRANSFER'
 {com:'/rs/ti/test/components/ti-form/demo-ti-transfer.json'}
 #---------------------------------------------------------
@@ -147,6 +150,12 @@
 #---------------------------------------------------------
 @FILE mock/components/ti-others/ti-filterbar.comt 'FILTERBAR'
 {com:'/rs/ti/test/components/ti-others/demo-ti-filterbar.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-others/ti-filterlist.comt 'FILTERLIST'
+{com:'/rs/ti/test/components/ti-others/demo-ti-filterlist.json'}
+#---------------------------------------------------------
+@FILE mock/components/ti-others/ti-filterlist-multi.comt 'FILTERLIST MULTI'
+{com:'/rs/ti/test/components/ti-others/demo-ti-filterlist-multi.json'}
 #---------------------------------------------------------
 @FILE mock/components/wn-form/wn-combo-input.comt 'COMBO-INPUT'
 {com:'/rs/ti/test/components/wn-form/demo-wn-combo-input.json'}

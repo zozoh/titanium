@@ -334,7 +334,7 @@ const _M = {
       // })
       this.myFieldWidths = _.map(colPs, p => Ti.S.toPercent(p))
       // Persistance
-      if(this.keepCustomizedTo) {
+      if (this.keepCustomizedTo) {
         let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
         cuo.setFieldsWidth = this.myFieldWidths
         Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
@@ -441,15 +441,11 @@ const _M = {
       }
     },
     //--------------------------------------
-    async evalListData(newVal, oldVal) {
-      let isSame = _.isEqual(newVal, oldVal)
-      if (!isSame) {
-        //console.log("!!!table data changed", {newVal, oldVal})
-        this.myData = await this.evalData((it) => {
-          it.icon = this.getRowIcon(it.item)
-          it.indent = this.getRowIndent(it.item)
-        })
-      }
+    async evalListData() {
+      this.myData = await this.evalData((it) => {
+        it.icon = this.getRowIcon(it.item)
+        it.indent = this.getRowIndent(it.item)
+      })
       // Check ready 
       if (_.isEmpty(this.data)) {
         this.$nextTick(() => {
@@ -515,11 +511,11 @@ const _M = {
   ///////////////////////////////////////////////////
   watch: {
     "data": {
-      handler: "evalListData",
+      handler: "evalListDataWhenMarkChanged",
       immediate: true
     },
     "dict": {
-      handler: "evalListData",
+      handler: "evalListDataWhenMarkChanged",
       immediate: true
     },
     "fields": {
@@ -531,7 +527,11 @@ const _M = {
         }
       },
       immediate: true
-    }
+    },
+    "selectable": "evalListDataWhenMarkChanged",
+    "checkable": "evalListDataWhenMarkChanged",
+    "hoverable": "evalListDataWhenMarkChanged",
+    "filterValue": "evalListDataWhenMarkChanged"
   },
   ///////////////////////////////////////////////////
   mounted: function () {

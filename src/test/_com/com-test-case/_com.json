@@ -25,6 +25,7 @@
     "@com:ti/lbs/route",
     "@com:ti/slide/bar",
     "@com:ti/slide/stack",
+    "@com:ti/input/currency",
     "@com:wn/combo/input",
     "@com:wn/combo/multi-input",
     "@com:wn/upload/file",

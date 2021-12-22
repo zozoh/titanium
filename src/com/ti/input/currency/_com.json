@@ -1,0 +1,9 @@
+{
+  "name": "ti-input-currency",
+  "globally": true,
+  "template": "./ti-input-currency.html",
+  "mixins": "./ti-input-currency.mjs",
+  "components": [
+    "@com:ti/input"
+  ]
+}

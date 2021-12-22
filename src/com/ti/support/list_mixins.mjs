@@ -203,6 +203,13 @@ const LIST_MIXINS = {
       return rowId
     },
     //-----------------------------------------------
+    async evalListDataWhenMarkChanged(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal)) {
+        //console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
+        await this.evalListData()
+      }
+    },
+    //-----------------------------------------------
     async evalData(iteratee = _.identity) {
       let data = this.data
       //............................................
@@ -237,6 +244,9 @@ const LIST_MIXINS = {
         }
       }
       //............................................
+      let hasFilterValue = !Ti.Util.isNil(this.filterValue)
+      let hasFilterFunc = _.isFunction(this.filterBy)
+      //............................................
       // Then format the list
       let list = []
       let displayIndex = 0
@@ -262,6 +272,12 @@ const LIST_MIXINS = {
           item: it
         }
         item = iteratee(item) || item
+        // Apply filter
+        if(hasFilterFunc && hasFilterValue) {
+          if(!this.filterBy(item, this.filterValue)) {
+            return;
+          }
+        }
         // Increase display index
         if (!asGroupTitle) {
           displayIndex++

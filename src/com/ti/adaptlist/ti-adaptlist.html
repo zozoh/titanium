@@ -1,0 +1,85 @@
+<div class="wn-adaptlist" 
+  :class="TopClass"
+  v-ti-activable>
+  <div
+    class="wal-con ti-fill-parent"
+    v-drop-files.mask="UploadDragAndDropHandler">
+    <!--==================================
+      Show Loading
+    -->
+    <ti-loading
+      v-if="isLoading"
+        class="as-reloading as-mid-tip"
+        text="i18n:reloading"/>
+    <!--==================================
+      Data List
+    -->
+    <component :is="MainComType"
+      v-else
+        class="ti-fill-parent"
+        :data="WallDataList"
+        :changed-id="changedId"
+        :current-id="myCurrentId"
+        :checked-ids="myCheckedIds"
+        :multi="multi"
+        :checkable="checkable"
+        :blurable="blurable"
+        :selectable="selectable"
+        :puppet-mode="true"
+        :rowNumberBase="rowNumberBase"
+        v-bind="MainComConf"
+        :on-init="OnListInit"
+        @select="OnItemSelecteItem"
+        @open="OnItemOpen"/>
+    <!--==================================
+      switch view
+    -->
+    <div class="wal-view-switcher">
+      <div class="as-ava-vt-list">
+        <ul>
+          <li
+            v-for="vt in TheAvaViewTypes"
+              @click.left="OnSwitchViewType(vt)">
+              <TiIcon :value="vt.icon"/>
+          </li>
+        </ul>
+      </div>
+      <div class="as-current-vt">
+        <TiIcon :value="CurrentViewType.icon"/>
+      </div>
+    </div>
+    <!--==================================
+      Hidden file upload control
+    -->
+    <input 
+      type="file" 
+      ref="file" 
+      class="ti-hide"
+      :accept="AcceptUploadFiles"
+      multiple
+      @change.stop.seft="OnSelectLocalFilesToUpload">
+    <!--==================================
+      Uploading Pannel
+    -->
+    <div
+      class="wal-uploading"
+      :class="UploadingClass">
+      <header>
+        <ti-icon value="fas-spinner fa-pulse"/>
+        <span>{{'uploading'|i18n}}</span>
+      </header>
+      <section>
+        <TiWall
+          :data="TheUploadingList"
+          :spacing="spacing"
+          :selectable="false"
+          :multi="false"
+          :checkable="false"
+          :blurable="false"
+          :display="UploadingItemDisplay"
+          :puppet-mode="true"/>
+      </section>
+    </div>
+    <!--==================================-->
+  </div>
+</div>

@@ -1,0 +1,75 @@
+.ti-adaptlist {
+  //-----------------------------------------------
+  > .adaptlist-con {
+    position: relative;
+    //---------------------------------------------
+    > .as-view-switcher {
+      @include flex-align-nowrap;
+      @include pos-abs($r:0,$b:0);
+      z-index: $z-over; opacity: 0.4; font-size: 8px;
+      cursor: pointer; transition: opacity 0.6s;
+      //-------------------------------------------
+      .as-current-vt {
+        padding: SZ(4) SZ(6); cursor: pointer;
+      }
+      //-------------------------------------------
+      .as-ava-vt-list {
+        padding: 0 SZ(2); opacity: 0; width:0; overflow: hidden;
+        transition: 0.3s;
+        transform: scaleX(0.1);
+        transform-origin: right center;
+        ul {@include flex-align-nowrap;}
+        li {
+          padding: SZ(4); margin:0 1px;
+          border-radius: 2px; 
+          &:hover {
+            @include color($color-secondary, r, c);
+          }
+        }
+      }
+      //-------------------------------------------
+      &:hover {
+        opacity: 1; font-size: 16px;
+        .as-current-vt {
+          @include color($color-boldtip, r, c);
+        }
+        .as-ava-vt-list {
+          @include color($color-weaktip, r, c);
+          opacity: 1; width:unset;
+          transform: unset;
+        }
+      }
+      //-------------------------------------------
+    }
+    //---------------------------------------------
+    .as-uploading {
+      @include pos-abs($l:0,$r:0,$b:0);
+      @include color($color-cloak, r, c);
+      max-height: 100%; overflow-y:auto;
+      transition: 0.5s;
+      z-index: $z-menu;
+      //-------------------------------------------
+      &.up-show {
+        opacity: 1; bottom:0;
+      }
+      //-------------------------------------------
+      &.up-hide {
+        opacity: 0; bottom:-100%;
+      }
+      //-------------------------------------------
+      > header {
+        @include flex-align-center;
+        @include color($color-warn, r, c);
+        padding: SZ(4) SZ(10);
+        > span {margin-right:SZ(6);}
+      }
+      //-------------------------------------------
+      > section {
+        padding: SZ(10);
+      }
+      //-------------------------------------------
+    }
+    //---------------------------------------------
+  } // > .as-con
+  //-----------------------------------------------
+}

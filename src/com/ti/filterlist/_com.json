@@ -1,0 +1,14 @@
+{
+  "name": "ti-filterlist",
+  "globally": true,
+  "template": "./ti-filterlist.html",
+  "props": [
+    "@com:ti/support/list_props.mjs",
+    "@com:ti/list/ti-list-props.mjs"
+  ],
+  "mixins": "./ti-filterlist.mjs",
+  "components": [
+    "@com:ti/input",
+    "@com:ti/list"
+  ]
+}

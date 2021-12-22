@@ -1,14 +1,17 @@
 {
-  "name" : "ti-list",
-  "globally" : true,
-  "template" : "./ti-list.html",
-  "props" : "@com:ti/support/list_props.mjs",
-  "methods" : "@com:ti/support/field_display.mjs",
-  "mixins" : [
+  "name": "ti-list",
+  "globally": true,
+  "template": "./ti-list.html",
+  "props": [
+    "@com:ti/support/list_props.mjs",
+    "./ti-list-props.mjs"
+  ],
+  "methods": "@com:ti/support/field_display.mjs",
+  "mixins": [
     "@com:ti/support/list_mixins.mjs",
     "./ti-list.mjs"
   ],
-  "components" : [
+  "components": [
     "./com/list-row",
     "@com:ti/label"
   ]

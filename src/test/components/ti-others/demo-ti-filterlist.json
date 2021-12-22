@@ -1,0 +1,19 @@
+{
+  "comPath": "@com:ti/filterlist",
+  "comType": "ti-filterlist",
+  "comConf": {
+    "className": "ti-fill-parent",
+    "filterInput": {
+      "valueCase": "upper"
+    },
+    "list": {
+      "data": "=>Ti.Bank.getCurrencyList",
+      "display": [
+        "<icon>",
+        "value::flex-none as-tip",
+        "text",
+        "token::align-right as-tip-block"
+      ]
+    }
+  }
+}

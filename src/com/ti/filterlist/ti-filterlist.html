@@ -1,0 +1,20 @@
+<div class="ti-filterlist" :class="TopClass">
+  <!--
+    Filter input
+  -->
+  <div class="as-filter">
+    <TiInput
+      v-bind="FilterInputComConf"
+      :value="myFilterValue"
+      @change="OnInputChange"/>
+  </div>
+  <!--
+    List
+  -->
+  <component
+    :is="ListComType"
+    class="as-list"
+    v-bind="list"
+    :filterValue="myFilterValue"
+    :filterBy="ListFilterBy"/>
+</div>

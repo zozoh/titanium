@@ -1,13 +1,16 @@
 {
-  "name" : "wn-adaptlist",
-  "globally" : true,
-  "template" : "./wn-adaptlist.html",
-  "props" : "./wn-adaptlist-props.mjs",
-  "methods" : "./wn-adaptlist-methods.mjs",
-  "mixins" : ["./wn-adaptlist.mjs"],
-  "components" : [
+  "name": "wn-adaptlist",
+  "globally": true,
+  "template": "./wn-adaptlist.html",
+  "props": "./wn-adaptlist-props.mjs",
+  "methods": "./wn-adaptlist-methods.mjs",
+  "mixins": [
+    "./wn-adaptlist.mjs"
+  ],
+  "components": [
     "@com:ti/obj/thumb",
     "@com:ti/wall",
     "@com:wn/list",
-    "@com:wn/table"]
+    "@com:wn/table"
+  ]
 }
