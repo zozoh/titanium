@@ -136,6 +136,11 @@ const _M = {
         height: "62%",
       }, this.dialog, {
         model: { event: "select" },
+        events: {
+          "open": function(payload) {
+            this.close(this.result)
+          }
+        },
         comType: "TiFilterlist",
         comConf: fltListConf,
         components: [
@@ -154,7 +159,7 @@ const _M = {
     },
     //------------------------------------------------
     async evalValue() {
-      console.log("evalValue", this.value)
+      //console.log("evalValue", this.value)
       let it = await this.Dict.getItem(this.value)
       if (it) {
         this.myValueIcon = this.Dict.getIcon(it)

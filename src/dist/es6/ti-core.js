@@ -1,4 +1,4 @@
-// Pack At: 2021-12-23 12:27:20
+// Pack At: 2021-12-23 15:25:00
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3064,9 +3064,9 @@ const {App} = (function(){
             },
             //--------------------------------------
             OnEvent(key, payload) {
-              console.log(key, payload)
+              //console.log(key, payload)
               let fn = _.get(AppModalEvents, key)
-              fn(payload)
+              fn.apply(this, [payload])
             },
             //--------------------------------------
             async OnClickActon(a) {
@@ -17208,7 +17208,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20211223.122720",
+  "version" : "1.6-20211223.152500",
   "dev" : false,
   "appName" : null,
   "session" : {},

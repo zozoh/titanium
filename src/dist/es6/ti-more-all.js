@@ -1,4 +1,4 @@
-// Pack At: 2021-12-23 12:27:20
+// Pack At: 2021-12-23 15:25:00
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -57336,6 +57336,11 @@ const _M = {
         height: "62%",
       }, this.dialog, {
         model: { event: "select" },
+        events: {
+          "open": function(payload) {
+            this.close(this.result)
+          }
+        },
         comType: "TiFilterlist",
         comConf: fltListConf,
         components: [
@@ -57354,7 +57359,7 @@ const _M = {
     },
     //------------------------------------------------
     async evalValue() {
-      console.log("evalValue", this.value)
+      //console.log("evalValue", this.value)
       let it = await this.Dict.getItem(this.value)
       if (it) {
         this.myValueIcon = this.Dict.getIcon(it)
