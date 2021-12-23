@@ -1,4 +1,4 @@
-// Pack At: 2021-12-20 08:34:50
+// Pack At: 2021-12-23 12:27:20
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2779,6 +2779,208 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'ti-input-currency.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/input/currency/ti-input-currency.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////////////
+  data: () => ({
+
+  }),
+  ////////////////////////////////////////////////////
+  props: {
+    "value": {
+      type: [String, Number, Object],
+      default: undefined
+    },
+    "valueType": {
+      type: String,
+      default: "str",
+      validator: v => /^(str|obj|num)$/.test(v)
+    },
+    /* 1: the value to cent, 100: the value to yuan */
+    "unit": {
+      type: Number,
+      default: 100
+    },
+    /* display precision */
+    // "precision": {
+    //   type: Number,
+    //   default: 2
+    // },
+    /* default currency */
+    "currency": {
+      type: String,
+      default: "RMB"
+    },
+    /* currency options */
+    "options": {
+      type: [String, Array, Function, Ti.Dict],
+      default: undefined
+    },
+    "placeholder": {
+      type: [String, Number],
+      default: undefined
+    },
+    "autoSelect": {
+      type: Boolean,
+      default: undefined
+    },
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
+    "focused": {
+      type: Boolean,
+      default: false
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "width": {
+      type: [Number, String],
+      default: undefined
+    },
+    "height": {
+      type: [Number, String],
+      default: undefined
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    ValObj() {
+      return Ti.Bank.parseCurrency(this.value, {
+        unit: this.unit,
+        currency: this.currency
+      })
+    },
+    //------------------------------------------------
+    ValDisplay() {
+      let v = this.ValObj.yuan
+      if (isNaN(v)) {
+        return
+      }
+      return v
+    },
+    //------------------------------------------------
+    ValCurrency() {
+      return this.ValObj.currency
+    },
+    //------------------------------------------------
+    ValIcon() {
+      let cu = this.ValCurrency;
+      return Ti.Bank.getCurrencyIcon(cu)
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods: {
+    //------------------------------------------------
+    OnInputChange(val) {
+      console.log("Cu changed", val)
+      // Get value
+      let v1 = _.toUpper(_.trim(val))
+      let v2 = Ti.Bank.parseCurrency(v1, {
+        unit: 100,
+        currency: this.ValCurrency
+      })
+      let v3 = this.formatValue(v2)
+      this.$notify("change", v3)
+    },
+    //------------------------------------------------
+    async OnClickSuffix() {
+      // Open the dialog
+      let reo = await Ti.App.Open({
+        title: "i18n:currency",
+        position: "top",
+        width: "4.8rem",
+        height: "62%",
+        model: { event: "select" },
+        comType: "TiFilterlist",
+        comConf: {
+          className: "ti-fill-parent",
+          filterInput: {
+            valueCase: "upper"
+          },
+          list: {
+            idBy: "value",
+            data: Ti.Bank.getCurrencyList(),
+            currentId: this.ValCurrency,
+            cancelable: false,
+            display: [
+              "<icon>",
+              "value::flex-none as-tip",
+              "text",
+              "token::align-right as-tip-block"
+            ]
+          }
+        },
+        components: [
+          "@com:ti/filterlist"
+        ]
+      })
+
+      // User Cancel
+      if (!reo || !reo.currentId) {
+        return
+      }
+
+      // Change the currency
+      let currency = reo.currentId
+      if (currency != this.ValCurrency) {
+        let cuo = _.assign({}, this.ValObj, {
+          currency
+        })
+        let v3 = this.formatValue(cuo)
+        this.$notify("change", v3)
+      }
+    },
+    //------------------------------------------------
+    /**
+     * @param {Object} cu Currency object like `{cent,yuan,currency}`
+     * @return the value obey the `valueType` to notify change
+     */
+    formatValue(cu) {
+      // Get format function
+      let vt = this.valueType;
+      const fn = ({
+        str: ({ cent, currency }) => {
+          if (isNaN(cent)) {
+            return null
+          }
+          return `${cent / this.unit}${currency}`
+        },
+        obj: ({ cent, currency }) => {
+          if (isNaN(cent)) {
+            return null
+          }
+          return {
+            value: cent / this.unit,
+            currency
+          }
+        },
+        num: ({ cent }) => {
+          if (isNaN(cent)) {
+            return
+          }
+          return cent / this.unit
+        }
+      })[vt]
+      // Get value
+      return fn(cu)
+    },
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'web-meta-preview.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/meta/preview/web-meta-preview.mjs'] = (function(){
@@ -2803,6 +3005,103 @@ const __TI_MOD_EXPORT_VAR_NM = {
   computed : {
     //......................................
     
+  }
+  //////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'ti-filterlist.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/filterlist/ti-filterlist.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //////////////////////////////////////////
+  data: () => ({
+    myFilterValue: undefined
+  }),
+  //////////////////////////////////////////
+  props: {
+    "filterInput": {
+      type: Object
+    },
+    "filterKeys": {
+      type: [Array, String],
+      default: "nickname,text,value,title,abbr,nm,id"
+    },
+    "filterBy": {
+      type: [Function, String]
+    },
+    "list": {
+      type: Object
+    },
+    "listType": {
+      type: String,
+      default: "list",
+      validator: v => /^(list|table|wall)$/.test(v)
+    }
+  },
+  //////////////////////////////////////////
+  computed: {
+    //-------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //-------------------------------------
+    ListFilterBy() {
+      // Function
+      if (_.isFunction(this.filterBy)) {
+        return this.filterBy
+      }
+      // Invoking
+      if (_.isString(this.filterBy) || _.isPlainObject(this.filterBy)) {
+        return Ti.Util.genInvoking(this.filterBy)
+      }
+      // Auto get filter keys
+      let itKeys = []
+      let kss = _.concat([], this.filterKeys)
+      for (let ks of kss) {
+        let keys = Ti.S.splitIgnoreBlank(ks)
+        if (!_.isEmpty(keys) && _.isArray(keys)) {
+          itKeys.push(...keys)
+        }
+      }
+      // Gen the function
+      return (it, fltv) => {
+        //console.log("filter", { it, fltv })
+        for (let k of itKeys) {
+          let v = (it.rawData || it)[k]
+          if (Ti.Util.isNil(v)) {
+            continue;
+          }
+          let s = v + ""
+          if (s.indexOf(fltv) >= 0) {
+            return true
+          }
+        }
+        return false
+      }
+    },
+    //-------------------------------------
+    FilterInputComConf() {
+      return _.assign({
+        width: "100%",
+        prefixIcon: "fas-filter",
+        placeholder: "i18n:filter"
+      }, this.filterInput)
+    },
+    //-------------------------------------
+    ListComType() {
+      return `ti-${this.listType}`
+    }
+    //-------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //-------------------------------------
+    OnInputChange(str) {
+      this.myFilterValue = str || null
+    }
+    //-------------------------------------
   }
   //////////////////////////////////////////
 }
@@ -6446,6 +6745,71 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'ti-adaptlist-methods.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/adaptlist/ti-adaptlist-methods.mjs'] = (function(){
+const OBJ = {
+  //--------------------------------------------
+  async doUpload(files = []) {
+    if (_.isFunction(this.beforeUpload)) {
+      await this.beforeUpload()
+    }
+
+    // Prepare the list
+    let ups = _.map(files, (file, index) => ({
+      id: `U${index}_${Ti.Random.str(6)}`,
+      file: file,
+      total: file.size,
+      current: 0
+    }))
+
+    // Show Uploading
+    this.myUploadigFiles = ups
+
+    // Prepare the list
+    let newIds = {}
+    // Do upload file one by one
+    for (let up of ups) {
+      let file = up.file
+      let { ok, data } = await Wn.Io.uploadFile(file, {
+        target: `id:${this.meta.id}`,
+        progress: function (pe) {
+          up.current = pe.loaded
+        }
+      })
+      if (ok) {
+        newIds[data.id] = true
+      }
+    }
+
+    // All done, hide upload
+    _.delay(() => {
+      this.myUploadigFiles = []
+    }, 1000)
+
+    if (_.isEmpty(newIds)) {
+      return
+    }
+
+    // Tell user ...
+    Ti.Toast.Open("i18n:upload-done", "success")
+
+
+    // Call reload
+    await this._run("reload")
+
+    // Make it checked
+    let checkIds = Ti.Util.truthyKeys(newIds)
+    if (!this.multi) {
+      checkIds = _.first(checkIds)
+    }
+    this.$innerList.checkRow(checkIds, { reset: true })
+  }
+  //--------------------------------------------
+}
+return OBJ;;
+})()
+// ============================================================
 // EXPORT 'ti-combo-sorter.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/combo/sorter/ti-combo-sorter.mjs'] = (function(){
@@ -9108,6 +9472,149 @@ const _M = {
 }
 return _M;
 ;
+})()
+// ============================================================
+// EXPORT 'ti-adaptlist-props.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/adaptlist/ti-adaptlist-props.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
+  "meta" : {
+    type : Object,
+    default : null
+  },
+  // {list:[], pager:{..}}
+  "data" : {
+    type : [Object, Array],
+    default : null
+  },
+  "currentId" : {
+    type : String,
+    default : null
+  },
+  "changedId" : {
+    type : String,
+    default : null
+  },
+  "status" : {
+    type : Object,
+    default : ()=>({
+      reloading : false
+    })
+  },
+  "itemTitleKey" : {
+    type : String,
+    default : "title"
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  // Drop files to upload
+  "droppable" : {
+    type : Boolean,
+    default : true
+  },
+  // multi-selectable
+  // effected when selectable is true
+  "multi" : {
+    type : Boolean,
+    default : true
+  },
+  "checkable" : {
+    type : Boolean,
+    default : true
+  },
+  "blurable" : {
+    type : Boolean,
+    default : true
+  },
+  "selectable" : {
+    type : Boolean,
+    default : true
+  },
+  // aspect: list item spacing
+  // `xs|sm|md|lg|xl`
+  "spacing" : {
+    type : String,
+    default : "sm"
+  },
+  "routers" : {
+    type : Object,
+    default : ()=>({
+      "reload" : "dispatch:main/reload"
+    })
+  },
+  "listConf" : {
+    type : Object
+  },
+  "wallViewConf"  : {
+    type : Object
+  },
+  "listViewConf"  : {
+    type : Object
+  },
+  "tableViewConf" : {
+    type : Object
+  },
+  "acceptUpload" : {
+    type : Array
+  },
+  "exposeHidden" : {
+    type : Boolean,
+  },
+  "viewType" : {
+    type : String,
+    default : "wall"
+  },
+  "avaViewTypes" : {
+    type : Array,
+    default : ()=>["wall", "table", "list"]
+  },
+  "listDisplay" : {
+    type : [Array, String, Object],
+    default: ()=>["@<thumb>", "title|nm::flex-auto", "nm::as-tip-block"]
+  },
+  "tableFields" : {
+    type : Array,
+    default : ()=>["title", "c", "g", "tp", "len", "lm"]
+  },
+  "moveToConf" : {
+    type : Object
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "rowNumberBase": {
+    type: Number,
+    default: undefined
+  },
+  "itemClassName" : {
+    type : String
+  },
+  "itemBadges" : {
+    type : [Object, Function]
+  },
+  "viewTypeIcons" : {
+    type : Object,
+    default : ()=>({
+      "wall"  : "zmdi-view-module",
+      "table" : "zmdi-view-subtitles",
+      "list"  : "zmdi-view-headline"
+    })
+  },
+  //-----------------------------------
+  // Callback
+  //-----------------------------------
+  "beforeUpload" : {
+    type: Function
+  },
+  "onViewTypeChange" : {
+    type: Function,
+  }
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'ti-transfer.mjs' -> null
@@ -38601,11 +39108,11 @@ const _M = {
     },
     //--------------------------------------
     async evalListData(newVal, oldVal) {
-      let isSame = _.isEqual(newVal, oldVal)
-      if (!isSame) {
-        //console.log("!!!wall data changed", {newVal, oldVal})
-        this.myData = await this.evalData()
-      }
+      //let isSame = _.isEqual(newVal, oldVal)
+      //if (!isSame) {
+      //console.log("!!!wall data changed", {newVal, oldVal})
+      this.myData = await this.evalData()
+      //}
       this.OnWallResize()
     }
     //--------------------------------------
@@ -38613,13 +39120,17 @@ const _M = {
   //////////////////////////////////////////
   watch: {
     "data": {
-      handler: "evalListData",
+      handler: "evalListDataWhenMarkChanged",
       immediate: true
     },
     "dict": {
-      handler: "evalListData",
+      handler: "evalListDataWhenMarkChanged",
       immediate: true
-    }
+    },
+    "selectable": "evalListDataWhenMarkChanged",
+    "checkable": "evalListDataWhenMarkChanged",
+    "hoverable": "evalListDataWhenMarkChanged",
+    "filterValue": "evalListDataWhenMarkChanged"
   },
   //////////////////////////////////////////
   mounted: function () {
@@ -40065,6 +40576,555 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'ti-adaptlist.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/adaptlist/ti-adaptlist.mjs'] = (function(){
+/////////////////////////////////////////////////
+const _M = {
+  ////////////////////////////////////////////////
+  data: () => ({
+    myCurrentId: null,
+    myCheckedIds: {},
+    myUploadigFiles: [],
+    myItemStatus: {},
+    myExposeHidden: true,
+    myData: null
+  }),
+  ////////////////////////////////////////////////
+  computed: {
+    //--------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------------
+    isLoading() {
+      return !this.viewType || _.get(this.status, "reloading")
+    },
+    //--------------------------------------------
+    MainComType() {
+      return ({
+        "wall": "TiWall",
+        "list": "WnList",
+        "table": "WnTable"
+      })[this.viewType] || "TiWall"
+    },
+    //--------------------------------------------
+    MainComConf() {
+      let listDisplay = _.concat(this.listDisplay)
+      let conf = ({
+        list: () => ({
+          rowClassBy: "->is-${visibility}",
+          display: _.map(listDisplay, li => {
+            let m = /^@<thumb(:([^:]*)(:([^:]*))?)?>$/.exec(li)
+            if (m) {
+              return Wn.Obj.getObjThumbDisplay("rawData", {
+                dftIcon: m[2] || undefined,
+                className: m[4] || undefined
+              })
+            }
+            return li
+          })
+        }),
+        table: () => ({
+          rowClassBy: "->is-${visibility}",
+          fields: _.map(this.tableFields, key => {
+            return Wn.Obj.getTableField(key)
+          })
+        }),
+        wall: () => ({
+          spacing: this.spacing,
+          display: {
+            key: "..",
+            // transformer : {
+            //   name : "Wn.Util.getObjThumbInfo",
+            //   args : [{
+            //       status : this.myItemStatus,
+            //       exposeHidden : this.myExposeHidden
+            //     }]
+            // },
+            comType: 'ti-obj-thumb',
+            comConf: {
+              "...": "${=value}"
+            }
+          }
+        })
+      })[this.viewType]()
+
+      // Extend customized config
+      _.merge(conf, this.listConf)
+      _.merge(conf, _.get(this, `${this.viewType}ViewConf`))
+
+      // Done
+      return conf
+    },
+    //--------------------------------------------
+    // MainComData() {
+    //   if("wall" == this.viewType) {
+    //     return this.WallDataList
+    //   }
+    //   return this.DataList
+    // },
+    //--------------------------------------------
+    CurrentViewType() {
+      return {
+        type: this.viewType,
+        icon: _.get(this.viewTypeIcons, this.viewType)
+      }
+    },
+    //--------------------------------------------
+    TheAvaViewTypes() {
+      let list = []
+      _.forEach(this.avaViewTypes, vt => {
+        if (vt == this.viewType) {
+          return;
+        }
+        list.push({
+          type: vt,
+          icon: _.get(this.viewTypeIcons, vt)
+        })
+      })
+      return list
+    },
+    //--------------------------------------------
+    UploadingItemDisplay() {
+      return {
+        key: "..",
+        comType: 'ti-obj-thumb',
+        comConf: {
+          "...": "${=value}"
+        }
+      }
+    },
+    //--------------------------------------------
+    DataList() {
+      //console.log("eval DataList")
+      if (this.myData) {
+        if (_.isArray(this.myData)) {
+          return this.myData
+        }
+        if (_.isArray(this.myData.list)) {
+          return this.myData.list
+        }
+      }
+      return []
+    },
+    //--------------------------------------------
+    hasDataList() {
+      return !_.isEmpty(this.DataList)
+    },
+    //--------------------------------------------
+    WallDataList() {
+      if (!this.hasDataList) {
+        return []
+      }
+      //console.log("eval WallDataList", this.DataList.length)
+      let list = []
+      for (let it of this.DataList) {
+        if (!this.isHiddenItem(it)) {
+          let li = Wn.Util.getObjThumbInfo(it, {
+            status: this.myItemStatus,
+            exposeHidden: this.myExposeHidden,
+            titleKey: this.itemTitleKey,
+            badges: this.itemBadges
+          })
+          list.push(li)
+          //list.push(it)
+        }
+      }
+      return list
+    },
+    //--------------------------------------------
+    /***
+     * Show uploading list
+     */
+    TheUploadingList() {
+      let list = this.myUploadigFiles
+      let re = []
+      if (_.isArray(list)) {
+        for (let it of list) {
+          // Gen Preview for local image
+          let mime = it.file.type
+          let tp = Ti.Util.getSuffixName(it.file.name)
+          let preview;
+          if (/^image\//.test(mime)) {
+            preview = {
+              type: "localFile",
+              value: it.file
+            }
+          } else {
+            preview = Ti.Icons.get({ tp, mime })
+          }
+          // Join to result list
+          re.push({
+            id: it.id,
+            title: it.file.name,
+            preview,
+            progress: (it.current / it.total)
+          })
+        }
+      }
+      return re
+    },
+    //--------------------------------------------
+    AcceptUploadFiles() {
+      if (this.acceptUpload) {
+        if (_.isString(this.acceptUpload)) {
+          return this.acceptUpload
+        }
+        if (_.isArray(this.acceptUpload)) {
+          return this.acceptUpload.join(",")
+        }
+      }
+    },
+    //--------------------------------------------
+    /***
+     * has uploading
+     */
+    hasUploading() {
+      return this.myUploadigFiles.length > 0
+    },
+    //--------------------------------------------
+    UploadingClass() {
+      return this.hasUploading ? "up-show" : "up-hide"
+    },
+    //--------------------------------------------
+    UploadDragAndDropHandler() {
+      if (this.droppable) {
+        return this.OnDropFiles
+      }
+    }
+    //--------------------------------------------
+  },  // ~ computed
+  ////////////////////////////////////////////////
+  methods: {
+    //--------------------------------------------
+    OnListInit($list) { this.$innerList = $list },
+    //--------------------------------------------
+    // Events
+    //--------------------------------------------
+    OnSwitchViewType(vt) {
+      this.$notify("listviewtype:change", vt)
+      if (_.isFunction(this.onViewTypeChange)) {
+        this.onViewTypeChange(vt)
+      }
+    },
+    //--------------------------------------------
+    OnItemSelecteItem({ currentId, checkedIds, currentIndex }) {
+      //console.log("OnSelected", currentId, checkedIds)
+      // For Desktop
+      this.myCurrentId = currentId
+      this.myCheckedIds = checkedIds
+
+      let context = {
+        current: this.getCurrentItem(),
+        checked: this.getCheckedItems(),
+        checkedIds, currentId, currentIndex,
+      }
+
+      // Notify the real objects
+      this.$notify("select", context)
+
+      return { stop: true }
+    },
+    //--------------------------------------------
+    OnItemOpen() {
+      //console.log("open item")
+      let obj = this.getCurrentItem()
+      if (obj) {
+        this.$notify("open:wn:obj", obj)
+      }
+    },
+    //--------------------------------------
+    OnClipBoardPoste({ clipboardData } = {}) {
+      // Guard
+      //console.log("OnClipBoardPoste", clipboardData)
+      let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
+      if(imgF) {
+        let imgTp = Ti.Util.getSuffix(imgF.name)
+        let dateS = Ti.DateTime.format(new Date(), "'Snapshot'-yyyyMMdd-HHmmss")
+        imgF.uploadName = dateS + imgTp
+        this.OnDropFiles([imgF])
+      }
+    },
+    //--------------------------------------------
+    async OnDropFiles(files) {
+      // console.log("OnDropFiles", files)
+      if (!this.droppable)
+        return
+      let fs = [...files]
+      await this.doUpload(fs)
+
+      // Wait the computed result and notify
+      this.$nextTick(() => {
+        // Find my checked files
+        let objs = []
+        if (this.hasDataList) {
+          _.forEach(this.DataList, it => {
+            if (this.myCheckedIds[it.id]) {
+              objs.push(it)
+            }
+          })
+        }
+
+        // Emit events
+        this.$notify("uploaded", objs)
+      })
+    },
+    //--------------------------------------------
+    async OnSelectLocalFilesToUpload(evt) {
+      await this.OnDropFiles(evt.target.files)
+      this.$refs.file.value = ""
+    },
+    //--------------------------------------------
+    // Getters
+    //--------------------------------------------
+    getCurrentItem() {
+      if (this.myCurrentId && this.hasDataList) {
+        return _.find(this.DataList, it => it.id == this.myCurrentId)
+      }
+    },
+    //--------------------------------------------
+    getCheckedItems() {
+      if (this.hasDataList)
+        return _.filter(this.DataList, it => this.myCheckedIds[it.id])
+      return []
+    },
+    //--------------------------------------------
+    setItem(newItem) {
+      if (newItem && this.hasDataList) {
+        let list = _.map(this.DataList, it => {
+          return it.id == newItem.id
+            ? newItem
+            : it
+        })
+        if (_.isArray(this.myData)) {
+          this.myData = list
+        } else {
+          this.myData = _.assign({}, this.myData, { list })
+        }
+      }
+    },
+    //--------------------------------------------
+    setItemStatus(id, status = "loading") {
+      this.myItemStatus = _.assign({}, this.myItemStatus, {
+        [id]: status
+      })
+    },
+    //--------------------------------------------
+    findRowById(rowId) {
+      return this.$innerList.findRowById(rowId)
+    },
+    //--------------------------------------------
+    getItemById(id) {
+      let row = this.$innerList.findRowById(id)
+      if (row) {
+        return row.rawData
+      }
+    },
+    //--------------------------------------------
+    selectItem(id) {
+      this.$innerList.selectRow(id)
+    },
+    //--------------------------------------------
+    selectItemByIndex(index) {
+      this.$innerList.selectRowByIndex(index)
+    },
+    //--------------------------------------------
+    checkItem(id) {
+      let ids = {}
+      _.forEach(this.myCheckedIds, (v, k) => {
+        if (v)
+          ids[k] = true
+      });
+      ids[id] = true
+      this.myCheckedIds = ids
+    },
+    //--------------------------------------------
+    toggleItem(id) {
+      let ids = {}
+      _.forEach(this.myCheckedIds, (v, k) => {
+        if (k == id) {
+          ids[k] = v ? false : true
+        }
+        else if (v)
+          ids[k] = true
+      });
+      ids[id] = true
+      this.myCheckedIds = ids
+    },
+    //--------------------------------------------
+    setItemSelect(id) {
+      this.$innerList.setRowSelect(id)
+    },
+    //--------------------------------------------
+    // For global menu invoke checkAll/cancleAll
+    invokeList(methodName) {
+      Ti.InvokeBy(this.$innerList, methodName)
+    },
+    //--------------------------------------------
+    isHiddenItem(it) {
+      if (it && it.nm && it.nm.startsWith(".") && !this.myExposeHidden) {
+        return true
+      }
+      return false
+    },
+    //--------------------------------------------
+    // Utility
+    //--------------------------------------------
+    async _run(nm, payload) {
+      let target = (this.routers || {})[nm]
+      // Run by customized function
+      if (_.isFunction(target)) {
+        await target()
+      }
+      // In app
+      else if (target) {
+        let app = Ti.App(this)
+        return await app.exec(target, payload)
+      }
+    },
+    //--------------------------------------------
+    // toggleExposeHidden() {
+    //   let newVal = !this.myExposeHidden
+    //   this.myExposeHidden = newVal
+    //   if(this.keeyHiddenBy) {
+    //     Ti.Storage.session.set(this.keeyHiddenBy, newVal)
+    //   }
+    // },
+    //--------------------------------------------
+    openLocalFileSelectdDialog() {
+      this.$refs.file.click()
+    },
+    //--------------------------------------------
+    async openCurrentMeta() {
+      let meta = this.getCurrentItem() || this.meta
+
+      if (!meta) {
+        await Ti.Toast.Open("i18n:nil-obj")
+        return
+      }
+
+      let reo = await Wn.EditObjMeta(meta, { fields: "auto" })
+
+      // Update to current list
+      if (reo) {
+        let { updates, data } = reo
+        // TODO if update the "thumb" may need to force reload the preview
+        // Update to list
+        this.setItem(data)
+
+        return data
+      }
+    },
+    //--------------------------------------------
+    async openCurrentPrivilege() {
+      let meta = this.getCurrentItem() || this.meta
+
+      if (!meta) {
+        await Ti.Toast.Open("i18n:nil-obj")
+        return
+      }
+
+      let newMeta = await Wn.EditObjPrivilege(meta)
+
+      // Update to current list
+      if (newMeta) {
+        if (this.meta.id == newMeta.id) {
+          await Ti.App(this).dispatch("main/reload", newMeta)
+        } else {
+          await Ti.App(this).commit("main/setDataItem", newMeta)
+          //this.setItem(newMeta)
+        }
+        return newMeta
+      }
+    },
+    //--------------------------------------------
+    syncMyData() {
+      //console.log("syncMyData")
+      // 有时候直接改了 myData， 竟然会导致这个函数被触发
+      // 我也是醉了，不知道为啥
+      // 这会导致通过 setItem 修改列表，修改不了
+      // 因为会被同步回来
+      // 是否做一点脏脏的事情呢？
+      //  - setItem 的时候做一个时间戳，在 500ms 内， 让 sync 不工作？
+      this.myData = _.cloneDeep(this.data) || {
+        list: [], pager: {}
+      }
+      this.myItemStatus = {}
+    }
+    //--------------------------------------------
+  },
+  ////////////////////////////////////////////////
+  watch: {
+    // "myData" : function(newVal, oldVal) {
+    //   console.log("MyData changed:", {
+    //     "newVal" : _.get(newVal, "list.0.nm"),
+    //     "oldVal" : _.get(oldVal, "list.0.nm"),
+    //   })
+    // },
+    // myData : function(newVal, oldVal) {
+    //   console.log("myData Changed", newVal)
+    // },
+    //--------------------------------------------
+    "data": {
+      handler: "syncMyData",
+      immediate: true
+    },
+    //--------------------------------------------
+    "exposeHidden": {
+      handler: function (eh) {
+        this.myExposeHidden = eh
+      },
+      immediate: true
+    },
+    //--------------------------------------------
+    "currentId": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
+          this.myCurrentId = newVal
+        }
+      },
+      immediate: true
+    }
+    //--------------------------------------------
+  },
+  ////////////////////////////////////////////////
+  created: function () {
+    this.OnPaste = evt => {
+      this.OnClipBoardPoste(evt)
+    }
+  },
+  ////////////////////////////////////////////////
+  mounted: function () {
+    //--------------------------------------------
+    // Guart the uploading
+    Ti.Fuse.getOrCreate().add({
+      key: "wn-list-adaptview-check-uploading",
+      everythingOk: () => {
+        return !this.hasUploading
+      },
+      fail: () => {
+        Ti.Toast.Open("i18n:upload-nofinished", "warn")
+      }
+    })
+    // Watch the clipboard
+    window.addEventListener("paste", this.OnPaste)
+    // Restore the exposeHidden
+    // if(this.keeyHiddenBy) {
+    //   this.myExposeHidden = Ti.Storage.session.getBoolean(this.keeyHiddenBy)
+    // }
+  },
+  //--------------------------------------------
+  beforeDestroy: function () {
+    Ti.Fuse.get().remove("wn-list-adaptview-check-uploading")
+    window.removeEventListener("paste", this.OnPaste)
+  }
+  //--------------------------------------------
+  ////////////////////////////////////////////////
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'ti-toggle.mjs' -> null
@@ -41561,6 +42621,13 @@ const LIST_MIXINS = {
       return rowId
     },
     //-----------------------------------------------
+    async evalListDataWhenMarkChanged(newVal, oldVal) {
+      if(!_.isEqual(newVal, oldVal)) {
+        //console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
+        await this.evalListData()
+      }
+    },
+    //-----------------------------------------------
     async evalData(iteratee = _.identity) {
       let data = this.data
       //............................................
@@ -41595,6 +42662,9 @@ const LIST_MIXINS = {
         }
       }
       //............................................
+      let hasFilterValue = !Ti.Util.isNil(this.filterValue)
+      let hasFilterFunc = _.isFunction(this.filterBy)
+      //............................................
       // Then format the list
       let list = []
       let displayIndex = 0
@@ -41620,6 +42690,12 @@ const LIST_MIXINS = {
           item: it
         }
         item = iteratee(item) || item
+        // Apply filter
+        if(hasFilterFunc && hasFilterValue) {
+          if(!this.filterBy(item, this.filterValue)) {
+            return;
+          }
+        }
         // Increase display index
         if (!asGroupTitle) {
           displayIndex++
@@ -43877,181 +44953,191 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "data" : {
-    type : [Array, String],
-    default : undefined
+  "data": {
+    type: [Array, String],
+    default: undefined
   },
   // If input the value(ID) Array
   // it can translate by this Dict
-  "dict" : {
-    type : [String, Ti.Dict],
-    default : null
+  "dict": {
+    type: [String, Ti.Dict],
+    default: null
   },
-  "idBy" : {
-    type : [String, Function],
-    default : "id"
+  "idBy": {
+    type: [String, Function],
+    default: "id"
   },
-  "rawDataBy" : {
-    type : [Object, String, Function],
-    default : _.identity
+  "rawDataBy": {
+    type: [Object, String, Function],
+    default: _.identity
   },
-  "currentId" : {
-    type : [String, Number],
-    default : null
+  "currentId": {
+    type: [String, Number],
+    default: null
   },
-  "checkedIds" : {
-    type : [Array, Object],
-    default : ()=>[]
+  "checkedIds": {
+    type: [Array, Object],
+    default: () => []
   },
-  "changedId" : {
-    type : String,
-    default : null
+  "changedId": {
+    type: String,
+    default: null
   },
-  "rowAsGroupTitle" : {
-    type : [String, Object, Array, Function]
+  "rowAsGroupTitle": {
+    type: [String, Object, Array, Function]
   },
-  "rowGroupTitleDisplay" : {
-    type : [String, Object, Array, Function]
+  "rowGroupTitleDisplay": {
+    type: [String, Object, Array, Function]
   },
   // "extendFunctionSet" : {
   //   type : Object,
   //   default : ()=>({})
   // },
-  "vars" : {
-    type : Object,
-    default : ()=>({})
+  "vars": {
+    type: Object,
+    default: () => ({})
   },
-  "showLoadMore" : Boolean,
-  "moreLoading" : Boolean,
+  //-----------------------------------
+  "filterValue": {
+    type: [String, Object, Number, Boolean, Date, RegExp],
+    default: undefined
+  },
+  "filterBy": {
+    type: Function,
+    default: undefined
+  },
+  //-----------------------------------
+  "showLoadMore": Boolean,
+  "moreLoading": Boolean,
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "multi" : {
-    type : Boolean,
-    default : false
+  "multi": {
+    type: Boolean,
+    default: false
   },
   // in selectRow(), auto check current and drop primary checked rows?
-  "autoCheckCurrent" : {
-    type : Boolean,
-    default : true
+  "autoCheckCurrent": {
+    type: Boolean,
+    default: true
   },
   // in multi mode, which key to toggle row checker?
-  "rowToggleKey" : {
-    type : [String, Array],
-    default : ()=>["SPACE"]
+  "rowToggleKey": {
+    type: [String, Array],
+    default: () => ["SPACE"]
   },
-  "rowCheckable" : {
-    type : [Object, Function],
-    default : undefined
+  "rowCheckable": {
+    type: [Object, Function],
+    default: undefined
   },
-  "rowSelectable" : {
-    type : [Object, Function],
-    default : undefined
+  "rowSelectable": {
+    type: [Object, Function],
+    default: undefined
   },
-  "rowOpenable" : {
-    type : [Object, Function],
-    default : undefined
+  "rowOpenable": {
+    type: [Object, Function],
+    default: undefined
   },
-  "rowCancelable" : {
-    type : [Object, Function],
-    default : undefined
+  "rowCancelable": {
+    type: [Object, Function],
+    default: undefined
   },
-  "rowHoverable" : {
-    type : [Object, Function],
-    default : undefined
+  "rowHoverable": {
+    type: [Object, Function],
+    default: undefined
   },
-  "checkable" : {
-    type : Boolean,
-    default : false
+  "checkable": {
+    type: Boolean,
+    default: false
   },
-  "selectable" : {
-    type : Boolean,
-    default : true
+  "selectable": {
+    type: Boolean,
+    default: true
   },
-  "openable" : {
-    type : Boolean,
-    default : true
+  "openable": {
+    type: Boolean,
+    default: true
   },
-  "cancelable" : {
-    type : Boolean,
-    default : true
+  "cancelable": {
+    type: Boolean,
+    default: true
   },
-  "hoverable" : {
-    type : Boolean,
-    default : false
+  "hoverable": {
+    type: Boolean,
+    default: false
   },
-  "puppetMode" : {
-    type : Boolean,
-    default : false
+  "puppetMode": {
+    type: Boolean,
+    default: false
   },
-  "scrollIndex" : {
-    type : Boolean,
-    default : false
+  "scrollIndex": {
+    type: Boolean,
+    default: false
   },
   "onBeforeChangeSelect": {
-    type : Function,
+    type: Function,
     default: undefined
   },
   "onSelect": {
-    type : Function,
+    type: Function,
     default: undefined
   },
   "onOpen": {
-    type : Function,
+    type: Function,
     default: undefined
   },
   "autoLoadMore": {
-    type : Boolean,
+    type: Boolean,
     default: false
   },
   "notifySelectName": {
-    type : String,
+    type: String,
     default: "select"
   },
   "notifyOpenName": {
-    type : String,
+    type: String,
     default: "open"
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "rowClassBy" : {
-    type : [Function, String]
+  "rowClassBy": {
+    type: [Function, String]
   },
-  "blankAs" : {
-    type : Object,
-    default : ()=>({
-      icon : "far-list-alt",
-      text : "i18n:empty-data"
+  "blankAs": {
+    type: Object,
+    default: () => ({
+      icon: "far-list-alt",
+      text: "i18n:empty-data"
     })
   },
   "blankClass": {
     type: String,
     default: "as-big-mask",
-    validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
+    validator: v => /^as-(big|hug|big-mask|mid-tip)$/.test(v)
   },
-  "loadingAs" : {
-    type : Object,
-    default : ()=>({
-      className : "as-nil-mask as-big-mask",
-      icon : "fas-spinner fa-spin",
-      text : "i18n:loading"
+  "loadingAs": {
+    type: Object,
+    default: () => ({
+      className: "as-nil-mask as-big-mask",
+      icon: "fas-spinner fa-spin",
+      text: "i18n:loading"
     })
   },
-  "rowNumberBase" : {
-    type : Number,
-    default : undefined
+  "rowNumberBase": {
+    type: Number,
+    default: undefined
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "width" : {
-    type : [Number, String],
-    default : undefined
+  "width": {
+    type: [Number, String],
+    default: undefined
   },
-  "height" : {
-    type : [Number, String],
-    default : undefined
+  "height": {
+    type: [Number, String],
+    default: undefined
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -47161,33 +48247,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     myData: [],
   }),
   //////////////////////////////////////////
-  props: {
-    "iconBy": {
-      type: [String, Function],
-      default: null
-    },
-    "indentBy": {
-      type: [String, Function],
-      default: null
-    },
-    "itemClassName": undefined,
-    "display": {
-      type: [Object, String, Array],
-      default: () => ({
-        key: "..",
-        comType: "ti-label"
-      })
-    },
-    "border": {
-      type: Boolean,
-      default: true
-    },
-    "autoScrollIntoView": {
-      type: Boolean,
-      default: true
-    }
-  },
-  //////////////////////////////////////////
   computed: {
     //--------------------------------------
     TopClass() {
@@ -47282,39 +48341,39 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //--------------------------------------
-    async evalListData(newVal, oldVal) {
-      let isSame = _.isEqual(newVal, oldVal)
-      if (!isSame) {
-        //console.log("!!!list data changed", {newVal, oldVal})
-        this.myData = await this.evalData((it) => {
-          it.icon = this.getRowIcon(it.item)
-          it.indent = this.getRowIndent(it.item)
-        })
+    async evalListData() {
+      this.myData = await this.evalData((it) => {
+        it.icon = this.getRowIcon(it.item)
+        it.indent = this.getRowIndent(it.item)
+      })
 
-        this.$nextTick(() => {
-          _.delay(() => {
-            this.scrollCurrentIntoView()
-          }, 300)
-        })
-      }
+      this.$nextTick(() => {
+        _.delay(() => {
+          this.scrollCurrentIntoView()
+        }, 300)
+      })
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
   watch: {
     "data": {
-      handler: "evalListData",
+      handler: "evalListDataWhenMarkChanged",
       immediate: true
     },
     "dict": {
-      handler: "evalListData",
+      handler: "evalListDataWhenMarkChanged",
       immediate: true
     },
     "myCurrentId": function () {
       this.$nextTick(() => {
         this.scrollCurrentIntoView()
       })
-    }
+    },
+    "selectable": "evalListDataWhenMarkChanged",
+    "checkable": "evalListDataWhenMarkChanged",
+    "hoverable": "evalListDataWhenMarkChanged",
+    "filterValue": "evalListDataWhenMarkChanged"
   }
   //////////////////////////////////////////
 }
@@ -48363,6 +49422,38 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }
 }
 ////////////////////////////////////////////
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'ti-list-props.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/list/ti-list-props.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  "iconBy": {
+    type: [String, Function],
+    default: null
+  },
+  "indentBy": {
+    type: [String, Function],
+    default: null
+  },
+  "itemClassName": undefined,
+  "display": {
+    type: [Object, String, Array],
+    default: () => ({
+      key: "..",
+      comType: "ti-label"
+    })
+  },
+  "border": {
+    type: Boolean,
+    default: true
+  },
+  "autoScrollIntoView": {
+    type: Boolean,
+    default: true
+  }
+}
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -56104,6 +57195,208 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'ti-input-picker.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/input/picker/ti-input-picker.mjs'] = (function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data: () => ({
+    myValueIcon: undefined,
+    myValueText: undefined
+  }),
+  ////////////////////////////////////////////////////
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "value": undefined,
+    "options": {
+      type: [String, Array, Function, Ti.Dict],
+      default: () => []
+    },
+    // If dynamic dictionary: options = '#DickName(=varName)'
+    // it will use Ti.DictFactory.CheckDynamicDict,
+    // The key of the instance name, should explain for the vars set
+    "dictVars": {
+      type: Object,
+      default: () => ({})
+    },
+    "valueBy": {
+      type: [String, Function],
+      default: undefined
+    },
+    "textBy": {
+      type: [String, Function],
+      default: undefined
+    },
+    "iconBy": {
+      type: [String, Function],
+      default: undefined
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
+    "focused": {
+      type: Boolean,
+      default: false
+    },
+    "input": {
+      type: Object
+    },
+    "dialog": {
+      type: Object
+    },
+    "filterlist": {
+      type: Object
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "placeholder": {
+      type: [String, Number],
+      default: undefined
+    },
+    "prefixIcon": {
+      type: String,
+      default: "zmdi-minus"
+    },
+    "suffixIcon": {
+      type: String,
+      default: "fas-cog"
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "width": {
+      type: [Number, String],
+      default: undefined
+    },
+    "height": {
+      type: [Number, String],
+      default: undefined
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    InputPrefixIcon() {
+      return this.myValueIcon || this.prefixIcon
+    },
+    //------------------------------------------------
+    InputComConf() {
+      return _.assign({
+        readonly: this.readonly,
+        focused: this.focused,
+        placeholder: this.placeholder
+      }, this.input)
+    },
+    //------------------------------------------------
+    Dict() {
+      if (!this.myDict) {
+        this.myDict = this.createDict()
+      }
+      return this.myDict
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods: {
+    //------------------------------------------------
+    async OnClickSuffixIcon() {
+      let dataList = await this.Dict.getData()
+
+      // Prepare the filter list config
+      let fltListConf = _.merge({
+        className: "ti-fill-parent",
+        list: {
+          idBy: this.valueBy,
+          data: dataList,
+          currentId: this.value,
+          display: [
+            "<icon>",
+            this.textBy || "nickname|title|text|name",
+            `${this.valueBy || "value|nm|id"}::align-right as-tip-block`
+          ]
+        }
+      }, this.filterlist)
+
+      // Open the dialog
+      let reo = await Ti.App.Open(_.assign({
+        title: "i18n:select",
+        position: "top",
+        width: "4.8rem",
+        height: "62%",
+      }, this.dialog, {
+        model: { event: "select" },
+        comType: "TiFilterlist",
+        comConf: fltListConf,
+        components: [
+          "@com:ti/filterlist"
+        ]
+      }))
+
+      // User Cancel
+      if (!reo) {
+        return
+      }
+
+      // Change the currency
+      let val = reo.currentId || null
+      this.$notify("change", val)
+    },
+    //------------------------------------------------
+    async evalValue() {
+      console.log("evalValue", this.value)
+      let it = await this.Dict.getItem(this.value)
+      if (it) {
+        this.myValueIcon = this.Dict.getIcon(it)
+        this.myValueText = this.Dict.getText(it)
+      } else {
+        this.myValueIcon = undefined
+        this.myValueText = undefined
+      }
+    },
+    //------------------------------------------------
+    createDict() {
+      //console.log("createDict in combo-input")
+      // Customized
+      return Ti.DictFactory.CreateDictBy(this.options, {
+        valueBy: this.valueBy,
+        textBy: this.textBy,
+        iconBy: this.iconBy,
+        vars: this.dictVars,
+        whenLoading: ({ loading }) => {
+          this.loading = loading
+        }
+      });
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    "value": {
+      handler: "evalValue",
+      immediate: true
+    },
+    "options": function (newval, oldval) {
+      if (!_.isEqual(newval, oldval)) {
+        this.myDict = this.createDict()
+      }
+    }
+  }
+  ////////////////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'wn-fileset-config.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/fileset/config/wn-fileset-config.mjs'] = (function(){
@@ -58588,41 +59881,15 @@ const _M = {
     createDict() {
       //console.log("createDict in combo-input")
       // Customized
-      if (this.options instanceof Ti.Dict) {
-        return this.options
-      }
-      // Refer dict
-      if (_.isString(this.options)) {
-        let dictName = Ti.DictFactory.DictReferName(this.options)
-        if (dictName) {
-          let { name, dynamic, dictKey } = Ti.DictFactory.explainDictName(dictName)
-          //
-          // Dynamic dictionary
-          //
-          if (dynamic) {
-            let key = _.get(this.dictVars, dictKey)
-            if (!key) {
-              return null
-            }
-            return Ti.DictFactory.GetDynamicDict({
-              name, key,
-              vars: this.dictVars
-            }, ({ loading }) => {
-              this.loading = loading
-            })
-          }
-          return Ti.DictFactory.CheckDict(dictName, ({ loading }) => {
-            this.loading = loading
-          })
+      return Ti.DictFactory.CreateDictBy(this.options, {
+        valueBy: this.valueBy,
+        textBy: this.textBy,
+        iconBy: this.iconBy,
+        vars: this.dictVars,
+        whenLoading: ({ loading }) => {
+          this.loading = loading
         }
-      }
-      // Auto Create
-      return Ti.DictFactory.CreateDict({
-        data: this.options,
-        getValue: Ti.Util.genGetter(this.valueBy || "value"),
-        getText: Ti.Util.genGetter(this.textBy || "text|name"),
-        getIcon: Ti.Util.genGetter(this.iconBy || "icon")
-      })
+      });
     },
     //-----------------------------------------------
     async reloadMyOptionData(force = false) {
@@ -59479,7 +60746,7 @@ const _M = {
       // })
       this.myFieldWidths = _.map(colPs, p => Ti.S.toPercent(p))
       // Persistance
-      if(this.keepCustomizedTo) {
+      if (this.keepCustomizedTo) {
         let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
         cuo.setFieldsWidth = this.myFieldWidths
         Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
@@ -59586,15 +60853,11 @@ const _M = {
       }
     },
     //--------------------------------------
-    async evalListData(newVal, oldVal) {
-      let isSame = _.isEqual(newVal, oldVal)
-      if (!isSame) {
-        //console.log("!!!table data changed", {newVal, oldVal})
-        this.myData = await this.evalData((it) => {
-          it.icon = this.getRowIcon(it.item)
-          it.indent = this.getRowIndent(it.item)
-        })
-      }
+    async evalListData() {
+      this.myData = await this.evalData((it) => {
+        it.icon = this.getRowIcon(it.item)
+        it.indent = this.getRowIndent(it.item)
+      })
       // Check ready 
       if (_.isEmpty(this.data)) {
         this.$nextTick(() => {
@@ -59660,11 +60923,11 @@ const _M = {
   ///////////////////////////////////////////////////
   watch: {
     "data": {
-      handler: "evalListData",
+      handler: "evalListDataWhenMarkChanged",
       immediate: true
     },
     "dict": {
-      handler: "evalListData",
+      handler: "evalListDataWhenMarkChanged",
       immediate: true
     },
     "fields": {
@@ -59676,7 +60939,11 @@ const _M = {
         }
       },
       immediate: true
-    }
+    },
+    "selectable": "evalListDataWhenMarkChanged",
+    "checkable": "evalListDataWhenMarkChanged",
+    "hoverable": "evalListDataWhenMarkChanged",
+    "filterValue": "evalListDataWhenMarkChanged"
   },
   ///////////////////////////////////////////////////
   mounted: function () {
@@ -66123,6 +67390,125 @@ Ti.Preload("ti/com/ti/actionbar/_com.json", {
   ]
 });
 //========================================
+// JOIN <ti-adaptlist-methods.mjs> ti/com/ti/adaptlist/ti-adaptlist-methods.mjs
+//========================================
+Ti.Preload("ti/com/ti/adaptlist/ti-adaptlist-methods.mjs", TI_PACK_EXPORTS['ti/com/ti/adaptlist/ti-adaptlist-methods.mjs']);
+//========================================
+// JOIN <ti-adaptlist-props.mjs> ti/com/ti/adaptlist/ti-adaptlist-props.mjs
+//========================================
+Ti.Preload("ti/com/ti/adaptlist/ti-adaptlist-props.mjs", TI_PACK_EXPORTS['ti/com/ti/adaptlist/ti-adaptlist-props.mjs']);
+//========================================
+// JOIN <ti-adaptlist.html> ti/com/ti/adaptlist/ti-adaptlist.html
+//========================================
+Ti.Preload("ti/com/ti/adaptlist/ti-adaptlist.html", `<div class="wn-adaptlist" 
+  :class="TopClass"
+  v-ti-activable>
+  <div
+    class="wal-con ti-fill-parent"
+    v-drop-files.mask="UploadDragAndDropHandler">
+    <!--==================================
+      Show Loading
+    -->
+    <ti-loading
+      v-if="isLoading"
+        class="as-reloading as-mid-tip"
+        text="i18n:reloading"/>
+    <!--==================================
+      Data List
+    -->
+    <component :is="MainComType"
+      v-else
+        class="ti-fill-parent"
+        :data="WallDataList"
+        :changed-id="changedId"
+        :current-id="myCurrentId"
+        :checked-ids="myCheckedIds"
+        :multi="multi"
+        :checkable="checkable"
+        :blurable="blurable"
+        :selectable="selectable"
+        :puppet-mode="true"
+        :rowNumberBase="rowNumberBase"
+        v-bind="MainComConf"
+        :on-init="OnListInit"
+        @select="OnItemSelecteItem"
+        @open="OnItemOpen"/>
+    <!--==================================
+      switch view
+    -->
+    <div class="wal-view-switcher">
+      <div class="as-ava-vt-list">
+        <ul>
+          <li
+            v-for="vt in TheAvaViewTypes"
+              @click.left="OnSwitchViewType(vt)">
+              <TiIcon :value="vt.icon"/>
+          </li>
+        </ul>
+      </div>
+      <div class="as-current-vt">
+        <TiIcon :value="CurrentViewType.icon"/>
+      </div>
+    </div>
+    <!--==================================
+      Hidden file upload control
+    -->
+    <input 
+      type="file" 
+      ref="file" 
+      class="ti-hide"
+      :accept="AcceptUploadFiles"
+      multiple
+      @change.stop.seft="OnSelectLocalFilesToUpload">
+    <!--==================================
+      Uploading Pannel
+    -->
+    <div
+      class="wal-uploading"
+      :class="UploadingClass">
+      <header>
+        <ti-icon value="fas-spinner fa-pulse"/>
+        <span>{{'uploading'|i18n}}</span>
+      </header>
+      <section>
+        <TiWall
+          :data="TheUploadingList"
+          :spacing="spacing"
+          :selectable="false"
+          :multi="false"
+          :checkable="false"
+          :blurable="false"
+          :display="UploadingItemDisplay"
+          :puppet-mode="true"/>
+      </section>
+    </div>
+    <!--==================================-->
+  </div>
+</div>`);
+//========================================
+// JOIN <ti-adaptlist.mjs> ti/com/ti/adaptlist/ti-adaptlist.mjs
+//========================================
+Ti.Preload("ti/com/ti/adaptlist/ti-adaptlist.mjs", TI_PACK_EXPORTS['ti/com/ti/adaptlist/ti-adaptlist.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/adaptlist/_com.json
+//========================================
+Ti.Preload("ti/com/ti/adaptlist/_com.json", {
+  "name": "ti-adaptlist",
+  "globally": true,
+  "template": "./ti-adaptlist.html",
+  "props": "./ti-adaptlist-props.mjs",
+  "methods": "./ti-adaptlist-methods.mjs",
+  "mixins": [
+    "./ti-adaptlist.mjs"
+  ],
+  "components": [
+    "@com:ti/obj/thumb",
+    "@com:ti/wall",
+    "@com:ti/list",
+    "@com:ti/table"
+  ]
+});
+//========================================
 // JOIN <ti-bullet-checkbox.mjs> ti/com/ti/bullet/checkbox/ti-bullet-checkbox.mjs
 //========================================
 Ti.Preload("ti/com/ti/bullet/checkbox/ti-bullet-checkbox.mjs", TI_PACK_EXPORTS['ti/com/ti/bullet/checkbox/ti-bullet-checkbox.mjs']);
@@ -67442,6 +68828,50 @@ Ti.Preload("ti/com/ti/filterbar/_com.json", {
   ]
 });
 //========================================
+// JOIN <ti-filterlist.html> ti/com/ti/filterlist/ti-filterlist.html
+//========================================
+Ti.Preload("ti/com/ti/filterlist/ti-filterlist.html", `<div class="ti-filterlist" :class="TopClass">
+  <!--
+    Filter input
+  -->
+  <div class="as-filter">
+    <TiInput
+      v-bind="FilterInputComConf"
+      :value="myFilterValue"
+      @change="OnInputChange"/>
+  </div>
+  <!--
+    List
+  -->
+  <component
+    :is="ListComType"
+    class="as-list"
+    v-bind="list"
+    :filterValue="myFilterValue"
+    :filterBy="ListFilterBy"/>
+</div>`);
+//========================================
+// JOIN <ti-filterlist.mjs> ti/com/ti/filterlist/ti-filterlist.mjs
+//========================================
+Ti.Preload("ti/com/ti/filterlist/ti-filterlist.mjs", TI_PACK_EXPORTS['ti/com/ti/filterlist/ti-filterlist.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/filterlist/_com.json
+//========================================
+Ti.Preload("ti/com/ti/filterlist/_com.json", {
+  "name": "ti-filterlist",
+  "globally": true,
+  "template": "./ti-filterlist.html",
+  "props": [
+    "@com:ti/support/list_props.mjs",
+    "@com:ti/list/ti-list-props.mjs"
+  ],
+  "mixins": "./ti-filterlist.mjs",
+  "components": [
+    "@com:ti/input",
+    "@com:ti/list"
+  ]
+});
+//========================================
 // JOIN <form-field-props.mjs> ti/com/ti/form/com/form-field/form-field-props.mjs
 //========================================
 Ti.Preload("ti/com/ti/form/com/form-field/form-field-props.mjs", TI_PACK_EXPORTS['ti/com/ti/form/com/form-field/form-field-props.mjs']);
@@ -68211,6 +69641,41 @@ Ti.Preload("ti/com/ti/input/color/_com.json", {
   "components" : ["@com:ti/color"]
 });
 //========================================
+// JOIN <ti-input-currency.html> ti/com/ti/input/currency/ti-input-currency.html
+//========================================
+Ti.Preload("ti/com/ti/input/currency/ti-input-currency.html", `<ti-input
+  class="ti-input-currency"
+  :class="TopClass"
+  :value="ValDisplay"
+  :placeholder="placeholder"
+  :prefixIcon="ValIcon"
+  :suffixText="ValCurrency"
+  :autoSelect="autoSelect"
+  :readonly="readonly"
+  :focused="focused"
+  :width="width"
+  :height="height"
+  :hover="['prefixIcon', 'suffixText']"
+  suffixTextNotifyName="click:suffix"
+  @change="OnInputChange"
+  @click:suffix="OnClickSuffix"/>`);
+//========================================
+// JOIN <ti-input-currency.mjs> ti/com/ti/input/currency/ti-input-currency.mjs
+//========================================
+Ti.Preload("ti/com/ti/input/currency/ti-input-currency.mjs", TI_PACK_EXPORTS['ti/com/ti/input/currency/ti-input-currency.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/input/currency/_com.json
+//========================================
+Ti.Preload("ti/com/ti/input/currency/_com.json", {
+  "name": "ti-input-currency",
+  "globally": true,
+  "template": "./ti-input-currency.html",
+  "mixins": "./ti-input-currency.mjs",
+  "components": [
+    "@com:ti/input"
+  ]
+});
+//========================================
 // JOIN <ti-input-date.html> ti/com/ti/input/date/ti-input-date.html
 //========================================
 Ti.Preload("ti/com/ti/input/date/ti-input-date.html", `<ti-combo-box class="as-date"
@@ -68555,6 +70020,33 @@ Ti.Preload("ti/com/ti/input/num/_com.json", {
   "globally" : true,
   "template" : "./ti-input-num.html",
   "mixins" : ["./ti-input-num.mjs"]
+});
+//========================================
+// JOIN <ti-input-picker.html> ti/com/ti/input/picker/ti-input-picker.html
+//========================================
+Ti.Preload("ti/com/ti/input/picker/ti-input-picker.html", `<TiInput
+  class="ti-input-picker" :class="TopClass"
+  v-bind="InputComConf"
+  :value="value"
+  :suffixText="myValueText"
+  :prefixIcon="InputPrefixIcon"
+  :suffixIcon="suffixIcon"
+  @suffix:icon="OnClickSuffixIcon"/>`);
+//========================================
+// JOIN <ti-input-picker.mjs> ti/com/ti/input/picker/ti-input-picker.mjs
+//========================================
+Ti.Preload("ti/com/ti/input/picker/ti-input-picker.mjs", TI_PACK_EXPORTS['ti/com/ti/input/picker/ti-input-picker.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/input/picker/_com.json
+//========================================
+Ti.Preload("ti/com/ti/input/picker/_com.json", {
+  "name": "ti-input-picker",
+  "globally": true,
+  "template": "./ti-input-picker.html",
+  "mixins": "./ti-input-picker.mjs",
+  "components": [
+    "@com:ti/input"
+  ]
 });
 //========================================
 // JOIN <ti-input-tags-props.mjs> ti/com/ti/input/tags/ti-input-tags-props.mjs
@@ -69350,6 +70842,10 @@ Ti.Preload("ti/com/ti/list/com/list-row/_com.json", {
     "./list-row.mjs"]
 });
 //========================================
+// JOIN <ti-list-props.mjs> ti/com/ti/list/ti-list-props.mjs
+//========================================
+Ti.Preload("ti/com/ti/list/ti-list-props.mjs", TI_PACK_EXPORTS['ti/com/ti/list/ti-list-props.mjs']);
+//========================================
 // JOIN <ti-list.html> ti/com/ti/list/ti-list.html
 //========================================
 Ti.Preload("ti/com/ti/list/ti-list.html", `<div class="ti-list"
@@ -69406,16 +70902,19 @@ Ti.Preload("ti/com/ti/list/ti-list.mjs", TI_PACK_EXPORTS['ti/com/ti/list/ti-list
 // JOIN <_com.json> ti/com/ti/list/_com.json
 //========================================
 Ti.Preload("ti/com/ti/list/_com.json", {
-  "name" : "ti-list",
-  "globally" : true,
-  "template" : "./ti-list.html",
-  "props" : "@com:ti/support/list_props.mjs",
-  "methods" : "@com:ti/support/field_display.mjs",
-  "mixins" : [
+  "name": "ti-list",
+  "globally": true,
+  "template": "./ti-list.html",
+  "props": [
+    "@com:ti/support/list_props.mjs",
+    "./ti-list-props.mjs"
+  ],
+  "methods": "@com:ti/support/field_display.mjs",
+  "mixins": [
     "@com:ti/support/list_mixins.mjs",
     "./ti-list.mjs"
   ],
-  "components" : [
+  "components": [
     "./com/list-row",
     "@com:ti/label"
   ]
@@ -75202,17 +76701,20 @@ Ti.Preload("ti/com/wn/adaptlist/wn-adaptlist.mjs", TI_PACK_EXPORTS['ti/com/wn/ad
 // JOIN <_com.json> ti/com/wn/adaptlist/_com.json
 //========================================
 Ti.Preload("ti/com/wn/adaptlist/_com.json", {
-  "name" : "wn-adaptlist",
-  "globally" : true,
-  "template" : "./wn-adaptlist.html",
-  "props" : "./wn-adaptlist-props.mjs",
-  "methods" : "./wn-adaptlist-methods.mjs",
-  "mixins" : ["./wn-adaptlist.mjs"],
-  "components" : [
+  "name": "wn-adaptlist",
+  "globally": true,
+  "template": "./wn-adaptlist.html",
+  "props": "./wn-adaptlist-props.mjs",
+  "methods": "./wn-adaptlist-methods.mjs",
+  "mixins": [
+    "./wn-adaptlist.mjs"
+  ],
+  "components": [
     "@com:ti/obj/thumb",
     "@com:ti/wall",
     "@com:wn/list",
-    "@com:wn/table"]
+    "@com:wn/table"
+  ]
 });
 //========================================
 // JOIN <wn-browser.html> ti/com/wn/browser/wn-browser.html
@@ -79443,6 +80945,14 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "create": "New",
   "create-now": "Create now",
   "creating": "Creating",
+  "currency": "货币",
+  "currency-AUD": "AUD",
+  "currency-CAD": "CAD",
+  "currency-EUR": "EUR",
+  "currency-GBP": "GBP",
+  "currency-JPY": "JPY",
+  "currency-RMB": "RMB",
+  "currency-USD": "USD",
   "date": "Date",
   "db-col-type-AUTO": "AUTO",
   "db-col-type-BINARY": "BINARY",
@@ -80899,6 +82409,14 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "create": "新建",
   "create-now": "立即创建",
   "creating": "正在创建...",
+  "currency": "货币",
+  "currency-AUD": "澳元",
+  "currency-CAD": "加元",
+  "currency-EUR": "欧元",
+  "currency-GBP": "英镑",
+  "currency-JPY": "日元",
+  "currency-RMB": "人民币",
+  "currency-USD": "美元",
   "date": "日期",
   "db-col-type-AUTO": "自动",
   "db-col-type-BINARY": "二进制",
@@ -82235,6 +83753,7 @@ Ti.Preload("ti/i18n/zh-hk/wn-thing.i18n.json", {
    "thing-export-c-expi-3d": "三天",
    "thing-export-c-expi-7d": "七天",
    "thing-export-c-expi-off": "永遠",
+   "thing-export-c-limit": "數量限制",
    "thing-export-c-mapping": "映射方式",
    "thing-export-c-mode": "導出模式",
    "thing-export-c-mode-csv": "CSV文件",
@@ -82245,6 +83764,7 @@ Ti.Preload("ti/i18n/zh-hk/wn-thing.i18n.json", {
    "thing-export-c-page": "數據範圍",
    "thing-export-c-page-all": "全部頁",
    "thing-export-c-page-current": "當前頁",
+   "thing-export-c-page-checked": "選中記錄",
    "thing-export-done": "完成",
    "thing-export-done-ok": "導出成功",
    "thing-export-done-tip": "請點擊下載鏈接下載",
@@ -82355,6 +83875,14 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "create": "新建",
    "create-now": "立即創建",
    "creating": "正在創建...",
+   "currency": "貨幣",
+   "currency-AUD": "澳元",
+   "currency-CAD": "加元",
+   "currency-EUR": "歐元",
+   "currency-GBP": "英鎊",
+   "currency-JPY": "日元",
+   "currency-RMB": "人民幣",
+   "currency-USD": "美元",
    "date": "日期",
    "db-col-type-AUTO": "自動",
    "db-col-type-BINARY": "二進制",

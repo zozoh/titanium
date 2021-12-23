@@ -10,7 +10,7 @@ export default {
     },
     "filterKeys": {
       type: [Array, String],
-      default: "text,value,title,abbr,id"
+      default: "nickname,text,value,title,abbr,nm,id"
     },
     "filterBy": {
       type: [Function, String]
@@ -51,9 +51,9 @@ export default {
       }
       // Gen the function
       return (it, fltv) => {
-        //console.log("filter", {it, fltv})
+        //console.log("filter", { it, fltv })
         for (let k of itKeys) {
-          let v = it.rawData[k]
+          let v = (it.rawData || it)[k]
           if (Ti.Util.isNil(v)) {
             continue;
           }

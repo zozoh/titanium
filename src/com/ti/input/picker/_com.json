@@ -1,0 +1,9 @@
+{
+  "name": "ti-input-picker",
+  "globally": true,
+  "template": "./ti-input-picker.html",
+  "mixins": "./ti-input-picker.mjs",
+  "components": [
+    "@com:ti/input"
+  ]
+}

@@ -34,7 +34,7 @@ export class Dict {
     this.isMatched = (it, v) => {
       //console.log("match", it, v)
       let itV = this.getValue(it)
-      if ( v == itV || _.isEqual(v, itV))
+      if (v == itV || _.isEqual(v, itV))
         return true
       if (_.isString(itV) && _.isString(v)) {
         let itV2 = _.toLower(itV)
@@ -550,6 +550,41 @@ export const DictFactory = {
       }
     }
     return re
+  },
+  //-------------------------------------------
+  CreateDictBy(input, {
+    valueBy, textBy, iconBy,
+    vars = {}  /* for dynamic dict */,
+    whenLoading = function ({ loading }) { }
+  } = {}) {
+    if (input instanceof Ti.Dict) {
+      return input
+    }
+    // Refer dict
+    if (_.isString(input)) {
+      let dictName = DictFactory.DictReferName(input)
+      if (dictName) {
+        let { name, dynamic, dictKey } = DictFactory.explainDictName(dictName)
+        //
+        // Dynamic dictionary
+        //
+        if (dynamic) {
+          let key = _.get(vars, dictKey)
+          if (!key) {
+            return null
+          }
+          return DictFactory.GetDynamicDict({ name, key, vars }, whenLoading)
+        }
+        return DictFactory.CheckDict(dictName, whenLoading)
+      }
+    }
+    // Auto Create
+    return DictFactory.CreateDict({
+      data: input,
+      getValue: Ti.Util.genGetter(valueBy || "value|id"),
+      getText: Ti.Util.genGetter(textBy || "title|text|name"),
+      getIcon: Ti.Util.genGetter(iconBy || "icon")
+    })
   },
   //-------------------------------------------
   CreateDynamicDict(factory, name) {

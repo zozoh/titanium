@@ -20,6 +20,7 @@
     "@com:ti/combo/table",
     "@com:ti/bullet/checkbox",
     "@com:ti/bullet/radio",
+    "@com:ti/input/picker",
     "@com:wn/transfer",
     "@com:wn/droplist",
     "@com:ti/lbs/route",

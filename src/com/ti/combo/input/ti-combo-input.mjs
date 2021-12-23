@@ -314,41 +314,15 @@ const _M = {
     createDict() {
       //console.log("createDict in combo-input")
       // Customized
-      if (this.options instanceof Ti.Dict) {
-        return this.options
-      }
-      // Refer dict
-      if (_.isString(this.options)) {
-        let dictName = Ti.DictFactory.DictReferName(this.options)
-        if (dictName) {
-          let { name, dynamic, dictKey } = Ti.DictFactory.explainDictName(dictName)
-          //
-          // Dynamic dictionary
-          //
-          if (dynamic) {
-            let key = _.get(this.dictVars, dictKey)
-            if (!key) {
-              return null
-            }
-            return Ti.DictFactory.GetDynamicDict({
-              name, key,
-              vars: this.dictVars
-            }, ({ loading }) => {
-              this.loading = loading
-            })
-          }
-          return Ti.DictFactory.CheckDict(dictName, ({ loading }) => {
-            this.loading = loading
-          })
+      return Ti.DictFactory.CreateDictBy(this.options, {
+        valueBy: this.valueBy,
+        textBy: this.textBy,
+        iconBy: this.iconBy,
+        vars: this.dictVars,
+        whenLoading: ({ loading }) => {
+          this.loading = loading
         }
-      }
-      // Auto Create
-      return Ti.DictFactory.CreateDict({
-        data: this.options,
-        getValue: Ti.Util.genGetter(this.valueBy || "value"),
-        getText: Ti.Util.genGetter(this.textBy || "text|name"),
-        getIcon: Ti.Util.genGetter(this.iconBy || "icon")
-      })
+      });
     },
     //-----------------------------------------------
     async reloadMyOptionData(force = false) {

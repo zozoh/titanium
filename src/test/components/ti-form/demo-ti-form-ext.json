@@ -5,6 +5,15 @@
     "data": "=data",
     "fields": [
       {
+        "title": "用户",
+        "name": "user",
+        "comType": "TiInputPicker",
+        "comConf": {
+          "options": "#AccountNames",
+          "valueBy": "nm"
+        }
+      },
+      {
         "title": "货币（对象）",
         "name": "cuObj",
         "type": "Object",
