@@ -15,6 +15,10 @@ export default {
     type : String,
     default : null
   },
+  "checkedIds" : {
+    type : [Array, Object],
+    default : undefined
+  },
   "changedId" : {
     type : String,
     default : null

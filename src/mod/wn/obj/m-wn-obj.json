@@ -1,0 +1,39 @@
+{
+  "moduleName": "main",
+  "guiShown": {},
+  "localBehaviorKeepAt": "->WnObj-State-${dirId}",
+  "lbkAt": null,
+  "lbkOff": false,
+  "dirId": null,
+  "oDir": null,
+  "fixedMatch": {},
+  "filter": {},
+  "sorter": {
+    "ct": -1
+  },
+  "objKeys": null,
+  "list": [],
+  "currentId": null,
+  "checkedIds": {},
+  "pager": {
+    "pn": 1,
+    "pgsz": 50,
+    "pgc": 0,
+    "sum": 0,
+    "skip": 0,
+    "count": 0
+  },
+  "meta": null,
+  "content": null,
+  "__saved_content": null,
+  "status": {
+    "reloading": false,
+    "doing": false,
+    "saving": false,
+    "deleting": false,
+    "changed": false,
+    "restoring": false
+  },
+  "fieldStatus": {},
+  "schema": {}
+}

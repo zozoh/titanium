@@ -137,7 +137,7 @@ const _M = {
       }, this.dialog, {
         model: { event: "select" },
         events: {
-          "open": function(payload) {
+          open: function () {
             this.close(this.result)
           }
         },

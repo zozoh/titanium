@@ -262,6 +262,26 @@ const TiDateTime = {
     return d
   },
   //---------------------------------------
+  /***
+   * @param month {Date} - date object
+   * @return how many days the month has
+   */
+   countMonthDay(d) {
+    let d1 = new Date(d)
+    d1.setDate(32)  // Move to next Month
+    d1.setDate(0)   // 0 -> back to prev month last day
+    return d1.getDate()
+  },
+  //---------------------------------------
+  moveToLastDateOfMonth(d) {
+    d.setDate(1)
+    // Move to next Month
+    TiDateTime.moveMonth(d, 1)
+    // 0 -> back to prev month last day
+    d.setDate(0)
+    return d
+  },
+  //---------------------------------------
   createDate(d, offset = 0) {
     if (_.isDate(d)) {
       let d2 = new Date(d)

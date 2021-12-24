@@ -2,72 +2,13 @@
 const _M = {
   //----------------------------------------
   //
-  // RecycelBin
-  //
-  //----------------------------------------
-  async toggleInRecycleBin({ state, commit, dispatch }) {
-    // Toggle filter
-    let flt;
-    if (-1 == _.get(state.filter, "th_live")) {
-      flt = _.omit(state.filter, "th_live")
-    } else {
-      flt = _.assign({}, state.filter, { th_live: -1 })
-    }
-    commit("setFilter", flt)
-
-    // Reload Search
-    await dispatch("queryList")
-  },
-  //----------------------------------------
-  async cleanRecycleBin({ state, commit, dispatch, getters }) {
-    commit("setStatus", { cleaning: true })
-
-    // Run command
-    let th_set = state.thingSetId
-    let cmdText = `thing ${th_set} clean -limit 3000`
-    await Wn.Sys.exec2(cmdText)
-
-    commit("setStatus", { cleaning: false })
-
-    if (getters.isInRecycleBin) {
-      await dispatch("queryList")
-    }
-  },
-  //----------------------------------------
-  async restoreRecycleBin({ state, commit, dispatch }) {
-    // Require user to select some things at first
-    let ids = state.checkedIds
-    if (!_.isArray(ids)) {
-      ids = Ti.Util.truthyKeys(ids)
-    }
-    if (_.isEmpty(ids)) {
-      return await Ti.Alert('i18n:thing-restore-none')
-    }
-    commit("setStatus", { restoring: true })
-
-    // Run command
-    let th_set = state.thingSetId
-    let cmdText = `thing ${th_set} restore -quiet -cqn -l ${ids.join(" ")}`
-    await Wn.Sys.exec2(cmdText, { as: "json" })
-
-    // Reload
-    await dispatch("queryList")
-
-    // Update current
-    dispatch("selectMeta", { currentId: null, checkedIds: {} })
-
-    commit("setStatus", { restoring: false })
-  },
-  //----------------------------------------
-  //
   // Selection
   //
   //----------------------------------------
-  async selectMeta({ commit }, { currentId=null, checkedIds={} }=null) {
+  async selectMeta({ commit }, { currentId = null, checkedIds = {} } = null) {
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
     commit("setCurrentMeta")
-    commit("autoDataHome")
     // ? Load current content
 
     // ? Load current data dir
@@ -82,7 +23,8 @@ const _M = {
     commit("setFilter", filter)
     // If pager enabled, should auto jump to first page
     if (getters.isPagerEnabled) {
-      commit("assignPager", { pn: 1 })
+      let pnKey = getters.isLongPager ? "pageNumber" : "pn"
+      commit("assignPager", { [pnKey]: 1 })
     }
     await dispatch("queryList")
   },
@@ -94,7 +36,7 @@ const _M = {
   },
   //----------------------------------------
   async applyPager({ commit, dispatch }, pager) {
-    //console.log("applyPager", pager)
+    console.log("applyPager", pager)
     commit("assignPager", pager)
     await dispatch("queryList")
   },
@@ -105,17 +47,17 @@ const _M = {
   //----------------------------------------
   async queryList({ state, commit, getters }) {
     let {
-      thingSetId,
+      dirId,
       filter,
       fixedMatch,
       sorter,
-      thingObjKeys
+      objKeys
     } = state
     // Query
     let input = JSON.stringify(_.assign({}, filter, fixedMatch))
 
     // Command
-    let cmds = [`thing ${thingSetId} query -cqn`]
+    let cmds = [`o 'id:${dirId}' @query`]
 
     // Eval Pager
     if (getters.isPagerEnabled) {
@@ -130,12 +72,17 @@ const _M = {
     }
 
     // Show Thing Keys
-    if (thingObjKeys) {
-      cmds.push(`-e '${thingObjKeys}'`)
+    if (objKeys) {
+      cmds.push(`@json '${objKeys}' -cqnl`)
+    }
+    // Output as json
+    else {
+      cmds.push('@json -cqnl')
     }
 
     // Process Query
     let cmdText = cmds.join(" ")
+    console.log(cmdText)
     commit("setStatus", { reloading: true })
     let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
 

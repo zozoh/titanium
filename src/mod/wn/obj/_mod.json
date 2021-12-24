@@ -1,0 +1,12 @@
+{
+  "name": "wn-obj",
+  "namespaced": true,
+  "state": "./m-wn-obj.json",
+  "mutations": "./m-wn-obj-mutations.mjs",
+  "actions": [
+    "./m-wn-obj-actions.mjs",
+    "./m-wn-obj-cud.mjs",
+    "./m-wn-obj-search.mjs"
+  ],
+  "mixins": "./m-wn-obj.mjs"
+}

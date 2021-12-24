@@ -35,12 +35,12 @@ const _M = {
   // Thing Set
   //
   //----------------------------------------
-  setThingSetId(state, thingSetId) {
-    state.thingSetId = thingSetId
+  setDirId(state, dirId) {
+    state.dirId = dirId
   },
   //----------------------------------------
-  setThingSet(state, oTs) {
-    state.oTs = oTs
+  setDir(state, oDir) {
+    state.oDir = oDir
   },
   //----------------------------------------
   //
@@ -61,8 +61,8 @@ const _M = {
     saveLocalBehavior(state, "sorter", sorter)
   },
   //----------------------------------------
-  setThingObjKeys(state, thingObjKeys) {
-    state.thingObjKeys = thingObjKeys
+  setObjKeys(state, objKeys) {
+    state.objKeys = objKeys
   },
   //----------------------------------------
   setList(state, list) {
@@ -206,91 +206,11 @@ const _M = {
   },
   //----------------------------------------
   //
-  // Files
-  //
-  //----------------------------------------
-  setDataDirName(state, dirName) {
-    state.dataDirName = dirName
-    saveLocalBehavior(state, "dataDirName", dirName)
-  },
-  setDataHome(state, dataHome) {
-    state.dataHome = dataHome
-  },
-  autoDataHome(state, dataHome) {
-    if (state.thingSetId && state.meta && state.meta.id) {
-      state.dataHome = `id:${state.thingSetId}/data/${state.meta.id}/`
-    } else {
-      state.dataHome = null
-    }
-  },
-  //----------------------------------------
-  //
   // GUI Settings
   //
   //----------------------------------------
-  setActionsPath(state, actionsPath) {
-    state.actionsPath = actionsPath
-  },
-  setLayoutPath(state, layoutPath) {
-    state.layoutPath = layoutPath
-  },
-  setSchemaPath(state, schemaPath) {
-    state.schemaPath = schemaPath
-  },
-  setMethodPaths(state, methodPaths) {
-    state.methodPath = methodPaths
-  },
-  //----------------------------------------
-  setThingActions(state, thingActions = {}) {
-    state.thingActions = thingActions
-  },
-  setLayout(state, layout = {}) {
-    state.layout = layout
-  },
   setSchema(state, schema = {}) {
     state.schema = schema
-  },
-  setThingMethods(state, thingMethods = {}) {
-    state.thingMethods = thingMethods
-  },
-  //----------------------------------------
-  //
-  // Operations for dataDirFiles
-  //
-  //----------------------------------------
-  setDataDirFiles(state, files = []) {
-    state.dataDirFiles = files
-  },
-  //----------------------------------------
-  setDataDirCurrentId(state, currentId) {
-    state.dataDirCurrentId = currentId
-    saveLocalBehavior(state, "dataDirCurrentId", currentId)
-  },
-  //----------------------------------------
-  setDataDirCheckedIds(state, checkedIds = {}) {
-    let ids = _.pickBy(checkedIds, v => v)
-    state.dataDirCheckedIds = ids
-    saveLocalBehavior(state, "dataDirCheckedIds", ids)
-  },
-  //----------------------------------------
-  prependDataDirFile(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "dataDirFiles")
-  },
-  //----------------------------------------
-  appendDataDirFile(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "dataDirFiles")
-  },
-  //----------------------------------------
-  setDataDirFile(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "dataDirFiles")
-  },
-  //----------------------------------------
-  mergeDataDirFile(state, theItem) {
-    Ti.Util.MergeStateDataDirFile(state, theItem, "dataDirFiles")
-  },
-  //----------------------------------------
-  removeDataItems(state, items = []) {
-    Ti.Util.RemoveStateDataItems(state, items, "dataDirFiles")
   },
   //----------------------------------------
 }

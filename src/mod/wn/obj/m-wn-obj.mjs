@@ -2,19 +2,6 @@ export default {
   ////////////////////////////////////////////////
   getters: {
     //--------------------------------------------
-    isInRecycleBin(state) {
-      if (-1 == _.get(state.meta, "th_live")) {
-        return true
-      }
-      if (-1 == _.get(state.fixedMatch, "th_live")) {
-        return true
-      }
-      if (-1 == _.get(state.filter, "th_live")) {
-        return true
-      }
-      return false
-    },
-    //--------------------------------------------
     isPagerEnabled(state) {
       if (!state.pager) {
         return false
@@ -44,7 +31,7 @@ export default {
     },
     //--------------------------------------------
     isHardRemove(state) {
-      return _.get(state, "schema.behavior.hardRemove")
+      return _.get(state, "oDir.hard_remove")
     }
     //--------------------------------------------
   },

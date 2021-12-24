@@ -258,7 +258,7 @@ const _M = {
       // Guard
       //console.log("OnClipBoardPoste", clipboardData)
       let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
-      if(imgF) {
+      if (imgF) {
         let imgTp = Ti.Util.getSuffix(imgF.name)
         let dateS = Ti.DateTime.format(new Date(), "'Snapshot'-yyyyMMdd-HHmmss")
         imgF.uploadName = dateS + imgTp
@@ -501,6 +501,21 @@ const _M = {
       handler: function (newVal, oldVal) {
         if (!_.isEqual(newVal, oldVal)) {
           this.myCurrentId = newVal
+        }
+      },
+      immediate: true
+    },
+    //--------------------------------------------
+    "checkedIds": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
+          if (_.isArray(newVal)) {
+            let ids = {}
+            _.forEach(newVal, id => ids[id] = true)
+            this.myCheckedIds = ids
+          } else {
+            this.myCheckedIds = _.cloneDeep(newVal)
+          }
         }
       },
       immediate: true

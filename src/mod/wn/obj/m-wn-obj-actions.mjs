@@ -6,7 +6,7 @@ async function loadConfigJson(state, key, dft) {
     return dft
   }
   // Load
-  let tsId = state.thingSetId
+  let tsId = state.dirId
   let aph = `id:${tsId}/${path}`
   let re = await Wn.Sys.exec(`cat ${aph}`)
   re = _.trim(re)
@@ -36,7 +36,19 @@ const _M = {
   },
   //--------------------------------------------
   async loadSchema({ state, commit }) {
-    let schema = await loadConfigJson(state, "schemaPath", {})
+    let scPath;
+    if (state.meta) {
+      scPath = state.meta.schema
+    }
+    if (!scPath && state.oDir) {
+      scPath = state.oDir.schema
+    }
+    // Load schema
+    let schema;
+    if (scPath) {
+      schema = Wn.Io.loadContent(scPath, { as: "json" })
+    }
+    schema = _.assign({}, schema)
 
     // Load extends components
     if (!_.isEmpty(schema.components)) {
@@ -51,55 +63,15 @@ const _M = {
     }
   },
   //--------------------------------------------
-  async loadLayout({ state, commit }) {
-    let reo = await loadConfigJson(state, "layoutPath", {})
-    commit("setLayout", reo)
-  },
-  //--------------------------------------------
-  async loadThingActions({ state, commit }) {
-    let reo = await loadConfigJson(state, "actionsPath", [])
-    commit("setThingActions", reo)
-  },
-  //--------------------------------------------
-  async loadThingMethods({ state, commit }) {
-    // Guard
-    let reo = {}
-
-    // Load
-    if (state.methodPaths) {
-      let methodsUri = `./${state.methodPaths}`
-      let methods = await Ti.Load(methodsUri, {
-        dynamicAlias: new Ti.Config.AliasMapping({
-          "^\./": `/o/content?str=id:${state.thingSetId}/`
-        })
-      })
-      // Merge methods
-      if (_.isArray(methods)) {
-        for (let mt of methods) {
-          _.assign(reo, mt)
-        }
-      } else {
-        _.assign(reo, methods)
-      }
-    }
-
-    // Done
-    commit("setThingMethods", reo)
-  },
-  //--------------------------------------------
-  async loadThingSetId({ state, commit }) {
+  loadDirId({ state, commit }) {
     let meta = state.meta
     if (!meta) {
       return
     }
-    if (_.isString(meta.th_set)) {
-      commit("setThingSetId", meta.th_set)
-    }
-    // Load thingset ancestor by meta
-    let ans = await Wn.Sys.exec2(`o id:${meta.id} @ancestors -um '{tp:"thing_set"}' @json -cqnl`)
-    let first = _.first(ans)
-    if (first && first.tp == "thing_set") {
-      commit("setThingSetId", first.id)
+    if ("DIR" == meta.race) {
+      commit("setDirId", meta.id)
+    } else {
+      commit("setDirId", meta.pid)
     }
   },
   //--------------------------------------------
@@ -108,10 +80,7 @@ const _M = {
     let {
       filter, sorter, match,
       currentId, checkedIds,
-      pageSize,
-      dataDirName,
-      dataDirCurrentId, dataDirCheckedIds,
-      guiShown
+      pageSize
     } = be
 
     // Apply filter
@@ -136,23 +105,6 @@ const _M = {
     if (!_.isEmpty(checkedIds)) {
       commit("setCheckedIds", checkedIds)
     }
-
-    // Data Dir
-    if (!Ti.Util.isNil(dataDirName)) {
-      commit("setDataDirName", dataDirName)
-    }
-    if (!Ti.Util.isNil(dataDirCurrentId)) {
-      commit("setDataDirCurrentId", dataDirCurrentId)
-    }
-    if (!Ti.Util.isNil(dataDirCheckedIds)) {
-      commit("setDataDirCheckedIds", dataDirCheckedIds)
-    }
-
-    // Apply shown
-    if (!_.isEmpty(guiShown)) {
-      commit("setGuiShown", guiShown)
-    }
-
 
     // Apply pager
     let pager = {}
@@ -186,7 +138,7 @@ const _M = {
   },
   //--------------------------------------------
   async reloadData({ state, dispatch }) {
-    if (state.oTs) {
+    if (state.oDir) {
       await dispatch("queryList");
     }
   },
@@ -206,28 +158,25 @@ const _M = {
       return await Ti.Toast.Open("Meta without ID", "warn")
     }
 
-    // Analyze meta : oTs
-    if ("thing_set" == meta.tp && "DIR" == meta.race) {
-      commit("setThingSet", meta)
-      commit("setThingSetId", meta.id)
+    // Analyze meta : oDir
+    if ("DIR" == meta.race) {
+      commit("setDir", meta)
+      commit("setDirId", meta.id)
     }
-    // Then meta should be a thing
+    // Then meta should be a File
     else {
       // CheckThingSet ID
       commit("setMeta", meta)
-      commit("setThingSetId", null)
-      await dispatch("loadThingSetId")
+      commit("setDirId", null)
+      dispatch("loadDirId")
     }
 
-    if (!state.thingSetId) {
-      return await Ti.Toast.Open("Meta OutOfThingSet: " + meta.id, "warn")
+    if (!state.dirId) {
+      return await Ti.Toast.Open("Meta Without DirID: " + meta.id, "warn")
     }
 
     // Reload Configurations
     await dispatch("loadSchema")
-    await dispatch("loadLayout")
-    await dispatch("loadThingActions")
-    await dispatch("loadThingMethods")
 
     // Behavior
     commit("explainLocalBehaviorKeepAt")
@@ -236,9 +185,6 @@ const _M = {
 
     // Reload thing list
     await dispatch("reloadData");
-
-    // Update dataHome
-    commit("autoDataHome")
 
     // All done
     commit("setStatus", { reloading: false })

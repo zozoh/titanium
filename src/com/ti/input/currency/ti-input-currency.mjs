@@ -69,6 +69,18 @@ export default {
       return this.getTopClass()
     },
     //------------------------------------------------
+    isCanChangeCurrency() {
+      return "num" != this.valueType
+    },
+    //------------------------------------------------
+    InputHover() {
+      let hover = ['prefixIcon']
+      if (this.isCanChangeCurrency) {
+        hover.push("suffixText")
+      }
+      return hover
+    },
+    //------------------------------------------------
     ValObj() {
       return Ti.Bank.parseCurrency(this.value, {
         unit: this.unit,
@@ -110,6 +122,10 @@ export default {
     },
     //------------------------------------------------
     async OnClickSuffix() {
+      // Guard
+      if (!this.isCanChangeCurrency) {
+        return
+      }
       // Open the dialog
       let reo = await Ti.App.Open({
         title: "i18n:currency",
@@ -117,6 +133,11 @@ export default {
         width: "4.8rem",
         height: "62%",
         model: { event: "select" },
+        events: {
+          open: function () {
+            this.close(this.result)
+          }
+        },
         comType: "TiFilterlist",
         comConf: {
           className: "ti-fill-parent",

@@ -1,0 +1,21 @@
+{
+  "name": "wn-obj-adaptor",
+  "globally": true,
+  "template": "./wn-obj-adaptor.html",
+  "props": "./wn-obj-adaptor-props.mjs",
+  "methods": "./wn-obj-adaptor-methods.mjs",
+  "mixins": [
+    "./wn-obj-adaptor.mjs",
+    "./wn-obj-adaptor-gui.mjs"
+  ],
+  "components": [
+    "@com:ti/gui",
+    "@com:ti/filterbar",
+    "@com:ti/paging/jumper",
+    "@com:wn/obj/form",
+    "@com:wn/table",
+    "@com:wn/obj/icon",
+    "@com:wn/obj/puretext",
+    "@com:wn/upload/file"
+  ]
+}
