@@ -218,8 +218,8 @@ export default {
               }
               // Join pager
               else if ("current" == this.value.page) {
-                let limit = vm.pager.pgsz
-                let skip = vm.pager.pgsz * (vm.pager.pn - 1)
+                let limit = vm.searchPageSize || 1000
+                let skip = Math.max(vm.searchPageSize * (vm.searchPageNumber - 1), 0)
                 cmds.push(`-limit ${limit}`)
                 cmds.push(`-skip  ${skip}`)
               }

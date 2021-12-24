@@ -89,5 +89,12 @@ export default {
   },
   "thingMethods": {
     type: Object, default: () => ({})
-  }
+  },
+  //-----------------------------------
+  // Global View Setting
+  //-----------------------------------
+  "viewType": String,
+  "exposeHidden": Boolean,
+  "searchPageNumber": Number,
+  "searchPageSize": Number
 }

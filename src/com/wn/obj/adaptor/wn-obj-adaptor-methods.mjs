@@ -72,7 +72,6 @@ export default {
     //............................................
     // The checked id list
     let checkedIds = Ti.Util.truthyKeys(this.checkedIds)
-    console.log(checkedIds)
     //............................................
     // Prepare the result
     let result = {
