@@ -134,7 +134,7 @@ export const TiVue = {
       "filters",
       "components"])
     const it_asset_part = function(val, key, obj) {
-      const list = _.flattenDeep([val])
+      const list = _.without(_.flattenDeep([val]), undefined, null)
       const remain = []
       for(let asset of list) {
         // => global

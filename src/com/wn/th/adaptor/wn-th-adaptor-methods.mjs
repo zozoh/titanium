@@ -45,7 +45,7 @@ export default {
     // Eval default export name
     let enVars = {
       ...this.oTs,
-      title: Ti.I18n.text(this.oTs.title),
+      title: Ti.I18n.text(this.oTs.title || this.oTs.nm),
       time: Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
     }
     let exportName = Ti.S.renderBy(name, enVars)
@@ -61,7 +61,6 @@ export default {
     //............................................
     // The checked id list
     let checkedIds = Ti.Util.truthyKeys(this.checkedIds)
-    console.log(checkedIds)
     //............................................
     // Prepare the result
     let result = {
@@ -79,10 +78,10 @@ export default {
     // Eval modes options
     let modeNames = mode.split(";")
     let modeMap = {
-      xls: { value: "xls", text: "i18n:thing-export-c-mode-xls" },
-      csv: { value: "csv", text: "i18n:thing-export-c-mode-csv" },
-      json: { value: "json", text: "i18n:thing-export-c-mode-json" },
-      zip: { value: "zip", text: "i18n:thing-export-c-mode-zip" }
+      xls: { value: "xls", text: "i18n:wn-export-c-mode-xls" },
+      csv: { value: "csv", text: "i18n:wn-export-c-mode-csv" },
+      json: { value: "json", text: "i18n:wn-export-c-mode-json" },
+      zip: { value: "zip", text: "i18n:wn-export-c-mode-zip" }
     }
     let modeOptions = []
     _.forEach(modeNames, nm => {
@@ -94,9 +93,9 @@ export default {
     // Eval page options
     let pageModes = page.split(";")
     let pageMap = {
-      checked: { value: "checked", text: "i18n:thing-export-c-page-checked" },
-      current: { value: "current", text: "i18n:thing-export-c-page-current" },
-      all: { value: "all", text: "i18n:thing-export-c-page-all" }
+      checked: { value: "checked", text: "i18n:wn-export-c-page-checked" },
+      current: { value: "current", text: "i18n:wn-export-c-page-current" },
+      all: { value: "all", text: "i18n:wn-export-c-page-all" }
     }
     let pageOptions = []
     _.forEach(pageModes, md => {
@@ -108,7 +107,7 @@ export default {
     // Make the config form fields
     let formFields = [];
     formFields.push({
-      title: "i18n:thing-export-c-mode",
+      title: "i18n:wn-export-c-mode",
       name: "mode",
       comType: "TiSwitcher",
       comConf: {
@@ -119,7 +118,7 @@ export default {
     if (!_.isEmpty(oMapplingItems)) {
       result.mapping = _.first(oMapplingItems).id
       formFields.push({
-        title: "i18n:thing-export-c-mapping",
+        title: "i18n:wn-export-c-mapping",
         name: "mapping",
         comType: "TiDroplist",
         comConf: {
@@ -132,7 +131,7 @@ export default {
       })
     }
     formFields.push({
-      title: "i18n:thing-export-c-page",
+      title: "i18n:wn-export-c-page",
       name: "page",
       comType: "TiSwitcher",
       comConf: {
@@ -141,7 +140,7 @@ export default {
       }
     })
     formFields.push({
-      title: "i18n:thing-export-c-limit",
+      title: "i18n:wn-export-c-limit",
       name: "limit",
       type: "Integer",
       visible: {
@@ -152,23 +151,23 @@ export default {
       }
     })
     formFields.push({
-      title: "i18n:thing-export-c-name",
+      title: "i18n:wn-export-c-name",
       name: "name",
       comType: "TiInput",
       comConf: {
       }
     })
     formFields.push({
-      title: "i18n:thing-export-c-expi",
+      title: "i18n:wn-export-c-expi",
       name: "expiIn",
       comType: "TiSwitcher",
       comConf: {
         allowEmpty: false,
         options: [
-          { value: 3, text: "i18n:thing-export-c-expi-3d" },
-          { value: 7, text: "i18n:thing-export-c-expi-7d" },
-          { value: 14, text: "i18n:thing-export-c-expi-14d" },
-          { value: 0, text: "i18n:thing-export-c-expi-off" }
+          { value: 3, text: "i18n:wn-export-c-expi-3d" },
+          { value: 7, text: "i18n:wn-export-c-expi-7d" },
+          { value: 14, text: "i18n:wn-export-c-expi-14d" },
+          { value: 0, text: "i18n:wn-export-c-expi-off" }
         ]
       }
     })
@@ -188,7 +187,7 @@ export default {
           padding: ".5em"
         },
         steps: [{
-          title: "i18n:thing-export-setup",
+          title: "i18n:wn-export-setup",
           comType: "TiForm",
           comConf: {
             data: ":=..",
@@ -261,12 +260,12 @@ export default {
             }
           }
         }, {
-          title: "i18n:thing-export-ing",
+          title: "i18n:wn-export-ing",
           comType: "WnCmdPanel",
           comConf: {
             value: ":=cmdText",
             input: ":=fltInput",
-            tipText: "i18n:thing-export-ing-tip",
+            tipText: "i18n:wn-export-ing-tip",
             tipIcon: "fas-bullhorn",
             emitName: "step:change",
             emitPayload: "%next"
@@ -274,7 +273,7 @@ export default {
           prev: false,
           next: false
         }, {
-          title: "i18n:thing-export-done",
+          title: "i18n:wn-export-done",
           prepare: async function () {
             let oTa = await Wn.Io.loadMeta(this.value.outPath)
             this.$notify("change", {
@@ -287,8 +286,8 @@ export default {
             className: "is-success",
             value: ":=target",
             icon: "fas-check-circle",
-            title: "i18n:thing-export-done-ok",
-            brief: "i18n:thing-export-done-tip",
+            title: "i18n:wn-export-done-ok",
+            brief: "i18n:wn-export-done-tip",
             links: [{
               icon: "fas-download",
               text: ":=target.nm",
@@ -296,7 +295,7 @@ export default {
               newtab: true
             }, {
               icon: "fas-external-link-alt",
-              text: "i18n:thing-export-open-dir",
+              text: "i18n:wn-export-open-dir",
               href: Wn.Util.getAppLink(taDir),
               newtab: true
             }]

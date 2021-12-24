@@ -11,6 +11,7 @@ export default {
     type: String
   },
   "oTs": Object,
+  "mappingDirPath": String,
   //-----------------------------------
   // The search list
   //-----------------------------------

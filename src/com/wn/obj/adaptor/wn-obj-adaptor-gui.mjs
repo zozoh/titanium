@@ -145,6 +145,9 @@ const _M = {
             "status": "=status",
             "exposeHidden": "=exposeHidden",
             "viewType": "=viewType",
+            "routers": {
+              "reload": `dispatch:${this.moduleName}/reloadData`
+            },
             "tableViewConf": {
               "columnResizable": true,
               "canCustomizedFields": true,

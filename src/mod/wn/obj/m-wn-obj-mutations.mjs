@@ -32,7 +32,7 @@ const _M = {
   },
   //----------------------------------------
   //
-  // Thing Set
+  // Object DIR
   //
   //----------------------------------------
   setDirId(state, dirId) {
@@ -41,6 +41,10 @@ const _M = {
   //----------------------------------------
   setDir(state, oDir) {
     state.oDir = oDir
+  },
+  //----------------------------------------
+  setMappingDirPath(state, dirPath) {
+    state.mappingDirPath = dirPath
   },
   //----------------------------------------
   //
@@ -79,6 +83,9 @@ const _M = {
   //----------------------------------------
   setListItem(state, newItem) {
     Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "..")
+    if (newItem && newItem.id == state.currentId) {
+      state.meta = newItem
+    }
   },
   //----------------------------------------
   mergeListItem(state, theItem) {
@@ -115,8 +122,8 @@ const _M = {
   //----------------------------------------
   assignPager(state, pager) {
     let pg = _.cloneDeep(state.pager || {})
-    _.forEach(pager, (v,k)=>{
-      if(!Ti.Util.isNil(v)) {
+    _.forEach(pager, (v, k) => {
+      if (!Ti.Util.isNil(v)) {
         pg[k] = v
       }
     })
@@ -165,10 +172,6 @@ const _M = {
   //----------------------------------------
   setContent(state, content) {
     state.content = content
-  },
-  //----------------------------------------
-  setData(state, data) {
-    state.data = data
   },
   //----------------------------------------
   setSavedContent(state, content) {

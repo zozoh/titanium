@@ -271,23 +271,21 @@ class OneTiApp {
     }
   }
   //---------------------------------------
-  main(nm, payload) {
+  main(nm, ...args) {
     if (Ti.IsInfo("TiApp")) {
-      console.log("TiApp.main", nm, payload)
+      console.log("TiApp.main", nm, args)
     }
     let vm = this.$vmMain()
     let fn = vm[nm]
     if (_.isFunction(fn)) {
-      return fn(payload)
+      return fn(...args)
     }
     // Properties
-    else if (!_.isUndefined(fn)) {
+    if (!_.isUndefined(fn)) {
       return fn
     }
     // report error
-    else {
-      throw Ti.Err.make("e-ti-app-main", { nm, payload })
-    }
+    throw Ti.Err.make("e-ti-app-main", { nm, payload })
   }
   //---------------------------------------
   // Invoke the function in window object

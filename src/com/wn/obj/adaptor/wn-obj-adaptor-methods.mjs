@@ -17,35 +17,46 @@ export default {
   // Export
   //
   //--------------------------------------------
-  async openExportDataDir(target) {
-    let taDir = target || `id:${this.dirId}/export_data`
+  async openDataDir(target) {
+    let taDir = target || `id:${this.dirId}`
     let oDir = await Wn.Io.loadMeta(taDir)
     let link = Wn.Util.getAppLink(oDir)
     Ti.Be.Open(link.url, { params: link.params })
   },
   //--------------------------------------------
-  async exportDataByModes(mode = "csv;xls;json;zip", target) {
+  async exportDataByModes(mode = "csv;xls;json", target) {
     await this.exportData({ target, mode })
   },
   //--------------------------------------------
   async exportData({
     target,
-    mode = "xls;csv;json;zip",
+    mode = "xls;csv;json",
     page = "checked;current;all",
     name = "${title|nm}-${time}",
-    mappingDir = "id:${id}/export/"
+    mappingDir
   } = {}) {
     // Guard
     if (!this.oDir) {
-      throw `ThingSet[${this.dirId}] without oDir`
+      throw `ExportData[${this.dirId}] without oDir`
+    }
+    if (!target) {
+      throw `ExportData[${this.dirId}] without target`
     }
     //............................................
-    let taDir = target || `id:${this.dirId}/export_data`
+    // Guard mapping dir
+    mappingDir = mappingDir
+      || _.get(this.oDir, "mapping_dir")
+      || this.mappingDirPath
+    if (!mappingDir) {
+      throw `ExportData[${this.dirId}] without mappingDir`
+    }
+    //............................................
+    let taDir = target
     //............................................
     // Eval default export name
     let enVars = {
       ...this.oDir,
-      title: Ti.I18n.text(this.oDir.title),
+      title: Ti.I18n.text(this.oDir.title || this.oDir.nm),
       time: Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
     }
     let exportName = Ti.S.renderBy(name, enVars)
@@ -79,10 +90,10 @@ export default {
     // Eval modes options
     let modeNames = mode.split(";")
     let modeMap = {
-      xls: { value: "xls", text: "i18n:thing-export-c-mode-xls" },
-      csv: { value: "csv", text: "i18n:thing-export-c-mode-csv" },
-      json: { value: "json", text: "i18n:thing-export-c-mode-json" },
-      zip: { value: "zip", text: "i18n:thing-export-c-mode-zip" }
+      xls: { value: "xls", text: "i18n:wn-export-c-mode-xls" },
+      csv: { value: "csv", text: "i18n:wn-export-c-mode-csv" },
+      json: { value: "json", text: "i18n:wn-export-c-mode-json" },
+      zip: { value: "zip", text: "i18n:wn-export-c-mode-zip" }
     }
     let modeOptions = []
     _.forEach(modeNames, nm => {
@@ -94,9 +105,9 @@ export default {
     // Eval page options
     let pageModes = page.split(";")
     let pageMap = {
-      checked: { value: "checked", text: "i18n:thing-export-c-page-checked" },
-      current: { value: "current", text: "i18n:thing-export-c-page-current" },
-      all: { value: "all", text: "i18n:thing-export-c-page-all" }
+      checked: { value: "checked", text: "i18n:wn-export-c-page-checked" },
+      current: { value: "current", text: "i18n:wn-export-c-page-current" },
+      all: { value: "all", text: "i18n:wn-export-c-page-all" }
     }
     let pageOptions = []
     _.forEach(pageModes, md => {
@@ -108,7 +119,7 @@ export default {
     // Make the config form fields
     let formFields = [];
     formFields.push({
-      title: "i18n:thing-export-c-mode",
+      title: "i18n:wn-export-c-mode",
       name: "mode",
       comType: "TiSwitcher",
       comConf: {
@@ -119,7 +130,7 @@ export default {
     if (!_.isEmpty(oMapplingItems)) {
       result.mapping = _.first(oMapplingItems).id
       formFields.push({
-        title: "i18n:thing-export-c-mapping",
+        title: "i18n:wn-export-c-mapping",
         name: "mapping",
         comType: "TiDroplist",
         comConf: {
@@ -132,7 +143,7 @@ export default {
       })
     }
     formFields.push({
-      title: "i18n:thing-export-c-page",
+      title: "i18n:wn-export-c-page",
       name: "page",
       comType: "TiSwitcher",
       comConf: {
@@ -141,7 +152,7 @@ export default {
       }
     })
     formFields.push({
-      title: "i18n:thing-export-c-limit",
+      title: "i18n:wn-export-c-limit",
       name: "limit",
       type: "Integer",
       visible: {
@@ -152,23 +163,23 @@ export default {
       }
     })
     formFields.push({
-      title: "i18n:thing-export-c-name",
+      title: "i18n:wn-export-c-name",
       name: "name",
       comType: "TiInput",
       comConf: {
       }
     })
     formFields.push({
-      title: "i18n:thing-export-c-expi",
+      title: "i18n:wn-export-c-expi",
       name: "expiIn",
       comType: "TiSwitcher",
       comConf: {
         allowEmpty: false,
         options: [
-          { value: 3, text: "i18n:thing-export-c-expi-3d" },
-          { value: 7, text: "i18n:thing-export-c-expi-7d" },
-          { value: 14, text: "i18n:thing-export-c-expi-14d" },
-          { value: 0, text: "i18n:thing-export-c-expi-off" }
+          { value: 3, text: "i18n:wn-export-c-expi-3d" },
+          { value: 7, text: "i18n:wn-export-c-expi-7d" },
+          { value: 14, text: "i18n:wn-export-c-expi-14d" },
+          { value: 0, text: "i18n:wn-export-c-expi-off" }
         ]
       }
     })
@@ -188,7 +199,7 @@ export default {
           padding: ".5em"
         },
         steps: [{
-          title: "i18n:thing-export-setup",
+          title: "i18n:wn-export-setup",
           comType: "TiForm",
           comConf: {
             data: ":=..",
@@ -201,7 +212,7 @@ export default {
             },
             handler: function () {
               let outPath = `${taDir}/${this.value.name}.${this.value.mode}`
-              let cmds = [`thing id:${vm.dirId} query -cqn`]
+              let cmds = [`o id:${vm.dirId} @query`]
               //............................................
               // Eval Sorter
               if (!_.isEmpty(vm.sorter)) {
@@ -219,8 +230,8 @@ export default {
               }
               // Join pager
               else if ("current" == this.value.page) {
-                let limit = vm.pager.pgsz
-                let skip = vm.pager.pgsz * (vm.pager.pn - 1)
+                let limit = vm.searchPageSize || 1000
+                let skip = Math.max(vm.searchPageSize * (vm.searchPageNumber - 1), 0)
                 cmds.push(`-limit ${limit}`)
                 cmds.push(`-skip  ${skip}`)
               }
@@ -231,6 +242,7 @@ export default {
               }
 
               // Join the export 
+              cmds.push('@json -cqnl')
               cmds.push('|', 'sheet -process "${P} : ${id} : ${title} : ${nm}"')
               cmds.push("-tpo " + this.value.mode)
               // Mapping
@@ -261,12 +273,12 @@ export default {
             }
           }
         }, {
-          title: "i18n:thing-export-ing",
+          title: "i18n:wn-export-ing",
           comType: "WnCmdPanel",
           comConf: {
             value: ":=cmdText",
             input: ":=fltInput",
-            tipText: "i18n:thing-export-ing-tip",
+            tipText: "i18n:wn-export-ing-tip",
             tipIcon: "fas-bullhorn",
             emitName: "step:change",
             emitPayload: "%next"
@@ -274,7 +286,7 @@ export default {
           prev: false,
           next: false
         }, {
-          title: "i18n:thing-export-done",
+          title: "i18n:wn-export-done",
           prepare: async function () {
             let oTa = await Wn.Io.loadMeta(this.value.outPath)
             this.$notify("change", {
@@ -287,8 +299,8 @@ export default {
             className: "is-success",
             value: ":=target",
             icon: "fas-check-circle",
-            title: "i18n:thing-export-done-ok",
-            brief: "i18n:thing-export-done-tip",
+            title: "i18n:wn-export-done-ok",
+            brief: "i18n:wn-export-done-tip",
             links: [{
               icon: "fas-download",
               text: ":=target.nm",
@@ -296,7 +308,7 @@ export default {
               newtab: true
             }, {
               icon: "fas-external-link-alt",
-              text: "i18n:thing-export-open-dir",
+              text: "i18n:wn-export-open-dir",
               href: Wn.Util.getAppLink(taDir),
               newtab: true
             }]
@@ -310,6 +322,43 @@ export default {
         "@com:web/meta/badge"
       ]
     })
+  },
+  //--------------------------------------------
+  //
+  // Download / Upload
+  //
+  //--------------------------------------------
+  async downloadCheckItems() {
+    let list = this.getCheckedItems()
+    if (_.isEmpty(list)) {
+      return await Ti.Toast.Open('i18n:wn-download-none', "warn")
+    }
+    // Too many, confirm at first
+    if (list.length > 5) {
+      if (!await Ti.Confirm({
+        text: "i18n:wn-download-too-many",
+        vars: { N: list.length }
+      })) {
+        return
+      }
+    }
+    // Do the download
+    for (let it of list) {
+      if ('FILE' != it.race) {
+        if (!await Ti.Confirm({
+          text: "i18n:wn-download-dir",
+          vars: it
+        }, {
+          textYes: "i18n:continue",
+          textNo: "i18n:terminate"
+        })) {
+          return
+        }
+        continue;
+      }
+      let link = Wn.Util.getDownloadLink(it)
+      Ti.Be.OpenLink(link)
+    }
   },
   //--------------------------------------------
   //
@@ -375,5 +424,56 @@ export default {
 
     return newMeta
   },
+  //------------------------------------------------
+  //
+  // Delegate WnObjAdaptor methods
+  //
+  //------------------------------------------------
+  getWnAdaptlist() {
+    return this.findComBy($com => {
+      return "WnAdaptlist" == $com.tiComType
+    })
+  },
+  //------------------------------------------------
+  delegateWnAdaptlist(methodName, ...args) {
+    let $AL = this.getWnAdaptlist()
+    if ($AL) {
+      return $AL[methodName](...args)
+    }
+  },
+  //------------------------------------------------
+  async asyncDelegateWnAdaptlist(methodName, ...args) {
+    let $AL = this.getWnAdaptlist()
+    if ($AL) {
+      return await $AL[methodName](...args)
+    }
+  },
+  //------------------------------------------------
+  // Delegates
+  //------------------------------------------------
+  invokeList(methodName) {
+    return this.delegateWnAdaptlist("invokeList", methodName)
+  },
+  openLocalFileSelectdDialog() {
+    return this.delegateWnAdaptlist("openLocalFileSelectdDialog")
+  },
+  async openCurrentPrivilege() {
+    return this.asyncDelegateWnAdaptlist("openCurrentPrivilege")
+  },
+  async doCreate() {
+    return this.asyncDelegateWnAdaptlist("doCreate")
+  },
+  async doRename() {
+    return this.asyncDelegateWnAdaptlist("doRename")
+  },
+  async doBatchUpdate() {
+    return this.asyncDelegateWnAdaptlist("doBatchUpdate")
+  },
+  async doMoveTo() {
+    return this.asyncDelegateWnAdaptlist("doMoveTo")
+  },
+  async doDelete(confirm) {
+    return this.asyncDelegateWnAdaptlist("doDelete", confirm)
+  }
   //--------------------------------------------
 }

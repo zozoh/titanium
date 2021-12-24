@@ -36,7 +36,7 @@ const _M = {
   },
   //----------------------------------------
   async applyPager({ commit, dispatch }, pager) {
-    console.log("applyPager", pager)
+    //console.log("applyPager", pager)
     commit("assignPager", pager)
     await dispatch("queryList")
   },
@@ -82,7 +82,6 @@ const _M = {
 
     // Process Query
     let cmdText = cmds.join(" ")
-    console.log(cmdText)
     commit("setStatus", { reloading: true })
     let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
 

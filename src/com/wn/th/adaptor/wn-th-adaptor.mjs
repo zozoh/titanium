@@ -13,13 +13,34 @@ const _M = {
       let routing = _.get(this.schema, "events") || {}
       return _.assign({
         "block:show": "showBlock",
-        "block:hide": "hideBlock"
+        "block:hide": "hideBlock",
+        "search::list::select": "OnSearchListSelect",
+        "search::filter::filter:change": "OnSearchFilterChange",
+        "search::filter::sorter:change": "OnSearchSorterChange",
+        "search::pager::change": "OnSearchPagerChange"
       }, routing)
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
   methods: {
+    //--------------------------------------
+    async OnSearchListSelect({ currentId, checkedIds, checked }) {
+      await this.dispatch("selectMeta", { currentId, checkedIds })
+      this.$notify("indicate", `${checked.length} items selected`)
+    },
+    //--------------------------------------
+    async OnSearchFilterChange(payload) {
+      await this.dispatch("applyFilter", payload)
+    },
+    //--------------------------------------
+    async OnSearchSorterChange(payload) {
+      await this.dispatch("applySorter", payload)
+    },
+    //--------------------------------------
+    async OnSearchPagerChange(payload) {
+      await this.dispatch("applyPager", payload)
+    },
     //--------------------------------------
     //
     //  Show/Hide block
@@ -59,6 +80,15 @@ const _M = {
       return Ti.App(this).commit(path, payload)
     },
     //--------------------------------------
+    getCheckedItems(noneAsAll = false) {
+      let ids = this.checkedIds || {}
+      let alwaysOn = _.isEmpty(ids) && noneAsAll
+      let items = _.filter(this.list, li => {
+        return li && (alwaysOn || ids[li.id])
+      })
+      return items
+    },
+    //--------------------------------------
     //
     // Events / Callback
     //
@@ -73,6 +103,12 @@ const _M = {
     // For Event Bubble Dispatching
     __on_events(name, payload) {
       //console.log("WnThAdaptor.__on_events", name, payload)
+      // ByPass
+      if (/^(indicate)$/.test(name)) {
+        return ()=>({ stop: false })
+      }
+
+      // Try routing
       let fn = _.get(this.EventRouting, name)
       if (!fn) {
         fn = this.$tiEventTryFallback(name, this.EventRouting)

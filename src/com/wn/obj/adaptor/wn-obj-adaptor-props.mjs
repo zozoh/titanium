@@ -65,4 +65,6 @@ export default {
   //-----------------------------------
   "viewType": String,
   "exposeHidden": Boolean,
+  "searchPageNumber": Number,
+  "searchPageSize": Number
 }

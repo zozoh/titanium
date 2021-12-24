@@ -39,7 +39,6 @@ const _M = {
     },
     //--------------------------------------
     async OnSearchPagerChange(payload) {
-      console.log(payload)
       await this.dispatch("applyPager", payload)
     },
     //--------------------------------------
@@ -81,6 +80,15 @@ const _M = {
       return Ti.App(this).commit(path, payload)
     },
     //--------------------------------------
+    getCheckedItems(noneAsAll = false) {
+      let ids = this.checkedIds || {}
+      let alwaysOn = _.isEmpty(ids) && noneAsAll
+      let items = _.filter(this.list, li => {
+        return li && (alwaysOn || ids[li.id])
+      })
+      return items
+    },
+    //--------------------------------------
     //
     // Events / Callback
     //
@@ -94,7 +102,13 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      console.log("WnObjAdaptor.__on_events", name, payload)
+      //console.log("WnObjAdaptor.__on_events", name, payload)
+      // ByPass
+      if (/^(indicate)$/.test(name)) {
+        return ()=>({ stop: false })
+      }
+
+      // Try routing
       let fn = _.get(this.EventRouting, name)
       if (!fn) {
         fn = this.$tiEventTryFallback(name, this.EventRouting)
