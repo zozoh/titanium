@@ -1,4 +1,4 @@
-// Pack At: 2021-12-23 15:25:00
+// Pack At: 2021-12-27 15:08:29
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -574,6 +574,111 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'm-wn-obj-search.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-search.mjs'] = (function(){
+////////////////////////////////////////////////
+const _M = {
+  //----------------------------------------
+  //
+  // Selection
+  //
+  //----------------------------------------
+  async selectMeta({ commit }, { currentId = null, checkedIds = {} } = null) {
+    commit("setCurrentId", currentId)
+    commit("setCheckedIds", checkedIds)
+    commit("setCurrentMeta")
+    // ? Load current content
+
+    // ? Load current data dir
+  },
+  //----------------------------------------
+  //
+  // Filter / Sorter / Pager
+  //
+  //----------------------------------------
+  async applyFilter({ commit, getters, dispatch }, filter) {
+    //console.log("applyFilter", filter)
+    commit("setFilter", filter)
+    // If pager enabled, should auto jump to first page
+    if (getters.isPagerEnabled) {
+      let pnKey = getters.isLongPager ? "pageNumber" : "pn"
+      commit("assignPager", { [pnKey]: 1 })
+    }
+    await dispatch("queryList")
+  },
+  //----------------------------------------
+  async applySorter({ commit, dispatch }, sorter) {
+    //console.log("applySorter", sorter)
+    commit("setSorter", sorter)
+    await dispatch("queryList")
+  },
+  //----------------------------------------
+  async applyPager({ commit, dispatch }, pager) {
+    //console.log("applyPager", pager)
+    commit("assignPager", pager)
+    await dispatch("queryList")
+  },
+  //----------------------------------------
+  //
+  // Query
+  //
+  //----------------------------------------
+  async queryList({ state, commit, getters }) {
+    let {
+      dirId,
+      filter,
+      fixedMatch,
+      sorter,
+      objKeys
+    } = state
+    // Query
+    let input = JSON.stringify(_.assign({}, filter, fixedMatch))
+
+    // Command
+    let cmds = [`o 'id:${dirId}' @query`]
+
+    // Eval Pager
+    if (getters.isPagerEnabled) {
+      let limit = getters.searchPageSize * 1
+      let skip = getters.searchPageSize * (getters.searchPageNumber - 1)
+      cmds.push(`-pager -limit ${limit} -skip ${skip}`)
+    }
+
+    // Sorter
+    if (!_.isEmpty(sorter)) {
+      cmds.push(`-sort '${JSON.stringify(sorter)}'`)
+    }
+
+    // Show Thing Keys
+    if (objKeys) {
+      cmds.push(`@json '${objKeys}' -cqnl`)
+    }
+    // Output as json
+    else {
+      cmds.push('@json -cqnl')
+    }
+
+    // Process Query
+    let cmdText = cmds.join(" ")
+    commit("setStatus", { reloading: true })
+    let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
+
+    // Update pager
+    if (getters.isPagerEnabled) {
+      commit("setPager", reo.pager)
+    }
+    commit("setList", reo.list)
+    commit("setCurrentMeta")
+
+    commit("setStatus", { reloading: false })
+  },
+  //--------------------------------------------
+}
+return _M;
+;
 })()
 // ============================================================
 // EXPORT 'form-field-props.mjs' -> null
@@ -1174,7 +1279,7 @@ const _M = {
       // Guard
       //console.log("OnClipBoardPoste", clipboardData)
       let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
-      if(imgF) {
+      if (imgF) {
         let imgTp = Ti.Util.getSuffix(imgF.name)
         let dateS = Ti.DateTime.format(new Date(), "'Snapshot'-yyyyMMdd-HHmmss")
         imgF.uploadName = dateS + imgTp
@@ -1417,6 +1522,21 @@ const _M = {
       handler: function (newVal, oldVal) {
         if (!_.isEqual(newVal, oldVal)) {
           this.myCurrentId = newVal
+        }
+      },
+      immediate: true
+    },
+    //--------------------------------------------
+    "checkedIds": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
+          if (_.isArray(newVal)) {
+            let ids = {}
+            _.forEach(newVal, id => ids[id] = true)
+            this.myCheckedIds = ids
+          } else {
+            this.myCheckedIds = _.cloneDeep(newVal)
+          }
         }
       },
       immediate: true
@@ -2853,6 +2973,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return this.getTopClass()
     },
     //------------------------------------------------
+    isCanChangeCurrency() {
+      return "num" != this.valueType
+    },
+    //------------------------------------------------
+    InputHover() {
+      let hover = ['prefixIcon']
+      if (this.isCanChangeCurrency) {
+        hover.push("suffixText")
+      }
+      return hover
+    },
+    //------------------------------------------------
     ValObj() {
       return Ti.Bank.parseCurrency(this.value, {
         unit: this.unit,
@@ -2894,6 +3026,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //------------------------------------------------
     async OnClickSuffix() {
+      // Guard
+      if (!this.isCanChangeCurrency) {
+        return
+      }
       // Open the dialog
       let reo = await Ti.App.Open({
         title: "i18n:currency",
@@ -2901,6 +3037,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
         width: "4.8rem",
         height: "62%",
         model: { event: "select" },
+        events: {
+          open: function () {
+            this.close(this.result)
+          }
+        },
         comType: "TiFilterlist",
         comConf: {
           className: "ti-fill-parent",
@@ -6576,6 +6717,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: String
   },
   "oTs": Object,
+  "mappingDirPath": String,
   //-----------------------------------
   // The search list
   //-----------------------------------
@@ -6653,7 +6795,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "thingMethods": {
     type: Object, default: () => ({})
-  }
+  },
+  //-----------------------------------
+  // Global View Setting
+  //-----------------------------------
+  "viewType": String,
+  "exposeHidden": Boolean,
+  "searchPageNumber": Number,
+  "searchPageSize": Number
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -9291,13 +9440,19 @@ const _M = {
   //----------------------------------------
   setPager(state, pager) {
     state.pager = pager
-    let pageSize = _.get(state.pager, "pgsz") || 0
+    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0
     saveLocalBehavior(state, "pageSize", pageSize)
   },
   //----------------------------------------
   assignPager(state, pager) {
-    state.pager = _.assign({}, state.pager, pager)
-    let pageSize = _.get(state.pager, "pgsz") || 0
+    let pg = _.cloneDeep(state.pager || {})
+    _.forEach(pager, (v,k)=>{
+      if(!Ti.Util.isNil(v)) {
+        pg[k] = v
+      }
+    })
+    state.pager = pg
+    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0
     saveLocalBehavior(state, "pageSize", pageSize)
   },
   //----------------------------------------
@@ -12136,6 +12291,206 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'm-wn-obj-actions.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-actions.mjs'] = (function(){
+////////////////////////////////////////////////
+async function loadConfigJson(state, key, dft) {
+  // Guard
+  let path = state[key]
+  if (!path) {
+    return dft
+  }
+  // Load
+  let tsId = state.dirId
+  let aph = `id:${tsId}/${path}`
+  let re = await Wn.Sys.exec(`cat ${aph}`)
+  re = _.trim(re)
+
+  // Not exists
+  if (!re || /^e\./.test(re)) {
+    return dft
+  }
+
+  // Parse As JSON
+  return JSON.parse(re)
+}
+////////////////////////////////////////////////
+const _M = {
+  //--------------------------------------------
+  async loadContent({ state, commit }) {
+    // Guard
+    let meta = state.meta
+    if (!meta) {
+      return
+    }
+    // Load meta content
+    commit("setStatus", { reloading: true })
+    let content = await Wn.Io.loadContent(meta)
+    dispatch("updateContent", content)
+    commit("setStatus", { reloading: false })
+  },
+  //--------------------------------------------
+  async loadSchema({ state, commit }) {
+    let scPath;
+    if (state.meta) {
+      scPath = state.meta.schema
+    }
+    if (!scPath && state.oDir) {
+      scPath = state.oDir.schema
+    }
+    // Load schema
+    let schema;
+    if (scPath) {
+      schema = Wn.Io.loadContent(scPath, { as: "json" })
+    }
+    schema = _.assign({}, schema)
+
+    // Load extends components
+    if (!_.isEmpty(schema.components)) {
+      let components = _.concat(schema.components)
+      await Ti.App.topInstance().loadView({ components })
+    }
+    //console.log("setSchema", schema)
+    commit("setSchema", schema)
+
+    if (schema.localBehaviorKeepAt) {
+      commit("setLocalBehaviorKeepAt", schema.localBehaviorKeepAt)
+    }
+  },
+  //--------------------------------------------
+  loadDirId({ state, commit }) {
+    let meta = state.meta
+    if (!meta) {
+      return
+    }
+    if ("DIR" == meta.race) {
+      commit("setDirId", meta.id)
+    } else {
+      commit("setDirId", meta.pid)
+    }
+  },
+  //--------------------------------------------
+  applyBehavior({ state, commit }, be = {}) {
+    // Eval behavior dynamicly
+    let {
+      filter, sorter, match,
+      currentId, checkedIds,
+      pageSize
+    } = be
+
+    // Apply filter
+    if (!_.isEmpty(filter)) {
+      commit("setFilter", filter)
+    }
+
+    // Apply sorter
+    if (!_.isEmpty(sorter)) {
+      commit("setSorter", sorter)
+    }
+
+    // Apply fixed match
+    if (!_.isEmpty(match)) {
+      commit("setFixedMatch", match)
+    }
+
+    // Checked and current
+    if (!Ti.Util.isNil(currentId)) {
+      commit("setCurrentId", currentId)
+    }
+    if (!_.isEmpty(checkedIds)) {
+      commit("setCheckedIds", checkedIds)
+    }
+
+    // Apply pager
+    let pager = {}
+    if (pageSize > 0) {
+      pager.pn = 1
+      pager.pgsz = pageSize
+    }
+    commit("assignPager", pager)
+  },
+  //--------------------------------------------
+  updateSchemaBehavior({ state, commit, dispatch }) {
+    let be = _.get(state.schema, "behavior") || {}
+    be = Ti.Util.explainObj(state, be)
+    if (!_.isEmpty(be)) {
+      commit("setLbkOff")
+      dispatch("applyBehavior", be)
+      commit("setLbkOn")
+    }
+  },
+  //--------------------------------------------
+  restoreLocalBehavior({ state, dispatch }) {
+    // Guard
+    if (!state.lbkAt) {
+      return
+    }
+    // Load local setting
+    let be = Ti.Storage.session.getObject(state.lbkAt)
+    if (!_.isEmpty(be)) {
+      dispatch("applyBehavior", be)
+    }
+  },
+  //--------------------------------------------
+  async reloadData({ state, dispatch }) {
+    if (state.oDir) {
+      await dispatch("queryList");
+    }
+  },
+  //--------------------------------------------
+  /***
+   * Reload All
+   */
+  async reload({ state, commit, dispatch }, meta) {
+    // Guard
+    if (_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(meta)
+    }
+    if (!meta) {
+      return await Ti.Toast.Open("Nil Meta", "warn")
+    }
+    if (!meta.id) {
+      return await Ti.Toast.Open("Meta without ID", "warn")
+    }
+
+    // Analyze meta : oDir
+    if ("DIR" == meta.race) {
+      commit("setDir", meta)
+      commit("setDirId", meta.id)
+    }
+    // Then meta should be a File
+    else {
+      // CheckThingSet ID
+      commit("setMeta", meta)
+      commit("setDirId", null)
+      dispatch("loadDirId")
+    }
+
+    if (!state.dirId) {
+      return await Ti.Toast.Open("Meta Without DirID: " + meta.id, "warn")
+    }
+
+    // Reload Configurations
+    await dispatch("loadSchema")
+
+    // Behavior
+    commit("explainLocalBehaviorKeepAt")
+    dispatch("updateSchemaBehavior")
+    dispatch("restoreLocalBehavior")
+
+    // Reload thing list
+    await dispatch("reloadData");
+
+    // All done
+    commit("setStatus", { reloading: false })
+  }
+  //--------------------------------------------
+}
+return _M;
+;
+})()
+// ============================================================
 // EXPORT 'wn-gui-footer.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/gui/footer/wn-gui-footer.mjs'] = (function(){
@@ -12284,6 +12639,103 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'm-wn-obj-cud.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-cud.mjs'] = (function(){
+////////////////////////////////////////////////
+const _M = {
+  //--------------------------------------------
+  async updateMetaField({ dispatch }, { name, value } = {}) {
+    //console.log("current.updateMeta", { name, value })
+    let data = Ti.Types.toObjByPair({ name, value })
+    await dispatch("updateMeta", data)
+  },
+  //--------------------------------------------
+  async updateMeta({ state, commit }, data = {}) {
+    // Check Necessary
+    if (_.isMatchWith(state.meta, data, _.isEqual)) {
+      return
+    }
+
+    if (!state.meta) {
+      return await Ti.Toast.Open("WnObj meta without defined", "warn")
+    }
+
+    if (!state.dirId) {
+      return await Ti.Toast.Open("WnObj dirId without defined", "warn")
+    }
+
+    // Mark field status
+    _.forEach(data, (val, name) => {
+      commit("setFieldStatus", { name, type: "spinning", text: "i18n:saving" })
+    })
+
+    // Do the update
+    let json = JSON.stringify(data)
+    let oid = state.meta.id
+    let cmdText = `o id:${oid} @update @json -cqn`
+    let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+    let isError = reo instanceof Error;
+
+    if (!isError && !Ti.Util.isNil(reo)) {
+      commit("setMeta", reo)
+      commit("setListItem", reo)
+    }
+
+    _.forEach(data, (val, name) => {
+      if (isError) {
+        commit("setFieldStatus", {
+          name,
+          type: "warn",
+          text: reo.message || "i18n:fail"
+        })
+      } else {
+        commit("setFieldStatus", {
+          name,
+          type: "ok",
+          text: "i18n:ok"
+        })
+        _.delay(() => { commit("clearFieldStatus", name) }, 500)
+      }
+    })
+  },
+  //--------------------------------------------
+  changeContent({ commit }, payload) {
+    commit("setContent", payload)
+    commit("syncStatusChanged");
+  },
+  //----------------------------------------
+  updateContent({ commit }, content) {
+    commit("setContent", content)
+    commit("setSavedContent", content)
+    commit("syncStatusChanged")
+  },
+  //--------------------------------------------
+  async saveContent({ state, commit }) {
+    if (state.status.saving || !state.status.changed) {
+      return
+    }
+
+    commit("setStatus", { saving: true })
+
+    let meta = state.meta
+    let content = state.content
+    let newMeta = await Wn.Io.saveContentAsText(meta, content)
+
+    commit("setStatus", { saving: false })
+    commit("setMeta", newMeta)
+    commit("setSavedContent", content)
+    commit("syncStatusChanged")
+
+    // return the new meta
+    return newMeta
+  }
+  //--------------------------------------------
+}
+return _M;
+;
 })()
 // ============================================================
 // EXPORT 'ti-color.mjs' -> null
@@ -12571,6 +13023,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-------------------------------------
     async OnOpenAdvance() {
+      console.log("haha")
       let reo = await Ti.App.Open(_.assign({
         icon: "fas-search",
         title: "i18n:search-adv",
@@ -13091,6 +13544,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "currentId" : {
     type : String,
     default : null
+  },
+  "checkedIds" : {
+    type : [Array, Object],
+    default : undefined
   },
   "changedId" : {
     type : String,
@@ -18804,7 +19261,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Eval default export name
     let enVars = {
       ...this.oTs,
-      title: Ti.I18n.text(this.oTs.title),
+      title: Ti.I18n.text(this.oTs.title || this.oTs.nm),
       time: Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
     }
     let exportName = Ti.S.renderBy(name, enVars)
@@ -18820,7 +19277,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //............................................
     // The checked id list
     let checkedIds = Ti.Util.truthyKeys(this.checkedIds)
-    console.log(checkedIds)
     //............................................
     // Prepare the result
     let result = {
@@ -18838,10 +19294,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Eval modes options
     let modeNames = mode.split(";")
     let modeMap = {
-      xls: { value: "xls", text: "i18n:thing-export-c-mode-xls" },
-      csv: { value: "csv", text: "i18n:thing-export-c-mode-csv" },
-      json: { value: "json", text: "i18n:thing-export-c-mode-json" },
-      zip: { value: "zip", text: "i18n:thing-export-c-mode-zip" }
+      xls: { value: "xls", text: "i18n:wn-export-c-mode-xls" },
+      csv: { value: "csv", text: "i18n:wn-export-c-mode-csv" },
+      json: { value: "json", text: "i18n:wn-export-c-mode-json" },
+      zip: { value: "zip", text: "i18n:wn-export-c-mode-zip" }
     }
     let modeOptions = []
     _.forEach(modeNames, nm => {
@@ -18853,9 +19309,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Eval page options
     let pageModes = page.split(";")
     let pageMap = {
-      checked: { value: "checked", text: "i18n:thing-export-c-page-checked" },
-      current: { value: "current", text: "i18n:thing-export-c-page-current" },
-      all: { value: "all", text: "i18n:thing-export-c-page-all" }
+      checked: { value: "checked", text: "i18n:wn-export-c-page-checked" },
+      current: { value: "current", text: "i18n:wn-export-c-page-current" },
+      all: { value: "all", text: "i18n:wn-export-c-page-all" }
     }
     let pageOptions = []
     _.forEach(pageModes, md => {
@@ -18867,7 +19323,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Make the config form fields
     let formFields = [];
     formFields.push({
-      title: "i18n:thing-export-c-mode",
+      title: "i18n:wn-export-c-mode",
       name: "mode",
       comType: "TiSwitcher",
       comConf: {
@@ -18878,7 +19334,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     if (!_.isEmpty(oMapplingItems)) {
       result.mapping = _.first(oMapplingItems).id
       formFields.push({
-        title: "i18n:thing-export-c-mapping",
+        title: "i18n:wn-export-c-mapping",
         name: "mapping",
         comType: "TiDroplist",
         comConf: {
@@ -18891,7 +19347,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       })
     }
     formFields.push({
-      title: "i18n:thing-export-c-page",
+      title: "i18n:wn-export-c-page",
       name: "page",
       comType: "TiSwitcher",
       comConf: {
@@ -18900,7 +19356,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     })
     formFields.push({
-      title: "i18n:thing-export-c-limit",
+      title: "i18n:wn-export-c-limit",
       name: "limit",
       type: "Integer",
       visible: {
@@ -18911,23 +19367,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     })
     formFields.push({
-      title: "i18n:thing-export-c-name",
+      title: "i18n:wn-export-c-name",
       name: "name",
       comType: "TiInput",
       comConf: {
       }
     })
     formFields.push({
-      title: "i18n:thing-export-c-expi",
+      title: "i18n:wn-export-c-expi",
       name: "expiIn",
       comType: "TiSwitcher",
       comConf: {
         allowEmpty: false,
         options: [
-          { value: 3, text: "i18n:thing-export-c-expi-3d" },
-          { value: 7, text: "i18n:thing-export-c-expi-7d" },
-          { value: 14, text: "i18n:thing-export-c-expi-14d" },
-          { value: 0, text: "i18n:thing-export-c-expi-off" }
+          { value: 3, text: "i18n:wn-export-c-expi-3d" },
+          { value: 7, text: "i18n:wn-export-c-expi-7d" },
+          { value: 14, text: "i18n:wn-export-c-expi-14d" },
+          { value: 0, text: "i18n:wn-export-c-expi-off" }
         ]
       }
     })
@@ -18947,7 +19403,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           padding: ".5em"
         },
         steps: [{
-          title: "i18n:thing-export-setup",
+          title: "i18n:wn-export-setup",
           comType: "TiForm",
           comConf: {
             data: ":=..",
@@ -18978,8 +19434,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
               }
               // Join pager
               else if ("current" == this.value.page) {
-                let limit = vm.pager.pgsz
-                let skip = vm.pager.pgsz * (vm.pager.pn - 1)
+                let limit = vm.searchPageSize || 1000
+                let skip = Math.max(vm.searchPageSize * (vm.searchPageNumber - 1), 0)
                 cmds.push(`-limit ${limit}`)
                 cmds.push(`-skip  ${skip}`)
               }
@@ -19020,12 +19476,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
             }
           }
         }, {
-          title: "i18n:thing-export-ing",
+          title: "i18n:wn-export-ing",
           comType: "WnCmdPanel",
           comConf: {
             value: ":=cmdText",
             input: ":=fltInput",
-            tipText: "i18n:thing-export-ing-tip",
+            tipText: "i18n:wn-export-ing-tip",
             tipIcon: "fas-bullhorn",
             emitName: "step:change",
             emitPayload: "%next"
@@ -19033,7 +19489,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           prev: false,
           next: false
         }, {
-          title: "i18n:thing-export-done",
+          title: "i18n:wn-export-done",
           prepare: async function () {
             let oTa = await Wn.Io.loadMeta(this.value.outPath)
             this.$notify("change", {
@@ -19046,8 +19502,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
             className: "is-success",
             value: ":=target",
             icon: "fas-check-circle",
-            title: "i18n:thing-export-done-ok",
-            brief: "i18n:thing-export-done-tip",
+            title: "i18n:wn-export-done-ok",
+            brief: "i18n:wn-export-done-tip",
             links: [{
               icon: "fas-download",
               text: ":=target.nm",
@@ -19055,7 +19511,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
               newtab: true
             }, {
               icon: "fas-external-link-alt",
-              text: "i18n:thing-export-open-dir",
+              text: "i18n:wn-export-open-dir",
               href: Wn.Util.getAppLink(taDir),
               newtab: true
             }]
@@ -20479,8 +20935,8 @@ const _M = {
 
     // Eval Pager
     if (getters.isPagerEnabled) {
-      let limit = state.pager.pgsz * 1
-      let skip = state.pager.pgsz * (state.pager.pn - 1)
+      let limit = getters.searchPageSize * 1
+      let skip = getters.searchPageSize * (getters.searchPageNumber - 1)
       cmds.push(`-pager -limit ${limit} -skip ${skip}`)
     }
 
@@ -32084,51 +32540,51 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['/a/load/wn.manager/wn-manager.mjs'] = (function(){
 const _M = {
   ///////////////////////////////////////////
-  provide: function() {
+  provide: function () {
     return {
       $session: {
-        ticket   : this.session.ticket,
-        userId   : this.session.uid,
-        userName : this.session.unm,
-        group    : this.session.grp
+        ticket: this.session.ticket,
+        userId: this.session.uid,
+        userName: this.session.unm,
+        group: this.session.grp
       },
       $vars: this.vars
     }
   },
   ///////////////////////////////////////////
-  data:()=>({
-    loading : false,
-    comIcon : "zmdi-hourglass-alt",
-    comType : "ti-loading",
-    comConf : {},
-    actions : [],
-    sidebar : [],
-    privilege : {},
-    sidebarStatusStoreKey : undefined,
+  data: () => ({
+    loading: false,
+    comIcon: "zmdi-hourglass-alt",
+    comType: "ti-loading",
+    comConf: {},
+    actions: [],
+    sidebar: [],
+    privilege: {},
+    sidebarStatusStoreKey: undefined,
     // for main view customized status
     // It will be clean each time reload main view
-    mainViewStatus : {},
+    mainViewStatus: {},
     // Current meta anestors
     // ancestors : [],
     // parent : null,
     // Current view(main) information
-    view : null,
+    view: null,
     // Message and Indicator
-    myMessage   : null,
-    myIndicator : null,
+    myMessage: null,
+    myIndicator: null,
     // View ready
-    myViewReady : false
+    myViewReady: false
   }),
   ///////////////////////////////////////////
-  computed : {
+  computed: {
     //---------------------------------------
     TopClass() {
       let skyColorized = _.get(this.session, "envs.SKY_COLORIZED")
       return this.getTopClass({
-        "is-current-as-home" : this.CurrentIsHome,
-        "is-current-no-home" : !this.CurrentIsHome,
-        "is-sky-colorized" : /^(yes|true)$/.test(skyColorized)
-      },this.appClassName)
+        "is-current-as-home": this.CurrentIsHome,
+        "is-current-no-home": !this.CurrentIsHome,
+        "is-sky-colorized": /^(yes|true)$/.test(skyColorized)
+      }, this.appClassName)
     },
     //---------------------------------------
     // Status
@@ -32136,54 +32592,54 @@ const _M = {
     isLoading() {
       return this.loading || this.isReloading || this.isGuiLoading
     },
-    isViewReady() {return this.myViewReady},
+    isViewReady() { return this.myViewReady },
     //---------------------------------------
     isChanged() {
       let modMain = this.$store.state.main
-      if(_.get(modMain, "status.changed")) {
+      if (_.get(modMain, "status.changed")) {
         return true
       }
       return _.get(this.status, "changed")
     },
     //---------------------------------------
-    isSaving()    {return _.get(this.status, "saving")},
-    isReloading() {return _.get(this.status, "reloading")},
-    isGuiLoading() {return _.get(this.status, "guiLoading")},
+    isSaving() { return _.get(this.status, "saving") },
+    isReloading() { return _.get(this.status, "reloading") },
+    isGuiLoading() { return _.get(this.status, "guiLoading") },
     //---------------------------------------
-    hasActions(){return !_.isEmpty(this.actions)},
-    hasView()   {return this.view   ? true : false},
-    hasMeta()   {return this.meta   ? true : false},
-    hasParent() {return this.parent ? true : false},
+    hasActions() { return !_.isEmpty(this.actions) },
+    hasView() { return this.view ? true : false },
+    hasMeta() { return this.meta ? true : false },
+    hasParent() { return this.parent ? true : false },
     //---------------------------------------
     // Data
     //---------------------------------------
-    MetaId ()   {return _.get(this.meta, "id")},
-    MetaPath()  {return _.get(this.meta, "ph")},
+    MetaId() { return _.get(this.meta, "id") },
+    MetaPath() { return _.get(this.meta, "ph") },
     //---------------------------------------
     MyHome() {
       let obj = this.meta
       let ans = this.ancestors
-      if(!_.isEmpty(ans)) {
+      if (!_.isEmpty(ans)) {
         // for /home/xiaobai
-        if(1 == ans.length) {
-          if("home" == ans[0].nm) {
+        if (1 == ans.length) {
+          if ("home" == ans[0].nm) {
             return obj
           }
         }
         // for /home/xiaobai/path/to/file
-        if("home" == ans[0].nm) {
+        if ("home" == ans[0].nm) {
           return ans[1]
         }
       }
       // for /root
-      else if(obj && "root" == obj.nm) {
+      else if (obj && "root" == obj.nm) {
         return obj
       }
       // Dont't known how to find the home
       return null
     },
     //---------------------------------------
-    MyHomeId() {return _.get(this.MyHome, "id")},
+    MyHomeId() { return _.get(this.MyHome, "id") },
     //---------------------------------------
     ParentIsHome() {
       return this.hasParent && this.parent.id == this.MyHomeId
@@ -32198,25 +32654,25 @@ const _M = {
     TheStatus() {
       let mainStatus = _.get(this.$store.state, "main.status")
       let reloading = _.get(mainStatus, "reloading") || this.status.reloading
-      return _.assign({}, this.session.envs, 
-        this.status, 
-        mainStatus, 
+      return _.assign({}, this.session.envs,
+        this.status,
+        mainStatus,
         this.mainViewStatus,
         {
-          pvg : this.privilege,
-          exposeHidden : this.exposeHidden,
-          listViewType : this.listViewType,
-          changed      : this.isChanged,
-          reloading    : reloading,
-          loading      : this.loading
+          pvg: this.privilege,
+          exposeHidden: this.exposeHidden,
+          listViewType: this.listViewType,
+          changed: this.isChanged,
+          reloading: reloading,
+          loading: this.loading
         })
     },
-    StatusText(){
+    StatusText() {
       let st = this.TheStatus
-      if(st.saving) {
+      if (st.saving) {
         return Ti.I18n.text("i18n:saving")
       }
-      if(st.reloading || st.loading) {
+      if (st.reloading || st.loading) {
         return Ti.I18n.text("i18n:loading")
       }
     },
@@ -32230,8 +32686,22 @@ const _M = {
     Main() {
       return this.$store.state.main
     },
-    MainData() {return _.get(this.Main, "data")},
-    MainContent() {return _.get(this.Main, "content")},
+    MainGetters() {
+      let re = {}
+      _.forEach(this.$store.getters, (v, k) => {
+        let m = /^main\/(.+)$/.exec(k)
+        if (m) {
+          let key = _.camelCase(m[1].replace(/\\/g, "-"))
+          re[key] = _.cloneDeep(v)
+        }
+      })
+      return re
+    },
+    MainData() { return _.get(this.Main, "data") },
+    MainContent() { return _.get(this.Main, "content") },
+    hasMain() {
+      return this.Main && !_.isEmpty(this.Main)
+    },
     //---------------------------------------
     Current() {
       return this.$store.state.current
@@ -32245,14 +32715,14 @@ const _M = {
     //---------------------------------------
     GuiShown() {
       let ShownSet = _.get(this.setup, "shown")
-      if(_.isPlainObject(ShownSet)) {
+      if (_.isPlainObject(ShownSet)) {
         let shown = ShownSet[this.viewportMode]
         // Refer onece
-        if(_.isString(shown)) {
+        if (_.isString(shown)) {
           shown = ShownSet[shown]
         }
         // Refer twice (I think it is enough for most of cases)
-        if(_.isString(shown)) {
+        if (_.isString(shown)) {
           shown = ShownSet[shown]
         }
         return Ti.Util.explainObj(this, shown)
@@ -32278,17 +32748,17 @@ const _M = {
     //---------------------------------------
   },
   ///////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnLogout() {
       this.doLogout()
     },
     //--------------------------------------
-    OnArenaSelect(payload={}) {
-      let {checked} = payload
+    OnArenaSelect(payload = {}) {
+      let { checked } = payload
       //console.log("OnArenaSelect", this.view)
       let n = _.size(checked)
-      if(n > 0) {
+      if (n > 0) {
         this.myIndicator = `${n} selected`
       } else {
         this.myIndicator = null
@@ -32296,12 +32766,12 @@ const _M = {
       //this.__on_events("arena::select", payload)
     },
     //--------------------------------------
-    OnCurrentMetaChange({id, path, value}={}) {
+    OnCurrentMetaChange({ id, path, value } = {}) {
       this.openView(id || path || value)
     },
     //--------------------------------------
-    OnCurrentDataChange(data){
-      if(this.view.mod) {
+    OnCurrentDataChange(data) {
+      if (this.view.mod) {
         this.execEvent("arena::change", data, "dispatch:main/changeContent")
       }
     },
@@ -32311,14 +32781,14 @@ const _M = {
     },
     //--------------------------------------
     async OnUpdateMyVars({
-      vars={}, 
-      reloadPage=false
-    }={}) {
+      vars = {},
+      reloadPage = false
+    } = {}) {
       // Update the session vars
       await Ti.App(this).dispatch("session/updateMyVars", vars)
 
       // Reload whole page
-      if(reloadPage) {
+      if (reloadPage) {
         window.location.reload()
       }
       // Reload data
@@ -32330,7 +32800,7 @@ const _M = {
       }
     },
     //--------------------------------------
-    OnArenaListViewTypeChange({type}={}) {
+    OnArenaListViewTypeChange({ type } = {}) {
       Ti.App(this).dispatch("viewport/changeListViewType", type)
     },
     //--------------------------------------
@@ -32344,7 +32814,7 @@ const _M = {
       this.myIndicator = info
     },
     //--------------------------------------
-    OnArenaMessage(msg="") {
+    OnArenaMessage(msg = "") {
       this.myMessage = msg
     },
     //--------------------------------------
@@ -32355,14 +32825,14 @@ const _M = {
     },
     //--------------------------------------
     __on_events(name, payload) {
-      // console.log("__on_events", name, payload)
+      //console.log("WnManager::__on_events", name, payload)
       // Special event 
-      if(/^main::arena::(.+::)?select$/.test(name)) {
+      if (/^main::arena::(.+::)?select$/.test(name)) {
         this.OnArenaSelect(payload)
       }
 
       // Guard
-      if(!this.view || _.isEmpty(this.view.events)) {
+      if (!this.view || _.isEmpty(this.view.events)) {
         return
       }
       // Get candidate func invoking
@@ -32382,18 +32852,18 @@ const _M = {
     },
     //--------------------------------------
     async openView(oid) {
-      if(!_.isString(oid))
+      if (!_.isString(oid))
         return
 
       // Guard for changed
-      if(this.isChanged) {
+      if (this.isChanged) {
         await Ti.Toast.Open("i18n:wn-obj-nosaved", "warn", "left")
         return
       }
 
       // Guard for fure
       let bombed = await Ti.Fuse.fire()
-      if(!bombed) {
+      if (!bombed) {
         return
       }
       // Mark view ready
@@ -32401,36 +32871,36 @@ const _M = {
 
       // Open It
       let ph = Wn.Io.isFullObjId(oid)
-                ? `id:${oid}`
-                : oid;
+        ? `id:${oid}`
+        : oid;
       await Ti.App(this).dispatch("current/reload", ph)
     },
     //--------------------------------------
     async doLogout() {
       let quitPath = Wn.Session.env("QUIT") || "/a/login/"
       let reo = await Ti.Http.get("/a/sys_logout", {
-        params:{ajax:true}
+        params: { ajax: true }
       })
       //console.log(reo)
-      Ti.Be.Open(quitPath, {target:"_self", delay:0})
+      Ti.Be.Open(quitPath, { target: "_self", delay: 0 })
     }
     //--------------------------------------
   },
   //////////////////////////////////////////////
-  watch : {
-    "meta" : function(newVal, oldVal) {
+  watch: {
+    "meta": function (newVal, oldVal) {
       let newId = _.get(newVal, "id")
       let oldId = _.get(oldVal, "id")
-      let isSameId = _.isEqual(newId, oldId) 
-      if(newVal) {
+      let isSameId = _.isEqual(newId, oldId)
+      if (newVal) {
         //console.log("metaChanged", newVal, oldVal)
         // Update the ancestors path
-        _.delay(async ()=>{
-          if(!isSameId) {
+        _.delay(async () => {
+          if (!isSameId) {
             await this.reloadAncestors()
           }
           // Reload Current Main
-          if(!isSameId || this.isChanged) {
+          if (!isSameId || this.isChanged) {
             await this.reloadMain()
             this.pushHistory(newVal)
           }
@@ -32439,28 +32909,28 @@ const _M = {
     }
   },
   ///////////////////////////////////////////
-  mounted : async function(){
+  mounted: async function () {
     //......................................
     // Update default listViewType
-    if(this.setup.listViewType) {
+    if (this.setup.listViewType) {
       Ti.App(this).commit("viewport/setListViewType", this.setup.listViewType)
     }
     //......................................
     this.reloadSidebar()
     this.reloadPrivilege()
     //......................................
-    window.onpopstate = (evt)=>{
+    window.onpopstate = (evt) => {
       let obj = evt.state
       //console.log("popstate", obj)
-      if(obj && obj.id && obj.ph) {
+      if (obj && obj.id && obj.ph) {
         Ti.App(this).dispatch("current/reload", obj)
       }
     }
     //......................................
   },
   ///////////////////////////////////////////
-  beforeDestroy : function(){
-    
+  beforeDestroy: function () {
+
   }
   ///////////////////////////////////////////
 }
@@ -34640,6 +35110,232 @@ const _M = {
   //////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'm-wn-obj-mutations.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-mutations.mjs'] = (function(){
+////////////////////////////////////////////////
+function saveLocalBehavior(state, key, val) {
+  if (state.lbkAt && !state.lbkOff) {
+    let be = Ti.Storage.session.getObject(state.lbkAt)
+    be[key] = val
+    Ti.Storage.session.setObject(state.lbkAt, be)
+  }
+}
+////////////////////////////////////////////////
+const _M = {
+  //----------------------------------------
+  setModuleName(state, moduleName) {
+    state.moduleName = moduleName
+  },
+  //----------------------------------------
+  setLocalBehaviorKeepAt(state, keyAt) {
+    state.localBehaviorKeepAt = keyAt
+  },
+  //----------------------------------------
+  explainLocalBehaviorKeepAt(state) {
+    let keyAt = state.localBehaviorKeepAt;
+    state.lbkAt = Ti.Util.explainObj(state, keyAt)
+  },
+  //----------------------------------------
+  setLbkOff(state, off = true) { state.lbkOff = off },
+  setLbkOn(state, on = true) { state.lbkOff = !on },
+  //----------------------------------------
+  setGuiShown(state, shown) {
+    let guiShown = _.pickBy(shown, v => v)
+    state.guiShown = guiShown
+    saveLocalBehavior(state, "guiShown", guiShown)
+  },
+  //----------------------------------------
+  //
+  // Object DIR
+  //
+  //----------------------------------------
+  setDirId(state, dirId) {
+    state.dirId = dirId
+  },
+  //----------------------------------------
+  setDir(state, oDir) {
+    state.oDir = oDir
+  },
+  //----------------------------------------
+  setMappingDirPath(state, dirPath) {
+    state.mappingDirPath = dirPath
+  },
+  //----------------------------------------
+  //
+  // Search
+  //
+  //----------------------------------------
+  setFixedMatch(state, fm) {
+    state.fixedMatch = _.cloneDeep(fm)
+  },
+  //----------------------------------------
+  setFilter(state, filter) {
+    state.filter = filter
+    saveLocalBehavior(state, "filter", filter)
+  },
+  //----------------------------------------
+  setSorter(state, sorter) {
+    state.sorter = sorter
+    saveLocalBehavior(state, "sorter", sorter)
+  },
+  //----------------------------------------
+  setObjKeys(state, objKeys) {
+    state.objKeys = objKeys
+  },
+  //----------------------------------------
+  setList(state, list) {
+    state.list = list
+  },
+  //----------------------------------------
+  prependListItem(state, newItem) {
+    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "..")
+  },
+  //----------------------------------------
+  appendListItem(state, newItem) {
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "..")
+  },
+  //----------------------------------------
+  setListItem(state, newItem) {
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "..")
+    if (newItem && newItem.id == state.currentId) {
+      state.meta = newItem
+    }
+  },
+  //----------------------------------------
+  mergeListItem(state, theItem) {
+    Ti.Util.MergeStateDataItem(state, theItem, "..")
+  },
+  //----------------------------------------
+  removeListItems(state, items = []) {
+    Ti.Util.RemoveStateDataItems(state, items, "..")
+  },
+  //----------------------------------------
+  setCurrentId(state, currentId) {
+    state.currentId = currentId
+    saveLocalBehavior(state, "currentId", currentId)
+  },
+  //----------------------------------------
+  setCheckedIds(state, checkedIds) {
+    let ids
+    if (_.isArray(checkedIds)) {
+      ids = {}
+      let c2 = _.filter(checkedIds, v => v)
+      _.forEach(c2, v => ids[v] = true)
+    } else {
+      ids = _.pickBy(checkedIds, v => v)
+    }
+    state.checkedIds = ids
+    saveLocalBehavior(state, "checkedIds", ids)
+  },
+  //----------------------------------------
+  setPager(state, pager) {
+    state.pager = pager
+    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0
+    saveLocalBehavior(state, "pageSize", pageSize)
+  },
+  //----------------------------------------
+  assignPager(state, pager) {
+    let pg = _.cloneDeep(state.pager || {})
+    _.forEach(pager, (v, k) => {
+      if (!Ti.Util.isNil(v)) {
+        pg[k] = v
+      }
+    })
+    state.pager = pg
+    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0
+    saveLocalBehavior(state, "pageSize", pageSize)
+  },
+  //----------------------------------------
+  //
+  // Meta / Date
+  //
+  //----------------------------------------
+  setCurrentMeta(state) {
+    let currentId = state.currentId
+    // Clear current meta
+    if (Ti.Util.isNil(currentId) || _.isEmpty(state.list)) {
+      state.meta = null
+    }
+    // Find current meta
+    else {
+      let found = false
+      for (let it of state.list) {
+        if (it.id == currentId) {
+          state.meta = it
+          found = true
+          break
+        }
+      }
+      if (!found) {
+        state.meta = null
+      }
+    }
+  },
+  //----------------------------------------
+  setMeta(state, meta) {
+    state.meta = meta
+  },
+  //--------------------------------------------
+  assignMeta(state, meta) {
+    state.meta = _.assign({}, state.meta, meta);
+  },
+  //--------------------------------------------
+  mergeMeta(state, meta) {
+    state.meta = _.merge({}, state.meta, meta);
+  },
+  //----------------------------------------
+  setContent(state, content) {
+    state.content = content
+  },
+  //----------------------------------------
+  setSavedContent(state, content) {
+    state.__saved_content = content
+  },
+  //----------------------------------------
+  setStatus(state, status) {
+    state.status = _.assign({}, state.status, status)
+  },
+  //----------------------------------------
+  syncStatusChanged(state) {
+    if (Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
+      state.status.changed = false
+    } else {
+      state.status.changed = !_.isEqual(state.content, state.__saved_content)
+    }
+  },
+  //----------------------------------------
+  setFieldStatus(state, { name, type, text } = {}) {
+    if (name) {
+      let ukey = _.concat(name).join("-")
+      Vue.set(state.fieldStatus, ukey, { type, text })
+    }
+  },
+  //----------------------------------------
+  clearFieldStatus(state, names = []) {
+    // Clean All
+    if (_.isEmpty(names)) {
+      state.fieldStatus = {}
+    }
+    // Clear one
+    else {
+      state.fieldStatus = _.omit(state.fieldStatus, names)
+    }
+  },
+  //----------------------------------------
+  //
+  // GUI Settings
+  //
+  //----------------------------------------
+  setSchema(state, schema = {}) {
+    state.schema = schema
+  },
+  //----------------------------------------
+}
+return _M;
+;
 })()
 // ============================================================
 // EXPORT 'wn-obj-icon.mjs' -> null
@@ -44363,7 +45059,7 @@ const _M = {
     }
   },
   //--------------------------------------------
-  async reloadData({ state, commit, dispatch }) {
+  async reloadData({ state, dispatch }) {
     if (state.oTs) {
       await dispatch("queryList");
     }
@@ -45676,7 +46372,31 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------------
     isPagerEnabled(state) {
-      return state.pager && state.pager.pn > 0 && state.pager.pgsz > 0
+      if (!state.pager) {
+        return false
+      }
+      if (!(state.pager.pn > 0 || state.pager.pageNumber > 0)) {
+        return false
+      }
+      if (!(state.pager.pgsz > 0 || state.pager.pageSize > 0)) {
+        return false
+      }
+      return true
+    },
+    //--------------------------------------------
+    searchPageNumber(state) {
+      return Ti.Util.getFallback(state.pager, "pageNumber", "pn") || 1
+    },
+    //--------------------------------------------
+    searchPageSize(state) {
+      return Ti.Util.getFallback(state.pager, "pageSize", "pgsz") || 50
+    },
+    //--------------------------------------------
+    isLongPager(state) {
+      if (state.pager && state.pager.pageSiz > 0 && state.pager.pageNumber > 0) {
+        return true
+      }
+      return false
     },
     //--------------------------------------------
     isHardRemove(state) {
@@ -46704,6 +47424,242 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'wn-obj-adaptor-gui.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/obj/adaptor/wn-obj-adaptor-gui.mjs'] = (function(){
+const _M = {
+  ///////////////////////////////////////////
+  data: () => ({
+  }),
+  ///////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    GuiExplainContext() {
+      return {
+        moduleName: this.moduleName,
+        //------------------------------
+        dirId: this.dirId,
+        oDir: this.oDir,
+        //------------------------------
+        fixedMatch: this.fixedMatch,
+        filter: this.filter,
+        sorter: this.sorter,
+        list: this.list,
+        currentId: this.currentId,
+        checkedIds: this.checkedIds,
+        pager: this.pager,
+        //------------------------------
+        meta: this.meta,
+        content: this.content,
+        //------------------------------
+        status: this.status,
+        fieldStatus: this.fieldStatus,
+        //------------------------------
+        viewType: this.viewType,
+        exposeHidden: this.exposeHidden,
+      }
+    },
+    //--------------------------------------
+    GuiLayout() {
+      let c = this.GuiExplainContext
+      let layout = this.layout
+      if (_.isEmpty(layout)) {
+        layout = {
+          desktop: {
+            "type": "cols",
+            "border": true,
+            "blocks": [
+              {
+                "name": "search",
+                "size": "62%",
+                "type": "rows",
+                "border": true,
+                "blocks": [
+                  {
+                    "name": "filter",
+                    "size": 43,
+                    "body": "filter"
+                  },
+                  {
+                    "name": "list",
+                    "size": "stretch",
+                    "overflow": "cover",
+                    "body": "list"
+                  },
+                  {
+                    "name": "pager",
+                    "size": "auto",
+                    "body": "pager"
+                  }
+                ]
+              },
+              {
+                "name": "meta",
+                "size": "stretch",
+                "body": "meta"
+              }]
+          },
+          tablet: "desktop",
+          phone: "desktop"
+        }
+      }
+      return Ti.Util.explainObj(c, layout)
+    },
+    //--------------------------------------
+    GuiSchema() {
+      let c = this.GuiExplainContext
+      let schema = _.merge({
+        filter: {
+          "comType": "TiFilterbar",
+          "comConf": {
+            "className": "is-nowrap",
+            "placeholder": "i18n:search",
+            "filter": "=filter",
+            "sorter": "=sorter",
+            "dialog": {
+              "icon": "fas-search",
+              "title": "i18n:search-adv",
+              "position": "top",
+              "width": "6.4rem",
+              "height": "90%"
+            },
+            "majors": [],
+            "matchKeywords": [
+              {
+                "test": "^[\\d\\w:]{26,}$",
+                "key": "id"
+              },
+              {
+                "test": "^[\\d\\w:.-_]+$",
+                "key": "nm",
+                "mode": "=~"
+              },
+              {
+                "key": "title",
+                "mode": "~~"
+              }
+            ],
+            "filterTags": {
+              "id": ":->ID【${val}】",
+              "nm": ":=val",
+              "title": ":=val",
+              "ct": ":=>Ti.DateTime.formatMsDateRange(val, 'yyyy年M月d日','未知日期范围','至','','从','','')",
+              "lm": ":=>Ti.DateTime.formatMsDateRange(val, 'yyyy年M月d日','未知日期范围','至','','从','','')"
+            },
+            "sorterConf": {
+              "options": [
+                {
+                  "value": "ct",
+                  "text": "i18n:wn-key-ct"
+                },
+                {
+                  "value": "lm",
+                  "text": "i18n:wn-key-ct"
+                }
+              ]
+            }
+          }
+        },
+        list: {
+          "comType": "WnAdaptlist",
+          "comConf": {
+            "rowNumberBase": 1,
+            "meta": "=oDir",
+            "data": {
+              "list": "=list",
+              "pager": "=pager"
+            },
+            "currentId": "=currentId",
+            "checkedIds": "=checkedIds",
+            "status": "=status",
+            "exposeHidden": "=exposeHidden",
+            "viewType": "=viewType",
+            "routers": {
+              "reload": `dispatch:${this.moduleName}/reloadData`
+            },
+            "tableViewConf": {
+              "columnResizable": true,
+              "canCustomizedFields": true,
+              "keepCustomizedTo": "->WnObjAdaptorTableState-${oDir.id}"
+            }
+          }
+        },
+        pager: {
+          "comType": "TiPagingJumper",
+          "comConf": {
+            "value": "=pager",
+            "valueType": "longName"
+          }
+        },
+        meta: {
+          "comType": "WnObjDetail",
+          "comConf": {
+            "value": "=meta"
+          }
+        }
+      }, _.omit(this.schema, "components"))
+      return Ti.Util.explainObj(c, schema)
+    },
+    //--------------------------------------
+    GuiVars() {
+      return {}
+    },
+    //--------------------------------------
+    GuiLoadingAs() {
+      return {
+        "reloading": {
+          icon: "fas-spinner fa-spin",
+          text: "i18n:loading"
+        },
+        "doing": {
+          icon: "zmdi-settings fa-spin",
+          text: "i18n:doing"
+        },
+        "saving": {
+          icon: "zmdi-settings fa-spin",
+          text: "i18n:saving"
+        },
+        "deleting": {
+          icon: "zmdi-refresh fa-spin",
+          text: "i18n:del-ing"
+        },
+        "publishing": {
+          icon: "zmdi-settings zmdi-hc-spin",
+          text: "i18n:publishing"
+        },
+        "restoring": {
+          icon: "zmdi-time-restore zmdi-hc-spin",
+          text: "i18n:thing-restoring"
+        },
+        "cleaning": {
+          icon: "zmdi-settings zmdi-hc-spin",
+          text: "i18n:thing-cleaning"
+        }
+      }
+    },
+    //--------------------------------------
+    GuiIsLoading() {
+      return (this.status.reloading
+        || this.status.doing
+        || this.status.saving
+        || this.status.deleting
+        || this.status.publishing
+        || this.status.restoring
+        || this.status.cleaning)
+        ? true
+        : false;
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////
+  methods: {
+
+  }
+  ///////////////////////////////////////////
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'youtube-player.mjs' -> null
@@ -48965,6 +49921,170 @@ const _M = {
     window.removeEventListener("paste", this.OnPaste)
   }
   ///////////////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
+// EXPORT 'wn-obj-adaptor.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/obj/adaptor/wn-obj-adaptor.mjs'] = (function(){
+const _M = {
+  ///////////////////////////////////////////
+  data: () => ({
+  }),
+  ///////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    EventRouting() {
+      let routing = _.get(this.schema, "events") || {}
+      return _.assign({
+        "block:show": "showBlock",
+        "block:hide": "hideBlock",
+        "search::list::select": "OnSearchListSelect",
+        "search::filter::filter:change": "OnSearchFilterChange",
+        "search::filter::sorter:change": "OnSearchSorterChange",
+        "search::pager::change": "OnSearchPagerChange"
+      }, routing)
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    async OnSearchListSelect({ currentId, checkedIds, checked }) {
+      await this.dispatch("selectMeta", { currentId, checkedIds })
+      this.$notify("indicate", `${checked.length} items selected`)
+    },
+    //--------------------------------------
+    async OnSearchFilterChange(payload) {
+      await this.dispatch("applyFilter", payload)
+    },
+    //--------------------------------------
+    async OnSearchSorterChange(payload) {
+      await this.dispatch("applySorter", payload)
+    },
+    //--------------------------------------
+    async OnSearchPagerChange(payload) {
+      await this.dispatch("applyPager", payload)
+    },
+    //--------------------------------------
+    //
+    //  Show/Hide block
+    //
+    //--------------------------------------
+    showBlock(blockName) {
+      let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
+      //console.log(blockNames)
+      let guiShown = {}
+      _.forEach(blockNames, nm => {
+        guiShown[nm] = true
+      })
+      this.commit("setGuiShown", guiShown)
+    },
+    //--------------------------------------
+    hideBlock(blockName) {
+      let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
+      //console.log(blockNames)
+      let guiShown = _.cloneDeep(this.guiShown) || {}
+      _.forEach(blockNames, nm => {
+        guiShown[nm] = false
+      })
+      this.commit("setGuiShown", guiShown)
+    },
+    //--------------------------------------
+    //
+    //  Utility
+    //
+    //--------------------------------------
+    async dispatch(name, payload) {
+      let path = Ti.Util.appendPath(this.moduleName, name)
+      return await Ti.App(this).dispatch(path, payload)
+    },
+    //--------------------------------------
+    commit(name, payload) {
+      let path = Ti.Util.appendPath(this.moduleName, name)
+      return Ti.App(this).commit(path, payload)
+    },
+    //--------------------------------------
+    getCheckedItems(noneAsAll = false) {
+      let ids = this.checkedIds || {}
+      let alwaysOn = _.isEmpty(ids) && noneAsAll
+      let items = _.filter(this.list, li => {
+        return li && (alwaysOn || ids[li.id])
+      })
+      return items
+    },
+    //--------------------------------------
+    //
+    // Events / Callback
+    //
+    //--------------------------------------
+    fire(name, payload) {
+      let func = this.__on_events(name, payload)
+      if (_.isFunction(func)) {
+        func.apply(this, [payload])
+      }
+    },
+    //--------------------------------------
+    // For Event Bubble Dispatching
+    __on_events(name, payload) {
+      //console.log("WnObjAdaptor.__on_events", name, payload)
+      // ByPass
+      if (/^(indicate)$/.test(name)) {
+        return ()=>({ stop: false })
+      }
+
+      // Try routing
+      let fn = _.get(this.EventRouting, name)
+      if (!fn) {
+        fn = this.$tiEventTryFallback(name, this.EventRouting)
+      }
+
+      // callPath -> Function
+      let func;
+      if (_.isString(fn)) {
+        func = _.get(this, fn)
+        if (!_.isFunction(func)) {
+          func = Ti.Util.genInvoking(fn, {
+            context: this.GuiExplainContext,
+            dft: null,
+            funcSet: this
+          })
+        }
+      }
+      if (_.isFunction(func)) {
+        if (!_.isUndefined(payload)) {
+          return () => {
+            func(payload)
+          }
+        }
+        return func
+      }
+    },
+    //--------------------------------------
+    // __ti_shortcut(uniqKey) {      
+    // }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////
+  created: function () {
+  },
+  ///////////////////////////////////////////
+  mounted: async function () {
+    // Update the customized actions
+    let actions = this.objActions || null
+    if (_.isArray(actions) && !_.isEmpty(actions)) {
+      this.$notify("actions:update", actions)
+    }
+  },
+  ///////////////////////////////////////////
+  beforeDestroy: function () {
+  }
+  ///////////////////////////////////////////
 }
 return _M;;
 })()
@@ -57337,7 +58457,7 @@ const _M = {
       }, this.dialog, {
         model: { event: "select" },
         events: {
-          "open": function(payload) {
+          open: function () {
             this.close(this.result)
           }
         },
@@ -57820,13 +58940,34 @@ const _M = {
       let routing = _.get(this.schema, "events") || {}
       return _.assign({
         "block:show": "showBlock",
-        "block:hide": "hideBlock"
+        "block:hide": "hideBlock",
+        "search::list::select": "OnSearchListSelect",
+        "search::filter::filter:change": "OnSearchFilterChange",
+        "search::filter::sorter:change": "OnSearchSorterChange",
+        "search::pager::change": "OnSearchPagerChange"
       }, routing)
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
   methods: {
+    //--------------------------------------
+    async OnSearchListSelect({ currentId, checkedIds, checked }) {
+      await this.dispatch("selectMeta", { currentId, checkedIds })
+      this.$notify("indicate", `${checked.length} items selected`)
+    },
+    //--------------------------------------
+    async OnSearchFilterChange(payload) {
+      await this.dispatch("applyFilter", payload)
+    },
+    //--------------------------------------
+    async OnSearchSorterChange(payload) {
+      await this.dispatch("applySorter", payload)
+    },
+    //--------------------------------------
+    async OnSearchPagerChange(payload) {
+      await this.dispatch("applyPager", payload)
+    },
     //--------------------------------------
     //
     //  Show/Hide block
@@ -57866,6 +59007,15 @@ const _M = {
       return Ti.App(this).commit(path, payload)
     },
     //--------------------------------------
+    getCheckedItems(noneAsAll = false) {
+      let ids = this.checkedIds || {}
+      let alwaysOn = _.isEmpty(ids) && noneAsAll
+      let items = _.filter(this.list, li => {
+        return li && (alwaysOn || ids[li.id])
+      })
+      return items
+    },
+    //--------------------------------------
     //
     // Events / Callback
     //
@@ -57880,6 +59030,12 @@ const _M = {
     // For Event Bubble Dispatching
     __on_events(name, payload) {
       //console.log("WnThAdaptor.__on_events", name, payload)
+      // ByPass
+      if (/^(indicate)$/.test(name)) {
+        return ()=>({ stop: false })
+      }
+
+      // Try routing
       let fn = _.get(this.EventRouting, name)
       if (!fn) {
         fn = this.$tiEventTryFallback(name, this.EventRouting)
@@ -63059,6 +64215,72 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'm-wn-obj.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////////
+  getters: {
+    //--------------------------------------------
+    isPagerEnabled(state) {
+      if (!state.pager) {
+        return false
+      }
+      if (!(state.pager.pn > 0 || state.pager.pageNumber > 0)) {
+        return false
+      }
+      if (!(state.pager.pgsz > 0 || state.pager.pageSize > 0)) {
+        return false
+      }
+      return true
+    },
+    //--------------------------------------------
+    searchPageNumber(state) {
+      return Ti.Util.getFallback(state.pager, "pageNumber", "pn") || 1
+    },
+    //--------------------------------------------
+    searchPageSize(state) {
+      return Ti.Util.getFallback(state.pager, "pageSize", "pgsz") || 50
+    },
+    //--------------------------------------------
+    isLongPager(state) {
+      if (state.pager && state.pager.pageSiz > 0 && state.pager.pageNumber > 0) {
+        return true
+      }
+      return false
+    },
+    //--------------------------------------------
+    isHardRemove(state) {
+      return _.get(state, "oDir.hard_remove")
+    }
+    //--------------------------------------------
+  },
+  ////////////////////////////////////////////////
+  actions: {
+    //--------------------------------------------
+    changeMetaField({ dispatch }, { name, value } = {}) {
+      if (name) {
+        let meta = _.set({}, name, value)
+        dispatch("changeMeta", meta)
+      }
+    },
+    //--------------------------------------------
+    changeMeta({ state, commit }, newMeta) {
+      if (!_.isEmpty(newMeta)) {
+        if (state.meta) {
+          commit("assignMeta", newMeta)
+          //commit("syncStatusChanged")
+          commit("setListItem", state.meta)
+        }
+      }
+    },
+    //--------------------------------------------
+  }
+  ////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'vod-manager.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/net/aliyun/vod/manager/vod-manager.mjs'] = (function(){
@@ -63999,6 +65221,490 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'wn-obj-adaptor-methods.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/obj/adaptor/wn-obj-adaptor-methods.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //--------------------------------------------
+  async invoke(fnName, ...args) {
+    //console.log("invoke ", fnName, args)
+    let fn = _.get(this.objMethods, fnName)
+    // Invoke the method
+    if (_.isFunction(fn)) {
+      return await fn.apply(this, args)
+    }
+    // Throw the error
+    else {
+      throw Ti.Err.make("e.thing.fail-to-invoke", fnName)
+    }
+  },
+  //--------------------------------------------
+  //
+  // Export
+  //
+  //--------------------------------------------
+  async openDataDir(target) {
+    let taDir = target || `id:${this.dirId}`
+    let oDir = await Wn.Io.loadMeta(taDir)
+    let link = Wn.Util.getAppLink(oDir)
+    Ti.Be.Open(link.url, { params: link.params })
+  },
+  //--------------------------------------------
+  async exportDataByModes(mode = "csv;xls;json", target) {
+    await this.exportData({ target, mode })
+  },
+  //--------------------------------------------
+  async exportData({
+    target,
+    mode = "xls;csv;json",
+    page = "checked;current;all",
+    name = "${title|nm}-${time}",
+    mappingDir
+  } = {}) {
+    // Guard
+    if (!this.oDir) {
+      throw `ExportData[${this.dirId}] without oDir`
+    }
+    if (!target) {
+      throw `ExportData[${this.dirId}] without target`
+    }
+    //............................................
+    // Guard mapping dir
+    mappingDir = mappingDir
+      || _.get(this.oDir, "mapping_dir")
+      || this.mappingDirPath
+    if (!mappingDir) {
+      throw `ExportData[${this.dirId}] without mappingDir`
+    }
+    //............................................
+    let taDir = target
+    //............................................
+    // Eval default export name
+    let enVars = {
+      ...this.oDir,
+      title: Ti.I18n.text(this.oDir.title || this.oDir.nm),
+      time: Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
+    }
+    let exportName = Ti.S.renderBy(name, enVars)
+    //console.log(exportName)
+    //............................................
+    // Try load export mapping template
+    let phMappingDir = Ti.S.renderBy(mappingDir, this.oDir)
+    let oMappingDir = await Wn.Io.loadMeta(phMappingDir)
+    let oMapplingItems = []
+    if (oMappingDir) {
+      oMapplingItems = (await Wn.Io.loadChildren(oMappingDir)).list;
+    }
+    //............................................
+    // The checked id list
+    let checkedIds = Ti.Util.truthyKeys(this.checkedIds)
+    //............................................
+    // Prepare the result
+    let result = {
+      mode: "xls",
+      page: _.isEmpty(checkedIds) ? "current" : "checked",
+      limit: 1000,
+      name: exportName,
+      expiIn: 3,
+      fltInput: null,
+      cmdText: undefined,
+      outPath: undefined,
+      target: undefined
+    }
+    //............................................
+    // Eval modes options
+    let modeNames = mode.split(";")
+    let modeMap = {
+      xls: { value: "xls", text: "i18n:wn-export-c-mode-xls" },
+      csv: { value: "csv", text: "i18n:wn-export-c-mode-csv" },
+      json: { value: "json", text: "i18n:wn-export-c-mode-json" },
+      zip: { value: "zip", text: "i18n:wn-export-c-mode-zip" }
+    }
+    let modeOptions = []
+    _.forEach(modeNames, nm => {
+      if (modeMap[nm])
+        modeOptions.push(modeMap[nm])
+    })
+    //result.mode = _.first(modeOptions).value
+    //............................................
+    // Eval page options
+    let pageModes = page.split(";")
+    let pageMap = {
+      checked: { value: "checked", text: "i18n:wn-export-c-page-checked" },
+      current: { value: "current", text: "i18n:wn-export-c-page-current" },
+      all: { value: "all", text: "i18n:wn-export-c-page-all" }
+    }
+    let pageOptions = []
+    _.forEach(pageModes, md => {
+      if (pageMap[md])
+        pageOptions.push(pageMap[md])
+    })
+    //result.page = _.first(pageOptions).value
+    //............................................
+    // Make the config form fields
+    let formFields = [];
+    formFields.push({
+      title: "i18n:wn-export-c-mode",
+      name: "mode",
+      comType: "TiSwitcher",
+      comConf: {
+        allowEmpty: false,
+        options: modeOptions
+      }
+    })
+    if (!_.isEmpty(oMapplingItems)) {
+      result.mapping = _.first(oMapplingItems).id
+      formFields.push({
+        title: "i18n:wn-export-c-mapping",
+        name: "mapping",
+        comType: "TiDroplist",
+        comConf: {
+          options: oMapplingItems,
+          iconBy: "icon",
+          valueBy: "id",
+          textBy: "title|nm",
+          dropDisplay: ['<icon:zmdi-book>', 'title|nm']
+        }
+      })
+    }
+    formFields.push({
+      title: "i18n:wn-export-c-page",
+      name: "page",
+      comType: "TiSwitcher",
+      comConf: {
+        allowEmpty: false,
+        options: pageOptions
+      }
+    })
+    formFields.push({
+      title: "i18n:wn-export-c-limit",
+      name: "limit",
+      type: "Integer",
+      visible: {
+        "page": "all"
+      },
+      comType: "TiInputNum",
+      comConf: {
+      }
+    })
+    formFields.push({
+      title: "i18n:wn-export-c-name",
+      name: "name",
+      comType: "TiInput",
+      comConf: {
+      }
+    })
+    formFields.push({
+      title: "i18n:wn-export-c-expi",
+      name: "expiIn",
+      comType: "TiSwitcher",
+      comConf: {
+        allowEmpty: false,
+        options: [
+          { value: 3, text: "i18n:wn-export-c-expi-3d" },
+          { value: 7, text: "i18n:wn-export-c-expi-7d" },
+          { value: 14, text: "i18n:wn-export-c-expi-14d" },
+          { value: 0, text: "i18n:wn-export-c-expi-off" }
+        ]
+      }
+    })
+    //............................................
+    // Open the dialog to collection user selection
+    let vm = this
+    await Ti.App.Open({
+      title: "i18n:export-data",
+      width: 640,
+      height: 640,
+      position: "top",
+      textOk: null, textCancel: null,
+      result,
+      comType: "TiWizard",
+      comConf: {
+        style: {
+          padding: ".5em"
+        },
+        steps: [{
+          title: "i18n:wn-export-setup",
+          comType: "TiForm",
+          comConf: {
+            data: ":=..",
+            fields: formFields
+          },
+          prev: false,
+          next: {
+            enabled: {
+              name: "![BLANK]"
+            },
+            handler: function () {
+              let outPath = `${taDir}/${this.value.name}.${this.value.mode}`
+              let cmds = [`o id:${vm.dirId} @query`]
+              //............................................
+              // Eval Sorter
+              if (!_.isEmpty(vm.sorter)) {
+                let sort = JSON.stringify(vm.sorter)
+                cmds.push(`-sort '${sort}'`)
+              }
+              //............................................
+              // Eval filter
+              let fltInput = JSON.stringify(_.assign({}, vm.filter, vm.fixedMatch))
+              // Checked ids
+              if ("checked" == this.value.page) {
+                fltInput = JSON.stringify({
+                  id: checkedIds
+                })
+              }
+              // Join pager
+              else if ("current" == this.value.page) {
+                let limit = vm.searchPageSize || 1000
+                let skip = Math.max(vm.searchPageSize * (vm.searchPageNumber - 1), 0)
+                cmds.push(`-limit ${limit}`)
+                cmds.push(`-skip  ${skip}`)
+              }
+              // All pager
+              else if ("all" == this.value.page) {
+                let limit = this.value.limit || 1000
+                cmds.push(`-limit ${limit}`)
+              }
+
+              // Join the export 
+              cmds.push('@json -cqnl')
+              cmds.push('|', 'sheet -process "${P} : ${id} : ${title} : ${nm}"')
+              cmds.push("-tpo " + this.value.mode)
+              // Mapping
+              if (this.value.mapping) {
+                cmds.push(`-mapping id:${this.value.mapping}`)
+              }
+
+              cmds.push(`-out '${outPath}';\n`)
+
+              // expi time
+              if (this.value.expiIn > 0) {
+                cmds.push(`obj ${outPath} -u 'expi:"%ms:now+${this.value.expiIn}d"';`)
+              }
+
+              // Join command
+              let cmdText = cmds.join(" ")
+
+              // Confirm change
+              this.$notify("change", {
+                ...this.value,
+                outPath,
+                cmdText,
+                fltInput
+              })
+
+              // Go to run command
+              this.gotoFromCurrent(1)
+            }
+          }
+        }, {
+          title: "i18n:wn-export-ing",
+          comType: "WnCmdPanel",
+          comConf: {
+            value: ":=cmdText",
+            input: ":=fltInput",
+            tipText: "i18n:wn-export-ing-tip",
+            tipIcon: "fas-bullhorn",
+            emitName: "step:change",
+            emitPayload: "%next"
+          },
+          prev: false,
+          next: false
+        }, {
+          title: "i18n:wn-export-done",
+          prepare: async function () {
+            let oTa = await Wn.Io.loadMeta(this.value.outPath)
+            this.$notify("change", {
+              ... this.value,
+              target: oTa
+            })
+          },
+          comType: "WebMetaBadge",
+          comConf: {
+            className: "is-success",
+            value: ":=target",
+            icon: "fas-check-circle",
+            title: "i18n:wn-export-done-ok",
+            brief: "i18n:wn-export-done-tip",
+            links: [{
+              icon: "fas-download",
+              text: ":=target.nm",
+              href: ":->/o/content?str=id:${target.id}&d=true",
+              newtab: true
+            }, {
+              icon: "fas-external-link-alt",
+              text: "i18n:wn-export-open-dir",
+              href: Wn.Util.getAppLink(taDir),
+              newtab: true
+            }]
+          }
+        }]
+      },
+      components: [
+        "@com:ti/wizard",
+        "@com:ti/form",
+        "@com:wn/cmd/panel",
+        "@com:web/meta/badge"
+      ]
+    })
+  },
+  //--------------------------------------------
+  //
+  // Download / Upload
+  //
+  //--------------------------------------------
+  async downloadCheckItems() {
+    let list = this.getCheckedItems()
+    if (_.isEmpty(list)) {
+      return await Ti.Toast.Open('i18n:wn-download-none', "warn")
+    }
+    // Too many, confirm at first
+    if (list.length > 5) {
+      if (!await Ti.Confirm({
+        text: "i18n:wn-download-too-many",
+        vars: { N: list.length }
+      })) {
+        return
+      }
+    }
+    // Do the download
+    for (let it of list) {
+      if ('FILE' != it.race) {
+        if (!await Ti.Confirm({
+          text: "i18n:wn-download-dir",
+          vars: it
+        }, {
+          textYes: "i18n:continue",
+          textNo: "i18n:terminate"
+        })) {
+          return
+        }
+        continue;
+      }
+      let link = Wn.Util.getDownloadLink(it)
+      Ti.Be.OpenLink(link)
+    }
+  },
+  //--------------------------------------------
+  //
+  // Open
+  //
+  //--------------------------------------------
+  async openCurrentMetaEditor() {
+    // Guard
+    if (!this.meta && !this.oDir) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    //.........................................
+    // For current selected
+    //.........................................
+    if (this.meta) {
+      // Edit current meta
+      let reo = await Wn.EditObjMeta(this.meta, {
+        fields: "default", autoSave: false
+      })
+
+      // Cancel the editing
+      if (_.isUndefined(reo)) {
+        return
+      }
+
+      // Update the current editing
+      let { updates } = reo
+      if (!_.isEmpty(updates)) {
+        await this.dispatch("updateMeta", updates)
+      }
+      return
+    }
+    //.........................................
+    // For Whole thing thing
+    //.........................................
+    await Wn.EditObjMeta(this.oDir, {
+      fields: "auto", autoSave: true
+    })
+  },
+  //--------------------------------------------
+  async openCurrentPrivilege() {
+    let meta = this.meta || this.oDir
+
+    if (!meta) {
+      await Ti.Toast.Open("i18n:nil-obj")
+      return
+    }
+
+    let newMeta = await Wn.EditObjPrivilege(meta)
+
+    // Update to current list
+    if (newMeta) {
+      // Update Current Meta
+      console.log("pvg", newMeta)
+      if (this.meta && this.meta.id == newMeta.id) {
+        this.dispatch("changeMeta", newMeta)
+      }
+      // Update Thing Set
+      else {
+        await this.dispatch("reload", newMeta)
+      }
+    }
+
+    return newMeta
+  },
+  //------------------------------------------------
+  //
+  // Delegate WnObjAdaptor methods
+  //
+  //------------------------------------------------
+  getWnAdaptlist() {
+    return this.findComBy($com => {
+      return "WnAdaptlist" == $com.tiComType
+    })
+  },
+  //------------------------------------------------
+  delegateWnAdaptlist(methodName, ...args) {
+    let $AL = this.getWnAdaptlist()
+    if ($AL) {
+      return $AL[methodName](...args)
+    }
+  },
+  //------------------------------------------------
+  async asyncDelegateWnAdaptlist(methodName, ...args) {
+    let $AL = this.getWnAdaptlist()
+    if ($AL) {
+      return await $AL[methodName](...args)
+    }
+  },
+  //------------------------------------------------
+  // Delegates
+  //------------------------------------------------
+  invokeList(methodName) {
+    return this.delegateWnAdaptlist("invokeList", methodName)
+  },
+  openLocalFileSelectdDialog() {
+    return this.delegateWnAdaptlist("openLocalFileSelectdDialog")
+  },
+  async openCurrentPrivilege() {
+    return this.asyncDelegateWnAdaptlist("openCurrentPrivilege")
+  },
+  async doCreate() {
+    return this.asyncDelegateWnAdaptlist("doCreate")
+  },
+  async doRename() {
+    return this.asyncDelegateWnAdaptlist("doRename")
+  },
+  async doBatchUpdate() {
+    return this.asyncDelegateWnAdaptlist("doBatchUpdate")
+  },
+  async doMoveTo() {
+    return this.asyncDelegateWnAdaptlist("doMoveTo")
+  },
+  async doDelete(confirm) {
+    return this.asyncDelegateWnAdaptlist("doDelete", confirm)
+  }
+  //--------------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-gui-tabs.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/gui/tabs/ti-gui-tabs.mjs'] = (function(){
@@ -64486,6 +66192,82 @@ const __TI_MOD_EXPORT_VAR_NM = {
     this.drawValue()
   }
   //////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'wn-obj-adaptor-props.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/obj/adaptor/wn-obj-adaptor-props.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  "moduleName": {
+    type: String,
+    default: "main"
+  },
+  "guiShown": Object,
+  //-----------------------------------
+  // The Dir Home
+  //-----------------------------------
+  "dirId": {
+    type: String
+  },
+  "oDir": Object,
+  //-----------------------------------
+  // The search list
+  //-----------------------------------
+  "fixedMatch": Object,
+  "filter": Object,
+  "sorter": Object,
+  "list": Array,
+  "currentId": [String, Number],
+  "checkedIds": Object,
+  "pager": Object,
+  //-----------------------------------
+  // Current Thing Meta/Content
+  //-----------------------------------
+  "meta": Object,
+  "content": String,
+  //-----------------------------------
+  // Gloable Status
+  //-----------------------------------
+  "status": {
+    type: Object,
+    default: () => ({
+      "reloading": false,
+      "doing": false,
+      "saving": false,
+      "deleting": false,
+      "changed": false,
+      "restoring": false,
+      "inRecycleBin": false
+    })
+  },
+  "fieldStatus": {
+    type: Object,
+    default: () => ({})
+  },
+  //-----------------------------------
+  // Customized GUI
+  //-----------------------------------
+  "objActions": {
+    type: Array, default: () => []
+  },
+  "layout": {
+    type: Object, default: () => ({})
+  },
+  "schema": {
+    type: Object, default: () => ({})
+  },
+  "objMethods": {
+    type: Object, default: () => ({})
+  },
+  //-----------------------------------
+  // Global View Setting
+  //-----------------------------------
+  "viewType": String,
+  "exposeHidden": Boolean,
+  "searchPageNumber": Number,
+  "searchPageSize": Number
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -69660,7 +71442,7 @@ Ti.Preload("ti/com/ti/input/currency/ti-input-currency.html", `<ti-input
   :focused="focused"
   :width="width"
   :height="height"
-  :hover="['prefixIcon', 'suffixText']"
+  :hover="InputHover"
   suffixTextNotifyName="click:suffix"
   @change="OnInputChange"
   @click:suffix="OnClickSuffix"/>`);
@@ -77543,6 +79325,60 @@ Ti.Preload("ti/com/wn/list/_com.json", {
     "@com:ti/table"]
 });
 //========================================
+// JOIN <wn-obj-adaptor-gui.mjs> ti/com/wn/obj/adaptor/wn-obj-adaptor-gui.mjs
+//========================================
+Ti.Preload("ti/com/wn/obj/adaptor/wn-obj-adaptor-gui.mjs", TI_PACK_EXPORTS['ti/com/wn/obj/adaptor/wn-obj-adaptor-gui.mjs']);
+//========================================
+// JOIN <wn-obj-adaptor-methods.mjs> ti/com/wn/obj/adaptor/wn-obj-adaptor-methods.mjs
+//========================================
+Ti.Preload("ti/com/wn/obj/adaptor/wn-obj-adaptor-methods.mjs", TI_PACK_EXPORTS['ti/com/wn/obj/adaptor/wn-obj-adaptor-methods.mjs']);
+//========================================
+// JOIN <wn-obj-adaptor-props.mjs> ti/com/wn/obj/adaptor/wn-obj-adaptor-props.mjs
+//========================================
+Ti.Preload("ti/com/wn/obj/adaptor/wn-obj-adaptor-props.mjs", TI_PACK_EXPORTS['ti/com/wn/obj/adaptor/wn-obj-adaptor-props.mjs']);
+//========================================
+// JOIN <wn-obj-adaptor.html> ti/com/wn/obj/adaptor/wn-obj-adaptor.html
+//========================================
+Ti.Preload("ti/com/wn/obj/adaptor/wn-obj-adaptor.html", `<ti-gui
+  class="wn-obj-adaptor"
+  :class="TopClass"
+  :layout="GuiLayout"
+  :schema="GuiSchema"
+  :vars="GuiExplainContext"
+  :shown="guiShown"
+  :can-loading="true"
+  :loading-as="GuiLoadingAs"
+  :loading="GuiIsLoading"
+  :action-status="status"/>`);
+//========================================
+// JOIN <wn-obj-adaptor.mjs> ti/com/wn/obj/adaptor/wn-obj-adaptor.mjs
+//========================================
+Ti.Preload("ti/com/wn/obj/adaptor/wn-obj-adaptor.mjs", TI_PACK_EXPORTS['ti/com/wn/obj/adaptor/wn-obj-adaptor.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/adaptor/_com.json
+//========================================
+Ti.Preload("ti/com/wn/obj/adaptor/_com.json", {
+  "name": "wn-obj-adaptor",
+  "globally": true,
+  "template": "./wn-obj-adaptor.html",
+  "props": "./wn-obj-adaptor-props.mjs",
+  "methods": "./wn-obj-adaptor-methods.mjs",
+  "mixins": [
+    "./wn-obj-adaptor.mjs",
+    "./wn-obj-adaptor-gui.mjs"
+  ],
+  "components": [
+    "@com:ti/gui",
+    "@com:ti/filterbar",
+    "@com:ti/paging/jumper",
+    "@com:wn/obj/form",
+    "@com:wn/table",
+    "@com:wn/obj/icon",
+    "@com:wn/obj/puretext",
+    "@com:wn/upload/file"
+  ]
+});
+//========================================
 // JOIN <wn-obj-creation.html> ti/com/wn/obj/creation/wn-obj-creation.html
 //========================================
 Ti.Preload("ti/com/wn/obj/creation/wn-obj-creation.html", `<div class="wn-obj-creation"
@@ -79084,6 +80920,84 @@ Ti.Preload("ti/mod/wn/charts/_mod.json", {
   "state" : "./m-charts.json",
   "actions" : "./m-charts-actions.mjs",
   "mixins" : "./m-charts.mjs"
+});
+//========================================
+// JOIN <m-wn-obj-actions.mjs> ti/mod/wn/obj/m-wn-obj-actions.mjs
+//========================================
+Ti.Preload("ti/mod/wn/obj/m-wn-obj-actions.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-actions.mjs']);
+//========================================
+// JOIN <m-wn-obj-cud.mjs> ti/mod/wn/obj/m-wn-obj-cud.mjs
+//========================================
+Ti.Preload("ti/mod/wn/obj/m-wn-obj-cud.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-cud.mjs']);
+//========================================
+// JOIN <m-wn-obj-mutations.mjs> ti/mod/wn/obj/m-wn-obj-mutations.mjs
+//========================================
+Ti.Preload("ti/mod/wn/obj/m-wn-obj-mutations.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-mutations.mjs']);
+//========================================
+// JOIN <m-wn-obj-search.mjs> ti/mod/wn/obj/m-wn-obj-search.mjs
+//========================================
+Ti.Preload("ti/mod/wn/obj/m-wn-obj-search.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-search.mjs']);
+//========================================
+// JOIN <m-wn-obj.json> ti/mod/wn/obj/m-wn-obj.json
+//========================================
+Ti.Preload("ti/mod/wn/obj/m-wn-obj.json", {
+  "moduleName": "main",
+  "guiShown": {},
+  "localBehaviorKeepAt": "->WnObj-State-${dirId}",
+  "lbkAt": null,
+  "lbkOff": false,
+  "dirId": null,
+  "oDir": null,
+  "mappingDirPath": null,
+  "fixedMatch": {},
+  "filter": {},
+  "sorter": {
+    "ct": -1
+  },
+  "objKeys": null,
+  "list": [],
+  "currentId": null,
+  "checkedIds": {},
+  "pager": {
+    "pn": 1,
+    "pgsz": 50,
+    "pgc": 0,
+    "sum": 0,
+    "skip": 0,
+    "count": 0
+  },
+  "meta": null,
+  "content": null,
+  "__saved_content": null,
+  "status": {
+    "reloading": false,
+    "doing": false,
+    "saving": false,
+    "deleting": false,
+    "changed": false,
+    "restoring": false
+  },
+  "fieldStatus": {},
+  "schema": {}
+});
+//========================================
+// JOIN <m-wn-obj.mjs> ti/mod/wn/obj/m-wn-obj.mjs
+//========================================
+Ti.Preload("ti/mod/wn/obj/m-wn-obj.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj.mjs']);
+//========================================
+// JOIN <_mod.json> ti/mod/wn/obj/_mod.json
+//========================================
+Ti.Preload("ti/mod/wn/obj/_mod.json", {
+  "name": "wn-obj",
+  "namespaced": true,
+  "state": "./m-wn-obj.json",
+  "mutations": "./m-wn-obj-mutations.mjs",
+  "actions": [
+    "./m-wn-obj-actions.mjs",
+    "./m-wn-obj-cud.mjs",
+    "./m-wn-obj-search.mjs"
+  ],
+  "mixins": "./m-wn-obj.mjs"
 });
 //========================================
 // JOIN <m-obj-axis-actions.mjs> ti/mod/wn/obj-axis/m-obj-axis-actions.mjs
@@ -80938,6 +82852,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "choose-obj": "Select object",
   "clean": "Clean",
   "clear": "Clear",
+  "clone": "Clone",
+  "clone-copy": "Clone copy",
   "close": "Close",
   "color": "Color",
   "confirm": "Confirm",
@@ -80995,6 +82911,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "dt-u-sec": "Seconds",
   "dt-u-week": "Week",
   "dt-u-year": "Year",
+  "duplicate": "Duplicate",
   "e-auth-account-noexists": "Account not exists",
   "e-auth-home-forbidden": "Auth home forbidden",
   "e-auth-login-NoPhoneOrEmail": "Invalid phone number or email address",
@@ -82287,30 +84204,6 @@ Ti.Preload("ti/i18n/zh-cn/wn-thing.i18n.json", {
   "thing-create": "创建新对象",
   "thing-create-in-recyclebin": "请先退出回收站，再创建新对象",
   "thing-enter-recyclebin": "打开回收站",
-  "thing-export-c-expi": "保存时间",
-  "thing-export-c-expi-14d": "十四天",
-  "thing-export-c-expi-3d": "三天",
-  "thing-export-c-expi-7d": "七天",
-  "thing-export-c-expi-off": "永远",
-  "thing-export-c-limit": "数量限制",
-  "thing-export-c-mapping": "映射方式",
-  "thing-export-c-mode": "导出模式",
-  "thing-export-c-mode-csv": "CSV文件",
-  "thing-export-c-mode-json": "JSON",
-  "thing-export-c-mode-xls": "电子表格",
-  "thing-export-c-mode-zip": "数据压缩包",
-  "thing-export-c-name": "导出文件名称",
-  "thing-export-c-page": "数据范围",
-  "thing-export-c-page-all": "全部页",
-  "thing-export-c-page-current": "当前页",
-  "thing-export-c-page-checked": "选中记录",
-  "thing-export-done": "完成",
-  "thing-export-done-ok": "导出成功",
-  "thing-export-done-tip": "请点击下载链接下载",
-  "thing-export-ing": "执行导出",
-  "thing-export-ing-tip": "正在执行导出脚本，请稍后",
-  "thing-export-open-dir": "打开导出历史目录...",
-  "thing-export-setup": "导出设置",
   "thing-files": "对象文件表",
   "thing-files-attachment": "附件目录",
   "thing-files-hide": "隐藏文件表",
@@ -82402,6 +84295,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "choose-obj": "选择对象",
   "clean": "清理",
   "clear": "清除",
+  "clone": "克隆",
+  "clone-copy": "克隆副本",
   "close": "关闭",
   "color": "颜色",
   "confirm": "确认",
@@ -82459,6 +84354,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "dt-u-sec": "秒",
   "dt-u-week": "周",
   "dt-u-year": "年",
+  "duplicate": "创建副本",
   "e-auth-account-noexists": "账户不存在",
   "e-auth-home-forbidden": "账户不具备进入主目录的权限",
   "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
@@ -82819,6 +84715,30 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-en-his-unm": "用户名",
   "wn-en-his-usr": "用户",
   "wn-en-his-utp": "用户类型",
+  "wn-export-c-expi": "保存时间",
+  "wn-export-c-expi-14d": "十四天",
+  "wn-export-c-expi-3d": "三天",
+  "wn-export-c-expi-7d": "七天",
+  "wn-export-c-expi-off": "永远",
+  "wn-export-c-limit": "数量限制",
+  "wn-export-c-mapping": "映射方式",
+  "wn-export-c-mode": "导出模式",
+  "wn-export-c-mode-csv": "CSV文件",
+  "wn-export-c-mode-json": "JSON",
+  "wn-export-c-mode-xls": "电子表格",
+  "wn-export-c-mode-zip": "数据压缩包",
+  "wn-export-c-name": "导出文件名称",
+  "wn-export-c-page": "数据范围",
+  "wn-export-c-page-all": "全部页",
+  "wn-export-c-page-current": "当前页",
+  "wn-export-c-page-checked": "选中记录",
+  "wn-export-done": "完成",
+  "wn-export-done-ok": "导出成功",
+  "wn-export-done-tip": "请点击下载链接下载",
+  "wn-export-ing": "执行导出",
+  "wn-export-ing-tip": "正在执行导出脚本，请稍后",
+  "wn-export-open-dir": "打开导出历史目录...",
+  "wn-export-setup": "导出设置",
   "wn-fsc-mail-scene-new": "新建一个邮件场景",
   "wn-fsc-mail-tmpl-new": "请输入新邮件模板的名称(要唯一，譬如 signup)",
   "wn-invalid-fsize-max": "The maximum upload file size is ${maxSize}, but your file size is ${fileSize}",

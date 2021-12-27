@@ -1,4 +1,4 @@
-// Pack At: 2021-12-23 15:25:00
+// Pack At: 2021-12-27 15:08:29
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2521,7 +2521,7 @@ const {App} = (function(){
           "filters",
           "components"])
         const it_asset_part = function(val, key, obj) {
-          const list = _.flattenDeep([val])
+          const list = _.without(_.flattenDeep([val]), undefined, null)
           const remain = []
           for(let asset of list) {
             // => global
@@ -3440,23 +3440,21 @@ const {App} = (function(){
       }
     }
     //---------------------------------------
-    main(nm, payload) {
+    main(nm, ...args) {
       if (Ti.IsInfo("TiApp")) {
-        console.log("TiApp.main", nm, payload)
+        console.log("TiApp.main", nm, args)
       }
       let vm = this.$vmMain()
       let fn = vm[nm]
       if (_.isFunction(fn)) {
-        return fn(payload)
+        return fn(...args)
       }
       // Properties
-      else if (!_.isUndefined(fn)) {
+      if (!_.isUndefined(fn)) {
         return fn
       }
       // report error
-      else {
-        throw Ti.Err.make("e-ti-app-main", { nm, payload })
-      }
+      throw Ti.Err.make("e-ti-app-main", { nm, payload })
     }
     //---------------------------------------
     // Invoke the function in window object
@@ -7885,6 +7883,26 @@ const {DateTime} = (function(){
       if (_.isDate(d)) {
         d.setDate(d.getDate() + offset)
       }
+      return d
+    },
+    //---------------------------------------
+    /***
+     * @param month {Date} - date object
+     * @return how many days the month has
+     */
+     countMonthDay(d) {
+      let d1 = new Date(d)
+      d1.setDate(32)  // Move to next Month
+      d1.setDate(0)   // 0 -> back to prev month last day
+      return d1.getDate()
+    },
+    //---------------------------------------
+    moveToLastDateOfMonth(d) {
+      d.setDate(1)
+      // Move to next Month
+      TiDateTime.moveMonth(d, 1)
+      // 0 -> back to prev month last day
+      d.setDate(0)
       return d
     },
     //---------------------------------------
@@ -17208,7 +17226,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20211223.152500",
+  "version" : "1.6-20211227.150829",
   "dev" : false,
   "appName" : null,
   "session" : {},
