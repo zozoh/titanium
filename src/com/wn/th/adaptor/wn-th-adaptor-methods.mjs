@@ -315,6 +315,27 @@ export default {
   // Open
   //
   //--------------------------------------------
+  async openContentEditor() {
+    // Guard
+    if (!this.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+
+    // Open Editor
+    let newContent = await Wn.EditObjContent(this.meta, {
+      content: this.content
+    })
+
+    // Cancel the editing
+    if (_.isUndefined(newContent)) {
+      return
+    }
+
+    // Update the current editing
+    await this.dispatch("changeContent", newContent)
+    this.commit("syncStatusChanged")
+  },
+  //--------------------------------------------
   async openCurrentMetaEditor() {
     // Guard
     if (!this.meta && !this.oTs) {

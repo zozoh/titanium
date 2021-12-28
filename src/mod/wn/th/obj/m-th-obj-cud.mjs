@@ -174,6 +174,7 @@ const _M = {
   },
   //--------------------------------------------
   changeContent({ commit }, payload) {
+    console.log("changeContent", payload)
     commit("setContent", payload)
     commit("syncStatusChanged");
   },
@@ -184,19 +185,40 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async saveContent({ state, commit }) {
+  async saveContent({ state, commit, getters }) {
+    // Guard: ing
     if (state.status.saving || !state.status.changed) {
       return
     }
 
+    // Which content should I load?
+    let meta = state.meta
+    let path = getters.contentLoadPath
+    if (!path || !meta || !state.dataHome) {
+      return
+    }
+    if ("<self>" != path) {
+      let aph = Ti.Util.appendPath(state.dataHome, path)
+      meta = await Wn.Io.loadMeta(aph)
+      // If not exists, then create it
+      if(!meta) {
+        let cmdText = `touch '${aph}'`
+        console.log(cmdText)
+        await Wn.Sys.exec2(cmdText)
+        meta = await Wn.Io.loadMeta(aph)
+      }
+    }
+
+    // Do save content
     commit("setStatus", { saving: true })
 
-    let meta = state.meta
     let content = state.content
     let newMeta = await Wn.Io.saveContentAsText(meta, content)
 
     commit("setStatus", { saving: false })
-    commit("setMeta", newMeta)
+    if ("<self>" == path) {
+      commit("setMeta", newMeta)
+    }
     commit("setSavedContent", content)
     commit("syncStatusChanged")
 

@@ -135,6 +135,7 @@ const _M = {
     },
     //---------------------------------------
     OnFired(collapse) {
+      console.log("haha")
       if(collapse) {
         this.doExtend()
       } else {
@@ -154,6 +155,7 @@ const _M = {
     },
     //---------------------------------------
     doDockChildren() {
+      //console.log("collapse changed", this.collapse)
       this.$nextTick(()=>{
         if(this.$refs.children && this.depth>0) {
           Ti.Dom.dockTo(this.$refs.children, this.$el, {

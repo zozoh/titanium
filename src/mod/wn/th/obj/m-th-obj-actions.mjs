@@ -22,15 +22,37 @@ async function loadConfigJson(state, key, dft) {
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
-  async loadContent({ state, commit }) {
-    // Guard
+  async loadContent({ state, commit, dispatch, getters }) {
+    // Guard : dataHome
+    if (!state.dataHome) {
+      return
+    }
+    // Guard : meta
     let meta = state.meta
     if (!meta) {
       return
     }
+    // Which content should I load?
+    let path = getters.contentLoadPath
+    if (!path) {
+      return
+    }
+    if ("<self>" != path) {
+      path = Ti.Util.appendPath(state.dataHome, path)
+      meta = await Wn.Io.loadMeta(path)
+    }
+
+    //console.log("load Content:", path)
+    // No meta
+    if (!meta) {
+      dispatch("updateContent", null)
+      return
+    }
+
     // Load meta content
     commit("setStatus", { reloading: true })
     let content = await Wn.Io.loadContent(meta)
+    //console.log("do load Content:", content)
     dispatch("updateContent", content)
     commit("setStatus", { reloading: false })
   },
@@ -47,12 +69,17 @@ const _M = {
     commit("setSchema", schema)
     //console.log("schema", schema)
 
-    if(schema.methods) {
+    if (schema.methods) {
       commit("setMethodPaths", schema.methods)
     }
 
     if (schema.localBehaviorKeepAt) {
       commit("setLocalBehaviorKeepAt", schema.localBehaviorKeepAt)
+    }
+
+    let contentPath = _.get(schema, "behavior.contentPath")
+    if (contentPath) {
+      commit("setContentPath", contentPath)
     }
 
   },
@@ -63,7 +90,7 @@ const _M = {
   },
   //--------------------------------------------
   async loadThingActions({ state, commit }) {
-    let reo = await loadConfigJson(state, "actionsPath", [])
+    let reo = await loadConfigJson(state, "actionsPath", null)
     commit("setThingActions", reo)
   },
   //--------------------------------------------
@@ -192,16 +219,19 @@ const _M = {
     }
   },
   //--------------------------------------------
-  async reloadData({ state, dispatch }) {
+  async reloadData({ state, dispatch, getters }) {
     if (state.oTs) {
       await dispatch("queryList");
+    }
+    if (getters.contentLoadPath) {
+      await dispatch("loadContent")
     }
   },
   //--------------------------------------------
   /***
    * Reload All
    */
-  async reload({ state, commit, dispatch }, meta) {
+  async reload({ state, commit, dispatch, getters }, meta) {
     // Guard
     if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
@@ -242,10 +272,17 @@ const _M = {
     dispatch("restoreLocalBehavior")
 
     // Reload thing list
-    await dispatch("reloadData");
+    if (state.oTs) {
+      await dispatch("queryList");
+    }
 
     // Update dataHome
     commit("autoDataHome")
+
+    // Reload content if neccessary
+    if (getters.contentLoadPath) {
+      await dispatch("loadContent")
+    }
 
     // All done
     commit("setStatus", { reloading: false })

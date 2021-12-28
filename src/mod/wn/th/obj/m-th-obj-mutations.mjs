@@ -115,8 +115,8 @@ const _M = {
   //----------------------------------------
   assignPager(state, pager) {
     let pg = _.cloneDeep(state.pager || {})
-    _.forEach(pager, (v,k)=>{
-      if(!Ti.Util.isNil(v)) {
+    _.forEach(pager, (v, k) => {
+      if (!Ti.Util.isNil(v)) {
         pg[k] = v
       }
     })
@@ -164,15 +164,18 @@ const _M = {
   },
   //----------------------------------------
   setContent(state, content) {
+    if (content && !_.isString(content)) {
+      content = JSON.stringify(content, null, '   ')
+    }
     state.content = content
-  },
-  //----------------------------------------
-  setData(state, data) {
-    state.data = data
   },
   //----------------------------------------
   setSavedContent(state, content) {
     state.__saved_content = content
+  },
+  //----------------------------------------
+  setContentPath(state, contentPath) {
+    state.contentPath = contentPath
   },
   //----------------------------------------
   setStatus(state, status) {

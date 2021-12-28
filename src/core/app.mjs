@@ -285,7 +285,7 @@ class OneTiApp {
       return fn
     }
     // report error
-    throw Ti.Err.make("e-ti-app-main", { nm, payload })
+    throw Ti.Err.make("e-ti-app-main", { nm, args })
   }
   //---------------------------------------
   // Invoke the function in window object

@@ -45,6 +45,22 @@ export default {
     //--------------------------------------------
     isHardRemove(state) {
       return _.get(state, "schema.behavior.hardRemove")
+    },
+    //--------------------------------------------
+    contentLoadPath(state) {
+      if(state.contentPath) {
+        let canPaths = _.concat([], state.contentPath)
+        for(let canPath of canPaths) {
+          let {test, path} = canPath
+          if(!test || Ti.AutoMatch.test(test, state)) {
+            return path
+          }
+        }
+      }
+    },
+    //--------------------------------------------
+    hasCurrentMeta(state) {
+      return state.meta && state.dataHome ? true : false
     }
     //--------------------------------------------
   },

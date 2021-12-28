@@ -212,7 +212,8 @@ const _M = {
 
       // Join to 
       try {
-        let list = JSON.parse(json)
+        let str = _.trim(json) || '[]'
+        let list = JSON.parse(str)
         this.notifyChange(list)
       }
       // Invalid json

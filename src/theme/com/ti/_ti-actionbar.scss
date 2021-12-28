@@ -42,7 +42,7 @@
     &.is-extended {
       //--------------------------------------------
       > .bar-item-info {
-        @include color($color-primary, r, c);
+        @include color($color-secondary, r, c);
       }
       //--------------------------------------------
       &.is-depth-x {

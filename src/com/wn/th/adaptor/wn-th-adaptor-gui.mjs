@@ -32,6 +32,13 @@ const _M = {
         status: this.status,
         fieldStatus: this.fieldStatus,
         //------------------------------
+        viewType: this.viewType,
+        exposeHidden: this.exposeHidden,
+        searchPageNumber: this.searchPageNumber,
+        searchPageSize: this.searchPageSize,
+        contentLoadPath: this.contentLoadPath,
+        hasCurrentMeta: this.hasCurrentMeta,
+        //------------------------------
         // Adapte old thing set data model
         //------------------------------
         currentDataHome: this.dataHome,

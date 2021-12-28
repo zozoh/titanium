@@ -110,7 +110,7 @@ export default {
   methods: {
     //------------------------------------------------
     OnInputChange(val) {
-      console.log("Cu changed", val)
+      //console.log("Cu changed", val)
       // Get value
       let v1 = _.toUpper(_.trim(val))
       let v2 = Ti.Bank.parseCurrency(v1, {

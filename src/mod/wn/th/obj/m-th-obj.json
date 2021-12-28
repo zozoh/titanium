@@ -26,6 +26,16 @@
   "meta": null,
   "content": null,
   "__saved_content": null,
+  "contentPath": [
+    {
+      "test": {
+        "guiShown": {
+          "content": true
+        }
+      },
+      "path": "<self>"
+    }
+  ],
   "dataHome": null,
   "dataDirName": null,
   "keepDataDirNameToLocal": true,
@@ -55,7 +65,7 @@
   "layoutPath": "thing-layout.json",
   "schemaPath": "thing-schema.json",
   "methodPaths": null,
-  "thingActions": [],
+  "thingActions": null,
   "layout": {},
   "schema": {},
   "thingMethods": {}

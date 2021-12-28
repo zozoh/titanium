@@ -15,6 +15,8 @@ const _M = {
         "block:shown": "updateBlockShown",
         "block:show": "showBlock",
         "block:hide": "hideBlock",
+        "content::change": "OnContentChange",
+        "save:change" : "OnSaveChange",
         "search::list::select": "OnSearchListSelect",
         "search::filter::filter:change": "OnSearchFilterChange",
         "search::filter::sorter:change": "OnSearchSorterChange",
@@ -41,6 +43,14 @@ const _M = {
     //--------------------------------------
     async OnSearchPagerChange(payload) {
       await this.dispatch("applyPager", payload)
+    },
+    //--------------------------------------
+    OnContentChange(payload) {
+      this.dispatch("changeContent", payload)
+    },
+    //--------------------------------------
+    async OnSaveChange() {
+      await this.dispatch("saveContent")
     },
     //--------------------------------------
     //
@@ -113,7 +123,7 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      console.log("WnThAdaptor.__on_events", name, payload)
+      //console.log("WnThAdaptor.__on_events", name, payload)
       // ByPass
       if (/^(indicate)$/.test(name)) {
         return () => ({ stop: false })
@@ -152,12 +162,20 @@ const _M = {
     //--------------------------------------
   },
   ///////////////////////////////////////////
+  watch: {
+    "contentLoadPath": function (newVal, oldVal) {
+      if (newVal && !_.isEqual(newVal, oldVal)) {
+        this.dispatch("loadContent")
+      }
+    }
+  },
+  ///////////////////////////////////////////
   created: function () {
   },
   ///////////////////////////////////////////
   mounted: async function () {
     // Update the customized actions
-    let actions = this.thingActions || []
+    let actions = this.thingActions
     if (_.isArray(actions)) {
       this.$notify("actions:update", actions)
     }

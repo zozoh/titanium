@@ -61,7 +61,7 @@ export default {
     OnClickItem({value, index}, $event) {
       if(this.readonly)
         return
-      let toggle = ($event.ctrlKey || $event.metaKey)
+      let toggle = ($event.ctrlKey || $event.metaKey || this.autoToggle)
       let shift  = $event.shiftKey;
       // Multi + Shift Mode
       if(shift && this.multi) {

@@ -96,5 +96,7 @@ export default {
   "viewType": String,
   "exposeHidden": Boolean,
   "searchPageNumber": Number,
-  "searchPageSize": Number
+  "searchPageSize": Number,
+  "contentLoadPath": String,
+  "hasCurrentMeta": Boolean
 }
