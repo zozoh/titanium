@@ -45,10 +45,16 @@ const _M = {
     }
     //console.log("setSchema", schema)
     commit("setSchema", schema)
+    //console.log("schema", schema)
+
+    if(schema.methods) {
+      commit("setMethodPaths", schema.methods)
+    }
 
     if (schema.localBehaviorKeepAt) {
       commit("setLocalBehaviorKeepAt", schema.localBehaviorKeepAt)
     }
+
   },
   //--------------------------------------------
   async loadLayout({ state, commit }) {
@@ -64,11 +70,12 @@ const _M = {
   async loadThingMethods({ state, commit }) {
     // Guard
     let reo = {}
+    //console.log("loadThingMethods", state.methodPaths)
 
     // Load
     if (state.methodPaths) {
-      let methodsUri = `./${state.methodPaths}`
-      let methods = await Ti.Load(methodsUri, {
+      //let methodsUri = `./${state.methodPaths}`
+      let methods = await Ti.Load(state.methodPaths, {
         dynamicAlias: new Ti.Config.AliasMapping({
           "^\./": `/o/content?str=id:${state.thingSetId}/`
         })

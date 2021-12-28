@@ -1,4 +1,4 @@
-// Pack At: 2021-12-27 15:08:29
+// Pack At: 2021-12-28 10:53:34
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -9569,7 +9569,7 @@ const _M = {
     state.schemaPath = schemaPath
   },
   setMethodPaths(state, methodPaths) {
-    state.methodPath = methodPaths
+    state.methodPaths = methodPaths
   },
   //----------------------------------------
   setThingActions(state, thingActions = {}) {
@@ -44919,10 +44919,16 @@ const _M = {
     }
     //console.log("setSchema", schema)
     commit("setSchema", schema)
+    //console.log("schema", schema)
+
+    if(schema.methods) {
+      commit("setMethodPaths", schema.methods)
+    }
 
     if (schema.localBehaviorKeepAt) {
       commit("setLocalBehaviorKeepAt", schema.localBehaviorKeepAt)
     }
+
   },
   //--------------------------------------------
   async loadLayout({ state, commit }) {
@@ -44938,11 +44944,12 @@ const _M = {
   async loadThingMethods({ state, commit }) {
     // Guard
     let reo = {}
+    //console.log("loadThingMethods", state.methodPaths)
 
     // Load
     if (state.methodPaths) {
-      let methodsUri = `./${state.methodPaths}`
-      let methods = await Ti.Load(methodsUri, {
+      //let methodsUri = `./${state.methodPaths}`
+      let methods = await Ti.Load(state.methodPaths, {
         dynamicAlias: new Ti.Config.AliasMapping({
           "^\./": `/o/content?str=id:${state.thingSetId}/`
         })
@@ -58939,6 +58946,7 @@ const _M = {
     EventRouting() {
       let routing = _.get(this.schema, "events") || {}
       return _.assign({
+        "block:shown": "updateBlockShown",
         "block:show": "showBlock",
         "block:hide": "hideBlock",
         "search::list::select": "OnSearchListSelect",
@@ -58972,6 +58980,16 @@ const _M = {
     //
     //  Show/Hide block
     //
+    //--------------------------------------
+    updateBlockShown(shown = {}) {
+      let guiShown = {}
+      _.forEach(shown, (v, k) => {
+        if (v) {
+          guiShown[k] = true
+        }
+      })
+      this.commit("setGuiShown", guiShown)
+    },
     //--------------------------------------
     showBlock(blockName) {
       let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
@@ -59029,10 +59047,10 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      //console.log("WnThAdaptor.__on_events", name, payload)
+      console.log("WnThAdaptor.__on_events", name, payload)
       // ByPass
       if (/^(indicate)$/.test(name)) {
-        return ()=>({ stop: false })
+        return () => ({ stop: false })
       }
 
       // Try routing
@@ -81335,7 +81353,7 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "actionsPath": "thing-actions.json",
   "layoutPath": "thing-layout.json",
   "schemaPath": "thing-schema.json",
-  "methodPaths": "thing-methods.mjs",
+  "methodPaths": null,
   "thingActions": [],
   "layout": {},
   "schema": {},

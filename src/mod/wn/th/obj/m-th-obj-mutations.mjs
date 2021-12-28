@@ -238,7 +238,7 @@ const _M = {
     state.schemaPath = schemaPath
   },
   setMethodPaths(state, methodPaths) {
-    state.methodPath = methodPaths
+    state.methodPaths = methodPaths
   },
   //----------------------------------------
   setThingActions(state, thingActions = {}) {

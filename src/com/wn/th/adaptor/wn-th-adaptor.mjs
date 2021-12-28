@@ -12,6 +12,7 @@ const _M = {
     EventRouting() {
       let routing = _.get(this.schema, "events") || {}
       return _.assign({
+        "block:shown": "updateBlockShown",
         "block:show": "showBlock",
         "block:hide": "hideBlock",
         "search::list::select": "OnSearchListSelect",
@@ -45,6 +46,16 @@ const _M = {
     //
     //  Show/Hide block
     //
+    //--------------------------------------
+    updateBlockShown(shown = {}) {
+      let guiShown = {}
+      _.forEach(shown, (v, k) => {
+        if (v) {
+          guiShown[k] = true
+        }
+      })
+      this.commit("setGuiShown", guiShown)
+    },
     //--------------------------------------
     showBlock(blockName) {
       let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
@@ -102,10 +113,10 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      //console.log("WnThAdaptor.__on_events", name, payload)
+      console.log("WnThAdaptor.__on_events", name, payload)
       // ByPass
       if (/^(indicate)$/.test(name)) {
-        return ()=>({ stop: false })
+        return () => ({ stop: false })
       }
 
       // Try routing

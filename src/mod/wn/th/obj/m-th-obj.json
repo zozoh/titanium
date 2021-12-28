@@ -54,7 +54,7 @@
   "actionsPath": "thing-actions.json",
   "layoutPath": "thing-layout.json",
   "schemaPath": "thing-schema.json",
-  "methodPaths": "thing-methods.mjs",
+  "methodPaths": null,
   "thingActions": [],
   "layout": {},
   "schema": {},
