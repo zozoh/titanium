@@ -1,6 +1,31 @@
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
+  //
+  // Open
+  //
+  //--------------------------------------------
+  async openContentEditor({ state, commit, dispatch }) {
+    // Guard
+    if (!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+
+    // Open Editor
+    let newContent = await Wn.EditObjContent(state.meta, {
+      content: state.content
+    })
+
+    // Cancel the editing
+    if (_.isUndefined(newContent)) {
+      return
+    }
+
+    // Update the current editing
+    await dispatch("changeContent", newContent)
+    commit("syncStatusChanged")
+  },
+  //--------------------------------------------
   async updateMetaField({ dispatch }, { name, value } = {}) {
     //console.log("current.updateMeta", { name, value })
     let data = Ti.Types.toObjByPair({ name, value })
@@ -67,19 +92,48 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async saveContent({ state, commit }) {
+  async saveContent({ state, commit, getters }) {
+    console.log("hahah")
+    // Guard: ing
     if (state.status.saving || !state.status.changed) {
       return
     }
 
+    // Which content should I load?
+    let meta = state.meta
+    let path = getters.contentLoadPath
+    if (!path || !meta) {
+      return
+    }
+    if ("<self>" != path) {
+      let aph;
+      // absolute path
+      if (/^[\/~]\//.test(path)) {
+        aph = path
+      }
+      // In parent dir
+      else {
+        aph = Ti.Util.appendPath(`id:${state.meta.pid}/`, path)
+      }
+      meta = await Wn.Io.loadMeta(aph)
+      // If not exists, then create it
+      if (!meta) {
+        let cmdText = `touch '${aph}'`
+        await Wn.Sys.exec2(cmdText)
+        meta = await Wn.Io.loadMeta(aph)
+      }
+    }
+
+    // Do save content
     commit("setStatus", { saving: true })
 
-    let meta = state.meta
     let content = state.content
     let newMeta = await Wn.Io.saveContentAsText(meta, content)
 
     commit("setStatus", { saving: false })
-    commit("setMeta", newMeta)
+    if ("<self>" == path) {
+      commit("setMeta", newMeta)
+    }
     commit("setSavedContent", content)
     commit("syncStatusChanged")
 

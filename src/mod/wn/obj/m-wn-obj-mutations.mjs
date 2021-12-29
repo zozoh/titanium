@@ -171,6 +171,9 @@ const _M = {
   },
   //----------------------------------------
   setContent(state, content) {
+    if (content && !_.isString(content)) {
+      content = JSON.stringify(content, null, '   ')
+    }
     state.content = content
   },
   //----------------------------------------

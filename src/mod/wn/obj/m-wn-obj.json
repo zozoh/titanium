@@ -27,6 +27,7 @@
   "meta": null,
   "content": null,
   "__saved_content": null,
+  "contentPath": null,
   "status": {
     "reloading": false,
     "doing": false,

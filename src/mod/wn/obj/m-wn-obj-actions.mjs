@@ -22,7 +22,7 @@ async function loadConfigJson(state, key, dft) {
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
-  async loadContent({ state, commit }) {
+  async loadContent({ state, commit, dispatch }) {
     // Guard
     let meta = state.meta
     if (!meta) {
@@ -137,9 +137,12 @@ const _M = {
     }
   },
   //--------------------------------------------
-  async reloadData({ state, dispatch }) {
+  async reloadData({ state, dispatch, getters }) {
     if (state.oDir) {
       await dispatch("queryList");
+    }
+    if (getters.contentLoadPath) {
+      await dispatch("loadContent")
     }
   },
   //--------------------------------------------

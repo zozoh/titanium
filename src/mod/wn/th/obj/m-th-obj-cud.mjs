@@ -203,7 +203,6 @@ const _M = {
       // If not exists, then create it
       if(!meta) {
         let cmdText = `touch '${aph}'`
-        console.log(cmdText)
         await Wn.Sys.exec2(cmdText)
         meta = await Wn.Io.loadMeta(aph)
       }

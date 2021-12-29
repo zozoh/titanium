@@ -49,6 +49,11 @@ export default {
     //--------------------------------------------
     contentLoadPath(state) {
       if(state.contentPath) {
+        // fixed content path
+        if(_.isString(state.contentPath)){
+          return state.contentPath
+        }
+        // Try find content path
         let canPaths = _.concat([], state.contentPath)
         for(let canPath of canPaths) {
           let {test, path} = canPath
