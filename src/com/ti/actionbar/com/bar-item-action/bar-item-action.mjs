@@ -31,15 +31,15 @@ const _M = {
       default: () => []
     },
     "enabled": {
-      type: [String, Array, Object],
+      type: [String, Array, Object, Boolean],
       default: undefined
     },
     "disabled": {
-      type: [String, Array, Object],
+      type: [String, Array, Object, Boolean],
       default: undefined
     },
     "highlight": {
-      type: [String, Array, Object],
+      type: [String, Array, Object, Boolean],
       default: undefined
     },
     "value": {

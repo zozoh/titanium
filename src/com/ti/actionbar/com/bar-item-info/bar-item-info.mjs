@@ -88,7 +88,9 @@ const _M = {
     //-----------------------------------
     isEnabled() {
       if(!Ti.Util.isNil(this.enabled)) {
-        return this.isMatchStatus(this.enabled)
+        if(!this.isMatchStatus(this.enabled)){
+          return false
+        }
       }
       if(!Ti.Util.isNil(this.disabled)) {
         if(this.isMatchStatus(this.disabled)) {

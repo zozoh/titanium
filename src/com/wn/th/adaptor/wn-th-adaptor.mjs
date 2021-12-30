@@ -17,10 +17,10 @@ const _M = {
         "block:hide": "hideBlock",
         "content::change": "OnContentChange",
         "save:change" : "OnSaveChange",
-        "search::list::select": "OnSearchListSelect",
-        "search::filter::filter:change": "OnSearchFilterChange",
-        "search::filter::sorter:change": "OnSearchSorterChange",
-        "search::pager::change": "OnSearchPagerChange"
+        "list::select": "OnSearchListSelect",
+        "filter::filter:change": "OnSearchFilterChange",
+        "filter::sorter:change": "OnSearchSorterChange",
+        "pager::change": "OnSearchPagerChange"
       }, routing)
     }
     //--------------------------------------

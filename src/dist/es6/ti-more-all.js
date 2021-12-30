@@ -1,4 +1,4 @@
-// Pack At: 2021-12-28 10:53:34
+// Pack At: 2021-12-30 15:25:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2944,7 +2944,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     "autoSelect": {
       type: Boolean,
-      default: undefined
+      default: true
     },
     "readonly": {
       type: Boolean,
@@ -3014,7 +3014,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   methods: {
     //------------------------------------------------
     OnInputChange(val) {
-      console.log("Cu changed", val)
+      //console.log("Cu changed", val)
       // Get value
       let v1 = _.toUpper(_.trim(val))
       let v2 = Ti.Bank.parseCurrency(v1, {
@@ -6802,7 +6802,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "viewType": String,
   "exposeHidden": Boolean,
   "searchPageNumber": Number,
-  "searchPageSize": Number
+  "searchPageSize": Number,
+  "contentLoadPath": String,
+  "hasCurrentMeta": Boolean
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -7363,6 +7365,7 @@ const _M = {
     },
     //---------------------------------------
     OnFired(collapse) {
+      console.log("haha")
       if(collapse) {
         this.doExtend()
       } else {
@@ -7382,6 +7385,7 @@ const _M = {
     },
     //---------------------------------------
     doDockChildren() {
+      //console.log("collapse changed", this.collapse)
       this.$nextTick(()=>{
         if(this.$refs.children && this.depth>0) {
           Ti.Dom.dockTo(this.$refs.children, this.$el, {
@@ -9446,8 +9450,8 @@ const _M = {
   //----------------------------------------
   assignPager(state, pager) {
     let pg = _.cloneDeep(state.pager || {})
-    _.forEach(pager, (v,k)=>{
-      if(!Ti.Util.isNil(v)) {
+    _.forEach(pager, (v, k) => {
+      if (!Ti.Util.isNil(v)) {
         pg[k] = v
       }
     })
@@ -9495,15 +9499,18 @@ const _M = {
   },
   //----------------------------------------
   setContent(state, content) {
+    if (content && !_.isString(content)) {
+      content = JSON.stringify(content, null, '   ')
+    }
     state.content = content
-  },
-  //----------------------------------------
-  setData(state, data) {
-    state.data = data
   },
   //----------------------------------------
   setSavedContent(state, content) {
     state.__saved_content = content
+  },
+  //----------------------------------------
+  setContentPath(state, contentPath) {
+    state.contentPath = contentPath
   },
   //----------------------------------------
   setStatus(state, status) {
@@ -12318,7 +12325,7 @@ async function loadConfigJson(state, key, dft) {
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
-  async loadContent({ state, commit }) {
+  async loadContent({ state, commit, dispatch }) {
     // Guard
     let meta = state.meta
     if (!meta) {
@@ -12433,9 +12440,12 @@ const _M = {
     }
   },
   //--------------------------------------------
-  async reloadData({ state, dispatch }) {
+  async reloadData({ state, dispatch, getters }) {
     if (state.oDir) {
       await dispatch("queryList");
+    }
+    if (getters.contentLoadPath) {
+      await dispatch("loadContent")
     }
   },
   //--------------------------------------------
@@ -12647,6 +12657,31 @@ window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-cud.mjs'] = (function(){
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
+  //
+  // Open
+  //
+  //--------------------------------------------
+  async openContentEditor({ state, commit, dispatch }) {
+    // Guard
+    if (!state.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+
+    // Open Editor
+    let newContent = await Wn.EditObjContent(state.meta, {
+      content: state.content
+    })
+
+    // Cancel the editing
+    if (_.isUndefined(newContent)) {
+      return
+    }
+
+    // Update the current editing
+    await dispatch("changeContent", newContent)
+    commit("syncStatusChanged")
+  },
+  //--------------------------------------------
   async updateMetaField({ dispatch }, { name, value } = {}) {
     //console.log("current.updateMeta", { name, value })
     let data = Ti.Types.toObjByPair({ name, value })
@@ -12713,19 +12748,48 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async saveContent({ state, commit }) {
+  async saveContent({ state, commit, getters }) {
+    console.log("hahah")
+    // Guard: ing
     if (state.status.saving || !state.status.changed) {
       return
     }
 
+    // Which content should I load?
+    let meta = state.meta
+    let path = getters.contentLoadPath
+    if (!path || !meta) {
+      return
+    }
+    if ("<self>" != path) {
+      let aph;
+      // absolute path
+      if (/^[\/~]\//.test(path)) {
+        aph = path
+      }
+      // In parent dir
+      else {
+        aph = Ti.Util.appendPath(`id:${state.meta.pid}/`, path)
+      }
+      meta = await Wn.Io.loadMeta(aph)
+      // If not exists, then create it
+      if (!meta) {
+        let cmdText = `touch '${aph}'`
+        await Wn.Sys.exec2(cmdText)
+        meta = await Wn.Io.loadMeta(aph)
+      }
+    }
+
+    // Do save content
     commit("setStatus", { saving: true })
 
-    let meta = state.meta
     let content = state.content
     let newMeta = await Wn.Io.saveContentAsText(meta, content)
 
     commit("setStatus", { saving: false })
-    commit("setMeta", newMeta)
+    if ("<self>" == path) {
+      commit("setMeta", newMeta)
+    }
     commit("setSavedContent", content)
     commit("syncStatusChanged")
 
@@ -19531,6 +19595,27 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // Open
   //
   //--------------------------------------------
+  async openContentEditor() {
+    // Guard
+    if (!this.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+
+    // Open Editor
+    let newContent = await Wn.EditObjContent(this.meta, {
+      content: this.content
+    })
+
+    // Cancel the editing
+    if (_.isUndefined(newContent)) {
+      return
+    }
+
+    // Update the current editing
+    await this.dispatch("changeContent", newContent)
+    this.commit("syncStatusChanged")
+  },
+  //--------------------------------------------
   async openCurrentMetaEditor() {
     // Guard
     if (!this.meta && !this.oTs) {
@@ -19733,6 +19818,13 @@ const _M = {
         //------------------------------
         status: this.status,
         fieldStatus: this.fieldStatus,
+        //------------------------------
+        viewType: this.viewType,
+        exposeHidden: this.exposeHidden,
+        searchPageNumber: this.searchPageNumber,
+        searchPageSize: this.searchPageSize,
+        contentLoadPath: this.contentLoadPath,
+        hasCurrentMeta: this.hasCurrentMeta,
         //------------------------------
         // Adapte old thing set data model
         //------------------------------
@@ -20879,13 +20971,17 @@ const _M = {
   // Selection
   //
   //----------------------------------------
-  async selectMeta({ commit }, { currentId=null, checkedIds={} }=null) {
+  async selectMeta({ state, commit, dispatch, getters }, {
+    currentId = null, checkedIds = {}
+  } = null) {
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
     commit("setCurrentMeta")
     commit("autoDataHome")
     // ? Load current content
-
+    if (getters.contentLoadPath) {
+      await dispatch("loadContent")
+    }
     // ? Load current data dir
   },
   //----------------------------------------
@@ -35288,6 +35384,9 @@ const _M = {
   },
   //----------------------------------------
   setContent(state, content) {
+    if (content && !_.isString(content)) {
+      content = JSON.stringify(content, null, '   ')
+    }
     state.content = content
   },
   //----------------------------------------
@@ -36072,7 +36171,8 @@ const _M = {
 
       // Join to 
       try {
-        let list = JSON.parse(json)
+        let str = _.trim(json) || '[]'
+        let list = JSON.parse(str)
         this.notifyChange(list)
       }
       // Invalid json
@@ -37723,6 +37823,7 @@ const _M = {
   },
   //--------------------------------------------
   changeContent({ commit }, payload) {
+    console.log("changeContent", payload)
     commit("setContent", payload)
     commit("syncStatusChanged");
   },
@@ -37733,19 +37834,39 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async saveContent({ state, commit }) {
+  async saveContent({ state, commit, getters }) {
+    // Guard: ing
     if (state.status.saving || !state.status.changed) {
       return
     }
 
+    // Which content should I load?
+    let meta = state.meta
+    let path = getters.contentLoadPath
+    if (!path || !meta || !state.dataHome) {
+      return
+    }
+    if ("<self>" != path) {
+      let aph = Ti.Util.appendPath(state.dataHome, path)
+      meta = await Wn.Io.loadMeta(aph)
+      // If not exists, then create it
+      if(!meta) {
+        let cmdText = `touch '${aph}'`
+        await Wn.Sys.exec2(cmdText)
+        meta = await Wn.Io.loadMeta(aph)
+      }
+    }
+
+    // Do save content
     commit("setStatus", { saving: true })
 
-    let meta = state.meta
     let content = state.content
     let newMeta = await Wn.Io.saveContentAsText(meta, content)
 
     commit("setStatus", { saving: false })
-    commit("setMeta", newMeta)
+    if ("<self>" == path) {
+      commit("setMeta", newMeta)
+    }
     commit("setSavedContent", content)
     commit("syncStatusChanged")
 
@@ -42824,7 +42945,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     OnClickItem({value, index}, $event) {
       if(this.readonly)
         return
-      let toggle = ($event.ctrlKey || $event.metaKey)
+      let toggle = ($event.ctrlKey || $event.metaKey || this.autoToggle)
       let shift  = $event.shiftKey;
       // Multi + Shift Mode
       if(shift && this.multi) {
@@ -44896,15 +45017,37 @@ async function loadConfigJson(state, key, dft) {
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
-  async loadContent({ state, commit }) {
-    // Guard
+  async loadContent({ state, commit, dispatch, getters }) {
+    // Guard : dataHome
+    if (!state.dataHome) {
+      return
+    }
+    // Guard : meta
     let meta = state.meta
     if (!meta) {
       return
     }
+    // Which content should I load?
+    let path = getters.contentLoadPath
+    if (!path) {
+      return
+    }
+    if ("<self>" != path) {
+      path = Ti.Util.appendPath(state.dataHome, path)
+      meta = await Wn.Io.loadMeta(path)
+    }
+
+    //console.log("load Content:", path)
+    // No meta
+    if (!meta) {
+      dispatch("updateContent", null)
+      return
+    }
+
     // Load meta content
     commit("setStatus", { reloading: true })
     let content = await Wn.Io.loadContent(meta)
+    //console.log("do load Content:", content)
     dispatch("updateContent", content)
     commit("setStatus", { reloading: false })
   },
@@ -44921,12 +45064,17 @@ const _M = {
     commit("setSchema", schema)
     //console.log("schema", schema)
 
-    if(schema.methods) {
+    if (schema.methods) {
       commit("setMethodPaths", schema.methods)
     }
 
     if (schema.localBehaviorKeepAt) {
       commit("setLocalBehaviorKeepAt", schema.localBehaviorKeepAt)
+    }
+
+    let contentPath = _.get(schema, "behavior.contentPath")
+    if (contentPath) {
+      commit("setContentPath", contentPath)
     }
 
   },
@@ -44937,7 +45085,7 @@ const _M = {
   },
   //--------------------------------------------
   async loadThingActions({ state, commit }) {
-    let reo = await loadConfigJson(state, "actionsPath", [])
+    let reo = await loadConfigJson(state, "actionsPath", null)
     commit("setThingActions", reo)
   },
   //--------------------------------------------
@@ -45066,16 +45214,19 @@ const _M = {
     }
   },
   //--------------------------------------------
-  async reloadData({ state, dispatch }) {
+  async reloadData({ state, dispatch, getters }) {
     if (state.oTs) {
       await dispatch("queryList");
+    }
+    if (getters.contentLoadPath) {
+      await dispatch("loadContent")
     }
   },
   //--------------------------------------------
   /***
    * Reload All
    */
-  async reload({ state, commit, dispatch }, meta) {
+  async reload({ state, commit, dispatch, getters }, meta) {
     // Guard
     if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
@@ -45116,10 +45267,17 @@ const _M = {
     dispatch("restoreLocalBehavior")
 
     // Reload thing list
-    await dispatch("reloadData");
+    if (state.oTs) {
+      await dispatch("queryList");
+    }
 
     // Update dataHome
     commit("autoDataHome")
+
+    // Reload content if neccessary
+    if (getters.contentLoadPath) {
+      await dispatch("loadContent")
+    }
 
     // All done
     commit("setStatus", { reloading: false })
@@ -46408,6 +46566,27 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------------
     isHardRemove(state) {
       return _.get(state, "schema.behavior.hardRemove")
+    },
+    //--------------------------------------------
+    contentLoadPath(state) {
+      if(state.contentPath) {
+        // fixed content path
+        if(_.isString(state.contentPath)){
+          return state.contentPath
+        }
+        // Try find content path
+        let canPaths = _.concat([], state.contentPath)
+        for(let canPath of canPaths) {
+          let {test, path} = canPath
+          if(!test || Ti.AutoMatch.test(test, state)) {
+            return path
+          }
+        }
+      }
+    },
+    //--------------------------------------------
+    hasCurrentMeta(state) {
+      return state.meta && state.dataHome ? true : false
     }
     //--------------------------------------------
   },
@@ -58949,10 +59128,12 @@ const _M = {
         "block:shown": "updateBlockShown",
         "block:show": "showBlock",
         "block:hide": "hideBlock",
-        "search::list::select": "OnSearchListSelect",
-        "search::filter::filter:change": "OnSearchFilterChange",
-        "search::filter::sorter:change": "OnSearchSorterChange",
-        "search::pager::change": "OnSearchPagerChange"
+        "content::change": "OnContentChange",
+        "save:change" : "OnSaveChange",
+        "list::select": "OnSearchListSelect",
+        "filter::filter:change": "OnSearchFilterChange",
+        "filter::sorter:change": "OnSearchSorterChange",
+        "pager::change": "OnSearchPagerChange"
       }, routing)
     }
     //--------------------------------------
@@ -58975,6 +59156,14 @@ const _M = {
     //--------------------------------------
     async OnSearchPagerChange(payload) {
       await this.dispatch("applyPager", payload)
+    },
+    //--------------------------------------
+    OnContentChange(payload) {
+      this.dispatch("changeContent", payload)
+    },
+    //--------------------------------------
+    async OnSaveChange() {
+      await this.dispatch("saveContent")
     },
     //--------------------------------------
     //
@@ -59047,7 +59236,7 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      console.log("WnThAdaptor.__on_events", name, payload)
+      //console.log("WnThAdaptor.__on_events", name, payload)
       // ByPass
       if (/^(indicate)$/.test(name)) {
         return () => ({ stop: false })
@@ -59086,12 +59275,20 @@ const _M = {
     //--------------------------------------
   },
   ///////////////////////////////////////////
+  watch: {
+    "contentLoadPath": function (newVal, oldVal) {
+      if (newVal && !_.isEqual(newVal, oldVal)) {
+        this.dispatch("loadContent")
+      }
+    }
+  },
+  ///////////////////////////////////////////
   created: function () {
   },
   ///////////////////////////////////////////
   mounted: async function () {
     // Update the customized actions
-    let actions = this.thingActions || []
+    let actions = this.thingActions
     if (_.isArray(actions)) {
       this.$notify("actions:update", actions)
     }
@@ -63386,7 +63583,9 @@ const _M = {
     //-----------------------------------
     isEnabled() {
       if(!Ti.Util.isNil(this.enabled)) {
-        return this.isMatchStatus(this.enabled)
+        if(!this.isMatchStatus(this.enabled)){
+          return false
+        }
       }
       if(!Ti.Util.isNil(this.disabled)) {
         if(this.isMatchStatus(this.disabled)) {
@@ -64113,39 +64312,43 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "value" : null,
-  "options" : {
-    type : [Array, Function, String, Ti.Dict],
-    default : ()=>[]
+  "value": null,
+  "options": {
+    type: [Array, Function, String, Ti.Dict],
+    default: () => []
   },
-  "valueBy" : {
-    type : [String, Function],
-    default : undefined
+  "valueBy": {
+    type: [String, Function],
+    default: undefined
   },
-  "textBy" : {
-    type : [String, Function],
-    default : undefined
+  "textBy": {
+    type: [String, Function],
+    default: undefined
   },
-  "iconeBy" : {
-    type : [String, Function],
-    default : undefined
+  "iconeBy": {
+    type: [String, Function],
+    default: undefined
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "readonly" : {
-    type : Boolean,
-    default : false
+  "readonly": {
+    type: Boolean,
+    default: false
   },
-  "multi" : {
-    type : Boolean,
-    default : false
+  "multi": {
+    type: Boolean,
+    default: false
+  },
+  "autoToggle": {
+    type: Boolean,
+    default: true
   },
   // In single mode, to keep at least one item selected,
   // you can set the prop to `false`
-  "allowEmpty" : {
-    type : Boolean,
-    default : true
+  "allowEmpty": {
+    type: Boolean,
+    default: true
   },
   "autoSplitValue": {
     type: [Boolean, String],
@@ -64158,23 +64361,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "defaultIcon" : {
-    type : String,
-    default : null
+  "defaultIcon": {
+    type: String,
+    default: null
   },
-  "emptylAs" : {
-    default : null
+  "emptylAs": {
+    default: null
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "width" : {
-    type : [Number, String],
-    default : null
+  "width": {
+    type: [Number, String],
+    default: null
   },
-  "height" : {
-    type : [Number, String],
-    default : null
+  "height": {
+    type: [Number, String],
+    default: null
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -64270,6 +64473,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------------
     isHardRemove(state) {
       return _.get(state, "oDir.hard_remove")
+    },
+    //--------------------------------------------
+    contentLoadPath(state) {
+      if(state.contentPath) {
+        // fixed content path
+        if(_.isString(state.contentPath)){
+          return state.contentPath
+        }
+        // Try find content path
+        let canPaths = _.concat([], state.contentPath)
+        for(let canPath of canPaths) {
+          let {test, path} = canPath
+          if(!test || Ti.AutoMatch.test(test, state)) {
+            return path
+          }
+        }
+      }
     }
     //--------------------------------------------
   },
@@ -66879,15 +67099,15 @@ const _M = {
       default: () => []
     },
     "enabled": {
-      type: [String, Array, Object],
+      type: [String, Array, Object, Boolean],
       default: undefined
     },
     "disabled": {
-      type: [String, Array, Object],
+      type: [String, Array, Object, Boolean],
       default: undefined
     },
     "highlight": {
-      type: [String, Array, Object],
+      type: [String, Array, Object, Boolean],
       default: undefined
     },
     "value": {
@@ -69167,8 +69387,7 @@ Ti.Preload("ti/com/ti/actionbar/com/bar-item-switcher/_com.json", {
 // JOIN <ti-actionbar.html> ti/com/ti/actionbar/ti-actionbar.html
 //========================================
 Ti.Preload("ti/com/ti/actionbar/ti-actionbar.html", `<div class="ti-actionbar"
-  :class="TopClass"
-  v-ti-activable>
+  :class="TopClass">
   <bar-item-group 
     name="Ti_ActionBar_Root_Group"
     :items="BarItems"
@@ -80987,6 +81206,7 @@ Ti.Preload("ti/mod/wn/obj/m-wn-obj.json", {
   "meta": null,
   "content": null,
   "__saved_content": null,
+  "contentPath": null,
   "status": {
     "reloading": false,
     "doing": false,
@@ -81325,6 +81545,16 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "meta": null,
   "content": null,
   "__saved_content": null,
+  "contentPath": [
+    {
+      "test": {
+        "guiShown": {
+          "content": true
+        }
+      },
+      "path": "<self>"
+    }
+  ],
   "dataHome": null,
   "dataDirName": null,
   "keepDataDirNameToLocal": true,
@@ -81354,7 +81584,7 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "layoutPath": "thing-layout.json",
   "schemaPath": "thing-schema.json",
   "methodPaths": null,
-  "thingActions": [],
+  "thingActions": null,
   "layout": {},
   "schema": {},
   "thingMethods": {}

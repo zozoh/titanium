@@ -1,4 +1,4 @@
-// Pack At: 2021-12-28 10:53:34
+// Pack At: 2021-12-30 15:25:37
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3454,7 +3454,7 @@ const {App} = (function(){
         return fn
       }
       // report error
-      throw Ti.Err.make("e-ti-app-main", { nm, payload })
+      throw Ti.Err.make("e-ti-app-main", { nm, args })
     }
     //---------------------------------------
     // Invoke the function in window object
@@ -17226,7 +17226,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20211228.105334",
+  "version" : "1.6-20211230.152537",
   "dev" : false,
   "appName" : null,
   "session" : {},

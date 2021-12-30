@@ -40,7 +40,7 @@ export default {
     },
     "autoSelect": {
       type: Boolean,
-      default: undefined
+      default: true
     },
     "readonly": {
       type: Boolean,
