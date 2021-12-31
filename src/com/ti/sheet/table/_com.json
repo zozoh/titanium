@@ -1,0 +1,6 @@
+{
+  "name" : "ti-sheet-emoji",
+  "globally" : true,
+  "template" : "./ti-sheet-emoji.html",
+  "mixins" : ["./ti-sheet-emoji.mjs"]
+}

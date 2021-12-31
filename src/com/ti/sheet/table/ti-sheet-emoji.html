@@ -1,0 +1,15 @@
+<div  class="ti-sheet-emoji" 
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Candidate List
+  -->
+  <div class="as-list">
+    <div
+      v-for="li in TheDataSheet"
+        class="emoji-item"
+        @click.left="myValue=li.value">
+        <span>{{li.value}}</span>
+    </div>
+  </div>
+</div>

@@ -95,9 +95,10 @@
           @include pos-abs($t:0,$l:0,$w:$thead, $h:$thead);
           @include flex-center;
           @include border(1px, solid, shallow, right);
-          cursor: pointer;
+          @include color($color-body, r, c);
+          cursor: pointer; opacity: 0.9;
           z-index: $z-above + 1;
-          &:hover {@include color($color-weaktip, r, c);}
+          &:hover {@include color($color-weaktip, r, c); opacity: 1;}
         }
         //---------------------------------------
         .as-customized-btn {
