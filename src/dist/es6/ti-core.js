@@ -1,4 +1,4 @@
-// Pack At: 2021-12-30 15:25:37
+// Pack At: 2022-01-06 01:03:57
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -5964,82 +5964,82 @@ const {Load} = (function(){
 const {Http} = (function(){
   //-----------------------------------
   const RESP_TRANS = {
-    arraybuffer($req){
+    arraybuffer($req) {
       throw "No implement yet!"
     },
-    blob($req){
+    blob($req) {
       throw "No implement yet!"
     },
-    document($req){
+    document($req) {
       throw "No implement yet!"
     },
-    xml($req){
+    xml($req) {
       throw "No implement yet!"
     },
     ajax($req) {
       let reo = RESP_TRANS.json($req);
-      if(reo.ok) {
+      if (reo.ok) {
         return reo.data
       }
       throw reo
     },
-    json($req){
+    json($req) {
       let content = $req.responseText
       let str = _.trim(content) || null
       try {
         return JSON.parse(str)
-      }catch(E) {
+      } catch (E) {
         return Ti.Types.safeParseJson(str, str)
         // console.warn("fail to JSON.parse", str)
         // throw E
       }
     },
-    jsonOrText($req){
+    jsonOrText($req) {
       let content = $req.responseText
-      try{
+      try {
         let str = _.trim(content) || null
         return JSON.parse(str)
-      }catch(E){}
+      } catch (E) { }
       return content
     },
-    text($req){
+    text($req) {
       return $req.responseText
     }
   }
   //-----------------------------------
-  function ProcessResponseData($req, {as="text"}={}) {
+  function ProcessResponseData($req, { as = "text" } = {}) {
     return Ti.InvokeBy(RESP_TRANS, as, [$req])
   }
   //-----------------------------------
   const TiHttp = {
-    send(url, options={}) {
-      if(Ti.IsInfo("TiHttp")) {
+    send(url, options = {}) {
+      if (Ti.IsInfo("TiHttp")) {
         console.log("TiHttp.send", url, options)
       }
-      if(!url)
+      if (!url)
         return
       let {
-        method="GET", 
-        params={},
-        body=null,    // POST BODY, then params -> query string
-        file=null,
-        headers={},
-        cleanNil=true,  // Clean the params nil fields
-        progress=_.identity,
-        created=_.identity,
-        beforeSend=_.identity,
-        finished=_.identity,
-        readyStateChanged=_.identity
+        method = "GET",
+        params = {},
+        body = null,    // POST BODY, then params -> query string
+        file = null,
+        headers = {},
+        cleanNil = true,  // Clean the params nil fields
+        progress = _.identity,
+        created = _.identity,
+        beforeSend = _.identity,
+        finished = _.identity,
+        readyStateChanged = _.identity
       } = options
       // normalize method
       method = _.upperCase(method)
   
       // Clean nil
-      if(cleanNil) {
+      if (cleanNil) {
         let p2 = {}
         Ti.Util.walk(params, {
           leaf: (v, path) => {
-            if(!Ti.Util.isNil(v)) {
+            if (!Ti.Util.isNil(v)) {
               _.set(p2, path, v)
             }
           }
@@ -6053,50 +6053,50 @@ const {Http} = (function(){
       // })
   
       // Default header for POST
-      let {urlToSend, sendData} = Ti.Invoke(({
-        "GET" : ()=>{
+      let { urlToSend, sendData } = Ti.Invoke(({
+        "GET": () => {
           let sendData = TiHttp.encodeFormData(params)
           return {
-            urlToSend : sendData 
-                          ? (url + '?' + sendData) 
-                          : url
+            urlToSend: sendData
+              ? (url + '?' + sendData)
+              : url
           }
         },
-        "POST" : ()=>{
+        "POST": () => {
           _.defaults(headers, {
             "Content-type": "application/x-www-form-urlencoded; charset=utf-8"
           })
           // Upload file, encode the params to query string
-          if(file) {
+          if (file) {
             return {
-              urlToSend : [url,TiHttp.encodeFormData(params)].join("?"),
-              sendData  : file
+              urlToSend: [url, TiHttp.encodeFormData(params)].join("?"),
+              sendData: file
             }
-          } 
+          }
           // if declare body, the params -> query string
           // you can send XML/JSON by this branch
-          else if(!Ti.Util.isNil(body)) {
+          else if (!Ti.Util.isNil(body)) {
             return {
-              urlToSend : [url,TiHttp.encodeFormData(params)].join("?"),
-              sendData  : body
+              urlToSend: [url, TiHttp.encodeFormData(params)].join("?"),
+              sendData: body
             }
           }
           // Normal form upload
           else {
             return {
-              urlToSend : url,
-              sendData  : TiHttp.encodeFormData(params)
+              urlToSend: url,
+              sendData: TiHttp.encodeFormData(params)
             }
           }
         }
-      })[method]) || {urlToSend : url}
-      
+      })[method]) || { urlToSend: url }
+  
       // Prepare the Request Object
       let $req = new XMLHttpRequest()
   
       // Check upload file supporting
-      if(file) {
-        if(!$req.upload) {
+      if (file) {
+        if (!$req.upload) {
           throw Ti.Err.make("e.ti.http.upload.NoSupported")
         }
         $req.upload.addEventListener("progress", progress)
@@ -6106,15 +6106,15 @@ const {Http} = (function(){
       created($req)
   
       // Process sending
-      return new Promise((resolve, reject)=>{
+      return new Promise((resolve, reject) => {
         // callback
-        $req.onreadystatechange = ()=>{
+        $req.onreadystatechange = () => {
           readyStateChanged($req, options)
           // Done
-          if(4 == $req.readyState) {
+          if (4 == $req.readyState) {
             // Hooking
             finished($req)
-            if(200 == $req.status) {
+            if (200 == $req.status) {
               resolve($req)
             } else {
               reject($req)
@@ -6124,7 +6124,7 @@ const {Http} = (function(){
         // Open connection
         $req.open(method, urlToSend)
         // Set headers
-        _.forOwn(headers, (val, key)=>{
+        _.forOwn(headers, (val, key) => {
           $req.setRequestHeader(key, val)
         })
         // Hooking
@@ -6140,28 +6140,30 @@ const {Http} = (function(){
      * @param options.readyStateChanged{Function}=_.identity
      * @param options.as{String}="text"
      */
-    sendAndProcess(url, options={}) {
+    sendAndProcess(url, options = {}) {
       return TiHttp.send(url, options)
-        .then(($req)=>{
+        .then(($req) => {
           return ProcessResponseData($req, options)
+        }).catch(({ responseText } = {}) => {
+          throw _.trim(responseText)
         })
     },
     /***
      * Send HTTP GET
      */
-    get(url, options={}){
+    get(url, options = {}) {
       return TiHttp.sendAndProcess(
-        url, 
+        url,
         _.assign({}, options, {
-          method:"GET"
+          method: "GET"
         }))
     },
     /***
      * Send HTTP post
      */
-    post(url, options={}){
+    post(url, options = {}) {
       return TiHttp.sendAndProcess(
-        url, 
+        url,
         _.assign({}, options, {
           method: "POST"
         }))
@@ -6169,9 +6171,9 @@ const {Http} = (function(){
     /***
      * encode form data
      */
-    encodeFormData(params={}) {
+    encodeFormData(params = {}) {
       let list = []
-      _.forOwn(params, (val, key)=>{
+      _.forOwn(params, (val, key) => {
         let str = Ti.Types.toStr(val)
         list.push(`${key}=${encodeURIComponent(str)}`)
       })
@@ -9557,8 +9559,24 @@ const {Util} = (function(){
             query   : m[10],
             hash    : m[11],
             anchor  : m[12],
+            toUrlPath() {
+              let ss = []
+              if(this.protocol) {
+                ss.push(`:${this.protocol}`)
+              }
+              if(this.host) {
+                ss.push(`//${this.host}`)
+              }
+              if(this.port>80) {
+                ss.push(`:${this.port}`)
+              }
+              if(this.path) {
+                ss.push(this.path)
+              }
+              return ss.join("")
+            },
             toString() {
-              let s = `${this.protocol}://${this.host}${this.path}`
+              let s = this.toUrlPath()
               if(!_.isEmpty(this.params)) {
                 let pp = []
                 _.forEach(this.params, (v, k)=>{
@@ -9715,6 +9733,13 @@ const {Util} = (function(){
   //---------------------------------------
   const TiUtil = {
     ...TiPaths, ...TiLink,
+    /**
+     * @param {String} comType 
+     * @return Upper first camel case com type name
+     */
+    toStdComType(comType) {
+      return _.upperFirst(_.camelCase(comType))
+    },
     /***
      * Merge an plain object by gived arguments deeply.
      * 
@@ -17226,7 +17251,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20211230.152537",
+  "version" : "1.6-20220106.010357",
   "dev" : false,
   "appName" : null,
   "session" : {},

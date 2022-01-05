@@ -377,6 +377,11 @@ const _M = {
       for (let li of displayItems) {
         let item = this.evalFieldDisplayItem(li, { defaultKey })
         if (item) {
+          if (item.comType == "TiLabel") {
+            _.defaults(item.comConf, {
+              hoverCopy: this.dftLabelHoverCopy
+            })
+          }
           items.push(item)
         }
       }

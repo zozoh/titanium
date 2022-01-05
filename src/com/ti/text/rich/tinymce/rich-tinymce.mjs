@@ -234,6 +234,7 @@ const _M = {
     },
     //-----------------------------------------------
     evalOutline() {
+      console.log("evalOutline")
       let list = []
       this.$editor.$('h1,h2,h3,h4,h5,h6,[doc-heading]').each((index, el)=>{
         let nodeId = el.getAttribute("ti-outline-id")
@@ -248,8 +249,10 @@ const _M = {
           level = 1
         } else  if("sub-title" == headingName) {
           level = 2
-        } else {
+        } else if(/^H[1-9]$/.test(el.tagName)) {
           level = parseInt(el.tagName.substring(1)) + 2
+        } else {
+          return
         }
 
         list.push({

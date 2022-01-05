@@ -3,6 +3,13 @@ import TiLink from "./util-link.mjs"
 //---------------------------------------
 const TiUtil = {
   ...TiPaths, ...TiLink,
+  /**
+   * @param {String} comType 
+   * @return Upper first camel case com type name
+   */
+  toStdComType(comType) {
+    return _.upperFirst(_.camelCase(comType))
+  },
   /***
    * Merge an plain object by gived arguments deeply.
    * 

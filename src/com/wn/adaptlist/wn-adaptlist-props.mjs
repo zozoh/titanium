@@ -84,7 +84,7 @@ export default {
     type : Object
   },
   "acceptUpload" : {
-    type : Array
+    type: [Array, String]
   },
   "exposeHidden" : {
     type : Boolean,

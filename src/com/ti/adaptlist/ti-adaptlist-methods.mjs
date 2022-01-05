@@ -1,6 +1,12 @@
 const OBJ = {
   //--------------------------------------------
   async doUpload(files = []) {
+    // Guard
+    if(!_.isFunction(this.uploadBy)) {
+      return await Ti.Toast.Open('TiAdaptlist::uploadBy without defined!')
+    }
+
+    // Pre-process
     if (_.isFunction(this.beforeUpload)) {
       await this.beforeUpload()
     }
@@ -21,7 +27,7 @@ const OBJ = {
     // Do upload file one by one
     for (let up of ups) {
       let file = up.file
-      let { ok, data } = await Wn.Io.uploadFile(file, {
+      let { ok, data } = await this.uploadBy(file, {
         target: `id:${this.meta.id}`,
         progress: function (pe) {
           up.current = pe.loaded

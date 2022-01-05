@@ -244,8 +244,24 @@ const TiPaths = {
         query   : m[10],
         hash    : m[11],
         anchor  : m[12],
+        toUrlPath() {
+          let ss = []
+          if(this.protocol) {
+            ss.push(`:${this.protocol}`)
+          }
+          if(this.host) {
+            ss.push(`//${this.host}`)
+          }
+          if(this.port>80) {
+            ss.push(`:${this.port}`)
+          }
+          if(this.path) {
+            ss.push(this.path)
+          }
+          return ss.join("")
+        },
         toString() {
-          let s = `${this.protocol}://${this.host}${this.path}`
+          let s = this.toUrlPath()
           if(!_.isEmpty(this.params)) {
             let pp = []
             _.forEach(this.params, (v, k)=>{

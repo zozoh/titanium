@@ -123,6 +123,7 @@
   "e-io-obj-exists": "但是对象已然存在",
   "e-io-obj-noexists": "对象其实并不存在",
   "e-io-obj-noexistsf": "对象[${nm}]其实并不存在",
+  "e-io-rm-NoEmptyDir": "要移除的目录还有内容，不能删除",
   "e-obj-invalid": "路径[${val}]非法",
   "e-obj-noexists": "对象[${val}]不存在",
   "e-ph-noexists": "路径[${val}]不存在",

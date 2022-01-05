@@ -1,4 +1,4 @@
-// Pack At: 2021-12-30 15:25:37
+// Pack At: 2022-01-06 01:03:57
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -209,7 +209,7 @@ const FieldDisplay = {
       // Guard it
       if (Ti.Util.isNil(displayItem)) {
         return defaultKey
-          ? { key: defaultKey, comType: "ti-label" }
+          ? { key: defaultKey, comType: "TiLabel" }
           : null
       }
       //......................................
@@ -217,7 +217,7 @@ const FieldDisplay = {
       if (_.isPlainObject(displayItem)) {
         let dis = _.assign({
           key: defaultKey,
-          comType: "ti-label",
+          comType: "TiLabel",
         }, displayItem)
         if (dis.transformer) {
           const invokeOpt = {
@@ -233,7 +233,7 @@ const FieldDisplay = {
       if (_.isArray(displayItem)) {
         return {
           key: displayItem,
-          comType: "ti-label",
+          comType: "TiLabel",
         }
       }
       //......................................
@@ -241,7 +241,7 @@ const FieldDisplay = {
       if (true === displayItem) {
         return {
           key: defaultKey,
-          comType: "ti-label",
+          comType: "TiLabel",
         }
       }
       //......................................
@@ -260,13 +260,13 @@ const FieldDisplay = {
           }
         }
         //......................................
-        // #DictName(xxx) -> ti-label
+        // #DictName(xxx) -> TiLabel
         // just like `#RelayStatus(status):xxx:is-nowrap`
         m = /^(!)?[@#]([^\(]+)\(([^)]+)\)(:([^:]*)(:([^:]+))?)?$/.exec(displayItem)
         if (m) {
           return {
             key: m[3] || defaultKey,
-            comType: "ti-label",
+            comType: "TiLabel",
             comConf: {
               dict: m[2],
               format: m[5] || undefined,
@@ -294,14 +294,14 @@ const FieldDisplay = {
           return {
             key: m[3] || defaultKey || Symbol(displayItem),
             transformer,
-            comType: m[1],
+            comType: Ti.Util.toStdComType(m[1]),
             comConf: {
               className
             }
           }
         }
         //......................................
-        // String -> ti-label
+        // String -> TiLabel
         // - "name" or ["name", "age"]
         // - "'Static Text'"
         // - "text+>/a/link?nm=${name}"
@@ -315,7 +315,7 @@ const FieldDisplay = {
           let href = _.trim(m[8])
           return {
             key,
-            comType: "ti-label",
+            comType: "TiLabel",
             comConf: {
               className: m[5] || "is-nowrap",
               newTab,
@@ -328,7 +328,7 @@ const FieldDisplay = {
         // Default as lable
         return {
           key: displayItem,
-          comType: "ti-label"
+          comType: "TiLabel"
         }
         //......................................
       }
@@ -2280,6 +2280,99 @@ const _M = {
   //////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'ti-sheet-emoji.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/sheet/table/ti-sheet-emoji.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////////
+  data : ()=>({
+    myValue : null
+  }),
+  ///////////////////////////////////////////////////////
+  props : {
+    "value" : {
+      type : [String,Object,Number],
+      default : null
+    },
+    "width" : {
+      type : [Number, String],
+      default : "100%"
+    },
+    "height" : {
+      type : [Number, String],
+      default : "100%"
+    },
+    "data" : {
+      type : [String, Array],
+      default : ()=>[
+        "😀 😃 😄 😁 😆 😅 🤣 😂 🙂 🙃 😉 😊 😇",
+        "🥰 😍 🤩 😘 😗 😚 😙 😋 😛 😜 🤪 😝 🤑",
+        "🤗 🤭 🤫 🤔 🤐 🤨 😐 😑 😶 😏 😒 🙄 😬",
+        "🤥 😌 😔 😪 🤤 😴 😷 🤒 🤕 🤢 🤮 🤧 🥵",
+        "🥶 🥴 😵 🤯 🤠 🥳 😎 🤓 🧐 😕 😟 🙁 ☹️",
+        "😮 😯 😲 😳 🥺 😦 😧 😨 😰 😥 😢 😭 😱",
+        "😖 😣 😞 😓 😩 😫 🥱 😤 😡 😠 🤬 😈 👿",
+        "💀 ☠️ 💩 🤡 👹 👺 👻 👽 👾 🤖 😺 😸 😹",
+        "😻 😼 😽 🙀 😿 😾 🙈 🙉 🙊 "
+      ]
+    }
+  },
+  ///////////////////////////////////////////////////////
+  computed : {
+    //---------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //---------------------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //---------------------------------------------------
+    hasValue() {
+      return this.TheValue ? true : false
+    },
+    //---------------------------------------------------
+    TheValue() {
+      return this.myValue || this.value
+    },
+    //---------------------------------------------------
+    TheDataSheet() {
+      let list = []
+      let sheet = _.flattenDeep(this.data).join("").replace(/[ ]/g, "")
+      // 逐字解析
+      for(let i=0; i<sheet.length; i+=2) {
+        let c = sheet.substring(i, i+2);
+        list.push({
+          value : c
+        })
+      }
+      return list
+    }
+    //---------------------------------------------------
+  },
+  methods : {
+    //---------------------------------------------------
+    OnClickTop() {
+      if(this.notifyName) {
+        this.$notify(this.notifyName, this.notifyConf)
+      }
+    }
+    //---------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    "myValue" : function() {
+      this.$notify("change", this.myValue)
+    }
+  }
+  ///////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'ti-input-date.mjs' -> null
@@ -6902,6 +6995,12 @@ window.TI_PACK_EXPORTS['ti/com/ti/adaptlist/ti-adaptlist-methods.mjs'] = (functi
 const OBJ = {
   //--------------------------------------------
   async doUpload(files = []) {
+    // Guard
+    if(!_.isFunction(this.uploadBy)) {
+      return await Ti.Toast.Open('TiAdaptlist::uploadBy without defined!')
+    }
+
+    // Pre-process
     if (_.isFunction(this.beforeUpload)) {
       await this.beforeUpload()
     }
@@ -6922,7 +7021,7 @@ const OBJ = {
     // Do upload file one by one
     for (let up of ups) {
       let file = up.file
-      let { ok, data } = await Wn.Io.uploadFile(file, {
+      let { ok, data } = await this.uploadBy(file, {
         target: `id:${this.meta.id}`,
         progress: function (pe) {
           up.current = pe.loaded
@@ -7365,7 +7464,6 @@ const _M = {
     },
     //---------------------------------------
     OnFired(collapse) {
-      console.log("haha")
       if(collapse) {
         this.doExtend()
       } else {
@@ -9643,107 +9741,111 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "meta" : {
-    type : Object,
-    default : null
+  "meta": {
+    type: Object,
+    default: null
   },
   // {list:[], pager:{..}}
-  "data" : {
-    type : [Object, Array],
-    default : null
+  "data": {
+    type: [Object, Array],
+    default: null
   },
-  "currentId" : {
-    type : String,
-    default : null
+  "currentId": {
+    type: String,
+    default: null
   },
-  "changedId" : {
-    type : String,
-    default : null
+  "checkedIds": {
+    type: [Array, Object],
+    default: undefined
   },
-  "status" : {
-    type : Object,
-    default : ()=>({
-      reloading : false
+  "changedId": {
+    type: String,
+    default: null
+  },
+  "status": {
+    type: Object,
+    default: () => ({
+      reloading: false
     })
   },
-  "itemTitleKey" : {
-    type : String,
-    default : "title"
+  "itemTitleKey": {
+    type: String,
+    default: "title|text|nm"
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
   // Drop files to upload
-  "droppable" : {
-    type : Boolean,
-    default : true
+  "droppable": {
+    type: Boolean,
+    default: true
   },
   // multi-selectable
   // effected when selectable is true
-  "multi" : {
-    type : Boolean,
-    default : true
+  "multi": {
+    type: Boolean,
+    default: true
   },
-  "checkable" : {
-    type : Boolean,
-    default : true
+  "checkable": {
+    type: Boolean,
+    default: true
   },
-  "blurable" : {
-    type : Boolean,
-    default : true
+  "blurable": {
+    type: Boolean,
+    default: true
   },
-  "selectable" : {
-    type : Boolean,
-    default : true
+  "selectable": {
+    type: Boolean,
+    default: true
   },
   // aspect: list item spacing
   // `xs|sm|md|lg|xl`
-  "spacing" : {
-    type : String,
-    default : "sm"
+  "spacing": {
+    type: String,
+    default: "sm"
   },
-  "routers" : {
-    type : Object,
-    default : ()=>({
-      "reload" : "dispatch:main/reload"
+  "routers": {
+    type: Object,
+    default: () => ({
+      "reload": "dispatch:main/reload"
     })
   },
-  "listConf" : {
-    type : Object
+  "listConf": {
+    type: Object
   },
-  "wallViewConf"  : {
-    type : Object
+  "wallViewConf": {
+    type: Object
   },
-  "listViewConf"  : {
-    type : Object
+  "listViewConf": {
+    type: Object
   },
-  "tableViewConf" : {
-    type : Object
+  "tableViewConf": {
+    type: Object
   },
-  "acceptUpload" : {
-    type : Array
+  "acceptUpload": {
+    type: [Array, String]
   },
-  "exposeHidden" : {
-    type : Boolean,
+  "exposeHidden": {
+    type: Boolean,
   },
-  "viewType" : {
-    type : String,
-    default : "wall"
+  "viewType": {
+    type: String,
+    default: "wall"
   },
-  "avaViewTypes" : {
-    type : Array,
-    default : ()=>["wall", "table", "list"]
+  "avaViewTypes": {
+    type: Array,
+    default: () => ["wall", "table", "list"]
   },
-  "listDisplay" : {
-    type : [Array, String, Object],
-    default: ()=>["@<thumb>", "title|nm::flex-auto", "nm::as-tip-block"]
+  "listDisplay": {
+    type: [Array, String, Object],
+    default: () => ["@<thumb>", "title|nm::flex-auto", "nm::as-tip-block"]
   },
-  "tableFields" : {
-    type : Array,
-    default : ()=>["title", "c", "g", "tp", "len", "lm"]
+  "tableFields": {
+    type: Array,
+    default: () => ["title", "c", "g", "tp", "len", "lm"]
   },
-  "moveToConf" : {
-    type : Object
+  "moveToConf": {
+    type: Object
   },
   //-----------------------------------
   // Aspect
@@ -9752,27 +9854,42 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Number,
     default: undefined
   },
-  "itemClassName" : {
-    type : String
+  "itemClassName": {
+    type: String
   },
-  "itemBadges" : {
-    type : [Object, Function]
+  "itemBadges": {
+    type: [Object, Function]
   },
-  "viewTypeIcons" : {
-    type : Object,
-    default : ()=>({
-      "wall"  : "zmdi-view-module",
-      "table" : "zmdi-view-subtitles",
-      "list"  : "zmdi-view-headline"
+  "viewTypeIcons": {
+    type: Object,
+    default: () => ({
+      "wall": "zmdi-view-module",
+      "table": "zmdi-view-subtitles",
+      "list": "zmdi-view-headline"
     })
+  },
+  "thumbBy": {
+    type: Function
   },
   //-----------------------------------
   // Callback
   //-----------------------------------
-  "beforeUpload" : {
+  "beforeUpload": {
     type: Function
   },
-  "onViewTypeChange" : {
+  /**
+   * Callback function:
+   * ```
+   * function(File, {
+   *    target,
+   *    progress: {loaded, current}
+   * })
+   * ```
+   */
+  "uploadBy": {
+    type: Function
+  },
+  "onViewTypeChange": {
     type: Function,
   }
 }
@@ -13678,7 +13795,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : Object
   },
   "acceptUpload" : {
-    type : Array
+    type: [Array, String]
   },
   "exposeHidden" : {
     type : Boolean,
@@ -41540,12 +41657,28 @@ const _M = {
       let list = []
       for (let it of this.DataList) {
         if (!this.isHiddenItem(it)) {
-          let li = Wn.Util.getObjThumbInfo(it, {
-            status: this.myItemStatus,
-            exposeHidden: this.myExposeHidden,
-            titleKey: this.itemTitleKey,
-            badges: this.itemBadges
-          })
+          let li;
+          if (_.isFunction(this.thumbBy)) {
+            li = this.thumbBy(it, {
+              status: this.myItemStatus,
+              exposeHidden: this.myExposeHidden,
+              titleKey: this.itemTitleKey,
+              badges: this.itemBadges
+            })
+          } else {
+            li = {
+              id: it.id,
+              nm: it.nm,
+              title: Ti.Util.getOrPick(it, this.itemTitleKey),
+              preview: undefined,
+              href: undefined,
+              visibility,
+              status: status[it.id],
+              progress: progress[it.id],
+              badges: undefined,
+              rawData: meta
+            }
+          }
           list.push(li)
           //list.push(it)
         }
@@ -41650,7 +41783,7 @@ const _M = {
       //console.log("open item")
       let obj = this.getCurrentItem()
       if (obj) {
-        this.$notify("open:wn:obj", obj)
+        this.$notify("open:obj", obj)
       }
     },
     //--------------------------------------
@@ -41658,7 +41791,7 @@ const _M = {
       // Guard
       //console.log("OnClipBoardPoste", clipboardData)
       let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
-      if(imgF) {
+      if (imgF) {
         let imgTp = Ti.Util.getSuffix(imgF.name)
         let dateS = Ti.DateTime.format(new Date(), "'Snapshot'-yyyyMMdd-HHmmss")
         imgF.uploadName = dateS + imgTp
@@ -41899,8 +42032,25 @@ const _M = {
     //--------------------------------------------
     "currentId": {
       handler: function (newVal, oldVal) {
+        //console.log("currentId changed", {newVal, oldVal})
         if (!_.isEqual(newVal, oldVal)) {
           this.myCurrentId = newVal
+        }
+      },
+      immediate: true
+    },
+    //--------------------------------------------
+    "checkedIds": {
+      handler: function (newVal, oldVal) {
+        //console.log("checkedIds changed", {newVal, oldVal})
+        if (!_.isEqual(newVal, oldVal)) {
+          if (_.isArray(newVal)) {
+            let ids = {}
+            _.forEach(newVal, id => ids[id] = true)
+            this.myCheckedIds = ids
+          } else {
+            this.myCheckedIds = _.cloneDeep(newVal)
+          }
         }
       },
       immediate: true
@@ -45873,6 +46023,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Behavior
   //-----------------------------------
+  "dftLabelHoverCopy": {
+    type: Boolean,
+    default: undefined
+  },
   "multi": {
     type: Boolean,
     default: false
@@ -49426,6 +49580,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
       for (let dis of diss) {
         let item = this.evalFieldDisplayItem(dis)
         if (item) {
+          if (item.comType == "TiLabel") {
+            _.defaults(item.comConf, {
+              hoverCopy: this.dftLabelHoverCopy
+            })
+          }
           items.push(item)
         }
       }
@@ -49761,6 +49920,7 @@ const _M = {
     },
     //-----------------------------------------------
     evalOutline() {
+      console.log("evalOutline")
       let list = []
       this.$editor.$('h1,h2,h3,h4,h5,h6,[doc-heading]').each((index, el)=>{
         let nodeId = el.getAttribute("ti-outline-id")
@@ -49775,8 +49935,10 @@ const _M = {
           level = 1
         } else  if("sub-title" == headingName) {
           level = 2
-        } else {
+        } else if(/^H[1-9]$/.test(el.tagName)) {
           level = parseInt(el.tagName.substring(1)) + 2
+        } else {
+          return
         }
 
         list.push({
@@ -62165,6 +62327,11 @@ const _M = {
       for (let li of displayItems) {
         let item = this.evalFieldDisplayItem(li, { defaultKey })
         if (item) {
+          if (item.comType == "TiLabel") {
+            _.defaults(item.comConf, {
+              hoverCopy: this.dftLabelHoverCopy
+            })
+          }
           items.push(item)
         }
       }
@@ -73712,6 +73879,37 @@ Ti.Preload("ti/com/ti/sheet/emoji/_com.json", {
   "mixins" : ["./ti-sheet-emoji.mjs"]
 });
 //========================================
+// JOIN <ti-sheet-emoji.html> ti/com/ti/sheet/table/ti-sheet-emoji.html
+//========================================
+Ti.Preload("ti/com/ti/sheet/table/ti-sheet-emoji.html", `<div  class="ti-sheet-emoji" 
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Candidate List
+  -->
+  <div class="as-list">
+    <div
+      v-for="li in TheDataSheet"
+        class="emoji-item"
+        @click.left="myValue=li.value">
+        <span>{{li.value}}</span>
+    </div>
+  </div>
+</div>`);
+//========================================
+// JOIN <ti-sheet-emoji.mjs> ti/com/ti/sheet/table/ti-sheet-emoji.mjs
+//========================================
+Ti.Preload("ti/com/ti/sheet/table/ti-sheet-emoji.mjs", TI_PACK_EXPORTS['ti/com/ti/sheet/table/ti-sheet-emoji.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/sheet/table/_com.json
+//========================================
+Ti.Preload("ti/com/ti/sheet/table/_com.json", {
+  "name" : "ti-sheet-emoji",
+  "globally" : true,
+  "template" : "./ti-sheet-emoji.html",
+  "mixins" : ["./ti-sheet-emoji.mjs"]
+});
+//========================================
 // JOIN <ti-slide-bar.html> ti/com/ti/slide/bar/ti-slide-bar.html
 //========================================
 Ti.Preload("ti/com/ti/slide/bar/ti-slide-bar.html", `<div class="ti-slide-bar" 
@@ -75090,6 +75288,7 @@ Ti.Preload("ti/com/ti/tree/ti-tree.html", `<ti-table
   :current-id="currentId"
   :checked-ids="checkedIds"
   :multi="multi"
+  :dftLabelHoverCopy="false"
 
   :row-class-by="rowClassBy"
 
@@ -83171,6 +83370,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "e-io-obj-exists": "Object already exists",
   "e-io-obj-noexists": "Object does't exists",
   "e-io-obj-noexistsf": "Object[${nm}] does't exists",
+  "e-io-rm-NoEmptyDir": "You can not remove a folder that not empty",
   "e-obj-invalid": "Path [${val}] invalid",
   "e-obj-noexists": "Object [${val}] not exists",
   "e-ph-noexists": "Path [${val}] not exists",
@@ -84614,6 +84814,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-io-obj-exists": "但是对象已然存在",
   "e-io-obj-noexists": "对象其实并不存在",
   "e-io-obj-noexistsf": "对象[${nm}]其实并不存在",
+  "e-io-rm-NoEmptyDir": "要移除的目录还有内容，不能删除",
   "e-obj-invalid": "路径[${val}]非法",
   "e-obj-noexists": "对象[${val}]不存在",
   "e-ph-noexists": "路径[${val}]不存在",
@@ -85921,30 +86122,6 @@ Ti.Preload("ti/i18n/zh-hk/wn-thing.i18n.json", {
    "thing-create": "創建新對象",
    "thing-create-in-recyclebin": "請先退出回收站，再創建新對象",
    "thing-enter-recyclebin": "打開回收站",
-   "thing-export-c-expi": "保存時間",
-   "thing-export-c-expi-14d": "十四天",
-   "thing-export-c-expi-3d": "三天",
-   "thing-export-c-expi-7d": "七天",
-   "thing-export-c-expi-off": "永遠",
-   "thing-export-c-limit": "數量限制",
-   "thing-export-c-mapping": "映射方式",
-   "thing-export-c-mode": "導出模式",
-   "thing-export-c-mode-csv": "CSV文件",
-   "thing-export-c-mode-json": "JSON",
-   "thing-export-c-mode-xls": "電子表格",
-   "thing-export-c-mode-zip": "數據壓縮包",
-   "thing-export-c-name": "導出文件名稱",
-   "thing-export-c-page": "數據範圍",
-   "thing-export-c-page-all": "全部頁",
-   "thing-export-c-page-current": "當前頁",
-   "thing-export-c-page-checked": "選中記錄",
-   "thing-export-done": "完成",
-   "thing-export-done-ok": "導出成功",
-   "thing-export-done-tip": "請點擊下載鏈接下載",
-   "thing-export-ing": "執行導出",
-   "thing-export-ing-tip": "正在執行導出腳本，請稍後",
-   "thing-export-open-dir": "打開導出歷史目錄...",
-   "thing-export-setup": "導出設置",
    "thing-files": "對象文件表",
    "thing-files-attachment": "附件目錄",
    "thing-files-hide": "隱藏文件表",
@@ -86036,6 +86213,8 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "choose-obj": "選擇對象",
    "clean": "清理",
    "clear": "清除",
+   "clone": "克隆",
+   "clone-copy": "克隆副本",
    "close": "關閉",
    "color": "顏色",
    "confirm": "確認",
@@ -86093,6 +86272,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "dt-u-sec": "秒",
    "dt-u-week": "周",
    "dt-u-year": "年",
+   "duplicate": "創建副本",
    "e-auth-account-noexists": "賬戶不存在",
    "e-auth-home-forbidden": "賬戶不具備進入主目錄的權限",
    "e-auth-login-NoPhoneOrEmail": "錯誤的手機號或郵箱地址",
@@ -86104,6 +86284,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "e-io-obj-exists": "但是對象已然存在",
    "e-io-obj-noexists": "對象其實並不存在",
    "e-io-obj-noexistsf": "對象[${nm}]其實並不存在",
+   "e-io-rm-NoEmptyDir": "要移除的目錄還有內容，不能刪除",
    "e-obj-invalid": "路徑[${val}]非法",
    "e-obj-noexists": "對象[${val}]不存在",
    "e-ph-noexists": "路徑[${val}]不存在",
@@ -86453,6 +86634,30 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-en-his-unm": "用戶名",
    "wn-en-his-usr": "用戶",
    "wn-en-his-utp": "用戶類型",
+   "wn-export-c-expi": "保存時間",
+   "wn-export-c-expi-14d": "十四天",
+   "wn-export-c-expi-3d": "三天",
+   "wn-export-c-expi-7d": "七天",
+   "wn-export-c-expi-off": "永遠",
+   "wn-export-c-limit": "數量限制",
+   "wn-export-c-mapping": "映射方式",
+   "wn-export-c-mode": "導出模式",
+   "wn-export-c-mode-csv": "CSV文件",
+   "wn-export-c-mode-json": "JSON",
+   "wn-export-c-mode-xls": "電子表格",
+   "wn-export-c-mode-zip": "數據壓縮包",
+   "wn-export-c-name": "導出文件名稱",
+   "wn-export-c-page": "數據範圍",
+   "wn-export-c-page-all": "全部頁",
+   "wn-export-c-page-current": "當前頁",
+   "wn-export-c-page-checked": "選中記錄",
+   "wn-export-done": "完成",
+   "wn-export-done-ok": "導出成功",
+   "wn-export-done-tip": "請點擊下載鏈接下載",
+   "wn-export-ing": "執行導出",
+   "wn-export-ing-tip": "正在執行導出腳本，請稍後",
+   "wn-export-open-dir": "打開導出歷史目錄...",
+   "wn-export-setup": "導出設置",
    "wn-fsc-mail-scene-new": "新建一個郵件場景",
    "wn-fsc-mail-tmpl-new": "請輸入新郵件模板的名稱(要唯一，譬如 signup)",
    "wn-invalid-fsize-max": "The maximum upload file size is ${maxSize}, but your file size is ${fileSize}",

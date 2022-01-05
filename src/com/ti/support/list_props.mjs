@@ -61,6 +61,10 @@ export default {
   //-----------------------------------
   // Behavior
   //-----------------------------------
+  "dftLabelHoverCopy": {
+    type: Boolean,
+    default: undefined
+  },
   "multi": {
     type: Boolean,
     default: false

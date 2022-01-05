@@ -125,7 +125,7 @@ const FieldDisplay = {
       // Guard it
       if (Ti.Util.isNil(displayItem)) {
         return defaultKey
-          ? { key: defaultKey, comType: "ti-label" }
+          ? { key: defaultKey, comType: "TiLabel" }
           : null
       }
       //......................................
@@ -133,7 +133,7 @@ const FieldDisplay = {
       if (_.isPlainObject(displayItem)) {
         let dis = _.assign({
           key: defaultKey,
-          comType: "ti-label",
+          comType: "TiLabel",
         }, displayItem)
         if (dis.transformer) {
           const invokeOpt = {
@@ -149,7 +149,7 @@ const FieldDisplay = {
       if (_.isArray(displayItem)) {
         return {
           key: displayItem,
-          comType: "ti-label",
+          comType: "TiLabel",
         }
       }
       //......................................
@@ -157,7 +157,7 @@ const FieldDisplay = {
       if (true === displayItem) {
         return {
           key: defaultKey,
-          comType: "ti-label",
+          comType: "TiLabel",
         }
       }
       //......................................
@@ -176,13 +176,13 @@ const FieldDisplay = {
           }
         }
         //......................................
-        // #DictName(xxx) -> ti-label
+        // #DictName(xxx) -> TiLabel
         // just like `#RelayStatus(status):xxx:is-nowrap`
         m = /^(!)?[@#]([^\(]+)\(([^)]+)\)(:([^:]*)(:([^:]+))?)?$/.exec(displayItem)
         if (m) {
           return {
             key: m[3] || defaultKey,
-            comType: "ti-label",
+            comType: "TiLabel",
             comConf: {
               dict: m[2],
               format: m[5] || undefined,
@@ -210,14 +210,14 @@ const FieldDisplay = {
           return {
             key: m[3] || defaultKey || Symbol(displayItem),
             transformer,
-            comType: m[1],
+            comType: Ti.Util.toStdComType(m[1]),
             comConf: {
               className
             }
           }
         }
         //......................................
-        // String -> ti-label
+        // String -> TiLabel
         // - "name" or ["name", "age"]
         // - "'Static Text'"
         // - "text+>/a/link?nm=${name}"
@@ -231,7 +231,7 @@ const FieldDisplay = {
           let href = _.trim(m[8])
           return {
             key,
-            comType: "ti-label",
+            comType: "TiLabel",
             comConf: {
               className: m[5] || "is-nowrap",
               newTab,
@@ -244,7 +244,7 @@ const FieldDisplay = {
         // Default as lable
         return {
           key: displayItem,
-          comType: "ti-label"
+          comType: "TiLabel"
         }
         //......................................
       }

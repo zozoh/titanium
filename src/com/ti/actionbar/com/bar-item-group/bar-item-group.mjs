@@ -135,7 +135,6 @@ const _M = {
     },
     //---------------------------------------
     OnFired(collapse) {
-      console.log("haha")
       if(collapse) {
         this.doExtend()
       } else {

@@ -140,12 +140,28 @@ const _M = {
       let list = []
       for (let it of this.DataList) {
         if (!this.isHiddenItem(it)) {
-          let li = Wn.Util.getObjThumbInfo(it, {
-            status: this.myItemStatus,
-            exposeHidden: this.myExposeHidden,
-            titleKey: this.itemTitleKey,
-            badges: this.itemBadges
-          })
+          let li;
+          if (_.isFunction(this.thumbBy)) {
+            li = this.thumbBy(it, {
+              status: this.myItemStatus,
+              exposeHidden: this.myExposeHidden,
+              titleKey: this.itemTitleKey,
+              badges: this.itemBadges
+            })
+          } else {
+            li = {
+              id: it.id,
+              nm: it.nm,
+              title: Ti.Util.getOrPick(it, this.itemTitleKey),
+              preview: undefined,
+              href: undefined,
+              visibility,
+              status: status[it.id],
+              progress: progress[it.id],
+              badges: undefined,
+              rawData: meta
+            }
+          }
           list.push(li)
           //list.push(it)
         }
@@ -250,7 +266,7 @@ const _M = {
       //console.log("open item")
       let obj = this.getCurrentItem()
       if (obj) {
-        this.$notify("open:wn:obj", obj)
+        this.$notify("open:obj", obj)
       }
     },
     //--------------------------------------
@@ -258,7 +274,7 @@ const _M = {
       // Guard
       //console.log("OnClipBoardPoste", clipboardData)
       let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
-      if(imgF) {
+      if (imgF) {
         let imgTp = Ti.Util.getSuffix(imgF.name)
         let dateS = Ti.DateTime.format(new Date(), "'Snapshot'-yyyyMMdd-HHmmss")
         imgF.uploadName = dateS + imgTp
@@ -499,8 +515,25 @@ const _M = {
     //--------------------------------------------
     "currentId": {
       handler: function (newVal, oldVal) {
+        //console.log("currentId changed", {newVal, oldVal})
         if (!_.isEqual(newVal, oldVal)) {
           this.myCurrentId = newVal
+        }
+      },
+      immediate: true
+    },
+    //--------------------------------------------
+    "checkedIds": {
+      handler: function (newVal, oldVal) {
+        //console.log("checkedIds changed", {newVal, oldVal})
+        if (!_.isEqual(newVal, oldVal)) {
+          if (_.isArray(newVal)) {
+            let ids = {}
+            _.forEach(newVal, id => ids[id] = true)
+            this.myCheckedIds = ids
+          } else {
+            this.myCheckedIds = _.cloneDeep(newVal)
+          }
         }
       },
       immediate: true

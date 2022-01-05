@@ -41,6 +41,11 @@ export default {
       for (let dis of diss) {
         let item = this.evalFieldDisplayItem(dis)
         if (item) {
+          if (item.comType == "TiLabel") {
+            _.defaults(item.comConf, {
+              hoverCopy: this.dftLabelHoverCopy
+            })
+          }
           items.push(item)
         }
       }
