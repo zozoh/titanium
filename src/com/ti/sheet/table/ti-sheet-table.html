@@ -33,8 +33,11 @@
             <td class="as-row-index">
               <div class="row-index-con">
                 <span>{{row.index+1}}</span>
-                <div class="as-row-delete" @click.left="OnClickRowDeletor(row)">
-                  <i class="zmdi zmdi-close"></i>
+                <div
+                  v-if="isCanRemoveRow"
+                    class="as-row-delete"
+                    @click.left="OnClickRowDeletor(row)">
+                    <i class="zmdi zmdi-close"></i>
                 </div>
               </div>
             </td>

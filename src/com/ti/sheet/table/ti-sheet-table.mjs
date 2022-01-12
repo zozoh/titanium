@@ -43,6 +43,10 @@ export default {
       type: Object,
       default: undefined
     },
+    "cellReadonly": {
+      type: Boolean,
+      default: false
+    },
     "cellChangeEventName": {
       type: String,
       default: "change:cell"
@@ -54,6 +58,10 @@ export default {
     "dataChangeEventName": {
       type: String,
       default: "change"
+    },
+    "removeRowEventName": {
+      type: String,
+      default: "remove:row"
     },
     //-----------------------------------
     // Aspect
@@ -80,6 +88,7 @@ export default {
     //---------------------------------------------------
     isCanExtendCols() { return /^(cols|both)$/.test(this.extension) },
     isCanExtendRows() { return /^(rows|both)$/.test(this.extension) },
+    isCanRemoveRow() { return this.removeRowEventName ? true : false },
     //---------------------------------------------------
     SheetColumnList() {
       let list = []
@@ -107,7 +116,7 @@ export default {
       else {
         _.forEach(this.columns, ({
           name, title, width = this.defaultCellWidth,
-          readonly = false,
+          readonly = this.cellReadonly,
           dict, transformer, type,
           autoSort, emptyAsNull = true,
           comType, comConf, mergeConf = true
@@ -189,6 +198,7 @@ export default {
     },
     //---------------------------------------------------
     OnCellChange(val, { cellKey, x, y }) {
+      //console.log("SheetTable CellChanged", { cellKey, x, y, val })
       // Default, empty value as null
       let col = this.SheetColumnList[x]
       let { type, emptyAsNull, autoSort } = col
@@ -240,13 +250,16 @@ export default {
     },
     //---------------------------------------------------
     OnClickRowCreator() {
-      if(this.myNextRowAmount) {
+      if (this.myNextRowAmount) {
         this.$notify("create:row", this.myNextRowAmount)
       }
     },
     //---------------------------------------------------
     OnClickRowDeletor(row) {
-      this.$notify("remove:row", row)
+      if (this.removeRowEventName) {
+        //console.log("SheetTable CellRemove", row)
+        this.$notify("remove:row", row)
+      }
     },
     //---------------------------------------------------
     /**
