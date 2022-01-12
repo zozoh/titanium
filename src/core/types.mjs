@@ -845,7 +845,7 @@ const TiTypes = {
     if (_.isString(val)) {
       // Parse JSON
       if (/^\{.*\}$/.test(val) || /^\[.*\]$/.test(val)) {
-        obj = JSON.parse(val)
+        return JSON.parse(val)
       }
       // Parse String
       return Ti.S.toObject(val, fmt)

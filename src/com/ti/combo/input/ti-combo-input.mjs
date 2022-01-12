@@ -145,7 +145,8 @@ const _M = {
         multi: false,
         hoverable: true,
         checkable: false,
-        autoCheckCurrent: true
+        autoCheckCurrent: true,
+        dftLabelHoverCopy: false
       })
     },
     //------------------------------------------------

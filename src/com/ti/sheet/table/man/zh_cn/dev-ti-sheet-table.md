@@ -53,24 +53,15 @@ AY AZ BA BB BC BD BE BF BG BH
   // Data
   //-----------------------------------
   // 用一个散列表描述表格的纯数据
-  // 需要指定一个 KEY 的映射关系，否则，默认用
   // A1 表示 第1列第1行的单元格
   data : {
-    "KEY" : VAL
+    "A1" : $VAL
   },
-  // 这里指定了一个单元格与数据散列的取值映射关系
-  // 接受字符串模板，默认的格式为： "${Col}${Row}"
-  //  - ${Col} 为列标识，在 cells 段每个列里有定义
-  //  - ${Row} 为行标识，默认为 1base 整数， 可以在 rowKeyBy 里指定数据键
-  // 也可以支持一个自定义函数， Fn(item) 接受一个参数（行对象）
-  dataKeyBy  : "${Col}${Row}",
   // 默认显示的数据列到多少下标，默认 10 列
+  // 如果定义了 columns，那么则以【可显示的列数】与本属性最大值为准
   dataWidth  : 10,
   // 默认显示的数据行到多少下标，默认 100 行
   dataHeight : 100,
-  // 指定一行的标识键，默认为行的下标(1base)
-  // 可以用 $A 指定一个列，如果这个列声明了 columns.name，也可以直接使用
-  rowKeyBy: "$A",
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -80,7 +71,7 @@ AY AZ BA BB BC BD BE BF BG BH
   //  "none" : 不能延展
   //  "both" : 即可以水平延展，也可以垂直延展
   // 默认为 rows
-  extension : "row",
+  extension : "rows",
   // 这里指定了一个固定的列定义
   columns: [
     {
@@ -88,13 +79,16 @@ AY AZ BA BB BC BD BE BF BG BH
       name: "A",
       // 【选】本列标题，默认为列名
       title : "xxx",
-      // 编辑状态显示控件，默认为 TiInput
+      // 编辑状态控件，默认为空，采用 cellComType
       comType: "TiInput",
-      comConf: {...}
+      // 编辑状态控件设置，默认为空，表示采用 cellComConf
+      comConf: {...},
+      // 自己定义的 comConf 是否与默认的 cellComConf 合并
+      mergeConf: true
     }
   ],
-  // 单元格编辑状态下的默认控件
-  cellComType : "xxx",
+  // 单元格编辑状态下的默认控件，默认为 TiInput
+  cellComType : "TiInput",
   // 单元格编辑状态下的控件的默认配置信息
   // 具体到某一个单元格，它会与 cells 的配置项融合
   cellComConf : {...}

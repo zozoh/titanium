@@ -6,6 +6,7 @@ import {Toast}   from "./ti-toast.mjs"
 import {Be}           from "./behaviors.mjs"
 import {Alg}          from "./algorithm.mjs"
 import {S}            from "./str.mjs"
+import {Tmpl}         from "./tmpl.mjs"
 import {App}          from "./app.mjs"
 import {Err}          from "./err.mjs"
 import {Config}       from "./config.mjs"
@@ -107,7 +108,7 @@ const G_FUNCS = {}
 //---------------------------------------
 const Ti = {
   //-----------------------------------------------------
-  Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, 
+  Alg, Be, S, Tmpl, Util, App, Err, Config, Dom, Css, Load, Http, 
   Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
   WWW, GPS, GIS, Validate, DateTime, Num, Trees, Bank,
   Mapping, Dict, DictFactory, Rects, Rect,

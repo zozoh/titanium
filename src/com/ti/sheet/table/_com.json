@@ -1,6 +1,6 @@
 {
-  "name" : "ti-sheet-emoji",
+  "name" : "ti-sheet-table",
   "globally" : true,
-  "template" : "./ti-sheet-emoji.html",
-  "mixins" : ["./ti-sheet-emoji.mjs"]
+  "template" : "./ti-sheet-table.html",
+  "mixins" : ["./ti-sheet-table.mjs"]
 }

@@ -1,0 +1,79 @@
+<div class="ti-sheet-table" :class="TopClass"
+  @click.left="OnCancelCell">
+  <div class="sheet-con">
+    <table>
+      <!--
+        Column size
+      -->
+      <colgroup>
+        <col :width="indexWidth"/>
+        <col
+          v-for="col in SheetDisplayColumns"
+            :width="col.width"/>
+      </colgroup>
+      <!--
+        Table head
+      -->
+      <thead>
+        <tr>
+          <th class="as-row-index">&nbsp;</th>
+          <th v-for="col in SheetDisplayColumns">
+            <span>{{col.title}}</span>
+          </th>
+        </tr>
+      </thead>
+      <!--
+        Table body
+      -->
+      <tbody>
+        <tr
+          v-for="row in myMatrix"
+            :key="row.key">
+            <!--Index-->
+            <td class="as-row-index">
+              <div class="row-index-con">
+                <span>{{row.index+1}}</span>
+                <div class="as-row-delete" @click.left="OnClickRowDeletor(row)">
+                  <i class="zmdi zmdi-close"></i>
+                </div>
+              </div>
+            </td>
+            <!--Columns-->
+            <td
+              v-for="cell in row.cells"
+                :key="cell.key"
+                class="as-row-cell"
+                :class="cell.className">
+                <div
+                  class="as-cell-val"
+                  @click.left.stop="OnClickCell(cell)">{{cell.displayText}}</div>
+                <component
+                  v-if="!cell.readonly && cell.actived"
+                    class="as-cell-editor"
+                    :is="myActivedCellComType"
+                    v-bind="myActivedCellComConf"
+                    @click.native.left.stop
+                    @change="OnCellChange($event, cell)"/>
+            </td>
+        </tr>
+      </tbody>
+    </table>
+    <!--
+      Add new row
+    -->
+    <div 
+      v-if="isCanExtendRows"
+        class="as-row-creator">
+        <div class="as-tip">{{'i18n:add-item' | i18n}}</div>
+        <TiInputNum
+          :value="myNextRowAmount"
+          :step="10"
+          :minValue="1"
+          :maxValue="1000"
+          @change="myNextRowAmount=$event"/>
+        <div
+          class="ti-btn"
+          @click.left="OnClickRowCreator">{{'i18n:add-now' | i18n}}</div>
+      </div>
+  </div>
+</div>
