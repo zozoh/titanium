@@ -148,7 +148,7 @@ export default {
           }
           //.....................................
           if (transformer) {
-            col.transformer = Ti.Util.genInvokeing(transformer)
+            col.transformer = Ti.Util.genInvoking(transformer)
           }
           //.....................................
           list.push(col)
@@ -198,12 +198,15 @@ export default {
     },
     //---------------------------------------------------
     OnCellChange(val, { cellKey, x, y }) {
-      //console.log("SheetTable CellChanged", { cellKey, x, y, val })
+      console.log("SheetTable CellChanged", { cellKey, x, y, val })
       // Default, empty value as null
       let col = this.SheetColumnList[x]
       let { type, emptyAsNull, autoSort } = col
       // pre-treat value
-      if (emptyAsNull && _.isEmpty(val)) {
+      if (emptyAsNull && (
+        Ti.Util.isNil(val)
+        || (_.isArray(val) && _.isEmpty(val))
+      )) {
         val = null
       }
       // sort value when array
@@ -369,6 +372,7 @@ export default {
      * }]
      */
     async evalSheetMatrix() {
+      //console.log("evalSheetMatrix()", this.dataHeight)
       // Eval display text
       const genCellDisplayText = async (cellVal, col) => {
         if (_.isArray(cellVal)) {
@@ -379,13 +383,14 @@ export default {
           }
           return vList.join(",")
         }
+        let displayText = cellVal
         if (col.$dict) {
-          return await col.$dict.getItemText(cellVal)
+          displayText = await col.$dict.getItemText(cellVal)
         }
         if (_.isFunction(col.transformer)) {
-          return col.transformer(displayText)
+          displayText = col.transformer(displayText)
         }
-        return cellVal
+        return displayText
       }
       // Gen matrix
       let matrix = []
@@ -426,6 +431,7 @@ export default {
         })
       }
       this.myMatrix = matrix
+      //console.log("evalSheetMatrix() -> ", matrix.length)
       // Re-eval actived com if it has had
       if (this.myActivedCellKey) {
         this.evalActivedCellCom(this.myActivedCellKey)

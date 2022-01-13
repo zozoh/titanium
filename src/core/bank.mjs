@@ -25,6 +25,11 @@ const CURRENCIES = {
     icon: "fas-yen-sign",
     text: `i18n:currency-JPY`
   },
+  "MOP": {
+    token: "¥",
+    icon: "fas-yen-sign",
+    text: `i18n:currency-MOP`
+  },
   "RMB": {
     token: "¥",
     icon: "fas-yen-sign",

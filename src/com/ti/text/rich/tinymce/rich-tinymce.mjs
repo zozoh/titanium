@@ -234,7 +234,7 @@ const _M = {
     },
     //-----------------------------------------------
     evalOutline() {
-      console.log("evalOutline")
+      //console.log("evalOutline")
       let list = []
       this.$editor.$('h1,h2,h3,h4,h5,h6,[doc-heading]').each((index, el)=>{
         let nodeId = el.getAttribute("ti-outline-id")
