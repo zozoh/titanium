@@ -1,4 +1,4 @@
-// Pack At: 2022-01-06 01:03:57
+// Pack At: 2022-01-14 11:02:10
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1939,6 +1939,379 @@ const {S} = (function(){
   }
   //-----------------------------------
   return {S: TiStr};
+})();
+//##################################################
+// # import {Tmpl}         from "./tmpl.mjs"
+const {Tmpl} = (function(){
+  ///////////////////////////////////////////////////
+  function TmplStaticEle(s) {
+    return (sb = []) => sb.push(s)
+  }
+  ///////////////////////////////////////////////////
+  function TmplStringEle(s_token, key, fmt, dft) {
+    // TODO should support fmt as converter
+    //  - @trim,@replace, mapping
+    return (sb = [], vars = {}, showKey = false) => {
+      let s = _.get(vars, key) || dft
+      // Join to output
+      if (!Ti.Util.isNil(s)) {
+        sb.push(s)
+      }
+      // Show Key
+      else if (showKey) {
+        sb.push(s_token)
+      }
+    }
+  }
+  ///////////////////////////////////////////////////
+  function TmplIntEle(s_token, key, fmt, dft) {
+    // TODO should support fmt as converter
+    //  - %d
+    return (sb = [], vars = {}, showKey = false) => {
+      let s = _.get(vars, key) || dft
+      // Join to output
+      if (!Ti.Util.isNil(s)) {
+        let n = parseInt(s)
+        sb.push(n)
+      }
+      // Show Key
+      else if (showKey) {
+        sb.push(s_token)
+      }
+    }
+  }
+  ///////////////////////////////////////////////////
+  function TmplBooleanEle(s_token, key, fmt = "false/true", dft) {
+    let texts = fmt.split("\/")
+    return (sb = [], vars = {}, showKey = false) => {
+      let b = _.get(vars, key) || dft
+      // Join to output
+      if (!Ti.Util.isNil(b)) {
+        sb.push(b ? texts[1] : texts[0])
+      }
+      // Show Key
+      else if (showKey) {
+        sb.push(s_token)
+      }
+    }
+  }
+  ///////////////////////////////////////////////////
+  function TmplNumberEle(s_token, key, fmt, dft) {
+    // TODO should support fmt as converter
+    //  - %#.2f
+    return (sb = [], vars = {}, showKey = false) => {
+      let s = _.get(vars, key) || dft
+      // Join to output
+      if (!Ti.Util.isNil(s)) {
+        let n = s * 1
+        sb.push(n)
+      }
+      // Show Key
+      else if (showKey) {
+        sb.push(s_token)
+      }
+    }
+  }
+  ///////////////////////////////////////////////////
+  function TmplDateEle(s_token, key, fmt = "yyyy-MM-dd'T'HH:mm:ss", dft) {
+    return (sb = [], vars = {}, showKey = false) => {
+      let d = _.get(vars, key) || dft
+      // Join to output
+      if (!Ti.Util.isNil(d)) {
+        let ds = Ti.DateTime.format(d, fmt)
+        sb.push(ds)
+      }
+      // Show Key
+      else if (showKey) {
+        sb.push(s_token)
+      }
+    }
+  }
+  ///////////////////////////////////////////////////
+  function TmplJsonEle(s_token, key, fmt = "cn", dft) {
+    // TODO support format "cn"
+    let isCompact = fmt.indexOf('c') >= 0
+    let ignoreNull = fmt.indexOf('n') < 0
+    return (sb = [], vars = {}, showKey = false) => {
+      let obj = _.get(vars, key) || dft
+      // Join to output
+      if (!Ti.Util.isNil(s)) {
+        let json;
+        // Default
+        if ("-obj-" == obj) {
+          json = "{}"
+        }
+        // Default Array
+        else if ("-array-" == obj) {
+          json = "[]"
+        }
+        // format json
+        else {
+          let replacer = function (k, v) {
+            if (ignoreNull && Ti.Util.isNil(v)) {
+              return
+            }
+            return v
+          }
+          let space = isCompact ? null : "   "
+          json = JSON.stringify(obj, flt, space)
+        }
+        sb.push(json)
+      }
+      // Show Key
+      else if (showKey) {
+        sb.push(s_token)
+      }
+    }
+  }
+  ///////////////////////////////////////////////////
+  ///////////////////////////////////////////////////
+  const _P2 = /^([^<>()?]+)([<(](int|long|boolean|float|double|date|string|json)?(\s*:\s*([^>]*))?[>)])?([?]\s*(.*)\s*)?$/
+  ///////////////////////////////////////////////////
+  class TiTmplPattern {
+    constructor({
+      regex,
+      groupIndex = 2,
+      escapeIndex = 3,
+      getEscapeStr = () => "$"
+    } = {}) {
+      this.list = []
+      this.keys = []
+  
+      this.groupIndex = groupIndex;
+      this.escapeIndex = escapeIndex;
+      this.getEscapeStr = getEscapeStr
+  
+      // 默认的模板占位符
+      if (!regex) {
+        this._P = /((?<![$])[$][{]([^}]+)[}])|([$][$])/g
+      }
+      // 直接给的就是正则
+      else if (_.isRegExp(regex)) {
+        this._P = regex
+      }
+      // 自定义的占位符
+      else {
+        this._P = new RegExp(regex, "g");
+  
+      }
+    }
+    //-----------------------------------------------
+    parse(str) {
+      let lastIndex = 0;
+      let m;
+      let regex = new RegExp(this._P, "g")
+      while (m = regex.exec(str)) {
+        let pos = m.index
+        // 看看是否要生成静态对象
+        if (pos > lastIndex) {
+          let s = str.substring(lastIndex, pos)
+          this.list.push(TmplStaticEle(s));
+        }
+        // 根据占位符语法解析一下
+        // 看看是逃逸呢，还是匹配上了
+        let s_escape = this.escapeIndex > 0 ? m[this.escapeIndex] : null;
+  
+        // 如果是逃逸
+        if (!Ti.S.isBlank(s_escape)) {
+          let esc_str = this.getEscapeStr(m);
+          this.list.push(TmplStaticEle(esc_str));
+        }
+        // 否则分析键
+        else {
+          let s_token = m[0]
+          let s_match = m[this.groupIndex];
+          let m2 = _P2.exec(s_match);
+  
+          if (!m2) {
+            throw `Fail to parse tmpl key '${s_match}'`
+          }
+  
+          let key = m2[1];
+          let type = m2[3] || "string";
+          let fmt = m2[5];
+          let dft = m2[7];
+  
+          // 记录键
+          this.keys.push(key);
+  
+          // 增加元素
+          ({
+            "string": () => {
+              this.list.push(TmplStringEle(s_token, key, fmt, dft))
+            },
+            "int": () => {
+              this.list.push(TmplIntEle(s_token, key, fmt, dft));
+            },
+            // long
+            "long": () => {
+              this.list.push(TmplIntEle(s_token, key, fmt, dft));
+            },
+            // boolean
+            "boolean": () => {
+              this.list.push(TmplBooleanEle(s_token, key, fmt, dft));
+            },
+            // float
+            "float": () => {
+              this.list.push(TmplNumberEle(s_token, key, fmt, dft));
+            },
+            // double
+            "double": () => {
+              this.list.push(TmplNumberEle(s_token, key, fmt, dft));
+            },
+            // date
+            "date": () => {
+              this.list.push(TmplDateEle(s_token, key, fmt, dft));
+            },
+            // json
+            "json": () => {
+              this.list.push(TmplJsonEle(s_token, key, fmt, dft));
+            }
+          })[type]()
+        }
+  
+        // 记录
+        lastIndex = regex.lastIndex;
+      }
+  
+      // 最后结尾是否要加入一个对象
+      if (!(lastIndex >= str.length)) {
+        let s = str.substring(lastIndex)
+        this.list.push(TmplStaticEle(s));
+      }
+  
+      // 返回自身
+      return this
+    }
+    //-----------------------------------------------
+    render(vars = {}, showKey = false) {
+      let sb = []
+      for (let eleJoin of this.list) {
+        eleJoin(sb, vars, showKey)
+      }
+      return sb.join("")
+    }
+    //-----------------------------------------------
+  }
+  ///////////////////////////////////////////////////
+  // From org.nutz.lang.tmpl.Tmpl
+  const TiTmpl = {
+    //-----------------------------------------------
+    parse(input, setup) {
+      let tmpl = new TiTmplPattern(input, setup)
+      tmpl.parse(input)
+      return tmpl
+    },
+    //-----------------------------------------------
+    parseAs(input, {
+      startChar = "$",
+      leftBrace = "{",
+      rightBrace = "}"
+    } = {}) {
+      if (null == input)
+        return null;
+      let regex = "((?<!["
+        + startChar
+        + "])["
+        + startChar
+        + "]["
+        + ("[" == leftBrace ? "\\[" : leftBrace)
+        + "]([^"
+        + ("]" == rightBrace ? "\\]" : rightBrace)
+        + "]+)["
+        + rightBrace
+        + "])|(["
+        + startChar
+        + "]["
+        + startChar
+        + "])";
+      return TiTmpl.parse(input, {
+        regex,
+        groupIndex: 2,
+        escapeIndex: 3,
+        getEscapeStr: () => startChar
+      });
+    },
+    //-----------------------------------------------
+    exec(input, vars = {}, {
+      regex, groupIndex, escapeIndex, getEscapeStr,
+      startChar, leftBrace, rightBrace,
+      showKey
+    } = {}) {
+      let tmpl = startChar
+        ? TiTmpl.parseAs(input, { startChar, leftBrace, rightBrace })
+        : TiTmpl.parse(input, { regex, groupIndex, escapeIndex, getEscapeStr })
+  
+      return tmpl.render(vars, showKey)
+    },
+    //-----------------------------------------------
+    _test_100000_exec() {
+      let vars = {
+        name: "zozoh", age: 45, great: true, bir: new Date()
+      };
+      let input = "${name}[${age}] is ${great<boolean:no/yes>} since ${bir<date:yy年M月d日 HH点mm分ss秒.SSS毫秒>}"
+      let TN = 100000
+      let ms0 = Date.now()
+      let re = []
+      for (var i = 0; i < TN; i++) {
+        let s = Ti.Tmpl.exec(input, vars)
+        re.push(s)
+      }
+      let ms1 = Date.now()
+      let duInMs = ms1 - ms0
+      // for (var i = 0; i < TN; i++) {
+      //   var s = re[i]
+      //   console.log(`${i}. ${s}`)
+      // }
+      console.log(`in ${duInMs}ms`)
+    },
+    //-----------------------------------------------
+    _test_100000_render() {
+      let vars = {
+        name: "zozoh", age: 45, great: true, bir: new Date()
+      };
+      let input = "${name}[${age}] is ${great<boolean:no/yes>} since ${bir<date:yy年M月d日 HH点mm分ss秒.SSS毫秒>}"
+      let tmpl = Ti.Tmpl.parse(input)
+      let TN = 100000
+      let ms0 = Date.now()
+      let re = []
+      for (var i = 0; i < TN; i++) {
+        let s = tmpl.render(vars)
+        re.push(s)
+      }
+      let ms1 = Date.now()
+      let duInMs = ms1 - ms0
+      // for (var i = 0; i < TN; i++) {
+      //   var s = re[i]
+      //   console.log(`${i}. ${s}`)
+      // }
+      console.log(`in ${duInMs}ms`)
+    },
+    //-----------------------------------------------
+    _test_100000_str_render() {
+      let vars = {
+        name: "zozoh", age: 45, great: true, bir: new Date()
+      };
+      let input = "${name}[${age}] is ${great} since ${bir}"
+      let TN = 100000
+      let ms0 = Date.now()
+      let re = []
+      for (var i = 0; i < TN; i++) {
+        let s = Ti.S.renderVars(vars, input)
+        re.push(s)
+      }
+      let ms1 = Date.now()
+      let duInMs = ms1 - ms0
+      // for (var i = 0; i < TN; i++) {
+      //   var s = re[i]
+      //   console.log(`${i}. ${s}`)
+      // }
+      console.log(`in ${duInMs}ms`)
+    }
+    //-----------------------------------------------
+  }
+  ///////////////////////////////////////////////////
+  return {Tmpl: TiTmpl};
 })();
 //##################################################
 // # import {App}          from "./app.mjs"
@@ -8901,7 +9274,7 @@ const {Types} = (function(){
       if (_.isString(val)) {
         // Parse JSON
         if (/^\{.*\}$/.test(val) || /^\[.*\]$/.test(val)) {
-          obj = JSON.parse(val)
+          return JSON.parse(val)
         }
         // Parse String
         return Ti.S.toObject(val, fmt)
@@ -13158,6 +13531,11 @@ const {Bank} = (function(){
       icon: "fas-yen-sign",
       text: `i18n:currency-JPY`
     },
+    "MOP": {
+      token: "¥",
+      icon: "fas-yen-sign",
+      text: `i18n:currency-MOP`
+    },
     "RMB": {
       token: "¥",
       icon: "fas-yen-sign",
@@ -13302,6 +13680,8 @@ const {Bank} = (function(){
 // # import {Num}          from "./num.mjs"
 const {Num} = (function(){
   //-----------------------------------
+  const BASE26 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  //-----------------------------------
   const TiNum = {
     /***
      * Fill array from given number. 
@@ -13314,11 +13694,11 @@ const {Num} = (function(){
      * 
      * @return the source array passed in
      */
-    fillSteps(startValue=0, len=1, {
-      ary=[], step=1
-    }={}){
-      for(let i=0; i<len; i++) {
-        ary[i] = startValue + i*step
+    fillSteps(startValue = 0, len = 1, {
+      ary = [], step = 1
+    } = {}) {
+      for (let i = 0; i < len; i++) {
+        ary[i] = startValue + i * step
       }
       return ary
     },
@@ -13337,8 +13717,8 @@ const {Num} = (function(){
      * scrollIndex(-5, 5) => 0
      * ```
      */
-    scrollIndex(index, len=0) {
-      if(len > 0) {
+    scrollIndex(index, len = 0) {
+      if (len > 0) {
         let md = index % len;
         return md >= 0
           ? md
@@ -13352,10 +13732,10 @@ const {Num} = (function(){
      * 
      * @return The number after tidy
      */
-    precise(n, p=2) {
+    precise(n, p = 2) {
       if (p >= 0) {
-          var y = Math.pow(10, p);
-          return Math.round(n * y) / y;
+        var y = Math.pow(10, p);
+        return Math.round(n * y) / y;
       }
       return n;
     },
@@ -13365,8 +13745,8 @@ const {Num} = (function(){
      * 
      * @return new ceil value for unit
      */
-    ceilUnit(v, unit=0) {
-      if(_.isNumber(v) && unit > 0) {
+    ceilUnit(v, unit = 0) {
+      if (_.isNumber(v) && unit > 0) {
         let n = Math.ceil(v / unit)
         return n * unit
       }
@@ -13378,13 +13758,91 @@ const {Num} = (function(){
      * 
      * @return new floor value for unit
      */
-    floorUnit(v, unit=0) {
-      if(_.isNumber(v) && unit > 0) {
+    floorUnit(v, unit = 0) {
+      if (_.isNumber(v) && unit > 0) {
         let n = Math.floor(v / unit)
         return n * unit
       }
       return v
-    }
+    },
+    /***
+     * Translate decimal (0-9) to 27 base system (A-Z)
+     * 
+     * ```bash
+     * #---------------------------------------
+     * # 26 base system (A-Z)
+     * 0  1  2  3  4  5  6  7  8  9
+     * A  B  C  D  E  F  G  H  I  J
+     *
+     * 10 11 12 13 14 15 16 17 18 19
+     * K  L  M  N  O  P  Q  R  S  T
+     *
+     * 20 21 22 23 24 25 26 27 28 29
+     * U  V  W  X  Y  Z  AA AB AC AD
+     * 
+     * 30 31 33 33 34 35 36 37 38 39
+     * AE AF AG AH AI AJ AK AL AM AN
+     * 
+     * 40 41 44 44 44 45 46 47 48 49
+     * AO AP AQ AR AS AT AU AV AW AX
+     * 
+     * 50 51 55 55 55 55 56 57 58 59
+     * AY AZ BA BB BC BD BE BF BG BH
+     * #---------------------------------------
+     * {high} --> "AB" <-- {low}
+     * ```
+     *
+     */
+    toBase26(n) {
+      n = Math.abs(Math.round(n))
+      let re = []
+      while (n >= 26) {
+        let high = parseInt(n / 26)
+        let low = parseInt(n - (high * 26))
+        re.push(BASE26[low])
+        n = high - 1
+      }
+      re.push(BASE26[n])
+      return re.reverse().join("")
+    },
+    /***
+     * Translate 27 base system (A-Z) to decimal (0-9)
+     */
+    fromBase26(base26) {
+      // Reverse the code from low to high
+      //  "ADC" => "C","D","A"
+      //console.log("fromBase26:", base26)
+      let cs = _.trim(base26).toUpperCase().split("").reverse().join("")
+      let n = 0;
+      let len = cs.length
+      let r = 1
+      for (let i = 0; i < len; i++) {
+        let cc = cs.charCodeAt(i)
+        // Char code 'A' == 65, 'Z' == 90
+        if (cc < 65 || cc > 90) {
+          throw `Invalid base26 number : ${base26}`
+        }
+        let bn = (cc - 65)
+        if (i > 0) {
+          bn += 1
+        }
+        n += bn * r
+        // Move higher 
+        r *= 26
+      }
+      return n
+    },
+    // _test_base_26() {
+    //   for(let i=0; i< 10000; i++) {
+    //     let bs = TiNum.toBase26(i)
+    //     let bn = TiNum.fromBase26(bs)
+    //     if(i != bn) {
+    //       console.error(`${i}. ${bs} => ${bn}`)
+    //     } else {
+    //       console.log(`${i}. ${bs} => ${bn}`)
+    //     }
+    //   }
+    // }
   }
   //---------------------------------------
   return {Num: TiNum};
@@ -17251,7 +17709,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220106.010357",
+  "version" : "1.6-20220114.110210",
   "dev" : false,
   "appName" : null,
   "session" : {},
@@ -17278,7 +17736,7 @@ const G_FUNCS = {}
 //---------------------------------------
 const Ti = {
   //-----------------------------------------------------
-  Alg, Be, S, Util, App, Err, Config, Dom, Css, Load, Http, 
+  Alg, Be, S, Tmpl, Util, App, Err, Config, Dom, Css, Load, Http, 
   Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
   WWW, GPS, GIS, Validate, DateTime, Num, Trees, Bank,
   Mapping, Dict, DictFactory, Rects, Rect,
