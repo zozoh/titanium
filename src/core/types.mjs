@@ -72,13 +72,13 @@ export class TiMsRange {
     }
     let ss = []
     if (this.left) {
-      ss.push(this.left.open ? leftOpen : leftClose)
+      ss.push(Ti.I18n.text(this.left.open ? leftOpen : leftClose))
       if (!isNaN(this.left.val)) {
         let v = format(this.left.val)
         ss.push(v)
       }
       if (this.right && separator) {
-        ss.push(separator)
+        ss.push(Ti.I18n.text(separator))
       }
     }
     if (this.right) {
@@ -86,7 +86,7 @@ export class TiMsRange {
         let v = format(this.right.val)
         ss.push(v)
       }
-      ss.push(this.right.open ? rightOpen : rightClose)
+      ss.push(Ti.I18n.text(this.right.open ? rightOpen : rightClose))
     }
     return ss.join("")
   }
@@ -96,9 +96,10 @@ export class TiMsRange {
     leftClose = '[',
     rightOpen = ')',
     rightClose = ']') {
+    let dfmt = Ti.I18n.text(fmt)
     return this.toString({
       format: v => {
-        return TiTypes.formatDate(v, fmt)
+        return TiTypes.formatDate(v, dfmt)
       },
       separator,
       leftOpen,
@@ -113,9 +114,10 @@ export class TiMsRange {
     leftClose = '[',
     rightOpen = ')',
     rightClose = ']') {
+    let dfmt = Ti.I18n.text(fmt)
     return this.toString({
       format: v => {
-        return TiTypes.formatDateTime(v, fmt)
+        return TiTypes.formatDateTime(v, dfmt)
       },
       separator,
       leftOpen,

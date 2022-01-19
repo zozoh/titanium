@@ -1,4 +1,4 @@
-// Pack At: 2022-01-14 11:02:10
+// Pack At: 2022-01-19 18:37:41
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10269,6 +10269,82 @@ const {Util} = (function(){
       return list
     },
     /**
+     * Move array element to new place and return a new Array.
+     * 
+     * @param {Array} list input array
+     * @param {Function} filter all element the filter return truthy will be moved.
+     * the functoin take three arguments `(ele, index, src)`
+     * @param {String} direction  move direction. 'head|tail|prev|next'
+     * 
+     * @return a new arrry
+     */
+    moveArrayElementBy(list = [], filter, direction = "prev") {
+      if (!_.isFunction(filter)) {
+        return [...list]
+      }
+      if (!/^(head|tail|prev|next)$/.test(direction)) {
+        throw `moveArrayElementBy() : direction must be 'head|tail|prev|next', but you give me ${direction}`
+      }
+      // Gether the elements
+      let sel = {
+        firstAt: -1,
+        lastAt: -1,
+        items: []
+      }
+      let remains = []
+      _.forEach(list, (li, index) => {
+        // Match Filter
+        if (filter(li, index, list)) {
+          if (sel.firstAt < 0) {
+            sel.firstAt = index
+          }
+          sel.lastAt = Math.max(sel.lastAt, index)
+          sel.items.push(li)
+        }
+        // Save to remains
+        else {
+          remains.push({
+            index, item: li
+          })
+        }
+      })
+      if (_.isEmpty(sel.items)) {
+        return remain
+      }
+      // Output
+      let reList = []
+  
+      // The target index
+      let taIndex = ({
+        head: () => 0,
+        tail: () => list.length,
+        prev: () => Math.max(0, sel.firstAt - 1),
+        next: () => Math.min(list.length, sel.lastAt + 2)
+      })[direction]()
+  
+      //console.log({sel, taIndex})
+  
+      // Join to array: first part
+      let rI = 0;
+      for (; rI < remains.length; rI++) {
+        let { index, item } = remains[rI]
+        if (index >= taIndex) {
+          break
+        }
+        reList.push(item)
+      }
+      // Join to array: selection
+      reList.push(...sel.items)
+      // Join to array: last part
+      for (; rI < remains.length; rI++) {
+        let { item } = remains[rI]
+        reList.push(item)
+      }
+  
+      // Done
+      return reList
+    },
+    /**
      * @param state Vuex state object with "data: {list,pager}"
      * @param items Item(or ID) to remove, unique key is "id"
      * @param dataKey the dataKey in `state`, default as "data"
@@ -17709,7 +17785,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220114.110210",
+  "version" : "1.6-20220119.183741",
   "dev" : false,
   "appName" : null,
   "session" : {},

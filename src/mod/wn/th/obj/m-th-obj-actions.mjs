@@ -52,8 +52,10 @@ const _M = {
     // Load meta content
     commit("setStatus", { reloading: true })
     let content = await Wn.Io.loadContent(meta)
-    //console.log("do load Content:", content)
     dispatch("updateContent", content)
+    //console.log("loadContent:", content)
+
+    // All done
     commit("setStatus", { reloading: false })
   },
   //--------------------------------------------

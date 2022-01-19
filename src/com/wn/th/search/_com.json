@@ -1,0 +1,11 @@
+{
+  "name": "WnThSearch",
+  "globally": true,
+  "template": "./wn-th-search.html",
+  "mixins": [
+    "./wn-th-search.mjs"
+  ],
+  "components": [
+    "@com:ti/search"
+  ]
+}

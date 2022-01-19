@@ -1,0 +1,14 @@
+{
+  "name": "TiSearch",
+  "globally": true,
+  "template": "./ti-search.html",
+  "mixins": [
+    "./ti-search.mjs"
+  ],
+  "components": [
+    "@com:ti/filterbar",
+    "@com:ti/list",
+    "@com:ti/table",
+    "@com:ti/paging/jumper"
+  ]
+}

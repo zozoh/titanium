@@ -54,7 +54,7 @@ const _M = {
   ActionMenu() {
     if(_.isArray(this.actions) && !_.isEmpty(this.actions)) {
       return {
-        className : `wn-${this.viewportMode}-menu`,
+        className : `wn-top-menu is-${this.viewportMode}`,
         items  : this.actions,
         status : this.TheStatus,
         delay  : 500

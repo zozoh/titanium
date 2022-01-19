@@ -659,7 +659,20 @@ const _M = {
       // Notify: Prepare
       //console.log("@page:prepare ...")
       commit("setReady", 1)
+      // 
+      // Sometimes or offently, the @page:prepare will check the status
+      // and maybe navTo to another page. Such as login protection.
+      // So, we need remember the pageUri before "@page:prepare"
+      // if it was changed after "@page:prepare", we need cancel the remian 
+      // procedure, because other page will take over the rendering.
+      //
+      let beforePreparePageUri = state.pageUri
       await dispatch("invokeAction", { name: "@page:prepare" }, { root: true })
+      //
+      // Page Uri changed, the next procedure will not be necessary
+      if(beforePreparePageUri != state.pageUri) {
+        return
+      }
       //.....................................
       // Conclude the api loading keys
       let { preloads, afterLoads } = Ti.WWW.groupPreloadApis(getters.pageApis, (k, api)=>{

@@ -1,4 +1,4 @@
-// Pack At: 2022-01-14 11:02:10
+// Pack At: 2022-01-19 18:37:41
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8992,7 +8992,20 @@ const _M = {
       // Notify: Prepare
       //console.log("@page:prepare ...")
       commit("setReady", 1)
+      // 
+      // Sometimes or offently, the @page:prepare will check the status
+      // and maybe navTo to another page. Such as login protection.
+      // So, we need remember the pageUri before "@page:prepare"
+      // if it was changed after "@page:prepare", we need cancel the remian 
+      // procedure, because other page will take over the rendering.
+      //
+      let beforePreparePageUri = state.pageUri
       await dispatch("invokeAction", { name: "@page:prepare" }, { root: true })
+      //
+      // Page Uri changed, the next procedure will not be necessary
+      if(beforePreparePageUri != state.pageUri) {
+        return
+      }
       //.....................................
       // Conclude the api loading keys
       let { preloads, afterLoads } = Ti.WWW.groupPreloadApis(getters.pageApis, (k, api)=>{
@@ -34167,7 +34180,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/wn/thing/manager/com/thing-creator/thing-creator.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////
-  inject: ["$ThingManager"],
+  //inject: ["$ThingManager"],
   ///////////////////////////////////////////
   data : ()=>({
     "myData" : undefined,
@@ -34223,7 +34236,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     async OnCreate() {
       this.creating = true
-      let reo = await this.$ThingManager.dispatch("create", this.myData)
+      let reo;
+      let $ThingManager = this.tiParentCom("WnThingManager")
+      if(!$ThingManager) {
+        $ThingManager = this.tiParentCom("WnThAdaptor")
+      }
+      reo = await $ThingManager.dispatch("create", this.myData)
       this.creating = false
       if(reo && !(reo instanceof Error)) {
         this.$notify("block:hide", "creator")
@@ -65648,6 +65666,94 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'wn-th-creator.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/th/creator/wn-th-creator.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////
+  data : ()=>({
+    "myData" : undefined,
+    "creating" : false
+  }),
+  ///////////////////////////////////////////
+  props : {
+    "fields" : {
+      type : Array,
+      default : ()=>[]
+    },
+    "data" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "form": {
+      type : Object,
+      default : ()=>({})
+    },
+    "fixed": {
+      type: Object,
+      default: undefined
+    }
+  },
+  ///////////////////////////////////////////
+  computed: {
+    TheData() {
+      return this.myData || this.data
+    },
+    TheForm() {
+      return _.assign({
+        onlyFields: false,
+        adjustDelay: 0
+      }, this.form)
+    }
+  },
+  ///////////////////////////////////////////
+  methods : {
+    //--------------------------------------
+    OnFormInit($form) {
+      this.$form = $form
+    },
+    //--------------------------------------
+    OnFormFieldChange(pair={}) {
+      //console.log("OnFormFieldChange", pair)
+      this.myData = this.$form.getData(pair)
+    },
+    //--------------------------------------
+    OnFormChange(data) {
+      //console.log("OnFormChange", data)
+      this.myData = data
+    },
+    //--------------------------------------
+    // Can be use in WnThAdaptor or the old [WnThingManager]
+    async OnCreate() {
+      this.creating = true
+      let reo;
+      let $ThP = this.tiParentCom("WnThAdaptor")
+      if(!$ThP) {
+        $ThP = this.tiParentCom("WnThingManager")
+      }
+      reo = await $ThP.dispatch("create", this.myData)
+      this.creating = false
+      if(reo && !(reo instanceof Error)) {
+        this.$notify("block:hide", "creator")
+      }
+    },
+    //--------------------------------------
+    async OnSubmit() {
+      this.$nextTick(()=>{
+        this.OnCreate()
+      })
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////
+  mounted() {
+    this.myData = this.$form.getData()
+  }
+  ///////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'wn-imgfile.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/imgfile/wn-imgfile.mjs'] = (function(){
@@ -81114,6 +81220,45 @@ Ti.Preload("ti/com/wn/th/adaptor/_com.json", {
     "@com:wn/obj/puretext",
     "@com:wn/upload/file"
   ]
+});
+//========================================
+// JOIN <wn-th-creator.html> ti/com/wn/th/creator/wn-th-creator.html
+//========================================
+Ti.Preload("ti/com/wn/th/creator/wn-th-creator.html", `<div class="wn-th-creator ti-box-relative">
+  <ti-form
+    v-bind="TheForm"
+    :fields="fields"
+    :fixed="fixed"
+    :data="TheData"
+    :on-init="OnFormInit"
+    @field:change="OnFormFieldChange"
+    @change="OnFormChange"
+    @submit="OnSubmit"/>
+  <hr class="no-space">
+  <div class="ti-flex-center ti-padding-10">
+    <div class="ti-btn is-big" 
+      @click="OnCreate">
+      <span>{{'create-now'|i18n}}</span>
+    </div>
+  </div>
+  <div v-if="creating"
+    class="ti-box-mask as-thin ti-flex-center">
+    <ti-loading text="i18n:creating"/>
+  </div>
+</div>`);
+//========================================
+// JOIN <wn-th-creator.mjs> ti/com/wn/th/creator/wn-th-creator.mjs
+//========================================
+Ti.Preload("ti/com/wn/th/creator/wn-th-creator.mjs", TI_PACK_EXPORTS['ti/com/wn/th/creator/wn-th-creator.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/th/creator/_com.json
+//========================================
+Ti.Preload("ti/com/wn/th/creator/_com.json", {
+  "name" : "wn-th-creator",
+  "globally" : true,
+  "template" : "./wn-th-creator.html",
+  "mixins"   : ["./wn-th-creator.mjs"],
+  "components" : []
 });
 //========================================
 // JOIN <thing-creator.html> ti/com/wn/thing/manager/com/thing-creator/thing-creator.html

@@ -181,6 +181,18 @@ const _M = {
     state.__saved_content = content
   },
   //----------------------------------------
+  setContentPath(state, contentPath) {
+    state.contentPath = contentPath
+  },
+  //----------------------------------------
+  setContentType(state, contentType) {
+    state.contentType = contentType
+  },
+  //----------------------------------------
+  setContentData(state, contentData) {
+    state.contentData = contentData
+  },
+  //----------------------------------------
   setStatus(state, status) {
     state.status = _.assign({}, state.status, status)
   },

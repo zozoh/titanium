@@ -36,6 +36,8 @@
       "path": "<self>"
     }
   ],
+  "contentType": "<MIME>",
+  "contentData": null,
   "dataHome": null,
   "dataDirName": null,
   "keepDataDirNameToLocal": true,

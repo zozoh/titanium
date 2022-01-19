@@ -86,10 +86,20 @@ const _M = {
     commit("syncStatusChanged");
   },
   //----------------------------------------
-  updateContent({ commit }, content) {
+  updateContent({ commit, getters }, content) {
     commit("setContent", content)
     commit("setSavedContent", content)
     commit("syncStatusChanged")
+
+
+    // Try parse content
+    let contentType = getters.contentParseType
+    let contentData = null
+    if (/^(application|text)\/json$/.test(contentType)) {
+      let str = _.trim(content)
+      contentData = JSON.parse(str || null)
+    }
+    commit("setContentData", contentData)
   },
   //--------------------------------------------
   async saveContent({ state, commit, getters }) {

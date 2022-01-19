@@ -64,6 +64,15 @@ export default {
       }
     },
     //--------------------------------------------
+    contentParseType(state) {
+      if (_.isString(state.contentType)) {
+        if ("<MIME>" == state.contentType) {
+          return _.get(state, "meta.mime")
+        }
+        return state.contentType
+      }
+    },
+    //--------------------------------------------
     hasCurrentMeta(state) {
       return state.meta && state.dataHome ? true : false
     }

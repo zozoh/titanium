@@ -179,10 +179,19 @@ const _M = {
     commit("syncStatusChanged");
   },
   //----------------------------------------
-  updateContent({ commit }, content) {
+  updateContent({ commit, getters }, content) {
     commit("setContent", content)
     commit("setSavedContent", content)
     commit("syncStatusChanged")
+
+    // Try parse content
+    let contentType = getters.contentParseType
+    let contentData = null
+    if (/^(application|text)\/json$/.test(contentType)) {
+      let str = _.trim(content)
+      contentData = JSON.parse(str || null)
+    }
+    commit("setContentData", contentData)
   },
   //--------------------------------------------
   async saveContent({ state, commit, getters }) {
@@ -201,7 +210,7 @@ const _M = {
       let aph = Ti.Util.appendPath(state.dataHome, path)
       meta = await Wn.Io.loadMeta(aph)
       // If not exists, then create it
-      if(!meta) {
+      if (!meta) {
         let cmdText = `touch '${aph}'`
         await Wn.Sys.exec2(cmdText)
         meta = await Wn.Io.loadMeta(aph)

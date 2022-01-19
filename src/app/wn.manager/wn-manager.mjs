@@ -265,8 +265,32 @@ const _M = {
     },
     //--------------------------------------
     OnUpdateActions(actions) {
-      //console.log("OnUpdateAction", actions)
-      this.actions = _.cloneDeep(actions)
+      console.log("OnUpdateAction", actions)
+      const explainActionItem = (aItem) => {
+        if (aItem.explain) {
+          return Ti.Util.explainObj(this.RootState, _.omit(aItem, "explain"))
+        }
+        if (_.isArray(aItem.items)) {
+          let items = []
+          for (let it of aItem.items) {
+            let it2 = explainActionItem(it)
+            items.push(it2)
+          }
+          aItem.items = items
+        }
+        return aItem
+      }
+      // Eval actions 
+      let aItems = _.cloneDeep(actions)
+      let list = []
+      if (_.isArray(aItems)) {
+        for (let aItem of aItems) {
+          let li = explainActionItem(aItem)
+          list.push(li)
+        }
+      }
+      // Update to data
+      this.actions = list
       Ti.App(this).reWatchShortcut(actions)
     },
     //--------------------------------------

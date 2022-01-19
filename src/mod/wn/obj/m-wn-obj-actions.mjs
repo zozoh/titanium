@@ -22,16 +22,36 @@ async function loadConfigJson(state, key, dft) {
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
-  async loadContent({ state, commit, dispatch }) {
+  async loadContent({ state, commit, dispatch, getters }) {
     // Guard
     let meta = state.meta
     if (!meta) {
       return
     }
+    // Which content should I load?
+    let path = getters.contentLoadPath
+    if (!path) {
+      return
+    }
+    if ("<self>" != path) {
+      path = Ti.Util.appendPath(state.dataHome, path)
+      meta = await Wn.Io.loadMeta(path)
+    }
+
+    //console.log("load Content:", path)
+    // No meta
+    if (!meta) {
+      dispatch("updateContent", null)
+      return
+    }
+
     // Load meta content
     commit("setStatus", { reloading: true })
     let content = await Wn.Io.loadContent(meta)
     dispatch("updateContent", content)
+    //console.log("loadContent:", content)
+
+    // All done
     commit("setStatus", { reloading: false })
   },
   //--------------------------------------------

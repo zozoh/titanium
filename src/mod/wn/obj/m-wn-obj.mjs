@@ -35,19 +35,28 @@ export default {
     },
     //--------------------------------------------
     contentLoadPath(state) {
-      if(state.contentPath) {
+      if (state.contentPath) {
         // fixed content path
-        if(_.isString(state.contentPath)){
+        if (_.isString(state.contentPath)) {
           return state.contentPath
         }
         // Try find content path
         let canPaths = _.concat([], state.contentPath)
-        for(let canPath of canPaths) {
-          let {test, path} = canPath
-          if(!test || Ti.AutoMatch.test(test, state)) {
+        for (let canPath of canPaths) {
+          let { test, path } = canPath
+          if (!test || Ti.AutoMatch.test(test, state)) {
             return path
           }
         }
+      }
+    },
+    //--------------------------------------------
+    contentParseType(state) {
+      if (_.isString(state.contentType)) {
+        if ("<MIME>" == state.contentType) {
+          return _.get(state, "meta.mime")
+        }
+        return state.contentType
       }
     }
     //--------------------------------------------
