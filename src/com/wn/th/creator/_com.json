@@ -1,0 +1,7 @@
+{
+  "name" : "wn-th-creator",
+  "globally" : true,
+  "template" : "./wn-th-creator.html",
+  "mixins"   : ["./wn-th-creator.mjs"],
+  "components" : []
+}

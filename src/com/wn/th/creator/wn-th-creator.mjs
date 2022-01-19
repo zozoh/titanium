@@ -1,7 +1,5 @@
 export default {
   ///////////////////////////////////////////
-  //inject: ["$ThingManager"],
-  ///////////////////////////////////////////
   data : ()=>({
     "myData" : undefined,
     "creating" : false
@@ -54,14 +52,15 @@ export default {
       this.myData = data
     },
     //--------------------------------------
+    // Can be use in WnThAdaptor or the old [WnThingManager]
     async OnCreate() {
       this.creating = true
       let reo;
-      let $ThingManager = this.tiParentCom("WnThingManager")
-      if(!$ThingManager) {
-        $ThingManager = this.tiParentCom("WnThAdaptor")
+      let $ThP = this.tiParentCom("WnThAdaptor")
+      if(!$ThP) {
+        $ThP = this.tiParentCom("WnThingManager")
       }
-      reo = await $ThingManager.dispatch("create", this.myData)
+      reo = await $ThP.dispatch("create", this.myData)
       this.creating = false
       if(reo && !(reo instanceof Error)) {
         this.$notify("block:hide", "creator")
