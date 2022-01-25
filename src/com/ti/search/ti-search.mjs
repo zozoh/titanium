@@ -5,55 +5,13 @@ export default {
     //------------------------------------------------
     // Data
     //------------------------------------------------
-    "filter": {
-      type: Object,
-      default: () => ({})
-    },
-    "sorter": {
-      type: Object,
-      default: () => ({})
-    },
-    //------------------------------------------------
-    // Behavior
-    //------------------------------------------------
-    "majors": {
+    "list": {
       type: Array,
       default: () => []
     },
-    "matchKeywords": {
-      type: Array,
-      default: () => []
-    },
-    "advanceForm": {
-      type: Object
-    },
-    "advanceComponents": {
-      type: Array,
-      default: () => []
-    },
-    "sorterConf": {
-      type: Object
-    },
-    "listComType": {
-      type: String,
-      default: "TiList"
-    },
-    "listComConf": {
-      type: Object,
-      default: () => ({})
-    },
-    //-----------------------------------
-    // Aspect
-    //-----------------------------------
-    "placeholder": {
-      type: String,
-      default: "i18n:search"
-    },
-    "dialog": {
-      type: Object
-    },
-    "filterTags": {
-      type: Object
+    "loading": {
+      type: Boolean,
+      default: false
     }
   },
   ////////////////////////////////////////////////////
@@ -88,24 +46,14 @@ export default {
     },
     //------------------------------------------------
     GUISchema() {
-      //.............................................
-      let dateRangeFilterTag = [
-        ":=>Ti.DateTime.formatMsDateRange(val",
-        "'i18n:date-fmt'",
-        "'i18n:dt-range-unknown'",
-        "'i18n:dt-range-to'",
-        "''",
-        "'i18n:dt-range-from'",
-        "''",
-        "'')"
-      ].join(",")
-      //.............................................
       return {
         //................................
         filter: {
           comType: "TiFilterbar",
           comConf: {
             className: "is-nowrap",
+            filter: this.filter,
+            sorter: this.sorter,
             placeholder: this.placeholder,
             dialog: _.assign({
               "icon": "fas-search",
@@ -118,12 +66,12 @@ export default {
             matchKeywords: this.matchKeywords,
             filterTags: _.assign({
               "th_live": "i18n:thing-recycle-bin",
-              "id": ":->ID【${val}】",
-              "nm": ":=val",
-              "title": ":=val",
-              "abbr": ":=val",
-              "ct": dateRangeFilterTag,
-              "lm": dateRangeFilterTag
+              "id": "->ID【${val}】",
+              "nm": "=val",
+              "title": "=val",
+              "abbr": "=val",
+              "ct": "<MsDateRange>",
+              "lm": "<MsDateRange>"
             }, this.filterTags),
             advanceForm: this.advanceForm,
             advanceComponents: this.advanceComponents,
@@ -133,12 +81,17 @@ export default {
         //................................
         list: {
           comType: this.listComType,
-          comConf: this.listComConf
+          comConf: _.assign({}, this.listComConf, {
+            data: this.list
+          })
         },
         //................................
         pager: {
           comType: "TiPagingJumper",
-          
+          comConf: {
+            value: this.pager,
+            valueType: this.pagerValueType
+          }
         }
         //................................
       }

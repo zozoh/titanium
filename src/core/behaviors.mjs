@@ -179,6 +179,7 @@ const TiBehaviors = {
     enterAsConfirm : false  // 多行文本下，回车是否表示确认
     newLineAsBr : false // 多行文本上，新行用 BR 替换。 默认 false
     text  : null   // 初始文字，如果没有给定，采用 ele 的文本
+    trim  : true   // 自动去掉前后空白
     width : 0      // 指定宽度，没有指定则默认采用宿主元素的宽度
     height: 0      // 指定高度，没有指定则默认采用宿主元素的高度
     extendWidth  : true   // 自动延伸宽度
@@ -211,6 +212,7 @@ const TiBehaviors = {
       height: 0,      // 指定高度，没有指定则默认采用宿主元素的高度
       extendWidth: true,    // 自动延伸宽度
       takePlace: true,      // 是否代替宿主的位置，如果代替那么将不用绝对位置和遮罩
+      trim: true,  // 自动去掉前后空白
       selectOnFocus: true,  // 当显示输入框，是否全选文字
       // How many css-prop should be copied
       copyStyle: [
@@ -242,8 +244,12 @@ const TiBehaviors = {
       },
       //.......................................
       onOk() {
-        let newVal = _.trim(this.jInput.val())
-        if (newVal != this.oldValue) {
+        let newVal = this.jInput.val()
+        if (opt.trim) {
+          newVal = _.trim(newVal)
+        }
+        //console.log(newVal, this.oldValue)
+        if (newVal !== this.oldValue) {
           opt.ok.apply(opt.context, [newVal, opt.oldValue, opt])
         }
         this.onCancel()

@@ -198,7 +198,7 @@ export default {
     },
     //---------------------------------------------------
     OnCellChange(val, { cellKey, x, y }) {
-      console.log("SheetTable CellChanged", { cellKey, x, y, val })
+      //console.log("SheetTable CellChanged", { cellKey, x, y, val })
       // Default, empty value as null
       let col = this.SheetColumnList[x]
       let { type, emptyAsNull, autoSort } = col

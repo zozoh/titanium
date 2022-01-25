@@ -20,6 +20,11 @@ const CURRENCIES = {
     icon: "fas-pound-sign",
     text: `i18n:currency-GBP`
   },
+  "HKD": {
+    token: "¥",
+    icon: "fas-yen-sign",
+    text: `i18n:currency-HKD`
+  },
   "JPY": {
     token: "¥",
     icon: "fas-yen-sign",

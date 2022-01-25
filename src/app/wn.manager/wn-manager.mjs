@@ -265,7 +265,7 @@ const _M = {
     },
     //--------------------------------------
     OnUpdateActions(actions) {
-      console.log("OnUpdateAction", actions)
+      //console.log("OnUpdateAction", actions)
       const explainActionItem = (aItem) => {
         if (aItem.explain) {
           return Ti.Util.explainObj(this.RootState, _.omit(aItem, "explain"))

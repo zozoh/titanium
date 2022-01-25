@@ -149,6 +149,44 @@ const TiUtil = {
     return index
   },
   /**
+   * Try to find the next item after the matched element removed from list
+   * @param {Array} list 
+   * @param {Function} matchBy Function with 3 arguments `(ele, index, src)`
+   * 
+   * @return `{index: 4, item: Any}`  index is in original list.
+   *  -1 to indicate no item should be highlight after the remmoving.
+   */
+  findNextItemBy(list = [], matchBy = () => false) {
+    let index = -1
+    let item = null
+    // Guard
+    if (!_.isArray(list) || _.isEmpty(list)) {
+      return { index, item }
+    }
+    // Try to find
+    let found = false
+    for (let i = 0; i < list.length; i++) {
+      let li = list[i]
+      if (matchBy(li, i, list)) {
+        found = true
+      }
+      // Not match be found previously, this is the best result
+      else {
+        index = i
+        item = li
+        if (found) {
+          break
+        }
+      }
+    }
+    // Never found , use the first one
+    if (!found) {
+      return { index: 0, item: list[0] }
+    }
+    // Done
+    return { index, item }
+  },
+  /**
    * Move array element in-place
    * 
    * @param list the input Array

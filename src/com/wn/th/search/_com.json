@@ -2,6 +2,7 @@
   "name": "WnThSearch",
   "globally": true,
   "template": "./wn-th-search.html",
+  "props": "@com:ti/search/ti-search-props.mjs",
   "mixins": [
     "./wn-th-search.mjs"
   ],

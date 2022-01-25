@@ -1,4 +1,4 @@
-// Pack At: 2022-01-19 18:37:41
+// Pack At: 2022-01-25 12:03:25
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -970,6 +970,7 @@ const {Be} = (function(){
       enterAsConfirm : false  // 多行文本下，回车是否表示确认
       newLineAsBr : false // 多行文本上，新行用 BR 替换。 默认 false
       text  : null   // 初始文字，如果没有给定，采用 ele 的文本
+      trim  : true   // 自动去掉前后空白
       width : 0      // 指定宽度，没有指定则默认采用宿主元素的宽度
       height: 0      // 指定高度，没有指定则默认采用宿主元素的高度
       extendWidth  : true   // 自动延伸宽度
@@ -1002,6 +1003,7 @@ const {Be} = (function(){
         height: 0,      // 指定高度，没有指定则默认采用宿主元素的高度
         extendWidth: true,    // 自动延伸宽度
         takePlace: true,      // 是否代替宿主的位置，如果代替那么将不用绝对位置和遮罩
+        trim: true,  // 自动去掉前后空白
         selectOnFocus: true,  // 当显示输入框，是否全选文字
         // How many css-prop should be copied
         copyStyle: [
@@ -1033,8 +1035,12 @@ const {Be} = (function(){
         },
         //.......................................
         onOk() {
-          let newVal = _.trim(this.jInput.val())
-          if (newVal != this.oldValue) {
+          let newVal = this.jInput.val()
+          if (opt.trim) {
+            newVal = _.trim(newVal)
+          }
+          //console.log(newVal, this.oldValue)
+          if (newVal !== this.oldValue) {
             opt.ok.apply(opt.context, [newVal, opt.oldValue, opt])
           }
           this.onCancel()
@@ -8501,13 +8507,13 @@ const {Types} = (function(){
       }
       let ss = []
       if (this.left) {
-        ss.push(this.left.open ? leftOpen : leftClose)
+        ss.push(Ti.I18n.text(this.left.open ? leftOpen : leftClose))
         if (!isNaN(this.left.val)) {
           let v = format(this.left.val)
           ss.push(v)
         }
         if (this.right && separator) {
-          ss.push(separator)
+          ss.push(Ti.I18n.text(separator))
         }
       }
       if (this.right) {
@@ -8515,7 +8521,7 @@ const {Types} = (function(){
           let v = format(this.right.val)
           ss.push(v)
         }
-        ss.push(this.right.open ? rightOpen : rightClose)
+        ss.push(Ti.I18n.text(this.right.open ? rightOpen : rightClose))
       }
       return ss.join("")
     }
@@ -8525,9 +8531,10 @@ const {Types} = (function(){
       leftClose = '[',
       rightOpen = ')',
       rightClose = ']') {
+      let dfmt = Ti.I18n.text(fmt)
       return this.toString({
         format: v => {
-          return TiTypes.formatDate(v, fmt)
+          return TiTypes.formatDate(v, dfmt)
         },
         separator,
         leftOpen,
@@ -8542,9 +8549,10 @@ const {Types} = (function(){
       leftClose = '[',
       rightOpen = ')',
       rightClose = ']') {
+      let dfmt = Ti.I18n.text(fmt)
       return this.toString({
         format: v => {
-          return TiTypes.formatDateTime(v, fmt)
+          return TiTypes.formatDateTime(v, dfmt)
         },
         separator,
         leftOpen,
@@ -10250,6 +10258,44 @@ const {Util} = (function(){
   
       // done
       return index
+    },
+    /**
+     * Try to find the next item after the matched element removed from list
+     * @param {Array} list 
+     * @param {Function} matchBy Function with 3 arguments `(ele, index, src)`
+     * 
+     * @return `{index: 4, item: Any}`  index is in original list.
+     *  -1 to indicate no item should be highlight after the remmoving.
+     */
+    findNextItemBy(list = [], matchBy = () => false) {
+      let index = -1
+      let item = null
+      // Guard
+      if (!_.isArray(list) || _.isEmpty(list)) {
+        return { index, item }
+      }
+      // Try to find
+      let found = false
+      for (let i = 0; i < list.length; i++) {
+        let li = list[i]
+        if (matchBy(li, i, list)) {
+          found = true
+        }
+        // Not match be found previously, this is the best result
+        else {
+          index = i
+          item = li
+          if (found) {
+            break
+          }
+        }
+      }
+      // Never found , use the first one
+      if (!found) {
+        return { index: 0, item: list[0] }
+      }
+      // Done
+      return { index, item }
     },
     /**
      * Move array element in-place
@@ -13601,6 +13647,11 @@ const {Bank} = (function(){
       token: "£",
       icon: "fas-pound-sign",
       text: `i18n:currency-GBP`
+    },
+    "HKD": {
+      token: "¥",
+      icon: "fas-yen-sign",
+      text: `i18n:currency-HKD`
     },
     "JPY": {
       token: "¥",
@@ -17785,7 +17836,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220119.183741",
+  "version" : "1.6-20220125.120325",
   "dev" : false,
   "appName" : null,
   "session" : {},

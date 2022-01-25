@@ -2,6 +2,7 @@
   "name": "TiSearch",
   "globally": true,
   "template": "./ti-search.html",
+  "props": "./ti-search-props.mjs",
   "mixins": [
     "./ti-search.mjs"
   ],

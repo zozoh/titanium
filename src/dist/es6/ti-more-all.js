@@ -1,4 +1,4 @@
-// Pack At: 2022-01-19 18:37:41
+// Pack At: 2022-01-25 12:03:25
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7688,6 +7688,227 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'wn-th-search.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/th/search/wn-th-search.mjs'] = (function(){
+//////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////////////
+  data: () => ({
+    // Keep last search {input, command}
+    // to avoid the multi-search
+    myLastSearch: undefined,
+
+    myLoading: false,
+    myFilter: {},
+    mySorter: {},
+    myList: [],
+    myPager: {}
+  }),
+  ////////////////////////////////////////////////////
+  props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
+    "tsPath": {
+      type: String
+    },
+    "fixedMatch": {
+      type: Object
+    },
+    //------------------------------------------------
+    // Behavior
+    //------------------------------------------------
+    "localKeepAt": {
+      type: String
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //--------------------------------------------
+    isPagerEnabled() {
+      if (!this.myPager) {
+        return false
+      }
+      if (!(this.SearchPageNumber > 0)) {
+        return false
+      }
+      if (!(this.SearchPageSize > 0)) {
+        return false
+      }
+      return true
+    },
+    //--------------------------------------------
+    SearchPageNumber() {
+      if (this.pagerValueType == "shortName") {
+        return _.get(this.myPager, "pn")
+      }
+      return _.get(this.myPager, "pageNumber")
+    },
+    //--------------------------------------------
+    SearchPageSize() {
+      if (this.pagerValueType == "shortName") {
+        return _.get(this.myPager, "pgsz")
+      }
+      return _.get(this.myPager, "pageSize")
+    },
+    //------------------------------------------------
+    SearchInput() {
+      // Guard
+      if (Ti.S.isBlank(this.tsPath)) {
+        return
+      }
+
+      // Eval the filter
+      let filter = _.cloneDeep(this.myFilter)
+      let fixedMatch = _.cloneDeep(this.fixedMatch)
+      return JSON.stringify(_.assign({}, filter, fixedMatch))
+    },
+    //------------------------------------------------
+    SearchCommand() {
+      // Guard
+      if (Ti.S.isBlank(this.tsPath)) {
+        return
+      }
+
+      // Command
+      let cmds = [`thing ${this.tsPath} query -cqn`]
+
+      // Eval Pager
+      if (this.isPagerEnabled) {
+        let limit = this.SearchPageSize * 1
+        let skip = this.SearchPageSize * (this.SearchPageNumber - 1)
+        cmds.push(`-pager -limit ${limit} -skip ${skip}`)
+      }
+
+      // Sorter
+      if (!_.isEmpty(this.mySorter)) {
+        cmds.push(`-sort '${JSON.stringify(this.mySorter)}'`)
+      }
+
+      // Show Thing Keys
+      if (this.objKeys) {
+        cmds.push(`-e '${this.objKeys}'`)
+      }
+
+      // Done
+      return cmds.join(" ")
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods: {
+    //------------------------------------------------
+    OnFilterChange(payload) {
+      this.myFilter = payload
+      this.saveToLocal()
+    },
+    //------------------------------------------------
+    OnSorterChange(payload) {
+      this.mySorter = payload
+      this.saveToLocal()
+    },
+    //------------------------------------------------
+    OnPagerChange(payload) {
+      this.myPager = _.assign({}, this.myPager, payload)
+      this.saveToLocal()
+    },
+    //------------------------------------------------
+    saveToLocal() {
+      if (this.localKeepAt) {
+        let filter = this.myFilter
+        let sorter = this.mySorter
+        let pager = _.pick(this.myPager, "pn", "pgsz", "pageNumber", "pageSize")
+        Ti.Storage.local.setObject(this.localKeepAt, {
+          filter, sorter, pager
+        })
+      }
+    },
+    //------------------------------------------------
+    restoreFromLocal() {
+      if (this.localKeepAt) {
+        let reo = Ti.Storage.local.getObject(this.localKeepAt) || {}
+        let { filter, sorter, pager } = reo
+        this.myFilter = filter
+        this.mySorter = sorter
+        this.myPager = _.assign({}, this.pager, pager)
+      }
+    },
+    //------------------------------------------------
+    buildLastSearch() {
+      return {
+        input: this.SearchInput,
+        command: this.SearchCommand
+      }
+    },
+    //------------------------------------------------
+    async reloadList() {
+      this.myLastSearch = this.buildLastSearch()
+      let cmdText = this.SearchCommand
+      let input = this.SearchInput
+      console.log("WnThSearch.reloadList", cmdText, "<FLT>", input)
+
+      this.myLoading = true
+
+      let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
+
+      // Update pager
+      if (this.isPagerEnabled) {
+        this.myPager = _.assign({}, this.myPager, reo.pager)
+        this.myList = reo.list
+      }
+      // List all
+      else {
+        this.myList = reo
+      }
+
+      this.myLoading = false
+    },
+    //------------------------------------------------
+    tryReloadList() {
+      let lastSearch = this.buildLastSearch()
+      if (!_.isEqual(lastSearch, this.myLastSearch)) {
+        this.reloadList()
+      }
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    "SearchInput": "tryReloadList",
+    "SearchCommand": "tryReloadList",
+    "filter": {
+      handler: function (newVal) {
+        this.myFilter = _.cloneDeep(newVal || {})
+      },
+      immediate: true
+    },
+    "sorter": {
+      handler: function (newVal) {
+        this.mySorter = _.cloneDeep(newVal || {})
+      },
+      immediate: true
+    },
+    "pager": {
+      handler: function (newVal) {
+        this.myPager = _.cloneDeep(newVal || {})
+      },
+      immediate: true
+    }
+  },
+  ////////////////////////////////////////////////////
+  created() {
+    this.restoreFromLocal()
+  },
+  ////////////////////////////////////////////////////
+  mounted() {
+    this.tryReloadList()
+  }
+  ////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'thing-files.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/thing/manager/com/thing-files/thing-files.mjs'] = (function(){
@@ -9529,6 +9750,14 @@ const _M = {
   //----------------------------------------
   setContentPath(state, contentPath) {
     state.contentPath = contentPath
+  },
+  //----------------------------------------
+  setContentType(state, contentType) {
+    state.contentType = contentType
+  },
+  //----------------------------------------
+  setContentData(state, contentData) {
+    state.contentData = contentData
   },
   //----------------------------------------
   setStatus(state, status) {
@@ -12362,16 +12591,36 @@ async function loadConfigJson(state, key, dft) {
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
-  async loadContent({ state, commit, dispatch }) {
+  async loadContent({ state, commit, dispatch, getters }) {
     // Guard
     let meta = state.meta
     if (!meta) {
       return
     }
+    // Which content should I load?
+    let path = getters.contentLoadPath
+    if (!path) {
+      return
+    }
+    if ("<self>" != path) {
+      path = Ti.Util.appendPath(state.dataHome, path)
+      meta = await Wn.Io.loadMeta(path)
+    }
+
+    //console.log("load Content:", path)
+    // No meta
+    if (!meta) {
+      dispatch("updateContent", null)
+      return
+    }
+
     // Load meta content
     commit("setStatus", { reloading: true })
     let content = await Wn.Io.loadContent(meta)
     dispatch("updateContent", content)
+    //console.log("loadContent:", content)
+
+    // All done
     commit("setStatus", { reloading: false })
   },
   //--------------------------------------------
@@ -12779,10 +13028,20 @@ const _M = {
     commit("syncStatusChanged");
   },
   //----------------------------------------
-  updateContent({ commit }, content) {
+  updateContent({ commit, getters }, content) {
     commit("setContent", content)
     commit("setSavedContent", content)
     commit("syncStatusChanged")
+
+
+    // Try parse content
+    let contentType = getters.contentParseType
+    let contentData = null
+    if (/^(application|text)\/json$/.test(contentType)) {
+      let str = _.trim(content)
+      contentData = JSON.parse(str || null)
+    }
+    commit("setContentData", contentData)
   },
   //--------------------------------------------
   async saveContent({ state, commit, getters }) {
@@ -12996,6 +13255,18 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'ti-filterbar.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/filterbar/ti-filterbar.mjs'] = (function(){
+////////////////////////////////////////////
+const DATERANGE_FILTER_TAG = [
+  "=>Ti.DateTime.formatMsDateRange(val",
+  "'i18n:date-fmt'",
+  "'i18n:dt-range-unknown'",
+  "'i18n:dt-range-to'",
+  "''",
+  "'i18n:dt-range-from'",
+  "''",
+  "'')"
+].join(",")
+////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
   data: () => ({
@@ -13236,6 +13507,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
           continue
         }
 
+        // Quick ft name
+        if ("<MsDateRange>" == ft) {
+          ft = DATERANGE_FILTER_TAG
+        }
+
         // Customized function
         if (_.isFunction(ft)) {
           let text = await ft(val, key)
@@ -13244,7 +13520,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
 
         // Dict
-        let dictName = Ti.DictFactory.DictReferName()
+        let dictName = Ti.DictFactory.DictReferName(ft)
         if (dictName) {
           let d = Ti.DictFactory.CheckDict(dictName)
           let text = await d.getItemText(val)
@@ -32938,7 +33214,31 @@ const _M = {
     //--------------------------------------
     OnUpdateActions(actions) {
       //console.log("OnUpdateAction", actions)
-      this.actions = _.cloneDeep(actions)
+      const explainActionItem = (aItem) => {
+        if (aItem.explain) {
+          return Ti.Util.explainObj(this.RootState, _.omit(aItem, "explain"))
+        }
+        if (_.isArray(aItem.items)) {
+          let items = []
+          for (let it of aItem.items) {
+            let it2 = explainActionItem(it)
+            items.push(it2)
+          }
+          aItem.items = items
+        }
+        return aItem
+      }
+      // Eval actions 
+      let aItems = _.cloneDeep(actions)
+      let list = []
+      if (_.isArray(aItems)) {
+        for (let aItem of aItems) {
+          let li = explainActionItem(aItem)
+          list.push(li)
+        }
+      }
+      // Update to data
+      this.actions = list
       Ti.App(this).reWatchShortcut(actions)
     },
     //--------------------------------------
@@ -35435,6 +35735,18 @@ const _M = {
     state.__saved_content = content
   },
   //----------------------------------------
+  setContentPath(state, contentPath) {
+    state.contentPath = contentPath
+  },
+  //----------------------------------------
+  setContentType(state, contentType) {
+    state.contentType = contentType
+  },
+  //----------------------------------------
+  setContentData(state, contentData) {
+    state.contentData = contentData
+  },
+  //----------------------------------------
   setStatus(state, status) {
     state.status = _.assign({}, state.status, status)
   },
@@ -37864,15 +38176,24 @@ const _M = {
   },
   //--------------------------------------------
   changeContent({ commit }, payload) {
-    console.log("changeContent", payload)
+    //console.log("changeContent", payload)
     commit("setContent", payload)
     commit("syncStatusChanged");
   },
   //----------------------------------------
-  updateContent({ commit }, content) {
+  updateContent({ commit, getters }, content) {
     commit("setContent", content)
     commit("setSavedContent", content)
     commit("syncStatusChanged")
+
+    // Try parse content
+    let contentType = getters.contentParseType
+    let contentData = null
+    if (/^(application|text)\/json$/.test(contentType)) {
+      let str = _.trim(content)
+      contentData = JSON.parse(str || null)
+    }
+    commit("setContentData", contentData)
   },
   //--------------------------------------------
   async saveContent({ state, commit, getters }) {
@@ -37891,7 +38212,7 @@ const _M = {
       let aph = Ti.Util.appendPath(state.dataHome, path)
       meta = await Wn.Io.loadMeta(aph)
       // If not exists, then create it
-      if(!meta) {
+      if (!meta) {
         let cmdText = `touch '${aph}'`
         await Wn.Sys.exec2(cmdText)
         meta = await Wn.Io.loadMeta(aph)
@@ -39249,7 +39570,7 @@ const _M = {
   ActionMenu() {
     if(_.isArray(this.actions) && !_.isEmpty(this.actions)) {
       return {
-        className : `wn-${this.viewportMode}-menu`,
+        className : `wn-top-menu is-${this.viewportMode}`,
         items  : this.actions,
         status : this.TheStatus,
         delay  : 500
@@ -45121,8 +45442,10 @@ const _M = {
     // Load meta content
     commit("setStatus", { reloading: true })
     let content = await Wn.Io.loadContent(meta)
-    //console.log("do load Content:", content)
     dispatch("updateContent", content)
+    //console.log("loadContent:", content)
+
+    // All done
     commit("setStatus", { reloading: false })
   },
   //--------------------------------------------
@@ -46660,6 +46983,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
             return path
           }
         }
+      }
+    },
+    //--------------------------------------------
+    contentParseType(state) {
+      if (_.isString(state.contentType)) {
+        if ("<MIME>" == state.contentType) {
+          return _.get(state, "meta.mime")
+        }
+        return state.contentType
       }
     },
     //--------------------------------------------
@@ -54408,7 +54740,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //---------------------------------------------------
     OnCellChange(val, { cellKey, x, y }) {
-      console.log("SheetTable CellChanged", { cellKey, x, y, val })
+      //console.log("SheetTable CellChanged", { cellKey, x, y, val })
       // Default, empty value as null
       let col = this.SheetColumnList[x]
       let { type, emptyAsNull, autoSort } = col
@@ -64342,6 +64674,120 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'ti-search.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/search/ti-search.mjs'] = (function(){
+//////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////////////
+  props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
+    "list": {
+      type: Array,
+      default: () => []
+    },
+    "loading": {
+      type: Boolean,
+      default: false
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //------------------------------------------------
+    GUILayout() {
+      return {
+        type: "rows",
+        border: true,
+        blocks: [
+          {
+            name: "filter",
+            size: ".43rem",
+            body: "filter"
+          },
+          {
+            name: "list",
+            size: "stretch",
+            body: "list"
+          },
+          {
+            name: "pager",
+            size: "auto",
+            body: "pager"
+          }
+        ]
+      }
+    },
+    //------------------------------------------------
+    GUISchema() {
+      return {
+        //................................
+        filter: {
+          comType: "TiFilterbar",
+          comConf: {
+            className: "is-nowrap",
+            filter: this.filter,
+            sorter: this.sorter,
+            placeholder: this.placeholder,
+            dialog: _.assign({
+              "icon": "fas-search",
+              "title": "i18n:search-adv",
+              "position": "top",
+              "width": "6.4rem",
+              "height": "90%"
+            }, this.dialog),
+            majors: this.majors,
+            matchKeywords: this.matchKeywords,
+            filterTags: _.assign({
+              "th_live": "i18n:thing-recycle-bin",
+              "id": "->ID【${val}】",
+              "nm": "=val",
+              "title": "=val",
+              "abbr": "=val",
+              "ct": "<MsDateRange>",
+              "lm": "<MsDateRange>"
+            }, this.filterTags),
+            advanceForm: this.advanceForm,
+            advanceComponents: this.advanceComponents,
+            sorterConf: this.sorterConf
+          }
+        },
+        //................................
+        list: {
+          comType: this.listComType,
+          comConf: _.assign({}, this.listComConf, {
+            data: this.list
+          })
+        },
+        //................................
+        pager: {
+          comType: "TiPagingJumper",
+          comConf: {
+            value: this.pager,
+            valueType: this.pagerValueType
+          }
+        }
+        //................................
+      }
+    },
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods: {
+    //------------------------------------------------
+
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-viewport.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/ti/viewport/ti-viewport.mjs'] = (function(){
@@ -65034,19 +65480,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------------
     contentLoadPath(state) {
-      if(state.contentPath) {
+      if (state.contentPath) {
         // fixed content path
-        if(_.isString(state.contentPath)){
+        if (_.isString(state.contentPath)) {
           return state.contentPath
         }
         // Try find content path
         let canPaths = _.concat([], state.contentPath)
-        for(let canPath of canPaths) {
-          let {test, path} = canPath
-          if(!test || Ti.AutoMatch.test(test, state)) {
+        for (let canPath of canPaths) {
+          let { test, path } = canPath
+          if (!test || Ti.AutoMatch.test(test, state)) {
             return path
           }
         }
+      }
+    },
+    //--------------------------------------------
+    contentParseType(state) {
+      if (_.isString(state.contentType)) {
+        if ("<MIME>" == state.contentType) {
+          return _.get(state, "meta.mime")
+        }
+        return state.contentType
       }
     }
     //--------------------------------------------
@@ -67707,6 +68162,85 @@ const _M = {
   //////////////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'ti-search-props.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/search/ti-search-props.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //------------------------------------------------
+  // Data
+  //------------------------------------------------
+  "filter": {
+    type: Object,
+    default: () => ({})
+  },
+  "sorter": {
+    type: Object,
+    default: () => ({ ct: -1 })
+  },
+  "pager": {
+    type: Object,
+    default: () => ({
+      pn: 1,
+      pgsz: 50,
+      pageNumber: 1,
+      pageSize: 50
+    })
+  },
+  "pagerValueType": {
+    type: String,
+    default: "shortName"
+  },
+  // REGEX to limit the output WnObj keys
+  "objKeys": {
+    type: String,
+    default: undefined
+  },
+  //------------------------------------------------
+  // Behavior
+  //------------------------------------------------
+  "majors": {
+    type: Array,
+    default: () => []
+  },
+  "matchKeywords": {
+    type: Array,
+    default: () => []
+  },
+  "advanceForm": {
+    type: Object
+  },
+  "advanceComponents": {
+    type: Array,
+    default: () => []
+  },
+  "sorterConf": {
+    type: Object
+  },
+  "listComType": {
+    type: String,
+    default: "TiList"
+  },
+  "listComConf": {
+    type: Object,
+    default: () => ({})
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "placeholder": {
+    type: String,
+    default: "i18n:search"
+  },
+  "dialog": {
+    type: Object
+  },
+  "filterTags": {
+    type: Object
+  }
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'bar-item-action.mjs' -> null
@@ -74255,6 +74789,42 @@ Ti.Preload("ti/com/ti/roadblock/_com.json", {
   "template" : "./ti-roadblock.html",
   "mixins"   : ["./ti-roadblock.mjs"],
   "components" : []
+});
+//========================================
+// JOIN <ti-search-props.mjs> ti/com/ti/search/ti-search-props.mjs
+//========================================
+Ti.Preload("ti/com/ti/search/ti-search-props.mjs", TI_PACK_EXPORTS['ti/com/ti/search/ti-search-props.mjs']);
+//========================================
+// JOIN <ti-search.html> ti/com/ti/search/ti-search.html
+//========================================
+Ti.Preload("ti/com/ti/search/ti-search.html", `<TiGui
+  :class="TopClass"
+  :layout="GUILayout"
+  :schema="GUISchema"
+  :canLoading="true"
+  :loading="loading"
+  />`);
+//========================================
+// JOIN <ti-search.mjs> ti/com/ti/search/ti-search.mjs
+//========================================
+Ti.Preload("ti/com/ti/search/ti-search.mjs", TI_PACK_EXPORTS['ti/com/ti/search/ti-search.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/search/_com.json
+//========================================
+Ti.Preload("ti/com/ti/search/_com.json", {
+  "name": "TiSearch",
+  "globally": true,
+  "template": "./ti-search.html",
+  "props": "./ti-search-props.mjs",
+  "mixins": [
+    "./ti-search.mjs"
+  ],
+  "components": [
+    "@com:ti/filterbar",
+    "@com:ti/list",
+    "@com:ti/table",
+    "@com:ti/paging/jumper"
+  ]
 });
 //========================================
 // JOIN <ti-session-badge.html> ti/com/ti/session/badge/ti-session-badge.html
@@ -81261,6 +81831,54 @@ Ti.Preload("ti/com/wn/th/creator/_com.json", {
   "components" : []
 });
 //========================================
+// JOIN <wn-th-search.html> ti/com/wn/th/search/wn-th-search.html
+//========================================
+Ti.Preload("ti/com/wn/th/search/wn-th-search.html", `<TiSearch
+  :class="className"
+
+  :loading="myLoading"
+
+  :filter="myFilter"
+  :list="myList"
+  :sorter="mySorter"
+  :pager="myPager"
+
+  :objKeys="objKeys"
+  :majors="majors"
+  :matchKeywords="matchKeywords"
+  :advanceForm="advanceForm"
+  :advanceComponents="advanceComponents"
+  :sorterConf="sorterConf"
+  :listComType="listComType"
+  :listComConf="listComConf"
+  :pagerValueType="pagerValueType"
+  :placeholder="placeholder"
+  :dialog="dialog"
+  :filterTags="filterTags"
+  @filter:change="OnFilterChange"
+  @sorter:change="OnSorterChange"
+  @pager::change="OnPagerChange"
+  />`);
+//========================================
+// JOIN <wn-th-search.mjs> ti/com/wn/th/search/wn-th-search.mjs
+//========================================
+Ti.Preload("ti/com/wn/th/search/wn-th-search.mjs", TI_PACK_EXPORTS['ti/com/wn/th/search/wn-th-search.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/th/search/_com.json
+//========================================
+Ti.Preload("ti/com/wn/th/search/_com.json", {
+  "name": "WnThSearch",
+  "globally": true,
+  "template": "./wn-th-search.html",
+  "props": "@com:ti/search/ti-search-props.mjs",
+  "mixins": [
+    "./wn-th-search.mjs"
+  ],
+  "components": [
+    "@com:ti/search"
+  ]
+});
+//========================================
 // JOIN <thing-creator.html> ti/com/wn/thing/manager/com/thing-creator/thing-creator.html
 //========================================
 Ti.Preload("ti/com/wn/thing/manager/com/thing-creator/thing-creator.html", `<div class="thing-creator ti-box-relative">
@@ -81973,7 +82591,7 @@ Ti.Preload("ti/mod/wn/obj/m-wn-obj.json", {
   "fixedMatch": {},
   "filter": {},
   "sorter": {
-    "ct": -1
+    "nm": 1
   },
   "objKeys": null,
   "list": [],
@@ -81990,7 +82608,9 @@ Ti.Preload("ti/mod/wn/obj/m-wn-obj.json", {
   "meta": null,
   "content": null,
   "__saved_content": null,
-  "contentPath": null,
+  "contentPath": "<self>",
+  "contentType": "<MIME>",
+  "contentData": null,
   "status": {
     "reloading": false,
     "doing": false,
@@ -82339,6 +82959,8 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
       "path": "<self>"
     }
   ],
+  "contentType": "<MIME>",
+  "contentData": null,
   "dataHome": null,
   "dataDirName": null,
   "keepDataDirNameToLocal": true,
@@ -83328,7 +83950,11 @@ Ti.Preload("ti/i18n/en-us/ti-datetime.i18n.json", {
   "tu-mon": "Month",
   "tu-sec": "Sec",
   "tu-week": "Week",
-  "tu-year": "Year"
+  "tu-year": "Year",
+  "dt-range-from": "From",
+  "dt-range-to": "to",
+  "dt-range-unknown": "Unknown time range",
+  "date-fmt": "yyyy-MM-dd"
 });
 //========================================
 // JOIN <ti-text-editor.i18n.json> ti/i18n/en-us/ti-text-editor.i18n.json
@@ -83904,7 +84530,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "currency-CAD": "CAD",
   "currency-EUR": "EUR",
   "currency-GBP": "GBP",
+  "currency-HKD": "HKD",
   "currency-JPY": "JPY",
+  "currency-MOP": "MOP",
   "currency-RMB": "RMB",
   "currency-USD": "USD",
   "date": "Date",
@@ -84795,7 +85423,11 @@ Ti.Preload("ti/i18n/zh-cn/ti-datetime.i18n.json", {
   "tu-mon": "月",
   "tu-sec": "秒",
   "tu-week": "周",
-  "tu-year": "年"
+  "tu-year": "年",
+  "dt-range-from": "从",
+  "dt-range-to": "至",
+  "dt-range-unknown": "未知时间范围",
+  "date-fmt": "yyyy年M月d日"
 });
 //========================================
 // JOIN <ti-text-editor.i18n.json> ti/i18n/zh-cn/ti-text-editor.i18n.json
@@ -85349,7 +85981,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "currency-CAD": "加元",
   "currency-EUR": "欧元",
   "currency-GBP": "英镑",
+  "currency-HKD": "港元",
   "currency-JPY": "日元",
+  "currency-MOP": "澳门元",
   "currency-RMB": "人民币",
   "currency-USD": "美元",
   "date": "日期",
@@ -86266,7 +86900,11 @@ Ti.Preload("ti/i18n/zh-hk/ti-datetime.i18n.json", {
    "tu-mon": "月",
    "tu-sec": "秒",
    "tu-week": "周",
-   "tu-year": "年"
+   "tu-year": "年",
+   "dt-range-from": "從",
+   "dt-range-to": "至",
+   "dt-range-unknown": "未知時間範圍",
+   "date-fmt": "yyyy年M月d日"
 });
 //========================================
 // JOIN <ti-text-editor.i18n.json> ti/i18n/zh-hk/ti-text-editor.i18n.json
@@ -86820,7 +87458,9 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "currency-CAD": "加元",
    "currency-EUR": "歐元",
    "currency-GBP": "英鎊",
+   "currency-HKD": "港元",
    "currency-JPY": "日元",
+   "currency-MOP": "澳門元",
    "currency-RMB": "人民幣",
    "currency-USD": "美元",
    "date": "日期",

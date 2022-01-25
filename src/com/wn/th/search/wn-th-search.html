@@ -1,3 +1,26 @@
 <TiSearch
   :class="className"
+
+  :loading="myLoading"
+
+  :filter="myFilter"
+  :list="myList"
+  :sorter="mySorter"
+  :pager="myPager"
+
+  :objKeys="objKeys"
+  :majors="majors"
+  :matchKeywords="matchKeywords"
+  :advanceForm="advanceForm"
+  :advanceComponents="advanceComponents"
+  :sorterConf="sorterConf"
+  :listComType="listComType"
+  :listComConf="listComConf"
+  :pagerValueType="pagerValueType"
+  :placeholder="placeholder"
+  :dialog="dialog"
+  :filterTags="filterTags"
+  @filter:change="OnFilterChange"
+  @sorter:change="OnSorterChange"
+  @pager::change="OnPagerChange"
   />

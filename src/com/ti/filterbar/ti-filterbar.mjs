@@ -1,3 +1,15 @@
+////////////////////////////////////////////
+const DATERANGE_FILTER_TAG = [
+  "=>Ti.DateTime.formatMsDateRange(val",
+  "'i18n:date-fmt'",
+  "'i18n:dt-range-unknown'",
+  "'i18n:dt-range-to'",
+  "''",
+  "'i18n:dt-range-from'",
+  "''",
+  "'')"
+].join(",")
+////////////////////////////////////////////
 export default {
   //////////////////////////////////////////
   data: () => ({
@@ -238,6 +250,11 @@ export default {
           continue
         }
 
+        // Quick ft name
+        if ("<MsDateRange>" == ft) {
+          ft = DATERANGE_FILTER_TAG
+        }
+
         // Customized function
         if (_.isFunction(ft)) {
           let text = await ft(val, key)
@@ -246,7 +263,7 @@ export default {
         }
 
         // Dict
-        let dictName = Ti.DictFactory.DictReferName()
+        let dictName = Ti.DictFactory.DictReferName(ft)
         if (dictName) {
           let d = Ti.DictFactory.CheckDict(dictName)
           let text = await d.getItemText(val)

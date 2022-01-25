@@ -174,7 +174,7 @@ const _M = {
   },
   //--------------------------------------------
   changeContent({ commit }, payload) {
-    console.log("changeContent", payload)
+    //console.log("changeContent", payload)
     commit("setContent", payload)
     commit("syncStatusChanged");
   },
