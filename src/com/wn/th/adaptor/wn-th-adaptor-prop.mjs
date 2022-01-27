@@ -27,6 +27,7 @@ export default {
   //-----------------------------------
   "meta": Object,
   "content": String,
+  "contentData": undefined,
   //-----------------------------------
   // Current Thing Data Files
   //-----------------------------------

@@ -122,10 +122,16 @@ const _M = {
       if (this.myItem) {
         icon = this.Dict.getIcon(this.myItem) || icon
       }
+      if(this.readonly) {
+        return
+      }
       return icon || "zmdi-minus"
     },
     //------------------------------------------------
     TheSuffixIcon() {
+      if(this.readonly) {
+        return
+      }
       return this.statusIcons[this.myDropStatus]
     },
     //------------------------------------------------
@@ -166,6 +172,10 @@ const _M = {
     OnCollapse() { this.doCollapse() },
     //-----------------------------------------------
     OnInputInputing(val) {
+      // Guard
+      if(this.readonly) {
+        return
+      }
       if (this.filter) {
         this.myFilterValue = val
         // Auto extends
@@ -182,6 +192,10 @@ const _M = {
     },
     //-----------------------------------------------
     async OnInputChanged(val, byKeyboardArrow) {
+      // Guard
+      if(this.readonly) {
+        return
+      }
       //console.log("haha", {val, byKeyboardArrow})
       // Clean filter
       this.myFilterValue = null
@@ -210,12 +224,20 @@ const _M = {
     },
     //-----------------------------------------------
     async OnInputFocused() {
+      // Guard
+      if(this.readonly) {
+        return
+      }
       if (this.autoFocusExtended && !this.isExtended) {
         await this.doExtend()
       }
     },
     //-----------------------------------------------
     async OnClickStatusIcon() {
+      // Guard
+      if(this.readonly) {
+        return
+      }
       if (this.isExtended) {
         await this.doCollapse()
       } else {
@@ -224,6 +246,10 @@ const _M = {
     },
     //-----------------------------------------------
     async OnDropListSelected({ currentId, byKeyboardArrow } = {}) {
+      // Guard
+      if(this.readonly) {
+        return
+      }
       //console.log({currentId, byKeyboardArrow})
       this.myCurrentId = currentId
       await this.OnInputChanged(currentId, byKeyboardArrow)

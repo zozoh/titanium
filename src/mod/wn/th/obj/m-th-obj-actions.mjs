@@ -24,14 +24,12 @@ const _M = {
   //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }) {
     // Guard : dataHome
-    if (!state.dataHome) {
-      return
-    }
+    // if (!state.dataHome) {
+    //   return
+    // }
     // Guard : meta
     let meta = state.meta
-    if (!meta) {
-      return
-    }
+    
     // Which content should I load?
     let path = getters.contentLoadPath
     if (!path) {

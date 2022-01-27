@@ -1,4 +1,4 @@
-// Pack At: 2022-01-25 12:03:25
+// Pack At: 2022-01-27 16:27:28
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6733,6 +6733,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   "meta": Object,
   "content": String,
+  "contentData": undefined,
   //-----------------------------------
   // Current Thing Data Files
   //-----------------------------------
@@ -20121,6 +20122,7 @@ const _M = {
         //------------------------------
         meta: this.meta,
         content: this.content,
+        contentData: this.contentData,
         //------------------------------
         dataHome: this.dataHome,
         dataHomeObj: this.dataHomeObj,
@@ -38175,18 +38177,8 @@ const _M = {
     })
   },
   //--------------------------------------------
-  changeContent({ commit }, payload) {
-    //console.log("changeContent", payload)
-    commit("setContent", payload)
-    commit("syncStatusChanged");
-  },
-  //----------------------------------------
-  updateContent({ commit, getters }, content) {
-    commit("setContent", content)
-    commit("setSavedContent", content)
-    commit("syncStatusChanged")
-
-    // Try parse content
+  parseContentData({ state, commit, getters }) {
+    let content = state.content
     let contentType = getters.contentParseType
     let contentData = null
     if (/^(application|text)\/json$/.test(contentType)) {
@@ -38194,6 +38186,24 @@ const _M = {
       contentData = JSON.parse(str || null)
     }
     commit("setContentData", contentData)
+  },
+  //--------------------------------------------
+  changeContent({ commit, dispatch }, payload) {
+    //console.log("changeContent", payload)
+    commit("setContent", payload)
+    commit("syncStatusChanged");
+
+    // Try parse content
+    dispatch("parseContentData")
+  },
+  //----------------------------------------
+  updateContent({ commit, getters, dispatch }, content) {
+    commit("setContent", content)
+    commit("setSavedContent", content)
+    commit("syncStatusChanged")
+
+    // Try parse content
+    dispatch("parseContentData")
   },
   //--------------------------------------------
   async saveContent({ state, commit, getters }) {
@@ -45414,14 +45424,12 @@ const _M = {
   //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }) {
     // Guard : dataHome
-    if (!state.dataHome) {
-      return
-    }
+    // if (!state.dataHome) {
+    //   return
+    // }
     // Guard : meta
     let meta = state.meta
-    if (!meta) {
-      return
-    }
+    
     // Which content should I load?
     let path = getters.contentLoadPath
     if (!path) {
@@ -61949,10 +61957,16 @@ const _M = {
       if (this.myItem) {
         icon = this.Dict.getIcon(this.myItem) || icon
       }
+      if(this.readonly) {
+        return
+      }
       return icon || "zmdi-minus"
     },
     //------------------------------------------------
     TheSuffixIcon() {
+      if(this.readonly) {
+        return
+      }
       return this.statusIcons[this.myDropStatus]
     },
     //------------------------------------------------
@@ -61993,6 +62007,10 @@ const _M = {
     OnCollapse() { this.doCollapse() },
     //-----------------------------------------------
     OnInputInputing(val) {
+      // Guard
+      if(this.readonly) {
+        return
+      }
       if (this.filter) {
         this.myFilterValue = val
         // Auto extends
@@ -62009,6 +62027,10 @@ const _M = {
     },
     //-----------------------------------------------
     async OnInputChanged(val, byKeyboardArrow) {
+      // Guard
+      if(this.readonly) {
+        return
+      }
       //console.log("haha", {val, byKeyboardArrow})
       // Clean filter
       this.myFilterValue = null
@@ -62037,12 +62059,20 @@ const _M = {
     },
     //-----------------------------------------------
     async OnInputFocused() {
+      // Guard
+      if(this.readonly) {
+        return
+      }
       if (this.autoFocusExtended && !this.isExtended) {
         await this.doExtend()
       }
     },
     //-----------------------------------------------
     async OnClickStatusIcon() {
+      // Guard
+      if(this.readonly) {
+        return
+      }
       if (this.isExtended) {
         await this.doCollapse()
       } else {
@@ -62051,6 +62081,10 @@ const _M = {
     },
     //-----------------------------------------------
     async OnDropListSelected({ currentId, byKeyboardArrow } = {}) {
+      // Guard
+      if(this.readonly) {
+        return
+      }
       //console.log({currentId, byKeyboardArrow})
       this.myCurrentId = currentId
       await this.OnInputChanged(currentId, byKeyboardArrow)

@@ -173,18 +173,8 @@ const _M = {
     })
   },
   //--------------------------------------------
-  changeContent({ commit }, payload) {
-    //console.log("changeContent", payload)
-    commit("setContent", payload)
-    commit("syncStatusChanged");
-  },
-  //----------------------------------------
-  updateContent({ commit, getters }, content) {
-    commit("setContent", content)
-    commit("setSavedContent", content)
-    commit("syncStatusChanged")
-
-    // Try parse content
+  parseContentData({ state, commit, getters }) {
+    let content = state.content
     let contentType = getters.contentParseType
     let contentData = null
     if (/^(application|text)\/json$/.test(contentType)) {
@@ -192,6 +182,24 @@ const _M = {
       contentData = JSON.parse(str || null)
     }
     commit("setContentData", contentData)
+  },
+  //--------------------------------------------
+  changeContent({ commit, dispatch }, payload) {
+    //console.log("changeContent", payload)
+    commit("setContent", payload)
+    commit("syncStatusChanged");
+
+    // Try parse content
+    dispatch("parseContentData")
+  },
+  //----------------------------------------
+  updateContent({ commit, getters, dispatch }, content) {
+    commit("setContent", content)
+    commit("setSavedContent", content)
+    commit("syncStatusChanged")
+
+    // Try parse content
+    dispatch("parseContentData")
   },
   //--------------------------------------------
   async saveContent({ state, commit, getters }) {

@@ -22,6 +22,7 @@ const _M = {
         //------------------------------
         meta: this.meta,
         content: this.content,
+        contentData: this.contentData,
         //------------------------------
         dataHome: this.dataHome,
         dataHomeObj: this.dataHomeObj,
