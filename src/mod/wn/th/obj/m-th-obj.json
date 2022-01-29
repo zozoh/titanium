@@ -1,5 +1,6 @@
 {
   "moduleName": "main",
+  "view": null,
   "guiShown": {},
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
   "lbkAt": null,

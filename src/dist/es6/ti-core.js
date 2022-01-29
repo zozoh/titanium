@@ -1,4 +1,4 @@
-// Pack At: 2022-01-27 16:27:28
+// Pack At: 2022-01-29 13:16:03
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -13762,11 +13762,25 @@ const {Bank} = (function(){
       return { cent, yuan, currency }
     },
     //-----------------------------------
-    toYuanText(cent = 0.0) {
+    toYuanText(cent = 0.0, precise = 2) {
       let n = Math.round(cent)
       let y = Math.floor(n / 100)
       let c = cent - y * 100
-      return `${y}.${_.padStart(c, 2, '0')}`
+      if (precise > 0 || c > 0) {
+        return `${y}.${_.padStart(c, precise, '0')}`
+      }
+      return `${y}`
+    },
+    //-----------------------------------
+    toYuanTokenText(cent = 0.0, currency="RMB", precise = 2) {
+      let t = TiBank.getCurrencyToken(currency)
+      let n = Math.round(cent)
+      let y = Math.floor(n / 100)
+      let c = cent - y * 100
+      if (precise > 0 || c > 0) {
+        return `${t}${y}.${_.padStart(c, precise, '0')}`
+      }
+      return `${t}${y}`
     },
     //-----------------------------------
     isValidPayType(payType) {
@@ -17836,7 +17850,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220127.162728",
+  "version" : "1.6-20220129.131603",
   "dev" : false,
   "appName" : null,
   "session" : {},

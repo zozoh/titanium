@@ -134,11 +134,25 @@ const TiBank = {
     return { cent, yuan, currency }
   },
   //-----------------------------------
-  toYuanText(cent = 0.0) {
+  toYuanText(cent = 0.0, precise = 2) {
     let n = Math.round(cent)
     let y = Math.floor(n / 100)
     let c = cent - y * 100
-    return `${y}.${_.padStart(c, 2, '0')}`
+    if (precise > 0 || c > 0) {
+      return `${y}.${_.padStart(c, precise, '0')}`
+    }
+    return `${y}`
+  },
+  //-----------------------------------
+  toYuanTokenText(cent = 0.0, currency="RMB", precise = 2) {
+    let t = TiBank.getCurrencyToken(currency)
+    let n = Math.round(cent)
+    let y = Math.floor(n / 100)
+    let c = cent - y * 100
+    if (precise > 0 || c > 0) {
+      return `${t}${y}.${_.padStart(c, precise, '0')}`
+    }
+    return `${t}${y}`
   },
   //-----------------------------------
   isValidPayType(payType) {

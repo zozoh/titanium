@@ -13,6 +13,10 @@ const _M = {
     state.moduleName = moduleName
   },
   //----------------------------------------
+  setView(state, view) {
+    state.view = view
+  },
+  //----------------------------------------
   setLocalBehaviorKeepAt(state, keyAt) {
     state.localBehaviorKeepAt = keyAt
   },
@@ -227,7 +231,7 @@ const _M = {
   setDataHome(state, dataHome) {
     state.dataHome = dataHome
   },
-  autoDataHome(state, dataHome) {
+  autoDataHome(state) {
     if (state.thingSetId && state.meta && state.meta.id) {
       state.dataHome = `id:${state.thingSetId}/data/${state.meta.id}/`
     } else {
@@ -261,8 +265,18 @@ const _M = {
   setSchema(state, schema = {}) {
     state.schema = schema
   },
+  assignSchema(state, schema = {}) {
+    state.schema = _.assign({}, state.schema, schema)
+  },
+  mergeSchema(state, schema = {}) {
+    let sc = _.cloneDeep(state.schema)
+    state.schema = _.merge(sc, schema)
+  },
   setThingMethods(state, thingMethods = {}) {
     state.thingMethods = thingMethods
+  },
+  assignThingMethods(state, thingMethods = {}) {
+    state.thingMethods = _.assign({}, state.thingMethods, thingMethods)
   },
   //----------------------------------------
   //

@@ -1,4 +1,4 @@
-// Pack At: 2022-01-27 16:27:28
+// Pack At: 2022-01-29 13:16:03
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -9588,6 +9588,10 @@ const _M = {
     state.moduleName = moduleName
   },
   //----------------------------------------
+  setView(state, view) {
+    state.view = view
+  },
+  //----------------------------------------
   setLocalBehaviorKeepAt(state, keyAt) {
     state.localBehaviorKeepAt = keyAt
   },
@@ -9802,7 +9806,7 @@ const _M = {
   setDataHome(state, dataHome) {
     state.dataHome = dataHome
   },
-  autoDataHome(state, dataHome) {
+  autoDataHome(state) {
     if (state.thingSetId && state.meta && state.meta.id) {
       state.dataHome = `id:${state.thingSetId}/data/${state.meta.id}/`
     } else {
@@ -9836,8 +9840,18 @@ const _M = {
   setSchema(state, schema = {}) {
     state.schema = schema
   },
+  assignSchema(state, schema = {}) {
+    state.schema = _.assign({}, state.schema, schema)
+  },
+  mergeSchema(state, schema = {}) {
+    let sc = _.cloneDeep(state.schema)
+    state.schema = _.merge(sc, schema)
+  },
   setThingMethods(state, thingMethods = {}) {
     state.thingMethods = thingMethods
+  },
+  assignThingMethods(state, thingMethods = {}) {
+    state.thingMethods = _.assign({}, state.thingMethods, thingMethods)
   },
   //----------------------------------------
   //
@@ -38116,7 +38130,7 @@ const _M = {
 
     //console.log("getback current", current)
     // Update current
-    commit("setMeta", null)
+    await dispatch("selectMeta")
 
     commit("setStatus", { deleting: false })
   },
@@ -41209,7 +41223,7 @@ const _M = {
     //--------------------------------------------------
     async OnFieldChange({ name, value } = {}) {
       // Notify at first
-      //console.log("notify field", {name, value})
+      console.log("notify field", {name, value})
       this.$notify("field:change", { name, value })
 
       // Link fields
@@ -45422,6 +45436,53 @@ async function loadConfigJson(state, key, dft) {
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
+  applyViewBeforeLoad({ state, commit }, view) {
+    // Guard
+    if (!state.view) {
+      return
+    }
+    // Update to state
+    _.forEach(state.view, (v, k) => {
+      // Only set the paths
+      if (/^((actions|layout|schema|method)Paths?)$/.test(k)) {
+        let by = _.camelCase("set-" + k)
+        commit(by, v)
+      }
+    })
+  },
+  //--------------------------------------------
+  applyViewAfterLoad({ state, commit }, view) {
+    // Guard
+    if (!state.view) {
+      return
+    }
+    // Update to state
+    _.forEach(state.view, (v, k) => {
+      // Ignore
+      if (/^((actions|layout|schema|method)Paths?)$/.test(k)) {
+        return
+      }
+      if (/^(view|path|lbkOff|thingSetId|oTs|meta|(__saved_)?content)$/.test(k)) {
+        return
+      }
+      // Schema merged in "loadSchema" already
+      if (/^(schema|components)$/.test(k)) {
+        return
+      }
+      let by;
+      // Assign
+      if (/^(pager)$/.test(k)) {
+        by = _.camelCase("assign-" + k)
+      }
+      // Others set
+      else {
+        by = _.camelCase("set-" + k)
+      }
+      // Update state by view
+      commit(by, v)
+    })
+  },
+  //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }) {
     // Guard : dataHome
     // if (!state.dataHome) {
@@ -45429,7 +45490,7 @@ const _M = {
     // }
     // Guard : meta
     let meta = state.meta
-    
+
     // Which content should I load?
     let path = getters.contentLoadPath
     if (!path) {
@@ -45459,12 +45520,30 @@ const _M = {
   //--------------------------------------------
   async loadSchema({ state, commit }) {
     let schema = await loadConfigJson(state, "schemaPath", {})
+    let components = []
+
+    // <Apply view>
+    if (state.view && state.view.schema) {
+      _.forEach(state.view.schema, (v, k) => {
+        let func = v.merge ? _.merge : _.assign;
+        let vcom = _.pick(v, "comType", "comConf")
+        func(schema[k], vcom)
+      })
+      if (!_.isEmpty(state.view.components)) {
+        components = _.concat(components, state.view.components)
+      }
+    }
+    // </Apply view>
+
+    if (!_.isEmpty(schema.components)) {
+      components = _.concat(components, schema.components)
+    }
 
     // Load extends components
-    if (!_.isEmpty(schema.components)) {
-      let components = _.concat(schema.components)
+    if (!_.isEmpty(components)) {
       await Ti.App.topInstance().loadView({ components })
     }
+
     //console.log("setSchema", schema)
     commit("setSchema", schema)
     //console.log("schema", schema)
@@ -45648,6 +45727,16 @@ const _M = {
       commit("setThingSet", meta)
       commit("setThingSetId", meta.id)
     }
+    // Maybe a thing_view (JSON)
+    else if ("thing_view" == meta.tp && "FILE" == meta.race) {
+      let view = await Wn.Io.loadContent(meta, { as: "json" })
+      commit("setView", view)
+      if (view.path) {
+        let oTs = await Wn.Io.loadMeta(view.path)
+        commit("setThingSet", oTs)
+        commit("setThingSetId", oTs.id)
+      }
+    }
     // Then meta should be a thing
     else {
       // CheckThingSet ID
@@ -45661,10 +45750,12 @@ const _M = {
     }
 
     // Reload Configurations
+    dispatch("applyViewBeforeLoad")
     await dispatch("loadSchema")
     await dispatch("loadLayout")
     await dispatch("loadThingActions")
     await dispatch("loadThingMethods")
+    dispatch("applyViewAfterLoad")
 
     // Behavior
     commit("explainLocalBehaviorKeepAt")
@@ -82957,6 +83048,7 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj-search.mjs", TI_PACK_EXPORTS['ti/mod/wn/th
 //========================================
 Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "moduleName": "main",
+  "view": null,
   "guiShown": {},
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
   "lbkAt": null,

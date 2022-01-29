@@ -112,7 +112,7 @@ const _M = {
 
     //console.log("getback current", current)
     // Update current
-    commit("setMeta", null)
+    await dispatch("selectMeta")
 
     commit("setStatus", { deleting: false })
   },
