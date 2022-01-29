@@ -1,4 +1,4 @@
-// Pack At: 2022-01-29 13:16:03
+// Pack At: 2022-01-29 13:28:57
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -21301,7 +21301,7 @@ const _M = {
   //----------------------------------------
   async selectMeta({ state, commit, dispatch, getters }, {
     currentId = null, checkedIds = {}
-  } = null) {
+  } = {}) {
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
     commit("setCurrentMeta")
@@ -38079,7 +38079,7 @@ const _M = {
     return newMeta
   },
   //----------------------------------------
-  async removeChecked({ state, commit, getters }, hard) {
+  async removeChecked({ state, commit, dispatch, getters }, hard) {
     // Guard
     if (!state.thingSetId) {
       return await Ti.Alert('State Has No ThingSetId', "warn")

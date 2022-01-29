@@ -65,7 +65,7 @@ const _M = {
   //----------------------------------------
   async selectMeta({ state, commit, dispatch, getters }, {
     currentId = null, checkedIds = {}
-  } = null) {
+  } = {}) {
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
     commit("setCurrentMeta")

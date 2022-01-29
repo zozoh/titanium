@@ -61,7 +61,7 @@ const _M = {
     return newMeta
   },
   //----------------------------------------
-  async removeChecked({ state, commit, getters }, hard) {
+  async removeChecked({ state, commit, dispatch, getters }, hard) {
     // Guard
     if (!state.thingSetId) {
       return await Ti.Alert('State Has No ThingSetId', "warn")
