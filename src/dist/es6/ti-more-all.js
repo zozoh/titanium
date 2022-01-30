@@ -1,4 +1,4 @@
-// Pack At: 2022-01-29 13:28:57
+// Pack At: 2022-01-30 15:53:59
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7847,7 +7847,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.myLastSearch = this.buildLastSearch()
       let cmdText = this.SearchCommand
       let input = this.SearchInput
-      console.log("WnThSearch.reloadList", cmdText, "<FLT>", input)
+      //console.log("WnThSearch.reloadList", cmdText, "<FLT>", input)
 
       this.myLoading = true
 
@@ -54758,7 +54758,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         _.forEach(this.columns, ({
           name, title, width = this.defaultCellWidth,
           readonly = this.cellReadonly,
-          dict, transformer, type,
+          dict, transformer, type, display,
           autoSort, emptyAsNull = true,
           comType, comConf, mergeConf = true
         }, index) => {
@@ -54779,7 +54779,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
             autoSort, emptyAsNull,
             name: name || key,
             title: title || name || key,
-            type, width,
+            type, width, display,
             comType: comType || this.cellComType || "TiInput",
             comConf
           }
@@ -55046,6 +55046,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
           let actived = this.myActivedCellKey == cellKey
           //................................
           let displayText = await genCellDisplayText(cellVal, col)
+          let context = {
+            text: displayText,
+            value: cellVal
+          }
+          //................................
+          // Eval display
+          let dis = col.display || {
+            major: "=text"
+          }
+          let display = Ti.Util.explainObj(context, dis)
           //................................
           let cell = _.assign(_.cloneDeep(col), {
             actived,
@@ -55059,7 +55069,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
             rowIndex: y,
             x, y,
             value: cellVal,
-            displayText,
+            ...display,
+            showMajor: !Ti.Util.isNil(display.major),
+            showSuffix: !Ti.Util.isNil(display.suffix)
           })
           //................................
           cells.push(cell)
@@ -75106,7 +75118,16 @@ Ti.Preload("ti/com/ti/sheet/table/ti-sheet-table.html", `<div class="ti-sheet-ta
                 :class="cell.className">
                 <div
                   class="as-cell-val"
-                  @click.left.stop="OnClickCell(cell)">{{cell.displayText}}</div>
+                  @click.left.stop="OnClickCell(cell)">
+                  <!--Major-->
+                  <span
+                    v-if="cell.showMajor"
+                      class="as-major">{{cell.major}}</span>
+                  <span
+                    v-if="cell.showSuffix"
+                      class="as-suffix">{{cell.suffix}}</span>
+                  <!--Suffix-->
+                </div>
                 <component
                   v-if="!cell.readonly && cell.actived"
                     class="as-cell-editor"

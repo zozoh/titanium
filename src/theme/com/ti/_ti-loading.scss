@@ -102,6 +102,10 @@
     padding: 0.5em;
   }
   //------------------------------------------
+  &.align-left   {justify-content: flex-start;}
+  &.align-center {justify-content: center;}
+  &.align-right  {justify-content: flex-end;}
+  //------------------------------------------
   &.is-success {color: map-get($color-success, c);}
   &.is-warn    {color: map-get($color-warn, c);}
   &.is-info    {color: map-get($color-info, c);} 

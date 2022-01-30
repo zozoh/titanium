@@ -49,7 +49,16 @@
                 :class="cell.className">
                 <div
                   class="as-cell-val"
-                  @click.left.stop="OnClickCell(cell)">{{cell.displayText}}</div>
+                  @click.left.stop="OnClickCell(cell)">
+                  <!--Major-->
+                  <span
+                    v-if="cell.showMajor"
+                      class="as-major">{{cell.major}}</span>
+                  <span
+                    v-if="cell.showSuffix"
+                      class="as-suffix">{{cell.suffix}}</span>
+                  <!--Suffix-->
+                </div>
                 <component
                   v-if="!cell.readonly && cell.actived"
                     class="as-cell-editor"

@@ -153,7 +153,7 @@ export default {
       this.myLastSearch = this.buildLastSearch()
       let cmdText = this.SearchCommand
       let input = this.SearchInput
-      console.log("WnThSearch.reloadList", cmdText, "<FLT>", input)
+      //console.log("WnThSearch.reloadList", cmdText, "<FLT>", input)
 
       this.myLoading = true
 

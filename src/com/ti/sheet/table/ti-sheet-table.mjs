@@ -117,7 +117,7 @@ export default {
         _.forEach(this.columns, ({
           name, title, width = this.defaultCellWidth,
           readonly = this.cellReadonly,
-          dict, transformer, type,
+          dict, transformer, type, display,
           autoSort, emptyAsNull = true,
           comType, comConf, mergeConf = true
         }, index) => {
@@ -138,7 +138,7 @@ export default {
             autoSort, emptyAsNull,
             name: name || key,
             title: title || name || key,
-            type, width,
+            type, width, display,
             comType: comType || this.cellComType || "TiInput",
             comConf
           }
@@ -405,6 +405,16 @@ export default {
           let actived = this.myActivedCellKey == cellKey
           //................................
           let displayText = await genCellDisplayText(cellVal, col)
+          let context = {
+            text: displayText,
+            value: cellVal
+          }
+          //................................
+          // Eval display
+          let dis = col.display || {
+            major: "=text"
+          }
+          let display = Ti.Util.explainObj(context, dis)
           //................................
           let cell = _.assign(_.cloneDeep(col), {
             actived,
@@ -418,7 +428,9 @@ export default {
             rowIndex: y,
             x, y,
             value: cellVal,
-            displayText,
+            ...display,
+            showMajor: !Ti.Util.isNil(display.major),
+            showSuffix: !Ti.Util.isNil(display.suffix)
           })
           //................................
           cells.push(cell)
