@@ -145,7 +145,7 @@ const TiBank = {
   },
   //-----------------------------------
   toYuanTokenText(cent = 0.0, currency="RMB", precise = 2) {
-    let t = TiBank.getCurrencyToken(currency)
+    let t = TiBank.getCurrencyToken(currency) || ""
     let n = Math.round(cent)
     let y = Math.floor(n / 100)
     let c = cent - y * 100

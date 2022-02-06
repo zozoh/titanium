@@ -137,7 +137,6 @@ export default {
     },
     //-------------------------------------
     async OnOpenAdvance() {
-      console.log("haha")
       let reo = await Ti.App.Open(_.assign({
         icon: "fas-search",
         title: "i18n:search-adv",

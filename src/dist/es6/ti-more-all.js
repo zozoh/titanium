@@ -1,4 +1,4 @@
-// Pack At: 2022-01-30 15:53:59
+// Pack At: 2022-02-06 14:49:04
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13409,7 +13409,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-------------------------------------
     async OnOpenAdvance() {
-      console.log("haha")
       let reo = await Ti.App.Open(_.assign({
         icon: "fas-search",
         title: "i18n:search-adv",
@@ -41223,7 +41222,7 @@ const _M = {
     //--------------------------------------------------
     async OnFieldChange({ name, value } = {}) {
       // Notify at first
-      console.log("notify field", {name, value})
+      //console.log("notify field", {name, value})
       this.$notify("field:change", { name, value })
 
       // Link fields

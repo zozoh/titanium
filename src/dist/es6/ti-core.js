@@ -1,4 +1,4 @@
-// Pack At: 2022-01-30 15:53:59
+// Pack At: 2022-02-06 14:49:04
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -13773,7 +13773,7 @@ const {Bank} = (function(){
     },
     //-----------------------------------
     toYuanTokenText(cent = 0.0, currency="RMB", precise = 2) {
-      let t = TiBank.getCurrencyToken(currency)
+      let t = TiBank.getCurrencyToken(currency) || ""
       let n = Math.round(cent)
       let y = Math.floor(n / 100)
       let c = cent - y * 100
@@ -17850,7 +17850,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220130.155359",
+  "version" : "1.6-20220206.144904",
   "dev" : false,
   "appName" : null,
   "session" : {},
