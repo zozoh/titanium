@@ -414,6 +414,9 @@ const _M = {
             //console.log("command fired!!", evt)
             this.myHtmlCode = editor.getContent()
             this.evalOutline()
+            if("mceInsertTable" == evt.command) {
+              this.$notify("mce:insert:table")
+            }
           })
           editor.on("SelectionChange", (evt)=>{
             //console.log("SelectionChange ", evt)
