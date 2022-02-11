@@ -1,4 +1,4 @@
-// Pack At: 2022-02-08 11:38:38
+// Pack At: 2022-02-11 21:13:00
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10171,6 +10171,43 @@ const {Util} = (function(){
       })
     },
     /***
+     * Push a group of value to object special key.
+     * Make sure the value is Array.
+     * 
+     * @param {Object} obj host object
+     * @param {String} key the target key to push values
+     * @param  {...any} vals the values to push
+     * 
+     * @return given obj
+     */
+    pushEle(obj={}, key, ...vals) {
+      // Guard
+      if(!vals || vals.length == 0) {
+        return
+      }
+      // Set
+      let vs = obj[key]
+      if(_.isArray(vs)) {
+        for(let i=0; i<vals.length; i++) {
+          vs.push(vals[i])
+        }
+      }
+      // vs is not array
+      else if(vs) {
+        vs = [vs]
+        for(let i=0; i<vals.length; i++) {
+          vs.push(vals[i])
+        }
+      }
+      // vs is empty
+      else {
+        vs = vals
+      }
+      // Done
+      obj[key] = vs
+      return obj
+    },
+    /***
      * Group a given list to map by special key
      */
     grouping(list = [], groupKey, {
@@ -17850,7 +17887,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220208.113838",
+  "version" : "1.6-20220211.211300",
   "dev" : false,
   "appName" : null,
   "session" : {},

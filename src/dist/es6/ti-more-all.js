@@ -1,4 +1,4 @@
-// Pack At: 2022-02-08 11:38:38
+// Pack At: 2022-02-11 21:13:00
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -50454,6 +50454,9 @@ const _M = {
             //console.log("command fired!!", evt)
             this.myHtmlCode = editor.getContent()
             this.evalOutline()
+            if("mceInsertTable" == evt.command) {
+              this.$notify("mce:insert:table")
+            }
           })
           editor.on("SelectionChange", (evt)=>{
             //console.log("SelectionChange ", evt)
