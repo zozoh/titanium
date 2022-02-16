@@ -1,0 +1,12 @@
+{
+  "name": "wn-obj-organization",
+  "globally": true,
+  "template": "./wn-obj-organization.html",
+  "mixins": [
+    "./org-icons.mjs",
+    "./wn-obj-organization.mjs"
+  ],
+  "components": [
+    "@com:ti/obj/edit-tree"
+  ]
+}

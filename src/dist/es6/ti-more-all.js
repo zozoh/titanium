@@ -1,4 +1,4 @@
-// Pack At: 2022-02-15 12:42:36
+// Pack At: 2022-02-17 02:45:40
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -9570,6 +9570,102 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'wn-obj-organization.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/obj/organization/wn-obj-organization.mjs'] = (function(){
+/////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////
+  props: {
+    // icon string
+    "value": {
+      type: [Object, String],
+      default: null
+    }
+  },
+  ///////////////////////////////////////////////////
+  computed: {
+    //-----------------------------------------------
+    NewNodeData() {
+      return {
+        name: Ti.I18n.get("wn-org-new-node"),
+        type: "G",
+        icon: "fas-user-friends"
+      }
+    },
+    //-----------------------------------------------
+    NodeLeafBy() {
+      return function (node) {
+        return "G" != node.type
+      }
+    },
+    //-----------------------------------------------
+    TreeConf() {
+      return {
+        display: [
+          "<icon>",
+          "name::flex-auto",
+          "id::is-nowrap as-tip-block align-right"
+        ]
+      }
+    },
+    //-----------------------------------------------
+    NodeForm() {
+      return {
+        "fields": [
+          {
+            title: "ID",
+            name: "id",
+            comConf: {
+              editable: true,
+              valueCase: "upper"
+            }
+          },
+          {
+            title: "i18n:type",
+            name: "type",
+            comType: "TiSwitcher",
+            comConf: {
+              options: "#OrgNodeTypes",
+              allowEmpty: false
+            }
+          },
+          {
+            title: "i18n:icon",
+            name: "icon",
+            comType: "TiInputIcon",
+            comConf: {
+              options: this.OrgOptionIcons
+            }
+          },
+          {
+            title: "i18n:name",
+            name: "name",
+            comType: "TiInput"
+          },
+          {
+            title: "i18n:note",
+            name: "note",
+            comType: "TiInputText",
+            comConf: {
+              height: "6em"
+            }
+          }
+        ]
+      }
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods: {
+    //-----------------------------------------------
+    //-----------------------------------------------
+  }
+  ///////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'm-th-obj-mutations.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj-mutations.mjs'] = (function(){
@@ -13038,18 +13134,8 @@ const _M = {
     })
   },
   //--------------------------------------------
-  changeContent({ commit }, payload) {
-    commit("setContent", payload)
-    commit("syncStatusChanged");
-  },
-  //----------------------------------------
-  updateContent({ commit, getters }, content) {
-    commit("setContent", content)
-    commit("setSavedContent", content)
-    commit("syncStatusChanged")
-
-
-    // Try parse content
+  parseContentData({ state, commit, getters }) {
+    let content = state.content
     let contentType = getters.contentParseType
     let contentData = null
     if (/^(application|text)\/json$/.test(contentType)) {
@@ -13057,6 +13143,24 @@ const _M = {
       contentData = JSON.parse(str || null)
     }
     commit("setContentData", contentData)
+  },
+  //--------------------------------------------
+  changeContent({ commit, dispatch }, payload) {
+    commit("setContent", payload)
+    commit("syncStatusChanged");
+
+    // Try parse content
+    dispatch("parseContentData")
+  },
+  //----------------------------------------
+  updateContent({ commit, getters, dispatch }, content) {
+    commit("setContent", content)
+    commit("setSavedContent", content)
+    commit("syncStatusChanged")
+
+
+    // Try parse content
+    dispatch("parseContentData")
   },
   //--------------------------------------------
   async saveContent({ state, commit, getters }) {
@@ -52328,6 +52432,170 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'org-icons.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/obj/organization/org-icons.mjs'] = (function(){
+/////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////
+  computed: {
+    //-----------------------------------------------
+    OrgOptionIcons() {
+      return [
+        "fas-globe",
+        "fas-globe-asia",
+        "fas-globe-africa",
+        "fas-globe-europe",
+        "fas-globe-americas",
+        "fas-atlas",
+        "fas-splotch",
+        "fas-building",
+        "far-building",
+        "fas-church",
+        "fas-city",
+        "fas-dungeon",
+        "fas-gopuram",
+        "fas-home",
+        "fas-hospital",
+        "far-hospital",
+        "fas-hospital-alt",
+        "fas-hotel",
+        "fas-house-damage",
+        "fas-industry",
+        "fas-kaaba",
+        "fas-landmark",
+        "fas-monument",
+        "fas-mosque",
+        "fas-place-of-worship",
+        "fas-school",
+        "fas-store",
+        "fas-store-alt",
+        "fas-synagogue",
+        "fas-torii-gate",
+        "fas-university",
+        "fas-vihara",
+        "fas-warehouse",
+        "fas-store-alt-slash",
+        "fas-store-slash",
+        "fas-archway",
+        "fas-campground",
+        "fas-clinic-medical",
+        "fas-hospital-user",
+        "fas-igloo",
+        "fas-briefcase",
+        "fas-briefcase-medical",
+        "fas-briefcase-medical",
+        "fas-gavel",
+        "fas-suitcase-rolling",
+        "fas-people-arrows",
+        "fas-people-carry",
+        "fas-person-booth",
+        "fas-baby",
+        "fas-blind",
+        "fas-female",
+        "fas-hiking",
+        "fas-male",
+        "fas-running",
+        "fas-skating",
+        "fas-skiing",
+        "fas-skiing-nordic",
+        "fas-snowboarding",
+        "fas-swimmer",
+        "fas-universal-access",
+        "fas-user",
+        "far-user",
+        "fas-user-alt",
+        "fas-user-alt-slash",
+        "fas-user-check",
+        "fas-user-circle",
+        "far-user-circle",
+        "fas-user-clock",
+        "fas-user-cog",
+        "fas-user-edit",
+        "fas-user-friends",
+        "fas-user-graduate",
+        "fas-user-injured",
+        "fas-user-lock",
+        "fas-user-secret",
+        "fas-user-shield",
+        "fas-user-tag",
+        "fas-users",
+        "fas-users-cog",
+        "fas-walking",
+        "fas-wheelchair",
+        "fas-address-book",
+        "far-address-book",
+        "fas-address-card",
+        "far-address-card",
+        "fas-bed",
+        "fas-biking",
+        "fas-chalkboard-teacher",
+        "fas-child",
+        "fas-frown",
+        "far-frown",
+        "fas-id-badge",
+        "far-id-badge",
+        "fas-id-card",
+        "far-id-card",
+        "fas-id-card-alt",
+        "fas-meh",
+        "far-meh",
+        "fas-portrait",
+        "fas-pray",
+        "fas-smile",
+        "far-smile",
+        "fas-street-view",
+        "fas-user-astronaut",
+        "fas-user-md",
+        "fas-user-ninja",
+        "fas-user-nurse",
+        "fas-user-plus",
+        "fas-user-tie",
+        /*---------------*/
+        "fas-money-bill",
+        "fas-coins",
+        "fas-piggy-bank",
+        "fas-comment-dollar",
+        "fas-credit-card",
+        "far-credit-card",
+        "fas-wallet",
+        "fas-user-edit",
+        "fas-keyboard",
+        "fas-newspaper",
+        "fas-edit",
+        "fas-user-edit",
+        "fas-glasses",
+        "fas-icons",
+        "fas-tools",
+        "fas-trash",
+        "fas-pen",
+        "fas-pen-nib",
+        "fas-pencil-alt",
+        "fas-pencil-ruler",
+        "fas-ruler-combined",
+        "fas-spray-can",
+        "fas-swatchbook",
+        "fas-ruler",
+        "fas-tape",
+        "fas-calculator",
+        "fas-camera",
+        "fas-brush",
+        "fas-fill-drip",
+        "fas-music",
+        "fas-layer-group",
+        "fas-magic",
+        "fas-paint-brush",
+        "fas-paint-roller",
+        "fas-stamp"
+      ]
+    }
+    //-----------------------------------------------
+  }
+  ///////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-droptree.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/droptree/ti-droptree.mjs'] = (function(){
@@ -59703,6 +59971,531 @@ const _M = {
   ////////////////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'ti-obj-edit-tree.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/obj/edit-tree/ti-obj-edit-tree.mjs'] = (function(){
+/////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////
+  data: () => ({
+    myCurrentId: undefined,
+    myCheckedIds: []
+  }),
+  ///////////////////////////////////////////////////
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "value": {
+      type: [Object, String],
+      default: undefined
+    },
+    "newNodeData": {
+      type: Object,
+      default: undefined
+    },
+    "idBy": {
+      type: [String, Function],
+      default: "id"
+    },
+    "nameBy": {
+      type: [String, Function],
+      default: "name"
+    },
+    "childrenBy": {
+      type: [String, Function],
+      default: "children"
+    },
+    "leafBy": {
+      type: [String, Object, Function],
+      default: () => ({
+        "children": ""
+      })
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "actions": {
+      type: Array,
+      default: () => [
+        "create",
+        "|", "remove",
+        "|", "up", "down",
+        "|", "left", "right"
+      ]
+    },
+    "nodeForm": {
+      type: Object,
+      default: () => ({
+        fields: [
+          {
+            title: "ID",
+            name: "id",
+            comConf: {
+              editable: true
+            }
+          },
+          {
+            title: "Name",
+            name: "name",
+            comType: "TiInput"
+          }
+        ]
+      })
+    },
+    "treeConf": {
+      type: Object,
+      default: () => ({})
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    // value should be prop of ti-loading
+    "loadingAs": {
+      type: Object,
+      default: undefined
+    },
+    "loading": {
+      type: Boolean,
+      default: false
+    }
+  },
+  ///////////////////////////////////////////////////
+  computed: {
+    //-----------------------------------------------
+    TreeData() {
+      if (_.isString(this.value)) {
+        return JSON.parse(this.value)
+      }
+      return this.value || {}
+    },
+    //-----------------------------------------------
+    TreeHieSetup() {
+      return {
+        idBy: this.idBy,
+        nameBy: this.nameBy,
+        childrenBy: this.childrenBy,
+        autoChildren: true
+      }
+    },
+    //-----------------------------------------------
+    hasCurrent() {
+      return this.myCurrentId ? true : false
+    },
+    //-----------------------------------------------
+    hasChecked() {
+      return !_.isEmpty(this.myCheckedIds)
+    },
+    //-----------------------------------------------
+    CurrentNodeData() {
+      if (this.hasCurrent) {
+        let hie = Ti.Trees.getById(this.TreeData, this.myCurrentId, this.TreeHieSetup)
+        if (hie) {
+          return hie.node
+        }
+      }
+    },
+    //-----------------------------------------------
+    ActionItems() {
+      let items = []
+      for (let li of this.actions) {
+        // Maybe quick action item
+        if (_.isString(li)) {
+          let it = ({
+            "create": {
+              name: "create",
+              text: "i18n:create",
+              icon: "zmdi-plus",
+              eventName: "do:create"
+            },
+            "remove": {
+              name: "remove",
+              icon: "far-trash-alt",
+              enabled: {
+                "hasChecked": true
+              },
+              eventName: "do:remove"
+            },
+            "|": {},
+            "up": {
+              name: "move_up",
+              icon: "fas-long-arrow-alt-up",
+              enabled: {
+                "hasChecked": true
+              },
+              eventName: "do:move:up"
+            },
+            "down": {
+              name: "move_down",
+              icon: "fas-long-arrow-alt-down",
+              enabled: {
+                "hasChecked": true
+              },
+              eventName: "do:move:down"
+            },
+            "left": {
+              name: "move_up",
+              icon: "fas-long-arrow-alt-left",
+              enabled: {
+                "hasChecked": true
+              },
+              eventName: "do:move:left"
+            },
+            "right": {
+              name: "move_down",
+              icon: "fas-long-arrow-alt-right",
+              enabled: {
+                "hasChecked": true
+              },
+              eventName: "do:move:right"
+            }
+          })[li]
+          if (it) {
+            items.push(it)
+          }
+        }
+        // Pure action item
+        else {
+          items.push(li)
+        }
+      }
+      return items;
+    },
+    //-----------------------------------------------
+    GUILayout() {
+      return {
+        type: "cols",
+        border: true,
+        blocks: [
+          {
+            type: "rows",
+            border: true,
+            size: "62%",
+            blocks: [
+              {
+                name: "actions",
+                size: ".43rem",
+                body: "actions"
+              },
+              {
+                name: "tree",
+                body: "tree"
+              }
+            ]
+          },
+          {
+            title: "i18n:properties",
+            name: "node",
+            body: "node"
+          }
+        ]
+      }
+    },
+    //-----------------------------------------------
+    GUISchema() {
+      return {
+        "actions": {
+          comType: "TiActionbar",
+          comConf: {
+            style: {
+              padding: "0 .04rem"
+            },
+            items: this.ActionItems,
+            status: {
+              "hasCurrent": this.hasCurrent,
+              "hasChecked": this.hasChecked
+            }
+          }
+        },
+        "tree": {
+          comType: "TiTree",
+          comConf: _.assign(
+            {
+              checkable: false,
+              multi: false,
+              autoOpen: false,
+              defaultOpenDepth: 2
+            },
+            this.treeConf,
+            {
+              data: this.TreeData,
+              puppetMode: true,
+              currentId: this.myCurrentId,
+              checkedIds: this.myCheckedIds,
+              idBy: this.idBy,
+              nameBy: this.nameBy,
+              childrenBy: this.childrenBy,
+              leafBy: this.leafBy,
+              onInit: ($tree) => {
+                this.$tree = $tree
+              }
+            }
+          )
+        },
+        "node": {
+          comType: "TiForm",
+          comConf: _.assign({}, this.nodeForm, {
+            data: this.CurrentNodeData,
+            autoShowBlank: true
+          })
+        }
+      }
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods: {
+    //-----------------------------------------------
+    OnSelectTreeNode(payload) {
+      console.log("OnSelectTreeNode", payload)
+      let { currentId, checkedIds, current } = payload
+      this.myCurrentId = currentId
+      this.myCheckedIds = checkedIds
+    },
+    //-----------------------------------------------
+    OnMetaFieldChange() { },
+    //-----------------------------------------------
+    OnMetaChange(item) {
+      console.log(item)
+      // Get Node
+      let data = _.cloneDeep(this.TreeData)
+      let hie = Ti.Trees.getById(data, this.myCurrentId, this.TreeHieSetup)
+      // Update the root node
+      if (hie.depth == 0) {
+        item.children = data.children
+        data = item
+      }
+      // Update the tree node
+      else {
+        Ti.Trees.replace(hie, item, this.TreeHieSetup)
+      }
+
+      // Tell change
+      this.tryNotifyChange(data)
+
+      // Try to update current ID
+      this.$nextTick(() => {
+        let itemId = item[this.idBy]
+        this.$tree.selectNodeById(itemId)
+      })
+    },
+    //-----------------------------------------------
+    OnMoveUpTreeNode() {
+      let data = _.cloneDeep(this.TreeData)
+      let hie = this.getCurrentHie(data)
+      if (!hie) {
+        return
+      }
+      // Guard: for root
+      if (0 == hie.depth || !hie.parent) {
+        return
+      }
+      // Guard: for first node
+      if (hie.index == 0) {
+        return
+      }
+      // swith to prev
+      let children = _.get(hie.parent.node, this.childrenBy)
+      let i1 = hie.index - 1
+      let n0 = hie.node
+      let n1 = children[i1]
+      children[hie.index] = n1
+      children[i1] = n0
+      // Tell change
+      this.tryNotifyChange(data)
+    },
+    //-----------------------------------------------
+    OnMoveDownTreeNode() {
+      let data = _.cloneDeep(this.TreeData)
+      let hie = this.getCurrentHie(data)
+      if (!hie) {
+        return
+      }
+      // Guard: for root
+      if (0 == hie.depth || !hie.parent) {
+        return
+      }
+      // Guard: for last node
+      let children = _.get(hie.parent.node, this.childrenBy)
+      let lastI = children.length - 1
+      if (hie.index >= lastI) {
+        return
+      }
+      // swith to prev
+      let i1 = hie.index + 1
+      let n0 = hie.node
+      let n1 = children[i1]
+      children[hie.index] = n1
+      children[i1] = n0
+      // Tell change
+      this.tryNotifyChange(data)
+    },
+    //-----------------------------------------------
+    OnMoveLeftTreeNode() {
+      let data = _.cloneDeep(this.TreeData)
+      let hie = this.getCurrentHie(data)
+      if (!hie) {
+        return
+      }
+      // Guard: for root or top
+      if (hie.depth <= 1 || !hie.parent) {
+        return
+      }
+      
+      console.log("MoveLeft:", hie)
+      
+      // Then try move left
+      let { parent, node } = hie
+
+      // Remove current node
+      Ti.Trees.remove(hie)
+
+      // Insert current node after parent
+      let grandpa = parent.parent
+      let uncles = _.get(grandpa.node, this.childrenBy)
+      let pos = parent.index + 1
+      Ti.Util.insertToArray(uncles, pos, node)
+
+      // Tell change
+      this.tryNotifyChange(data)
+    },
+    //-----------------------------------------------
+    OnMoveRightTreeNode() {
+      let data = _.cloneDeep(this.TreeData)
+      let hie = this.getCurrentHie(data)
+      if (!hie) {
+        return
+      }
+      // Guard: for root or the first node
+      if (hie.depth == 0 || !hie.parent || hie.index == 0) {
+        return
+      }
+      //console.log("MoveRight:", hie)
+
+      // Check prev node, and it must be group
+      let children = _.get(hie.parent.node, this.childrenBy)
+      let prevNode = children[hie.index - 1]
+      let prevId = _.get(prevNode, this.idBy)
+      let node = hie.node
+      let prevHie = this.getTreeHie(data, prevId)
+
+      // prev must be group
+      if(!prevHie || this.$tree.isNodeLeaf(prevNode)) {
+        return
+      }
+
+      // Remove current node
+      Ti.Trees.remove(hie)
+
+      // Insert current node after parent
+      Ti.Trees.append(prevHie, node, this.TreeHieSetup)
+      this.$tree.openRow(prevId)
+
+      // Tell change
+      this.tryNotifyChange(data)
+    },
+    //-----------------------------------------------
+    OnCreateTreeNode() {
+      // Auto Gen a node ID
+      let newNodeId = Ti.Random.str(8)
+
+      // Then create the node
+      this.createTreeNode(newNodeId);
+    },
+    //-----------------------------------------------
+    createTreeNode(newNodeId) {
+      let data = _.cloneDeep(this.TreeData)
+
+      // Get the node
+      let hie;
+      let opened;
+      // Default use the root node
+      if (!this.myCurrentId) {
+        hie = Ti.Trees.getByPath(data, "/", this.TreeHieSetup)
+        opened = true
+      } else {
+        hie = Ti.Trees.getById(data, this.myCurrentId, this.TreeHieSetup)
+        opened = this.$tree.isOpened(this.myCurrentId)
+      }
+      let { depth, leaf } = hie
+
+      // Prepare new node
+      let newNode = _.assign({
+        [this.idBy]: newNodeId,
+        [this.nameBy]: Ti.I18n.get("new-item")
+      }, this.newNodeData)
+
+      // Root node, append to last child
+      // Group node, if opened, append to last child too.
+      if (0 == depth || (opened && !leaf)) {
+        Ti.Trees.append(hie, newNode, this.TreeHieSetup)
+      }
+      // closed group node or leaf node, insert after it
+      else {
+        Ti.Trees.insertAfter(hie, newNode, this.TreeHieSetup)
+      }
+
+      // Then tell the change
+      this.tryNotifyChange(data)
+
+      // Switch to new node
+      this.$tree.selectNodeById(newNodeId)
+    },
+    //-----------------------------------------------
+    removeTreeNode(nodeId) {
+      // Guard
+      if (!nodeId) {
+        return
+      }
+      // Find node
+      let data = _.cloneDeep(this.TreeData)
+      let hie = Ti.Trees.getById(data, nodeId, this.TreeHieSetup)
+      if (!hie) {
+        console.warn(`Fail to found treeNode [${nodeId}]`)
+        return
+      }
+      // Get next candidate
+      let next = Ti.Trees.nextCandidate(hie)
+      console.log("next:", next)
+
+      // Remove
+      Ti.Trees.remove(hie)
+      this.tryNotifyChange(data)
+
+      // Try to select next
+      if (next && next.node) {
+        let nextNodeId = _.get(next.node, this.idBy)
+        if (nextNodeId) {
+          this.$tree.selectNodeById(nextNodeId)
+        }
+      }
+
+    },
+    //-----------------------------------------------
+    tryNotifyChange(data = {}) {
+      if (!_.isEqual(data, this.TreeData)) {
+        this.$notify("change", data)
+      }
+    },
+    //-----------------------------------------------
+    getCurrentHie(treeData = this.TreeData) {
+      if (this.hasCurrent) {
+        return this.getTreeHie(treeData)
+      }
+    },
+    //-----------------------------------------------
+    getTreeHie(treeData = this.TreeData, nodeId = this.myCurrentId) {
+      if (this.hasCurrent) {
+        return Ti.Trees.getById(treeData, nodeId, this.TreeHieSetup)
+      }
+    }
+    //-----------------------------------------------
+  }
+  ///////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'wn-fileset-config.mjs' -> null
@@ -74525,6 +75318,39 @@ Ti.Preload("ti/com/ti/month/_com.json", {
   "components" : ["@com:ti/list"]
 });
 //========================================
+// JOIN <ti-obj-edit-tree.html> ti/com/ti/obj/edit-tree/ti-obj-edit-tree.html
+//========================================
+Ti.Preload("ti/com/ti/obj/edit-tree/ti-obj-edit-tree.html", `<TiGui
+  :class="className"
+  :layout="GUILayout"
+  :schema="GUISchema"
+  :canLoading="true"
+  :loading="loading"
+  :loadingAs="loadingAs"
+  @tree::select="OnSelectTreeNode"
+  @actions::do:create="OnCreateTreeNode"
+  @actions::do:remove="removeTreeNode(myCurrentId)"
+  @actions::do:move:up="OnMoveUpTreeNode"
+  @actions::do:move:down="OnMoveDownTreeNode"
+  @actions::do:move:left="OnMoveLeftTreeNode"
+  @actions::do:move:right="OnMoveRightTreeNode"
+  @node::field:change="OnMetaFieldChange"
+  @node::change="OnMetaChange"
+  />`);
+//========================================
+// JOIN <ti-obj-edit-tree.mjs> ti/com/ti/obj/edit-tree/ti-obj-edit-tree.mjs
+//========================================
+Ti.Preload("ti/com/ti/obj/edit-tree/ti-obj-edit-tree.mjs", TI_PACK_EXPORTS['ti/com/ti/obj/edit-tree/ti-obj-edit-tree.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/obj/edit-tree/_com.json
+//========================================
+Ti.Preload("ti/com/ti/obj/edit-tree/_com.json", {
+  "name" : "ti-obj-edit-tree",
+  "globally" : true,
+  "template" : "./ti-obj-edit-tree.html",
+  "mixins" : ["./ti-obj-edit-tree.mjs"]
+});
+//========================================
 // JOIN <ti-obj-pair.html> ti/com/ti/obj/pair/ti-obj-pair.html
 //========================================
 Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair full-field" 
@@ -81452,6 +82278,40 @@ Ti.Preload("ti/com/wn/obj/mode/_com.json", {
   "components" : []
 });
 //========================================
+// JOIN <org-icons.mjs> ti/com/wn/obj/organization/org-icons.mjs
+//========================================
+Ti.Preload("ti/com/wn/obj/organization/org-icons.mjs", TI_PACK_EXPORTS['ti/com/wn/obj/organization/org-icons.mjs']);
+//========================================
+// JOIN <wn-obj-organization.html> ti/com/wn/obj/organization/wn-obj-organization.html
+//========================================
+Ti.Preload("ti/com/wn/obj/organization/wn-obj-organization.html", `<TiObjEditTree
+  :className="className"
+  :value="value"
+  :leafBy="NodeLeafBy"
+  :newNodeData="NewNodeData"
+  :nodeForm="NodeForm"
+  :treeConf="TreeConf"
+  />`);
+//========================================
+// JOIN <wn-obj-organization.mjs> ti/com/wn/obj/organization/wn-obj-organization.mjs
+//========================================
+Ti.Preload("ti/com/wn/obj/organization/wn-obj-organization.mjs", TI_PACK_EXPORTS['ti/com/wn/obj/organization/wn-obj-organization.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/organization/_com.json
+//========================================
+Ti.Preload("ti/com/wn/obj/organization/_com.json", {
+  "name": "wn-obj-organization",
+  "globally": true,
+  "template": "./wn-obj-organization.html",
+  "mixins": [
+    "./org-icons.mjs",
+    "./wn-obj-organization.mjs"
+  ],
+  "components": [
+    "@com:ti/obj/edit-tree"
+  ]
+});
+//========================================
 // JOIN <wn-obj-picker.html> ti/com/wn/obj/picker/wn-obj-picker.html
 //========================================
 Ti.Preload("ti/com/wn/obj/picker/wn-obj-picker.html", `<div class="wn-obj-picker"
@@ -84909,6 +85769,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "no-saved": "You get data need to be saved",
   "no-selected": "None selected",
   "no-title": "No title",
+  "note": "Note",
   "obj": "Object",
   "off": "Off",
   "ok": "Ok",
@@ -85136,6 +85997,9 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-oc-auto-type": "All types",
   "wn-oc-free": "Please enter the full name, including the extension, such as `myfile.xml`",
   "wn-oc-tip": "New object name",
+  "wn-org-new-node": "New Org Node",
+  "wn-org-type-G": "Group",
+  "wn-org-type-P": "Position",
   "wn-race-DIR": "DIRECTORY",
   "wn-race-FILE": "FILE",
   "wn-th-acc-pwd-choose-none": "Select the account to reset password (multiple allowed)",
@@ -86360,6 +87224,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "no-saved": "您有未保存的数据",
   "no-selected": "未选择",
   "no-title": "无标题",
+  "note": "备注",
   "obj": "对象",
   "off": "关",
   "ok": "确定",
@@ -86613,6 +87478,9 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-oc-auto-type": "全部类型",
   "wn-oc-free": "请输入对象完整名称，包括扩展名，譬如 `myfile.xml`",
   "wn-oc-tip": "新对象名称",
+  "wn-org-new-node": "新组织节点",
+  "wn-org-type-G": "分组",
+  "wn-org-type-P": "职位",
   "wn-race-DIR": "目录",
   "wn-race-FILE": "文件",
   "wn-th-acc-pwd-choose-none": "请选择要重置密码的账号（可多选）",
@@ -87837,6 +88705,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "no-saved": "您有未保存的數據",
    "no-selected": "未選擇",
    "no-title": "無標題",
+   "note": "備註",
    "obj": "對象",
    "off": "關",
    "ok": "確定",
@@ -88090,6 +88959,9 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-oc-auto-type": "全部類型",
    "wn-oc-free": "請輸入對象完整名稱，包括擴展名，譬如 `myfile.xml`",
    "wn-oc-tip": "新對象名稱",
+   "wn-org-new-node": "新組織節點",
+   "wn-org-type-G": "分組",
+   "wn-org-type-P": "職位",
    "wn-race-DIR": "目錄",
    "wn-race-FILE": "文件",
    "wn-th-acc-pwd-choose-none": "請選擇要重置密碼的賬號（可多選）",

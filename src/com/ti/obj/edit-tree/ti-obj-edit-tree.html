@@ -7,4 +7,11 @@
   :loadingAs="loadingAs"
   @tree::select="OnSelectTreeNode"
   @actions::do:create="OnCreateTreeNode"
+  @actions::do:remove="removeTreeNode(myCurrentId)"
+  @actions::do:move:up="OnMoveUpTreeNode"
+  @actions::do:move:down="OnMoveDownTreeNode"
+  @actions::do:move:left="OnMoveLeftTreeNode"
+  @actions::do:move:right="OnMoveRightTreeNode"
+  @node::field:change="OnMetaFieldChange"
+  @node::change="OnMetaChange"
   />
