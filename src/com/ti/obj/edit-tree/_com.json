@@ -1,0 +1,6 @@
+{
+  "name" : "ti-obj-edit-tree",
+  "globally" : true,
+  "template" : "./ti-obj-edit-tree.html",
+  "mixins" : ["./ti-obj-edit-tree.mjs"]
+}
