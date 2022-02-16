@@ -271,7 +271,7 @@ export default {
   methods: {
     //-----------------------------------------------
     OnSelectTreeNode(payload) {
-      console.log("OnSelectTreeNode", payload)
+      //console.log("OnSelectTreeNode", payload)
       let { currentId, checkedIds, current } = payload
       this.myCurrentId = currentId
       this.myCheckedIds = checkedIds
@@ -280,17 +280,19 @@ export default {
     OnMetaFieldChange() { },
     //-----------------------------------------------
     OnMetaChange(item) {
-      console.log(item)
+      //console.log(item)
       // Get Node
       let data = _.cloneDeep(this.TreeData)
-      let hie = Ti.Trees.getById(data, this.myCurrentId, this.TreeHieSetup)
+      let hie = this.getCurrentHie(data)
+      //console.log(hie)
       // Update the root node
       if (hie.depth == 0) {
-        item.children = data.children
+        item[this.childrenBy] = data[this.childrenBy]
         data = item
       }
       // Update the tree node
       else {
+        item.children = _.get(hie.node, this.childrenBy)
         Ti.Trees.replace(hie, item, this.TreeHieSetup)
       }
 
@@ -365,8 +367,7 @@ export default {
       if (hie.depth <= 1 || !hie.parent) {
         return
       }
-      
-      console.log("MoveLeft:", hie)
+      //console.log("MoveLeft:", hie)
       
       // Then try move left
       let { parent, node } = hie
@@ -480,7 +481,7 @@ export default {
       }
       // Get next candidate
       let next = Ti.Trees.nextCandidate(hie)
-      console.log("next:", next)
+      //console.log("next:", next)
 
       // Remove
       Ti.Trees.remove(hie)
