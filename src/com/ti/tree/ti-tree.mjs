@@ -188,6 +188,14 @@ const TI_TREE = {
       type : Boolean,
       default : true
     },
+    "columnResizable": {
+      type: Boolean,
+      default: false
+    },
+    "keepCustomizedTo": {
+      type: String,
+      default: undefined
+    },
     "autoOpen" : {
       type : Boolean,
       default : false
@@ -206,6 +214,10 @@ const TI_TREE = {
       type : String,
       default : "column",
       validator : v => /^(row|column|cell|none)$/.test(v)
+    },
+    "rowNumberBase": {
+      type: Number,
+      default: undefined
     },
     // "extendFunctionSet" : {
     //   type : Object,

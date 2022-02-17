@@ -1,0 +1,10 @@
+{
+  "name" : "wn-input-tree-picker",
+  "globally" : true,
+  "template" : "./wn-input-tree-picker.html",
+  "props": "@com:ti/input/tree-picker/tree-picker-props.mjs",
+  "mixins" : "./wn-input-tree-picker.mjs",
+  "components" : [
+    "@com:ti/input/tree-picker"
+  ]
+}

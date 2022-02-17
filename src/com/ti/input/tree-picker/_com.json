@@ -1,0 +1,10 @@
+{
+  "name": "ti-input-tree-picker",
+  "globally": true,
+  "template": "./ti-input-tree-picker.html",
+  "props": "./tree-picker-props.mjs",
+  "mixins": "./ti-input-tree-picker.mjs",
+  "components": [
+    "@com:ti/input/tags"
+  ]
+}
