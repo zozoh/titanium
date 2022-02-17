@@ -1,7 +1,25 @@
-<TiInputTags
-  :value="TheValue"
-  :placeholder="placeholder"
-  :dict="dict"
-  :suffixIcon="suffixIcon"
-  @suffix:icon="OnClickSuffixIcon"
-  />
+<div class="ti-input-tree-picker full-field">
+  <!--
+    Multi values
+  -->
+  <TiInputTags
+    v-if="multi"
+      :value="myInputValue"
+      :placeholder="placeholder"
+      :dict="dict"
+      :suffixIcon="suffixIcon"
+      @suffix:icon="OnClickSuffixIcon"/>
+  <!--
+    Single value
+  -->
+  <TiInput
+    v-else
+      :value="myInputValue"
+      :suffxiText="myInputSuffix"
+      :placeholder="placeholder"
+      :readonly="true"
+      :prefixIcon="myInputIcon"
+      :suffixIcon="suffixIcon"
+      :suffixText="myInputSuffix"
+      @suffix:icon="OnClickSuffixIcon"/>
+</div>

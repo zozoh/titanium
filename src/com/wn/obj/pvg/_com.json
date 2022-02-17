@@ -1,0 +1,7 @@
+{
+  "name" : "wn-obj-pvg",
+  "globally" : true,
+  "template" : "./wn-obj-pvg.html",
+  "mixins" : ["./wn-obj-pvg.mjs"],
+  "components" : []
+}

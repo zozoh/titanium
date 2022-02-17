@@ -1,4 +1,4 @@
-// Pack At: 2022-02-17 02:45:40
+// Pack At: 2022-02-18 02:55:45
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -4235,6 +4235,26 @@ const _M = {
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
+// EXPORT 'wn-input-tree-picker.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/input/tree-picker/wn-input-tree-picker.mjs'] = (function(){
+const _M = {
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    PickerOptions() {
+      return async () => {
+        let re = await Wn.Io.loadContent(this.options, { as: "json" })
+        return re;
+      }
+    }
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
 }
 return _M;;
 })()
@@ -9581,7 +9601,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "value": {
       type: [Object, String],
       default: null
-    }
+    },
+    // actions config dict name
+    "actionDict": {
+      type: String
+    },
+    "keepCustomizedTo": {
+      type: String,
+      default: undefined
+    },
+    "rowNumberBase": {
+      type: Number,
+      default: undefined
+    },
   },
   ///////////////////////////////////////////////////
   computed: {
@@ -9601,57 +9633,94 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-----------------------------------------------
     TreeConf() {
-      return {
+      let re = {
+        keepCustomizedTo: this.keepCustomizedTo,
+        rowNumberBase: this.rowNumberBase,
         display: [
           "<icon>",
           "name::flex-auto",
           "id::is-nowrap as-tip-block align-right"
         ]
       }
-    },
-    //-----------------------------------------------
-    NodeForm() {
-      return {
-        "fields": [
+      if (this.actionDict) {
+        re.border = "cell";
+        re.columnResizable = true
+        re.fields = [
           {
-            title: "ID",
-            name: "id",
-            comConf: {
-              editable: true,
-              valueCase: "upper"
-            }
-          },
-          {
-            title: "i18n:type",
-            name: "type",
-            comType: "TiSwitcher",
-            comConf: {
-              options: "#OrgNodeTypes",
-              allowEmpty: false
-            }
-          },
-          {
-            title: "i18n:icon",
-            name: "icon",
-            comType: "TiInputIcon",
-            comConf: {
-              options: this.OrgOptionIcons
-            }
-          },
-          {
-            title: "i18n:name",
-            name: "name",
-            comType: "TiInput"
-          },
-          {
-            title: "i18n:note",
-            name: "note",
-            comType: "TiInputText",
-            comConf: {
-              height: "6em"
+            title: "i18n:role-behaviors",
+            display: {
+              key: "roleActions",
+              comType: "TiTags",
+              comConf: {
+                className: "is-nowrap",
+                dict: "SysActions"
+              }
             }
           }
         ]
+      }
+      return re;
+    },
+    //-----------------------------------------------
+    NodeForm() {
+      let fields = [
+        {
+          title: "ID",
+          name: "id",
+          comConf: {
+            editable: true,
+            valueCase: "upper"
+          }
+        },
+        {
+          title: "i18n:type",
+          name: "type",
+          comType: "TiSwitcher",
+          comConf: {
+            options: "#OrgNodeTypes",
+            allowEmpty: false
+          }
+        },
+        {
+          title: "i18n:icon",
+          name: "icon",
+          comType: "TiInputIcon",
+          comConf: {
+            options: this.OrgOptionIcons
+          }
+        },
+        {
+          title: "i18n:name",
+          name: "name",
+          comType: "TiInput"
+        }
+      ]
+      // Actions
+      if (this.actionDict) {
+        fields.push({
+          title: "i18n:role-behaviors",
+          name: "roleActions",
+          type: "Array",
+          comType: "ti-droplist",
+          comConf: {
+            options: `#${this.actionDict}`,
+            multi: true
+          }
+        })
+      }
+
+      // Others fields
+      fields.push({
+        title: "i18n:note",
+        name: "note",
+        comType: "TiInputText",
+        comConf: {
+          height: "6em"
+        }
+      })
+      // Then return form config
+      return {
+        fields
       }
     }
     //-----------------------------------------------
@@ -16290,6 +16359,173 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'ti-input-tree-picker.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/input/tree-picker/ti-input-tree-picker.mjs'] = (function(){
+const _M = {
+  /////////////////////////////////////////
+  data: () => ({
+    // single/multi
+    myInputValue: undefined,
+    // single only
+    myInputSuffix: undefined,
+    // single only
+    myInputIcon: undefined
+  }),
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    hasVars() {
+      return !_.isEmpty(this.vars)
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    async OnClickSuffixIcon() {
+      // Eval the tree data
+      let treeData = await this.getTreeData();
+
+      // Open the dialog
+      let reo = await Ti.App.Open(_.assign(
+        {
+          title: "i18n:select",
+          position: "top",
+          width: "6.4rem",
+          height: "96%",
+        },
+        this.dialog,
+        {
+          model: { event: "select" },
+          events: {
+            open: function () {
+              this.close(this.result)
+            }
+          },
+          comType: "TiTree",
+          comConf: _.assign(
+            {
+              data: treeData,
+              display: [
+                "<icon>",
+                "title|text|name|nm|abbr",
+                "value|id|nm::as-tip-block align-right"
+              ],
+              multi: this.multi,
+              checkable: this.multi,
+              defaultOpenDepth: this.defaultOpenDepth,
+              nodeSelectable: (node) => {
+                if (this.onlyLeaf) {
+                  return node.leaf ? true : false
+                }
+                return true;
+              },
+              nodeCheckable: (node) => {
+                if (!this.multi) {
+                  return false
+                }
+                if (this.onlyLeaf) {
+                  return node.leaf ? true : false
+                }
+                return true;
+              },
+              border: "row"
+            },
+            this.tree
+          ),
+          components: [
+            "@com:ti/tree"
+          ]
+        }
+      ))
+
+      // User cancel
+      if (!reo) {
+        return
+      }
+
+      // Get selections
+      let vals = Ti.Util.truthyKeys(reo.checkedIds)
+      this.tryNotifyChange(vals)
+    },
+    //--------------------------------------
+    tryNotifyChange(vals = []) {
+      let v2;
+      if (this.multi) {
+        v2 = vals
+      } else {
+        v2 = _.first(vals)
+      }
+      if (!_.isEqual(this.value, v2)) {
+        this.$notify("change", v2)
+      }
+    },
+    //--------------------------------------
+    async getTreeData() {
+      if (_.isFunction(this.options)) {
+        let args = []
+        if (this.hasVars) {
+          args.push(this.vars)
+        }
+        return await this.options.apply(this, args)
+      }
+      // Static data
+      let td = _.isString(this.options)
+        ? JSON.parse(this.options)
+        : _.cloneDeep(this.options);
+
+      // Explain
+      if (this.hasVars) {
+        return Ti.Util.explain(this.vars, td)
+      }
+      // Pure tree data
+      return td
+    },
+    //--------------------------------------
+    async evalValue() {
+      // Multi
+      if (this.multi) {
+        if (_.isArray(this.value)) {
+          this.myInputValue = this.value
+        } else {
+          this.myInputValue = [this.value]
+        }
+      }
+      // Single, shoudl eval the display value
+      else {
+        let val;
+        if (_.isArray(this.value)) {
+          val = _.first(this.value)
+        } else {
+          val = this.value
+        }
+        let $d;
+        if (this.dict) {
+          $d = Ti.DictFactory.CheckDict(this.dict)
+          this.myInputValue = await $d.getItemText(val)
+          this.myInputSuffix = val
+          this.myInputIcon = (await $d.getItemIcon(val)) || this.prefixIcon
+        } else {
+          this.myInputValue = val
+          this.myInputIcon = this.prefixIcon
+        }
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "value": {
+      handler: "evalValue",
+      immediate: true
+    }
+  }
+  //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'm-charts-actions.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/charts/m-charts-actions.mjs'] = (function(){
@@ -20088,7 +20324,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return
     }
 
-    let newMeta = await Wn.EditObjPrivilege(meta)
+    let newMeta = await Wn.EditObjPvg(meta, {
+      organization: "~/.domain/organization.json"
+    })
 
     // Update to current list
     if (newMeta) {
@@ -36426,6 +36664,606 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'wn-obj-pvg.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/obj/pvg/wn-obj-pvg.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //////////////////////////////////////////
+  data: () => ({
+    myPrivilegeData: [],
+    //
+    // Account
+    //
+    myAccountHome: null,
+    myAccounts: [],
+    myAccountMap: {},
+    //
+    // Roles
+    //
+    myRoleHome: null,
+    myRoles: [],
+    myRoleMap: {},
+    //
+    // Organization
+    //
+    myOrganization: null,
+    myOrganizationMap: {},
+    //
+    // Status
+    //
+    myCurrentId: null,
+    loading: false
+  }),
+  //////////////////////////////////////////
+  props: {
+    "value": {
+      type: Object,
+      default: () => ({})
+    },
+    "organization": {
+      type: String
+    }
+  },
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    hasAccounts() { return !_.isEmpty(this.myAccounts) },
+    hasRoles() { return !_.isEmpty(this.myRoles) },
+    //--------------------------------------
+    GuiLoadingAs() {
+      if (!this.hasAccounts)
+        return {
+          text: "i18n:empty",
+          icon: "fas-border-none"
+        }
+    },
+    //--------------------------------------
+    ActionItems() {
+      let items = []
+      if (!_.isEmpty(this.myAccounts)) {
+        items.push({
+          icon: "fas-user-plus",
+          text: "i18n:account-add",
+          action: () => { this.OnAddAccounts() }
+        })
+      }
+      //
+      // Roles
+      //
+      if (!_.isEmpty(this.myRoles)) {
+        if (items.length > 0) {
+          items.push({ type: "line" })
+        }
+        items.push({
+          icon: "fas-ribbon",
+          text: "i18n:role-add",
+          action: () => { this.OnAddRoles() }
+        })
+      }
+      //
+      // Organization
+      //
+      if (!_.isEmpty(this.myOrganization)) {
+        if (items.length > 0) {
+          items.push({ type: "line" })
+        }
+        items.push({
+          icon: "fas-briefcase",
+          text: "i18n:dept-add",
+          action: () => { this.OnAddDepts() }
+        })
+      }
+
+      //
+      // Delete
+      //
+      items.push({
+        type: "line"
+      }, {
+        icon: "far-trash-alt",
+        text: "i18n:del-checked",
+        action: () => { this.OnRemoveSelected() }
+      })
+
+      return items;
+    },
+    //--------------------------------------
+    Layout() {
+      return {
+        type: "rows",
+        border: true,
+        defaultFlex: "both",
+        blocks: [{
+          size: 42,
+          body: "actions"
+        }, {
+          type: "cols",
+          border: true,
+          blocks: [{
+            name: "list",
+            body: "list"
+          }, {
+            name: "data",
+            body: "data"
+          }]
+        }]
+      }
+    },
+    //--------------------------------------
+    Schema() {
+      return {
+        actions: {
+          comType: "TiActionbar",
+          comConf: {
+            className: "pad-hs",
+            items: this.ActionItems
+          }
+        },
+        list: {
+          comType: "TiList",
+          comConf: {
+            checkable: true,
+            multi: true,
+            data: this.myPrivilegeData,
+            idBy: "key",
+            display: [
+              "<icon>", 
+              "text::flex-none", 
+              "key::flex-auto as-tip",
+              "tip::as-tip-block"
+            ],
+            onInit: ($list) => {
+              this.$list = $list
+            }
+          }
+        },
+        data: {
+          comType: "TiForm",
+          comConf: {
+            spacing: "tiny",
+            data: this.CurrentItem,
+            autoShowBlank: true,
+            blankAs: {
+              text: "i18n:blank-to-edit",
+              icon: "fas-arrow-left"
+            },
+            fields: [{
+              title: "i18n:type",
+              name: "type"
+            }, {
+              title: "i18n:name",
+              name: "text"
+            }, {
+              title: "i18n:key",
+              name: "key",
+              comConf: {
+                className: "is-nowrap",
+                fullField: false
+              }
+            }, {
+              title: "i18n:wn-md-readable",
+              name: "readable",
+              type: "Boolean",
+              comType: "TiToggle"
+            }, {
+              title: "i18n:wn-md-writable",
+              name: "writable",
+              type: "Boolean",
+              comType: "TiToggle"
+            }, {
+              title: "i18n:wn-md-excutable",
+              name: "excutable",
+              type: "Boolean",
+              comType: "TiToggle"
+            }]
+          }
+        }
+      }
+    },
+    //--------------------------------------
+    CurrentItem() {
+      for (let it of this.myPrivilegeData) {
+        if (this.myCurrentId == it.key) {
+          return it
+        }
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    OnListSelect({ currentId }) {
+      this.myCurrentId = currentId
+    },
+    //--------------------------------------
+    OnDataChange(data) {
+      let key = data.key
+      let m0 = Wn.Obj.mode0FromObj(data)
+      let md = (7 << 6) | (7 << 3) | (m0)
+      let val = _.cloneDeep(this.value)
+      val[key] = md
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    async OnAddAccounts() {
+      let accounts = _.filter(this.myAccounts, acc => {
+        let md = _.get(this.value, acc.id)
+        return _.isUndefined(md)
+      })
+
+      let reo = await Ti.App.Open({
+        icon: "fas-user-plus",
+        title: "i18n:account-add",
+        position: "top",
+        width: 480,
+        height: "90%",
+        model: { prop: "value", event: "select" },
+        comType: "TiList",
+        comConf: {
+          multi: true,
+          checkable: true,
+          data: accounts,
+          display: ["<icon:zmdi-account>", "nickname", "nm::as-tip-block"]
+        }
+      })
+
+      // User cancel
+      if (!reo)
+        return
+
+      // Nothing selected
+      let checkeds = Ti.Util.truthyKeys(reo.checkedIds)
+      if (_.isEmpty(checkeds)) {
+        return
+      }
+
+      // Update value
+      let val = _.cloneDeep(this.value)
+      for (let id of checkeds) {
+        val[id] = 508
+      }
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    async OnAddRoles() {
+      let roles = _.filter(this.myRoles, role => {
+        let md = _.get(this.value, `@${role.nm}`)
+        return _.isUndefined(md)
+      })
+
+      let reo = await Ti.App.Open({
+        icon: "fas-user-plus",
+        title: "i18n:roles-add",
+        position: "top",
+        width: 480,
+        height: "90%",
+        model: { prop: "value", event: "select" },
+        comType: "TiList",
+        comConf: {
+          multi: true,
+          checkable: true,
+          idBy: "nm",
+          data: roles,
+          display: ["<icon:far-smile>", "title|th_nm", "nm::as-tip-block"]
+        }
+      })
+
+      // User cancel
+      if (!reo)
+        return
+
+      // Nothing selected
+      let checkeds = Ti.Util.truthyKeys(reo.checkedIds)
+      if (_.isEmpty(checkeds)) {
+        return
+      }
+
+      // Update value
+      let val = _.cloneDeep(this.value)
+      for (let nm of checkeds) {
+        val[`@${nm}`] = 508
+      }
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    async OnAddDepts() {
+      let reo = await Ti.App.Open({
+        icon: "fas-briefcase",
+        title: "i18n:dept-add",
+        position: "top",
+        width: "6.4rem",
+        height: "96%",
+        model: { event: "select" },
+        comType: "TiTree",
+        comConf: {
+          data: this.myOrganization,
+          display: [
+            "<icon>",
+            "title|text|name|nm|abbr",
+            "value|id|nm::as-tip-block align-right"
+          ],
+          multi: true,
+          checkable: true,
+          defaultOpenDepth: 100
+        }
+      })
+
+      // User cancel
+      if (!reo)
+        return
+
+      console.log(reo)
+
+      // Nothing selected
+      let checkeds = Ti.Util.truthyKeys(reo.checkedIds)
+      if (_.isEmpty(checkeds)) {
+        return
+      }
+
+      // Update value
+      let val = _.cloneDeep(this.value)
+      for (let id of checkeds) {
+        val[`+${id}`] = 508
+      }
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    OnRemoveSelected() {
+      let checked = this.$list.getChecked()
+      if (_.isEmpty(checked)) {
+        Ti.Toast.Open("i18n:nil-obj", "warn")
+        return
+      }
+      // Build key map
+      let keyMap = {}
+      _.forEach(checked, it => {
+        keyMap[it.key] = true
+      })
+
+      // Remove from value
+      let val = {}
+      _.forEach(this.value, (md, key) => {
+        if (!keyMap[key]) {
+          val[key] = md
+        }
+      })
+
+      this.$notify("change", val)
+    },
+    //--------------------------------------
+    buildMap(list = [], key = "id", childKey = "children") {
+      let re = {}
+      if (_.isArray(list)) {
+        _.forEach(list, li => {
+          if (!li)
+            return
+          let k = li[key]
+          if (k) {
+            re[k] = li
+          }
+        })
+      }
+      // Tree
+      else {
+        const fn = function (node) {
+          let it = _.omit(node, childKey)
+          let id = it[key]
+          if (id) {
+            re[id] = it
+          }
+          let children = node[childKey];
+          if (!_.isEmpty(children)) {
+            for (let child of children) {
+              fn(child)
+            }
+          }
+        }
+        fn(list)
+      }
+      return re
+    },
+    //--------------------------------------
+    async evalPrivilegeData() {
+      let pvgData = []
+      _.forEach(this.value, (md, id) => {
+        pvgData.push({ md, id })
+      })
+
+
+      let list = []
+      for (let pvgIt of pvgData) {
+        let { md, id } = pvgIt
+        //console.log("pvg data", { md, id })
+        let { other } = Wn.Obj.parseMode(md)
+        //
+        // Tip to indicate the RWX
+        //
+        let tips = []
+        if (other.readable)
+          tips.push(Ti.I18n.get("wn-md-R"))
+        if (other.writable)
+          tips.push(Ti.I18n.get("wn-md-W"))
+        if (other.excutable)
+          tips.push(Ti.I18n.get("wn-md-X"))
+        let tip = tips.join("") || Ti.I18n.get("nil");
+        //
+        // Company | Organization
+        let m = /^org:(.+)$/.exec(id)
+        if (m) {
+          let comId = m[1]
+          let com = _.get(this.myCompanyMap, comId)
+          if (com) {
+            list.push({
+              type: "org",
+              icon: Wn.Util.getObjThumbIcon2(com, 'fas-building'),
+              text: com.title || com.nm,
+              key: id,
+              tip,
+              ...other
+            })
+          } else {
+            list.push({
+              type: "org",
+              icon: 'fas-building',
+              text: comId,
+              key: id,
+              tip,
+              ...other
+            })
+          }
+          continue;
+        }
+        //
+        // Organization
+        m = /^\+(.+)$/.exec(id)
+        if (m) {
+          let deptId = m[1]
+          let dept = this.myOrganizationMap[deptId];
+          if (dept) {
+            list.push({
+              type: "dept",
+              icon: dept.icon || 'fas-briefcase',
+              text: dept.name || dept.title || dept.text,
+              key: id,
+              tip,
+              ...other
+            })
+          }
+          continue;
+        }
+        //
+        // Projects
+        m = /^prj:(.+)$/.exec(id)
+        if (m) {
+          let projId = m[1]
+          let proj = _.get(this.myProjectMap, projId)
+          if (proj) {
+            list.push({
+              type: "proj",
+              icon: Wn.Util.getObjThumbIcon2(proj, 'fas-chess-queen'),
+              text: proj.title || proj.nm,
+              key: id,
+              tip,
+              ...other
+            })
+          } else {
+            list.push({
+              type: "org",
+              icon: 'fas-building',
+              text: projId,
+              key: id,
+              tip,
+              ...other
+            })
+          }
+          continue;
+        }
+        // Role
+        m = /^@(.+)$/.exec(id)
+        if (m) {
+          let roleName = m[1]
+          let role = _.get(this.myRoleMap, roleName)
+          if (role) {
+            list.push({
+              type: "role",
+              icon: role.icon || 'far-smile',
+              text: role.title || role.nm,
+              key: id,
+              tip,
+              ...other
+            })
+          } else {
+            list.push({
+              type: "role",
+              icon: 'far-smile',
+              text: roleName,
+              key: id,
+              tip,
+              ...other
+            })
+          }
+          continue;
+        }
+        //
+        // Account
+        let user = _.get(this.myAccountMap, id)
+        if (user) {
+          list.push({
+            type: "account",
+            icon: user.icon || 'zmdi-account',
+            thumb: user.thumb,
+            text: user.nickname || user.nm,
+            key: id,
+            tip,
+            ...other
+          })
+        } else {
+          list.push({
+            type: "account",
+            icon: 'zmdi-account',
+            text: id,
+            key: id,
+            tip,
+            ...other
+          })
+        }
+      }
+      // Update to state
+      this.myPrivilegeData = list
+    },
+    //--------------------------------------
+    async reload() {
+      this.loading = true
+      // Reload accountHome and roleHome
+      let cmdText = 'domain site -cqn -keys "^(id|nm|ph|title)$"'
+      let site = await Wn.Sys.exec2(cmdText, { as: "json" })
+      this.myAccountHome = _.get(site, "accountHome")
+      this.myRoleHome = _.get(site, "roleHome")
+      this.myOrganization = _.get(site, "organization")
+
+      // Reload Accounts
+      let km = '^(id|nm|title|nickname|icon|thumb)$';
+      if (this.myAccountHome) {
+        cmdText = `thing id:${this.myAccountHome.id} query -cqn -e '${km}'`
+        this.myAccounts = await Wn.Sys.exec2(cmdText, { as: "json" })
+      } else {
+        this.myAccounts = []
+      }
+
+      // Reload Roles
+      if (this.myRoleHome) {
+        cmdText = `thing id:${this.myRoleHome.id} query -cqn -e '${km}'`
+        this.myRoles = await Wn.Sys.exec2(cmdText, { as: "json" })
+      } else {
+        this.myRoles = []
+      }
+
+      // Build map
+      this.myAccountMap = this.buildMap(this.myAccounts, "id")
+      this.myRoleMap = this.buildMap(this.myRoles, "nm")
+      this.myOrganizationMap = this.buildMap(this.myOrganization, "id")
+
+      // Eval data
+      await this.evalPrivilegeData()
+
+      this.loading = false
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "value": "evalPrivilegeData"
+  },
+  //////////////////////////////////////////
+  mounted: function () {
+    this.reload()
+  }
+  //////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-combo-table.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/combo/table/ti-combo-table.mjs'] = (function(){
@@ -48957,6 +49795,64 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'tree-picker-props.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/input/tree-picker/tree-picker-props.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //-----------------------------------
+  // Data
+  //-----------------------------------
+  "value": {
+    type: [String, Array, Number],
+    default: undefined
+  },
+  // The given tree data
+  "options": {
+    type: [Object, Function, String]
+  },
+  "vars": {
+    type: Object
+  },
+  "dict": {
+    type: String
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  "onlyLeaf": {
+    type: Boolean
+  },
+  "multi": {
+    type: Boolean
+  },
+  "defaultOpenDepth": {
+    type: Number,
+    default: 5
+  },
+  //-----------------------------------
+  // Aspect
+  //-----------------------------------
+  "dialog": {
+    type: Object
+  },
+  "tree": {
+    type: Object
+  },
+  "placeholder": {
+    type: String
+  },
+  "prefixIcon": {
+    type: String,
+    default: "zmdi-minus"
+  },
+  "suffixIcon": {
+    type: String,
+    default: "fas-cog"
+  }
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-obj-thumb.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/obj/thumb/ti-obj-thumb.mjs'] = (function(){
@@ -54356,6 +55252,14 @@ const TI_TREE = {
       type : Boolean,
       default : true
     },
+    "columnResizable": {
+      type: Boolean,
+      default: false
+    },
+    "keepCustomizedTo": {
+      type: String,
+      default: undefined
+    },
     "autoOpen" : {
       type : Boolean,
       default : false
@@ -54374,6 +55278,10 @@ const TI_TREE = {
       type : String,
       default : "column",
       validator : v => /^(row|column|cell|none)$/.test(v)
+    },
+    "rowNumberBase": {
+      type: Number,
+      default: undefined
     },
     // "extendFunctionSet" : {
     //   type : Object,
@@ -60249,7 +61157,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   methods: {
     //-----------------------------------------------
     OnSelectTreeNode(payload) {
-      console.log("OnSelectTreeNode", payload)
+      //console.log("OnSelectTreeNode", payload)
       let { currentId, checkedIds, current } = payload
       this.myCurrentId = currentId
       this.myCheckedIds = checkedIds
@@ -60258,17 +61166,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
     OnMetaFieldChange() { },
     //-----------------------------------------------
     OnMetaChange(item) {
-      console.log(item)
+      //console.log(item)
       // Get Node
       let data = _.cloneDeep(this.TreeData)
-      let hie = Ti.Trees.getById(data, this.myCurrentId, this.TreeHieSetup)
+      let hie = this.getCurrentHie(data)
+      //console.log(hie)
       // Update the root node
       if (hie.depth == 0) {
-        item.children = data.children
+        item[this.childrenBy] = data[this.childrenBy]
         data = item
       }
       // Update the tree node
       else {
+        item.children = _.get(hie.node, this.childrenBy)
         Ti.Trees.replace(hie, item, this.TreeHieSetup)
       }
 
@@ -60343,8 +61253,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if (hie.depth <= 1 || !hie.parent) {
         return
       }
-      
-      console.log("MoveLeft:", hie)
+      //console.log("MoveLeft:", hie)
       
       // Then try move left
       let { parent, node } = hie
@@ -60458,7 +61367,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       // Get next candidate
       let next = Ti.Trees.nextCandidate(hie)
-      console.log("next:", next)
+      //console.log("next:", next)
 
       // Remove
       Ti.Trees.remove(hie)
@@ -74520,6 +75429,55 @@ Ti.Preload("ti/com/ti/input/timerange/_com.json", {
     "@com:ti/combo/input"]
 });
 //========================================
+// JOIN <ti-input-tree-picker.html> ti/com/ti/input/tree-picker/ti-input-tree-picker.html
+//========================================
+Ti.Preload("ti/com/ti/input/tree-picker/ti-input-tree-picker.html", `<div class="ti-input-tree-picker full-field">
+  <!--
+    Multi values
+  -->
+  <TiInputTags
+    v-if="multi"
+      :value="myInputValue"
+      :placeholder="placeholder"
+      :dict="dict"
+      :suffixIcon="suffixIcon"
+      @suffix:icon="OnClickSuffixIcon"/>
+  <!--
+    Single value
+  -->
+  <TiInput
+    v-else
+      :value="myInputValue"
+      :suffxiText="myInputSuffix"
+      :placeholder="placeholder"
+      :readonly="true"
+      :prefixIcon="myInputIcon"
+      :suffixIcon="suffixIcon"
+      :suffixText="myInputSuffix"
+      @suffix:icon="OnClickSuffixIcon"/>
+</div>`);
+//========================================
+// JOIN <ti-input-tree-picker.mjs> ti/com/ti/input/tree-picker/ti-input-tree-picker.mjs
+//========================================
+Ti.Preload("ti/com/ti/input/tree-picker/ti-input-tree-picker.mjs", TI_PACK_EXPORTS['ti/com/ti/input/tree-picker/ti-input-tree-picker.mjs']);
+//========================================
+// JOIN <tree-picker-props.mjs> ti/com/ti/input/tree-picker/tree-picker-props.mjs
+//========================================
+Ti.Preload("ti/com/ti/input/tree-picker/tree-picker-props.mjs", TI_PACK_EXPORTS['ti/com/ti/input/tree-picker/tree-picker-props.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/input/tree-picker/_com.json
+//========================================
+Ti.Preload("ti/com/ti/input/tree-picker/_com.json", {
+  "name": "ti-input-tree-picker",
+  "globally": true,
+  "template": "./ti-input-tree-picker.html",
+  "props": "./tree-picker-props.mjs",
+  "mixins": "./ti-input-tree-picker.mjs",
+  "components": [
+    "@com:ti/input/tags"
+  ]
+});
+//========================================
 // JOIN <_com.json> ti/com/ti/input/_com.json
 //========================================
 Ti.Preload("ti/com/ti/input/_com.json", {
@@ -77399,8 +78357,11 @@ Ti.Preload("ti/com/ti/tree/ti-tree.html", `<ti-table
   :height="height"
   :head="TableHead"
   :border="border"
+  :rowNumberBase="rowNumberBase"
   :blank-as="blankAs"
   :auto-scroll-into-view="autoScrollIntoView"
+  :columnResizable="columnResizable"
+  :keepCustomizedTo="keepCustomizedTo"
 
   :on-init="OnTableInit"
 
@@ -81798,6 +82759,41 @@ Ti.Preload("ti/com/wn/imgfile/_com.json", {
   ]
 });
 //========================================
+// JOIN <wn-input-tree-picker.html> ti/com/wn/input/tree-picker/wn-input-tree-picker.html
+//========================================
+Ti.Preload("ti/com/wn/input/tree-picker/wn-input-tree-picker.html", `<TiInputTreePicker
+  :value="value"
+  :options="PickerOptions"
+  :vars="vars"
+  :dict="dict"
+
+  :onlyLeaf="onlyLeaf"
+  :multi="multi"
+  :defaultOpenDepth="defaultOpenDepth"
+  
+  :dialog="dialog"
+  :tree="tree"
+  :placeholder="placeholder"
+  :suffixIcon="suffixIcon"
+  />`);
+//========================================
+// JOIN <wn-input-tree-picker.mjs> ti/com/wn/input/tree-picker/wn-input-tree-picker.mjs
+//========================================
+Ti.Preload("ti/com/wn/input/tree-picker/wn-input-tree-picker.mjs", TI_PACK_EXPORTS['ti/com/wn/input/tree-picker/wn-input-tree-picker.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/input/tree-picker/_com.json
+//========================================
+Ti.Preload("ti/com/wn/input/tree-picker/_com.json", {
+  "name" : "wn-input-tree-picker",
+  "globally" : true,
+  "template" : "./wn-input-tree-picker.html",
+  "props": "@com:ti/input/tree-picker/tree-picker-props.mjs",
+  "mixins" : "./wn-input-tree-picker.mjs",
+  "components" : [
+    "@com:ti/input/tree-picker"
+  ]
+});
+//========================================
 // JOIN <wn-label.html> ti/com/wn/label/wn-label.html
 //========================================
 Ti.Preload("ti/com/wn/label/wn-label.html", `<ti-label
@@ -82567,6 +83563,32 @@ Ti.Preload("ti/com/wn/obj/puretext/_com.json", {
   "template" : "./wn-obj-puretext.html",
   "mixins" : ["./wn-obj-puretext.mjs"],
   "components" : ["@com:ti/text/raw"]
+});
+//========================================
+// JOIN <wn-obj-pvg.html> ti/com/wn/obj/pvg/wn-obj-pvg.html
+//========================================
+Ti.Preload("ti/com/wn/obj/pvg/wn-obj-pvg.html", `<TiGui
+  class="wn-obj-privilege"
+  :layout="Layout"
+  :schema="Schema"
+  :can-loading="true"
+  :loading-as="GuiLoadingAs"
+  :loading="loading"
+  @list::select="OnListSelect"
+  @data::change="OnDataChange"/>`);
+//========================================
+// JOIN <wn-obj-pvg.mjs> ti/com/wn/obj/pvg/wn-obj-pvg.mjs
+//========================================
+Ti.Preload("ti/com/wn/obj/pvg/wn-obj-pvg.mjs", TI_PACK_EXPORTS['ti/com/wn/obj/pvg/wn-obj-pvg.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/pvg/_com.json
+//========================================
+Ti.Preload("ti/com/wn/obj/pvg/_com.json", {
+  "name" : "wn-obj-pvg",
+  "globally" : true,
+  "template" : "./wn-obj-pvg.html",
+  "mixins" : ["./wn-obj-pvg.mjs"],
+  "components" : []
 });
 //========================================
 // JOIN <wn-obj-tree.html> ti/com/wn/obj/tree/wn-obj-tree.html
@@ -85163,6 +86185,7 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "me-k-avatar": "Avatar",
   "me-k-city": "City",
   "me-k-country": "Country",
+  "me-k-dept": "Department",
   "me-k-email": "Email",
   "me-k-login": "Login",
   "me-k-nickname": "Nickname",
@@ -85822,6 +86845,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "right": "Right",
   "right-bottom": "Right bottom",
   "right-top": "Right top",
+  "role": "Role",
+  "role-actions": "Role actions",
+  "role-behaviors": "Role behaviors",
   "run": "Run",
   "run-finished": "Done for running script",
   "run-welcome": "Run script, please wait for a while ...",
@@ -86640,6 +87666,8 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "me-k-avatar": "头像",
   "me-k-city": "城市",
   "me-k-country": "国家",
+  "me-k-job": "职位",
+  "me-k-dept": "所属部门",
   "me-k-email": "邮箱",
   "me-k-login": "最后登录",
   "me-k-nickname": "用户昵称",
@@ -87277,6 +88305,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "right": "右",
   "right-bottom": "右下",
   "right-top": "右上",
+  "role": "角色",
+  "role-actions": "角色动作",
+  "role-behaviors": "角色动作",
   "run": "运行",
   "run-finished": "脚本执行结束",
   "run-welcome": "正在运行脚本，请稍后 ...",
@@ -88121,6 +89152,7 @@ Ti.Preload("ti/i18n/zh-hk/web.i18n.json", {
    "me-k-avatar": "頭像",
    "me-k-city": "城市",
    "me-k-country": "國家",
+   "me-k-dept": "所屬部門",
    "me-k-email": "郵箱",
    "me-k-login": "最後登錄",
    "me-k-nickname": "用戶暱稱",
@@ -88758,6 +89790,9 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "right": "右",
    "right-bottom": "右下",
    "right-top": "右上",
+   "role": "角色",
+   "role-actions": "角色動作",
+   "role-behaviors": "角色動作",
    "run": "運行",
    "run-finished": "腳本執行結束",
    "run-welcome": "正在運行腳本，請稍後 ...",

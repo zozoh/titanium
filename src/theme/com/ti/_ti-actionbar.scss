@@ -7,6 +7,10 @@
   &.align-center {justify-content: center;}
   &.align-right  {justify-content: flex-end;}
   //////////////////////////////////////////////////
+  &.pad-hs {padding:0 SZ(4);}
+  &.pad-hm {padding:0 SZ(6);}
+  &.pad-hb {padding:0 SZ(8);}
+  //////////////////////////////////////////////////
   .bar-item-group {
     //----------------------------------------------
     // The top-bar items

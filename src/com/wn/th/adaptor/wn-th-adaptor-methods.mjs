@@ -378,7 +378,9 @@ export default {
       return
     }
 
-    let newMeta = await Wn.EditObjPrivilege(meta)
+    let newMeta = await Wn.EditObjPvg(meta, {
+      organization: "~/.domain/organization.json"
+    })
 
     // Update to current list
     if (newMeta) {

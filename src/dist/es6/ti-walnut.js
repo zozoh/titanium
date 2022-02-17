@@ -1,6 +1,6 @@
-// Pack At: 2022-02-17 02:45:40
+// Pack At: 2022-02-18 02:55:45
 //##################################################
-// # import Io      from "./wn-io.mjs"
+// # import Io from "./wn-io.mjs"
 const Io = (function(){
   ////////////////////////////////////////////
   function URL(actionName) {
@@ -572,7 +572,7 @@ const Io = (function(){
   return WnIo;
 })();
 //##################################################
-// # import Obj     from "./wn-obj.mjs"
+// # import Obj from "./wn-obj.mjs"
 const Obj = (function(){
   ////////////////////////////////////////////////////
   const TABLE_FIELDS = {
@@ -1514,7 +1514,7 @@ const Session = (function(){
   return WnSession;
 })();
 //##################################################
-// # import Sys     from "./wn-sys.mjs"
+// # import Sys from "./wn-sys.mjs"
 const Sys = (function(){
   //################################################
   // # import WnSysRespParsing from "./wn-sys-resp-parsing.mjs";
@@ -1774,7 +1774,7 @@ const Sys = (function(){
   return WnSys;
 })();
 //##################################################
-// # import Util    from "./wn-util.mjs"
+// # import Util from "./wn-util.mjs"
 const Util = (function(){
   ////////////////////////////////////////////
   const WnUtil = {
@@ -2268,7 +2268,7 @@ const Util = (function(){
   return WnUtil;
 })();
 //##################################################
-// # import Dict    from "./wn-dict.mjs"
+// # import Dict from "./wn-dict.mjs"
 const Dict = (function(){
   ///////////////////////////////////////////////////////////
   const WnDict = {  
@@ -2443,7 +2443,7 @@ const Dict = (function(){
   return WnDict;
 })();
 //##################################################
-// # import Hm      from "./wn-hmaker.mjs"
+// # import Hm from "./wn-hmaker.mjs"
 const Hm = (function(){
   ////////////////////////////////////////////////////////
   const BORDER = {
@@ -2902,7 +2902,7 @@ const Hm = (function(){
   return WnHMaker;
 })();
 //##################################################
-// # import OpenObjSelector  from "./wn-open-obj-selector.mjs"
+// # import OpenObjSelector from "./wn-open-obj-selector.mjs"
 const OpenObjSelector = (function(){
   /***
    * Open Modal Dialog to explore one or multi files
@@ -3198,7 +3198,7 @@ const OpenObjSelector = (function(){
   return OpenObjSelector;
 })();
 //##################################################
-// # import OpenObjTree      from "./wn-open-obj-tree.mjs"
+// # import OpenObjTree from "./wn-open-obj-tree.mjs"
 const OpenObjTree = (function(){
   /***
    * Open Modal Dialog to explore one or multi files
@@ -3378,7 +3378,7 @@ const OpenThingManager = (function(){
   return OpenThingManager;
 })();
 //##################################################
-// # import EditObjMeta      from "./wn-edit-obj-meta.mjs"
+// # import EditObjMeta from "./wn-edit-obj-meta.mjs"
 const EditObjMeta = (function(){
   ////////////////////////////////////////////////////
   async function EditObjMeta(pathOrObj="~", {
@@ -3549,7 +3549,7 @@ const EditObjMeta = (function(){
   return EditObjMeta;
 })();
 //##################################################
-// # import EditObjContent   from "./wn-edit-obj-content.mjs"
+// # import EditObjContent from "./wn-edit-obj-content.mjs"
 const EditObjContent = (function(){
   ////////////////////////////////////////////////////
   async function EditObjContent(pathOrObj="~", {
@@ -3680,7 +3680,72 @@ const EditObjPrivilege = (function(){
   return EditObjPrivilege;
 })();
 //##################################################
-// # import EditTiComponent  from "./wn-edit-ti-component.mjs"
+// # import EditObjPvg from "./wn-edit-obj-pvg.mjs"
+const EditObjPvg = (function(){
+  ////////////////////////////////////////////////////
+  async function EditObjPvg(pathOrObj = "~", {
+    icon = "fas-user-lock",
+    title = "i18n:wn-key-pvg",
+    type = "info",
+    closer = true,
+    escape = true,
+    position = "top",
+    width = "80%",
+    minWidth = 720,
+    height = "95%",
+    autoSave = true,
+    organization
+  } = {}) {
+    //............................................
+    // Load meta
+    let meta = pathOrObj
+    if (_.isString(meta)) {
+      meta = await Wn.Io.loadMeta(pathOrObj)
+    }
+    //............................................
+    let theTitle = Ti.I18n.text(title) + " : " + Ti.I18n.text(meta.title || meta.nm)
+    //............................................
+    let pvg = await Ti.App.Open({
+      //------------------------------------------
+      type, width, height, position, closer, escape,
+      icon,
+      title: theTitle,
+      result: meta.pvg,
+      comType: "WnObjPvg",
+      comConf: {
+        organization
+      },
+      components: ["@com:wn/obj/pvg"]
+      //------------------------------------------
+    })
+    //............................................
+    // User cancel
+    if (!pvg || _.isEqual(meta.pvg, pvg)) {
+      return
+    }
+    //............................................
+    if (autoSave) {
+      let input = _.isEmpty(pvg)
+        ? { "!pvg": true }
+        : { pvg };
+      let json = JSON.stringify(input)
+      let cmdText = `o 'id:${meta.id}' @update @json -cqn`
+      let newMeta = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+      await Ti.Toast.Open("i18n:save-done", "success")
+      return newMeta
+    }
+    // Just update obj
+    else {
+      meta.pvg = pvg
+    }
+    //............................................
+    return meta
+  }
+  ////////////////////////////////////////////////////
+  return EditObjPvg;
+})();
+//##################################################
+// # import EditTiComponent from "./wn-edit-ti-component.mjs"
 const EditTiComponent = (function(){
   ////////////////////////////////////////////////////
   async function EditTiComponent({comType,comConf}={}, {
@@ -3720,7 +3785,7 @@ const EditTiComponent = (function(){
   return EditTiComponent;
 })();
 //##################################################
-// # import OpenCmdPanel     from "./wn-run-cmd-panel.mjs"
+// # import OpenCmdPanel from "./wn-run-cmd-panel.mjs"
 const OpenCmdPanel = (function(){
   /***
    * Open Modal Dialog to explore one or multi files
@@ -3782,7 +3847,7 @@ const OpenCmdPanel = (function(){
   return OpenCmdPanel;
 })();
 //##################################################
-// # import Youtube  from "./wn-youtube.mjs"
+// # import Youtube from "./wn-youtube.mjs"
 const Youtube = (function(){
   ////////////////////////////////////////////
   const WnYoutube = {
@@ -4084,7 +4149,7 @@ const Youtube = (function(){
   return WnYoutube;
 })();
 //##################################################
-// # import FbAlbum  from "./wn-fb-album.mjs"
+// # import FbAlbum from "./wn-fb-album.mjs"
 const FbAlbum = (function(){
   ////////////////////////////////////////////
   const WnFbAlbum = {
@@ -4202,7 +4267,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220217.024540"
+const WALNUT_VERSION = "1.2-20220218.025546"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
@@ -4213,7 +4278,8 @@ export const Wn = {
   Version: WALNUT_VERSION,
   Io, Obj, Session, Sys, Util, Dict, Hm,
   OpenObjSelector, OpenObjTree,
-  EditObjMeta, EditObjContent, EditObjPrivilege,
+  EditObjMeta, EditObjContent,
+  EditObjPrivilege, EditObjPvg,
   EditTiComponent, OpenThingManager, OpenCmdPanel,
   Youtube, FbAlbum,
   //-------------------------------------
@@ -4223,8 +4289,8 @@ export const Wn = {
   //-------------------------------------
   doHook(key, payload) {
     let fns = HOOKs[key]
-    if(_.isArray(fns) && fns.length > 0) {
-      for(let fn of fns) {
+    if (_.isArray(fns) && fns.length > 0) {
+      for (let fn of fns) {
         fn(payload)
       }
     }
@@ -4233,6 +4299,6 @@ export const Wn = {
 //---------------------------------------
 export default Wn
 //---------------------------------------
-if(window) {
+if (window) {
   window.Wn = Wn
 }

@@ -41,6 +41,10 @@ export default {
   "placeholder": {
     type: String
   },
+  "prefixIcon": {
+    type: String,
+    default: "zmdi-minus"
+  },
   "suffixIcon": {
     type: String,
     default: "fas-cog"
