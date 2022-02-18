@@ -444,7 +444,7 @@ const _M = {
         return
       }
 
-      let newMeta = await Wn.EditObjPrivilege(meta)
+      let newMeta = await Wn.EditObjPvg(meta)
 
       // Update to current list
       if (newMeta) {

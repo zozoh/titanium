@@ -32,22 +32,22 @@ export default {
     toggleExposeHidden({state, commit}) {
       commit("setExposeHidden", !state.exposeHidden)
       if(state.keeyHiddenBy) {
-        Ti.Storage.session.set(state.keeyHiddenBy, state.exposeHidden)
+        Ti.Storage.local.set(state.keeyHiddenBy, state.exposeHidden)
       }
     },
     changeListViewType({state, commit}, vt) {
       commit("setListViewType", vt)
       if(state.keeyViewTypeBy) {
-        Ti.Storage.session.set(state.keeyViewTypeBy, state.listViewType)
+        Ti.Storage.local.set(state.keeyViewTypeBy, state.listViewType)
       }
     },
     reload({state, commit}) {
       if(state.keeyHiddenBy) {
-        let eh = Ti.Storage.session.getBoolean(state.keeyHiddenBy)
+        let eh = Ti.Storage.local.getBoolean(state.keeyHiddenBy)
         commit("setExposeHidden", eh)
       }
       if(state.keeyViewTypeBy) {
-        let vt = Ti.Storage.session.getString(state.keeyViewTypeBy, null)
+        let vt = Ti.Storage.local.getString(state.keeyViewTypeBy, null)
         if(/^(table|wall|list)$/.test(vt)) {
           commit("setListViewType", vt)
         }

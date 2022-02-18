@@ -133,13 +133,14 @@ export default {
         list: {
           comType: "TiList",
           comConf: {
+            dftLabelHoverCopy: false,
             checkable: true,
             multi: true,
             data: this.myPrivilegeData,
             idBy: "key",
             display: [
-              "<icon>", 
-              "text::flex-none", 
+              "<icon>",
+              "text::flex-none",
               "key::flex-auto as-tip",
               "tip::as-tip-block"
             ],
@@ -252,7 +253,7 @@ export default {
       // Update value
       let val = _.cloneDeep(this.value)
       for (let id of checkeds) {
-        val[id] = 508
+        val[id] = 365
       }
       this.$notify("change", val)
     },
@@ -293,7 +294,7 @@ export default {
       // Update value
       let val = _.cloneDeep(this.value)
       for (let nm of checkeds) {
-        val[`@${nm}`] = 508
+        val[`@${nm}`] = 365
       }
       this.$notify("change", val)
     },
@@ -335,7 +336,7 @@ export default {
       // Update value
       let val = _.cloneDeep(this.value)
       for (let id of checkeds) {
-        val[`+${id}`] = 508
+        val[`+${id}`] = 365
       }
       this.$notify("change", val)
     },

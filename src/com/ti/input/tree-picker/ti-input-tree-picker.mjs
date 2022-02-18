@@ -23,6 +23,14 @@ const _M = {
       // Eval the tree data
       let treeData = await this.getTreeData();
 
+      // Get checkedIds
+      let checkedIds = {}
+      _.forEach(_.concat(this.value), v=>{
+        if(v){
+          checkedIds[v] = true
+        }
+      })
+
       // Open the dialog
       let reo = await Ti.App.Open(_.assign(
         {
@@ -43,6 +51,7 @@ const _M = {
           comConf: _.assign(
             {
               data: treeData,
+              checkedIds,
               display: [
                 "<icon>",
                 "title|text|name|nm|abbr",
