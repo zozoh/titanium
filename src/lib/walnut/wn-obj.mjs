@@ -400,18 +400,24 @@ const WnObj = {
   },
   //----------------------------------------
   parseMode(input, octal = false) {
-    let md = 0;
+    // Auto parse obj
     if (/^\{.+\}$/.test(input)) {
       input = JSON.parse(input)
     }
+    // {readable,writable,excutable} 
+    // {owner: {...}, member, other}
     if (_.isPlainObject(input)) {
       if (input.readable) {
         return WnObj.mode0FromObj(input)
       }
       return WnObj.modeFromObj(input)
     }
+
+    // Parse input
+    let md = 0;
+
     // rwxr-x---
-    else if (/^[rwx-]{3,9}$/.test(input)) {
+    if (/^[rwx-]{3,9}$/.test(input)) {
       if (3 == input.length) {
         md = WnObj.modeFromStr0(input)
       } else {
@@ -426,9 +432,13 @@ const WnObj = {
     else if (octal) {
       md = WnObj.modeFromOctalMode(input)
     }
-    // 488
+    // 7 -> 0777
+    // 365
     else {
       md = parseInt(input)
+      if (md <= 7) {
+        md = md << 6 | md << 3 | md
+      }
     }
     // Done
     return WnObj.modeToObj(md)

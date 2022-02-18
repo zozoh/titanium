@@ -1,3 +1,4 @@
+const DFT_PVG = 5;
 export default {
   //////////////////////////////////////////
   data: () => ({
@@ -212,9 +213,8 @@ export default {
     OnDataChange(data) {
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
-      let md = (7 << 6) | (7 << 3) | (m0)
       let val = _.cloneDeep(this.value)
-      val[key] = md
+      val[key] = m0
       this.$notify("change", val)
     },
     //--------------------------------------
@@ -253,7 +253,7 @@ export default {
       // Update value
       let val = _.cloneDeep(this.value)
       for (let id of checkeds) {
-        val[id] = 365
+        val[id] = DFT_PVG
       }
       this.$notify("change", val)
     },
@@ -294,7 +294,7 @@ export default {
       // Update value
       let val = _.cloneDeep(this.value)
       for (let nm of checkeds) {
-        val[`@${nm}`] = 365
+        val[`@${nm}`] = DFT_PVG
       }
       this.$notify("change", val)
     },
@@ -336,7 +336,7 @@ export default {
       // Update value
       let val = _.cloneDeep(this.value)
       for (let id of checkeds) {
-        val[`+${id}`] = 365
+        val[`+${id}`] = DFT_PVG
       }
       this.$notify("change", val)
     },
