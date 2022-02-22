@@ -358,6 +358,7 @@
    "role": "角色",
    "role-actions": "角色動作",
    "role-behaviors": "角色動作",
+   "role-in-charge": "負責人",
    "run": "運行",
    "run-finished": "腳本執行結束",
    "run-welcome": "正在運行腳本，請稍後 ...",

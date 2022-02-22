@@ -302,16 +302,29 @@ const WnIo = {
     }
     // Load meta 
     let targetPath;
-    if (metaOrPath.id && metaOrPath.ph) {
+    if (_.isString(metaOrPath)) {
+      targetPath = metaOrPath
+    }
+    // {id}
+    else if (metaOrPath.id) {
       let { id, nm, ph, race } = metaOrPath
       if ('DIR' == race) {
-        throw Ti.Err.make('e-wn-io-writeNoFile', ph || nm)
+        throw Ti.Err.make('e-wn-io-writeNoFile', ph || nm || id)
       }
       targetPath = `id:${id}`
     }
+    // {ph}
+    else if (metaOrPath.ph) {
+      let { ph, race } = metaOrPath
+      if ('DIR' == race) {
+        throw Ti.Err.make('e-wn-io-writeNoFile', ph)
+      }
+      targetPath = ph
+    }
     // Get Path
     else {
-      targetPath = metaOrPath
+      console.error("Invlaid metaOrPath", metaOrPath)
+      throw Ti.Err.make('Invalid metaOrPath', metaOrPath)
     }
 
     // Prepare params

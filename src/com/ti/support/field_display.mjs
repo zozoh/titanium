@@ -329,7 +329,6 @@ const FieldDisplay = {
     //.....................................
     // Transformer
     if (_.isFunction(dis.transformer)) {
-      //console.log("do trans")
       // Sometimes, we need transform nil also
       if (!Ti.Util.isNil(value) || dis.transNil) {
         value = dis.transformer(value)

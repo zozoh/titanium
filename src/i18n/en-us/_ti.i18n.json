@@ -358,6 +358,7 @@
   "role": "Role",
   "role-actions": "Role actions",
   "role-behaviors": "Role behaviors",
+  "role-in-charge": "In charge",
   "run": "Run",
   "run-finished": "Done for running script",
   "run-welcome": "Run script, please wait for a while ...",

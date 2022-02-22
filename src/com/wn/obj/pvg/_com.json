@@ -1,7 +1,10 @@
 {
-  "name" : "wn-obj-pvg",
-  "globally" : true,
-  "template" : "./wn-obj-pvg.html",
-  "mixins" : ["./wn-obj-pvg.mjs"],
-  "components" : []
+  "name": "wn-obj-pvg",
+  "globally": true,
+  "template": "./wn-obj-pvg.html",
+  "mixins": "./wn-obj-pvg.mjs",
+  "components": [
+    "@com:ti/form",
+    "@com:wn/list"
+  ]
 }

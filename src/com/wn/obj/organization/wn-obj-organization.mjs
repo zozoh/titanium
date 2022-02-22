@@ -11,6 +11,14 @@ export default {
     "actionDict": {
       type: String
     },
+    // Customzied tree fields
+    "treeFields": {
+      type: Array
+    },
+    // Customized form fields
+    "formFields": {
+      type: Array
+    },
     "keepCustomizedTo": {
       type: String,
       default: undefined
@@ -18,6 +26,10 @@ export default {
     "rowNumberBase": {
       type: Number,
       default: undefined
+    },
+    "defaultOpenDepth": {
+      type: Number,
+      default: 3
     },
   },
   ///////////////////////////////////////////////////
@@ -41,6 +53,7 @@ export default {
       let re = {
         keepCustomizedTo: this.keepCustomizedTo,
         rowNumberBase: this.rowNumberBase,
+        defaultOpenDepth: this.defaultOpenDepth,
         display: [
           "<icon>",
           "name::flex-auto",
@@ -48,8 +61,6 @@ export default {
         ]
       }
       if (this.actionDict) {
-        re.border = "cell";
-        re.columnResizable = true
         re.fields = [
           {
             title: "i18n:role-behaviors",
@@ -61,8 +72,33 @@ export default {
                 dict: "SysActions"
               }
             }
+          },
+          {
+            title: "i18n:role-in-charge",
+            display: {
+              "key": "inCharge",
+              "transformer": {
+                "name": "Ti.Types.toBoolStr",
+                "args": [
+                  "否",
+                  "是"
+                ]
+              }
+            }
           }
         ]
+      }
+      if (!_.isEmpty(this.treeFields)) {
+        if (!_.isArray(re.fields)) {
+          re.fields = []
+        }
+        for (let i = 0; i < this.treeFields.length; i++) {
+          re.fields.push(this.treeFields[i])
+        }
+      }
+      if (!_.isEmpty(re.fields)) {
+        re.border = "cell";
+        re.columnResizable = true
       }
       return re;
     },
@@ -98,6 +134,15 @@ export default {
           title: "i18n:name",
           name: "name",
           comType: "TiInput"
+        },
+        {
+          title: "i18n:role-in-charge",
+          name: "inCharge",
+          type: "Boolean",
+          visible: {
+            "type": "P"
+          },
+          comType: "TiToggle"
         }
       ]
       // Actions
@@ -112,6 +157,11 @@ export default {
             multi: true
           }
         })
+      }
+      if (!_.isEmpty(this.formFields)) {
+        for (let i = 0; i < this.formFields.length; i++) {
+          fields.push(this.formFields[i])
+        }
       }
 
       // Others fields

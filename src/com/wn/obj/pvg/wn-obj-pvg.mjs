@@ -8,7 +8,8 @@ export default {
     //
     myAccountHome: null,
     myAccounts: [],
-    myAccountMap: {},
+    myAccountIdMap: {},
+    myAccountNmMap: {},
     //
     // Roles
     //
@@ -132,7 +133,7 @@ export default {
           }
         },
         list: {
-          comType: "TiList",
+          comType: "WnList",
           comConf: {
             dftLabelHoverCopy: false,
             checkable: true,
@@ -140,7 +141,7 @@ export default {
             data: this.myPrivilegeData,
             idBy: "key",
             display: [
-              "<icon>",
+              "@<thumb:zmdi-account>",
               "text::flex-none",
               "key::flex-auto as-tip",
               "tip::as-tip-block"
@@ -231,15 +232,19 @@ export default {
         width: 480,
         height: "90%",
         model: { prop: "value", event: "select" },
-        comType: "TiList",
+        comType: "WnList",
         comConf: {
           multi: true,
           checkable: true,
+          idBy: "nm",
           data: accounts,
-          display: ["<icon:zmdi-account>", "nickname", "nm::as-tip-block"]
+          display: [
+            "@<thumb:zmdi-account>",
+            "nickname",
+            "nm::as-tip-block"
+          ]
         }
       })
-
       // User cancel
       if (!reo)
         return
@@ -253,7 +258,7 @@ export default {
       // Update value
       let val = _.cloneDeep(this.value)
       for (let id of checkeds) {
-        val[id] = DFT_PVG
+        val[`@[${id}]`] = DFT_PVG
       }
       this.$notify("change", val)
     },
@@ -491,35 +496,71 @@ export default {
           }
           continue;
         }
-        // Role
-        m = /^@(.+)$/.exec(id)
+        // Role || Account Name
+        m = /^@((\[([^[\]]+)\])|([^[\]]+))$/.exec(id)
         if (m) {
-          let roleName = m[1]
-          let role = _.get(this.myRoleMap, roleName)
-          if (role) {
-            list.push({
-              type: "role",
-              icon: role.icon || 'far-smile',
-              text: role.title || role.nm,
-              key: id,
-              tip,
-              ...other
-            })
-          } else {
-            list.push({
-              type: "role",
-              icon: 'far-smile',
-              text: roleName,
-              key: id,
-              tip,
-              ...other
-            })
+          let accountName = m[3]
+          let roleName = m[4]
+          // Account Name
+          if (accountName) {
+            let user = _.get(this.myAccountNmMap, accountName)
+            if (user) {
+              list.push({
+                type: "account",
+                icon: user.icon || 'zmdi-account',
+                thumb: user.thumb,
+                text: user.nickname || user.nm,
+                key: id,
+                tip,
+                ...other
+              })
+            }
+            // Default account name
+            else {
+              list.push({
+                type: "account",
+                icon: 'zmdi-account',
+                text: accountName,
+                key: id,
+                tip,
+                ...other
+              })
+            }
+          }
+          // Role
+          else if (roleName) {
+            let role = _.get(this.myRoleMap, roleName)
+            if (role) {
+              list.push({
+                type: "role",
+                icon: role.icon || 'far-smile',
+                text: role.title || role.nm,
+                key: id,
+                tip,
+                ...other
+              })
+            }
+            // Default as role
+            else {
+              list.push({
+                type: "role",
+                icon: 'far-smile',
+                text: roleName,
+                key: id,
+                tip,
+                ...other
+              })
+            }
+          }
+          // Impossiable
+          else {
+            throw "Impossible role/accountName match: " + id
           }
           continue;
         }
         //
         // Account
-        let user = _.get(this.myAccountMap, id)
+        let user = _.get(this.myAccountIdMap, id)
         if (user) {
           list.push({
             type: "account",
@@ -572,7 +613,8 @@ export default {
       }
 
       // Build map
-      this.myAccountMap = this.buildMap(this.myAccounts, "id")
+      this.myAccountIdMap = this.buildMap(this.myAccounts, "id")
+      this.myAccountNmMap = this.buildMap(this.myAccounts, "nm")
       this.myRoleMap = this.buildMap(this.myRoles, "nm")
       this.myOrganizationMap = this.buildMap(this.myOrganization, "id")
 
