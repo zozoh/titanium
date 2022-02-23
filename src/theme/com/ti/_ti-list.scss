@@ -1,24 +1,27 @@
 .ti-list {
   @include noselect;
-  overflow:auto; position: relative;
+  overflow: auto;
+  position: relative;
   //------------------------------------------
   &.show-border {
     > .list-row {
       @include border(1px, solid, shallow, top);
-      &:first-child {border-top:0;}
+      &:first-child {
+        border-top: 0;
+      }
     }
   }
   //------------------------------------------
   &.is-hoverable {
-    > .list-row:hover {
+    > .list-row.is-selectable:hover {
       @include color($color-weaktip, r, c);
       //--------------------------------------
       &.is-current {
         > .row-actived-indicator {
           @include color($color-weaktip, c, r);
           &:before {
-            border-left-color :map-get($color-weaktip, c);
-            border-right-color:map-get($color-weaktip, c);
+            border-left-color: map-get($color-weaktip, c);
+            border-right-color: map-get($color-weaktip, c);
             opacity: 1;
           }
         }
@@ -32,48 +35,65 @@
   }
   //------------------------------------------
   > .list-row {
-    @include flex-align-nowrap($ai:stretch);
+    @include flex-align-nowrap($ai: stretch);
     position: relative;
     //-----------------------------------------
-    &.is-weak {opacity: 0.4;}
+    &.is-group {
+      @include color($color-chip, r, c);
+      padding: SZ(4) SZ(8);
+    }
+    //-----------------------------------------
+    &.is-weak {
+      opacity: 0.4;
+    }
     //-----------------------------------------
     > .row-actived-indicator {
       @include flex-center;
-      width:8px; padding-right:1px; opacity: 0;
+      width: 8px;
+      padding-right: 1px;
+      opacity: 0;
       &:before {
-        display:block; content:"";
-        height:SZ(12); width:1px;
-        border-left :1px dotted map-get($color-primary, r);
-        border-right:1px dotted map-get($color-primary, r);
+        display: block;
+        content: "";
+        height: SZ(12);
+        width: 1px;
+        border-left: 1px dotted map-get($color-primary, r);
+        border-right: 1px dotted map-get($color-primary, r);
       }
     }
     //-----------------------------------------
     > .row-changed-indicator {
-      @include pos-abs($r:0,$t:0,$b:0);
+      @include pos-abs($r: 0, $t: 0, $b: 0);
       @include flex-center;
-      padding: .04rem .08rem;
+      padding: 0.04rem 0.08rem;
       &:before {
-        display:block; content: "";
-        width: .04rem; height: .04rem;
+        display: block;
+        content: "";
+        width: 0.04rem;
+        height: 0.04rem;
         border-radius: 50%;
         background: map-get($color-error, c);
         border: 1px solid map-get($color-error, r);
-        box-shadow: .02rem .02rem .06rem map-get($color-shadow, thin);
+        box-shadow: 0.02rem 0.02rem 0.06rem map-get($color-shadow, thin);
       }
     }
     //-----------------------------------------
-    .row-indent, .row-icon {
+    .row-indent,
+    .row-icon {
       @include flex-center;
-      width:SZ(16);
+      width: SZ(16);
     }
     //-----------------------------------------
-    .row-icon, .row-checker {
-      cursor: pointer; 
-      &:hover {@include color($color-secondary, c);}
+    .row-icon,
+    .row-checker {
+      cursor: pointer;
+      &:hover {
+        @include color($color-secondary, c);
+      }
     }
     //-----------------------------------------
     .row-checker {
-      margin:0 SZ(6);
+      margin: 0 SZ(6);
     }
     //----------------------------------------
     &.is-current {
@@ -85,7 +105,10 @@
     //----------------------------------------
     &.is-checked {
       @include color($color-primary, r, c);
-      a, a:hover {color:inherit;}
+      a,
+      a:hover {
+        color: inherit;
+      }
       //--------------------------------------
       &.is-current > .row-actived-indicator {
         @include color($color-primary, r, c);
@@ -95,14 +118,16 @@
     }
     //----------------------------------------
     > .row-con {
-      @include flex-align-center($wp:nowrap);
-      flex:1 1 auto;
-      line-height: 2.6em; min-height:2.6em;
+      @include flex-align-center($wp: nowrap);
+      flex: 1 1 auto;
+      line-height: 2.6em;
+      min-height: 2.6em;
       //--------------------------------------
       .ti-icon {
-        width: SZ(26); flex:0 0 auto;
+        width: SZ(26);
+        flex: 0 0 auto;
         &.is-image {
-          height: SZ(26); 
+          height: SZ(26);
         }
       }
       //--------------------------------------

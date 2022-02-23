@@ -1,4 +1,4 @@
-// Pack At: 2022-02-18 02:55:45
+// Pack At: 2022-02-23 11:45:29
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -306,16 +306,29 @@ const Io = (function(){
       }
       // Load meta 
       let targetPath;
-      if (metaOrPath.id && metaOrPath.ph) {
+      if (_.isString(metaOrPath)) {
+        targetPath = metaOrPath
+      }
+      // {id}
+      else if (metaOrPath.id) {
         let { id, nm, ph, race } = metaOrPath
         if ('DIR' == race) {
-          throw Ti.Err.make('e-wn-io-writeNoFile', ph || nm)
+          throw Ti.Err.make('e-wn-io-writeNoFile', ph || nm || id)
         }
         targetPath = `id:${id}`
       }
+      // {ph}
+      else if (metaOrPath.ph) {
+        let { ph, race } = metaOrPath
+        if ('DIR' == race) {
+          throw Ti.Err.make('e-wn-io-writeNoFile', ph)
+        }
+        targetPath = ph
+      }
       // Get Path
       else {
-        targetPath = metaOrPath
+        console.error("Invlaid metaOrPath", metaOrPath)
+        throw Ti.Err.make('Invalid metaOrPath', metaOrPath)
       }
   
       // Prepare params
@@ -976,18 +989,24 @@ const Obj = (function(){
     },
     //----------------------------------------
     parseMode(input, octal = false) {
-      let md = 0;
+      // Auto parse obj
       if (/^\{.+\}$/.test(input)) {
         input = JSON.parse(input)
       }
+      // {readable,writable,excutable} 
+      // {owner: {...}, member, other}
       if (_.isPlainObject(input)) {
         if (input.readable) {
           return WnObj.mode0FromObj(input)
         }
         return WnObj.modeFromObj(input)
       }
+  
+      // Parse input
+      let md = 0;
+  
       // rwxr-x---
-      else if (/^[rwx-]{3,9}$/.test(input)) {
+      if (/^[rwx-]{3,9}$/.test(input)) {
         if (3 == input.length) {
           md = WnObj.modeFromStr0(input)
         } else {
@@ -1002,9 +1021,13 @@ const Obj = (function(){
       else if (octal) {
         md = WnObj.modeFromOctalMode(input)
       }
-      // 488
+      // 7 -> 0777
+      // 365
       else {
         md = parseInt(input)
+        if (md <= 7) {
+          md = md << 6 | md << 3 | md
+        }
       }
       // Done
       return WnObj.modeToObj(md)
@@ -4267,7 +4290,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220218.025546"
+const WALNUT_VERSION = "1.2-20220223.114530"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

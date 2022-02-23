@@ -1,42 +1,63 @@
 <div class="list-row"
   :class="TopClass">
-  <!--current actived row indicator-->
-  <div class="row-actived-indicator"></div>
-  <!--Changed Item-->
-  <div 
-    v-if="isChanged"
-      class="row-changed-indicator"></div>
-  <!-- Indents -->
-  <div v-for="n in indent"
-  class="row-indent"></div>
-  <!--ICON: Handler-->
-  <template v-if="icon">
+  <!--
+    Group title
+  -->
+  <template v-if="asGroupTitle">
     <ti-icon
-      v-if="hasRealIcon"
-        class="row-icon"
-        :value="icon"
-        @click.native.left.stop="OnClickIcon"/>
-    <div v-else
-      class="row-icon"></div>
+        v-if="hasRealIcon"
+          class="row-icon"
+          :value="icon"/>
+    <div class="row-con">
+      <component 
+        v-for="(it, index) in myDisplayItems"
+          :class="'item-'+index"
+          :key="it.uniqueKey"
+          :is="it.comType"
+          v-bind="it.comConf"/>
+    </div>
   </template>
-  <!--ICON: Checker-->
-  <ti-icon v-if="checkable"
-      class="row-checker"
-      :value="theCheckIcon"
-      @click.native.left.stop="OnClickChecker"/>
-  <!-- Content -->
-  <div
-    class="row-con"
-    @click.left="OnClickRow"
-    @dblclick.left="OnDblClickRow"
-    v-ti-activable>
-    <component 
-      v-for="(it, index) in myDisplayItems"
-        :class="'item-'+index"
-        :key="it.uniqueKey"
-        :is="it.comType"
-        v-bind="it.comConf"
-        @change="onItemChanged(it, $event)"/>
-  </div>
-
+  <!--
+    Normal items
+  -->
+  <template v-else>
+    <!--current actived row indicator-->
+    <div class="row-actived-indicator"></div>
+    <!--Changed Item-->
+    <div 
+      v-if="isChanged"
+        class="row-changed-indicator"></div>
+    <!-- Indents -->
+    <div v-for="n in indent"
+    class="row-indent"></div>
+    <!--ICON: Handler-->
+    <template v-if="icon">
+      <ti-icon
+        v-if="hasRealIcon"
+          class="row-icon"
+          :value="icon"
+          @click.native.left.stop="OnClickIcon"/>
+      <div v-else
+        class="row-icon"></div>
+    </template>
+    <!--ICON: Checker-->
+    <ti-icon v-if="checkable"
+        class="row-checker"
+        :value="theCheckIcon"
+        @click.native.left.stop="OnClickChecker"/>
+    <!-- Content -->
+    <div
+      class="row-con"
+      @click.left="OnClickRow"
+      @dblclick.left="OnDblClickRow"
+      v-ti-activable>
+      <component 
+        v-for="(it, index) in myDisplayItems"
+          :class="'item-'+index"
+          :key="it.uniqueKey"
+          :is="it.comType"
+          v-bind="it.comConf"
+          @change="onItemChanged(it, $event)"/>
+    </div>
+  </template>
 </div>

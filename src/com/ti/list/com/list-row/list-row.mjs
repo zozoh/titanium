@@ -1,29 +1,34 @@
 export default {
-  inheritAttrs : false,
+  inheritAttrs: false,
   ///////////////////////////////////////////////////
-  data : ()=>({
-    myDisplayItems : []
+  data: () => ({
+    myDisplayItems: []
   }),
   ///////////////////////////////////////////////////
-  props : {
-    "indent" : {
-      type : Number,
-      default : 0
+  props: {
+    "indent": {
+      type: Number,
+      default: 0
     },
-    "icon" : {
-      type : [Boolean, String],
-      default : null
+    "icon": {
+      type: [Boolean, String],
+      default: null
     },
-    "display" : {
-      type : Array,
-      default : ()=>[]
+    "display": {
+      type: Array,
+      default: () => []
     }
   },
   ///////////////////////////////////////////////////
-  computed : {
+  computed: {
     //-----------------------------------------------
     TopClass() {
-      return this.getListItemClass(`row-indent-${this.indent}`)
+      return this.getListItemClass({
+        "is-group": this.asGroupTitle,
+        "is-selectable": !this.asGroupTitle && this.selectable,
+        "is-checkable": !this.asGroupTitle && this.checkable,
+        "is-openable": !this.asGroupTitle && this.openable,
+      }, `row-indent-${this.indent}`)
     },
     //-----------------------------------------------
     hasRealIcon() {
@@ -32,7 +37,7 @@ export default {
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  methods : {
+  methods: {
     //-----------------------------------------------
     async evalMyDisplayItems() {
       let items = []
@@ -40,19 +45,25 @@ export default {
       //   console.log("evalCellDisplayItems", this.data)
       // }
       // Eval each items
-      for(let displayItem of this.display) {
+      let diss = this.asGroupTitle
+        ? this.groupTitleDisplay
+        : this.display
+      diss = diss || this.display || []
+      for (let displayItem of diss) {
         let it = await this.evalDataForFieldDisplayItem({
-            itemData : this.data, 
-            displayItem, 
-            vars : {
-              "isCurrent" : this.isCurrent,
-              "isChecked" : this.isChecked,
-              "isChanged" : this.isChanged,
-              "isActived" : this.isActived,
-              "rowId"     : this.rowId
-            }
+          itemData: this.data,
+          displayItem,
+          vars: {
+            "isCurrent": this.isCurrent,
+            "isChecked": this.isChecked,
+            "isChanged": this.isChanged,
+            "isActived": this.isActived,
+            "rowId": this.rowId
+          },
+          autoIgnoreNil: !this.asGroupTitle,
+          autoIgnoreBlank: !this.asGroupTitle
         })
-        if(it) {
+        if (it) {
           items.push(it)
         }
       }
@@ -60,51 +71,51 @@ export default {
       this.myDisplayItems = items
     },
     //-----------------------------------------------
-    onItemChanged({name,value}={}) {
+    onItemChanged({ name, value } = {}) {
       this.$notify("item:changed", {
         name, value,
-        rowId : this.rowId,
-        data  : this.data
+        rowId: this.rowId,
+        data: this.data
       })
     },
     //-----------------------------------------------
     OnClickIcon($event) {
       this.$notify("icon", {
-        rowId  : this.rowId,
-        shift  : $event.shiftKey,
-        toggle : ($event.ctrlKey || $event.metaKey)
+        rowId: this.rowId,
+        shift: $event.shiftKey,
+        toggle: ($event.ctrlKey || $event.metaKey)
       })
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
       //console.log("ti-list-row", uniqKey)
-      if(!_.isEmpty(this.rowToggleKey)){
-        if(this.isRowToggleKey(uniqKey)) {
+      if (!_.isEmpty(this.rowToggleKey)) {
+        if (this.isRowToggleKey(uniqKey)) {
           this.onClickChecker({})
-          return {prevent:true, stop:true, quit:true}
+          return { prevent: true, stop: true, quit: true }
         }
       }
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "display" : function() {
+  watch: {
+    "display": function () {
       this.evalMyDisplayItems()
     },
-    "data" : function() {
+    "data": function () {
       //console.log("data changed")
       this.evalMyDisplayItems()
     },
-    "isCurrent" : function() {
+    "isCurrent": function () {
       this.evalMyDisplayItems()
     },
-    "isChecked" : function() {
+    "isChecked": function () {
       this.evalMyDisplayItems()
     }
   },
   ///////////////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     this.evalMyDisplayItems()
   }
   ///////////////////////////////////////////////////

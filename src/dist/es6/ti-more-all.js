@@ -1,4 +1,4 @@
-// Pack At: 2022-02-18 02:55:45
+// Pack At: 2022-02-23 11:45:29
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -413,7 +413,6 @@ const FieldDisplay = {
     //.....................................
     // Transformer
     if (_.isFunction(dis.transformer)) {
-      //console.log("do trans")
       // Sometimes, we need transform nil also
       if (!Ti.Util.isNil(value) || dis.transNil) {
         value = dis.transformer(value)
@@ -1465,7 +1464,7 @@ const _M = {
         return
       }
 
-      let newMeta = await Wn.EditObjPrivilege(meta)
+      let newMeta = await Wn.EditObjPvg(meta)
 
       // Update to current list
       if (newMeta) {
@@ -9606,6 +9605,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "actionDict": {
       type: String
     },
+    // Customzied tree fields
+    "treeFields": {
+      type: Array
+    },
+    // Customized form fields
+    "formFields": {
+      type: Array
+    },
     "keepCustomizedTo": {
       type: String,
       default: undefined
@@ -9613,6 +9620,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "rowNumberBase": {
       type: Number,
       default: undefined
+    },
+    "defaultOpenDepth": {
+      type: Number,
+      default: 3
     },
   },
   ///////////////////////////////////////////////////
@@ -9636,6 +9647,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let re = {
         keepCustomizedTo: this.keepCustomizedTo,
         rowNumberBase: this.rowNumberBase,
+        defaultOpenDepth: this.defaultOpenDepth,
         display: [
           "<icon>",
           "name::flex-auto",
@@ -9643,8 +9655,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
         ]
       }
       if (this.actionDict) {
-        re.border = "cell";
-        re.columnResizable = true
         re.fields = [
           {
             title: "i18n:role-behaviors",
@@ -9656,8 +9666,33 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 dict: "SysActions"
               }
             }
+          },
+          {
+            title: "i18n:role-in-charge",
+            display: {
+              "key": "inCharge",
+              "transformer": {
+                "name": "Ti.Types.toBoolStr",
+                "args": [
+                  "否",
+                  "是"
+                ]
+              }
+            }
           }
         ]
+      }
+      if (!_.isEmpty(this.treeFields)) {
+        if (!_.isArray(re.fields)) {
+          re.fields = []
+        }
+        for (let i = 0; i < this.treeFields.length; i++) {
+          re.fields.push(this.treeFields[i])
+        }
+      }
+      if (!_.isEmpty(re.fields)) {
+        re.border = "cell";
+        re.columnResizable = true
       }
       return re;
     },
@@ -9693,6 +9728,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
           title: "i18n:name",
           name: "name",
           comType: "TiInput"
+        },
+        {
+          title: "i18n:role-in-charge",
+          name: "inCharge",
+          type: "Boolean",
+          visible: {
+            "type": "P"
+          },
+          comType: "TiToggle"
         }
       ]
       // Actions
@@ -9704,9 +9748,30 @@ const __TI_MOD_EXPORT_VAR_NM = {
           comType: "ti-droplist",
           comConf: {
             options: `#${this.actionDict}`,
-            multi: true
+            multi: true,
+            placeholder: "i18n:role-behaviors",
+            prefixIcon: "zmdi-minus",
+            dropComConf: {
+              rowAsGroupTitle: {
+                "value": "[BLANK]"
+              },
+              rowGroupTitleDisplay: [
+                "<icon>",
+                "title"
+              ],
+              display: [
+                "<icon>",
+                "text::is-nowrap",
+                "value::as-tip-block align-right"
+              ]
+            }
           }
         })
+      }
+      if (!_.isEmpty(this.formFields)) {
+        for (let i = 0; i < this.formFields.length; i++) {
+          fields.push(this.formFields[i])
+        }
       }
 
       // Others fields
@@ -16387,6 +16452,14 @@ const _M = {
       // Eval the tree data
       let treeData = await this.getTreeData();
 
+      // Get checkedIds
+      let checkedIds = {}
+      _.forEach(_.concat(this.value), v=>{
+        if(v){
+          checkedIds[v] = true
+        }
+      })
+
       // Open the dialog
       let reo = await Ti.App.Open(_.assign(
         {
@@ -16407,6 +16480,7 @@ const _M = {
           comConf: _.assign(
             {
               data: treeData,
+              checkedIds,
               display: [
                 "<icon>",
                 "title|text|name|nm|abbr",
@@ -23165,31 +23239,36 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/list/com/list-row/list-row.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
-  inheritAttrs : false,
+  inheritAttrs: false,
   ///////////////////////////////////////////////////
-  data : ()=>({
-    myDisplayItems : []
+  data: () => ({
+    myDisplayItems: []
   }),
   ///////////////////////////////////////////////////
-  props : {
-    "indent" : {
-      type : Number,
-      default : 0
+  props: {
+    "indent": {
+      type: Number,
+      default: 0
     },
-    "icon" : {
-      type : [Boolean, String],
-      default : null
+    "icon": {
+      type: [Boolean, String],
+      default: null
     },
-    "display" : {
-      type : Array,
-      default : ()=>[]
+    "display": {
+      type: Array,
+      default: () => []
     }
   },
   ///////////////////////////////////////////////////
-  computed : {
+  computed: {
     //-----------------------------------------------
     TopClass() {
-      return this.getListItemClass(`row-indent-${this.indent}`)
+      return this.getListItemClass({
+        "is-group": this.asGroupTitle,
+        "is-selectable": !this.asGroupTitle && this.selectable,
+        "is-checkable": !this.asGroupTitle && this.checkable,
+        "is-openable": !this.asGroupTitle && this.openable,
+      }, `row-indent-${this.indent}`)
     },
     //-----------------------------------------------
     hasRealIcon() {
@@ -23198,7 +23277,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  methods : {
+  methods: {
     //-----------------------------------------------
     async evalMyDisplayItems() {
       let items = []
@@ -23206,19 +23285,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
       //   console.log("evalCellDisplayItems", this.data)
       // }
       // Eval each items
-      for(let displayItem of this.display) {
+      let diss = this.asGroupTitle
+        ? this.groupTitleDisplay
+        : this.display
+      diss = diss || this.display || []
+      for (let displayItem of diss) {
         let it = await this.evalDataForFieldDisplayItem({
-            itemData : this.data, 
-            displayItem, 
-            vars : {
-              "isCurrent" : this.isCurrent,
-              "isChecked" : this.isChecked,
-              "isChanged" : this.isChanged,
-              "isActived" : this.isActived,
-              "rowId"     : this.rowId
-            }
+          itemData: this.data,
+          displayItem,
+          vars: {
+            "isCurrent": this.isCurrent,
+            "isChecked": this.isChecked,
+            "isChanged": this.isChanged,
+            "isActived": this.isActived,
+            "rowId": this.rowId
+          },
+          autoIgnoreNil: !this.asGroupTitle,
+          autoIgnoreBlank: !this.asGroupTitle
         })
-        if(it) {
+        if (it) {
           items.push(it)
         }
       }
@@ -23226,51 +23311,51 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.myDisplayItems = items
     },
     //-----------------------------------------------
-    onItemChanged({name,value}={}) {
+    onItemChanged({ name, value } = {}) {
       this.$notify("item:changed", {
         name, value,
-        rowId : this.rowId,
-        data  : this.data
+        rowId: this.rowId,
+        data: this.data
       })
     },
     //-----------------------------------------------
     OnClickIcon($event) {
       this.$notify("icon", {
-        rowId  : this.rowId,
-        shift  : $event.shiftKey,
-        toggle : ($event.ctrlKey || $event.metaKey)
+        rowId: this.rowId,
+        shift: $event.shiftKey,
+        toggle: ($event.ctrlKey || $event.metaKey)
       })
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
       //console.log("ti-list-row", uniqKey)
-      if(!_.isEmpty(this.rowToggleKey)){
-        if(this.isRowToggleKey(uniqKey)) {
+      if (!_.isEmpty(this.rowToggleKey)) {
+        if (this.isRowToggleKey(uniqKey)) {
           this.onClickChecker({})
-          return {prevent:true, stop:true, quit:true}
+          return { prevent: true, stop: true, quit: true }
         }
       }
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "display" : function() {
+  watch: {
+    "display": function () {
       this.evalMyDisplayItems()
     },
-    "data" : function() {
+    "data": function () {
       //console.log("data changed")
       this.evalMyDisplayItems()
     },
-    "isCurrent" : function() {
+    "isCurrent": function () {
       this.evalMyDisplayItems()
     },
-    "isChecked" : function() {
+    "isChecked": function () {
       this.evalMyDisplayItems()
     }
   },
   ///////////////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     this.evalMyDisplayItems()
   }
   ///////////////////////////////////////////////////
@@ -36667,6 +36752,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'wn-obj-pvg.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/obj/pvg/wn-obj-pvg.mjs'] = (function(){
+const DFT_PVG = 5;
 const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
   data: () => ({
@@ -36676,7 +36762,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //
     myAccountHome: null,
     myAccounts: [],
-    myAccountMap: {},
+    myAccountIdMap: {},
+    myAccountNmMap: {},
     //
     // Roles
     //
@@ -36800,15 +36887,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         },
         list: {
-          comType: "TiList",
+          comType: "WnList",
           comConf: {
+            dftLabelHoverCopy: false,
             checkable: true,
             multi: true,
             data: this.myPrivilegeData,
             idBy: "key",
             display: [
-              "<icon>", 
-              "text::flex-none", 
+              "@<thumb:zmdi-account>",
+              "text::flex-none",
               "key::flex-auto as-tip",
               "tip::as-tip-block"
             ],
@@ -36880,9 +36968,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     OnDataChange(data) {
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
-      let md = (7 << 6) | (7 << 3) | (m0)
       let val = _.cloneDeep(this.value)
-      val[key] = md
+      val[key] = m0
       this.$notify("change", val)
     },
     //--------------------------------------
@@ -36899,15 +36986,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
         width: 480,
         height: "90%",
         model: { prop: "value", event: "select" },
-        comType: "TiList",
+        comType: "WnList",
         comConf: {
           multi: true,
           checkable: true,
+          idBy: "nm",
           data: accounts,
-          display: ["<icon:zmdi-account>", "nickname", "nm::as-tip-block"]
+          display: [
+            "@<thumb:zmdi-account>",
+            "nickname",
+            "nm::as-tip-block"
+          ]
         }
       })
-
       // User cancel
       if (!reo)
         return
@@ -36921,7 +37012,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Update value
       let val = _.cloneDeep(this.value)
       for (let id of checkeds) {
-        val[id] = 508
+        val[`@[${id}]`] = DFT_PVG
       }
       this.$notify("change", val)
     },
@@ -36962,7 +37053,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Update value
       let val = _.cloneDeep(this.value)
       for (let nm of checkeds) {
-        val[`@${nm}`] = 508
+        val[`@${nm}`] = DFT_PVG
       }
       this.$notify("change", val)
     },
@@ -37004,7 +37095,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Update value
       let val = _.cloneDeep(this.value)
       for (let id of checkeds) {
-        val[`+${id}`] = 508
+        val[`+${id}`] = DFT_PVG
       }
       this.$notify("change", val)
     },
@@ -37159,35 +37250,71 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
           continue;
         }
-        // Role
-        m = /^@(.+)$/.exec(id)
+        // Role || Account Name
+        m = /^@((\[([^[\]]+)\])|([^[\]]+))$/.exec(id)
         if (m) {
-          let roleName = m[1]
-          let role = _.get(this.myRoleMap, roleName)
-          if (role) {
-            list.push({
-              type: "role",
-              icon: role.icon || 'far-smile',
-              text: role.title || role.nm,
-              key: id,
-              tip,
-              ...other
-            })
-          } else {
-            list.push({
-              type: "role",
-              icon: 'far-smile',
-              text: roleName,
-              key: id,
-              tip,
-              ...other
-            })
+          let accountName = m[3]
+          let roleName = m[4]
+          // Account Name
+          if (accountName) {
+            let user = _.get(this.myAccountNmMap, accountName)
+            if (user) {
+              list.push({
+                type: "account",
+                icon: user.icon || 'zmdi-account',
+                thumb: user.thumb,
+                text: user.nickname || user.nm,
+                key: id,
+                tip,
+                ...other
+              })
+            }
+            // Default account name
+            else {
+              list.push({
+                type: "account",
+                icon: 'zmdi-account',
+                text: accountName,
+                key: id,
+                tip,
+                ...other
+              })
+            }
+          }
+          // Role
+          else if (roleName) {
+            let role = _.get(this.myRoleMap, roleName)
+            if (role) {
+              list.push({
+                type: "role",
+                icon: role.icon || 'far-smile',
+                text: role.title || role.nm,
+                key: id,
+                tip,
+                ...other
+              })
+            }
+            // Default as role
+            else {
+              list.push({
+                type: "role",
+                icon: 'far-smile',
+                text: roleName,
+                key: id,
+                tip,
+                ...other
+              })
+            }
+          }
+          // Impossiable
+          else {
+            throw "Impossible role/accountName match: " + id
           }
           continue;
         }
         //
         // Account
-        let user = _.get(this.myAccountMap, id)
+        let user = _.get(this.myAccountIdMap, id)
         if (user) {
           list.push({
             type: "account",
@@ -37240,7 +37367,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
 
       // Build map
-      this.myAccountMap = this.buildMap(this.myAccounts, "id")
+      this.myAccountIdMap = this.buildMap(this.myAccounts, "id")
+      this.myAccountNmMap = this.buildMap(this.myAccounts, "nm")
       this.myRoleMap = this.buildMap(this.myRoles, "nm")
       this.myOrganizationMap = this.buildMap(this.myOrganization, "id")
 
@@ -44647,7 +44775,7 @@ const LIST_MIXINS = {
       }
       return () => false
     },
-    //-----------------------------------------------
+    //--------------------------------------
     RowGroupTitleDisplay() {
       if (this.rowGroupTitleDisplay) {
         return this.evalFieldDisplay(this.rowGroupTitleDisplay, "..")
@@ -44797,6 +44925,32 @@ const LIST_MIXINS = {
       }
       return rowId
     },
+    //--------------------------------------
+    evalFieldDisplay(displayItems = [], defaultKey) {
+      // Force to Array
+      displayItems = _.concat(displayItems)
+      // Prepare the return list
+      let items = []
+      // Loop each items
+      for (let li of displayItems) {
+        let item = this.evalFieldDisplayItem(li, { defaultKey })
+        if (item) {
+          if (item.comType == "TiLabel") {
+            _.defaults(item.comConf, {
+              hoverCopy: this.dftLabelHoverCopy
+            })
+          }
+          items.push(item)
+        }
+      }
+      // // Gen transformer for each item
+      // for(let it of items) {
+      //   // Transformer
+      //   it.transformer = Ti.Types.getFuncBy(it, "transformer", this.fnSet)
+      // }
+      // Array to pick
+      return items
+    },
     //-----------------------------------------------
     async evalListDataWhenMarkChanged(newVal, oldVal) {
       if(!_.isEqual(newVal, oldVal)) {
@@ -44854,7 +45008,7 @@ const LIST_MIXINS = {
         }
         let asGroupTitle = this.testRowAsGroupTitle(it)
         let itemId = this.getRowId(it, index)
-        //console.log("evalDataItem", index, itemId)
+        //console.log("evalDataItem", index, itemId, asGroupTitle)
         let item = {
           className, index, displayIndex, asGroupTitle,
           id: itemId,
@@ -64882,32 +65036,6 @@ const _M = {
       }
     },
     //--------------------------------------
-    evalFieldDisplay(displayItems = [], defaultKey) {
-      // Force to Array
-      displayItems = _.concat(displayItems)
-      // Prepare the return list
-      let items = []
-      // Loop each items
-      for (let li of displayItems) {
-        let item = this.evalFieldDisplayItem(li, { defaultKey })
-        if (item) {
-          if (item.comType == "TiLabel") {
-            _.defaults(item.comConf, {
-              hoverCopy: this.dftLabelHoverCopy
-            })
-          }
-          items.push(item)
-        }
-      }
-      // // Gen transformer for each item
-      // for(let it of items) {
-      //   // Transformer
-      //   it.transformer = Ti.Types.getFuncBy(it, "transformer", this.fnSet)
-      // }
-      // Array to pick
-      return items
-    },
-    //--------------------------------------
     scrollCurrentIntoView() {
       //console.log("scrollCurrentIntoView", this.myLastIndex)
       if (this.autoScrollIntoView && this.theCurrentId) {
@@ -66666,22 +66794,22 @@ const __TI_MOD_EXPORT_VAR_NM = {
     toggleExposeHidden({state, commit}) {
       commit("setExposeHidden", !state.exposeHidden)
       if(state.keeyHiddenBy) {
-        Ti.Storage.session.set(state.keeyHiddenBy, state.exposeHidden)
+        Ti.Storage.local.set(state.keeyHiddenBy, state.exposeHidden)
       }
     },
     changeListViewType({state, commit}, vt) {
       commit("setListViewType", vt)
       if(state.keeyViewTypeBy) {
-        Ti.Storage.session.set(state.keeyViewTypeBy, state.listViewType)
+        Ti.Storage.local.set(state.keeyViewTypeBy, state.listViewType)
       }
     },
     reload({state, commit}) {
       if(state.keeyHiddenBy) {
-        let eh = Ti.Storage.session.getBoolean(state.keeyHiddenBy)
+        let eh = Ti.Storage.local.getBoolean(state.keeyHiddenBy)
         commit("setExposeHidden", eh)
       }
       if(state.keeyViewTypeBy) {
-        let vt = Ti.Storage.session.getString(state.keeyViewTypeBy, null)
+        let vt = Ti.Storage.local.getString(state.keeyViewTypeBy, null)
         if(/^(table|wall|list)$/.test(vt)) {
           commit("setListViewType", vt)
         }
@@ -68812,7 +68940,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return
     }
 
-    let newMeta = await Wn.EditObjPrivilege(meta)
+    let newMeta = await Wn.EditObjPvg(meta)
 
     // Update to current list
     if (newMeta) {
@@ -75879,45 +76007,66 @@ Ti.Preload("ti/com/ti/lbs/route/_com.json", {
 //========================================
 Ti.Preload("ti/com/ti/list/com/list-row/list-row.html", `<div class="list-row"
   :class="TopClass">
-  <!--current actived row indicator-->
-  <div class="row-actived-indicator"></div>
-  <!--Changed Item-->
-  <div 
-    v-if="isChanged"
-      class="row-changed-indicator"></div>
-  <!-- Indents -->
-  <div v-for="n in indent"
-  class="row-indent"></div>
-  <!--ICON: Handler-->
-  <template v-if="icon">
+  <!--
+    Group title
+  -->
+  <template v-if="asGroupTitle">
     <ti-icon
-      v-if="hasRealIcon"
-        class="row-icon"
-        :value="icon"
-        @click.native.left.stop="OnClickIcon"/>
-    <div v-else
-      class="row-icon"></div>
+        v-if="hasRealIcon"
+          class="row-icon"
+          :value="icon"/>
+    <div class="row-con">
+      <component 
+        v-for="(it, index) in myDisplayItems"
+          :class="'item-'+index"
+          :key="it.uniqueKey"
+          :is="it.comType"
+          v-bind="it.comConf"/>
+    </div>
   </template>
-  <!--ICON: Checker-->
-  <ti-icon v-if="checkable"
-      class="row-checker"
-      :value="theCheckIcon"
-      @click.native.left.stop="OnClickChecker"/>
-  <!-- Content -->
-  <div
-    class="row-con"
-    @click.left="OnClickRow"
-    @dblclick.left="OnDblClickRow"
-    v-ti-activable>
-    <component 
-      v-for="(it, index) in myDisplayItems"
-        :class="'item-'+index"
-        :key="it.uniqueKey"
-        :is="it.comType"
-        v-bind="it.comConf"
-        @change="onItemChanged(it, $event)"/>
-  </div>
-
+  <!--
+    Normal items
+  -->
+  <template v-else>
+    <!--current actived row indicator-->
+    <div class="row-actived-indicator"></div>
+    <!--Changed Item-->
+    <div 
+      v-if="isChanged"
+        class="row-changed-indicator"></div>
+    <!-- Indents -->
+    <div v-for="n in indent"
+    class="row-indent"></div>
+    <!--ICON: Handler-->
+    <template v-if="icon">
+      <ti-icon
+        v-if="hasRealIcon"
+          class="row-icon"
+          :value="icon"
+          @click.native.left.stop="OnClickIcon"/>
+      <div v-else
+        class="row-icon"></div>
+    </template>
+    <!--ICON: Checker-->
+    <ti-icon v-if="checkable"
+        class="row-checker"
+        :value="theCheckIcon"
+        @click.native.left.stop="OnClickChecker"/>
+    <!-- Content -->
+    <div
+      class="row-con"
+      @click.left="OnClickRow"
+      @dblclick.left="OnDblClickRow"
+      v-ti-activable>
+      <component 
+        v-for="(it, index) in myDisplayItems"
+          :class="'item-'+index"
+          :key="it.uniqueKey"
+          :is="it.comType"
+          v-bind="it.comConf"
+          @change="onItemChanged(it, $event)"/>
+    </div>
+  </template>
 </div>`);
 //========================================
 // JOIN <list-row.mjs> ti/com/ti/list/com/list-row/list-row.mjs
@@ -75982,6 +76131,10 @@ Ti.Preload("ti/com/ti/list/ti-list.html", `<div class="ti-list"
         :selectable="selectable"
         :openable="openable"
         :row-toggle-key="TheRowToggleKey"
+        
+        :asGroupTitle="row.asGroupTitle"
+        :groupTitleDisplay="RowGroupTitleDisplay"
+
         :class-name="itemClassName"
         @checker="OnRowCheckerClick"
         @select="OnRowSelect"
@@ -83584,11 +83737,14 @@ Ti.Preload("ti/com/wn/obj/pvg/wn-obj-pvg.mjs", TI_PACK_EXPORTS['ti/com/wn/obj/pv
 // JOIN <_com.json> ti/com/wn/obj/pvg/_com.json
 //========================================
 Ti.Preload("ti/com/wn/obj/pvg/_com.json", {
-  "name" : "wn-obj-pvg",
-  "globally" : true,
-  "template" : "./wn-obj-pvg.html",
-  "mixins" : ["./wn-obj-pvg.mjs"],
-  "components" : []
+  "name": "wn-obj-pvg",
+  "globally": true,
+  "template": "./wn-obj-pvg.html",
+  "mixins": "./wn-obj-pvg.mjs",
+  "components": [
+    "@com:ti/form",
+    "@com:wn/list"
+  ]
 });
 //========================================
 // JOIN <wn-obj-tree.html> ti/com/wn/obj/tree/wn-obj-tree.html
@@ -86187,6 +86343,8 @@ Ti.Preload("ti/i18n/en-us/web.i18n.json", {
   "me-k-country": "Country",
   "me-k-dept": "Department",
   "me-k-email": "Email",
+  "me-k-job": "Jobs",
+  "me-k-job-tip": "Select jobs",
   "me-k-login": "Login",
   "me-k-nickname": "Nickname",
   "me-k-nm": "Login name",
@@ -86848,6 +87006,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "role": "Role",
   "role-actions": "Role actions",
   "role-behaviors": "Role behaviors",
+  "role-in-charge": "In charge",
   "run": "Run",
   "run-finished": "Done for running script",
   "run-welcome": "Run script, please wait for a while ...",
@@ -87024,7 +87183,7 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-oc-free": "Please enter the full name, including the extension, such as `myfile.xml`",
   "wn-oc-tip": "New object name",
   "wn-org-new-node": "New Org Node",
-  "wn-org-type-G": "Group",
+  "wn-org-type-G": "Dept",
   "wn-org-type-P": "Position",
   "wn-race-DIR": "DIRECTORY",
   "wn-race-FILE": "FILE",
@@ -87666,9 +87825,10 @@ Ti.Preload("ti/i18n/zh-cn/web.i18n.json", {
   "me-k-avatar": "头像",
   "me-k-city": "城市",
   "me-k-country": "国家",
-  "me-k-job": "职位",
   "me-k-dept": "所属部门",
   "me-k-email": "邮箱",
+  "me-k-job": "职位",
+  "me-k-job-tip": "请选择职位",
   "me-k-login": "最后登录",
   "me-k-nickname": "用户昵称",
   "me-k-nm": "登录名",
@@ -88308,6 +88468,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "role": "角色",
   "role-actions": "角色动作",
   "role-behaviors": "角色动作",
+  "role-in-charge": "负责人",
   "run": "运行",
   "run-finished": "脚本执行结束",
   "run-welcome": "正在运行脚本，请稍后 ...",
@@ -88510,7 +88671,7 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-oc-free": "请输入对象完整名称，包括扩展名，譬如 `myfile.xml`",
   "wn-oc-tip": "新对象名称",
   "wn-org-new-node": "新组织节点",
-  "wn-org-type-G": "分组",
+  "wn-org-type-G": "部门",
   "wn-org-type-P": "职位",
   "wn-race-DIR": "目录",
   "wn-race-FILE": "文件",
@@ -89154,6 +89315,8 @@ Ti.Preload("ti/i18n/zh-hk/web.i18n.json", {
    "me-k-country": "國家",
    "me-k-dept": "所屬部門",
    "me-k-email": "郵箱",
+   "me-k-job": "職位",
+   "me-k-job-tip": "請選擇職位",
    "me-k-login": "最後登錄",
    "me-k-nickname": "用戶暱稱",
    "me-k-nm": "登錄名",
@@ -89793,6 +89956,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "role": "角色",
    "role-actions": "角色動作",
    "role-behaviors": "角色動作",
+   "role-in-charge": "負責人",
    "run": "運行",
    "run-finished": "腳本執行結束",
    "run-welcome": "正在運行腳本，請稍後 ...",
@@ -89995,7 +90159,7 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-oc-free": "請輸入對象完整名稱，包括擴展名，譬如 `myfile.xml`",
    "wn-oc-tip": "新對象名稱",
    "wn-org-new-node": "新組織節點",
-   "wn-org-type-G": "分組",
+   "wn-org-type-G": "部門",
    "wn-org-type-P": "職位",
    "wn-race-DIR": "目錄",
    "wn-race-FILE": "文件",

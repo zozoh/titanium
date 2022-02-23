@@ -368,32 +368,6 @@ const _M = {
       }
     },
     //--------------------------------------
-    evalFieldDisplay(displayItems = [], defaultKey) {
-      // Force to Array
-      displayItems = _.concat(displayItems)
-      // Prepare the return list
-      let items = []
-      // Loop each items
-      for (let li of displayItems) {
-        let item = this.evalFieldDisplayItem(li, { defaultKey })
-        if (item) {
-          if (item.comType == "TiLabel") {
-            _.defaults(item.comConf, {
-              hoverCopy: this.dftLabelHoverCopy
-            })
-          }
-          items.push(item)
-        }
-      }
-      // // Gen transformer for each item
-      // for(let it of items) {
-      //   // Transformer
-      //   it.transformer = Ti.Types.getFuncBy(it, "transformer", this.fnSet)
-      // }
-      // Array to pick
-      return items
-    },
-    //--------------------------------------
     scrollCurrentIntoView() {
       //console.log("scrollCurrentIntoView", this.myLastIndex)
       if (this.autoScrollIntoView && this.theCurrentId) {

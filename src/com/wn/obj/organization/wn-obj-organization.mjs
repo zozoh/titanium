@@ -154,7 +154,23 @@ export default {
           comType: "ti-droplist",
           comConf: {
             options: `#${this.actionDict}`,
-            multi: true
+            multi: true,
+            placeholder: "i18n:role-behaviors",
+            prefixIcon: "zmdi-minus",
+            dropComConf: {
+              rowAsGroupTitle: {
+                "value": "[BLANK]"
+              },
+              rowGroupTitleDisplay: [
+                "<icon>",
+                "title"
+              ],
+              display: [
+                "<icon>",
+                "text::is-nowrap",
+                "value::as-tip-block align-right"
+              ]
+            }
           }
         })
       }

@@ -38,6 +38,10 @@
         :selectable="selectable"
         :openable="openable"
         :row-toggle-key="TheRowToggleKey"
+        
+        :asGroupTitle="row.asGroupTitle"
+        :groupTitleDisplay="RowGroupTitleDisplay"
+
         :class-name="itemClassName"
         @checker="OnRowCheckerClick"
         @select="OnRowSelect"
