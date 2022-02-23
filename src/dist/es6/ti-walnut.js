@@ -1,4 +1,4 @@
-// Pack At: 2022-02-23 11:45:29
+// Pack At: 2022-02-23 15:40:44
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -1450,6 +1450,8 @@ const Session = (function(){
     getMyId() {return SESSION.uid},
     getMyName() {return SESSION.unm},
     getMyGroup() {return SESSION.grp},
+    getMyJobs() {return SESSION.me.jobs || []},
+    getMyDepts() {return SESSION.me.depts || []},
     //----------------------------------------
     getByType() {return SESSION.by_tp},
     isByType(type) {
@@ -4290,7 +4292,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220223.114530"
+const WALNUT_VERSION = "1.2-20220223.154044"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

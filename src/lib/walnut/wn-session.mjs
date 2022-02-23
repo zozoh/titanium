@@ -37,6 +37,8 @@ const WnSession = {
   getMyId() {return SESSION.uid},
   getMyName() {return SESSION.unm},
   getMyGroup() {return SESSION.grp},
+  getMyJobs() {return SESSION.me.jobs || []},
+  getMyDepts() {return SESSION.me.depts || []},
   //----------------------------------------
   getByType() {return SESSION.by_tp},
   isByType(type) {
