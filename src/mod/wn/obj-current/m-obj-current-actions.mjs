@@ -37,7 +37,9 @@ const _M = {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
     // Open Editor
-    let newMeta = await Wn.EditObjPrivilege(state.meta)
+    let newMeta = await Wn.EditObjPvg(state.meta, {
+      organization: "~/.domain/organization.json"
+    })
 
     // Cancel the editing
     if(_.isUndefined(newMeta)) {
