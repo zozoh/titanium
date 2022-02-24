@@ -1,4 +1,4 @@
-// Pack At: 2022-02-23 15:40:44
+// Pack At: 2022-02-24 16:42:50
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -15514,7 +15514,9 @@ const _M = {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
     // Open Editor
-    let newMeta = await Wn.EditObjPrivilege(state.meta)
+    let newMeta = await Wn.EditObjPvg(state.meta, {
+      organization: "~/.domain/organization.json"
+    })
 
     // Cancel the editing
     if(_.isUndefined(newMeta)) {
