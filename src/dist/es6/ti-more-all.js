@@ -1,4 +1,4 @@
-// Pack At: 2022-02-25 12:33:56
+// Pack At: 2022-02-26 00:59:23
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -63926,14 +63926,14 @@ const _M = {
       if (this.myItem) {
         icon = this.Dict.getIcon(this.myItem) || icon
       }
-      if(this.readonly) {
+      if (this.readonly) {
         return
       }
-      return icon || "zmdi-minus"
+      return Ti.Util.fallback(icon, "zmdi-minus")
     },
     //------------------------------------------------
     TheSuffixIcon() {
-      if(this.readonly) {
+      if (this.readonly) {
         return
       }
       return this.statusIcons[this.myDropStatus]
@@ -63977,7 +63977,7 @@ const _M = {
     //-----------------------------------------------
     OnInputInputing(val) {
       // Guard
-      if(this.readonly) {
+      if (this.readonly) {
         return
       }
       if (this.filter) {
@@ -63997,7 +63997,7 @@ const _M = {
     //-----------------------------------------------
     async OnInputChanged(val, byKeyboardArrow) {
       // Guard
-      if(this.readonly) {
+      if (this.readonly) {
         return
       }
       //console.log("haha", {val, byKeyboardArrow})
@@ -64029,7 +64029,7 @@ const _M = {
     //-----------------------------------------------
     async OnInputFocused() {
       // Guard
-      if(this.readonly) {
+      if (this.readonly) {
         return
       }
       if (this.autoFocusExtended && !this.isExtended) {
@@ -64039,7 +64039,7 @@ const _M = {
     //-----------------------------------------------
     async OnClickStatusIcon() {
       // Guard
-      if(this.readonly) {
+      if (this.readonly) {
         return
       }
       if (this.isExtended) {
@@ -64051,7 +64051,7 @@ const _M = {
     //-----------------------------------------------
     async OnDropListSelected({ currentId, byKeyboardArrow } = {}) {
       // Guard
-      if(this.readonly) {
+      if (this.readonly) {
         return
       }
       //console.log({currentId, byKeyboardArrow})
@@ -64079,7 +64079,7 @@ const _M = {
       if (escaped) {
         await this.evalMyItem(this.myOldValue)
       }
-      else if(this.myFilterValue && !_.isEqual(this.myFilterValue, this.myOldValue)) {
+      else if (this.myFilterValue && !_.isEqual(this.myFilterValue, this.myOldValue)) {
         await this.evalMyItem(this.myFilterValue)
         this.tryNotifyChanged()
       }
@@ -64160,14 +64160,14 @@ const _M = {
       //console.log("reloadMyOptionData")
       if (force || this.isExtended) {
         let list = await this.Dict.queryData(this.myFilterValue)
-        if(_.isFunction(this.optionFilter)) {
+        if (_.isFunction(this.optionFilter)) {
           let list2 = []
-          for(let li of list) {
+          for (let li of list) {
             let li2 = this.optionFilter(li)
-            if(!li2) {
+            if (!li2) {
               continue;
             }
-            if(_.isBoolean(li2)) {
+            if (_.isBoolean(li2)) {
               list2.push(li)
             } else {
               list2.push(li2)
@@ -74172,7 +74172,7 @@ Ti.Preload("ti/com/ti/form/com/form-group/form-group.html", `<div class="form-gr
         -->
         <ti-form-field
           v-else
-            :key="fld.key"
+            :key="fld.uniqKey"
             v-bind="fld"
             :data="data"
             :field-status="fieldStatus"
@@ -74266,7 +74266,7 @@ Ti.Preload("ti/com/ti/form/ti-form.html", `<div class="ti-form"
         -->
         <ti-form-field
           v-else
-            :key="fld.key"
+            :key="fld.uniqKey"
             v-bind="fld"
             :data="data"
             :field-status="fieldStatus"
