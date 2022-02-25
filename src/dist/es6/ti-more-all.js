@@ -1,4 +1,4 @@
-// Pack At: 2022-02-24 16:42:50
+// Pack At: 2022-02-25 12:33:56
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12353,7 +12353,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //------------------------------------------------
     async evalMyData() {
-      //console.log("evalMyData", _.map(this.value, it=>it.value))
       const tags = []
       let list;
       if (_.isArray(this.value)) {
@@ -12368,6 +12367,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         for (let index = 0; index < list.length; index++) {
           let val = list[index]
           let tag;
+
           // Auto mapping plain object
           if (_.isPlainObject(val)) {
             if (this.mapping) {
@@ -12397,11 +12397,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
           else {
             tag = { text: val, value: val }
           }
-          // Make the key
-          if ("object" == (typeof tag.val)) {
+
+          // Complex value
+          if ("object" == (typeof tag.value)) {
             tag.key = JSON.stringify(tag.val).replace(/\s+/g, '')
-          } else {
-            tag.key = tag.val
+          }
+          // Simple value
+          else if (!Ti.Util.isNil(tag.value)) {
+            tag.key = tag.value
+          }
+          else {
+            tag.key = `T${index}`
           }
           // Join default value
           _.defaults(tag, {

@@ -138,7 +138,6 @@ export default {
     },
     //------------------------------------------------
     async evalMyData() {
-      //console.log("evalMyData", _.map(this.value, it=>it.value))
       const tags = []
       let list;
       if (_.isArray(this.value)) {
@@ -153,6 +152,7 @@ export default {
         for (let index = 0; index < list.length; index++) {
           let val = list[index]
           let tag;
+
           // Auto mapping plain object
           if (_.isPlainObject(val)) {
             if (this.mapping) {
@@ -182,11 +182,17 @@ export default {
           else {
             tag = { text: val, value: val }
           }
-          // Make the key
-          if ("object" == (typeof tag.val)) {
+
+          // Complex value
+          if ("object" == (typeof tag.value)) {
             tag.key = JSON.stringify(tag.val).replace(/\s+/g, '')
-          } else {
-            tag.key = tag.val
+          }
+          // Simple value
+          else if (!Ti.Util.isNil(tag.value)) {
+            tag.key = tag.value
+          }
+          else {
+            tag.key = `T${index}`
           }
           // Join default value
           _.defaults(tag, {
