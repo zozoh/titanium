@@ -1,4 +1,4 @@
-// Pack At: 2022-02-26 00:59:23
+// Pack At: 2022-02-28 15:39:54
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -37147,6 +37147,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       else {
         const fn = function (node) {
           let it = _.omit(node, childKey)
+          if(_.isEmpty(it)) {
+            return
+          }
           let id = it[key]
           if (id) {
             re[id] = it

@@ -385,6 +385,9 @@ export default {
       else {
         const fn = function (node) {
           let it = _.omit(node, childKey)
+          if(_.isEmpty(it)) {
+            return
+          }
           let id = it[key]
           if (id) {
             re[id] = it
