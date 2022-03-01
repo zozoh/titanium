@@ -609,7 +609,7 @@ export default {
 
       // Reload Roles
       if (this.myRoleHome) {
-        cmdText = `thing id:${this.myRoleHome.id} query -cqn -e '${km}'`
+        cmdText = `thing id:${this.myRoleHome.id} query -sort 'sort:1' -cqn -e '${km}'`
         this.myRoles = await Wn.Sys.exec2(cmdText, { as: "json" })
       } else {
         this.myRoles = []

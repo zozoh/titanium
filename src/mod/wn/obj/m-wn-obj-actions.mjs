@@ -63,6 +63,9 @@ const _M = {
     if (!scPath && state.oDir) {
       scPath = state.oDir.schema
     }
+
+    // TODO 这里应该支持直接为 state 设置 schemaPath
+
     // Load schema
     let schema;
     if (scPath) {

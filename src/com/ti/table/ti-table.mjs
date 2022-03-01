@@ -465,7 +465,7 @@ const _M = {
         list[0].display = _.concat(this.headDisplay, list[0].display)
       }
       // Up to data
-      this.myFields = list
+      this.myFields = _.without(list, undefined, null)
     },
     //--------------------------------------
     setupAllFields(fields = []) {

@@ -110,10 +110,42 @@ const _M = {
 
     // <Apply view>
     if (state.view && state.view.schema) {
-      _.forEach(state.view.schema, (v, k) => {
-        let func = v.merge ? _.merge : _.assign;
-        let vcom = _.pick(v, "comType", "comConf")
-        func(schema[k], vcom)
+      _.forEach(state.view.schema, (vObj, k) => {
+        let orgCom = schema[k]
+        let { merge, comType, comConf } = vObj
+
+        // Guard
+        if(_.isEmpty(orgCom)) {
+          schema[k] = {comType, comConf}
+          return
+        }
+
+        // Maybe merge comConf or assign
+        let keyInMerge = Ti.AutoMatch.parse(merge)
+
+        // Com Type
+        if (!Ti.Util.isNil(comType)) {
+          orgCom.comType = comType
+        }
+
+        // Com Conf
+        if (!_.isEmpty(comConf)) {
+          // init comConf in schema
+          if(_.isEmpty(orgCom.comConf)) {
+            orgCom.comConf = comConf
+            return;
+          }
+
+          let vwKeys = _.keys(comConf)
+          for (let vwKey of vwKeys) {
+            let vwVal = comConf[vwKey]
+            if (keyInMerge(vwKey)) {
+              _.merge(orgCom.comConf[vwKey], vwVal)
+            } else {
+              orgCom.comConf[vwKey] = vwVal
+            }
+          }
+        }
       })
       if (!_.isEmpty(state.view.components)) {
         components = _.concat(components, state.view.components)
