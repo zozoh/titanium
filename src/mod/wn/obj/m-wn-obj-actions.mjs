@@ -34,7 +34,7 @@ const _M = {
       return
     }
     if ("<self>" != path) {
-      path = Ti.Util.appendPath(state.dataHome, path)
+      path = Ti.Util.appendPath(`id:${state.dirId}`, path)
       meta = await Wn.Io.loadMeta(path)
     }
 

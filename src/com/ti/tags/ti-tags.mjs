@@ -185,7 +185,7 @@ export default {
 
           // Complex value
           if ("object" == (typeof tag.value)) {
-            tag.key = JSON.stringify(tag.val).replace(/\s+/g, '')
+            tag.key = JSON.stringify(tag.value).replace(/\s+/g, '')
           }
           // Simple value
           else if (!Ti.Util.isNil(tag.value)) {

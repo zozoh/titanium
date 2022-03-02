@@ -1,4 +1,4 @@
-// Pack At: 2022-02-28 15:39:54
+// Pack At: 2022-03-02 22:15:20
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12400,7 +12400,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
           // Complex value
           if ("object" == (typeof tag.value)) {
-            tag.key = JSON.stringify(tag.val).replace(/\s+/g, '')
+            tag.key = JSON.stringify(tag.value).replace(/\s+/g, '')
           }
           // Simple value
           else if (!Ti.Util.isNil(tag.value)) {
@@ -12854,7 +12854,7 @@ const _M = {
       return
     }
     if ("<self>" != path) {
-      path = Ti.Util.appendPath(state.dataHome, path)
+      path = Ti.Util.appendPath(`id:${state.dirId}`, path)
       meta = await Wn.Io.loadMeta(path)
     }
 
@@ -12883,6 +12883,9 @@ const _M = {
     if (!scPath && state.oDir) {
       scPath = state.oDir.schema
     }
+
+    // TODO 这里应该支持直接为 state 设置 schemaPath
+
     // Load schema
     let schema;
     if (scPath) {
@@ -37371,7 +37374,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       // Reload Roles
       if (this.myRoleHome) {
-        cmdText = `thing id:${this.myRoleHome.id} query -cqn -e '${km}'`
+        cmdText = `thing id:${this.myRoleHome.id} query -sort 'sort:1' -cqn -e '${km}'`
         this.myRoles = await Wn.Sys.exec2(cmdText, { as: "json" })
       } else {
         this.myRoles = []
@@ -46630,10 +46633,42 @@ const _M = {
 
     // <Apply view>
     if (state.view && state.view.schema) {
-      _.forEach(state.view.schema, (v, k) => {
-        let func = v.merge ? _.merge : _.assign;
-        let vcom = _.pick(v, "comType", "comConf")
-        func(schema[k], vcom)
+      _.forEach(state.view.schema, (vObj, k) => {
+        let orgCom = schema[k]
+        let { merge, comType, comConf } = vObj
+
+        // Guard
+        if(_.isEmpty(orgCom)) {
+          schema[k] = {comType, comConf}
+          return
+        }
+
+        // Maybe merge comConf or assign
+        let keyInMerge = Ti.AutoMatch.parse(merge)
+
+        // Com Type
+        if (!Ti.Util.isNil(comType)) {
+          orgCom.comType = comType
+        }
+
+        // Com Conf
+        if (!_.isEmpty(comConf)) {
+          // init comConf in schema
+          if(_.isEmpty(orgCom.comConf)) {
+            orgCom.comConf = comConf
+            return;
+          }
+
+          let vwKeys = _.keys(comConf)
+          for (let vwKey of vwKeys) {
+            let vwVal = comConf[vwKey]
+            if (keyInMerge(vwKey)) {
+              _.merge(orgCom.comConf[vwKey], vwVal)
+            } else {
+              orgCom.comConf[vwKey] = vwVal
+            }
+          }
+        }
       })
       if (!_.isEmpty(state.view.components)) {
         components = _.concat(components, state.view.components)
@@ -65144,7 +65179,7 @@ const _M = {
         list[0].display = _.concat(this.headDisplay, list[0].display)
       }
       // Up to data
-      this.myFields = list
+      this.myFields = _.without(list, undefined, null)
     },
     //--------------------------------------
     setupAllFields(fields = []) {
