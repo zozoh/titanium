@@ -69,22 +69,22 @@ const TiUtil = {
    * 
    * @return given obj
    */
-  pushEle(obj={}, key, ...vals) {
+  pushEle(obj = {}, key, ...vals) {
     // Guard
-    if(!vals || vals.length == 0) {
+    if (!vals || vals.length == 0) {
       return
     }
     // Set
     let vs = obj[key]
-    if(_.isArray(vs)) {
-      for(let i=0; i<vals.length; i++) {
+    if (_.isArray(vs)) {
+      for (let i = 0; i < vals.length; i++) {
         vs.push(vals[i])
       }
     }
     // vs is not array
-    else if(vs) {
+    else if (vs) {
       vs = [vs]
-      for(let i=0; i<vals.length; i++) {
+      for (let i = 0; i < vals.length; i++) {
         vs.push(vals[i])
       }
     }
@@ -201,6 +201,8 @@ const TiUtil = {
       return { index, item }
     }
     // Try to find
+    index = 0;
+    item = list[0];
     let found = false
     for (let i = 0; i < list.length; i++) {
       let li = list[i]

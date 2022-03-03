@@ -1,0 +1,9 @@
+{
+  "name": "hm-react-item",
+  "globally": true,
+  "template": "./hm-react-item.html",
+  "mixins": "./hm-react-item.mjs",
+  "components": [
+    "@com:hm/react/actions"
+  ]
+}

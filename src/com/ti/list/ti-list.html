@@ -27,6 +27,7 @@
         :key="row.id"
         :row-id="row.id"
         :index="row.index"
+        :displayIndex="row.displayIndex"
         :icon="row.icon"
         :indent="row.indent"
         :data="row.rawData"
@@ -37,12 +38,13 @@
         :checkable="checkable"
         :selectable="selectable"
         :openable="openable"
-        :row-toggle-key="TheRowToggleKey"
+        :rowToggleKey="TheRowToggleKey"
+        :rowNumberBase="rowNumberBase"
         
         :asGroupTitle="row.asGroupTitle"
         :groupTitleDisplay="RowGroupTitleDisplay"
 
-        :class-name="itemClassName"
+        :className="itemClassName"
         @checker="OnRowCheckerClick"
         @select="OnRowSelect"
         @open="OnRowOpen"/>

@@ -117,6 +117,16 @@
       //--------------------------------------
     }
     //----------------------------------------
+    > .row-number {
+      @include flex-center;
+      @include font-fixed;
+      font-size: SZ(10); opacity: 0.6;
+      padding: 0 SZ(2);
+      &::after {
+        display: inline; content:".";
+      }
+    }
+    //----------------------------------------
     > .row-con {
       @include flex-align-center($wp: nowrap);
       flex: 1 1 auto;

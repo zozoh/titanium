@@ -892,6 +892,7 @@ const TiTypes = {
       }
       return [val]
     }
+    return [val]
   },
   //.......................................
   toDate(val, dft = null) {

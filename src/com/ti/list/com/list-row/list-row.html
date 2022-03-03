@@ -45,6 +45,10 @@
         class="row-checker"
         :value="theCheckIcon"
         @click.native.left.stop="OnClickChecker"/>
+    <!--Row Number-->
+    <div 
+      v-if="hasRowNumber"
+        class="row-number">{{RowNumber}}</div>
     <!-- Content -->
     <div
       class="row-con"

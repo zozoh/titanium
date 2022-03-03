@@ -1,0 +1,9 @@
+{
+  "name": "hm-react-editor",
+  "globally": true,
+  "template": "./hm-react-editor.html",
+  "mixins": "./hm-react-editor.mjs",
+  "components": [
+    "@com:hm/react/item"
+  ]
+}
