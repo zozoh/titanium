@@ -14,8 +14,10 @@
 //-----------------------------------------------------
 // AUTO-INCLUDE-COM-STUB
 @import "app/_wn-manager.scss";
-@import "com/hmaker/_hm-prop-class-picker.scss";
-@import "com/hmaker/_hm-prop-css-rules.scss";
+@import "com/hm/_hm-prop-class-picker.scss";
+@import "com/hm/_hm-prop-css-rules.scss";
+@import "com/hm/_hm-react-actions.scss";
+@import "com/hm/_hm-react-editor.scss";
 @import "com/net/_net-aliyun-vod-video-info.scss";
 @import "com/net/_net-youtube-player.scss";
 @import "com/ti/_ti-actionbar.scss";
@@ -46,6 +48,7 @@
 @import "com/ti/_ti-input-color.scss";
 @import "com/ti/_ti-input-icon.scss";
 @import "com/ti/_ti-input-num.scss";
+@import "com/ti/_ti-input-pair.scss";
 @import "com/ti/_ti-input-tags.scss";
 @import "com/ti/_ti-input-text.scss";
 @import "com/ti/_ti-input.scss";

@@ -1,0 +1,61 @@
+.ti-input-pair {
+  //-------------------------------------------------
+  > table {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    //-----------------------------------------------
+    > tbody > tr {
+      //---------------------------------------------
+      > td {
+        @include border(1px, solid, shallow);
+        padding: 0;
+      }
+      //---------------------------------------------
+      > td.as-name {
+        //-------------------------------------------
+        > .cell-con {
+          @include flex-align-nowrap($ai: stretch);
+          @include color($color-input, c, r);
+          //-----------------------------------------
+          > .as-deleter {
+            @include flex-center;
+            @include color($color-chip, r, c);
+            width: SZ(24);
+            cursor: pointer;
+            > i {
+              transition: transform 0.3s;
+              opacity: 0.4;
+            }
+            &:hover {
+              @include color($color-secondary, r, c);
+              > i {
+                transform: rotate(180deg) scale(1.2);
+                opacity: 1;
+              }
+            }
+          }
+          //-----------------------------------------
+          > .as-com {
+            width: 100%;
+          }
+          //-----------------------------------------
+        } // > .cell-con
+        //-------------------------------------------
+      } // > td.as-name
+      //---------------------------------------------
+    } // > tbody > tr
+    //-----------------------------------------------
+  } // table
+  //-------------------------------------------------
+  .as-adder {
+    @include flex-center($wp: nowrap);
+    padding: SZ(4);
+    .adder-btn {
+      @include border(1px, dashed, shallow);
+      padding: SZ(8);
+      min-width: SZ(120);
+    }
+  }
+  //-------------------------------------------------
+}

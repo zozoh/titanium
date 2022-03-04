@@ -1,4 +1,12 @@
 {
+  "target": "目标",
+  "target-id": "目标ID",
+  "target-name": "目标名称",
+  "target-path": "目标路径",
+  "params": "参数",
+  "query": "查询",
+  "skip": "跳过",
+  "limit": "限制",
   "add": "添加",
   "add-item": "添加新项",
   "add-now": "立即添加",

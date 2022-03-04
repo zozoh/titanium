@@ -334,5 +334,17 @@
   "hmk-yt-playlist-margin": "YT playlist margin",
   "hmk-yt-playlist-name": "Playlist name",
   "hmk-yt-playlist-prop": "YT playlist prop",
-  "hmk-yt-playlist-refresh": "Reload YT playlist"
+  "hmk-yt-playlist-refresh": "Reload YT playlist",
+  "hmr-t-thing_create": "Create Thing",
+  "hmr-t-thing_update": "Update Thing",
+  "hmr-t-thing_delete": "Delete Thing",
+  "hmr-t-thing_clear": "Clear Thing",
+  "hmr-t-obj_create": "Create Obj",
+  "hmr-t-obj_update": "Update Obj",
+  "hmr-t-obj_delete": "Delete Obj",
+  "hmr-t-obj_clear": "Clear Obj",
+  "hmr-t-exec": "Run Script",
+  "hmr-t-jsc": "Run JS",
+  "hmr-add-react-item": "Add React Item",
+  "hmr-add-action": "Add New Action"
 }

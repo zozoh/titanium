@@ -10,6 +10,15 @@ export default {
     //------------------------------------------------
     "data": {
       type: Array
+    },
+    "currentName": {
+      type: String
+    },
+    //------------------------------------------------
+    // Behaviors
+    //------------------------------------------------
+    "keepStatusTo": {
+      type: String
     }
   },
   ////////////////////////////////////////////////////
@@ -185,6 +194,19 @@ export default {
       this.myCurrentItemName = currentId
     },
     //------------------------------------------------
+    OnFormFieldChange() { },
+    //------------------------------------------------
+    OnFormChange(item) {
+      // Guard
+      if (!this.hasCurrentItem) {
+        return
+      }
+      // Update value
+      let data = _.cloneDeep(this.data) || []
+      data[this.CurrentReactItemIndex] = item
+      this.tryNotifyChange(data)
+    },
+    //------------------------------------------------
     doCreateNewItem() {
       let newName = "新自动执行项"
       let data = _.cloneDeep(this.data) || []
@@ -254,6 +276,34 @@ export default {
       }
     }
     //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    "currentName": {
+      handler: function (newVal, oldVal) {
+        console.log("update current")
+        if (!Ti.Util.isNil(newVal)) {
+          this.myCurrentItemName = newVal
+        }
+      },
+      immediate: true
+    },
+    "myCurrentItemName": function (newVal, oldVal) {
+      console.log(newVal, oldVal)
+      if (this.keepStatusTo && !_.isEqual(newVal, oldVal)) {
+        if (Ti.Util.isNil(newVal)) {
+          Ti.Storage.local.remove(this.keepStatusTo)
+        } else {
+          Ti.Storage.local.set(this.keepStatusTo, newVal)
+        }
+      }
+    }
+  },
+  ////////////////////////////////////////////////////
+  mounted: function () {
+    if (this.keepStatusTo && Ti.Util.isNil(this.currentName)) {
+      this.myCurrentItemName = Ti.Storage.local.getString(this.keepStatusTo)
+    }
   }
   ////////////////////////////////////////////////////
 }

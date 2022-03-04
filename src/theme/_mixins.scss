@@ -1,49 +1,52 @@
 @function SZ($sz) {
-  @return $sz * .01rem;
+  @return $sz * 0.01rem;
 }
 //-------------------------------------------------------------
-@mixin noselect(){
-  user-select:none;
+@mixin noselect() {
+  user-select: none;
 }
-@mixin text-overflow(){
+@mixin text-overflow() {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 //-------------------------------------------------------------
-@mixin color($color:null, $c:null, $bg:null) {
+@mixin color($color: null, $c: null, $bg: null) {
   @if $color!= null {
-    @if $c  != null {color:map-get($color, $c);}
-    @if $bg != null {background-color:map-get($color, $bg);}
+    @if $c != null {
+      color: map-get($color, $c);
+    }
+    @if $bg != null {
+      background-color: map-get($color, $bg);
+    }
   }
 }
-@mixin color-highlight($color:$color-primary) {
+@mixin color-highlight($color: $color-primary) {
   @if $color != null {
-    @include color($color, r, c)
+    @include color($color, r, c);
   }
 }
 //-------------------------------------------------------------
-@mixin border($w:1px,$s:solid,$c:shallow, $pos:null) {
+@mixin border($w: 1px, $s: solid, $c: shallow, $pos: null) {
   @if $pos == null {
-    border:$w $s map-get($color-line, $c);
-  }
-  @else {
-    border-#{$pos}:$w $s map-get($color-line, $c);
+    border: $w $s map-get($color-line, $c);
+  } @else {
+    border-#{$pos}: $w $s map-get($color-line, $c);
   }
 }
 //-------------------------------------------------------------
 @mixin box-shadow() {
-  box-shadow: .03rem .03rem .06rem map-get($color-mask, thin);
+  box-shadow: 0.03rem 0.03rem 0.06rem map-get($color-mask, thin);
 }
 //-------------------------------------------------------------
-@mixin flex($jc:flex-start,$ai:flex-start,$wp:wrap,$ac:stretch) {
+@mixin flex($jc: flex-start, $ai: flex-start, $wp: wrap, $ac: stretch) {
   display: flex;
   justify-content: $jc;
   align-items: $ai;
   align-content: $ac;
   flex-wrap: $wp;
 }
-@mixin flex-as($j:null,$a:null) {
+@mixin flex-as($j: null, $a: null) {
   @if $j != null {
     justify-content: $j;
   }
@@ -52,90 +55,94 @@
     align-content: $a;
   }
 }
-@mixin flex-center($jc:center,$ai:center,$wp:wrap,$ac:center) {
-  @include flex($jc,$ai,$wp,$ac);
+@mixin flex-center($jc: center, $ai: center, $wp: wrap, $ac: center) {
+  @include flex($jc, $ai, $wp, $ac);
 }
-@mixin flex-full($fx:1 1 auto, $jc:center,$ai:stretch,$wp:nowrap,$ac:stretch) {
-  @include flex($jc,$ai,$wp,$ac);
+@mixin flex-full($fx: 1 1 auto, $jc: center, $ai: stretch, $wp: nowrap, $ac: stretch) {
+  @include flex($jc, $ai, $wp, $ac);
   flex: $fx;
 }
-@mixin flex-full-center($fx:1 1 auto) {
+@mixin flex-full-center($fx: 1 1 auto) {
   @include flex-center;
   flex: $fx;
 }
-@mixin flex-align($jc:flex-start,$ai:stretch,$wp:wrap,$ac:stretch) {
-  @include flex($jc,$ai,$wp,$ac);
+@mixin flex-align($jc: flex-start, $ai: stretch, $wp: wrap, $ac: stretch) {
+  @include flex($jc, $ai, $wp, $ac);
 }
-@mixin flex-align-center($jc:flex-start,$ai:center,$wp:wrap,$ac:center) {
-  @include flex($jc,$ai,$wp,$ac);
+@mixin flex-align-center($jc: flex-start, $ai: center, $wp: wrap, $ac: center) {
+  @include flex($jc, $ai, $wp, $ac);
 }
-@mixin flex-align-nowrap($jc:flex-start,$ai:center,$wp:nowrap,$ac:center) {
-  @include flex($jc,$ai,$wp,$ac);
+@mixin flex-align-nowrap($jc: flex-start, $ai: center, $wp: nowrap, $ac: center) {
+  @include flex($jc, $ai, $wp, $ac);
 }
-@mixin flex-align-v($jc:flex-start,$ai:stretch,$wp:wrap,$ac:stretch) {
-  @include flex($jc,$ai,$wp,$ac);
+@mixin flex-align-v($jc: flex-start, $ai: stretch, $wp: wrap, $ac: stretch) {
+  @include flex($jc, $ai, $wp, $ac);
   flex-direction: column;
 }
-@mixin flex-align-v-nowrap($jc:flex-start,$ai:stretch,$wp:nowrap,$ac:stretch) {
-  @include flex($jc,$ai,$wp,$ac);
+@mixin flex-align-v-nowrap($jc: flex-start, $ai: stretch, $wp: nowrap, $ac: stretch) {
+  @include flex($jc, $ai, $wp, $ac);
   flex-direction: column;
 }
 //-------------------------------------------------------------
-@mixin font($fa:$f_nice, $sz:null, $lh:null, $ls:null) {
-  @if $fa != null {font-family: $fa;}
-  @if $lh != null {line-height:$lh;}
-  @if $ls != null {letter-spacing:$ls;}
+@mixin font($fa: $f_nice, $sz: null, $lh: null, $ls: null) {
+  @if $fa != null {
+    font-family: $fa;
+  }
+  @if $lh != null {
+    line-height: $lh;
+  }
+  @if $ls != null {
+    letter-spacing: $ls;
+  }
   @if $sz != null {
     @if adapt == $sz {
       @each $key, $value in $screen-min-widths {
-        @media (min-width:$value) {
-          font-size:map-get($body-font-sizes, $key)
+        @media (min-width: $value) {
+          font-size: map-get($body-font-sizes, $key);
         }
       }
     } @else {
-      font-size:$sz;
+      font-size: $sz;
     }
   }
 }
-@mixin font-nice($sz:null, $lh:null, $ls:null) {
-  @include font($f_nice, $sz,$lh,$ls)
+@mixin font-nice($sz: null, $lh: null, $ls: null) {
+  @include font($f_nice, $sz, $lh, $ls);
 }
-@mixin font-fixed($sz:null, $lh:null, $ls:null) {
-  @include font($f_fixed, $sz,$lh,$ls)
+@mixin font-fixed($sz: null, $lh: null, $ls: null) {
+  @include font($f_fixed, $sz, $lh, $ls);
 }
-@mixin font-sizes($selector, $sizes:$body-font-sizes) {
+@mixin font-sizes($selector, $sizes: $body-font-sizes) {
   @each $key, $value in $screen-min-widths {
-    @media (min-width:$value) {
+    @media (min-width: $value) {
       #{$selector} {
-        font-size:map-get($sizes, $key)
+        font-size: map-get($sizes, $key);
       }
     }
   }
 }
 //-------------------------------------------------------------
-@mixin ul($align:null, $padding:0, $margin:0) {
-  list-style:none;
-  padding:$padding;
-  margin:$margin;
+@mixin ul($align: null, $padding: 0, $margin: 0) {
+  list-style: none;
+  padding: $padding;
+  margin: $margin;
   @if $align == left {
-    @include flex-align($jc:flex-start,$wp:nowrap);
-  }
-  @else if $align == center {
-    @include flex-align($jc:center,$wp:nowrap);
-  }
-  @else if $align == right {
-    @include flex-align($jc:flex-end,$wp:nowrap);
+    @include flex-align($jc: flex-start, $wp: nowrap);
+  } @else if $align == center {
+    @include flex-align($jc: center, $wp: nowrap);
+  } @else if $align == right {
+    @include flex-align($jc: flex-end, $wp: nowrap);
   }
 }
 //-------------------------------------------------------------
-@mixin raw-list($padding:0,$margin:0) {
-  list-style:none;
-  padding:$padding;
-  margin:$margin;
+@mixin raw-list($padding: 0, $margin: 0) {
+  list-style: none;
+  padding: $padding;
+  margin: $margin;
 }
 //-------------------------------------------------------------
-@mixin fireable($color:$color-primary,$hover:$color-secondary) {
-  cursor:pointer;
+@mixin fireable($color: $color-primary, $hover: $color-secondary) {
+  cursor: pointer;
   @include noselect;
   @include color($color, r, c);
   &:hover {
@@ -143,55 +150,63 @@
   }
 }
 //-------------------------------------------------------------
-@mixin text-input($fa:$f_fixed){
-  @include color($color-input,c,r);
+@mixin text-input($fa: $f_fixed) {
+  @include color($color-input, c, r);
   @include border(1px, solid, dark);
-  outline: none; resize: none;
+  outline: none;
+  resize: none;
   @if $fa != null {
     font-family: $fa;
   }
   &:focus {
-    border-color:map-get($color-line, highlight);
+    border-color: map-get($color-line, highlight);
   }
 }
 //-------------------------------------------------------------
 @mixin disabled() {
-  cursor: default; opacity:0.4;
+  cursor: default;
+  opacity: 0.4;
 }
 //-------------------------------------------------------------
-@mixin pos($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
-  @if $l != null {left  : $l;}
-  @if $t != null {top   : $t;}
-  @if $w != null {width : $w;}
-  @if $h != null {height: $h;}
-  @if $r != null {right : $r;}
-  @if $b != null {bottom: $b;}
+@mixin pos($l: null, $t: null, $w: null, $h: null, $r: null, $b: null) {
+  @if $l != null {
+    left: $l;
+  }
+  @if $t != null {
+    top: $t;
+  }
+  @if $w != null {
+    width: $w;
+  }
+  @if $h != null {
+    height: $h;
+  }
+  @if $r != null {
+    right: $r;
+  }
+  @if $b != null {
+    bottom: $b;
+  }
 }
-@mixin pos-abs($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
-  position:absolute;
-  @include pos($l,$t,$w,$h,$r,$b)
+@mixin pos-abs($l: null, $t: null, $w: null, $h: null, $r: null, $b: null) {
+  position: absolute;
+  @include pos($l, $t, $w, $h, $r, $b);
 }
-@mixin pos-fixed($l:null,$t:null,$w:null,$h:null,$r:null,$b:null) {
-  position:fixed;
-  @include pos($l,$t,$w,$h,$r,$b)
+@mixin pos-fixed($l: null, $t: null, $w: null, $h: null, $r: null, $b: null) {
+  position: fixed;
+  @include pos($l, $t, $w, $h, $r, $b);
 }
-@mixin pos-abs-full($pad:0) {
-  @include pos-abs($l:$pad,$r:$pad,$t:$pad,$b:$pad);
+@mixin pos-abs-full($pad: 0) {
+  @include pos-abs($l: $pad, $r: $pad, $t: $pad, $b: $pad);
 }
-@mixin pos-fixed-full($pad:0) {
-  @include pos-fixed($l:$pad,$r:$pad,$t:$pad,$b:$pad);
+@mixin pos-fixed-full($pad: 0) {
+  @include pos-fixed($l: $pad, $r: $pad, $t: $pad, $b: $pad);
 }
 //-------------------------------------------------------------
-@mixin bg-chessboard($color:#DDD, $sz:.1rem, $bg:transparent) {
-  background-color:$bg;
-  background-image: 
-    linear-gradient(
-      45deg, $color 25%, transparent 25%, 
-      transparent 75%, $color 75%, $color), 
-    linear-gradient(
-      45deg, $color 26%, transparent 26%, 
-      transparent 74%, $color 74%, $color); 
+@mixin bg-chessboard($color: #ddd, $sz: 0.1rem, $bg: transparent) {
+  background-color: $bg;
+  background-image: linear-gradient(45deg, $color 25%, transparent 25%, transparent 75%, $color 75%, $color),
+    linear-gradient(45deg, $color 26%, transparent 26%, transparent 74%, $color 74%, $color);
   background-size: $sz $sz;
   background-position: 0 0, $sz/2 $sz/2;
 }
-

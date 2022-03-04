@@ -1,4 +1,12 @@
 {
+  "target": "Target",
+  "target-id": "Target ID",
+  "target-name": "Target name",
+  "target-path": "Target path",
+  "params": "Params",
+  "query": "Query",
+  "skip": "Skip",
+  "limit": "Limit",
   "add": "Add",
   "add-item": "New item",
   "add-now": "Add Now",

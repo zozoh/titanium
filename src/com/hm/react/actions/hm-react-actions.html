@@ -1,7 +1,45 @@
-<TiForm
-  class="ti-fill-parent"
-  :data="FormData"
-  :fields="FormFields"
-  spacing="tiny"
-  :autoShowBlank="true"
-  :blankAs="{icon:'zmdi-arrow-left',text:'请选择一个执行项'}"/>
+<div class="hm-react-actions">
+  <!--
+    List each action items in loop
+  -->
+  <div
+    v-for="it in myDisplayList"
+      class="as-action-item">
+      <!--
+        Item head
+      -->
+      <div class="as-item-head">
+        <!--Action Icon-->
+        <TiIcon :value="it.icon"/>
+        <!--Action Type-->
+        <div class="as-type-text">{{it.typeText|i18n}}</div>
+        <!--Action Menu-->
+        <div class="as-item-menu">
+          <a @click.left="OnEditAction(it)">{{'i18n:edit'|i18n}}</a>
+          <a><i class="fas fa-trash-alt"></i></a>
+          <a v-if="!it.first"><i class="fas fa-long-arrow-alt-up"></i></a>
+          <a v-if="!it.last"><i class="fas fa-long-arrow-alt-down"></i></a>
+        </div>
+      </div>
+      <!--
+        Item fields
+      -->
+      <div class="as-item-fields">
+        <div
+          v-for="fld in it.fields"
+            class="as-field">
+            <div class="as-name">{{fld.name|i18n}}</div>
+            <div class="as-text">{{fld.text}}</div>
+        </div>
+      </div>
+  </div>
+  <!--
+    Add new items
+  -->
+  <div class="as-new-item">
+    <div class="as-btn">
+      <i class="zmdi zmdi-plus"></i>
+      <span>{{'i18n:add-item'|i18n}}</span>
+    </div>
+  </div>
+</div>

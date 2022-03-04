@@ -335,5 +335,17 @@
   "hmk-yt-playlist-margin": "YT播放列表边距",
   "hmk-yt-playlist-name": "列表名称",
   "hmk-yt-playlist-prop": "YT播放列表属性",
-  "hmk-yt-playlist-refresh": "刷新YT播放列表内容"
+  "hmk-yt-playlist-refresh": "刷新YT播放列表内容",
+  "hmr-t-thing_create": "创建数据集对象",
+  "hmr-t-thing_update": "更新数据集对象",
+  "hmr-t-thing_delete": "删除数据集对象",
+  "hmr-t-thing_clear": "清理数据集对象",
+  "hmr-t-obj_create": "创建标准对象",
+  "hmr-t-obj_update": "更新标准对象",
+  "hmr-t-obj_delete": "删除标准对象",
+  "hmr-t-obj_clear": "清理标准对象",
+  "hmr-t-exec": "执行脚本",
+  "hmr-t-jsc": "执行JS脚本",
+  "hmr-add-react-item": "新建执行项",
+  "hmr-add-action": "添加新动作项"
 }

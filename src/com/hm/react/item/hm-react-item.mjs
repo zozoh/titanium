@@ -51,10 +51,10 @@ export default {
           "title": "执行变量",
           "name": "vars",
           "type": "Object",
-          "comType": "TiInputText",
+          "fieldWidth": "100%",
+          "comType": "TiInputPair",
           "comConf": {
-            "placeholder": "每个动作的扩展上下文变量JSON",
-            "height": "10em"
+            "placeholder": "每个动作的扩展上下文变量JSON"
           }
         },
         {
@@ -63,10 +63,9 @@ export default {
         {
           "name": "actions",
           "type": "Array",
-          "comType": "TiInputText",
+          "comType": "HmReactActions",
           "comConf": {
-            "placeholder": "执行动作列表",
-            "height": "10em"
+            
           }
         },
       ]

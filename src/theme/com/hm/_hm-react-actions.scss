@@ -1,0 +1,88 @@
+.hm-react-actions {
+  padding: SZ(4);
+  //-----------------------------------------
+  > .as-action-item {
+    @include border(1px, solid, shallow);
+    margin: SZ(2);
+    border-radius: SZ(6);
+    overflow: hidden;
+    //---------------------------------------
+    .as-item-head {
+      @include color($color-bar, r, c);
+      @include flex-align-nowrap;
+      padding: SZ(6) SZ(8);
+      //-------------------------------------
+      > .as-type-text {
+        margin-left: SZ(6);
+        flex: 1 1 auto;
+      }
+      //-------------------------------------
+      > .as-item-menu {
+        @include flex-align-nowrap;
+        font-size: SZ(11);
+        padding: 0 SZ(6);
+        a {
+          @include border(1px, solid, shallow, left);
+          text-align: center;
+          padding: 0 SZ(10);
+          &:hover {
+            color: map-get($color-secondary, c);
+          }
+          &:last-child {
+            padding-right: 0;
+          }
+        }
+      }
+      //-------------------------------------
+    }
+    //---------------------------------------
+    .as-item-fields {
+      @include flex-align;
+      padding: SZ(6);
+      //-------------------------------------
+      > .as-field {
+        @include flex-align-nowrap($ai: flex-start);
+        flex: 1 1 auto;
+        min-width: 33%;
+        padding: SZ(4);
+        //-----------------------------------
+        .as-name {
+          color: map-get($color-track, c);
+          white-space: nowrap;
+          min-width: SZ(54);
+          &:after {
+            display: inline;
+            content: " : ";
+          }
+        }
+        //-----------------------------------
+        .as-text {
+          @include font-fixed;
+          color: map-get($color-text, c);
+        }
+        //-----------------------------------
+      } // > .as-field
+      //-------------------------------------
+    } // .as-item-fields
+    //---------------------------------------
+  } // > .as-action-item
+  //-----------------------------------------
+  .as-new-item {
+    @include flex-center;
+    padding: SZ(10);
+    .as-btn {
+      @include border(1px, dashed, dark);
+      padding: SZ(10);
+      min-width: SZ(200);
+      text-align: center;
+      white-space: nowrap;
+      cursor: pointer;
+      &:hover {
+        @include color($color-secondary, r, c);
+        border-style: solid;
+        border-color: map-get($color-secondary, c);
+      }
+    }
+  }
+  //-----------------------------------------
+}

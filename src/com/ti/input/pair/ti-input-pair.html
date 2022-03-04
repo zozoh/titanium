@@ -1,0 +1,46 @@
+<div class="ti-input-pair full-field">
+  <!----------------------------------------->
+  <TiLoading
+    v-if="isEmpty"
+      v-bind="blankAs"/>
+  <!----------------------------------------->
+  <table v-else>
+    <colgroup>
+      <col :width="nameWidth">
+      <col>
+    </colgroup>
+    <tbody>
+      <tr v-for="fld in PairFields">
+        <td class="as-name">
+          <div class="cell-con">
+            <div class="as-deleter">
+              <i class="zmdi zmdi-close"></i>
+            </div>
+            <component 
+              :is="nameComType" 
+              class="as-com"
+              v-bind="nameComConf" 
+              :value="fld.name"/>
+          </div>
+        </td>
+        <td class="as-value">
+          <div class="cell-con">
+            <component 
+              :is="valueComType"
+              class="as-com"
+              v-bind="valueComConf"
+              :value="fld.value"/>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <!----------------------------------------->
+  <div class="as-adder">
+    <div class="adder-btn">
+      <i class="zmdi zmdi-plus"></i>
+      <span>{{'i18n:add-item'|i18n}}</span>
+    </div>
+  </div>
+  <!----------------------------------------->
+</div>

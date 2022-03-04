@@ -3,4 +3,6 @@
   :layout="GUILayout"
   :schema="GUISchema"
   :canLoading="false"
-  @list::select="OnListSelect"/>
+  @list::select="OnListSelect"
+  @form::change="OnFormChange"
+  @form::field::change="OnFormFieldChange"/>
