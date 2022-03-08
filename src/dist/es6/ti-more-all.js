@@ -1,4 +1,4 @@
-// Pack At: 2022-03-02 22:15:20
+// Pack At: 2022-03-09 00:54:36
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2281,6 +2281,241 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'hm-react-actions.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/hm/react/actions/hm-react-actions.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////////////
+  data: () => ({
+    myDisplayList: []
+  }),
+  ////////////////////////////////////////////////////
+  props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
+    "value": {
+      type: Array,
+      default: () => []
+    },
+    //------------------------------------------------
+    // Behaviors
+    //------------------------------------------------
+    "dialog": {
+      type: Object
+    },
+    //------------------------------------------------
+    // Aspect
+    //------------------------------------------------
+    "itemIcon": {
+      type: String,
+      default: "zmdi-play-circle-outline"
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //------------------------------------------------
+    isEmpty() {
+      return _.isEmpty(this.value)
+    },
+    //------------------------------------------------
+    ReactTypes() {
+      let types = ["thing_create",
+        "thing_update",
+        "thing_delete",
+        "thing_clear",
+        "obj_create",
+        "obj_update",
+        "obj_delete",
+        "obj_clear",
+        "exec",
+        "jsc"]
+      let re = []
+      for (let value of types) {
+        re.push({
+          value,
+          text: `i18n:hmr-t-${value}`
+        })
+      }
+      return re
+    },
+    //------------------------------------------------
+    FormFields() {
+      return [
+        {
+          title: 'i18n:type',
+          name: "type",
+          comType: "TiDroplist",
+          comConf: {
+            options: this.ReactTypes
+          }
+        },
+        {
+          title: 'i18n:path',
+          name: "path",
+          comType: "TiInput"
+        },
+        {
+          title: 'i18n:query',
+          name: "query"
+        },
+        {
+          title: 'i18n:target-id',
+          name: "targetId",
+          comType: "TiInput"
+        },
+        {
+          title: 'i18n:meta',
+          name: "meta"
+        },
+        {
+          title: 'i18n:sort',
+          name: "sort"
+        },
+        {
+          title: 'i18n:input',
+          name: "input",
+          comType: "TiInputText",
+          comConf: {
+            height: "10em"
+          }
+        },
+        {
+          title: 'i18n:skip',
+          name: "skip",
+          type: "Integer",
+          comType: "TiInputNum"
+        },
+        {
+          title: 'i18n:limit',
+          name: "limit",
+          type: "Integer",
+          comType: "TiInputNum"
+        }
+      ]
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods: {
+    //------------------------------------------------
+    async OnEditAction({ index, data, icon }) {
+      let reo = await Ti.App.Open(_.assign({
+        icon, title: 'i18n:edit',
+        width: "6.4rem",
+        height: "96%",
+      }, this.dialog, {
+        comType: "TiForm",
+        comConf: {
+          data,
+          spacing: "tiny",
+          fields: this.FormFields
+        }
+      }))
+      console.log(reo)
+
+      // User cancel
+      if(!reo) {
+        return
+      }
+    },
+    //------------------------------------------------
+    evalDisplayList() {
+      //....................................
+      const explain_val = (val) => {
+        // Nil
+        if (Ti.Util.isNil(val)) {
+          return
+        }
+        // String || Boolean
+        if (_.isString(val) || _.isNumber(val)) {
+          return val
+        }
+        // Boolean
+        if (_.isBoolean(val)) {
+          return ['i18n:no', 'i18n:yes'][val]
+        }
+        // Array
+        if (_.isArray(val)) {
+          let re = []
+          for (let v of val) {
+            let v2 = explain_val(v)
+            re.push(v2)
+          }
+          return re.join(", ")
+        }
+        // Object
+        if (_.isPlainObject(val)) {
+          let re = []
+          _.forEach(val, (v, k) => {
+            re.push(`${k}(${v || '<null>'})`)
+          })
+          return re.join("; ")
+        }
+        // Other just to String
+        return Ti.Types.toStr(val)
+      }
+      //....................................
+      const try_join_text = (it, fields, name) => {
+        let val = _.get(it, name)
+        if (Ti.Util.isNil(val)) {
+          return
+        }
+        let text = explain_val(val);
+        if (Ti.Util.isNil(text)) {
+          return
+        }
+
+        fields.push({
+          name: `i18n:${name}`, text
+        })
+      }
+      //....................................
+      let list = []
+      if (_.isArray(this.value)) {
+        let len = this.value.length
+        let lastI = len - 1
+        for (let i = 0; i < len; i++) {
+          let it = this.value[i]
+          let li = {
+            index: i,
+            first: 0 == i,
+            last: lastI == i,
+            icon: it.icon || this.itemIcon,
+            type: it.type,
+            typeText: `i18n:hmr-t-${it.type}`,
+            fields: [],
+            data: it
+          }
+          try_join_text(it, li.fields, "path")
+          try_join_text(it, li.fields, "query")
+          try_join_text(it, li.fields, "params")
+          try_join_text(it, li.fields, "targetId")
+          try_join_text(it, li.fields, "meta")
+          try_join_text(it, li.fields, "input")
+          try_join_text(it, li.fields, "skip")
+          try_join_text(it, li.fields, "limit")
+          list.push(li)
+        }
+      }
+      //....................................
+      this.myDisplayList = list
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    "value": "evalDisplayList"
+  },
+  ////////////////////////////////////////////////////
+  mounted: function () {
+    this.evalDisplayList()
+  }
+  ////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-input-date.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/input/date/ti-input-date.mjs'] = (function(){
@@ -4043,11 +4278,17 @@ const _M = {
     },
     //------------------------------------------------
     theValue() {
-      //console.log("input value:", this.value)
+      console.log("input value:", this.value)
       // if(_.isArray(this.value)) {
       //   return this.value.join("\r\n")
       // }
-      if(_.isArray(this.value)) {
+      let valIsArray = _.isArray(this.value)
+      if (this.autoJsValue) {
+        if (valIsArray || _.isPlainObject(this.value)) {
+          return JSON.stringify(this.value, null, '   ')
+        }
+      }
+      if (valIsArray && !Ti.Util.isNil(this.joinBy)) {
         return this.value.join(this.joinBy)
       }
       return Ti.Types.toStr(this.value, this.format)
@@ -4186,7 +4427,7 @@ const _M = {
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
-      return {stop:true, quit:true}
+      return { stop: true, quit: true }
     }
     //------------------------------------------------
   },
@@ -7251,6 +7492,526 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'ti-input-dval.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/input/dval/ti-input-dval.mjs'] = (function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
+    "value": undefined,
+    //------------------------------------------------
+    // Behaviors
+    //------------------------------------------------
+    "dialog": {
+      type: Object
+    },
+    //------------------------------------------------
+    // Aspect
+    //------------------------------------------------
+
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //------------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-toggle": "Boolean" == this.DyVal.type
+      })
+    },
+    //------------------------------------------------
+    /*
+    {
+      //.................................
+      // "Undefined": undefined
+      // "Null"     : null
+      // "Number"   : 23.6 or 89
+      // "Boolean"  : true
+      // "String"   : "xxx"
+      // "Object"   : {...}
+      // "Array"    : [...]
+      // "Function" : {__function:true, name, args}
+      // "Invoking" : {__invoke:true, name, args}
+      // "Tmpl"     : "->xxxx"
+      // "BoolVar"  : "==xxx"
+      // "GetVar"   : "=xxx"
+      type:"Number|Boolean|String...|Tmpl|BoolVar|GetVar",
+      //.................................
+      value: Any,
+      //.................................
+      // "Array" only
+      list: [DyVal ..]
+      // "Object" only
+      fields: [{name,title,value:DyVal}]
+      //.................................
+      // "Var"
+      dftVal: String,
+      // "GetVar"
+      dftAutoJs: true,
+      // "BoolVar"
+      isNot: false,
+      //.................................
+      // Var | Function | Invoking only
+      name : "FuncName",
+      // Function | Invoking only
+      args : [
+        DyVal, ...
+      ],
+      partial: "left"
+    }
+    */
+    DyVal() {
+      // Guard : parsed already
+      if (this.value && this.value.$dynamic_parsed) {
+        return this.value
+      }
+      //.......................................
+      const wrapDyVal = (vo) => {
+        vo.$dynamic_parsed = true
+        return vo
+      }
+      //.......................................
+      const parseVal = (anyValue) => {
+        let theValue = anyValue
+        //.....................................
+        // Undefined
+        if (_.isUndefined(theValue)) {
+          return wrapDyVal({ type: "Undefined" })
+        }
+        //.....................................
+        // Null
+        if (_.isNull(theValue)) {
+          return wrapDyVal({ type: "Null", value: null })
+        }
+        //.....................................
+        // Number
+        if (_.isNumber(theValue)) {
+          return wrapDyVal({ type: "Number", value: theValue })
+        }
+        //.....................................
+        // Boolean
+        if (_.isBoolean(theValue)) {
+          return wrapDyVal({ type: "Boolean", value: theValue })
+        }
+        //.....................................
+        // String
+        if (_.isString(theValue)) {
+          let m_type, m_val, m_dft, dft_autoJs;
+          // Match template or function call
+          let m = /^(==>>?|=>>?|->)(.+)$/.exec(theValue)
+          if (m) {
+            m_type = m[1]
+            m_val = _.trim(m[2])
+          }
+          // Match var value
+          else {
+            m = /^(==?|!=)([^?]+)(\?(.*))?$/.exec(theValue)
+            if (m) {
+              m_type = m[1]
+              m_val = _.trim(m[2])
+              m_dft = m[4]
+              // starts with "=" auto covert to JS value
+              if (/^=/.test(m_dft) || "==" == m_type) {
+                m_dft = Ti.S.toJsValue(m_dft)
+                dft_autoJs = true
+              } else if (m_dft) {
+                m_dft = _.trim(m_dft)
+                dft_autoJs = false
+              }
+            }
+          }
+
+          //
+          // Eval by type
+          //
+          // Matched
+          if (m_type) {
+            //................................
+            let fn = ({
+              // Just get function: partial left
+              "==>": (val) => {
+                let invoke = Ti.Util.parseInvoking(val)
+                return {
+                  type: "Function",
+                  name: invoke.name,
+                  args: invoke.args,
+                  partial: "left"
+                }
+              },
+              // Just get function: partial right
+              "==>>": (val) => {
+                let invoke = Ti.Util.parseInvoking(val)
+                return {
+                  type: "Function",
+                  name: invoke.name,
+                  args: invoke.args,
+                  partial: "right"
+                }
+              },
+              // ==xxx  # Get Boolean value now
+              "==": (val) => {
+                return {
+                  type: "BoolVar",
+                  name: val,
+                  dftVal: Ti.Util.fallbackNil(m_dft, false),
+                  dftAutoJs: dft_autoJs,
+                  isNot: false
+                }
+              },
+              // !=xxx  # Revert Boolean value now
+              "!=": (val) => {
+                return {
+                  type: "BoolVar",
+                  name: val,
+                  dftVal: Ti.Util.fallbackNil(m_dft, true),
+                  dftAutoJs: dft_autoJs,
+                  isNot: true
+                }
+              },
+              // =xxx   # Get Value Now
+              "=": (val, dft) => {
+                return {
+                  type: "GetVar",
+                  name: val,
+                  dftVal: m_dft,
+                  dftAutoJs: dft_autoJs
+                }
+              },
+              // =>Ti.Types.toStr(meta)
+              "=>>": (val) => {
+                let invoke = Ti.Util.parseInvoking(val)
+                return {
+                  type: "Invoking",
+                  name: invoke.name,
+                  args: invoke.args,
+                  partial: "right"
+                }
+              },
+              // =>Ti.Types.toStr(meta)
+              "=>": (val) => {
+                let invoke = Ti.Util.parseInvoking(val)
+                return {
+                  type: "Invoking",
+                  name: invoke.name,
+                  args: invoke.args,
+                  partial: "left"
+                }
+              },
+              // Render template
+              "->": (val) => {
+                return {
+                  type: "Tmpl"
+                }
+              }
+            })[m_type]
+            //................................
+            // Check Function
+            if (_.isFunction(fn)) {
+              let rev = fn(m_val, m_dft)
+              rev.value = m_val
+              return wrapDyVal(rev)
+            }
+          } // Matched
+
+          // Default as String
+          return wrapDyVal({ type: "String", value: theValue })
+        }
+        //.....................................
+        // Array
+        if (_.isArray(theValue)) {
+          let list = []
+          for (let v of theValue) {
+            let v2 = parseVal(v)
+            list.push(v2)
+          }
+          return wrapDyVal({
+            type: "Array",
+            value: theValue,
+            list
+          })
+        }
+        //.....................................
+        // Object
+        if (_.isPlainObject(theValue)) {
+          let type = "Object"
+          // Invoking
+          if (theValue.__invoke && theValue.name) {
+            type = "Invoking"
+          }
+          // Function
+          else if (theValue.__function && theValue.name) {
+            type = "Function"
+          }
+
+          // Invoking || Function
+          if (/^(Invoking|Function)$/.test(type)) {
+            let { name, args } = theValue
+            args = parseVal(Ti.Util.fallback(args || []))
+            return wrapDyVal({ type, name, args })
+          }
+
+          // Plain Object
+          let flds = []
+          _.forEach(theValue, (v, k) => {
+            let dv = parseVal(v)
+            flds.push({
+              name: k,
+              title: k,
+              value: dv
+            })
+          })
+          return wrapDyVal({
+            type: "Object",
+            fields: flds
+          })
+        } // ~Object
+        //.....................................
+        // Default as String
+        return wrapDyVal({
+          type: "String",
+          value: theValue
+        })
+      } // ~ parseVal
+      return parseVal(this.value)
+    },
+    //------------------------------------------------
+    InputValue() {
+      return this.DyVal.value
+    },
+    //------------------------------------------------
+    InputConf() {
+      let dvType = this.DyVal.type
+      //......................................
+      let prefixIcon = ({
+        "Number": "zmdi-n-2-square",
+        "Boolean": "fas-toggle-on",
+        "String": "zmdi-font",
+        "Object": "zmdi-toys",
+        "Array": "zmdi-format-list-numbered",
+        "Function": "fas-fire-extinguisher",
+        "Invoking": "fas-fire-alt",
+        "Tmpl": "im-plugin",
+        "BoolVar": "im-toggle",
+        "GetVar": "zmdi-key"
+      })[dvType]
+      //......................................
+      let prefixText = ({
+        "Function": this.DyVal.partial == "right" ? ":==>>" : ":==>",
+        "Invoking": this.DyVal.partial == "right" ? ":=>>" : ":=>",
+        "Tmpl": ":->",
+        "BoolVar": ":==",
+        "GetVar": ":="
+      })[dvType]
+      //......................................
+      let placeholder = ({
+        "Undefined": "i18n:undefined",
+        "Null": "i18n:null"
+      })[dvType]
+      //......................................
+      let readonly = /^(Undefined|Null)$/.test(dvType)
+      //......................................
+      return {
+        placeholder,
+        prefixIcon,
+        prefixText
+      }
+      //......................................
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods: {
+    //------------------------------------------------
+    async OnOpenEditForm() {
+      let reo = await Ti.App.Open(_.assign(
+        {
+          title: "i18n:edit",
+          position: "top",
+          width: "5.4rem",
+          height: "61.8%",
+        },
+        this.dialog,
+        {
+          result: this.DyVal,
+          model: { event: "change", prop: "data" },
+          comType: "TiForm",
+          comConf: {
+            spacing: "tiny",
+            omitHiddenFields: true,
+            fields: [
+              {
+                title: "i18n:type",
+                name: "type",
+                defaultAs: "String",
+                comType: "TiDroplist",
+                comConf: {
+                  options: "#HmValTypes",
+                  suffixText: "${=value}"
+                }
+              },
+              /*---------------------------*/
+              {
+                title: "i18n:value",
+                name: "value",
+                visible: {
+                  type: "^(String|Tmpl)$"
+                },
+                comType: "TiInput"
+              },
+              {
+                title: "i18n:value",
+                name: "value",
+                type: "Boolean",
+                visible: {
+                  type: "^(Boolean)$"
+                },
+                comType: "TiToggle"
+              },
+              {
+                title: "i18n:value",
+                name: "value",
+                type: "Number",
+                nanAs: 0,
+                visible: {
+                  type: "^(Number)$"
+                },
+                comType: "TiInput"
+              },
+              /*---------------------------*/
+              {
+                title: "i18n:name",
+                name: "name",
+                visible: {
+                  type: "^((Bool|Get)Var|Function|Invoking)$"
+                },
+                comType: "TiInput"
+              },
+              /*---------------------------*/
+              {
+                title: "i18n:hm-args",
+                name: "args",
+                type: "Array",
+                visible: {
+                  type: "^(Function|Invoking)$"
+                },
+                comType: "TiInput"
+              },
+              {
+                title: "i18n:hm-args-partial",
+                name: "partial",
+                visible: {
+                  type: "^(Function|Invoking)$"
+                },
+                comType: "TiSwitcher",
+                comConf: {
+                  options: "#HmArgsPartials"
+                }
+              },
+              /*---------------------------*/
+              // Array, Object
+
+              /*---------------------------*/
+            ]
+          }
+        }
+      )) // await Ti.App.Open
+
+      // User cancel
+      if (!reo) {
+        return
+      }
+      console.log(reo)
+
+      // Update the value
+      let fn = ({
+        "Undefined": () => {
+          return undefined
+        },
+        "Null": () => {
+          return null
+        },
+        "Number": ({ value }) => {
+          return value * 1
+        },
+        "Boolean": ({ value }) => {
+          return value ? true : false
+        },
+        "String": ({ value }) => {
+          return Ti.Types.toStr(value)
+        },
+        "Object": ({ value }) => {
+          // TODO ...
+          return value
+        },
+        "Array": ({ value }) => {
+          // TODO ...
+          return value
+        },
+        "Function": ({ name, args, partial }) => {
+          if (_.isEmpty(args)) {
+            return "right" == partial
+              ? `==>>${name}`
+              : `==>${name}`
+          }
+          return {
+            __function: true,
+            name, args, partial
+          }
+        },
+        "Invoking": ({ name, args, partial }) => {
+          if (_.isEmpty(args)) {
+            return "right" == partial
+              ? `=>>${name}`
+              : `=>${name}`
+          }
+          return {
+            __invoke: true,
+            name, args, partial
+          }
+        },
+        "Tmpl": ({ value }) => {
+          return `->${value}`
+        },
+        "BoolVar": ({ name, dftVal, isNot }) => {
+          let re = [isNot ? "!" : "=", "=", name]
+          if (!Ti.Util.isNil(dftVal)) {
+            re.push(`?${dftVal}`)
+          }
+          return re.join("")
+        },
+        "GetVar": ({ name, dftVal, dftAutoJs }) => {
+          let re = ["=", name]
+          if (!Ti.Util.isNil(dftVal)) {
+            if (dftAutoJs) {
+              re.push(`?=${dftVal}`)
+            } else {
+              re.push(`?${dftVal}`)
+            }
+          }
+          return re.join("")
+        }
+      })[reo.type]
+
+      if (_.isFunction(fn)) {
+        let val = fn(reo)
+        this.tryNotifyChange(val)
+      }
+    },
+    //------------------------------------------------
+    tryNotifyChange(val) {
+      if (!_.isEqual(this.value, val)) {
+        this.$notify("change", val)
+      }
+    }
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'bar-item-group.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/actionbar/com/bar-item-group/bar-item-group.mjs'] = (function(){
@@ -9650,7 +10411,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         defaultOpenDepth: this.defaultOpenDepth,
         display: [
           "<icon>",
-          "name::flex-auto",
+          "name::flex-auto is-nowrap",
           "id::is-nowrap as-tip-block align-right"
         ]
       }
@@ -42019,6 +42780,89 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'hm-react-item.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/hm/react/item/hm-react-item.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////////////
+  props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
+    "data": {
+      type: Object
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //------------------------------------------------
+    FormData() {
+      return this.data
+    },
+    //------------------------------------------------
+    FormFields() {
+      return [
+        {
+          "title": "名称",
+          "name": "name",
+          "comType": "TiInput",
+          "comConf": {
+            "placeholder": "请输入执行项名称"
+          }
+        },
+        {
+          "title": "图标",
+          "name": "icon",
+          "comType": "TiInputIcon"
+        },
+        {
+          "title": "前置条件",
+          "name": "test",
+          "type": "Array",
+          "comType": "TiInputText",
+          "comConf": {
+            "placeholder": "前置条件JSON",
+            "height": "16em",
+            "autoJsValue": true
+          }
+        },
+        {
+          "title": "重载默认",
+          "name": "override",
+          "type": "Boolean",
+          "tip": "勾选本选项，将会覆盖【基础流程】里的同名执行项",
+          "comType": "TiToggle"
+        },
+        {
+          "title": "执行变量",
+          "name": "vars",
+          "type": "Object",
+          "fieldWidth": "100%",
+          "comType": "TiInputPair",
+          "comConf": {
+            "placeholder": "每个动作的扩展上下文变量JSON"
+          }
+        },
+        {
+          "title": "执行动作列表"
+        },
+        {
+          "name": "actions",
+          "type": "Array",
+          "comType": "HmReactActions",
+          "comConf": {
+
+          }
+        },
+      ]
+    }
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-form.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/form/ti-form.mjs'] = (function(){
@@ -42034,6 +42878,7 @@ const _M = {
     currentTabIndex: 0,
     isEvalMeasure: false,
     myFormFields: [],
+    myFormFieldMap: {},
     myFormColumHint: -1
   }),
   //////////////////////////////////////////////////////
@@ -42166,7 +43011,7 @@ const _M = {
     },
     //--------------------------------------------------
     FormBodyStyle() {
-      if(this.bodyStyle) {
+      if (this.bodyStyle) {
         return this.bodyStyle
       }
     },
@@ -42285,10 +43130,19 @@ const _M = {
     //--------------------------------------------------
     TheData() {
       if (this.data) {
+        let re = this.data
         if (this.onlyFields) {
-          return _.pick(this.data, this.myKeysInFields)
+          re = _.pick(re, this.myKeysInFields)
         }
-        return this.data
+        if(this.omitHiddenFields) {
+          re = _.omitBy(re, (v,k)=>{
+            if(this.myFormFieldMap[k]){
+              return false
+            }
+            return true
+          })
+        }
+        return re
       }
       return {}
     }
@@ -42333,6 +43187,7 @@ const _M = {
     //--------------------------------------
     getData({ name, value } = {}) {
       let data = _.cloneDeep(this.TheData)
+      //console.log("GetData:", data)
 
       // Signle value
       if (name && _.isString(name)) {
@@ -42389,12 +43244,17 @@ const _M = {
     evalFormFieldList() {
       let list = []
       let keys = []
+      let fmap = {}
       this.isEvalMeasure = true
       //................................................
       _.forEach(this.fields, (fld, index) => {
         let fld2 = this.evalFormField(fld, [index])
         if (fld2) {
           list.push(fld2)
+          let fKeys = _.concat(fld2.name)
+          for (let fk of fKeys) {
+            fmap[fk] = fld2
+          }
         }
         // Gather keys
         keys.push(fld.name)
@@ -42409,6 +43269,7 @@ const _M = {
       this.myKeysInFields = _.flattenDeep(keys)
       //................................................
       this.myFormFields = list
+      this.myFormFieldMap = fmap
       //................................................
       this.__adjust_fields_width()
     },
@@ -42520,8 +43381,8 @@ const _M = {
         }
         field.serializer = Ti.Util.genInvoking(field.serializer, invokeOpt)
         field.transformer = Ti.Util.genInvoking(field.transformer, invokeOpt)
-        if(fld.required) {
-          if(_.isBoolean(fld.required)) {
+        if (fld.required) {
+          if (_.isBoolean(fld.required)) {
             field.required = true
           } else {
             field.required = Ti.AutoMatch.test(fld.required, this.data)
@@ -49212,6 +50073,321 @@ const _M = {
   //////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'hm-react-editor.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/hm/react/editor/hm-react-editor.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////////////
+  data: () => ({
+    myCurrentItemName: undefined
+  }),
+  ////////////////////////////////////////////////////
+  props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
+    "data": {
+      type: Array
+    },
+    "currentName": {
+      type: String
+    },
+    //------------------------------------------------
+    // Behaviors
+    //------------------------------------------------
+    "keepStatusTo": {
+      type: String
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //------------------------------------------------
+    GUILayout() {
+      return {
+        type: "cols",
+        border: true,
+        blocks: [
+          {
+            type: "rows",
+            size: "30%",
+            border: true,
+            blocks: [
+              {
+                name: "menu",
+                size: "0.42rem",
+                body: "menu"
+              },
+              {
+                name: "list",
+                body: "list"
+              }
+            ]
+          },
+          {
+            name: "form",
+            body: "form"
+          }
+        ]
+      }
+    },
+    //------------------------------------------------
+    GUISchema() {
+      return {
+        "menu": {
+          comType: "TiActionbar",
+          comConf: {
+            className: "pad-hs",
+            items: this.ActionMenuItems,
+            status: this.ActionMenuStatus
+          }
+        },
+        "list": {
+          comType: "TiList",
+          comConf: {
+            data: this.ReactItemList,
+            display: ["<icon>", "name"],
+            rowNumberBase: 1,
+            currentId: this.myCurrentItemName,
+            idBy: "name",
+            puppetMode: true,
+            dftLabelHoverCopy: false
+          }
+        },
+        "form": {
+          comType: "HmReactItem",
+          comConf: {
+            data: this.CurrentReactItemData
+          }
+        }
+      }
+    },
+    //------------------------------------------------
+    ActionMenuItems() {
+      return [
+        {
+          icon: "zmdi-plus",
+          text: "新建执行项",
+          action: () => {
+            this.doCreateNewItem()
+          }
+        },
+        {},
+        {
+          icon: "zmdi-delete",
+          enabled: {
+            hasCurrent: true
+          },
+          action: () => {
+            this.doRemoveCurrentItem()
+          }
+        },
+        {},
+        {
+          icon: "fas-long-arrow-alt-up",
+          enabled: {
+            hasCurrent: true
+          },
+          disabled: {
+            atFirst: true
+          },
+          action: () => {
+            this.doMoveCurrentUp()
+          }
+        },
+        {
+          icon: "fas-long-arrow-alt-down",
+          enabled: {
+            hasCurrent: true
+          },
+          disabled: {
+            atLast: true
+          },
+          action: () => {
+            this.doMoveCurrentDown()
+          }
+        }
+      ]
+    },
+    //------------------------------------------------
+    ActionMenuStatus() {
+      return {
+        hasCurrent: this.hasCurrentItem,
+        atFirst: this.isCurrentAtFirst,
+        atLast: this.isCurrentAtLast
+      }
+    },
+    //------------------------------------------------
+    hasCurrentItem() { return this.CurrentReactItem ? true : false },
+    isEmpty() { return _.isEmpty(this.data) },
+    LastItemIndex() {
+      return this.hasCurrentItem ? this.data.length - 1 : -1;
+    },
+    isCurrentAtFirst() {
+      return this.hasCurrentItem && 0 == this.CurrentReactItemIndex
+    },
+    isCurrentAtLast() {
+      return this.hasCurrentItem && this.LastItemIndex == this.CurrentReactItemIndex
+    },
+    //------------------------------------------------
+    CurrentReactItem() {
+      if (!this.isEmpty) {
+        let index = _.findIndex(this.data, li => li.name == this.myCurrentItemName)
+        if (index >= 0) {
+          return {
+            index, data: this.data[index]
+          }
+        }
+      }
+    },
+    //------------------------------------------------
+    CurrentReactItemIndex() {
+      if (this.hasCurrentItem) {
+        return this.CurrentReactItem.index
+      }
+    },
+    //------------------------------------------------
+    CurrentReactItemData() {
+      if (this.hasCurrentItem) {
+        return this.CurrentReactItem.data
+      }
+    },
+    //------------------------------------------------
+    ReactItemList() {
+      let list = []
+      _.forEach(this.data, (it, index) => {
+        list.push({
+          key: it.name || `RI_${index}`,
+          icon: it.icon || 'fas-bolt',
+          name: it.name
+        })
+      })
+      return list
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods: {
+    //------------------------------------------------
+    OnListSelect({ currentId }) {
+      this.myCurrentItemName = currentId
+    },
+    //------------------------------------------------
+    OnFormFieldChange() { },
+    //------------------------------------------------
+    OnFormChange(item) {
+      // Guard
+      if (!this.hasCurrentItem) {
+        return
+      }
+      // Update value
+      let data = _.cloneDeep(this.data) || []
+      data[this.CurrentReactItemIndex] = item
+      this.tryNotifyChange(data)
+    },
+    //------------------------------------------------
+    doCreateNewItem() {
+      let newName = "新自动执行项"
+      let data = _.cloneDeep(this.data) || []
+      data.push({
+        name: newName
+      })
+      this.myCurrentItemName = newName
+      this.tryNotifyChange(data)
+    },
+    //------------------------------------------------
+    doRemoveCurrentItem() {
+      // 防守
+      if (!this.hasCurrentItem) {
+        return
+      }
+      // 找到下一个要高亮的节点
+      let itName = this.myCurrentItemName
+      let { index, item } = Ti.Util.findNextItemBy(this.data, li => li.name == itName)
+
+      // 更新数据
+      let data = _.filter(this.data, li => li.name != itName)
+      this.tryNotifyChange(data)
+
+      // 更新当前选中
+      if (index >= 0 && item.name) {
+        this.myCurrentItemName = item.name
+      }
+    },
+    //------------------------------------------------
+    doMoveCurrentUp() {
+      // 防守
+      if (!this.hasCurrentItem || this.isCurrentAtFirst) {
+        return
+      }
+      // 获取当前下标
+      let itName = this.myCurrentItemName
+      let index = _.findIndex(this.data, li => li.name == itName)
+
+      // 更新数据： 与前面交换
+      let data = _.cloneDeep(this.data)
+      let it0 = data[index]
+      data[index] = data[index - 1]
+      data[index - 1] = it0
+      this.tryNotifyChange(data)
+    },
+    //------------------------------------------------
+    doMoveCurrentDown() {
+      // 防守
+      if (!this.hasCurrentItem || this.isCurrentAtLast) {
+        return
+      }
+      // 获取当前下标
+      let itName = this.myCurrentItemName
+      let index = _.findIndex(this.data, li => li.name == itName)
+
+      // 更新数据： 与前面交换
+      let data = _.cloneDeep(this.data)
+      let it0 = data[index]
+      data[index] = data[index + 1]
+      data[index + 1] = it0
+      this.tryNotifyChange(data)
+    },
+    //------------------------------------------------
+    tryNotifyChange(data) {
+      if (!_.isEqual(this.data, data)) {
+        this.$notify("change", data)
+      }
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    "currentName": {
+      handler: function (newVal, oldVal) {
+        console.log("update current")
+        if (!Ti.Util.isNil(newVal)) {
+          this.myCurrentItemName = newVal
+        }
+      },
+      immediate: true
+    },
+    "myCurrentItemName": function (newVal, oldVal) {
+      console.log(newVal, oldVal)
+      if (this.keepStatusTo && !_.isEqual(newVal, oldVal)) {
+        if (Ti.Util.isNil(newVal)) {
+          Ti.Storage.local.remove(this.keepStatusTo)
+        } else {
+          Ti.Storage.local.set(this.keepStatusTo, newVal)
+        }
+      }
+    }
+  },
+  ////////////////////////////////////////////////////
+  mounted: function () {
+    if (this.keepStatusTo && Ti.Util.isNil(this.currentName)) {
+      this.myCurrentItemName = Ti.Storage.local.getString(this.keepStatusTo)
+    }
+  }
+  ////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'web-pay-checkout-props.mjs' -> null
@@ -59258,6 +60434,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Boolean,
     default: true
   },
+  "omitHiddenFields": {
+    type: Boolean,
+    default: false
+  },
   // merge each time data change
   "fixed": {
     type: Object,
@@ -67402,6 +68582,145 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'ti-input-pair.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/input/pair/ti-input-pair.mjs'] = (function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
+    "value": {
+      type: Object
+    },
+    "dftNewItemName": {
+      type: String,
+      default: "newKey"
+    },
+    //------------------------------------------------
+    // Behaviors
+    //------------------------------------------------
+    "nameComType": {
+      type: String,
+      default: "TiInput"
+    },
+    "nameComConf": {
+      type: Object,
+      default: () => ({
+        hideBorder: true,
+        autoSelect: true
+      })
+    },
+    "valueComType": {
+      type: String,
+      default: "TiInputDval"
+    },
+    "valueComConf": {
+      type: Object,
+      default: () => ({
+        hideBorder: true,
+        autoJsValue: true,
+        autoSelect: true
+      })
+    },
+    //------------------------------------------------
+    // Aspect
+    //------------------------------------------------
+    "blankAs": {
+      type: Object,
+      default: () => ({
+        className: "as-big",
+        icon: "fas-border-none",
+        text: "i18n:empty"
+      })
+    },
+    "nameWidth": {
+      type: [String, Number],
+      default: "38.2%"
+    }
+
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //------------------------------------------------
+    isEmpty() {
+      return _.isEmpty(this.PairFields)
+    },
+    //------------------------------------------------
+    PairFields() {
+      let re = []
+      _.forEach(this.value, (v, k) => {
+        re.push({
+          name: k,
+          value: v
+        })
+      })
+      return re
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods: {
+    //------------------------------------------------
+    OnNameChange({ name }, newName) {
+      if (!_.isEqual(name, newName)) {
+        let data = {}
+        // To keep the original key order
+        _.forEach(this.value, (v, k) => {
+          if (k == name) {
+            data[newName] = v
+          } else {
+            data[k] = v
+          }
+        })
+        this.tryNotifyChange(data)
+      }
+    },
+    //------------------------------------------------
+    OnValueChange({ name, value }, newVal) {
+      if (!_.isEqual(value, newVal)) {
+        let data = _.cloneDeep(this.value) || {}
+        data[name] = newVal
+        this.tryNotifyChange(data)
+      }
+    },
+    //------------------------------------------------
+    OnDeleteFld({ name }) {
+      let data = {}
+      _.forEach(this.value, (v, k) => {
+        if (k != name) {
+          data[k] = v
+        }
+      })
+      this.tryNotifyChange(data)
+    },
+    //------------------------------------------------
+    OnAddNewPair() {
+      let data = _.cloneDeep(this.value) || {}
+      let newName = this.dftNewItemName
+      let val = _.get(data, newName)
+      let N = 1
+      while (!_.isUndefined(val)) {
+        newName = `${this.dftNewItemName}${N++}`
+        val = _.get(data, newName)
+      }
+      data[newName] = null
+      this.tryNotifyChange(data)
+    },
+    //------------------------------------------------
+    tryNotifyChange(data) {
+      if (!_.isEqual(data, this.value)) {
+        this.$notify("change", data)
+      }
+    }
+    //------------------------------------------------
+  }
+  ////////////////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'wn-gui.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/gui/wn-gui.mjs'] = (function(){
@@ -72130,6 +73449,124 @@ Ti.Preload("ti/com/hm/prop/css-rules/_com.json", {
     "@com:ti/form"]
 });
 //========================================
+// JOIN <hm-react-actions.html> ti/com/hm/react/actions/hm-react-actions.html
+//========================================
+Ti.Preload("ti/com/hm/react/actions/hm-react-actions.html", `<div class="hm-react-actions">
+  <!--
+    List each action items in loop
+  -->
+  <div
+    v-for="it in myDisplayList"
+      class="as-action-item">
+      <!--
+        Item head
+      -->
+      <div class="as-item-head">
+        <!--Action Icon-->
+        <TiIcon :value="it.icon"/>
+        <!--Action Type-->
+        <div class="as-type-text">{{it.typeText|i18n}}</div>
+        <!--Action Menu-->
+        <div class="as-item-menu">
+          <a @click.left="OnEditAction(it)">{{'i18n:edit'|i18n}}</a>
+          <a><i class="fas fa-trash-alt"></i></a>
+          <a v-if="!it.first"><i class="fas fa-long-arrow-alt-up"></i></a>
+          <a v-if="!it.last"><i class="fas fa-long-arrow-alt-down"></i></a>
+        </div>
+      </div>
+      <!--
+        Item fields
+      -->
+      <div class="as-item-fields">
+        <div
+          v-for="fld in it.fields"
+            class="as-field">
+            <div class="as-name">{{fld.name|i18n}}</div>
+            <div class="as-text">{{fld.text}}</div>
+        </div>
+      </div>
+  </div>
+  <!--
+    Add new items
+  -->
+  <div class="as-new-item">
+    <div class="as-btn">
+      <i class="zmdi zmdi-plus"></i>
+      <span>{{'i18n:add-item'|i18n}}</span>
+    </div>
+  </div>
+</div>`);
+//========================================
+// JOIN <hm-react-actions.mjs> ti/com/hm/react/actions/hm-react-actions.mjs
+//========================================
+Ti.Preload("ti/com/hm/react/actions/hm-react-actions.mjs", TI_PACK_EXPORTS['ti/com/hm/react/actions/hm-react-actions.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/hm/react/actions/_com.json
+//========================================
+Ti.Preload("ti/com/hm/react/actions/_com.json", {
+  "name": "hm-react-actions",
+  "globally": true,
+  "template": "./hm-react-actions.html",
+  "mixins": "./hm-react-actions.mjs",
+  "components": [
+    
+  ]
+});
+//========================================
+// JOIN <hm-react-editor.html> ti/com/hm/react/editor/hm-react-editor.html
+//========================================
+Ti.Preload("ti/com/hm/react/editor/hm-react-editor.html", `<TiGui
+  class="chispo-react-editor"
+  :layout="GUILayout"
+  :schema="GUISchema"
+  :canLoading="false"
+  @list::select="OnListSelect"
+  @form::change="OnFormChange"
+  @form::field::change="OnFormFieldChange"/>`);
+//========================================
+// JOIN <hm-react-editor.mjs> ti/com/hm/react/editor/hm-react-editor.mjs
+//========================================
+Ti.Preload("ti/com/hm/react/editor/hm-react-editor.mjs", TI_PACK_EXPORTS['ti/com/hm/react/editor/hm-react-editor.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/hm/react/editor/_com.json
+//========================================
+Ti.Preload("ti/com/hm/react/editor/_com.json", {
+  "name": "hm-react-editor",
+  "globally": true,
+  "template": "./hm-react-editor.html",
+  "mixins": "./hm-react-editor.mjs",
+  "components": [
+    "@com:hm/react/item"
+  ]
+});
+//========================================
+// JOIN <hm-react-item.html> ti/com/hm/react/item/hm-react-item.html
+//========================================
+Ti.Preload("ti/com/hm/react/item/hm-react-item.html", `<TiForm
+  class="ti-fill-parent"
+  :data="FormData"
+  :fields="FormFields"
+  spacing="tiny"
+  :autoShowBlank="true"
+  :blankAs="{icon:'zmdi-arrow-left',text:'请选择一个执行项'}"/>`);
+//========================================
+// JOIN <hm-react-item.mjs> ti/com/hm/react/item/hm-react-item.mjs
+//========================================
+Ti.Preload("ti/com/hm/react/item/hm-react-item.mjs", TI_PACK_EXPORTS['ti/com/hm/react/item/hm-react-item.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/hm/react/item/_com.json
+//========================================
+Ti.Preload("ti/com/hm/react/item/_com.json", {
+  "name": "hm-react-item",
+  "globally": true,
+  "template": "./hm-react-item.html",
+  "mixins": "./hm-react-item.mjs",
+  "components": [
+    "@com:ti/input/pair",
+    "@com:hm/react/actions"
+  ]
+});
+//========================================
 // JOIN <vod-manager.html> ti/com/net/aliyun/vod/manager/vod-manager.html
 //========================================
 Ti.Preload("ti/com/net/aliyun/vod/manager/vod-manager.html", `<ti-gui
@@ -75060,6 +76497,56 @@ Ti.Preload("ti/com/ti/input/datetime/_com.json", {
     "@com:ti/datetime"]
 });
 //========================================
+// JOIN <ti-input-dval.html> ti/com/ti/input/dval/ti-input-dval.html
+//========================================
+Ti.Preload("ti/com/ti/input/dval/ti-input-dval.html", `<div  
+  class="ti-input-dval full-field"
+  :class="TopClass">
+  <!--
+    Boolean
+  -->
+  <template v-if="'Boolean' == DyVal.type">
+      <TiToggle
+        class="as-main"
+        :value="DyVal.value"/>
+      <div class="as-edit" @click.left="OnOpenEditForm">
+        <i class="fas fa-cog"></i>
+      </div>
+  </template>
+  <!--
+    TODO: 
+    Function Call
+    Array value
+    Object value
+  -->
+  <!--
+    Simple value by input
+  -->
+  <TiInput
+    v-else
+      class="as-main"
+      :value="InputValue"
+      v-bind="InputConf"
+      :hideBorder="true"
+      :autoJsValue="true"
+      :autoSelect="true"
+      suffixIcon="fas-cog"
+      @suffix:icon="OnOpenEditForm"/>
+</div>`);
+//========================================
+// JOIN <ti-input-dval.mjs> ti/com/ti/input/dval/ti-input-dval.mjs
+//========================================
+Ti.Preload("ti/com/ti/input/dval/ti-input-dval.mjs", TI_PACK_EXPORTS['ti/com/ti/input/dval/ti-input-dval.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/input/dval/_com.json
+//========================================
+Ti.Preload("ti/com/ti/input/dval/_com.json", {
+  "name": "ti-input-dval",
+  "globally": true,
+  "template": "./ti-input-dval.html",
+  "mixins": "./ti-input-dval.mjs"
+});
+//========================================
 // JOIN <ti-input-icon-data.mjs> ti/com/ti/input/icon/ti-input-icon-data.mjs
 //========================================
 Ti.Preload("ti/com/ti/input/icon/ti-input-icon-data.mjs", TI_PACK_EXPORTS['ti/com/ti/input/icon/ti-input-icon-data.mjs']);
@@ -75239,6 +76726,73 @@ Ti.Preload("ti/com/ti/input/num/_com.json", {
   "globally" : true,
   "template" : "./ti-input-num.html",
   "mixins" : ["./ti-input-num.mjs"]
+});
+//========================================
+// JOIN <ti-input-pair.html> ti/com/ti/input/pair/ti-input-pair.html
+//========================================
+Ti.Preload("ti/com/ti/input/pair/ti-input-pair.html", `<div class="ti-input-pair full-field">
+  <!----------------------------------------->
+  <TiLoading
+    v-if="isEmpty"
+      v-bind="blankAs"/>
+  <!----------------------------------------->
+  <table v-else>
+    <colgroup>
+      <col :width="nameWidth">
+      <col>
+    </colgroup>
+    <tbody>
+      <tr v-for="fld in PairFields">
+        <td class="as-name">
+          <div class="cell-con">
+            <div class="as-deleter" @click.left="OnDeleteFld(fld)">
+              <i class="zmdi zmdi-close"></i>
+            </div>
+            <component 
+              :is="nameComType" 
+              class="as-com"
+              v-bind="nameComConf" 
+              :value="fld.name"
+              @change="OnNameChange(fld, $event)"/>
+          </div>
+        </td>
+        <td class="as-value">
+          <div class="cell-con">
+            <component 
+              :is="valueComType"
+              class="as-com"
+              v-bind="valueComConf"
+              :value="fld.value"
+              @change="OnValueChange(fld, $event)"/>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <!----------------------------------------->
+  <div class="as-adder">
+    <div class="adder-btn" @click.left="OnAddNewPair">
+      <i class="zmdi zmdi-plus"></i>
+      <span>{{'i18n:add-item'|i18n}}</span>
+    </div>
+  </div>
+  <!----------------------------------------->
+</div>`);
+//========================================
+// JOIN <ti-input-pair.mjs> ti/com/ti/input/pair/ti-input-pair.mjs
+//========================================
+Ti.Preload("ti/com/ti/input/pair/ti-input-pair.mjs", TI_PACK_EXPORTS['ti/com/ti/input/pair/ti-input-pair.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/input/pair/_com.json
+//========================================
+Ti.Preload("ti/com/ti/input/pair/_com.json", {
+  "name": "ti-input-pair",
+  "globally": true,
+  "template": "./ti-input-pair.html",
+  "mixins": "./ti-input-pair.mjs",
+  "components": [
+    "@com:ti/input/dval"
+  ]
 });
 //========================================
 // JOIN <ti-input-picker.html> ti/com/ti/input/picker/ti-input-picker.html
@@ -76098,6 +77652,10 @@ Ti.Preload("ti/com/ti/list/com/list-row/list-row.html", `<div class="list-row"
         class="row-checker"
         :value="theCheckIcon"
         @click.native.left.stop="OnClickChecker"/>
+    <!--Row Number-->
+    <div 
+      v-if="hasRowNumber"
+        class="row-number">{{RowNumber}}</div>
     <!-- Content -->
     <div
       class="row-con"
@@ -76166,6 +77724,7 @@ Ti.Preload("ti/com/ti/list/ti-list.html", `<div class="ti-list"
         :key="row.id"
         :row-id="row.id"
         :index="row.index"
+        :displayIndex="row.displayIndex"
         :icon="row.icon"
         :indent="row.indent"
         :data="row.rawData"
@@ -76176,12 +77735,13 @@ Ti.Preload("ti/com/ti/list/ti-list.html", `<div class="ti-list"
         :checkable="checkable"
         :selectable="selectable"
         :openable="openable"
-        :row-toggle-key="TheRowToggleKey"
+        :rowToggleKey="TheRowToggleKey"
+        :rowNumberBase="rowNumberBase"
         
         :asGroupTitle="row.asGroupTitle"
         :groupTitleDisplay="RowGroupTitleDisplay"
 
-        :class-name="itemClassName"
+        :className="itemClassName"
         @checker="OnRowCheckerClick"
         @select="OnRowSelect"
         @open="OnRowOpen"/>
@@ -85764,6 +87324,22 @@ Ti.Preload("/a/load/wn.manager/wn-manager.mjs", TI_PACK_EXPORTS['/a/load/wn.mana
 // JOIN <hmaker.i18n.json> ti/i18n/en-us/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
+  "hm-args": "Arguments",
+  "hm-args-partial": "Arg partial",
+  "hm-args-partial-left": "Partial Left",
+  "hm-args-partial-right": "Partial Right",
+  "vt-Undefined": "Undefined",
+  "vt-Null": "Null",
+  "vt-Number": "Number",
+  "vt-Boolean": "Boolean",
+  "vt-String": "String",
+  "vt-Object": "Object",
+  "vt-Array": "Array",
+  "vt-Function": "Function",
+  "vt-Invoking": "Invoking",
+  "vt-Tmpl": "Template",
+  "vt-BoolVar": "Bool Var",
+  "vt-GetVar": "Get Var",
   "com-form": "Form",
   "com-label": "Label",
   "com-list": "list",
@@ -86099,7 +87675,19 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-yt-playlist-margin": "YT playlist margin",
   "hmk-yt-playlist-name": "Playlist name",
   "hmk-yt-playlist-prop": "YT playlist prop",
-  "hmk-yt-playlist-refresh": "Reload YT playlist"
+  "hmk-yt-playlist-refresh": "Reload YT playlist",
+  "hmr-t-thing_create": "Create Thing",
+  "hmr-t-thing_update": "Update Thing",
+  "hmr-t-thing_delete": "Delete Thing",
+  "hmr-t-thing_clear": "Clear Thing",
+  "hmr-t-obj_create": "Create Obj",
+  "hmr-t-obj_update": "Update Obj",
+  "hmr-t-obj_delete": "Delete Obj",
+  "hmr-t-obj_clear": "Clear Obj",
+  "hmr-t-exec": "Run Script",
+  "hmr-t-jsc": "Run JS",
+  "hmr-add-react-item": "Add React Item",
+  "hmr-add-action": "Add New Action"
 });
 //========================================
 // JOIN <ti-datetime.i18n.json> ti/i18n/en-us/ti-datetime.i18n.json
@@ -86693,6 +88281,14 @@ Ti.Preload("ti/i18n/en-us/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/en-us/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
+  "target": "Target",
+  "target-id": "Target ID",
+  "target-name": "Target name",
+  "target-path": "Target path",
+  "params": "Params",
+  "query": "Query",
+  "skip": "Skip",
+  "limit": "Limit",
   "add": "Add",
   "add-item": "New item",
   "add-now": "Add Now",
@@ -87106,6 +88702,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "track": "Track message",
   "true": "True",
   "type": "Type",
+  "undefined": "Undefined",
+  "null": "Null",
   "under-construction": "Under construction",
   "unknown": "Unknown",
   "unzip": "Unzip",
@@ -87247,6 +88845,22 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-cn/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
+  "hm-args": "参数表",
+  "hm-args-partial": "参数填充",
+  "hm-args-partial-left": "左填充",
+  "hm-args-partial-right": "右填充",
+  "vt-Undefined": "未定义",
+  "vt-Null": "空值",
+  "vt-Number": "数字",
+  "vt-Boolean": "布尔",
+  "vt-String": "字符串",
+  "vt-Object": "对象",
+  "vt-Array": "数组",
+  "vt-Function": "函数",
+  "vt-Invoking": "调用",
+  "vt-Tmpl": "模板",
+  "vt-BoolVar": "布尔变量",
+  "vt-GetVar": "获取变量",
   "com-form": "表单",
   "com-label": "标签",
   "com-list": "列表",
@@ -87583,7 +89197,19 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-yt-playlist-margin": "YT播放列表边距",
   "hmk-yt-playlist-name": "列表名称",
   "hmk-yt-playlist-prop": "YT播放列表属性",
-  "hmk-yt-playlist-refresh": "刷新YT播放列表内容"
+  "hmk-yt-playlist-refresh": "刷新YT播放列表内容",
+  "hmr-t-thing_create": "创建数据集对象",
+  "hmr-t-thing_update": "更新数据集对象",
+  "hmr-t-thing_delete": "删除数据集对象",
+  "hmr-t-thing_clear": "清理数据集对象",
+  "hmr-t-obj_create": "创建标准对象",
+  "hmr-t-obj_update": "更新标准对象",
+  "hmr-t-obj_delete": "删除标准对象",
+  "hmr-t-obj_clear": "清理标准对象",
+  "hmr-t-exec": "执行脚本",
+  "hmr-t-jsc": "执行JS脚本",
+  "hmr-add-react-item": "新建执行项",
+  "hmr-add-action": "添加新动作项"
 });
 //========================================
 // JOIN <ti-datetime.i18n.json> ti/i18n/zh-cn/ti-datetime.i18n.json
@@ -88155,6 +89781,14 @@ Ti.Preload("ti/i18n/zh-cn/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-cn/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
+  "target": "目标",
+  "target-id": "目标ID",
+  "target-name": "目标名称",
+  "target-path": "目标路径",
+  "params": "参数",
+  "query": "查询",
+  "skip": "跳过",
+  "limit": "限制",
   "add": "添加",
   "add-item": "添加新项",
   "add-now": "立即添加",
@@ -88568,6 +90202,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "track": "消息",
   "true": "是",
   "type": "类型",
+  "undefined": "未定义",
+  "null": "空值",
   "under-construction": "正在施工中",
   "unknown": "未知",
   "unzip": "解压缩",
@@ -88735,6 +90371,22 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-hk/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
+   "hm-args": "參數表",
+   "hm-args-partial": "參數填充",
+   "hm-args-partial-left": "左填充",
+   "hm-args-partial-right": "右填充",
+   "vt-Undefined": "未定義",
+   "vt-Null": "空值",
+   "vt-Number": "數字",
+   "vt-Boolean": "布爾",
+   "vt-String": "字符串",
+   "vt-Object": "對象",
+   "vt-Array": "數組",
+   "vt-Function": "函數",
+   "vt-Invoking": "調用",
+   "vt-Tmpl": "模板",
+   "vt-BoolVar": "布爾變量",
+   "vt-GetVar": "獲取變量",
    "com-form": "表單",
    "com-label": "標籤",
    "com-list": "列表",
@@ -89071,7 +90723,19 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-yt-playlist-margin": "YT播放列表邊距",
    "hmk-yt-playlist-name": "列表名稱",
    "hmk-yt-playlist-prop": "YT播放列表屬性",
-   "hmk-yt-playlist-refresh": "刷新YT播放列表內容"
+   "hmk-yt-playlist-refresh": "刷新YT播放列表內容",
+   "hmr-t-thing_create": "創建數據集對象",
+   "hmr-t-thing_update": "更新數據集對象",
+   "hmr-t-thing_delete": "刪除數據集對象",
+   "hmr-t-thing_clear": "清理數據集對象",
+   "hmr-t-obj_create": "創建標準對象",
+   "hmr-t-obj_update": "更新標準對象",
+   "hmr-t-obj_delete": "刪除標準對象",
+   "hmr-t-obj_clear": "清理標準對象",
+   "hmr-t-exec": "執行腳本",
+   "hmr-t-jsc": "執行JS腳本",
+   "hmr-add-react-item": "新建執行項",
+   "hmr-add-action": "添加新動作項"
 });
 //========================================
 // JOIN <ti-datetime.i18n.json> ti/i18n/zh-hk/ti-datetime.i18n.json
@@ -89643,6 +91307,14 @@ Ti.Preload("ti/i18n/zh-hk/_net.i18n.json", {
 // JOIN <_ti.i18n.json> ti/i18n/zh-hk/_ti.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
+   "target": "目標",
+   "target-id": "目標ID",
+   "target-name": "目標名稱",
+   "target-path": "目標路徑",
+   "params": "參數",
+   "query": "查詢",
+   "skip": "跳過",
+   "limit": "限制",
    "add": "添加",
    "add-item": "添加新項",
    "add-now": "立即添加",
@@ -90056,6 +91728,8 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "track": "消息",
    "true": "是",
    "type": "類型",
+   "undefined": "未定義",
+   "null": "空值",
    "under-construction": "正在施工中",
    "unknown": "未知",
    "unzip": "解壓縮",

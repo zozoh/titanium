@@ -656,7 +656,7 @@ const TiUtil = {
             m_val = _.trim(m[2])
             m_dft = m[4]
             // starts with "=" auto covert to JS value
-            if (/^=/.test(m_dft) || "==" == m_type) {
+            if (/^=/.test(m_dft) || /^[!=]=/.test(m_type)) {
               m_dft = Ti.S.toJsValue(m_dft)
             } else if (m_dft) {
               m_dft = _.trim(m_dft)
@@ -770,18 +770,18 @@ const TiUtil = {
       }
       // Call the function
       else if (theValue.__invoke && theValue.name) {
-        let { name, args } = theValue
+        let { name, args, partial } = theValue
         args = Ti.Util.explainObj(context, args)
-        let fn = Ti.Util.genInvoking({ name, args }, { context })
+        let fn = Ti.Util.genInvoking({ name, args }, { context, partial })
         if (_.isFunction(fn)) {
           return fn()
         }
       }
       // Invoke function
       else if (theValue.__function && theValue.name) {
-        let { name, args } = theValue
+        let { name, args, partial } = theValue
         args = Ti.Util.explainObj(context, args)
-        let fn = Ti.Util.genInvoking({ name, args }, { context })
+        let fn = Ti.Util.genInvoking({ name, args }, { context, partial })
         if (_.isFunction(fn)) {
           return fn
         }
@@ -1602,7 +1602,7 @@ const TiUtil = {
     let invoke = TiUtil.parseInvoking(str)
     let callPath = invoke.name
     let callArgs = invoke.args
-    
+
     //.............................................
     //console.log(callPath, callArgs)
     let func = _.get(funcSet, callPath)

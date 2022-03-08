@@ -222,7 +222,7 @@ export default {
     "value": "evalDisplayList"
   },
   ////////////////////////////////////////////////////
-  mounted: await function () {
+  mounted: function () {
     this.evalDisplayList()
   }
   ////////////////////////////////////////////////////

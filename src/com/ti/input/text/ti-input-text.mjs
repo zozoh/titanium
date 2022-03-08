@@ -119,11 +119,17 @@ const _M = {
     },
     //------------------------------------------------
     theValue() {
-      //console.log("input value:", this.value)
+      console.log("input value:", this.value)
       // if(_.isArray(this.value)) {
       //   return this.value.join("\r\n")
       // }
-      if(_.isArray(this.value)) {
+      let valIsArray = _.isArray(this.value)
+      if (this.autoJsValue) {
+        if (valIsArray || _.isPlainObject(this.value)) {
+          return JSON.stringify(this.value, null, '   ')
+        }
+      }
+      if (valIsArray && !Ti.Util.isNil(this.joinBy)) {
         return this.value.join(this.joinBy)
       }
       return Ti.Types.toStr(this.value, this.format)
@@ -262,7 +268,7 @@ const _M = {
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
-      return {stop:true, quit:true}
+      return { stop: true, quit: true }
     }
     //------------------------------------------------
   },

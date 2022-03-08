@@ -37,7 +37,8 @@ export default {
           "comType": "TiInputText",
           "comConf": {
             "placeholder": "前置条件JSON",
-            "height": "10em"
+            "height": "16em",
+            "autoJsValue": true
           }
         },
         {
@@ -65,7 +66,7 @@ export default {
           "type": "Array",
           "comType": "HmReactActions",
           "comConf": {
-            
+
           }
         },
       ]

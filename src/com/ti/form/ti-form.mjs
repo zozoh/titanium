@@ -310,7 +310,7 @@ const _M = {
       // Notify later ...
       // Wait for a tick to give a chance to parent of 'data' updating
       this.$nextTick(() => {
-        console.log("notify data")
+        //console.log("notify data")
         let data = this.getData({ name, value })
         _.assign(data, obj)
         this.$notify("change", data)
@@ -319,7 +319,7 @@ const _M = {
     //--------------------------------------
     getData({ name, value } = {}) {
       let data = _.cloneDeep(this.TheData)
-      console.log("GetData:", data)
+      //console.log("GetData:", data)
 
       // Signle value
       if (name && _.isString(name)) {

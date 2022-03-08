@@ -1,4 +1,4 @@
-// Pack At: 2022-03-02 22:15:20
+// Pack At: 2022-03-09 00:54:36
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9327,6 +9327,7 @@ const {Types} = (function(){
         }
         return [val]
       }
+      return [val]
     },
     //.......................................
     toDate(val, dft = null) {
@@ -10180,22 +10181,22 @@ const {Util} = (function(){
      * 
      * @return given obj
      */
-    pushEle(obj={}, key, ...vals) {
+    pushEle(obj = {}, key, ...vals) {
       // Guard
-      if(!vals || vals.length == 0) {
+      if (!vals || vals.length == 0) {
         return
       }
       // Set
       let vs = obj[key]
-      if(_.isArray(vs)) {
-        for(let i=0; i<vals.length; i++) {
+      if (_.isArray(vs)) {
+        for (let i = 0; i < vals.length; i++) {
           vs.push(vals[i])
         }
       }
       // vs is not array
-      else if(vs) {
+      else if (vs) {
         vs = [vs]
-        for(let i=0; i<vals.length; i++) {
+        for (let i = 0; i < vals.length; i++) {
           vs.push(vals[i])
         }
       }
@@ -10312,6 +10313,8 @@ const {Util} = (function(){
         return { index, item }
       }
       // Try to find
+      index = 0;
+      item = list[0];
       let found = false
       for (let i = 0; i < list.length; i++) {
         let li = list[i]
@@ -10751,7 +10754,7 @@ const {Util} = (function(){
           }
   
           let m_type, m_val, m_dft;
-          // Match template
+          // Match template or function call
           m = /^(==>>?|=>>?|->)(.+)$/.exec(theValue)
           if (m) {
             m_type = m[1]
@@ -10765,7 +10768,7 @@ const {Util} = (function(){
               m_val = _.trim(m[2])
               m_dft = m[4]
               // starts with "=" auto covert to JS value
-              if (/^=/.test(m_dft) || "==" == m_type) {
+              if (/^=/.test(m_dft) || /^[!=]=/.test(m_type)) {
                 m_dft = Ti.S.toJsValue(m_dft)
               } else if (m_dft) {
                 m_dft = _.trim(m_dft)
@@ -10879,18 +10882,18 @@ const {Util} = (function(){
         }
         // Call the function
         else if (theValue.__invoke && theValue.name) {
-          let { name, args } = theValue
+          let { name, args, partial } = theValue
           args = Ti.Util.explainObj(context, args)
-          let fn = Ti.Util.genInvoking({ name, args }, { context })
+          let fn = Ti.Util.genInvoking({ name, args }, { context, partial })
           if (_.isFunction(fn)) {
             return fn()
           }
         }
         // Invoke function
         else if (theValue.__function && theValue.name) {
-          let { name, args } = theValue
+          let { name, args, partial } = theValue
           args = Ti.Util.explainObj(context, args)
-          let fn = Ti.Util.genInvoking({ name, args }, { context })
+          let fn = Ti.Util.genInvoking({ name, args }, { context, partial })
           if (_.isFunction(fn)) {
             return fn
           }
@@ -11665,6 +11668,33 @@ const {Util} = (function(){
     genGetterNotNil(key, setup) {
       return Ti.Util.genGetter(key, _.assign({}, setup, { notNil: true }))
     },
+    /**
+     * @param {String|Object} str Invoking string
+     * @returns {Object} `{name:"Ti.X.XX", args:[]}`
+     */
+    parseInvoking(str) {
+      let callPath, callArgs;
+      // Object mode
+      if (str.name && !_.isUndefined(str.args)) {
+        callPath = str.name
+        callArgs = _.concat(str.args)
+      }
+      // String mode
+      else {
+        let m = /^([^()]+)(\((.+)\))?$/.exec(str)
+        if (m) {
+          callPath = _.trim(m[1])
+          callArgs = _.trim(m[3])
+        }
+      }
+  
+      let args = Ti.S.joinArgs(callArgs, [], v => v)
+  
+      return {
+        name: callPath,
+        args
+      }
+    },
     /***
      * "Ti.Types.toStr(abc)" -> Function
      * 
@@ -11681,25 +11711,15 @@ const {Util} = (function(){
         return str
       }
       //.............................................
-      let callPath, callArgs;
-      // Object mode
-      if (str.name && !_.isUndefined(str.args)) {
-        callPath = str.name
-        callArgs = _.concat(str.args)
-      }
-      // String mode
-      else {
-        let m = /^([^()]+)(\((.+)\))?$/.exec(str)
-        if (m) {
-          callPath = _.trim(m[1])
-          callArgs = _.trim(m[3])
-        }
-      }
+      let invoke = TiUtil.parseInvoking(str)
+      let callPath = invoke.name
+      let callArgs = invoke.args
+  
       //.............................................
       //console.log(callPath, callArgs)
       let func = _.get(funcSet, callPath)
       if (_.isFunction(func)) {
-        let args = Ti.S.joinArgs(callArgs, [], v => {
+        let args = _.map(callArgs, v => {
           if (_.isString(v) || _.isArray(v))
             return Ti.S.toJsValue(v, { context })
           return v
@@ -17887,7 +17907,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220302.221520",
+  "version" : "1.6-20220309.005436",
   "dev" : false,
   "appName" : null,
   "session" : {},

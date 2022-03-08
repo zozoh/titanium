@@ -51,8 +51,8 @@ const _M = {
       //.................................
       // "Var"
       dftVal: String,
+      // "GetVar"
       dftAutoJs: true,
-      boolVal : false,
       // "BoolVar"
       isNot: false,
       //.................................
@@ -109,18 +109,20 @@ const _M = {
             m_val = _.trim(m[2])
           }
           // Match var value
-          m = /^(==?|!=)([^?]+)(\?(.*))?$/.exec(theValue)
-          if (m) {
-            m_type = m[1]
-            m_val = _.trim(m[2])
-            m_dft = m[4]
-            // starts with "=" auto covert to JS value
-            if (/^=/.test(m_dft) || "==" == m_type) {
-              m_dft = Ti.S.toJsValue(m_dft)
-              dft_autoJs = true
-            } else if (m_dft) {
-              m_dft = _.trim(m_dft)
-              dft_autoJs = false
+          else {
+            m = /^(==?|!=)([^?]+)(\?(.*))?$/.exec(theValue)
+            if (m) {
+              m_type = m[1]
+              m_val = _.trim(m[2])
+              m_dft = m[4]
+              // starts with "=" auto covert to JS value
+              if (/^=/.test(m_dft) || "==" == m_type) {
+                m_dft = Ti.S.toJsValue(m_dft)
+                dft_autoJs = true
+              } else if (m_dft) {
+                m_dft = _.trim(m_dft)
+                dft_autoJs = false
+              }
             }
           }
 
@@ -299,11 +301,11 @@ const _M = {
       })[dvType]
       //......................................
       let prefixText = ({
-        "Function": this.DyVal.partial == "right" ? "==>>" : "==>",
-        "Invoking": this.DyVal.partial == "right" ? "=>>" : "=>",
-        "Tmpl": "->",
-        "BoolVar": "==",
-        "GetVar": "="
+        "Function": this.DyVal.partial == "right" ? ":==>>" : ":==>",
+        "Invoking": this.DyVal.partial == "right" ? ":=>>" : ":=>",
+        "Tmpl": ":->",
+        "BoolVar": ":==",
+        "GetVar": ":="
       })[dvType]
       //......................................
       let placeholder = ({
@@ -422,6 +424,88 @@ const _M = {
       // User cancel
       if (!reo) {
         return
+      }
+      console.log(reo)
+
+      // Update the value
+      let fn = ({
+        "Undefined": () => {
+          return undefined
+        },
+        "Null": () => {
+          return null
+        },
+        "Number": ({ value }) => {
+          return value * 1
+        },
+        "Boolean": ({ value }) => {
+          return value ? true : false
+        },
+        "String": ({ value }) => {
+          return Ti.Types.toStr(value)
+        },
+        "Object": ({ value }) => {
+          // TODO ...
+          return value
+        },
+        "Array": ({ value }) => {
+          // TODO ...
+          return value
+        },
+        "Function": ({ name, args, partial }) => {
+          if (_.isEmpty(args)) {
+            return "right" == partial
+              ? `==>>${name}`
+              : `==>${name}`
+          }
+          return {
+            __function: true,
+            name, args, partial
+          }
+        },
+        "Invoking": ({ name, args, partial }) => {
+          if (_.isEmpty(args)) {
+            return "right" == partial
+              ? `=>>${name}`
+              : `=>${name}`
+          }
+          return {
+            __invoke: true,
+            name, args, partial
+          }
+        },
+        "Tmpl": ({ value }) => {
+          return `->${value}`
+        },
+        "BoolVar": ({ name, dftVal, isNot }) => {
+          let re = [isNot ? "!" : "=", "=", name]
+          if (!Ti.Util.isNil(dftVal)) {
+            re.push(`?${dftVal}`)
+          }
+          return re.join("")
+        },
+        "GetVar": ({ name, dftVal, dftAutoJs }) => {
+          let re = ["=", name]
+          if (!Ti.Util.isNil(dftVal)) {
+            if (dftAutoJs) {
+              re.push(`?=${dftVal}`)
+            } else {
+              re.push(`?${dftVal}`)
+            }
+          }
+          return re.join("")
+        }
+      })[reo.type]
+
+      if (_.isFunction(fn)) {
+        let val = fn(reo)
+        this.tryNotifyChange(val)
+      }
+    },
+    //------------------------------------------------
+    tryNotifyChange(val) {
+      if (!_.isEqual(this.value, val)) {
+        this.$notify("change", val)
       }
     }
     //------------------------------------------------
