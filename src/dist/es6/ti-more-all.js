@@ -1,4 +1,4 @@
-// Pack At: 2022-03-09 00:54:36
+// Pack At: 2022-03-09 01:10:56
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -68630,7 +68630,7 @@ const _M = {
     "blankAs": {
       type: Object,
       default: () => ({
-        className: "as-big",
+        className: "as-small-tip",
         icon: "fas-border-none",
         text: "i18n:empty"
       })

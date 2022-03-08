@@ -43,7 +43,7 @@ const _M = {
     "blankAs": {
       type: Object,
       default: () => ({
-        className: "as-big",
+        className: "as-small-tip",
         icon: "fas-border-none",
         text: "i18n:empty"
       })
