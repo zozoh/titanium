@@ -1,0 +1,6 @@
+{
+  "name": "ti-input-dval",
+  "globally": true,
+  "template": "./ti-input-dval.html",
+  "mixins": "./ti-input-dval.mjs"
+}

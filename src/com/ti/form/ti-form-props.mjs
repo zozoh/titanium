@@ -22,6 +22,10 @@ export default {
     type: Boolean,
     default: true
   },
+  "omitHiddenFields": {
+    type: Boolean,
+    default: false
+  },
   // merge each time data change
   "fixed": {
     type: Object,

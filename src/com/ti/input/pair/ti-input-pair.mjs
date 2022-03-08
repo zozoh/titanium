@@ -7,6 +7,10 @@ const _M = {
     "value": {
       type: Object
     },
+    "dftNewItemName": {
+      type: String,
+      default: "newKey"
+    },
     //------------------------------------------------
     // Behaviors
     //------------------------------------------------
@@ -17,17 +21,20 @@ const _M = {
     "nameComConf": {
       type: Object,
       default: () => ({
-        hideBorder: true
+        hideBorder: true,
+        autoSelect: true
       })
     },
     "valueComType": {
       type: String,
-      default: "TiInput"
+      default: "TiInputDval"
     },
     "valueComConf": {
       type: Object,
       default: () => ({
-        hideBorder: true
+        hideBorder: true,
+        autoJsValue: true,
+        autoSelect: true
       })
     },
     //------------------------------------------------
@@ -69,7 +76,57 @@ const _M = {
   ////////////////////////////////////////////////////
   methods: {
     //------------------------------------------------
-
+    OnNameChange({ name }, newName) {
+      if (!_.isEqual(name, newName)) {
+        let data = {}
+        // To keep the original key order
+        _.forEach(this.value, (v, k) => {
+          if (k == name) {
+            data[newName] = v
+          } else {
+            data[k] = v
+          }
+        })
+        this.tryNotifyChange(data)
+      }
+    },
+    //------------------------------------------------
+    OnValueChange({ name, value }, newVal) {
+      if (!_.isEqual(value, newVal)) {
+        let data = _.cloneDeep(this.value) || {}
+        data[name] = newVal
+        this.tryNotifyChange(data)
+      }
+    },
+    //------------------------------------------------
+    OnDeleteFld({ name }) {
+      let data = {}
+      _.forEach(this.value, (v, k) => {
+        if (k != name) {
+          data[k] = v
+        }
+      })
+      this.tryNotifyChange(data)
+    },
+    //------------------------------------------------
+    OnAddNewPair() {
+      let data = _.cloneDeep(this.value) || {}
+      let newName = this.dftNewItemName
+      let val = _.get(data, newName)
+      let N = 1
+      while (!_.isUndefined(val)) {
+        newName = `${this.dftNewItemName}${N++}`
+        val = _.get(data, newName)
+      }
+      data[newName] = null
+      this.tryNotifyChange(data)
+    },
+    //------------------------------------------------
+    tryNotifyChange(data) {
+      if (!_.isEqual(data, this.value)) {
+        this.$notify("change", data)
+      }
+    }
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////

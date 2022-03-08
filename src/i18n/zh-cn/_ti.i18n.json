@@ -420,6 +420,8 @@
   "track": "消息",
   "true": "是",
   "type": "类型",
+  "undefined": "未定义",
+  "null": "空值",
   "under-construction": "正在施工中",
   "unknown": "未知",
   "unzip": "解压缩",

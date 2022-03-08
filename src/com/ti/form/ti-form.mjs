@@ -10,6 +10,7 @@ const _M = {
     currentTabIndex: 0,
     isEvalMeasure: false,
     myFormFields: [],
+    myFormFieldMap: {},
     myFormColumHint: -1
   }),
   //////////////////////////////////////////////////////
@@ -142,7 +143,7 @@ const _M = {
     },
     //--------------------------------------------------
     FormBodyStyle() {
-      if(this.bodyStyle) {
+      if (this.bodyStyle) {
         return this.bodyStyle
       }
     },
@@ -261,10 +262,19 @@ const _M = {
     //--------------------------------------------------
     TheData() {
       if (this.data) {
+        let re = this.data
         if (this.onlyFields) {
-          return _.pick(this.data, this.myKeysInFields)
+          re = _.pick(re, this.myKeysInFields)
         }
-        return this.data
+        if(this.omitHiddenFields) {
+          re = _.omitBy(re, (v,k)=>{
+            if(this.myFormFieldMap[k]){
+              return false
+            }
+            return true
+          })
+        }
+        return re
       }
       return {}
     }
@@ -300,7 +310,7 @@ const _M = {
       // Notify later ...
       // Wait for a tick to give a chance to parent of 'data' updating
       this.$nextTick(() => {
-        //console.log("notify data")
+        console.log("notify data")
         let data = this.getData({ name, value })
         _.assign(data, obj)
         this.$notify("change", data)
@@ -309,6 +319,7 @@ const _M = {
     //--------------------------------------
     getData({ name, value } = {}) {
       let data = _.cloneDeep(this.TheData)
+      console.log("GetData:", data)
 
       // Signle value
       if (name && _.isString(name)) {
@@ -365,12 +376,17 @@ const _M = {
     evalFormFieldList() {
       let list = []
       let keys = []
+      let fmap = {}
       this.isEvalMeasure = true
       //................................................
       _.forEach(this.fields, (fld, index) => {
         let fld2 = this.evalFormField(fld, [index])
         if (fld2) {
           list.push(fld2)
+          let fKeys = _.concat(fld2.name)
+          for (let fk of fKeys) {
+            fmap[fk] = fld2
+          }
         }
         // Gather keys
         keys.push(fld.name)
@@ -385,6 +401,7 @@ const _M = {
       this.myKeysInFields = _.flattenDeep(keys)
       //................................................
       this.myFormFields = list
+      this.myFormFieldMap = fmap
       //................................................
       this.__adjust_fields_width()
     },
@@ -496,8 +513,8 @@ const _M = {
         }
         field.serializer = Ti.Util.genInvoking(field.serializer, invokeOpt)
         field.transformer = Ti.Util.genInvoking(field.transformer, invokeOpt)
-        if(fld.required) {
-          if(_.isBoolean(fld.required)) {
+        if (fld.required) {
+          if (_.isBoolean(fld.required)) {
             field.required = true
           } else {
             field.required = Ti.AutoMatch.test(fld.required, this.data)

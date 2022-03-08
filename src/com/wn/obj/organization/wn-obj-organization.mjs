@@ -56,7 +56,7 @@ export default {
         defaultOpenDepth: this.defaultOpenDepth,
         display: [
           "<icon>",
-          "name::flex-auto",
+          "name::flex-auto is-nowrap",
           "id::is-nowrap as-tip-block align-right"
         ]
       }

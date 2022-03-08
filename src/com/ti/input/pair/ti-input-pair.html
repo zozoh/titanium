@@ -13,14 +13,15 @@
       <tr v-for="fld in PairFields">
         <td class="as-name">
           <div class="cell-con">
-            <div class="as-deleter">
+            <div class="as-deleter" @click.left="OnDeleteFld(fld)">
               <i class="zmdi zmdi-close"></i>
             </div>
             <component 
               :is="nameComType" 
               class="as-com"
               v-bind="nameComConf" 
-              :value="fld.name"/>
+              :value="fld.name"
+              @change="OnNameChange(fld, $event)"/>
           </div>
         </td>
         <td class="as-value">
@@ -29,7 +30,8 @@
               :is="valueComType"
               class="as-com"
               v-bind="valueComConf"
-              :value="fld.value"/>
+              :value="fld.value"
+              @change="OnValueChange(fld, $event)"/>
           </div>
         </td>
       </tr>
@@ -37,7 +39,7 @@
   </table>
   <!----------------------------------------->
   <div class="as-adder">
-    <div class="adder-btn">
+    <div class="adder-btn" @click.left="OnAddNewPair">
       <i class="zmdi zmdi-plus"></i>
       <span>{{'i18n:add-item'|i18n}}</span>
     </div>

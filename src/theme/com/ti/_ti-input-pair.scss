@@ -44,6 +44,18 @@
         //-------------------------------------------
       } // > td.as-name
       //---------------------------------------------
+      // > td.as-value {
+      //   //-------------------------------------------
+      //   > .cell-con {
+      //     @include flex-align-nowrap($ai: stretch);
+      //     @include color($color-input, c, r);
+      //     > * {
+      //       flex: 1 1 auto;
+      //     }
+      //   }
+      //   //-------------------------------------------
+      // } // > td.as-value
+      //---------------------------------------------
     } // > tbody > tr
     //-----------------------------------------------
   } // table
@@ -53,8 +65,14 @@
     padding: SZ(4);
     .adder-btn {
       @include border(1px, dashed, shallow);
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
       padding: SZ(8);
       min-width: SZ(120);
+      &:hover {
+        @include color($color-secondary, r, c);
+      }
     }
   }
   //-------------------------------------------------

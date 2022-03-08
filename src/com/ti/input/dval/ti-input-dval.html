@@ -1,0 +1,34 @@
+<div  
+  class="ti-input-dval full-field"
+  :class="TopClass">
+  <!--
+    Boolean
+  -->
+  <template v-if="'Boolean' == DyVal.type">
+      <TiToggle
+        class="as-main"
+        :value="DyVal.value"/>
+      <div class="as-edit" @click.left="OnOpenEditForm">
+        <i class="fas fa-cog"></i>
+      </div>
+  </template>
+  <!--
+    TODO: 
+    Function Call
+    Array value
+    Object value
+  -->
+  <!--
+    Simple value by input
+  -->
+  <TiInput
+    v-else
+      class="as-main"
+      :value="InputValue"
+      v-bind="InputConf"
+      :hideBorder="true"
+      :autoJsValue="true"
+      :autoSelect="true"
+      suffixIcon="fas-cog"
+      @suffix:icon="OnOpenEditForm"/>
+</div>

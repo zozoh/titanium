@@ -1,0 +1,20 @@
+.ti-input-dval {
+  @include flex-align-nowrap($ai: stretch);
+  //---------------------------------------------
+  &.is-toggle {
+    > .as-edit {
+      @include flex-center;
+      cursor: pointer;
+      width: 2em;
+      height: SZ(36);
+      &:hover {
+        @include color($color-primary, r, c);
+      }
+    }
+  }
+  //---------------------------------------------
+  > .as-main {
+    flex: 1 1 auto;
+  }
+  //---------------------------------------------
+}

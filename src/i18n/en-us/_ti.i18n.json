@@ -420,6 +420,8 @@
   "track": "Track message",
   "true": "True",
   "type": "Type",
+  "undefined": "Undefined",
+  "null": "Null",
   "under-construction": "Under construction",
   "unknown": "Unknown",
   "unzip": "Unzip",

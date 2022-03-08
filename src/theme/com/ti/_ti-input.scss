@@ -2,7 +2,7 @@
   @include noselect;
   @include flex-align-nowrap($ai:stretch, $ac:stretch);
   @include color($color-input, c, r);
-  min-height:2.6em;
+  min-height: SZ(36);
   //-----------------------------------------
   &.show-border {
     @include border(1px, solid, dark);

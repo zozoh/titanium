@@ -642,7 +642,7 @@ const TiUtil = {
         }
 
         let m_type, m_val, m_dft;
-        // Match template
+        // Match template or function call
         m = /^(==>>?|=>>?|->)(.+)$/.exec(theValue)
         if (m) {
           m_type = m[1]
@@ -1556,6 +1556,33 @@ const TiUtil = {
   genGetterNotNil(key, setup) {
     return Ti.Util.genGetter(key, _.assign({}, setup, { notNil: true }))
   },
+  /**
+   * @param {String|Object} str Invoking string
+   * @returns {Object} `{name:"Ti.X.XX", args:[]}`
+   */
+  parseInvoking(str) {
+    let callPath, callArgs;
+    // Object mode
+    if (str.name && !_.isUndefined(str.args)) {
+      callPath = str.name
+      callArgs = _.concat(str.args)
+    }
+    // String mode
+    else {
+      let m = /^([^()]+)(\((.+)\))?$/.exec(str)
+      if (m) {
+        callPath = _.trim(m[1])
+        callArgs = _.trim(m[3])
+      }
+    }
+
+    let args = Ti.S.joinArgs(callArgs, [], v => v)
+
+    return {
+      name: callPath,
+      args
+    }
+  },
   /***
    * "Ti.Types.toStr(abc)" -> Function
    * 
@@ -1572,25 +1599,15 @@ const TiUtil = {
       return str
     }
     //.............................................
-    let callPath, callArgs;
-    // Object mode
-    if (str.name && !_.isUndefined(str.args)) {
-      callPath = str.name
-      callArgs = _.concat(str.args)
-    }
-    // String mode
-    else {
-      let m = /^([^()]+)(\((.+)\))?$/.exec(str)
-      if (m) {
-        callPath = _.trim(m[1])
-        callArgs = _.trim(m[3])
-      }
-    }
+    let invoke = TiUtil.parseInvoking(str)
+    let callPath = invoke.name
+    let callArgs = invoke.args
+    
     //.............................................
     //console.log(callPath, callArgs)
     let func = _.get(funcSet, callPath)
     if (_.isFunction(func)) {
-      let args = Ti.S.joinArgs(callArgs, [], v => {
+      let args = _.map(callArgs, v => {
         if (_.isString(v) || _.isArray(v))
           return Ti.S.toJsValue(v, { context })
         return v
