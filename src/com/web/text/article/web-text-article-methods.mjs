@@ -454,12 +454,15 @@ export default {
           title = $alt.innerText
         }
         return {
-          index, link, title,
+          $el, index, link, title,
           src, srcThumb: src, srcLarge: src,
         }
       })
-      for (let $el of $els) {
-        Ti.Widget.PhotoGallery.bind($el, {
+      for (let arMI of arMediaImages) {
+        if(arMI.link) {
+          continue
+        }
+        Ti.Widget.PhotoGallery.bind(arMI.$el, {
           showOpener: vm.photoGalleryShowOpener,
           getData: function () {
             return arMediaImages

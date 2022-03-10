@@ -313,14 +313,29 @@ const _M = {
         "Null": "i18n:null"
       })[dvType]
       //......................................
-      let readonly = /^(Undefined|Null)$/.test(dvType)
+      let readonly = /^(Object|Array)$/.test(dvType)
       //......................................
       return {
         placeholder,
         prefixIcon,
-        prefixText
+        prefixText,
+        readonly
       }
       //......................................
+    },
+    //------------------------------------------------
+    ObjInfo() {
+      if ("Object" == this.DyVal.type) {
+        let ss = _.map(this.DyVal.fields, ({ name, title }) => title || name)
+        return _.isEmpty(ss) ? Ti.I18n.get("empty") : ss.join(", ")
+      }
+    },
+    //------------------------------------------------
+    ArrayInfo() {
+      if ("Array" == this.DyVal.type) {
+        let ss = _.map(this.DyVal.list, ({ type }) => type)
+        return _.isEmpty(ss) ? Ti.I18n.get("empty") : ss.join(", ")
+      }
     }
     //------------------------------------------------
   },
@@ -425,7 +440,6 @@ const _M = {
       if (!reo) {
         return
       }
-      console.log(reo)
 
       // Update the value
       let fn = ({
@@ -501,6 +515,59 @@ const _M = {
         let val = fn(reo)
         this.tryNotifyChange(val)
       }
+    },
+    //------------------------------------------------
+    OnInputChange(val) {
+      let dvType = this.DyVal.type
+      // Update the value
+      let v2, re, invoke;
+      let dyVal = _.cloneDeep(this.DyVal)
+      switch (dvType) {
+        case "Undefined":
+        case "Null":
+        case "Number":
+        case "Boolean":
+        case "String":
+          v2 = Ti.S.toJsValue(val);
+          break;
+        case "Object":
+        case "Array":
+          v2 = JSON.parse(val);
+          break;
+        case "Function":
+          invoke = Ti.Util.parseInvoking(val)
+          v2 = _.assign(dyVal, { __function: true }, invoke);
+          break;
+        case "Invoking":
+          invoke = Ti.Util.parseInvoking(val)
+          v2 = _.assign(dyVal, { __invoke: true }, invoke);
+          break;
+        case "Tmpl":
+          v2 = `->${val}`;
+          break;
+        case "BoolVar":
+          re = [dyVal.isNot ? "!" : "=", "=", dyVal.name]
+          if (!Ti.Util.isNil(dyVal.dftVal)) {
+            re.push(`?${dyVal.dftVal}`)
+          }
+          re.join("");
+          break;
+        case "GetVar":
+          re = ["=", dyVal.name]
+          if (!Ti.Util.isNil(dyVal.dftVal)) {
+            if (dyVal.dftAutoJs) {
+              re.push(`?=${dyVal.dftVal}`)
+            } else {
+              re.push(`?${dyVal.dftVal}`)
+            }
+          }
+          re.join("");
+          break;
+      }
+
+
+      // Try to notify
+      this.tryNotifyChange(v2)
     },
     //------------------------------------------------
     tryNotifyChange(val) {

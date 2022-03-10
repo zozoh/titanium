@@ -55,7 +55,13 @@ export default {
           "fieldWidth": "100%",
           "comType": "TiInputPair",
           "comConf": {
-            "placeholder": "每个动作的扩展上下文变量JSON"
+            "placeholder": "每个动作的扩展上下文变量JSON",
+            "valueComType": "TiInputDval",
+            "valueComConf": {
+              "hideBorder": true,
+              "autoJsValue": true,
+              "autoSelect": true
+            }
           }
         },
         {

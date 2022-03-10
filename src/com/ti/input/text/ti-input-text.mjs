@@ -119,7 +119,6 @@ const _M = {
     },
     //------------------------------------------------
     theValue() {
-      console.log("input value:", this.value)
       // if(_.isArray(this.value)) {
       //   return this.value.join("\r\n")
       // }

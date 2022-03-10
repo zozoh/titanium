@@ -1,15 +1,30 @@
 .ti-input-dval {
   @include flex-align-nowrap($ai: stretch);
   //---------------------------------------------
-  &.is-toggle {
-    > .as-edit {
-      @include flex-center;
-      cursor: pointer;
-      width: 2em;
-      height: SZ(36);
-      &:hover {
-        @include color($color-primary, r, c);
-      }
+  > .as-icon {
+    @include flex-center;
+    @include color($color-track, c);
+    @include border(1px, solid, shallow, right);
+    width: 2em;
+    height: SZ(36);
+  }
+  //---------------------------------------------
+  > .as-info {
+    @include font-fixed;
+    @include flex($ai: center);
+    padding: 0 SZ(6);
+    color: map-get($color-track, c);
+    flex: 1 1 auto;
+    user-select: none;
+  }
+  //---------------------------------------------
+  > .as-edit {
+    @include flex-center;
+    cursor: pointer;
+    width: 2em;
+    height: SZ(36);
+    &:hover {
+      @include color($color-primary, r, c);
     }
   }
   //---------------------------------------------

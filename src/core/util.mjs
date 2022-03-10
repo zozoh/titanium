@@ -636,14 +636,14 @@ const TiUtil = {
       // String : Check the "@BLOCK(xxx)" 
       if (_.isString(theValue)) {
         // Escape
-        let m = /^:(:*(=|==|!=|=>>?|->)(.+))$/.exec(theValue)
+        let m = /^:(:*(=|==|!=|=>>?|->)(.*))$/.exec(theValue)
         if (m) {
           return iteratee(m[1])
         }
 
         let m_type, m_val, m_dft;
         // Match template or function call
-        m = /^(==>>?|=>>?|->)(.+)$/.exec(theValue)
+        m = /^(==>>?|=>>?|->)(.*)$/.exec(theValue)
         if (m) {
           m_type = m[1]
           m_val = _.trim(m[2])

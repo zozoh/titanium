@@ -27,7 +27,7 @@ const _M = {
     },
     "valueComType": {
       type: String,
-      default: "TiInputDval"
+      default: "TiInput"
     },
     "valueComConf": {
       type: Object,

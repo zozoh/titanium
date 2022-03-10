@@ -1,4 +1,4 @@
-// Pack At: 2022-03-09 01:10:56
+// Pack At: 2022-03-10 23:42:32
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -4278,7 +4278,6 @@ const _M = {
     },
     //------------------------------------------------
     theValue() {
-      console.log("input value:", this.value)
       // if(_.isArray(this.value)) {
       //   return this.value.join("\r\n")
       // }
@@ -7810,14 +7809,29 @@ const _M = {
         "Null": "i18n:null"
       })[dvType]
       //......................................
-      let readonly = /^(Undefined|Null)$/.test(dvType)
+      let readonly = /^(Object|Array)$/.test(dvType)
       //......................................
       return {
         placeholder,
         prefixIcon,
-        prefixText
+        prefixText,
+        readonly
       }
       //......................................
+    },
+    //------------------------------------------------
+    ObjInfo() {
+      if ("Object" == this.DyVal.type) {
+        let ss = _.map(this.DyVal.fields, ({ name, title }) => title || name)
+        return _.isEmpty(ss) ? Ti.I18n.get("empty") : ss.join(", ")
+      }
+    },
+    //------------------------------------------------
+    ArrayInfo() {
+      if ("Array" == this.DyVal.type) {
+        let ss = _.map(this.DyVal.list, ({ type }) => type)
+        return _.isEmpty(ss) ? Ti.I18n.get("empty") : ss.join(", ")
+      }
     }
     //------------------------------------------------
   },
@@ -7922,7 +7936,6 @@ const _M = {
       if (!reo) {
         return
       }
-      console.log(reo)
 
       // Update the value
       let fn = ({
@@ -7998,6 +8011,59 @@ const _M = {
         let val = fn(reo)
         this.tryNotifyChange(val)
       }
+    },
+    //------------------------------------------------
+    OnInputChange(val) {
+      let dvType = this.DyVal.type
+      // Update the value
+      let v2, re, invoke;
+      let dyVal = _.cloneDeep(this.DyVal)
+      switch (dvType) {
+        case "Undefined":
+        case "Null":
+        case "Number":
+        case "Boolean":
+        case "String":
+          v2 = Ti.S.toJsValue(val);
+          break;
+        case "Object":
+        case "Array":
+          v2 = JSON.parse(val);
+          break;
+        case "Function":
+          invoke = Ti.Util.parseInvoking(val)
+          v2 = _.assign(dyVal, { __function: true }, invoke);
+          break;
+        case "Invoking":
+          invoke = Ti.Util.parseInvoking(val)
+          v2 = _.assign(dyVal, { __invoke: true }, invoke);
+          break;
+        case "Tmpl":
+          v2 = `->${val}`;
+          break;
+        case "BoolVar":
+          re = [dyVal.isNot ? "!" : "=", "=", dyVal.name]
+          if (!Ti.Util.isNil(dyVal.dftVal)) {
+            re.push(`?${dyVal.dftVal}`)
+          }
+          re.join("");
+          break;
+        case "GetVar":
+          re = ["=", dyVal.name]
+          if (!Ti.Util.isNil(dyVal.dftVal)) {
+            if (dyVal.dftAutoJs) {
+              re.push(`?=${dyVal.dftVal}`)
+            } else {
+              re.push(`?${dyVal.dftVal}`)
+            }
+          }
+          re.join("");
+          break;
+      }
+
+
+      // Try to notify
+      this.tryNotifyChange(v2)
     },
     //------------------------------------------------
     tryNotifyChange(val) {
@@ -23854,12 +23920,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
           title = $alt.innerText
         }
         return {
-          index, link, title,
+          $el, index, link, title,
           src, srcThumb: src, srcLarge: src,
         }
       })
-      for (let $el of $els) {
-        Ti.Widget.PhotoGallery.bind($el, {
+      for (let arMI of arMediaImages) {
+        if(arMI.link) {
+          continue
+        }
+        Ti.Widget.PhotoGallery.bind(arMI.$el, {
           showOpener: vm.photoGalleryShowOpener,
           getData: function () {
             return arMediaImages
@@ -42840,7 +42909,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
           "fieldWidth": "100%",
           "comType": "TiInputPair",
           "comConf": {
-            "placeholder": "每个动作的扩展上下文变量JSON"
+            "placeholder": "每个动作的扩展上下文变量JSON",
+            "valueComType": "TiInputDval",
+            "valueComConf": {
+              "hideBorder": true,
+              "autoJsValue": true,
+              "autoSelect": true
+            }
           }
         },
         {
@@ -68614,7 +68689,7 @@ const _M = {
     },
     "valueComType": {
       type: String,
-      default: "TiInputDval"
+      default: "TiInput"
     },
     "valueComConf": {
       type: Object,
@@ -76506,12 +76581,14 @@ Ti.Preload("ti/com/ti/input/dval/ti-input-dval.html", `<div
     Boolean
   -->
   <template v-if="'Boolean' == DyVal.type">
-      <TiToggle
-        class="as-main"
-        :value="DyVal.value"/>
-      <div class="as-edit" @click.left="OnOpenEditForm">
-        <i class="fas fa-cog"></i>
-      </div>
+    <!--Toggle-->
+    <TiToggle
+      class="as-main"
+      :value="DyVal.value"/>
+    <!--Adv-Edit Button-->
+    <div class="as-edit" @click.left="OnOpenEditForm">
+      <i class="fas fa-cog"></i>
+    </div>
   </template>
   <!--
     TODO: 
@@ -76519,6 +76596,28 @@ Ti.Preload("ti/com/ti/input/dval/ti-input-dval.html", `<div
     Array value
     Object value
   -->
+  <!--
+    Object
+  -->
+  <template v-else-if="'Object' == DyVal.type">
+    <div class="as-icon"><i class="zmdi zmdi-toys"></i></div>
+    <div class="as-info">{{ObjInfo}}</div>
+    <!--Adv-Edit Button-->
+    <div class="as-edit" @click.left="OnOpenEditForm">
+      <i class="fas fa-cog"></i>
+    </div>
+  </template>
+  <!--
+    Array
+  -->
+  <template v-else-if="'Array' == DyVal.type">
+    <div class="as-icon"><i class="zmdi zmdi-format-list-numbered"></i></div>
+    <div class="as-info">{{ArrayInfo}}</div>
+    <!--Adv-Edit Button-->
+    <div class="as-edit" @click.left="OnOpenEditForm">
+      <i class="fas fa-cog"></i>
+    </div>
+  </template>
   <!--
     Simple value by input
   -->
@@ -76531,7 +76630,8 @@ Ti.Preload("ti/com/ti/input/dval/ti-input-dval.html", `<div
       :autoJsValue="true"
       :autoSelect="true"
       suffixIcon="fas-cog"
-      @suffix:icon="OnOpenEditForm"/>
+      @suffix:icon="OnOpenEditForm"
+      @change="OnInputChange"/>
 </div>`);
 //========================================
 // JOIN <ti-input-dval.mjs> ti/com/ti/input/dval/ti-input-dval.mjs

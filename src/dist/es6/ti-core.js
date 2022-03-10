@@ -1,4 +1,4 @@
-// Pack At: 2022-03-09 01:10:56
+// Pack At: 2022-03-10 23:42:32
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10748,14 +10748,14 @@ const {Util} = (function(){
         // String : Check the "@BLOCK(xxx)" 
         if (_.isString(theValue)) {
           // Escape
-          let m = /^:(:*(=|==|!=|=>>?|->)(.+))$/.exec(theValue)
+          let m = /^:(:*(=|==|!=|=>>?|->)(.*))$/.exec(theValue)
           if (m) {
             return iteratee(m[1])
           }
   
           let m_type, m_val, m_dft;
           // Match template or function call
-          m = /^(==>>?|=>>?|->)(.+)$/.exec(theValue)
+          m = /^(==>>?|=>>?|->)(.*)$/.exec(theValue)
           if (m) {
             m_type = m[1]
             m_val = _.trim(m[2])
@@ -17907,7 +17907,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220309.011056",
+  "version" : "1.6-20220310.234232",
   "dev" : false,
   "appName" : null,
   "session" : {},
