@@ -108,9 +108,17 @@ function NumberMatch(n) {
   }
 }
 function EmptyMatch() {
-  return function (val) {
+  let re = function (val) {
     return _.isEmpty(val)
   }
+  //...............................
+  re.explainText = function ({
+    empty = 'i18n:am-empty'
+  } = {}) {
+    return Ti.I18n.text(empty)
+  }
+  //...............................
+  return re;
 }
 function NumberRangeMatch(input) {
   let m = input
@@ -140,8 +148,8 @@ function NumberRangeMatch(input) {
   } else {
     right.val = NaN
   }
-
-  return function (val) {
+  //...............................
+  let re = function (val) {
     let n = val * 1
     if (isNaN(n))
       return false
@@ -164,6 +172,22 @@ function NumberRangeMatch(input) {
 
     return true
   }
+  //...............................
+  re.explainText = function ({
+    equals = 'i18n:am-equals',
+    and = 'i18n:am-and',
+    gt = 'i18n:am-gt',
+    gte = 'i18n:am-gte',
+    lt = 'i18n:am-lt',
+    lte = 'i18n:am-lte'
+  } = {}) {
+    // [12]
+    // (12,]
+    // (,12]
+
+  }
+  //...............................
+  return re
 }
 function MapMatch(map) {
   // Pre-build
@@ -196,52 +220,127 @@ function NotNilMatch(input) {
   if (!input) {
     return val => !Ti.Util.isNil(val)
   }
-  return val => {
+  //...............................
+  let re = val => {
     let v = _.get(val, input)
     return !Ti.Util.isNil(v)
   }
+  //...............................
+  re.explainText = function (payload = {
+    "notNil`": 'i18n:am-notNil',
+    "notNilOf": 'i18n:am-notNilOf',
+  }) {
+    if (!input) {
+      return Ti.I18n.textf(payload["notNil"])
+    }
+    let s = Ti.I18n.text(payload["notNilOf"])
+    return Ti.S.renderBy(s, { val: input })
+  }
+  //...............................
+  return re;
 }
 function NilMatch(input) {
   if (!input) {
     return val => Ti.Util.isNil(val)
   }
-  return val => {
+  //...............................
+  let re = val => {
     let v = _.get(val, input)
     return Ti.Util.isNil(v)
   }
+  //...............................
+  re.explainText = function (payload = {
+    "nil`": 'i18n:am-nil',
+    "nil`Of": 'i18n:am-nilOf',
+  }) {
+    if (!input) {
+      return Ti.I18n.textf(payload["nil"])
+    }
+    let s = Ti.I18n.text(payload["nilOf"])
+    return Ti.S.renderBy(s, { val: input })
+  }
+  //...............................
+  return re;
 }
 function NulllMatch(input) {
   if (!input) {
     return val => _.isNull(val)
   }
-  return val => {
+  //...............................
+  let re = val => {
     let v = _.get(val, input)
     return _.isNull(v)
   }
+  //...............................
+  re.explainText = function (payload = {
+    "null": 'i18n:am-null',
+    "nullOf": 'i18n:am-nullOf',
+  }) {
+    if (!input) {
+      return Ti.I18n.textf(payload["null"])
+    }
+    let s = Ti.I18n.text(payload["nullOf"])
+    return Ti.S.renderBy(s, { val: input })
+  }
+  //...............................
+  return re;
 }
 function UndefinedMatch(input) {
   if (!input) {
     return val => _.isUndefined(val)
   }
-  return val => {
+  //...............................
+  let re = val => {
     //console.log("undefined match ", val)
     let v = _.get(val, input)
     return _.isUndefined(v)
   }
+  //...............................
+  re.explainText = function (payload = {
+    "undefined": 'i18n:am-undefined',
+    "undefinedOf": 'i18n:am-undefinedOf',
+  }) {
+    if (!input) {
+      return Ti.I18n.textf(payload["undefined"])
+    }
+    let s = Ti.I18n.text(payload["undefinedOf"])
+    return Ti.S.renderBy(s, { val: input })
+  }
+  //...............................
+  return re;
 }
 function NotMatch(m) {
-  return function (input) {
+  let re = function (input) {
     return !m(input)
   }
+  //...............................
+  re.explainText = function (payload = {
+    not: 'i18n:am-not'
+  }) {
+    let s = Ti.I18n.text(payload.not)
+    return s + m.explainText(payload)
+  }
+  //...............................
+  return re;
 }
 function TypeMatch(input) {
   let expectType = input
-  return val => {
+  //...............................
+  let re = val => {
     return expectType == (typeof val)
   }
+  //...............................
+  re.explainText = function ({
+    equalsType = 'i18n:am-equalsType'
+  } = {}) {
+    let s = Ti.I18n.text(equalsType)
+    return Ti.S.renderBy(s, { val: wildcard })
+  }
+  //...............................
+  return re;
 }
 function ParallelMatch(...ms) {
-  return function (val) {
+  let re = function (val) {
     if (_.isEmpty(ms))
       return false
     for (let m of ms) {
@@ -250,6 +349,25 @@ function ParallelMatch(...ms) {
     }
     return false
   }
+  //...............................
+  re.explainText = function (payload = {
+    orSep: '或'
+  }) {
+    if (_.isEmpty(ms)) {
+      return ""
+    }
+    if (ms.length == 1) {
+      return ms[0].explainText(payload)
+    }
+    let ss = []
+    for (let m of ms) {
+      ss.push(m.explainText(payload))
+    }
+    let orSep = Ti.I18n.text(payload.orSep || 'i18n:am-or')
+    return ss.join(orSep)
+  }
+  //...............................
+  return re
 }
 function RegexMatch(regex) {
   let not = false
@@ -258,11 +376,23 @@ function RegexMatch(regex) {
     regex = regex.substring(1).trim()
   }
   let P = new RegExp(regex)
-  return function (val) {
+  //...............................
+  let re = function (val) {
     if (Ti.Util.isNil(val))
       return not
     return P.test(val) ? !not : not
   }
+  //...............................
+  re.explainText = function ({
+    matchOf = 'i18n:am-matchOf',
+    notMatchOf = 'i18n:am-notMatchOf'
+  }) {
+    let k = not ? notMatchOf : matchOf
+    let s = Ti.I18n.text(k)
+    return Ti.S.renderBy(s, { val: wildcard })
+  }
+  //...............................
+  return re;
 }
 function StringMatch(input) {
   let ignoreCase = false
@@ -270,7 +400,8 @@ function StringMatch(input) {
     ignoreCase = true;
     input = input.substring(2).toUpperCase();
   }
-  return function (val) {
+  //...............................
+  let re = function (val) {
     if (Ti.Util.isNil(val)) {
       return Ti.Util.isNil(input)
     }
@@ -279,6 +410,17 @@ function StringMatch(input) {
     }
     return input == val
   }
+  //...............................
+  re.explainText = function ({
+    equalsIgnoreCase = 'i18n:am-equalsIgnoreCase',
+    equals = 'i18n:am-equals',
+  }) {
+    let k = ignoreCase ? equalsIgnoreCase : equals
+    let s = Ti.I18n.text(k)
+    return Ti.S.renderBy(s, { val: wildcard })
+  }
+  //...............................
+  return re;
 }
 function WildcardMatch(wildcard) {
   let not = false
@@ -288,11 +430,21 @@ function WildcardMatch(wildcard) {
   }
   let regex = "^" + wildcard.replaceAll("*", ".*") + "$"
   let P = new RegExp(regex)
-  return function (val) {
+  //...............................
+  let re = function (val) {
     if (Ti.Util.isNil(val))
       return not
     return P.test(val) ? !not : not
   }
+  //...............................
+  re.explainText = function ({
+    matchOf = 'i18n:am-matchOf'
+  } = {}) {
+    let s = Ti.I18n.text(matchOf)
+    return Ti.S.renderBy(s, { val: wildcard })
+  }
+  //...............................
+  return re;
 }
 ///////////////////////////////////////
 const TiAutoMatch = {
