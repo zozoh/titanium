@@ -1,0 +1,29 @@
+<div class="ti-input-list full-field" :class="TopClass">
+  <!----------------------------------------->
+  <div
+    v-if="!isEmpty"
+      class="as-list">
+      <div
+        v-for="it in ListItems"
+          class="as-item">
+            <div class="as-deleter" @click.left="OnDeleteItem(it)">
+              <i class="zmdi zmdi-close"></i>
+              <span>{{it.index}}</span>
+            </div>
+            <component 
+              :is="it.comType"
+              class="as-com"
+              v-bind="it.comConf"
+              :value="it.value"
+              @change="OnValueChange(it, $event)"/>
+      </div> <!--.as-item-->
+  </div> <!--.as-list-->
+  <!----------------------------------------->
+  <div class="as-adder">
+    <div class="adder-btn" @click.left="OnAddNewItem">
+      <i class="zmdi zmdi-plus"></i>
+      <span>{{'i18n:add-item'|i18n}}</span>
+    </div>
+  </div>
+  <!----------------------------------------->
+</div>

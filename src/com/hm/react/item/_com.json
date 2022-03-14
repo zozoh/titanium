@@ -4,7 +4,10 @@
   "template": "./hm-react-item.html",
   "mixins": "./hm-react-item.mjs",
   "components": [
+    "@com:ti/input/dval",
     "@com:ti/input/pair",
+    "@com:ti/input/list",
+    "@com:hm/automatch",
     "@com:hm/react/actions"
   ]
 }

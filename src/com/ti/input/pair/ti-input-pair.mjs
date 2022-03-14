@@ -57,6 +57,13 @@ const _M = {
   ////////////////////////////////////////////////////
   computed: {
     //------------------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-empty": this.isEmpty,
+        "no-empty": !this.isEmpty
+      })
+    },
+    //------------------------------------------------
     isEmpty() {
       return _.isEmpty(this.PairFields)
     },

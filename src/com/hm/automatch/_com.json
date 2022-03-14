@@ -1,0 +1,7 @@
+{
+  "name": "hm-automatch",
+  "globally": true,
+  "template": "./hm-automatch.html",
+  "mixins": "./hm-automatch.mjs",
+  "components": []
+}

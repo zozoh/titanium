@@ -1,0 +1,77 @@
+.ti-input-list {
+  //-------------------------------------------------
+  > .as-list {
+    @include border(1px, solid, shallow);
+    //-----------------------------------------------
+    > .as-item {
+      @include flex-align-nowrap($ai: stretch);
+      @include color($color-input, c, r);
+      @include border(1px, solid, shallow, top);
+      //---------------------------------------------
+      &:first-child {
+        border: 0;
+      }
+      //---------------------------------------------
+      > .as-deleter {
+        @include flex-center;
+        @include color($color-chip, r, c);
+        width: SZ(24);
+        cursor: pointer;
+        position: relative;
+        //-------------------------------------------
+        > i {
+          transition: transform 0.3s;
+          opacity: 0;
+        }
+        //-------------------------------------------
+        > span {
+          @include flex-center;
+          @include pos-abs-full;
+          @include font-fixed;
+          opacity: 1;
+          font-size: SZ(10);
+        }
+        //-------------------------------------------
+        &:hover {
+          @include color($color-secondary, r, c);
+          > i {
+            transform: rotate(180deg) scale(1.2);
+            opacity: 1;
+          }
+          > span {
+            opacity: 0;
+          }
+        }
+        //-------------------------------------------
+      }
+      //---------------------------------------------
+      > .as-com {
+        width: 100%;
+        flex: 1 1 auto;
+      }
+      //---------------------------------------------
+    } // > tbody > tr
+    //-----------------------------------------------
+  } // table
+  //-------------------------------------------------
+  .as-adder {
+    @include flex-center($wp: nowrap);
+    padding: SZ(4);
+    .adder-btn {
+      @include border(1px, dashed, shallow);
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+      padding: SZ(8);
+      min-width: SZ(120);
+      &:hover {
+        @include color($color-secondary, r, c);
+      }
+    }
+  }
+  //-------------------------------------------------
+  &.is-empty > .as-adder {
+    justify-content: flex-start;
+  }
+  //-------------------------------------------------
+}

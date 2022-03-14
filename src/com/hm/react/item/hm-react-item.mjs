@@ -20,6 +20,7 @@ export default {
         {
           "title": "名称",
           "name": "name",
+          "fieldWidth": "100%",
           "comType": "TiInput",
           "comConf": {
             "placeholder": "请输入执行项名称"
@@ -31,22 +32,19 @@ export default {
           "comType": "TiInputIcon"
         },
         {
-          "title": "前置条件",
-          "name": "test",
-          "type": "Array",
-          "comType": "TiInputText",
-          "comConf": {
-            "placeholder": "前置条件JSON",
-            "height": "16em",
-            "autoJsValue": true
-          }
-        },
-        {
           "title": "重载默认",
           "name": "override",
           "type": "Boolean",
-          "tip": "勾选本选项，将会覆盖【基础流程】里的同名执行项",
+          "tip": "覆盖【基础流程】同名执行项",
           "comType": "TiToggle"
+        },
+        {
+          "title": "前置条件",
+          "name": "test",
+          "type": "Array",
+          "fieldWidth": "100%",
+          "comType": "HmAutomatch",
+          "comConf": {}
         },
         {
           "title": "执行变量",
@@ -70,6 +68,7 @@ export default {
         {
           "name": "actions",
           "type": "Array",
+          "fieldWidth": "100%",
           "comType": "HmReactActions",
           "comConf": {
 

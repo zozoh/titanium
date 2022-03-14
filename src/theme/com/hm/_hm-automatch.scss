@@ -1,0 +1,14 @@
+.hm-automatch {
+  //-----------------------------------------
+  > a {
+    @include color($color-primary, c);
+    @include font-fixed;
+    //---------------------------------------
+    &:hover {
+      @include color($color-secondary, c);
+      text-decoration: underline;
+    }
+    //---------------------------------------
+  }
+  //-----------------------------------------
+}

@@ -1,10 +1,6 @@
-<div class="ti-input-pair full-field">
+<div class="ti-input-pair full-field" :class="TopClass">
   <!----------------------------------------->
-  <TiLoading
-    v-if="isEmpty"
-      v-bind="blankAs"/>
-  <!----------------------------------------->
-  <table v-else>
+  <table v-if="!isEmpty">
     <colgroup>
       <col :width="nameWidth">
       <col>

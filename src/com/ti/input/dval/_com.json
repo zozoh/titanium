@@ -2,5 +2,9 @@
   "name": "ti-input-dval",
   "globally": true,
   "template": "./ti-input-dval.html",
-  "mixins": "./ti-input-dval.mjs"
+  "mixins": "./ti-input-dval.mjs",
+  "components": [
+    "@com:ti/input/list",
+    "@com:ti/input/pair"
+  ]
 }

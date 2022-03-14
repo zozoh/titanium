@@ -1,0 +1,9 @@
+{
+  "name": "ti-input-list",
+  "globally": true,
+  "template": "./ti-input-list.html",
+  "mixins": "./ti-input-list.mjs",
+  "components": [
+    "@com:ti/input/dval"
+  ]
+}

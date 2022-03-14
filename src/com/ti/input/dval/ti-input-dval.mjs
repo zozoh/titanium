@@ -267,7 +267,8 @@ const _M = {
           })
           return wrapDyVal({
             type: "Object",
-            fields: flds
+            value: theValue,
+            fields: flds,
           })
         } // ~Object
         //.....................................
@@ -383,7 +384,7 @@ const _M = {
                 name: "value",
                 type: "Boolean",
                 visible: {
-                  type: "^(Boolean)$"
+                  type: "Boolean"
                 },
                 comType: "TiToggle"
               },
@@ -393,9 +394,27 @@ const _M = {
                 type: "Number",
                 nanAs: 0,
                 visible: {
-                  type: "^(Number)$"
+                  type: "Number"
                 },
                 comType: "TiInput"
+              },
+              {
+                title: "i18n:value",
+                name: "value",
+                type: "Array",
+                visible: {
+                  type: "Array"
+                },
+                comType: "TiInputList"
+              },
+              {
+                title: "i18n:value",
+                name: "value",
+                type: "Object",
+                visible: {
+                  type: "Object"
+                },
+                comType: "TiInputPair"
               },
               /*---------------------------*/
               {
@@ -414,7 +433,7 @@ const _M = {
                 visible: {
                   type: "^(Function|Invoking)$"
                 },
-                comType: "TiInput"
+                comType: "TiInputList"
               },
               {
                 title: "i18n:hm-args-partial",
