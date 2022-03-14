@@ -1,10 +1,17 @@
 <div class="hm-react-actions">
   <!--
+    Empty
+  -->
+  <TiLoading
+    v-if="isEmpty"
+      v-bind="blankAs"/>
+  <!--
     List each action items in loop
   -->
   <div
     v-for="it in myDisplayList"
-      class="as-action-item">
+      class="as-action-item"
+      :class="it.className">
       <!--
         Item head
       -->
@@ -15,10 +22,16 @@
         <div class="as-type-text">{{it.typeText|i18n}}</div>
         <!--Action Menu-->
         <div class="as-item-menu">
+          <a
+            v-if="!it.atFirst"
+              @click.left="OnMovePrev(it)">
+              <i class="fas fa-long-arrow-alt-up"></i></a>
+          <a
+            v-if="!it.atLast"
+              @click.left="OnMoveNext(it)">
+              <i class="fas fa-long-arrow-alt-down"></i></a>
+          <a @click.left="OnRemoveAction(it)"><i class="fas fa-trash-alt"></i></a>
           <a @click.left="OnEditAction(it)">{{'i18n:edit'|i18n}}</a>
-          <a><i class="fas fa-trash-alt"></i></a>
-          <a v-if="!it.first"><i class="fas fa-long-arrow-alt-up"></i></a>
-          <a v-if="!it.last"><i class="fas fa-long-arrow-alt-down"></i></a>
         </div>
       </div>
       <!--
@@ -34,12 +47,9 @@
       </div>
   </div>
   <!--
-    Add new items
+    Actions
   -->
-  <div class="as-new-item">
-    <div class="as-btn">
-      <i class="zmdi zmdi-plus"></i>
-      <span>{{'i18n:add-item'|i18n}}</span>
-    </div>
-  </div>
+  <TiButton
+    class="is-tiny btn-r4"
+    :setup="ActionSetup"/>
 </div>

@@ -51,6 +51,7 @@ export class TiAppModal {
     this.maxHeight = undefined
     this.minWidth  = undefined
     this.minHeight = undefined
+    this.mainStyle = undefined
     this.spacing  = undefined
     this.overflow = undefined
     this.adjustable = false  // true|false|"x"|"y"
@@ -144,7 +145,7 @@ export class TiAppModal {
                 </div>
             </div>
 
-            <div class="modal-main">
+            <div class="modal-main" :style="MainStyle">
               <component
                 v-if="comType"
                   class="ti-fill-parent"
@@ -218,6 +219,7 @@ export class TiAppModal {
         maxHeight  : this.maxHeight,
         minWidth   : this.minWidth,
         minHeight  : this.minHeight,
+        mainStyle  : this.mainStyle,
         spacing    : this.spacing,
         overflow   : this.overflow,
         adjustable : this.adjustable,
@@ -249,6 +251,10 @@ export class TiAppModal {
               "padding" : Ti.Css.toSize(this.spacing)
             }
           }
+        },
+        //--------------------------------------
+        MainStyle() {
+          return Ti.Css.toStyle(this.mainStyle)
         },
         //--------------------------------------
         TransName() {

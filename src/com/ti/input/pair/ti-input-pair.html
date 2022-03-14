@@ -1,6 +1,12 @@
 <div class="ti-input-pair full-field" :class="TopClass">
+  <!--
+  Empty
+  -->
+  <TiLoading
+    v-if="isEmpty"
+      v-bind="blankAs"/>
   <!----------------------------------------->
-  <table v-if="!isEmpty">
+  <table v-else>
     <colgroup>
       <col :width="nameWidth">
       <col>
@@ -34,11 +40,8 @@
     </tbody>
   </table>
   <!----------------------------------------->
-  <div class="as-adder">
-    <div class="adder-btn" @click.left="OnAddNewPair">
-      <i class="zmdi zmdi-plus"></i>
-      <span>{{'i18n:add-item'|i18n}}</span>
-    </div>
-  </div>
+  <TiButton
+    class="is-tiny btn-r4"
+    :setup="ActionSetup"/>
   <!----------------------------------------->
 </div>

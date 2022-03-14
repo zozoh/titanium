@@ -49,25 +49,25 @@ const _M = {
       let list = []
       // Default setting
       let dft = {}
-      if(!Ti.Util.isNil(this.icon)) {
+      if (!Ti.Util.isNil(this.icon)) {
         dft.icon = this.icon
       }
-      if(!Ti.Util.isNil(this.text)) {
+      if (!Ti.Util.isNil(this.text)) {
         dft.text = this.text
       }
-      if(!Ti.Util.isNil(this.disabled)) {
+      if (!Ti.Util.isNil(this.disabled)) {
         dft.disabled = this.disabled
       }
-      if(!Ti.Util.isNil(this.handler)) {
+      if (!Ti.Util.isNil(this.handler)) {
         dft.handler = this.handler
       }
-      if(!Ti.Util.isNil(this.eventName)) {
+      if (!Ti.Util.isNil(this.eventName)) {
         dft.eventName = this.eventName
       }
-      if(!Ti.Util.isNil(this.payload)) {
+      if (!Ti.Util.isNil(this.payload)) {
         dft.payload = this.payload
       }
-      if(!_.isEmpty(dft)) {
+      if (!_.isEmpty(dft)) {
         dft.name = "_DFT_BTN_ITEM_"
         list.push(dft)
       }
@@ -82,12 +82,12 @@ const _M = {
         it.text = li.disabled ? li.disabledText || li.text : li.text
         it.disabled = li.disabled
         it.handler = li.handler
-        it.buttonClass = {
+        it.buttonClass = Ti.Css.mergeClassName({
           [`as-do-${it.name}`]: true,
           "is-enabled": !li.disabled ? true : false,
           "is-disabled": li.disabled ? true : false,
           "is-invert-icon": li.invertIcon ? true : false
-        }
+        }, li.className)
         re.push(it)
       })
       return re

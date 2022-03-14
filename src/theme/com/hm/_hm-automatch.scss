@@ -1,14 +1,89 @@
 .hm-automatch {
+  width: 100%;
   //-----------------------------------------
-  > a {
-    @include color($color-primary, c);
-    @include font-fixed;
+  > .as-list {
+    padding: SZ(6);
+  }
+  //-----------------------------------------
+  > .as-list > .as-item {
+    @include flex-align-nowrap($ai: flex-start);
+    @include border(1px, dashed, shallow, bottom);
+    padding: SZ(4);
     //---------------------------------------
-    &:hover {
-      @include color($color-secondary, c);
-      text-decoration: underline;
+    > span.as-icon {
+      @include flex-center;
+      width: SZ(24);
+      height: SZ(24);
+      cursor: pointer;
+      position: relative;
+      transition: 0.5s;
+      //-------------------------------------
+      > i {
+        @include flex-center;
+        @include pos-abs-full;
+        transition: 0.3s;
+        &:first-child {
+          opacity: 1;
+        }
+        &:last-child {
+          opacity: 0;
+        }
+      }
+      //-------------------------------------
+      &:hover {
+        @include color($color-secondary, r, c);
+        border-radius: 50%;
+        > i {
+          &:first-child {
+            opacity: 0;
+            transform: rotate(180deg);
+          }
+          &:last-child {
+            opacity: 1;
+            transform: rotate(180deg);
+          }
+        }
+      }
+      //-------------------------------------
     }
     //---------------------------------------
-  }
+    > a {
+      @include color($color-primary, c);
+      @include font-fixed;
+      padding: 0 SZ(6);
+      flex: 1 1 auto;
+      //-------------------------------------
+      &:hover {
+        @include color($color-secondary, c);
+        text-decoration: underline;
+      }
+      //-------------------------------------
+    }
+    //---------------------------------------
+    > .as-menu {
+      @include flex-align-nowrap;
+      @include border(1px, solid, shallow, left);
+      flex: 0 0 auto;
+      //-------------------------------------
+      > i {
+        @include flex-center;
+        width: SZ(24);
+        height: SZ(24);
+        cursor: pointer;
+        &:hover {
+          @include color($color-secondary, r, c);
+        }
+      }
+      //-------------------------------------
+    }
+    //---------------------------------------
+    &.at-first > .as-menu i.move-up {
+      display:none;
+    }
+    &.at-last > .as-menu i.move-down {
+      display:none;
+    }
+    //---------------------------------------
+  } // > .as-list > .as-item {
   //-----------------------------------------
 }

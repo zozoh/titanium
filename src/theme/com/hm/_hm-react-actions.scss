@@ -1,9 +1,9 @@
 .hm-react-actions {
-  padding: SZ(4);
+  width:100%;
   //-----------------------------------------
   > .as-action-item {
     @include border(1px, solid, shallow);
-    margin: SZ(2);
+    margin: SZ(4) 0;
     border-radius: SZ(6);
     overflow: hidden;
     //---------------------------------------

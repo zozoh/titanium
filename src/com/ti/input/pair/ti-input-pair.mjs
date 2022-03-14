@@ -43,9 +43,9 @@ const _M = {
     "blankAs": {
       type: Object,
       default: () => ({
-        className: "as-small-tip",
-        icon: "fas-border-none",
-        text: "i18n:empty"
+        className: "as-mid-tip align-center",
+        icon: "zmdi-code-setting",
+        text: "i18n:empty-data"
       })
     },
     "nameWidth": {
@@ -77,6 +77,26 @@ const _M = {
         })
       })
       return re
+    },
+    //------------------------------------------------
+    ActionSetup() {
+      return [
+        {
+          text: "i18n:add-item",
+          icon: "zmdi-plus",
+          className: "min-width-8",
+          handler: () => {
+            this.OnAddNewPair()
+          }
+        },
+        {
+          icon: "zmdi-code",
+          className: "is-chip",
+          handler: () => {
+            this.OnViewSourceCode()
+          }
+        }
+      ]
     }
     //------------------------------------------------
   },
@@ -126,6 +146,33 @@ const _M = {
         val = _.get(data, newName)
       }
       data[newName] = null
+      this.tryNotifyChange(data)
+    },
+    //------------------------------------------------
+    async OnViewSourceCode() {
+      let json = JSON.stringify(this.value || {}, null, '   ')
+      let re = await Ti.App.Open({
+        title: "i18n:edit",
+        position: "top",
+        width: "6.4rem",
+        height: "90%",
+        result: json,
+        mainStyle: {
+          padding: "2px"
+        },
+        comType: "TiInputText",
+        comConf: {
+          height: "100%"
+        }
+      })
+
+      // User Cancel
+      if (_.isUndefined(re)) {
+        return
+      }
+
+      // Parse JSON
+      let data = JSON.parse(_.trim(re) || "null")
       this.tryNotifyChange(data)
     },
     //------------------------------------------------

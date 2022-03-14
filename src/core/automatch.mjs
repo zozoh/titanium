@@ -1,4 +1,32 @@
 ///////////////////////////////////////
+function explainKeyDisplay(key, keyDisplayBy) {
+  // Translate the key
+  if (_.isFunction(keyDisplayBy)) {
+    return keyDisplayBy(key)
+  }
+  // Tranlsate as key path
+  if (_.isArray(keyDisplayBy)) {
+    let keyPath = key.split(".")
+    let kdiss = []
+    for (let i = 0; i < keyPath.length; i++) {
+      let kph = keyPath[i]
+      let kdb = _.nth(keyDisplayBy, i)
+      if (kdb) {
+        kdiss.push(kdb[kph] || kph)
+      } else {
+        kdiss.push(kph)
+      }
+    }
+    return kdiss.join(".")
+  }
+  // Simple translate
+  if (keyDisplayBy) {
+    return _.get(keyDisplayBy, key) || key
+  }
+  // Use original value
+  return key
+}
+///////////////////////////////////////
 function DoAutoMatch(input) {
   // nil
   if (Ti.Util.isNil(input)) {
@@ -91,21 +119,50 @@ function AutoStrMatch(input) {
   return _W(StringMatch(input))
 }
 function BlankMatch() {
-  return function (val) {
+  let re = function (val) {
     return Ti.Util.isNil(val) || Ti.S.isBlank(val)
   }
+  //...............................
+  re.explainText = function ({
+    blank = 'i18n:am-blank'
+  } = {}) {
+    return Ti.I18n.text(blank)
+  }
+  //...............................
+  return re;
 }
 function BooleanMatch(bool) {
   let b = bool ? true : false
-  return function (val) {
+  //...............................
+  let re = function (val) {
     //let ib = val ? true : false
     return b === val
   }
+  //...............................
+  re.explainText = function ({
+    boolTrue = 'i18n:am-boolTrue',
+    boolFalse = 'i18n:am-boolFalse',
+  } = {}) {
+    return b
+      ? Ti.I18n.text(boolTrue)
+      : Ti.I18n.text(boolFalse)
+  }
+  //...............................
+  return re;
 }
 function NumberMatch(n) {
-  return function (val) {
+  let re = function (val) {
     return val == n
   }
+  //...............................
+  re.explainText = function ({
+    equals = 'i18n:am-equals'
+  } = {}) {
+    let s = Ti.I18n.text(equals)
+    return Ti.S.renderBy(s, { val: n })
+  }
+  //...............................
+  return re;
 }
 function EmptyMatch() {
   let re = function (val) {
@@ -116,6 +173,25 @@ function EmptyMatch() {
     empty = 'i18n:am-empty'
   } = {}) {
     return Ti.I18n.text(empty)
+  }
+  //...............................
+  return re;
+}
+function ExistsMatch(key, not) {
+  let re = function (val) {
+    let v = _.get(val, key)
+    return (!_.isUndefined(v)) ^ not
+  }
+  //...............................
+  re.explainText = function ({
+    exists = 'i18n:am-exists',
+    noexists = 'i18n:am-noexists',
+    keyDisplayBy
+  } = {}) {
+    let k = not ? noexists : exists
+    let s = Ti.I18n.text(k)
+    let t = explainKeyDisplay(key, keyDisplayBy)
+    return Ti.S.renderBy(s, { val: t })
   }
   //...............................
   return re;
@@ -135,7 +211,7 @@ function NumberRangeMatch(input) {
     open: '(' == m[1]
   }
   let right = {
-    val: vals.length > 1 ? _.trim(_.last(vals)) : NaN,
+    val: _.trim(_.last(vals)),
     open: ')' == m[3]
   }
   if (_.isString(left.val) && left.val) {
@@ -170,11 +246,19 @@ function NumberRangeMatch(input) {
         return false
     }
 
+    if (left.val === right.val) {
+      if (left.open || right.open) {
+        return val != left.val
+      }
+      return val == left.val
+    }
+
     return true
   }
   //...............................
   re.explainText = function ({
     equals = 'i18n:am-equals',
+    notEquals = 'i18n:am-notEquals',
     and = 'i18n:am-and',
     gt = 'i18n:am-gt',
     gte = 'i18n:am-gte',
@@ -182,9 +266,35 @@ function NumberRangeMatch(input) {
     lte = 'i18n:am-lte'
   } = {}) {
     // [12]
-    // (12,]
-    // (,12]
-
+    if (left.val == right.val) {
+      let s
+      if (left.open || right.open) {
+        s = Ti.I18n.text(notEquals)
+      } else {
+        s = Ti.I18n.text(equals)
+      }
+      return Ti.S.renderBy(s, { val: left.val })
+    }
+    let ss = []
+    // (12,]  || [12,] || [12,) || (12,)
+    if (!isNaN(left.val)) {
+      let s0 = left.open
+        ? Ti.I18n.text(gt)
+        : Ti.I18n.text(gte);
+      ss.push(Ti.S.renderBy(s0, { val: left.val }))
+    }
+    // (,12]  || [,12] || [,12) || (,12)
+    if (!isNaN(right.val)) {
+      let s1 = right.open
+        ? Ti.I18n.text(lt)
+        : Ti.I18n.text(lte);
+      ss.push(Ti.S.renderBy(s1, { val: right.val }))
+    }
+    if (ss.length > 1) {
+      let sep = Ti.I18n.text(and)
+      return ss.join(sep)
+    }
+    return ss[0]
   }
   //...............................
   return re
@@ -194,15 +304,36 @@ function MapMatch(map) {
   let matchs = []
   _.forEach(map, (val, key) => {
     let not = key.startsWith("!")
-    let m = DoAutoMatch(val)
+    let explainIgnoreKey = false
+    let m;
     if (not) {
       key = key.substring(1).trim()
-      m = NotMatch(m)
     }
-    matchs.push({ key, m })
+    // {key:"[EXISTS]"}
+    if (null != val) {
+      // Exists
+      if ("[EXISTS]" == val) {
+        m = ExistsMatch(key);
+        explainIgnoreKey = true
+      }
+      // No Exists
+      else if ("![EXISTS]" == val) {
+        not = !not;
+        m = new ExistsMatch(key, not);
+        explainIgnoreKey = true
+      }
+    }
+    // Other match
+    if (!m) {
+      m = DoAutoMatch(val)
+      if (not) {
+        m = NotMatch(m)
+      }
+    }
+    matchs.push({ key, m, explainIgnoreKey })
   })
   // return matcher
-  return function (val) {
+  let re = function (val) {
     if (!val || !_.isPlainObject(val)) {
       return false
     }
@@ -215,6 +346,45 @@ function MapMatch(map) {
     }
     return true
   }
+  //...............................
+  /**
+   * 
+   * @param {String} payload.and : 'i18n:am-and'
+   * @param {Object|Array|Function} payload.keyDisplayBy : 
+   * Use to tranlate the key in object to local text.
+   * It could be Map(`{}`) or Array(`[{},{}]`) or even Function
+   *  - `{}` Map - Indicate the each key mapping, key path was supported.
+   *  - `[{}..]` Array - the key in object is in path form. 
+   *             it will be split to path, and each item in path will match 
+   *             the relative element in Array. If fail to found in Array
+   *             it will keep the original value to display.
+   *  - Function - Customized function to render the key `Fn(key)`
+   * @returns 
+   */
+  re.explainText = function (payload = {}) {
+    if (_.isEmpty(matchs)) {
+      return Ti.I18n.text(payload.emptyItems || 'i18n:hm-am-empty')
+    }
+    let ss = []
+    let keyDisplayBy = payload.keyDisplayBy;
+    for (let it of matchs) {
+      let tt = it.m.explainText(payload)
+      // [EXISTS] or  ![EXISTS]
+      if (it.explainIgnoreKey) {
+        ss.push(tt)
+      }
+      // Others
+      else {
+        let ks = explainKeyDisplay(it.key, keyDisplayBy)
+        ss.push(`'${ks}'${tt}`)
+      }
+    }
+    let andKey = payload['and'] || "i18n:am-and"
+    let and = Ti.I18n.text(andKey)
+    return ss.join(and)
+  }
+  //...............................
+  return re;
 }
 function NotNilMatch(input) {
   if (!input) {
@@ -226,14 +396,14 @@ function NotNilMatch(input) {
     return !Ti.Util.isNil(v)
   }
   //...............................
-  re.explainText = function (payload = {
-    "notNil`": 'i18n:am-notNil',
-    "notNilOf": 'i18n:am-notNilOf',
-  }) {
+  re.explainText = function ({
+    notNil = 'i18n:am-notNil',
+    notNilOf = 'i18n:am-notNilOf'
+  } = {}) {
     if (!input) {
-      return Ti.I18n.textf(payload["notNil"])
+      return Ti.I18n.textf(notNil)
     }
-    let s = Ti.I18n.text(payload["notNilOf"])
+    let s = Ti.I18n.text(notNilOf)
     return Ti.S.renderBy(s, { val: input })
   }
   //...............................
@@ -253,6 +423,7 @@ function NilMatch(input) {
     "nil`": 'i18n:am-nil',
     "nil`Of": 'i18n:am-nilOf',
   }) {
+    _.de
     if (!input) {
       return Ti.I18n.textf(payload["nil"])
     }
@@ -314,10 +485,8 @@ function NotMatch(m) {
     return !m(input)
   }
   //...............................
-  re.explainText = function (payload = {
-    not: 'i18n:am-not'
-  }) {
-    let s = Ti.I18n.text(payload.not)
+  re.explainText = function (payload = {}) {
+    let s = Ti.I18n.text(payload.not || 'i18n:am-not')
     return s + m.explainText(payload)
   }
   //...............................
@@ -350,9 +519,7 @@ function ParallelMatch(...ms) {
     return false
   }
   //...............................
-  re.explainText = function (payload = {
-    orSep: '或'
-  }) {
+  re.explainText = function (payload = {}) {
     if (_.isEmpty(ms)) {
       return ""
     }
@@ -363,8 +530,9 @@ function ParallelMatch(...ms) {
     for (let m of ms) {
       ss.push(m.explainText(payload))
     }
-    let orSep = Ti.I18n.text(payload.orSep || 'i18n:am-or')
-    return ss.join(orSep)
+    let orKey = payload['or'] || "i18n:am-or"
+    let or = Ti.I18n.text(orKey)
+    return ss.join("; " + or)
   }
   //...............................
   return re
@@ -417,7 +585,7 @@ function StringMatch(input) {
   }) {
     let k = ignoreCase ? equalsIgnoreCase : equals
     let s = Ti.I18n.text(k)
-    return Ti.S.renderBy(s, { val: wildcard })
+    return Ti.S.renderBy(s, { val: input })
   }
   //...............................
   return re;
@@ -450,13 +618,24 @@ function WildcardMatch(wildcard) {
 const TiAutoMatch = {
   parse(input) {
     if (_.isFunction(input)) {
+      input.explainText = () => {
+        return Ti.I18n.get("am-not-sure")
+      }
       return input
     }
     if (Ti.Util.isNil(input)) {
-      return () => false
+      let re = () => false
+      re.explainText = () => {
+        return Ti.I18n.get("am-must-false")
+      }
+      return re
     }
     if (_.isBoolean(input)) {
-      return () => input
+      let re = () => input
+      re.explainText = () => {
+        return Ti.I18n.get(input ? "am-must-true" : "am-must-false")
+      }
+      return re
     }
     return DoAutoMatch(input)
   },

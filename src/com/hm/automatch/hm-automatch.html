@@ -1,3 +1,39 @@
 <div class="hm-automatch" :class="TopClass">
-  <a class="as-info">{{InfoText}}</a>
+  <!--
+    Empty
+  -->
+  <TiLoading
+    v-if="isEmpty"
+      v-bind="blankAs"/>
+  <!--
+    List Match Items
+  -->
+  <div
+    v-else
+      class="as-list">
+      <div
+        v-for="it in DisplayItems"
+          class="as-item"
+          :class="it.className">
+          <span class="as-icon" @click.left="OnRemoveItem(it)">
+            <i class="zmdi zmdi-arrow-split"></i>
+            <i class="zmdi zmdi-close"></i>
+          </span>
+          <a @click.left="OnClickItem(it)">{{it.text}}</a>
+          <span class="as-menu">
+            <i
+              class="zmdi zmdi-long-arrow-up move-up"
+              @click.left="OnMoveUp(it)"></i>
+            <i
+              class="zmdi zmdi-long-arrow-down move-down"
+              @click.left="OnMoveDown(it)"></i>
+          </span>
+      </div>
+  </div>
+  <!--
+    Actions
+  -->
+  <TiButton
+    class="is-tiny btn-r4"
+    :setup="ActionSetup"/>
 </div>

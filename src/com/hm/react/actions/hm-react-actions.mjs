@@ -24,6 +24,14 @@ export default {
     "itemIcon": {
       type: String,
       default: "zmdi-play-circle-outline"
+    },
+    "blankAs": {
+      type: Object,
+      default: () => ({
+        className: "as-mid-tip align-center",
+        text: "i18n:react-action-empty",
+        icon: "zmdi-flash-auto"
+      })
     }
   },
   ////////////////////////////////////////////////////
@@ -70,25 +78,55 @@ export default {
           comType: "TiInput"
         },
         {
-          title: 'i18n:query',
-          name: "query"
-        },
-        {
           title: 'i18n:target-id',
           name: "targetId",
+          visible: {
+            type: "^((obj|thing)_(delete|update))$"
+          },
           comType: "TiInput"
         },
         {
+          title: 'i18n:query',
+          name: "query",
+          type: "Object",
+          visible: {
+            type: "^(thing_update|(obj|thing)_clear)$"
+          },
+          comType: "TiInputPair"
+        },
+        {
+          title: 'i18n:params',
+          name: "params",
+          type: "Object",
+          visible: {
+            type: "^(jsc|thing_(create|delete|update|clear))$"
+          },
+          comType: "TiInputPair"
+        },
+        {
           title: 'i18n:meta',
-          name: "meta"
+          name: "meta",
+          type: "Object",
+          visible: {
+            type: "^((obj|thing)_(create|update))$"
+          },
+          comType: "TiInputPair"
         },
         {
           title: 'i18n:sort',
-          name: "sort"
+          name: "sort",
+          type: "Object",
+          visible: {
+            type: "^(thing_(create|update))$"
+          },
+          comType: "TiInputPair"
         },
         {
           title: 'i18n:input',
           name: "input",
+          visible: {
+            type: "^(exec)$"
+          },
           comType: "TiInputText",
           comConf: {
             height: "10em"
@@ -98,13 +136,39 @@ export default {
           title: 'i18n:skip',
           name: "skip",
           type: "Integer",
+          visible: {
+            type: "^((thing|obj)_clear)$"
+          },
           comType: "TiInputNum"
         },
         {
           title: 'i18n:limit',
           name: "limit",
           type: "Integer",
+          visible: {
+            type: "^((thing|obj)_clear)$"
+          },
           comType: "TiInputNum"
+        }
+      ]
+    },
+    //------------------------------------------------
+    ActionSetup() {
+      return [
+        {
+          text: "i18n:react-action-add",
+          icon: "zmdi-plus",
+          className: "min-width-8",
+          handler: () => {
+            this.OnAddAction()
+          }
+        },
+        {
+          icon: "zmdi-code",
+          className: "is-chip",
+          handler: () => {
+            this.OnViewSourceCode()
+          }
         }
       ]
     }
@@ -114,23 +178,110 @@ export default {
   methods: {
     //------------------------------------------------
     async OnEditAction({ index, data, icon }) {
-      let reo = await Ti.App.Open(_.assign({
-        icon, title: 'i18n:edit',
+      let reo = await this.OpenEditForm({ data, icon })
+
+      // User cancel
+      if (!reo) {
+        return
+      }
+
+      // Put the new item
+      let list = _.cloneDeep(this.value)
+      list[index] = reo
+      this.tryNotifyChange(list)
+    },
+    //------------------------------------------------
+    async OnAddAction() {
+      let reo = await this.OpenEditForm({
+        data: { type: "jsc" },
+        icon: 'zmdi-plus'
+      })
+
+      // User cancel
+      if (!reo) {
+        return
+      }
+
+      // Put the new item
+      let list = _.cloneDeep(this.value)
+      list.push(reo)
+      this.tryNotifyChange(list)
+    },
+    //------------------------------------------------
+    async OpenEditForm({ data, icon }) {
+      console.log("OpenEditForm", { data, icon })
+      return await Ti.App.Open(_.assign({
+        icon,
+        title: 'i18n:edit',
         width: "6.4rem",
         height: "96%",
       }, this.dialog, {
+        model: { event: "change", prop: "data" },
+        result: data,
         comType: "TiForm",
         comConf: {
-          data,
           spacing: "tiny",
           fields: this.FormFields
         }
       }))
-      console.log(reo)
+    },
+    //------------------------------------------------
+    async OnViewSourceCode() {
+      let json = JSON.stringify(this.value, null, '   ')
+      let re = await Ti.App.Open({
+        title: "i18n:edit",
+        position: "top",
+        width: "6.4rem",
+        height: "90%",
+        result: json,
+        mainStyle: {
+          padding: "2px"
+        },
+        comType: "TiInputText",
+        comConf: {
+          height: "100%"
+        }
+      })
 
-      // User cancel
-      if(!reo) {
+      // User Cancel
+      if (_.isUndefined(re)) {
         return
+      }
+
+      // Parse JSON
+      let data = JSON.parse(_.trim(re) || "{}")
+      this.tryNotifyChange(data)
+    },
+    //------------------------------------------------
+    OnRemoveAction({ index }) {
+      let list = _.cloneDeep(this.value)
+      list = _.filter(list, (_, i) => i != index)
+      this.tryNotifyChange(list)
+    },
+    //------------------------------------------------
+    OnMovePrev({ index }) {
+      // Guard
+      if (index <= 0) {
+        return
+      }
+      let list = _.cloneDeep(this.value)
+      Ti.Util.moveInArray(list, index, index - 1);
+      this.tryNotifyChange(list)
+    },
+    //------------------------------------------------
+    OnMoveNext({ index }) {
+      // Guard
+      if (_.isArray(this.value) && index >= (this.value.length - 1)) {
+        return
+      }
+      let list = _.cloneDeep(this.value)
+      Ti.Util.moveInArray(list, index, index + 1);
+      this.tryNotifyChange(list)
+    },
+    //------------------------------------------------
+    tryNotifyChange(data) {
+      if (!_.isEqual(data, this.value)) {
+        this.$notify("change", data)
       }
     },
     //------------------------------------------------
@@ -181,7 +332,7 @@ export default {
         }
 
         fields.push({
-          name: `i18n:${name}`, text
+          name: `i18n:${_.kebabCase(name)}`, text
         })
       }
       //....................................
@@ -191,10 +342,16 @@ export default {
         let lastI = len - 1
         for (let i = 0; i < len; i++) {
           let it = this.value[i]
+          let atFirst = 0 == i
+          let atLast = lastI == i
           let li = {
             index: i,
-            first: 0 == i,
-            last: lastI == i,
+            atFirst,
+            atLast,
+            className: {
+              "at-first": atFirst,
+              "at-last": atLast
+            },
             icon: it.icon || this.itemIcon,
             type: it.type,
             typeText: `i18n:hmr-t-${it.type}`,

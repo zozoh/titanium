@@ -10,8 +10,17 @@
   li {
     flex:0 0 auto; 
     padding:0 1em;
-    min-width: 8em; height: 2.6em;
+    height: 2.6em;
     @include flex-align-nowrap($jc:center); 
+    //------------------------------
+    &.min-width-2 {min-width: 2em;}
+    &.min-width-3 {min-width: 3em;}
+    &.min-width-4 {min-width: 4em;}
+    &.min-width-5 {min-width: 5em;}
+    &.min-width-6 {min-width: 6em;}
+    &.min-width-7 {min-width: 7em;}
+    &.min-width-8 {min-width: 8em;}
+    &.min-width-9 {min-width: 9em;}
     //------------------------------
     > span {display: block;}
     //------------------------------
@@ -29,6 +38,10 @@
     }
     //------------------------------
     .ti-icon .icon-icon > i {font-size:1.2em;}
+    //------------------------------
+    &.is-chip {@include color($color-chip, r, c);}
+    &.is-func {@include color($color-func, r, c);}
+    &.is-bar {@include color($color-bar, r, c);}
     //------------------------------
   }
   //---------------------------------------------
