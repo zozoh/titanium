@@ -214,31 +214,32 @@ const _M = {
     },
     //--------------------------------------------
     evalInputValue(val) {
+      let re = val;
       // apply default
       if (_.isUndefined(val)) {
-        return _.cloneDeep(
+        re = _.cloneDeep(
           Ti.Util.fallback(this.undefinedAs, this.defaultAs)
         )
       }
-      if (_.isNull(val)) {
-        return _.cloneDeep(
+      else if (_.isNull(val)) {
+        re = _.cloneDeep(
           Ti.Util.fallback(this.nullAs, this.defaultAs, null)
         )
       }
-      if (this.isNumberType && isNaN(val)) {
-        return _.cloneDeep(
+      else if (this.isNumberType && isNaN(val)) {
+        re = _.cloneDeep(
           Ti.Util.fallback(this.nanAs, this.defaultAs, NaN)
         )
       }
-      if (_.isEmpty(val) && _.isString(val)) {
-        let re = _.cloneDeep(
+      else if (_.isEmpty(val) && _.isString(val)) {
+        re = _.cloneDeep(
           Ti.Util.fallback(this.emptyAs, this.defaultAs, "")
         )
-        if ("~~undefined~~" == re)
-          return
-        return re
       }
-      return val
+
+      if ("~~undefined~~" == re)
+        return
+      return re
     }
     //--------------------------------------------
   },

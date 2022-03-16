@@ -98,6 +98,9 @@ const _M = {
   //----------------------------------------
   setCurrentId(state, currentId) {
     state.currentId = currentId
+    state.status = _.assign({}, state.status, {
+      hasCurrent: !Ti.Util.isNil(currentId)
+    })
     saveLocalBehavior(state, "currentId", currentId)
   },
   //----------------------------------------
@@ -111,6 +114,9 @@ const _M = {
       ids = _.pickBy(checkedIds, v => v)
     }
     state.checkedIds = ids
+    state.status = _.assign({}, state.status, {
+      hasChecked: !_.isEmpty(ids)
+    })
     saveLocalBehavior(state, "checkedIds", ids)
   },
   //----------------------------------------
@@ -156,10 +162,16 @@ const _M = {
         state.meta = null
       }
     }
+    state.status = _.assign({}, state.status, {
+      hasMeta: state.meta ? true : false
+    })
   },
   //----------------------------------------
   setMeta(state, meta) {
     state.meta = meta
+    state.status = _.assign({}, state.status, {
+      hasMeta: meta ? true : false
+    })
   },
   //--------------------------------------------
   assignMeta(state, meta) {

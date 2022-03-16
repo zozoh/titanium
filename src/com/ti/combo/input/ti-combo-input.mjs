@@ -29,6 +29,15 @@ const _M = {
     //------------------------------------------------
     isCollapse() { return "collapse" == this.myDropStatus },
     isExtended() { return "extended" == this.myDropStatus },
+    //-----------------------------------------------
+    FnOptionFilter() {
+      if (_.isFunction(this.optionFilter)) {
+        return this.optionFilter
+      }
+      if (this.optionFilter) {
+        return Ti.AutoMatch.parse(this.optionFilter)
+      }
+    },
     //------------------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -356,10 +365,11 @@ const _M = {
       //console.log("reloadMyOptionData")
       if (force || this.isExtended) {
         let list = await this.Dict.queryData(this.myFilterValue)
-        if (_.isFunction(this.optionFilter)) {
+        if (this.FnOptionFilter) {
           let list2 = []
-          for (let li of list) {
-            let li2 = this.optionFilter(li)
+          for (let i = 0; i < list.length; i++) {
+            let li = list[i]
+            let li2 = this.FnOptionFilter(li, i, list)
             if (!li2) {
               continue;
             }

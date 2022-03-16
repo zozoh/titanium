@@ -7,7 +7,7 @@ export default {
     default: () => []
   },
   "optionFilter": {
-    type : Function,
+    type : [Function, Object, Array],
     default: undefined
   },
   // If dynamic dictionary: options = '#DickName(=varName)'

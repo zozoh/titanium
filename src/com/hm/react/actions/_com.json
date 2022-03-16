@@ -4,6 +4,7 @@
   "template": "./hm-react-actions.html",
   "mixins": "./hm-react-actions.mjs",
   "components": [
-    
+    "@com:ti/input/list",
+    "@com:ti/input/pair"
   ]
 }

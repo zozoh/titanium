@@ -36,7 +36,10 @@
     "saving": false,
     "deleting": false,
     "changed": false,
-    "restoring": false
+    "restoring": false,
+    "hasCurrent": false,
+    "hasChecked": false,
+    "hasMeta": false
   },
   "fieldStatus": {},
   "schema": {}

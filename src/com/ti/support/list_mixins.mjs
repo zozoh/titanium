@@ -270,8 +270,11 @@ const LIST_MIXINS = {
         }
       }
       //............................................
-      let hasFilterValue = !Ti.Util.isNil(this.filterValue)
-      let hasFilterFunc = _.isFunction(this.filterBy)
+      //let hasFilterValue = !Ti.Util.isNil(this.filterValue)
+      //let hasFilterFunc = _.isFunction(this.filterBy)
+      let FnFilter = this.filterBy 
+                      ? Ti.AutoMatch.parse(this.filterBy)
+                      : undefined
       //............................................
       // Then format the list
       let list = []
@@ -299,8 +302,8 @@ const LIST_MIXINS = {
         }
         item = iteratee(item) || item
         // Apply filter
-        if(hasFilterFunc && hasFilterValue) {
-          if(!this.filterBy(item, this.filterValue)) {
+        if(FnFilter) {
+          if(!FnFilter(item, this.filterValue)) {
             return;
           }
         }

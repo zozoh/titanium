@@ -12,6 +12,10 @@ const _M = {
       type: [String, Array, Function, Ti.Dict],
       default: () => []
     },
+    "optionFilter": {
+      type: [Function, Object, Array],
+      default: undefined
+    },
     // Item ignore by the AutoMatch
     "ignoreBy": undefined,
     /*
@@ -78,6 +82,15 @@ const _M = {
         width: this.width,
         height: this.height
       })
+    },
+    //-----------------------------------------------
+    FnOptionFilter() {
+      if (_.isFunction(this.optionFilter)) {
+        return this.optionFilter
+      }
+      if (this.optionFilter) {
+        return Ti.AutoMatch.parse(this.optionFilter)
+      }
     },
     //-----------------------------------------------
     Grouping() {
@@ -200,6 +213,41 @@ const _M = {
       //   getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
       // })
     },
+    //-----------------------------------------------
+    async reloadMyOptionData() {
+      this.myDict = this.createDict()
+
+      let list;
+      if (this.myDict) {
+        this.loading = true
+        list = await this.myDict.getData()
+      } else {
+        list = this.options
+      }
+
+      if (this.FnOptionFilter) {
+        let list2 = []
+        for (let i = 0; i < list.length; i++) {
+          let li = list[i]
+          let li2 = this.FnOptionFilter(li, i, list)
+          if (!li2) {
+            continue;
+          }
+          if (_.isBoolean(li2)) {
+            list2.push(li)
+          } else {
+            list2.push(li2)
+          }
+        }
+        list = list2
+      }
+
+      this.myOptionsData = list
+
+      this.$nextTick(() => {
+        this.loading = false
+      })
+    },
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
@@ -207,16 +255,7 @@ const _M = {
     "options": {
       handler: async function (newval, oldval) {
         if (!_.isEqual(newval, oldval)) {
-          this.myDict = this.createDict()
-          if (this.myDict) {
-            this.loading = true
-            this.myOptionsData = await this.myDict.getData()
-          } else {
-            this.myOptionsData = newval
-          }
-          this.$nextTick(() => {
-            this.loading = false
-          })
+          await this.reloadMyOptionData()
         }
       },
       immediate: true
