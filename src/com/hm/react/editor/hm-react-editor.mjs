@@ -201,10 +201,16 @@ export default {
       if (!this.hasCurrentItem) {
         return
       }
+
       // Update value
       let data = _.cloneDeep(this.data) || []
       data[this.CurrentReactItemIndex] = item
       this.tryNotifyChange(data)
+
+      // Update to new name
+      this.$nextTick(() => {
+        this.OnListSelect({ currentId: item.name })
+      })
     },
     //------------------------------------------------
     doCreateNewItem() {

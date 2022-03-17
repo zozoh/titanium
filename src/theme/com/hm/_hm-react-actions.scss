@@ -1,5 +1,5 @@
 .hm-react-actions {
-  width:100%;
+  width: 100%;
   //-----------------------------------------
   > .as-action-item {
     @include border(1px, solid, shallow);
@@ -59,6 +59,8 @@
         .as-text {
           @include font-fixed;
           color: map-get($color-text, c);
+          word-wrap: break-word;
+          word-break: break-all;
         }
         //-----------------------------------
       } // > .as-field
