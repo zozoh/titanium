@@ -1,4 +1,4 @@
-// Pack At: 2022-03-17 01:29:53
+// Pack At: 2022-03-18 09:27:22
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -50784,10 +50784,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if (!this.hasCurrentItem) {
         return
       }
+
       // Update value
       let data = _.cloneDeep(this.data) || []
       data[this.CurrentReactItemIndex] = item
       this.tryNotifyChange(data)
+
+      // Update to new name
+      this.$nextTick(() => {
+        this.OnListSelect({ currentId: item.name })
+      })
     },
     //------------------------------------------------
     doCreateNewItem() {
