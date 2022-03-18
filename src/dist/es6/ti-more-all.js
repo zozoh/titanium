@@ -1,4 +1,4 @@
-// Pack At: 2022-03-18 09:27:22
+// Pack At: 2022-03-18 16:05:18
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2495,7 +2495,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //------------------------------------------------
     async OpenEditForm({ data, icon }) {
-      console.log("OpenEditForm", { data, icon })
       return await Ti.App.Open(_.assign({
         icon,
         title: 'i18n:edit',
@@ -35450,12 +35449,12 @@ const _M = {
       // Flat pairs  [keyPath] : [pairValue]
       let pairs = {}
       this.joinPairs(pairs, [], this.TheData)
-
+      console.log(pairs)
       // format list
       let list = []
       for(let fld  of this.fields) {
         let pa = pairs[fld.name]
-        if(pa || !this.showEmpty) {
+        if(pa || this.showEmpty) {
           pa = pa || {
             name : fld.name
           }
@@ -57002,7 +57001,7 @@ const TI_TREE = {
       default : "children"
     },
     "leafBy" : {
-      type    : [String, Object, Function],
+      type    : [String, Object, Function, Array],
       default : ()=>({
         "children" : ""
       })

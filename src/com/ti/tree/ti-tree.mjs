@@ -53,7 +53,7 @@ const TI_TREE = {
       default : "children"
     },
     "leafBy" : {
-      type    : [String, Object, Function],
+      type    : [String, Object, Function, Array],
       default : ()=>({
         "children" : ""
       })

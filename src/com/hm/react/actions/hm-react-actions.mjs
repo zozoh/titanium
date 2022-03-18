@@ -209,7 +209,6 @@ export default {
     },
     //------------------------------------------------
     async OpenEditForm({ data, icon }) {
-      console.log("OpenEditForm", { data, icon })
       return await Ti.App.Open(_.assign({
         icon,
         title: 'i18n:edit',

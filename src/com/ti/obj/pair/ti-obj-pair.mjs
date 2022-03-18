@@ -164,12 +164,12 @@ const _M = {
       // Flat pairs  [keyPath] : [pairValue]
       let pairs = {}
       this.joinPairs(pairs, [], this.TheData)
-
+      console.log(pairs)
       // format list
       let list = []
       for(let fld  of this.fields) {
         let pa = pairs[fld.name]
-        if(pa || !this.showEmpty) {
+        if(pa || this.showEmpty) {
           pa = pa || {
             name : fld.name
           }
