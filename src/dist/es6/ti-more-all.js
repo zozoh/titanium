@@ -1,4 +1,4 @@
-// Pack At: 2022-03-18 16:05:18
+// Pack At: 2022-03-21 16:20:49
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -35285,106 +35285,110 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/obj/pair/ti-obj-pair.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////
-  data : ()=>({
-    myPairList : []
+  data: () => ({
+    myPairList: []
   }),
   ////////////////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "value" : {
-      type : [String, Object],
-      default : undefined
+    "value": {
+      type: [String, Object],
+      default: undefined
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    "canEditName" : {
-      type : Boolean,
-      default : false
+    "canEditName": {
+      type: Boolean,
+      default: false
     },
-    "canEditValue" : {
-      type : Boolean,
-      default : false
+    "canEditValue": {
+      type: Boolean,
+      default: false
     },
-    "multiLines" : {
-      type : Boolean,
-      default : false
+    "multiLines": {
+      type: Boolean,
+      default: false
     },
-    "emptyAsNull" : {
-      type : Boolean,
-      default : true
+    "emptyAsNull": {
+      type: Boolean,
+      default: true
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
     "nameText": {
-      type : String,
-      default : "i18n:name"
+      type: String,
+      default: "i18n:name"
     },
     "valueText": {
-      type : String,
-      default : "i18n:value"
+      type: String,
+      default: "i18n:value"
     },
-    "fields" : {
-      type : Array,
-      default : ()=>[]
+    "fields": {
+      type: Array,
+      default: () => []
     },
-    "onlyFields" : {
+    "onlyFields": {
       type: Boolean,
       default: false
     },
-    "blankAs" : {
-      type : Object,
-      default : ()=>({
-        icon : "im-plugin",
-        text : "i18n:empty"
+    "blankAs": {
+      type: Object,
+      default: () => ({
+        icon: "im-plugin",
+        text: "i18n:empty"
       })
     },
-    "showHead" : {
-      type : Boolean,
-      default : true
+    "showHead": {
+      type: Boolean,
+      default: true
     },
-    "showEmpty" : {
-      type : Boolean,
-      default : true
+    "showEmpty": {
+      type: Boolean,
+      default: true
     },
-    "autoI18n" : {
-      type : Boolean,
-      default : true
-    }
+    "autoI18n": {
+      type: Boolean,
+      default: true
+    },
+    "autoShowBlank": {
+      type: Boolean,
+      default: false
+    },
     //-----------------------------------
     // Measure
     //-----------------------------------
   },
   ////////////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------------
     TopClass() {
       return this.getTopClass({
-        "can-edit-name"  : this.canEditName,
-        "can-edit-value" : this.canEditValue
+        "can-edit-name": this.canEditName,
+        "can-edit-value": this.canEditValue
       })
     },
     //--------------------------------------------
     FieldsMap() {
       let map = {}
-      for(let fld of this.fields) {
-        if(fld.name)
+      for (let fld of this.fields) {
+        if (fld.name)
           map[fld.name] = fld
       }
       return map
     },
     //--------------------------------------------
     TheData() {
-      if(!this.value) {
+      if (!this.value) {
         return {}
       }
-      if(_.isString(this.value)) {
+      if (_.isString(this.value)) {
         return JSON.parse(this.value)
       }
-      if(_.isPlainObject(this.value))
+      if (_.isPlainObject(this.value))
         return this.value
       return {}
     },
@@ -35395,52 +35399,52 @@ const _M = {
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------------
-    OnPairComChange(newVal, {name, value}) {
-      if(!_.isEqual(newVal, value)) {
-        if(this.emptyAsNull && _.isEmpty(newVal)) {
+    OnPairComChange(newVal, { name, value }) {
+      if (!_.isEqual(newVal, value)) {
+        if (this.emptyAsNull && _.isEmpty(newVal)) {
           newVal = null
         }
-        let data = _.cloneDeep(this.TheData) 
+        let data = _.cloneDeep(this.TheData)
         _.set(data, name, newVal)
         this.$notify("change", data)
       }
     },
     //--------------------------------------------
-    OnPairValueChange(evt, {name, value}) {
+    OnPairValueChange(evt, { name, value }) {
       let newVal = _.trim(evt.target.value)
-      if(newVal != value) {
-        if(this.emptyAsNull && _.isEmpty(newVal)) {
+      if (newVal != value) {
+        if (this.emptyAsNull && _.isEmpty(newVal)) {
           newVal = null
         }
-        let data = _.cloneDeep(this.TheData) 
+        let data = _.cloneDeep(this.TheData)
         _.set(data, name, newVal)
         this.$notify("change", data)
       }
     },
     //--------------------------------------------
-    async OnClickPairMore({name, value}) {
+    async OnClickPairMore({ name, value }) {
       // Get new value
       let newVal = await Ti.App.Open({
-        icon : "zmdi-edit",
-        title : "i18n:edit",
-        width  : 640,
-        height : "80%",
-        result : value,
-        comType : "TiInputText",
-        comConf : {
+        icon: "zmdi-edit",
+        title: "i18n:edit",
+        width: 640,
+        height: "80%",
+        result: value,
+        comType: "TiInputText",
+        comConf: {
           height: "100%"
         },
-        components : ["@com:ti/input/text"]
+        components: ["@com:ti/input/text"]
       })
 
       // User cancel
-      if(Ti.Util.isNil(newVal) || newVal == value)
+      if (Ti.Util.isNil(newVal) || newVal == value)
         return
 
       // Update value
-      let data = _.cloneDeep(this.TheData) 
+      let data = _.cloneDeep(this.TheData)
       _.set(data, name, newVal)
       this.$notify("change", data)
     },
@@ -35452,25 +35456,25 @@ const _M = {
       console.log(pairs)
       // format list
       let list = []
-      for(let fld  of this.fields) {
+      for (let fld of this.fields) {
         let pa = pairs[fld.name]
-        if(pa || this.showEmpty) {
+        if (pa || this.showEmpty) {
           pa = pa || {
-            name : fld.name
+            name: fld.name
           }
           // Title
           let title = fld.title || fld.name
-          if(this.autoI18n){
+          if (this.autoI18n) {
             title = Ti.I18n.text(title)
           }
           pa.title = title
           // Mapping Value
-          if(fld.dict) {
+          if (fld.dict) {
             let d = Ti.DictFactory.CheckDict(fld.dict)
             pa.text = await d.getItemText(pa.value)
           }
           // Customized the display text
-          if(fld.comType) {
+          if (fld.comType) {
             pa.comType = fld.comType
             pa.comConf = fld.comConf || {}
           }
@@ -35481,10 +35485,10 @@ const _M = {
       }
 
       // find remain
-      if(!this.onlyFields) {
+      if (!this.onlyFields) {
         let remains = []
-        _.forEach(pairs, (pa)=>{
-          if(pa.name && !this.FieldsMap[pa.name]) {
+        _.forEach(pairs, (pa) => {
+          if (pa.name && !this.FieldsMap[pa.name]) {
             pa.title = pa.name
             remains.push(pa)
           }
@@ -35495,32 +35499,32 @@ const _M = {
       this.myPairList = list
     },
     //--------------------------------------------
-    joinPairs(pairs=[], path=[], obj) {
+    joinPairs(pairs = [], path = [], obj) {
       // recursion
-      if(_.isPlainObject(obj)){
-        _.forEach(obj, (val, key)=>{
+      if (_.isPlainObject(obj)) {
+        _.forEach(obj, (val, key) => {
           this.joinPairs(pairs, _.concat(path, key), val)
         })
       }
       // Array
-      else if(_.isArray(obj)) {
-        for(let i=0; i<obj.length; i++) {
+      else if (_.isArray(obj)) {
+        for (let i = 0; i < obj.length; i++) {
           let val = obj[i]
-          this.joinPairs(pairs, _.concat(path, i+""), val)
+          this.joinPairs(pairs, _.concat(path, i + ""), val)
         }
       }
       // join pair
       else {
-        let name  = path.join(".")
+        let name = path.join(".")
         let value = obj
-        pairs[name] = {name, value}
+        pairs[name] = { name, value }
       }
     }
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
-  watch : {
-    "value" : "evalThePairList"
+  watch: {
+    "value": "evalThePairList"
   },
   ////////////////////////////////////////////////
   mounted() {
@@ -48293,47 +48297,47 @@ return _M;
 window.TI_PACK_EXPORTS['ti/com/ti/icon/ti-icon.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////////
-  data : ()=>({
-    myValue : null
+  data: () => ({
+    myValue: null
   }),
   ///////////////////////////////////////////////////////
-  props : {
+  props: {
     // If image, join the base
-    "base" : {
-      type : String,
-      default : null
+    "base": {
+      type: String,
+      default: null
     },
-    "value" : {
-      type : [String,Object,Number],
-      default : null
+    "value": {
+      type: [String, Object, Number],
+      default: null
     },
-    "dict" : {
-      type : [String, Ti.Dict],
-      default : null
+    "dict": {
+      type: [String, Ti.Dict],
+      default: null
     },
-    "defaultValue" : {
-      type : [String,Object],
-      default : null
+    "defaultValue": {
+      type: [String, Object],
+      default: null
     },
-    "fontSize" : {
-      type : [Number, String],
-      default : null
+    "fontSize": {
+      type: [Number, String],
+      default: null
     },
-    "width" : {
-      type : [Number, String],
-      default : null
+    "width": {
+      type: [Number, String],
+      default: null
     },
-    "height" : {
-      type : [Number, String],
-      default : null
+    "height": {
+      type: [Number, String],
+      default: null
     },
-    "color" : {
-      type : [String, Function],
-      default : ""
+    "color": {
+      type: [String, Function],
+      default: ""
     },
-    "opacity" : {
-      type : [Number, Function],
-      default : -1
+    "opacity": {
+      type: [Number, Function],
+      default: -1
     },
     "notifyName": {
       type: String,
@@ -48342,10 +48346,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "notifyConf": {
       type: [Object, String, Number, Boolean, Array],
       default: undefined
+    },
+    "stopPropagation": {
+      type: Boolean,
+      default: false
     }
   },
   ///////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //---------------------------------------------------
     TopClass() {
       return this.getTopClass({
@@ -48354,56 +48362,56 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //---------------------------------------------------
     Dict() {
-      if(this.dict) {
+      if (this.dict) {
         // Already Dict
-        if(this.dict instanceof Ti.Dict) {
+        if (this.dict instanceof Ti.Dict) {
           return this.dict
         }
         // Get back
-        let {name} = Ti.DictFactory.explainDictName(this.dict)
+        let { name } = Ti.DictFactory.explainDictName(this.dict)
         return Ti.DictFactory.CheckDict(name)
       }
     },
     //---------------------------------------------------
     // formed icon data
     Icon() {
-      let icn 
-      if(_.isPlainObject(this.myValue)){
+      let icn
+      if (_.isPlainObject(this.myValue)) {
         // Regular icon object, return it directly
-        if(this.myValue.value) {
+        if (this.myValue.value) {
           icn = _.cloneDeep(this.myValue)
         }
         // Eval it as meta
         else {
           icn = {
-            type  : "font", 
-            value : Ti.Icons.get(this.myValue)
+            type: "font",
+            value: Ti.Icons.get(this.myValue)
           }
         }
         // Auto type
-        if(!icn.type) {
+        if (!icn.type) {
           icn.type = /(jpe?g|gif|png|svg)$/i.test(icn.value)
-                      ? "image"
-                      : "font"
+            ? "image"
+            : "font"
         }
       }
       // String
       else {
         icn = {
-          type : "font",
-          value : this.myValue
+          type: "font",
+          value: this.myValue
         }
-        if(_.isString(this.myValue)) {
+        if (_.isString(this.myValue)) {
           icn.type = Ti.Util.getSuffixName(this.myValue) || "font"
         }
         // for image
-        if(/^(jpe?g|gif|png|svg)$/i.test(icn.type)){
+        if (/^(jpe?g|gif|png|svg)$/i.test(icn.type)) {
           icn.type = "image"
         }
       }
 
       // Join `className / text` to show icon font
-      if('font' == icn.type) {
+      if ('font' == icn.type) {
         let iconClass = icn.className
         let val = Ti.Icons.getByName(icn.value, icn.value)
         _.assign(icn, Ti.Icons.parseFontIcon(val), {
@@ -48411,48 +48419,48 @@ const __TI_MOD_EXPORT_VAR_NM = {
         })
       }
       // Join base
-      else if('image' == icn.type) {
-        if(!Ti.Util.isBlank(this.base)) {
+      else if ('image' == icn.type) {
+        if (!Ti.Util.isBlank(this.base)) {
           icn.value = Ti.Util.appendPath(this.base, icn.value)
         }
       }
 
       // Evel the color
       let color = icn.color || this.color
-      if(_.isFunction(color)) {
+      if (_.isFunction(color)) {
         color = color(this.value)
       }
 
       // Evel the opacity
       let opacity = icn.opacity || this.opacity
-      if(_.isFunction(opacity)) {
+      if (_.isFunction(opacity)) {
         opacity = opacity(this.value)
       }
-      if(!_.isNumber(opacity) || opacity<0) {
+      if (!_.isNumber(opacity) || opacity < 0) {
         opacity = undefined
       }
 
 
       // join style:outer
-      let width  = icn.width   || this.width
-      let height = icn.height  || this.height 
+      let width = icn.width || this.width
+      let height = icn.height || this.height
       icn.outerStyle = Ti.Css.toStyle({
         width, height,
         color, opacity
       })
 
       // join style:inner
-      if('image' == icn.type) {
+      if ('image' == icn.type) {
         icn.innerStyle = {
-          "width"  : width  ? "100%" : undefined,
-          "height" : height ? "100%" : undefined
+          "width": width ? "100%" : undefined,
+          "height": height ? "100%" : undefined
         }
       }
       // font size
-      else if('font' == icn.type) {
-        let fsz = icn.fontSize || this.fontSize 
+      else if ('font' == icn.type) {
+        let fsz = icn.fontSize || this.fontSize
         icn.innerStyle = {
-          "font-size" : Ti.Css.toSize(fsz)
+          "font-size": Ti.Css.toSize(fsz)
         }
       }
 
@@ -48460,10 +48468,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //---------------------------------------------------
   },
-  methods : {
+  methods: {
     //---------------------------------------------------
-    OnClickTop() {
-      if(this.notifyName) {
+    OnClickTop($event) {
+      if(this.stopPropagation) {
+        $event.stopPropagation()
+      }
+      if (this.notifyName) {
         this.$notify(this.notifyName, this.notifyConf)
       }
     },
@@ -48471,7 +48482,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     async evalMyValue() {
       let val = Ti.Util.fallbackNil(this.value, this.defaultValue)
       // Translate by dict
-      if(this.Dict) {
+      if (this.Dict) {
         this.myValue = await this.Dict.getItemIcon(val)
       }
       // Normal value
@@ -48482,10 +48493,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
-  watch : {
-    "value" : {
-      handler : "evalMyValue",
-      immediate : true
+  watch: {
+    "value": {
+      handler: "evalMyValue",
+      immediate: true
     }
   }
   ///////////////////////////////////////////////////////
@@ -78955,7 +78966,7 @@ Ti.Preload("ti/com/ti/obj/pair/ti-obj-pair.html", `<div class="ti-obj-pair full-
     Empty
   -->
   <ti-loading
-    v-if="isEmpty && showEmpty"
+    v-if="isEmpty && autoShowBlank"
       class="as-small-tip"
       v-bind="blankAs"/>
   <!--

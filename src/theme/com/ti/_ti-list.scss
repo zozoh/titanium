@@ -139,6 +139,10 @@
         &.is-image {
           height: SZ(26);
         }
+        &.icon-w32 {width: SZ(32);}
+        &.icon-w36 {width: SZ(36);}
+        &.icon-w42 {width: SZ(42);}
+        &.icon-w48 {width: SZ(48);}
       }
       //--------------------------------------
     }

@@ -1,46 +1,46 @@
 export default {
   ///////////////////////////////////////////////////////
-  data : ()=>({
-    myValue : null
+  data: () => ({
+    myValue: null
   }),
   ///////////////////////////////////////////////////////
-  props : {
+  props: {
     // If image, join the base
-    "base" : {
-      type : String,
-      default : null
+    "base": {
+      type: String,
+      default: null
     },
-    "value" : {
-      type : [String,Object,Number],
-      default : null
+    "value": {
+      type: [String, Object, Number],
+      default: null
     },
-    "dict" : {
-      type : [String, Ti.Dict],
-      default : null
+    "dict": {
+      type: [String, Ti.Dict],
+      default: null
     },
-    "defaultValue" : {
-      type : [String,Object],
-      default : null
+    "defaultValue": {
+      type: [String, Object],
+      default: null
     },
-    "fontSize" : {
-      type : [Number, String],
-      default : null
+    "fontSize": {
+      type: [Number, String],
+      default: null
     },
-    "width" : {
-      type : [Number, String],
-      default : null
+    "width": {
+      type: [Number, String],
+      default: null
     },
-    "height" : {
-      type : [Number, String],
-      default : null
+    "height": {
+      type: [Number, String],
+      default: null
     },
-    "color" : {
-      type : [String, Function],
-      default : ""
+    "color": {
+      type: [String, Function],
+      default: ""
     },
-    "opacity" : {
-      type : [Number, Function],
-      default : -1
+    "opacity": {
+      type: [Number, Function],
+      default: -1
     },
     "notifyName": {
       type: String,
@@ -49,10 +49,14 @@ export default {
     "notifyConf": {
       type: [Object, String, Number, Boolean, Array],
       default: undefined
+    },
+    "stopPropagation": {
+      type: Boolean,
+      default: false
     }
   },
   ///////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //---------------------------------------------------
     TopClass() {
       return this.getTopClass({
@@ -61,56 +65,56 @@ export default {
     },
     //---------------------------------------------------
     Dict() {
-      if(this.dict) {
+      if (this.dict) {
         // Already Dict
-        if(this.dict instanceof Ti.Dict) {
+        if (this.dict instanceof Ti.Dict) {
           return this.dict
         }
         // Get back
-        let {name} = Ti.DictFactory.explainDictName(this.dict)
+        let { name } = Ti.DictFactory.explainDictName(this.dict)
         return Ti.DictFactory.CheckDict(name)
       }
     },
     //---------------------------------------------------
     // formed icon data
     Icon() {
-      let icn 
-      if(_.isPlainObject(this.myValue)){
+      let icn
+      if (_.isPlainObject(this.myValue)) {
         // Regular icon object, return it directly
-        if(this.myValue.value) {
+        if (this.myValue.value) {
           icn = _.cloneDeep(this.myValue)
         }
         // Eval it as meta
         else {
           icn = {
-            type  : "font", 
-            value : Ti.Icons.get(this.myValue)
+            type: "font",
+            value: Ti.Icons.get(this.myValue)
           }
         }
         // Auto type
-        if(!icn.type) {
+        if (!icn.type) {
           icn.type = /(jpe?g|gif|png|svg)$/i.test(icn.value)
-                      ? "image"
-                      : "font"
+            ? "image"
+            : "font"
         }
       }
       // String
       else {
         icn = {
-          type : "font",
-          value : this.myValue
+          type: "font",
+          value: this.myValue
         }
-        if(_.isString(this.myValue)) {
+        if (_.isString(this.myValue)) {
           icn.type = Ti.Util.getSuffixName(this.myValue) || "font"
         }
         // for image
-        if(/^(jpe?g|gif|png|svg)$/i.test(icn.type)){
+        if (/^(jpe?g|gif|png|svg)$/i.test(icn.type)) {
           icn.type = "image"
         }
       }
 
       // Join `className / text` to show icon font
-      if('font' == icn.type) {
+      if ('font' == icn.type) {
         let iconClass = icn.className
         let val = Ti.Icons.getByName(icn.value, icn.value)
         _.assign(icn, Ti.Icons.parseFontIcon(val), {
@@ -118,48 +122,48 @@ export default {
         })
       }
       // Join base
-      else if('image' == icn.type) {
-        if(!Ti.Util.isBlank(this.base)) {
+      else if ('image' == icn.type) {
+        if (!Ti.Util.isBlank(this.base)) {
           icn.value = Ti.Util.appendPath(this.base, icn.value)
         }
       }
 
       // Evel the color
       let color = icn.color || this.color
-      if(_.isFunction(color)) {
+      if (_.isFunction(color)) {
         color = color(this.value)
       }
 
       // Evel the opacity
       let opacity = icn.opacity || this.opacity
-      if(_.isFunction(opacity)) {
+      if (_.isFunction(opacity)) {
         opacity = opacity(this.value)
       }
-      if(!_.isNumber(opacity) || opacity<0) {
+      if (!_.isNumber(opacity) || opacity < 0) {
         opacity = undefined
       }
 
 
       // join style:outer
-      let width  = icn.width   || this.width
-      let height = icn.height  || this.height 
+      let width = icn.width || this.width
+      let height = icn.height || this.height
       icn.outerStyle = Ti.Css.toStyle({
         width, height,
         color, opacity
       })
 
       // join style:inner
-      if('image' == icn.type) {
+      if ('image' == icn.type) {
         icn.innerStyle = {
-          "width"  : width  ? "100%" : undefined,
-          "height" : height ? "100%" : undefined
+          "width": width ? "100%" : undefined,
+          "height": height ? "100%" : undefined
         }
       }
       // font size
-      else if('font' == icn.type) {
-        let fsz = icn.fontSize || this.fontSize 
+      else if ('font' == icn.type) {
+        let fsz = icn.fontSize || this.fontSize
         icn.innerStyle = {
-          "font-size" : Ti.Css.toSize(fsz)
+          "font-size": Ti.Css.toSize(fsz)
         }
       }
 
@@ -167,10 +171,13 @@ export default {
     },
     //---------------------------------------------------
   },
-  methods : {
+  methods: {
     //---------------------------------------------------
-    OnClickTop() {
-      if(this.notifyName) {
+    OnClickTop($event) {
+      if(this.stopPropagation) {
+        $event.stopPropagation()
+      }
+      if (this.notifyName) {
         this.$notify(this.notifyName, this.notifyConf)
       }
     },
@@ -178,7 +185,7 @@ export default {
     async evalMyValue() {
       let val = Ti.Util.fallbackNil(this.value, this.defaultValue)
       // Translate by dict
-      if(this.Dict) {
+      if (this.Dict) {
         this.myValue = await this.Dict.getItemIcon(val)
       }
       // Normal value
@@ -189,10 +196,10 @@ export default {
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
-  watch : {
-    "value" : {
-      handler : "evalMyValue",
-      immediate : true
+  watch: {
+    "value": {
+      handler: "evalMyValue",
+      immediate: true
     }
   }
   ///////////////////////////////////////////////////////
