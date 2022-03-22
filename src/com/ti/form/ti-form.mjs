@@ -237,7 +237,8 @@ const _M = {
         // Statice value
         else if (val && val.target) {
           re[key] = ({ name, value }, data) => {
-            if (val.test && !Ti.AutoMatch.test(val.test, data)) {
+            let tc = _.assign({}, {"$update": {name, value}}, data)
+            if (val.test && !Ti.AutoMatch.test(val.test, tc)) {
               return
             }
             return Ti.Util.explainObj(data, val.target)

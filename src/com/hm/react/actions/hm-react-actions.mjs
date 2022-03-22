@@ -95,15 +95,6 @@ export default {
           comType: "TiInputPair"
         },
         {
-          title: 'i18n:params',
-          name: "params",
-          type: "Object",
-          visible: {
-            type: "^(jsc|thing_(create|delete|update|clear))$"
-          },
-          comType: "TiInputPair"
-        },
-        {
           title: 'i18n:meta',
           name: "meta",
           type: "Object",
@@ -113,11 +104,20 @@ export default {
           comType: "TiInputPair"
         },
         {
+          title: 'i18n:params',
+          name: "params",
+          type: "Object",
+          visible: {
+            type: "^(jsc|thing_(create|delete|update|clear))$"
+          },
+          comType: "TiInputPair"
+        },
+        {
           title: 'i18n:sort',
           name: "sort",
           type: "Object",
           visible: {
-            type: "^(thing_(create|update))$"
+            type: "^((thing|obj)_clear)$"
           },
           comType: "TiInputPair"
         },

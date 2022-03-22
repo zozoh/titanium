@@ -39,14 +39,6 @@ export default {
           "comType": "TiToggle"
         },
         {
-          "title": "前置条件",
-          "name": "test",
-          "type": "Array",
-          "fieldWidth": "100%",
-          "comType": "HmAutomatch",
-          "comConf": {}
-        },
-        {
           "title": "执行变量",
           "name": "vars",
           "type": "Object",
@@ -61,6 +53,16 @@ export default {
               "autoSelect": true
             }
           }
+        },
+        {
+          "title": "前置条件"
+        },
+        {
+          "name": "test",
+          "type": "Array",
+          "fieldWidth": "100%",
+          "comType": "HmAutomatch",
+          "comConf": {}
         },
         {
           "title": "执行动作列表"

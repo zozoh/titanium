@@ -1,4 +1,4 @@
-// Pack At: 2022-03-21 16:20:49
+// Pack At: 2022-03-22 11:54:38
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2381,15 +2381,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
           comType: "TiInputPair"
         },
         {
-          title: 'i18n:params',
-          name: "params",
-          type: "Object",
-          visible: {
-            type: "^(jsc|thing_(create|delete|update|clear))$"
-          },
-          comType: "TiInputPair"
-        },
-        {
           title: 'i18n:meta',
           name: "meta",
           type: "Object",
@@ -2399,11 +2390,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
           comType: "TiInputPair"
         },
         {
+          title: 'i18n:params',
+          name: "params",
+          type: "Object",
+          visible: {
+            type: "^(jsc|thing_(create|delete|update|clear))$"
+          },
+          comType: "TiInputPair"
+        },
+        {
           title: 'i18n:sort',
           name: "sort",
           type: "Object",
           visible: {
-            type: "^(thing_(create|update))$"
+            type: "^((thing|obj)_clear)$"
           },
           comType: "TiInputPair"
         },
@@ -4009,7 +4009,7 @@ const _M = {
         return
 
       // Normlized to value
-      //console.log(reo)
+      console.log(reo)
       let val = this.normalizeValue(reo)
 
       this.$notify("change", val)
@@ -43322,14 +43322,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
           "comType": "TiToggle"
         },
         {
-          "title": "前置条件",
-          "name": "test",
-          "type": "Array",
-          "fieldWidth": "100%",
-          "comType": "HmAutomatch",
-          "comConf": {}
-        },
-        {
           "title": "执行变量",
           "name": "vars",
           "type": "Object",
@@ -43344,6 +43336,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
               "autoSelect": true
             }
           }
+        },
+        {
+          "title": "前置条件"
+        },
+        {
+          "name": "test",
+          "type": "Array",
+          "fieldWidth": "100%",
+          "comType": "HmAutomatch",
+          "comConf": {}
         },
         {
           "title": "执行动作列表"
@@ -43608,7 +43610,8 @@ const _M = {
         // Statice value
         else if (val && val.target) {
           re[key] = ({ name, value }, data) => {
-            if (val.test && !Ti.AutoMatch.test(val.test, data)) {
+            let tc = _.assign({}, {"$update": {name, value}}, data)
+            if (val.test && !Ti.AutoMatch.test(val.test, tc)) {
               return
             }
             return Ti.Util.explainObj(data, val.target)
