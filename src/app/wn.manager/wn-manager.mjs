@@ -387,6 +387,7 @@ const _M = {
           if (!isSameId || this.isChanged) {
             await this.reloadMain()
             this.pushHistory(newVal)
+            this.updateDocumentTitle(newVal)
           }
         })
       }

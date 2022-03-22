@@ -1,4 +1,4 @@
-// Pack At: 2022-03-22 11:54:38
+// Pack At: 2022-03-22 23:54:45
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -35031,6 +35031,7 @@ const _M = {
           if (!isSameId || this.isChanged) {
             await this.reloadMain()
             this.pushHistory(newVal)
+            this.updateDocumentTitle(newVal)
           }
         })
       }
@@ -59997,7 +59998,7 @@ const _M = {
       //..................................
       // register main module
       if (view && view.modType) {
-        if(this.Main) {
+        if (this.Main) {
           this.$store.unregisterModule("main")
         }
         //
@@ -60006,17 +60007,17 @@ const _M = {
         if (view && view.mod) {
           this.$store.registerModule("main", view.mod)
         }
-        
+
         // 
         // Extends modules
         //
-        if(this.view && !_.isEmpty(this.view.modules)) {
-          for(let moName in this.view.modules) {
+        if (this.view && !_.isEmpty(this.view.modules)) {
+          for (let moName in this.view.modules) {
             this.$store.unregisterModule(moName)
           }
         }
-        if(view && view.modules) {
-          for(let moName in view.modules) {
+        if (view && view.modules) {
+          for (let moName in view.modules) {
             let mod = view.modules[moName]
             this.$store.registerModule(moName, mod)
           }
@@ -60074,6 +60075,14 @@ const _M = {
   async execEvent(eventName, payload, dftCommand) {
     let cmd = _.get(this.view.events, eventName) || dftCommand
     await Ti.App(this).exec(cmd, payload)
+  },
+  //.........................................
+  updateDocumentTitle(meta) {
+    let title = Ti.Util.getFallback(meta, "title", "nm", "id")
+    title = Ti.Util.explainObj(meta, title)
+    if (title) {
+      document.title = title
+    }
   },
   //.........................................
   pushHistory(meta) {
