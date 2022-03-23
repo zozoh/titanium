@@ -16,7 +16,10 @@ export default {
       type: [Function, String]
     },
     "list": {
-      type: Object
+      type: Object,
+      default: () => ({
+        dftLabelHoverCopy: false
+      })
     },
     "listType": {
       type: String,
@@ -51,7 +54,10 @@ export default {
       }
       // Gen the function
       return (it, fltv) => {
-        //console.log("filter", { it, fltv })
+        if (Ti.Util.isNil(fltv)) {
+          return true
+        }
+        console.log("filter", { it, fltv })
         for (let k of itKeys) {
           let v = (it.rawData || it)[k]
           if (Ti.Util.isNil(v)) {

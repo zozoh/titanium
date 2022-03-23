@@ -1,4 +1,4 @@
-// Pack At: 2022-03-22 23:54:45
+// Pack At: 2022-03-24 00:24:00
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -3563,7 +3563,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: [Function, String]
     },
     "list": {
-      type: Object
+      type: Object,
+      default: () => ({
+        dftLabelHoverCopy: false
+      })
     },
     "listType": {
       type: String,
@@ -3598,7 +3601,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       // Gen the function
       return (it, fltv) => {
-        //console.log("filter", { it, fltv })
+        if (Ti.Util.isNil(fltv)) {
+          return true
+        }
+        console.log("filter", { it, fltv })
         for (let k of itKeys) {
           let v = (it.rawData || it)[k]
           if (Ti.Util.isNil(v)) {
@@ -21231,6 +21237,8 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/wn/th/adaptor/wn-th-adaptor-methods.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //--------------------------------------------
+  doNothing() { },
+  //--------------------------------------------
   async invoke(fnName, ...args) {
     //console.log("invoke ", fnName, args)
     let fn = _.get(this.thingMethods, fnName)
@@ -21616,7 +21624,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Update to current list
     if (newMeta) {
       // Update Current Meta
-      console.log("pvg", newMeta)
+      //console.log("pvg", newMeta)
       if (this.meta && this.meta.id == newMeta.id) {
         this.dispatch("changeMeta", newMeta)
       }
@@ -60071,6 +60079,54 @@ const _M = {
     let r3 = this.reloadAncestors()
     return await Promise.all([r0, r1, r2, r3])
   },
+  //--------------------------------------------
+  async openCurrentMetaEditor() {
+    // Guard
+    if (!this.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    //.........................................
+    // For current selected
+    //.........................................
+    if (this.meta) {
+      // Edit current meta
+      let reo = await Wn.EditObjMeta(this.meta, {
+        fields: "default", autoSave: false
+      })
+
+      // Cancel the editing
+      if (_.isUndefined(reo)) {
+        return
+      }
+
+      // Update the current editing
+      let { updates } = reo
+      if (!_.isEmpty(updates)) {
+        await this.reloadCurrent()
+      }
+      return
+    }
+  },
+  //--------------------------------------------
+  async openCurrentPrivilege() {
+    let meta = this.meta
+
+    if (!meta) {
+      await Ti.Toast.Open("i18n:nil-obj")
+      return
+    }
+
+    let newMeta = await Wn.EditObjPvg(meta, {
+      organization: "~/.domain/organization.json"
+    })
+
+    // Update to current list
+    if (newMeta) {
+      await this.reloadCurrent()
+    }
+
+    return newMeta
+  },
   //.........................................
   async execEvent(eventName, payload, dftCommand) {
     let cmd = _.get(this.view.events, eventName) || dftCommand
@@ -62702,12 +62758,14 @@ const _M = {
     //------------------------------------------------
     async OnClickSuffixIcon() {
       let dataList = await this.Dict.getData()
+      console.log(dataList)
 
       // Prepare the filter list config
       let fltListConf = _.merge({
         className: "ti-fill-parent",
         list: {
           idBy: this.valueBy,
+          dftLabelHoverCopy: false,
           data: dataList,
           currentId: this.value,
           display: [
@@ -63739,7 +63797,7 @@ const _M = {
         "block:show": "showBlock",
         "block:hide": "hideBlock",
         "content::change": "OnContentChange",
-        "save:change" : "OnSaveChange",
+        "save:change": "OnSaveChange",
         "list::select": "OnSearchListSelect",
         "filter::filter:change": "OnSearchFilterChange",
         "filter::sorter:change": "OnSearchSorterChange",
@@ -63846,7 +63904,9 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      //console.log("WnThAdaptor.__on_events", name, payload)
+      // if ("meta::field:change" == name)
+      //   console.log("WnThAdaptor.__on_events", name, payload)
+
       // ByPass
       if (/^(indicate)$/.test(name)) {
         return () => ({ stop: false })
@@ -63858,18 +63918,36 @@ const _M = {
         fn = this.$tiEventTryFallback(name, this.EventRouting)
       }
 
+      // Handle without defined
+      if (!fn) {
+        return
+      }
+
       // callPath -> Function
       let func;
+
+      // Prepare context
+      let invokeContext = _.assign({
+        $payload: payload
+      }, this.GuiExplainContext)
+
+
+      // Invoking string
       if (_.isString(fn)) {
         func = _.get(this, fn)
-        if (!_.isFunction(func)) {
-          func = Ti.Util.genInvoking(fn, {
-            context: this.GuiExplainContext,
-            dft: null,
-            funcSet: this
-          })
-        }
       }
+      // Object call
+      if (!_.isFunction(func)) {
+        if(fn.explain) {
+          fn = Ti.Util.explainObj(invokeContext, fn)
+        }
+        func = Ti.Util.genInvoking(fn, {
+          context: invokeContext,
+          dft: null,
+          funcSet: this
+        })
+      }
+
       if (_.isFunction(func)) {
         if (!_.isUndefined(payload)) {
           return () => {

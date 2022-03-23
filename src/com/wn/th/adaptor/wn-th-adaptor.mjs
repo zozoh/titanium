@@ -16,7 +16,7 @@ const _M = {
         "block:show": "showBlock",
         "block:hide": "hideBlock",
         "content::change": "OnContentChange",
-        "save:change" : "OnSaveChange",
+        "save:change": "OnSaveChange",
         "list::select": "OnSearchListSelect",
         "filter::filter:change": "OnSearchFilterChange",
         "filter::sorter:change": "OnSearchSorterChange",
@@ -123,7 +123,9 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      //console.log("WnThAdaptor.__on_events", name, payload)
+      // if ("meta::field:change" == name)
+      //   console.log("WnThAdaptor.__on_events", name, payload)
+
       // ByPass
       if (/^(indicate)$/.test(name)) {
         return () => ({ stop: false })
@@ -135,18 +137,36 @@ const _M = {
         fn = this.$tiEventTryFallback(name, this.EventRouting)
       }
 
+      // Handle without defined
+      if (!fn) {
+        return
+      }
+
       // callPath -> Function
       let func;
+
+      // Prepare context
+      let invokeContext = _.assign({
+        $payload: payload
+      }, this.GuiExplainContext)
+
+
+      // Invoking string
       if (_.isString(fn)) {
         func = _.get(this, fn)
-        if (!_.isFunction(func)) {
-          func = Ti.Util.genInvoking(fn, {
-            context: this.GuiExplainContext,
-            dft: null,
-            funcSet: this
-          })
-        }
       }
+      // Object call
+      if (!_.isFunction(func)) {
+        if(fn.explain) {
+          fn = Ti.Util.explainObj(invokeContext, fn)
+        }
+        func = Ti.Util.genInvoking(fn, {
+          context: invokeContext,
+          dft: null,
+          funcSet: this
+        })
+      }
+
       if (_.isFunction(func)) {
         if (!_.isUndefined(payload)) {
           return () => {

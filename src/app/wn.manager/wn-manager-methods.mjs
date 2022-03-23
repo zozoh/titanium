@@ -129,6 +129,54 @@ const _M = {
     let r3 = this.reloadAncestors()
     return await Promise.all([r0, r1, r2, r3])
   },
+  //--------------------------------------------
+  async openCurrentMetaEditor() {
+    // Guard
+    if (!this.meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    //.........................................
+    // For current selected
+    //.........................................
+    if (this.meta) {
+      // Edit current meta
+      let reo = await Wn.EditObjMeta(this.meta, {
+        fields: "default", autoSave: false
+      })
+
+      // Cancel the editing
+      if (_.isUndefined(reo)) {
+        return
+      }
+
+      // Update the current editing
+      let { updates } = reo
+      if (!_.isEmpty(updates)) {
+        await this.reloadCurrent()
+      }
+      return
+    }
+  },
+  //--------------------------------------------
+  async openCurrentPrivilege() {
+    let meta = this.meta
+
+    if (!meta) {
+      await Ti.Toast.Open("i18n:nil-obj")
+      return
+    }
+
+    let newMeta = await Wn.EditObjPvg(meta, {
+      organization: "~/.domain/organization.json"
+    })
+
+    // Update to current list
+    if (newMeta) {
+      await this.reloadCurrent()
+    }
+
+    return newMeta
+  },
   //.........................................
   async execEvent(eventName, payload, dftCommand) {
     let cmd = _.get(this.view.events, eventName) || dftCommand

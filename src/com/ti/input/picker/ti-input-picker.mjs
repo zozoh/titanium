@@ -112,12 +112,14 @@ const _M = {
     //------------------------------------------------
     async OnClickSuffixIcon() {
       let dataList = await this.Dict.getData()
+      console.log(dataList)
 
       // Prepare the filter list config
       let fltListConf = _.merge({
         className: "ti-fill-parent",
         list: {
           idBy: this.valueBy,
+          dftLabelHoverCopy: false,
           data: dataList,
           currentId: this.value,
           display: [
