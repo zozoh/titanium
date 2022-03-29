@@ -106,6 +106,13 @@ const _M = {
       for (let i = 0; i < this.myFields.length; i++) {
         let fld = this.myFields[i]
         //..................................
+        if (_.isBoolean(fld.visible) && !fld.visible) {
+          continue
+        }
+        if (_.isBoolean(fld.hidden) && fld.hidden) {
+          continue
+        }
+        //..................................
         let display = this.evalFieldDisplay(fld.display, fld.name)
         //..................................
         let fldWidth = _.nth(this.myFieldWidths, i)

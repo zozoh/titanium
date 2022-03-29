@@ -25,7 +25,7 @@ const OBJ = {
       components: ["@com:wn/obj/creation"]
     })
 
-    // console.log(no)
+    console.log(no)
 
     // Do Create
     // Check the newName

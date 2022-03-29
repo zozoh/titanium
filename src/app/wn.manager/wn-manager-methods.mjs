@@ -187,7 +187,7 @@ const _M = {
     let title = Ti.Util.getFallback(meta, "title", "nm", "id")
     title = Ti.Util.explainObj(meta, title)
     if (title) {
-      document.title = title
+      document.title = Ti.I18n.text(title)
     }
   },
   //.........................................

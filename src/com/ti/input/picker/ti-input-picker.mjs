@@ -112,7 +112,6 @@ const _M = {
     //------------------------------------------------
     async OnClickSuffixIcon() {
       let dataList = await this.Dict.getData()
-      console.log(dataList)
 
       // Prepare the filter list config
       let fltListConf = _.merge({
