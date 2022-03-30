@@ -1,4 +1,4 @@
-// Pack At: 2022-03-24 00:24:00
+// Pack At: 2022-03-30 22:29:56
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -21240,7 +21240,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   doNothing() { },
   //--------------------------------------------
   async invoke(fnName, ...args) {
-    //console.log("invoke ", fnName, args)
+    console.log("invoke ", fnName, args)
     let fn = _.get(this.thingMethods, fnName)
     // Invoke the method
     if (_.isFunction(fn)) {
@@ -33084,7 +33084,7 @@ const OBJ = {
       components: ["@com:wn/obj/creation"]
     })
 
-    // console.log(no)
+    console.log(no)
 
     // Do Create
     // Check the newName
@@ -60137,7 +60137,7 @@ const _M = {
     let title = Ti.Util.getFallback(meta, "title", "nm", "id")
     title = Ti.Util.explainObj(meta, title)
     if (title) {
-      document.title = title
+      document.title = Ti.I18n.text(title)
     }
   },
   //.........................................
@@ -62758,7 +62758,6 @@ const _M = {
     //------------------------------------------------
     async OnClickSuffixIcon() {
       let dataList = await this.Dict.getData()
-      console.log(dataList)
 
       // Prepare the filter list config
       let fltListConf = _.merge({
@@ -66618,6 +66617,13 @@ const _M = {
       let lastI = this.myFields.length - 1
       for (let i = 0; i < this.myFields.length; i++) {
         let fld = this.myFields[i]
+        //..................................
+        if (_.isBoolean(fld.visible) && !fld.visible) {
+          continue
+        }
+        if (_.isBoolean(fld.hidden) && fld.hidden) {
+          continue
+        }
         //..................................
         let display = this.evalFieldDisplay(fld.display, fld.name)
         //..................................
