@@ -1,4 +1,4 @@
-// Pack At: 2022-03-30 22:29:56
+// Pack At: 2022-03-31 16:38:45
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -21240,7 +21240,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   doNothing() { },
   //--------------------------------------------
   async invoke(fnName, ...args) {
-    console.log("invoke ", fnName, args)
+    //console.log("invoke ", fnName, args)
     let fn = _.get(this.thingMethods, fnName)
     // Invoke the method
     if (_.isFunction(fn)) {
