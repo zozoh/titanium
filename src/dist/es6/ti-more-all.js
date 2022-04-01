@@ -1,4 +1,4 @@
-// Pack At: 2022-03-31 16:38:45
+// Pack At: 2022-04-01 15:49:55
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -33084,7 +33084,7 @@ const OBJ = {
       components: ["@com:wn/obj/creation"]
     })
 
-    console.log(no)
+    //console.log(no)
 
     // Do Create
     // Check the newName
@@ -38036,6 +38036,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
   data: () => ({
     myPrivilegeData: [],
+    pvg_owner: 7,
+    pvg_member: 5,
     //
     // Account
     //
@@ -38248,7 +38250,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
       let val = _.cloneDeep(this.value)
-      val[key] = m0
+      let md = this.pvg_owner << 6 | this.pvg_member << 3 | m0
+      val[key] = md
       this.$notify("change", val)
     },
     //--------------------------------------
@@ -38363,7 +38366,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if (!reo)
         return
 
-      console.log(reo)
+      //console.log(reo)
 
       // Nothing selected
       let checkeds = Ti.Util.truthyKeys(reo.checkedIds)
@@ -38418,7 +38421,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       else {
         const fn = function (node) {
           let it = _.omit(node, childKey)
-          if(_.isEmpty(it)) {
+          if (_.isEmpty(it)) {
             return
           }
           let id = it[key]
@@ -38438,6 +38441,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     async evalPrivilegeData() {
+      //console.log("evalPrivilegeData")
       let pvgData = []
       _.forEach(this.value, (md, id) => {
         pvgData.push({ md, id })
@@ -38627,9 +38631,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Reload accountHome and roleHome
       let cmdText = 'domain site -cqn -keys "^(id|nm|ph|title)$"'
       let site = await Wn.Sys.exec2(cmdText, { as: "json" })
+      //console.log(site)
       this.myAccountHome = _.get(site, "accountHome")
       this.myRoleHome = _.get(site, "roleHome")
       this.myOrganization = _.get(site, "organization")
+      this.pvg_owner = _.get(site, "pvgOwner")
+      this.pvg_member = _.get(site, "pvgMember")
 
       // Reload Accounts
       let km = '^(id|nm|title|nickname|icon|thumb)$';
@@ -86335,6 +86342,7 @@ Ti.Preload("ti/com/wn/obj/pvg/_com.json", {
   "mixins": "./wn-obj-pvg.mjs",
   "components": [
     "@com:ti/form",
+    "@com:wn/obj/icon",
     "@com:wn/list"
   ]
 });

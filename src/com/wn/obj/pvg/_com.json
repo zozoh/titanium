@@ -5,6 +5,7 @@
   "mixins": "./wn-obj-pvg.mjs",
   "components": [
     "@com:ti/form",
+    "@com:wn/obj/icon",
     "@com:wn/list"
   ]
 }

@@ -3,6 +3,8 @@ export default {
   //////////////////////////////////////////
   data: () => ({
     myPrivilegeData: [],
+    pvg_owner: 7,
+    pvg_member: 5,
     //
     // Account
     //
@@ -215,7 +217,8 @@ export default {
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
       let val = _.cloneDeep(this.value)
-      val[key] = m0
+      let md = this.pvg_owner << 6 | this.pvg_member << 3 | m0
+      val[key] = md
       this.$notify("change", val)
     },
     //--------------------------------------
@@ -330,7 +333,7 @@ export default {
       if (!reo)
         return
 
-      console.log(reo)
+      //console.log(reo)
 
       // Nothing selected
       let checkeds = Ti.Util.truthyKeys(reo.checkedIds)
@@ -385,7 +388,7 @@ export default {
       else {
         const fn = function (node) {
           let it = _.omit(node, childKey)
-          if(_.isEmpty(it)) {
+          if (_.isEmpty(it)) {
             return
           }
           let id = it[key]
@@ -405,6 +408,7 @@ export default {
     },
     //--------------------------------------
     async evalPrivilegeData() {
+      //console.log("evalPrivilegeData")
       let pvgData = []
       _.forEach(this.value, (md, id) => {
         pvgData.push({ md, id })
@@ -594,9 +598,12 @@ export default {
       // Reload accountHome and roleHome
       let cmdText = 'domain site -cqn -keys "^(id|nm|ph|title)$"'
       let site = await Wn.Sys.exec2(cmdText, { as: "json" })
+      //console.log(site)
       this.myAccountHome = _.get(site, "accountHome")
       this.myRoleHome = _.get(site, "roleHome")
       this.myOrganization = _.get(site, "organization")
+      this.pvg_owner = _.get(site, "pvgOwner")
+      this.pvg_member = _.get(site, "pvgMember")
 
       // Reload Accounts
       let km = '^(id|nm|title|nickname|icon|thumb)$';
