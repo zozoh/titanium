@@ -1,0 +1,10 @@
+.wn-obj-text {
+  padding: SZ(20);
+  > .as-text {
+    @include color($color-body, r, c);
+    box-shadow: SZ(4) SZ(4) SZ(9) map-get($color-shadow, thin);
+    font-size: SZ(16);
+    padding: SZ(20);
+    overflow: auto;
+  }
+}

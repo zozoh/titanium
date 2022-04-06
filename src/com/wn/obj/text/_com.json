@@ -1,0 +1,6 @@
+{
+  "name" : "wn-obj-text",
+  "globally" : true,
+  "template" : "./wn-obj-text.html",
+  "mixins" : "./wn-obj-text.mjs"
+}

@@ -1,0 +1,8 @@
+<div class="wn-obj-text ti-fill-parent">
+  <TiLoading
+    v-if="isEmpty"
+      v-bind="blankAs"/>
+  <div
+    v-else
+      class="as-text ti-fill-parent">{{myContent}}</div>
+</div>

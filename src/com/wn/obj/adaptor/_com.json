@@ -12,7 +12,7 @@
     "@com:ti/gui",
     "@com:ti/filterbar",
     "@com:ti/paging/jumper",
-    "@com:wn/obj/form",
+    "@com:wn/adaptlist",
     "@com:wn/table",
     "@com:wn/obj/icon",
     "@com:wn/obj/puretext",

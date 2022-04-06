@@ -12,5 +12,6 @@
     "@com:ti/media/audio",
     "@com:ti/media/video",
     "@com:web/widget/frame",
+    "@com:wn/obj/text",
     "@com:net/youtube/player"]
 }

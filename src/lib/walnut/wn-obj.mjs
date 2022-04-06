@@ -168,7 +168,10 @@ const FORM_FIELDS = {
   //---------------------------------------------
   "mime": {
     title: "i18n:wn-key-mime",
-    name: "mime"
+    name: "mime",
+    comConf: {
+      className: "is-nowrap"
+    }
   },
   //---------------------------------------------
   "tp": {

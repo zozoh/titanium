@@ -157,6 +157,15 @@ export default {
             }
           }
         }
+        // Pure text 
+        if (/^text\//.test(mime)) {
+          return {
+            comType: "WnObjText",
+            comConf: {
+              meta: this.meta
+            }
+          }
+        }
         // Youtube
         if ("youtube" == this.meta.tp && this.meta.yt_video_id) {
           let thumbUrl;
@@ -296,7 +305,7 @@ export default {
       }
       //console.log("OnClipBoardPoste", clipboardData)
       let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
-      if(imgF) {
+      if (imgF) {
         this.OnDropFile([imgF])
       }
     },
@@ -341,7 +350,7 @@ export default {
 
       let needConvImg = false
       if (!file || this.MetaMime != file.type) {
-        let vars = {newType: file.type, oldType: this.MetaMime}
+        let vars = { newType: file.type, oldType: this.MetaMime }
         needConvImg = /^image\//.test(this.MetaMime)
         // Maybe I can auto-covert image for user ...
         if (needConvImg) {
@@ -374,7 +383,7 @@ export default {
           let oph = `id:${this.meta.id}`
           let ofmt = this.meta.tp || "jpeg"
           let cmdText = `imagic ${oph} -format ${ofmt} -out inplace; o ${oph} @json -cqn`
-          data = await Wn.Sys.exec2(cmdText, {as:"json"}) 
+          data = await Wn.Sys.exec2(cmdText, { as: "json" })
         }
 
         // Notify change
