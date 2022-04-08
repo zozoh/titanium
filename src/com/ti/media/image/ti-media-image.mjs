@@ -88,6 +88,7 @@ export default {
         this.naturalHeight = $img.naturalHeight
         this.imgLoading = false
       }
+      this.onResizeViewport()
     },
     onResizeViewport() {
       let r_vpt = Ti.Rects.createBy(this.$refs.con)
@@ -95,6 +96,7 @@ export default {
       this.viewportHeight = r_vpt.height
     },
     onToggleImageFitMode() {
+      this.onResizeViewport()
       this.fitMode = ({
         "contain" : "cover",
         "cover"   : "contain"

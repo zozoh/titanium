@@ -306,6 +306,7 @@
   "nil-detail": "Please choose one item for detail",
   "nil-item": "Please choose one item at first",
   "nil-obj": "Please choose one object",
+  "nil-target": "Nil valid target",
   "no": "No",
   "no-saved": "You get data need to be saved",
   "no-selected": "None selected",

@@ -21,6 +21,10 @@ const _M = {
       default: "idPath",
       validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
+    // Auto append the extra-meta after file been uploaded
+    "fileMeta": {
+      type: Object
+    },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -324,6 +328,10 @@ const _M = {
       if (!_.isEmpty(this.myUploadFiles)) {
         return await Ti.Toast.Open("file uploading, please try later!", "warn")
       }
+      // Guard: no target
+      if (!this.target) {
+        return await Ti.Toast.Open("i18n:nil-target", "warn")
+      }
 
       let list = _.map(files, f => f)
 
@@ -389,11 +397,12 @@ const _M = {
       //................................
       // Eval the target
       let type = Ti.Util.getSuffixName(file.name, true)
-      let taPath = Ti.S.renderBy(this.target, {
+      let vars = {
         type,
         name: file.name,
         majorName: Ti.Util.getMajorName(file.name)
-      })
+      }
+      let taPath = Ti.S.renderBy(this.target, vars)
 
       //................................
       // Upload file to destination
@@ -417,6 +426,15 @@ const _M = {
       if (!ok) {
         await Ti.Alert(`i18n:${msg}`, { type: "warn", icon: "zmdi-alert-triangle" })
         return
+      }
+
+      //................................
+      // Extra-file-meta
+      if (!_.isEmpty(this.fileMeta)) {
+        let fileMeta = Ti.Util.explainObj(vars, this.fileMeta)
+        let metaJson = JSON.stringify(fileMeta)
+        let cmdText = `o id:${data.id} @update @json -cqn`
+        data = await Wn.Sys.exec2(cmdText, { input: metaJson, as: "json" })
       }
 
       //................................

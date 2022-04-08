@@ -306,6 +306,7 @@
   "nil-detail": "请选择一项查看详情",
   "nil-item": "请先选择一项",
   "nil-obj": "请选择一个对象",
+  "nil-target": "未设置有效目标",
   "no": "否",
   "no-saved": "您有未保存的数据",
   "no-selected": "未选择",

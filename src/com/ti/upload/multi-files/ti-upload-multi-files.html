@@ -31,9 +31,8 @@
           :show-footer="showItemText"
           :previewStyle="ItemPreviewStyle"/>
         <!--Actions-->
-        <div
-          v-if="'obj' == it.type"
-            class="item-actions"><ul>
+        <div class="item-actions">
+          <ul>
               <!--Action:Remove-->
               <li @click.left="OnRemoveItem(it)">
                 <i class="zmdi zmdi-close-circle"></i>
@@ -44,7 +43,8 @@
                 <i class="zmdi zmdi-open-in-new"></i>
                 <span>{{'i18n:open'|i18n}}</span>
               </li>
-        </ul></div>
+          </ul>
+        </div>
     </div>
     <!--
       Show the new icon

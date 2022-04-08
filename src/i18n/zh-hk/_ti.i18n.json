@@ -306,6 +306,7 @@
    "nil-detail": "請選擇一項查看詳情",
    "nil-item": "請先選擇一項",
    "nil-obj": "請選擇一個對象",
+   "nil-target": "未設置有效目標",
    "no": "否",
    "no-saved": "您有未保存的數據",
    "no-selected": "未選擇",

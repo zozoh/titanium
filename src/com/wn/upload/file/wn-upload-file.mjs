@@ -9,6 +9,9 @@ const _M = {
   }),
   /////////////////////////////////////////
   props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
     "value": {
       type: [String, Object],
       default: null
@@ -22,28 +25,17 @@ const _M = {
       default: "obj",
       validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
+    // Auto append the extra-meta after file been uploaded
+    "fileMeta": {
+      type: Object
+    },
+    //------------------------------------------------
+    // Behavior
+    //------------------------------------------------
     // Input a image link directly
     "exlink": {
       type: Boolean,
       default: false
-    },
-    "maxWidth": {
-      type: [String, Number],
-      default: undefined
-    },
-    "maxHeight": {
-      type: [String, Number],
-      default: undefined
-    },
-    // Display width
-    "width": {
-      type: [String, Number],
-      default: undefined
-    },
-    // Display height
-    "height": {
-      type: [String, Number],
-      default: undefined
     },
     // support remove the objects
     "removable": {
@@ -92,7 +84,28 @@ const _M = {
     "quality": {
       type: Number,
       default: 0
-    }
+    },
+    //------------------------------------------------
+    // Measure
+    //------------------------------------------------
+    // Display width
+    "width": {
+      type: [String, Number],
+      default: undefined
+    },
+    // Display height
+    "height": {
+      type: [String, Number],
+      default: undefined
+    },
+    "maxWidth": {
+      type: [String, Number],
+      default: undefined
+    },
+    "maxHeight": {
+      type: [String, Number],
+      default: undefined
+    },
   },
   //////////////////////////////////////////
   computed: {
@@ -219,6 +232,10 @@ const _M = {
     //--------------------------------------
     async OnUpload(file) {
       //console.log("it will upload ", file)
+      // Guard: no target
+      if (!this.target) {
+        return await Ti.Toast.Open("i18n:nil-target", "warn")
+      }
       //................................
       // Check file size
       let fileSize = file.size
@@ -262,11 +279,12 @@ const _M = {
 
       //................................
       // Eval the target
-      let taPath = Ti.S.renderBy(this.target, {
+      let vars = {
         type,
         name: file.name,
         majorName: Ti.Util.getMajorName(file.name)
-      })
+      }
+      let taPath = Ti.S.renderBy(this.target, vars)
 
       //................................
       // Upload file to destination
@@ -291,6 +309,15 @@ const _M = {
       if (!ok) {
         await Ti.Alert(`i18n:${msg}`, { type: "warn", icon: "zmdi-alert-triangle" })
         return
+      }
+
+      //................................
+      // Extra-file-meta
+      if (!_.isEmpty(this.fileMeta)) {
+        let fileMeta = Ti.Util.explainObj(vars, this.fileMeta)
+        let metaJson = JSON.stringify(fileMeta)
+        let cmdText = `o id:${data.id} @update @json -cqn`
+        data = await Wn.Sys.exec2(cmdText, { input: metaJson, as: "json" })
       }
 
       //................................
