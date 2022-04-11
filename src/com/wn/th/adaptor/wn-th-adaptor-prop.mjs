@@ -4,6 +4,7 @@ export default {
     default: "main"
   },
   "guiShown": Object,
+  "rootState": Object,
   //-----------------------------------
   // The Thingset
   //-----------------------------------

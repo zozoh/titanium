@@ -8,6 +8,7 @@ const _M = {
     GuiExplainContext() {
       return {
         moduleName: this.moduleName,
+        rootState: this.rootState,
         //------------------------------
         thingSetId: this.thingSetId,
         oTs: this.oTs,

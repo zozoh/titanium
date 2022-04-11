@@ -267,7 +267,7 @@ const _M = {
     },
     //--------------------------------------------
     async OnDropFiles(files) {
-      // console.log("OnDropFiles", files)
+      console.log("OnDropFiles", files)
       if (!this.droppable)
         return
       let fs = [...files]
