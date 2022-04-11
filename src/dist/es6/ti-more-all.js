@@ -1,4 +1,4 @@
-// Pack At: 2022-04-01 15:49:55
+// Pack At: 2022-04-11 10:12:02
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6558,6 +6558,10 @@ const _M = {
       default: "idPath",
       validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
+    // Auto append the extra-meta after file been uploaded
+    "fileMeta": {
+      type: Object
+    },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -6861,6 +6865,10 @@ const _M = {
       if (!_.isEmpty(this.myUploadFiles)) {
         return await Ti.Toast.Open("file uploading, please try later!", "warn")
       }
+      // Guard: no target
+      if (!this.target) {
+        return await Ti.Toast.Open("i18n:nil-target", "warn")
+      }
 
       let list = _.map(files, f => f)
 
@@ -6926,11 +6934,12 @@ const _M = {
       //................................
       // Eval the target
       let type = Ti.Util.getSuffixName(file.name, true)
-      let taPath = Ti.S.renderBy(this.target, {
+      let vars = {
         type,
         name: file.name,
         majorName: Ti.Util.getMajorName(file.name)
-      })
+      }
+      let taPath = Ti.S.renderBy(this.target, vars)
 
       //................................
       // Upload file to destination
@@ -6954,6 +6963,15 @@ const _M = {
       if (!ok) {
         await Ti.Alert(`i18n:${msg}`, { type: "warn", icon: "zmdi-alert-triangle" })
         return
+      }
+
+      //................................
+      // Extra-file-meta
+      if (!_.isEmpty(this.fileMeta)) {
+        let fileMeta = Ti.Util.explainObj(vars, this.fileMeta)
+        let metaJson = JSON.stringify(fileMeta)
+        let cmdText = `o id:${data.id} @update @json -cqn`
+        data = await Wn.Sys.exec2(cmdText, { input: metaJson, as: "json" })
       }
 
       //................................
@@ -29128,6 +29146,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         this.naturalHeight = $img.naturalHeight
         this.imgLoading = false
       }
+      this.onResizeViewport()
     },
     onResizeViewport() {
       let r_vpt = Ti.Rects.createBy(this.$refs.con)
@@ -29135,6 +29154,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.viewportHeight = r_vpt.height
     },
     onToggleImageFitMode() {
+      this.onResizeViewport()
       this.fitMode = ({
         "contain" : "cover",
         "cover"   : "contain"
@@ -31061,6 +31081,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
             }
           }
         }
+        // Pure text 
+        if (/^text\//.test(mime)) {
+          return {
+            comType: "WnObjText",
+            comConf: {
+              meta: this.meta
+            }
+          }
+        }
         // Youtube
         if ("youtube" == this.meta.tp && this.meta.yt_video_id) {
           let thumbUrl;
@@ -31200,7 +31229,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       //console.log("OnClipBoardPoste", clipboardData)
       let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
-      if(imgF) {
+      if (imgF) {
         this.OnDropFile([imgF])
       }
     },
@@ -31245,7 +31274,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       let needConvImg = false
       if (!file || this.MetaMime != file.type) {
-        let vars = {newType: file.type, oldType: this.MetaMime}
+        let vars = { newType: file.type, oldType: this.MetaMime }
         needConvImg = /^image\//.test(this.MetaMime)
         // Maybe I can auto-covert image for user ...
         if (needConvImg) {
@@ -31278,7 +31307,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           let oph = `id:${this.meta.id}`
           let ofmt = this.meta.tp || "jpeg"
           let cmdText = `imagic ${oph} -format ${ofmt} -out inplace; o ${oph} @json -cqn`
-          data = await Wn.Sys.exec2(cmdText, {as:"json"}) 
+          data = await Wn.Sys.exec2(cmdText, { as: "json" })
         }
 
         // Notify change
@@ -36431,6 +36460,61 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'wn-obj-text.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/obj/text/wn-obj-text.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////
+  data: () => ({
+    myContent: undefined
+  }),
+  ////////////////////////////////////////////
+  props: {
+    "meta": {
+      type: Object,
+      default: () => ({})
+    },
+    "blankAs": {
+      type: Object,
+      default: () => ({
+        className: "as-big",
+        icon: "fas-align-justify",
+        text: "i18n:empty"
+      })
+    },
+  },
+  ////////////////////////////////////////////
+  computed: {
+    //----------------------------------------
+    isEmpty() {
+      return _.isEmpty(this.myContent)
+    }
+    //----------------------------------------
+  },
+  ////////////////////////////////////////////
+  methods: {
+    //----------------------------------------
+    async reloadContent() {
+      if (!this.meta) {
+        this.myContent = undefined
+      } else {
+        this.myContent = await Wn.Io.loadContent(this.meta)
+      }
+    }
+    //----------------------------------------
+  },
+  ////////////////////////////////////////////
+  watch: {
+    "meta": {
+      handler: "reloadContent",
+      immediate: true
+    }
+  }
+  ////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'm-obj-browser-actions.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/obj-browser/m-obj-browser-actions.mjs'] = (function(){
@@ -39015,6 +39099,9 @@ const _M = {
   }),
   /////////////////////////////////////////
   props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
     "value": {
       type: [String, Object],
       default: null
@@ -39028,28 +39115,17 @@ const _M = {
       default: "obj",
       validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
+    // Auto append the extra-meta after file been uploaded
+    "fileMeta": {
+      type: Object
+    },
+    //------------------------------------------------
+    // Behavior
+    //------------------------------------------------
     // Input a image link directly
     "exlink": {
       type: Boolean,
       default: false
-    },
-    "maxWidth": {
-      type: [String, Number],
-      default: undefined
-    },
-    "maxHeight": {
-      type: [String, Number],
-      default: undefined
-    },
-    // Display width
-    "width": {
-      type: [String, Number],
-      default: undefined
-    },
-    // Display height
-    "height": {
-      type: [String, Number],
-      default: undefined
     },
     // support remove the objects
     "removable": {
@@ -39098,7 +39174,28 @@ const _M = {
     "quality": {
       type: Number,
       default: 0
-    }
+    },
+    //------------------------------------------------
+    // Measure
+    //------------------------------------------------
+    // Display width
+    "width": {
+      type: [String, Number],
+      default: undefined
+    },
+    // Display height
+    "height": {
+      type: [String, Number],
+      default: undefined
+    },
+    "maxWidth": {
+      type: [String, Number],
+      default: undefined
+    },
+    "maxHeight": {
+      type: [String, Number],
+      default: undefined
+    },
   },
   //////////////////////////////////////////
   computed: {
@@ -39225,6 +39322,10 @@ const _M = {
     //--------------------------------------
     async OnUpload(file) {
       //console.log("it will upload ", file)
+      // Guard: no target
+      if (!this.target) {
+        return await Ti.Toast.Open("i18n:nil-target", "warn")
+      }
       //................................
       // Check file size
       let fileSize = file.size
@@ -39268,11 +39369,12 @@ const _M = {
 
       //................................
       // Eval the target
-      let taPath = Ti.S.renderBy(this.target, {
+      let vars = {
         type,
         name: file.name,
         majorName: Ti.Util.getMajorName(file.name)
-      })
+      }
+      let taPath = Ti.S.renderBy(this.target, vars)
 
       //................................
       // Upload file to destination
@@ -39297,6 +39399,15 @@ const _M = {
       if (!ok) {
         await Ti.Alert(`i18n:${msg}`, { type: "warn", icon: "zmdi-alert-triangle" })
         return
+      }
+
+      //................................
+      // Extra-file-meta
+      if (!_.isEmpty(this.fileMeta)) {
+        let fileMeta = Ti.Util.explainObj(vars, this.fileMeta)
+        let metaJson = JSON.stringify(fileMeta)
+        let cmdText = `o id:${data.id} @update @json -cqn`
+        data = await Wn.Sys.exec2(cmdText, { input: metaJson, as: "json" })
       }
 
       //................................
@@ -81263,9 +81374,8 @@ Ti.Preload("ti/com/ti/upload/multi-files/ti-upload-multi-files.html", `<div
           :show-footer="showItemText"
           :previewStyle="ItemPreviewStyle"/>
         <!--Actions-->
-        <div
-          v-if="'obj' == it.type"
-            class="item-actions"><ul>
+        <div class="item-actions">
+          <ul>
               <!--Action:Remove-->
               <li @click.left="OnRemoveItem(it)">
                 <i class="zmdi zmdi-close-circle"></i>
@@ -81276,7 +81386,8 @@ Ti.Preload("ti/com/ti/upload/multi-files/ti-upload-multi-files.html", `<div
                 <i class="zmdi zmdi-open-in-new"></i>
                 <span>{{'i18n:open'|i18n}}</span>
               </li>
-        </ul></div>
+          </ul>
+        </div>
     </div>
     <!--
       Show the new icon
@@ -85645,7 +85756,7 @@ Ti.Preload("ti/com/wn/obj/adaptor/_com.json", {
     "@com:ti/gui",
     "@com:ti/filterbar",
     "@com:ti/paging/jumper",
-    "@com:wn/obj/form",
+    "@com:wn/adaptlist",
     "@com:wn/table",
     "@com:wn/obj/icon",
     "@com:wn/obj/puretext",
@@ -86249,6 +86360,7 @@ Ti.Preload("ti/com/wn/obj/preview/_com.json", {
     "@com:ti/media/audio",
     "@com:ti/media/video",
     "@com:web/widget/frame",
+    "@com:wn/obj/text",
     "@com:net/youtube/player"]
 });
 //========================================
@@ -86345,6 +86457,30 @@ Ti.Preload("ti/com/wn/obj/pvg/_com.json", {
     "@com:wn/obj/icon",
     "@com:wn/list"
   ]
+});
+//========================================
+// JOIN <wn-obj-text.html> ti/com/wn/obj/text/wn-obj-text.html
+//========================================
+Ti.Preload("ti/com/wn/obj/text/wn-obj-text.html", `<div class="wn-obj-text ti-fill-parent">
+  <TiLoading
+    v-if="isEmpty"
+      v-bind="blankAs"/>
+  <div
+    v-else
+      class="as-text ti-fill-parent">{{myContent}}</div>
+</div>`);
+//========================================
+// JOIN <wn-obj-text.mjs> ti/com/wn/obj/text/wn-obj-text.mjs
+//========================================
+Ti.Preload("ti/com/wn/obj/text/wn-obj-text.mjs", TI_PACK_EXPORTS['ti/com/wn/obj/text/wn-obj-text.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/obj/text/_com.json
+//========================================
+Ti.Preload("ti/com/wn/obj/text/_com.json", {
+  "name" : "wn-obj-text",
+  "globally" : true,
+  "template" : "./wn-obj-text.html",
+  "mixins" : "./wn-obj-text.mjs"
 });
 //========================================
 // JOIN <wn-obj-tree.html> ti/com/wn/obj/tree/wn-obj-tree.html
@@ -89585,6 +89721,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "nil-detail": "Please choose one item for detail",
   "nil-item": "Please choose one item at first",
   "nil-obj": "Please choose one object",
+  "nil-target": "Nil valid target",
   "no": "No",
   "no-saved": "You get data need to be saved",
   "no-selected": "None selected",
@@ -91119,6 +91256,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "nil-detail": "请选择一项查看详情",
   "nil-item": "请先选择一项",
   "nil-obj": "请选择一个对象",
+  "nil-target": "未设置有效目标",
   "no": "否",
   "no-saved": "您有未保存的数据",
   "no-selected": "未选择",
@@ -91402,6 +91540,38 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-hk/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
+   "hm-am-add": "添加條件",
+   "hm-am-empty": "未設置條件",
+   "am-must-true": "肯定爲真",
+   "am-must-false": "肯定爲假",
+   "am-not-sure": "不太確定",
+   "am-exists": "存在'${val}'",
+   "am-noexists": "不存在'${val}'",
+   "am-boolTrue": "爲真",
+   "am-boolFalse": "爲假",
+   "am-blank": "爲空白",
+   "am-notNil": "不爲空",
+   "am-notNilOf": "字段${val}不爲空",
+   "am-nil": "爲空",
+   "am-empty": "爲空",
+   "am-nilOf": "字段${val}爲空",
+   "am-null": "爲空值",
+   "am-nullOf": "字段${val}爲空值",
+   "am-undefined": "未定義",
+   "am-undefinedOf": "字段${val}未定義",
+   "am-not": "不",
+   "am-or": "或者",
+   "am-and": "並且",
+   "am-notMatchOf": "不匹配'${FFFval}'",
+   "am-matchOf": "匹配'${val}'",
+   "am-equals": "等於${val} ",
+   "am-notEquals": "不等於${val} ",
+   "am-equalsType": "類型等於\"${val}\"",
+   "am-equalsIgnoreCase": "等於\"${val}\"且無視大小寫",
+   "am-gt": "大於${val}",
+   "am-gte": "大於等於${val}",
+   "am-lt": "小於${val}",
+   "am-lte": "小於等於${val}",
    "hm-args": "參數表",
    "hm-args-partial": "參數填充",
    "hm-args-partial-left": "左填充",
@@ -91421,6 +91591,8 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "com-form": "表單",
    "com-label": "標籤",
    "com-list": "列表",
+   "react-action-add": "添加動作項",
+   "react-action-empty": "未定義任何動作項",
    "hm-type-Array": "數組",
    "hm-type-Boolean": "布爾",
    "hm-type-Group": "字段分組",
@@ -92645,6 +92817,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "nil-detail": "請選擇一項查看詳情",
    "nil-item": "請先選擇一項",
    "nil-obj": "請選擇一個對象",
+   "nil-target": "未設置有效目標",
    "no": "否",
    "no-saved": "您有未保存的數據",
    "no-selected": "未選擇",
