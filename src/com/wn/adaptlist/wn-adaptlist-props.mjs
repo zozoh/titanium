@@ -33,6 +33,19 @@ export default {
     type : String,
     default : "title"
   },
+  // Fixed meta append after uploaded.
+  "uploadMeta": {
+    type: Object
+  },
+  // Define the upload target
+  "uploadTarget": {
+    type: [String, Function],
+    default: "->id:${oDir.id}"
+  },
+  "uploadMode": {
+    type: String,
+    default: "a"
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

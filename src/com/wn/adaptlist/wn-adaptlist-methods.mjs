@@ -300,6 +300,11 @@ const OBJ = {
       await this.beforeUpload()
     }
 
+    // Guard upload target
+    if (!this.hasUploadTarget) {
+      return await Ti.Toast.Open('i18n:upload-forbidden', 'warn')
+    }
+
     // Prepare the list
     let ups = _.map(files, (file, index) => ({
       id: `U${index}_${Ti.Random.str(6)}`,
@@ -314,16 +319,78 @@ const OBJ = {
     // Prepare the list
     let newIds = {}
     // Do upload file one by one
-    for (let up of ups) {
+    for (let i = 0; i < ups.length; i++) {
+      let up = ups[i]
       let file = up.file
-      let { ok, data } = await Wn.Io.uploadFile(file, {
-        target: `id:${this.meta.id}`,
+      let type = Ti.Util.getSuffixName(file.name, true)
+      let vars = {
+        type,
+        name: file.name,
+        majorName: Ti.Util.getMajorName(file.name),
+        oDir: this.meta
+      }
+      let target = Ti.Util.explainObj(vars, this.uploadTarget, {
+        evalFunc: true
+      })
+      console.log("upload", file, "to", target)
+      if (!target) {
+        let msg = Ti.I18n.get("upload-notarget-continue") + " : " + file.name;
+        if (await Ti.Confirm(msg, {
+          type: "warn",
+          textYes: "i18n:continue",
+          textNo: "i18n:cancel"
+        })) {
+          continue
+        }
+        // Break the loop
+        else {
+          break;
+        }
+      }
+      let reo = await Wn.Io.uploadFile(file, {
+        target,
+        mode: this.uploadMode,
         progress: function (pe) {
           up.current = pe.loaded
         }
       })
+      console.log(reo)
+      let { ok, data, errCode } = reo
+
+      // Join the new IDS
       if (ok) {
         newIds[data.id] = true
+        console.log("upload OK:", data)
+        // Append customized upload meta
+        if (this.hasUploadMeta) {
+          let uploadMeta = Ti.Util.explainObj(vars, this.uploadMeta, {
+            evalFunc: true
+          })
+          data = await Wn.Sys.exec2(`o id:${data.id} @update @json -cqn`, {
+            input: JSON.stringify(uploadMeta),
+            as: "json"
+          })
+        }
+      }
+      // Confirm continue
+      else if (i < (ups.length - 1)) {
+        let msg = Ti.I18n.get(errCode) + " : " + data;
+        if (await Ti.Confirm(msg, {
+          type: "warn",
+          textYes: "i18n:continue",
+          textNo: "i18n:cancel"
+        })) {
+          continue
+        }
+        // Break the loop
+        else {
+          break;
+        }
+      }
+      // Show error message
+      else {
+        let msg = Ti.I18n.get(errCode) + " : " + data;
+        await Ti.Alert(msg, { type: "warn" })
       }
     }
 

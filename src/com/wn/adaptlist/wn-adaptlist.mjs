@@ -20,6 +20,14 @@ const _M = {
       return !this.viewType || _.get(this.status, "reloading")
     },
     //--------------------------------------------
+    hasUploadMeta() {
+      return !_.isEmpty(this.uploadMeta)
+    },
+    //--------------------------------------------
+    hasUploadTarget() {
+      return this.uploadTarget ? true : false
+    },
+    //--------------------------------------------
     MainComType() {
       return ({
         "wall": "TiWall",
