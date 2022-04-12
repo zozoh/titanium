@@ -1,8 +1,8 @@
 const _M = {
   ///////////////////////////////////////////////////
-  data : ()=>({
-    myPlugins : [],
-    myHtmlCode : undefined,
+  data: () => ({
+    myPlugins: [],
+    myHtmlCode: undefined,
     /*
     [{
       key : "xxx",
@@ -12,58 +12,58 @@ const _M = {
       children : [{..}]
     }]
     */
-    myOutlineTree : undefined,
-    myCurrentHeadingId : undefined,
-    myContentCallbacks : {},
+    myOutlineTree: undefined,
+    myCurrentHeadingId: undefined,
+    myContentCallbacks: {},
     myContentDirty: true
   }),
   ///////////////////////////////////////////////////
-  computed : {
+  computed: {
     //-----------------------------------------------
     TopClass() {
       return this.getTopClass({
-        "nil-content" : this.isContentNil,
-        "has-content" : !this.isContentNil
+        "nil-content": this.isContentNil,
+        "has-content": !this.isContentNil
       })
     },
     //-----------------------------------------------
     TheToolbar() {
       let tb = this.toolbar
-      if(true === this.toolbar
+      if (true === this.toolbar
         || (_.isArray(this.toolbar) && _.isEmpty(this.toolbar))) {
         tb = "#quick"
       }
       let m = /^#(.+)$/.exec(tb)
-      if(m) {
+      if (m) {
         let tbName = m[1]
         let tbd = ({
-          markdown : [
+          markdown: [
             'formatselect',
             'bold italic link',
             'blockquote bullist numlist',
             'edit removeformat'],
-          quick : [
+          quick: [
             'formatselect',
             'bold italic underline link',
             'blockquote bullist numlist',
             'blocks',
             'edit removeformat'],
-          full : [
+          full: [
             'formatselect',
             'bold italic underline link',
             'blockquote bullist numlist',
             'blocks table',
             [
-              'WnImgPick','WnWebImgPick','WnVideoPick','WnAudioPick',
+              'WnImgPick', 'WnWebImgPick', 'WnVideoPick', 'WnAudioPick',
               'WnAttachmentPick', 'WnAlbumPick'
             ].join(' '),
-            ['WnYoutubePick','WnYtPlaylistPick', 'WnFbAlubmPick'].join(' '),
+            ['WnYoutubePick', 'WnYtPlaylistPick', 'WnFbAlubmPick'].join(' '),
             'superscript subscript',
             'edit removeformat']
         })[tbName]
         return tbd ? tbd.join("|") : false
       }
-      if(_.isArray(this.toolbar)) {
+      if (_.isArray(this.toolbar)) {
         return this.toolbar.join("|")
       }
       return this.toolbar
@@ -82,7 +82,7 @@ const _M = {
     BlankComStyle() {
       return {
         position: "absolute",
-        top:0, right:0, bottom:0, left:0,
+        top: 0, right: 0, bottom: 0, left: 0,
         zIndex: 10
       }
     },
@@ -97,17 +97,17 @@ const _M = {
     //-----------------------------------------------
     ExplainPluginUrl() {
       // String
-      if(_.isString(this.pluginUrl)) {
-        return Ti.Util.genInvoking(this.pluginUrl, {partial:"right"})
+      if (_.isString(this.pluginUrl)) {
+        return Ti.Util.genInvoking(this.pluginUrl, { partial: "right" })
       }
       // Customized function
-      if(_.isFunction(this.pluginUrl)) {
+      if (_.isFunction(this.pluginUrl)) {
         return this.pluginUrl
       }
       // Default
-      return function(url) {
+      return function (url) {
         let m = /^[#](.+)$/.exec(url)
-        if(m) {
+        if (m) {
           return `@com:ti/text/rich/tinymce/plugin/${m[1]}.mjs`
         }
         return url
@@ -117,14 +117,14 @@ const _M = {
     TheLang() {
       let ss = _.kebabCase(this.lang).split(/[_-]/)
       let s0 = _.lowerCase(ss[0])
-      if("en" == s0)
+      if ("en" == s0)
         return null
       let s1 = _.upperCase(ss[1])
       return [s0, s1].join("_")
     },
     //-----------------------------------------------
     TheTinyEditor() {
-      let plugNames = _.map(this.myPlugins, ({name}={})=>name)
+      let plugNames = _.map(this.myPlugins, ({ name } = {}) => name)
       //.........................................
       let tinyConfig = _.omit(this.tinyConfig, "plugins")
       let tinyPlugins = _.get(this.tinyConfig, "plugins")
@@ -133,17 +133,17 @@ const _M = {
       //.........................................
       return _.assign({
         plugins: plugins.join(" "),
-        content_css : this.ContentCssPath,
+        content_css: this.ContentCssPath,
         auto_focus: true,
         statusbar: false,
         menubar: false,
         resize: false,
-        br_in_pre : false,
+        br_in_pre: false,
         convert_urls: false,
         // urlconverter_callback: function(url, node, on_save, name) {
         //   // Do some custom URL conversion
         //   console.log("urlconverter_callback", {url, node, on_save, name})
-      
+
         //   // Return new URL
         //   return url;
         // },
@@ -151,7 +151,7 @@ const _M = {
         table_cell_advtab: false,
         table_row_advtab: false,
         table_toolbar: [
-          'tableinsertrowbefore tableinsertrowafter tabledeleterow','tableinsertcolbefore tableinsertcolafter tabledeletecol',
+          'tableinsertrowbefore tableinsertrowafter tabledeleterow', 'tableinsertcolbefore tableinsertcolafter tabledeletecol',
           'tabledelete'].join("|"),
         table_use_colgroups: true
       }, tinyConfig)
@@ -159,12 +159,12 @@ const _M = {
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClipBoardPoste({ clipboardData } = {}) {
       console.log("OnClipBoardPoste", clipboardData)
       let imgF = Ti.Dom.getImageDataFromClipBoard(clipboardData)
-      if(imgF) {
+      if (imgF) {
         console.log(imgF)
       }
     },
@@ -175,26 +175,26 @@ const _M = {
     //-----------------------------------------------
     setElementEditable(editable, selector) {
       // Direct element
-      if(_.isElement(selector)) {
+      if (_.isElement(selector)) {
         selector.contentEditable = editable
         return
       }
       // Guard
-      if(_.isEmpty(selector)) {
+      if (_.isEmpty(selector)) {
         return
       }
       // Batch
-      if(_.isArray(selector)) {
-        for(let sel of selector) {
+      if (_.isArray(selector)) {
+        for (let sel of selector) {
           this.setElementEditable(editable, sel)
         }
         return
       }
-      
+
       // Find
-      if(_.isString(selector)) {
+      if (_.isString(selector)) {
         let els = this.$editor.$(selector)
-        for(let i=0; i<els.length; i++) {
+        for (let i = 0; i < els.length; i++) {
           els[i].contentEditable = editable
         }
       }
@@ -204,7 +204,7 @@ const _M = {
       //console.log("tinymce syncContent")
       // Clear the style cache
       this.$editor.$("[data-mce-style]").attr({
-        "data-mce-style" : null
+        "data-mce-style": null
       })
       let str = this.$editor.getContent()
       //console.log("content", typeof str, `【${str}】`, this.value)
@@ -217,18 +217,18 @@ const _M = {
     evalCurrentHeading() {
       let $node = this.$editor.selection.getNode()
       let $h = Ti.Dom.closestByTagName($node, /^H[1-6]$/)
-      
+
       // Looking previous
-      if(!$h) {
+      if (!$h) {
         let $body = $node.ownerDocument.body
         let $top = $node
-        while($top.parentElement && $top.parentElement != $body) {
+        while ($top.parentElement && $top.parentElement != $body) {
           $top = $top.parentElement
         }
         $h = Ti.Dom.prevByTagName($top, /^H[1-6]$/)
       }
 
-      if($h) {
+      if ($h) {
         this.myCurrentHeadingId = $h.getAttribute("ti-outline-id")
       }
     },
@@ -236,63 +236,63 @@ const _M = {
     evalOutline() {
       //console.log("evalOutline")
       let list = []
-      this.$editor.$('h1,h2,h3,h4,h5,h6,[doc-heading]').each((index, el)=>{
+      this.$editor.$('h1,h2,h3,h4,h5,h6,[doc-heading]').each((index, el) => {
         let nodeId = el.getAttribute("ti-outline-id")
-        if(!nodeId) {
+        if (!nodeId) {
           nodeId = Ti.Random.str(12)
           el.setAttribute("ti-outline-id", nodeId)
         }
 
         let headingName = el.getAttribute("doc-heading");
         let level = 0;
-        if("title" == headingName) {
+        if ("title" == headingName) {
           level = 1
-        } else  if("sub-title" == headingName) {
+        } else if ("sub-title" == headingName) {
           level = 2
-        } else if(/^H[1-9]$/.test(el.tagName)) {
+        } else if (/^H[1-9]$/.test(el.tagName)) {
           level = parseInt(el.tagName.substring(1)) + 2
         } else {
           return
         }
 
         list.push({
-          id : nodeId,
+          id: nodeId,
           index, level,
-          name : el.innerText,
-          className : el.className,
-          tagName : el.tagName,
-          attrs : Ti.Dom.attrs(el)
+          name: el.innerText,
+          className: el.className,
+          tagName: el.tagName,
+          attrs: Ti.Dom.attrs(el)
         })
       })
 
       // Groupping to tree
       let tree = {
-        id : "@OUTLINE",
-        level : 0,
-        name : "Document",
-        children : []
+        id: "@OUTLINE",
+        level: 0,
+        name: "Document",
+        children: []
       }
       let rootHie = Ti.Trees.getById(tree, "@OUTLINE")
 
-      
-      if(!_.isEmpty(list)) {
+
+      if (!_.isEmpty(list)) {
         let hie = rootHie
-        for(let i=0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
           let it = list[i]
           // Join the child
-          if(it.level > hie.node.level) {
-            hie = Ti.Trees.append(hie, it, {autoChildren:true}).hierarchy
+          if (it.level > hie.node.level) {
+            hie = Ti.Trees.append(hie, it, { autoChildren: true }).hierarchy
           }
           // add sibling
-          else if(it.level == hie.node.level) {
+          else if (it.level == hie.node.level) {
             hie = Ti.Trees.insertAfter(hie, it).hierarchy
           }
           // add parent
           else {
             // Seek to sibling
-            while(hie.parent) {
+            while (hie.parent && hie.parent.level > 0) {
               hie = hie.parent
-              if(it.level >= hie.node.level) {
+              if (it.level >= hie.node.level) {
                 break;
               }
             }
@@ -301,7 +301,7 @@ const _M = {
         }
       }
       //console.log(tree)
-      if(tree.children.length == 1) {
+      if (tree.children.length == 1) {
         tree = tree.children[0];
       }
 
@@ -311,15 +311,15 @@ const _M = {
     //-----------------------------------------------
     scrollIntoView(selector) {
       let $ta;
-      if(_.isElement(selector)) {
+      if (_.isElement(selector)) {
         $ta = selector
       } else {
         let q = this.$editor.$(selector).first()
-        if(q.length > 0) {
+        if (q.length > 0) {
           $ta = q[0]
         }
       }
-      if(!$ta)
+      if (!$ta)
         return
 
       let $view = Ti.Dom.ownerWindow($ta)
@@ -327,10 +327,10 @@ const _M = {
       let r_targ = Ti.Rects.createBy($ta)
 
       // test it need to scroll or not
-      if(!r_view.contains(r_targ)) {
+      if (!r_view.contains(r_targ)) {
         $view.scroll({
-          top: r_targ.top + $view.scrollY, 
-          behavior:"smooth"
+          top: r_targ.top + $view.scrollY,
+          behavior: "smooth"
         })
       }
       // console.log("r_view: " + r_view)
@@ -339,91 +339,91 @@ const _M = {
     //-----------------------------------------------
     async initEditor() {
       // Guard
-      if(this.$editor) 
+      if (this.$editor)
         return
       // Prepare the configuration
       const conf = {
         target: this.$refs.editor,
         ... this.TheTinyEditor,
-        icons : "ti_tiny_icon_pack",
+        icons: "ti_tiny_icon_pack",
         language: this.TheLang,
-        readonly : this.readonly,
+        readonly: this.readonly,
         placeholder: Ti.I18n.text(this.placeholder),
-        formats : {
-          underline : {inline: 'u'},
+        formats: {
+          underline: { inline: 'u' },
           docTitle: {
-            selector: 'p,h1,h2,h3,h4,h5,h6,div', 
-            block : "p",
-            attributes : {"doc-heading" : "title"}
+            selector: 'p,h1,h2,h3,h4,h5,h6,div',
+            block: "p",
+            attributes: { "doc-heading": "title" }
           },
           docSubTitle: {
-            selector: 'p,h1,h2,h3,h4,h5,h6,div', 
-            block : "p",
-            attributes : {"doc-heading" : "sub-title"}
+            selector: 'p,h1,h2,h3,h4,h5,h6,div',
+            block: "p",
+            attributes: { "doc-heading": "sub-title" }
           },
         },
         toolbar: this.TheToolbar,
         toolbar_groups: {
-            edit : {
-              icon: 'edit-block',
-              tooltip: 'edit',
-              items: 'copy cut paste pastetext | undo redo | searchreplace',
-            },
-            alignment: {
-              icon: 'align-justify',
-              tooltip: 'alignment',
-              items: 'alignleft aligncenter alignright alignjustify',
-            },
-            blocks: {
-              icon: 'align-justify',
-              tooltip: 'alignment',
-              items: 'alignleft aligncenter alignright alignjustify | indent outdent',
-            },
+          edit: {
+            icon: 'edit-block',
+            tooltip: 'edit',
+            items: 'copy cut paste pastetext | undo redo | searchreplace',
+          },
+          alignment: {
+            icon: 'align-justify',
+            tooltip: 'alignment',
+            items: 'alignleft aligncenter alignright alignjustify',
+          },
+          blocks: {
+            icon: 'align-justify',
+            tooltip: 'alignment',
+            items: 'alignleft aligncenter alignright alignjustify | indent outdent',
+          },
         },
-        setup : (editor)=>{
+        setup: (editor) => {
           editor.__rich_tinymce_com = this
           editor.on("SetContent", this.OnEditorSetContent)
           // Event: change
-          editor.on("Change", (evt)=>{
+          editor.on("Change", (evt) => {
             //console.log("Change ", evt)
             //this.myHtmlCode = editor.getContent()
             editor.__rich_tinymce_com.debounceSyncContent();
           })
-          editor.on("keyup", (evt)=>{
+          editor.on("keyup", (evt) => {
             //console.log("keyup", evt.key, evt.which)
             editor.__rich_tinymce_com.$notify("keyup", evt)
             editor.__rich_tinymce_com.debounceSyncContent();
           })
-          editor.on("paste", (evt)=>{
+          editor.on("paste", (evt) => {
             editor.__rich_tinymce_com.debounceSyncContent();
           })
           // Event: get outline
-          editor.on("input", (evt)=>{
+          editor.on("input", (evt) => {
             // console.log("input!!", evt)
             let $node = editor.selection.getNode()
-            let $h = Ti.Dom.closest($node, el=>{
+            let $h = Ti.Dom.closest($node, el => {
               return /^(sub-)?title$/.test(el.getAttribute("doc-heading"))
                 || /^H[1-6]$/.test(el.tagName)
             })
-            if($h) {
+            if ($h) {
               this.OnHeadingChange($h)
             }
           })
           // Event: watch the command to update
-          editor.on("ExecCommand", (evt)=>{
+          editor.on("ExecCommand", (evt) => {
             //console.log("command fired!!", evt)
             this.myHtmlCode = editor.getContent()
             this.evalOutline()
-            if("mceInsertTable" == evt.command) {
+            if ("mceInsertTable" == evt.command) {
               this.$notify("mce:insert:table")
             }
           })
-          editor.on("SelectionChange", (evt)=>{
+          editor.on("SelectionChange", (evt) => {
             //console.log("SelectionChange ", evt)
             this.evalCurrentHeading()
           })
-          editor.on("NodeChange", (evt)=>{
-            if(Ti.Dom.hasClass(evt.element, "ti-tinymce-obj-resize-handler")) {
+          editor.on("NodeChange", (evt) => {
+            if (Ti.Dom.hasClass(evt.element, "ti-tinymce-obj-resize-handler")) {
               evt.preventDefault();
               evt.stopPropagation();
               return false
@@ -431,18 +431,18 @@ const _M = {
               this.redrawResizeHandler(evt.element)
             }
           })
-          editor.on("ResizeWindow", (evt)=>{
+          editor.on("ResizeWindow", (evt) => {
             editor.$('.ti-tinymce-obj-resize-handler').remove()
           })
-          editor.on('init', ()=>{
+          editor.on('init', () => {
             let $html = editor.$('html')[0]
             let $win = Ti.Dom.ownerWindow($html)
             Ti.Dom.watchAutoRootFontSize({
-              phoneMaxWidth:640,
-              tabletMaxWidth:900,
-              designWidth:1200,
-              max:100,min:70,
-            }, ({$root, mode, fontSize})=>{
+              phoneMaxWidth: 640,
+              tabletMaxWidth: 900,
+              designWidth: 1200,
+              max: 100, min: 70,
+            }, ({ $root, mode, fontSize }) => {
               $root.style.fontSize = fontSize + "px"
               $root.setAttribute("as", mode)
             }, $win)
@@ -450,17 +450,17 @@ const _M = {
           //
           // Shortcute
           //
-          editor.addShortcut('ctrl+s', "Save content", ()=>{
+          editor.addShortcut('ctrl+s', "Save content", () => {
             Ti.App(this).fireShortcut("CTRL+S");
           });
-          editor.addShortcut('alt+shift+v', "View source", ()=>{
+          editor.addShortcut('alt+shift+v', "View source", () => {
             Ti.App(this).fireShortcut("ALT+SHIFT+V");
           });
-          editor.addShortcut('alt+shift+P', "Properties", ()=>{
+          editor.addShortcut('alt+shift+P', "Properties", () => {
             Ti.App(this).fireShortcut("ALT+SHIFT+P");
           });
           // Customized
-          if(_.isFunction(this.tinySetup)) {
+          if (_.isFunction(this.tinySetup)) {
             this.tinySetup(editor)
           }
           // Remember instance
@@ -468,23 +468,23 @@ const _M = {
         }
       }
       // Extends valid element
-      let {extended_valid_elements} = conf 
+      let { extended_valid_elements } = conf
 
       conf.extended_valid_elements = _.concat(
-        extended_valid_elements, 
+        extended_valid_elements,
         'img[ti-*|wn-*|src|width|height|style|class]',
         'div[ti-*|wn-*|style|class]',
         'p[doc-heading|style]',
         'span[ti-*|wn-*|style|class]'
       ).join(",")
       // Init customized plugins
-      for(let plug of this.myPlugins) {
+      for (let plug of this.myPlugins) {
         tinymce.PluginManager.add(plug.name, plug.setup)
-        if(_.isFunction(plug.init)) {
+        if (_.isFunction(plug.init)) {
           plug.init(conf)
         }
       }
-      
+
       // :: Setup tinyMCE
       // The init() method return Promise object for some result async loading.
       // We need to await all them done before invoke setContent method of
@@ -492,7 +492,7 @@ const _M = {
       await tinymce.init(conf);
 
       // init content
-      if(this.value) {
+      if (this.value) {
         this.myContentDirty = true
         this.myHtmlCode = this.value
         this.$editor.setContent(this.value)
@@ -508,9 +508,9 @@ const _M = {
     },
     //-----------------------------------------------
     tellPluginsContentChange() {
-      if(_.isArray(this.myPlugins)) {
+      if (_.isArray(this.myPlugins)) {
         let funcs = _.values(this.myContentCallbacks)
-        for(let func of funcs) {
+        for (let func of funcs) {
           func(this.$editor)
         }
       }
@@ -518,35 +518,35 @@ const _M = {
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "myHtmlCode" : function(newVal, oldVal) {
-      if(!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.value)) {
+  watch: {
+    "myHtmlCode": function (newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.value)) {
         //console.log("myHtmlCode", {newVal, oldVal})
         this.$notify("change", newVal);
       }
     },
-    "myOutlineTree" : function(newVal, oldVal) {
-      if(!_.isEqual(newVal, oldVal)) {
+    "myOutlineTree": function (newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
         this.$notify("outline:change", this.myOutlineTree)
       }
     },
-    "myCurrentHeadingId" : function(newVal, oldVal) {
-      if(!_.isEqual(newVal, oldVal)) {
+    "myCurrentHeadingId": function (newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
         this.$notify("current:heading", newVal)
       }
     },
-    "value" : function(newVal, oldVal) {
+    "value": function (newVal, oldVal) {
       // Guard
-      if(!this.$editor) {
+      if (!this.$editor) {
         return
       }
       //console.log("value", {newVal, oldVal})
-      if(!this.myHtmlCode ||
+      if (!this.myHtmlCode ||
         (!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.myHtmlCode))) {
-          //console.log("dirty it")
-          this.myContentDirty = true
-          this.myHtmlCode = newVal
-          this.$editor.setContent(newVal||"")
+        //console.log("dirty it")
+        this.myContentDirty = true
+        this.myHtmlCode = newVal
+        this.$editor.setContent(newVal || "")
       }
     }
   },
@@ -557,10 +557,10 @@ const _M = {
     }
   },
   ///////////////////////////////////////////////////
-  created : function() {
-    this.OnEditorSetContent = ()=>{
+  created: function () {
+    this.OnEditorSetContent = () => {
       //console.log("OnEditorSetContent", this.myContentDirty)
-      if(this.myContentDirty) {
+      if (this.myContentDirty) {
         this.tellPluginsContentChange()
         this.myContentDirty = false
       } else {
@@ -569,13 +569,13 @@ const _M = {
     }
     //
     // Debound sync content
-    this.debounceSyncContent = _.debounce(()=>{
+    this.debounceSyncContent = _.debounce(() => {
       this.syncContent()
     }, 500)
   },
   ///////////////////////////////////////////////////
-  mounted : async function() {
-    if(!_.isEmpty(this.plugins)) {
+  mounted: async function () {
+    if (!_.isEmpty(this.plugins)) {
       let list = _.map(this.plugins, this.ExplainPluginUrl)
       this.myPlugins = await Ti.Load(list)
     }
