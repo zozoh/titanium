@@ -1,4 +1,4 @@
-// Pack At: 2022-04-11 10:12:02
+// Pack At: 2022-04-12 09:54:48
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1040,6 +1040,14 @@ const _M = {
       return !this.viewType || _.get(this.status, "reloading")
     },
     //--------------------------------------------
+    hasUploadMeta() {
+      return !_.isEmpty(this.uploadMeta)
+    },
+    //--------------------------------------------
+    hasUploadTarget() {
+      return this.uploadTarget ? true : false
+    },
+    //--------------------------------------------
     MainComType() {
       return ({
         "wall": "TiWall",
@@ -1287,7 +1295,7 @@ const _M = {
     },
     //--------------------------------------------
     async OnDropFiles(files) {
-      // console.log("OnDropFiles", files)
+      console.log("OnDropFiles", files)
       if (!this.droppable)
         return
       let fs = [...files]
@@ -7149,6 +7157,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default: "main"
   },
   "guiShown": Object,
+  "rootState": Object,
   //-----------------------------------
   // The Thingset
   //-----------------------------------
@@ -15424,6 +15433,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : String,
     default : "title"
   },
+  // Fixed meta append after uploaded.
+  "uploadMeta": {
+    type: Object
+  },
+  // Define the upload target
+  "uploadTarget": {
+    type: [String, Function],
+    default: "->id:${oDir.id}"
+  },
+  "uploadMode": {
+    type: String,
+    default: "a"
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -21774,6 +21796,7 @@ const _M = {
     GuiExplainContext() {
       return {
         moduleName: this.moduleName,
+        rootState: this.rootState,
         //------------------------------
         thingSetId: this.thingSetId,
         oTs: this.oTs,
@@ -33388,6 +33411,11 @@ const OBJ = {
       await this.beforeUpload()
     }
 
+    // Guard upload target
+    if (!this.hasUploadTarget) {
+      return await Ti.Toast.Open('i18n:upload-forbidden', 'warn')
+    }
+
     // Prepare the list
     let ups = _.map(files, (file, index) => ({
       id: `U${index}_${Ti.Random.str(6)}`,
@@ -33402,16 +33430,78 @@ const OBJ = {
     // Prepare the list
     let newIds = {}
     // Do upload file one by one
-    for (let up of ups) {
+    for (let i = 0; i < ups.length; i++) {
+      let up = ups[i]
       let file = up.file
-      let { ok, data } = await Wn.Io.uploadFile(file, {
-        target: `id:${this.meta.id}`,
+      let type = Ti.Util.getSuffixName(file.name, true)
+      let vars = {
+        type,
+        name: file.name,
+        majorName: Ti.Util.getMajorName(file.name),
+        oDir: this.meta
+      }
+      let target = Ti.Util.explainObj(vars, this.uploadTarget, {
+        evalFunc: true
+      })
+      console.log("upload", file, "to", target)
+      if (!target) {
+        let msg = Ti.I18n.get("upload-notarget-continue") + " : " + file.name;
+        if (await Ti.Confirm(msg, {
+          type: "warn",
+          textYes: "i18n:continue",
+          textNo: "i18n:cancel"
+        })) {
+          continue
+        }
+        // Break the loop
+        else {
+          break;
+        }
+      }
+      let reo = await Wn.Io.uploadFile(file, {
+        target,
+        mode: this.uploadMode,
         progress: function (pe) {
           up.current = pe.loaded
         }
       })
+      console.log(reo)
+      let { ok, data, errCode } = reo
+
+      // Join the new IDS
       if (ok) {
         newIds[data.id] = true
+        console.log("upload OK:", data)
+        // Append customized upload meta
+        if (this.hasUploadMeta) {
+          let uploadMeta = Ti.Util.explainObj(vars, this.uploadMeta, {
+            evalFunc: true
+          })
+          data = await Wn.Sys.exec2(`o id:${data.id} @update @json -cqn`, {
+            input: JSON.stringify(uploadMeta),
+            as: "json"
+          })
+        }
+      }
+      // Confirm continue
+      else if (i < (ups.length - 1)) {
+        let msg = Ti.I18n.get(errCode) + " : " + data;
+        if (await Ti.Confirm(msg, {
+          type: "warn",
+          textYes: "i18n:continue",
+          textNo: "i18n:cancel"
+        })) {
+          continue
+        }
+        // Break the loop
+        else {
+          break;
+        }
+      }
+      // Show error message
+      else {
+        let msg = Ti.I18n.get(errCode) + " : " + data;
+        await Ti.Alert(msg, { type: "warn" })
       }
     }
 
@@ -89845,7 +89935,10 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "upload": "Upload",
   "upload-done": "Done for upload",
   "upload-file": "Uploading files ...",
+  "upload-forbidden": "Upload forbidden",
   "upload-nofinished": "Upload not finished",
+  "upload-notarget": "Upload target not set!",
+  "upload-notarget-continue": "Upload target not set!, click [Continue] to upload next file, click [Cancel] to break file uploading",
   "uploading": "Uplading",
   "user-avator": "User avatar",
   "value": "Value",
@@ -91380,7 +91473,10 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "upload": "上传",
   "upload-done": "文件上传已完成",
   "upload-file": "上传文件...",
+  "upload-forbidden": "上传被禁止",
   "upload-nofinished": "文件上传还没有完成",
+  "upload-notarget": "未设置上传目标",
+  "upload-notarget-continue": "未设置上传目标，点击【继续】处理下一个文件，点击【取消】结束上传",
   "uploading": "正在上传",
   "user-avator": "用户头像",
   "value": "值",
@@ -92941,7 +93037,10 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "upload": "上傳",
    "upload-done": "文件上傳已完成",
    "upload-file": "上傳文件...",
+   "upload-forbidden": "上傳被禁止",
    "upload-nofinished": "文件上傳還沒有完成",
+   "upload-notarget": "未設置上傳目標",
+   "upload-notarget-continue": "未設置上傳目標，點擊【繼續】處理下一個文件，點擊【取消】結束上傳",
    "uploading": "正在上傳",
    "user-avator": "用戶頭像",
    "value": "值",
