@@ -266,7 +266,7 @@ export class Rect {
   //      - contain : 确保包含在内
   //      - cover   : 最大限度撑满视口
   // 返回矩形自身
-  zoomTo({width,height,mode="contain"}={}) {
+  zoomTo({width,height,mode="contain", round=false}={}) {
     // zoom scale when necessary
     if("contain" == mode){
       let viewport = new Rect({top:0,left:0,width,height})
@@ -316,8 +316,8 @@ export class Rect {
         nH = h;
     }
 
-    this.width  = nW;
-    this.height = nH;
+    this.width  = round ? Math.round(nW) : nW;
+    this.height = round ? Math.round(nH) : nH;
     
     return this.updateBy("tlwh")
   }

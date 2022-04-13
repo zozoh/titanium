@@ -1,4 +1,4 @@
-function TiDraggable($el, setup={}) {
+function TiDraggable($el, setup = {}) {
   //let vm = context
   let {
     trigger,     // Which element will trigger the behavior
@@ -8,6 +8,8 @@ function TiDraggable($el, setup={}) {
     // Speed Unit, move 1px per 1ms
     // default 100, mean: move 1px in 1ms, it was 100
     speed = 100,
+    // If find the trigger, then should we active the dragging?
+    testActive = () => true,
     // If the moved distance (offsetX or offsetY) over the value(in PX)
     // it will active dragging
     // If object form like {x:50, y:-1}
@@ -24,59 +26,59 @@ function TiDraggable($el, setup={}) {
     // Function(context)  call once first time context actived
     actived = _.identity,
     // Function(context)
-    done =  _.identity,
+    done = _.identity,
   } = setup
   //-----------------------------------------------
   // Format actived radius
   let AR = {}
-  if(_.isNumber(activedRadius)) {
+  if (_.isNumber(activedRadius)) {
     AR.x = activedRadius;
     AR.y = activedRadius;
   } else {
-    _.assign(AR, {x:-1, y:-1}, _.pick(activedRadius, "x", "y"))
+    _.assign(AR, { x: -1, y: -1 }, _.pick(activedRadius, "x", "y"))
   }
   //-----------------------------------------------
-  const findBy = function($trigger, find, $dft) {
-    if(_.isFunction(find)) {
+  const findBy = function ($trigger, find, $dft) {
+    if (_.isFunction(find)) {
       return find($trigger) || $dft
     }
-    if(_.isString(find)) {
+    if (_.isString(find)) {
       return Ti.Dom.find(find, $el) || $dft
     }
     return $dft
   }
   //-----------------------------------------------
   let EVENTS = {
-    setClientXY : function(ctx, evt) {
+    setClientXY: function (ctx, evt) {
       let pe = this.getPointerEvent(evt)
       ctx.clientX = pe.clientX
       ctx.clientY = pe.clientY
     }
   }
-  if(Ti.Dom.isTouchDevice()) {
+  if (Ti.Dom.isTouchDevice()) {
     _.assign(EVENTS, {
-      POINTER_DOWN : "touchstart",
-      POINTER_MOVE : "touchmove",
-      POINTER_UP   : "touchend",
+      POINTER_DOWN: "touchstart",
+      POINTER_MOVE: "touchmove",
+      POINTER_UP: "touchend",
       //POINTER_CLICK  : "click",
-      getPointerEvent : evt => evt.touches[0]
+      getPointerEvent: evt => evt.touches[0]
     })
   } else {
     _.assign(EVENTS, {
-      POINTER_DOWN : "mousedown",
-      POINTER_MOVE : "mousemove",
-      POINTER_UP   : "mouseup",
+      POINTER_DOWN: "mousedown",
+      POINTER_MOVE: "mousemove",
+      POINTER_UP: "mouseup",
       POINTER_CLICK: "click",
-      getPointerEvent : evt => evt
+      getPointerEvent: evt => evt
     })
   }
   //console.log(EVENTS)
   //-----------------------------------------------
-  $el.addEventListener(EVENTS.POINTER_DOWN, function(evt){
+  $el.addEventListener(EVENTS.POINTER_DOWN, function (evt) {
     //console.log(EVENTS.POINTER_DOWN, evt, {activedRadius, activedDelay})
     // Find the trigger
     let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, $el)
-    if(!_.isElement($trigger)) {
+    if (!_.isElement($trigger)) {
       return
     }
     // Enter dragmode
@@ -84,7 +86,7 @@ function TiDraggable($el, setup={}) {
     let $body = $el.ownerDocument.body
     let $viewport = findBy($trigger, viewport, $el)
     let $watchZone = findBy($trigger, watchZone, $el.ownerDocument)
-    let $handler  = findBy($trigger, handler, $el)
+    let $handler = findBy($trigger, handler, $el)
     let context = {}
     _.assign(context, {
       $event: evt,
@@ -93,10 +95,14 @@ function TiDraggable($el, setup={}) {
     EVENTS.setClientXY(context, evt)
     context.$src = evt.srcElement
 
+    if(!testActive(context)) {
+      return
+    }
+
     //console.log(context)
 
     // Guard
-    if(!_.isElement($viewport) || !_.isElement($handler)) {
+    if (!_.isElement($viewport) || !_.isElement($handler)) {
       return
     }
 
@@ -107,8 +113,8 @@ function TiDraggable($el, setup={}) {
     context.handler = Ti.Rects.createBy($handler)
     context.startInMs = Date.now()
     //........................................
-    context.initScale = function() {
-      let {left, top} = this.viewport
+    context.initScale = function () {
+      let { left, top } = this.viewport
       this.nowInMs = Date.now()
       this.duInMs = this.nowInMs - this.startInMs
       let x = this.clientX - left
@@ -126,37 +132,37 @@ function TiDraggable($el, setup={}) {
       this.scaleY = 0
     }
     //........................................
-    context.evalScale = function() {
-      let {width, height, left, top} = this.viewport
+    context.evalScale = function () {
+      let { width, height, left, top } = this.viewport
       //console.log(this.viewport.tagName, {width, left, clientX:this.clientX})
       this.nowInMs = Date.now()
       this.duInMs = this.nowInMs - this.startInMs
       let x = this.clientX - left
       let y = this.clientY - top
-      
+
       this.offsetX = x - this.startX
       this.offsetY = y - this.startY
-      this.offsetDistance  = Math.sqrt(Math.pow(this.offsetX,2)+ Math.pow(this.offsetY,2))
+      this.offsetDistance = Math.sqrt(Math.pow(this.offsetX, 2) + Math.pow(this.offsetY, 2))
       this.moveX = x - this.x
       this.moveY = y - this.y
-      this.moveDistance  = Math.sqrt(Math.pow(this.moveX,2)+ Math.pow(this.moveY,2))
+      this.moveDistance = Math.sqrt(Math.pow(this.moveX, 2) + Math.pow(this.moveY, 2))
 
       this.directionX = this.moveX < 0 ? "left" : "right"
-      this.directionY = this.moveY < 0 ? "up"   : "down"
+      this.directionY = this.moveY < 0 ? "up" : "down"
       this.speed = this.moveDistance * speed / this.duInMs
       //console.log("move:", this.speed, this.moveDistance+'px', this.duInMs+'ms')
-      
+
       this.x = this.clientX - left
       this.y = this.clientY - top
       this.scaleX = x / width
       this.scaleY = y / height
       // Eval actived status
-      if(!this.actived) {
+      if (!this.actived) {
         let offX = Math.abs(this.offsetX)
         let offY = Math.abs(this.offsetY)
-        if(this.duInMs > activedDelay) {
-          if(AR.x < 0 || offX > AR.x) {
-            if(AR.y < 0 || offY > AR.y) {
+        if (this.duInMs > activedDelay) {
+          if (AR.x < 0 || offX > AR.x) {
+            if (AR.y < 0 || offY > AR.y) {
               this.actived = true
             }
           }
@@ -164,9 +170,9 @@ function TiDraggable($el, setup={}) {
       }
     }
     //........................................
-    context.evalLeftBySpeed = function(left=0) {
-      let {viewport, $trigger, offsetX, speed} = this
-      if(speed > 1) {
+    context.evalLeftBySpeed = function (left = 0) {
+      let { viewport, $trigger, offsetX, speed } = this
+      if (speed > 1) {
         //console.log(left, speed * offsetX, {offsetX, speed})
         left += speed * offsetX
       }
@@ -176,9 +182,9 @@ function TiDraggable($el, setup={}) {
       return left
     }
     //........................................
-    context.evalTopBySpeed = function(top=0) {
-      let {viewport, $trigger, offsetY, speed} = this
-      if(speed > 1) {
+    context.evalTopBySpeed = function (top = 0) {
+      let { viewport, $trigger, offsetY, speed } = this
+      if (speed > 1) {
         top += speed * offsetY
       }
       let hScroller = $trigger.scrollHeight
@@ -199,21 +205,21 @@ function TiDraggable($el, setup={}) {
     //---------------------------------------------
     function OnBodyMouseMove(evt) {
       // Test if leave
-      let p = {x:context.clientX, y:context.clientY}
+      let p = { x: context.clientX, y: context.clientY }
       //console.log("OnBodyMouseMove", p)
-      if(!context.watchZone.hasPoint(p)) {
+      if (!context.watchZone.hasPoint(p)) {
         RemoveDraggle(evt)
         return
       }
 
       EVENTS.setClientXY(context, evt)
       context.evalScale()
-      if(context.actived) {
-        if(!context.__already_call_actived) {
+      if (context.actived) {
+        if (!context.__already_call_actived) {
           actived(context)
           context.__already_call_actived = true
           // Then hold $src
-          if(EVENTS.POINTER_CLICK) {
+          if (EVENTS.POINTER_CLICK) {
             context.$src.addEventListener(EVENTS.POINTER_CLICK, PreventClick, {
               capture: true, once: true
             })
@@ -232,8 +238,8 @@ function TiDraggable($el, setup={}) {
       context.clientY = evt.clientY
       context.$stopEvent = evt
 
-      if(context.actived) {
-        if(EVENTS.POINTER_CLICK) {
+      if (context.actived) {
+        if (EVENTS.POINTER_CLICK) {
           context.$src.removeEventListener(EVENTS.POINTER_CLICK, PreventClick)
         }
         done(context)
@@ -242,7 +248,7 @@ function TiDraggable($el, setup={}) {
     //---------------------------------------------
     // Watch dragging in doc
     $doc.addEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
-    
+
     // Quit 
     $doc.addEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
   })
