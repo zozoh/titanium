@@ -1,4 +1,4 @@
-// Pack At: 2022-04-19 15:02:41
+// Pack At: 2022-04-19 23:52:50
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -14301,6 +14301,19 @@ const {Num} = (function(){
       return n;
     },
     /***
+     * @param n{Number} input number
+     * @param unit{Number} the number padding unit
+     * 
+     * @return The number pad to unit
+     */
+    padTo(n, unit=1) {
+      if(unit > 1) {
+        let x = Math.round(n / unit)
+        return  x * unit
+      }
+      return n
+    },
+    /***
      * @param v{Number} input number
      * @param unit{Number} number unit
      * 
@@ -18270,7 +18283,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220419.150241",
+  "version" : "1.6-20220419.235250",
   "dev" : false,
   "appName" : null,
   "session" : {},

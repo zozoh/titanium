@@ -1,4 +1,4 @@
-// Pack At: 2022-04-19 15:02:41
+// Pack At: 2022-04-19 23:52:50
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2981,7 +2981,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //---------------------------------------------------
     LegendInputStyle() {
-      if(this.inputWidth) {
+      if (this.inputWidth) {
         return Ti.Css.toStyle({
           width: this.inputWidth
         })
@@ -3011,6 +3011,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         let name = li.name || `V${index}`
         let min = li.min || 0
         let max = li.max || 100
+        let unit = li.unit || 1   // the value unit
         let dft = Ti.Util.fallback(li.dft, max)
         let background = li.background
         if (!background) {
@@ -3018,7 +3019,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
         items.push({
           title: li.title,
-          index, name, min, max, dft,
+          index, name, min, max, dft, unit,
           color: li.color || "#FFF",
           background
         })
@@ -3146,6 +3147,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if (isNaN(v0)) {
         return
       }
+      v0 = Ti.Num.padTo(v0, si.unit)
       let v1 = Ti.Num.precise(v0, this.precision)
       let v2 = _.clamp(v1, si.min, si.max)
       let new0 = _.cloneDeep(this.myValue)
@@ -3206,6 +3208,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
     // make val to {V0: v ...}
     evalMyVal(val) {
+      //console.log("evalMyVal", val)
       // Integer
       if (_.isNumber(val)) {
         val = [val]
@@ -3240,6 +3243,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return re
     },
     //---------------------------------------------------
+    tryEvalMyVal(newVal, oldVal) {
+      if (Ti.Util.isNil(oldVal) || !_.isEqual(newVal, oldVal)) {
+        this.myValue = this.evalMyVal(this.value)
+      }
+    },
+    //---------------------------------------------------
     notifyChange() {
       let fn = ({
         "Number": () => {
@@ -3271,11 +3280,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
   watch: {
     "value": {
-      handler: function (newVal, oldVal) {
-        if (Ti.Util.isNil(oldVal) || !_.isEqual(newVal, oldVal)) {
-          this.myValue = this.evalMyVal(newVal)
-        }
-      },
+      handler: "tryEvalMyVal",
+      immediate: true
+    },
+    "stacks": {
+      handler: "tryEvalMyVal",
       immediate: true
     }
   },

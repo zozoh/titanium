@@ -59,6 +59,19 @@ const TiNum = {
     return n;
   },
   /***
+   * @param n{Number} input number
+   * @param unit{Number} the number padding unit
+   * 
+   * @return The number pad to unit
+   */
+  padTo(n, unit=1) {
+    if(unit > 1) {
+      let x = Math.round(n / unit)
+      return  x * unit
+    }
+    return n
+  },
+  /***
    * @param v{Number} input number
    * @param unit{Number} number unit
    * 
