@@ -1,40 +1,40 @@
 export default {
   /////////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Data
     //-----------------------------------
     "src": {
-      type : String,
+      type: String,
       default: undefined
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    "postPayload" : {
-      type : [String, Object, Number, Boolean, Array]
+    "postPayload": {
+      type: [String, Object, Number, Boolean, Array]
     },
-    "postEvents" : {
-      type : [String, Array]
+    "postEvents": {
+      type: [String, Array]
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "frameStyle" : {
-      type : Object
+    "frameStyle": {
+      type: Object
     },
     //-----------------------------------
     // Measure
     //-----------------------------------
-    "width" : {
-      type : [Number, String]
+    "width": {
+      type: [Number, String]
     },
-    "height" : {
-      type : [Number, String]
+    "height": {
+      type: [Number, String]
     }
   },
   /////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -50,57 +50,47 @@ export default {
     //------------------------------------
     FrameStyle() {
       return Ti.Css.toStyle(_.assign({
-        border : 0, 
-        width  : this.width,
-        height : this.height
+        border: 0,
+        width: this.width,
+        height: this.height
       }, this.frameStyle))
     },
     //------------------------------------
     PostEventNames() {
-      if(this.postEvents) {
+      if (this.postEvents) {
         return _.concat(this.postEvents)
       }
     },
     //------------------------------------
     hasPostEventNames() {
       return !_.isEmpty(this.PostEventNames)
+    }
+    //------------------------------------
+  },
+  /////////////////////////////////////////
+  methods: {
+    //------------------------------------
+    OnFrameLoaded() {
+      console.log("OnFrameLoaded")
+      this.postEventToFrame()
     },
     //------------------------------------
-    PostEventFunctions() {
-      let re = []
-      if(this.hasPostEventNames) {
-        for(let eventName of this.PostEventNames) {
-          re.push({
-            index : re.length,
-            eventName,
-            handler : () => {
-              let $fm = this.$refs.frame
-              if(_.isElement($fm)) {
-                $fm.contentWindow.postMessage(eventName, this.postPayload);
-              }
-            }
-          })
-        }
+    postEventToFrame() {
+      // Guard
+      if (!this.hasPostEventNames) {
+        return
       }
-      return re;
+      // Then post event one by one
+      let $fm = this.$refs.frame
+      let $fw = $fm.contentWindow
+      for (let eventName of this.PostEventNames) {
+        $fw.postMessage({
+          name: eventName,
+          payload: this.postPayload
+        })
+      }
     }
     //------------------------------------
-  },
-  /////////////////////////////////////////
-  mounted() {
-    for(let en of this.PostEventFunctions) {
-      let {eventName, handler} = en
-      console.log("add", eventName)
-      window.addEventListener(eventName, handler, false)
-    }
-  },
-  /////////////////////////////////////////
-  beforeDestroy : function(){
-    for(let en of this.PostEventFunctions) {
-      let {eventName, handler} = en
-      console.log("remove", eventName)
-      window.removeEventListener(eventName, handler, false)
-    }
   }
   /////////////////////////////////////////
 }
