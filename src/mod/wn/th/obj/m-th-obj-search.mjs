@@ -107,7 +107,7 @@ const _M = {
   // Query
   //
   //----------------------------------------
-  async queryList({ state, commit, getters }) {
+  async queryList({ state, commit, getters }, flt={}) {
     let {
       thingSetId,
       filter,
@@ -116,7 +116,7 @@ const _M = {
       thingObjKeys
     } = state
     // Query
-    let input = JSON.stringify(_.assign({}, filter, fixedMatch))
+    let input = JSON.stringify(_.assign({}, filter, fixedMatch, flt))
 
     // Command
     let cmds = [`thing ${thingSetId} query -cqn`]

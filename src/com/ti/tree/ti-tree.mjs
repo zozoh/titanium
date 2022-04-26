@@ -391,12 +391,14 @@ const TI_TREE = {
         self.id = Ti.Util.fallbackNil(this.getNodeId(item), self.pathId)
         self.indent = 0
         self.leaf   = false
-        self.opened = !this.showRoot
-          ? true 
-          : Ti.Util.fallback(
-              this.myOpenedNodePaths[self.pathId], 
-              self.indent < this.defaultOpenDepth);
-        self.icon   = self.leaf ? true : this.nodeHandleIcons[self.opened ? 1 : 0]
+        // self.opened = !this.showRoot
+        //   ? true 
+        //   : Ti.Util.fallback(
+        //       this.myOpenedNodePaths[self.pathId], 
+        //       self.indent < this.defaultOpenDepth);
+        self.opened = !this.showRoot || this.myOpenedNodePaths[self.pathId]
+        self.defaultOpen = self.indent < this.defaultOpenDepth
+        self.shouldTryOpen = Ti.Util.fallback(self.opened, self.defaultOpen)
       }
       // Others node
       else {
@@ -406,10 +408,12 @@ const TI_TREE = {
         self.id = Ti.Util.fallbackNil(this.getNodeId(item), self.pathId)
         self.indent = self.path.length
         self.leaf   = this.isNodeLeaf(item)
-        self.opened = Ti.Util.fallback(
-          this.myOpenedNodePaths[self.pathId], 
-          self.indent < this.defaultOpenDepth);
-        self.icon   = self.leaf ? true : this.nodeHandleIcons[self.opened ? 1 : 0]
+        // self.opened = Ti.Util.fallback(
+        //   this.myOpenedNodePaths[self.pathId], 
+        //   self.indent < this.defaultOpenDepth);
+        self.opened = this.myOpenedNodePaths[self.pathId]
+        self.defaultOpen = self.indent < this.defaultOpenDepth
+        self.shouldTryOpen = Ti.Util.fallback(self.opened, self.defaultOpen)
       }
       //....................................
       // Join the rawData
@@ -428,7 +432,7 @@ const TI_TREE = {
       }
       //....................................
       // Join Children
-      if(self.opened && !self.leaf) {
+      if (self.shouldTryOpen && !self.leaf) {
         if(!children) {
           children = await this.getNodeChildren(item)
         }
@@ -439,17 +443,20 @@ const TI_TREE = {
             rows.push(this.genFakeLoadingNode(self.indent))  
           }
           // Empty node
-          else {
+          else if (self.opened) {
             rows.push(this.genFakeEmptyNode(self.indent))
           }
         }
         // Load children
         else {
+          self.opened = true   // Make sure the node is opend
           for(let child of children) {
             await this.joinTreeTableRow(rows, child, self.path)
           }
         }
       }
+      // After join children, we can finnaly decide the tree state icon (handle)
+      self.icon   = self.leaf ? true : this.nodeHandleIcons[self.opened ? 1 : 0]
       //....................................
     },
     //--------------------------------------

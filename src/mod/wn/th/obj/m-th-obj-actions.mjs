@@ -70,6 +70,7 @@ const _M = {
   },
   //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }) {
+    console.log("loadContent")
     // Guard : dataHome
     // if (!state.dataHome) {
     //   return
@@ -82,6 +83,8 @@ const _M = {
     if (!path) {
       return
     }
+    commit("setStatus", { reloading: true })
+
     if ("<self>" != path) {
       path = Ti.Util.appendPath(state.dataHome, path)
       meta = await Wn.Io.loadMeta(path)
@@ -91,17 +94,19 @@ const _M = {
     // No meta
     if (!meta) {
       dispatch("updateContent", null)
+      commit("setStatus", { reloading: false })
       return
     }
 
     // Load meta content
-    commit("setStatus", { reloading: true })
     let content = await Wn.Io.loadContent(meta)
     dispatch("updateContent", content)
     //console.log("loadContent:", content)
 
     // All done
     commit("setStatus", { reloading: false })
+
+    return content
   },
   //--------------------------------------------
   async loadSchema({ state, commit }) {

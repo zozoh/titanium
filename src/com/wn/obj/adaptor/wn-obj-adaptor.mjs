@@ -116,7 +116,12 @@ const _M = {
 
       // callPath -> Function
       let func;
-      if (_.isString(fn)) {
+      // Direct call
+      if(_.isFunction(fn)) {
+        func = fn
+      }
+      // Gen invoking
+      else if (_.isString(fn)) {
         func = _.get(this, fn)
         if (!_.isFunction(func)) {
           func = Ti.Util.genInvoking(fn, {

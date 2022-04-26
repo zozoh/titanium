@@ -71,7 +71,7 @@ export default {
   methods: {
     //------------------------------------
     OnFrameLoaded() {
-      console.log("OnFrameLoaded")
+      //console.log("OnFrameLoaded")
       this.postEventToFrame()
     },
     //------------------------------------

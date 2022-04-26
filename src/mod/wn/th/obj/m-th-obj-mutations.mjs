@@ -35,6 +35,24 @@ const _M = {
     saveLocalBehavior(state, "guiShown", guiShown)
   },
   //----------------------------------------
+  assignGuiShown(state, shown) {
+    let shown2 = _.cloneDeep(state.guiShown)
+    _.assign(shown2, shown)
+    state.guiShown = _.pickBy(shown2, v => v)
+    saveLocalBehavior(state, "guiShown", state.guiShown)
+  },
+  //----------------------------------------
+  assignGuiShownNoKeep(state, shown) {
+    let shown2 = _.cloneDeep(state.guiShown)
+    _.assign(shown2, shown)
+    state.guiShown = _.pickBy(shown2, v => v)
+  },
+  //----------------------------------------
+  keepShownToLocal(state) {
+    let shown = _.pickBy(state.guiShown, v => v)
+    saveLocalBehavior(state, "guiShown", shown)
+  },
+  //----------------------------------------
   //
   // Thing Set
   //
@@ -179,6 +197,7 @@ const _M = {
   },
   //----------------------------------------
   setContentPath(state, contentPath) {
+    //console.log("setContentPath", contentPath)
     state.contentPath = contentPath
   },
   //----------------------------------------
