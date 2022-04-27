@@ -1,4 +1,4 @@
-// Pack At: 2022-04-27 22:52:59
+// Pack At: 2022-04-28 00:06:32
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -81587,69 +81587,43 @@ Ti.Preload("ti/com/ti/wall/com/wall-tile/_com.json", {
 //========================================
 // JOIN <ti-wall.html> ti/com/ti/wall/ti-wall.html
 //========================================
-Ti.Preload("ti/com/ti/wall/ti-wall.html", `<div class="ti-wall" 
-  :class="TopClass"
-  @click="OnClickTop"
-  @scroll="OnScroll"
-  v-ti-activable>
+Ti.Preload("ti/com/ti/wall/ti-wall.html", `<div class="ti-wall" :class="TopClass" @click="OnClickTop" @scroll="OnScroll" v-ti-activable>
   <!--
     Loading
   -->
-  <ti-loading 
-    v-if="isDataPending"
-      class="nil-data"
-      v-bind="loadingAs"/>
+  <ti-loading v-if="isDataPending" class="nil-data" v-bind="loadingAs" />
   <!--
     Blank
   -->
-  <ti-loading 
-    v-else-if="isDataEmpty"
-      class="nil-data"
-      :class="blankClass"
-      v-bind="blankAs"/>
+  <ti-loading v-else-if="isDataEmpty" class="nil-data" :class="blankClass" v-bind="blankAs" />
   <!--
     Show tiles
   -->
-  <div
-    v-else
-      class="wall-con">
-      <!--tiles-->
-      <wall-tile
-        v-for="row in TheData"
-          :key="row.id"
-          :row-id="row.id"
-          :index="row.index"
-          :display="ItemDisplay"
-          :data="row.rawData"
-          :current-id="theCurrentId"
-          :checked-ids="theCheckedIds"
-          :changed-id="changedId"
-          :checkable="checkable"
-          :selectable="selectable"
-          :openable="openable"
-          :class-name="itemClassName"
-          :width="itemWidth"
-          :height="itemHeight"
-          @select="OnRowSelect"
-          @open="OnRowOpen"/>
-      <!--Blank Tile-->
-      <div v-for="bc in BlankCols"
-        class="wall-tile"
-        :style="bc">
-      </div>
+  <div v-else class="wall-con">
+    <!--tiles-->
+    <template v-for="row in TheData">
+      <!-- render tile-group  -->
+      <div class="wall-group-title" v-if="row.rawData.grp">{{row.rawData.grp}}</div>
+      <!-- render tile -->
+      <wall-tile v-else :key="row.id" :row-id="row.id" :index="row.index" :display="ItemDisplay" :data="row.rawData"
+        :current-id="theCurrentId" :checked-ids="theCheckedIds" :changed-id="changedId" :checkable="checkable"
+        :selectable="selectable" :openable="openable" :class-name="itemClassName" :width="itemWidth"
+        :height="itemHeight" @select="OnRowSelect" @open="OnRowOpen" />
+    </template>
+    <!--Blank Tile-->
+    <div v-for="bc in BlankCols" class="wall-tile" :style="bc">
     </div>
+  </div>
   <!--
     Show load more
   -->
-  <div ref="more"
-    v-if="showLoadMore"
-      class="as-load-more">
-      <div ref="moreBtn"
-        class="as-load-more-btn"
-        @click.left="OnClickLoadMore">
-        <span class="as-icon"><TiIcon :value="LoadingMoreBtn.icon"/></span>
-        <span class="as-text">{{LoadingMoreBtn.text | i18n}}</span>
-      </div>
+  <div ref="more" v-if="showLoadMore" class="as-load-more">
+    <div ref="moreBtn" class="as-load-more-btn" @click.left="OnClickLoadMore">
+      <span class="as-icon">
+        <TiIcon :value="LoadingMoreBtn.icon" />
+      </span>
+      <span class="as-text">{{LoadingMoreBtn.text | i18n}}</span>
+    </div>
   </div>
 </div>`);
 //========================================
