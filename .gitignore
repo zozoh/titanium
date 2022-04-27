@@ -5,3 +5,5 @@ output
 dist/**
 .VSCodeCounter
 .idea/
+.gradle/         
+bin/

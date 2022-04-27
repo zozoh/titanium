@@ -14,7 +14,7 @@
   }
   //-------------------------------------
   > .wall-con {
-    @include flex-align($ac:flex-start,$ai:flex-start);
+    @include flex-align($jc:flex-start,$ai:flex-start);
     width: 100%;
     > .wall-tile {
       @include flex($jc:stretch,$ai:stretch);
@@ -32,6 +32,12 @@
         flex:1 1 auto;
       }
       //----------------------------------
+    }
+
+    >.wall-group {
+      flex-basis: 100%;
+      padding: SZ(5) SZ(10);
+      @include color($color-bar, r, c);
     }
   }
   //-------------------------------------
@@ -70,11 +76,11 @@
   }
   //-------------------------------------
   &.is-stretch > .wall-con{
-    @include flex-align($ac:stretch,$ai:stretch);
+    @include flex-align($jc:flex-start, $ai:flex-start);
   }
   //-------------------------------------
   &.is-multi-rows > .wall-con {
-    justify-content: space-around;
+    justify-content: flex-start;
   }
   //-------------------------------------
   &.spacing-no > .wall-con >* {margin:0;}
