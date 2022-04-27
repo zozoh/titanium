@@ -1,192 +1,195 @@
 const TI_TREE = {
   //////////////////////////////////////////
-  data : ()=>({
-    "myTreeTableData"   : [],
-    "myOpenedNodePaths" : {},
-    "myCurrentId"       : null
+  data: () => ({
+    "myTreeTableData": [],
+    "myOpenedNodePaths": {},
+    "myCurrentId": null
   }),
   //////////////////////////////////////////
-  props : {
-    "nodeClassName" : {
-      type : String,
-      default : undefined
+  props: {
+    "nodeClassName": {
+      type: String,
+      default: undefined
     },
     // The list to be rendered
-    "data" : {
-      type : [Object, Array],
-      default : undefined
+    "data": {
+      type: [Object, Array],
+      default: undefined
     },
-    "testLoading" : {
-      type : [Object, Function],
-      default : undefined
+    "testLoading": {
+      type: [Object, Function],
+      default: undefined
     },
     // If date is array
     // it can auto group to tree like structure
     // but I need the obj parent Id
-    "autoGroupBy" : {
-      type : String,
-      default : undefined
-    },
-    // the key of obj to match children parentId(autoGroupBy)
-    "autoGroupIdKey" : {
-      type : String,
-      default : "id"
-    },
-    "autoGroupTo" : {
-      type : String,
-      default : "children"
-    },
-    "otherGroup" : {
-      type : Object,
+    "autoGroupBy": {
+      type: String,
       default: undefined
     },
-    "idBy" : {
-      type : [String, Function],
-      default : "id"
+    // the key of obj to match children parentId(autoGroupBy)
+    "autoGroupIdKey": {
+      type: String,
+      default: "id"
     },
-    "nameBy" : {
-      type : [String, Function],
-      default : "name"
+    "autoGroupTo": {
+      type: String,
+      default: "children"
     },
-    "childrenBy" : {
-      type : [String, Function],
-      default : "children"
+    "otherGroup": {
+      type: Object,
+      default: undefined
     },
-    "leafBy" : {
-      type    : [String, Object, Function, Array],
-      default : ()=>({
-        "children" : ""
+    "idBy": {
+      type: [String, Function],
+      default: () => it => Ti.Util.getFallbackEmpty(it, "id", "value")
+      // default: function(it){
+      //   return Ti.Util.getFallbackEmpty(it, "id", "value")
+      // } 
+    },
+    "nameBy": {
+      type: [String, Function],
+      default: () => it => Ti.Util.getFallbackEmpty(it, "name", "nm", "id")
+    },
+    "childrenBy": {
+      type: [String, Function],
+      default: "children"
+    },
+    "leafBy": {
+      type: [String, Object, Function, Array],
+      default: () => ({
+        "children": ""
       })
     },
-    "loadingNode" : {
-      type : Object,
-      default : ()=>({
-        name : "i18n:loading"
+    "loadingNode": {
+      type: Object,
+      default: () => ({
+        name: "i18n:loading"
       })
     },
-    "emptyNode" : {
-      type : Object,
-      default : ()=>({
-        icon : "fas-braille",
-        name : "i18n:empty"
+    "emptyNode": {
+      type: Object,
+      default: () => ({
+        icon: "fas-braille",
+        name: "i18n:empty"
       })
     },
-    "title" : {
-      type : String,
-      default : 'i18n:title'
+    "title": {
+      type: String,
+      default: 'i18n:title'
     },
-    "mainWidth" : {
-      type : [String, Number],
-      default : 'stretch'
+    "mainWidth": {
+      type: [String, Number],
+      default: 'stretch'
     },
-    "display" : {
-      type : [String, Object, Array],
-      default : "name"
+    "display": {
+      type: [String, Object, Array],
+      default: "name"
     },
-    "rowClassBy" : {
-      type : [Function, String]
+    "rowClassBy": {
+      type: [Function, String]
     },
     // Default to open the node in depth.
     // the top node depth is 1, which is eqausl the path array length.
     // If 0, it will close all top leavel nodes
-    "defaultOpenDepth" : {
-      type : Number,
-      default : 0
+    "defaultOpenDepth": {
+      type: Number,
+      default: 0
     },
     // Local store to save the tree open status
-    "keepOpenBy" : {
-      type : String,
-      default : null
+    "keepOpenBy": {
+      type: String,
+      default: null
     },
-    "keepCurrentBy" : {
-      type : String,
-      default : null
+    "keepCurrentBy": {
+      type: String,
+      default: null
     },
-    "changedId" : {
-      type : String,
-      default : null
+    "changedId": {
+      type: String,
+      default: null
     },
-    "currentId" : {
-      type : String,
-      default : null
+    "currentId": {
+      type: String,
+      default: null
     },
-    "checkedIds" : {
-      type : [Array, Object],
-      default : ()=>[]
+    "checkedIds": {
+      type: [Array, Object],
+      default: () => []
     },
-    "openedNodePaths" : {
-      type : Object,
-      default : ()=>({})
+    "openedNodePaths": {
+      type: Object,
+      default: () => ({})
     },
-    "multi" : {
-      type : Boolean,
-      default : false
+    "multi": {
+      type: Boolean,
+      default: false
     },
-    "nodeCheckable" : {
-      type : [Object, Function],
-      default : undefined
+    "nodeCheckable": {
+      type: [Object, Function],
+      default: undefined
     },
-    "nodeSelectable" : {
-      type : [Object, Function],
-      default : undefined
+    "nodeSelectable": {
+      type: [Object, Function],
+      default: undefined
     },
-    "nodeOpenable" : {
-      type : [Object, Function],
-      default : undefined
+    "nodeOpenable": {
+      type: [Object, Function],
+      default: undefined
     },
-    "nodeCancelable" : {
-      type : [Object, Function],
-      default : undefined
+    "nodeCancelable": {
+      type: [Object, Function],
+      default: undefined
     },
-    "nodeHoverable" : {
-      type : [Object, Function],
-      default : undefined
+    "nodeHoverable": {
+      type: [Object, Function],
+      default: undefined
     },
-    "checkable" : {
-      type : Boolean,
-      default : false
+    "checkable": {
+      type: Boolean,
+      default: false
     },
     // select item
-    "selectable" : {
-      type : Boolean,
-      default : true
+    "selectable": {
+      type: Boolean,
+      default: true
     },
-    "cancelable" : {
-      type : Boolean,
-      default : true
+    "cancelable": {
+      type: Boolean,
+      default: true
     },
-    "openable" : {
-      type : Boolean,
-      default : true
+    "openable": {
+      type: Boolean,
+      default: true
     },
-    "hoverable" : {
-      type : Boolean,
-      default : false
+    "hoverable": {
+      type: Boolean,
+      default: false
     },
-    "onNodeSelect" : {
-      type : Function,
-      default : undefined
+    "onNodeSelect": {
+      type: Function,
+      default: undefined
     },
-    "width" : {
-      type : [String, Number],
-      default : null
+    "width": {
+      type: [String, Number],
+      default: null
     },
-    "puppetMode" : {
-      type : Boolean,
-      default : false
+    "puppetMode": {
+      type: Boolean,
+      default: false
     },
-    "height" : {
-      type : [String, Number],
-      default : null
+    "height": {
+      type: [String, Number],
+      default: null
     },
-    "spacing" : {
-      type : String,
-      default : "comfy",
-      validator : v => /^(comfy|tiny)$/.test(v)
+    "spacing": {
+      type: String,
+      default: "comfy",
+      validator: v => /^(comfy|tiny)$/.test(v)
     },
-    "autoScrollIntoView" : {
-      type : Boolean,
-      default : true
+    "autoScrollIntoView": {
+      type: Boolean,
+      default: true
     },
     "columnResizable": {
       type: Boolean,
@@ -196,24 +199,24 @@ const TI_TREE = {
       type: String,
       default: undefined
     },
-    "autoOpen" : {
-      type : Boolean,
-      default : false
+    "autoOpen": {
+      type: Boolean,
+      default: false
     },
-    "showRoot" : {
-      type : Boolean,
-      default : true
+    "showRoot": {
+      type: Boolean,
+      default: true
     },
-    "nodeHandleIcons" : {
-      type : Array,
-      default : ()=>[
+    "nodeHandleIcons": {
+      type: Array,
+      default: () => [
         "zmdi-chevron-right",
         "zmdi-chevron-down"]
     },
-    "border" : {
-      type : String,
-      default : "column",
-      validator : v => /^(row|column|cell|none)$/.test(v)
+    "border": {
+      type: String,
+      default: "column",
+      validator: v => /^(row|column|cell|none)$/.test(v)
     },
     "rowNumberBase": {
       type: Number,
@@ -223,42 +226,42 @@ const TI_TREE = {
     //   type : Object,
     //   default : ()=>({})
     // },
-    "fields" : {
-      type : Array,
-      default : ()=>[]
+    "fields": {
+      type: Array,
+      default: () => []
     },
-    "blankAs" : undefined
+    "blankAs": undefined
   },
   //////////////////////////////////////////
-  watch : {
-    
+  watch: {
+
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-selectable"  : this.selectable,
-        "is-hoverable"   : this.hoverable
+        "is-selectable": this.selectable,
+        "is-hoverable": this.hoverable
       }, `as-spacing-${this.spacing}`)
     },
     //--------------------------------------
     getNodeId() {
-      if(_.isFunction(this.idBy)) {
-        return (it)=>this.idBy(it)
+      if (_.isFunction(this.idBy)) {
+        return (it) => this.idBy(it)
       }
-      return (it)=>_.get(it, this.idBy)
+      return (it) => _.get(it, this.idBy)
     },
     //--------------------------------------
     getNodeName() {
-      if(_.isFunction(this.nameBy)) {
+      if (_.isFunction(this.nameBy)) {
         return it => this.nameBy(it)
       }
       return it => _.get(it, this.nameBy)
     },
     //--------------------------------------
     isNodeLeaf() {
-      if(_.isFunction(this.leafBy)) {
+      if (_.isFunction(this.leafBy)) {
         return it => (this.leafBy(it) ? true : false)
       }
       // Auto Match
@@ -267,10 +270,10 @@ const TI_TREE = {
     },
     //--------------------------------------
     isNodeLoading() {
-      if(!this.testLoading) {
-        return ()=>false
+      if (!this.testLoading) {
+        return () => false
       }
-      if(_.isFunction(this.testLoading)) {
+      if (_.isFunction(this.testLoading)) {
         return this.testLoading
       }
       return Ti.AutoMatch.parse(this.testLoading)
@@ -297,7 +300,7 @@ const TI_TREE = {
     },
     //--------------------------------------
     getNodeChildren() {
-      if(_.isFunction(this.childrenBy)) {
+      if (_.isFunction(this.childrenBy)) {
         return it => this.childrenBy(it)
       }
       return it => _.get(it, this.childrenBy)
@@ -308,7 +311,7 @@ const TI_TREE = {
     },
     //--------------------------------------
     TableHead() {
-      if(this.isTable) {
+      if (this.isTable) {
         return "frozen"
       }
       return "none"
@@ -316,12 +319,12 @@ const TI_TREE = {
     //--------------------------------------
     TableFields() {
       let mainCol = {
-        title   : this.title,
-        width   : this.mainWidth,
-        nowrap  : true,
-        display : this.display
+        title: this.title,
+        width: this.mainWidth,
+        nowrap: true,
+        display: this.display
       }
-      if(this.isTable) {
+      if (this.isTable) {
         return _.concat(mainCol, this.fields)
       }
       return [mainCol]
@@ -329,7 +332,7 @@ const TI_TREE = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnTableInit($table) {
       this.$table = $table
@@ -337,15 +340,15 @@ const TI_TREE = {
     //--------------------------------------
     evalBehaviorsMatcher(cust, dft) {
       let fn;
-      if(cust) {
+      if (cust) {
         fn = Ti.AutoMatch.parse(cust)
       }
-      return (row)=>{
-        if(row.fake)
+      return (row) => {
+        if (row.fake)
           return false
-        
+
         let re;
-        if(fn)
+        if (fn)
           re = fn(row)
 
         return Ti.Util.fallback(re, dft)
@@ -361,36 +364,36 @@ const TI_TREE = {
       //console.log("evalTreeTableData", this.data)
 
       // Array push to root
-      if(_.isArray(this.data)) {
+      if (_.isArray(this.data)) {
         let list = this.data
         // Pre group data
-        if(this.autoGroupBy) {
+        if (this.autoGroupBy) {
           list = this.groupTreeData(list)
         }
 
         await this.joinTreeTableRow(tableData, {}, null, list)
       }
       // already has root
-      else if(this.data){
+      else if (this.data) {
         await this.joinTreeTableRow(tableData, this.data, null)
       }
 
       this.myTreeTableData = tableData
     },
     //--------------------------------------
-    async joinTreeTableRow(rows=[], item={}, path=[], children) {
+    async joinTreeTableRow(rows = [], item = {}, path = [], children) {
       // if(this.showRoot)
       //console.log("joinTreeTableRow", item)
       let self = {}
       //....................................
       // For ROOT
-      if(!path) {
+      if (!path) {
         self.name = this.getNodeName(item) || "$ROOT$"
         self.path = []
         self.pathId = "/"
         self.id = Ti.Util.fallbackNil(this.getNodeId(item), self.pathId)
         self.indent = 0
-        self.leaf   = false
+        self.leaf = false
         // self.opened = !this.showRoot
         //   ? true 
         //   : Ti.Util.fallback(
@@ -402,12 +405,12 @@ const TI_TREE = {
       }
       // Others node
       else {
-        self.name   = this.getNodeName(item)
-        self.path   = _.concat(path, self.name)
+        self.name = this.getNodeName(item)
+        self.path = _.concat(path, self.name)
         self.pathId = self.path.join("/")
         self.id = Ti.Util.fallbackNil(this.getNodeId(item), self.pathId)
         self.indent = self.path.length
-        self.leaf   = this.isNodeLeaf(item)
+        self.leaf = this.isNodeLeaf(item)
         // self.opened = Ti.Util.fallback(
         //   this.myOpenedNodePaths[self.pathId], 
         //   self.indent < this.defaultOpenDepth);
@@ -420,27 +423,27 @@ const TI_TREE = {
       self.rawData = item
       //....................................
       // Add root if necesssary
-      if(this.showRoot) {
+      if (this.showRoot) {
         rows.push(self)
       }
       // If not show root, minus depth
       else {
-        self.indent --
-        if(self.indent >= 0) {
+        self.indent--
+        if (self.indent >= 0) {
           rows.push(self)
         }
       }
       //....................................
       // Join Children
       if (self.shouldTryOpen && !self.leaf) {
-        if(!children) {
+        if (!children) {
           children = await this.getNodeChildren(item)
         }
         // Empty or loading node
-        if(!_.isArray(children) || _.isEmpty(children)) {
+        if (!_.isArray(children) || _.isEmpty(children)) {
           // Loading node
-          if(this.isNodeLoading(self)) {
-            rows.push(this.genFakeLoadingNode(self.indent))  
+          if (this.isNodeLoading(self)) {
+            rows.push(this.genFakeLoadingNode(self.indent))
           }
           // Empty node
           else if (self.opened) {
@@ -450,37 +453,37 @@ const TI_TREE = {
         // Load children
         else {
           self.opened = true   // Make sure the node is opend
-          for(let child of children) {
+          for (let child of children) {
             await this.joinTreeTableRow(rows, child, self.path)
           }
         }
       }
       // After join children, we can finnaly decide the tree state icon (handle)
-      self.icon   = self.leaf ? true : this.nodeHandleIcons[self.opened ? 1 : 0]
+      self.icon = self.leaf ? true : this.nodeHandleIcons[self.opened ? 1 : 0]
       //....................................
     },
     //--------------------------------------
-    genFakeLoadingNode(indent=0) {
+    genFakeLoadingNode(indent = 0) {
       return {
-        indent  : indent + 2,
-        leaf    : true,
-        fake    : true,
-        icon    : "fas-spinner fa-spin",
-        rawData : this.loadingNode
+        indent: indent + 2,
+        leaf: true,
+        fake: true,
+        icon: "fas-spinner fa-spin",
+        rawData: this.loadingNode
       }
     },
     //--------------------------------------
-    genFakeEmptyNode(indent=0) {
+    genFakeEmptyNode(indent = 0) {
       return {
-        indent  : indent + 3,
-        leaf    : true,
-        fake    : true,
-        rawData : this.emptyNode
+        indent: indent + 3,
+        leaf: true,
+        fake: true,
+        rawData: this.emptyNode
       }
     },
     //--------------------------------------
-    groupTreeData(data=[], groupBy=this.autoGroupBy) {
-      if(!groupBy)
+    groupTreeData(data = [], groupBy = this.autoGroupBy) {
+      if (!groupBy)
         return
       // Clone data
       data = _.cloneDeep(data)
@@ -490,21 +493,21 @@ const TI_TREE = {
 
       // Build map
       let map = {}
-      _.forEach(data, it=>{
+      _.forEach(data, it => {
         let key = it[this.autoGroupIdKey]
-        if(!Ti.Util.isNil(key))
+        if (!Ti.Util.isNil(key))
           map[key] = it
       })
 
       // Group to parent
       // Find the top list (nil value for autoGroupBy)
       let tops = []
-      _.forEach(data, it=>{
+      _.forEach(data, it => {
         let pKey = it[this.autoGroupBy]
         // Group to parent
-        if(!Ti.Util.isNil(pKey)) {
+        if (!Ti.Util.isNil(pKey)) {
           let pIt = map[pKey]
-          if(pIt) {
+          if (pIt) {
             Ti.Util.pushValue(pIt, this.autoGroupTo, it);
           }
           // Join to others
@@ -519,64 +522,64 @@ const TI_TREE = {
       })
 
       // Auto show others
-      if(this.otherGroup && !_.isEmpty(others)) {
+      if (this.otherGroup && !_.isEmpty(others)) {
         let topOther = _.cloneDeep(this.otherGroup)
         _.set(topOther, this.autoGroupTo, others)
         tops.push(topOther)
       }
 
       // done
-      if(!_.isEmpty(tops))
+      if (!_.isEmpty(tops))
         return tops
 
       return data
     },
     //--------------------------------------
     findTableRow(rowId) {
-      if(!Ti.Util.isNil(rowId)) {
-        for(let row of this.myTreeTableData) {
-          if(row.id == rowId) {
+      if (!Ti.Util.isNil(rowId)) {
+        for (let row of this.myTreeTableData) {
+          if (row.id == rowId) {
             return row
           }
         }
       }
     },
     //--------------------------------------
-    OnCellItemChange({name, value, rowId}={}) {
+    OnCellItemChange({ name, value, rowId } = {}) {
       //console.log("OnCellItemChange", {name, value, rowId})
       let row = this.findTableRow(rowId)
-      if(row) {
+      if (row) {
         this.$notify("node:item:change", {
           name,
           value,
-          node   : row,
-          nodeId : rowId,
-          data   : row.rawData
+          node: row,
+          nodeId: rowId,
+          data: row.rawData
         })
       }
     },
     //--------------------------------------
-    OnRowSelect(payload={}) {
-      let current, node, selected=[]
+    OnRowSelect(payload = {}) {
+      let current, node, selected = []
       let {
         currentId,
         checkedIds = {}
       } = payload
-      
+
       // Has selected
-      if(currentId) {
+      if (currentId) {
         let currentRow;
-        for(let row of this.myTreeTableData) {
-          if(row.id == currentId) {
+        for (let row of this.myTreeTableData) {
+          if (row.id == currentId) {
             currentRow = row
             current = row.rawData
           }
-          if(checkedIds[row.id]) {
+          if (checkedIds[row.id]) {
             selected.push(row.rawData)
           }
         }
         // Auto Open
-        if(currentRow && this.autoOpen) {
+        if (currentRow && this.autoOpen) {
           this.openRow(currentRow)
         }
         // Store current Id
@@ -588,8 +591,8 @@ const TI_TREE = {
         this.myCurrentId = null
       }
       // Save local status
-      if(this.keepCurrentBy) {
-        if(!this.puppetMode) {
+      if (this.keepCurrentBy) {
+        if (!this.puppetMode) {
           Ti.Storage.session.set(this.keepCurrentBy, this.myCurrentId)
         }
       }
@@ -602,7 +605,7 @@ const TI_TREE = {
       })
 
       // Callback
-      if(_.isFunction(this.onNodeSelect)) {
+      if (_.isFunction(this.onNodeSelect)) {
         this.onNodeSelect.apply(this, [evtCtxt])
       }
 
@@ -610,10 +613,10 @@ const TI_TREE = {
       this.$notify("select", evtCtxt)
     },
     //--------------------------------------
-    OnRowIconClick({rowId}={}) {
+    OnRowIconClick({ rowId } = {}) {
       let row = this.findTableRow(rowId)
       // Open it
-      if(row && !row.leaf && !row.opened) {
+      if (row && !row.leaf && !row.opened) {
         this.openRow(row)
       }
       // Close it
@@ -622,20 +625,20 @@ const TI_TREE = {
       }
     },
     //--------------------------------------
-    OnRowOpen(payload={}) {
-      let {id} = payload
+    OnRowOpen(payload = {}) {
+      let { id } = payload
       let row = this.findTableRow(id)
-      if(row && !row.leaf && !row.opened) {
+      if (row && !row.leaf && !row.opened) {
         this.openRow(row)
       }
-      return {stop:false}
+      return { stop: false }
     },
     //--------------------------------------
     openRow(rowOrId) {
-      let row = _.isString(rowOrId) 
-                  ? this.findTableRow(rowOrId)
-                  : rowOrId
-      if(row && !row.leaf && !row.opened) {
+      let row = _.isString(rowOrId)
+        ? this.findTableRow(rowOrId)
+        : rowOrId
+      if (row && !row.leaf && !row.opened) {
         this.$set(this.myOpenedNodePaths, row.pathId, true)
         // Notify status changed
         this.$notify("opened", row)
@@ -658,17 +661,17 @@ const TI_TREE = {
     },
     //--------------------------------------
     isOpened(rowOrId) {
-      let row = _.isString(rowOrId) 
-                  ? this.findTableRow(rowOrId)
-                  : rowOrId
+      let row = _.isString(rowOrId)
+        ? this.findTableRow(rowOrId)
+        : rowOrId
       return row ? row.opened : false
     },
     //--------------------------------------
     closeRow(rowOrId) {
-      let row = _.isString(rowOrId) 
-                  ? this.findTableRow(rowOrId)
-                  : rowOrId
-      if(row && !row.leaf && row.opened) {
+      let row = _.isString(rowOrId)
+        ? this.findTableRow(rowOrId)
+        : rowOrId
+      if (row && !row.leaf && row.opened) {
         this.$set(this.myOpenedNodePaths, row.pathId, false)
         // Notify status changed
         this.$notify("closed", row)
@@ -678,7 +681,7 @@ const TI_TREE = {
     },
     //--------------------------------------
     saveNodeOpenStatus() {
-      if(this.keepOpenBy) {
+      if (this.keepOpenBy) {
         Ti.Storage.session.setObject(this.keepOpenBy, this.myOpenedNodePaths)
       }
       this.$notify("opened-status:changed", this.myOpenedNodePaths)
@@ -690,40 +693,40 @@ const TI_TREE = {
     //--------------------------------------
     __ti_shortcut(uniqKey) {
       console.log(uniqKey)
-      if("ARROWLEFT" == uniqKey) {
+      if ("ARROWLEFT" == uniqKey) {
         this.closeRow(this.myCurrentId)
       }
 
-      if("ARROWRIGHT" == uniqKey) {
+      if ("ARROWRIGHT" == uniqKey) {
         this.openRow(this.myCurrentId)
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "data" : async function(newVal, oldVal) {
-      if(!_.isEqual(newVal, oldVal)) {
+  watch: {
+    "data": async function (newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
         await this.evalTreeTableData()
       }
     },
-    "openedNodePaths" : function(newVal, oldVal) {
-      if(!_.isEqual(newVal, oldVal)) {
+    "openedNodePaths": function (newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
         //console.log("tree openedNodePaths changed")
         this.syncOpenedNodePaths()
       }
     }
   },
   //////////////////////////////////////////
-  mounted : async function() {
+  mounted: async function () {
     //.................................
     this.syncOpenedNodePaths()
     //.................................
     // Ti.Dom.watchDocument("mouseup", this.__on_mouseup)
     // Recover the open status from local store
-    if(this.keepOpenBy) {
+    if (this.keepOpenBy) {
       this.myOpenedNodePaths = Ti.Storage.session.getObject(this.keepOpenBy)
-      if(!this.puppetMode) {
+      if (!this.puppetMode) {
         this.$notify("opened-status:changed", this.myOpenedNodePaths)
       }
     }
@@ -732,15 +735,15 @@ const TI_TREE = {
     await this.evalTreeTableData()
     //................................
     // Watch Deep
-    this.$watch("myOpenedNodePaths", ()=>{
+    this.$watch("myOpenedNodePaths", () => {
       this.evalTreeTableData()
-    }, {deep:true})
+    }, { deep: true })
     //................................
     // Recover the current
-    if(this.keepCurrentBy) {
+    if (this.keepCurrentBy) {
       let currentId = Ti.Storage.session.get(this.keepCurrentBy)
-      if(!Ti.Util.isNil(currentId)) {
-        this.$nextTick(()=>{
+      if (!Ti.Util.isNil(currentId)) {
+        this.$nextTick(() => {
           this.$children[0].selectRow(currentId)
         })
       }
@@ -748,7 +751,7 @@ const TI_TREE = {
     //................................
   },
   //////////////////////////////////////////
-  beforeDestroy : function(){
+  beforeDestroy: function () {
     //Ti.Dom.unwatchDocument("mouseup", this.__on_mouseup)
   }
   //////////////////////////////////////////
