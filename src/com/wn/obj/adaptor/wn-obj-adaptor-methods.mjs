@@ -356,6 +356,7 @@ export default {
         continue;
       }
       let link = Wn.Util.getDownloadLink(it)
+      console.log(link, it)
       Ti.Be.OpenLink(link)
     }
   },

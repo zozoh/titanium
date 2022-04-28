@@ -506,12 +506,12 @@ const TiDom = {
   //
   // Closest
   //
-  closest($el, filter) {
-    let $p = $el.parentElement
+  closest($el, filter, { includeSelf = false } = {}) {
+    let $p = includeSelf ? $el : $el.parentElement
     return TiDom.seek($p, filter, el => el.parentElement)
   },
-  closestByTagName($el, tagName) {
-    let $p = $el.parentElement
+  closestByTagName($el, tagName, { includeSelf = false } = {}) {
+    let $p = includeSelf ? $el : $el.parentElement
     return TiDom.seekByTagName($p, tagName, el => el.parentElement)
   },
   parentsUntil($el, selector, setup = {}) {

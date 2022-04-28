@@ -315,21 +315,23 @@ body.mce-content-body {
     cursor: pointer; }
   body.mce-content-body div.ti-tinymce-obj-resize-handler {
     position: absolute;
-    width: 0.2rem;
-    height: 0.2rem;
-    background: #08F; }
+    width: 0.12rem;
+    height: 0.12rem;
+    background: #2196f3;
+    border: 1px solid #FFF;
+    border-radius: 50%; }
     body.mce-content-body div.ti-tinymce-obj-resize-handler.at-nw {
       cursor: nwse-resize;
-      margin: -0.1rem 0 0 -0.1rem; }
+      margin: -0.06rem 0 0 -0.06rem; }
     body.mce-content-body div.ti-tinymce-obj-resize-handler.at-ne {
       cursor: nesw-resize;
-      margin: -0.1rem 0 0 -0.1rem; }
+      margin: -0.06rem 0 0 -0.06rem; }
     body.mce-content-body div.ti-tinymce-obj-resize-handler.at-sw {
       cursor: nesw-resize;
-      margin: -0.1rem 0 0 -0.1rem; }
+      margin: -0.06rem 0 0 -0.06rem; }
     body.mce-content-body div.ti-tinymce-obj-resize-handler.at-se {
       cursor: nwse-resize;
-      margin: -0.1rem 0 0 -0.1rem; }
+      margin: -0.06rem 0 0 -0.06rem; }
   body.mce-content-body span.wn-attachment {
     cursor: pointer;
     display: inline-block; }

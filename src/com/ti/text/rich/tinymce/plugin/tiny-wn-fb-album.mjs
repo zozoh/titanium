@@ -1,26 +1,26 @@
 const ALBUM_PREFIX = "FbAlbum";
 ////////////////////////////////////////////////////
 async function pickFbAlbumAndInsertToDoc(editor, settings) {
-  let {metas} = await settings.load()
-  if(metas.length == 0) {
+  let { metas } = await settings.load()
+  if (metas.length == 0) {
     return await Ti.Toast.Open("i18n:hmk-config-nil", "warn")
   }
 
   // Get the meta
   let meta;
-  if(metas.length > 1) {
+  if (metas.length > 1) {
     let metaId = await Ti.App.Open({
-      title : "i18n:hmk-config-choose",
-      width : 480,
-      height : 480,
-      comType : "TiBulletRadio",
-      comConf : {
-        options : metas
+      title: "i18n:hmk-config-choose",
+      width: 480,
+      height: 480,
+      comType: "TiBulletRadio",
+      comConf: {
+        options: metas
       },
-      components : ["@com:ti/bullet/radio"]
+      components: ["@com:ti/bullet/radio"]
     })
     // User cancel
-    if(!metaId) {
+    if (!metaId) {
       return
     }
     meta = _.find(metas, m => m.id == metaId)
@@ -31,18 +31,18 @@ async function pickFbAlbumAndInsertToDoc(editor, settings) {
   }
   // Check base
   let reo = await Ti.App.Open({
-    icon  : "fas-image",
-    title : "Facebook",
-    position : "top",
-    width  : "95%",
-    height : "95%",
-    comType : "NetFacebookAlbums",
-    comConf : {
-      meta, 
-      ... meta.content,
-      notifyName : "change"
+    icon: "fas-image",
+    title: "Facebook",
+    position: "top",
+    width: "95%",
+    height: "95%",
+    comType: "NetFacebookAlbums",
+    comConf: {
+      meta,
+      ...meta.content,
+      notifyName: "change"
     },
-    components : [
+    components: [
       "@com:net/facebook/albums"
     ]
   })
@@ -50,7 +50,7 @@ async function pickFbAlbumAndInsertToDoc(editor, settings) {
   reo.account = meta.nm
 
   // User canceled
-  if(_.isEmpty(reo)) {
+  if (_.isEmpty(reo)) {
     return
   }
 
@@ -60,26 +60,26 @@ async function pickFbAlbumAndInsertToDoc(editor, settings) {
 //--------------------------------------------------
 function GetAlbumWidget($album) {
   return Ti.Widget.Album.getOrCreate($album, {
-    attrPrefix : "wn-fb-",
-    itemToPhoto : {
-      name  : "=name",
-      link  : "=link",
-      thumb : "=thumb_src",
-      src   : "=src"
+    attrPrefix: "wn-fb-",
+    itemToPhoto: {
+      name: "=name",
+      link: "=link",
+      thumb: "=thumb_src",
+      src: "=src"
     }
   })
 }
 //--------------------------------------------------
 function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
   album, photos, items, force
-}={}) {
+} = {}) {
   //console.log("UpdateFbAlbumTagInnerHtml")
   // Bind widget and get the data
   let AB = GetAlbumWidget($album);
   // If insert new album, the params will be passed
-  if(!album) {
+  if (!album) {
     album = AB.getData()
-    if(force) {
+    if (force) {
       AB.setData(album)
     }
   } else {
@@ -89,30 +89,30 @@ function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
   $album.contentEditable = false
 
   // Explain items to photos
-  if(items) {
+  if (items) {
     photos = AB.covertToPhotos(items)
   }
-  
+
   // Reload photo from remote
-  if(_.isEmpty(photos)) {
+  if (_.isEmpty(photos)) {
     // Get account name
     let accountName = $album.getAttribute("wn-fb-account")
     // Show loading
     AB.showLoading()
 
     // Load and rendering
-    settings.load().then(({data})=>{
+    settings.load().then(({ data }) => {
       // Found the account in data
       let content = data[accountName]
-      let {domain, longLiveAccessToken} = content
+      let { domain, longLiveAccessToken } = content
       // Reload album items
       Wn.FbAlbum.reloadAllPhotoList({
-        albumId : album.id,
+        albumId: album.id,
         domain,
         accountName,
-        access_token : longLiveAccessToken,
+        access_token: longLiveAccessToken,
         force
-      }).then((items)=>{
+      }).then((items) => {
         //console.log(items)
         Ti.Api.Facebook.setObjListPreview(items)
         AB.renderItems(items)
@@ -130,30 +130,30 @@ function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
 }
 ////////////////////////////////////////////////////
 function CmdInsertAlbum(editor, fbAlbum) {
-  if(!fbAlbum)
+  if (!fbAlbum)
     return
-  
+
   // Prepare range
   let rng = editor.selection.getRng()
-  
+
   // Create image fragments
   let $doc = rng.commonAncestorContainer.ownerDocument
   let $album = Ti.Dom.createElement({
-    tagName : "div",
-    attrs : {
-      tiAlbumType : "fb-album",
-      wnFbAccount : fbAlbum.account
+    tagName: "div",
+    attrs: {
+      tiAlbumType: "fb-album",
+      wnFbAccount: fbAlbum.account
     },
-    className : "wn-media as-fb-album"
+    className: "wn-media as-fb-album"
   }, $doc)
 
   // Update INNER HTML
   UpdateFbAlbumTagInnerHtml(editor, $album, editor.wn_facebook_settings, {
-    album : fbAlbum
+    album: fbAlbum
   })
-  
+
   // Remove content
-  if(!rng.collapsed) {
+  if (!rng.collapsed) {
     rng.deleteContents()
   }
 
@@ -165,7 +165,7 @@ function CmdInsertAlbum(editor, fbAlbum) {
 function CmdReloadAlbum(editor, settings) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
-  if(!_.isElement($album)) {
+  if (!_.isElement($album)) {
     return
   }
   // Reload content
@@ -178,15 +178,15 @@ function GetCurrentAlbumElement(editor) {
   let sel = editor.selection
   let $nd = sel.getNode()
   // Guard
-  return Ti.Dom.closest($nd, (el)=>{
+  return Ti.Dom.closest($nd, (el) => {
     return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-fb-album")
-  })
+  }, { includeSelf: true })
 }
 ////////////////////////////////////////////////////
-function CmdSetAlbumStyle(editor, css={}) {
+function CmdSetAlbumStyle(editor, css = {}) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
-  if(!_.isElement($album)) {
+  if (!_.isElement($album)) {
     return
   }
   // Clear float
@@ -198,7 +198,7 @@ function CmdSetAlbumStyle(editor, css={}) {
 async function CmdShowAlbumProp(editor, settings) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
-  if(!_.isElement($album)) {
+  if (!_.isElement($album)) {
     return
   }
   // Gen the properties
@@ -207,28 +207,28 @@ async function CmdShowAlbumProp(editor, settings) {
 
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fab-facebook",
-    title : "i18n:hmk-w-edit-fb-album-prop",
-    width  : "37%",
-    height : "100%",
-    position : "right",
-    closer : "left",
-    clickMaskToClose : true,
-    result : data,
-    model : {prop:"data", event:"change"},
-    comType : "TiForm",
-    comConf : Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
-    components : []
+    icon: "fab-facebook",
+    title: "i18n:hmk-w-edit-fb-album-prop",
+    width: "37%",
+    height: "100%",
+    position: "right",
+    closer: "left",
+    clickMaskToClose: true,
+    result: data,
+    model: { prop: "data", event: "change" },
+    comType: "TiForm",
+    comConf: Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
+    components: []
   })
 
   // 用户取消
-  if(!reo)
+  if (!reo)
     return
 
   //................................................
   let photos = AB.getPhotos()
   UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
-    album:reo, photos
+    album: reo, photos
   })
   //................................................
   // clean cache
@@ -240,51 +240,51 @@ async function CmdShowAlbumProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 export default {
-  name : "wn-fb-album",
+  name: "wn-fb-album",
   //------------------------------------------------
-  init : function(conf={}) {
+  init: function (conf = {}) {
   },
   //------------------------------------------------
-  setup : function(editor, url){
+  setup: function (editor, url) {
     //..............................................
     let settings = _.assign({
-        meta : "~",
-        type : "facebook_albums"
-      }, _.get(editor.settings, "wn_facebook_config"));
+      meta: "~",
+      type: "facebook_albums"
+    }, _.get(editor.settings, "wn_facebook_config"));
     //console.log("setup", editor.settings)
     //..............................................
     // Reload meta content
     // Check meta
-    settings.load = async function(){
-      if(this.data) {
-        return {metas: this.metas, data: this.data}
+    settings.load = async function () {
+      if (this.data) {
+        return { metas: this.metas, data: this.data }
       }
       let oMeta = await Wn.Io.loadMeta(this.meta)
-      if(!oMeta) {
+      if (!oMeta) {
         return await Ti.Toast.Open({
-          content : "i18n:e-ph-noexists",
-          type : "warn",
+          content: "i18n:e-ph-noexists",
+          type: "warn",
           val: this.meta
         })
       }
       // DIR, loading setting map
-      if("DIR" == oMeta.race) {
+      if ("DIR" == oMeta.race) {
         // Query and read
         let cmdText = [
           `o id:${oMeta.id}`,
-            `@query 'tp:"${this.type}"'`,
-            `@read -as json`,
-            `@json -cqn`].join(" ")
-        this.metas = await Wn.Sys.exec2(cmdText, {as:"json"})
+          `@query 'tp:"${this.type}"'`,
+          `@read -as json`,
+          `@json -cqn`].join(" ")
+        this.metas = await Wn.Sys.exec2(cmdText, { as: "json" })
       }
       // FILE, load the single file
       else {
-        oMeta.content = await Wn.Io.loadContent(oMeta, {as:"json"})
+        oMeta.content = await Wn.Io.loadContent(oMeta, { as: "json" })
         this.metas = [oMeta]
       }
 
       // Read long live access token for each meta content
-      for(let o of this.metas) {
+      for (let o of this.metas) {
         let domain = o.content.domain
         let oAK = await Wn.Io.loadMeta(`~/.xapi/facebook/${domain}/long_live_access_token`)
         o.content.longLiveAccessToken = oAK.ticket
@@ -292,19 +292,19 @@ export default {
 
       // Build Album ID data
       this.data = {}
-      _.forEach(this.metas, ({nm, content})=>{
+      _.forEach(this.metas, ({ nm, content }) => {
         this.data[nm] = content
       })
 
-      return {metas: this.metas, data: this.data}
+      return { metas: this.metas, data: this.data }
     }
     editor.wn_facebook_settings = settings
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnFbAlubmPick", {
-      icon : "facebook-square-brands",
-      tooltip : Ti.I18n.text("i18n:album-insert"),
-      onAction : function(menuBtn) {
+      icon: "facebook-square-brands",
+      tooltip: Ti.I18n.text("i18n:album-insert"),
+      onAction: function (menuBtn) {
         pickFbAlbumAndInsertToDoc(editor, settings)
       },
     })
@@ -312,22 +312,22 @@ export default {
     let {
       CMD_SET_STYLE, CMD_RELOAD, CMD_PROP
     } = Ti.Widget.Album.registryTinyMceMenuItem(editor, {
-      prefix : ALBUM_PREFIX,
+      prefix: ALBUM_PREFIX,
       settings,
       GetCurrentAlbumElement
     })
     //..............................................
     // Register plugin command
     editor.addCommand("InsertFbAlbum", CmdInsertAlbum)
-    editor.addCommand(CMD_SET_STYLE,   CmdSetAlbumStyle)
-    editor.addCommand(CMD_RELOAD,      CmdReloadAlbum)
-    editor.addCommand(CMD_PROP,        CmdShowAlbumProp)
+    editor.addCommand(CMD_SET_STYLE, CmdSetAlbumStyle)
+    editor.addCommand(CMD_RELOAD, CmdReloadAlbum)
+    editor.addCommand(CMD_PROP, CmdShowAlbumProp)
     //..............................................
     let $vm = editor.__rich_tinymce_com
-    $vm.registerContentCallback("wn-fb-album", function() {
+    $vm.registerContentCallback("wn-fb-album", function () {
       //console.log("SetContent facebook")
       let els = editor.$('.wn-media.as-fb-album')
-      for(let i=0; i<els.length; i++) {
+      for (let i = 0; i < els.length; i++) {
         let el = els[i]
         UpdateFbAlbumTagInnerHtml(editor, el, settings)
       }
@@ -335,7 +335,7 @@ export default {
     //..............................................
     return {
       getMetadata: function () {
-        return  {
+        return {
           name: 'Wn Facebook Album plugin',
           url: 'http://site0.cn'
         };

@@ -1,4 +1,4 @@
-// Pack At: 2022-04-28 10:10:38
+// Pack At: 2022-04-29 02:17:17
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4814,12 +4814,12 @@ const {Dom} = (function(){
     //
     // Closest
     //
-    closest($el, filter) {
-      let $p = $el.parentElement
+    closest($el, filter, { includeSelf = false } = {}) {
+      let $p = includeSelf ? $el : $el.parentElement
       return TiDom.seek($p, filter, el => el.parentElement)
     },
-    closestByTagName($el, tagName) {
-      let $p = $el.parentElement
+    closestByTagName($el, tagName, { includeSelf = false } = {}) {
+      let $p = includeSelf ? $el : $el.parentElement
       return TiDom.seekByTagName($p, tagName, el => el.parentElement)
     },
     parentsUntil($el, selector, setup = {}) {
@@ -18357,7 +18357,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220428.101038",
+  "version" : "1.6-20220429.021717",
   "dev" : false,
   "appName" : null,
   "session" : {},

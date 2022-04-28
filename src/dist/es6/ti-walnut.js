@@ -1,4 +1,4 @@
-// Pack At: 2022-04-28 10:10:38
+// Pack At: 2022-04-29 02:17:17
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -3062,7 +3062,7 @@ const OpenObjSelector = (function(){
           :schema="TheSchema"
           :shown="myShown"
           :can-loading="true"
-          :loading-as="status.reloading"
+          :loading="status.reloading"
           @item:active="OnCurrentMetaChange"
           @arena::open:wn:obj="OnCurrentMetaChange"
           @arena::select="OnArenaSelect"/>`,
@@ -4295,7 +4295,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220428.101039"
+const WALNUT_VERSION = "1.2-20220429.021717"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

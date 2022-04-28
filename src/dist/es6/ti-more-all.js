@@ -1,4 +1,4 @@
-// Pack At: 2022-04-28 10:10:38
+// Pack At: 2022-04-29 02:17:17
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5903,15 +5903,15 @@ async function pickYtPlaylistAndInsertToDoc(editor, settings) {
   let playlists = await settings.loadPlaylists()
 
   // format
-  let items = _.map(playlists, pl=>{
+  let items = _.map(playlists, pl => {
     return {
       id: pl.id, title: pl.title, preview: pl.thumbUrl,
-      badges : {
-        NW : "fab-youtube-square",
-        SE : {
-          type : "text",
-          className : "bchc-badge as-label as-year",
-          value : pl.itemCount
+      badges: {
+        NW: "fab-youtube-square",
+        SE: {
+          type: "text",
+          className: "bchc-badge as-label as-year",
+          value: pl.itemCount
         }
       }
     }
@@ -5919,32 +5919,32 @@ async function pickYtPlaylistAndInsertToDoc(editor, settings) {
 
   // Check base
   let reo = await Ti.App.Open({
-    icon  : "fab-youtube-square",
-    title : "i18n:net-youtube-add-playlist",
-    position : "top",
-    width  : "95%",
-    height : "95%",
-    model : {event:"select"},
-    comType : "TiWall",
-    comConf : {
+    icon: "fab-youtube-square",
+    title: "i18n:net-youtube-add-playlist",
+    position: "top",
+    width: "95%",
+    height: "95%",
+    model: { event: "select" },
+    comType: "TiWall",
+    comConf: {
       data: items,
       idBy: "id",
       multi: false,
       display: {
-        key : "..",
-        comType : "ti-obj-thumb",
-        comConf : {
-          "..." : "${=..}"
+        key: "..",
+        comType: "ti-obj-thumb",
+        comConf: {
+          "...": "${=..}"
         }
       }
     },
-    components : [
+    components: [
       "@com:ti/wall"
     ]
   })
 
   // User canceled
-  if(_.isEmpty(reo) || !reo.current) {
+  if (_.isEmpty(reo) || !reo.current) {
     return
   }
   //console.log("YTPlaylist", reo.current)
@@ -5954,25 +5954,25 @@ async function pickYtPlaylistAndInsertToDoc(editor, settings) {
 //--------------------------------------------------
 function GetAlbumWidget($album) {
   return Ti.Widget.Album.getOrCreate($album, {
-    attrPrefix : "wn-ytpl-",
-    itemToPhoto : {
-      name  : "=title",
-      link  : "->https://www.youtube.com/watch?v=${id}",
-      thumb : "=thumbUrl",
-      src   : "=coverUrl",
-      brief : "=description",
+    attrPrefix: "wn-ytpl-",
+    itemToPhoto: {
+      name: "=title",
+      link: "->https://www.youtube.com/watch?v=${id}",
+      thumb: "=thumbUrl",
+      src: "=coverUrl",
+      brief: "=description",
     }
   })
 }
 //--------------------------------------------------
 function UpdateYtPlaylistTagInnerHtml(editor, $album, settings, {
   album, photos, items
-}={}) {
+} = {}) {
   console.log("UpdateYtPlaylistTagInnerHtml")
   // Bind widget and get the data
   let AB = GetAlbumWidget($album);
   // If insert new album, the params will be passed
-  if(!album) {
+  if (!album) {
     album = AB.getData()
   } else {
     AB.setData(album)
@@ -5981,18 +5981,18 @@ function UpdateYtPlaylistTagInnerHtml(editor, $album, settings, {
   $album.contentEditable = false
 
   // Explain items to photos
-  if(items) {
+  if (items) {
     photos = AB.covertToPhotos(items)
   }
-  
+
   // Reload photo from remote
-  if(_.isEmpty(photos)) {
+  if (_.isEmpty(photos)) {
     // Show loading
     AB.showLoading()
 
     // Load and rendering
     //console.log("YTPL:: setting.load")
-    settings.loadVideos(album).then((data)=>{
+    settings.loadVideos(album).then((data) => {
       //console.log("load PL videos", data)
       AB.renderItems(data)
       // Force sync content
@@ -6008,29 +6008,29 @@ function UpdateYtPlaylistTagInnerHtml(editor, $album, settings, {
 }
 ////////////////////////////////////////////////////
 function CmdInsertAlbum(editor, ytPlaylist) {
-  if(!ytPlaylist)
+  if (!ytPlaylist)
     return
-  
+
   // Prepare range
   let rng = editor.selection.getRng()
-  
+
   // Create image fragments
   let $doc = rng.commonAncestorContainer.ownerDocument
   let $album = Ti.Dom.createElement({
-    tagName : "div",
-    attrs : {
-      tiAlbumType : "yt-playlist"
+    tagName: "div",
+    attrs: {
+      tiAlbumType: "yt-playlist"
     },
-    className : "wn-media as-yt-playlist"
+    className: "wn-media as-yt-playlist"
   }, $doc)
 
   // Update INNER HTML
   UpdateYtPlaylistTagInnerHtml(editor, $album, editor.wn_yt_playlist_settings, {
-    album : ytPlaylist
+    album: ytPlaylist
   })
-  
+
   // Remove content
-  if(!rng.collapsed) {
+  if (!rng.collapsed) {
     rng.deleteContents()
   }
 
@@ -6042,7 +6042,7 @@ function CmdInsertAlbum(editor, ytPlaylist) {
 function CmdReloadAlbum(editor, settings) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
-  if(!_.isElement($album)) {
+  if (!_.isElement($album)) {
     return
   }
   // Reload content
@@ -6053,15 +6053,15 @@ function GetCurrentAlbumElement(editor) {
   let sel = editor.selection
   let $nd = sel.getNode()
   // Guard
-  return Ti.Dom.closest($nd, (el)=>{
+  return Ti.Dom.closest($nd, (el) => {
     return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-yt-playlist")
-  })
+  }, { includeSelf: true })
 }
 ////////////////////////////////////////////////////
-function CmdSetAlbumStyle(editor, css={}) {
+function CmdSetAlbumStyle(editor, css = {}) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
-  if(!_.isElement($album)) {
+  if (!_.isElement($album)) {
     return
   }
   // Clear float
@@ -6073,7 +6073,7 @@ function CmdSetAlbumStyle(editor, css={}) {
 async function CmdShowAlbumProp(editor, settings) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
-  if(!_.isElement($album)) {
+  if (!_.isElement($album)) {
     return
   }
   // Gen the properties
@@ -6083,29 +6083,29 @@ async function CmdShowAlbumProp(editor, settings) {
 
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fab-youtube-square",
-    title : "i18n:hmk-w-edit-yt-playlist",
-    width  : "37%",
-    height : "100%",
-    position : "right",
-    closer : "left",
-    clickMaskToClose : true,
-    result : data,
-    model : {prop:"data", event:"change"},
-    comType : "TiForm",
-    comConf : Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
-    components : []
+    icon: "fab-youtube-square",
+    title: "i18n:hmk-w-edit-yt-playlist",
+    width: "37%",
+    height: "100%",
+    position: "right",
+    closer: "left",
+    clickMaskToClose: true,
+    result: data,
+    model: { prop: "data", event: "change" },
+    comType: "TiForm",
+    comConf: Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
+    components: []
   })
   //console.log(reo)
 
   // 用户取消
-  if(!reo)
+  if (!reo)
     return
 
   //................................................
   let photos = AB.getPhotos()
   UpdateYtPlaylistTagInnerHtml(editor, $album, settings, {
-    album:reo, photos
+    album: reo, photos
   })
   //................................................
   // clean cache
@@ -6117,45 +6117,45 @@ async function CmdShowAlbumProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
-  name : "wn-yt-playlists",
+  name: "wn-yt-playlists",
   //------------------------------------------------
-  init : function(conf={}) {
+  init: function (conf = {}) {
   },
   //------------------------------------------------
-  setup : function(editor, url){
+  setup: function (editor, url) {
     //..............................................
     let settings = _.assign({
-      meta : "~"
+      meta: "~"
     }, _.get(editor.settings, "wn_yt_playlist_config"));
     //console.log("setup", editor.settings)
     //..............................................
     // Reload meta content
-    settings.loadVideos = async function({id}){
-      if(!this.config) {
+    settings.loadVideos = async function ({ id }) {
+      if (!this.config) {
         await this.loadConfig()
       }
       return await Wn.Youtube.getAllVideos(this.config, id)
     }
     //..............................................
-    settings.loadConfig = async function(){
+    settings.loadConfig = async function () {
       let oMeta = await Wn.Io.loadMeta(this.meta)
-      if(!oMeta) {
+      if (!oMeta) {
         return await Ti.Toast.Open({
-          content : "i18n:e-ph-noexists",
-          type : "warn",
+          content: "i18n:e-ph-noexists",
+          type: "warn",
           val: meta
         })
       }
-      if(oMeta.race != "FILE") {
+      if (oMeta.race != "FILE") {
         return await Ti.Toast.Open({
-          content : "i18n:e-obj-invalid",
-          type : "warn",
+          content: "i18n:e-obj-invalid",
+          type: "warn",
           val: meta
         })
       }
 
       // Load playlists
-      let {domain, channelId} = await Wn.Io.loadContent(oMeta, {as:"json"})
+      let { domain, channelId } = await Wn.Io.loadContent(oMeta, { as: "json" })
       this.domain = domain
       this.channelId = channelId
       this.config = await Wn.Youtube.loadConfig({
@@ -6164,9 +6164,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return this.config
     }
     //..............................................
-    settings.loadPlaylists = async function(){
+    settings.loadPlaylists = async function () {
       // Loaded already!
-      if(!this.config) {
+      if (!this.config) {
         await this.loadConfig()
       }
       return await Wn.Youtube.getAllPlaylists(this.config)
@@ -6176,9 +6176,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnYtPlaylistPick", {
-      icon : "youtube-square-brands",
-      tooltip : Ti.I18n.text("i18n:album-insert"),
-      onAction : function(menuBtn) {
+      icon: "youtube-square-brands",
+      tooltip: Ti.I18n.text("i18n:album-insert"),
+      onAction: function (menuBtn) {
         pickYtPlaylistAndInsertToDoc(editor, settings)
       },
     })
@@ -6186,21 +6186,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
     let {
       CMD_SET_STYLE, CMD_RELOAD, CMD_PROP
     } = Ti.Widget.Album.registryTinyMceMenuItem(editor, {
-      prefix : ALBUM_PREFIX,
+      prefix: ALBUM_PREFIX,
       settings,
       GetCurrentAlbumElement
     })
     //..............................................
     // Register plugin command
     editor.addCommand("InsertYtPlaylist", CmdInsertAlbum)
-    editor.addCommand(CMD_SET_STYLE,   CmdSetAlbumStyle)
-    editor.addCommand(CMD_RELOAD,      CmdReloadAlbum)
-    editor.addCommand(CMD_PROP,        CmdShowAlbumProp)
+    editor.addCommand(CMD_SET_STYLE, CmdSetAlbumStyle)
+    editor.addCommand(CMD_RELOAD, CmdReloadAlbum)
+    editor.addCommand(CMD_PROP, CmdShowAlbumProp)
     //..............................................
     let $vm = editor.__rich_tinymce_com
-    $vm.registerContentCallback("wn-yt-playlists", function() {
+    $vm.registerContentCallback("wn-yt-playlists", function () {
       let els = editor.$('.wn-media.as-yt-playlist')
-      for(let i=0; i<els.length; i++) {
+      for (let i = 0; i < els.length; i++) {
         let el = els[i]
         UpdateYtPlaylistTagInnerHtml(editor, el, settings)
       }
@@ -6208,7 +6208,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     return {
       getMetadata: function () {
-        return  {
+        return {
           name: 'Wn Youtube playlist plugin',
           url: 'http://site0.cn'
         };
@@ -12805,39 +12805,39 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-web-image.mjs'] = (function(){
 ////////////////////////////////////////////////////
 async function pickWebImageAndInsertToDoc(editor, {
-  base = "~", 
-  autoCreate=null, 
+  base = "~",
+  autoCreate = null,
   fallbackPath,
 }) {
   // Check base
-  if(_.isPlainObject(autoCreate)) {
+  if (_.isPlainObject(autoCreate)) {
     let oBase = await Wn.Io.loadMeta(base)
-    if(!oBase) {
+    if (!oBase) {
       let pph = Ti.Util.getParentPath(base)
       let dnm = Ti.Util.getFileName(base)
       let baseMeta = _.assign({}, autoCreate, {
-        race: 'DIR', nm : dnm
+        race: 'DIR', nm: dnm
       })
       let baseJson = JSON.stringify(baseMeta)
       let cmdText = `o @create '${baseJson}' -p ${pph} -auto @json -cqn`
-      oBase = await Wn.Sys.exec2(cmdText, {as:"json"})
+      oBase = await Wn.Sys.exec2(cmdText, { as: "json" })
     }
     base = oBase
   }
 
   // Show dialog
   let reo = await Wn.OpenObjSelector(base, {
-    icon  : "fas-image",
-    title : "i18n:img-insert",
-    position : "top",
-    width  : "95%",
-    height : "95%",
-    multi : false,
+    icon: "fas-image",
+    title: "i18n:img-insert",
+    position: "top",
+    width: "95%",
+    height: "95%",
+    multi: false,
     fallbackPath
   })
 
   // User canceled
-  if(_.isEmpty(reo)) {
+  if (_.isEmpty(reo)) {
     return
   }
 
@@ -12846,19 +12846,21 @@ async function pickWebImageAndInsertToDoc(editor, {
 }
 ////////////////////////////////////////////////////
 function GetElContext(el) {
-  if(_.isElement(el)) {
-    let con = Ti.Dom.closest(el, p=>Ti.Dom.hasClass(p, "as-image-con"))
-    if(!con) {
+  if (_.isElement(el)) {
+    let con = Ti.Dom.closest(el, p => {
+      return Ti.Dom.hasClass(p, "as-image-con")
+    }, { includeSelf: true })
+    if (!con) {
       return {
-        con : el,
-        img : el
+        con: el,
+        img: el
       }
     }
     else {
       return {
-        con : con,
-        img : Ti.Dom.find("img", con),
-        alt : Ti.Dom.find("span.as-img-alt", con),
+        con: con,
+        img: Ti.Dom.find("img", con),
+        alt: Ti.Dom.find("span.as-img-alt", con),
       }
     }
   }
@@ -12867,13 +12869,13 @@ function GetElContext(el) {
 ////////////////////////////////////////////////////
 function GetWebImageDataByElement(elOrCtx) {
   let IMC = GetElContext(elOrCtx)
-  let {img, con} = IMC
+  let { img, con } = IMC
   //
   // Read from $img
   //
-  let obj = Ti.Dom.attrs(img, name=>{
+  let obj = Ti.Dom.attrs(img, name => {
     let m = /^(wn-obj-)(.+)$/.exec(name)
-    if(m) {
+    if (m) {
       return _.camelCase(m[2])
     }
   })
@@ -12883,8 +12885,8 @@ function GetWebImageDataByElement(elOrCtx) {
   //
   // Read style
   //
-  obj.imgStyle = _.assign({}, 
-    Ti.Dom.getOwnStyle(IMC.con), 
+  obj.imgStyle = _.assign({},
+    Ti.Dom.getOwnStyle(IMC.con),
     Ti.Dom.getOwnStyle(IMC.img))
   obj.altStyle = Ti.Dom.getOwnStyle(IMC.alt)
   //
@@ -12894,8 +12896,8 @@ function GetWebImageDataByElement(elOrCtx) {
 }
 ////////////////////////////////////////////////////
 function FormatWebImageObjData(obj) {
-  return _.pick(obj, 
-    "id","sha1","title","link","newtab","mime","tp","width","height",
+  return _.pick(obj,
+    "id", "sha1", "title", "link", "newtab", "mime", "tp", "width", "height",
     "imgStyle", "altStyle")
 }
 ////////////////////////////////////////////////////
@@ -12907,16 +12909,16 @@ const OUTER_STYLE_NAMES = [
 ////////////////////////////////////////////////////
 function UpdateWebImageStyle(editor, el, data) {
   let IMC = GetElContext(el)
-  let {con, img, alt} = IMC
+  let { con, img, alt } = IMC
   //console.log(IMC)
   // Set data to element
-  if(data) {
+  if (data) {
     let attrs = FormatWebImageObjData(data)
     attrs.imgStyle = null
     attrs.altStyle = null
     //
     // Update top element
-    let {link, newtab} = attrs
+    let { link, newtab } = attrs
     Ti.Dom.setAttrs(con, {
       href: link || null,
       target: newtab ? "_blank" : null
@@ -12943,46 +12945,48 @@ function UpdateWebImageStyle(editor, el, data) {
   imgStyle = Ti.Css.renderCssRule(imgStyle)
   //............................................
   // Wrap image by span
-  if(con == img && "IMG" == con.tagName) {
-    if(!Ti.Dom.closest(con, $con => Ti.Dom.hasClass($con, "as-image-con"))) {
+  if (con == img && "IMG" == con.tagName) {
+    if (!Ti.Dom.closest(con, $con => {
+      return Ti.Dom.hasClass($con, "as-image-con")
+    }, { includeSelf: true })) {
       let $con = Ti.Dom.createElement({
-        tagName : "a",
-        className : "wn-media as-image-con"
+        tagName: "a",
+        className: "wn-media as-image-con"
       })
       Ti.Dom.wrap(con, $con)
       con = $con
     }
   }
   //............................................
-  if(img) {
+  if (img) {
     img.style = imgStyle
     Ti.Dom.setAttrs(img, {
-      "ti-resize-target" : null
+      "ti-resize-target": null
     })
   }
   //............................................
-  if(alt) {
-    if(!data.title || Ti.S.isBlank(data.title)) {
+  if (alt) {
+    if (!data.title || Ti.S.isBlank(data.title)) {
       Ti.Dom.remove(alt)
     } else {
       alt.style = altStyle
       alt.innerText = data.title || ""
     }
-  } else if(data.title && !Ti.S.isBlank(data.title)) {
+  } else if (data.title && !Ti.S.isBlank(data.title)) {
     alt = Ti.Dom.createElement({
-      $p : con,
-      tagName : "span",
-      className : "as-img-alt",
+      $p: con,
+      tagName: "span",
+      className: "as-img-alt",
     })
     alt.style = altStyle
     alt.innerText = data.title || ""
   }
   //............................................
-  if(con) {
+  if (con) {
     con.style = conStyle
     con.contentEditable = false
     Ti.Dom.setAttrs(con, {
-      "ti-tinymce-obj-resizable" : "style"
+      "ti-tinymce-obj-resizable": "style"
     })
     // Update resize handler
     editor.__rich_tinymce_com.redrawResizeHandler(con)
@@ -12990,39 +12994,39 @@ function UpdateWebImageStyle(editor, el, data) {
 }
 ////////////////////////////////////////////////////
 function CmdInsertWebImage(editor, oImgs) {
-  if(_.isEmpty(oImgs))
+  if (_.isEmpty(oImgs))
     return
-  
+
   // Prepare range
   let rng = editor.selection.getRng()
-  
+
   // Create image fragments
   let $doc = rng.commonAncestorContainer.ownerDocument
   let frag = new DocumentFragment()
-  for(let oImg of oImgs) {
+  for (let oImg of oImgs) {
     let $con = Ti.Dom.createElement({
-      tagName : "a",
-      className : "wn-media as-image-con"
+      tagName: "a",
+      className: "wn-media as-image-con"
     })
     $con.contentEditable = false
     let $img = Ti.Dom.createElement({
-      $p : $con,
-      tagName : "img",
-      className : "wn-media as-image",
-      attrs : {
-        src : `/o/content?str=id:${oImg.id}`
+      $p: $con,
+      tagName: "img",
+      className: "wn-media as-image",
+      attrs: {
+        src: `/o/content?str=id:${oImg.id}`
       }
     }, $doc)
     Ti.Dom.setAttrs($img, FormatWebImageObjData(oImg), "wn-obj-")
-    
+
     frag.appendChild($con)
 
     // Update style
     UpdateWebImageStyle(editor, $con)
   }
-  
+
   // Remove content
-  if(!rng.collapsed) {
+  if (!rng.collapsed) {
     rng.deleteContents()
   }
 
@@ -13034,28 +13038,28 @@ function GetCurrentWebImageElement(editor) {
   let sel = editor.selection
   let $nd = sel.getNode()
   // Guard
-  return Ti.Dom.closest($nd, (el)=>{
-    if(Ti.Dom.hasClass(el, "wn-media", "as-image-con")) {
+  return Ti.Dom.closest($nd, (el) => {
+    if (Ti.Dom.hasClass(el, "wn-media", "as-image-con")) {
       return true
     }
-    if("IMG" == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-image")) {
+    if ("IMG" == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-image")) {
       return true
     }
-  })
+  }, { includeSelf: true })
 }
 ////////////////////////////////////////////////////
-function CmdSetWebImageStyle(editor, css={}) {
+function CmdSetWebImageStyle(editor, css = {}) {
   let $con = GetCurrentWebImageElement(editor)
   let IMC = GetElContext($con)
   // Guard
-  if(!_.isElement($con)) {
+  if (!_.isElement($con)) {
     return
   }
   // Save to element
   let data = GetWebImageDataByElement(IMC)
   data.imgStyle = _.assign({}, data.imgStyle, css)
   UpdateWebImageStyle(editor, IMC, data)
-  
+
   // Force sync content
   editor.__rich_tinymce_com.syncContent()
 }
@@ -13064,7 +13068,7 @@ async function CmdShowWebImageProp(editor, settings) {
   let $img = GetCurrentWebImageElement(editor)
   let IMC = GetElContext($img)
   // Guard
-  if(!_.isElement($img)) {
+  if (!_.isElement($img)) {
     return
   }
   // Get margin style
@@ -13077,97 +13081,97 @@ async function CmdShowWebImageProp(editor, settings) {
 
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fas-image",
-    title : "i18n:hmk-w-edit-img-prop",
-    width  : "37%",
-    height : "100%",
-    position : "right",
-    closer : "left",
-    clickMaskToClose : true,
-    result : data,
-    model : {prop:"data", event:"change"},
-    comType : "TiForm",
-    comConf : {
-      onlyFields : false,
-      spacing : "tiny",
-      fields : [{
-        title : "i18n:hmk-w-edit-img-info",
+    icon: "fas-image",
+    title: "i18n:hmk-w-edit-img-prop",
+    width: "37%",
+    height: "100%",
+    position: "right",
+    closer: "left",
+    clickMaskToClose: true,
+    result: data,
+    model: { prop: "data", event: "change" },
+    comType: "TiForm",
+    comConf: {
+      onlyFields: false,
+      spacing: "tiny",
+      fields: [{
+        title: "i18n:hmk-w-edit-img-info",
         fields: [{
-            title : "i18n:hmk-w-edit-img-pic",
-            name  : "id",
-            comType : "WnObjPicker",
-            comConf : {
-              valueType : "id",
-              base : settings.base,
-              titleEditable : false
-            }
-          }, {
-            title : "i18n:hmk-w-edit-img-title",
-            name  : "title",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "i18n:hmk-w-edit-img-title-tip"
-            }
-          }, {
-            title : "i18n:hmk-w-edit-img-link",
-            name  : "link",
-            comType : "TiInput",
-            comConf : {
-              placeholder : "i18n:hmk-w-edit-img-link-tip"
-            }
-          }, {
-            title : "i18n:hmk-w-edit-img-newtab",
-            name  : "newtab",
-            type  : "Boolean",
-            comType : "TiToggle"
-          }]
-      }, {
-        title : "i18n:hmk-aspect",
-        fields : [
-          Wn.Hm.getCssPropField("margin",{name:"imgStyle.margin"}),
-            Wn.Hm.getCssPropField("width",{name:"imgStyle.width"}),
-            Wn.Hm.getCssPropField("height",{name:"imgStyle.height"}),
-            Wn.Hm.getCssPropField("float",{name:"imgStyle.float"}),
-            Wn.Hm.getCssPropField("object-fit",{name:"imgStyle.objectFit"}),
-          ]
-      }, {
-        title : "i18n:hmk-aspect-more",
-        fields : [{
-            title : "i18n:hmk-w-edit-img-style",
-            name  : "imgStyle",
-            type  : "Object",
-            emptyAs : null,
-            comType : "HmPropCssRules",
-            comConf : {
-              rules : "#IMG"
-            }
-          }, {
-            title : "i18n:hmk-w-edit-alt-style",
-            name  : "altStyle",
-            type  : "Object",
-            emptyAs : null,
-            comType : "HmPropCssRules",
-            comConf : {
-              rules : "#TEXT-BLOCK"
-            }
-          }]
+          title: "i18n:hmk-w-edit-img-pic",
+          name: "id",
+          comType: "WnObjPicker",
+          comConf: {
+            valueType: "id",
+            base: settings.base,
+            titleEditable: false
+          }
+        }, {
+          title: "i18n:hmk-w-edit-img-title",
+          name: "title",
+          comType: "TiInput",
+          comConf: {
+            placeholder: "i18n:hmk-w-edit-img-title-tip"
+          }
+        }, {
+          title: "i18n:hmk-w-edit-img-link",
+          name: "link",
+          comType: "TiInput",
+          comConf: {
+            placeholder: "i18n:hmk-w-edit-img-link-tip"
+          }
+        }, {
+          title: "i18n:hmk-w-edit-img-newtab",
+          name: "newtab",
+          type: "Boolean",
+          comType: "TiToggle"
         }]
+      }, {
+        title: "i18n:hmk-aspect",
+        fields: [
+          Wn.Hm.getCssPropField("margin", { name: "imgStyle.margin" }),
+          Wn.Hm.getCssPropField("width", { name: "imgStyle.width" }),
+          Wn.Hm.getCssPropField("height", { name: "imgStyle.height" }),
+          Wn.Hm.getCssPropField("float", { name: "imgStyle.float" }),
+          Wn.Hm.getCssPropField("object-fit", { name: "imgStyle.objectFit" }),
+        ]
+      }, {
+        title: "i18n:hmk-aspect-more",
+        fields: [{
+          title: "i18n:hmk-w-edit-img-style",
+          name: "imgStyle",
+          type: "Object",
+          emptyAs: null,
+          comType: "HmPropCssRules",
+          comConf: {
+            rules: "#IMG"
+          }
+        }, {
+          title: "i18n:hmk-w-edit-alt-style",
+          name: "altStyle",
+          type: "Object",
+          emptyAs: null,
+          comType: "HmPropCssRules",
+          comConf: {
+            rules: "#TEXT-BLOCK"
+          }
+        }]
+      }]
     },
-    components : [
+    components: [
       "@com:wn/obj/picker"
     ]
   })
 
   // 用户取消
-  if(!reo)
+  if (!reo)
     return
 
   // Update image
   //................................................
   // src
-  if(data.id != reo.id) {
+  if (data.id != reo.id) {
     // Remove Image
-    if(!reo.id) {
+    if (!reo.id) {
       Ti.Dom.remove(IMC.con)
       return
     }
@@ -13192,35 +13196,35 @@ async function CmdShowWebImageProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
-  name : "wn-web-image",
+  name: "wn-web-image",
   //------------------------------------------------
-  init : function(conf={}) {
+  init: function (conf = {}) {
   },
   //------------------------------------------------
-  setup : function(editor, url){
+  setup: function (editor, url) {
     //..............................................
     let settings = _.assign({
-        base : "~"
-      }, _.get(editor.settings, "wn_web_image_config"));
+      base: "~"
+    }, _.get(editor.settings, "wn_web_image_config"));
     //console.log("setup", editor.settings)
     //..............................................
     // Register plugin command
-    editor.addCommand("InsertWebImage",   CmdInsertWebImage)
+    editor.addCommand("InsertWebImage", CmdInsertWebImage)
     editor.addCommand("SetWebImageStyle", CmdSetWebImageStyle)
     editor.addCommand("ShowWebImageProp", CmdShowWebImageProp)
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnWebImgPick", {
-      icon : "image",
-      tooltip : Ti.I18n.text("i18n:img-insert"),
-      onAction : function(menuBtn) {
+      icon: "image",
+      tooltip: Ti.I18n.text("i18n:img-insert"),
+      onAction: function (menuBtn) {
         pickWebImageAndInsertToDoc(editor, settings)
       },
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnWebImgClrSize", {
-      icon : "edit-image",
-      text : Ti.I18n.text("i18n:hmk-w-edit-img-clrsz"),
+      icon: "edit-image",
+      text: Ti.I18n.text("i18n:hmk-w-edit-img-clrsz"),
       onAction() {
         editor.execCommand("SetWebImageStyle", editor, {
           width: "", height: "",
@@ -13231,7 +13235,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnWebImgAutoFitWidth", {
-      text : Ti.I18n.text("i18n:hmk-autofit"),
+      text: Ti.I18n.text("i18n:hmk-autofit"),
       onAction() {
         editor.execCommand("SetWebImageStyle", editor, {
           width: "100%", height: "",
@@ -13243,14 +13247,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnWebImgAutoScaleByWidth", {
-      text : Ti.I18n.text("i18n:hmk-autoscale"),
+      text: Ti.I18n.text("i18n:hmk-autoscale"),
       onAction() {
         let $con = GetCurrentWebImageElement(editor)
         let IMC = GetElContext($con)
-        let scale = IMC.img.naturalWidth  / IMC.img.naturalHeight
-        let {width, height} = Ti.Rects.createBy(IMC.img)
+        let scale = IMC.img.naturalWidth / IMC.img.naturalHeight
+        let { width, height } = Ti.Rects.createBy(IMC.img)
         height = Math.round(width / scale)
-        
+
         editor.execCommand("SetWebImageStyle", editor, {
           width, height,
           margin: "",
@@ -13261,84 +13265,84 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnWebImgFloat', {
-      text : Ti.I18n.text("i18n:hmk-float"),
+      text: Ti.I18n.text("i18n:hmk-float"),
       getSubmenuItems: function () {
         return [{
-          type : "menuitem",
-          icon : "align-left",
-          text : Ti.I18n.text("i18n:hmk-float-left"),
+          type: "menuitem",
+          icon: "align-left",
+          text: Ti.I18n.text("i18n:hmk-float-left"),
           onAction() {
-            editor.execCommand("SetWebImageStyle", editor, {float:"left"})
+            editor.execCommand("SetWebImageStyle", editor, { float: "left" })
           }
         }, {
-          type : "menuitem",
-          icon : "align-right",
-          text : Ti.I18n.text("i18n:hmk-float-right"),
+          type: "menuitem",
+          icon: "align-right",
+          text: Ti.I18n.text("i18n:hmk-float-right"),
           onAction() {
-            editor.execCommand("SetWebImageStyle", editor, {float:"right"})
+            editor.execCommand("SetWebImageStyle", editor, { float: "right" })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("i18n:hmk-float-clear"),
+          type: "menuitem",
+          text: Ti.I18n.text("i18n:hmk-float-clear"),
           onAction() {
-            editor.execCommand("SetWebImageStyle", editor, {float:""})
+            editor.execCommand("SetWebImageStyle", editor, { float: "" })
           }
         }];
       }
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnWebImgMargin', {
-      text : Ti.I18n.text("i18n:hmk-w-edit-img-margin"),
+      text: Ti.I18n.text("i18n:hmk-w-edit-img-margin"),
       getSubmenuItems: function () {
-        const __check_margin_size = function(api, expectSize) {
+        const __check_margin_size = function (api, expectSize) {
           let $img = GetCurrentWebImageElement(editor)
           let IMC = GetElContext($img)
           let state = true
-          if(IMC.con) {
+          if (IMC.con) {
             state = (expectSize == IMC.con.style.margin)
           }
           api.setActive(state);
-          return function() {};
+          return function () { };
         }
         return [{
-          type : "togglemenuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-sm"),
+          type: "togglemenuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-sm"),
           onAction() {
-            editor.execCommand("SetWebImageStyle", editor, {margin:"1em"})
+            editor.execCommand("SetWebImageStyle", editor, { margin: "1em" })
           },
-          onSetup: function(api) {
+          onSetup: function (api) {
             return __check_margin_size(api, '1em')
           }
         }, {
-          type : "togglemenuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-md"),
+          type: "togglemenuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-md"),
           onAction() {
-            editor.execCommand("SetWebImageStyle", editor, {margin:"2em"})
+            editor.execCommand("SetWebImageStyle", editor, { margin: "2em" })
           },
-          onSetup: function(api) {
+          onSetup: function (api) {
             return __check_margin_size(api, '2em')
           }
         }, {
-          type : "togglemenuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-lg"),
+          type: "togglemenuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-lg"),
           onAction() {
-            editor.execCommand("SetWebImageStyle", editor, {margin:"3em"})
+            editor.execCommand("SetWebImageStyle", editor, { margin: "3em" })
           },
-          onSetup: function(api) {
+          onSetup: function (api) {
             return __check_margin_size(api, '3em')
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-no"),
+          type: "menuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-no"),
           onAction() {
-            editor.execCommand("SetWebImageStyle", editor, {margin:""})
+            editor.execCommand("SetWebImageStyle", editor, { margin: "" })
           }
         }];
       }
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnWebImgProp", {
-      text : Ti.I18n.text("i18n:hmk-w-edit-img-prop"),
+      text: Ti.I18n.text("i18n:hmk-w-edit-img-prop"),
       onAction() {
         editor.execCommand("ShowWebImageProp", editor, settings)
       }
@@ -13346,10 +13350,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     editor.ui.registry.addContextMenu("wn-web-image", {
       update: function (el) {
+        console.log("wn-web-image context menu", el)
         let sel = editor.selection
         let $nd = sel.getNode()
         let IMC = GetElContext($nd)
-        if(IMC && IMC.img && IMC.img.hasAttribute("wn-obj-id")
+        if (IMC && IMC.img && IMC.img.hasAttribute("wn-obj-id")
           && "IMG" == IMC.img.tagName
           && Ti.Dom.hasClass(IMC.img, "wn-media", "as-image")) {
           return [
@@ -13362,23 +13367,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     })
     //..............................................
-    editor.on("ExecCommand", async function({command, value}={}){
-      if("mceInsertContent" == command && value.content) {
+    editor.on("ExecCommand", async function ({ command, value } = {}) {
+      if ("mceInsertContent" == command && value.content) {
         let REG = /^<img +src="data:(image\/(png|jpeg));base64, *([^"]+)" *\/>$/
         let m = REG.exec(value.content)
-        if(m) {
+        if (m) {
           let mime = m[1]
           let base64 = m[3]
           // Save image content
           let ftp = ({
-            "image/png" : "png",
-            "image/jpeg" : "jpg"
+            "image/png": "png",
+            "image/jpeg": "jpg"
           })[mime] || "png"
           let fnm = Ti.DateTime.format(new Date(), "'Snapshot'-yyyyMMdd-HHmmss")
           let fph = Ti.Util.appendPath(settings.base, fnm + "." + ftp)
           let obj = Wn.Io.saveContentAsText(fph, base64, {
-            createIfNoExists:true,
-            asBase64:true
+            createIfNoExists: true,
+            asBase64: true
           })
           editor.execCommand("InsertWebImage", editor, [obj])
         }
@@ -13386,10 +13391,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     let $vm = editor.__rich_tinymce_com
-    $vm.registerContentCallback("wn-web-image", function() {
+    $vm.registerContentCallback("wn-web-image", function () {
       //console.log("SetContent image")
       let els = editor.$('img[wn-obj-mime]')
-      for(let i=0; i<els.length; i++) {
+      for (let i = 0; i < els.length; i++) {
         let el = els[i]
         UpdateWebImageStyle(editor, el)
       }
@@ -13397,7 +13402,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     return {
       getMetadata: function () {
-        return  {
+        return {
           name: 'Wn Web Image plugin',
           url: 'http://site0.cn'
         };
@@ -15076,26 +15081,26 @@ window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-fb-album.mjs'
 const ALBUM_PREFIX = "FbAlbum";
 ////////////////////////////////////////////////////
 async function pickFbAlbumAndInsertToDoc(editor, settings) {
-  let {metas} = await settings.load()
-  if(metas.length == 0) {
+  let { metas } = await settings.load()
+  if (metas.length == 0) {
     return await Ti.Toast.Open("i18n:hmk-config-nil", "warn")
   }
 
   // Get the meta
   let meta;
-  if(metas.length > 1) {
+  if (metas.length > 1) {
     let metaId = await Ti.App.Open({
-      title : "i18n:hmk-config-choose",
-      width : 480,
-      height : 480,
-      comType : "TiBulletRadio",
-      comConf : {
-        options : metas
+      title: "i18n:hmk-config-choose",
+      width: 480,
+      height: 480,
+      comType: "TiBulletRadio",
+      comConf: {
+        options: metas
       },
-      components : ["@com:ti/bullet/radio"]
+      components: ["@com:ti/bullet/radio"]
     })
     // User cancel
-    if(!metaId) {
+    if (!metaId) {
       return
     }
     meta = _.find(metas, m => m.id == metaId)
@@ -15106,18 +15111,18 @@ async function pickFbAlbumAndInsertToDoc(editor, settings) {
   }
   // Check base
   let reo = await Ti.App.Open({
-    icon  : "fas-image",
-    title : "Facebook",
-    position : "top",
-    width  : "95%",
-    height : "95%",
-    comType : "NetFacebookAlbums",
-    comConf : {
-      meta, 
-      ... meta.content,
-      notifyName : "change"
+    icon: "fas-image",
+    title: "Facebook",
+    position: "top",
+    width: "95%",
+    height: "95%",
+    comType: "NetFacebookAlbums",
+    comConf: {
+      meta,
+      ...meta.content,
+      notifyName: "change"
     },
-    components : [
+    components: [
       "@com:net/facebook/albums"
     ]
   })
@@ -15125,7 +15130,7 @@ async function pickFbAlbumAndInsertToDoc(editor, settings) {
   reo.account = meta.nm
 
   // User canceled
-  if(_.isEmpty(reo)) {
+  if (_.isEmpty(reo)) {
     return
   }
 
@@ -15135,26 +15140,26 @@ async function pickFbAlbumAndInsertToDoc(editor, settings) {
 //--------------------------------------------------
 function GetAlbumWidget($album) {
   return Ti.Widget.Album.getOrCreate($album, {
-    attrPrefix : "wn-fb-",
-    itemToPhoto : {
-      name  : "=name",
-      link  : "=link",
-      thumb : "=thumb_src",
-      src   : "=src"
+    attrPrefix: "wn-fb-",
+    itemToPhoto: {
+      name: "=name",
+      link: "=link",
+      thumb: "=thumb_src",
+      src: "=src"
     }
   })
 }
 //--------------------------------------------------
 function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
   album, photos, items, force
-}={}) {
+} = {}) {
   //console.log("UpdateFbAlbumTagInnerHtml")
   // Bind widget and get the data
   let AB = GetAlbumWidget($album);
   // If insert new album, the params will be passed
-  if(!album) {
+  if (!album) {
     album = AB.getData()
-    if(force) {
+    if (force) {
       AB.setData(album)
     }
   } else {
@@ -15164,30 +15169,30 @@ function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
   $album.contentEditable = false
 
   // Explain items to photos
-  if(items) {
+  if (items) {
     photos = AB.covertToPhotos(items)
   }
-  
+
   // Reload photo from remote
-  if(_.isEmpty(photos)) {
+  if (_.isEmpty(photos)) {
     // Get account name
     let accountName = $album.getAttribute("wn-fb-account")
     // Show loading
     AB.showLoading()
 
     // Load and rendering
-    settings.load().then(({data})=>{
+    settings.load().then(({ data }) => {
       // Found the account in data
       let content = data[accountName]
-      let {domain, longLiveAccessToken} = content
+      let { domain, longLiveAccessToken } = content
       // Reload album items
       Wn.FbAlbum.reloadAllPhotoList({
-        albumId : album.id,
+        albumId: album.id,
         domain,
         accountName,
-        access_token : longLiveAccessToken,
+        access_token: longLiveAccessToken,
         force
-      }).then((items)=>{
+      }).then((items) => {
         //console.log(items)
         Ti.Api.Facebook.setObjListPreview(items)
         AB.renderItems(items)
@@ -15205,30 +15210,30 @@ function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
 }
 ////////////////////////////////////////////////////
 function CmdInsertAlbum(editor, fbAlbum) {
-  if(!fbAlbum)
+  if (!fbAlbum)
     return
-  
+
   // Prepare range
   let rng = editor.selection.getRng()
-  
+
   // Create image fragments
   let $doc = rng.commonAncestorContainer.ownerDocument
   let $album = Ti.Dom.createElement({
-    tagName : "div",
-    attrs : {
-      tiAlbumType : "fb-album",
-      wnFbAccount : fbAlbum.account
+    tagName: "div",
+    attrs: {
+      tiAlbumType: "fb-album",
+      wnFbAccount: fbAlbum.account
     },
-    className : "wn-media as-fb-album"
+    className: "wn-media as-fb-album"
   }, $doc)
 
   // Update INNER HTML
   UpdateFbAlbumTagInnerHtml(editor, $album, editor.wn_facebook_settings, {
-    album : fbAlbum
+    album: fbAlbum
   })
-  
+
   // Remove content
-  if(!rng.collapsed) {
+  if (!rng.collapsed) {
     rng.deleteContents()
   }
 
@@ -15240,7 +15245,7 @@ function CmdInsertAlbum(editor, fbAlbum) {
 function CmdReloadAlbum(editor, settings) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
-  if(!_.isElement($album)) {
+  if (!_.isElement($album)) {
     return
   }
   // Reload content
@@ -15253,15 +15258,15 @@ function GetCurrentAlbumElement(editor) {
   let sel = editor.selection
   let $nd = sel.getNode()
   // Guard
-  return Ti.Dom.closest($nd, (el)=>{
+  return Ti.Dom.closest($nd, (el) => {
     return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-fb-album")
-  })
+  }, { includeSelf: true })
 }
 ////////////////////////////////////////////////////
-function CmdSetAlbumStyle(editor, css={}) {
+function CmdSetAlbumStyle(editor, css = {}) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
-  if(!_.isElement($album)) {
+  if (!_.isElement($album)) {
     return
   }
   // Clear float
@@ -15273,7 +15278,7 @@ function CmdSetAlbumStyle(editor, css={}) {
 async function CmdShowAlbumProp(editor, settings) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
-  if(!_.isElement($album)) {
+  if (!_.isElement($album)) {
     return
   }
   // Gen the properties
@@ -15282,28 +15287,28 @@ async function CmdShowAlbumProp(editor, settings) {
 
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fab-facebook",
-    title : "i18n:hmk-w-edit-fb-album-prop",
-    width  : "37%",
-    height : "100%",
-    position : "right",
-    closer : "left",
-    clickMaskToClose : true,
-    result : data,
-    model : {prop:"data", event:"change"},
-    comType : "TiForm",
-    comConf : Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
-    components : []
+    icon: "fab-facebook",
+    title: "i18n:hmk-w-edit-fb-album-prop",
+    width: "37%",
+    height: "100%",
+    position: "right",
+    closer: "left",
+    clickMaskToClose: true,
+    result: data,
+    model: { prop: "data", event: "change" },
+    comType: "TiForm",
+    comConf: Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
+    components: []
   })
 
   // 用户取消
-  if(!reo)
+  if (!reo)
     return
 
   //................................................
   let photos = AB.getPhotos()
   UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
-    album:reo, photos
+    album: reo, photos
   })
   //................................................
   // clean cache
@@ -15315,51 +15320,51 @@ async function CmdShowAlbumProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
-  name : "wn-fb-album",
+  name: "wn-fb-album",
   //------------------------------------------------
-  init : function(conf={}) {
+  init: function (conf = {}) {
   },
   //------------------------------------------------
-  setup : function(editor, url){
+  setup: function (editor, url) {
     //..............................................
     let settings = _.assign({
-        meta : "~",
-        type : "facebook_albums"
-      }, _.get(editor.settings, "wn_facebook_config"));
+      meta: "~",
+      type: "facebook_albums"
+    }, _.get(editor.settings, "wn_facebook_config"));
     //console.log("setup", editor.settings)
     //..............................................
     // Reload meta content
     // Check meta
-    settings.load = async function(){
-      if(this.data) {
-        return {metas: this.metas, data: this.data}
+    settings.load = async function () {
+      if (this.data) {
+        return { metas: this.metas, data: this.data }
       }
       let oMeta = await Wn.Io.loadMeta(this.meta)
-      if(!oMeta) {
+      if (!oMeta) {
         return await Ti.Toast.Open({
-          content : "i18n:e-ph-noexists",
-          type : "warn",
+          content: "i18n:e-ph-noexists",
+          type: "warn",
           val: this.meta
         })
       }
       // DIR, loading setting map
-      if("DIR" == oMeta.race) {
+      if ("DIR" == oMeta.race) {
         // Query and read
         let cmdText = [
           `o id:${oMeta.id}`,
-            `@query 'tp:"${this.type}"'`,
-            `@read -as json`,
-            `@json -cqn`].join(" ")
-        this.metas = await Wn.Sys.exec2(cmdText, {as:"json"})
+          `@query 'tp:"${this.type}"'`,
+          `@read -as json`,
+          `@json -cqn`].join(" ")
+        this.metas = await Wn.Sys.exec2(cmdText, { as: "json" })
       }
       // FILE, load the single file
       else {
-        oMeta.content = await Wn.Io.loadContent(oMeta, {as:"json"})
+        oMeta.content = await Wn.Io.loadContent(oMeta, { as: "json" })
         this.metas = [oMeta]
       }
 
       // Read long live access token for each meta content
-      for(let o of this.metas) {
+      for (let o of this.metas) {
         let domain = o.content.domain
         let oAK = await Wn.Io.loadMeta(`~/.xapi/facebook/${domain}/long_live_access_token`)
         o.content.longLiveAccessToken = oAK.ticket
@@ -15367,19 +15372,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       // Build Album ID data
       this.data = {}
-      _.forEach(this.metas, ({nm, content})=>{
+      _.forEach(this.metas, ({ nm, content }) => {
         this.data[nm] = content
       })
 
-      return {metas: this.metas, data: this.data}
+      return { metas: this.metas, data: this.data }
     }
     editor.wn_facebook_settings = settings
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnFbAlubmPick", {
-      icon : "facebook-square-brands",
-      tooltip : Ti.I18n.text("i18n:album-insert"),
-      onAction : function(menuBtn) {
+      icon: "facebook-square-brands",
+      tooltip: Ti.I18n.text("i18n:album-insert"),
+      onAction: function (menuBtn) {
         pickFbAlbumAndInsertToDoc(editor, settings)
       },
     })
@@ -15387,22 +15392,22 @@ const __TI_MOD_EXPORT_VAR_NM = {
     let {
       CMD_SET_STYLE, CMD_RELOAD, CMD_PROP
     } = Ti.Widget.Album.registryTinyMceMenuItem(editor, {
-      prefix : ALBUM_PREFIX,
+      prefix: ALBUM_PREFIX,
       settings,
       GetCurrentAlbumElement
     })
     //..............................................
     // Register plugin command
     editor.addCommand("InsertFbAlbum", CmdInsertAlbum)
-    editor.addCommand(CMD_SET_STYLE,   CmdSetAlbumStyle)
-    editor.addCommand(CMD_RELOAD,      CmdReloadAlbum)
-    editor.addCommand(CMD_PROP,        CmdShowAlbumProp)
+    editor.addCommand(CMD_SET_STYLE, CmdSetAlbumStyle)
+    editor.addCommand(CMD_RELOAD, CmdReloadAlbum)
+    editor.addCommand(CMD_PROP, CmdShowAlbumProp)
     //..............................................
     let $vm = editor.__rich_tinymce_com
-    $vm.registerContentCallback("wn-fb-album", function() {
+    $vm.registerContentCallback("wn-fb-album", function () {
       //console.log("SetContent facebook")
       let els = editor.$('.wn-media.as-fb-album')
-      for(let i=0; i<els.length; i++) {
+      for (let i = 0; i < els.length; i++) {
         let el = els[i]
         UpdateFbAlbumTagInnerHtml(editor, el, settings)
       }
@@ -15410,7 +15415,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     return {
       getMetadata: function () {
-        return  {
+        return {
           name: 'Wn Facebook Album plugin',
           url: 'http://site0.cn'
         };
@@ -18555,7 +18560,7 @@ const _M = {
     },
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
-      //console.log(" <--- @field:changed", {name, value})
+      console.log(" <--- @field:changed", {name, value})
       this.doAction("field:change", this.updateBy, {name, value})
     },
     //--------------------------------------------------
@@ -20510,41 +20515,41 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-attachment.mjs'] = (function(){
 ////////////////////////////////////////////////////
 async function pickAttachmentAndInsertToDoc(editor, {
-  base = "~", 
-  autoCreate=null, 
+  base = "~",
+  autoCreate = null,
   sideItems, sideWidth,
   fallbackPath,
 }) {
   // Check base
-  if(_.isPlainObject(autoCreate)) {
+  if (_.isPlainObject(autoCreate)) {
     let oBase = await Wn.Io.loadMeta(base)
-    if(!oBase) {
+    if (!oBase) {
       let pph = Ti.Util.getParentPath(base)
       let dnm = Ti.Util.getFileName(base)
       let baseMeta = _.assign({}, autoCreate, {
-        race: 'DIR', nm : dnm
+        race: 'DIR', nm: dnm
       })
       let baseJson = JSON.stringify(baseMeta)
       let cmdText = `o @create '${baseJson}' -p ${pph} -auto @json -cqn`
-      oBase = await Wn.Sys.exec2(cmdText, {as:"json"})
+      oBase = await Wn.Sys.exec2(cmdText, { as: "json" })
     }
     base = oBase
   }
 
   // Show dialog
   let reo = await Wn.OpenObjSelector(base, {
-    icon  : "fas-paperclip",
-    title : "i18n:attachment-insert",
-    position : "top",
-    width  : "95%",
-    height : "95%",
-    multi : false,
+    icon: "fas-paperclip",
+    title: "i18n:attachment-insert",
+    position: "top",
+    width: "95%",
+    height: "95%",
+    multi: false,
     sideItems, sideWidth,
     fallbackPath
   })
 
   // User canceled
-  if(_.isEmpty(reo)) {
+  if (_.isEmpty(reo)) {
     return
   }
 
@@ -20553,29 +20558,29 @@ async function pickAttachmentAndInsertToDoc(editor, {
 }
 ////////////////////////////////////////////////////
 function GetAttachmentAttrsByElement(elAttachment) {
-  let stl = Ti.Dom.getStyle(elAttachment, 
+  let stl = Ti.Dom.getStyle(elAttachment,
     /^(font-(size|bold)|text-transform)$/)
   return {
-    oid   : elAttachment.getAttribute("wn-obj-id"),
-    nm    : elAttachment.getAttribute("wn-obj-nm"),
-    title : elAttachment.getAttribute("wn-obj-title"),
-    sha1  : elAttachment.getAttribute("wn-obj-sha1"),
-    mime  : elAttachment.getAttribute("wn-obj-mime"),
-    tp    : elAttachment.getAttribute("wn-obj-tp"),
-    icon  : elAttachment.getAttribute("wn-obj-icon"),
-    ... stl
+    oid: elAttachment.getAttribute("wn-obj-id"),
+    nm: elAttachment.getAttribute("wn-obj-nm"),
+    title: elAttachment.getAttribute("wn-obj-title"),
+    sha1: elAttachment.getAttribute("wn-obj-sha1"),
+    mime: elAttachment.getAttribute("wn-obj-mime"),
+    tp: elAttachment.getAttribute("wn-obj-tp"),
+    icon: elAttachment.getAttribute("wn-obj-icon"),
+    ...stl
   }
 }
 ////////////////////////////////////////////////////
 function GetAttachmentAttrsByObj(oAttachment) {
   return {
-    "wn-obj-id"    : oAttachment.id,
-    "wn-obj-nm"    : oAttachment.nm,
-    "wn-obj-title" : oAttachment.title,
-    "wn-obj-sha1"  : oAttachment.sha1,
-    "wn-obj-mime"  : oAttachment.mime,
-    "wn-obj-tp"    : oAttachment.tp,
-    "wn-obj-icon"  : oAttachment.icon
+    "wn-obj-id": oAttachment.id,
+    "wn-obj-nm": oAttachment.nm,
+    "wn-obj-title": oAttachment.title,
+    "wn-obj-sha1": oAttachment.sha1,
+    "wn-obj-mime": oAttachment.mime,
+    "wn-obj-tp": oAttachment.tp,
+    "wn-obj-icon": oAttachment.icon
   }
 }
 ////////////////////////////////////////////////////
@@ -20585,12 +20590,12 @@ function UpdateAttachmentTagInnerHtml(elAttachment) {
   // console.log(obj, icon)
   let iconHtml = Ti.Icons.fontIconHtml(icon, `<i class="fas fa-paperclip"></i>`)
   let html = `<span class="as-icon">${iconHtml}</span>`
-  if(obj.title) {
+  if (obj.title) {
     html += `<span class="as-title">${obj.title}</span>`
   }
   let $inner = Ti.Dom.createElement({
-    tagName : "span",
-    className : "attachment-inner"
+    tagName: "span",
+    className: "attachment-inner"
   })
   $inner.innerHTML = html
   elAttachment.innerHTML = null
@@ -20599,31 +20604,31 @@ function UpdateAttachmentTagInnerHtml(elAttachment) {
 }
 ////////////////////////////////////////////////////
 function CmdInsertAttachment(editor, oAttachments) {
-  if(_.isEmpty(oAttachments))
+  if (_.isEmpty(oAttachments))
     return
-  
+
   // Prepare range
   let rng = editor.selection.getRng()
-  
+
   // Create image fragments
   let $doc = rng.commonAncestorContainer.ownerDocument
   let frag = new DocumentFragment()
-  for(let oAttachment of oAttachments) {
+  for (let oAttachment of oAttachments) {
     let attrs = GetAttachmentAttrsByObj(oAttachment)
-    if(!attrs['wn-obj-title']) {
+    if (!attrs['wn-obj-title']) {
       attrs['wn-obj-title'] = oAttachment.nm
     }
     let $attachment = Ti.Dom.createElement({
-      tagName : "span",
-      className : "wn-attachment",
+      tagName: "span",
+      className: "wn-attachment",
       attrs
     }, $doc)
     UpdateAttachmentTagInnerHtml($attachment)
     frag.appendChild($attachment)
   }
-  
+
   // Remove content
-  if(!rng.collapsed) {
+  if (!rng.collapsed) {
     rng.deleteContents()
   }
 
@@ -20636,15 +20641,15 @@ function GetCurrentAttachmentElement(editor) {
   let sel = editor.selection
   let $nd = sel.getNode()
   // Guard
-  return Ti.Dom.closest($nd, (el)=>{
+  return Ti.Dom.closest($nd, (el) => {
     return 'SPAN' == el.tagName && Ti.Dom.hasClass(el, "wn-attachment")
-  })
+  }, { includeSelf: true })
 }
 ////////////////////////////////////////////////////
-function CmdSetAttachmentAttrs(editor, attrs={}) {
+function CmdSetAttachmentAttrs(editor, attrs = {}) {
   let $attachment = GetCurrentAttachmentElement(editor)
   // Guard
-  if(!_.isElement($attachment)) {
+  if (!_.isElement($attachment)) {
     return
   }
   // Update the attribute
@@ -20653,10 +20658,10 @@ function CmdSetAttachmentAttrs(editor, attrs={}) {
   editor.__rich_tinymce_com.syncContent()
 }
 ////////////////////////////////////////////////////
-function CmdSetAttachmentStyle(editor, css={}) {
+function CmdSetAttachmentStyle(editor, css = {}) {
   let $attachment = GetCurrentAttachmentElement(editor)
   // Guard
-  if(!_.isElement($attachment)) {
+  if (!_.isElement($attachment)) {
     return
   }
   // Clear float
@@ -20668,7 +20673,7 @@ function CmdSetAttachmentStyle(editor, css={}) {
 async function CmdShowAttachmentProp(editor, settings) {
   let $attachment = GetCurrentAttachmentElement(editor)
   // Guard
-  if(!_.isElement($attachment)) {
+  if (!_.isElement($attachment)) {
     return
   }
   //console.log("stl", stl)
@@ -20678,20 +20683,20 @@ async function CmdShowAttachmentProp(editor, settings) {
 
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fas-paperclip",
-    title : "i18n:hmk-w-edit-attachment-prop",
-    width  : "37%",
-    height : "100%",
-    position : "right",
-    closer : "left",
-    clickMaskToClose : true,
-    result : data,
-    model : {prop:"data", event:"change"},
-    comType : "TiForm",
-    comConf : {
-      linkFields : {
-        "oid" : async ({name, value})=>{
-          if(!value)
+    icon: "fas-paperclip",
+    title: "i18n:hmk-w-edit-attachment-prop",
+    width: "37%",
+    height: "100%",
+    position: "right",
+    closer: "left",
+    clickMaskToClose: true,
+    result: data,
+    model: { prop: "data", event: "change" },
+    comType: "TiForm",
+    comConf: {
+      linkFields: {
+        "oid": async ({ name, value }) => {
+          if (!value)
             return
           let obj = await Wn.Io.loadMetaById(value)
           let re = _.pick(obj, "nm", "title", "icon")
@@ -20699,111 +20704,111 @@ async function CmdShowAttachmentProp(editor, settings) {
           return re
         }
       },
-      spacing : "tiny",
-      fields : [{
-          title : "i18n:attachments",
-          name  : "oid",
-          comType : "WnObjPicker",
-          comConf : {
-            valueType : "id",
-            base : settings.base,
-            titleEditable : false
+      spacing: "tiny",
+      fields: [{
+        title: "i18n:attachments",
+        name: "oid",
+        comType: "WnObjPicker",
+        comConf: {
+          valueType: "id",
+          base: settings.base,
+          titleEditable: false
+        }
+      }, {
+        title: "i18n:style",
+        fields: [{
+          title: "i18n:font-size",
+          name: "fontSize",
+          comType: "TiInput",
+          comConf: {
+            placeholder: `Such as: .16rem`
           }
         }, {
-          title : "i18n:style",
-          fields: [{
-            title : "i18n:font-size",
-            name  : "fontSize",
-            comType : "TiInput",
-            comConf : {
-              placeholder: `Such as: .16rem`
-            }
-          }, {
-            title : "i18n:font-weight",
-            name  : "fontWeight",
-            comType : "TiSwitcher",
-            comConf : {
-              options : [
-                {value: "inherit", text: "i18n:inherit"},
-                {value: "normal",  text: "i18n:font-w-normal"},
-                {value: "bold",    text: "i18n:font-w-bold"}
-              ]
-            }
-          }, {
-            title : "i18n:font-transform",
-            name  : "textTransform",
-            comType : "TiSwitcher",
-            comConf : {
-              options : [
-                {value: "inherit",    text: "i18n:inherit"},
-                {value: "capitalize", text: "i18n:font-t-capitalize"},
-                {value: "uppercase",  text: "i18n:font-t-uppercase"},
-                {value: "lowercase",  text: "i18n:font-t-lowercase"}
-              ]
-            }
-          }]
+          title: "i18n:font-weight",
+          name: "fontWeight",
+          comType: "TiSwitcher",
+          comConf: {
+            options: [
+              { value: "inherit", text: "i18n:inherit" },
+              { value: "normal", text: "i18n:font-w-normal" },
+              { value: "bold", text: "i18n:font-w-bold" }
+            ]
+          }
         }, {
-          title : "i18n:content-setup",
-          fields : [{
-            title : "i18n:icon",
-            name  : "icon",
-            comType : "TiInputIcon",
-            comConf : {
-              options : [
-                "fas-paperclip",
-                "fas-volume-up",
-                "fas-film",
-                "fas-file-word",
-                "fas-file-video",
-                "fas-file-powerpoint",
-                "fas-file-pdf",
-                "fas-file-image",
-                "fas-file-excel",
-                "fas-file-code",
-                "fas-file-audio",
-                "fas-file-archive",
-                "fas-file-alt",
-                "fas-file",
-                "fas-file-upload",
-                "fas-file-signature",
-                "fas-file-prescription",
-                "fas-file-medical-alt",
-                "fas-file-medical",
-                "fas-file-invoice-dollar",
-                "fas-file-invoice",
-                "fas-file-import",
-                "fas-file-export",
-                "fas-file-download",
-                "fas-file-csv",
-                "fas-file-contract"
-              ]
-            }
-          }, {
-            title : "i18n:title",
-            name  : "title",
-            comType : "TiInput"
-          }, {
-            title : "i18n:name",
-            name  : "nm"
-          }]
+          title: "i18n:font-transform",
+          name: "textTransform",
+          comType: "TiSwitcher",
+          comConf: {
+            options: [
+              { value: "inherit", text: "i18n:inherit" },
+              { value: "capitalize", text: "i18n:font-t-capitalize" },
+              { value: "uppercase", text: "i18n:font-t-uppercase" },
+              { value: "lowercase", text: "i18n:font-t-lowercase" }
+            ]
+          }
         }]
+      }, {
+        title: "i18n:content-setup",
+        fields: [{
+          title: "i18n:icon",
+          name: "icon",
+          comType: "TiInputIcon",
+          comConf: {
+            options: [
+              "fas-paperclip",
+              "fas-volume-up",
+              "fas-film",
+              "fas-file-word",
+              "fas-file-video",
+              "fas-file-powerpoint",
+              "fas-file-pdf",
+              "fas-file-image",
+              "fas-file-excel",
+              "fas-file-code",
+              "fas-file-audio",
+              "fas-file-archive",
+              "fas-file-alt",
+              "fas-file",
+              "fas-file-upload",
+              "fas-file-signature",
+              "fas-file-prescription",
+              "fas-file-medical-alt",
+              "fas-file-medical",
+              "fas-file-invoice-dollar",
+              "fas-file-invoice",
+              "fas-file-import",
+              "fas-file-export",
+              "fas-file-download",
+              "fas-file-csv",
+              "fas-file-contract"
+            ]
+          }
+        }, {
+          title: "i18n:title",
+          name: "title",
+          comType: "TiInput"
+        }, {
+          title: "i18n:name",
+          name: "nm"
+        }]
+      }]
     },
-    components : [
+    components: [
       "@com:wn/obj/picker"
     ]
   })
 
   // 用户取消
-  if(!reo)
+  if (!reo)
     return
 
   // Update image
   //................................................
   // src
   let attrs = {}
-  if(data.oid != reo.oid) {
+  if (data.oid != reo.oid) {
     // Remove Attachment
-    if(!reo.oid) {
+    if (!reo.oid) {
       Ti.Dom.remove($attachment)
       return
     }
@@ -20820,12 +20825,12 @@ async function CmdShowAttachmentProp(editor, settings) {
   Ti.Dom.setAttrs($attachment, attrs)
   //................................................
   // Styling
-  const _attachment_style = function(styName, v, oldValue) {
-    if(oldValue == v)
+  const _attachment_style = function (styName, v, oldValue) {
+    if (oldValue == v)
       return
-    if(!v || "none" == v) {
+    if (!v || "none" == v) {
       $attachment.style[styName] = ""
-    } else if(_.isNumber(v) || /^\d+(\.\d+)?$/.test(v)) {
+    } else if (_.isNumber(v) || /^\d+(\.\d+)?$/.test(v)) {
       $attachment.style[styName] = `${v}px`
     } else {
       $attachment.style[styName] = v
@@ -20848,40 +20853,40 @@ async function CmdShowAttachmentProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
-  name : "wn-attachment",
+  name: "wn-attachment",
   //------------------------------------------------
-  init : function(conf={}) {
+  init: function (conf = {}) {
   },
   //------------------------------------------------
-  setup : function(editor, url){
+  setup: function (editor, url) {
     //..............................................
     let settings = _.assign({
-        base : "~"
-      }, _.get(editor.settings, "wn_attachment_config"));
+      base: "~"
+    }, _.get(editor.settings, "wn_attachment_config"));
     //console.log("setup", editor.settings)
     //..............................................
     // Register plugin command
-    editor.addCommand("InsertAttachment",   CmdInsertAttachment)
+    editor.addCommand("InsertAttachment", CmdInsertAttachment)
     editor.addCommand("SetAttachmentAttrs", CmdSetAttachmentAttrs)
     editor.addCommand("SetAttachmentStyle", CmdSetAttachmentStyle)
     editor.addCommand("ShowAttachmentProp", CmdShowAttachmentProp)
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnAttachmentPick", {
-      icon : "paperclip-solid",
-      tooltip : Ti.I18n.text("i18n:attachment-insert"),
-      onAction : function(menuBtn) {
+      icon: "paperclip-solid",
+      tooltip: Ti.I18n.text("i18n:attachment-insert"),
+      onAction: function (menuBtn) {
         pickAttachmentAndInsertToDoc(editor, settings)
       },
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnAttachmentClrStyle", {
-      text : Ti.I18n.text("清除附件样式"),
+      text: Ti.I18n.text("清除附件样式"),
       onAction() {
         editor.execCommand("CmdSetAttachmentStyle", editor, {
-          fontSize : null,
-          fontWeight : null,
-          textTransform : null
+          fontSize: null,
+          fontWeight: null,
+          textTransform: null
         })
       }
     })
@@ -20890,34 +20895,34 @@ const __TI_MOD_EXPORT_VAR_NM = {
       text: Ti.I18n.text("文字大小"),
       getSubmenuItems: function () {
         return [{
-          type : "menuitem",
-          text : Ti.I18n.text("特小"),
+          type: "menuitem",
+          text: Ti.I18n.text("特小"),
           onAction() {
-            editor.execCommand("SetAttachmentStyle", editor, {fontSize:".8em"})
+            editor.execCommand("SetAttachmentStyle", editor, { fontSize: ".8em" })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("较小"),
+          type: "menuitem",
+          text: Ti.I18n.text("较小"),
           onAction() {
-            editor.execCommand("SetAttachmentStyle", editor, {fontSize:".9em"})
+            editor.execCommand("SetAttachmentStyle", editor, { fontSize: ".9em" })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("正常"),
+          type: "menuitem",
+          text: Ti.I18n.text("正常"),
           onAction() {
-            editor.execCommand("SetAttachmentStyle", editor, {fontSize:"1em"})
+            editor.execCommand("SetAttachmentStyle", editor, { fontSize: "1em" })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("较大"),
+          type: "menuitem",
+          text: Ti.I18n.text("较大"),
           onAction() {
-            editor.execCommand("SetAttachmentStyle", editor, {fontSize:"1.2em"})
+            editor.execCommand("SetAttachmentStyle", editor, { fontSize: "1.2em" })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("特大"),
+          type: "menuitem",
+          text: Ti.I18n.text("特大"),
           onAction() {
-            editor.execCommand("SetAttachmentStyle", editor, {fontSize:"1.5em"})
+            editor.execCommand("SetAttachmentStyle", editor, { fontSize: "1.5em" })
           }
         }];
       }
@@ -20927,22 +20932,22 @@ const __TI_MOD_EXPORT_VAR_NM = {
       text: Ti.I18n.text("文字粗细"),
       getSubmenuItems: function () {
         return [{
-          type : "menuitem",
-          text : Ti.I18n.text("继承"),
+          type: "menuitem",
+          text: Ti.I18n.text("继承"),
           onAction() {
-            editor.execCommand("SetAttachmentStyle", editor, {fontWeight:"inherit"})
+            editor.execCommand("SetAttachmentStyle", editor, { fontWeight: "inherit" })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("正常"),
+          type: "menuitem",
+          text: Ti.I18n.text("正常"),
           onAction() {
-            editor.execCommand("SetAttachmentStyle", editor, {fontWeight:"normal"})
+            editor.execCommand("SetAttachmentStyle", editor, { fontWeight: "normal" })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("加粗"),
+          type: "menuitem",
+          text: Ti.I18n.text("加粗"),
           onAction() {
-            editor.execCommand("SetAttachmentStyle", editor, {fontWeight:"bold"})
+            editor.execCommand("SetAttachmentStyle", editor, { fontWeight: "bold" })
           }
         }];
       }
@@ -20952,32 +20957,32 @@ const __TI_MOD_EXPORT_VAR_NM = {
       text: Ti.I18n.text("文字转换"),
       getSubmenuItems: function () {
         return [{
-          type : "menuitem",
-          text : Ti.I18n.text("继承"),
+          type: "menuitem",
+          text: Ti.I18n.text("继承"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {
               textTransform: "inherit"
             })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("首字母大写"),
+          type: "menuitem",
+          text: Ti.I18n.text("首字母大写"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {
               textTransform: "capitalize"
             })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("全大写"),
+          type: "menuitem",
+          text: Ti.I18n.text("全大写"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {
               textTransform: "uppercase"
             })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("全小写"),
+          type: "menuitem",
+          text: Ti.I18n.text("全小写"),
           onAction() {
             editor.execCommand("SetAttachmentStyle", editor, {
               textTransform: "lowercase"
@@ -20988,7 +20993,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnAttachmentProp", {
-      text : Ti.I18n.text("附件属性"),
+      text: Ti.I18n.text("附件属性"),
       onAction() {
         editor.execCommand("ShowAttachmentProp", editor, settings)
       }
@@ -20998,7 +21003,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       update: function (el) {
         let $attachment = GetCurrentAttachmentElement(editor)
         // Guard
-        if(!_.isElement($attachment)) {
+        if (!_.isElement($attachment)) {
           return []
         }
         return [
@@ -21010,10 +21015,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     let $vm = editor.__rich_tinymce_com
-    $vm.registerContentCallback("wn-attachment", function() {
+    $vm.registerContentCallback("wn-attachment", function () {
       //console.log("SetContent attachment")
       let els = editor.$('.wn-attachment')
-      for(let i=0; i<els.length; i++) {
+      for (let i = 0; i < els.length; i++) {
         let el = els[i]
         UpdateAttachmentTagInnerHtml(el)
       }
@@ -21021,7 +21026,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     return {
       getMetadata: function () {
-        return  {
+        return {
           name: 'Wn Attachment plugin',
           url: 'http://site0.cn'
         };
@@ -31412,6 +31417,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     download() {
       let link = Wn.Util.getDownloadLink(this.meta)
+      console.log(link, this.meta)
       Ti.Be.OpenLink(link)
     },
     //--------------------------------------
@@ -48753,48 +48759,48 @@ window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-album.mjs'] =
 const ALBUM_PREFIX = "album";
 ////////////////////////////////////////////////////
 async function pickAlbumAndInsertToDoc(editor, {
-  base = "~", 
-  autoCreate=null, 
+  base = "~",
+  autoCreate = null,
   fallbackPath,
 }) {
   // Check base
-  if(_.isPlainObject(autoCreate)) {
+  if (_.isPlainObject(autoCreate)) {
     let oBase = await Wn.Io.loadMeta(base)
-    if(!oBase) {
+    if (!oBase) {
       let pph = Ti.Util.getParentPath(base)
       let dnm = Ti.Util.getFileName(base)
       let baseMeta = _.assign({}, autoCreate, {
-        race: 'DIR', nm : dnm
+        race: 'DIR', nm: dnm
       })
       let baseJson = JSON.stringify(baseMeta)
       let cmdText = `o @create '${baseJson}' -p ${pph} -auto @json -cqn`
-      oBase = await Wn.Sys.exec2(cmdText, {as:"json"})
+      oBase = await Wn.Sys.exec2(cmdText, { as: "json" })
     }
     base = oBase
   }
 
   // Show dialog
   let reo = await Wn.OpenObjSelector(base, {
-    icon  : "far-images",
-    title : "i18n:album-insert",
-    position : "top",
-    width  : "95%",
-    height : "95%",
-    multi : false,
-    filter : o => "DIR" == o.race,
-    search : {
-      filter : {
-        match : {
-          race : "DIR"
+    icon: "far-images",
+    title: "i18n:album-insert",
+    position: "top",
+    width: "95%",
+    height: "95%",
+    multi: false,
+    filter: o => "DIR" == o.race,
+    search: {
+      filter: {
+        match: {
+          race: "DIR"
         }
       },
-      sorter : {nm : 1}
+      sorter: { nm: 1 }
     },
     fallbackPath
   })
 
   // User canceled
-  if(_.isEmpty(reo)) {
+  if (_.isEmpty(reo)) {
     return
   }
 
@@ -48804,12 +48810,12 @@ async function pickAlbumAndInsertToDoc(editor, {
 //--------------------------------------------------
 function GetAlbumWidget($album) {
   return Ti.Widget.Album.getOrCreate($album, {
-    attrPrefix : "wn-obj-",
-    itemToPhoto : {
-      name : "=title",
-      link : "=href",
-      thumb : "->/o/content?str=${thumb}",
-      src  : "->/o/content?str=id:${id}",
+    attrPrefix: "wn-obj-",
+    itemToPhoto: {
+      name: "=title",
+      link: "=href",
+      thumb: "->/o/content?str=${thumb}",
+      src: "->/o/content?str=id:${id}",
       brief: "=brief"
     }
   })
@@ -48817,17 +48823,17 @@ function GetAlbumWidget($album) {
 //--------------------------------------------------
 async function UpdateAlbumTagInnerHtml(editor, $album, settings, {
   album, photos, items, reloadMeta
-}={}) {
+} = {}) {
   //console.log("UpdateAlbumTagInnerHtml")
   // Bind widget and get the data
   let AB = GetAlbumWidget($album);
   // If insert new album, the params will be passed
-  if(!album) {
+  if (!album) {
     album = AB.getData()
-    if(reloadMeta) {
-      album = await Wn.Sys.exec2(`o id:${album.id} @json -cqn`, {as:"json"})
+    if (reloadMeta) {
+      album = await Wn.Sys.exec2(`o id:${album.id} @json -cqn`, { as: "json" })
       album.name = album.title || album.nm
-      AB.setData(album)  
+      AB.setData(album)
     }
   } else {
     album.name = album.title || album.nm
@@ -48837,17 +48843,17 @@ async function UpdateAlbumTagInnerHtml(editor, $album, settings, {
   $album.contentEditable = false
 
   // Explain items to photos
-  if(items) {
+  if (items) {
     photos = AB.covertToPhotos(items)
   }
 
   // Reload photo from remote
-  if(_.isEmpty(photos)) {
+  if (_.isEmpty(photos)) {
     // Show loading
     AB.showLoading()
 
     // Load and rendering
-    settings.load(album).then((data)=>{
+    settings.load(album).then((data) => {
       //console.log(data)
       AB.renderItems(data)
       // Force sync content
@@ -48863,29 +48869,29 @@ async function UpdateAlbumTagInnerHtml(editor, $album, settings, {
 }
 ////////////////////////////////////////////////////
 function CmdInsertAlbum(editor, oAlbum) {
-  if(!oAlbum)
+  if (!oAlbum)
     return
   //console.log("CmdInsertAlbum", oAlbum)
   // Prepare range
   let rng = editor.selection.getRng()
-  
+
   // Create image fragments
   let $doc = rng.commonAncestorContainer.ownerDocument
   let $album = Ti.Dom.createElement({
-    tagName : "div",
-    attrs : {
-      tiAlbumType : "album"
+    tagName: "div",
+    attrs: {
+      tiAlbumType: "album"
     },
-    className : "wn-media as-album"
+    className: "wn-media as-album"
   }, $doc)
-  
+
   // Update INNER HTML
   UpdateAlbumTagInnerHtml(editor, $album, editor.wn_album_settings, {
-    album : oAlbum
+    album: oAlbum
   })
-  
+
   // Remove content
-  if(!rng.collapsed) {
+  if (!rng.collapsed) {
     rng.deleteContents()
   }
 
@@ -48897,7 +48903,7 @@ function CmdInsertAlbum(editor, oAlbum) {
 function CmdReloadAlbum(editor, settings) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
-  if(!_.isElement($album)) {
+  if (!_.isElement($album)) {
     return
   }
   // Reload content
@@ -48908,15 +48914,15 @@ function GetCurrentAlbumElement(editor) {
   let sel = editor.selection
   let $nd = sel.getNode()
   // Guard
-  return Ti.Dom.closest($nd, (el)=>{
+  return Ti.Dom.closest($nd, (el) => {
     return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-album")
-  })
+  }, { includeSelf: true })
 }
 ///////////////////////////////////////////////////
-function CmdSetAlbumStyle(editor, css={}) {
+function CmdSetAlbumStyle(editor, css = {}) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
-  if(!_.isElement($album)) {
+  if (!_.isElement($album)) {
     return
   }
   // Clear float
@@ -48928,7 +48934,7 @@ function CmdSetAlbumStyle(editor, css={}) {
 async function CmdShowAlbumProp(editor, settings) {
   let $album = GetCurrentAlbumElement(editor)
   // Guard
-  if(!_.isElement($album)) {
+  if (!_.isElement($album)) {
     return
   }
   // Gen the properties
@@ -48940,29 +48946,29 @@ async function CmdShowAlbumProp(editor, settings) {
   // Show dialog
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "far-images",
-    title : "i18n:hmk-w-edit-album-prop",
-    width  : "37%",
-    height : "100%",
-    position : "right",
-    closer : "left",
-    clickMaskToClose : true,
-    result : data,
-    model : {prop:"data", event:"change"},
-    comType : "TiForm",
-    comConf : Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
-    components : []
+    icon: "far-images",
+    title: "i18n:hmk-w-edit-album-prop",
+    width: "37%",
+    height: "100%",
+    position: "right",
+    closer: "left",
+    clickMaskToClose: true,
+    result: data,
+    model: { prop: "data", event: "change" },
+    comType: "TiForm",
+    comConf: Ti.Widget.Album.getEditFormConfig(ALBUM_PREFIX),
+    components: []
   })
 
   // 用户取消
-  if(!reo)
+  if (!reo)
     return
 
   //................................................
   let photos = AB.getPhotos()
   //console.log("AB.getPhotos", photos)
   UpdateAlbumTagInnerHtml(editor, $album, settings, {
-    album:reo, photos
+    album: reo, photos
   })
   //................................................
   // clean cache
@@ -48974,42 +48980,42 @@ async function CmdShowAlbumProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
-  name : "wn-album",
+  name: "wn-album",
   //------------------------------------------------
-  init : function(conf={}) {
+  init: function (conf = {}) {
   },
   //------------------------------------------------
-  setup : function(editor, url){
+  setup: function (editor, url) {
     //..............................................
     let settings = _.assign({
-        meta : "~",
-        sort : {
-          "sort": 1
-        }
-      }, _.get(editor.settings, "wn_album_config"));
+      meta: "~",
+      sort: {
+        "sort": 1
+      }
+    }, _.get(editor.settings, "wn_album_config"));
     //..............................................
     // Reload meta content
     // Check meta
-    settings.load = async function({id}){
+    settings.load = async function ({ id }) {
       let match = JSON.stringify({
-        pid  : id,
-        race : "FILE",
-        mime : "^image\/"
+        pid: id,
+        race: "FILE",
+        mime: "^image\/"
       })
       let KF = '^(id|thumb(_obj)?|sha1|href|nm|title|brief|mime|tp|width|height|len)$'
       let sortJson = JSON.stringify(settings.sort) || "{}"
       return await Wn.Sys.exec2(
         `o @query '${match}' -sort '${sortJson}' @refer thumb @json '${KF}' -cqnl`, {
-          as:"json"
-        })
+        as: "json"
+      })
     }
     editor.wn_album_settings = settings
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnAlbumPick", {
-      icon : "images-regular",
-      tooltip : Ti.I18n.text("i18n:album-insert"),
-      onAction : function(menuBtn) {
+      icon: "images-regular",
+      tooltip: Ti.I18n.text("i18n:album-insert"),
+      onAction: function (menuBtn) {
         pickAlbumAndInsertToDoc(editor, settings)
       },
     })
@@ -49017,15 +49023,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
     let {
       CMD_SET_STYLE, CMD_RELOAD, CMD_PROP
     } = Ti.Widget.Album.registryTinyMceMenuItem(editor, {
-      prefix : ALBUM_PREFIX,
+      prefix: ALBUM_PREFIX,
       settings,
       GetCurrentAlbumElement
     })
     //..............................................
     // Register plugin command
-    editor.addCommand("InsertAlbum",   CmdInsertAlbum)
+    editor.addCommand("InsertAlbum", CmdInsertAlbum)
     editor.addCommand(CMD_SET_STYLE, CmdSetAlbumStyle)
-    editor.addCommand(CMD_RELOAD,   CmdReloadAlbum)
+    editor.addCommand(CMD_RELOAD, CmdReloadAlbum)
     editor.addCommand(CMD_PROP, CmdShowAlbumProp)
     //..............................................
     // editor.on("SetContent", function() {
@@ -49037,10 +49043,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //   }
     // })
     let $vm = editor.__rich_tinymce_com
-    $vm.registerContentCallback("wn-album", function() {
+    $vm.registerContentCallback("wn-album", function () {
       //console.log("SetContent album", editor.isDirty())
       let els = editor.$('.wn-media.as-album')
-      for(let i=0; i<els.length; i++) {
+      for (let i = 0; i < els.length; i++) {
         let el = els[i]
         UpdateAlbumTagInnerHtml(editor, el, settings)
       }
@@ -49048,7 +49054,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     return {
       getMetadata: function () {
-        return  {
+        return {
           name: 'Wn Album plugin',
           url: 'http://site0.cn'
         };
@@ -52380,39 +52386,39 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-video.mjs'] = (function(){
 ////////////////////////////////////////////////////
 async function pickVideoAndInsertToDoc(editor, {
-  base = "~", 
-  autoCreate=null, 
+  base = "~",
+  autoCreate = null,
   fallbackPath,
 }) {
   // Check base
-  if(_.isPlainObject(autoCreate)) {
+  if (_.isPlainObject(autoCreate)) {
     let oBase = await Wn.Io.loadMeta(base)
-    if(!oBase) {
+    if (!oBase) {
       let pph = Ti.Util.getParentPath(base)
       let dnm = Ti.Util.getFileName(base)
       let baseMeta = _.assign({}, autoCreate, {
-        race: 'DIR', nm : dnm
+        race: 'DIR', nm: dnm
       })
       let baseJson = JSON.stringify(baseMeta)
       let cmdText = `o @create '${baseJson}' -p ${pph} -auto @json -cqn`
-      oBase = await Wn.Sys.exec2(cmdText, {as:"json"})
+      oBase = await Wn.Sys.exec2(cmdText, { as: "json" })
     }
     base = oBase
   }
 
   // Show dialog
   let reo = await Wn.OpenObjSelector(base, {
-    icon  : "fas-film",
-    title : "i18n:video-insert",
-    position : "top",
-    width  : "95%",
-    height : "95%",
-    multi : false,
+    icon: "fas-film",
+    title: "i18n:video-insert",
+    position: "top",
+    width: "95%",
+    height: "95%",
+    multi: false,
     fallbackPath
   })
 
   // User canceled
-  if(_.isEmpty(reo)) {
+  if (_.isEmpty(reo)) {
     return
   }
 
@@ -52423,46 +52429,46 @@ async function pickVideoAndInsertToDoc(editor, {
 function GetVideoAttrsByElement(elVideo) {
   let style = Ti.Dom.getOwnStyle(elVideo)
   return {
-    oid   : elVideo.getAttribute("wn-obj-id"),
-    sha1  : elVideo.getAttribute("wn-obj-sha1"),
-    mime  : elVideo.getAttribute("wn-obj-mime"),
-    tp    : elVideo.getAttribute("wn-obj-tp"),
-    thumb : elVideo.getAttribute("wn-obj-thumb"),
-    video_cover   : elVideo.getAttribute("wn-obj-video_cover"),
-    naturalWidth  : elVideo.getAttribute("wn-obj-width"),
-    naturalHeight : elVideo.getAttribute("wn-obj-height"),
-    duration : elVideo.getAttribute("wn-obj-duration"),
+    oid: elVideo.getAttribute("wn-obj-id"),
+    sha1: elVideo.getAttribute("wn-obj-sha1"),
+    mime: elVideo.getAttribute("wn-obj-mime"),
+    tp: elVideo.getAttribute("wn-obj-tp"),
+    thumb: elVideo.getAttribute("wn-obj-thumb"),
+    video_cover: elVideo.getAttribute("wn-obj-video_cover"),
+    naturalWidth: elVideo.getAttribute("wn-obj-width"),
+    naturalHeight: elVideo.getAttribute("wn-obj-height"),
+    duration: elVideo.getAttribute("wn-obj-duration"),
     style
   }
 }
 ////////////////////////////////////////////////////
 function GetVideoAttrsByObj(oVideo) {
   return {
-    "wn-obj-id" : oVideo.id,
-    "wn-obj-sha1" : oVideo.sha1,
-    "wn-obj-mime" : oVideo.mime,
-    "wn-obj-tp"   : oVideo.tp,
-    "wn-obj-thumb" : oVideo.thumb,
-    "wn-obj-video_cover" : oVideo.video_cover,
-    "wn-obj-width" : oVideo.width,
-    "wn-obj-height" : oVideo.height,
-    "wn-obj-duration" : oVideo.duration
+    "wn-obj-id": oVideo.id,
+    "wn-obj-sha1": oVideo.sha1,
+    "wn-obj-mime": oVideo.mime,
+    "wn-obj-tp": oVideo.tp,
+    "wn-obj-thumb": oVideo.thumb,
+    "wn-obj-video_cover": oVideo.video_cover,
+    "wn-obj-width": oVideo.width,
+    "wn-obj-height": oVideo.height,
+    "wn-obj-duration": oVideo.duration
   }
 }
 ////////////////////////////////////////////////////
 function UpdateVideoTagInnerHtml(elVideo) {
   let cover = elVideo.getAttribute("wn-obj-video_cover")
-  if(!cover) {
+  if (!cover) {
     cover = elVideo.getAttribute("wn-obj-thumb")
   }
-  if(cover && !cover.startsWith("id:")) {
+  if (cover && !cover.startsWith("id:")) {
     cover = "id:" + cover
   }
   let $inner = Ti.Dom.createElement({
-    tagName : "div",
-    className : "media-inner",
-    style : {
-      "background-image" : `url("/o/content?str=${cover}")`
+    tagName: "div",
+    className: "media-inner",
+    style: {
+      "background-image": `url("/o/content?str=${cover}")`
     }
   })
   $inner.innerHTML = `<i 
@@ -52474,27 +52480,27 @@ function UpdateVideoTagInnerHtml(elVideo) {
 }
 ////////////////////////////////////////////////////
 function CmdInsertVideo(editor, oVideos) {
-  if(_.isEmpty(oVideos))
+  if (_.isEmpty(oVideos))
     return
-  
+
   // Prepare range
   let rng = editor.selection.getRng()
-  
+
   // Create image fragments
   let $doc = rng.commonAncestorContainer.ownerDocument
   let frag = new DocumentFragment()
-  for(let oVideo of oVideos) {
+  for (let oVideo of oVideos) {
     let $video = Ti.Dom.createElement({
-      tagName : "div",
-      className : "wn-media as-video",
-      attrs : GetVideoAttrsByObj(oVideo)
+      tagName: "div",
+      className: "wn-media as-video",
+      attrs: GetVideoAttrsByObj(oVideo)
     }, $doc)
     UpdateVideoTagInnerHtml($video)
     frag.appendChild($video)
   }
-  
+
   // Remove content
-  if(!rng.collapsed) {
+  if (!rng.collapsed) {
     rng.deleteContents()
   }
 
@@ -52507,15 +52513,15 @@ function GetCurrentVideoElement(editor) {
   let sel = editor.selection
   let $nd = sel.getNode()
   // Guard
-  return Ti.Dom.closest($nd, (el)=>{
+  return Ti.Dom.closest($nd, (el) => {
     return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-video")
-  })
+  }, { includeSelf: true })
 }
 ///////////////////////////////////////////////////
-function CmdSetVideoStyle(editor, css={}) {
+function CmdSetVideoStyle(editor, css = {}) {
   let $video = GetCurrentVideoElement(editor)
   // Guard
-  if(!_.isElement($video)) {
+  if (!_.isElement($video)) {
     return
   }
   // Clear float
@@ -52527,7 +52533,7 @@ function CmdSetVideoStyle(editor, css={}) {
 async function CmdShowVideoProp(editor, settings) {
   let $video = GetCurrentVideoElement(editor)
   // Guard
-  if(!_.isElement($video)) {
+  if (!_.isElement($video)) {
     return
   }
   //console.log("stl", stl)
@@ -52537,71 +52543,71 @@ async function CmdShowVideoProp(editor, settings) {
   //console.log(data)
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fas-film",
-    title : "i18n:hmk-w-edit-video-prop",
-    width  : "37%",
-    height : "100%",
-    position : "right",
-    closer : "left",
-    clickMaskToClose : true,
-    result : data,
-    model : {prop:"data", event:"change"},
-    comType : "TiForm",
-    comConf : {
-      spacing : "tiny",
-      fields : [{
-          title : "i18n:video",
-          name  : "oid",
-          comType : "WnObjPicker",
-          comConf : {
-            valueType : "id",
-            base : settings.base,
-            titleEditable : false
-          }
-        },
-        Wn.Hm.getCssPropField("width", {
-          name  : "style.width",
-          comConf : {
-            placeholder: `${data.naturalWidth}px`
-          }
-        }),
-        Wn.Hm.getCssPropField("height", {
-          name  : "style.height",
-          comConf : {
-            placeholder: `${data.naturalHeight}px`
-          }
-        }),
-        Wn.Hm.getCssPropField("float", {
-          name  : "style.float"
-        }),
-        {
-          title : "i18n:style-more",
-          name  : "style",
-          type  : "Object",
-          comType : "HmPropCssRules",
-          comConf : {
-            rules : [
-              /^((min|max)-)?(width|height)$/,
-              /^(margin|border|box-shadow|float)$/
-            ]
-          }
-        }]
+    icon: "fas-film",
+    title: "i18n:hmk-w-edit-video-prop",
+    width: "37%",
+    height: "100%",
+    position: "right",
+    closer: "left",
+    clickMaskToClose: true,
+    result: data,
+    model: { prop: "data", event: "change" },
+    comType: "TiForm",
+    comConf: {
+      spacing: "tiny",
+      fields: [{
+        title: "i18n:video",
+        name: "oid",
+        comType: "WnObjPicker",
+        comConf: {
+          valueType: "id",
+          base: settings.base,
+          titleEditable: false
+        }
+      },
+      Wn.Hm.getCssPropField("width", {
+        name: "style.width",
+        comConf: {
+          placeholder: `${data.naturalWidth}px`
+        }
+      }),
+      Wn.Hm.getCssPropField("height", {
+        name: "style.height",
+        comConf: {
+          placeholder: `${data.naturalHeight}px`
+        }
+      }),
+      Wn.Hm.getCssPropField("float", {
+        name: "style.float"
+      }),
+      {
+        title: "i18n:style-more",
+        name: "style",
+        type: "Object",
+        comType: "HmPropCssRules",
+        comConf: {
+          rules: [
+            /^((min|max)-)?(width|height)$/,
+            /^(margin|border|box-shadow|float)$/
+          ]
+        }
+      }]
     },
-    components : [
+    components: [
       "@com:wn/obj/picker"
     ]
   })
 
   // 用户取消
-  if(!reo)
+  if (!reo)
     return
 
   // Update image
   //................................................
   // src
-  if(data.oid != reo.oid) {
+  if (data.oid != reo.oid) {
     // Remove Video
-    if(!reo.oid) {
+    if (!reo.oid) {
       Ti.Dom.remove($video)
       return
     }
@@ -52612,7 +52618,7 @@ async function CmdShowVideoProp(editor, settings) {
     Ti.Dom.setAttrs($video, attrs)
 
     UpdateVideoTagInnerHtml($video)
-    
+
   }
   //................................................
   // Styling
@@ -52629,133 +52635,133 @@ async function CmdShowVideoProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
-  name : "wn-video",
+  name: "wn-video",
   //------------------------------------------------
-  init : function(conf={}) {
+  init: function (conf = {}) {
   },
   //------------------------------------------------
-  setup : function(editor, url){
+  setup: function (editor, url) {
     //..............................................
     let settings = _.assign({
-        base : "~"
-      }, _.get(editor.settings, "wn_video_config"));
+      base: "~"
+    }, _.get(editor.settings, "wn_video_config"));
     //console.log("setup", editor.settings)
     //..............................................
     // Register plugin command
-    editor.addCommand("InsertVideo",   CmdInsertVideo)
+    editor.addCommand("InsertVideo", CmdInsertVideo)
     editor.addCommand("SetVideoStyle", CmdSetVideoStyle)
     editor.addCommand("ShowVideoProp", CmdShowVideoProp)
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnVideoPick", {
-      icon : "film-solid",
-      tooltip : Ti.I18n.text("i18n:video-insert"),
-      onAction : function(menuBtn) {
+      icon: "film-solid",
+      tooltip: Ti.I18n.text("i18n:video-insert"),
+      onAction: function (menuBtn) {
         pickVideoAndInsertToDoc(editor, settings)
       },
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnVideoClrSize", {
-      text : Ti.I18n.text("i18n:hmk-w-edit-video-clrsz"),
+      text: Ti.I18n.text("i18n:hmk-w-edit-video-clrsz"),
       onAction() {
-        editor.execCommand("SetVideoStyle", editor, {width:""})
+        editor.execCommand("SetVideoStyle", editor, { width: "" })
       }
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnVideoAutoFitWidth", {
-      text : Ti.I18n.text("i18n:hmk-autofit"),
+      text: Ti.I18n.text("i18n:hmk-autofit"),
       onAction() {
-        editor.execCommand("SetVideoStyle", editor, {width:"100%"})
+        editor.execCommand("SetVideoStyle", editor, { width: "100%" })
       }
     })
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnVideoFloat', {
-      text : Ti.I18n.text("i18n:hmk-float"),
+      text: Ti.I18n.text("i18n:hmk-float"),
       getSubmenuItems: function () {
         return [{
-          type : "menuitem",
-          icon : "align-left",
-          text : Ti.I18n.text("i18n:hmk-float-left"),
+          type: "menuitem",
+          icon: "align-left",
+          text: Ti.I18n.text("i18n:hmk-float-left"),
           onAction() {
-            editor.execCommand("SetVideoStyle", editor, {float:"left"})
+            editor.execCommand("SetVideoStyle", editor, { float: "left" })
           }
         }, {
-          type : "menuitem",
-          icon : "align-right",
-          text : Ti.I18n.text("i18n:hmk-float-right"),
+          type: "menuitem",
+          icon: "align-right",
+          text: Ti.I18n.text("i18n:hmk-float-right"),
           onAction() {
-            editor.execCommand("SetVideoStyle", editor, {float:"right"})
+            editor.execCommand("SetVideoStyle", editor, { float: "right" })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("i18n:hmk-float-clear"),
+          type: "menuitem",
+          text: Ti.I18n.text("i18n:hmk-float-clear"),
           onAction() {
-            editor.execCommand("SetVideoStyle", editor, {float:""})
+            editor.execCommand("SetVideoStyle", editor, { float: "" })
           }
         }];
       }
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnVideoMargin', {
-      text : Ti.I18n.text("i18n:hmk-w-edit-video-margin"),
+      text: Ti.I18n.text("i18n:hmk-w-edit-video-margin"),
       getSubmenuItems: function () {
-        const __check_margin_size = function(api, expectSize) {
+        const __check_margin_size = function (api, expectSize) {
           let $video = GetCurrentVideoElement(editor)
           let state = true
-          if($video) {
+          if ($video) {
             let sz = $video.style.marginLeft || $video.style.marginRight
             state = expectSize == sz
           }
           api.setActive(state);
-          return function() {};
+          return function () { };
         }
         return [{
-          type : "togglemenuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-sm"),
+          type: "togglemenuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-sm"),
           onAction() {
-            editor.execCommand("SetVideoStyle", editor, {margin:"1em"})
+            editor.execCommand("SetVideoStyle", editor, { margin: "1em" })
           },
-          onSetup: function(api) {
+          onSetup: function (api) {
             return __check_margin_size(api, '1em')
           }
         }, {
-          type : "togglemenuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-md"),
+          type: "togglemenuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-md"),
           onAction() {
-            editor.execCommand("SetVideoStyle", editor, {margin:"2em"})
+            editor.execCommand("SetVideoStyle", editor, { margin: "2em" })
           },
-          onSetup: function(api) {
+          onSetup: function (api) {
             return __check_margin_size(api, '2em')
           }
         }, {
-          type : "togglemenuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-lg"),
+          type: "togglemenuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-lg"),
           onAction() {
-            editor.execCommand("SetVideoStyle", editor, {margin:"3em"})
+            editor.execCommand("SetVideoStyle", editor, { margin: "3em" })
           },
-          onSetup: function(api) {
+          onSetup: function (api) {
             return __check_margin_size(api, '3em')
           }
         }, {
-          type : "menuitem",
-          icon : "align-center",
-          text : Ti.I18n.text("i18n:hmk-margin-center"),
+          type: "menuitem",
+          icon: "align-center",
+          text: Ti.I18n.text("i18n:hmk-margin-center"),
           onAction() {
-            editor.execCommand("SetVideoStyle", editor, {margin:"0 auto"})
+            editor.execCommand("SetVideoStyle", editor, { margin: "0 auto" })
           }
         }, {
-          type : "menuitem",
-          icon : "square-6",
-          text : Ti.I18n.text("i18n:hmk-margin-no"),
+          type: "menuitem",
+          icon: "square-6",
+          text: Ti.I18n.text("i18n:hmk-margin-no"),
           onAction() {
-            editor.execCommand("SetVideoStyle", editor, {margin:""})
+            editor.execCommand("SetVideoStyle", editor, { margin: "" })
           }
         }];
       }
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnVideoProp", {
-      text : Ti.I18n.text("i18n:hmk-w-edit-video-prop"),
+      text: Ti.I18n.text("i18n:hmk-w-edit-video-prop"),
       onAction() {
         editor.execCommand("ShowVideoProp", editor, settings)
       }
@@ -52765,7 +52771,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       update: function (el) {
         let $video = GetCurrentVideoElement(editor)
         // Guard
-        if(!_.isElement($video)) {
+        if (!_.isElement($video)) {
           return []
         }
         return [
@@ -52777,10 +52783,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     let $vm = editor.__rich_tinymce_com
-    $vm.registerContentCallback("wn-video", function() {
+    $vm.registerContentCallback("wn-video", function () {
       //console.log("SetContent video")
       let els = editor.$('.wn-media.as-video')
-      for(let i=0; i<els.length; i++) {
+      for (let i = 0; i < els.length; i++) {
         let el = els[i]
         UpdateVideoTagInnerHtml(el)
       }
@@ -52788,7 +52794,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     return {
       getMetadata: function () {
-        return  {
+        return {
           name: 'Wn Video plugin',
           url: 'http://site0.cn'
         };
@@ -56448,44 +56454,44 @@ async function pickYoutubeAndInsertToDoc(editor, {
 }) {
   // Check meta
   let oMeta = await Wn.Io.loadMeta(meta)
-  if(!oMeta) {
+  if (!oMeta) {
     return await Ti.Toast.Open({
-      content : "i18n:e-ph-noexists",
-      type : "warn",
+      content: "i18n:e-ph-noexists",
+      type: "warn",
       val: meta
     })
   }
-  if(oMeta.race != "FILE") {
+  if (oMeta.race != "FILE") {
     return await Ti.Toast.Open({
-      content : "i18n:e-obj-invalid",
-      type : "warn",
+      content: "i18n:e-obj-invalid",
+      type: "warn",
       val: meta
     })
   }
   meta = oMeta
 
   // 读取信息
-  let {domain, channelId} = await Wn.Io.loadContent(meta, {as:"json"})
+  let { domain, channelId } = await Wn.Io.loadContent(meta, { as: "json" })
 
   // Check base
   let reo = await Ti.App.Open({
-    icon  : "fab-youtube",
-    title : "i18n:net-youtube-add-video",
-    position : "top",
-    width  : "95%",
-    height : "95%",
-    comType : "NetYoutubeBrowser",
-    comConf : {
+    icon: "fab-youtube",
+    title: "i18n:net-youtube-add-video",
+    position: "top",
+    width: "95%",
+    height: "95%",
+    comType: "NetYoutubeBrowser",
+    comConf: {
       meta, domain, channelId,
-      notifyName : "change"
+      notifyName: "change"
     },
-    components : [
+    components: [
       "@com:net/youtube/browser"
     ]
   })
 
   // User canceled
-  if(_.isEmpty(reo)) {
+  if (_.isEmpty(reo)) {
     return
   }
 
@@ -56502,19 +56508,19 @@ function GetYoutubeAttrsByElement(elYoutube) {
   let af = elYoutube.getAttribute("wn-yt-allowfullscreen")
   let allowfullscreen = af && /^(allowfullscreen|yes|true)$/.test(af)
   let allow = elYoutube.getAttribute("wn-yt-allow") || DFT_ALLOW;
-  if(allow) {
+  if (allow) {
     allow = _.map(allow.split(";"), al => _.trim(al))
   }
   return {
-    id   : elYoutube.getAttribute("wn-yt-id"),
-    title  : elYoutube.getAttribute("wn-yt-title"),
-    description  : elYoutube.getAttribute("wn-yt-description"),
-    pubat    : elYoutube.getAttribute("wn-yt-pubat"),
-    thumbUrl : elYoutube.getAttribute("wn-yt-thumb-url"),
-    duration   : elYoutube.getAttribute("wn-yt-duration"),
-    du_in_str  : elYoutube.getAttribute("wn-yt-du_in_str"),
-    definition : elYoutube.getAttribute("wn-yt-definition"),
-    categoryId : elYoutube.getAttribute("wn-yt-category-id"),
+    id: elYoutube.getAttribute("wn-yt-id"),
+    title: elYoutube.getAttribute("wn-yt-title"),
+    description: elYoutube.getAttribute("wn-yt-description"),
+    pubat: elYoutube.getAttribute("wn-yt-pubat"),
+    thumbUrl: elYoutube.getAttribute("wn-yt-thumb-url"),
+    duration: elYoutube.getAttribute("wn-yt-duration"),
+    du_in_str: elYoutube.getAttribute("wn-yt-du_in_str"),
+    definition: elYoutube.getAttribute("wn-yt-definition"),
+    categoryId: elYoutube.getAttribute("wn-yt-category-id"),
     allow,
     allowfullscreen,
     style
@@ -56522,30 +56528,30 @@ function GetYoutubeAttrsByElement(elYoutube) {
 }
 ////////////////////////////////////////////////////
 function GetYoutubeAttrsByObj(ytVideo) {
-  let {allow, allowfullscreen} = ytVideo
+  let { allow, allowfullscreen } = ytVideo
   allow = allow || []
   return {
-    "wn-yt-id" : ytVideo.id,
-    "wn-yt-title" : ytVideo.title,
-    "wn-yt-description" : ytVideo.description,
-    "wn-yt-pubat" : ytVideo.publishedAt,
-    "wn-yt-thumb-url" : ytVideo.thumbUrl,
-    "wn-yt-duration" : ytVideo.duration,
-    "wn-yt-du_in_str" : ytVideo.du_in_str,
-    "wn-yt-definition" : ytVideo.definition,
-    "wn-yt-category-id" : ytVideo.categoryId,
-    "wn-yt-allow" : allow.join("; ") || null,
-    "wn-yt-allowfullscreen" : allowfullscreen || null
+    "wn-yt-id": ytVideo.id,
+    "wn-yt-title": ytVideo.title,
+    "wn-yt-description": ytVideo.description,
+    "wn-yt-pubat": ytVideo.publishedAt,
+    "wn-yt-thumb-url": ytVideo.thumbUrl,
+    "wn-yt-duration": ytVideo.duration,
+    "wn-yt-du_in_str": ytVideo.du_in_str,
+    "wn-yt-definition": ytVideo.definition,
+    "wn-yt-category-id": ytVideo.categoryId,
+    "wn-yt-allow": allow.join("; ") || null,
+    "wn-yt-allowfullscreen": allowfullscreen || null
   }
 }
 ////////////////////////////////////////////////////
 function UpdateYoutubeTagInnerHtml(elYoutube) {
   let cover = elYoutube.getAttribute("wn-yt-thumb-url")
   let $inner = Ti.Dom.createElement({
-    tagName : "div",
-    className : "media-inner",
-    style : {
-      "background-image" : `url("${cover}")`
+    tagName: "div",
+    className: "media-inner",
+    style: {
+      "background-image": `url("${cover}")`
     }
   })
   $inner.innerHTML = '<i class="media-font-icon fab fa-youtube"></i>'
@@ -56555,23 +56561,23 @@ function UpdateYoutubeTagInnerHtml(elYoutube) {
 }
 ////////////////////////////////////////////////////
 function CmdInsertYoutube(editor, ytVideo) {
-  if(!ytVideo)
+  if (!ytVideo)
     return
-  
+
   // Prepare range
   let rng = editor.selection.getRng()
-  
+
   // Create image fragments
   let $doc = rng.commonAncestorContainer.ownerDocument
   let $video = Ti.Dom.createElement({
-    tagName : "div",
-    className : "wn-media as-youtube",
-    attrs : GetYoutubeAttrsByObj(ytVideo)
+    tagName: "div",
+    className: "wn-media as-youtube",
+    attrs: GetYoutubeAttrsByObj(ytVideo)
   }, $doc)
   UpdateYoutubeTagInnerHtml($video)
-  
+
   // Remove content
-  if(!rng.collapsed) {
+  if (!rng.collapsed) {
     rng.deleteContents()
   }
 
@@ -56584,15 +56590,15 @@ function GetCurrentYoutubeElement(editor) {
   let sel = editor.selection
   let $nd = sel.getNode()
   // Guard
-  return Ti.Dom.closest($nd, (el)=>{
+  return Ti.Dom.closest($nd, (el) => {
     return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-youtube")
-  })
+  }, { includeSelf: true })
 }
 ////////////////////////////////////////////////////
-function CmdSetYoutubeStyle(editor, css={}) {
+function CmdSetYoutubeStyle(editor, css = {}) {
   let $video = GetCurrentYoutubeElement(editor)
   // Guard
-  if(!_.isElement($video)) {
+  if (!_.isElement($video)) {
     return
   }
   // Clear float
@@ -56604,7 +56610,7 @@ function CmdSetYoutubeStyle(editor, css={}) {
 async function CmdShowYoutubeProp(editor, settings) {
   let $video = GetCurrentYoutubeElement(editor)
   // Guard
-  if(!_.isElement($video)) {
+  if (!_.isElement($video)) {
     return
   }
   //console.log("stl", stl)
@@ -56614,71 +56620,71 @@ async function CmdShowYoutubeProp(editor, settings) {
   //console.log(data)
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fab-youtube",
-    title : "i18n:hmk-w-edit-yt-video",
-    width  : "37%",
-    height : "100%",
-    position : "right",
-    closer : "left",
-    clickMaskToClose : true,
-    result : data,
-    model : {prop:"data", event:"change"},
-    comType : "TiForm",
-    comConf : {
-      spacing : "tiny",
-      fields : [
+    icon: "fab-youtube",
+    title: "i18n:hmk-w-edit-yt-video",
+    width: "37%",
+    height: "100%",
+    position: "right",
+    closer: "left",
+    clickMaskToClose: true,
+    result: data,
+    model: { prop: "data", event: "change" },
+    comType: "TiForm",
+    comConf: {
+      spacing: "tiny",
+      fields: [
         {
-          title : "i18n:hmk-w-edit-yt-video-features",
-          name  : "allow",
-          type  : "Array",
-          comType : "TiBulletCheckbox",
-          comConf : {
-            options : [
-              {value: "accelerometer", text: "i18n:video-accelerometer"},
-              {value: "autoplay", text: "i18n:video-autoplay"},
-              {value: "clipboard-write", text: "i18n:video-clipboard-write"},
-              {value: "encrypted-media", text: "i18n:video-encrypted-media"},
-              {value: "gyroscope", text: "i18n:video-gyroscope"},
-              {value: "picture-in-picture", text: "i18n:video-pic-in-pic"}
+          title: "i18n:hmk-w-edit-yt-video-features",
+          name: "allow",
+          type: "Array",
+          comType: "TiBulletCheckbox",
+          comConf: {
+            options: [
+              { value: "accelerometer", text: "i18n:video-accelerometer" },
+              { value: "autoplay", text: "i18n:video-autoplay" },
+              { value: "clipboard-write", text: "i18n:video-clipboard-write" },
+              { value: "encrypted-media", text: "i18n:video-encrypted-media" },
+              { value: "gyroscope", text: "i18n:video-gyroscope" },
+              { value: "picture-in-picture", text: "i18n:video-pic-in-pic" }
             ]
           }
         },
         {
-          title : "i18n:allowfullscreen",
-          name  : "allowfullscreen",
-          type  : "Boolean",
-          comType : "TiToggle"
+          title: "i18n:allowfullscreen",
+          name: "allowfullscreen",
+          type: "Boolean",
+          comType: "TiToggle"
         },
         Wn.Hm.getCssPropField("width", {
-          name  : "style.width"
+          name: "style.width"
         }),
         Wn.Hm.getCssPropField("height", {
-          name  : "style.height"
+          name: "style.height"
         }),
         Wn.Hm.getCssPropField("float", {
-          name  : "style.float"
+          name: "style.float"
         }),
         {
-          title : "i18n:style-more",
-          name  : "style",
-          type  : "Object",
-          comType : "HmPropCssRules",
-          comConf : {
-            rules : [
+          title: "i18n:style-more",
+          name: "style",
+          type: "Object",
+          comType: "HmPropCssRules",
+          comConf: {
+            rules: [
               /^((min|max)-)?(width|height)$/,
               /^(margin|border|box-shadow|float)$/
             ]
           }
         }]
     },
-    components : [
+    components: [
       "@com:ti/droplist",
       "@com:ti/bullet/checkbox"
     ]
   })
   //................................................
   // 用户取消
-  if(!reo)
+  if (!reo)
     return
   //................................................
   // 设置属性
@@ -56699,43 +56705,43 @@ async function CmdShowYoutubeProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
-  name : "wn-youtube",
+  name: "wn-youtube",
   //------------------------------------------------
-  init : function(conf={}) {
+  init: function (conf = {}) {
   },
   //------------------------------------------------
-  setup : function(editor, url){
+  setup: function (editor, url) {
     //..............................................
     let settings = _.assign({
-        meta : "~"
-      }, _.get(editor.settings, "wn_youtube_config"));
+      meta: "~"
+    }, _.get(editor.settings, "wn_youtube_config"));
     //console.log("setup", editor.settings)
     //..............................................
     // Register plugin command
-    editor.addCommand("InsertYoutube",   CmdInsertYoutube)
+    editor.addCommand("InsertYoutube", CmdInsertYoutube)
     editor.addCommand("SetYoutubeStyle", CmdSetYoutubeStyle)
     editor.addCommand("ShowYoutubeProp", CmdShowYoutubeProp)
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnYoutubePick", {
-      icon : "youtube-brands",
-      tooltip : Ti.I18n.text("i18n:video-insert"),
-      onAction : function(menuBtn) {
+      icon: "youtube-brands",
+      tooltip: Ti.I18n.text("i18n:video-insert"),
+      onAction: function (menuBtn) {
         pickYoutubeAndInsertToDoc(editor, settings)
       },
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnYoutubeClrSize", {
-      text : Ti.I18n.text("i18n:hmk-w-edit-video-clrsz"),
+      text: Ti.I18n.text("i18n:hmk-w-edit-video-clrsz"),
       onAction() {
-        editor.execCommand("SetVideoStyle", editor, {width:""})
+        editor.execCommand("SetVideoStyle", editor, { width: "" })
       }
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnYoutubeAutoFitWidth", {
-      text : Ti.I18n.text("i18n:hmk-autofit"),
+      text: Ti.I18n.text("i18n:hmk-autofit"),
       onAction() {
-        editor.execCommand("SetVideoStyle", editor, {width:"100%"})
+        editor.execCommand("SetVideoStyle", editor, { width: "100%" })
       }
     })
     //..............................................
@@ -56743,24 +56749,24 @@ const __TI_MOD_EXPORT_VAR_NM = {
       text: Ti.I18n.text('i18n:hmk-float'),
       getSubmenuItems: function () {
         return [{
-          type : "menuitem",
-          icon : "align-left",
-          text : Ti.I18n.text("i18n:hmk-float-left"),
+          type: "menuitem",
+          icon: "align-left",
+          text: Ti.I18n.text("i18n:hmk-float-left"),
           onAction() {
-            editor.execCommand("SetYoutubeStyle", editor, {float:"left"})
+            editor.execCommand("SetYoutubeStyle", editor, { float: "left" })
           }
         }, {
-          type : "menuitem",
-          icon : "align-right",
-          text : Ti.I18n.text("i18n:hmk-float-right"),
+          type: "menuitem",
+          icon: "align-right",
+          text: Ti.I18n.text("i18n:hmk-float-right"),
           onAction() {
-            editor.execCommand("SetYoutubeStyle", editor, {float:"right"})
+            editor.execCommand("SetYoutubeStyle", editor, { float: "right" })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("i18n:hmk-float-none"),
+          type: "menuitem",
+          text: Ti.I18n.text("i18n:hmk-float-none"),
           onAction() {
-            editor.execCommand("SetYoutubeStyle", editor, {float:""})
+            editor.execCommand("SetYoutubeStyle", editor, { float: "" })
           }
         }];
       }
@@ -56769,63 +56775,63 @@ const __TI_MOD_EXPORT_VAR_NM = {
     editor.ui.registry.addNestedMenuItem('WnYoutubeMargin', {
       text: Ti.I18n.text('i18n:hmk-w-edit-video-margin'),
       getSubmenuItems: function () {
-        const __check_margin_size = function(api, expectSize) {
+        const __check_margin_size = function (api, expectSize) {
           let $video = GetCurrentYoutubeElement(editor)
           let state = true
-          if($video) {
+          if ($video) {
             let sz = $video.style.marginLeft || $video.style.marginRight
             state = expectSize == sz
           }
           api.setActive(state);
-          return function() {};
+          return function () { };
         }
         return [{
-          type : "togglemenuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-sm"),
+          type: "togglemenuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-sm"),
           onAction() {
-            editor.execCommand("SetYoutubeStyle", editor, {margin:"1em"})
+            editor.execCommand("SetYoutubeStyle", editor, { margin: "1em" })
           },
-          onSetup: function(api) {
+          onSetup: function (api) {
             return __check_margin_size(api, '1em')
           }
         }, {
-          type : "togglemenuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-md"),
+          type: "togglemenuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-md"),
           onAction() {
-            editor.execCommand("SetYoutubeStyle", editor, {margin:"2em"})
+            editor.execCommand("SetYoutubeStyle", editor, { margin: "2em" })
           },
-          onSetup: function(api) {
+          onSetup: function (api) {
             return __check_margin_size(api, '2em')
           }
         }, {
-          type : "togglemenuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-lg"),
+          type: "togglemenuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-lg"),
           onAction() {
-            editor.execCommand("SetYoutubeStyle", editor, {margin:"3em"})
+            editor.execCommand("SetYoutubeStyle", editor, { margin: "3em" })
           },
-          onSetup: function(api) {
+          onSetup: function (api) {
             return __check_margin_size(api, '3em')
           }
         }, {
-          type : "menuitem",
-          icon : "align-center",
-          text : Ti.I18n.text("i18n:hmk-margin-center"),
+          type: "menuitem",
+          icon: "align-center",
+          text: Ti.I18n.text("i18n:hmk-margin-center"),
           onAction() {
-            editor.execCommand("SetYoutubeStyle", editor, {margin:"0 auto"})
+            editor.execCommand("SetYoutubeStyle", editor, { margin: "0 auto" })
           }
         }, {
-          type : "menuitem",
-          icon : "square-6",
-          text : Ti.I18n.text("i18n:hmk-margin-no"),
+          type: "menuitem",
+          icon: "square-6",
+          text: Ti.I18n.text("i18n:hmk-margin-no"),
           onAction() {
-            editor.execCommand("SetYoutubeStyle", editor, {margin:""})
+            editor.execCommand("SetYoutubeStyle", editor, { margin: "" })
           }
         }];
       }
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnYoutubeProp", {
-      text : Ti.I18n.text("i18n:hmk-w-edit-video-prop"),
+      text: Ti.I18n.text("i18n:hmk-w-edit-video-prop"),
       onAction() {
         editor.execCommand("ShowYoutubeProp", editor, settings)
       }
@@ -56835,7 +56841,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       update: function (el) {
         let $video = GetCurrentYoutubeElement(editor)
         // Guard
-        if(!_.isElement($video)) {
+        if (!_.isElement($video)) {
           return []
         }
         return [
@@ -56847,10 +56853,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     let $vm = editor.__rich_tinymce_com
-    $vm.registerContentCallback("wn-youtube", function() {
+    $vm.registerContentCallback("wn-youtube", function () {
       //console.log("SetContent youtube")
       let els = editor.$('.wn-media.as-youtube')
-      for(let i=0; i<els.length; i++) {
+      for (let i = 0; i < els.length; i++) {
         let el = els[i]
         UpdateYoutubeTagInnerHtml(el)
       }
@@ -56858,7 +56864,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     return {
       getMetadata: function () {
-        return  {
+        return {
           name: 'Wn Youtube plugin',
           url: 'http://site0.cn'
         };
@@ -71341,6 +71347,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         continue;
       }
       let link = Wn.Util.getDownloadLink(it)
+      console.log(link, it)
       Ti.Be.OpenLink(link)
     }
   },
@@ -73901,39 +73908,39 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-audio.mjs'] = (function(){
 ////////////////////////////////////////////////////
 async function pickAudioAndInsertToDoc(editor, {
-  base = "~", 
-  autoCreate=null, 
+  base = "~",
+  autoCreate = null,
   fallbackPath,
 }) {
   // Check base
-  if(_.isPlainObject(autoCreate)) {
+  if (_.isPlainObject(autoCreate)) {
     let oBase = await Wn.Io.loadMeta(base)
-    if(!oBase) {
+    if (!oBase) {
       let pph = Ti.Util.getParentPath(base)
       let dnm = Ti.Util.getFileName(base)
       let baseMeta = _.assign({}, autoCreate, {
-        race: 'DIR', nm : dnm
+        race: 'DIR', nm: dnm
       })
       let baseJson = JSON.stringify(baseMeta)
       let cmdText = `o @create '${baseJson}' -p ${pph} -auto @json -cqn`
-      oBase = await Wn.Sys.exec2(cmdText, {as:"json"})
+      oBase = await Wn.Sys.exec2(cmdText, { as: "json" })
     }
     base = oBase
   }
 
   // Show dialog
   let reo = await Wn.OpenObjSelector(base, {
-    icon  : "fas-file-audio",
-    title : "i18n:audio-insert",
-    position : "top",
-    width  : "95%",
-    height : "95%",
-    multi : false,
+    icon: "fas-file-audio",
+    title: "i18n:audio-insert",
+    position: "top",
+    width: "95%",
+    height: "95%",
+    multi: false,
     fallbackPath
   })
 
   // User canceled
-  if(_.isEmpty(reo)) {
+  if (_.isEmpty(reo)) {
     return
   }
 
@@ -73942,36 +73949,36 @@ async function pickAudioAndInsertToDoc(editor, {
 }
 ////////////////////////////////////////////////////
 function GetAudioAttrsByElement(elAudio) {
-  let stl = Ti.Dom.getStyle(elAudio, 
+  let stl = Ti.Dom.getStyle(elAudio,
     /^(width|height|float|(margin-(left|right|top|bottom)))$/)
   stl.float = stl.float || "none"
   return {
-    oid   : elAudio.getAttribute("wn-obj-id"),
-    nm    : elAudio.getAttribute("wn-obj-nm"),
-    sha1  : elAudio.getAttribute("wn-obj-sha1"),
-    mime  : elAudio.getAttribute("wn-obj-mime"),
-    tp    : elAudio.getAttribute("wn-obj-tp"),
-    duration : elAudio.getAttribute("wn-obj-duration"),
-    ... stl
+    oid: elAudio.getAttribute("wn-obj-id"),
+    nm: elAudio.getAttribute("wn-obj-nm"),
+    sha1: elAudio.getAttribute("wn-obj-sha1"),
+    mime: elAudio.getAttribute("wn-obj-mime"),
+    tp: elAudio.getAttribute("wn-obj-tp"),
+    duration: elAudio.getAttribute("wn-obj-duration"),
+    ...stl
   }
 }
 ////////////////////////////////////////////////////
 function GetAudioAttrsByObj(oAudio) {
   return {
-    "wn-obj-id" : oAudio.id,
-    "wn-obj-sha1" : oAudio.sha1,
-    "wn-obj-nm" : oAudio.nm,
-    "wn-obj-mime" : oAudio.mime,
-    "wn-obj-tp"   : oAudio.tp,
-    "wn-obj-duration" : oAudio.duration
+    "wn-obj-id": oAudio.id,
+    "wn-obj-sha1": oAudio.sha1,
+    "wn-obj-nm": oAudio.nm,
+    "wn-obj-mime": oAudio.mime,
+    "wn-obj-tp": oAudio.tp,
+    "wn-obj-duration": oAudio.duration
   }
 }
 ////////////////////////////////////////////////////
 function UpdateAudioTagInnerHtml(elAudio) {
   let audioName = elAudio.getAttribute("wn-obj-nm") || "No title"
   let $inner = Ti.Dom.createElement({
-    tagName : "div",
-    className : "audio-inner"
+    tagName: "div",
+    className: "audio-inner"
   })
   $inner.innerHTML = `
     <div class="as-play-icon"><i class="fas fa-play"></i></div>
@@ -73985,27 +73992,27 @@ function UpdateAudioTagInnerHtml(elAudio) {
 }
 ////////////////////////////////////////////////////
 function CmdInsertAudio(editor, oAudios) {
-  if(_.isEmpty(oAudios))
+  if (_.isEmpty(oAudios))
     return
-  
+
   // Prepare range
   let rng = editor.selection.getRng()
-  
+
   // Create image fragments
   let $doc = rng.commonAncestorContainer.ownerDocument
   let frag = new DocumentFragment()
-  for(let oAudio of oAudios) {
+  for (let oAudio of oAudios) {
     let $audio = Ti.Dom.createElement({
-      tagName : "div",
-      className : "wn-media as-audio",
-      attrs : GetAudioAttrsByObj(oAudio)
+      tagName: "div",
+      className: "wn-media as-audio",
+      attrs: GetAudioAttrsByObj(oAudio)
     }, $doc)
     UpdateAudioTagInnerHtml($audio)
     frag.appendChild($audio)
   }
-  
+
   // Remove content
-  if(!rng.collapsed) {
+  if (!rng.collapsed) {
     rng.deleteContents()
   }
 
@@ -74018,27 +74025,27 @@ function GetCurrentAudioElement(editor) {
   let sel = editor.selection
   let $nd = sel.getNode()
   // Guard
-  return Ti.Dom.closest($nd, (el)=>{
+  return Ti.Dom.closest($nd, (el) => {
     return 'DIV' == el.tagName && Ti.Dom.hasClass(el, "wn-media", "as-audio")
-  })
+  }, { includeSelf: true })
 }
 ////////////////////////////////////////////////////
-function CmdSetAudioSize(editor, {width="", height=""}={}) {
+function CmdSetAudioSize(editor, { width = "", height = "" } = {}) {
   let $audio = GetCurrentAudioElement(editor)
   // Guard
-  if(!_.isElement($audio)) {
+  if (!_.isElement($audio)) {
     return
   }
   // Clear the attribute
-  Ti.Dom.setStyle($audio, {width, height})
+  Ti.Dom.setStyle($audio, { width, height })
   // Force sync content
   editor.__rich_tinymce_com.syncContent()
 }
 ////////////////////////////////////////////////////
-function CmdSetAudioStyle(editor, css={}) {
+function CmdSetAudioStyle(editor, css = {}) {
   let $audio = GetCurrentAudioElement(editor)
   // Guard
-  if(!_.isElement($audio)) {
+  if (!_.isElement($audio)) {
     return
   }
   // Clear float
@@ -74050,7 +74057,7 @@ function CmdSetAudioStyle(editor, css={}) {
 async function CmdShowAudioProp(editor, settings) {
   let $audio = GetCurrentAudioElement(editor)
   // Guard
-  if(!_.isElement($audio)) {
+  if (!_.isElement($audio)) {
     return
   }
   //console.log("stl", stl)
@@ -74060,109 +74067,109 @@ async function CmdShowAudioProp(editor, settings) {
   //console.log(data)
   // Show dialog
   let reo = await Ti.App.Open({
-    icon  : "fas-image",
-    title : "i18n:hmk-w-edit-audio-prop",
-    width  : "37%",
-    height : "100%",
-    position : "right",
-    closer : "left",
-    clickMaskToClose : true,
-    result : data,
-    model : {prop:"data", event:"change"},
-    comType : "TiForm",
-    comConf : {
-      spacing : "tiny",
-      fields : [{
-          title : "i18n:audio",
-          name  : "oid",
-          comType : "WnObjPicker",
-          comConf : {
-            valueType : "id",
-            base : settings.base,
-            titleEditable : false
-          }
+    icon: "fas-image",
+    title: "i18n:hmk-w-edit-audio-prop",
+    width: "37%",
+    height: "100%",
+    position: "right",
+    closer: "left",
+    clickMaskToClose: true,
+    result: data,
+    model: { prop: "data", event: "change" },
+    comType: "TiForm",
+    comConf: {
+      spacing: "tiny",
+      fields: [{
+        title: "i18n:audio",
+        name: "oid",
+        comType: "WnObjPicker",
+        comConf: {
+          valueType: "id",
+          base: settings.base,
+          titleEditable: false
+        }
+      }, {
+        title: "i18n:size",
+        fields: [{
+          title: "i18n:width",
+          name: "width",
+          comType: "TiInput"
         }, {
-          title : "i18n:size",
-          fields: [{
-            title : "i18n:width",
-            name  : "width",
-            comType : "TiInput"
-          }, {
-            title : "i18n:height",
-            name  : "height",
-            comType : "TiInput"
-          }]
-        }, {
-          title : "i18n:hmk-float",
-          name  : "float",
-          comType : "TiSwitcher",
-          comConf : {
-            allowEmpty : false,
-            options : [
-              {
-                icon:"fas-align-justify",
-                value: "none",
-                text: "i18n:hmk-float-none"
-              },
-              {
-                icon:"fas-align-left",
-                value: "left",
-                text: "i18n:hmk-float-left"
-              },
-              {
-                icon:"fas-align-right",
-                value: "right",
-                text: "i18n:hmk-float-right"
-              }]
-          }
-        }, {
-          title : "i18n:hmk-w-edit-audio-margin",
-          fields : [{
-              title : "i18n:top",
-              name  : "marginTop",
-              comType : "TiInput",
-              comConf : {
-                placeholder : "0px"
-              }
-            }, {
-              title : "i18n:right",
-              name  : "marginRight",
-              comType : "TiInput",
-              comConf : {
-                placeholder : "0px"
-              }
-            }, {
-              title : "i18n:bottom",
-              name  : "marginBottom",
-              comType : "TiInput",
-              comConf : {
-                placeholder : "0px"
-              }
-            }, {
-              title : "i18n:left",
-              name  : "marginLeft",
-              comType : "TiInput",
-              comConf : {
-                placeholder : "0px"
-              }
-            }]
+          title: "i18n:height",
+          name: "height",
+          comType: "TiInput"
         }]
+      }, {
+        title: "i18n:hmk-float",
+        name: "float",
+        comType: "TiSwitcher",
+        comConf: {
+          allowEmpty: false,
+          options: [
+            {
+              icon: "fas-align-justify",
+              value: "none",
+              text: "i18n:hmk-float-none"
+            },
+            {
+              icon: "fas-align-left",
+              value: "left",
+              text: "i18n:hmk-float-left"
+            },
+            {
+              icon: "fas-align-right",
+              value: "right",
+              text: "i18n:hmk-float-right"
+            }]
+        }
+      }, {
+        title: "i18n:hmk-w-edit-audio-margin",
+        fields: [{
+          title: "i18n:top",
+          name: "marginTop",
+          comType: "TiInput",
+          comConf: {
+            placeholder: "0px"
+          }
+        }, {
+          title: "i18n:right",
+          name: "marginRight",
+          comType: "TiInput",
+          comConf: {
+            placeholder: "0px"
+          }
+        }, {
+          title: "i18n:bottom",
+          name: "marginBottom",
+          comType: "TiInput",
+          comConf: {
+            placeholder: "0px"
+          }
+        }, {
+          title: "i18n:left",
+          name: "marginLeft",
+          comType: "TiInput",
+          comConf: {
+            placeholder: "0px"
+          }
+        }]
+      }]
     },
-    components : [
+    components: [
       "@com:wn/obj/picker"
     ]
   })
 
   // 用户取消
-  if(!reo)
+  if (!reo)
     return
 
   // Update image
   //................................................
   // src
-  if(data.oid != reo.oid) {
+  if (data.oid != reo.oid) {
     // Remove Audio
-    if(!reo.oid) {
+    if (!reo.oid) {
       Ti.Dom.remove($audio)
       return
     }
@@ -74173,16 +74180,16 @@ async function CmdShowAudioProp(editor, settings) {
     Ti.Dom.setAttrs($audio, attrs)
 
     UpdateAudioTagInnerHtml($audio)
-    
+
   }
   //................................................
   // Styling
-  const _audio_style = function(styName, v, oldValue) {
-    if(oldValue == v)
+  const _audio_style = function (styName, v, oldValue) {
+    if (oldValue == v)
       return
-    if(!v || "none" == v) {
+    if (!v || "none" == v) {
       $audio.style[styName] = ""
-    } else if(_.isNumber(v) || /^\d+(\.\d+)?$/.test(v)) {
+    } else if (_.isNumber(v) || /^\d+(\.\d+)?$/.test(v)) {
       $audio.style[styName] = `${v}px`
     } else {
       $audio.style[styName] = v
@@ -74192,9 +74199,9 @@ async function CmdShowAudioProp(editor, settings) {
   _audio_style("width", reo.width, data.width)
   _audio_style("height", reo.height, data.height)
   _audio_style("float", reo.float, data.float)
-  _audio_style("marginLeft",   reo.marginLeft,   data.marginLeft)
-  _audio_style("marginRight",  reo.marginRight,  data.marginRight)
-  _audio_style("marginTop",    reo.marginTop,    data.marginTop)
+  _audio_style("marginLeft", reo.marginLeft, data.marginLeft)
+  _audio_style("marginRight", reo.marginRight, data.marginRight)
+  _audio_style("marginTop", reo.marginTop, data.marginTop)
   _audio_style("marginBottom", reo.marginBottom, data.marginBottom)
   //................................................
   // clean cache
@@ -74206,44 +74213,44 @@ async function CmdShowAudioProp(editor, settings) {
 }
 ////////////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
-  name : "wn-audio",
+  name: "wn-audio",
   //------------------------------------------------
-  init : function(conf={}) {
+  init: function (conf = {}) {
   },
   //------------------------------------------------
-  setup : function(editor, url){
+  setup: function (editor, url) {
     //..............................................
     let settings = _.assign({
-        base : "~"
-      }, _.get(editor.settings, "wn_audio_config"));
+      base: "~"
+    }, _.get(editor.settings, "wn_audio_config"));
     //console.log("setup", editor.settings)
     //..............................................
     // Register plugin command
-    editor.addCommand("InsertAudio",   CmdInsertAudio)
-    editor.addCommand("SetAudioSize",  CmdSetAudioSize)
+    editor.addCommand("InsertAudio", CmdInsertAudio)
+    editor.addCommand("SetAudioSize", CmdSetAudioSize)
     editor.addCommand("SetAudioStyle", CmdSetAudioStyle)
     editor.addCommand("ShowAudioProp", CmdShowAudioProp)
     //..............................................
     // Register toolbar actions
     editor.ui.registry.addButton("WnAudioPick", {
-      icon : "volume-up-solid",
-      tooltip : Ti.I18n.text("i18n:audio-insert"),
-      onAction : function(menuBtn) {
+      icon: "volume-up-solid",
+      tooltip: Ti.I18n.text("i18n:audio-insert"),
+      onAction: function (menuBtn) {
         pickAudioAndInsertToDoc(editor, settings)
       },
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnAudioClrSize", {
-      text : Ti.I18n.text("i18n:hmk-w-edit-audio-clrsz"),
+      text: Ti.I18n.text("i18n:hmk-w-edit-audio-clrsz"),
       onAction() {
         editor.execCommand("SetAudioSize", editor)
       }
     })
     //..............................................
     editor.ui.registry.addMenuItem("WnAudioAutoFitWidth", {
-      text : Ti.I18n.text("i18n:hmk-autofit"),
+      text: Ti.I18n.text("i18n:hmk-autofit"),
       onAction() {
-        editor.execCommand("SetAudioSize", editor, {width:"100%"})
+        editor.execCommand("SetAudioSize", editor, { width: "100%" })
       }
     })
     //..............................................
@@ -74251,81 +74258,81 @@ const __TI_MOD_EXPORT_VAR_NM = {
       text: 'i18n:hmk-float',
       getSubmenuItems: function () {
         return [{
-          type : "menuitem",
-          icon : "align-left",
-          text : Ti.I18n.text("i18n:hmk-float-left"),
+          type: "menuitem",
+          icon: "align-left",
+          text: Ti.I18n.text("i18n:hmk-float-left"),
           onAction() {
-            editor.execCommand("SetAudioStyle", editor, {float:"left"})
+            editor.execCommand("SetAudioStyle", editor, { float: "left" })
           }
         }, {
-          type : "menuitem",
-          icon : "align-right",
-          text : Ti.I18n.text("i18n:hmk-float-right"),
+          type: "menuitem",
+          icon: "align-right",
+          text: Ti.I18n.text("i18n:hmk-float-right"),
           onAction() {
-            editor.execCommand("SetAudioStyle", editor, {float:"right"})
+            editor.execCommand("SetAudioStyle", editor, { float: "right" })
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("i18n:hmk-float-clear"),
+          type: "menuitem",
+          text: Ti.I18n.text("i18n:hmk-float-clear"),
           onAction() {
-            editor.execCommand("SetAudioStyle", editor, {float:""})
+            editor.execCommand("SetAudioStyle", editor, { float: "" })
           }
         }];
       }
     });
     //..............................................
     editor.ui.registry.addNestedMenuItem('WnAudioMargin', {
-      text : Ti.I18n.text("i18n:hmk-w-edit-audio-margin"),
+      text: Ti.I18n.text("i18n:hmk-w-edit-audio-margin"),
       getSubmenuItems: function () {
-        const __check_margin_size = function(api, expectSize) {
+        const __check_margin_size = function (api, expectSize) {
           let $audio = GetCurrentAudioElement(editor)
           let state = true
-          if($audio) {
+          if ($audio) {
             let sz = $audio.style.marginLeft || $audio.style.marginRight
             state = expectSize == sz
           }
           api.setActive(state);
-          return function() {};
+          return function () { };
         }
         return [{
-          type : "togglemenuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-sm"),
+          type: "togglemenuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-sm"),
           onAction() {
-            editor.execCommand("SetAudioStyle", editor, {margin:"1em"})
+            editor.execCommand("SetAudioStyle", editor, { margin: "1em" })
           },
-          onSetup: function(api) {
+          onSetup: function (api) {
             return __check_margin_size(api, '1em')
           }
         }, {
-          type : "togglemenuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-md"),
+          type: "togglemenuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-md"),
           onAction() {
-            editor.execCommand("SetAudioStyle", editor, {margin:"2em"})
+            editor.execCommand("SetAudioStyle", editor, { margin: "2em" })
           },
-          onSetup: function(api) {
+          onSetup: function (api) {
             return __check_margin_size(api, '2em')
           }
         }, {
-          type : "togglemenuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-lg"),
+          type: "togglemenuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-lg"),
           onAction() {
-            editor.execCommand("SetAudioStyle", editor, {margin:"3em"})
+            editor.execCommand("SetAudioStyle", editor, { margin: "3em" })
           },
-          onSetup: function(api) {
+          onSetup: function (api) {
             return __check_margin_size(api, '3em')
           }
         }, {
-          type : "menuitem",
-          text : Ti.I18n.text("i18n:hmk-margin-no"),
+          type: "menuitem",
+          text: Ti.I18n.text("i18n:hmk-margin-no"),
           onAction() {
-            editor.execCommand("SetAudioStyle", editor, {margin:""})
+            editor.execCommand("SetAudioStyle", editor, { margin: "" })
           }
         }];
       }
     });
     //..............................................
     editor.ui.registry.addMenuItem("WnAudioProp", {
-      text : Ti.I18n.text("i18n:hmk-w-edit-audio-prop"),
+      text: Ti.I18n.text("i18n:hmk-w-edit-audio-prop"),
       onAction() {
         editor.execCommand("ShowAudioProp", editor, settings)
       }
@@ -74335,7 +74342,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       update: function (el) {
         let $audio = GetCurrentAudioElement(editor)
         // Guard
-        if(!_.isElement($audio)) {
+        if (!_.isElement($audio)) {
           return []
         }
         return [
@@ -74347,10 +74354,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
     //..............................................
     let $vm = editor.__rich_tinymce_com
-    $vm.registerContentCallback("wn-audio", function() {
+    $vm.registerContentCallback("wn-audio", function () {
       //console.log("SetContent audio")
       let els = editor.$('.wn-media.as-audio')
-      for(let i=0; i<els.length; i++) {
+      for (let i = 0; i < els.length; i++) {
         let el = els[i]
         let mime = el.getAttribute("wn-obj-mime")
         UpdateAudioTagInnerHtml(el)
@@ -74359,7 +74366,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     return {
       getMetadata: function () {
-        return  {
+        return {
           name: 'Wn Audio plugin',
           url: 'http://site0.cn'
         };

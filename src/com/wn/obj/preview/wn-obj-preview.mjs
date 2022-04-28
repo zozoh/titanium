@@ -447,6 +447,7 @@ export default {
     //--------------------------------------
     download() {
       let link = Wn.Util.getDownloadLink(this.meta)
+      console.log(link, this.meta)
       Ti.Be.OpenLink(link)
     },
     //--------------------------------------

@@ -60,12 +60,14 @@ body.mce-content-body {
   //-----------------------------------------------------
   div.ti-tinymce-obj-resize-handler {
     position: absolute;
-    width: SZ(20); height: SZ(20);
-    background: map-get($color-f-link, c);
-    &.at-nw {cursor: nwse-resize; margin: SZ(-10) 0 0 SZ(-10);}
-    &.at-ne {cursor: nesw-resize; margin: SZ(-10) 0 0 SZ(-10);}
-    &.at-sw {cursor: nesw-resize; margin: SZ(-10) 0 0 SZ(-10);}
-    &.at-se {cursor: nwse-resize; margin: SZ(-10) 0 0 SZ(-10);}
+    width: SZ(12); height: SZ(12);
+    background: map-get($color-primary, c);
+    border:1px solid map-get($color-primary, r);
+    border-radius: 50%;
+    &.at-nw {cursor: nwse-resize; margin: SZ(-6) 0 0 SZ(-6);}
+    &.at-ne {cursor: nesw-resize; margin: SZ(-6) 0 0 SZ(-6);}
+    &.at-sw {cursor: nesw-resize; margin: SZ(-6) 0 0 SZ(-6);}
+    &.at-se {cursor: nwse-resize; margin: SZ(-6) 0 0 SZ(-6);}
     
   }
   //-----------------------------------------------------
