@@ -1,4 +1,4 @@
-// Pack At: 2022-04-29 02:17:17
+// Pack At: 2022-04-29 16:55:27
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -67810,6 +67810,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           shift  : $event.shiftKey,
           toggle
         })
+        this.doAutoActived()
       }
     },
     //-----------------------------------------------
@@ -67850,15 +67851,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   ///////////////////////////////////////////////////
   watch : {
-    "isCurrent" : function() {
-      this.doAutoActived()
-    },
     "data" : "evalGroupTitleDisplayCom",
     "groupTitleDisplay" : "evalGroupTitleDisplayCom"
   },
   ///////////////////////////////////////////////////
   mounted : async function() {
-    this.doAutoActived()
     await this.evalGroupTitleDisplayCom()
   }
   ///////////////////////////////////////////////////

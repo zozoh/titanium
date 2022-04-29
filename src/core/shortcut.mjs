@@ -313,6 +313,7 @@ const TiShortcut = {
 
       // Then try to find the action
       if (app) {
+        //console.log("Shortcut:", uniqKey)
         app.fireShortcut(uniqKey, $event)
       }
     })

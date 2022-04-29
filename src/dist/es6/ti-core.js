@@ -1,4 +1,4 @@
-// Pack At: 2022-04-29 02:17:17
+// Pack At: 2022-04-29 16:55:27
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -7446,6 +7446,7 @@ const {Shortcut} = (function(){
   
         // Then try to find the action
         if (app) {
+          //console.log("Shortcut:", uniqKey)
           app.fireShortcut(uniqKey, $event)
         }
       })
@@ -12847,46 +12848,62 @@ const {Trees} = (function(){
 // # import {Viewport}     from "./viewport.mjs"
 const {Viewport} = (function(){
   class TiViewport {
-    constructor(){
+    constructor() {
       this.reset()
     }
-    reset($app=null) {
+    reset($app = null) {
       this.scrolling = []
       this.resizing = []
       return this
     }
-    watch(context, {scroll, resize}={}){
-      if(_.isFunction(scroll)) {
+    watch(context, { scroll, resize } = {}) {
+      if (_.isFunction(scroll)) {
         this.scrolling.push({
           context, handler: scroll
         })
       }
-      if(_.isFunction(resize)) {
+      if (_.isFunction(resize)) {
         this.resizing.push({
           context, handler: resize
         })
       }
     }
-    unwatch(theContext){
-      _.remove(this.scrolling, ({context})=>context===theContext)
-      _.remove(this.resizing, ({context})=>context===theContext)
+    unwatch(theContext) {
+      _.remove(this.scrolling, ({ context }) => context === theContext)
+      _.remove(this.resizing, ({ context }) => context === theContext)
+    }
+    notifyResize(evt = {}) {
+      _.delay(() => {
+        this.resize(evt)
+      })
+    }
+    notifyScroll(evt = {}) {
+      _.delay(() => {
+        this.scroll(evt)
+      })
+    }
+    resize(evt = {}) {
+      for (let call of this.resizing) {
+        call.handler.apply(call.context, [evt])
+      }
+    }
+    scroll(evt = {}) {
+      for (let call of this.scrolling) {
+        call.handler.apply(call.context, [evt])
+      }
     }
     startListening() {
       let vp = this
       // Prevent multiple listening
-      if(this.isListening)
+      if (this.isListening)
         return
       // Do listen: resize
-      window.addEventListener("resize", (evt)=>{
-        for(let call of vp.resizing) {
-          call.handler.apply(call.context, [evt])
-        }
+      window.addEventListener("resize", (evt) => {
+        vp.resize()
       })
       // Do listen: scroll
-      window.addEventListener("scroll", (evt)=>{
-        for(let call of vp.scrolling) {
-          call.handler.apply(call.context, [evt])
-        }
+      window.addEventListener("scroll", (evt) => {
+        vp.scroll()
       })
       // Mark
       this.isListening = true
@@ -18357,7 +18374,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220429.021717",
+  "version" : "1.6-20220429.165527",
   "dev" : false,
   "appName" : null,
   "session" : {},

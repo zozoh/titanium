@@ -157,6 +157,7 @@ export default {
           shift  : $event.shiftKey,
           toggle
         })
+        this.doAutoActived()
       }
     },
     //-----------------------------------------------
@@ -197,15 +198,11 @@ export default {
   },
   ///////////////////////////////////////////////////
   watch : {
-    "isCurrent" : function() {
-      this.doAutoActived()
-    },
     "data" : "evalGroupTitleDisplayCom",
     "groupTitleDisplay" : "evalGroupTitleDisplayCom"
   },
   ///////////////////////////////////////////////////
   mounted : async function() {
-    this.doAutoActived()
     await this.evalGroupTitleDisplayCom()
   }
   ///////////////////////////////////////////////////
