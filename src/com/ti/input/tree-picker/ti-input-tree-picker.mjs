@@ -25,8 +25,8 @@ const _M = {
 
       // Get checkedIds
       let checkedIds = {}
-      _.forEach(_.concat(this.value), v=>{
-        if(v){
+      _.forEach(_.concat(this.value), v => {
+        if (v) {
           checkedIds[v] = true
         }
       })
@@ -146,12 +146,22 @@ const _M = {
           val = this.value
         }
         let $d;
+        // Translate by Dict
         if (this.dict) {
           $d = Ti.DictFactory.CheckDict(this.dict)
           this.myInputValue = await $d.getItemText(val)
           this.myInputSuffix = val
           this.myInputIcon = (await $d.getItemIcon(val)) || this.prefixIcon
-        } else {
+        }
+        // Translate by format function
+        else if (_.isFunction(this.format)) {
+          let { value, suffix, icon } = await this.format(val, this.vars)
+          this.myInputValue = Ti.Util.fallback(value, val)
+          this.myInputSuffix = Ti.Util.fallback(suffix, value, val)
+          this.myInputIcon = Ti.Util.fallback(icon, this.prefixIcon)
+        }
+        // show value directly
+        else {
           this.myInputValue = val
           this.myInputIcon = this.prefixIcon
         }

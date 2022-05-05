@@ -16,6 +16,9 @@ export default {
   "dict": {
     type: String
   },
+  "format": {
+    type: Function
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
