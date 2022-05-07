@@ -1,4 +1,4 @@
-// Pack At: 2022-04-29 16:55:27
+// Pack At: 2022-05-07 10:04:12
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -12826,18 +12826,51 @@ const {Trees} = (function(){
       children[i1] = it
     },
     //---------------------------------
-    moveOut(hie, options) {
+    moveOut(hie, {
+      childrenBy = "children"
+    } = {}) {
       // Guard: Root/Top Node
       if (hie.depth <= 1) {
         return
       }
+      // Get the children of hie parent
+      let children = _.get(hie.parent.node, childrenBy)
+      let pChildren = _.get(hie.parent.parent.node, childrenBy)
+  
       // Get item
-      console.log(hie)
       let it = hie.node
       // Insert after parent
-      Ti.Trees.insertAfter(hie.parent, it, options)
+      let pos = hie.parent.index
+      pChildren.splice(pos + 1, 0, it)
+  
       // Remove self
-      TiTrees.remove(hie, options)
+      children.splice(hie.index, 1)
+    },
+    //---------------------------------
+    moveInto(hie, {
+      childrenBy = "children"
+    } = {}) {
+      // Guard: Root/Top Node
+      if (hie.isFirst) {
+        return
+      }
+      // Get the prev item
+      let children = _.get(hie.parent.node, childrenBy)
+      let prev = children[hie.index - 1]
+      // Make prev children
+      let prevChildren = _.get(prev, childrenBy)
+      if (!prevChildren) {
+        prevChildren = []
+        _.set(prev, childrenBy, prevChildren)
+      }
+  
+      // Join to prev children
+      let it = hie.node
+      prevChildren.push(it)
+      //console.log(hie)
+  
+      // Remove self
+      children.splice(hie.index, 1)
     }
     //---------------------------------
   }
@@ -18374,7 +18407,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220429.165527",
+  "version" : "1.6-20220507.100412",
   "dev" : false,
   "appName" : null,
   "session" : {},
