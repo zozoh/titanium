@@ -332,7 +332,7 @@ const OBJ = {
       let target = Ti.Util.explainObj(vars, this.uploadTarget, {
         evalFunc: true
       })
-      console.log("upload", file, "to", target)
+      //console.log("upload", file, "to", target)
       if (!target) {
         let msg = Ti.I18n.get("upload-notarget-continue") + " : " + file.name;
         if (await Ti.Confirm(msg, {
@@ -354,7 +354,7 @@ const OBJ = {
           up.current = pe.loaded
         }
       })
-      console.log(reo)
+      //console.log(reo)
       let { ok, data, errCode } = reo
 
       // Join the new IDS
