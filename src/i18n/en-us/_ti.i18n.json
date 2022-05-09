@@ -248,6 +248,8 @@
   "load-more": "Load more",
   "load-more-pull": "Pull for load more",
   "loading": "Loading...",
+  "loading-data": "Loading Data ...",
+  "loading-gui": "Loading GUI ...",
   "location": "Location",
   "login": "Sign in",
   "login-name": "Login name",

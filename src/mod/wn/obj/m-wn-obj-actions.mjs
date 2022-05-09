@@ -22,7 +22,7 @@ async function loadConfigJson(state, key, dft) {
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
-  async loadContent({ state, commit, dispatch, getters }) {
+  async loadContent({ state, commit, dispatch, getters }, { quiet = false } = {}) {
     // Guard
     let meta = state.meta
     if (!meta) {
@@ -46,13 +46,17 @@ const _M = {
     }
 
     // Load meta content
-    commit("setStatus", { reloading: true })
+    if (!quiet) {
+      commit("setStatus", { reloading: true })
+    }
     let content = await Wn.Io.loadContent(meta)
     dispatch("updateContent", content)
     //console.log("loadContent:", content)
 
     // All done
-    commit("setStatus", { reloading: false })
+    if (!quiet) {
+      commit("setStatus", { reloading: false })
+    }
   },
   //--------------------------------------------
   async loadSchema({ state, commit }) {

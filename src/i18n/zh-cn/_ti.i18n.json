@@ -248,6 +248,8 @@
   "load-more": "加载更多",
   "load-more-pull": "下拉加载更多",
   "loading": "加载中...",
+  "loading-data": "正在加载数据 ...",
+  "loading-gui": "正在加载界面 ...",
   "location": "位置",
   "login": "登录",
   "login-name": "登录名",

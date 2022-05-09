@@ -10,15 +10,40 @@ const _M = {
     },
     //--------------------------------------
     EventRouting() {
-      let routing = _.get(this.schema, "events") || {}
-      return _.assign({
+      let routing = {
         "block:show": "showBlock",
         "block:hide": "hideBlock",
         "search::list::select": "OnSearchListSelect",
         "search::filter::filter:change": "OnSearchFilterChange",
         "search::filter::sorter:change": "OnSearchSorterChange",
         "search::pager::change": "OnSearchPagerChange"
-      }, routing)
+      }
+
+      // Define the expend function
+      const expendEvent = (v, k) => {
+        let old = routing[k]
+        if (!old) {
+          routing[k] = v
+          return
+        }
+        // Array to join
+        if (_.isArray(v)) {
+          routing[k] = _.concat(old, v)
+        }
+        // Another to replace
+        else {
+          routing[k] = v
+        }
+      }
+
+      // Expend from prop
+      _.forEach(this.events, expendEvent)
+
+      // Expend from schema
+      _.forEach(_.get(this.schema, "events"), expendEvent)
+
+      // Then done
+      return routing
     }
     //--------------------------------------
   },
@@ -102,42 +127,59 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      //console.log("WnObjAdaptor.__on_events", name, payload)
       // ByPass
       if (/^(indicate)$/.test(name)) {
-        return ()=>({ stop: false })
+        return () => ({ stop: false })
       }
+      //console.log("WnObjAdaptor.__on_events", name, payload)
 
       // Try routing
-      let fn = _.get(this.EventRouting, name)
-      if (!fn) {
-        fn = this.$tiEventTryFallback(name, this.EventRouting)
+      let fns = _.get(this.EventRouting, name)
+      if (!fns) {
+        fns = this.$tiEventTryFallback(name, this.EventRouting)
       }
+      let fnList = _.without(_.concat(fns), undefined, null)
 
       // callPath -> Function
-      let func;
-      // Direct call
-      if(_.isFunction(fn)) {
-        func = fn
-      }
-      // Gen invoking
-      else if (_.isString(fn)) {
-        func = _.get(this, fn)
-        if (!_.isFunction(func)) {
-          func = Ti.Util.genInvoking(fn, {
-            context: this.GuiExplainContext,
-            dft: null,
-            funcSet: this
-          })
+      let funcList = [];
+      for (let fn of fnList) {
+        // Direct call
+        if (_.isFunction(fn)) {
+          funcList.push(fn)
         }
-      }
-      if (_.isFunction(func)) {
-        if (!_.isUndefined(payload)) {
-          return () => {
-            func(payload)
+        // Gen invoking
+        else if (_.isString(fn)) {
+          let func = _.get(this, fn)
+          if (!_.isFunction(func)) {
+            func = Ti.Util.genInvoking(fns, {
+              context: this.GuiExplainContext,
+              dft: null,
+              funcSet: this
+            })
+          }
+          if (_.isFunction(func)) {
+            funcList.push(func)
           }
         }
-        return func
+      }
+
+      // Return for invoke
+      if (!_.isEmpty(funcList)) {
+        if (!_.isUndefined(payload)) {
+          return () => {
+            for (let func of funcList) {
+              func(payload)
+            }
+          }
+        }
+        if (funcList.length > 1) {
+          return () => {
+            for (let func of funcList) {
+              func()
+            }
+          }
+        }
+        return funcList[0]
       }
     },
     //--------------------------------------

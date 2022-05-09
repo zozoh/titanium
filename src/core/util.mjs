@@ -1616,7 +1616,10 @@ const TiUtil = {
         // [ ? --> ... ]
         if ("right" == partial) {
           return function (...input) {
-            let ins = _.without(input, undefined)
+            // 这里不能像 right? 一样忽略 undefined, 
+            // 因为 Ti.Types.toBoolStr， 一般用作表格的布尔字段显示
+            // 而有的字段，布尔值是 undefined 的
+            let ins = input
             let as = _.concat([], ins, args);
             return func.apply(this, as)
           }

@@ -26,6 +26,7 @@ export default {
   //-----------------------------------
   "meta": Object,
   "content": String,
+  "contentData": [String, Object, Array],
   //-----------------------------------
   // Gloable Status
   //-----------------------------------
@@ -58,6 +59,9 @@ export default {
     type: Object, default: () => ({})
   },
   "objMethods": {
+    type: Object, default: () => ({})
+  },
+  "events": {
     type: Object, default: () => ({})
   },
   //-----------------------------------
