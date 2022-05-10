@@ -1,4 +1,4 @@
-// Pack At: 2022-05-07 10:04:12
+// Pack At: 2022-05-10 13:18:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -3306,6 +3306,358 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'wn-files.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/files/wn-files.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ////////////////////////////////////////////////////
+  data: () => ({
+    isLoadingGui: false,
+    detailGuiSetups: {}
+  }),
+  ////////////////////////////////////////////////////
+  props: {
+    "guiPathDefault": {
+      type: String
+    },
+    "guiPath": {
+      type: String
+    },
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //------------------------------------------------
+    GuiLayout() {
+      return {
+        "type": "cols",
+        "border": true,
+        "blocks": [
+          {
+            "name": "search",
+            "size": "38%",
+            "type": "rows",
+            "border": true,
+            "blocks": [
+              {
+                "name": "filter",
+                "size": 43,
+                "body": "filter"
+              },
+              {
+                "name": "list",
+                "size": "stretch",
+                "overflow": "cover",
+                "body": "list"
+              },
+              {
+                "name": "pager",
+                "size": "auto",
+                "body": "pager"
+              }
+            ]
+          },
+          {
+            "name": "detail",
+            "size": "stretch",
+            "body": "detail"
+          }]
+      }
+    },
+    //------------------------------------------------
+    GuiSchemaFilter() {
+      return {
+        comType: "TiFilterbar",
+        comConf: {
+          className: "is-nowrap",
+          placeholder: "字典ID/标题",
+          filter: "=filter",
+          sorter: "=sorter",
+          dialog: {
+            "icon": "fas-search",
+            "title": "i18n:search-adv",
+            "position": "top",
+            "width": "6.4rem",
+            "height": "90%"
+          },
+          majors: [],
+          matchKeywords: [
+            {
+              "test": "^[\\d\\w:]{26,}$",
+              "key": "id"
+            },
+            {
+              "test": "^[a-zA-Z0-9._-]+$",
+              "key": "nm",
+              "mode": ":=~"
+            },
+            {
+              "key": "title",
+              "mode": "~~"
+            }
+          ],
+          filterTags: {
+            "id": ":->ID【${val}】",
+            "nm": ":=val",
+            "title": ":=val"
+          },
+          sorterConf: {
+            dropWidth: "1.6rem",
+            options: [
+              { "value": "nm", "text": "i18n:wn-key-nm" },
+              { "value": "title", "text": "i18n:wn-key-title" },
+              { "value": "ct", "text": "i18n:wn-key-ct" },
+              { "value": "lm", "text": "i18n:wn-key-lm" },
+            ]
+          }
+        }
+      }
+    }, // The Filter
+    //------------------------------------------------
+    GuiSchemaDetail() {
+      //console.log(this.currentId)
+      if (this.isLoadingGui) {
+        return {
+          comType: "TiLoading",
+          comConf: {
+            className: "as-cover",
+            text: "i18n:loading-gui",
+            icon: "fas-cog fa-spin"
+          }
+        }
+      }
+      if (!this.currentId) {
+        return {
+          comType: "TiLoading",
+          comConf: {
+            className: "as-big",
+            text: "i18n:nil-detail",
+            icon: "zmdi-arrow-left"
+          }
+        }
+      }
+      // Load from configuration
+      let gui = this.detailGuiSetups[this.currentId]
+      if (!_.isEmpty(gui)) {
+        return Ti.Util.explainObj(this, gui)
+      }
+
+      // Show default detail
+      return {
+        comType: "TiTextRaw",
+        comConf: {
+          value: this.content
+        }
+      }
+    },
+    //------------------------------------------------
+    WallItemBadges() {
+      return {
+        "NW": o => {
+          return this.getFileIcon(o)
+        }
+      }
+    },
+    //------------------------------------------------
+    TableHeadDisplay() {
+      return [
+        {
+          key: "..",
+          transformer: ({ rawData } = {}) => {
+            return this.getFileIcon(rawData)
+          },
+          comType: "TiIcon"
+        }
+      ]
+    },
+    //------------------------------------------------
+    TableFields() {
+      return [
+        {
+          title: "i18n:wn-key-title",
+          display: "rawData.title|nm"
+        },
+        {
+          title: "i18n:wn-key-tp",
+          display: "rawData.tp"
+        },
+        {
+          title: "i18n:wn-key-mime",
+          candidate: true,
+          display: "rawData.mime"
+        },
+        {
+          title: "i18n:wn-key-len",
+          candidate: false,
+          display: {
+            key: "rawData.len",
+            transformer: "Ti.S.sizeText",
+            comConf: {
+              className: "as-tip-block align-right flex-auto"
+            }
+          }
+        },
+        {
+          title: "i18n:wn-key-ct",
+          candidate: true,
+          display: {
+            key: "rawData.ct",
+            transformer: "Ti.Types.formatDate('yy年MM月dd日 HH:mm')"
+          }
+        },
+        {
+          title: "i18n:wn-key-lm",
+          candidate: true,
+          display: {
+            key: "rawData.lm",
+            transformer: "Ti.Types.formatDate('yy年MM月dd日 HH:mm')"
+          }
+        }
+      ]
+    },
+    //------------------------------------------------
+    CurrentOfficialDoc() {
+      return this.meta
+    },
+    //------------------------------------------------
+    GuiSchema() {
+      return {
+        filter: this.GuiSchemaFilter,
+        list: {
+          comConf: {
+            itemBadges: this.WallItemBadges,
+            tableFields: this.TableFields,
+            tableViewConf: {
+              headDisplay: this.TableHeadDisplay
+            },
+
+          }
+        },
+        detail: this.GuiSchemaDetail,
+      }
+    },
+    //------------------------------------------------
+    GuiEvents() {
+      return {
+        "search::list::select": [
+          (payload) => {
+            //console.log("WnFile::search::list::select", payload)
+            let $a = this.getObjAdaptor()
+            $a.dispatch("loadContent", { quiet: true })
+          }
+        ],
+        "detail::change": (payload) => {
+          //console.log("OnDetailChange", payload)    
+          let $a = this.getObjAdaptor()
+          $a.dispatch("changeContent", payload)
+        }
+      }
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods: {
+    //------------------------------------------------
+    OnDetailChange(payload) {
+      // let $a = this.getObjAdaptor()
+      // $a.commit("setListItem", od)
+      console.log("OnDetailChange", payload)
+    },
+    //------------------------------------------------
+    getFileIcon(o, dft = "fas-cog") {
+      return Ti.Icons.get(o, dft)
+    },
+    //------------------------------------------------
+    //
+    // Utility Methods
+    //
+    //------------------------------------------------
+    getObjAdaptor() {
+      return this.findComBy($com => {
+        return "WnObjAdaptor" == $com.tiComType
+      })
+    },
+    //------------------------------------------------
+    async reloadDetailGuiSetup() {
+      //console.log("reloadDetailGuiSetup")
+      if (this.isLoadingGui) {
+        return
+      }
+      // Guard
+      if (!this.meta) {
+        return
+      }
+      // Reload meta GUI
+      let metaId = this.meta.id
+
+      // Match cache
+      if (this.detailGuiSetups[metaId]) {
+        return
+      }
+
+      // Prepare the vars
+      let vars = {
+        ... this.meta,
+        major: Ti.Util.getMajorName(this.meta.nm)
+      }
+
+      this.isLoadingGui = true
+      // Get gui path
+      let oGuiDetail;
+      let guiPath = this.meta.gui_path
+        || _.get(this.oDir, "gui_path")
+        || this.guiPath
+      if (guiPath) {
+        let ph = Ti.S.renderBy(guiPath, vars)
+        oGuiDetail = await Wn.Io.loadMeta(ph)
+      }
+
+      // Use the default GUI Path
+      if (!oGuiDetail) {
+        guiPath = _.get(this.oDir, "gui_path_dft")
+          || this.guiPathDefault
+        if (guiPath) {
+          let ph = Ti.S.renderBy(guiPath, vars)
+          oGuiDetail = await Wn.Io.loadMeta(ph)
+        }
+      }
+
+      // Load GUI Detail Content
+      if (oGuiDetail) {
+        let guiDetail = await Wn.Io.loadContent(oGuiDetail, { as: "json" })
+        this.detailGuiSetups = _.assign({
+          [metaId]: guiDetail
+        }, this.detailGuiSetups)
+        // Load components ...
+        if (!_.isEmpty(guiDetail.components)) {
+          await Ti.App(this).loadView({
+            components: guiDetail.components
+          })
+        }
+      }
+      // Set the Empty
+      else {
+        this.detailGuiSetups = _.assign({
+          [metaId]: {}
+        }, this.detailGuiSetups)
+      }
+      this.$nextTick(() => {
+        this.isLoadingGui = false
+      })
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    "meta": {
+      handler: "reloadDetailGuiSetup",
+      immediate: true
+    }
+  }
+  ////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-input-currency.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/input/currency/ti-input-currency.mjs'] = (function(){
@@ -4088,6 +4440,73 @@ const _M = {
   //////////////////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'wn-files-delegates.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/files/wn-files-delegates.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //------------------------------------------------
+  delegateObjAdaptor(methodName, ...args) {
+    let $a = this.getObjAdaptor()
+    if ($a) {
+      return $a[methodName](...args)
+    }
+  },
+  //------------------------------------------------
+  async asyncDelegateObjAdaptor(methodName, ...args) {
+    let $a = this.getObjAdaptor()
+    if ($a) {
+      return await $a[methodName](...args)
+    }
+  },
+  //------------------------------------------------
+  // Delegates
+  //------------------------------------------------
+  async openCurrentMetaEditor() {
+    return await this.asyncDelegateObjAdaptor("openCurrentMetaEditor")
+  },
+  //------------------------------------------------
+  async downloadCheckItems() {
+    return await this.asyncDelegateObjAdaptor("downloadCheckItems")
+  },
+  //------------------------------------------------
+  invokeList(methodName) {
+    return this.delegateObjAdaptor("invokeList", methodName)
+  },
+  openLocalFileSelectdDialog() {
+    return this.delegateObjAdaptor("openLocalFileSelectdDialog")
+  },
+  async openCurrentPrivilege() {
+    return this.asyncDelegateObjAdaptor("openCurrentPrivilege")
+  },
+  async doCreate() {
+    return this.asyncDelegateObjAdaptor("doCreate")
+  },
+  async doRename() {
+    return this.asyncDelegateObjAdaptor("doRename")
+  },
+  async doBatchUpdate() {
+    return this.asyncDelegateObjAdaptor("doBatchUpdate")
+  },
+  async doMoveTo() {
+    return this.asyncDelegateObjAdaptor("doMoveTo")
+  },
+  async doDelete(confirm) {
+    return this.asyncDelegateObjAdaptor("doDelete", confirm)
+  },
+  async openDataDir(target) {
+    return this.asyncDelegateObjAdaptor("openDataDir", target)
+  },
+  async exportDataByModes(mode, target) {
+    return this.asyncDelegateObjAdaptor("exportDataByModes", mode, target)
+  },
+  async exportData(payload) {
+    return this.asyncDelegateObjAdaptor("exportDataByModes", payload)
+  }
+  //------------------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'ti-chart-raw.mjs' -> null
@@ -14108,7 +14527,7 @@ async function loadConfigJson(state, key, dft) {
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
-  async loadContent({ state, commit, dispatch, getters }) {
+  async loadContent({ state, commit, dispatch, getters }, { quiet = false } = {}) {
     // Guard
     let meta = state.meta
     if (!meta) {
@@ -14132,13 +14551,17 @@ const _M = {
     }
 
     // Load meta content
-    commit("setStatus", { reloading: true })
+    if (!quiet) {
+      commit("setStatus", { reloading: true })
+    }
     let content = await Wn.Io.loadContent(meta)
     dispatch("updateContent", content)
     //console.log("loadContent:", content)
 
     // All done
-    commit("setStatus", { reloading: false })
+    if (!quiet) {
+      commit("setStatus", { reloading: false })
+    }
   },
   //--------------------------------------------
   async loadSchema({ state, commit }) {
@@ -14973,7 +15396,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       for (let mk of this.matchKeywords) {
         let { test, key, val = "${0}", type, mode = "==" } = mk
         let m = [input];
-        //console.log(m)
+        console.log(m)
         if (test) {
           if (_.isRegExp(test) || /^\^/.test(test)) {
             let reg = new RegExp(test)
@@ -33477,7 +33900,7 @@ const OBJ = {
       let target = Ti.Util.explainObj(vars, this.uploadTarget, {
         evalFunc: true
       })
-      console.log("upload", file, "to", target)
+      //console.log("upload", file, "to", target)
       if (!target) {
         let msg = Ti.I18n.get("upload-notarget-continue") + " : " + file.name;
         if (await Ti.Confirm(msg, {
@@ -33499,7 +33922,7 @@ const OBJ = {
           up.current = pe.loaded
         }
       })
-      console.log(reo)
+      //console.log(reo)
       let { ok, data, errCode } = reo
 
       // Join the new IDS
@@ -53805,15 +54228,40 @@ const _M = {
     },
     //--------------------------------------
     EventRouting() {
-      let routing = _.get(this.schema, "events") || {}
-      return _.assign({
+      let routing = {
         "block:show": "showBlock",
         "block:hide": "hideBlock",
         "search::list::select": "OnSearchListSelect",
         "search::filter::filter:change": "OnSearchFilterChange",
         "search::filter::sorter:change": "OnSearchSorterChange",
         "search::pager::change": "OnSearchPagerChange"
-      }, routing)
+      }
+
+      // Define the expend function
+      const expendEvent = (v, k) => {
+        let old = routing[k]
+        if (!old) {
+          routing[k] = v
+          return
+        }
+        // Array to join
+        if (_.isArray(v)) {
+          routing[k] = _.concat(old, v)
+        }
+        // Another to replace
+        else {
+          routing[k] = v
+        }
+      }
+
+      // Expend from prop
+      _.forEach(this.events, expendEvent)
+
+      // Expend from schema
+      _.forEach(_.get(this.schema, "events"), expendEvent)
+
+      // Then done
+      return routing
     }
     //--------------------------------------
   },
@@ -53897,42 +54345,59 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      //console.log("WnObjAdaptor.__on_events", name, payload)
       // ByPass
       if (/^(indicate)$/.test(name)) {
-        return ()=>({ stop: false })
+        return () => ({ stop: false })
       }
+      //console.log("WnObjAdaptor.__on_events", name, payload)
 
       // Try routing
-      let fn = _.get(this.EventRouting, name)
-      if (!fn) {
-        fn = this.$tiEventTryFallback(name, this.EventRouting)
+      let fns = _.get(this.EventRouting, name)
+      if (!fns) {
+        fns = this.$tiEventTryFallback(name, this.EventRouting)
       }
+      let fnList = _.without(_.concat(fns), undefined, null)
 
       // callPath -> Function
-      let func;
-      // Direct call
-      if(_.isFunction(fn)) {
-        func = fn
-      }
-      // Gen invoking
-      else if (_.isString(fn)) {
-        func = _.get(this, fn)
-        if (!_.isFunction(func)) {
-          func = Ti.Util.genInvoking(fn, {
-            context: this.GuiExplainContext,
-            dft: null,
-            funcSet: this
-          })
+      let funcList = [];
+      for (let fn of fnList) {
+        // Direct call
+        if (_.isFunction(fn)) {
+          funcList.push(fn)
         }
-      }
-      if (_.isFunction(func)) {
-        if (!_.isUndefined(payload)) {
-          return () => {
-            func(payload)
+        // Gen invoking
+        else if (_.isString(fn)) {
+          let func = _.get(this, fn)
+          if (!_.isFunction(func)) {
+            func = Ti.Util.genInvoking(fns, {
+              context: this.GuiExplainContext,
+              dft: null,
+              funcSet: this
+            })
+          }
+          if (_.isFunction(func)) {
+            funcList.push(func)
           }
         }
-        return func
+      }
+
+      // Return for invoke
+      if (!_.isEmpty(funcList)) {
+        if (!_.isUndefined(payload)) {
+          return () => {
+            for (let func of funcList) {
+              func(payload)
+            }
+          }
+        }
+        if (funcList.length > 1) {
+          return () => {
+            for (let func of funcList) {
+              func()
+            }
+          }
+        }
+        return funcList[0]
       }
     },
     //--------------------------------------
@@ -72006,6 +72471,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   "meta": Object,
   "content": String,
+  "contentData": [String, Object, Array],
   //-----------------------------------
   // Gloable Status
   //-----------------------------------
@@ -72038,6 +72504,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Object, default: () => ({})
   },
   "objMethods": {
+    type: Object, default: () => ({})
+  },
+  "events": {
     type: Object, default: () => ({})
   },
   //-----------------------------------
@@ -85279,6 +85748,61 @@ Ti.Preload("ti/com/wn/entity/history/_com.json", {
   ]
 });
 //========================================
+// JOIN <wn-files-delegates.mjs> ti/com/wn/files/wn-files-delegates.mjs
+//========================================
+Ti.Preload("ti/com/wn/files/wn-files-delegates.mjs", TI_PACK_EXPORTS['ti/com/wn/files/wn-files-delegates.mjs']);
+//========================================
+// JOIN <wn-files.html> ti/com/wn/files/wn-files.html
+//========================================
+Ti.Preload("ti/com/wn/files/wn-files.html", `<WnObjAdaptor
+  class="wn-files"
+  :moduleName="moduleName"
+  :guiShown="guiShown"
+  :dirId="dirId"
+  :oDir="oDir"
+  :fixedMatch="fixedMatch"
+  :filter="filter"
+  :sorter="sorter"
+  :list="list"
+  :currentId="currentId"
+  :checkedIds="checkedIds"
+  :pager="pager"
+  :meta="meta"
+  :content="content"
+  :status="status"
+  :fieldStatus="fieldStatus"
+  :objActions="objActions"
+  :layout="GuiLayout"
+  :schema="GuiSchema"
+  :objMethods="objMethods"
+  :viewType="viewType"
+  :exposeHidden="exposeHidden"
+  :searchPageNumber="searchPageNumber"
+  :searchPageSize="searchPageSize"
+  :events="GuiEvents"/>
+  `);
+//========================================
+// JOIN <wn-files.mjs> ti/com/wn/files/wn-files.mjs
+//========================================
+Ti.Preload("ti/com/wn/files/wn-files.mjs", TI_PACK_EXPORTS['ti/com/wn/files/wn-files.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/files/_com.json
+//========================================
+Ti.Preload("ti/com/wn/files/_com.json", {
+  "name": "wn-files",
+  "globally": true,
+  "template": "./wn-files.html",
+  "props": "@com:wn/obj/adaptor/wn-obj-adaptor-props.mjs",
+  "mixins": [
+    "./wn-files.mjs",
+    "./wn-files-delegates.mjs"
+  ],
+  "components": [
+    "@com:wn/obj/adaptor",
+    "@com:ti/combo/table"
+  ]
+});
+//========================================
 // JOIN <wn-fileset-config.html> ti/com/wn/fileset/config/wn-fileset-config.html
 //========================================
 Ti.Preload("ti/com/wn/fileset/config/wn-fileset-config.html", `<div class="wn-fileset-config"
@@ -89786,6 +90310,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "load-more": "Load more",
   "load-more-pull": "Pull for load more",
   "loading": "Loading...",
+  "loading-data": "Loading Data ...",
+  "loading-gui": "Loading GUI ...",
   "location": "Location",
   "login": "Sign in",
   "login-name": "Login name",
@@ -91324,6 +91850,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "load-more": "加载更多",
   "load-more-pull": "下拉加载更多",
   "loading": "加载中...",
+  "loading-data": "正在加载数据 ...",
+  "loading-gui": "正在加载界面 ...",
   "location": "位置",
   "login": "登录",
   "login-name": "登录名",
@@ -92888,6 +93416,8 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "load-more": "加載更多",
    "load-more-pull": "下拉加載更多",
    "loading": "加載中...",
+   "loading-data": "正在加載數據 ...",
+   "loading-gui": "正在加載界面 ...",
    "location": "位置",
    "login": "登錄",
    "login-name": "登錄名",

@@ -1,4 +1,4 @@
-// Pack At: 2022-05-07 10:04:12
+// Pack At: 2022-05-10 13:18:37
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -12092,7 +12092,10 @@ const {Util} = (function(){
           // [ ? --> ... ]
           if ("right" == partial) {
             return function (...input) {
-              let ins = _.without(input, undefined)
+              // 这里不能像 right? 一样忽略 undefined, 
+              // 因为 Ti.Types.toBoolStr， 一般用作表格的布尔字段显示
+              // 而有的字段，布尔值是 undefined 的
+              let ins = input
               let as = _.concat([], ins, args);
               return func.apply(this, as)
             }
@@ -12249,21 +12252,22 @@ const {Trees} = (function(){
       nameBy = "name",
       childrenBy = "children"
     } = {}) {
-      let rootId = _.get(root, idBy)
-      let rootName = _.get(root, nameBy)
-      // Prepare context
-      let context = {
-        index: 0,
-        isFirst: true,
-        isLast: true,
-        id: rootId,
-        name: rootName,
-        node: root,
-        path: [],
-        depth: 0,
-        parent: null,
-        ancestors: []
-      }
+      let context = TiTrees.asRootHie(root, { idBy, nameBy, childrenBy });
+      // let rootId = _.get(root, idBy)
+      // let rootName = _.get(root, nameBy)
+      // // Prepare context
+      // let context = {
+      //   index: 0,
+      //   isFirst: true,
+      //   isLast: true,
+      //   id: rootId,
+      //   name: rootName,
+      //   node: root,
+      //   path: [],
+      //   depth: 0,
+      //   parent: null,
+      //   ancestors: []
+      // }
       // Define the walking function
       // @c : {node, path, depth}
       const walking = (c) => {
@@ -12315,21 +12319,22 @@ const {Trees} = (function(){
       nameBy = "name",
       childrenBy = "children"
     } = {}) {
-      let rootId = _.get(root, idBy)
-      let rootName = _.get(root, nameBy)
-      // Prepare context
-      let context = {
-        index: 0,
-        isFirst: true,
-        isLast: true,
-        id: rootId,
-        name: rootName,
-        node: root,
-        path: [],
-        depth: 0,
-        parent: null,
-        ancestors: []
-      }
+      let context = TiTrees.asRootHie(root, { idBy, nameBy, childrenBy });
+      // let rootId = _.get(root, idBy)
+      // let rootName = _.get(root, nameBy)
+      // // Prepare context
+      // let context = {
+      //   index: 0,
+      //   isFirst: true,
+      //   isLast: true,
+      //   id: rootId,
+      //   name: rootName,
+      //   node: root,
+      //   path: [],
+      //   depth: 0,
+      //   parent: null,
+      //   ancestors: []
+      // }
       // Check root node
       let [data, stop] = _.concat(iteratee(context) || [null, false])
       if (stop) {
@@ -12421,6 +12426,98 @@ const {Trees} = (function(){
       if (hie) {
         return hie.node
       }
+    },
+    //---------------------------------
+    asRootHie(root, {
+      idBy = "id",
+      nameBy = "name",
+      childrenBy = "children"
+    } = {}) {
+      return {
+        index: 0,
+        isFirst: true,
+        isLast: true,
+        id: _.get(root, idBy),
+        name: _.get(root, nameBy),
+        node: root,
+        path: [],
+        depth: 0,
+        parent: null,
+        ancestors: []
+      }
+    },
+    //---------------------------------
+    /***
+     * Push a given path into tree hierarchy.
+     * If the path node not exists, it will be created.
+     * 
+     * ```
+     * pushPath(root, '/a/b', {name:"c"})
+     * 
+     * /{ROOT}
+     * |-- a/
+     *     |-- b/
+     *         |-- c: {name:"c"}
+     * ```
+     * 
+     * @param root{Object} Tree Root
+     * @param path{String|Array} The target path
+     * 
+     * @return hierarchy for the last path node
+     */
+    pushPath(root, strOrArray, {
+      idBy = "id",
+      nameBy = "name",
+      childrenBy = "children",
+      genPathNode = (pathName, hie) => ({
+        [idBy]: _.concat(hie.path, pathName).join("/"),
+        [nameBy]: pathName
+      })
+    } = {}) {
+      let rootHie = TiTrees.asRootHie(root, { idBy, nameBy, childrenBy });
+      let path = TiTrees.path(strOrArray)
+      const __push_into = function (hie, path, off = 0) {
+        // Guard
+        if (off >= path.length) {
+          return hie
+        }
+        // Push new path
+        let children = _.get(hie.node, childrenBy)
+        if (!children) {
+          children = []
+          _.set(hie.node, childrenBy, children)
+        }
+        let pathName = path[off]
+        let index = _.findIndex(children, (li) => li[nameBy] == pathName)
+        let node;
+        // Create new node
+        if (index < 0) {
+          index = children.length
+          node = genPathNode(pathName, hie, { path, off })
+          children.push(node)
+        }
+        else {
+          node = children[index]
+        }
+        // Gen Hierarchy
+        hie = {
+          index,
+          isFirst: 0 == index,
+          isLast: (children.length - 1) == index,
+          id: _.get(node, idBy),
+          name: _.get(node, nameBy),
+          node,
+          root: rootHie,
+          depth: hie.depth + 1,
+          parent: hie,
+          ancestors: _.concat(hie.ancestors, hie)
+        }
+        // Go deep
+        return __push_into(hie, path, off + 1)
+      }
+  
+      // Push self
+      return __push_into(rootHie, path)
     },
     //---------------------------------
     /***
@@ -18407,7 +18504,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220507.100412",
+  "version" : "1.6-20220510.131837",
   "dev" : false,
   "appName" : null,
   "session" : {},

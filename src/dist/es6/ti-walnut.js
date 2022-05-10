@@ -1,4 +1,4 @@
-// Pack At: 2022-05-07 10:04:12
+// Pack At: 2022-05-10 13:18:37
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -1929,21 +1929,23 @@ const Util = (function(){
     },
     getObjThumbIcon2(meta, canIcon) {
       //console.log(meta, canIcon)
-      if (meta.thumb) {
-        let src;
-        if (/^https?:\/\//.test(meta.thumb)) {
-          src = meta.thumb
-        } else {
-          src = `/o/content?str=${meta.thumb}`
+      if (meta) {
+        if (meta.thumb) {
+          let src;
+          if (/^https?:\/\//.test(meta.thumb)) {
+            src = meta.thumb
+          } else {
+            src = `/o/content?str=${meta.thumb}`
+          }
+          return {
+            type: "image",
+            value: src
+          }
         }
-        return {
-          type: "image",
-          value: src
-        }
-      }
   
-      if (meta.icon) {
-        return meta.icon
+        if (meta.icon) {
+          return meta.icon
+        }
       }
   
       if (canIcon)
@@ -4295,7 +4297,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220507.100413"
+const WALNUT_VERSION = "1.2-20220510.131837"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
