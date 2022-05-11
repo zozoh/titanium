@@ -188,7 +188,6 @@ export default {
       for (let mk of this.matchKeywords) {
         let { test, key, val = "${0}", type, mode = "==" } = mk
         let m = [input];
-        console.log(m)
         if (test) {
           if (_.isRegExp(test) || /^\^/.test(test)) {
             let reg = new RegExp(test)

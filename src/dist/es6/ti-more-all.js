@@ -1,4 +1,4 @@
-// Pack At: 2022-05-10 13:18:37
+// Pack At: 2022-05-11 17:16:35
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -15396,7 +15396,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
       for (let mk of this.matchKeywords) {
         let { test, key, val = "${0}", type, mode = "==" } = mk
         let m = [input];
-        console.log(m)
         if (test) {
           if (_.isRegExp(test) || /^\^/.test(test)) {
             let reg = new RegExp(test)
@@ -48640,7 +48639,7 @@ const _M = {
   },
   //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }) {
-    console.log("loadContent")
+    //console.log("loadContent")
     // Guard : dataHome
     // if (!state.dataHome) {
     //   return

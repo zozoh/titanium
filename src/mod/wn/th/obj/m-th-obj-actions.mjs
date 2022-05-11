@@ -70,7 +70,7 @@ const _M = {
   },
   //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }) {
-    console.log("loadContent")
+    //console.log("loadContent")
     // Guard : dataHome
     // if (!state.dataHome) {
     //   return
