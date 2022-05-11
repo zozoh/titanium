@@ -287,7 +287,7 @@ export default {
   watch: {
     "currentName": {
       handler: function (newVal, oldVal) {
-        console.log("update current")
+        //console.log("update current")
         if (!Ti.Util.isNil(newVal)) {
           this.myCurrentItemName = newVal
         }
@@ -295,7 +295,7 @@ export default {
       immediate: true
     },
     "myCurrentItemName": function (newVal, oldVal) {
-      console.log(newVal, oldVal)
+      //console.log(newVal, oldVal)
       if (this.keepStatusTo && !_.isEqual(newVal, oldVal)) {
         if (Ti.Util.isNil(newVal)) {
           Ti.Storage.local.remove(this.keepStatusTo)

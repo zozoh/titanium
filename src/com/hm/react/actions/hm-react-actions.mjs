@@ -42,7 +42,8 @@ export default {
     },
     //------------------------------------------------
     ReactTypes() {
-      let types = ["thing_create",
+      let types = [
+        "thing_create",
         "thing_update",
         "thing_delete",
         "thing_clear",
@@ -51,7 +52,8 @@ export default {
         "obj_delete",
         "obj_clear",
         "exec",
-        "jsc"]
+        "jsc"
+      ]
       let re = []
       for (let value of types) {
         re.push({
@@ -78,10 +80,23 @@ export default {
           comType: "TiInput"
         },
         {
+          title: 'i18n:batch-update',
+          name: "batch",
+          type: "Boolean",
+          visible: {
+            type: "^(obj|thing)_update$",
+          },
+          comType: "TiToggle"
+        },
+        {
           title: 'i18n:target-id',
           name: "targetId",
           visible: {
-            type: "^((obj|thing)_(delete|update))$"
+            type: "^thing_(delete|update)$"
+          },
+          hidden: {
+            type: "^(obj|thing)_update$",
+            batch: true
           },
           comType: "TiInput"
         },
@@ -89,9 +104,14 @@ export default {
           title: 'i18n:query',
           name: "query",
           type: "Object",
-          visible: {
-            type: "^(thing_update|(obj|thing)_clear)$"
-          },
+          visible: [
+            {
+              type: "^(obj|thing)_clear$"
+            }, {
+              type: "^(obj|thing)_update$",
+              batch: true
+            }
+          ],
           comType: "TiInputPair"
         },
         {
