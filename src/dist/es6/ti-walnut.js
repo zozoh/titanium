@@ -1,4 +1,4 @@
-// Pack At: 2022-05-11 23:58:06
+// Pack At: 2022-05-13 03:32:37
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -4011,11 +4011,11 @@ const Youtube = (function(){
       }
       // load key fields in config
       let { domain } = config
+      let ytHome = `~/.domain/youtube/${domain}`
       let list = [];
       // Load cache file
       let noexists = true
       if (!force) {
-        let ytHome = `~/.domain/youtube/${domain}`
         let oFile = await Wn.Io.loadMeta(`${ytHome}/playlists.json`)
         if (oFile) {
           list = await Wn.Io.loadContent(oFile, { as: "json" })
@@ -4297,7 +4297,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220511.235806"
+const WALNUT_VERSION = "1.2-20220513.033237"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

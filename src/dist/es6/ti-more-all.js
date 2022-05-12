@@ -1,4 +1,4 @@
-// Pack At: 2022-05-11 23:58:06
+// Pack At: 2022-05-13 03:32:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -54405,14 +54405,14 @@ const _M = {
         if (!_.isUndefined(payload)) {
           return () => {
             for (let func of funcList) {
-              func(payload)
+              func.apply(this, [payload])
             }
           }
         }
         if (funcList.length > 1) {
           return () => {
             for (let func of funcList) {
-              func()
+              func.apply(this)
             }
           }
         }

@@ -168,14 +168,14 @@ const _M = {
         if (!_.isUndefined(payload)) {
           return () => {
             for (let func of funcList) {
-              func(payload)
+              func.apply(this, [payload])
             }
           }
         }
         if (funcList.length > 1) {
           return () => {
             for (let func of funcList) {
-              func()
+              func.apply(this)
             }
           }
         }
