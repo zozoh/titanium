@@ -4,18 +4,18 @@ export class TiAppModal {
   //////////////////////////////////////////////
   constructor() {
     this.className = undefined
-    this.icon   = undefined
-    this.title  = undefined
+    this.icon = undefined
+    this.title = undefined
     // info|warn|error|success|track
-    this.type   = "info"
+    this.type = "info"
     //--------------------------------------------
     this.iconOk = undefined
     this.textOk = "i18n:ok"
-    this.ok = ({result})=>result
+    this.ok = ({ result }) => result
     //--------------------------------------------
     this.iconCancel = undefined
     this.textCancel = "i18n:cancel"
-    this.cancel = ()=>undefined
+    this.cancel = () => undefined
     //--------------------------------------------
     this.actions = null
     //--------------------------------------------
@@ -25,15 +25,15 @@ export class TiAppModal {
     // Some component will auto resize, it need a static
     // window measurement.
     this.transDelay = 350,
-    //--------------------------------------------
-    this.comType = "ti-label"
+      //--------------------------------------------
+      this.comType = "ti-label"
     this.comConf = {}
     this.components = []
     //--------------------------------------------
     // Aspect
     this.closer = "default"  // true|false | (default|bottom|top|left|right)
     this.escape = true
-    this.mask   = true       // !TODO maybe blur or something else
+    this.mask = true       // !TODO maybe blur or something else
     this.clickMaskToClose = false
     this.changeToClose = false
     /*
@@ -42,26 +42,27 @@ export class TiAppModal {
         || /^((left|right)-top|bottom-(left|right))$/.test(v)
     }
     */
-   this.position = "center"
+    this.position = "center"
     //--------------------------------------------
     // Measure
-    this.width    = "6.4rem"
-    this.height   = undefined
-    this.maxWidth  = undefined
+    this.width = "6.4rem"
+    this.height = undefined
+    this.maxWidth = undefined
     this.maxHeight = undefined
-    this.minWidth  = undefined
+    this.minWidth = undefined
     this.minHeight = undefined
     this.mainStyle = undefined
-    this.spacing  = undefined
+    this.spacing = undefined
     this.overflow = undefined
     this.adjustable = false  // true|false|"x"|"y"
     //--------------------------------------------
     // data model
     this.result = undefined
-    this.model = {prop:"value", event:"change"}
+    this.model = { prop: "value", event: "change" }
     //--------------------------------------------
     // modules
     this.modules = {}
+    this.modState = {}
     //--------------------------------------------
     // Events
     this.events = {}
@@ -69,57 +70,63 @@ export class TiAppModal {
     this.topActions = []
     //--------------------------------------------
     // callback
-    this.ready = async function(app){}
-    this.preload = async function(app){}
-    this.beforeClosed = async function(app){}
+    this.ready = async function (app) { }
+    this.preload = async function (app) { }
+    this.beforeClosed = async function (app) { }
   }
   //////////////////////////////////////////////
   // Methods
   //////////////////////////////////////////////
-  async open(resolve=_.identity) {
+  async open(resolve = _.identity) {
     //console.log("dialog", this.model)
     let TheActions = []
     // Customized actions
-    if(this.actions) {
+    if (this.actions) {
       TheActions = this.actions
     }
     // Use OK/Canel
     else {
-      if(_.isFunction(this.ok) && this.textOk) {
+      if (_.isFunction(this.ok) && this.textOk) {
         TheActions.push({
-          icon : this.iconOk,
-          text : this.textOk,
-          handler : this.ok
+          icon: this.iconOk,
+          text: this.textOk,
+          handler: this.ok
         })
       }
-      if(_.isFunction(this.cancel) && this.textCancel) {
+      if (_.isFunction(this.cancel) && this.textCancel) {
         TheActions.push({
-          icon : this.iconCancel,
-          text : this.textCancel,
-          handler : this.cancel
+          icon: this.iconCancel,
+          text: this.textCancel,
+          handler: this.cancel
         })
       }
     }
     //..........................................
     let model = "";
-    if(this.model) {
-      if(this.model.event) {
+    if (this.model) {
+      if (this.model.event) {
         model += ` @${this.model.event}="OnChange"`
       }
-      if(this.model.prop) {
+      if (this.model.prop) {
         model += ` :${this.model.prop}="result"`
       }
     }
     //..........................................
+    let storeModules = _.defaults({
+      "viewport": "@mod:ti/viewport"
+    }, this.modules)
+    //console.log(storeModules)
+    //..........................................
     let AppModalEvents = _.cloneDeep(this.events)
     let eventStub = []
-    _.forEach(AppModalEvents, (fn, key)=>{
+    _.forEach(AppModalEvents, (fn, key) => {
       eventStub.push(`@${key}="OnEvent('${key}', $event)"`)
     })
+
     //..........................................
     // Setup content
     let html = `<transition :name="TransName" @after-leave="OnAfterLeave">
-      <div class="ti-app-modal ${this.className||''}"
+      <div class="ti-app-modal ${this.className || ''}"
         v-if="!hidden"
           :class="TopClass"
           :style="TopStyle"
@@ -181,74 +188,72 @@ export class TiAppModal {
     //..........................................
     // Prepare the app info
     let appInfo = {
-      name : "app.modal",
+      name: "app.modal",
       //////////////////////////////////////////
-      template : html,
-      components : this.components,
+      template: html,
+      components: this.components,
       //////////////////////////////////////////
-      data : {
-        hidden : true,
+      data: {
+        hidden: true,
         //--------------------------------------
-        icon   : this.icon,
-        title  : this.title,
-        type   : this.type,
+        icon: this.icon,
+        title: this.title,
+        type: this.type,
         //--------------------------------------
-        ready   : this.ready,
-        beforeClosed : this.beforeClosed,
+        ready: this.ready,
+        beforeClosed: this.beforeClosed,
         //--------------------------------------
-        actions : TheActions,
+        actions: TheActions,
         //--------------------------------------
-        topActions : this.topActions,
+        topActions: this.topActions,
         //--------------------------------------
         // comType : this.comType,
         // Delay set the comType to mount the main
         // for the open/close transition duration
-        comType : null,
-        comConf : this.comConf,
+        comType: null,
+        comConf: this.comConf,
         //--------------------------------------
-        closer   : this.closer,
-        escape   : this.escape,
-        mask     : this.mask,
-        position : this.position,
-        clickMaskToClose : this.clickMaskToClose,
-        changeToClose : this.changeToClose,
+        closer: this.closer,
+        escape: this.escape,
+        mask: this.mask,
+        position: this.position,
+        clickMaskToClose: this.clickMaskToClose,
+        changeToClose: this.changeToClose,
         //--------------------------------------
-        width      : this.width,
-        height     : this.height,
-        maxWidth   : this.maxWidth,
-        maxHeight  : this.maxHeight,
-        minWidth   : this.minWidth,
-        minHeight  : this.minHeight,
-        mainStyle  : this.mainStyle,
-        spacing    : this.spacing,
-        overflow   : this.overflow,
-        adjustable : this.adjustable,
+        width: this.width,
+        height: this.height,
+        maxWidth: this.maxWidth,
+        maxHeight: this.maxHeight,
+        minWidth: this.minWidth,
+        minHeight: this.minHeight,
+        mainStyle: this.mainStyle,
+        spacing: this.spacing,
+        overflow: this.overflow,
+        adjustable: this.adjustable,
         //--------------------------------------
-        result : _.cloneDeep(this.result)
+        result: _.cloneDeep(this.result)
       },
       //////////////////////////////////////////
-      store : {
-        modules : _.defaults({
-          "viewport" : "@mod:ti/viewport"
-        }, this.modules)
+      store: {
+        modules: storeModules
       },
       //////////////////////////////////////////
-      computed : {
+      computed: {
         //--------------------------------------
         TopClass() {
           let nilHeight = Ti.Util.isNil(this.height)
           return this.getTopClass({
-            "show-mask"  : this.isShowMask,
-            "no-mask"    : !this.isShowMask,
-            "has-height" : !nilHeight,
-            "nil-height" : nilHeight
+            "show-mask": this.isShowMask,
+            "no-mask": !this.isShowMask,
+            "has-height": !nilHeight,
+            "nil-height": nilHeight
           }, `at-${this.position}`)
         },
         //--------------------------------------
         TopStyle() {
-          if('center' != this.position) {
+          if ('center' != this.position) {
             return {
-              "padding" : Ti.Css.toSize(this.spacing)
+              "padding": Ti.Css.toSize(this.spacing)
             }
           }
         },
@@ -262,7 +267,7 @@ export class TiAppModal {
         },
         //--------------------------------------
         isShowHead() {
-          return this.icon || this.title 
+          return this.icon || this.title
             || this.hasTopActionBar
         },
         //--------------------------------------
@@ -288,23 +293,23 @@ export class TiAppModal {
         //--------------------------------------
         ConClass() {
           return Ti.Css.mergeClassName({
-            "is-show-header"    : this.isShowHead,
-            "is-hide-header"    : !this.isShowHead,
-            "is-show-actions"   : this.hasActions,
-            "is-hide-actions"   : !this.hasActions,
-            "is-closer-default" : this.isCloserDefault,
-            "has-top-action-bar" : this.hasTopActionBar
+            "is-show-header": this.isShowHead,
+            "is-hide-header": !this.isShowHead,
+            "is-show-actions": this.hasActions,
+            "is-hide-actions": !this.hasActions,
+            "is-closer-default": this.isCloserDefault,
+            "has-top-action-bar": this.hasTopActionBar
           }, `is-${this.type}`)
         },
         //--------------------------------------
         ConStyle() {
           return Ti.Css.toStyle({
-            width  : this.width,
-            height : this.height,
-            maxWidth  : this.maxWidth,
-            maxHeight : this.maxHeight,
-            minWidth  : this.minWidth,
-            minHeight : this.minHeight
+            width: this.width,
+            height: this.height,
+            maxWidth: this.maxWidth,
+            maxHeight: this.maxHeight,
+            minWidth: this.minWidth,
+            minHeight: this.minHeight
           })
         },
         //--------------------------------------
@@ -326,9 +331,9 @@ export class TiAppModal {
         //--------------------------------------
         CloserClass() {
           return Ti.Css.mergeClassName({
-            'as-lamp-cord' : !this.isCloserDefault,
-            'as-default'   : this.isCloserDefault,
-            [`at-${this.closer}`] : !this.isCloserDefault
+            'as-lamp-cord': !this.isCloserDefault,
+            'as-default': this.isCloserDefault,
+            [`at-${this.closer}`]: !this.isCloserDefault
           })
         },
         //--------------------------------------
@@ -338,12 +343,12 @@ export class TiAppModal {
         //--------------------------------------
       },
       //////////////////////////////////////////
-      methods : {
+      methods: {
         //--------------------------------------
         // Events
         //--------------------------------------
         OnClickTop() {
-          if(this.clickMaskToClose) {
+          if (this.clickMaskToClose) {
             this.hidden = true
           }
         },
@@ -353,7 +358,7 @@ export class TiAppModal {
         },
         //--------------------------------------
         OnOk(re) {
-          if(_.isUndefined(re)) {
+          if (_.isUndefined(re)) {
             re = this.result
           }
           this.close(re)
@@ -361,12 +366,12 @@ export class TiAppModal {
         //--------------------------------------
         OnChange(newVal) {
           this.result = newVal
-          if(this.changeToClose) {
+          if (this.changeToClose) {
             this.close(this.result)
           }
         },
         //--------------------------------------
-        OnActionsUpdated(actions=[]) {
+        OnActionsUpdated(actions = []) {
           this.topActions = actions
           Ti.App(this).reWatchShortcut(actions)
         },
@@ -378,18 +383,18 @@ export class TiAppModal {
         },
         //--------------------------------------
         async OnClickActon(a) {
-          if(a.handler) {
+          if (a.handler) {
             let app = Ti.App(this)
-            let status = {close:true}
+            let status = { close: true }
             let $body = app.$vm()
             let re = await a.handler({
-              $app   : app,
+              $app: app,
               $body,
-              $main  : $body.$main,
-              result : _.cloneDeep($body.result),
+              $main: $body.$main,
+              result: _.cloneDeep($body.result),
               status
             })
-            if(status.close) {
+            if (status.close) {
               this.close(re)
             } else {
               this.setResult(re)
@@ -407,10 +412,10 @@ export class TiAppModal {
           this.$main = $main;
           app.$vmMain($main);
           // Watch escape
-          if(this.escape) {
+          if (this.escape) {
             app.watchShortcut([{
-              action : "root:close",
-              shortcut : "ESCAPE"
+              action: "root:close",
+              shortcut: "ESCAPE"
             }])
           }
           // Active current
@@ -422,7 +427,7 @@ export class TiAppModal {
         // Utility
         //--------------------------------------
         close(re) {
-          if(!_.isUndefined(re)) {
+          if (!_.isUndefined(re)) {
             this.returnValue = re
           }
           this.hidden = true // -> trans -> beforeDestroy
@@ -434,17 +439,17 @@ export class TiAppModal {
         //--------------------------------------
       },
       //////////////////////////////////////////
-      mounted : function() {
+      mounted: function () {
         let app = Ti.App(this)
         Ti.App.pushInstance(app)
-        this.$nextTick(()=>{
+        this.$nextTick(() => {
           this.hidden = false
         })
       },
       //////////////////////////////////////////
-      beforeDestroy : async function(){
+      beforeDestroy: async function () {
         let app = Ti.App(this)
-        if(_.isFunction(this.beforeClosed)) {
+        if (_.isFunction(this.beforeClosed)) {
           await this.beforeClosed(app)
         }
         Ti.App.pullInstance(app)
@@ -453,25 +458,36 @@ export class TiAppModal {
     }; // let appInfo = {
     //..........................................
     // create TiApp
-    let app = Ti.App(appInfo)
+    let app = Ti.App(appInfo, (conf) => {
+      _.forEach(this.modState, ({ state, merge } = {}, modName) => {
+        let mod = _.get(conf, `store.modules.${modName}`)
+        if (mod && mod.state) {
+          if (merge) {
+            _.merge(mod.state, state)
+          } else {
+            _.assign(mod.state, state)
+          }
+        }
+      })
+    })
     //..........................................
     await app.init()
     //..........................................
     // Mount to stub
     let $stub = Ti.Dom.createElement({
-      $p : document.body,
-      className : "the-stub"
+      $p: document.body,
+      className: "the-stub"
     })
     //..........................................
     await this.preload(app)
     //..........................................
     app.mountTo($stub)
     // The set the main com
-    _.delay(()=>{
+    _.delay(() => {
       app.$vm().comType = this.comType
     }, this.transDelay || 0)
     //..........................................
-    
+
     // Then it was waiting the `close()` be invoked
     //..........................................
   } // ~ open()

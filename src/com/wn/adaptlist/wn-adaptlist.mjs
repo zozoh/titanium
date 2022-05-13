@@ -385,8 +385,8 @@ const _M = {
     },
     //--------------------------------------------
     // For global menu invoke checkAll/cancleAll
-    invokeList(methodName) {
-      Ti.InvokeBy(this.$innerList, methodName)
+    invokeList(methodName, ...args) {
+      Ti.InvokeBy(this.$innerList, methodName, args)
     },
     //--------------------------------------------
     isHiddenItem(it) {

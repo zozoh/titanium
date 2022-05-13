@@ -60,18 +60,18 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     RowNumberWidth() {
-      if(this.rowNumberBase >= 0 && !_.isEmpty(this.myData)) {
+      if (this.rowNumberBase >= 0 && !_.isEmpty(this.myData)) {
         let lastI = this.rowNumberBase + this.myData.length;
-        if(lastI >= 1000) {
+        if (lastI >= 1000) {
           return 4;
         }
-        if(lastI >= 100) {
+        if (lastI >= 100) {
           return 3;
         }
-        if(lastI >= 10) {
+        if (lastI >= 10) {
           return 2;
         }
-        if(lastI > 0) {
+        if (lastI > 0) {
           return 1;
         }
         return 0;
@@ -230,7 +230,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     async evalListDataWhenMarkChanged(newVal, oldVal) {
-      if(!_.isEqual(newVal, oldVal)) {
+      if (!_.isEqual(newVal, oldVal)) {
         //console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
         await this.evalListData()
       }
@@ -272,9 +272,9 @@ const LIST_MIXINS = {
       //............................................
       //let hasFilterValue = !Ti.Util.isNil(this.filterValue)
       //let hasFilterFunc = _.isFunction(this.filterBy)
-      let FnFilter = this.filterBy 
-                      ? Ti.AutoMatch.parse(this.filterBy)
-                      : undefined
+      let FnFilter = this.filterBy
+        ? Ti.AutoMatch.parse(this.filterBy)
+        : undefined
       //............................................
       // Then format the list
       let list = []
@@ -302,8 +302,8 @@ const LIST_MIXINS = {
         }
         item = iteratee(item) || item
         // Apply filter
-        if(FnFilter) {
-          if(!FnFilter(item, this.filterValue)) {
+        if (FnFilter) {
+          if (!FnFilter(item, this.filterValue)) {
             return;
           }
         }
@@ -448,6 +448,14 @@ const LIST_MIXINS = {
       currentId,
       checkedIds = {}
     ) {
+      // Guard
+      if (_.isArray(checkedIds)) {
+        let idMap = {}
+        _.forEach(checkedIds, id => {
+          idMap[id] = true
+        })
+        checkedIds = idMap
+      }
       let checked = []
       let current = null
       let currentIndex = -1
@@ -479,18 +487,24 @@ const LIST_MIXINS = {
       return true
     },
     //-----------------------------------------------
-    async selectRow(rowId, { quiet = false, payload } = {}) {
+    async selectRow(rowId, {
+      quiet = false,
+      checkedIds,
+      payload,
+      autoCheckCurrent
+    } = {}) {
       //console.log("list_mixins:selectRow", rowId)
       let idMap = {}
       let curId = null
       // Change the current & checked
-      if (this.autoCheckCurrent) {
+      let acc = Ti.Util.fallback(autoCheckCurrent, this.autoCheckCurrent, true)
+      if (acc) {
         idMap = rowId ? { [rowId]: true } : {}
         curId = rowId || null
       }
       // Just change to current
       else {
-        idMap = _.cloneDeep(this.myCheckedIds)
+        idMap = _.cloneDeep(checkedIds || this.myCheckedIds)
         curId = rowId
       }
 
@@ -502,8 +516,8 @@ const LIST_MIXINS = {
 
       // Private Mode
       if (!this.puppetMode) {
-        this.myCheckedIds = idMap
-        this.myCurrentId = curId
+        this.myCheckedIds = emitContext.checkedIds
+        this.myCurrentId = emitContext.currentId
       }
       this.myLastIndex = this.findRowIndexById(rowId)
       // Notify Changes
@@ -751,7 +765,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     setRowSelect({ currentId, checkedIds = {}, quiet } = {}) {
-      console.log("haha")
+      console.log("setRotSelect", { currentId, checkedIds, quiet })
       let idMap = {}
       if (_.isArray(checkedIds)) {
         for (let id of checkedIds) {
