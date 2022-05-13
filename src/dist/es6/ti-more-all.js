@@ -1,4 +1,4 @@
-// Pack At: 2022-05-13 17:19:24
+// Pack At: 2022-05-13 22:32:29
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -27684,6 +27684,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return this.getTopClass()
     },
     //------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //------------------------------------
     FrameSrc() {
       return _.trim(this.src)
     },
@@ -27694,9 +27701,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------
     FrameStyle() {
       return Ti.Css.toStyle(_.assign({
-        border: 0,
-        width: this.width,
-        height: this.height
+        border: 0
       }, this.frameStyle))
     },
     //------------------------------------
@@ -85109,7 +85114,8 @@ Ti.Preload("ti/com/web/upload/file/_com.json", {
 // JOIN <widget-frame.html> ti/com/web/widget/frame/widget-frame.html
 //========================================
 Ti.Preload("ti/com/web/widget/frame/widget-frame.html", `<div class="web-widget-frame"
-  :class="TopClass">
+  :class="TopClass"
+  :style="TopStyle">
   <template v-if="hasFrameSrc">
     <iframe ref="frame"
       :width="width"

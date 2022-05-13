@@ -40,6 +40,13 @@ export default {
       return this.getTopClass()
     },
     //------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //------------------------------------
     FrameSrc() {
       return _.trim(this.src)
     },
@@ -50,9 +57,7 @@ export default {
     //------------------------------------
     FrameStyle() {
       return Ti.Css.toStyle(_.assign({
-        border: 0,
-        width: this.width,
-        height: this.height
+        border: 0
       }, this.frameStyle))
     },
     //------------------------------------
