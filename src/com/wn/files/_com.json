@@ -3,10 +3,8 @@
   "globally": true,
   "template": "./wn-files.html",
   "props": "@com:wn/obj/adaptor/wn-obj-adaptor-props.mjs",
-  "mixins": [
-    "./wn-files.mjs",
-    "./wn-files-delegates.mjs"
-  ],
+  "methods": "./wn-files-delegates.mjs",
+  "mixins": "./wn-files.mjs",
   "components": [
     "@com:wn/obj/adaptor",
     "@com:ti/combo/table"

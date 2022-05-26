@@ -311,8 +311,14 @@ const _M = {
     __on_events(name, payload) {
       //console.log("WnManager::__on_events", name, payload)
       // Special event 
-      if (/^main::arena::(.+::)?select$/.test(name)) {
+      if (/^main::arena::(.+::)*select$/.test(name)) {
         this.OnArenaSelect(payload)
+      }
+      if (/^main::arena::(.+::)*indicate$/.test(name)) {
+        this.OnArenaIndicate(payload)
+      }
+      if (/^main::arena::(.+::)*message$/.test(name)) {
+        this.OnArenaMessage(payload)
       }
 
       // Guard

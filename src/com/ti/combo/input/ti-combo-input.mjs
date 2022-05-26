@@ -324,7 +324,10 @@ const _M = {
     //-----------------------------------------------
     async evalMyItem(val = this.value) {
       //console.log("before evalMyItem", val)
-      let it = await this.Dict.getItem(val)
+      let it;
+      if (this.Dict) {
+        it = await this.Dict.getItem(val)
+      }
       //console.log("after evalMyItem: it", it)
       if (_.isArray(it)) {
         console.error("!!!!!!! kao ~~~~~~~")
@@ -447,6 +450,18 @@ const _M = {
     },
     //-----------------------------------------------
     "options": function (newval, oldval) {
+      if (!_.isEqual(newval, oldval)) {
+        this.myDict = this.createDict()
+        this.myOptionsData = []
+        if (this.isExtended) {
+          this.$nextTick(() => {
+            this.reloadMyOptionData(true)
+          })
+        }
+      }
+    },
+    //-----------------------------------------------
+    "dictVars": function (newval, oldval) {
       if (!_.isEqual(newval, oldval)) {
         this.myDict = this.createDict()
         this.myOptionsData = []

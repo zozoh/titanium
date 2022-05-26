@@ -120,8 +120,8 @@ const _M = {
         let { merge, comType, comConf } = vObj
 
         // Guard
-        if(_.isEmpty(orgCom)) {
-          schema[k] = {comType, comConf}
+        if (_.isEmpty(orgCom)) {
+          schema[k] = { comType, comConf }
           return
         }
 
@@ -136,7 +136,7 @@ const _M = {
         // Com Conf
         if (!_.isEmpty(comConf)) {
           // init comConf in schema
-          if(_.isEmpty(orgCom.comConf)) {
+          if (_.isEmpty(orgCom.comConf)) {
             orgCom.comConf = comConf
             return;
           }
@@ -289,19 +289,29 @@ const _M = {
       commit("setGuiShown", guiShown)
     }
 
-
     // Apply pager
-    let pager = {}
     if (pageSize > 0) {
+      let pager = {}
       pager.pn = 1
       pager.pgsz = pageSize
+      commit("assignPager", pager)
     }
-    commit("assignPager", pager)
   },
   //--------------------------------------------
   updateSchemaBehavior({ state, commit, dispatch }) {
     let be = _.get(state.schema, "behavior") || {}
     be = Ti.Util.explainObj(state, be)
+    // Apply Ignore
+    if (state.schemaBeIgnore) {
+      let be2 = {}
+      _.forEach(be, (v, k) => {
+        if (!state.schemaBeIgnore(k)) {
+          be2[k] = v
+        }
+      })
+      be = be2
+    }
+    // Apply schema behaviors
     if (!_.isEmpty(be)) {
       commit("setLbkOff")
       dispatch("applyBehavior", be)
@@ -311,11 +321,22 @@ const _M = {
   //--------------------------------------------
   restoreLocalBehavior({ state, dispatch }) {
     // Guard
-    if (!state.lbkAt) {
+    if (!state.lbkAt || state.lbkOff) {
       return
     }
     // Load local setting
     let be = Ti.Storage.session.getObject(state.lbkAt)
+    // Apply Ignore
+    if (state.lbkIgnore) {
+      let be2 = {}
+      _.forEach(be, (v, k) => {
+        if (!state.lbkIgnore(k)) {
+          be2[k] = v
+        }
+      })
+      be = be2
+    }
+    // Apply behaviors
     if (!_.isEmpty(be)) {
       dispatch("applyBehavior", be)
     }
@@ -334,6 +355,9 @@ const _M = {
    * Reload All
    */
   async reload({ state, commit, dispatch, getters }, meta) {
+    // if ("caseevents" == state.moduleName) {
+    //   console.log("reload caseevents")
+    // }
     // Guard
     if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)

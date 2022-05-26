@@ -1,6 +1,11 @@
 ////////////////////////////////////////////////
 function saveLocalBehavior(state, key, val) {
   if (state.lbkAt && !state.lbkOff) {
+    // Ignore ? 
+    if (state.lbkIgnore && state.lbkIgnore(key)) {
+      return
+    }
+    // Save to local
     let be = Ti.Storage.session.getObject(state.lbkAt)
     be[key] = val
     Ti.Storage.session.setObject(state.lbkAt, be)
@@ -24,6 +29,8 @@ const _M = {
   explainLocalBehaviorKeepAt(state) {
     let keyAt = state.localBehaviorKeepAt;
     state.lbkAt = Ti.Util.explainObj(state, keyAt)
+    state.lbkIgnore = Ti.AutoMatch.parse(state.localBehaviorIgnore)
+    state.schemaBeIgnore= Ti.AutoMatch.parse(state.schemaBehaviorIgnore)
   },
   //----------------------------------------
   setLbkOff(state, off = true) { state.lbkOff = off },

@@ -313,6 +313,7 @@ export default {
       // Load GUI Detail Content
       if (oGuiDetail) {
         let guiDetail = await Wn.Io.loadContent(oGuiDetail, { as: "json" })
+        guiDetail = guiDetail || {}
         this.detailGuiSetups = _.assign({
           [metaId]: guiDetail
         }, this.detailGuiSetups)

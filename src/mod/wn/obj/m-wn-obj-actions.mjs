@@ -51,7 +51,7 @@ const _M = {
     }
     let content = await Wn.Io.loadContent(meta)
     dispatch("updateContent", content)
-    //console.log("loadContent:", content)
+    //console.log("loadContent:", meta,content)
 
     // All done
     if (!quiet) {

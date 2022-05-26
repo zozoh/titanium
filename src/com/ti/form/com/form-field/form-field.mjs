@@ -215,6 +215,7 @@ const _M = {
     //--------------------------------------------
     evalInputValue(val) {
       let re = val;
+      //console.log("evalInputValue", val)
       // apply default
       if (_.isUndefined(val)) {
         re = _.cloneDeep(
@@ -231,10 +232,14 @@ const _M = {
           Ti.Util.fallback(this.nanAs, this.defaultAs, NaN)
         )
       }
-      else if (_.isEmpty(val) && _.isString(val)) {
-        re = _.cloneDeep(
-          Ti.Util.fallback(this.emptyAs, this.defaultAs, "")
-        )
+      else if (_.isEmpty(val)) {
+        if (_.isString(val)) {
+          re = _.cloneDeep(
+            Ti.Util.fallback(this.emptyAs, this.defaultAs, "")
+          )
+        } else {
+          re = Ti.Util.fallback(this.emptyAs, val)
+        }
       }
 
       if ("~~undefined~~" == re)
