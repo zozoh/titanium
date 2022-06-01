@@ -14,6 +14,10 @@ export default {
       type : Object,
       default : ()=>({})
     },
+    "formType": {
+      type : String,
+      default : "TiForm"
+    },
     "form": {
       type : Object,
       default : ()=>({})
@@ -25,15 +29,20 @@ export default {
   },
   ///////////////////////////////////////////
   computed: {
+    //--------------------------------------
     TheData() {
       return this.myData || this.data
     },
+    //--------------------------------------
     TheForm() {
       return _.assign({
         onlyFields: false,
-        adjustDelay: 0
+        adjustDelay: 0,
+        field: this.fields,
+        fixed: this.fixed
       }, this.form)
     }
+    //--------------------------------------
   },
   ///////////////////////////////////////////
   methods : {
@@ -43,7 +52,7 @@ export default {
     },
     //--------------------------------------
     OnFormFieldChange(pair={}) {
-      //console.log("OnFormFieldChange", pair)
+      console.log("OnFormFieldChange", pair)
       this.myData = this.$form.getData(pair)
     },
     //--------------------------------------

@@ -460,6 +460,7 @@ export class TiAppModal {
     // create TiApp
     let app = Ti.App(appInfo, (conf) => {
       _.forEach(this.modState, ({ state, merge } = {}, modName) => {
+        //console.log(modName)
         let mod = _.get(conf, `store.modules.${modName}`)
         if (mod && mod.state) {
           if (merge) {

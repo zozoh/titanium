@@ -1,13 +1,12 @@
 <div class="wn-th-creator ti-box-relative">
-  <ti-form
-    v-bind="TheForm"
-    :fields="fields"
-    :fixed="fixed"
-    :data="TheData"
-    :on-init="OnFormInit"
-    @field:change="OnFormFieldChange"
-    @change="OnFormChange"
-    @submit="OnSubmit"/>
+  <component
+    :is="formType"
+      v-bind="TheForm"
+      :data="TheData"
+      :on-init="OnFormInit"
+      @field:change="OnFormFieldChange"
+      @change="OnFormChange"
+      @submit="OnSubmit"/>
   <hr class="no-space">
   <div class="ti-flex-center ti-padding-10">
     <div class="ti-btn is-big" 

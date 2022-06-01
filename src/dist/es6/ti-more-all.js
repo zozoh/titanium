@@ -1,4 +1,4 @@
-// Pack At: 2022-05-13 22:32:29
+// Pack At: 2022-06-01 21:23:36
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -687,129 +687,128 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "type" : {
-    type : String,
-    default : "String"
+  "type": {
+    type: String,
+    default: "String"
   },
-  "required" : {
-    type : Boolean,
-    default : false
+  "required": {
+    type: Boolean,
+    default: false
   },
-  "disabled" : {
-    type : Boolean,
-    default : false
+  "disabled": {
+    type: Boolean,
+    default: false
   },
-  "uniqKey" : {
-    type : String,
-    default : null
+  "uniqKey": {
+    type: String,
+    default: null
   },
-  "name" : {
-    type : [String, Array],
-    default : null
+  "name": {
+    type: [String, Array],
+    default: null
   },
-  "icon" : {
-    type : String,
-    default : null
+  "icon": {
+    type: String,
+    default: null
   },
-  "message" : {
-    type : String,
-    default : null
+  "message": {
+    type: String,
+    default: null
   },
-  "title" : {
-    type : String,
-    default : null
+  "title": {
+    type: String,
+    default: null
   },
-  "tip" : {
-    type : String,
-    default : null
+  "tip": {
+    type: String,
+    default: null
   },
-  "fieldWidth" : {
-    type : [String, Number],
-    default : undefined
+  "fieldWidth": {
+    type: [String, Number],
+    default: undefined
   },
-  "checkEquals" : {
-    type : Boolean,
-    default : true
+  "checkEquals": {
+    type: Boolean,
+    default: true
   },
-  "undefinedAs" : {
-    default : undefined
+  "undefinedAs": {
+    default: undefined
   },
-  "nullAs" : {
-    default : undefined
+  "nullAs": {
+    default: undefined
   },
-  "nanAs" : {
-    type : Number,
-    default : undefined
+  "nanAs": {
+    type: Number,
+    default: undefined
   },
-  "emptyAs" : {
-    type : String,
-    default : undefined
+  "emptyAs": {
+    default: undefined
   },
-  "defaultAs" : {
-    default : undefined
+  "defaultAs": {
+    default: undefined
   },
-  "display" : {
-    type : [String, Object, Boolean],
-    default : false
+  "display": {
+    type: [String, Object, Boolean],
+    default: false
   },
-  "autoValue" : {
-    type : String,
-    default : "value"
+  "autoValue": {
+    type: String,
+    default: "value"
   },
-  "serializer" : {
-    type : Function,
-    default : _.identity
+  "serializer": {
+    type: Function,
+    default: _.identity
   },
-  "transformer" : {
-    type : Function,
-    default : _.identity
+  "transformer": {
+    type: Function,
+    default: _.identity
   },
-  "data" : {
-    type : Object,
-    default : null
+  "data": {
+    type: Object,
+    default: null
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "fieldStatus" : {
-    type : Object,
-    default : ()=>({})
+  "fieldStatus": {
+    type: Object,
+    default: () => ({})
   },
-  "comType" : {
-    type : String,
-    default : "ti-label"
+  "comType": {
+    type: String,
+    default: "ti-label"
   },
-  "comConf" : {
-    type : Object,
-    default : ()=>({})
+  "comConf": {
+    type: Object,
+    default: () => ({})
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "screenMode" : {
-    type : String,
-    default : "auto",
-    validator : (val)=>/^(auto|desktop|tablet|phone)$/.test(val)
+  "screenMode": {
+    type: String,
+    default: "auto",
+    validator: (val) => /^(auto|desktop|tablet|phone)$/.test(val)
   },
-  "statusIcons" : {
-    type : Object,
-    default : ()=>({
-      spinning : 'fas-spinner fa-spin',
-      error    : 'zmdi-alert-polygon',
-      warn     : 'zmdi-alert-triangle',
-      ok       : 'zmdi-check-circle',
+  "statusIcons": {
+    type: Object,
+    default: () => ({
+      spinning: 'fas-spinner fa-spin',
+      error: 'zmdi-alert-polygon',
+      warn: 'zmdi-alert-triangle',
+      ok: 'zmdi-check-circle',
     })
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "width" : {
-    type : [String, Number],
-    default : "stretch"
+  "width": {
+    type: [String, Number],
+    default: "stretch"
   },
-  "height" : {
-    type : [String, Number],
-    default : undefined
+  "height": {
+    type: [String, Number],
+    default: undefined
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -3644,6 +3643,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Load GUI Detail Content
       if (oGuiDetail) {
         let guiDetail = await Wn.Io.loadContent(oGuiDetail, { as: "json" })
+        guiDetail = guiDetail || {}
         this.detailGuiSetups = _.assign({
           [metaId]: guiDetail
         }, this.detailGuiSetups)
@@ -11289,6 +11289,11 @@ window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj-mutations.mjs'] = (function(){
 ////////////////////////////////////////////////
 function saveLocalBehavior(state, key, val) {
   if (state.lbkAt && !state.lbkOff) {
+    // Ignore ? 
+    if (state.lbkIgnore && state.lbkIgnore(key)) {
+      return
+    }
+    // Save to local
     let be = Ti.Storage.session.getObject(state.lbkAt)
     be[key] = val
     Ti.Storage.session.setObject(state.lbkAt, be)
@@ -11312,6 +11317,8 @@ const _M = {
   explainLocalBehaviorKeepAt(state) {
     let keyAt = state.localBehaviorKeepAt;
     state.lbkAt = Ti.Util.explainObj(state, keyAt)
+    state.lbkIgnore = Ti.AutoMatch.parse(state.localBehaviorIgnore)
+    state.schemaBeIgnore= Ti.AutoMatch.parse(state.schemaBehaviorIgnore)
   },
   //----------------------------------------
   setLbkOff(state, off = true) { state.lbkOff = off },
@@ -14576,7 +14583,7 @@ const _M = {
     }
     let content = await Wn.Io.loadContent(meta)
     dispatch("updateContent", content)
-    //console.log("loadContent:", content)
+    //console.log("loadContent:", meta,content)
 
     // All done
     if (!quiet) {
@@ -27966,6 +27973,7 @@ const _M = {
     //--------------------------------------------
     evalInputValue(val) {
       let re = val;
+      //console.log("evalInputValue", val)
       // apply default
       if (_.isUndefined(val)) {
         re = _.cloneDeep(
@@ -27982,10 +27990,14 @@ const _M = {
           Ti.Util.fallback(this.nanAs, this.defaultAs, NaN)
         )
       }
-      else if (_.isEmpty(val) && _.isString(val)) {
-        re = _.cloneDeep(
-          Ti.Util.fallback(this.emptyAs, this.defaultAs, "")
-        )
+      else if (_.isEmpty(val)) {
+        if (_.isString(val)) {
+          re = _.cloneDeep(
+            Ti.Util.fallback(this.emptyAs, this.defaultAs, "")
+          )
+        } else {
+          re = Ti.Util.fallback(this.emptyAs, val)
+        }
       }
 
       if ("~~undefined~~" == re)
@@ -35102,9 +35114,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //------------------------------------
     TheItems() {
-      if(3 == this.items.length) {
-        console.log("hahahah")
-      }
       //
       // Head
       //
@@ -35566,8 +35575,14 @@ const _M = {
     __on_events(name, payload) {
       //console.log("WnManager::__on_events", name, payload)
       // Special event 
-      if (/^main::arena::(.+::)?select$/.test(name)) {
+      if (/^main::arena::(.+::)*select$/.test(name)) {
         this.OnArenaSelect(payload)
+      }
+      if (/^main::arena::(.+::)*indicate$/.test(name)) {
+        this.OnArenaIndicate(payload)
+      }
+      if (/^main::arena::(.+::)*message$/.test(name)) {
+        this.OnArenaMessage(payload)
       }
 
       // Guard
@@ -48734,8 +48749,8 @@ const _M = {
         let { merge, comType, comConf } = vObj
 
         // Guard
-        if(_.isEmpty(orgCom)) {
-          schema[k] = {comType, comConf}
+        if (_.isEmpty(orgCom)) {
+          schema[k] = { comType, comConf }
           return
         }
 
@@ -48750,7 +48765,7 @@ const _M = {
         // Com Conf
         if (!_.isEmpty(comConf)) {
           // init comConf in schema
-          if(_.isEmpty(orgCom.comConf)) {
+          if (_.isEmpty(orgCom.comConf)) {
             orgCom.comConf = comConf
             return;
           }
@@ -48903,19 +48918,29 @@ const _M = {
       commit("setGuiShown", guiShown)
     }
 
-
     // Apply pager
-    let pager = {}
     if (pageSize > 0) {
+      let pager = {}
       pager.pn = 1
       pager.pgsz = pageSize
+      commit("assignPager", pager)
     }
-    commit("assignPager", pager)
   },
   //--------------------------------------------
   updateSchemaBehavior({ state, commit, dispatch }) {
     let be = _.get(state.schema, "behavior") || {}
     be = Ti.Util.explainObj(state, be)
+    // Apply Ignore
+    if (state.schemaBeIgnore) {
+      let be2 = {}
+      _.forEach(be, (v, k) => {
+        if (!state.schemaBeIgnore(k)) {
+          be2[k] = v
+        }
+      })
+      be = be2
+    }
+    // Apply schema behaviors
     if (!_.isEmpty(be)) {
       commit("setLbkOff")
       dispatch("applyBehavior", be)
@@ -48925,11 +48950,22 @@ const _M = {
   //--------------------------------------------
   restoreLocalBehavior({ state, dispatch }) {
     // Guard
-    if (!state.lbkAt) {
+    if (!state.lbkAt || state.lbkOff) {
       return
     }
     // Load local setting
     let be = Ti.Storage.session.getObject(state.lbkAt)
+    // Apply Ignore
+    if (state.lbkIgnore) {
+      let be2 = {}
+      _.forEach(be, (v, k) => {
+        if (!state.lbkIgnore(k)) {
+          be2[k] = v
+        }
+      })
+      be = be2
+    }
+    // Apply behaviors
     if (!_.isEmpty(be)) {
       dispatch("applyBehavior", be)
     }
@@ -48948,6 +48984,9 @@ const _M = {
    * Reload All
    */
   async reload({ state, commit, dispatch, getters }, meta) {
+    // if ("caseevents" == state.moduleName) {
+    //   console.log("reload caseevents")
+    // }
     // Guard
     if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
@@ -66731,7 +66770,10 @@ const _M = {
     //-----------------------------------------------
     async evalMyItem(val = this.value) {
       //console.log("before evalMyItem", val)
-      let it = await this.Dict.getItem(val)
+      let it;
+      if (this.Dict) {
+        it = await this.Dict.getItem(val)
+      }
       //console.log("after evalMyItem: it", it)
       if (_.isArray(it)) {
         console.error("!!!!!!! kao ~~~~~~~")
@@ -66854,6 +66896,18 @@ const _M = {
     },
     //-----------------------------------------------
     "options": function (newval, oldval) {
+      if (!_.isEqual(newval, oldval)) {
+        this.myDict = this.createDict()
+        this.myOptionsData = []
+        if (this.isExtended) {
+          this.$nextTick(() => {
+            this.reloadMyOptionData(true)
+          })
+        }
+      }
+    },
+    //-----------------------------------------------
+    "dictVars": function (newval, oldval) {
       if (!_.isEqual(newval, oldval)) {
         this.myDict = this.createDict()
         this.myOptionsData = []
@@ -71088,6 +71142,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : Object,
       default : ()=>({})
     },
+    "formType": {
+      type : String,
+      default : "TiForm"
+    },
     "form": {
       type : Object,
       default : ()=>({})
@@ -71099,15 +71157,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   ///////////////////////////////////////////
   computed: {
+    //--------------------------------------
     TheData() {
       return this.myData || this.data
     },
+    //--------------------------------------
     TheForm() {
       return _.assign({
         onlyFields: false,
-        adjustDelay: 0
+        adjustDelay: 0,
+        field: this.fields,
+        fixed: this.fixed
       }, this.form)
     }
+    //--------------------------------------
   },
   ///////////////////////////////////////////
   methods : {
@@ -71117,7 +71180,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     OnFormFieldChange(pair={}) {
-      //console.log("OnFormFieldChange", pair)
+      console.log("OnFormFieldChange", pair)
       this.myData = this.$form.getData(pair)
     },
     //--------------------------------------
@@ -85838,10 +85901,8 @@ Ti.Preload("ti/com/wn/files/_com.json", {
   "globally": true,
   "template": "./wn-files.html",
   "props": "@com:wn/obj/adaptor/wn-obj-adaptor-props.mjs",
-  "mixins": [
-    "./wn-files.mjs",
-    "./wn-files-delegates.mjs"
-  ],
+  "methods": "./wn-files-delegates.mjs",
+  "mixins": "./wn-files.mjs",
   "components": [
     "@com:wn/obj/adaptor",
     "@com:ti/combo/table"
@@ -87409,15 +87470,14 @@ Ti.Preload("ti/com/wn/th/adaptor/_com.json", {
 // JOIN <wn-th-creator.html> ti/com/wn/th/creator/wn-th-creator.html
 //========================================
 Ti.Preload("ti/com/wn/th/creator/wn-th-creator.html", `<div class="wn-th-creator ti-box-relative">
-  <ti-form
-    v-bind="TheForm"
-    :fields="fields"
-    :fixed="fixed"
-    :data="TheData"
-    :on-init="OnFormInit"
-    @field:change="OnFormFieldChange"
-    @change="OnFormChange"
-    @submit="OnSubmit"/>
+  <component
+    :is="formType"
+      v-bind="TheForm"
+      :data="TheData"
+      :on-init="OnFormInit"
+      @field:change="OnFormFieldChange"
+      @change="OnFormChange"
+      @submit="OnSubmit"/>
   <hr class="no-space">
   <div class="ti-flex-center ti-padding-10">
     <div class="ti-btn is-big" 
@@ -88545,8 +88605,12 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "view": null,
   "guiShown": {},
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
+  "localBehaviorIgnore": null,
+  "schemaBehaviorIgnore": null,
   "lbkAt": null,
   "lbkOff": false,
+  "lbkIgnore": null,
+  "schemaBeIgnore": null,
   "thingSetId": null,
   "oTs": null,
   "fixedMatch": {},
@@ -89140,8 +89204,6 @@ Ti.Preload("/a/load/wn.manager/wn-manager.html", `<ti-gui
   @arena::change="OnCurrentDataChange"
   @listviewtype:change="OnArenaListViewTypeChange"
   @arena::actions:update="OnUpdateActions"
-  @arena::indicate="OnArenaIndicate"
-  @arena::message="OnArenaMessage"
   @arena::update:view:status="OnArenaViewStatusUpdated"/>`);
 //========================================
 // JOIN <wn-manager.mjs> /a/load/wn.manager/wn-manager.mjs

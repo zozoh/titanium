@@ -85,9 +85,6 @@ export default {
     },
     //------------------------------------
     TheItems() {
-      if(3 == this.items.length) {
-        console.log("hahahah")
-      }
       //
       // Head
       //

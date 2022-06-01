@@ -1,4 +1,4 @@
-// Pack At: 2022-05-13 22:32:29
+// Pack At: 2022-06-01 21:23:36
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3543,6 +3543,7 @@ const {App} = (function(){
         // create TiApp
         let app = Ti.App(appInfo, (conf) => {
           _.forEach(this.modState, ({ state, merge } = {}, modName) => {
+            //console.log(modName)
             let mod = _.get(conf, `store.modules.${modName}`)
             if (mod && mod.state) {
               if (merge) {
@@ -18520,7 +18521,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220513.223229",
+  "version" : "1.6-20220601.212336",
   "dev" : false,
   "appName" : null,
   "session" : {},
