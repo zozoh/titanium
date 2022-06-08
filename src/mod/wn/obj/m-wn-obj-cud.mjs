@@ -82,14 +82,21 @@ const _M = {
   },
   //--------------------------------------------
   parseContentData({ state, commit, getters }) {
-    let content = state.content
-    let contentType = getters.contentParseType
-    let contentData = null
-    if (/^(application|text)\/json$/.test(contentType)) {
-      let str = _.trim(content)
-      contentData = JSON.parse(str || null)
+    try {
+      let content = state.content
+      let contentType = getters.contentParseType
+      let contentData = null
+      if (/^(application|text)\/json$/.test(contentType)) {
+        let str = _.trim(content)
+        contentData = JSON.parse(str || null)
+      }
+      commit("setContentData", contentData)
     }
-    commit("setContentData", contentData)
+    catch (E) {
+      if (!state.contentQuietParse) {
+        throw E
+      }
+    }
   },
   //--------------------------------------------
   changeContent({ commit, dispatch }, payload) {

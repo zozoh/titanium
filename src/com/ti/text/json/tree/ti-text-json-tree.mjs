@@ -1,70 +1,86 @@
 const _M = {
   //////////////////////////////////////////
-  data : ()=>({
-    myTreeRoot : [],
-    myTreeCurrentPathId : null,
-    myTreeOpenedStatus : {}
+  data: () => ({
+    myTreeRoot: [],
+    myTreeCurrentPathId: null,
+    myTreeOpenedStatus: {}
   }),
   //////////////////////////////////////////
-  props : {
-    "value" : null,
-    "mainWidth" : {
-      type : [String, Number],
-      default : .372
+  props: {
+    "value": null,
+    "mainWidth": {
+      type: [String, Number],
+      default: .372
     },
-    "border" : {
-      type : String,
-      default : "cell",
-      validator : v => /^(row|column|cell|none)$/.test(v)
+    "border": {
+      type: String,
+      default: "cell",
+      validator: v => /^(row|column|cell|none)$/.test(v)
     },
-    "keepOpenBy" : {
-      type : String,
-      default : null
+    "keepOpenBy": {
+      type: String,
+      default: null
     },
-    "autoOpen" : {
-      type : Boolean,
-      default : false
+    "autoOpen": {
+      type: Boolean,
+      default: false
     },
-    "showRoot" : {
-      type : Boolean,
-      default : true
+    "defaultOpenDepth": {
+      type: Number,
+      default: 3
     },
-    "editing" : {
-      type : Object,
-      default : ()=>({})
+    "showRoot": {
+      type: Boolean,
+      default: true
+    },
+    "editing": {
+      type: Object,
+      default: () => ({})
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
+    //--------------------------------------
+    NodeIdBy() {
+      return it => Ti.Util.getFallbackNil(it, "id")
+    },
+    //--------------------------------------
+    NodeNameBy() {
+      return it => Ti.Util.getFallbackNil(it, "name", "nm", "id")
+    },
     //--------------------------------------
     TreeDisplay() {
       return {
-        key : "name",
-        comType : "ti-label",
-        comConf : (it)=>({
-          className : _.kebabCase(`is-${it.nameType}`),
-          editable  : 'Key' == it.nameType,
-          format : ({
-              "Index" : v => `[${v}]`,
-              "Label" : v => Ti.I18n.text(`i18n:json-${v}`)
-            })[it.nameType]
+        key: "name",
+        comType: "ti-label",
+        comConf: (it) => ({
+          className: {
+            [_.kebabCase(`is-${it.nameType}`)]: true,
+            "flex-auto": true
+          },
+          editable: 'Key' == it.nameType,
+          hoverCopy: false,
+          format: ({
+            "Index": v => `[${v}]`,
+            "Label": v => Ti.I18n.text(`i18n:json-${v}`)
+          })[it.nameType]
         })
       }
     },
     //--------------------------------------
     TreeFields() {
       return [{
-        title : "i18n:value",
-        width : .618,
-        display : {
-          key : "value",
-          ignoreNil : false,
-          ignoreBlank : false,
-          comType : "ti-text-json-tree-item",
-          comConf : {
-            valueType   : "${valueType}",
-            valuePath   : "${=rowId}",
-            showActions : "${=isCurrent}"
+        title: "i18n:value",
+        width: .618,
+        display: {
+          key: "value",
+          ignoreNil: false,
+          ignoreBlank: false,
+          comType: "ti-text-json-tree-item",
+          comConf: {
+            valueType: "${valueType}",
+            valuePath: "${=rowId}",
+            showActions: "${=isCurrent}"
           }
         }
       }]
@@ -72,7 +88,7 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     evalTreeData() {
       let list = []
@@ -84,30 +100,30 @@ const _M = {
     },
     //--------------------------------------
     getJsValueType(val) {
-      if(Ti.Util.isNil(val))
+      if (Ti.Util.isNil(val))
         return "Nil"
 
-      if(_.isArray(val))
+      if (_.isArray(val))
         return "Array"
-      
-      if(_.isNumber(val)) {
+
+      if (_.isNumber(val)) {
         return "Number"
       }
 
       return _.upperFirst(typeof val)
     },
     //--------------------------------------
-    joinTreeTableRow(list=[], item, key) {
+    joinTreeTableRow(list = [], item, key) {
       let nameType;
       let valueType = this.getJsValueType(item)
       // Default itemKey is self-type
       // For top leval
-      if(_.isUndefined(key)) {
-          key = valueType
-          nameType = "Label"
+      if (_.isUndefined(key)) {
+        key = valueType
+        nameType = "Label"
       }
       // Index key
-      else if(_.isNumber(key)) {
+      else if (_.isNumber(key)) {
         nameType = "Index"
       }
       // String key
@@ -116,34 +132,34 @@ const _M = {
       }
       //................................
       // undefined
-      if(_.isUndefined(item)) {
+      if (_.isUndefined(item)) {
         list.push({
           nameType, valueType,
-          name  : key,
-          value : undefined
+          name: key,
+          value: undefined
         })
       }
       //................................
       // null
-      else if(_.isNull(item)) {
+      else if (_.isNull(item)) {
         list.push({
           nameType, valueType,
-          name  : key,
-          value : null
+          name: key,
+          value: null
         })
       }
       //................................
       // Array
-      if(_.isArray(item)) {
+      if (_.isArray(item)) {
         // Create self
         let node = {
           nameType, valueType: "Array",
-          name  : key,
-          value : item,
-          children : []
+          name: key,
+          value: item,
+          children: []
         }
         // Join Children
-        for(let i=0; i<item.length; i++) {
+        for (let i = 0; i < item.length; i++) {
           let child = item[i]
           this.joinTreeTableRow(node.children, child, i)
         }
@@ -152,16 +168,16 @@ const _M = {
       }
       //................................
       // Object
-      else if(_.isPlainObject(item)) {
+      else if (_.isPlainObject(item)) {
         // Create self
         let node = {
           nameType, valueType: "Object",
-          name  : key,
-          value : item,
-          children : []
+          name: key,
+          value: item,
+          children: []
         }
         // Join Children
-        _.forEach(item, (v, k)=>{
+        _.forEach(item, (v, k) => {
           this.joinTreeTableRow(node.children, v, k)
         })
         // Join self
@@ -169,34 +185,34 @@ const _M = {
       }
       //................................
       // Boolean
-      else if(_.isBoolean(item)) {
+      else if (_.isBoolean(item)) {
         list.push({
           nameType, valueType,
-          name  : key,
-          value : item ? true : false
+          name: key,
+          value: item ? true : false
         })
       }
       //................................
       // Number 
-      else if(_.isNumber(item)) {
+      else if (_.isNumber(item)) {
         list.push({
           nameType, valueType,
-          name  : key,
-          value : item * 1
+          name: key,
+          value: item * 1
         })
       }
       //................................
       // String
-      else if(_.isString(item)) {
+      else if (_.isString(item)) {
         list.push({
           nameType, valueType,
-          name  : key,
-          value : item + ""
+          name: key,
+          value: item + ""
         })
       }
     },
     //--------------------------------------
-    async doAdd(root={}, path=[]) {
+    async doAdd(root = {}, path = []) {
       // Looking for the target from data
       let hie = Ti.Trees.getByPath(this.myTreeRoot, path)
       let target = _.isEmpty(path) ? root : _.get(root, path)
@@ -204,21 +220,21 @@ const _M = {
       //console.log({root, path, target, hie, isOpened})
       //.....................................
       // Guard: Fail to find the target
-      if(!hie) {
+      if (!hie) {
         return
       }
       //.....................................
       // If Opened Array
-      if(isOpened && _.isArray(target)) {
+      if (isOpened && _.isArray(target)) {
         // just append the nil at tail
         target.push(null)
       }
       //.....................................
       // If Opened Object
-      else if(isOpened && _.isPlainObject(target)) {
+      else if (isOpened && _.isPlainObject(target)) {
         // ask the key
         let newKey = await Ti.Prompt("i18n:json-new-key")
-        if(Ti.Util.isNil(newKey)) {
+        if (Ti.Util.isNil(newKey)) {
           return
         }
         // and insert nil at the tail
@@ -226,10 +242,10 @@ const _M = {
       }
       //.....................................
       // Other, it must be simple value
-      else if(path.length >= 0){
+      else if (path.length >= 0) {
         //...................................
         // get the parent node
-        let p_ph = path.slice(0, path.length-1);
+        let p_ph = path.slice(0, path.length - 1);
         let parent = _.isEmpty(p_ph) ? root : _.get(root, p_ph);
         let keyOrIndex = _.last(path)
         //...................................
@@ -237,27 +253,27 @@ const _M = {
         let stub;
         //...................................
         // If array, insert nil after current
-        if(_.isArray(parent)) {
+        if (_.isArray(parent)) {
           stub = parent
           let pos = Ti.Util.fallback(keyOrIndex, -1) + 1
           Ti.Util.insertToArray(parent, pos, null)
         }
         //...................................
         // If Object
-        else if(_.isPlainObject(parent)) {
+        else if (_.isPlainObject(parent)) {
           // ask the key
           let newKey = await Ti.Prompt("i18n:json-new-key")
-          if(Ti.Util.isNil(newKey)) {
+          if (Ti.Util.isNil(newKey)) {
             return
           }
           // and insert nil after current path
           stub = Ti.Util.appendToObject(parent, keyOrIndex, {
-            [newKey] : null
+            [newKey]: null
           })
         }
         //...................................
         // If root, return the stub 
-        if(p_ph.length == 0) {
+        if (p_ph.length == 0) {
           return stub
         }
         // Set stub
@@ -267,9 +283,9 @@ const _M = {
       return root
     },
     //--------------------------------------
-    doRemove(root={}, path=[]) {
+    doRemove(root = {}, path = []) {
       // Forbid to remove the top
-      if(_.isEmpty(path)) {
+      if (_.isEmpty(path)) {
         return
       }
       //...................................
@@ -278,7 +294,7 @@ const _M = {
       let can = Ti.Trees.nextCandidate(hie)
       //...................................
       // get the parent node
-      let p_ph = path.slice(0, path.length-1);
+      let p_ph = path.slice(0, path.length - 1);
       let parent = _.isEmpty(p_ph) ? root : _.get(root, p_ph);
       let keyOrIndex = _.last(path)
       //...................................
@@ -286,36 +302,36 @@ const _M = {
       let stub;
       //...................................
       // If array, insert nil after current
-      if(_.isArray(parent)) {
+      if (_.isArray(parent)) {
         stub = []
-        _.forEach(parent, (val, index)=>{
-          if(index != keyOrIndex) {
+        _.forEach(parent, (val, index) => {
+          if (index != keyOrIndex) {
             stub.push(val)
           }
         })
       }
       //...................................
       // If Object
-      else if(_.isPlainObject(parent)) {
+      else if (_.isPlainObject(parent)) {
         stub = {}
         // and insert nil after current path
-        _.forEach(parent, (val, key)=>{
-          if(key != keyOrIndex) {
+        _.forEach(parent, (val, key) => {
+          if (key != keyOrIndex) {
             stub[key] = val
           }
         })
       }
       //.....................................
       // Highlight the next
-      if(can && can.node) {
+      if (can && can.node) {
         let nextPathId = _.concat(can.path, can.node.name).join("/")
-        this.$nextTick(()=>{
+        this.$nextTick(() => {
           this.myTreeCurrentPathId = nextPathId
         })
       }
       //...................................
       // If root, return the stub 
-      if(p_ph.length == 0) {
+      if (p_ph.length == 0) {
         return stub
       }
       // Set stub
@@ -324,7 +340,7 @@ const _M = {
       return root
     },
     //--------------------------------------
-    doChangeValueType(root={}, path=[], type) {
+    doChangeValueType(root = {}, path = [], type) {
       // Get the source
       let isRoot = _.isEmpty(path);
       let src = isRoot ? root : _.get(root, path)
@@ -332,41 +348,41 @@ const _M = {
       // Prepare converter
       let convert = ({
         //...................................
-        "Boolean" : (src)=>{
+        "Boolean": (src) => {
           return src ? true : false
         },
         //...................................
-        "Number" : (src)=>{
+        "Number": (src) => {
           let nb = src * 1
           return isNaN(nb) ? -1 : nb
         },
         //...................................
-        "Integer" : (src)=>{
+        "Integer": (src) => {
           let nb = parseInt(src)
           return isNaN(nb) ? -1 : nb
         },
         //...................................
-        "Float" : (src)=>{
+        "Float": (src) => {
           let nb = src * 1
           return isNaN(nb) ? -1 : nb
         },
         //...................................
-        "String" : (src)=>{
+        "String": (src) => {
           // Array/Object
-          if(_.isArray(src) || _.isObject(src)) {
+          if (_.isArray(src) || _.isObject(src)) {
             return JSON.stringify(src)
           }
           // Other value
           return src + ""
         },
         //...................................
-        "Array" : (src)=>{
+        "Array": (src) => {
           // Array
-          if(_.isArray(src)) {
+          if (_.isArray(src)) {
             return
           }
           // Nil
-          else if(Ti.Util.isNil(src)) {
+          else if (Ti.Util.isNil(src)) {
             return []
           }
           // Wrap to array
@@ -375,53 +391,53 @@ const _M = {
           }
         },
         //...................................
-        "Object" : (src)=>{
+        "Object": (src) => {
           // Array
-          if(_.isArray(src)) {
+          if (_.isArray(src)) {
             // Try array as pairs
             let pairs = _.fromPairs(src)
             let stub = {}
-            _.forEach(pairs, (val, key)=>{
-              if(!Ti.Util.isNil(key) && !_.isUndefined(val)) {
+            _.forEach(pairs, (val, key) => {
+              if (!Ti.Util.isNil(key) && !_.isUndefined(val)) {
                 stub[key] = val
               }
             })
             // Maybe merget it 
-            if(_.isEmpty(stub) && !_.isEmpty(src)) {
+            if (_.isEmpty(stub) && !_.isEmpty(src)) {
               Ti.Util.merge(stub, src)
             }
             // Whatever return the object
             return stub
           }
           // Object
-          else if(_.isPlainObject(src)) {
+          else if (_.isPlainObject(src)) {
             return
           }
           // String try to JSON
-          else if(_.isString(src)) {
+          else if (_.isString(src)) {
             return Ti.Types.safeParseJson(src, {
-              "value" : src
+              "value": src
             })
           }
           // Other value, just wrap to Object
-          return {"value": src}
+          return { "value": src }
         },
         //...................................
-        "Nil" : (src)=>{
+        "Nil": (src) => {
           return null
         }
         //...................................
       })[type]
       //.....................................
       // Do convert
-      if(_.isFunction(convert)) {
+      if (_.isFunction(convert)) {
         let stub = convert(src)
         // Canceled
-        if(_.isUndefined(stub)) {
+        if (_.isUndefined(stub)) {
           return
         }
         // Root object, return directly
-        if(isRoot) {
+        if (isRoot) {
           return stub
         }
         // Update to main data
@@ -432,11 +448,11 @@ const _M = {
       // Fail to find the converter, return undeinfed to cancel
     },
     //--------------------------------------
-    async OnNodeItemChange({name, value, data, node, nodeId}={}) {
-      //console.log("OnNodeItemChange", {name,value, data, node, nodeId})
+    async OnNodeItemChange({ name, value, data, node, nodeId } = {}) {
+      //console.log("OnNodeItemChange", { name, value, data, node, nodeId })
       //....................................
       // Guard it
-      if(!node.id) {
+      if (!node.id) {
         return;
       }
       //....................................
@@ -447,17 +463,17 @@ const _M = {
       let path = node.path
       //....................................
       // Mutate JSON structure
-      if(value && value.jsonMutate) {
+      if (value && value.jsonMutate) {
         let fn = ({
-          Add             : this.doAdd,
-          Remove          : this.doRemove,
-          ChangeValueType : this.doChangeValueType
+          Add: this.doAdd,
+          Remove: this.doRemove,
+          ChangeValueType: this.doChangeValueType
         })[value.jsonMutate]
         // Invoke it
         newData = await Ti.DoInvoke(fn, _.concat([newData, path], value.args), this)
 
         // Canceled the mutation
-        if(_.isUndefined(newData)) {
+        if (_.isUndefined(newData)) {
           return
         }
       }
@@ -465,42 +481,42 @@ const _M = {
       // Modify the Array/Object
       else {
         // Set the Key
-        if("name" == name) {
+        if ("name" == name) {
           newData = Ti.Util.setKey(newData, path, value)
         }
         // Set the Value
-        else if("value" == name) {
+        else if ("value" == name) {
           // Eval the value smartly
           let fn = ({
-            "Integer" : (v)=> {
+            "Integer": (v) => {
               let v2 = parseInt(v)
-              if(isNaN(v2)) {
+              if (isNaN(v2)) {
                 return v
               }
               return v2
             },
-            "Float" : (v)=> {
+            "Float": (v) => {
               let v2 = v * 1
-              if(isNaN(v2)) {
+              if (isNaN(v2)) {
                 return v
               }
               return v2
             },
-            "Number" : (v)=> {
+            "Number": (v) => {
               let v2 = v * 1
-              if(isNaN(v2)) {
+              if (isNaN(v2)) {
                 return v
               }
               return v2
             },
-            "Nil" : (v)=> {
+            "Nil": (v) => {
               return Ti.S.toJsValue(v, {
-                autoDate : false
+                autoDate: false
               })
             }
           })[data.valueType]
           let v2 = _.isFunction(fn) ? fn(value) : value
-          
+
           // Set it to data
           _.set(newData, path, v2)
         }
@@ -516,13 +532,13 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "value" : function(){
+  watch: {
+    "value": function () {
       this.evalTreeData()
     }
   },
   //////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     this.evalTreeData()
   }
   //////////////////////////////////////////

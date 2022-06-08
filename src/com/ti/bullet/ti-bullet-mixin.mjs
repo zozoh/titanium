@@ -49,6 +49,10 @@ const _M = {
       type: String,
       default: "far-circle"
     },
+    "autoI18n": {
+      type: Boolean,
+      default: true
+    },
     "blankAs": {
       type: Object,
       default: () => ({
@@ -144,6 +148,9 @@ const _M = {
         let list = []
         for (let data of this.myOptionsData) {
           let { title, key, items } = this.Grouping(data)
+          if(this.autoI18n) {
+            title = Ti.I18n.get(title, title)
+          }
           items = this.evalItems(items)
           list.push({ title, key, items })
         }
@@ -179,6 +186,9 @@ const _M = {
             text: this.getItemText(li),
             value: this.getItemValue(li)
           }
+        }
+        if(this.autoI18n) {
+          it.text = Ti.I18n.get(it.text, it.text)
         }
         if (this.isItemChecked(it.value, this.value)) {
           it.className = "is-checked"

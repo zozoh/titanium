@@ -178,7 +178,6 @@ const _M = {
         return
 
       // Normlized to value
-      console.log(reo)
       let val = this.normalizeValue(reo)
 
       this.$notify("change", val)

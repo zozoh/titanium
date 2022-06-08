@@ -6,12 +6,31 @@ export default {
   }),
   ////////////////////////////////////////////////////
   props: {
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
     "guiPathDefault": {
       type: String
     },
     "guiPath": {
       type: String
     },
+    //-----------------------------------
+    // GUI
+    //-----------------------------------
+    "filterConf": {
+      type: Object,
+      default: () => ({})
+    },
+    "schemaDetail": {
+      type: Object,
+      default: () => ({
+        comType: "TiTextRaw",
+        comConf: {
+          value: "=content"
+        }
+      })
+    }
   },
   ////////////////////////////////////////////////////
   computed: {
@@ -56,9 +75,9 @@ export default {
     GuiSchemaFilter() {
       return {
         comType: "TiFilterbar",
-        comConf: {
+        comConf: _.assign({
           className: "is-nowrap",
-          placeholder: "字典ID/标题",
+          placeholder: "ID/标题",
           filter: "=filter",
           sorter: "=sorter",
           dialog: {
@@ -98,7 +117,7 @@ export default {
               { "value": "lm", "text": "i18n:wn-key-lm" },
             ]
           }
-        }
+        }, this.filterConf)
       }
     }, // The Filter
     //------------------------------------------------
@@ -126,17 +145,13 @@ export default {
       }
       // Load from configuration
       let gui = this.detailGuiSetups[this.currentId]
+        || this.defaultDetail
       if (!_.isEmpty(gui)) {
         return Ti.Util.explainObj(this, gui)
       }
 
       // Show default detail
-      return {
-        comType: "TiTextRaw",
-        comConf: {
-          value: this.content
-        }
-      }
+      return Ti.Util.explainObj(this, this.schemaDetail)
     },
     //------------------------------------------------
     WallItemBadges() {
@@ -246,11 +261,11 @@ export default {
   ////////////////////////////////////////////////////
   methods: {
     //------------------------------------------------
-    OnDetailChange(payload) {
-      // let $a = this.getObjAdaptor()
-      // $a.commit("setListItem", od)
-      console.log("OnDetailChange", payload)
-    },
+    // OnDetailChange(payload) {
+    //   // let $a = this.getObjAdaptor()
+    //   // $a.commit("setListItem", od)
+    //   console.log("OnDetailChange", payload)
+    // },
     //------------------------------------------------
     getFileIcon(o, dft = "fas-cog") {
       return Ti.Icons.get(o, dft)
@@ -333,7 +348,18 @@ export default {
       this.$nextTick(() => {
         this.isLoadingGui = false
       })
-    }
+    },
+    //------------------------------------------------
+    // Delegates
+    //------------------------------------------------
+    async doCreate() {
+      let $a = this.getObjAdaptor()
+      return await $a.doCreate()
+    },
+    async doRename() {
+      let $a = this.getObjAdaptor()
+      return await $a.doRename()
+    },
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////

@@ -9,8 +9,10 @@
   :display="TreeDisplay"
   :auto-open="autoOpen"
   :current-id="myTreeCurrentPathId"
-  :default-open-depth="2"
+  :default-open-depth="defaultOpenDepth"
   :fields="TreeFields"
+  :idBy="NodeIdBy"
+  :nameBy="NodeNameBy"
   @select
   @node:item:change="OnNodeItemChange"
   @opened-status:changed="OnOpenedStatusChanged"/>

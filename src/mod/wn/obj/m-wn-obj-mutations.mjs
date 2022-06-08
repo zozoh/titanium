@@ -211,6 +211,10 @@ const _M = {
     state.contentData = contentData
   },
   //----------------------------------------
+  setContentQuietParse(state, quietParse) {
+    state.contentQuietParse = quietParse
+  },
+  //----------------------------------------
   setStatus(state, status) {
     state.status = _.assign({}, state.status, status)
   },

@@ -32,6 +32,7 @@
   "contentPath": "<self>",
   "contentType": "<MIME>",
   "contentData": null,
+  "contentQuietParse": false,
   "status": {
     "reloading": false,
     "doing": false,

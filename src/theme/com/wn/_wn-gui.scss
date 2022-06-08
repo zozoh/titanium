@@ -30,6 +30,11 @@
     .it-con {
       padding:.2em 0 .6em 1em;  
     }
+    &.is-sub.nil-icon {
+      .it-info {
+        padding-left: SZ(20);
+      }
+    }
     &.is-highlight {
       > .it-info {
         @include color($color-primary, r, c);

@@ -1,29 +1,60 @@
 .main-body {
-  overflow:hidden;
+  overflow: hidden;
 }
 //...................................................
-.ti-ul-reset {@include ul;}
-.ti-ul-align-left   {@include ul(left);}
-.ti-ul-align-center {@include ul(center);}
-.ti-ul-align-right  {@include ul(right);}
+.ti-ul-reset {
+  @include ul;
+}
+.ti-ul-align-left {
+  @include ul(left);
+}
+.ti-ul-align-center {
+  @include ul(center);
+}
+.ti-ul-align-right {
+  @include ul(right);
+}
 //...................................................
 // make children fit full area
 .ti-flex-fit {
-  @include flex(center,stretch,nowrap);
-  > * {flex:1 1 auto;}
+  @include flex(center, stretch, nowrap);
+  > * {
+    flex: 1 1 auto;
+  }
 }
-.ti-flex-left   {@include flex-center($jc:flex-start,$wp:nowrap);}
-.ti-flex-center {@include flex-center;}
-.ti-flex-right  {@include flex-center($jc:flex-end,$wp:nowrap);}
+.ti-flex-left {
+  @include flex-center($jc: flex-start, $wp: nowrap);
+}
+.ti-flex-center {
+  @include flex-center;
+}
+.ti-flex-right {
+  @include flex-center($jc: flex-end, $wp: nowrap);
+}
 //...................................................
 .ti-fill-parent {
-  width:100%; height:100%;
+  width: 100%;
+  height: 100%;
+}
+.ti-fill-parent-x {
+  width: 100%;
+}
+.ti-fill-parent-y {
+  height: 100%;
 }
 .ti-cover-parent {
-  position: absolute; top:0; left:0; right:0; bottom:0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 .ti-scroll-v {
-  overflow:hidden auto;
+  overflow: hidden auto;
+}
+//...................................................
+.ti-flex-fit-parent {
+  flex: 1 1 auto;
 }
 //...................................................
 // .is-self-actived {
@@ -32,7 +63,7 @@
 //...................................................
 .ti-mask {
   @include pos-fixed-full;
-  background-color:rgba(0,0,0,0);
+  background-color: rgba(0, 0, 0, 0);
   z-index: $z-mask;
 }
 //...................................................
@@ -41,7 +72,7 @@
   @include pos-fixed-full;
   @include flex-center;
   @include color($color-mask, r);
-  color:map-get($color-secondary, c);
+  color: map-get($color-secondary, c);
   padding-bottom: 20%;
   z-index: $z-top;
 }
@@ -49,13 +80,20 @@
 .ti-blank {
   @include color($color-track, c);
   &.is-big {
-    padding:.2rem; text-align: center; font-size:.16rem;
-    > .ti-icon {font-size:3em;padding:.2rem;}
+    padding: 0.2rem;
+    text-align: center;
+    font-size: 0.16rem;
+    > .ti-icon {
+      font-size: 3em;
+      padding: 0.2rem;
+    }
   }
   &.is-inline {
     @include flex-align-nowrap;
-    padding:.08rem .1rem; 
-    > .ti-icon {margin-right:.06rem;}
+    padding: 0.08rem 0.1rem;
+    > .ti-icon {
+      margin-right: 0.06rem;
+    }
   }
 }
 //...................................................
@@ -63,27 +101,43 @@
   position: relative;
   .ti-box-mask {
     @include pos-abs-full;
-    background:rgba(0,0,0,0);
-    &.as-heavy {@include color($color-mask, r, heavy);}
-    &.as-bushy {@include color($color-mask, r, bushy);}
-    &.as-thin  {@include color($color-mask, r, thin);}
+    background: rgba(0, 0, 0, 0);
+    &.as-heavy {
+      @include color($color-mask, r, heavy);
+    }
+    &.as-bushy {
+      @include color($color-mask, r, bushy);
+    }
+    &.as-thin {
+      @include color($color-mask, r, thin);
+    }
   }
 }
 //...................................................
 .ti-num {
   font-family: Arial, Helvetica, sans-serif;
   font-weight: bold;
-  color:map-get($color-secondary, c);
+  color: map-get($color-secondary, c);
   font-style: normal;
-  &.is-xs {font-size:.8em;}
-  &.is-sm {font-size:1em;}
-  &.is-md {font-size:1.2em;}
-  &.is-lg {font-size:1.6em;}
-  &.is-xl {font-size:2em;}
+  &.is-xs {
+    font-size: 0.8em;
+  }
+  &.is-sm {
+    font-size: 1em;
+  }
+  &.is-md {
+    font-size: 1.2em;
+  }
+  &.is-lg {
+    font-size: 1.6em;
+  }
+  &.is-xl {
+    font-size: 2em;
+  }
 }
 //...................................................
 .ti-small-font {
-  font-size:.8em;
+  font-size: 0.8em;
 }
 //...................................................
 .ti-noselect {
@@ -92,66 +146,86 @@
 //...................................................
 .ti-btn {
   @include noselect;
-  @include fireable; 
+  @include fireable;
   @include border(1px, solid, dark);
-  @include flex-align-nowrap($jc:center);
-  text-align:center; text-decoration: none;
-  white-space: nowrap; padding:0 .1rem;
-  > span {margin:0 .5em;}
-  &:hover {text-decoration: none;}
+  @include flex-align-nowrap($jc: center);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 0 0.1rem;
+  > span {
+    margin: 0 0.5em;
+  }
+  &:hover {
+    text-decoration: none;
+  }
   &.is-big {
-    font-size:1.3em; padding:.1rem;
-    min-width:2rem; 
+    font-size: 1.3em;
+    padding: 0.1rem;
+    min-width: 2rem;
   }
   &.is-huge {
-    font-size:1.5em; padding:.16rem;
-    min-width:2.56rem; 
+    font-size: 1.5em;
+    padding: 0.16rem;
+    min-width: 2.56rem;
   }
   &.is-disabled {
     @include color($color-disable, r, c);
-    cursor: default; opacity: 0.4;
+    cursor: default;
+    opacity: 0.4;
     &:hover {
       @include color($color-disable, r, c);
     }
   }
 }
 //...................................................
-.ti-padding-5  {padding:.05rem;}
-.ti-padding-10 {padding:.1rem;}
-.ti-padding-20 {padding:.2rem;}
-.ti-padding-40 {padding:.4rem;}
+.ti-padding-5 {
+  padding: 0.05rem;
+}
+.ti-padding-10 {
+  padding: 0.1rem;
+}
+.ti-padding-20 {
+  padding: 0.2rem;
+}
+.ti-padding-40 {
+  padding: 0.4rem;
+}
 //...................................................
-.ti-hide {display:none;}
+.ti-hide {
+  display: none;
+}
 //...................................................
 [ti-is-drag] {
-  position:relative;
+  position: relative;
   > .ti-drag-mask {
     @include pos-abs-full;
     @include flex-center;
     @include color($color-mask, null, thin);
-    @include color($color-secondary, c); 
-    @include border(.04rem, dashed, hightlight);
+    @include color($color-secondary, c);
+    @include border(0.04rem, dashed, hightlight);
     z-index: $z-top;
-    font-size:SZ(18);
+    font-size: SZ(18);
   }
 }
 //...................................................
 .ti-mark-changed {
   @include color($color-secondary, c);
-  margin:0 .02rem;
-  font-style:normal; font-weight: bold;
+  margin: 0 0.02rem;
+  font-style: normal;
+  font-weight: bold;
 }
 //...................................................
 //
 // Trans
 //
 //...................................................
-.ti-trans-fade-enter-active, 
+.ti-trans-fade-enter-active,
 .ti-trans-fade-leave-active {
-  transition: opacity .3s;
+  transition: opacity 0.3s;
 }
-.ti-trans-fade-enter, 
-.ti-trans-fade-leave-to  {
+.ti-trans-fade-enter,
+.ti-trans-fade-leave-to {
   opacity: 0;
 }
 //...................................................

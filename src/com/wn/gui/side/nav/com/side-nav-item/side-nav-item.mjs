@@ -1,69 +1,71 @@
 export default {
   ///////////////////////////////////////////
-  data : ()=>{
+  data: () => {
     return {
-      collapse : true
+      collapse: true
     }
   },
   ///////////////////////////////////////////
-  props : {
-    "groupStatusStoreKey" : {
-      type:String, 
-      default:undefined
+  props: {
+    "groupStatusStoreKey": {
+      type: String,
+      default: undefined
     },
-    "highlightId" : {
-      type:String, 
-      default:undefined
+    "highlightId": {
+      type: String,
+      default: undefined
     },
-    "id" : {
-      type:String, 
-      default:undefined
+    "id": {
+      type: String,
+      default: undefined
     },
-    "depth" : {
-      type:Number, 
-      default:0
+    "depth": {
+      type: Number,
+      default: 0
     },
-    "icon"  : {
-      type:[String,Object], 
-      default:undefined
+    "icon": {
+      type: [String, Object],
+      default: undefined
     },
-    "title" : {
-      type:String, 
-      default:undefined
+    "title": {
+      type: String,
+      default: undefined
     },
-    "tip" : {
-      type:String, 
-      default:undefined
+    "tip": {
+      type: String,
+      default: undefined
     },
-    "path"  : {
-      type:String, 
-      default:undefined
+    "path": {
+      type: String,
+      default: undefined
     },
-    "view"  : {
-      type:String, 
-      default:undefined
+    "view": {
+      type: String,
+      default: undefined
     },
-    "href"  : {
-      type:String, 
-      default:undefined
+    "href": {
+      type: String,
+      default: undefined
     },
-    "items" : {
-      type : Array,
-      default : ()=>[]
+    "items": {
+      type: Array,
+      default: () => []
     }
   },
   ///////////////////////////////////////////
-  computed : {
+  computed: {
     //---------------------------------------
     TopClass() {
       return {
-        "is-top"   : this.isTop,
-        "is-sub"   : !this.isTop,
-        "is-group" : this.isGroup,
-        "is-item"  : !this.isGroup,
-        "is-collapse"  : this.collapse,
-        "is-expend"    : !this.collapse,
-        "is-highlight" : this.isHighlight
+        "is-top": this.isTop,
+        "is-sub": !this.isTop,
+        "is-group": this.isGroup,
+        "is-item": !this.isGroup,
+        "is-collapse": this.collapse,
+        "is-expend": !this.collapse,
+        "is-highlight": this.isHighlight,
+        "has-icon": this.icon ? true : false,
+        "nil-icon": this.icon ? false : true
       }
     },
     //---------------------------------------
@@ -91,13 +93,13 @@ export default {
     //---------------------------------------
   },
   ///////////////////////////////////////////
-  methods : {
+  methods: {
     //---------------------------------------
     OnToggleGroupStatus() {
-      if(this.isGroup) {
+      if (this.isGroup) {
         this.collapse = !this.collapse
         // Save status
-        if(this.groupStatusStoreKey) {
+        if (this.groupStatusStoreKey) {
           Ti.Storage.local.set(this.groupStatusStoreKey, this.collapse)
         }
       }
@@ -106,19 +108,19 @@ export default {
     OnClickItemInfo() {
       this.$notify("item:actived", {
         id: this.id,
-        title : this.title,
-        path : this.path,
-        href : this.href,
-        view : this.view
+        title: this.title,
+        path: this.path,
+        href: this.href,
+        view: this.view
       })
     }
     //---------------------------------------
   },
   ///////////////////////////////////////////
-  mounted : function(){
-    if(this.isGroup) {
+  mounted: function () {
+    if (this.isGroup) {
       // Only Top Group is expended
-      if(this.isTop) {
+      if (this.isTop) {
         this.collapse = false
       }
       // Others group will default collapse
@@ -127,8 +129,8 @@ export default {
         this.collapse = true
       }
       // Load local setting
-      if(this.groupStatusStoreKey) {
-        this.collapse = 
+      if (this.groupStatusStoreKey) {
+        this.collapse =
           Ti.Storage.local.getBoolean(this.groupStatusStoreKey, this.collapse)
       }
     }

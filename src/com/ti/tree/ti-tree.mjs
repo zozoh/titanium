@@ -546,7 +546,7 @@ const TI_TREE = {
     },
     //--------------------------------------
     OnCellItemChange({ name, value, rowId } = {}) {
-      //console.log("OnCellItemChange", {name, value, rowId})
+      console.log("OnCellItemChange", {name, value, rowId})
       let row = this.findTableRow(rowId)
       if (row) {
         this.$notify("node:item:change", {
@@ -615,6 +615,7 @@ const TI_TREE = {
     //--------------------------------------
     OnRowIconClick({ rowId } = {}) {
       let row = this.findTableRow(rowId)
+      console.log(row)
       // Open it
       if (row && !row.leaf && !row.opened) {
         this.openRow(row)

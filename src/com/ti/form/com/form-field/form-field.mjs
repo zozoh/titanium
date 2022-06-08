@@ -215,7 +215,7 @@ const _M = {
     //--------------------------------------------
     evalInputValue(val) {
       let re = val;
-      //console.log("evalInputValue", val)
+      console.log("evalInputValue", val)
       // apply default
       if (_.isUndefined(val)) {
         re = _.cloneDeep(
