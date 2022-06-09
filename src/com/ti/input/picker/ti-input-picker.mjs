@@ -40,6 +40,10 @@ const _M = {
       type: Boolean,
       default: false
     },
+    "multi": {
+      type: Boolean,
+      default: false
+    },
     "focused": {
       type: Boolean,
       default: false
@@ -87,16 +91,28 @@ const _M = {
       return this.getTopClass()
     },
     //------------------------------------------------
-    InputPrefixIcon() {
-      return this.myValueIcon || this.prefixIcon
+    ComType() {
+      return this.multi ? "TiInputTags" : "TiInput"
     },
     //------------------------------------------------
-    InputComConf() {
-      return _.assign({
+    ComConf() {
+      let conf = _.assign({
         readonly: this.readonly,
         focused: this.focused,
-        placeholder: this.placeholder
+        placeholder: this.placeholder,
+        suffixIcon: this.suffixIcon
       }, this.input)
+
+      // Multi 
+      if (this.multi) {
+        conf.dict = this.Dict
+      }
+      // Single
+      else {
+        conf.prefixIcon = this.myValueIcon || this.prefixIcon
+        conf.suffixText = this.myValueText
+      }
+      return conf
     },
     //------------------------------------------------
     Dict() {
@@ -113,20 +129,29 @@ const _M = {
     async OnClickSuffixIcon() {
       let dataList = await this.Dict.getData()
 
+      // Prepare list conf
+      let listConf = {
+        multi: this.multi,
+        checkable: this.multi,
+        idBy: this.valueBy,
+        dftLabelHoverCopy: false,
+        data: dataList,
+        display: [
+          "<icon>",
+          this.textBy || "nickname|title|text|name",
+          `${this.valueBy || "value|nm|id"}::align-right as-tip-block`
+        ]
+      }
+      if (this.multi) {
+        listConf.checkedIds = this.value
+      } else {
+        listConf.currentId = this.value
+      }
+
       // Prepare the filter list config
       let fltListConf = _.merge({
         className: "ti-fill-parent",
-        list: {
-          idBy: this.valueBy,
-          dftLabelHoverCopy: false,
-          data: dataList,
-          currentId: this.value,
-          display: [
-            "<icon>",
-            this.textBy || "nickname|title|text|name",
-            `${this.valueBy || "value|nm|id"}::align-right as-tip-block`
-          ]
-        }
+        list: listConf
       }, this.filterlist)
 
       // Open the dialog
@@ -154,9 +179,16 @@ const _M = {
         return
       }
 
+      // Multi
+      if (this.multi) {
+        let vals = Ti.Util.truthyKeys(reo.checkedIds)
+        this.$notify("change", vals)
+      }
       // Change the currency
-      let val = reo.currentId || null
-      this.$notify("change", val)
+      else {
+        let val = reo.currentId || null
+        this.$notify("change", val)
+      }
     },
     //------------------------------------------------
     async evalValue() {

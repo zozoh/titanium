@@ -13,6 +13,15 @@ const _M = {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
+    InputPrefixIcon() {
+      if(this.prefixIcon) {
+        return this.prefixIcon
+      }
+      if(!_.isEmpty(this.value)) {
+        return 'zmdi-minus'
+      }
+    },
+    //------------------------------------------------
     /***
      * @return The tag objects list like:
      * 

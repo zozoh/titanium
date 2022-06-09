@@ -1,4 +1,4 @@
-// Pack At: 2022-06-09 00:52:54
+// Pack At: 2022-06-10 00:44:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -24315,25 +24315,15 @@ const _M = {
     //------------------------------------------------
     createDict() {
       // Customized
-      if(this.options instanceof Ti.Dict) {
-        return this.options
-      }
-      // Refer dict
-      if(_.isString(this.options)) {
-        let dictName = Ti.DictFactory.DictReferName(this.options)
-        if(dictName) {
-          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
-            this.loading = loading
-          })
+      return Ti.DictFactory.CreateDictBy(this.options, {
+        valueBy: this.valueBy,
+        textBy: this.textBy,
+        iconBy: this.iconBy,
+        vars: this.dictVars,
+        whenLoading: ({ loading }) => {
+          this.loading = loading
         }
-      }
-      // Auto Create
-      return Ti.DictFactory.CreateDict({
-        data : this.options,
-        getValue : Ti.Util.genGetter(this.valueBy || "value"),
-        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
-        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
-      })
+      });
     },
     //-----------------------------------------------
     async reloadMyOptionData(force=false) {
@@ -24399,6 +24389,18 @@ const _M = {
         this.myOptionsData = []
         if(this.isExtended) {
           this.$nextTick(()=>{
+            this.reloadMyOptionData(true)
+          })
+        }
+      }
+    },
+    //-----------------------------------------------
+    "dictVars": function (newval, oldval) {
+      if (!_.isEqual(newval, oldval)) {
+        this.myDict = this.createDict()
+        this.myOptionsData = []
+        if (this.isExtended) {
+          this.$nextTick(() => {
             this.reloadMyOptionData(true)
           })
         }
@@ -63577,6 +63579,10 @@ const _M = {
       type: Boolean,
       default: false
     },
+    "multi": {
+      type: Boolean,
+      default: false
+    },
     "focused": {
       type: Boolean,
       default: false
@@ -63624,16 +63630,28 @@ const _M = {
       return this.getTopClass()
     },
     //------------------------------------------------
-    InputPrefixIcon() {
-      return this.myValueIcon || this.prefixIcon
+    ComType() {
+      return this.multi ? "TiInputTags" : "TiInput"
     },
     //------------------------------------------------
-    InputComConf() {
-      return _.assign({
+    ComConf() {
+      let conf = _.assign({
         readonly: this.readonly,
         focused: this.focused,
-        placeholder: this.placeholder
+        placeholder: this.placeholder,
+        suffixIcon: this.suffixIcon
       }, this.input)
+
+      // Multi 
+      if (this.multi) {
+        conf.dict = this.Dict
+      }
+      // Single
+      else {
+        conf.prefixIcon = this.myValueIcon || this.prefixIcon
+        conf.suffixText = this.myValueText
+      }
+      return conf
     },
     //------------------------------------------------
     Dict() {
@@ -63650,20 +63668,29 @@ const _M = {
     async OnClickSuffixIcon() {
       let dataList = await this.Dict.getData()
 
+      // Prepare list conf
+      let listConf = {
+        multi: this.multi,
+        checkable: this.multi,
+        idBy: this.valueBy,
+        dftLabelHoverCopy: false,
+        data: dataList,
+        display: [
+          "<icon>",
+          this.textBy || "nickname|title|text|name",
+          `${this.valueBy || "value|nm|id"}::align-right as-tip-block`
+        ]
+      }
+      if (this.multi) {
+        listConf.checkedIds = this.value
+      } else {
+        listConf.currentId = this.value
+      }
+
       // Prepare the filter list config
       let fltListConf = _.merge({
         className: "ti-fill-parent",
-        list: {
-          idBy: this.valueBy,
-          dftLabelHoverCopy: false,
-          data: dataList,
-          currentId: this.value,
-          display: [
-            "<icon>",
-            this.textBy || "nickname|title|text|name",
-            `${this.valueBy || "value|nm|id"}::align-right as-tip-block`
-          ]
-        }
+        list: listConf
       }, this.filterlist)
 
       // Open the dialog
@@ -63691,9 +63718,16 @@ const _M = {
         return
       }
 
+      // Multi
+      if (this.multi) {
+        let vals = Ti.Util.truthyKeys(reo.checkedIds)
+        this.$notify("change", vals)
+      }
       // Change the currency
-      let val = reo.currentId || null
-      this.$notify("change", val)
+      else {
+        let val = reo.currentId || null
+        this.$notify("change", val)
+      }
     },
     //------------------------------------------------
     async evalValue() {
@@ -72811,6 +72845,15 @@ const _M = {
   ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
+    InputPrefixIcon() {
+      if(this.prefixIcon) {
+        return this.prefixIcon
+      }
+      if(!_.isEmpty(this.value)) {
+        return 'zmdi-minus'
+      }
+    },
+    //------------------------------------------------
     /***
      * @return The tag objects list like:
      * 
@@ -78700,13 +78743,10 @@ Ti.Preload("ti/com/ti/input/pair/_com.json", {
 //========================================
 // JOIN <ti-input-picker.html> ti/com/ti/input/picker/ti-input-picker.html
 //========================================
-Ti.Preload("ti/com/ti/input/picker/ti-input-picker.html", `<TiInput
+Ti.Preload("ti/com/ti/input/picker/ti-input-picker.html", `<component :is="ComType"
   class="ti-input-picker" :class="TopClass"
-  v-bind="InputComConf"
+  v-bind="ComConf"
   :value="value"
-  :suffixText="myValueText"
-  :prefixIcon="InputPrefixIcon"
-  :suffixIcon="suffixIcon"
   @suffix:icon="OnClickSuffixIcon"/>`);
 //========================================
 // JOIN <ti-input-picker.mjs> ti/com/ti/input/picker/ti-input-picker.mjs
@@ -78721,7 +78761,8 @@ Ti.Preload("ti/com/ti/input/picker/_com.json", {
   "template": "./ti-input-picker.html",
   "mixins": "./ti-input-picker.mjs",
   "components": [
-    "@com:ti/input"
+    "@com:ti/input",
+    "@com:ti/input/tags"
   ]
 });
 //========================================
@@ -78746,7 +78787,7 @@ Ti.Preload("ti/com/ti/input/tags/ti-input-tags.html", `<ti-input
   :placeholder="thePlaceholder"
   :auto-i18n="autoI18n"
   :hide-border="hideBorder"
-  :prefix-icon="prefixIcon"
+  :prefix-icon="InputPrefixIcon"
   :prefix-hover-icon="prefixHoverIcon"
   :prefix-icon-for-clean="prefixIconForClean"
   :prefix-text="prefixText"

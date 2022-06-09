@@ -207,25 +207,15 @@ const _M = {
     //------------------------------------------------
     createDict() {
       // Customized
-      if(this.options instanceof Ti.Dict) {
-        return this.options
-      }
-      // Refer dict
-      if(_.isString(this.options)) {
-        let dictName = Ti.DictFactory.DictReferName(this.options)
-        if(dictName) {
-          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
-            this.loading = loading
-          })
+      return Ti.DictFactory.CreateDictBy(this.options, {
+        valueBy: this.valueBy,
+        textBy: this.textBy,
+        iconBy: this.iconBy,
+        vars: this.dictVars,
+        whenLoading: ({ loading }) => {
+          this.loading = loading
         }
-      }
-      // Auto Create
-      return Ti.DictFactory.CreateDict({
-        data : this.options,
-        getValue : Ti.Util.genGetter(this.valueBy || "value"),
-        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
-        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
-      })
+      });
     },
     //-----------------------------------------------
     async reloadMyOptionData(force=false) {
@@ -291,6 +281,18 @@ const _M = {
         this.myOptionsData = []
         if(this.isExtended) {
           this.$nextTick(()=>{
+            this.reloadMyOptionData(true)
+          })
+        }
+      }
+    },
+    //-----------------------------------------------
+    "dictVars": function (newval, oldval) {
+      if (!_.isEqual(newval, oldval)) {
+        this.myDict = this.createDict()
+        this.myOptionsData = []
+        if (this.isExtended) {
+          this.$nextTick(() => {
             this.reloadMyOptionData(true)
           })
         }

@@ -4,6 +4,7 @@
   "template": "./ti-input-picker.html",
   "mixins": "./ti-input-picker.mjs",
   "components": [
-    "@com:ti/input"
+    "@com:ti/input",
+    "@com:ti/input/tags"
   ]
 }
