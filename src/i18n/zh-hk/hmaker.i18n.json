@@ -1,4 +1,5 @@
 {
+   "am-findInArray": "存在一個【${val}】的對象",
    "hm-am-add": "添加條件",
    "hm-am-empty": "未設置條件",
    "am-must-true": "肯定爲真",

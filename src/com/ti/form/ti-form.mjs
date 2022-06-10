@@ -237,7 +237,7 @@ const _M = {
         // Statice value
         else if (val && val.target) {
           re[key] = ({ name, value }, data) => {
-            let tc = _.assign({}, {"$update": {name, value}}, data)
+            let tc = _.assign({}, { "$update": { name, value } }, data)
             if (val.test && !Ti.AutoMatch.test(val.test, tc)) {
               return
             }
@@ -267,9 +267,9 @@ const _M = {
         if (this.onlyFields) {
           re = _.pick(re, this.myKeysInFields)
         }
-        if(this.omitHiddenFields) {
-          re = _.omitBy(re, (v,k)=>{
-            if(this.myFormFieldMap[k]){
+        if (this.omitHiddenFields) {
+          re = _.omitBy(re, (v, k) => {
+            if (this.myFormFieldMap[k]) {
               return false
             }
             return true
@@ -408,25 +408,10 @@ const _M = {
     },
     //--------------------------------------------------
     evalFormField(fld = {}, nbs = []) {
-      // Hide or disabled
-      if (!Ti.Util.isNil(fld.hidden)) {
-        if (Ti.AutoMatch.test(fld.hidden, this.data)) {
-          return
-        }
-      }
-      // Visiblity
-      if (!Ti.Util.isNil(fld.visible)) {
-        if (!Ti.AutoMatch.test(fld.visible, this.data)) {
-          return
-        }
-      }
-      // Disable
-      let disabled = false
-      if (fld.disabled) {
-        disabled = Ti.AutoMatch.test(fld.disabled, this.data)
-      }
-      if (fld.enabled) {
-        disabled = !Ti.AutoMatch.test(fld.enabled, this.data)
+      // Get form field visibility
+      let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.data)
+      if (hidden) {
+        return
       }
 
       let maxColumnHint = Ti.Util.fallback(fld.maxColumnHint, this.maxColumnHint, 3)

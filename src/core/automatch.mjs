@@ -67,6 +67,9 @@ function DoAutoMatch(input) {
     if (input["$Type"]) {
       return TypeMatch(input["$Type"])
     }
+    if (input.matchMode == "findInArray" && input.matchBy) {
+      return MapFindInArrayMatch(input)
+    }
     // General Map Match
     return MapMatch(input);
   }
@@ -82,6 +85,7 @@ function DoAutoMatch(input) {
   }
   throw Ti.Err.make("e.match.unsupport", input);
 }
+///////////////////////////////////////
 function AutoStrMatch(input) {
   // nil
   if (Ti.Util.isNil(input)) {
@@ -118,6 +122,7 @@ function AutoStrMatch(input) {
   // StringMatch
   return _W(StringMatch(input))
 }
+///////////////////////////////////////
 function BlankMatch() {
   let re = function (val) {
     return Ti.Util.isNil(val) || Ti.S.isBlank(val)
@@ -131,6 +136,7 @@ function BlankMatch() {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function BooleanMatch(bool) {
   let b = bool ? true : false
   //...............................
@@ -150,6 +156,7 @@ function BooleanMatch(bool) {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function NumberMatch(n) {
   let re = function (val) {
     return val == n
@@ -164,6 +171,7 @@ function NumberMatch(n) {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function EmptyMatch() {
   let re = function (val) {
     return _.isEmpty(val)
@@ -177,6 +185,7 @@ function EmptyMatch() {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function ExistsMatch(key, not) {
   let re = function (val) {
     let v = _.get(val, key)
@@ -196,6 +205,7 @@ function ExistsMatch(key, not) {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function NumberRangeMatch(input) {
   let m = input
   if (_.isString(input)) {
@@ -299,8 +309,32 @@ function NumberRangeMatch(input) {
   //...............................
   return re
 }
+///////////////////////////////////////
+function MapFindInArrayMatch(map) {
+  let matchFn = TiAutoMatch.parse(map.matchBy)
+  let not = map.not ? true : false
+  let re = function (val) {
+    let vals = _.concat(val)
+    for (let v of vals) {
+      if (matchFn(v)) {
+        return true ^ not ? true : false
+      }
+    }
+    return false ^ not ? true : false
+  }
+  //...............................
+  re.explainText = function (payload = {}) {
+    let cTxt = matchFn.explainText(payload)
+    let k = payload.findInArray || "i18n:am-findInArray"
+    let s = Ti.I18n.text(k)
+    return Ti.S.renderBy(s, { val: cTxt })
+  }
+  //...............................
+  return re;
+}
+///////////////////////////////////////
 function MapMatch(map) {
-  // Pre-build
+  // Pre-build 
   let matchs = []
   _.forEach(map, (val, key) => {
     let not = key.startsWith("!")
@@ -386,6 +420,7 @@ function MapMatch(map) {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function NotNilMatch(input) {
   if (!input) {
     return val => !Ti.Util.isNil(val)
@@ -409,6 +444,7 @@ function NotNilMatch(input) {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function NilMatch(input) {
   if (!input) {
     return val => Ti.Util.isNil(val)
@@ -433,6 +469,7 @@ function NilMatch(input) {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function NulllMatch(input) {
   if (!input) {
     return val => _.isNull(val)
@@ -456,6 +493,7 @@ function NulllMatch(input) {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function UndefinedMatch(input) {
   if (!input) {
     return val => _.isUndefined(val)
@@ -480,6 +518,7 @@ function UndefinedMatch(input) {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function NotMatch(m) {
   let re = function (input) {
     return !m(input)
@@ -492,6 +531,7 @@ function NotMatch(m) {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function TypeMatch(input) {
   let expectType = input
   //...............................
@@ -508,6 +548,7 @@ function TypeMatch(input) {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function ParallelMatch(...ms) {
   let re = function (val) {
     if (_.isEmpty(ms))
@@ -537,6 +578,7 @@ function ParallelMatch(...ms) {
   //...............................
   return re
 }
+///////////////////////////////////////
 function RegexMatch(regex) {
   let not = false
   if (regex.startsWith("!")) {
@@ -562,6 +604,7 @@ function RegexMatch(regex) {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function StringMatch(input) {
   let ignoreCase = false
   if (input.startsWith("~~")) {
@@ -590,6 +633,7 @@ function StringMatch(input) {
   //...............................
   return re;
 }
+///////////////////////////////////////
 function WildcardMatch(wildcard) {
   let not = false
   if (wildcard.startsWith("!")) {

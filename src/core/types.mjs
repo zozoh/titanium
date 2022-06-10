@@ -1248,6 +1248,56 @@ const TiTypes = {
       homeId: _.trim(str.substring(0, pos)),
       myId: _.trim(str.substring(pos + 1))
     }
+  },
+  //.......................................
+  getFormFieldVisibility({
+    hidden, visible, disabled, enabled
+  } = {}, data = {}) {
+    // Hide or disabled
+    if (!Ti.Util.isNil(hidden)) {
+      if (Ti.AutoMatch.test(hidden, data)) {
+        return { hidden: true, visible: false }
+      }
+    }
+    // Visiblity
+    if (!Ti.Util.isNil(visible)) {
+      if (!Ti.AutoMatch.test(visible, data)) {
+        return { hidden: true, visible: false }
+      }
+    }
+    // Disable
+    let is_disable = false
+    if (disabled) {
+      is_disable = Ti.AutoMatch.test(disabled, data)
+    }
+    if (enabled) {
+      is_disable = !Ti.AutoMatch.test(enabled, data)
+    }
+    return { disabled: is_disable, enabled: !is_disable }
+  },
+  //.......................................
+  assertDataByForm(data = {}, fields = []) {
+    if (!_.isEmpty(fields)) {
+      for (let fld of fields) {
+        // Not Required
+        if (!fld.required) {
+          continue
+        }
+
+        // Visibility
+        let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, data)
+        if (hidden || disabled) {
+          continue
+        }
+
+        // Do check value
+        let v = _.get(data, fld.name)
+        if (Ti.Util.isNil(v)) {
+          // 准备错误消息
+          throw Ti.Err.make("e.form.fldInNil", fld)
+        } // isNil
+      } // For
+    }
   }
   //.......................................
 }
