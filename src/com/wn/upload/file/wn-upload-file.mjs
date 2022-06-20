@@ -85,6 +85,10 @@ const _M = {
       type: Number,
       default: 0
     },
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
     //------------------------------------------------
     // Measure
     //------------------------------------------------
@@ -218,6 +222,22 @@ const _M = {
         let link = Wn.Util.getAppLink(this.oFile)
         //console.log("it will open ", link)
         await Ti.Be.Open(link.url, { params: link.params })
+      }
+    },
+    //--------------------------------------
+    async OnDownload() {
+      if (this.srcAsUrl) {
+        await Ti.Be.Open(this.value)
+      }
+      // remove the thumb file
+      else if (this.oFile) {
+        //console.log("it will download ", this.oFile)
+        await Ti.Be.Open("/o/content", {
+          params: {
+            str: `id:${this.oFile.id}`,
+            d: true
+          }
+        })
       }
     },
     //--------------------------------------

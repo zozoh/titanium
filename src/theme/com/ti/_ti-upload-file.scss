@@ -75,8 +75,8 @@
       @include flex-align-nowrap($jc:center);
       @include color($color-primary, r, c);
       cursor:pointer;
-      padding:SZ(6) SZ(10); 
-      margin-bottom:4px;
+      padding:SZ(4) SZ(6); 
+      margin-bottom:2px;
       line-height: 1.1em; font-size:12px;
       .it-text {margin-left:SZ(6); white-space: nowrap;}
       &:hover {

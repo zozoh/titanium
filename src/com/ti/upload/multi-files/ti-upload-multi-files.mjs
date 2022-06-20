@@ -59,6 +59,10 @@ const _M = {
       type: Number,
       default: 0
     },
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -147,8 +151,12 @@ const _M = {
       return !_.isEmpty(this.items)
     },
     //--------------------------------------
+    isShowItemRemoveBtn() {
+      return this.removable && !this.readonly
+    },
+    //--------------------------------------
     isShowAddBtn() {
-      return this.AvaCapCount != 0
+      return !this.readonly && this.AvaCapCount != 0
     },
     //--------------------------------------
     AvaCapCount() {
@@ -162,7 +170,9 @@ const _M = {
     },
     //--------------------------------------
     isShowActions() {
-      return this.removable && this.hasItems
+      return this.removable
+             && !this.readonly
+             && this.hasItems
     }
     //--------------------------------------
   },
@@ -233,7 +243,7 @@ const _M = {
     },
     //--------------------------------------
     initSortable() {
-      if (this.sortable && this.$refs.itemsCon) {
+      if (!this.readonly && this.sortable && this.$refs.itemsCon) {
         new Sortable(this.$refs.itemsCon, {
           animation: 300,
           filter: ".as-new, .as-local",

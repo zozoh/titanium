@@ -1,63 +1,75 @@
 const _M = {
   /////////////////////////////////////////
-  data: ()=>({
+  data: () => ({
     myArea: 0,
     myActionsWidth: 0
   }),
   /////////////////////////////////////////
-  props : {
+  props: {
     // The source to display image
-    "preview" : {
-      type : [String, Object],
-      default : null
+    "preview": {
+      type: [String, Object],
+      default: null
     },
     // The value must be a LocalFile object
     // to prerender the LocalFile during uploading
-    "uploadFile" :{
-      type : File,
-      default : null
+    "uploadFile": {
+      type: File,
+      default: null
     },
     // Show the process `0.0-1.0` during the uploading
-    "progress" : {
-      type : Number,
-      default : -1
+    "progress": {
+      type: Number,
+      default: -1
     },
     // Input a image link directly
-    "exlink" : {
-      type : Boolean,
-      default : false
+    "exlink": {
+      type: Boolean,
+      default: false
     },
-    "previewType" : {
-      type : String,
-      default : "obj",
-      validator : v => /^(obj|link)$/.test(v)
+    "previewType": {
+      type: String,
+      default: "obj",
+      validator: v => /^(obj|link)$/.test(v)
     },
-    "maxWidth" : {
-      type : [String, Number],
-      default : undefined
+    "maxWidth": {
+      type: [String, Number],
+      default: undefined
     },
-    "maxHeight" : {
-      type : [String, Number],
-      default : undefined
+    "maxHeight": {
+      type: [String, Number],
+      default: undefined
     },
     // Display width
-    "width" : {
-      type : [String, Number],
-      default : 120
+    "width": {
+      type: [String, Number],
+      default: 120
     },
     // Display height
-    "height" : {
-      type : [String, Number],
-      default : 120
+    "height": {
+      type: [String, Number],
+      default: 120
     },
     // support remove the objects
-    "removable" : {
-      type : Boolean,
-      default : true
+    "removable": {
+      type: Boolean,
+      default: true
+    },
+    "openable": {
+      type: Boolean,
+      default: true
+    },
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
+    "downloadable": {
+      type: Boolean,
+      default: true
     },
     "areaSize": {
       type: Object,
-      default: ()=>({
+      default: () => ({
         //xl: (800 * 800),
         xs: (100 * 100),
         sm: (200 * 200),
@@ -67,7 +79,7 @@ const _M = {
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass(
@@ -77,34 +89,34 @@ const _M = {
     AreaType() {
       let AS = this.areaSize;
       let ar = this.myArea
-      if(ar <= 0) {
+      if (ar <= 0) {
         return "nil"
       }
-      if(_.inRange(ar, 0, AS.xs+1))
+      if (_.inRange(ar, 0, AS.xs + 1))
         return "xs"
-      if(_.inRange(ar, AS.xs, AS.sm+1))
+      if (_.inRange(ar, AS.xs, AS.sm + 1))
         return "sm"
-      if(_.inRange(ar, AS.sm, AS.md+1))
+      if (_.inRange(ar, AS.sm, AS.md + 1))
         return "md"
-      if(_.inRange(ar, AS.md, AS.lg+1))
+      if (_.inRange(ar, AS.md, AS.lg + 1))
         return "lg"
 
       return "xl"
     },
     //--------------------------------------
-    ThumbStyle(){
+    ThumbStyle() {
       return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height,
-        maxWidth : this.maxWidth,
-        maxHeight : this.maxHeight
+        width: this.width,
+        height: this.height,
+        maxWidth: this.maxWidth,
+        maxHeight: this.maxHeight
       })
     },
     //--------------------------------------
     ActionsStyle() {
-      if(/^(xs|sm)$/.test(this.AreaType)) {
+      if (/^(xs|sm)$/.test(this.AreaType)) {
         return {
-          right: Ti.Css.toSize(this.myActionsWidth*-1)
+          right: Ti.Css.toSize(this.myActionsWidth * -1)
         }
       }
     },
@@ -113,11 +125,29 @@ const _M = {
       return this.preview ? true : false
     },
     //--------------------------------------
+    isShowActions() {
+      return this.hasPreview
+        && (
+          this.isShowRemoveIcon
+          || this.isShowOpenIcon
+          || this.isShowExlink
+          || this.isShowDownloadIcon
+        )
+    },
+    //--------------------------------------
     isShowRemoveIcon() {
-      if(!this.uploadFile && this.hasPreview) {
+      if (!this.uploadFile && this.hasPreview && !this.readonly) {
         return true
       }
       return false
+    },
+    //--------------------------------------
+    isShowOpenIcon() {
+      return this.openable
+    },
+    //--------------------------------------
+    isShowDownloadIcon() {
+      return this.downloadable
     },
     //--------------------------------------
     isShowExlink() {
@@ -125,11 +155,11 @@ const _M = {
     },
     //--------------------------------------
     PreviewIcon() {
-      if(this.uploadFile) {
-        return {type:"localFile", value:this.uploadFile}
+      if (this.uploadFile) {
+        return { type: "localFile", value: this.uploadFile }
       }
       // Normal image
-      if(this.preview) {
+      if (this.preview) {
         return this.preview
       }
       // Show Icon
@@ -138,11 +168,13 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClickToEdit() {
-      if("link" == this.previewType) {
+      if ("link" == this.previewType) {
         this.$notify("exlink")
+      } else if (this.readonly) {
+        this.$notify("open")
       } else {
         this.$refs.file.click()
       }
@@ -150,7 +182,7 @@ const _M = {
     //--------------------------------------
     async OnDropFiles(files) {
       let file = _.get(files, 0)
-      if(file) {
+      if (file && !this.readonly) {
         this.$notify("upload", file)
       }
     },
@@ -172,12 +204,16 @@ const _M = {
       this.$notify("exlink")
     },
     //--------------------------------------
+    OnDownload() {
+      this.$notify("download")
+    },
+    //--------------------------------------
     recountArea() {
       let rect = Ti.Rects.createBy(this.$refs.thumb)
-      if(_.isEmpty(rect))
+      if (_.isEmpty(rect))
         return
       this.myArea = rect.width * rect.height
-      if(this.$refs.actions) {
+      if (this.$refs.actions) {
         this.myActionsWidth = this.$refs.actions.getBoundingClientRect().width
       } else {
         this.myActionsWidth = 0
@@ -185,7 +221,7 @@ const _M = {
     },
     //--------------------------------------
     shouldRecountArea() {
-      _.delay(()=>{
+      _.delay(() => {
         this.recountArea()
       }, 10)
     }
@@ -200,19 +236,19 @@ const _M = {
     "areaSize": "shouldRecountArea"
   },
   //////////////////////////////////////////
-  created: function() {
+  created: function () {
     Ti.Viewport.watch(this, {
-      resize:()=>{
+      resize: () => {
         this.recountArea()
       }
     })
   },
   //////////////////////////////////////////
-  mounted: function() {
-    this.$nextTick(()=>this.recountArea())
+  mounted: function () {
+    this.$nextTick(() => this.recountArea())
   },
   //////////////////////////////////////////
-  beforeDestroy: function(){
+  beforeDestroy: function () {
     Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////

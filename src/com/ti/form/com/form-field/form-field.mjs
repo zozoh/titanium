@@ -145,9 +145,9 @@ const _M = {
       let v2 = this.evalInputValue(val)
 
       try {
-        // console.log("this.serializer(val):", v2)
+        //console.log("this.serializer(val):", v2)
         v2 = this.serializer(v2)
-        // console.log("field changed", val, v2)
+        //console.log("field changed", val, v2)
       }
       // Invalid 
       catch (error) {
@@ -232,7 +232,10 @@ const _M = {
           Ti.Util.fallback(this.nanAs, this.defaultAs, NaN)
         )
       }
-      else if (_.isEmpty(val)) {
+      else if (
+        !(_.isBoolean(val) || _.isNumber(val))
+        && _.isEmpty(val)
+      ) {
         if (_.isString(val)) {
           re = _.cloneDeep(
             Ti.Util.fallback(this.emptyAs, this.defaultAs, "")

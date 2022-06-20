@@ -36,7 +36,7 @@
       Remove
     -->
     <div ref="actions"
-      v-if="isShowRemoveIcon || isShowExlink"
+      v-if="isShowActions"
         class="thumb-actions"
         :style="ActionsStyle">
         <!--remove-->
@@ -49,7 +49,7 @@
         </div>
         <!--open-->
         <div
-          v-if="isShowRemoveIcon"
+          v-if="isShowOpenIcon"
             class="thumb-opt as-open"
             @click.left.stop="OnOpen">
             <ti-icon value="zmdi-open-in-new"/>
@@ -62,6 +62,14 @@
             @click.left.stop="OnExlink">
             <ti-icon value="fas-link"/>
             <span class="it-text">{{'link'|i18n}}</span>
+        </div>
+        <!--open-->
+        <div
+          v-if="isShowDownloadIcon"
+            class="thumb-opt as-open"
+            @click.left.stop="OnDownload">
+            <ti-icon value="zmdi-cloud-download"/>
+            <span class="it-text">{{'download'|i18n}}</span>
         </div>
     </div>
     <!--//////-->

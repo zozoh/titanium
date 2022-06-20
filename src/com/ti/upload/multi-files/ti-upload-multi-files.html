@@ -34,7 +34,7 @@
         <div class="item-actions">
           <ul>
               <!--Action:Remove-->
-              <li @click.left="OnRemoveItem(it)">
+              <li v-if="isShowItemRemoveBtn" @click.left="OnRemoveItem(it)">
                 <i class="zmdi zmdi-close-circle"></i>
                 <span>{{'i18n:remove'|i18n}}</span>
               </li>
