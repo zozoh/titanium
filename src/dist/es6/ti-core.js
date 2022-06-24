@@ -1,4 +1,4 @@
-// Pack At: 2022-06-10 00:44:37
+// Pack At: 2022-06-24 18:37:38
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -7793,6 +7793,9 @@ const {AutoMatch} = (function(){
       if (input["$Type"]) {
         return TypeMatch(input["$Type"])
       }
+      if (input.matchMode == "findInArray" && input.matchBy) {
+        return MapFindInArrayMatch(input)
+      }
       // General Map Match
       return MapMatch(input);
     }
@@ -7808,6 +7811,7 @@ const {AutoMatch} = (function(){
     }
     throw Ti.Err.make("e.match.unsupport", input);
   }
+  ///////////////////////////////////////
   function AutoStrMatch(input) {
     // nil
     if (Ti.Util.isNil(input)) {
@@ -7844,6 +7848,7 @@ const {AutoMatch} = (function(){
     // StringMatch
     return _W(StringMatch(input))
   }
+  ///////////////////////////////////////
   function BlankMatch() {
     let re = function (val) {
       return Ti.Util.isNil(val) || Ti.S.isBlank(val)
@@ -7857,6 +7862,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function BooleanMatch(bool) {
     let b = bool ? true : false
     //...............................
@@ -7876,6 +7882,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function NumberMatch(n) {
     let re = function (val) {
       return val == n
@@ -7890,6 +7897,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function EmptyMatch() {
     let re = function (val) {
       return _.isEmpty(val)
@@ -7903,6 +7911,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function ExistsMatch(key, not) {
     let re = function (val) {
       let v = _.get(val, key)
@@ -7922,6 +7931,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function NumberRangeMatch(input) {
     let m = input
     if (_.isString(input)) {
@@ -8025,8 +8035,32 @@ const {AutoMatch} = (function(){
     //...............................
     return re
   }
+  ///////////////////////////////////////
+  function MapFindInArrayMatch(map) {
+    let matchFn = TiAutoMatch.parse(map.matchBy)
+    let not = map.not ? true : false
+    let re = function (val) {
+      let vals = _.concat(val)
+      for (let v of vals) {
+        if (matchFn(v)) {
+          return true ^ not ? true : false
+        }
+      }
+      return false ^ not ? true : false
+    }
+    //...............................
+    re.explainText = function (payload = {}) {
+      let cTxt = matchFn.explainText(payload)
+      let k = payload.findInArray || "i18n:am-findInArray"
+      let s = Ti.I18n.text(k)
+      return Ti.S.renderBy(s, { val: cTxt })
+    }
+    //...............................
+    return re;
+  }
+  ///////////////////////////////////////
   function MapMatch(map) {
-    // Pre-build
+    // Pre-build 
     let matchs = []
     _.forEach(map, (val, key) => {
       let not = key.startsWith("!")
@@ -8112,6 +8146,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function NotNilMatch(input) {
     if (!input) {
       return val => !Ti.Util.isNil(val)
@@ -8135,6 +8170,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function NilMatch(input) {
     if (!input) {
       return val => Ti.Util.isNil(val)
@@ -8159,6 +8195,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function NulllMatch(input) {
     if (!input) {
       return val => _.isNull(val)
@@ -8182,6 +8219,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function UndefinedMatch(input) {
     if (!input) {
       return val => _.isUndefined(val)
@@ -8206,6 +8244,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function NotMatch(m) {
     let re = function (input) {
       return !m(input)
@@ -8218,6 +8257,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function TypeMatch(input) {
     let expectType = input
     //...............................
@@ -8234,6 +8274,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function ParallelMatch(...ms) {
     let re = function (val) {
       if (_.isEmpty(ms))
@@ -8263,6 +8304,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re
   }
+  ///////////////////////////////////////
   function RegexMatch(regex) {
     let not = false
     if (regex.startsWith("!")) {
@@ -8288,6 +8330,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function StringMatch(input) {
     let ignoreCase = false
     if (input.startsWith("~~")) {
@@ -8316,6 +8359,7 @@ const {AutoMatch} = (function(){
     //...............................
     return re;
   }
+  ///////////////////////////////////////
   function WildcardMatch(wildcard) {
     let not = false
     if (wildcard.startsWith("!")) {
@@ -10063,6 +10107,56 @@ const {Types} = (function(){
       return {
         homeId: _.trim(str.substring(0, pos)),
         myId: _.trim(str.substring(pos + 1))
+      }
+    },
+    //.......................................
+    getFormFieldVisibility({
+      hidden, visible, disabled, enabled
+    } = {}, data = {}) {
+      // Hide or disabled
+      if (!Ti.Util.isNil(hidden)) {
+        if (Ti.AutoMatch.test(hidden, data)) {
+          return { hidden: true, visible: false }
+        }
+      }
+      // Visiblity
+      if (!Ti.Util.isNil(visible)) {
+        if (!Ti.AutoMatch.test(visible, data)) {
+          return { hidden: true, visible: false }
+        }
+      }
+      // Disable
+      let is_disable = false
+      if (disabled) {
+        is_disable = Ti.AutoMatch.test(disabled, data)
+      }
+      if (enabled) {
+        is_disable = !Ti.AutoMatch.test(enabled, data)
+      }
+      return { disabled: is_disable, enabled: !is_disable }
+    },
+    //.......................................
+    assertDataByForm(data = {}, fields = []) {
+      if (!_.isEmpty(fields)) {
+        for (let fld of fields) {
+          // Not Required
+          if (!fld.required) {
+            continue
+          }
+  
+          // Visibility
+          let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, data)
+          if (hidden || disabled) {
+            continue
+          }
+  
+          // Do check value
+          let v = _.get(data, fld.name)
+          if (Ti.Util.isNil(v)) {
+            // 准备错误消息
+            throw Ti.Err.make("e.form.fldInNil", fld)
+          } // isNil
+        } // For
       }
     }
     //.......................................
@@ -18521,7 +18615,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220610.004437",
+  "version" : "1.6-20220624.183738",
   "dev" : false,
   "appName" : null,
   "session" : {},

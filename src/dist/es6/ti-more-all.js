@@ -1,4 +1,4 @@
-// Pack At: 2022-06-10 00:44:37
+// Pack At: 2022-06-24 18:37:38
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6034,6 +6034,10 @@ const _M = {
       type: Number,
       default: 0
     },
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -6122,8 +6126,12 @@ const _M = {
       return !_.isEmpty(this.items)
     },
     //--------------------------------------
+    isShowItemRemoveBtn() {
+      return this.removable && !this.readonly
+    },
+    //--------------------------------------
     isShowAddBtn() {
-      return this.AvaCapCount != 0
+      return !this.readonly && this.AvaCapCount != 0
     },
     //--------------------------------------
     AvaCapCount() {
@@ -6137,7 +6145,9 @@ const _M = {
     },
     //--------------------------------------
     isShowActions() {
-      return this.removable && this.hasItems
+      return this.removable
+             && !this.readonly
+             && this.hasItems
     }
     //--------------------------------------
   },
@@ -6208,7 +6218,7 @@ const _M = {
     },
     //--------------------------------------
     initSortable() {
-      if (this.sortable && this.$refs.itemsCon) {
+      if (!this.readonly && this.sortable && this.$refs.itemsCon) {
         new Sortable(this.$refs.itemsCon, {
           animation: 300,
           filter: ".as-new, .as-local",
@@ -7111,6 +7121,10 @@ const _M = {
     "quality": {
       type: Number,
       default: 0
+    },
+    "readonly": {
+      type: Boolean,
+      default: false
     },
     //-----------------------------------
     // Aspect
@@ -27947,9 +27961,9 @@ const _M = {
       let v2 = this.evalInputValue(val)
 
       try {
-        // console.log("this.serializer(val):", v2)
+        //console.log("this.serializer(val):", v2)
         v2 = this.serializer(v2)
-        // console.log("field changed", val, v2)
+        //console.log("field changed", val, v2)
       }
       // Invalid 
       catch (error) {
@@ -28034,7 +28048,10 @@ const _M = {
           Ti.Util.fallback(this.nanAs, this.defaultAs, NaN)
         )
       }
-      else if (_.isEmpty(val)) {
+      else if (
+        !(_.isBoolean(val) || _.isNumber(val))
+        && _.isEmpty(val)
+      ) {
         if (_.isString(val)) {
           re = _.cloneDeep(
             Ti.Util.fallback(this.emptyAs, this.defaultAs, "")
@@ -34663,6 +34680,10 @@ const _M = {
       type: [String, Array, Function, Ti.Dict],
       default: () => []
     },
+    "optionMapping": {
+      type: [Function, Object],
+      default: undefined
+    },
     "optionFilter": {
       type: [Function, Object, Array],
       default: undefined
@@ -34746,6 +34767,18 @@ const _M = {
       if (this.optionFilter) {
         return Ti.AutoMatch.parse(this.optionFilter)
       }
+    },
+    //-----------------------------------------------
+    FnOptionMapping() {
+      if(_.isFunction(this.optionMapping)) {
+        return this.optionMapping
+      }
+      if(this.optionMapping) {
+        return (obj)=>{
+          return Ti.Util.translate(obj, this.optionMapping)
+        }
+      }
+      return _.identity
     },
     //-----------------------------------------------
     Grouping() {
@@ -34838,15 +34871,20 @@ const _M = {
             value: this.getItemValue(li)
           }
         }
+        // Mapping
+        it = this.FnOptionMapping(it)
+        // I18n
         if(this.autoI18n) {
           it.text = Ti.I18n.get(it.text, it.text)
         }
+        // Mark
         if (this.isItemChecked(it.value, this.value)) {
           it.className = "is-checked"
           it.bullet = this.bulletIconOn
         } else {
           it.bullet = this.bulletIconOff
         }
+        // Append to list
         list.push(it)
       })
       return list
@@ -36134,7 +36172,6 @@ const _M = {
       // Flat pairs  [keyPath] : [pairValue]
       let pairs = {}
       this.joinPairs(pairs, [], this.TheData)
-      console.log(pairs)
       // format list
       let list = []
       for (let fld of this.fields) {
@@ -39828,6 +39865,10 @@ const _M = {
       type: Number,
       default: 0
     },
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
     //------------------------------------------------
     // Measure
     //------------------------------------------------
@@ -39961,6 +40002,22 @@ const _M = {
         let link = Wn.Util.getAppLink(this.oFile)
         //console.log("it will open ", link)
         await Ti.Be.Open(link.url, { params: link.params })
+      }
+    },
+    //--------------------------------------
+    async OnDownload() {
+      if (this.srcAsUrl) {
+        await Ti.Be.Open(this.value)
+      }
+      // remove the thumb file
+      else if (this.oFile) {
+        //console.log("it will download ", this.oFile)
+        await Ti.Be.Open("/o/content", {
+          params: {
+            str: `id:${this.oFile.id}`,
+            d: true
+          }
+        })
       }
     },
     //--------------------------------------
@@ -41243,7 +41300,7 @@ const _M = {
 
     // Get the removeIds
     let removeIds = _.filter(ids, id => !failIds[id])
-    console.log("removeIds:", removeIds)
+    //console.log("removeIds:", removeIds)
 
     // Remove it from search list
     if (!_.isEmpty(removeIds)) {
@@ -44392,7 +44449,7 @@ const _M = {
         // Statice value
         else if (val && val.target) {
           re[key] = ({ name, value }, data) => {
-            let tc = _.assign({}, {"$update": {name, value}}, data)
+            let tc = _.assign({}, { "$update": { name, value } }, data)
             if (val.test && !Ti.AutoMatch.test(val.test, tc)) {
               return
             }
@@ -44422,9 +44479,9 @@ const _M = {
         if (this.onlyFields) {
           re = _.pick(re, this.myKeysInFields)
         }
-        if(this.omitHiddenFields) {
-          re = _.omitBy(re, (v,k)=>{
-            if(this.myFormFieldMap[k]){
+        if (this.omitHiddenFields) {
+          re = _.omitBy(re, (v, k) => {
+            if (this.myFormFieldMap[k]) {
               return false
             }
             return true
@@ -44563,25 +44620,10 @@ const _M = {
     },
     //--------------------------------------------------
     evalFormField(fld = {}, nbs = []) {
-      // Hide or disabled
-      if (!Ti.Util.isNil(fld.hidden)) {
-        if (Ti.AutoMatch.test(fld.hidden, this.data)) {
-          return
-        }
-      }
-      // Visiblity
-      if (!Ti.Util.isNil(fld.visible)) {
-        if (!Ti.AutoMatch.test(fld.visible, this.data)) {
-          return
-        }
-      }
-      // Disable
-      let disabled = false
-      if (fld.disabled) {
-        disabled = Ti.AutoMatch.test(fld.disabled, this.data)
-      }
-      if (fld.enabled) {
-        disabled = !Ti.AutoMatch.test(fld.enabled, this.data)
+      // Get form field visibility
+      let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.data)
+      if (hidden) {
+        return
       }
 
       let maxColumnHint = Ti.Util.fallback(fld.maxColumnHint, this.maxColumnHint, 3)
@@ -53410,64 +53452,76 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/upload/file/ti-upload-file.mjs'] = (function(){
 const _M = {
   /////////////////////////////////////////
-  data: ()=>({
+  data: () => ({
     myArea: 0,
     myActionsWidth: 0
   }),
   /////////////////////////////////////////
-  props : {
+  props: {
     // The source to display image
-    "preview" : {
-      type : [String, Object],
-      default : null
+    "preview": {
+      type: [String, Object],
+      default: null
     },
     // The value must be a LocalFile object
     // to prerender the LocalFile during uploading
-    "uploadFile" :{
-      type : File,
-      default : null
+    "uploadFile": {
+      type: File,
+      default: null
     },
     // Show the process `0.0-1.0` during the uploading
-    "progress" : {
-      type : Number,
-      default : -1
+    "progress": {
+      type: Number,
+      default: -1
     },
     // Input a image link directly
-    "exlink" : {
-      type : Boolean,
-      default : false
+    "exlink": {
+      type: Boolean,
+      default: false
     },
-    "previewType" : {
-      type : String,
-      default : "obj",
-      validator : v => /^(obj|link)$/.test(v)
+    "previewType": {
+      type: String,
+      default: "obj",
+      validator: v => /^(obj|link)$/.test(v)
     },
-    "maxWidth" : {
-      type : [String, Number],
-      default : undefined
+    "maxWidth": {
+      type: [String, Number],
+      default: undefined
     },
-    "maxHeight" : {
-      type : [String, Number],
-      default : undefined
+    "maxHeight": {
+      type: [String, Number],
+      default: undefined
     },
     // Display width
-    "width" : {
-      type : [String, Number],
-      default : 120
+    "width": {
+      type: [String, Number],
+      default: 120
     },
     // Display height
-    "height" : {
-      type : [String, Number],
-      default : 120
+    "height": {
+      type: [String, Number],
+      default: 120
     },
     // support remove the objects
-    "removable" : {
-      type : Boolean,
-      default : true
+    "removable": {
+      type: Boolean,
+      default: true
+    },
+    "openable": {
+      type: Boolean,
+      default: true
+    },
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
+    "downloadable": {
+      type: Boolean,
+      default: true
     },
     "areaSize": {
       type: Object,
-      default: ()=>({
+      default: () => ({
         //xl: (800 * 800),
         xs: (100 * 100),
         sm: (200 * 200),
@@ -53477,7 +53531,7 @@ const _M = {
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass(
@@ -53487,34 +53541,34 @@ const _M = {
     AreaType() {
       let AS = this.areaSize;
       let ar = this.myArea
-      if(ar <= 0) {
+      if (ar <= 0) {
         return "nil"
       }
-      if(_.inRange(ar, 0, AS.xs+1))
+      if (_.inRange(ar, 0, AS.xs + 1))
         return "xs"
-      if(_.inRange(ar, AS.xs, AS.sm+1))
+      if (_.inRange(ar, AS.xs, AS.sm + 1))
         return "sm"
-      if(_.inRange(ar, AS.sm, AS.md+1))
+      if (_.inRange(ar, AS.sm, AS.md + 1))
         return "md"
-      if(_.inRange(ar, AS.md, AS.lg+1))
+      if (_.inRange(ar, AS.md, AS.lg + 1))
         return "lg"
 
       return "xl"
     },
     //--------------------------------------
-    ThumbStyle(){
+    ThumbStyle() {
       return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height,
-        maxWidth : this.maxWidth,
-        maxHeight : this.maxHeight
+        width: this.width,
+        height: this.height,
+        maxWidth: this.maxWidth,
+        maxHeight: this.maxHeight
       })
     },
     //--------------------------------------
     ActionsStyle() {
-      if(/^(xs|sm)$/.test(this.AreaType)) {
+      if (/^(xs|sm)$/.test(this.AreaType)) {
         return {
-          right: Ti.Css.toSize(this.myActionsWidth*-1)
+          right: Ti.Css.toSize(this.myActionsWidth * -1)
         }
       }
     },
@@ -53523,11 +53577,29 @@ const _M = {
       return this.preview ? true : false
     },
     //--------------------------------------
+    isShowActions() {
+      return this.hasPreview
+        && (
+          this.isShowRemoveIcon
+          || this.isShowOpenIcon
+          || this.isShowExlink
+          || this.isShowDownloadIcon
+        )
+    },
+    //--------------------------------------
     isShowRemoveIcon() {
-      if(!this.uploadFile && this.hasPreview) {
+      if (!this.uploadFile && this.hasPreview && !this.readonly) {
         return true
       }
       return false
+    },
+    //--------------------------------------
+    isShowOpenIcon() {
+      return this.openable
+    },
+    //--------------------------------------
+    isShowDownloadIcon() {
+      return this.downloadable
     },
     //--------------------------------------
     isShowExlink() {
@@ -53535,11 +53607,11 @@ const _M = {
     },
     //--------------------------------------
     PreviewIcon() {
-      if(this.uploadFile) {
-        return {type:"localFile", value:this.uploadFile}
+      if (this.uploadFile) {
+        return { type: "localFile", value: this.uploadFile }
       }
       // Normal image
-      if(this.preview) {
+      if (this.preview) {
         return this.preview
       }
       // Show Icon
@@ -53548,11 +53620,13 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnClickToEdit() {
-      if("link" == this.previewType) {
+      if ("link" == this.previewType) {
         this.$notify("exlink")
+      } else if (this.readonly) {
+        this.$notify("open")
       } else {
         this.$refs.file.click()
       }
@@ -53560,7 +53634,7 @@ const _M = {
     //--------------------------------------
     async OnDropFiles(files) {
       let file = _.get(files, 0)
-      if(file) {
+      if (file && !this.readonly) {
         this.$notify("upload", file)
       }
     },
@@ -53582,12 +53656,16 @@ const _M = {
       this.$notify("exlink")
     },
     //--------------------------------------
+    OnDownload() {
+      this.$notify("download")
+    },
+    //--------------------------------------
     recountArea() {
       let rect = Ti.Rects.createBy(this.$refs.thumb)
-      if(_.isEmpty(rect))
+      if (_.isEmpty(rect))
         return
       this.myArea = rect.width * rect.height
-      if(this.$refs.actions) {
+      if (this.$refs.actions) {
         this.myActionsWidth = this.$refs.actions.getBoundingClientRect().width
       } else {
         this.myActionsWidth = 0
@@ -53595,7 +53673,7 @@ const _M = {
     },
     //--------------------------------------
     shouldRecountArea() {
-      _.delay(()=>{
+      _.delay(() => {
         this.recountArea()
       }, 10)
     }
@@ -53610,19 +53688,19 @@ const _M = {
     "areaSize": "shouldRecountArea"
   },
   //////////////////////////////////////////
-  created: function() {
+  created: function () {
     Ti.Viewport.watch(this, {
-      resize:()=>{
+      resize: () => {
         this.recountArea()
       }
     })
   },
   //////////////////////////////////////////
-  mounted: function() {
-    this.$nextTick(()=>this.recountArea())
+  mounted: function () {
+    this.$nextTick(() => this.recountArea())
   },
   //////////////////////////////////////////
-  beforeDestroy: function(){
+  beforeDestroy: function () {
     Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////
@@ -76121,6 +76199,10 @@ Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list"
                 Text
               -->
               <div class="as-text">{{it.text}}</div>
+              <!--
+                Tip
+              -->
+              <div class="as-tip" v-if="it.tip">{{it.tip}}</div>
           </div>
         </div>
       </div>
@@ -78320,7 +78402,7 @@ Ti.Preload("ti/com/ti/input/daterange/_com.json", {
 Ti.Preload("ti/com/ti/input/datetime/ti-input-datetime.html", `<ti-combo-box class="as-datetime"
   :class="topClass"
   :width="width"
-  :drop-width="'box'"
+  :drop-width="'4rem'"
   :drop-overflow="'hidden'"
   :status="status"
   @collapse="doCollapse">
@@ -81876,6 +81958,7 @@ Ti.Preload("ti/com/ti/time/ti-time.html", `<div class="ti-col-data as-time"
     :display="'text'"
     :current-id="list.currentId"
     :cancelable="false"
+    :dftLabelHoverCopy="false"
     @select="onListSelected(list.key, $event)"/>
 </div>`);
 //========================================
@@ -82131,7 +82214,7 @@ Ti.Preload("ti/com/ti/upload/file/ti-upload-file.html", `<div class="ti-upload-f
       Remove
     -->
     <div ref="actions"
-      v-if="isShowRemoveIcon || isShowExlink"
+      v-if="isShowActions"
         class="thumb-actions"
         :style="ActionsStyle">
         <!--remove-->
@@ -82144,7 +82227,7 @@ Ti.Preload("ti/com/ti/upload/file/ti-upload-file.html", `<div class="ti-upload-f
         </div>
         <!--open-->
         <div
-          v-if="isShowRemoveIcon"
+          v-if="isShowOpenIcon"
             class="thumb-opt as-open"
             @click.left.stop="OnOpen">
             <ti-icon value="zmdi-open-in-new"/>
@@ -82157,6 +82240,14 @@ Ti.Preload("ti/com/ti/upload/file/ti-upload-file.html", `<div class="ti-upload-f
             @click.left.stop="OnExlink">
             <ti-icon value="fas-link"/>
             <span class="it-text">{{'link'|i18n}}</span>
+        </div>
+        <!--open-->
+        <div
+          v-if="isShowDownloadIcon"
+            class="thumb-opt as-open"
+            @click.left.stop="OnDownload">
+            <ti-icon value="zmdi-cloud-download"/>
+            <span class="it-text">{{'download'|i18n}}</span>
         </div>
     </div>
     <!--//////-->
@@ -82219,7 +82310,7 @@ Ti.Preload("ti/com/ti/upload/multi-files/ti-upload-multi-files.html", `<div
         <div class="item-actions">
           <ul>
               <!--Action:Remove-->
-              <li @click.left="OnRemoveItem(it)">
+              <li v-if="isShowItemRemoveBtn" @click.left="OnRemoveItem(it)">
                 <i class="zmdi zmdi-close-circle"></i>
                 <span>{{'i18n:remove'|i18n}}</span>
               </li>
@@ -87976,6 +88067,7 @@ Ti.Preload("ti/com/wn/upload/file/wn-upload-file.html", `<TiUploadFile
   :preview="PreviewIcon"
   :preview-type="PreviewType"
   :exlink="exlink"
+  :readonly="readonly"
   :width="width"
   :height="height"
   :max-width="maxWidth"
@@ -87986,6 +88078,7 @@ Ti.Preload("ti/com/wn/upload/file/wn-upload-file.html", `<TiUploadFile
   @upload="OnUpload"
   @remove="OnRemove"
   @exlink="OnExlink"
+  @download="OnDownload"
   @open="OnOpen"/>`);
 //========================================
 // JOIN <wn-upload-file.mjs> ti/com/wn/upload/file/wn-upload-file.mjs
@@ -88007,9 +88100,10 @@ Ti.Preload("ti/com/wn/upload/file/_com.json", {
 // JOIN <wn-upload-multi-files.html> ti/com/wn/upload/multi-files/wn-upload-multi-files.html
 //========================================
 Ti.Preload("ti/com/wn/upload/multi-files/wn-upload-multi-files.html", `<TiUploadMultiFiles
+  :readonly="readonly"
   :items="FileItems"
   :sortable="sortable"
-  :removable="sortable"
+  :removable="removable"
   :progress="myUploadProgress"
   :showItemText="showItemText"
   :limit="limit"
@@ -89332,6 +89426,39 @@ Ti.Preload("/a/load/wn.manager/wn-manager.mjs", TI_PACK_EXPORTS['/a/load/wn.mana
 // JOIN <hmaker.i18n.json> ti/i18n/en-us/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
+  "am-findInArray": "存在一个【${val}】的对象",
+  "hm-am-add": "Add condition",
+  "hm-am-empty": "Consition unset",
+  "am-must-true": "Must be true",
+  "am-must-false": "Must be false",
+  "am-not-sure": "Not sure",
+  "am-exists": "存在'${val}'",
+  "am-noexists": "不存在'${val}'",
+  "am-boolTrue": "为真",
+  "am-boolFalse": "为假",
+  "am-blank": "为空白",
+  "am-notNil": "不为空",
+  "am-notNilOf": "字段${val}不为空",
+  "am-nil": "为空",
+  "am-empty": "为空",
+  "am-nilOf": "字段${val}为空",
+  "am-null": "为空值",
+  "am-nullOf": "字段${val}为空值",
+  "am-undefined": "未定义",
+  "am-undefinedOf": "字段${val}未定义",
+  "am-not": "不",
+  "am-or": "或者",
+  "am-and": "并且",
+  "am-notMatchOf": "不匹配'${FFFval}'",
+  "am-matchOf": "匹配'${val}'",
+  "am-equals": "等于${val} ",
+  "am-notEquals": "不等于${val} ",
+  "am-equalsType": "类型等于\"${val}\"",
+  "am-equalsIgnoreCase": "等于\"${val}\"且无视大小写",
+  "am-gt": "大于${val}",
+  "am-gte": "大于等于${val}",
+  "am-lt": "小于${val}",
+  "am-lte": "小于等于${val}",
   "hm-args": "Arguments",
   "hm-args-partial": "Arg partial",
   "hm-args-partial-left": "Partial Left",
@@ -90859,6 +90986,7 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-cn/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
+  "am-findInArray": "存在一个【${val}】的对象",
   "hm-am-add": "添加条件",
   "hm-am-empty": "未设置条件",
   "am-must-true": "肯定为真",
@@ -92425,6 +92553,7 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/zh-hk/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
+   "am-findInArray": "存在一個【${val}】的對象",
    "hm-am-add": "添加條件",
    "hm-am-empty": "未設置條件",
    "am-must-true": "肯定爲真",

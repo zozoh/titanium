@@ -2,13 +2,16 @@
   overflow: auto;
   //-------------------------------------
   .as-group-title {
-    padding: .5em; font-size: 0.9em;
+    padding: 0.5em;
+    font-size: 0.9em;
   }
   //-------------------------------------
   .as-bullet-item {
-    @include flex-align-nowrap($ai:flex-start);
-    cursor: pointer; line-height: 1.8em;
-    padding: 0.3em 0.6em; opacity: 0.8;
+    @include flex-align-nowrap($ai: flex-start);
+    cursor: pointer;
+    line-height: 1.8em;
+    padding: 0.3em 0.6em;
+    opacity: 0.8;
     //-----------------------------------
     &:hover {
       @include color($color-weaktip, r, c);
@@ -19,22 +22,35 @@
     }
     //-----------------------------------
     &.is-checked {
-      font-weight: bold; opacity: 1;
+      font-weight: bold;
+      opacity: 1;
     }
     //-----------------------------------
     .ti-icon {
-      margin-right: 1em; height: 1.8em;
-      > i {transition: transform 0.5s;}
+      margin-right: 1em;
+      height: 1.8em;
+      > i {
+        transition: transform 0.5s;
+      }
       &.is-image .icon-icon {
         height: 100%;
         img {
-          width:1.8em;
+          width: 1.8em;
         }
       }
     }
     //-----------------------------------
+    > .as-text {
+      flex: 1 1 auto;
+    }
+    //-----------------------------------
+    > .as-tip {
+      color: map-get($color-track, c);
+      flex: 0 0 auto; 
+    }
+    //-----------------------------------
   }
   //-------------------------------------
-  
+
   //-------------------------------------
 }

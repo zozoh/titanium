@@ -12,6 +12,10 @@ const _M = {
       type: [String, Array, Function, Ti.Dict],
       default: () => []
     },
+    "optionMapping": {
+      type: [Function, Object],
+      default: undefined
+    },
     "optionFilter": {
       type: [Function, Object, Array],
       default: undefined
@@ -95,6 +99,18 @@ const _M = {
       if (this.optionFilter) {
         return Ti.AutoMatch.parse(this.optionFilter)
       }
+    },
+    //-----------------------------------------------
+    FnOptionMapping() {
+      if(_.isFunction(this.optionMapping)) {
+        return this.optionMapping
+      }
+      if(this.optionMapping) {
+        return (obj)=>{
+          return Ti.Util.translate(obj, this.optionMapping)
+        }
+      }
+      return _.identity
     },
     //-----------------------------------------------
     Grouping() {
@@ -187,15 +203,20 @@ const _M = {
             value: this.getItemValue(li)
           }
         }
+        // Mapping
+        it = this.FnOptionMapping(it)
+        // I18n
         if(this.autoI18n) {
           it.text = Ti.I18n.get(it.text, it.text)
         }
+        // Mark
         if (this.isItemChecked(it.value, this.value)) {
           it.className = "is-checked"
           it.bullet = this.bulletIconOn
         } else {
           it.bullet = this.bulletIconOff
         }
+        // Append to list
         list.push(it)
       })
       return list
