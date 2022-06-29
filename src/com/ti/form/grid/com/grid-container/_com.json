@@ -1,0 +1,7 @@
+{
+  "name": "grid-container",
+  "globally": false,
+  "template": "./grid-container.html",
+  "methods": "@com:ti/support/field_display.mjs",
+  "mixins": "./grid-container.mjs"
+}

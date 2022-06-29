@@ -65,7 +65,9 @@
     "saving": false,
     "deleting": false,
     "changed": false,
-    "restoring": false
+    "restoring": false,
+    "hasChecked": false,
+    "hasCurrent": true
   },
   "fieldStatus": {},
   "actionsPath": "thing-actions.json",

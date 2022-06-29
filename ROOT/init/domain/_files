@@ -172,6 +172,9 @@
 @FILE mock/components/wn-form/wn-upload-multi-files.comt 'UPLOAD-MULTI-FILES'
 {com:'/rs/ti/test/components/wn-form/demo-wn-upload-multi-files.json'}
 #---------------------------------------------------------
+@FILE mock/components/form/ti-form-grid-flat.comt 'GRID-FLAT'
+{com:'/rs/ti/test/components/form/grid-flat.json'}
+#---------------------------------------------------------
 ##########################################################
 #
 #                    网站工程

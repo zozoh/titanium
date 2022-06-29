@@ -1,0 +1,31 @@
+{
+  "name": "ti-form-grid",
+  "globally": true,
+  "template": "./ti-form-grid.html",
+  "props": "./ti-form-props.mjs",
+  "mixins": [
+    "@com:ti/form/form-support.mjs",
+    "./ti-form-grid.mjs"
+  ],
+  "components": [
+    "./com/grid-container",
+    "@com:ti/input",
+    "@com:ti/input/num",
+    "@com:ti/input/tags",
+    "@com:ti/input/color",
+    "@com:ti/input/icon",
+    "@com:ti/input/date",
+    "@com:ti/input/time",
+    "@com:ti/input/timerange",
+    "@com:ti/input/month",
+    "@com:ti/input/datetime",
+    "@com:ti/input/daterange",
+    "@com:ti/input/text",
+    "@com:ti/combo/input",
+    "@com:ti/combo/multi-input",
+    "@com:ti/label",
+    "@com:ti/toggle",
+    "@com:ti/switcher",
+    "@com:ti/droplist"
+  ]
+}

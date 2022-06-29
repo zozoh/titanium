@@ -14,10 +14,6 @@ export default {
     type: Object,
     default: () => ({})
   },
-  // "extendFunctionSet" : {
-  //   type : Object,
-  //   default : undefined
-  // },
   "onlyFields": {
     type: Boolean,
     default: true
@@ -31,12 +27,20 @@ export default {
     type: Object,
     default: undefined
   },
+  "lang": {
+    type: String,
+    default: "auto" // zh-cn | zh-hk | en-us | en-uk
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
   "defaultFieldType": {
     type: String,
     default: "String"
+  },
+  "defaultComType": {
+    type: String,
+    default: "ti-label"
   },
   "linkFields": {
     type: Object,
@@ -46,10 +50,6 @@ export default {
     type: String,
     default: undefined
   },
-  "defaultComType": {
-    type: String,
-    default: "ti-label"
-  },
   "autoShowBlank": {
     type: Boolean,
     default: undefined
@@ -58,34 +58,13 @@ export default {
     type: Number,
     default: 0
   },
-  "adjustDelay": {
-    type: Number,
-    default: 0
-  },
-  "autoColummGrid": {
-    type: [Boolean, Array],
-    default: true
-  },
-  "maxColumnHint": {
-    type: Number,
-    default: 3
-  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "bodyClass": {
-    type: [String, Object, Array]
-  },
-  "bodyStyle": {
-    type: Object
-  },
-  "defaultGroupClass": {
-    type: [String, Object, Array]
-  },
   "mode": {
     type: String,
-    default: "all",
-    validator: (val) => /^(all|tab)$/.test(val)
+    default: "group",
+    validator: (val) => /^(flat|group|tab)$/.test(val)
   },
   "screenMode": {
     type: String,
@@ -99,8 +78,18 @@ export default {
   },
   "fieldBorder": {
     type: String,
-    default: "bottom",
-    validator: (v) => /^(none|top|bottom)$/.test(v)
+    default: "none",
+    validator: (v) => /^(none|dashed|solid|dotted)$/.test(v)
+  },
+  "fieldNameWrap": {
+    type: String,
+    default: "auto",
+    validator: (v) => /^(auto|wrap|nowrap)$/.test(v)
+  },
+  "fieldValueWrap": {
+    type: String,
+    default: "auto",
+    validator: (v) => /^(auto|wrap|nowrap)$/.test(v)
   },
   "blankAs": {
     type: Object,
@@ -134,12 +123,20 @@ export default {
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "width": {
+  "nameWidth": {
     type: [Number, String],
-    default: undefined
+    default: () => [
+      ["1.5rem", "en-us"],
+      ["1.2rem"]
+    ]
   },
-  "height": {
-    type: [Number, String],
-    default: undefined
+  "gridColumnHint": {
+    type: Array,
+    default: () => [
+      [3, "desktop"],
+      [2, "tablet"],
+      [1, "phone"],
+      [1]
+    ]
   }
 }
