@@ -153,7 +153,7 @@ const _M = {
               "isCurrent" : this.isCurrent
             },
             autoIgnoreNil : true,
-            uniqueKey: `row${this.rowId}-cell${this.index}-${i}`
+            uniqKey: `row${this.rowId}-cell${this.index}-${i}`
         })
         if(it) {
           items.push(it)

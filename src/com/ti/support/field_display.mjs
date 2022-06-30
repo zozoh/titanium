@@ -293,7 +293,7 @@ const FieldDisplay = {
     autoIgnoreNil = true,
     autoIgnoreBlank = true,
     autoValue = "value",
-    uniqueKey
+    uniqKey
   } = {}) {
     let dis = displayItem;
     let value = dis.defaultAs;
@@ -389,11 +389,13 @@ const FieldDisplay = {
     //.....................................
     reDisplayItem.comConf = comConf
     //.....................................
-    if (uniqueKey) {
-      reDisplayItem.uniqueKey = uniqueKey
-    } else {
-      reDisplayItem.uniqueKey = _.concat(
-        reDisplayItem.key, reDisplayItem.comType).join("-")
+    if (!reDisplayItem.uniqKey) {
+      if (uniqKey) {
+        reDisplayItem.uniqKey = uniqKey
+      } else {
+        reDisplayItem.uniqKey = _.concat(
+          reDisplayItem.key, reDisplayItem.comType).join("-")
+      }
     }
     //.....................................
     return reDisplayItem

@@ -35,8 +35,15 @@ const _M = {
   //////////////////////////////////////////////////////
   methods: {
     //--------------------------------------------------
+    OnFldChange(fld, value) {
+      this.$emit("field:change", {
+        name: fld.name,
+        value
+      })
+    },
+    //--------------------------------------------------
     evalFields(fields = this.fields) {
-      console.log("evalFields", fields)
+      //console.log("evalFields", fields)
       let list = []
       if (_.isArray(fields)) {
         for (let fld of fields) {

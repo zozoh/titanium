@@ -211,7 +211,7 @@ const _M = {
       let payload = _.pick($event,
         "code", "key", "keyCode",
         "altKey", "ctrlKey", "metaKey", "shiftKey")
-      payload.uniqueKey = Ti.Shortcut.getUniqueKey(payload)
+      payload.uniqKey = Ti.Shortcut.getUniqueKey(payload)
       payload.$event = $event
       this.$notify("keypress", payload)
     },

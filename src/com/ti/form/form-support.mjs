@@ -1,6 +1,9 @@
 const _M = {
   //////////////////////////////////////////////////////
   data: () => ({
+    myLang: "zh-cn",
+    myScreenMode: "desktop",
+
     myKeysInFields: [],
     myFormFields: [],
     myFormFieldMap: {},
@@ -121,6 +124,112 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   methods: {
+    //--------------------------------------------------
+    async OnFieldChange({ name, value } = {}) {
+      // Notify at first
+      //console.log("notify field", {name, value})
+      this.$notify("field:change", { name, value })
+
+      // Link fields
+      let linkFunc = this.FormLinkFields[name]
+      let obj;
+      if (linkFunc) {
+        obj = await linkFunc({ name, value }, this.data)
+        if (!_.isEmpty(obj)) {
+          _.forEach(obj, (v, k) => {
+            this.$notify("field:change", { name: k, value: v })
+          })
+        }
+      }
+
+      // Notify later ...
+      // Wait for a tick to give a chance to parent of 'data' updating
+      this.$nextTick(() => {
+        //console.log("notify data")
+        let data = this.getData({ name, value })
+        _.assign(data, obj)
+        this.$notify("change", data)
+      })
+    },
+    //--------------------------------------------------
+    getFlattenFormFields(fields = []) {
+      let list = []
+      const __join_fields = function (fields = []) {
+        for (let fld of fields) {
+          if ("Group" == fld.type) {
+            __join_fields(fld.fields)
+          }
+          // Join normal fields
+          else {
+            // Replace the last Label
+            let lastFld = _.nth(list, -1)
+            if (lastFld && "Label" == lastFld.type && "Label" == fld.type) {
+              list[list.length - 1] = fld
+            }
+            // Join 
+            else {
+              list.push(fld)
+            }
+          }
+        }
+      }
+      __join_fields(fields)
+      return list
+    },
+    //--------------------------------------------------
+    getGroupedFormFields(fields = [], otherGroupTitle) {
+      let list = []
+      let otherFields = []
+      for (let fld of fields) {
+        if (fld.type == "Group") {
+          // Join others
+          if (!_.isEmpty(otherFields)) {
+            list.push({
+              type: "Group",
+              index: list.length,
+              fields: otherFields
+            })
+            otherFields = []
+          }
+          // Join self
+          list.push(_.assign({}, fld, {
+            index: list.length
+          }))
+        }
+        // Collect to others
+        else {
+          otherFields.push(fld)
+        }
+      }
+      // Join others
+      if (!_.isEmpty(otherFields)) {
+        list.push({
+          type: "Group",
+          index: list.length,
+          title: otherGroupTitle,
+          fields: otherFields
+        })
+      }
+      // Done
+      return list;
+    },
+    //--------------------------------------------------
+    evalMyLang() {
+      if ("auto" == this.lang) {
+        this.myLang = _.kebabCase(Ti.Config.lang())
+      } else {
+        this.myLang = _.kebabCase(this.lang)
+      }
+    },
+    //--------------------------------------------------
+    evalMyScreenMode() {
+      if ("auto" == this.screenMode) {
+        let state = Ti.App(this).$state().viewport
+        this.myScreenMode = _.get(state, "mode") || "desktop"
+      } else {
+        this.myScreenMode = this.screeMode
+      }
+    },
     //--------------------------------------
     getData({ name, value } = {}) {
       let data = _.cloneDeep(this.FormData)
@@ -308,6 +417,12 @@ const _M = {
         // Display Com
         field.com = await this.evalFieldCom(field)
 
+        // Layout style
+        _.defaults(field, {
+          "nameWrap": this.fieldNameWrap,
+          "valueWrap": this.fieldValueWrap
+        })
+
         // Done
         return field
       }
@@ -316,6 +431,7 @@ const _M = {
     },
     //--------------------------------------------------
     async evalFieldCom(fld) {
+      //console.log("evalFieldCom", fld)
       let displayItem
       // UnActived try use display
       if (!fld.isActived) {
@@ -323,9 +439,10 @@ const _M = {
       }
       // Use default form component
       if (!displayItem) {
-        displayItem = _.defaults(fld, {
-          comType: "TiLabel"
-        })
+        displayItem = {
+          key: fld.name,
+          ... (_.omit(fld, "name", "key"))
+        }
       }
       // Explain field com
       return await this.evalDataForFieldDisplayItem({
@@ -334,7 +451,7 @@ const _M = {
         vars: fld,
         autoIgnoreNil: false,
         autoIgnoreBlank: false,
-        autoValue: fld.autoValue
+        autoValue: fld.autoValue || "value"
       })
     },
     //--------------------------------------------------

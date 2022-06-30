@@ -1,5 +1,20 @@
 .ti-form-grid {
   overflow: auto;
+  //------------------------------------
+  &.as-spacing-tiny {
+    padding: SZ(8);
+    .ti-form-grid-con {
+      grid-gap: SZ(4);
+    }
+  }
+  //------------------------------------
+  &.as-spacing-comfy {
+    padding: SZ(20);
+    .ti-form-grid-con {
+      grid-gap: SZ(10);
+    }
+  }
+  //------------------------------------
 }
 
 .ti-form-grid-con {
@@ -9,4 +24,93 @@
   grid-auto-flow: row;
   justify-items: stretch;
   align-items: stretch;
+}
+
+.ti-form-grid-con > .grid-item {
+  display: flex;
+  //------------------------------------
+  > .field-name {
+    @include flex-align-nowrap;
+    .field-name-con {
+      @include flex-align-nowrap;
+    }
+  }
+  //------------------------------------
+  > .flex-value {
+    display: flex;
+  }
+  //------------------------------------
+  &[value-wrap="nowrap"] {
+    @include flex-align-nowrap;
+    //----------------------------------
+    > .field-value-com {
+      flex: 1 1 auto;
+    }
+    > .field-value-tip {
+      flex: 0 0 auto;
+    }
+    //----------------------------------
+  }
+  //------------------------------------
+  &[value-wrap="wrap"] {
+    @include flex-align-v-nowrap;
+  }
+  //------------------------------------
+  &[value-wrap="auto"] {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    //----------------------------------
+    > .field-value-com {
+      flex: 1 1 auto;
+    }
+    > .field-value-tip {
+      flex: 0 0 auto;
+    }
+    //----------------------------------
+  }
+  //------------------------------------
+  &[name-wrap="nowrap"] {
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: flex-start;
+    //----------------------------------
+    > .field-name {
+      flex: 0 0 auto;
+    }
+    > .field-value {
+      flex: 1 1 auto;
+    }
+    //----------------------------------
+  }
+  //------------------------------------
+  &[name-wrap="nowrap"] {
+    flex-wrap: nowrap;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    //----------------------------------
+    > .field-name {
+      flex: 0 0 auto;
+    }
+    > .field-value {
+      flex: 0 0 auto;
+    }
+    //----------------------------------
+  }
+  //------------------------------------
+  &[name-wrap="auto"] {
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: stretch;
+    //----------------------------------
+    > .field-name {
+      flex: 0 0 auto;
+    }
+    > .field-value {
+      flex: 1 1 auto;
+    }
+    //----------------------------------
+  }
+  //------------------------------------
 }

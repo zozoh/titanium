@@ -11,7 +11,7 @@
       <component 
         v-for="(it, index) in cellItems"
           :class="'item-'+index"
-          :key="it.uniqueKey"
+          :key="it.uniqKey"
           :is="it.comType"
           v-bind="it.comConf"
           @change="OnItemChanged(it, $event)"/>

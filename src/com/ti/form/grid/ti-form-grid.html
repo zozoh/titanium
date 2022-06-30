@@ -20,7 +20,9 @@
           class="it-text">{{title|i18n}}</span>
       </header>
       <!----------------------------------------->
-      <grid-container v-bind="GridContainerConf"/>
+      <grid-container
+        v-bind="GridContainerConf"
+        @field:change="OnFieldChange"/>
       <!----------------------------------------->
     </template>
     <!--

@@ -645,14 +645,21 @@ const TiUtil = {
       }
     }
   } = {}) {
-    for (let arm of arms) {
-      let v = by(arm, context)
-      if (!_.isUndefined(v)) {
-        if (explain) {
-          return TiUtil.explainObj(context, v)
+    if (_.isArray(arms)) {
+      for (let arm of arms) {
+        let v = by(arm, context)
+        if (!_.isUndefined(v)) {
+          if (explain) {
+            return TiUtil.explainObj(context, v)
+          }
+          return v
         }
-        return v
       }
+    } else {
+      if (explain) {
+        return TiUtil.explainObj(context, arms)
+      }
+      return arms
     }
   },
   /***

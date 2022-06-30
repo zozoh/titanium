@@ -12,7 +12,7 @@
       <component 
         v-for="(it, index) in myDisplayItems"
           :class="'item-'+index"
-          :key="it.uniqueKey"
+          :key="it.uniqKey"
           :is="it.comType"
           v-bind="it.comConf"/>
     </div>
@@ -58,7 +58,7 @@
       <component 
         v-for="(it, index) in myDisplayItems"
           :class="'item-'+index"
-          :key="it.uniqueKey"
+          :key="it.uniqKey"
           :is="it.comType"
           v-bind="it.comConf"
           @change="onItemChanged(it, $event)"/>

@@ -5,7 +5,9 @@
       :key="fld.key"
       class="grid-item"
       :style="fld.style"
-      :title="fld.statusText">
+      :title="fld.statusText"
+      :name-wrap="fld.nameWrap"
+      :value-wrap="fld.valueWrap">
       <!------------------------------------->
       <div 
         v-if="fld.icon || fld.title"
@@ -22,7 +24,7 @@
         <div class="field-value-com" :style="fld.comStyle">
           <component :is="fld.comType"
             v-bind="fld.comConf"
-            :value="fld.value"/>
+            @change="OnFldChange(fld, $event)"/>
         </div>
         <div
           v-if="fld.tip"
