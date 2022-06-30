@@ -1,7 +1,10 @@
 const _M = {
   //////////////////////////////////////////////////////
   data: () => ({
-    myLang: undefined,
+    myLang: "zh-cn",
+    myScreenMode: "desktop",
+
+    myRect: undefined,
     currentTabIndex: 0
   }),
   //////////////////////////////////////////////////////
@@ -38,37 +41,68 @@ const _M = {
     TheTabAtX() { return this.TheTabAt[1] },
     TheTabAtY() { return this.TheTabAt[0] },
     //--------------------------------------------------
-    TabList() {
-      let list = []
-      let otherFields = []
-      if (this.isTabMode) {
-        for (let fld of this.myFormFields) {
-          if (fld.type == "Group") {
-            list.push(fld)
-          }
-          // Collect to others
-          else {
-            otherFields.push(fld)
-          }
-        }
-        // Join others
-        if (!_.isEmpty(otherFields)) {
-          list.push({
-            type: "Group",
-            title: "i18n:others",
-            fields: otherFields
-          })
-        }
+    GridContext() {
+      // console.log("eval GridContext")
+      return {
+        ... (this.myRect || {}),
+        screen: this.myScreenMode,
+        lang: this.myLang,
       }
-      return list;
+    },
+    //--------------------------------------------------
+    FieldNameWidth() {
+      // console.log("eval FieldNameWidth")
+      return Ti.Util.selectValue(this.GridContext, this.nameWidth, {
+        by: ([v, m], { width, lang }) => {
+          if (!m || m == lang || width >= m) {
+            return v
+          }
+        }
+      })
+    },
+    //--------------------------------------------------
+    GridColumnCount() {
+      //console.log("eval GridColumnCount")
+      return Ti.Util.selectValue(this.GridContext, this.gridColumnHint, {
+        by: ([v, m], { width, screen }) => {
+          if (!m || m == screen || width >= m) {
+            return v
+          }
+        }
+      })
+    },
+    //--------------------------------------------------
+    FormFields() {
+      if (this.isFlatMode) {
+        return this.getFlattenFormFields(this.myFormFields)
+      }
+      if (this.isTabMode) {
+        return this.getGroupedFormFields(this.myFormFields, "i18n:others")
+      }
+      return this.getGroupedFormFields(this.myFormFields)
+    },
+    //--------------------------------------------------
+    GridFormFields() {
+      if (this.isFlatMode) {
+        return this.FormFields
+      }
+      if (this.isTabMode) {
+        for (let li of this.FormFields) {
+          if (li.index == this.currentTabIndex) {
+            return li.fields
+          }
+        }
+        return []
+      }
+      return this.myFormFields
     },
     //--------------------------------------------------
     // add "current" to theTabList
     TabItems() {
       let items = []
-      let maxTabIndex = this.TabList.length - 1
+      let maxTabIndex = this.FormFields.length - 1
       let currentIndex = Math.min(maxTabIndex, this.currentTabIndex)
-      _.forEach(this.TabList, (li, index) => {
+      _.forEach(this.FormFields, (li, index) => {
         let isCurrent = (index == currentIndex)
         items.push(_.assign({}, li, {
           index, isCurrent, className: Ti.Css.mergeClassName({
@@ -79,23 +113,27 @@ const _M = {
       return items
     },
     //--------------------------------------------------
-    FormFields() {
-      if (this.isFlatMode) {
-        return this.getFlattenFormFields(this.myFormFields)
+    GridContainerConf() {
+      return {
+        fields: this.GridFormFields,
+        data: this.data,
+        status: this.fieldStatus,
+        fieldBorder: this.fieldBorder,
+        fieldNameWidth: this.FieldNameWidth,
+        gridColumnCount: this.GridColumnCount,
       }
-      if (this.isTabMode) {
-        for (let li of this.TabItems) {
-          if (li.isCurrent) {
-            return li.fields
-          }
-        }
-      }
-      return this.myFormFields
     }
     //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
   methods: {
+    //--------------------------------------------------
+    OnResize() {
+      this.evalMyScreenMode()
+      if (_.isElement(this.$el)) {
+        this.myRect = Ti.Rects.createBy(this.$el)
+      }
+    },
     //--------------------------------------------------
     async OnFieldChange({ name, value } = {}) {
       // Notify at first
@@ -147,6 +185,52 @@ const _M = {
       }
       __join_fields(fields)
       return list
+    },
+    //--------------------------------------------------
+    getGroupedFormFields(fields = [], otherGroupTitle) {
+      let list = []
+      let otherFields = []
+      for (let fld of fields) {
+        if (fld.type == "Group") {
+          // Join others
+          if (!_.isEmpty(otherFields)) {
+            list.push({
+              type: "Group",
+              index: list.length,
+              fields: otherFields
+            })
+            otherFields = []
+          }
+          // Join self
+          list.push(_.assign({}, fld, {
+            index: list.length
+          }))
+        }
+        // Collect to others
+        else {
+          otherFields.push(fld)
+        }
+      }
+      // Join others
+      if (!_.isEmpty(otherFields)) {
+        list.push({
+          type: "Group",
+          index: list.length,
+          title: otherGroupTitle,
+          fields: otherFields
+        })
+      }
+      // Done
+      return list;
+    },
+    //--------------------------------------------------
+    evalMyScreenMode() {
+      if ("auto" == this.screenMode) {
+        let state = Ti.App(this).$state().viewport
+        this.myScreenMode = _.get(state, "mode") || "desktop"
+      } else {
+        this.myScreenMode = this.screeMode
+      }
     }
     //--------------------------------------------------
   },
@@ -158,14 +242,23 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   created: function () {
+    // Lang
     if ("auto" == this.lang) {
       this.myLang = _.kebabCase(Ti.Config.lang())
     } else {
       this.myLang = _.kebabCase(this.lang)
     }
+    // Screen
+    this.evalMyScreenMode()
   },
   //////////////////////////////////////////////////////
   mounted: async function () {
+    Ti.Viewport.watch(this, {
+      resize: () => {
+        this.OnResize()
+      }
+    })
+    this.OnResize()
     await this.evalFormFieldList()
   }
   //////////////////////////////////////////////////////

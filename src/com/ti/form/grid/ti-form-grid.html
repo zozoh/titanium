@@ -1,12 +1,17 @@
 <div class="ti-form-grid"
   :class="TopClass"
-  :style="TopStyle"
   v-ti-activable>
-  <template v-if="hasData || !isAutoShowBlank">
+    <!--
+      Blank
+    -->
+    <ti-loading 
+      v-if="!hasData && !isAutoShowBlank"
+        class="nil-data as-big-mask"
+        v-bind="blankAs"/>
     <!--
       Flat Mode
     -->
-    <template v-if="isFlatMode">
+    <template v-else-if="isFlatMode">
       <!----------------------------------------->
       <header class="form-title" v-if="hasTitle">
         <span v-if="icon"
@@ -15,13 +20,8 @@
           class="it-text">{{title|i18n}}</span>
       </header>
       <!----------------------------------------->
-      <GridContainer
-        fields="FormFields"
-        data="data"
-        status="fieldStatus"
-        lang="myLang"/>
+      <grid-container v-bind="GridContainerConf"/>
       <!----------------------------------------->
-      </div>
     </template>
     <!--
       Group Mode
@@ -38,15 +38,7 @@
     <!--
       Invalide Mode
     -->
-    <template else>
+    <template v-else>
       Invalide Mode : <b>{{mode}}</b>
     </template>
-  </template>
-  <!--
-    Show Blank
-  -->
-  <ti-loading 
-    v-else
-      class="nil-data as-big-mask"
-      v-bind="blankAs"/>
 </div>

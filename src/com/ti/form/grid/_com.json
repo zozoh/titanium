@@ -2,7 +2,8 @@
   "name": "ti-form-grid",
   "globally": true,
   "template": "./ti-form-grid.html",
-  "props": "./ti-form-props.mjs",
+  "props": "./ti-form-grid-props.mjs",
+  "methods"  : "@com:ti/support/field_display.mjs",
   "mixins": [
     "@com:ti/form/form-support.mjs",
     "./ti-form-grid.mjs"

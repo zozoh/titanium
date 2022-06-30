@@ -124,7 +124,7 @@ export default {
   // Measure
   //-----------------------------------
   "nameWidth": {
-    type: [Number, String],
+    type: [Number, String, Array],
     default: () => [
       ["1.5rem", "en-us"],
       ["1.2rem"]
@@ -133,9 +133,9 @@ export default {
   "gridColumnHint": {
     type: Array,
     default: () => [
-      [3, "desktop"],
-      [2, "tablet"],
-      [1, "phone"],
+      [4, 1200],
+      [3, 1000],
+      [2, 720],
       [1]
     ]
   }

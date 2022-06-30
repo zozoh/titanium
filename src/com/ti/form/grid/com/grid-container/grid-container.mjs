@@ -8,6 +8,7 @@ const _M = {
     //-----------------------------------
     // Data
     //-----------------------------------
+    "data": Object,
     "fields": Array,
     "status": Object,
     "lang": String,
@@ -15,27 +16,48 @@ const _M = {
     // Aspect
     //-----------------------------------
     "fieldBorder": String,
-    "screenMode": String,
     //-----------------------------------
     // Measure
     //-----------------------------------
-    "nameWidth": [Number, String],
-    "gridColumnHint": Array,
+    "fieldNameWidth": [Number, String],
+    "gridColumnCount": Number,
   },
   //////////////////////////////////////////////////////
   computed: {
     //--------------------------------------------------
+    TopStyle() {
+      return {
+        "grid-template-columns": _.repeat("1fr ", this.gridColumnCount)
+      }
+    }
     //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
   methods: {
     //--------------------------------------------------
-    async evalFields(fields = this.fields) {
-
+    evalFields(fields = this.fields) {
+      console.log("evalFields", fields)
+      let list = []
+      if (_.isArray(fields)) {
+        for (let fld of fields) {
+          let li = _.omit(fld, "com", "display")
+          li.comType = fld.com.comType
+          li.comConf = fld.com.comConf
+          // Name style
+          if (this.fieldNameWidth) {
+            li.nameStyle = fld.nameStyle || {}
+            li.nameStyle.width = Ti.Css.toSize(this.fieldNameWidth)
+          }
+          // Status
+          // Add to list
+          list.push(li)
+        }
+      }
+      this.myFields = list
     },
     //--------------------------------------------------
     tryEvalFields(newVal, oldVal) {
-      if (_.isEqual(newVal, oldVal)) {
+      if (!_.isEqual(newVal, oldVal)) {
         this.evalFields()
       }
     }
@@ -44,13 +66,11 @@ const _M = {
   //////////////////////////////////////////////////////
   watch: {
     "fields": "tryEvalFields",
-    "status": "tryEvalFields",
-    "defaultFieldType": "tryEvalFields",
-    "defaultComType": "tryEvalFields",
+    "status": "tryEvalFields"
   },
   //////////////////////////////////////////////////////
   mounted() {
-    this.tryEvalFields()
+    this.evalFields()
   }
   //////////////////////////////////////////////////////
 }

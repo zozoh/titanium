@@ -1,1 +1,46 @@
-{}
+{
+  "comType" : "TiFormGrid",
+  "comConf" : {
+    "className": "ti-fill-parent",
+    "mode": "flat",
+    "autoShowBlank" : false,
+    "data" : "=data",
+    "fields" : [{
+        "icon"    : "zmdi-flattr",
+        "title"   : "ID",
+        "name"    : "id"
+      }, {
+        "title" : "Name",
+        "name"  : "name",
+        "display" : true,
+        "comType" : "ti-input",
+        "comConf" : {
+          "focus" : "${=isActived}",
+          "autoSelect" : false
+        }
+      }, {
+        "title" : "Brief",
+        "name"  : "brief",
+        "display" : true,
+        "comType" : "ti-input-text",
+        "comConf" : {
+          "focus" : "${=isActived}",
+          "autoSelect" : false
+        }
+      }, {
+        "title" : "Sex",
+        "name" : "sex",
+        "type"    : "Integer",
+        "width"   : "auto",
+        "display" : {
+          "comConf" : {
+            "dict" : "Sexes:icon"
+          }
+        },
+        "comType" : "ti-switcher",
+        "comConf" : {
+          "options" : "@Dict:Sexes"
+        }
+      }]
+  }
+}

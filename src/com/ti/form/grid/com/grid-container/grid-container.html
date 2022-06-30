@@ -1,10 +1,38 @@
-<div class="grid-con">
+<div class="ti-form-grid-con" :style="TopStyle">
   <!----------------------------------------->
   <div
-    v-for="fld in fields"
+    v-for="fld in myFields"
       :key="fld.key"
-      class="grid-item">
+      class="grid-item"
+      :style="fld.style"
+      :title="fld.statusText">
       <!------------------------------------->
+      <div 
+        v-if="fld.icon || fld.title"
+          class="field-name"
+          :style="fld.nameStyle">
+          <div class="field-name-con">
+            <div v-if="fld.icon" class="field-icon"><TiIcon :value="fld.icon"/></div>
+            <div v-if="fld.title" class="field-icon">{{fld.title | i18n}}</div>
+            <div v-if="fld.required" class="field-required">*</div>
+          </div>
+      </div>
+      <!------------------------------------->
+      <div class="field-value" :style="fld.valueStyle">
+        <div class="field-value-com" :style="fld.comStyle">
+          <component :is="fld.comType"
+            v-bind="fld.comConf"
+            :value="fld.value"/>
+        </div>
+        <div
+          v-if="fld.tip"
+            class="field-value-tip"
+            :style="fld.tipStyle">{{fld.tip | i18n}}</div>
+      </div>
+      <!------------------------------------->
+      <div
+        v-if="fld.statusIcon"
+          class="field-status"><TiIcon :value="fld.statusIcon"/></div>
       <!------------------------------------->
   </div>  
   <!----------------------------------------->

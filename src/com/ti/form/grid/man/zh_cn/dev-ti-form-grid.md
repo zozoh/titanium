@@ -65,13 +65,14 @@
 |   |-- .field-name-con
 |   |   |-- [?] .field-icon
 |   |   |-- [?] .field-text
-|   |-- .field-dyn-tip
+|   |   |-- [?] .field-required
 #---------------------------
 |-- .field-value
 |   |-- .field-value-com
 |   |   |-- <Component>
 |   |-- .field-value-tip
 #---------------------------
+|-- .field-status
 ```
 
 

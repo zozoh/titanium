@@ -1,0 +1,12 @@
+.ti-form-grid {
+  overflow: auto;
+}
+
+.ti-form-grid-con {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-rows: auto;
+  grid-auto-flow: row;
+  justify-items: stretch;
+  align-items: stretch;
+}

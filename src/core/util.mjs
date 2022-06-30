@@ -609,6 +609,53 @@ const TiUtil = {
     return list2
   },
   /***
+   * Select value from the arm which match the context
+   * 
+   * @param context{Any} - the arm match context
+   * @param arms{Array} - 2D array to defined the arms.
+   * the form for the arm like:
+   * ```
+   * [
+   *    [AutoMatch, Value],
+   *    [AutoMatch, Value],
+   *    [DefaultValue]
+   * ]
+   * ```
+   * 
+   * **For example**
+   * 
+   * ```
+   * [
+   *   // 超过 1000 像素时，三列
+   *   [3, "[1000,)"],
+   *   // 超过 600 像素时，两列
+   *   [2, "[600,)"],
+   *   // 默认，一列
+   *   [1],
+   * ]
+   * ```
+   * 
+   * @return the matched arm value
+   */
+  selectValue(context, arms = [], {
+    explain = false,
+    by = ([v, m], context) => {
+      if (!m || Ti.AutoMatch.test(m, context)) {
+        return v
+      }
+    }
+  } = {}) {
+    for (let arm of arms) {
+      let v = by(arm, context)
+      if (!_.isUndefined(v)) {
+        if (explain) {
+          return TiUtil.explainObj(context, v)
+        }
+        return v
+      }
+    }
+  },
+  /***
    * Explain obj to a new one
    * 
    * The key `...` in obj will `_.assign` the value

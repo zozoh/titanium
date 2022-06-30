@@ -17,6 +17,7 @@
     "@com:ti/text/json",
     "@com:ti/text/markdown/preview",
     "@com:ti/text/markdown/richeditor",
+    "@com:ti/form/grid",
     "@com:ti/combo/table",
     "@com:ti/bullet/checkbox",
     "@com:ti/bullet/radio",
