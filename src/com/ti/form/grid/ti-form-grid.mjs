@@ -47,9 +47,9 @@ const _M = {
       }
     },
     //--------------------------------------------------
-    FieldNameWidth() {
+    GridFieldNameWidth() {
       // console.log("eval FieldNameWidth")
-      return Ti.Util.selectValue(this.GridContext, this.nameWidth, {
+      return Ti.Util.selectValue(this.GridContext, this.fieldNameWidth, {
         by: ([v, m], { width, lang }) => {
           if (!m || m == lang || width >= m) {
             return v
@@ -116,7 +116,7 @@ const _M = {
         data: this.data,
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
-        fieldNameWidth: this.FieldNameWidth,
+        fieldNameWidth: this.GridFieldNameWidth,
         gridColumnCount: this.GridColumnCount,
       }
     }

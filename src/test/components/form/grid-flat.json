@@ -5,9 +5,10 @@
     "mode": "flat",
     "autoShowBlank": false,
     "data": "=data",
-    "defaultComType": "TiLabel",
-    "nameWidth": "0.8rem",
     "spacing": "tiny",
+    "defaultComType": "TiLabel",
+    "fieldNameClass": "mark-bold",
+    "fieldNameWidth": "0.8rem",
     "fields": [
       {
         "icon": "zmdi-flattr",
@@ -33,7 +34,14 @@
       },
       {
         "title": "备注",
-        "name": "note"
+        "name": "note",
+        "colSpan": 2,
+        "rowSpan": 3,
+        "nameVAlign": "top",
+        "comType": "TiInputText",
+        "comConf": {
+          "height": "2rem"
+        }
       },
       {
         "title": "邮箱",

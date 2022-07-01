@@ -419,6 +419,10 @@ const _M = {
 
         // Layout style
         _.defaults(field, {
+          "nameClass": this.fieldNameClass,
+          "nameStyle": this.fieldNameStyle,
+          "nameAlign": this.fieldNameAlign,
+          "nameVAlign": this.fieldNameVAlign,
           "nameWrap": this.fieldNameWrap,
           "valueWrap": this.fieldValueWrap
         })

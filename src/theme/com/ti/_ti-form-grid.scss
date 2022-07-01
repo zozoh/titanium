@@ -4,14 +4,28 @@
   &.as-spacing-tiny {
     padding: SZ(8);
     .ti-form-grid-con {
-      grid-gap: SZ(4);
+      > .grid-item {
+        > .field-name {
+          padding: SZ(6);
+        }
+        > .field-value {
+          padding: SZ(2);
+        }
+      }
     }
   }
   //------------------------------------
   &.as-spacing-comfy {
     padding: SZ(20);
     .ti-form-grid-con {
-      grid-gap: SZ(10);
+      > .grid-item {
+        > .field-name {
+          padding: SZ(12);
+        }
+        > .field-value {
+          padding: SZ(6);
+        }
+      }
     }
   }
   //------------------------------------
@@ -24,51 +38,11 @@
   grid-auto-flow: row;
   justify-items: stretch;
   align-items: stretch;
+  grid-gap:1px;
 }
 
 .ti-form-grid-con > .grid-item {
   display: flex;
-  //------------------------------------
-  > .field-name {
-    @include flex-align-nowrap;
-    .field-name-con {
-      @include flex-align-nowrap;
-    }
-  }
-  //------------------------------------
-  > .flex-value {
-    display: flex;
-  }
-  //------------------------------------
-  &[value-wrap="nowrap"] {
-    @include flex-align-nowrap;
-    //----------------------------------
-    > .field-value-com {
-      flex: 1 1 auto;
-    }
-    > .field-value-tip {
-      flex: 0 0 auto;
-    }
-    //----------------------------------
-  }
-  //------------------------------------
-  &[value-wrap="wrap"] {
-    @include flex-align-v-nowrap;
-  }
-  //------------------------------------
-  &[value-wrap="auto"] {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: stretch;
-    //----------------------------------
-    > .field-value-com {
-      flex: 1 1 auto;
-    }
-    > .field-value-tip {
-      flex: 0 0 auto;
-    }
-    //----------------------------------
-  }
   //------------------------------------
   &[name-wrap="nowrap"] {
     flex-wrap: nowrap;
@@ -84,7 +58,7 @@
     //----------------------------------
   }
   //------------------------------------
-  &[name-wrap="nowrap"] {
+  &[name-wrap="wrap"] {
     flex-wrap: nowrap;
     flex-direction: column;
     align-items: stretch;
@@ -111,6 +85,84 @@
       flex: 1 1 auto;
     }
     //----------------------------------
+  }
+  //------------------------------------
+  > .field-name {
+    @include flex-align-nowrap;
+    //----------------------------------
+    &::after {
+      display: inline;
+      content: ":";
+      opacity: 0.6;
+    }
+    //----------------------------------
+    &.mark-weak {
+      @include color($color-bar, r, c);
+    }
+    &.mark-bold {
+      @include color($color-chip, r, c);
+      font-weight: bold;
+    }
+    //----------------------------------
+    &[name-align="left"] {
+      justify-content: flex-start;
+    }
+    &[name-align="right"] {
+      justify-content: flex-end;
+    }
+    &[name-align="center"] {
+      justify-content: center;
+    }
+    //----------------------------------
+    &[name-v-align="top"] {
+      align-items: flex-start;
+    }
+    &[name-v-align="bottom"] {
+      align-items: flex-end;
+    }
+    &[name-v-align="center"] {
+      align-items: center;
+    }
+    //----------------------------------
+    .field-name-con {
+      @include flex-align-nowrap;
+    }
+    //----------------------------------
+  }
+  //------------------------------------
+  > .field-value {
+    display: flex;
+    //------------------------------------
+    &[value-wrap="nowrap"] {
+      @include flex-align-nowrap;
+      //----------------------------------
+      > .field-value-com {
+        flex: 1 1 auto;
+      }
+      > .field-value-tip {
+        flex: 0 0 auto;
+      }
+      //----------------------------------
+    }
+    //------------------------------------
+    &[value-wrap="wrap"] {
+      @include flex-align-v-nowrap;
+    }
+    //------------------------------------
+    &[value-wrap="auto"] {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: center;
+      align-content: stretch;
+      //----------------------------------
+      > .field-value-com {
+        flex: 1 1 auto;
+      }
+      > .field-value-tip {
+        flex: 0 0 auto;
+      }
+      //----------------------------------
+    }
   }
   //------------------------------------
 }

@@ -6,13 +6,15 @@
       class="grid-item"
       :style="fld.style"
       :title="fld.statusText"
-      :name-wrap="fld.nameWrap"
-      :value-wrap="fld.valueWrap">
+      :name-wrap="fld.nameWrap">
       <!------------------------------------->
       <div 
         v-if="fld.icon || fld.title"
           class="field-name"
-          :style="fld.nameStyle">
+          :class="fld.nameClass"
+          :style="fld.nameStyle"
+          :name-align="fld.nameAlign"
+          :name-v-align="fld.nameVAlign">
           <div class="field-name-con">
             <div v-if="fld.icon" class="field-icon"><TiIcon :value="fld.icon"/></div>
             <div v-if="fld.title" class="field-icon">{{fld.title | i18n}}</div>
@@ -20,7 +22,10 @@
           </div>
       </div>
       <!------------------------------------->
-      <div class="field-value" :style="fld.valueStyle">
+      <div
+        class="field-value"
+        :style="fld.valueStyle"
+        :value-wrap="fld.valueWrap">
         <div class="field-value-com" :style="fld.comStyle">
           <component :is="fld.comType"
             v-bind="fld.comConf"

@@ -81,6 +81,24 @@ export default {
     default: "none",
     validator: (v) => /^(none|dashed|solid|dotted)$/.test(v)
   },
+  "fieldNameAlign": {
+    type: String,
+    default: "right",
+    validator: (v) => /^(left|right|center)$/.test(v)
+  },
+  "fieldNameVAlign": {
+    type: String,
+    default: "center",
+    validator: (v) => /^(top|bottom|center)$/.test(v)
+  },
+  "fieldNameClass": {
+    type: [Array, String, Object],
+    default: undefined
+  },
+  "fieldNameStyle": {
+    type: Object,
+    default: () => ({})
+  },
   "fieldNameWrap": {
     type: String,
     default: "auto",
@@ -123,7 +141,7 @@ export default {
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "nameWidth": {
+  "fieldNameWidth": {
     type: [Number, String, Array],
     default: () => [
       ["1.5rem", "en-us"],

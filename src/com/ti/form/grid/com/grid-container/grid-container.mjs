@@ -47,15 +47,33 @@ const _M = {
       let list = []
       if (_.isArray(fields)) {
         for (let fld of fields) {
-          let li = _.omit(fld, "com", "display")
+          let li = _.omit(fld, "com", "display", "className")
           li.comType = fld.com.comType
           li.comConf = fld.com.comConf
+          li.className = Ti.Css.mergeClassName(fld.className)
+          // Field Style
+          if (fld.colSpan > 1 || fld.rowSpan > 1) {
+            li.style = _.assign({}, fld.style, {
+              "grid-column-end": fld.colSpan > 1
+                ? `span ${Math.min(fld.colSpan, this.gridColumnCount)}`
+                : null,
+              "grid-row-end": fld.rowSpan > 1
+                ? `span ${fld.rowSpan}`
+                : null
+            })
+          }
+          // Name class
+          if (fld.nameClass) {
+            li.nameClass = Ti.Css.mergeClassName(fld.nameClass)
+          }
           // Name style
           if (this.fieldNameWidth) {
-            li.nameStyle = fld.nameStyle || {}
-            li.nameStyle.width = Ti.Css.toSize(this.fieldNameWidth)
+            li.nameStyle = _.assign({}, fld.nameStyle, {
+              width: Ti.Css.toSize(this.fieldNameWidth)
+            })
           }
           // Status
+          // ...
           // Add to list
           list.push(li)
         }
@@ -73,7 +91,9 @@ const _M = {
   //////////////////////////////////////////////////////
   watch: {
     "fields": "tryEvalFields",
-    "status": "tryEvalFields"
+    "status": "tryEvalFields",
+    "gridColumnCount": "tryEvalFields",
+    "fieldNameWidth": "tryEvalFields"
   },
   //////////////////////////////////////////////////////
   mounted() {
