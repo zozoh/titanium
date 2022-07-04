@@ -46,6 +46,10 @@ export default {
     type: Object,
     default: undefined
   },
+  "currentTab": {
+    type: Number,
+    default: 0
+  },
   "keepTabIndexBy": {
     type: String,
     default: undefined
@@ -54,9 +58,21 @@ export default {
     type: Boolean,
     default: undefined
   },
-  "currentTab": {
-    type: Number,
-    default: 0
+  "canCustomizedFields": {
+    type: Boolean,
+    default: false
+  },
+  "keepCustomizedTo": {
+    type: String,
+    default: undefined
+  },
+  // Only those fields will be shown
+  "whiteFields": {
+    type: Array,
+  },
+  // Those fields will be ignore
+  "blackFields": {
+    type: Array,
   },
   //-----------------------------------
   // Aspect

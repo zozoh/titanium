@@ -25,7 +25,7 @@
           <span v-if="icon" class="title-icon"><ti-icon :value="icon"/></span>
           <span v-if="title" class="title-text">{{title|i18n}}</span>
       </header>
-      <!--
+      <!--============================================
         Flat Mode
       -->
       <main 
@@ -41,7 +41,7 @@
             @field:change="OnFieldChange"/>
           <!----------------------------------------->
         </section>
-        <!--
+        <!--============================================
           Group Mode
         -->
         <template v-else-if="isGroupMode">
@@ -71,7 +71,7 @@
           </section>
           <!------------------------------------------>
         </template>
-        <!--
+        <!--============================================
           Tab Mode
         -->
         <template v-else-if="isTabMode">
@@ -79,7 +79,7 @@
           <!--
             Tab Head
           -->
-          <div class="tab-head" :spacing="spacing">
+          <section class="tab-head" :spacing="spacing">
             <div
               v-for="tab in TabItems"
                 class="tab-head-item"
@@ -93,7 +93,7 @@
                     >{{tab.title|i18n}}</span>
                   <!--------------------------------->
             </div>
-          </div>
+          </section>
           <!--
             Tab Body
           -->
@@ -112,5 +112,12 @@
           Invalide Mode : <b>{{mode}}</b>
         </div>
       </main>
-    </template>
+    </template> <!-- Form main template-->
+    <!--
+      Customized actions
+    -->
+    <footer
+      v-if="canCustomizedFields">
+      adfafadf
+    </footer>
 </div>

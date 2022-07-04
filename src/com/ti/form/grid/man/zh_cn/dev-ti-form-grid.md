@@ -48,12 +48,12 @@
 |   |   |-- [?] .title-icon
 |   |   |-- [?] .title-text
 #---------------------------
-|-- <main>
-|   |-- <section.tab-body>
+|-- <main.tab-at-xxx>
 |   #---------------------------
-|   |   |-- <div.tab-head>
-|   |   |   |-- <div.tab-head-item>
-|   |   #---------------------------
+|   |-- <section.tab-head>
+|   |   |-- <div.tab-head-item>
+|   #---------------------------
+|   |-- <section.tab-body>
 |   |   |-- <GridContainer ..>
 ```
 

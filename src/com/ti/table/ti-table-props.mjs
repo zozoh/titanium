@@ -27,6 +27,10 @@ export default {
     type: Boolean,
     default: true
   },
+  "headDisplay": {
+    type: [String, Object, Array],
+    default: undefined
+  },
   "columnResizable": {
     type: Boolean,
     default: false
@@ -34,10 +38,6 @@ export default {
   "canCustomizedFields": {
     type: Boolean,
     default: false
-  },
-  "headDisplay": {
-    type: [String, Object, Array],
-    default: undefined
   },
   "keepCustomizedTo": {
     type: String,

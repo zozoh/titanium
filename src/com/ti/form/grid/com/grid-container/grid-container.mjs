@@ -48,11 +48,21 @@ const _M = {
       if (_.isArray(fields)) {
         for (let fld of fields) {
           let li = _.omit(fld, "com", "display", "className")
-          li.comType = fld.com.comType
-          li.comConf = fld.com.comConf
           li.className = Ti.Css.mergeClassName(fld.className)
+          // Maybe race="Label"
+          if (fld.com) {
+            li.comType = fld.com.comType
+            li.comConf = fld.com.comConf
+          }
+          // Must be race="Label"
+          if ("Label" == fld.race) {
+            li.style = {
+              "grid-column-start": 1,
+              "grid-column-end": `span ${this.gridColumnCount}`
+            }
+          }
           // Field Style
-          if (fld.colSpan > 1 || fld.rowSpan > 1) {
+          else if (fld.colSpan > 1 || fld.rowSpan > 1) {
             li.style = _.assign({}, fld.style, {
               "grid-column-end": fld.colSpan > 1
                 ? `span ${Math.min(fld.colSpan, this.gridColumnCount)}`

@@ -7,10 +7,23 @@ const _M = {
     myKeysInFields: [],
     myFormFields: [],
     myFormFieldMap: {},
-    myActivedFieldKey: null
+    myActivedFieldKey: null,
+
+    /*field white list*/
+    myFieldWhiteList: {},
+    /*field black list*/
+    myFieldBlackList: {},
   }),
   //////////////////////////////////////////////////////
   computed: {
+    //--------------------------------------------------
+    hasFieldWhiteList() {
+      return !_.isEmpty(this.myFieldWhiteList)
+    },
+    //--------------------------------------------------
+    hasFieldBlackList() {
+      return !_.isEmpty(this.myFieldBlackList)
+    },
     //--------------------------------------------------
     FormLinkFields() {
       let re = {}
@@ -152,6 +165,62 @@ const _M = {
       })
     },
     //--------------------------------------------------
+    //
+    //           EVAL FORM DATA
+    //
+    //--------------------------------------------------
+    getData({ name, value } = {}) {
+      let data = _.cloneDeep(this.FormData)
+      //console.log("GetData:", data)
+
+      // Signle value
+      if (name && _.isString(name)) {
+        // Whole data
+        if (".." == name) {
+          _.assign(data, value)
+        }
+        // Statci value
+        else if (/^'[^']+'$/.test(name)) {
+          return
+        }
+        // Dynamic value
+        else {
+          if (_.isUndefined(value)) {
+            data = _.omit(data, name)
+          } else if (name.startsWith(".")) {
+            data[name] = value
+          } else {
+            _.set(data, name, value)
+          }
+        }
+      }
+      // Object
+      else if (_.isArray(name)) {
+        let omitKeys = []
+        for (let k of name) {
+          let v = _.get(value, k)
+          if (_.isUndefined(v)) {
+            omitKeys.push(k)
+          } else {
+            _.set(data, k, v)
+          }
+        }
+        if (omitKeys.length > 0) {
+          data = _.omit(data, omitKeys)
+        }
+      }
+
+      // Join the fixed data
+      if (this.fixed) {
+        _.assign(data, fixed)
+      }
+      return data
+    },
+    //--------------------------------------------------
+    //
+    //           TIDY FORM FIELDS
+    //
+    //--------------------------------------------------
     getFlattenFormFields(fields = []) {
       let list = []
       const __join_fields = function (fields = []) {
@@ -230,55 +299,29 @@ const _M = {
         this.myScreenMode = this.screeMode
       }
     },
-    //--------------------------------------
-    getData({ name, value } = {}) {
-      let data = _.cloneDeep(this.FormData)
-      //console.log("GetData:", data)
-
-      // Signle value
-      if (name && _.isString(name)) {
-        // Whole data
-        if (".." == name) {
-          _.assign(data, value)
-        }
-        // Statci value
-        else if (/^'[^']+'$/.test(name)) {
-          return
-        }
-        // Dynamic value
-        else {
-          if (_.isUndefined(value)) {
-            data = _.omit(data, name)
-          } else if (name.startsWith(".")) {
-            data[name] = value
-          } else {
-            _.set(data, name, value)
-          }
-        }
-      }
-      // Object
-      else if (_.isArray(name)) {
-        let omitKeys = []
-        for (let k of name) {
-          let v = _.get(value, k)
-          if (_.isUndefined(v)) {
-            omitKeys.push(k)
-          } else {
-            _.set(data, k, v)
-          }
-        }
-        if (omitKeys.length > 0) {
-          data = _.omit(data, omitKeys)
-        }
-      }
-
-      // Join the fixed data
-      if (this.fixed) {
-        _.assign(data, fixed)
-      }
-      return data
+    //--------------------------------------------------
+    //
+    //           FORM FIELD WHITE/BLOCK LIST
+    //
+    //--------------------------------------------------
+    __eval_form_filter_list(fields = []) {
+      let re = {}
+      _.forEach(fields, (k) => {
+        re[k] = true
+      })
+      return re
     },
-    //--------------------------------------
+    evalFormFieldWhiteList(fields = this.whiteFields) {
+      this.myFieldWhiteList = this.__eval_form_filter_list(fields)
+    },
+    evalFormFieldBlackList(fields = this.blackFields) {
+      this.myFieldBlackList = this.__eval_form_filter_list(fields)
+    },
+    //--------------------------------------------------
+    //
+    //           EVAL FORM FIELDS
+    //
+    //--------------------------------------------------
     isGroup(fld) {
       return "Group" == fld.race || _.isArray(fld.fields)
     },
@@ -327,18 +370,32 @@ const _M = {
     },
     //--------------------------------------------------
     async evalFormField(fld = {}, nbs = []) {
+      // The key
+      let fldKey = Ti.Util.anyKey(fld.name || nbs)
+
+      // No-In White List
+      if (this.hasFieldWhiteList) {
+        if (!this.myFieldWhiteList[fldKey]) {
+          return
+        }
+      }
+
+      // In Black List
+      if (this.hasFieldBlackList) {
+        if (this.myFieldBlackList[fldKey]) {
+          return
+        }
+      }
+
+      //............................................
       // Get form field visibility
       let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.data)
       if (hidden) {
         return
       }
 
-      // let omitKeys
-      let omitKeys = ["hidden", "disabled", "enabled", "visible"]
-
-      // The key
-      let fldKey = Ti.Util.anyKey(fld.name || nbs, "ti-fld")
       //............................................
+      let omitKeys = ["hidden", "disabled", "enabled", "visible"]
       // For group
       if (this.isGroup(fld)) {
         let group = _.assign(_.omit(fld, omitKeys), {

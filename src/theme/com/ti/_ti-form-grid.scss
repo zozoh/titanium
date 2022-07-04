@@ -1,5 +1,4 @@
 .ti-form-grid {
-  padding: 1px;
   //--------------------------------------
   //
   //               HEADER
@@ -8,10 +7,11 @@
   //--------------------------------------
   > header.form-title {
     @include flex-center;
+    user-select: none;
     //------------------------------------
     &[spacing="tiny"] {
       font-size: 1.2em;
-      padding: SZ(3);
+      padding: SZ(6);
       margin: SZ(6) 0 0 0;
       .title-icon {
         margin-right: SZ(6);
@@ -20,7 +20,7 @@
     //------------------------------------
     &[spacing="comfy"] {
       font-size: 1.4em;
-      padding: SZ(6);
+      padding: SZ(12);
       margin: SZ(12) 0 0 0;
       .title-icon {
         margin-right: SZ(10);
@@ -38,7 +38,7 @@
     //------------------------------------
     > section > .group-title {
       @include flex-align($ai: center, $ac: center);
-      @include color($color-bar, r, c);
+      @include color($color-chip, r, c);
     }
     //------------------------------------
     &[spacing="tiny"] {
@@ -71,8 +71,14 @@
     &[mode="tab"] {
       @include flex-align-v-nowrap;
       //----------------------------------
+      &[spacing="tiny"],
+      &[spacing="comfy"] {
+        padding: 0;
+      }
+      //----------------------------------
       > .tab-head {
         @include flex-align-nowrap($ai: stretch);
+        user-select: none;
         //--------------------------------
         .tab-head-item {
           @include flex-align-nowrap($jc: center);
@@ -132,12 +138,39 @@
   }
   //--------------------------------------
   //
-  //              SPACING
+  //              Scrolling
   //
   //--------------------------------------
-  &[spacing="tiny"] {
+  @include flex-align-v-nowrap($ai: stretch);
+  &[mode="flat"] {
+    > main {
+      flex: 1 1 auto;
+      overflow: auto;
+    }
   }
   //--------------------------------------
-  &[spacing="comfy"] {
+  &[mode="group"] {
+    > main {
+      flex: 1 1 auto;
+      overflow: auto;
+    }
   }
+  //--------------------------------------
+  &[mode="tab"] {
+    > main {
+      height: SZ(100); // Give a init value, then flex will extend it
+      flex: 1 1 auto;
+      //----------------------------------
+      > section.tab-head {
+        flex: 0 0 auto;
+      }
+      //----------------------------------
+      > section.tab-body {
+        flex: 1 1 auto;
+        overflow: auto;
+      }
+      //----------------------------------
+    }
+  }
+  //--------------------------------------
 }

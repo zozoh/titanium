@@ -2,7 +2,7 @@ const _M = {
   //////////////////////////////////////////////////////
   data: () => ({
     myRect: undefined,
-    currentTabIndex: 0
+    currentTabIndex: 0,
   }),
   //////////////////////////////////////////////////////
   computed: {
@@ -183,6 +183,19 @@ const _M = {
       }
     })
     this.OnResize()
+    //...................................
+    // restore the whiteFields
+    let whiteFields;
+    if(this.keepCustomizedTo && this.canCustomizedFields) {
+      whiteFields = Ti.Storage.local.getObject(this.keepCustomizedTo)
+      if(_.isEmpty(whiteFields)) {
+        whiteFields = undefined
+      }
+    }
+    //...................................
+    this.evalFormFieldWhiteList(whiteFields)
+    this.evalFormFieldWhiteList()
+    //...................................
     await this.evalFormFieldList()
   }
   //////////////////////////////////////////////////////

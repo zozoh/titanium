@@ -7,39 +7,58 @@
       :style="fld.style"
       :title="fld.statusText"
       :name-wrap="fld.nameWrap">
-      <!------------------------------------->
-      <div 
-        v-if="fld.icon || fld.title"
-          class="field-name"
-          :class="fld.nameClass"
-          :style="fld.nameStyle"
-          :name-align="fld.nameAlign"
-          :name-v-align="fld.nameVAlign">
-          <div class="field-name-con">
-            <div v-if="fld.icon" class="field-icon"><TiIcon :value="fld.icon"/></div>
-            <div v-if="fld.title" class="field-icon">{{fld.title | i18n}}</div>
-            <div v-if="fld.required" class="field-required">*</div>
-          </div>
-      </div>
-      <!------------------------------------->
+      <!-------------- Label ---------------->
       <div
-        class="field-value"
-        :style="fld.valueStyle"
-        :value-wrap="fld.valueWrap">
-        <div class="field-value-com" :style="fld.comStyle">
-          <component :is="fld.comType"
-            v-bind="fld.comConf"
-            @change="OnFldChange(fld, $event)"/>
+        v-if="'Label' == fld.race"
+          class="field-label"
+          :style="fld.labelStyle">
+          <div
+            v-if="fld.icon"
+              class="field-icon"><TiIcon :value="fld.icon"/></div>
+          <div
+            v-if="fld.title"
+              class="field-text">{{fld.title | i18n}}</div>
+      </div>
+      <!-------------- -COM ----------------->
+      <template v-else>
+        <div 
+          v-if="fld.icon || fld.title"
+            class="field-name"
+            :class="fld.nameClass"
+            :style="fld.nameStyle"
+            :name-align="fld.nameAlign"
+            :name-v-align="fld.nameVAlign">
+            <div class="field-name-con">
+              <div
+                v-if="fld.icon"
+                  class="field-icon"><TiIcon :value="fld.icon"/></div>
+              <div
+                v-if="fld.title"
+                  class="field-text">{{fld.title | i18n}}</div>
+              <div
+                v-if="fld.required" class="field-required">*</div>
+            </div>
         </div>
+        <!------------------------------------->
         <div
-          v-if="fld.tip"
-            class="field-value-tip"
-            :style="fld.tipStyle">{{fld.tip | i18n}}</div>
-      </div>
-      <!------------------------------------->
-      <div
-        v-if="fld.statusIcon"
-          class="field-status"><TiIcon :value="fld.statusIcon"/></div>
+          class="field-value"
+          :style="fld.valueStyle"
+          :value-wrap="fld.valueWrap">
+          <div class="field-value-com" :style="fld.comStyle">
+            <component :is="fld.comType"
+              v-bind="fld.comConf"
+              @change="OnFldChange(fld, $event)"/>
+          </div>
+          <div
+            v-if="fld.tip"
+              class="field-value-tip"
+              :style="fld.tipStyle">{{fld.tip | i18n}}</div>
+        </div>
+        <!------------------------------------->
+        <div
+          v-if="fld.statusIcon"
+            class="field-status"><TiIcon :value="fld.statusIcon"/></div>
+      </template>
       <!------------------------------------->
   </div>  
   <!----------------------------------------->

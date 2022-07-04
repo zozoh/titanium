@@ -54,14 +54,14 @@
       //----------------------------------
     }
     //------------------------------------
+    > .field-label {
+      flex: 1 1 auto;
+      @include flex-align-nowrap;
+      @include color($color-bar, r, c);
+    }
+    //------------------------------------
     > .field-name {
       @include flex-align-nowrap;
-      //----------------------------------
-      &::after {
-        display: inline;
-        content: ":";
-        opacity: 0.6;
-      }
       //----------------------------------
       &.mark-weak {
         @include color($color-bar, r, c);
@@ -93,6 +93,11 @@
       //----------------------------------
       .field-name-con {
         @include flex-align-nowrap;
+        &::after {
+          display: inline;
+          content: ":";
+          opacity: 0.6;
+        }
       }
       //----------------------------------
     }
@@ -142,6 +147,7 @@
 //----------------------------------------
 .ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con {
   > .grid-item {
+    > .field-label,
     > .field-name {
       padding: SZ(3) SZ(6);
       .field-icon {
@@ -156,6 +162,7 @@
 //----------------------------------------
 .ti-form-grid[spacing="comfy"] > main > section > .ti-form-grid-con {
   > .grid-item {
+    > .field-label,
     > .field-name {
       padding: SZ(12);
       .field-icon {
