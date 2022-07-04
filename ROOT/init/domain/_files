@@ -175,6 +175,12 @@
 @FILE mock/components/form/ti-form-grid-flat.comt 'GRID-FLAT'
 {com:'/rs/ti/test/components/form/grid-flat.json'}
 #---------------------------------------------------------
+@FILE mock/components/form/ti-form-grid-group.comt 'GRID-GROUP'
+{com:'/rs/ti/test/components/form/grid-group.json'}
+#---------------------------------------------------------
+@FILE mock/components/form/ti-form-grid-tab.comt 'GRID-TAB'
+{com:'/rs/ti/test/components/form/grid-tab.json'}
+#---------------------------------------------------------
 ##########################################################
 #
 #                    网站工程

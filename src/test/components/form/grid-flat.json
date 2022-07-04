@@ -3,11 +3,13 @@
   "comConf": {
     "className": "ti-fill-parent",
     "mode": "flat",
+    "icon": "fas-baseball-ball",
+    "title": "扁平模式表单",
     "autoShowBlank": false,
     "data": "=data",
-    "spacing": "tiny",
+    "spacing": "comfy",
     "defaultComType": "TiLabel",
-    "fieldNameClass": "mark-bold",
+    "_fieldNameClass": "mark-weak",
     "fieldNameWidth": "0.8rem",
     "fields": [
       {

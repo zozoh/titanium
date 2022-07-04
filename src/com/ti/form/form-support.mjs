@@ -181,7 +181,7 @@ const _M = {
       let list = []
       let otherFields = []
       for (let fld of fields) {
-        if (fld.type == "Group") {
+        if (this.isGroup(fld)) {
           // Join others
           if (!_.isEmpty(otherFields)) {
             list.push({
@@ -348,12 +348,15 @@ const _M = {
           fields: []
         })
         // Group fields
-        _.forEach(fld.fields, (subfld, index) => {
-          let newSubFld = this.evalFormField(subfld, [...nbs, index])
-          if (newSubFld) {
-            group.fields.push(newSubFld)
+        if (_.isArray(fld.fields)) {
+          for (let index = 0; index < fld.fields.length; index++) {
+            let subfld = fld.fields[index]
+            let newSubFld = await this.evalFormField(subfld, [...nbs, index])
+            if (newSubFld) {
+              group.fields.push(newSubFld)
+            }
           }
-        })
+        }
         // Done
         return _.isEmpty(group.fields) ? null : group
       }

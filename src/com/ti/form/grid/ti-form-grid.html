@@ -1,5 +1,7 @@
 <div class="ti-form-grid"
   :class="TopClass"
+  :spacing="spacing"
+  :mode="mode"
   v-ti-activable>
     <!--
       Blank
@@ -9,38 +11,106 @@
         class="nil-data as-big-mask"
         v-bind="blankAs"/>
     <!--
-      Flat Mode
-    -->
-    <template v-else-if="isFlatMode">
-      <!----------------------------------------->
-      <header class="form-title" v-if="hasTitle">
-        <span v-if="icon"
-          class="it-icon"><ti-icon :value="icon"/></span>
-        <span v-if="title"
-          class="it-text">{{title|i18n}}</span>
-      </header>
-      <!----------------------------------------->
-      <grid-container
-        v-bind="GridContainerConf"
-        @field:change="OnFieldChange"/>
-      <!----------------------------------------->
-    </template>
-    <!--
-      Group Mode
-    -->
-    <template v-else-if="isGroupMode">
-      Group Mode
-    </template>
-    <!--
-      Group Mode
-    -->
-    <template v-else-if="isTabMode">
-      Tab Mode
-    </template>
-    <!--
-      Invalide Mode
+      Show Form
     -->
     <template v-else>
-      Invalide Mode : <b>{{mode}}</b>
+      <!--
+        Title
+      -->
+      <header
+        v-if="hasTitle"
+          class="form-title"
+          :spacing="spacing"
+          :mode="mode">
+          <span v-if="icon" class="title-icon"><ti-icon :value="icon"/></span>
+          <span v-if="title" class="title-text">{{title|i18n}}</span>
+      </header>
+      <!--
+        Flat Mode
+      -->
+      <main 
+        class="form-main"
+        :class="MainClass"
+        :spacing="spacing"
+        :mode="mode">
+        <section v-if="isFlatMode" class="flat-body" >
+          <!----------------------------------------->
+          <grid-container
+            v-bind="GridContainerConf"
+            :fields="GridFormFields"
+            @field:change="OnFieldChange"/>
+          <!----------------------------------------->
+        </section>
+        <!--
+          Group Mode
+        -->
+        <template v-else-if="isGroupMode">
+          <!------------------------------------------>
+          <section 
+            v-for="grp in GridFormFields"
+              :key="grp.uniqKey"
+              class="group-body">
+              <!-------------------------------------->
+              <!--
+                Group Title
+              -->
+              <div v-if="grp.title" class="group-title">
+                <span v-if="grp.icon" class="title-icon">
+                  <ti-icon :value="grp.icon"/></span>
+                <span v-if="grp.title" class="title-text"
+                  >{{grp.title|i18n}}</span>
+              </div>
+              <!--
+                Group body
+              -->
+              <grid-container
+                v-bind="GridContainerConf"
+                :fields="grp.fields"
+                @field:change="OnFieldChange"/>
+              <!-------------------------------------->
+          </section>
+          <!------------------------------------------>
+        </template>
+        <!--
+          Tab Mode
+        -->
+        <template v-else-if="isTabMode">
+          <!----------------------------------------->
+          <!--
+            Tab Head
+          -->
+          <div class="tab-head" :spacing="spacing">
+            <div
+              v-for="tab in TabItems"
+                class="tab-head-item"
+                :class="tab.className"
+                :tab-index="tab.index"
+                @click="OnClickTab(tab)">
+                  <!--------------------------------->
+                  <span v-if="tab.icon" class="tab-icon">
+                    <ti-icon :value="tab.icon"/></span>
+                  <span v-if="tab.title" class="tab-text"
+                    >{{tab.title|i18n}}</span>
+                  <!--------------------------------->
+            </div>
+          </div>
+          <!--
+            Tab Body
+          -->
+          <section class="tab-body" :style="TabBodyStyle">
+            <grid-container
+              v-bind="GridContainerConf"
+              :fields="GridFormFields"
+              @field:change="OnFieldChange"/>
+          </section>
+          <!----------------------------------------->
+        </template>
+        <!--
+          Invalide Mode
+        -->
+        <div v-else>
+          Invalide Mode : <b>{{mode}}</b>
+        </div>
+      </main>
     </template>
 </div>

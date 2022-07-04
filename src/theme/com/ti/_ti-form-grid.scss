@@ -1,168 +1,143 @@
 .ti-form-grid {
-  overflow: auto;
-  //------------------------------------
-  &.as-spacing-tiny {
-    padding: SZ(8);
-    .ti-form-grid-con {
-      > .grid-item {
-        > .field-name {
-          padding: SZ(6);
-        }
-        > .field-value {
-          padding: SZ(2);
-        }
+  padding: 1px;
+  //--------------------------------------
+  //
+  //               HEADER
+  //            .form-title
+  //
+  //--------------------------------------
+  > header.form-title {
+    @include flex-center;
+    //------------------------------------
+    &[spacing="tiny"] {
+      font-size: 1.2em;
+      padding: SZ(3);
+      margin: SZ(6) 0 0 0;
+      .title-icon {
+        margin-right: SZ(6);
       }
     }
-  }
-  //------------------------------------
-  &.as-spacing-comfy {
-    padding: SZ(20);
-    .ti-form-grid-con {
-      > .grid-item {
-        > .field-name {
-          padding: SZ(12);
-        }
-        > .field-value {
-          padding: SZ(6);
-        }
+    //------------------------------------
+    &[spacing="comfy"] {
+      font-size: 1.4em;
+      padding: SZ(6);
+      margin: SZ(12) 0 0 0;
+      .title-icon {
+        margin-right: SZ(10);
       }
     }
+    //------------------------------------
   }
-  //------------------------------------
-}
-
-.ti-form-grid-con {
-  display: grid;
-  grid-auto-columns: 1fr;
-  grid-auto-rows: auto;
-  grid-auto-flow: row;
-  justify-items: stretch;
-  align-items: stretch;
-  grid-gap:1px;
-}
-
-.ti-form-grid-con > .grid-item {
-  display: flex;
-  //------------------------------------
-  &[name-wrap="nowrap"] {
-    flex-wrap: nowrap;
-    align-items: stretch;
-    justify-content: flex-start;
-    //----------------------------------
-    > .field-name {
-      flex: 0 0 auto;
-    }
-    > .field-value {
-      flex: 1 1 auto;
-    }
-    //----------------------------------
-  }
-  //------------------------------------
-  &[name-wrap="wrap"] {
-    flex-wrap: nowrap;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    //----------------------------------
-    > .field-name {
-      flex: 0 0 auto;
-    }
-    > .field-value {
-      flex: 0 0 auto;
-    }
-    //----------------------------------
-  }
-  //------------------------------------
-  &[name-wrap="auto"] {
-    flex-wrap: wrap;
-    align-items: stretch;
-    justify-content: stretch;
-    //----------------------------------
-    > .field-name {
-      flex: 0 0 auto;
-    }
-    > .field-value {
-      flex: 1 1 auto;
-    }
-    //----------------------------------
-  }
-  //------------------------------------
-  > .field-name {
-    @include flex-align-nowrap;
-    //----------------------------------
-    &::after {
-      display: inline;
-      content: ":";
-      opacity: 0.6;
-    }
-    //----------------------------------
-    &.mark-weak {
+  //--------------------------------------
+  //
+  //               MAIN
+  //            .form-main
+  //
+  //--------------------------------------
+  > main.form-main {
+    //------------------------------------
+    > section > .group-title {
+      @include flex-align($ai: center, $ac: center);
       @include color($color-bar, r, c);
     }
-    &.mark-bold {
-      @include color($color-chip, r, c);
-      font-weight: bold;
-    }
-    //----------------------------------
-    &[name-align="left"] {
-      justify-content: flex-start;
-    }
-    &[name-align="right"] {
-      justify-content: flex-end;
-    }
-    &[name-align="center"] {
-      justify-content: center;
-    }
-    //----------------------------------
-    &[name-v-align="top"] {
-      align-items: flex-start;
-    }
-    &[name-v-align="bottom"] {
-      align-items: flex-end;
-    }
-    &[name-v-align="center"] {
-      align-items: center;
-    }
-    //----------------------------------
-    .field-name-con {
-      @include flex-align-nowrap;
-    }
-    //----------------------------------
-  }
-  //------------------------------------
-  > .field-value {
-    display: flex;
     //------------------------------------
-    &[value-wrap="nowrap"] {
-      @include flex-align-nowrap;
-      //----------------------------------
-      > .field-value-com {
-        flex: 1 1 auto;
+    &[spacing="tiny"] {
+      padding: SZ(4);
+      > section {
+        padding: SZ(4);
+        > .group-title {
+          padding: SZ(4) SZ(6);
+          .title-icon {
+            margin-right: SZ(6);
+          }
+        }
       }
-      > .field-value-tip {
-        flex: 0 0 auto;
-      }
-      //----------------------------------
     }
     //------------------------------------
-    &[value-wrap="wrap"] {
+    &[spacing="comfy"] {
+      padding: SZ(10);
+      > section {
+        padding: SZ(10);
+        > .group-title {
+          padding: SZ(8) SZ(12);
+          font-size: 1.2em;
+          .title-icon {
+            margin-right: SZ(8);
+          }
+        }
+      }
+    }
+    //------------------------------------
+    &[mode="tab"] {
       @include flex-align-v-nowrap;
+      //----------------------------------
+      > .tab-head {
+        @include flex-align-nowrap($ai: stretch);
+        //--------------------------------
+        .tab-head-item {
+          @include flex-align-nowrap($jc: center);
+          @include border(1px, solid, shallow);
+          @include color($color-track, c, r);
+          border-collapse: collapse;
+          cursor: pointer;
+          //------------------------------
+          &.is-current {
+            @include color($color-primary, r, c);
+            border-color: map-get($color-primary, c);
+            cursor: default;
+          }
+          //------------------------------
+        } // > .tab-head-item
+        //--------------------------------
+        &[spacing="tiny"] {
+          padding: SZ(2);
+          .tab-head-item {
+            padding: SZ(4) SZ(6);
+          }
+        }
+        //--------------------------------
+        &[spacing="comfy"] {
+          padding: SZ(6);
+          .tab-head-item {
+            padding: SZ(6) SZ(12);
+          }
+        }
+        //--------------------------------
+      } // > .tab-head
+      //----------------------------------
+      > .tab-body {
+        overflow: auto;
+      }
+      //----------------------------------
+      &.tab-at-left > .tab-head {
+        justify-content: flex-start;
+      }
+      &.tab-at-center > .tab-head {
+        justify-content: center;
+      }
+      &.tab-at-right > .tab-head {
+        justify-content: flex-end;
+      }
+      //----------------------------------
+      &.tab-at-top > .tab-head {
+        order: -1;
+        @include border(1px, solid, shallow, bottom);
+      }
+      &.tab-at-bottom > .tab-head {
+        order: 1;
+        @include border(1px, solid, shallow, top);
+      }
     }
     //------------------------------------
-    &[value-wrap="auto"] {
-      flex-wrap: wrap;
-      justify-content: flex-start;
-      align-items: center;
-      align-content: stretch;
-      //----------------------------------
-      > .field-value-com {
-        flex: 1 1 auto;
-      }
-      > .field-value-tip {
-        flex: 0 0 auto;
-      }
-      //----------------------------------
-    }
   }
-  //------------------------------------
+  //--------------------------------------
+  //
+  //              SPACING
+  //
+  //--------------------------------------
+  &[spacing="tiny"] {
+  }
+  //--------------------------------------
+  &[spacing="comfy"] {
+  }
 }

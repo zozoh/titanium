@@ -1,0 +1,85 @@
+{
+  "comType": "TiFormGrid",
+  "comConf": {
+    "className": "ti-fill-parent",
+    "mode": "group",
+    "icon": "fab-bluetooth",
+    "title": "分组模式表单",
+    "autoShowBlank": false,
+    "data": "=data",
+    "spacing": "comfy",
+    "defaultComType": "TiLabel",
+    "_fieldNameClass": "mark-weak",
+    "fieldNameWidth": "0.8rem",
+    "fields": [
+      {
+        "icon": "fab-audible",
+        "title": "基本信息",
+        "fields": [
+          {
+            "icon": "zmdi-flattr",
+            "title": "ID",
+            "name": "id"
+          },
+          {
+            "title": "名称",
+            "name": "name"
+          },
+          {
+            "title": "昵称",
+            "name": "nickname"
+          },
+          {
+            "title": "Sex",
+            "name": "sex",
+            "type": "Integer",
+            "comType": "TiSwitcher",
+            "comConf": {
+              "options": "@Dict:Sexes"
+            }
+          },
+          {
+            "title": "备注",
+            "name": "note",
+            "colSpan": 2,
+            "rowSpan": 3,
+            "nameVAlign": "top",
+            "comType": "TiInputText",
+            "comConf": {
+              "height": "2rem"
+            }
+          }
+        ]
+      },
+      {
+        "title": "联系方式",
+        "fields": [
+          {
+            "title": "邮箱",
+            "name": "email"
+          },
+          {
+            "title": "邮箱2",
+            "name": "email2"
+          },
+          {
+            "title": "手机",
+            "name": "phone"
+          },
+          {
+            "title": "手机2",
+            "name": "phone2"
+          },
+          {
+            "title": "城市",
+            "name": "city"
+          },
+          {
+            "title": "地址",
+            "name": "address"
+          }
+        ]
+      }
+    ]
+  }
+}

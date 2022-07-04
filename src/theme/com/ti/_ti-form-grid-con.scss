@@ -1,0 +1,169 @@
+.ti-form-grid-con {
+  //--------------------------------------
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-rows: auto;
+  grid-auto-flow: row;
+  justify-items: stretch;
+  align-items: stretch;
+  grid-gap: 1px;
+  //--------------------------------------
+  > .grid-item {
+    display: flex;
+    //------------------------------------
+    &[name-wrap="nowrap"] {
+      flex-wrap: nowrap;
+      align-items: stretch;
+      justify-content: flex-start;
+      //----------------------------------
+      > .field-name {
+        flex: 0 0 auto;
+      }
+      > .field-value {
+        flex: 1 1 auto;
+      }
+      //----------------------------------
+    }
+    //------------------------------------
+    &[name-wrap="wrap"] {
+      flex-wrap: nowrap;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      //----------------------------------
+      > .field-name {
+        flex: 0 0 auto;
+      }
+      > .field-value {
+        flex: 0 0 auto;
+      }
+      //----------------------------------
+    }
+    //------------------------------------
+    &[name-wrap="auto"] {
+      flex-wrap: wrap;
+      align-items: stretch;
+      justify-content: stretch;
+      //----------------------------------
+      > .field-name {
+        flex: 0 0 auto;
+      }
+      > .field-value {
+        flex: 1 1 auto;
+      }
+      //----------------------------------
+    }
+    //------------------------------------
+    > .field-name {
+      @include flex-align-nowrap;
+      //----------------------------------
+      &::after {
+        display: inline;
+        content: ":";
+        opacity: 0.6;
+      }
+      //----------------------------------
+      &.mark-weak {
+        @include color($color-bar, r, c);
+      }
+      &.mark-bold {
+        @include color($color-chip, r, c);
+        font-weight: bold;
+      }
+      //----------------------------------
+      &[name-align="left"] {
+        justify-content: flex-start;
+      }
+      &[name-align="right"] {
+        justify-content: flex-end;
+      }
+      &[name-align="center"] {
+        justify-content: center;
+      }
+      //----------------------------------
+      &[name-v-align="top"] {
+        align-items: flex-start;
+      }
+      &[name-v-align="bottom"] {
+        align-items: flex-end;
+      }
+      &[name-v-align="center"] {
+        align-items: center;
+      }
+      //----------------------------------
+      .field-name-con {
+        @include flex-align-nowrap;
+      }
+      //----------------------------------
+    }
+    //------------------------------------
+    > .field-value {
+      display: flex;
+      //------------------------------------
+      &[value-wrap="nowrap"] {
+        @include flex-align-nowrap;
+        //----------------------------------
+        > .field-value-com {
+          flex: 1 1 auto;
+        }
+        > .field-value-tip {
+          flex: 0 0 auto;
+        }
+        //----------------------------------
+      }
+      //------------------------------------
+      &[value-wrap="wrap"] {
+        @include flex-align-v-nowrap;
+      }
+      //------------------------------------
+      &[value-wrap="auto"] {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: center;
+        align-content: stretch;
+        //----------------------------------
+        > .field-value-com {
+          flex: 1 1 auto;
+        }
+        > .field-value-tip {
+          flex: 0 0 auto;
+        }
+        //----------------------------------
+      }
+    }
+    //------------------------------------
+  } // ~ End of .grid-item
+  //--------------------------------------
+}
+//----------------------------------------
+//
+//               SPACING
+//
+//----------------------------------------
+.ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con {
+  > .grid-item {
+    > .field-name {
+      padding: SZ(3) SZ(6);
+      .field-icon {
+        margin-right: SZ(3);
+      }
+    }
+    > .field-value {
+      padding: SZ(2);
+    }
+  }
+}
+//----------------------------------------
+.ti-form-grid[spacing="comfy"] > main > section > .ti-form-grid-con {
+  > .grid-item {
+    > .field-name {
+      padding: SZ(12);
+      .field-icon {
+        margin-right: SZ(6);
+      }
+    }
+    > .field-value {
+      padding: SZ(6);
+    }
+  }
+}

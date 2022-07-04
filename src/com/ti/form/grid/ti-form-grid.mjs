@@ -8,17 +8,30 @@ const _M = {
   computed: {
     //--------------------------------------------------
     TopClass() {
-      return this.getTopClass({
+      return this.getTopClass([
+        `as-spacing-${this.spacing || "comfy"}`,
+        [`field-border-${this.fieldBorder}`]
+      ], {
         "is-mode-flat": this.isFlatMode,
         "is-mode-group": this.isGroupMode,
-        "is-mode-tab": this.isTabMode,
-        [`tab-at-${this.tabAt}`]: this.isTabMode,
-        [`tab-at-${this.TheTabAtX}`]: this.isTabMode,
-        [`tab-at-${this.TheTabAtY}`]: this.isTabMode
-      },
-        `as-spacing-${this.spacing || "comfy"}`,
-        `field-border-${this.fieldBorder}`
-      )
+        "is-mode-tab": this.isTabMode
+      })
+    },
+    //--------------------------------------------------
+    MainClass() {
+      let className = []
+      if (this.isTabMode) {
+        className.push(
+          `tab-at-${this.tabAt}`,
+          `tab-at-${this.TheTabAtX}`,
+          `tab-at-${this.TheTabAtY}`
+        )
+      }
+      return Ti.Css.mergeClassName(className)
+    },
+    //--------------------------------------------------
+    TabBodyStyle() {
+      return Ti.Css.toStyle(this.tabBodyStyle)
     },
     //--------------------------------------------------
     hasTitle() {
@@ -91,7 +104,7 @@ const _M = {
         }
         return []
       }
-      return this.myFormFields
+      return this.FormFields
     },
     //--------------------------------------------------
     // add "current" to theTabList
@@ -112,7 +125,6 @@ const _M = {
     //--------------------------------------------------
     GridContainerConf() {
       return {
-        fields: this.GridFormFields,
         data: this.data,
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
@@ -130,6 +142,21 @@ const _M = {
       if (_.isElement(this.$el)) {
         this.myRect = Ti.Rects.createBy(this.$el)
       }
+    },
+    //--------------------------------------------------
+    OnClickTab({ index }) {
+      this.currentTabIndex = index
+      if (this.keepTabIndexBy) {
+        Ti.Storage.session.set(this.keepTabIndexBy, index)
+      }
+    },
+    //--------------------------------------------------
+    restoreCurrentTabIndexFromLocal() {
+      if (this.keepTabIndexBy) {
+        this.currentTabIndex = Ti.Storage.session.getInt(
+          this.keepTabIndexBy, 0
+        )
+      }
     }
     //--------------------------------------------------
   },
@@ -137,10 +164,12 @@ const _M = {
   watch: {
     "fields": "tryEvalFormFieldList",
     "data": "tryEvalFormFieldList",
-    "myActivedFieldKey": "tryEvalFormFieldList",
+    "myActivedFieldKey": "tryEvalFormFieldList"
   },
   //////////////////////////////////////////////////////
   created: function () {
+    // Current tab
+    this.restoreCurrentTabIndexFromLocal()
     // Lang
     this.evalMyLang()
     // Screen

@@ -76,6 +76,9 @@ export default {
     default: "top-center",
     validator: (v) => /^(top|bottom)-(left|center|right)$/.test(v)
   },
+  "tabBodyStyle": {
+    type: Object
+  },
   "fieldBorder": {
     type: String,
     default: "none",

@@ -5,53 +5,56 @@
 ## `mode=flat`
 
 ```bash
-.ti-form-grid
+.ti-form-grid @ spacing | mode
 #---------------------------
-|-- [?] .form-title
+|-- [?] <header>
+|   |   |-- [?] .title-icon
+|   |   |-- [?] .title-text
 #---------------------------
-|-- <div.grid-con>
-|   |-- .grid-item
-|   |   |-- <FORM FIELD>
-|   |.. .grid-item
-#---------------------------
+|-- <main>
+|   |-- <section.flat-body>
+|   |   #---------------------------
+|   |   |-- <GridContainer ..>
+|   |   #---------------------------
 ```
 
 ## `mode=group`
 
 ```bash
-.ti-form-grid
+.ti-form-grid @ spacing | mode
 #---------------------------
-|-- [?] .form-title
+|-- [?] <header>
+|   |   |-- [?] .title-icon
+|   |   |-- [?] .title-text
 #---------------------------
-|-- <section.form-group>
-|   #-----------------------
-|   |-- [?] .group-title
-|   #-----------------------
-|   |-- <div.group-body>
-|   |   #-------------------
-|   |   |-- .grid-con
-|   |   |   |-- .grid-item
-|   |   |   |   |-- <FORM FIELD>
-|   |   |   |.. .grid-item
-#---------------------------
-|.. <section.grid-groups>
+|-- <main>
+|   |-- <section.group-body>
+|   |   #-----------------------
+|   |   |-- [?] <div.group-title>
+|   |   |   |-- [?] .title-icon
+|   |   |   |-- [?] .title-text
+|   |   #-----------------------
+|   |   |-- <GridContainer ..>
+|   #---------------------------
+|   |.. <section>
 ```
 
 ## `mode=tab`
 
 ```bash
-.ti-form-grid
+.ti-form-grid @ spacing | mode
 #---------------------------
-|-- [?] .form-title
+|-- [?] <header>
+|   |   |-- [?] .title-icon
+|   |   |-- [?] .title-text
 #---------------------------
-|-- <header.tab-head>
-#---------------------------
-|-- <section.tab-body>
-|   #-----------------------
-|   |-- .grid-con
-|   |   |-- .grid-item
-|   |   |   |-- <FORM FIELD>
-|   |   |.. .grid-item
+|-- <main>
+|   |-- <section.tab-body>
+|   #---------------------------
+|   |   |-- <div.tab-head>
+|   |   |   |-- <div.tab-head-item>
+|   |   #---------------------------
+|   |   |-- <GridContainer ..>
 ```
 
 # 字段的DOM布局
