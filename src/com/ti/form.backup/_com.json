@@ -1,16 +1,13 @@
 {
-  "name": "ti-form",
-  "globally": true,
-  "template": "./grid/ti-form-grid.html",
-  "props": "./grid/ti-form-grid-props.mjs",
+  "name" : "ti-form",
+  "globally" : true,
+  "template" : "./ti-form.html",
   "methods"  : "@com:ti/support/field_display.mjs",
-  "mixins": [
-    "@com:ti/form/form-support.mjs",
-    "./grid/ti-form-grid.mjs"
-  ],
-  "components": [
-    "@com:ti/form/grid/com/grid-container",
-    "@com:ti/button",
+  "props" : "./ti-form-props.mjs",
+  "mixins" : ["./ti-form.mjs"],
+  "components" : [
+    "./com/form-group",
+    "./com/form-field",
     "@com:ti/input",
     "@com:ti/input/num",
     "@com:ti/input/tags",
@@ -28,6 +25,5 @@
     "@com:ti/label",
     "@com:ti/toggle",
     "@com:ti/switcher",
-    "@com:ti/droplist"
-  ]
+    "@com:ti/droplist"]
 }

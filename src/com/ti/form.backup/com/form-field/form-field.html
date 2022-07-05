@@ -1,0 +1,57 @@
+<div class="form-field"
+  :class="TopClass"
+  :style="ConStyle"
+  v-ti-activable>
+  <!--========================================
+    Field Name
+  -->
+  <div 
+    v-if="isShowTitle || required"
+      class="field-name"
+      :title="StatusText">
+        <!--Status Icon-->
+        <span 
+          v-if="StatusIcon"
+            class="name-status">
+            <ti-icon :value="StatusIcon"/>
+        </span>
+        <!--Title Text-->
+        <span
+          v-if="isShowTitle"
+            class="name-title">{{TheTitle|i18n}}</span>
+        <!--Required-->
+        <span
+          v-if="required"
+            class="name-required">*</span>
+        <!--Field Icon-->
+        <span 
+          v-if="isShowIcon" 
+            class="name-icon">
+            <ti-icon :value="icon"/>
+        </span>
+  </div>
+  <!--========================================
+    Field Value
+  -->
+  <div class="field-value"
+    :style="ConStyle">
+    <!--
+      UI Component
+    -->
+    <div v-if="isComReady"
+      class="field-component"
+      :class="ComClass"
+      :style="ComStyle">
+      <component 
+        :is="myComType"
+          v-bind="myComConf"
+          @change="OnChange"/>
+    </div>
+    <!--
+      Tips
+    -->
+    <div 
+      v-if="isShowTip"
+        class="field-tip">{{tip|i18n}}</div>
+  </div>
+</div>

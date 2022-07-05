@@ -1,13 +1,13 @@
 <div class="ti-form-grid"
   :class="TopClass"
   :spacing="spacing"
-  :mode="mode"
+  :mode="FormMode"
   v-ti-activable>
     <!--
       Blank
     -->
     <ti-loading 
-      v-if="!hasData && !isAutoShowBlank"
+      v-if="!hasData && isAutoShowBlank"
         class="nil-data as-big-mask"
         v-bind="blankAs"/>
     <!--
@@ -21,7 +21,7 @@
         v-if="hasTitle"
           class="form-title"
           :spacing="spacing"
-          :mode="mode">
+          :mode="FormMode">
           <span v-if="icon" class="title-icon"><ti-icon :value="icon"/></span>
           <span v-if="title" class="title-text">{{title|i18n}}</span>
       </header>
@@ -32,7 +32,7 @@
         class="form-main"
         :class="MainClass"
         :spacing="spacing"
-        :mode="mode">
+        :mode="FormMode">
         <!--============================================
           Flat Mode
         -->
@@ -125,7 +125,7 @@
         v-if="showFooterActions"
           class="form-actions"
           :spacing="spacing"
-          :mode="mode">
+          :mode="FormMode">
           <TiButton
             v-bind="GridActionButtonConf"
             @form:submit="OnFormSubmit"

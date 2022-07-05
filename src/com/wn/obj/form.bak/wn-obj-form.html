@@ -1,0 +1,9 @@
+<ti-form 
+  v-bind="this"
+  :data="FormData"
+  :fields="myFields"
+  :auto-show-blank="isAutoShowBlank"
+  :class-name="className"
+  @field:change="OnFieldChange"
+  @change="OnChange"
+  @invalid="OnInvalid"/>

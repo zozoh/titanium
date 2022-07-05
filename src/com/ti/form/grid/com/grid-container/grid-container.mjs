@@ -16,6 +16,7 @@ const _M = {
     // Aspect
     //-----------------------------------
     "fieldBorder": String,
+    "statusIcons": Object,
     //-----------------------------------
     // Measure
     //-----------------------------------
@@ -24,6 +25,10 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   computed: {
+    //--------------------------------------------------
+    TopClass() {
+      return this.getTopClass(`is-field-border-${this.fieldBorder}`)
+    },
     //--------------------------------------------------
     TopStyle() {
       return {
@@ -83,12 +88,22 @@ const _M = {
             })
           }
           // Status
-          // ...
+          this.setFieldStatus(li)
+
           // Add to list
           list.push(li)
-        }
-      }
+        } // for (let fld of fields) {
+      } // if (_.isArray(fields)) {
       this.myFields = list
+    },
+    //--------------------------------------------------
+    setFieldStatus(fld = {}) {
+      let { type, text } = _.get(this.status, fld.key) || {}
+      if (type) {
+        fld.statusIcon = _.get(this.statusIcons, type)
+        fld.statusText = Ti.I18n.text(text)
+        fld.className = Ti.Css.mergeClassName(fld.className, `is-${type}`)
+      }
     },
     //--------------------------------------------------
     tryEvalFields(newVal, oldVal) {

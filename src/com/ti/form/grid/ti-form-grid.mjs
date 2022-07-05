@@ -42,9 +42,18 @@ const _M = {
       return !Ti.Util.isNil(this.data)
     },
     //--------------------------------------------------
-    isFlatMode() { return 'flat' == this.mode },
-    isGroupMode() { return 'group' == this.mode },
-    isTabMode() { return 'tab' == this.mode },
+    FormMode() {
+      return ({
+        "flat": "flat",
+        "all": "group",
+        "group": "group",
+        "tab": "tab"
+      })[this.mode] || "group"
+    },
+    //--------------------------------------------------
+    isFlatMode() { return 'flat' == this.FormMode },
+    isGroupMode() { return 'group' == this.FormMode },
+    isTabMode() { return 'tab' == this.FormMode },
     isAutoShowBlank() { return Ti.Util.fallback(this.autoShowBlank, false) },
     //--------------------------------------------------
     TheTabAt() { return this.tabAt.split("-") },
@@ -129,6 +138,7 @@ const _M = {
         data: this.data,
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
+        statusIcons: this.statusIcons,
         fieldNameWidth: this.GridFieldNameWidth,
         gridColumnCount: this.GridColumnCount,
       }

@@ -1,9 +1,10 @@
-<div class="ti-form-grid-con" :style="TopStyle">
+<div class="ti-form-grid-con" :class="TopClass" :style="TopStyle">
   <!----------------------------------------->
   <div
     v-for="fld in myFields"
       :key="fld.key"
       class="grid-item"
+      :class="fld.className"
       :style="fld.style"
       :title="fld.statusText"
       :name-wrap="fld.nameWrap">
@@ -28,16 +29,22 @@
             :style="fld.nameStyle"
             :name-align="fld.nameAlign"
             :name-v-align="fld.nameVAlign">
+            <!--------------------------------->
             <div class="field-name-con">
+              <div
+                v-if="fld.required" class="field-required">*</div>
               <div
                 v-if="fld.icon"
                   class="field-icon"><TiIcon :value="fld.icon"/></div>
               <div
                 v-if="fld.title"
                   class="field-text">{{fld.title | i18n}}</div>
-              <div
-                v-if="fld.required" class="field-required">*</div>
             </div>
+            <!--------------------------------->
+            <div
+              v-if="fld.statusIcon"
+                class="field-status"><TiIcon :value="fld.statusIcon"/></div>
+            <!--------------------------------->
         </div>
         <!------------------------------------->
         <div
@@ -55,9 +62,6 @@
               :style="fld.tipStyle">{{fld.tip | i18n}}</div>
         </div>
         <!------------------------------------->
-        <div
-          v-if="fld.statusIcon"
-            class="field-status"><TiIcon :value="fld.statusIcon"/></div>
       </template>
       <!------------------------------------->
   </div>  

@@ -91,21 +91,13 @@ export default {
     type: Array,
     default: () => []
   },
-  // TiButton.size
-  "actionSize": {
-    type: String,
-  },
-  // TiButton.align
-  "actionAlign": {
-    type: String,
-  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
   "mode": {
     type: String,
-    default: "group",
-    validator: (val) => /^(flat|group|tab)$/.test(val)
+    default: "group", // compated with old form.mode == all
+    validator: (val) => /^(flat|group|tab|all)$/.test(val)
   },
   "screenMode": {
     type: String,
@@ -122,12 +114,12 @@ export default {
   },
   "fieldBorder": {
     type: String,
-    default: "none",
+    default: "dashed",
     validator: (v) => /^(none|dashed|solid|dotted)$/.test(v)
   },
   "fieldNameAlign": {
     type: String,
-    default: "right",
+    default: "left",
     validator: (v) => /^(left|right|center)$/.test(v)
   },
   "fieldNameVAlign": {
@@ -181,6 +173,14 @@ export default {
     type: String,
     default: "comfy",
     validator: v => /^(comfy|tiny)$/.test(v)
+  },
+  // TiButton.size
+  "actionSize": {
+    type: String,
+  },
+  // TiButton.align
+  "actionAlign": {
+    type: String,
   },
   "submitButton": {
     type: Object,

@@ -105,7 +105,7 @@ const _M = {
       if (this.suffixIcon) {
         return this.suffixIcon
       }
-      if (this.suffixIconForCopy) {
+      if (this.suffixIconForCopy && !this.isNilDisplay) {
         return 'far-copy'
       }
     },

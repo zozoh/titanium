@@ -13,10 +13,12 @@
     "fieldNameWidth": "1.2rem",
     "canCustomizedFields": true,
     "keepCustomizedTo": "ti-demo-grid-flat-form-customized",
-    "blackFields": [
+    "whiteFields": [
       "id",
       "name",
-      "nickname"
+      "nickname",
+      "sex",
+      "note"
     ],
     "fields": [
       {

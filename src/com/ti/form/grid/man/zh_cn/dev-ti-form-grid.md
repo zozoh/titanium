@@ -89,31 +89,51 @@
 - `onlyFields`
 - `omitHiddenFields`
 - `fixed`
-- 
+- `lang`
 
 **Behavior**
 
 - `defaultFieldType`
 - `defaultComType`
 - `linkFields`
+- `currentTab`
 - `keepTabIndexBy`
 - `autoShowBlank`
-- `currentTab`
+- `canCustomizedFields`
+- `keepCustomizedTo`
+- `whiteFields`
+- `blackFields`
+- `canSubmit`
+- `actionButtonSetup`
 
 **Aspect**
 
 - `mode` : `flat|group|tab`
 - `screenMode` : `desktop|tablet|phone`
 - `tabAt`
+- `tabBodyStyle`
+- `fieldBorder`
+- `fieldNameAlign`
+- `fieldNameVAlign`
+- `fieldNameClass`
+- `fieldNameStyle`
+- `fieldNameWrap`
+- `fieldValueWrap`
 - `blankAs`
 - `icon`
 - `title`
 - `statusIcons`
 - `spacing`
+- `actionSize`
+- `actionAlign`
+- `submitButton`
+- `setupButton`
+- `setupCleanButton`
+- `customizeDialog`
 
 **Measure**
 
-- `nameWidth`
+- `fieldNameWidth`
 - `gridColumnHint` 
 
 

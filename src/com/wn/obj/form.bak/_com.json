@@ -3,7 +3,7 @@
   "globally" : true,
   "template" : "./wn-obj-form.html",
   "props" : [
-    "@com:ti/form/grid/ti-form-grid-props.mjs",
+    "@com:ti/form/ti-form-props.mjs",
     "./wn-obj-form-props.mjs"
   ],
   "mixins" : ["./wn-obj-form.mjs"],

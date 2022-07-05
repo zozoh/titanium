@@ -8,6 +8,16 @@
   align-items: stretch;
   grid-gap: 1px;
   //--------------------------------------
+  &.is-field-border-dashed > .grid-item {
+    border-bottom: 1px dashed map-get($color-line, shallow);
+  }
+  &.is-field-border-solid > .grid-item {
+    border-bottom: 1px solid map-get($color-line, shallow);
+  }
+  &.is-field-border-dotted > .grid-item {
+    border-bottom: 1px dotted map-get($color-line, shallow);
+  }
+  //--------------------------------------
   > .grid-item {
     display: flex;
     //------------------------------------
@@ -62,6 +72,7 @@
     //------------------------------------
     > .field-name {
       @include flex-align-nowrap;
+      position: relative;
       //----------------------------------
       &.mark-weak {
         @include color($color-bar, r, c);
@@ -73,12 +84,21 @@
       //----------------------------------
       &[name-align="left"] {
         justify-content: flex-start;
+        > .field-status {
+          right: 0;
+        }
       }
       &[name-align="right"] {
         justify-content: flex-end;
+        > .field-status {
+          left: 0;
+        }
       }
       &[name-align="center"] {
         justify-content: center;
+        > .field-status {
+          right: 0;
+        }
       }
       //----------------------------------
       &[name-v-align="top"] {
@@ -93,11 +113,28 @@
       //----------------------------------
       .field-name-con {
         @include flex-align-nowrap;
+        //--------------------------------
+        > .field-required {
+          font-weight: bold;
+          font-size: SZ(20);
+          margin-right: SZ(4);
+          text-align: left;
+          color: map-get($color-secondary, c);
+        }
+        //--------------------------------
         &::after {
           display: inline;
           content: ":";
           opacity: 0.6;
         }
+      }
+      //----------------------------------
+      > .field-status {
+        @include flex-center;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: SZ(24);
       }
       //----------------------------------
     }
@@ -135,6 +172,42 @@
         }
         //----------------------------------
       }
+      //------------------------------------
+      > .field-value-com {
+        @include flex-align-nowrap($jc: stretch);
+        > .full-field {
+          flex: 1 1 auto;
+        }
+      }
+      //------------------------------------
+      > .field-value-tip {
+        font-size: 0.9em;
+        opacity: 0.6;
+        max-width: 100%;
+        word-break: break-all;
+        text-align: justify;
+        padding: SZ(4) 0;
+      }
+      //------------------------------------
+    }
+    //------------------------------------
+    &.is-spinning {
+      @include color($color-primary, c);
+    }
+    &.is-ok {
+      @include color($color-success, c);
+    }
+    &.is-error {
+      @include color($color-error, c);
+    }
+    &.is-warn {
+      @include color($color-warn, c);
+    }
+    &.is-info {
+      @include color($color-info, c);
+    }
+    &.is-track {
+      @include color($color-track, c);
     }
     //------------------------------------
   } // ~ End of .grid-item

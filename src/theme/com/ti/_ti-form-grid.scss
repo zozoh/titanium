@@ -36,6 +36,7 @@
   //
   //--------------------------------------
   > main.form-main {
+    flex:1 1 auto;
     //------------------------------------
     > section > .group-title {
       @include flex-align($ai: center, $ac: center);
