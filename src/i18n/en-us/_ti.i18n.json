@@ -1,4 +1,9 @@
 {
+  "submit": "Submit",
+  "customize": "Customize",
+  "setup": "Setup",
+  "setup-fields": "Setup Fields",
+  "setup-reset": "Setup Clean",
   "target": "Target",
   "target-id": "Target ID",
   "target-name": "Target name",
@@ -59,6 +64,7 @@
   "choose": "Select",
   "choose-file": "Select file",
   "choose-obj": "Select object",
+  "choose-fields": "Select fields",
   "clean": "Clean",
   "clear": "Clear",
   "clone": "Clone",

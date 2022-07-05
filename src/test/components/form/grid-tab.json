@@ -9,13 +9,16 @@
     "tabAt": "top-center",
     "autoShowBlank": false,
     "data": "=data",
-    "spacing": "tiny",
+    "spacing": "comfy",
     "defaultComType": "TiLabel",
     "_fieldNameClass": "mark-weak",
     "fieldNameWidth": "0.8rem",
     "_tabBodyStyle": {
       "height": "2rem"
     },
+    "canCustomizedFields": true,
+    "keepCustomizedTo": "ti-demo-grid-tab-form-customized",
+    "actionAlign": "right",
     "fields": [
       {
         "icon": "fab-audible",

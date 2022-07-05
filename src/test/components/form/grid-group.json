@@ -11,6 +11,7 @@
     "defaultComType": "TiLabel",
     "_fieldNameClass": "mark-weak",
     "fieldNameWidth": "0.8rem",
+    "canCustomizedFields": true,
     "fields": [
       {
         "icon": "fab-audible",

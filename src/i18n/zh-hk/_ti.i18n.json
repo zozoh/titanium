@@ -1,4 +1,9 @@
 {
+   "submit": "提交",
+   "customize": "定製",
+   "setup": "設置",
+   "setup-fields": "設置字段",
+   "setup-reset": "重置設置",
    "target": "目標",
    "target-id": "目標ID",
    "target-name": "目標名稱",
@@ -59,6 +64,7 @@
    "choose": "選擇",
    "choose-file": "選擇文件",
    "choose-obj": "選擇對象",
+   "choose-fields": "選擇字段",
    "clean": "清理",
    "clear": "清除",
    "clone": "克隆",

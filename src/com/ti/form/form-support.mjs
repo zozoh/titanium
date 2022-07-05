@@ -4,6 +4,8 @@ const _M = {
     myLang: "zh-cn",
     myScreenMode: "desktop",
 
+    myCandidateFormFields: [],
+
     myKeysInFields: [],
     myFormFields: [],
     myFormFieldMap: {},
@@ -23,6 +25,14 @@ const _M = {
     //--------------------------------------------------
     hasFieldBlackList() {
       return !_.isEmpty(this.myFieldBlackList)
+    },
+    //--------------------------------------------------
+    hasCustomizedWhiteFields() {
+      if (!this.hasFieldWhiteList) {
+        return false
+      }
+      let whites = Ti.Util.truthyKeys(this.myFieldWhiteList)
+      return !_.isEqual(whites, this.whiteFields)
     },
     //--------------------------------------------------
     FormLinkFields() {
@@ -311,10 +321,10 @@ const _M = {
       })
       return re
     },
-    evalFormFieldWhiteList(fields = this.whiteFields) {
+    evalFormWhiteFieldList(fields = this.whiteFields) {
       this.myFieldWhiteList = this.__eval_form_filter_list(fields)
     },
-    evalFormFieldBlackList(fields = this.blackFields) {
+    evalFormBlackFieldList(fields = this.blackFields) {
       this.myFieldBlackList = this.__eval_form_filter_list(fields)
     },
     //--------------------------------------------------
@@ -336,13 +346,14 @@ const _M = {
     //--------------------------------------------------
     async evalFormFieldList() {
       let list = []
+      let cans = []
       let keys = []
       let fmap = {}
       //................................................
       if (_.isArray(this.fields)) {
         for (let index = 0; index < this.fields.length; index++) {
           let fld = this.fields[index]
-          let fld2 = await this.evalFormField(fld, [index])
+          let fld2 = await this.evalFormField(fld, [index], cans)
           if (fld2) {
             list.push(fld2)
             let fKeys = _.concat(fld2.name)
@@ -363,38 +374,35 @@ const _M = {
         }
       }
       //................................................
+      // Remove the adjacent Label fields
+      let list2 = []
+      for (let i = 0; i < list.length; i++) {
+        let item = list[i]
+        let next = _.nth(list, i + 1)
+        if ('Label' == item.race) {
+          if (!next || 'Label' == next.race) {
+            continue;
+          }
+        }
+        list2.push(item)
+      }
+      //................................................
       this.myKeysInFields = _.flattenDeep(keys)
       //................................................
-      this.myFormFields = list
+      this.myFormFields = list2
       this.myFormFieldMap = fmap
+      this.myCandidateFormFields = cans
     },
     //--------------------------------------------------
-    async evalFormField(fld = {}, nbs = []) {
+    async evalFormField(fld = {}, nbs = [], cans = []) {
       // The key
       let fldKey = Ti.Util.anyKey(fld.name || nbs)
 
-      // No-In White List
-      if (this.hasFieldWhiteList) {
-        if (!this.myFieldWhiteList[fldKey]) {
-          return
-        }
-      }
-
-      // In Black List
-      if (this.hasFieldBlackList) {
-        if (this.myFieldBlackList[fldKey]) {
-          return
-        }
-      }
-
-      //............................................
-      // Get form field visibility
+      // Visibility
       let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.data)
-      if (hidden) {
-        return
-      }
 
       //............................................
+      let field;
       let omitKeys = ["hidden", "disabled", "enabled", "visible"]
       // For group
       if (this.isGroup(fld)) {
@@ -408,19 +416,19 @@ const _M = {
         if (_.isArray(fld.fields)) {
           for (let index = 0; index < fld.fields.length; index++) {
             let subfld = fld.fields[index]
-            let newSubFld = await this.evalFormField(subfld, [...nbs, index])
+            let newSubFld = await this.evalFormField(subfld, [...nbs, index], cans)
             if (newSubFld) {
               group.fields.push(newSubFld)
             }
           }
         }
         // Done
-        return _.isEmpty(group.fields) ? null : group
+        field = group
       }
       //............................................
       // Label
-      if (this.isLabel(fld)) {
-        return _.assign(_.omit(fld, omitKeys), {
+      else if (this.isLabel(fld)) {
+        field = _.assign(_.omit(fld, omitKeys), {
           disabled,
           race: "Label",
           key: fldKey
@@ -428,8 +436,8 @@ const _M = {
       }
       //............................................
       // For Normal Field
-      if (this.isNormal(fld)) {
-        let field = _.defaults(_.omit(fld, omitKeys), {
+      else if (this.isNormal(fld)) {
+        field = _.defaults(_.omit(fld, omitKeys), {
           race: "Normal",
           key: fldKey,
           isActived: this.myActivedFieldKey == fldKey,
@@ -486,12 +494,49 @@ const _M = {
           "nameWrap": this.fieldNameWrap,
           "valueWrap": this.fieldValueWrap
         })
-
-        // Done
-        return field
       }
+      //............................................
       // Panice
-      throw "Invalid field: " + JSON.stringify(fld, null, '   ')
+      else {
+        throw "Invalid field: " + JSON.stringify(fld, null, '   ')
+      }
+      //............................................
+      // Join to candidate
+      cans.push(field)
+
+      //............................................
+      if ('Normal' == field.race) {
+        // No-In White List
+        if (this.hasFieldWhiteList) {
+          if (!this.myFieldWhiteList[fldKey]) {
+            return
+          }
+        }
+
+        // In Black List
+        if (this.hasFieldBlackList) {
+          if (this.myFieldBlackList[fldKey]) {
+            return
+          }
+        }
+      }
+
+      //............................................
+      // Ignore hidden
+      if (hidden) {
+        return
+      }
+
+      //............................................
+      // Ignore empty group
+      if ('Group' == field.race) {
+        if (_.isEmpty(field.fields)) {
+          return
+        }
+      }
+
+      // Done
+      return field
     },
     //--------------------------------------------------
     async evalFieldCom(fld) {

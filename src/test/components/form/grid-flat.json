@@ -12,7 +12,12 @@
     "_fieldNameClass": "mark-weak",
     "fieldNameWidth": "1.2rem",
     "canCustomizedFields": true,
-    "keepCustomizedTo": "ti-demo-grid-flat-form-fields",
+    "keepCustomizedTo": "ti-demo-grid-flat-form-customized",
+    "blackFields": [
+      "id",
+      "name",
+      "nickname"
+    ],
     "fields": [
       {
         "title": "基本信息"
@@ -47,7 +52,7 @@
         "nameVAlign": "top",
         "comType": "TiInputText",
         "comConf": {
-          "height": "2rem"
+          "height": "1rem"
         }
       },
       {
@@ -87,198 +92,6 @@
       {
         "title": "信息2",
         "name": "ext_2"
-      },
-      {
-        "title": "信息3",
-        "name": "ext_3"
-      },
-      {
-        "title": "信息4",
-        "name": "ext_4"
-      },
-      {
-        "title": "信息5",
-        "name": "ext_5"
-      },
-      {
-        "title": "信息6",
-        "name": "ext_6"
-      },
-      {
-        "title": "信息7",
-        "name": "ext_7"
-      },
-      {
-        "title": "信息8",
-        "name": "ext_8"
-      },
-      {
-        "title": "信息9",
-        "name": "ext_9"
-      },
-      {
-        "title": "信息10",
-        "name": "ext_10"
-      },
-      {
-        "title": "信息11",
-        "name": "ext_11"
-      },
-      {
-        "title": "信息12",
-        "name": "ext_12"
-      },
-      {
-        "title": "信息13",
-        "name": "ext_13"
-      },
-      {
-        "title": "信息14",
-        "name": "ext_14"
-      },
-      {
-        "title": "信息15",
-        "name": "ext_15"
-      },
-      {
-        "title": "信息16",
-        "name": "ext_16"
-      },
-      {
-        "title": "信息17",
-        "name": "ext_17"
-      },
-      {
-        "title": "信息18",
-        "name": "ext_18"
-      },
-      {
-        "title": "信息19",
-        "name": "ext_19"
-      },
-      {
-        "title": "信息20",
-        "name": "ext_20"
-      },
-      {
-        "title": "信息21",
-        "name": "ext_21"
-      },
-      {
-        "title": "信息22",
-        "name": "ext_22"
-      },
-      {
-        "title": "信息23",
-        "name": "ext_23"
-      },
-      {
-        "title": "信息24",
-        "name": "ext_24"
-      },
-      {
-        "title": "信息25",
-        "name": "ext_25"
-      },
-      {
-        "title": "信息26",
-        "name": "ext_26"
-      },
-      {
-        "title": "信息27",
-        "name": "ext_27"
-      },
-      {
-        "title": "信息28",
-        "name": "ext_28"
-      },
-      {
-        "title": "信息29",
-        "name": "ext_29"
-      },
-      {
-        "title": "信息30",
-        "name": "ext_30"
-      },
-      {
-        "title": "信息31",
-        "name": "ext_31"
-      },
-      {
-        "title": "信息32",
-        "name": "ext_32"
-      },
-      {
-        "title": "信息33",
-        "name": "ext_33"
-      },
-      {
-        "title": "信息34",
-        "name": "ext_34"
-      },
-      {
-        "title": "信息35",
-        "name": "ext_35"
-      },
-      {
-        "title": "信息36",
-        "name": "ext_36"
-      },
-      {
-        "title": "信息37",
-        "name": "ext_37"
-      },
-      {
-        "title": "信息38",
-        "name": "ext_38"
-      },
-      {
-        "title": "信息39",
-        "name": "ext_39"
-      },
-      {
-        "title": "信息40",
-        "name": "ext_40"
-      },
-      {
-        "title": "信息41",
-        "name": "ext_41"
-      },
-      {
-        "title": "信息42",
-        "name": "ext_42"
-      },
-      {
-        "title": "信息43",
-        "name": "ext_43"
-      },
-      {
-        "title": "信息44",
-        "name": "ext_44"
-      },
-      {
-        "title": "信息45",
-        "name": "ext_45"
-      },
-      {
-        "title": "信息46",
-        "name": "ext_46"
-      },
-      {
-        "title": "信息47",
-        "name": "ext_47"
-      },
-      {
-        "title": "信息48",
-        "name": "ext_48"
-      },
-      {
-        "title": "信息49",
-        "name": "ext_49"
-      },
-      {
-        "title": "信息50",
-        "name": "ext_50"
       }
     ]
   }

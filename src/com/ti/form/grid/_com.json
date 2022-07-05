@@ -10,6 +10,7 @@
   ],
   "components": [
     "./com/grid-container",
+    "@com:ti/button",
     "@com:ti/input",
     "@com:ti/input/num",
     "@com:ti/input/tags",

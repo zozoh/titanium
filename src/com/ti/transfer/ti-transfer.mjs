@@ -275,7 +275,7 @@ const _M = {
         },
         tag : {
           data      : _.concat(ta.data, joins),
-          checkedIds: _.keys(ids)
+          checkedIds: []
         }
       }
     },

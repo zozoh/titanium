@@ -74,6 +74,31 @@ export default {
   "blackFields": {
     type: Array,
   },
+  "canSubmit": {
+    type: Boolean,
+    default: false
+  },
+  // More customized actions
+  // TiButton.setup 
+  // <BuiltIn actions>
+  //  - "form:setup:open"
+  //  - "form:setup:clean"
+  //  - "form:submit"
+  //  - "form:reset"
+  //  - "form:edit"
+  //  - "form:readonly"
+  "actionButtonSetup": {
+    type: Array,
+    default: () => []
+  },
+  // TiButton.size
+  "actionSize": {
+    type: String,
+  },
+  // TiButton.align
+  "actionAlign": {
+    type: String,
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -156,6 +181,34 @@ export default {
     type: String,
     default: "comfy",
     validator: v => /^(comfy|tiny)$/.test(v)
+  },
+  "submitButton": {
+    type: Object,
+    default: () => ({
+      text: "i18n:submit",
+    })
+  },
+  "setupButton": {
+    type: Object,
+    default: () => ({
+      icon: "fas-cog",
+      text: "i18n:setup-fields"
+    })
+  },
+  "setupCleanButton": {
+    type: Object,
+    default: () => ({
+      text: "i18n:setup-reset"
+    })
+  },
+  "customizeDialog": {
+    type: Object,
+    default: () => ({
+      title: "i18n:choose-fields",
+      width: "6.4rem",
+      height: "90%",
+      position: "bottom"
+    })
   },
   //-----------------------------------
   // Measure

@@ -1,4 +1,5 @@
 .ti-form-grid {
+  @include flex-align-v-nowrap($ai: stretch);
   //--------------------------------------
   //
   //               HEADER
@@ -98,7 +99,10 @@
         &[spacing="tiny"] {
           padding: SZ(2);
           .tab-head-item {
-            padding: SZ(4) SZ(6);
+            padding: SZ(4) SZ(8);
+            .tab-icon {
+              margin-right: SZ(6);
+            }
           }
         }
         //--------------------------------
@@ -106,6 +110,9 @@
           padding: SZ(6);
           .tab-head-item {
             padding: SZ(6) SZ(12);
+            .tab-icon {
+              margin-right: SZ(8);
+            }
           }
         }
         //--------------------------------
@@ -135,13 +142,30 @@
       }
     }
     //------------------------------------
+  } // > main.form-main {
+  //--------------------------------------
+  //
+  //              FOOTER
+  //           .form-actions
+  //
+  //--------------------------------------
+  > footer.form-actions {
+    @include border(1px, solid, shallow, top);
+    //------------------------------------
+    &[spacing="tiny"] {
+      padding: SZ(6);
+    }
+    //------------------------------------
+    &[spacing="comfy"] {
+      padding: SZ(12);
+    }
+    //------------------------------------
   }
   //--------------------------------------
   //
   //              Scrolling
   //
   //--------------------------------------
-  @include flex-align-v-nowrap($ai: stretch);
   &[mode="flat"] {
     > main {
       flex: 1 1 auto;

@@ -110,8 +110,9 @@ const _M = {
     // add "current" to theTabList
     TabItems() {
       let items = []
-      let maxTabIndex = this.FormFields.length - 1
-      let currentIndex = Math.min(maxTabIndex, this.currentTabIndex)
+      // let maxTabIndex = this.FormFields.length - 1
+      // let currentIndex = Math.min(maxTabIndex, this.currentTabIndex)
+      let currentIndex = this.currentTabIndex
       _.forEach(this.FormFields, (li, index) => {
         let isCurrent = (index == currentIndex)
         items.push(_.assign({}, li, {
@@ -131,6 +132,64 @@ const _M = {
         fieldNameWidth: this.GridFieldNameWidth,
         gridColumnCount: this.GridColumnCount,
       }
+    },
+    //--------------------------------------------------
+    GridActionButtonConf() {
+      let setup = []
+      // Submit
+      if (this.canSubmit) {
+        setup.push(_.assign(
+          {
+            text: "i18n:submit"
+          },
+          this.submitButton,
+          {
+            eventName: "form:submit"
+          }
+        ))
+      }
+      // Others Customized action
+      _.forEach(this.actionButtonSetup, a => setup.push(a))
+
+      // Customized
+      if (this.canCustomizedFields) {
+        setup.push(_.assign(
+          {
+            text: "i18n:setup-fields",
+          },
+          this.setupButton,
+          {
+            eventName: "form:setup:open"
+          }
+        ))
+        setup.push(_.assign(
+          {
+            text: "i18n:setup-reset",
+          },
+          this.setupCleanButton,
+          {
+            eventName: "form:setup:clean",
+            disabled: !this.hasCustomizedWhiteFields
+          }
+        ))
+      }
+      // Done
+      if (!_.isEmpty(setup)) {
+        return {
+          size: this.actionSize
+            || (
+              "tiny" == this.spacing
+                ? "tiny"
+                : "small"
+            ),
+          align: this.actionAlign,
+          setup
+        }
+      }
+    },
+    //--------------------------------------------------
+    showFooterActions() {
+      return !_.isEmpty(this.GridActionButtonConf)
     }
     //--------------------------------------------------
   },
@@ -151,12 +210,106 @@ const _M = {
       }
     },
     //--------------------------------------------------
+    OnFormSubmit() {
+      let data = this.getData()
+      this.$notify("submit", data)
+    },
+    //--------------------------------------------------
+    async OnFormSetupClean() {
+      if (this.keepCustomizedTo) {
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        cuo.whiteFields = undefined
+        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
+      }
+
+      // Update the new field key
+      this.evalFormBlackFieldList()
+      this.evalFormWhiteFieldList()
+      await this.evalFormFieldList()
+    },
+    //--------------------------------------------------
+    async OnFormSetupOpen() {
+      let cans = _.map(this.myCandidateFormFields, ({ race, key, title }) => {
+        if ('Normal' == race) {
+          return { text: title, value: key }
+        }
+      })
+      let vals = []
+      const _join_selected_fields = (fields = []) => {
+        for (let fld of fields) {
+          let { race, key, fields } = fld
+          if ('Normal' == race) {
+            vals.push(key)
+          } else if ('Group' == race && !_.isEmpty(fields)) {
+            _join_selected_fields(fields)
+          }
+        }
+      }
+      _join_selected_fields(this.myFormFields)
+
+      // CleanUp
+      cans = _.without(cans, undefined)
+      vals = _.without(vals, undefined)
+
+      // Show the dialog
+      let whiteFields = await Ti.App.Open(_.assign(
+        {
+          title: "i18n:choose-fields",
+          width: "6.4rem",
+          height: "90%",
+          position: "bottom"
+        },
+        this.customizeDialog,
+        {
+          result: vals,
+          comType: "TiTransfer",
+          comConf: {
+            options: cans
+          },
+          components: [
+            "@com:ti/transfer"
+          ]
+        }
+      ))
+
+      // User cancel
+      if (!whiteFields) {
+        return
+      }
+
+      // Store to local
+      if (this.keepCustomizedTo) {
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        cuo.whiteFields = whiteFields
+        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
+      }
+
+      // Update the new field key
+      this.evalFormWhiteFieldList(whiteFields)
+
+      // Customized white list will cause prop.blackField be ignored
+      this.myFieldBlackList = {}
+
+      await this.evalFormFieldList()
+    },
+    //--------------------------------------------------
     restoreCurrentTabIndexFromLocal() {
       if (this.keepTabIndexBy) {
         this.currentTabIndex = Ti.Storage.session.getInt(
           this.keepTabIndexBy, 0
         )
       }
+    },
+    //--------------------------------------------------
+    restoreCustomizedFromLocal() {
+      let re = {
+        whiteFields: undefined
+      }
+      if (this.keepCustomizedTo) {
+        let cus = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        _.assign(re, cus)
+      }
+      return re
     }
     //--------------------------------------------------
   },
@@ -170,6 +323,17 @@ const _M = {
   created: function () {
     // Current tab
     this.restoreCurrentTabIndexFromLocal()
+
+    // Curstomzed Setting
+    let cus = this.restoreCustomizedFromLocal()
+    // Customized white list will cause prop.blackField be ignored
+    if (_.isEmpty(cus.whiteFields)) {
+      this.evalFormBlackFieldList()
+    }
+    if (this.canCustomizedFields) {
+      this.evalFormWhiteFieldList(cus.whiteFields)
+    }
+
     // Lang
     this.evalMyLang()
     // Screen
@@ -183,18 +347,6 @@ const _M = {
       }
     })
     this.OnResize()
-    //...................................
-    // restore the whiteFields
-    let whiteFields;
-    if(this.keepCustomizedTo && this.canCustomizedFields) {
-      whiteFields = Ti.Storage.local.getObject(this.keepCustomizedTo)
-      if(_.isEmpty(whiteFields)) {
-        whiteFields = undefined
-      }
-    }
-    //...................................
-    this.evalFormFieldWhiteList(whiteFields)
-    this.evalFormFieldWhiteList()
     //...................................
     await this.evalFormFieldList()
   }

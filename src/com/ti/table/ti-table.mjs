@@ -196,7 +196,7 @@ const _M = {
 
       // Show the dialog
       let reo = await Ti.App.Open({
-        title: "Choose fields",
+        title: "i18n:choose-fields",
         width: "6.4rem",
         height: "90%",
         position: "top",

@@ -33,14 +33,19 @@
         :class="MainClass"
         :spacing="spacing"
         :mode="mode">
-        <section v-if="isFlatMode" class="flat-body" >
-          <!----------------------------------------->
-          <grid-container
-            v-bind="GridContainerConf"
-            :fields="GridFormFields"
-            @field:change="OnFieldChange"/>
-          <!----------------------------------------->
-        </section>
+        <!--============================================
+          Flat Mode
+        -->
+        <template v-if="isFlatMode">
+          <!------------------------------------------>
+          <section class="flat-body" >
+            <grid-container
+              v-bind="GridContainerConf"
+              :fields="GridFormFields"
+              @field:change="OnFieldChange"/>
+          </section>
+          <!------------------------------------------>
+        </template>
         <!--============================================
           Group Mode
         -->
@@ -69,6 +74,7 @@
                 @field:change="OnFieldChange"/>
               <!-------------------------------------->
           </section>
+          <!------------------------------------------>
           <!------------------------------------------>
         </template>
         <!--============================================
@@ -105,19 +111,26 @@
           </section>
           <!----------------------------------------->
         </template>
-        <!--
+        <!--============================================
           Invalide Mode
         -->
         <div v-else>
           Invalide Mode : <b>{{mode}}</b>
         </div>
       </main>
-    </template> <!-- Form main template-->
-    <!--
-      Customized actions
-    -->
-    <footer
-      v-if="canCustomizedFields">
-      adfafadf
-    </footer>
+      <!--
+        Foot actions
+      -->
+      <footer
+        v-if="showFooterActions"
+          class="form-actions"
+          :spacing="spacing"
+          :mode="mode">
+          <TiButton
+            v-bind="GridActionButtonConf"
+            @form:submit="OnFormSubmit"
+            @form:setup:open="OnFormSetupOpen"
+            @form:setup:clean="OnFormSetupClean"/>
+      </footer>
+    </template> <!-- Form main template-->    
 </div>
