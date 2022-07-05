@@ -68,6 +68,7 @@
       flex: 1 1 auto;
       @include flex-align-nowrap;
       @include color($color-bar, r, c);
+      margin: SZ(4) 0;
     }
     //------------------------------------
     > .field-name {
@@ -103,9 +104,15 @@
       //----------------------------------
       &[name-v-align="top"] {
         align-items: flex-start;
+        > .field-name-con {
+          margin-top: SZ(8);
+        }
       }
       &[name-v-align="bottom"] {
         align-items: flex-end;
+        > .field-name-con {
+          margin-bottom: SZ(8);
+        }
       }
       &[name-v-align="center"] {
         align-items: center;
@@ -141,6 +148,7 @@
     //------------------------------------
     > .field-value {
       display: flex;
+      position: relative;
       //------------------------------------
       &[value-wrap="nowrap"] {
         @include flex-align-nowrap;
@@ -186,7 +194,18 @@
         max-width: 100%;
         word-break: break-all;
         text-align: justify;
-        padding: SZ(4) 0;
+        padding: SZ(4);
+      }
+      //------------------------------------
+      // Show status when .field-name is hidden
+      > .field-status {
+        @include flex-center;
+        background-color: map-get($color-cloak, c);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: SZ(32);
+        height: SZ(32);
       }
       //------------------------------------
     }

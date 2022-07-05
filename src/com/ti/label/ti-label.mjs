@@ -4,7 +4,7 @@ const _M = {
     isNilDisplay: false,
     myDisplayIcon: undefined,
     myDisplayText: undefined,
-    myDictValKey: undefined
+    myDictValKey: ".text"
   }),
   //////////////////////////////////////////
   props: {
@@ -163,9 +163,15 @@ const _M = {
           return this.dict
         }
         // Get back
-        let { name, vKey } = Ti.DictFactory.explainDictName(this.dict)
-        this.myDictValKey = vKey || ".text"
-        return Ti.DictFactory.CheckDict(name)
+        let dictInput = /^(@Dict:|#)$/.test(this.dict)
+          ? this.dict
+          : `#${this.dict}`
+        return Ti.DictFactory.CreateDictBy(dictInput, {
+          vars: this.dictVars,
+          callbackValueKey: (vkey) => {
+            this.myDictValKey = vKey || ".text"
+          }
+        });
       }
     }
     //--------------------------------------
@@ -236,7 +242,7 @@ const _M = {
     },
     //------------------------------------------------
     OnClickLink(evt) {
-      if(this.editable || !this.navigable) {
+      if (this.editable || !this.navigable) {
         evt.preventDefault()
       }
     },

@@ -1,4 +1,4 @@
-// Pack At: 2022-06-24 18:37:38
+// Pack At: 2022-07-06 00:40:55
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -11196,6 +11196,60 @@ const {Util} = (function(){
       return list2
     },
     /***
+     * Select value from the arm which match the context
+     * 
+     * @param context{Any} - the arm match context
+     * @param arms{Array} - 2D array to defined the arms.
+     * the form for the arm like:
+     * ```
+     * [
+     *    [AutoMatch, Value],
+     *    [AutoMatch, Value],
+     *    [DefaultValue]
+     * ]
+     * ```
+     * 
+     * **For example**
+     * 
+     * ```
+     * [
+     *   // 超过 1000 像素时，三列
+     *   [3, "[1000,)"],
+     *   // 超过 600 像素时，两列
+     *   [2, "[600,)"],
+     *   // 默认，一列
+     *   [1],
+     * ]
+     * ```
+     * 
+     * @return the matched arm value
+     */
+    selectValue(context, arms = [], {
+      explain = false,
+      by = ([v, m], context) => {
+        if (!m || Ti.AutoMatch.test(m, context)) {
+          return v
+        }
+      }
+    } = {}) {
+      if (_.isArray(arms)) {
+        for (let arm of arms) {
+          let v = by(arm, context)
+          if (!_.isUndefined(v)) {
+            if (explain) {
+              return TiUtil.explainObj(context, v)
+            }
+            return v
+          }
+        }
+      } else {
+        if (explain) {
+          return TiUtil.explainObj(context, arms)
+        }
+        return arms
+      }
+    },
+    /***
      * Explain obj to a new one
      * 
      * The key `...` in obj will `_.assign` the value
@@ -14602,8 +14656,8 @@ const {Num} = (function(){
      * scrollIndex( 3, 5) => 3
      * scrollIndex( 0, 5) => 0
      * scrollIndex( 4, 5) => 4
-     * scrollIndex( 5, 5) => 1
-     * scrollIndex( 6, 5) => 2
+     * scrollIndex( 5, 5) => 0
+     * scrollIndex( 6, 5) => 1
      * scrollIndex(-1, 5) => 4
      * scrollIndex(-5, 5) => 0
      * scrollIndex(-6, 5) => 4
@@ -15813,7 +15867,8 @@ const {Dict,DictFactory} = (function(){
     CreateDictBy(input, {
       valueBy, textBy, iconBy,
       vars = {}  /* for dynamic dict */,
-      whenLoading = function ({ loading }) { }
+      whenLoading = function ({ loading }) { },
+      callbackValueKey = _.idendity
     } = {}) {
       if (input instanceof Ti.Dict) {
         return input
@@ -15822,7 +15877,12 @@ const {Dict,DictFactory} = (function(){
       if (_.isString(input)) {
         let dictName = DictFactory.DictReferName(input)
         if (dictName) {
-          let { name, dynamic, dictKey } = DictFactory.explainDictName(dictName)
+          // "vkey" is needed by TiLabel
+          // Sometimes, it need "MyDict:.icon" to get the other prop to display
+          let { name, dynamic, dictKey, vkey } = DictFactory.explainDictName(dictName)
+          if (vkey) {
+            callbackValueKey(vkey)
+          }
           //
           // Dynamic dictionary
           //
@@ -18615,7 +18675,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220624.183738",
+  "version" : "1.6-20220706.004055",
   "dev" : false,
   "appName" : null,
   "session" : {},

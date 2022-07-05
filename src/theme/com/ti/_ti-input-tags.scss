@@ -6,7 +6,7 @@ div.ti-input-tags {flex-wrap: wrap;}
     @include flex-center;
     padding:0 SZ(4); font-size:.8em;
     .ti-tags-item {
-      min-height: SZ(24);
+      min-height: 2em;
       > .as-del {
         margin-right: SZ(4);
       }
@@ -19,9 +19,9 @@ div.ti-input-tags {flex-wrap: wrap;}
   // Input Box
   > .as-input {
     @include flex-align-nowrap($jc:flex-end, $ai:stretch);
-    flex:1 1 auto; min-height: SZ(35);
+    flex:1 1 auto; min-height: 2.4em;
     > input {
-      width:SZ(150); 
+      //width:SZ(150); 
       outline:none;
       flex:1 0 auto;
       border:0; padding:0 SZ(10);

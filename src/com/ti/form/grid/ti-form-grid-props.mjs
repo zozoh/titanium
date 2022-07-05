@@ -119,7 +119,7 @@ export default {
   },
   "fieldNameAlign": {
     type: String,
-    default: "left",
+    default: "right",
     validator: (v) => /^(left|right|center)$/.test(v)
   },
   "fieldNameVAlign": {
@@ -173,6 +173,10 @@ export default {
     type: String,
     default: "comfy",
     validator: v => /^(comfy|tiny)$/.test(v)
+  },
+  // TiButton.className
+  "actionClassName": {
+    type: [String, Array, Object],
   },
   // TiButton.size
   "actionSize": {

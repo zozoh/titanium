@@ -2,7 +2,7 @@
   @include noselect;
   @include flex-align-nowrap($ai:stretch, $ac:stretch);
   @include color($color-input, c, r);
-  min-height: SZ(36);
+  min-height: 2.4em;
   //-----------------------------------------
   &.show-border {
     @include border(1px, solid, dark);
@@ -16,7 +16,7 @@
   //-----------------------------------------
   .as-input-icon {
     @include flex-center($ai:stretch, $ac:stretch);
-    flex:0 0 auto; width:2em; 
+    flex:0 0 auto; width:2em; min-height: 1.8em;
     overflow: hidden;
     //---------------------------------------
     &.can-hover{cursor: pointer;}
@@ -53,7 +53,8 @@
     //---------------------------------------
     > input {
       @include font-fixed(inherit);
-      width:100%; 
+      min-width:80px; 
+      width:80px;
       flex:1 1 auto;
       outline:none; border:0;
       padding:0 .5em; 

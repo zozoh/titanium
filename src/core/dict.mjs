@@ -555,7 +555,8 @@ export const DictFactory = {
   CreateDictBy(input, {
     valueBy, textBy, iconBy,
     vars = {}  /* for dynamic dict */,
-    whenLoading = function ({ loading }) { }
+    whenLoading = function ({ loading }) { },
+    callbackValueKey = _.idendity
   } = {}) {
     if (input instanceof Ti.Dict) {
       return input
@@ -564,7 +565,12 @@ export const DictFactory = {
     if (_.isString(input)) {
       let dictName = DictFactory.DictReferName(input)
       if (dictName) {
-        let { name, dynamic, dictKey } = DictFactory.explainDictName(dictName)
+        // "vkey" is needed by TiLabel
+        // Sometimes, it need "MyDict:.icon" to get the other prop to display
+        let { name, dynamic, dictKey, vkey } = DictFactory.explainDictName(dictName)
+        if (vkey) {
+          callbackValueKey(vkey)
+        }
         //
         // Dynamic dictionary
         //

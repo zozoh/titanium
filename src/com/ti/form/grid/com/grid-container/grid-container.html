@@ -51,15 +51,22 @@
           class="field-value"
           :style="fld.valueStyle"
           :value-wrap="fld.valueWrap">
+          <!--------------------------------->
           <div class="field-value-com" :style="fld.comStyle">
             <component :is="fld.comType"
               v-bind="fld.comConf"
               @change="OnFldChange(fld, $event)"/>
           </div>
+          <!--------------------------------->
           <div
             v-if="fld.tip"
               class="field-value-tip"
               :style="fld.tipStyle">{{fld.tip | i18n}}</div>
+          <!------Show tip when Nil-name----->
+          <div
+              v-if="fld.statusIcon && !(fld.icon || fld.title)"
+                class="field-status"><TiIcon :value="fld.statusIcon"/></div>
+          <!--------------------------------->
         </div>
         <!------------------------------------->
       </template>

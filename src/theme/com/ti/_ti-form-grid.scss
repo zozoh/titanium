@@ -36,7 +36,7 @@
   //
   //--------------------------------------
   > main.form-main {
-    flex:1 1 auto;
+    flex: 1 1 auto;
     //------------------------------------
     > section > .group-title {
       @include flex-align($ai: center, $ac: center);
@@ -49,6 +49,7 @@
         padding: SZ(4);
         > .group-title {
           padding: SZ(4) SZ(6);
+          margin-bottom: SZ(4);
           .title-icon {
             margin-right: SZ(6);
           }
@@ -62,6 +63,7 @@
         padding: SZ(10);
         > .group-title {
           padding: SZ(8) SZ(12);
+          margin-bottom: SZ(8);
           font-size: 1.2em;
           .title-icon {
             margin-right: SZ(8);

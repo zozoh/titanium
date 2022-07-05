@@ -186,6 +186,7 @@ const _M = {
       // Done
       if (!_.isEmpty(setup)) {
         return {
+          className: this.actionClassName,
           size: this.actionSize
             || (
               "tiny" == this.spacing

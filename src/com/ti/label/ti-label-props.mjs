@@ -7,6 +7,11 @@ export default {
     type: [String, Ti.Dict],
     default: undefined
   },
+  // @see TiComboInputProp#dictVars
+  "dictVars": {
+    type: Object,
+    default: ()=>({})
+  },
   "valueMustInDict": {
     type: Boolean,
     default: true

@@ -1,47 +1,72 @@
 {
-  "comType" : "ti-form",
-  "comConf" : {
-    "autoShowBlank" : false,
-    "data" : "=data",
-    "fields" : [{
-        "title" : "静态标签",
-        "name"  : "lbls0",
-        "type"  : "Array",
-        "comType" : "ti-input-tags",
-        "comConf" : {
-          "placeholder" : "请输入新标签",
-          "valueCase" : "upper",
-          "maxValueLen" : -3,
-          "prefixIcon" : "zmdi-reddit",
-          "prefixText" : "Tags",
-          "suffixText" : "input",
-          "suffixIcon" : "zmdi-reddit"
+  "comType": "ti-form",
+  "comConf": {
+    "autoShowBlank": false,
+    "data": "=data",
+    "fields": [
+      {
+        "title": "静态标签",
+        "name": "lbls0",
+        "type": "Array",
+        "comType": "ti-input-tags",
+        "comConf": {
+          "placeholder": "请输入新标签",
+          "valueCase": "upper",
+          "maxValueLen": -3,
+          "prefixIcon": "zmdi-reddit",
+          "prefixText": "Tags",
+          "suffixText": "input",
+          "suffixIcon": "zmdi-reddit"
         }
-      }, {
-        "title" : "下拉选择标签（文本）",
-        "name"  : "lbls1",
-        "type"  : "Array",
-        "comType" : "ti-input-tags",
-        "comConf" : {
-          "placeholder" : "请输入新标签",
-          "valueCase" : "upper",
-          "tagOptions" : ["A","B","C","D"]
+      },
+      {
+        "title": "下拉选择标签（文本）",
+        "name": "lbls1",
+        "type": "Array",
+        "comType": "ti-input-tags",
+        "comConf": {
+          "placeholder": "请输入新标签",
+          "valueCase": "upper",
+          "tagOptions": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ]
         }
-      }, {
-        "title" : "下拉选择标签（图标）",
-        "name"  : "lbls2",
-        "type"  : "Array",
-        "comType" : "ti-input-tags",
-        "comConf" : {
-          "placeholder" : "请输入新标签",
-          "tagIcon" : "zmdi-boat",
-          "tagOptions" : [
-            {"value":"A", "text":"甲类"},
-            {"value":"B", "text":"乙类"},
-            {"value":"C", "text":"丙类"},
-            {"value":"D", "text":"丁类"},
-            {"value":"E", "text":"戊类"}]
+      },
+      {
+        "title": "下拉选择标签（图标）",
+        "name": "lbls2",
+        "type": "Array",
+        "comType": "ti-input-tags",
+        "comConf": {
+          "placeholder": "请输入新标签",
+          "tagIcon": "zmdi-boat",
+          "tagOptions": [
+            {
+              "value": "A",
+              "text": "甲类"
+            },
+            {
+              "value": "B",
+              "text": "乙类"
+            },
+            {
+              "value": "C",
+              "text": "丙类"
+            },
+            {
+              "value": "D",
+              "text": "丁类"
+            },
+            {
+              "value": "E",
+              "text": "戊类"
+            }
+          ]
         }
-      }]
+      }
+    ]
   }
 }
