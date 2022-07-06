@@ -30,7 +30,7 @@ const _M = {
     let keyAt = state.localBehaviorKeepAt;
     state.lbkAt = Ti.Util.explainObj(state, keyAt)
     state.lbkIgnore = Ti.AutoMatch.parse(state.localBehaviorIgnore)
-    state.schemaBeIgnore= Ti.AutoMatch.parse(state.schemaBehaviorIgnore)
+    state.schemaBeIgnore = Ti.AutoMatch.parse(state.schemaBehaviorIgnore)
   },
   //----------------------------------------
   setLbkOff(state, off = true) { state.lbkOff = off },
@@ -86,6 +86,9 @@ const _M = {
   },
   //----------------------------------------
   setSorter(state, sorter) {
+    if ("caseevents" == state.moduleName) {
+      console.log("setSorter", state.moduleName, sorter)
+    }
     state.sorter = sorter
     saveLocalBehavior(state, "sorter", sorter)
   },
@@ -121,7 +124,7 @@ const _M = {
   setCurrentId(state, currentId) {
     state.currentId = currentId
     state.status = _.assign({}, state.status, {
-      "hasCurrent" : !Ti.Util.isNil(currentId)
+      "hasCurrent": !Ti.Util.isNil(currentId)
     })
     saveLocalBehavior(state, "currentId", currentId)
   },
@@ -137,7 +140,7 @@ const _M = {
     }
     state.checkedIds = ids
     state.status = _.assign({}, state.status, {
-      "hasChecked" : !_.isEmpty(ids)
+      "hasChecked": !_.isEmpty(ids)
     })
     saveLocalBehavior(state, "checkedIds", ids)
   },

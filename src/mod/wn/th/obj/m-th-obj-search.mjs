@@ -107,7 +107,8 @@ const _M = {
   // Query
   //
   //----------------------------------------
-  async queryList({ state, commit, getters }, flt={}) {
+  async queryList({ state, commit, getters }, flt = {}) {
+    state.LOG("async queryList")
     let {
       thingSetId,
       filter,
@@ -151,6 +152,7 @@ const _M = {
     commit("setCurrentMeta")
 
     commit("setStatus", { reloading: false })
+    state.LOG(" - query done:", reo)
   },
   //--------------------------------------------
 }

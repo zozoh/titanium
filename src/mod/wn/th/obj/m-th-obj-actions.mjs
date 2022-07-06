@@ -70,7 +70,7 @@ const _M = {
   },
   //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }) {
-    //console.log("loadContent")
+    state.LOG("async loadContent")
     // Guard : dataHome
     // if (!state.dataHome) {
     //   return
@@ -110,6 +110,7 @@ const _M = {
   },
   //--------------------------------------------
   async loadSchema({ state, commit }) {
+    state.LOG(" - loadSchema")
     let schema = await loadConfigJson(state, "schemaPath", {})
     let components = []
 
@@ -187,19 +188,20 @@ const _M = {
   },
   //--------------------------------------------
   async loadLayout({ state, commit }) {
+    state.LOG(" > loadLayout")
     let reo = await loadConfigJson(state, "layoutPath", {})
     commit("setLayout", reo)
   },
   //--------------------------------------------
   async loadThingActions({ state, commit }) {
+    state.LOG(" > loadThingActions")
     let reo = await loadConfigJson(state, "actionsPath", null)
     commit("setThingActions", reo)
   },
   //--------------------------------------------
   async loadThingMethods({ state, commit }) {
-    // Guard
+    state.LOG(" > loadThingMethods", state.methodPaths)
     let reo = {}
-    //console.log("loadThingMethods", state.methodPaths)
 
     // Load
     if (state.methodPaths) {
@@ -224,6 +226,7 @@ const _M = {
   },
   //--------------------------------------------
   async loadThingSetId({ state, commit }) {
+    state.LOG("loadThingSetId")
     let meta = state.meta
     if (!meta) {
       return
@@ -343,6 +346,13 @@ const _M = {
   },
   //--------------------------------------------
   async reloadData({ state, dispatch, getters }) {
+    // Guard
+    if (state.status.reloading
+      || state.status.saving
+      || state.status.deleting) {
+      return
+    }
+    state.LOG("reloadData")
     if (state.oTs) {
       await dispatch("queryList");
     }
@@ -355,12 +365,25 @@ const _M = {
    * Reload All
    */
   async reload({ state, commit, dispatch, getters }, meta) {
-    // if ("caseevents" == state.moduleName) {
-    //   console.log("reload caseevents")
-    // }
+    // Guard
+    if (state.status.reloading
+      || state.status.saving
+      || state.status.deleting) {
+      return
+    }
+    state.LOG = () => { }
+    if ("main" == state.moduleName) {
+      // state.LOG = (...args) => {
+      //   console.log(`【${state.moduleName}】`, ...args)
+      // }
+      state.LOG = console.log
+    }
+    state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // Guard
     if (_.isString(meta)) {
+      state.LOG("load meta", meta)
       meta = await Wn.Io.loadMeta(meta)
+      state.LOG("get meta", meta)
     }
     if (!meta) {
       return await Ti.Toast.Open("Nil Meta", "warn")
@@ -370,6 +393,7 @@ const _M = {
     }
 
     // Analyze meta : oTs
+    state.LOG("Analyze oTs and thingSetId")
     if ("thing_set" == meta.tp && "DIR" == meta.race) {
       commit("setThingSet", meta)
       commit("setThingSetId", meta.id)
@@ -396,18 +420,26 @@ const _M = {
       return await Ti.Toast.Open("Meta OutOfThingSet: " + meta.id, "warn")
     }
 
+    commit("setStatus", { reloading: true })
+
     // Reload Configurations
+    state.LOG("<-------- Reload Config -------->")
     dispatch("applyViewBeforeLoad")
-    await dispatch("loadSchema")
-    await dispatch("loadLayout")
-    await dispatch("loadThingActions")
-    await dispatch("loadThingMethods")
+    await dispatch("loadSchema");
+    await Promise.all([
+      dispatch("loadLayout"),
+      dispatch("loadThingActions"),
+      dispatch("loadThingMethods")
+    ])
     dispatch("applyViewAfterLoad")
+    state.LOG("<-------- Config Loaded-------->")
 
     // Behavior
     commit("explainLocalBehaviorKeepAt")
     dispatch("updateSchemaBehavior")
     dispatch("restoreLocalBehavior")
+
+    state.LOG(" >> Query Data ...")
 
     // Reload thing list
     if (state.oTs) {
@@ -424,6 +456,7 @@ const _M = {
 
     // All done
     commit("setStatus", { reloading: false })
+    state.LOG("<<<<<<<<<<<<<<<< done for reload")
   }
   //--------------------------------------------
 }

@@ -161,17 +161,22 @@ const _M = {
       let result = this.ValueObj
 
       // Open dialog
-      let reo = await Ti.App.Open(_.assign({
-        title: "i18n:hmk-css-edit",
-        width: "8rem",
-        height: "95%",
-        position: "top",
-      }, this.dialog, {
-        result,
-        model: { prop: "data", event: "change" },
-        comType: "TiForm",
-        comConf: this.FormConfig
-      }))
+      let reo = await Ti.App.Open(_.assign(
+        {
+          title: "i18n:hmk-css-edit",
+          width: "80%",
+          minWidth: "6.4rem",
+          height: "95%",
+          position: "top",
+        },
+        this.dialog,
+        {
+          result,
+          model: { prop: "data", event: "change" },
+          comType: "TiForm",
+          comConf: this.FormConfig
+        }
+      ));
 
       // User cancle
       if (!reo)

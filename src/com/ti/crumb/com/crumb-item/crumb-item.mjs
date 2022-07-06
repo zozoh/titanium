@@ -1,57 +1,61 @@
 export default {
   ////////////////////////////////////////////////////
-  props : {
-    "index" : {
-      type : Number,
-      default : -1
+  props: {
+    "index": {
+      type: Number,
+      default: -1
     },
-    "atLast" : {
-      type : Boolean,
-      default : false
+    "atLast": {
+      type: Boolean,
+      default: false
     },
-    "icon" : {
-      type : [String, Object],
-      default : null
+    "icon": {
+      type: [String, Object],
+      default: null
     },
-    "text" : {
-      type : String,
-      default : null
+    "text": {
+      type: String,
+      default: null
     },
-    "href" : {
-      type : String,
-      default : null
+    "href": {
+      type: String,
+      default: null
     },
-    "value" : {
-      type : [String, Number, Boolean, Object],
-      default : null
+    "value": {
+      type: [String, Number, Boolean, Object],
+      default: null
     },
-    "pathIcon" : {
-      type : String,
-      default : null
+    "pathIcon": {
+      type: String,
+      default: null
     },
-    "asterisk" : {
-      type : Boolean,
-      default : false
+    "asterisk": {
+      type: Boolean,
+      default: false
     },
-    "cancelBubble" : {
-      type : Boolean,
-      default : true
+    "cancelBubble": {
+      type: Boolean,
+      default: true
+    },
+    "eventName": {
+      type: [Boolean, String]
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return Ti.Css.mergeClassName({
-        "at-tail" : this.atLast,
-        "at-path" : !this.atLast,
-        "is-asterisk" : this.asterisk
+        "at-tail": this.atLast,
+        "at-path": !this.atLast,
+        "is-asterisk": this.asterisk,
+        "has-event": this.hasEvent,
       }, this.className)
     },
     //------------------------------------------------
     TextClass() {
       return {
-        "without-icon"    : !this.hasIcon && !this.removeIcon
+        "without-icon": !this.hasIcon && !this.removeIcon
       }
     },
     //------------------------------------------------
@@ -63,37 +67,69 @@ export default {
       return Ti.I18n.text(this.text);
     },
     //------------------------------------------------
+    hasEvent() {
+      return this.eventName ? true : false
+    },
+    //------------------------------------------------
+    TheEventName() {
+      if (this.eventName) {
+        if (_.isBoolean(this.eventName)) {
+          return "item:active"
+        }
+        return this.eventName
+      }
+    },
+    //------------------------------------------------
     TheData() {
       return {
-        index    : this.index,
-        icon     : this.icon,
-        text     : this.text,
-        value    : this.value,
-        href     : this.href,
-        atLast   : this.atLast,
-        asterisk : this.asterisk
+        index: this.index,
+        icon: this.icon,
+        text: this.text,
+        value: this.value,
+        href: this.href,
+        atLast: this.atLast,
+        asterisk: this.asterisk
       }
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     OnClickTop($event) {
       // Show Drop Down
-      if(this.hasOptions) {
+      if (this.hasOptions) {
         $event.stopPropagation()
         this.openDrop()
       }
       // Stop Bubble Up
-      else if(this.cancelBubble) {
+      else if (this.cancelBubble) {
         $event.stopPropagation()
       }
-      // Emit event
-      if(this.href) {
-        this.$notify("item:active", this.TheData)
+      // Prevent
+      if (this.hasEvent) {
+        $event.preventDefault()
       }
-    }
+      // Emit event
+      let name = this.getEventName()
+      if (this.href) {
+        this.$notify(name, this.TheData)
+      }
+      // Just notify event
+      else if (this.hasEvent) {
+        this.$notify(name, this.TheData)
+      }
+    },
+    //------------------------------------------------
+    getEventName(dftEventName = "item:active") {
+      if (this.eventName) {
+        if (_.isBoolean(this.eventName)) {
+          return dftEventName
+        }
+        return this.eventName
+      }
+      return dftEventName
+    },
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////

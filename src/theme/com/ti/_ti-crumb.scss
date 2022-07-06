@@ -1,14 +1,27 @@
 .ti-crumb {
   @include noselect;
-  @include flex-align-nowrap($ai:stretch,$ac:stretch);
+  @include flex-align-nowrap($ai: stretch, $ac: stretch);
 }
 //---------------------------------------------
 .ti-crumb-item {
-  @include flex-align-nowrap($ai:stretch);
-  overflow: hidden; padding: 0; 
+  @include flex-align-nowrap($ai: stretch);
+  overflow: hidden;
+  padding: 0;
   //-------------------------------------------
-  &.at-path {cursor: pointer;}
-  &.at-tail {opacity: 0.8;}
+  &.has-event {
+    @include color($color-primary, c);
+    &:hover {
+      @include color($color-secondary, c);
+      text-decoration: underline;
+    }
+  }
+  //-------------------------------------------
+  &.at-path {
+    cursor: pointer;
+  }
+  &.at-tail {
+    opacity: 0.8;
+  }
   //-------------------------------------------
   &.is-asterisk {
     opacity: 1;
@@ -16,30 +29,38 @@
   }
   //-------------------------------------------
   > .as-icon {
-    padding:0 SZ(4); font-size:SZ(16);
+    padding: 0 SZ(4);
+    font-size: SZ(16);
   }
   //-------------------------------------------
   > .as-text {
-    @include flex-center($wp:nowrap);
-    padding:0 0 SZ(2) SZ(2); white-space: nowrap;
-    &.without-icon    {padding-left:SZ(8);}
-    &.without-options {padding-right:SZ(8);}
+    @include flex-center($wp: nowrap);
+    padding: 0 0 SZ(2) SZ(2);
+    white-space: nowrap;
+    &.without-icon {
+      padding-left: SZ(8);
+    }
+    &.without-options {
+      padding-right: SZ(8);
+    }
   }
   //-------------------------------------------
   > .as-asterisk {
     @include flex-center;
     @include font-fixed;
-    padding:0 SZ(4);
+    padding: 0 SZ(4);
     &:before {
       @include color($color-error, c);
-      display: inline; content:"*";
+      display: inline;
+      content: "*";
       font-weight: bolder;
       font-size: 1.2em;
     }
   }
   //-------------------------------------------
   > .as-path-icon {
-    padding:0 SZ(6); opacity: 0.6;
+    padding: 0 SZ(6);
+    opacity: 0.6;
   }
   //-------------------------------------------
 }
