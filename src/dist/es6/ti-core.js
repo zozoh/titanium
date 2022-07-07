@@ -1,4 +1,4 @@
-// Pack At: 2022-07-06 00:40:55
+// Pack At: 2022-07-07 16:58:25
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4854,7 +4854,7 @@ const {Dom} = (function(){
         return $el
       }
       if (_.isFunction(selector)) {
-        return selector($el, scope)
+        return selector($el, scope, evt)
       }
       while ($el) {
         if ($el === scope) {
@@ -18675,7 +18675,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220706.004055",
+  "version" : "1.6-20220707.165825",
   "dev" : false,
   "appName" : null,
   "session" : {},

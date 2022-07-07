@@ -529,7 +529,7 @@ const TiDom = {
       return $el
     }
     if (_.isFunction(selector)) {
-      return selector($el, scope)
+      return selector($el, scope, evt)
     }
     while ($el) {
       if ($el === scope) {

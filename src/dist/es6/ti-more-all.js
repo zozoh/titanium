@@ -1,4 +1,4 @@
-// Pack At: 2022-07-06 00:40:55
+// Pack At: 2022-07-07 16:58:25
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -4996,7 +4996,7 @@ const _M = {
     let keyAt = state.localBehaviorKeepAt;
     state.lbkAt = Ti.Util.explainObj(state, keyAt)
     state.lbkIgnore = Ti.AutoMatch.parse(state.localBehaviorIgnore)
-    state.schemaBeIgnore= Ti.AutoMatch.parse(state.schemaBehaviorIgnore)
+    state.schemaBeIgnore = Ti.AutoMatch.parse(state.schemaBehaviorIgnore)
   },
   //----------------------------------------
   setLbkOff(state, off = true) { state.lbkOff = off },
@@ -5052,6 +5052,9 @@ const _M = {
   },
   //----------------------------------------
   setSorter(state, sorter) {
+    if ("caseevents" == state.moduleName) {
+      console.log("setSorter", state.moduleName, sorter)
+    }
     state.sorter = sorter
     saveLocalBehavior(state, "sorter", sorter)
   },
@@ -5087,7 +5090,7 @@ const _M = {
   setCurrentId(state, currentId) {
     state.currentId = currentId
     state.status = _.assign({}, state.status, {
-      "hasCurrent" : !Ti.Util.isNil(currentId)
+      "hasCurrent": !Ti.Util.isNil(currentId)
     })
     saveLocalBehavior(state, "currentId", currentId)
   },
@@ -5103,7 +5106,7 @@ const _M = {
     }
     state.checkedIds = ids
     state.status = _.assign({}, state.status, {
-      "hasChecked" : !_.isEmpty(ids)
+      "hasChecked": !_.isEmpty(ids)
     })
     saveLocalBehavior(state, "checkedIds", ids)
   },
@@ -10978,7 +10981,8 @@ const _M = {
   // Query
   //
   //----------------------------------------
-  async queryList({ state, commit, getters }, flt={}) {
+  async queryList({ state, commit, getters }, flt = {}) {
+    state.LOG("async queryList")
     let {
       thingSetId,
       filter,
@@ -11022,6 +11026,7 @@ const _M = {
     commit("setCurrentMeta")
 
     commit("setStatus", { reloading: false })
+    state.LOG(" - query done:", reo)
   },
   //--------------------------------------------
 }
@@ -37251,58 +37256,62 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/crumb/com/crumb-item/crumb-item.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
-  props : {
-    "index" : {
-      type : Number,
-      default : -1
+  props: {
+    "index": {
+      type: Number,
+      default: -1
     },
-    "atLast" : {
-      type : Boolean,
-      default : false
+    "atLast": {
+      type: Boolean,
+      default: false
     },
-    "icon" : {
-      type : [String, Object],
-      default : null
+    "icon": {
+      type: [String, Object],
+      default: null
     },
-    "text" : {
-      type : String,
-      default : null
+    "text": {
+      type: String,
+      default: null
     },
-    "href" : {
-      type : String,
-      default : null
+    "href": {
+      type: String,
+      default: null
     },
-    "value" : {
-      type : [String, Number, Boolean, Object],
-      default : null
+    "value": {
+      type: [String, Number, Boolean, Object],
+      default: null
     },
-    "pathIcon" : {
-      type : String,
-      default : null
+    "pathIcon": {
+      type: String,
+      default: null
     },
-    "asterisk" : {
-      type : Boolean,
-      default : false
+    "asterisk": {
+      type: Boolean,
+      default: false
     },
-    "cancelBubble" : {
-      type : Boolean,
-      default : true
+    "cancelBubble": {
+      type: Boolean,
+      default: true
+    },
+    "eventName": {
+      type: [Boolean, String]
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return Ti.Css.mergeClassName({
-        "at-tail" : this.atLast,
-        "at-path" : !this.atLast,
-        "is-asterisk" : this.asterisk
+        "at-tail": this.atLast,
+        "at-path": !this.atLast,
+        "is-asterisk": this.asterisk,
+        "has-event": this.hasEvent,
       }, this.className)
     },
     //------------------------------------------------
     TextClass() {
       return {
-        "without-icon"    : !this.hasIcon && !this.removeIcon
+        "without-icon": !this.hasIcon && !this.removeIcon
       }
     },
     //------------------------------------------------
@@ -37314,37 +37323,69 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return Ti.I18n.text(this.text);
     },
     //------------------------------------------------
+    hasEvent() {
+      return this.eventName ? true : false
+    },
+    //------------------------------------------------
+    TheEventName() {
+      if (this.eventName) {
+        if (_.isBoolean(this.eventName)) {
+          return "item:active"
+        }
+        return this.eventName
+      }
+    },
+    //------------------------------------------------
     TheData() {
       return {
-        index    : this.index,
-        icon     : this.icon,
-        text     : this.text,
-        value    : this.value,
-        href     : this.href,
-        atLast   : this.atLast,
-        asterisk : this.asterisk
+        index: this.index,
+        icon: this.icon,
+        text: this.text,
+        value: this.value,
+        href: this.href,
+        atLast: this.atLast,
+        asterisk: this.asterisk
       }
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     OnClickTop($event) {
       // Show Drop Down
-      if(this.hasOptions) {
+      if (this.hasOptions) {
         $event.stopPropagation()
         this.openDrop()
       }
       // Stop Bubble Up
-      else if(this.cancelBubble) {
+      else if (this.cancelBubble) {
         $event.stopPropagation()
       }
-      // Emit event
-      if(this.href) {
-        this.$notify("item:active", this.TheData)
+      // Prevent
+      if (this.hasEvent) {
+        $event.preventDefault()
       }
-    }
+      // Emit event
+      let name = this.getEventName()
+      if (this.href) {
+        this.$notify(name, this.TheData)
+      }
+      // Just notify event
+      else if (this.hasEvent) {
+        this.$notify(name, this.TheData)
+      }
+    },
+    //------------------------------------------------
+    getEventName(dftEventName = "item:active") {
+      if (this.eventName) {
+        if (_.isBoolean(this.eventName)) {
+          return dftEventName
+        }
+        return this.eventName
+      }
+      return dftEventName
+    },
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////
@@ -47716,17 +47757,22 @@ const _M = {
       let result = this.ValueObj
 
       // Open dialog
-      let reo = await Ti.App.Open(_.assign({
-        title: "i18n:hmk-css-edit",
-        width: "8rem",
-        height: "95%",
-        position: "top",
-      }, this.dialog, {
-        result,
-        model: { prop: "data", event: "change" },
-        comType: "TiForm",
-        comConf: this.FormConfig
-      }))
+      let reo = await Ti.App.Open(_.assign(
+        {
+          title: "i18n:hmk-css-edit",
+          width: "80%",
+          minWidth: "6.4rem",
+          height: "95%",
+          position: "top",
+        },
+        this.dialog,
+        {
+          result,
+          model: { prop: "data", event: "change" },
+          comType: "TiForm",
+          comConf: this.FormConfig
+        }
+      ));
 
       // User cancle
       if (!reo)
@@ -68915,7 +68961,7 @@ const _M = {
   },
   //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }) {
-    //console.log("loadContent")
+    state.LOG("async loadContent")
     // Guard : dataHome
     // if (!state.dataHome) {
     //   return
@@ -68955,6 +69001,7 @@ const _M = {
   },
   //--------------------------------------------
   async loadSchema({ state, commit }) {
+    state.LOG(" - loadSchema")
     let schema = await loadConfigJson(state, "schemaPath", {})
     let components = []
 
@@ -69032,19 +69079,20 @@ const _M = {
   },
   //--------------------------------------------
   async loadLayout({ state, commit }) {
+    state.LOG(" > loadLayout")
     let reo = await loadConfigJson(state, "layoutPath", {})
     commit("setLayout", reo)
   },
   //--------------------------------------------
   async loadThingActions({ state, commit }) {
+    state.LOG(" > loadThingActions")
     let reo = await loadConfigJson(state, "actionsPath", null)
     commit("setThingActions", reo)
   },
   //--------------------------------------------
   async loadThingMethods({ state, commit }) {
-    // Guard
+    state.LOG(" > loadThingMethods", state.methodPaths)
     let reo = {}
-    //console.log("loadThingMethods", state.methodPaths)
 
     // Load
     if (state.methodPaths) {
@@ -69069,6 +69117,7 @@ const _M = {
   },
   //--------------------------------------------
   async loadThingSetId({ state, commit }) {
+    state.LOG("loadThingSetId")
     let meta = state.meta
     if (!meta) {
       return
@@ -69188,6 +69237,13 @@ const _M = {
   },
   //--------------------------------------------
   async reloadData({ state, dispatch, getters }) {
+    // Guard
+    if (state.status.reloading
+      || state.status.saving
+      || state.status.deleting) {
+      return
+    }
+    state.LOG("reloadData")
     if (state.oTs) {
       await dispatch("queryList");
     }
@@ -69200,12 +69256,25 @@ const _M = {
    * Reload All
    */
   async reload({ state, commit, dispatch, getters }, meta) {
-    // if ("caseevents" == state.moduleName) {
-    //   console.log("reload caseevents")
-    // }
+    // Guard
+    if (state.status.reloading
+      || state.status.saving
+      || state.status.deleting) {
+      return
+    }
+    state.LOG = () => { }
+    if ("main" == state.moduleName) {
+      // state.LOG = (...args) => {
+      //   console.log(`【${state.moduleName}】`, ...args)
+      // }
+      state.LOG = console.log
+    }
+    state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // Guard
     if (_.isString(meta)) {
+      state.LOG("load meta", meta)
       meta = await Wn.Io.loadMeta(meta)
+      state.LOG("get meta", meta)
     }
     if (!meta) {
       return await Ti.Toast.Open("Nil Meta", "warn")
@@ -69215,6 +69284,7 @@ const _M = {
     }
 
     // Analyze meta : oTs
+    state.LOG("Analyze oTs and thingSetId")
     if ("thing_set" == meta.tp && "DIR" == meta.race) {
       commit("setThingSet", meta)
       commit("setThingSetId", meta.id)
@@ -69241,18 +69311,26 @@ const _M = {
       return await Ti.Toast.Open("Meta OutOfThingSet: " + meta.id, "warn")
     }
 
+    commit("setStatus", { reloading: true })
+
     // Reload Configurations
+    state.LOG("<-------- Reload Config -------->")
     dispatch("applyViewBeforeLoad")
-    await dispatch("loadSchema")
-    await dispatch("loadLayout")
-    await dispatch("loadThingActions")
-    await dispatch("loadThingMethods")
+    await dispatch("loadSchema");
+    await Promise.all([
+      dispatch("loadLayout"),
+      dispatch("loadThingActions"),
+      dispatch("loadThingMethods")
+    ])
     dispatch("applyViewAfterLoad")
+    state.LOG("<-------- Config Loaded-------->")
 
     // Behavior
     commit("explainLocalBehaviorKeepAt")
     dispatch("updateSchemaBehavior")
     dispatch("restoreLocalBehavior")
+
+    state.LOG(" >> Query Data ...")
 
     // Reload thing list
     if (state.oTs) {
@@ -69269,6 +69347,7 @@ const _M = {
 
     // All done
     commit("setStatus", { reloading: false })
+    state.LOG("<<<<<<<<<<<<<<<< done for reload")
   }
   //--------------------------------------------
 }
