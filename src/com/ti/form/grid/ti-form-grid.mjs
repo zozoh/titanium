@@ -82,6 +82,9 @@ const _M = {
     //--------------------------------------------------
     GridColumnCount() {
       //console.log("eval GridColumnCount")
+      if (this.gridColumnHint >= 1) {
+        return this.gridColumnHint
+      }
       return Ti.Util.selectValue(this.GridContext, this.gridColumnHint, {
         by: ([v, m], { width, screen }) => {
           if (!m || m == screen || width >= m) {

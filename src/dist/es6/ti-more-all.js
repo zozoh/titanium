@@ -1,4 +1,4 @@
-// Pack At: 2022-07-07 20:08:16
+// Pack At: 2022-07-07 21:07:43
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -19900,6 +19900,9 @@ const _M = {
     //--------------------------------------------------
     GridColumnCount() {
       //console.log("eval GridColumnCount")
+      if (this.gridColumnHint >= 1) {
+        return this.gridColumnHint
+      }
       return Ti.Util.selectValue(this.GridContext, this.gridColumnHint, {
         by: ([v, m], { width, screen }) => {
           if (!m || m == screen || width >= m) {
@@ -27842,7 +27845,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     ]
   },
   "gridColumnHint": {
-    type: Array,
+    type: [Number, Array],
     default: () => [
       [4, 1200],
       [3, 1000],
@@ -66182,6 +66185,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           "title": "名称",
           "name": "name",
           "fieldWidth": "100%",
+          "colSpan": 4,
           "comType": "TiInput",
           "comConf": {
             "placeholder": "请输入执行项名称"
@@ -66197,6 +66201,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           "name": "override",
           "type": "Boolean",
           "tip": "覆盖【基础流程】同名执行项",
+          "nameVAlign": "top",
+          "colSpan": 2,
           "comType": "TiToggle"
         },
         {
@@ -66204,6 +66210,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           "name": "vars",
           "type": "Object",
           "fieldWidth": "100%",
+          "nameVAlign":"top",
+          "colSpan": 4,
           "comType": "TiInputPair",
           "comConf": {
             "placeholder": "每个动作的扩展上下文变量JSON",
@@ -66222,6 +66230,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           "name": "test",
           "type": "Array",
           "fieldWidth": "100%",
+          "colSpan": 4,
           "comType": "HmAutomatch",
           "comConf": {}
         },
@@ -66232,6 +66241,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           "name": "actions",
           "type": "Array",
           "fieldWidth": "100%",
+          "colSpan": 4,
           "comType": "HmReactActions",
           "comConf": {
 
@@ -69263,12 +69273,12 @@ const _M = {
       return
     }
     state.LOG = () => { }
-    if ("main" == state.moduleName) {
-      // state.LOG = (...args) => {
-      //   console.log(`【${state.moduleName}】`, ...args)
-      // }
-      state.LOG = console.log
-    }
+    // if ("main" == state.moduleName) {
+    //   // state.LOG = (...args) => {
+    //   //   console.log(`【${state.moduleName}】`, ...args)
+    //   // }
+    //   state.LOG = console.log
+    // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // Guard
     if (_.isString(meta)) {
@@ -79022,9 +79032,8 @@ Ti.Preload("ti/com/hm/react/item/hm-react-item.html", `<TiForm
   spacing="tiny"
   :autoShowBlank="true"
   :blankAs="{icon:'zmdi-arrow-left',text:'请选择一个执行项'}"
-  bodyClass="as-columns"
-  defaultGroupClass="as-columns"
-  :maxColumnHint="2"/>`);
+  fieldNameAlign="right"
+  fieldNameWrap="nowrap"/>`);
 //========================================
 // JOIN <hm-react-item.mjs> ti/com/hm/react/item/hm-react-item.mjs
 //========================================

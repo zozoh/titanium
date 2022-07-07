@@ -372,12 +372,12 @@ const _M = {
       return
     }
     state.LOG = () => { }
-    if ("main" == state.moduleName) {
-      // state.LOG = (...args) => {
-      //   console.log(`【${state.moduleName}】`, ...args)
-      // }
-      state.LOG = console.log
-    }
+    // if ("main" == state.moduleName) {
+    //   // state.LOG = (...args) => {
+    //   //   console.log(`【${state.moduleName}】`, ...args)
+    //   // }
+    //   state.LOG = console.log
+    // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // Guard
     if (_.isString(meta)) {

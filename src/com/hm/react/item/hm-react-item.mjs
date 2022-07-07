@@ -21,6 +21,7 @@ export default {
           "title": "名称",
           "name": "name",
           "fieldWidth": "100%",
+          "colSpan": 4,
           "comType": "TiInput",
           "comConf": {
             "placeholder": "请输入执行项名称"
@@ -36,6 +37,8 @@ export default {
           "name": "override",
           "type": "Boolean",
           "tip": "覆盖【基础流程】同名执行项",
+          "nameVAlign": "top",
+          "colSpan": 2,
           "comType": "TiToggle"
         },
         {
@@ -43,6 +46,8 @@ export default {
           "name": "vars",
           "type": "Object",
           "fieldWidth": "100%",
+          "nameVAlign":"top",
+          "colSpan": 4,
           "comType": "TiInputPair",
           "comConf": {
             "placeholder": "每个动作的扩展上下文变量JSON",
@@ -61,6 +66,7 @@ export default {
           "name": "test",
           "type": "Array",
           "fieldWidth": "100%",
+          "colSpan": 4,
           "comType": "HmAutomatch",
           "comConf": {}
         },
@@ -71,6 +77,7 @@ export default {
           "name": "actions",
           "type": "Array",
           "fieldWidth": "100%",
+          "colSpan": 4,
           "comType": "HmReactActions",
           "comConf": {
 
