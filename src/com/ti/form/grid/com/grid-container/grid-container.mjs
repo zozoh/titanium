@@ -41,10 +41,76 @@ const _M = {
   methods: {
     //--------------------------------------------------
     OnFldChange(fld, value) {
-      this.$emit("field:change", {
-        name: fld.name,
-        value
-      })
+      // Define how to apply field default value
+      const __apply_fld_default = (val) => {
+        let re = val;
+        //console.log("evalInputValue", val)
+        // apply default
+        if (_.isUndefined(val)) {
+          re = _.cloneDeep(
+            Ti.Util.fallback(fld.undefinedAs, fld.defaultAs)
+          )
+        }
+        else if (_.isNull(val)) {
+          re = _.cloneDeep(
+            Ti.Util.fallback(fld.nullAs, fld.defaultAs, null)
+          )
+        }
+        else if (isNaN(val) && /^(Number|Integer|Float)$/.test(fld.type)) {
+          re = _.cloneDeep(
+            Ti.Util.fallback(fld.nanAs, fld.defaultAs, NaN)
+          )
+        }
+        else if (
+          !(_.isBoolean(val) || _.isNumber(val))
+          && _.isEmpty(val)
+        ) {
+          if (_.isString(val)) {
+            re = _.cloneDeep(
+              Ti.Util.fallback(fld.emptyAs, fld.defaultAs, "")
+            )
+          } else {
+            re = Ti.Util.fallback(fld.emptyAs, val)
+          }
+        }
+
+        if ("~~undefined~~" == re)
+          return
+        return re
+      }
+
+      // Firstly apply the default
+      let v1 = __apply_fld_default(value);
+
+      // Serilizing
+      try {
+        //console.log("this.serializer(val):", v2)
+        v1 = fld.serializer(v1)
+        //console.log("field changed", val, v2)
+      }
+      // Invalid 
+      catch (error) {
+        this.$notify("invalid", {
+          errMessage: "" + error,
+          name: fld.name,
+          value: value
+        })
+        return
+      }
+
+      // Apply again
+      let v2 = __apply_fld_default(v1)
+
+      // Compare the value
+      let oldValue = _.get(fld.comConf, fld.autoValue)
+
+      // Try to notify
+      if (!fld.checkEquals || !_.isEqual(oldValue, v2)) {
+        this.$emit("field:change", {
+          name: fld.name,
+          value: v2
+        })
+      }
     },
     //--------------------------------------------------
     evalFields(fields = this.fields) {

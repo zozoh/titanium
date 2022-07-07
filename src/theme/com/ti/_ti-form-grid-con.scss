@@ -105,13 +105,13 @@
       &[name-v-align="top"] {
         align-items: flex-start;
         > .field-name-con {
-          margin-top: SZ(8);
+          margin-top: SZ(3);
         }
       }
       &[name-v-align="bottom"] {
         align-items: flex-end;
         > .field-name-con {
-          margin-bottom: SZ(8);
+          margin-bottom: SZ(3);
         }
       }
       &[name-v-align="center"] {

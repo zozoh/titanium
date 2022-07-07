@@ -225,7 +225,7 @@ export default {
     ]
   },
   "gridColumnHint": {
-    type: [Number, Array],
+    type: [Number, String, Array],
     default: () => [
       [4, 1200],
       [3, 1000],

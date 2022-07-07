@@ -1,4 +1,4 @@
-// Pack At: 2022-07-07 21:07:43
+// Pack At: 2022-07-07 22:07:40
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -11224,16 +11224,30 @@ const {Util} = (function(){
      * 
      * @return the matched arm value
      */
-    selectValue(context, arms = [], {
-      explain = false,
-      by = ([v, m], context) => {
-        if (!m || Ti.AutoMatch.test(m, context)) {
-          return v
-        }
+    selectValue(context, arms = [], options = {}) {
+      let autoParse = TiUtil.fallback(options.autoParse, true);
+      // Auto Parse
+      if (autoParse && _.isString(arms)) {
+        try {
+          let parsedArms = JSON.parse(arms)
+          return TiUtil.selectValue(context, parsedArms, options)
+        } catch (err) { }
       }
-    } = {}) {
+      // Eval options
+      let {
+        explain = false,
+        by = ([v, m], context) => {
+          if (!m || Ti.AutoMatch.test(m, context)) {
+            return v
+          }
+        }
+      } = options;
+      // As String
       if (_.isArray(arms)) {
         for (let arm of arms) {
+          if (!_.isArray(arm)) {
+            return arm
+          }
           let v = by(arm, context)
           if (!_.isUndefined(v)) {
             if (explain) {
@@ -11242,7 +11256,9 @@ const {Util} = (function(){
             return v
           }
         }
-      } else {
+      }
+      // Simple value
+      else {
         if (explain) {
           return TiUtil.explainObj(context, arms)
         }
@@ -18675,7 +18691,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220707.210743",
+  "version" : "1.6-20220707.220740",
   "dev" : false,
   "appName" : null,
   "session" : {},
