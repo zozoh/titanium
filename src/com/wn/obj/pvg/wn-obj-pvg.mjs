@@ -602,6 +602,7 @@ export default {
     async reload() {
       this.loading = true
       let site = {}
+      let cmdText;
       // Already loaded
       if (_.isObject(this.loadSite)) {
         site = _.cloneDeep(this.loadSite)
@@ -612,7 +613,7 @@ export default {
         site = await Wn.Sys.exec2(cmdText, { as: "json" })
       }
       //console.log(site)
-      
+
       // Reload accountHome and roleHome
       this.myAccountHome = _.get(site, "accountHome")
       this.myRoleHome = _.get(site, "roleHome")

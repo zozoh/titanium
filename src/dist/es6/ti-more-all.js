@@ -1,4 +1,4 @@
-// Pack At: 2022-07-08 12:29:41
+// Pack At: 2022-07-08 12:58:16
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -64231,6 +64231,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     async reload() {
       this.loading = true
       let site = {}
+      let cmdText;
       // Already loaded
       if (_.isObject(this.loadSite)) {
         site = _.cloneDeep(this.loadSite)
@@ -64241,7 +64242,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         site = await Wn.Sys.exec2(cmdText, { as: "json" })
       }
       //console.log(site)
-      
+
       // Reload accountHome and roleHome
       this.myAccountHome = _.get(site, "accountHome")
       this.myRoleHome = _.get(site, "roleHome")
