@@ -81,7 +81,6 @@ const _M = {
     },
     //--------------------------------------------------
     GridColumnCount() {
-      //console.log("eval GridColumnCount")
       if (this.gridColumnHint >= 1) {
         return this.gridColumnHint
       }

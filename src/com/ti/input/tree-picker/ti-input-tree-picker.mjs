@@ -1,6 +1,7 @@
 const _M = {
   /////////////////////////////////////////
   data: () => ({
+    isPicking: false,
     // single/multi
     myInputValue: undefined,
     // single only
@@ -11,6 +12,20 @@ const _M = {
   //////////////////////////////////////////
   computed: {
     //--------------------------------------
+    InputSuffixIcon() {
+      if(this.isPicking) {
+        return this.pickingIcon
+      }
+      return this.suffixIcon
+    },
+    //--------------------------------------
+    InputSuffixText() {
+      if(this.isPicking) {
+        return this.pickingText
+      }
+      return this.myInputSuffix
+    },
+    //--------------------------------------
     hasVars() {
       return !_.isEmpty(this.vars)
     }
@@ -20,6 +35,13 @@ const _M = {
   methods: {
     //--------------------------------------
     async OnClickSuffixIcon() {
+      // Guard: Picking
+      if (this.isPicking) {
+        return
+      }
+      // Mark: Picking
+      this.isPicking = true
+
       // Eval the tree data
       let treeData = await this.getTreeData();
 
@@ -81,7 +103,10 @@ const _M = {
           ),
           components: [
             "@com:ti/tree"
-          ]
+          ],
+          beforeClosed: () => {
+            this.isPicking = false
+          }
         }
       ))
 

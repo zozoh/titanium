@@ -1,6 +1,7 @@
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
+    isPicking: false,
     myValueIcon: undefined,
     myValueText: undefined
   }),
@@ -51,18 +52,26 @@ const _M = {
     "input": {
       type: Object
     },
-    "dialog": {
-      type: Object
-    },
     "filterlist": {
       type: Object
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
+    "dialog": {
+      type: Object
+    },
     "placeholder": {
       type: [String, Number],
       default: undefined
+    },
+    "pickingIcon": {
+      type: String,
+      default: "fas-cog fa-spin"
+    },
+    "pickingText": {
+      type: String,
+      default: "..."
     },
     "prefixIcon": {
       type: String,
@@ -97,7 +106,7 @@ const _M = {
     //------------------------------------------------
     ComConf() {
       let conf = _.assign({
-        readonly: this.readonly,
+        readonly: this.readonly || this.isPicking,
         focused: this.focused,
         placeholder: this.placeholder,
         suffixIcon: this.suffixIcon
@@ -112,6 +121,14 @@ const _M = {
         conf.prefixIcon = this.myValueIcon || this.prefixIcon
         conf.suffixText = this.myValueText
       }
+
+      if (this.isPicking) {
+        conf.suffixIcon = this.pickingIcon
+        if (!this.multi) {
+          conf.suffixText = this.pickingText
+        }
+      }
+
       return conf
     },
     //------------------------------------------------
@@ -127,6 +144,14 @@ const _M = {
   methods: {
     //------------------------------------------------
     async OnClickSuffixIcon() {
+      // Guard: Picking
+      if (this.isPicking) {
+        return
+      }
+      // Mark: Picking
+      this.isPicking = true
+
+      // 获取数据
       let dataList = await this.Dict.getData()
 
       // Prepare list conf
@@ -171,7 +196,10 @@ const _M = {
         comConf: fltListConf,
         components: [
           "@com:ti/filterlist"
-        ]
+        ],
+        beforeClosed: () => {
+          this.isPicking = false
+        }
       }))
 
       // User Cancel

@@ -1,5 +1,6 @@
 .ti-bullet-list {
   overflow: auto;
+  padding:1px;
   //-------------------------------------
   .as-group-title {
     padding: 0.5em;
@@ -8,25 +9,35 @@
   //-------------------------------------
   .as-bullet-item {
     @include flex-align-nowrap($ai: flex-start);
-    cursor: pointer;
-    line-height: 1.8em;
-    padding: 0.3em 0.6em;
-    opacity: 0.8;
     //-----------------------------------
-    &:hover {
-      @include color($color-weaktip, r, c);
-      opacity: 1;
-      .ti-icon.as-bullet i {
-        transform: scale(1.2);
+    &.as-label {
+      @include color($color-bar, r, c);
+      padding: SZ(6) SZ(12);
+    }
+    //-----------------------------------
+    &.as-option {
+      cursor: pointer;
+      line-height: 1.8em;
+      padding: 0.3em 0.6em;
+      opacity: 0.8;
+      //---------------------------------
+      &:hover {
+        @include color($color-weaktip, r, c);
+        opacity: 1;
+        .ti-icon.as-bullet i {
+          transform: scale(1.2);
+        }
       }
+      //---------------------------------
+      &.is-checked {
+        font-weight: bold;
+        opacity: 1;
+      }
+      //---------------------------------
     }
     //-----------------------------------
-    &.is-checked {
-      font-weight: bold;
-      opacity: 1;
-    }
-    //-----------------------------------
-    .ti-icon {
+    // bullet and icon
+    > .ti-icon {
       margin-right: 1em;
       height: 1.8em;
       > i {
@@ -46,7 +57,7 @@
     //-----------------------------------
     > .as-tip {
       color: map-get($color-track, c);
-      flex: 0 0 auto; 
+      flex: 0 0 auto;
     }
     //-----------------------------------
   }

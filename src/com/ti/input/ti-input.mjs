@@ -6,9 +6,9 @@ const _M = {
   },
   ////////////////////////////////////////////////////
   data : ()=>({
-    "inputCompositionstart" : false,
-    "isFocused" : false,
-    "pointerHover" : null
+    inputCompositionstart : false,
+    isFocused : false,
+    pointerHover : null
   }),
   ////////////////////////////////////////////////////
   computed : {

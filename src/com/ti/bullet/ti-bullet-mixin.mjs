@@ -7,6 +7,9 @@ const _M = {
   }),
   ////////////////////////////////////////////////////
   props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
     "value": undefined,
     "options": {
       type: [String, Array, Function, Ti.Dict],
@@ -45,6 +48,22 @@ const _M = {
       type: [String, Function],
       default: "icon"
     },
+    //-----------------------------------
+    // Behaviors
+    //-----------------------------------
+    "isBlank": {
+      type: Boolean,
+      default: false
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "groupStyle": {
+      type: Object
+    },
+    "itemsStyle": {
+      type: Object
+    },
     "bulletIconOn": {
       type: String,
       default: "fas-check-circle"
@@ -58,24 +77,16 @@ const _M = {
       default: true
     },
     "blankAs": {
-      type: Object,
-      default: () => ({
-        icon: "far-list-alt",
-        text: "empty-data"
-      })
+      type: Object
     },
-    "blankClass": {
-      type: String,
-      default: "as-big",
-      validator: v => /^as-(big|hug|big-mask|mid-tip)$/.test(v)
-    },
-    "width": {
-      type: [Number, String],
-      default: undefined
-    },
-    "height": {
-      type: [Number, String],
-      default: undefined
+    "gridColumnHint": {
+      type: [Number, String, Array],
+      default: () => [
+        [4, 1200],
+        [3, 1000],
+        [2, 720],
+        [1]
+      ]
     }
   },
   ////////////////////////////////////////////////////
@@ -86,11 +97,47 @@ const _M = {
     },
     //------------------------------------------------
     TopStyle() {
-      return Ti.Css.toStyle({
-        width: this.width,
-        height: this.height
-      })
     },
+    //-----------------------------------------------
+    BlankLoadingConf() {
+      return _.assign({
+        className: "nil-data as-big-mask",
+        icon: "far-list-alt",
+        text: "empty-data"
+      }, this.blankAs)
+    },
+    //-----------------------------------------------
+    BulletGroupStyle() {
+      let style = _.assign({}, this.groupStyle)
+      return style
+    },
+    //-----------------------------------------------
+    BulletItemsStyle() {
+      let style = _.assign({}, this.itemsStyle)
+
+      return style
+    },
+    // //--------------------------------------------------
+    // GridContext() {
+    //   // console.log("eval GridContext")
+    //   return {
+    //     ... (this.myRect || {}),
+    //     screen: this.myScreenMode
+    //   }
+    // },
+    // //--------------------------------------------------
+    // GridColumnCount() {
+    //   if (this.gridColumnHint >= 1) {
+    //     return this.gridColumnHint
+    //   }
+    //   return Ti.Util.selectValue(this.GridContext, this.gridColumnHint, {
+    //     by: ([v, m], { width, screen }) => {
+    //       if (!m || m == screen || width >= m) {
+    //         return v
+    //       }
+    //     }
+    //   })
+    // },
     //-----------------------------------------------
     FnOptionFilter() {
       if (_.isFunction(this.optionFilter)) {
@@ -102,11 +149,11 @@ const _M = {
     },
     //-----------------------------------------------
     FnOptionMapping() {
-      if(_.isFunction(this.optionMapping)) {
+      if (_.isFunction(this.optionMapping)) {
         return this.optionMapping
       }
-      if(this.optionMapping) {
-        return (obj)=>{
+      if (this.optionMapping) {
+        return (obj) => {
           return Ti.Util.translate(obj, this.optionMapping)
         }
       }
@@ -164,7 +211,7 @@ const _M = {
         let list = []
         for (let data of this.myOptionsData) {
           let { title, key, items } = this.Grouping(data)
-          if(this.autoI18n) {
+          if (this.autoI18n) {
             title = Ti.I18n.get(title, title)
           }
           items = this.evalItems(items)
@@ -186,17 +233,26 @@ const _M = {
   ////////////////////////////////////////////////////
   methods: {
     //------------------------------------------------
+    OnClickItem(it = {}) {
+      if ("Option" == it.type) {
+        this.OnClickOptionItem(it)
+      }
+    },
+    //------------------------------------------------
     evalItems(items = []) {
       let list = []
       _.forEach(items, li => {
         if (this.IgnoreItem(li))
           return
         let it;
+        // Pure value
         if (_.isString(li) || _.isNumber(li)) {
           it = {
             text: li, value: li
           }
-        } else {
+        }
+        // Object
+        else {
           it = {
             icon: this.getItemIcon(li),
             text: this.getItemText(li),
@@ -205,17 +261,32 @@ const _M = {
         }
         // Mapping
         it = this.FnOptionMapping(it)
+
         // I18n
-        if(this.autoI18n) {
+        if (this.autoI18n) {
           it.text = Ti.I18n.get(it.text, it.text)
         }
-        // Mark
-        if (this.isItemChecked(it.value, this.value)) {
-          it.className = "is-checked"
+
+        // Prepare the className
+        it.className = {}
+
+        // Eval type
+        if (Ti.Util.isNil(it.value)) {
+          it.type = "Label"
+          it.className["as-label"] = true
+        } else {
+          it.type = "Option"
+          it.className["as-option"] = true
+        }
+
+        // Mark check
+        if (this.isItemChecked(it.value)) {
+          it.className["is-checked"] = true
           it.bullet = this.bulletIconOn
         } else {
           it.bullet = this.bulletIconOff
         }
+
         // Append to list
         list.push(it)
       })

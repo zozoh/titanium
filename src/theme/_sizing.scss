@@ -15,9 +15,9 @@ $screen-max-widths: (
 //-----------------------------------------------------
 // Define font size
 $body-font-sizes: (
-  xs: 14px,    // Extra small
-  sm: 14px,    // Small
-  md: 14px,    // Medium
-  lg: 14px,    // Large
-  xl: 14px     // Extra large
+  xs: SZ(14),    // Extra small
+  sm: SZ(14),    // Small
+  md: SZ(14),    // Medium
+  lg: SZ(14),    // Large
+  xl: SZ(14)     // Extra large
 );

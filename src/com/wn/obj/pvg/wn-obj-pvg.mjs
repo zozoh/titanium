@@ -35,9 +35,13 @@ export default {
       type: Object,
       default: () => ({})
     },
-    "organization": {
-      type: String
-    }
+    "loadSite": {
+      type: [Object, String],
+      default: 'domain site -cqn -keys "^(id|nm|ph|title)$"'
+    },
+    // "organization": {
+    //   type: String
+    // }
   },
   //////////////////////////////////////////
   computed: {
@@ -156,9 +160,11 @@ export default {
         data: {
           comType: "TiForm",
           comConf: {
-            spacing: "tiny",
+            spacing: "comfy",
             data: this.CurrentItem,
             autoShowBlank: true,
+            fieldNameWrap: "nowrap",
+            gridColumnHint: 1,
             blankAs: {
               text: "i18n:blank-to-edit",
               icon: "fas-arrow-left"
@@ -595,10 +601,19 @@ export default {
     //--------------------------------------
     async reload() {
       this.loading = true
-      // Reload accountHome and roleHome
-      let cmdText = 'domain site -cqn -keys "^(id|nm|ph|title)$"'
-      let site = await Wn.Sys.exec2(cmdText, { as: "json" })
+      let site = {}
+      // Already loaded
+      if (_.isObject(this.loadSite)) {
+        site = _.cloneDeep(this.loadSite)
+      }
+      // Dynamic load
+      else if (this.loadSite && _.isString(this.loadSite)) {
+        cmdText = this.loadSite
+        site = await Wn.Sys.exec2(cmdText, { as: "json" })
+      }
       //console.log(site)
+      
+      // Reload accountHome and roleHome
       this.myAccountHome = _.get(site, "accountHome")
       this.myRoleHome = _.get(site, "roleHome")
       this.myOrganization = _.get(site, "organization")

@@ -1,4 +1,4 @@
-// Pack At: 2022-07-07 22:07:40
+// Pack At: 2022-07-08 12:29:41
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -11018,6 +11018,8 @@ const _M = {
     commit("setStatus", { reloading: true })
     let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
 
+    state.LOG(" - ", cmdText, input)
+
     // Update pager
     if (getters.isPagerEnabled) {
       commit("setPager", reo.pager)
@@ -19469,9 +19471,9 @@ const _M = {
   },
   ////////////////////////////////////////////////////
   data : ()=>({
-    "inputCompositionstart" : false,
-    "isFocused" : false,
-    "pointerHover" : null
+    inputCompositionstart : false,
+    isFocused : false,
+    pointerHover : null
   }),
   ////////////////////////////////////////////////////
   computed : {
@@ -19965,7 +19967,6 @@ const _M = {
     },
     //--------------------------------------------------
     GridColumnCount() {
-      //console.log("eval GridColumnCount")
       if (this.gridColumnHint >= 1) {
         return this.gridColumnHint
       }
@@ -26691,28 +26692,28 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/bullet/radio/ti-bullet-radio.mjs'] = (function(){
 const _M = {
   //////////////////////////////////////////
-  data: ()=>({
-    myTypeName : "ti-radio-list"
+  data: () => ({
+    myTypeName: "ti-radio-list"
   }),
   //////////////////////////////////////////
   props: {
-    "bulletIconOn" : {
-      type : String,
-      default : "fas-dot-circle"
+    "bulletIconOn": {
+      type: String,
+      default: "fas-dot-circle"
     },
-    "bulletIconOff" : {
-      type : String,
-      default : "far-circle"
+    "bulletIconOff": {
+      type: String,
+      default: "far-circle"
     }
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
-    OnClickItem({value}) {
+    OnClickOptionItem({ value }) {
       this.$notify("change", value)
     },
     //--------------------------------------
-    isItemChecked(itValue, val) {
+    isItemChecked(itValue, val = this.value) {
       return !_.isUndefined(val)
         && !_.isUndefined(itValue)
         && _.isEqual(itValue, val)
@@ -28351,11 +28352,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "dialog": {
     type: Object
   },
-  "tree": {
-    type: Object
-  },
   "placeholder": {
     type: String
+  },
+  "pickingIcon": {
+    type: String,
+    default: "fas-cog fa-spin"
+  },
+  "pickingText": {
+    type: String,
+    default: "..."
+  },
+  "tree": {
+    type: Object
   },
   "prefixIcon": {
     type: String,
@@ -42982,7 +42991,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return _.assign({
         onlyFields: false,
         adjustDelay: 0,
-        field: this.fields,
+        fields: this.fields,
         fixed: this.fixed
       }, this.form)
     }
@@ -42996,7 +43005,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     OnFormFieldChange(pair={}) {
-      console.log("OnFormFieldChange", pair)
+      //console.log("OnFormFieldChange", pair)
       this.myData = this.$form.getData(pair)
     },
     //--------------------------------------
@@ -55039,6 +55048,7 @@ window.TI_PACK_EXPORTS['ti/com/ti/input/tree-picker/ti-input-tree-picker.mjs'] =
 const _M = {
   /////////////////////////////////////////
   data: () => ({
+    isPicking: false,
     // single/multi
     myInputValue: undefined,
     // single only
@@ -55049,6 +55059,20 @@ const _M = {
   //////////////////////////////////////////
   computed: {
     //--------------------------------------
+    InputSuffixIcon() {
+      if(this.isPicking) {
+        return this.pickingIcon
+      }
+      return this.suffixIcon
+    },
+    //--------------------------------------
+    InputSuffixText() {
+      if(this.isPicking) {
+        return this.pickingText
+      }
+      return this.myInputSuffix
+    },
+    //--------------------------------------
     hasVars() {
       return !_.isEmpty(this.vars)
     }
@@ -55058,6 +55082,13 @@ const _M = {
   methods: {
     //--------------------------------------
     async OnClickSuffixIcon() {
+      // Guard: Picking
+      if (this.isPicking) {
+        return
+      }
+      // Mark: Picking
+      this.isPicking = true
+
       // Eval the tree data
       let treeData = await this.getTreeData();
 
@@ -55119,7 +55150,10 @@ const _M = {
           ),
           components: [
             "@com:ti/tree"
-          ]
+          ],
+          beforeClosed: () => {
+            this.isPicking = false
+          }
         }
       ))
 
@@ -61711,6 +61745,9 @@ const _M = {
   }),
   ////////////////////////////////////////////////////
   props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
     "value": undefined,
     "options": {
       type: [String, Array, Function, Ti.Dict],
@@ -61749,6 +61786,22 @@ const _M = {
       type: [String, Function],
       default: "icon"
     },
+    //-----------------------------------
+    // Behaviors
+    //-----------------------------------
+    "isBlank": {
+      type: Boolean,
+      default: false
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "groupStyle": {
+      type: Object
+    },
+    "itemsStyle": {
+      type: Object
+    },
     "bulletIconOn": {
       type: String,
       default: "fas-check-circle"
@@ -61762,24 +61815,16 @@ const _M = {
       default: true
     },
     "blankAs": {
-      type: Object,
-      default: () => ({
-        icon: "far-list-alt",
-        text: "empty-data"
-      })
+      type: Object
     },
-    "blankClass": {
-      type: String,
-      default: "as-big",
-      validator: v => /^as-(big|hug|big-mask|mid-tip)$/.test(v)
-    },
-    "width": {
-      type: [Number, String],
-      default: undefined
-    },
-    "height": {
-      type: [Number, String],
-      default: undefined
+    "gridColumnHint": {
+      type: [Number, String, Array],
+      default: () => [
+        [4, 1200],
+        [3, 1000],
+        [2, 720],
+        [1]
+      ]
     }
   },
   ////////////////////////////////////////////////////
@@ -61790,11 +61835,47 @@ const _M = {
     },
     //------------------------------------------------
     TopStyle() {
-      return Ti.Css.toStyle({
-        width: this.width,
-        height: this.height
-      })
     },
+    //-----------------------------------------------
+    BlankLoadingConf() {
+      return _.assign({
+        className: "nil-data as-big-mask",
+        icon: "far-list-alt",
+        text: "empty-data"
+      }, this.blankAs)
+    },
+    //-----------------------------------------------
+    BulletGroupStyle() {
+      let style = _.assign({}, this.groupStyle)
+      return style
+    },
+    //-----------------------------------------------
+    BulletItemsStyle() {
+      let style = _.assign({}, this.itemsStyle)
+
+      return style
+    },
+    // //--------------------------------------------------
+    // GridContext() {
+    //   // console.log("eval GridContext")
+    //   return {
+    //     ... (this.myRect || {}),
+    //     screen: this.myScreenMode
+    //   }
+    // },
+    // //--------------------------------------------------
+    // GridColumnCount() {
+    //   if (this.gridColumnHint >= 1) {
+    //     return this.gridColumnHint
+    //   }
+    //   return Ti.Util.selectValue(this.GridContext, this.gridColumnHint, {
+    //     by: ([v, m], { width, screen }) => {
+    //       if (!m || m == screen || width >= m) {
+    //         return v
+    //       }
+    //     }
+    //   })
+    // },
     //-----------------------------------------------
     FnOptionFilter() {
       if (_.isFunction(this.optionFilter)) {
@@ -61806,11 +61887,11 @@ const _M = {
     },
     //-----------------------------------------------
     FnOptionMapping() {
-      if(_.isFunction(this.optionMapping)) {
+      if (_.isFunction(this.optionMapping)) {
         return this.optionMapping
       }
-      if(this.optionMapping) {
-        return (obj)=>{
+      if (this.optionMapping) {
+        return (obj) => {
           return Ti.Util.translate(obj, this.optionMapping)
         }
       }
@@ -61868,7 +61949,7 @@ const _M = {
         let list = []
         for (let data of this.myOptionsData) {
           let { title, key, items } = this.Grouping(data)
-          if(this.autoI18n) {
+          if (this.autoI18n) {
             title = Ti.I18n.get(title, title)
           }
           items = this.evalItems(items)
@@ -61890,17 +61971,26 @@ const _M = {
   ////////////////////////////////////////////////////
   methods: {
     //------------------------------------------------
+    OnClickItem(it = {}) {
+      if ("Option" == it.type) {
+        this.OnClickOptionItem(it)
+      }
+    },
+    //------------------------------------------------
     evalItems(items = []) {
       let list = []
       _.forEach(items, li => {
         if (this.IgnoreItem(li))
           return
         let it;
+        // Pure value
         if (_.isString(li) || _.isNumber(li)) {
           it = {
             text: li, value: li
           }
-        } else {
+        }
+        // Object
+        else {
           it = {
             icon: this.getItemIcon(li),
             text: this.getItemText(li),
@@ -61909,17 +61999,32 @@ const _M = {
         }
         // Mapping
         it = this.FnOptionMapping(it)
+
         // I18n
-        if(this.autoI18n) {
+        if (this.autoI18n) {
           it.text = Ti.I18n.get(it.text, it.text)
         }
-        // Mark
-        if (this.isItemChecked(it.value, this.value)) {
-          it.className = "is-checked"
+
+        // Prepare the className
+        it.className = {}
+
+        // Eval type
+        if (Ti.Util.isNil(it.value)) {
+          it.type = "Label"
+          it.className["as-label"] = true
+        } else {
+          it.type = "Option"
+          it.className["as-option"] = true
+        }
+
+        // Mark check
+        if (this.isItemChecked(it.value)) {
+          it.className["is-checked"] = true
           it.bullet = this.bulletIconOn
         } else {
           it.bullet = this.bulletIconOff
         }
+
         // Append to list
         list.push(it)
       })
@@ -63559,9 +63664,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: Object,
       default: () => ({})
     },
-    "organization": {
-      type: String
-    }
+    "loadSite": {
+      type: [Object, String],
+      default: 'domain site -cqn -keys "^(id|nm|ph|title)$"'
+    },
+    // "organization": {
+    //   type: String
+    // }
   },
   //////////////////////////////////////////
   computed: {
@@ -63680,9 +63789,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
         data: {
           comType: "TiForm",
           comConf: {
-            spacing: "tiny",
+            spacing: "comfy",
             data: this.CurrentItem,
             autoShowBlank: true,
+            fieldNameWrap: "nowrap",
+            gridColumnHint: 1,
             blankAs: {
               text: "i18n:blank-to-edit",
               icon: "fas-arrow-left"
@@ -64119,10 +64230,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     async reload() {
       this.loading = true
-      // Reload accountHome and roleHome
-      let cmdText = 'domain site -cqn -keys "^(id|nm|ph|title)$"'
-      let site = await Wn.Sys.exec2(cmdText, { as: "json" })
+      let site = {}
+      // Already loaded
+      if (_.isObject(this.loadSite)) {
+        site = _.cloneDeep(this.loadSite)
+      }
+      // Dynamic load
+      else if (this.loadSite && _.isString(this.loadSite)) {
+        cmdText = this.loadSite
+        site = await Wn.Sys.exec2(cmdText, { as: "json" })
+      }
       //console.log(site)
+      
+      // Reload accountHome and roleHome
       this.myAccountHome = _.get(site, "accountHome")
       this.myRoleHome = _.get(site, "roleHome")
       this.myOrganization = _.get(site, "organization")
@@ -69313,17 +69433,20 @@ const _M = {
   },
   //--------------------------------------------
   async reloadData({ state, dispatch, getters }) {
+    state.LOG("reloadData")
     // Guard
     if (state.status.reloading
       || state.status.saving
       || state.status.deleting) {
+      state.LOG("reloadData: Guard reject!")
       return
     }
-    state.LOG("reloadData")
     if (state.oTs) {
+      state.LOG("reloadData: queryList")
       await dispatch("queryList");
     }
     if (getters.contentLoadPath) {
+      state.LOG("reloadData: loadContent")
       await dispatch("loadContent")
     }
   },
@@ -73846,49 +73969,128 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/bullet/checkbox/ti-bullet-checkbox.mjs'] = (function(){
 const _M = {
   //////////////////////////////////////////
-  data: ()=>({
-    myTypeName : "ti-check-list"
+  data: () => ({
+    myTypeName: "ti-check-list"
   }),
   //////////////////////////////////////////
   props: {
-    "bulletIconOn" : {
-      type : String,
-      default : "fas-check-square"
+    "valueType": {
+      type: String,
+      default: "Array",
+      validator: v => /^(Array|Object|String|Json(Array|Object))$/.test(v)
     },
-    "bulletIconOff" : {
-      type : String,
-      default : "far-square"
+    // Only for valueType=="String"
+    "valueSep": {
+      type: String,
+      default: ",",
+    },
+    // Only for valueType=="Json(Array|Object)"
+    "formatJson": {
+      type: Boolean,
+      default: false
+    },
+    "bulletIconOn": {
+      type: String,
+      default: "fas-check-square"
+    },
+    "bulletIconOff": {
+      type: String,
+      default: "far-square"
     }
   },
   //////////////////////////////////////////
-  methods : {
+  computed: {
     //--------------------------------------
-    OnClickItem({value}) {
+    ToJson() {
+      if (this.formatJson) {
+        return function (input) {
+          return JSON.stringify(input, null, '   ')
+        }
+      }
+      return function (input) {
+        return JSON.stringify(input)
+      }
+    },
+    //--------------------------------------
+    ValueMap() {
+      let v = this.value;
+      // Parse As JSON
+      if (/^Json/.test(this.valueType) && _.isString(v)) {
+        let vs = _.trim(v)
+        if (vs) {
+          v = JSON.parse(vs)
+        } else {
+          v = {}
+        }
+      }
+
+      let re = {}
+
+      // Object
+      if (_.isObject(v)) {
+        return v || {}
+      }
+      // Build map
+      else if (!_.isEmpty(v)) {
+        let list = []
+        // Common Sep String
+        if (_.isString(v)) {
+          list = Ti.S.splitIgnoreBlank(v, this.valueSep);
+        }
+        // Array
+        else if (_.isArray(v)) {
+          list = v
+        }
+        // Map
+        for (let li of list) {
+          re[li] = true
+        }
+      }
+      return re
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    OnClickOptionItem({ value }) {
       let vals = []
       _.forEach(this.ItemGroups, grp => {
         _.forEach(grp.items, it => {
-          if(this.isItemChecked(it.value, this.value)) {
-            if(!_.isEqual(value, it.value)) {
+          if (this.isItemChecked(it.value, this.value)) {
+            if (!_.isEqual(value, it.value)) {
               vals.push(it.value)
             }
           }
           // check it
-          else if(_.isEqual(value, it.value)) {
+          else if (_.isEqual(value, it.value)) {
             vals.push(it.value)
           }
         })
       })
+      // Object or JsonObject
+      if (/Object$/.test(this.valueType)) {
+        let map = {}
+        for (let v of vals) {
+          map[v] = true
+        }
+        if ("JsonObject" == this.valueType) {
+          vals = this.ToJson(map)
+        } else {
+          vals = map
+        }
+      }
+      else if ("JsonArray" == this.valueType) {
+        vals = this.ToJson(vals)
+      }
+      else if ("String" == this.valueType) {
+        val = val.join(this.valueSep)
+      }
       this.$notify("change", vals)
     },
     //--------------------------------------
-    isItemChecked(itValue, val) {
-      if(_.isUndefined(val) ||  _.isUndefined(itValue)) {
-        return false
-      }
-      if(_.isArray(val)) {
-        return _.indexOf(val, itValue) >= 0
-      }
-      return _.isEqual(itValue, val)
+    isItemChecked(itValue) {
+      return this.ValueMap[itValue] || false
     }
     //--------------------------------------
   }
@@ -74431,6 +74633,7 @@ window.TI_PACK_EXPORTS['ti/com/ti/input/picker/ti-input-picker.mjs'] = (function
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
+    isPicking: false,
     myValueIcon: undefined,
     myValueText: undefined
   }),
@@ -74481,18 +74684,26 @@ const _M = {
     "input": {
       type: Object
     },
-    "dialog": {
-      type: Object
-    },
     "filterlist": {
       type: Object
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
+    "dialog": {
+      type: Object
+    },
     "placeholder": {
       type: [String, Number],
       default: undefined
+    },
+    "pickingIcon": {
+      type: String,
+      default: "fas-cog fa-spin"
+    },
+    "pickingText": {
+      type: String,
+      default: "..."
     },
     "prefixIcon": {
       type: String,
@@ -74527,7 +74738,7 @@ const _M = {
     //------------------------------------------------
     ComConf() {
       let conf = _.assign({
-        readonly: this.readonly,
+        readonly: this.readonly || this.isPicking,
         focused: this.focused,
         placeholder: this.placeholder,
         suffixIcon: this.suffixIcon
@@ -74542,6 +74753,14 @@ const _M = {
         conf.prefixIcon = this.myValueIcon || this.prefixIcon
         conf.suffixText = this.myValueText
       }
+
+      if (this.isPicking) {
+        conf.suffixIcon = this.pickingIcon
+        if (!this.multi) {
+          conf.suffixText = this.pickingText
+        }
+      }
+
       return conf
     },
     //------------------------------------------------
@@ -74557,6 +74776,14 @@ const _M = {
   methods: {
     //------------------------------------------------
     async OnClickSuffixIcon() {
+      // Guard: Picking
+      if (this.isPicking) {
+        return
+      }
+      // Mark: Picking
+      this.isPicking = true
+
+      // 获取数据
       let dataList = await this.Dict.getData()
 
       // Prepare list conf
@@ -74601,7 +74828,10 @@ const _M = {
         comConf: fltListConf,
         components: [
           "@com:ti/filterlist"
-        ]
+        ],
+        beforeClosed: () => {
+          this.isPicking = false
+        }
       }))
 
       // User Cancel
@@ -77159,7 +77389,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Update to current list
     if (newMeta) {
       // Update Current Meta
-      console.log("pvg", newMeta)
+      //console.log("pvg", newMeta)
       if (this.meta && this.meta.id == newMeta.id) {
         this.dispatch("changeMeta", newMeta)
       }
@@ -79762,10 +79992,8 @@ Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list"
     Blank
   -->
   <ti-loading 
-    v-if="!hasItems"
-      class="nil-data"
-      :class="blankClass"
-      v-bind="blankAs"/>
+    v-if="!hasItems || isBlank"
+      v-bind="BlankLoadingConf"/>
   <!--
     Show Items
   -->
@@ -79773,13 +80001,13 @@ Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list"
     <div
       v-for="grp of ItemGroups"
         :key="grp.key"
-        class="as-bullet-group">
+        class="as-bullet-group" :style="BulletGroupStyle">
         <!-- Group Title -->
         <div 
           v-if="grp.title"
             class="as-group-title">{{grp.title}}</div>
         <!-- Group Items -->
-        <div class="as-group-items">
+        <div class="as-group-items" :style="BulletItemsStyle">
           <div
             v-for="it of grp.items"
               class="as-bullet-item"
@@ -79789,7 +80017,8 @@ Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list"
                 Bullet
               -->
               <ti-icon 
-                class="as-bullet"
+                v-if="'Option' == it.type"
+                  class="as-bullet"
                   :value="it.bullet"/>
               <!--
                 Icon
@@ -83364,7 +83593,8 @@ Ti.Preload("ti/com/ti/input/tree-picker/ti-input-tree-picker.html", `<div class=
       :value="myInputValue"
       :placeholder="placeholder"
       :dict="dict"
-      :suffixIcon="suffixIcon"
+      :prefixIcon="myInputIcon"
+      :suffixIcon="InputSuffixIcon"
       @suffix:icon="OnClickSuffixIcon"/>
   <!--
     Single value
@@ -83376,8 +83606,8 @@ Ti.Preload("ti/com/ti/input/tree-picker/ti-input-tree-picker.html", `<div class=
       :placeholder="placeholder"
       :readonly="true"
       :prefixIcon="myInputIcon"
-      :suffixIcon="suffixIcon"
-      :suffixText="myInputSuffix"
+      :suffixIcon="InputSuffixIcon"
+      :suffixText="InputSuffixText"
       @suffix:icon="OnClickSuffixIcon"/>
 </div>`);
 //========================================
@@ -96551,7 +96781,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "right-top": "右上",
   "role": "角色",
   "role-actions": "角色动作",
-  "role-behaviors": "角色动作",
+  "role-behaviors": "业务权限",
   "role-in-charge": "负责人",
   "run": "运行",
   "run-finished": "脚本执行结束",

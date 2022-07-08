@@ -5,10 +5,8 @@
     Blank
   -->
   <ti-loading 
-    v-if="!hasItems"
-      class="nil-data"
-      :class="blankClass"
-      v-bind="blankAs"/>
+    v-if="!hasItems || isBlank"
+      v-bind="BlankLoadingConf"/>
   <!--
     Show Items
   -->
@@ -16,13 +14,13 @@
     <div
       v-for="grp of ItemGroups"
         :key="grp.key"
-        class="as-bullet-group">
+        class="as-bullet-group" :style="BulletGroupStyle">
         <!-- Group Title -->
         <div 
           v-if="grp.title"
             class="as-group-title">{{grp.title}}</div>
         <!-- Group Items -->
-        <div class="as-group-items">
+        <div class="as-group-items" :style="BulletItemsStyle">
           <div
             v-for="it of grp.items"
               class="as-bullet-item"
@@ -32,7 +30,8 @@
                 Bullet
               -->
               <ti-icon 
-                class="as-bullet"
+                v-if="'Option' == it.type"
+                  class="as-bullet"
                   :value="it.bullet"/>
               <!--
                 Icon

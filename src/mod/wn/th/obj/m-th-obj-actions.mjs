@@ -346,17 +346,20 @@ const _M = {
   },
   //--------------------------------------------
   async reloadData({ state, dispatch, getters }) {
+    state.LOG("reloadData")
     // Guard
     if (state.status.reloading
       || state.status.saving
       || state.status.deleting) {
+      state.LOG("reloadData: Guard reject!")
       return
     }
-    state.LOG("reloadData")
     if (state.oTs) {
+      state.LOG("reloadData: queryList")
       await dispatch("queryList");
     }
     if (getters.contentLoadPath) {
+      state.LOG("reloadData: loadContent")
       await dispatch("loadContent")
     }
   },

@@ -412,7 +412,7 @@ export default {
     // Update to current list
     if (newMeta) {
       // Update Current Meta
-      console.log("pvg", newMeta)
+      //console.log("pvg", newMeta)
       if (this.meta && this.meta.id == newMeta.id) {
         this.dispatch("changeMeta", newMeta)
       }

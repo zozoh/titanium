@@ -7,7 +7,8 @@
       :value="myInputValue"
       :placeholder="placeholder"
       :dict="dict"
-      :suffixIcon="suffixIcon"
+      :prefixIcon="myInputIcon"
+      :suffixIcon="InputSuffixIcon"
       @suffix:icon="OnClickSuffixIcon"/>
   <!--
     Single value
@@ -19,7 +20,7 @@
       :placeholder="placeholder"
       :readonly="true"
       :prefixIcon="myInputIcon"
-      :suffixIcon="suffixIcon"
-      :suffixText="myInputSuffix"
+      :suffixIcon="InputSuffixIcon"
+      :suffixText="InputSuffixText"
       @suffix:icon="OnClickSuffixIcon"/>
 </div>

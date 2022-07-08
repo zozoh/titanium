@@ -144,6 +144,8 @@ const _M = {
     commit("setStatus", { reloading: true })
     let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
 
+    state.LOG(" - ", cmdText, input)
+
     // Update pager
     if (getters.isPagerEnabled) {
       commit("setPager", reo.pager)

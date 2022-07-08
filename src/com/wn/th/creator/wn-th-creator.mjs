@@ -38,7 +38,7 @@ export default {
       return _.assign({
         onlyFields: false,
         adjustDelay: 0,
-        field: this.fields,
+        fields: this.fields,
         fixed: this.fixed
       }, this.form)
     }
@@ -52,7 +52,7 @@ export default {
     },
     //--------------------------------------
     OnFormFieldChange(pair={}) {
-      console.log("OnFormFieldChange", pair)
+      //console.log("OnFormFieldChange", pair)
       this.myData = this.$form.getData(pair)
     },
     //--------------------------------------

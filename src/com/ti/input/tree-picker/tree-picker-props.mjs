@@ -38,11 +38,19 @@ export default {
   "dialog": {
     type: Object
   },
-  "tree": {
-    type: Object
-  },
   "placeholder": {
     type: String
+  },
+  "pickingIcon": {
+    type: String,
+    default: "fas-cog fa-spin"
+  },
+  "pickingText": {
+    type: String,
+    default: "..."
+  },
+  "tree": {
+    type: Object
   },
   "prefixIcon": {
     type: String,
