@@ -92,7 +92,6 @@ const _M = {
       config.data = this.TheValue
       _.defaults(config, {
         blankAs: this.blankAs,
-        blankClass: this.blankClass,
         multi: true,
         checkable: true
       })

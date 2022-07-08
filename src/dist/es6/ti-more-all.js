@@ -1,4 +1,4 @@
-// Pack At: 2022-07-08 12:58:16
+// Pack At: 2022-07-08 15:59:09
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -22049,7 +22049,6 @@ const _M = {
       config.data = this.TheValue
       _.defaults(config, {
         blankAs: this.blankAs,
-        blankClass: this.blankClass,
         multi: true,
         checkable: true
       })
@@ -25663,6 +25662,14 @@ const LIST_MIXINS = {
       })
     },
     //-----------------------------------------------
+    BlankLoadingConf() {
+      return _.assign({
+        className: "as-big-mask",
+        icon: "far-list-alt",
+        text: "i18n:empty-data"
+      }, this.blankAs)
+    },
+    //-----------------------------------------------
     hasRowToggleKey() {
       return !_.isEmpty(this.rowToggleKey)
     },
@@ -26888,16 +26895,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: [Function, String]
   },
   "blankAs": {
-    type: Object,
-    default: () => ({
-      icon: "far-list-alt",
-      text: "i18n:empty-data"
-    })
-  },
-  "blankClass": {
-    type: String,
-    default: "as-big-mask",
-    validator: v => /^as-(big|hug|big-mask|mid-tip)$/.test(v)
+    type: Object
   },
   "loadingAs": {
     type: Object,
@@ -44170,13 +44168,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "blankAs": {
     type: Object,
     default: () => ({
+      className: "as-mid-tip",
       icon: "fab-deezer",
       text: "empty-data"
     })
-  },
-  "blankClass": {
-    type: String,
-    default: "as-mid-tip"
   },
   "actionAlign": {
     type: String,
@@ -84139,8 +84134,7 @@ Ti.Preload("ti/com/ti/list/ti-list.html", `<div class="ti-list"
   <ti-loading 
     v-else-if="isDataEmpty"
       class="nil-data"
-      :class="blankClass"
-      v-bind="blankAs"/>
+      v-bind="BlankLoadingConf"/>
   <!--
     Show Items
   -->
@@ -85619,8 +85613,7 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
   <ti-loading 
     v-else-if="isDataEmpty"
       class="nil-data"
-      :class="blankClass"
-      v-bind="blankAs"/>
+      v-bind="BlankLoadingConf"/>
   <!--
     Show thead/tbody
   -->
@@ -86797,11 +86790,18 @@ Ti.Preload("ti/com/ti/wall/ti-wall.html", `<div class="ti-wall" :class="TopClass
   <!--
     Loading
   -->
-  <ti-loading v-if="isDataPending" class="nil-data" v-bind="loadingAs" />
+  <ti-loading 
+    v-if="isDataPending"
+      class="nil-data"
+      v-bind="loadingAs" />
   <!--
     Blank
   -->
-  <ti-loading v-else-if="isDataEmpty" class="nil-data" :class="blankClass" v-bind="blankAs" />
+  <ti-loading
+    v-else-if="isDataEmpty"
+      class="nil-data"
+      :class="blankClass"
+      v-bind="BlankLoadingConf"/>
   <!--
     Show tiles
   -->

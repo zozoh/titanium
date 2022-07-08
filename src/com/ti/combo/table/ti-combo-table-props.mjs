@@ -57,13 +57,10 @@ export default {
   "blankAs": {
     type: Object,
     default: () => ({
+      className: "as-mid-tip",
       icon: "fab-deezer",
       text: "empty-data"
     })
-  },
-  "blankClass": {
-    type: String,
-    default: "as-mid-tip"
   },
   "actionAlign": {
     type: String,

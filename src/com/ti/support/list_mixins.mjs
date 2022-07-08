@@ -30,6 +30,14 @@ const LIST_MIXINS = {
       })
     },
     //-----------------------------------------------
+    BlankLoadingConf() {
+      return _.assign({
+        className: "as-big-mask",
+        icon: "far-list-alt",
+        text: "i18n:empty-data"
+      }, this.blankAs)
+    },
+    //-----------------------------------------------
     hasRowToggleKey() {
       return !_.isEmpty(this.rowToggleKey)
     },

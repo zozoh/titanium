@@ -158,16 +158,7 @@ export default {
     type: [Function, String]
   },
   "blankAs": {
-    type: Object,
-    default: () => ({
-      icon: "far-list-alt",
-      text: "i18n:empty-data"
-    })
-  },
-  "blankClass": {
-    type: String,
-    default: "as-big-mask",
-    validator: v => /^as-(big|hug|big-mask|mid-tip)$/.test(v)
+    type: Object
   },
   "loadingAs": {
     type: Object,

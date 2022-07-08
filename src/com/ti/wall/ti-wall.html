@@ -2,11 +2,18 @@
   <!--
     Loading
   -->
-  <ti-loading v-if="isDataPending" class="nil-data" v-bind="loadingAs" />
+  <ti-loading 
+    v-if="isDataPending"
+      class="nil-data"
+      v-bind="loadingAs" />
   <!--
     Blank
   -->
-  <ti-loading v-else-if="isDataEmpty" class="nil-data" :class="blankClass" v-bind="blankAs" />
+  <ti-loading
+    v-else-if="isDataEmpty"
+      class="nil-data"
+      :class="blankClass"
+      v-bind="BlankLoadingConf"/>
   <!--
     Show tiles
   -->
