@@ -1,33 +1,42 @@
 .ti-combo-box {
-  @include flex-align-nowrap($ai:stretch);
+  @include flex-align-nowrap($ai: stretch);
   //---------------------------------
   > .as-box {
     @include noselect;
-    @include flex-align-nowrap($ai:stretch);
-    flex:1 1 auto;
+    @include flex-align-nowrap($ai: stretch);
+    flex: 1 1 auto;
+    //-------------------------------
+    > .full-field {
+      flex: 1 1 auto; 
+    }
+    //-------------------------------
   }
   //---------------------------------
   &.as-date {
-    > .as-box {flex: 0 0 auto; width:100%;}
+    > .as-box {
+      flex: 0 0 auto;
+      width: 100%;
+    }
   }
   //---------------------------------
   &.as-time,
   &.as-datetime,
   &.as-daterange {
     > .as-box > .ti-input {
-      flex:1 1 auto; width:100%;
+      flex: 1 1 auto;
+      width: 100%;
     }
   }
   //---------------------------------
   &.is-extended {
     > .as-box {
-      z-index:$z-menu + 1;  
+      z-index: $z-menu + 1;
     }
   }
   //---------------------------------
   > .as-mask {
     @include pos-fixed-full;
-    z-index:$z-menu;
+    z-index: $z-menu;
     //background:rgba(0,0,0,0.5);
   }
   //---------------------------------
@@ -35,8 +44,8 @@
     @include noselect;
     @include color($color-body, r, c);
     box-shadow: 4px 6px 10px map-get($color-shadow, c);
-    border:1px solid map-get($color-line, dark);
-    z-index:$z-menu + 1;
+    border: 1px solid map-get($color-line, dark);
+    z-index: $z-menu + 1;
     position: fixed;
     overflow: auto;
   }

@@ -1,4 +1,4 @@
-// Pack At: 2022-07-08 15:59:09
+// Pack At: 2022-07-11 14:56:53
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -47805,7 +47805,8 @@ const _M = {
     FormConfig() {
       let conf = _.cloneDeep(this.form)
       _.defaults(conf, {
-        spacing: "tiny"
+        spacing: "comfy",
+        gridColumnHint: 1
       })
       let findRuleFields = this.findRuleFields
         || _.get(window, "Wn.Hm.findCssPropFields")
@@ -47834,7 +47835,8 @@ const _M = {
         {
           title: "i18n:hmk-css-edit",
           width: "80%",
-          minWidth: "6.4rem",
+          maxWidth: "6.4rem",
+          minWidth: "3.2rem",
           height: "95%",
           position: "top",
         },
