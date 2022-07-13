@@ -1,103 +1,181 @@
 {
-  "comType" : "ti-gui",
-  "comConf" : {
-    "keepShownTo" : "gui_0_status",
-    "layout" : {
-      "type" : "rows",
-      "border" : true,
-      "blocks" : [{
-          "type" : "cols",
-          "border" : true,
-          "size" : 50,
-          "blocks" : [{
-              "size" : "auto",
-              "body" : {"comConf":{"value":"LOGO"}}
-            }, {
-              "body" : {"comConf":{"value":"TITLE"}}
-            }, {
-              "size" : "auto",
-              "body" : {"comConf":{"value":"MENU"}}
-            }]
-        }, {
-          "type" : "cols",
-          "border" : true,
-          "blocks" : [{
-              "size" : 300,
-              "body" : {"comConf":{"value":"CHUTE"}}
-            }, {
-              "type" : "tabs",
-              "tabAt" : "bottom-left",
-              "blocks" : [{
-                  "body" : {"comConf":{"value":"First Tab Content"}}
-                }, {
-                  "body" : "tab-test-panel-A"
-                }, {
-                  "body" : {"comConf":{"value":"Third Tab Content"}}
-                }]
-            }]
-        }, {
-          "size" : 50,
-          "body" : {"comConf":{"value":"FOOTER"}}
-        }],
-      "panels" : [{
-          "name" : "p-center",
-          "title" : "P-CENTER",
-          "icon"  : "im-idea",
-          "body" : {"comConf":{"value":"CENTER"}},
-          "position" : "top",
-          "closer" : "default",
-          "mask"   : false,
-          "width"  : "40%",
-          "height"  : "4rem",
-          "actions" : [{
-            "type" : "action",
-            "text" : "Close",
-            "action" : "$emit:block:hide(p-center)"
-          }],
-          "status" : "=status"
-        }, {
-          "name" : "p-left",
-          "title" : "P-LEFT",
-          "icon"  : "im-idea",
-          "body" : {"comConf":{"value":"LEFT"}},
-          "position" : "bottom-left",
-          "closer" : "right",
-          "mask"   : false,
-          "width"  : "4rem",
-          "height"  : "50%",
-          "status" : "=status"
-        }, {
-          "name" : "p-top",
-          "title" : "P-TOP",
-          "icon"  : "im-idea",
-          "body" : {"comConf":{"value":"TOP"}},
-          "position" : "top",
-          "closer" : "bottom",
-          "mask"   : true,
-          "width"  : 0.3,
-          "height"  : "25%",
-          "status" : "=status"
-        }]
-    },
-    "schema" : {
-      "tab-test-panel-A" : {
-          "comType" : "ti-button",
-          "comConf" : {
-            "setup": [{
-                "text" : "Center",
-                "eventName" : "block:show",
-                "payload" : "p-center"
-              }, {
-                "text" : "LEFT",
-                "eventName" : "block:show",
-                "payload" : "p-left"
-              }, {
-                "text" : "TOP",
-                "eventName" : "block:show",
-                "payload" : "p-top"
-              }]
+  "comType": "ti-gui",
+  "comConf": {
+    "keepShownTo": "gui_0_status",
+    "layout": {
+      "type": "rows",
+      "border": true,
+      "blocks": [
+        {
+          "type": "cols",
+          "border": true,
+          "size": 50,
+          "blocks": [
+            {
+              "size": "auto",
+              "body": {
+                "comConf": {
+                  "value": "LOGO"
+                }
+              }
+            },
+            {
+              "body": {
+                "comConf": {
+                  "value": "TITLE"
+                }
+              }
+            },
+            {
+              "size": "auto",
+              "body": {
+                "comConf": {
+                  "value": "MENU"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "cols",
+          "border": true,
+          "adjustMode": "%",
+          "keepCustomizedTo": "demo-ti-gui-cols",
+          "blocks": [
+            {
+              "size": 300,
+              "minSize": 100,
+              "body": {
+                "comConf": {
+                  "value": "CHUTE"
+                }
+              }
+            },
+            {
+              "type": "tabs",
+              "tabAt": "bottom-left",
+              "minSize": 300,
+              "blocks": [
+                {
+                  "body": {
+                    "comConf": {
+                      "value": "First Tab Content"
+                    }
+                  }
+                },
+                {
+                  "body": "tab-test-panel-A"
+                },
+                {
+                  "body": {
+                    "comConf": {
+                      "value": "Third Tab Content"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "size": 100,
+              "minSize": 80,
+              "body": {
+                "comConf": {
+                  "value": "DETAIL"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "size": 50,
+          "body": {
+            "comConf": {
+              "value": "FOOTER"
+            }
           }
         }
+      ],
+      "panels": [
+        {
+          "name": "p-center",
+          "title": "P-CENTER",
+          "icon": "im-idea",
+          "body": {
+            "comConf": {
+              "value": "CENTER"
+            }
+          },
+          "position": "top",
+          "closer": "default",
+          "mask": false,
+          "width": "40%",
+          "height": "4rem",
+          "actions": [
+            {
+              "type": "action",
+              "text": "Close",
+              "action": "$emit:block:hide(p-center)"
+            }
+          ],
+          "status": "=status"
+        },
+        {
+          "name": "p-left",
+          "title": "P-LEFT",
+          "icon": "im-idea",
+          "body": {
+            "comConf": {
+              "value": "LEFT"
+            }
+          },
+          "position": "bottom-left",
+          "closer": "right",
+          "mask": false,
+          "width": "4rem",
+          "height": "50%",
+          "status": "=status"
+        },
+        {
+          "name": "p-top",
+          "title": "P-TOP",
+          "icon": "im-idea",
+          "body": {
+            "comConf": {
+              "value": "TOP"
+            }
+          },
+          "position": "top",
+          "closer": "bottom",
+          "mask": true,
+          "width": 0.3,
+          "height": "25%",
+          "status": "=status"
+        }
+      ]
+    },
+    "schema": {
+      "tab-test-panel-A": {
+        "comType": "ti-button",
+        "comConf": {
+          "setup": [
+            {
+              "text": "Center",
+              "eventName": "block:show",
+              "payload": "p-center"
+            },
+            {
+              "text": "LEFT",
+              "eventName": "block:show",
+              "payload": "p-left"
+            },
+            {
+              "text": "TOP",
+              "eventName": "block:show",
+              "payload": "p-top"
+            }
+          ]
+        }
+      }
     }
   }
 }

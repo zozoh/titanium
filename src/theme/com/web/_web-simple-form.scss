@@ -139,7 +139,8 @@
   //-------------------------------------
   > footer {
     @include flex-align-nowrap($jc:center);
-    a {
+    //-----------------------------------
+    &.as-bottom-oauth2 a {
       display: block; margin:0 .2em;
       font-size: SZ(32);
       .ti-icon {transition: 0.3s;}
@@ -148,6 +149,7 @@
         .ti-icon {transform: scale(1.3) rotate(360deg);}
       }
     }
+    //-----------------------------------
   }
   //-------------------------------------
 }

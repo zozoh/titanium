@@ -71,6 +71,8 @@ DYNAMIC_DICTS = {
 {
   comType: "TiDroplist",
   comConf: {
+    // 这里的 =cate 是从 vars 取某个值作为字典的标识名
+    // 当然，vars 可以有很多值，来约束一个字典
     options: "#EventNames(=cate)",
     dictVars: {
       "cate": ":::=item.event_cate"

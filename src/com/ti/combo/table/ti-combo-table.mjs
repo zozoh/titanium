@@ -91,7 +91,11 @@ const _M = {
       let config = this.getDataByVars(this.list)
       config.data = this.TheValue
       _.defaults(config, {
-        blankAs: this.blankAs,
+        blankAs: _.assign({
+          className: "as-mid-tip",
+          icon: "fab-deezer",
+          text: "empty-data"
+        }, this.blankAs),
         multi: true,
         checkable: true
       })

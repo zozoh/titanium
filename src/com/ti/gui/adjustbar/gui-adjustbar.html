@@ -1,0 +1,23 @@
+<div
+  class="block-adjust-bar"
+  :class="TopClass"
+  :arrow-to="MiniArrowTo"
+  :arrow-at="MiniArrowAt"
+  :adjacent-mode="adjacentMode"
+  :adjust-mode="adjustMode"
+  :adjust-0="adjustIndex[0]"
+  :adjust-1="adjustIndex[1]">
+  <!--------------------------------------->
+  <div class="bar-con">
+    <!----------------------------------->
+    <div class="as-action is-reset" @mousedown.stop="OnClickReset">
+      <i class="zmdi zmdi-time-restore"></i></div>
+    <!----------------------------------->
+    <div
+      v-if="hasMiniArrow"
+        class="as-action is-mini"
+        @mousedown.stop="OnClickMini"><i :class="MiniArrowClass"></i></div>
+    <!----------------------------------->
+  </div>
+  <!--------------------------------------->
+</div>

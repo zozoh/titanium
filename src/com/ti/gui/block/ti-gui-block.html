@@ -25,6 +25,7 @@
     Content
   -->
   <div class="block-main" v-if="TheCom">
+    <!------------------------------------------->
     <div class="block-main-con"
       :class="MainConClass"
       :style="MainConStyle">
@@ -33,6 +34,16 @@
         :is="TheCom.comType"
         v-bind="TheCom.comConf"/>
     </div>
+    <!------------------------------------------->
+    <TiGuiAdjustbar
+      v-if="hasAdjustBar"
+        :prevMinimum="isPrevMinimumSize"
+        :selfMinimum="isMinimumSize"
+        :adjacentMode="adjacentMode"
+        :adjustBarAt="adjustBarAt"
+        :adjustMode="adjustMode"
+        :adjustIndex="adjustIndex"/>
+    <!------------------------------------------->
   </div>
   <!--Blank-->
   </div>

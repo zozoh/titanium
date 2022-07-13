@@ -3,12 +3,14 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
 //---------------------------------------
 .ti-gui {
   @include flex-align-v-nowrap;
-  position: relative;      // For the sub-panles
-  width:100%; height:100%; // Always fit the parent
+  position: relative; // For the sub-panles
+  width: 100%;
+  height: 100%; // Always fit the parent
   > .gui-con {
     @include flex-align-v-nowrap;
     flex: 1 1 auto;
-    width:100%; height:100%;
+    width: 100%;
+    height: 100%;
     > div {
       flex: 1 1 auto;
     }
@@ -22,7 +24,9 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
   &.show-border {
     > .ti-gui-block {
       @include border(1px, solid, shallow, bottom);
-      &:last-child{border:0;}
+      &:last-child {
+        border: 0;
+      }
     }
   }
   //-------------------------------------
@@ -30,12 +34,14 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
 //---------------------------------------
 // Cols
 .ti-gui-cols {
-  @include flex-align-nowrap($ai:stretch);
+  @include flex-align-nowrap($ai: stretch);
   //-------------------------------------
   &.show-border {
     > .ti-gui-block {
       @include border(1px, solid, shallow, left);
-      &:first-child{border:0;}
+      &:first-child {
+        border: 0;
+      }
     }
   }
   //-------------------------------------
@@ -45,77 +51,89 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
 .ti-gui-tabs {
   position: relative;
   //-------------------------------------
-  $tabH : SZ(43);
+  $tabH: SZ(43);
   $tabPad: SZ(8);
   //-------------------------------------
   // Docking Position
   &.at-top {
     padding-top: $tabH;
     > header {
-      @include pos-abs($l:0,$r:0,$t:0,$h:$tabH);
-      border-bottom:1px solid map-get($color-line, shallow);
+      @include pos-abs($l: 0, $r: 0, $t: 0, $h: $tabH);
+      border-bottom: 1px solid map-get($color-line, shallow);
       padding-bottom: 0;
       li {
-        border-top-width:3px;
-        border-bottom:0;
-        margin-bottom:-1px;
+        border-top-width: 3px;
+        border-bottom: 0;
+        margin-bottom: -1px;
       }
     }
   }
   //-------------------------------------
-  
+
   &.at-bottom {
     padding-bottom: $tabH;
     > header {
-      @include pos-abs($l:0,$r:0,$b:0,$h:$tabH);
-      border-top:1px solid map-get($color-line, shallow);
+      @include pos-abs($l: 0, $r: 0, $b: 0, $h: $tabH);
+      border-top: 1px solid map-get($color-line, shallow);
       padding-top: 0;
       li {
-        border-bottom-width:3px;
-        border-top:0;
-        margin-top:-1px;
+        border-bottom-width: 3px;
+        border-top: 0;
+        margin-top: -1px;
       }
     }
   }
   //-------------------------------------
-  &.head-highlight-1 > header {@include color($color-primary, r, c);}
-  &.head-highlight-2 > header {@include color($color-secondary, r, c);}
+  &.head-highlight-1 > header {
+    @include color($color-primary, r, c);
+  }
+  &.head-highlight-2 > header {
+    @include color($color-secondary, r, c);
+  }
   //-------------------------------------
-  // Tab Bar 
+  // Tab Bar
   > header {
     padding: $tabPad;
     //-----------------------------------
     @include noselect;
     @include color($color-bar, r, c);
     //-----------------------------------
-    &.as-left   ul {@include flex-align-nowrap($ai:stretch);}
-    &.as-center ul {@include flex-align-nowrap($ai:stretch, $jc:center);}
-    &.as-right  ul {@include flex-align-nowrap($ai:stretch, $jc:flex-end);}
+    &.as-left ul {
+      @include flex-align-nowrap($ai: stretch);
+    }
+    &.as-center ul {
+      @include flex-align-nowrap($ai: stretch, $jc: center);
+    }
+    &.as-right ul {
+      @include flex-align-nowrap($ai: stretch, $jc: flex-end);
+    }
     //-----------------------------------
     ul {
-      width:100%; height:100%;
+      width: 100%;
+      height: 100%;
     }
     //-----------------------------------
     li {
-      @include flex-center($wp:nowrap);
-      cursor:pointer; 
-      border:1px solid transparent;
-      min-width: SZ(80); 
-      padding:0 SZ(10);
-      line-height:SZ(28); 
-      font-size:SZ(12);
+      @include flex-center($wp: nowrap);
+      cursor: pointer;
+      border: 1px solid transparent;
+      min-width: SZ(80);
+      padding: 0 SZ(10);
+      line-height: SZ(28);
+      font-size: SZ(12);
       &.is-current {
         @include color($color-body, r, c);
-        border-color:map-get($color-line, shallow);
-        border-top-color:map-get($color-primary, c);
-        border-bottom-color:map-get($color-primary, c);
-        background-color:map-get($color-body, c);
+        border-color: map-get($color-line, shallow);
+        border-top-color: map-get($color-primary, c);
+        border-bottom-color: map-get($color-primary, c);
+        background-color: map-get($color-body, c);
       }
       > .it-icon {
-        padding-right:SZ(6);
+        padding-right: SZ(6);
       }
       > .it-text {
-        display: block; white-space: nowrap;
+        display: block;
+        white-space: nowrap;
       }
     }
     //-----------------------------------
@@ -123,7 +141,8 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
   //-------------------------------------
   // Main Block Section
   > section {
-    width:100%; height:100%;
+    width: 100%;
+    height: 100%;
   }
   //-------------------------------------
 }
@@ -134,47 +153,119 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
   //-----------------------------------
   &.show-mask {
     @include color($color-mask, null, thin);
-    @include pos-abs(0,0,100%,100%);
+    @include pos-abs(0, 0, 100%, 100%);
     z-index: $z-mask;
-    &.at-free   {position: absolute;}
-    &.at-center {padding-bottom:10%;}
-    &.at-left   {@include flex-as($j:flex-start);}
-    &.at-right  {@include flex-as($j:flex-end);}
-    &.at-top    {@include flex-as($a:flex-start);}
-    &.at-bottom {@include flex-as($a:flex-end);}
-    &.at-left-top     {@include flex-as($j:flex-start,$a:flex-start);}
-    &.at-right-top    {@include flex-as($j:flex-end  ,$a:flex-start);}
-    &.at-bottom-left  {@include flex-as($j:flex-start,$a:flex-end);}
-    &.at-bottom-right {@include flex-as($j:flex-end  ,$a:flex-end);}
+    &.at-free {
+      position: absolute;
+    }
+    &.at-center {
+      padding-bottom: 10%;
+    }
+    &.at-left {
+      @include flex-as($j: flex-start);
+    }
+    &.at-right {
+      @include flex-as($j: flex-end);
+    }
+    &.at-top {
+      @include flex-as($a: flex-start);
+    }
+    &.at-bottom {
+      @include flex-as($a: flex-end);
+    }
+    &.at-left-top {
+      @include flex-as($j: flex-start, $a: flex-start);
+    }
+    &.at-right-top {
+      @include flex-as($j: flex-end, $a: flex-start);
+    }
+    &.at-bottom-left {
+      @include flex-as($j: flex-start, $a: flex-end);
+    }
+    &.at-bottom-right {
+      @include flex-as($j: flex-end, $a: flex-end);
+    }
   }
   //-----------------------------------
   &.no-mask {
     // If center, it should be mask by transparent
     z-index: $z-mask;
     &.at-center {
-      @include pos-abs(0,0,100%,100%);
+      @include pos-abs(0, 0, 100%, 100%);
       @include flex-center;
-      padding-bottom:10%;
+      padding-bottom: 10%;
     }
     //---------------------------------
     > .panel-con {
-      @include border(1px,solid,dark);
+      @include border(1px, solid, dark);
     }
     //---------------------------------
-    &.at-free   {position: absolute;}
-    &.at-left   {@include pos-abs($l:0,$t:0,$b:0); >.panel-con{border-left:0;}}
-    &.at-right  {@include pos-abs($r:0,$t:0,$b:0); >.panel-con{border-right:0;}}
-    &.at-top    {@include pos-abs($l:0,$t:0,$r:0); >.panel-con{border-top:0;}}
-    &.at-bottom {@include pos-abs($l:0,$b:0,$r:0); >.panel-con{border-bottom:0;}}
-    &.at-left-top     {@include pos-abs($l:0,$t:0); >.panel-con{border-left:0;border-top:0;}}
-    &.at-right-top    {@include pos-abs($r:0,$t:0); >.panel-con{border-right:0;border-top:0;}}
-    &.at-bottom-left  {@include pos-abs($b:0,$l:0); >.panel-con{border-bottom:0;border-left:0;}}
-    &.at-bottom-right {@include pos-abs($b:0,$r:0); >.panel-con{border-bottom:0;border-right:0;}}
+    &.at-free {
+      position: absolute;
+    }
+    &.at-left {
+      @include pos-abs($l: 0, $t: 0, $b: 0);
+      > .panel-con {
+        border-left: 0;
+      }
+    }
+    &.at-right {
+      @include pos-abs($r: 0, $t: 0, $b: 0);
+      > .panel-con {
+        border-right: 0;
+      }
+    }
+    &.at-top {
+      @include pos-abs($l: 0, $t: 0, $r: 0);
+      > .panel-con {
+        border-top: 0;
+      }
+    }
+    &.at-bottom {
+      @include pos-abs($l: 0, $b: 0, $r: 0);
+      > .panel-con {
+        border-bottom: 0;
+      }
+    }
+    &.at-left-top {
+      @include pos-abs($l: 0, $t: 0);
+      > .panel-con {
+        border-left: 0;
+        border-top: 0;
+      }
+    }
+    &.at-right-top {
+      @include pos-abs($r: 0, $t: 0);
+      > .panel-con {
+        border-right: 0;
+        border-top: 0;
+      }
+    }
+    &.at-bottom-left {
+      @include pos-abs($b: 0, $l: 0);
+      > .panel-con {
+        border-bottom: 0;
+        border-left: 0;
+      }
+    }
+    &.at-bottom-right {
+      @include pos-abs($b: 0, $r: 0);
+      > .panel-con {
+        border-bottom: 0;
+        border-right: 0;
+      }
+    }
     //---------------------------------
   }
   //-----------------------------------
-  &.flex-align-top {align-items: flex-start; align-content: flex-start;}
-  &.flex-align-bottom {align-items: flex-end; align-content: flex-end;}
+  &.flex-align-top {
+    align-items: flex-start;
+    align-content: flex-start;
+  }
+  &.flex-align-bottom {
+    align-items: flex-end;
+    align-content: flex-end;
+  }
   //-----------------------------------
   &.is-fixed {
     position: fixed;
@@ -184,7 +275,9 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
     position: relative;
   }
   &.is-bg-opaque {
-    > .panel-con {@include color($color-body, r, c);}
+    > .panel-con {
+      @include color($color-body, r, c);
+    }
   }
   //-----------------------------------
   // If closer is default, make more space
@@ -195,34 +288,40 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
     }
   }
   //-----------------------------------
-  $foot-closer-size : 80px;
+  $foot-closer-size: 80px;
   .panel-closer {
     position: absolute;
     @include flex-center;
     //--------------------------------------
     &.as-lamp-cord {
       > .ti-icon {
-        color:rgba(255,255,255,0.8); 
-        border:1px solid rgba(255,255,255,0.8);
-        background:rgba(50,50,50,0.4);
+        color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        background: rgba(50, 50, 50, 0.4);
         border-radius: 50%;
-        width:32px; height:32px;
+        width: 32px;
+        height: 32px;
         cursor: pointer;
-        display:block;
+        display: block;
         transition: all 0.8s;
         > .icon-icon {
-          display: block; width:100%; height:100%;
+          display: block;
+          width: 100%;
+          height: 100%;
           > i {
-            width:100%; height:100%;
-            line-height: 32px; text-align: center;
-            font-size:21px; font-weight: 400;
+            width: 100%;
+            height: 100%;
+            line-height: 32px;
+            text-align: center;
+            font-size: 21px;
+            font-weight: 400;
             transition: all 0.3s;
           }
         }
         &:hover {
           @include color($color-secondary, r, c);
-          border-color:transparent;
-          box-shadow:0 0 10px 4px map-get($color-light, c);
+          border-color: transparent;
+          box-shadow: 0 0 10px 4px map-get($color-light, c);
           > .icon-icon > i {
             transform: rotate(180deg);
           }
@@ -232,34 +331,39 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
       &.at-top {
         height: $foot-closer-size;
         top: $foot-closer-size * -1;
-        left:0; right:0;
+        left: 0;
+        right: 0;
       }
       &.at-bottom {
         height: $foot-closer-size;
         bottom: $foot-closer-size * -1;
-        left:0; right:0;
+        left: 0;
+        right: 0;
       }
       &.at-left {
         width: $foot-closer-size;
         left: $foot-closer-size * -1;
-        top:0; bottom:0;
+        top: 0;
+        bottom: 0;
       }
       &.at-right {
         width: $foot-closer-size;
         right: $foot-closer-size * -1;
-        top:0; bottom:0;
+        top: 0;
+        bottom: 0;
       }
     }
     //----------------------------------
     &.as-default {
-      top:0; right:0; 
+      top: 0;
+      right: 0;
       //--------------------------------
       > .ti-icon {
         @include flex-center;
         @include color($color-body, r);
         cursor: pointer;
-        width:$GUI-BLOCK-HEADER-HEIGHT; 
-        height:$GUI-BLOCK-HEADER-HEIGHT;
+        width: $GUI-BLOCK-HEADER-HEIGHT;
+        height: $GUI-BLOCK-HEADER-HEIGHT;
         //------------------------------
         > .icon-icon {
           > i {
@@ -284,10 +388,18 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
 .ti-gui-block {
   position: relative;
   //-------------------------------------
-  &.is-flex-grow   {flex:1 0 auto;}
-  &.is-flex-shrink {flex:0 1 auto;}
-  &.is-flex-both   {flex:1 1 auto;}
-  &.is-flex-none   {flex:0 0 auto;}
+  &.is-flex-grow {
+    flex: 1 0 auto;
+  }
+  &.is-flex-shrink {
+    flex: 0 1 auto;
+  }
+  &.is-flex-both {
+    flex: 1 1 auto;
+  }
+  &.is-flex-none {
+    flex: 0 0 auto;
+  }
   //-------------------------------------
   &.is-show-header {
     padding-top: $GUI-BLOCK-HEADER-HEIGHT;
@@ -295,24 +407,24 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
     > .block-head {
       //---------------------------------
       @include noselect;
-      @include pos-abs($l:0,$r:0,$t:0,$h:$GUI-BLOCK-HEADER-HEIGHT);
-      @include flex-align-nowrap($ai:stretch);
+      @include pos-abs($l: 0, $r: 0, $t: 0, $h: $GUI-BLOCK-HEADER-HEIGHT);
+      @include flex-align-nowrap($ai: stretch);
       @include color($color-bar, r, c);
       @include border(1px, solid, shallow, bottom);
       //---------------------------------
       line-height: $GUI-BLOCK-HEADER-HEIGHT;
-      padding:0 0 0 SZ(6);
+      padding: 0 0 0 SZ(6);
       //---------------------------------
       > .as-icon {
         @include flex-center;
         flex: 0 0 auto;
-        padding-left:SZ(6);
+        padding-left: SZ(6);
       }
       //---------------------------------
       > .as-title {
-        flex:1 1 auto; 
-        padding:0 SZ(6);
-        white-space: nowrap; 
+        flex: 1 1 auto;
+        padding: 0 SZ(6);
+        white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
@@ -320,39 +432,159 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
       > .as-actions {
         @include flex-align-nowrap;
         flex: 0 0 auto;
-        padding:0 SZ(4) 0 0;
-        font-size: .9em;
+        padding: 0 SZ(4) 0 0;
+        font-size: 0.9em;
       }
       //---------------------------------
     }
     //-------------------------------------
-    &.head-highlight-1 > .block-head {@include color($color-primary, r, c);}
-    &.head-highlight-2 > .block-head {@include color($color-secondary, r, c);}
+    &.head-highlight-1 > .block-head {
+      @include color($color-primary, r, c);
+    }
+    &.head-highlight-2 > .block-head {
+      @include color($color-secondary, r, c);
+    }
     //-------------------------------------
   }
   //-------------------------------------
   > .block-main {
-    @include flex-align-nowrap($ai:stretch);
-    width:100%; height:100%; 
+    @include flex-align-nowrap($ai: stretch);
+    width: 100%;
+    height: 100%;
     position: relative;
+    //-----------------------------------
     > .block-main-con {
-      flex:1 1 auto; width:100%; height:100%;
+      flex: 1 1 auto;
+      width: 100%;
+      height: 100%;
       &.fill-parent {
-        width:100%; height:100%;
+        width: 100%;
+        height: 100%;
       }
       &.cover-parent {
         @include pos-abs-full;
         //overflow: hidden;
       }
     }
-  }
+    //-----------------------------------
+    > .block-adjust-bar {
+      position: absolute;
+      background-color: map-get($color-mask, thin);
+      user-select: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: $z-over;
+      //---------------------------------
+      &:hover {
+        opacity: 1;
+      }
+      //---------------------------------
+      $BAR_SIZE: SZ(8);
+      $BTN_SIZE: SZ(20);
+      $BTN_RADI: SZ(6);
+      //---------------------------------
+      &[adjust-mode="col-resize"] {
+        cursor: col-resize;
+        > .bar-con > .as-action.is-mini {
+          width: $BTN_SIZE;
+          height: $BTN_SIZE * 2;
+        }
+      }
+      //---------------------------------
+      &[adjust-mode="row-resize"] {
+        cursor: row-resize;
+      }
+      //---------------------------------
+      &.at-left {
+        top: 0;
+        bottom: 0;
+        left: $BAR_SIZE / -2;
+        width: $BAR_SIZE;
+      }
+      //---------------------------------
+      &.at-right {
+        top: 0;
+        bottom: 0;
+        right: $BAR_SIZE / -2;
+        width: $BAR_SIZE;
+        cursor: col-resize;
+      }
+      //---------------------------------
+      &.at-top {
+        top: $BAR_SIZE / -2;
+        left: 0;
+        right: 0;
+        height: $BAR_SIZE;
+      }
+      //---------------------------------
+      &.at-bottom {
+        bottom: $BAR_SIZE / -2;
+        left: 0;
+        right: 0;
+        height: $BAR_SIZE;
+      }
+      //---------------------------------
+      > .bar-con {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        //-------------------------------
+        > .as-action {
+          @include color($color-mask, r, thin);
+          @include flex-center;
+          cursor: pointer;
+          position: absolute;
+          &.is-reset {
+            width: $BTN_SIZE;
+            height: $BTN_SIZE;
+          }
+          &:hover {
+            @include color($color-primary, r, c);
+          }
+        }
+        //-------------------------------
+      }
+      //---------------------------------
+      &[arrow-at="left"] {
+        > .bar-con .as-action {
+          &.is-mini {
+            top: 50%;
+            right: $BAR_SIZE;
+            margin-top: $BTN_SIZE * -1;
+            border-radius: $BTN_RADI 0 0 $BTN_RADI;
+          }
+          &.is-reset {
+            left: $BAR_SIZE;
+            border-radius: 0 0 ($BTN_RADI * 1.5) 0;
+          }
+        }
+      }
+      //---------------------------------
+      &[arrow-at="right"] {
+        > .bar-con .as-action {
+          &.is-mini {
+            top: 50%;
+            left: $BAR_SIZE;
+            margin-top: $BTN_SIZE * -1;
+            border-radius: 0 $BTN_RADI $BTN_RADI 0;
+          }
+          &.is-reset {
+            right: $BAR_SIZE;
+            border-radius: 0 0 0 ($BTN_RADI * 1.6);
+          }
+        }
+      }
+      //---------------------------------
+    } // > .block-adjust-bar
+    //-----------------------------------
+  } // > .block-main
   //-------------------------------------
 }
 //---------------------------------------
 // Animation
 //---------------------------------------
-@mixin gui-trans($name, $trans, $tor:null, $du:.3s) {
-  .ti-gui-panel-#{$name}-enter-active, 
+@mixin gui-trans($name, $trans, $tor: null, $du: 0.3s) {
+  .ti-gui-panel-#{$name}-enter-active,
   .ti-gui-panel-#{$name}-leave-active {
     transition: opacity $du;
     > .panel-con {
@@ -362,18 +594,20 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
       }
     }
   }
-  .ti-gui-panel-#{$name}-enter, 
-  .ti-gui-panel-#{$name}-leave-to  {
+  .ti-gui-panel-#{$name}-enter,
+  .ti-gui-panel-#{$name}-leave-to {
     opacity: 0;
-    > .panel-con {transform: $trans;}
+    > .panel-con {
+      transform: $trans;
+    }
   }
 }
-@include gui-trans(top,    translateY(-300px));
-@include gui-trans(left,   translateX(-300px));
-@include gui-trans(right,  translateX(300px));
+@include gui-trans(top, translateY(-300px));
+@include gui-trans(left, translateX(-300px));
+@include gui-trans(right, translateX(300px));
 @include gui-trans(bottom, translateY(300px));
 @include gui-trans(center, scale(0));
-@include gui-trans(left-top,     scale(0), left top);
-@include gui-trans(right-top,    scale(0), right top);
-@include gui-trans(bottom-left,  scale(0), bottom left);
+@include gui-trans(left-top, scale(0), left top);
+@include gui-trans(right-top, scale(0), right top);
+@include gui-trans(bottom-left, scale(0), bottom left);
 @include gui-trans(bottom-right, scale(0), bottom right);

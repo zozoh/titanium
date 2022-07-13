@@ -351,7 +351,9 @@ const _M = {
     },
     //------------------------------------------------
     createDict() {
-      //console.log("createDict in combo-input")
+      // if (!_.isEmpty(this.dictVars)) {
+      //   console.log("createDict in combo-input", this.dictVars)
+      // }
       // Customized
       return Ti.DictFactory.CreateDictBy(this.options, {
         valueBy: this.valueBy,

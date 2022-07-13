@@ -487,6 +487,10 @@ export const DictFactory = {
     return d
   },
   //-------------------------------------------
+  hasDict(name) {
+    return DICTS[name] ? true : false
+  },
+  //-------------------------------------------
   /***
    * @param name{String} : Dict name in cache
    * @param shadowed{Boolean} : Create the shadown version

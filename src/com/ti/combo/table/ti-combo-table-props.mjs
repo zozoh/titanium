@@ -55,12 +55,7 @@ export default {
   // Aspect
   //-----------------------------------
   "blankAs": {
-    type: Object,
-    default: () => ({
-      className: "as-mid-tip",
-      icon: "fab-deezer",
-      text: "empty-data"
-    })
+    type: Object
   },
   "actionAlign": {
     type: String,

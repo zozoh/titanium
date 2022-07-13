@@ -228,6 +228,10 @@ export default {
       this.dockPanelToReferElement()
     },
     //--------------------------------------
+    isBlockSizeMinimum(index) {
+      return false
+    },
+    //--------------------------------------
     async evalBlockTitle() {
       if(this.title) {
         this.myBlockTitle = await Ti.Util.explainObj(this.$gui.vars, this.title)

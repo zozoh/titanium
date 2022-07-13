@@ -2,35 +2,35 @@ export default {
   /////////////////////////////////////////
   inject: ["$gui"],
   /////////////////////////////////////////
-  data: ()=>({
-    myCurrentTab : 0
+  data: () => ({
+    myCurrentTab: 0
   }),
   /////////////////////////////////////////
-  props : {
-    "tabAt" : {
-      type : String,
-      default : "top-left",
-      validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
+  props: {
+    "tabAt": {
+      type: String,
+      default: "top-left",
+      validator: (v) => /^(top|bottom)-(left|center|right)$/.test(v)
     },
-    "blocks" : {
-      type : Array,
-      default : ()=>[]
+    "blocks": {
+      type: Array,
+      default: () => []
     },
-    "schema" : {
-      type : Object,
-      default : ()=>({})
+    "schema": {
+      type: Object,
+      default: () => ({})
     },
-    "actionStatus" : {
-      type : Object,
-      default : ()=>({})
+    "actionStatus": {
+      type: Object,
+      default: () => ({})
     },
-    "shown" : {
-      type : Object,
-      default : ()=>({})
+    "shown": {
+      type: Object,
+      default: () => ({})
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass(`at-${this.TheTabAt[0]}`)
@@ -46,12 +46,12 @@ export default {
     //--------------------------------------
     BlockWrapList() {
       let list = []
-      for(let i=0; i<this.blocks.length; i++) {
+      for (let i = 0; i < this.blocks.length; i++) {
         let block = this.blocks[i]
         let key = block.name || `tab-${i}`
         list.push({
-          index : i, 
-          key, block          
+          index: i,
+          key, block
         })
       }
       return list
@@ -59,19 +59,19 @@ export default {
     //--------------------------------------
     TabItems() {
       let list = []
-      for(let wrap of this.BlockWrapList) {
+      for (let wrap of this.BlockWrapList) {
         let current = this.myCurrentTab == wrap.key
         let item = {
           current,
-          key   : wrap.key,
-          index : wrap.index,
-          name  : wrap.block.name, 
-          icon  : wrap.block.icon,
-          title : wrap.block.title,
-          className : {"is-current":current}
+          key: wrap.key,
+          index: wrap.index,
+          name: wrap.block.name,
+          icon: wrap.block.icon,
+          title: wrap.block.title,
+          className: { "is-current": current }
         }
         // tab item can not be blank
-        if(!item.icon && !item.title) {
+        if (!item.icon && !item.title) {
           item.title = Ti.Util.fallback(item.name, item.key)
         }
         list.push(item)
@@ -80,16 +80,16 @@ export default {
     },
     //--------------------------------------
     CurrentTabItem() {
-      for(let item of this.TabItems) {
-        if(item.current) {
+      for (let item of this.TabItems) {
+        if (item.current) {
           return item
         }
       }
     },
     //--------------------------------------
     CurrentBlock() {
-      for(let wrap of this.BlockWrapList) {
-        if(this.myCurrentTab == wrap.key) {
+      for (let wrap of this.BlockWrapList) {
+        if (this.myCurrentTab == wrap.key) {
           return wrap.block
         }
       }
@@ -97,12 +97,12 @@ export default {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnSetCurrentTabItem(item) {
       this.$gui.OnBlockShownUpdate({
-        [item.key] : true,
-        [this.CurrentTabItem.key] : false
+        [item.key]: true,
+        [this.CurrentTabItem.key]: false
       })
     },
     //--------------------------------------
@@ -112,36 +112,40 @@ export default {
     //--------------------------------------
     $currentMain() {
       let $block = this.$current()
-      if($block)
+      if ($block)
         return $block.$main()
+    },
+    //--------------------------------------
+    isBlockSizeMinimum(index) {
+      return false
     },
     //--------------------------------------
     syncCurrentTabFromShown() {
       //console.log("syncCurrentTabFromShown")
-      for(let wrap of this.BlockWrapList) {
-        if(this.shown[wrap.key]) {
+      for (let wrap of this.BlockWrapList) {
+        if (this.shown[wrap.key]) {
           this.myCurrentTab = wrap.key
           return
         }
       }
       // Default highlight the first tab
-      if(this.BlockWrapList.length>0) {
+      if (this.BlockWrapList.length > 0) {
         this.myCurrentTab = this.BlockWrapList[0].key
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "shown" : function() {
+  watch: {
+    "shown": function () {
       this.syncCurrentTabFromShown()
     },
-    "blocks" : function() {
+    "blocks": function () {
       this.syncCurrentTabFromShown()
     }
   },
   //////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     this.syncCurrentTabFromShown()
   }
   //////////////////////////////////////////

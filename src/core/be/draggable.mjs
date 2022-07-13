@@ -99,7 +99,6 @@ function TiDraggable($el, setup = {}) {
       return
     }
 
-    //console.log(context)
 
     // Guard
     if (!_.isElement($viewport) || !_.isElement($handler)) {
@@ -195,7 +194,7 @@ function TiDraggable($el, setup = {}) {
     //........................................
     // Prepare
     context.initScale();
-    context = prepare(context) || context
+    context = prepare(context, evt) || context
     //---------------------------------------------
     function PreventClick(evt) {
       //console.log("PreventClick", evt)

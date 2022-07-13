@@ -1,0 +1,6 @@
+{
+  "name": "ti-gui-adjustbar",
+  "globally": true,
+  "template": "./gui-adjustbar.html",
+  "mixins": "./gui-adjustbar.mjs"
+}

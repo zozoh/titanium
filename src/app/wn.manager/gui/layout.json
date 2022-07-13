@@ -7,6 +7,7 @@
         "name": "sky",
         "size": 48,
         "type": "cols",
+        "adjustable": false,
         "blocks": [
           {
             "name": "logo",
@@ -36,6 +37,7 @@
         "flex": "both",
         "type": "cols",
         "border": true,
+        "keepCustomizedTo": "WnManager-Main-Sidebar-ColSizes",
         "blocks": [
           {
             "name": "sidebar",

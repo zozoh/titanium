@@ -66,13 +66,26 @@
   -->
   <template v-if="hasOAuth2">
     <div class="as-spacing"></div>
-    <footer>
+    <footer class="as-bottom-oauth2">
       <a
         v-for="it in OAuth2Items"
           :href="it.href"
           :title="it.tip">
           <ti-icon :value="it.icon"/>
       </a>
+    </footer>
+  </template>
+  <!--
+    Bottom tip
+  -->
+  <template v-if="hasBottomTip">
+    <footer
+      class="as-bottom-tip">
+      <div
+        v-if="bottomTipAsHtml"
+          v-html="bottomTip"></div>
+      <div
+        v-else>{{bottomTip}}</div>
     </footer>
   </template>
 </div>

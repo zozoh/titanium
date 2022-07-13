@@ -362,6 +362,10 @@ const _M = {
     this.OnResize()
     //...................................
     await this.evalFormFieldList()
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy: function () {
+    Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////////////////
 }

@@ -1,49 +1,55 @@
 export default {
-  inheritAttrs : false,
+  inheritAttrs: false,
   /////////////////////////////////////////
-  props : {
-    "blocks" : {
-      type : Array,
-      default : ()=>[]
+  props: {
+    "blocks": {
+      type: Array,
+      default: () => []
     },
-    "adjustable" : {
-      type : Boolean,
-      default : true
+    "adjustable": {
+      type: Boolean,
+      default: true
     },
-    "border" : {
-      type : Boolean,
-      default : false
+    "border": {
+      type: Boolean,
+      default: false
     },
-    "schema" : {
-      type : Object,
-      default : ()=>({})
+    "schema": {
+      type: Object,
+      default: () => ({})
     },
-    "actionStatus" : {
-      type : Object,
-      default : ()=>({})
+    "actionStatus": {
+      type: Object,
+      default: () => ({})
     },
-    "shown" : {
-      type : Object,
-      default : ()=>({})
+    "shown": {
+      type: Object,
+      default: () => ({})
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
-        "is-adjustable" : this.adjustable,
-        "show-border"   : this.border
+        "is-adjustable": this.adjustable,
+        "show-border": this.border
       }, this.className)
     },
     //--------------------------------------
     hasBlocks() {
       return !_.isEmpty(this.blocks)
-    }
+    },
+    //--------------------------------------
+    isBlockSizeMinimum(index) {
+      if (index >= 0 && index < this.$children.length) {
+        return this.$children[index].isMinimumSize
+      }
+    },
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     //--------------------------------------
   }

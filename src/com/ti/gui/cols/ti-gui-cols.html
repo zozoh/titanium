@@ -1,13 +1,19 @@
-<div class="ti-gui-cols" :class="topClass">
+<div
+  class="ti-gui-cols"
+  :class="topClass"
+  v-ti-draggable="Draggable">
   <template v-if="hasBlocks">
-    <template v-for="(block, index) in blocks">
+    <template v-for="(block, index) in ColBlocks">
       <ti-gui-block v-if="!block.hide"
-        :key="index"
-        embed-in="cols"
+        :key="block.key"
+        embedIn="cols"
         v-bind="block"
         :schema="schema"
         :action-status="block.actionStatus || actionStatus"
-        :shown="shown"/>
+        :size="getBlockSize(index)"
+        :shown="shown"
+        @bar:reset="OnBarReset"
+        @bar:toggle:size="OnBarToggleSize"/>
       </template>
   </template>
 </div>

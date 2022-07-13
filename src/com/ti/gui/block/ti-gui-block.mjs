@@ -1,139 +1,177 @@
 export default {
   ///////////////////////////////////////////
-  inject : ["$gui"],
+  inject: ["$gui"],
   /////////////////////////////////////////
-  props : {
-    "type" : {
-      type : String,
-      default : null,
-      validator : (v)=>{
+  data: () => ({
+    myRect: undefined
+  }),
+  /////////////////////////////////////////
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "type": {
+      type: String,
+      default: null,
+      validator: (v) => {
         return Ti.Util.isNil(v)
           || /^(cols|rows|tabs)$/.test(v)
       }
     },
-    "title" : {
-      type : String,
-      default : null
+    "name": {
+      type: String,
+      default: null
     },
-    "icon" : {
-      type : [String, Object],
-      default : null
+    "body": {
+      type: [String, Object],
+      default: null
     },
-    "hideTitle" : {
-      type : Boolean,
-      default : false
+    "icon": {
+      type: [String, Object],
+      default: null
     },
-    "actions" : {
-      type : Array,
-      default : ()=>[]
+    "title": {
+      type: String,
+      default: null
     },
-    "actionStatus" : {
-      type : Object,
-      default : ()=>({})
+    "embedIn": {
+      type: String,
+      default: null,
+      validator: (v) => /^(panel|rows|cols|tabs)$/.test(v)
     },
-    "actionVars" : {
+    "blocks": {
+      type: Array,
+      default: () => []
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "actions": {
+      type: Array,
+      default: () => []
+    },
+    "actionStatus": {
+      type: Object,
+      default: () => ({})
+    },
+    "actionVars": {
       type: [Object, Function]
-    },
-    "name" : {
-      type : String,
-      default : null
-    },
-    "blocks" : {
-      type : Array,
-      default : ()=>[]
     },
     "comClass": {
       type: String,
       default: undefined
     },
-    "body" : {
-      type : [String, Object],
-      default : null
+    "overflow": {
+      type: String,
+      default: undefined,
+      validator: v => (_.isUndefined(v) || (/^(auto|none|fill|cover)$/.test(v)))
     },
-    "embedIn" : {
-      type : String,
-      default : null,
-      validator : (v)=>/^(panel|rows|cols|tabs)$/.test(v)
+    "flex": {
+      type: String,
+      default: undefined,
+      validator: (v) => (_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
     },
-    "size" : {
-      type : [String, Number],
-      default : null
+    "order": {
+      type: Number
     },
-    "overflow" : {
-      type : String,
-      default : undefined,
-      validator: v=>(_.isUndefined(v) || (/^(auto|none|fill|cover)$/.test(v)))
+    // TODO 这个属性是干啥的？ 有点忘记了，好像没用
+    "captureEvents": {
+      type: Object,
+      default: () => ({})
     },
-    "flex" : {
-      type : String,
-      default : undefined,
-      validator : (v)=>(_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
+    "adjacentMode": {
+      type: String
     },
-    "order" : {
-      type : Number
+    "adjustBarAt": {
+      type: String
     },
-    "schema" : {
-      type : Object,
-      default : ()=>({})
+    "adjustIndex": {
+      type: Array
     },
-    "shown" : {
-      type : Object,
-      default : ()=>({})
+    "adjustMode": {
+      type: String
     },
-    "captureEvents" : {
-      type : Object,
-      default : ()=>({})
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "hideTitle": {
+      type: Boolean,
+      default: false
     },
-    "mainConClass" : undefined,
-    "mainConStyle" : {
+    "mainConClass": undefined,
+    "mainConStyle": {
       type: Object,
       default: undefined
     },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "size": {
+      type: [String, Number],
+      default: null
+    },
+    "minSize": {
+      type: Number,
+      default: 50
+    },
+    "schema": {
+      type: Object,
+      default: () => ({})
+    },
+    "shown": {
+      type: Object,
+      default: () => ({})
+    },
     // Those 3 props for by-pass to sub-(cols/rows)
-    "tabAt"       : undefined,
-    "adjustable"  : undefined,
-    "border"      : undefined
+    "tabAt": undefined,
+    "adjustable": undefined,
+    "border": undefined,
+    "keepCustomizedTo": undefined
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        [`gui-block-${this.name}`] : this.name ? true : false,
-        "is-show-header"  : this.isShowHeader,
-        "is-hide-header"  : !this.isShowHeader,
-        "ti-fill-parent" : /^(tabs|panel)$/.test(this.embedIn)
+        [`gui-block-${this.name}`]: this.name ? true : false,
+        "is-show-header": this.isShowHeader,
+        "is-hide-header": !this.isShowHeader,
+        "ti-fill-parent": /^(tabs|panel)$/.test(this.embedIn)
       }, `is-flex-${this.FlexName}`)
     },
     //--------------------------------------
     TopStyle() {
       let css = ({
         //..................................
-        rows:()=>({
+        rows: () => ({
           height: this.BlockSize
         }),
         //..................................
-        cols:()=>({
-          width : this.BlockSize
+        cols: () => ({
+          width: this.BlockSize
         }),
         //..................................
-        tabs:()=>({}),
+        tabs: () => ({}),
         //..................................
-        panel:()=>({})
+        panel: () => ({})
         //..................................
       })[this.embedIn]()
-      if(!Ti.Util.isNil(this.order)) {
+      if (!Ti.Util.isNil(this.order)) {
         css.order = this.order
       }
       return Ti.Css.toStyle(css)
     },
     //--------------------------------------
+    hasAdjustBar() {
+      return this.adjustBarAt && "none" != this.adjustBarAt
+    },
+    //--------------------------------------
     MainConClass() {
       let klass = {}
-      if(!this.isFlexNil) {
+      if (!this.isFlexNil) {
         _.assign(klass, {
-          "fill-parent"  : "fill"==this.TheOverflow,
-          "cover-parent" : "cover"==this.TheOverflow
+          "fill-parent": "fill" == this.TheOverflow,
+          "cover-parent": "cover" == this.TheOverflow
         })
       }
       return Ti.Css.mergeClassName(klass, this.mainConClass)
@@ -152,11 +190,11 @@ export default {
     //--------------------------------------
     TheOverflow() {
       let ov = this.overflow || this.$gui.defaultOverflow || "auto"
-      if("auto" == ov) {
-        if(this.isFlexNone) {
+      if ("auto" == ov) {
+        if (this.isFlexNone) {
           return "fill"
         }
-        if(/^(both|shrink)$/.test(this.FlexName)) {
+        if (/^(both|shrink)$/.test(this.FlexName)) {
           return "cover"
         }
       }
@@ -165,15 +203,15 @@ export default {
     //--------------------------------------
     BlockSize() {
       let size = this.size
-      return /^(auto|stretch)$/.test(size) 
+      return /^(auto|stretch)$/.test(size)
         ? null
         : size
     },
     //--------------------------------------
     FlexName() {
       let flex = this.flex || this.$gui.defaultFlex || "auto"
-      if("auto" == flex) {
-        if("stretch" == this.size || Ti.Util.isNil(this.size)) {
+      if ("auto" == flex) {
+        if ("stretch" == this.size || Ti.Util.isNil(this.size)) {
           return "both"
         }
         return "none"
@@ -190,10 +228,10 @@ export default {
     },
     //--------------------------------------
     isShowHeader() {
-      if(this.hideTitle || 'tabs' == this.embedIn) {
+      if (this.hideTitle || 'tabs' == this.embedIn) {
         return false
       }
-      if(this.title || this.hasActions) {
+      if (this.title || this.hasActions) {
         return true
       }
       return false
@@ -204,11 +242,11 @@ export default {
     },
     //--------------------------------------
     TheActionVars() {
-      if(this.actionVars) {
-        return ()=>{
+      if (this.actionVars) {
+        return () => {
           let ctx = {
-            $main : this.$main(),
-            state : Ti.App(this).$state()
+            $main: this.$main(),
+            state: Ti.App(this).$state()
           }
           return Ti.Util.explainObj(ctx, this.actionVars, {
             evalFunc: true
@@ -220,47 +258,67 @@ export default {
     TheCom() {
       //....................................
       // Body -> Component
-      if(this.body) {
+      if (this.body) {
         let com = _.isString(this.body) ? this.schema[this.body] : this.body
-        if(com) {
+        if (com) {
           let parent = this.schema[com.extends]
           let self = _.omit(com, "extends")
           com = _.merge({}, parent, self)
           return _.defaults(com, {
-            comType : "ti-label",
-            comConf : {}
+            comType: "ti-label",
+            comConf: {}
           })
         }
       }
       //....................................
       // Sub GUI
-      if(!_.isEmpty(this.blocks)) {
-        let comType = `ti-gui-${this.type||"cols"}`
+      if (!_.isEmpty(this.blocks)) {
+        let comType = `ti-gui-${this.type || "cols"}`
         let comConf = {
-          tabAt      : this.tabAt,
-          border     : this.border,
-          adjustable : this.adjustable,
-          blocks     : this.blocks,
-          schema : this.schema,
-          actionStatus : this.actionStatus,
-          shown  : this.shown,
-          defaultFlex : this.defaultFlex
+          tabAt: this.tabAt,
+          border: this.border,
+          adjustable: this.adjustable,
+          adjustMode: this.adjustMode,
+          keepCustomizedTo: this.keepCustomizedTo,
+          blocks: this.blocks,
+          schema: this.schema,
+          actionStatus: this.actionStatus,
+          shown: this.shown,
+          defaultFlex: this.defaultFlex
         }
         return {
           comType, comConf
         }
       }
       //....................................
+    },
+    //--------------------------------------
+    isMinimumSize() {
+      if (this.myRect) {
+        if ("col-resize" == this.adjustMode) {
+          return Math.floor(this.myRect.width) <= this.minSize
+        }
+        if ("row-resize" == this.adjustMode) {
+          return Math.floor(this.myRect.height) <= this.minSize
+        }
+      }
+    },
+    //--------------------------------------
+    isPrevMinimumSize() {
+      if (this.adjustIndex && this.adjustIndex.length == 2) {
+        let prevI = this.adjustIndex[0]
+        return this.$parent.isBlockSizeMinimum(prevI)
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
-    __before_bubble({name, args}) {
-      if(this.name) {
+    __before_bubble({ name, args }) {
+      if (this.name) {
         return {
-          name : `${this.name}::${name}`,
+          name: `${this.name}::${name}`,
           args
         }
       }
@@ -268,31 +326,55 @@ export default {
     //--------------------------------------
     $main() {
       return _.last(this.$children)
+    },
+    //--------------------------------------
+    OnResize() {
+      if (_.isElement(this.$el)) {
+        this.myRect = Ti.Rects.createBy(this.$el)
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "name" : {
-      handler : function(newVal, oldVal) {
+  watch: {
+    "name": {
+      handler: function (newVal, oldVal) {
         // Guard
-        if(!this.$gui)
+        if (!this.$gui)
           return
         // Unregister old
-        if(oldVal) {
+        if (oldVal) {
           this.$gui.unregisterBlock(oldVal)
         }
         // Register self
-        if(newVal) {
+        if (newVal) {
           this.$gui.registerBlock(newVal, this)
         }
       },
-      immediate : true
+      immediate: true
+    },
+    "size": {
+      handler: function (newVal, oldVal) {
+        if (newVal != oldVal) {
+          this.OnResize()
+        }
+      },
+      immediate: true
     }
   },
   //////////////////////////////////////////
-  beforeDestroy : function(){
-    if(this.name) {
+  mounted() {
+    Ti.Viewport.watch(this, {
+      resize: () => {
+        this.OnResize()
+      }
+    })
+    this.OnResize()
+  },
+  //////////////////////////////////////////
+  beforeDestroy: function () {
+    Ti.Viewport.unwatch(this)
+    if (this.name) {
       this.$gui.unregisterBlock(this.name)
     }
   }
