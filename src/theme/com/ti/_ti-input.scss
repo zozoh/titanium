@@ -4,6 +4,10 @@
   @include color($color-input, c, r);
   min-height: 2.4em;
   //-----------------------------------------
+  &.has-width {
+    flex:0 0 auto;
+  }
+  //-----------------------------------------
   &.show-border {
     @include border(1px, solid, dark);
   }
@@ -70,8 +74,7 @@
     //---------------------------------------
     > input {
       @include font-fixed(inherit);
-      min-width: 80px;
-      width: 80px;
+      width: 10px;
       flex: 1 1 auto;
       outline: none;
       border: 0;

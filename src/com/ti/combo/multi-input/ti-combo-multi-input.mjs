@@ -20,7 +20,10 @@ const _M = {
     isExtended() {return "extended"==this.myDropStatus},
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      let hasWidth = !Ti.Util.isNil(this.width);
+      return this.getTopClass({
+        "full-field": !hasWidth,
+      })
     },
     //------------------------------------------------
     Values() {

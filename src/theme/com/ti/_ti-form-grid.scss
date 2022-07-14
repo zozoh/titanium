@@ -198,4 +198,33 @@
     }
   }
   //--------------------------------------
+  //
+  //         Color
+  //
+  //--------------------------------------
+  &.is-paper {
+    @include color($color-paper, r, c);
+  }
+  &.is-chip {
+    @include color($color-chip, r, c);
+  }
+  &.is-cloak {
+    @include color($color-cloak, r, c);
+  }
+  &.is-body {
+    @include color($color-body, r, c);
+  }
+  &.is-bar {
+    @include color($color-bar, r, c);
+  }
+  &.is-func {
+    @include color($color-func, r, c);
+  }
+  &.is-ground-glass {
+    @include color($color-ground-glass, r, c);
+  }
+  &.is-light {
+    @include color($color-ground-glass, r, c);
+  }
+  //--------------------------------------
 }

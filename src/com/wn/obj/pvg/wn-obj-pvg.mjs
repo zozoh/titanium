@@ -2,6 +2,7 @@ const DFT_PVG = 5;
 export default {
   //////////////////////////////////////////
   data: () => ({
+    myPrivilegeMeta: {},
     myPrivilegeData: [],
     pvg_owner: 7,
     pvg_member: 5,
@@ -39,6 +40,14 @@ export default {
       type: [Object, String],
       default: 'domain site -cqn -keys "^(id|nm|ph|title)$"'
     },
+    "keepCustomizedTo": {
+      type: String,
+      default: "Wn-Obj-Pvg-Layout"
+    },
+    "autoRemoveDefault": {
+      type: Boolean,
+      default: true
+    }
     // "organization": {
     //   type: String
     // }
@@ -112,20 +121,31 @@ export default {
         type: "rows",
         border: true,
         defaultFlex: "both",
-        blocks: [{
-          size: 42,
-          body: "actions"
-        }, {
-          type: "cols",
-          border: true,
-          blocks: [{
-            name: "list",
-            body: "list"
-          }, {
-            name: "data",
-            body: "data"
-          }]
-        }]
+        blocks: [
+          {
+            size: 42,
+            body: "actions"
+          },
+          {
+            type: "cols",
+            border: true,
+            keepCustomizedTo: this.keepCustomizedTo
+              ? `${this.keepCustomizedTo}-Main-Col`
+              : undefined,
+            blocks: [{
+              name: "list",
+              body: "list"
+            }, {
+              name: "data",
+              body: "data"
+            }]
+          },
+          {
+            size: "auto",
+            name: "meta",
+            body: "meta"
+          }
+        ]
       }
     },
     //--------------------------------------
@@ -199,7 +219,53 @@ export default {
               comType: "TiToggle"
             }]
           }
-        }
+        },
+        meta: {
+          comType: "TiForm",
+          comConf: {
+            className: "is-chip",
+            spacing: "tiny",
+            data: this.myPrivilegeMeta,
+            fieldBorder: "none",
+            gridColumnHint: 2,
+            fieldNameAlign: "center",
+            fields: [
+              {
+                title: "混合模式",
+                name: "MODE",
+                tip: "与子对象混合的方式",
+                defaultAs: "DEFAULT",
+                comType: "TiSwitcher",
+                comConf: {
+                  options: [
+                    { value: "DEFAULT", text: "默认" },
+                    { value: "STRONG", text: "强制覆盖" },
+                    { value: "WEAK", text: "弱混合" },
+                  ]
+                }
+              },
+              {
+                title: "混合深度",
+                name: "DEPTH",
+                tip: "最多与多少个父对象混合",
+                type: "Integer",
+                defaultAs: -1,
+                comType: "TiComboInput",
+                comConf: {
+                  placeholder: "-1",
+                  width: "1.6rem",
+                  options: [
+                    { value: -1, text: "全部祖先" },
+                    { value: 0, text: "仅自己" },
+                    { value: 1, text: "仅父节点" },
+                  ],
+                  autoFocusExtended: false,
+                  autoCollapse: true
+                }
+              }
+            ]
+          }
+        },
       }
     },
     //--------------------------------------
@@ -219,13 +285,34 @@ export default {
       this.myCurrentId = currentId
     },
     //--------------------------------------
+    OnMetaChange(meta) {
+      //console.log("OnMetaChange", meta)
+
+      let mv = {}
+      _.forEach(meta, (v, k) => {
+        // default mode
+        if ("MODE" == k && (!v || "DEFAULT" == v)) {
+          v = "DEFAULT"
+        }
+        // Default depth
+        else if ("DEPTH" == k && v < 0) {
+          v = -1
+        }
+        mv[`.${k}`] = v
+      })
+
+      let val = _.assign({}, this.value, mv)
+      this.notifyChange(val)
+    },
+    //--------------------------------------
     OnDataChange(data) {
+      //console.log("OnDataChange", data)
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
       let val = _.cloneDeep(this.value) || {}
-      let md = this.pvg_owner << 6 | this.pvg_member << 3 | m0
+      let md = this.getPvgValue(m0)
       val[key] = md
-      this.$notify("change", val)
+      this.notifyChange(val)
     },
     //--------------------------------------
     async OnAddAccounts() {
@@ -267,9 +354,9 @@ export default {
       // Update value
       let val = _.cloneDeep(this.value) || {}
       for (let id of checkeds) {
-        val[`@[${id}]`] = DFT_PVG
+        val[`@[${id}]`] = this.getPvgValue()
       }
-      this.$notify("change", val)
+      this.notifyChange(val)
     },
     //--------------------------------------
     async OnAddRoles() {
@@ -308,9 +395,9 @@ export default {
       // Update value
       let val = _.cloneDeep(this.value) || {}
       for (let nm of checkeds) {
-        val[`@${nm}`] = DFT_PVG
+        val[`@${nm}`] = this.getPvgValue()
       }
-      this.$notify("change", val)
+      this.notifyChange(val)
     },
     //--------------------------------------
     async OnAddDepts() {
@@ -350,9 +437,9 @@ export default {
       // Update value
       let val = _.cloneDeep(this.value) || {}
       for (let id of checkeds) {
-        val[`+${id}`] = DFT_PVG
+        val[`+${id}`] = this.getPvgValue()
       }
-      this.$notify("change", val)
+      this.notifyChange(val)
     },
     //--------------------------------------
     OnRemoveSelected() {
@@ -375,7 +462,23 @@ export default {
         }
       })
 
-      this.$notify("change", val)
+      this.notifyChange(val)
+    },
+    //--------------------------------------
+    notifyChange(pvg) {
+      if (pvg && this.autoRemoveDefault) {
+        if ("DEFAULT" == pvg[".MODE"]) {
+          delete pvg[".MODE"];
+        }
+        if (pvg[".DEPTH"] < 0) {
+          delete pvg[".DEPTH"];
+        }
+      }
+      this.$notify("change", pvg)
+    },
+    //--------------------------------------
+    getPvgValue(pvg_other = DFT_PVG) {
+      return this.pvg_owner << 6 | this.pvg_member << 3 | pvg_other
     },
     //--------------------------------------
     buildMap(list = [], key = "id", childKey = "children") {
@@ -415,9 +518,21 @@ export default {
     //--------------------------------------
     async evalPrivilegeData() {
       //console.log("evalPrivilegeData")
+      let pvgMeta = {
+        MODE: "DEFAULT",
+        DEPTH: -1
+      }
       let pvgData = []
-      _.forEach(this.value, (md, id) => {
-        pvgData.push({ md, id })
+      _.forEach(this.value, (v, k) => {
+        // .MODE or .DEPTH for meta
+        let m = /^\.([A-Za-z0-9]+)$/.exec(k)
+        if (m) {
+          pvgMeta[m[1]] = v
+        }
+        // Others for pvg data
+        else {
+          pvgData.push({ md: v, id: k })
+        }
       })
 
 
@@ -596,6 +711,7 @@ export default {
         }
       }
       // Update to state
+      this.myPrivilegeMeta = pvgMeta
       this.myPrivilegeData = list
     },
     //--------------------------------------

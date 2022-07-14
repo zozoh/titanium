@@ -11,9 +11,16 @@ const _M = {
     pointerHover: null
   }),
   ////////////////////////////////////////////////////
+  props: {
+    "focusValue": {
+      type: [String, Number]
+    },
+  },
+  ////////////////////////////////////////////////////
   computed: {
     //------------------------------------------------
     TopClass() {
+      let hasWidth = !Ti.Util.isNil(this.width);
       return this.getTopClass({
         "is-focused": this.isFocused,
         "is-blurred": !this.isFocused,
@@ -21,6 +28,8 @@ const _M = {
         "no-readonly": !this.readonly,
         "show-border": !this.hideBorder,
         "hide-border": this.hideBorder,
+        "has-width": hasWidth,
+        "full-field": !hasWidth,
         "has-prefix-icon": this.prefixIcon,
         "has-prefix-text": !Ti.Util.isNil(this.prefixText),
         "has-suffix-icon": this.suffixIcon,
@@ -37,7 +46,11 @@ const _M = {
     //------------------------------------------------
     TheValue() {
       //console.log("input value:", this.value)
-      let val = Ti.Types.toStr(this.value, this.format)
+      let val = this.value
+      if (this.isFocused && !Ti.Util.isNil(this.focusValue)) {
+        val = this.focusValue
+      }
+      val = Ti.Types.toStr(val, this.format)
       if (this.autoI18n) {
         return Ti.I18n.text(val)
       }

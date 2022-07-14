@@ -9,8 +9,7 @@ async function EditObjPvg(pathOrObj = "~", {
   width = "80%",
   minWidth = 720,
   height = "95%",
-  autoSave = true,
-  organization
+  autoSave = true
 } = {}) {
   //............................................
   // Load meta
@@ -29,7 +28,7 @@ async function EditObjPvg(pathOrObj = "~", {
     result: meta.pvg,
     comType: "WnObjPvg",
     comConf: {
-      organization
+      autoRemoveDefault: true
     },
     components: ["@com:wn/obj/pvg"]
     //------------------------------------------

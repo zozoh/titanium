@@ -1,5 +1,5 @@
 <ti-combo-box 
-  class="ti-combo-input full-field"
+  class="ti-combo-input"
   :class="TopClass"
   :keep-width-when-drop="keepWidthWhenDrop"
   :drop-width="dropWidth"
@@ -15,6 +15,7 @@
       v-bind="TheInputProps"
 
       :value="InputValue"
+      :focusValue="InputFocusValue"
       :prefix-icon="ThePrefixIcon"
       :prefix-text="InputPrefixText"
       :suffix-text="InputSuffixText"

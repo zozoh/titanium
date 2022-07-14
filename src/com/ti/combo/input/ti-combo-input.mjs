@@ -22,6 +22,10 @@ const _M = {
     "autoCollapse": {
       type: Boolean,
       default: false
+    },
+    "showInputFocusValue": {
+      type: Boolean,
+      default: true
     }
   },
   ////////////////////////////////////////////////////
@@ -40,7 +44,10 @@ const _M = {
     },
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      let hasWidth = !Ti.Util.isNil(this.width);
+      return this.getTopClass({
+        "full-field": !hasWidth,
+      })
     },
     //------------------------------------------------
     TheInputProps() {
@@ -91,6 +98,19 @@ const _M = {
         return text || value
       }
       return this.myFreeValue
+    },
+    //------------------------------------------------
+    InputFocusValue() {
+      if (this.showInputFocusValue) {
+        if (!Ti.Util.isNil(this.myFilterValue)) {
+          return this.myFilterValue
+        }
+        if (this.myItem && this.Dict) {
+          let value = this.Dict.getValue(this.myItem)
+          return value
+        }
+        return this.myFreeValue
+      }
     },
     //------------------------------------------------
     InputPrefixText() {
