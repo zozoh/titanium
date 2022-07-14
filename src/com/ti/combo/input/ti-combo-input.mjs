@@ -80,7 +80,7 @@ const _M = {
       if (!Ti.Util.isNil(this.myFilterValue)) {
         return this.myFilterValue
       }
-      if (this.myItem) {
+      if (this.myItem && this.Dict) {
         let text = this.Dict.getText(this.myItem)
         let value = this.Dict.getValue(this.myItem)
         if (this.inputValueDisplay) {
@@ -128,7 +128,7 @@ const _M = {
         return "zmdi-settings zmdi-hc-spin"
       }
       let icon = this.prefixIcon;
-      if (this.myItem) {
+      if (this.myItem && this.Dict) {
         icon = this.Dict.getIcon(this.myItem) || icon
       }
       if (this.readonly) {

@@ -252,12 +252,14 @@ const _M = {
     },
     //-----------------------------------------------
     async openDialogForMeta(result = {}) {
+      //console.log("openDialogForMeta")
       let dialog = this.getDataByVars(this.dialog)
       let form = this.getDataByVars(this.form)
       let dialogSetting = _.assign({
         title: "i18n:edit",
         width: 500,
-        height: 500
+        height: 500,
+        explainComConf: false
       }, dialog, {
         result,
         model: { prop: "data", event: "change" },

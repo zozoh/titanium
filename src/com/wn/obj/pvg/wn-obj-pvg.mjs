@@ -222,7 +222,7 @@ export default {
     OnDataChange(data) {
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
-      let val = _.cloneDeep(this.value)
+      let val = _.cloneDeep(this.value) || {}
       let md = this.pvg_owner << 6 | this.pvg_member << 3 | m0
       val[key] = md
       this.$notify("change", val)
@@ -265,7 +265,7 @@ export default {
       }
 
       // Update value
-      let val = _.cloneDeep(this.value)
+      let val = _.cloneDeep(this.value) || {}
       for (let id of checkeds) {
         val[`@[${id}]`] = DFT_PVG
       }
@@ -306,7 +306,7 @@ export default {
       }
 
       // Update value
-      let val = _.cloneDeep(this.value)
+      let val = _.cloneDeep(this.value) || {}
       for (let nm of checkeds) {
         val[`@${nm}`] = DFT_PVG
       }
@@ -348,7 +348,7 @@ export default {
       }
 
       // Update value
-      let val = _.cloneDeep(this.value)
+      let val = _.cloneDeep(this.value) || {}
       for (let id of checkeds) {
         val[`+${id}`] = DFT_PVG
       }

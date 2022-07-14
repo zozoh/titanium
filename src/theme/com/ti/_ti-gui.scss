@@ -483,7 +483,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
       $BTN_SIZE: SZ(20);
       $BTN_RADI: SZ(6);
       //---------------------------------
-      &[adjust-mode="col-resize"] {
+      &[resize-mode="col-resize"] {
         cursor: col-resize;
         > .bar-con > .as-action.is-mini {
           width: $BTN_SIZE;
@@ -491,7 +491,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
         }
       }
       //---------------------------------
-      &[adjust-mode="row-resize"] {
+      &[reize-mode="row-resize"] {
         cursor: row-resize;
       }
       //---------------------------------

@@ -1,6 +1,6 @@
 .ti-input {
   @include noselect;
-  @include flex-align-nowrap($ai:stretch, $ac:stretch);
+  @include flex-align-nowrap($ai: stretch, $ac: stretch);
   @include color($color-input, c, r);
   min-height: 2.4em;
   //-----------------------------------------
@@ -8,29 +8,42 @@
     @include border(1px, solid, dark);
   }
   //-----------------------------------------
-  &.is-focused {
+  &.is-focused.no-readonly {
     border-color: map-get($color-line, highlight);
   }
   //-----------------------------------------
-  
+
   //-----------------------------------------
   .as-input-icon {
-    @include flex-center($ai:stretch, $ac:stretch);
-    flex:0 0 auto; width:2em; min-height: 1.8em;
+    @include flex-center($ai: stretch, $ac: stretch);
+    flex: 0 0 auto;
+    width: 2em;
+    min-height: 1.8em;
     overflow: hidden;
     //---------------------------------------
-    &.can-hover{cursor: pointer;}
-    &.can-hover:hover{@include color($color-primary,r,c);}
+    &.can-hover {
+      cursor: pointer;
+    }
+    &.can-hover:hover {
+      @include color($color-primary, r, c);
+    }
     //---------------------------------------
     &.at-prefix {
       > .ti-icon {
-        transition: .5s; 
-        img {width:100%; transition: 5s;}
-        &.is-image {opacity: 1;}
-        &.is-font  {opacity: .6;}
+        transition: 0.5s;
+        img {
+          width: 100%;
+          transition: 5s;
+        }
+        &.is-image {
+          opacity: 1;
+        }
+        &.is-font {
+          opacity: 0.6;
+        }
       }
       &.can-hover:hover > .ti-icon {
-        transform:scale(1.1) rotate(180deg);
+        transform: scale(1.1) rotate(180deg);
         opacity: 1;
       }
     }
@@ -40,40 +53,54 @@
   .as-input-text {
     @include flex-center;
     white-space: nowrap;
-    padding:0 SZ(6);
+    padding: 0 SZ(6);
     //---------------------------------------
-    &.can-hover{cursor: pointer;}
-    &.can-hover:hover{@include color($color-primary,r,c);}
+    &.can-hover {
+      cursor: pointer;
+    }
+    &.can-hover:hover {
+      @include color($color-primary, r, c);
+    }
     //---------------------------------------
   }
   //-----------------------------------------
   > .as-input {
-    @include flex-align-nowrap($jc:flex-end, $ai:stretch);
-    flex:1 1 auto; 
+    @include flex-align-nowrap($jc: flex-end, $ai: stretch);
+    flex: 1 1 auto;
     //---------------------------------------
     > input {
       @include font-fixed(inherit);
-      min-width:80px; 
-      width:80px;
-      flex:1 1 auto;
-      outline:none; border:0;
-      padding:0 .5em; 
-      background:transparent;
-      color:inherit;
+      min-width: 80px;
+      width: 80px;
+      flex: 1 1 auto;
+      outline: none;
+      border: 0;
+      padding: 0 0.5em;
+      background: transparent;
+      color: inherit;
     }
     //---------------------------------------
   }
   //-----------------------------------------
   &.is-readonly {
-    > .as-input > input:read-only {cursor:inherit; @include noselect;}
+    > .as-input > input:read-only {
+      cursor: inherit;
+      @include noselect;
+    }
   }
   //-----------------------------------------
-  &.has-prefix-icon, &.has-prefix-text {
-    > .as-input > input {padding-left:SZ(2);}
+  &.has-prefix-icon,
+  &.has-prefix-text {
+    > .as-input > input {
+      padding-left: SZ(2);
+    }
   }
   //-----------------------------------------
-  &.has-suffix-icon, &.has-suffix-text {
-    > .as-input > input {padding-right:SZ(2);}
+  &.has-suffix-icon,
+  &.has-suffix-text {
+    > .as-input > input {
+      padding-right: SZ(2);
+    }
   }
   //-----------------------------------------
 }

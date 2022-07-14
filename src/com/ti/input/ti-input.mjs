@@ -1,56 +1,57 @@
 const _M = {
   ////////////////////////////////////////////////////
-  model : {
-    prop : "value",
+  model: {
+    prop: "value",
     event: "change"
   },
   ////////////////////////////////////////////////////
-  data : ()=>({
-    inputCompositionstart : false,
-    isFocused : false,
-    pointerHover : null
+  data: () => ({
+    inputCompositionstart: false,
+    isFocused: false,
+    pointerHover: null
   }),
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-focused"   : this.isFocused,
-        "is-blurred"   : !this.isFocused,
-        "is-readonly"  : this.readonly,
-        "show-border"  : !this.hideBorder,
-        "hide-border"  : this.hideBorder,
-        "has-prefix-icon" : this.prefixIcon,
-        "has-prefix-text" : !Ti.Util.isNil(this.prefixText),
-        "has-suffix-icon" : this.suffixIcon,
-        "has-suffix-text" : !Ti.Util.isNil(this.suffixText),
+        "is-focused": this.isFocused,
+        "is-blurred": !this.isFocused,
+        "is-readonly": this.readonly,
+        "no-readonly": !this.readonly,
+        "show-border": !this.hideBorder,
+        "hide-border": this.hideBorder,
+        "has-prefix-icon": this.prefixIcon,
+        "has-prefix-text": !Ti.Util.isNil(this.prefixText),
+        "has-suffix-icon": this.suffixIcon,
+        "has-suffix-text": !Ti.Util.isNil(this.suffixText),
       })
     },
     //------------------------------------------------
     TopStyle() {
       return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
+        width: this.width,
+        height: this.height
       })
     },
     //------------------------------------------------
     TheValue() {
       //console.log("input value:", this.value)
       let val = Ti.Types.toStr(this.value, this.format)
-      if(this.autoI18n) {
+      if (this.autoI18n) {
         return Ti.I18n.text(val)
       }
       return val
     },
     //------------------------------------------------
     Validating() {
-      if(this.validator) {
-        let {test, message} = this.validator
-        if(test) {
+      if (this.validator) {
+        let { test, message } = this.validator
+        if (test) {
           let am = Ti.AutoMatch.parse(test)
           return v => {
-            if(!am(v)) {
-              Ti.Toast.Open(message||"i18n:invalid-val", "warn")
+            if (!am(v)) {
+              Ti.Toast.Open(message || "i18n:invalid-val", "warn")
               return false
             }
             return true
@@ -63,7 +64,7 @@ const _M = {
     ThePrefixIcon() {
       let icon = Ti.Util.trueGet(this.prefixIcon, 'zmdi-close', this.prefixIcon)
       let hove = this.prefixHoverIcon
-      if("prefixIcon" == this.pointerHover
+      if ("prefixIcon" == this.pointerHover
         && this.isCanHover("prefixIcon")) {
         return hove || icon
       }
@@ -81,8 +82,8 @@ const _M = {
     TheHover() {
       let map = {}
       let hos = _.concat(this.hover)
-      for(let ho of hos) {
-        if(ho) {
+      for (let ho of hos) {
+        if (ho) {
           map[ho] = true
         }
       }
@@ -91,7 +92,7 @@ const _M = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     isCanHover(hoverName) {
       return this.TheHover[hoverName] ? true : false
@@ -100,30 +101,30 @@ const _M = {
     getHoverClass(hoverName) {
       let canHover = this.isCanHover(hoverName)
       return {
-        "can-hover" : canHover,
-        "for-look"  : !canHover,
-        "is-prefix-icon-hover" : "prefixIcon" == hoverName
+        "can-hover": canHover,
+        "for-look": !canHover,
+        "is-prefix-icon-hover": "prefixIcon" == hoverName
       }
     },
     //------------------------------------------------
-    OnInputCompositionStart(){
+    OnInputCompositionStart() {
       this.inputCompositionstart = true
     },
     //------------------------------------------------
-    OnInputCompositionEnd(){
+    OnInputCompositionEnd() {
       this.inputCompositionstart = false
       this.doWhenInput()
     },
     //------------------------------------------------
     OnInputing($event) {
-      if(!this.inputCompositionstart) {
+      if (!this.inputCompositionstart) {
         this.doWhenInput()
       }
     },
     //------------------------------------------------
     doWhenInput() {
       let val = this.getInputValue(false)
-      if(!Ti.Util.isNil(val)) {
+      if (!Ti.Util.isNil(val)) {
         this.$notify("inputing", val)
       }
     },
@@ -140,7 +141,7 @@ const _M = {
     OnInputChanged() {
       let val = this.getInputValue(this.autoJsValue)
       // validate
-      if(!this.Validating(val)) {
+      if (!this.Validating(val)) {
         this.$notify("invalid", val)
         return
       }
@@ -148,8 +149,8 @@ const _M = {
     },
     //------------------------------------------------
     OnInputFocus() {
-      if(!this.readonly) {
-        if(this.autoSelect) {
+      if (!this.readonly) {
+        if (this.autoSelect) {
           this.$refs.input.select()
         } else {
           this.$refs.input.focus()
@@ -158,7 +159,7 @@ const _M = {
       this.isFocused = true
       this.$notify("input:focus")
       // Auto Actived
-      if(!this.isActived) {
+      if (!this.isActived) {
         this.setActived()
       }
     },
@@ -169,31 +170,31 @@ const _M = {
     },
     //------------------------------------------------
     OnClickPrefixIcon() {
-      if(this.prefixIconForClean) {
+      if (this.prefixIconForClean) {
         this.$notify("change", null)
       }
-      if(this.prefixIconNotifyName)
+      if (this.prefixIconNotifyName)
         this.$notify(this.prefixIconNotifyName)
     },
     //------------------------------------------------
     OnClickPrefixText() {
-      if(this.prefixTextNotifyName)
+      if (this.prefixTextNotifyName)
         this.$notify(this.prefixTextNotifyName)
     },
     //------------------------------------------------
     OnClickSuffixIcon() {
-      if(this.suffixIconNotifyName)
+      if (this.suffixIconNotifyName)
         this.$notify(this.suffixIconNotifyName)
     },
     //------------------------------------------------
     OnClickSuffixText() {
-      if(this.suffixTextNotifyName)
+      if (this.suffixTextNotifyName)
         this.$notify(this.suffixTextNotifyName)
     },
     //------------------------------------------------
     OnInputKeyPress($event) {
-      if(13 == $event.which) {
-        if(this.enterKeyNotifyName) {
+      if (13 == $event.which) {
+        if (this.enterKeyNotifyName) {
           let val = this.getInputValue(this.autoJsValue)
           this.$notify(this.enterKeyNotifyName, val)
         }
@@ -202,20 +203,20 @@ const _M = {
     //------------------------------------------------
     // Utility
     //------------------------------------------------
-    getInputValue(autoJsValue=false) {
-      if(_.isElement(this.$refs.input)) {
+    getInputValue(autoJsValue = false) {
+      if (_.isElement(this.$refs.input)) {
         //console.log("doWhenInput", emitName)
         let val = this.$refs.input.value
         // Auto js value
-        if(autoJsValue) {
+        if (autoJsValue) {
           val = Ti.S.toJsValue(val, {
-            autoNil  : true,
-            autoDate : false,
-            trimed : this.trimed
+            autoNil: true,
+            autoDate: false,
+            trimed: this.trimed
           })
         }
         // Trim
-        else if(this.trimed) {
+        else if (this.trimed) {
           val = _.trim(val)
         }
         // case
@@ -227,18 +228,18 @@ const _M = {
     },
     //------------------------------------------------
     doAutoFocus() {
-      if(this.focused && !this.isFocused) {
+      if (this.focused && !this.isFocused) {
         this.OnInputFocus()
-      }  
+      }
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
-    "focused" : "doAutoFocus"
+  watch: {
+    "focused": "doAutoFocus"
   },
   ////////////////////////////////////////////////////
-  mounted : function(){
+  mounted: function () {
     this.doAutoFocus()
   }
   ////////////////////////////////////////////////////

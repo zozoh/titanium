@@ -24,10 +24,11 @@ export class TiAppModal {
     // the main component.
     // Some component will auto resize, it need a static
     // window measurement.
-    this.transDelay = 350,
-      //--------------------------------------------
-      this.comType = "ti-label"
+    this.transDelay = 350
+    //--------------------------------------------
+    this.comType = "ti-label"
     this.comConf = {}
+    this.explainComConf = true
     this.components = []
     //--------------------------------------------
     // Aspect
@@ -338,7 +339,10 @@ export class TiAppModal {
         },
         //--------------------------------------
         TheComConf() {
-          return Ti.Util.explainObj(this, this.comConf)
+          if (this.explainComConf) {
+            return Ti.Util.explainObj(this, this.comConf)
+          }
+          return this.comConf
         }
         //--------------------------------------
       },

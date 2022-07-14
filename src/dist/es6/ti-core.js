@@ -1,4 +1,4 @@
-// Pack At: 2022-07-11 14:56:53
+// Pack At: 2022-07-14 13:11:27
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -639,7 +639,6 @@ const {Be} = (function(){
           return
         }
     
-        //console.log(context)
     
         // Guard
         if (!_.isElement($viewport) || !_.isElement($handler)) {
@@ -735,7 +734,7 @@ const {Be} = (function(){
         //........................................
         // Prepare
         context.initScale();
-        context = prepare(context) || context
+        context = prepare(context, evt) || context
         //---------------------------------------------
         function PreventClick(evt) {
           //console.log("PreventClick", evt)
@@ -3107,10 +3106,11 @@ const {App} = (function(){
         // the main component.
         // Some component will auto resize, it need a static
         // window measurement.
-        this.transDelay = 350,
-          //--------------------------------------------
-          this.comType = "ti-label"
+        this.transDelay = 350
+        //--------------------------------------------
+        this.comType = "ti-label"
         this.comConf = {}
+        this.explainComConf = true
         this.components = []
         //--------------------------------------------
         // Aspect
@@ -3421,7 +3421,10 @@ const {App} = (function(){
             },
             //--------------------------------------
             TheComConf() {
-              return Ti.Util.explainObj(this, this.comConf)
+              if (this.explainComConf) {
+                return Ti.Util.explainObj(this, this.comConf)
+              }
+              return this.comConf
             }
             //--------------------------------------
           },
@@ -15821,6 +15824,10 @@ const {Dict,DictFactory} = (function(){
       return d
     },
     //-------------------------------------------
+    hasDict(name) {
+      return DICTS[name] ? true : false
+    },
+    //-------------------------------------------
     /***
      * @param name{String} : Dict name in cache
      * @param shadowed{Boolean} : Create the shadown version
@@ -18697,7 +18704,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220711.145653",
+  "version" : "1.6-20220714.131127",
   "dev" : false,
   "appName" : null,
   "session" : {},

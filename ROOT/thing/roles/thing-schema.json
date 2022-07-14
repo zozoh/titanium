@@ -1,109 +1,222 @@
 {
-  "methods" : null,
-  "filter" : {
-    "comType" : "wn-thing-filter",
-    "comConf" : {
-      "placeholder" : "请输入角色名过滤",
-      "status" : "=status"
+  "methods": null,
+  "behavior": {
+    "hardRemove": true,
+    "sorter": {
+      "sort": 1
     }
   },
-  "list" : {
-    "comType" : "wn-table",
-    "comConf" : {
-      "data" : "=search.list",
-      "changedId"  : "=changedRowId",
-      "currentId"  : "=search.currentId",
-      "checkedIds" : "=search.checkedIds",
-      "checkable" : true,
-      "multi"  : true,
-      "fields" : [{
-        "title" : "角色名",
-        "width" : -200,
-        "display" : ["@<thumb:far-smile>", "th_nm"]
-      }, {
-        "title" : "角色值",
-        "width" : -80,
-        "display" : "nm"
-      }, {
-        "title" : "默认角色",
-        "width" : -60,
-        "display" : {
-          "key" : "isdft",
-          "transformer" : {
-            "name" : "Ti.Types.toBoolStr",
-            "args" : ["--", "是"]
-          }
+  "filter": {
+    "comType": "TiFilterbar",
+    "comConf": {
+      "className": "is-nowrap",
+      "placeholder": "i18n:role-flt-tip",
+      "status": "=status",
+      "filter": "=filter",
+      "sorter": "=sorter",
+      "dialog": {},
+      "majors": [],
+      "matchKeywords": [
+        {
+          "test": "^[\\d\\w:]{26,}$",
+          "key": "id"
+        },
+        {
+          "test": "^[A-Za-z0-9._-]+$",
+          "key": "nm"
+        },
+        {
+          "key": "title",
+          "mode": "~~"
         }
-      }, {
-        "title" : "着陆页",
-        "display" : "mainpage"
-      }]
-    }
-  },
-  "pager" : {
-    "comType" : "ti-paging-jumper",
-    "comConf" : {
-      "value" : "=search.pager"
-    }
-  },
-  "creator" : {
-    "comType" : "wn-thing-creator",
-    "comConf" : {
-      "fields" : [{
-        "name" : "th_nm",
-        "title" : "角色名",
-        "comType" : "ti-input",
-        "comConf" : {}
-      }, {
-        "name" : "nm",
-        "title" : "角色值",
-        "comType" : "ti-input",
-        "comConf" : {}
-      }],
-      "data" : {
-        "th_nm" : "普通用户",
-        "nm" : "user"
+      ],
+      "filterTags": {
+        "th_live": "i18n:thing-recycle-bin",
+        "id": ":->ID【${val}】",
+        "nm": ":=val",
+        "title": ":=val"
+      },
+      "sorterConf": {
+        "options": [
+          {
+            "value": "sort",
+            "text": "i18n:sort"
+          },
+          {
+            "value": "nm",
+            "text": "i18n:role-val"
+          }
+        ]
       }
     }
   },
-  "meta" : {
-    "comType" : "wn-obj-form",
-    "comConf" : {
-      "data"   : "=current.meta",
-      "blankAs" : {
-        "icon" : "zmdi-arrow-left",
-        "text" : "请选择一个角色查看详情"
-      },
-      "status" : "=current.status",
-      "fieldStatus" : "=current.fieldStatus",
-      "fields" : [{
-          "title"  : "ID",
-          "name"   : "id"
-        }, {
-          "title"   : "角色名",
-          "name"    : "th_nm",
-          "comType" : "ti-input"
-        },{
-          "title"   : "角色值",
-          "name"    : "nm",
-          "comType" : "ti-input"
-        },{
-          "title"   : "默认角色",
-          "name"    : "isdft",
-          "type"    : "Boolean",
-          "comType" : "ti-toggle"
-        },{
-          "title"   : "着陆页",
-          "name"    : "mainpage",
-          "tip"     : "登录后默认跳转的页面",
-          "width"   : "full",
-          "comType" : "ti-input",
-          "comConf" : {
-            "placeholder" : "例如： page/home"
+  "list": {
+    "comType": "wn-table",
+    "comConf": {
+      "data": "=list",
+      "currentId": "=currentId",
+      "checkedIds": "=checkedIds",
+      "checkable": true,
+      "multi": true,
+      "rowNumberBase": 1,
+      "canCustomizedFields": false,
+      "keepCustomizedTo": "chispo-roles-table",
+      "columnResizable": true,
+      "fields": [
+        {
+          "title": "i18n:role-name",
+          "display": [
+            "@<thumb:far-smile>",
+            "sort:$${val}:as-tip",
+            "title"
+          ]
+        },
+        {
+          "title": "i18n:role-val",
+          "width": "20%",
+          "display": "nm"
+        },
+        {
+          "title": "i18n:role-as-domain",
+          "width": "20%",
+          "display": "#DomainRoles(roleInDomain)"
+        },
+        {
+          "title": "i18n:role-dft",
+          "width": -60,
+          "display": {
+            "key": "isdft",
+            "transformer": {
+              "name": "Ti.Types.toBoolStr",
+              "args": [
+                "--",
+                "是"
+              ]
+            }
           }
-        }],
-      "updateBy" : "dispatch:main/updateCurrent",
-      "setFieldStatusBy" : "commit:main/current/setMetaFieldStatus"
+        }
+      ]
     }
-  }
+  },
+  "pager": {
+    "comType": "ti-paging-jumper",
+    "comConf": {
+      "value": "=pager"
+    }
+  },
+  "creator": {
+    "comType": "wn-th-creator",
+    "comConf": {
+      "fields": [
+        {
+          "name": "title",
+          "title": "i18n:role-name",
+          "comType": "ti-input",
+          "comConf": {}
+        },
+        {
+          "name": "nm",
+          "title": "i18n:role-val",
+          "comType": "ti-input",
+          "comConf": {}
+        }
+      ],
+      "data": {
+        "title": "Normal user",
+        "nm": "user"
+      }
+    }
+  },
+  "meta": {
+    "comType": "wn-obj-form",
+    "comConf": {
+      "data": "=meta",
+      "blankAs": {
+        "icon": "zmdi-arrow-left",
+        "text": "i18n:role-meta-tip"
+      },
+      "fieldNameWrap": "nowrap",
+      "gridColumnHint": "[[2,800],1]",
+      "fieldStatus": "=fieldStatus",
+      "fields": [
+        {
+          "title": "ID",
+          "name": "id",
+          "comType": "WnObjId"
+        },
+        {
+          "title": "i18n:wn-key-icon",
+          "name": "icon",
+          "rowSpan": 3,
+          "comType": "ti-input-icon",
+          "comConf": {
+            "iconSize": 32,
+            "options": "role"
+          }
+        },
+        {
+          "title": "i18n:role-name",
+          "name": "title",
+          "comType": "ti-input"
+        },
+        {
+          "title": "i18n:role-val",
+          "name": "nm",
+          "comType": "ti-input"
+        },
+        {
+          "title": "i18n:role-dft",
+          "name": "isdft",
+          "type": "Boolean",
+          "comType": "ti-toggle"
+        },
+        {
+          "title": "i18n:role-as-domain",
+          "name": "roleInDomain",
+          "type": "Integer",
+          "defaultAs": 0,
+          "comType": "ti-switcher",
+          "comConf": {
+            "options": "#DomainRoles"
+          }
+        },
+        {
+          "title": "i18n:sort",
+          "name": "sort",
+          "tip": "i18n:sort-tip-asc",
+          "width": 120,
+          "type": "Integer",
+          "comType": "ti-input-num"
+        }
+      ],
+      "updateBy": {
+        "method": "dispatch",
+        "target": "main/updateMetaField"
+      },
+      "setFieldStatusBy": {
+        "method": "commit",
+        "target": "main/setFieldStatus"
+      }
+    }
+  },
+  "content": {
+    "comType": "TiBulletCheckbox",
+    "comConf": {
+      "options": "#SysActions",
+      "isBlank": "!=meta",
+      "blankAs": {
+        "icon": "zmdi-arrow-left",
+        "text": "i18n:role-meta-tip"
+      },
+      "value": "=content",
+      "valueType": "JsonObject",
+      "formatJson": true,
+      "itemsStyle": {
+        "padding": ".1rem"
+      }
+    }
+  },
+  "components": [
+    "@com:ti/bullet/checkbox"
+  ]
 }

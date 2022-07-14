@@ -1,24 +1,24 @@
 {
-  "prefix" : {
-    "Home" : "/o/content?str=~/",
-    "Test" : "/gu/rs/ti/test/_com/"
+  "prefix": {
+    "Home": "/o/content?str=~/",
+    "Test": "/gu/rs/ti/test/_com/"
   },
-  "suffix" : {
-    "^@Test:" : "/_com.json"
+  "suffix": {
+    "^@Test:": "/_com.json"
   },
-  "lang" : "zh-cn",
-  "i18n" : "@Home:.ti/i18n/all",
+  "lang": "zh-cn",
+  "i18n": "@Home:.ti/i18n/all",
   "components": [
     "@com:wn/thing/markdown/richeditor"
   ],
-  "dictionary" : {
-    "tmp" : {
-      "data"  : "obj ~/* -lcqn",
-      "query" : "obj ~ -match '[{title:\"^.*${val}\"},{nm:\"^.*${val}\"},{id:\"^${val}\"}]' -sort nm:1 -lcqn",
-      "item"  : "obj 'id:${val}' -cqn",
-      "value" : "id",
-      "text"  : "title|nm",
-      "icon"  : "=>Wn.Util.getObjThumbIcon"
+  "dictionary": {
+    "tmp": {
+      "data": "obj ~/* -lcqn",
+      "query": "obj ~ -match '[{title:\"^.*${val}\"},{nm:\"^.*${val}\"},{id:\"^${val}\"}]' -sort nm:1 -lcqn",
+      "item": "obj 'id:${val}' -cqn",
+      "value": "id",
+      "text": "title|nm",
+      "icon": "=>Wn.Util.getObjThumbIcon"
     },
     "Accounts": {
       "data": "thing ~/accounts query -sort nm:1 -lcqn",
@@ -40,10 +40,47 @@
       "text": "title",
       "icon": "=>Wn.Util.getObjThumbIcon2('far-smile')"
     },
-    "Sexes" : {
-      "data" : [
-        {"value":1, "text":"i18n:male"  , "icon":"fas-mars"},
-        {"value":2, "text":"i18n:female", "icon":"fas-venus"}]
+    "Sexes": {
+      "data": [
+        {
+          "value": 1,
+          "text": "i18n:male",
+          "icon": "fas-mars"
+        },
+        {
+          "value": 2,
+          "text": "i18n:female",
+          "icon": "fas-venus"
+        }
+      ]
+    },
+    "SysActions": {
+      "data": "cat ~/.domain/sys-actions.json"
+    },
+    "Organizations": {
+      "data": "cat ~/.domain/organization.json | jsonx -cqn @flatten",
+      "value": "id",
+      "text": "name",
+      "icon": "icon"
+    },
+    "DomainRoles": {
+      "data": [
+        {
+          "value": 1,
+          "text": "i18n:role-as-domain-admin",
+          "icon": "fas-shield-alt"
+        },
+        {
+          "value": 10,
+          "text": "i18n:role-as-domain-member",
+          "icon": "fas-key"
+        },
+        {
+          "value": 0,
+          "text": "i18n:role-as-domain-guest",
+          "icon": "fas-suitcase-rolling"
+        }
+      ]
     }
   }
 }

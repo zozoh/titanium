@@ -28,7 +28,7 @@ export default {
       validator: v => _.isUndefined(v)
         || (_.isArray(v) && 2 == v.length)
     },
-    "adjustMode": {
+    "resizeMode": {
       type: String,
       validator: v => _.isUndefined(v)
         || /^(col|row)-resize$/.test(v)
@@ -49,7 +49,7 @@ export default {
     },
     //--------------------------------------
     ArrowCanDirections() {
-      if ("col-resize" == this.adjustMode) {
+      if ("col-resize" == this.resizeMode) {
         return ["left", "right"]
       }
       return ["up", "down"]
@@ -115,7 +115,7 @@ export default {
         prevMinimum: this.prevMinimum,
         selfMinimum: this.selfMinimum,
         adjacentMode: this.adjacentMode,
-        adjustMode: this.adjustMode,
+        resizeMode: this.resizeMode,
         adjustBarAt: this.adjustBarAt,
         adjustIndex: this.adjustIndex
       }

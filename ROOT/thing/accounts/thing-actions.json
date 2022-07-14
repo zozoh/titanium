@@ -1,94 +1,109 @@
-[{
-  "name"  : "reloading",
-  "type" : "action",
-  "icon" : "zmdi-refresh",
-  "text" : "i18n:refresh",
-  "altDisplay" : {
-    "icon" : "zmdi-refresh zmdi-hc-spin",
-    "text" : "i18n:loading"
+[
+  {
+    "name": "reloading",
+    "type": "action",
+    "icon": "zmdi-refresh",
+    "text": "i18n:refresh",
+    "altDisplay": {
+      "icon": "zmdi-refresh zmdi-hc-spin",
+      "text": "i18n:loading"
+    },
+    "action": "main:dispatch('reloadData')",
+    "shortcut": "CTRL+SHIFT+R"
   },
-  "action" : "dispatch:main/reloadSearch",
-  "shortcut" : "CTRL+SHIFT+R"
-}, {
-  "name"  : "resetPasswd",
-  "type" : "action",
-  "icon" : "zmdi-turning-sign",
-  "text" : "i18n:passwd-reset",
-  "altDisplay" : {
-    "icon" : "fas-spinner fa-pulse",
-    "text" : "i18n:doing",
-    "match" : "doing"
+  {
+    "name": "resetPasswd",
+    "type": "action",
+    "icon": "zmdi-turning-sign",
+    "text": "i18n:passwd-reset",
+    "altDisplay": {
+      "icon": "fas-spinner fa-pulse",
+      "text": "i18n:doing"
+    },
+    "action": "main:invoke(resetPasswd)",
+    "statusKey": "doing"
   },
-  "action" : "main:invoke(resetPasswd)"
-}, {
-  "type" : "line"
-}, {
-  "type" : "group",
-  "icon" : "im-menu",
-  "items" : [{
-      "name"  : "create",
-      "type" : "action",
-      "icon" : "zmdi-flare",
-      "text" : "i18n:create",
-      "action" : "main:showBlock(creator)",
-      "shortcut" : "ALT+SHIFT+N"
-    }, {
-      "name"  : "deleting",
-      "type" : "action",
-      "icon" : "zmdi-delete",
-      "text" : "i18n:del",
-      "altDisplay" : {
-        "icon" : "zmdi-settings zmdi-hc-spin",
-        "text" : "i18n:del-ing"
+  {
+    "type": "line"
+  },
+  {
+    "type": "group",
+    "icon": "im-menu",
+    "items": [
+      {
+        "name": "create",
+        "type": "action",
+        "icon": "zmdi-flare",
+        "text": "i18n:create",
+        "action": "main:showBlock(creator)",
+        "shortcut": "ALT+CTRL+N"
       },
-      "action" : "dispatch:main/removeChecked",
-      "shortcut" : "CTRL+DELETE"
-    }, {
-      "type" : "line"
-    }, {
-      "name"  : "inRecycleBin",
-      "type" : "action",
-      "icon" : "fas-recycle",
-      "text" : "i18n:thing-enter-recyclebin",
-      "altDisplay" : {
-        "icon" : "far-arrow-alt-circle-left",
-        "text" : "i18n:thing-leave-recyclebin",
-        "capture" : false
+      {
+        "name": "deleting",
+        "type": "action",
+        "icon": "zmdi-delete",
+        "text": "i18n:del",
+        "altDisplay": {
+          "icon": "zmdi-settings zmdi-hc-spin",
+          "text": "i18n:del-ing"
+        },
+        "action": "dispatch:main/removeChecked",
+        "shortcut": "CTRL+DELETE"
       },
-      "action" : "dispatch:main/toggleInRecycleBin"
-    }, {
-      "name"  : "restoring",
-      "type" : "action",
-      "icon" : "zmdi-time-restore",
-      "text" : "i18n:thing-restore",
-      "altDisplay" : {
-        "icon" : "zmdi-time-restore zmdi-hc-spin",
-        "text" : "i18n:thing-restoring"
+      {
+        "type": "line"
       },
-      "action" : "dispatch:main/restoreRecycleBin"
-    }, {
-      "name"  : "cleaning",
-      "type" : "action",
-      "icon" : "fas-trash-restore",
-      "text" : "i18n:thing-clean",
-      "altDisplay" : {
-        "icon" : "zmdi-settings zmdi-hc-spin",
-        "text" : "i18n:thing-cleaning"
+      {
+        "name": "inRecycleBin",
+        "type": "action",
+        "icon": "fas-recycle",
+        "text": "i18n:thing-enter-recyclebin",
+        "altDisplay": {
+          "icon": "far-arrow-alt-circle-left",
+          "text": "i18n:thing-leave-recyclebin",
+          "capture": false
+        },
+        "action": "dispatch:main/toggleInRecycleBin"
       },
-      "action" : "dispatch:main/cleanRecycleBin"
-    }, {
-      "type" : "line"
-    }, {
-      "type" : "action",
-      "icon" : "zmdi-keyboard",
-      "text" : "i18n:console",
-      "action" : "=>Ti.Be.Open('/a/open/wn.console')",
-      "shortcut" : "ALT+SHIFT+T"
-    }, {
-      "type" : "action",
-      "icon" : "zmdi-info-outline",
-      "text" : "i18n:properties",
-      "action" : "dispatch:current/openMetaEditor",
-      "shortcut" : "ALT+SHIFT+P"
-    }]
-}]
+      {
+        "name": "restoring",
+        "type": "action",
+        "icon": "zmdi-time-restore",
+        "text": "i18n:thing-restore",
+        "altDisplay": {
+          "icon": "zmdi-time-restore zmdi-hc-spin",
+          "text": "i18n:thing-restoring"
+        },
+        "action": "dispatch:main/restoreRecycleBin"
+      },
+      {
+        "name": "cleaning",
+        "type": "action",
+        "icon": "fas-trash-restore",
+        "text": "i18n:thing-clean",
+        "altDisplay": {
+          "icon": "zmdi-settings zmdi-hc-spin",
+          "text": "i18n:thing-cleaning"
+        },
+        "action": "dispatch:main/cleanRecycleBin"
+      },
+      {
+        "type": "line"
+      },
+      {
+        "type": "action",
+        "icon": "zmdi-keyboard",
+        "text": "i18n:console",
+        "action": "=>Ti.Be.Open('/a/open/wn.console')",
+        "shortcut": "ALT+SHIFT+T"
+      },
+      {
+        "type": "action",
+        "icon": "zmdi-info-outline",
+        "text": "i18n:properties",
+        "action": "dispatch:current/openMetaEditor",
+        "shortcut": "ALT+CTRL+P"
+      }
+    ]
+  }
+]

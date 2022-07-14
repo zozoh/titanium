@@ -1,7 +1,17 @@
 {
   "comIcon": "im-flask",
-  "modType": "@mod:wn/obj-content",
+  "modType": "@mod:wn/obj",
+  "modState": {
+    "contentType": "text/json"
+  },
   "comType": "@Test:com-test-case",
+  "comConf": {
+    "meta": "=Main.meta",
+    "data": "=Main.contentData",
+    "content": "=Main.content",
+    "status": "=Main.status",
+    "fieldStatus": "=Main.fieldStatus"
+  },
   "actions": [
     {
       "name": "saving",
@@ -13,7 +23,7 @@
         "text": "i18n:saving"
       },
       "enabled": "changed",
-      "action": "dispatch:main/save",
+      "action": "dispatch:main/saveContent",
       "shortcut": "CTRL+S"
     },
     {

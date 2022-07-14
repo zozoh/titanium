@@ -15,8 +15,8 @@ export default {
     },
     "adjustMode": {
       type: String,
-      default: "px",
-      validator: v => /^(px|%)$/.test(v)
+      default: "auto",
+      validator: v => /^(auto|px|%)$/.test(v)
     },
     "keepCustomizedTo": {
       type: String,
@@ -53,42 +53,22 @@ export default {
       return !_.isEmpty(this.blocks)
     },
     //--------------------------------------
-    // When click the `min` button, it will shrink which block
-    // ajacent with the bar.
-    //
-    //  [Prev] || [Self]
-    //
-    //  - prev: set prev block to mininum size
-    //  - self: set self block to minimum size
-    //  - both: if prev is head block, set it to minimum size,
-    //          else set the next to minimum size
-    //  - none: do nothing
-    //
-    BlockAdjacentMode() {
-      return (prevI, selfI) => {
-        let prevSize = Ti.Util.fallbackNil(this.blocks[prevI].size, "stretch")
-        let selfSize = Ti.Util.fallbackNil(this.blocks[selfI].size, "stretch")
-        let prevIsStrech = "stretch" == prevSize
-        let selfIsStrech = "stretch" == selfSize
-
-        // .. 40        | <stretch> ..
-        if (!prevIsStrech && selfIsStrech) {
-          return "prev"
+    BlockAdjustMode() {
+      if ("auto" == this.adjustMode) {
+        for (let block of this.blocks) {
+          if (!Ti.Util.isNil(block.size)) {
+            if (/%$/.test(block.size)) {
+              return "%"
+            }
+            return "px"
+          }
         }
-        // .. <stretch> | 40   ..
-        else if (prevIsStrech && !selfIsStrech) {
-          return "self"
-        }
-        // .. 40        | 80   ..
-        else if (!prevIsStrech && !selfIsStrech) {
-          return "both"
-        }
-        // .. <stretch> | <stretch> ..
-        return "none"
+        return "px"
       }
+      return this.adjustMode
     },
     //--------------------------------------
-    ColBlocks() {
+    GuiBlocks() {
       let list = []
       _.forEach(this.blocks, (block, index) => {
         let li = _.omit(block, "size")
@@ -98,11 +78,11 @@ export default {
           li.minSize = 50
         }
         if (this.adjustable) {
-          li.adjustMode = "col-resize"
+          li.resizeMode = "col-resize"
           if (li.index > 0) {
             let prevI = li.index - 1
             let selfI = li.index
-            li.adjacentMode = this.BlockAdjacentMode(prevI, selfI)
+            li.adjacentMode = this.getBlockAdjacentMode(prevI, selfI)
             li.adjustBarAt = "left";
             li.adjustIndex = [prevI, selfI];
           }
@@ -126,13 +106,13 @@ export default {
 
         // Use prev minSize
         if (offsetX < 0) {
-          let minSize = this.ColBlocks[prevI].minSize
+          let minSize = this.GuiBlocks[prevI].minSize
           prevSize = Math.max(minSize, prevSize + offsetX)
           selfSize = sum - prevSize
         }
         // Use self minSize
         else {
-          let minSize = this.ColBlocks[selfI].minSize
+          let minSize = this.GuiBlocks[selfI].minSize
           selfSize = Math.max(minSize, selfSize - offsetX)
           prevSize = sum - selfSize
         }
@@ -198,10 +178,10 @@ export default {
         let selfSize = sizes[selfI]
         let sum = prevSize + selfSize
 
-        let prevMinSize = this.ColBlocks[prevI].minSize
+        let prevMinSize = this.GuiBlocks[prevI].minSize
         let prevOrgSize = this.blocks[prevI].size
 
-        let selfMinSize = this.ColBlocks[selfI].minSize
+        let selfMinSize = this.GuiBlocks[selfI].minSize
         let selfOrgSize = this.blocks[selfI].size
 
         // Prev
@@ -247,7 +227,9 @@ export default {
         selfI
       })
       //..............................
-      this.$nextTick(()=>{
+      this.trySaveLocalCustomized()
+      //..............................
+      this.$nextTick(() => {
         Ti.Viewport.resize()
       })
     },
@@ -276,7 +258,7 @@ export default {
       }
 
       // Cover to percent
-      if ("%" == this.adjustMode) {
+      if ("%" == this.BlockAdjustMode) {
         return _.map(sizes, sz => {
           if (null === sz) {
             return null
@@ -286,6 +268,39 @@ export default {
       }
 
       return sizes
+    },
+    //--------------------------------------
+    // When click the `min` button, it will shrink which block
+    // ajacent with the bar.
+    //
+    //  [Prev] || [Self]
+    //
+    //  - prev: set prev block to mininum size
+    //  - self: set self block to minimum size
+    //  - both: if prev is head block, set it to minimum size,
+    //          else set the next to minimum size
+    //  - none: do nothing
+    //
+    getBlockAdjacentMode(prevI, selfI) {
+      let prevSize = Ti.Util.fallbackNil(this.blocks[prevI].size, "stretch")
+      let selfSize = Ti.Util.fallbackNil(this.blocks[selfI].size, "stretch")
+      let prevIsStrech = "stretch" == prevSize
+      let selfIsStrech = "stretch" == selfSize
+
+      // .. 40        | <stretch> ..
+      if (!prevIsStrech && selfIsStrech) {
+        return "prev"
+      }
+      // .. <stretch> | 40   ..
+      else if (prevIsStrech && !selfIsStrech) {
+        return "self"
+      }
+      // .. 40        | 80   ..
+      else if (!prevIsStrech && !selfIsStrech) {
+        return "both"
+      }
+      // .. <stretch> | <stretch> ..
+      return "none"
     },
     //--------------------------------------
     genBlockRealSizes() {

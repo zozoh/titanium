@@ -79,6 +79,9 @@ export default {
       type: Object,
       default: () => ({})
     },
+    "resizeMode": {
+      type: String
+    },
     "adjacentMode": {
       type: String
     },
@@ -87,9 +90,6 @@ export default {
     },
     "adjustIndex": {
       type: Array
-    },
-    "adjustMode": {
-      type: String
     },
     //-----------------------------------
     // Aspect
@@ -278,7 +278,6 @@ export default {
           tabAt: this.tabAt,
           border: this.border,
           adjustable: this.adjustable,
-          adjustMode: this.adjustMode,
           keepCustomizedTo: this.keepCustomizedTo,
           blocks: this.blocks,
           schema: this.schema,
@@ -295,10 +294,10 @@ export default {
     //--------------------------------------
     isMinimumSize() {
       if (this.myRect) {
-        if ("col-resize" == this.adjustMode) {
+        if ("col-resize" == this.resizeMode) {
           return Math.floor(this.myRect.width) <= this.minSize
         }
-        if ("row-resize" == this.adjustMode) {
+        if ("row-resize" == this.resizeMode) {
           return Math.floor(this.myRect.height) <= this.minSize
         }
       }

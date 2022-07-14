@@ -1,0 +1,7 @@
+{
+  "comPath": "@com:wn/obj/pvg",
+  "comType": "WnObjPvg",
+  "comConf": {
+    "value": "=data"
+  }
+}

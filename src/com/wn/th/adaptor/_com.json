@@ -17,6 +17,7 @@
     "@com:wn/table",
     "@com:wn/obj/icon",
     "@com:wn/obj/puretext",
-    "@com:wn/upload/file"
+    "@com:wn/upload/file",
+    "@com:wn/th/creator"
   ]
 }

@@ -78,7 +78,7 @@ const _M = {
         console.log("reloadMyCom", aph)
         let com = await Wn.Io.loadMeta(aph)
         let comInfo = await Wn.Io.loadContent(com, { as: "json" })
-        if (comInfo.comPath) {
+        if (comInfo.comPath || comInfo.components) {
           await Ti.App(this).loadView({
             comType: comInfo.comPath,
             components: comInfo.components

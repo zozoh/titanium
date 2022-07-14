@@ -1,49 +1,74 @@
 {
-  "sidebar" : [{
-    "key" : "public",
-    "icon"   : "im-network",
-    "title"  : "测试场",
-    "items" : [{
-        "path" : "~/mock/components"
-      }, {
-        "path" : "~/media"
-      }]
-  }, {
-    "key" : "sites",
-    "icon"   : "zmdi-compass",
-    "title"  : "网站工程",
-    "items" : [{
-          "path" : "~/workspace/demo"
-        }, {
-          "path" : "~/www"
-        }]
-  }, {
-    "key" : "things",
-    "icon"   : "zmdi-archive",
-    "title"  : "数据集",
-    "items" : [{
-        "path" : "~/products"
-      }, {
-        "path" : "~/articles"
-      }, {
-        "path" : "~/orders"
-      }, {
-        "path" : "~/coupons"
-      }, {
-        "path" : "~/invoices"
-      }, {
-        "path" : "~/addresses"
-      }, {
-        "path" : "~/accounts"
-      }, {
-        "path" : "~/roles"
-      }]
-  }, {
-    "key" : "settings",
-    "icon"   : "zmdi-settings-square",
-    "title"  : "系统设置",
-    "items" : [{
-        "path" : "~/.domain/vars.json"
-      }]
-  }]
+  "sidebar": [
+    {
+      "key": "public",
+      "icon": "im-network",
+      "title": "测试场",
+      "items": [
+        {
+          "path": "~/mock/components"
+        },
+        {
+          "path": "~/media"
+        }
+      ]
+    },
+    {
+      "key": "sites",
+      "icon": "zmdi-compass",
+      "title": "网站工程",
+      "items": [
+        {
+          "path": "~/workspace/demo"
+        },
+        {
+          "path": "~/www"
+        }
+      ]
+    },
+    {
+      "key": "things",
+      "icon": "zmdi-archive",
+      "title": "数据集",
+      "items": [
+        {
+          "path": "~/products"
+        },
+        {
+          "path": "~/articles"
+        },
+        {
+          "path": "~/orders"
+        },
+        {
+          "path": "~/coupons"
+        },
+        {
+          "path": "~/invoices"
+        },
+        {
+          "path": "~/addresses"
+        },
+        {
+          "path": "~/accounts"
+        },
+        {
+          "path": "~/roles"
+        }
+      ]
+    },
+    {
+      "key": "settings",
+      "icon": "zmdi-settings-square",
+      "title": "系统设置",
+      "items": [
+        {
+          "path": "~/.domain/organization.json"
+        },
+        {
+          "path": "~/.domain/vars.json"
+        }
+      ]
+    }
+  ]
 }

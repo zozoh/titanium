@@ -15,6 +15,24 @@
 @DIR .domain/ 'i18n:sys-settings/<fas-cogs>'
 {"debug-app-wn-manager":"=debugApp"}
 #---------------------------------------------------------
+@FILE .domain/sys-actions.json
+%COPY> conf/sys-actions.json
+#---------------------------------------------------------
+@FILE .domain/organization.json '组织架构/<fas-sitemap>'
+?COPY:
+{
+  "id": "SITE0",
+  "type": "G",
+  "icon": "fas-globe",
+  "name": "零站科技",
+  "children": []
+}
+%END%
+##########################################################
+#
+#                      数据源
+#
+##########################################################
 # 默认 JDBC 数据源
 @FILE .dao/default.dao.json
 %TMPL> /etc/init/domain/dao/dao0.json.txt
@@ -181,6 +199,8 @@
 @FILE mock/components/form/ti-form-grid-tab.comt 'GRID-TAB'
 {com:'/rs/ti/test/components/form/grid-tab.json'}
 #---------------------------------------------------------
+@FILE mock/components/wn-others/wn-obj-pvg.comt 'WN-OBJ-PVG'
+{com:'/rs/ti/test/components/wn-others/demo-wn-obj-pvg.json'}
 ##########################################################
 #
 #                    网站工程
@@ -230,9 +250,29 @@
 #---------------------------------------------------------
 # 系统默认登录界面
 @DIR www/login/ 'i18n:www-admin-login/<fas-dungeon>' -> ${mntRoot}/www/login/
+{
+  accounts : "~/accounts",
+  roles    : "~/roles",
+  organization : "~/.domain/organization.json",
+  env : {
+    "!HOME"  : "/home/${domain}/",
+    "THEME" : "light",
+    "SKY_COLORIZED" : true,
+    "TM_BATCH_IMPORT" : "yes",
+    "PATH"  : "/bin:/sbin:~/bin",
+    "OPEN"  : "wn.manager",
+    "APP_PATH"  : "/rs/ti/app:/app",
+    "QUIT"      : "/a/login",
+    "VIEW_PATH" : "/mnt/ti/ROOT/view/:/rs/ti/view/",
+    "SIDEBAR_PATH" : "~/.ti/sidebar.json",
+    "ENABLE_CONSOLE" : "yes"
+  },
+  se_dft_du : 86400,
+  se_tmp_du : 60
+}
 #---------------------------------------------------------
 # 前端网站
-@DIR www/${domain}/ 'i18n:www-title/<fab-chrome>'
+@DIR www/website/ 'i18n:www-title/<fab-chrome>'
 {
   www : "${www_host}",
   www_pages: ["index.html:page/*,my/*", "index.wnml:page/*,my/*"],
@@ -283,9 +323,23 @@
 #                    主目录和环境变量
 #
 ##########################################################
-@INCLUDE /etc/init/include/home_env.init
+@HOME
 {
-  "domainLogin" : "~/www/login"
+  title : "${domainName}",
+  icon  : "${domainIcon?fas-globe-asia}"
+}
+@ENV
+{
+  OPEN : "wn.manager",
+  theme : "light",
+  APP_PATH : "/rs/ti/app:/app",
+  VIEW_PATH : "/mnt/ti/ROOT/view/:/rs/ti/view/",
+  SIDEBAR_PATH : "~/.ti/sidebar.json:/rs/ti/view/sidebar.json",
+  LOGIN_PAGE : "~/www/login",
+  SKY_COLORIZED   : "yes",
+  TM_BATCH_IMPORT : "yes",
+  OD_CASES        : "yes",
+  ENABLE_CONSOLE : "yes"
 }
 ##########################################################
 # 结束

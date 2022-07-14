@@ -615,7 +615,6 @@ const TI_TREE = {
     //--------------------------------------
     OnRowIconClick({ rowId } = {}) {
       let row = this.findTableRow(rowId)
-      console.log(row)
       // Open it
       if (row && !row.leaf && !row.opened) {
         this.openRow(row)

@@ -1,0 +1,13 @@
+[
+  {
+    "title": "管理"
+  },
+  {
+    "text": "动作A",
+    "value": "can_a"
+  },
+  {
+    "text": "动作B",
+    "value": "can_b"
+  }
+]

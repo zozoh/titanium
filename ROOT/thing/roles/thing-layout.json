@@ -4,7 +4,7 @@
     "border" : true,
     "blocks" : [{
       "name" : "search",
-      "size" : "62%",
+      "size" : "50%",
       "type" : "rows",
       "border" : true,
       "blocks" : [{
@@ -14,7 +14,7 @@
         }, {
           "name" : "list",
           "size" : "stretch",
-          "overflow" : "hidden",
+          "overflow" : "cover",
           "body" : "list"
         }, {
           "name" : "pager",
@@ -22,11 +22,16 @@
           "body" : "pager"
         }]
     }, {
-      "name"  : "meta",
-      "title" : "i18n:thing-meta",
-      "icon"  : "zmdi-info",
-      "size"  : "stretch",
-      "body"  : "meta"
+      "type" : "tabs",
+      "blocks" : [{
+          "name"  : "meta",
+          "title" : "角色属性",
+          "body"  : "meta"
+        }, {
+          "name"  : "content",
+          "title" : "业务权限",
+          "body"  : "content"
+        }]
     }],
     "panels" : [{
       "name" : "creator",

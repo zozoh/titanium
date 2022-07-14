@@ -114,7 +114,7 @@ const _M = {
             if (val.test && !Ti.AutoMatch.test(val.test, tc)) {
               return
             }
-            return Ti.Util.explainObj(data, val.target)
+            return Ti.Util.explainObj(tc, val.target)
           }
         }
         // Customized Function
@@ -150,7 +150,7 @@ const _M = {
     //--------------------------------------------------
     async OnFieldChange({ name, value } = {}) {
       // Notify at first
-      //console.log("notify field", {name, value})
+      //console.log("OnFieldChange", {name, value})
       this.$notify("field:change", { name, value })
 
       // Link fields

@@ -39,11 +39,10 @@
         {
           "type": "cols",
           "border": true,
-          "adjustMode": "%",
           "keepCustomizedTo": "demo-ti-gui-cols",
           "blocks": [
             {
-              "size": 300,
+              "size": "30%",
               "minSize": 100,
               "body": {
                 "comConf": {
@@ -76,7 +75,7 @@
               ]
             },
             {
-              "size": 100,
+              "size": "20%",
               "minSize": 80,
               "body": {
                 "comConf": {

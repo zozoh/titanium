@@ -1,0 +1,8 @@
+{
+  "paths": {
+    "~/.domain/organization.json": "edit-organization"
+  },
+  "types": {
+    "thing_set": "view-th-adaptor"
+  }
+}

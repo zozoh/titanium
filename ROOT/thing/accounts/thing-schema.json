@@ -1,172 +1,307 @@
 {
-  "methods" : "@lib:walnut/thing/accounts-methods.mjs",
-  "filter" : {
-    "comType" : "wn-thing-filter",
-    "comConf" : {
-      "status" : "=status",
-      "value" : "=search",
-      "sorter" : {
-        "options": [
-          {"value":"pubat",   "text":"发布日期"},
-          {"value":"watch_c", "text":"浏览次数"},
-          {"value":"title",   "text":"文章标题"}]
-      }
+  "methods": "@lib:walnut/thing/accounts-methods.mjs",
+  "behavior": {
+    "hardRemove": true,
+    "sorter": {
+      "ct": -1
+    },
+    "keyword": {
+      "=id": "^[\\d\\w]{26}$",
+      "=nm": "^[\\d\\w_.-]{3,}$",
+      "nickname": "^.+"
     }
   },
-  "list" : {
-    "comType" : "wn-table",
-    "comConf" : {
-      "data" : "=search.list",
-      "changedId"  : "=changedRowId",
-      "currentId"  : "=search.currentId",
-      "checkedIds" : "=search.checkedIds",
-      "checkable" : true,
-      "multi"  : true,
-      "fields" : [{
-        "title" : "账户",
-        "nowrap" : true,
-        "display" : ["@<thumb:zmdi-account>", "nickname", "nm"]
-      }, {
-        "title" : "手机",
-        "width" : "auto",
-        "display" : "phone"
-      }, {
-        "title" : "邮箱",
-        "width" : "auto",
-        "display" : "email"
-      }, {
-        "title" : "角色",
-        "width" : "auto",
-        "display" : {
-          "key"  : "role",
-          "dict" : "Roles"
+  "filter": {
+    "comType": "TiFilterbar",
+    "comConf": {
+      "className": "is-nowrap",
+      "placeholder": "i18n:role-flt-tip",
+      "status": "=status",
+      "filter": "=filter",
+      "sorter": "=sorter",
+      "dialog": {},
+      "majors": [],
+      "matchKeywords": [
+        {
+          "test": "^[\\d\\w:]{26,}$",
+          "key": "id"
+        },
+        {
+          "test": "^[A-Za-z0-9._-]+$",
+          "key": "nm"
+        },
+        {
+          "key": "title",
+          "mode": "~~"
         }
-      }, {
-        "title" : "性别",
-        "width" : "auto",
-        "display" : {
-          "key"  : "sex",
-          "dict" : "Sexes"
-        }
-      }]
-    }
-  },
-  "pager" : {
-    "comType" : "ti-paging-jumper",
-    "comConf" : {
-      "value" : "=search.pager"
-    }
-  },
-  "creator" : {
-    "comType" : "wn-thing-creator",
-    "comConf" : {
-      "fields" : [{
-        "name" : "nickname",
-        "title" : "用户昵称",
-        "comType" : "ti-input",
-        "comConf" : {}
-      }],
-      "data" : {
-        "nickname" : "新用户"
-      }
-    }
-  },
-  "meta" : {
-    "comType" : "wn-obj-form",
-    "comConf" : {
-      "data"   : "=current.meta",
-      "blankAs" : {
-        "icon" : "zmdi-arrow-left",
-        "text" : "请选择一个账号查看详情"
+      ],
+      "filterTags": {
+        "th_live": "i18n:thing-recycle-bin",
+        "id": ":->ID【${val}】",
+        "nm": ":=val",
+        "title": ":=val"
       },
-      "status" : "=current.status",
-      "fieldStatus" : "=current.fieldStatus",
-      "fields" : [{
-          "title"  : "ID",
-          "name"   : "id"
-        }, {
-          "title"   : "头像",
-          "name"    : "thumb",
-          "checkEquals" : false,
-          "serializer" : {
-            "name" : "Ti.Types.toStr",
-            "args" : "id:${id}"
+      "sorterConf": {
+        "options": [
+          {
+            "value": "ct",
+            "text": "i18n:wn-key-ct"
           },
-          "comType" : "wn-imgfile",
-          "comConf" : {
-            "target" : "=curentThumbTarget",
-            "filter" : "cover(256,256)"
+          {
+            "value": "nm",
+            "text": "i18n:me-k-nm"
+          },
+          {
+            "value": "nickname",
+            "text": "i18n:me-k-nickname"
+          },
+          {
+            "value": "phone",
+            "text": "i18n:me-k-phone"
+          },
+          {
+            "value": "email",
+            "text": "i18n:me-k-email"
           }
-        }, {
-          "title"   : "用户昵称",
-          "name"    : "nickname",
-          "comType" : "ti-input"
-        },{
-          "title"   : "登录名",
-          "name"    : "nm",
-          "comType" : "ti-input"
-        },{
-          "title"   : "手机号",
-          "name"    : "phone",
-          "comType" : "ti-input"
-        },{
-          "title"   : "邮箱",
-          "name"    : "email",
-          "comType" : "ti-input"
-        },{
-          "title"   : "角色",
-          "name"    : "role",
-          "comType" : "ti-switcher",
-          "comConf" : {
-            "options" : "@Dict:Roles"
-          }
-        },{
-          "title"   : "性别",
-          "name"    : "sex",
-          "type"    : "Integer",
-          "comType" : "ti-switcher",
-          "comConf" : {
-            "options" : "@Dict:Sexes"
-          }
-        },{
-          "title"   : "国家",
-          "name"    : "country",
-          "comType" : "ti-input"
-        },{
-          "title"   : "省/市",
-          "name"    : "province",
-          "comType" : "ti-input"
-        },{
-          "title"   : "城市/区",
-          "name"    : "city",
-          "comType" : "ti-input"
-        },{
-          "title"   : "微信OpenID",
-          "name"    : "wx_gh_strato"
-        },{
-          "title"   : "最后登录",
-          "name"    : "login",
-          "type"    : "DateTime"
-        }],
-      "updateBy" : "dispatch:main/updateCurrent",
-      "setFieldStatusBy" : "commit:main/current/setMetaFieldStatus"
+        ]
+      }
     }
   },
-  "content" : {
-    "comType" : "wn-obj-puretext",
-    "comConf" : {
-      "showTitle"    : false,
-      "meta"         : "=current.meta",
-      "content"      : "=current.content",
-      "savedContent" : "=current.__saved_content",
-      "contentType"  : "=current.contentType",
-      "status"       : "=current.status"
+  "list": {
+    "comType": "wn-table",
+    "comConf": {
+      "data": "=list",
+      "currentId": "=currentId",
+      "checkedIds": "=checkedIds",
+      "checkable": true,
+      "multi": true,
+      "rowNumberBase": 1,
+      "canCustomizedFields": false,
+      "keepCustomizedTo": "ti-account-table",
+      "columnResizable": true,
+      "fields": [
+        {
+          "title": "i18n:me-k-account",
+          "nowrap": true,
+          "display": [
+            "@<thumb:zmdi-account>",
+            "nickname",
+            "nm::as-tip-block align-right"
+          ]
+        },
+        {
+          "title": "i18n:me-k-role",
+          "width": "30%",
+          "display": {
+            "key": "role",
+            "comType": "TiTags",
+            "comConf": {
+              "dict": "Roles"
+            }
+          }
+        },
+        {
+          "title": "i18n:me-k-sex",
+          "width": 60,
+          "display": "#Sexes(sex)"
+        },
+        {
+          "title": "i18n:me-k-job",
+          "width": "30%",
+          "display": {
+            "key": "job",
+            "comType": "TiTags",
+            "comConf": {
+              "dict": "Organizations"
+            }
+          }
+        }
+      ]
     }
   },
-  "files" : {
-    "comType" : "wn-thing-files",
-    "comConf" : {
-      "..." : "=files"
+  "pager": {
+    "comType": "ti-paging-jumper",
+    "comConf": {
+      "value": "=pager"
     }
-  }
+  },
+  "creator": {
+    "comType": "wn-th-creator",
+    "comConf": {
+      "fields": [
+        {
+          "name": "nickname",
+          "title": "i18n:me-k-nickname",
+          "comType": "ti-input",
+          "comConf": {}
+        }
+      ],
+      "data": {
+        "title": "New User"
+      }
+    }
+  },
+  "meta": {
+    "comType": "wn-obj-form",
+    "comConf": {
+      "data": "=meta",
+      "blankAs": {
+        "icon": "zmdi-arrow-left",
+        "text": "i18n:account-meta-tip"
+      },
+      "fieldNameWrap": "nowrap",
+      "gridColumnHint": "[[2,800],1]",
+      "fieldStatus": "=fieldStatus",
+      "fields": [
+        {
+          "title": "ID",
+          "name": "id",
+          "comType": "WnObjId"
+        },
+        {
+          "title": "i18n:me-k-avatar",
+          "name": "thumb",
+          "checkEquals": false,
+          "rowSpan": 3,
+          "comType": "wn-upload-file",
+          "comConf": {
+            "target": "->${dataHome}/thumb.jpg",
+            "valueType": "idPath",
+            "supportTypes": [
+              "jpg",
+              "jpeg"
+            ],
+            "filter": "cover(300,300)",
+            "quality": 0.8,
+            "width": 100,
+            "height": 100
+          }
+        },
+        {
+          "title": "i18n:me-k-nickname",
+          "name": "nickname",
+          "comType": "ti-input"
+        },
+        {
+          "title": "i18n:me-k-nm",
+          "name": "nm",
+          "comType": "ti-input"
+        },
+        {
+          "title": "权限设置"
+        },
+        {
+          "title": "i18n:me-k-role",
+          "name": "role",
+          "colSpan": 2,
+          "comType": "ti-droplist",
+          "comConf": {
+            "multi": true,
+            "options": "#Roles",
+            "placeholder": "i18n:role-select-tip",
+            "dropDisplay": [
+              "<icon:far-smile>",
+              "title::flex-auto",
+              "nm::as-tip align-right"
+            ],
+            "tagMapping": {
+              "icon": "icon",
+              "text": "title|nm",
+              "value": "nm"
+            }
+          }
+        },
+        {
+          "title": "i18n:me-k-job",
+          "name": "job",
+          "type": "Array",
+          "colSpan": 2,
+          "comType": "WnInputTreePicker",
+          "comConf": {
+            "options": "~/.domain/organization.json",
+            "dict": "Organizations",
+            "placeholder": "i18n:me-k-job-tip",
+            "onlyLeaf": true,
+            "multi": true,
+            "tree": {
+              "leafBy": {
+                "type": "P"
+              }
+            }
+          }
+        },
+        {
+          "title": "i18n:me-k-dept",
+          "name": "dept",
+          "type": "Array",
+          "colSpan": 2,
+          "comConf": {
+            "dict": "Organizations"
+          }
+        },
+        {
+          "title": "i18n:role-as-op",
+          "name": "roleInOp",
+          "type": "Integer",
+          "defaultAs": 0,
+          "colSpan": 2,
+          "comType": "ti-switcher",
+          "comConf": {
+            "options": "#DomainRoles"
+          }
+        },
+        {
+          "title": "其他信息"
+        },
+        {
+          "title": "i18n:me-k-phone",
+          "name": "phone",
+          "comType": "ti-input"
+        },
+        {
+          "title": "i18n:me-k-email",
+          "name": "email",
+          "comType": "ti-input"
+        },
+        {
+          "title": "i18n:me-k-sex",
+          "name": "sex",
+          "type": "Integer",
+          "comType": "ti-switcher",
+          "comConf": {
+            "options": "@Dict:Sexes"
+          }
+        },
+        {
+          "title": "i18n:me-k-login",
+          "name": "login",
+          "type": "DateTime"
+        }
+      ],
+      "updateBy": {
+        "method": "dispatch",
+        "target": "main/updateMetaField"
+      },
+      "setFieldStatusBy": {
+        "method": "commit",
+        "target": "main/setFieldStatus"
+      }
+    }
+  },
+  "content": {
+    "comType": "TiTextRaw",
+    "comConf": {
+      "meta": "=meta",
+      "value": "=content"
+    }
+  },
+  "files": {
+    "comType": "wn-thing-files",
+    "comConf": {
+      "...": "=files"
+    }
+  },
+  "components": [
+    "@com:wn/input/tree-picker"
+  ]
 }

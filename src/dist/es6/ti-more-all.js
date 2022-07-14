@@ -1,4 +1,4 @@
-// Pack At: 2022-07-11 14:56:53
+// Pack At: 2022-07-14 13:11:27
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1974,51 +1974,57 @@ return _M;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/gui/rows/ti-gui-rows.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
-  inheritAttrs : false,
+  inheritAttrs: false,
   /////////////////////////////////////////
-  props : {
-    "blocks" : {
-      type : Array,
-      default : ()=>[]
+  props: {
+    "blocks": {
+      type: Array,
+      default: () => []
     },
-    "adjustable" : {
-      type : Boolean,
-      default : true
+    "adjustable": {
+      type: Boolean,
+      default: true
     },
-    "border" : {
-      type : Boolean,
-      default : false
+    "border": {
+      type: Boolean,
+      default: false
     },
-    "schema" : {
-      type : Object,
-      default : ()=>({})
+    "schema": {
+      type: Object,
+      default: () => ({})
     },
-    "actionStatus" : {
-      type : Object,
-      default : ()=>({})
+    "actionStatus": {
+      type: Object,
+      default: () => ({})
     },
-    "shown" : {
-      type : Object,
-      default : ()=>({})
+    "shown": {
+      type: Object,
+      default: () => ({})
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
-        "is-adjustable" : this.adjustable,
-        "show-border"   : this.border
+        "is-adjustable": this.adjustable,
+        "show-border": this.border
       }, this.className)
     },
     //--------------------------------------
     hasBlocks() {
       return !_.isEmpty(this.blocks)
-    }
+    },
+    //--------------------------------------
+    isBlockSizeMinimum(index) {
+      if (index >= 0 && index < this.$children.length) {
+        return this.$children[index].isMinimumSize
+      }
+    },
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     //--------------------------------------
   }
@@ -4660,140 +4666,178 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/gui/block/ti-gui-block.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////
-  inject : ["$gui"],
+  inject: ["$gui"],
   /////////////////////////////////////////
-  props : {
-    "type" : {
-      type : String,
-      default : null,
-      validator : (v)=>{
+  data: () => ({
+    myRect: undefined
+  }),
+  /////////////////////////////////////////
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "type": {
+      type: String,
+      default: null,
+      validator: (v) => {
         return Ti.Util.isNil(v)
           || /^(cols|rows|tabs)$/.test(v)
       }
     },
-    "title" : {
-      type : String,
-      default : null
+    "name": {
+      type: String,
+      default: null
     },
-    "icon" : {
-      type : [String, Object],
-      default : null
+    "body": {
+      type: [String, Object],
+      default: null
     },
-    "hideTitle" : {
-      type : Boolean,
-      default : false
+    "icon": {
+      type: [String, Object],
+      default: null
     },
-    "actions" : {
-      type : Array,
-      default : ()=>[]
+    "title": {
+      type: String,
+      default: null
     },
-    "actionStatus" : {
-      type : Object,
-      default : ()=>({})
+    "embedIn": {
+      type: String,
+      default: null,
+      validator: (v) => /^(panel|rows|cols|tabs)$/.test(v)
     },
-    "actionVars" : {
+    "blocks": {
+      type: Array,
+      default: () => []
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "actions": {
+      type: Array,
+      default: () => []
+    },
+    "actionStatus": {
+      type: Object,
+      default: () => ({})
+    },
+    "actionVars": {
       type: [Object, Function]
-    },
-    "name" : {
-      type : String,
-      default : null
-    },
-    "blocks" : {
-      type : Array,
-      default : ()=>[]
     },
     "comClass": {
       type: String,
       default: undefined
     },
-    "body" : {
-      type : [String, Object],
-      default : null
+    "overflow": {
+      type: String,
+      default: undefined,
+      validator: v => (_.isUndefined(v) || (/^(auto|none|fill|cover)$/.test(v)))
     },
-    "embedIn" : {
-      type : String,
-      default : null,
-      validator : (v)=>/^(panel|rows|cols|tabs)$/.test(v)
+    "flex": {
+      type: String,
+      default: undefined,
+      validator: (v) => (_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
     },
-    "size" : {
-      type : [String, Number],
-      default : null
+    "order": {
+      type: Number
     },
-    "overflow" : {
-      type : String,
-      default : undefined,
-      validator: v=>(_.isUndefined(v) || (/^(auto|none|fill|cover)$/.test(v)))
+    // TODO 这个属性是干啥的？ 有点忘记了，好像没用
+    "captureEvents": {
+      type: Object,
+      default: () => ({})
     },
-    "flex" : {
-      type : String,
-      default : undefined,
-      validator : (v)=>(_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
+    "resizeMode": {
+      type: String
     },
-    "order" : {
-      type : Number
+    "adjacentMode": {
+      type: String
     },
-    "schema" : {
-      type : Object,
-      default : ()=>({})
+    "adjustBarAt": {
+      type: String
     },
-    "shown" : {
-      type : Object,
-      default : ()=>({})
+    "adjustIndex": {
+      type: Array
     },
-    "captureEvents" : {
-      type : Object,
-      default : ()=>({})
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "hideTitle": {
+      type: Boolean,
+      default: false
     },
-    "mainConClass" : undefined,
-    "mainConStyle" : {
+    "mainConClass": undefined,
+    "mainConStyle": {
       type: Object,
       default: undefined
     },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "size": {
+      type: [String, Number],
+      default: null
+    },
+    "minSize": {
+      type: Number,
+      default: 50
+    },
+    "schema": {
+      type: Object,
+      default: () => ({})
+    },
+    "shown": {
+      type: Object,
+      default: () => ({})
+    },
     // Those 3 props for by-pass to sub-(cols/rows)
-    "tabAt"       : undefined,
-    "adjustable"  : undefined,
-    "border"      : undefined
+    "tabAt": undefined,
+    "adjustable": undefined,
+    "border": undefined,
+    "keepCustomizedTo": undefined
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass({
-        [`gui-block-${this.name}`] : this.name ? true : false,
-        "is-show-header"  : this.isShowHeader,
-        "is-hide-header"  : !this.isShowHeader,
-        "ti-fill-parent" : /^(tabs|panel)$/.test(this.embedIn)
+        [`gui-block-${this.name}`]: this.name ? true : false,
+        "is-show-header": this.isShowHeader,
+        "is-hide-header": !this.isShowHeader,
+        "ti-fill-parent": /^(tabs|panel)$/.test(this.embedIn)
       }, `is-flex-${this.FlexName}`)
     },
     //--------------------------------------
     TopStyle() {
       let css = ({
         //..................................
-        rows:()=>({
+        rows: () => ({
           height: this.BlockSize
         }),
         //..................................
-        cols:()=>({
-          width : this.BlockSize
+        cols: () => ({
+          width: this.BlockSize
         }),
         //..................................
-        tabs:()=>({}),
+        tabs: () => ({}),
         //..................................
-        panel:()=>({})
+        panel: () => ({})
         //..................................
       })[this.embedIn]()
-      if(!Ti.Util.isNil(this.order)) {
+      if (!Ti.Util.isNil(this.order)) {
         css.order = this.order
       }
       return Ti.Css.toStyle(css)
     },
     //--------------------------------------
+    hasAdjustBar() {
+      return this.adjustBarAt && "none" != this.adjustBarAt
+    },
+    //--------------------------------------
     MainConClass() {
       let klass = {}
-      if(!this.isFlexNil) {
+      if (!this.isFlexNil) {
         _.assign(klass, {
-          "fill-parent"  : "fill"==this.TheOverflow,
-          "cover-parent" : "cover"==this.TheOverflow
+          "fill-parent": "fill" == this.TheOverflow,
+          "cover-parent": "cover" == this.TheOverflow
         })
       }
       return Ti.Css.mergeClassName(klass, this.mainConClass)
@@ -4812,11 +4856,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     TheOverflow() {
       let ov = this.overflow || this.$gui.defaultOverflow || "auto"
-      if("auto" == ov) {
-        if(this.isFlexNone) {
+      if ("auto" == ov) {
+        if (this.isFlexNone) {
           return "fill"
         }
-        if(/^(both|shrink)$/.test(this.FlexName)) {
+        if (/^(both|shrink)$/.test(this.FlexName)) {
           return "cover"
         }
       }
@@ -4825,15 +4869,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     BlockSize() {
       let size = this.size
-      return /^(auto|stretch)$/.test(size) 
+      return /^(auto|stretch)$/.test(size)
         ? null
         : size
     },
     //--------------------------------------
     FlexName() {
       let flex = this.flex || this.$gui.defaultFlex || "auto"
-      if("auto" == flex) {
-        if("stretch" == this.size || Ti.Util.isNil(this.size)) {
+      if ("auto" == flex) {
+        if ("stretch" == this.size || Ti.Util.isNil(this.size)) {
           return "both"
         }
         return "none"
@@ -4850,10 +4894,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     isShowHeader() {
-      if(this.hideTitle || 'tabs' == this.embedIn) {
+      if (this.hideTitle || 'tabs' == this.embedIn) {
         return false
       }
-      if(this.title || this.hasActions) {
+      if (this.title || this.hasActions) {
         return true
       }
       return false
@@ -4864,11 +4908,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     TheActionVars() {
-      if(this.actionVars) {
-        return ()=>{
+      if (this.actionVars) {
+        return () => {
           let ctx = {
-            $main : this.$main(),
-            state : Ti.App(this).$state()
+            $main: this.$main(),
+            state: Ti.App(this).$state()
           }
           return Ti.Util.explainObj(ctx, this.actionVars, {
             evalFunc: true
@@ -4880,47 +4924,66 @@ const __TI_MOD_EXPORT_VAR_NM = {
     TheCom() {
       //....................................
       // Body -> Component
-      if(this.body) {
+      if (this.body) {
         let com = _.isString(this.body) ? this.schema[this.body] : this.body
-        if(com) {
+        if (com) {
           let parent = this.schema[com.extends]
           let self = _.omit(com, "extends")
           com = _.merge({}, parent, self)
           return _.defaults(com, {
-            comType : "ti-label",
-            comConf : {}
+            comType: "ti-label",
+            comConf: {}
           })
         }
       }
       //....................................
       // Sub GUI
-      if(!_.isEmpty(this.blocks)) {
-        let comType = `ti-gui-${this.type||"cols"}`
+      if (!_.isEmpty(this.blocks)) {
+        let comType = `ti-gui-${this.type || "cols"}`
         let comConf = {
-          tabAt      : this.tabAt,
-          border     : this.border,
-          adjustable : this.adjustable,
-          blocks     : this.blocks,
-          schema : this.schema,
-          actionStatus : this.actionStatus,
-          shown  : this.shown,
-          defaultFlex : this.defaultFlex
+          tabAt: this.tabAt,
+          border: this.border,
+          adjustable: this.adjustable,
+          keepCustomizedTo: this.keepCustomizedTo,
+          blocks: this.blocks,
+          schema: this.schema,
+          actionStatus: this.actionStatus,
+          shown: this.shown,
+          defaultFlex: this.defaultFlex
         }
         return {
           comType, comConf
         }
       }
       //....................................
+    },
+    //--------------------------------------
+    isMinimumSize() {
+      if (this.myRect) {
+        if ("col-resize" == this.resizeMode) {
+          return Math.floor(this.myRect.width) <= this.minSize
+        }
+        if ("row-resize" == this.resizeMode) {
+          return Math.floor(this.myRect.height) <= this.minSize
+        }
+      }
+    },
+    //--------------------------------------
+    isPrevMinimumSize() {
+      if (this.adjustIndex && this.adjustIndex.length == 2) {
+        let prevI = this.adjustIndex[0]
+        return this.$parent.isBlockSizeMinimum(prevI)
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
-    __before_bubble({name, args}) {
-      if(this.name) {
+    __before_bubble({ name, args }) {
+      if (this.name) {
         return {
-          name : `${this.name}::${name}`,
+          name: `${this.name}::${name}`,
           args
         }
       }
@@ -4928,31 +4991,55 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     $main() {
       return _.last(this.$children)
+    },
+    //--------------------------------------
+    OnResize() {
+      if (_.isElement(this.$el)) {
+        this.myRect = Ti.Rects.createBy(this.$el)
+      }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "name" : {
-      handler : function(newVal, oldVal) {
+  watch: {
+    "name": {
+      handler: function (newVal, oldVal) {
         // Guard
-        if(!this.$gui)
+        if (!this.$gui)
           return
         // Unregister old
-        if(oldVal) {
+        if (oldVal) {
           this.$gui.unregisterBlock(oldVal)
         }
         // Register self
-        if(newVal) {
+        if (newVal) {
           this.$gui.registerBlock(newVal, this)
         }
       },
-      immediate : true
+      immediate: true
+    },
+    "size": {
+      handler: function (newVal, oldVal) {
+        if (newVal != oldVal) {
+          this.OnResize()
+        }
+      },
+      immediate: true
     }
   },
   //////////////////////////////////////////
-  beforeDestroy : function(){
-    if(this.name) {
+  mounted() {
+    Ti.Viewport.watch(this, {
+      resize: () => {
+        this.OnResize()
+      }
+    })
+    this.OnResize()
+  },
+  //////////////////////////////////////////
+  beforeDestroy: function () {
+    Ti.Viewport.unwatch(this)
+    if (this.name) {
       this.$gui.unregisterBlock(this.name)
     }
   }
@@ -11986,7 +12073,7 @@ const _M = {
             if (val.test && !Ti.AutoMatch.test(val.test, tc)) {
               return
             }
-            return Ti.Util.explainObj(data, val.target)
+            return Ti.Util.explainObj(tc, val.target)
           }
         }
         // Customized Function
@@ -12022,7 +12109,7 @@ const _M = {
     //--------------------------------------------------
     async OnFieldChange({ name, value } = {}) {
       // Notify at first
-      //console.log("notify field", {name, value})
+      //console.log("OnFieldChange", {name, value})
       this.$notify("field:change", { name, value })
 
       // Link fields
@@ -19465,57 +19552,58 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/input/ti-input.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////////
-  model : {
-    prop : "value",
+  model: {
+    prop: "value",
     event: "change"
   },
   ////////////////////////////////////////////////////
-  data : ()=>({
-    inputCompositionstart : false,
-    isFocused : false,
-    pointerHover : null
+  data: () => ({
+    inputCompositionstart: false,
+    isFocused: false,
+    pointerHover: null
   }),
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-focused"   : this.isFocused,
-        "is-blurred"   : !this.isFocused,
-        "is-readonly"  : this.readonly,
-        "show-border"  : !this.hideBorder,
-        "hide-border"  : this.hideBorder,
-        "has-prefix-icon" : this.prefixIcon,
-        "has-prefix-text" : !Ti.Util.isNil(this.prefixText),
-        "has-suffix-icon" : this.suffixIcon,
-        "has-suffix-text" : !Ti.Util.isNil(this.suffixText),
+        "is-focused": this.isFocused,
+        "is-blurred": !this.isFocused,
+        "is-readonly": this.readonly,
+        "no-readonly": !this.readonly,
+        "show-border": !this.hideBorder,
+        "hide-border": this.hideBorder,
+        "has-prefix-icon": this.prefixIcon,
+        "has-prefix-text": !Ti.Util.isNil(this.prefixText),
+        "has-suffix-icon": this.suffixIcon,
+        "has-suffix-text": !Ti.Util.isNil(this.suffixText),
       })
     },
     //------------------------------------------------
     TopStyle() {
       return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
+        width: this.width,
+        height: this.height
       })
     },
     //------------------------------------------------
     TheValue() {
       //console.log("input value:", this.value)
       let val = Ti.Types.toStr(this.value, this.format)
-      if(this.autoI18n) {
+      if (this.autoI18n) {
         return Ti.I18n.text(val)
       }
       return val
     },
     //------------------------------------------------
     Validating() {
-      if(this.validator) {
-        let {test, message} = this.validator
-        if(test) {
+      if (this.validator) {
+        let { test, message } = this.validator
+        if (test) {
           let am = Ti.AutoMatch.parse(test)
           return v => {
-            if(!am(v)) {
-              Ti.Toast.Open(message||"i18n:invalid-val", "warn")
+            if (!am(v)) {
+              Ti.Toast.Open(message || "i18n:invalid-val", "warn")
               return false
             }
             return true
@@ -19528,7 +19616,7 @@ const _M = {
     ThePrefixIcon() {
       let icon = Ti.Util.trueGet(this.prefixIcon, 'zmdi-close', this.prefixIcon)
       let hove = this.prefixHoverIcon
-      if("prefixIcon" == this.pointerHover
+      if ("prefixIcon" == this.pointerHover
         && this.isCanHover("prefixIcon")) {
         return hove || icon
       }
@@ -19546,8 +19634,8 @@ const _M = {
     TheHover() {
       let map = {}
       let hos = _.concat(this.hover)
-      for(let ho of hos) {
-        if(ho) {
+      for (let ho of hos) {
+        if (ho) {
           map[ho] = true
         }
       }
@@ -19556,7 +19644,7 @@ const _M = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     isCanHover(hoverName) {
       return this.TheHover[hoverName] ? true : false
@@ -19565,30 +19653,30 @@ const _M = {
     getHoverClass(hoverName) {
       let canHover = this.isCanHover(hoverName)
       return {
-        "can-hover" : canHover,
-        "for-look"  : !canHover,
-        "is-prefix-icon-hover" : "prefixIcon" == hoverName
+        "can-hover": canHover,
+        "for-look": !canHover,
+        "is-prefix-icon-hover": "prefixIcon" == hoverName
       }
     },
     //------------------------------------------------
-    OnInputCompositionStart(){
+    OnInputCompositionStart() {
       this.inputCompositionstart = true
     },
     //------------------------------------------------
-    OnInputCompositionEnd(){
+    OnInputCompositionEnd() {
       this.inputCompositionstart = false
       this.doWhenInput()
     },
     //------------------------------------------------
     OnInputing($event) {
-      if(!this.inputCompositionstart) {
+      if (!this.inputCompositionstart) {
         this.doWhenInput()
       }
     },
     //------------------------------------------------
     doWhenInput() {
       let val = this.getInputValue(false)
-      if(!Ti.Util.isNil(val)) {
+      if (!Ti.Util.isNil(val)) {
         this.$notify("inputing", val)
       }
     },
@@ -19605,7 +19693,7 @@ const _M = {
     OnInputChanged() {
       let val = this.getInputValue(this.autoJsValue)
       // validate
-      if(!this.Validating(val)) {
+      if (!this.Validating(val)) {
         this.$notify("invalid", val)
         return
       }
@@ -19613,8 +19701,8 @@ const _M = {
     },
     //------------------------------------------------
     OnInputFocus() {
-      if(!this.readonly) {
-        if(this.autoSelect) {
+      if (!this.readonly) {
+        if (this.autoSelect) {
           this.$refs.input.select()
         } else {
           this.$refs.input.focus()
@@ -19623,7 +19711,7 @@ const _M = {
       this.isFocused = true
       this.$notify("input:focus")
       // Auto Actived
-      if(!this.isActived) {
+      if (!this.isActived) {
         this.setActived()
       }
     },
@@ -19634,31 +19722,31 @@ const _M = {
     },
     //------------------------------------------------
     OnClickPrefixIcon() {
-      if(this.prefixIconForClean) {
+      if (this.prefixIconForClean) {
         this.$notify("change", null)
       }
-      if(this.prefixIconNotifyName)
+      if (this.prefixIconNotifyName)
         this.$notify(this.prefixIconNotifyName)
     },
     //------------------------------------------------
     OnClickPrefixText() {
-      if(this.prefixTextNotifyName)
+      if (this.prefixTextNotifyName)
         this.$notify(this.prefixTextNotifyName)
     },
     //------------------------------------------------
     OnClickSuffixIcon() {
-      if(this.suffixIconNotifyName)
+      if (this.suffixIconNotifyName)
         this.$notify(this.suffixIconNotifyName)
     },
     //------------------------------------------------
     OnClickSuffixText() {
-      if(this.suffixTextNotifyName)
+      if (this.suffixTextNotifyName)
         this.$notify(this.suffixTextNotifyName)
     },
     //------------------------------------------------
     OnInputKeyPress($event) {
-      if(13 == $event.which) {
-        if(this.enterKeyNotifyName) {
+      if (13 == $event.which) {
+        if (this.enterKeyNotifyName) {
           let val = this.getInputValue(this.autoJsValue)
           this.$notify(this.enterKeyNotifyName, val)
         }
@@ -19667,20 +19755,20 @@ const _M = {
     //------------------------------------------------
     // Utility
     //------------------------------------------------
-    getInputValue(autoJsValue=false) {
-      if(_.isElement(this.$refs.input)) {
+    getInputValue(autoJsValue = false) {
+      if (_.isElement(this.$refs.input)) {
         //console.log("doWhenInput", emitName)
         let val = this.$refs.input.value
         // Auto js value
-        if(autoJsValue) {
+        if (autoJsValue) {
           val = Ti.S.toJsValue(val, {
-            autoNil  : true,
-            autoDate : false,
-            trimed : this.trimed
+            autoNil: true,
+            autoDate: false,
+            trimed: this.trimed
           })
         }
         // Trim
-        else if(this.trimed) {
+        else if (this.trimed) {
           val = _.trim(val)
         }
         // case
@@ -19692,18 +19780,18 @@ const _M = {
     },
     //------------------------------------------------
     doAutoFocus() {
-      if(this.focused && !this.isFocused) {
+      if (this.focused && !this.isFocused) {
         this.OnInputFocus()
-      }  
+      }
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
-    "focused" : "doAutoFocus"
+  watch: {
+    "focused": "doAutoFocus"
   },
   ////////////////////////////////////////////////////
-  mounted : function(){
+  mounted: function () {
     this.doAutoFocus()
   }
   ////////////////////////////////////////////////////
@@ -20248,6 +20336,10 @@ const _M = {
     this.OnResize()
     //...................................
     await this.evalFormFieldList()
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy: function () {
+    Ti.Viewport.unwatch(this)
   }
   //////////////////////////////////////////////////////
 }
@@ -22048,7 +22140,11 @@ const _M = {
       let config = this.getDataByVars(this.list)
       config.data = this.TheValue
       _.defaults(config, {
-        blankAs: this.blankAs,
+        blankAs: _.assign({
+          className: "as-mid-tip",
+          icon: "fab-deezer",
+          text: "empty-data"
+        }, this.blankAs),
         multi: true,
         checkable: true
       })
@@ -22205,12 +22301,14 @@ const _M = {
     },
     //-----------------------------------------------
     async openDialogForMeta(result = {}) {
+      //console.log("openDialogForMeta")
       let dialog = this.getDataByVars(this.dialog)
       let form = this.getDataByVars(this.form)
       let dialogSetting = _.assign({
         title: "i18n:edit",
         width: 500,
-        height: 500
+        height: 500,
+        explainComConf: false
       }, dialog, {
         result,
         model: { prop: "data", event: "change" },
@@ -23592,57 +23690,57 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/web/auth/signup/auth-signup.mjs'] = (function(){
 const _M = {
   ///////////////////////////////////////////////////////
-  data : ()=>({
-    "data" : {
-      "name"   : null,
-      "passwd" : null
+  data: () => ({
+    "data": {
+      "name": null,
+      "passwd": null
     },
-    "guarding" : false,
-    "currentMode"  : "login_by_passwd",
+    "guarding": false,
+    "currentMode": "login_by_passwd",
     // String, Array
-    "invalidField" : null,
+    "invalidField": null,
     // delay to get the next captcha to prevent robot
-    "delay" : -1
+    "delay": -1
   }),
   ///////////////////////////////////////////////////////
-  props : {
+  props: {
     // - "login_by_passwd"
     // - "login_by_phone"
     // - "login_by_email"
     // - "bind_phone"
     // - "bind_email"
-    "mode" : {
-      type : String,
-      default : "login_by_passwd"
+    "mode": {
+      type: String,
+      default: "login_by_passwd"
     },
     "toggleMode": {
-      type : String,
-      default : "login_by_phone"
+      type: String,
+      default: "login_by_phone"
     },
     "nameTip": {
-      type : String
+      type: String
     },
-    "captcha" : {
-      type : String,
-      required : true,
-      default : null
+    "captcha": {
+      type: String,
+      required: true,
+      default: null
     },
-    "scenes" : {
-      type : Object,
-      default: ()=>({
-        robot  : "robot",
-        bind_phone : "auth",
-        bind_email : "auth",
-        login_by_email   : "auth",
-        login_by_phone   : "auth",
-        login_by_passwd  : "auth"
+    "scenes": {
+      type: Object,
+      default: () => ({
+        robot: "robot",
+        bind_phone: "auth",
+        bind_email: "auth",
+        login_by_email: "auth",
+        login_by_phone: "auth",
+        login_by_passwd: "auth"
       })
     },
     // The interval of get capche to prevent robot
     // (in second)
-    "getDelay" : {
-      type : Number,
-      default : 60
+    "getDelay": {
+      type: Number,
+      default: 60
     },
     // "invalidField" : {
     //   type : [String, Array],
@@ -23654,11 +23752,18 @@ const _M = {
     },
     "oauth2": {
       type: Array,
-      default: ()=>[]
+      default: () => []
+    },
+    "bottomTip": {
+      type: String
+    },
+    "bottomTipAsHtml": {
+      type: Boolean,
+      default: false
     }
   },
   ///////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //---------------------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -23666,77 +23771,77 @@ const _M = {
     //---------------------------------------------------
     Msgs() {
       // Login by password
-      if("login_by_passwd" == this.currentMode) {
+      if ("login_by_passwd" == this.currentMode) {
         return {
-          "title"     : "i18n:auth-passwd-title",
-          "nameTip"   : this.nameTip || (
+          "title": "i18n:auth-passwd-title",
+          "nameTip": this.nameTip || (
             "login_by_email" == this.toggleMode
               ? "i18n:auth-passwd-name-email-tip"
               : "i18n:auth-passwd-name-phone-tip"
           ),
-          "passwdTip" : "i18n:auth-passwd-tip",
-          "btnText"   : "i18n:auth-login",
-          "linkLeft"  : (
+          "passwdTip": "i18n:auth-passwd-tip",
+          "btnText": "i18n:auth-login",
+          "linkLeft": (
             "login_by_email" == this.toggleMode
               ? "i18n:auth-go-email"
               : "i18n:auth-go-phone"
           ),
-          "linkRight" : "i18n:auth-passwd-getback",
-          "blankName" : "i18n:auth-blank-name"
+          "linkRight": "i18n:auth-passwd-getback",
+          "blankName": "i18n:auth-blank-name"
         }
       }
       // Login by Phone
-      if("login_by_phone" == this.currentMode) {
+      if ("login_by_phone" == this.currentMode) {
         return {
-          "title"     : "i18n:auth-phone-title",
-          "nameTip"   : "i18n:auth-phone-tip",
-          "passwdTip" : "i18n:auth-phone-vcode",
-          "codeGet"   : "i18n:auth-phone-vcode-get",
-          "btnText"   : "i18n:auth-login-or-signup",
-          "linkLeft"  : "i18n:auth-go-passwd",
-          "linkRight" : "i18n:auth-vcode-lost",
-          "blankName" : "i18n:auth-blank-phone"
+          "title": "i18n:auth-phone-title",
+          "nameTip": "i18n:auth-phone-tip",
+          "passwdTip": "i18n:auth-phone-vcode",
+          "codeGet": "i18n:auth-phone-vcode-get",
+          "btnText": "i18n:auth-login-or-signup",
+          "linkLeft": "i18n:auth-go-passwd",
+          "linkRight": "i18n:auth-vcode-lost",
+          "blankName": "i18n:auth-blank-phone"
         }
       }
       // Login by email
-      if("login_by_email" == this.currentMode) {
+      if ("login_by_email" == this.currentMode) {
         return {
-          "title"     : "i18n:auth-email-title",
-          "nameTip"   : "i18n:auth-email-tip",
-          "passwdTip" : "i18n:auth-email-vcode",
-          "codeGet"   : "i18n:auth-email-vcode-get",
-          "btnText"   : "i18n:auth-login-or-signup",
-          "linkLeft"  : "i18n:auth-go-passwd",
+          "title": "i18n:auth-email-title",
+          "nameTip": "i18n:auth-email-tip",
+          "passwdTip": "i18n:auth-email-vcode",
+          "codeGet": "i18n:auth-email-vcode-get",
+          "btnText": "i18n:auth-login-or-signup",
+          "linkLeft": "i18n:auth-go-passwd",
           // "linkRight" : "i18n:auth-vcode-lost",
-          "linkRight" : undefined,
-          "blankName" : "i18n:auth-blank-email"
+          "linkRight": undefined,
+          "blankName": "i18n:auth-blank-email"
         }
       }
       // Bind the phone
-      if("bind_phone" == this.currentMode) {
+      if ("bind_phone" == this.currentMode) {
         return {
-          "title"     : "i18n:auth-bind-phone-title",
-          "nameTip"   : "i18n:auth-phone-tip",
-          "passwdTip" : "i18n:auth-phone-vcode",
-          "codeGet"   : "i18n:auth-phone-vcode-get",
-          "btnText"   : "i18n:auth-bind",
+          "title": "i18n:auth-bind-phone-title",
+          "nameTip": "i18n:auth-phone-tip",
+          "passwdTip": "i18n:auth-phone-vcode",
+          "codeGet": "i18n:auth-phone-vcode-get",
+          "btnText": "i18n:auth-bind",
           //"linkLeft"  : "i18n:auth-bind-link-left",
           //"linkRight" : "i18n:auth-vcode-lost",
-          "linkRight" : undefined,
-          "blankName" : "i18n:auth-blank-phone"
+          "linkRight": undefined,
+          "blankName": "i18n:auth-blank-phone"
         }
       }
       // Bind the email
-      if("bind_email" == this.currentMode) {
+      if ("bind_email" == this.currentMode) {
         return {
-          "title"     : "i18n:auth-bind-email-title",
-          "nameTip"   : "i18n:auth-email-tip",
-          "passwdTip" : "i18n:auth-email-vcode",
-          "codeGet"   : "i18n:auth-email-vcode-get",
-          "btnText"   : "i18n:auth-bind",
+          "title": "i18n:auth-bind-email-title",
+          "nameTip": "i18n:auth-email-tip",
+          "passwdTip": "i18n:auth-email-vcode",
+          "codeGet": "i18n:auth-email-vcode-get",
+          "btnText": "i18n:auth-bind",
           //"linkLeft"  : "i18n:auth-bind-link-left",
-          "linkRight" : "i18n:auth-vcode-lost",
-          "blankName" : "i18n:auth-blank-email"
+          "linkRight": "i18n:auth-vcode-lost",
+          "blankName": "i18n:auth-blank-email"
         }
       }
       // Invalid mode
@@ -23744,7 +23849,7 @@ const _M = {
     },
     //---------------------------------------------------
     Params() {
-      return _.mapValues(this.data, (str)=>_.trim(str))
+      return _.mapValues(this.data, (str) => _.trim(str))
     },
     //---------------------------------------------------
     isBlankName() {
@@ -23752,25 +23857,25 @@ const _M = {
     },
     //---------------------------------------------------
     isBlankNameOrPasswd() {
-      let {name, passwd} = this.Params
+      let { name, passwd } = this.Params
       return !name || !passwd
     },
     //---------------------------------------------------
     Invalid() {
       return {
-        name   : this.isInvalid("name"),
-        passwd : this.isInvalid("passwd")
+        name: this.isInvalid("name"),
+        passwd: this.isInvalid("passwd")
       }
     },
     //---------------------------------------------------
     NameClass() {
-      if(this.guarding && 
+      if (this.guarding &&
         (this.Invalid.name || !this.Params.name))
         return "is-invalid"
     },
     //---------------------------------------------------
     PasswdClass() {
-      if(this.guarding && 
+      if (this.guarding &&
         (this.Invalid.passwd || !this.Params.passwd))
         return "is-invalid"
     },
@@ -23793,33 +23898,37 @@ const _M = {
       return !_.isEmpty(this.toggleMode)
     },
     //---------------------------------------------------
+    hasBottomTip() {
+      return this.bottomTip ? true : false
+    },
+    //---------------------------------------------------
     // 验证码发送目标的名称（i18n）
-    ToggleModeName(){
+    ToggleModeName() {
       return ({
-        "login_by_phone" : "i18n:auth-ta-phone",
-        "login_by_email" : "i18n:auth-ta-email",
-        "bind_phone"     : "i18n:auth-ta-phone",
-        "bind_email"     : "i18n:auth-ta-email"
+        "login_by_phone": "i18n:auth-ta-phone",
+        "login_by_email": "i18n:auth-ta-email",
+        "bind_phone": "i18n:auth-ta-phone",
+        "bind_email": "i18n:auth-ta-email"
       })[this.toggleMode]
     },
     //---------------------------------------------------
     // 验证码发送目标的名称（i18n）
-    vCodeTargetName(){
+    vCodeTargetName() {
       return ({
-        "login_by_phone" : "i18n:auth-ta-phone",
-        "login_by_email" : "i18n:auth-ta-email",
-        "bind_phone"     : "i18n:auth-ta-phone",
-        "bind_email"     : "i18n:auth-ta-email"
+        "login_by_phone": "i18n:auth-ta-phone",
+        "login_by_email": "i18n:auth-ta-email",
+        "bind_phone": "i18n:auth-ta-phone",
+        "bind_email": "i18n:auth-ta-email"
       })[this.currentMode]
     },
     //---------------------------------------------------
     // 验证码发送目标的名称（i18n）
-    vCodeTargetBy(){
+    vCodeTargetBy() {
       return ({
-        "login_by_phone" : "i18n:auth-ta-by-phone",
-        "login_by_email" : "i18n:auth-ta-by-email",
-        "bind_phone"     : "i18n:auth-ta-by-phone",
-        "bind_email"     : "i18n:auth-ta-by-email"
+        "login_by_phone": "i18n:auth-ta-by-phone",
+        "login_by_email": "i18n:auth-ta-by-email",
+        "bind_phone": "i18n:auth-ta-by-phone",
+        "bind_email": "i18n:auth-ta-by-email"
       })[this.currentMode]
     },
     //---------------------------------------------------
@@ -23830,94 +23939,94 @@ const _M = {
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
-  methods :{
+  methods: {
     //---------------------------------------------------
     OnChangeMode() {
       // -> login-by-vcode
-      if("login_by_passwd" == this.currentMode) {
+      if ("login_by_passwd" == this.currentMode) {
         this.currentMode = this.toggleMode
       }
       // -> login-by-passwd
       else {
         this.currentMode = "login_by_passwd"
       }
-      Ti.Be.BlinkIt(this.$el)  
+      Ti.Be.BlinkIt(this.$el)
     },
     //---------------------------------------------------
     OnAuthSubmit() {
       this.guarding = true
       // Guarding
-      if(this.isBlankNameOrPasswd) {
+      if (this.isBlankNameOrPasswd) {
         return Ti.Toast.Open("i18n:auth-blank-name-passwd", "warn")
       }
       // Mask GUI
       let toast = Ti.Toast.Open({
-        icon : "fas-spinner fa-spin",
-        content : "i18n:auth-doing",
-        position : "center",
-        duration : 0,
-        closer : false
+        icon: "fas-spinner fa-spin",
+        content: "i18n:auth-doing",
+        position: "center",
+        duration: 0,
+        closer: false
       })
 
       // Do Auth
       this.$notify("auth:send", {
-        type   : this.currentMode,
-        name   : this.Params.name,
-        passwd : this.Params.passwd,
+        type: this.currentMode,
+        name: this.Params.name,
+        passwd: this.Params.passwd,
         // Close loading toast
-        done : ()=> {
+        done: () => {
           toast.close()
           this.InvalidField = null
         },
-        ok : ()=>{
+        ok: () => {
           Ti.Toast.Open({
-            type : "success",
-            position : "top",
-            content : "i18n:auth-ok",
-            duration : 2000
+            type: "success",
+            position: "top",
+            content: "i18n:auth-ok",
+            duration: 2000
           })
           this.$notify("auth:ok")
         },
-        noexist : ()=>{
+        noexist: () => {
           this.InvalidField = "name"
         },
-        invalid : ()=> {
+        invalid: () => {
           this.InvalidField = "passwd"
         },
-        others : ()=> {
+        others: () => {
           this.InvalidField = ["name", "passwd"]
         },
-        fail : ({errCode, data}={})=> {
+        fail: ({ errCode, data } = {}) => {
           // VCode Error
-          if("e.auth.captcha.invalid" == errCode) {
+          if ("e.auth.captcha.invalid" == errCode) {
             Ti.Toast.Open({
-              type : "warn",
-              position : "top",
-              content : `i18n:e-www-invalid-captcha`,
-              vars : {
-                ta : Ti.I18n.text(this.vCodeTargetName)
+              type: "warn",
+              position: "top",
+              content: `i18n:e-www-invalid-captcha`,
+              vars: {
+                ta: Ti.I18n.text(this.vCodeTargetName)
               },
-              duration : 5000
+              duration: 5000
             })
           }
           // NoSaltedPasswd
-          else if("e.auth.login.NoSaltedPasswd" == errCode) {
+          else if ("e.auth.login.NoSaltedPasswd" == errCode) {
             Ti.Alert("i18n:auth-login-NoSaltedPasswd", {
               title: "i18n:e-auth-login-NoSaltedPasswd",
               icon: "zmdi-shield-security",
               textOk: "i18n:i-known",
               vars: {
-                ta : Ti.I18n.text(this.ToggleModeName)
+                ta: Ti.I18n.text(this.ToggleModeName)
               }
             })
           }
           // Others Error
           else {
             Ti.Toast.Open({
-              type : "warn",
-              position : "top",
-              content : `i18n:${errCode}`,
-              duration : 5000
+              type: "warn",
+              position: "top",
+              content: `i18n:${errCode}`,
+              duration: 5000
             })
           }
         }
@@ -23927,7 +24036,7 @@ const _M = {
     async OnGetVcode() {
       this.guarding = true
       // The Account Name is required
-      if(this.isBlankName) {
+      if (this.isBlankName) {
         this.InvalidField = "name"
         Ti.Toast.Open(this.Msgs["blankName"], "warn")
         return
@@ -23940,64 +24049,64 @@ const _M = {
       // Show the image captcha to prevent robot
       //console.log("captcha", this.captcha)
       let vars = {
-        scene   : this.scenes.robot,
-        account : this.Params.name
+        scene: this.scenes.robot,
+        account: this.Params.name
       }
       //let src = "/api/joysenses/auth/captcha?site=rv340tg5gcigsp6p5hvigc2gjb&account=18501211423"
       let src = Ti.S.renderBy(this.captcha, vars)
       let captcha = await Ti.Captcha(src)
-      if(!captcha)
+      if (!captcha)
         return
 
       // Mask GUI
       let toast = Ti.Toast.Open({
-        icon : "fas-spinner fa-spin",
-        content : "i18n:auth-sending-vcode",
-        position : "center",
-        duration : 0,
-        closer : false
+        icon: "fas-spinner fa-spin",
+        content: "i18n:auth-sending-vcode",
+        position: "center",
+        duration: 0,
+        closer: false
       })
 
       // use the captcha to get code
       this.$notify("get:vcode", {
-        type    : this.currentMode,
-        scene   : this.vCodeScene,
-        account : this.data.name,
+        type: this.currentMode,
+        scene: this.vCodeScene,
+        account: this.data.name,
         captcha,
-        done: ()=>{
+        done: () => {
           toast.close()
           this.InvalidField = null
           this.data.passwd = ""
         },
-        ok : ({duInMin=60}={})=>{
+        ok: ({ duInMin = 60 } = {}) => {
           console.log(arguments)
           this.delay = this.getDelay
           Ti.Toast.Open({
-            type : "success",
-            position : "top",
-            content : "i18n:auth-sent-ok",
-            vars : {
-              ta  : Ti.I18n.text(this.vCodeTargetName),
-              by  : Ti.I18n.text(this.vCodeTargetBy),
-              min : duInMin
+            type: "success",
+            position: "top",
+            content: "i18n:auth-sent-ok",
+            vars: {
+              ta: Ti.I18n.text(this.vCodeTargetName),
+              by: Ti.I18n.text(this.vCodeTargetBy),
+              min: duInMin
             },
-            duration : 5000
+            duration: 5000
           })
         },
-        fail : ({errCode, data}={})=> {
+        fail: ({ errCode, data } = {}) => {
           console.log("haha")
           Ti.Toast.Open({
-            type : "warn",
-            position : "top",
-            content : `i18n:${errCode}`,
-            duration : 5000
+            type: "warn",
+            position: "top",
+            content: `i18n:${errCode}`,
+            duration: 5000
           })
         }
       })
     },
     //---------------------------------------------------
-    isInvalid(name="") {
-      if(_.isArray(this.InvalidField)) {
+    isInvalid(name = "") {
+      if (_.isArray(this.InvalidField)) {
         return _.indexOf(this.InvalidField, name) >= 0
       }
       return name == this.InvalidField
@@ -24008,39 +24117,39 @@ const _M = {
     __ti_shortcut(uniqKey) {
       //....................................
       // If droplist is actived, should collapse it
-      if("ENTER" == uniqKey) {
-        if(!this.isBlankNameOrPasswd) {
-          this.$nextTick(()=>{
+      if ("ENTER" == uniqKey) {
+        if (!this.isBlankNameOrPasswd) {
+          this.$nextTick(() => {
             this.OnAuthSubmit()
           })
-          return {stop:true, quit:true}
+          return { stop: true, quit: true }
         }
       }
     }
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
-  watch : {
-    "currentMode" : function() {
+  watch: {
+    "currentMode": function () {
       this.guarding = false
       //this.data.name = ""
       this.data.passwd = ""
     }
   },
   ///////////////////////////////////////////////////////
-  mounted : function() {
-    if(this.mode) {
+  mounted: function () {
+    if (this.mode) {
       this.currentMode = this.mode
     }
     // count the secound
-    this.__H = window.setInterval(()=>{
-      if(this.delay>=0)
-        this.delay --
+    this.__H = window.setInterval(() => {
+      if (this.delay >= 0)
+        this.delay--
     }, 1000)
   },
   ///////////////////////////////////////////////////////
-  beforeDestroy : function() {
-    if(this.__H) {
+  beforeDestroy: function () {
+    if (this.__H) {
       window.clearInterval(this.__H)
     }
   }
@@ -27076,53 +27185,352 @@ return _M;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/gui/cols/ti-gui-cols.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
-  inheritAttrs : false,
   /////////////////////////////////////////
-  props : {
-    "blocks" : {
-      type : Array,
-      default : ()=>[]
+  data: () => ({
+    blockSizes: undefined
+  }),
+  /////////////////////////////////////////
+  props: {
+    "blocks": {
+      type: Array,
+      default: () => []
     },
-    "adjustable" : {
-      type : Boolean,
-      default : true
+    "adjustable": {
+      type: Boolean,
+      default: true
     },
-    "border" : {
-      type : Boolean,
-      default : false
+    "adjustMode": {
+      type: String,
+      default: "auto",
+      validator: v => /^(auto|px|%)$/.test(v)
     },
-    "schema" : {
-      type : Object,
-      default : ()=>({})
+    "keepCustomizedTo": {
+      type: String,
+      default: undefined
     },
-    "actionStatus" : {
-      type : Object,
-      default : ()=>({})
+    "border": {
+      type: Boolean,
+      default: false
     },
-    "shown" : {
-      type : Object,
-      default : ()=>({})
+    "schema": {
+      type: Object,
+      default: () => ({})
+    },
+    "actionStatus": {
+      type: Object,
+      default: () => ({})
+    },
+    "shown": {
+      type: Object,
+      default: () => ({})
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
-        "is-adjustable" : this.adjustable,
-        "show-border"   : this.border
+        "is-adjustable": this.adjustable,
+        "show-border": this.border
       }, this.className)
     },
     //--------------------------------------
     hasBlocks() {
       return !_.isEmpty(this.blocks)
+    },
+    //--------------------------------------
+    BlockAdjustMode() {
+      if ("auto" == this.adjustMode) {
+        for (let block of this.blocks) {
+          if (!Ti.Util.isNil(block.size)) {
+            if (/%$/.test(block.size)) {
+              return "%"
+            }
+            return "px"
+          }
+        }
+        return "px"
+      }
+      return this.adjustMode
+    },
+    //--------------------------------------
+    GuiBlocks() {
+      let list = []
+      _.forEach(this.blocks, (block, index) => {
+        let li = _.omit(block, "size")
+        li.index = index
+        li.key = block.name || `B${index}`
+        if (Ti.Util.isNil(li.minSize)) {
+          li.minSize = 50
+        }
+        if (this.adjustable) {
+          li.resizeMode = "col-resize"
+          if (li.index > 0) {
+            let prevI = li.index - 1
+            let selfI = li.index
+            li.adjacentMode = this.getBlockAdjacentMode(prevI, selfI)
+            li.adjustBarAt = "left";
+            li.adjustIndex = [prevI, selfI];
+          }
+        }
+        list.push(li)
+      })
+      return list
+    },
+    //--------------------------------------
+    Draggable() {
+      //....................................
+      const do_dragging = (ctx) => {
+        let { offsetX, orgBlockSizes, prevI, selfI } = ctx
+        //console.log("dragging", { offsetX, orgBlockSizes, prevI, selfI })
+        let sizes = _.cloneDeep(orgBlockSizes)
+
+        // Block minimum size
+        let prevSize = sizes[prevI]
+        let selfSize = sizes[selfI]
+        let sum = prevSize + selfSize
+
+        // Use prev minSize
+        if (offsetX < 0) {
+          let minSize = this.GuiBlocks[prevI].minSize
+          prevSize = Math.max(minSize, prevSize + offsetX)
+          selfSize = sum - prevSize
+        }
+        // Use self minSize
+        else {
+          let minSize = this.GuiBlocks[selfI].minSize
+          selfSize = Math.max(minSize, selfSize - offsetX)
+          prevSize = sum - selfSize
+        }
+
+        // Offset block size
+        sizes[prevI] = prevSize
+        sizes[selfI] = selfSize
+
+        // Depends on bar adjacent-mode
+        this.blockSizes = this.normlizedBlockSize(sizes, ctx)
+      }
+      //....................................
+      return {
+        trigger: ".block-adjust-bar",
+        prepare: (_, evt) => {
+          evt.stopPropagation()
+        },
+        actived: (ctx) => {
+          //console.log("actived", ctx)
+          // Get all my blocks and init them rect
+          let sizes = this.genBlockRealSizes()
+          ctx.orgBlockSizes = sizes
+          ctx.viewportWidth = _.sum(sizes)
+          ctx.prevI = parseInt(ctx.$trigger.getAttribute("adjust-0"));
+          ctx.selfI = parseInt(ctx.$trigger.getAttribute("adjust-1"));
+          ctx.adjacentMode = ctx.$trigger.getAttribute("adjacent-mode")
+        },
+        dragging: do_dragging,
+        done: (ctx) => {
+          // Save customized
+          this.trySaveLocalCustomized()
+          // Notify whole window resizing
+          Ti.Viewport.resize()
+        }
+      }
+      //....................................
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
+    OnBarReset() {
+      //console.log("OnBarReset")
+      this.blockSizes = null
+      this.trySaveLocalCustomized()
+    },
     //--------------------------------------
+    OnBarToggleSize(payload) {
+      //console.log("OnBarToggleSize")
+      //..............................
+      let {
+        prevMinimum, selfMinimum, adjacentMode, adjustIndex
+      } = payload
+      //..............................
+      let sizes = this.genBlockRealSizes()
+      let viewportWidth = _.sum(sizes)
+      let prevI = adjustIndex[0]
+      let selfI = adjustIndex[1]
+      //..............................
+      const __toggle_sizes = (sizes = []) => {
+        let prevSize = sizes[prevI]
+        let selfSize = sizes[selfI]
+        let sum = prevSize + selfSize
+
+        let prevMinSize = this.GuiBlocks[prevI].minSize
+        let prevOrgSize = this.blocks[prevI].size
+
+        let selfMinSize = this.GuiBlocks[selfI].minSize
+        let selfOrgSize = this.blocks[selfI].size
+
+        // Prev
+        if ("prev" == adjacentMode || ("both" == adjacentMode && 0 == prevI)) {
+          // => min
+          if (!prevMinimum) {
+            sizes[prevI] = prevMinSize
+            sizes[selfI] = sum - prevMinSize
+          }
+          // => org
+          else {
+            prevSize = Ti.Css.toAbsPixel(prevOrgSize, {
+              base: viewportWidth
+            })
+            sizes[prevI] = prevSize
+            sizes[selfI] = sum - prevSize
+          }
+        }
+        // Self
+        else {
+          // => min
+          if (!selfMinimum) {
+            sizes[selfI] = selfMinSize
+            sizes[prevI] = sum - selfMinSize
+          }
+          // => org
+          else {
+            selfSize = Ti.Css.toAbsPixel(selfOrgSize, {
+              base: viewportWidth
+            })
+            sizes[selfI] = selfSize
+            sizes[prevI] = sum - selfSize
+          }
+        }
+      }
+      //..............................
+      __toggle_sizes(sizes)
+      //..............................
+      this.blockSizes = this.normlizedBlockSize(sizes, {
+        adjacentMode: this.adjacentMode,
+        viewportWidth,
+        prevI,
+        selfI
+      })
+      //..............................
+      this.trySaveLocalCustomized()
+      //..............................
+      this.$nextTick(() => {
+        Ti.Viewport.resize()
+      })
+    },
+    //--------------------------------------
+    normlizedBlockSize(sizes = [], {
+      adjacentMode,
+      viewportWidth,
+      prevI,
+      selfI
+    } = {}) {
+      //console.log("normlizedBlockSize", adjacentMode)
+      // Depends on bar adjacent-mode
+      switch (adjacentMode) {
+        case "prev":
+          sizes[selfI] = null;
+          break;
+        case "self":
+          sizes[prevI] = null;
+          break;
+        case "none":
+          if (0 == prevI) {
+            sizes[selfI] = null
+          } else {
+            sizes[prevI] = null
+          }
+      }
+
+      // Cover to percent
+      if ("%" == this.BlockAdjustMode) {
+        return _.map(sizes, sz => {
+          if (null === sz) {
+            return null
+          }
+          return Ti.S.toPercent(sz / viewportWidth)
+        })
+      }
+
+      return sizes
+    },
+    //--------------------------------------
+    // When click the `min` button, it will shrink which block
+    // ajacent with the bar.
+    //
+    //  [Prev] || [Self]
+    //
+    //  - prev: set prev block to mininum size
+    //  - self: set self block to minimum size
+    //  - both: if prev is head block, set it to minimum size,
+    //          else set the next to minimum size
+    //  - none: do nothing
+    //
+    getBlockAdjacentMode(prevI, selfI) {
+      let prevSize = Ti.Util.fallbackNil(this.blocks[prevI].size, "stretch")
+      let selfSize = Ti.Util.fallbackNil(this.blocks[selfI].size, "stretch")
+      let prevIsStrech = "stretch" == prevSize
+      let selfIsStrech = "stretch" == selfSize
+
+      // .. 40        | <stretch> ..
+      if (!prevIsStrech && selfIsStrech) {
+        return "prev"
+      }
+      // .. <stretch> | 40   ..
+      else if (prevIsStrech && !selfIsStrech) {
+        return "self"
+      }
+      // .. 40        | 80   ..
+      else if (!prevIsStrech && !selfIsStrech) {
+        return "both"
+      }
+      // .. <stretch> | <stretch> ..
+      return "none"
+    },
+    //--------------------------------------
+    genBlockRealSizes() {
+      let $blocks = Ti.Dom.findAll(":scope > .ti-gui-block", this.$el)
+      let sizes = []
+      _.forEach($blocks, ($block) => {
+        sizes.push($block.getBoundingClientRect().width)
+      })
+      return sizes
+    },
+    //--------------------------------------
+    getBlockSize(index) {
+      if (this.blockSizes) {
+        return _.nth(this.blockSizes, index) || null
+      }
+      return (_.nth(this.blocks, index) || {}).size
+    },
+    //--------------------------------------
+    isBlockSizeMinimum(index) {
+      if (index >= 0 && index < this.$children.length) {
+        return this.$children[index].isMinimumSize
+      }
+    },
+    //--------------------------------------
+    trySaveLocalCustomized() {
+      if (this.keepCustomizedTo) {
+        let sizes = _.isEmpty(this.blockSizes) ? null : this.blockSizes
+        Ti.Storage.local.setObject(this.keepCustomizedTo, sizes)
+      }
+    },
+    //--------------------------------------
+    tryRestoreLocalCustomized() {
+      if (this.keepCustomizedTo) {
+        let sizes = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        if (_.isArray(sizes)) {
+          this.blockSizes = sizes
+        }
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  mounted() {
+    this.tryRestoreLocalCustomized()
   }
   //////////////////////////////////////////
 }
@@ -32514,7 +32922,6 @@ const TI_TREE = {
     //--------------------------------------
     OnRowIconClick({ rowId } = {}) {
       let row = this.findTableRow(rowId)
-      console.log(row)
       // Open it
       if (row && !row.leaf && !row.opened) {
         this.openRow(row)
@@ -36318,6 +36725,149 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'gui-adjustbar.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/gui/adjustbar/gui-adjustbar.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  data: () => ({
+    blockSizes: undefined
+  }),
+  /////////////////////////////////////////
+  props: {
+    "prevMinimum": {
+      type: Boolean,
+      default: false
+    },
+    "selfMinimum": {
+      type: Boolean,
+      default: false
+    },
+    "adjacentMode": {
+      type: String,
+      default: "none",
+      validator: v => /^(none|prev|self|both)$/.test(v)
+    },
+    "adjustBarAt": {
+      type: String,
+      default: "none",
+      validator: v => /^(none|left|right|top|bottom)$/.test(v)
+    },
+    "adjustIndex": {
+      type: Array,
+      validator: v => _.isUndefined(v)
+        || (_.isArray(v) && 2 == v.length)
+    },
+    "resizeMode": {
+      type: String,
+      validator: v => _.isUndefined(v)
+        || /^(col|row)-resize$/.test(v)
+    },
+  },
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TopClass() {
+      return Ti.Css.mergeClassName(
+        `at-${this.adjustBarAt}`,
+        this.className
+      )
+    },
+    //--------------------------------------
+    PrevIsHead() {
+      return this.adjustIndex && 0 === this.adjustIndex[0]
+    },
+    //--------------------------------------
+    ArrowCanDirections() {
+      if ("col-resize" == this.resizeMode) {
+        return ["left", "right"]
+      }
+      return ["up", "down"]
+    },
+    //--------------------------------------
+    hasMiniArrow() {
+      return this.MiniArrowAt ? true : false
+    },
+    //--------------------------------------
+    MiniArrowAt() {
+      let arrows = this.ArrowCanDirections;
+      if ("prev" == this.adjacentMode) {
+        return arrows[1];
+      }
+      else if ("self" == this.adjacentMode) {
+        return arrows[0];
+      }
+      else if ("both" == this.adjacentMode) {
+        if (this.PrevIsHead) {
+          return arrows[1];
+        }
+        return arrows[0];
+      }
+    },
+    //--------------------------------------
+    MiniArrowTo() {
+      // Arrows
+      let arrows = this.ArrowCanDirections;
+
+      // Then get the arrow
+      let I = 0;
+      if ("prev" == this.adjacentMode) {
+        I = this.prevMinimum ? 1 : 0
+      }
+      else if ("self" == this.adjacentMode) {
+        I = this.selfMinimum ? 0 : 1
+      }
+      else if ("both" == this.adjacentMode) {
+        if (this.PrevIsHead) {
+          I = this.prevMinimum ? 1 : 0
+        } else {
+          I = this.selfMinimum ? 0 : 1
+        }
+      }
+
+      // Done
+      return arrows[I];
+    },
+    //--------------------------------------
+    MiniArrowClass() {
+      let miniTo = this.MiniArrowTo
+      if (miniTo) {
+        return `zmdi zmdi-chevron-${miniTo}`
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    genNotifyContext() {
+      return {
+        prevMinimum: this.prevMinimum,
+        selfMinimum: this.selfMinimum,
+        adjacentMode: this.adjacentMode,
+        resizeMode: this.resizeMode,
+        adjustBarAt: this.adjustBarAt,
+        adjustIndex: this.adjustIndex
+      }
+    },
+    //--------------------------------------
+    OnClickReset() {
+      let payload = this.genNotifyContext()
+      this.$notify("bar:reset", payload)
+    },
+    //--------------------------------------
+    OnClickMini() {
+      //console.log("OnClickMini")
+      let payload = this.genNotifyContext()
+      this.$notify("bar:toggle:size", payload)
+    },
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'web-shelf-slide.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/shelf/slide/web-shelf-slide.mjs'] = (function(){
@@ -38266,7 +38816,7 @@ const _M = {
       if (!Ti.Util.isNil(this.myFilterValue)) {
         return this.myFilterValue
       }
-      if (this.myItem) {
+      if (this.myItem && this.Dict) {
         let text = this.Dict.getText(this.myItem)
         let value = this.Dict.getValue(this.myItem)
         if (this.inputValueDisplay) {
@@ -38314,7 +38864,7 @@ const _M = {
         return "zmdi-settings zmdi-hc-spin"
       }
       let icon = this.prefixIcon;
-      if (this.myItem) {
+      if (this.myItem && this.Dict) {
         icon = this.Dict.getIcon(this.myItem) || icon
       }
       if (this.readonly) {
@@ -38537,7 +39087,9 @@ const _M = {
     },
     //------------------------------------------------
     createDict() {
-      //console.log("createDict in combo-input")
+      // if (!_.isEmpty(this.dictVars)) {
+      //   console.log("createDict in combo-input", this.dictVars)
+      // }
       // Customized
       return Ti.DictFactory.CreateDictBy(this.options, {
         valueBy: this.valueBy,
@@ -44166,12 +44718,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // Aspect
   //-----------------------------------
   "blankAs": {
-    type: Object,
-    default: () => ({
-      className: "as-mid-tip",
-      icon: "fab-deezer",
-      text: "empty-data"
-    })
+    type: Object
   },
   "actionAlign": {
     type: String,
@@ -63848,7 +64395,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     OnDataChange(data) {
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
-      let val = _.cloneDeep(this.value)
+      let val = _.cloneDeep(this.value) || {}
       let md = this.pvg_owner << 6 | this.pvg_member << 3 | m0
       val[key] = md
       this.$notify("change", val)
@@ -63891,7 +64438,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
 
       // Update value
-      let val = _.cloneDeep(this.value)
+      let val = _.cloneDeep(this.value) || {}
       for (let id of checkeds) {
         val[`@[${id}]`] = DFT_PVG
       }
@@ -63932,7 +64479,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
 
       // Update value
-      let val = _.cloneDeep(this.value)
+      let val = _.cloneDeep(this.value) || {}
       for (let nm of checkeds) {
         val[`@${nm}`] = DFT_PVG
       }
@@ -63974,7 +64521,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
 
       // Update value
-      let val = _.cloneDeep(this.value)
+      let val = _.cloneDeep(this.value) || {}
       for (let id of checkeds) {
         val[`+${id}`] = DFT_PVG
       }
@@ -64927,6 +65474,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     OnContentReady() {
       this.dockPanelToReferElement()
+    },
+    //--------------------------------------
+    isBlockSizeMinimum(index) {
+      return false
     },
     //--------------------------------------
     async evalBlockTitle() {
@@ -77462,35 +78013,35 @@ const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
   inject: ["$gui"],
   /////////////////////////////////////////
-  data: ()=>({
-    myCurrentTab : 0
+  data: () => ({
+    myCurrentTab: 0
   }),
   /////////////////////////////////////////
-  props : {
-    "tabAt" : {
-      type : String,
-      default : "top-left",
-      validator : (v)=>/^(top|bottom)-(left|center|right)$/.test(v)
+  props: {
+    "tabAt": {
+      type: String,
+      default: "top-left",
+      validator: (v) => /^(top|bottom)-(left|center|right)$/.test(v)
     },
-    "blocks" : {
-      type : Array,
-      default : ()=>[]
+    "blocks": {
+      type: Array,
+      default: () => []
     },
-    "schema" : {
-      type : Object,
-      default : ()=>({})
+    "schema": {
+      type: Object,
+      default: () => ({})
     },
-    "actionStatus" : {
-      type : Object,
-      default : ()=>({})
+    "actionStatus": {
+      type: Object,
+      default: () => ({})
     },
-    "shown" : {
-      type : Object,
-      default : ()=>({})
+    "shown": {
+      type: Object,
+      default: () => ({})
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass(`at-${this.TheTabAt[0]}`)
@@ -77506,12 +78057,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     BlockWrapList() {
       let list = []
-      for(let i=0; i<this.blocks.length; i++) {
+      for (let i = 0; i < this.blocks.length; i++) {
         let block = this.blocks[i]
         let key = block.name || `tab-${i}`
         list.push({
-          index : i, 
-          key, block          
+          index: i,
+          key, block
         })
       }
       return list
@@ -77519,19 +78070,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     TabItems() {
       let list = []
-      for(let wrap of this.BlockWrapList) {
+      for (let wrap of this.BlockWrapList) {
         let current = this.myCurrentTab == wrap.key
         let item = {
           current,
-          key   : wrap.key,
-          index : wrap.index,
-          name  : wrap.block.name, 
-          icon  : wrap.block.icon,
-          title : wrap.block.title,
-          className : {"is-current":current}
+          key: wrap.key,
+          index: wrap.index,
+          name: wrap.block.name,
+          icon: wrap.block.icon,
+          title: wrap.block.title,
+          className: { "is-current": current }
         }
         // tab item can not be blank
-        if(!item.icon && !item.title) {
+        if (!item.icon && !item.title) {
           item.title = Ti.Util.fallback(item.name, item.key)
         }
         list.push(item)
@@ -77540,16 +78091,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     CurrentTabItem() {
-      for(let item of this.TabItems) {
-        if(item.current) {
+      for (let item of this.TabItems) {
+        if (item.current) {
           return item
         }
       }
     },
     //--------------------------------------
     CurrentBlock() {
-      for(let wrap of this.BlockWrapList) {
-        if(this.myCurrentTab == wrap.key) {
+      for (let wrap of this.BlockWrapList) {
+        if (this.myCurrentTab == wrap.key) {
           return wrap.block
         }
       }
@@ -77557,12 +78108,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnSetCurrentTabItem(item) {
       this.$gui.OnBlockShownUpdate({
-        [item.key] : true,
-        [this.CurrentTabItem.key] : false
+        [item.key]: true,
+        [this.CurrentTabItem.key]: false
       })
     },
     //--------------------------------------
@@ -77572,36 +78123,40 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     $currentMain() {
       let $block = this.$current()
-      if($block)
+      if ($block)
         return $block.$main()
+    },
+    //--------------------------------------
+    isBlockSizeMinimum(index) {
+      return false
     },
     //--------------------------------------
     syncCurrentTabFromShown() {
       //console.log("syncCurrentTabFromShown")
-      for(let wrap of this.BlockWrapList) {
-        if(this.shown[wrap.key]) {
+      for (let wrap of this.BlockWrapList) {
+        if (this.shown[wrap.key]) {
           this.myCurrentTab = wrap.key
           return
         }
       }
       // Default highlight the first tab
-      if(this.BlockWrapList.length>0) {
+      if (this.BlockWrapList.length > 0) {
         this.myCurrentTab = this.BlockWrapList[0].key
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "shown" : function() {
+  watch: {
+    "shown": function () {
       this.syncCurrentTabFromShown()
     },
-    "blocks" : function() {
+    "blocks": function () {
       this.syncCurrentTabFromShown()
     }
   },
   //////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     this.syncCurrentTabFromShown()
   }
   //////////////////////////////////////////
@@ -82160,6 +82715,45 @@ Ti.Preload("ti/com/ti/form.backup/_hmaker.json", {
   }
 });
 //========================================
+// JOIN <gui-adjustbar.html> ti/com/ti/gui/adjustbar/gui-adjustbar.html
+//========================================
+Ti.Preload("ti/com/ti/gui/adjustbar/gui-adjustbar.html", `<div
+  class="block-adjust-bar"
+  :class="TopClass"
+  :arrow-to="MiniArrowTo"
+  :arrow-at="MiniArrowAt"
+  :adjacent-mode="adjacentMode"
+  :resize-mode="resizeMode"
+  :adjust-0="adjustIndex[0]"
+  :adjust-1="adjustIndex[1]">
+  <!--------------------------------------->
+  <div class="bar-con">
+    <!----------------------------------->
+    <div class="as-action is-reset" @mousedown.stop="OnClickReset">
+      <i class="zmdi zmdi-time-restore"></i></div>
+    <!----------------------------------->
+    <div
+      v-if="hasMiniArrow"
+        class="as-action is-mini"
+        @mousedown.stop="OnClickMini"><i :class="MiniArrowClass"></i></div>
+    <!----------------------------------->
+  </div>
+  <!--------------------------------------->
+</div>`);
+//========================================
+// JOIN <gui-adjustbar.mjs> ti/com/ti/gui/adjustbar/gui-adjustbar.mjs
+//========================================
+Ti.Preload("ti/com/ti/gui/adjustbar/gui-adjustbar.mjs", TI_PACK_EXPORTS['ti/com/ti/gui/adjustbar/gui-adjustbar.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/gui/adjustbar/_com.json
+//========================================
+Ti.Preload("ti/com/ti/gui/adjustbar/_com.json", {
+  "name": "ti-gui-adjustbar",
+  "globally": true,
+  "template": "./gui-adjustbar.html",
+  "mixins": "./gui-adjustbar.mjs"
+});
+//========================================
 // JOIN <ti-gui-block.html> ti/com/ti/gui/block/ti-gui-block.html
 //========================================
 Ti.Preload("ti/com/ti/gui/block/ti-gui-block.html", `<div class="ti-gui-block" 
@@ -82189,6 +82783,7 @@ Ti.Preload("ti/com/ti/gui/block/ti-gui-block.html", `<div class="ti-gui-block"
     Content
   -->
   <div class="block-main" v-if="TheCom">
+    <!------------------------------------------->
     <div class="block-main-con"
       :class="MainConClass"
       :style="MainConStyle">
@@ -82197,6 +82792,16 @@ Ti.Preload("ti/com/ti/gui/block/ti-gui-block.html", `<div class="ti-gui-block"
         :is="TheCom.comType"
         v-bind="TheCom.comConf"/>
     </div>
+    <!------------------------------------------->
+    <TiGuiAdjustbar
+      v-if="hasAdjustBar"
+        :prevMinimum="isPrevMinimumSize"
+        :selfMinimum="isMinimumSize"
+        :resizeMode="resizeMode"
+        :adjacentMode="adjacentMode"
+        :adjustBarAt="adjustBarAt"
+        :adjustIndex="adjustIndex"/>
+    <!------------------------------------------->
   </div>
   <!--Blank-->
   </div>`);
@@ -82216,16 +82821,22 @@ Ti.Preload("ti/com/ti/gui/block/_com.json", {
 //========================================
 // JOIN <ti-gui-cols.html> ti/com/ti/gui/cols/ti-gui-cols.html
 //========================================
-Ti.Preload("ti/com/ti/gui/cols/ti-gui-cols.html", `<div class="ti-gui-cols" :class="topClass">
+Ti.Preload("ti/com/ti/gui/cols/ti-gui-cols.html", `<div
+  class="ti-gui-cols"
+  :class="topClass"
+  v-ti-draggable="Draggable">
   <template v-if="hasBlocks">
-    <template v-for="(block, index) in blocks">
+    <template v-for="(block, index) in GuiBlocks">
       <ti-gui-block v-if="!block.hide"
-        :key="index"
-        embed-in="cols"
+        :key="block.key"
+        embedIn="cols"
         v-bind="block"
         :schema="schema"
         :action-status="block.actionStatus || actionStatus"
-        :shown="shown"/>
+        :size="getBlockSize(index)"
+        :shown="shown"
+        @bar:reset="OnBarReset"
+        @bar:toggle:size="OnBarToggleSize"/>
       </template>
   </template>
 </div>`);
@@ -82237,11 +82848,13 @@ Ti.Preload("ti/com/ti/gui/cols/ti-gui-cols.mjs", TI_PACK_EXPORTS['ti/com/ti/gui/
 // JOIN <_com.json> ti/com/ti/gui/cols/_com.json
 //========================================
 Ti.Preload("ti/com/ti/gui/cols/_com.json", {
-  "name" : "ti-gui-cols",
-  "globally" : true,
-  "template" : "./ti-gui-cols.html",
-  "mixins"   : ["./ti-gui-cols.mjs"],
-  "components" : ["@com:ti/gui/block"]
+  "name": "ti-gui-cols",
+  "globally": true,
+  "template": "./ti-gui-cols.html",
+  "mixins": "./ti-gui-cols.mjs",
+  "components": [
+    "@com:ti/gui/block"
+  ]
 });
 //========================================
 // JOIN <ti-gui-panel.html> ti/com/ti/gui/panel/ti-gui-panel.html
@@ -82467,12 +83080,13 @@ Ti.Preload("ti/com/ti/gui/ti-gui.mjs", TI_PACK_EXPORTS['ti/com/ti/gui/ti-gui.mjs
 // JOIN <_com.json> ti/com/ti/gui/_com.json
 //========================================
 Ti.Preload("ti/com/ti/gui/_com.json", {
-  "name" : "ti-gui",
-  "globally" : true,
-  "template" : "./ti-gui.html",
-  "methods"  : "./ti-gui-methods.mjs",
-  "mixins"   : ["./ti-gui.mjs"],
-  "components" : [
+  "name": "ti-gui",
+  "globally": true,
+  "template": "./ti-gui.html",
+  "methods": "./ti-gui-methods.mjs",
+  "mixins": "./ti-gui.mjs",
+  "components": [
+    "@com:ti/gui/adjustbar",
     "@com:ti/gui/cols",
     "@com:ti/gui/rows",
     "@com:ti/gui/tabs",
@@ -86802,7 +87416,6 @@ Ti.Preload("ti/com/ti/wall/ti-wall.html", `<div class="ti-wall" :class="TopClass
   <ti-loading
     v-else-if="isDataEmpty"
       class="nil-data"
-      :class="blankClass"
       v-bind="BlankLoadingConf"/>
   <!--
     Show tiles
@@ -87213,13 +87826,26 @@ Ti.Preload("ti/com/web/auth/signup/auth-signup.html", `<div
   -->
   <template v-if="hasOAuth2">
     <div class="as-spacing"></div>
-    <footer>
+    <footer class="as-bottom-oauth2">
       <a
         v-for="it in OAuth2Items"
           :href="it.href"
           :title="it.tip">
           <ti-icon :value="it.icon"/>
       </a>
+    </footer>
+  </template>
+  <!--
+    Bottom tip
+  -->
+  <template v-if="hasBottomTip">
+    <footer
+      class="as-bottom-tip">
+      <div
+        v-if="bottomTipAsHtml"
+          v-html="bottomTip"></div>
+      <div
+        v-else>{{bottomTip}}</div>
     </footer>
   </template>
 </div>`);
@@ -92116,7 +92742,8 @@ Ti.Preload("ti/com/wn/th/adaptor/_com.json", {
     "@com:wn/table",
     "@com:wn/obj/icon",
     "@com:wn/obj/puretext",
-    "@com:wn/upload/file"
+    "@com:wn/upload/file",
+    "@com:wn/th/creator"
   ]
 });
 //========================================
@@ -93723,6 +94350,7 @@ Ti.Preload("/a/load/wn.manager/gui/layout.json", {
         "name": "sky",
         "size": 48,
         "type": "cols",
+        "adjustable": false,
         "blocks": [
           {
             "name": "logo",
@@ -93752,6 +94380,7 @@ Ti.Preload("/a/load/wn.manager/gui/layout.json", {
         "flex": "both",
         "type": "cols",
         "border": true,
+        "keepCustomizedTo": "WnManager-Main-Sidebar-ColSizes",
         "blocks": [
           {
             "name": "sidebar",
