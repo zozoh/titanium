@@ -119,8 +119,8 @@ export default {
   },
   "fieldNameAlign": {
     type: String,
-    default: "right",
-    validator: (v) => /^(left|right|center)$/.test(v)
+    default: "auto",
+    validator: (v) => /^(auto|left|right|center|justify)$/.test(v)
   },
   "fieldNameVAlign": {
     type: String,
@@ -137,8 +137,16 @@ export default {
   },
   "fieldNameWrap": {
     type: String,
-    default: "auto",
-    validator: (v) => /^(auto|wrap|nowrap)$/.test(v)
+    default: "wrap",
+    validator: (v) => /^(wrap|nowrap)$/.test(v)
+  },
+  "fieldValueClass": {
+    type: [Array, String, Object],
+    default: undefined
+  },
+  "fieldValueStyle": {
+    type: Object,
+    default: () => ({})
   },
   "fieldValueWrap": {
     type: String,
@@ -217,20 +225,17 @@ export default {
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "fieldNameWidth": {
+  "fieldNameMaxWidth": {
     type: [Number, String, Array],
-    default: () => [
-      ["1.5rem", "en-us"],
-      ["1.2rem"]
-    ]
   },
   "gridColumnHint": {
     type: [Number, String, Array],
     default: () => [
-      [4, 1200],
-      [3, 1000],
-      [2, 720],
-      [1]
+      [4, 1280],
+      [3, 960],
+      [2, 640],
+      [1, 320],
+      0
     ]
   }
 }

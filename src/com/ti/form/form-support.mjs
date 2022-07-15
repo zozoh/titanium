@@ -492,6 +492,8 @@ const _M = {
           "nameAlign": this.fieldNameAlign,
           "nameVAlign": this.fieldNameVAlign,
           "nameWrap": this.fieldNameWrap,
+          "valueClass": this.fieldValueClass,
+          "valueStyle": this.fieldValueStyle,
           "valueWrap": this.fieldValueWrap
         })
       }

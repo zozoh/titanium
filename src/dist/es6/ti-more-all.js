@@ -1,4 +1,4 @@
-// Pack At: 2022-07-14 13:11:27
+// Pack At: 2022-07-15 21:36:08
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12451,6 +12451,8 @@ const _M = {
           "nameAlign": this.fieldNameAlign,
           "nameVAlign": this.fieldNameVAlign,
           "nameWrap": this.fieldNameWrap,
+          "valueClass": this.fieldValueClass,
+          "valueStyle": this.fieldValueStyle,
           "valueWrap": this.fieldValueWrap
         })
       }
@@ -15145,7 +15147,7 @@ const _M = {
     //-----------------------------------
     // Measure
     //-----------------------------------
-    "fieldNameWidth": [Number, String],
+    "fieldNameMaxWidth": [Number, String],
     "gridColumnCount": Number,
   },
   //////////////////////////////////////////////////////
@@ -15156,8 +15158,13 @@ const _M = {
     },
     //--------------------------------------------------
     TopStyle() {
+      if (this.gridColumnCount > 0) {
+        return {
+          "grid-template-columns": _.repeat("auto 1fr ", this.gridColumnCount)
+        }
+      }
       return {
-        "grid-template-columns": _.repeat("1fr ", this.gridColumnCount)
+        "grid-template-columns": "1fr"
       }
     }
     //--------------------------------------------------
@@ -15238,53 +15245,144 @@ const _M = {
       }
     },
     //--------------------------------------------------
+    cloneAssignFieldGrid(fields = this.fields) {
+      let list = _.cloneDeep(fields) || []
+
+      // Grid layout
+      let realGridColCount = this.gridColumnCount * 2 || 1;
+
+      let gridI = 0;   // Current grid col index
+      for (let i = 0; i < list.length; i++) {
+        let fld = list[i];
+
+        // Show name
+        fld.showName = (fld.icon || fld.title) ? true : false;
+        fld.rowSpan = fld.rowSpan || 1
+
+        let colSpan = fld.colSpan || 1
+        let fldGridColSpan = Math.min(colSpan * 2, realGridColCount)
+
+        // Remain grid
+        let remainGrid = realGridColCount - gridI
+
+        // Grid overflow
+        if (fldGridColSpan > remainGrid) {
+          // Wrap line
+          gridI = 0
+          // Assign remain grid to prev fldValue
+          if (i > 0) {
+            let prevFld = list[i - 1]
+            prevFld.valueGridSpan += remainGrid
+          }
+        }
+
+        // Label
+        if ("Label" == fld.race) {
+          fld.gridStart = 0
+          fld.gridSpan = realGridColCount
+          gridI = 0
+          continue
+        }
+
+        // Grid with field name
+        if (fld.showName) {
+          fld.nameGridStart = gridI;
+          fld.nameGridSpan = 1;
+          fld.valueGridStart = gridI + 1;
+          fld.valueGridSpan = fldGridColSpan - 1
+        }
+        // None name field
+        else {
+          fld.nameGridStart = 0;
+          fld.nameGridSpan = 0;
+          fld.valueGridStart = gridI;
+          fld.valueGridSpan = fldGridColSpan
+        }
+
+        // Move grid and test wrap
+        gridI = fld.valueGridStart + fld.valueGridSpan;
+        if (gridI >= realGridColCount) {
+          gridI = 0
+        }
+
+      }
+
+      return list
+    },
+    //--------------------------------------------------
     evalFields(fields = this.fields) {
       //console.log("evalFields", fields)
-      let list = []
-      if (_.isArray(fields)) {
-        for (let fld of fields) {
-          let li = _.omit(fld, "com", "display", "className")
-          li.className = Ti.Css.mergeClassName(fld.className)
-          // Maybe race="Label"
-          if (fld.com) {
-            li.comType = fld.com.comType
-            li.comConf = fld.com.comConf
+      // if (fields.length > 0) {
+      //   console.log("evalFields", fields)
+      // }
+      let list = this.cloneAssignFieldGrid(fields)
+
+      // each fields
+      for (let fld of list) {
+        // Maybe race="Label"
+        if (fld.com) {
+          fld.comType = fld.com.comType
+          fld.comConf = fld.com.comConf
+        }
+
+        let nmStyle, valStyle;
+
+        // Label
+        if ("Label" == fld.race) {
+          nmStyle = {
+            "grid-column-start": fld.gridStart + 1,
+            "grid-column-end": `span ${fld.gridSpan}`
           }
-          // Must be race="Label"
-          if ("Label" == fld.race) {
-            li.style = {
-              "grid-column-start": 1,
-              "grid-column-end": `span ${this.gridColumnCount}`
+        }
+        // Normal field
+        else {
+          // Grid with field name
+          if (fld.showName) {
+            nmStyle = {
+              //"grid-column-start": fld.nameGridStart + 1,
+              "grid-column-end": `span ${fld.nameGridSpan}`,
+              "grid-row-end": `span ${fld.rowSpan}`
+            }
+            if ("auto" == fld.nameAlign) {
+              fld.nameAlign = this.gridColumnCount > 0
+                ? "right"
+                : "left";
+            }
+
+            if (this.gridColumnCount > 0 && this.fieldNameMaxWidth) {
+              fld.nameTextStyle = {
+                maxWidth: Ti.Css.toSize(this.fieldNameMaxWidth)
+              }
             }
           }
-          // Field Style
-          else if (fld.colSpan > 1 || fld.rowSpan > 1) {
-            li.style = _.assign({}, fld.style, {
-              "grid-column-end": fld.colSpan > 1
-                ? `span ${Math.min(fld.colSpan, this.gridColumnCount)}`
-                : null,
-              "grid-row-end": fld.rowSpan > 1
-                ? `span ${fld.rowSpan}`
-                : null
-            })
-          }
-          // Name class
-          if (fld.nameClass) {
-            li.nameClass = Ti.Css.mergeClassName(fld.nameClass)
-          }
-          // Name style
-          if (this.fieldNameWidth) {
-            li.nameStyle = _.assign({}, fld.nameStyle, {
-              width: Ti.Css.toSize(this.fieldNameWidth)
-            })
-          }
-          // Status
-          this.setFieldStatus(li)
 
-          // Add to list
-          list.push(li)
-        } // for (let fld of fields) {
-      } // if (_.isArray(fields)) {
+          valStyle = {
+            //"grid-column-start": fld.valueGridStart + 1,
+            "grid-column-end": `span ${fld.valueGridSpan}`,
+            "grid-row-end": `span ${fld.rowSpan}`
+          }
+
+          if (!Ti.Util.isNil(fld.width)) {
+            fld.comStyle = _.assign({
+              "width": Ti.Css.toSize(fld.width),
+              "flex": "0 0 auto"
+            }, fld.comStyle)
+          }
+        }
+
+        // Update field name
+        fld.nameStyle = _.assign({}, fld.nameStyle, nmStyle)
+        fld.valueStyle = _.assign({}, fld.valueStyle, valStyle)
+
+        // Name class
+        if (fld.nameClass) {
+          fld.nameClass = Ti.Css.mergeClassName(fld.nameClass)
+        }
+
+        // Status
+        this.setFieldStatus(fld)
+      } // for (let fld of fields) {
+
       this.myFields = list
     },
     //--------------------------------------------------
@@ -19563,9 +19661,16 @@ const _M = {
     pointerHover: null
   }),
   ////////////////////////////////////////////////////
+  props: {
+    "focusValue": {
+      type: [String, Number]
+    },
+  },
+  ////////////////////////////////////////////////////
   computed: {
     //------------------------------------------------
     TopClass() {
+      let hasWidth = !Ti.Util.isNil(this.width);
       return this.getTopClass({
         "is-focused": this.isFocused,
         "is-blurred": !this.isFocused,
@@ -19573,6 +19678,8 @@ const _M = {
         "no-readonly": !this.readonly,
         "show-border": !this.hideBorder,
         "hide-border": this.hideBorder,
+        "has-width": hasWidth,
+        "full-field": !hasWidth,
         "has-prefix-icon": this.prefixIcon,
         "has-prefix-text": !Ti.Util.isNil(this.prefixText),
         "has-suffix-icon": this.suffixIcon,
@@ -19589,7 +19696,11 @@ const _M = {
     //------------------------------------------------
     TheValue() {
       //console.log("input value:", this.value)
-      let val = Ti.Types.toStr(this.value, this.format)
+      let val = this.value
+      if (this.isFocused && !Ti.Util.isNil(this.focusValue)) {
+        val = this.focusValue
+      }
+      val = Ti.Types.toStr(val, this.format)
       if (this.autoI18n) {
         return Ti.I18n.text(val)
       }
@@ -20043,9 +20154,9 @@ const _M = {
       }
     },
     //--------------------------------------------------
-    GridFieldNameWidth() {
+    GridFieldNameMaxWidth() {
       // console.log("eval FieldNameWidth")
-      return Ti.Util.selectValue(this.GridContext, this.fieldNameWidth, {
+      return Ti.Util.selectValue(this.GridContext, this.fieldNameMaxWidth, {
         by: ([v, m], { width, lang }) => {
           if (!m || m == lang || width >= m) {
             return v
@@ -20115,7 +20226,7 @@ const _M = {
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
         statusIcons: this.statusIcons,
-        fieldNameWidth: this.GridFieldNameWidth,
+        fieldNameMaxWidth: this.GridFieldNameMaxWidth,
         gridColumnCount: this.GridColumnCount,
       }
     },
@@ -20333,7 +20444,9 @@ const _M = {
         this.OnResize()
       }
     })
-    this.OnResize()
+    _.delay(()=>{
+      this.OnResize()
+    })
     //...................................
     await this.evalFormFieldList()
   },
@@ -28212,8 +28325,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "fieldNameAlign": {
     type: String,
-    default: "right",
-    validator: (v) => /^(left|right|center)$/.test(v)
+    default: "auto",
+    validator: (v) => /^(auto|left|right|center|justify)$/.test(v)
   },
   "fieldNameVAlign": {
     type: String,
@@ -28230,8 +28343,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "fieldNameWrap": {
     type: String,
-    default: "auto",
-    validator: (v) => /^(auto|wrap|nowrap)$/.test(v)
+    default: "wrap",
+    validator: (v) => /^(wrap|nowrap)$/.test(v)
+  },
+  "fieldValueClass": {
+    type: [Array, String, Object],
+    default: undefined
+  },
+  "fieldValueStyle": {
+    type: Object,
+    default: () => ({})
   },
   "fieldValueWrap": {
     type: String,
@@ -28310,20 +28431,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "fieldNameWidth": {
+  "fieldNameMaxWidth": {
     type: [Number, String, Array],
-    default: () => [
-      ["1.5rem", "en-us"],
-      ["1.2rem"]
-    ]
   },
   "gridColumnHint": {
     type: [Number, String, Array],
     default: () => [
-      [4, 1200],
-      [3, 1000],
-      [2, 720],
-      [1]
+      [4, 1280],
+      [3, 960],
+      [2, 640],
+      [1, 320],
+      0
     ]
   }
 }
@@ -38758,6 +38876,10 @@ const _M = {
     "autoCollapse": {
       type: Boolean,
       default: false
+    },
+    "showInputFocusValue": {
+      type: Boolean,
+      default: true
     }
   },
   ////////////////////////////////////////////////////
@@ -38776,7 +38898,10 @@ const _M = {
     },
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      let hasWidth = !Ti.Util.isNil(this.width);
+      return this.getTopClass({
+        "full-field": !hasWidth,
+      })
     },
     //------------------------------------------------
     TheInputProps() {
@@ -38827,6 +38952,19 @@ const _M = {
         return text || value
       }
       return this.myFreeValue
+    },
+    //------------------------------------------------
+    InputFocusValue() {
+      if (this.showInputFocusValue) {
+        if (!Ti.Util.isNil(this.myFilterValue)) {
+          return this.myFilterValue
+        }
+        if (this.myItem && this.Dict) {
+          let value = this.Dict.getValue(this.myItem)
+          return value
+        }
+        return this.myFreeValue
+      }
     },
     //------------------------------------------------
     InputPrefixText() {
@@ -58764,7 +58902,10 @@ const _M = {
     isExtended() {return "extended"==this.myDropStatus},
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      let hasWidth = !Ti.Util.isNil(this.width);
+      return this.getTopClass({
+        "full-field": !hasWidth,
+      })
     },
     //------------------------------------------------
     Values() {
@@ -64175,6 +64316,7 @@ const DFT_PVG = 5;
 const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
   data: () => ({
+    myPrivilegeMeta: {},
     myPrivilegeData: [],
     pvg_owner: 7,
     pvg_member: 5,
@@ -64212,6 +64354,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: [Object, String],
       default: 'domain site -cqn -keys "^(id|nm|ph|title)$"'
     },
+    "keepCustomizedTo": {
+      type: String,
+      default: "Wn-Obj-Pvg-Layout"
+    },
+    "autoRemoveDefault": {
+      type: Boolean,
+      default: true
+    }
     // "organization": {
     //   type: String
     // }
@@ -64285,20 +64435,31 @@ const __TI_MOD_EXPORT_VAR_NM = {
         type: "rows",
         border: true,
         defaultFlex: "both",
-        blocks: [{
-          size: 42,
-          body: "actions"
-        }, {
-          type: "cols",
-          border: true,
-          blocks: [{
-            name: "list",
-            body: "list"
-          }, {
-            name: "data",
-            body: "data"
-          }]
-        }]
+        blocks: [
+          {
+            size: 42,
+            body: "actions"
+          },
+          {
+            type: "cols",
+            border: true,
+            keepCustomizedTo: this.keepCustomizedTo
+              ? `${this.keepCustomizedTo}-Main-Col`
+              : undefined,
+            blocks: [{
+              name: "list",
+              body: "list"
+            }, {
+              name: "data",
+              body: "data"
+            }]
+          },
+          {
+            size: "auto",
+            name: "meta",
+            body: "meta"
+          }
+        ]
       }
     },
     //--------------------------------------
@@ -64372,7 +64533,53 @@ const __TI_MOD_EXPORT_VAR_NM = {
               comType: "TiToggle"
             }]
           }
-        }
+        },
+        meta: {
+          comType: "TiForm",
+          comConf: {
+            className: "is-chip",
+            spacing: "tiny",
+            data: this.myPrivilegeMeta,
+            fieldBorder: "none",
+            gridColumnHint: 2,
+            fieldNameAlign: "center",
+            fields: [
+              {
+                title: "混合模式",
+                name: "MODE",
+                tip: "与子对象混合的方式",
+                defaultAs: "DEFAULT",
+                comType: "TiSwitcher",
+                comConf: {
+                  options: [
+                    { value: "DEFAULT", text: "默认" },
+                    { value: "STRONG", text: "强制覆盖" },
+                    { value: "WEAK", text: "弱混合" },
+                  ]
+                }
+              },
+              {
+                title: "混合深度",
+                name: "DEPTH",
+                tip: "最多与多少个父对象混合",
+                type: "Integer",
+                defaultAs: -1,
+                comType: "TiComboInput",
+                comConf: {
+                  placeholder: "-1",
+                  width: "1.6rem",
+                  options: [
+                    { value: -1, text: "全部祖先" },
+                    { value: 0, text: "仅自己" },
+                    { value: 1, text: "仅父节点" },
+                  ],
+                  autoFocusExtended: false,
+                  autoCollapse: true
+                }
+              }
+            ]
+          }
+        },
       }
     },
     //--------------------------------------
@@ -64392,13 +64599,34 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.myCurrentId = currentId
     },
     //--------------------------------------
+    OnMetaChange(meta) {
+      //console.log("OnMetaChange", meta)
+
+      let mv = {}
+      _.forEach(meta, (v, k) => {
+        // default mode
+        if ("MODE" == k && (!v || "DEFAULT" == v)) {
+          v = "DEFAULT"
+        }
+        // Default depth
+        else if ("DEPTH" == k && v < 0) {
+          v = -1
+        }
+        mv[`.${k}`] = v
+      })
+
+      let val = _.assign({}, this.value, mv)
+      this.notifyChange(val)
+    },
+    //--------------------------------------
     OnDataChange(data) {
+      //console.log("OnDataChange", data)
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
       let val = _.cloneDeep(this.value) || {}
-      let md = this.pvg_owner << 6 | this.pvg_member << 3 | m0
+      let md = this.getPvgValue(m0)
       val[key] = md
-      this.$notify("change", val)
+      this.notifyChange(val)
     },
     //--------------------------------------
     async OnAddAccounts() {
@@ -64440,9 +64668,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Update value
       let val = _.cloneDeep(this.value) || {}
       for (let id of checkeds) {
-        val[`@[${id}]`] = DFT_PVG
+        val[`@[${id}]`] = this.getPvgValue()
       }
-      this.$notify("change", val)
+      this.notifyChange(val)
     },
     //--------------------------------------
     async OnAddRoles() {
@@ -64481,9 +64709,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Update value
       let val = _.cloneDeep(this.value) || {}
       for (let nm of checkeds) {
-        val[`@${nm}`] = DFT_PVG
+        val[`@${nm}`] = this.getPvgValue()
       }
-      this.$notify("change", val)
+      this.notifyChange(val)
     },
     //--------------------------------------
     async OnAddDepts() {
@@ -64523,9 +64751,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Update value
       let val = _.cloneDeep(this.value) || {}
       for (let id of checkeds) {
-        val[`+${id}`] = DFT_PVG
+        val[`+${id}`] = this.getPvgValue()
       }
-      this.$notify("change", val)
+      this.notifyChange(val)
     },
     //--------------------------------------
     OnRemoveSelected() {
@@ -64548,7 +64776,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
       })
 
-      this.$notify("change", val)
+      this.notifyChange(val)
+    },
+    //--------------------------------------
+    notifyChange(pvg) {
+      if (pvg && this.autoRemoveDefault) {
+        if ("DEFAULT" == pvg[".MODE"]) {
+          delete pvg[".MODE"];
+        }
+        if (pvg[".DEPTH"] < 0) {
+          delete pvg[".DEPTH"];
+        }
+      }
+      this.$notify("change", pvg)
+    },
+    //--------------------------------------
+    getPvgValue(pvg_other = DFT_PVG) {
+      return this.pvg_owner << 6 | this.pvg_member << 3 | pvg_other
     },
     //--------------------------------------
     buildMap(list = [], key = "id", childKey = "children") {
@@ -64588,9 +64832,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     async evalPrivilegeData() {
       //console.log("evalPrivilegeData")
+      let pvgMeta = {
+        MODE: "DEFAULT",
+        DEPTH: -1
+      }
       let pvgData = []
-      _.forEach(this.value, (md, id) => {
-        pvgData.push({ md, id })
+      _.forEach(this.value, (v, k) => {
+        // .MODE or .DEPTH for meta
+        let m = /^\.([A-Za-z0-9]+)$/.exec(k)
+        if (m) {
+          pvgMeta[m[1]] = v
+        }
+        // Others for pvg data
+        else {
+          pvgData.push({ md: v, id: k })
+        }
       })
 
 
@@ -64769,6 +65025,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
       }
       // Update to state
+      this.myPrivilegeMeta = pvgMeta
       this.myPrivilegeData = list
     },
     //--------------------------------------
@@ -81178,7 +81435,7 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input-props.mjs", TI_PACK_EXPORTS['ti
 // JOIN <ti-combo-input.html> ti/com/ti/combo/input/ti-combo-input.html
 //========================================
 Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box 
-  class="ti-combo-input full-field"
+  class="ti-combo-input"
   :class="TopClass"
   :keep-width-when-drop="keepWidthWhenDrop"
   :drop-width="dropWidth"
@@ -81194,6 +81451,7 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box
       v-bind="TheInputProps"
 
       :value="InputValue"
+      :focusValue="InputFocusValue"
       :prefix-icon="ThePrefixIcon"
       :prefix-text="InputPrefixText"
       :suffix-text="InputSuffixText"
@@ -81240,7 +81498,7 @@ Ti.Preload("ti/com/ti/combo/input/_com.json", {
 // JOIN <ti-combo-multi-input.html> ti/com/ti/combo/multi-input/ti-combo-multi-input.html
 //========================================
 Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", `<ti-combo-box 
-  class="ti-combo-multi-input full-field"
+  class="ti-combo-multi-input"
   :class="TopClass"
   :drop-width="dropWidth"
   :drop-height="dropHeight"
@@ -81703,6 +81961,7 @@ Ti.Preload("ti/com/ti/droplist/ti-droplist.html", `<component
   v-bind="this"
   :can-input="false"
   :must-in-list="true"
+  :showInputFocusValue="false"
   :auto-collapse="true"
   @change="$notify('change', $event)"/>`);
 //========================================
@@ -82017,21 +82276,16 @@ Ti.Preload("ti/com/ti/form/form-support.mjs", TI_PACK_EXPORTS['ti/com/ti/form/fo
 //========================================
 // JOIN <grid-container.html> ti/com/ti/form/grid/com/grid-container/grid-container.html
 //========================================
-Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div class="ti-form-grid-con" :class="TopClass" :style="TopStyle">
+Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div class="ti-form-grid-con" :class="TopClass" :style="TopStyle" :grid="gridColumnCount">
   <!----------------------------------------->
-  <div
-    v-for="fld in myFields"
-      :key="fld.key"
-      class="grid-item"
-      :class="fld.className"
-      :style="fld.style"
-      :title="fld.statusText"
-      :name-wrap="fld.nameWrap">
+  <template v-for="fld in myFields">
       <!-------------- Label ---------------->
       <div
         v-if="'Label' == fld.race"
           class="field-label"
-          :style="fld.labelStyle">
+          :style="fld.nameStyle"
+          :grid-start="fld.gridStart"
+          :grid-span="fld.gridSpan">
           <div
             v-if="fld.icon"
               class="field-icon"><TiIcon :value="fld.icon"/></div>
@@ -82042,12 +82296,16 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
       <!-------------- -COM ----------------->
       <template v-else>
         <div 
-          v-if="fld.icon || fld.title"
-            class="field-name"
+          v-if="fld.showName"
+            class="field-name grid-item"
             :class="fld.nameClass"
             :style="fld.nameStyle"
+            :name-wrap="fld.nameWrap"
             :name-align="fld.nameAlign"
-            :name-v-align="fld.nameVAlign">
+            :name-v-align="fld.nameVAlign"
+            :title="fld.statusText"
+            :grid-start="fld.nameGridStart"
+            :grid-span="fld.nameGridSpan">
             <!--------------------------------->
             <div class="field-name-con">
               <div
@@ -82057,7 +82315,8 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
                   class="field-icon"><TiIcon :value="fld.icon"/></div>
               <div
                 v-if="fld.title"
-                  class="field-text">{{fld.title | i18n}}</div>
+                  class="field-text"
+                  :style="fld.nameTextStyle">{{fld.title | i18n}}</div>
             </div>
             <!--------------------------------->
             <div
@@ -82067,9 +82326,11 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
         </div>
         <!------------------------------------->
         <div
-          class="field-value"
+          class="field-value grid-item"
           :style="fld.valueStyle"
-          :value-wrap="fld.valueWrap">
+          :value-wrap="fld.valueWrap"
+          :grid-start="fld.valueGridStart"
+          :grid-span="fld.valueGridSpan">
           <!--------------------------------->
           <div class="field-value-com" :style="fld.comStyle">
             <component :is="fld.comType"
@@ -82090,7 +82351,7 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
         <!------------------------------------->
       </template>
       <!------------------------------------->
-  </div>  
+  </template>  
   <!----------------------------------------->
 </div>`);
 //========================================
@@ -92471,7 +92732,8 @@ Ti.Preload("ti/com/wn/obj/pvg/wn-obj-pvg.html", `<TiGui
   :loading-as="GuiLoadingAs"
   :loading="loading"
   @list::select="OnListSelect"
-  @data::change="OnDataChange"/>`);
+  @data::change="OnDataChange"
+  @meta::change="OnMetaChange"/>`);
 //========================================
 // JOIN <wn-obj-pvg.mjs> ti/com/wn/obj/pvg/wn-obj-pvg.mjs
 //========================================

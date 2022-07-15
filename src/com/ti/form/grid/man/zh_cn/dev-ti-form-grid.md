@@ -113,11 +113,14 @@
 - `tabAt`
 - `tabBodyStyle`
 - `fieldBorder`
+- `fieldWrap`
 - `fieldNameAlign`
 - `fieldNameVAlign`
 - `fieldNameClass`
 - `fieldNameStyle`
 - `fieldNameWrap`
+- `fieldValueClass`
+- `fieldValueStyle`
 - `fieldValueWrap`
 - `blankAs`
 - `icon`
@@ -139,7 +142,25 @@
 
 # 属性详解
 
-## `nameWidth`
+## `fieldNameWidth`
+
+```js
+// 固定宽度
+{
+  nameWidth : "1.2rem"  // 数字代表像素
+}
+// 根据语言不同，采用不同的宽度
+{
+  nameWidth : [
+    // 英文界面
+    ["1.5rem", "en-us"],
+    // 默认
+    [140]
+  ]
+}
+```
+
+## `fieldWrap`
 
 ```js
 // 固定宽度

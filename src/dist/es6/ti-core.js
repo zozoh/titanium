@@ -1,4 +1,4 @@
-// Pack At: 2022-07-14 13:11:27
+// Pack At: 2022-07-15 21:36:08
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3295,6 +3295,7 @@ const {App} = (function(){
             // for the open/close transition duration
             comType: null,
             comConf: this.comConf,
+            explainComConf: this.explainComConf,
             //--------------------------------------
             closer: this.closer,
             escape: this.escape,
@@ -18704,7 +18705,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220714.131127",
+  "version" : "1.6-20220715.213608",
   "dev" : false,
   "appName" : null,
   "session" : {},

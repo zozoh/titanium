@@ -69,9 +69,9 @@ const _M = {
       }
     },
     //--------------------------------------------------
-    GridFieldNameWidth() {
+    GridFieldNameMaxWidth() {
       // console.log("eval FieldNameWidth")
-      return Ti.Util.selectValue(this.GridContext, this.fieldNameWidth, {
+      return Ti.Util.selectValue(this.GridContext, this.fieldNameMaxWidth, {
         by: ([v, m], { width, lang }) => {
           if (!m || m == lang || width >= m) {
             return v
@@ -141,7 +141,7 @@ const _M = {
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
         statusIcons: this.statusIcons,
-        fieldNameWidth: this.GridFieldNameWidth,
+        fieldNameMaxWidth: this.GridFieldNameMaxWidth,
         gridColumnCount: this.GridColumnCount,
       }
     },
@@ -359,7 +359,9 @@ const _M = {
         this.OnResize()
       }
     })
-    this.OnResize()
+    _.delay(()=>{
+      this.OnResize()
+    })
     //...................................
     await this.evalFormFieldList()
   },

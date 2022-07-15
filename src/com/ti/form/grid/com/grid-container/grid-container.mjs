@@ -20,7 +20,7 @@ const _M = {
     //-----------------------------------
     // Measure
     //-----------------------------------
-    "fieldNameWidth": [Number, String],
+    "fieldNameMaxWidth": [Number, String],
     "gridColumnCount": Number,
   },
   //////////////////////////////////////////////////////
@@ -31,8 +31,13 @@ const _M = {
     },
     //--------------------------------------------------
     TopStyle() {
+      if (this.gridColumnCount > 0) {
+        return {
+          "grid-template-columns": _.repeat("auto 1fr ", this.gridColumnCount)
+        }
+      }
       return {
-        "grid-template-columns": _.repeat("1fr ", this.gridColumnCount)
+        "grid-template-columns": "1fr"
       }
     }
     //--------------------------------------------------
@@ -113,53 +118,144 @@ const _M = {
       }
     },
     //--------------------------------------------------
+    cloneAssignFieldGrid(fields = this.fields) {
+      let list = _.cloneDeep(fields) || []
+
+      // Grid layout
+      let realGridColCount = this.gridColumnCount * 2 || 1;
+
+      let gridI = 0;   // Current grid col index
+      for (let i = 0; i < list.length; i++) {
+        let fld = list[i];
+
+        // Show name
+        fld.showName = (fld.icon || fld.title) ? true : false;
+        fld.rowSpan = fld.rowSpan || 1
+
+        let colSpan = fld.colSpan || 1
+        let fldGridColSpan = Math.min(colSpan * 2, realGridColCount)
+
+        // Remain grid
+        let remainGrid = realGridColCount - gridI
+
+        // Grid overflow
+        if (fldGridColSpan > remainGrid) {
+          // Wrap line
+          gridI = 0
+          // Assign remain grid to prev fldValue
+          if (i > 0) {
+            let prevFld = list[i - 1]
+            prevFld.valueGridSpan += remainGrid
+          }
+        }
+
+        // Label
+        if ("Label" == fld.race) {
+          fld.gridStart = 0
+          fld.gridSpan = realGridColCount
+          gridI = 0
+          continue
+        }
+
+        // Grid with field name
+        if (fld.showName) {
+          fld.nameGridStart = gridI;
+          fld.nameGridSpan = 1;
+          fld.valueGridStart = gridI + 1;
+          fld.valueGridSpan = fldGridColSpan - 1
+        }
+        // None name field
+        else {
+          fld.nameGridStart = 0;
+          fld.nameGridSpan = 0;
+          fld.valueGridStart = gridI;
+          fld.valueGridSpan = fldGridColSpan
+        }
+
+        // Move grid and test wrap
+        gridI = fld.valueGridStart + fld.valueGridSpan;
+        if (gridI >= realGridColCount) {
+          gridI = 0
+        }
+
+      }
+
+      return list
+    },
+    //--------------------------------------------------
     evalFields(fields = this.fields) {
       //console.log("evalFields", fields)
-      let list = []
-      if (_.isArray(fields)) {
-        for (let fld of fields) {
-          let li = _.omit(fld, "com", "display", "className")
-          li.className = Ti.Css.mergeClassName(fld.className)
-          // Maybe race="Label"
-          if (fld.com) {
-            li.comType = fld.com.comType
-            li.comConf = fld.com.comConf
+      // if (fields.length > 0) {
+      //   console.log("evalFields", fields)
+      // }
+      let list = this.cloneAssignFieldGrid(fields)
+
+      // each fields
+      for (let fld of list) {
+        // Maybe race="Label"
+        if (fld.com) {
+          fld.comType = fld.com.comType
+          fld.comConf = fld.com.comConf
+        }
+
+        let nmStyle, valStyle;
+
+        // Label
+        if ("Label" == fld.race) {
+          nmStyle = {
+            "grid-column-start": fld.gridStart + 1,
+            "grid-column-end": `span ${fld.gridSpan}`
           }
-          // Must be race="Label"
-          if ("Label" == fld.race) {
-            li.style = {
-              "grid-column-start": 1,
-              "grid-column-end": `span ${this.gridColumnCount}`
+        }
+        // Normal field
+        else {
+          // Grid with field name
+          if (fld.showName) {
+            nmStyle = {
+              //"grid-column-start": fld.nameGridStart + 1,
+              "grid-column-end": `span ${fld.nameGridSpan}`,
+              "grid-row-end": `span ${fld.rowSpan}`
+            }
+            if ("auto" == fld.nameAlign) {
+              fld.nameAlign = this.gridColumnCount > 0
+                ? "right"
+                : "left";
+            }
+
+            if (this.gridColumnCount > 0 && this.fieldNameMaxWidth) {
+              fld.nameTextStyle = {
+                maxWidth: Ti.Css.toSize(this.fieldNameMaxWidth)
+              }
             }
           }
-          // Field Style
-          else if (fld.colSpan > 1 || fld.rowSpan > 1) {
-            li.style = _.assign({}, fld.style, {
-              "grid-column-end": fld.colSpan > 1
-                ? `span ${Math.min(fld.colSpan, this.gridColumnCount)}`
-                : null,
-              "grid-row-end": fld.rowSpan > 1
-                ? `span ${fld.rowSpan}`
-                : null
-            })
-          }
-          // Name class
-          if (fld.nameClass) {
-            li.nameClass = Ti.Css.mergeClassName(fld.nameClass)
-          }
-          // Name style
-          if (this.fieldNameWidth) {
-            li.nameStyle = _.assign({}, fld.nameStyle, {
-              width: Ti.Css.toSize(this.fieldNameWidth)
-            })
-          }
-          // Status
-          this.setFieldStatus(li)
 
-          // Add to list
-          list.push(li)
-        } // for (let fld of fields) {
-      } // if (_.isArray(fields)) {
+          valStyle = {
+            //"grid-column-start": fld.valueGridStart + 1,
+            "grid-column-end": `span ${fld.valueGridSpan}`,
+            "grid-row-end": `span ${fld.rowSpan}`
+          }
+
+          if (!Ti.Util.isNil(fld.width)) {
+            fld.comStyle = _.assign({
+              "width": Ti.Css.toSize(fld.width),
+              "flex": "0 0 auto"
+            }, fld.comStyle)
+          }
+        }
+
+        // Update field name
+        fld.nameStyle = _.assign({}, fld.nameStyle, nmStyle)
+        fld.valueStyle = _.assign({}, fld.valueStyle, valStyle)
+
+        // Name class
+        if (fld.nameClass) {
+          fld.nameClass = Ti.Css.mergeClassName(fld.nameClass)
+        }
+
+        // Status
+        this.setFieldStatus(fld)
+      } // for (let fld of fields) {
+
       this.myFields = list
     },
     //--------------------------------------------------

@@ -1,4 +1,4 @@
-// Pack At: 2022-07-14 13:11:27
+// Pack At: 2022-07-15 21:36:08
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -3723,8 +3723,7 @@ const EditObjPvg = (function(){
     width = "80%",
     minWidth = 720,
     height = "95%",
-    autoSave = true,
-    organization
+    autoSave = true
   } = {}) {
     //............................................
     // Load meta
@@ -3743,7 +3742,7 @@ const EditObjPvg = (function(){
       result: meta.pvg,
       comType: "WnObjPvg",
       comConf: {
-        organization
+        autoRemoveDefault: true
       },
       components: ["@com:wn/obj/pvg"]
       //------------------------------------------
@@ -4297,7 +4296,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220714.131127"
+const WALNUT_VERSION = "1.2-20220715.213609"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

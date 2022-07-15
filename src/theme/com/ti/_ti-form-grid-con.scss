@@ -20,216 +20,208 @@
   //--------------------------------------
   > .grid-item {
     display: flex;
-    //------------------------------------
-    &[name-wrap="nowrap"] {
-      flex-wrap: nowrap;
-      align-items: stretch;
-      justify-content: flex-start;
-      //----------------------------------
-      > .field-name {
-        flex: 0 0 auto;
-      }
-      > .field-value {
-        flex: 1 1 auto;
-      }
-      //----------------------------------
+  }
+  //----------------------------------
+  &[grid="0"] > .grid-item.field-name {
+    border:0;
+  }
+  //----------------------------------
+  > .field-label {
+    flex: 1 1 auto;
+    @include flex-align-nowrap;
+    @include color($color-bar, r, c);
+    margin: SZ(4) 0;
+  }
+  //----------------------------------
+  > .field-name {
+    @include flex-align-nowrap;
+    color: map-get($color-track, c);
+    position: relative;
+    //----------------------------------
+    .field-text::after {
+      display: inline;
+      content: ":";
+      opacity: 0.6;
     }
-    //------------------------------------
-    &[name-wrap="wrap"] {
-      flex-wrap: nowrap;
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: flex-start;
-      //----------------------------------
-      > .field-name {
-        flex: 0 0 auto;
-      }
-      > .field-value {
-        flex: 0 0 auto;
-      }
-      //----------------------------------
-    }
-    //------------------------------------
-    &[name-wrap="auto"] {
-      flex-wrap: wrap;
-      align-items: stretch;
-      justify-content: stretch;
-      //----------------------------------
-      > .field-name {
-        flex: 0 0 auto;
-      }
-      > .field-value {
-        flex: 1 1 auto;
-      }
-      //----------------------------------
-    }
-    //------------------------------------
-    > .field-label {
-      flex: 1 1 auto;
-      @include flex-align-nowrap;
+    //----------------------------------
+    &.mark-weak {
       @include color($color-bar, r, c);
-      margin: SZ(4) 0;
     }
-    //------------------------------------
-    > .field-name {
-      @include flex-align-nowrap;
-      position: relative;
-      //----------------------------------
-      &.mark-weak {
-        @include color($color-bar, r, c);
-      }
-      &.mark-bold {
-        @include color($color-chip, r, c);
-        font-weight: bold;
-      }
-      //----------------------------------
-      &[name-align="left"] {
-        justify-content: flex-start;
-        > .field-status {
-          right: 0;
-        }
-      }
-      &[name-align="right"] {
-        justify-content: flex-end;
-        > .field-status {
-          left: 0;
-        }
-      }
-      &[name-align="center"] {
-        justify-content: center;
-        > .field-status {
-          right: 0;
-        }
-      }
-      //----------------------------------
-      &[name-v-align="top"] {
-        align-items: flex-start;
-        > .field-name-con {
-          margin-top: SZ(3);
-        }
-      }
-      &[name-v-align="bottom"] {
-        align-items: flex-end;
-        > .field-name-con {
-          margin-bottom: SZ(3);
-        }
-      }
-      &[name-v-align="center"] {
-        align-items: center;
-      }
-      //----------------------------------
-      .field-name-con {
-        @include flex-align-nowrap;
-        //--------------------------------
-        > .field-required {
-          font-weight: bold;
-          font-size: SZ(20);
-          margin-right: SZ(4);
-          text-align: left;
-          color: map-get($color-secondary, c);
-        }
-        //--------------------------------
-        &::after {
-          display: inline;
-          content: ":";
-          opacity: 0.6;
-        }
-      }
-      //----------------------------------
-      > .field-status {
-        @include flex-center;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: SZ(24);
-      }
-      //----------------------------------
+    &.mark-bold {
+      @include color($color-chip, r, c);
+      font-weight: bold;
     }
-    //------------------------------------
-    > .field-value {
-      display: flex;
-      position: relative;
-      //------------------------------------
-      &[value-wrap="nowrap"] {
-        @include flex-align-nowrap;
-        //----------------------------------
-        > .field-value-com {
-          flex: 1 1 auto;
-        }
-        > .field-value-tip {
-          flex: 0 0 auto;
-        }
-        //----------------------------------
+    //----------------------------------
+    &[name-wrap="nowrap"] {
+      .field-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
-      //------------------------------------
-      &[value-wrap="wrap"] {
-        @include flex-align-v-nowrap;
+    }
+    //----------------------------------
+    &[name-wrap="wrap"] {
+      .field-text {
+        word-break: break-word;
       }
-      //------------------------------------
-      &[value-wrap="auto"] {
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        align-items: center;
-        align-content: stretch;
-        //----------------------------------
-        > .field-value-com {
-          flex: 1 1 auto;
-        }
-        > .field-value-tip {
-          flex: 0 0 auto;
-        }
-        //----------------------------------
+    }
+    //----------------------------------
+    &[name-align="left"] {
+      justify-content: flex-start;
+      .field-text {
+        text-align: left;
       }
-      //------------------------------------
-      > .field-value-com {
-        @include flex-align-nowrap($jc: stretch);
-        > .full-field {
-          flex: 1 1 auto;
-        }
+      .field-status {
+        right: 0;
       }
-      //------------------------------------
-      > .field-value-tip {
-        font-size: 0.9em;
-        opacity: 0.6;
-        max-width: 100%;
-        word-break: break-all;
-        text-align: justify;
-        padding: SZ(4);
+    }
+    &[name-align="right"] {
+      justify-content: flex-end;
+      .field-text {
+        text-align: right;
       }
-      //------------------------------------
-      // Show status when .field-name is hidden
-      > .field-status {
-        @include flex-center;
-        background-color: map-get($color-cloak, c);
-        position: absolute;
+      .field-status {
         left: 0;
-        top: 0;
-        width: SZ(32);
-        height: SZ(32);
       }
-      //------------------------------------
     }
-    //------------------------------------
-    &.is-spinning {
-      @include color($color-primary, c);
+    &[name-align="center"] {
+      justify-content: center;
+      .field-text {
+        text-align: center;
+      }
+      .field-status {
+        right: 0;
+      }
     }
-    &.is-ok {
-      @include color($color-success, c);
+    &[name-align="justify"] {
+      justify-content: flex-end;
+      .field-text {
+        text-align: justify;
+      }
+      .field-status {
+        right: 0;
+      }
     }
-    &.is-error {
-      @include color($color-error, c);
+    //----------------------------------
+    &[name-v-align="top"] {
+      align-items: flex-start;
+      > .field-name-con {
+        margin-top: SZ(3);
+      }
     }
-    &.is-warn {
-      @include color($color-warn, c);
+    &[name-v-align="bottom"] {
+      align-items: flex-end;
+      > .field-name-con {
+        margin-bottom: SZ(3);
+      }
     }
-    &.is-info {
-      @include color($color-info, c);
+    &[name-v-align="center"] {
+      align-items: center;
     }
-    &.is-track {
-      @include color($color-track, c);
+    //----------------------------------
+    .field-name-con {
+      @include flex-align-nowrap;
+      //--------------------------------
+      > .field-required {
+        font-weight: bold;
+        font-size: SZ(20);
+        margin-right: SZ(4);
+        text-align: left;
+        color: map-get($color-secondary, c);
+      }
     }
-    //------------------------------------
-  } // ~ End of .grid-item
+    //----------------------------------
+    > .field-status {
+      @include flex-center;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: SZ(24);
+    }
+    //----------------------------------
+  }
+  //----------------------------------
+  > .field-value {
+    position: relative;
+    //----------------------------------
+    &[value-wrap="nowrap"] {
+      @include flex-align-nowrap;
+      //----------------------------------
+      > .field-value-com {
+        flex: 1 1 auto;
+      }
+      > .field-value-tip {
+        flex: 0 0 auto;
+      }
+      //----------------------------------
+    }
+    //----------------------------------
+    &[value-wrap="wrap"] {
+      @include flex-align-v-nowrap($jc:center);
+    }
+    //----------------------------------
+    &[value-wrap="auto"] {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: center;
+      align-content: center;
+      //----------------------------------
+      > .field-value-com {
+        flex: 1 1 auto;
+      }
+      > .field-value-tip {
+        flex: 0 0 auto;
+      }
+      //----------------------------------
+    }
+    //----------------------------------
+    > .field-value-com {
+      @include flex-align-nowrap($jc: stretch);
+      > .full-field {
+        flex: 1 1 auto;
+      }
+    }
+    //----------------------------------
+    > .field-value-tip {
+      font-size: 0.9em;
+      opacity: 0.6;
+      max-width: 100%;
+      word-break: break-all;
+      text-align: justify;
+      padding: SZ(4);
+    }
+    //----------------------------------
+    // Show status when .field-name is hidden
+    > .field-status {
+      @include flex-center;
+      background-color: map-get($color-cloak, c);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: SZ(32);
+      height: SZ(32);
+    }
+    //----------------------------------
+  }
+  //------------------------------------
+  &.is-spinning {
+    @include color($color-primary, c);
+  }
+  &.is-ok {
+    @include color($color-success, c);
+  }
+  &.is-error {
+    @include color($color-error, c);
+  }
+  &.is-warn {
+    @include color($color-warn, c);
+  }
+  &.is-info {
+    @include color($color-info, c);
+  }
+  &.is-track {
+    @include color($color-track, c);
+  }
   //--------------------------------------
 }
 //----------------------------------------
@@ -238,31 +230,27 @@
 //
 //----------------------------------------
 .ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con {
-  > .grid-item {
-    > .field-label,
-    > .field-name {
-      padding: SZ(3) SZ(6);
-      .field-icon {
-        margin-right: SZ(3);
-      }
+  > .field-label,
+  > .field-name {
+    padding: SZ(3) SZ(6);
+    .field-icon {
+      margin-right: SZ(3);
     }
-    > .field-value {
-      padding: SZ(2);
-    }
+  }
+  > .field-value {
+    padding: SZ(2);
   }
 }
 //----------------------------------------
 .ti-form-grid[spacing="comfy"] > main > section > .ti-form-grid-con {
-  > .grid-item {
-    > .field-label,
-    > .field-name {
-      padding: SZ(12);
-      .field-icon {
-        margin-right: SZ(6);
-      }
+  > .field-label,
+  > .field-name {
+    padding: SZ(12);
+    .field-icon {
+      margin-right: SZ(6);
     }
-    > .field-value {
-      padding: SZ(6);
-    }
+  }
+  > .field-value {
+    padding: SZ(6);
   }
 }

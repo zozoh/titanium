@@ -9,8 +9,8 @@
     "data": "=data",
     "spacing": "comfy",
     "defaultComType": "TiLabel",
-    "_fieldNameClass": "mark-weak",
-    "fieldNameWidth": "1.2rem",
+    "fieldNameClass": "mark-weak",
+    "fieldNameMaxWidth": "1.5rem",
     "canCustomizedFields": true,
     "keepCustomizedTo": "ti-demo-grid-flat-form-customized",
     "whiteFields": [
@@ -34,8 +34,26 @@
         "name": "name"
       },
       {
+        "title": "备注",
+        "name": "note",
+        "colSpan": 2,
+        "rowSpan": 3,
+        "nameVAlign": "top",
+        "comType": "TiInputText",
+        "comConf": {
+          "height": "1.4rem"
+        }
+      },
+      {
         "title": "昵称",
-        "name": "nickname"
+        "name": "nickname",
+        "width": "1rem",
+        "tip" : "随便写的一个注释"
+      },
+      {
+        "title": "this is a very long text, how about it",
+        "name": "longlongname",
+        "nameWrap": "wrap"
       },
       {
         "title": "Sex",
@@ -44,17 +62,6 @@
         "comType": "TiSwitcher",
         "comConf": {
           "options": "@Dict:Sexes"
-        }
-      },
-      {
-        "title": "备注",
-        "name": "note",
-        "colSpan": 2,
-        "rowSpan": 3,
-        "nameVAlign": "top",
-        "comType": "TiInputText",
-        "comConf": {
-          "height": "1rem"
         }
       },
       {

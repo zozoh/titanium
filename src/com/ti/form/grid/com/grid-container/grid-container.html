@@ -1,18 +1,13 @@
-<div class="ti-form-grid-con" :class="TopClass" :style="TopStyle">
+<div class="ti-form-grid-con" :class="TopClass" :style="TopStyle" :grid="gridColumnCount">
   <!----------------------------------------->
-  <div
-    v-for="fld in myFields"
-      :key="fld.key"
-      class="grid-item"
-      :class="fld.className"
-      :style="fld.style"
-      :title="fld.statusText"
-      :name-wrap="fld.nameWrap">
+  <template v-for="fld in myFields">
       <!-------------- Label ---------------->
       <div
         v-if="'Label' == fld.race"
           class="field-label"
-          :style="fld.labelStyle">
+          :style="fld.nameStyle"
+          :grid-start="fld.gridStart"
+          :grid-span="fld.gridSpan">
           <div
             v-if="fld.icon"
               class="field-icon"><TiIcon :value="fld.icon"/></div>
@@ -23,12 +18,16 @@
       <!-------------- -COM ----------------->
       <template v-else>
         <div 
-          v-if="fld.icon || fld.title"
-            class="field-name"
+          v-if="fld.showName"
+            class="field-name grid-item"
             :class="fld.nameClass"
             :style="fld.nameStyle"
+            :name-wrap="fld.nameWrap"
             :name-align="fld.nameAlign"
-            :name-v-align="fld.nameVAlign">
+            :name-v-align="fld.nameVAlign"
+            :title="fld.statusText"
+            :grid-start="fld.nameGridStart"
+            :grid-span="fld.nameGridSpan">
             <!--------------------------------->
             <div class="field-name-con">
               <div
@@ -38,7 +37,8 @@
                   class="field-icon"><TiIcon :value="fld.icon"/></div>
               <div
                 v-if="fld.title"
-                  class="field-text">{{fld.title | i18n}}</div>
+                  class="field-text"
+                  :style="fld.nameTextStyle">{{fld.title | i18n}}</div>
             </div>
             <!--------------------------------->
             <div
@@ -48,9 +48,11 @@
         </div>
         <!------------------------------------->
         <div
-          class="field-value"
+          class="field-value grid-item"
           :style="fld.valueStyle"
-          :value-wrap="fld.valueWrap">
+          :value-wrap="fld.valueWrap"
+          :grid-start="fld.valueGridStart"
+          :grid-span="fld.valueGridSpan">
           <!--------------------------------->
           <div class="field-value-com" :style="fld.comStyle">
             <component :is="fld.comType"
@@ -71,6 +73,6 @@
         <!------------------------------------->
       </template>
       <!------------------------------------->
-  </div>  
+  </template>  
   <!----------------------------------------->
 </div>

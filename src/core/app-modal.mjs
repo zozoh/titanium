@@ -213,6 +213,7 @@ export class TiAppModal {
         // for the open/close transition duration
         comType: null,
         comConf: this.comConf,
+        explainComConf: this.explainComConf,
         //--------------------------------------
         closer: this.closer,
         escape: this.escape,
