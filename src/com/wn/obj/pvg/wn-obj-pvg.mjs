@@ -132,13 +132,17 @@ export default {
             keepCustomizedTo: this.keepCustomizedTo
               ? `${this.keepCustomizedTo}-Main-Col`
               : undefined,
-            blocks: [{
-              name: "list",
-              body: "list"
-            }, {
-              name: "data",
-              body: "data"
-            }]
+            blocks: [
+              {
+                name: "list",
+                body: "list"
+              },
+              {
+                size: "50%",
+                name: "data",
+                body: "data"
+              }
+            ]
           },
           {
             size: "auto",
@@ -168,9 +172,9 @@ export default {
             idBy: "key",
             display: [
               "@<thumb:zmdi-account>",
-              "text::flex-none",
-              "key::flex-auto as-tip",
-              "tip::as-tip-block"
+              "text::flex-none is-nowrap",
+              "key::flex-auto as-tip is-nowrap",
+              "tip::flex-none as-tip-block is-nowrap"
             ],
             onInit: ($list) => {
               this.$list = $list
@@ -235,6 +239,8 @@ export default {
                 name: "MODE",
                 tip: "与子对象混合的方式",
                 defaultAs: "DEFAULT",
+                nameVAlign: "top",
+                valueClass: "com-flex-none",
                 comType: "TiSwitcher",
                 comConf: {
                   options: [
@@ -250,6 +256,8 @@ export default {
                 tip: "最多与多少个父对象混合",
                 type: "Integer",
                 defaultAs: -1,
+                nameVAlign: "top",
+                valueClass: "com-flex-none",
                 comType: "TiComboInput",
                 comConf: {
                   placeholder: "-1",

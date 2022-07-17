@@ -1,0 +1,10 @@
+<TiGui
+  class="wn-obj-pvgview"
+  :layout="Layout"
+  :schema="Schema"
+  :can-loading="true"
+  :loading="loading"
+  @list::select="OnListSelect"
+  @pvg::change="OnPvgChange"
+  @save:current:pvg="OnSaveCurrentPvg"
+  @view:current:obj="OnViewCurrentObj"/>

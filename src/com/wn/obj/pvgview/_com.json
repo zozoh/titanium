@@ -1,0 +1,10 @@
+{
+  "name": "wn-obj-pvgview",
+  "globally": true,
+  "template": "./wn-obj-pvgview.html",
+  "mixins": "./wn-obj-pvgview.mjs",
+  "components": [
+    "@com:ti/list",
+    "@com:wn/obj/pvg"
+  ]
+}

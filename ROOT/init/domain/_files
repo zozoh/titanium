@@ -201,6 +201,9 @@
 #---------------------------------------------------------
 @FILE mock/components/wn-others/wn-obj-pvg.comt 'WN-OBJ-PVG'
 {com:'/rs/ti/test/components/wn-others/demo-wn-obj-pvg.json'}
+#---------------------------------------------------------
+@FILE mock/components/wn-others/wn-obj-pvgview.comt 'WN-OBJ-PVGVIEW'
+{com:'/rs/ti/test/components/wn-others/demo-wn-obj-pvgview.json'}
 ##########################################################
 #
 #                    网站工程

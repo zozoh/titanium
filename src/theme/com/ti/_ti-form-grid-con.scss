@@ -23,7 +23,7 @@
   }
   //----------------------------------
   &[grid="0"] > .grid-item.field-name {
-    border:0;
+    border: 0;
   }
   //----------------------------------
   > .field-label {
@@ -148,16 +148,16 @@
       @include flex-align-nowrap;
       //----------------------------------
       > .field-value-com {
-        flex: 1 1 auto;
+        flex: 0 0 auto;
       }
       > .field-value-tip {
-        flex: 0 0 auto;
+        flex: 1 1 auto;
       }
       //----------------------------------
     }
     //----------------------------------
     &[value-wrap="wrap"] {
-      @include flex-align-v-nowrap($jc:center);
+      @include flex-align-v-nowrap($jc: center);
     }
     //----------------------------------
     &[value-wrap="auto"] {
@@ -173,6 +173,10 @@
         flex: 0 0 auto;
       }
       //----------------------------------
+    }
+    //----------------------------------
+    &.com-flex-none > .field-value-com {
+      flex: 0 0 auto;
     }
     //----------------------------------
     > .field-value-com {
