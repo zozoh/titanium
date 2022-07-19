@@ -1,4 +1,4 @@
-// Pack At: 2022-07-15 21:36:08
+// Pack At: 2022-07-19 21:16:45
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -3411,60 +3411,60 @@ const OpenThingManager = (function(){
 // # import EditObjMeta from "./wn-edit-obj-meta.mjs"
 const EditObjMeta = (function(){
   ////////////////////////////////////////////////////
-  async function EditObjMeta(pathOrObj="~", {
-    icon, title, 
-    type   = "info", 
+  async function EditObjMeta(pathOrObj = "~", {
+    icon, title,
+    type = "info",
     closer = true,
     escape = true,
     textOk = "i18n:ok",
     textCancel = "i18n:cancel",
-    position   = "top",
-    width      = 640,
-    height     = "90%", 
+    position = "top",
+    width = 640,
+    height = "90%",
     spacing,
     currentTab = 0,
     // static tabs
     // if emtpy, apply the default
     // “auto" will load by `ti editmeta`, it will override the currentTab
-    fields     = [],
-    fixedKeys  = ["icon", "thumb", "title"],
-    saveKeys   = ["thumb"],  // If the key changed, `cancel` same as `OK`
-    autoSave   = true
-  }={}){
+    fields = [],
+    fixedKeys = ["icon", "thumb", "title"],
+    saveKeys = ["thumb"],  // If the key changed, `cancel` same as `OK`
+    autoSave = true
+  } = {}) {
     //............................................
     // Load meta
     let meta = pathOrObj
-    if(_.isString(meta)) {
+    if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(pathOrObj)
     }
     //............................................
     // Fixed key map
     let fixeds = {}
-    _.forEach(fixedKeys, k => fixeds[k]=true)
+    _.forEach(fixedKeys, k => fixeds[k] = true)
     //............................................
     // Save key map
     let saves = {}
-    _.forEach(saveKeys, k => saves[k]=true)
+    _.forEach(saveKeys, k => saves[k] = true)
     //............................................
     // Auto load 
-    if("auto" == fields) {
-      let reo = await Wn.Sys.exec2(`ti metas id:${meta.id} -cqn`, {as:"json"})
-      if(reo) {
+    if ("auto" == fields) {
+      let reo = await Wn.Sys.exec2(`ti metas id:${meta.id} -cqn`, { as: "json" })
+      if (reo) {
         fields = reo.fields
         currentTab = reo.currentTab || currentTab || 0
       }
     }
     //............................................
     // Default tabs
-    if(_.isEmpty(fields) || !_.isArray(fields)) {
-      fields = [{ 
+    if (_.isEmpty(fields) || !_.isArray(fields)) {
+      fields = [{
         title: "basic",
         fields: [
-          "id", "nm", "title",  "icon", "thumb", "ph", "race", "tp", "mime", 
+          "id", "nm", "title", "icon", "thumb", "ph", "race", "tp", "mime",
           "width", "height", "len", "sha1", "sort"],
       }, {
         title: "privilege",
-        fields: ["c","m","g", "md", "pvg"]
+        fields: ["c", "m", "g", "md", "pvg"]
       }, {
         title: "timestamp",
         fields: ["ct", "lm", "expi"]
@@ -3474,41 +3474,41 @@ const EditObjMeta = (function(){
       }]
     }
     //............................................
-    let myFormFields = Wn.Obj.evalFields(meta, fields, (fld)=>{
-      if(fixeds[fld.uniqKey]) {
+    let myFormFields = Wn.Obj.evalFields(meta, fields, (fld) => {
+      if (fixeds[fld.uniqKey]) {
         return fld
       }
-      if(fld.quickName  && _.isUndefined(fld.value)) {
+      if (fld.quickName && _.isUndefined(fld.value)) {
         return
       }
       return fld
     })
     //............................................
-    let theIcon  = icon  || Wn.Util.getObjIcon(meta, "zmdi-info-outline")
+    let theIcon = icon || Wn.Util.getObjIcon(meta, "zmdi-info-outline")
     let theTitle = title || Wn.Util.getObjDisplayName(meta)
     //............................................
     let reo = await Ti.App.Open({
       //------------------------------------------
       type, width, height, spacing, position, closer, escape,
-      icon  : theIcon,
-      title : theTitle,
+      icon: theIcon,
+      title: theTitle,
       //------------------------------------------
-      actions : [{
+      actions: [{
         text: textOk,
-        handler : ({$main})=>_.cloneDeep({
-          updates : $main.updates,
-          data : $main.meta
+        handler: ({ $main }) => _.cloneDeep({
+          updates: $main.updates,
+          data: $main.meta
         })
       }, {
         text: textCancel,
-        handler : ({$main})=>{
+        handler: ({ $main }) => {
           // Is in saveKeys
           let ks = _.keys($main.updates)
-          for(let k of ks) {
-            if(saves[k]) {
+          for (let k of ks) {
+            if (saves[k]) {
               return _.cloneDeep({
-                updates : $main.updates,
-                data : $main.meta
+                updates: $main.updates,
+                data: $main.meta
               })
             }
           }
@@ -3516,61 +3516,62 @@ const EditObjMeta = (function(){
         }
       }],
       //------------------------------------------
-      ready () {
+      ready() {
         this.$main.meta = meta
       },
       //------------------------------------------
-      comType : "modal-inner-body",
+      comType: "modal-inner-body",
       //------------------------------------------
-      components : [{
-        name : "modal-inner-body",
-        globally : false,
-        data : {
+      components: [{
+        name: "modal-inner-body",
+        globally: false,
+        data: {
           myFormFields,
-          currentTab, 
-          meta : undefined,
-          updates : {}
+          currentTab,
+          meta: undefined,
+          updates: {}
         },
-        template : `<ti-form
+        template: `<ti-form
           mode="tab"
           :current-tab="currentTab"
           :fields="myFormFields"
+          :gridColumnHint="[[1,420],0]"
           :data="meta"
           @field:change="onFieldChange"
           @change="onChange"
           />`,
-        methods : {
-          onChange(data){
+        methods: {
+          onChange(data) {
             this.meta = data
           },
-          onFieldChange({name, value}={}) {
-            let obj = Ti.Types.toObjByPair({name, value})
+          onFieldChange({ name, value } = {}) {
+            let obj = Ti.Types.toObjByPair({ name, value })
             this.updates = _.assign({}, this.updates, obj)
           }
         }
-      }, 
-      "@com:ti/form", 
-      "@com:ti/input/text", 
-      "@com:wn/imgfile",
-      "@com:wn/obj/mode"]
+      },
+        "@com:ti/form",
+        "@com:ti/input/text",
+        "@com:wn/imgfile",
+        "@com:wn/obj/mode"]
       //------------------------------------------
     })
     //............................................
     // User cancel
-    if(!reo) {
+    if (!reo) {
       return
     }
     //............................................
-    let {updates} = reo
+    let { updates } = reo
     let saved = false
-    if(autoSave &&!_.isEmpty(updates)) {
+    if (autoSave && !_.isEmpty(updates)) {
       let json = JSON.stringify(updates)
       let cmdText = `obj 'id:${meta.id}' -ocqn -u`
-      let newMeta = await Wn.Sys.exec2(cmdText, {input:json, as:"json"})
+      let newMeta = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
       await Ti.Toast.Open("i18n:save-done", "success")
       saved = true
   
-      return {updates, data:newMeta, saved}
+      return { updates, data: newMeta, saved }
     }
     //............................................
     return reo
@@ -4296,7 +4297,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220715.213609"
+const WALNUT_VERSION = "1.2-20220719.211646"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

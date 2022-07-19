@@ -104,6 +104,7 @@ export default {
           title: 'i18n:query',
           name: "query",
           type: "Object",
+          nameVAlign:"top",
           visible: [
             {
               type: "^(obj|thing)_clear$"
@@ -118,6 +119,7 @@ export default {
           title: 'i18n:meta',
           name: "meta",
           type: "Object",
+          nameVAlign:"top",
           visible: {
             type: "^((obj|thing)_(create|update))$"
           },
@@ -127,6 +129,7 @@ export default {
           title: 'i18n:params',
           name: "params",
           type: "Object",
+          nameVAlign:"top",
           visible: {
             type: "^(jsc|thing_(create|delete|update|clear))$"
           },
@@ -229,20 +232,25 @@ export default {
     },
     //------------------------------------------------
     async OpenEditForm({ data, icon }) {
-      return await Ti.App.Open(_.assign({
-        icon,
-        title: 'i18n:edit',
-        width: "6.4rem",
-        height: "96%",
-      }, this.dialog, {
-        model: { event: "change", prop: "data" },
-        result: data,
-        comType: "TiForm",
-        comConf: {
-          spacing: "tiny",
-          fields: this.FormFields
+      return await Ti.App.Open(_.assign(
+        {
+          icon,
+          title: 'i18n:edit',
+          width: "6.4rem",
+          height: "96%",
+        },
+        this.dialog,
+        {
+          model: { event: "change", prop: "data" },
+          result: data,
+          comType: "TiForm",
+          comConf: {
+            spacing: "comfy",
+            gridColumnHint: 1,
+            fields: this.FormFields
+          }
         }
-      }))
+      ))
     },
     //------------------------------------------------
     async OnViewSourceCode() {

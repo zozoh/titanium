@@ -236,8 +236,11 @@ const _M = {
           }
 
           if (!Ti.Util.isNil(fld.width)) {
+            let fldWidth = "full" == fld.width
+              ? "100%"
+              : Ti.Css.toSize(fld.width);
             fld.comStyle = _.assign({
-              "width": Ti.Css.toSize(fld.width),
+              "width": fldWidth,
               "flex": "0 0 auto"
             }, fld.comStyle)
           }

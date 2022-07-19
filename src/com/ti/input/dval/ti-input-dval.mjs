@@ -357,8 +357,9 @@ const _M = {
           model: { event: "change", prop: "data" },
           comType: "TiForm",
           comConf: {
-            spacing: "tiny",
+            spacing: "comfy",
             omitHiddenFields: true,
+            gridColumnHint: 1,
             fields: [
               {
                 title: "i18n:type",
@@ -405,6 +406,7 @@ const _M = {
                 visible: {
                   type: "Array"
                 },
+                nameVAlign: "top",
                 comType: "TiInputList"
               },
               {
@@ -414,6 +416,7 @@ const _M = {
                 visible: {
                   type: "Object"
                 },
+                nameVAlign: "top",
                 comType: "TiInputPair"
               },
               /*---------------------------*/
@@ -433,6 +436,7 @@ const _M = {
                 visible: {
                   type: "^(Function|Invoking)$"
                 },
+                nameVAlign: "top",
                 comType: "TiInputList"
               },
               {
