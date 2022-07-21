@@ -296,7 +296,6 @@ const LIST_MIXINS = {
         }
         let asGroupTitle = this.testRowAsGroupTitle(it)
         let itemId = this.getRowId(it, index)
-        console.log(index, itemId)
         //console.log("evalDataItem", index, itemId, asGroupTitle)
         let item = {
           className, index, displayIndex, asGroupTitle,
@@ -718,7 +717,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     OnRowSelect({ rowId, shift, toggle } = {}) {
-      console.log("OnRowSelect", rowId)
+      //console.log("OnRowSelect", rowId)
       // Multi + Shift Mode
       if (shift && this.multi) {
         this.selectRowsToCurrent(rowId)
