@@ -2,7 +2,7 @@
   "name": "ti-filterlist",
   "globally": true,
   "template": "./ti-filterlist.html",
-  "props": [
+  "__props": [
     "@com:ti/support/list_props.mjs",
     "@com:ti/list/ti-list-props.mjs"
   ],

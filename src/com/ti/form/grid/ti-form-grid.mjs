@@ -209,6 +209,10 @@ const _M = {
   //////////////////////////////////////////////////////
   methods: {
     //--------------------------------------------------
+    OnClickFormTop() {
+      this.myActivedFieldKey = null
+    },
+    //--------------------------------------------------
     OnResize() {
       this.evalMyScreenMode()
       if (_.isElement(this.$el)) {
@@ -359,7 +363,7 @@ const _M = {
         this.OnResize()
       }
     })
-    _.delay(()=>{
+    _.delay(() => {
       this.OnResize()
     })
     //...................................

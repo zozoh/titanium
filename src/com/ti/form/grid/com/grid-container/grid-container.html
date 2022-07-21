@@ -53,7 +53,8 @@
           :style="fld.valueStyle"
           :value-wrap="fld.valueWrap"
           :grid-start="fld.valueGridStart"
-          :grid-span="fld.valueGridSpan">
+          :grid-span="fld.valueGridSpan"
+          @click.left.stop="OnClickComValue(fld)">
           <!--------------------------------->
           <div class="field-value-com" :style="fld.comStyle">
             <component :is="fld.comType"

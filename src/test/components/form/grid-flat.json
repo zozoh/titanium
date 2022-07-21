@@ -8,7 +8,7 @@
     "autoShowBlank": false,
     "data": "=data",
     "spacing": "comfy",
-    "defaultComType": "TiLabel",
+    "defaultComType": "TiInput",
     "fieldNameClass": "mark-weak",
     "fieldNameMaxWidth": "1.5rem",
     "canCustomizedFields": true,
@@ -27,7 +27,8 @@
       {
         "icon": "zmdi-flattr",
         "title": "ID",
-        "name": "id"
+        "name": "id",
+        "display": "<=TiLabel>"
       },
       {
         "title": "名称",

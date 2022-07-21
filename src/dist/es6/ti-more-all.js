@@ -1,4 +1,4 @@
-// Pack At: 2022-07-19 21:16:45
+// Pack At: 2022-07-21 13:29:32
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1224,7 +1224,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         if (Ti.Util.isNil(fltv)) {
           return true
         }
-        console.log("filter", { it, fltv })
+        //console.log("filter", { it, fltv })
         for (let k of itKeys) {
           let v = (it.rawData || it)[k]
           if (Ti.Util.isNil(v)) {
@@ -15176,6 +15176,10 @@ const _M = {
   //////////////////////////////////////////////////////
   methods: {
     //--------------------------------------------------
+    OnClickComValue(fld) {
+      this.$parent.myActivedFieldKey = fld.key
+    },
+    //--------------------------------------------------
     OnFldChange(fld, value) {
       // Define how to apply field default value
       const __apply_fld_default = (val) => {
@@ -20301,6 +20305,10 @@ const _M = {
   //////////////////////////////////////////////////////
   methods: {
     //--------------------------------------------------
+    OnClickFormTop() {
+      this.myActivedFieldKey = null
+    },
+    //--------------------------------------------------
     OnResize() {
       this.evalMyScreenMode()
       if (_.isElement(this.$el)) {
@@ -20451,7 +20459,7 @@ const _M = {
         this.OnResize()
       }
     })
-    _.delay(()=>{
+    _.delay(() => {
       this.OnResize()
     })
     //...................................
@@ -26157,6 +26165,7 @@ const LIST_MIXINS = {
         }
         let asGroupTitle = this.testRowAsGroupTitle(it)
         let itemId = this.getRowId(it, index)
+        console.log(index, itemId)
         //console.log("evalDataItem", index, itemId, asGroupTitle)
         let item = {
           className, index, displayIndex, asGroupTitle,
@@ -26578,7 +26587,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     OnRowSelect({ rowId, shift, toggle } = {}) {
-      //console.log("OnRowSelect", rowId)
+      console.log("OnRowSelect", rowId)
       // Multi + Shift Mode
       if (shift && this.multi) {
         this.selectRowsToCurrent(rowId)
@@ -75785,11 +75794,13 @@ const _M = {
     },
     "valueBy": {
       type: [String, Function],
-      default: undefined
+      default: () => (it) => {
+        return Ti.Util.getFallback(it, "value", "nm", "id")
+      }
     },
     "textBy": {
       type: [String, Function],
-      default: undefined
+      default: "nickname|title|text|name"
     },
     "iconBy": {
       type: [String, Function],
@@ -75967,6 +75978,8 @@ const _M = {
       if (!reo) {
         return
       }
+
+      console.log(reo)
 
       // Multi
       if (this.multi) {
@@ -82439,7 +82452,7 @@ Ti.Preload("ti/com/ti/filterlist/_com.json", {
   "name": "ti-filterlist",
   "globally": true,
   "template": "./ti-filterlist.html",
-  "props": [
+  "__props": [
     "@com:ti/support/list_props.mjs",
     "@com:ti/list/ti-list-props.mjs"
   ],
@@ -82654,7 +82667,8 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
           :style="fld.valueStyle"
           :value-wrap="fld.valueWrap"
           :grid-start="fld.valueGridStart"
-          :grid-span="fld.valueGridSpan">
+          :grid-span="fld.valueGridSpan"
+          @click.left.stop="OnClickComValue(fld)">
           <!--------------------------------->
           <div class="field-value-com" :style="fld.comStyle">
             <component :is="fld.comType"
@@ -82702,6 +82716,7 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
   :class="TopClass"
   :spacing="spacing"
   :mode="FormMode"
+  @click.left="OnClickFormTop"
   v-ti-activable>
     <!--
       Blank

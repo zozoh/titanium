@@ -57,7 +57,7 @@ export default {
         if (Ti.Util.isNil(fltv)) {
           return true
         }
-        console.log("filter", { it, fltv })
+        //console.log("filter", { it, fltv })
         for (let k of itKeys) {
           let v = (it.rawData || it)[k]
           if (Ti.Util.isNil(v)) {

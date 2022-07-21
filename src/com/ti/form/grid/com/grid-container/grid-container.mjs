@@ -45,6 +45,10 @@ const _M = {
   //////////////////////////////////////////////////////
   methods: {
     //--------------------------------------------------
+    OnClickComValue(fld) {
+      this.$parent.myActivedFieldKey = fld.key
+    },
+    //--------------------------------------------------
     OnFldChange(fld, value) {
       // Define how to apply field default value
       const __apply_fld_default = (val) => {

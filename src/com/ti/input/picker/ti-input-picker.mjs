@@ -24,11 +24,13 @@ const _M = {
     },
     "valueBy": {
       type: [String, Function],
-      default: undefined
+      default: () => (it) => {
+        return Ti.Util.getFallback(it, "value", "nm", "id")
+      }
     },
     "textBy": {
       type: [String, Function],
-      default: undefined
+      default: "nickname|title|text|name"
     },
     "iconBy": {
       type: [String, Function],
@@ -206,6 +208,8 @@ const _M = {
       if (!reo) {
         return
       }
+
+      console.log(reo)
 
       // Multi
       if (this.multi) {
