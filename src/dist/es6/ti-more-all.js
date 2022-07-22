@@ -1,4 +1,4 @@
-// Pack At: 2022-07-21 16:49:07
+// Pack At: 2022-07-22 17:08:57
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13457,6 +13457,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'ti-label.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/label/ti-label.mjs'] = (function(){
+const COM_TYPE = "TiLabel";
 const _M = {
   //////////////////////////////////////////
   data: () => ({
@@ -13469,7 +13470,7 @@ const _M = {
   props: {
     "autoLoadDictIcon": {
       type: Boolean,
-      default: true
+      default: Ti.Config.getComProp(COM_TYPE, "autoLoadDictIcon", true)
     },
     "valueClickable": {
       type: Boolean,
@@ -18721,7 +18722,7 @@ const OBJ = {
       // Join the new IDS
       if (ok) {
         newIds[data.id] = true
-        console.log("upload OK:", data)
+        //console.log("upload OK:", data)
         // Append customized upload meta
         if (this.hasUploadMeta) {
           let uploadMeta = Ti.Util.explainObj(vars, this.uploadMeta, {
@@ -28514,6 +28515,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'wn-obj-adaptor-gui.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/obj/adaptor/wn-obj-adaptor-gui.mjs'] = (function(){
+/////////////////////////////////////////////
 const _M = {
   ///////////////////////////////////////////
   data: () => ({
@@ -28521,81 +28523,49 @@ const _M = {
   ///////////////////////////////////////////
   computed: {
     //--------------------------------------
-    GuiExplainContext() {
+    GuiStdLayout() {
       return {
-        moduleName: this.moduleName,
-        //------------------------------
-        dirId: this.dirId,
-        oDir: this.oDir,
-        //------------------------------
-        fixedMatch: this.fixedMatch,
-        filter: this.filter,
-        sorter: this.sorter,
-        list: this.list,
-        currentId: this.currentId,
-        checkedIds: this.checkedIds,
-        pager: this.pager,
-        //------------------------------
-        meta: this.meta,
-        content: this.content,
-        //------------------------------
-        status: this.status,
-        fieldStatus: this.fieldStatus,
-        //------------------------------
-        viewType: this.viewType,
-        exposeHidden: this.exposeHidden,
+        desktop: {
+          "type": "cols",
+          "border": true,
+          "blocks": [
+            {
+              "name": "search",
+              "size": "62%",
+              "type": "rows",
+              "border": true,
+              "blocks": [
+                {
+                  "name": "filter",
+                  "size": 43,
+                  "body": "filter"
+                },
+                {
+                  "name": "list",
+                  "size": "stretch",
+                  "overflow": "cover",
+                  "body": "list"
+                },
+                {
+                  "name": "pager",
+                  "size": "auto",
+                  "body": "pager"
+                }
+              ]
+            },
+            {
+              "name": "meta",
+              "size": "stretch",
+              "body": "meta"
+            }]
+        },
+        tablet: "desktop",
+        phone: "desktop"
       }
     },
     //--------------------------------------
-    GuiLayout() {
-      let c = this.GuiExplainContext
-      let layout = this.layout
-      if (_.isEmpty(layout)) {
-        layout = {
-          desktop: {
-            "type": "cols",
-            "border": true,
-            "blocks": [
-              {
-                "name": "search",
-                "size": "62%",
-                "type": "rows",
-                "border": true,
-                "blocks": [
-                  {
-                    "name": "filter",
-                    "size": 43,
-                    "body": "filter"
-                  },
-                  {
-                    "name": "list",
-                    "size": "stretch",
-                    "overflow": "cover",
-                    "body": "list"
-                  },
-                  {
-                    "name": "pager",
-                    "size": "auto",
-                    "body": "pager"
-                  }
-                ]
-              },
-              {
-                "name": "meta",
-                "size": "stretch",
-                "body": "meta"
-              }]
-          },
-          tablet: "desktop",
-          phone: "desktop"
-        }
-      }
-      return Ti.Util.explainObj(c, layout)
-    },
-    //--------------------------------------
-    GuiSchema() {
-      let c = this.GuiExplainContext
-      let schema = _.merge({
+    GuiStdSchema() {
+      return {
         filter: {
           "comType": "TiFilterbar",
           "comConf": {
@@ -28642,6 +28612,10 @@ const _M = {
                 {
                   "value": "lm",
                   "text": "i18n:wn-key-ct"
+                },
+                {
+                  "value": "nm",
+                  "text": "i18n:wn-key-nm"
                 }
               ]
             }
@@ -28684,7 +28658,86 @@ const _M = {
             "value": "=meta"
           }
         }
-      }, _.omit(this.schema, "components"))
+      }
+    },
+    //--------------------------------------
+    GuiExplainContext() {
+      return {
+        moduleName: this.moduleName,
+        //------------------------------
+        dirId: this.dirId,
+        oDir: this.oDir,
+        //------------------------------
+        fixedMatch: this.fixedMatch,
+        filter: this.filter,
+        sorter: this.sorter,
+        list: this.list,
+        currentId: this.currentId,
+        checkedIds: this.checkedIds,
+        pager: this.pager,
+        //------------------------------
+        meta: this.meta,
+        content: this.content,
+        //------------------------------
+        status: this.status,
+        fieldStatus: this.fieldStatus,
+        //------------------------------
+        viewType: this.viewType,
+        exposeHidden: this.exposeHidden,
+      }
+    },
+    //--------------------------------------
+    GuiLayout() {
+      let c = this.GuiExplainContext
+      let layout = this.layout
+      if (_.isEmpty(layout)) {
+        layout = this.GuiStdLayout
+      }
+      return Ti.Util.explainObj(c, layout)
+    },
+    //--------------------------------------
+    GuiSchema() {
+      let c = this.GuiExplainContext
+      let names = _.keys(this.GuiStdSchema)
+      _.forEach(this.schema, (_, k) => names.push(k))
+      names = _.uniq(names)
+
+      // Merge schame
+      let schema = {}
+      for (let bodyName of names) {
+        // Guard
+        if (/^(components)$/.test(bodyName)) {
+          continue
+        }
+        // Merge from std schema
+        let com = _.cloneDeep(this.GuiStdSchema[bodyName]) || {}
+        _.defaults(com, { comConf: {} })
+
+        // Get customized configration
+        let cus = _.get(this.schema, bodyName)
+        if (cus && !_.isEmpty(cus)) {
+          schema[bodyName] = com
+          let { comType, comConf, mergeMode = "merge" } = cus;
+          // ComType
+          com.comType = comType || com.comType
+          // ComConf
+          if ("merge" == mergeMode) {
+            _.merge(com.comConf, comConf)
+          }
+          // Assign
+          else if ("assign" == mergeMode) {
+            _.assign(com.comConf, comConf)
+          }
+          // Reset
+          else {
+            com.comConf = comConf
+          }
+        }
+
+        // Join to schema
+        schema[bodyName] = com
+      }
+
       return Ti.Util.explainObj(c, schema)
     },
     //--------------------------------------
@@ -45909,7 +45962,7 @@ const FieldDisplay = {
               dict: m[2],
               format: m[5] || undefined,
               className: m[7] || "is-nowrap",
-              autoLoadDictIcon: m[1] != "!"
+              autoLoadDictIcon: m[1] == "!" ? false : undefined
             }
           }
         }
@@ -46648,7 +46701,7 @@ const _M = {
     },
     //--------------------------------------------
     async OnDropFiles(files) {
-      console.log("OnDropFiles", files)
+      //console.log("OnDropFiles", files)
       if (!this.droppable)
         return
       let fs = [...files]
@@ -92349,6 +92402,7 @@ Ti.Preload("ti/com/wn/obj/adaptor/_com.json", {
     "@com:wn/adaptlist",
     "@com:wn/table",
     "@com:wn/obj/icon",
+    "@com:wn/obj/detail",
     "@com:wn/obj/puretext",
     "@com:wn/upload/file"
   ]

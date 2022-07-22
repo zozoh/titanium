@@ -187,7 +187,7 @@ const FieldDisplay = {
               dict: m[2],
               format: m[5] || undefined,
               className: m[7] || "is-nowrap",
-              autoLoadDictIcon: m[1] != "!"
+              autoLoadDictIcon: m[1] == "!" ? false : undefined
             }
           }
         }

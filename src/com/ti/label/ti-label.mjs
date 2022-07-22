@@ -1,3 +1,4 @@
+const COM_TYPE = "TiLabel";
 const _M = {
   //////////////////////////////////////////
   data: () => ({
@@ -10,7 +11,7 @@ const _M = {
   props: {
     "autoLoadDictIcon": {
       type: Boolean,
-      default: true
+      default: Ti.Config.getComProp(COM_TYPE, "autoLoadDictIcon", true)
     },
     "valueClickable": {
       type: Boolean,

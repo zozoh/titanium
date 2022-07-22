@@ -1,4 +1,4 @@
-// Pack At: 2022-07-21 16:49:07
+// Pack At: 2022-07-22 17:08:57
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4124,7 +4124,8 @@ const {Config} = (function(){
   const CONFIG = {
     prefix: {},
     alias: {},
-    suffix: {}
+    suffix: {},
+    comProps: {}
   }
   /////////////////////////////////////////////////
   class AliasMapping {
@@ -4189,7 +4190,7 @@ const {Config} = (function(){
       return CONFIG.version
     },
     //.................................
-    set({ prefix, alias, suffix, lang } = {}) {
+    set({ prefix, alias, suffix, lang, comProps } = {}) {
       if (prefix)
         CONFIG.prefix = prefix
   
@@ -4205,9 +4206,17 @@ const {Config} = (function(){
   
       if (lang)
         CONFIG.lang = lang
+  
+      _.assign(CONFIG.comProps, comProps)
     },
     //.................................
-    update({ prefix, alias, suffix, lang } = {}) {
+    assignComProp(comType, props = {}) {
+      let com = CONFIG[comType] || {}
+      _.assign(com, props)
+      CONFIG[comType] = com
+    },
+    //.................................
+    update({ prefix, alias, suffix, lang, comProps } = {}) {
       if (prefix)
         _.assign(CONFIG.prefix, prefix)
   
@@ -4223,6 +4232,8 @@ const {Config} = (function(){
   
       if (lang)
         CONFIG.lang = lang
+  
+      _.assign(CONFIG.comProps, comProps)
     },
     //.................................
     get(key = null) {
@@ -4230,6 +4241,11 @@ const {Config} = (function(){
         return _.get(CONFIG, key);
       }
       return CONFIG;
+    },
+    //...............................
+    getComProp(comType, propName, dft) {
+      let prop = _.get(CONFIG.comProps, `${comType}.${propName}`)
+      return Ti.Util.fallback(prop, dft)
     },
     //...............................
     decorate(com) {
@@ -18694,7 +18710,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220721.164907",
+  "version" : "1.6-20220722.170857",
   "dev" : false,
   "appName" : null,
   "session" : {},

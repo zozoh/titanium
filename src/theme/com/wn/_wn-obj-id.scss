@@ -38,7 +38,7 @@
     position: fixed; transition: opacity 0.5s;
     padding: 1em; border-radius: SZ(5);
     box-shadow: SZ(3) SZ(3) SZ(6) map-get($color-shadow, thin);
-    z-index: $z-over;
+    z-index: $z-menu;
     //----------------------------------------
     table {
       border-spacing: 8px;

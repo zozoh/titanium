@@ -15,6 +15,7 @@
     "@com:wn/adaptlist",
     "@com:wn/table",
     "@com:wn/obj/icon",
+    "@com:wn/obj/detail",
     "@com:wn/obj/puretext",
     "@com:wn/upload/file"
   ]

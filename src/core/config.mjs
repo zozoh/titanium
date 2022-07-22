@@ -1,7 +1,8 @@
 const CONFIG = {
   prefix: {},
   alias: {},
-  suffix: {}
+  suffix: {},
+  comProps: {}
 }
 /////////////////////////////////////////////////
 class AliasMapping {
@@ -66,7 +67,7 @@ const TiConfig = {
     return CONFIG.version
   },
   //.................................
-  set({ prefix, alias, suffix, lang } = {}) {
+  set({ prefix, alias, suffix, lang, comProps } = {}) {
     if (prefix)
       CONFIG.prefix = prefix
 
@@ -82,9 +83,17 @@ const TiConfig = {
 
     if (lang)
       CONFIG.lang = lang
+
+    _.assign(CONFIG.comProps, comProps)
   },
   //.................................
-  update({ prefix, alias, suffix, lang } = {}) {
+  assignComProp(comType, props = {}) {
+    let com = CONFIG[comType] || {}
+    _.assign(com, props)
+    CONFIG[comType] = com
+  },
+  //.................................
+  update({ prefix, alias, suffix, lang, comProps } = {}) {
     if (prefix)
       _.assign(CONFIG.prefix, prefix)
 
@@ -100,6 +109,8 @@ const TiConfig = {
 
     if (lang)
       CONFIG.lang = lang
+
+    _.assign(CONFIG.comProps, comProps)
   },
   //.................................
   get(key = null) {
@@ -107,6 +118,11 @@ const TiConfig = {
       return _.get(CONFIG, key);
     }
     return CONFIG;
+  },
+  //...............................
+  getComProp(comType, propName, dft) {
+    let prop = _.get(CONFIG.comProps, `${comType}.${propName}`)
+    return Ti.Util.fallback(prop, dft)
   },
   //...............................
   decorate(com) {

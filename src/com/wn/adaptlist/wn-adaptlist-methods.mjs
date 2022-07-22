@@ -360,7 +360,7 @@ const OBJ = {
       // Join the new IDS
       if (ok) {
         newIds[data.id] = true
-        console.log("upload OK:", data)
+        //console.log("upload OK:", data)
         // Append customized upload meta
         if (this.hasUploadMeta) {
           let uploadMeta = Ti.Util.explainObj(vars, this.uploadMeta, {
