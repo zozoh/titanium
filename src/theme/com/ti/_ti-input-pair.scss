@@ -1,64 +1,60 @@
 .ti-input-pair {
   //-------------------------------------------------
-  > table {
-    width: 100%;
-    border-spacing: 0;
-    border-collapse: collapse;
-    margin-bottom: SZ(6);
-    //-----------------------------------------------
-    > tbody > tr {
-      //---------------------------------------------
-      > td {
-        @include border(1px, solid, shallow);
-        padding: 0;
+  > .pair-grid-con {
+    @include border(1px, solid, shallow);
+    background-color: map-get($color-line, shallow);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-auto-columns: auto;
+    grid-auto-rows: auto;
+    grid-auto-flow: row;
+    justify-items: stretch;
+    align-items: stretch;
+    grid-gap: 1px;
+    //-------------------------------------------
+    .pair-grid-item {
+      @include flex-align-nowrap($ai: stretch);
+      &.as-name {
+        @include color($color-chip, r, c);
       }
-      //---------------------------------------------
-      > td.as-name {
-        //-------------------------------------------
-        > .cell-con {
-          @include flex-align-nowrap($ai: stretch);
-          @include color($color-input, c, r);
-          //-----------------------------------------
-          > .as-deleter {
-            @include flex-center;
-            @include color($color-chip, r, c);
-            width: SZ(24);
-            cursor: pointer;
-            > i {
-              transition: transform 0.3s;
-              opacity: 0.4;
-            }
-            &:hover {
-              @include color($color-secondary, r, c);
-              > i {
-                transform: rotate(180deg) scale(1.2);
-                opacity: 1;
-              }
-            }
+      &.as-value {
+        @include color($color-input, c, r);
+      }
+    }
+    //-------------------------------------------
+    .cell-con {
+      @include flex-align-nowrap($ai: stretch);
+      flex: 1 1 auto;
+      //-----------------------------------------
+      > .as-deleter {
+        @include flex-center;
+        @include color($color-chip, r, c);
+        width: SZ(24);
+        font-size: SZ(10);
+        cursor: pointer;
+        > i {
+          transition: transform 0.3s;
+          opacity: 0.4;
+        }
+        &:hover {
+          @include color($color-secondary, r, c);
+          > i {
+            transform: rotate(180deg) scale(1.2);
+            opacity: 1;
           }
-          //-----------------------------------------
-          > .as-com {
-            width: 100%;
-          }
-          //-----------------------------------------
-        } // > .cell-con
-        //-------------------------------------------
-      } // > td.as-name
-      //---------------------------------------------
-      // > td.as-value {
-      //   //-------------------------------------------
-      //   > .cell-con {
-      //     @include flex-align-nowrap($ai: stretch);
-      //     @include color($color-input, c, r);
-      //     > * {
-      //       flex: 1 1 auto;
-      //     }
-      //   }
-      //   //-------------------------------------------
-      // } // > td.as-value
-      //---------------------------------------------
-    } // > tbody > tr
-    //-----------------------------------------------
-  } // table
+        }
+      }
+      //-----------------------------------------
+      > .as-com {
+        width: 100%;
+      }
+      //-----------------------------------------
+    } // > .cell-con
+    //-------------------------------------------
+  } // > .pair-grid-con {
+  //-------------------------------------------------
+  > .ti-button {
+    padding-top: SZ(6);
+  }
   //-------------------------------------------------
 }

@@ -1,14 +1,23 @@
 ////////////////////////////////////////////////
 async function loadConfigJson(state, key, dft) {
-  // Guard
-  let path = state[key]
+  let path;
+  if (state.meta) {
+    path = state.meta[key]
+  }
+  if (!path && state.oDir) {
+    path = state.oDir[key]
+  }
+  if (!path) {
+    path = state[`${key}Path`]
+  }
+
+  // Guard nil path
   if (!path) {
     return dft
   }
-  // Load
-  let tsId = state.dirId
-  let aph = `id:${tsId}/${path}`
-  let re = await Wn.Sys.exec(`cat ${aph}`)
+
+  // Try load
+  let re = await Wn.Sys.exec(`cat ${path}`)
   re = _.trim(re)
 
   // Not exists
@@ -16,7 +25,7 @@ async function loadConfigJson(state, key, dft) {
     return dft
   }
 
-  // Parse As JSON
+  // Load schema
   return JSON.parse(re)
 }
 ////////////////////////////////////////////////
@@ -60,34 +69,85 @@ const _M = {
   },
   //--------------------------------------------
   async loadSchema({ state, commit }) {
-    let scPath;
-    if (state.meta) {
-      scPath = state.meta.schema
-    }
-    if (!scPath && state.oDir) {
-      scPath = state.oDir.schema
-    }
-
-    // TODO 这里应该支持直接为 state 设置 schemaPath
-
-    // Load schema
-    let schema;
-    if (scPath) {
-      schema = Wn.Io.loadContent(scPath, { as: "json" })
-    }
-    schema = _.assign({}, schema)
+    state.LOG(" - loadSchema")
+    let schema = await loadConfigJson(state, "schema", {})
+    let components = []
 
     // Load extends components
     if (!_.isEmpty(schema.components)) {
-      let components = _.concat(schema.components)
+      components = _.concat(components, schema.components)
+    }
+
+    // Load extends components
+    if (!_.isEmpty(components)) {
       await Ti.App.topInstance().loadView({ components })
     }
+
     //console.log("setSchema", schema)
+    // Should set scheme after All deps components preloaded
     commit("setSchema", schema)
+
+    if (schema.methods) {
+      commit("setMethodPaths", schema.methods)
+    }
 
     if (schema.localBehaviorKeepAt) {
       commit("setLocalBehaviorKeepAt", schema.localBehaviorKeepAt)
     }
+
+    let contentPath = _.get(schema, "behavior.contentPath")
+    if (contentPath) {
+      commit("setContentPath", contentPath)
+    }
+  },
+  //--------------------------------------------
+  async loadLayout({ state, commit }) {
+    state.LOG(" > loadLayout")
+    let reo = await loadConfigJson(state, "layout", {})
+    commit("setLayout", reo)
+  },
+  //--------------------------------------------
+  async loadObjActions({ state, commit }) {
+    state.LOG(" > loadActions")
+    let reo = await loadConfigJson(state, "actions", null)
+    commit("setObjActions", reo)
+  },
+  //--------------------------------------------
+  async loadObjMethods({ state, commit }) {
+    state.LOG(" > loadMethods", state.methodPaths)
+
+    let path;
+    if (state.meta) {
+      path = state.meta.methods
+    }
+    if (!path && state.oDir) {
+      path = state.oDir.methods
+    }
+    if (!path) {
+      path = state.methodPaths
+    }
+
+    let reo = {}
+    // Load
+    if (path) {
+      //let methodsUri = `./${state.methodPaths}`
+      let methods = await Ti.Load(path, {
+        dynamicAlias: new Ti.Config.AliasMapping({
+          "^\./": `/o/content?str=id:${state.dirId}/`
+        })
+      })
+      // Merge methods
+      if (_.isArray(methods)) {
+        for (let mt of methods) {
+          _.assign(reo, mt)
+        }
+      } else {
+        _.assign(reo, methods)
+      }
+    }
+
+    // Done
+    commit("setObjMethods", reo)
   },
   //--------------------------------------------
   loadDirId({ state, commit }) {
@@ -178,6 +238,17 @@ const _M = {
    */
   async reload({ state, commit, dispatch }, meta) {
     // Guard
+    if (state.status.reloading
+      || state.status.saving
+      || state.status.deleting) {
+      return
+    }
+    state.LOG = () => { }
+    if ("main" == state.moduleName) {
+      state.LOG = console.log
+    }
+    state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
+    // Guard
     if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
     }
@@ -187,8 +258,8 @@ const _M = {
     if (!meta.id) {
       return await Ti.Toast.Open("Meta without ID", "warn")
     }
-
     // Analyze meta : oDir
+    state.LOG("Analyze oDir and dirId")
     if ("DIR" == meta.race) {
       commit("setDir", meta)
       commit("setDirId", meta.id)
@@ -197,16 +268,25 @@ const _M = {
     else {
       // CheckThingSet ID
       commit("setMeta", meta)
-      commit("setDirId", null)
-      dispatch("loadDirId")
+      commit("setDirId", meta.pid)
+      //dispatch("loadDirId")
     }
 
     if (!state.dirId) {
       return await Ti.Toast.Open("Meta Without DirID: " + meta.id, "warn")
     }
 
+    commit("setStatus", { reloading: true })
+
     // Reload Configurations
+    state.LOG("<-------- Reload Config -------->")
     await dispatch("loadSchema")
+    await Promise.all([
+      dispatch("loadLayout"),
+      dispatch("loadObjActions"),
+      dispatch("loadObjMethods")
+    ])
+    state.LOG("<-------- Config Loaded-------->")
 
     // Behavior
     commit("explainLocalBehaviorKeepAt")
@@ -214,10 +294,12 @@ const _M = {
     dispatch("restoreLocalBehavior")
 
     // Reload thing list
+    state.LOG(" >> Query Data ...")
     await dispatch("reloadData");
 
     // All done
     commit("setStatus", { reloading: false })
+    state.LOG("<<<<<<<<<<<<<<<< done for reload")
   }
   //--------------------------------------------
 }

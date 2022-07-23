@@ -1,4 +1,4 @@
-// Pack At: 2022-07-22 17:08:57
+// Pack At: 2022-07-24 02:33:29
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6816,10 +6816,29 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async updateMetaField({ dispatch }, { name, value } = {}) {
-    //console.log("current.updateMeta", { name, value })
+  async updateMetaField({ commit, dispatch }, { name, value } = {}) {
+    console.log("current.updateMeta", { name, value })
+
+    let uniqKey = _.concat(name).join("-")
+    commit("setFieldStatus", {
+      name: uniqKey, type: "spinning", text: "i18n:saving"
+    })
+
+
     let data = Ti.Types.toObjByPair({ name, value })
-    await dispatch("updateMeta", data)
+    let reo = await dispatch("updateMeta", data)
+    let isError = reo instanceof Error;
+
+    if (isError) {
+      commit("setFieldStatus", {
+        name: uniqKey, type: "warn", text: reo.message || "i18n:fail"
+      })
+    } else {
+      commit("setFieldStatus", {
+        name: uniqKey, type: "ok", text: "i18n:ok"
+      })
+      _.delay(() => { commit("clearFieldStatus", uniqKey) }, 500)
+    }
   },
   //--------------------------------------------
   async updateMeta({ state, commit }, data = {}) {
@@ -6869,6 +6888,8 @@ const _M = {
         _.delay(() => { commit("clearFieldStatus", name) }, 500)
       }
     })
+
+    return reo
   },
   //--------------------------------------------
   parseContentData({ state, commit, getters }) {
@@ -12413,13 +12434,6 @@ const _M = {
         field.uniqKey = _.concat(field.name).join("-")
         //console.log(field.uniqKey)
 
-        // // field status
-        // let fStatus = _.get(this.fieldStatus, funiqKey)
-        // if(fStatus) {
-        //   field.status  = fStatus.status
-        //   field.message = fStatus.message
-        // }
-
         // Default
         if (!field.serializer) {
           let fnName = Ti.Types.getFuncByType(field.type || "String", "serializer")
@@ -15403,7 +15417,8 @@ const _M = {
       if (type) {
         fld.statusIcon = _.get(this.statusIcons, type)
         fld.statusText = Ti.I18n.text(text)
-        fld.className = Ti.Css.mergeClassName(fld.className, `is-${type}`)
+        fld.nameClass = Ti.Css.mergeClassName(fld.nameClass, `is-${type}`)
+        fld.valueClass = Ti.Css.mergeClassName(fld.valueClass, `is-${type}`)
       }
     },
     //--------------------------------------------------
@@ -21831,8 +21846,40 @@ const _M = {
   // GUI Settings
   //
   //----------------------------------------
+  setActionsPath(state, actionsPath) {
+    state.actionsPath = actionsPath
+  },
+  setLayoutPath(state, layoutPath) {
+    state.layoutPath = layoutPath
+  },
+  setSchemaPath(state, schemaPath) {
+    state.schemaPath = schemaPath
+  },
+  setMethodPaths(state, methodPaths) {
+    state.methodPaths = methodPaths
+  },
+  //----------------------------------------
+  setObjActions(state, objActions = {}) {
+    state.objActions = objActions
+  },
+  setLayout(state, layout = {}) {
+    state.layout = layout
+  },
   setSchema(state, schema = {}) {
     state.schema = schema
+  },
+  assignSchema(state, schema = {}) {
+    state.schema = _.assign({}, state.schema, schema)
+  },
+  mergeSchema(state, schema = {}) {
+    let sc = _.cloneDeep(state.schema)
+    state.schema = _.merge(sc, schema)
+  },
+  setObjMethods(state, objMethods = {}) {
+    state.objMethods = objMethods
+  },
+  assignObjMethods(state, objMethods = {}) {
+    state.objMethods = _.assign({}, state.objMethods, objMethods)
   },
   //----------------------------------------
 }
@@ -30129,7 +30176,9 @@ const _M = {
       if (/^(indicate)$/.test(name)) {
         return () => ({ stop: false })
       }
-      //console.log("WnObjAdaptor.__on_events", name, payload)
+      if (/change$/.test(name)) {
+        console.log("WnObjAdaptor.__on_events", name, payload)
+      }
 
       // Try routing
       let fns = _.get(this.EventRouting, name)
@@ -30192,7 +30241,7 @@ const _M = {
   mounted: async function () {
     // Update the customized actions
     let actions = this.objActions || null
-    if (_.isArray(actions) && !_.isEmpty(actions)) {
+    if (_.isArray(actions)) {
       this.$notify("actions:update", actions)
     }
   },
@@ -43134,6 +43183,14 @@ const _M = {
         autoSelect: true
       })
     },
+    "canAddNewItem": {
+      type: Boolean,
+      default: true
+    },
+    "canRemoveItem": {
+      type: Boolean,
+      default: true
+    },
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
@@ -43147,7 +43204,7 @@ const _M = {
     },
     "nameWidth": {
       type: [String, Number],
-      default: "38.2%"
+      default: "1.2rem"
     }
 
   },
@@ -43163,6 +43220,12 @@ const _M = {
     //------------------------------------------------
     isEmpty() {
       return _.isEmpty(this.PairFields)
+    },
+    //------------------------------------------------
+    NameStyle() {
+      return {
+        width: Ti.Css.toSize(this.nameWidth)
+      }
     },
     //------------------------------------------------
     PairFields() {
@@ -54396,15 +54459,24 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-actions.mjs'] = (function(){
 ////////////////////////////////////////////////
 async function loadConfigJson(state, key, dft) {
-  // Guard
-  let path = state[key]
+  let path;
+  if (state.meta) {
+    path = state.meta[key]
+  }
+  if (!path && state.oDir) {
+    path = state.oDir[key]
+  }
+  if (!path) {
+    path = state[`${key}Path`]
+  }
+
+  // Guard nil path
   if (!path) {
     return dft
   }
-  // Load
-  let tsId = state.dirId
-  let aph = `id:${tsId}/${path}`
-  let re = await Wn.Sys.exec(`cat ${aph}`)
+
+  // Try load
+  let re = await Wn.Sys.exec(`cat ${path}`)
   re = _.trim(re)
 
   // Not exists
@@ -54412,7 +54484,7 @@ async function loadConfigJson(state, key, dft) {
     return dft
   }
 
-  // Parse As JSON
+  // Load schema
   return JSON.parse(re)
 }
 ////////////////////////////////////////////////
@@ -54456,34 +54528,85 @@ const _M = {
   },
   //--------------------------------------------
   async loadSchema({ state, commit }) {
-    let scPath;
-    if (state.meta) {
-      scPath = state.meta.schema
-    }
-    if (!scPath && state.oDir) {
-      scPath = state.oDir.schema
-    }
-
-    // TODO 这里应该支持直接为 state 设置 schemaPath
-
-    // Load schema
-    let schema;
-    if (scPath) {
-      schema = Wn.Io.loadContent(scPath, { as: "json" })
-    }
-    schema = _.assign({}, schema)
+    state.LOG(" - loadSchema")
+    let schema = await loadConfigJson(state, "schema", {})
+    let components = []
 
     // Load extends components
     if (!_.isEmpty(schema.components)) {
-      let components = _.concat(schema.components)
+      components = _.concat(components, schema.components)
+    }
+
+    // Load extends components
+    if (!_.isEmpty(components)) {
       await Ti.App.topInstance().loadView({ components })
     }
+
     //console.log("setSchema", schema)
+    // Should set scheme after All deps components preloaded
     commit("setSchema", schema)
+
+    if (schema.methods) {
+      commit("setMethodPaths", schema.methods)
+    }
 
     if (schema.localBehaviorKeepAt) {
       commit("setLocalBehaviorKeepAt", schema.localBehaviorKeepAt)
     }
+
+    let contentPath = _.get(schema, "behavior.contentPath")
+    if (contentPath) {
+      commit("setContentPath", contentPath)
+    }
+  },
+  //--------------------------------------------
+  async loadLayout({ state, commit }) {
+    state.LOG(" > loadLayout")
+    let reo = await loadConfigJson(state, "layout", {})
+    commit("setLayout", reo)
+  },
+  //--------------------------------------------
+  async loadObjActions({ state, commit }) {
+    state.LOG(" > loadActions")
+    let reo = await loadConfigJson(state, "actions", null)
+    commit("setObjActions", reo)
+  },
+  //--------------------------------------------
+  async loadObjMethods({ state, commit }) {
+    state.LOG(" > loadMethods", state.methodPaths)
+
+    let path;
+    if (state.meta) {
+      path = state.meta.methods
+    }
+    if (!path && state.oDir) {
+      path = state.oDir.methods
+    }
+    if (!path) {
+      path = state.methodPaths
+    }
+
+    let reo = {}
+    // Load
+    if (path) {
+      //let methodsUri = `./${state.methodPaths}`
+      let methods = await Ti.Load(path, {
+        dynamicAlias: new Ti.Config.AliasMapping({
+          "^\./": `/o/content?str=id:${state.dirId}/`
+        })
+      })
+      // Merge methods
+      if (_.isArray(methods)) {
+        for (let mt of methods) {
+          _.assign(reo, mt)
+        }
+      } else {
+        _.assign(reo, methods)
+      }
+    }
+
+    // Done
+    commit("setObjMethods", reo)
   },
   //--------------------------------------------
   loadDirId({ state, commit }) {
@@ -54574,6 +54697,17 @@ const _M = {
    */
   async reload({ state, commit, dispatch }, meta) {
     // Guard
+    if (state.status.reloading
+      || state.status.saving
+      || state.status.deleting) {
+      return
+    }
+    state.LOG = () => { }
+    if ("main" == state.moduleName) {
+      state.LOG = console.log
+    }
+    state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
+    // Guard
     if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
     }
@@ -54583,8 +54717,8 @@ const _M = {
     if (!meta.id) {
       return await Ti.Toast.Open("Meta without ID", "warn")
     }
-
     // Analyze meta : oDir
+    state.LOG("Analyze oDir and dirId")
     if ("DIR" == meta.race) {
       commit("setDir", meta)
       commit("setDirId", meta.id)
@@ -54593,16 +54727,25 @@ const _M = {
     else {
       // CheckThingSet ID
       commit("setMeta", meta)
-      commit("setDirId", null)
-      dispatch("loadDirId")
+      commit("setDirId", meta.pid)
+      //dispatch("loadDirId")
     }
 
     if (!state.dirId) {
       return await Ti.Toast.Open("Meta Without DirID: " + meta.id, "warn")
     }
 
+    commit("setStatus", { reloading: true })
+
     // Reload Configurations
+    state.LOG("<-------- Reload Config -------->")
     await dispatch("loadSchema")
+    await Promise.all([
+      dispatch("loadLayout"),
+      dispatch("loadObjActions"),
+      dispatch("loadObjMethods")
+    ])
+    state.LOG("<-------- Config Loaded-------->")
 
     // Behavior
     commit("explainLocalBehaviorKeepAt")
@@ -54610,10 +54753,12 @@ const _M = {
     dispatch("restoreLocalBehavior")
 
     // Reload thing list
+    state.LOG(" >> Query Data ...")
     await dispatch("reloadData");
 
     // All done
     commit("setStatus", { reloading: false })
+    state.LOG("<<<<<<<<<<<<<<<< done for reload")
   }
   //--------------------------------------------
 }
@@ -70446,6 +70591,7 @@ const _M = {
     }
 
     //console.log("setSchema", schema)
+    // Should set scheme after All deps components preloaded
     commit("setSchema", schema)
     //console.log("schema", schema)
 
@@ -71778,6 +71924,96 @@ const _M = {
     }
   }
   /////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
+// EXPORT 'ti-input-langs.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/input/langs/ti-input-langs.mjs'] = (function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data: () => ({
+    myValue: {}
+  }),
+  ////////////////////////////////////////////////////
+  props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
+    "value": {
+      type: Object
+    },
+    "options": {
+      type: [String, Array],
+      default: () => [
+        {
+          "text": "i18n:lang-en-us",
+          "value": "en_us"
+        },
+        {
+          "text": "i18n:lang-zh-cn",
+          "value": "zh_cn"
+        }
+      ]
+    },
+    //------------------------------------------------
+    // Aspect
+    //------------------------------------------------
+    "nameWidth": {
+      type: [String, Number],
+      default: null
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //------------------------------------------------
+    NameComConf() {
+      return {
+        hoverCopy: false,
+        format: (v) => {
+          let k = _.kebabCase(v)
+          return Ti.I18n.get(`lang-${k}`)
+        }
+      }
+    },
+    //------------------------------------------------
+    Dict() {
+      return Ti.DictFactory.CreateDictBy(this.options);
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods: {
+    //------------------------------------------------
+    async evalPairValue() {
+      let list = await this.Dict.getData()
+      let re = {}
+      for (let li of list) {
+        let key = li.value
+        let val = _.get(this.value, key)
+        re[key] = val
+      }
+      this.myValue = re
+    },
+    //------------------------------------------------
+    tryEvalPairValue(newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
+        this.evalPairValue()
+      }
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    "value": "tryEvalPairValue",
+    "options": "tryEvalPairValue",
+  },
+  ////////////////////////////////////////////////////
+  mounted() {
+    this.evalPairValue()
+  }
+  ////////////////////////////////////////////////////
 }
 return _M;;
 })()
@@ -84272,6 +84508,32 @@ Ti.Preload("ti/com/ti/input/icon/_com.json", {
   "mixins" : ["./ti-input-icon.mjs"]
 });
 //========================================
+// JOIN <ti-input-langs.html> ti/com/ti/input/langs/ti-input-langs.html
+//========================================
+Ti.Preload("ti/com/ti/input/langs/ti-input-langs.html", `<TiInputPair
+  nameComType="TiLabel"
+  :nameComConf="NameComConf"
+  :value="myValue"
+  :nameWidth="nameWidth"
+  :canAddNewItem="false"
+  :canRemoveItem="false"/>`);
+//========================================
+// JOIN <ti-input-langs.mjs> ti/com/ti/input/langs/ti-input-langs.mjs
+//========================================
+Ti.Preload("ti/com/ti/input/langs/ti-input-langs.mjs", TI_PACK_EXPORTS['ti/com/ti/input/langs/ti-input-langs.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/input/langs/_com.json
+//========================================
+Ti.Preload("ti/com/ti/input/langs/_com.json", {
+  "name": "ti-input-langs",
+  "globally": true,
+  "template": "./ti-input-langs.html",
+  "mixins": "./ti-input-langs.mjs",
+  "components": [
+    "@com:ti/input/pair"
+  ]
+});
+//========================================
 // JOIN <ti-input-list.html> ti/com/ti/input/list/ti-input-list.html
 //========================================
 Ti.Preload("ti/com/ti/input/list/ti-input-list.html", `<div class="ti-input-list full-field" :class="TopClass">
@@ -84433,43 +84695,40 @@ Ti.Preload("ti/com/ti/input/pair/ti-input-pair.html", `<div class="ti-input-pair
     v-if="isEmpty"
       v-bind="blankAs"/>
   <!----------------------------------------->
-  <table v-else>
-    <colgroup>
-      <col :width="nameWidth">
-      <col>
-    </colgroup>
-    <tbody>
-      <tr v-for="fld in PairFields">
-        <td class="as-name">
-          <div class="cell-con">
-            <div class="as-deleter" @click.left="OnDeleteFld(fld)">
-              <i class="zmdi zmdi-close"></i>
-            </div>
-            <component 
-              :is="nameComType" 
-              class="as-com"
-              v-bind="nameComConf" 
-              :value="fld.name"
-              @change="OnNameChange(fld, $event)"/>
+  <div class="pair-grid-con" v-else>
+    <template v-for="fld in PairFields">
+      <div class="pair-grid-item as-name" :style="NameStyle">
+        <div class="cell-con">
+          <div
+            v-if="canRemoveItem"
+              class="as-deleter" @click.left="OnDeleteFld(fld)">
+            <i class="zmdi zmdi-close"></i>
           </div>
-        </td>
-        <td class="as-value">
-          <div class="cell-con">
-            <component 
-              :is="valueComType"
-              class="as-com"
-              v-bind="valueComConf"
-              :value="fld.value"
-              @change="OnValueChange(fld, $event)"/>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          <component 
+            :is="nameComType" 
+            class="as-com"
+            v-bind="nameComConf" 
+            :value="fld.name"
+            @change="OnNameChange(fld, $event)"/>
+        </div>
+      </div>
+      <div class="pair-grid-item as-value">
+        <div class="cell-con">
+          <component 
+            :is="valueComType"
+            class="as-com"
+            v-bind="valueComConf"
+            :value="fld.value"
+            @change="OnValueChange(fld, $event)"/>
+        </div>
+      </div>
+    </template>
+  </div>
   <!----------------------------------------->
   <TiButton
-    class="is-tiny btn-r4"
-    :setup="ActionSetup"/>
+    v-if="canAddNewItem"
+      class="is-tiny btn-r4"
+      :setup="ActionSetup"/>
   <!----------------------------------------->
 </div>`);
 //========================================
@@ -94222,7 +94481,6 @@ Ti.Preload("ti/mod/wn/obj/m-wn-obj-search.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj/m
 //========================================
 Ti.Preload("ti/mod/wn/obj/m-wn-obj.json", {
   "moduleName": "main",
-  "guiShown": {},
   "localBehaviorKeepAt": "->WnObj-State-${dirId}",
   "localBehaviorIgnore": null,
   "lbkAt": null,
@@ -94267,7 +94525,15 @@ Ti.Preload("ti/mod/wn/obj/m-wn-obj.json", {
     "hasMeta": false
   },
   "fieldStatus": {},
-  "schema": {}
+  "actionsPath": null,
+  "layoutPath": null,
+  "schemaPath": null,
+  "methodPaths": null,
+  "guiShown": {},
+  "objActions": null,
+  "layout": {},
+  "schema": {},
+  "objMethods": {}
 });
 //========================================
 // JOIN <m-wn-obj.mjs> ti/mod/wn/obj/m-wn-obj.mjs
@@ -94571,7 +94837,6 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj-search.mjs", TI_PACK_EXPORTS['ti/mod/wn/th
 Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "moduleName": "main",
   "view": null,
-  "guiShown": {},
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
   "localBehaviorIgnore": null,
   "schemaBehaviorIgnore": null,
@@ -94644,6 +94909,7 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "layoutPath": "thing-layout.json",
   "schemaPath": "thing-schema.json",
   "methodPaths": null,
+  "guiShown": {},
   "thingActions": null,
   "layout": {},
   "schema": {},

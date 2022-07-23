@@ -271,7 +271,8 @@ const _M = {
       if (type) {
         fld.statusIcon = _.get(this.statusIcons, type)
         fld.statusText = Ti.I18n.text(text)
-        fld.className = Ti.Css.mergeClassName(fld.className, `is-${type}`)
+        fld.nameClass = Ti.Css.mergeClassName(fld.nameClass, `is-${type}`)
+        fld.valueClass = Ti.Css.mergeClassName(fld.valueClass, `is-${type}`)
       }
     },
     //--------------------------------------------------

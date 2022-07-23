@@ -1,7 +1,6 @@
 {
   "moduleName": "main",
   "view": null,
-  "guiShown": {},
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
   "localBehaviorIgnore": null,
   "schemaBehaviorIgnore": null,
@@ -74,6 +73,7 @@
   "layoutPath": "thing-layout.json",
   "schemaPath": "thing-schema.json",
   "methodPaths": null,
+  "guiShown": {},
   "thingActions": null,
   "layout": {},
   "schema": {},

@@ -1,0 +1,9 @@
+{
+  "name": "ti-input-langs",
+  "globally": true,
+  "template": "./ti-input-langs.html",
+  "mixins": "./ti-input-langs.mjs",
+  "components": [
+    "@com:ti/input/pair"
+  ]
+}

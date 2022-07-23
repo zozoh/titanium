@@ -37,6 +37,14 @@ const _M = {
         autoSelect: true
       })
     },
+    "canAddNewItem": {
+      type: Boolean,
+      default: true
+    },
+    "canRemoveItem": {
+      type: Boolean,
+      default: true
+    },
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
@@ -50,7 +58,7 @@ const _M = {
     },
     "nameWidth": {
       type: [String, Number],
-      default: "38.2%"
+      default: "1.2rem"
     }
 
   },
@@ -66,6 +74,12 @@ const _M = {
     //------------------------------------------------
     isEmpty() {
       return _.isEmpty(this.PairFields)
+    },
+    //------------------------------------------------
+    NameStyle() {
+      return {
+        width: Ti.Css.toSize(this.nameWidth)
+      }
     },
     //------------------------------------------------
     PairFields() {

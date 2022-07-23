@@ -131,7 +131,9 @@ const _M = {
       if (/^(indicate)$/.test(name)) {
         return () => ({ stop: false })
       }
-      //console.log("WnObjAdaptor.__on_events", name, payload)
+      if (/change$/.test(name)) {
+        console.log("WnObjAdaptor.__on_events", name, payload)
+      }
 
       // Try routing
       let fns = _.get(this.EventRouting, name)
@@ -194,7 +196,7 @@ const _M = {
   mounted: async function () {
     // Update the customized actions
     let actions = this.objActions || null
-    if (_.isArray(actions) && !_.isEmpty(actions)) {
+    if (_.isArray(actions)) {
       this.$notify("actions:update", actions)
     }
   },

@@ -249,8 +249,40 @@ const _M = {
   // GUI Settings
   //
   //----------------------------------------
+  setActionsPath(state, actionsPath) {
+    state.actionsPath = actionsPath
+  },
+  setLayoutPath(state, layoutPath) {
+    state.layoutPath = layoutPath
+  },
+  setSchemaPath(state, schemaPath) {
+    state.schemaPath = schemaPath
+  },
+  setMethodPaths(state, methodPaths) {
+    state.methodPaths = methodPaths
+  },
+  //----------------------------------------
+  setObjActions(state, objActions = {}) {
+    state.objActions = objActions
+  },
+  setLayout(state, layout = {}) {
+    state.layout = layout
+  },
   setSchema(state, schema = {}) {
     state.schema = schema
+  },
+  assignSchema(state, schema = {}) {
+    state.schema = _.assign({}, state.schema, schema)
+  },
+  mergeSchema(state, schema = {}) {
+    let sc = _.cloneDeep(state.schema)
+    state.schema = _.merge(sc, schema)
+  },
+  setObjMethods(state, objMethods = {}) {
+    state.objMethods = objMethods
+  },
+  assignObjMethods(state, objMethods = {}) {
+    state.objMethods = _.assign({}, state.objMethods, objMethods)
   },
   //----------------------------------------
 }

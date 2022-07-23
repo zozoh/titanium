@@ -450,13 +450,6 @@ const _M = {
         field.uniqKey = _.concat(field.name).join("-")
         //console.log(field.uniqKey)
 
-        // // field status
-        // let fStatus = _.get(this.fieldStatus, funiqKey)
-        // if(fStatus) {
-        //   field.status  = fStatus.status
-        //   field.message = fStatus.message
-        // }
-
         // Default
         if (!field.serializer) {
           let fnName = Ti.Types.getFuncByType(field.type || "String", "serializer")

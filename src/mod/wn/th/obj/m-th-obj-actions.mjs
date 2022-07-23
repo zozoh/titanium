@@ -169,6 +169,7 @@ const _M = {
     }
 
     //console.log("setSchema", schema)
+    // Should set scheme after All deps components preloaded
     commit("setSchema", schema)
     //console.log("schema", schema)
 

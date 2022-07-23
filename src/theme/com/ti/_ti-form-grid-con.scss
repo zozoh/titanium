@@ -1,5 +1,26 @@
 .ti-form-grid-con {
   //--------------------------------------
+  @mixin fld-status-color() {
+    &.is-spinning {
+      @include color($color-primary, c);
+    }
+    &.is-ok {
+      @include color($color-success, c);
+    }
+    &.is-error {
+      @include color($color-error, c);
+    }
+    &.is-warn {
+      @include color($color-warn, c);
+    }
+    &.is-info {
+      @include color($color-info, c);
+    }
+    &.is-track {
+      @include color($color-track, c);
+    }
+  }
+  //--------------------------------------
   display: grid;
   grid-auto-columns: 1fr;
   grid-auto-rows: auto;
@@ -34,6 +55,7 @@
   }
   //----------------------------------
   > .field-name {
+    @include fld-status-color;
     @include flex-align-nowrap;
     color: map-get($color-track, c);
     position: relative;
@@ -142,6 +164,7 @@
   }
   //----------------------------------
   > .field-value {
+    @include fld-status-color;
     position: relative;
     //----------------------------------
     &[value-wrap="nowrap"] {
@@ -206,25 +229,6 @@
       height: SZ(32);
     }
     //----------------------------------
-  }
-  //------------------------------------
-  &.is-spinning {
-    @include color($color-primary, c);
-  }
-  &.is-ok {
-    @include color($color-success, c);
-  }
-  &.is-error {
-    @include color($color-error, c);
-  }
-  &.is-warn {
-    @include color($color-warn, c);
-  }
-  &.is-info {
-    @include color($color-info, c);
-  }
-  &.is-track {
-    @include color($color-track, c);
   }
   //--------------------------------------
 }
