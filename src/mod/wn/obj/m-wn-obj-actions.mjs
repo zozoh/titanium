@@ -167,7 +167,8 @@ const _M = {
     let {
       filter, sorter, match,
       currentId, checkedIds,
-      pageSize
+      pageSize,
+      guiShown
     } = be
 
     // Apply filter
@@ -191,6 +192,11 @@ const _M = {
     }
     if (!_.isEmpty(checkedIds)) {
       commit("setCheckedIds", checkedIds)
+    }
+
+    // Apply shown
+    if (!_.isEmpty(guiShown)) {
+      commit("setGuiShown", guiShown)
     }
 
     // Apply pager

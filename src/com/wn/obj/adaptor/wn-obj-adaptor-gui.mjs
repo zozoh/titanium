@@ -161,6 +161,7 @@ const _M = {
         //------------------------------
         meta: this.meta,
         content: this.content,
+        contentData: this.contentData,
         //------------------------------
         status: this.status,
         fieldStatus: this.fieldStatus,
