@@ -11,12 +11,16 @@ const _M = {
     //--------------------------------------
     EventRouting() {
       let routing = {
+        "block:shown": "updateBlockShown",
         "block:show": "showBlock",
         "block:hide": "hideBlock",
+        "meta::field:change": "OnMetaFieldChange",
+        "content::change": "OnContentChange",
+        "save:change": "OnSaveChange",
         "search::list::select": "OnSearchListSelect",
-        "search::filter::filter:change": "OnSearchFilterChange",
-        "search::filter::sorter:change": "OnSearchSorterChange",
-        "search::pager::change": "OnSearchPagerChange"
+        "filter::filter:change": "OnSearchFilterChange",
+        "filter::sorter:change": "OnSearchSorterChange",
+        "pager::change": "OnSearchPagerChange"
       }
 
       // Define the expend function
@@ -67,9 +71,31 @@ const _M = {
       await this.dispatch("applyPager", payload)
     },
     //--------------------------------------
+    async OnMetaFieldChange(payload) {
+      await this.dispatch("updateMetaField", payload)
+    },
+    //--------------------------------------
+    OnContentChange(payload) {
+      this.dispatch("changeContent", payload)
+    },
+    //--------------------------------------
+    async OnSaveChange() {
+      await this.dispatch("saveContent")
+    },
+    //--------------------------------------
     //
     //  Show/Hide block
     //
+    //--------------------------------------
+    updateBlockShown(shown = {}) {
+      let guiShown = {}
+      _.forEach(shown, (v, k) => {
+        if (v) {
+          guiShown[k] = true
+        }
+      })
+      this.commit("setGuiShown", guiShown)
+    },
     //--------------------------------------
     showBlock(blockName) {
       let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)

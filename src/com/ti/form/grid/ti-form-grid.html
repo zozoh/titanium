@@ -55,7 +55,8 @@
           <section 
             v-for="grp in GridFormFields"
               :key="grp.uniqKey"
-              class="group-body">
+              class="group-body"
+              :class="grp.bodyClass">
               <!-------------------------------------->
               <!--
                 Group Title
@@ -104,7 +105,10 @@
           <!--
             Tab Body
           -->
-          <section class="tab-body" :style="TabBodyStyle">
+          <section
+            class="tab-body" 
+            :class="CurrentTabGroup.bodyClass"
+            :style="TabBodyStyle">
             <grid-container
               v-bind="GridContainerConf"
               :fields="GridFormFields"

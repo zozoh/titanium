@@ -451,7 +451,6 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
     @include flex-align-nowrap($ai: stretch);
     width: 100%;
     height: 100%;
-    position: relative;
     //-----------------------------------
     > .block-main-con {
       flex: 1 1 auto;
@@ -467,119 +466,118 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
       }
     }
     //-----------------------------------
-    > .block-adjust-bar {
-      position: absolute;
-      background-color: map-get($color-mask, thin);
-      user-select: none;
-      opacity: 0;
-      transition: opacity 0.3s;
-      z-index: $z-over;
-      //---------------------------------
-      &:hover {
-        opacity: 1;
-      }
-      //---------------------------------
-      $BAR_SIZE: SZ(8);
-      $BTN_SIZE: SZ(20);
-      $BTN_RADI: SZ(6);
-      //---------------------------------
-      &[resize-mode="col-resize"] {
-        cursor: col-resize;
-        > .bar-con > .as-action.is-mini {
-          width: $BTN_SIZE;
-          height: $BTN_SIZE * 2;
-        }
-      }
-      //---------------------------------
-      &[reize-mode="row-resize"] {
-        cursor: row-resize;
-      }
-      //---------------------------------
-      &.at-left {
-        top: 0;
-        bottom: 0;
-        left: $BAR_SIZE / -2;
-        width: $BAR_SIZE;
-      }
-      //---------------------------------
-      &.at-right {
-        top: 0;
-        bottom: 0;
-        right: $BAR_SIZE / -2;
-        width: $BAR_SIZE;
-        cursor: col-resize;
-      }
-      //---------------------------------
-      &.at-top {
-        top: $BAR_SIZE / -2;
-        left: 0;
-        right: 0;
-        height: $BAR_SIZE;
-      }
-      //---------------------------------
-      &.at-bottom {
-        bottom: $BAR_SIZE / -2;
-        left: 0;
-        right: 0;
-        height: $BAR_SIZE;
-      }
-      //---------------------------------
-      > .bar-con {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        //-------------------------------
-        > .as-action {
-          @include color($color-mask, r, thin);
-          @include flex-center;
-          cursor: pointer;
-          position: absolute;
-          &.is-reset {
-            width: $BTN_SIZE;
-            height: $BTN_SIZE;
-          }
-          &:hover {
-            @include color($color-primary, r, c);
-          }
-        }
-        //-------------------------------
-      }
-      //---------------------------------
-      &[arrow-at="left"] {
-        > .bar-con .as-action {
-          &.is-mini {
-            top: 50%;
-            right: $BAR_SIZE;
-            margin-top: $BTN_SIZE * -1;
-            border-radius: $BTN_RADI 0 0 $BTN_RADI;
-          }
-          &.is-reset {
-            left: $BAR_SIZE;
-            border-radius: 0 0 ($BTN_RADI * 1.5) 0;
-          }
-        }
-      }
-      //---------------------------------
-      &[arrow-at="right"] {
-        > .bar-con .as-action {
-          &.is-mini {
-            top: 50%;
-            left: $BAR_SIZE;
-            margin-top: $BTN_SIZE * -1;
-            border-radius: 0 $BTN_RADI $BTN_RADI 0;
-          }
-          &.is-reset {
-            right: $BAR_SIZE;
-            border-radius: 0 0 0 ($BTN_RADI * 1.6);
-          }
-        }
-      }
-      //---------------------------------
-    } // > .block-adjust-bar
-    //-----------------------------------
   } // > .block-main
   //-------------------------------------
-}
+  > .block-adjust-bar {
+    position: absolute;
+    background-color: map-get($color-mask, thin);
+    user-select: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: $z-mask + 1;
+    //-----------------------------------
+    &:hover {
+      opacity: 1;
+    }
+    //-----------------------------------
+    $BAR_SIZE: SZ(8);
+    $BTN_SIZE: SZ(20);
+    $BTN_RADI: SZ(6);
+    //-----------------------------------
+    &[resize-mode="col-resize"] {
+      cursor: col-resize;
+      > .bar-con > .as-action.is-mini {
+        width: $BTN_SIZE;
+        height: $BTN_SIZE * 2;
+      }
+    }
+    //-----------------------------------
+    &[reize-mode="row-resize"] {
+      cursor: row-resize;
+    }
+    //-----------------------------------
+    &.at-left {
+      top: 0;
+      bottom: 0;
+      left: $BAR_SIZE / -2;
+      width: $BAR_SIZE;
+    }
+    //-----------------------------------
+    &.at-right {
+      top: 0;
+      bottom: 0;
+      right: $BAR_SIZE / -2;
+      width: $BAR_SIZE;
+      cursor: col-resize;
+    }
+    //-----------------------------------
+    &.at-top {
+      top: $BAR_SIZE / -2;
+      left: 0;
+      right: 0;
+      height: $BAR_SIZE;
+    }
+    //-----------------------------------
+    &.at-bottom {
+      bottom: $BAR_SIZE / -2;
+      left: 0;
+      right: 0;
+      height: $BAR_SIZE;
+    }
+    //-----------------------------------
+    > .bar-con {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      //---------------------------------
+      > .as-action {
+        @include color($color-mask, r, thin);
+        @include flex-center;
+        cursor: pointer;
+        position: absolute;
+        &.is-reset {
+          width: $BTN_SIZE;
+          height: $BTN_SIZE;
+        }
+        &:hover {
+          @include color($color-primary, r, c);
+        }
+      }
+      //---------------------------------
+    }
+    //-----------------------------------
+    &[arrow-at="left"] {
+      > .bar-con .as-action {
+        &.is-mini {
+          top: 50%;
+          right: $BAR_SIZE;
+          margin-top: $BTN_SIZE * -1;
+          border-radius: $BTN_RADI 0 0 $BTN_RADI;
+        }
+        &.is-reset {
+          left: $BAR_SIZE;
+          border-radius: 0 0 ($BTN_RADI * 1.5) 0;
+        }
+      }
+    }
+    //-----------------------------------
+    &[arrow-at="right"] {
+      > .bar-con .as-action {
+        &.is-mini {
+          top: 50%;
+          left: $BAR_SIZE;
+          margin-top: $BTN_SIZE * -1;
+          border-radius: 0 $BTN_RADI $BTN_RADI 0;
+        }
+        &.is-reset {
+          right: $BAR_SIZE;
+          border-radius: 0 0 0 ($BTN_RADI * 1.6);
+        }
+      }
+    }
+    //-----------------------------------
+  } // > .block-adjust-bar
+} // .ti-gui-block
 //---------------------------------------
 // Animation
 //---------------------------------------

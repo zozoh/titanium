@@ -394,12 +394,14 @@ const _M = {
       this.myCandidateFormFields = cans
     },
     //--------------------------------------------------
-    async evalFormField(fld = {}, nbs = [], cans = []) {
+    async evalFormField(fld = {}, nbs = [], cans = [], grp = this) {
       // The key
       let fldKey = Ti.Util.anyKey(fld.name || nbs)
 
       // Visibility
       let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.data)
+
+      //............................................
 
       //............................................
       let field;
@@ -412,11 +414,17 @@ const _M = {
           key: fldKey,
           fields: []
         })
+
         // Group fields
         if (_.isArray(fld.fields)) {
           for (let index = 0; index < fld.fields.length; index++) {
             let subfld = fld.fields[index]
-            let newSubFld = await this.evalFormField(subfld, [...nbs, index], cans)
+            let newSubFld = await this.evalFormField(
+              subfld,
+              [...nbs, index],
+              cans,
+              group
+            )
             if (newSubFld) {
               group.fields.push(newSubFld)
             }
@@ -479,16 +487,7 @@ const _M = {
         field.com = await this.evalFieldCom(field)
 
         // Layout style
-        _.defaults(field, {
-          "nameClass": this.fieldNameClass,
-          "nameStyle": this.fieldNameStyle,
-          "nameAlign": this.fieldNameAlign,
-          "nameVAlign": this.fieldNameVAlign,
-          "nameWrap": this.fieldNameWrap,
-          "valueClass": this.fieldValueClass,
-          "valueStyle": this.fieldValueStyle,
-          "valueWrap": this.fieldValueWrap
-        })
+        this.applyFieldDefault(field, grp)
       }
       //............................................
       // Panice
@@ -532,6 +531,21 @@ const _M = {
 
       // Done
       return field
+    },
+    //--------------------------------------------------
+    applyFieldDefault(field, grp = this) {
+      _.defaults(field, {
+        "nameClass": grp.fieldNameClass || this.fieldNameClass,
+        "nameStyle": grp.fieldNameStyle || this.fieldNameStyle,
+        "nameAlign": grp.fieldNameAlign || this.fieldNameAlign,
+        "nameVAlign": grp.fieldNameVAlign || this.fieldNameVAlign,
+        "nameWrap": grp.fieldNameWrap || this.fieldNameWrap,
+        "valueClass": grp.fieldValueClass || this.fieldValueClass,
+        "valueStyle": grp.fieldValueStyle || this.fieldValueStyle,
+        "valueWrap": grp.fieldValueWrap || this.fieldValueWrap,
+        "rowSpan": grp.fieldRowSpan || this.fieldRowSpan,
+        "colSpan": grp.fieldColSpan || this.fieldColSpan,
+      })
     },
     //--------------------------------------------------
     async evalFieldCom(fld) {

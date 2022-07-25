@@ -107,15 +107,21 @@ const _M = {
       if (this.isFlatMode) {
         return this.FormFields
       }
+      if (this.CurrentTabGroup) {
+        return this.CurrentTabGroup.fields
+      }
+      return this.FormFields
+    },
+    //--------------------------------------------------
+    CurrentTabGroup() {
       if (this.isTabMode) {
         for (let li of this.FormFields) {
           if (li.index == this.currentTabIndex) {
-            return li.fields
+            return li
           }
         }
-        return []
+        return {}
       }
-      return this.FormFields
     },
     //--------------------------------------------------
     // add "current" to theTabList
