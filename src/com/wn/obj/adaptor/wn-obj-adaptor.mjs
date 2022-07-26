@@ -157,9 +157,9 @@ const _M = {
       if (/^(indicate)$/.test(name)) {
         return () => ({ stop: false })
       }
-      if (/change$/.test(name)) {
-        console.log("WnObjAdaptor.__on_events", name, payload)
-      }
+      // if (/change$/.test(name)) {
+      //   console.log("WnObjAdaptor.__on_events", name, payload)
+      // }
 
       // Try routing
       let fns = _.get(this.EventRouting, name)

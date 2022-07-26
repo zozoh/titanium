@@ -6,9 +6,9 @@ function saveLocalBehavior(state, key, val) {
       return
     }
     // Save to local
-    let be = Ti.Storage.session.getObject(state.lbkAt)
+    let be = Ti.Storage.local.getObject(state.lbkAt)
     be[key] = val
-    Ti.Storage.session.setObject(state.lbkAt, be)
+    Ti.Storage.local.setObject(state.lbkAt, be)
   }
 }
 ////////////////////////////////////////////////

@@ -13,23 +13,10 @@
       }
       //---------------------------------------------
       > .as-deleter {
-        @include flex-center;
-        @include color($color-chip, r, c);
-        width: SZ(24);
-        cursor: pointer;
-        position: relative;
         //-------------------------------------------
         > i {
           transition: transform 0.3s;
           opacity: 0;
-        }
-        //-------------------------------------------
-        > span {
-          @include flex-center;
-          @include pos-abs-full;
-          @include font-fixed;
-          opacity: 1;
-          font-size: SZ(10);
         }
         //-------------------------------------------
         &:hover {
@@ -41,6 +28,23 @@
           > span {
             opacity: 0;
           }
+        }
+        //-------------------------------------------
+      }
+      //---------------------------------------------
+      > .as-index {
+        @include flex-center;
+        @include color($color-chip, r, c);
+        width: SZ(24);
+        cursor: pointer;
+        position: relative;
+        //-------------------------------------------
+        > span {
+          @include flex-center;
+          @include pos-abs-full;
+          @include font-fixed;
+          opacity: 1;
+          font-size: SZ(10);
         }
         //-------------------------------------------
       }

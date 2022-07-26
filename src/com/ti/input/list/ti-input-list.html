@@ -6,9 +6,17 @@
       <div
         v-for="it in ListItems"
           class="as-item">
-            <div class="as-deleter" @click.left="OnDeleteItem(it)">
-              <i class="zmdi zmdi-close"></i>
-              <span>{{it.index}}</span>
+            <div 
+              v-if="canRemoveItem"
+                class="as-deleter as-index"
+                @click.left="OnDeleteItem(it)">
+                <i class="zmdi zmdi-close"></i>
+                <span>{{it.index}}</span>
+            </div>
+            <div 
+              v-else
+                class="as-index">
+                <span>{{it.index}}</span>
             </div>
             <component 
               :is="it.comType"
@@ -19,7 +27,7 @@
       </div> <!--.as-item-->
   </div> <!--.as-list-->
   <!----------------------------------------->
-  <div class="as-adder">
+  <div class="as-adder" v-if="canAddNewItem">
     <div class="adder-btn" @click.left="OnAddNewItem">
       <i class="zmdi zmdi-plus"></i>
       <span>{{'i18n:add-item'|i18n}}</span>

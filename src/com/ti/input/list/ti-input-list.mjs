@@ -12,6 +12,10 @@ const _M = {
       type: String,
       default: ","
     },
+    "autoJsValue": {
+      type: Boolean,
+      default: false
+    },
     "dftNewItem": {
       type: [Number, String, Object],
       default: null
@@ -30,6 +34,14 @@ const _M = {
         autoSelect: true,
         autoJsValue: true
       })
+    },
+    "canAddNewItem": {
+      type: Boolean,
+      default: true
+    },
+    "canRemoveItem": {
+      type: Boolean,
+      default: true
     },
     //------------------------------------------------
     // Aspect
@@ -121,8 +133,16 @@ const _M = {
     //------------------------------------------------
     OnValueChange({ index, value }, newVal) {
       if (!_.isEqual(value, newVal)) {
+        let val = newVal
+        if (this.autoJsValue) {
+          val = Ti.S.toJsValue(val, {
+            autoNil: true,
+            autoDate: false,
+            trimed: true
+          })
+        }
         let list = _.cloneDeep(this.TheValue) || {}
-        list[index] = newVal
+        list[index] = val
         this.tryNotifyChange(list)
       }
     },

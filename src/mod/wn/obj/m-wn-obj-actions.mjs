@@ -224,7 +224,7 @@ const _M = {
       return
     }
     // Load local setting
-    let be = Ti.Storage.session.getObject(state.lbkAt)
+    let be = Ti.Storage.local.getObject(state.lbkAt)
     if (!_.isEmpty(be)) {
       dispatch("applyBehavior", be)
     }

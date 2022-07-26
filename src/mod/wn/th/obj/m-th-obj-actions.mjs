@@ -329,7 +329,7 @@ const _M = {
       return
     }
     // Load local setting
-    let be = Ti.Storage.session.getObject(state.lbkAt)
+    let be = Ti.Storage.local.getObject(state.lbkAt)
     // Apply Ignore
     if (state.lbkIgnore) {
       let be2 = {}

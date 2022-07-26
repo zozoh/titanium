@@ -40,6 +40,7 @@ const _M = {
       let listDisplay = _.concat(this.listDisplay)
       let conf = ({
         list: () => ({
+          dftLabelHoverCopy: false,
           rowClassBy: "->is-${visibility}",
           display: _.map(listDisplay, li => {
             let m = /^@<thumb(:([^:]*)(:([^:]*))?)?>$/.exec(li)
@@ -53,6 +54,7 @@ const _M = {
           })
         }),
         table: () => ({
+          dftLabelHoverCopy: false,
           rowClassBy: "->is-${visibility}",
           fields: _.map(this.tableFields, key => {
             return Wn.Obj.getTableField(key)
