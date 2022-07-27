@@ -70,7 +70,7 @@ const _M = {
       let desktopTree;
       if (this.isSyntaxError) {
         desktopTree = {
-          comType: "ti-loading",
+          comType: "TiLoading",
           comConf: {
             className: "is-error",
             icon: "im-warning",
@@ -81,7 +81,7 @@ const _M = {
       //
       else {
         desktopTree = {
-          comType: "ti-text-json-tree",
+          comType: "TiTextJsonTree",
           comConf: _.assign({}, this.tree, {
             value: this.TheData
           })
@@ -92,9 +92,9 @@ const _M = {
       return {
         "desktop-tree": desktopTree,
         "desktop-source": {
-          comType: "ti-text-raw",
+          comType: "TiTextCodeAce",
           comConf: {
-            showTitle: false,
+            mode: "json",
             value: this.TheSource
           }
         }

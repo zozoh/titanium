@@ -17,7 +17,7 @@
   "mimes" : {
     "text/json" : "json-editor",
     "application/json" : "json-editor",
-    "application/x-javascript" : "text-editor",
+    "application/x-javascript" : "js-editor",
     "text/*" : "text-editor"
   },
   "races" : {

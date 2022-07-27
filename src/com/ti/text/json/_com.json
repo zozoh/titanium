@@ -1,12 +1,12 @@
 {
-  "name" : "ti-text-json",
-  "globally" : true,
-  "template" : "./ti-text-json.html",
-  "mixins" : ["./ti-text-json.mjs"],
-  "components" : [
+  "name": "ti-text-json",
+  "globally": true,
+  "template": "./ti-text-json.html",
+  "mixins": "./ti-text-json.mjs",
+  "components": [
     "@com:ti/gui",
-    "@com:ti/text/raw",
     "@com:ti/toggle",
+    "@com:ti/text/code/ace",
     "@com:ti/text/json/tree"
   ]
 }

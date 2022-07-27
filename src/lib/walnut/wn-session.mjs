@@ -13,6 +13,8 @@ const WnSession = {
       by_tp, by_val
     })
     WnSession.env(envs)
+
+    Ti.Env("theme", envs.THEME)
   },
   //----------------------------------------
   env(vars) {

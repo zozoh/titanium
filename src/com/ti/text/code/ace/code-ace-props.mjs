@@ -18,10 +18,16 @@ const _M = {
   //...............................................
   "theme" : {
     type : String,
-    default : "monokai"
+    default : "auto"
+    //default : "monokai"
   },
   "options" : {
-    type : Object
+    type : Object,
+    default: ()=>({
+      fontFamily: "Consolas, 'Courier New', monospace",
+      lineHeight: "1.5em",
+      fontSize: "14px"
+    })
   },
   "loadingAs" : {
     type : Object,

@@ -1,3 +1,5 @@
+const OPTION_CSS = ["fontSize", "fontFamily", "lineHeight"]
+/////////////////////////////////////////////////////
 const _M = {
   ///////////////////////////////////////////////////
   data: () => ({
@@ -8,6 +10,28 @@ const _M = {
     //-----------------------------------------------
     TopClass() {
       return this.getTopClass()
+    },
+    //-----------------------------------------------
+    EditorStyle() {
+      let css = _.pick(this.options, OPTION_CSS);
+      return Ti.Css.toStyle(css)
+    },
+    //-----------------------------------------------
+    EditorOption() {
+      return _.omit(this.options, OPTION_CSS)
+    },
+    //-----------------------------------------------
+    EditorTheme() {
+      if("auto" == this.theme) {
+        let sysTheme = Ti.Env("theme") || "light"
+        if(/dark/.test(sysTheme)) {
+          return "terminal"
+        }
+        //return "clouds"
+        return "chrome"
+        //return "github"
+      }
+      return this.theme
     },
     //-----------------------------------------------
     BlankComStyle() {
@@ -29,8 +53,9 @@ const _M = {
     initEditor() {
       // Create editor
       let editor = ace.edit(this.$refs.edit);
-      editor.setTheme(`ace/theme/${this.theme}`)
-      editor.setOptions(this.options || {})
+      editor.setTheme(`ace/theme/${this.EditorTheme}`)
+      //console.log(this.EditorOption)
+      editor.setOptions(this.EditorOption)
       editor.session.setMode(`ace/mode/${this.mode}`)
       editor.session.setValue(this.value || "")
 
