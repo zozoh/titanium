@@ -258,6 +258,8 @@ const _M = {
     if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
     }
+
+    // Guard: Nil meta
     if (!meta) {
       return await Ti.Toast.Open("Nil Meta", "warn")
     }

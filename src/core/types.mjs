@@ -1257,27 +1257,50 @@ const TiTypes = {
   getFormFieldVisibility({
     hidden, visible, disabled, enabled
   } = {}, data = {}) {
+    let is_hidden = false
+    // Supprot ["xxx", "!xxx"] quick mode
+    const eval_cond = function (input) {
+      if (_.isArray(input)) {
+        let list = []
+        for (let it of input) {
+          if (_.isString(it)) {
+            list.push({
+              [it]: (v) => v ? true : false
+            })
+          } else {
+            list.push(it)
+          }
+        }
+        return list
+      }
+      return input
+    }
     // Hide or disabled
     if (!Ti.Util.isNil(hidden)) {
-      if (Ti.AutoMatch.test(hidden, data)) {
-        return { hidden: true, visible: false }
-      }
+      let cond = eval_cond(hidden)
+      is_hidden = Ti.AutoMatch.test(cond, data)
     }
     // Visiblity
     if (!Ti.Util.isNil(visible)) {
-      if (!Ti.AutoMatch.test(visible, data)) {
-        return { hidden: true, visible: false }
-      }
+      let cond = eval_cond(visible)
+      is_hidden = !Ti.AutoMatch.test(cond, data)
     }
     // Disable
     let is_disable = false
-    if (disabled) {
-      is_disable = Ti.AutoMatch.test(disabled, data)
+    if (!Ti.Util.isNil(disabled)) {
+      let cond = eval_cond(disabled)
+      is_disable = Ti.AutoMatch.test(cond, data)
     }
-    if (enabled) {
-      is_disable = !Ti.AutoMatch.test(enabled, data)
+    if (!Ti.Util.isNil(enabled)) {
+      let cond = eval_cond(enabled)
+      is_disable = !Ti.AutoMatch.test(cond, data)
     }
-    return { disabled: is_disable, enabled: !is_disable }
+    return {
+      hidden: is_hidden,
+      visible: !is_hidden,
+      disabled: is_disable,
+      enabled: !is_disable
+    }
   },
   //.......................................
   assertDataByForm(data = {}, fields = []) {
