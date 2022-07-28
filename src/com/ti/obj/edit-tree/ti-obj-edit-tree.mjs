@@ -258,7 +258,9 @@ export default {
         },
         "node": {
           comType: "TiForm",
-          comConf: _.assign({}, this.nodeForm, {
+          comConf: _.assign({
+            gridColumnHint: 1
+          }, this.nodeForm, {
             data: this.CurrentNodeData,
             autoShowBlank: true
           })

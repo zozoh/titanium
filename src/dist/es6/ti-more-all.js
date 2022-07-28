@@ -1,4 +1,4 @@
-// Pack At: 2022-07-28 10:41:53
+// Pack At: 2022-07-28 11:52:38
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -37828,7 +37828,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
         },
         "node": {
           comType: "TiForm",
-          comConf: _.assign({}, this.nodeForm, {
+          comConf: _.assign({
+            gridColumnHint: 1
+          }, this.nodeForm, {
             data: this.CurrentNodeData,
             autoShowBlank: true
           })
