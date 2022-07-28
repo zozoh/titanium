@@ -1,4 +1,4 @@
-// Pack At: 2022-07-24 02:33:29
+// Pack At: 2022-07-28 10:41:53
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5063,9 +5063,9 @@ function saveLocalBehavior(state, key, val) {
       return
     }
     // Save to local
-    let be = Ti.Storage.session.getObject(state.lbkAt)
+    let be = Ti.Storage.local.getObject(state.lbkAt)
     be[key] = val
-    Ti.Storage.session.setObject(state.lbkAt, be)
+    Ti.Storage.local.setObject(state.lbkAt, be)
   }
 }
 ////////////////////////////////////////////////
@@ -5582,22 +5582,22 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/transfer/ti-transfer.mjs'] = (function(){
 const _M = {
   ///////////////////////////////////////////////////////
-  data : ()=>({
-    myFilterValue : null,
-    myOptionsData : [],
-    can : {
-      data : [],
-      checkedIds : []
+  data: () => ({
+    myFilterValue: null,
+    myOptionsData: [],
+    can: {
+      data: [],
+      checkedIds: []
     },
-    sel : {
-      data : [],
-      checkedIds : []
+    sel: {
+      data: [],
+      checkedIds: []
     },
-    selIdMap : {},
+    selIdMap: {},
     loading: true
   }),
   ///////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -5605,8 +5605,8 @@ const _M = {
     //------------------------------------------------
     TopStyle() {
       return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
+        width: this.width,
+        height: this.height
       })
     },
     //------------------------------------------------
@@ -5614,8 +5614,8 @@ const _M = {
       return Ti.S.toArray(this.value)
     },
     //------------------------------------------------
-    CanListComType() {return this.canComType || "ti-list"},
-    SelListComType() {return this.selComType || "ti-list"},
+    CanListComType() { return this.canComType || "ti-list" },
+    SelListComType() { return this.selComType || "ti-list" },
     //------------------------------------------------
     CanListComConf() {
       return this.genComConf(this.canComConf, this.can)
@@ -5627,17 +5627,17 @@ const _M = {
     SelActions() {
       return {
         items: [{
-          name : "moveUp",
-          type : "action",
-          icon : "zmdi-long-arrow-up",
-          action : ()=>{
+          name: "moveUp",
+          type: "action",
+          icon: "zmdi-long-arrow-up",
+          action: () => {
             this.selMoveUp()
           }
         }, {
-          name : "moveDown",
-          type : "action",
-          icon : "zmdi-long-arrow-down",
-          action : ()=>{
+          name: "moveDown",
+          type: "action",
+          icon: "zmdi-long-arrow-down",
+          action: () => {
             this.selMoveDown()
           }
         }]
@@ -5646,14 +5646,14 @@ const _M = {
     //------------------------------------------------
     FilterComConf() {
       return _.assign({
-        trimed      : true,
-        width       : "100%",
-        prefixIcon  : this.loading
+        trimed: true,
+        width: "100%",
+        prefixIcon: this.loading
           ? "fas-spinner fa-spin"
           : "zmdi-filter-list",
-        placeholder : "i18n:filter",
-        hover       : ['prefixIcon','suffixText','suffixIcon'],
-        loading     : this.loading
+        placeholder: "i18n:filter",
+        hover: ['prefixIcon', 'suffixText', 'suffixIcon'],
+        loading: this.loading
       }, this.fltComConf)
     },
     //------------------------------------------------
@@ -5662,61 +5662,53 @@ const _M = {
     },
     //------------------------------------------------
     ReverMapping() {
-      if(this.mapping) {
+      if (this.mapping) {
         Ti.Util.reverMapping(this.mapping)
       }
     },
     //------------------------------------------------
     Dict() {
-      // Define the loading hook
-      const _hook_loading = ({loading}) => {
-        this.loading = loading
-      }
       // Customized
-      if(this.options instanceof Ti.Dict) {
-        let d = this.options.duplicate()
-        d.addHooks(_hook_loading)
-        return d
+      if (this.options instanceof Ti.Dict) {
+        return this.options
       }
       // Refer dict
-      if(_.isString(this.options)) {
+      if (_.isString(this.options)) {
         let dictName = Ti.DictFactory.DictReferName(this.options)
-        if(dictName) {
-          return Ti.DictFactory.CheckDict(dictName, _hook_loading)
+        if (dictName) {
+          return Ti.DictFactory.CheckDict(dictName)
         }
       }
       let query;
-      if(_.isFunction(this.options)) {
+      if (_.isFunction(this.options)) {
         query = this.options
       }
       // Auto Create
       return Ti.DictFactory.CreateDict({
         data: this.options,
         query,
-        getValue : Ti.Util.genGetter(this.valueBy || "value"),
-        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
-        getIcon  : Ti.Util.genGetter(this.textBy  || "icon")
-      }, {
-        hooks: _hook_loading
+        getValue: Ti.Util.genGetter(this.valueBy || "value"),
+        getText: Ti.Util.genGetter(this.textBy || "text|name"),
+        getIcon: Ti.Util.genGetter(this.textBy || "icon")
       })
     }
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //---------------------------------------------------
-    OnCanListSelected({checkedIds}) {
+    OnCanListSelected({ checkedIds }) {
       this.can.checkedIds = Ti.Util.truthyKeys(checkedIds)
     },
     //---------------------------------------------------
-    OnSelListSelected({checkedIds}) {
+    OnSelListSelected({ checkedIds }) {
       this.sel.checkedIds = Ti.Util.truthyKeys(checkedIds)
     },
     //---------------------------------------------------
     OnClickHeadChecker(list) {
-      let {data, checkedIds} = list
+      let { data, checkedIds } = list
       // All -> none
-      if(data.length == checkedIds.length) {
+      if (data.length == checkedIds.length) {
         list.checkedIds = []
       }
       // Others to All
@@ -5733,15 +5725,15 @@ const _M = {
       this.evalShownCanList()
     },
     //---------------------------------------------------
-    GetHeadCheckerIcon({data, checkedIds}) {
-      if(data.length > 0) {
+    GetHeadCheckerIcon({ data, checkedIds }) {
+      if (data.length > 0) {
         // All
-        if(data.length == checkedIds.length) {
+        if (data.length == checkedIds.length) {
           return "fas-check-square"
         }
         // Partally
-        if(checkedIds.length > 0) {
-          return  "fas-minus-square"
+        if (checkedIds.length > 0) {
+          return "fas-minus-square"
         }
       }
       return "far-square" // none
@@ -5751,20 +5743,20 @@ const _M = {
     //---------------------------------------------------
     canListToSel() {
       // Guard
-      if(_.isEmpty(this.can.checkedIds))
+      if (_.isEmpty(this.can.checkedIds))
         return
       // Assign
-      let {src, tag} = this.assignToList(this.can, this.sel)
+      let { src, tag } = this.assignToList(this.can, this.sel)
       this.can = src
       this.sel = tag
     },
     //---------------------------------------------------
     selListToCan() {
       // Guard
-      if(_.isEmpty(this.sel.checkedIds))
+      if (_.isEmpty(this.sel.checkedIds))
         return
       // Assign
-      let {src, tag} = this.assignToList(this.sel,this.can)
+      let { src, tag } = this.assignToList(this.sel, this.can)
       this.can = tag
       this.sel = src
     },
@@ -5773,10 +5765,10 @@ const _M = {
       let {
         remains, checks, minIndex, maxIndex, checkedIds
       } = this.evalTheList(this.sel)
-      if(!_.isEmpty(checks) && minIndex > 0) {
+      if (!_.isEmpty(checks) && minIndex > 0) {
         Ti.Util.insertToArray(remains, minIndex - 1, ...checks)
         this.sel = {
-          data : remains,
+          data: remains,
           checkedIds
         }
       }
@@ -5786,13 +5778,13 @@ const _M = {
       let {
         remains, checks, minIndex, maxIndex, checkedIds
       } = this.evalTheList(this.sel)
-      if(!_.isEmpty(checks)) {
-        if(maxIndex < remains.length) {
-          maxIndex ++
+      if (!_.isEmpty(checks)) {
+        if (maxIndex < remains.length) {
+          maxIndex++
         }
         Ti.Util.insertToArray(remains, maxIndex, ...checks)
         this.sel = {
-          data : remains,
+          data: remains,
           checkedIds
         }
       }
@@ -5801,11 +5793,11 @@ const _M = {
     // Utility
     //---------------------------------------------------
     // Eval the can/sel List 
-    evalTheList(list={}) {
+    evalTheList(list = {}) {
       let remains = []
-      let checks  = []
+      let checks = []
       let checkedIds = []
-      let idMap   = {}
+      let idMap = {}
       let minIndex = list.data.length
       let maxIndex = -1
       // Build ID map
@@ -5815,7 +5807,7 @@ const _M = {
       // Eval checked and remains
       _.forEach(list.data, (li, index) => {
         let id = this.GetValueBy(li)
-        if(idMap[id]) {
+        if (idMap[id]) {
           minIndex = Math.min(index, minIndex)
           maxIndex = Math.max(index, maxIndex)
           checkedIds.push(id)
@@ -5828,50 +5820,50 @@ const _M = {
       return {
         remains, checks,
         minIndex,
-        maxIndex : maxIndex - checks.length + 1,
+        maxIndex: maxIndex - checks.length + 1,
         checkedIds
       }
     },
     //---------------------------------------------------
-    assignToList({data, checkedIds}, ta) {
+    assignToList({ data, checkedIds }, ta) {
       // Make ids map
       let ids = {}
-      _.forEach(checkedIds, v=>ids[v]=true)
+      _.forEach(checkedIds, v => ids[v] = true)
       // pick remove list
       let remains = []
       let joins = []
       _.forEach(data, it => {
         let itV = this.Dict.getValue(it)
-        if(ids[itV]) {
+        if (ids[itV]) {
           joins.push(it)
         } else {
           remains.push(it)
         }
       })
       // Merge checked ids
-      _.forEach(ta.checkedIds, v=>ids[v]=true)
+      _.forEach(ta.checkedIds, v => ids[v] = true)
       // Join to new list
       return {
-        src : {
+        src: {
           data: remains, checkedIds: []
         },
-        tag : {
-          data      : _.concat(ta.data, joins),
+        tag: {
+          data: _.concat(ta.data, joins),
           checkedIds: []
         }
       }
     },
     //---------------------------------------------------
-    genComConf(comConf, {data, checkedIds}) {
+    genComConf(comConf, { data, checkedIds }) {
       return _.assign({
-        idBy      : this.GetValueBy,
-        display   : this.display || "text"
+        idBy: this.GetValueBy,
+        display: this.display || "text"
       }, comConf, {
-        data,  checkedIds,
-        multi            : true,
-        checkable        : true,
-        puppetMode       : true,
-        autoCheckCurrent : false,
+        data, checkedIds,
+        multi: true,
+        checkable: true,
+        puppetMode: true,
+        autoCheckCurrent: false,
       })
     },
     //---------------------------------------------------
@@ -5879,7 +5871,7 @@ const _M = {
       let list = []
       _.forEach(this.myOptionsData, it => {
         let itV = this.Dict.getValue(it)
-        if(!this.selIdMap[itV]) {
+        if (!this.selIdMap[itV]) {
           list.push(it)
         }
       })
@@ -5889,17 +5881,20 @@ const _M = {
     //---------------------------------------------------
     async reloadCanList() {
       //console.log("reloadCanList")
+      this.loading = true
       this.myOptionsData = await this.Dict.queryData(this.myFilterValue)
       this.evalShownCanList()
+      this.loading = false
     },
     //---------------------------------------------------
-    async reloadSelList(vals=this.Values) {
+    async reloadSelList(vals = this.Values) {
       //console.log("reloadSelList")
+      this.loading = true
       let list = []
-      for(let val of vals) {
+      for (let val of vals) {
         let v = this.evalValue(val)
         let it = await this.Dict.getItem(v)
-        if(it) {
+        if (it) {
           list.push(it)
         } else {
           list.push(v)
@@ -5907,8 +5902,9 @@ const _M = {
       }
       this.sel = {
         data: list,
-        checkedIds : _.get(this.sel, "checkedIds") || []
+        checkedIds: _.get(this.sel, "checkedIds") || []
       }
+      this.loading = false
     },
     //---------------------------------------------------
     rebuildIdMap(data) {
@@ -5926,20 +5922,20 @@ const _M = {
     //---------------------------------------------------
     evalValue(val) {
       // Guard
-      if(Ti.Util.isNil(val)){
+      if (Ti.Util.isNil(val)) {
         return val
       }
       // Cases
       return ({
         id: v => v,
         obj: v => {
-          if(this.ReverMapping) {
+          if (this.ReverMapping) {
             v = Ti.Util.translate(v, this.ReverMapping)
           }
           return _.get(v, this.idBy)
         },
         item: v => {
-          if(this.ReverMapping) {
+          if (this.ReverMapping) {
             v = Ti.Util.translate(v, this.ReverMapping)
           }
           return _.get(v, "value")
@@ -5950,7 +5946,7 @@ const _M = {
     async genValue() {
       let ids = _.keys(this.selIdMap)
       // Guard
-      if(_.isEmpty(ids))
+      if (_.isEmpty(ids))
         return []
       // Parse
       return await ({
@@ -5959,26 +5955,26 @@ const _M = {
         },
         obj: async ids => {
           let list = []
-          for(let id of ids) {
+          for (let id of ids) {
             let it = await this.Dict.getItem(id)
-            if(it)
-              if(this.mapping) {
+            if (it)
+              if (this.mapping) {
                 it = Ti.Util.translate(it, this.mapping)
               }
-              list.push(it)
+            list.push(it)
           }
           return list
         },
         item: async ids => {
           let list = []
-          for(let id of ids) {
+          for (let id of ids) {
             let obj = await this.Dict.getItem(id)
             let it = {
-              text  : this.Dict.getText(obj),
-              value : this.Dict.getValue(obj)
+              text: this.Dict.getText(obj),
+              value: this.Dict.getValue(obj)
             }
-            if(it) {
-              if(this.mapping) {
+            if (it) {
+              if (this.mapping) {
                 it = Ti.Util.translate(it, this.mapping)
               }
               list.push(it)
@@ -5991,27 +5987,27 @@ const _M = {
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
-  watch : {
-    "value" : function(newVal, oldVal) {
-      if(!_.isEqual(newVal, oldVal)) {
+  watch: {
+    "value": function (newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
         this.reloadSelList()
       }
     },
-    "options" : function(newVal, oldVal) {
-      if(!_.isEqual(newVal, oldVal)) {
+    "options": function (newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
         this.reloadCanList()
       }
     },
-    "sel.data" : async function() {
+    "sel.data": async function () {
       this.rebuildSelIdMap()
       let val = await this.genValue()
-      if(!_.isEqual(val, this.Values)) {
+      if (!_.isEqual(val, this.Values)) {
         this.$notify("change", val)
       }
     }
   },
   ///////////////////////////////////////////////////////
-  mounted : async function() {
+  mounted: async function () {
     await this.reloadSelList()
     await this.reloadCanList()
   }
@@ -12378,12 +12374,14 @@ const _M = {
       this.myCandidateFormFields = cans
     },
     //--------------------------------------------------
-    async evalFormField(fld = {}, nbs = [], cans = []) {
+    async evalFormField(fld = {}, nbs = [], cans = [], grp = this) {
       // The key
       let fldKey = Ti.Util.anyKey(fld.name || nbs)
 
       // Visibility
       let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.data)
+
+      //............................................
 
       //............................................
       let field;
@@ -12396,11 +12394,17 @@ const _M = {
           key: fldKey,
           fields: []
         })
+
         // Group fields
         if (_.isArray(fld.fields)) {
           for (let index = 0; index < fld.fields.length; index++) {
             let subfld = fld.fields[index]
-            let newSubFld = await this.evalFormField(subfld, [...nbs, index], cans)
+            let newSubFld = await this.evalFormField(
+              subfld,
+              [...nbs, index],
+              cans,
+              group
+            )
             if (newSubFld) {
               group.fields.push(newSubFld)
             }
@@ -12463,16 +12467,7 @@ const _M = {
         field.com = await this.evalFieldCom(field)
 
         // Layout style
-        _.defaults(field, {
-          "nameClass": this.fieldNameClass,
-          "nameStyle": this.fieldNameStyle,
-          "nameAlign": this.fieldNameAlign,
-          "nameVAlign": this.fieldNameVAlign,
-          "nameWrap": this.fieldNameWrap,
-          "valueClass": this.fieldValueClass,
-          "valueStyle": this.fieldValueStyle,
-          "valueWrap": this.fieldValueWrap
-        })
+        this.applyFieldDefault(field, grp)
       }
       //............................................
       // Panice
@@ -12516,6 +12511,21 @@ const _M = {
 
       // Done
       return field
+    },
+    //--------------------------------------------------
+    applyFieldDefault(field, grp = this) {
+      _.defaults(field, {
+        "nameClass": grp.fieldNameClass || this.fieldNameClass,
+        "nameStyle": grp.fieldNameStyle || this.fieldNameStyle,
+        "nameAlign": grp.fieldNameAlign || this.fieldNameAlign,
+        "nameVAlign": grp.fieldNameVAlign || this.fieldNameVAlign,
+        "nameWrap": grp.fieldNameWrap || this.fieldNameWrap,
+        "valueClass": grp.fieldValueClass || this.fieldValueClass,
+        "valueStyle": grp.fieldValueStyle || this.fieldValueStyle,
+        "valueWrap": grp.fieldValueWrap || this.fieldValueWrap,
+        "rowSpan": grp.fieldRowSpan || this.fieldRowSpan,
+        "colSpan": grp.fieldColSpan || this.fieldColSpan,
+      })
     },
     //--------------------------------------------------
     async evalFieldCom(fld) {
@@ -20219,15 +20229,21 @@ const _M = {
       if (this.isFlatMode) {
         return this.FormFields
       }
+      if (this.CurrentTabGroup) {
+        return this.CurrentTabGroup.fields
+      }
+      return this.FormFields
+    },
+    //--------------------------------------------------
+    CurrentTabGroup() {
       if (this.isTabMode) {
         for (let li of this.FormFields) {
           if (li.index == this.currentTabIndex) {
-            return li.fields
+            return li
           }
         }
-        return []
+        return {}
       }
-      return this.FormFields
     },
     //--------------------------------------------------
     // add "current" to theTabList
@@ -21603,9 +21619,9 @@ function saveLocalBehavior(state, key, val) {
       return
     }
     // Save to local
-    let be = Ti.Storage.session.getObject(state.lbkAt)
+    let be = Ti.Storage.local.getObject(state.lbkAt)
     be[key] = val
-    Ti.Storage.session.setObject(state.lbkAt, be)
+    Ti.Storage.local.setObject(state.lbkAt, be)
   }
 }
 ////////////////////////////////////////////////
@@ -22156,7 +22172,7 @@ const _M = {
       let desktopTree;
       if (this.isSyntaxError) {
         desktopTree = {
-          comType: "ti-loading",
+          comType: "TiLoading",
           comConf: {
             className: "is-error",
             icon: "im-warning",
@@ -22167,7 +22183,7 @@ const _M = {
       //
       else {
         desktopTree = {
-          comType: "ti-text-json-tree",
+          comType: "TiTextJsonTree",
           comConf: _.assign({}, this.tree, {
             value: this.TheData
           })
@@ -22178,9 +22194,9 @@ const _M = {
       return {
         "desktop-tree": desktopTree,
         "desktop-source": {
-          comType: "ti-text-raw",
+          comType: "TiTextCodeAce",
           comConf: {
-            showTitle: false,
+            mode: "json",
             value: this.TheSource
           }
         }
@@ -23036,6 +23052,8 @@ return _M;;
 // EXPORT 'code-ace.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/text/code/ace/code-ace.mjs'] = (function(){
+const OPTION_CSS = ["fontSize", "fontFamily", "lineHeight"]
+/////////////////////////////////////////////////////
 const _M = {
   ///////////////////////////////////////////////////
   data: () => ({
@@ -23046,6 +23064,28 @@ const _M = {
     //-----------------------------------------------
     TopClass() {
       return this.getTopClass()
+    },
+    //-----------------------------------------------
+    EditorStyle() {
+      let css = _.pick(this.options, OPTION_CSS);
+      return Ti.Css.toStyle(css)
+    },
+    //-----------------------------------------------
+    EditorOption() {
+      return _.omit(this.options, OPTION_CSS)
+    },
+    //-----------------------------------------------
+    EditorTheme() {
+      if("auto" == this.theme) {
+        let sysTheme = Ti.Env("theme") || "light"
+        if(/dark/.test(sysTheme)) {
+          return "terminal"
+        }
+        //return "clouds"
+        return "chrome"
+        //return "github"
+      }
+      return this.theme
     },
     //-----------------------------------------------
     BlankComStyle() {
@@ -23067,8 +23107,9 @@ const _M = {
     initEditor() {
       // Create editor
       let editor = ace.edit(this.$refs.edit);
-      editor.setTheme(`ace/theme/${this.theme}`)
-      editor.setOptions(this.options || {})
+      editor.setTheme(`ace/theme/${this.EditorTheme}`)
+      //console.log(this.EditorOption)
+      editor.setOptions(this.EditorOption)
       editor.session.setMode(`ace/mode/${this.mode}`)
       editor.session.setValue(this.value || "")
 
@@ -24576,10 +24617,16 @@ const _M = {
   //...............................................
   "theme" : {
     type : String,
-    default : "monokai"
+    default : "auto"
+    //default : "monokai"
   },
   "options" : {
-    type : Object
+    type : Object,
+    default: ()=>({
+      fontFamily: "Consolas, 'Courier New', monospace",
+      lineHeight: "1.5em",
+      fontSize: "14px"
+    })
   },
   "loadingAs" : {
     type : Object,
@@ -27363,6 +27410,7 @@ window.TI_PACK_EXPORTS['ti/com/ti/gui/cols/ti-gui-cols.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
   data: () => ({
+    isDragging: false,
     blockSizes: undefined
   }),
   /////////////////////////////////////////
@@ -27491,10 +27539,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
         trigger: ".block-adjust-bar",
         prepare: (_, evt) => {
           evt.stopPropagation()
+          this.isDragging = true
         },
         actived: (ctx) => {
           //console.log("actived", ctx)
           // Get all my blocks and init them rect
+          // Set mark
+          // Prepare sizing
           let sizes = this.genBlockRealSizes()
           ctx.orgBlockSizes = sizes
           ctx.viewportWidth = _.sum(sizes)
@@ -27508,6 +27559,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
           this.trySaveLocalCustomized()
           // Notify whole window resizing
           Ti.Viewport.resize()
+        },
+        finished: (ctx) => {
+          // Reset mark
+          this.isDragging = false
         }
       }
       //....................................
@@ -28725,6 +28780,7 @@ const _M = {
         //------------------------------
         meta: this.meta,
         content: this.content,
+        contentData: this.contentData,
         //------------------------------
         status: this.status,
         fieldStatus: this.fieldStatus,
@@ -30056,12 +30112,16 @@ const _M = {
     //--------------------------------------
     EventRouting() {
       let routing = {
+        "block:shown": "updateBlockShown",
         "block:show": "showBlock",
         "block:hide": "hideBlock",
+        "meta::field:change": "OnMetaFieldChange",
+        "content::change": "OnContentChange",
+        "save:change": "OnSaveChange",
         "search::list::select": "OnSearchListSelect",
-        "search::filter::filter:change": "OnSearchFilterChange",
-        "search::filter::sorter:change": "OnSearchSorterChange",
-        "search::pager::change": "OnSearchPagerChange"
+        "filter::filter:change": "OnSearchFilterChange",
+        "filter::sorter:change": "OnSearchSorterChange",
+        "pager::change": "OnSearchPagerChange"
       }
 
       // Define the expend function
@@ -30112,9 +30172,31 @@ const _M = {
       await this.dispatch("applyPager", payload)
     },
     //--------------------------------------
+    async OnMetaFieldChange(payload) {
+      await this.dispatch("updateMetaField", payload)
+    },
+    //--------------------------------------
+    OnContentChange(payload) {
+      this.dispatch("changeContent", payload)
+    },
+    //--------------------------------------
+    async OnSaveChange() {
+      await this.dispatch("saveContent")
+    },
+    //--------------------------------------
     //
     //  Show/Hide block
     //
+    //--------------------------------------
+    updateBlockShown(shown = {}) {
+      let guiShown = {}
+      _.forEach(shown, (v, k) => {
+        if (v) {
+          guiShown[k] = true
+        }
+      })
+      this.commit("setGuiShown", guiShown)
+    },
     //--------------------------------------
     showBlock(blockName) {
       let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
@@ -30176,9 +30258,9 @@ const _M = {
       if (/^(indicate)$/.test(name)) {
         return () => ({ stop: false })
       }
-      if (/change$/.test(name)) {
-        console.log("WnObjAdaptor.__on_events", name, payload)
-      }
+      // if (/change$/.test(name)) {
+      //   console.log("WnObjAdaptor.__on_events", name, payload)
+      // }
 
       // Try routing
       let fns = _.get(this.EventRouting, name)
@@ -43457,6 +43539,10 @@ const _M = {
       type: String,
       default: ","
     },
+    "autoJsValue": {
+      type: Boolean,
+      default: false
+    },
     "dftNewItem": {
       type: [Number, String, Object],
       default: null
@@ -43475,6 +43561,14 @@ const _M = {
         autoSelect: true,
         autoJsValue: true
       })
+    },
+    "canAddNewItem": {
+      type: Boolean,
+      default: true
+    },
+    "canRemoveItem": {
+      type: Boolean,
+      default: true
     },
     //------------------------------------------------
     // Aspect
@@ -43566,8 +43660,16 @@ const _M = {
     //------------------------------------------------
     OnValueChange({ index, value }, newVal) {
       if (!_.isEqual(value, newVal)) {
+        let val = newVal
+        if (this.autoJsValue) {
+          val = Ti.S.toJsValue(val, {
+            autoNil: true,
+            autoDate: false,
+            trimed: true
+          })
+        }
         let list = _.cloneDeep(this.TheValue) || {}
-        list[index] = newVal
+        list[index] = val
         this.tryNotifyChange(list)
       }
     },
@@ -46529,6 +46631,7 @@ const _M = {
       let listDisplay = _.concat(this.listDisplay)
       let conf = ({
         list: () => ({
+          dftLabelHoverCopy: false,
           rowClassBy: "->is-${visibility}",
           display: _.map(listDisplay, li => {
             let m = /^@<thumb(:([^:]*)(:([^:]*))?)?>$/.exec(li)
@@ -46542,6 +46645,7 @@ const _M = {
           })
         }),
         table: () => ({
+          dftLabelHoverCopy: false,
           rowClassBy: "->is-${visibility}",
           fields: _.map(this.tableFields, key => {
             return Wn.Obj.getTableField(key)
@@ -54626,7 +54730,8 @@ const _M = {
     let {
       filter, sorter, match,
       currentId, checkedIds,
-      pageSize
+      pageSize,
+      guiShown
     } = be
 
     // Apply filter
@@ -54650,6 +54755,11 @@ const _M = {
     }
     if (!_.isEmpty(checkedIds)) {
       commit("setCheckedIds", checkedIds)
+    }
+
+    // Apply shown
+    if (!_.isEmpty(guiShown)) {
+      commit("setGuiShown", guiShown)
     }
 
     // Apply pager
@@ -54677,7 +54787,7 @@ const _M = {
       return
     }
     // Load local setting
-    let be = Ti.Storage.session.getObject(state.lbkAt)
+    let be = Ti.Storage.local.getObject(state.lbkAt)
     if (!_.isEmpty(be)) {
       dispatch("applyBehavior", be)
     }
@@ -54703,9 +54813,9 @@ const _M = {
       return
     }
     state.LOG = () => { }
-    if ("main" == state.moduleName) {
-      state.LOG = console.log
-    }
+    // if ("main" == state.moduleName) {
+    //   state.LOG = console.log
+    // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // Guard
     if (_.isString(meta)) {
@@ -70751,7 +70861,7 @@ const _M = {
       return
     }
     // Load local setting
-    let be = Ti.Storage.session.getObject(state.lbkAt)
+    let be = Ti.Storage.local.getObject(state.lbkAt)
     // Apply Ignore
     if (state.lbkIgnore) {
       let be2 = {}
@@ -83057,7 +83167,8 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
           <section 
             v-for="grp in GridFormFields"
               :key="grp.uniqKey"
-              class="group-body">
+              class="group-body"
+              :class="grp.bodyClass">
               <!-------------------------------------->
               <!--
                 Group Title
@@ -83106,7 +83217,10 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
           <!--
             Tab Body
           -->
-          <section class="tab-body" :style="TabBodyStyle">
+          <section
+            class="tab-body" 
+            :class="CurrentTabGroup.bodyClass"
+            :style="TabBodyStyle">
             <grid-container
               v-bind="GridContainerConf"
               :fields="GridFormFields"
@@ -83679,20 +83793,21 @@ Ti.Preload("ti/com/ti/gui/block/ti-gui-block.html", `<div class="ti-gui-block"
         :class="MainComponentClass"
         :is="TheCom.comType"
         v-bind="TheCom.comConf"/>
-    </div>
-    <!------------------------------------------->
-    <TiGuiAdjustbar
-      v-if="hasAdjustBar"
-        :prevMinimum="isPrevMinimumSize"
-        :selfMinimum="isMinimumSize"
-        :resizeMode="resizeMode"
-        :adjacentMode="adjacentMode"
-        :adjustBarAt="adjustBarAt"
-        :adjustIndex="adjustIndex"/>
+    </div>    
     <!------------------------------------------->
   </div>
-  <!--Blank-->
-  </div>`);
+  <!--
+    Bar
+  -->
+  <TiGuiAdjustbar
+    v-if="hasAdjustBar"
+      :prevMinimum="isPrevMinimumSize"
+      :selfMinimum="isMinimumSize"
+      :resizeMode="resizeMode"
+      :adjacentMode="adjacentMode"
+      :adjustBarAt="adjustBarAt"
+      :adjustIndex="adjustIndex"/>
+ </div>`);
 //========================================
 // JOIN <ti-gui-block.mjs> ti/com/ti/gui/block/ti-gui-block.mjs
 //========================================
@@ -83727,6 +83842,9 @@ Ti.Preload("ti/com/ti/gui/cols/ti-gui-cols.html", `<div
         @bar:toggle:size="OnBarToggleSize"/>
       </template>
   </template>
+  <div
+    v-if="isDragging"
+      class="ti-gui-dragging-mask"></div>
 </div>`);
 //========================================
 // JOIN <ti-gui-cols.mjs> ti/com/ti/gui/cols/ti-gui-cols.mjs
@@ -84544,9 +84662,17 @@ Ti.Preload("ti/com/ti/input/list/ti-input-list.html", `<div class="ti-input-list
       <div
         v-for="it in ListItems"
           class="as-item">
-            <div class="as-deleter" @click.left="OnDeleteItem(it)">
-              <i class="zmdi zmdi-close"></i>
-              <span>{{it.index}}</span>
+            <div 
+              v-if="canRemoveItem"
+                class="as-deleter as-index"
+                @click.left="OnDeleteItem(it)">
+                <i class="zmdi zmdi-close"></i>
+                <span>{{it.index}}</span>
+            </div>
+            <div 
+              v-else
+                class="as-index">
+                <span>{{it.index}}</span>
             </div>
             <component 
               :is="it.comType"
@@ -84557,7 +84683,7 @@ Ti.Preload("ti/com/ti/input/list/ti-input-list.html", `<div class="ti-input-list
       </div> <!--.as-item-->
   </div> <!--.as-list-->
   <!----------------------------------------->
-  <div class="as-adder">
+  <div class="as-adder" v-if="canAddNewItem">
     <div class="adder-btn" @click.left="OnAddNewItem">
       <i class="zmdi zmdi-plus"></i>
       <span>{{'i18n:add-item'|i18n}}</span>
@@ -87376,7 +87502,7 @@ Ti.Preload("ti/com/ti/text/code/ace/code-ace.html", `<div class="ti-text-code-ac
   <!--
     Editor
   -->
-  <div class="as-editor" ref="edit"></div>
+  <div class="as-editor" ref="edit" :style="EditorStyle"></div>
   <!--
     Show loading
   -->
@@ -87513,14 +87639,14 @@ Ti.Preload("ti/com/ti/text/json/tree/_com.json", {
 // JOIN <_com.json> ti/com/ti/text/json/_com.json
 //========================================
 Ti.Preload("ti/com/ti/text/json/_com.json", {
-  "name" : "ti-text-json",
-  "globally" : true,
-  "template" : "./ti-text-json.html",
-  "mixins" : ["./ti-text-json.mjs"],
-  "components" : [
+  "name": "ti-text-json",
+  "globally": true,
+  "template": "./ti-text-json.html",
+  "mixins": "./ti-text-json.mjs",
+  "components": [
     "@com:ti/gui",
-    "@com:ti/text/raw",
     "@com:ti/toggle",
+    "@com:ti/text/code/ace",
     "@com:ti/text/json/tree"
   ]
 });
@@ -96614,6 +96740,19 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "font-w-bold": "Bold",
   "font-w-normal": "Normal",
   "font-weight": "Font weight",
+  "form-fld-type-String": "String",
+  "form-fld-type-Number": "Number",
+  "form-fld-type-Integer": "Integer",
+  "form-fld-type-Float": "Float",
+  "form-fld-type-Boolean": "Boolean",
+  "form-fld-type-Object": "Object",
+  "form-fld-type-Array": "Array",
+  "form-fld-type-DateTime": "DateTime",
+  "form-fld-type-AMS": "Timestamp(ms)",
+  "form-fld-type-ASEC": "Timestamp(sec)",
+  "form-fld-type-Time": "Time",
+  "form-fld-type-Date": "Date",
+  "form-fld-type-Color": "Color",
   "gender": "Gender",
   "geo-alti": "Altitude",
   "geo-azimuth": "Azimuth",
@@ -98161,6 +98300,19 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "font-w-bold": "加粗",
   "font-w-normal": "正常",
   "font-weight": "文字粗细",
+  "form-fld-type-String": "字符串",
+  "form-fld-type-Number": "数字",
+  "form-fld-type-Integer": "整数",
+  "form-fld-type-Float": "浮点数",
+  "form-fld-type-Boolean": "布尔",
+  "form-fld-type-Object": "对象",
+  "form-fld-type-Array": "数组",
+  "form-fld-type-DateTime": "日期时间",
+  "form-fld-type-AMS": "时间戳(毫秒)",
+  "form-fld-type-ASEC": "时间戳(秒)",
+  "form-fld-type-Time": "时间",
+  "form-fld-type-Date": "日期",
+  "form-fld-type-Color": "颜色",
   "gender": "性别",
   "geo-alti": "海拔",
   "geo-azimuth": "方向角",
@@ -99734,6 +99886,19 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "font-w-bold": "加粗",
    "font-w-normal": "正常",
    "font-weight": "文字粗細",
+   "form-fld-type-String": "字符串",
+   "form-fld-type-Number": "數字",
+   "form-fld-type-Integer": "整數",
+   "form-fld-type-Float": "浮點數",
+   "form-fld-type-Boolean": "布爾",
+   "form-fld-type-Object": "對象",
+   "form-fld-type-Array": "數組",
+   "form-fld-type-DateTime": "日期時間",
+   "form-fld-type-AMS": "時間戳(毫秒)",
+   "form-fld-type-ASEC": "時間戳(秒)",
+   "form-fld-type-Time": "時間",
+   "form-fld-type-Date": "日期",
+   "form-fld-type-Color": "顏色",
    "gender": "性別",
    "geo-alti": "海拔",
    "geo-azimuth": "方向角",
@@ -99936,7 +100101,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "right-top": "右上",
    "role": "角色",
    "role-actions": "角色動作",
-   "role-behaviors": "角色動作",
+   "role-behaviors": "業務權限",
    "role-in-charge": "負責人",
    "run": "運行",
    "run-finished": "腳本執行結束",

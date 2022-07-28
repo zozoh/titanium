@@ -1,4 +1,4 @@
-// Pack At: 2022-07-24 02:33:29
+// Pack At: 2022-07-28 10:41:53
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -558,15 +558,17 @@ const {Be} = (function(){
         // If the dragging duration (duInMs) over the value(in MS), 
         // it will active dragging
         activedDelay = 0,
+        // Function(context) call alway before call actived
+        prepare = _.identity,
         // Callback to dealwith dragging
         // Function(context)
         dragging = _.identity,
-        // Function(context)
-        prepare = _.identity,
         // Function(context)  call once first time context actived
         actived = _.identity,
         // Function(context)
         done = _.identity,
+        // Function(context)  call alway when dragging quit
+        finished = _.identity
       } = setup
       //-----------------------------------------------
       // Format actived radius
@@ -635,7 +637,7 @@ const {Be} = (function(){
         EVENTS.setClientXY(context, evt)
         context.$src = evt.srcElement
     
-        if(!testActive(context)) {
+        if (!testActive(context)) {
           return
         }
     
@@ -783,6 +785,8 @@ const {Be} = (function(){
             }
             done(context)
           }
+    
+          finished(context)
         }
         //---------------------------------------------
         // Watch dragging in doc
@@ -18710,7 +18714,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220724.023329",
+  "version" : "1.6-20220728.104153",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -1,6 +1,7 @@
 export default {
   /////////////////////////////////////////
   data: () => ({
+    isDragging: false,
     blockSizes: undefined
   }),
   /////////////////////////////////////////
@@ -129,10 +130,13 @@ export default {
         trigger: ".block-adjust-bar",
         prepare: (_, evt) => {
           evt.stopPropagation()
+          this.isDragging = true
         },
         actived: (ctx) => {
           //console.log("actived", ctx)
           // Get all my blocks and init them rect
+          // Set mark
+          // Prepare sizing
           let sizes = this.genBlockRealSizes()
           ctx.orgBlockSizes = sizes
           ctx.viewportWidth = _.sum(sizes)
@@ -146,6 +150,10 @@ export default {
           this.trySaveLocalCustomized()
           // Notify whole window resizing
           Ti.Viewport.resize()
+        },
+        finished: (ctx) => {
+          // Reset mark
+          this.isDragging = false
         }
       }
       //....................................

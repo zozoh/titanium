@@ -1,4 +1,4 @@
-// Pack At: 2022-07-24 02:33:29
+// Pack At: 2022-07-28 10:41:53
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -1429,6 +1429,8 @@ const Session = (function(){
         by_tp, by_val
       })
       WnSession.env(envs)
+  
+      Ti.Env("theme", envs.THEME)
     },
     //----------------------------------------
     env(vars) {
@@ -4297,7 +4299,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220724.023330"
+const WALNUT_VERSION = "1.2-20220728.104153"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

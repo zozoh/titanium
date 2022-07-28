@@ -18,15 +18,17 @@ function TiDraggable($el, setup = {}) {
     // If the dragging duration (duInMs) over the value(in MS), 
     // it will active dragging
     activedDelay = 0,
+    // Function(context) call alway before call actived
+    prepare = _.identity,
     // Callback to dealwith dragging
     // Function(context)
     dragging = _.identity,
-    // Function(context)
-    prepare = _.identity,
     // Function(context)  call once first time context actived
     actived = _.identity,
     // Function(context)
     done = _.identity,
+    // Function(context)  call alway when dragging quit
+    finished = _.identity
   } = setup
   //-----------------------------------------------
   // Format actived radius
@@ -95,7 +97,7 @@ function TiDraggable($el, setup = {}) {
     EVENTS.setClientXY(context, evt)
     context.$src = evt.srcElement
 
-    if(!testActive(context)) {
+    if (!testActive(context)) {
       return
     }
 
@@ -243,6 +245,8 @@ function TiDraggable($el, setup = {}) {
         }
         done(context)
       }
+
+      finished(context)
     }
     //---------------------------------------------
     // Watch dragging in doc
