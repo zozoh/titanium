@@ -1,4 +1,4 @@
-// Pack At: 2022-07-29 15:14:02
+// Pack At: 2022-07-29 15:57:32
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -661,7 +661,7 @@ const _M = {
   // Selection
   //
   //----------------------------------------
-  async selectMeta({ commit }, { currentId = null, checkedIds = {} } = null) {
+  async selectMeta({ commit }, { currentId = null, checkedIds = {} } = {}) {
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
     commit("setCurrentMeta")
@@ -7405,7 +7405,6 @@ const _M = {
     if (!state.dirId) {
       return await Ti.Alert('State Has No dirId', "warn")
     }
-
     // Prepare the command
     let json = JSON.stringify(obj)
     let dirId = state.dirId
@@ -7435,6 +7434,51 @@ const _M = {
 
     // Return the new object
     return newMeta
+  },
+  //----------------------------------------
+  async removeChecked({ state, commit, dispatch, getters }, hard) {
+    // Guard
+    if (!state.dirId) {
+      return await Ti.Alert('State Has No dirId', "warn")
+    }
+    
+    let ids = _.cloneDeep(state.checkedIds)
+    if (!_.isArray(ids)) {
+      ids = Ti.Util.truthyKeys(ids)
+    }
+    if (_.isEmpty(ids)) {
+      return await Ti.Alert('i18n:del-none')
+    }
+
+    // Config is hard
+    hard = Ti.Util.fallback(hard, getters.isHardRemove, false)
+
+    // If hard, warn at first
+    if (hard || getters.isInRecycleBin) {
+      if (!(await Ti.Confirm('i18n:del-hard'))) {
+        return
+      }
+    }
+
+    commit("setStatus", { deleting: true })
+
+    // Prepare the cmds
+    let cmd = ["o"]
+    for (let id of ids) {
+      cmd.push(`@get ${id}`)
+    }
+    cmd.push("@delete")
+    let cmdText = cmd.join(" ")
+    await Wn.Sys.exec2(cmdText)
+
+    //console.log("getback current", current)
+    // Update current
+    await dispatch("selectMeta")
+
+    // Remove it from search list
+    commit("removeListItems", ids)
+
+    commit("setStatus", { deleting: false })
   },
   //--------------------------------------------
   //
