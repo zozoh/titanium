@@ -1,0 +1,9 @@
+{
+  "name": "hm-form-static-options",
+  "globally": true,
+  "template": "./hm-form-static-options.html",
+  "mixins": "./hm-form-static-options.mjs",
+  "components": [
+    "@com:ti/combo/table"
+  ]
+}

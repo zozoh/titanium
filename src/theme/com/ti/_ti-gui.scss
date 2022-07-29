@@ -19,7 +19,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
   //-------------------------------------
   .ti-gui-dragging-mask {
     @include pos-abs-full;
-    z-index: $z-above; 
+    z-index: $z-above;
   }
   //-------------------------------------
 }
@@ -157,11 +157,11 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
 // Panel
 .ti-gui-panel {
   @include flex-center;
+  z-index: $z-mask + 10;
   //-----------------------------------
   &.show-mask {
     @include color($color-mask, null, thin);
     @include pos-abs(0, 0, 100%, 100%);
-    z-index: $z-mask;
     &.at-free {
       position: absolute;
     }
@@ -196,7 +196,6 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
   //-----------------------------------
   &.no-mask {
     // If center, it should be mask by transparent
-    z-index: $z-mask;
     &.at-center {
       @include pos-abs(0, 0, 100%, 100%);
       @include flex-center;
@@ -458,7 +457,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
     @include flex-align-nowrap($ai: stretch);
     width: 100%;
     height: 100%;
-    position: relative; 
+    position: relative;
     //-----------------------------------
     > .block-main-con {
       flex: 1 1 auto;

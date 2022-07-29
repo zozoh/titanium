@@ -98,14 +98,10 @@ export default {
   "blankAs" : {
     type : Object,
     default : ()=>({
+      default: "as-big-mask",
       icon : "far-list-alt",
       text : "empty-data"
     })
-  },
-  "blankClass": {
-    type: String,
-    default: "as-big-mask",
-    validator: v=>/^as-(big|hug|big-mask|mid-tip)$/.test(v)
   },
   "rowNumberBase" : {
     type : Number,
