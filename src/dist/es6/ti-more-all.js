@@ -1,4 +1,4 @@
-// Pack At: 2022-07-29 13:17:39
+// Pack At: 2022-07-29 15:14:02
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7397,7 +7397,48 @@ window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-cud.mjs'] = (function(){
 const _M = {
   //--------------------------------------------
   //
-  // Open
+  //          Create / Delete
+  //
+  //--------------------------------------------
+  async create({ state, commit, dispatch }, obj = {}) {
+    // Guard
+    if (!state.dirId) {
+      return await Ti.Alert('State Has No dirId', "warn")
+    }
+
+    // Prepare the command
+    let json = JSON.stringify(obj)
+    let dirId = state.dirId
+
+    // Mark reloading
+    commit("setStatus", { reloading: true })
+
+    // Do Create
+    let cmdText = `o @create -p 'id:${dirId}' @json -cqn`;
+    let newMeta = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+
+    if (newMeta && !(newMeta instanceof Error)) {
+      // Append To Search List as the first 
+      commit("prependListItem", newMeta)
+
+      // Set it as current
+      dispatch("selectMeta", {
+        currentId: newMeta.id,
+        checkedIds: {
+          [newMeta.id]: true
+        }
+      })
+    }
+
+    // Mark reloading
+    commit("setStatus", { reloading: false })
+
+    // Return the new object
+    return newMeta
+  },
+  //--------------------------------------------
+  //
+  //                 Open
   //
   //--------------------------------------------
   async openContentEditor({ state, commit, dispatch }) {
@@ -7421,8 +7462,12 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
+  //
+  //                 Update
+  //
+  //--------------------------------------------
   async updateMetaField({ commit, dispatch }, { name, value } = {}) {
-    console.log("current.updateMeta", { name, value })
+    //console.log("current.updateMeta", { name, value })
 
     let uniqKey = _.concat(name).join("-")
     commit("setFieldStatus", {
@@ -72782,6 +72827,7 @@ window.TI_PACK_EXPORTS['ti/com/ti/input/langs/ti-input-langs.mjs'] = (function()
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
+    myTexts: {},
     myValue: {}
   }),
   ////////////////////////////////////////////////////
@@ -72820,8 +72866,8 @@ const _M = {
       return {
         hoverCopy: false,
         format: (v) => {
-          let k = _.kebabCase(v)
-          return Ti.I18n.get(`lang-${k}`)
+          let re = _.get(this.myTexts, v) || v
+          return Ti.I18n.text(re)
         }
       }
     },
@@ -72836,13 +72882,16 @@ const _M = {
     //------------------------------------------------
     async evalPairValue() {
       let list = await this.Dict.getData()
-      let re = {}
+      let vals = {}
+      let txts = {}
       for (let li of list) {
         let key = li.value
         let val = _.get(this.value, key)
-        re[key] = val
+        vals[key] = val
+        txts[key] = li.text
       }
-      this.myValue = re
+      this.myValue = vals
+      this.myTexts = txts
     },
     //------------------------------------------------
     tryEvalPairValue(newVal, oldVal) {
@@ -97580,6 +97629,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "label": "Label",
   "lang": "Language",
   "lang-en-us": "En",
+  "lang-en-uk": "En",
   "lang-zh-cn": "Cn",
   "lang-zh-hk": "Hk",
   "lang-zh-tw": "Tw",
@@ -99139,6 +99189,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "key": "键",
   "label": "标签",
   "lang": "语言",
+  "lang-en-uk": "英",
   "lang-en-us": "英",
   "lang-zh-cn": "简",
   "lang-zh-hk": "繁",
@@ -100725,6 +100776,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "key": "鍵",
    "label": "標籤",
    "lang": "語言",
+   "lang-en-uk": "英",
    "lang-en-us": "英",
    "lang-zh-cn": "簡",
    "lang-zh-hk": "繁",

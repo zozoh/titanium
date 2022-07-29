@@ -2,7 +2,48 @@
 const _M = {
   //--------------------------------------------
   //
-  // Open
+  //          Create / Delete
+  //
+  //--------------------------------------------
+  async create({ state, commit, dispatch }, obj = {}) {
+    // Guard
+    if (!state.dirId) {
+      return await Ti.Alert('State Has No dirId', "warn")
+    }
+
+    // Prepare the command
+    let json = JSON.stringify(obj)
+    let dirId = state.dirId
+
+    // Mark reloading
+    commit("setStatus", { reloading: true })
+
+    // Do Create
+    let cmdText = `o @create -p 'id:${dirId}' @json -cqn`;
+    let newMeta = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+
+    if (newMeta && !(newMeta instanceof Error)) {
+      // Append To Search List as the first 
+      commit("prependListItem", newMeta)
+
+      // Set it as current
+      dispatch("selectMeta", {
+        currentId: newMeta.id,
+        checkedIds: {
+          [newMeta.id]: true
+        }
+      })
+    }
+
+    // Mark reloading
+    commit("setStatus", { reloading: false })
+
+    // Return the new object
+    return newMeta
+  },
+  //--------------------------------------------
+  //
+  //                 Open
   //
   //--------------------------------------------
   async openContentEditor({ state, commit, dispatch }) {
@@ -26,8 +67,12 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
+  //
+  //                 Update
+  //
+  //--------------------------------------------
   async updateMetaField({ commit, dispatch }, { name, value } = {}) {
-    console.log("current.updateMeta", { name, value })
+    //console.log("current.updateMeta", { name, value })
 
     let uniqKey = _.concat(name).join("-")
     commit("setFieldStatus", {

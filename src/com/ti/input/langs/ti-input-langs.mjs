@@ -1,6 +1,7 @@
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
+    myTexts: {},
     myValue: {}
   }),
   ////////////////////////////////////////////////////
@@ -39,8 +40,8 @@ const _M = {
       return {
         hoverCopy: false,
         format: (v) => {
-          let k = _.kebabCase(v)
-          return Ti.I18n.get(`lang-${k}`)
+          let re = _.get(this.myTexts, v) || v
+          return Ti.I18n.text(re)
         }
       }
     },
@@ -55,13 +56,16 @@ const _M = {
     //------------------------------------------------
     async evalPairValue() {
       let list = await this.Dict.getData()
-      let re = {}
+      let vals = {}
+      let txts = {}
       for (let li of list) {
         let key = li.value
         let val = _.get(this.value, key)
-        re[key] = val
+        vals[key] = val
+        txts[key] = li.text
       }
-      this.myValue = re
+      this.myValue = vals
+      this.myTexts = txts
     },
     //------------------------------------------------
     tryEvalPairValue(newVal, oldVal) {
