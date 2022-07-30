@@ -40,74 +40,6 @@ export default {
     myChartCom : undefined
   }),
   ////////////////////////////////////////////////////
-  props : {
-    // array -> droplist
-    // object/string -> single title
-    "nameList" : {
-      type : Array,
-      default : ()=>[]
-    },
-    "name" : {
-      type : String,
-      default : undefined
-    },
-    "date" : {
-      type : [Number, String, Date],
-      default : undefined
-    },
-    "maxDate" : {
-      type : [Number, String, Date],
-      default : undefined
-    },
-    "span" : {
-      type : String,
-      default : "7d"
-    },
-    "spanOptions" : {
-      type : Array,
-      default : ()=>[{
-        text  : "7",
-        value : "7d"
-      }, {
-        text  : "30",
-        value : "30d"
-      }, {
-        text  : "60",
-        value : "60d"
-      }, {
-        text  : "90",
-        value : "90d"
-      }, {
-        text  : "180",
-        value : "180d"
-      }, {
-        text  : "360",
-        value : "360d"
-      }]
-    },
-    "chartDefines" : {
-      type : Object,
-      default : undefined
-    },
-    "chartTypes" : {
-      type : [Array, String],
-      default : "pie,bar,line"
-    },
-    "type" : {
-      type : String,
-      default : undefined
-    },
-    // {pie:{..}, bar:{..}, line:{..}  ...}
-    "chartOptions" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "data" : {
-      type : Array,
-      default : ()=>[]
-    }
-  },
-  ////////////////////////////////////////////////////
   computed : {
     //------------------------------------------------
     TopClass() {
@@ -122,6 +54,10 @@ export default {
     //------------------------------------------------
     hasMultiChartNames() {
       return !_.isEmpty(this.nameList) && this.nameList.length > 1
+    },
+    //------------------------------------------------
+    ChartNameListWidth() {
+      return Ti.Css.toSize(this.nameListWidth)
     },
     //------------------------------------------------
     ChartNameListOptions() {

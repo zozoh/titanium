@@ -1,6 +1,6 @@
 .ti-bullet-list {
   overflow: auto;
-  padding:1px;
+  padding: 1px;
   //-------------------------------------
   .as-group-title {
     padding: 0.5em;
@@ -38,8 +38,9 @@
     //-----------------------------------
     // bullet and icon
     > .ti-icon {
-      margin-right: 1em;
+      width: SZ(24);
       height: 1.8em;
+      text-align: center;
       > i {
         transition: transform 0.5s;
       }
@@ -52,7 +53,7 @@
     }
     //-----------------------------------
     > .as-text {
-      flex: 1 1 auto;
+      flex: 1 1 auto; margin-left: SZ(8);
     }
     //-----------------------------------
     > .as-tip {

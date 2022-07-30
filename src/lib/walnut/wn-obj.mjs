@@ -148,6 +148,7 @@ const FORM_FIELDS = {
     title: "i18n:wn-key-thumb",
     name: "thumb",
     checkEquals: false,
+    rowSpan: 3,
     comType: "wn-upload-file",
     comConf: {
       valueType: "idPath",
@@ -687,6 +688,64 @@ const WnObj = {
     myFormFields = __deal_with_remain_fields(myFormFields, [], usedKeys)
     //......................................
     return myFormFields
+  },
+  //----------------------------------------
+  // @return {currentTab:0, fields: [ [...] ]}
+  async genObjFormFields({
+    meta,
+    fields = [],
+    currentTab = 0,
+    fixedKeys = ["icon", "thumb", "title"]
+  } = {}) {
+    console.log("genObjFormFields", fixedKeys)
+    //............................................
+    // Fixed key map
+    let fixeds = {}
+    _.forEach(fixedKeys, k => fixeds[k] = true)
+    //............................................
+    // Auto load 
+    if ("auto" == fields) {
+      let reo = await Wn.Sys.exec2(`ti metas id:${meta.id} -cqn`, { as: "json" })
+      if (reo) {
+        fields = reo.fields
+        currentTab = reo.currentTab || currentTab || 0
+      }
+    }
+    //............................................
+    // Default tabs
+    if (_.isEmpty(fields) || !_.isArray(fields)) {
+      fields = [{
+        title: "basic",
+        fields: [
+          "id", "nm", "title", "icon", "thumb", "ph", "race", "tp", "mime",
+          "width", "height", "len", "sha1", "sort"],
+      }, {
+        title: "privilege",
+        fields: ["c", "m", "g", "md", "pvg"]
+      }, {
+        title: "timestamp",
+        fields: ["ct", "lm", "expi"]
+      }, {
+        title: "others",
+        fields: ["..."]
+      }]
+    }
+    //............................................
+    let myFormFields = WnObj.evalFields(meta, fields, (fld) => {
+      if("icon" == fld.name)
+      console.log(fld)
+      if (fixeds[fld.uniqKey]) {
+        return fld
+      }
+      if (fld.quickName && _.isUndefined(fld.value)) {
+        return
+      }
+      return fld
+    })
+    //............................................
+    return {
+      currentTab, fields: myFormFields
+    }
   },
   //----------------------------------------
   isAs(meta = {}, key, match) {

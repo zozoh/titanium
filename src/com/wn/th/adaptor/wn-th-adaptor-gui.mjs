@@ -25,6 +25,7 @@ const _M = {
         content: this.content,
         contentData: this.contentData,
         //------------------------------
+        dataDirFiles: this.dataDirFiles,
         dataHome: this.dataHome,
         dataHomeObj: this.dataHomeObj,
         dataDirName: this.dataDirName,

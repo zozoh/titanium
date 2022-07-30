@@ -202,6 +202,7 @@ const _M = {
   },
   //----------------------------------------
   setContent(state, content) {
+    state.LOG("setContent", content)
     if (content && !_.isString(content)) {
       content = JSON.stringify(content, null, '   ')
     }
@@ -209,6 +210,7 @@ const _M = {
   },
   //----------------------------------------
   setSavedContent(state, content) {
+    state.LOG("setSavedContent", content)
     state.__saved_content = content
   },
   //----------------------------------------
@@ -318,7 +320,10 @@ const _M = {
   // Operations for dataDirFiles
   //
   //----------------------------------------
-  setDataDirFiles(state, files = []) {
+  setDataDirFiles(state, files = {
+    list: [],
+    pager: {}
+  }) {
     state.dataDirFiles = files
   },
   //----------------------------------------

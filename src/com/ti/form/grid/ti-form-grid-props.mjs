@@ -137,7 +137,7 @@ export default {
   },
   "fieldNameWrap": {
     type: String,
-    default: "wrap",
+    default: "nowrap",
     validator: (v) => /^(wrap|nowrap)$/.test(v)
   },
   "fieldValueClass": {

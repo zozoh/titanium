@@ -138,7 +138,8 @@ const _M = {
         meta: {
           "comType": "WnObjDetail",
           "comConf": {
-            "value": "=meta"
+            "value": "=meta",
+            "fieldStatus": "=fieldStatus"
           }
         }
       }

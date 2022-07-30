@@ -593,7 +593,9 @@ const _M = {
     },
     //--------------------------------------------------
     tryEvalFormFieldList(newVal, oldVal) {
+      //console.log("tryEvalFormFieldList")
       if (!_.isEqual(newVal, oldVal)) {
+        //console.log("  !! do this.evalFormFieldList()")
         this.evalFormFieldList()
       }
     }

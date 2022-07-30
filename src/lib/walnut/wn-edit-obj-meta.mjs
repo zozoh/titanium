@@ -26,56 +26,21 @@ async function EditObjMeta(pathOrObj = "~", {
     meta = await Wn.Io.loadMeta(pathOrObj)
   }
   //............................................
-  // Fixed key map
-  let fixeds = {}
-  _.forEach(fixedKeys, k => fixeds[k] = true)
-  //............................................
   // Save key map
   let saves = {}
   _.forEach(saveKeys, k => saves[k] = true)
   //............................................
-  // Auto load 
-  if ("auto" == fields) {
-    let reo = await Wn.Sys.exec2(`ti metas id:${meta.id} -cqn`, { as: "json" })
-    if (reo) {
-      fields = reo.fields
-      currentTab = reo.currentTab || currentTab || 0
-    }
-  }
-  //............................................
-  // Default tabs
-  if (_.isEmpty(fields) || !_.isArray(fields)) {
-    fields = [{
-      title: "basic",
-      fields: [
-        "id", "nm", "title", "icon", "thumb", "ph", "race", "tp", "mime",
-        "width", "height", "len", "sha1", "sort"],
-    }, {
-      title: "privilege",
-      fields: ["c", "m", "g", "md", "pvg"]
-    }, {
-      title: "timestamp",
-      fields: ["ct", "lm", "expi"]
-    }, {
-      title: "others",
-      fields: ["..."]
-    }]
-  }
-  //............................................
-  let myFormFields = Wn.Obj.evalFields(meta, fields, (fld) => {
-    if (fixeds[fld.uniqKey]) {
-      return fld
-    }
-    if (fld.quickName && _.isUndefined(fld.value)) {
-      return
-    }
-    return fld
+  let reo = await Wn.Obj.genObjFormFields({
+    meta, fields, currentTab, fixedKeys
   })
+  let myFormFields = reo.fields
+  currentTab = reo.currentTab || currentTab || 0
+
   //............................................
   let theIcon = icon || Wn.Util.getObjIcon(meta, "zmdi-info-outline")
   let theTitle = title || Wn.Util.getObjDisplayName(meta)
   //............................................
-  let reo = await Ti.App.Open({
+  reo = await Ti.App.Open({
     //------------------------------------------
     type, width, height, spacing, position, closer, escape,
     icon: theIcon,

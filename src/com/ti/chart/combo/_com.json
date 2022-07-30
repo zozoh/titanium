@@ -1,9 +1,10 @@
 {
-  "name" : "ti-chart-combo",
-  "globally" : true,
-  "template" : "./ti-chart-combo.html",
-  "mixins"   : ["./ti-chart-combo.mjs"],
-  "components" : [
+  "name": "ti-chart-combo",
+  "globally": true,
+  "template": "./ti-chart-combo.html",
+  "props": "./ti-chart-combo-props.mjs",
+  "mixins": "./ti-chart-combo.mjs",
+  "components": [
     "@com:ti/actionbar",
     "@com:ti/form",
     "@com:ti/droplist",

@@ -5,6 +5,7 @@
   "mixins" : ["./wn-obj-detail.mjs"],
   "components" : [
     "@com:wn/obj/form",
-    "@com:wn/obj/preview"
+    "@com:wn/obj/preview",
+    "@com:wn/obj/mode"
   ]
 }

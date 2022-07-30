@@ -6,7 +6,8 @@
   "actions": [
     "./m-th-obj-actions.mjs",
     "./m-th-obj-cud.mjs",
-    "./m-th-obj-search.mjs"
+    "./m-th-obj-search.mjs",
+    "./m-th-obj-datadir.mjs"
   ],
   "mixins": "./m-th-obj.mjs"
 }

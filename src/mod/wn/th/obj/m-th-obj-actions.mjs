@@ -70,7 +70,6 @@ const _M = {
   },
   //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }) {
-    state.LOG("async loadContent")
     // Guard : dataHome
     // if (!state.dataHome) {
     //   return
@@ -83,6 +82,7 @@ const _M = {
     if (!path) {
       return
     }
+    state.LOG("async loadContent", meta, path)
     commit("setStatus", { reloading: true })
 
     if ("<self>" != path) {
@@ -93,6 +93,7 @@ const _M = {
     //console.log("load Content:", path)
     // No meta
     if (!meta) {
+      state.LOG("updateContent => null")
       dispatch("updateContent", null)
       commit("setStatus", { reloading: false })
       return

@@ -88,11 +88,11 @@ const _M = {
     },
     //-----------------------------------------------
     isContentLoading() {
-      return _.isUndefined(this.value)
+      return this.loading || _.isUndefined(this.value)
     },
     //-----------------------------------------------
     isContentNil() {
-      return Ti.Util.isNil(this.value)
+      return this.nilContent || Ti.Util.isNil(this.value)
     },
     //-----------------------------------------------
     ExplainPluginUrl() {
@@ -520,7 +520,12 @@ const _M = {
   ///////////////////////////////////////////////////
   watch: {
     "myHtmlCode": function (newVal, oldVal) {
-      if (!_.isEqual(newVal, oldVal) && !_.isEqual(newVal, this.value)) {
+      if (
+        !this.loading
+        && !this.nilContent
+        && !_.isEqual(newVal, oldVal)
+        && !_.isEqual(newVal, this.value)
+      ) {
         //console.log("myHtmlCode", {newVal, oldVal})
         this.$notify("change", newVal);
       }
@@ -579,7 +584,9 @@ const _M = {
       let list = _.map(this.plugins, this.ExplainPluginUrl)
       this.myPlugins = await Ti.Load(list)
     }
-    await this.initEditor()
+    _.delay(() => {
+      this.initEditor()
+    }, this.delayInit || 0)
   },
   //////////////////////////////////////////
   beforeDestroy: function () {

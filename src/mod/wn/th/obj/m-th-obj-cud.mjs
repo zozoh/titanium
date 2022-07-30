@@ -193,7 +193,7 @@ const _M = {
     dispatch("parseContentData")
   },
   //----------------------------------------
-  updateContent({ commit, getters, dispatch }, content) {
+  updateContent({ commit, dispatch }, content) {
     commit("setContent", content)
     commit("setSavedContent", content)
     commit("syncStatusChanged")

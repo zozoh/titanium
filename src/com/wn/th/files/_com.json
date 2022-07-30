@@ -1,0 +1,11 @@
+{
+  "name": "wn-th-files",
+  "globally": true,
+  "template": "./wn-th-files.html",
+  "props": "./wn-th-files-props.mjs",
+  "mixins": "./wn-th-files.mjs",
+  "components": [
+    "@com:wn/adaptlist",
+    "@com:wn/obj/preview"
+  ]
+}

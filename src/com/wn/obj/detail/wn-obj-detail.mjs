@@ -1,25 +1,40 @@
+import _M from "../adaptor/wn-obj-adaptor.mjs"
+
 export default {
   /////////////////////////////////////////
-  props : {
-    "value" : {
-      type : Object,
-      default : undefined
+  data: () => ({
+    myFormFields: [],
+    myCurrentTab: 0
+  }),
+  /////////////////////////////////////////
+  props: {
+    "value": {
+      type: Object,
+      default: undefined
     },
-    "fields" : {
-      type : Array,
-      default : undefined
+    "fields": {
+      type: [Array, String],
+      default: undefined
     },
-    "preview" : {
-      type : Object,
-      default : ()=>({})
+    "fixedKeys": {
+      type: Array,
+      default: () => ["title"]
     },
-    "form" : {
-      type : Object,
-      default : ()=>({})
+    "fieldStatus": {
+      type: Object,
+      default: () => ({})
+    },
+    "preview": {
+      type: Object,
+      default: () => ({})
+    },
+    "form": {
+      type: Object,
+      default: () => ({})
     }
   },
   /////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -27,33 +42,37 @@ export default {
     //--------------------------------------
     Layout() {
       return {
-        type : "rows",
+        type: "rows",
         border: true,
         blocks: [{
-            size : "37%",
-            body : "preview",
-          }, {
-            body : "form"
-          }]
+          size: "37%",
+          body: "preview",
+        }, {
+          body: "form"
+        }]
       }
     },
     //--------------------------------------
     Schema() {
       return {
-        preview : {
-          comType : "WnObjPreview",
-          comConf : {
+        preview: {
+          comType: "WnObjPreview",
+          comConf: {
             ... this.preview,
-            meta : this.value
+            meta: this.value
           }
         },
-        form : {
-          comType : "WnObjForm",
-          comConf : {
-            spacing : "tiny",
+        form: {
+          comType: "TiForm",
+          comConf: {
+            spacing: "comfy",
+            mode: "tab",
+            tabAt: "bottom-left",
             ... this.form,
-            fields : this.fields,
-            data : this.value
+            fields: this.myFormFields,
+            fieldStatus: this.fieldStatus,
+            currentTab: this.myCurrentTab,
+            data: this.value
           }
         }
       }
@@ -61,10 +80,34 @@ export default {
     //--------------------------------------
   },
   /////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
-   
+    async evalObjFormField(fields = this.fields) {
+      let reo = await Wn.Obj.genObjFormFields({
+        meta: this.value,
+        fields,
+        currentTab: 0,
+        fixedKeys: ["title"]
+      })
+      this.myCurrentTab = reo.currentTab;
+      this.myFormFields = reo.fields
+    },
     //--------------------------------------
+    async tryEvalObjFormField(newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
+        await this.evalObjFormField(this.fields)
+      }
+    }
+    //--------------------------------------
+  },
+  /////////////////////////////////////////
+  watch: {
+    "value": "tryEvalObjFormField",
+    "fields": "tryEvalObjFormField"
+  },
+  /////////////////////////////////////////
+  mounted() {
+    this.evalObjFormField()
   }
   /////////////////////////////////////////
 }
