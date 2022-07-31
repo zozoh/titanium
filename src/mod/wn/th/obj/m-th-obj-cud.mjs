@@ -67,10 +67,7 @@ const _M = {
       return await Ti.Alert('State Has No ThingSetId', "warn")
     }
 
-    let ids = _.cloneDeep(state.checkedIds)
-    if (!_.isArray(ids)) {
-      ids = Ti.Util.truthyKeys(ids)
-    }
+    let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds)
     if (_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
     }

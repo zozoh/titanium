@@ -1,4 +1,4 @@
-// Pack At: 2022-07-29 15:57:32
+// Pack At: 2022-08-01 00:27:52
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -737,6 +737,7 @@ const Obj = (function(){
       title: "i18n:wn-key-thumb",
       name: "thumb",
       checkEquals: false,
+      rowSpan: 3,
       comType: "wn-upload-file",
       comConf: {
         valueType: "idPath",
@@ -1276,6 +1277,64 @@ const Obj = (function(){
       myFormFields = __deal_with_remain_fields(myFormFields, [], usedKeys)
       //......................................
       return myFormFields
+    },
+    //----------------------------------------
+    // @return {currentTab:0, fields: [ [...] ]}
+    async genObjFormFields({
+      meta,
+      fields = [],
+      currentTab = 0,
+      fixedKeys = ["icon", "thumb", "title"]
+    } = {}) {
+      console.log("genObjFormFields", fixedKeys)
+      //............................................
+      // Fixed key map
+      let fixeds = {}
+      _.forEach(fixedKeys, k => fixeds[k] = true)
+      //............................................
+      // Auto load 
+      if ("auto" == fields) {
+        let reo = await Wn.Sys.exec2(`ti metas id:${meta.id} -cqn`, { as: "json" })
+        if (reo) {
+          fields = reo.fields
+          currentTab = reo.currentTab || currentTab || 0
+        }
+      }
+      //............................................
+      // Default tabs
+      if (_.isEmpty(fields) || !_.isArray(fields)) {
+        fields = [{
+          title: "basic",
+          fields: [
+            "id", "nm", "title", "icon", "thumb", "ph", "race", "tp", "mime",
+            "width", "height", "len", "sha1", "sort"],
+        }, {
+          title: "privilege",
+          fields: ["c", "m", "g", "md", "pvg"]
+        }, {
+          title: "timestamp",
+          fields: ["ct", "lm", "expi"]
+        }, {
+          title: "others",
+          fields: ["..."]
+        }]
+      }
+      //............................................
+      let myFormFields = WnObj.evalFields(meta, fields, (fld) => {
+        if("icon" == fld.name)
+        console.log(fld)
+        if (fixeds[fld.uniqKey]) {
+          return fld
+        }
+        if (fld.quickName && _.isUndefined(fld.value)) {
+          return
+        }
+        return fld
+      })
+      //............................................
+      return {
+        currentTab, fields: myFormFields
+      }
     },
     //----------------------------------------
     isAs(meta = {}, key, match) {
@@ -3440,56 +3499,21 @@ const EditObjMeta = (function(){
       meta = await Wn.Io.loadMeta(pathOrObj)
     }
     //............................................
-    // Fixed key map
-    let fixeds = {}
-    _.forEach(fixedKeys, k => fixeds[k] = true)
-    //............................................
     // Save key map
     let saves = {}
     _.forEach(saveKeys, k => saves[k] = true)
     //............................................
-    // Auto load 
-    if ("auto" == fields) {
-      let reo = await Wn.Sys.exec2(`ti metas id:${meta.id} -cqn`, { as: "json" })
-      if (reo) {
-        fields = reo.fields
-        currentTab = reo.currentTab || currentTab || 0
-      }
-    }
-    //............................................
-    // Default tabs
-    if (_.isEmpty(fields) || !_.isArray(fields)) {
-      fields = [{
-        title: "basic",
-        fields: [
-          "id", "nm", "title", "icon", "thumb", "ph", "race", "tp", "mime",
-          "width", "height", "len", "sha1", "sort"],
-      }, {
-        title: "privilege",
-        fields: ["c", "m", "g", "md", "pvg"]
-      }, {
-        title: "timestamp",
-        fields: ["ct", "lm", "expi"]
-      }, {
-        title: "others",
-        fields: ["..."]
-      }]
-    }
-    //............................................
-    let myFormFields = Wn.Obj.evalFields(meta, fields, (fld) => {
-      if (fixeds[fld.uniqKey]) {
-        return fld
-      }
-      if (fld.quickName && _.isUndefined(fld.value)) {
-        return
-      }
-      return fld
+    let reo = await Wn.Obj.genObjFormFields({
+      meta, fields, currentTab, fixedKeys
     })
+    let myFormFields = reo.fields
+    currentTab = reo.currentTab || currentTab || 0
+  
     //............................................
     let theIcon = icon || Wn.Util.getObjIcon(meta, "zmdi-info-outline")
     let theTitle = title || Wn.Util.getObjDisplayName(meta)
     //............................................
-    let reo = await Ti.App.Open({
+    reo = await Ti.App.Open({
       //------------------------------------------
       type, width, height, spacing, position, closer, escape,
       icon: theIcon,
@@ -4299,7 +4323,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220729.155732"
+const WALNUT_VERSION = "1.2-20220801.002752"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

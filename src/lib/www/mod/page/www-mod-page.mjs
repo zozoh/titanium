@@ -185,7 +185,7 @@ const _M = {
     // Page finger to indicate the page changed
     // watch the filter can auto update document title
     updateFinger(state) {
-      // console.log("updateFinger")
+      state.LOG("updateFinger")
       let ss = [state.path, state.params, state.anchor, state.data]
       let sha1 = Ti.Alg.sha1(ss)
       state.finger = sha1
@@ -229,7 +229,7 @@ const _M = {
       by,    /* AutoMatch */
       dft = null
     } = {}) {
-      //console.log({from, to, by})
+      state.LOG({ from, to, by })
       let val = dft
       if (!_.isEmpty(by)) {
         let am = Ti.AutoMatch.parse(by)
@@ -259,13 +259,13 @@ const _M = {
      * @param args{Object|Array} : `{name,value}` Object or Array
      */
     changeData({ commit }, args) {
-      //console.log("changeData", args)
+      state.LOG("changeData", args)
       let data = Ti.Util.merge({}, args)
       commit("mergeData", data)
     },
     //--------------------------------------------
     changeDataBy({ commit }, payload) {
-      //console.log("changeDataBy", payload)
+      state.LOG("changeDataBy", payload)
       commit("updateDataBy", payload)
     },
     //--------------------------------------------
@@ -279,7 +279,7 @@ const _M = {
     },
     //--------------------------------------------
     mergeItemToData({ commit }, payload) {
-      //console.log("mergeItemToData", payload)
+      state.LOG("mergeItemToData", payload)
       commit("mergeToDataList", payload)
     },
     //--------------------------------------------
@@ -343,7 +343,7 @@ const _M = {
           break
         }
       }
-      //console.log(assertFail)
+      state.LOG(assertFail)
       // Do Fail
       if (assertFail && fail.action) {
         dispatch("doAction", fail, { root: true })
@@ -363,7 +363,7 @@ const _M = {
     } = {}) {
       //.....................................
       let api = _.get(getters.pageApis, key)
-      //console.log("doApi", {key, api, params, vars, body})
+      state.LOG("doApi", { key, api, params, vars, body })
       //.....................................
       // Guard
       if (!api) {
@@ -428,8 +428,8 @@ const _M = {
     /***
      * Reload page data by given api keys
      */
-    async reloadData({ commit, getters, dispatch, rootState }, keys = []) {
-      //console.log(" # -> page.reloadData", keys)
+    async reloadData({ state, commit, getters, dispatch, rootState }, keys = []) {
+      state.LOG(" # -> page.reloadData", keys)
       //.......................................
       // The api list to reload
       let isAll = _.isEmpty(keys)
@@ -455,7 +455,7 @@ const _M = {
       // Prepare the Promises
       let allApis = []
       for (let api of apis) {
-        //console.log("  # -> page.reloadData -> prepareApi", api)
+        state.LOG("  # -> page.reloadData -> prepareApi", api)
         if (api.test && !Ti.AutoMatch.test(api.test, rootState)) {
           continue;
         }
@@ -504,8 +504,10 @@ const _M = {
       anchor = null,
       params = {}
     } = {}) {
-      //console.log(rootGetters.routerList)
-      //console.log(" # -> page.reload", { path, params, anchor })
+      state.LOG = () => { }
+      state.LOG = console.log
+      state.LOG(rootGetters.routerList)
+      state.LOG(" # -> page.reload", { path, params, anchor })
       let roInfo;
       //.....................................
       // Apply routerList
@@ -548,7 +550,7 @@ const _M = {
       }
       //.....................................
       // Notify: init
-      //console.log("@page:init ...")
+      state.LOG("@page:init ...")
       commit("setReady", 0)
       await dispatch("invokeAction", { name: "@page:init" }, { root: true })
       //.....................................
@@ -564,9 +566,9 @@ const _M = {
       //.....................................
       // Load page components
       let { components, extModules } = json
-      //console.log({ components, extModules })
+      state.LOG({ components, extModules })
       let view = await TiWebApp.loadView({ components, extModules })
-      //console.log(view)
+      state.LOG(view)
       //.....................................
       // Remove old moudle
       if (state.moduleNames) {
@@ -646,18 +648,18 @@ const _M = {
       //.....................................
       // Update page 
       commit("set", page)
-      //console.log(" #### page.loaded", _.cloneDeep(page))
+      state.LOG(" #### page.loaded", _.cloneDeep(page))
       //.....................................
       // Update page data by router api preload data
-      if(roDataKey) {
+      if (roDataKey) {
         commit("updateData", {
           key: roDataKey,
           value: roInfo.context.resp.data
-        }) 
+        })
       }
       //.....................................
       // Notify: Prepare
-      //console.log("@page:prepare ...")
+      state.LOG("@page:prepare ...")
       commit("setReady", 1)
       // 
       // Sometimes or offently, the @page:prepare will check the status
@@ -670,15 +672,15 @@ const _M = {
       await dispatch("invokeAction", { name: "@page:prepare" }, { root: true })
       //
       // Page Uri changed, the next procedure will not be necessary
-      if(beforePreparePageUri != state.pageUri) {
+      if (beforePreparePageUri != state.pageUri) {
         return
       }
       //.....................................
       // Conclude the api loading keys
-      let { preloads, afterLoads } = Ti.WWW.groupPreloadApis(getters.pageApis, (k, api)=>{
+      let { preloads, afterLoads } = Ti.WWW.groupPreloadApis(getters.pageApis, (k, api) => {
         return api.force || !roDataKey || roDataKey != k
       })
-      //console.log({ preloads, afterLoads })
+      state.LOG({ preloads, afterLoads })
       //.....................................
       // init: data
       for (let keys of preloads) {
@@ -691,7 +693,7 @@ const _M = {
       dispatch("scrollToTop")
       //.....................................
       // Notify: Ready
-      //console.log("@page:ready ...")
+      state.LOG("@page:ready ...")
       commit("setReady", 2)
       await dispatch("invokeAction", { name: "@page:ready" }, { root: true })
       //.....................................

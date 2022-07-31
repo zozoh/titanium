@@ -48,7 +48,7 @@ const _M = {
     //--------------------------------------------
     // Site Action Mapping
     actions(state) {
-      //console.log("www-mod-site::getters.actions")
+      state.LOG("www-mod-site::getters.actions")
       // Global
       let map = _.cloneDeep(state.actions)
 
@@ -224,7 +224,7 @@ const _M = {
         if (!api) {
           continue;
         }
-        //console.log("  # -> page.reloadData -> prepareApi", api)
+        state.LOG("  # -> page.reloadData -> prepareApi", api)
         if (api.preloadWhen) {
           if (!Ti.AutoMatch.test(api.preloadWhen, state)) {
             continue;
@@ -253,14 +253,14 @@ const _M = {
     },
     //--------------------------------------------
     // Only handle the "page|dispatch"
-    async navTo({ commit, dispatch }, {
+    async navTo({ state, commit, dispatch }, {
       type = "page",
       value,    // page path
       anchor,   // page anchor
       data,     // page.data
       params    // page.params
     } = {}) {
-      //console.log("navToPage::", value)
+      state.LOG("navToPage::", value)
       // Guarding
       if (!value)
         return
@@ -275,7 +275,7 @@ const _M = {
         href.data = data
 
         // Reload
-        //console.log("@page:reload ...", _.cloneDeep(state.auth))
+        state.LOG("@page:reload ...", _.cloneDeep(state.auth))
         await dispatch("page/reload", href)
 
         commit("setLoading", false)
@@ -310,12 +310,12 @@ const _M = {
      * 
      * @return {void}
      */
-    async doAction({ dispatch, state }, AT) {
+    async doAction({ state, dispatch }, AT) {
       // Guard nil
       if (!AT) {
         return
       }
-      //console.log("doAction", AT)
+      state.LOG("doAction", AT)
       //....................................
       // Raw function
       //....................................
@@ -336,7 +336,7 @@ const _M = {
         // Prepare to call another action
         memo.push(name)
         try {
-          //console.log("fire At", AT)
+          state.LOG("fire At", AT)
           let args2 = Ti.Util.explainObj(state, args)
           await dispatch("invokeAction", {
             name, args: args2, memo
@@ -459,7 +459,7 @@ const _M = {
         })
       }
       //....................................
-      //console.log("invoke->", action, pld)
+      state.LOG("invoke->", action, pld)
       //....................................
       if (invoke) {
         invoke = Ti.Util.genInvoking(invoke, {
@@ -490,7 +490,7 @@ const _M = {
     /***
      * Invoke action by given name
      */
-    async invokeAction({ getters, dispatch }, { name = "", args = [], memo = [] } = {}) {
+    async invokeAction({ state, getters, dispatch }, { name = "", args = [], memo = [] } = {}) {
       /*
       The action should like
       {
@@ -498,7 +498,7 @@ const _M = {
         payload : {} | [] | ...
       } 
       */
-      // console.log("invokeAction", name, args)
+      state.LOG("invokeAction", name, args)
       let actions = getters.actions;
       let AT = _.get(actions, name)
 
@@ -556,7 +556,9 @@ const _M = {
     },
     //--------------------------------------------
     async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
-      console.log("site.reload", state.entry, state.base, state.lang)
+      state.LOG = () => { }
+      //state.LOG = console.log
+      state.LOG("site.reload", state.entry, state.base, state.lang)
       //---------------------------------------
       // Looking for the entry page
       // {href,protocol,host,port,path,search,query,hash,anchor}
@@ -575,7 +577,7 @@ const _M = {
         _.forEach(state.dictionary, (dict, name) => {
           let d = Ti.DictFactory.GetDict(name)
           if (!d) {
-            //console.log("create", name, dict)
+            state.LOG("create", name, dict)
             Ti.DictFactory.CreateDict({
               //...............................................
               data: Ti.WWW.genQuery(dict.data, { vkey: null }),

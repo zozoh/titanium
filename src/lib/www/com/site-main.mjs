@@ -261,9 +261,9 @@ const _M = {
       //let pgLink = this.getUrl(this.pageLink)
       let pgLink = this.pageUri
       //...................................
-      if(this.formatPageUrl) {
+      if (this.formatPageUrl) {
         let fmtUrl = Ti.Util.genInvoking(this.formatPageUrl)
-        if(_.isFunction(fmtUrl)) {
+        if (_.isFunction(fmtUrl)) {
           pgLink = fmtUrl(pgLink, this.page)
         }
       }
@@ -335,7 +335,9 @@ const _M = {
     "page.finger": function () {
       //console.log("-> ", this.page.title)
       let pageTitle = Ti.Util.explainObj(this, this.page.title)
-      document.title = pageTitle
+      if (!Ti.Util.isNil(pageTitle)) {
+        document.title = pageTitle
+      }
       this.pushBrowserHistory(pageTitle)
 
       this.updateBodyStyle()

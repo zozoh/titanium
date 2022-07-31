@@ -1,4 +1,4 @@
-// Pack At: 2022-07-29 15:57:32
+// Pack At: 2022-08-01 00:27:52
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -11974,6 +11974,43 @@ const {Util} = (function(){
       return Ti.Util.fallback(_.get(obj, key), dft)
     },
     /***
+     * Format checked Ids to Array
+     * 
+     * @param input{Object|Array}
+     */
+    getTruthyKeyInArray(input) {
+      if (!_.isArray(input)) {
+        return TiUtil.truthyKeys(input)
+      }
+      if (_.isEmpty(input)) {
+        return []
+      }
+      return _.concat([], input)
+    },
+    /***
+     * Format checked Ids to Map
+     * 
+     * @param input{Object|Array}
+     */
+    getTruthyKeyInMap(input) {
+      let re = {}
+      if (_.isArray(input)) {
+        for (let id of input) {
+          if (!TiUtil.isNil(id)) {
+            re[id] = true
+          }
+        }
+      }
+      else if (!_.isEmpty(input)) {
+        _.forEach(input, (v, k) => {
+          if (v) {
+            re[k] = true
+          }
+        })
+      }
+      return re
+    },
+    /***
      * @param obj{Object}
      */
     truthyKeys(obj = {}) {
@@ -18737,7 +18774,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220729.155732",
+  "version" : "1.6-20220801.002752",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -1336,6 +1336,43 @@ const TiUtil = {
     return Ti.Util.fallback(_.get(obj, key), dft)
   },
   /***
+   * Format checked Ids to Array
+   * 
+   * @param input{Object|Array}
+   */
+  getTruthyKeyInArray(input) {
+    if (!_.isArray(input)) {
+      return TiUtil.truthyKeys(input)
+    }
+    if (_.isEmpty(input)) {
+      return []
+    }
+    return _.concat([], input)
+  },
+  /***
+   * Format checked Ids to Map
+   * 
+   * @param input{Object|Array}
+   */
+  getTruthyKeyInMap(input) {
+    let re = {}
+    if (_.isArray(input)) {
+      for (let id of input) {
+        if (!TiUtil.isNil(id)) {
+          re[id] = true
+        }
+      }
+    }
+    else if (!_.isEmpty(input)) {
+      _.forEach(input, (v, k) => {
+        if (v) {
+          re[k] = true
+        }
+      })
+    }
+    return re
+  },
+  /***
    * @param obj{Object}
    */
   truthyKeys(obj = {}) {

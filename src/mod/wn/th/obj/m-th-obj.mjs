@@ -48,16 +48,16 @@ export default {
     },
     //--------------------------------------------
     contentLoadPath(state) {
-      if(state.contentPath) {
+      if (state.contentPath) {
         // fixed content path
-        if(_.isString(state.contentPath)){
+        if (_.isString(state.contentPath)) {
           return state.contentPath
         }
         // Try find content path
         let canPaths = _.concat([], state.contentPath)
-        for(let canPath of canPaths) {
-          let {test, path} = canPath
-          if(!test || Ti.AutoMatch.test(test, state)) {
+        for (let canPath of canPaths) {
+          let { test, path } = canPath
+          if (!test || Ti.AutoMatch.test(test, state)) {
             return path
           }
         }
@@ -75,7 +75,13 @@ export default {
     //--------------------------------------------
     hasCurrentMeta(state) {
       return state.meta && state.dataHome ? true : false
-    }
+    },
+    //--------------------------------------------
+    checkedItem(state) {
+      let ids = Ti.Util.getTruthyKeyInMap(state.checkedIds)
+      let list = _.filter(state.list, (li) => ids[li.id])
+      return list
+    },
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
