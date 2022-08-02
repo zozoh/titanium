@@ -132,10 +132,28 @@
           :spacing="spacing"
           :mode="FormMode">
           <TiButton
-            v-bind="GridActionButtonConf"
+            v-bind="GridActionButtons"
+            @form:readonly="myReadonly=true"
+            @form:edit="OnFormEdit"
+            @form:confirm="OnFormConfirm"
+            @form:reset="OnFormReset"
             @form:submit="OnFormSubmit"
             @form:setup:open="OnFormSetupOpen"
             @form:setup:clean="OnFormSetupClean"/>
       </footer>
+      <!--
+        Setup menu
+      -->
+      <aside
+        v-if="showSetupMenu"
+          class="form-setup"
+          :spacing="spacing"
+          :at="setupMenuAt">
+          <TiActionbar
+            v-bind="GridSetupMenu"
+            @form:submit="OnFormSubmit"
+            @form:setup:open="OnFormSetupOpen"
+            @form:setup:clean="OnFormSetupClean"/>
+      </aside>
     </template> <!-- Form main template-->    
 </div>

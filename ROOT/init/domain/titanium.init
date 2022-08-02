@@ -3,6 +3,7 @@
 # 初始化文件:
 # mkdir ~/.domain
 # cp /mnt/ti/ROOT/init/domain/vars.json ~/.domain/
+# ln -s /mnt/ti/ROOT/init/domain/ ~/.domain/init
 # cat ~/.domain/vars.json | app init /mnt/ti/ROOT/init/domain ~
 #
 # 站点发布脚本
@@ -198,6 +199,9 @@
 #---------------------------------------------------------
 @FILE mock/components/form/ti-form-grid-tab.comt 'GRID-TAB'
 {com:'/rs/ti/test/components/form/grid-tab.json'}
+#---------------------------------------------------------
+@FILE mock/components/form/ti-form-readonly-confirm.comt 'READONLY-CONFIRM'
+{com:'/rs/ti/test/components/form/readonly-confirm.json'}
 #---------------------------------------------------------
 @FILE mock/components/wn-others/wn-obj-pvg.comt 'WN-OBJ-PVG'
 {com:'/rs/ti/test/components/wn-others/demo-wn-obj-pvg.json'}

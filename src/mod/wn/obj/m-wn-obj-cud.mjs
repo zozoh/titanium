@@ -115,7 +115,7 @@ const _M = {
   async updateMetaField({ commit, dispatch }, { name, value } = {}) {
     //console.log("current.updateMeta", { name, value })
 
-    let uniqKey = _.concat(name).join("-")
+    let uniqKey = Ti.Util.anyKey(name)
     commit("setFieldStatus", {
       name: uniqKey, type: "spinning", text: "i18n:saving"
     })

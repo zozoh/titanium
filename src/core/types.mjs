@@ -860,20 +860,61 @@ const TiTypes = {
     return obj
   },
   //.......................................
-  toObjByPair(pair = {}, { nameBy = "name", valueBy = "value", dft = {} } = {}) {
+  toObjByPair(pair = {}, {
+    nameBy = "name",
+    valueBy = "value",
+    dft = {}
+  } = {}) {
     let name = pair[nameBy]
-    let value = pair[valueBy]
+    // Guard
+    if (!name) {
+      return dft
+    }
 
     let data = _.assign({}, dft)
+    let value = pair[valueBy]
+
+    // It will remove from data
+    let omitKeys = []
+
+    // Default the setter
+    const _set_to_data = function (k, v) {
+      // Remove
+      if (_.isUndefined(v)) {
+        omitKeys.push(k)
+      }
+      // .xxx
+      else if (k.startsWith(".")) {
+        data[k] = v
+      }
+      // path.to.key
+      else {
+        _.set(data, k, v)
+      }
+    }
+
     // Normal field
     if (_.isString(name)) {
-      data[name] = value
+      // Whole data
+      if (".." == name) {
+        _.assign(data, value)
+      }
+      // Set by value
+      else {
+        _set_to_data(name, value)
+      }
     }
     // Multi fields
     else if (_.isArray(name)) {
-      for (let nm of name) {
-        data[nm] = value[nm]
+      for (let k of name) {
+        let v = _.get(value, k)
+        _set_to_data(k, v)
       }
+    }
+
+    // Omit keys
+    if (omitKeys.length > 0) {
+      data = _.omit(data, omitKeys)
     }
 
     return data

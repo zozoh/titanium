@@ -1,4 +1,4 @@
-// Pack At: 2022-08-01 00:27:52
+// Pack At: 2022-08-03 01:10:12
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -14,7 +14,10 @@ window.TI_PACK_EXPORTS['ti/com/hm/form/static-options/../../../ti/form/form-supp
 const _M = {
   //////////////////////////////////////////////////////
   data: () => ({
-    myLang: "zh-cn",
+    // Save the changed data
+    myData: {},
+
+    myReadonly: undefined,
     myScreenMode: "desktop",
 
     myCandidateFormFields: [],
@@ -31,6 +34,43 @@ const _M = {
   }),
   //////////////////////////////////////////////////////
   computed: {
+    //--------------------------------------------------
+    isReadonly() {
+      return Ti.Util.fallback(this.myReadonly, this.readonly, false)
+    },
+    //--------------------------------------------------
+    FormNotifyMode() {
+      if ("auto" == this.notifyMode) {
+        return this.isReadonly ? "none" : "immediate"
+      }
+      return this.notifyMode
+    },
+    //--------------------------------------------------
+    isFormNotifyImmediate() { return "immediate" == this.FormNotifyMode },
+    isFormNotifyConfirm() { return "confirm" == this.FormNotifyMode },
+    isFormNotifyNone() { return "none" == this.FormNotifyMode },
+    //--------------------------------------------------
+    FormDataMode() {
+      if ("auto" == this.dataMode) {
+        return this.isFormNotifyConfirm ? "diff" : "all"
+      }
+      return this.dataMode
+    },
+    //--------------------------------------------------
+    isFormDataModeDiff() { return "diff" == this.FormDataMode },
+    isFormDataModeAll() { return "all" == this.FormDataMode },
+    //--------------------------------------------------
+    isFormReadonlyConfirm() {
+      return this.readonly && this.isFormNotifyConfirm
+    },
+    //--------------------------------------------------
+    FormData() {
+      return this.filterData(this.myData)
+    },
+    //--------------------------------------------------
+    isFormDataChanged() {
+      return !_.isEmpty(this.getDiffData())
+    },
     //--------------------------------------------------
     hasFieldWhiteList() {
       return !_.isEmpty(this.myFieldWhiteList)
@@ -106,7 +146,7 @@ const _M = {
                 [val.explainTargetAs]: it
               })
               let newVal = Ti.Util.explainObj(ctx, target)
-              //console.log(name, value, "->", newVal)
+              // console.log(name, value, "->", newVal)
               return newVal
             }
           }
@@ -136,25 +176,6 @@ const _M = {
         }
       })
       return re
-    },
-    //--------------------------------------------------
-    FormData() {
-      if (this.data) {
-        let re = this.data
-        if (this.onlyFields) {
-          re = _.pick(re, this.myKeysInFields)
-        }
-        if (this.omitHiddenFields) {
-          re = _.omitBy(re, (v, k) => {
-            if (this.myFormFieldMap[k]) {
-              return false
-            }
-            return true
-          })
-        }
-        return re
-      }
-      return {}
     }
     //--------------------------------------------------
   },
@@ -162,82 +183,85 @@ const _M = {
   methods: {
     //--------------------------------------------------
     async OnFieldChange({ name, value } = {}) {
-      // Notify at first
-      //console.log("OnFieldChange", {name, value})
-      this.$notify("field:change", { name, value })
+      //
+      // Confirm, store the change to temp-data at first
+      // whatever `confirm` or `immediate` we need the `myData`
+      // switch to new version ASAP.
+      // Then the GUI will keep show the new value, rather than
+      // back to old version in a eywink.
+      //
+      // support name as ".." or [..]
+      // Of cause, if name as `[..]`, the value must be a `{..}`
+      //console.log("OnFieldChange", { name, value })
+      let data = Ti.Types.toObjByPair({ name, value }, {
+        dft: _.cloneDeep(this.myData)
+      });
+      let linkdedChanged = await this.applyLinkedFields({
+        name, value, data
+      });
+      this.myData = _.assign(data, linkdedChanged)
 
-      // Link fields
-      let linkFunc = this.FormLinkFields[name]
-      let obj;
-      if (linkFunc) {
-        obj = await linkFunc({ name, value }, this.data)
-        if (!_.isEmpty(obj)) {
-          _.forEach(obj, (v, k) => {
-            this.$notify("field:change", { name: k, value: v })
+      //
+      // Notify change immediately
+      //
+      if (this.isFormNotifyImmediate) {
+        // Notify at first
+        //console.log("OnFieldChange", { name, value })
+        this.$notify("field:change", { name, value })
+
+        // Link fields
+        _.forEach(linkdedChanged, (v, k) => {
+          this.$notify("field:change", { name: k, value: v })
+        })
+
+        // Notify later ...
+        // Wait for a tick to give a chance to parent of 'data' updating
+        if (this.notifyDataImmediate) {
+          this.$nextTick(() => {
+            //console.log("notify data")
+            let data = this.getData()
+            this.$notify("change", data)
           })
         }
       }
-
-      // Notify later ...
-      // Wait for a tick to give a chance to parent of 'data' updating
-      this.$nextTick(() => {
-        //console.log("notify data")
-        let data = this.getData({ name, value })
-        _.assign(data, obj)
-        this.$notify("change", data)
-      })
     },
     //--------------------------------------------------
     //
     //           EVAL FORM DATA
     //
     //--------------------------------------------------
-    getData({ name, value } = {}) {
-      let data = _.cloneDeep(this.FormData)
-      //console.log("GetData:", data)
-
-      // Signle value
-      if (name && _.isString(name)) {
-        // Whole data
-        if (".." == name) {
-          _.assign(data, value)
+    getData() {
+      if (this.isFormDataModeAll) {
+        return _.cloneDeep(this.FormData) || {}
+      }
+      return this.getDiffData()
+    },
+    //--------------------------------------------------
+    getDiffData() {
+      let diff = {}
+      _.forEach(this.myData, (v, k) => {
+        let vOld = _.get(this.data, k)
+        if (!_.isEqual(v, vOld)) {
+          diff[k] = v
         }
-        // Statci value
-        else if (/^'[^']+'$/.test(name)) {
-          return
-        }
-        // Dynamic value
-        else {
-          if (_.isUndefined(value)) {
-            data = _.omit(data, name)
-          } else if (name.startsWith(".")) {
-            data[name] = value
-          } else {
-            _.set(data, name, value)
+      })
+      return this.filterData(diff)
+    },
+    //--------------------------------------------------
+    filterData(data = {}) {
+      let re = data || {}
+      if (this.onlyFields) {
+        re = _.pick(re, this.myKeysInFields)
+      }
+      if (this.omitHiddenFields) {
+        re = _.omitBy(re, (v, k) => {
+          if (this.myFormFieldMap[k]) {
+            return false
           }
-        }
+          return true
+        })
       }
-      // Object
-      else if (_.isArray(name)) {
-        let omitKeys = []
-        for (let k of name) {
-          let v = _.get(value, k)
-          if (_.isUndefined(v)) {
-            omitKeys.push(k)
-          } else {
-            _.set(data, k, v)
-          }
-        }
-        if (omitKeys.length > 0) {
-          data = _.omit(data, omitKeys)
-        }
-      }
-
-      // Join the fixed data
-      if (this.fixed) {
-        _.assign(data, fixed)
-      }
-      return data
+      return re
     },
     //--------------------------------------------------
     //
@@ -248,14 +272,14 @@ const _M = {
       let list = []
       const __join_fields = function (fields = []) {
         for (let fld of fields) {
-          if ("Group" == fld.type) {
+          if ("Group" == fld.race) {
             __join_fields(fld.fields)
           }
           // Join normal fields
           else {
             // Replace the last Label
             let lastFld = _.nth(list, -1)
-            if (lastFld && "Label" == lastFld.type && "Label" == fld.type) {
+            if (lastFld && "Label" == lastFld.race && "Label" == fld.race) {
               list[list.length - 1] = fld
             }
             // Join 
@@ -306,14 +330,6 @@ const _M = {
       return list;
     },
     //--------------------------------------------------
-    evalMyLang() {
-      if ("auto" == this.lang) {
-        this.myLang = _.kebabCase(Ti.Config.lang())
-      } else {
-        this.myLang = _.kebabCase(this.lang)
-      }
-    },
-    //--------------------------------------------------
     evalMyScreenMode() {
       if ("auto" == this.screenMode) {
         let state = Ti.App(this).$state().viewport
@@ -321,6 +337,27 @@ const _M = {
       } else {
         this.myScreenMode = this.screeMode
       }
+    },
+    //--------------------------------------------------
+    //
+    //           Apply linked fields
+    //
+    //--------------------------------------------------
+    async applyLinkedFields({ name, value, data = {}, callback }) {
+      let uniqKey = Ti.Util.anyKey(name)
+      let linkFunc = this.FormLinkFields[uniqKey]
+
+      // Guard
+      if (!linkFunc) {
+        return
+      }
+
+      let obj = await linkFunc({ name, value }, data)
+      if (_.isFunction(callback) && !_.isEmpty(obj)) {
+        callback(obj)
+      }
+
+      return obj;
     },
     //--------------------------------------------------
     //
@@ -364,15 +401,12 @@ const _M = {
       let fmap = {}
       //................................................
       if (_.isArray(this.fields)) {
+        ////console.log("async evalFormFieldList() x ", this.fields.length)
         for (let index = 0; index < this.fields.length; index++) {
           let fld = this.fields[index]
-          let fld2 = await this.evalFormField(fld, [index], cans)
+          let fld2 = await this.evalFormField(fld, [index], { cans, fmap })
           if (fld2) {
             list.push(fld2)
-            let fKeys = _.concat(fld2.name)
-            for (let fk of fKeys) {
-              fmap[fk] = fld2
-            }
           }
           // Gather field names
           if (fld.name) {
@@ -407,12 +441,14 @@ const _M = {
       this.myCandidateFormFields = cans
     },
     //--------------------------------------------------
-    async evalFormField(fld = {}, nbs = [], cans = [], grp = this) {
+    async evalFormField(fld = {}, nbs = [], {
+      cans = [], grp = this, fmap = {}
+    } = {}) {
       // The key
       let fldKey = Ti.Util.anyKey(fld.name || nbs)
 
       // Visibility
-      let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.data)
+      let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.myData)
 
       //............................................
 
@@ -435,9 +471,8 @@ const _M = {
             let newSubFld = await this.evalFormField(
               subfld,
               [...nbs, index],
-              cans,
-              group
-            )
+              { cans, grp: group, fmap }
+            );
             if (newSubFld) {
               group.fields.push(newSubFld)
             }
@@ -458,18 +493,20 @@ const _M = {
       //............................................
       // For Normal Field
       else if (this.isNormal(fld)) {
+        let comConf = _.cloneDeep(grp.defaultComConf) || {}
         field = _.defaults(_.omit(fld, omitKeys), {
           race: "Normal",
           key: fldKey,
           isActived: this.myActivedFieldKey == fldKey,
           type: this.defaultFieldType || "String",
-          comType: this.defaultComType || "TiLabel",
+          comType: grp.defaultComType || this.defaultComType || "TiLabel",
+          comConf: _.assign(comConf, this.comConf),
           disabled
         })
 
         // The UniqKey of field
-        field.uniqKey = _.concat(field.name).join("-")
-        //console.log(field.uniqKey)
+        field.uniqKey = Ti.Util.anyKey(field.name)
+        fmap[field.uniqKey] = field
 
         // Default
         if (!field.serializer) {
@@ -492,12 +529,12 @@ const _M = {
           if (_.isBoolean(fld.required)) {
             field.required = true
           } else {
-            field.required = Ti.AutoMatch.test(fld.required, this.data)
+            field.required = Ti.AutoMatch.test(fld.required, this.myData)
           }
         }
 
         // Display Com
-        field.com = await this.evalFieldCom(field)
+        field.com = await this.evalFieldCom(field, grp)
 
         // Layout style
         this.applyFieldDefault(field, grp)
@@ -561,11 +598,10 @@ const _M = {
       })
     },
     //--------------------------------------------------
-    async evalFieldCom(fld) {
-      //console.log("evalFieldCom", fld)
+    async evalFieldCom(fld, grp) {
       let displayItem
       // UnActived try use display
-      if (!fld.isActived) {
+      if (!fld.isActived || this.isReadonly) {
         displayItem = this.evalFieldDisplay(fld)
       }
       // Use default form component
@@ -576,19 +612,51 @@ const _M = {
         }
       }
       // Explain field com
-      return await this.evalDataForFieldDisplayItem({
-        itemData: this.data,
+      let com = await this.evalDataForFieldDisplayItem({
+        itemData: this.myData,
         displayItem,
         vars: fld,
         autoIgnoreNil: false,
         autoIgnoreBlank: false,
         autoValue: fld.autoValue || "value"
       })
+      // force set readonly
+      if (this.isReadonly) {
+        _.assign(com.comConf, {
+          readonly: true
+        })
+      }
+
+      return com
     },
     //--------------------------------------------------
-    evalFieldDisplay({ name, display } = {}) {
+    evalFieldDisplay({ name, display, comConf } = {}) {
       // Guard
       if (!display) {
+        // Auto gen display
+        if (this.autoReadonlyDisplay && this.isReadonly) {
+          let labelConf = {}
+          // If options
+          if (comConf && comConf.options) {
+            let dictName = Ti.DictFactory.DictReferName(comConf.options)
+            if (dictName) {
+              labelConf.dict = dictName
+            }
+            // Array to create dict instance
+            else if (_.isArray(comConf.options)) {
+              let dict = Ti.DictFactory.CreateDict({
+                data: comConf.options
+              })
+              labelConf.dict = dict
+            }
+          }
+          // Just pure value
+          return {
+            key: name,
+            comType: "TiLabel",
+            comConf: labelConf
+          }
+        }
         return
       }
       // Eval setting
@@ -600,15 +668,16 @@ const _M = {
       }
       // return default.
       return {
-        comType: "ti-label",
+        key: name,
+        comType: "TiLabel",
         comConf: {}
       }
     },
     //--------------------------------------------------
     tryEvalFormFieldList(newVal, oldVal) {
-      //console.log("tryEvalFormFieldList")
+      ////console.log("tryEvalFormFieldList")
       if (!_.isEqual(newVal, oldVal)) {
-        //console.log("  !! do this.evalFormFieldList()")
+        ////console.log("  !! do this.evalFormFieldList()")
         this.evalFormFieldList()
       }
     }
@@ -5311,9 +5380,9 @@ const _M = {
       params = {}
     } = {}) {
       state.LOG = () => { }
-      state.LOG = console.log
-      state.LOG(rootGetters.routerList)
+      //state.LOG = console.log
       state.LOG(" # -> page.reload", { path, params, anchor })
+      state.LOG(" == routerList == ", rootGetters.routerList)
       let roInfo;
       //.....................................
       // Apply routerList
@@ -7758,7 +7827,7 @@ const _M = {
   async updateMetaField({ commit, dispatch }, { name, value } = {}) {
     //console.log("current.updateMeta", { name, value })
 
-    let uniqKey = _.concat(name).join("-")
+    let uniqKey = Ti.Util.anyKey(name)
     commit("setFieldStatus", {
       name: uniqKey, type: "spinning", text: "i18n:saving"
     })
@@ -9948,7 +10017,7 @@ const _M = {
     },
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
-      console.log(" <--- @field:changed", {name, value})
+      //console.log(" <--- @field:changed", {name, value})
       this.doAction("field:change", this.updateBy, {name, value})
     },
     //--------------------------------------------------
@@ -12968,7 +13037,10 @@ window.TI_PACK_EXPORTS['ti/com/ti/form/form-support.mjs'] = (function(){
 const _M = {
   //////////////////////////////////////////////////////
   data: () => ({
-    myLang: "zh-cn",
+    // Save the changed data
+    myData: {},
+
+    myReadonly: undefined,
     myScreenMode: "desktop",
 
     myCandidateFormFields: [],
@@ -12985,6 +13057,43 @@ const _M = {
   }),
   //////////////////////////////////////////////////////
   computed: {
+    //--------------------------------------------------
+    isReadonly() {
+      return Ti.Util.fallback(this.myReadonly, this.readonly, false)
+    },
+    //--------------------------------------------------
+    FormNotifyMode() {
+      if ("auto" == this.notifyMode) {
+        return this.isReadonly ? "none" : "immediate"
+      }
+      return this.notifyMode
+    },
+    //--------------------------------------------------
+    isFormNotifyImmediate() { return "immediate" == this.FormNotifyMode },
+    isFormNotifyConfirm() { return "confirm" == this.FormNotifyMode },
+    isFormNotifyNone() { return "none" == this.FormNotifyMode },
+    //--------------------------------------------------
+    FormDataMode() {
+      if ("auto" == this.dataMode) {
+        return this.isFormNotifyConfirm ? "diff" : "all"
+      }
+      return this.dataMode
+    },
+    //--------------------------------------------------
+    isFormDataModeDiff() { return "diff" == this.FormDataMode },
+    isFormDataModeAll() { return "all" == this.FormDataMode },
+    //--------------------------------------------------
+    isFormReadonlyConfirm() {
+      return this.readonly && this.isFormNotifyConfirm
+    },
+    //--------------------------------------------------
+    FormData() {
+      return this.filterData(this.myData)
+    },
+    //--------------------------------------------------
+    isFormDataChanged() {
+      return !_.isEmpty(this.getDiffData())
+    },
     //--------------------------------------------------
     hasFieldWhiteList() {
       return !_.isEmpty(this.myFieldWhiteList)
@@ -13060,7 +13169,7 @@ const _M = {
                 [val.explainTargetAs]: it
               })
               let newVal = Ti.Util.explainObj(ctx, target)
-              //console.log(name, value, "->", newVal)
+              // console.log(name, value, "->", newVal)
               return newVal
             }
           }
@@ -13090,25 +13199,6 @@ const _M = {
         }
       })
       return re
-    },
-    //--------------------------------------------------
-    FormData() {
-      if (this.data) {
-        let re = this.data
-        if (this.onlyFields) {
-          re = _.pick(re, this.myKeysInFields)
-        }
-        if (this.omitHiddenFields) {
-          re = _.omitBy(re, (v, k) => {
-            if (this.myFormFieldMap[k]) {
-              return false
-            }
-            return true
-          })
-        }
-        return re
-      }
-      return {}
     }
     //--------------------------------------------------
   },
@@ -13116,82 +13206,85 @@ const _M = {
   methods: {
     //--------------------------------------------------
     async OnFieldChange({ name, value } = {}) {
-      // Notify at first
-      //console.log("OnFieldChange", {name, value})
-      this.$notify("field:change", { name, value })
+      //
+      // Confirm, store the change to temp-data at first
+      // whatever `confirm` or `immediate` we need the `myData`
+      // switch to new version ASAP.
+      // Then the GUI will keep show the new value, rather than
+      // back to old version in a eywink.
+      //
+      // support name as ".." or [..]
+      // Of cause, if name as `[..]`, the value must be a `{..}`
+      //console.log("OnFieldChange", { name, value })
+      let data = Ti.Types.toObjByPair({ name, value }, {
+        dft: _.cloneDeep(this.myData)
+      });
+      let linkdedChanged = await this.applyLinkedFields({
+        name, value, data
+      });
+      this.myData = _.assign(data, linkdedChanged)
 
-      // Link fields
-      let linkFunc = this.FormLinkFields[name]
-      let obj;
-      if (linkFunc) {
-        obj = await linkFunc({ name, value }, this.data)
-        if (!_.isEmpty(obj)) {
-          _.forEach(obj, (v, k) => {
-            this.$notify("field:change", { name: k, value: v })
+      //
+      // Notify change immediately
+      //
+      if (this.isFormNotifyImmediate) {
+        // Notify at first
+        //console.log("OnFieldChange", { name, value })
+        this.$notify("field:change", { name, value })
+
+        // Link fields
+        _.forEach(linkdedChanged, (v, k) => {
+          this.$notify("field:change", { name: k, value: v })
+        })
+
+        // Notify later ...
+        // Wait for a tick to give a chance to parent of 'data' updating
+        if (this.notifyDataImmediate) {
+          this.$nextTick(() => {
+            //console.log("notify data")
+            let data = this.getData()
+            this.$notify("change", data)
           })
         }
       }
-
-      // Notify later ...
-      // Wait for a tick to give a chance to parent of 'data' updating
-      this.$nextTick(() => {
-        //console.log("notify data")
-        let data = this.getData({ name, value })
-        _.assign(data, obj)
-        this.$notify("change", data)
-      })
     },
     //--------------------------------------------------
     //
     //           EVAL FORM DATA
     //
     //--------------------------------------------------
-    getData({ name, value } = {}) {
-      let data = _.cloneDeep(this.FormData)
-      //console.log("GetData:", data)
-
-      // Signle value
-      if (name && _.isString(name)) {
-        // Whole data
-        if (".." == name) {
-          _.assign(data, value)
+    getData() {
+      if (this.isFormDataModeAll) {
+        return _.cloneDeep(this.FormData) || {}
+      }
+      return this.getDiffData()
+    },
+    //--------------------------------------------------
+    getDiffData() {
+      let diff = {}
+      _.forEach(this.myData, (v, k) => {
+        let vOld = _.get(this.data, k)
+        if (!_.isEqual(v, vOld)) {
+          diff[k] = v
         }
-        // Statci value
-        else if (/^'[^']+'$/.test(name)) {
-          return
-        }
-        // Dynamic value
-        else {
-          if (_.isUndefined(value)) {
-            data = _.omit(data, name)
-          } else if (name.startsWith(".")) {
-            data[name] = value
-          } else {
-            _.set(data, name, value)
+      })
+      return this.filterData(diff)
+    },
+    //--------------------------------------------------
+    filterData(data = {}) {
+      let re = data || {}
+      if (this.onlyFields) {
+        re = _.pick(re, this.myKeysInFields)
+      }
+      if (this.omitHiddenFields) {
+        re = _.omitBy(re, (v, k) => {
+          if (this.myFormFieldMap[k]) {
+            return false
           }
-        }
+          return true
+        })
       }
-      // Object
-      else if (_.isArray(name)) {
-        let omitKeys = []
-        for (let k of name) {
-          let v = _.get(value, k)
-          if (_.isUndefined(v)) {
-            omitKeys.push(k)
-          } else {
-            _.set(data, k, v)
-          }
-        }
-        if (omitKeys.length > 0) {
-          data = _.omit(data, omitKeys)
-        }
-      }
-
-      // Join the fixed data
-      if (this.fixed) {
-        _.assign(data, fixed)
-      }
-      return data
+      return re
     },
     //--------------------------------------------------
     //
@@ -13202,14 +13295,14 @@ const _M = {
       let list = []
       const __join_fields = function (fields = []) {
         for (let fld of fields) {
-          if ("Group" == fld.type) {
+          if ("Group" == fld.race) {
             __join_fields(fld.fields)
           }
           // Join normal fields
           else {
             // Replace the last Label
             let lastFld = _.nth(list, -1)
-            if (lastFld && "Label" == lastFld.type && "Label" == fld.type) {
+            if (lastFld && "Label" == lastFld.race && "Label" == fld.race) {
               list[list.length - 1] = fld
             }
             // Join 
@@ -13260,14 +13353,6 @@ const _M = {
       return list;
     },
     //--------------------------------------------------
-    evalMyLang() {
-      if ("auto" == this.lang) {
-        this.myLang = _.kebabCase(Ti.Config.lang())
-      } else {
-        this.myLang = _.kebabCase(this.lang)
-      }
-    },
-    //--------------------------------------------------
     evalMyScreenMode() {
       if ("auto" == this.screenMode) {
         let state = Ti.App(this).$state().viewport
@@ -13275,6 +13360,27 @@ const _M = {
       } else {
         this.myScreenMode = this.screeMode
       }
+    },
+    //--------------------------------------------------
+    //
+    //           Apply linked fields
+    //
+    //--------------------------------------------------
+    async applyLinkedFields({ name, value, data = {}, callback }) {
+      let uniqKey = Ti.Util.anyKey(name)
+      let linkFunc = this.FormLinkFields[uniqKey]
+
+      // Guard
+      if (!linkFunc) {
+        return
+      }
+
+      let obj = await linkFunc({ name, value }, data)
+      if (_.isFunction(callback) && !_.isEmpty(obj)) {
+        callback(obj)
+      }
+
+      return obj;
     },
     //--------------------------------------------------
     //
@@ -13318,15 +13424,12 @@ const _M = {
       let fmap = {}
       //................................................
       if (_.isArray(this.fields)) {
+        ////console.log("async evalFormFieldList() x ", this.fields.length)
         for (let index = 0; index < this.fields.length; index++) {
           let fld = this.fields[index]
-          let fld2 = await this.evalFormField(fld, [index], cans)
+          let fld2 = await this.evalFormField(fld, [index], { cans, fmap })
           if (fld2) {
             list.push(fld2)
-            let fKeys = _.concat(fld2.name)
-            for (let fk of fKeys) {
-              fmap[fk] = fld2
-            }
           }
           // Gather field names
           if (fld.name) {
@@ -13361,12 +13464,14 @@ const _M = {
       this.myCandidateFormFields = cans
     },
     //--------------------------------------------------
-    async evalFormField(fld = {}, nbs = [], cans = [], grp = this) {
+    async evalFormField(fld = {}, nbs = [], {
+      cans = [], grp = this, fmap = {}
+    } = {}) {
       // The key
       let fldKey = Ti.Util.anyKey(fld.name || nbs)
 
       // Visibility
-      let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.data)
+      let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.myData)
 
       //............................................
 
@@ -13389,9 +13494,8 @@ const _M = {
             let newSubFld = await this.evalFormField(
               subfld,
               [...nbs, index],
-              cans,
-              group
-            )
+              { cans, grp: group, fmap }
+            );
             if (newSubFld) {
               group.fields.push(newSubFld)
             }
@@ -13412,18 +13516,20 @@ const _M = {
       //............................................
       // For Normal Field
       else if (this.isNormal(fld)) {
+        let comConf = _.cloneDeep(grp.defaultComConf) || {}
         field = _.defaults(_.omit(fld, omitKeys), {
           race: "Normal",
           key: fldKey,
           isActived: this.myActivedFieldKey == fldKey,
           type: this.defaultFieldType || "String",
-          comType: this.defaultComType || "TiLabel",
+          comType: grp.defaultComType || this.defaultComType || "TiLabel",
+          comConf: _.assign(comConf, this.comConf),
           disabled
         })
 
         // The UniqKey of field
-        field.uniqKey = _.concat(field.name).join("-")
-        //console.log(field.uniqKey)
+        field.uniqKey = Ti.Util.anyKey(field.name)
+        fmap[field.uniqKey] = field
 
         // Default
         if (!field.serializer) {
@@ -13446,12 +13552,12 @@ const _M = {
           if (_.isBoolean(fld.required)) {
             field.required = true
           } else {
-            field.required = Ti.AutoMatch.test(fld.required, this.data)
+            field.required = Ti.AutoMatch.test(fld.required, this.myData)
           }
         }
 
         // Display Com
-        field.com = await this.evalFieldCom(field)
+        field.com = await this.evalFieldCom(field, grp)
 
         // Layout style
         this.applyFieldDefault(field, grp)
@@ -13515,11 +13621,10 @@ const _M = {
       })
     },
     //--------------------------------------------------
-    async evalFieldCom(fld) {
-      //console.log("evalFieldCom", fld)
+    async evalFieldCom(fld, grp) {
       let displayItem
       // UnActived try use display
-      if (!fld.isActived) {
+      if (!fld.isActived || this.isReadonly) {
         displayItem = this.evalFieldDisplay(fld)
       }
       // Use default form component
@@ -13530,19 +13635,51 @@ const _M = {
         }
       }
       // Explain field com
-      return await this.evalDataForFieldDisplayItem({
-        itemData: this.data,
+      let com = await this.evalDataForFieldDisplayItem({
+        itemData: this.myData,
         displayItem,
         vars: fld,
         autoIgnoreNil: false,
         autoIgnoreBlank: false,
         autoValue: fld.autoValue || "value"
       })
+      // force set readonly
+      if (this.isReadonly) {
+        _.assign(com.comConf, {
+          readonly: true
+        })
+      }
+
+      return com
     },
     //--------------------------------------------------
-    evalFieldDisplay({ name, display } = {}) {
+    evalFieldDisplay({ name, display, comConf } = {}) {
       // Guard
       if (!display) {
+        // Auto gen display
+        if (this.autoReadonlyDisplay && this.isReadonly) {
+          let labelConf = {}
+          // If options
+          if (comConf && comConf.options) {
+            let dictName = Ti.DictFactory.DictReferName(comConf.options)
+            if (dictName) {
+              labelConf.dict = dictName
+            }
+            // Array to create dict instance
+            else if (_.isArray(comConf.options)) {
+              let dict = Ti.DictFactory.CreateDict({
+                data: comConf.options
+              })
+              labelConf.dict = dict
+            }
+          }
+          // Just pure value
+          return {
+            key: name,
+            comType: "TiLabel",
+            comConf: labelConf
+          }
+        }
         return
       }
       // Eval setting
@@ -13554,15 +13691,16 @@ const _M = {
       }
       // return default.
       return {
-        comType: "ti-label",
+        key: name,
+        comType: "TiLabel",
         comConf: {}
       }
     },
     //--------------------------------------------------
     tryEvalFormFieldList(newVal, oldVal) {
-      //console.log("tryEvalFormFieldList")
+      ////console.log("tryEvalFormFieldList")
       if (!_.isEqual(newVal, oldVal)) {
-        //console.log("  !! do this.evalFormFieldList()")
+        ////console.log("  !! do this.evalFormFieldList()")
         this.evalFormFieldList()
       }
     }
@@ -16273,9 +16411,14 @@ const _M = {
       // Grid layout
       let realGridColCount = this.gridColumnCount * 2 || 1;
 
-      let gridI = 0;   // Current grid col index
+      let gridI = 0;         // Current grid cell col index
+      let gridRowUsed = 0;   // Current grid cell row span
+      let gridColUsed = 0;   // Current grid cell col span
       for (let i = 0; i < list.length; i++) {
         let fld = list[i];
+        // if (realGridColCount > 1) {
+        //   console.log(i, gridI, fld.name, realGridColCount)
+        // }
 
         // Show name
         fld.showName = (fld.icon || fld.title) ? true : false;
@@ -21334,8 +21477,14 @@ const _M = {
       ], {
         "is-mode-flat": this.isFlatMode,
         "is-mode-group": this.isGroupMode,
-        "is-mode-tab": this.isTabMode
-      })
+        "is-mode-tab": this.isTabMode,
+        "has-title": this.hasTitle,
+        "nil-title": !this.hasTitle,
+        "has-footer": this.showFooterActions,
+        "nil-footer": !this.showFooterActions,
+        "has-aside": this.showSetupMenu,
+        "nil-aside": !this.showSetupMenu
+      }, `setup-menu-at-${this.setupMenuAt}`)
     },
     //--------------------------------------------------
     MainClass() {
@@ -21463,7 +21612,7 @@ const _M = {
     //--------------------------------------------------
     GridContainerConf() {
       return {
-        data: this.data,
+        data: this.myData,
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
         statusIcons: this.statusIcons,
@@ -21472,8 +21621,49 @@ const _M = {
       }
     },
     //--------------------------------------------------
-    GridActionButtonConf() {
+    GridSetupMenu() {
+      let items = []
+      if (this.canCustomizedFields) {
+        items.push(_.assign(
+          {
+            icon: "fas-tools",
+            text: "i18n:setup-fields"
+          },
+          this.setupFieldsAction,
+          {
+            eventName: "form:setup:open"
+          }
+        ))
+        items.push(_.assign(
+          {
+            icon: "zmdi-time-restore-setting",
+            text: "i18n:setup-reset"
+          },
+          this.setupFieldsCleanAction,
+          {
+            eventName: "form:setup:clean",
+            disabled: !this.hasCustomizedWhiteFields
+          }
+        ))
+      }
+      if (!_.isEmpty(items)) {
+        if (this.setupMoreIcon) {
+          return _.assign({
+            items: [{
+              icon: this.setupMoreIcon,
+              items
+            }]
+          }, this.setupMenuConf)
+        }
+        return _.assign({
+          items
+        }, this.setupMenuConf)
+      }
+    },
+    //--------------------------------------------------
+    GridActionButtons() {
       let setup = []
+
       // Submit
       if (this.canSubmit) {
         setup.push(_.assign(
@@ -21486,49 +21676,69 @@ const _M = {
           }
         ))
       }
+
+      // Confirm Change
+      if (this.isFormNotifyConfirm) {
+        // Edit
+        if (this.isReadonly) {
+          setup.push(_.assign(
+            {
+              text: "i18n:edit-content"
+            },
+            this.editButton,
+            {
+              eventName: "form:edit"
+            }
+          ))
+        }
+        // Confirm | Reset
+        else {
+          // Confirm
+          setup.push(_.assign(
+            {
+              icon: "far-check-circle",
+              text: "i18n:confirm-change"
+            },
+            this.confirmButton,
+            {
+              eventName: "form:confirm",
+              disabled: !this.isFormDataChanged
+            }
+          ))
+          // Reset
+          setup.push(_.assign(
+            {
+              icon: "zmdi-time-restore",
+              text: "i18n:cancel"
+            },
+            this.resetButton,
+            {
+              eventName: "form:reset"
+            }
+          ))
+        }
+      }
+
+
       // Others Customized action
       _.forEach(this.actionButtonSetup, a => setup.push(a))
 
-      // Customized
-      if (this.canCustomizedFields) {
-        setup.push(_.assign(
-          {
-            text: "i18n:setup-fields",
-          },
-          this.setupButton,
-          {
-            eventName: "form:setup:open"
-          }
-        ))
-        setup.push(_.assign(
-          {
-            text: "i18n:setup-reset",
-          },
-          this.setupCleanButton,
-          {
-            eventName: "form:setup:clean",
-            disabled: !this.hasCustomizedWhiteFields
-          }
-        ))
-      }
       // Done
       if (!_.isEmpty(setup)) {
-        return {
-          className: this.actionClassName,
-          size: this.actionSize
-            || (
-              "tiny" == this.spacing
-                ? "tiny"
-                : "small"
-            ),
-          align: this.actionAlign,
+        return _.assign({
+          className: "btn-r4",
+          size: "tiny" == this.spacing ? "tiny" : "small",
           setup
-        }
+        }, this.actionButtonConf)
       }
     },
     //--------------------------------------------------
+    showSetupMenu() {
+      return !_.isEmpty(this.GridSetupMenu)
+    },
+    //--------------------------------------------------
     showFooterActions() {
-      return !_.isEmpty(this.GridActionButtonConf)
+      return !_.isEmpty(this.GridActionButtons)
     }
     //--------------------------------------------------
   },
@@ -21551,6 +21761,21 @@ const _M = {
       if (this.keepTabIndexBy) {
         Ti.Storage.session.set(this.keepTabIndexBy, index)
       }
+    },
+    //--------------------------------------------------
+    OnFormEdit() {
+      this.myReadonly = false
+    },
+    //--------------------------------------------------
+    OnFormConfirm() {
+      let data = this.getData()
+      this.$notify("change", data)
+      this.myReadonly = this.readonly
+    },
+    //--------------------------------------------------
+    OnFormReset() {
+      this.myData = _.cloneDeep(this.data) || {}
+      this.myReadonly = this.readonly
     },
     //--------------------------------------------------
     OnFormSubmit() {
@@ -21653,13 +21878,24 @@ const _M = {
         _.assign(re, cus)
       }
       return re
+    },
+    //--------------------------------------------------
+    tryEvalData(newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
+        this.myData = _.cloneDeep(newVal) || {}
+      }
     }
     //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
   watch: {
     "fields": "tryEvalFormFieldList",
-    "data": "tryEvalFormFieldList",
+    "data": {
+      handler: "tryEvalData",
+      immediate: true
+    },
+    "myData": "tryEvalFormFieldList",
+    "isReadonly": "tryEvalFormFieldList",
     "myActivedFieldKey": "tryEvalFormFieldList"
   },
   //////////////////////////////////////////////////////
@@ -21677,8 +21913,6 @@ const _M = {
       this.evalFormWhiteFieldList(cus.whiteFields)
     }
 
-    // Lang
-    this.evalMyLang()
     // Screen
     this.evalMyScreenMode()
   },
@@ -24557,10 +24791,28 @@ const _M = {
     commit("setStatus", { deleting: false })
   },
   //--------------------------------------------
-  async updateMetaField({ dispatch }, { name, value } = {}) {
+  async updateMetaField({ commit, dispatch }, { name, value } = {}) {
     //console.log("current.updateMeta", { name, value })
+
+    let uniqKey = Ti.Util.anyKey(name)
+    commit("setFieldStatus", {
+      name: uniqKey, type: "spinning", text: "i18n:saving"
+    })
+
     let data = Ti.Types.toObjByPair({ name, value })
-    await dispatch("updateMeta", data)
+    let reo = await dispatch("updateMeta", data)
+    let isError = reo instanceof Error;
+
+    if (isError) {
+      commit("setFieldStatus", {
+        name: uniqKey, type: "warn", text: reo.message || "i18n:fail"
+      })
+    } else {
+      commit("setFieldStatus", {
+        name: uniqKey, type: "ok", text: "i18n:ok"
+      })
+      _.delay(() => { commit("clearFieldStatus", uniqKey) }, 500)
+    }
   },
   //--------------------------------------------
   async updateMeta({ state, commit }, data = {}) {
@@ -28373,7 +28625,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default: _.identity
   },
   "currentId": {
-    type: [String, Number],
+    type: [String, Number, Boolean],
     default: null
   },
   "checkedIds": {
@@ -29621,6 +29873,27 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Object,
     default: () => ({})
   },
+  // merge each time data change
+  "fixed": {
+    type: Object,
+    default: undefined
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  "readonly": {
+    type: Boolean,
+    default: false
+  },
+  // if call getData, which will return:
+  // - `all` : all data will be taken and return
+  // - `diff` : only changed field will be taken
+  // - `auto` : `diff` if `notifyMode` is `confirm`, else as `all`
+  "dataMode": {
+    type: String,
+    default: "auto",
+    validator: v => /^(all|diff|auto)$/.test(v)
+  },
   "onlyFields": {
     type: Boolean,
     default: true
@@ -29629,18 +29902,27 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Boolean,
     default: false
   },
-  // merge each time data change
-  "fixed": {
-    type: Object,
-    default: undefined
-  },
-  "lang": {
+  // When field change, how to notify:
+  // - `immediate` : notify immediately
+  // - `confirm` : show confirm button, and to confirm change
+  // - `none` : never notify
+  // - `auto` : `none` if readonly, else as `immediate`
+  "notifyMode": {
     type: String,
-    default: "auto" // zh-cn | zh-hk | en-us | en-uk
+    default: "auto",
+    validator: v => /^(immediate|confirm|none|auto)$/.test(v)
   },
-  //-----------------------------------
-  // Behavior
-  //-----------------------------------
+  // If notifyMode=="immediate", when field change,
+  // notify the data change 
+  "notifyDataImmediate": {
+    type: Boolean,
+    default: true
+  },
+  // If current is readonly, try to gen display setting by comType
+  "autoReadonlyDisplay": {
+    type: Boolean,
+    default: true
+  },
   "defaultFieldType": {
     type: String,
     default: "String"
@@ -29648,6 +29930,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "defaultComType": {
     type: String,
     default: "ti-label"
+  },
+  "defaultComConf": {
+    type: Object,
+    default: () => ({})
   },
   "linkFields": {
     type: Object,
@@ -29691,10 +29977,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //  - "form:setup:open"
   //  - "form:setup:clean"
   //  - "form:submit"
-  //  - "form:reset"
   //  - "form:edit"
   //  - "form:readonly"
+  //  - "form:confirm"
+  //  - "form:reset"
   "actionButtonSetup": {
+    type: Array,
+    default: () => []
+  },
+  "actionMenuItems": {
     type: Array,
     default: () => []
   },
@@ -29789,37 +30080,54 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default: "comfy",
     validator: v => /^(comfy|tiny)$/.test(v)
   },
-  // TiButton.className
-  "actionClassName": {
-    type: [String, Array, Object],
-  },
-  // TiButton.size
-  "actionSize": {
+  //......................................
+  // Setup Menu
+  //......................................
+  // If null, it will flat show setup/reset button
+  "setupMoreIcon": {
     type: String,
+    default: "fas-cog"
   },
-  // TiButton.align
-  "actionAlign": {
+  "setupFieldsAction": {
+    type: Object
+  },
+  "setupFieldsCleanAction": {
+    type: Object
+  },
+  "setupMenuAt": {
     type: String,
+    default: "bottom-right",
+    validator: (v) => /^(top|bottom)-(left|right)$/.test(v)
   },
+  "setupMenuConf": {
+    type: Object,
+    default: () => {
+      /*@see ti-actionbar */
+    }
+  },
+  //......................................
+  // Action button
+  //......................................
   "submitButton": {
-    type: Object,
-    default: () => ({
-      text: "i18n:submit",
-    })
+    type: Object
   },
-  "setupButton": {
-    type: Object,
-    default: () => ({
-      icon: "fas-cog",
-      text: "i18n:setup-fields"
-    })
+  "editButton": {
+    type: Object
   },
-  "setupCleanButton": {
-    type: Object,
-    default: () => ({
-      text: "i18n:setup-reset"
-    })
+  "confirmButton": {
+    type: Object
   },
+  "resetButton": {
+    type: Object
+  },
+  //......................................
+  "actionButtonConf": {
+    type: Object,
+    default: () => {
+      /*className, size, align ... @see ti-button*/
+    }
+  },
+  //......................................
   "customizeDialog": {
     type: Object,
     default: () => ({
@@ -39663,6 +39971,8 @@ const _M = {
         "block:shown": "updateBlockShown",
         "block:show": "showBlock",
         "block:hide": "hideBlock",
+        "meta::change": "doNothing",
+        "meta::field:change": "dispatch('updateMetaField')",
         "content::change": "OnContentChange",
         "save:change": "OnSaveChange",
         "list::select": "OnSearchListSelect",
@@ -39771,8 +40081,8 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      // if ("meta::field:change" == name)
-      //   console.log("WnThAdaptor.__on_events", name, payload)
+      if (/change$/.test(name))
+         console.log("WnThAdaptor.__on_events", name, payload)
 
       // ByPass
       if (/^(indicate)$/.test(name)) {
@@ -84880,11 +85190,29 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
           :spacing="spacing"
           :mode="FormMode">
           <TiButton
-            v-bind="GridActionButtonConf"
+            v-bind="GridActionButtons"
+            @form:readonly="myReadonly=true"
+            @form:edit="OnFormEdit"
+            @form:confirm="OnFormConfirm"
+            @form:reset="OnFormReset"
             @form:submit="OnFormSubmit"
             @form:setup:open="OnFormSetupOpen"
             @form:setup:clean="OnFormSetupClean"/>
       </footer>
+      <!--
+        Setup menu
+      -->
+      <aside
+        v-if="showSetupMenu"
+          class="form-setup"
+          :spacing="spacing"
+          :at="setupMenuAt">
+          <TiActionbar
+            v-bind="GridSetupMenu"
+            @form:submit="OnFormSubmit"
+            @form:setup:open="OnFormSetupOpen"
+            @form:setup:clean="OnFormSetupClean"/>
+      </aside>
     </template> <!-- Form main template-->    
 </div>`);
 //========================================
@@ -98376,6 +98704,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "close": "Close",
   "color": "Color",
   "confirm": "Confirm",
+  "confirm-change": "Confirm Change",
   "console": "Console",
   "content": "Content",
   "content-setup": "Content setup",
@@ -98450,6 +98779,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "e-ph-noexists": "Path [${val}] not exists",
   "edit": "Edit",
   "edit-com": "Edit control",
+  "edit-content": "Edit Content",
   "email": "Email",
   "emoji": "Emoji",
   "empty": "Empty",
@@ -99937,6 +100267,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "close": "关闭",
   "color": "颜色",
   "confirm": "确认",
+  "confirm-change": "确认改动",
   "console": "控制台",
   "content": "内容",
   "content-setup": "内容设置",
@@ -100011,6 +100342,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-ph-noexists": "路径[${val}]不存在",
   "edit": "编辑",
   "edit-com": "编辑控件",
+  "edit-content": "编辑内容",
   "email": "邮箱",
   "emoji": "表情符合",
   "empty": "空",
@@ -101524,6 +101856,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "close": "關閉",
    "color": "顏色",
    "confirm": "確認",
+   "confirm-change": "確認改動",
    "console": "控制檯",
    "content": "內容",
    "content-setup": "內容設置",
@@ -101598,6 +101931,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "e-ph-noexists": "路徑[${val}]不存在",
    "edit": "編輯",
    "edit-com": "編輯控件",
+   "edit-content": "編輯內容",
    "email": "郵箱",
    "emoji": "表情符合",
    "empty": "空",

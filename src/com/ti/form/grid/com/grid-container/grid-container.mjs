@@ -128,9 +128,14 @@ const _M = {
       // Grid layout
       let realGridColCount = this.gridColumnCount * 2 || 1;
 
-      let gridI = 0;   // Current grid col index
+      let gridI = 0;         // Current grid cell col index
+      let gridRowUsed = 0;   // Current grid cell row span
+      let gridColUsed = 0;   // Current grid cell col span
       for (let i = 0; i < list.length; i++) {
         let fld = list[i];
+        // if (realGridColCount > 1) {
+        //   console.log(i, gridI, fld.name, realGridColCount)
+        // }
 
         // Show name
         fld.showName = (fld.icon || fld.title) ? true : false;

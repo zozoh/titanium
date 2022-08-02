@@ -963,6 +963,38 @@ const TiDom = {
     })
   },
   //----------------------------------------------------
+  async loadImageRawData(url, $doc = document) {
+    const __make_data = function (img) {
+      let canvas = TiDom.createElement({ tagName: "canvas" });
+      canvas.width = img.width;
+      canvas.height = img.height;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+      try {
+        return ctx.getImageData(0, 0, img.width, img.height);
+      } finally {
+        TiDom.remove(canvas);
+      }
+    }
+    // Make image object
+    let $img = TiDom.find(`img[src="${url}"]`, $doc)
+    if (!$img) {
+      $img = TiDom.createElement({
+        tagName: "img",
+        $p: $doc.body,
+      })
+      return new Promise((resolve) => {
+        $img.addEventListener("load", function (evt) {
+          let imgData = __make_data(evt.srcElement)
+          resolve(imgData)
+        })
+        $img.src = url
+      })
+    }
+    // Reuse image
+    return __make_data($img)
+  },
+  //----------------------------------------------------
   /**
    * Retrive Current window scrollbar size
    */

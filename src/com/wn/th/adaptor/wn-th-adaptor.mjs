@@ -15,6 +15,8 @@ const _M = {
         "block:shown": "updateBlockShown",
         "block:show": "showBlock",
         "block:hide": "hideBlock",
+        "meta::change": "doNothing",
+        "meta::field:change": "dispatch('updateMetaField')",
         "content::change": "OnContentChange",
         "save:change": "OnSaveChange",
         "list::select": "OnSearchListSelect",
@@ -123,8 +125,8 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      // if ("meta::field:change" == name)
-      //   console.log("WnThAdaptor.__on_events", name, payload)
+      if (/change$/.test(name))
+         console.log("WnThAdaptor.__on_events", name, payload)
 
       // ByPass
       if (/^(indicate)$/.test(name)) {

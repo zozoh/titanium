@@ -14,8 +14,14 @@ const _M = {
       ], {
         "is-mode-flat": this.isFlatMode,
         "is-mode-group": this.isGroupMode,
-        "is-mode-tab": this.isTabMode
-      })
+        "is-mode-tab": this.isTabMode,
+        "has-title": this.hasTitle,
+        "nil-title": !this.hasTitle,
+        "has-footer": this.showFooterActions,
+        "nil-footer": !this.showFooterActions,
+        "has-aside": this.showSetupMenu,
+        "nil-aside": !this.showSetupMenu
+      }, `setup-menu-at-${this.setupMenuAt}`)
     },
     //--------------------------------------------------
     MainClass() {
@@ -143,7 +149,7 @@ const _M = {
     //--------------------------------------------------
     GridContainerConf() {
       return {
-        data: this.data,
+        data: this.myData,
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
         statusIcons: this.statusIcons,
@@ -152,8 +158,49 @@ const _M = {
       }
     },
     //--------------------------------------------------
-    GridActionButtonConf() {
+    GridSetupMenu() {
+      let items = []
+      if (this.canCustomizedFields) {
+        items.push(_.assign(
+          {
+            icon: "fas-tools",
+            text: "i18n:setup-fields"
+          },
+          this.setupFieldsAction,
+          {
+            eventName: "form:setup:open"
+          }
+        ))
+        items.push(_.assign(
+          {
+            icon: "zmdi-time-restore-setting",
+            text: "i18n:setup-reset"
+          },
+          this.setupFieldsCleanAction,
+          {
+            eventName: "form:setup:clean",
+            disabled: !this.hasCustomizedWhiteFields
+          }
+        ))
+      }
+      if (!_.isEmpty(items)) {
+        if (this.setupMoreIcon) {
+          return _.assign({
+            items: [{
+              icon: this.setupMoreIcon,
+              items
+            }]
+          }, this.setupMenuConf)
+        }
+        return _.assign({
+          items
+        }, this.setupMenuConf)
+      }
+    },
+    //--------------------------------------------------
+    GridActionButtons() {
       let setup = []
+
       // Submit
       if (this.canSubmit) {
         setup.push(_.assign(
@@ -166,49 +213,69 @@ const _M = {
           }
         ))
       }
+
+      // Confirm Change
+      if (this.isFormNotifyConfirm) {
+        // Edit
+        if (this.isReadonly) {
+          setup.push(_.assign(
+            {
+              text: "i18n:edit-content"
+            },
+            this.editButton,
+            {
+              eventName: "form:edit"
+            }
+          ))
+        }
+        // Confirm | Reset
+        else {
+          // Confirm
+          setup.push(_.assign(
+            {
+              icon: "far-check-circle",
+              text: "i18n:confirm-change"
+            },
+            this.confirmButton,
+            {
+              eventName: "form:confirm",
+              disabled: !this.isFormDataChanged
+            }
+          ))
+          // Reset
+          setup.push(_.assign(
+            {
+              icon: "zmdi-time-restore",
+              text: "i18n:cancel"
+            },
+            this.resetButton,
+            {
+              eventName: "form:reset"
+            }
+          ))
+        }
+      }
+
+
       // Others Customized action
       _.forEach(this.actionButtonSetup, a => setup.push(a))
 
-      // Customized
-      if (this.canCustomizedFields) {
-        setup.push(_.assign(
-          {
-            text: "i18n:setup-fields",
-          },
-          this.setupButton,
-          {
-            eventName: "form:setup:open"
-          }
-        ))
-        setup.push(_.assign(
-          {
-            text: "i18n:setup-reset",
-          },
-          this.setupCleanButton,
-          {
-            eventName: "form:setup:clean",
-            disabled: !this.hasCustomizedWhiteFields
-          }
-        ))
-      }
       // Done
       if (!_.isEmpty(setup)) {
-        return {
-          className: this.actionClassName,
-          size: this.actionSize
-            || (
-              "tiny" == this.spacing
-                ? "tiny"
-                : "small"
-            ),
-          align: this.actionAlign,
+        return _.assign({
+          className: "btn-r4",
+          size: "tiny" == this.spacing ? "tiny" : "small",
           setup
-        }
+        }, this.actionButtonConf)
       }
     },
     //--------------------------------------------------
+    showSetupMenu() {
+      return !_.isEmpty(this.GridSetupMenu)
+    },
+    //--------------------------------------------------
     showFooterActions() {
-      return !_.isEmpty(this.GridActionButtonConf)
+      return !_.isEmpty(this.GridActionButtons)
     }
     //--------------------------------------------------
   },
@@ -231,6 +298,21 @@ const _M = {
       if (this.keepTabIndexBy) {
         Ti.Storage.session.set(this.keepTabIndexBy, index)
       }
+    },
+    //--------------------------------------------------
+    OnFormEdit() {
+      this.myReadonly = false
+    },
+    //--------------------------------------------------
+    OnFormConfirm() {
+      let data = this.getData()
+      this.$notify("change", data)
+      this.myReadonly = this.readonly
+    },
+    //--------------------------------------------------
+    OnFormReset() {
+      this.myData = _.cloneDeep(this.data) || {}
+      this.myReadonly = this.readonly
     },
     //--------------------------------------------------
     OnFormSubmit() {
@@ -333,13 +415,24 @@ const _M = {
         _.assign(re, cus)
       }
       return re
+    },
+    //--------------------------------------------------
+    tryEvalData(newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
+        this.myData = _.cloneDeep(newVal) || {}
+      }
     }
     //--------------------------------------------------
   },
   //////////////////////////////////////////////////////
   watch: {
     "fields": "tryEvalFormFieldList",
-    "data": "tryEvalFormFieldList",
+    "data": {
+      handler: "tryEvalData",
+      immediate: true
+    },
+    "myData": "tryEvalFormFieldList",
+    "isReadonly": "tryEvalFormFieldList",
     "myActivedFieldKey": "tryEvalFormFieldList"
   },
   //////////////////////////////////////////////////////
@@ -357,8 +450,6 @@ const _M = {
       this.evalFormWhiteFieldList(cus.whiteFields)
     }
 
-    // Lang
-    this.evalMyLang()
     // Screen
     this.evalMyScreenMode()
   },

@@ -1,5 +1,60 @@
 .ti-form-grid {
   @include flex-align-v-nowrap($ai: stretch);
+  position: relative;
+  //--------------------------------------
+  //
+  //               ASIDE
+  //            .form-setup
+  //
+  //--------------------------------------
+  // No footer, then give a
+  &.has-aside {
+    // make sure spacing : bottom
+    &.nil-footer {
+      &.setup-menu-at-bottom-left,
+      &.setup-menu-at-bottom-right {
+        padding-bottom: SZ(36);
+      }
+    }
+    // make sure spacing : bottom
+    &.has-footer {
+      &.setup-menu-at-bottom-left,
+      &.setup-menu-at-bottom-right {
+        > aside.form-setup[spacing="comfy"] {
+          padding: SZ(12) SZ(4);
+        }
+      }
+    }
+  }
+  //--------------------------------------
+  > aside.form-setup {
+    position: absolute;
+    //------------------------------------
+    &[at="top-left"] {
+      top: 0;
+      left: 0;
+    }
+    &[at="top-right"] {
+      top: 0;
+      right: 0;
+    }
+    &[at="bottom-left"] {
+      bottom: 0;
+      left: 0;
+    }
+    &[at="bottom-right"] {
+      bottom: 0;
+      right: 0;
+    }
+    //------------------------------------
+    &[spacing="tiny"] {
+      padding: SZ(3);
+    }
+    &[spacing="comfy"] {
+      padding: SZ(4);
+    }
+    //------------------------------------
+  }
   //--------------------------------------
   //
   //               HEADER

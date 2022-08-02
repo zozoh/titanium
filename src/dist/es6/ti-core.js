@@ -1,4 +1,4 @@
-// Pack At: 2022-08-01 00:27:52
+// Pack At: 2022-08-03 01:10:12
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -5312,6 +5312,38 @@ const {Dom} = (function(){
       })
     },
     //----------------------------------------------------
+    async loadImageRawData(url, $doc = document) {
+      const __make_data = function (img) {
+        let canvas = TiDom.createElement({ tagName: "canvas" });
+        canvas.width = img.width;
+        canvas.height = img.height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        try {
+          return ctx.getImageData(0, 0, img.width, img.height);
+        } finally {
+          TiDom.remove(canvas);
+        }
+      }
+      // Make image object
+      let $img = TiDom.find(`img[src="${url}"]`, $doc)
+      if (!$img) {
+        $img = TiDom.createElement({
+          tagName: "img",
+          $p: $doc.body,
+        })
+        return new Promise((resolve) => {
+          $img.addEventListener("load", function (evt) {
+            let imgData = __make_data(evt.srcElement)
+            resolve(imgData)
+          })
+          $img.src = url
+        })
+      }
+      // Reuse image
+      return __make_data($img)
+    },
+    //----------------------------------------------------
     /**
      * Retrive Current window scrollbar size
      */
@@ -9744,20 +9776,61 @@ const {Types} = (function(){
       return obj
     },
     //.......................................
-    toObjByPair(pair = {}, { nameBy = "name", valueBy = "value", dft = {} } = {}) {
+    toObjByPair(pair = {}, {
+      nameBy = "name",
+      valueBy = "value",
+      dft = {}
+    } = {}) {
       let name = pair[nameBy]
-      let value = pair[valueBy]
+      // Guard
+      if (!name) {
+        return dft
+      }
   
       let data = _.assign({}, dft)
+      let value = pair[valueBy]
+  
+      // It will remove from data
+      let omitKeys = []
+  
+      // Default the setter
+      const _set_to_data = function (k, v) {
+        // Remove
+        if (_.isUndefined(v)) {
+          omitKeys.push(k)
+        }
+        // .xxx
+        else if (k.startsWith(".")) {
+          data[k] = v
+        }
+        // path.to.key
+        else {
+          _.set(data, k, v)
+        }
+      }
+  
       // Normal field
       if (_.isString(name)) {
-        data[name] = value
+        // Whole data
+        if (".." == name) {
+          _.assign(data, value)
+        }
+        // Set by value
+        else {
+          _set_to_data(name, value)
+        }
       }
       // Multi fields
       else if (_.isArray(name)) {
-        for (let nm of name) {
-          data[nm] = value[nm]
+        for (let k of name) {
+          let v = _.get(value, k)
+          _set_to_data(k, v)
         }
+      }
+  
+      // Omit keys
+      if (omitKeys.length > 0) {
+        data = _.omit(data, omitKeys)
       }
   
       return data
@@ -18774,7 +18847,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220801.002752",
+  "version" : "1.6-20220803.011012",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -114,10 +114,28 @@ const _M = {
     commit("setStatus", { deleting: false })
   },
   //--------------------------------------------
-  async updateMetaField({ dispatch }, { name, value } = {}) {
+  async updateMetaField({ commit, dispatch }, { name, value } = {}) {
     //console.log("current.updateMeta", { name, value })
+
+    let uniqKey = Ti.Util.anyKey(name)
+    commit("setFieldStatus", {
+      name: uniqKey, type: "spinning", text: "i18n:saving"
+    })
+
     let data = Ti.Types.toObjByPair({ name, value })
-    await dispatch("updateMeta", data)
+    let reo = await dispatch("updateMeta", data)
+    let isError = reo instanceof Error;
+
+    if (isError) {
+      commit("setFieldStatus", {
+        name: uniqKey, type: "warn", text: reo.message || "i18n:fail"
+      })
+    } else {
+      commit("setFieldStatus", {
+        name: uniqKey, type: "ok", text: "i18n:ok"
+      })
+      _.delay(() => { commit("clearFieldStatus", uniqKey) }, 500)
+    }
   },
   //--------------------------------------------
   async updateMeta({ state, commit }, data = {}) {

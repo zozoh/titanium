@@ -21,7 +21,7 @@ export default {
     default: _.identity
   },
   "currentId": {
-    type: [String, Number],
+    type: [String, Number, Boolean],
     default: null
   },
   "checkedIds": {

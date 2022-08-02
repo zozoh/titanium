@@ -505,9 +505,9 @@ const _M = {
       params = {}
     } = {}) {
       state.LOG = () => { }
-      state.LOG = console.log
-      state.LOG(rootGetters.routerList)
+      //state.LOG = console.log
       state.LOG(" # -> page.reload", { path, params, anchor })
+      state.LOG(" == routerList == ", rootGetters.routerList)
       let roInfo;
       //.....................................
       // Apply routerList

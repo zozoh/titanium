@@ -41,7 +41,7 @@ const _M = {
     },
     //--------------------------------------------------
     OnFieldChange({name, value}={}) {
-      console.log(" <--- @field:changed", {name, value})
+      //console.log(" <--- @field:changed", {name, value})
       this.doAction("field:change", this.updateBy, {name, value})
     },
     //--------------------------------------------------

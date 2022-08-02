@@ -14,6 +14,27 @@ export default {
     type: Object,
     default: () => ({})
   },
+  // merge each time data change
+  "fixed": {
+    type: Object,
+    default: undefined
+  },
+  //-----------------------------------
+  // Behavior
+  //-----------------------------------
+  "readonly": {
+    type: Boolean,
+    default: false
+  },
+  // if call getData, which will return:
+  // - `all` : all data will be taken and return
+  // - `diff` : only changed field will be taken
+  // - `auto` : `diff` if `notifyMode` is `confirm`, else as `all`
+  "dataMode": {
+    type: String,
+    default: "auto",
+    validator: v => /^(all|diff|auto)$/.test(v)
+  },
   "onlyFields": {
     type: Boolean,
     default: true
@@ -22,18 +43,27 @@ export default {
     type: Boolean,
     default: false
   },
-  // merge each time data change
-  "fixed": {
-    type: Object,
-    default: undefined
-  },
-  "lang": {
+  // When field change, how to notify:
+  // - `immediate` : notify immediately
+  // - `confirm` : show confirm button, and to confirm change
+  // - `none` : never notify
+  // - `auto` : `none` if readonly, else as `immediate`
+  "notifyMode": {
     type: String,
-    default: "auto" // zh-cn | zh-hk | en-us | en-uk
+    default: "auto",
+    validator: v => /^(immediate|confirm|none|auto)$/.test(v)
   },
-  //-----------------------------------
-  // Behavior
-  //-----------------------------------
+  // If notifyMode=="immediate", when field change,
+  // notify the data change 
+  "notifyDataImmediate": {
+    type: Boolean,
+    default: true
+  },
+  // If current is readonly, try to gen display setting by comType
+  "autoReadonlyDisplay": {
+    type: Boolean,
+    default: true
+  },
   "defaultFieldType": {
     type: String,
     default: "String"
@@ -41,6 +71,10 @@ export default {
   "defaultComType": {
     type: String,
     default: "ti-label"
+  },
+  "defaultComConf": {
+    type: Object,
+    default: () => ({})
   },
   "linkFields": {
     type: Object,
@@ -84,10 +118,15 @@ export default {
   //  - "form:setup:open"
   //  - "form:setup:clean"
   //  - "form:submit"
-  //  - "form:reset"
   //  - "form:edit"
   //  - "form:readonly"
+  //  - "form:confirm"
+  //  - "form:reset"
   "actionButtonSetup": {
+    type: Array,
+    default: () => []
+  },
+  "actionMenuItems": {
     type: Array,
     default: () => []
   },
@@ -182,37 +221,54 @@ export default {
     default: "comfy",
     validator: v => /^(comfy|tiny)$/.test(v)
   },
-  // TiButton.className
-  "actionClassName": {
-    type: [String, Array, Object],
-  },
-  // TiButton.size
-  "actionSize": {
+  //......................................
+  // Setup Menu
+  //......................................
+  // If null, it will flat show setup/reset button
+  "setupMoreIcon": {
     type: String,
+    default: "fas-cog"
   },
-  // TiButton.align
-  "actionAlign": {
+  "setupFieldsAction": {
+    type: Object
+  },
+  "setupFieldsCleanAction": {
+    type: Object
+  },
+  "setupMenuAt": {
     type: String,
+    default: "bottom-right",
+    validator: (v) => /^(top|bottom)-(left|right)$/.test(v)
   },
+  "setupMenuConf": {
+    type: Object,
+    default: () => {
+      /*@see ti-actionbar */
+    }
+  },
+  //......................................
+  // Action button
+  //......................................
   "submitButton": {
-    type: Object,
-    default: () => ({
-      text: "i18n:submit",
-    })
+    type: Object
   },
-  "setupButton": {
-    type: Object,
-    default: () => ({
-      icon: "fas-cog",
-      text: "i18n:setup-fields"
-    })
+  "editButton": {
+    type: Object
   },
-  "setupCleanButton": {
-    type: Object,
-    default: () => ({
-      text: "i18n:setup-reset"
-    })
+  "confirmButton": {
+    type: Object
   },
+  "resetButton": {
+    type: Object
+  },
+  //......................................
+  "actionButtonConf": {
+    type: Object,
+    default: () => {
+      /*className, size, align ... @see ti-button*/
+    }
+  },
+  //......................................
   "customizeDialog": {
     type: Object,
     default: () => ({
