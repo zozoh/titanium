@@ -1,23 +1,23 @@
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    myDropStatus   : "collapse",
-    myTags         : [],
-    myFreeValues   : [],
-    myFilterValue  : null,
-    myOptionsData  : [],
-    myCurrentId    : null,
-    myCheckedIds   : {},
+  data: () => ({
+    myDropStatus: "collapse",
+    myTags: [],
+    myFreeValues: [],
+    myFilterValue: null,
+    myOptionsData: [],
+    myCurrentId: null,
+    myCheckedIds: {},
 
-    myOldValue : undefined,
-    myDict : undefined,
-    loading : false
+    myOldValue: undefined,
+    myDict: undefined,
+    loading: false
   }),
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
-    isCollapse() {return "collapse"==this.myDropStatus},
-    isExtended() {return "extended"==this.myDropStatus},
+    isCollapse() { return "collapse" == this.myDropStatus },
+    isExtended() { return "extended" == this.myDropStatus },
     //------------------------------------------------
     TopClass() {
       let hasWidth = !Ti.Util.isNil(this.width);
@@ -42,28 +42,31 @@ const _M = {
       return this.statusIcons[this.myDropStatus]
     },
     //------------------------------------------------
-    DropComType() {return this.dropComType || "ti-list"},
+    DropComType() { return this.dropComType || "ti-list" },
     DropComConf() {
       return _.assign({
         display: this.dropDisplay || [
           "text|title|nm::flex-auto",
           "id|value::as-tip-block align-right"
         ],
-        border     : this.dropItemBorder
+        blankAs: {
+          className: "as-mid-tip"
+        },
+        border: this.dropItemBorder
       }, this.dropComConf, {
-        data : this.myOptionsData,
-        currentId  : this.myCurrentId,
-        checkedIds : this.myCheckedIds,
-        idBy       : this.GetValueBy,
-        multi      : true,
-        hoverable  : true,
-        checkable  : true,
-        autoCheckCurrent : false
+        data: this.myOptionsData,
+        currentId: this.myCurrentId,
+        checkedIds: this.myCheckedIds,
+        idBy: this.GetValueBy,
+        multi: true,
+        hoverable: true,
+        checkable: true,
+        autoCheckCurrent: false
       })
     },
     //------------------------------------------------
     Dict() {
-      if(!this.myDict) {
+      if (!this.myDict) {
         this.myDict = this.createDict()
       }
       return this.myDict
@@ -71,14 +74,14 @@ const _M = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
-    OnDropListInit($dropList){this.$dropList=$dropList},
+    OnDropListInit($dropList) { this.$dropList = $dropList },
     //------------------------------------------------
-    async OnCollapse() {this.doCollapse()},
+    async OnCollapse() { this.doCollapse() },
     //------------------------------------------------
     OnInputInputing(val) {
-      if(this.filter) {
+      if (this.filter) {
         this.myFilterValue = val
         this.debReload()
       }
@@ -88,13 +91,13 @@ const _M = {
       // Clean filter
       this.myFilterValue = null
       // Uniq 
-      if(this.valueUnique) {
-        if(_.indexOf(this.myFreeValues, val)>=0) {
+      if (this.valueUnique) {
+        if (_.indexOf(this.myFreeValues, val) >= 0) {
           return
         }
-        for(let tag of this.myTags) {
+        for (let tag of this.myTags) {
           let tagV = this.Dict.getValue(tag)
-          if(tagV == val) {
+          if (tagV == val) {
             return
           }
         }
@@ -102,36 +105,36 @@ const _M = {
       // Join to ...
       let it = await this.Dict.getItem(val)
       // Matched tag
-      if(it) {
+      if (it) {
         this.myTags.push(it)
       }
       // Join to free value
-      else if(val && !this.mustInList) {
+      else if (val && !this.mustInList) {
         this.myFreeValues.push(val)
       }
       this.tryNotifyChanged()
     },
     //-----------------------------------------------
     async OnInputFocused() {
-      if(this.autoFocusExtended && !this.isExtended) {
+      if (this.autoFocusExtended && !this.isExtended) {
         await this.doExtend()
       }
     },
     //-----------------------------------------------
-    async OnTagListChanged(vals=[]) {
+    async OnTagListChanged(vals = []) {
       await this.evalMyTags(vals)
       this.tryNotifyChanged()
     },
     //-----------------------------------------------
     async OnClickStatusIcon() {
-      if(this.isExtended) {
+      if (this.isExtended) {
         this.doCollapse()
       } else {
         await this.doExtend()
       }
     },
     //-----------------------------------------------
-    async OnDropListSelected({currentId, checkedIds}={}) {
+    async OnDropListSelected({ currentId, checkedIds } = {}) {
       this.myCurrentId = currentId
       this.myCheckedIds = checkedIds
 
@@ -145,58 +148,58 @@ const _M = {
     async doExtend() {
       this.myOldValue = this.evalMyValues()
       // Try reload options again
-      if(_.isEmpty(this.myOptionsData)) {
+      if (_.isEmpty(this.myOptionsData)) {
         await this.reloadMyOptionData(true)
       }
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.myDropStatus = "extended"
       })
     },
     //-----------------------------------------------
-    doCollapse({escaped=false}={}) {
-      if(escaped) {
+    doCollapse({ escaped = false } = {}) {
+      if (escaped) {
         this.$notify("change", this.myOldValue)
       }
       this.myDropStatus = "collapse"
-      this.myOldValue   = undefined
+      this.myOldValue = undefined
     },
     //-----------------------------------------------
-    tryNotifyChanged(escaped=false) {
+    tryNotifyChanged(escaped = false) {
       let vals = this.evalMyValues()
-      if(!escaped && !_.isEqual(vals, this.Values)) {
+      if (!escaped && !_.isEqual(vals, this.Values)) {
         this.$notify("change", vals)
       }
     },
     //-----------------------------------------------
     // Utility
     //-----------------------------------------------
-    evalMyValues(tags=this.myTags, freeValues=this.myFreeValues) {
+    evalMyValues(tags = this.myTags, freeValues = this.myFreeValues) {
       let vals = []
       // Tags
       _.forEach(tags, tag => {
         let v = this.Dict.getValue(tag)
-        if(!Ti.Util.isNil(v)) {
+        if (!Ti.Util.isNil(v)) {
           vals.push(v)
         } else if (!this.mustInList) {
           vals.push(tag)
         }
       })
       // Ignore free values
-      if(this.mustInList || _.isEmpty(freeValues)) {
+      if (this.mustInList || _.isEmpty(freeValues)) {
         return vals
       }
       // Join free values
       return _.concat(vals, freeValues)
     },
     //-----------------------------------------------
-    async evalMyTags(vals=this.value) {
+    async evalMyTags(vals = this.value) {
       vals = Ti.S.toArray(vals)
-      let tags  = []
-      let ids   = {}
+      let tags = []
+      let ids = {}
       let frees = []
-      for(let v of vals) {
+      for (let v of vals) {
         let tag = await this.Dict.getItem(v)
-        if(tag) {
+        if (tag) {
           tags.push(tag)
           ids[v] = true
         } else {
@@ -221,8 +224,8 @@ const _M = {
       });
     },
     //-----------------------------------------------
-    async reloadMyOptionData(force=false) {
-      if(force || this.isExtended) {
+    async reloadMyOptionData(force = false) {
+      if (force || this.isExtended) {
         let list = await this.Dict.queryData(this.myFilterValue)
         this.myOptionsData = list
       } else {
@@ -235,55 +238,55 @@ const _M = {
     __ti_shortcut(uniqKey) {
       //console.log("ti-combo-multi-input", uniqKey)
       //....................................
-      if("ESCAPE" == uniqKey) {
-        this.doCollapse({escaped:true})
-        return {prevent:true, stop:true, quit:true}
+      if ("ESCAPE" == uniqKey) {
+        this.doCollapse({ escaped: true })
+        return { prevent: true, stop: true, quit: true }
       }
       //....................................
       // If droplist is actived, should collapse it
-      if("ENTER" == uniqKey) {
-        if(this.$dropList && this.$dropList.isActived) {
+      if ("ENTER" == uniqKey) {
+        if (this.$dropList && this.$dropList.isActived) {
           this.doCollapse()
-          return {stop:true, quit:true}
+          return { stop: true, quit: true }
         }
       }
       //....................................
-      if("ARROWUP" == uniqKey) {
-        if(this.$dropList) {
+      if ("ARROWUP" == uniqKey) {
+        if (this.$dropList) {
           this.$dropList.selectPrevRow({
-            payload: {byKeyboardArrow: true}
+            payload: { byKeyboardArrow: true }
           })
         }
-        return {prevent:true, stop:true, quit:true}
+        return { prevent: true, stop: true, quit: true }
       }
       //....................................
-      if("ARROWDOWN" == uniqKey) {
-        if(this.$dropList && this.isExtended) {
+      if ("ARROWDOWN" == uniqKey) {
+        if (this.$dropList && this.isExtended) {
           this.$dropList.selectNextRow({
-            payload: {byKeyboardArrow: true}
+            payload: { byKeyboardArrow: true }
           })
         } else {
           this.doExtend()
         }
-        return {prevent:true, stop:true, quit:true}
+        return { prevent: true, stop: true, quit: true }
       }
     }
     //-----------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
+  watch: {
     //-----------------------------------------------
-    "value" : {
+    "value": {
       handler: "evalMyTags",
-      immediate : true
+      immediate: true
     },
     //-----------------------------------------------
-    "options" : function(newval, oldval) {
-      if(!_.isEqual(newval, oldval)) {
+    "options": function (newval, oldval) {
+      if (!_.isEqual(newval, oldval)) {
         this.myDict = this.createDict()
         this.myOptionsData = []
-        if(this.isExtended) {
-          this.$nextTick(()=>{
+        if (this.isExtended) {
+          this.$nextTick(() => {
             this.reloadMyOptionData(true)
           })
         }
@@ -304,8 +307,8 @@ const _M = {
     //-----------------------------------------------
   },
   ////////////////////////////////////////////////////
-  created : function() {
-    this.debReload = _.debounce(val=>{
+  created: function () {
+    this.debReload = _.debounce(val => {
       this.reloadMyOptionData()
     }, this.delay)
   }

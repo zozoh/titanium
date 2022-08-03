@@ -171,6 +171,9 @@ const _M = {
           "text|title|nm::flex-auto is-nowrap",
           "id|value::as-tip-block align-right"
         ],
+        blankAs: {
+          className: "as-mid-tip"
+        },
         border: this.dropItemBorder
       }, this.dropComConf, {
         data: this.myOptionsData,
