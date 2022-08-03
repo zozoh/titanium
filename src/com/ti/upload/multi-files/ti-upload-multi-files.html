@@ -54,6 +54,12 @@
         class="file-item as-new"
         :style="ItemStyle"
         @click.left="OnClickAdd"><i class="zmdi zmdi-plus"></i></div>
+    <!--
+      Show placeholder
+    -->
+    <TiLoading
+      v-if="!isShowAddBtn && !hasItems"
+        v-bind="blankAs"/>
   </div>
   <!--
     Global actions

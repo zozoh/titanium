@@ -305,6 +305,7 @@ const _M = {
     },
     //--------------------------------------------------
     OnFormConfirm() {
+      //console.log("OnFormConfirm")
       let data = this.getData()
       this.$notify("change", data)
       this.myReadonly = this.readonly

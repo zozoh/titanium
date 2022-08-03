@@ -70,6 +70,14 @@ const _M = {
       type: Boolean,
       default: true
     },
+    "blankAs": {
+      type: Object,
+      default:()=>({
+        className: "as-small-tip align-left",
+        icon: "zmdi-attachment-alt",
+        text: "i18n:empty-data"
+      })
+    },
     //-----------------------------------
     // Measure
     //-----------------------------------

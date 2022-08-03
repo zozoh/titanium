@@ -697,7 +697,7 @@ const WnObj = {
     currentTab = 0,
     fixedKeys = ["icon", "thumb", "title"]
   } = {}) {
-    console.log("genObjFormFields", fixedKeys)
+    //console.log("genObjFormFields", fixedKeys)
     //............................................
     // Fixed key map
     let fixeds = {}
@@ -732,8 +732,6 @@ const WnObj = {
     }
     //............................................
     let myFormFields = WnObj.evalFields(meta, fields, (fld) => {
-      if("icon" == fld.name)
-      console.log(fld)
       if (fixeds[fld.uniqKey]) {
         return fld
       }

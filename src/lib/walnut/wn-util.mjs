@@ -486,7 +486,37 @@ const WnUtil = {
         }
       }
     }
+  },
+  //-------------------------------------------
+  //
+  // Module help methods
+  //
+  //-------------------------------------------
+  setFieldStatusBeforeUpdate({ commit }, name) {
+    commit("setFieldStatus", {
+      name,
+      type: "spinning",
+      text: "i18n:saving"
+    })
+  },
+  setFieldStatusAfterUpdate({ commit }, name, reo) {
+    let isError = reo instanceof Error;
+    if (isError) {
+      commit("setFieldStatus", {
+        name,
+        type: "warn",
+        text: reo.message || "i18n:fail"
+      })
+    } else {
+      commit("setFieldStatus", {
+        name,
+        type: "ok",
+        text: "i18n:ok"
+      })
+      _.delay(() => { commit("clearFieldStatus", name) }, 500)
+    }
   }
+  //-------------------------------------------
 }
 ////////////////////////////////////////////
 export default WnUtil;

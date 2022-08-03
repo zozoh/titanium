@@ -114,31 +114,20 @@ const _M = {
     commit("setStatus", { deleting: false })
   },
   //--------------------------------------------
-  async updateMetaField({ commit, dispatch }, { name, value } = {}) {
-    //console.log("current.updateMeta", { name, value })
+  async updateMetaField({ state, commit, dispatch }, { name, value } = {}) {
+    state.LOG("updateMetaFields", { name, value })
 
     let uniqKey = Ti.Util.anyKey(name)
-    commit("setFieldStatus", {
-      name: uniqKey, type: "spinning", text: "i18n:saving"
-    })
+    Wn.Util.setFieldStatusBeforeUpdate({ commit }, uniqKey)
 
     let data = Ti.Types.toObjByPair({ name, value })
     let reo = await dispatch("updateMeta", data)
-    let isError = reo instanceof Error;
 
-    if (isError) {
-      commit("setFieldStatus", {
-        name: uniqKey, type: "warn", text: reo.message || "i18n:fail"
-      })
-    } else {
-      commit("setFieldStatus", {
-        name: uniqKey, type: "ok", text: "i18n:ok"
-      })
-      _.delay(() => { commit("clearFieldStatus", uniqKey) }, 500)
-    }
+    Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
   },
   //--------------------------------------------
   async updateMeta({ state, commit }, data = {}) {
+    state.LOG("updateMeta", data)
     // Check Necessary
     if (_.isMatchWith(state.meta, data, _.isEqual)) {
       return
@@ -152,9 +141,12 @@ const _M = {
       return await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
     }
 
+    let uniqKey = Ti.Util.anyKey(_.keys(data))
+
     // Mark field status
-    _.forEach(data, (val, name) => {
-      commit("setFieldStatus", { name, type: "spinning", text: "i18n:saving" })
+    Wn.Util.setFieldStatusBeforeUpdate({ commit }, uniqKey)
+    _.forEach(data, (_, name) => {
+      Wn.Util.setFieldStatusBeforeUpdate({ commit }, name)
     })
 
     // Do the update
@@ -170,21 +162,9 @@ const _M = {
       commit("setListItem", reo)
     }
 
-    _.forEach(data, (val, name) => {
-      if (isError) {
-        commit("setFieldStatus", {
-          name,
-          type: "warn",
-          text: reo.message || "i18n:fail"
-        })
-      } else {
-        commit("setFieldStatus", {
-          name,
-          type: "ok",
-          text: "i18n:ok"
-        })
-        _.delay(() => { commit("clearFieldStatus", name) }, 500)
-      }
+    Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+    _.forEach(data, (_, name) => {
+      Wn.Util.setFieldStatusAfterUpdate({ commit }, name, reo)
     })
   },
   //--------------------------------------------
