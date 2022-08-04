@@ -1,4 +1,4 @@
-// Pack At: 2022-08-03 01:10:12
+// Pack At: 2022-08-04 14:42:22
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -1286,7 +1286,7 @@ const Obj = (function(){
       currentTab = 0,
       fixedKeys = ["icon", "thumb", "title"]
     } = {}) {
-      console.log("genObjFormFields", fixedKeys)
+      //console.log("genObjFormFields", fixedKeys)
       //............................................
       // Fixed key map
       let fixeds = {}
@@ -1321,8 +1321,6 @@ const Obj = (function(){
       }
       //............................................
       let myFormFields = WnObj.evalFields(meta, fields, (fld) => {
-        if("icon" == fld.name)
-        console.log(fld)
         if (fixeds[fld.uniqKey]) {
           return fld
         }
@@ -2353,7 +2351,37 @@ const Util = (function(){
           }
         }
       }
+    },
+    //-------------------------------------------
+    //
+    // Module help methods
+    //
+    //-------------------------------------------
+    setFieldStatusBeforeUpdate({ commit }, name) {
+      commit("setFieldStatus", {
+        name,
+        type: "spinning",
+        text: "i18n:saving"
+      })
+    },
+    setFieldStatusAfterUpdate({ commit }, name, reo) {
+      let isError = reo instanceof Error;
+      if (isError) {
+        commit("setFieldStatus", {
+          name,
+          type: "warn",
+          text: reo.message || "i18n:fail"
+        })
+      } else {
+        commit("setFieldStatus", {
+          name,
+          type: "ok",
+          text: "i18n:ok"
+        })
+        _.delay(() => { commit("clearFieldStatus", name) }, 500)
+      }
     }
+    //-------------------------------------------
   }
   ////////////////////////////////////////////
   return WnUtil;
@@ -4323,7 +4351,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220803.011013"
+const WALNUT_VERSION = "1.2-20220804.144223"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
