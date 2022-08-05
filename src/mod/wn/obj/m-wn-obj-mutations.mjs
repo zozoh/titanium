@@ -150,27 +150,33 @@ const _M = {
   //----------------------------------------
   setCurrentMeta(state) {
     let currentId = state.currentId
+    state.LOG("setCurrentMeta", currentId)
+    let hasCurrent = true
     // Clear current meta
     if (Ti.Util.isNil(currentId) || _.isEmpty(state.list)) {
-      state.meta = null
+      hasCurrent = false
     }
     // Find current meta
     else {
-      let found = false
+      hasCurrent = false
       for (let it of state.list) {
         if (it.id == currentId) {
           state.meta = it
-          found = true
+          hasCurrent = true
           break
         }
       }
-      if (!found) {
-        state.meta = null
-      }
     }
-    state.status = _.assign({}, state.status, {
-      hasMeta: state.meta ? true : false
-    })
+    // Reset current/checkedIds
+    if (!hasCurrent) {
+      state.currentId = null
+      state.checkedIds = {}
+      state.status = _.assign({}, state.status, {
+        "hasMeta": false,
+        "hasCurrent": false,
+        "hasChecked": false
+      })
+    }
   },
   //----------------------------------------
   setMeta(state, meta) {
