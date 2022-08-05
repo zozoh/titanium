@@ -88,6 +88,7 @@ const _M = {
     //
     //--------------------------------------
     updateBlockShown(shown = {}) {
+      //console.log("WnObjAdaptor.updateBlockShow", shown)
       let guiShown = {}
       _.forEach(shown, (v, k) => {
         if (v) {
@@ -157,9 +158,9 @@ const _M = {
       if (/^(indicate)$/.test(name)) {
         return () => ({ stop: false })
       }
-      // if (/change$/.test(name)) {
-      // console.log("WnObjAdaptor.__on_events", name, payload)
-      // }
+      //if (/select$/.test(name)) {
+      //console.log("WnObjAdaptor.__on_events", name, payload)
+      //}
 
       // Try routing
       let fns = _.get(this.EventRouting, name)

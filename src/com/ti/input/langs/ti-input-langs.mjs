@@ -26,6 +26,16 @@ const _M = {
       ]
     },
     //------------------------------------------------
+    // Behaviors
+    //------------------------------------------------
+    "mapping": {
+      type: [Object, Function],
+    },
+    "explainMapping": {
+      type: Boolean,
+      default: true
+    },
+    //------------------------------------------------
     // Aspect
     //------------------------------------------------
     "nameWidth": {
@@ -46,6 +56,24 @@ const _M = {
       }
     },
     //------------------------------------------------
+    OptionItemMapping() {
+      if (_.isFunction(this.mapping)) {
+        return this.mapping
+      }
+      if (_.isObject(this.mapping)) {
+        if (this.explainMapping) {
+          return (li) => {
+            return Ti.Util.explainObj(li, this.mapping)
+          }
+        }
+        return (li) => ({
+          text: _.get(this.mapping, li.text) || li.text,
+          value: _.get(this.mapping, li.value) || li.value
+        })
+      }
+      return v => v
+    },
+    //------------------------------------------------
     Dict() {
       return Ti.DictFactory.CreateDictBy(this.options);
     }
@@ -55,14 +83,16 @@ const _M = {
   methods: {
     //------------------------------------------------
     async evalPairValue() {
+      // Eval list
       let list = await this.Dict.getData()
       let vals = {}
       let txts = {}
       for (let li of list) {
-        let key = li.value
+        let it = this.OptionItemMapping(li)
+        let key = it.value
         let val = _.get(this.value, key)
         vals[key] = val
-        txts[key] = li.text
+        txts[key] = it.text
       }
       this.myValue = vals
       this.myTexts = txts

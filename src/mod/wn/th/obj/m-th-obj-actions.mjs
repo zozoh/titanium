@@ -69,25 +69,27 @@ const _M = {
     })
   },
   //--------------------------------------------
-  async loadContent({ state, commit, dispatch, getters }) {
-    // Guard : dataHome
-    // if (!state.dataHome) {
-    //   return
-    // }
-    // Guard : meta
-    let meta = state.meta
-
+  async loadContent({ state, commit, dispatch, getters }, { quiet = false } = {}) {
     // Which content should I load?
     let path = getters.contentLoadPath
     if (!path) {
       return
     }
-    state.LOG("async loadContent", meta, path)
-    commit("setStatus", { reloading: true })
+
+    let meta;
+    if (!quiet) {
+      commit("setStatus", { reloading: true })
+    }
 
     if ("<self>" != path) {
-      path = Ti.Util.appendPath(state.dataHome, path)
+      let ctx = _.assign(Wn.Session.env(), state)
+      let ph = Ti.Util.explainObj(ctx, path)
+      path = Ti.Util.appendPath(state.dataHome, ph)
       meta = await Wn.Io.loadMeta(path)
+    }
+    // Use state
+    else if (state.meta && 'FILE' == state.meta.race) {
+      meta = state.meta
     }
 
     //console.log("load Content:", path)
@@ -95,7 +97,9 @@ const _M = {
     if (!meta) {
       state.LOG("updateContent => null")
       dispatch("updateContent", null)
-      commit("setStatus", { reloading: false })
+      if (!quiet) {
+        commit("setStatus", { reloading: false })
+      }
       return
     }
 
@@ -105,7 +109,9 @@ const _M = {
     //console.log("loadContent:", content)
 
     // All done
-    commit("setStatus", { reloading: false })
+    if (!quiet) {
+      commit("setStatus", { reloading: false })
+    }
 
     return content
   },

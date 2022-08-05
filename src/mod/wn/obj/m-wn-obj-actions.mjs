@@ -32,32 +32,40 @@ async function loadConfigJson(state, key, dft) {
 const _M = {
   //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }, { quiet = false } = {}) {
-    // Guard
-    let meta = state.meta
-    if (!meta) {
-      return
-    }
     // Which content should I load?
     let path = getters.contentLoadPath
     if (!path) {
       return
     }
+
+    let meta;
+    if (!quiet) {
+      commit("setStatus", { reloading: true })
+    }
+
     if ("<self>" != path) {
-      path = Ti.Util.appendPath(`id:${state.dirId}`, path)
+      let ctx = _.assign(Wn.Session.env(), state)
+      let ph = Ti.Util.explainObj(ctx, path)
+      path = Ti.Util.appendPath(`id:${state.dirId}`, ph)
       meta = await Wn.Io.loadMeta(path)
+    }
+    // Use state
+    else if (state.meta && 'FILE' == state.meta.race) {
+      meta = state.meta
     }
 
     //console.log("load Content:", path)
     // No meta
     if (!meta) {
+      state.LOG("updateContent => null")
       dispatch("updateContent", null)
+      if (!quiet) {
+        commit("setStatus", { reloading: false })
+      }
       return
     }
 
     // Load meta content
-    if (!quiet) {
-      commit("setStatus", { reloading: true })
-    }
     let content = await Wn.Io.loadContent(meta)
     dispatch("updateContent", content)
     //console.log("loadContent:", meta,content)
@@ -66,6 +74,8 @@ const _M = {
     if (!quiet) {
       commit("setStatus", { reloading: false })
     }
+
+    return content
   },
   //--------------------------------------------
   async loadSchema({ state, commit }) {
@@ -250,9 +260,9 @@ const _M = {
       return
     }
     state.LOG = () => { }
-    // if ("main" == state.moduleName) {
-    //   state.LOG = console.log
-    // }
+    if ("main" == state.moduleName) {
+      state.LOG = console.log
+    }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // Guard
     if (_.isString(meta)) {
@@ -302,7 +312,7 @@ const _M = {
     dispatch("restoreLocalBehavior")
 
     // Reload thing list
-    state.LOG(" >> Query Data ...")
+    state.LOG(" >> Reload Data ...")
     await dispatch("reloadData");
 
     // All done

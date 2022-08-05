@@ -169,6 +169,7 @@ const _M = {
     }
     // Reset current/checkedIds
     if (!hasCurrent) {
+      state.meta = null
       state.currentId = null
       state.checkedIds = {}
       state.status = _.assign({}, state.status, {

@@ -5,7 +5,8 @@ const _M = {
   // Selection
   //
   //----------------------------------------
-  async selectMeta({ commit }, { currentId = null, checkedIds = {} } = {}) {
+  async selectMeta({ state, commit }, { currentId = null, checkedIds = {} } = {}) {
+    state.LOG("selectMeta", currentId, checkedIds)
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
     commit("setCurrentMeta")

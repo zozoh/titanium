@@ -112,6 +112,23 @@ const _M = {
   //                 Update
   //
   //--------------------------------------------
+  async updateDirField({ state, commit, dispatch }, { name, value } = {}) {
+    state.LOG("updateDirFields", { name, value })
+
+    let uniqKey = Ti.Util.anyKey(name)
+    Wn.Util.setFieldStatusBeforeUpdate({ commit }, uniqKey)
+
+
+    let data = Ti.Types.toObjByPair({ name, value })
+    let reo = await dispatch("updateDir", data)
+
+    Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+  },
+  //--------------------------------------------
+  async updateDir({ dispatch }, data = {}) {
+    await dispatch("updateMetaOrDir", { data, forMeta: false })
+  },
+  //--------------------------------------------
   async updateMetaField({ state, commit, dispatch }, { name, value } = {}) {
     state.LOG("updateMetaFields", { name, value })
 
@@ -125,15 +142,29 @@ const _M = {
     Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
   },
   //--------------------------------------------
-  async updateMeta({ state, commit }, data = {}) {
-    state.LOG("updateMeta", data)
+  async updateMeta({ dispatch }, data = {}) {
+    await dispatch("updateMetaOrDir", { data, forMeta: true })
+  },
+  //--------------------------------------------
+  async updateMetaOrDir({ state, commit }, {
+    forMeta = true,
+    data = {}
+  } = {}) {
+    let taName = forMeta ? "meta" : "oDir";
+    state.LOG("updateMetaOrDir", `(${taName})`, data)
+
+    // Get obj
+    let obj = forMeta ? state.meta : state.oDir;
+
     // Check Necessary
-    if (_.isMatchWith(state.meta, data, _.isEqual)) {
+    if (_.isMatchWith(obj, data, _.isEqual)) {
       return
     }
 
-    if (!state.meta) {
-      return await Ti.Toast.Open("WnObj meta without defined", "warn")
+    if (!obj) {
+      return await Ti.Toast.Open(
+        `WnObj ${taName} without defined`,
+        "warn")
     }
 
     if (!state.dirId) {
@@ -150,14 +181,20 @@ const _M = {
 
     // Do the update
     let json = JSON.stringify(data)
-    let oid = state.meta.id
+    let oid = obj.id
     let cmdText = `o id:${oid} @update @json -cqn`
     let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
     let isError = reo instanceof Error;
 
     if (!isError && !Ti.Util.isNil(reo)) {
-      commit("setMeta", reo)
-      commit("setListItem", reo)
+      if (forMeta) {
+        commit("setMeta", reo)
+        commit("setListItem", reo)
+      }
+      // For oDir
+      else {
+        commit("setDir", reo)
+      }
     }
 
     Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
