@@ -94,7 +94,7 @@ const _M = {
                 },
                 {
                   "value": "lm",
-                  "text": "i18n:wn-key-ct"
+                  "text": "i18n:wn-key-lm"
                 },
                 {
                   "value": "nm",

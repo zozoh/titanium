@@ -2,10 +2,10 @@
 async function loadConfigJson(state, key, dft) {
   let path;
   if (state.meta) {
-    path = state.meta[key]
+    path = state.meta[`gui_${key}`]
   }
   if (!path && state.oDir) {
-    path = state.oDir[key]
+    path = state.oDir[`gui_${key}`]
   }
   if (!path) {
     path = state[`${key}Path`]
@@ -44,9 +44,6 @@ const _M = {
     }
 
     if ("<self>" != path) {
-      let ctx = _.assign(Wn.Session.env(), state)
-      let ph = Ti.Util.explainObj(ctx, path)
-      path = Ti.Util.appendPath(`id:${state.dirId}`, ph)
       meta = await Wn.Io.loadMeta(path)
     }
     // Use state

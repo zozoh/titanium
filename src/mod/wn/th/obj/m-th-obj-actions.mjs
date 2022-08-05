@@ -82,9 +82,6 @@ const _M = {
     }
 
     if ("<self>" != path) {
-      let ctx = _.assign(Wn.Session.env(), state)
-      let ph = Ti.Util.explainObj(ctx, path)
-      path = Ti.Util.appendPath(state.dataHome, ph)
       meta = await Wn.Io.loadMeta(path)
     }
     // Use state

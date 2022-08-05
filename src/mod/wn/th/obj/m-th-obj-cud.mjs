@@ -204,13 +204,21 @@ const _M = {
     }
 
     // Which content should I load?
-    let meta = state.meta
     let path = getters.contentLoadPath
-    if (!path || !meta || !state.dataHome) {
+    if (!path) {
       return
     }
+    let meta;
     if ("<self>" != path) {
-      let aph = Ti.Util.appendPath(state.dataHome, path)
+      let aph;
+      // absolute path
+      if (/^([\/~]\/|id:)/.test(path)) {
+        aph = path
+      }
+      // In parent dir
+      else {
+        aph = Ti.Util.appendPath(state.dataHome, path)
+      }
       meta = await Wn.Io.loadMeta(aph)
       // If not exists, then create it
       if (!meta) {

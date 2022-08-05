@@ -45,7 +45,9 @@ export default {
         for (let canPath of canPaths) {
           let { test, path } = canPath
           if (!test || Ti.AutoMatch.test(test, state)) {
-            return path
+            let ctx = _.assign(Wn.Session.env(), state)
+            let ph = Ti.Util.explainObj(ctx, path)
+            return Ti.Util.appendPath(`id:${state.dirId}`, ph)
           }
         }
       }
