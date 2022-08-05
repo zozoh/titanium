@@ -963,7 +963,10 @@ const TiDom = {
     })
   },
   //----------------------------------------------------
-  async loadImageRawData(url, $doc = document) {
+  async loadImageRawData(url, {
+    asBase64 = true,
+    dataUrlPrefix = undefined
+  } = {}, $doc = document) {
     const __make_data = function (img) {
       let canvas = TiDom.createElement({ tagName: "canvas" });
       canvas.width = img.width;
@@ -971,6 +974,17 @@ const TiDom = {
       var ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, img.width, img.height);
       try {
+        if (asBase64) {
+          if (!dataUrlPrefix) {
+            let suffixName = Ti.Util.getSuffixName(url, true)
+            dataUrlPrefix = `image/${({ jpg: "jpeg" })[suffixName] || suffixName}`
+          }
+          return {
+            width: img.width,
+            height: img.height,
+            data: canvas.toDataURL(dataUrlPrefix)
+          }
+        }
         return ctx.getImageData(0, 0, img.width, img.height);
       } finally {
         TiDom.remove(canvas);
