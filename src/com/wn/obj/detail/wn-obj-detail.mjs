@@ -40,6 +40,10 @@ export default {
       return this.getTopClass()
     },
     //--------------------------------------
+    isNil() {
+      return Ti.Util.isNil(this.value)
+    },
+    //--------------------------------------
     Layout() {
       return {
         type: "rows",
@@ -72,6 +76,7 @@ export default {
             fields: this.myFormFields,
             fieldStatus: this.fieldStatus,
             currentTab: this.myCurrentTab,
+            autoShowBlank: true,
             data: this.value
           }
         }

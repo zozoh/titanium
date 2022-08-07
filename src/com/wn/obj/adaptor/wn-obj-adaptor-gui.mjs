@@ -119,12 +119,18 @@ const _M = {
             "exposeHidden": "=exposeHidden",
             "viewType": "=viewType",
             "routers": {
-              "reload": `dispatch:${this.moduleName}/reloadData`
+              /*"reload": `dispatch:${this.moduleName}/reloadData`*/
             },
             "tableViewConf": {
               "columnResizable": true,
               "canCustomizedFields": true,
               "keepCustomizedTo": "->WnObjAdaptorTableState-${oDir.id}"
+            },
+            "itemStatus": "=itemStatus",
+            "afterUpload": async (checkedIds) => {
+              let currentId = _.first(checkedIds)
+              await this.dispatch("queryList")
+              await this.dispatch("selectMeta", { currentId, checkedIds })
             }
           }
         },
@@ -166,6 +172,7 @@ const _M = {
         //------------------------------
         status: this.status,
         fieldStatus: this.fieldStatus,
+        itemStatus: this.itemStatus,
         //------------------------------
         viewType: this.viewType,
         exposeHidden: this.exposeHidden,

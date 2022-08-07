@@ -302,7 +302,9 @@ const _M = {
     //--------------------------------------------
     async OnSelectLocalFilesToUpload(evt) {
       await this.OnDropFiles(evt.target.files)
-      this.$refs.file.value = ""
+      if (_.isElement(this.$refs.file)) {
+        this.$refs.file.value = ""
+      }
     },
     //--------------------------------------------
     // Getters
@@ -479,7 +481,7 @@ const _M = {
       this.myData = _.cloneDeep(this.data) || {
         list: [], pager: {}
       }
-      this.myItemStatus = {}
+      this.myItemStatus = _.cloneDeep(this.itemStatus) || {}
     }
     //--------------------------------------------
   },
@@ -494,6 +496,15 @@ const _M = {
     // myData : function(newVal, oldVal) {
     //   console.log("myData Changed", newVal)
     // },
+    //--------------------------------------------
+    "itemStatus": {
+      handler: function (newVal, oldVal) {
+        //console.log("WnAdaptlist.itemStatus changed!!!", newVal, oldVal)
+        if (!_.isEqual(newVal, oldVal)) {
+          this.myItemStatus = _.cloneDeep(newVal)
+        }
+      }
+    },
     //--------------------------------------------
     "data": {
       handler: "syncMyData",

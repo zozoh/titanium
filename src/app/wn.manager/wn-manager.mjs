@@ -412,8 +412,8 @@ const _M = {
     //......................................
     window.onpopstate = (evt) => {
       let obj = evt.state
-      //console.log("popstate", obj)
-      if (obj && obj.id && obj.ph) {
+      console.log("popstate", obj)
+      if (obj && obj.id && obj.nm) {
         Ti.App(this).dispatch("current/reload", obj)
       }
     }

@@ -2,8 +2,81 @@
 const _M = {
   //--------------------------------------------
   //
-  //          Create / Delete
+  //               Create 
   //
+  //--------------------------------------------
+  async doCreate({ state, dispatch }) {
+    // Guard
+    if (!state.dirId) {
+      throw "doCreate without dirId";
+    }
+    // Load the creation setting
+    let {
+      types,
+      freeCreate
+    } = await Wn.Sys.exec(`ti creation -cqn id:${state.dirId}`, { as: "json" })
+
+    // Get creation information
+    let no = await Ti.App.Open({
+      title: "i18n:create",
+      type: "info",
+      position: "top",
+      width: 640,
+      height: "61.8%",
+      comType: "wn-obj-creation",
+      comConf: {
+        types, freeCreate,
+        autoFocus: true,
+        enterEvent: "ok"
+      },
+      components: ["@com:wn/obj/creation"]
+    })
+
+    // User cancel
+    if (!no || !no.name) {
+      return
+    }
+
+    // Check the newName contains the invalid char
+    if (no.name.search(/[%;:"'*?`\t^<>\/\\]/) >= 0) {
+      return await Ti.Alert('i18n:wn-create-invalid')
+    }
+    // Check the newName length
+    if (no.length > 256) {
+      return await Ti.Alert('i18n:wn-create-too-long')
+    }
+
+    // Default Race
+    no.race = no.race || "FILE"
+
+    if ("folder" == no.type) {
+      no.type = undefined
+    }
+
+    // Auto type
+    if ("FILE" == no.race) {
+      if (!no.type) {
+        no.type = Ti.Util.getSuffixName(no.name)
+      }
+
+      // Auto append suffix name
+      if (!no.name.endsWith(no.type)) {
+        no.name += `.${no.type}`
+      }
+    }
+
+    // Prepare the obj
+    let obj = {
+      ...no.meta,
+      nm: no.name,
+      tp: no.type,
+      race: no.race,
+      mime: no.mime
+    }
+    state.LOG("doCreate", obj)
+
+    await dispatch("create", obj)
+  },
   //--------------------------------------------
   async create({ state, commit, dispatch }, obj = {}) {
     // Guard
@@ -40,7 +113,81 @@ const _M = {
     // Return the new object
     return newMeta
   },
-  //----------------------------------------
+  //--------------------------------------------
+  //
+  //               Rename
+  //
+  //--------------------------------------------
+  async doRename({ state, commit, dispatch }) {
+    // Guard
+    if (!state.meta) {
+      return await Ti.Toast.Open('i18n:wn-rename-none', "warn")
+    }
+
+    let it = state.meta
+    state.LOG("doRename", it.id)
+
+    // Get new name
+    let newName = await Ti.Prompt({
+      text: 'i18n:wn-rename',
+      vars: { name: it.nm }
+    }, {
+      title: "i18n:rename",
+      placeholder: it.nm,
+      value: it.nm
+    })
+    newName = _.trim(newName)
+
+    // User cancel
+    if (!newName) {
+      return
+    }
+
+    // Check name invalid or not
+    if (!Wn.Obj.isValidName(newName)) {
+      return
+    }
+
+    // Check the suffix Name
+    let oldSuffix = Ti.Util.getSuffix(it.nm)
+    let newSuffix = Ti.Util.getSuffix(newName)
+    if ('FILE' == it.race && oldSuffix && oldSuffix != newSuffix) {
+      let repair = await Ti.Confirm("i18n:wn-rename-suffix-changed")
+      if (repair) {
+        newName += oldSuffix
+      }
+    }
+
+    // Rename it
+    let itemStatus = { [it.id]: "loading" }
+
+    commit("setStatus", { renaming: true })
+    commit("setItemStatus", itemStatus)
+
+    let newMeta = await Wn.Sys.exec2(
+      `o id:${it.id} @update 'nm:"${newName}"' @json -cqn`,
+      { as: "json" })
+
+    // Error
+    if (newMeta instanceof Error) {
+      return await Ti.Toast.Open("i18n:wn-rename-fail", "error")
+    }
+
+    // Replace the data
+    commit("setListItem", newMeta);
+    commit("setCurrentMeta");
+
+    _.delay(async () => {
+      commit("setStatus", { renaming: false })
+      commit("clearItemStatus")
+    }, 500)
+
+  },
+  //--------------------------------------------
+  //
+  //               Delete
+  //
+  //--------------------------------------------
   async removeChecked({ state, commit, dispatch, getters }, hard) {
     // Guard
     if (!state.dirId) {
@@ -51,6 +198,7 @@ const _M = {
     if (_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
     }
+    state.LOG("removeChecked", ids)
 
     // Config is hard
     hard = Ti.Util.fallback(hard, getters.isHardRemove, false)
@@ -62,7 +210,11 @@ const _M = {
       }
     }
 
+    let itemStatus = {}
+    _.forEach(ids, id => itemStatus[id] = "loading")
+
     commit("setStatus", { deleting: true })
+    commit("setItemStatus", itemStatus)
 
     // Prepare the cmds
     let cmd = ["o"]
@@ -73,28 +225,43 @@ const _M = {
     let cmdText = cmd.join(" ")
     await Wn.Sys.exec2(cmdText)
 
+    _.forEach(ids, id => itemStatus[id] = "removed")
+    commit("setItemStatus", itemStatus)
+
     //console.log("getback current", current)
-    // Update current
-    await dispatch("selectMeta")
+    _.delay(async () => {
+      // Remove it from search list
+      commit("removeListItems", ids)
 
-    // Remove it from search list
-    commit("removeListItems", ids)
+      // Update current
+      await dispatch("selectMeta")
 
-    commit("setStatus", { deleting: false })
+      commit("setStatus", { deleting: false })
+      commit("clearItemStatus")
+    }, 500)
   },
   //--------------------------------------------
   //
   //                 Open
   //
   //--------------------------------------------
-  async openContentEditor({ state, commit, dispatch }) {
+  async openContentEditor({ state, commit, dispatch, getters }) {
     // Guard
     if (!state.meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
 
+    // Content meta
+    let meta;
+    let contentPath = getters.contentLoadPath
+    if ("<self>" == contentPath) {
+      meta = state.meta
+    } else {
+      meta = await Wn.Io.loadMeta(contentPath)
+    }
+
     // Open Editor
-    let newContent = await Wn.EditObjContent(state.meta, {
+    let newContent = await Wn.EditObjContent(meta, {
       content: state.content
     })
 
@@ -205,14 +372,45 @@ const _M = {
     return reo
   },
   //--------------------------------------------
-  parseContentData({ state, commit, getters }) {
+  async parseContentData({ state, commit, getters }) {
     try {
       let content = state.content
-      let contentType = getters.contentParseType
+      let contentType = state.contentType
+
+      // Eval mime
+      if ("<MIME>" == contentType) {
+        let pathInfo = getters.contentLoadInfo || {}
+        let { path, mime } = pathInfo
+        if (!mime) {
+          if ("<self>" == path) {
+            contentType = _.get(state, "meta.mime")
+          }
+          // Load mime from server side
+          else {
+            let type = Ti.Util.getSuffixName(path)
+            if (type) {
+              mime = await Wn.Sys.exec2(`o @mime ${type} -as value`)
+              contentType = _.trim(mime)
+            }
+            // Use text plain
+            else {
+              contentType = "text/plain"
+            }
+          }
+        }
+        // Use mime
+        else {
+          contentType = mime
+        }
+      }
+
+      state.LOG("parseContentData", contentType)
+
       let contentData = null
       if (/^(application|text)\/json$/.test(contentType)) {
         let str = _.trim(content)
         contentData = JSON.parse(str || null)
+        state.LOG("parseContentData -> ", contentData)
       }
       commit("setContentData", contentData)
     }

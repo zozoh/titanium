@@ -234,6 +234,21 @@ const _M = {
     }
   },
   //----------------------------------------
+  setItemStatus(state, status = {}) {
+    state.itemStatus = _.assign({}, state.itemStatus, status)
+  },
+  //----------------------------------------
+  clearItemStatus(state, names = []) {
+    // Clean All
+    if (_.isEmpty(names)) {
+      state.itemStatus = {}
+    }
+    // Clear one
+    else {
+      state.itemStatus = _.omit(state.itemStatus, names)
+    }
+  },
+  //----------------------------------------
   setFieldStatus(state, { name, type, text } = {}) {
     if (name) {
       let ukey = _.concat(name).join("-")
@@ -290,6 +305,55 @@ const _M = {
   },
   assignObjMethods(state, objMethods = {}) {
     state.objMethods = _.assign({}, state.objMethods, objMethods)
+  },
+  //----------------------------------------
+  resetState(state) {
+    _.assign(state, {
+      "dirId": null,
+      "oDir": null,
+      "mappingDirPath": null,
+      "fixedMatch": {},
+      "filter": {},
+      "sorter": {
+        "nm": 1
+      },
+      "objKeys": null,
+      "list": [],
+      "currentId": null,
+      "checkedIds": {},
+      "pager": {
+        "pn": 1,
+        "pgsz": 50,
+        "pgc": 0,
+        "sum": 0,
+        "skip": 0,
+        "count": 0
+      },
+      "meta": null,
+      "content": null,
+      "__saved_content": null,
+      "contentPath": "<self>",
+      "contentType": "<MIME>",
+      "contentData": null,
+      "contentQuietParse": false,
+      "status": {
+        "reloading": false,
+        "doing": false,
+        "saving": false,
+        "deleting": false,
+        "changed": false,
+        "restoring": false,
+        "hasCurrent": false,
+        "hasChecked": false,
+        "hasMeta": false
+      },
+      "fieldStatus": {},
+      "guiShown": {},
+      "objActions": null,
+      "layout": {},
+      "schema": {},
+      "objMethods": {}
+    })
   },
   //----------------------------------------
 }

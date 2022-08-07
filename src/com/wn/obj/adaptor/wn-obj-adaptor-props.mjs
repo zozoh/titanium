@@ -46,6 +46,10 @@ export default {
     type: Object,
     default: () => ({})
   },
+  "itemStatus": {
+    type: Object,
+    default: () => ({})
+  },
   //-----------------------------------
   // Customized GUI
   //-----------------------------------

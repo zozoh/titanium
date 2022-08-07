@@ -46,6 +46,12 @@ export default {
     type: String,
     default: "a"
   },
+  "itemStatus": {
+    type: Object,
+    default: ()=>({
+      /* [id] : "loading|renaming|removed" */
+    })
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -146,6 +152,9 @@ export default {
   // Callback
   //-----------------------------------
   "beforeUpload" : {
+    type: Function
+  },
+  "afterUpload" : {
     type: Function
   },
   "onViewTypeChange" : {

@@ -63,6 +63,7 @@ const _M = {
     }
 
     // Load meta content
+    state.LOG("loadContent", meta.ph || meta.nm)
     let content = await Wn.Io.loadContent(meta)
     dispatch("updateContent", content)
     //console.log("loadContent:", meta,content)
@@ -261,6 +262,13 @@ const _M = {
       state.LOG = console.log
     }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
+    // If meta like : {path: "/path/to", quiet:true}
+    let quiet = false
+    if (meta && meta.path && !Ti.Util.isNil(meta.quiet)) {
+      quiet = meta.quiet
+      meta = meta.path
+    }
+
     // Guard
     if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
@@ -268,10 +276,16 @@ const _M = {
 
     // Guard: Nil meta
     if (!meta) {
-      return await Ti.Toast.Open("Nil Meta", "warn")
+      if (!quiet) {
+        await Ti.Toast.Open("Nil Meta", "warn")
+      }
+      return
     }
     if (!meta.id) {
-      return await Ti.Toast.Open("Meta without ID", "warn")
+      if (!quiet) {
+        await Ti.Toast.Open("Meta without ID", "warn")
+      }
+      return
     }
     // Analyze meta : oDir
     state.LOG("Analyze oDir and dirId")
@@ -288,7 +302,7 @@ const _M = {
     }
 
     if (!state.dirId) {
-      return await Ti.Toast.Open("Meta Without DirID: " + meta.id, "warn")
+      return await Ti.Alert("Meta Without DirID: " + meta.id, { type: "warn" })
     }
 
     commit("setStatus", { reloading: true })

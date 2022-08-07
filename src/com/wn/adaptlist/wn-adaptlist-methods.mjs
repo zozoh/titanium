@@ -406,7 +406,6 @@ const OBJ = {
     // Tell user ...
     Ti.Toast.Open("i18n:upload-done", "success")
 
-
     // Call reload
     await this._run("reload")
 
@@ -416,6 +415,11 @@ const OBJ = {
       checkIds = _.first(checkIds)
     }
     this.$innerList.checkRow(checkIds, { reset: true })
+
+    // Callback
+    if (_.isFunction(this.afterUpload)) {
+      await this.afterUpload(checkIds)
+    }
   },
   //--------------------------------------------
   async doDownload() {

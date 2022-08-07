@@ -368,5 +368,76 @@ const _M = {
     Ti.Util.RemoveStateDataItems(state, items, "dataDirFiles")
   },
   //----------------------------------------
+  resetState(state) {
+    _.assign(state, {
+      "thingSetId": null,
+      "oTs": null,
+      "fixedMatch": {},
+      "filter": {},
+      "sorter": {
+        "ct": -1
+      },
+      "thingObjKeys": null,
+      "list": [],
+      "currentId": null,
+      "checkedIds": {},
+      "pager": {
+        "pn": 1,
+        "pgsz": 50,
+        "pgc": 0,
+        "sum": 0,
+        "skip": 0,
+        "count": 0
+      },
+      "meta": null,
+      "content": null,
+      "__saved_content": null,
+      "contentPath": [
+        {
+          "test": {
+            "guiShown": {
+              "content": true
+            }
+          },
+          "path": "<self>"
+        }
+      ],
+      "contentType": "<MIME>",
+      "contentData": null,
+      "dataHome": null,
+      "dataDirName": null,
+      "keepDataDirNameToLocal": true,
+      "dataDirFiles": {
+        "list": [],
+        "pager": {
+          "pn": 1,
+          "pgsz": 50,
+          "pgc": 0,
+          "sum": 0,
+          "skip": 0,
+          "count": 0
+        }
+      },
+      "dataDirCurrentId": null,
+      "dataDirCheckedIds": {},
+      "status": {
+        "reloading": false,
+        "doing": false,
+        "saving": false,
+        "deleting": false,
+        "changed": false,
+        "restoring": false,
+        "hasChecked": false,
+        "hasCurrent": true
+      },
+      "fieldStatus": {},
+      "guiShown": {},
+      "thingActions": null,
+      "layout": {},
+      "schema": {},
+      "thingMethods": {}
+    })
+  },
+  //----------------------------------------
 }
 export default _M

@@ -449,6 +449,13 @@ export default {
     }
   },
   //------------------------------------------------
+  // Create
+  //------------------------------------------------
+  async doCreate() {
+    let reo = await this.asyncDelegateWnAdaptlist("doCreate")
+
+  },
+  //------------------------------------------------
   // Delegates
   //------------------------------------------------
   invokeList(methodName) {
@@ -459,9 +466,6 @@ export default {
   },
   async openCurrentPrivilege() {
     return this.asyncDelegateWnAdaptlist("openCurrentPrivilege")
-  },
-  async doCreate() {
-    return this.asyncDelegateWnAdaptlist("doCreate")
   },
   async doRename() {
     return this.asyncDelegateWnAdaptlist("doRename")

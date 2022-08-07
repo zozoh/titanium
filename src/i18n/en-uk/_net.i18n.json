@@ -1,0 +1,16 @@
+{
+  "net-ct": "Created",
+  "net-fb-reload-album-cover": "Force reload album cover",
+  "net-fb-relogin": "Relogin FB account",
+  "net-flt-nil": "Query by name",
+  "net-vod-add-video": "Add video",
+  "net-vod-cate": "Category",
+  "net-vod-du-long": "Long video",
+  "net-vod-du-short": "Short video",
+  "net-vod-du-tv": "TV",
+  "net-vod-duration": "Duration",
+  "net-vod-size": "Video size",
+  "net-vod-video-nil": "Please choose one video for detail",
+  "net-youtube": "Youtube",
+  "net-youtube-add-video": "Add youtube video"
+}
