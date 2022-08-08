@@ -60,8 +60,8 @@ export default {
             "isActived": this.isActived,
             "rowId": this.rowId
           },
-          autoIgnoreNil: !this.asGroupTitle,
-          autoIgnoreBlank: !this.asGroupTitle
+          // autoIgnoreNil: !this.asGroupTitle,
+          // autoIgnoreBlank: !this.asGroupTitle
         })
         if (it) {
           items.push(it)

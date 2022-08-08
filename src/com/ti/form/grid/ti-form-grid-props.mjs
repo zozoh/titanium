@@ -64,6 +64,9 @@ export default {
     type: Boolean,
     default: true
   },
+  "ignoreAutoReadonly": {
+    type: [String, Function]
+  },
   "defaultFieldType": {
     type: String,
     default: "String"

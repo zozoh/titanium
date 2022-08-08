@@ -1,4 +1,4 @@
-// Pack At: 2022-08-05 11:47:33
+// Pack At: 2022-08-08 23:33:46
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -37,6 +37,19 @@ const _M = {
     //--------------------------------------------------
     isReadonly() {
       return Ti.Util.fallback(this.myReadonly, this.readonly, false)
+    },
+    //--------------------------------------------------
+    isIgnoreAutoReadonly() {
+      if (_.isFunction(this.ignoreAutoReadonly)) {
+        return this.ignoreAutoReadonly
+      }
+      if (_.isString(this.ignoreAutoReadonly)) {
+        let reg = new RegExp(this.ignoreAutoReadonly)
+        return ({ comType }) => {
+          return reg.test(comType)
+        }
+      }
+      return () => false
     },
     //--------------------------------------------------
     FormNotifyMode() {
@@ -500,9 +513,10 @@ const _M = {
           isActived: this.myActivedFieldKey == fldKey,
           type: this.defaultFieldType || "String",
           comType: grp.defaultComType || this.defaultComType || "TiLabel",
-          comConf: _.assign(comConf, this.comConf),
+          comConf: {},
           disabled
         })
+        _.defaults(field.comConf, comConf)
 
         // The UniqKey of field
         field.uniqKey = Ti.Util.anyKey(field.name)
@@ -630,11 +644,14 @@ const _M = {
       return com
     },
     //--------------------------------------------------
-    evalFieldDisplay({ name, display, comConf } = {}) {
+    evalFieldDisplay(field = {}) {
+      let { name, display, comConf } = field
       // Guard
       if (!display) {
         // Auto gen display
-        if (this.autoReadonlyDisplay && this.isReadonly) {
+        if (this.autoReadonlyDisplay
+          && this.isReadonly
+          && !this.isIgnoreAutoReadonly(field)) {
           let labelConf = {}
           // If options
           if (comConf && comConf.options) {
@@ -781,6 +798,7 @@ const _M = {
     //
     //--------------------------------------
     updateBlockShown(shown = {}) {
+      //console.log("WnObjAdaptor.updateBlockShow", shown)
       let guiShown = {}
       _.forEach(shown, (v, k) => {
         if (v) {
@@ -850,9 +868,9 @@ const _M = {
       if (/^(indicate)$/.test(name)) {
         return () => ({ stop: false })
       }
-      // if (/change$/.test(name)) {
-      // console.log("WnObjAdaptor.__on_events", name, payload)
-      // }
+      //if (/select$/.test(name)) {
+      //console.log("WnObjAdaptor.__on_events", name, payload)
+      //}
 
       // Try routing
       let fns = _.get(this.EventRouting, name)
@@ -971,7 +989,8 @@ const _M = {
   // Selection
   //
   //----------------------------------------
-  async selectMeta({ commit }, { currentId = null, checkedIds = {} } = {}) {
+  async selectMeta({ state, commit }, { currentId = null, checkedIds = {} } = {}) {
+    state.LOG("selectMeta", currentId, checkedIds)
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
     commit("setCurrentMeta")
@@ -6166,6 +6185,7 @@ const _M = {
     }
     // Reset current/checkedIds
     if (!hasCurrent) {
+      state.meta = null
       state.currentId = null
       state.checkedIds = {}
       state.status = _.assign({}, state.status, {
@@ -6343,6 +6363,77 @@ const _M = {
   //----------------------------------------
   removeDataItems(state, items = []) {
     Ti.Util.RemoveStateDataItems(state, items, "dataDirFiles")
+  },
+  //----------------------------------------
+  resetState(state) {
+    _.assign(state, {
+      "thingSetId": null,
+      "oTs": null,
+      "fixedMatch": {},
+      "filter": {},
+      "sorter": {
+        "ct": -1
+      },
+      "thingObjKeys": null,
+      "list": [],
+      "currentId": null,
+      "checkedIds": {},
+      "pager": {
+        "pn": 1,
+        "pgsz": 50,
+        "pgc": 0,
+        "sum": 0,
+        "skip": 0,
+        "count": 0
+      },
+      "meta": null,
+      "content": null,
+      "__saved_content": null,
+      "contentPath": [
+        {
+          "test": {
+            "guiShown": {
+              "content": true
+            }
+          },
+          "path": "<self>"
+        }
+      ],
+      "contentType": "<MIME>",
+      "contentData": null,
+      "dataHome": null,
+      "dataDirName": null,
+      "keepDataDirNameToLocal": true,
+      "dataDirFiles": {
+        "list": [],
+        "pager": {
+          "pn": 1,
+          "pgsz": 50,
+          "pgc": 0,
+          "sum": 0,
+          "skip": 0,
+          "count": 0
+        }
+      },
+      "dataDirCurrentId": null,
+      "dataDirCheckedIds": {},
+      "status": {
+        "reloading": false,
+        "doing": false,
+        "saving": false,
+        "deleting": false,
+        "changed": false,
+        "restoring": false,
+        "hasChecked": false,
+        "hasCurrent": true
+      },
+      "fieldStatus": {},
+      "guiShown": {},
+      "thingActions": null,
+      "layout": {},
+      "schema": {},
+      "thingMethods": {}
+    })
   },
   //----------------------------------------
 }
@@ -7723,8 +7814,81 @@ window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-cud.mjs'] = (function(){
 const _M = {
   //--------------------------------------------
   //
-  //          Create / Delete
+  //               Create 
   //
+  //--------------------------------------------
+  async doCreate({ state, dispatch }) {
+    // Guard
+    if (!state.dirId) {
+      throw "doCreate without dirId";
+    }
+    // Load the creation setting
+    let {
+      types,
+      freeCreate
+    } = await Wn.Sys.exec(`ti creation -cqn id:${state.dirId}`, { as: "json" })
+
+    // Get creation information
+    let no = await Ti.App.Open({
+      title: "i18n:create",
+      type: "info",
+      position: "top",
+      width: 640,
+      height: "61.8%",
+      comType: "wn-obj-creation",
+      comConf: {
+        types, freeCreate,
+        autoFocus: true,
+        enterEvent: "ok"
+      },
+      components: ["@com:wn/obj/creation"]
+    })
+
+    // User cancel
+    if (!no || !no.name) {
+      return
+    }
+
+    // Check the newName contains the invalid char
+    if (no.name.search(/[%;:"'*?`\t^<>\/\\]/) >= 0) {
+      return await Ti.Alert('i18n:wn-create-invalid')
+    }
+    // Check the newName length
+    if (no.length > 256) {
+      return await Ti.Alert('i18n:wn-create-too-long')
+    }
+
+    // Default Race
+    no.race = no.race || "FILE"
+
+    if ("folder" == no.type) {
+      no.type = undefined
+    }
+
+    // Auto type
+    if ("FILE" == no.race) {
+      if (!no.type) {
+        no.type = Ti.Util.getSuffixName(no.name)
+      }
+
+      // Auto append suffix name
+      if (!no.name.endsWith(no.type)) {
+        no.name += `.${no.type}`
+      }
+    }
+
+    // Prepare the obj
+    let obj = {
+      ...no.meta,
+      nm: no.name,
+      tp: no.type,
+      race: no.race,
+      mime: no.mime
+    }
+    state.LOG("doCreate", obj)
+
+    await dispatch("create", obj)
+  },
   //--------------------------------------------
   async create({ state, commit, dispatch }, obj = {}) {
     // Guard
@@ -7761,7 +7925,81 @@ const _M = {
     // Return the new object
     return newMeta
   },
-  //----------------------------------------
+  //--------------------------------------------
+  //
+  //               Rename
+  //
+  //--------------------------------------------
+  async doRename({ state, commit, dispatch }) {
+    // Guard
+    if (!state.meta) {
+      return await Ti.Toast.Open('i18n:wn-rename-none', "warn")
+    }
+
+    let it = state.meta
+    state.LOG("doRename", it.id)
+
+    // Get new name
+    let newName = await Ti.Prompt({
+      text: 'i18n:wn-rename',
+      vars: { name: it.nm }
+    }, {
+      title: "i18n:rename",
+      placeholder: it.nm,
+      value: it.nm
+    })
+    newName = _.trim(newName)
+
+    // User cancel
+    if (!newName) {
+      return
+    }
+
+    // Check name invalid or not
+    if (!Wn.Obj.isValidName(newName)) {
+      return
+    }
+
+    // Check the suffix Name
+    let oldSuffix = Ti.Util.getSuffix(it.nm)
+    let newSuffix = Ti.Util.getSuffix(newName)
+    if ('FILE' == it.race && oldSuffix && oldSuffix != newSuffix) {
+      let repair = await Ti.Confirm("i18n:wn-rename-suffix-changed")
+      if (repair) {
+        newName += oldSuffix
+      }
+    }
+
+    // Rename it
+    let itemStatus = { [it.id]: "loading" }
+
+    commit("setStatus", { renaming: true })
+    commit("setItemStatus", itemStatus)
+
+    let newMeta = await Wn.Sys.exec2(
+      `o id:${it.id} @update 'nm:"${newName}"' @json -cqn`,
+      { as: "json" })
+
+    // Error
+    if (newMeta instanceof Error) {
+      return await Ti.Toast.Open("i18n:wn-rename-fail", "error")
+    }
+
+    // Replace the data
+    commit("setListItem", newMeta);
+    commit("setCurrentMeta");
+
+    _.delay(async () => {
+      commit("setStatus", { renaming: false })
+      commit("clearItemStatus")
+    }, 500)
+
+  },
+  //--------------------------------------------
+  //
+  //               Delete
+  //
+  //--------------------------------------------
   async removeChecked({ state, commit, dispatch, getters }, hard) {
     // Guard
     if (!state.dirId) {
@@ -7772,6 +8010,7 @@ const _M = {
     if (_.isEmpty(ids)) {
       return await Ti.Alert('i18n:del-none')
     }
+    state.LOG("removeChecked", ids)
 
     // Config is hard
     hard = Ti.Util.fallback(hard, getters.isHardRemove, false)
@@ -7783,7 +8022,11 @@ const _M = {
       }
     }
 
+    let itemStatus = {}
+    _.forEach(ids, id => itemStatus[id] = "loading")
+
     commit("setStatus", { deleting: true })
+    commit("setItemStatus", itemStatus)
 
     // Prepare the cmds
     let cmd = ["o"]
@@ -7794,28 +8037,43 @@ const _M = {
     let cmdText = cmd.join(" ")
     await Wn.Sys.exec2(cmdText)
 
+    _.forEach(ids, id => itemStatus[id] = "removed")
+    commit("setItemStatus", itemStatus)
+
     //console.log("getback current", current)
-    // Update current
-    await dispatch("selectMeta")
+    _.delay(async () => {
+      // Remove it from search list
+      commit("removeListItems", ids)
 
-    // Remove it from search list
-    commit("removeListItems", ids)
+      // Update current
+      await dispatch("selectMeta")
 
-    commit("setStatus", { deleting: false })
+      commit("setStatus", { deleting: false })
+      commit("clearItemStatus")
+    }, 500)
   },
   //--------------------------------------------
   //
   //                 Open
   //
   //--------------------------------------------
-  async openContentEditor({ state, commit, dispatch }) {
+  async openContentEditor({ state, commit, dispatch, getters }) {
     // Guard
     if (!state.meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
 
+    // Content meta
+    let meta;
+    let contentPath = getters.contentLoadPath
+    if ("<self>" == contentPath) {
+      meta = state.meta
+    } else {
+      meta = await Wn.Io.loadMeta(contentPath)
+    }
+
     // Open Editor
-    let newContent = await Wn.EditObjContent(state.meta, {
+    let newContent = await Wn.EditObjContent(meta, {
       content: state.content
     })
 
@@ -7833,6 +8091,23 @@ const _M = {
   //                 Update
   //
   //--------------------------------------------
+  async updateDirField({ state, commit, dispatch }, { name, value } = {}) {
+    state.LOG("updateDirFields", { name, value })
+
+    let uniqKey = Ti.Util.anyKey(name)
+    Wn.Util.setFieldStatusBeforeUpdate({ commit }, uniqKey)
+
+
+    let data = Ti.Types.toObjByPair({ name, value })
+    let reo = await dispatch("updateDir", data)
+
+    Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+  },
+  //--------------------------------------------
+  async updateDir({ dispatch }, data = {}) {
+    await dispatch("updateMetaOrDir", { data, forMeta: false })
+  },
+  //--------------------------------------------
   async updateMetaField({ state, commit, dispatch }, { name, value } = {}) {
     state.LOG("updateMetaFields", { name, value })
 
@@ -7846,15 +8121,29 @@ const _M = {
     Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
   },
   //--------------------------------------------
-  async updateMeta({ state, commit }, data = {}) {
-    state.LOG("updateMeta", data)
+  async updateMeta({ dispatch }, data = {}) {
+    await dispatch("updateMetaOrDir", { data, forMeta: true })
+  },
+  //--------------------------------------------
+  async updateMetaOrDir({ state, commit }, {
+    forMeta = true,
+    data = {}
+  } = {}) {
+    let taName = forMeta ? "meta" : "oDir";
+    state.LOG("updateMetaOrDir", `(${taName})`, data)
+
+    // Get obj
+    let obj = forMeta ? state.meta : state.oDir;
+
     // Check Necessary
-    if (_.isMatchWith(state.meta, data, _.isEqual)) {
+    if (_.isMatchWith(obj, data, _.isEqual)) {
       return
     }
 
-    if (!state.meta) {
-      return await Ti.Toast.Open("WnObj meta without defined", "warn")
+    if (!obj) {
+      return await Ti.Toast.Open(
+        `WnObj ${taName} without defined`,
+        "warn")
     }
 
     if (!state.dirId) {
@@ -7871,14 +8160,20 @@ const _M = {
 
     // Do the update
     let json = JSON.stringify(data)
-    let oid = state.meta.id
+    let oid = obj.id
     let cmdText = `o id:${oid} @update @json -cqn`
     let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
     let isError = reo instanceof Error;
 
     if (!isError && !Ti.Util.isNil(reo)) {
-      commit("setMeta", reo)
-      commit("setListItem", reo)
+      if (forMeta) {
+        commit("setMeta", reo)
+        commit("setListItem", reo)
+      }
+      // For oDir
+      else {
+        commit("setDir", reo)
+      }
     }
 
     Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
@@ -7889,14 +8184,45 @@ const _M = {
     return reo
   },
   //--------------------------------------------
-  parseContentData({ state, commit, getters }) {
+  async parseContentData({ state, commit, getters }) {
     try {
       let content = state.content
-      let contentType = getters.contentParseType
+      let contentType = state.contentType
+
+      // Eval mime
+      if ("<MIME>" == contentType) {
+        let pathInfo = getters.contentLoadInfo || {}
+        let { path, mime } = pathInfo
+        if (!mime) {
+          if ("<self>" == path) {
+            contentType = _.get(state, "meta.mime")
+          }
+          // Load mime from server side
+          else {
+            let type = Ti.Util.getSuffixName(path)
+            if (type) {
+              mime = await Wn.Sys.exec2(`o @mime ${type} -as value`)
+              contentType = _.trim(mime)
+            }
+            // Use text plain
+            else {
+              contentType = "text/plain"
+            }
+          }
+        }
+        // Use mime
+        else {
+          contentType = mime
+        }
+      }
+
+      state.LOG("parseContentData", contentType)
+
       let contentData = null
       if (/^(application|text)\/json$/.test(contentType)) {
         let str = _.trim(content)
         contentData = JSON.parse(str || null)
+        state.LOG("parseContentData -> ", contentData)
       }
       commit("setContentData", contentData)
     }
@@ -7932,20 +8258,20 @@ const _M = {
     }
 
     // Which content should I load?
-    let meta = state.meta
     let path = getters.contentLoadPath
-    if (!path || !meta) {
+    if (!path) {
       return
     }
+    let meta;
     if ("<self>" != path) {
       let aph;
       // absolute path
-      if (/^[\/~]\//.test(path)) {
+      if (/^([\/~]\/|id:)/.test(path)) {
         aph = path
       }
       // In parent dir
       else {
-        aph = Ti.Util.appendPath(`id:${state.meta.pid}/`, path)
+        aph = Ti.Util.appendPath(`id:${state.oDir.id}/`, path)
       }
       meta = await Wn.Io.loadMeta(aph)
       // If not exists, then create it
@@ -7954,6 +8280,15 @@ const _M = {
         await Wn.Sys.exec2(cmdText)
         meta = await Wn.Io.loadMeta(aph)
       }
+    }
+    // User self
+    else {
+      meta = state.meta
+    }
+
+    // Guard
+    if(!meta) {
+      return await Ti.Toast.Open("saveContent nil Meta!")
     }
 
     // Do save content
@@ -9771,6 +10106,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return this.getTopClass()
     },
     //--------------------------------------
+    isNil() {
+      return Ti.Util.isNil(this.value)
+    },
+    //--------------------------------------
     Layout() {
       return {
         type: "rows",
@@ -9803,6 +10142,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
             fields: this.myFormFields,
             fieldStatus: this.fieldStatus,
             currentTab: this.myCurrentTab,
+            autoShowBlank: true,
             data: this.value
           }
         }
@@ -13051,6 +13391,19 @@ const _M = {
       return Ti.Util.fallback(this.myReadonly, this.readonly, false)
     },
     //--------------------------------------------------
+    isIgnoreAutoReadonly() {
+      if (_.isFunction(this.ignoreAutoReadonly)) {
+        return this.ignoreAutoReadonly
+      }
+      if (_.isString(this.ignoreAutoReadonly)) {
+        let reg = new RegExp(this.ignoreAutoReadonly)
+        return ({ comType }) => {
+          return reg.test(comType)
+        }
+      }
+      return () => false
+    },
+    //--------------------------------------------------
     FormNotifyMode() {
       if ("auto" == this.notifyMode) {
         return this.isReadonly ? "none" : "immediate"
@@ -13512,9 +13865,10 @@ const _M = {
           isActived: this.myActivedFieldKey == fldKey,
           type: this.defaultFieldType || "String",
           comType: grp.defaultComType || this.defaultComType || "TiLabel",
-          comConf: _.assign(comConf, this.comConf),
+          comConf: {},
           disabled
         })
+        _.defaults(field.comConf, comConf)
 
         // The UniqKey of field
         field.uniqKey = Ti.Util.anyKey(field.name)
@@ -13642,11 +13996,14 @@ const _M = {
       return com
     },
     //--------------------------------------------------
-    evalFieldDisplay({ name, display, comConf } = {}) {
+    evalFieldDisplay(field = {}) {
+      let { name, display, comConf } = field
       // Guard
       if (!display) {
         // Auto gen display
-        if (this.autoReadonlyDisplay && this.isReadonly) {
+        if (this.autoReadonlyDisplay
+          && this.isReadonly
+          && !this.isIgnoreAutoReadonly(field)) {
           let labelConf = {}
           // If options
           if (comConf && comConf.options) {
@@ -13765,8 +14122,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
             "isActived": this.isActived,
             "rowId": this.rowId
           },
-          autoIgnoreNil: !this.asGroupTitle,
-          autoIgnoreBlank: !this.asGroupTitle
+          // autoIgnoreNil: !this.asGroupTitle,
+          // autoIgnoreBlank: !this.asGroupTitle
         })
         if (it) {
           items.push(it)
@@ -19914,7 +20271,6 @@ const OBJ = {
     // Tell user ...
     Ti.Toast.Open("i18n:upload-done", "success")
 
-
     // Call reload
     await this._run("reload")
 
@@ -19924,6 +20280,11 @@ const OBJ = {
       checkIds = _.first(checkIds)
     }
     this.$innerList.checkRow(checkIds, { reset: true })
+
+    // Callback
+    if (_.isFunction(this.afterUpload)) {
+      await this.afterUpload(checkIds)
+    }
   },
   //--------------------------------------------
   async doDownload() {
@@ -23204,14 +23565,16 @@ const _M = {
     }
     // Reset current/checkedIds
     if (!hasCurrent) {
+      state.meta = null
       state.currentId = null
       state.checkedIds = {}
-      state.status = _.assign({}, state.status, {
-        "hasMeta": false,
-        "hasCurrent": false,
-        "hasChecked": false
-      })
     }
+    // Update status
+    state.status = _.assign({}, state.status, {
+      "hasMeta": state.meta ? true : false,
+      "hasCurrent": hasCurrent,
+      "hasChecked": !_.isEmpty(state.checkedIds)
+    })
   },
   //----------------------------------------
   setMeta(state, meta) {
@@ -23265,6 +23628,21 @@ const _M = {
       state.status.changed = false
     } else {
       state.status.changed = !_.isEqual(state.content, state.__saved_content)
+    }
+  },
+  //----------------------------------------
+  setItemStatus(state, status = {}) {
+    state.itemStatus = _.assign({}, state.itemStatus, status)
+  },
+  //----------------------------------------
+  clearItemStatus(state, names = []) {
+    // Clean All
+    if (_.isEmpty(names)) {
+      state.itemStatus = {}
+    }
+    // Clear one
+    else {
+      state.itemStatus = _.omit(state.itemStatus, names)
     }
   },
   //----------------------------------------
@@ -23324,6 +23702,55 @@ const _M = {
   },
   assignObjMethods(state, objMethods = {}) {
     state.objMethods = _.assign({}, state.objMethods, objMethods)
+  },
+  //----------------------------------------
+  resetState(state) {
+    _.assign(state, {
+      "dirId": null,
+      "oDir": null,
+      "mappingDirPath": null,
+      "fixedMatch": {},
+      "filter": {},
+      "sorter": {
+        "nm": 1
+      },
+      "objKeys": null,
+      "list": [],
+      "currentId": null,
+      "checkedIds": {},
+      "pager": {
+        "pn": 1,
+        "pgsz": 50,
+        "pgc": 0,
+        "sum": 0,
+        "skip": 0,
+        "count": 0
+      },
+      "meta": null,
+      "content": null,
+      "__saved_content": null,
+      "contentPath": "<self>",
+      "contentType": "<MIME>",
+      "contentData": null,
+      "contentQuietParse": false,
+      "status": {
+        "reloading": false,
+        "doing": false,
+        "saving": false,
+        "deleting": false,
+        "changed": false,
+        "restoring": false,
+        "hasCurrent": false,
+        "hasChecked": false,
+        "hasMeta": false
+      },
+      "fieldStatus": {},
+      "guiShown": {},
+      "objActions": null,
+      "layout": {},
+      "schema": {},
+      "objMethods": {}
+    })
   },
   //----------------------------------------
 }
@@ -24877,13 +25304,21 @@ const _M = {
     }
 
     // Which content should I load?
-    let meta = state.meta
     let path = getters.contentLoadPath
-    if (!path || !meta || !state.dataHome) {
+    if (!path) {
       return
     }
+    let meta;
     if ("<self>" != path) {
-      let aph = Ti.Util.appendPath(state.dataHome, path)
+      let aph;
+      // absolute path
+      if (/^([\/~]\/|id:)/.test(path)) {
+        aph = path
+      }
+      // In parent dir
+      else {
+        aph = Ti.Util.appendPath(state.dataHome, path)
+      }
       meta = await Wn.Io.loadMeta(aph)
       // If not exists, then create it
       if (!meta) {
@@ -29899,6 +30334,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Boolean,
     default: true
   },
+  "ignoreAutoReadonly": {
+    type: [String, Function]
+  },
   "defaultFieldType": {
     type: String,
     default: "String"
@@ -30280,7 +30718,7 @@ const _M = {
                 },
                 {
                   "value": "lm",
-                  "text": "i18n:wn-key-ct"
+                  "text": "i18n:wn-key-lm"
                 },
                 {
                   "value": "nm",
@@ -30305,12 +30743,18 @@ const _M = {
             "exposeHidden": "=exposeHidden",
             "viewType": "=viewType",
             "routers": {
-              "reload": `dispatch:${this.moduleName}/reloadData`
+              /*"reload": `dispatch:${this.moduleName}/reloadData`*/
             },
             "tableViewConf": {
               "columnResizable": true,
               "canCustomizedFields": true,
               "keepCustomizedTo": "->WnObjAdaptorTableState-${oDir.id}"
+            },
+            "itemStatus": "=itemStatus",
+            "afterUpload": async (checkedIds) => {
+              let currentId = _.first(checkedIds)
+              await this.dispatch("queryList")
+              await this.dispatch("selectMeta", { currentId, checkedIds })
             }
           }
         },
@@ -30352,6 +30796,7 @@ const _M = {
         //------------------------------
         status: this.status,
         fieldStatus: this.fieldStatus,
+        itemStatus: this.itemStatus,
         //------------------------------
         viewType: this.viewType,
         exposeHidden: this.exposeHidden,
@@ -31764,6 +32209,7 @@ const _M = {
     //
     //--------------------------------------
     updateBlockShown(shown = {}) {
+      //console.log("WnObjAdaptor.updateBlockShow", shown)
       let guiShown = {}
       _.forEach(shown, (v, k) => {
         if (v) {
@@ -31833,9 +32279,9 @@ const _M = {
       if (/^(indicate)$/.test(name)) {
         return () => ({ stop: false })
       }
-      // if (/change$/.test(name)) {
-      // console.log("WnObjAdaptor.__on_events", name, payload)
-      // }
+      //if (/select$/.test(name)) {
+      //console.log("WnObjAdaptor.__on_events", name, payload)
+      //}
 
       // Try routing
       let fns = _.get(this.EventRouting, name)
@@ -45065,30 +45511,32 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return _.get(state, "oDir.hard_remove")
     },
     //--------------------------------------------
-    contentLoadPath(state) {
+    contentLoadInfo(state) {
       if (state.contentPath) {
         // fixed content path
         if (_.isString(state.contentPath)) {
-          return state.contentPath
+          return {
+            path: state.contentPath
+          }
         }
         // Try find content path
         let canPaths = _.concat([], state.contentPath)
         for (let canPath of canPaths) {
-          let { test, path } = canPath
+          let { test, path, mime } = canPath
           if (!test || Ti.AutoMatch.test(test, state)) {
-            return path
+            let ctx = _.assign(Wn.Session.env(), state)
+            let ph = Ti.Util.explainObj(ctx, path)
+            return {
+              path: Ti.Util.appendPath(`id:${state.dirId}`, ph),
+              mime
+            }
           }
         }
       }
     },
     //--------------------------------------------
-    contentParseType(state) {
-      if (_.isString(state.contentType)) {
-        if ("<MIME>" == state.contentType) {
-          return _.get(state, "meta.mime")
-        }
-        return state.contentType
-      }
+    contentLoadPath(state, getters) {
+      return _.get(getters, "contentLoadInfo.path")
     }
     //--------------------------------------------
   },
@@ -48489,7 +48937,9 @@ const _M = {
     //--------------------------------------------
     async OnSelectLocalFilesToUpload(evt) {
       await this.OnDropFiles(evt.target.files)
-      this.$refs.file.value = ""
+      if (_.isElement(this.$refs.file)) {
+        this.$refs.file.value = ""
+      }
     },
     //--------------------------------------------
     // Getters
@@ -48666,7 +49116,7 @@ const _M = {
       this.myData = _.cloneDeep(this.data) || {
         list: [], pager: {}
       }
-      this.myItemStatus = {}
+      this.myItemStatus = _.cloneDeep(this.itemStatus) || {}
     }
     //--------------------------------------------
   },
@@ -48681,6 +49131,15 @@ const _M = {
     // myData : function(newVal, oldVal) {
     //   console.log("myData Changed", newVal)
     // },
+    //--------------------------------------------
+    "itemStatus": {
+      handler: function (newVal, oldVal) {
+        //console.log("WnAdaptlist.itemStatus changed!!!", newVal, oldVal)
+        if (!_.isEqual(newVal, oldVal)) {
+          this.myItemStatus = _.cloneDeep(newVal)
+        }
+      }
+    },
     //--------------------------------------------
     "data": {
       handler: "syncMyData",
@@ -56295,10 +56754,10 @@ window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-actions.mjs'] = (function(){
 async function loadConfigJson(state, key, dft) {
   let path;
   if (state.meta) {
-    path = state.meta[key]
+    path = state.meta[`gui_${key}`]
   }
   if (!path && state.oDir) {
-    path = state.oDir[key]
+    path = state.oDir[`gui_${key}`]
   }
   if (!path) {
     path = state[`${key}Path`]
@@ -56325,32 +56784,38 @@ async function loadConfigJson(state, key, dft) {
 const _M = {
   //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }, { quiet = false } = {}) {
-    // Guard
-    let meta = state.meta
-    if (!meta) {
-      return
-    }
     // Which content should I load?
     let path = getters.contentLoadPath
     if (!path) {
       return
     }
+
+    let meta;
+    if (!quiet) {
+      commit("setStatus", { reloading: true })
+    }
+
     if ("<self>" != path) {
-      path = Ti.Util.appendPath(`id:${state.dirId}`, path)
       meta = await Wn.Io.loadMeta(path)
+    }
+    // Use state
+    else if (state.meta && 'FILE' == state.meta.race) {
+      meta = state.meta
     }
 
     //console.log("load Content:", path)
     // No meta
     if (!meta) {
+      state.LOG("updateContent => null")
       dispatch("updateContent", null)
+      if (!quiet) {
+        commit("setStatus", { reloading: false })
+      }
       return
     }
 
     // Load meta content
-    if (!quiet) {
-      commit("setStatus", { reloading: true })
-    }
+    state.LOG("loadContent", meta.ph || meta.nm)
     let content = await Wn.Io.loadContent(meta)
     dispatch("updateContent", content)
     //console.log("loadContent:", meta,content)
@@ -56359,6 +56824,8 @@ const _M = {
     if (!quiet) {
       commit("setStatus", { reloading: false })
     }
+
+    return content
   },
   //--------------------------------------------
   async loadSchema({ state, commit }) {
@@ -56543,10 +57010,17 @@ const _M = {
       return
     }
     state.LOG = () => { }
-    // if ("main" == state.moduleName) {
-    //   state.LOG = console.log
-    // }
+    if ("main" == state.moduleName) {
+      state.LOG = console.log
+    }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
+    // If meta like : {path: "/path/to", quiet:true}
+    let quiet = false
+    if (meta && meta.path && !Ti.Util.isNil(meta.quiet)) {
+      quiet = meta.quiet
+      meta = meta.path
+    }
+
     // Guard
     if (_.isString(meta)) {
       meta = await Wn.Io.loadMeta(meta)
@@ -56554,10 +57028,16 @@ const _M = {
 
     // Guard: Nil meta
     if (!meta) {
-      return await Ti.Toast.Open("Nil Meta", "warn")
+      if (!quiet) {
+        await Ti.Toast.Open("Nil Meta", "warn")
+      }
+      return
     }
     if (!meta.id) {
-      return await Ti.Toast.Open("Meta without ID", "warn")
+      if (!quiet) {
+        await Ti.Toast.Open("Meta without ID", "warn")
+      }
+      return
     }
     // Analyze meta : oDir
     state.LOG("Analyze oDir and dirId")
@@ -56574,7 +57054,7 @@ const _M = {
     }
 
     if (!state.dirId) {
-      return await Ti.Toast.Open("Meta Without DirID: " + meta.id, "warn")
+      return await Ti.Alert("Meta Without DirID: " + meta.id, { type: "warn" })
     }
 
     commit("setStatus", { reloading: true })
@@ -56595,7 +57075,7 @@ const _M = {
     dispatch("restoreLocalBehavior")
 
     // Reload thing list
-    state.LOG(" >> Query Data ...")
+    state.LOG(" >> Reload Data ...")
     await dispatch("reloadData");
 
     // All done
@@ -57012,6 +57492,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: String,
     default: "a"
   },
+  "itemStatus": {
+    type: Object,
+    default: ()=>({
+      /* [id] : "loading|renaming|removed" */
+    })
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
@@ -57112,6 +57598,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // Callback
   //-----------------------------------
   "beforeUpload" : {
+    type: Function
+  },
+  "afterUpload" : {
     type: Function
   },
   "onViewTypeChange" : {
@@ -63403,79 +63892,79 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/media/image/ti-media-image.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////
-  data: ()=>({
-    naturalWidth  : -1,
-    naturalHeight : -1,
-    viewportWidth  : -1,
-    viewportHeight : -1,
-    fitMode  : "contain",
-    imgLoading : true,
-    inViewport : false
+  data: () => ({
+    naturalWidth: -1,
+    naturalHeight: -1,
+    viewportWidth: -1,
+    viewportHeight: -1,
+    fitMode: "contain",
+    imgLoading: true,
+    inViewport: false
   }),
   ///////////////////////////////////
-  props : {
-    "src" : {
-      type : String,
-      default : null
+  props: {
+    "src": {
+      type: String,
+      default: null
     },
-    "width" : {
-      type : [String, Number],
-      default : ""
+    "width": {
+      type: [String, Number],
+      default: ""
     },
-    "height" : {
-      type : [String, Number],
-      default : ""
+    "height": {
+      type: [String, Number],
+      default: ""
     }
   },
   ///////////////////////////////////
-  computed : {
+  computed: {
     topClass() {
       return Ti.Css.mergeClassName({
-        "as-fitmode-cover"   : this.fitMode=="cover",
-        "as-fitmode-contain" : this.fitMode=="contain",
-        "is-img-loading" : this.imgLoading,
-        "is-in-viewport" : this.inViewport
+        "as-fitmode-cover": this.fitMode == "cover",
+        "as-fitmode-contain": this.fitMode == "contain",
+        "is-img-loading": this.imgLoading,
+        "is-in-viewport": this.inViewport
       }, this.className)
     },
     topStyle() {
       return {
-        width  : this.width, 
-        height : this.height
+        width: this.width,
+        height: this.height
       }
     },
     theImageStyle() {
       let css = {
-        "visibility" : "hidden",
-        "position"   : "relative"
+        "visibility": "hidden",
+        "position": "relative"
       }
       // If ready, then resize to zoom
-      if(this.naturalWidth > 0
+      if (this.naturalWidth > 0
         && this.naturalHeight > 0) {
         // Get the measure of viewport
         let viewport = Ti.Rects.create({
-          top:0, left:0,
-          width  : this.viewportWidth,
-          height : this.viewportHeight
+          top: 0, left: 0,
+          width: this.viewportWidth,
+          height: this.viewportHeight
         })
         // Get the measure of image
         let r_img = Ti.Rects.create({
-          top:2, left:2,
-          width  : this.naturalWidth,
-          height : this.naturalHeight
+          top: 2, left: 2,
+          width: this.naturalWidth,
+          height: this.naturalHeight
         })
         // Zoom it
         let r_im2 = r_img.zoomTo({
-          width  : viewport.width, 
-          height : viewport.height,
-          mode   : this.fitMode
+          width: viewport.width,
+          height: viewport.height,
+          mode: this.fitMode
         })
         // mark
         this.inViewport = viewport.contains(r_im2, 2)
         // append to css
-        css.width  = r_im2.width
+        css.width = r_im2.width
         css.height = r_im2.height
-        css.left = (viewport.width  - r_im2.width)  / 2
-        css.top  = (viewport.height - r_im2.height) / 2
+        css.left = (viewport.width - r_im2.width) / 2
+        css.top = (viewport.height - r_im2.height) / 2
         css.visibility = "visible"
       }
       // done
@@ -63483,11 +63972,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     }
   },
   ///////////////////////////////////
-  methods : {
+  methods: {
     onImageLoaded() {
       let $img = this.$refs.the_image
-      if($img) {
-        this.naturalWidth  = $img.naturalWidth
+      if ($img) {
+        this.naturalWidth = $img.naturalWidth
         this.naturalHeight = $img.naturalHeight
         this.imgLoading = false
       }
@@ -63495,26 +63984,30 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     onResizeViewport() {
       let r_vpt = Ti.Rects.createBy(this.$refs.con)
-      this.viewportWidth  = r_vpt.width
-      this.viewportHeight = r_vpt.height
+      if (r_vpt) {
+        this.viewportWidth = r_vpt.width
+        this.viewportHeight = r_vpt.height
+      }
     },
     onToggleImageFitMode() {
       this.onResizeViewport()
       this.fitMode = ({
-        "contain" : "cover",
-        "cover"   : "contain"
+        "contain": "cover",
+        "cover": "contain"
       })[this.fitMode]
     }
   },
   ///////////////////////////////////
-  mounted : function(){
-    Ti.Viewport.watch(this, {resize : ()=>{
-      this.onResizeViewport()
-    }})
+  mounted: function () {
+    Ti.Viewport.watch(this, {
+      resize: () => {
+        this.onResizeViewport()
+      }
+    })
     this.onResizeViewport()
   },
   ///////////////////////////////////
-  beforeDestroy : function(){
+  beforeDestroy: function () {
     Ti.Viewport.unwatch(this)
   }
   ///////////////////////////////////
@@ -65745,8 +66238,8 @@ const _M = {
     //......................................
     window.onpopstate = (evt) => {
       let obj = evt.state
-      //console.log("popstate", obj)
-      if (obj && obj.id && obj.ph) {
+      console.log("popstate", obj)
+      if (obj && obj.id && obj.nm) {
         Ti.App(this).dispatch("current/reload", obj)
       }
     }
@@ -72397,25 +72890,24 @@ const _M = {
     })
   },
   //--------------------------------------------
-  async loadContent({ state, commit, dispatch, getters }) {
-    // Guard : dataHome
-    // if (!state.dataHome) {
-    //   return
-    // }
-    // Guard : meta
-    let meta = state.meta
-
+  async loadContent({ state, commit, dispatch, getters }, { quiet = false } = {}) {
     // Which content should I load?
     let path = getters.contentLoadPath
     if (!path) {
       return
     }
-    state.LOG("async loadContent", meta, path)
-    commit("setStatus", { reloading: true })
+
+    let meta;
+    if (!quiet) {
+      commit("setStatus", { reloading: true })
+    }
 
     if ("<self>" != path) {
-      path = Ti.Util.appendPath(state.dataHome, path)
       meta = await Wn.Io.loadMeta(path)
+    }
+    // Use state
+    else if (state.meta && 'FILE' == state.meta.race) {
+      meta = state.meta
     }
 
     //console.log("load Content:", path)
@@ -72423,7 +72915,9 @@ const _M = {
     if (!meta) {
       state.LOG("updateContent => null")
       dispatch("updateContent", null)
-      commit("setStatus", { reloading: false })
+      if (!quiet) {
+        commit("setStatus", { reloading: false })
+      }
       return
     }
 
@@ -72433,7 +72927,9 @@ const _M = {
     //console.log("loadContent:", content)
 
     // All done
-    commit("setStatus", { reloading: false })
+    if (!quiet) {
+      commit("setStatus", { reloading: false })
+    }
 
     return content
   },
@@ -73957,6 +74453,16 @@ const _M = {
       ]
     },
     //------------------------------------------------
+    // Behaviors
+    //------------------------------------------------
+    "mapping": {
+      type: [Object, Function],
+    },
+    "explainMapping": {
+      type: Boolean,
+      default: true
+    },
+    //------------------------------------------------
     // Aspect
     //------------------------------------------------
     "nameWidth": {
@@ -73977,6 +74483,24 @@ const _M = {
       }
     },
     //------------------------------------------------
+    OptionItemMapping() {
+      if (_.isFunction(this.mapping)) {
+        return this.mapping
+      }
+      if (_.isObject(this.mapping)) {
+        if (this.explainMapping) {
+          return (li) => {
+            return Ti.Util.explainObj(li, this.mapping)
+          }
+        }
+        return (li) => ({
+          text: _.get(this.mapping, li.text) || li.text,
+          value: _.get(this.mapping, li.value) || li.value
+        })
+      }
+      return v => v
+    },
+    //------------------------------------------------
     Dict() {
       return Ti.DictFactory.CreateDictBy(this.options);
     }
@@ -73986,14 +74510,16 @@ const _M = {
   methods: {
     //------------------------------------------------
     async evalPairValue() {
+      // Eval list
       let list = await this.Dict.getData()
       let vals = {}
       let txts = {}
       for (let li of list) {
-        let key = li.value
+        let it = this.OptionItemMapping(li)
+        let key = it.value
         let val = _.get(this.value, key)
         vals[key] = val
-        txts[key] = li.text
+        txts[key] = it.text
       }
       this.myValue = vals
       this.myTexts = txts
@@ -74083,7 +74609,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
         for (let canPath of canPaths) {
           let { test, path } = canPath
           if (!test || Ti.AutoMatch.test(test, state)) {
-            return path
+            let ctx = _.assign(Wn.Session.env(), state)
+            let ph = Ti.Util.explainObj(ctx, path)
+            return Ti.Util.appendPath(state.dataHome, ph)
           }
         }
       }
@@ -80866,6 +81394,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     }
   },
   //------------------------------------------------
+  // Create
+  //------------------------------------------------
+  async doCreate() {
+    let reo = await this.asyncDelegateWnAdaptlist("doCreate")
+
+  },
+  //------------------------------------------------
   // Delegates
   //------------------------------------------------
   invokeList(methodName) {
@@ -80876,9 +81411,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   async openCurrentPrivilege() {
     return this.asyncDelegateWnAdaptlist("openCurrentPrivilege")
-  },
-  async doCreate() {
-    return this.asyncDelegateWnAdaptlist("doCreate")
   },
   async doRename() {
     return this.asyncDelegateWnAdaptlist("doRename")
@@ -81329,6 +81861,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     })
   },
   "fieldStatus": {
+    type: Object,
+    default: () => ({})
+  },
+  "itemStatus": {
     type: Object,
     default: () => ({})
   },
@@ -82799,7 +83335,7 @@ Ti.Preload("ti/com/hm/react/item/hm-react-item.html", `<TiForm
   class="ti-fill-parent"
   :data="FormData"
   :fields="FormFields"
-  spacing="tiny"
+  spacing="comfy"
   :autoShowBlank="true"
   :blankAs="{icon:'zmdi-arrow-left',text:'请选择一个执行项'}"
   fieldNameAlign="right"
@@ -96705,6 +97241,7 @@ Ti.Preload("ti/mod/wn/obj/m-wn-obj.json", {
     "hasMeta": false
   },
   "fieldStatus": {},
+  "itemStatus": {},
   "actionsPath": null,
   "layoutPath": null,
   "schemaPath": null,
@@ -97632,6 +98169,1588 @@ Ti.Preload("/a/load/wn.manager/wn-manager.html", `<ti-gui
 // JOIN <wn-manager.mjs> /a/load/wn.manager/wn-manager.mjs
 //========================================
 Ti.Preload("/a/load/wn.manager/wn-manager.mjs", TI_PACK_EXPORTS['/a/load/wn.manager/wn-manager.mjs']);
+//========================================
+// JOIN <hmaker.i18n.json> ti/i18n/en-uk/hmaker.i18n.json
+//========================================
+Ti.Preload("ti/i18n/en-uk/hmaker.i18n.json", {
+  "am-findInArray": "存在一个【${val}】的对象",
+  "hm-am-add": "Add condition",
+  "hm-am-empty": "Consition unset",
+  "am-must-true": "Must be true",
+  "am-must-false": "Must be false",
+  "am-not-sure": "Not sure",
+  "am-exists": "存在'${val}'",
+  "am-noexists": "不存在'${val}'",
+  "am-boolTrue": "为真",
+  "am-boolFalse": "为假",
+  "am-blank": "为空白",
+  "am-notNil": "不为空",
+  "am-notNilOf": "字段${val}不为空",
+  "am-nil": "为空",
+  "am-empty": "为空",
+  "am-nilOf": "字段${val}为空",
+  "am-null": "为空值",
+  "am-nullOf": "字段${val}为空值",
+  "am-undefined": "未定义",
+  "am-undefinedOf": "字段${val}未定义",
+  "am-not": "不",
+  "am-or": "或者",
+  "am-and": "并且",
+  "am-notMatchOf": "不匹配'${FFFval}'",
+  "am-matchOf": "匹配'${val}'",
+  "am-equals": "等于${val} ",
+  "am-notEquals": "不等于${val} ",
+  "am-equalsType": "类型等于\"${val}\"",
+  "am-equalsIgnoreCase": "等于\"${val}\"且无视大小写",
+  "am-gt": "大于${val}",
+  "am-gte": "大于等于${val}",
+  "am-lt": "小于${val}",
+  "am-lte": "小于等于${val}",
+  "hm-args": "Arguments",
+  "hm-args-partial": "Arg partial",
+  "hm-args-partial-left": "Partial Left",
+  "hm-args-partial-right": "Partial Right",
+  "vt-Undefined": "Undefined",
+  "vt-Null": "Null",
+  "vt-Number": "Number",
+  "vt-Boolean": "Boolean",
+  "vt-String": "String",
+  "vt-Object": "Object",
+  "vt-Array": "Array",
+  "vt-Function": "Function",
+  "vt-Invoking": "Invoking",
+  "vt-Tmpl": "Template",
+  "vt-BoolVar": "Bool Var",
+  "vt-GetVar": "Get Var",
+  "com-form": "Form",
+  "com-label": "Label",
+  "com-list": "list",
+  "hm-type-Array": "Array",
+  "hm-type-Boolean": "Boolean",
+  "hm-type-Group": "Group",
+  "hm-type-Integer": "Integer",
+  "hm-type-Number": "Number",
+  "hm-type-Object": "Object",
+  "hm-type-String": "String",
+  "hm-type-icons": {
+    "Array": "Zmdi-format-list-bulleted",
+    "Boolean": "Zmdi-toll",
+    "Group": "Zmdi-collection-bookmark",
+    "Integer": "Zmdi-n-6-square",
+    "Number": "Zmdi-input-svideo",
+    "Object": "Zmdi-toys",
+    "String": "Zmdi-translate"
+  },
+  "hmaker-com-conf-blank": "请选择一个控件设置其详情",
+  "hmaker-com-type-blank": "选择一个控件",
+  "hmaker-edit-form-del-group-all": "组以及全部字段",
+  "hmaker-edit-form-del-group-confirm": "您是要删除组以及其内的全部字段，还是仅是组？",
+  "hmaker-edit-form-del-group-only": "仅是组",
+  "hmaker-edit-form-field-nil": "请选择一个字段编辑详情",
+  "hmaker-edit-form-new-field": "新字段",
+  "hmaker-edit-form-new-field-e0": "字段名不能以数字开头，内容只能为小写英文字母数字和下划线",
+  "hmaker-edit-form-new-field-e1": "字段【${val}】已存在，请另选一个名称",
+  "hmaker-edit-form-new-field-tip": "请输入新字段名（只能为小写英文字母数字和下划线）",
+  "hmaker-edit-form-new-group": "新分组",
+  "hmaker-edit-form-new-group-tip": "请输入新分组名",
+  "hmaker-edit-form-nil-field": "请先选择一个字段",
+  "hmaker-edit-form-not-current": "请选择一个字段或者字段组",
+  "hmaker-nav-blank-item": "请选择一个导航项目编辑",
+  "hmaker-nav-k-display": "链接显示内容",
+  "hmaker-nav-k-icon": "链接图标",
+  "hmaker-nav-k-title": "链接文字",
+  "hmaker-nav-k-type": "链接类型",
+  "hmaker-nav-k-value": "链接目标",
+  "hmaker-nav-tp-dispatch": "方法调用",
+  "hmaker-nav-tp-href": "外部链接",
+  "hmaker-nav-tp-page": "站点页面",
+  "hmaker-site-k-apiBase": "接口路径",
+  "hmaker-site-k-base": "资源路径",
+  "hmaker-site-k-captcha": "验证码路径",
+  "hmaker-site-k-domain": "所属域",
+  "hmaker-site-k-entry": "着陆页",
+  "hmaker-site-prop": "站点属性",
+  "hmaker-site-state": "站点全局配置",
+  "hmaker-site-state-actions": "全局动作表",
+  "hmaker-site-state-apis": "接口集",
+  "hmaker-site-state-blocks": "预定义布局",
+  "hmaker-site-state-general": "通用配置",
+  "hmaker-site-state-nav": "全局导航条",
+  "hmaker-site-state-router": "页面路由",
+  "hmaker-site-state-schema": "预定义控件",
+  "hmaker-site-state-utils": "扩展函数",
+  "hmaker-site-tree": "站点结构",
+  "hmaker-site-tree-loading": "正在加载站点结构...",
+  "hmk-adjustDelay": "调整延迟",
+  "hmk-album-autofit": "Auto fit width",
+  "hmk-album-clrsz": "Clear album size",
+  "hmk-album-id": "Album ID",
+  "hmk-album-info": "Album information",
+  "hmk-album-margin": "Album margin",
+  "hmk-album-name": "Album name",
+  "hmk-album-prop": "Album prop",
+  "hmk-album-refresh": "Reload album",
+  "hmk-aspect": "外观",
+  "hmk-aspect-more": "Aspect",
+  "hmk-autoI18n": "国际化",
+  "hmk-autofit": "Auto fit width",
+  "hmk-autoscale": "Auto scale",
+  "hmk-behavior": "行为",
+  "hmk-blankAs": "空白样式",
+  "hmk-breakLine": "维持换行",
+  "hmk-class-at": "Position",
+  "hmk-class-at-bottom": "Bottom",
+  "hmk-class-at-bottom-left": "Left bottom",
+  "hmk-class-at-bottom-right": "Right bottom",
+  "hmk-class-at-center": "Center",
+  "hmk-class-at-left": "Left",
+  "hmk-class-at-right": "Right",
+  "hmk-class-at-top": "Top",
+  "hmk-class-at-top-left": "Left top",
+  "hmk-class-at-top-right": "Right top",
+  "hmk-class-flex": "Flex",
+  "hmk-class-flex-both": "Both",
+  "hmk-class-flex-grow": "Grow",
+  "hmk-class-flex-none": "None",
+  "hmk-class-flex-shrink": "Shrink",
+  "hmk-class-font-size": "Size",
+  "hmk-class-hover": "Hover effect",
+  "hmk-class-hover-to-scale": "Hover Scale",
+  "hmk-class-hover-to-up": "Hover Up",
+  "hmk-class-hover-to-zoom": "Hover Zoom",
+  "hmk-class-item-margin": "Item margin",
+  "hmk-class-item-padding": "Item padding",
+  "hmk-class-item-space": "Item space",
+  "hmk-class-object-fit": "Object fit",
+  "hmk-class-object-fit-contain": "Contain",
+  "hmk-class-object-fit-cover": "Cover",
+  "hmk-class-object-fit-fill": "Fill",
+  "hmk-class-object-fit-none": "None",
+  "hmk-class-pick": "Edit class selector",
+  "hmk-class-sz-lg": "LG",
+  "hmk-class-sz-md": "MD",
+  "hmk-class-sz-no": "None",
+  "hmk-class-sz-sm": "SM",
+  "hmk-class-sz-xl": "XL",
+  "hmk-class-sz-xs": "XS",
+  "hmk-class-text": "Text",
+  "hmk-class-text-at": "Text at",
+  "hmk-class-text-in": "Inside",
+  "hmk-class-text-mode": "Text mode",
+  "hmk-class-text-out": "Outside",
+  "hmk-class-text-side": "Text side",
+  "hmk-class-text-style": "Text style",
+  "hmk-class-text-wrap": "Text wrap",
+  "hmk-class-text-wrap-auto": "Auto",
+  "hmk-class-text-wrap-clip": "Clip",
+  "hmk-class-text-wrap-ellipsis": "Ellipsis",
+  "hmk-class-title-wrap": "Title wrap",
+  "hmk-class-ts-mask": "Mask",
+  "hmk-class-ts-shadow": "Shadow",
+  "hmk-class-word-break-all": "Break All",
+  "hmk-class-word-break-word": "Break Word",
+  "hmk-class-word-keep-all": "Keep All",
+  "hmk-config-choose": "Choose configuration",
+  "hmk-config-nil": "Fail to found configuration",
+  "hmk-css-align-center": "Center",
+  "hmk-css-align-justify": "Justify",
+  "hmk-css-align-left": "Left",
+  "hmk-css-align-right": "Right",
+  "hmk-css-background": "Background",
+  "hmk-css-background-color": "Bg Color",
+  "hmk-css-background-image": "Bg Image",
+  "hmk-css-background-position": "Bg Pos.",
+  "hmk-css-background-position-x": "Bg Pos X",
+  "hmk-css-background-position-y": "Bg Pos Y",
+  "hmk-css-background-repeat": "Bg Repeat",
+  "hmk-css-background-repeat-no": "No repeat",
+  "hmk-css-background-repeat-round": "Round",
+  "hmk-css-background-repeat-space": "Space",
+  "hmk-css-background-repeat-x": "Repeat X",
+  "hmk-css-background-repeat-y": "Repeat Y",
+  "hmk-css-background-repeat-yes": "Repeat",
+  "hmk-css-background-size": "Bg Size",
+  "hmk-css-background-size-auto": "Auto",
+  "hmk-css-background-size-contain": "Contain",
+  "hmk-css-background-size-cover": "Cover",
+  "hmk-css-background-size-full": "Full",
+  "hmk-css-border": "Border",
+  "hmk-css-border-radius": "Radius",
+  "hmk-css-box-shadow": "Box shadow",
+  "hmk-css-c-auto": "auto",
+  "hmk-css-color": "Color",
+  "hmk-css-edit": "Edit css",
+  "hmk-css-float": "Float",
+  "hmk-css-float-left": "Left",
+  "hmk-css-float-none": "None",
+  "hmk-css-float-right": "Right",
+  "hmk-css-font-size": "Font size",
+  "hmk-css-g-inherit": "inherit",
+  "hmk-css-g-initial": "initial",
+  "hmk-css-g-unset": "unset",
+  "hmk-css-grp-aspect": "Aspect setup",
+  "hmk-css-grp-background": "Background setup",
+  "hmk-css-grp-measure": "Measure setup",
+  "hmk-css-grp-texting": "Text setup",
+  "hmk-css-height": "Height",
+  "hmk-css-letter-spacing": "Letter space",
+  "hmk-css-line-height": "Line height",
+  "hmk-css-margin": "Margin",
+  "hmk-css-max-height": "Max height",
+  "hmk-css-max-width": "Max width",
+  "hmk-css-min-height": "Min height",
+  "hmk-css-min-width": "Min width",
+  "hmk-css-object-fit": "Obj fit",
+  "hmk-css-object-fit-contain": "Contain",
+  "hmk-css-object-fit-cover": "Cover",
+  "hmk-css-object-fit-fill": "Fill",
+  "hmk-css-object-fit-none": "None",
+  "hmk-css-object-fit-scale-down": "Scale",
+  "hmk-css-object-position": "Obj pos",
+  "hmk-css-opacity": "Opacity",
+  "hmk-css-overflow": "Overflow",
+  "hmk-css-overflow-clip": "clip",
+  "hmk-css-overflow-hidden": "hidden",
+  "hmk-css-overflow-scroll": "scroll",
+  "hmk-css-overflow-visible": "visible",
+  "hmk-css-padding": "Padding",
+  "hmk-css-text-align": "Text align",
+  "hmk-css-text-overflow": "Text overflow",
+  "hmk-css-text-overflow-clip": "Clip",
+  "hmk-css-text-overflow-ellipsis": "Ellipsis",
+  "hmk-css-text-shadow": "Text shadow",
+  "hmk-css-text-transform": "Text trans",
+  "hmk-css-text-transform-capitalize": "Cap",
+  "hmk-css-text-transform-lowercase": "Lower",
+  "hmk-css-text-transform-none": "None",
+  "hmk-css-text-transform-uppercase": "Upper",
+  "hmk-css-white-space": "Word wrap",
+  "hmk-css-white-space-break-space": "Keep primary and wrap (except space)",
+  "hmk-css-white-space-normal": "Normal",
+  "hmk-css-white-space-nowrap": "No wrap",
+  "hmk-css-white-space-pre": "Keep primary",
+  "hmk-css-white-space-pre-line": "Keep primary and wrap by line",
+  "hmk-css-white-space-pre-wrap": "Keep primary and wrap",
+  "hmk-css-width": "Width",
+  "hmk-currentTab": "Current tab",
+  "hmk-data": "Data",
+  "hmk-dict": "Dictionary",
+  "hmk-editable": "Editable",
+  "hmk-fb-album-autofit": "Facebook album auto fit width",
+  "hmk-fb-album-clrsz": "Clear facebook album size",
+  "hmk-fb-album-id": "Facebook album ID",
+  "hmk-fb-album-info": "Facebook album info",
+  "hmk-fb-album-margin": "Facebook album margin",
+  "hmk-fb-album-name": "Facebook album name",
+  "hmk-fb-album-prop": "Facebook album prop",
+  "hmk-fb-album-refresh": "Reload Facebook album",
+  "hmk-field-checkEquals": "检查相等",
+  "hmk-field-com": "编辑控件",
+  "hmk-field-defaultAs": "默认值",
+  "hmk-field-disabled": "失效条件",
+  "hmk-field-height": "高度",
+  "hmk-field-hidden": "隐藏条件",
+  "hmk-field-icon": "图标",
+  "hmk-field-name": "键名",
+  "hmk-field-serializer": "自定义保存",
+  "hmk-field-tip": "提示说明",
+  "hmk-field-title": "显示名",
+  "hmk-field-transformer": "自定义转换",
+  "hmk-field-type": "类型",
+  "hmk-field-width": "宽度",
+  "hmk-fieldStatus": "字段状态",
+  "hmk-fields": "字段",
+  "hmk-fields-advance": "高级",
+  "hmk-fields-general": "基本",
+  "hmk-float": "Float",
+  "hmk-float-clear": "Clear float",
+  "hmk-float-left": "Float left",
+  "hmk-float-none": "Float none",
+  "hmk-float-right": "Float right",
+  "hmk-form-data": "Data",
+  "hmk-form-height": "Form height",
+  "hmk-form-onlyFields": "Fields only",
+  "hmk-form-width": "Form width",
+  "hmk-format": "Format",
+  "hmk-height": "Height",
+  "hmk-href": "Link",
+  "hmk-icon": "Form icon",
+  "hmk-layout-cols": "Columns",
+  "hmk-layout-falls": "Falls",
+  "hmk-layout-rows": "Rows",
+  "hmk-layout-tabs": "Tabs",
+  "hmk-layout-wall": "Wall",
+  "hmk-margin-center": "Margin center",
+  "hmk-margin-lg": "Large margin",
+  "hmk-margin-md": "Middle margin",
+  "hmk-margin-no": "No margin",
+  "hmk-margin-sm": "Small margin",
+  "hmk-measure": "Measure",
+  "hmk-mode": "Display mode",
+  "hmk-mode-all": "All",
+  "hmk-mode-tab": "Tab",
+  "hmk-newTab": "New tab",
+  "hmk-placeholder": "Placeholder",
+  "hmk-prefixIcon": "Prefix icon",
+  "hmk-prefixText": "Prefix text",
+  "hmk-size": "Size",
+  "hmk-spacing": "Spacing",
+  "hmk-spacing-comfy": "Comfy",
+  "hmk-spacing-tiny": "Tiny",
+  "hmk-style-adv": "Adv style",
+  "hmk-style-brief": "Brief style",
+  "hmk-style-exlink": "Ex-Link",
+  "hmk-style-image": "Image style",
+  "hmk-style-inside": "Inner style",
+  "hmk-style-outside": "Outer style",
+  "hmk-style-part-left": "Left part",
+  "hmk-style-part-right": "Right part",
+  "hmk-style-tile": "Tile style",
+  "hmk-style-title": "Title style",
+  "hmk-suffixIcon": "Suffix icon",
+  "hmk-suffixText": "Suffix text",
+  "hmk-tabAt": "Tab at",
+  "hmk-tabAt-bottom-center": "Bottom Center",
+  "hmk-tabAt-bottom-left": "Bottom Left",
+  "hmk-tabAt-bottom-right": "Bottom Right",
+  "hmk-tabAt-top-center": "Top Center",
+  "hmk-tabAt-top-left": "Top Left",
+  "hmk-tabAt-top-right": "Top Right",
+  "hmk-title": "Form title",
+  "hmk-trimed": "Trimed",
+  "hmk-value": "Value",
+  "hmk-valueMaxWidth": "Val Max-W",
+  "hmk-w-edit-album-autoopen": "Auto open",
+  "hmk-w-edit-album-fullpreview": "Full screen",
+  "hmk-w-edit-album-prop": "Edit album properties",
+  "hmk-w-edit-alt-style": "Alt style",
+  "hmk-w-edit-attachment": "Attachment",
+  "hmk-w-edit-attachment-clrsz": "Clear attachment size",
+  "hmk-w-edit-attachment-margin": "Attachment margin",
+  "hmk-w-edit-attachment-prop": "Attachment prop",
+  "hmk-w-edit-audio-clrsz": "Clear audio size",
+  "hmk-w-edit-audio-margin": "Audio margin",
+  "hmk-w-edit-audio-prop": "Audio properties",
+  "hmk-w-edit-fb-album-prop": "Edit facebook album properties",
+  "hmk-w-edit-img-clrsz": "Clear image size",
+  "hmk-w-edit-img-info": "Image info",
+  "hmk-w-edit-img-link": "Image Link",
+  "hmk-w-edit-img-link-tip": "Such as: http://xxxx",
+  "hmk-w-edit-img-margin": "Image magin",
+  "hmk-w-edit-img-newtab": "Newtab",
+  "hmk-w-edit-img-pic": "Picture",
+  "hmk-w-edit-img-prop": "Image prop",
+  "hmk-w-edit-img-style": "Edit image style",
+  "hmk-w-edit-img-title": "Image title",
+  "hmk-w-edit-img-title-tip": "Please enter image title",
+  "hmk-w-edit-video-clrsz": "Clear video size",
+  "hmk-w-edit-video-margin": "Video margin",
+  "hmk-w-edit-video-prop": "Video prop",
+  "hmk-w-edit-yt-playlist": "Edit playlist properties",
+  "hmk-w-edit-yt-video": "Edit Youtube video proerties",
+  "hmk-w-edit-yt-video-features": "Video features",
+  "hmk-width": "Width",
+  "hmk-yt-playlist-autofit": "YT playlist auto fit width",
+  "hmk-yt-playlist-clrsz": "Clear YT playlist size",
+  "hmk-yt-playlist-id": "Playlist ID",
+  "hmk-yt-playlist-info": "YT playlist info",
+  "hmk-yt-playlist-margin": "YT playlist margin",
+  "hmk-yt-playlist-name": "Playlist name",
+  "hmk-yt-playlist-prop": "YT playlist prop",
+  "hmk-yt-playlist-refresh": "Reload YT playlist",
+  "hmr-t-thing_create": "Create Thing",
+  "hmr-t-thing_update": "Update Thing",
+  "hmr-t-thing_delete": "Delete Thing",
+  "hmr-t-thing_clear": "Clear Thing",
+  "hmr-t-obj_create": "Create Obj",
+  "hmr-t-obj_update": "Update Obj",
+  "hmr-t-obj_delete": "Delete Obj",
+  "hmr-t-obj_clear": "Clear Obj",
+  "hmr-t-exec": "Run Script",
+  "hmr-t-jsc": "Run JS",
+  "hmr-add-react-item": "Add React Item",
+  "hmr-add-action": "Add New Action"
+});
+//========================================
+// JOIN <ti-datetime.i18n.json> ti/i18n/en-uk/ti-datetime.i18n.json
+//========================================
+Ti.Preload("ti/i18n/en-uk/ti-datetime.i18n.json", {
+  "Apr": "April",
+  "Aug": "August",
+  "Dec": "December",
+  "Feb": "February",
+  "Fri": "Fri",
+  "Friday": "Friday",
+  "Jan": "January",
+  "Jul": "July",
+  "Jun": "June",
+  "Mar": "March",
+  "May": "May",
+  "Mon": "Mon",
+  "Monday": "Monday",
+  "Nov": "November",
+  "Oct": "October",
+  "Sat": "Sat",
+  "Saturday": "Saturday",
+  "Sep": "September",
+  "Sun": "Sun",
+  "Sunday": "Sunday",
+  "Thu": "Thu",
+  "Thursday": "Thursday",
+  "Tue": "Tue",
+  "Tuesday": "Tuesday",
+  "Wed": "Wed",
+  "Wednesday": "Wednesday",
+  "blank-date": "Select a date",
+  "blank-date-range": "Select a date range",
+  "blank-datetime": "Select datetime",
+  "blank-month": "Select month",
+  "blank-time": "Select time",
+  "blank-time-range": "Select a time range",
+  "cal": {
+    "abbr": {
+      "Apr": "Apr",
+      "Aug": "Aug",
+      "Dec": "Dec",
+      "Feb": "Feb",
+      "Jan": "Jan",
+      "Jul": "Jul",
+      "Jun": "Jun",
+      "Mar": "Mar",
+      "May": "May",
+      "Nov": "Nov",
+      "Oct": "Oct",
+      "Sep": "Sep"
+    },
+    "d-range-beyond-days": "${yy0}-${MM0}-${dd0} to ${dd1}",
+    "d-range-beyond-months": "${yy0}-${MM0}-${dd0} to ${MM1}-${dd1}",
+    "d-range-beyond-years": "${yy0}-${MM0}-${dd0} to ${yy1}-${MM1}-${dd1}",
+    "d-range-in-same-day": "${yy0}-${MM0}-${dd0} whole day",
+    "m-range-beyond-months": "${yy0}-${MT0} to ${MT1}",
+    "m-range-beyond-years": "${yy0}-${MT0} to ${yy1}-${MT1}",
+    "week": ["S", "M", "T", "W", "T", "F", "S"]
+  },
+  "du-in-min": "${n}Min",
+  "time": {
+    "any-time": "yyyy-M-d",
+    "in-year": "M-dd",
+    "past-in-min": "Just now",
+    "past-in-hour": "In ${min}mins",
+    "past-in-day": "In ${hour}hours",
+    "past-in-week": "In ${day}days",
+    "future-in-min": "Soon",
+    "future-in-hour": "After ${min}mins",
+    "future-in-day": "After ${hour}hours",
+    "future-in-week": "After ${day}days"
+  },
+  "time-begin": "Begin Time",
+  "time-end": "End Time",
+  "time-ms": "Ms",
+  "today": "Today",
+  "tu-day": "Day",
+  "tu-hou": "Hr",
+  "tu-min": "Min",
+  "tu-mon": "Month",
+  "tu-sec": "Sec",
+  "tu-week": "Week",
+  "tu-year": "Year",
+  "dt-range-from": "From",
+  "dt-range-to": "to",
+  "dt-range-unknown": "Unknown time range",
+  "date-fmt": "yyyy-MM-dd"
+});
+//========================================
+// JOIN <ti-text-editor.i18n.json> ti/i18n/en-uk/ti-text-editor.i18n.json
+//========================================
+Ti.Preload("ti/i18n/en-uk/ti-text-editor.i18n.json", {
+  "wordp-h0": "Main",
+  "wordp-h1": "Heading 1",
+  "wordp-h2": "Heading 2",
+  "wordp-h3": "Heading 3",
+  "wordp-h4": "Heading 4",
+  "wordp-h5": "Heading 5",
+  "wordp-h6": "Heading 6",
+  "wordp-heading": "Heading levels",
+  "wordp-link": "Hyperlink",
+  "wordp-nil-sel": "Please select a paragraph first"
+});
+//========================================
+// JOIN <web.i18n.json> ti/i18n/en-uk/web.i18n.json
+//========================================
+Ti.Preload("ti/i18n/en-uk/web.i18n.json", {
+  "account": "Account",
+  "account-add": "Add account",
+  "account-flt-tip": "Filter by account name",
+  "account-manage": "Accounts",
+  "account-meta": "Account properties",
+  "account-meta-tip": "Choose an account for detail",
+  "address-consignee": "Consignee",
+  "address-empty-list": "No shipping address",
+  "address-flt-tip": "Filter by address name",
+  "address-is-dft": "Default shipping address",
+  "address-k-area": "Area",
+  "address-k-city": "City",
+  "address-k-code": "Addr code",
+  "address-k-code-tip": "Your postcode",
+  "address-k-consignee": "Consignee",
+  "address-k-country": "Country",
+  "address-k-dftaddr": "Default address",
+  "address-k-door": "Door",
+  "address-k-email": "Email",
+  "address-k-phone": "Phone",
+  "address-k-postcode": "Postcode",
+  "address-k-province": "Province",
+  "address-k-street": "Street",
+  "address-k-title": "Address",
+  "address-k-tp": "Addr Type",
+  "address-k-tp-s": "SELLER",
+  "address-k-tp-u": "USER",
+  "address-k-uid": "User",
+  "address-k-uid-tip": "Filter by username",
+  "address-meta": "Address properties",
+  "address-nil": "Address blank",
+  "address-nil-detail": "Select an address for details",
+  "address-rm-confirm": "Are you sure you want to delete this address?",
+  "address-set-dft": "Set as default address",
+  "address-shipping-add": "Add shipping address",
+  "admin-flt-tip": "Filter by admin name",
+  "admin-meta": "Admin properties",
+  "admin-new": "New admin",
+  "admin-nickname": "Admin nickname",
+  "admin-no-detail": "Select an admin for detail",
+  "ar-cate": "Catetory",
+  "ar-content": "Content",
+  "ar-duration": "Reading time",
+  "ar-flt-tip": "Filter by article title",
+  "ar-meta": "Article property",
+  "ar-meta-tip": "Choose an article for detail",
+  "ar-new": "New article",
+  "ar-nm": "Name",
+  "ar-pubat": "Publish at",
+  "ar-thumb": "Thumbnail",
+  "ar-title": "Title",
+  "ar-watch-c": "Watch count",
+  "auth-bind": "Bind",
+  "auth-bind-email-title": "Bind email",
+  "auth-bind-phone-title": "Bind phone",
+  "auth-blank-email": "Blank email address not allowed",
+  "auth-blank-name": "Blank name not allowed",
+  "auth-blank-name-passwd": "Blank name or password",
+  "auth-blank-phone": "Blank phone number not allowd",
+  "auth-doing": "Verifying",
+  "auth-email-tip": "Email address",
+  "auth-email-title": "Sign by email",
+  "auth-email-vcode": "Email password",
+  "auth-email-vcode-get": "Get email password",
+  "auth-go-email": "Sign by email",
+  "auth-go-passwd": "Sign in by password",
+  "auth-go-phone": "Sign by sms",
+  "auth-login": "Sign in",
+  "auth-login-NoSaltedPasswd": "Please switch to sign by [${ta?password}]，after sign in, go to [profile > reset password] to setup your password, thanks.",
+  "auth-login-or-signup": "Sign up or sign in",
+  "auth-logout-confirm": "Are you sure you want to log out?",
+  "auth-ok": "Verify successful",
+  "auth-passwd-getback": "Get back password",
+  "auth-passwd-name-email-tip": "Email/Name",
+  "auth-passwd-name-phone-tip": "Phone/Name",
+  "auth-passwd-tip": "Password",
+  "auth-passwd-title": "Sign in by password",
+  "auth-phone-tip": "Phone number",
+  "auth-phone-title": "Sign by sms",
+  "auth-phone-vcode": "SMS password",
+  "auth-phone-vcode-get": "Get sms password",
+  "auth-reset-passwd": "Reset password ...",
+  "auth-reset-passwd-again": "Reset password again",
+  "auth-reset-passwd-btn-invalid": "Illegal characters",
+  "auth-reset-passwd-btn-lack": "Lack information",
+  "auth-reset-passwd-btn-ready": "Reset password",
+  "auth-reset-passwd-btn-short": "Password too short (at least 6 chars)",
+  "auth-reset-passwd-btn-unmatch": "The password is not consistent",
+  "auth-reset-passwd-by-email": "Reset password by email",
+  "auth-reset-passwd-by-email-sent": "The email password has been sent to your registered email address ${email}",
+  "auth-reset-passwd-by-email-tip": "Registered email address",
+  "auth-reset-passwd-by-passwd": "Reset by old password",
+  "auth-reset-passwd-by-phone": "Reset by sms",
+  "auth-reset-passwd-by-phone-sent": "The sms password has been sent to your mobile phone ${phone}",
+  "auth-reset-passwd-by-phone-tip": "Registered phone number",
+  "auth-reset-passwd-ing": "Reseting password ...",
+  "auth-reset-passwd-lack-email": "Please enter your registered email address",
+  "auth-reset-passwd-lack-phone": "Please enter your registered mobile phone number",
+  "auth-reset-passwd-new": "New password (at least 6 chars)",
+  "auth-reset-passwd-ok": "The password has been reset and will take effect the next time you log in",
+  "auth-reset-passwd-old": "Old password",
+  "auth-reset-passwd-ren": "Reconfirm",
+  "auth-sending-vcode": "Sending verification code",
+  "auth-sent-ok": "${ta?Password} has been sent, please check in ${by} in ${min} minutes",
+  "auth-ta-by-email": "Your email",
+  "auth-ta-by-phone": "Your sms",
+  "auth-ta-email": "Email password",
+  "auth-ta-phone": "SMS password",
+  "auth-vcode-delay": "Resend after ${sec}s",
+  "auth-vcode-lost": "Can't get password?",
+  "base-info": "Base info",
+  "blog": "Blog",
+  "blog-manage": "Blog management",
+  "buy-checkout-nil": "You have nothing to checkout",
+  "cate": "Category",
+  "cate-flt-tip": "Filter by category name",
+  "cate-maj": "Major category",
+  "cate-meta": "Category properties",
+  "cate-new": "New category",
+  "cate-nil-tip": "Select a category",
+  "cate-no-detail": "Select a category for details",
+  "cate-pa": "Parent category",
+  "cate-pa-nil": "Select a parent category",
+  "cate-sub": "Child category",
+  "cate-sub-nil": "Select a child category",
+  "cate-val": "Category value",
+  "cmt-brief": "Comment brief",
+  "cmt-content": "Comment content",
+  "cmt-flt-tip": "Filter by a user id or comment",
+  "cmt-meta": "Comment properties",
+  "cmt-no-detail": "Select a role for detail",
+  "cmt-target": "Comment target",
+  "cmt-type": "Comment type",
+  "cmt-user": "Comment account",
+  "comments": "COMMENTS",
+  "cover": "Cover",
+  "cover-pic": "Cover pic",
+  "detail-info": "Detail info",
+  "dir-media": "Media dir",
+  "e-cmd-passwd-old_invalid": "Old Password Invalid",
+  "e-cmd-www_passwd-Blank": "Blank new password not allowed",
+  "e-cmd-www_passwd-CheckBlankAccount": "Blank account",
+  "e-cmd-www_passwd-CheckBlankCode": "Blank code",
+  "e-cmd-www_passwd-CheckCodeFail": "Invalid code",
+  "e-cmd-www_passwd-CheckFailed": "Verify failed",
+  "e-cmd-www_passwd-CheckWeirdAccount": "Weird account",
+  "e-cmd-www_passwd-InvalidNewPasswd": "Invalid new password",
+  "e-cmd-www_passwd-LackTarget": "Missing target",
+  "e-cmd-www_passwd-TooShort": "The new password is too short",
+  "e-cmd-www_passwd-nopvg": "No permission to reset passwords",
+  "e-run-action-test-fail": "Insufficient action preconditions",
+  "e-www-captcha-fail_send_by_email": "The email failed to send. Please check the account",
+  "e-www-invalid-captcha": "Invalid ${ta?captcha}",
+  "e-www-login-invalid-passwd": "Invalid password",
+  "e-www-login-noexists": "Account not exists",
+  "e-www-order-OutOfStore": "Goods ${val?} insufficient stock",
+  "invoice-k-bankaccount": "Bank account",
+  "invoice-k-bankname": "Bank",
+  "invoice-k-busiaddr": "Biz address",
+  "invoice-k-busiphone": "Biz phone",
+  "invoice-k-invdft": "Default title",
+  "invoice-k-invtfn": "TFN",
+  "invoice-k-invtitle": "Invoice title",
+  "invoice-k-type": "Invoice Type",
+  "invoice-k-uemail": "Taker email",
+  "invoice-k-uid": "Owner account",
+  "invoice-k-uid-tip": "Filter by username",
+  "invoice-k-uname": "Taker name",
+  "invoice-k-uphone": "Taker phone",
+  "invoice-kg-bank": "Bank info",
+  "invoice-kg-busi": "Biz info",
+  "invoice-kg-inv": "Invoice info",
+  "invoice-kg-u": "Taker info",
+  "k-ct-date": "Create date",
+  "k-lm": "Last modifed",
+  "me-k-account": "Account",
+  "me-k-avatar": "Avatar",
+  "me-k-city": "City",
+  "me-k-country": "Country",
+  "me-k-dept": "Department",
+  "me-k-email": "Email",
+  "me-k-job": "Jobs",
+  "me-k-job-tip": "Select jobs",
+  "me-k-login": "Login",
+  "me-k-nickname": "Nickname",
+  "me-k-nm": "Login name",
+  "me-k-phone": "Phone",
+  "me-k-role": "Role",
+  "me-k-sex": "Gender",
+  "mine": "Mine",
+  "my-favors": "My favorite",
+  "my-favors-blog": "Favorite blog",
+  "my-favors-goods": "Favorite goods",
+  "my-favors-posts": "Favorite posts",
+  "my-favors-spots": "Favorite spots",
+  "my-favors-video": "Favorite video",
+  "my-orders": "My orders",
+  "my-orders-shop": "Shopping orders",
+  "my-orders-video": "VOD order",
+  "my-passwd": "Reset password",
+  "my-profile": "My profile",
+  "my-shipping-address": "Shipping address",
+  "my-shopping-car": "Shopping car",
+  "or-st-ca": "Canceled",
+  "or-st-dn": "Done",
+  "or-st-fa": "Fail to create order",
+  "or-st-nw": "New order",
+  "or-st-ok": "Pay ok",
+  "or-st-sp": "Shipped",
+  "or-st-wt": "Wait for pay",
+  "ord-detail": "Order detail",
+  "order-flt-tip": "Query by order id",
+  "order-k-accounts": "Accounts",
+  "order-k-addr_ship": "Ship address",
+  "order-k-addr_ship_code": "Ship code",
+  "order-k-addr_ship_country": "Ship country",
+  "order-k-addr_ship_door": "Ship door",
+  "order-k-addr_user": "User address",
+  "order-k-addr_user_area": "Area",
+  "order-k-addr_user_city": "City",
+  "order-k-addr_user_code": "User code",
+  "order-k-addr_user_country": "User country",
+  "order-k-addr_user_door": "User door",
+  "order-k-addr_user_province": "Province",
+  "order-k-addr_user_street": "Street",
+  "order-k-buyer_id": "Buyer",
+  "order-k-ca_at": "Cancel at",
+  "order-k-currency": "Currency",
+  "order-k-discount": "Discount",
+  "order-k-dn_at": "Done at",
+  "order-k-fa_at": "Fail at",
+  "order-k-fee": "Payment amount",
+  "order-k-freight": "Freight",
+  "order-k-freight-m": "Alt Freight",
+  "order-k-freight-m-tip": "Enter 0 to waive shipping costs",
+  "order-k-id": "Order id",
+  "order-k-invoice": "Invoice",
+  "order-k-nominal": "Nominal",
+  "order-k-note": "Note",
+  "order-k-ok_at": "OK at",
+  "order-k-pay_id": "Payment id",
+  "order-k-pay_tp": "Pay type",
+  "order-k-payment": "Total",
+  "order-k-prefee": "Base price",
+  "order-k-prefee-m": "Alt Total",
+  "order-k-prefee-m-tip": "Enter the new total price",
+  "order-k-price": "Order price",
+  "order-k-pro-amount": "Amount",
+  "order-k-pro-price": "Price",
+  "order-k-pro-retail": "Retail",
+  "order-k-pro-subretail": "Sub-Retail",
+  "order-k-pro-subtotal": "Subtotal",
+  "order-k-pro-title": "Product Title",
+  "order-k-products": "Goods",
+  "order-k-profit": "Profit",
+  "order-k-seller": "Seller",
+  "order-k-sp_at": "Shipping at",
+  "order-k-st": "Order status",
+  "order-k-title": "Order title",
+  "order-k-total": "Total",
+  "order-k-user_email": "User email",
+  "order-k-user_name": "User name",
+  "order-k-user_phone": "User phone",
+  "order-k-waybil": "Waybil",
+  "order-k-waybil_com": "Waybil COM",
+  "order-k-waybil_nb": "Waybil NB",
+  "order-k-wt_at": "Pay at",
+  "order-nil-detail": "Please select an order for details",
+  "order-pay-id": "Pay ID",
+  "order-pay-status": "Payment status",
+  "order-shipaddr-nil": "Please specify a shipping address",
+  "passwd-invalid-char": "Passwords can only include english numbers/upper and lower case letters/and special characters",
+  "passwd-sl-1": "Weak",
+  "passwd-sl-2": "Weaker",
+  "passwd-sl-3": "Normal",
+  "passwd-sl-4": "Stronger",
+  "passwd-sl-5": "Strong",
+  "passwd-tip": "Please enter a combination of english numerals/upper and lower case letters/special characters with a minimum of 6 characters",
+  "pay-by-free": "Free",
+  "pay-by-paypal": "PayPal",
+  "pay-by-wx-jsapi": "WeChat jsapi",
+  "pay-by-wx-qrcode": "WeChat scan code",
+  "pay-by-wx-scan": "WeChat payment code",
+  "pay-by-zfb-qrcode": "Alipay scan code",
+  "pay-by-zfb-scan": "Alipay payment code",
+  "pay-checkout-it-amount": "Amount",
+  "pay-checkout-it-name": "Name",
+  "pay-checkout-it-price": "Price",
+  "pay-checkout-it-subtotal": "Subtotal",
+  "pay-checkout-tip": "Please confirm the quantity and amount of your purchase",
+  "pay-paypal": "PayPal",
+  "pay-proceed-check": "Check payment",
+  "pay-proceed-ing": "Checking for...",
+  "pay-re-fail": "Payment failure",
+  "pay-re-nil": "The payoff is a schrodinger's cat",
+  "pay-re-ok": "Payment success",
+  "pay-re-wait": "Pending payment",
+  "pay-step-checkout-title": "Confirm order",
+  "pay-step-choose-nil": "☝ please select one of the above payment methods 👆",
+  "pay-step-choose-tip": "You may choose any of the following payment methods to pay for this order",
+  "pay-step-choose-tip2": "You will pay for this order using ${val}",
+  "pay-step-choose-title": "Mode of payment",
+  "pay-step-choose-title2": "Choose payment",
+  "pay-step-done-title": "Done",
+  "pay-step-proceed-create-order": "Creating order ...",
+  "pay-step-proceed-fetch-order": "Getting order ...",
+  "pay-step-proceed-nil": "Please choose a method of payment",
+  "pay-step-proceed-tip": "Pay for this order with ${val}",
+  "pay-step-proceed-title": "Pay",
+  "pay-tip-wx-qrcode": "Please pay in wechat scan within 15 minutes",
+  "pay-tip-zfb-qrcode": "Please pay by alipay scan code within 15 minutes",
+  "pay-title": "Payment",
+  "pay-wx": "WeChat",
+  "pay-zfb": "Alipay",
+  "paypal-amount_value": "Payment Amount",
+  "paypal-approve-tip": "Already in the new tab for you to open the paypal payment page, if there is no open, please click on ☝ the icon above. after payment, the page will automatically perceive, if there is no response, try to click 👇 [check payment] button below.",
+  "paypal-cap-id": "Capture ID",
+  "paypal-cap-status": "Capture status",
+  "paypal-currency": "Currency",
+  "paypal-id": "PayPal TID",
+  "paypal-payer_email": "Payer email",
+  "paypal-payer_id": "Payer ID",
+  "photo": "Photo",
+  "post-content-blank": "The content you post cannot be empty or less than 10 words",
+  "profile-title": "My profile",
+  "pubat": "Release date",
+  "read-du": "Reading spend",
+  "role": "Role",
+  "role-add": "Add role",
+  "role-as-domain": "Domain role",
+  "role-as-domain-admin": "Admin",
+  "role-as-domain-guest": "Guest",
+  "role-as-domain-member": "Member",
+  "role-as-guest": "Guest",
+  "role-as-normal": "Normal",
+  "role-as-op": "Op role",
+  "role-as-vip": "VIP",
+  "role-dft": "Default role",
+  "role-flt-tip": "Filter by role name",
+  "role-manage": "Roles",
+  "role-meta": "Role propery",
+  "role-meta-tip": "Choose an role for detail",
+  "role-name": "Role name",
+  "role-select-tip": "Select role",
+  "role-val": "Role value",
+  "shop-basket-clean-confirm": "Are you sure you want to empty the shopping cart? this is an operation that cannot be undone.",
+  "shop-basket-remove-confirm": "Are you sure you want to remove this item from your shopping cart?",
+  "topic": "Topic",
+  "type-new": "New type",
+  "video-title": "Video title",
+  "watch_c": "View count",
+  "waybil-com-ane": "AN NENG Logistics",
+  "waybil-com-best": "BAISHI Express",
+  "waybil-com-db": "DE BANG Express",
+  "waybil-com-ems": "EMS Logistics",
+  "waybil-com-jdl": "JING DONG Logistics",
+  "waybil-com-pj": "PIN JUN Express",
+  "waybil-com-sf": "SHUN FENG Express",
+  "waybil-com-sto": "SHEN TONG Express",
+  "waybil-com-uce": "YOU SU Express",
+  "waybil-com-yto": "YUAN TONG Express",
+  "waybil-com-yunda": "YUN DA Express",
+  "waybil-com-zto": "ZHONG TONG Express"
+});
+//========================================
+// JOIN <wn-manager.i18n.json> ti/i18n/en-uk/wn-manager.i18n.json
+//========================================
+Ti.Preload("ti/i18n/en-uk/wn-manager.i18n.json", {
+  "ti-loading": "Load...",
+  "wn-adaptlist": "Object explorer",
+  "wn-create-fail": "Fail to create",
+  "wn-create-invalid": "Illegal characters in object name",
+  "wn-create-ok": "Create ok",
+  "wn-create-too-long": "Object name too long",
+  "wn-del-confirm": "Are you sure you want to delete the selected ${N} items? This is an irrevocable operation!",
+  "wn-del-item": "Deleting: \"${name}\"",
+  "wn-del-no-empty-folder": "The directory \"${nm}\" is not empty, do you want to delete all? click \"no\" to skip",
+  "wn-del-none": "Please select at least one file to delete!",
+  "wn-del-ok": "${N} objects have been removed",
+  "wn-download-dir": "Object \"${nm}\" is a directory, click \"continue\" to skip it and download the next file, and click \"terminate\" to end this operation!",
+  "wn-download-none": "Please select at least one file to download!",
+  "wn-download-too-many": "We are going to download ${n} files one by one. continue?",
+  "wn-expose-hidden-off": "Not show hidden objects",
+  "wn-expose-hidden-on": "Show hidden objects",
+  "wn-gui": "General gui",
+  "wn-list-view-type": "View Type",
+  "wn-move-to-confirm": "Are you sure you want to move the selected ${N} items? This is an irrevocable operation!",
+  "wn-move-to-none": "Please select at least one file to move!",
+  "wn-move-to-ok": "${N} objects have been moved",
+  "wn-obj-preview": "Object preview",
+  "wn-obj-puretext": "Plain text editor",
+  "wn-obj-single-com": "Single control test suite",
+  "wn-publish-done": "Publish success",
+  "wn-publish-to-nil": "No publish target is set",
+  "wn-publish-to-noexist": "The publish target does not exist",
+  "wn-rename": "Rename object \"${name}\"",
+  "wn-rename-fail": "Rename failed",
+  "wn-rename-invalid": "The name cannot contain illegal characters",
+  "wn-rename-none": "Please select a file to rename!",
+  "wn-rename-ok": "Rename successful",
+  "wn-rename-suffix-changed": "Your file suffix name has changed. do you need to complete the original suffix for you automatically?",
+  "wn-rename-too-long": "The name is too long",
+  "wn-thing-manager": "Data manager",
+  "wn-view-opening": "Loading gui..."
+});
+//========================================
+// JOIN <wn-obj-preview.i18n.json> ti/i18n/en-uk/wn-obj-preview.i18n.json
+//========================================
+Ti.Preload("ti/i18n/en-uk/wn-obj-preview.i18n.json", {
+  "wop-fullscreen-enter": "Enter fullscreen",
+  "wop-fullscreen-quit": "Exit fullscreen"
+});
+//========================================
+// JOIN <wn-thing.i18n.json> ti/i18n/en-uk/wn-thing.i18n.json
+//========================================
+Ti.Preload("ti/i18n/en-uk/wn-thing.i18n.json", {
+  "e-thing-ukey-duplicated": "Unique key exists",
+  "thing-clean": "Empty the recycle bin",
+  "thing-cleaning": "Cleaning...",
+  "thing-content": "Object content",
+  "thing-content-hide": "Hide content",
+  "thing-content-show": "Show content",
+  "thing-create": "New object",
+  "thing-create-in-recyclebin": "Exit recycle bin before create object",
+  "thing-enter-recyclebin": "Enter recyclebin",
+  "thing-export-c-expi": "Expire in",
+  "thing-export-c-expi-14d": "14Days",
+  "thing-export-c-expi-3d": "3Days",
+  "thing-export-c-expi-7d": "7Days",
+  "thing-export-c-expi-off": "Never",
+  "thing-export-c-mapping": "Mapping",
+  "thing-export-c-mode": "Export mode",
+  "thing-export-c-mode-csv": "CSV File",
+  "thing-export-c-mode-json": "JSON",
+  "thing-export-c-mode-xls": "Spreadsheet",
+  "thing-export-c-mode-zip": "Zip data",
+  "thing-export-c-name": "Export name",
+  "thing-export-c-page": "Data scope",
+  "thing-export-c-page-all": "All page",
+  "thing-export-c-page-current": "Current page",
+  "thing-export-done": "Finished",
+  "thing-export-done-ok": "Export success",
+  "thing-export-done-tip": "Please click the link below to download",
+  "thing-export-ing": "Processing",
+  "thing-export-ing-tip": "The export script is running, please wait for a while",
+  "thing-export-open-dir": "Open export history dir...",
+  "thing-export-setup": "Export setup",
+  "thing-files": "Object files",
+  "thing-files-attachment": "Attachments",
+  "thing-files-hide": "Hide files",
+  "thing-files-media": "Medias",
+  "thing-files-show": "Show files",
+  "thing-filter-kwdplhd": "Enter the query criteria",
+  "thing-leave-recyclebin": "Leave recyclebin",
+  "thing-meta": "Object properties",
+  "thing-meta-hide": "Hide properties",
+  "thing-meta-show": "Show properties",
+  "thing-recycle-bin": "Recycle bin",
+  "thing-restore": "Restore",
+  "thing-restore-none": "Select the data you want to recover first",
+  "thing-restoring": "Restoring..."
+});
+//========================================
+// JOIN <_net.i18n.json> ti/i18n/en-uk/_net.i18n.json
+//========================================
+Ti.Preload("ti/i18n/en-uk/_net.i18n.json", {
+  "net-ct": "Created",
+  "net-fb-reload-album-cover": "Force reload album cover",
+  "net-fb-relogin": "Relogin FB account",
+  "net-flt-nil": "Query by name",
+  "net-vod-add-video": "Add video",
+  "net-vod-cate": "Category",
+  "net-vod-du-long": "Long video",
+  "net-vod-du-short": "Short video",
+  "net-vod-du-tv": "TV",
+  "net-vod-duration": "Duration",
+  "net-vod-size": "Video size",
+  "net-vod-video-nil": "Please choose one video for detail",
+  "net-youtube": "Youtube",
+  "net-youtube-add-video": "Add youtube video"
+});
+//========================================
+// JOIN <_ti.i18n.json> ti/i18n/en-uk/_ti.i18n.json
+//========================================
+Ti.Preload("ti/i18n/en-uk/_ti.i18n.json", {
+  "submit": "Submit",
+  "customize": "Customize",
+  "setup": "Setup",
+  "setup-fields": "Setup Fields",
+  "setup-reset": "Setup Clean",
+  "target": "Target",
+  "target-id": "Target ID",
+  "target-name": "Target name",
+  "target-path": "Target path",
+  "params": "Params",
+  "query": "Query",
+  "skip": "Skip",
+  "limit": "Limit",
+  "add": "Add",
+  "add-item": "New item",
+  "add-now": "Add Now",
+  "album": "Album",
+  "album-add": "Add album",
+  "album-clrsz": "Clear album size",
+  "album-insert": "Insert album",
+  "album-margin": "Album margin",
+  "album-prop": "Album prop",
+  "album-refresh": "Refresh album",
+  "albums": "Albums",
+  "all": "All",
+  "allowfullscreen": "Allow fullscreen",
+  "amount": "Amount",
+  "attachment": "Attachment",
+  "attachment-add": "Add attachmemt",
+  "attachment-insert": "Insert attachment",
+  "attachments": "Attachments",
+  "audio": "Audio",
+  "audio-add": "Add audio",
+  "audio-insert": "Insert audio",
+  "audios": "Audios",
+  "avatar": "Avatar",
+  "back": "Back",
+  "back-to-list": "Back to list",
+  "banner": "Banner",
+  "batch-none": "Please choose at least one item for batch updating",
+  "batch-update": "Batch update",
+  "blank": "BLANK",
+  "blank-to-edit": "Please choose item for editing",
+  "bottom": "Bottom",
+  "brief": "Brief",
+  "brief-d": "Brief",
+  "brief-i": "Brief",
+  "buy": "Buy",
+  "buy-now": "Buy now",
+  "cancel": "Cancel",
+  "cancel-all": "Cancel all",
+  "candidate": "Candidations",
+  "captcha": "Captcha",
+  "captcha-chagne": "Next",
+  "captcha-tip": "Please enter the captcha",
+  "center": "Center",
+  "chart": "Chart",
+  "chart-bar": "Bar Chart",
+  "chart-line": "Line Chart",
+  "chart-pie": "Pie Chart",
+  "chart-rank": "Rank Chart",
+  "checked": "Checked",
+  "choose": "Select",
+  "choose-file": "Select file",
+  "choose-obj": "Select object",
+  "choose-fields": "Select fields",
+  "clean": "Clean",
+  "clear": "Clear",
+  "clone": "Clone",
+  "clone-copy": "Clone copy",
+  "close": "Close",
+  "color": "Color",
+  "confirm": "Confirm",
+  "confirm-change": "Confirm Change",
+  "console": "Console",
+  "content": "Content",
+  "content-setup": "Content setup",
+  "continue": "Continue",
+  "copy": "Copy",
+  "copy-all": "Copy all",
+  "create": "New",
+  "create-now": "Create now",
+  "creating": "Creating",
+  "currency": "货币",
+  "currency-AUD": "AUD",
+  "currency-CAD": "CAD",
+  "currency-EUR": "EUR",
+  "currency-GBP": "GBP",
+  "currency-HKD": "HKD",
+  "currency-JPY": "JPY",
+  "currency-MOP": "MOP",
+  "currency-RMB": "RMB",
+  "currency-USD": "USD",
+  "date": "Date",
+  "db-col-type-AUTO": "AUTO",
+  "db-col-type-BINARY": "BINARY",
+  "db-col-type-BOOLEAN": "BOOLEAN",
+  "db-col-type-CHAR": "CHAR",
+  "db-col-type-FLOAT": "FLOAT",
+  "db-col-type-INT": "INT",
+  "db-col-type-TEXT": "TEXT",
+  "db-col-type-TIMESTAMP": "TIMESTAMP",
+  "db-col-type-VARCHAR": "VARCHAR",
+  "debug": "Debug",
+  "default": "Default",
+  "del": "Delete",
+  "del-checked": "Delete selected",
+  "del-hard": "The selected item will be deleted directly. this operation is irrevocable. are you sure you want to continue?",
+  "del-ing": "Deleting...",
+  "del-none": "Please choose at least one item for deleting",
+  "dept-add": "Add Dept",
+  "desktop": "Desktop",
+  "detail": "Detail",
+  "dis-name": "Display name",
+  "disable": "Disable",
+  "disabled": "Disabled",
+  "doing": "Processing...",
+  "download": "Download",
+  "download-to-local": "Download to local",
+  "drop-file-here-to-upload": "Drop file here to upload",
+  "drop-here": "Drop here",
+  "dt-in": "in ${val}",
+  "dt-u-day": "Day",
+  "dt-u-hour": "Hour",
+  "dt-u-min": "Min",
+  "dt-u-month": "Month",
+  "dt-u-ms": "Milliseconds",
+  "dt-u-sec": "Seconds",
+  "dt-u-week": "Week",
+  "dt-u-year": "Year",
+  "duplicate": "Duplicate",
+  "e-auth-account-noexists": "Account not exists",
+  "e-auth-home-forbidden": "Auth home forbidden",
+  "e-auth-login-NoPhoneOrEmail": "Invalid phone number or email address",
+  "e-auth-login-NoSaltedPasswd": "Password without salting",
+  "e-auth-login-invalid-passwd": "Invalid password",
+  "e-io-forbidden": "IO Forbidden",
+  "e-io-obj-BlankName": "The object name CANNOT be empty",
+  "e-io-obj-InvalidName": "Invalid object name",
+  "e-io-obj-exists": "Object already exists",
+  "e-io-obj-noexists": "Object does't exists",
+  "e-io-obj-noexistsf": "Object[${nm}] does't exists",
+  "e-io-rm-NoEmptyDir": "You can not remove a folder that not empty",
+  "e-obj-invalid": "Path [${val}] invalid",
+  "e-obj-noexists": "Object [${val}] not exists",
+  "e-ph-noexists": "Path [${val}] not exists",
+  "edit": "Edit",
+  "edit-com": "Edit control",
+  "edit-content": "Edit Content",
+  "email": "Email",
+  "emoji": "Emoji",
+  "empty": "Empty",
+  "empty-data": "Empty data",
+  "enable": "Enable",
+  "enabled": "Enabled",
+  "error": "Error",
+  "exlink": "Ex-link",
+  "exlink-tip": "Please enter a URL address",
+  "exlink-tip-img": "Please enter an image URL address",
+  "export-data": "Export data...",
+  "fail": "Failed",
+  "false": "False",
+  "favorites": "Favorite",
+  "female": "Female",
+  "filter": "Filter",
+  "find": "Find",
+  "find-data": "Find data",
+  "font-size": "Font size",
+  "font-t-capitalize": "Capitalize",
+  "font-t-lowercase": "Lowercase",
+  "font-t-uppercase": "Uppercase",
+  "font-transform": "Text trans",
+  "font-w-bold": "Bold",
+  "font-w-normal": "Normal",
+  "font-weight": "Font weight",
+  "form-fld-type-String": "String",
+  "form-fld-type-Number": "Number",
+  "form-fld-type-Integer": "Integer",
+  "form-fld-type-Float": "Float",
+  "form-fld-type-Boolean": "Boolean",
+  "form-fld-type-Object": "Object",
+  "form-fld-type-Array": "Array",
+  "form-fld-type-DateTime": "DateTime",
+  "form-fld-type-AMS": "Timestamp(ms)",
+  "form-fld-type-ASEC": "Timestamp(sec)",
+  "form-fld-type-Time": "Time",
+  "form-fld-type-Date": "Date",
+  "form-fld-type-Color": "Color",
+  "gender": "Gender",
+  "geo-alti": "Altitude",
+  "geo-azimuth": "Azimuth",
+  "geo-gcj02-lat": "GCJ02 Lat",
+  "geo-gcj02-lng": "GCJ02 Lng",
+  "geo-hash": "Geo hash",
+  "geo-lat": "Latitude",
+  "geo-lng": "Longitude",
+  "geo-sate-cno": "Satellite Ava",
+  "geo-sate-cnt": "Satellite used",
+  "global-settings": "Global settings",
+  "height": "Height",
+  "hierarchy": "Hierarchy",
+  "history-record": "History record",
+  "home": "HOME",
+  "home-index": "HOME",
+  "href": "Link URL",
+  "href-text": "Link Text",
+  "i-known": "I known",
+  "icon": "Icon",
+  "icon-code-tip": "Please key-in code for icon, such as 'zmdi-case'",
+  "img": "Image",
+  "img-add": "Add image",
+  "img-insert": "Insert image",
+  "img-remove": "Remove image",
+  "import-data": "Import data ...",
+  "index": "Index",
+  "info": "Information",
+  "inherit": "Inherit",
+  "init": "Initiate",
+  "init-data": "Initiate data",
+  "input": "Input",
+  "input-tags": "Input tags",
+  "invalid": "Invalid",
+  "invalid-val": "Invalid value",
+  "java-type-Boolean": "Boolean",
+  "java-type-Double": "Double",
+  "java-type-Float": "Float",
+  "java-type-Integer": "Integer",
+  "java-type-JSON": "JSON",
+  "java-type-List": "Object List",
+  "java-type-Long": "Long",
+  "java-type-Object": "Object",
+  "java-type-SArray": "String Array",
+  "java-type-String": "String",
+  "json-Array": "Array",
+  "json-Boolean": "Boolean",
+  "json-Float": "Decimal",
+  "json-Integer": "Integer",
+  "json-Nil": "Nil",
+  "json-Number": "Number",
+  "json-Object": "Object",
+  "json-String": "String",
+  "json-new-key": "Enter a new key",
+  "json-syntax-err-tip": "Syntax Error! please switch source view to verify",
+  "key": "Key",
+  "label": "Label",
+  "lang": "Language",
+  "lang-en-us": "En",
+  "lang-en-uk": "En",
+  "lang-zh-cn": "Cn",
+  "lang-zh-hk": "Hk",
+  "lang-zh-tw": "Tw",
+  "lat": "Latitude",
+  "layout": "Layout",
+  "lbs-place-add": "Add place",
+  "lbs-ro-rnb-k-first": "Starting number",
+  "lbs-ro-rnb-k-type": "Display type",
+  "lbs-ro-rnb-k-type-alpha": "Alphabet",
+  "lbs-ro-rnb-k-type-capital": "Capital",
+  "lbs-ro-rnb-k-type-number": "Number",
+  "lbs-ro-rnb-title": "Autosets line label",
+  "left": "Left",
+  "left-bottom": "Left bottom",
+  "left-top": "Left top",
+  "link": "Link",
+  "link-href": "Link target",
+  "link-text": "Link text",
+  "list": "List",
+  "lng": "Longitude",
+  "load-more": "Load more",
+  "load-more-pull": "Pull for load more",
+  "loading": "Loading...",
+  "loading-data": "Loading Data ...",
+  "loading-gui": "Loading GUI ...",
+  "location": "Location",
+  "login": "Sign in",
+  "login-name": "Login name",
+  "logout": "Sign out",
+  "logout-ing": "Log out ...",
+  "mail": "Email",
+  "mail-as-html": "HTML Email",
+  "mail-bcc": "BCC",
+  "mail-cc": "CC",
+  "mail-charset": "Email charset",
+  "mail-inbox": "Email Inbox",
+  "mail-notify": "Email notify",
+  "mail-r-addr": "Email addr.",
+  "mail-r-name": "Name",
+  "mail-scene": "Email scenarios",
+  "mail-scene-ctmpl": "Template",
+  "mail-scene-flt-tip": "Filter by a scene name",
+  "mail-scene-meta": "Email scenario properties",
+  "mail-scene-nil-detail": "Please select a mail scene for details",
+  "mail-scene-nm": "Scene name",
+  "mail-scene-nm-tip": "Only include english letters or numbers or underline, and guarantee unique",
+  "mail-scene-var-trans": "Trans script",
+  "mail-scene-var-trans-placeholder": "Just like: jsc /path/to/script.js -vars",
+  "mail-scene-var-trans-tip": "Take primary vars as JSON input, output another JSON string",
+  "mail-setup": "Email setup",
+  "mail-subject": "Subject",
+  "mail-to": "TO",
+  "male": "Male",
+  "map-hybrid": "HYBIRD",
+  "map-location": "Map location",
+  "map-location-clear": "Clear map location",
+  "map-location-edit": "Edit map location",
+  "map-roadmap": "ROADMAP",
+  "map-satellite": "SATELLITE",
+  "map-terrain": "TERRAIN",
+  "map-type": "Map type",
+  "me": "Me",
+  "media": "Media",
+  "meta": "Meta data",
+  "mine": "Mine",
+  "modal": "Modal",
+  "modify": "Modify",
+  "more": "More",
+  "move": "Move",
+  "move-down": "Move down",
+  "move-to": "Move to...",
+  "move-up": "Move up",
+  "msg": "Message",
+  "name": "Name",
+  "new-item": "New item",
+  "newsfeed": "Newfeed",
+  "newtab": "New tab",
+  "next": "Next",
+  "nil": "Nil",
+  "nil-content": "Nil content",
+  "nil-detail": "Please choose one item for detail",
+  "nil-item": "Please choose one item at first",
+  "nil-obj": "Please choose one object",
+  "nil-target": "Nil valid target",
+  "no": "No",
+  "no-saved": "You get data need to be saved",
+  "no-selected": "None selected",
+  "no-title": "No title",
+  "note": "Note",
+  "obj": "Object",
+  "off": "Off",
+  "ok": "Ok",
+  "on": "On",
+  "open": "Open",
+  "open-newtab": "Open in new tab",
+  "org-add": "Add Org",
+  "org-choose": "Choose Organization",
+  "others": "Others",
+  "paging-change-pgsz": "Current page contains ${pgsz} records maximumly, you want to change it to：",
+  "paging-change-pgsz-invalid": "Page size must be integer, and great than 0, but ... -_-!",
+  "paging-change-pn": "Current page number is ${pn}, please enter number between 1 to ${pgc}:",
+  "paging-change-pn-invalid": "Page number must be integer, and must between 1 to ${pgc}",
+  "paging-first": "Head",
+  "paging-last": "Tail",
+  "paging-next": "Next",
+  "paging-prev": "Prev",
+  "paging-sum": "Total ${pgc} pages, ${sum} records，current ${count}/${pgsz}",
+  "passwd": "Password",
+  "passwd-reset": "Reset password",
+  "path": "Path",
+  "phone": "Phone",
+  "phone-nb": "Phone number",
+  "post": "Post",
+  "prev": "Prev",
+  "preview": "Preview",
+  "price": "Price",
+  "profile": "Profile",
+  "profile-edit": "Edit profile",
+  "project-add": "Add Project",
+  "prompt": "Prompt",
+  "properties": "Properties",
+  "publish": "Publish",
+  "publishing": "Publishing ...",
+  "refresh": "Refresh",
+  "refresh-hard": "Hard refresh",
+  "refresh-hard-clear": "Clean cache & hard refresh",
+  "reload": "Reload",
+  "reloading": "Reloading ...",
+  "remove": "Remove",
+  "removing": "Removing ...",
+  "rename": "Rename ...",
+  "renaming": "Renameing ...",
+  "reset": "Reset",
+  "reset-change": "Reset change",
+  "reset-data": "Reset data",
+  "restore": "Restore",
+  "revoke": "Revoke",
+  "revoke-change": "Revoke change",
+  "right": "Right",
+  "right-bottom": "Right bottom",
+  "right-top": "Right top",
+  "role": "Role",
+  "role-actions": "Role actions",
+  "role-behaviors": "Role behaviors",
+  "role-in-charge": "In charge",
+  "run": "Run",
+  "run-finished": "Done for running script",
+  "run-welcome": "Run script, please wait for a while ...",
+  "save": "Save",
+  "save-change": "Save change",
+  "save-done": "Save success",
+  "save-now": "Save now",
+  "saving": "Saving ...",
+  "score": "Score",
+  "score-count": "Score count",
+  "search": "Search",
+  "search-adv": "Advance search",
+  "select": "Select",
+  "select-all": "Select all",
+  "send": "Send",
+  "settings": "Settings",
+  "size": "Size",
+  "slogan": "Slogan",
+  "sms-scene-nm": "Scene name",
+  "sms-scene-nm-tip": "Only include english letters or numbers or underline, and guarantee unique",
+  "sms-setup": "SMS setup",
+  "sort": "Sort",
+  "sort-asc": "ASC",
+  "sort-by": "Sort by",
+  "sort-desc": "DESC",
+  "sort-tip-asc": "The smaller at first",
+  "sort-tip-desc": "The bigger at first",
+  "sort-val": "Sort value",
+  "source-code": "Source code",
+  "stat-date-at": "Stat at",
+  "stat-date-at-oor": "Statistics on this date are not ready yet",
+  "stat-date-span": "Date span",
+  "stop": "Stop",
+  "structure": "Structure",
+  "style": "Style",
+  "style-more": "More style",
+  "success": "Success",
+  "sys-settings": "System settings",
+  "tablet": "Tablet",
+  "tags": "Tags",
+  "terminal": "Terminal",
+  "terminate": "Terminate",
+  "text": "Text",
+  "timestamp": "Timestamp",
+  "title": "Title",
+  "top": "Top",
+  "total": "Total",
+  "total-count": "Total ${nb?0} ${unit?items}",
+  "total-items": "Total ${val} items",
+  "trace": "Trace",
+  "track": "Track message",
+  "true": "True",
+  "type": "Type",
+  "undefined": "Undefined",
+  "null": "Null",
+  "under-construction": "Under construction",
+  "unknown": "Unknown",
+  "unzip": "Unzip",
+  "unzipping": "Unzipping...",
+  "upload": "Upload",
+  "upload-done": "Done for upload",
+  "upload-file": "Uploading files ...",
+  "upload-forbidden": "Upload forbidden",
+  "upload-nofinished": "Upload not finished",
+  "upload-notarget": "Upload target not set!",
+  "upload-notarget-continue": "Upload target not set!, click [Continue] to upload next file, click [Cancel] to break file uploading",
+  "uploading": "Uploading",
+  "user-avator": "User avatar",
+  "value": "Value",
+  "video": "Video",
+  "video-accelerometer": "Video accelerometer",
+  "video-add": "Add video",
+  "video-autoplay": "Autoplay",
+  "video-clipboard-write": "Clipboard write",
+  "video-encrypted-media": "Encrypted media",
+  "video-features": "Video feature",
+  "video-gyroscope": "Gyroscope",
+  "video-insert": "Insert video",
+  "video-pic-in-pic": "Pic in pic",
+  "video-remove": "Remove video",
+  "videos": "Videos",
+  "view": "View",
+  "view-resource": "View source code",
+  "vu-mv": "Millivolt",
+  "vu-v": "Volt",
+  "warn": "Warn",
+  "website": "Website",
+  "width": "Width",
+  "www-admin-login": "Admin login GUI",
+  "www-home": "WWW home",
+  "www-title": "Website",
+  "yes": "Yes",
+  "zip": "Zip",
+  "zipping": "Zipping..."
+});
+//========================================
+// JOIN <_wn.i18n.json> ti/i18n/en-uk/_wn.i18n.json
+//========================================
+Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
+  "wn-admin-check-obj-thumb": "Check obj thumbnails ...",
+  "wn-admin-tools": "Admin tools",
+  "wn-ctt-css-text": "CSS File",
+  "wn-ctt-folder-text": "Folder",
+  "wn-ctt-html-text": "HTML FILE",
+  "wn-ctt-js-text": "Javascript",
+  "wn-ctt-json-text": "JSON File",
+  "wn-ctt-less-text": "LESS File",
+  "wn-ctt-md-text": "Markdown",
+  "wn-ctt-mjs-text": "Module Javascript",
+  "wn-ctt-sass-text": "SASS File",
+  "wn-ctt-thing_set-text": "Thing Set",
+  "wn-ctt-txt-text": "Pure text",
+  "wn-ctt-wnml-text": "WNML File",
+  "wn-ctt-xml-text": "XML File",
+  "wn-edit-com-nil": "Default as label control",
+  "wn-en-his-ct": "Created",
+  "wn-en-his-flt-tip": "Please input user id or name to filtering",
+  "wn-en-his-mor": "OP more",
+  "wn-en-his-opt": "Operation",
+  "wn-en-his-tar": "Target",
+  "wn-en-his-tid": "Target id",
+  "wn-en-his-tnm": "Target name",
+  "wn-en-his-ttp": "Target type",
+  "wn-en-his-uid": "User id",
+  "wn-en-his-unm": "User name",
+  "wn-en-his-usr": "User",
+  "wn-en-his-utp": "User type",
+  "wn-fsc-mail-scene-new": "New a email scenario",
+  "wn-fsc-mail-tmpl-new": "Enter new unique name (such as 'signup')",
+  "wn-invalid-fsize-max": "最大上传文件尺寸为 ${maxSize}，但是您上传的文件尺寸为 ${fileSize}",
+  "wn-invalid-fsize-min": "最小上传文件尺寸为 ${minSize}，但是您上传的文件尺寸为 ${fileSize}",
+  "wn-invalid-mimes": "Unsupported mime \"${current}\", only \"${supports}\" allowed",
+  "wn-invalid-types": "Unsupported type \"${current}\", only \"${supports}\" allowed",
+  "wn-key-c": "Creater",
+  "wn-key-ct": "Created",
+  "wn-key-d0": "D0",
+  "wn-key-d1": "D1",
+  "wn-key-data": "Data",
+  "wn-key-duration": "Duration",
+  "wn-key-expi": "Expired",
+  "wn-key-g": "Group",
+  "wn-key-grp-advance": "Advance",
+  "wn-key-grp-basic": "Basic",
+  "wn-key-grp-customized": "Customized",
+  "wn-key-grp-more": "More",
+  "wn-key-grp-others": "Others",
+  "wn-key-grp-privilege": "Privilege",
+  "wn-key-grp-thumb": "Thumb",
+  "wn-key-grp-timestamp": "Timestamp",
+  "wn-key-height": "Height",
+  "wn-key-icon": "Icon",
+  "wn-key-id": "ID",
+  "wn-key-len": "Length",
+  "wn-key-lm": "Last modified",
+  "wn-key-m": "Mender",
+  "wn-key-md": "Mode",
+  "wn-key-mime": "MIME",
+  "wn-key-nm": "Name",
+  "wn-key-ph": "Path",
+  "wn-key-pid": "Parent",
+  "wn-key-pvg": "Customized pvg",
+  "wn-key-race": "Race",
+  "wn-key-sha1": "SHA1",
+  "wn-key-thumb": "Thumb",
+  "wn-key-title": "Title",
+  "wn-key-tp": "Type",
+  "wn-key-width": "Width",
+  "wn-md-R": "R",
+  "wn-md-W": "W",
+  "wn-md-X": "X",
+  "wn-md-excutable": "Excutable",
+  "wn-md-member": "Member",
+  "wn-md-other": "Other",
+  "wn-md-owner": "Owner",
+  "wn-md-readable": "Readable",
+  "wn-md-writable": "Writable",
+  "wn-obj-nosaved": "You have unsaved objects",
+  "wn-oc-auto-type": "All types",
+  "wn-oc-free": "Please enter the full name, including the extension, such as `myfile.xml`",
+  "wn-oc-tip": "New object name",
+  "wn-org-new-node": "New Org Node",
+  "wn-org-type-G": "Dept",
+  "wn-org-type-P": "Position",
+  "wn-race-DIR": "DIRECTORY",
+  "wn-race-FILE": "FILE",
+  "wn-th-acc-pwd-choose-none": "Select the account to reset password (multiple allowed)",
+  "wn-th-acc-pwd-done": "Password has been reset for ${n} users",
+  "wn-th-acc-pwd-invalid": "Illegal characters found in password",
+  "wn-th-acc-pwd-reset-tip": "Reset password to",
+  "wn-th-acc-pwd-reset-tip-1": "Reset password of [${name}] to",
+  "wn-th-acc-pwd-reset-tip-N": "Reset the passwords of [${name}] and other ${N} accounts to",
+  "wn-th-acc-pwd-too-short": "Password too short, no less than 6 digits, better contains alphanumeric & special chars",
+  "wn-th-recount-media": "Recalculate file number",
+  "wn-th-recount-media-done": "Current number of files: ${n}"
+});
 //========================================
 // JOIN <hmaker.i18n.json> ti/i18n/en-us/hmaker.i18n.json
 //========================================
@@ -99085,7 +101204,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "upload-nofinished": "Upload not finished",
   "upload-notarget": "Upload target not set!",
   "upload-notarget-continue": "Upload target not set!, click [Continue] to upload next file, click [Cancel] to break file uploading",
-  "uploading": "Uplading",
+  "uploading": "Uploading",
   "user-avator": "User avatar",
   "value": "Value",
   "video": "Video",

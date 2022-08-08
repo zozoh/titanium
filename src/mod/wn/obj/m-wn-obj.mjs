@@ -38,7 +38,9 @@ export default {
       if (state.contentPath) {
         // fixed content path
         if (_.isString(state.contentPath)) {
-          return state.contentPath
+          return {
+            path: state.contentPath
+          }
         }
         // Try find content path
         let canPaths = _.concat([], state.contentPath)

@@ -469,6 +469,15 @@ const _M = {
         meta = await Wn.Io.loadMeta(aph)
       }
     }
+    // User self
+    else {
+      meta = state.meta
+    }
+
+    // Guard
+    if(!meta) {
+      return await Ti.Toast.Open("saveContent nil Meta!")
+    }
 
     // Do save content
     commit("setStatus", { saving: true })

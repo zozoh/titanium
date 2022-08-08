@@ -26,6 +26,19 @@ const _M = {
       return Ti.Util.fallback(this.myReadonly, this.readonly, false)
     },
     //--------------------------------------------------
+    isIgnoreAutoReadonly() {
+      if (_.isFunction(this.ignoreAutoReadonly)) {
+        return this.ignoreAutoReadonly
+      }
+      if (_.isString(this.ignoreAutoReadonly)) {
+        let reg = new RegExp(this.ignoreAutoReadonly)
+        return ({ comType }) => {
+          return reg.test(comType)
+        }
+      }
+      return () => false
+    },
+    //--------------------------------------------------
     FormNotifyMode() {
       if ("auto" == this.notifyMode) {
         return this.isReadonly ? "none" : "immediate"
@@ -487,9 +500,10 @@ const _M = {
           isActived: this.myActivedFieldKey == fldKey,
           type: this.defaultFieldType || "String",
           comType: grp.defaultComType || this.defaultComType || "TiLabel",
-          comConf: _.assign(comConf, this.comConf),
+          comConf: {},
           disabled
         })
+        _.defaults(field.comConf, comConf)
 
         // The UniqKey of field
         field.uniqKey = Ti.Util.anyKey(field.name)
@@ -617,11 +631,14 @@ const _M = {
       return com
     },
     //--------------------------------------------------
-    evalFieldDisplay({ name, display, comConf } = {}) {
+    evalFieldDisplay(field = {}) {
+      let { name, display, comConf } = field
       // Guard
       if (!display) {
         // Auto gen display
-        if (this.autoReadonlyDisplay && this.isReadonly) {
+        if (this.autoReadonlyDisplay
+          && this.isReadonly
+          && !this.isIgnoreAutoReadonly(field)) {
           let labelConf = {}
           // If options
           if (comConf && comConf.options) {

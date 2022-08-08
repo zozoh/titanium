@@ -172,12 +172,13 @@ const _M = {
       state.meta = null
       state.currentId = null
       state.checkedIds = {}
-      state.status = _.assign({}, state.status, {
-        "hasMeta": false,
-        "hasCurrent": false,
-        "hasChecked": false
-      })
     }
+    // Update status
+    state.status = _.assign({}, state.status, {
+      "hasMeta": state.meta ? true : false,
+      "hasCurrent": hasCurrent,
+      "hasChecked": !_.isEmpty(state.checkedIds)
+    })
   },
   //----------------------------------------
   setMeta(state, meta) {
