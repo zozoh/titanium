@@ -18,6 +18,10 @@ export default {
       type: [String, Ti.Dict],
       default: null
     },
+    "keyBy": {
+      type: [String, Function],
+      default: "value"
+    },
     "mapping": {
       type: Object,
       default: undefined
@@ -84,6 +88,28 @@ export default {
     //------------------------------------------------
     hasItems() {
       return !_.isEmpty(this.myTags)
+    },
+    //------------------------------------------------
+    getTagItemKey() {
+      if (_.isFunction(this.keyBy)) {
+        return this.keyBy
+      }
+      if (_.isString(this.keyBy)) {
+        return (tag, index) => {
+          let val = Ti.Util.getOrPick(tag, this.keyBy)
+          if (_.isObject(val)) {
+            return JSON.stringify(val).replace(/\s+/g, '')
+          }
+          // Simple value
+          if (!Ti.Util.isNil(val)) {
+            return val
+          }
+          return `T${index}`
+        }
+      }
+      return (tag, index) => {
+        return `T${index}`
+      }
     },
     //------------------------------------------------
     getTagItemIcon() {
@@ -184,16 +210,8 @@ export default {
           }
 
           // Complex value
-          if ("object" == (typeof tag.value)) {
-            tag.key = JSON.stringify(tag.value).replace(/\s+/g, '')
-          }
-          // Simple value
-          else if (!Ti.Util.isNil(tag.value)) {
-            tag.key = tag.value
-          }
-          else {
-            tag.key = `T${index}`
-          }
+          tag.key = this.getTagItemKey(tag, index)
+
           // Join default value
           _.defaults(tag, {
             index,

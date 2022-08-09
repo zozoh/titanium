@@ -275,6 +275,66 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
+  async openCurrentMetaEditor({state, dispatch}) {
+    // Guard
+    if (!state.meta && !state.oDir) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    //.........................................
+    // For current selected
+    //.........................................
+    if (state.meta) {
+      // Edit current meta
+      let reo = await Wn.EditObjMeta(state.meta, {
+        fields: "default", autoSave: false
+      })
+
+      // Cancel the editing
+      if (_.isUndefined(reo)) {
+        return
+      }
+
+      // Update the current editing
+      let { updates } = reo
+      if (!_.isEmpty(updates)) {
+        return await dispatch("updateMeta", updates)
+      }
+      return state.meta
+    }
+    //.........................................
+    // For Whole thing thing
+    //.........................................
+    return await Wn.EditObjMeta(state.oDir, {
+      fields: "auto", autoSave: true
+    })
+  },
+  //--------------------------------------------
+  async openCurrentPrivilege({state, dispatch}) {
+    let meta = state.meta || state.oDir
+
+    if (!meta) {
+      await Ti.Toast.Open("i18n:nil-obj")
+      return
+    }
+
+    let newMeta = await Wn.EditObjPvg(meta)
+
+    // Update to current list
+    if (newMeta) {
+      // Update Current Meta
+      //console.log("pvg", newMeta)
+      if (state.meta && state.meta.id == newMeta.id) {
+        state.dispatch("changeMeta", newMeta)
+      }
+      // Update Thing Set
+      else {
+        await this.dispatch("reload", newMeta)
+      }
+    }
+
+    return newMeta
+  },
+  //--------------------------------------------
   //
   //                 Update
   //
@@ -310,7 +370,7 @@ const _M = {
   },
   //--------------------------------------------
   async updateMeta({ dispatch }, data = {}) {
-    await dispatch("updateMetaOrDir", { data, forMeta: true })
+    return await dispatch("updateMetaOrDir", { data, forMeta: true })
   },
   //--------------------------------------------
   async updateMetaOrDir({ state, commit }, {

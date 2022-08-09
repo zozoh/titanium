@@ -366,63 +366,11 @@ export default {
   //
   //--------------------------------------------
   async openCurrentMetaEditor() {
-    // Guard
-    if (!this.meta && !this.oDir) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-    //.........................................
-    // For current selected
-    //.........................................
-    if (this.meta) {
-      // Edit current meta
-      let reo = await Wn.EditObjMeta(this.meta, {
-        fields: "default", autoSave: false
-      })
-
-      // Cancel the editing
-      if (_.isUndefined(reo)) {
-        return
-      }
-
-      // Update the current editing
-      let { updates } = reo
-      if (!_.isEmpty(updates)) {
-        await this.dispatch("updateMeta", updates)
-      }
-      return
-    }
-    //.........................................
-    // For Whole thing thing
-    //.........................................
-    await Wn.EditObjMeta(this.oDir, {
-      fields: "auto", autoSave: true
-    })
+    return await this.dispatch("openCurrentMetaEditor")
   },
   //--------------------------------------------
   async openCurrentPrivilege() {
-    let meta = this.meta || this.oDir
-
-    if (!meta) {
-      await Ti.Toast.Open("i18n:nil-obj")
-      return
-    }
-
-    let newMeta = await Wn.EditObjPvg(meta)
-
-    // Update to current list
-    if (newMeta) {
-      // Update Current Meta
-      //console.log("pvg", newMeta)
-      if (this.meta && this.meta.id == newMeta.id) {
-        this.dispatch("changeMeta", newMeta)
-      }
-      // Update Thing Set
-      else {
-        await this.dispatch("reload", newMeta)
-      }
-    }
-
-    return newMeta
+    return await this.dispatch("openCurrentPrivilege")
   },
   //------------------------------------------------
   //

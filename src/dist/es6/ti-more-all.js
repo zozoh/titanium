@@ -1,4 +1,4 @@
-// Pack At: 2022-08-08 23:33:46
+// Pack At: 2022-08-09 15:40:51
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8087,6 +8087,66 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
+  async openCurrentMetaEditor({state, dispatch}) {
+    // Guard
+    if (!state.meta && !state.oDir) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    //.........................................
+    // For current selected
+    //.........................................
+    if (state.meta) {
+      // Edit current meta
+      let reo = await Wn.EditObjMeta(state.meta, {
+        fields: "default", autoSave: false
+      })
+
+      // Cancel the editing
+      if (_.isUndefined(reo)) {
+        return
+      }
+
+      // Update the current editing
+      let { updates } = reo
+      if (!_.isEmpty(updates)) {
+        return await dispatch("updateMeta", updates)
+      }
+      return state.meta
+    }
+    //.........................................
+    // For Whole thing thing
+    //.........................................
+    return await Wn.EditObjMeta(state.oDir, {
+      fields: "auto", autoSave: true
+    })
+  },
+  //--------------------------------------------
+  async openCurrentPrivilege({state, dispatch}) {
+    let meta = state.meta || state.oDir
+
+    if (!meta) {
+      await Ti.Toast.Open("i18n:nil-obj")
+      return
+    }
+
+    let newMeta = await Wn.EditObjPvg(meta)
+
+    // Update to current list
+    if (newMeta) {
+      // Update Current Meta
+      //console.log("pvg", newMeta)
+      if (state.meta && state.meta.id == newMeta.id) {
+        state.dispatch("changeMeta", newMeta)
+      }
+      // Update Thing Set
+      else {
+        await this.dispatch("reload", newMeta)
+      }
+    }
+
+    return newMeta
+  },
+  //--------------------------------------------
   //
   //                 Update
   //
@@ -8122,7 +8182,7 @@ const _M = {
   },
   //--------------------------------------------
   async updateMeta({ dispatch }, data = {}) {
-    await dispatch("updateMetaOrDir", { data, forMeta: true })
+    return await dispatch("updateMetaOrDir", { data, forMeta: true })
   },
   //--------------------------------------------
   async updateMetaOrDir({ state, commit }, {
@@ -56165,6 +56225,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: [String, Ti.Dict],
       default: null
     },
+    "keyBy": {
+      type: [String, Function],
+      default: "value"
+    },
     "mapping": {
       type: Object,
       default: undefined
@@ -56231,6 +56295,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     hasItems() {
       return !_.isEmpty(this.myTags)
+    },
+    //------------------------------------------------
+    getTagItemKey() {
+      if (_.isFunction(this.keyBy)) {
+        return this.keyBy
+      }
+      if (_.isString(this.keyBy)) {
+        return (tag, index) => {
+          let val = Ti.Util.getOrPick(tag, this.keyBy)
+          if (_.isObject(val)) {
+            return JSON.stringify(val).replace(/\s+/g, '')
+          }
+          // Simple value
+          if (!Ti.Util.isNil(val)) {
+            return val
+          }
+          return `T${index}`
+        }
+      }
+      return (tag, index) => {
+        return `T${index}`
+      }
     },
     //------------------------------------------------
     getTagItemIcon() {
@@ -56331,16 +56417,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
 
           // Complex value
-          if ("object" == (typeof tag.value)) {
-            tag.key = JSON.stringify(tag.value).replace(/\s+/g, '')
-          }
-          // Simple value
-          else if (!Ti.Util.isNil(tag.value)) {
-            tag.key = tag.value
-          }
-          else {
-            tag.key = `T${index}`
-          }
+          tag.key = this.getTagItemKey(tag, index)
+
           // Join default value
           _.defaults(tag, {
             index,
@@ -81311,63 +81389,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //
   //--------------------------------------------
   async openCurrentMetaEditor() {
-    // Guard
-    if (!this.meta && !this.oDir) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-    //.........................................
-    // For current selected
-    //.........................................
-    if (this.meta) {
-      // Edit current meta
-      let reo = await Wn.EditObjMeta(this.meta, {
-        fields: "default", autoSave: false
-      })
-
-      // Cancel the editing
-      if (_.isUndefined(reo)) {
-        return
-      }
-
-      // Update the current editing
-      let { updates } = reo
-      if (!_.isEmpty(updates)) {
-        await this.dispatch("updateMeta", updates)
-      }
-      return
-    }
-    //.........................................
-    // For Whole thing thing
-    //.........................................
-    await Wn.EditObjMeta(this.oDir, {
-      fields: "auto", autoSave: true
-    })
+    return await this.dispatch("openCurrentMetaEditor")
   },
   //--------------------------------------------
   async openCurrentPrivilege() {
-    let meta = this.meta || this.oDir
-
-    if (!meta) {
-      await Ti.Toast.Open("i18n:nil-obj")
-      return
-    }
-
-    let newMeta = await Wn.EditObjPvg(meta)
-
-    // Update to current list
-    if (newMeta) {
-      // Update Current Meta
-      //console.log("pvg", newMeta)
-      if (this.meta && this.meta.id == newMeta.id) {
-        this.dispatch("changeMeta", newMeta)
-      }
-      // Update Thing Set
-      else {
-        await this.dispatch("reload", newMeta)
-      }
-    }
-
-    return newMeta
+    return await this.dispatch("openCurrentPrivilege")
   },
   //------------------------------------------------
   //
