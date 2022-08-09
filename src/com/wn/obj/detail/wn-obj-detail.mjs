@@ -1,5 +1,3 @@
-import _M from "../adaptor/wn-obj-adaptor.mjs"
-
 export default {
   /////////////////////////////////////////
   data: () => ({
@@ -18,7 +16,7 @@ export default {
     },
     "fixedKeys": {
       type: Array,
-      default: () => ["title"]
+      default: () => ["title", "sort"]
     },
     "fieldStatus": {
       type: Object,
@@ -92,7 +90,7 @@ export default {
         meta: this.value,
         fields,
         currentTab: 0,
-        fixedKeys: ["title"]
+        fixedKeys: this.fixedKeys
       })
       this.myCurrentTab = reo.currentTab;
       this.myFormFields = reo.fields

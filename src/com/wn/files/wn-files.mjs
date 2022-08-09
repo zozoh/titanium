@@ -181,6 +181,11 @@ export default {
           display: "rawData.title|nm"
         },
         {
+          title: "i18n:wn-key-nm",
+          candidate: true,
+          display: "rawData.nm"
+        },
+        {
           title: "i18n:wn-key-tp",
           display: "rawData.tp"
         },

@@ -1,4 +1,4 @@
-// Pack At: 2022-08-09 15:40:51
+// Pack At: 2022-08-10 01:33:01
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -18280,6 +18280,10 @@ const {PhotoGallery} = (function(){
   const PhotoGallery = {
     //---------------------------------------
     bind($el, setup = {}) {
+      // Guard
+      if(!$el) {
+        return
+      }
       if (!$el.__ti_photo_gallery) {
         // Create instance
         let PG = new TiPhotoGallery($el, setup)
@@ -18887,7 +18891,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220809.154051",
+  "version" : "1.6-20220810.013301",
   "dev" : false,
   "appName" : null,
   "session" : {},

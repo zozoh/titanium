@@ -122,7 +122,7 @@ export default {
   },
   "tableFields" : {
     type : Array,
-    default : ()=>["title", "c", "g", "tp", "len", "lm"]
+    default : ()=>["title", "nm", "c", "g", "tp", "len", "lm"]
   },
   "moveToConf" : {
     type : Object

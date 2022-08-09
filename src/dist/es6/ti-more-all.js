@@ -1,4 +1,4 @@
-// Pack At: 2022-08-09 15:40:51
+// Pack At: 2022-08-10 01:33:01
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -705,246 +705,6 @@ const _M = {
 return _M;;
 })()
 // ============================================================
-// EXPORT 'wn-obj-adaptor.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/wn/obj/detail/../adaptor/wn-obj-adaptor.mjs'] = (function(){
-const _M = {
-  ///////////////////////////////////////////
-  data: () => ({
-  }),
-  ///////////////////////////////////////////
-  computed: {
-    //--------------------------------------
-    TopClass() {
-      return this.getTopClass()
-    },
-    //--------------------------------------
-    EventRouting() {
-      let routing = {
-        "block:shown": "updateBlockShown",
-        "block:show": "showBlock",
-        "block:hide": "hideBlock",
-        "meta::field:change": "OnMetaFieldChange",
-        "content::change": "OnContentChange",
-        "save:change": "OnSaveChange",
-        "search::list::select": "OnSearchListSelect",
-        "filter::filter:change": "OnSearchFilterChange",
-        "filter::sorter:change": "OnSearchSorterChange",
-        "pager::change": "OnSearchPagerChange"
-      }
-
-      // Define the expend function
-      const expendEvent = (v, k) => {
-        let old = routing[k]
-        if (!old) {
-          routing[k] = v
-          return
-        }
-        // Array to join
-        if (_.isArray(v)) {
-          routing[k] = _.concat(old, v)
-        }
-        // Another to replace
-        else {
-          routing[k] = v
-        }
-      }
-
-      // Expend from prop
-      _.forEach(this.events, expendEvent)
-
-      // Expend from schema
-      _.forEach(_.get(this.schema, "events"), expendEvent)
-
-      // Then done
-      return routing
-    }
-    //--------------------------------------
-  },
-  ///////////////////////////////////////////
-  methods: {
-    //--------------------------------------
-    async OnSearchListSelect({ currentId, checkedIds, checked }) {
-      await this.dispatch("selectMeta", { currentId, checkedIds })
-      this.$notify("indicate", `${checked.length} items selected`)
-    },
-    //--------------------------------------
-    async OnSearchFilterChange(payload) {
-      await this.dispatch("applyFilter", payload)
-    },
-    //--------------------------------------
-    async OnSearchSorterChange(payload) {
-      await this.dispatch("applySorter", payload)
-    },
-    //--------------------------------------
-    async OnSearchPagerChange(payload) {
-      await this.dispatch("applyPager", payload)
-    },
-    //--------------------------------------
-    async OnMetaFieldChange(payload) {
-      await this.dispatch("updateMetaField", payload)
-    },
-    //--------------------------------------
-    OnContentChange(payload) {
-      this.dispatch("changeContent", payload)
-    },
-    //--------------------------------------
-    async OnSaveChange() {
-      await this.dispatch("saveContent")
-    },
-    //--------------------------------------
-    //
-    //  Show/Hide block
-    //
-    //--------------------------------------
-    updateBlockShown(shown = {}) {
-      //console.log("WnObjAdaptor.updateBlockShow", shown)
-      let guiShown = {}
-      _.forEach(shown, (v, k) => {
-        if (v) {
-          guiShown[k] = true
-        }
-      })
-      this.commit("setGuiShown", guiShown)
-    },
-    //--------------------------------------
-    showBlock(blockName) {
-      let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
-      //console.log(blockNames)
-      let guiShown = {}
-      _.forEach(blockNames, nm => {
-        guiShown[nm] = true
-      })
-      this.commit("setGuiShown", guiShown)
-    },
-    //--------------------------------------
-    hideBlock(blockName) {
-      let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
-      //console.log(blockNames)
-      let guiShown = _.cloneDeep(this.guiShown) || {}
-      _.forEach(blockNames, nm => {
-        guiShown[nm] = false
-      })
-      this.commit("setGuiShown", guiShown)
-    },
-    //--------------------------------------
-    //
-    //  Utility
-    //
-    //--------------------------------------
-    async dispatch(name, payload) {
-      let path = Ti.Util.appendPath(this.moduleName, name)
-      return await Ti.App(this).dispatch(path, payload)
-    },
-    //--------------------------------------
-    commit(name, payload) {
-      let path = Ti.Util.appendPath(this.moduleName, name)
-      return Ti.App(this).commit(path, payload)
-    },
-    //--------------------------------------
-    getCheckedItems(noneAsAll = false) {
-      let ids = this.checkedIds || {}
-      let alwaysOn = _.isEmpty(ids) && noneAsAll
-      let items = _.filter(this.list, li => {
-        return li && (alwaysOn || ids[li.id])
-      })
-      return items
-    },
-    //--------------------------------------
-    //
-    // Events / Callback
-    //
-    //--------------------------------------
-    fire(name, payload) {
-      let func = this.__on_events(name, payload)
-      if (_.isFunction(func)) {
-        func.apply(this, [payload])
-      }
-    },
-    //--------------------------------------
-    // For Event Bubble Dispatching
-    __on_events(name, payload) {
-      // ByPass
-      if (/^(indicate)$/.test(name)) {
-        return () => ({ stop: false })
-      }
-      //if (/select$/.test(name)) {
-      //console.log("WnObjAdaptor.__on_events", name, payload)
-      //}
-
-      // Try routing
-      let fns = _.get(this.EventRouting, name)
-      if (!fns) {
-        fns = this.$tiEventTryFallback(name, this.EventRouting)
-      }
-      let fnList = _.without(_.concat(fns), undefined, null)
-
-      // callPath -> Function
-      let funcList = [];
-      for (let fn of fnList) {
-        // Direct call
-        if (_.isFunction(fn)) {
-          funcList.push(fn)
-        }
-        // Gen invoking
-        else if (_.isString(fn)) {
-          let func = _.get(this, fn)
-          if (!_.isFunction(func)) {
-            func = Ti.Util.genInvoking(fns, {
-              context: this.GuiExplainContext,
-              dft: null,
-              funcSet: this
-            })
-          }
-          if (_.isFunction(func)) {
-            funcList.push(func)
-          }
-        }
-      }
-
-      // Return for invoke
-      if (!_.isEmpty(funcList)) {
-        if (!_.isUndefined(payload)) {
-          return () => {
-            for (let func of funcList) {
-              func.apply(this, [payload])
-            }
-          }
-        }
-        if (funcList.length > 1) {
-          return () => {
-            for (let func of funcList) {
-              func.apply(this)
-            }
-          }
-        }
-        return funcList[0]
-      }
-    },
-    //--------------------------------------
-    // __ti_shortcut(uniqKey) {      
-    // }
-    //--------------------------------------
-  },
-  ///////////////////////////////////////////
-  created: function () {
-  },
-  ///////////////////////////////////////////
-  mounted: async function () {
-    // Update the customized actions
-    let actions = this.objActions || null
-    if (_.isArray(actions)) {
-      this.$notify("actions:update", actions)
-    }
-  },
-  ///////////////////////////////////////////
-  beforeDestroy: function () {
-  }
-  ///////////////////////////////////////////
-}
-return _M;;
-})()
-// ============================================================
 // EXPORT 'br.blot.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/text/markdown/richeditor2/blot/br.blot.mjs'] = (function(){
@@ -976,7 +736,7 @@ BrBlot.tagName = 'SPAN';
 return {BrBlot};
 })()
 // ============================================================
-// LV2 : imports - (3)
+// LV2 : imports - (2)
 // ============================================================
 // ============================================================
 // EXPORT 'm-wn-obj-search.mjs' -> null
@@ -1905,6 +1665,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
         {
           title: "i18n:wn-key-title",
           display: "rawData.title|nm"
+        },
+        {
+          title: "i18n:wn-key-nm",
+          candidate: true,
+          display: "rawData.nm"
         },
         {
           title: "i18n:wn-key-tp",
@@ -10124,8 +9889,6 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'wn-obj-detail.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/obj/detail/wn-obj-detail.mjs'] = (function(){
-const _M = window.TI_PACK_EXPORTS['ti/com/wn/obj/detail/../adaptor/wn-obj-adaptor.mjs'];
-
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
   data: () => ({
@@ -10144,7 +9907,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     "fixedKeys": {
       type: Array,
-      default: () => ["title"]
+      default: () => ["title", "sort"]
     },
     "fieldStatus": {
       type: Object,
@@ -10218,7 +9981,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         meta: this.value,
         fields,
         currentTab: 0,
-        fixedKeys: ["title"]
+        fixedKeys: this.fixedKeys
       })
       this.myCurrentTab = reo.currentTab;
       this.myFormFields = reo.fields
@@ -30783,6 +30546,10 @@ const _M = {
                 {
                   "value": "nm",
                   "text": "i18n:wn-key-nm"
+                },
+                {
+                  "value": "sort",
+                  "text": "i18n:sort"
                 }
               ]
             }
@@ -30804,6 +30571,17 @@ const _M = {
             "viewType": "=viewType",
             "routers": {
               /*"reload": `dispatch:${this.moduleName}/reloadData`*/
+            },
+            "itemBadges": {
+              "NE": function (obj) {
+                if (_.isNumber(obj.sort)) {
+                  return {
+                    type: "text",
+                    className: "as-circle is-track as-label-60 ",
+                    value: obj.sort || 0
+                  }
+                }
+              }
             },
             "tableViewConf": {
               "columnResizable": true,
@@ -57646,7 +57424,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "tableFields" : {
     type : Array,
-    default : ()=>["title", "c", "g", "tp", "len", "lm"]
+    default : ()=>["title", "nm", "c", "g", "tp", "len", "lm"]
   },
   "moveToConf" : {
     type : Object
@@ -96888,7 +96666,6 @@ Ti.Preload("ti/com/wn/upload/multi-files/_com.json", {
 });
 Ti.Preload("ti/com/hm/form/static-options/../../../ti/form/form-support.mjs", TI_PACK_EXPORTS['ti/com/hm/form/static-options/../../../ti/form/form-support.mjs']);
 Ti.Preload("ti/com/ti/text/markdown/richeditor2/blot/br.blot.mjs", TI_PACK_EXPORTS['ti/com/ti/text/markdown/richeditor2/blot/br.blot.mjs']);
-Ti.Preload("ti/com/wn/obj/detail/../adaptor/wn-obj-adaptor.mjs", TI_PACK_EXPORTS['ti/com/wn/obj/detail/../adaptor/wn-obj-adaptor.mjs']);
 //========================================
 // JOIN <site-config-actions.mjs> ti/mod/hmaker/website/mod/site-config/site-config-actions.mjs
 //========================================

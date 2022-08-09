@@ -1,4 +1,4 @@
-// Pack At: 2022-08-09 15:40:51
+// Pack At: 2022-08-10 01:33:01
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -1306,8 +1306,10 @@ const Obj = (function(){
         fields = [{
           title: "basic",
           fields: [
-            "id", "nm", "title", "icon", "thumb", "ph", "race", "tp", "mime",
-            "width", "height", "len", "sha1", "sort"],
+            "id", "nm", "title", "icon", "thumb", "sort",
+            "width", "height",
+            "ph", "race", "tp", "mime",
+            "len", "sha1"],
         }, {
           title: "privilege",
           fields: ["c", "m", "g", "md", "pvg"]
@@ -4351,7 +4353,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220809.154053"
+const WALNUT_VERSION = "1.2-20220810.013301"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

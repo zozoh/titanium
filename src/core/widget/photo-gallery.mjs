@@ -684,6 +684,10 @@ class TiPhotoGallery {
 export const PhotoGallery = {
   //---------------------------------------
   bind($el, setup = {}) {
+    // Guard
+    if(!$el) {
+      return
+    }
     if (!$el.__ti_photo_gallery) {
       // Create instance
       let PG = new TiPhotoGallery($el, setup)

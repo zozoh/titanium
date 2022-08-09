@@ -717,8 +717,10 @@ const WnObj = {
       fields = [{
         title: "basic",
         fields: [
-          "id", "nm", "title", "icon", "thumb", "ph", "race", "tp", "mime",
-          "width", "height", "len", "sha1", "sort"],
+          "id", "nm", "title", "icon", "thumb", "sort",
+          "width", "height",
+          "ph", "race", "tp", "mime",
+          "len", "sha1"],
       }, {
         title: "privilege",
         fields: ["c", "m", "g", "md", "pvg"]

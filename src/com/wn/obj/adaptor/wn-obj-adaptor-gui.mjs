@@ -99,6 +99,10 @@ const _M = {
                 {
                   "value": "nm",
                   "text": "i18n:wn-key-nm"
+                },
+                {
+                  "value": "sort",
+                  "text": "i18n:sort"
                 }
               ]
             }
@@ -120,6 +124,17 @@ const _M = {
             "viewType": "=viewType",
             "routers": {
               /*"reload": `dispatch:${this.moduleName}/reloadData`*/
+            },
+            "itemBadges": {
+              "NE": function (obj) {
+                if (_.isNumber(obj.sort)) {
+                  return {
+                    type: "text",
+                    className: "as-circle is-track as-label-60 ",
+                    value: obj.sort || 0
+                  }
+                }
+              }
             },
             "tableViewConf": {
               "columnResizable": true,

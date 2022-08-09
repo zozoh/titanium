@@ -1,74 +1,128 @@
 .ti-obj-thumb {
   //----------------------------------------------
   @include noselect();
-  width:SZ(100); border:1px solid transparent;
-  position:relative;
+  width: SZ(100);
+  border: 1px solid transparent;
+  position: relative;
   //----------------------------------------------
   > header {
     @include flex-center;
-    position:relative;
-    padding-bottom:SZ(5);
+    position: relative;
+    padding-bottom: SZ(5);
     //--------------------------------------------
     > .as-preview {
       @include flex-full-center;
-      position:relative;
-      width:SZ(80); height:SZ(80);
-      padding:SZ(4); border-radius:SZ(4);
-      font-size:SZ(40);
+      position: relative;
+      width: SZ(80);
+      height: SZ(80);
+      padding: SZ(4);
+      border-radius: SZ(4);
+      font-size: SZ(40);
       //------------------------------------------
       > img {
         object-fit: contain;
-        width:100%; height:100%;
-        display:block;
+        width: 100%;
+        height: 100%;
+        display: block;
       }
       //------------------------------------------
       > .as-badge {
-        font-size: SZ(12); opacity: 0.6;
+        font-size: SZ(12);
+        opacity: 0.6;
         //----------------------------------------
-        $bdgPad : SZ(2);
+        $bdgPad: SZ(2);
         //----------------------------------------
-        &.at-nw {@include pos-abs($t:$bdgPad, $l:$bdgPad);}
-        &.at-ne {@include pos-abs($t:$bdgPad, $r:$bdgPad);}
-        &.at-sw {@include pos-abs($b:$bdgPad, $l:$bdgPad);}
-        &.at-se {@include pos-abs($b:$bdgPad, $r:$bdgPad);}
+        &.at-nw {
+          @include pos-abs($t: $bdgPad, $l: $bdgPad);
+        }
+        &.at-ne {
+          @include pos-abs($t: $bdgPad, $r: $bdgPad);
+        }
+        &.at-sw {
+          @include pos-abs($b: $bdgPad, $l: $bdgPad);
+        }
+        &.at-se {
+          @include pos-abs($b: $bdgPad, $r: $bdgPad);
+        }
         //----------------------------------------
-        &.as-label-10 {opacity: 0.1;}
-        &.as-label-20 {opacity: 0.2;}
-        &.as-label-30 {opacity: 0.3;}
-        &.as-label-40 {opacity: 0.4;}
-        &.as-label-50 {opacity: 0.5;}
-        &.as-label-60 {opacity: 0.6;}
-        &.as-label-70 {opacity: 0.7;}
-        &.as-label-80 {opacity: 0.8;}
-        &.as-label-90 {opacity: 0.9;}
+        &.as-label-10 {
+          opacity: 0.1;
+        }
+        &.as-label-20 {
+          opacity: 0.2;
+        }
+        &.as-label-30 {
+          opacity: 0.3;
+        }
+        &.as-label-40 {
+          opacity: 0.4;
+        }
+        &.as-label-50 {
+          opacity: 0.5;
+        }
+        &.as-label-60 {
+          opacity: 0.6;
+        }
+        &.as-label-70 {
+          opacity: 0.7;
+        }
+        &.as-label-80 {
+          opacity: 0.8;
+        }
+        &.as-label-90 {
+          opacity: 0.9;
+        }
         //----------------------------------------
         &.as-circle {
           @include flex-center;
-          border-radius: 50%; overflow: hidden;
-          height: SZ(18); line-height: SZ(18);
-          min-width: SZ(18); font-size: SZ(10);
+          border-radius: 50%;
+          overflow: hidden;
+          height: SZ(20);
+          line-height: SZ(20);
+          min-width: SZ(20);
+          font-size: SZ(10);
         }
         //----------------------------------------
-        &.is-primary  { @include color($color-primary, r, c);} 
-        &.is-secondary{ @include color($color-secondary, r, c);} 
-        &.is-success  { @include color($color-success, r, c);}
-        &.is-warn     { @include color($color-warn, r, c);}
-        &.is-info     { @include color($color-info, r, c);}
-        &.is-error    { @include color($color-error, r, c);}
-        &.is-track    { @include color($color-track, r, c);}  
-        &.is-disable  { @include color($color-disable, r, c);}
-        &.is-text     { @include color($color-text, r, c);}   
-        &.is-number   { @include color($color-number, r, c);} 
+        &.is-primary {
+          @include color($color-primary, r, c);
+        }
+        &.is-secondary {
+          @include color($color-secondary, r, c);
+        }
+        &.is-success {
+          @include color($color-success, r, c);
+        }
+        &.is-warn {
+          @include color($color-warn, r, c);
+        }
+        &.is-info {
+          @include color($color-info, r, c);
+        }
+        &.is-error {
+          @include color($color-error, r, c);
+        }
+        &.is-track {
+          @include color($color-track, r, c);
+        }
+        &.is-disable {
+          @include color($color-disable, r, c);
+        }
+        &.is-text {
+          @include color($color-text, r, c);
+        }
+        &.is-number {
+          @include color($color-number, r, c);
+        }
         //----------------------------------------
       }
       //------------------------------------------
     }
     //--------------------------------------------
     > .as-progress {
-      @include pos-abs($l:0,$r:0,$b:0);
+      @include pos-abs($l: 0, $r: 0, $b: 0);
     }
     //--------------------------------------------
-  } // > header 
+  } // > header
   //----------------------------------------------
   > .as-status {
     @include pos-abs-full;
@@ -77,22 +131,38 @@
     opacity: 0.8;
   }
   //----------------------------------------------
-  &.is-status-done       > .as-status{@include color($color-success, r, c);}
-  &.is-status-loading    > .as-status{@include color($color-primary, r, c);}
-  &.is-status-processing > .as-status{@include color($color-secondary, r, c);}
-  &.is-status-error      > .as-status{@include color($color-error, r, c);}
-  &.is-status-warn       > .as-status{@include color($color-warn, r, c);}
-  &.is-status-removed    > .as-status{@include color($color-text, r, c);}
-  &.is-status-ok         > .as-status{@include color($color-info, r, c);}
+  &.is-status-done > .as-status {
+    @include color($color-success, r, c);
+  }
+  &.is-status-loading > .as-status {
+    @include color($color-primary, r, c);
+  }
+  &.is-status-processing > .as-status {
+    @include color($color-secondary, r, c);
+  }
+  &.is-status-error > .as-status {
+    @include color($color-error, r, c);
+  }
+  &.is-status-warn > .as-status {
+    @include color($color-warn, r, c);
+  }
+  &.is-status-removed > .as-status {
+    @include color($color-text, r, c);
+  }
+  &.is-status-ok > .as-status {
+    @include color($color-info, r, c);
+  }
   //----------------------------------------------
   > footer {
-    padding:SZ(4);
-    text-align:center;
+    padding: SZ(4);
+    text-align: center;
     //--------------------------------------------
     > .as-title {
-      height:3.3em; line-height:1.1em;
-      overflow:hidden; word-break: break-all;
-      font-size:1em;
+      height: 3.3em;
+      line-height: 1.1em;
+      overflow: hidden;
+      word-break: break-all;
+      font-size: 1em;
       text-overflow: ellipsis;
       display: -webkit-box;
       -webkit-box-orient: vertical;
@@ -114,24 +184,36 @@
     //--------------------------------------------
   }
   //----------------------------------------------
-  &.is-removed {opacity:0.4;}
-  &.is-weak {opacity:0.4;}
-  &.is-hide {display:none;}
+  &.is-removed {
+    opacity: 0.4;
+  }
+  &.is-weak {
+    opacity: 0.4;
+  }
+  &.is-hide {
+    display: none;
+  }
   //----------------------------------------------
-  $ICONSZ : SZ(24);
+  $ICONSZ: SZ(24);
   > .as-remove {
-    @include pos-abs($t:$ICONSZ/-2,$r:$ICONSZ/-2,$w:$ICONSZ,$h:$ICONSZ);
+    @include pos-abs($t: $ICONSZ/-2, $r: $ICONSZ/-2, $w: $ICONSZ, $h: $ICONSZ);
     @include color($color-primary, r, c);
     @include flex-center;
-    cursor:pointer; font-size:SZ(8);
-    border-radius: 50%; opacity: 0.6;
+    cursor: pointer;
+    font-size: SZ(8);
+    border-radius: 50%;
+    opacity: 0.6;
     //--------------------------------------------
-    .ti-icon {transition: 0.3s;}
+    .ti-icon {
+      transition: 0.3s;
+    }
     //--------------------------------------------
     &:hover {
       @include color($color-error, r, c);
       opacity: 1;
-      .ti-icon {transform: rotate(180deg) scale(1.2);}
+      .ti-icon {
+        transform: rotate(180deg) scale(1.2);
+      }
     }
     //--------------------------------------------
   }
