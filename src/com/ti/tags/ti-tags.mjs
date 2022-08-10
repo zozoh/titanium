@@ -1,6 +1,7 @@
 export default {
   ////////////////////////////////////////////////////
   data: () => ({
+    $sortable: undefined,
     dragging: false,
     myTags: [],
     myValues: []
@@ -46,6 +47,10 @@ export default {
       default: false
     },
     "removable": {
+      type: Boolean,
+      default: false
+    },
+    "readonly": {
       type: Boolean,
       default: false
     },
@@ -244,20 +249,33 @@ export default {
     },
     //--------------------------------------
     initSortable() {
-      if (this.removable && _.isElement(this.$el)) {
-        new Sortable(this.$el, {
-          animation: 300,
-          filter: ".as-nil-tip",
-          onStart: () => {
-            this.dragging = true
-          },
-          onEnd: ({ oldIndex, newIndex }) => {
-            this.switchItem(oldIndex, newIndex)
-            _.delay(() => {
-              this.dragging = false
-            }, 100)
-          }
-        })
+      this.$sortable = new Sortable(this.$el, {
+        animation: 300,
+        filter: ".as-nil-tip",
+        onStart: () => {
+          this.dragging = true
+        },
+        onEnd: ({ oldIndex, newIndex }) => {
+          this.switchItem(oldIndex, newIndex)
+          _.delay(() => {
+            this.dragging = false
+          }, 100)
+        }
+      })
+    },
+    //------------------------------------------------
+    tryInitSortable() {
+      if (!this.readonly && this.removable && _.isElement(this.$el)) {
+        if (!this.$sortable) {
+          this.initSortable()
+        }
+      }
+      // Destroy sortable
+      else {
+        if (this.$sortable) {
+          this.$sortable.destroy()
+          this.$sortable = undefined
+        }
       }
     }
     //------------------------------------------------
@@ -267,11 +285,11 @@ export default {
     "value": {
       handler: "evalMyData",
       immediate: true
+    },
+    "readonly": {
+      handler: "tryInitSortable",
+      immediate: true
     }
-  },
-  ////////////////////////////////////////////////////
-  mounted: function () {
-    this.initSortable()
   }
   ////////////////////////////////////////////////////
 }

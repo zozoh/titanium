@@ -68,6 +68,10 @@ export default {
       type : Boolean,
       default : false
     },
+    "readonly" : {
+      type : Boolean,
+      default : false
+    },
     "removeIcon" : {
       type : String,
       default : null
@@ -164,11 +168,17 @@ export default {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onClickDel() {
+    OnClickDel() {
+      if(this.readonly || !this.removable) {
+        return
+      }
       this.$notify("remove", this.theData)
     },
     //------------------------------------------------
-    onClickOption({value,text,icon}={}) {
+    OnClickOption({value,text,icon}={}) {
+      if(this.readonly) {
+        return
+      }
       this.$notify("change", {
         value,text,icon,
         index: this.index
@@ -176,7 +186,10 @@ export default {
       this.closeDrop()
     },
     //------------------------------------------------
-    onClickTop($event) {
+    OnClickTop($event) {
+      if(this.readonly) {
+        return
+      }
       // Show Drop Down
       if(this.hasOptions) {
         $event.stopPropagation()

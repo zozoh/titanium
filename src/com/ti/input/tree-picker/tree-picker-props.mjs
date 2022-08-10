@@ -32,6 +32,9 @@ export default {
     type: Number,
     default: 5
   },
+  "readonly": {
+    type: Boolean
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

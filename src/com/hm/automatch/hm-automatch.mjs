@@ -135,6 +135,7 @@ export default {
         },
         comType: "TiInputPair",
         comConf: {
+          "nameWidth": "2.45rem",
           "valueComType": "TiInputDval",
           "valueComConf": {
             "hideBorder": true,

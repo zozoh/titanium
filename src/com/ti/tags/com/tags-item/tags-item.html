@@ -2,16 +2,16 @@
   :class="topClass"
   @mouseenter="mouseEnter='top'"
   @mouseleave="mouseEnter=null"
-  @click.left="onClickTop">
+  @click.left="OnClickTop">
   <!--
     Deleter
   -->
-  <ti-icon v-if="removable"
+  <ti-icon v-if="removable && !readonly"
     class="as-del"
     :value="removeIcon"
     @mouseenter.native="mouseEnter='del'"
     @mouseleave.native="mouseEnter='top'"
-    @click.native.stop="onClickDel"/>
+    @click.native.stop="OnClickDel"/>
   <!--
     Icon
   -->
@@ -34,7 +34,7 @@
   <!--
     Status Icon
   -->
-  <ti-icon v-if="hasOptions"
+  <ti-icon v-if="hasOptions && !readonly"
     class="as-status"
     :value="theStatusIcon"/>
   <!--
@@ -47,7 +47,7 @@
       <ti-icon-text v-for="it in theOptions"
         :key="it.index"
         v-bind="it"
-        @click.native="onClickOption(it)"/>
+        @click.native="OnClickOption(it)"/>
     </div>
   </template>
 </div>

@@ -632,13 +632,15 @@ const _M = {
     },
     //--------------------------------------------------
     evalFieldDisplay(field = {}) {
-      let { name, display, comConf } = field
+      let { name, display, comType, comConf } = field
       // Guard
       if (!display) {
+        comType = _.upperFirst(_.camelCase(comType))
         // Auto gen display
         if (this.autoReadonlyDisplay
           && this.isReadonly
-          && !this.isIgnoreAutoReadonly(field)) {
+          && !this.isIgnoreAutoReadonly(field)
+          && !/^(TiLabel|WnObjId)$/.test(comType)) {
           let labelConf = {}
           // If options
           if (comConf && comConf.options) {
@@ -653,6 +655,10 @@ const _M = {
               })
               labelConf.dict = dict
             }
+          }
+          // If AMS
+          if( "AMS" == field.type) {
+            labelConf.format = comConf.format || Ti.DateTime.format
           }
           // Just pure value
           return {

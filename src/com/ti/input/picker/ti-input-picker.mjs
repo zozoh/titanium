@@ -110,9 +110,12 @@ const _M = {
       let conf = _.assign({
         readonly: this.readonly || this.isPicking,
         focused: this.focused,
-        placeholder: this.placeholder,
-        suffixIcon: this.suffixIcon
+        placeholder: this.placeholder
       }, this.input)
+
+      if (!this.readonly) {
+        conf.suffixIcon = this.suffixIcon
+      }
 
       // Multi 
       if (this.multi) {

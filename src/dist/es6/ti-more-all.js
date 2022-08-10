@@ -1,4 +1,4 @@
-// Pack At: 2022-08-10 01:33:01
+// Pack At: 2022-08-11 00:07:19
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -645,13 +645,15 @@ const _M = {
     },
     //--------------------------------------------------
     evalFieldDisplay(field = {}) {
-      let { name, display, comConf } = field
+      let { name, display, comType, comConf } = field
       // Guard
       if (!display) {
+        comType = _.upperFirst(_.camelCase(comType))
         // Auto gen display
         if (this.autoReadonlyDisplay
           && this.isReadonly
-          && !this.isIgnoreAutoReadonly(field)) {
+          && !this.isIgnoreAutoReadonly(field)
+          && !/^(TiLabel|WnObjId)$/.test(comType)) {
           let labelConf = {}
           // If options
           if (comConf && comConf.options) {
@@ -666,6 +668,10 @@ const _M = {
               })
               labelConf.dict = dict
             }
+          }
+          // If AMS
+          if( "AMS" == field.type) {
+            labelConf.format = comConf.format || Ti.DateTime.format
           }
           // Just pure value
           return {
@@ -2332,6 +2338,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type : Boolean,
       default : false
     },
+    "readonly" : {
+      type : Boolean,
+      default : false
+    },
     "removeIcon" : {
       type : String,
       default : null
@@ -2428,11 +2438,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
   methods : {
     //------------------------------------------------
-    onClickDel() {
+    OnClickDel() {
+      if(this.readonly || !this.removable) {
+        return
+      }
       this.$notify("remove", this.theData)
     },
     //------------------------------------------------
-    onClickOption({value,text,icon}={}) {
+    OnClickOption({value,text,icon}={}) {
+      if(this.readonly) {
+        return
+      }
       this.$notify("change", {
         value,text,icon,
         index: this.index
@@ -2440,7 +2456,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.closeDrop()
     },
     //------------------------------------------------
-    onClickTop($event) {
+    OnClickTop($event) {
+      if(this.readonly) {
+        return
+      }
       // Show Drop Down
       if(this.hasOptions) {
         $event.stopPropagation()
@@ -13820,13 +13839,15 @@ const _M = {
     },
     //--------------------------------------------------
     evalFieldDisplay(field = {}) {
-      let { name, display, comConf } = field
+      let { name, display, comType, comConf } = field
       // Guard
       if (!display) {
+        comType = _.upperFirst(_.camelCase(comType))
         // Auto gen display
         if (this.autoReadonlyDisplay
           && this.isReadonly
-          && !this.isIgnoreAutoReadonly(field)) {
+          && !this.isIgnoreAutoReadonly(field)
+          && !/^(TiLabel|WnObjId)$/.test(comType)) {
           let labelConf = {}
           // If options
           if (comConf && comConf.options) {
@@ -13841,6 +13862,10 @@ const _M = {
               })
               labelConf.dict = dict
             }
+          }
+          // If AMS
+          if( "AMS" == field.type) {
+            labelConf.format = comConf.format || Ti.DateTime.format
           }
           // Just pure value
           return {
@@ -30891,6 +30916,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "defaultOpenDepth": {
     type: Number,
     default: 5
+  },
+  "readonly": {
+    type: Boolean
   },
   //-----------------------------------
   // Aspect
@@ -55861,6 +55889,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         },
         comType: "TiInputPair",
         comConf: {
+          "nameWidth": "2.45rem",
           "valueComType": "TiInputDval",
           "valueComConf": {
             "hideBorder": true,
@@ -55986,6 +56015,7 @@ window.TI_PACK_EXPORTS['ti/com/ti/tags/ti-tags.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
   data: () => ({
+    $sortable: undefined,
     dragging: false,
     myTags: [],
     myValues: []
@@ -56031,6 +56061,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       default: false
     },
     "removable": {
+      type: Boolean,
+      default: false
+    },
+    "readonly": {
       type: Boolean,
       default: false
     },
@@ -56229,20 +56263,33 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     initSortable() {
-      if (this.removable && _.isElement(this.$el)) {
-        new Sortable(this.$el, {
-          animation: 300,
-          filter: ".as-nil-tip",
-          onStart: () => {
-            this.dragging = true
-          },
-          onEnd: ({ oldIndex, newIndex }) => {
-            this.switchItem(oldIndex, newIndex)
-            _.delay(() => {
-              this.dragging = false
-            }, 100)
-          }
-        })
+      this.$sortable = new Sortable(this.$el, {
+        animation: 300,
+        filter: ".as-nil-tip",
+        onStart: () => {
+          this.dragging = true
+        },
+        onEnd: ({ oldIndex, newIndex }) => {
+          this.switchItem(oldIndex, newIndex)
+          _.delay(() => {
+            this.dragging = false
+          }, 100)
+        }
+      })
+    },
+    //------------------------------------------------
+    tryInitSortable() {
+      if (!this.readonly && this.removable && _.isElement(this.$el)) {
+        if (!this.$sortable) {
+          this.initSortable()
+        }
+      }
+      // Destroy sortable
+      else {
+        if (this.$sortable) {
+          this.$sortable.destroy()
+          this.$sortable = undefined
+        }
       }
     }
     //------------------------------------------------
@@ -56252,11 +56299,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "value": {
       handler: "evalMyData",
       immediate: true
+    },
+    "readonly": {
+      handler: "tryInitSortable",
+      immediate: true
     }
-  },
-  ////////////////////////////////////////////////////
-  mounted: function () {
-    this.initSortable()
   }
   ////////////////////////////////////////////////////
 }
@@ -58450,17 +58497,21 @@ const _M = {
   computed: {
     //--------------------------------------
     InputSuffixIcon() {
-      if(this.isPicking) {
+      if (this.isPicking) {
         return this.pickingIcon
       }
-      return this.suffixIcon
+      if (!this.readonly) {
+        return this.suffixIcon
+      }
     },
     //--------------------------------------
     InputSuffixText() {
-      if(this.isPicking) {
+      if (this.isPicking) {
         return this.pickingText
       }
-      return this.myInputSuffix
+      if (!this.readonly) {
+        return this.myInputSuffix
+      }
     },
     //--------------------------------------
     hasVars() {
@@ -58473,7 +58524,7 @@ const _M = {
     //--------------------------------------
     async OnClickSuffixIcon() {
       // Guard: Picking
-      if (this.isPicking) {
+      if (this.isPicking || this.readonly) {
         return
       }
       // Mark: Picking
@@ -58558,6 +58609,9 @@ const _M = {
     },
     //--------------------------------------
     tryNotifyChange(vals = []) {
+      if(this.readonly) {
+        return
+      }
       let v2;
       if (this.multi) {
         v2 = vals
@@ -78560,9 +78614,12 @@ const _M = {
       let conf = _.assign({
         readonly: this.readonly || this.isPicking,
         focused: this.focused,
-        placeholder: this.placeholder,
-        suffixIcon: this.suffixIcon
+        placeholder: this.placeholder
       }, this.input)
+
+      if (!this.readonly) {
+        conf.suffixIcon = this.suffixIcon
+      }
 
       // Multi 
       if (this.multi) {
@@ -81706,24 +81763,27 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/input/tags/ti-input-tags.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    
+  data: () => ({
+
   }),
   ////////////////////////////////////////////////////
-  props : {
-    "inputChange" : {
+  props: {
+    "inputChange": {
       type: Function,
-      default : undefined
+      default: undefined
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     InputPrefixIcon() {
-      if(this.prefixIcon) {
+      if (this.readonly) {
+        return
+      }
+      if (this.prefixIcon) {
         return this.prefixIcon
       }
-      if(!_.isEmpty(this.value)) {
+      if (!_.isEmpty(this.value)) {
         return 'zmdi-minus'
       }
     },
@@ -81749,10 +81809,12 @@ const _M = {
     },
     //------------------------------------------------
     thePlaceholder() {
-      if(this.placeholder) {
-        return this.placeholder
+      if (this.placeholder) {
+        if (!this.readonly || !this.hasTags) {
+          return this.placeholder
+        }
       }
-      if(this.readonly || !this.canInput) {
+      if (this.readonly || !this.canInput) {
         return ""
       }
       return "i18n:input-tags"
@@ -81760,9 +81822,9 @@ const _M = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
-    onInputInit($input) {this.$input=$input},
+    onInputInit($input) { this.$input = $input },
     //------------------------------------------------
     /***
      * @return The tag objects list like:
@@ -81776,35 +81838,35 @@ const _M = {
      * }]
      * ```
      */
-    evalTagList(values=[], newTagVal) {
+    evalTagList(values = [], newTagVal) {
       //...........................................
       // Prepare the list
-      let list = _.filter(_.concat(values), (v)=>!Ti.Util.isNil(v))
+      let list = _.filter(_.concat(values), (v) => !Ti.Util.isNil(v))
       // Join the last one
-      if(!Ti.Util.isNil(newTagVal)) {
+      if (!Ti.Util.isNil(newTagVal)) {
         list.push(newTagVal)
       }
       // valueUnique
-      if(this.valueUnique) {
+      if (this.valueUnique) {
         list = _.uniq(list)
       }
       // The MaxValueLen
-      if(this.maxValueLen > 0) {
+      if (this.maxValueLen > 0) {
         list = _.slice(list, 0, this.maxValueLen)
       }
       // Slice from the end
-      else if(this.maxValueLen < 0) {
+      else if (this.maxValueLen < 0) {
         let offset = Math.max(0, list.length + this.maxValueLen)
         list = _.slice(list, offset)
       }
       // Gen Tag List
       let tags = []
-      for(let li of list) {
+      for (let li of list) {
         // Object
-        if(_.isPlainObject(li)) {
+        if (_.isPlainObject(li)) {
           tags.push(_.assign({
-            icon    : this.tagIcon,
-            options : this.tagOptions
+            icon: this.tagIcon,
+            options: this.tagOptions
           }, li))
         }
         // String or simple value
@@ -81816,13 +81878,13 @@ const _M = {
       return tags
     },
     //------------------------------------------------
-    getTagValues(tags=[]) {
+    getTagValues(tags = []) {
       let list = []
-      for(let tag of tags) {
+      for (let tag of tags) {
         let val = _.isPlainObject(tag)
           ? tag.value
           : tag
-        if(!Ti.Util.isNil(val)) {
+        if (!Ti.Util.isNil(val)) {
           list.push(val)
         }
       }
@@ -81835,15 +81897,15 @@ const _M = {
     //------------------------------------------------
     onInputChanged(val) {
       // May click the prefix icon for clean
-      if(_.isNull(val)) {
+      if (_.isNull(val)) {
         this.$notify("change", [])
       }
       // Delegate to parent
-      else if(_.isFunction(this.inputChange)) {
+      else if (_.isFunction(this.inputChange)) {
         this.inputChange(val)
       }
       // Handle by self
-      else if(val) {
+      else if (val) {
         let tags = this.evalTagList(this.value, val)
         let vals = this.getTagValues(tags)
         this.$notify("change", vals)
@@ -87237,6 +87299,7 @@ Ti.Preload("ti/com/ti/input/tags/ti-input-tags.html", `<ti-input
       :value="theTags"
       :dict="dict"
       :removable="true"
+      :readonly="readonly"
       :item-options="tagOptions"
       :item-icon-by="tagItemIconBy"
       :item-default-icon="tagItemDefaultIcon"
@@ -87537,6 +87600,7 @@ Ti.Preload("ti/com/ti/input/tree-picker/ti-input-tree-picker.html", `<div class=
       :dict="dict"
       :prefixIcon="myInputIcon"
       :suffixIcon="InputSuffixIcon"
+      :readonly="readonly"
       @suffix:icon="OnClickSuffixIcon"/>
   <!--
     Single value
@@ -89674,16 +89738,16 @@ Ti.Preload("ti/com/ti/tags/com/tags-item/tags-item.html", `<div class="ti-tags-i
   :class="topClass"
   @mouseenter="mouseEnter='top'"
   @mouseleave="mouseEnter=null"
-  @click.left="onClickTop">
+  @click.left="OnClickTop">
   <!--
     Deleter
   -->
-  <ti-icon v-if="removable"
+  <ti-icon v-if="removable && !readonly"
     class="as-del"
     :value="removeIcon"
     @mouseenter.native="mouseEnter='del'"
     @mouseleave.native="mouseEnter='top'"
-    @click.native.stop="onClickDel"/>
+    @click.native.stop="OnClickDel"/>
   <!--
     Icon
   -->
@@ -89706,7 +89770,7 @@ Ti.Preload("ti/com/ti/tags/com/tags-item/tags-item.html", `<div class="ti-tags-i
   <!--
     Status Icon
   -->
-  <ti-icon v-if="hasOptions"
+  <ti-icon v-if="hasOptions && !readonly"
     class="as-status"
     :value="theStatusIcon"/>
   <!--
@@ -89719,7 +89783,7 @@ Ti.Preload("ti/com/ti/tags/com/tags-item/tags-item.html", `<div class="ti-tags-i
       <ti-icon-text v-for="it in theOptions"
         :key="it.index"
         v-bind="it"
-        @click.native="onClickOption(it)"/>
+        @click.native="OnClickOption(it)"/>
     </div>
   </template>
 </div>`);
@@ -89760,6 +89824,7 @@ Ti.Preload("ti/com/ti/tags/ti-tags.html", `<div class="ti-tags"
         :option-default-icon="optionDefaultIcon"
         :removable="removable"
         :remove-icon="removeIcon"
+        :readonly="readonly"
         :status-icons="statusIcons"
         @change="OnItemChanged"
         @remove="OnItemRemoved"
@@ -94958,6 +95023,7 @@ Ti.Preload("ti/com/wn/input/tree-picker/wn-input-tree-picker.html", `<TiInputTre
 
   :onlyLeaf="onlyLeaf"
   :multi="multi"
+  :readonly="readonly"
   :defaultOpenDepth="defaultOpenDepth"
   
   :dialog="dialog"

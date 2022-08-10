@@ -13,17 +13,21 @@ const _M = {
   computed: {
     //--------------------------------------
     InputSuffixIcon() {
-      if(this.isPicking) {
+      if (this.isPicking) {
         return this.pickingIcon
       }
-      return this.suffixIcon
+      if (!this.readonly) {
+        return this.suffixIcon
+      }
     },
     //--------------------------------------
     InputSuffixText() {
-      if(this.isPicking) {
+      if (this.isPicking) {
         return this.pickingText
       }
-      return this.myInputSuffix
+      if (!this.readonly) {
+        return this.myInputSuffix
+      }
     },
     //--------------------------------------
     hasVars() {
@@ -36,7 +40,7 @@ const _M = {
     //--------------------------------------
     async OnClickSuffixIcon() {
       // Guard: Picking
-      if (this.isPicking) {
+      if (this.isPicking || this.readonly) {
         return
       }
       // Mark: Picking
@@ -121,6 +125,9 @@ const _M = {
     },
     //--------------------------------------
     tryNotifyChange(vals = []) {
+      if(this.readonly) {
+        return
+      }
       let v2;
       if (this.multi) {
         v2 = vals
