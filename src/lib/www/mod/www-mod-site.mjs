@@ -8,14 +8,15 @@ const _M = {
       _.forEach(state.router, ({
         match, names = [], page = {}, preload
       } = {}) => {
-        let regex = new RegExp(match)
+        let regex = match ? new RegExp(match) : null;
         // Pre-compiled
         let li = function (path) {
-          let m = regex.exec(path)
-          // Match page
-          if (m) {
-            // Build Context
-            let context = {}
+          let context = {}
+          if (regex) {
+            let m = regex.exec(path)
+            if (!m) {
+              return
+            }
             for (let i = 0; i < m.length; i++) {
               let val = m[i]
               context[i] = val
@@ -24,11 +25,10 @@ const _M = {
                 _.set(context, key, val)
               }
             }
-            // Render page info
-            //return Ti.Util.explainObj(context, page)
-            return {
-              context, page, preload
-            }
+          }
+          // Match page
+          return {
+            context, page, preload
           }
         }
 
@@ -557,7 +557,7 @@ const _M = {
     //--------------------------------------------
     async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
       state.LOG = () => { }
-      //state.LOG = console.log
+      state.LOG = console.log
       state.LOG("site.reload", state.entry, state.base, state.lang)
       //---------------------------------------
       // Looking for the entry page

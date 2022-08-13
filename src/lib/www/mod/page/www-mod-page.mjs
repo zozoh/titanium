@@ -517,6 +517,9 @@ const _M = {
           break
         }
       }
+      if(!roInfo) {
+        throw `Fail to find route for "${path}"`
+      }
       //.....................................
       // Preload page data by router info
       let roDataKey;

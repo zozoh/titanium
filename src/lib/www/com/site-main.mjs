@@ -1,7 +1,10 @@
 const _M = {
   /////////////////////////////////////////
   provide: function () {
-    return Ti.Util.explainObj(this.$store.state, this.provide)
+    let ctx = _.cloneDeep(this.$store.state)
+    let { langCase, lang } = ctx
+    ctx.lang = _[`${langCase || "snake"}Case`](lang)
+    return Ti.Util.explainObj(ctx, this.provide)
   },
   /////////////////////////////////////////
   computed: {

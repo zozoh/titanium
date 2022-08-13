@@ -148,7 +148,8 @@ export default {
       type: Object,
       default: () => ({})
     },
-    "captureEvents": undefined
+    "captureEvents": undefined,
+    "adjustable": undefined,
   },
   //////////////////////////////////////////
   computed: {

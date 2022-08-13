@@ -1,28 +1,43 @@
 .web-text-heading {
-  @include flex-align-center($wp:nowrap);
+  @include flex-align-center($wp: nowrap);
   @include noselect;
   position: relative;
   //-----------------------------------------
   &.show-backward {
     padding-left: SZ(50);
-    .as-main-part {padding-left:0;}
+    .as-main-part {
+      padding-left: 0;
+    }
   }
   //-----------------------------------------
   &.as-wrap-part {
     flex-wrap: wrap;
   }
   //-----------------------------------------
+  &.align-left .as-title {
+    justify-content: flex-start;
+  }
+  //-----------------------------------------
+  &.align-center .as-title {
+    justify-content: center;
+  }
+  //-----------------------------------------
+  &.align-right .as-title {
+    justify-content: flex-end;
+  }
+  //-----------------------------------------
   .as-icon {
     @include flex-center;
-    flex:0 0 auto;
-    width: 1.4em; font-size:2em;
-    padding:.5em;
+    flex: 0 0 auto;
+    width: 1.4em;
+    font-size: 2em;
+    padding: 0.5em;
   }
   //-----------------------------------------
   .as-backward {
-    @include pos-abs($l:0,$t:0,$b:0,$w:SZ(50));
+    @include pos-abs($l: 0, $t: 0, $b: 0, $w: SZ(50));
     @include flex-center;
-    flex:0 0 auto; 
+    flex: 0 0 auto;
     &:hover {
       @include color($color-primary, r, c);
       text-decoration: none;
@@ -30,58 +45,74 @@
   }
   //-----------------------------------------
   .as-main-part {
-    flex:1 1 auto; padding:.6em;
+    flex: 1 1 auto;
+    padding: 0.6em;
   }
   //-----------------------------------------
   .as-title {
     @include flex-align-nowrap;
-    flex:1 1 auto; font-size:1.2em; cursor: default;
-    text-decoration: none;  margin:0 SZ(10);
+    flex: 1 1 auto;
+    font-size: 1.2em;
+    cursor: default;
+    text-decoration: none;
+    margin: 0 SZ(10);
     //---------------------------------------
-    &:hover {text-decoration: none;}
+    &:hover {
+      text-decoration: none;
+    }
     //---------------------------------------
     &[href] {
-      cursor: pointer; 
-      &:hover {text-decoration: underline;}
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
     }
     //---------------------------------------
     .ti-icon {
-      margin: 0 .2em 0 .8em;
-      &.at-0 {font-size: 1.3em;}
-      &.at-1 {font-size: 0.8em;}
+      margin: 0 0.2em 0 0.8em;
+      &.at-0 {
+        font-size: 1.3em;
+      }
+      &.at-1 {
+        font-size: 0.8em;
+      }
     }
     //---------------------------------------
   }
   //-----------------------------------------
   .as-comment {
-    color:map-get($color-track, c);
+    color: map-get($color-track, c);
     margin: SZ(10);
   }
   //-----------------------------------------
   .as-more {
-    flex:0 0 auto;
-    font-size:.9em;
+    flex: 0 0 auto;
+    font-size: 0.9em;
     cursor: default;
     text-decoration: none;
     //---------------------------------------
-    &:hover {text-decoration: none;}
+    &:hover {
+      text-decoration: none;
+    }
     //---------------------------------------
     img {
-      border:1px solid transparent;
-      border-radius: 3px; opacity: 0.8;
-      transition: .5s;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      opacity: 0.8;
+      transition: 0.5s;
     }
     //---------------------------------------
     &[href] {
-      cursor: pointer; 
+      cursor: pointer;
       //-------------------------------------
       &:hover {
         text-decoration: underline;
         img {
           border-color: map-get($color-line, shallow);
-          opacity: 1; border-radius: 8px;
+          opacity: 1;
+          border-radius: 8px;
           box-shadow: 1px 1px 6px map-get($color-shadow, thin);
-          transform:translateX(-2px);
+          transform: translateX(-2px);
         }
       }
       //-------------------------------------
