@@ -1,4 +1,4 @@
-// Pack At: 2022-08-14 19:21:08
+// Pack At: 2022-08-14 21:01:12
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7598,6 +7598,38 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-cud.mjs'] = (function(){
 ////////////////////////////////////////////////
+async function getContentMeta(path, oDir) {
+  // Guard
+  if (!path || !oDir) {
+    return
+  }
+  let meta;
+  if ("<self>" != path) {
+    let aph;
+    // absolute path
+    if (/^([\/~]\/|id:)/.test(path)) {
+      aph = path
+    }
+    // In parent dir
+    else {
+      aph = Ti.Util.appendPath(`id:${oDir.id}/`, path)
+    }
+    meta = await Wn.Io.loadMeta(aph)
+    // If not exists, then create it
+    if (!meta) {
+      let cmdText = `touch '${aph}'`
+      await Wn.Sys.exec2(cmdText)
+      meta = await Wn.Io.loadMeta(aph)
+    }
+  }
+  // User self
+  else {
+    meta = state.meta
+  }
+
+  return meta
+}
+////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
   //
@@ -7883,17 +7915,9 @@ const _M = {
   //--------------------------------------------
   async openContentEditor({ state, commit, dispatch, getters }) {
     // Guard
-    if (!state.meta) {
+    let meta = await getContentMeta(getters.contentLoadPath, state.oDir)
+    if (!meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-
-    // Content meta
-    let meta;
-    let contentPath = getters.contentLoadPath
-    if ("<self>" == contentPath) {
-      meta = state.meta
-    } else {
-      meta = await Wn.Io.loadMeta(contentPath)
     }
 
     // Open Editor
@@ -8146,29 +8170,7 @@ const _M = {
     if (!path) {
       return
     }
-    let meta;
-    if ("<self>" != path) {
-      let aph;
-      // absolute path
-      if (/^([\/~]\/|id:)/.test(path)) {
-        aph = path
-      }
-      // In parent dir
-      else {
-        aph = Ti.Util.appendPath(`id:${state.oDir.id}/`, path)
-      }
-      meta = await Wn.Io.loadMeta(aph)
-      // If not exists, then create it
-      if (!meta) {
-        let cmdText = `touch '${aph}'`
-        await Wn.Sys.exec2(cmdText)
-        meta = await Wn.Io.loadMeta(aph)
-      }
-    }
-    // User self
-    else {
-      meta = state.meta
-    }
+    let meta = await getContentMeta(getters.contentLoadPath, state.oDir)
 
     // Guard
     if (!meta) {
@@ -56955,9 +56957,9 @@ const _M = {
       return
     }
     state.LOG = () => { }
-    if ("main" == state.moduleName) {
-      state.LOG = console.log
-    }
+    // if ("main" == state.moduleName) {
+    //   state.LOG = console.log
+    // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // If meta like : {path: "/path/to", quiet:true}
     let quiet = false
