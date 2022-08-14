@@ -376,7 +376,7 @@ const WnIo = {
    */
   async moveTo(metaOrMetaList, {
     base, homePath,
-    objMatch, objFilter, objSort,
+    objMatch, objFilter, objSort, leafBy,
     treeDisplay,
     confirm = false,
     title = "i18n:move-to",
@@ -433,7 +433,7 @@ const WnIo = {
     // Select target
     let reo = await Wn.OpenObjTree(base, {
       title, homePath,
-      objMatch, objFilter, objSort,
+      objMatch, objFilter, objSort, leafBy,
       treeDisplay, exposeHidden
     })
 

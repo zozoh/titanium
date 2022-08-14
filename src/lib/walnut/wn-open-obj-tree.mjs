@@ -17,6 +17,7 @@ async function OpenObjTree(pathOrObj = "~", {
   objMatch = {
     race: "DIR"
   },
+  leafBy,
   objSort,
   objFilter
 } = {}) {
@@ -85,6 +86,7 @@ async function OpenObjTree(pathOrObj = "~", {
       currentId: oP.id,
       openedNodePath: phs,
       objMatch,
+      leafBy,
       sortBy: objSort,
       objFilter: objFilter || function (obj) {
         // Hidden file

@@ -92,7 +92,6 @@ const OBJ = {
     if (!it) {
       return await Ti.Toast.Open('i18n:wn-rename-none', "warn")
     }
-    this.setItemStatus(it.id, "renaming")
     try {
       // Get newName from User input
       let newName = await Ti.Prompt({
@@ -119,7 +118,7 @@ const OBJ = {
           }
         }
         // Mark renaming
-        this.setItemStatus(it.id, "loading")
+        this.setItemStatus(it.id, "processing")
         // Do the rename
         let newMeta = await Wn.Sys.exec2(
           `obj id:${it.id} -cqno -u 'nm:"${newName}"'`,
@@ -133,7 +132,6 @@ const OBJ = {
           await Ti.Toast.Open("i18n:wn-rename-ok", "success")
           this.setItem(newMeta)
         }
-        this.setItemStatus({ id: it.id, status: { loading: false } })
       }  // ~ if(newName)
     }
     // reset the status

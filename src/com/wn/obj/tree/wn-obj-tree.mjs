@@ -1,118 +1,122 @@
 export default {
   ////////////////////////////////////////////////////
-  data: ()=>({
-    treeRoot  : null,
-    myCurrentId : null,
-    myLoadingNodeId : null,
-    myOpenedNodePaths : {}
+  data: () => ({
+    treeRoot: null,
+    myCurrentId: null,
+    myLoadingNodeId: null,
+    myOpenedNodePaths: {}
   }),
   ////////////////////////////////////////////////////
-  props : {
+  props: {
     //------------------------------------------------
     // Data
     //------------------------------------------------
-    "meta" : {
-      type : Object,
-      default : undefined
+    "meta": {
+      type: Object,
+      default: undefined
     },
-    "idBy" : {
-      type : String,
-      default : "id"
+    "idBy": {
+      type: String,
+      default: "id"
     },
-    "nameBy" : {
-      type : String,
-      default : "nm"
+    "nameBy": {
+      type: String,
+      default: "nm"
     },
-    "referBy" : {
-      type : String,
-      default : "pid"
+    "referBy": {
+      type: String,
+      default: "pid"
     },
-    "childrenBy" : {
-      type : String,
-      default : "children"
+    "childrenBy": {
+      type: String,
+      default: "children"
     },
-    "sortBy" : {
-      type : Object,
-      default : ()=>({nm:1})
+    "sortBy": {
+      type: Object,
+      default: () => ({ nm: 1 })
     },
-    "openedNodePath" : {
-      type : [String, Array, Object]
+    "leafBy": {
+      type: [Object, Array, Function],
+      default: () => ({ race: 'FILE' })
     },
-    "currentId" : String,
-    "objMatch" : [Object, Function],
-    "objFilter" : {
-      type : [Function, Array, Object]
+    "openedNodePath": {
+      type: [String, Array, Object]
+    },
+    "currentId": String,
+    "objMatch": [Object, Function],
+    "objFilter": {
+      type: [Function, Array, Object]
     },
     //------------------------------------------------
     // Behavior
     //------------------------------------------------
-    "autoOpen"   : undefined,
-    "showRoot"   : undefined,
-    "multi"      : undefined,
+    "autoOpen": undefined,
+    "showRoot": undefined,
+    "multi": undefined,
 
-    "nodeCheckable"  : undefined,
-    "nodeSelectable" : undefined,
-    "nodeOpenable"   : undefined,
-    "nodeCancelable" : undefined,
-    "nodeHoverable"  : undefined,
+    "nodeCheckable": undefined,
+    "nodeSelectable": undefined,
+    "nodeOpenable": undefined,
+    "nodeCancelable": undefined,
+    "nodeHoverable": undefined,
 
-    "checkable"  : undefined,
-    "selectable" : undefined,
-    "openable"   : undefined,
-    "cancelable" : undefined,
-    "hoverable"  : undefined,
+    "checkable": undefined,
+    "selectable": undefined,
+    "openable": undefined,
+    "cancelable": undefined,
+    "hoverable": undefined,
 
-    "onNodeSelect" : undefined,
+    "onNodeSelect": undefined,
 
     // Local store to save the tree open status
-    "keepOpenBy" : {
-      type : String,
-      default : undefined
+    "keepOpenBy": {
+      type: String,
+      default: undefined
     },
-    "keepCurrentBy" : {
-      type : String,
-      default : undefined
+    "keepCurrentBy": {
+      type: String,
+      default: undefined
     },
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
-    "display" : {
-      type : [String, Object, Array],
-      default : ()=>[{
-        key : ['race', 'tp', 'mime', 'icon'],
-        transformer : Ti.Icons.evalIcon,
-        comType : "ti-icon"
+    "display": {
+      type: [String, Object, Array],
+      default: () => [{
+        key: ['race', 'tp', 'mime', 'icon'],
+        transformer: Ti.Icons.evalIcon,
+        comType: "ti-icon"
       }, "title|nm"]
     },
-    "spacing" : undefined,
-    "border"  : undefined,
-    "loadingNode" : {
-      type : Object,
-      default : ()=>({
-        title : "i18n:loading"
+    "spacing": undefined,
+    "border": undefined,
+    "loadingNode": {
+      type: Object,
+      default: () => ({
+        title: "i18n:loading"
       })
     },
-    "emptyNode" : {
-      type : Object,
-      default : ()=>({
-        icon  : "fas-braille",
-        title : "i18n:empty-data"
+    "emptyNode": {
+      type: Object,
+      default: () => ({
+        icon: "fas-braille",
+        title: "i18n:empty-data"
       })
     },
     //------------------------------------------------
     // Measure
     //------------------------------------------------
-    "width" : {
-      type : [Number, String],
-      default : undefined
+    "width": {
+      type: [Number, String],
+      default: undefined
     },
-    "height" : {
-      type : [Number, String],
-      default : undefined
+    "height": {
+      type: [Number, String],
+      default: undefined
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -126,58 +130,58 @@ export default {
     },
     //------------------------------------------------
     isNodeLoading() {
-      return ({id})=>{
+      return ({ id }) => {
         return id == this.myLoadingNodeId
       }
     },
     //------------------------------------------------
     TreeRowClassBy() {
-      return (it)=>{
-        if(/^\./.test(it.name)) {
+      return (it) => {
+        if (/^\./.test(it.name)) {
           return "is-weak"
         }
       }
     },
     //------------------------------------------------
     TreeRowFilter() {
-      if(!this.objFilter) {
-        return ()=>true
+      if (!this.objFilter) {
+        return () => true
       }
       return Ti.AutoMatch.parse(this.objFilter)
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     OnTreeInit($tree) {
       this.$tree = $tree
     },
     //------------------------------------------------
     OnTreeOpenedStatusChange(openedPath) {
-      this.myOpenedNodePaths = _.omitBy(openedPath, v=>!v)
-      if(this.keepOpenBy) {
+      this.myOpenedNodePaths = _.omitBy(openedPath, v => !v)
+      if (this.keepOpenBy) {
         Ti.Storage.session.setObject(this.keepOpenBy, openedPath)
       }
     },
     //------------------------------------------------
-    OnNodeSelect({currentId}) {
+    OnNodeSelect({ currentId }) {
       this.myCurrentId = currentId
-      if(this.keepCurrentBy) {
+      if (this.keepCurrentBy) {
         Ti.Storage.session.set(this.keepCurrentBy, currentId)
       }
       return false
     },
     //------------------------------------------------
-    async OnNodeOpened({id, leaf, path, rawData}) {
+    async OnNodeOpened({ id, leaf, path, rawData }) {
       let hie = this.getHierarchyById(id)
-      if(hie) {
+      if (hie) {
         //console.log(hie)
         // Not need reload
-        if(!_.isEmpty(_.get(hie.node, this.childrenBy))) {
+        if (!_.isEmpty(_.get(hie.node, this.childrenBy))) {
           return
         }
-        
+
         // Do reload
         await this.openNode(hie)
       }
@@ -188,14 +192,14 @@ export default {
       let hie = this.getHierarchyById(nodeId)
 
       // Guard
-      if(!hie)
+      if (!hie)
         return
 
       //console.log(hie)
       // Keep the exists children
       let oldPathId = hie.path.join("/")
       let children = _.get(hie.node, this.childrenBy)
-      if(!_.isEmpty(children)) {
+      if (!_.isEmpty(children)) {
         _.set(obj, this.childrenBy, children)
       }
 
@@ -205,9 +209,9 @@ export default {
       // Remove the opened path
       hie = this.getHierarchyById(nodeId)
       let openeds = {}
-      _.forEach(this.myOpenedNodePaths, (v, k)=> {
-        if(v) {
-          if(k == oldPathId) {
+      _.forEach(this.myOpenedNodePaths, (v, k) => {
+        if (v) {
+          if (k == oldPathId) {
             k = hie.path.join("/")
           }
           openeds[k] = true
@@ -215,7 +219,7 @@ export default {
       })
 
       // soft redraw
-      if(!_.isEqual(openeds, this.myOpenedNodePaths)) {
+      if (!_.isEqual(openeds, this.myOpenedNodePaths)) {
         this.myOpenedNodePaths = openeds
       }
       // Force redraw
@@ -224,22 +228,22 @@ export default {
       }
     },
     //------------------------------------------------
-    getHierarchyById(id, root=this.treeRoot) {
-      return Ti.Trees.getById(root, id, {nameBy:this.nameBy})
+    getHierarchyById(id, root = this.treeRoot) {
+      return Ti.Trees.getById(root, id, { nameBy: this.nameBy })
     },
     //------------------------------------------------
-    getHierarchyByPath(path, root=this.treeRoot) {
-      return Ti.Trees.getByPath(root, path, {nameBy:this.nameBy})
+    getHierarchyByPath(path, root = this.treeRoot) {
+      return Ti.Trees.getByPath(root, path, { nameBy: this.nameBy })
     },
     //------------------------------------------------
     getcloseNodesByPath(path) {
       let pathId = _.isArray(path) ? path.join("/") : path
       let openeds = {}
-      _.forEach(this.myOpenedNodePaths, (v, k)=>{
-        if(v && k.length > pathId.length && k.startsWith(pathId)) {
+      _.forEach(this.myOpenedNodePaths, (v, k) => {
+        if (v && k.length > pathId.length && k.startsWith(pathId)) {
           return
         }
-        if(v) {
+        if (v) {
           openeds[k] = true
         }
       })
@@ -260,26 +264,26 @@ export default {
     //------------------------------------------------
     selectNodeByPath(path) {
       let hie = this.getHierarchyByPath(path)
-      if(hie) {
+      if (hie) {
         this.$tree.selectNodeById(hie.id)
       }
     },
     //------------------------------------------------
     async openNodeById(id) {
       let hie = this.getHierarchyById(id)
-      if(hie) {
+      if (hie) {
         return await this.openNode(hie)
       }
     },
     //------------------------------------------------
     async openNodeByPath(id) {
       let hie = this.getHierarchyByPath(path)
-      if(hie) {
+      if (hie) {
         return await this.openNode(hie)
       }
     },
     //------------------------------------------------
-    async openNode({id, node, path}) {
+    async openNode({ id, node, path }) {
       // Show loading
       this.myLoadingNodeId = id
       await this.$tree.evalTreeTableData()
@@ -294,7 +298,7 @@ export default {
       openeds[pathId] = true
 
       // soft redraw
-      if(!_.isEqual(openeds, this.myOpenedNodePaths)) {
+      if (!_.isEqual(openeds, this.myOpenedNodePaths)) {
         this.myOpenedNodePaths = openeds
       }
       // Force redraw
@@ -306,12 +310,12 @@ export default {
     async reloadChildren(obj) {
       // Get the parent refer value
       let prVal = _.get(obj, this.idBy)
-      if(Ti.Util.isNil(prVal))
+      if (Ti.Util.isNil(prVal))
         return
 
       // Get match
       let match = {}
-      if(_.isFunction(this.objMatch)) {
+      if (_.isFunction(this.objMatch)) {
         _.assign(match, this.objMatch(obj))
       } else {
         _.assign(match, this.objMatch)
@@ -320,9 +324,9 @@ export default {
 
       // Reload top 
       let query = {
-        skip: 0, limit: 0, sort: this.sortBy, mine:true, match
+        skip: 0, limit: 0, sort: this.sortBy, mine: true, match
       }
-      let {list} = await Wn.Io.find(query)
+      let { list } = await Wn.Io.find(query)
 
       // Filter obj
       let list2 = _.filter(list, this.TreeRowFilter)
@@ -331,30 +335,30 @@ export default {
       this.$set(obj, this.childrenBy, list2)
     },
     //------------------------------------------------
-    async quietOpenNode(path=[], node=this.treeRoot) {
-      if('DIR' != node.race)
+    async quietOpenNode(path = [], node = this.treeRoot) {
+      if ('DIR' != node.race)
         return
 
-      if(_.isEmpty(path))
+      if (_.isEmpty(path))
         return
       let nodeName = _.first(path)
       let hie = this.getHierarchyByPath(nodeName, node)
       // Need to load the children
-      if(!hie) {
+      if (!hie) {
         await this.reloadChildren(node)
         // fetch again
         hie = this.getHierarchyByPath(nodeName, node)
       }
 
       // The child is lost
-      if(!hie)
+      if (!hie)
         return
 
       // Load the sub-level
       let subPath = path.slice(1)
 
       // Just open current node
-      if(_.isEmpty(subPath)) {
+      if (_.isEmpty(subPath)) {
         await this.reloadChildren(hie.node)
       }
       // Recur
@@ -365,28 +369,28 @@ export default {
     //------------------------------------------------
     async deleteNodeById(id, confirm) {
       let hie = this.getHierarchyById(id)
-      if(hie) {
+      if (hie) {
         return await this.deleteNode(hie, confirm)
       }
     },
     //------------------------------------------------
     async deleteNodeByPath(path, confirm) {
       let hie = this.getHierarchyByPath(path)
-      if(hie) {
+      if (hie) {
         return await this.deleteNode(hie, confirm)
       }
     },
     //------------------------------------------------
     async deleteNode(hie, confirm) {
       // Confirm
-      if(confirm) {
-        if(_.isBoolean(confirm)) {
+      if (confirm) {
+        if (_.isBoolean(confirm)) {
           confirm = {
-            text : "i18n:wn-del-confirm",
-            vars : {N:1}
+            text: "i18n:wn-del-confirm",
+            vars: { N: 1 }
           }
         }
-        if(!(await Ti.Confirm(confirm, {type:"warn"}))) {
+        if (!(await Ti.Confirm(confirm, { type: "warn" }))) {
           return
         }
       }
@@ -399,21 +403,21 @@ export default {
       await Wn.Sys.exec(cmdText)
 
       // Get pareth path
-      let pPath = hie.path.slice(0, hie.path.length-1)
+      let pPath = hie.path.slice(0, hie.path.length - 1)
       await this.reloadNodeByPath(pPath)
 
       // Tip user
       await Ti.Toast.Open({
-        position : "top",
-        content  : "i18n:wn-del-ok",
-        vars  : {N:1},
-        type  : "info"
+        position: "top",
+        content: "i18n:wn-del-ok",
+        vars: { N: 1 },
+        type: "info"
       })
 
       // Highlight next
-      if(can) {
+      if (can) {
         let nextNodeId = _.get(can.node, this.idBy)
-        _.delay(()=>{
+        _.delay(() => {
           this.selectNodeById(nextNodeId)
         }, 200)
       }
@@ -421,19 +425,19 @@ export default {
     //------------------------------------------------
     async reloadNodeById(id) {
       let hie = this.getHierarchyById(id)
-      if(hie) {
+      if (hie) {
         return await this.reloadNode(hie)
       }
     },
     //------------------------------------------------
     async reloadNodeByPath(path) {
       let hie = this.getHierarchyByPath(path)
-      if(hie) {
+      if (hie) {
         return await this.reloadNode(hie)
       }
     },
     //------------------------------------------------
-    async reloadNode({id, node, path}) {
+    async reloadNode({ id, node, path }) {
       // Show loading
       this.myLoadingNodeId = id
       await this.$tree.evalTreeTableData()
@@ -446,7 +450,7 @@ export default {
       let openeds = this.getcloseNodesByPath(path)
 
       // soft redraw
-      if(!_.isEqual(openeds, this.myOpenedNodePaths)) {
+      if (!_.isEqual(openeds, this.myOpenedNodePaths)) {
         this.myOpenedNodePaths = openeds
       }
       // Force redraw
@@ -457,7 +461,7 @@ export default {
     //------------------------------------------------
     async reload() {
       // Guard
-      if(!this.meta)
+      if (!this.meta)
         return
 
       // Make tree root
@@ -468,34 +472,34 @@ export default {
 
       // Open the node 
       let openPathIds = Ti.Util.truthyKeys(this.myOpenedNodePaths)
-      for(let pathId of openPathIds) {
+      for (let pathId of openPathIds) {
         let path = Ti.Trees.path(pathId)
         await this.quietOpenNode(path, root)
       }
 
       // Check the currentId
-      if(this.myCurrentId) {
+      if (this.myCurrentId) {
         // is it already loaded ?
         let hie = this.getHierarchyById(this.myCurrentId, root)
 
         // if not exists try to reload
-        if(!hie) {
+        if (!hie) {
           // Load ancestors 
           let ans = await Wn.Io.loadAncestors(`id:${this.myCurrentId}`)
-          
+
           // find the first index of 
           let index = 0
           let homeId = _.get(this.meta, this.idBy)
-          for(; index<ans.length; index++) {
+          for (; index < ans.length; index++) {
             let an = ans[index]
-            if(_.get(an, this.idBy) == homeId) {
+            if (_.get(an, this.idBy) == homeId) {
               break
             }
           }
 
           // Get the path
           let currentPath = []
-          for(index++; index<ans.length; index++) {
+          for (index++; index < ans.length; index++) {
             let an = ans[index]
             currentPath.push(_.get(an, this.nameBy))
           }
@@ -505,14 +509,14 @@ export default {
 
           // Make sure current is opened
           let openeds = {}
-          for(let i=1; i<=currentPath.length; i++) {
+          for (let i = 1; i <= currentPath.length; i++) {
             openeds[currentPath.slice(0, i).join("/")] = true
           }
           this.myOpenedNodePaths = _.defaults({}, this.myOpenedNodePaths, openeds)
         }
 
         // Restore the current node
-        _.delay(()=>{
+        _.delay(() => {
           this.$tree.selectNodeById(this.myCurrentId)
         }, 300)
       }
@@ -523,30 +527,30 @@ export default {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
-    "meta" : {
-      handler : function(newVal, oldVal) {
-        if(!_.isEqual(newVal, oldVal)) {
+  watch: {
+    "meta": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
           this.reload()
         }
       },
-      immediate : true
+      immediate: true
     },
-    "currentId" : {
-      handler : function(newVal) {
+    "currentId": {
+      handler: function (newVal) {
         this.myCurrentId = newVal
       },
-      immediate : true
+      immediate: true
     },
-    "openedNodePath" : {
-      handler : function(newVal) {
+    "openedNodePath": {
+      handler: function (newVal) {
         // Single path
-        if(_.isString(newVal)) {
+        if (_.isString(newVal)) {
           _.set(this.myOpenedNodePaths, newVal, true)
         }
         // Path array
-        else if(_.isArray(newVal)) {
-          for(let ph of newVal) {
+        else if (_.isArray(newVal)) {
+          for (let ph of newVal) {
             _.set(this.myOpenedNodePaths, ph, true)
           }
         }
@@ -555,15 +559,15 @@ export default {
           _.assign(this.myOpenedNodePaths, newVal)
         }
       },
-      immediate : true
+      immediate: true
     }
   },
   ////////////////////////////////////////////////////
-  created: function() {
-    if(this.keepCurrentBy) {
+  created: function () {
+    if (this.keepCurrentBy) {
       this.myCurrentId = Ti.Storage.session.getString(this.keepCurrentBy)
     }
-    if(this.keepOpenBy) {
+    if (this.keepOpenBy) {
       this.myOpenedNodePaths = Ti.Storage.session.getObject(this.keepOpenBy)
     }
   }

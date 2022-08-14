@@ -77,6 +77,19 @@ author: zozoh
     "hasMeta": false
   },
   "fieldStatus": {},
+  // 每个项目的状态： 支持 icons.mjs 里面的 NAMES 定义，常用的有：
+  //  - loading
+  //  - moved
+  //  - removed
+  //  - processing
+  //  - ok
+  //  - success
+  //  - warn
+  //  - error
+  //  - done
+  "itemStatus": {
+    /*[ItemId]: "loading|renaming|removed"*/
+  },
   /*
                模型界面配置
   */

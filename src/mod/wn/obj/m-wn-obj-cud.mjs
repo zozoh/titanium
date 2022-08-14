@@ -159,7 +159,7 @@ const _M = {
     }
 
     // Rename it
-    let itemStatus = { [it.id]: "loading" }
+    let itemStatus = { [it.id]: "processing" }
 
     commit("setStatus", { renaming: true })
     commit("setItemStatus", itemStatus)
@@ -191,7 +191,7 @@ const _M = {
   async removeChecked({ state, commit, dispatch, getters }, hard) {
     // Guard
     if (!state.dirId) {
-      return await Ti.Alert('State Has No dirId', "warn")
+      throw 'removeChecked: State Has No dirId'
     }
 
     let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds)
@@ -211,7 +211,7 @@ const _M = {
     }
 
     let itemStatus = {}
-    _.forEach(ids, id => itemStatus[id] = "loading")
+    _.forEach(ids, id => itemStatus[id] = "processing")
 
     commit("setStatus", { deleting: true })
     commit("setItemStatus", itemStatus)
@@ -239,6 +239,43 @@ const _M = {
       commit("setStatus", { deleting: false })
       commit("clearItemStatus")
     }, 500)
+  },
+  //--------------------------------------------
+  //
+  //               Move to
+  //
+  //--------------------------------------------
+  async moveTo({ state, commit, dispatch }, setup = {}) {
+    // Guard
+    if (!state.dirId) {
+      throw 'moveTo: State Has No dirId'
+    }
+
+    // Get the meta list
+    let list = _.filter(state.list, li => state.checkedIds[li.id])
+    state.LOG("moveTo", list)
+
+    if (_.isEmpty(list)) {
+      return await Ti.Toast.Open('i18n:nil-item', "warn")
+    }
+
+    // Dialog
+    await Wn.Io.moveTo(list, _.assign({}, setup, {
+      base: state.oDir,
+      // leafBy: [
+      //   { race: "FILE" },
+      //   { race: "DIR", tp: "article" }
+      // ],
+      // objMatch: {
+      //   race: "DIR"
+      // },
+      markItemStatus: (itId, status) => {
+        commit("setItemStatus", itId, status)
+      },
+      doneMove: async () => {
+        await dispatch("queryList")
+      }
+    }))
   },
   //--------------------------------------------
   //
@@ -275,7 +312,7 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async openCurrentMetaEditor({state, dispatch}) {
+  async openCurrentMetaEditor({ state, dispatch }) {
     // Guard
     if (!state.meta && !state.oDir) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
@@ -309,7 +346,7 @@ const _M = {
     })
   },
   //--------------------------------------------
-  async openCurrentPrivilege({state, dispatch}) {
+  async openCurrentPrivilege({ state, dispatch }) {
     let meta = state.meta || state.oDir
 
     if (!meta) {
@@ -535,7 +572,7 @@ const _M = {
     }
 
     // Guard
-    if(!meta) {
+    if (!meta) {
       return await Ti.Toast.Open("saveContent nil Meta!")
     }
 

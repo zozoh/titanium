@@ -1,4 +1,4 @@
-// Pack At: 2022-08-11 00:07:19
+// Pack At: 2022-08-14 19:21:08
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5195,6 +5195,9 @@ const _M = {
           break
         }
       }
+      if(!roInfo) {
+        throw `Fail to find route for "${path}"`
+      }
       //.....................................
       // Preload page data by router info
       let roDataKey;
@@ -7755,7 +7758,7 @@ const _M = {
     }
 
     // Rename it
-    let itemStatus = { [it.id]: "loading" }
+    let itemStatus = { [it.id]: "processing" }
 
     commit("setStatus", { renaming: true })
     commit("setItemStatus", itemStatus)
@@ -7787,7 +7790,7 @@ const _M = {
   async removeChecked({ state, commit, dispatch, getters }, hard) {
     // Guard
     if (!state.dirId) {
-      return await Ti.Alert('State Has No dirId', "warn")
+      throw 'removeChecked: State Has No dirId'
     }
 
     let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds)
@@ -7807,7 +7810,7 @@ const _M = {
     }
 
     let itemStatus = {}
-    _.forEach(ids, id => itemStatus[id] = "loading")
+    _.forEach(ids, id => itemStatus[id] = "processing")
 
     commit("setStatus", { deleting: true })
     commit("setItemStatus", itemStatus)
@@ -7835,6 +7838,43 @@ const _M = {
       commit("setStatus", { deleting: false })
       commit("clearItemStatus")
     }, 500)
+  },
+  //--------------------------------------------
+  //
+  //               Move to
+  //
+  //--------------------------------------------
+  async moveTo({ state, commit, dispatch }, setup = {}) {
+    // Guard
+    if (!state.dirId) {
+      throw 'moveTo: State Has No dirId'
+    }
+
+    // Get the meta list
+    let list = _.filter(state.list, li => state.checkedIds[li.id])
+    state.LOG("moveTo", list)
+
+    if (_.isEmpty(list)) {
+      return await Ti.Toast.Open('i18n:nil-item', "warn")
+    }
+
+    // Dialog
+    await Wn.Io.moveTo(list, _.assign({}, setup, {
+      base: state.oDir,
+      // leafBy: [
+      //   { race: "FILE" },
+      //   { race: "DIR", tp: "article" }
+      // ],
+      // objMatch: {
+      //   race: "DIR"
+      // },
+      markItemStatus: (itId, status) => {
+        commit("setItemStatus", itId, status)
+      },
+      doneMove: async () => {
+        await dispatch("queryList")
+      }
+    }))
   },
   //--------------------------------------------
   //
@@ -7871,7 +7911,7 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async openCurrentMetaEditor({state, dispatch}) {
+  async openCurrentMetaEditor({ state, dispatch }) {
     // Guard
     if (!state.meta && !state.oDir) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
@@ -7905,7 +7945,7 @@ const _M = {
     })
   },
   //--------------------------------------------
-  async openCurrentPrivilege({state, dispatch}) {
+  async openCurrentPrivilege({ state, dispatch }) {
     let meta = state.meta || state.oDir
 
     if (!meta) {
@@ -8131,7 +8171,7 @@ const _M = {
     }
 
     // Guard
-    if(!meta) {
+    if (!meta) {
       return await Ti.Toast.Open("saveContent nil Meta!")
     }
 
@@ -15900,119 +15940,123 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/wn/obj/tree/wn-obj-tree.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
-  data: ()=>({
-    treeRoot  : null,
-    myCurrentId : null,
-    myLoadingNodeId : null,
-    myOpenedNodePaths : {}
+  data: () => ({
+    treeRoot: null,
+    myCurrentId: null,
+    myLoadingNodeId: null,
+    myOpenedNodePaths: {}
   }),
   ////////////////////////////////////////////////////
-  props : {
+  props: {
     //------------------------------------------------
     // Data
     //------------------------------------------------
-    "meta" : {
-      type : Object,
-      default : undefined
+    "meta": {
+      type: Object,
+      default: undefined
     },
-    "idBy" : {
-      type : String,
-      default : "id"
+    "idBy": {
+      type: String,
+      default: "id"
     },
-    "nameBy" : {
-      type : String,
-      default : "nm"
+    "nameBy": {
+      type: String,
+      default: "nm"
     },
-    "referBy" : {
-      type : String,
-      default : "pid"
+    "referBy": {
+      type: String,
+      default: "pid"
     },
-    "childrenBy" : {
-      type : String,
-      default : "children"
+    "childrenBy": {
+      type: String,
+      default: "children"
     },
-    "sortBy" : {
-      type : Object,
-      default : ()=>({nm:1})
+    "sortBy": {
+      type: Object,
+      default: () => ({ nm: 1 })
     },
-    "openedNodePath" : {
-      type : [String, Array, Object]
+    "leafBy": {
+      type: [Object, Array, Function],
+      default: () => ({ race: 'FILE' })
     },
-    "currentId" : String,
-    "objMatch" : [Object, Function],
-    "objFilter" : {
-      type : [Function, Array, Object]
+    "openedNodePath": {
+      type: [String, Array, Object]
+    },
+    "currentId": String,
+    "objMatch": [Object, Function],
+    "objFilter": {
+      type: [Function, Array, Object]
     },
     //------------------------------------------------
     // Behavior
     //------------------------------------------------
-    "autoOpen"   : undefined,
-    "showRoot"   : undefined,
-    "multi"      : undefined,
+    "autoOpen": undefined,
+    "showRoot": undefined,
+    "multi": undefined,
 
-    "nodeCheckable"  : undefined,
-    "nodeSelectable" : undefined,
-    "nodeOpenable"   : undefined,
-    "nodeCancelable" : undefined,
-    "nodeHoverable"  : undefined,
+    "nodeCheckable": undefined,
+    "nodeSelectable": undefined,
+    "nodeOpenable": undefined,
+    "nodeCancelable": undefined,
+    "nodeHoverable": undefined,
 
-    "checkable"  : undefined,
-    "selectable" : undefined,
-    "openable"   : undefined,
-    "cancelable" : undefined,
-    "hoverable"  : undefined,
+    "checkable": undefined,
+    "selectable": undefined,
+    "openable": undefined,
+    "cancelable": undefined,
+    "hoverable": undefined,
 
-    "onNodeSelect" : undefined,
+    "onNodeSelect": undefined,
 
     // Local store to save the tree open status
-    "keepOpenBy" : {
-      type : String,
-      default : undefined
+    "keepOpenBy": {
+      type: String,
+      default: undefined
     },
-    "keepCurrentBy" : {
-      type : String,
-      default : undefined
+    "keepCurrentBy": {
+      type: String,
+      default: undefined
     },
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
-    "display" : {
-      type : [String, Object, Array],
-      default : ()=>[{
-        key : ['race', 'tp', 'mime', 'icon'],
-        transformer : Ti.Icons.evalIcon,
-        comType : "ti-icon"
+    "display": {
+      type: [String, Object, Array],
+      default: () => [{
+        key: ['race', 'tp', 'mime', 'icon'],
+        transformer: Ti.Icons.evalIcon,
+        comType: "ti-icon"
       }, "title|nm"]
     },
-    "spacing" : undefined,
-    "border"  : undefined,
-    "loadingNode" : {
-      type : Object,
-      default : ()=>({
-        title : "i18n:loading"
+    "spacing": undefined,
+    "border": undefined,
+    "loadingNode": {
+      type: Object,
+      default: () => ({
+        title: "i18n:loading"
       })
     },
-    "emptyNode" : {
-      type : Object,
-      default : ()=>({
-        icon  : "fas-braille",
-        title : "i18n:empty-data"
+    "emptyNode": {
+      type: Object,
+      default: () => ({
+        icon: "fas-braille",
+        title: "i18n:empty-data"
       })
     },
     //------------------------------------------------
     // Measure
     //------------------------------------------------
-    "width" : {
-      type : [Number, String],
-      default : undefined
+    "width": {
+      type: [Number, String],
+      default: undefined
     },
-    "height" : {
-      type : [Number, String],
-      default : undefined
+    "height": {
+      type: [Number, String],
+      default: undefined
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -16026,58 +16070,58 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //------------------------------------------------
     isNodeLoading() {
-      return ({id})=>{
+      return ({ id }) => {
         return id == this.myLoadingNodeId
       }
     },
     //------------------------------------------------
     TreeRowClassBy() {
-      return (it)=>{
-        if(/^\./.test(it.name)) {
+      return (it) => {
+        if (/^\./.test(it.name)) {
           return "is-weak"
         }
       }
     },
     //------------------------------------------------
     TreeRowFilter() {
-      if(!this.objFilter) {
-        return ()=>true
+      if (!this.objFilter) {
+        return () => true
       }
       return Ti.AutoMatch.parse(this.objFilter)
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     OnTreeInit($tree) {
       this.$tree = $tree
     },
     //------------------------------------------------
     OnTreeOpenedStatusChange(openedPath) {
-      this.myOpenedNodePaths = _.omitBy(openedPath, v=>!v)
-      if(this.keepOpenBy) {
+      this.myOpenedNodePaths = _.omitBy(openedPath, v => !v)
+      if (this.keepOpenBy) {
         Ti.Storage.session.setObject(this.keepOpenBy, openedPath)
       }
     },
     //------------------------------------------------
-    OnNodeSelect({currentId}) {
+    OnNodeSelect({ currentId }) {
       this.myCurrentId = currentId
-      if(this.keepCurrentBy) {
+      if (this.keepCurrentBy) {
         Ti.Storage.session.set(this.keepCurrentBy, currentId)
       }
       return false
     },
     //------------------------------------------------
-    async OnNodeOpened({id, leaf, path, rawData}) {
+    async OnNodeOpened({ id, leaf, path, rawData }) {
       let hie = this.getHierarchyById(id)
-      if(hie) {
+      if (hie) {
         //console.log(hie)
         // Not need reload
-        if(!_.isEmpty(_.get(hie.node, this.childrenBy))) {
+        if (!_.isEmpty(_.get(hie.node, this.childrenBy))) {
           return
         }
-        
+
         // Do reload
         await this.openNode(hie)
       }
@@ -16088,14 +16132,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let hie = this.getHierarchyById(nodeId)
 
       // Guard
-      if(!hie)
+      if (!hie)
         return
 
       //console.log(hie)
       // Keep the exists children
       let oldPathId = hie.path.join("/")
       let children = _.get(hie.node, this.childrenBy)
-      if(!_.isEmpty(children)) {
+      if (!_.isEmpty(children)) {
         _.set(obj, this.childrenBy, children)
       }
 
@@ -16105,9 +16149,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Remove the opened path
       hie = this.getHierarchyById(nodeId)
       let openeds = {}
-      _.forEach(this.myOpenedNodePaths, (v, k)=> {
-        if(v) {
-          if(k == oldPathId) {
+      _.forEach(this.myOpenedNodePaths, (v, k) => {
+        if (v) {
+          if (k == oldPathId) {
             k = hie.path.join("/")
           }
           openeds[k] = true
@@ -16115,7 +16159,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       })
 
       // soft redraw
-      if(!_.isEqual(openeds, this.myOpenedNodePaths)) {
+      if (!_.isEqual(openeds, this.myOpenedNodePaths)) {
         this.myOpenedNodePaths = openeds
       }
       // Force redraw
@@ -16124,22 +16168,22 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //------------------------------------------------
-    getHierarchyById(id, root=this.treeRoot) {
-      return Ti.Trees.getById(root, id, {nameBy:this.nameBy})
+    getHierarchyById(id, root = this.treeRoot) {
+      return Ti.Trees.getById(root, id, { nameBy: this.nameBy })
     },
     //------------------------------------------------
-    getHierarchyByPath(path, root=this.treeRoot) {
-      return Ti.Trees.getByPath(root, path, {nameBy:this.nameBy})
+    getHierarchyByPath(path, root = this.treeRoot) {
+      return Ti.Trees.getByPath(root, path, { nameBy: this.nameBy })
     },
     //------------------------------------------------
     getcloseNodesByPath(path) {
       let pathId = _.isArray(path) ? path.join("/") : path
       let openeds = {}
-      _.forEach(this.myOpenedNodePaths, (v, k)=>{
-        if(v && k.length > pathId.length && k.startsWith(pathId)) {
+      _.forEach(this.myOpenedNodePaths, (v, k) => {
+        if (v && k.length > pathId.length && k.startsWith(pathId)) {
           return
         }
-        if(v) {
+        if (v) {
           openeds[k] = true
         }
       })
@@ -16160,26 +16204,26 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     selectNodeByPath(path) {
       let hie = this.getHierarchyByPath(path)
-      if(hie) {
+      if (hie) {
         this.$tree.selectNodeById(hie.id)
       }
     },
     //------------------------------------------------
     async openNodeById(id) {
       let hie = this.getHierarchyById(id)
-      if(hie) {
+      if (hie) {
         return await this.openNode(hie)
       }
     },
     //------------------------------------------------
     async openNodeByPath(id) {
       let hie = this.getHierarchyByPath(path)
-      if(hie) {
+      if (hie) {
         return await this.openNode(hie)
       }
     },
     //------------------------------------------------
-    async openNode({id, node, path}) {
+    async openNode({ id, node, path }) {
       // Show loading
       this.myLoadingNodeId = id
       await this.$tree.evalTreeTableData()
@@ -16194,7 +16238,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       openeds[pathId] = true
 
       // soft redraw
-      if(!_.isEqual(openeds, this.myOpenedNodePaths)) {
+      if (!_.isEqual(openeds, this.myOpenedNodePaths)) {
         this.myOpenedNodePaths = openeds
       }
       // Force redraw
@@ -16206,12 +16250,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     async reloadChildren(obj) {
       // Get the parent refer value
       let prVal = _.get(obj, this.idBy)
-      if(Ti.Util.isNil(prVal))
+      if (Ti.Util.isNil(prVal))
         return
 
       // Get match
       let match = {}
-      if(_.isFunction(this.objMatch)) {
+      if (_.isFunction(this.objMatch)) {
         _.assign(match, this.objMatch(obj))
       } else {
         _.assign(match, this.objMatch)
@@ -16220,9 +16264,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       // Reload top 
       let query = {
-        skip: 0, limit: 0, sort: this.sortBy, mine:true, match
+        skip: 0, limit: 0, sort: this.sortBy, mine: true, match
       }
-      let {list} = await Wn.Io.find(query)
+      let { list } = await Wn.Io.find(query)
 
       // Filter obj
       let list2 = _.filter(list, this.TreeRowFilter)
@@ -16231,30 +16275,30 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.$set(obj, this.childrenBy, list2)
     },
     //------------------------------------------------
-    async quietOpenNode(path=[], node=this.treeRoot) {
-      if('DIR' != node.race)
+    async quietOpenNode(path = [], node = this.treeRoot) {
+      if ('DIR' != node.race)
         return
 
-      if(_.isEmpty(path))
+      if (_.isEmpty(path))
         return
       let nodeName = _.first(path)
       let hie = this.getHierarchyByPath(nodeName, node)
       // Need to load the children
-      if(!hie) {
+      if (!hie) {
         await this.reloadChildren(node)
         // fetch again
         hie = this.getHierarchyByPath(nodeName, node)
       }
 
       // The child is lost
-      if(!hie)
+      if (!hie)
         return
 
       // Load the sub-level
       let subPath = path.slice(1)
 
       // Just open current node
-      if(_.isEmpty(subPath)) {
+      if (_.isEmpty(subPath)) {
         await this.reloadChildren(hie.node)
       }
       // Recur
@@ -16265,28 +16309,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     async deleteNodeById(id, confirm) {
       let hie = this.getHierarchyById(id)
-      if(hie) {
+      if (hie) {
         return await this.deleteNode(hie, confirm)
       }
     },
     //------------------------------------------------
     async deleteNodeByPath(path, confirm) {
       let hie = this.getHierarchyByPath(path)
-      if(hie) {
+      if (hie) {
         return await this.deleteNode(hie, confirm)
       }
     },
     //------------------------------------------------
     async deleteNode(hie, confirm) {
       // Confirm
-      if(confirm) {
-        if(_.isBoolean(confirm)) {
+      if (confirm) {
+        if (_.isBoolean(confirm)) {
           confirm = {
-            text : "i18n:wn-del-confirm",
-            vars : {N:1}
+            text: "i18n:wn-del-confirm",
+            vars: { N: 1 }
           }
         }
-        if(!(await Ti.Confirm(confirm, {type:"warn"}))) {
+        if (!(await Ti.Confirm(confirm, { type: "warn" }))) {
           return
         }
       }
@@ -16299,21 +16343,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
       await Wn.Sys.exec(cmdText)
 
       // Get pareth path
-      let pPath = hie.path.slice(0, hie.path.length-1)
+      let pPath = hie.path.slice(0, hie.path.length - 1)
       await this.reloadNodeByPath(pPath)
 
       // Tip user
       await Ti.Toast.Open({
-        position : "top",
-        content  : "i18n:wn-del-ok",
-        vars  : {N:1},
-        type  : "info"
+        position: "top",
+        content: "i18n:wn-del-ok",
+        vars: { N: 1 },
+        type: "info"
       })
 
       // Highlight next
-      if(can) {
+      if (can) {
         let nextNodeId = _.get(can.node, this.idBy)
-        _.delay(()=>{
+        _.delay(() => {
           this.selectNodeById(nextNodeId)
         }, 200)
       }
@@ -16321,19 +16365,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     async reloadNodeById(id) {
       let hie = this.getHierarchyById(id)
-      if(hie) {
+      if (hie) {
         return await this.reloadNode(hie)
       }
     },
     //------------------------------------------------
     async reloadNodeByPath(path) {
       let hie = this.getHierarchyByPath(path)
-      if(hie) {
+      if (hie) {
         return await this.reloadNode(hie)
       }
     },
     //------------------------------------------------
-    async reloadNode({id, node, path}) {
+    async reloadNode({ id, node, path }) {
       // Show loading
       this.myLoadingNodeId = id
       await this.$tree.evalTreeTableData()
@@ -16346,7 +16390,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let openeds = this.getcloseNodesByPath(path)
 
       // soft redraw
-      if(!_.isEqual(openeds, this.myOpenedNodePaths)) {
+      if (!_.isEqual(openeds, this.myOpenedNodePaths)) {
         this.myOpenedNodePaths = openeds
       }
       // Force redraw
@@ -16357,7 +16401,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     async reload() {
       // Guard
-      if(!this.meta)
+      if (!this.meta)
         return
 
       // Make tree root
@@ -16368,34 +16412,34 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       // Open the node 
       let openPathIds = Ti.Util.truthyKeys(this.myOpenedNodePaths)
-      for(let pathId of openPathIds) {
+      for (let pathId of openPathIds) {
         let path = Ti.Trees.path(pathId)
         await this.quietOpenNode(path, root)
       }
 
       // Check the currentId
-      if(this.myCurrentId) {
+      if (this.myCurrentId) {
         // is it already loaded ?
         let hie = this.getHierarchyById(this.myCurrentId, root)
 
         // if not exists try to reload
-        if(!hie) {
+        if (!hie) {
           // Load ancestors 
           let ans = await Wn.Io.loadAncestors(`id:${this.myCurrentId}`)
-          
+
           // find the first index of 
           let index = 0
           let homeId = _.get(this.meta, this.idBy)
-          for(; index<ans.length; index++) {
+          for (; index < ans.length; index++) {
             let an = ans[index]
-            if(_.get(an, this.idBy) == homeId) {
+            if (_.get(an, this.idBy) == homeId) {
               break
             }
           }
 
           // Get the path
           let currentPath = []
-          for(index++; index<ans.length; index++) {
+          for (index++; index < ans.length; index++) {
             let an = ans[index]
             currentPath.push(_.get(an, this.nameBy))
           }
@@ -16405,14 +16449,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
           // Make sure current is opened
           let openeds = {}
-          for(let i=1; i<=currentPath.length; i++) {
+          for (let i = 1; i <= currentPath.length; i++) {
             openeds[currentPath.slice(0, i).join("/")] = true
           }
           this.myOpenedNodePaths = _.defaults({}, this.myOpenedNodePaths, openeds)
         }
 
         // Restore the current node
-        _.delay(()=>{
+        _.delay(() => {
           this.$tree.selectNodeById(this.myCurrentId)
         }, 300)
       }
@@ -16423,30 +16467,30 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
-    "meta" : {
-      handler : function(newVal, oldVal) {
-        if(!_.isEqual(newVal, oldVal)) {
+  watch: {
+    "meta": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
           this.reload()
         }
       },
-      immediate : true
+      immediate: true
     },
-    "currentId" : {
-      handler : function(newVal) {
+    "currentId": {
+      handler: function (newVal) {
         this.myCurrentId = newVal
       },
-      immediate : true
+      immediate: true
     },
-    "openedNodePath" : {
-      handler : function(newVal) {
+    "openedNodePath": {
+      handler: function (newVal) {
         // Single path
-        if(_.isString(newVal)) {
+        if (_.isString(newVal)) {
           _.set(this.myOpenedNodePaths, newVal, true)
         }
         // Path array
-        else if(_.isArray(newVal)) {
-          for(let ph of newVal) {
+        else if (_.isArray(newVal)) {
+          for (let ph of newVal) {
             _.set(this.myOpenedNodePaths, ph, true)
           }
         }
@@ -16455,15 +16499,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
           _.assign(this.myOpenedNodePaths, newVal)
         }
       },
-      immediate : true
+      immediate: true
     }
   },
   ////////////////////////////////////////////////////
-  created: function() {
-    if(this.keepCurrentBy) {
+  created: function () {
+    if (this.keepCurrentBy) {
       this.myCurrentId = Ti.Storage.session.getString(this.keepCurrentBy)
     }
-    if(this.keepOpenBy) {
+    if (this.keepOpenBy) {
       this.myOpenedNodePaths = Ti.Storage.session.getObject(this.keepOpenBy)
     }
   }
@@ -19805,7 +19849,6 @@ const OBJ = {
     if (!it) {
       return await Ti.Toast.Open('i18n:wn-rename-none', "warn")
     }
-    this.setItemStatus(it.id, "renaming")
     try {
       // Get newName from User input
       let newName = await Ti.Prompt({
@@ -19832,7 +19875,7 @@ const OBJ = {
           }
         }
         // Mark renaming
-        this.setItemStatus(it.id, "loading")
+        this.setItemStatus(it.id, "processing")
         // Do the rename
         let newMeta = await Wn.Sys.exec2(
           `obj id:${it.id} -cqno -u 'nm:"${newName}"'`,
@@ -19846,7 +19889,6 @@ const OBJ = {
           await Ti.Toast.Open("i18n:wn-rename-ok", "success")
           this.setItem(newMeta)
         }
-        this.setItemStatus({ id: it.id, status: { loading: false } })
       }  // ~ if(newName)
     }
     // reset the status
@@ -68366,7 +68408,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: Object,
       default: () => ({})
     },
-    "captureEvents": undefined
+    "captureEvents": undefined,
+    "adjustable": undefined,
   },
   //////////////////////////////////////////
   computed: {
@@ -73963,7 +74006,10 @@ window.TI_PACK_EXPORTS['ti/lib/www/com/site-main.mjs'] = (function(){
 const _M = {
   /////////////////////////////////////////
   provide: function () {
-    return Ti.Util.explainObj(this.$store.state, this.provide)
+    let ctx = _.cloneDeep(this.$store.state)
+    let { langCase, lang } = ctx
+    ctx.lang = _[`${langCase || "snake"}Case`](lang)
+    return Ti.Util.explainObj(ctx, this.provide)
   },
   /////////////////////////////////////////
   computed: {
@@ -79475,14 +79521,15 @@ const _M = {
       _.forEach(state.router, ({
         match, names = [], page = {}, preload
       } = {}) => {
-        let regex = new RegExp(match)
+        let regex = match ? new RegExp(match) : null;
         // Pre-compiled
         let li = function (path) {
-          let m = regex.exec(path)
-          // Match page
-          if (m) {
-            // Build Context
-            let context = {}
+          let context = {}
+          if (regex) {
+            let m = regex.exec(path)
+            if (!m) {
+              return
+            }
             for (let i = 0; i < m.length; i++) {
               let val = m[i]
               context[i] = val
@@ -79491,11 +79538,10 @@ const _M = {
                 _.set(context, key, val)
               }
             }
-            // Render page info
-            //return Ti.Util.explainObj(context, page)
-            return {
-              context, page, preload
-            }
+          }
+          // Match page
+          return {
+            context, page, preload
           }
         }
 
@@ -86249,6 +86295,7 @@ Ti.Preload("ti/com/ti/gui/panel/ti-gui-panel.html", `<div class="ti-gui-panel"
       :schema="schema"
       :shown="shown"
       :capture-events="captureEvents"
+      :adjustable="adjustable"
       @content:ready="OnContentReady"/>
     <!--
       Closer
@@ -95991,7 +96038,7 @@ Ti.Preload("ti/com/wn/obj/tree/wn-obj-tree.html", `<div class="wn-obj-tree"
     :loading-node="loadingNode"
     :empty-node="emptyNode"
     height="100%"
-    :leaf-by="{race:'FILE'}"
+    :leaf-by="leafBy"
     :on-init="OnTreeInit"
     @select="OnNodeSelect"
     @opened="OnNodeOpened"

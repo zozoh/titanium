@@ -1,4 +1,4 @@
-// Pack At: 2022-08-11 00:07:19
+// Pack At: 2022-08-14 19:21:08
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -380,7 +380,7 @@ const Io = (function(){
      */
     async moveTo(metaOrMetaList, {
       base, homePath,
-      objMatch, objFilter, objSort,
+      objMatch, objFilter, objSort, leafBy,
       treeDisplay,
       confirm = false,
       title = "i18n:move-to",
@@ -437,7 +437,7 @@ const Io = (function(){
       // Select target
       let reo = await Wn.OpenObjTree(base, {
         title, homePath,
-        objMatch, objFilter, objSort,
+        objMatch, objFilter, objSort, leafBy,
         treeDisplay, exposeHidden
       })
   
@@ -3340,6 +3340,7 @@ const OpenObjTree = (function(){
     objMatch = {
       race: "DIR"
     },
+    leafBy,
     objSort,
     objFilter
   } = {}) {
@@ -3408,6 +3409,7 @@ const OpenObjTree = (function(){
         currentId: oP.id,
         openedNodePath: phs,
         objMatch,
+        leafBy,
         sortBy: objSort,
         objFilter: objFilter || function (obj) {
           // Hidden file
@@ -4353,7 +4355,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220811.000720"
+const WALNUT_VERSION = "1.2-20220814.192109"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
