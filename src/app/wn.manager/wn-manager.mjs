@@ -393,7 +393,6 @@ const _M = {
           if (!isSameId || this.isChanged) {
             await this.reloadMain()
             this.pushHistory(newVal)
-            this.updateDocumentTitle(newVal)
           }
         })
       }
@@ -411,8 +410,9 @@ const _M = {
     this.reloadPrivilege()
     //......................................
     window.onpopstate = (evt) => {
+      //console.log("onpopstate", evt)
       let obj = evt.state
-      console.log("popstate", obj)
+      //console.log("popstate", obj)
       if (obj && obj.id && obj.nm) {
         Ti.App(this).dispatch("current/reload", obj)
       }

@@ -183,27 +183,28 @@ const _M = {
     await Ti.App(this).exec(cmd, payload)
   },
   //.........................................
-  updateDocumentTitle(meta) {
+  getDocumentTitle(meta) {
     let title = Ti.Util.getFallback(meta, "title", "nm", "id")
-    title = Ti.Util.explainObj(meta, title)
-    if (title) {
-      document.title = Ti.I18n.text(title)
-    }
+    return Ti.Util.explainObj(meta, title)
   },
   //.........................................
   pushHistory(meta) {
     // Push history to update the browser address bar
-    console.log("pushHistory", meta.id)
+    //console.log("pushHistory", meta.id)
     let his = window.history
     if (his && meta) {
       // Done push duplicate state
       if (his.state && his.state.id == meta.id) {
-        console.log("pushHistory ~ignore~")
+        //console.log("pushHistory ~ignore~")
         return
       }
       // Push to history stack
-      let newLink = Wn.Util.getAppLink(meta.id)
-      let title = Wn.Util.getObjDisplayName(meta)
+      let newLink = Wn.Util.getAppLinkStr(meta)
+      let title = this.getDocumentTitle(meta)
+      if (title) {
+        title = Ti.I18n.text(title)
+        document.title = title
+      }
       let obj = _.cloneDeep(meta)
       //console.log(title , "->", newLink)
       his.pushState(obj, title, newLink)

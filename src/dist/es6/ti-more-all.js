@@ -1,4 +1,4 @@
-// Pack At: 2022-08-16 23:35:10
+// Pack At: 2022-08-17 01:18:01
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -25296,25 +25296,9 @@ const _M = {
     if (!path) {
       return
     }
-    let meta;
-    if ("<self>" != path) {
-      let aph;
-      // absolute path
-      if (/^([\/~]\/|id:)/.test(path)) {
-        aph = path
-      }
-      // In parent dir
-      else {
-        aph = Ti.Util.appendPath(state.dataHome, path)
-      }
-      meta = await Wn.Io.loadMeta(aph)
-      // If not exists, then create it
-      if (!meta) {
-        let cmdText = `touch '${aph}'`
-        await Wn.Sys.exec2(cmdText)
-        meta = await Wn.Io.loadMeta(aph)
-      }
-    }
+    let meta = await getContentMeta(state, getters.contentLoadPath)
+
+    state.LOG("saveContent -> ", meta, state.content)
 
     // Do save content
     commit("setStatus", { saving: true })
@@ -37421,27 +37405,28 @@ const _M = {
     await Ti.App(this).exec(cmd, payload)
   },
   //.........................................
-  updateDocumentTitle(meta) {
+  getDocumentTitle(meta) {
     let title = Ti.Util.getFallback(meta, "title", "nm", "id")
-    title = Ti.Util.explainObj(meta, title)
-    if (title) {
-      document.title = Ti.I18n.text(title)
-    }
+    return Ti.Util.explainObj(meta, title)
   },
   //.........................................
   pushHistory(meta) {
     // Push history to update the browser address bar
-    console.log("pushHistory", meta.id)
+    //console.log("pushHistory", meta.id)
     let his = window.history
     if (his && meta) {
       // Done push duplicate state
       if (his.state && his.state.id == meta.id) {
-        console.log("pushHistory ~ignore~")
+        //console.log("pushHistory ~ignore~")
         return
       }
       // Push to history stack
-      let newLink = Wn.Util.getAppLink(meta.id)
-      let title = Wn.Util.getObjDisplayName(meta)
+      let newLink = Wn.Util.getAppLinkStr(meta)
+      let title = this.getDocumentTitle(meta)
+      if (title) {
+        title = Ti.I18n.text(title)
+        document.title = title
+      }
       let obj = _.cloneDeep(meta)
       //console.log(title , "->", newLink)
       his.pushState(obj, title, newLink)
@@ -66273,7 +66258,6 @@ const _M = {
           if (!isSameId || this.isChanged) {
             await this.reloadMain()
             this.pushHistory(newVal)
-            this.updateDocumentTitle(newVal)
           }
         })
       }
@@ -66291,8 +66275,9 @@ const _M = {
     this.reloadPrivilege()
     //......................................
     window.onpopstate = (evt) => {
+      //console.log("onpopstate", evt)
       let obj = evt.state
-      console.log("popstate", obj)
+      //console.log("popstate", obj)
       if (obj && obj.id && obj.nm) {
         Ti.App(this).dispatch("current/reload", obj)
       }
@@ -73256,9 +73241,9 @@ const _M = {
       return
     }
     state.LOG = () => { }
-    if ("main" == state.moduleName) {
-      state.LOG = console.log
-    }
+    // if ("main" == state.moduleName) {
+    //   state.LOG = console.log
+    // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // Guard
     if (_.isString(meta)) {

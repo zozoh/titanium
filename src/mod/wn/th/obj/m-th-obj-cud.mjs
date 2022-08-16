@@ -375,25 +375,9 @@ const _M = {
     if (!path) {
       return
     }
-    let meta;
-    if ("<self>" != path) {
-      let aph;
-      // absolute path
-      if (/^([\/~]\/|id:)/.test(path)) {
-        aph = path
-      }
-      // In parent dir
-      else {
-        aph = Ti.Util.appendPath(state.dataHome, path)
-      }
-      meta = await Wn.Io.loadMeta(aph)
-      // If not exists, then create it
-      if (!meta) {
-        let cmdText = `touch '${aph}'`
-        await Wn.Sys.exec2(cmdText)
-        meta = await Wn.Io.loadMeta(aph)
-      }
-    }
+    let meta = await getContentMeta(state, getters.contentLoadPath)
+
+    state.LOG("saveContent -> ", meta, state.content)
 
     // Do save content
     commit("setStatus", { saving: true })
