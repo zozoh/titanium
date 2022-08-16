@@ -49,10 +49,12 @@ export default {
           if (!test || Ti.AutoMatch.test(test, state)) {
             let ctx = _.assign(Wn.Session.env(), state)
             let ph = Ti.Util.explainObj(ctx, path)
-            return {
-              path: Ti.Util.appendPath(`id:${state.dirId}`, ph),
-              mime
+            if ('<self>' != ph) {
+              path = Ti.Util.appendPath(`id:${state.dirId}`, ph)
+            } else {
+              path = ph
             }
+            return { path, mime }
           }
         }
       }

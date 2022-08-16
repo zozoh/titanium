@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////
-async function getContentMeta(path, oDir) {
+async function getContentMeta(state, path) {
   // Guard
-  if (!path || !oDir) {
+  if (!path || !state.oDir) {
     return
   }
   let meta;
@@ -13,7 +13,7 @@ async function getContentMeta(path, oDir) {
     }
     // In parent dir
     else {
-      aph = Ti.Util.appendPath(`id:${oDir.id}/`, path)
+      aph = Ti.Util.appendPath(`id:${state.oDir.id}/`, path)
     }
     meta = await Wn.Io.loadMeta(aph)
     // If not exists, then create it
@@ -316,7 +316,7 @@ const _M = {
   //--------------------------------------------
   async openContentEditor({ state, commit, dispatch, getters }) {
     // Guard
-    let meta = await getContentMeta(getters.contentLoadPath, state.oDir)
+    let meta = await getContentMeta(state, getters.contentLoadPath)
     if (!meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
@@ -571,7 +571,7 @@ const _M = {
     if (!path) {
       return
     }
-    let meta = await getContentMeta(getters.contentLoadPath, state.oDir)
+    let meta = await getContentMeta(state, getters.contentLoadPath)
 
     // Guard
     if (!meta) {

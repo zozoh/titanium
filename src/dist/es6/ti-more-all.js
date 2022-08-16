@@ -1,4 +1,4 @@
-// Pack At: 2022-08-14 21:01:12
+// Pack At: 2022-08-16 23:35:10
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7598,9 +7598,9 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-cud.mjs'] = (function(){
 ////////////////////////////////////////////////
-async function getContentMeta(path, oDir) {
+async function getContentMeta(state, path) {
   // Guard
-  if (!path || !oDir) {
+  if (!path || !state.oDir) {
     return
   }
   let meta;
@@ -7612,7 +7612,7 @@ async function getContentMeta(path, oDir) {
     }
     // In parent dir
     else {
-      aph = Ti.Util.appendPath(`id:${oDir.id}/`, path)
+      aph = Ti.Util.appendPath(`id:${state.oDir.id}/`, path)
     }
     meta = await Wn.Io.loadMeta(aph)
     // If not exists, then create it
@@ -7915,7 +7915,7 @@ const _M = {
   //--------------------------------------------
   async openContentEditor({ state, commit, dispatch, getters }) {
     // Guard
-    let meta = await getContentMeta(getters.contentLoadPath, state.oDir)
+    let meta = await getContentMeta(state, getters.contentLoadPath)
     if (!meta) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
     }
@@ -8170,7 +8170,7 @@ const _M = {
     if (!path) {
       return
     }
-    let meta = await getContentMeta(getters.contentLoadPath, state.oDir)
+    let meta = await getContentMeta(state, getters.contentLoadPath)
 
     // Guard
     if (!meta) {
@@ -11979,86 +11979,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //
   //--------------------------------------------
   async openContentEditor() {
-    // Guard
-    if (!this.meta) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-
-    // Open Editor
-    let newContent = await Wn.EditObjContent(this.meta, {
-      content: this.content
-    })
-
-    // Cancel the editing
-    if (_.isUndefined(newContent)) {
-      return
-    }
-
-    // Update the current editing
-    await this.dispatch("changeContent", newContent)
-    this.commit("syncStatusChanged")
+    return await this.dispatch("openContentEditor")
   },
   //--------------------------------------------
   async openCurrentMetaEditor() {
-    // Guard
-    if (!this.meta && !this.oTs) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-    //.........................................
-    // For current selected
-    //.........................................
-    if (this.meta) {
-      // Edit current meta
-      let reo = await Wn.EditObjMeta(this.meta, {
-        fields: "default", autoSave: false
-      })
-
-      // Cancel the editing
-      if (_.isUndefined(reo)) {
-        return
-      }
-
-      // Update the current editing
-      let { updates } = reo
-      if (!_.isEmpty(updates)) {
-        await this.dispatch("updateMeta", updates)
-      }
-      return
-    }
-    //.........................................
-    // For Whole thing thing
-    //.........................................
-    await Wn.EditObjMeta(this.oTs, {
-      fields: "auto", autoSave: true
-    })
+    return await this.dispatch("openCurrentMetaEditor")
   },
   //--------------------------------------------
   async openCurrentPrivilege() {
-    let meta = this.meta || this.oTs
-
-    if (!meta) {
-      await Ti.Toast.Open("i18n:nil-obj")
-      return
-    }
-
-    let newMeta = await Wn.EditObjPvg(meta, {
-      organization: "~/.domain/organization.json"
-    })
-
-    // Update to current list
-    if (newMeta) {
-      // Update Current Meta
-      //console.log("pvg", newMeta)
-      if (this.meta && this.meta.id == newMeta.id) {
-        this.dispatch("changeMeta", newMeta)
-      }
-      // Update Thing Set
-      else {
-        await this.dispatch("reload", newMeta)
-      }
-    }
-
-    return newMeta
+    return await this.dispatch("openCurrentPrivilege")
   },
   //--------------------------------------------
 }
@@ -24991,11 +24920,44 @@ return _M;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj-cud.mjs'] = (function(){
 ////////////////////////////////////////////////
+async function getContentMeta(state, path) {
+  // Guard
+  if (!path || !state.dataHome) {
+    return
+  }
+  let meta;
+  if ("<self>" != path) {
+    let aph;
+    // absolute path
+    if (/^([\/~]\/|id:)/.test(path)) {
+      aph = path
+    }
+    // In parent dir
+    else {
+      aph = Ti.Util.appendPath(state.dataHome, path)
+    }
+    meta = await Wn.Io.loadMeta(aph)
+    // If not exists, then create it
+    if (!meta) {
+      let cmdText = `touch '${aph}'`
+      await Wn.Sys.exec2(cmdText)
+      meta = await Wn.Io.loadMeta(aph)
+    }
+  }
+  // User self
+  else {
+    meta = state.meta
+  }
+
+  return meta
+}
+////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
-  /***
-   * Create one new thing
-   */
+  //
+  //               Create 
+  //
+  //--------------------------------------------
   async create({ state, commit, dispatch }, obj = {}) {
     // Guard
     if (!state.thingSetId) {
@@ -25052,7 +25014,11 @@ const _M = {
     // Return the new object
     return newMeta
   },
-  //----------------------------------------
+  //--------------------------------------------
+  //
+  //               Delete
+  //
+  //--------------------------------------------
   async removeChecked({ state, commit, dispatch, getters }, hard) {
     // Guard
     if (!state.thingSetId) {
@@ -25105,6 +25071,98 @@ const _M = {
 
     commit("setStatus", { deleting: false })
   },
+  //--------------------------------------------
+  //
+  //                 Open
+  //
+  //--------------------------------------------
+  async openContentEditor({ state, commit, dispatch, getters }) {
+    // Guard
+    let meta = await getContentMeta(state, getters.contentLoadPath)
+    if (!meta) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+
+    // Open Editor
+    let newContent = await Wn.EditObjContent(meta, {
+      content: state.content
+    })
+
+    // Cancel the editing
+    if (_.isUndefined(newContent)) {
+      return
+    }
+
+    // Update the current editing
+    await dispatch("changeContent", newContent)
+    commit("syncStatusChanged")
+
+    return newContent
+  },
+  //--------------------------------------------
+  async openCurrentMetaEditor({ state, dispatch }) {
+    // Guard
+    if (!state.meta && !state.oTs) {
+      return await Ti.Toast.Open("i18n:empty-data", "warn")
+    }
+    //.........................................
+    // For current selected
+    //.........................................
+    if (state.meta) {
+      // Edit current meta
+      let reo = await Wn.EditObjMeta(state.meta, {
+        fields: "default", autoSave: false
+      })
+
+      // Cancel the editing
+      if (_.isUndefined(reo)) {
+        return
+      }
+
+      // Update the current editing
+      let { updates } = reo
+      if (!_.isEmpty(updates)) {
+        return await dispatch("updateMeta", updates)
+      }
+      return state.meta
+    }
+    //.........................................
+    // For Whole thing thing
+    //.........................................
+    return await Wn.EditObjMeta(state.oTs, {
+      fields: "auto", autoSave: true
+    })
+  },
+  //--------------------------------------------
+  async openCurrentPrivilege({ state, dispatch }) {
+    let meta = state.meta || state.oTs
+
+    if (!meta) {
+      await Ti.Toast.Open("i18n:nil-obj")
+      return
+    }
+
+    let newMeta = await Wn.EditObjPvg(meta)
+
+    // Update to current list
+    if (newMeta) {
+      // Update Current Meta
+      //console.log("pvg", newMeta)
+      if (state.meta && state.meta.id == newMeta.id) {
+        state.dispatch("changeMeta", newMeta)
+      }
+      // Update Thing Set
+      else {
+        await this.dispatch("reload", newMeta)
+      }
+    }
+
+    return newMeta
+  },
+  //--------------------------------------------
+  //
+  //                 Update
+  //
   //--------------------------------------------
   async updateMetaField({ state, commit, dispatch }, { name, value } = {}) {
     state.LOG("updateMetaFields", { name, value })
@@ -25160,15 +25218,53 @@ const _M = {
     })
   },
   //--------------------------------------------
-  parseContentData({ state, commit, getters }) {
-    let content = state.content
-    let contentType = getters.contentParseType
-    let contentData = null
-    if (/^(application|text)\/json$/.test(contentType)) {
-      let str = _.trim(content)
-      contentData = JSON.parse(str || null)
+  async parseContentData({ state, commit, getters }) {
+    try {
+      let content = state.content
+      let contentType = state.contentType
+
+      // Eval mime
+      if ("<MIME>" == contentType) {
+        let pathInfo = getters.contentLoadInfo || {}
+        let { path, mime } = pathInfo
+        if (!mime) {
+          if ("<self>" == path) {
+            contentType = _.get(state, "meta.mime")
+          }
+          // Load mime from server side
+          else {
+            let type = Ti.Util.getSuffixName(path)
+            if (type) {
+              mime = await Wn.Sys.exec2(`o @mime ${type} -as value`)
+              contentType = _.trim(mime)
+            }
+            // Use text plain
+            else {
+              contentType = "text/plain"
+            }
+          }
+        }
+        // Use mime
+        else {
+          contentType = mime
+        }
+      }
+
+      state.LOG("parseContentData", contentType)
+
+      let contentData = null
+      if (/^(application|text)\/json$/.test(contentType)) {
+        let str = _.trim(content)
+        contentData = JSON.parse(str || null)
+        state.LOG("parseContentData -> ", contentData)
+      }
+      commit("setContentData", contentData)
     }
-    commit("setContentData", contentData)
+    catch (E) {
+      if (!state.contentQuietParse) {
+        throw E
+      }
+    }
   },
   //--------------------------------------------
   changeContent({ commit, dispatch }, payload) {
@@ -37335,10 +37431,12 @@ const _M = {
   //.........................................
   pushHistory(meta) {
     // Push history to update the browser address bar
+    console.log("pushHistory", meta.id)
     let his = window.history
     if (his && meta) {
       // Done push duplicate state
       if (his.state && his.state.id == meta.id) {
+        console.log("pushHistory ~ignore~")
         return
       }
       // Push to history stack
@@ -45436,10 +45534,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
           if (!test || Ti.AutoMatch.test(test, state)) {
             let ctx = _.assign(Wn.Session.env(), state)
             let ph = Ti.Util.explainObj(ctx, path)
-            return {
-              path: Ti.Util.appendPath(`id:${state.dirId}`, ph),
-              mime
+            if ('<self>' != ph) {
+              path = Ti.Util.appendPath(`id:${state.dirId}`, ph)
+            } else {
+              path = ph
             }
+            return { path, mime }
           }
         }
       }
@@ -73156,9 +73256,9 @@ const _M = {
       return
     }
     state.LOG = () => { }
-    // if ("caseevents" == state.moduleName) {
-    //   state.LOG = console.log
-    // }
+    if ("main" == state.moduleName) {
+      state.LOG = console.log
+    }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // Guard
     if (_.isString(meta)) {
@@ -74556,32 +74656,34 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return _.get(state, "schema.behavior.hardRemove")
     },
     //--------------------------------------------
-    contentLoadPath(state) {
+    contentLoadInfo(state) {
       if (state.contentPath) {
         // fixed content path
         if (_.isString(state.contentPath)) {
-          return state.contentPath
+          return {
+            path: state.contentPath
+          }
         }
         // Try find content path
         let canPaths = _.concat([], state.contentPath)
         for (let canPath of canPaths) {
-          let { test, path } = canPath
+          let { test, path, mime } = canPath
           if (!test || Ti.AutoMatch.test(test, state)) {
             let ctx = _.assign(Wn.Session.env(), state)
             let ph = Ti.Util.explainObj(ctx, path)
-            return Ti.Util.appendPath(state.dataHome, ph)
+            if ('<self>' != ph) {
+              path = Ti.Util.appendPath(`id:${state.dirId}`, ph)
+            } else {
+              path = ph
+            }
+            return { path, mime }
           }
         }
       }
     },
     //--------------------------------------------
-    contentParseType(state) {
-      if (_.isString(state.contentType)) {
-        if ("<MIME>" == state.contentType) {
-          return _.get(state, "meta.mime")
-        }
-        return state.contentType
-      }
+    contentLoadPath(state, getters) {
+      return _.get(getters, "contentLoadInfo.path")
     },
     //--------------------------------------------
     hasCurrentMeta(state) {

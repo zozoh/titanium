@@ -318,86 +318,15 @@ export default {
   //
   //--------------------------------------------
   async openContentEditor() {
-    // Guard
-    if (!this.meta) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-
-    // Open Editor
-    let newContent = await Wn.EditObjContent(this.meta, {
-      content: this.content
-    })
-
-    // Cancel the editing
-    if (_.isUndefined(newContent)) {
-      return
-    }
-
-    // Update the current editing
-    await this.dispatch("changeContent", newContent)
-    this.commit("syncStatusChanged")
+    return await this.dispatch("openContentEditor")
   },
   //--------------------------------------------
   async openCurrentMetaEditor() {
-    // Guard
-    if (!this.meta && !this.oTs) {
-      return await Ti.Toast.Open("i18n:empty-data", "warn")
-    }
-    //.........................................
-    // For current selected
-    //.........................................
-    if (this.meta) {
-      // Edit current meta
-      let reo = await Wn.EditObjMeta(this.meta, {
-        fields: "default", autoSave: false
-      })
-
-      // Cancel the editing
-      if (_.isUndefined(reo)) {
-        return
-      }
-
-      // Update the current editing
-      let { updates } = reo
-      if (!_.isEmpty(updates)) {
-        await this.dispatch("updateMeta", updates)
-      }
-      return
-    }
-    //.........................................
-    // For Whole thing thing
-    //.........................................
-    await Wn.EditObjMeta(this.oTs, {
-      fields: "auto", autoSave: true
-    })
+    return await this.dispatch("openCurrentMetaEditor")
   },
   //--------------------------------------------
   async openCurrentPrivilege() {
-    let meta = this.meta || this.oTs
-
-    if (!meta) {
-      await Ti.Toast.Open("i18n:nil-obj")
-      return
-    }
-
-    let newMeta = await Wn.EditObjPvg(meta, {
-      organization: "~/.domain/organization.json"
-    })
-
-    // Update to current list
-    if (newMeta) {
-      // Update Current Meta
-      //console.log("pvg", newMeta)
-      if (this.meta && this.meta.id == newMeta.id) {
-        this.dispatch("changeMeta", newMeta)
-      }
-      // Update Thing Set
-      else {
-        await this.dispatch("reload", newMeta)
-      }
-    }
-
-    return newMeta
+    return await this.dispatch("openCurrentPrivilege")
   },
   //--------------------------------------------
 }

@@ -193,10 +193,12 @@ const _M = {
   //.........................................
   pushHistory(meta) {
     // Push history to update the browser address bar
+    console.log("pushHistory", meta.id)
     let his = window.history
     if (his && meta) {
       // Done push duplicate state
       if (his.state && his.state.id == meta.id) {
+        console.log("pushHistory ~ignore~")
         return
       }
       // Push to history stack

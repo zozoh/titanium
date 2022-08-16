@@ -47,32 +47,34 @@ export default {
       return _.get(state, "schema.behavior.hardRemove")
     },
     //--------------------------------------------
-    contentLoadPath(state) {
+    contentLoadInfo(state) {
       if (state.contentPath) {
         // fixed content path
         if (_.isString(state.contentPath)) {
-          return state.contentPath
+          return {
+            path: state.contentPath
+          }
         }
         // Try find content path
         let canPaths = _.concat([], state.contentPath)
         for (let canPath of canPaths) {
-          let { test, path } = canPath
+          let { test, path, mime } = canPath
           if (!test || Ti.AutoMatch.test(test, state)) {
             let ctx = _.assign(Wn.Session.env(), state)
             let ph = Ti.Util.explainObj(ctx, path)
-            return Ti.Util.appendPath(state.dataHome, ph)
+            if ('<self>' != ph) {
+              path = Ti.Util.appendPath(`id:${state.dirId}`, ph)
+            } else {
+              path = ph
+            }
+            return { path, mime }
           }
         }
       }
     },
     //--------------------------------------------
-    contentParseType(state) {
-      if (_.isString(state.contentType)) {
-        if ("<MIME>" == state.contentType) {
-          return _.get(state, "meta.mime")
-        }
-        return state.contentType
-      }
+    contentLoadPath(state, getters) {
+      return _.get(getters, "contentLoadInfo.path")
     },
     //--------------------------------------------
     hasCurrentMeta(state) {
