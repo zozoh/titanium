@@ -63,7 +63,7 @@ export default {
             let ctx = _.assign(Wn.Session.env(), state)
             let ph = Ti.Util.explainObj(ctx, path)
             if ('<self>' != ph) {
-              path = Ti.Util.appendPath(`id:${state.dirId}`, ph)
+              path = Ti.Util.appendPath(`${state.dataHome}`, ph)
             } else {
               path = ph
             }

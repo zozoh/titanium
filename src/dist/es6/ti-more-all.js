@@ -1,4 +1,4 @@
-// Pack At: 2022-08-17 01:18:01
+// Pack At: 2022-08-17 16:42:39
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -25286,6 +25286,7 @@ const _M = {
   },
   //--------------------------------------------
   async saveContent({ state, commit, getters }) {
+    state.LOG("saveContent ... ", state.status)
     // Guard: ing
     if (state.status.saving || !state.status.changed) {
       return
@@ -74657,7 +74658,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
             let ctx = _.assign(Wn.Session.env(), state)
             let ph = Ti.Util.explainObj(ctx, path)
             if ('<self>' != ph) {
-              path = Ti.Util.appendPath(`id:${state.dirId}`, ph)
+              path = Ti.Util.appendPath(`${state.dataHome}`, ph)
             } else {
               path = ph
             }
