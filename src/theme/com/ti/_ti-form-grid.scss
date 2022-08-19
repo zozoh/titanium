@@ -181,6 +181,8 @@
           > .ti-form-grid-con > .field-value,
           > .ti-form-grid-con > .field-value > .field-value-com {
             height: 100%;
+            overflow: hidden;
+            padding: 0;
           }
         }
       }
