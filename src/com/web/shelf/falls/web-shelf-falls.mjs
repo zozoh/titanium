@@ -34,6 +34,17 @@ const _M = {
     //-----------------------------------
     // Aspect
     //-----------------------------------
+    "blankAs": {
+      type: Object,
+      default: () => ({
+        text: "i18n:empty",
+        icon: "fas-box-open"
+      })
+    },
+    "loadingAs": {
+      type: [Object, Boolean],
+      default: () => ({})
+    },
     "cols": {
       type: [Number, String]
     },
@@ -49,17 +60,6 @@ const _M = {
     },
     "itemMaxHeight": {
       type: [String, Number, Array]
-    },
-    "blankAs": {
-      type: Object,
-      default: () => ({
-        text: "i18n:empty",
-        icon: "fas-box-open"
-      })
-    },
-    "loadingAs": {
-      type: [Object, Boolean],
-      default: () => ({})
     }
   },
   //////////////////////////////////////////

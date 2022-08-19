@@ -1,6 +1,9 @@
 const _M = {
   //////////////////////////////////////////
   props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
     "data": {
       type: Array,
       default: undefined
@@ -12,6 +15,9 @@ const _M = {
     "vars": {
       type: Object
     },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
     // Item comType
     "comType": {
       type: String,
@@ -27,6 +33,9 @@ const _M = {
       type: String,
       default: "id"
     },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
     "blankAs": {
       type: [Object, Boolean],
       default: () => ({

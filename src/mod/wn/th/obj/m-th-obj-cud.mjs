@@ -213,7 +213,7 @@ const _M = {
     })
   },
   //--------------------------------------------
-  async openCurrentPrivilege({ state, dispatch }) {
+  async openCurrentPrivilege({ state, commit, dispatch }) {
     let meta = state.meta || state.oTs
 
     if (!meta) {
@@ -228,11 +228,11 @@ const _M = {
       // Update Current Meta
       //console.log("pvg", newMeta)
       if (state.meta && state.meta.id == newMeta.id) {
-        state.dispatch("changeMeta", newMeta)
+        commit("setMeta", newMeta)
       }
       // Update Thing Set
       else {
-        await this.dispatch("reload", newMeta)
+        await dispatch("reload", newMeta)
       }
     }
 

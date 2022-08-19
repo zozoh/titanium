@@ -37,7 +37,7 @@ export default {
     TheForm() {
       return _.assign({
         onlyFields: false,
-        adjustDelay: 0,
+        adjustDelay: 1,
         fields: this.fields,
         fixed: this.fixed
       }, this.form)

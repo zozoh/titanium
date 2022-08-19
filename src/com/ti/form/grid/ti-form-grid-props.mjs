@@ -133,6 +133,12 @@ export default {
     type: Array,
     default: () => []
   },
+  // If use form in GuiPanel, should delay a while 
+  // for waiting the transision done
+  "adjustDelay": {
+    type: Number,
+    default: 0
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

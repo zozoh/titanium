@@ -463,7 +463,7 @@ const _M = {
     })
     _.delay(() => {
       this.OnResize()
-    })
+    }, this.adjustDelay || 0)
     //...................................
     await this.evalFormFieldList()
   },

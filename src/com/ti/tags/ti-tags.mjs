@@ -287,9 +287,12 @@ export default {
       immediate: true
     },
     "readonly": {
-      handler: "tryInitSortable",
-      immediate: true
+      handler: "tryInitSortable"
     }
+  },
+  ////////////////////////////////////////////////////
+  mounted: function () {
+    this.tryInitSortable()
   }
   ////////////////////////////////////////////////////
 }

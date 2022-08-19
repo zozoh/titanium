@@ -168,6 +168,7 @@ export default {
             dftLabelHoverCopy: false,
             checkable: true,
             multi: true,
+            rowNumberBase: 1,
             data: this.myPrivilegeData,
             idBy: "key",
             display: [
