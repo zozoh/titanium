@@ -1,17 +1,9 @@
 const _M = {
   /////////////////////////////////////////
   props: {
-    "size": {
-      type: String,
-      default: "normal",
-      validator: v => /^(big|normal|small|tiny)$/.test(v)
-    },
-    // center|top|left|right|bottom|
-    // left-top|right-top|bottom-left|bottom-right
-    "align": {
-      type: String,
-      default: "center"
-    },
+    //-----------------------------------
+    // Data
+    //-----------------------------------
     "setup": {
       type: [Array, Object],
       default: () => []
@@ -22,6 +14,9 @@ const _M = {
     "text": {
       type: String
     },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
     "disabled": {
       type: Boolean,
       default: undefined
@@ -35,6 +30,26 @@ const _M = {
     "payload": {
       type: [String, Object, Array, Boolean, Number],
       default: undefined
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "size": {
+      type: String,
+      default: "normal",
+      validator: v => /^(big|normal|small|tiny)$/.test(v)
+    },
+    // center|top|left|right|bottom|
+    // left-top|right-top|bottom-left|bottom-right
+    "align": {
+      type: String,
+      default: "center"
+    },
+    "mainStyle": {
+      type: Object
+    },
+    "itemStyle": {
+      type: Object
     },
   },
   //////////////////////////////////////////
@@ -88,6 +103,7 @@ const _M = {
           "is-disabled": li.disabled ? true : false,
           "is-invert-icon": li.invertIcon ? true : false
         }, li.className)
+        it.style = _.assign({}, this.itemStyle, li.style)
         re.push(it)
       })
       return re

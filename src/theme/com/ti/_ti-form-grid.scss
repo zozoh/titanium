@@ -177,12 +177,13 @@
       > .tab-body {
         overflow: auto;
         &.com-value-fit-parent {
+          padding: 0;
           > .ti-form-grid-con,
           > .ti-form-grid-con > .field-value,
           > .ti-form-grid-con > .field-value > .field-value-com {
             height: 100%;
-            overflow: hidden;
             padding: 0;
+            overflow: hidden;
           }
         }
       }

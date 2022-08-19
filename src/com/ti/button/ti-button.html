@@ -1,9 +1,10 @@
 <div class="ti-button"
   :class="TopClass">
-  <ul>
+  <ul :style="mainStyle">
     <li v-for="it in ButtonItems"
       :key="it.name"
       :class="it.buttonClass"
+      :style="it.style"
       @click="OnClickItem(it)">
       <!--
         Icon
