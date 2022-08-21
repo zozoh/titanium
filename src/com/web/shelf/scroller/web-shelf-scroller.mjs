@@ -1,22 +1,22 @@
 const _M = {
   //////////////////////////////////////////
-  data: ()=>({
-    myScrollLeft  : 0,
-    myMaxScroll   : 0,
-    myScrollWidth : 0
+  data: () => ({
+    myScrollLeft: 0,
+    myMaxScroll: 0,
+    myScrollWidth: 0
   }),
   //////////////////////////////////////////
-  props : {
+  props: {
     //-------------------------------------
     // Data
     //-------------------------------------
-    "data" : {
-      type : Array,
-      default : ()=>[]
+    "data": {
+      type: Array,
+      default: () => []
     },
-    "currentIndex" : {
-      type : Number,
-      default : 0
+    "currentIndex": {
+      type: Number,
+      default: 0
     },
     //-------------------------------------
     // Behavior
@@ -28,36 +28,36 @@ const _M = {
     },
     "comConf": {
       type: [Object, String],
-      default: ()=>({
+      default: () => ({
         value: "=.."
       })
     },
-    "clickItem" : {
+    "clickItem": {
       type: [String, Function],
       default: undefined
     },
-    "enterItem" : {
+    "enterItem": {
       type: [String, Function],
       default: undefined
     },
-    "leaveItem" : {
+    "leaveItem": {
       type: [String, Function],
       default: undefined
     },
-    "keepScrolling" : {
-      type : Boolean,
-      default : false
+    "keepScrolling": {
+      type: Boolean,
+      default: false
     },
     //-------------------------------------
     // Aspect
     //-------------------------------------
     // Item count per-row
-    "cols" : {
-      type : Number,
-      default : 4
+    "cols": {
+      type: Number,
+      default: 4
     },
-    "itemWidth" : {
-      type : [String, Number],
+    "itemWidth": {
+      type: [String, Number],
       default: undefined
     },
     "iconLeft": {
@@ -70,7 +70,7 @@ const _M = {
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -78,48 +78,48 @@ const _M = {
     //--------------------------------------
     InnerStyle() {
       return {
-        "left": Ti.Css.toSize(this.myScrollLeft)
+        "left": Ti.Css.toSize2(this.myScrollLeft)
       }
     },
     //--------------------------------------
     ItemStyle() {
-      if(!Ti.Util.isNil(this.itemWidth)) {
+      if (!Ti.Util.isNil(this.itemWidth)) {
         return Ti.Css.toSizeRem100({
-          "width" : this.itemWidth
+          "width": this.itemWidth
         })
       }
-      if(this.cols > 0) {
+      if (this.cols > 0) {
         return {
-          "width" : Ti.Types.toPercent(1/this.cols)
+          "width": Ti.Types.toPercent(1 / this.cols)
         }
       }
     },
     //--------------------------------------
-    isLeftEnabled() {return this.myScrollLeft < 0;},
+    isLeftEnabled() { return this.myScrollLeft < 0; },
     isRightEnabled() {
       return (this.myScrollLeft + this.myMaxScroll) > this.myScrollWidth
     },
     //--------------------------------------
     BtnLeftClass() {
       return {
-        "is-enabled"  : this.isLeftEnabled,
-        "is-disabled" : !this.isLeftEnabled
+        "is-enabled": this.isLeftEnabled,
+        "is-disabled": !this.isLeftEnabled
       }
     },
     //--------------------------------------
     BtnRightClass() {
       return {
-        "is-enabled"  : this.isRightEnabled,
-        "is-disabled" : !this.isRightEnabled
+        "is-enabled": this.isRightEnabled,
+        "is-disabled": !this.isRightEnabled
       }
     },
     //--------------------------------------
     ItemList() {
-      if(!_.isArray(this.data))
+      if (!_.isArray(this.data))
         return []
-      
-      let list = []      
-      for(let i=0; i < this.data.length; i++) {
+
+      let list = []
+      for (let i = 0; i < this.data.length; i++) {
         let it = this.data[i]
         // let comConf = _.assign({}, this.comConf, {
         //   value: it
@@ -129,52 +129,52 @@ const _M = {
           index: i,
           key: `It-${i}`,
           className: Ti.Css.mergeClassName(it.className, {
-            "is-current" : i == this.currentIndex
+            "is-current": i == this.currentIndex
           }),
-          rawData : it,
-          comType : this.comType,
+          rawData: it,
+          comType: this.comType,
           comConf
         })
       }
-      
+
       // Get the result
       return list
     },
     //--------------------------------------
     Draggable() {
       return {
-        trigger  : ".scroller-inner",
-        viewport : ($trigger) => {
+        trigger: ".scroller-inner",
+        viewport: ($trigger) => {
           return Ti.Dom.closest($trigger, ".scroller-outer")
         },
-        actived  : (ctx)=>{
+        actived: (ctx) => {
           //console.log("dragging begin", ctx, ctx.x, ctx.startX)
           this.evalScrolling();
           ctx.orgLeft = this.myScrollLeft
           ctx.$viewport.setAttribute("ti-in-dragging", "yes")
           //this.$emit("drag:start")
         },
-        dragging : (ctx)=>{
+        dragging: (ctx) => {
           // console.log("dragging", scaleX)
-          let {offsetX, orgLeft} = ctx
+          let { offsetX, orgLeft } = ctx
           this.myScrollLeft = orgLeft + offsetX
         },
-        done : (ctx) => {
-          let {viewport, $trigger, $viewport, offsetX, speed} = ctx
+        done: (ctx) => {
+          let { viewport, $trigger, $viewport, offsetX, speed } = ctx
           // console.log("dragging done")
           $viewport.setAttribute("ti-in-dragging", "no")
-          this.myScrollLeft = ctx.evalLeftBySpeed(this.myScrollLeft)
+          this.myScrollLeft = Math.round(ctx.evalLeftBySpeed(this.myScrollLeft))
         }
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnScrollLeft() {
       // Guard
-      if(!this.isLeftEnabled) {
+      if (!this.isLeftEnabled) {
         return
       }
       // Eval scrolling
@@ -187,7 +187,7 @@ const _M = {
     //--------------------------------------
     OnScrollRight() {
       // Guard
-      if(!this.isRightEnabled) {
+      if (!this.isRightEnabled) {
         return
       }
       // Eval scrolling
@@ -199,53 +199,59 @@ const _M = {
     },
     //--------------------------------------
     OnClickTile(item, index) {
-      if(_.isFunction(this.clickItem)) {
-        this.clickItem({item, index})
+      if (_.isFunction(this.clickItem)) {
+        this.clickItem({ item, index })
       }
-      else if(_.isString(this.clickItem)) {
-        this.$notify(this.clickItem, {item, index})
+      else if (_.isString(this.clickItem)) {
+        this.$notify(this.clickItem, { item, index })
       }
     },
     //--------------------------------------
     OnEnterTile(item, index) {
-      if(_.isFunction(this.enterItem)) {
-        this.enterItem({item, index})
+      if (_.isFunction(this.enterItem)) {
+        this.enterItem({ item, index })
       }
-      else if(_.isString(this.enterItem)) {
-        this.$notify(this.enterItem, {item, index})
+      else if (_.isString(this.enterItem)) {
+        this.$notify(this.enterItem, { item, index })
       }
     },
     //--------------------------------------
     OnLeaveTile(item, index) {
-      if(_.isFunction(this.leaveItem)) {
-        this.leaveItem({item, index})
+      if (_.isFunction(this.leaveItem)) {
+        this.leaveItem({ item, index })
       }
-      else if(_.isString(this.leaveItem)) {
-        this.$notify(this.leaveItem, {item, index})
+      else if (_.isString(this.leaveItem)) {
+        this.$notify(this.leaveItem, { item, index })
       }
     },
     //--------------------------------------
     evalScrolling() {
-      this.myMaxScroll = this.$refs.inner.scrollWidth;
-      this.myScrollWidth = this.$refs.inner.getBoundingClientRect().width;
+      this.myMaxScroll = Math.round(this.$refs.inner.scrollWidth);
+      this.myScrollWidth = Math.round(this.$refs.inner.getBoundingClientRect().width);
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   watch: {
     "data": {
-      handler: function(newData, oldData){
+      handler: function (newData, oldData) {
         let lenNew = _.size(newData)
         let lenOld = _.size(oldData)
-        if(!this.keepScrolling || !this.myScrollWidth || lenNew != lenOld) {
-          this.$nextTick(()=>{
+        if (!this.keepScrolling || !this.myScrollWidth || lenNew != lenOld) {
+          this.$nextTick(() => {
             this.evalScrolling()
             this.myScrollLeft = 0;
           })
         }
-      },
-      immediate: true
+      }
     }
+  },
+  //////////////////////////////////////////
+  mounted: function () {
+    this.$nextTick(() => {
+      this.evalScrolling()
+      this.myScrollLeft = 0;
+    })
   }
   //////////////////////////////////////////
 }

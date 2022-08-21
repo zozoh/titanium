@@ -253,7 +253,7 @@ const _M = {
     for (let id of ids) {
       cmd.push(`@get ${id}`)
     }
-    cmd.push("@delete")
+    cmd.push("@delete -r")
     let cmdText = cmd.join(" ")
     await Wn.Sys.exec2(cmdText)
 
