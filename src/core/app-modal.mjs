@@ -388,22 +388,30 @@ export class TiAppModal {
         },
         //--------------------------------------
         async OnClickActon(a) {
-          if (a.handler) {
-            let app = Ti.App(this)
-            let status = { close: true }
-            let $body = app.$vm()
-            let re = await a.handler({
+          // Guard
+          if (!a) {
+            return
+          }
+          let app = Ti.App(this)
+          let status = { close: true }
+          let $body = app.$vm()
+          let re;
+          if (_.isFunction(a.handler)) {
+            re = await a.handler({
               $app: app,
               $body,
               $main: $body.$main,
               result: _.cloneDeep($body.result),
               status
             })
-            if (status.close) {
-              this.close(re)
-            } else {
-              this.setResult(re)
-            }
+          }
+          // Close and set result
+          if (status.close) {
+            this.close(re)
+          }
+          // Just set result
+          else if (!_.isUndefined(re)) {
+            this.setResult(re)
           }
         },
         //--------------------------------------

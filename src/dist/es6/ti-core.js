@@ -1,4 +1,4 @@
-// Pack At: 2022-08-22 00:26:19
+// Pack At: 2022-08-24 00:55:49
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3500,22 +3500,30 @@ const {App} = (function(){
             },
             //--------------------------------------
             async OnClickActon(a) {
-              if (a.handler) {
-                let app = Ti.App(this)
-                let status = { close: true }
-                let $body = app.$vm()
-                let re = await a.handler({
+              // Guard
+              if (!a) {
+                return
+              }
+              let app = Ti.App(this)
+              let status = { close: true }
+              let $body = app.$vm()
+              let re;
+              if (_.isFunction(a.handler)) {
+                re = await a.handler({
                   $app: app,
                   $body,
                   $main: $body.$main,
                   result: _.cloneDeep($body.result),
                   status
                 })
-                if (status.close) {
-                  this.close(re)
-                } else {
-                  this.setResult(re)
-                }
+              }
+              // Close and set result
+              if (status.close) {
+                this.close(re)
+              }
+              // Just set result
+              else if (!_.isUndefined(re)) {
+                this.setResult(re)
               }
             },
             //--------------------------------------
@@ -18891,7 +18899,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220822.002619",
+  "version" : "1.6-20220824.005549",
   "dev" : false,
   "appName" : null,
   "session" : {},

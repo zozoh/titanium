@@ -7,7 +7,7 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   data: () => ({
-    myFieldKeys: undefined,
+    //myFieldKeys: undefined,
     myFieldWidths: undefined,
 
     allFields: [],
@@ -200,6 +200,20 @@ const _M = {
         width: "6.4rem",
         height: "90%",
         position: "top",
+        actions: [
+          {
+            icon: "fas-history",
+            text: "i18n:reset",
+            handler: () => []
+          },
+          {
+            text: "i18n:ok",
+            handler: ({ result }) => result
+          },
+          {
+            text: "i18n:cancel"
+          }
+        ],
         result: vals,
         comType: "TiTransfer",
         comConf: {
@@ -217,7 +231,7 @@ const _M = {
 
       // Store to local
       if (this.keepCustomizedTo) {
-        this.myFieldKeys = reo
+        //this.myFieldKeys = reo
         let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
         cuo.shownFieldKeys = reo
         Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
