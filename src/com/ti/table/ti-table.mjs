@@ -202,13 +202,13 @@ const _M = {
         position: "top",
         actions: [
           {
+            text: "i18n:ok",
+            handler: ({ result }) => result
+          },
+          {
             icon: "fas-history",
             text: "i18n:reset",
             handler: () => []
-          },
-          {
-            text: "i18n:ok",
-            handler: ({ result }) => result
           },
           {
             text: "i18n:cancel"

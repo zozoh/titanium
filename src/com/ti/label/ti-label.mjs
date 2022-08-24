@@ -135,10 +135,17 @@ const _M = {
     TheHref() {
       if (this.href) {
         let c;
-        if (_.isString(this.TheValue)) {
-          c = { val: this.TheValue }
-        } else {
+        // Array
+        if (_.isArray(this.TheValue)) {
+          c = { val: this.TheValue.join(",") }
+        }
+        // Object
+        else if (_.isObject(this.TheValue)) {
           c = _.assign({}, this.TheValue)
+        }
+        // Take it as simple value
+        else {
+          c = { val: this.TheValue }
         }
         return Ti.Util.explainObj(c, this.href, {
           evalFunc: true
