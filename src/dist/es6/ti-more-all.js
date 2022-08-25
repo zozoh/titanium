@@ -1,4 +1,4 @@
-// Pack At: 2022-08-24 00:55:49
+// Pack At: 2022-08-25 15:40:19
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -14910,10 +14910,17 @@ const _M = {
     TheHref() {
       if (this.href) {
         let c;
-        if (_.isString(this.TheValue)) {
-          c = { val: this.TheValue }
-        } else {
+        // Array
+        if (_.isArray(this.TheValue)) {
+          c = { val: this.TheValue.join(",") }
+        }
+        // Object
+        else if (_.isObject(this.TheValue)) {
           c = _.assign({}, this.TheValue)
+        }
+        // Take it as simple value
+        else {
+          c = { val: this.TheValue }
         }
         return Ti.Util.explainObj(c, this.href, {
           evalFunc: true
@@ -42216,13 +42223,13 @@ const _M = {
         position: "top",
         actions: [
           {
+            text: "i18n:ok",
+            handler: ({ result }) => result
+          },
+          {
             icon: "fas-history",
             text: "i18n:reset",
             handler: () => []
-          },
-          {
-            text: "i18n:ok",
-            handler: ({ result }) => result
           },
           {
             text: "i18n:cancel"
