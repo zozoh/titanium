@@ -48,6 +48,10 @@ const _M = {
       type: Boolean,
       default: false
     },
+    "draggable": {
+      type: Boolean,
+      default: true
+    },
     //-------------------------------------
     // Aspect
     //-------------------------------------
@@ -73,7 +77,9 @@ const _M = {
   computed: {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "is-draggable": this.draggable
+      })
     },
     //--------------------------------------
     InnerStyle() {
@@ -142,28 +148,30 @@ const _M = {
     },
     //--------------------------------------
     Draggable() {
-      return {
-        trigger: ".scroller-inner",
-        viewport: ($trigger) => {
-          return Ti.Dom.closest($trigger, ".scroller-outer")
-        },
-        actived: (ctx) => {
-          //console.log("dragging begin", ctx, ctx.x, ctx.startX)
-          this.evalScrolling();
-          ctx.orgLeft = this.myScrollLeft
-          ctx.$viewport.setAttribute("ti-in-dragging", "yes")
-          //this.$emit("drag:start")
-        },
-        dragging: (ctx) => {
-          // console.log("dragging", scaleX)
-          let { offsetX, orgLeft } = ctx
-          this.myScrollLeft = orgLeft + offsetX
-        },
-        done: (ctx) => {
-          let { viewport, $trigger, $viewport, offsetX, speed } = ctx
-          // console.log("dragging done")
-          $viewport.setAttribute("ti-in-dragging", "no")
-          this.myScrollLeft = Math.round(ctx.evalLeftBySpeed(this.myScrollLeft))
+      if (this.draggable) {
+        return {
+          trigger: ".scroller-inner",
+          viewport: ($trigger) => {
+            return Ti.Dom.closest($trigger, ".scroller-outer")
+          },
+          actived: (ctx) => {
+            //console.log("dragging begin", ctx, ctx.x, ctx.startX)
+            this.evalScrolling();
+            ctx.orgLeft = this.myScrollLeft
+            ctx.$viewport.setAttribute("ti-in-dragging", "yes")
+            //this.$emit("drag:start")
+          },
+          dragging: (ctx) => {
+            // console.log("dragging", scaleX)
+            let { offsetX, orgLeft } = ctx
+            this.myScrollLeft = orgLeft + offsetX
+          },
+          done: (ctx) => {
+            let { viewport, $trigger, $viewport, offsetX, speed } = ctx
+            // console.log("dragging done")
+            $viewport.setAttribute("ti-in-dragging", "no")
+            this.myScrollLeft = Math.round(ctx.evalLeftBySpeed(this.myScrollLeft))
+          }
         }
       }
     }

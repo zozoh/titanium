@@ -1,22 +1,33 @@
 .web-shelf-scroller {
-  position: relative; min-height: SZ(40);
-  cursor: move;
+  position: relative;
+  min-height: SZ(40);
   //-----------------------------------------
-  img {cursor: move;}
+  &.is-draggable {
+    cursor: move;
+    img {
+      cursor: move;
+    }
+  }
   //-----------------------------------------
   $btnSZ: SZ(50);
   //-----------------------------------------
   .scroll-btn {
-    @include pos-abs($t:0,$b:0,$w:$btnSZ);
+    @include pos-abs($t: 0, $b: 0, $w: $btnSZ);
     @include flex-center;
-    padding: 0; font-size: SZ(24);
+    padding: 0;
+    font-size: SZ(24);
     //---------------------------------------
-    &.at-left  {left :$btnSZ * -1.2;}
-    &.at-right {right:$btnSZ * -1.2;}
+    &.at-left {
+      left: $btnSZ * -1.2;
+    }
+    &.at-right {
+      right: $btnSZ * -1.2;
+    }
     //---------------------------------------
     > span {
       @include flex-center;
-      width:100%; height:$btnSZ;
+      width: 100%;
+      height: $btnSZ;
       border-radius: SZ(4);
       &:hover {
         @include color($color-secondary, r, c);
@@ -29,7 +40,7 @@
     //---------------------------------------
     &.is-enabled > span {
       @include color($color-primary, r, c);
-      cursor: pointer; 
+      cursor: pointer;
       &:hover {
         @include color($color-secondary, r, c);
       }
@@ -39,26 +50,36 @@
   //-----------------------------------------
   &.btn-as-circle .scroll-btn {
     > span {
-      border-radius: 50%; flex:0 0 auto;
-      width: SZ(42); height: SZ(42);
+      border-radius: 50%;
+      flex: 0 0 auto;
+      width: SZ(42);
+      height: SZ(42);
       font-size: SZ(28);
     }
   }
   //-----------------------------------------
   &.btn-at-inner .scroll-btn {
-    z-index: $z-above; padding: 0 SZ(4);
+    z-index: $z-above;
+    padding: 0 SZ(4);
     width: unset;
     //---------------------------------------
-    &.at-left  {left :0;}
-    &.at-right {right:0;}
+    &.at-left {
+      left: 0;
+    }
+    &.at-right {
+      right: 0;
+    }
     //---------------------------------------
     > span {
       @include color($color-mask, r, thin);
-      transition: 0.3s; opacity: 0;
+      transition: 0.3s;
+      opacity: 0;
     }
     //---------------------------------------
     &.is-enabled {
-      &:hover > span {opacity: 1;}
+      &:hover > span {
+        opacity: 1;
+      }
     }
     //---------------------------------------
   }
@@ -72,7 +93,7 @@
   }
   //-----------------------------------------
   .scroller-outer {
-    width:100%;
+    width: 100%;
     overflow: hidden;
     &[ti-in-dragging="yes"] .scroller-inner {
       transition: unset;
@@ -83,13 +104,14 @@
     @include flex(flex-start, stretch, nowrap, stretch);
     position: relative;
     transition: left 0.5s ease-in-out;
-    flex:0 0 auto;
+    flex: 0 0 auto;
   }
   //-----------------------------------------
   .scroller-tile {
     @include flex(center, stretch, nowrap, stretch);
-    border:SZ(4) solid transparent;
-    flex:0 0 auto;  position: relative;
+    border: SZ(4) solid transparent;
+    flex: 0 0 auto;
+    position: relative;
     //---------------------------------------
     &.is-current {
       border-color: map-get($color-primary, c);
@@ -97,8 +119,9 @@
         @include pos-abs-full;
         @include flex-center;
         @include color($color-mask, r, bushy);
-        font-family: 'Font Awesome 5 Free';
-        font-weight: 900; font-size: SZ(24);
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        font-size: SZ(24);
         content: "\f077";
       }
     }
@@ -111,7 +134,9 @@
     //   border-color: map-get($color-weaktip, c);
     // }
     //---------------------------------------
-    > * {flex:1 1 auto;}
+    > * {
+      flex: 1 1 auto;
+    }
     //---------------------------------------
   }
   //-----------------------------------------
