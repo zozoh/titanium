@@ -30,26 +30,9 @@ const _M = {
         value: "=.."
       })
     },
-    "interval": {
-      type: Number,
-      default: 0
-    },
     //-------------------------------------
     // Aspect
     //-------------------------------------
-    "indicatorType": {
-      type: String,
-      default: "dashed",
-      validator: v => /^(dashed|dotted|square)$/.test(v)
-    },
-    "indicatorAlign": {
-      type: String,
-      default: "bottom-center",
-      validator: v => {
-        return /^(top|bottom)-(left|center|right)$/.test(v)
-          || /^(left|right)-(top|bottom)$/.test(v)
-      }
-    },
     "width": {
       type: [Number, String],
       default: undefined
@@ -64,13 +47,6 @@ const _M = {
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
-    },
-    //--------------------------------------
-    IndicatorClass() {
-      return Ti.Css.mergeClassName([
-        `indicator-is-${this.indicatorType}`,
-        `indicator-at-${this.indicatorAlign}`
-      ])
     },
     //--------------------------------------
     TopStyle() {
@@ -126,10 +102,6 @@ const _M = {
   //////////////////////////////////////////
   methods: {
     //--------------------------------------
-    OnClickIndicator({ index }) {
-      this.myCurrentIndex = index
-    },
-    //--------------------------------------
     getItemKey(it, index) {
       let key = _.get(it, this.idBy)
       return key || `It-${index}`
@@ -143,17 +115,6 @@ const _M = {
     nextItem() {
       let index = Ti.Num.scrollIndex(this.myCurrentIndex + 1, this.ItemList.length)
       this.myCurrentIndex = index
-    },
-    //--------------------------------------
-    autoPlayNextItem() {
-      if (this.interval > 0) {
-        _.delay(() => {
-          if (!this.mousein) {
-            this.nextItem()
-          }
-          this.autoPlayNextItem()
-        }, this.interval * 1000)
-      }
     }
     //--------------------------------------
   },

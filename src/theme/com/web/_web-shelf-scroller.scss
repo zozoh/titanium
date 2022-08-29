@@ -140,6 +140,12 @@
     //---------------------------------------
   }
   //-----------------------------------------
+  &.no-border {
+    .scroller-tile {
+      border: 0;
+    }
+  }
+  //-----------------------------------------
   &.hide-current-indicator {
     .scroller-tile.is-current::after {
       display: none;

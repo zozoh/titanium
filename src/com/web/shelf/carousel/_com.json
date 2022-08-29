@@ -1,0 +1,6 @@
+{
+  "name" : "web-shelf-accordion",
+  "globally" : true,
+  "template" : "./web-shelf-accordion.html",
+  "mixins" : ["./web-shelf-accordion.mjs"]
+}
