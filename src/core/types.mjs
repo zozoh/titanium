@@ -1081,10 +1081,12 @@ const TiTypes = {
     }
     // Try eval
     catch (E) {
-      let json = str.replace(/(function|=>)/g, "Function")
-      try {
-        return eval('(' + json + ')');
-      } catch (E2) { }
+      let json = _.trim(str.replace(/(function|=>)/g, "Function"))
+      if (/^\{.+\}$/.test(json) || /^\[.+\]$/.test(json)) {
+        try {
+          return eval('(' + json + ')');
+        } catch (E2) { }
+      }
     }
     // Return string directly
     return dft

@@ -1,4 +1,4 @@
-// Pack At: 2022-08-30 00:31:05
+// Pack At: 2022-08-30 01:08:16
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10045,10 +10045,12 @@ const {Types} = (function(){
       }
       // Try eval
       catch (E) {
-        let json = str.replace(/(function|=>)/g, "Function")
-        try {
-          return eval('(' + json + ')');
-        } catch (E2) { }
+        let json = _.trim(str.replace(/(function|=>)/g, "Function"))
+        if (/^\{.+\}$/.test(json) || /^\[.+\]$/.test(json)) {
+          try {
+            return eval('(' + json + ')');
+          } catch (E2) { }
+        }
       }
       // Return string directly
       return dft
@@ -18899,7 +18901,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220830.003105",
+  "version" : "1.6-20220830.010816",
   "dev" : false,
   "appName" : null,
   "session" : {},
