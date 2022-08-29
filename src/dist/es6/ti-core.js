@@ -1,4 +1,4 @@
-// Pack At: 2022-08-25 15:40:19
+// Pack At: 2022-08-30 00:31:05
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -15115,7 +15115,7 @@ const {Css} = (function(){
       return dft
     },
     //-----------------------------------
-    toSize(sz, { autoPercent = true, remBase = 0 } = {}) {
+    toSize(sz, { autoPercent = false, remBase = 0 } = {}) {
       if (_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
         if (0 == sz)
           return sz
@@ -18899,7 +18899,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220825.154019",
+  "version" : "1.6-20220830.003105",
   "dev" : false,
   "appName" : null,
   "session" : {},

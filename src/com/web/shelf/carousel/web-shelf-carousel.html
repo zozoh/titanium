@@ -1,40 +1,30 @@
-<div class="web-shelf-slide"
+<div class="web-shelf-carousel"
   :class="TopClass"
   :style="TopStyle">
   <!--
     Main
   -->
-  <div class="as-main">
-    <div
-      v-for="it in ItemList"
-        :key="it.key"
-        class="as-con"
-        :class="it.className">
-        <component :is="it.comType" v-bind="it.comConf"/>
-    </div>
-  </div>
-  <!--
-    Item List
-  -->
-  <div v-if="hasMultiItems" class="as-indicator" :class="IndicatorClass">
-    <div
-      v-for="(it, index) in ItemList"
-        class="as-item"
-        :class="it.className"
-        @click.left.stop="OnClickIndicator(it)">
-        <span>{{index+1}}</span>
-    </div>
-  </div>
+  <main>
+    <ul :style="MainUlStyle" ref="ul">
+      <li
+        v-for="it in ItemList"
+          :key="it.key"
+          :data-index="it.index"
+          :style="MainLiStyle">
+          <component :is="it.comType" v-bind="it.comConf"/>
+      </li>
+    </ul>
+  </main>
   <!--
     Btn: Prev
   -->
   <div class="as-btn is-prev" @click.left="prevItem" v-if="hasMultiItems">
-    <i class="im im-angle-left"></i>
+    <b><TiIcon :value="iconLeft"/></b>
   </div>
   <!--
     Btn: Next
   -->
   <div class="as-btn is-next" @click.left="nextItem" v-if="hasMultiItems">
-    <i class="im im-angle-right"></i>
+    <b><TiIcon :value="iconRight"/></b>
   </div>
 </div>

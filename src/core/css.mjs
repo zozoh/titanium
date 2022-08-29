@@ -72,7 +72,7 @@ const TiCss = {
     return dft
   },
   //-----------------------------------
-  toSize(sz, { autoPercent = true, remBase = 0 } = {}) {
+  toSize(sz, { autoPercent = false, remBase = 0 } = {}) {
     if (_.isNumber(sz) || /^[0-9]+$/.test(sz)) {
       if (0 == sz)
         return sz

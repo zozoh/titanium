@@ -1,4 +1,4 @@
-// Pack At: 2022-08-25 15:40:19
+// Pack At: 2022-08-30 00:31:05
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -39232,15 +39232,25 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/web/shelf/slide/web-shelf-slide.mjs'] = (function(){
 const _M = {
   //////////////////////////////////////////
-  data: ()=>({
+  data: () => ({
     myCurrentIndex: 0
   }),
   //////////////////////////////////////////
-  props : {
-    "data" : {
-      type : Array,
-      default : ()=>[]
+  props: {
+    //-------------------------------------
+    // Data
+    //-------------------------------------
+    "data": {
+      type: Array,
+      default: () => []
     },
+    "idBy": {
+      type: String,
+      default: "id"
+    },
+    //-------------------------------------
+    // Behavior
+    //-------------------------------------
     // Item comType
     "comType": {
       type: String,
@@ -39248,7 +39258,7 @@ const _M = {
     },
     "comConf": {
       type: [Object, String],
-      default: ()=>({
+      default: () => ({
         value: "=.."
       })
     },
@@ -39256,80 +39266,99 @@ const _M = {
       type: Number,
       default: 0
     },
-    "idBy" : {
+    //-------------------------------------
+    // Aspect
+    //-------------------------------------
+    "indicatorType": {
       type: String,
-      default : "id"
+      default: "dashed",
+      validator: v => /^(dashed|dotted|square)$/.test(v)
     },
-    "width" : {
-      type : [Number, String],
-      default : undefined
+    "indicatorAlign": {
+      type: String,
+      default: "bottom-center",
+      validator: v => {
+        return /^(top|bottom)-(left|center|right)$/.test(v)
+          || /^(left|right)-(top|bottom)$/.test(v)
+      }
     },
-    "height" : {
-      type : [Number, String],
-      default : undefined
+    "width": {
+      type: [Number, String],
+      default: undefined
+    },
+    "height": {
+      type: [Number, String],
+      default: undefined
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return this.getTopClass()
     },
     //--------------------------------------
+    IndicatorClass() {
+      return Ti.Css.mergeClassName([
+        `indicator-is-${this.indicatorType}`,
+        `indicator-at-${this.indicatorAlign}`
+      ])
+    },
+    //--------------------------------------
     TopStyle() {
       return Ti.Css.toStyle({
-        width  : this.width,
-        height : this.height
+        width: this.width,
+        height: this.height
       })
     },
     //--------------------------------------
-    isLeftEnabled() {return true;},
-    isRightEnabled() {return true;},
+    isLeftEnabled() { return true; },
+    isRightEnabled() { return true; },
     //--------------------------------------
-    hasMultiItems() {return this.ItemList.length > 1},
+    hasMultiItems() { return this.ItemList.length > 1 },
     //--------------------------------------
     BtnLeftClass() {
       return {
-        "is-enabled"  : this.isLeftEnabled,
-        "is-disabled" : !this.isLeftEnabled
+        "is-enabled": this.isLeftEnabled,
+        "is-disabled": !this.isLeftEnabled
       }
     },
     //--------------------------------------
     BtnRightClass() {
       return {
-        "is-enabled"  : this.isRightEnabled,
-        "is-disabled" : !this.isRightEnabled
+        "is-enabled": this.isRightEnabled,
+        "is-disabled": !this.isRightEnabled
       }
     },
     //--------------------------------------
     ItemList() {
-      if(!_.isArray(this.data))
+      if (!_.isArray(this.data))
         return []
-      
-      let list = []      
-      for(let i=0; i < this.data.length; i++) {
+
+      let list = []
+      for (let i = 0; i < this.data.length; i++) {
         let it = this.data[i]
         let current = i == this.myCurrentIndex
         let className = current ? "is-current" : null
         let comConf = Ti.Util.explainObj(it, this.comConf)
         list.push({
           key: this.getItemKey(it, i),
-          index : i,
+          index: i,
           className,
           comType: this.comType,
           comConf
         })
       }
-      
+
       // Get the result
       return list
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
-    OnClickIndicator({index}) {
+    OnClickIndicator({ index }) {
       this.myCurrentIndex = index
     },
     //--------------------------------------
@@ -39339,19 +39368,19 @@ const _M = {
     },
     //--------------------------------------
     prevItem() {
-      let index = Ti.Num.scrollIndex(this.myCurrentIndex-1, this.ItemList.length)
+      let index = Ti.Num.scrollIndex(this.myCurrentIndex - 1, this.ItemList.length)
       this.myCurrentIndex = index
     },
     //--------------------------------------
     nextItem() {
-      let index = Ti.Num.scrollIndex(this.myCurrentIndex+1, this.ItemList.length)
+      let index = Ti.Num.scrollIndex(this.myCurrentIndex + 1, this.ItemList.length)
       this.myCurrentIndex = index
     },
     //--------------------------------------
     autoPlayNextItem() {
-      if(this.interval > 0) {
-        _.delay(()=>{
-          if(!this.mousein) {
+      if (this.interval > 0) {
+        _.delay(() => {
+          if (!this.mousein) {
             this.nextItem()
           }
           this.autoPlayNextItem()
@@ -39361,9 +39390,9 @@ const _M = {
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "interval" : function(interv) {
-      if(interv > 0) {
+  watch: {
+    "interval": function (interv) {
+      if (interv > 0) {
         this.autoPlayNextItem()
       }
     }
@@ -58002,6 +58031,251 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'web-shelf-carousel.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/web/shelf/carousel/web-shelf-carousel.mjs'] = (function(){
+const _M = {
+  //////////////////////////////////////////
+  data: () => ({
+    myCurrentIndex: 0,  // Index of data for 'A'
+    myTransition: undefined,
+    measure: {/*
+      控件区域宽度 : W
+      左右边距 : P
+      主要区域 : V = W - 2P
+      卡片宽度 : C = V / cols
+      每次滚动距离 : V
+      内容器左边绝对位移: offset = -2C + P  
+    */},
+    inTransition: false
+  }),
+  //////////////////////////////////////////
+  props: {
+    //-------------------------------------
+    // Data
+    //-------------------------------------
+    "data": {
+      type: Array,
+      default: () => []
+    },
+    //-------------------------------------
+    // Behavior
+    //-------------------------------------
+    "transition": {
+      type: String,
+      default: "left 0.5s"
+    },
+    // Item comType
+    "comType": {
+      type: String,
+      default: "ti-label"
+    },
+    "comConf": {
+      type: [Object, String],
+      default: () => ({
+        value: "=.."
+      })
+    },
+    //-------------------------------------
+    // Aspect
+    //-------------------------------------
+    // Item count per-row
+    "cols": {
+      type: Number,
+      default: 3
+    },
+    "pad": {
+      type: [String, Number],
+      default: "11%"
+    },
+    "iconLeft": {
+      type: String,
+      //default: "fas-caret-left"
+      default: "fas-angle-left"
+    },
+    "iconRight": {
+      type: String,
+      //default: "fas-caret-right"
+      default: "fas-angle-right"
+    },
+    "width": {
+      type: [Number, String],
+      default: undefined
+    },
+    "height": {
+      type: [Number, String],
+      default: undefined
+    }
+  },
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass()
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //--------------------------------------
+    MainUlStyle() {
+      return Ti.Css.toStyle({
+        left: this.measure.offset,
+        transition: this.myTransition
+      })
+    },
+    //--------------------------------------
+    MainLiStyle() {
+      return Ti.Css.toStyle({
+        width: this.measure.C
+      })
+    },
+    //--------------------------------------
+    hasMultiItems() {
+      return _.isArray(this.data) && this.data.length > 1
+    },
+    //--------------------------------------
+    ItemList() {
+      if (!_.isArray(this.data) || _.isEmpty(this.data))
+        return []
+
+      let list = []
+      let len = this.data.length;
+      // Define push method
+      const push_to_list = (index) => {
+        let it = this.data[index]
+        let comConf = Ti.Util.explainObj(it, this.comConf)
+        list.push({
+          key: `I${list.length}`,
+          index,
+          comType: this.comType,
+          comConf
+        })
+      }
+
+      // Push the prev items
+      let I = this.myCurrentIndex
+      for (let i = -2; i <= -1; i++) {
+        let index = Ti.Num.scrollIndex(I + i, len)
+        push_to_list(index)
+      }
+
+      // Push the view item
+      for (let i = 0; i < this.cols; i++) {
+        let index = Ti.Num.scrollIndex(I + i, len)
+        push_to_list(index)
+      }
+
+      // Push the next items
+      I = this.myCurrentIndex + this.cols
+      for (let i = 0; i <= 1; i++) {
+        let index = Ti.Num.scrollIndex(I + i, len)
+        push_to_list(index)
+      }
+
+      // Get the result
+      return list
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    OnResize() {
+      this.myTransition = undefined
+      this.$nextTick(() => {
+        this.evalMeasure()
+        _.delay(() => {
+          this.myTransition = this.transition
+        }, 100)
+      })
+    },
+    //--------------------------------------
+    prevItem() {
+      this.scrollUl(-1)
+    },
+    //--------------------------------------
+    nextItem() {
+      this.scrollUl(1)
+    },
+    //--------------------------------------
+    scrollUl(off) {
+      // Guard
+      if(this.inTransition) {
+        return
+      }
+      // Mark
+      this.inTransition = true
+
+      // Prepare the next index
+      let index = Ti.Num.scrollIndex(this.myCurrentIndex + off, this.data.length)
+      
+      // Scroll
+      this.evalMeasure(off)
+
+      // Transend
+      this.listenTransEnd(() => {
+        this.myTransition = undefined
+        this.$nextTick(() => {
+          this.myCurrentIndex = index
+          this.evalMeasure()
+          _.delay(() => {
+            this.myTransition = this.transition
+            this.inTransition = false
+          }, 100)
+        })
+      })
+    },
+    //--------------------------------------
+    listenTransEnd(callback) {
+      let $ul = this.$refs.ul
+      if (_.isElement($ul) && _.isFunction(callback)) {
+        $ul.addEventListener("transitionend", () => {
+          callback()
+        }, { once: true })
+      }
+    },
+    //--------------------------------------
+    evalMeasure(scrollOffset = 0) {
+      let W = this.$el.clientWidth
+      let P = Ti.Css.toPixel(this.pad, W)
+      let V = W - P * 2
+      let C = V / this.cols
+      let offset = P - C * 2 - C * scrollOffset
+      this.measure = {
+        W, P, V, C, offset
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "transition": {
+      handler: function (trans) {
+        this.myTransition = trans
+      },
+      immediate: true
+    }
+  },
+  //////////////////////////////////////////
+  mounted() {
+    this.OnResize()
+    Ti.Viewport.watch(this, {
+      resize: _.debounce(() => this.OnResize(), 10)
+    })
+  },
+  //////////////////////////////////////////
+  beforeDestroy: function () {
+    Ti.Viewport.unwatch(this)
+  }
+  //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'm-obj-current-actions.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/mod/wn/obj-current/m-obj-current-actions.mjs'] = (function(){
@@ -75338,6 +75612,10 @@ const _M = {
       type: Boolean,
       default: false
     },
+    "draggable": {
+      type: Boolean,
+      default: true
+    },
     //-------------------------------------
     // Aspect
     //-------------------------------------
@@ -75363,7 +75641,9 @@ const _M = {
   computed: {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "is-draggable": this.draggable
+      })
     },
     //--------------------------------------
     InnerStyle() {
@@ -75432,28 +75712,30 @@ const _M = {
     },
     //--------------------------------------
     Draggable() {
-      return {
-        trigger: ".scroller-inner",
-        viewport: ($trigger) => {
-          return Ti.Dom.closest($trigger, ".scroller-outer")
-        },
-        actived: (ctx) => {
-          //console.log("dragging begin", ctx, ctx.x, ctx.startX)
-          this.evalScrolling();
-          ctx.orgLeft = this.myScrollLeft
-          ctx.$viewport.setAttribute("ti-in-dragging", "yes")
-          //this.$emit("drag:start")
-        },
-        dragging: (ctx) => {
-          // console.log("dragging", scaleX)
-          let { offsetX, orgLeft } = ctx
-          this.myScrollLeft = orgLeft + offsetX
-        },
-        done: (ctx) => {
-          let { viewport, $trigger, $viewport, offsetX, speed } = ctx
-          // console.log("dragging done")
-          $viewport.setAttribute("ti-in-dragging", "no")
-          this.myScrollLeft = Math.round(ctx.evalLeftBySpeed(this.myScrollLeft))
+      if (this.draggable) {
+        return {
+          trigger: ".scroller-inner",
+          viewport: ($trigger) => {
+            return Ti.Dom.closest($trigger, ".scroller-outer")
+          },
+          actived: (ctx) => {
+            //console.log("dragging begin", ctx, ctx.x, ctx.startX)
+            this.evalScrolling();
+            ctx.orgLeft = this.myScrollLeft
+            ctx.$viewport.setAttribute("ti-in-dragging", "yes")
+            //this.$emit("drag:start")
+          },
+          dragging: (ctx) => {
+            // console.log("dragging", scaleX)
+            let { offsetX, orgLeft } = ctx
+            this.myScrollLeft = orgLeft + offsetX
+          },
+          done: (ctx) => {
+            let { viewport, $trigger, $viewport, offsetX, speed } = ctx
+            // console.log("dragging done")
+            $viewport.setAttribute("ti-in-dragging", "no")
+            this.myScrollLeft = Math.round(ctx.evalLeftBySpeed(this.myScrollLeft))
+          }
         }
       }
     }
@@ -93003,6 +93285,52 @@ Ti.Preload("ti/com/web/shelf/audio-icons/_com.json", {
   ]
 });
 //========================================
+// JOIN <web-shelf-carousel.html> ti/com/web/shelf/carousel/web-shelf-carousel.html
+//========================================
+Ti.Preload("ti/com/web/shelf/carousel/web-shelf-carousel.html", `<div class="web-shelf-carousel"
+  :class="TopClass"
+  :style="TopStyle">
+  <!--
+    Main
+  -->
+  <main>
+    <ul :style="MainUlStyle" ref="ul">
+      <li
+        v-for="it in ItemList"
+          :key="it.key"
+          :data-index="it.index"
+          :style="MainLiStyle">
+          <component :is="it.comType" v-bind="it.comConf"/>
+      </li>
+    </ul>
+  </main>
+  <!--
+    Btn: Prev
+  -->
+  <div class="as-btn is-prev" @click.left="prevItem" v-if="hasMultiItems">
+    <b><TiIcon :value="iconLeft"/></b>
+  </div>
+  <!--
+    Btn: Next
+  -->
+  <div class="as-btn is-next" @click.left="nextItem" v-if="hasMultiItems">
+    <b><TiIcon :value="iconRight"/></b>
+  </div>
+</div>`);
+//========================================
+// JOIN <web-shelf-carousel.mjs> ti/com/web/shelf/carousel/web-shelf-carousel.mjs
+//========================================
+Ti.Preload("ti/com/web/shelf/carousel/web-shelf-carousel.mjs", TI_PACK_EXPORTS['ti/com/web/shelf/carousel/web-shelf-carousel.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/web/shelf/carousel/_com.json
+//========================================
+Ti.Preload("ti/com/web/shelf/carousel/_com.json", {
+  "name" : "web-shelf-carousel",
+  "globally" : true,
+  "template" : "./web-shelf-carousel.html",
+  "mixins" : ["./web-shelf-carousel.mjs"]
+});
+//========================================
 // JOIN <web-shelf-falls.html> ti/com/web/shelf/falls/web-shelf-falls.html
 //========================================
 Ti.Preload("ti/com/web/shelf/falls/web-shelf-falls.html", `<div class="web-shelf-falls"
@@ -93450,12 +93778,13 @@ Ti.Preload("ti/com/web/shelf/slide/web-shelf-slide.html", `<div class="web-shelf
   <!--
     Item List
   -->
-  <div class="as-indicator" v-if="hasMultiItems">
+  <div v-if="hasMultiItems" class="as-indicator" :class="IndicatorClass">
     <div
-      v-for="it in ItemList"
+      v-for="(it, index) in ItemList"
         class="as-item"
         :class="it.className"
         @click.left.stop="OnClickIndicator(it)">
+        <span>{{index+1}}</span>
     </div>
   </div>
   <!--
