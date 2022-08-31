@@ -413,19 +413,21 @@ export default {
     return this.delegateWnAdaptlist("openLocalFileSelectdDialog")
   },
   async openCurrentPrivilege() {
-    return this.asyncDelegateWnAdaptlist("openCurrentPrivilege")
+    await this.dispatch("openCurrentPrivilege")
   },
   async doRename() {
-    return this.asyncDelegateWnAdaptlist("doRename")
+    await this.dispatch("doRename")
   },
   async doBatchUpdate() {
     return this.asyncDelegateWnAdaptlist("doBatchUpdate")
   },
   async doMoveTo() {
-    return this.asyncDelegateWnAdaptlist("doMoveTo")
+    //return this.asyncDelegateWnAdaptlist("doMoveTo")
+    await this.dispatch("moveTo")
   },
   async doDelete(confirm) {
-    return this.asyncDelegateWnAdaptlist("doDelete", confirm)
+    //return this.asyncDelegateWnAdaptlist("doDelete", confirm)
+    await this.dispatch("removeChecked", confirm)
   }
   //--------------------------------------------
 }
