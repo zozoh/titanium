@@ -1,0 +1,31 @@
+{
+  "comType": "ti-form",
+  "comConf": {
+    "autoShowBlank": false,
+    "data": "=data",
+    "fields": [
+      {
+        "title": "日期·绝对毫秒",
+        "name": "ms_date",
+        "type": "Integer",
+        "comType": "TiInputDate",
+        "comConf": {
+          "autoCollapse": true,
+          "valueType": "ms"
+        }
+      },
+      {
+        "title": "范围·毫秒数组",
+        "name": "ms_range",
+        "type": "Array",
+        "comType": "TiInputDaterange",
+        "comConf": {
+          "valueType": "ms-array"
+        }
+      }
+    ]
+  },
+  "components": [
+    "@com:ti/input/daterange"
+  ]
+}

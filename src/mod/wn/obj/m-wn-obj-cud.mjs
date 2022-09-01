@@ -1,7 +1,8 @@
 ////////////////////////////////////////////////
 async function getContentMeta(state, path) {
+  state.LOG("getContentMeta", path)
   // Guard
-  if (!path || !state.oDir) {
+  if (!path || !state.dirId) {
     return
   }
   let meta;
@@ -13,7 +14,7 @@ async function getContentMeta(state, path) {
     }
     // In parent dir
     else {
-      aph = Ti.Util.appendPath(`id:${state.oDir.id}/`, path)
+      aph = Ti.Util.appendPath(`id:${state.dirId}/`, path)
     }
     meta = await Wn.Io.loadMeta(aph)
     // If not exists, then create it

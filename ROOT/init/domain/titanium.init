@@ -103,6 +103,9 @@
 {com:'/rs/ti/test/components/ti-container/demo-ti-tree.json'}
 ?COPY> /rs/ti/test/components/ti-container/demo-ti-tree.data.json
 #---------------------------------------------------------
+@FILE mock/components/ti-form/ti-date.comt 'DATE-TIME'
+{com:'/rs/ti/test/components/ti-form/demo-ti-date.json'}
+#---------------------------------------------------------
 @FILE mock/components/ti-form/ti-bullet-list.comt 'BULLET-LIST'
 {com:'/rs/ti/test/components/ti-form/demo-ti-bullet-list.json'}
 #---------------------------------------------------------
