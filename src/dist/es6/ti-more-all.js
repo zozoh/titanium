@@ -1,4 +1,4 @@
-// Pack At: 2022-08-31 23:38:30
+// Pack At: 2022-09-02 15:22:48
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7599,8 +7599,9 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/mod/wn/obj/m-wn-obj-cud.mjs'] = (function(){
 ////////////////////////////////////////////////
 async function getContentMeta(state, path) {
+  state.LOG("getContentMeta", path)
   // Guard
-  if (!path || !state.oDir) {
+  if (!path || !state.dirId) {
     return
   }
   let meta;
@@ -7612,7 +7613,7 @@ async function getContentMeta(state, path) {
     }
     // In parent dir
     else {
-      aph = Ti.Util.appendPath(`id:${state.oDir.id}/`, path)
+      aph = Ti.Util.appendPath(`id:${state.dirId}/`, path)
     }
     meta = await Wn.Io.loadMeta(aph)
     // If not exists, then create it
@@ -18438,7 +18439,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     download() {
       let link = Wn.Util.getDownloadLink(this.meta)
-      console.log(link, this.meta)
       Ti.Be.OpenLink(link)
     },
     //--------------------------------------
@@ -37476,99 +37476,112 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/input/daterange/ti-input-daterange.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    "runtime" : null,
-    "status"  : "collapse"
+  data: () => ({
+    "runtime": null,
+    "status": "collapse"
   }),
   ////////////////////////////////////////////////////
-  props : {
-    "canInput" : {
-      type : Boolean,
-      default : true
-    },
-    "value" : {
-      type : [String, Number, Date, Array],
-      default : null
-    },
-    "icon" : {
-      type : String,
-      default : "fas-calendar-alt"
-    },
-    "format" : {
-      type : String,
-      default : "yyyy-MM-dd HH:mm:ss"
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "value": {
+      type: [String, Number, Date, Array],
+      default: null
     },
     "valueType": {
       type: String,
       default: "ms-range",
       validator: v => /^(ms-(array|range)|ds-(array|range)|date-array)$/.test(v)
     },
-    "placeholder" : {
-      type : String,
-      default : "i18n:blank-date-range"
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "canInput": {
+      type: Boolean,
+      default: true
     },
-    "hideBorder" : {
-      type : Boolean,
-      default : false
+    "matrixCount": {
+      type: Number,
+      default: 2
     },
-    "width" : {
-      type : [Number, String],
-      default : "3rem"
+    "monthFormat": {
+      type: String,
+      default: "yyyy-MM-dd"
     },
-    "height" : {
-      type : [Number, String],
-      default : undefined
+    "beginYear": {
+      type: [Number, String],
+      default: 1970
     },
-    "matrixCount" : {
-      type : Number,
-      default : 2
+    "endYear": {
+      type: [Number, String],
+      default: (new Date().getFullYear() + 1)
     },
-    "monthFormat" : {
-      type : String,
-      default : "yyyy-MM-dd" 
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+
+    "icon": {
+      type: String,
+      default: "fas-calendar-alt"
     },
-    "beginYear" : {
-      type : [Number, String],
-      default : 1970
+    "format": {
+      type: String,
+      default: "yyyy-MM-dd HH:mm:ss"
     },
-    "endYear" : {
-      type : [Number, String],
-      default : (new Date().getFullYear()+1)
+    "placeholder": {
+      type: String,
+      default: "i18n:blank-date-range"
     },
-    "statusIcons" : {
-      type : Object,
-      default : ()=>({
-        collapse : "zmdi-chevron-down",
-        extended : "zmdi-chevron-up"
+    "hideBorder": {
+      type: Boolean,
+      default: false
+    },
+    "statusIcons": {
+      type: Object,
+      default: () => ({
+        collapse: "zmdi-chevron-down",
+        extended: "zmdi-chevron-up"
       })
     },
-    "dropWidth" : {
-      type : [Number, String],
-      default : null
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "width": {
+      type: [Number, String],
+      default: "3rem"
+    },
+    "height": {
+      type: [Number, String],
+      default: undefined
+    },
+    "dropWidth": {
+      type: [Number, String],
+      default: null
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName(this.className)
     },
     //------------------------------------------------
-    isCollapse() {return "collapse"==this.status},
-    isExtended() {return "extended"==this.status},
+    isCollapse() { return "collapse" == this.status },
+    isExtended() { return "extended" == this.status },
     //--------------------------------------
     theValue() {
-      if(_.isEmpty(this.value)) {
+      if (_.isEmpty(this.value)) {
         return null
       }
-      if(_.isString(this.value)) {
+      if (_.isString(this.value)) {
         let str = _.trim(this.value)
         let m = /^[[(](.+)[\])]$/.exec(str)
-        if(m) {
+        if (m) {
           str = _.trim(m[1])
         }
-        let ss = Ti.S.toArray(str, {sep:","})
-        if(ss.length > 0) {
+        let ss = Ti.S.toArray(str, { sep: "," })
+        if (ss.length > 0) {
           return Ti.Types.toDate(ss);
         }
         return Ti.Types.toDate(str)
@@ -37577,23 +37590,23 @@ const _M = {
     },
     //--------------------------------------
     theDate() {
-      if(_.isArray(this.theValue) && !_.isEmpty(this.theValue)) {
+      if (_.isArray(this.theValue) && !_.isEmpty(this.theValue)) {
         return Ti.Types.toDate(this.theValue[0])
       }
-      if(this.theValue) {
+      if (this.theValue) {
         return Ti.Types.toDate(this.theValue)
       }
     },
     //--------------------------------------
     theRangeInMs() {
-      if(!this.theDate) {
+      if (!this.theDate) {
         return []
       }
       // Move to 00:00:00
       let dt0 = new Date(this.theDate)
       // Define the dt1
       let dt1;
-      if(_.isArray(this.theValue) && this.theValue.length > 1) {
+      if (_.isArray(this.theValue) && this.theValue.length > 1) {
         dt1 = Ti.Types.toDate(this.theValue[1])
       }
       // The End of the Day
@@ -37613,11 +37626,11 @@ const _M = {
     },
     //------------------------------------------------
     theRange() {
-      if(_.isEmpty(this.theRangeInMs)) {
+      if (_.isEmpty(this.theRangeInMs)) {
         return []
       }
       return [
-        new Date(this.theRangeInMs[0]), 
+        new Date(this.theRangeInMs[0]),
         new Date(this.theRangeInMs[1])]
     },
     //------------------------------------------------
@@ -37627,14 +37640,14 @@ const _M = {
     //------------------------------------------------
     theRangeValue() {
       return this.formatRangeValue(this.theRange, {
-        valueType: "ds-array", 
-        format: "yyyy-MM-dd", 
+        valueType: "ds-array",
+        format: "yyyy-MM-dd",
         collapse: true
       }).join(", ")
     },
     //------------------------------------------------
     theRangeText() {
-      if(!_.isEmpty(this.theRange)) {
+      if (!_.isEmpty(this.theRange)) {
         let dt0 = this.theRange[0]
         let dt1 = this.theRange[1]
         let yy0 = dt0.getFullYear()
@@ -37648,7 +37661,7 @@ const _M = {
         let MT0 = Ti.I18n.get(MA0)
         let MT1 = Ti.I18n.get(MA1)
 
-        MM0++;  MM1++;  // Month change to 1 base
+        MM0++; MM1++;  // Month change to 1 base
 
         let vars = {
           yy0, yy1,
@@ -37658,15 +37671,15 @@ const _M = {
           MT0, MT1
         }
         // Beyond year
-        if(yy0 != yy1) {
+        if (yy0 != yy1) {
           return Ti.I18n.getf("cal.d-range-beyond-years", vars)
         }
         // Beyond month
-        if(MM0 != MM1) {
+        if (MM0 != MM1) {
           return Ti.I18n.getf("cal.d-range-beyond-months", vars)
         }
         // Beyond day
-        if(dd0 != dd1) {
+        if (dd0 != dd1) {
           return Ti.I18n.getf("cal.d-range-beyond-days", vars)
         }
         // Same day
@@ -37675,7 +37688,7 @@ const _M = {
     },
     //------------------------------------------------
     theInputValue() {
-      if(this.isExtended) {
+      if (this.isExtended) {
         return this.theRangeValue
       }
       return this.theRangeText
@@ -37687,10 +37700,10 @@ const _M = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     applyRuntime() {
-      if(this.runtime) {
+      if (this.runtime) {
         let rg = this.runtime
         this.runtime = null
         let rg2 = this.formatRangeValue(rg)
@@ -37702,10 +37715,10 @@ const _M = {
       this.status = "extended"
     },
     //-----------------------------------------------
-    doCollapse({escaped=false}={}) {
+    doCollapse({ escaped = false } = {}) {
       this.status = "collapse"
       // Drop runtime
-      if(escaped) {
+      if (escaped) {
         this.runtime = null
       }
       // Apply Changed for runtime
@@ -37721,7 +37734,7 @@ const _M = {
     onChanged(val) {
       let rg = this.parseDateRange(val)
       // Empty Range
-      if(_.isEmpty(rg)) {
+      if (_.isEmpty(rg)) {
         this.$notify("change", null);
       }
       // Format the Range
@@ -37733,7 +37746,7 @@ const _M = {
     //------------------------------------------------
     onClickStatusIcon() {
       // extended -> collapse
-      if(this.isExtended) {
+      if (this.isExtended) {
         this.doCollapse()
       }
       // collapse -> extended
@@ -37747,18 +37760,19 @@ const _M = {
     },
     //------------------------------------------------
     parseDateRange(val) {
+      console.log("parseDateRange", val)
       // Empty value as null
-      if(_.isEmpty(val)) {
+      if (_.isEmpty(val)) {
         return []
       }
       // Parsed value
       let ss = val.split(",")
       // Empty
-      if(_.isEmpty(ss)) {
+      if (_.isEmpty(ss)) {
         return []
       }
       // One date
-      if(ss.length == 1) {
+      if (ss.length == 1) {
         let dt0 = Ti.Types.toDate(ss[0])
         Ti.DateTime.setTime(dt0)
         let dt1 = new Date(dt0.getTime())
@@ -37770,43 +37784,45 @@ const _M = {
       Ti.DateTime.setTime(dt0)
       let dt1 = Ti.Types.toDate(ss[1])
       Ti.DateTime.setDayLastTime(dt1)
-      return [dt0, dt1].sort((dt0,dt1)=>{
-        return dt0.getTime()-dt1.getTime()
+      return [dt0, dt1].sort((dt0, dt1) => {
+        return dt0.getTime() - dt1.getTime()
       })
     },
     //------------------------------------------------
     formatRangeValue(range, {
-      valueType, format, collapse=false
-    }={}) {
+      valueType, format, collapse = false
+    } = {}) {
+      console.log("formatRangeValue", range)
       let [d0, d1] = range || []
-      if(!d0) {
+      if (!d0) {
         return []
       }
-      if(!d1) {
+      if (!d1) {
         d1 = new Date(d0)
+        Ti.DateTime.setTime(d0)
         Ti.DateTime.setDayLastTime(d1)
       }
       valueType = valueType || this.valueType
       format = format || this.format
       // as range
       let func = ({
-        "ms-range": ()=>`[${d0.getTime()},${d1.getTime()}]`,
-        "ms-array": ()=>[d0.getTime(), d1.getTime()],
-        "ds-range": ()=>'[' + [
+        "ms-range": () => `[${d0.getTime()},${d1.getTime()}]`,
+        "ms-array": () => [d0.getTime(), d1.getTime()],
+        "ds-range": () => '[' + [
           Ti.Types.formatDate(d0, format),
           Ti.Types.formatDate(d1, format),
         ].join(",") + ']',
-        "ds-array": ()=>[
+        "ds-array": () => [
           Ti.Types.formatDate(d0, format),
           Ti.Types.formatDate(d1, format),
         ],
-        "date-array": ()=>[d0, d1]
+        "date-array": () => [d0, d1]
       })[valueType]
       // As array
       let re = func()
 
-      if(collapse) {
-        if(re[0] == re[1])
+      if (collapse) {
+        if (re[0] == re[1])
           return [re[0]]
       }
       return re
@@ -50519,77 +50535,94 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/input/date/ti-input-date.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    "runtime" : null,
-    "status"  : "collapse"
+  data: () => ({
+    "runtime": null,
+    "status": "collapse"
   }),
   ////////////////////////////////////////////////////
-  props : {
-    "canInput" : {
-      type : Boolean,
-      default : true
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    "value": {
+      type: [String, Number, Date],
+      default: null
     },
-    "value" : {
-      type : [String, Number, Date],
-      default : null
+    "valueType": {
+      type: String,
+      default: "ds",
+      validator: v => /^(ms|ds|date)$/.test(v)
     },
-    "icon" : {
-      type : String,
-      default : "far-calendar-alt"
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "canInput": {
+      type: Boolean,
+      default: true
     },
-    "format" : {
-      type : String,
-      default : "yyyy-MM-dd"
+    "monthFormat": {
+      type: String,
+      default: "yyyy-MM"
     },
-    "placeholder" : {
-      type : [String, Number],
-      default : "i18n:blank-date"
+    "beginYear": {
+      type: [Number, String],
+      default: 1970
     },
-    "hideBorder" : {
-      type : Boolean,
-      default : false
+    "endYear": {
+      type: [Number, String],
+      default: (new Date().getFullYear() + 1)
     },
-    "autoCollapse" : {
-      type : Boolean,
-      default : true
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "icon": {
+      type: String,
+      default: "far-calendar-alt"
     },
-    "width" : {
-      type : [Number, String],
-      default : "2rem"
+    "format": {
+      type: String,
+      default: "yyyy-MM-dd"
     },
-    "height" : {
-      type : [Number, String],
-      default : undefined
+    "placeholder": {
+      type: [String, Number],
+      default: "i18n:blank-date"
     },
-    "monthFormat" : {
-      type : String,
-      default : "yyyy-MM" 
+    "hideBorder": {
+      type: Boolean,
+      default: false
     },
-    "beginYear" : {
-      type : [Number, String],
-      default : 1970
-    },
-    "endYear" : {
-      type : [Number, String],
-      default : (new Date().getFullYear()+1)
-    },
-    "statusIcons" : {
-      type : Object,
-      default : ()=>({
-        collapse : "zmdi-chevron-down",
-        extended : "zmdi-chevron-up"
+    "statusIcons": {
+      type: Object,
+      default: () => ({
+        collapse: "zmdi-chevron-down",
+        extended: "zmdi-chevron-up"
       })
+    },
+    "autoCollapse": {
+      type: Boolean,
+      default: true
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "width": {
+      type: [Number, String],
+      default: "2rem"
+    },
+    "height": {
+      type: [Number, String],
+      default: undefined
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName(this.className)
     },
     //------------------------------------------------
-    isCollapse() {return "collapse"==this.status},
-    isExtended() {return "extended"==this.status},
+    isCollapse() { return "collapse" == this.status },
+    isExtended() { return "extended" == this.status },
     //------------------------------------------------
     theDate() {
       return Ti.Types.toDate(this.value, null)
@@ -50600,7 +50633,7 @@ const _M = {
     },
     //------------------------------------------------
     theInputValue() {
-      if(this.isExtended) {
+      if (this.isExtended) {
         return this.getDateText(this.theDropDate)
       }
       return this.getDateText(this.theDropDate, this.format)
@@ -50612,14 +50645,14 @@ const _M = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     applyRuntime() {
-      if(this.runtime) {
+      if (this.runtime) {
         let dt = this.runtime
         this.runtime = null
-        let str = this.getDateText(dt)
-        this.$notify("change", str)
+        let v = this.getDateValue(dt)
+        this.$notify("change", v)
       }
     },
     //-----------------------------------------------
@@ -50627,10 +50660,10 @@ const _M = {
       this.status = "extended"
     },
     //-----------------------------------------------
-    doCollapse({escaped=false}={}) {
+    doCollapse({ escaped = false } = {}) {
       this.status = "collapse"
       // Drop runtime
-      if(escaped) {
+      if (escaped) {
         this.runtime = null
       }
       // Apply Changed for runtime
@@ -50645,20 +50678,20 @@ const _M = {
     //------------------------------------------------
     onChanged(val) {
       // Empty value as null
-      if(_.isEmpty(val)) {
+      if (_.isEmpty(val)) {
         this.$notify("change", null);
       }
       // Parsed value
       else {
-        let dt  = Ti.Types.toDate(val)
-        let str = this.getDateText(dt)
-        this.$notify("change", str)
+        let dt = Ti.Types.toDate(val)
+        let v = this.getDateValue(dt)
+        this.$notify("change", v)
       }
     },
     //------------------------------------------------
     onClickStatusIcon() {
       // extended -> collapse
-      if(this.isExtended) {
+      if (this.isExtended) {
         this.doCollapse()
       }
       // collapse -> extended
@@ -50669,14 +50702,28 @@ const _M = {
     //------------------------------------------------
     onDateChanged(dt) {
       this.runtime = dt
-      if(this.autoCollapse) {
+      if (this.autoCollapse) {
         this.doCollapse()
       }
     },
     //------------------------------------------------
-    getDateText(dt, fmt="yyyy-MM-dd") {
+    getDateText(dt, fmt = "yyyy-MM-dd") {
       let dt2 = Ti.Types.toDate(dt, null)
       return Ti.Types.formatDate(dt2, fmt)
+    },
+    //------------------------------------------------
+    getDateValue(date) {
+      let func = ({
+        "ms": d => d.getTime(),
+        "ds": d => this.getDateText(d),
+        "date": d => d
+      })[this.valueType]
+
+      // Move to 00:00:00
+      Ti.DateTime.setTime(date)
+
+      // Done
+      return func(date)
     }
     //------------------------------------------------
   }
@@ -81751,19 +81798,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
     return this.delegateWnAdaptlist("openLocalFileSelectdDialog")
   },
   async openCurrentPrivilege() {
-    return this.asyncDelegateWnAdaptlist("openCurrentPrivilege")
+    await this.dispatch("openCurrentPrivilege")
   },
   async doRename() {
-    return this.asyncDelegateWnAdaptlist("doRename")
+    await this.dispatch("doRename")
   },
   async doBatchUpdate() {
     return this.asyncDelegateWnAdaptlist("doBatchUpdate")
   },
   async doMoveTo() {
-    return this.asyncDelegateWnAdaptlist("doMoveTo")
+    //return this.asyncDelegateWnAdaptlist("doMoveTo")
+    await this.dispatch("moveTo")
   },
   async doDelete(confirm) {
-    return this.asyncDelegateWnAdaptlist("doDelete", confirm)
+    //return this.asyncDelegateWnAdaptlist("doDelete", confirm)
+    await this.dispatch("removeChecked", confirm)
   }
   //--------------------------------------------
 }
