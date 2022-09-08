@@ -6,6 +6,10 @@ export default {
     type: [String, Array, Function, Ti.Dict],
     default: () => []
   },
+  "optionVars": {
+    type : Object,
+    default: ()=>({})
+  },
   "optionFilter": {
     type : [Function, Object, Array],
     default: undefined

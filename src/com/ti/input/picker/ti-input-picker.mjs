@@ -57,6 +57,10 @@ const _M = {
     "filterlist": {
       type: Object
     },
+    "mustInList": {
+      type: Boolean,
+      default: false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -148,6 +152,30 @@ const _M = {
   ////////////////////////////////////////////////////
   methods: {
     //------------------------------------------------
+    async OnInputChange(value) {
+      // Guard: only check with dict
+      if (!this.Dict) {
+        this.tryNotifyChange(value)
+        return
+      }
+      // Multi check
+      if (_.isArray(value)) {
+        let vals = []
+        for (let val of value) {
+          if (await this.Dict.hasItem(val)) {
+            vals.push(val)
+          }
+        }
+        this.tryNotifyChange(vals)
+      }
+      // Single check
+      else {
+        if (await this.Dict.hasItem(value)) {
+          this.tryNotifyChange(value)
+        }
+      }
+    },
+    //------------------------------------------------
     async OnClickSuffixIcon() {
       // Guard: Picking
       if (this.isPicking) {
@@ -212,16 +240,20 @@ const _M = {
         return
       }
 
-      console.log(reo)
-
       // Multi
       if (this.multi) {
         let vals = Ti.Util.truthyKeys(reo.checkedIds)
-        this.$notify("change", vals)
+        this.tryNotifyChange(vals)
       }
       // Change the currency
       else {
         let val = reo.currentId || null
+        this.tryNotifyChange(val)
+      }
+    },
+    //------------------------------------------------
+    tryNotifyChange(val) {
+      if (!_.isEqual(val, this.vlaue)) {
         this.$notify("change", val)
       }
     },

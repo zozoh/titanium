@@ -167,6 +167,20 @@
     @include fld-status-color;
     position: relative;
     //----------------------------------
+    &.is-disabled {
+      opacity: 0.6;
+      //--------------------------------
+      > .field-value-com {
+        &::after {
+          @include pos-abs-full;
+          display: block;
+          content: "";
+          background: rgba(50, 50, 50, 0.2);
+        }
+      }
+      //--------------------------------
+    }
+    //----------------------------------
     &[value-wrap="nowrap"] {
       @include flex-align-nowrap;
       //----------------------------------
@@ -204,6 +218,7 @@
     //----------------------------------
     > .field-value-com {
       @include flex-align-nowrap($jc: stretch);
+      position: relative;
       > .full-field {
         flex: 1 1 auto;
       }

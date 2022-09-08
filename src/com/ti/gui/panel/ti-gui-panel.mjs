@@ -129,6 +129,12 @@ export default {
     "height": {
       type: [String, Number]
     },
+    "maxWidth": {
+      type: [String, Number]
+    },
+    "maxHeight": {
+      type: [String, Number]
+    },
     "left": {
       type: [String, Number]
     },
@@ -234,7 +240,7 @@ export default {
     },
     //--------------------------------------
     async evalBlockTitle() {
-      if(this.title) {
+      if (this.title) {
         this.myBlockTitle = await Ti.Util.explainObj(this.$gui.vars, this.title)
       }
     },
@@ -244,7 +250,10 @@ export default {
       if (!_.isElement(this.$el)) {
         return
       }
-      let css = _.assign({}, this.conStyle)
+      let css = _.assign({
+        maxWidth: this.maxWidth,
+        maxHeight: this.maxHeight
+      }, this.conStyle)
       let $win = this.$el.ownerDocument.defaultView
       if (!Ti.Util.isNil(this.width)) {
         if (this.fixed) {

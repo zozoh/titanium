@@ -98,7 +98,10 @@ const _M = {
   //               Delete
   //
   //--------------------------------------------
-  async removeChecked({ state, commit, dispatch, getters }, hard) {
+  async removeChecked({ state, commit, dispatch, getters }, {
+    hard,
+    hardTipMessage = "i18n:del-hard"
+  } = {}) {
     // Guard
     if (!state.thingSetId) {
       return await Ti.Alert('State Has No ThingSetId', "warn")
@@ -114,7 +117,7 @@ const _M = {
 
     // If hard, warn at first
     if (hard || getters.isInRecycleBin) {
-      if (!(await Ti.Confirm('i18n:del-hard'))) {
+      if (!(await Ti.Confirm(hardTipMessage))) {
         return
       }
     }

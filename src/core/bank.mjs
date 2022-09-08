@@ -83,6 +83,9 @@ const TiBank = {
    * 
    * @param {String|Number|Object} input could be Number or "100RMB"
    * @param {Number} unit indicate the cent when input is number.
+   *  - `100`  : yuan : 元
+   *  - `10`   : jiao : 角
+   *  - `1`    : cent : 分
    * @param {String} currency default currency when input is number
    * @returns `{cent:128, yuan:1.28, currency:"RMB"}`
    */

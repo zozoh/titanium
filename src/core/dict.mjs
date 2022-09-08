@@ -182,9 +182,14 @@ export class Dict {
     }
   }
   //-------------------------------------------
+  async hasItem(val) {
+    let it = await this.__get_raw_item(val)
+    return !Ti.Util.isNil(it)
+  }
+  //-------------------------------------------
   // Core Methods
   //-------------------------------------------
-  async getItem(val) {
+  async __get_raw_item(val) {
     // if("7dq8t02lo8hh2rjknlrudufeka" == val) {
     //   console.log("!!! getItem")
     // }
@@ -227,7 +232,12 @@ export class Dict {
     if (_.isArray(it)) {
       console.warn("!!!! Dict.getItem=>[] !!! 靠，又出现了 val=", val)
     }
-
+    // Done
+    return it
+  }
+  //-------------------------------------------
+  async getItem(val) {
+    let it = await this.__get_raw_item(val)
     return _.cloneDeep(it)
   }
   //-------------------------------------------

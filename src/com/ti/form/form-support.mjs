@@ -183,6 +183,7 @@ const _M = {
   methods: {
     //--------------------------------------------------
     async OnFieldChange({ name, value } = {}) {
+      //console.log("OnFieldChange", name, value)
       //
       // Confirm, store the change to temp-data at first
       // whatever `confirm` or `immediate` we need the `myData`
@@ -401,7 +402,7 @@ const _M = {
       let fmap = {}
       //................................................
       if (_.isArray(this.fields)) {
-        ////console.log("async evalFormFieldList() x ", this.fields.length)
+        //console.log("async evalFormFieldList() x ", this.fields.length)
         for (let index = 0; index < this.fields.length; index++) {
           let fld = this.fields[index]
           let fld2 = await this.evalFormField(fld, [index], { cans, fmap })
@@ -449,8 +450,6 @@ const _M = {
 
       // Visibility
       let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.myData)
-
-      //............................................
 
       //............................................
       let field;
@@ -520,12 +519,16 @@ const _M = {
         }
 
         // Tidy form function
-        const invokeOpt = {
+        field.serializer = Ti.Util.genInvoking(field.serializer, {
           context: this,
+          args: fld.serialArgs,
           partial: "right"
-        }
-        field.serializer = Ti.Util.genInvoking(field.serializer, invokeOpt)
-        field.transformer = Ti.Util.genInvoking(field.transformer, invokeOpt)
+        })
+        field.transformer = Ti.Util.genInvoking(field.transformer, {
+          context: this,
+          args: fld.transArgs,
+          partial: "right"
+        })
         if (fld.required) {
           if (_.isBoolean(fld.required)) {
             field.required = true
@@ -622,7 +625,7 @@ const _M = {
         autoValue: fld.autoValue || "value"
       })
       // force set readonly
-      if (this.isReadonly) {
+      if (this.isReadonly || fld.disabled) {
         _.assign(com.comConf, {
           readonly: true
         })
@@ -657,7 +660,7 @@ const _M = {
             }
           }
           // If AMS
-          if( "AMS" == field.type) {
+          if ("AMS" == field.type) {
             labelConf.format = comConf.format || Ti.DateTime.format
           }
           // Just pure value

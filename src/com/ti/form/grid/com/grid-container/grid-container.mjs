@@ -93,12 +93,13 @@ const _M = {
 
       // Serilizing
       try {
-        //console.log("this.serializer(val):", v2)
+        //console.log("this.serializer(val):", fld.name, v1)
         v1 = fld.serializer(v1)
-        //console.log("field changed", val, v2)
+        //console.log("field changed", fld.name, v1)
       }
       // Invalid 
       catch (error) {
+        console.warn(error);
         this.$notify("invalid", {
           errMessage: "" + error,
           name: fld.name,
@@ -263,6 +264,11 @@ const _M = {
         if (fld.nameClass) {
           fld.nameClass = Ti.Css.mergeClassName(fld.nameClass)
         }
+
+        // Value class
+        fld.valueClass = Ti.Css.mergeClassName(fld.valueClass, {
+          "is-disabled": fld.disabled
+        })
 
         // Status
         this.setFieldStatus(fld)

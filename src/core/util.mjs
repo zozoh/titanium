@@ -1703,6 +1703,7 @@ const TiUtil = {
    */
   genInvoking(str, {
     context = {},
+    args,
     dft = () => str,
     funcSet = window,
     partial = "left"  // "left" | "right" | "right?" | Falsy,
@@ -1715,17 +1716,24 @@ const TiUtil = {
     let invoke = TiUtil.parseInvoking(str)
     let callPath = invoke.name
     let callArgs = invoke.args
+    if (_.isArray(args) && args.length > 0) {
+      callArgs = args
+    }
+    // Single args
+    else if (!Ti.Util.isNil(args)) {
+      callArgs = [args]
+    }
 
     //.............................................
     //console.log(callPath, callArgs)
     let func = _.get(funcSet, callPath)
     if (_.isFunction(func)) {
-      let args = _.map(callArgs, v => {
+      let invokeArgs = _.map(callArgs, v => {
         if (_.isString(v) || _.isArray(v))
           return Ti.S.toJsValue(v, { context })
         return v
       })
-      if (!_.isEmpty(args)) {
+      if (!_.isEmpty(invokeArgs)) {
         // [ ? --> ... ]
         if ("right" == partial) {
           return function (...input) {
@@ -1733,14 +1741,14 @@ const TiUtil = {
             // 因为 Ti.Types.toBoolStr， 一般用作表格的布尔字段显示
             // 而有的字段，布尔值是 undefined 的
             let ins = input
-            let as = _.concat([], ins, args);
+            let as = _.concat([], ins, invokeArgs);
             return func.apply(this, as)
           }
         }
         else if ("right?" == partial) {
           return function (...input) {
             let ins = _.without(input, undefined)
-            let as = _.concat([], ins, args);
+            let as = _.concat([], ins, invokeArgs);
             return func.apply(this, as)
           }
         }
@@ -1748,12 +1756,12 @@ const TiUtil = {
         else if ("left" == partial) {
           return function (...input) {
             let ins = _.without(input, undefined)
-            let as = _.concat([], args, ins);
+            let as = _.concat([], invokeArgs, ins);
             return func.apply(this, as)
           }
         }
         // [..]
-        return () => func(...args)
+        return () => func(...invokeArgs)
       }
       return func
     }

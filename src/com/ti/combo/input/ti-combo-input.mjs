@@ -39,7 +39,8 @@ const _M = {
         return this.optionFilter
       }
       if (this.optionFilter) {
-        return Ti.AutoMatch.parse(this.optionFilter)
+        let flt = Ti.Util.explainObj(this.optionVars, this.optionFilter)
+        return Ti.AutoMatch.parse(flt)
       }
     },
     //------------------------------------------------

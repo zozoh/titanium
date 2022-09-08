@@ -14,7 +14,11 @@ export default {
       default: "str",
       validator: v => /^(str|obj|num)$/.test(v)
     },
-    /* 1: the value to cent, 100: the value to yuan */
+    /*
+     *  - `100`  : yuan : 元
+     *  - `10`   : jiao : 角
+     *  - `1`    : cent : 分
+     */
     "unit": {
       type: Number,
       default: 100

@@ -799,6 +799,7 @@ const TiTypes = {
   //.......................................
   // precision: if less then 0, keep original
   toFloat(val, { precision = 2, dft = NaN } = {}) {
+    //console.log("toFloat", val, precision, dft)
     if (Ti.Util.isNil(val)) {
       return dft
     }

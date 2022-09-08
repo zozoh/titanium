@@ -1,26 +1,26 @@
 export default {
   ///////////////////////////////////////////
-  data : ()=>({
-    "myData" : undefined,
-    "creating" : false
+  data: () => ({
+    "myData": undefined,
+    "creating": false
   }),
   ///////////////////////////////////////////
-  props : {
-    "fields" : {
-      type : Array,
-      default : ()=>[]
+  props: {
+    "fields": {
+      type: Array,
+      default: () => []
     },
-    "data" : {
-      type : Object,
-      default : ()=>({})
+    "data": {
+      type: Object,
+      default: () => ({})
     },
     "formType": {
-      type : String,
-      default : "TiForm"
+      type: String,
+      default: "TiForm"
     },
     "form": {
-      type : Object,
-      default : ()=>({})
+      type: Object,
+      default: () => ({})
     },
     "fixed": {
       type: Object,
@@ -36,22 +36,32 @@ export default {
     //--------------------------------------
     TheForm() {
       return _.assign({
+        className: "ti-fill-parent",
         onlyFields: false,
         adjustDelay: 1,
         fields: this.fields,
-        fixed: this.fixed
+        fixed: this.fixed,
+        actionButtonSetup: [
+          {
+            className: "btn-r8 is-big",
+            text: "i18n:create-now",
+            handler: () => {
+              this.OnCreate()
+            }
+          }
+        ]
       }, this.form)
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnFormInit($form) {
       this.$form = $form
     },
     //--------------------------------------
-    OnFormFieldChange(pair={}) {
+    OnFormFieldChange(pair = {}) {
       //console.log("OnFormFieldChange", pair)
       this.myData = this.$form.getData(pair)
     },
@@ -66,18 +76,18 @@ export default {
       this.creating = true
       let reo;
       let $ThP = this.tiParentCom("WnThAdaptor")
-      if(!$ThP) {
+      if (!$ThP) {
         $ThP = this.tiParentCom("WnThingManager")
       }
       reo = await $ThP.dispatch("create", this.myData)
       this.creating = false
-      if(reo && !(reo instanceof Error)) {
+      if (reo && !(reo instanceof Error)) {
         this.$notify("block:hide", "creator")
       }
     },
     //--------------------------------------
     async OnSubmit() {
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.OnCreate()
       })
     }
