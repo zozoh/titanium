@@ -1,4 +1,4 @@
-// Pack At: 2022-09-02 15:22:48
+// Pack At: 2022-09-09 08:54:02
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -196,6 +196,7 @@ const _M = {
   methods: {
     //--------------------------------------------------
     async OnFieldChange({ name, value } = {}) {
+      //console.log("OnFieldChange", name, value)
       //
       // Confirm, store the change to temp-data at first
       // whatever `confirm` or `immediate` we need the `myData`
@@ -414,7 +415,7 @@ const _M = {
       let fmap = {}
       //................................................
       if (_.isArray(this.fields)) {
-        ////console.log("async evalFormFieldList() x ", this.fields.length)
+        //console.log("async evalFormFieldList() x ", this.fields.length)
         for (let index = 0; index < this.fields.length; index++) {
           let fld = this.fields[index]
           let fld2 = await this.evalFormField(fld, [index], { cans, fmap })
@@ -462,8 +463,6 @@ const _M = {
 
       // Visibility
       let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.myData)
-
-      //............................................
 
       //............................................
       let field;
@@ -533,12 +532,16 @@ const _M = {
         }
 
         // Tidy form function
-        const invokeOpt = {
+        field.serializer = Ti.Util.genInvoking(field.serializer, {
           context: this,
+          args: fld.serialArgs,
           partial: "right"
-        }
-        field.serializer = Ti.Util.genInvoking(field.serializer, invokeOpt)
-        field.transformer = Ti.Util.genInvoking(field.transformer, invokeOpt)
+        })
+        field.transformer = Ti.Util.genInvoking(field.transformer, {
+          context: this,
+          args: fld.transArgs,
+          partial: "right"
+        })
         if (fld.required) {
           if (_.isBoolean(fld.required)) {
             field.required = true
@@ -635,7 +638,7 @@ const _M = {
         autoValue: fld.autoValue || "value"
       })
       // force set readonly
-      if (this.isReadonly) {
+      if (this.isReadonly || fld.disabled) {
         _.assign(com.comConf, {
           readonly: true
         })
@@ -670,7 +673,7 @@ const _M = {
             }
           }
           // If AMS
-          if( "AMS" == field.type) {
+          if ("AMS" == field.type) {
             labelConf.format = comConf.format || Ti.DateTime.format
           }
           // Just pure value
@@ -11665,7 +11668,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   doNothing() { },
   //--------------------------------------------
   async invoke(fnName, ...args) {
-    //console.log("invoke ", fnName, args)
+    console.log("invoke ", fnName, args)
     let fn = _.get(this.thingMethods, fnName)
     // Invoke the method
     if (_.isFunction(fn)) {
@@ -13362,6 +13365,7 @@ const _M = {
   methods: {
     //--------------------------------------------------
     async OnFieldChange({ name, value } = {}) {
+      //console.log("OnFieldChange", name, value)
       //
       // Confirm, store the change to temp-data at first
       // whatever `confirm` or `immediate` we need the `myData`
@@ -13580,7 +13584,7 @@ const _M = {
       let fmap = {}
       //................................................
       if (_.isArray(this.fields)) {
-        ////console.log("async evalFormFieldList() x ", this.fields.length)
+        //console.log("async evalFormFieldList() x ", this.fields.length)
         for (let index = 0; index < this.fields.length; index++) {
           let fld = this.fields[index]
           let fld2 = await this.evalFormField(fld, [index], { cans, fmap })
@@ -13628,8 +13632,6 @@ const _M = {
 
       // Visibility
       let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.myData)
-
-      //............................................
 
       //............................................
       let field;
@@ -13699,12 +13701,16 @@ const _M = {
         }
 
         // Tidy form function
-        const invokeOpt = {
+        field.serializer = Ti.Util.genInvoking(field.serializer, {
           context: this,
+          args: fld.serialArgs,
           partial: "right"
-        }
-        field.serializer = Ti.Util.genInvoking(field.serializer, invokeOpt)
-        field.transformer = Ti.Util.genInvoking(field.transformer, invokeOpt)
+        })
+        field.transformer = Ti.Util.genInvoking(field.transformer, {
+          context: this,
+          args: fld.transArgs,
+          partial: "right"
+        })
         if (fld.required) {
           if (_.isBoolean(fld.required)) {
             field.required = true
@@ -13801,7 +13807,7 @@ const _M = {
         autoValue: fld.autoValue || "value"
       })
       // force set readonly
-      if (this.isReadonly) {
+      if (this.isReadonly || fld.disabled) {
         _.assign(com.comConf, {
           readonly: true
         })
@@ -13836,7 +13842,7 @@ const _M = {
             }
           }
           // If AMS
-          if( "AMS" == field.type) {
+          if ("AMS" == field.type) {
             labelConf.format = comConf.format || Ti.DateTime.format
           }
           // Just pure value
@@ -14663,6 +14669,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "options": {
     type: [String, Array, Function, Ti.Dict],
     default: () => []
+  },
+  "optionVars": {
+    type : Object,
+    default: ()=>({})
   },
   "optionFilter": {
     type : [Function, Object, Array],
@@ -16553,12 +16563,13 @@ const _M = {
 
       // Serilizing
       try {
-        //console.log("this.serializer(val):", v2)
+        //console.log("this.serializer(val):", fld.name, v1)
         v1 = fld.serializer(v1)
-        //console.log("field changed", val, v2)
+        //console.log("field changed", fld.name, v1)
       }
       // Invalid 
       catch (error) {
+        console.warn(error);
         this.$notify("invalid", {
           errMessage: "" + error,
           name: fld.name,
@@ -16723,6 +16734,11 @@ const _M = {
         if (fld.nameClass) {
           fld.nameClass = Ti.Css.mergeClassName(fld.nameClass)
         }
+
+        // Value class
+        fld.valueClass = Ti.Css.mergeClassName(fld.valueClass, {
+          "is-disabled": fld.disabled
+        })
 
         // Status
         this.setFieldStatus(fld)
@@ -21364,6 +21380,7 @@ const _M = {
         this.$notify("invalid", val)
         return
       }
+      //console.log("OnInputChange", JSON.stringify(val))
       this.$notify("change", val)
     },
     //------------------------------------------------
@@ -25026,7 +25043,10 @@ const _M = {
   //               Delete
   //
   //--------------------------------------------
-  async removeChecked({ state, commit, dispatch, getters }, hard) {
+  async removeChecked({ state, commit, dispatch, getters }, {
+    hard,
+    hardTipMessage = "i18n:del-hard"
+  } = {}) {
     // Guard
     if (!state.thingSetId) {
       return await Ti.Alert('State Has No ThingSetId', "warn")
@@ -25042,7 +25062,7 @@ const _M = {
 
     // If hard, warn at first
     if (hard || getters.isInRecycleBin) {
-      if (!(await Ti.Confirm('i18n:del-hard'))) {
+      if (!(await Ti.Confirm(hardTipMessage))) {
         return
       }
     }
@@ -41183,7 +41203,8 @@ const _M = {
         return this.optionFilter
       }
       if (this.optionFilter) {
-        return Ti.AutoMatch.parse(this.optionFilter)
+        let flt = Ti.Util.explainObj(this.optionVars, this.optionFilter)
+        return Ti.AutoMatch.parse(flt)
       }
     },
     //------------------------------------------------
@@ -46286,27 +46307,27 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/wn/th/creator/wn-th-creator.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////
-  data : ()=>({
-    "myData" : undefined,
-    "creating" : false
+  data: () => ({
+    "myData": undefined,
+    "creating": false
   }),
   ///////////////////////////////////////////
-  props : {
-    "fields" : {
-      type : Array,
-      default : ()=>[]
+  props: {
+    "fields": {
+      type: Array,
+      default: () => []
     },
-    "data" : {
-      type : Object,
-      default : ()=>({})
+    "data": {
+      type: Object,
+      default: () => ({})
     },
     "formType": {
-      type : String,
-      default : "TiForm"
+      type: String,
+      default: "TiForm"
     },
     "form": {
-      type : Object,
-      default : ()=>({})
+      type: Object,
+      default: () => ({})
     },
     "fixed": {
       type: Object,
@@ -46322,22 +46343,32 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     TheForm() {
       return _.assign({
+        className: "ti-fill-parent",
         onlyFields: false,
         adjustDelay: 1,
         fields: this.fields,
-        fixed: this.fixed
+        fixed: this.fixed,
+        actionButtonSetup: [
+          {
+            className: "btn-r8 is-big",
+            text: "i18n:create-now",
+            handler: () => {
+              this.OnCreate()
+            }
+          }
+        ]
       }, this.form)
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     OnFormInit($form) {
       this.$form = $form
     },
     //--------------------------------------
-    OnFormFieldChange(pair={}) {
+    OnFormFieldChange(pair = {}) {
       //console.log("OnFormFieldChange", pair)
       this.myData = this.$form.getData(pair)
     },
@@ -46352,18 +46383,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.creating = true
       let reo;
       let $ThP = this.tiParentCom("WnThAdaptor")
-      if(!$ThP) {
+      if (!$ThP) {
         $ThP = this.tiParentCom("WnThingManager")
       }
       reo = await $ThP.dispatch("create", this.myData)
       this.creating = false
-      if(reo && !(reo instanceof Error)) {
+      if (reo && !(reo instanceof Error)) {
         this.$notify("block:hide", "creator")
       }
     },
     //--------------------------------------
     async OnSubmit() {
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.OnCreate()
       })
     }
@@ -50751,7 +50782,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
       default: "str",
       validator: v => /^(str|obj|num)$/.test(v)
     },
-    /* 1: the value to cent, 100: the value to yuan */
+    /*
+     *  - `100`  : yuan : 元
+     *  - `10`   : jiao : 角
+     *  - `1`    : cent : 分
+     */
     "unit": {
       type: Number,
       default: 100
@@ -68829,6 +68864,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "height": {
       type: [String, Number]
     },
+    "maxWidth": {
+      type: [String, Number]
+    },
+    "maxHeight": {
+      type: [String, Number]
+    },
     "left": {
       type: [String, Number]
     },
@@ -68934,7 +68975,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     async evalBlockTitle() {
-      if(this.title) {
+      if (this.title) {
         this.myBlockTitle = await Ti.Util.explainObj(this.$gui.vars, this.title)
       }
     },
@@ -68944,7 +68985,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if (!_.isElement(this.$el)) {
         return
       }
-      let css = _.assign({}, this.conStyle)
+      let css = _.assign({
+        maxWidth: this.maxWidth,
+        maxHeight: this.maxHeight
+      }, this.conStyle)
       let $win = this.$el.ownerDocument.defaultView
       if (!Ti.Util.isNil(this.width)) {
         if (this.fixed) {
@@ -79088,6 +79132,10 @@ const _M = {
     "filterlist": {
       type: Object
     },
+    "mustInList": {
+      type: Boolean,
+      default: false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -79179,6 +79227,30 @@ const _M = {
   ////////////////////////////////////////////////////
   methods: {
     //------------------------------------------------
+    async OnInputChange(value) {
+      // Guard: only check with dict
+      if (!this.Dict) {
+        this.tryNotifyChange(value)
+        return
+      }
+      // Multi check
+      if (_.isArray(value)) {
+        let vals = []
+        for (let val of value) {
+          if (await this.Dict.hasItem(val)) {
+            vals.push(val)
+          }
+        }
+        this.tryNotifyChange(vals)
+      }
+      // Single check
+      else {
+        if (await this.Dict.hasItem(value)) {
+          this.tryNotifyChange(value)
+        }
+      }
+    },
+    //------------------------------------------------
     async OnClickSuffixIcon() {
       // Guard: Picking
       if (this.isPicking) {
@@ -79243,16 +79315,20 @@ const _M = {
         return
       }
 
-      console.log(reo)
-
       // Multi
       if (this.multi) {
         let vals = Ti.Util.truthyKeys(reo.checkedIds)
-        this.$notify("change", vals)
+        this.tryNotifyChange(vals)
       }
       // Change the currency
       else {
         let val = reo.currentId || null
+        this.tryNotifyChange(val)
+      }
+    },
+    //------------------------------------------------
+    tryNotifyChange(val) {
+      if (!_.isEqual(val, this.vlaue)) {
         this.$notify("change", val)
       }
     },
@@ -87763,6 +87839,7 @@ Ti.Preload("ti/com/ti/input/picker/ti-input-picker.html", `<component :is="ComTy
   class="ti-input-picker" :class="TopClass"
   v-bind="ComConf"
   :value="value"
+  @change="OnInputChange"
   @suffix:icon="OnClickSuffixIcon"/>`);
 //========================================
 // JOIN <ti-input-picker.mjs> ti/com/ti/input/picker/ti-input-picker.mjs
@@ -96771,13 +96848,6 @@ Ti.Preload("ti/com/wn/th/creator/wn-th-creator.html", `<div class="wn-th-creator
       @field:change="OnFormFieldChange"
       @change="OnFormChange"
       @submit="OnSubmit"/>
-  <hr class="no-space">
-  <div class="ti-flex-center ti-padding-10">
-    <div class="ti-btn is-big" 
-      @click="OnCreate">
-      <span>{{'create-now'|i18n}}</span>
-    </div>
-  </div>
   <div v-if="creating"
     class="ti-box-mask as-thin ti-flex-center">
     <ti-loading text="i18n:creating"/>

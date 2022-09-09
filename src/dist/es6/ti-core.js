@@ -1,4 +1,4 @@
-// Pack At: 2022-09-02 15:22:48
+// Pack At: 2022-09-09 08:54:02
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -9763,6 +9763,7 @@ const {Types} = (function(){
     //.......................................
     // precision: if less then 0, keep original
     toFloat(val, { precision = 2, dft = NaN } = {}) {
+      //console.log("toFloat", val, precision, dft)
       if (Ti.Util.isNil(val)) {
         return dft
       }
@@ -12464,6 +12465,7 @@ const {Util} = (function(){
      */
     genInvoking(str, {
       context = {},
+      args,
       dft = () => str,
       funcSet = window,
       partial = "left"  // "left" | "right" | "right?" | Falsy,
@@ -12476,17 +12478,24 @@ const {Util} = (function(){
       let invoke = TiUtil.parseInvoking(str)
       let callPath = invoke.name
       let callArgs = invoke.args
+      if (_.isArray(args) && args.length > 0) {
+        callArgs = args
+      }
+      // Single args
+      else if (!Ti.Util.isNil(args)) {
+        callArgs = [args]
+      }
   
       //.............................................
       //console.log(callPath, callArgs)
       let func = _.get(funcSet, callPath)
       if (_.isFunction(func)) {
-        let args = _.map(callArgs, v => {
+        let invokeArgs = _.map(callArgs, v => {
           if (_.isString(v) || _.isArray(v))
             return Ti.S.toJsValue(v, { context })
           return v
         })
-        if (!_.isEmpty(args)) {
+        if (!_.isEmpty(invokeArgs)) {
           // [ ? --> ... ]
           if ("right" == partial) {
             return function (...input) {
@@ -12494,14 +12503,14 @@ const {Util} = (function(){
               // 因为 Ti.Types.toBoolStr， 一般用作表格的布尔字段显示
               // 而有的字段，布尔值是 undefined 的
               let ins = input
-              let as = _.concat([], ins, args);
+              let as = _.concat([], ins, invokeArgs);
               return func.apply(this, as)
             }
           }
           else if ("right?" == partial) {
             return function (...input) {
               let ins = _.without(input, undefined)
-              let as = _.concat([], ins, args);
+              let as = _.concat([], ins, invokeArgs);
               return func.apply(this, as)
             }
           }
@@ -12509,12 +12518,12 @@ const {Util} = (function(){
           else if ("left" == partial) {
             return function (...input) {
               let ins = _.without(input, undefined)
-              let as = _.concat([], args, ins);
+              let as = _.concat([], invokeArgs, ins);
               return func.apply(this, as)
             }
           }
           // [..]
-          return () => func(...args)
+          return () => func(...invokeArgs)
         }
         return func
       }
@@ -14750,6 +14759,9 @@ const {Bank} = (function(){
      * 
      * @param {String|Number|Object} input could be Number or "100RMB"
      * @param {Number} unit indicate the cent when input is number.
+     *  - `100`  : yuan : 元
+     *  - `10`   : jiao : 角
+     *  - `1`    : cent : 分
      * @param {String} currency default currency when input is number
      * @returns `{cent:128, yuan:1.28, currency:"RMB"}`
      */
@@ -15727,9 +15739,14 @@ const {Dict,DictFactory} = (function(){
       }
     }
     //-------------------------------------------
+    async hasItem(val) {
+      let it = await this.__get_raw_item(val)
+      return !Ti.Util.isNil(it)
+    }
+    //-------------------------------------------
     // Core Methods
     //-------------------------------------------
-    async getItem(val) {
+    async __get_raw_item(val) {
       // if("7dq8t02lo8hh2rjknlrudufeka" == val) {
       //   console.log("!!! getItem")
       // }
@@ -15772,7 +15789,12 @@ const {Dict,DictFactory} = (function(){
       if (_.isArray(it)) {
         console.warn("!!!! Dict.getItem=>[] !!! 靠，又出现了 val=", val)
       }
-  
+      // Done
+      return it
+    }
+    //-------------------------------------------
+    async getItem(val) {
+      let it = await this.__get_raw_item(val)
       return _.cloneDeep(it)
     }
     //-------------------------------------------
@@ -18901,7 +18923,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220902.152248",
+  "version" : "1.6-20220909.085402",
   "dev" : false,
   "appName" : null,
   "session" : {},
