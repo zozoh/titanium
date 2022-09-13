@@ -459,9 +459,10 @@ const _M = {
         })
       }
       //....................................
-      state.LOG("invoke->", action, pld)
+      
       //....................................
       if (invoke) {
+        state.LOG("invoke.apply->", invoke, pld)
         invoke = Ti.Util.genInvoking(invoke, {
           context: state
         })
@@ -472,11 +473,13 @@ const _M = {
       }
       //....................................
       if (mutation) {
+        state.LOG("invoke.mutation->", mutation, pld)
         commit(mutation, pld)
       }
       //....................................
       // Action
       if (action) {
+        state.LOG("invoke.action->", action, pld)
         if (_.isFunction(action)) {
           await action(pld)
         }
@@ -557,7 +560,7 @@ const _M = {
     //--------------------------------------------
     async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
       state.LOG = () => { }
-      //state.LOG = console.log
+      state.LOG = console.log
       state.LOG("site.reload", state.entry, state.base, state.lang)
       //---------------------------------------
       // Looking for the entry page

@@ -106,7 +106,6 @@ const FORM_FIELDS = {
   "sort": {
     title: "i18n:sort",
     name: "sort",
-    tip: "i18n:sort-tip-asc",
     type: "Integer",
     comType: "ti-input-num",
     comConf: {
@@ -149,6 +148,7 @@ const FORM_FIELDS = {
     name: "thumb",
     checkEquals: false,
     rowSpan: 3,
+    nameVAlign: "top",
     comType: "wn-upload-file",
     comConf: {
       valueType: "idPath",

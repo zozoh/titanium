@@ -1,5 +1,21 @@
 export default {
   //--------------------------------------
+  doInflateBlankParagraph($div) {
+    let $ps = Ti.Dom.findAll("p", $div)
+    for (let $p of $ps) {
+      if (Ti.Util.isBlank($p.textContent)) {
+        // Find the first empty span
+        let $spans = Ti.Dom.findAll("span", $p)
+        for (let $span of $spans) {
+          if (Ti.Util.isBlank($span.textContent)) {
+            $span.innerHTML = "&nbsp;"
+            break
+          }
+        }
+      }
+    }
+  },
+  //--------------------------------------
   cleanMediaSize($div) {
     let $medias = Ti.Dom.findAll(".wn-media", $div)
     for (let $media of $medias) {
@@ -48,20 +64,20 @@ export default {
       let $rows;
       let $thead = Ti.Dom.find('thead', $table)
       let headers = []
-      if($thead) {
+      if ($thead) {
         $rows = Ti.Dom.findAll('tr', $thead)
         if (!_.isEmpty($rows)) {
-          for(let $row of $rows) {
+          for (let $row of $rows) {
             let $cells = Ti.Dom.findAll("td,th", $row)
             let offX = 0;
-            for(let x=0; x<$cells.length; x++) {
+            for (let x = 0; x < $cells.length; x++) {
               let $cell = $cells[x]
-              let span = $cell.getAttribute("colspan")*1 || 1
+              let span = $cell.getAttribute("colspan") * 1 || 1
               let cellHtml = tidyHtml($cell)
-              for(let i=0; i<span; i++) {
+              for (let i = 0; i < span; i++) {
                 let headHtml = headers[offX]
-                if(headHtml && "&nbsp;"!=headHtml) {
-                  headHtml += " " + cellHtml  
+                if (headHtml && "&nbsp;" != headHtml) {
+                  headHtml += " " + cellHtml
                 } else {
                   headHtml = cellHtml
                 }
@@ -259,12 +275,12 @@ export default {
   getTiAlbumObj($el) {
     let albumType = $el.getAttribute("ti-album-type")
     let styleUrlRewrite;
-    if(this.apiTmpl) {
-      styleUrlRewrite = (bgUrl)=>{
+    if (this.apiTmpl) {
+      styleUrlRewrite = (bgUrl) => {
         let m = /^url\(['"]?\/o\/content\?str=id:([^&'")]+)([^)'"]*)['"]?\)?$/.exec(bgUrl)
-        if(m) {
+        if (m) {
           let id = m[1]
-          let src = Ti.S.renderBy(this.apiTmpl, {id})
+          let src = Ti.S.renderBy(this.apiTmpl, { id })
           return `url('${src}')`
         }
         return bgUrl
@@ -395,8 +411,8 @@ export default {
         Ti.Widget.PhotoGallery.bind($el, {
           titleKey: $el.getAttribute("ti-live-title-key") || "title",
           showOpener: vm.photoGalleryShowOpener,
-          ignoreSrcElement: ($el)=>{
-            if(Ti.Dom.closest($el, ".album-ex-link")) {
+          ignoreSrcElement: ($el) => {
+            if (Ti.Dom.closest($el, ".album-ex-link")) {
               return true
             }
             return false
@@ -459,7 +475,7 @@ export default {
         }
       })
       for (let arMI of arMediaImages) {
-        if(arMI.link) {
+        if (arMI.link) {
           continue
         }
         Ti.Widget.PhotoGallery.bind(arMI.$el, {
@@ -519,6 +535,10 @@ export default {
 
     // Album: (album/FbAlbum/YtPlaylist)
     await this.explainTiAlbum($div)
+
+    if (this.inflateBlankP) {
+      this.doInflateBlankParagraph($div)
+    }
 
     // Update the article content
     this.$refs.main.innerHTML = $div.innerHTML

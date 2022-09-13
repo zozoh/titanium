@@ -1327,7 +1327,9 @@ const TiTypes = {
     // Visiblity
     if (!Ti.Util.isNil(visible)) {
       let cond = eval_cond(visible)
-      is_hidden = !Ti.AutoMatch.test(cond, data)
+      if (!_.isArray(cond) || !_.isEmpty(cond)) {
+        is_hidden = !Ti.AutoMatch.test(cond, data)
+      }
     }
     // Disable
     let is_disable = false
@@ -1337,7 +1339,9 @@ const TiTypes = {
     }
     if (!Ti.Util.isNil(enabled)) {
       let cond = eval_cond(enabled)
-      is_disable = !Ti.AutoMatch.test(cond, data)
+      if (!_.isArray(cond) || !_.isEmpty(cond)) {
+        is_disable = !Ti.AutoMatch.test(cond, data)
+      }
     }
     return {
       hidden: is_hidden,

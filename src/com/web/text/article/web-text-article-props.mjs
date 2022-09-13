@@ -18,6 +18,11 @@ export default {
     type: Boolean,
     default: false
   },
+  // If <p> is blank text, find the empty span and insert `&nbsp;`
+  "inflateBlankP": {
+    type: Boolean,
+    default: true
+  },
   "apiTmpl": {
     type: String,
     default: undefined
@@ -60,13 +65,13 @@ export default {
     type: Function
   },
   "albumBeforeCloseNotifyName": {
-    type: String 
+    type: String
   },
   "whenAlbumClosed": {
     type: Function
   },
   "albumClosedNotifyName": {
-    type: String 
+    type: String
   },
   "photoGalleryShowOpener": {
     type: Boolean,
@@ -88,7 +93,7 @@ export default {
   // Aspect
   //-----------------------------------
   "articleStyle": {
-    type : Object
+    type: Object
   },
   "theme": {
     type: String,

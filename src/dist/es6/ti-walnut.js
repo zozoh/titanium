@@ -1,4 +1,4 @@
-// Pack At: 2022-09-09 08:54:02
+// Pack At: 2022-09-13 15:26:57
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -695,7 +695,6 @@ const Obj = (function(){
     "sort": {
       title: "i18n:sort",
       name: "sort",
-      tip: "i18n:sort-tip-asc",
       type: "Integer",
       comType: "ti-input-num",
       comConf: {
@@ -738,6 +737,7 @@ const Obj = (function(){
       name: "thumb",
       checkEquals: false,
       rowSpan: 3,
+      nameVAlign: "top",
       comType: "wn-upload-file",
       comConf: {
         valueType: "idPath",
@@ -4355,7 +4355,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220909.085402"
+const WALNUT_VERSION = "1.2-20220913.152658"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

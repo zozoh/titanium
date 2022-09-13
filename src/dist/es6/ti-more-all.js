@@ -1,4 +1,4 @@
-// Pack At: 2022-09-09 08:54:02
+// Pack At: 2022-09-13 15:26:57
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12567,6 +12567,22 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article-methods.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //--------------------------------------
+  doInflateBlankParagraph($div) {
+    let $ps = Ti.Dom.findAll("p", $div)
+    for (let $p of $ps) {
+      if (Ti.Util.isBlank($p.textContent)) {
+        // Find the first empty span
+        let $spans = Ti.Dom.findAll("span", $p)
+        for (let $span of $spans) {
+          if (Ti.Util.isBlank($span.textContent)) {
+            $span.innerHTML = "&nbsp;"
+            break
+          }
+        }
+      }
+    }
+  },
+  //--------------------------------------
   cleanMediaSize($div) {
     let $medias = Ti.Dom.findAll(".wn-media", $div)
     for (let $media of $medias) {
@@ -12615,20 +12631,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let $rows;
       let $thead = Ti.Dom.find('thead', $table)
       let headers = []
-      if($thead) {
+      if ($thead) {
         $rows = Ti.Dom.findAll('tr', $thead)
         if (!_.isEmpty($rows)) {
-          for(let $row of $rows) {
+          for (let $row of $rows) {
             let $cells = Ti.Dom.findAll("td,th", $row)
             let offX = 0;
-            for(let x=0; x<$cells.length; x++) {
+            for (let x = 0; x < $cells.length; x++) {
               let $cell = $cells[x]
-              let span = $cell.getAttribute("colspan")*1 || 1
+              let span = $cell.getAttribute("colspan") * 1 || 1
               let cellHtml = tidyHtml($cell)
-              for(let i=0; i<span; i++) {
+              for (let i = 0; i < span; i++) {
                 let headHtml = headers[offX]
-                if(headHtml && "&nbsp;"!=headHtml) {
-                  headHtml += " " + cellHtml  
+                if (headHtml && "&nbsp;" != headHtml) {
+                  headHtml += " " + cellHtml
                 } else {
                   headHtml = cellHtml
                 }
@@ -12826,12 +12842,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   getTiAlbumObj($el) {
     let albumType = $el.getAttribute("ti-album-type")
     let styleUrlRewrite;
-    if(this.apiTmpl) {
-      styleUrlRewrite = (bgUrl)=>{
+    if (this.apiTmpl) {
+      styleUrlRewrite = (bgUrl) => {
         let m = /^url\(['"]?\/o\/content\?str=id:([^&'")]+)([^)'"]*)['"]?\)?$/.exec(bgUrl)
-        if(m) {
+        if (m) {
           let id = m[1]
-          let src = Ti.S.renderBy(this.apiTmpl, {id})
+          let src = Ti.S.renderBy(this.apiTmpl, { id })
           return `url('${src}')`
         }
         return bgUrl
@@ -12962,8 +12978,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
         Ti.Widget.PhotoGallery.bind($el, {
           titleKey: $el.getAttribute("ti-live-title-key") || "title",
           showOpener: vm.photoGalleryShowOpener,
-          ignoreSrcElement: ($el)=>{
-            if(Ti.Dom.closest($el, ".album-ex-link")) {
+          ignoreSrcElement: ($el) => {
+            if (Ti.Dom.closest($el, ".album-ex-link")) {
               return true
             }
             return false
@@ -13026,7 +13042,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
       })
       for (let arMI of arMediaImages) {
-        if(arMI.link) {
+        if (arMI.link) {
           continue
         }
         Ti.Widget.PhotoGallery.bind(arMI.$el, {
@@ -13086,6 +13102,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
     // Album: (album/FbAlbum/YtPlaylist)
     await this.explainTiAlbum($div)
+
+    if (this.inflateBlankP) {
+      this.doInflateBlankParagraph($div)
+    }
 
     // Update the article content
     this.$refs.main.innerHTML = $div.innerHTML
@@ -80529,9 +80549,10 @@ const _M = {
         })
       }
       //....................................
-      state.LOG("invoke->", action, pld)
+      
       //....................................
       if (invoke) {
+        state.LOG("invoke.apply->", invoke, pld)
         invoke = Ti.Util.genInvoking(invoke, {
           context: state
         })
@@ -80542,11 +80563,13 @@ const _M = {
       }
       //....................................
       if (mutation) {
+        state.LOG("invoke.mutation->", mutation, pld)
         commit(mutation, pld)
       }
       //....................................
       // Action
       if (action) {
+        state.LOG("invoke.action->", action, pld)
         if (_.isFunction(action)) {
           await action(pld)
         }
@@ -80627,7 +80650,7 @@ const _M = {
     //--------------------------------------------
     async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
       state.LOG = () => { }
-      //state.LOG = console.log
+      state.LOG = console.log
       state.LOG("site.reload", state.entry, state.base, state.lang)
       //---------------------------------------
       // Looking for the entry page
@@ -80845,6 +80868,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Boolean,
     default: false
   },
+  // If <p> is blank text, find the empty span and insert `&nbsp;`
+  "inflateBlankP": {
+    type: Boolean,
+    default: true
+  },
   "apiTmpl": {
     type: String,
     default: undefined
@@ -80887,13 +80915,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Function
   },
   "albumBeforeCloseNotifyName": {
-    type: String 
+    type: String
   },
   "whenAlbumClosed": {
     type: Function
   },
   "albumClosedNotifyName": {
-    type: String 
+    type: String
   },
   "photoGalleryShowOpener": {
     type: Boolean,
@@ -80915,7 +80943,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // Aspect
   //-----------------------------------
   "articleStyle": {
-    type : Object
+    type: Object
   },
   "theme": {
     type: String,
