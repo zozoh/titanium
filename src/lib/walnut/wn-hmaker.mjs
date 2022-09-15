@@ -41,6 +41,7 @@ const BACKGROUND_REPEAT = {
   name: "background-repeat",
   comType: "TiDroplist",
   comConf: {
+    placeholder: "i18n:no-set",
     options: "#CssBackgroundRepeats"
   }
 };
@@ -276,6 +277,12 @@ const FONT_SIZE = {
   name: "font-size",
   comType: "ti-input"
 };
+//------------------------------------------------------
+const FONT_WEIGHT = {
+  title: "i18n:hmk-css-font-weight",
+  name: "font-weight",
+  comType: "ti-input"
+};
 ////////////////////////////////////////////////////////
 const CSS_PROPS = {
   "background": BACKGROUND,
@@ -292,6 +299,7 @@ const CSS_PROPS = {
   "color": COLOR,
   "float": FLOAT,
   "font-size": FONT_SIZE,
+  "font-weight": FONT_WEIGHT,
   "height": HEIGHT,
   "letter-spacing": LETTER_SPACING,
   "line-height": LINE_HEIGHT,
@@ -347,6 +355,7 @@ const CSS_GROUPING = {
     "text-overflow",
     "text-transform",
     "font-size",
+    "font-weight",
     "letter-spacing",
     "line-height",
     "text-shadow"]
@@ -397,14 +406,14 @@ const WnHMaker = {
       ],
       "#TEXT": [
         /^(color|background(-.+)?)$/,
-        /^(text-(align|transform|shadow|overflow)|opacity)$/,
-        /^(font-size|line-height|letter-spacing|white-space)$/,
+        /^((text|font)-.+|opacity)$/,
+        /^(line-height|letter-spacing|white-space)$/,
       ],
       "#TEXT-BLOCK": [
-        /^(padding|color||overflow)$/,
+        /^(margin|padding|color||overflow)$/,
         /^(border|background)(-.+)?/,
-        /^(text-(align|transform|shadow|overflow)|opacity)$/,
-        /^(font-size|line-height|letter-spacing|white-space)$/,
+        /^((text|font)-.+|opacity)$/,
+        /^(line-height|letter-spacing|white-space)$/,
       ]
     })[filter]
     if (qf) {

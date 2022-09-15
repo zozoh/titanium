@@ -452,6 +452,9 @@ const TiWWW = {
     // Eval url
     _.defaults(vars, api.vars)
     let url = api.url
+    if (/query$/.test(url)) {
+      console.log("runApi", url)
+    }
     //.....................................
     // Eval dynamic url
     if (!_.isEmpty(api.vars)) {

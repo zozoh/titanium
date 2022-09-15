@@ -46,7 +46,7 @@ const _M = {
   methods: {
     //--------------------------------------------------
     OnClickComValue(fld) {
-      this.$parent.myActivedFieldKey = fld.key
+      this.$parent.myActivedFieldKey = fld.uniqKey
     },
     //--------------------------------------------------
     OnFldChange(fld, value) {
@@ -195,7 +195,7 @@ const _M = {
     //--------------------------------------------------
     evalFields(fields = this.fields) {
       //console.log("evalFields", fields)
-      // if (fields.length > 0) {
+      // if (fields.length == 3) {
       //   console.log("evalFields", fields)
       // }
       let list = this.cloneAssignFieldGrid(fields)
@@ -278,7 +278,7 @@ const _M = {
     },
     //--------------------------------------------------
     setFieldStatus(fld = {}) {
-      let { type, text } = _.get(this.status, fld.key) || {}
+      let { type, text } = _.get(this.status, fld.uniqKey) || {}
       if (type) {
         fld.statusIcon = _.get(this.statusIcons, type)
         fld.statusText = Ti.I18n.text(text)

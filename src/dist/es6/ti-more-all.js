@@ -1,4 +1,4 @@
-// Pack At: 2022-09-13 23:35:09
+// Pack At: 2022-09-15 17:23:09
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -15315,7 +15315,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     JumpTo(pn) {
       if(pn!=this.PN && pn>=1 && pn<=this.LastPN) {
-        this.$notify("change", {
+        // this.$notify("change", {
+        //   skip :  this.PageValue.pgsz * (pn-1),
+        //   limit :  this.PageValue.pgsz, 
+        //   pn   : pn, 
+        //   pgsz : this.PageValue.pgsz
+        // })
+        this.notifyChange({
           skip :  this.PageValue.pgsz * (pn-1),
           limit :  this.PageValue.pgsz, 
           pn   : pn, 
@@ -16536,7 +16542,7 @@ const _M = {
   methods: {
     //--------------------------------------------------
     OnClickComValue(fld) {
-      this.$parent.myActivedFieldKey = fld.key
+      this.$parent.myActivedFieldKey = fld.uniqKey
     },
     //--------------------------------------------------
     OnFldChange(fld, value) {
@@ -16685,7 +16691,7 @@ const _M = {
     //--------------------------------------------------
     evalFields(fields = this.fields) {
       //console.log("evalFields", fields)
-      // if (fields.length > 0) {
+      // if (fields.length == 3) {
       //   console.log("evalFields", fields)
       // }
       let list = this.cloneAssignFieldGrid(fields)
@@ -16768,7 +16774,7 @@ const _M = {
     },
     //--------------------------------------------------
     setFieldStatus(fld = {}) {
-      let { type, text } = _.get(this.status, fld.key) || {}
+      let { type, text } = _.get(this.status, fld.uniqKey) || {}
       if (type) {
         fld.statusIcon = _.get(this.statusIcons, type)
         fld.statusText = Ti.I18n.text(text)
@@ -21765,16 +21771,7 @@ const _M = {
     },
     //--------------------------------------------------
     GridColumnCount() {
-      if (this.gridColumnHint >= 1) {
-        return this.gridColumnHint
-      }
-      return Ti.Util.selectValue(this.GridContext, this.gridColumnHint, {
-        by: ([v, m], { width, screen }) => {
-          if (!m || m == screen || width >= m) {
-            return v
-          }
-        }
-      })
+      return this.evalGridColumnCount(this.gridColumnHint)
     },
     //--------------------------------------------------
     FormFields() {
@@ -21794,7 +21791,18 @@ const _M = {
       if (this.CurrentTabGroup) {
         return this.CurrentTabGroup.fields
       }
-      return this.FormFields
+      // Eval group count for each group
+      let fields = []
+      for (let grp of this.FormFields) {
+        let gf = _.cloneDeep(grp)
+        if (!Ti.Util.isNil(gf.gridColumnHint)) {
+          gf.gridColumnCount = this.evalGridColumnCount(gf.gridColumnHint)
+        } else {
+          gf.gridColumnCount = this.GridColumnCount
+        }
+        fields.push(gf)
+      }
+      return fields
     },
     //--------------------------------------------------
     CurrentTabGroup() {
@@ -21831,8 +21839,7 @@ const _M = {
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
         statusIcons: this.statusIcons,
-        fieldNameMaxWidth: this.GridFieldNameMaxWidth,
-        gridColumnCount: this.GridColumnCount,
+        fieldNameMaxWidth: this.GridFieldNameMaxWidth
       }
     },
     //--------------------------------------------------
@@ -22075,6 +22082,23 @@ const _M = {
       this.myFieldBlackList = {}
 
       await this.evalFormFieldList()
+    },
+    //--------------------------------------------------
+    //
+    //           Utility
+    //
+    //--------------------------------------------------
+    evalGridColumnCount(columnHint) {
+      if (columnHint >= 1) {
+        return columnHint
+      }
+      return Ti.Util.selectValue(this.GridContext, columnHint, {
+        by: ([v, m], { width, screen }) => {
+          if (!m || m == screen || width >= m) {
+            return v
+          }
+        }
+      })
     },
     //--------------------------------------------------
     restoreCurrentTabIndexFromLocal() {
@@ -32237,6 +32261,7 @@ const _M = {
     },
     //--------------------------------------
     async OnMetaFieldChange(payload) {
+      console.log("OnMetaFieldChange", payload)
       await this.dispatch("updateMetaField", payload)
     },
     //--------------------------------------
@@ -42341,11 +42366,18 @@ const _M = {
         //this.myFieldKeys = reo
         let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
         cuo.shownFieldKeys = reo
+        // Clear to reset width at same time
+        if(_.isEmpty(reo)) {
+          cuo.setFieldsWidth = []
+        }
         Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
       }
 
       // Update the new field key
       this.updateMyFieldsByKey(reo)
+      if(_.isEmpty(reo)) {
+        this.myFieldWidths = []
+      }
     },
     //--------------------------------------
     OnColumnResizeBegin(index) {
@@ -70076,43 +70108,45 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/paging/support/ti-paging-mixins.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////
-  props : {
-    "value" : {
-      type : Object,
-      default : ()=>({
-        pn : 0,     // Page Number
-        pgsz : 0,   // PageSize
-        pgc : 0,    // page count
-        sum : 0,    // Total
-        count : 0   // Record in page
+  props: {
+    "value": {
+      type: Object,
+      default: () => ({
+        pn: 0,     // Page Number
+        pgsz: 0,   // PageSize
+        pgc: 0,    // page count
+        sum: 0,    // Total
+        count: 0   // Record in page
       })
     },
-    "valueType" : {
-      type : String,
-      default : "shortName",
-      validator : v => /^(short|long)Name$/.test(v)
+    "valueType": {
+      type: String,
+      default: "shortName",
+      validator: v => /^(short|long)Name$/.test(v)
     }
   },
   ///////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     PageMapping() {
       // longName shoudl follow the 
       // `org.nutz.walnut.util.WnPagerObj`
       // generated by `WnPager.toPagerObj`
-      if("longName" == this.valueType) {
+      if ("longName" == this.valueType) {
         return {
-          pn : "pageNumber",
-          pgsz : "pageSize",
-          pgc : "pageCount",
-          sum : "totalCount",
-          count : "count"
+          pn: "pageNumber",
+          pgsz: "pageSize",
+          pgc: "pageCount",
+          sum: "totalCount",
+          count: "count",
+          skip: "skip",
+          limit: "limit"
         }
       }
     },
     //--------------------------------------
     PageValue() {
-      if(this.PageMapping) {
+      if (this.PageMapping) {
         return Ti.Util.translate(this.value, this.PageMapping)
       }
       return this.value
@@ -70120,14 +70154,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
-    notifyChange(page={}) {
+    notifyChange(page = {}) {
       // Guard
-      if(_.isEmpty(page))
+      if (_.isEmpty(page))
         return
 
-      if(this.PageMapping) {
+      if (this.PageMapping) {
         let rever = Ti.Util.reverMapping(this.PageMapping)
         page = Ti.Util.translate(page, rever)
       }
@@ -80549,7 +80583,7 @@ const _M = {
         })
       }
       //....................................
-      
+
       //....................................
       if (invoke) {
         state.LOG("invoke.apply->", invoke, pld)
@@ -80583,7 +80617,9 @@ const _M = {
     /***
      * Invoke action by given name
      */
-    async invokeAction({ state, getters, dispatch }, { name = "", args = [], memo = [] } = {}) {
+    async invokeAction({ state, getters, dispatch, rootState }, {
+      name = "", args = [], memo = []
+    } = {}) {
       /*
       The action should like
       {
@@ -80623,6 +80659,20 @@ const _M = {
               da.args = args
             }
             await dispatch("doAction", da)
+            // Break
+            if (!Ti.Util.isNil(a.breakNext)) {
+              if (Ti.AutoMatch.test(a.breakNext, rootState)) {
+                console.log("break!")
+                break;
+              }
+            }
+            // Continue
+            if (!Ti.Util.isNil(a.continuNext)) {
+              if (!Ti.AutoMatch.test(a.continuNext, rootState)) {
+                console.log("!continuNext")
+                break;
+              }
+            }
           }
         }
         // Direct call : String
@@ -86126,6 +86176,7 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
             <grid-container
               v-bind="GridContainerConf"
               :fields="GridFormFields"
+              :gridColumnCount="GridColumnCount"
               @field:change="OnFieldChange"/>
           </section>
           <!------------------------------------------>
@@ -86156,6 +86207,7 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
               <grid-container
                 v-bind="GridContainerConf"
                 :fields="grp.fields"
+                :gridColumnCount="grp.gridColumnCount"
                 @field:change="OnFieldChange"/>
               <!-------------------------------------->
           </section>
@@ -86195,6 +86247,7 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
             <grid-container
               v-bind="GridContainerConf"
               :fields="GridFormFields"
+              :gridColumnCount="GridColumnCount"
               @field:change="OnFieldChange"/>
           </section>
           <!----------------------------------------->
@@ -98858,7 +98911,7 @@ Ti.Preload("ti/i18n/en-uk/hmaker.i18n.json", {
   "hmk-class-flex-grow": "Grow",
   "hmk-class-flex-none": "None",
   "hmk-class-flex-shrink": "Shrink",
-  "hmk-class-font-size": "Size",
+  "hmk-class-font-size": "Font Size",
   "hmk-class-hover": "Hover effect",
   "hmk-class-hover-to-scale": "Hover Scale",
   "hmk-class-hover-to-up": "Hover Up",
@@ -98930,6 +98983,7 @@ Ti.Preload("ti/i18n/en-uk/hmaker.i18n.json", {
   "hmk-css-float-none": "None",
   "hmk-css-float-right": "Right",
   "hmk-css-font-size": "Font size",
+  "hmk-css-font-weight": "Font Weight",
   "hmk-css-g-inherit": "inherit",
   "hmk-css-g-initial": "initial",
   "hmk-css-g-unset": "unset",
@@ -100043,6 +100097,7 @@ Ti.Preload("ti/i18n/en-uk/_ti.i18n.json", {
   "no": "No",
   "no-saved": "You get data need to be saved",
   "no-selected": "None selected",
+  "no-set": "Not Set",
   "no-title": "No title",
   "note": "Note",
   "obj": "Object",
@@ -100254,7 +100309,7 @@ Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
   "wn-key-icon": "Icon",
   "wn-key-id": "ID",
   "wn-key-len": "Length",
-  "wn-key-lm": "Last modified",
+  "wn-key-lm": "Modified",
   "wn-key-m": "Mender",
   "wn-key-md": "Mode",
   "wn-key-mime": "MIME",
@@ -100440,7 +100495,7 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-class-flex-grow": "Grow",
   "hmk-class-flex-none": "None",
   "hmk-class-flex-shrink": "Shrink",
-  "hmk-class-font-size": "Size",
+  "hmk-class-font-size": "Font Size",
   "hmk-class-hover": "Hover effect",
   "hmk-class-hover-to-scale": "Hover Scale",
   "hmk-class-hover-to-up": "Hover Up",
@@ -100512,6 +100567,7 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hmk-css-float-none": "None",
   "hmk-css-float-right": "Right",
   "hmk-css-font-size": "Font size",
+  "hmk-css-font-weight": "Font Weight",
   "hmk-css-g-inherit": "inherit",
   "hmk-css-g-initial": "initial",
   "hmk-css-g-unset": "unset",
@@ -101625,6 +101681,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "no": "No",
   "no-saved": "You get data need to be saved",
   "no-selected": "None selected",
+  "no-set": "Not Set",
   "no-title": "No title",
   "note": "Note",
   "obj": "Object",
@@ -101836,7 +101893,7 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-key-icon": "Icon",
   "wn-key-id": "ID",
   "wn-key-len": "Length",
-  "wn-key-lm": "Last modified",
+  "wn-key-lm": "Modified",
   "wn-key-m": "Mender",
   "wn-key-md": "Mode",
   "wn-key-mime": "MIME",
@@ -102097,6 +102154,7 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hmk-css-float-none": "不绕图",
   "hmk-css-float-right": "右浮动",
   "hmk-css-font-size": "文字大小",
+  "hmk-css-font-weight": "文字粗细",
   "hmk-css-g-inherit": "继承",
   "hmk-css-g-initial": "初始",
   "hmk-css-g-unset": "默认",
@@ -103188,6 +103246,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "no": "否",
   "no-saved": "您有未保存的数据",
   "no-selected": "未选择",
+  "no-set": "未设置",
   "no-title": "无标题",
   "note": "备注",
   "obj": "对象",
@@ -103686,6 +103745,7 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hmk-css-float-none": "不繞圖",
    "hmk-css-float-right": "右浮動",
    "hmk-css-font-size": "文字大小",
+   "hmk-css-font-weight": "文字粗細",
    "hmk-css-g-inherit": "繼承",
    "hmk-css-g-initial": "初始",
    "hmk-css-g-unset": "默認",
@@ -104777,6 +104837,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "no": "否",
    "no-saved": "您有未保存的數據",
    "no-selected": "未選擇",
+   "no-set": "未設置",
    "no-title": "無標題",
    "note": "備註",
    "obj": "對象",

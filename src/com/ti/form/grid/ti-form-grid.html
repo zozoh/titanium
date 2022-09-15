@@ -43,6 +43,7 @@
             <grid-container
               v-bind="GridContainerConf"
               :fields="GridFormFields"
+              :gridColumnCount="GridColumnCount"
               @field:change="OnFieldChange"/>
           </section>
           <!------------------------------------------>
@@ -73,6 +74,7 @@
               <grid-container
                 v-bind="GridContainerConf"
                 :fields="grp.fields"
+                :gridColumnCount="grp.gridColumnCount"
                 @field:change="OnFieldChange"/>
               <!-------------------------------------->
           </section>
@@ -112,6 +114,7 @@
             <grid-container
               v-bind="GridContainerConf"
               :fields="GridFormFields"
+              :gridColumnCount="GridColumnCount"
               @field:change="OnFieldChange"/>
           </section>
           <!----------------------------------------->

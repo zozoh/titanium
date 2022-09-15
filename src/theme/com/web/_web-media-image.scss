@@ -1,66 +1,96 @@
 .web-media-image {
   display: block;
-  width:100%; height:100%;
+  width: 100%;
+  height: 100%;
   position: relative;
-  font-size:SZ(20);
+  font-size: SZ(20);
   user-select: none;
   //-----------------------------------------
-  &.flex-center {@include flex-center;}
+  &.flex-center {
+    @include flex-center;
+  }
   //-----------------------------------------
-  &.no-href {cursor: default; text-decoration: none;}
-  &.has-href {cursor: pointer; text-decoration: none;}
+  &.no-href {
+    cursor: default;
+    text-decoration: none;
+  }
+  &.has-href {
+    cursor: pointer;
+    text-decoration: none;
+  }
   //-----------------------------------------
-  &.has-zoomlen.show-zoomlen .as-zoomlen {display: block;}
+  &.has-zoomlen.show-zoomlen .as-zoomlen {
+    display: block;
+  }
   //-----------------------------------------
-  &.of-con-hidden   .as-img-con {overflow: hidden;}
-  &.of-con-visiable .as-img-con {overflow: visible;}
+  &.of-con-hidden .as-img-con {
+    overflow: hidden;
+  }
+  &.of-con-visiable .as-img-con {
+    overflow: visible;
+  }
   //-----------------------------------------
   &.full-con {
-    .as-img-con {height: 100%;}
+    .as-img-con {
+      height: 100%;
+    }
   }
   &.is-fit-auto img {
-    width: auto; height: auto; 
-    max-height: 100%; max-width: 100%;
+    width: auto;
+    height: auto;
+    max-height: 100%;
+    max-width: 100%;
   }
-  &.is-fit-none    img {object-fit: unset;}
-  &.is-fit-contain img {object-fit: contain;} 
-  &.is-fit-cover   img {object-fit: cover; }
+  &.is-fit-none img {
+    object-fit: unset;
+  }
+  &.is-fit-contain img {
+    object-fit: contain;
+  }
+  &.is-fit-cover img {
+    object-fit: cover;
+  }
   //-----------------------------------------
   &.primary-img-size {
     img {
-      width:auto; height:auto; flex:0 0 auto;
-      margin:0 auto;
+      width: auto;
+      height: auto;
+      flex: 0 0 auto;
+      margin: 0 auto;
     }
   }
   //-----------------------------------------
   &.text-hover-full {
     .as-text {
-      transition: 0.5s; 
+      transition: 0.5s;
     }
   }
   //-----------------------------------------
   &.top-hover-full {
     .as-text {
-      transition: 0.5s; 
+      transition: 0.5s;
     }
     &:hover .as-title {
-      white-space: normal; overflow: hidden;
+      white-space: normal;
+      overflow: hidden;
     }
   }
   //-----------------------------------------
   .as-img-con {
-    width:100%; 
+    width: 100%;
     overflow: hidden;
   }
   img {
-    flex:1 1 auto; margin:0 auto;
-    width:100%; height:100%;
+    flex: 1 1 auto;
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    display:block;
+    display: block;
   }
   //-----------------------------------------
   .as-tags {
-    @include pos-abs($l:0,$t:0);
+    @include pos-abs($l: 0, $t: 0);
     @include flex-align-nowrap;
     font-size: SZ(10);
   }
@@ -78,12 +108,12 @@
   //
   //-----------------------------------------
   .as-text {
-    @include flex-align-v-nowrap($jc:center,$ai:center,$ac:center); 
+    @include flex-align-v-nowrap($jc: center, $ai: center, $ac: center);
     @include font-nice;
-    user-select: text; 
+    user-select: text;
     //---------------------------------------
     .as-title {
-      width:100%;
+      width: 100%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -91,43 +121,54 @@
     //---------------------------------------
     .as-brief {
       @include border(1px, solid, shallow, top);
-      display: block; 
-      padding: 1em 0; margin-top: 1em;
-      font-size: 0.9em; opacity: 0.7; 
+      display: block;
+      padding: 1em 0;
+      margin-top: 1em;
+      font-size: 0.9em;
+      opacity: 0.7;
       font-weight: normal;
       text-decoration: none;
-      &:hover {text-decoration: none;}
+      &:hover {
+        text-decoration: none;
+      }
     }
-    //---------------------------------------  
+    //---------------------------------------
   }
   &:hover .as-text {
     .as-title {
-      white-space: normal; overflow: hidden;
+      white-space: normal;
+      overflow: hidden;
     }
   }
   &.brief-at-top .as-text {
-    .as-title {order: 2;}
-    .as-brief {order: 1;}
+    .as-title {
+      order: 2;
+    }
+    .as-brief {
+      order: 1;
+    }
   }
   //-----------------------------------------
   .as-zoom-pick {
     position: absolute;
-    border:1px solid #DDD;
-    background: rgba(255,255,0, 0.4);
+    border: 1px solid #ddd;
+    background: rgba(255, 255, 0, 0.4);
     cursor: move;
     z-index: $z-over;
   }
   //-----------------------------------------
   .as-zoom-dock {
-    position: fixed; background: #000;
+    position: fixed;
+    background: #000;
     background-repeat: no-repeat;
     z-index: $z-mask;
   }
   //-----------------------------------------
   .as-cooling-tip {
-    @include pos-abs($r:0, $t:0);
-    color: rgba(200,200,200,0.6);
-    padding: SZ(4); opacity: 0.8;
+    @include pos-abs($r: 0, $t: 0);
+    color: rgba(200, 200, 200, 0.6);
+    padding: SZ(4);
+    opacity: 0.8;
     font-size: SZ(24);
   }
   //-----------------------------------------
@@ -139,14 +180,16 @@
     cursor: default;
   }
   &.hover-to-up {
-    transition: transform 0.3s; 
+    transition: transform 0.3s;
     &:hover {
       transform: translateY(-3px);
       box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
     }
   }
   &.hover-to-up-img {
-    .as-img-con img {transition: transform 0.3s; }
+    .as-img-con img {
+      transition: transform 0.3s;
+    }
     &:hover .as-img-con img {
       transform: translateY(-3px);
       box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
@@ -154,14 +197,16 @@
   }
   //-----------------------------------------
   &.hover-to-zoom {
-    .as-img-con img {transition: transform 0.5s; }
+    .as-img-con img {
+      transition: transform 0.5s;
+    }
     &:hover .as-img-con img {
       transform: scale(1.2);
     }
   }
   //-----------------------------------------
   &.hover-to-scale {
-    transition: transform 0.3s; 
+    transition: transform 0.3s;
     &:hover {
       transform: scale(1.1);
       box-shadow: SZ(4) SZ(4) SZ(10) map-get($color-shadow, thin);
@@ -170,12 +215,16 @@
   }
   //-----------------------------------------
   &.hover-mask {
-    .as-text {z-index: 1;}
+    .as-text {
+      z-index: 1;
+    }
     &:after {
       @include pos-abs-full;
       background: #000;
-      opacity: 0; transition: 0.3s;
-      display: block; content: "";
+      opacity: 0;
+      transition: 0.3s;
+      display: block;
+      content: "";
     }
     &:hover:after {
       opacity: 0.3;
@@ -186,68 +235,133 @@
   // Texting
   //
   //-----------------------------------------
-  &.ts-shadow .as-text {text-shadow: 2px 2px 6px rgba(0,0,0,0.6);}
-  &.ts-mask .as-text {background-color:rgba(0,0,0,0.4);}
+  &.ts-shadow .as-text {
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+  }
+  &.ts-mask .as-text {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
   &.ts-wrap-none .as-text .as-title {
-    white-space: nowrap; word-break: keep-all;
+    white-space: nowrap;
+    word-break: keep-all;
   }
   &.ts-wrap-all .as-text .as-title {
-    white-space: normal; word-break: break-all;
+    white-space: normal;
+    word-break: break-all;
     overflow: visible;
   }
   &.ts-wrap-word .as-text .as-title {
-    white-space: normal; word-break: break-word;
+    white-space: normal;
+    word-break: break-word;
     overflow: visible;
   }
-  &.ts-hide .as-text {display: none;}
+  &.ts-hide .as-text {
+    display: none;
+  }
   //-----------------------------------------
-  &.text-in .as-img-con {height:100%;}
-  &.text-in.at-center .as-text {@include pos-abs-full; text-align: center;}
-  &.text-in.at-top    .as-text {@include pos-abs($l:0,$r:0,$t:0);}
-  &.text-in.at-bottom .as-text {@include pos-abs($l:0,$r:0,$b:0);}
-  &.text-in.at-left   .as-text {@include pos-abs($l:0,$t:0,$b:0);}
-  &.text-in.at-right  .as-text {@include pos-abs($r:0,$t:0,$b:0);}
+  &.text-in .as-img-con {
+    height: 100%;
+  }
+  &.text-in.at-center .as-text {
+    @include pos-abs-full;
+    text-align: center;
+  }
+  &.text-in.at-top .as-text {
+    @include pos-abs($l: 0, $r: 0, $t: 0);
+  }
+  &.text-in.at-bottom .as-text {
+    @include pos-abs($l: 0, $r: 0, $b: 0);
+  }
+  &.text-in.at-left .as-text {
+    @include pos-abs($l: 0, $t: 0, $b: 0);
+  }
+  &.text-in.at-right .as-text {
+    @include pos-abs($r: 0, $t: 0, $b: 0);
+  }
 
-  &.text-in.at-bottom-left  .as-text {@include pos-abs($l:0,$b:0);}
-  &.text-in.at-bottom-right .as-text {@include pos-abs($r:0,$b:0);}
-  &.text-in.at-left-top     .as-text {@include pos-abs($l:0,$t:0);}
-  &.text-in.at-right-top    .as-text {@include pos-abs($r:0,$t:0);}
+  &.text-in.at-bottom-left .as-text {
+    @include pos-abs($l: 0, $b: 0);
+  }
+  &.text-in.at-bottom-right .as-text {
+    @include pos-abs($r: 0, $b: 0);
+  }
+  &.text-in.at-left-top .as-text {
+    @include pos-abs($l: 0, $t: 0);
+  }
+  &.text-in.at-right-top .as-text {
+    @include pos-abs($r: 0, $t: 0);
+  }
   //-----------------------------------------
-  &.text-in .as-text{
-    padding: 0.5em 0.6em; 
-    color:#FFF;
+  &.text-in .as-text {
+    padding: 0.5em 0.6em;
+    color: #fff;
   }
   //-----------------------------------------
   &.text-out.fix-image-size {
-    .as-img-con {flex:0 0 auto;}
-    .as-text {flex:1 1 auto;}
+    .as-img-con {
+      flex: 0 0 auto;
+    }
+    .as-text {
+      flex: 1 1 auto;
+    }
   }
   //-----------------------------------------
-  &.text-out .as-text{
-    padding: 0.5em 0.3em; 
+  &.text-out .as-text {
+    padding: 0.5em 0.3em;
   }
   //-----------------------------------------
   &.text-out.at-top {
     @include flex-align-v-nowrap;
-    .as-text {order: -1; display: block; text-align: center;}
+    .as-text {
+      order: -1;
+      display: block;
+      text-align: center;
+    }
   }
   &.text-out.at-bottom {
     @include flex-align-v-nowrap;
-    .as-text {display: block; text-align: center;}
+    .as-text {
+      display: block;
+      text-align: center;
+    }
   }
   &.text-out.at-left {
-    @include flex-align-nowrap($ai:stretch);
-    .as-text {order: -1;}
+    @include flex-align-nowrap($ai: stretch);
+    .as-text {
+      order: -1;
+    }
   }
   &.text-out.at-right {
-    @include flex-align-nowrap($ai:stretch);
-    .as-text {}
+    @include flex-align-nowrap($ai: stretch);
+    .as-text {
+    }
   }
   //-----------------------------------------
-  &.fs-xs .as-text {font-size: .6em;}
-  &.fs-sm .as-text {font-size: .8em;}
-  &.fs-md .as-text {font-size: 1em;}
-  &.fs-lg .as-text {font-size: 1.2em;}
-  &.fs-xl .as-text {font-size: 1.5em;}
+  &.at-left .as-text,
+  &.at-left-top .as-text,
+  &.at-bottom-left .as-text {
+    align-items: flex-start;
+  }
+  &.at-right .as-text,
+  &.at-right-top .as-text,
+  &.at-bottom-right .as-text {
+    align-items: flex-end;
+  }
+  //-----------------------------------------
+  &.fs-xs .as-text {
+    font-size: 0.6em;
+  }
+  &.fs-sm .as-text {
+    font-size: 0.8em;
+  }
+  &.fs-md .as-text {
+    font-size: 1em;
+  }
+  &.fs-lg .as-text {
+    font-size: 1.2em;
+  }
+  &.fs-xl .as-text {
+    font-size: 1.5em;
+  }
   //-----------------------------------------
 }

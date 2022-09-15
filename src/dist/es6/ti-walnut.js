@@ -1,4 +1,4 @@
-// Pack At: 2022-09-13 23:35:09
+// Pack At: 2022-09-15 17:23:09
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -2609,6 +2609,7 @@ const Hm = (function(){
     name: "background-repeat",
     comType: "TiDroplist",
     comConf: {
+      placeholder: "i18n:no-set",
       options: "#CssBackgroundRepeats"
     }
   };
@@ -2844,6 +2845,12 @@ const Hm = (function(){
     name: "font-size",
     comType: "ti-input"
   };
+  //------------------------------------------------------
+  const FONT_WEIGHT = {
+    title: "i18n:hmk-css-font-weight",
+    name: "font-weight",
+    comType: "ti-input"
+  };
   ////////////////////////////////////////////////////////
   const CSS_PROPS = {
     "background": BACKGROUND,
@@ -2860,6 +2867,7 @@ const Hm = (function(){
     "color": COLOR,
     "float": FLOAT,
     "font-size": FONT_SIZE,
+    "font-weight": FONT_WEIGHT,
     "height": HEIGHT,
     "letter-spacing": LETTER_SPACING,
     "line-height": LINE_HEIGHT,
@@ -2915,6 +2923,7 @@ const Hm = (function(){
       "text-overflow",
       "text-transform",
       "font-size",
+      "font-weight",
       "letter-spacing",
       "line-height",
       "text-shadow"]
@@ -2965,14 +2974,14 @@ const Hm = (function(){
         ],
         "#TEXT": [
           /^(color|background(-.+)?)$/,
-          /^(text-(align|transform|shadow|overflow)|opacity)$/,
-          /^(font-size|line-height|letter-spacing|white-space)$/,
+          /^((text|font)-.+|opacity)$/,
+          /^(line-height|letter-spacing|white-space)$/,
         ],
         "#TEXT-BLOCK": [
-          /^(padding|color||overflow)$/,
+          /^(margin|padding|color||overflow)$/,
           /^(border|background)(-.+)?/,
-          /^(text-(align|transform|shadow|overflow)|opacity)$/,
-          /^(font-size|line-height|letter-spacing|white-space)$/,
+          /^((text|font)-.+|opacity)$/,
+          /^(line-height|letter-spacing|white-space)$/,
         ]
       })[filter]
       if (qf) {
@@ -4355,7 +4364,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220913.233510"
+const WALNUT_VERSION = "1.2-20220915.172310"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

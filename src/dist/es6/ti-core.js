@@ -1,4 +1,4 @@
-// Pack At: 2022-09-13 23:35:09
+// Pack At: 2022-09-15 17:23:09
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -13910,6 +13910,9 @@ const {WWW} = (function(){
       // Eval url
       _.defaults(vars, api.vars)
       let url = api.url
+      if (/query$/.test(url)) {
+        console.log("runApi", url)
+      }
       //.....................................
       // Eval dynamic url
       if (!_.isEmpty(api.vars)) {
@@ -18927,7 +18930,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220913.233509",
+  "version" : "1.6-20220915.172309",
   "dev" : false,
   "appName" : null,
   "session" : {},

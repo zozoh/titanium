@@ -87,16 +87,7 @@ const _M = {
     },
     //--------------------------------------------------
     GridColumnCount() {
-      if (this.gridColumnHint >= 1) {
-        return this.gridColumnHint
-      }
-      return Ti.Util.selectValue(this.GridContext, this.gridColumnHint, {
-        by: ([v, m], { width, screen }) => {
-          if (!m || m == screen || width >= m) {
-            return v
-          }
-        }
-      })
+      return this.evalGridColumnCount(this.gridColumnHint)
     },
     //--------------------------------------------------
     FormFields() {
@@ -116,7 +107,18 @@ const _M = {
       if (this.CurrentTabGroup) {
         return this.CurrentTabGroup.fields
       }
-      return this.FormFields
+      // Eval group count for each group
+      let fields = []
+      for (let grp of this.FormFields) {
+        let gf = _.cloneDeep(grp)
+        if (!Ti.Util.isNil(gf.gridColumnHint)) {
+          gf.gridColumnCount = this.evalGridColumnCount(gf.gridColumnHint)
+        } else {
+          gf.gridColumnCount = this.GridColumnCount
+        }
+        fields.push(gf)
+      }
+      return fields
     },
     //--------------------------------------------------
     CurrentTabGroup() {
@@ -153,8 +155,7 @@ const _M = {
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
         statusIcons: this.statusIcons,
-        fieldNameMaxWidth: this.GridFieldNameMaxWidth,
-        gridColumnCount: this.GridColumnCount,
+        fieldNameMaxWidth: this.GridFieldNameMaxWidth
       }
     },
     //--------------------------------------------------
@@ -397,6 +398,23 @@ const _M = {
       this.myFieldBlackList = {}
 
       await this.evalFormFieldList()
+    },
+    //--------------------------------------------------
+    //
+    //           Utility
+    //
+    //--------------------------------------------------
+    evalGridColumnCount(columnHint) {
+      if (columnHint >= 1) {
+        return columnHint
+      }
+      return Ti.Util.selectValue(this.GridContext, columnHint, {
+        by: ([v, m], { width, screen }) => {
+          if (!m || m == screen || width >= m) {
+            return v
+          }
+        }
+      })
     },
     //--------------------------------------------------
     restoreCurrentTabIndexFromLocal() {

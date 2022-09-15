@@ -92,7 +92,13 @@ export default {
     //--------------------------------------
     JumpTo(pn) {
       if(pn!=this.PN && pn>=1 && pn<=this.LastPN) {
-        this.$notify("change", {
+        // this.$notify("change", {
+        //   skip :  this.PageValue.pgsz * (pn-1),
+        //   limit :  this.PageValue.pgsz, 
+        //   pn   : pn, 
+        //   pgsz : this.PageValue.pgsz
+        // })
+        this.notifyChange({
           skip :  this.PageValue.pgsz * (pn-1),
           limit :  this.PageValue.pgsz, 
           pn   : pn, 

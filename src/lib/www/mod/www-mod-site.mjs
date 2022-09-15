@@ -459,7 +459,7 @@ const _M = {
         })
       }
       //....................................
-      
+
       //....................................
       if (invoke) {
         state.LOG("invoke.apply->", invoke, pld)
@@ -493,7 +493,9 @@ const _M = {
     /***
      * Invoke action by given name
      */
-    async invokeAction({ state, getters, dispatch }, { name = "", args = [], memo = [] } = {}) {
+    async invokeAction({ state, getters, dispatch, rootState }, {
+      name = "", args = [], memo = []
+    } = {}) {
       /*
       The action should like
       {
@@ -533,6 +535,20 @@ const _M = {
               da.args = args
             }
             await dispatch("doAction", da)
+            // Break
+            if (!Ti.Util.isNil(a.breakNext)) {
+              if (Ti.AutoMatch.test(a.breakNext, rootState)) {
+                console.log("break!")
+                break;
+              }
+            }
+            // Continue
+            if (!Ti.Util.isNil(a.continuNext)) {
+              if (!Ti.AutoMatch.test(a.continuNext, rootState)) {
+                console.log("!continuNext")
+                break;
+              }
+            }
           }
         }
         // Direct call : String

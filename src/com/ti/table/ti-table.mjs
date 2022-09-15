@@ -234,11 +234,18 @@ const _M = {
         //this.myFieldKeys = reo
         let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
         cuo.shownFieldKeys = reo
+        // Clear to reset width at same time
+        if(_.isEmpty(reo)) {
+          cuo.setFieldsWidth = []
+        }
         Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
       }
 
       // Update the new field key
       this.updateMyFieldsByKey(reo)
+      if(_.isEmpty(reo)) {
+        this.myFieldWidths = []
+      }
     },
     //--------------------------------------
     OnColumnResizeBegin(index) {

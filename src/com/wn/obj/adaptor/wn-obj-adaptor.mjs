@@ -72,6 +72,7 @@ const _M = {
     },
     //--------------------------------------
     async OnMetaFieldChange(payload) {
+      console.log("OnMetaFieldChange", payload)
       await this.dispatch("updateMetaField", payload)
     },
     //--------------------------------------
