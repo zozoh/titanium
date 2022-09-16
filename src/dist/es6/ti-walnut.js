@@ -1,4 +1,4 @@
-// Pack At: 2022-09-15 17:23:09
+// Pack At: 2022-09-16 22:09:42
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -2031,9 +2031,25 @@ const Util = (function(){
       appName = "wn.manager",
       encoded = false
     } = {}) {
+      // Auto Path key
+      let pathKey;
+      if (/^(\/|~|id:)/.test(meta)) {
+        pathKey = "ph"
+      }
+      // META: "478e..6ea2"
+      else if (_.isString(meta)) {
+        pathKey = "id"
+      }
+      // META: {id:"478e..6ea2"}
+      else if (meta.id) {
+        pathKey = "id"
+      }
+      // META: {ph:"/path/to/obj"}
+      else if (meta.ph) {
+        pathKey = "ph"
+      }
       return WnUtil.getLink(`/a/open/${appName}`, meta, {
-        pathKey: "id",
-        encoded
+        pathKey, encoded
       })
     },
     getAppLinkStr(meta, options) {
@@ -4364,7 +4380,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220915.172310"
+const WALNUT_VERSION = "1.2-20220916.220943"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

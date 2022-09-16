@@ -164,9 +164,25 @@ const WnUtil = {
     appName = "wn.manager",
     encoded = false
   } = {}) {
+    // Auto Path key
+    let pathKey;
+    if (/^(\/|~|id:)/.test(meta)) {
+      pathKey = "ph"
+    }
+    // META: "478e..6ea2"
+    else if (_.isString(meta)) {
+      pathKey = "id"
+    }
+    // META: {id:"478e..6ea2"}
+    else if (meta.id) {
+      pathKey = "id"
+    }
+    // META: {ph:"/path/to/obj"}
+    else if (meta.ph) {
+      pathKey = "ph"
+    }
     return WnUtil.getLink(`/a/open/${appName}`, meta, {
-      pathKey: "id",
-      encoded
+      pathKey, encoded
     })
   },
   getAppLinkStr(meta, options) {
