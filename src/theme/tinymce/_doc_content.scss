@@ -22,7 +22,7 @@ html {
   @include color($color-line, null, highlight);
 }
 //...................................................
-body.mce-content-body {
+body {
   @include color($color-f-text, c, r);
   font-size: 16px; min-height: 92%;
   max-width: 1000px; margin:0 auto;
