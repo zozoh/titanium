@@ -33,6 +33,10 @@ const _M = {
       return _.get(this.myCom, "changed") || ".."
     },
     //----------------------------------------
+    ComStyle() {
+      return Ti.Css.toStyle(_.get(this.myCom, "style"))
+    },
+    //----------------------------------------
     ComType() {
       return _.get(this.myCom, "comType")
     },
@@ -90,8 +94,8 @@ const _M = {
     //----------------------------------------
     __on_events(name, payload) {
       let dataKey = _.get(this.myCom, `dataEvents.${name}`)
-      if(dataKey) {
-        return ()=>{
+      if (dataKey) {
+        return () => {
           let data = _.cloneDeep(this.data)
           data[dataKey] = payload
           this.setDataValue(data)

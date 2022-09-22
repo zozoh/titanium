@@ -200,7 +200,8 @@ const FORM_FIELDS = {
   //---------------------------------------------
   "pid": {
     title: "i18n:wn-key-pid",
-    name: "pid"
+    name: "pid",
+    comType: "WnObjId"
   },
   //---------------------------------------------
   "d0": {
@@ -720,7 +721,7 @@ const WnObj = {
           "id", "nm", "title", "icon", "thumb", "sort",
           "width", "height",
           "ph", "race", "tp", "mime",
-          "len", "sha1"],
+          "len", "sha1", "pid"],
       }, {
         title: "privilege",
         fields: ["c", "m", "g", "md", "pvg"]

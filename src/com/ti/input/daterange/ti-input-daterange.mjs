@@ -316,7 +316,7 @@ const _M = {
     formatRangeValue(range, {
       valueType, format, collapse = false
     } = {}) {
-      console.log("formatRangeValue", range)
+      //console.log("formatRangeValue", range)
       let [d0, d1] = range || []
       if (!d0) {
         return []
