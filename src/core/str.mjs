@@ -626,12 +626,15 @@ const TiStr = {
    * 
    * @param input input keywords
    */
-  autoPrefixSearchStr(input) {
+  autoPrefixSearchStr(input, start = false) {
     let str = _.toLower(_.trim(input))
     if (!str) {
       return
     }
     if (!str.startsWith("^")) {
+      if (start) {
+        return "^" + str
+      }
       return "^.*" + str
     }
     return str

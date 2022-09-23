@@ -1,4 +1,4 @@
-// Pack At: 2022-09-16 22:09:42
+// Pack At: 2022-09-24 01:44:28
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -1859,12 +1859,15 @@ const {S} = (function(){
      * 
      * @param input input keywords
      */
-    autoPrefixSearchStr(input) {
+    autoPrefixSearchStr(input, start = false) {
       let str = _.toLower(_.trim(input))
       if (!str) {
         return
       }
       if (!str.startsWith("^")) {
+        if (start) {
+          return "^" + str
+        }
         return "^.*" + str
       }
       return str
@@ -18930,7 +18933,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220916.220942",
+  "version" : "1.6-20220924.014428",
   "dev" : false,
   "appName" : null,
   "session" : {},

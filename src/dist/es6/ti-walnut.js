@@ -1,4 +1,4 @@
-// Pack At: 2022-09-16 22:09:42
+// Pack At: 2022-09-24 01:44:28
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -789,7 +789,8 @@ const Obj = (function(){
     //---------------------------------------------
     "pid": {
       title: "i18n:wn-key-pid",
-      name: "pid"
+      name: "pid",
+      comType: "WnObjId"
     },
     //---------------------------------------------
     "d0": {
@@ -1309,7 +1310,7 @@ const Obj = (function(){
             "id", "nm", "title", "icon", "thumb", "sort",
             "width", "height",
             "ph", "race", "tp", "mime",
-            "len", "sha1"],
+            "len", "sha1", "pid"],
         }, {
           title: "privilege",
           fields: ["c", "m", "g", "md", "pvg"]
@@ -4380,7 +4381,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20220916.220943"
+const WALNUT_VERSION = "1.2-20220924.014428"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
