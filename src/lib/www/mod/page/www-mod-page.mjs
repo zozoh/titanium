@@ -70,6 +70,16 @@ const _M = {
       state.moduleNames = names
     },
     //--------------------------------------------
+    updateParams(state, { key, value } = {}) {
+      console.log("updateParams", { key, value })
+      // kay-value pair is required
+      if (!key || _.isUndefined(value)) {
+        return
+      }
+      let vobj = _.set({}, key, value)
+      state.params = _.assign({}, state.params, vobj)
+    },
+    //--------------------------------------------
     mergeParams(state, params) {
       if (!_.isEmpty(params) && _.isPlainObject(params)) {
         state.params = _.merge({}, state.params, params)
@@ -496,6 +506,21 @@ const _M = {
       commit("mergeData", data)
     },
     //--------------------------------------------
+    // update pageFinger and pageUri
+    changeFingerAndUri({ commit, state, rootState }) {
+      if (state.pageUriWithParams) {
+        let base = rootState.base
+        let link = Ti.Util.Link({
+          url: state.href,
+          params: state.params,
+          ignoreNil: true
+        })
+        let uri = Ti.Util.appendPath(base, link.toString())
+        commit("setPageUri", uri)
+      }
+      commit("updateFinger")
+    },
+    //--------------------------------------------
     /***
      * Reload whole page
      */
@@ -505,7 +530,7 @@ const _M = {
       params = {}
     } = {}) {
       state.LOG = () => { }
-      //state.LOG = console.log
+      state.LOG = console.log
       state.LOG(" # -> page.reload", { path, params, anchor })
       state.LOG(" == routerList == ", rootGetters.routerList)
       let roInfo;
@@ -517,7 +542,7 @@ const _M = {
           break
         }
       }
-      if(!roInfo) {
+      if (!roInfo) {
         throw `Fail to find route for "${path}"`
       }
       //.....................................

@@ -1,33 +1,33 @@
 {
   "className": null,
-  "title" : null,
-  "name"  : null,
-  "href"  : null,
-  "path"  : null,
+  "title": null,
+  "name": null,
+  "href": null,
+  "path": null,
   "pageUri": null,
-  "pageUriWithParams" : true,
-  "pageAnchorTo" : null,
-  "ready" : 0,
-  "finger" : null,
-  "params" : {},
-  "anchor" : null,
-  "apis" : {},
+  "pageUriWithParams": true,
+  "pageAnchorTo": null,
+  "ready": 0,
+  "finger": null,
+  "params": {},
+  "anchor": null,
+  "apis": {},
   "moduleNames": [],
-  "data" : {},
-  "gui" : {
-    "flex" : "nil",
-    "overflow" : "none"
+  "data": {},
+  "gui": {
+    "flex": "nil",
+    "overflow": "none"
   },
-  "activeElement" : null,
+  "activeElement": null,
   "contextMenu": true,
   "forbidCopy": false,
   "explainDataKey": [],
-  "layout" : {
-    "desktop" : {},
-    "tablet"  : "desktop",
-    "phone"   : "desktop"
+  "layout": {
+    "desktop": {},
+    "tablet": "desktop",
+    "phone": "desktop"
   },
-  "shown" : {},
-  "schema" : {},
-  "actions" : {}
+  "shown": {},
+  "schema": {},
+  "actions": {}
 }

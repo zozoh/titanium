@@ -53,13 +53,14 @@ class TiAnchorFilter {
 }
 //-----------------------------------
 class TiLinkObj {
-  constructor({ url, params, anchor } = {}) {
-    this.set({ url, params, anchor })
+  constructor({ url, params, anchor, ignoreNil } = {}) {
+    this.set({ url, params, anchor, ignoreNil })
   }
-  set({ url = "", params = {}, anchor } = {}) {
+  set({ url = "", params = {}, anchor, ignoreNil = false } = {}) {
     this.url = url
     this.params = params
     this.anchor = anchor
+    this.ignoreNil = ignoreNil
     this.__S = null
     return this
   }
@@ -71,6 +72,9 @@ class TiLinkObj {
       let ss = [this.url]
       let qs = []
       _.forEach(this.params, (val, key) => {
+        if (this.ignoreNil && Ti.Util.isNil(val)) {
+          return
+        }
         qs.push(`${key}=${val}`)
       })
       if (qs.length > 0) {
@@ -93,8 +97,8 @@ class TiLinkObj {
 //-----------------------------------
 const TiLink = {
   //---------------------------------
-  Link({ url, params, anchor } = {}) {
-    return new TiLinkObj({ url, params, anchor })
+  Link({ url, params, anchor, ignoreNil } = {}) {
+    return new TiLinkObj({ url, params, anchor, ignoreNil })
   },
   //---------------------------------
   AnchorFilter(input) {

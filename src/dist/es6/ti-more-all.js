@@ -1,4 +1,4 @@
-// Pack At: 2022-09-24 01:44:28
+// Pack At: 2022-09-25 04:30:44
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -4751,6 +4751,16 @@ const _M = {
       state.moduleNames = names
     },
     //--------------------------------------------
+    updateParams(state, { key, value } = {}) {
+      console.log("updateParams", { key, value })
+      // kay-value pair is required
+      if (!key || _.isUndefined(value)) {
+        return
+      }
+      let vobj = _.set({}, key, value)
+      state.params = _.assign({}, state.params, vobj)
+    },
+    //--------------------------------------------
     mergeParams(state, params) {
       if (!_.isEmpty(params) && _.isPlainObject(params)) {
         state.params = _.merge({}, state.params, params)
@@ -5177,6 +5187,21 @@ const _M = {
       commit("mergeData", data)
     },
     //--------------------------------------------
+    // update pageFinger and pageUri
+    changeFingerAndUri({ commit, state, rootState }) {
+      if (state.pageUriWithParams) {
+        let base = rootState.base
+        let link = Ti.Util.Link({
+          url: state.href,
+          params: state.params,
+          ignoreNil: true
+        })
+        let uri = Ti.Util.appendPath(base, link.toString())
+        commit("setPageUri", uri)
+      }
+      commit("updateFinger")
+    },
+    //--------------------------------------------
     /***
      * Reload whole page
      */
@@ -5186,7 +5211,7 @@ const _M = {
       params = {}
     } = {}) {
       state.LOG = () => { }
-      //state.LOG = console.log
+      state.LOG = console.log
       state.LOG(" # -> page.reload", { path, params, anchor })
       state.LOG(" == routerList == ", rootGetters.routerList)
       let roInfo;
@@ -5198,7 +5223,7 @@ const _M = {
           break
         }
       }
-      if(!roInfo) {
+      if (!roInfo) {
         throw `Fail to find route for "${path}"`
       }
       //.....................................
@@ -23456,7 +23481,6 @@ const _M = {
     if (!hasCurrent) {
       state.meta = null
       state.currentId = null
-      state.checkedIds = {}
     }
     // Update status
     state.status = _.assign({}, state.status, {
@@ -28541,7 +28565,7 @@ const LIST_MIXINS = {
       let curId = this.theCurrentId
       let index = this.myLastIndex
       let rowIndex = this.findRowIndexById(rowId)
-
+      console.log("checkRow", quiet)
       // Reset
       if (reset) {
         curId = null
@@ -32244,6 +32268,7 @@ const _M = {
   methods: {
     //--------------------------------------
     async OnSearchListSelect({ currentId, checkedIds, checked }) {
+      console.log("OnSearchListSelect", {checkedIds})
       await this.dispatch("selectMeta", { currentId, checkedIds })
       this.$notify("indicate", `${checked.length} items selected`)
     },
@@ -57236,9 +57261,9 @@ const _M = {
       return
     }
     state.LOG = () => { }
-    // if ("main" == state.moduleName) {
-    //   state.LOG = console.log
-    // }
+    if ("main" == state.moduleName) {
+      state.LOG = console.log
+    }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // If meta like : {path: "/path/to", quiet:true}
     let quiet = false
@@ -80700,7 +80725,7 @@ const _M = {
     //--------------------------------------------
     async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
       state.LOG = () => { }
-      state.LOG = console.log
+      //state.LOG = console.log
       state.LOG("site.reload", state.entry, state.base, state.lang)
       //---------------------------------------
       // Looking for the entry page
@@ -98529,36 +98554,36 @@ Ti.Preload("ti/lib/www/mod/auth/_mod.json", {
 //========================================
 Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "className": null,
-  "title" : null,
-  "name"  : null,
-  "href"  : null,
-  "path"  : null,
+  "title": null,
+  "name": null,
+  "href": null,
+  "path": null,
   "pageUri": null,
-  "pageUriWithParams" : true,
-  "pageAnchorTo" : null,
-  "ready" : 0,
-  "finger" : null,
-  "params" : {},
-  "anchor" : null,
-  "apis" : {},
+  "pageUriWithParams": true,
+  "pageAnchorTo": null,
+  "ready": 0,
+  "finger": null,
+  "params": {},
+  "anchor": null,
+  "apis": {},
   "moduleNames": [],
-  "data" : {},
-  "gui" : {
-    "flex" : "nil",
-    "overflow" : "none"
+  "data": {},
+  "gui": {
+    "flex": "nil",
+    "overflow": "none"
   },
-  "activeElement" : null,
+  "activeElement": null,
   "contextMenu": true,
   "forbidCopy": false,
   "explainDataKey": [],
-  "layout" : {
-    "desktop" : {},
-    "tablet"  : "desktop",
-    "phone"   : "desktop"
+  "layout": {
+    "desktop": {},
+    "tablet": "desktop",
+    "phone": "desktop"
   },
-  "shown" : {},
-  "schema" : {},
-  "actions" : {}
+  "shown": {},
+  "schema": {},
+  "actions": {}
 });
 //========================================
 // JOIN <www-mod-page.mjs> ti/lib/www/mod/page/www-mod-page.mjs

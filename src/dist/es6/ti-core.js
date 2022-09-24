@@ -1,4 +1,4 @@
-// Pack At: 2022-09-24 01:44:28
+// Pack At: 2022-09-25 04:30:44
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10717,13 +10717,14 @@ const {Util} = (function(){
     }
     //-----------------------------------
     class TiLinkObj {
-      constructor({ url, params, anchor } = {}) {
-        this.set({ url, params, anchor })
+      constructor({ url, params, anchor, ignoreNil } = {}) {
+        this.set({ url, params, anchor, ignoreNil })
       }
-      set({ url = "", params = {}, anchor } = {}) {
+      set({ url = "", params = {}, anchor, ignoreNil = false } = {}) {
         this.url = url
         this.params = params
         this.anchor = anchor
+        this.ignoreNil = ignoreNil
         this.__S = null
         return this
       }
@@ -10735,6 +10736,9 @@ const {Util} = (function(){
           let ss = [this.url]
           let qs = []
           _.forEach(this.params, (val, key) => {
+            if (this.ignoreNil && Ti.Util.isNil(val)) {
+              return
+            }
             qs.push(`${key}=${val}`)
           })
           if (qs.length > 0) {
@@ -10757,8 +10761,8 @@ const {Util} = (function(){
     //-----------------------------------
     const TiLink = {
       //---------------------------------
-      Link({ url, params, anchor } = {}) {
-        return new TiLinkObj({ url, params, anchor })
+      Link({ url, params, anchor, ignoreNil } = {}) {
+        return new TiLinkObj({ url, params, anchor, ignoreNil })
       },
       //---------------------------------
       AnchorFilter(input) {
@@ -18933,7 +18937,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220924.014428",
+  "version" : "1.6-20220925.043044",
   "dev" : false,
   "appName" : null,
   "session" : {},

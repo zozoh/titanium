@@ -55,6 +55,7 @@ const _M = {
   methods: {
     //--------------------------------------
     async OnSearchListSelect({ currentId, checkedIds, checked }) {
+      console.log("OnSearchListSelect", {checkedIds})
       await this.dispatch("selectMeta", { currentId, checkedIds })
       this.$notify("indicate", `${checked.length} items selected`)
     },

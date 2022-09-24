@@ -576,7 +576,7 @@ const _M = {
     //--------------------------------------------
     async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
       state.LOG = () => { }
-      state.LOG = console.log
+      //state.LOG = console.log
       state.LOG("site.reload", state.entry, state.base, state.lang)
       //---------------------------------------
       // Looking for the entry page

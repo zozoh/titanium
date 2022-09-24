@@ -171,7 +171,6 @@ const _M = {
     if (!hasCurrent) {
       state.meta = null
       state.currentId = null
-      state.checkedIds = {}
     }
     // Update status
     state.status = _.assign({}, state.status, {

@@ -84,9 +84,13 @@
   flex-direction: column;
 }
 //-------------------------------------------------------------
-@mixin font($fa: $f_nice, $sz: null, $lh: null, $ls: null) {
+@mixin font($fa: $f_nice, $sz: null, $lh: null, $ls: null, $fm: null) {
   @if $fa != null {
-    font-family: $fa;
+    @if $fm != null {
+      font-family: $fm, $fa;
+    } @else {
+      font-family: $fa;
+    }
   }
   @if $lh != null {
     line-height: $lh;
@@ -106,11 +110,11 @@
     }
   }
 }
-@mixin font-nice($sz: null, $lh: null, $ls: null) {
-  @include font($f_nice, $sz, $lh, $ls);
+@mixin font-nice($sz: null, $lh: null, $ls: null, $fm: null) {
+  @include font($f_nice, $sz, $lh, $ls, $fm);
 }
-@mixin font-fixed($sz: null, $lh: null, $ls: null) {
-  @include font($f_fixed, $sz, $lh, $ls);
+@mixin font-fixed($sz: null, $lh: null, $ls: null, $fm: null) {
+  @include font($f_fixed, $sz, $lh, $ls, $fm);
 }
 @mixin font-sizes($selector, $sizes: $body-font-sizes) {
   @each $key, $value in $screen-min-widths {
