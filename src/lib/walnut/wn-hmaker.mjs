@@ -335,7 +335,6 @@ const CSS_GROUPING = {
     "float",
     "overflow"],
   background: [
-    "color",
     "background-color",
     "background-image",
     "background-position-x",
