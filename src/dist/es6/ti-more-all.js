@@ -1,4 +1,4 @@
-// Pack At: 2022-09-25 04:30:44
+// Pack At: 2022-09-25 23:36:22
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8441,14 +8441,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
         let li = {
           key: it.key,
           index,
-          comConf: {
+          comType: it.comType || "TiDroplist",
+          comConf: _.assign({
             placeholder: it.placeholder,
             options: it.options,
             width: it.width,
             dropWidth: it.dropWidth,
             dropDisplay: it.dropDisplay,
+          }, it.comConf, {
             value
-          }
+          })
         }
         list.push(li)
       })
@@ -8501,6 +8503,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-------------------------------------
     OnMajorChange(val, it) {
+      if (_.isEmpty(val)) {
+        val = null
+      }
       let { index } = it
       this.myMajorValues[index] = val
       this.notifyFilterChange()
@@ -85813,9 +85818,11 @@ Ti.Preload("ti/com/ti/filterbar/ti-filterbar.html", `<div class="ti-filterbar" :
   <div
     v-if="hasMajors"
       class="filterbar-part as-majors">
-      <TiDroplist
+      <component
         v-for="it in MajorDropList"
+          :is="it.comType"
           :key="it.index"
+          class="as-major-item"
           v-bind="it.comConf"
           @change="OnMajorChange($event, it)"/>
   </div>

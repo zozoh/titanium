@@ -20,7 +20,7 @@
   > .as-majors {
     @include flex-align-nowrap;
     //-----------------------------------------
-    > .ti-droplist {
+    > .as-major-item {
       margin-right: $PP * 2;
     }
   }

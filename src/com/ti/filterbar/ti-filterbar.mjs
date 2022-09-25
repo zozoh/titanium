@@ -53,14 +53,16 @@ export default {
         let li = {
           key: it.key,
           index,
-          comConf: {
+          comType: it.comType || "TiDroplist",
+          comConf: _.assign({
             placeholder: it.placeholder,
             options: it.options,
             width: it.width,
             dropWidth: it.dropWidth,
             dropDisplay: it.dropDisplay,
+          }, it.comConf, {
             value
-          }
+          })
         }
         list.push(li)
       })
@@ -113,6 +115,9 @@ export default {
     },
     //-------------------------------------
     OnMajorChange(val, it) {
+      if (_.isEmpty(val)) {
+        val = null
+      }
       let { index } = it
       this.myMajorValues[index] = val
       this.notifyFilterChange()

@@ -5,9 +5,11 @@
   <div
     v-if="hasMajors"
       class="filterbar-part as-majors">
-      <TiDroplist
+      <component
         v-for="it in MajorDropList"
+          :is="it.comType"
           :key="it.index"
+          class="as-major-item"
           v-bind="it.comConf"
           @change="OnMajorChange($event, it)"/>
   </div>
