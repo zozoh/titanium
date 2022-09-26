@@ -4,38 +4,67 @@
   color: map-get($color-disable, c);
   width: 100%;
   height: 100%;
-  padding-bottom: 20%; 
-
   > .as-main {
     font-size: SZ(32);
     .as-icon {
       font-size: 5em;
-      padding: .1em;
+      padding: 0.1em;
     }
     .as-text {
       font-size: 1em;
-      text-align:center;
+      text-align: center;
     }
     .as-links {
-      padding: SZ(20); font-size: .8em;
+      padding: SZ(20);
+      font-size: 0.8em;
       .link-item a {
         @include flex-align;
         padding: SZ(10);
-        .link-icon {width: SZ(32);}
+        .link-icon {
+          width: SZ(32);
+        }
       }
     }
   }
 
-  &.is-big > .as-main {font-size: SZ(32);}
-  &.is-normal > .as-main {font-size: SZ(24);}
-  &.is-small > .as-main {font-size: SZ(18);}
+  &.is-big > .as-main {
+    font-size: SZ(32);
+  }
+  &.is-normal > .as-main {
+    font-size: SZ(24);
+  }
+  &.is-small > .as-main {
+    font-size: SZ(18);
+  }
+  &.is-tiny > .as-main {
+    font-size: SZ(14);
+    .as-icon {
+      font-size: 3em;
+    }
+  }
   //------------------------------------------
-  &.is-success {color: map-get($color-success, c);}
-  &.is-warn    {color: map-get($color-warn, c);}
-  &.is-info    {color: map-get($color-info, c);} 
-  &.is-error   {color: map-get($color-error, c);}
-  &.is-track   {color: map-get($color-track, c);}
-  &.is-disable {color: map-get($color-disable, c);}
-  &.is-text    {color: map-get($color-text, c);}
-  &.is-number  {color: map-get($color-number, c);}
+  &.is-success {
+    color: map-get($color-success, c);
+  }
+  &.is-warn {
+    color: map-get($color-warn, c);
+  }
+  &.is-info {
+    color: map-get($color-info, c);
+  }
+  &.is-error {
+    color: map-get($color-error, c);
+  }
+  &.is-track {
+    color: map-get($color-track, c);
+  }
+  &.is-disable {
+    color: map-get($color-disable, c);
+  }
+  &.is-text {
+    color: map-get($color-text, c);
+  }
+  &.is-number {
+    color: map-get($color-number, c);
+  }
 }

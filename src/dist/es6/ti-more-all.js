@@ -1,4 +1,4 @@
-// Pack At: 2022-09-25 23:42:42
+// Pack At: 2022-09-27 00:10:30
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -11698,7 +11698,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   doNothing() { },
   //--------------------------------------------
   async invoke(fnName, ...args) {
-    console.log("invoke ", fnName, args)
+    //console.log("invoke ", fnName, args)
     let fn = _.get(this.thingMethods, fnName)
     // Invoke the method
     if (_.isFunction(fn)) {
@@ -57266,9 +57266,9 @@ const _M = {
       return
     }
     state.LOG = () => { }
-    if ("main" == state.moduleName) {
-      state.LOG = console.log
-    }
+    // if ("main" == state.moduleName) {
+    //   state.LOG = console.log
+    // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // If meta like : {path: "/path/to", quiet:true}
     let quiet = false

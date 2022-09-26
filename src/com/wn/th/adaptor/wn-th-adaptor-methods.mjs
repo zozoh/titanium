@@ -3,7 +3,7 @@ export default {
   doNothing() { },
   //--------------------------------------------
   async invoke(fnName, ...args) {
-    console.log("invoke ", fnName, args)
+    //console.log("invoke ", fnName, args)
     let fn = _.get(this.thingMethods, fnName)
     // Invoke the method
     if (_.isFunction(fn)) {

@@ -50,6 +50,7 @@
     "@com:ti/slide/bar",
     "@com:ti/crumb",
     "@com:ti/loading",
+    "@com:ti/roadblock",
     "@com:ti/actionbar",
     "@com:ti/form",
     "@com:ti/obj/thumb",
