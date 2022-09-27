@@ -62,7 +62,17 @@ export default {
     //--------------------------------------------
     contentLoadPath(state, getters) {
       return _.get(getters, "contentLoadInfo.path")
-    }
+    },
+    //--------------------------------------------
+    hasCurrentMeta(state) {
+      return state.meta ? true : false
+    },
+    //--------------------------------------------
+    checkedItems(state) {
+      let ids = Ti.Util.getTruthyKeyInMap(state.checkedIds)
+      let list = _.filter(state.list, (li) => ids[li.id])
+      return list
+    },
     //--------------------------------------------
   },
   ////////////////////////////////////////////////

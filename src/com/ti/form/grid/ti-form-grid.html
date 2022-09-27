@@ -44,6 +44,7 @@
               v-bind="GridContainerConf"
               :fields="GridFormFields"
               :gridColumnCount="GridColumnCount"
+              @field:edit="OnToggleForceEditable"
               @field:change="OnFieldChange"/>
           </section>
           <!------------------------------------------>
@@ -75,6 +76,7 @@
                 v-bind="GridContainerConf"
                 :fields="grp.fields"
                 :gridColumnCount="grp.gridColumnCount"
+                @field:edit="OnToggleForceEditable"
                 @field:change="OnFieldChange"/>
               <!-------------------------------------->
           </section>
@@ -115,6 +117,7 @@
               v-bind="GridContainerConf"
               :fields="GridFormFields"
               :gridColumnCount="GridColumnCount"
+              @field:edit="OnToggleForceEditable"
               @field:change="OnFieldChange"/>
           </section>
           <!----------------------------------------->

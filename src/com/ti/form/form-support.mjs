@@ -18,12 +18,20 @@ const _M = {
     myFieldWhiteList: {},
     /*field black list*/
     myFieldBlackList: {},
+
+    /*auto conclude batch mode editable fields*/
+    myBatchEditableFields: {},
+    myForceEditableFields: {}
   }),
   //////////////////////////////////////////////////////
   computed: {
     //--------------------------------------------------
     isReadonly() {
       return Ti.Util.fallback(this.myReadonly, this.readonly, false)
+    },
+    //--------------------------------------------------
+    isBatchMode() {
+      return _.isArray(this.batchHint) && this.batchHint.length > 1
     },
     //--------------------------------------------------
     isIgnoreAutoReadonly() {
@@ -200,7 +208,6 @@ const _M = {
       let linkdedChanged = await this.applyLinkedFields({
         name, value, data
       });
-      this.myData = _.assign(data, linkdedChanged)
 
       //
       // Notify change immediately
@@ -225,6 +232,21 @@ const _M = {
           })
         }
       }
+      // Keep temp data
+      else {
+        this.myData = _.assign(data, linkdedChanged)
+      }
+    },
+    //--------------------------------------------------
+    async OnToggleForceEditable(fld) {
+      let ids = _.cloneDeep(this.myForceEditableFields)
+      if (ids[fld.uniqKey]) {
+        delete ids[fld.uniqKey]
+      } else {
+        ids[fld.uniqKey] = true
+      }
+      this.myForceEditableFields = ids
+      await this.evalFormFieldList()
     },
     //--------------------------------------------------
     //
@@ -273,7 +295,7 @@ const _M = {
       let list = []
       const __join_fields = function (fields = []) {
         for (let fld of fields) {
-          if ("Group" == fld.race) {
+          if ("Group" == fld.race || _.isArray(fld.fields)) {
             __join_fields(fld.fields)
           }
           // Join normal fields
@@ -508,6 +530,14 @@ const _M = {
         field.uniqKey = Ti.Util.anyKey(field.name)
         fmap[field.uniqKey] = field
 
+        // Batch mode, auto disabled the un-editable fields
+        if (this.isBatchMode && !field.disabled) {
+          if (false === this.myBatchEditableFields[field.uniqKey]) {
+            field.disabled = this.myForceEditableFields[field.uniqKey] ? false : true;
+            field.batchDisabled = true
+          }
+        }
+
         // Default
         if (!field.serializer) {
           let fnName = Ti.Types.getFuncByType(field.type || "String", "serializer")
@@ -688,11 +718,68 @@ const _M = {
     },
     //--------------------------------------------------
     tryEvalFormFieldList(newVal, oldVal) {
-      ////console.log("tryEvalFormFieldList")
+      //console.log("tryEvalFormFieldList")
       if (!_.isEqual(newVal, oldVal)) {
-        ////console.log("  !! do this.evalFormFieldList()")
+        //console.log("  !! do this.evalFormFieldList()")
+        this.evalBatchEditableFields()
         this.evalFormFieldList()
       }
+    },
+    //--------------------------------------------------
+    evalBatchEditableFields() {
+      // conclude each key hint
+      let editables = {}
+      let vals = {}    // Store the first appeared value
+      let keys = {}    // Key of obj is equal
+      if (this.isBatchMode) {
+        for (let it of this.batchHint) {
+          _.forEach(it, (v, k) => {
+            // Already no equals
+            if (false === keys[k]) {
+              return
+            }
+            // Test val
+            let v2 = vals[k]
+            if (_.isUndefined(v2)) {
+              vals[k] = v
+              keys[k] = true
+            }
+            // Test
+            else if (!_.isEqual(v, v2)) {
+              keys[k] = false
+            }
+          })
+        }
+        // Join flat fields
+        let fields = this.getFlattenFormFields(this.fields)
+        //console.log("batch", this.isBatchMode, { keys, vals })
+        // Update the batch editable fields
+        for (let fld of fields) {
+          // Ignore label
+          if (!fld.name) {
+            continue
+          }
+
+          let editable = true
+          // Compose keys
+          if (_.isArray(fld.name)) {
+            for (let fldName of fld.name) {
+              if (false === keys[fldName]) {
+                editable = false
+                break
+              }
+            }
+          }
+          // Simple key
+          else {
+            editable = false === keys[fld.name] ? false : true
+          }
+          let uniqKey = Ti.Util.anyKey(fld.name)
+          editables[uniqKey] = editable
+        }
+      }
+      //console.log("editables", editables)
+      this.myBatchEditableFields = editables
     }
     //--------------------------------------------------
   }

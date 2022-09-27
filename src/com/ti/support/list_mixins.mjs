@@ -452,10 +452,7 @@ const LIST_MIXINS = {
       return re
     },
     //-----------------------------------------------
-    getEmitContext(
-      currentId,
-      checkedIds = {}
-    ) {
+    getEmitContext(currentId, checkedIds = {}) {
       // Guard
       if (_.isArray(checkedIds)) {
         let idMap = {}
@@ -501,7 +498,7 @@ const LIST_MIXINS = {
       payload,
       autoCheckCurrent
     } = {}) {
-      //console.log("list_mixins:selectRow", rowId)
+      //console.log("list_mixins:selectRow", rowId, checkedIds)
       let idMap = {}
       let curId = null
       // Change the current & checked
@@ -587,7 +584,7 @@ const LIST_MIXINS = {
       let curId = this.theCurrentId
       let index = this.myLastIndex
       let rowIndex = this.findRowIndexById(rowId)
-      console.log("checkRow", quiet)
+      //console.log("checkRow", quiet)
       // Reset
       if (reset) {
         curId = null
@@ -793,8 +790,12 @@ const LIST_MIXINS = {
     //-----------------------------------------------
     syncCurrentId() {
       if (!this.puppetMode && this.theCurrentId != this.theCurrentRowId) {
-        //console.log("syncCurrentId", this.theCurrentRowId)
-        this.selectRow(this.theCurrentRowId, { quiet: true })
+        //console.log("syncCurrentId", this.theCurrentRowId, this.checkedIds)
+        this.selectRow(this.theCurrentRowId, {
+          quiet: true,
+          checkedIds: this.checkedIds,
+          autoCheckCurrent: false
+        })
       }
       // Just update the last
       else {

@@ -452,7 +452,8 @@ const _M = {
     },
     "myData": "tryEvalFormFieldList",
     "isReadonly": "tryEvalFormFieldList",
-    "myActivedFieldKey": "tryEvalFormFieldList"
+    "myActivedFieldKey": "tryEvalFormFieldList",
+    "batchHint": "tryEvalFormFieldList"
   },
   //////////////////////////////////////////////////////
   created: function () {
@@ -483,6 +484,7 @@ const _M = {
       this.OnResize()
     }, this.adjustDelay || 0)
     //...................................
+    this.evalBatchEditableFields()
     await this.evalFormFieldList()
   },
   ///////////////////////////////////////////////////

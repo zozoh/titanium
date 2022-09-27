@@ -39,6 +39,15 @@
                 v-if="fld.title"
                   class="field-text"
                   :style="fld.nameTextStyle">{{fld.title | i18n}}</div>
+              <!------Show enable switcher ------>
+              <div
+                v-if="fld.batchDisabled"
+                  class="field-editable">
+                  <div @click.left="$emit('field:edit', fld)">
+                    <i v-if="fld.disabled" class="zmdi zmdi-square-o"></i>
+                    <i v-else class="zmdi zmdi-check-square"></i>
+                  </div>
+              </div>
             </div>
             <!--------------------------------->
             <div
@@ -68,8 +77,17 @@
               :style="fld.tipStyle">{{fld.tip | i18n}}</div>
           <!------Show tip when Nil-name----->
           <div
-              v-if="fld.statusIcon && !(fld.icon || fld.title)"
-                class="field-status"><TiIcon :value="fld.statusIcon"/></div>
+            v-if="fld.statusIcon && !(fld.icon || fld.title)"
+              class="field-status"><TiIcon :value="fld.statusIcon"/></div>
+          <!------Show enable switcher ------>
+          <div
+            v-if="fld.batchDisabled  && !(fld.icon || fld.title)"
+              class="field-editable">
+              <div @click.left="$emit('field:edit', fld)">
+                <i v-if="fld.disabled" class="zmdi zmdi-square-o"></i>
+                <i v-else class="zmdi zmdi-check-square"></i>
+              </div>
+          </div>
           <!--------------------------------->
         </div>
         <!------------------------------------->

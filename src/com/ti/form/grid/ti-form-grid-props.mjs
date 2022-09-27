@@ -19,6 +19,11 @@ export default {
     type: Object,
     default: undefined
   },
+  // Batch fields hint
+  "batchHint": {
+    type: Array,
+    default: undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

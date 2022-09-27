@@ -300,6 +300,67 @@ const _M = {
     })
   },
   //--------------------------------------------
+  async batchUpdateCheckedItemsField({ state, commit, dispatch }, { name, value } = {}) {
+    state.LOG("batchUpdateCheckedItemsField", { name, value })
+
+    let uniqKey = Ti.Util.anyKey(name)
+    Wn.Util.setFieldStatusBeforeUpdate({ commit }, uniqKey)
+
+    let data = Ti.Types.toObjByPair({ name, value })
+    let reo = await dispatch("batchUpdateCheckedItems", data)
+
+    Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+  },
+  //--------------------------------------------
+  async batchUpdateCheckedItems({ state, commit, dispatch }, data = {}) {
+    state.LOG("batchUpdateCheckedItems", data)
+
+    if (!state.thingSetId) {
+      return await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
+    }
+
+    let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds)
+    if (_.isEmpty(ids)) {
+      return await Ti.Alert('i18n:nil-item')
+    }
+
+    let uniqKey = Ti.Util.anyKey(_.keys(data))
+
+    // Mark field status
+    Wn.Util.setFieldStatusBeforeUpdate({ commit }, uniqKey)
+    _.forEach(data, (_, name) => {
+      Wn.Util.setFieldStatusBeforeUpdate({ commit }, name)
+    })
+
+    // Do update
+    let json = JSON.stringify(data)
+    let th_set = state.thingSetId
+    let cmds = [`thing id:${th_set} update`]
+    for (let id of ids) {
+      cmds.push(id)
+    }
+    cmds.push("-fields -cqnl")
+    let cmdText = cmds.join(" ")
+    let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+
+    let isError = reo instanceof Error;
+
+    if (!isError && _.isArray(reo)) {
+      for (let it of reo) {
+        if (state.meta && state.meta.id == it.id) {
+          commit("setMeta", it)
+        }
+        commit("setListItem", it)
+      }
+    }
+
+    // Recover field status
+    Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+    _.forEach(data, (_, name) => {
+      Wn.Util.setFieldStatusAfterUpdate({ commit }, name, reo)
+    })
+  },
+  //--------------------------------------------
   async parseContentData({ state, commit, getters }) {
     try {
       let content = state.content

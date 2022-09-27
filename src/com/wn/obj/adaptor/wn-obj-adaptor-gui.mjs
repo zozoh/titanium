@@ -191,6 +191,8 @@ const _M = {
         //------------------------------
         viewType: this.viewType,
         exposeHidden: this.exposeHidden,
+        //------------------------------
+        ...this.getters
       }
     },
     //--------------------------------------

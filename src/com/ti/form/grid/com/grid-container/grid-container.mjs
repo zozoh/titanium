@@ -267,7 +267,8 @@ const _M = {
 
         // Value class
         fld.valueClass = Ti.Css.mergeClassName(fld.valueClass, {
-          "is-disabled": fld.disabled
+          "is-disabled": fld.disabled,
+          "is-batch-disabled": fld.batchDisabled
         })
 
         // Status

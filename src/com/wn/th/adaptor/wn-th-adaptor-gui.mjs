@@ -37,16 +37,14 @@ const _M = {
         //------------------------------
         viewType: this.viewType,
         exposeHidden: this.exposeHidden,
-        searchPageNumber: this.searchPageNumber,
-        searchPageSize: this.searchPageSize,
-        contentLoadPath: this.contentLoadPath,
-        hasCurrentMeta: this.hasCurrentMeta,
         //------------------------------
         // Adapte old thing set data model
         //------------------------------
         currentDataHome: this.dataHome,
         currentDataHomeObj: this.dataHomeObj,
-        currentDataDirName: this.dataDirName
+        currentDataDirName: this.dataDirName,
+        //------------------------------
+        ...this.getters
       }
     },
     //--------------------------------------

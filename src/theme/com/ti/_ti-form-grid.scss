@@ -97,6 +97,7 @@
     > section > .group-title {
       @include flex-align($ai: center, $ac: center);
       @include color($color-chip, r, c);
+      border-left: 4px solid map-get($color-primary, c);
     }
     //------------------------------------
     &[spacing="tiny"] {

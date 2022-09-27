@@ -94,7 +94,7 @@
         text-align: left;
       }
       .field-status {
-        right: 0;
+        right: SZ(-10);
       }
     }
     &[name-align="right"] {
@@ -103,7 +103,7 @@
         text-align: right;
       }
       .field-status {
-        left: 0;
+        left: SZ(-10);
       }
     }
     &[name-align="center"] {
@@ -151,6 +151,23 @@
         text-align: left;
         color: map-get($color-secondary, c);
       }
+      //--------------------------------
+      > .field-editable {
+        @include flex-center;
+        margin-left: SZ(2);
+        //------------------------------
+        > div {
+          @include flex-center;
+          cursor: pointer;
+          width: SZ(20);
+          height: SZ(20);
+          &:hover {
+            @include color($color-primary, r, c);
+          }
+        }
+        //------------------------------
+      }
+      //--------------------------------
     }
     //----------------------------------
     > .field-status {
@@ -159,6 +176,7 @@
       top: 0;
       bottom: 0;
       width: SZ(24);
+      //--------------------------------
     }
     //----------------------------------
   }
@@ -168,7 +186,11 @@
     position: relative;
     //----------------------------------
     &.is-disabled {
-      opacity: 0.6;
+      opacity: 0.2;
+      filter: grayscale(100%);
+      &.is-batch-disabled {
+        filter: grayscale(100%) blur(1px);
+      }
       //--------------------------------
       > .field-value-com {
         &::after {

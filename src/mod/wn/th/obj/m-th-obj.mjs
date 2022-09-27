@@ -81,7 +81,7 @@ export default {
       return state.meta && state.dataHome ? true : false
     },
     //--------------------------------------------
-    checkedItem(state) {
+    checkedItems(state) {
       let ids = Ti.Util.getTruthyKeyInMap(state.checkedIds)
       let list = _.filter(state.list, (li) => ids[li.id])
       return list
