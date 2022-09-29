@@ -1,48 +1,55 @@
 ////////////////////////////////////////////////
-async function TiConfirm(msg="", {
-  title, 
+async function TiConfirm(msg = "", {
+  title,
   icon,
   vars,
   closer = false,
-  type  = "info", 
+  type = "info",
   position = "center",
   textYes = "i18n:yes",
-  textNo  = "i18n:no",
-  width=480, height}={}){
+  textNo = "i18n:no",
+  width = 480, height } = {}) {
   //............................................
   let text = _.isEmpty(vars)
-               ? Ti.I18n.text(msg)
-               : Ti.I18n.textf(msg, vars);
-  let theIcon  = icon  || "zmdi-help"
+    ? Ti.I18n.text(msg)
+    : Ti.I18n.textf(msg, vars);
+  let theIcon = icon || "zmdi-help"
   let theTitle = title || "i18n:confirm"
   //............................................
   return await Ti.App.Open({
     //------------------------------------------
     type, width, height, position,
-    title   : theTitle,
+    title: theTitle,
     closer,
-    actions : [{
+    actions: [{
       text: textYes,
-      handler : ()=>true
+      handler: () => true
     }, {
       text: textNo,
-      handler : ()=>false
+      handler: () => false
     }],
     //------------------------------------------
-    comType : "modal-inner-body",
-    comConf : {icon:theIcon, text},
+    comType: "modal-inner-body",
+    comConf: { icon: theIcon, text },
     //------------------------------------------
-    components : {
-      name : "modal-inner-body",
-      globally : false,
-      props : {
-        "icon" : undefined, 
-        "text" : undefined
+    components: {
+      name: "modal-inner-body",
+      globally: false,
+      props: {
+        "icon": undefined,
+        "text": undefined
       },
-      template : `<div class="ti-msg-body as-confirm">
+      template: `<div class="ti-msg-body as-confirm">
         <div class="as-icon"><ti-icon :value="icon"/></div>
         <div class="as-text">{{text}}</div>
-      </div>`
+      </div>`,
+      methods: {
+        __ti_shortcut(uniqKey) {
+          if ("ENTER" == uniqKey) {
+            this.$notify("ok", true)
+          }
+        }
+      }
     }
     //------------------------------------------
   })

@@ -34,6 +34,13 @@ const _M = {
       return _.isArray(this.batchHint) && this.batchHint.length > 1
     },
     //--------------------------------------------------
+    isBatchReadonly() {
+      if (this.batchReadonly) {
+        return Ti.AutoMatch.parse(this.batchReadonly)
+      }
+      return () => false
+    },
+    //--------------------------------------------------
     isIgnoreAutoReadonly() {
       if (_.isFunction(this.ignoreAutoReadonly)) {
         return this.ignoreAutoReadonly
@@ -48,6 +55,9 @@ const _M = {
     },
     //--------------------------------------------------
     FormNotifyMode() {
+      if (this.isBatchMode && this.batchNotifyMode) {
+        return this.batchNotifyMode
+      }
       if ("auto" == this.notifyMode) {
         return this.isReadonly ? "none" : "immediate"
       }
@@ -514,17 +524,19 @@ const _M = {
       //............................................
       // For Normal Field
       else if (this.isNormal(fld)) {
+        let comType = grp.defaultComType || this.defaultComType || "TiLabel";
         let comConf = _.cloneDeep(grp.defaultComConf) || {}
         field = _.defaults(_.omit(fld, omitKeys), {
           race: "Normal",
           key: fldKey,
           isActived: this.myActivedFieldKey == fldKey,
           type: this.defaultFieldType || "String",
-          comType: grp.defaultComType || this.defaultComType || "TiLabel",
+          comType,
           comConf: {},
           disabled
         })
         _.defaults(field.comConf, comConf)
+        field.comType = Ti.S.toComType(field.comType)
 
         // The UniqKey of field
         field.uniqKey = Ti.Util.anyKey(field.name)
@@ -535,6 +547,9 @@ const _M = {
           if (false === this.myBatchEditableFields[field.uniqKey]) {
             field.disabled = this.myForceEditableFields[field.uniqKey] ? false : true;
             field.batchDisabled = true
+            if (_.isUndefined(field.batchReadonly)) {
+              field.batchReadonly = this.isBatchReadonly(field)
+            }
           }
         }
 
@@ -668,7 +683,6 @@ const _M = {
       let { name, display, comType, comConf } = field
       // Guard
       if (!display) {
-        comType = _.upperFirst(_.camelCase(comType))
         // Auto gen display
         if (this.autoReadonlyDisplay
           && this.isReadonly

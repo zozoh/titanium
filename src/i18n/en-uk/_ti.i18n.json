@@ -109,6 +109,7 @@
   "del-hard": "The selected item will be deleted directly. this operation is irrevocable. are you sure you want to continue?",
   "del-ing": "Deleting...",
   "del-none": "Please choose at least one item for deleting",
+  "del-not-empty-dir": "There are ${N} folders [${tip}] in your selected object that are not empty. Are you sure you want to delete them and their entire contents?",
   "dept-add": "Add Dept",
   "desktop": "Desktop",
   "detail": "Detail",

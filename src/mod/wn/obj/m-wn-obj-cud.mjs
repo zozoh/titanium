@@ -121,7 +121,7 @@ const _M = {
     let dirId = state.dirId
 
     // Mark reloading
-    commit("setStatus", { reloading: true })
+    commit("setStatus", { doing: true })
 
     // Do Create
     let cmdText = `o @create -p 'id:${dirId}' @json -cqn`;
@@ -141,7 +141,7 @@ const _M = {
     }
 
     // Mark reloading
-    commit("setStatus", { reloading: false })
+    commit("setStatus", { doing: false })
 
     // Return the new object
     return newMeta
@@ -151,7 +151,7 @@ const _M = {
   //               Rename
   //
   //--------------------------------------------
-  async doRename({ state, commit, dispatch }) {
+  async doRename({ state, commit }) {
     // Guard
     if (!state.meta) {
       return await Ti.Toast.Open('i18n:wn-rename-none', "warn")
@@ -197,31 +197,38 @@ const _M = {
     commit("setStatus", { renaming: true })
     commit("setItemStatus", itemStatus)
 
-    let newMeta = await Wn.Sys.exec2(
-      `o id:${it.id} @update 'nm:"${newName}"' @json -cqn`,
-      { as: "json" })
+    try {
+      let newMeta = await Wn.Sys.exec2(
+        `o id:${it.id} @update 'nm:"${newName}"' @json -cqn`,
+        { as: "json" })
 
-    // Error
-    if (newMeta instanceof Error) {
-      return await Ti.Toast.Open("i18n:wn-rename-fail", "error")
+      // Error
+      if (newMeta instanceof Error) {
+        return await Ti.Toast.Open("i18n:wn-rename-fail", "error")
+      }
+
+      // Replace the data
+      commit("setListItem", newMeta);
+      commit("setCurrentMeta");
     }
-
-    // Replace the data
-    commit("setListItem", newMeta);
-    commit("setCurrentMeta");
-
-    _.delay(async () => {
-      commit("setStatus", { renaming: false })
-      commit("clearItemStatus")
-    }, 500)
-
+    // Clean status
+    finally {
+      _.delay(async () => {
+        commit("setStatus", { renaming: false })
+        commit("clearItemStatus")
+      }, 500)
+    }
   },
   //--------------------------------------------
   //
   //               Delete
   //
   //--------------------------------------------
-  async removeChecked({ state, commit, dispatch, getters }, hard) {
+  async removeChecked({ state, commit, dispatch, getters }, {
+    hard, // hard remove or just move to recycleBin
+    confirm,  // A general warnning
+    warnNotEmpty = true  // If delete none-empty dir, warn it at first
+  } = {}) {
     // Guard
     if (!state.dirId) {
       throw 'removeChecked: State Has No dirId'
@@ -236,12 +243,51 @@ const _M = {
     // Config is hard
     hard = Ti.Util.fallback(hard, getters.isHardRemove, false)
 
+    // If confirm
+    if (confirm) {
+      if (!(await Ti.Confirm(confirm, {
+        type: "warn",
+        vars: { N: ids.length }
+      }))) {
+        return
+      }
+    }
+
+    // If contains dir
+    if (warnNotEmpty && getters.checkedItems) {
+      let notEmptyDirs = []
+      let notEmptyQuery = []
+      for (let it of getters.checkedItems) {
+        if ("DIR" == it.race) {
+          notEmptyQuery.push(Wn.Sys.exec2(`count id:${it.id}`).then(re => {
+            let n = parseInt(_.trim(re))
+            if (n > 0) {
+              notEmptyDirs.push(it)
+            }
+          }))
+        }
+      }
+      await Promise.all(notEmptyQuery)
+
+      if (!_.isEmpty(notEmptyDirs)) {
+        let N = notEmptyDirs.length
+        let tip = _.map(notEmptyDirs, dir => dir.title || dir.nm).join(", ")
+        if (!await Ti.Confirm("i18n:del-not-empty-dir", {
+          type: "warn",
+          vars: { N, tip }
+        })) {
+          return
+        }
+      }
+    }
+
     // If hard, warn at first
     if (hard || getters.isInRecycleBin) {
       if (!(await Ti.Confirm('i18n:del-hard'))) {
         return
       }
     }
+
 
     let itemStatus = {}
     _.forEach(ids, id => itemStatus[id] = "processing")
@@ -493,6 +539,73 @@ const _M = {
 
     return reo
   },
+  //--------------------------------------------
+  async batchUpdateCheckedItemsField({ state, commit, dispatch }, { name, value } = {}) {
+    state.LOG("batchUpdateCheckedItemsField", { name, value })
+
+    let uniqKey = Ti.Util.anyKey(name)
+    Wn.Util.setFieldStatusBeforeUpdate({ commit }, uniqKey)
+
+    let data = Ti.Types.toObjByPair({ name, value })
+    let reo = await dispatch("batchUpdateCheckedItems", data)
+
+    Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+  },
+  //--------------------------------------------
+  async batchUpdateCheckedItems({ state, commit, dispatch }, data = {}) {
+    state.LOG("batchUpdateCheckedItems", data)
+
+    if (!state.dirId) {
+      return await Ti.Alert('State Has No dirId', "warn")
+    }
+
+    let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds)
+    if (_.isEmpty(ids)) {
+      return await Ti.Alert('i18n:nil-item')
+    }
+
+    let uniqKey = Ti.Util.anyKey(_.keys(data))
+
+    // Mark field status
+    Wn.Util.setFieldStatusBeforeUpdate({ commit }, uniqKey)
+    _.forEach(data, (_, name) => {
+      Wn.Util.setFieldStatusBeforeUpdate({ commit }, name)
+    })
+
+    // Do update
+    let json = JSON.stringify(data)
+    let th_set = state.thingSetId
+    let cmds = [`o`]
+    for (let id of ids) {
+      cmds.push(`@get ${id}`)
+    }
+    cmds.push("@update @json -cqnl")
+    let cmdText = cmds.join(" ")
+    state.LOG("Batch Command:", json, ">", cmdText)
+    let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+    state.LOG("Batch Result", reo)
+
+    let isError = reo instanceof Error;
+
+    if (!isError && _.isArray(reo)) {
+      for (let it of reo) {
+        if (state.meta && state.meta.id == it.id) {
+          commit("setMeta", it)
+        }
+        commit("setListItem", it)
+      }
+    }
+
+    // Recover field status
+    Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+    _.forEach(data, (_, name) => {
+      Wn.Util.setFieldStatusAfterUpdate({ commit }, name, reo)
+    })
+  },
+  //--------------------------------------------
+  //
+  //  Content About
+  //
   //--------------------------------------------
   async parseContentData({ state, commit, getters }) {
     try {

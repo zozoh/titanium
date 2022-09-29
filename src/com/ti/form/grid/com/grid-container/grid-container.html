@@ -41,7 +41,7 @@
                   :style="fld.nameTextStyle">{{fld.title | i18n}}</div>
               <!------Show enable switcher ------>
               <div
-                v-if="fld.batchDisabled"
+                v-if="fld.batchDisabled && !fld.batchReadonly"
                   class="field-editable">
                   <div @click.left="$emit('field:edit', fld)">
                     <i v-if="fld.disabled" class="zmdi zmdi-square-o"></i>
@@ -82,7 +82,7 @@
           <!------Show enable switcher ------>
           <div
             v-if="fld.batchDisabled  && !(fld.icon || fld.title)"
-              class="field-editable">
+              class="field-editable && !fld.batchReadonly">
               <div @click.left="$emit('field:edit', fld)">
                 <i v-if="fld.disabled" class="zmdi zmdi-square-o"></i>
                 <i v-else class="zmdi zmdi-check-square"></i>

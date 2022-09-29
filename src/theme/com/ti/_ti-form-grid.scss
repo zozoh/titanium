@@ -137,13 +137,18 @@
       > .tab-head {
         @include flex-align-nowrap($ai: stretch);
         user-select: none;
+        position: relative;
         //--------------------------------
         .tab-head-item {
           @include flex-align-nowrap($jc: center);
-          @include border(1px, solid, shallow);
           @include color($color-track, c, r);
-          border-collapse: collapse;
+          @include border(1px, solid, shallow);
+          border-left-width: 0px;
           cursor: pointer;
+          //------------------------------
+          &:first-child {
+            border-left-width: 1px;
+          }
           //------------------------------
           &.is-current {
             @include color($color-primary, r, c);
@@ -154,7 +159,7 @@
         } // > .tab-head-item
         //--------------------------------
         &[spacing="tiny"] {
-          padding: SZ(2);
+          padding: SZ(8);
           .tab-head-item {
             padding: SZ(4) SZ(8);
             .tab-icon {
@@ -164,7 +169,7 @@
         }
         //--------------------------------
         &[spacing="comfy"] {
-          padding: SZ(6);
+          padding: SZ(12);
           .tab-head-item {
             padding: SZ(6) SZ(12);
             .tab-icon {
@@ -202,10 +207,18 @@
       &.tab-at-top > .tab-head {
         order: -1;
         @include border(1px, solid, shallow, bottom);
+        padding-bottom: 0;
+        > .tab-head-item {
+          border-bottom: 0;
+        }
       }
       &.tab-at-bottom > .tab-head {
         order: 1;
         @include border(1px, solid, shallow, top);
+        padding-top: 0;
+        > .tab-head-item {
+          border-top: 0;
+        }
       }
     }
     //------------------------------------

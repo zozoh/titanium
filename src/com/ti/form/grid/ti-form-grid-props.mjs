@@ -31,6 +31,9 @@ export default {
     type: Boolean,
     default: false
   },
+  "batchReadonly": {
+    type: [Function, Array, Object]
+  },
   // if call getData, which will return:
   // - `all` : all data will be taken and return
   // - `diff` : only changed field will be taken
@@ -57,6 +60,11 @@ export default {
     type: String,
     default: "auto",
     validator: v => /^(immediate|confirm|none|auto)$/.test(v)
+  },
+  "batchNotifyMode": {
+    type: String,
+    default: "confirm",
+    validator: v => /^(immediate|confirm|none)$/.test(v)
   },
   // If notifyMode=="immediate", when field change,
   // notify the data change 

@@ -5,14 +5,23 @@ const _M = {
   // Selection
   //
   //----------------------------------------
-  async selectMeta({ state, commit }, { currentId = null, checkedIds = {} } = {}) {
+  async selectMeta({ state, commit, dispatch, getters }, {
+    currentId = null, checkedIds = {}
+  } = {}) {
     state.LOG("selectMeta", currentId, checkedIds)
+    // If current is nil but we got the chekced 
+    // just pick one as the meta
+    if (!currentId && !_.isEmpty(checkedIds)) {
+      currentId = _.first(Ti.Util.truthyKeys(checkedIds))
+    }
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
+    // find <meta> by currentId from <list>
     commit("setCurrentMeta")
     // ? Load current content
-
-    // ? Load current data dir
+    if (getters.contentLoadPath) {
+      await dispatch("loadContent")
+    }
   },
   //----------------------------------------
   //

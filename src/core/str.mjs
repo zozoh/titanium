@@ -738,6 +738,9 @@ const TiStr = {
       start: (s) => _.startCase(s),
     })[mode]
   },
+  toComType(comType) {
+    return _.upperFirst(_.camelCase(comType))
+  },
   isValidCase(mode) {
     return _.isFunction(TiStr.getCaseFunc(mode))
   },

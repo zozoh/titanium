@@ -183,6 +183,9 @@ class OneTiApp {
     //......................................
     // Actived VM shortcut
     let vm = this.getActivedVm()
+    if (!vm) {
+      vm = this.$vm()
+    }
     if (vm) {
       let vmPath = vm.tiActivableComPath(false)
       for (let aVm of vmPath) {
@@ -316,7 +319,7 @@ class OneTiApp {
   // }
   async loadView(view, meta) {
     // [Optional] Load the module
-    const setupMod = (moConf, { modState, modSetup }={}) => {
+    const setupMod = (moConf, { modState, modSetup } = {}) => {
       //console.log("setup:", moConf)
       _.assign(moConf.state, modState)
       if (modSetup) {

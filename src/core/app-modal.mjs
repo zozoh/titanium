@@ -437,6 +437,14 @@ export class TiAppModal {
           this.ready(app)
         },
         //--------------------------------------
+        // Dispatch Events
+        //--------------------------------------
+        __ti_shortcut(uniqKey) {
+          if (this.$main && _.isFunction(this.$main.__ti_shortcut)) {
+            return this.$main.__ti_shortcut(uniqKey)
+          }
+        },
+        //--------------------------------------
         // Utility
         //--------------------------------------
         close(re) {

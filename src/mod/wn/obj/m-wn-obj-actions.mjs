@@ -258,9 +258,9 @@ const _M = {
       return
     }
     state.LOG = () => { }
-    // if ("main" == state.moduleName) {
-    //   state.LOG = console.log
-    // }
+    if ("main" == state.moduleName) {
+      state.LOG = console.log
+    }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // If meta like : {path: "/path/to", quiet:true}
     let quiet = false

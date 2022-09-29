@@ -66,9 +66,17 @@ const _M = {
   async selectMeta({ state, commit, dispatch, getters }, {
     currentId = null, checkedIds = {}
   } = {}) {
+    state.LOG("selectMeta", currentId, checkedIds)
+    // If current is nil but we got the chekced 
+    // just pick one as the meta
+    if (!currentId && !_.isEmpty(checkedIds)) {
+      currentId = _.first(Ti.Util.truthyKeys(checkedIds))
+    }
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
+    // find <meta> by currentId from <list>
     commit("setCurrentMeta")
+    // eval data home by <meta>
     commit("autoDataHome")
     // ? Load current content
     if (getters.contentLoadPath) {

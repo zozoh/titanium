@@ -46,12 +46,14 @@ export default {
       return {
         type: "rows",
         border: true,
-        blocks: [{
-          size: "37%",
-          body: "preview",
-        }, {
-          body: "form"
-        }]
+        blocks: [
+          {
+            size: "37%",
+            body: "preview",
+          }, {
+            body: "form"
+          }
+        ]
       }
     },
     //--------------------------------------
@@ -69,7 +71,7 @@ export default {
           comConf: {
             spacing: "comfy",
             mode: "tab",
-            tabAt: "bottom-left",
+            tabAt: "bottom-center",
             ... this.form,
             fields: this.myFormFields,
             fieldStatus: this.fieldStatus,

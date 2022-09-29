@@ -341,7 +341,9 @@ const _M = {
     }
     cmds.push("-fields -cqnl")
     let cmdText = cmds.join(" ")
+    state.LOG("Batch Command:", json, ">", cmdText)
     let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+    state.LOG("Batch Result", reo)
 
     let isError = reo instanceof Error;
 

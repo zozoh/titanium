@@ -1,46 +1,53 @@
-// Pack At: 2022-09-27 00:10:30
+// Pack At: 2022-09-29 16:18:12
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
   ////////////////////////////////////////////////
-  async function TiAlert(msg="", {
-    title, 
+  async function TiAlert(msg = "", {
+    title,
     icon,
-    type  = "track", 
+    type = "track",
     textOk = "i18n:ok",
     position = "center",
-    width=480, height,
-    vars={}}={}){
+    width = 480, height,
+    vars = {} } = {}) {
     //............................................
     let text = Ti.I18n.textf(msg, vars)
-    let theIcon  = icon  || Ti.Icons.get(type, "zmdi-info")
+    let theIcon = icon || Ti.Icons.get(type, "zmdi-info")
     let theTitle = title || Ti.I18n.get(type)
     //............................................
     return await Ti.App.Open({
       className: "is-alert in-top-z-index",
       //------------------------------------------
       type, width, height, position,
-      title   : theTitle,
-      closer  : false,
-      actions : [{
+      title: theTitle,
+      closer: false,
+      actions: [{
         text: textOk,
-        handler : ()=>true
+        handler: () => true
       }],
       //------------------------------------------
-      comType : "modal-inner-body",
-      comConf : {icon:theIcon, text},
+      comType: "modal-inner-body",
+      comConf: { icon: theIcon, text },
       //------------------------------------------
-      components : {
-        name : "modal-inner-body",
-        globally : false,
-        props : {
-          "icon" : undefined, 
-          "text" : undefined
+      components: {
+        name: "modal-inner-body",
+        globally: false,
+        props: {
+          "icon": undefined,
+          "text": undefined
         },
-        template : `<div class="ti-msg-body as-alert">
+        template: `<div class="ti-msg-body as-alert">
           <div class="as-icon"><ti-icon :value="icon"/></div>
           <div class="as-text">{{text}}</div>
-        </div>`
+        </div>`,
+        methods: {
+          __ti_shortcut(uniqKey) {
+            if ("ENTER" == uniqKey) {
+              this.$notify("ok")
+            }
+          }
+        }
       }
       //------------------------------------------
     })
@@ -53,50 +60,57 @@ const {Alert} = (function(){
 // # import {Confirm} from "./ti-confirm.mjs"
 const {Confirm} = (function(){
   ////////////////////////////////////////////////
-  async function TiConfirm(msg="", {
-    title, 
+  async function TiConfirm(msg = "", {
+    title,
     icon,
     vars,
     closer = false,
-    type  = "info", 
+    type = "info",
     position = "center",
     textYes = "i18n:yes",
-    textNo  = "i18n:no",
-    width=480, height}={}){
+    textNo = "i18n:no",
+    width = 480, height } = {}) {
     //............................................
     let text = _.isEmpty(vars)
-                 ? Ti.I18n.text(msg)
-                 : Ti.I18n.textf(msg, vars);
-    let theIcon  = icon  || "zmdi-help"
+      ? Ti.I18n.text(msg)
+      : Ti.I18n.textf(msg, vars);
+    let theIcon = icon || "zmdi-help"
     let theTitle = title || "i18n:confirm"
     //............................................
     return await Ti.App.Open({
       //------------------------------------------
       type, width, height, position,
-      title   : theTitle,
+      title: theTitle,
       closer,
-      actions : [{
+      actions: [{
         text: textYes,
-        handler : ()=>true
+        handler: () => true
       }, {
         text: textNo,
-        handler : ()=>false
+        handler: () => false
       }],
       //------------------------------------------
-      comType : "modal-inner-body",
-      comConf : {icon:theIcon, text},
+      comType: "modal-inner-body",
+      comConf: { icon: theIcon, text },
       //------------------------------------------
-      components : {
-        name : "modal-inner-body",
-        globally : false,
-        props : {
-          "icon" : undefined, 
-          "text" : undefined
+      components: {
+        name: "modal-inner-body",
+        globally: false,
+        props: {
+          "icon": undefined,
+          "text": undefined
         },
-        template : `<div class="ti-msg-body as-confirm">
+        template: `<div class="ti-msg-body as-confirm">
           <div class="as-icon"><ti-icon :value="icon"/></div>
           <div class="as-text">{{text}}</div>
-        </div>`
+        </div>`,
+        methods: {
+          __ti_shortcut(uniqKey) {
+            if ("ENTER" == uniqKey) {
+              this.$notify("ok", true)
+            }
+          }
+        }
       }
       //------------------------------------------
     })
@@ -1971,6 +1985,9 @@ const {S} = (function(){
         start: (s) => _.startCase(s),
       })[mode]
     },
+    toComType(comType) {
+      return _.upperFirst(_.camelCase(comType))
+    },
     isValidCase(mode) {
       return _.isFunction(TiStr.getCaseFunc(mode))
     },
@@ -3552,6 +3569,14 @@ const {App} = (function(){
               this.ready(app)
             },
             //--------------------------------------
+            // Dispatch Events
+            //--------------------------------------
+            __ti_shortcut(uniqKey) {
+              if (this.$main && _.isFunction(this.$main.__ti_shortcut)) {
+                return this.$main.__ti_shortcut(uniqKey)
+              }
+            },
+            //--------------------------------------
             // Utility
             //--------------------------------------
             close(re) {
@@ -3805,6 +3830,9 @@ const {App} = (function(){
       //......................................
       // Actived VM shortcut
       let vm = this.getActivedVm()
+      if (!vm) {
+        vm = this.$vm()
+      }
       if (vm) {
         let vmPath = vm.tiActivableComPath(false)
         for (let aVm of vmPath) {
@@ -3938,7 +3966,7 @@ const {App} = (function(){
     // }
     async loadView(view, meta) {
       // [Optional] Load the module
-      const setupMod = (moConf, { modState, modSetup }={}) => {
+      const setupMod = (moConf, { modState, modSetup } = {}) => {
         //console.log("setup:", moConf)
         _.assign(moConf.state, modState)
         if (modSetup) {
@@ -18937,7 +18965,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20220927.001030",
+  "version" : "1.6-20220929.161812",
   "dev" : false,
   "appName" : null,
   "session" : {},

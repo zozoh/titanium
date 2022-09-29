@@ -1,4 +1,4 @@
-// Pack At: 2022-09-27 00:10:30
+// Pack At: 2022-09-29 16:18:12
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -31,12 +31,27 @@ const _M = {
     myFieldWhiteList: {},
     /*field black list*/
     myFieldBlackList: {},
+
+    /*auto conclude batch mode editable fields*/
+    myBatchEditableFields: {},
+    myForceEditableFields: {}
   }),
   //////////////////////////////////////////////////////
   computed: {
     //--------------------------------------------------
     isReadonly() {
       return Ti.Util.fallback(this.myReadonly, this.readonly, false)
+    },
+    //--------------------------------------------------
+    isBatchMode() {
+      return _.isArray(this.batchHint) && this.batchHint.length > 1
+    },
+    //--------------------------------------------------
+    isBatchReadonly() {
+      if (this.batchReadonly) {
+        return Ti.AutoMatch.parse(this.batchReadonly)
+      }
+      return () => false
     },
     //--------------------------------------------------
     isIgnoreAutoReadonly() {
@@ -53,6 +68,9 @@ const _M = {
     },
     //--------------------------------------------------
     FormNotifyMode() {
+      if (this.isBatchMode && this.batchNotifyMode) {
+        return this.batchNotifyMode
+      }
       if ("auto" == this.notifyMode) {
         return this.isReadonly ? "none" : "immediate"
       }
@@ -213,7 +231,6 @@ const _M = {
       let linkdedChanged = await this.applyLinkedFields({
         name, value, data
       });
-      this.myData = _.assign(data, linkdedChanged)
 
       //
       // Notify change immediately
@@ -238,6 +255,21 @@ const _M = {
           })
         }
       }
+      // Keep temp data
+      else {
+        this.myData = _.assign(data, linkdedChanged)
+      }
+    },
+    //--------------------------------------------------
+    async OnToggleForceEditable(fld) {
+      let ids = _.cloneDeep(this.myForceEditableFields)
+      if (ids[fld.uniqKey]) {
+        delete ids[fld.uniqKey]
+      } else {
+        ids[fld.uniqKey] = true
+      }
+      this.myForceEditableFields = ids
+      await this.evalFormFieldList()
     },
     //--------------------------------------------------
     //
@@ -286,7 +318,7 @@ const _M = {
       let list = []
       const __join_fields = function (fields = []) {
         for (let fld of fields) {
-          if ("Group" == fld.race) {
+          if ("Group" == fld.race || _.isArray(fld.fields)) {
             __join_fields(fld.fields)
           }
           // Join normal fields
@@ -505,21 +537,34 @@ const _M = {
       //............................................
       // For Normal Field
       else if (this.isNormal(fld)) {
+        let comType = grp.defaultComType || this.defaultComType || "TiLabel";
         let comConf = _.cloneDeep(grp.defaultComConf) || {}
         field = _.defaults(_.omit(fld, omitKeys), {
           race: "Normal",
           key: fldKey,
           isActived: this.myActivedFieldKey == fldKey,
           type: this.defaultFieldType || "String",
-          comType: grp.defaultComType || this.defaultComType || "TiLabel",
+          comType,
           comConf: {},
           disabled
         })
         _.defaults(field.comConf, comConf)
+        field.comType = Ti.S.toComType(field.comType)
 
         // The UniqKey of field
         field.uniqKey = Ti.Util.anyKey(field.name)
         fmap[field.uniqKey] = field
+
+        // Batch mode, auto disabled the un-editable fields
+        if (this.isBatchMode && !field.disabled) {
+          if (false === this.myBatchEditableFields[field.uniqKey]) {
+            field.disabled = this.myForceEditableFields[field.uniqKey] ? false : true;
+            field.batchDisabled = true
+            if (_.isUndefined(field.batchReadonly)) {
+              field.batchReadonly = this.isBatchReadonly(field)
+            }
+          }
+        }
 
         // Default
         if (!field.serializer) {
@@ -651,7 +696,6 @@ const _M = {
       let { name, display, comType, comConf } = field
       // Guard
       if (!display) {
-        comType = _.upperFirst(_.camelCase(comType))
         // Auto gen display
         if (this.autoReadonlyDisplay
           && this.isReadonly
@@ -701,11 +745,68 @@ const _M = {
     },
     //--------------------------------------------------
     tryEvalFormFieldList(newVal, oldVal) {
-      ////console.log("tryEvalFormFieldList")
+      //console.log("tryEvalFormFieldList")
       if (!_.isEqual(newVal, oldVal)) {
-        ////console.log("  !! do this.evalFormFieldList()")
+        //console.log("  !! do this.evalFormFieldList()")
+        this.evalBatchEditableFields()
         this.evalFormFieldList()
       }
+    },
+    //--------------------------------------------------
+    evalBatchEditableFields() {
+      // conclude each key hint
+      let editables = {}
+      let vals = {}    // Store the first appeared value
+      let keys = {}    // Key of obj is equal
+      if (this.isBatchMode) {
+        for (let it of this.batchHint) {
+          _.forEach(it, (v, k) => {
+            // Already no equals
+            if (false === keys[k]) {
+              return
+            }
+            // Test val
+            let v2 = vals[k]
+            if (_.isUndefined(v2)) {
+              vals[k] = v
+              keys[k] = true
+            }
+            // Test
+            else if (!_.isEqual(v, v2)) {
+              keys[k] = false
+            }
+          })
+        }
+        // Join flat fields
+        let fields = this.getFlattenFormFields(this.fields)
+        //console.log("batch", this.isBatchMode, { keys, vals })
+        // Update the batch editable fields
+        for (let fld of fields) {
+          // Ignore label
+          if (!fld.name) {
+            continue
+          }
+
+          let editable = true
+          // Compose keys
+          if (_.isArray(fld.name)) {
+            for (let fldName of fld.name) {
+              if (false === keys[fldName]) {
+                editable = false
+                break
+              }
+            }
+          }
+          // Simple key
+          else {
+            editable = false === keys[fld.name] ? false : true
+          }
+          let uniqKey = Ti.Util.anyKey(fld.name)
+          editables[uniqKey] = editable
+        }
+      }
+      //console.log("editables", editables)
+      this.myBatchEditableFields = editables
     }
     //--------------------------------------------------
   }
@@ -758,14 +859,23 @@ const _M = {
   // Selection
   //
   //----------------------------------------
-  async selectMeta({ state, commit }, { currentId = null, checkedIds = {} } = {}) {
+  async selectMeta({ state, commit, dispatch, getters }, {
+    currentId = null, checkedIds = {}
+  } = {}) {
     state.LOG("selectMeta", currentId, checkedIds)
+    // If current is nil but we got the chekced 
+    // just pick one as the meta
+    if (!currentId && !_.isEmpty(checkedIds)) {
+      currentId = _.first(Ti.Util.truthyKeys(checkedIds))
+    }
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
+    // find <meta> by currentId from <list>
     commit("setCurrentMeta")
     // ? Load current content
-
-    // ? Load current data dir
+    if (getters.contentLoadPath) {
+      await dispatch("loadContent")
+    }
   },
   //----------------------------------------
   //
@@ -7748,7 +7858,7 @@ const _M = {
     let dirId = state.dirId
 
     // Mark reloading
-    commit("setStatus", { reloading: true })
+    commit("setStatus", { doing: true })
 
     // Do Create
     let cmdText = `o @create -p 'id:${dirId}' @json -cqn`;
@@ -7768,7 +7878,7 @@ const _M = {
     }
 
     // Mark reloading
-    commit("setStatus", { reloading: false })
+    commit("setStatus", { doing: false })
 
     // Return the new object
     return newMeta
@@ -7778,7 +7888,7 @@ const _M = {
   //               Rename
   //
   //--------------------------------------------
-  async doRename({ state, commit, dispatch }) {
+  async doRename({ state, commit }) {
     // Guard
     if (!state.meta) {
       return await Ti.Toast.Open('i18n:wn-rename-none', "warn")
@@ -7824,31 +7934,38 @@ const _M = {
     commit("setStatus", { renaming: true })
     commit("setItemStatus", itemStatus)
 
-    let newMeta = await Wn.Sys.exec2(
-      `o id:${it.id} @update 'nm:"${newName}"' @json -cqn`,
-      { as: "json" })
+    try {
+      let newMeta = await Wn.Sys.exec2(
+        `o id:${it.id} @update 'nm:"${newName}"' @json -cqn`,
+        { as: "json" })
 
-    // Error
-    if (newMeta instanceof Error) {
-      return await Ti.Toast.Open("i18n:wn-rename-fail", "error")
+      // Error
+      if (newMeta instanceof Error) {
+        return await Ti.Toast.Open("i18n:wn-rename-fail", "error")
+      }
+
+      // Replace the data
+      commit("setListItem", newMeta);
+      commit("setCurrentMeta");
     }
-
-    // Replace the data
-    commit("setListItem", newMeta);
-    commit("setCurrentMeta");
-
-    _.delay(async () => {
-      commit("setStatus", { renaming: false })
-      commit("clearItemStatus")
-    }, 500)
-
+    // Clean status
+    finally {
+      _.delay(async () => {
+        commit("setStatus", { renaming: false })
+        commit("clearItemStatus")
+      }, 500)
+    }
   },
   //--------------------------------------------
   //
   //               Delete
   //
   //--------------------------------------------
-  async removeChecked({ state, commit, dispatch, getters }, hard) {
+  async removeChecked({ state, commit, dispatch, getters }, {
+    hard, // hard remove or just move to recycleBin
+    confirm,  // A general warnning
+    warnNotEmpty = true  // If delete none-empty dir, warn it at first
+  } = {}) {
     // Guard
     if (!state.dirId) {
       throw 'removeChecked: State Has No dirId'
@@ -7863,12 +7980,51 @@ const _M = {
     // Config is hard
     hard = Ti.Util.fallback(hard, getters.isHardRemove, false)
 
+    // If confirm
+    if (confirm) {
+      if (!(await Ti.Confirm(confirm, {
+        type: "warn",
+        vars: { N: ids.length }
+      }))) {
+        return
+      }
+    }
+
+    // If contains dir
+    if (warnNotEmpty && getters.checkedItems) {
+      let notEmptyDirs = []
+      let notEmptyQuery = []
+      for (let it of getters.checkedItems) {
+        if ("DIR" == it.race) {
+          notEmptyQuery.push(Wn.Sys.exec2(`count id:${it.id}`).then(re => {
+            let n = parseInt(_.trim(re))
+            if (n > 0) {
+              notEmptyDirs.push(it)
+            }
+          }))
+        }
+      }
+      await Promise.all(notEmptyQuery)
+
+      if (!_.isEmpty(notEmptyDirs)) {
+        let N = notEmptyDirs.length
+        let tip = _.map(notEmptyDirs, dir => dir.title || dir.nm).join(", ")
+        if (!await Ti.Confirm("i18n:del-not-empty-dir", {
+          type: "warn",
+          vars: { N, tip }
+        })) {
+          return
+        }
+      }
+    }
+
     // If hard, warn at first
     if (hard || getters.isInRecycleBin) {
       if (!(await Ti.Confirm('i18n:del-hard'))) {
         return
       }
     }
+
 
     let itemStatus = {}
     _.forEach(ids, id => itemStatus[id] = "processing")
@@ -8120,6 +8276,73 @@ const _M = {
 
     return reo
   },
+  //--------------------------------------------
+  async batchUpdateCheckedItemsField({ state, commit, dispatch }, { name, value } = {}) {
+    state.LOG("batchUpdateCheckedItemsField", { name, value })
+
+    let uniqKey = Ti.Util.anyKey(name)
+    Wn.Util.setFieldStatusBeforeUpdate({ commit }, uniqKey)
+
+    let data = Ti.Types.toObjByPair({ name, value })
+    let reo = await dispatch("batchUpdateCheckedItems", data)
+
+    Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+  },
+  //--------------------------------------------
+  async batchUpdateCheckedItems({ state, commit, dispatch }, data = {}) {
+    state.LOG("batchUpdateCheckedItems", data)
+
+    if (!state.dirId) {
+      return await Ti.Alert('State Has No dirId', "warn")
+    }
+
+    let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds)
+    if (_.isEmpty(ids)) {
+      return await Ti.Alert('i18n:nil-item')
+    }
+
+    let uniqKey = Ti.Util.anyKey(_.keys(data))
+
+    // Mark field status
+    Wn.Util.setFieldStatusBeforeUpdate({ commit }, uniqKey)
+    _.forEach(data, (_, name) => {
+      Wn.Util.setFieldStatusBeforeUpdate({ commit }, name)
+    })
+
+    // Do update
+    let json = JSON.stringify(data)
+    let th_set = state.thingSetId
+    let cmds = [`o`]
+    for (let id of ids) {
+      cmds.push(`@get ${id}`)
+    }
+    cmds.push("@update @json -cqnl")
+    let cmdText = cmds.join(" ")
+    state.LOG("Batch Command:", json, ">", cmdText)
+    let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+    state.LOG("Batch Result", reo)
+
+    let isError = reo instanceof Error;
+
+    if (!isError && _.isArray(reo)) {
+      for (let it of reo) {
+        if (state.meta && state.meta.id == it.id) {
+          commit("setMeta", it)
+        }
+        commit("setListItem", it)
+      }
+    }
+
+    // Recover field status
+    Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+    _.forEach(data, (_, name) => {
+      Wn.Util.setFieldStatusAfterUpdate({ commit }, name, reo)
+    })
+  },
+  //--------------------------------------------
+  //
+  //  Content About
+  //
   //--------------------------------------------
   async parseContentData({ state, commit, getters }) {
     try {
@@ -10032,12 +10255,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return {
         type: "rows",
         border: true,
-        blocks: [{
-          size: "37%",
-          body: "preview",
-        }, {
-          body: "form"
-        }]
+        blocks: [
+          {
+            size: "37%",
+            body: "preview",
+          }, {
+            body: "form"
+          }
+        ]
       }
     },
     //--------------------------------------
@@ -10055,7 +10280,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           comConf: {
             spacing: "comfy",
             mode: "tab",
-            tabAt: "bottom-left",
+            tabAt: "bottom-center",
             ... this.form,
             fields: this.myFormFields,
             fieldStatus: this.fieldStatus,
@@ -11915,8 +12140,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
               }
               // Join pager
               else if ("current" == this.value.page) {
-                let limit = vm.searchPageSize || 1000
-                let skip = Math.max(vm.searchPageSize * (vm.searchPageNumber - 1), 0)
+                let limit = vm.getters.searchPageSize || 1000
+                let skip = Math.max(limit * (vm.getters.searchPageNumber - 1), 0)
                 cmds.push(`-limit ${limit}`)
                 cmds.push(`-skip  ${skip}`)
               }
@@ -12070,16 +12295,14 @@ const _M = {
         //------------------------------
         viewType: this.viewType,
         exposeHidden: this.exposeHidden,
-        searchPageNumber: this.searchPageNumber,
-        searchPageSize: this.searchPageSize,
-        contentLoadPath: this.contentLoadPath,
-        hasCurrentMeta: this.hasCurrentMeta,
         //------------------------------
         // Adapte old thing set data model
         //------------------------------
         currentDataHome: this.dataHome,
         currentDataHomeObj: this.dataHomeObj,
-        currentDataDirName: this.dataDirName
+        currentDataDirName: this.dataDirName,
+        //------------------------------
+        ...this.getters
       }
     },
     //--------------------------------------
@@ -12280,9 +12503,17 @@ const _M = {
   async selectMeta({ state, commit, dispatch, getters }, {
     currentId = null, checkedIds = {}
   } = {}) {
+    state.LOG("selectMeta", currentId, checkedIds)
+    // If current is nil but we got the chekced 
+    // just pick one as the meta
+    if (!currentId && !_.isEmpty(checkedIds)) {
+      currentId = _.first(Ti.Util.truthyKeys(checkedIds))
+    }
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
+    // find <meta> by currentId from <list>
     commit("setCurrentMeta")
+    // eval data home by <meta>
     commit("autoDataHome")
     // ? Load current content
     if (getters.contentLoadPath) {
@@ -13250,12 +13481,27 @@ const _M = {
     myFieldWhiteList: {},
     /*field black list*/
     myFieldBlackList: {},
+
+    /*auto conclude batch mode editable fields*/
+    myBatchEditableFields: {},
+    myForceEditableFields: {}
   }),
   //////////////////////////////////////////////////////
   computed: {
     //--------------------------------------------------
     isReadonly() {
       return Ti.Util.fallback(this.myReadonly, this.readonly, false)
+    },
+    //--------------------------------------------------
+    isBatchMode() {
+      return _.isArray(this.batchHint) && this.batchHint.length > 1
+    },
+    //--------------------------------------------------
+    isBatchReadonly() {
+      if (this.batchReadonly) {
+        return Ti.AutoMatch.parse(this.batchReadonly)
+      }
+      return () => false
     },
     //--------------------------------------------------
     isIgnoreAutoReadonly() {
@@ -13272,6 +13518,9 @@ const _M = {
     },
     //--------------------------------------------------
     FormNotifyMode() {
+      if (this.isBatchMode && this.batchNotifyMode) {
+        return this.batchNotifyMode
+      }
       if ("auto" == this.notifyMode) {
         return this.isReadonly ? "none" : "immediate"
       }
@@ -13432,7 +13681,6 @@ const _M = {
       let linkdedChanged = await this.applyLinkedFields({
         name, value, data
       });
-      this.myData = _.assign(data, linkdedChanged)
 
       //
       // Notify change immediately
@@ -13457,6 +13705,21 @@ const _M = {
           })
         }
       }
+      // Keep temp data
+      else {
+        this.myData = _.assign(data, linkdedChanged)
+      }
+    },
+    //--------------------------------------------------
+    async OnToggleForceEditable(fld) {
+      let ids = _.cloneDeep(this.myForceEditableFields)
+      if (ids[fld.uniqKey]) {
+        delete ids[fld.uniqKey]
+      } else {
+        ids[fld.uniqKey] = true
+      }
+      this.myForceEditableFields = ids
+      await this.evalFormFieldList()
     },
     //--------------------------------------------------
     //
@@ -13505,7 +13768,7 @@ const _M = {
       let list = []
       const __join_fields = function (fields = []) {
         for (let fld of fields) {
-          if ("Group" == fld.race) {
+          if ("Group" == fld.race || _.isArray(fld.fields)) {
             __join_fields(fld.fields)
           }
           // Join normal fields
@@ -13724,21 +13987,34 @@ const _M = {
       //............................................
       // For Normal Field
       else if (this.isNormal(fld)) {
+        let comType = grp.defaultComType || this.defaultComType || "TiLabel";
         let comConf = _.cloneDeep(grp.defaultComConf) || {}
         field = _.defaults(_.omit(fld, omitKeys), {
           race: "Normal",
           key: fldKey,
           isActived: this.myActivedFieldKey == fldKey,
           type: this.defaultFieldType || "String",
-          comType: grp.defaultComType || this.defaultComType || "TiLabel",
+          comType,
           comConf: {},
           disabled
         })
         _.defaults(field.comConf, comConf)
+        field.comType = Ti.S.toComType(field.comType)
 
         // The UniqKey of field
         field.uniqKey = Ti.Util.anyKey(field.name)
         fmap[field.uniqKey] = field
+
+        // Batch mode, auto disabled the un-editable fields
+        if (this.isBatchMode && !field.disabled) {
+          if (false === this.myBatchEditableFields[field.uniqKey]) {
+            field.disabled = this.myForceEditableFields[field.uniqKey] ? false : true;
+            field.batchDisabled = true
+            if (_.isUndefined(field.batchReadonly)) {
+              field.batchReadonly = this.isBatchReadonly(field)
+            }
+          }
+        }
 
         // Default
         if (!field.serializer) {
@@ -13870,7 +14146,6 @@ const _M = {
       let { name, display, comType, comConf } = field
       // Guard
       if (!display) {
-        comType = _.upperFirst(_.camelCase(comType))
         // Auto gen display
         if (this.autoReadonlyDisplay
           && this.isReadonly
@@ -13920,11 +14195,68 @@ const _M = {
     },
     //--------------------------------------------------
     tryEvalFormFieldList(newVal, oldVal) {
-      ////console.log("tryEvalFormFieldList")
+      //console.log("tryEvalFormFieldList")
       if (!_.isEqual(newVal, oldVal)) {
-        ////console.log("  !! do this.evalFormFieldList()")
+        //console.log("  !! do this.evalFormFieldList()")
+        this.evalBatchEditableFields()
         this.evalFormFieldList()
       }
+    },
+    //--------------------------------------------------
+    evalBatchEditableFields() {
+      // conclude each key hint
+      let editables = {}
+      let vals = {}    // Store the first appeared value
+      let keys = {}    // Key of obj is equal
+      if (this.isBatchMode) {
+        for (let it of this.batchHint) {
+          _.forEach(it, (v, k) => {
+            // Already no equals
+            if (false === keys[k]) {
+              return
+            }
+            // Test val
+            let v2 = vals[k]
+            if (_.isUndefined(v2)) {
+              vals[k] = v
+              keys[k] = true
+            }
+            // Test
+            else if (!_.isEqual(v, v2)) {
+              keys[k] = false
+            }
+          })
+        }
+        // Join flat fields
+        let fields = this.getFlattenFormFields(this.fields)
+        //console.log("batch", this.isBatchMode, { keys, vals })
+        // Update the batch editable fields
+        for (let fld of fields) {
+          // Ignore label
+          if (!fld.name) {
+            continue
+          }
+
+          let editable = true
+          // Compose keys
+          if (_.isArray(fld.name)) {
+            for (let fldName of fld.name) {
+              if (false === keys[fldName]) {
+                editable = false
+                break
+              }
+            }
+          }
+          // Simple key
+          else {
+            editable = false === keys[fld.name] ? false : true
+          }
+          let uniqKey = Ti.Util.anyKey(fld.name)
+          editables[uniqKey] = editable
+        }
+      }
+      //console.log("editables", editables)
+      this.myBatchEditableFields = editables
     }
     //--------------------------------------------------
   }
@@ -16793,7 +17125,8 @@ const _M = {
 
         // Value class
         fld.valueClass = Ti.Css.mergeClassName(fld.valueClass, {
-          "is-disabled": fld.disabled
+          "is-disabled": fld.disabled,
+          "is-batch-disabled": fld.batchDisabled
         })
 
         // Status
@@ -22166,7 +22499,8 @@ const _M = {
     },
     "myData": "tryEvalFormFieldList",
     "isReadonly": "tryEvalFormFieldList",
-    "myActivedFieldKey": "tryEvalFormFieldList"
+    "myActivedFieldKey": "tryEvalFormFieldList",
+    "batchHint": "tryEvalFormFieldList"
   },
   //////////////////////////////////////////////////////
   created: function () {
@@ -22197,6 +22531,7 @@ const _M = {
       this.OnResize()
     }, this.adjustDelay || 0)
     //...................................
+    this.evalBatchEditableFields()
     await this.evalFormFieldList()
   },
   ///////////////////////////////////////////////////
@@ -25318,6 +25653,69 @@ const _M = {
     })
   },
   //--------------------------------------------
+  async batchUpdateCheckedItemsField({ state, commit, dispatch }, { name, value } = {}) {
+    state.LOG("batchUpdateCheckedItemsField", { name, value })
+
+    let uniqKey = Ti.Util.anyKey(name)
+    Wn.Util.setFieldStatusBeforeUpdate({ commit }, uniqKey)
+
+    let data = Ti.Types.toObjByPair({ name, value })
+    let reo = await dispatch("batchUpdateCheckedItems", data)
+
+    Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+  },
+  //--------------------------------------------
+  async batchUpdateCheckedItems({ state, commit, dispatch }, data = {}) {
+    state.LOG("batchUpdateCheckedItems", data)
+
+    if (!state.thingSetId) {
+      return await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
+    }
+
+    let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds)
+    if (_.isEmpty(ids)) {
+      return await Ti.Alert('i18n:nil-item')
+    }
+
+    let uniqKey = Ti.Util.anyKey(_.keys(data))
+
+    // Mark field status
+    Wn.Util.setFieldStatusBeforeUpdate({ commit }, uniqKey)
+    _.forEach(data, (_, name) => {
+      Wn.Util.setFieldStatusBeforeUpdate({ commit }, name)
+    })
+
+    // Do update
+    let json = JSON.stringify(data)
+    let th_set = state.thingSetId
+    let cmds = [`thing id:${th_set} update`]
+    for (let id of ids) {
+      cmds.push(id)
+    }
+    cmds.push("-fields -cqnl")
+    let cmdText = cmds.join(" ")
+    state.LOG("Batch Command:", json, ">", cmdText)
+    let reo = await Wn.Sys.exec2(cmdText, { input: json, as: "json" })
+    state.LOG("Batch Result", reo)
+
+    let isError = reo instanceof Error;
+
+    if (!isError && _.isArray(reo)) {
+      for (let it of reo) {
+        if (state.meta && state.meta.id == it.id) {
+          commit("setMeta", it)
+        }
+        commit("setListItem", it)
+      }
+    }
+
+    // Recover field status
+    Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+    _.forEach(data, (_, name) => {
+      Wn.Util.setFieldStatusAfterUpdate({ commit }, name, reo)
+    })
+  },
+  //--------------------------------------------
   async parseContentData({ state, commit, getters }) {
     try {
       let content = state.content
@@ -27753,15 +28151,15 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/switcher/ti-switcher.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////////////////
-  data : ()=>({
-    loading : false,
-    myOptionsData : [],
-    myValueMap  : {},
-    myLastIndex : 0,
-    myFocusIndex : -1
+  data: () => ({
+    loading: false,
+    myOptionsData: [],
+    myValueMap: {},
+    myLastIndex: 0,
+    myFocusIndex: -1
   }),
   /////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //-------------------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -27769,25 +28167,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-------------------------------------------------
     Dict() {
       // Customized
-      if(this.options instanceof Ti.Dict) {
+      if (this.options instanceof Ti.Dict) {
         return this.options
       }
       // Refer dict
-      if(_.isString(this.options)) {
+      if (_.isString(this.options)) {
         let dictName = Ti.DictFactory.DictReferName(this.options)
-        if(dictName) {
-          return Ti.DictFactory.CheckDict(dictName, ({loading}) => {
+        if (dictName) {
+          return Ti.DictFactory.CheckDict(dictName, ({ loading }) => {
             this.loading = loading
           })
         }
       }
       return Ti.DictFactory.GetOrCreate({
-        data : this.options,
-        getValue : Ti.Util.genGetter(this.valueBy || "value"),
-        getText  : Ti.Util.genGetter(this.textBy  || "text|name"),
-        getIcon  : Ti.Util.genGetter(this.iconBy  || "icon")
+        data: this.options,
+        getValue: Ti.Util.genGetter(this.valueBy || "value"),
+        getText: Ti.Util.genGetter(this.textBy || "text|name"),
+        getIcon: Ti.Util.genGetter(this.iconBy || "icon")
       }, {
-        hooks: ({loading}) => this.loading = loading
+        hooks: ({ loading }) => this.loading = loading
       })
     },
     //-------------------------------------------------
@@ -27796,50 +28194,48 @@ const __TI_MOD_EXPORT_VAR_NM = {
         let itV = this.Dict.getValue(it)
         return {
           index,
-          className : {
-            "is-selected" : this.myValueMap[itV],
-            "is-focused"  : index == this.myFocusIndex
+          className: {
+            "is-selected": this.myValueMap[itV],
+            "is-focused": index == this.myFocusIndex
           },
-          text  : this.Dict.getText(it),
-          value : itV,
-          icon  : this.Dict.getIcon(it) || this.defaultIcon
+          text: this.Dict.getText(it),
+          value: itV,
+          icon: this.Dict.getIcon(it) || this.defaultIcon
         }
       })
     }
     //-------------------------------------------------
   },
   /////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //-------------------------------------------------
-    OnClickItem({value, index}, $event) {
-      if(this.readonly)
+    OnClickItem({ value, index }, $event) {
+      if (this.readonly)
         return
       let toggle = ($event.ctrlKey || $event.metaKey || this.autoToggle)
-      let shift  = $event.shiftKey;
+      let shift = $event.shiftKey;
       // Multi + Shift Mode
-      if(shift && this.multi) {
+      if (shift && this.multi) {
         this.selectItemsToCurrent(value, index)
       }
       // Multi + Toggle Mode
-      else if(toggle && this.multi) {
+      else if (toggle && this.multi) {
         this.toggleItem(value)
       }
       // Toggle Mode
-      else if(this.allowEmpty) {
+      else if (this.allowEmpty) {
         this.toggleItem(value)
       }
       // Single Mode
       else {
-        this.myValueMap = {[value]:true}
+        this.tryNotifyChanged({ [value]: true })
       }
       // Last Index
       this.myLastIndex = index
-      // Notify
-      this.tryNotifyChanged()
     },
     //-------------------------------------------------
-    OnMouseDown({index}) {
-      if(this.readonly)
+    OnMouseDown({ index }) {
+      if (this.readonly)
         return
       this.myFocusIndex = index
     },
@@ -27847,49 +28243,51 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Utility
     //-------------------------------------------------
     findItemIndexByValue(val) {
-      for(let it of this.TheItems) {
-        if(it.value == val)
+      for (let it of this.TheItems) {
+        if (it.value == val)
           return it.index
       }
       return -1
     },
     //-------------------------------------------------
     selectItemsToCurrent(val) {
-      let vmap  = _.cloneDeep(this.myValueMap)
+      let vmap = _.cloneDeep(this.myValueMap)
       let index = this.findItemIndexByValue(val)
-      if(index >= 0) {
+      if (index >= 0) {
         let fromIndex = Math.min(index, this.myLastIndex)
-        let toIndex   = Math.max(index, this.myLastIndex)
-        if(fromIndex < 0) {
+        let toIndex = Math.max(index, this.myLastIndex)
+        if (fromIndex < 0) {
           fromIndex = 0
         }
-        for(let i=fromIndex; i<=toIndex; i++) {
+        for (let i = fromIndex; i <= toIndex; i++) {
           let it = this.TheItems[i]
           vmap[it.value] = true
         }
       }
-      this.myValueMap = vmap
+      this.tryNotifyChanged(vmap)
     },
     //-------------------------------------------------
     toggleItem(val) {
       let oldV = this.myValueMap[val]
-      if(this.multi) {
-        this.myValueMap = _.assign({}, this.myValueMap, {
-          [val] : !oldV
+      let vmap;
+      if (this.multi) {
+        vmap = _.assign({}, this.myValueMap, {
+          [val]: !oldV
         })
       } else {
-        this.myValueMap = {[val] : !oldV}
+        vmap = { [val]: !oldV }
       }
+      this.tryNotifyChanged(vmap)
     },
     //-------------------------------------------------
-    tryNotifyChanged() {
-      let vals = Ti.Util.truthyKeys(this.myValueMap)
-      if(!_.isEqual(vals, this.Values)) {
+    tryNotifyChanged(valMap = this.myValueMap) {
+      let vals = Ti.Util.truthyKeys(valMap)
+      if (!_.isEqual(vals, this.Values)) {
         let v;
-        if(_.isFunction(this.joinBy)) {
+        if (_.isFunction(this.joinBy)) {
           v = this.joinBy(vals)
-        } else if(this.multi) {
-          if(this.joinBy) {
+        } else if (this.multi) {
+          if (this.joinBy) {
             v = vals.join(this.joinBy)
           } else {
             v = vals
@@ -27898,7 +28296,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           v = vals.join(this.joinBy || ",")
         }
         //console.log("tryNotifyChanged", v)
-        if(!_.isEqual(v, this.value)) {
+        if (!_.isEqual(v, this.value)) {
           this.$notify("change", v)
         }
       }
@@ -27910,38 +28308,38 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //......................................
     reloadMyValueMap() {
       let sep = null
-      if(this.autoSplitValue) {
-        if(_.isBoolean(this.autoSplitValue)) {
+      if (this.autoSplitValue) {
+        if (_.isBoolean(this.autoSplitValue)) {
           sep = /[:,;\t\n\/]+/g;
         } else {
           sep = this.autoSplitValue
         }
       }
 
-      let vals = Ti.S.toArray(this.value, {sep})
+      let vals = Ti.S.toArray(this.value, { sep })
       let vmap = {}
-      _.forEach(vals, v => vmap[v]=true)
+      _.forEach(vals, v => vmap[v] = true)
       this.myValueMap = vmap
     }
     //......................................
   },
   /////////////////////////////////////////
-  watch : {
-    "options" : {
-      handler : "reloadMyOptionsData",
+  watch: {
+    "options": {
+      handler: "reloadMyOptionsData",
       immediate: true
     },
-    "value" : {
-      handler : "reloadMyValueMap",
+    "value": {
+      handler: "reloadMyValueMap",
       immediate: true
     }
   },
   /////////////////////////////////////////
-  mounted : async function(){
-    Ti.Dom.watchDocument("mouseup", ()=>this.myFocusIndex = -1)
+  mounted: async function () {
+    Ti.Dom.watchDocument("mouseup", () => this.myFocusIndex = -1)
   },
   /////////////////////////////////////////
-  beforeDestroy : function(){
+  beforeDestroy: function () {
     Ti.Dom.unwatchDocument("mouseup", this.__on_mouseup)
   }
   /////////////////////////////////////////
@@ -28435,10 +28833,7 @@ const LIST_MIXINS = {
       return re
     },
     //-----------------------------------------------
-    getEmitContext(
-      currentId,
-      checkedIds = {}
-    ) {
+    getEmitContext(currentId, checkedIds = {}) {
       // Guard
       if (_.isArray(checkedIds)) {
         let idMap = {}
@@ -28484,7 +28879,7 @@ const LIST_MIXINS = {
       payload,
       autoCheckCurrent
     } = {}) {
-      //console.log("list_mixins:selectRow", rowId)
+      //console.log("list_mixins:selectRow", rowId, checkedIds)
       let idMap = {}
       let curId = null
       // Change the current & checked
@@ -28776,8 +29171,12 @@ const LIST_MIXINS = {
     //-----------------------------------------------
     syncCurrentId() {
       if (!this.puppetMode && this.theCurrentId != this.theCurrentRowId) {
-        //console.log("syncCurrentId", this.theCurrentRowId)
-        this.selectRow(this.theCurrentRowId, { quiet: true })
+        //console.log("syncCurrentId", this.theCurrentRowId, this.checkedIds)
+        this.selectRow(this.theCurrentRowId, {
+          quiet: true,
+          checkedIds: this.checkedIds,
+          autoCheckCurrent: false
+        })
       }
       // Just update the last
       else {
@@ -30362,12 +30761,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Object,
     default: undefined
   },
+  // Batch fields hint
+  "batchHint": {
+    type: Array,
+    default: undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------
   "readonly": {
     type: Boolean,
     default: false
+  },
+  "batchReadonly": {
+    type: [Function, Array, Object]
   },
   // if call getData, which will return:
   // - `all` : all data will be taken and return
@@ -30395,6 +30802,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: String,
     default: "auto",
     validator: v => /^(immediate|confirm|none|auto)$/.test(v)
+  },
+  "batchNotifyMode": {
+    type: String,
+    default: "confirm",
+    validator: v => /^(immediate|confirm|none)$/.test(v)
   },
   // If notifyMode=="immediate", when field change,
   // notify the data change 
@@ -30894,6 +31306,8 @@ const _M = {
         //------------------------------
         viewType: this.viewType,
         exposeHidden: this.exposeHidden,
+        //------------------------------
+        ...this.getters
       }
     },
     //--------------------------------------
@@ -32273,7 +32687,6 @@ const _M = {
   methods: {
     //--------------------------------------
     async OnSearchListSelect({ currentId, checkedIds, checked }) {
-      console.log("OnSearchListSelect", {checkedIds})
       await this.dispatch("selectMeta", { currentId, checkedIds })
       this.$notify("indicate", `${checked.length} items selected`)
     },
@@ -32379,7 +32792,7 @@ const _M = {
         return () => ({ stop: false })
       }
       //if (/select$/.test(name)) {
-      //console.log("WnObjAdaptor.__on_events", name, payload)
+      console.log("WnObjAdaptor.__on_events", name, payload)
       //}
 
       // Try routing
@@ -40541,7 +40954,7 @@ const _M = {
         "block:show": "showBlock",
         "block:hide": "hideBlock",
         "meta::change": "doNothing",
-        "meta::field:change": "dispatch('updateMetaField')",
+        "meta::field:change": "dispatch('batchUpdateCheckedItemsField')",
         "content::change": "OnContentChange",
         "save:change": "OnSaveChange",
         "list::select": "OnSearchListSelect",
@@ -45708,7 +46121,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------------
     contentLoadPath(state, getters) {
       return _.get(getters, "contentLoadInfo.path")
-    }
+    },
+    //--------------------------------------------
+    hasCurrentMeta(state) {
+      return state.meta ? true : false
+    },
+    //--------------------------------------------
+    checkedItems(state) {
+      let ids = Ti.Util.getTruthyKeyInMap(state.checkedIds)
+      let list = _.filter(state.list, (li) => ids[li.id])
+      return list
+    },
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
@@ -54310,14 +54733,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Object, default: () => ({})
   },
   //-----------------------------------
+  // Getters
+  //-----------------------------------
+  "getters": {
+    type: Object,
+    default: ()=>({})
+  },
+  //-----------------------------------
   // Global View Setting
   //-----------------------------------
   "viewType": String,
-  "exposeHidden": Boolean,
-  "searchPageNumber": Number,
-  "searchPageSize": Number,
-  "contentLoadPath": String,
-  "hasCurrentMeta": Boolean
+  "exposeHidden": Boolean
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -57266,9 +57692,9 @@ const _M = {
       return
     }
     state.LOG = () => { }
-    // if ("main" == state.moduleName) {
-    //   state.LOG = console.log
-    // }
+    if ("main" == state.moduleName) {
+      state.LOG = console.log
+    }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
     // If meta like : {path: "/path/to", quiet:true}
     let quiet = false
@@ -75172,7 +75598,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return state.meta && state.dataHome ? true : false
     },
     //--------------------------------------------
-    checkedItem(state) {
+    checkedItems(state) {
       let ids = Ti.Util.getTruthyKeyInMap(state.checkedIds)
       let list = _.filter(state.list, (li) => ids[li.id])
       return list
@@ -81800,8 +82226,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
               }
               // Join pager
               else if ("current" == this.value.page) {
-                let limit = vm.searchPageSize || 1000
-                let skip = Math.max(vm.searchPageSize * (vm.searchPageNumber - 1), 0)
+                let limit = vm.getters.searchPageSize || 1000
+                let skip = Math.max(limit * (vm.getters.searchPageNumber - 1), 0)
                 cmds.push(`-limit ${limit}`)
                 cmds.push(`-skip  ${skip}`)
               }
@@ -82463,12 +82889,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Object, default: () => ({})
   },
   //-----------------------------------
+  // Getters
+  //-----------------------------------
+  "getters": {
+    type: Object,
+    default: () => ({})
+  },
+  //-----------------------------------
   // Global View Setting
   //-----------------------------------
   "viewType": String,
-  "exposeHidden": Boolean,
-  "searchPageNumber": Number,
-  "searchPageSize": Number
+  "exposeHidden": Boolean
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -86106,6 +86537,15 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
                 v-if="fld.title"
                   class="field-text"
                   :style="fld.nameTextStyle">{{fld.title | i18n}}</div>
+              <!------Show enable switcher ------>
+              <div
+                v-if="fld.batchDisabled && !fld.batchReadonly"
+                  class="field-editable">
+                  <div @click.left="$emit('field:edit', fld)">
+                    <i v-if="fld.disabled" class="zmdi zmdi-square-o"></i>
+                    <i v-else class="zmdi zmdi-check-square"></i>
+                  </div>
+              </div>
             </div>
             <!--------------------------------->
             <div
@@ -86135,8 +86575,17 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
               :style="fld.tipStyle">{{fld.tip | i18n}}</div>
           <!------Show tip when Nil-name----->
           <div
-              v-if="fld.statusIcon && !(fld.icon || fld.title)"
-                class="field-status"><TiIcon :value="fld.statusIcon"/></div>
+            v-if="fld.statusIcon && !(fld.icon || fld.title)"
+              class="field-status"><TiIcon :value="fld.statusIcon"/></div>
+          <!------Show enable switcher ------>
+          <div
+            v-if="fld.batchDisabled  && !(fld.icon || fld.title)"
+              class="field-editable && !fld.batchReadonly">
+              <div @click.left="$emit('field:edit', fld)">
+                <i v-if="fld.disabled" class="zmdi zmdi-square-o"></i>
+                <i v-else class="zmdi zmdi-check-square"></i>
+              </div>
+          </div>
           <!--------------------------------->
         </div>
         <!------------------------------------->
@@ -86211,6 +86660,7 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
               v-bind="GridContainerConf"
               :fields="GridFormFields"
               :gridColumnCount="GridColumnCount"
+              @field:edit="OnToggleForceEditable"
               @field:change="OnFieldChange"/>
           </section>
           <!------------------------------------------>
@@ -86242,6 +86692,7 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
                 v-bind="GridContainerConf"
                 :fields="grp.fields"
                 :gridColumnCount="grp.gridColumnCount"
+                @field:edit="OnToggleForceEditable"
                 @field:change="OnFieldChange"/>
               <!-------------------------------------->
           </section>
@@ -86282,6 +86733,7 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
               v-bind="GridContainerConf"
               :fields="GridFormFields"
               :gridColumnCount="GridColumnCount"
+              @field:edit="OnToggleForceEditable"
               @field:change="OnFieldChange"/>
           </section>
           <!----------------------------------------->
@@ -99906,6 +100358,7 @@ Ti.Preload("ti/i18n/en-uk/_ti.i18n.json", {
   "del-hard": "The selected item will be deleted directly. this operation is irrevocable. are you sure you want to continue?",
   "del-ing": "Deleting...",
   "del-none": "Please choose at least one item for deleting",
+  "del-not-empty-dir": "There are ${N} folders [${tip}] in your selected object that are not empty. Are you sure you want to delete them and their entire contents?",
   "dept-add": "Add Dept",
   "desktop": "Desktop",
   "detail": "Detail",
@@ -101490,6 +101943,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "del-hard": "The selected item will be deleted directly. this operation is irrevocable. are you sure you want to continue?",
   "del-ing": "Deleting...",
   "del-none": "Please choose at least one item for deleting",
+  "del-not-empty-dir": "There are ${N} folders [${tip}] in your selected object that are not empty. Are you sure you want to delete them and their entire contents?",
   "dept-add": "Add Dept",
   "desktop": "Desktop",
   "detail": "Detail",
@@ -103055,6 +103509,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "del-hard": "选中项目即将被直接删除，此操作不可撤销，您确定要继续吗？",
   "del-ing": "正在删除...",
   "del-none": "请从下面列表中选择至少一个对象进行删除",
+  "del-not-empty-dir": "您选中的对象中，有${N}个目录【${tip}】并不为空，您确定要删除它们以及它们内的全部内容吗？",
   "dept-add": "添加部门",
   "desktop": "桌面",
   "detail": "详情",
@@ -104646,6 +105101,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "del-hard": "選中項目即將被直接刪除，此操作不可撤銷，您確定要繼續嗎？",
    "del-ing": "正在刪除...",
    "del-none": "請從下面列表中選擇至少一個對象進行刪除",
+   "del-not-empty-dir": "您選中的對象中，有${N}個目錄【${tip}】並不爲空，您確定要刪除它們以及它們內的全部內容嗎？",
    "dept-add": "添加部門",
    "desktop": "桌面",
    "detail": "詳情",

@@ -16,7 +16,7 @@ const _M = {
         "block:show": "showBlock",
         "block:hide": "hideBlock",
         "meta::change": "doNothing",
-        "meta::field:change": "dispatch('updateMetaField')",
+        "meta::field:change": "dispatch('batchUpdateCheckedItemsField')",
         "content::change": "OnContentChange",
         "save:change": "OnSaveChange",
         "list::select": "OnSearchListSelect",
