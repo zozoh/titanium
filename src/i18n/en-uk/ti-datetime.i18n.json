@@ -54,6 +54,10 @@
     "m-range-beyond-years": "${yy0}-${MT0} to ${yy1}-${MT1}",
     "week": ["S", "M", "T", "W", "T", "F", "S"]
   },
+  "date-fmt": "yyyy-MM-dd",
+  "dt-range-from": "From",
+  "dt-range-to": "to",
+  "dt-range-unknown": "Unknown time range",
   "du-in-min": "${n}Min",
   "time": {
     "any-time": "yyyy-M-d",
@@ -77,9 +81,5 @@
   "tu-mon": "Month",
   "tu-sec": "Sec",
   "tu-week": "Week",
-  "tu-year": "Year",
-  "dt-range-from": "From",
-  "dt-range-to": "to",
-  "dt-range-unknown": "Unknown time range",
-  "date-fmt": "yyyy-MM-dd"
+  "tu-year": "Year"
 }

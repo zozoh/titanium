@@ -71,7 +71,7 @@ const _M = {
     },
     //--------------------------------------------
     updateParams(state, { key, value } = {}) {
-      console.log("updateParams", { key, value })
+      //console.log("updateParams", { key, value })
       // kay-value pair is required
       if (!key || _.isUndefined(value)) {
         return

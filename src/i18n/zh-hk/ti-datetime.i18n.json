@@ -54,6 +54,10 @@
       "m-range-beyond-years": "${yy0}年${MT0}至${yy1}年${MT1}",
       "week": ["日", "一", "二", "三", "四", "五", "六"]
    },
+   "date-fmt": "yyyy年M月d日",
+   "dt-range-from": "從",
+   "dt-range-to": "至",
+   "dt-range-unknown": "未知時間範圍",
    "du-in-min": "${n}分鐘",
    "time": {
       "any-time": "yyyy年M月d日",
@@ -77,9 +81,5 @@
    "tu-mon": "月",
    "tu-sec": "秒",
    "tu-week": "周",
-   "tu-year": "年",
-   "dt-range-from": "從",
-   "dt-range-to": "至",
-   "dt-range-unknown": "未知時間範圍",
-   "date-fmt": "yyyy年M月d日"
+   "tu-year": "年"
 }

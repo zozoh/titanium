@@ -160,7 +160,7 @@ const _M = {
         return () => ({ stop: false })
       }
       //if (/select$/.test(name)) {
-      console.log("WnObjAdaptor.__on_events", name, payload)
+      //console.log("WnObjAdaptor.__on_events", name, payload)
       //}
 
       // Try routing
