@@ -218,6 +218,8 @@ const _M = {
       let linkdedChanged = await this.applyLinkedFields({
         name, value, data
       });
+      // Merge linked change
+      _.assign(data, linkdedChanged)
 
       //
       // Notify change immediately
@@ -236,15 +238,15 @@ const _M = {
         // Wait for a tick to give a chance to parent of 'data' updating
         if (this.notifyDataImmediate) {
           this.$nextTick(() => {
-            //console.log("notify data")
-            let data = this.getData()
-            this.$notify("change", data)
+            let nd = this.getData(data)
+            //console.log("notify data", nd)
+            this.$notify("change", nd)
           })
         }
       }
       // Keep temp data
       else {
-        this.myData = _.assign(data, linkdedChanged)
+        this.myData = data
       }
     },
     //--------------------------------------------------
@@ -263,16 +265,16 @@ const _M = {
     //           EVAL FORM DATA
     //
     //--------------------------------------------------
-    getData() {
+    getData(data = this.FormData) {
       if (this.isFormDataModeAll) {
-        return _.cloneDeep(this.FormData) || {}
+        return _.cloneDeep(data) || {}
       }
-      return this.getDiffData()
+      return this.getDiffData(data)
     },
     //--------------------------------------------------
-    getDiffData() {
+    getDiffData(data = this.FormData) {
       let diff = {}
-      _.forEach(this.myData, (v, k) => {
+      _.forEach(data, (v, k) => {
         let vOld = _.get(this.data, k)
         if (!_.isEqual(v, vOld)) {
           diff[k] = v
