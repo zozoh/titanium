@@ -1,4 +1,4 @@
-// Pack At: 2022-10-06 02:30:37
+// Pack At: 2022-10-06 22:56:23
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -39868,7 +39868,9 @@ const _M = {
         let it = this.data[i]
         let current = i == this.myCurrentIndex
         let className = current ? "is-current" : null
-        let comConf = Ti.Util.explainObj(it, this.comConf)
+        let comConf = Ti.Util.explainObj(it, this.comConf, {
+          evalFunc: true
+        })
         list.push({
           key: this.getItemKey(it, i),
           index: i,
@@ -73080,6 +73082,9 @@ const _M = {
     "text": {
       type: String
     },
+    "href": {
+      type: String
+    },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -85085,8 +85090,10 @@ Ti.Preload("ti/com/ti/button/ti-button.html", `<div class="ti-button"
       <!--
         Text
       -->
-      <span v-if="it.text"
-        class="it-text">{{it.text|i18n}}</span>
+      <template v-if="it.text">
+        <a :href="href" v-if="href" class="it-text">{{it.text|i18n}}</a>
+        <span v-else class="it-text">{{it.text|i18n}}</span>
+      </template>
     </li>
   </ul>
 </div>`);

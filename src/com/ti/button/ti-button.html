@@ -14,8 +14,10 @@
       <!--
         Text
       -->
-      <span v-if="it.text"
-        class="it-text">{{it.text|i18n}}</span>
+      <template v-if="it.text">
+        <a :href="href" v-if="href" class="it-text">{{it.text|i18n}}</a>
+        <span v-else class="it-text">{{it.text|i18n}}</span>
+      </template>
     </li>
   </ul>
 </div>

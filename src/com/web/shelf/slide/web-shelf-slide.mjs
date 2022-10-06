@@ -108,7 +108,9 @@ const _M = {
         let it = this.data[i]
         let current = i == this.myCurrentIndex
         let className = current ? "is-current" : null
-        let comConf = Ti.Util.explainObj(it, this.comConf)
+        let comConf = Ti.Util.explainObj(it, this.comConf, {
+          evalFunc: true
+        })
         list.push({
           key: this.getItemKey(it, i),
           index: i,

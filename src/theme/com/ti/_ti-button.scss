@@ -24,6 +24,8 @@
     &.min-width-9 {min-width: 9em;}
     //------------------------------
     > span {display: block;}
+    > a {display:block; color:inherit; user-select: none;}
+    > a:hover {color:inherit;}
     //------------------------------
     margin-left:1px;
     &:first-child {margin-left:0;}
