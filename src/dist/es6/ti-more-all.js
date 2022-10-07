@@ -1,4 +1,4 @@
-// Pack At: 2022-10-06 22:56:23
+// Pack At: 2022-10-07 16:55:07
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -32203,8 +32203,19 @@ const _M = {
       }
     },
     //-----------------------------------------------
-    OnHeadingChange($h) {
-      this.evalOutline()
+    OnHeadingChange($node, { resetOutlineId = false } = {}) {
+      let $h = Ti.Dom.closest($node, el => {
+        return /^(sub-)?title$/.test(el.getAttribute("doc-heading"))
+          || /^H[1-6]$/.test(el.tagName)
+      }, { includeSelf: true })
+      if ($h) {
+        if (resetOutlineId && $h.getAttribute("ti-outline-id")) {
+          let nodeId = Ti.Random.str(12);
+          $h.setAttribute("ti-outline-id", nodeId)
+        }
+        //console.log("OnHeadingChange", $h.outerHTML)
+        this.evalOutline()
+      }
     },
     //-----------------------------------------------
     setElementEditable(editable, selector) {
@@ -32324,7 +32335,7 @@ const _M = {
           // add parent
           else {
             // Seek to sibling
-            while (hie.parent && hie.parent.level > 0) {
+            while (hie.parent && hie.parent.node.level > 0) {
               hie = hie.parent
               if (it.level >= hie.node.level) {
                 break;
@@ -32425,6 +32436,12 @@ const _M = {
           })
           editor.on("keyup", (evt) => {
             //console.log("keyup", evt.key, evt.which)
+
+            // 在标题里回车，可能会导致大纲级别变动
+            if (/^(Enter|Delete)$/.test(evt.key)) {
+              let $node = editor.selection.getNode()
+              this.OnHeadingChange($node, { resetOutlineId: true })
+            }
             editor.__rich_tinymce_com.$notify("keyup", evt)
             editor.__rich_tinymce_com.debounceSyncContent();
           })
@@ -32433,15 +32450,9 @@ const _M = {
           })
           // Event: get outline
           editor.on("input", (evt) => {
-            // console.log("input!!", evt)
             let $node = editor.selection.getNode()
-            let $h = Ti.Dom.closest($node, el => {
-              return /^(sub-)?title$/.test(el.getAttribute("doc-heading"))
-                || /^H[1-6]$/.test(el.tagName)
-            })
-            if ($h) {
-              this.OnHeadingChange($h)
-            }
+            //console.log("input!!", $node)
+            this.OnHeadingChange($node)
           })
           // Event: watch the command to update
           editor.on("ExecCommand", (evt) => {
