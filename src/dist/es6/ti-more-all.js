@@ -1,4 +1,4 @@
-// Pack At: 2022-10-07 16:55:07
+// Pack At: 2022-10-09 01:19:44
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -226,7 +226,7 @@ const _M = {
       // Of cause, if name as `[..]`, the value must be a `{..}`
       //console.log("OnFieldChange", { name, value })
       let data = Ti.Types.toObjByPair({ name, value }, {
-        dft: _.cloneDeep(this.myData)
+        dft: _.cloneDeep(this.FormData)
       });
       let linkdedChanged = await this.applyLinkedFields({
         name, value, data
@@ -492,6 +492,7 @@ const _M = {
     async evalFormField(fld = {}, nbs = [], {
       cans = [], grp = this, fmap = {}
     } = {}) {
+      //console.log("evalFormField")
       // The key
       let fldKey = Ti.Util.anyKey(fld.name || nbs)
 
@@ -559,12 +560,17 @@ const _M = {
 
         // Batch mode, auto disabled the un-editable fields
         if (this.isBatchMode && !field.disabled) {
-          if (false === this.myBatchEditableFields[field.uniqKey]) {
+          if (_.isUndefined(field.batchReadonly)) {
+            field.batchReadonly = this.isBatchReadonly(field)
+          }
+
+          if (field.batchReadonly) {
+            field.disabled = true
+          }
+
+          if (false === this.myBatchEditableFields[field.uniqKey] && !field.disabled) {
             field.disabled = this.myForceEditableFields[field.uniqKey] ? false : true;
             field.batchDisabled = true
-            if (_.isUndefined(field.batchReadonly)) {
-              field.batchReadonly = this.isBatchReadonly(field)
-            }
           }
         }
 
@@ -5061,13 +5067,13 @@ const _M = {
      * @param key{String} : the field name in "page.data", falsy for whole data
      * @param args{Object|Array} : `{name,value}` Object or Array
      */
-    changeData({ commit }, args) {
+    changeData({ state, commit }, args) {
       state.LOG("changeData", args)
       let data = Ti.Util.merge({}, args)
       commit("mergeData", data)
     },
     //--------------------------------------------
-    changeDataBy({ commit }, payload) {
+    changeDataBy({ state, commit }, payload) {
       state.LOG("changeDataBy", payload)
       commit("updateDataBy", payload)
     },
@@ -8459,10 +8465,16 @@ window.TI_PACK_EXPORTS['ti/com/ti/color/ti-color.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////////
   props: {
+    //---------------------------------------------------
+    // Data
+    //---------------------------------------------------
     "value": {
       type: [String, Number],
       default: null
     },
+    //---------------------------------------------------
+    // Behavior
+    //---------------------------------------------------
     "majorColors": {
       type: Array,
       default: () => ["#980000", "#ff0000", "#ff9900", "#ffff00", "#00ff00",
@@ -8489,6 +8501,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "showAlpha": {
       type: Boolean,
       default: true
+    },
+    "notifyClick": {
+      type: String,
+      default: "change"
+    },
+    "notifyHex": {
+      type: String,
+      default: "change"
+    },
+    "notifyAlpha": {
+      type: String,
+      default: "change"
     }
   },
   ///////////////////////////////////////////////////////
@@ -8577,29 +8601,38 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //---------------------------------------------------
-    onHexChanged(evt) {
-      let hex = _.trim(evt.target.value)
-      if (/^[0-9a-f]{3,6}$/i.test(hex)) {
-        hex = "#" + hex
+    OnHexChanged(evt) {
+      if (this.notifyHex) {
+        let hex = _.trim(evt.target.value)
+        if (/^[0-9a-f]{3,6}$/i.test(hex)) {
+          hex = "#" + hex
+        }
+        let co = Ti.Types.toColor(hex)
+        if (this.showAlpha && _.isNumber(this.theAlpha)) {
+          co.alpha = this.theAlpha / 100
+        }
+        this.$notify(this.notifyHex, co)
       }
-      let co = Ti.Types.toColor(hex)
-      this.$notify("change", co)
     },
     //---------------------------------------------------
-    onAlphaChanged(a) {
-      let co = this.theColor
-        ? this.theColor.clone()
-        : Ti.Types.toColor("black")
-      co.alpha = a / 100
-      this.$notify("change", co)
+    OnAlphaChanged(a) {
+      if (this.notifyAlpha && this.showAlpha) {
+        let co = this.theColor
+          ? this.theColor.clone()
+          : Ti.Types.toColor("black")
+        co.alpha = a / 100
+        this.$notify(this.notifyAlpha, co)
+      }
     },
     //---------------------------------------------------
-    onColorClicked(color) {
-      let co = color.clone()
-      if (_.isNumber(this.theAlpha)) {
-        co.alpha = this.theAlpha / 100
+    OnColorClicked(color) {
+      if (this.notifyClick) {
+        let co = color.clone()
+        if (this.showAlpha && _.isNumber(this.theAlpha)) {
+          co.alpha = this.theAlpha / 100
+        }
+        this.$notify(this.notifyClick, co)
       }
-      this.$notify("change", co)
     }
     //---------------------------------------------------
   }
@@ -13678,7 +13711,7 @@ const _M = {
       // Of cause, if name as `[..]`, the value must be a `{..}`
       //console.log("OnFieldChange", { name, value })
       let data = Ti.Types.toObjByPair({ name, value }, {
-        dft: _.cloneDeep(this.myData)
+        dft: _.cloneDeep(this.FormData)
       });
       let linkdedChanged = await this.applyLinkedFields({
         name, value, data
@@ -13944,6 +13977,7 @@ const _M = {
     async evalFormField(fld = {}, nbs = [], {
       cans = [], grp = this, fmap = {}
     } = {}) {
+      //console.log("evalFormField")
       // The key
       let fldKey = Ti.Util.anyKey(fld.name || nbs)
 
@@ -14011,12 +14045,17 @@ const _M = {
 
         // Batch mode, auto disabled the un-editable fields
         if (this.isBatchMode && !field.disabled) {
-          if (false === this.myBatchEditableFields[field.uniqKey]) {
+          if (_.isUndefined(field.batchReadonly)) {
+            field.batchReadonly = this.isBatchReadonly(field)
+          }
+
+          if (field.batchReadonly) {
+            field.disabled = true
+          }
+
+          if (false === this.myBatchEditableFields[field.uniqKey] && !field.disabled) {
             field.disabled = this.myForceEditableFields[field.uniqKey] ? false : true;
             field.batchDisabled = true
-            if (_.isUndefined(field.batchReadonly)) {
-              field.batchReadonly = this.isBatchReadonly(field)
-            }
           }
         }
 
@@ -22172,10 +22211,17 @@ const _M = {
       return fields
     },
     //--------------------------------------------------
+    FormTabIndex() {
+      let index = Math.max(0, this.currentTabIndex)
+      index = Math.min(index, this.FormFields.length - 1)
+      return index
+    },
+    //--------------------------------------------------
     CurrentTabGroup() {
       if (this.isTabMode) {
+        let CI = this.FormTabIndex
         for (let li of this.FormFields) {
-          if (li.index == this.currentTabIndex) {
+          if (li.index == CI) {
             return li
           }
         }
@@ -22186,11 +22232,9 @@ const _M = {
     // add "current" to theTabList
     TabItems() {
       let items = []
-      // let maxTabIndex = this.FormFields.length - 1
-      // let currentIndex = Math.min(maxTabIndex, this.currentTabIndex)
-      let currentIndex = this.currentTabIndex
+      let CI = this.FormTabIndex
       _.forEach(this.FormFields, (li, index) => {
-        let isCurrent = (index == currentIndex)
+        let isCurrent = (index == CI)
         items.push(_.assign({}, li, {
           index, isCurrent, className: Ti.Css.mergeClassName({
             "is-current": isCurrent
@@ -40099,46 +40143,46 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/input/color/ti-input-color.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
-  data: ()=>({
-    hideBorder : false,
-    status  : "collapse"
+  data: () => ({
+    hideBorder: false,
+    status: "collapse"
   }),
   ////////////////////////////////////////////////////
-  props : {
-    "value" : {
-      type : [String, Number],
-      default : null
+  props: {
+    "value": {
+      type: [String, Number],
+      default: null
     },
-    "autoCollapse" : {
-      type : Boolean,
-      default : true
+    "autoCollapse": {
+      type: Boolean,
+      default: true
     },
-    "showAlpha" : {
+    "showAlpha": {
       type: Boolean,
       default: true
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
-        "is-empty"  : !this.hasValue,
-        "is-valued" : this.hasValue,
-        "show-border"  : !this.hideBorder,
-        "hide-border"  : this.hideBorder,
+        "is-empty": !this.hasValue,
+        "is-valued": this.hasValue,
+        "show-border": !this.hideBorder,
+        "hide-border": this.hideBorder,
       }, this.className)
     },
     //------------------------------------------------
     colorStyle() {
       let color = Ti.Types.toColor(this.value, null)
-      if(color) {
-        return {"background":color.rgba}
+      if (color) {
+        return { "background": color.rgba }
       }
     },
     //------------------------------------------------
-    isCollapse() {return "collapse"==this.status},
-    isExtended() {return "extended"==this.status},
+    isCollapse() { return "collapse" == this.status },
+    isExtended() { return "extended" == this.status },
     //------------------------------------------------
     hasValue() {
       return !Ti.Util.isNil(this.value)
@@ -40146,23 +40190,24 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
-    onToggleDrop() {
+    OnToggleDrop() {
       this.status = ({
-        "collapse" : "extended",
-        "extended" : "collapse"
+        "collapse": "extended",
+        "extended": "collapse"
       })[this.status]
     },
     //------------------------------------------------
-    onClearColor() {
+    OnClearColor() {
       this.$notify("change", null)
     },
     //------------------------------------------------
-    onColorChanged(color) {
+    OnColorChange(color, mode) {
+      //console.log("OnColorChanged", color, mode)
       let co = Ti.Types.toColor(color)
       this.$notify("change", co ? co.toString() : null)
-      if(this.autoCollapse) {
+      if (this.autoCollapse && "color" == mode) {
         this.status = "collapse"
       }
     },
@@ -41080,8 +41125,8 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      // if (/change$/.test(name))
-      //    console.log("WnThAdaptor.__on_events", name, payload)
+      if (/change$/.test(name))
+          console.log("WnThAdaptor.__on_events", name, payload)
 
       // ByPass
       if (/^(indicate)$/.test(name)) {
@@ -51899,8 +51944,8 @@ const _M = {
       let reo = await Ti.App.Open(_.assign(
         {
           title: "i18n:hmk-css-edit",
-          width: "80%",
-          maxWidth: "6.4rem",
+          width: "100%",
+          maxWidth: "8rem",
           minWidth: "3.2rem",
           height: "95%",
           position: "top",
@@ -80103,92 +80148,94 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/slide/bar/ti-slide-bar.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////////
-  data : ()=>({
-    myHdlLeft : 0,
-    myValue : undefined
+  data: () => ({
+    myConWidth: 0,
+    myConHeight: 0,
+    myHdlLeft: 0,
+    myValue: undefined
   }),
   ///////////////////////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "value" : {
-      type : Number,
-      default : undefined
+    "value": {
+      type: Number,
+      default: undefined
     },
-    "maxValue" : {
-      type : Number,
-      default : 1
+    "maxValue": {
+      type: Number,
+      default: 1
     },
-    "minValue" : {
-      type : Number,
-      default : 0
+    "minValue": {
+      type: Number,
+      default: 0
     },
-    "markBegin" : {
-      type : Number,
-      default : undefined
+    "markBegin": {
+      type: Number,
+      default: undefined
     },
-    "markEnd" : {
-      type : Number,
-      default : undefined
+    "markEnd": {
+      type: Number,
+      default: undefined
     },
-    "precision" : {
-      type : Number,
-      default : 2
+    "precision": {
+      type: Number,
+      default: 2
     },
-    "format" : {
-      type : [Function, String],
-      default : undefined
+    "format": {
+      type: [Function, String],
+      default: undefined
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
     // 0 : notify when dragging done
     // > 0 : notify during dragging with throttle
-    "notifyFrequency" : {
-      type : Number,
-      default : 0
+    "notifyFrequency": {
+      type: Number,
+      default: 0
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "prefixText" : {
-      type : [Boolean, String],
-      default : true,
-      validator: v=>(_.isBoolean(v) || /^(current|min|none)$/.test(v))
+    "prefixText": {
+      type: [Boolean, String],
+      default: true,
+      validator: v => (_.isBoolean(v) || /^(current|min|none)$/.test(v))
     },
-    "suffixText" : {
-      type : [Boolean, String],
-      default : true,
-      validator: v=>(_.isBoolean(v) || /^(current|max|none)$/.test(v))
+    "suffixText": {
+      type: [Boolean, String],
+      default: true,
+      validator: v => (_.isBoolean(v) || /^(current|max|none)$/.test(v))
     },
     //-----------------------------------
     // Measure
     //-----------------------------------
-    "textWidth" : {
-      type : [Number, String],
-      default : undefined
+    "textWidth": {
+      type: [Number, String],
+      default: undefined
     },
-    "barHeight" : {
-      type : [Number, String],
-      default : undefined
+    "barHeight": {
+      type: [Number, String],
+      default: undefined
     },
-    "width" : {
-      type : [Number, String],
-      default : undefined
+    "width": {
+      type: [Number, String],
+      default: undefined
     },
-    "height" : {
-      type : [Number, String],
-      default : undefined
+    "height": {
+      type: [Number, String],
+      default: undefined
     }
   },
   ///////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //---------------------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-show-prefix" : this.isShowPreifx,
-        "is-show-suffix" : this.isShowSuffix
+        "is-show-prefix": this.isShowPreifx,
+        "is-show-suffix": this.isShowSuffix
       })
     },
     //---------------------------------------------------
@@ -80212,18 +80259,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //---------------------------------------------------
     TheValueSize() {
-      return Ti.Css.toSize(this.myHdlLeft)
+      let left = this.myConWidth * this.myHdlLeft
+      return Ti.Css.toSize(left)
     },
     BarInnerStyle() {
-      return {width: this.TheValueSize}
+      return { width: this.TheValueSize }
     },
     HandlerStyle() {
-      return {left: this.TheValueSize}
+      return { left: this.TheValueSize }
     },
     //---------------------------------------------------
     BarMarkStyle() {
-      if(_.isNumber(this.markBegin) && _.isNumber(this.markEnd)) {
-        let left  = this.calScale(this.markBegin)
+      if (_.isNumber(this.markBegin) && _.isNumber(this.markEnd)) {
+        let left = this.calScale(this.markBegin)
         let width = this.calScale(this.markEnd - this.markBegin)
         return Ti.Css.toStyle({
           left, width
@@ -80232,44 +80280,44 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //---------------------------------------------------
     FormatValue() {
-      if(_.isString(this.format)) {
-        if(this.format.startsWith("=>")) {
+      if (_.isString(this.format)) {
+        if (this.format.startsWith("=>")) {
           let str = this.format.substring(2).trim()
-          return Ti.Util.genInvoking(str, {partial: "right"})
+          return Ti.Util.genInvoking(str, { partial: "right" })
         }
         return (val) => {
-          return Ti.S.renderBy(this.format, {val})
+          return Ti.S.renderBy(this.format, { val })
         }
       }
-      if(_.isFunction(this.format)) {
+      if (_.isFunction(this.format)) {
         return this.format;
       }
-      return v=>v
+      return v => v
     },
     //---------------------------------------------------
     MaxValueText() {
-      return this.FormatValue(this.maxValue)
+      return this.FormatValue(this.maxValue) + ""
     },
     //---------------------------------------------------
     MinValueText() {
-      return this.FormatValue(this.minValue)
+      return this.FormatValue(this.minValue) + ""
     },
     //---------------------------------------------------
     CurrentValueText() {
-      return this.FormatValue(this.myValue)
+      return this.FormatValue(this.myValue) + ""
     },
     //---------------------------------------------------
     TextContext() {
       return {
-        current : this.CurrentValueText,
-        min     : this.MinValueText,
-        max     : this.MaxValueText
+        current: this.CurrentValueText,
+        min: this.MinValueText,
+        max: this.MaxValueText
       }
     },
     //---------------------------------------------------
     ThePrefixText() {
-      if(this.prefixText) {
-        if(_.isBoolean(this.prefixText)) {
+      if (this.prefixText) {
+        if (_.isBoolean(this.prefixText)) {
           return this.CurrentValueText || this.MinValueText
         }
         return _.get(this.TextContext, this.prefixText)
@@ -80277,20 +80325,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //---------------------------------------------------
     TheSuffixText() {
-      if(this.suffixText) {
-        if(_.isBoolean(this.suffixText)) {
+      if (this.suffixText) {
+        if (_.isBoolean(this.suffixText)) {
+          if(!this.prefixText) {
+            return this.CurrentValueText
+          }
           return this.MaxValueText
         }
         return _.get(this.TextContext, this.suffixText)
       }
     },
     //---------------------------------------------------
-    isShowPreifx() {return this.textWidth && this.ThePrefixText},
-    isShowSuffix() {return this.textWidth && this.TheSuffixText},
+    isShowPreifx() { return this.textWidth && this.ThePrefixText },
+    isShowSuffix() { return this.textWidth && this.TheSuffixText },
     //---------------------------------------------------
     ThrottleSetVal() {
-      if(this.notifyFrequency > 0) {
-        return _.throttle( scale => {
+      if (this.notifyFrequency > 0) {
+        return _.throttle(scale => {
           this.evalMyVal(scale)
         }, this.notifyFrequency)
       }
@@ -80298,48 +80349,57 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
     Draggable() {
       return {
-        trigger  : ".as-hdl",
-        viewport : ".as-con",
-        prepare  : ({scaleX})=>{
+        trigger: ".as-hdl",
+        viewport: ".as-con",
+        prepare: ({ scaleX }) => {
           let scale = _.clamp(scaleX, 0, 1)
           let value = this.calValue(scale)
-          this.$notify("drag:begin", {value, scale})
+          this.$notify("drag:begin", { value, scale })
         },
-        dragging : ({scaleX})=>{
+        dragging: ({ scaleX }) => {
           this.evalMyHdlLeft(scaleX)
-          if(this.ThrottleSetVal) {
+          if (this.ThrottleSetVal) {
             this.ThrottleSetVal(this.myHdlLeft)
           }
         },
-          done : ({scaleX}) => {
-            this.evalMyHdlLeft(scaleX)
-            this.evalMyVal(scaleX)
-            this.$notify("drag:end", {
-              value : this.myValue, 
-              scale : this.myHdlLeft
-            })
-          }
+        done: ({ scaleX }) => {
+          this.evalMyHdlLeft(scaleX)
+          this.evalMyVal(scaleX)
+          this.$notify("drag:end", {
+            value: this.myValue,
+            scale: this.myHdlLeft
+          })
+        }
       }
     }
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
-  methods : {
+  methods: {
+    //--------------------------------------------------
+    OnResize() {
+      if (_.isElement(this.$refs.con)) {
+        let { width, height } = this.$refs.con.getBoundingClientRect()
+        this.myConWidth = width
+        this.myConHeight = height
+      }
+    },
     //---------------------------------------------------
     OnClickBar(evt) {
-      if(evt.srcElement == this.$refs.hdl) {
+      if (evt.srcElement == this.$refs.hdl) {
         return
       }
-      let {left, width} = Ti.Rects.createBy(this.$refs.con)
+      let { left, width } = Ti.Rects.createBy(this.$refs.con)
       let clientX = evt.clientX
       let scale = (clientX - left) / width
+      console.log("OnClickBar", scale)
       this.evalMyHdlLeft(scale)
       this.evalMyVal(scale)
     },
     //---------------------------------------------------
     calScale(val) {
       let sum = this.maxValue - this.minValue
-      if(sum != 0)
+      if (sum != 0)
         return val / sum
     },
     //---------------------------------------------------
@@ -80347,11 +80407,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
       scale = _.clamp(scale, 0, 1)
       let val = (this.maxValue - this.minValue) * scale
       val = Ti.Num.precise(val, this.precision)
+      console.log("calValue:", val)
       return val
     },
     //---------------------------------------------------
     evalMyHdlLeft(scale) {
       this.myHdlLeft = _.clamp(scale, 0, 1)
+      console.log("myHdlLeft:", this.myHdlLeft)
     },
     //---------------------------------------------------
     evalMyVal(scale) {
@@ -80361,24 +80423,39 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   ////////////////////////////////////////////////////
   watch: {
-    "value" : {
-      handler : function(newVal, oldVal) {
-        if(newVal != oldVal) {
+    "value": {
+      handler: function (newVal, oldVal) {
+        if (newVal != oldVal) {
           newVal = newVal || 0
           let scale = newVal / (this.maxValue - this.minValue)
           this.evalMyHdlLeft(scale)
           this.myValue = newVal
         }
       },
-      immediate : true
+      immediate: true
     },
-    "myValue" : function(newVal, oldVal) {
-      if(newVal != oldVal 
+    "myValue": function (newVal, oldVal) {
+      if (newVal != oldVal
         && !_.isUndefined(oldVal)
         && newVal != this.value) {
         this.$notify("change", this.myValue)
       }
     }
+  },
+  //////////////////////////////////////////////////////
+  mounted: async function () {
+    Ti.Viewport.watch(this, {
+      resize: () => {
+        this.OnResize()
+      }
+    })
+    _.delay(() => {
+      this.OnResize()
+    }, this.adjustDelay || 0)
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy: function () {
+    Ti.Viewport.unwatch(this)
   }
   ///////////////////////////////////////////////////////
 }
@@ -85489,14 +85566,14 @@ Ti.Preload("ti/com/ti/color/ti-color.html", `<div class="ti-color" >
           <th v-for="color in colorGrays">
             <span 
               :style="colorItemStyle(color)" 
-              @click="onColorClicked(color)"></span>
+              @click="OnColorClicked(color)"></span>
           </th>
         </tr>
         <tr>
             <th v-for="color in colorMajors">
               <span 
                 :style="colorItemStyle(color)" 
-                @click="onColorClicked(color)"></span>
+                @click="OnColorClicked(color)"></span>
             </th>
           </tr>
       </thead>
@@ -85507,7 +85584,7 @@ Ti.Preload("ti/com/ti/color/ti-color.html", `<div class="ti-color" >
           <td v-for="color in row">
             <span 
               :style="colorItemStyle(color)" 
-              @click="onColorClicked(color)"></span>
+              @click="OnColorClicked(color)"></span>
           </td>
         </tr>
       </tbody>
@@ -85520,17 +85597,19 @@ Ti.Preload("ti/com/ti/color/ti-color.html", `<div class="ti-color" >
     <div class="as-hex">
         <input class="as-value" 
           spellcheck="false"
+          :placeholder="'i18n:no-set' | i18n"
           :value="theHex"
-          @change="onHexChanged"/>
+          @change="OnHexChanged"/>
     </div>
     <div class="as-alpha" v-if="showAlpha">
       <ti-input-num 
         :value="theAlpha"
-        :max-value="100"
-        :min-value="0"
+        :maxValue="100"
+        :minValue="0"
+        :defaultValue="100"
         :step="10"
         width="100%"
-        @change="onAlphaChanged"/>
+        @change="OnAlphaChanged"/>
     </div>
   </div>
   <!--
@@ -87787,11 +87866,11 @@ Ti.Preload("ti/com/ti/input/color/ti-input-color.html", `<ti-combo-box class="ti
   -->
   <template v-slot:box>
     <span class="as-color"
-      @click.left="onToggleDrop">
+      @click.left="OnToggleDrop">
         <u class="as-bg"></u>
         <u class="as-fr" :style="colorStyle"></u>
     </span>
-    <span class="as-clear" @click="onClearColor">
+    <span class="as-clear" @click="OnClearColor">
       <ti-icon value="zmdi-close"/>
     </span>
   </template>
@@ -87802,7 +87881,12 @@ Ti.Preload("ti/com/ti/input/color/ti-input-color.html", `<ti-combo-box class="ti
     <ti-color 
       :value="value"
       :showAlpha="showAlpha"
-      @change="onColorChanged"/>
+      notifyClick="change:color"
+      notifyHex="change:hex"
+      notifyAlpha="change:alpha"
+      @change:color="OnColorChange($event, 'color')"
+      @change:hex="OnColorChange($event, 'hex')"
+      @change:alpha="OnColorChange($event, 'alpha')"/>
   </template>
 </ti-combo-box>`);
 //========================================
@@ -88336,7 +88420,7 @@ Ti.Preload("ti/com/ti/input/num/ti-input-num.html", `<div
     <input 
       spellcheck="false" 
       :value="TheValue"
-      :placeholder="placeholder"
+      :placeholder="placeholder || defaultValue"
       @change="onChanged">
   </div>
   <!--

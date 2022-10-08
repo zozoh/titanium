@@ -268,13 +268,13 @@ const _M = {
      * @param key{String} : the field name in "page.data", falsy for whole data
      * @param args{Object|Array} : `{name,value}` Object or Array
      */
-    changeData({ commit }, args) {
+    changeData({ state, commit }, args) {
       state.LOG("changeData", args)
       let data = Ti.Util.merge({}, args)
       commit("mergeData", data)
     },
     //--------------------------------------------
-    changeDataBy({ commit }, payload) {
+    changeDataBy({ state, commit }, payload) {
       state.LOG("changeDataBy", payload)
       commit("updateDataBy", payload)
     },

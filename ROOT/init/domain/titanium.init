@@ -112,6 +112,9 @@
 @FILE mock/components/ti-form/ti-slide-stack.comt 'SLIDE-STACK'
 {com:'/rs/ti/test/components/ti-form/demo-ti-slide-stack.json'}
 #---------------------------------------------------------
+@FILE mock/components/ti-form/ti-slide-bar.comt 'SLIDE-BAR'
+{com:'/rs/ti/test/components/ti-form/demo-ti-slide-bar.json'}
+#---------------------------------------------------------
 @FILE mock/components/ti-form/ti-combo-input.comt 'COMBO-INPUT'
 {com:'/rs/ti/test/components/ti-form/demo-ti-combo-input.json'}
 #---------------------------------------------------------

@@ -213,7 +213,7 @@ const _M = {
       // Of cause, if name as `[..]`, the value must be a `{..}`
       //console.log("OnFieldChange", { name, value })
       let data = Ti.Types.toObjByPair({ name, value }, {
-        dft: _.cloneDeep(this.myData)
+        dft: _.cloneDeep(this.FormData)
       });
       let linkdedChanged = await this.applyLinkedFields({
         name, value, data
@@ -479,6 +479,7 @@ const _M = {
     async evalFormField(fld = {}, nbs = [], {
       cans = [], grp = this, fmap = {}
     } = {}) {
+      //console.log("evalFormField")
       // The key
       let fldKey = Ti.Util.anyKey(fld.name || nbs)
 
@@ -546,12 +547,17 @@ const _M = {
 
         // Batch mode, auto disabled the un-editable fields
         if (this.isBatchMode && !field.disabled) {
-          if (false === this.myBatchEditableFields[field.uniqKey]) {
+          if (_.isUndefined(field.batchReadonly)) {
+            field.batchReadonly = this.isBatchReadonly(field)
+          }
+
+          if (field.batchReadonly) {
+            field.disabled = true
+          }
+
+          if (false === this.myBatchEditableFields[field.uniqKey] && !field.disabled) {
             field.disabled = this.myForceEditableFields[field.uniqKey] ? false : true;
             field.batchDisabled = true
-            if (_.isUndefined(field.batchReadonly)) {
-              field.batchReadonly = this.isBatchReadonly(field)
-            }
           }
         }
 

@@ -8,11 +8,11 @@
   -->
   <template v-slot:box>
     <span class="as-color"
-      @click.left="onToggleDrop">
+      @click.left="OnToggleDrop">
         <u class="as-bg"></u>
         <u class="as-fr" :style="colorStyle"></u>
     </span>
-    <span class="as-clear" @click="onClearColor">
+    <span class="as-clear" @click="OnClearColor">
       <ti-icon value="zmdi-close"/>
     </span>
   </template>
@@ -23,6 +23,11 @@
     <ti-color 
       :value="value"
       :showAlpha="showAlpha"
-      @change="onColorChanged"/>
+      notifyClick="change:color"
+      notifyHex="change:hex"
+      notifyAlpha="change:alpha"
+      @change:color="OnColorChange($event, 'color')"
+      @change:hex="OnColorChange($event, 'hex')"
+      @change:alpha="OnColorChange($event, 'alpha')"/>
   </template>
 </ti-combo-box>

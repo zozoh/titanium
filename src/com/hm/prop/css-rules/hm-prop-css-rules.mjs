@@ -165,8 +165,8 @@ const _M = {
       let reo = await Ti.App.Open(_.assign(
         {
           title: "i18n:hmk-css-edit",
-          width: "80%",
-          maxWidth: "6.4rem",
+          width: "100%",
+          maxWidth: "8rem",
           minWidth: "3.2rem",
           height: "95%",
           position: "top",

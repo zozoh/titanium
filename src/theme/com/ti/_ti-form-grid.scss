@@ -204,12 +204,19 @@
         justify-content: flex-end;
       }
       //----------------------------------
+      $BRR: SZ(6);
       &.tab-at-top > .tab-head {
         order: -1;
         @include border(1px, solid, shallow, bottom);
         padding-bottom: 0;
         > .tab-head-item {
           border-bottom: 0;
+          &:first-child {
+            border-radius: $BRR 0 0 0;
+          }
+          &:last-child {
+            border-radius: 0 $BRR 0 0;
+          }
         }
       }
       &.tab-at-bottom > .tab-head {
@@ -218,6 +225,12 @@
         padding-top: 0;
         > .tab-head-item {
           border-top: 0;
+          &:first-child {
+            border-radius: 0 0 0 $BRR;
+          }
+          &:last-child {
+            border-radius: 0 0 $BRR 0;
+          }
         }
       }
     }

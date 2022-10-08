@@ -1,0 +1,33 @@
+{
+  "comType": "ti-form",
+  "comConf": {
+    "autoShowBlank": false,
+    "data": "=data",
+    "fields": [
+      {
+        "title": "浮点滑杆",
+        "name": "s_float",
+        "type": "Float",
+        "comType": "ti-slide-bar",
+        "comConf": {
+          "className": "hdl-lg inner-color-0",
+          "width": "100%",
+          "textWidth": ".5rem",
+          "prefixText": false
+        }
+      },
+      {
+        "title": "整数滑杆",
+        "name": "s_integer",
+        "type": "Integer",
+        "comType": "ti-slide-bar",
+        "comConf": {
+          "className": "hdl-lg inner-color-1 hdl-color-1",
+          "width": "100%",
+          "maxValue": 1000,
+          "textWidth": ".5rem"
+        }
+      }
+    ]
+  }
+}

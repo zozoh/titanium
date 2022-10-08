@@ -2,38 +2,38 @@
 const BORDER = {
   title: "i18n:hmk-css-border",
   name: "border",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const BORDER_RADIUS = {
   title: "i18n:hmk-css-border-radius",
   name: "border-radius",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const MARGIN = {
   title: "i18n:hmk-css-margin",
   name: "margin",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const PADDING = {
   title: "i18n:hmk-css-padding",
   name: "padding",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const BACKGROUND = {
   title: "i18n:hmk-css-background",
   name: "background",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const BACKGROUND_IMAGE = {
   title: "i18n:hmk-css-background-image",
   name: "background-image",
   fieldWidth: "100%",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const BACKGROUND_REPEAT = {
@@ -98,19 +98,21 @@ const COLOR = {
 const OPACITY = {
   title: "i18n:hmk-css-opacity",
   name: "opacity",
-  type: "Number",
-  defaultAs: 1,
-  comType: "ti-slide-bar",
+  type: "Float",
+  defaultAs: 1.0,
+  comType: "TiSlideBar",
   comConf: {
-    className: "hdl-lg inner-color-0",
-    width: "100%"
+    className: "hdl-lg inner-color-0 hdl-color-0",
+    width: "100%",
+    textWidth: ".5rem",
+    prefixText: false
   }
 };
 //------------------------------------------------------
 const FLOAT = {
   title: "i18n:hmk-css-float",
   name: "float",
-  comType: "ti-switcher",
+  comType: "TiSwitcher",
   comConf: {
     options: [
       { value: "none", text: "i18n:hmk-css-float-none", icon: "fas-align-justify" },
@@ -123,7 +125,7 @@ const FLOAT = {
 const TEXT_ALIGN = {
   title: "i18n:hmk-css-text-align",
   name: "text-align",
-  comType: "ti-switcher",
+  comType: "TiSwitcher",
   comConf: {
     options: [
       { value: "left", tip: "i18n:hmk-css-align-left", icon: "fas-align-left" },
@@ -137,7 +139,7 @@ const TEXT_ALIGN = {
 const WHITE_SPACE = {
   title: "i18n:hmk-css-white-space",
   name: "white-space",
-  comType: "ti-droplist",
+  comType: "TiDroplist",
   comConf: {
     options: [
       { value: "normal", text: "i18n:hmk-css-white-space-normal" },
@@ -153,7 +155,7 @@ const WHITE_SPACE = {
 const TEXT_OVERFLOW = {
   title: "i18n:hmk-css-text-overflow",
   name: "text-overflow",
-  comType: "ti-switcher",
+  comType: "TiSwitcher",
   comConf: {
     options: [
       { value: "clip", text: "i18n:hmk-css-text-overflow-clip", icon: "fas-cut" },
@@ -165,8 +167,9 @@ const TEXT_OVERFLOW = {
 const OBJECT_FIT = {
   title: "i18n:hmk-css-object-fit",
   name: "object-fit",
-  comType: "ti-droplist",
+  comType: "TiDroplist",
   comConf: {
+    placeholder: "i18n:no-set",
     options: [
       { value: "fill", text: "i18n:hmk-css-object-fit-fill" },
       { value: "contain", text: "i18n:hmk-css-object-fit-contain" },
@@ -180,26 +183,26 @@ const OBJECT_FIT = {
 const OBJECT_POSITION = {
   title: "i18n:hmk-css-object-position",
   name: "object-position",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const BOX_SHADOW = {
   title: "i18n:hmk-css-box-shadow",
   name: "box-shadow",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const TEXT_SHADOW = {
   title: "i18n:hmk-css-text-shadow",
   name: "text-shadow",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const OVERFLOW = {
   title: "i18n:hmk-css-overflow",
   name: "overflow",
   fieldWidth: "100%",
-  comType: "ti-switcher",
+  comType: "TiSwitcher",
   comConf: {
     options: [
       { value: "auto", text: "i18n:hmk-css-c-auto" },
@@ -214,7 +217,7 @@ const OVERFLOW = {
 const TEXT_TRANSFORM = {
   title: "i18n:hmk-css-text-transform",
   name: "text-transform",
-  comType: "ti-switcher",
+  comType: "TiSwitcher",
   comConf: {
     options: [
       { value: "capitalize", text: "i18n:hmk-css-text-transform-capitalize" },
@@ -227,61 +230,61 @@ const TEXT_TRANSFORM = {
 const WIDTH = {
   title: "i18n:hmk-css-width",
   name: "width",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const HEIGHT = {
   title: "i18n:hmk-css-height",
   name: "height",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const MAX_WIDTH = {
   title: "i18n:hmk-css-max-width",
   name: "max-width",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const MAX_HEIGHT = {
   title: "i18n:hmk-css-max-height",
   name: "max-height",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const MIN_WIDTH = {
   title: "i18n:hmk-css-min-width",
   name: "min-width",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const MIN_HEIGHT = {
   title: "i18n:hmk-css-min-height",
   name: "min-height",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const LINE_HEIGHT = {
   title: "i18n:hmk-css-line-height",
   name: "line-height",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const LETTER_SPACING = {
   title: "i18n:hmk-css-letter-spacing",
   name: "letter-spacing",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const FONT_SIZE = {
   title: "i18n:hmk-css-font-size",
   name: "font-size",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 //------------------------------------------------------
 const FONT_WEIGHT = {
   title: "i18n:hmk-css-font-weight",
   name: "font-weight",
-  comType: "ti-input"
+  comType: "TiInput"
 };
 ////////////////////////////////////////////////////////
 const CSS_PROPS = {
@@ -413,6 +416,7 @@ const WnHMaker = {
         /^(border|background)(-.+)?/,
         /^((text|font)-.+|opacity)$/,
         /^(line-height|letter-spacing|white-space)$/,
+        /^(width|height)$/,
       ]
     })[filter]
     if (qf) {
@@ -440,15 +444,15 @@ const WnHMaker = {
         }
       }
       if (fields.length > 0) {
-        let className = ({
-          aspect: "as-columns",
-          background: "as-columns",
-          measure: "as-columns",
-          texting: "as-columns"
+        let gridColumnHint = ({
+          aspect: [[2, 720], [1, 360], 0],
+          background: [[2, 720], [1, 360], 0],
+          measure: [[2, 720], [1, 360], 0],
+          texting: [[2, 720], [1, 360], 0]
         })[gnm]
         re.push({
           title: `i18n:hmk-css-grp-${gnm}`,
-          className,
+          gridColumnHint,
           fields
         })
       }

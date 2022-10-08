@@ -28,6 +28,13 @@
     background-color: map-get($color-secondary, c);
   }
   //-------------------------------------------------
+  &.hdl-color-0 > .as-con .as-hdl::before {
+    background-color: map-get($color-primary, c);
+  }
+  &.hdl-color-1 > .as-con .as-hdl::before {
+    background-color: map-get($color-secondary, c);
+  }
+  //-------------------------------------------------
   &.no-bar-inner > .as-con .as-bar span {display: none;}
   //-------------------------------------------------
   > .as-text {
@@ -68,7 +75,7 @@
       @include flex-center;
       //---------------------------------------------
       &::before {
-        @include color($color-primary, r, c);
+        @include color($color-body, c, r);
         content:"";
         position: relative; 
         border-radius: 50%;

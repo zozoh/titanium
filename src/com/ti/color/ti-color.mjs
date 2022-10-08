@@ -1,10 +1,16 @@
 export default {
   ///////////////////////////////////////////////////////
   props: {
+    //---------------------------------------------------
+    // Data
+    //---------------------------------------------------
     "value": {
       type: [String, Number],
       default: null
     },
+    //---------------------------------------------------
+    // Behavior
+    //---------------------------------------------------
     "majorColors": {
       type: Array,
       default: () => ["#980000", "#ff0000", "#ff9900", "#ffff00", "#00ff00",
@@ -31,6 +37,18 @@ export default {
     "showAlpha": {
       type: Boolean,
       default: true
+    },
+    "notifyClick": {
+      type: String,
+      default: "change"
+    },
+    "notifyHex": {
+      type: String,
+      default: "change"
+    },
+    "notifyAlpha": {
+      type: String,
+      default: "change"
     }
   },
   ///////////////////////////////////////////////////////
@@ -119,29 +137,38 @@ export default {
       }
     },
     //---------------------------------------------------
-    onHexChanged(evt) {
-      let hex = _.trim(evt.target.value)
-      if (/^[0-9a-f]{3,6}$/i.test(hex)) {
-        hex = "#" + hex
+    OnHexChanged(evt) {
+      if (this.notifyHex) {
+        let hex = _.trim(evt.target.value)
+        if (/^[0-9a-f]{3,6}$/i.test(hex)) {
+          hex = "#" + hex
+        }
+        let co = Ti.Types.toColor(hex)
+        if (this.showAlpha && _.isNumber(this.theAlpha)) {
+          co.alpha = this.theAlpha / 100
+        }
+        this.$notify(this.notifyHex, co)
       }
-      let co = Ti.Types.toColor(hex)
-      this.$notify("change", co)
     },
     //---------------------------------------------------
-    onAlphaChanged(a) {
-      let co = this.theColor
-        ? this.theColor.clone()
-        : Ti.Types.toColor("black")
-      co.alpha = a / 100
-      this.$notify("change", co)
+    OnAlphaChanged(a) {
+      if (this.notifyAlpha && this.showAlpha) {
+        let co = this.theColor
+          ? this.theColor.clone()
+          : Ti.Types.toColor("black")
+        co.alpha = a / 100
+        this.$notify(this.notifyAlpha, co)
+      }
     },
     //---------------------------------------------------
-    onColorClicked(color) {
-      let co = color.clone()
-      if (_.isNumber(this.theAlpha)) {
-        co.alpha = this.theAlpha / 100
+    OnColorClicked(color) {
+      if (this.notifyClick) {
+        let co = color.clone()
+        if (this.showAlpha && _.isNumber(this.theAlpha)) {
+          co.alpha = this.theAlpha / 100
+        }
+        this.$notify(this.notifyClick, co)
       }
-      this.$notify("change", co)
     }
     //---------------------------------------------------
   }

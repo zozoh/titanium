@@ -9,14 +9,14 @@
           <th v-for="color in colorGrays">
             <span 
               :style="colorItemStyle(color)" 
-              @click="onColorClicked(color)"></span>
+              @click="OnColorClicked(color)"></span>
           </th>
         </tr>
         <tr>
             <th v-for="color in colorMajors">
               <span 
                 :style="colorItemStyle(color)" 
-                @click="onColorClicked(color)"></span>
+                @click="OnColorClicked(color)"></span>
             </th>
           </tr>
       </thead>
@@ -27,7 +27,7 @@
           <td v-for="color in row">
             <span 
               :style="colorItemStyle(color)" 
-              @click="onColorClicked(color)"></span>
+              @click="OnColorClicked(color)"></span>
           </td>
         </tr>
       </tbody>
@@ -40,17 +40,19 @@
     <div class="as-hex">
         <input class="as-value" 
           spellcheck="false"
+          :placeholder="'i18n:no-set' | i18n"
           :value="theHex"
-          @change="onHexChanged"/>
+          @change="OnHexChanged"/>
     </div>
     <div class="as-alpha" v-if="showAlpha">
       <ti-input-num 
         :value="theAlpha"
-        :max-value="100"
-        :min-value="0"
+        :maxValue="100"
+        :minValue="0"
+        :defaultValue="100"
         :step="10"
         width="100%"
-        @change="onAlphaChanged"/>
+        @change="OnAlphaChanged"/>
     </div>
   </div>
   <!--

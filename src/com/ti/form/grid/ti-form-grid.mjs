@@ -121,10 +121,17 @@ const _M = {
       return fields
     },
     //--------------------------------------------------
+    FormTabIndex() {
+      let index = Math.max(0, this.currentTabIndex)
+      index = Math.min(index, this.FormFields.length - 1)
+      return index
+    },
+    //--------------------------------------------------
     CurrentTabGroup() {
       if (this.isTabMode) {
+        let CI = this.FormTabIndex
         for (let li of this.FormFields) {
-          if (li.index == this.currentTabIndex) {
+          if (li.index == CI) {
             return li
           }
         }
@@ -135,11 +142,9 @@ const _M = {
     // add "current" to theTabList
     TabItems() {
       let items = []
-      // let maxTabIndex = this.FormFields.length - 1
-      // let currentIndex = Math.min(maxTabIndex, this.currentTabIndex)
-      let currentIndex = this.currentTabIndex
+      let CI = this.FormTabIndex
       _.forEach(this.FormFields, (li, index) => {
-        let isCurrent = (index == currentIndex)
+        let isCurrent = (index == CI)
         items.push(_.assign({}, li, {
           index, isCurrent, className: Ti.Css.mergeClassName({
             "is-current": isCurrent
