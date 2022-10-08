@@ -1,4 +1,4 @@
-// Pack At: 2022-10-09 01:19:44
+// Pack At: 2022-10-09 01:25:58
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -80407,13 +80407,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
       scale = _.clamp(scale, 0, 1)
       let val = (this.maxValue - this.minValue) * scale
       val = Ti.Num.precise(val, this.precision)
-      console.log("calValue:", val)
+      //console.log("calValue:", val)
       return val
     },
     //---------------------------------------------------
     evalMyHdlLeft(scale) {
       this.myHdlLeft = _.clamp(scale, 0, 1)
-      console.log("myHdlLeft:", this.myHdlLeft)
+      //console.log("myHdlLeft:", this.myHdlLeft)
     },
     //---------------------------------------------------
     evalMyVal(scale) {

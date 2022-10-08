@@ -259,13 +259,13 @@ export default {
       scale = _.clamp(scale, 0, 1)
       let val = (this.maxValue - this.minValue) * scale
       val = Ti.Num.precise(val, this.precision)
-      console.log("calValue:", val)
+      //console.log("calValue:", val)
       return val
     },
     //---------------------------------------------------
     evalMyHdlLeft(scale) {
       this.myHdlLeft = _.clamp(scale, 0, 1)
-      console.log("myHdlLeft:", this.myHdlLeft)
+      //console.log("myHdlLeft:", this.myHdlLeft)
     },
     //---------------------------------------------------
     evalMyVal(scale) {
