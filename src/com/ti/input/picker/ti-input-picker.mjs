@@ -106,6 +106,13 @@ const _M = {
       return this.getTopClass()
     },
     //------------------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //------------------------------------------------
     ComType() {
       return this.multi ? "TiInputTags" : "TiInput"
     },

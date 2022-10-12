@@ -349,7 +349,7 @@ const _M = {
       //   race: "DIR"
       // },
       markItemStatus: (itId, status) => {
-        commit("setItemStatus", itId, status)
+        commit("setItemStatus", { [itId]: status })
       },
       doneMove: async () => {
         await dispatch("queryList")

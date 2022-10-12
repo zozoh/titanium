@@ -57,7 +57,17 @@ const _M = {
           dftLabelHoverCopy: false,
           rowClassBy: "->is-${visibility}",
           fields: _.map(this.tableFields, key => {
-            return Wn.Obj.getTableField(key)
+            let setup;
+            let m = /^(~)?(.+)$/.exec(key)
+            if (m) {
+              key = m[2]
+              if ("~" == m[1]) {
+                setup = {
+                  candidate: true
+                }
+              }
+            }
+            return Wn.Obj.getTableField(key, setup)
           })
         }),
         wall: () => ({

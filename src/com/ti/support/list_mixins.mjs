@@ -584,7 +584,7 @@ const LIST_MIXINS = {
       let curId = this.theCurrentId
       let index = this.myLastIndex
       let rowIndex = this.findRowIndexById(rowId)
-      console.log("checkRow", quiet)
+      //console.log("checkRow", quiet)
       // Reset
       if (reset) {
         curId = null

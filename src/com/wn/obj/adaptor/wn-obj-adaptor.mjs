@@ -134,11 +134,10 @@ const _M = {
     },
     //--------------------------------------
     getCheckedItems(noneAsAll = false) {
-      let ids = this.checkedIds || {}
-      let alwaysOn = _.isEmpty(ids) && noneAsAll
-      let items = _.filter(this.list, li => {
-        return li && (alwaysOn || ids[li.id])
-      })
+      let items = this.GuiExplainContext.checkedItems;
+      if (noneAsAll && _.isEmpty(items)) {
+        return this.list || []
+      }
       return items
     },
     //--------------------------------------

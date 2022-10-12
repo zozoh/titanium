@@ -104,11 +104,10 @@ const _M = {
     },
     //--------------------------------------
     getCheckedItems(noneAsAll = false) {
-      let ids = this.checkedIds || {}
-      let alwaysOn = _.isEmpty(ids) && noneAsAll
-      let items = _.filter(this.list, li => {
-        return li && (alwaysOn || ids[li.id])
-      })
+      let items = this.GuiExplainContext.checkedItems;
+      if (noneAsAll && _.isEmpty(items)) {
+        return this.list || []
+      }
       return items
     },
     //--------------------------------------
@@ -125,8 +124,8 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      if (/change$/.test(name))
-          console.log("WnThAdaptor.__on_events", name, payload)
+      // if (/change$/.test(name))
+      //   console.log("WnThAdaptor.__on_events", name, payload)
 
       // ByPass
       if (/^(indicate)$/.test(name)) {
@@ -159,7 +158,7 @@ const _M = {
       }
       // Object call
       if (!_.isFunction(func)) {
-        if(fn.explain) {
+        if (fn.explain) {
           fn = Ti.Util.explainObj(invokeContext, fn)
         }
         func = Ti.Util.genInvoking(fn, {

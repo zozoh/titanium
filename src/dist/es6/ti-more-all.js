@@ -1,4 +1,4 @@
-// Pack At: 2022-10-09 01:25:58
+// Pack At: 2022-10-12 23:55:23
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8094,7 +8094,7 @@ const _M = {
       //   race: "DIR"
       // },
       markItemStatus: (itId, status) => {
-        commit("setItemStatus", itId, status)
+        commit("setItemStatus", { [itId]: status })
       },
       doneMove: async () => {
         await dispatch("queryList")
@@ -29013,7 +29013,7 @@ const LIST_MIXINS = {
       let curId = this.theCurrentId
       let index = this.myLastIndex
       let rowIndex = this.findRowIndexById(rowId)
-      console.log("checkRow", quiet)
+      //console.log("checkRow", quiet)
       // Reset
       if (reset) {
         curId = null
@@ -32825,11 +32825,10 @@ const _M = {
     },
     //--------------------------------------
     getCheckedItems(noneAsAll = false) {
-      let ids = this.checkedIds || {}
-      let alwaysOn = _.isEmpty(ids) && noneAsAll
-      let items = _.filter(this.list, li => {
-        return li && (alwaysOn || ids[li.id])
-      })
+      let items = this.GuiExplainContext.checkedItems;
+      if (noneAsAll && _.isEmpty(items)) {
+        return this.list || []
+      }
       return items
     },
     //--------------------------------------
@@ -41104,11 +41103,10 @@ const _M = {
     },
     //--------------------------------------
     getCheckedItems(noneAsAll = false) {
-      let ids = this.checkedIds || {}
-      let alwaysOn = _.isEmpty(ids) && noneAsAll
-      let items = _.filter(this.list, li => {
-        return li && (alwaysOn || ids[li.id])
-      })
+      let items = this.GuiExplainContext.checkedItems;
+      if (noneAsAll && _.isEmpty(items)) {
+        return this.list || []
+      }
       return items
     },
     //--------------------------------------
@@ -41125,8 +41123,8 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      if (/change$/.test(name))
-          console.log("WnThAdaptor.__on_events", name, payload)
+      // if (/change$/.test(name))
+      //   console.log("WnThAdaptor.__on_events", name, payload)
 
       // ByPass
       if (/^(indicate)$/.test(name)) {
@@ -41159,7 +41157,7 @@ const _M = {
       }
       // Object call
       if (!_.isFunction(func)) {
-        if(fn.explain) {
+        if (fn.explain) {
           fn = Ti.Util.explainObj(invokeContext, fn)
         }
         func = Ti.Util.genInvoking(fn, {
@@ -49358,7 +49356,17 @@ const _M = {
           dftLabelHoverCopy: false,
           rowClassBy: "->is-${visibility}",
           fields: _.map(this.tableFields, key => {
-            return Wn.Obj.getTableField(key)
+            let setup;
+            let m = /^(~)?(.+)$/.exec(key)
+            if (m) {
+              key = m[2]
+              if ("~" == m[1]) {
+                setup = {
+                  candidate: true
+                }
+              }
+            }
+            return Wn.Obj.getTableField(key, setup)
           })
         }),
         wall: () => ({
@@ -58192,36 +58200,36 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "meta" : {
-    type : Object,
-    default : null
+  "meta": {
+    type: Object,
+    default: null
   },
   // {list:[], pager:{..}}
-  "data" : {
-    type : [Object, Array],
-    default : null
+  "data": {
+    type: [Object, Array],
+    default: null
   },
-  "currentId" : {
-    type : String,
-    default : null
+  "currentId": {
+    type: String,
+    default: null
   },
-  "checkedIds" : {
-    type : [Array, Object],
-    default : undefined
+  "checkedIds": {
+    type: [Array, Object],
+    default: undefined
   },
-  "changedId" : {
-    type : String,
-    default : null
+  "changedId": {
+    type: String,
+    default: null
   },
-  "status" : {
-    type : Object,
-    default : ()=>({
-      reloading : false
+  "status": {
+    type: Object,
+    default: () => ({
+      reloading: false
     })
   },
-  "itemTitleKey" : {
-    type : String,
-    default : "title"
+  "itemTitleKey": {
+    type: String,
+    default: "title"
   },
   // Fixed meta append after uploaded.
   "uploadMeta": {
@@ -58238,7 +58246,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "itemStatus": {
     type: Object,
-    default: ()=>({
+    default: () => ({
       /* [id] : "loading|renaming|removed" */
     })
   },
@@ -58246,76 +58254,83 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // Behavior
   //-----------------------------------
   // Drop files to upload
-  "droppable" : {
-    type : Boolean,
-    default : true
+  "droppable": {
+    type: Boolean,
+    default: true
   },
   // multi-selectable
   // effected when selectable is true
-  "multi" : {
-    type : Boolean,
-    default : true
+  "multi": {
+    type: Boolean,
+    default: true
   },
-  "checkable" : {
-    type : Boolean,
-    default : true
+  "checkable": {
+    type: Boolean,
+    default: true
   },
-  "blurable" : {
-    type : Boolean,
-    default : true
+  "blurable": {
+    type: Boolean,
+    default: true
   },
-  "selectable" : {
-    type : Boolean,
-    default : true
+  "selectable": {
+    type: Boolean,
+    default: true
   },
   // aspect: list item spacing
   // `xs|sm|md|lg|xl`
-  "spacing" : {
-    type : String,
-    default : "sm"
+  "spacing": {
+    type: String,
+    default: "sm"
   },
-  "routers" : {
-    type : Object,
-    default : ()=>({
-      "reload" : "dispatch:main/reload"
+  "routers": {
+    type: Object,
+    default: () => ({
+      "reload": "dispatch:main/reload"
     })
   },
-  "listConf" : {
-    type : Object
+  "listConf": {
+    type: Object
   },
-  "wallViewConf"  : {
-    type : Object
+  "wallViewConf": {
+    type: Object
   },
-  "listViewConf"  : {
-    type : Object
+  "listViewConf": {
+    type: Object
   },
-  "tableViewConf" : {
-    type : Object
+  "tableViewConf": {
+    type: Object
   },
-  "acceptUpload" : {
+  "acceptUpload": {
     type: [Array, String]
   },
-  "exposeHidden" : {
-    type : Boolean,
+  "exposeHidden": {
+    type: Boolean,
   },
-  "viewType" : {
-    type : String,
-    default : "wall"
+  "viewType": {
+    type: String,
+    default: "wall"
   },
-  "avaViewTypes" : {
-    type : Array,
-    default : ()=>["wall", "table", "list"]
+  "avaViewTypes": {
+    type: Array,
+    default: () => ["wall", "table", "list"]
   },
-  "listDisplay" : {
-    type : [Array, String, Object],
-    default: ()=>["@<thumb>", "title|nm::flex-auto", "nm::as-tip-block"]
+  "listDisplay": {
+    type: [Array, String, Object],
+    default: () => ["@<thumb>", "title|nm::flex-auto", "nm::as-tip-block"]
   },
-  "tableFields" : {
-    type : Array,
-    default : ()=>["title", "nm", "c", "g", "tp", "len", "lm"]
+  "tableFields": {
+    type: Array,
+    default: () => [
+      "title", "~nm",
+      "~race", "tp", "~mime",
+      "~c", "~g", "~m",
+      "~d0", "~d1", "~md",
+      "~sort", "~width", "~height", "~duration", 
+      "~len", "~ct", "lm"
+    ]
   },
-  "moveToConf" : {
-    type : Object
+  "moveToConf": {
+    type: Object
   },
   //-----------------------------------
   // Aspect
@@ -58324,30 +58339,30 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Number,
     default: undefined
   },
-  "itemClassName" : {
-    type : String
+  "itemClassName": {
+    type: String
   },
-  "itemBadges" : {
-    type : [Object, Function]
+  "itemBadges": {
+    type: [Object, Function]
   },
-  "viewTypeIcons" : {
-    type : Object,
-    default : ()=>({
-      "wall"  : "zmdi-view-module",
-      "table" : "zmdi-view-subtitles",
-      "list"  : "zmdi-view-headline"
+  "viewTypeIcons": {
+    type: Object,
+    default: () => ({
+      "wall": "zmdi-view-module",
+      "table": "zmdi-view-subtitles",
+      "list": "zmdi-view-headline"
     })
   },
   //-----------------------------------
   // Callback
   //-----------------------------------
-  "beforeUpload" : {
+  "beforeUpload": {
     type: Function
   },
-  "afterUpload" : {
+  "afterUpload": {
     type: Function
   },
-  "onViewTypeChange" : {
+  "onViewTypeChange": {
     type: Function,
   }
 }
@@ -73855,8 +73870,11 @@ async function loadConfigJson(state, key, dft) {
     return dft
   }
   // Load
-  let tsId = state.thingSetId
-  let aph = `id:${tsId}/${path}`
+  let aph = path
+  if (!/^(~\/|id:|\/)/.test(path)) {
+    let tsId = state.thingSetId
+    aph = `id:${tsId}/${path}`
+  }
   let re = await Wn.Sys.exec(`cat ${aph}`)
   re = _.trim(re)
 
@@ -79754,6 +79772,13 @@ const _M = {
     //------------------------------------------------
     TopClass() {
       return this.getTopClass()
+    },
+    //------------------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
     },
     //------------------------------------------------
     ComType() {
@@ -88509,7 +88534,7 @@ Ti.Preload("ti/com/ti/input/pair/_com.json", {
 // JOIN <ti-input-picker.html> ti/com/ti/input/picker/ti-input-picker.html
 //========================================
 Ti.Preload("ti/com/ti/input/picker/ti-input-picker.html", `<component :is="ComType"
-  class="ti-input-picker" :class="TopClass"
+  class="ti-input-picker" :class="TopClass" :style="TopStyle"
   v-bind="ComConf"
   :value="value"
   @change="OnInputChange"
@@ -95851,8 +95876,7 @@ Ti.Preload("ti/com/wn/files/wn-files.html", `<WnObjAdaptor
   :objMethods="objMethods"
   :viewType="viewType"
   :exposeHidden="exposeHidden"
-  :searchPageNumber="searchPageNumber"
-  :searchPageSize="searchPageSize"
+  :getters="getters"
   :events="GuiEvents"/>
   `);
 //========================================

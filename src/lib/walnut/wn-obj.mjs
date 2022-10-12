@@ -6,33 +6,58 @@ const TABLE_FIELDS = {
     display: [Wn.Obj.getObjThumbDisplay("rawData"), "title|nm"]
   }),
   //---------------------------------------------
+  "nm": () => ({
+    title: "i18n:wn-key-nm",
+    display: "nm"
+  }),
+  //---------------------------------------------
+  "race": {
+    title: "i18n:wn-key-race",
+    display: {
+      key: "race",
+      comConf: {
+        format: "i18n:wn-race-${race}"
+      }
+    }
+  },
+  //---------------------------------------------
   "tp": {
     title: "i18n:wn-key-tp",
-    width: -80,
     display: "rawData.tp::as-tip"
+  },
+  //---------------------------------------------
+  "mime": {
+    title: "i18n:wn-key-mime",
+    display: "rawData.mime::as-tip"
   },
   //---------------------------------------------
   "c": {
     title: "i18n:wn-key-c",
-    width: -150,
     display: "rawData.c::as-tip"
   },
   //---------------------------------------------
   "m": {
-    title: "i18n:wn-key-",
-    width: -150,
-    display: "rawData.c::as-tip"
+    title: "i18n:wn-key-m",
+    display: "rawData.m::as-tip"
   },
   //---------------------------------------------
   "g": {
     title: "i18n:wn-key-g",
-    width: -150,
     display: "rawData.g::as-tip"
+  },
+  //---------------------------------------------
+  "d0": {
+    title: "i18n:wn-key-d0",
+    display: "rawData.d0::as-tip"
+  },
+  //---------------------------------------------
+  "d1": {
+    title: "i18n:wn-key-d1",
+    display: "rawData.d1::as-tip"
   },
   //---------------------------------------------
   "md": {
     title: "i18n:wn-key-md",
-    width: 120,
     display: {
       key: "rawData.md",
       transformer: "Wn.Obj.modeToStr",
@@ -42,9 +67,28 @@ const TABLE_FIELDS = {
     }
   },
   //---------------------------------------------
+  "sort": {
+    title: "i18n:sort",
+    display: "sort"
+  },
+  //---------------------------------------------
+  "width": {
+    title: "i18n:wn-key-width",
+    display: "width"
+  },
+  //---------------------------------------------
+  "height": {
+    title: "i18n:wn-key-height",
+    display: "height"
+  },
+  //---------------------------------------------
+  "duration": {
+    title: "i18n:wn-key-duration",
+    display: "duration"
+  },
+  //---------------------------------------------
   "len": {
     title: "i18n:wn-key-len",
-    width: -100,
     display: {
       key: "rawData.len",
       transformer: "Ti.S.sizeText",
@@ -56,7 +100,6 @@ const TABLE_FIELDS = {
   //---------------------------------------------
   "ct": {
     title: "i18n:wn-key-ct",
-    width: -120,
     display: {
       key: "rawData.ct",
       transformer: "Ti.DateTime.timeText",
@@ -68,7 +111,6 @@ const TABLE_FIELDS = {
   //---------------------------------------------
   "lm": {
     title: "i18n:wn-key-lm",
-    width: -120,
     display: {
       key: "rawData.lm",
       transformer: "Ti.DateTime.timeText",
@@ -247,6 +289,7 @@ const FORM_FIELDS = {
     title: "i18n:wn-key-md",
     name: "md",
     type: "Integer",
+    colSpan: 2,
     comType: "WnObjMode",
     comConf: {
       valueType: "decimal"
@@ -257,6 +300,7 @@ const FORM_FIELDS = {
     title: "i18n:wn-key-pvg",
     name: "pvg",
     type: "Object",
+    colSpan: 3,
     comType: "TiInputText",
     comConf: {
       autoJsValue: true,
@@ -524,24 +568,35 @@ const WnObj = {
     return iteratee(fld) || fld
   },
   //----------------------------------------
-  getTableField(key) {
+  getTableField(key, setup = {}) {
+    let tf;
     if (_.isString(key)) {
-      let fld = _.get(TABLE_FIELDS, key)
-      if (!fld) {
-        return {
+      tf = _.get(TABLE_FIELDS, key)
+      if (!tf) {
+        tf = {
           title: key,
           display: key
         }
       }
-      if (_.isFunction(fld)) {
-        return fld(key)
+      // Dynamic
+      if (_.isFunction(tf)) {
+        tf = tf(key)
       }
-      return fld
     }
-    if (_.isFunction(key)) {
-      return key()
+    // Dynamic
+    else if (_.isFunction(key)) {
+      tf = key()
     }
-    return key
+    // Object
+    else {
+      tf = key
+    }
+    // done
+    if (!_.isEmpty(setup)) {
+      let tf2 = _.cloneDeep(tf)
+      return _.assign(tf2, setup)
+    }
+    return tf
   },
   //----------------------------------------
   getField(key) {

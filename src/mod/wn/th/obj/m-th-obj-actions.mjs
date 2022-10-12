@@ -6,8 +6,11 @@ async function loadConfigJson(state, key, dft) {
     return dft
   }
   // Load
-  let tsId = state.thingSetId
-  let aph = `id:${tsId}/${path}`
+  let aph = path
+  if (!/^(~\/|id:|\/)/.test(path)) {
+    let tsId = state.thingSetId
+    aph = `id:${tsId}/${path}`
+  }
   let re = await Wn.Sys.exec(`cat ${aph}`)
   re = _.trim(re)
 
