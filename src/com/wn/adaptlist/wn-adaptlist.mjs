@@ -58,12 +58,14 @@ const _M = {
           rowClassBy: "->is-${visibility}",
           fields: _.map(this.tableFields, key => {
             let setup;
-            let m = /^(~)?(.+)$/.exec(key)
-            if (m) {
-              key = m[2]
-              if ("~" == m[1]) {
-                setup = {
-                  candidate: true
+            if (_.isString(key)) {
+              let m = /^(~)?(.+)$/.exec(key)
+              if (m) {
+                key = m[2]
+                if ("~" == m[1]) {
+                  setup = {
+                    candidate: true
+                  }
                 }
               }
             }

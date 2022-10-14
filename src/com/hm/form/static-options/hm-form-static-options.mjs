@@ -1,5 +1,3 @@
-import _M from "../../../ti/form/form-support.mjs"
-
 export default {
   ////////////////////////////////////////////////////
   props: {
@@ -32,6 +30,10 @@ export default {
     "formValueField": {
       type: Object,
       default: () => ({})
+    },
+    "enableOthers": {
+      type: Boolean,
+      default: false
     },
     //------------------------------------------------
     // Aspect
@@ -79,35 +81,45 @@ export default {
     },
     //------------------------------------------------
     FormComConf() {
-      return {
-        "gridColumnHint": 1,
-        "fields": [
-          {
-            "title": "i18n:icon",
-            "name": "icon",
-            "comType": "TiInputIcon",
-            "comConf": this.formIconComConf
-          },
-          {
-            "title": "i18n:title",
-            "name": "text",
-            ..._.assign({
-              type: "String",
-              comType: "TiInput",
-              comConf: {}
-            }, this.formTextField)
-          },
-          {
-            "title": "i18n:value",
-            "name": "value",
-            ..._.assign({
-              type: "String",
-              comType: "TiInput",
-              comConf: {}
-            }, this.formValueField)
+      let fields = [
+        {
+          "title": "i18n:icon",
+          "name": "icon",
+          "comType": "TiInputIcon",
+          "comConf": this.formIconComConf
+        },
+        {
+          "title": "i18n:title",
+          "name": "text",
+          ..._.assign({
+            type: "String",
+            comType: "TiInput",
+            comConf: {}
+          }, this.formTextField)
+        },
+        {
+          "title": "i18n:value",
+          "name": "value",
+          ..._.assign({
+            type: "String",
+            comType: "TiInput",
+            comConf: {}
+          }, this.formValueField)
+        }
+      ]
+
+      if(this.enableOthers) {
+        fields.push({
+          title: "i18n:enable-others",
+          type:Boolean,
+          comType: "TiSwitcher",
+          comConf: {
+            options: "#BoolOptions"
           }
-        ]
+        })
       }
+
+      return { gridColumnHint: 1, fields }
     }
     //------------------------------------------------
   },

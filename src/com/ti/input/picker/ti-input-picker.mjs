@@ -87,6 +87,16 @@ const _M = {
       type: String,
       default: "fas-cog"
     },
+    // only for single box-mode
+    "boxMode": {
+      type: String,
+      default: "auto",
+      validator: v => /^(auto|value-text|text-value|text|value)$/.test(v)
+    },
+    "canInput": {
+      type: Boolean,
+      default: true
+    },
     //-----------------------------------
     // Measure
     //-----------------------------------
@@ -113,13 +123,20 @@ const _M = {
       })
     },
     //------------------------------------------------
+    InputBoxMode() {
+      if ("auto" == this.boxMode) {
+        return this.canInput ? "value-text" : "text-value"
+      }
+      return this.boxMode || "value-text"
+    },
+    //------------------------------------------------
     ComType() {
       return this.multi ? "TiInputTags" : "TiInput"
     },
     //------------------------------------------------
     ComConf() {
       let conf = _.assign({
-        readonly: this.readonly || this.isPicking,
+        readonly: this.readonly || this.isPicking || !this.canInput,
         focused: this.focused,
         placeholder: this.placeholder
       }, this.input)
@@ -131,16 +148,35 @@ const _M = {
       // Multi 
       if (this.multi) {
         conf.dict = this.Dict
+        conf.value = this.value
       }
       // Single
       else {
         conf.prefixIcon = this.myValueIcon || this.prefixIcon
-        conf.suffixText = this.myValueText
+
+        if (!conf.readonly) {
+          conf.focusValue = this.value
+        }
+
+        if ("value-text" == this.InputBoxMode) {
+          conf.value = this.value
+          conf.suffixText = this.myValueText
+        }
+        else if ("text-value" == this.InputBoxMode) {
+          conf.value = this.myValueText
+          conf.suffixText = this.value
+        }
+        else if ("text" == this.InputBoxMode) {
+          conf.value = this.myValueText
+        }
+        else if ("value" == this.InputBoxMode) {
+          conf.value = this.value
+        }
       }
 
       if (this.isPicking) {
         conf.suffixIcon = this.pickingIcon
-        if (!this.multi) {
+        if (!this.multi && this.pickingText) {
           conf.suffixText = this.pickingText
         }
       }
