@@ -5,7 +5,7 @@
   <!--
     Prefix
   -->
-  <div class="as-bar is-prefix">
+  <div class="as-bar is-prefix" v-if="prefixIcon || prefixText">
     <!--prefix:icon-->
     <div v-if="prefixIcon"
       class="as-icon at-prefix"
@@ -41,7 +41,7 @@
   <!--
     Suffix
   -->
-  <div class="as-bar is-suffix">
+  <div class="as-bar is-suffix" v-if="suffixText || suffixIcon">
     <!--suffix:text-->
     <div v-if="suffixText"
       class="as-text at-suffix"

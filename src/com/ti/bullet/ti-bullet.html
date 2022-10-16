@@ -49,6 +49,23 @@
               -->
               <div class="as-tip" v-if="it.tip">{{it.tip}}</div>
           </div>
+          <!-- Other option -->
+          <div
+            v-if="otherEnabled"
+              class="as-bullet-item as-option"
+              :class="OtherClassName"
+              @click.left="OnClickOther">
+              <ti-icon class="as-bullet" :value="OtherBulletIcon"/>
+              <div class="as-text">
+                <span>{{otherText | i18n}}</span>
+                <input 
+                  ref="other"
+                  :style="OtherInputStyle"
+                  :value="OtherValue" 
+                  :placeholder="otherPlaceholder|i18n"
+                  @change="OnOtherInputChange"/>
+              </div>
+          </div>
         </div>
       </div>
   </template>

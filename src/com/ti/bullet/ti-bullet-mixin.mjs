@@ -3,6 +3,7 @@ const _M = {
   data: () => ({
     myDict: undefined,
     myOptionsData: [],
+    myOptionsMap: {},
     loading: false
   }),
   ////////////////////////////////////////////////////
@@ -54,6 +55,25 @@ const _M = {
     "isBlank": {
       type: Boolean,
       default: false
+    },
+    "otherEnabled": {
+      type: Boolean,
+      default: false
+    },
+    "otherText": {
+      type: String,
+      default: "i18n:others",
+    },
+    "otherPlaceholder": {
+      type: String,
+      default: "i18n:no-set",
+    },
+    "otherInputWidth": {
+      type: [String, Number]
+    },
+    "otherDefaultValue": {
+      type: String,
+      default: ""
     },
     //-----------------------------------
     // Aspect
@@ -114,7 +134,6 @@ const _M = {
     //-----------------------------------------------
     BulletItemsStyle() {
       let style = _.assign({}, this.itemsStyle)
-
       return style
     },
     // //--------------------------------------------------
@@ -229,9 +248,63 @@ const _M = {
       }
     },
     //------------------------------------------------
+    // If the value not in options, take it as others value
+    OtherValue() {
+      let itMap = this.myOptionsMap || {}
+      // Grouped value
+      if (_.isArray(this.value)) {
+        let re = []
+        for (let v of this.value) {
+          if (!itMap[v]) {
+            re.push(v)
+          }
+        }
+        return re.length > 1 ? re : _.first(re)
+      }
+      // Single value
+      else if (!itMap[this.value]) {
+        return this.value
+      }
+    },
+    //------------------------------------------------
+    isOtherValue() {
+      return !Ti.Util.isNil(this.OtherValue)
+    },
+    //------------------------------------------------
+    OtherClassName() {
+      return {
+        "is-checked": this.isOtherValue
+      }
+    },
+    //------------------------------------------------
+    OtherBulletIcon() {
+      if (this.isOtherValue) {
+        return this.bulletIconOn
+      }
+      return this.bulletIconOff
+    },
+    //------------------------------------------------
+    OtherInputStyle() {
+      return {
+        width: Ti.Css.toSize(this.otherInputWidth)
+      }
+    }
+    //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods: {
+    //------------------------------------------------
+    OnOtherInputChange($event) {
+      let $input = $event.srcElement
+      let v = _.trim($input.value)
+      this.$notify("change", v)
+    },
+    //------------------------------------------------
+    OnClickOther() {
+      if (!this.isOtherValue) {
+        this.$notify("change", this.otherDefaultValue);
+      }
+    },
     //------------------------------------------------
     OnClickItem(it = {}) {
       if ("Option" == it.type) {
@@ -240,6 +313,7 @@ const _M = {
     },
     //------------------------------------------------
     evalItems(items = []) {
+      let itMap = {}
       let list = []
       _.forEach(items, li => {
         if (this.IgnoreItem(li))
@@ -262,6 +336,9 @@ const _M = {
         // Mapping
         it = this.FnOptionMapping(it)
 
+        // Join value mapping
+        itMap[it.value] = it
+
         // I18n
         if (this.autoI18n) {
           it.text = Ti.I18n.get(it.text, it.text)
@@ -282,14 +359,19 @@ const _M = {
         // Mark check
         if (this.isItemChecked(it.value)) {
           it.className["is-checked"] = true
+          it.checked = true
           it.bullet = this.bulletIconOn
         } else {
           it.bullet = this.bulletIconOff
+          it.checked = false
         }
 
         // Append to list
         list.push(it)
       })
+
+      this.myOptionsMap = itMap
+
       return list
     },
     //------------------------------------------------

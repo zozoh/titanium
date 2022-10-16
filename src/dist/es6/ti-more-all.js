@@ -1,4 +1,4 @@
-// Pack At: 2022-10-14 16:28:37
+// Pack At: 2022-10-17 01:32:20
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13162,7 +13162,6 @@ const _M = {
     async evalFormField(fld = {}, nbs = [], {
       cans = [], grp = this, fmap = {}
     } = {}) {
-      //console.log("evalFormField")
       // The key
       let fldKey = Ti.Util.anyKey(fld.name || nbs)
 
@@ -49112,10 +49111,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: Object,
       default: () => ({})
     },
-    "enableOthers": {
-      type: Boolean,
-      default: false
-    },
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
@@ -49143,21 +49138,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
   computed: {
     //------------------------------------------------
     ListComConf() {
+      let fields = [
+        {
+          "title": "i18n:title",
+          "display": [
+            "<icon>?",
+            "text"
+          ]
+        },
+        {
+          "title": "i18n:value",
+          "display": "value::as-tip flex-none"
+        }
+      ]
+
       return {
-        "dftLabelHoverCopy": false,
-        "fields": [
-          {
-            "title": "i18n:title",
-            "display": [
-              "<icon>?",
-              "text"
-            ]
-          },
-          {
-            "title": "i18n:value",
-            "display": "value::as-tip flex-none"
-          }
-        ]
+        dftLabelHoverCopy: false,
+        columnResizable: true,
+        canCustomizedFields: true,
+        fields
       }
     },
     //------------------------------------------------
@@ -49188,17 +49187,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }, this.formValueField)
         }
       ]
-
-      if(this.enableOthers) {
-        fields.push({
-          title: "i18n:enable-others",
-          type:Boolean,
-          comType: "TiSwitcher",
-          comConf: {
-            options: "#BoolOptions"
-          }
-        })
-      }
 
       return { gridColumnHint: 1, fields }
     }
@@ -55941,7 +55929,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
             "autoJsValue": true,
             "autoSelect": true
           }
-        }
+        },
+        components: [
+          "@com:ti/input/dval"
+        ]
       })
 
       // User Cancel
@@ -65431,6 +65422,7 @@ const _M = {
   data: () => ({
     myDict: undefined,
     myOptionsData: [],
+    myOptionsMap: {},
     loading: false
   }),
   ////////////////////////////////////////////////////
@@ -65482,6 +65474,25 @@ const _M = {
     "isBlank": {
       type: Boolean,
       default: false
+    },
+    "otherEnabled": {
+      type: Boolean,
+      default: false
+    },
+    "otherText": {
+      type: String,
+      default: "i18n:others",
+    },
+    "otherPlaceholder": {
+      type: String,
+      default: "i18n:no-set",
+    },
+    "otherInputWidth": {
+      type: [String, Number]
+    },
+    "otherDefaultValue": {
+      type: String,
+      default: ""
     },
     //-----------------------------------
     // Aspect
@@ -65542,7 +65553,6 @@ const _M = {
     //-----------------------------------------------
     BulletItemsStyle() {
       let style = _.assign({}, this.itemsStyle)
-
       return style
     },
     // //--------------------------------------------------
@@ -65657,9 +65667,63 @@ const _M = {
       }
     },
     //------------------------------------------------
+    // If the value not in options, take it as others value
+    OtherValue() {
+      let itMap = this.myOptionsMap || {}
+      // Grouped value
+      if (_.isArray(this.value)) {
+        let re = []
+        for (let v of this.value) {
+          if (!itMap[v]) {
+            re.push(v)
+          }
+        }
+        return re.length > 1 ? re : _.first(re)
+      }
+      // Single value
+      else if (!itMap[this.value]) {
+        return this.value
+      }
+    },
+    //------------------------------------------------
+    isOtherValue() {
+      return !Ti.Util.isNil(this.OtherValue)
+    },
+    //------------------------------------------------
+    OtherClassName() {
+      return {
+        "is-checked": this.isOtherValue
+      }
+    },
+    //------------------------------------------------
+    OtherBulletIcon() {
+      if (this.isOtherValue) {
+        return this.bulletIconOn
+      }
+      return this.bulletIconOff
+    },
+    //------------------------------------------------
+    OtherInputStyle() {
+      return {
+        width: Ti.Css.toSize(this.otherInputWidth)
+      }
+    }
+    //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods: {
+    //------------------------------------------------
+    OnOtherInputChange($event) {
+      let $input = $event.srcElement
+      let v = _.trim($input.value)
+      this.$notify("change", v)
+    },
+    //------------------------------------------------
+    OnClickOther() {
+      if (!this.isOtherValue) {
+        this.$notify("change", this.otherDefaultValue);
+      }
+    },
     //------------------------------------------------
     OnClickItem(it = {}) {
       if ("Option" == it.type) {
@@ -65668,6 +65732,7 @@ const _M = {
     },
     //------------------------------------------------
     evalItems(items = []) {
+      let itMap = {}
       let list = []
       _.forEach(items, li => {
         if (this.IgnoreItem(li))
@@ -65690,6 +65755,9 @@ const _M = {
         // Mapping
         it = this.FnOptionMapping(it)
 
+        // Join value mapping
+        itMap[it.value] = it
+
         // I18n
         if (this.autoI18n) {
           it.text = Ti.I18n.get(it.text, it.text)
@@ -65710,14 +65778,19 @@ const _M = {
         // Mark check
         if (this.isItemChecked(it.value)) {
           it.className["is-checked"] = true
+          it.checked = true
           it.bullet = this.bulletIconOn
         } else {
           it.bullet = this.bulletIconOff
+          it.checked = false
         }
 
         // Append to list
         list.push(it)
       })
+
+      this.myOptionsMap = itMap
+
       return list
     },
     //------------------------------------------------
@@ -84415,6 +84488,23 @@ Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list"
               -->
               <div class="as-tip" v-if="it.tip">{{it.tip}}</div>
           </div>
+          <!-- Other option -->
+          <div
+            v-if="otherEnabled"
+              class="as-bullet-item as-option"
+              :class="OtherClassName"
+              @click.left="OnClickOther">
+              <ti-icon class="as-bullet" :value="OtherBulletIcon"/>
+              <div class="as-text">
+                <span>{{otherText | i18n}}</span>
+                <input 
+                  ref="other"
+                  :style="OtherInputStyle"
+                  :value="OtherValue" 
+                  :placeholder="otherPlaceholder|i18n"
+                  @change="OnOtherInputChange"/>
+              </div>
+          </div>
         </div>
       </div>
   </template>
@@ -87878,7 +87968,7 @@ Ti.Preload("ti/com/ti/input/text/ti-input-text.html", `<div class="ti-input-text
   <!--
     Prefix
   -->
-  <div class="as-bar is-prefix">
+  <div class="as-bar is-prefix" v-if="prefixIcon || prefixText">
     <!--prefix:icon-->
     <div v-if="prefixIcon"
       class="as-icon at-prefix"
@@ -87914,7 +88004,7 @@ Ti.Preload("ti/com/ti/input/text/ti-input-text.html", `<div class="ti-input-text
   <!--
     Suffix
   -->
-  <div class="as-bar is-suffix">
+  <div class="as-bar is-suffix" v-if="suffixText || suffixIcon">
     <!--suffix:text-->
     <div v-if="suffixText"
       class="as-text at-suffix"
@@ -98620,37 +98710,37 @@ Ti.Preload("/a/load/wn.manager/wn-manager.mjs", TI_PACK_EXPORTS['/a/load/wn.mana
 // JOIN <hmaker.i18n.json> ti/i18n/en-uk/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-uk/hmaker.i18n.json", {
-  "am-and": "并且",
-  "am-blank": "为空白",
-  "am-boolFalse": "为假",
-  "am-boolTrue": "为真",
-  "am-empty": "为空",
-  "am-equals": "等于${val} ",
-  "am-equalsIgnoreCase": "等于\"${val}\"且无视大小写",
-  "am-equalsType": "类型等于\"${val}\"",
-  "am-exists": "存在'${val}'",
-  "am-findInArray": "存在一个【${val}】的对象",
-  "am-gt": "大于${val}",
-  "am-gte": "大于等于${val}",
-  "am-lt": "小于${val}",
-  "am-lte": "小于等于${val}",
-  "am-matchOf": "匹配'${val}'",
+  "am-and": "and",
+  "am-blank": "is blank",
+  "am-boolFalse": "is false",
+  "am-boolTrue": "is true",
+  "am-empty": "is empty",
+  "am-equals": "equal to ${val} ",
+  "am-equalsIgnoreCase": "equal ignore case to \"${val}\"",
+  "am-equalsType": "type equal to \"${val}\"",
+  "am-exists": "has '${val}'",
+  "am-findInArray": "contains a object [${val}]",
+  "am-gt": "greater than ${val}",
+  "am-gte": "greater than or equal to ${val}",
+  "am-lt": "less than ${val}",
+  "am-lte": "less than or equal to ${val}",
+  "am-matchOf": "is matched with '${val}'",
   "am-must-false": "Must be false",
   "am-must-true": "Must be true",
-  "am-nil": "为空",
-  "am-nilOf": "字段${val}为空",
-  "am-noexists": "不存在'${val}'",
-  "am-not": "不",
+  "am-nil": "is nil",
+  "am-nilOf": "field ${val} is nil",
+  "am-noexists": "not exists '${val}'",
+  "am-not": "NOT",
   "am-not-sure": "Not sure",
-  "am-notEquals": "不等于${val} ",
-  "am-notMatchOf": "不匹配'${FFFval}'",
-  "am-notNil": "不为空",
-  "am-notNilOf": "字段${val}不为空",
-  "am-null": "为空值",
-  "am-nullOf": "字段${val}为空值",
-  "am-or": "或者",
-  "am-undefined": "未定义",
-  "am-undefinedOf": "字段${val}未定义",
+  "am-notEquals": "not equals with ${val} ",
+  "am-notMatchOf": "unmatch '${FFFval}'",
+  "am-notNil": "not null",
+  "am-notNilOf": "Field ${val} is NOT null",
+  "am-null": "is null",
+  "am-nullOf": "Field ${val} is null",
+  "am-or": "or",
+  "am-undefined": "is undefined",
+  "am-undefinedOf": "Field ${val} is undefined",
   "com-form": "Form",
   "com-label": "Label",
   "com-list": "list",
@@ -98676,7 +98766,12 @@ Ti.Preload("ti/i18n/en-uk/hmaker.i18n.json", {
     "Object": "Zmdi-toys",
     "String": "Zmdi-translate"
   },
-  "hm-form-options-enable-others": "Enable Others",
+  "hm-form-options-other-enabled": "Show Other",
+  "hm-form-options-other-text": "Other Text",
+  "hm-form-options-other-ph": "Other tip",
+  "hm-form-options-other-ph-ph": "Enter other options",
+  "hm-form-options-other-width": "Other width",
+  "hm-form-options-other-dftval": "Other default",
   "hmaker-com-conf-blank": "请选择一个控件设置其详情",
   "hmaker-com-type-blank": "选择一个控件",
   "hmaker-edit-form-del-group-all": "组以及全部字段",
@@ -100213,37 +100308,37 @@ Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
 // JOIN <hmaker.i18n.json> ti/i18n/en-us/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
-  "am-and": "并且",
-  "am-blank": "为空白",
-  "am-boolFalse": "为假",
-  "am-boolTrue": "为真",
-  "am-empty": "为空",
-  "am-equals": "等于${val} ",
-  "am-equalsIgnoreCase": "等于\"${val}\"且无视大小写",
-  "am-equalsType": "类型等于\"${val}\"",
-  "am-exists": "存在'${val}'",
-  "am-findInArray": "存在一个【${val}】的对象",
-  "am-gt": "大于${val}",
-  "am-gte": "大于等于${val}",
-  "am-lt": "小于${val}",
-  "am-lte": "小于等于${val}",
-  "am-matchOf": "匹配'${val}'",
-  "am-must-false": "Must be false",
-  "am-must-true": "Must be true",
-  "am-nil": "为空",
-  "am-nilOf": "字段${val}为空",
-  "am-noexists": "不存在'${val}'",
-  "am-not": "不",
-  "am-not-sure": "Not sure",
-  "am-notEquals": "不等于${val} ",
-  "am-notMatchOf": "不匹配'${FFFval}'",
-  "am-notNil": "不为空",
-  "am-notNilOf": "字段${val}不为空",
-  "am-null": "为空值",
-  "am-nullOf": "字段${val}为空值",
-  "am-or": "或者",
-  "am-undefined": "未定义",
-  "am-undefinedOf": "字段${val}未定义",
+  "am-and": " and ",
+  "am-blank": " is blank",
+  "am-boolFalse": " is false",
+  "am-boolTrue": " is true",
+  "am-empty": " is empty",
+  "am-equals": " equal to ${val}",
+  "am-equalsIgnoreCase": " equal ignore case to \"${val}\"",
+  "am-equalsType": " type equal to \"${val}\"",
+  "am-exists": " has '${val}'",
+  "am-findInArray": " contains a object [${val}]",
+  "am-gt": " greater than ${val}",
+  "am-gte": " greater than or equal to ${val}",
+  "am-lt": " less than ${val}",
+  "am-lte": " less than or equal to ${val}",
+  "am-matchOf": " is matched with '${val}'",
+  "am-must-false": " must be false",
+  "am-must-true": " must be true",
+  "am-nil": " is nil",
+  "am-nilOf": " field ${val} is nil",
+  "am-noexists": " not exists '${val}'",
+  "am-not": " NOT ",
+  "am-not-sure": "not sure",
+  "am-notEquals": "not equals with ${val} ",
+  "am-notMatchOf": "unmatch '${FFFval}'",
+  "am-notNil": " not null",
+  "am-notNilOf": " field ${val} is NOT null",
+  "am-null": " is null",
+  "am-nullOf": " field ${val} is null",
+  "am-or": " or ",
+  "am-undefined": " is undefined",
+  "am-undefinedOf": "Field ${val} is undefined",
   "com-form": "Form",
   "com-label": "Label",
   "com-list": "list",
@@ -100269,7 +100364,12 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
     "Object": "Zmdi-toys",
     "String": "Zmdi-translate"
   },
-  "hm-form-options-enable-others": "Enable Others",
+  "hm-form-options-other-enabled": "Show Other",
+  "hm-form-options-other-text": "Other Text",
+  "hm-form-options-other-ph": "Other tip",
+  "hm-form-options-other-ph-ph": "Enter other options",
+  "hm-form-options-other-width": "Other width",
+  "hm-form-options-other-dftval": "Other default",
   "hmaker-com-conf-blank": "请选择一个控件设置其详情",
   "hmaker-com-type-blank": "选择一个控件",
   "hmaker-edit-form-del-group-all": "组以及全部字段",
@@ -101862,7 +101962,12 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
     "Object": "zmdi-toys",
     "String": "zmdi-translate"
   },
-  "hm-form-options-enable-others": "允许其他值",
+  "hm-form-options-other-enabled": "显示其他",
+  "hm-form-options-other-text": "其他·文字",
+  "hm-form-options-other-ph": "其他·提示信息",
+  "hm-form-options-other-ph-ph": "输入其他选项",
+  "hm-form-options-other-width": "其他·宽度",
+  "hm-form-options-other-dftval": "其他·默认值",
   "hmaker-com-conf-blank": "请选择一个控件设置其详情",
   "hmaker-com-type-blank": "选择一个控件",
   "hmaker-edit-form-del-group-all": "组以及全部字段",
@@ -103455,7 +103560,12 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
       "Object": "zmdi-toys",
       "String": "zmdi-translate"
    },
-   "hm-form-options-enable-others": "允許其他值",
+   "hm-form-options-other-enabled": "顯示其他",
+   "hm-form-options-other-text": "其他·文字",
+   "hm-form-options-other-ph": "其他·提示信息",
+   "hm-form-options-other-ph-ph": "輸入其他選項",
+   "hm-form-options-other-width": "其他·寬度",
+   "hm-form-options-other-dftval": "其他·默認值",
    "hmaker-com-conf-blank": "請選擇一個控件設置其詳情",
    "hmaker-com-type-blank": "選擇一個控件",
    "hmaker-edit-form-del-group-all": "組以及全部字段",

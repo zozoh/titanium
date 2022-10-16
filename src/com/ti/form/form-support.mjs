@@ -479,7 +479,6 @@ const _M = {
     async evalFormField(fld = {}, nbs = [], {
       cans = [], grp = this, fmap = {}
     } = {}) {
-      //console.log("evalFormField")
       // The key
       let fldKey = Ti.Util.anyKey(fld.name || nbs)
 

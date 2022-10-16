@@ -142,7 +142,10 @@ export default {
             "autoJsValue": true,
             "autoSelect": true
           }
-        }
+        },
+        components: [
+          "@com:ti/input/dval"
+        ]
       })
 
       // User Cancel

@@ -31,10 +31,6 @@ export default {
       type: Object,
       default: () => ({})
     },
-    "enableOthers": {
-      type: Boolean,
-      default: false
-    },
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
@@ -62,21 +58,25 @@ export default {
   computed: {
     //------------------------------------------------
     ListComConf() {
+      let fields = [
+        {
+          "title": "i18n:title",
+          "display": [
+            "<icon>?",
+            "text"
+          ]
+        },
+        {
+          "title": "i18n:value",
+          "display": "value::as-tip flex-none"
+        }
+      ]
+
       return {
-        "dftLabelHoverCopy": false,
-        "fields": [
-          {
-            "title": "i18n:title",
-            "display": [
-              "<icon>?",
-              "text"
-            ]
-          },
-          {
-            "title": "i18n:value",
-            "display": "value::as-tip flex-none"
-          }
-        ]
+        dftLabelHoverCopy: false,
+        columnResizable: true,
+        canCustomizedFields: true,
+        fields
       }
     },
     //------------------------------------------------
@@ -107,17 +107,6 @@ export default {
           }, this.formValueField)
         }
       ]
-
-      if(this.enableOthers) {
-        fields.push({
-          title: "i18n:enable-others",
-          type:Boolean,
-          comType: "TiSwitcher",
-          comConf: {
-            options: "#BoolOptions"
-          }
-        })
-      }
 
       return { gridColumnHint: 1, fields }
     }

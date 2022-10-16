@@ -1,6 +1,7 @@
 .ti-bullet-list {
   overflow: auto;
   padding: 1px;
+  width: 100%;
   //-------------------------------------
   .as-group-title {
     padding: 0.5em;
@@ -8,7 +9,7 @@
   }
   //-------------------------------------
   .as-bullet-item {
-    @include flex-align-nowrap($ai: flex-start);
+    @include flex-align-nowrap;
     //-----------------------------------
     &.as-label {
       @include color($color-bar, r, c);
@@ -53,7 +54,13 @@
     }
     //-----------------------------------
     > .as-text {
-      flex: 1 1 auto; margin-left: SZ(8);
+      flex: 1 1 auto;
+      margin-left: SZ(8);
+      input {
+        @include text-input;
+        padding: 0.6em;
+        margin: 0 SZ(8);
+      }
     }
     //-----------------------------------
     > .as-tip {

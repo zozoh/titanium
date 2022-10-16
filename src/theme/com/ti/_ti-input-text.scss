@@ -1,7 +1,7 @@
 .ti-input-text {
   @include flex-align-v-nowrap;
   @include color($color-input, c, r);
-  height:SZ(100);
+  height: SZ(100);
   //-----------------------------------------
   &.show-border {
     @include border(1px, solid, dark);
@@ -13,24 +13,29 @@
   //----------------------------------
   > .as-bar {
     @include flex-align-nowrap;
-    flex:0 0 auto;
-    padding:SZ(6);
+    flex: 0 0 auto;
+    padding: SZ(6);
   }
   //----------------------------------
   > textarea {
     @include font-fixed(inherit);
-    width:100%; 
-    outline: none; resize: none;
-    flex:1 1 auto;
-    outline:none; border:0;
-    padding:0 SZ(10);
-    background:transparent;
-    color:inherit;
+    line-height: 1.6em;
+    width: 100%;
+    outline: none;
+    resize: none;
+    flex: 1 1 auto;
+    outline: none;
+    border: 0;
+    padding: 0.5em;
+    background: transparent;
+    color: inherit;
   }
   //----------------------------------
   &.is-readonly {
     @include color($color-track, c, r);
-    &.is-focused {border-color: map-get($color-line, dark);}
+    &.is-focused {
+      border-color: map-get($color-line, dark);
+    }
   }
   //----------------------------------
 }
