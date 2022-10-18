@@ -648,6 +648,7 @@ const _M = {
         "nameWrap": grp.fieldNameWrap || this.fieldNameWrap,
         "valueClass": grp.fieldValueClass || this.fieldValueClass,
         "valueStyle": grp.fieldValueStyle || this.fieldValueStyle,
+        "valueVAlign": grp.fieldValueVAlign || this.fieldValueVAlign,
         "valueWrap": grp.fieldValueWrap || this.fieldValueWrap,
         "rowSpan": grp.fieldRowSpan || this.fieldRowSpan,
         "colSpan": grp.fieldColSpan || this.fieldColSpan,
@@ -681,6 +682,9 @@ const _M = {
         _.assign(com.comConf, {
           readonly: true
         })
+        if (com.comConf.editable) {
+          com.comConf.editable = false
+        }
       }
 
       return com

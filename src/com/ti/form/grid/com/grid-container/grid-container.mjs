@@ -13,6 +13,16 @@ const _M = {
     "status": Object,
     "lang": String,
     //-----------------------------------
+    // Behaviors
+    //-----------------------------------
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
+    "batchReadonly": {
+      type: [Function, Array, Object]
+    },
+    //-----------------------------------
     // Aspect
     //-----------------------------------
     "fieldBorder": String,
@@ -39,6 +49,10 @@ const _M = {
       return {
         "grid-template-columns": "1fr"
       }
+    },
+    //--------------------------------------------------
+    canShowBatchEditableSwitcher() {
+      return !this.readonly && !this.batchReadonly
     }
     //--------------------------------------------------
   },

@@ -247,13 +247,6 @@ export default {
     //------------------------------------------------
     GuiEvents() {
       return {
-        "search::list::select": [
-          (payload) => {
-            //console.log("WnFile::search::list::select", payload)
-            let $a = this.getObjAdaptor()
-            $a.dispatch("loadContent", { quiet: true })
-          }
-        ],
         "detail::change": (payload) => {
           //console.log("OnDetailChange", payload)    
           let $a = this.getObjAdaptor()

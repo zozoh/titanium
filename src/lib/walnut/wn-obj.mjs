@@ -607,7 +607,10 @@ const WnObj = {
     return {
       title: key,
       name: key,
-      type: "String"
+      type: "String",
+      comConf: {
+        className: "is-break-word"
+      }
     }
   },
   //----------------------------------------

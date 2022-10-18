@@ -1,44 +1,46 @@
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    lines : []
+  data: () => ({
+    lines: []
   }),
   ////////////////////////////////////////////////////
-  props : {
-    "value" : String,
-    "tipText" : String,
-    "tipIcon" : String,
-    "vars" : Object,
+  props: {
+    "value": String,
+    "tipText": String,
+    "tipIcon": String,
+    "preface": [Array, String],
+    "epilog": [Array, String],
+    "vars": Object,
     "as": {
-      type : String,
+      type: String,
       default: "text"
     },
     "emitName": String,
-    "emitPayload" : undefined,
+    "emitPayload": undefined,
     "emitSuccess": String,
     "emitError": String,
-    "input" : String,
-    "forceFlushBuffer" : {
-      type : Boolean,
+    "input": String,
+    "forceFlushBuffer": {
+      type: Boolean,
       default: true
     },
-    "showRunTip" : {
-      type : Boolean,
-      default : true
+    "showRunTip": {
+      type: Boolean,
+      default: true
     },
     "showTailRunTip": {
-      type : Boolean,
-      default : undefined
+      type: Boolean,
+      default: undefined
     },
     //
     // Callback
     // 
-    "afterRunCommand" : Function,
-    "whenSuccess" : Function,
-    "whenError" : Function
+    "afterRunCommand": Function,
+    "whenSuccess": Function,
+    "whenError": Function
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -53,10 +55,14 @@ const _M = {
     },
     //------------------------------------------------
     async runCommand() {
-      if(!this.value)
+      if (!this.value)
         return
-      
-      if(this.showRunTip) {
+
+      if (!_.isEmpty(this.preface)) {
+        this.lines.push(..._.concat(this.preface))
+      }
+
+      if (this.showRunTip) {
         this.printHR()
         this.lines.push(Ti.I18n.get("run-welcome"))
       }
@@ -70,46 +76,49 @@ const _M = {
       //     this.lines.push(line)
       //   }
       // })
-      let re ;
-      try{
+      let re;
+      try {
         re = await this.exec(this.value)
-        if(/^e\./.test(re)) {
+        if (/^e\./.test(re)) {
           throw re
         }
         // Success
-        if(_.isFunction(this.whenSuccess)) {
-          await this.whenSuccess(re, {$panel:this})
+        if (_.isFunction(this.whenSuccess)) {
+          await this.whenSuccess(re, { $panel: this })
         }
-        if(this.emitSuccess) {
-          this.$notify(this.emitSuccess, this.emitPayload || re)  
+        if (this.emitSuccess) {
+          this.$notify(this.emitSuccess, this.emitPayload || re)
+        }
+        if (!_.isEmpty(this.epilog)) {
+          this.lines.push(..._.concat(this.epilog))
         }
       }
       // Fail
-      catch(err) {
-        if(_.isFunction(this.whenError)) {
-          await this.whenError(err, {$panel:this})
+      catch (err) {
+        if (_.isFunction(this.whenError)) {
+          await this.whenError(err, { $panel: this })
         }
-        if(this.emitError) {
-          this.$notify(this.emitError, this.emitPayload || err)  
+        if (this.emitError) {
+          this.$notify(this.emitError, this.emitPayload || err)
         }
       }
 
       //
       // Always 
       //
-      if(_.isFunction(this.afterRunCommand)) {
-        await this.afterRunCommand(re, {$panel:this})
+      if (_.isFunction(this.afterRunCommand)) {
+        await this.afterRunCommand(re, { $panel: this })
       }
-      if(this.emitName) {
+      if (this.emitName) {
         this.$notify(this.emitName, this.emitPayload || re)
       }
     },
     //------------------------------------------------
-    async exec(cmdText, options={}) {
-      if(this.vars) {
+    async exec(cmdText, options = {}) {
+      if (this.vars) {
         cmdText = Ti.S.renderBy(cmdText, this.vars)
       }
-      if(this.showRunTip || options.showRunTip) {
+      if (this.showRunTip || options.showRunTip) {
         this.printHR()
         this.lines.push("> " + cmdText)
         this.printHR()
@@ -117,13 +126,13 @@ const _M = {
 
       let re = await Wn.Sys.exec(cmdText, {
         //...............................
-        as : this.as,
-        input : this.input, 
-        forceFlushBuffer : this.forceFlushBuffer,
+        as: this.as,
+        input: this.input,
+        forceFlushBuffer: this.forceFlushBuffer,
         //...............................
-        ... options,
+        ...options,
         //...............................
-        eachLine : (line)=>{
+        eachLine: (line) => {
           this.lines.push(line)
         }
       })
@@ -131,7 +140,7 @@ const _M = {
         this.showTailRunTip, options.showTailRunTip,
         this.showRunTip, options.showRunTip
       )
-      if(showTailRunTip) {
+      if (showTailRunTip) {
         this.printHR()
         this.lines.push("--> " + cmdText)
         this.printHR()
@@ -142,26 +151,26 @@ const _M = {
     },
     //------------------------------------------------
     println(str, vars) {
-      if(!_.isEmpty(vars)) {
+      if (!_.isEmpty(vars)) {
         str = Ti.S.renderBy(str, vars)
       }
       this.lines.push(str)
     },
     //------------------------------------------------
-    printHR(c="-") {
+    printHR(c = "-") {
       let hr = _.repeat(c, 40)
       this.lines.push(hr)
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
-    "value" : {
+  watch: {
+    "value": {
       handler: "runCommand",
-      immediate : true
-    }, 
-    "lines" : function() {
-      this.$nextTick(()=>{
+      immediate: true
+    },
+    "lines": function () {
+      this.$nextTick(() => {
         this.$refs.lines.scrollTop = this.$refs.lines.scrollHeight * 2
       })
     }

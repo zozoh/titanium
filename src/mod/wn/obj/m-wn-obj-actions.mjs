@@ -40,7 +40,7 @@ const _M = {
 
     let meta;
     if (!quiet) {
-      commit("setStatus", { reloading: true })
+      commit("setStatus", { reloadContent: true })
     }
 
     if ("<self>" != path) {
@@ -57,7 +57,7 @@ const _M = {
       state.LOG("updateContent => null")
       dispatch("updateContent", null)
       if (!quiet) {
-        commit("setStatus", { reloading: false })
+        commit("setStatus", { reloadContent: false })
       }
       return
     }
@@ -70,7 +70,7 @@ const _M = {
 
     // All done
     if (!quiet) {
-      commit("setStatus", { reloading: false })
+      commit("setStatus", { reloadContent: false })
     }
 
     return content

@@ -209,6 +209,11 @@ export default {
     type: Object,
     default: () => ({})
   },
+  "fieldValueVAlign": {
+    type: String,
+    default: "center",
+    validator: (v) => /^(top|bottom|center)$/.test(v)
+  },
   "fieldValueWrap": {
     type: String,
     default: "auto",

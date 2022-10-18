@@ -260,6 +260,10 @@ const _M = {
           icon: "fas-spinner fa-spin",
           text: "i18n:loading"
         },
+        "reloadContent": {
+          icon: "fas-spinner fa-spin",
+          text: "i18n:loading"
+        },
         "doing": {
           icon: "zmdi-settings fa-spin",
           text: "i18n:doing"
@@ -289,6 +293,7 @@ const _M = {
     //--------------------------------------
     GuiIsLoading() {
       return (this.status.reloading
+        || this.status.reloadContent
         || this.status.doing
         || this.status.saving
         || this.status.deleting

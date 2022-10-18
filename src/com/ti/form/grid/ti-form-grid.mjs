@@ -160,7 +160,9 @@ const _M = {
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
         statusIcons: this.statusIcons,
-        fieldNameMaxWidth: this.GridFieldNameMaxWidth
+        fieldNameMaxWidth: this.GridFieldNameMaxWidth,
+        readonly: this.isReadonly,
+        batchReadonly: this.isBatchReadonly
       }
     },
     //--------------------------------------------------

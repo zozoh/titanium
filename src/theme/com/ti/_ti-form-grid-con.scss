@@ -147,6 +147,7 @@
       > .field-required {
         font-weight: bold;
         font-size: SZ(20);
+        line-height: .5em;
         margin-right: SZ(4);
         text-align: left;
         color: map-get($color-secondary, c);
@@ -205,6 +206,16 @@
     //----------------------------------
     &[value-wrap="nowrap"] {
       @include flex-align-nowrap;
+      //--------------------------------
+      &[value-v-align="top"] {
+        align-items: flex-start;
+      }
+      &[value-v-align="bottom"] {
+        align-items: flex-end;
+      }
+      &[value-v-align="center"] {
+        align-items: center;
+      }
       //----------------------------------
       > .field-value-com {
         flex: 0 0 auto;
@@ -217,6 +228,17 @@
     //----------------------------------
     &[value-wrap="wrap"] {
       @include flex-align-v-nowrap($jc: center);
+      //--------------------------------
+      &[value-v-align="top"] {
+        justify-content: flex-start;
+      }
+      &[value-v-align="bottom"] {
+        justify-content: flex-end;
+      }
+      &[value-v-align="center"] {
+        justify-content: center;
+      }
+      //--------------------------------
     }
     //----------------------------------
     &[value-wrap="auto"] {
@@ -224,6 +246,19 @@
       justify-content: flex-start;
       align-items: center;
       align-content: center;
+      //--------------------------------
+      &[value-v-align="top"] {
+        align-items: flex-start;
+        align-content: flex-start;
+      }
+      &[value-v-align="bottom"] {
+        align-items: flex-end;
+        align-content: flex-end;
+      }
+      &[value-v-align="center"] {
+        align-items: center;
+        align-content: center;
+      }
       //----------------------------------
       > .field-value-com {
         flex: 1 1 auto;
@@ -290,7 +325,7 @@
 .ti-form-grid[spacing="comfy"] > main > section > .ti-form-grid-con {
   > .field-label,
   > .field-name {
-    padding: SZ(12);
+    padding: SZ(10);
     .field-icon {
       margin-right: SZ(6);
     }

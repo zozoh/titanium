@@ -10,8 +10,9 @@ async function OpenCmdPanel(cmdText, {
   width = "80%", height = "90%", spacing,
   vars,
   input,
-  forceFlushBuffer, 
+  forceFlushBuffer,
   showRunTip, showTailRunTip,
+  preface, epilog,
   cmdTipText,
   cmdTipIcon,
   onBodyReady,
@@ -45,6 +46,7 @@ async function OpenCmdPanel(cmdText, {
       "tipIcon": cmdTipIcon,
       vars, input, forceFlushBuffer,
       showRunTip, showTailRunTip,
+      preface, epilog,
       afterRunCommand,
       whenSuccess,
       whenError

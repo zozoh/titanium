@@ -5,7 +5,7 @@
   min-height: 2.4em;
   //-----------------------------------------
   &.has-width {
-    flex:0 0 auto;
+    flex: 0 0 auto;
   }
   //-----------------------------------------
   &.show-border {
@@ -56,8 +56,11 @@
   //-----------------------------------------
   .as-input-text {
     @include flex-center;
+    @include font-fixed;
+    color: map-get($color-track, c);
     white-space: nowrap;
     padding: 0 SZ(6);
+    font-size: 0.9em;
     //---------------------------------------
     &.can-hover {
       cursor: pointer;

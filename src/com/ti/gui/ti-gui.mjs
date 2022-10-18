@@ -88,7 +88,7 @@ const _M = {
       default: undefined
     },
     "loading": {
-      type: Boolean,
+      type: [Boolean, String],
       default: false
     }
   },
@@ -167,11 +167,26 @@ const _M = {
     },
     //--------------------------------------
     isLoading() {
-      return this.canLoading && this.loading
+      return this.canLoading && this.loading ? true : false
     },
     //--------------------------------------
     TheLoading() {
-      return this.loadingAs || {}
+      let as = this.loadingAs || {}
+      if (_.isString(this.loading)) {
+        if (as[this.loading]) {
+          return as[this.loading]
+        }
+      }
+      let keys = Ti.Util.truthyKeys(this.actionStatus)
+      for (let key of keys) {
+        if (as[key]) {
+          return as[key]
+        }
+      }
+      if (as.reloading) {
+        return as.reloading
+      }
+      return as
     }
     //--------------------------------------
   },

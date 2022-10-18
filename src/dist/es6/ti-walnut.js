@@ -1,4 +1,4 @@
-// Pack At: 2022-10-17 01:32:20
+// Pack At: 2022-10-19 01:12:05
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -1196,7 +1196,10 @@ const Obj = (function(){
       return {
         title: key,
         name: key,
-        type: "String"
+        type: "String",
+        comConf: {
+          className: "is-break-word"
+        }
       }
     },
     //----------------------------------------
@@ -3971,8 +3974,9 @@ const OpenCmdPanel = (function(){
     width = "80%", height = "90%", spacing,
     vars,
     input,
-    forceFlushBuffer, 
+    forceFlushBuffer,
     showRunTip, showTailRunTip,
+    preface, epilog,
     cmdTipText,
     cmdTipIcon,
     onBodyReady,
@@ -4006,6 +4010,7 @@ const OpenCmdPanel = (function(){
         "tipIcon": cmdTipIcon,
         vars, input, forceFlushBuffer,
         showRunTip, showTailRunTip,
+        preface, epilog,
         afterRunCommand,
         whenSuccess,
         whenError
@@ -4439,7 +4444,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20221017.013220"
+const WALNUT_VERSION = "1.2-20221019.011206"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

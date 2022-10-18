@@ -41,7 +41,7 @@
                   :style="fld.nameTextStyle">{{fld.title | i18n}}</div>
               <!------Show enable switcher ------>
               <div
-                v-if="fld.batchDisabled && !fld.batchReadonly"
+                v-if="canShowBatchEditableSwitcher && fld.batchDisabled && !fld.batchReadonly"
                   class="field-editable">
                   <div @click.left="$emit('field:edit', fld)">
                     <i v-if="fld.disabled" class="zmdi zmdi-square-o"></i>
@@ -61,6 +61,7 @@
           :class="fld.valueClass"
           :style="fld.valueStyle"
           :value-wrap="fld.valueWrap"
+          :value-v-align="fld.valueVAlign"
           :grid-start="fld.valueGridStart"
           :grid-span="fld.valueGridSpan"
           @click.left.stop="OnClickComValue(fld)">

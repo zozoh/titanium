@@ -170,7 +170,7 @@ export default {
     },
     //--------------------------------------
     OnBarToggleSize(payload) {
-      //console.log("OnBarToggleSize")
+      console.log("OnBarToggleSize")
       //..............................
       let {
         prevMinimum, selfMinimum, adjacentMode, adjustIndex
@@ -229,7 +229,7 @@ export default {
       __toggle_sizes(sizes)
       //..............................
       this.blockSizes = this.normlizedBlockSize(sizes, {
-        adjacentMode: this.adjacentMode,
+        adjacentMode,
         viewportWidth,
         prevI,
         selfI

@@ -54,6 +54,8 @@ export default {
         keepCustomizedTo: this.keepCustomizedTo,
         rowNumberBase: this.rowNumberBase,
         defaultOpenDepth: this.defaultOpenDepth,
+        multi:true,
+        checkable: true,
         display: [
           "<icon>",
           "name::flex-auto is-nowrap",

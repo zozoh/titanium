@@ -406,6 +406,10 @@ const _M = {
         name: file.name,
         majorName: Ti.Util.getMajorName(file.name)
       }
+      //................................
+      // Prepare customized file meta
+      // Merge them to vars, then we can make target path more-dyna
+      _.assign(vars, this.fileMeta)
       let taPath = Ti.S.renderBy(this.target, vars)
 
       //................................

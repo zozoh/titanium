@@ -1,4 +1,4 @@
-// Pack At: 2022-10-17 01:32:20
+// Pack At: 2022-10-19 01:12:05
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1045,13 +1045,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     GuiEvents() {
       return {
-        "search::list::select": [
-          (payload) => {
-            //console.log("WnFile::search::list::select", payload)
-            let $a = this.getObjAdaptor()
-            $a.dispatch("loadContent", { quiet: true })
-          }
-        ],
         "detail::change": (payload) => {
           //console.log("OnDetailChange", payload)    
           let $a = this.getObjAdaptor()
@@ -13331,6 +13324,7 @@ const _M = {
         "nameWrap": grp.fieldNameWrap || this.fieldNameWrap,
         "valueClass": grp.fieldValueClass || this.fieldValueClass,
         "valueStyle": grp.fieldValueStyle || this.fieldValueStyle,
+        "valueVAlign": grp.fieldValueVAlign || this.fieldValueVAlign,
         "valueWrap": grp.fieldValueWrap || this.fieldValueWrap,
         "rowSpan": grp.fieldRowSpan || this.fieldRowSpan,
         "colSpan": grp.fieldColSpan || this.fieldColSpan,
@@ -13364,6 +13358,9 @@ const _M = {
         _.assign(com.comConf, {
           readonly: true
         })
+        if (com.comConf.editable) {
+          com.comConf.editable = false
+        }
       }
 
       return com
@@ -16098,6 +16095,16 @@ const _M = {
     "status": Object,
     "lang": String,
     //-----------------------------------
+    // Behaviors
+    //-----------------------------------
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
+    "batchReadonly": {
+      type: [Function, Array, Object]
+    },
+    //-----------------------------------
     // Aspect
     //-----------------------------------
     "fieldBorder": String,
@@ -16124,6 +16131,10 @@ const _M = {
       return {
         "grid-template-columns": "1fr"
       }
+    },
+    //--------------------------------------------------
+    canShowBatchEditableSwitcher() {
+      return !this.readonly && !this.batchReadonly
     }
     //--------------------------------------------------
   },
@@ -21434,7 +21445,9 @@ const _M = {
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
         statusIcons: this.statusIcons,
-        fieldNameMaxWidth: this.GridFieldNameMaxWidth
+        fieldNameMaxWidth: this.GridFieldNameMaxWidth,
+        readonly: this.isReadonly,
+        batchReadonly: this.isBatchReadonly
       }
     },
     //--------------------------------------------------
@@ -29229,7 +29242,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     OnBarToggleSize(payload) {
-      //console.log("OnBarToggleSize")
+      console.log("OnBarToggleSize")
       //..............................
       let {
         prevMinimum, selfMinimum, adjacentMode, adjustIndex
@@ -29288,7 +29301,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       __toggle_sizes(sizes)
       //..............................
       this.blockSizes = this.normlizedBlockSize(sizes, {
-        adjacentMode: this.adjacentMode,
+        adjacentMode,
         viewportWidth,
         prevI,
         selfI
@@ -30183,6 +30196,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Object,
     default: () => ({})
   },
+  "fieldValueVAlign": {
+    type: String,
+    default: "center",
+    validator: (v) => /^(top|bottom|center)$/.test(v)
+  },
   "fieldValueWrap": {
     type: String,
     default: "auto",
@@ -30607,6 +30625,10 @@ const _M = {
           icon: "fas-spinner fa-spin",
           text: "i18n:loading"
         },
+        "reloadContent": {
+          icon: "fas-spinner fa-spin",
+          text: "i18n:loading"
+        },
         "doing": {
           icon: "zmdi-settings fa-spin",
           text: "i18n:doing"
@@ -30636,6 +30658,7 @@ const _M = {
     //--------------------------------------
     GuiIsLoading() {
       return (this.status.reloading
+        || this.status.reloadContent
         || this.status.doing
         || this.status.saving
         || this.status.deleting
@@ -38451,7 +38474,7 @@ const _M = {
       default: undefined
     },
     "loading": {
-      type: Boolean,
+      type: [Boolean, String],
       default: false
     }
   },
@@ -38530,11 +38553,26 @@ const _M = {
     },
     //--------------------------------------
     isLoading() {
-      return this.canLoading && this.loading
+      return this.canLoading && this.loading ? true : false
     },
     //--------------------------------------
     TheLoading() {
-      return this.loadingAs || {}
+      let as = this.loadingAs || {}
+      if (_.isString(this.loading)) {
+        if (as[this.loading]) {
+          return as[this.loading]
+        }
+      }
+      let keys = Ti.Util.truthyKeys(this.actionStatus)
+      for (let key of keys) {
+        if (as[key]) {
+          return as[key]
+        }
+      }
+      if (as.reloading) {
+        return as.reloading
+      }
+      return as
     }
     //--------------------------------------
   },
@@ -53691,6 +53729,10 @@ const _M = {
         name: file.name,
         majorName: Ti.Util.getMajorName(file.name)
       }
+      //................................
+      // Prepare customized file meta
+      // Merge them to vars, then we can make target path more-dyna
+      _.assign(vars, this.fileMeta)
       let taPath = Ti.S.renderBy(this.target, vars)
 
       //................................
@@ -54824,6 +54866,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
         keepCustomizedTo: this.keepCustomizedTo,
         rowNumberBase: this.rowNumberBase,
         defaultOpenDepth: this.defaultOpenDepth,
+        multi:true,
+        checkable: true,
         display: [
           "<icon>",
           "name::flex-auto is-nowrap",
@@ -56734,7 +56778,7 @@ const _M = {
 
     let meta;
     if (!quiet) {
-      commit("setStatus", { reloading: true })
+      commit("setStatus", { reloadContent: true })
     }
 
     if ("<self>" != path) {
@@ -56751,7 +56795,7 @@ const _M = {
       state.LOG("updateContent => null")
       dispatch("updateContent", null)
       if (!quiet) {
-        commit("setStatus", { reloading: false })
+        commit("setStatus", { reloadContent: false })
       }
       return
     }
@@ -56764,7 +56808,7 @@ const _M = {
 
     // All done
     if (!quiet) {
-      commit("setStatus", { reloading: false })
+      commit("setStatus", { reloadContent: false })
     }
 
     return content
@@ -63118,45 +63162,47 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/wn/cmd/panel/wn-cmd-panel.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    lines : []
+  data: () => ({
+    lines: []
   }),
   ////////////////////////////////////////////////////
-  props : {
-    "value" : String,
-    "tipText" : String,
-    "tipIcon" : String,
-    "vars" : Object,
+  props: {
+    "value": String,
+    "tipText": String,
+    "tipIcon": String,
+    "preface": [Array, String],
+    "epilog": [Array, String],
+    "vars": Object,
     "as": {
-      type : String,
+      type: String,
       default: "text"
     },
     "emitName": String,
-    "emitPayload" : undefined,
+    "emitPayload": undefined,
     "emitSuccess": String,
     "emitError": String,
-    "input" : String,
-    "forceFlushBuffer" : {
-      type : Boolean,
+    "input": String,
+    "forceFlushBuffer": {
+      type: Boolean,
       default: true
     },
-    "showRunTip" : {
-      type : Boolean,
-      default : true
+    "showRunTip": {
+      type: Boolean,
+      default: true
     },
     "showTailRunTip": {
-      type : Boolean,
-      default : undefined
+      type: Boolean,
+      default: undefined
     },
     //
     // Callback
     // 
-    "afterRunCommand" : Function,
-    "whenSuccess" : Function,
-    "whenError" : Function
+    "afterRunCommand": Function,
+    "whenSuccess": Function,
+    "whenError": Function
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
       return this.getTopClass()
@@ -63171,10 +63217,14 @@ const _M = {
     },
     //------------------------------------------------
     async runCommand() {
-      if(!this.value)
+      if (!this.value)
         return
-      
-      if(this.showRunTip) {
+
+      if (!_.isEmpty(this.preface)) {
+        this.lines.push(..._.concat(this.preface))
+      }
+
+      if (this.showRunTip) {
         this.printHR()
         this.lines.push(Ti.I18n.get("run-welcome"))
       }
@@ -63188,46 +63238,49 @@ const _M = {
       //     this.lines.push(line)
       //   }
       // })
-      let re ;
-      try{
+      let re;
+      try {
         re = await this.exec(this.value)
-        if(/^e\./.test(re)) {
+        if (/^e\./.test(re)) {
           throw re
         }
         // Success
-        if(_.isFunction(this.whenSuccess)) {
-          await this.whenSuccess(re, {$panel:this})
+        if (_.isFunction(this.whenSuccess)) {
+          await this.whenSuccess(re, { $panel: this })
         }
-        if(this.emitSuccess) {
-          this.$notify(this.emitSuccess, this.emitPayload || re)  
+        if (this.emitSuccess) {
+          this.$notify(this.emitSuccess, this.emitPayload || re)
+        }
+        if (!_.isEmpty(this.epilog)) {
+          this.lines.push(..._.concat(this.epilog))
         }
       }
       // Fail
-      catch(err) {
-        if(_.isFunction(this.whenError)) {
-          await this.whenError(err, {$panel:this})
+      catch (err) {
+        if (_.isFunction(this.whenError)) {
+          await this.whenError(err, { $panel: this })
         }
-        if(this.emitError) {
-          this.$notify(this.emitError, this.emitPayload || err)  
+        if (this.emitError) {
+          this.$notify(this.emitError, this.emitPayload || err)
         }
       }
 
       //
       // Always 
       //
-      if(_.isFunction(this.afterRunCommand)) {
-        await this.afterRunCommand(re, {$panel:this})
+      if (_.isFunction(this.afterRunCommand)) {
+        await this.afterRunCommand(re, { $panel: this })
       }
-      if(this.emitName) {
+      if (this.emitName) {
         this.$notify(this.emitName, this.emitPayload || re)
       }
     },
     //------------------------------------------------
-    async exec(cmdText, options={}) {
-      if(this.vars) {
+    async exec(cmdText, options = {}) {
+      if (this.vars) {
         cmdText = Ti.S.renderBy(cmdText, this.vars)
       }
-      if(this.showRunTip || options.showRunTip) {
+      if (this.showRunTip || options.showRunTip) {
         this.printHR()
         this.lines.push("> " + cmdText)
         this.printHR()
@@ -63235,13 +63288,13 @@ const _M = {
 
       let re = await Wn.Sys.exec(cmdText, {
         //...............................
-        as : this.as,
-        input : this.input, 
-        forceFlushBuffer : this.forceFlushBuffer,
+        as: this.as,
+        input: this.input,
+        forceFlushBuffer: this.forceFlushBuffer,
         //...............................
-        ... options,
+        ...options,
         //...............................
-        eachLine : (line)=>{
+        eachLine: (line) => {
           this.lines.push(line)
         }
       })
@@ -63249,7 +63302,7 @@ const _M = {
         this.showTailRunTip, options.showTailRunTip,
         this.showRunTip, options.showRunTip
       )
-      if(showTailRunTip) {
+      if (showTailRunTip) {
         this.printHR()
         this.lines.push("--> " + cmdText)
         this.printHR()
@@ -63260,26 +63313,26 @@ const _M = {
     },
     //------------------------------------------------
     println(str, vars) {
-      if(!_.isEmpty(vars)) {
+      if (!_.isEmpty(vars)) {
         str = Ti.S.renderBy(str, vars)
       }
       this.lines.push(str)
     },
     //------------------------------------------------
-    printHR(c="-") {
+    printHR(c = "-") {
       let hr = _.repeat(c, 40)
       this.lines.push(hr)
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
-    "value" : {
+  watch: {
+    "value": {
       handler: "runCommand",
-      immediate : true
-    }, 
-    "lines" : function() {
-      this.$nextTick(()=>{
+      immediate: true
+    },
+    "lines": function () {
+      this.$nextTick(() => {
         this.$refs.lines.scrollTop = this.$refs.lines.scrollHeight * 2
       })
     }
@@ -68490,6 +68543,10 @@ const _M = {
         name: file.name,
         majorName: Ti.Util.getMajorName(file.name)
       }
+      //................................
+      // Prepare customized file meta
+      // Merge them to vars, then we can make target path more-dyna
+      _.assign(vars, this.fileMeta)
       let taPath = Ti.S.renderBy(this.target, vars)
 
       //................................
@@ -85990,7 +86047,7 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
                   :style="fld.nameTextStyle">{{fld.title | i18n}}</div>
               <!------Show enable switcher ------>
               <div
-                v-if="fld.batchDisabled && !fld.batchReadonly"
+                v-if="canShowBatchEditableSwitcher && fld.batchDisabled && !fld.batchReadonly"
                   class="field-editable">
                   <div @click.left="$emit('field:edit', fld)">
                     <i v-if="fld.disabled" class="zmdi zmdi-square-o"></i>
@@ -86010,6 +86067,7 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
           :class="fld.valueClass"
           :style="fld.valueStyle"
           :value-wrap="fld.valueWrap"
+          :value-v-align="fld.valueVAlign"
           :grid-start="fld.valueGridStart"
           :grid-span="fld.valueGridSpan"
           @click.left.stop="OnClickComValue(fld)">
