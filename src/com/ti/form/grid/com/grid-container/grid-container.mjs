@@ -52,7 +52,7 @@ const _M = {
     },
     //--------------------------------------------------
     canShowBatchEditableSwitcher() {
-      return !this.readonly && !this.batchReadonly
+      return !this.readonly
     }
     //--------------------------------------------------
   },

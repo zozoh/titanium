@@ -15,7 +15,8 @@ export default {
     }
 
     // 获取当前选择账号
-    let accounts = this.$store.getters[`${moduleName}/checkedItem`]
+    
+    let accounts = this.$store.getters[`${moduleName}/checkedItems`]
 
     // 提示错误
     if (_.isEmpty(accounts)) {

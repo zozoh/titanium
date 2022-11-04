@@ -153,6 +153,7 @@ const _M = {
       // Single
       else {
         conf.prefixIcon = this.myValueIcon || this.prefixIcon
+        conf.prefixIconNotifyName = null
 
         if (!conf.readonly) {
           conf.focusValue = this.value
@@ -198,6 +199,11 @@ const _M = {
     async OnInputChange(value) {
       // Guard: only check with dict
       if (!this.Dict) {
+        this.tryNotifyChange(value)
+        return
+      }
+      // null
+      if(Ti.Util.isNil(value)){
         this.tryNotifyChange(value)
         return
       }

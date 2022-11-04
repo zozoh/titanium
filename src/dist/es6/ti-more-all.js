@@ -1,4 +1,4 @@
-// Pack At: 2022-10-19 01:12:05
+// Pack At: 2022-11-04 23:35:07
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -16134,7 +16134,7 @@ const _M = {
     },
     //--------------------------------------------------
     canShowBatchEditableSwitcher() {
-      return !this.readonly && !this.batchReadonly
+      return !this.readonly
     }
     //--------------------------------------------------
   },
@@ -40346,7 +40346,7 @@ const _M = {
     // For Event Bubble Dispatching
     __on_events(name, payload) {
       // if (/change$/.test(name))
-      //   console.log("WnThAdaptor.__on_events", name, payload)
+         console.log("WnThAdaptor.__on_events", name, payload)
 
       // ByPass
       if (/^(indicate)$/.test(name)) {
@@ -79150,6 +79150,7 @@ const _M = {
       // Single
       else {
         conf.prefixIcon = this.myValueIcon || this.prefixIcon
+        conf.prefixIconNotifyName = null
 
         if (!conf.readonly) {
           conf.focusValue = this.value
@@ -79195,6 +79196,11 @@ const _M = {
     async OnInputChange(value) {
       // Guard: only check with dict
       if (!this.Dict) {
+        this.tryNotifyChange(value)
+        return
+      }
+      // null
+      if(Ti.Util.isNil(value)){
         this.tryNotifyChange(value)
         return
       }
