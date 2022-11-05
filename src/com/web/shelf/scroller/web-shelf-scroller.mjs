@@ -130,7 +130,7 @@ const _M = {
         // let comConf = _.assign({}, this.comConf, {
         //   value: it
         // })
-        let comConf = Ti.Util.explainObj(it, this.comConf)
+        let comConf = Ti.Util.explainObj({ index: i, ...it }, this.comConf)
         list.push({
           index: i,
           key: `It-${i}`,

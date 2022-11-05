@@ -1,4 +1,4 @@
-// Pack At: 2022-11-04 23:35:07
+// Pack At: 2022-11-06 00:09:45
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -75707,7 +75707,7 @@ const _M = {
         // let comConf = _.assign({}, this.comConf, {
         //   value: it
         // })
-        let comConf = Ti.Util.explainObj(it, this.comConf)
+        let comConf = Ti.Util.explainObj({ index: i, ...it }, this.comConf)
         list.push({
           index: i,
           key: `It-${i}`,
