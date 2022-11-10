@@ -1,4 +1,4 @@
-// Pack At: 2022-11-06 00:09:45
+// Pack At: 2022-11-11 01:02:58
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12784,10 +12784,10 @@ const _M = {
     //--------------------------------------------------
     FormLinkFields() {
       let re = {}
-      _.forEach(this.linkFields, (val, key) => {
+      _.forEach(this.linkFields, (lnkFld, key) => {
         // By dict
-        if (val && val.dict && val.target) {
-          let { dict, target } = val
+        if (lnkFld && lnkFld.dict && lnkFld.target) {
+          let { dict, target } = lnkFld
           // Guard
           if (!target) {
             return
@@ -12800,7 +12800,7 @@ const _M = {
             // Dynamic
             if (dynamic) {
               let key = _.get(data, dictKey)
-              let vars = Ti.Util.explainObj(data, val.dictVars || {})
+              let vars = Ti.Util.explainObj(data, lnkFld.dictVars || {})
               d = Ti.DictFactory.GetDynamicDict({ name, key, vars })
             }
             // Static Dictionary
@@ -12833,11 +12833,11 @@ const _M = {
             }
           }
           // Explain target
-          else if (val.explainTargetAs) {
+          else if (lnkFld.explainTargetAs) {
             fn = async function ({ value, name }, data) {
               let it = await getItemFromDict(value, data)
               let ctx = _.assign({}, data, {
-                [val.explainTargetAs]: it
+                [lnkFld.explainTargetAs]: it
               })
               let newVal = Ti.Util.explainObj(ctx, target)
               // console.log(name, value, "->", newVal)
@@ -12855,18 +12855,18 @@ const _M = {
           re[key] = fn
         }
         // Statice value
-        else if (val && val.target) {
+        else if (lnkFld && lnkFld.target) {
           re[key] = ({ name, value }, data) => {
             let tc = _.assign({}, { "$update": { name, value } }, data)
-            if (val.test && !Ti.AutoMatch.test(val.test, tc)) {
+            if (lnkFld.test && !Ti.AutoMatch.test(lnkFld.test, tc)) {
               return
             }
-            return Ti.Util.explainObj(tc, val.target)
+            return Ti.Util.explainObj(tc, lnkFld.target)
           }
         }
         // Customized Function
-        else if (_.isFunction(val)) {
-          re[key] = val
+        else if (_.isFunction(lnkFld)) {
+          re[key] = lnkFld
         }
       })
       return re
@@ -40346,7 +40346,7 @@ const _M = {
     // For Event Bubble Dispatching
     __on_events(name, payload) {
       // if (/change$/.test(name))
-         console.log("WnThAdaptor.__on_events", name, payload)
+      //    console.log("WnThAdaptor.__on_events", name, payload)
 
       // ByPass
       if (/^(indicate)$/.test(name)) {

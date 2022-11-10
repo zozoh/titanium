@@ -86,8 +86,8 @@ screen:
       dictVars : {...},
       // 映射目标
       target : {
-        "fieldA" : "keyOfDictItem1",
-        "fieldB" : "keyOfDictItem2",
+        "fieldA" : "keyOfDictItem",
+        "fieldB" : "keyOfDictItem",
       },
       // 或者直接挑选字段
       target : ["fieldA", "fieldB"],
