@@ -162,13 +162,23 @@ const _M = {
       this.$notify("change", val)
     },
     //------------------------------------------------
+    OnClickInput(){
+      if(!this.readonly){
+        this.isFocused = true  
+      }
+      if (!this.isActived) {
+        this.setActived()
+      }
+      this.$notify("input:click")
+    },
+    //------------------------------------------------
     OnInputFocus() {
-      if (!this.readonly) {
-        if (this.autoSelect) {
-          this.$refs.input.select()
-        } else {
-          this.$refs.input.focus()
-        }
+      if (this.readonly)
+        return;
+      if (this.autoSelect) {
+        this.$refs.input.select()
+      } else {
+        this.$refs.input.focus()
       }
       this.isFocused = true
       this.$notify("input:focus")

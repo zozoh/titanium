@@ -37,6 +37,7 @@
       @change="OnInputChanged"
       @focus="OnInputFocus"
       @blur="OnInputBlur"
+      @click.left="OnClickInput"
       @keypress="OnInputKeyPress">
     <!--suffix:text-->
     <div v-if="TheSuffixText"

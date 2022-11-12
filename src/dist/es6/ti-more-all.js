@@ -1,4 +1,4 @@
-// Pack At: 2022-11-11 01:02:58
+// Pack At: 2022-11-12 14:33:16
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13367,6 +13367,8 @@ const _M = {
     },
     //--------------------------------------------------
     evalFieldDisplay(field = {}) {
+      if ("申请人" == field.title)
+        console.log(field)
       let { name, display, comType, comConf } = field
       // Guard
       if (!display) {
@@ -21011,13 +21013,23 @@ const _M = {
       this.$notify("change", val)
     },
     //------------------------------------------------
+    OnClickInput(){
+      if(!this.readonly){
+        this.isFocused = true  
+      }
+      if (!this.isActived) {
+        this.setActived()
+      }
+      this.$notify("input:click")
+    },
+    //------------------------------------------------
     OnInputFocus() {
-      if (!this.readonly) {
-        if (this.autoSelect) {
-          this.$refs.input.select()
-        } else {
-          this.$refs.input.focus()
-        }
+      if (this.readonly)
+        return;
+      if (this.autoSelect) {
+        this.$refs.input.select()
+      } else {
+        this.$refs.input.focus()
       }
       this.isFocused = true
       this.$notify("input:focus")
@@ -85192,7 +85204,7 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box
 
       @change="OnInputChanged"
       @inputing="OnInputInputing"
-      @input:focus="OnInputFocused"
+      @input:click="OnInputFocused"
       @prefix:icon="$notify('prefix:icon')"
       @suffix:icon="OnClickStatusIcon"/>
   </template>
@@ -88149,6 +88161,7 @@ Ti.Preload("ti/com/ti/input/ti-input.html", `<div class="ti-input full-field"
       @change="OnInputChanged"
       @focus="OnInputFocus"
       @blur="OnInputBlur"
+      @click.left="OnClickInput"
       @keypress="OnInputKeyPress">
     <!--suffix:text-->
     <div v-if="TheSuffixText"
