@@ -151,7 +151,7 @@ const _M = {
         newItHandle = async () => {
           let newIt = _.assign({}, _.cloneDeep(this.newItemData))
           if (this.newItemIdKey && _.isFunction(this.GenNewItemId)) {
-            let newItId = this.GenNewItemId()
+            let newItId = this.GenNewItemId(this.TheValue)
             if (newItId) {
               newIt[this.newItemIdKey] = newItId
             }
@@ -163,7 +163,7 @@ const _M = {
       // Do add
       let reo = await newItHandle(this.TheValue)
 
-      //console.log(reo)
+      console.log(reo)
       // User cancel
       if (_.isUndefined(reo))
         return
@@ -173,8 +173,10 @@ const _M = {
       // Assign new ID
       if (_.isFunction(this.GenNewItemId) && !_.isEmpty(newItems)) {
         for (let it of newItems) {
-          let itemId = this.GenNewItemId()
-          _.set(it, this.newItemIdKey, itemId)
+          if (Ti.Util.isNil(it[this.newItemIdKey])) {
+            let itemId = this.GenNewItemId(this.TheValue)
+            _.set(it, this.newItemIdKey, itemId)
+          }
         }
       }
 
