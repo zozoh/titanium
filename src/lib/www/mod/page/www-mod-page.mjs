@@ -714,6 +714,32 @@ const _M = {
       for (let keys of preloads) {
         await dispatch("reloadData", keys)
       }
+      //.....................................
+      // 执行 dynamicPreload 这个是个高级方法，可以根据 state 尤其是data 段
+      // 根据一个自定义函数生成一组api对象，交给 __run_api 去加载
+      // 【缘起】在 zoo 应用，可以支持自定义布局，布局块包括数据展示方式和数据源路径
+      // 因此无法在 api 段写死固定的加载参数，此时根据归档的字段（一个块数组）为，每个
+      // 块生成独立数据加载api，在页面初始化的时候只调用一次，这是一个相对精巧的解决方案
+      if (!_.isEmpty(state.dynamicPreloads)) {
+        let dynpre = Ti.Util.explainObj(rootState, state.dynamicPreloads)
+        if (_.isFunction(dynpre.factory)) {
+          let dynapis = dynpre.factory(dynpre.payload)
+          if (!_.isEmpty(dynapis)) {
+            let dapis = Ti.WWW.hydrateApi({
+              base: rootState.apiBase,
+              siteApis: rootState.apis,
+              apis: dynapis
+            })
+            let dapiLoad = []
+            for (let kapi of _.keys(dapis)) {
+              let dapi = dapis[kapi]
+              dapiLoad.push(dispatch("__run_api", { api: dapi }))
+            }
+            await Promise.all(dapiLoad)
+          }
+        }
+      }
+      //.....................................
       // explain data
       await dispatch("explainData")
       //.....................................

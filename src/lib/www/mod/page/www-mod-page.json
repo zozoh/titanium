@@ -11,6 +11,7 @@
   "finger": null,
   "params": {},
   "anchor": null,
+  "dynamicPreloads": {},
   "apis": {},
   "moduleNames": [],
   "data": {},

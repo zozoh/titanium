@@ -227,7 +227,7 @@ const WnYoutube = {
   async loadConfig({
     domain, channelId, force = false
   } = {}) {
-    console.log("loadConfig",domain)
+    //console.log("loadConfig",domain)
     // Use default domain name 
     if (!domain) {
       domain = Wn.Session.getCurrentDomain()
