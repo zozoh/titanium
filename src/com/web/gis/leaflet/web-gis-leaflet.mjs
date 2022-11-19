@@ -428,6 +428,12 @@ export default {
       mm.addTo(this.$map)
     },
     //--------------------------------------
+    moveTo({lat,lng}={}, zoom){
+      zoom = zoom || this.geo.zoom || this.zoom
+      let dftCenter = Ti.GIS.transLatlngObj({lat, lng})
+      this.$map.setView(dftCenter, zoom)
+    },
+    //--------------------------------------
     initMapView(data = this.MapData) {
       //console.log("initMapView")
       // Get current zoom, keep the last user zoom state
