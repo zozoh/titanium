@@ -1,4 +1,4 @@
-// Pack At: 2022-11-12 14:33:16
+// Pack At: 2022-11-20 00:49:57
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -4255,6 +4255,7 @@ const Youtube = (function(){
     async loadConfig({
       domain, channelId, force = false
     } = {}) {
+      //console.log("loadConfig",domain)
       // Use default domain name 
       if (!domain) {
         domain = Wn.Session.getCurrentDomain()
@@ -4444,7 +4445,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20221112.143316"
+const WALNUT_VERSION = "1.2-20221120.004957"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

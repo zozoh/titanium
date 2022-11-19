@@ -1,4 +1,4 @@
-// Pack At: 2022-11-12 14:33:16
+// Pack At: 2022-11-20 00:49:57
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -4691,6 +4691,32 @@ const _M = {
       for (let keys of preloads) {
         await dispatch("reloadData", keys)
       }
+      //.....................................
+      // 执行 dynamicPreload 这个是个高级方法，可以根据 state 尤其是data 段
+      // 根据一个自定义函数生成一组api对象，交给 __run_api 去加载
+      // 【缘起】在 zoo 应用，可以支持自定义布局，布局块包括数据展示方式和数据源路径
+      // 因此无法在 api 段写死固定的加载参数，此时根据归档的字段（一个块数组）为，每个
+      // 块生成独立数据加载api，在页面初始化的时候只调用一次，这是一个相对精巧的解决方案
+      if (!_.isEmpty(state.dynamicPreloads)) {
+        let dynpre = Ti.Util.explainObj(rootState, state.dynamicPreloads)
+        if (_.isFunction(dynpre.factory)) {
+          let dynapis = dynpre.factory(dynpre.payload)
+          if (!_.isEmpty(dynapis)) {
+            let dapis = Ti.WWW.hydrateApi({
+              base: rootState.apiBase,
+              siteApis: rootState.apis,
+              apis: dynapis
+            })
+            let dapiLoad = []
+            for (let kapi of _.keys(dapis)) {
+              let dapi = dapis[kapi]
+              dapiLoad.push(dispatch("__run_api", { api: dapi }))
+            }
+            await Promise.all(dapiLoad)
+          }
+        }
+      }
+      //.....................................
       // explain data
       await dispatch("explainData")
       //.....................................
@@ -23757,7 +23783,7 @@ const _M = {
         newItHandle = async () => {
           let newIt = _.assign({}, _.cloneDeep(this.newItemData))
           if (this.newItemIdKey && _.isFunction(this.GenNewItemId)) {
-            let newItId = this.GenNewItemId()
+            let newItId = this.GenNewItemId(this.TheValue)
             if (newItId) {
               newIt[this.newItemIdKey] = newItId
             }
@@ -23769,7 +23795,7 @@ const _M = {
       // Do add
       let reo = await newItHandle(this.TheValue)
 
-      //console.log(reo)
+      console.log(reo)
       // User cancel
       if (_.isUndefined(reo))
         return
@@ -23779,8 +23805,10 @@ const _M = {
       // Assign new ID
       if (_.isFunction(this.GenNewItemId) && !_.isEmpty(newItems)) {
         for (let it of newItems) {
-          let itemId = this.GenNewItemId()
-          _.set(it, this.newItemIdKey, itemId)
+          if (Ti.Util.isNil(it[this.newItemIdKey])) {
+            let itemId = this.GenNewItemId(this.TheValue)
+            _.set(it, this.newItemIdKey, itemId)
+          }
         }
       }
 
@@ -32069,7 +32097,7 @@ const _M = {
         return () => ({ stop: false })
       }
       //if (/select$/.test(name)) {
-      //console.log("WnObjAdaptor.__on_events", name, payload)
+      console.log("WnObjAdaptor.__on_events", name, payload)
       //}
 
       // Try routing
@@ -58784,42 +58812,77 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/wn/label/wn-label.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
-  props : {
+  data: () => ({
+    obj: undefined
+  }),
+  //////////////////////////////////////////
+  props: {
     "openRefer": {
-      type : Object,
+      type: Object,
       default: undefined
+    },
+    "labelValueBy": {
+      type: [String, Function],
+      default: "title|nm|id"
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
+    //--------------------------------------
     ValueClickable() {
       return this.openRefer ? true : false
+    },
+    //--------------------------------------
+    LabelValue() {
+      return this.getLabelValue(this.obj || this.value)
+    },
+    //--------------------------------------
+    getLabelValue() {
+      if (_.isFunction(this.labelValueBy)) {
+        return this.labelValueBy
+      }
+      if (_.isString(this.labelValueBy)) {
+        return v => {
+          return Ti.Util.getOrPick(v, this.labelValueBy)
+        }
+      }
+      return v => v
     }
+    //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
     async OnClickValue() {
-      if(!this.openRefer || !this.value)
+      let obj = this.obj
+      if (!this.openRefer || !this.obj)
         return
 
-      // Load refer obj
-      let obj = await Wn.Io.loadMetaBy(this.value)
-      console.log(obj)
+
       // prepare conf
       let conf = _.assign({
         title: "i18n:info",
         width: 640,
         height: 480,
-        textOk : null,
-        textCancel : "i18n:close",
-        result : obj
+        textOk: null,
+        textCancel: "i18n:close",
+        result: obj
       }, this.openRefer)
 
       // Show Dialog
       await Ti.App.Open(conf)
     }
     //--------------------------------------
+  },
+  watch: {
+    "value": {
+      handler: async function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
+          this.obj = await Wn.Io.loadMetaBy(this.value)
+        }
+      },
+      immediate: true
+    }
   }
   //////////////////////////////////////////
 }
@@ -59769,6 +59832,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       let mm = new MockButton()
       mm.addTo(this.$map)
+    },
+    //--------------------------------------
+    moveTo({lat,lng}={}, zoom){
+      zoom = zoom || this.geo.zoom || this.zoom
+      let dftCenter = Ti.GIS.transLatlngObj({lat, lng})
+      this.$map.setView(dftCenter, zoom)
     },
     //--------------------------------------
     initMapView(data = this.MapData) {
@@ -65022,6 +65091,11 @@ const _M = {
         icon: "fas-box-open"
       })
     },
+    "align": {
+      type: String,
+      default: "left",
+      validator: v => /^(left|center)$/.test(v)
+    },
     "loadingAs": {
       type: [Object, Boolean],
       default: () => ({})
@@ -65049,8 +65123,8 @@ const _M = {
     TopClass() {
       return this.getTopClass({
         "is-single-row": 1 == this.myRows,
-        "is-multi-rows": this.myRows > 1
-      })
+        "is-multi-rows": this.myRows > 1,
+      },`align-${this.align}`)
     },
     //--------------------------------------
     getItemClass() {
@@ -65183,6 +65257,9 @@ const _M = {
     },
     //--------------------------------------
     evalWallColumns($wallGroup) {
+      if("center"== this.align){
+        return;
+      }
       // Customized item width
       if (_.isArray(this.itemWidth) && this.itemWidth.length > 1) {
         return
@@ -95807,6 +95884,7 @@ Ti.Preload("ti/com/wn/input/tree-picker/_com.json", {
 Ti.Preload("ti/com/wn/label/wn-label.html", `<ti-label
   :class-name="className"
   v-bind="this"
+  :value="LabelValue"
   :value-clickable="ValueClickable"
   @click:value="OnClickValue"/>`);
 //========================================
@@ -98554,6 +98632,7 @@ Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "finger": null,
   "params": {},
   "anchor": null,
+  "dynamicPreloads": {},
   "apis": {},
   "moduleNames": [],
   "data": {},

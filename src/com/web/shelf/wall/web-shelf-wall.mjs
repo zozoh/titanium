@@ -44,6 +44,11 @@ const _M = {
         icon: "fas-box-open"
       })
     },
+    "align": {
+      type: String,
+      default: "left",
+      validator: v => /^(left|center)$/.test(v)
+    },
     "loadingAs": {
       type: [Object, Boolean],
       default: () => ({})
@@ -71,8 +76,8 @@ const _M = {
     TopClass() {
       return this.getTopClass({
         "is-single-row": 1 == this.myRows,
-        "is-multi-rows": this.myRows > 1
-      })
+        "is-multi-rows": this.myRows > 1,
+      },`align-${this.align}`)
     },
     //--------------------------------------
     getItemClass() {
@@ -205,6 +210,9 @@ const _M = {
     },
     //--------------------------------------
     evalWallColumns($wallGroup) {
+      if("center"== this.align){
+        return;
+      }
       // Customized item width
       if (_.isArray(this.itemWidth) && this.itemWidth.length > 1) {
         return
