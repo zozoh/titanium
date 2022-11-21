@@ -1,4 +1,4 @@
-// Pack At: 2022-11-20 00:49:57
+// Pack At: 2022-11-22 00:02:48
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -67536,7 +67536,6 @@ const DFT_PVG = 5;
 const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
   data: () => ({
-    myPrivilegeMeta: {},
     myPrivilegeData: [],
     pvg_owner: 7,
     pvg_member: 5,
@@ -67614,7 +67613,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       //
       if (!_.isEmpty(this.myRoles)) {
         if (items.length > 0) {
-          items.push({ type: "line" })
+          items.push({})
         }
         items.push({
           icon: "fas-ribbon",
@@ -67627,7 +67626,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       //
       if (!_.isEmpty(this.myOrganization)) {
         if (items.length > 0) {
-          items.push({ type: "line" })
+          items.push({})
         }
         items.push({
           icon: "fas-briefcase",
@@ -67639,12 +67638,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
       //
       // Delete
       //
-      items.push({
-        type: "line"
-      }, {
+      items.push({}, {
         icon: "far-trash-alt",
         text: "i18n:del-checked",
         action: () => { this.OnRemoveSelected() }
+      })
+
+      // Viewsouce 
+      items.push({}, {
+        icon: "fas-code",
+        tip: "i18n:source",
+        action: () => {
+          this.doEditCurrentSource()
+        }
       })
 
       return items;
@@ -67677,11 +67683,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 body: "data"
               }
             ]
-          },
-          {
-            size: "auto",
-            name: "meta",
-            body: "meta"
           }
         ]
       }
@@ -67728,87 +67729,65 @@ const __TI_MOD_EXPORT_VAR_NM = {
               text: "i18n:blank-to-edit",
               icon: "fas-arrow-left"
             },
-            fields: [{
-              title: "i18n:type",
-              name: "type"
-            }, {
-              title: "i18n:name",
-              name: "text"
-            }, {
-              title: "i18n:key",
-              name: "key",
-              comConf: {
-                className: "is-nowrap",
-                fullField: false
-              }
-            }, {
-              title: "i18n:wn-md-readable",
-              name: "readable",
-              type: "Boolean",
-              comType: "TiToggle"
-            }, {
-              title: "i18n:wn-md-writable",
-              name: "writable",
-              type: "Boolean",
-              comType: "TiToggle"
-            }, {
-              title: "i18n:wn-md-excutable",
-              name: "excutable",
-              type: "Boolean",
-              comType: "TiToggle"
-            }]
-          }
-        },
-        meta: {
-          comType: "TiForm",
-          comConf: {
-            className: "is-chip",
-            spacing: "tiny",
-            data: this.myPrivilegeMeta,
-            fieldBorder: "none",
-            gridColumnHint: 2,
-            fieldNameAlign: "center",
             fields: [
               {
-                title: "混合模式",
-                name: "MODE",
-                tip: "与子对象混合的方式",
-                defaultAs: "DEFAULT",
-                nameVAlign: "top",
-                valueClass: "com-flex-none",
-                comType: "TiSwitcher",
+                title: "i18n:type",
+                name: "type"
+              }, {
+                title: "i18n:name",
+                name: "text"
+              },
+              {
+                title: "i18n:key",
+                name: "key",
                 comConf: {
-                  options: [
-                    { value: "DEFAULT", text: "默认" },
-                    { value: "STRONG", text: "强制覆盖" },
-                    { value: "WEAK", text: "弱混合" },
-                  ]
+                  className: "is-nowrap",
+                  fullField: false
                 }
               },
               {
-                title: "混合深度",
-                name: "DEPTH",
-                tip: "最多与多少个父对象混合",
-                type: "Integer",
-                defaultAs: -1,
-                nameVAlign: "top",
-                valueClass: "com-flex-none",
-                comType: "TiComboInput",
+                title: "i18n:wn-md-readable",
+                name: "readable",
+                type: "Boolean",
+                comType: "TiToggle"
+              },
+              {
+                title: "i18n:wn-md-writable",
+                name: "writable",
+                type: "Boolean",
+                comType: "TiToggle"
+              },
+              {
+                title: "i18n:wn-md-excutable",
+                name: "excutable",
+                type: "Boolean",
+                comType: "TiToggle"
+              },
+              {
+                title: "i18n:wn-md-blend-mode",
+                name: "blend",
+                type: "String",
+                comType: "TiSwitcher",
                 comConf: {
-                  placeholder: "-1",
-                  width: "1.6rem",
                   options: [
-                    { value: -1, text: "全部祖先" },
-                    { value: 0, text: "仅自己" },
-                    { value: 1, text: "仅父节点" },
-                  ],
-                  autoFocusExtended: false,
-                  autoCollapse: true
+                    {
+                      text: "i18n:wn-md-blend-dft",
+                      value: "DEFAULT"
+                    },
+                    {
+                      text: "i18n:wn-md-blend-strong",
+                      value: "STRONG"
+                    },
+                    {
+                      text: "i18n:wn-md-blend-weak",
+                      value: "WEAK"
+                    }
+                  ]
                 }
               }
             ]
           }
-        },
+        }
       }
     },
     //--------------------------------------
@@ -67828,32 +67807,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.myCurrentId = currentId
     },
     //--------------------------------------
-    OnMetaChange(meta) {
-      //console.log("OnMetaChange", meta)
-
-      let mv = {}
-      _.forEach(meta, (v, k) => {
-        // default mode
-        if ("MODE" == k && (!v || "DEFAULT" == v)) {
-          v = "DEFAULT"
-        }
-        // Default depth
-        else if ("DEPTH" == k && v < 0) {
-          v = -1
-        }
-        mv[`.${k}`] = v
-      })
-
-      let val = _.assign({}, this.value, mv)
-      this.notifyChange(val)
-    },
-    //--------------------------------------
     OnDataChange(data) {
-      //console.log("OnDataChange", data)
+      console.log("OnDataChange", data)
       let key = data.key
       let m0 = Wn.Obj.mode0FromObj(data)
       let val = _.cloneDeep(this.value) || {}
-      let md = this.getPvgValue(m0)
+      let md = ['0', m0, m0, m0].join("");
+      if ("STRONG" == data.blend) {
+        md = "!" + md
+      } else if ("WEAK" == data.blend) {
+        md = "~" + md
+      }
       val[key] = md
       this.notifyChange(val)
     },
@@ -68009,19 +67973,53 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     notifyChange(pvg) {
-      if (pvg && this.autoRemoveDefault) {
-        if ("DEFAULT" == pvg[".MODE"]) {
-          delete pvg[".MODE"];
-        }
-        if (pvg[".DEPTH"] < 0) {
-          delete pvg[".DEPTH"];
-        }
+      if (!_.isEqual(this.value, pvg)) {
+        this.$notify("change", pvg)
       }
-      this.$notify("change", pvg)
+    },
+    //-----------------------------------------------
+    async doEditCurrentSource() {
+      let json = this.value || {}
+      if (!_.isString(json)) {
+        json = JSON.stringify(json, null, '   ')
+      }
+
+      let dialog = _.assign({
+        title: "i18n:edit",
+        width: 500,
+        height: 500
+      }, this.dialog, {
+        result: json,
+        comType: "TiInputText",
+        comConf: {
+          height: "100%"
+        }
+      })
+
+      json = await Ti.App.Open(dialog);
+
+      // User cancel
+      if (_.isUndefined(json))
+        return
+
+      // Join to 
+      try {
+        let str = _.trim(json) || '{}'
+        let pvg = JSON.parse(str)
+        if(_.isEmpty(pvg)){
+          pvg = null
+        }
+        this.notifyChange(pvg)
+      }
+      // Invalid json
+      catch (E) {
+        await Ti.Toast.Open("" + E)
+      }
     },
     //--------------------------------------
     getPvgValue(pvg_other = DFT_PVG) {
-      return this.pvg_owner << 6 | this.pvg_member << 3 | pvg_other
+      //return this.pvg_owner << 6 | this.pvg_member << 3 | pvg_other
+      return pvg_other << 6 | pvg_other << 3 | pvg_other
     },
     //--------------------------------------
     buildMap(list = [], key = "id", childKey = "children") {
@@ -68061,33 +68059,26 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     async evalPrivilegeData() {
       //console.log("evalPrivilegeData")
-      let pvgMeta = {
-        MODE: "DEFAULT",
-        DEPTH: -1
-      }
       let pvgData = []
       _.forEach(this.value, (v, k) => {
-        // .MODE or .DEPTH for meta
-        let m = /^\.([A-Za-z0-9]+)$/.exec(k)
-        if (m) {
-          pvgMeta[m[1]] = v
-        }
-        // Others for pvg data
-        else {
-          pvgData.push({ md: v, id: k })
-        }
+        pvgData.push({ md: v, id: k })
       })
-
 
       let list = []
       for (let pvgIt of pvgData) {
         let { md, id } = pvgIt
         //console.log("pvg data", { md, id })
-        let { other } = Wn.Obj.parseMode(md)
+        let { other, blend } = Wn.Obj.parseMode(md)
         //
         // Tip to indicate the RWX
         //
         let tips = []
+        if("WEAK"==blend){
+          tips.push("~")
+        }
+        else if("STRONG"==blend){
+          tips.push("!")
+        }
         if (other.readable)
           tips.push(Ti.I18n.get("wn-md-R"))
         if (other.writable)
@@ -68108,7 +68099,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
               text: com.title || com.nm,
               key: id,
               tip,
-              ...other
+              ...other,
+              blend
             })
           } else {
             list.push({
@@ -68117,7 +68109,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
               text: comId,
               key: id,
               tip,
-              ...other
+              ...other,
+              blend
             })
           }
           continue;
@@ -68135,7 +68128,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
               text: dept.name || dept.title || dept.text,
               key: id,
               tip,
-              ...other
+              ...other,
+              blend
             })
           }
           continue;
@@ -68153,7 +68147,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
               text: proj.title || proj.nm,
               key: id,
               tip,
-              ...other
+              ...other,
+              blend
             })
           } else {
             list.push({
@@ -68162,7 +68157,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
               text: projId,
               key: id,
               tip,
-              ...other
+              ...other,
+              blend
             })
           }
           continue;
@@ -68254,7 +68250,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
       }
       // Update to state
-      this.myPrivilegeMeta = pvgMeta
       this.myPrivilegeData = list
     },
     //--------------------------------------
@@ -96705,8 +96700,7 @@ Ti.Preload("ti/com/wn/obj/pvg/wn-obj-pvg.html", `<TiGui
   :loading-as="GuiLoadingAs"
   :loading="loading"
   @list::select="OnListSelect"
-  @data::change="OnDataChange"
-  @meta::change="OnMetaChange"/>`);
+  @data::change="OnDataChange"/>`);
 //========================================
 // JOIN <wn-obj-pvg.mjs> ti/com/wn/obj/pvg/wn-obj-pvg.mjs
 //========================================
@@ -100433,6 +100427,10 @@ Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
   "wn-md-R": "R",
   "wn-md-W": "W",
   "wn-md-X": "X",
+  "wn-md-blend-mode":"Blend Mode",
+  "wn-md-blend-dft":"DEFAILT",
+  "wn-md-blend-strong":"STRONG",
+  "wn-md-blend-weak":"WEAK",
   "wn-md-excutable": "Excutable",
   "wn-md-member": "Member",
   "wn-md-other": "Other",
@@ -102031,6 +102029,10 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-md-R": "R",
   "wn-md-W": "W",
   "wn-md-X": "X",
+  "wn-md-blend-mode":"Blend Mode",
+  "wn-md-blend-dft":"DEFAILT",
+  "wn-md-blend-strong":"STRONG",
+  "wn-md-blend-weak":"WEAK",
   "wn-md-excutable": "Excutable",
   "wn-md-member": "Member",
   "wn-md-other": "Other",
@@ -103629,6 +103631,10 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-md-R": "读",
   "wn-md-W": "写",
   "wn-md-X": "用",
+  "wn-md-blend-mode":"混合模式",
+  "wn-md-blend-dft":"默认",
+  "wn-md-blend-strong":"强覆盖",
+  "wn-md-blend-weak":"弱混合",
   "wn-md-excutable": "可使用",
   "wn-md-member": "成员",
   "wn-md-other": "其他人",
@@ -105227,6 +105233,10 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-md-R": "讀",
    "wn-md-W": "寫",
    "wn-md-X": "用",
+   "wn-md-blend-mode":"混合模式",
+   "wn-md-blend-dft":"默認",
+   "wn-md-blend-strong":"強覆蓋",
+   "wn-md-blend-weak":"弱混合",
    "wn-md-excutable": "可使用",
    "wn-md-member": "成員",
    "wn-md-other": "其他人",
