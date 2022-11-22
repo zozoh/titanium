@@ -553,37 +553,8 @@ export default {
           tips.push(Ti.I18n.get("wn-md-X"))
         let tip = tips.join("") || Ti.I18n.get("nil");
         //
-        // Company | Organization
-        let m = /^org:(.+)$/.exec(id)
-        if (m) {
-          let comId = m[1]
-          let com = _.get(this.myCompanyMap, comId)
-          if (com) {
-            list.push({
-              type: "org",
-              icon: Wn.Util.getObjThumbIcon2(com, 'fas-building'),
-              text: com.title || com.nm,
-              key: id,
-              tip,
-              ...other,
-              blend
-            })
-          } else {
-            list.push({
-              type: "org",
-              icon: 'fas-building',
-              text: comId,
-              key: id,
-              tip,
-              ...other,
-              blend
-            })
-          }
-          continue;
-        }
-        //
         // Organization
-        m = /^\+(.+)$/.exec(id)
+        let m = /^\+(.+)$/.exec(id)
         if (m) {
           let deptId = m[1]
           let dept = this.myOrganizationMap[deptId];
@@ -592,35 +563,6 @@ export default {
               type: "dept",
               icon: dept.icon || 'fas-briefcase',
               text: dept.name || dept.title || dept.text,
-              key: id,
-              tip,
-              ...other,
-              blend
-            })
-          }
-          continue;
-        }
-        //
-        // Projects
-        m = /^prj:(.+)$/.exec(id)
-        if (m) {
-          let projId = m[1]
-          let proj = _.get(this.myProjectMap, projId)
-          if (proj) {
-            list.push({
-              type: "proj",
-              icon: Wn.Util.getObjThumbIcon2(proj, 'fas-chess-queen'),
-              text: proj.title || proj.nm,
-              key: id,
-              tip,
-              ...other,
-              blend
-            })
-          } else {
-            list.push({
-              type: "org",
-              icon: 'fas-building',
-              text: projId,
               key: id,
               tip,
               ...other,
@@ -645,7 +587,8 @@ export default {
                 text: user.nickname || user.nm,
                 key: id,
                 tip,
-                ...other
+                ...other,
+                blend
               })
             }
             // Default account name
@@ -656,7 +599,8 @@ export default {
                 text: accountName,
                 key: id,
                 tip,
-                ...other
+                ...other,
+                blend
               })
             }
           }
@@ -670,7 +614,8 @@ export default {
                 text: role.title || role.nm,
                 key: id,
                 tip,
-                ...other
+                ...other,
+                blend
               })
             }
             // Default as role
@@ -681,7 +626,8 @@ export default {
                 text: roleName,
                 key: id,
                 tip,
-                ...other
+                ...other,
+                blend
               })
             }
           }
@@ -702,7 +648,8 @@ export default {
             text: user.nickname || user.nm,
             key: id,
             tip,
-            ...other
+            ...other,
+            blend
           })
         } else {
           list.push({
@@ -711,7 +658,8 @@ export default {
             text: id,
             key: id,
             tip,
-            ...other
+            ...other,
+            blend
           })
         }
       }
