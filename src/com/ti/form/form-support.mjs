@@ -691,8 +691,6 @@ const _M = {
     },
     //--------------------------------------------------
     evalFieldDisplay(field = {}) {
-      if ("申请人" == field.title)
-        console.log(field)
       let { name, display, comType, comConf } = field
       // Guard
       if (!display) {
