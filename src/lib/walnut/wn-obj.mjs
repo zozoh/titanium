@@ -409,6 +409,13 @@ const WnObj = {
     return m;
   },
   //----------------------------------------
+  /*
+  {
+    owner: { readable, writable, excutable },
+    member:{ readable, writable, excutable },
+    other: { readable, writable, excutable }
+  }
+  */
   modeToObj(md) {
     let keys = ["other", "member", "owner"]
     let re = {
@@ -432,6 +439,7 @@ const WnObj = {
     let mdOwner = WnObj.mode0FromObj(owner)
     let mdMember = WnObj.mode0FromObj(member)
     let mdOther = WnObj.mode0FromObj(other)
+
     return (mdOwner << 6)
       | (mdMember << 3)
       | mdOther
@@ -457,9 +465,25 @@ const WnObj = {
     // {owner: {...}, member, other}
     if (_.isPlainObject(input)) {
       if (input.readable) {
-        return WnObj.mode0FromObj(input)
+        return {
+          owner: _.cloneDeep(input),
+          member: _.cloneDeep(input),
+          other: _.cloneDeep(input)
+        }
       }
-      return WnObj.modeFromObj(input)
+      return input
+    }
+    //Blend mode
+    let blend = "DEFAULT";
+    if (_.isNumber(input) && input < 0) {
+      blend = "WEAK"
+      input = Math.abs(input)
+    } else if (_.isString(input)) {
+      let m = /^([!~])(.+)$/.exec(input)
+      if (m) {
+        blend = ({ "~": "WEAK", "!": "STRONG" })[m[1]]
+        input = m[2];
+      }
     }
 
     // Parse input
@@ -490,7 +514,9 @@ const WnObj = {
       }
     }
     // Done
-    return WnObj.modeToObj(md)
+    let re = WnObj.modeToObj(md)
+    re.blend = blend
+    return re
   },
   //----------------------------------------
   isBuiltInFields(key) {

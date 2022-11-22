@@ -1,4 +1,4 @@
-// Pack At: 2022-11-20 00:49:57
+// Pack At: 2022-11-22 00:02:48
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -998,6 +998,13 @@ const Obj = (function(){
       return m;
     },
     //----------------------------------------
+    /*
+    {
+      owner: { readable, writable, excutable },
+      member:{ readable, writable, excutable },
+      other: { readable, writable, excutable }
+    }
+    */
     modeToObj(md) {
       let keys = ["other", "member", "owner"]
       let re = {
@@ -1021,6 +1028,7 @@ const Obj = (function(){
       let mdOwner = WnObj.mode0FromObj(owner)
       let mdMember = WnObj.mode0FromObj(member)
       let mdOther = WnObj.mode0FromObj(other)
+  
       return (mdOwner << 6)
         | (mdMember << 3)
         | mdOther
@@ -1046,9 +1054,25 @@ const Obj = (function(){
       // {owner: {...}, member, other}
       if (_.isPlainObject(input)) {
         if (input.readable) {
-          return WnObj.mode0FromObj(input)
+          return {
+            owner: _.cloneDeep(input),
+            member: _.cloneDeep(input),
+            other: _.cloneDeep(input)
+          }
         }
-        return WnObj.modeFromObj(input)
+        return input
+      }
+      //Blend mode
+      let blend = "DEFAULT";
+      if (_.isNumber(input) && input < 0) {
+        blend = "WEAK"
+        input = Math.abs(input)
+      } else if (_.isString(input)) {
+        let m = /^([!~])(.+)$/.exec(input)
+        if (m) {
+          blend = ({ "~": "WEAK", "!": "STRONG" })[m[1]]
+          input = m[2];
+        }
       }
   
       // Parse input
@@ -1079,7 +1103,9 @@ const Obj = (function(){
         }
       }
       // Done
-      return WnObj.modeToObj(md)
+      let re = WnObj.modeToObj(md)
+      re.blend = blend
+      return re
     },
     //----------------------------------------
     isBuiltInFields(key) {
@@ -4445,7 +4471,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20221120.004957"
+const WALNUT_VERSION = "1.2-20221122.000249"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
