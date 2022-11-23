@@ -1,4 +1,4 @@
-// Pack At: 2022-11-23 23:50:30
+// Pack At: 2022-11-24 01:40:42
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7965,7 +7965,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-------------------------------------
     OnMajorChange(val, it) {
-      if (_.isEmpty(val)) {
+      if (_.isEmpty(val) && (_.isArray(val) || _.isObject(val))) {
         val = null
       }
       let { index } = it
@@ -68085,37 +68085,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           tips.push(Ti.I18n.get("wn-md-X"))
         let tip = tips.join("") || Ti.I18n.get("nil");
         //
-        // Company | Organization
-        let m = /^org:(.+)$/.exec(id)
-        if (m) {
-          let comId = m[1]
-          let com = _.get(this.myCompanyMap, comId)
-          if (com) {
-            list.push({
-              type: "org",
-              icon: Wn.Util.getObjThumbIcon2(com, 'fas-building'),
-              text: com.title || com.nm,
-              key: id,
-              tip,
-              ...other,
-              blend
-            })
-          } else {
-            list.push({
-              type: "org",
-              icon: 'fas-building',
-              text: comId,
-              key: id,
-              tip,
-              ...other,
-              blend
-            })
-          }
-          continue;
-        }
-        //
         // Organization
-        m = /^\+(.+)$/.exec(id)
+        let m = /^\+(.+)$/.exec(id)
         if (m) {
           let deptId = m[1]
           let dept = this.myOrganizationMap[deptId];
@@ -68124,35 +68095,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
               type: "dept",
               icon: dept.icon || 'fas-briefcase',
               text: dept.name || dept.title || dept.text,
-              key: id,
-              tip,
-              ...other,
-              blend
-            })
-          }
-          continue;
-        }
-        //
-        // Projects
-        m = /^prj:(.+)$/.exec(id)
-        if (m) {
-          let projId = m[1]
-          let proj = _.get(this.myProjectMap, projId)
-          if (proj) {
-            list.push({
-              type: "proj",
-              icon: Wn.Util.getObjThumbIcon2(proj, 'fas-chess-queen'),
-              text: proj.title || proj.nm,
-              key: id,
-              tip,
-              ...other,
-              blend
-            })
-          } else {
-            list.push({
-              type: "org",
-              icon: 'fas-building',
-              text: projId,
               key: id,
               tip,
               ...other,
@@ -68177,7 +68119,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 text: user.nickname || user.nm,
                 key: id,
                 tip,
-                ...other
+                ...other,
+                blend
               })
             }
             // Default account name
@@ -68188,7 +68131,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 text: accountName,
                 key: id,
                 tip,
-                ...other
+                ...other,
+                blend
               })
             }
           }
@@ -68202,7 +68146,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 text: role.title || role.nm,
                 key: id,
                 tip,
-                ...other
+                ...other,
+                blend
               })
             }
             // Default as role
@@ -68213,7 +68158,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 text: roleName,
                 key: id,
                 tip,
-                ...other
+                ...other,
+                blend
               })
             }
           }
@@ -68234,7 +68180,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
             text: user.nickname || user.nm,
             key: id,
             tip,
-            ...other
+            ...other,
+            blend
           })
         } else {
           list.push({
@@ -68243,7 +68190,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
             text: id,
             key: id,
             tip,
-            ...other
+            ...other,
+            blend
           })
         }
       }
