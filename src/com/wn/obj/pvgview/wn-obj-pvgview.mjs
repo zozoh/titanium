@@ -194,7 +194,7 @@ export default {
     OnPvgChange(pvg) {
       //console.log("OnPvgChange", pvg)
       this.myCurrentPvg = _.isEmpty(pvg)
-        ? undefined
+        ? {}
         : pvg
     },
     //--------------------------------------
@@ -202,8 +202,9 @@ export default {
       if (this.isCurrentChanged) {
         let cmdText;
         // Update pvg
-        if (this.myCurrentPvg) {
-          let pvgJson = JSON.stringify({ pvg: this.myCurrentPvg })
+        if (this.myCurrentPvg && !_.isEmpty(this.myCurrentPvg)) {
+          let pvg = this.myCurrentPvg
+          let pvgJson = JSON.stringify({ pvg })
           cmdText = `o id:${this.myCurrentId} @update '${pvgJson}' @json -cqn`
         }
         // Remove pvg

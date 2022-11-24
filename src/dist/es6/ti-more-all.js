@@ -1,4 +1,4 @@
-// Pack At: 2022-11-24 01:40:42
+// Pack At: 2022-11-25 00:27:42
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -44071,7 +44071,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     OnPvgChange(pvg) {
       //console.log("OnPvgChange", pvg)
       this.myCurrentPvg = _.isEmpty(pvg)
-        ? undefined
+        ? {}
         : pvg
     },
     //--------------------------------------
@@ -44079,8 +44079,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if (this.isCurrentChanged) {
         let cmdText;
         // Update pvg
-        if (this.myCurrentPvg) {
-          let pvgJson = JSON.stringify({ pvg: this.myCurrentPvg })
+        if (this.myCurrentPvg && !_.isEmpty(this.myCurrentPvg)) {
+          let pvg = this.myCurrentPvg
+          let pvgJson = JSON.stringify({ pvg })
           cmdText = `o id:${this.myCurrentId} @update '${pvgJson}' @json -cqn`
         }
         // Remove pvg
@@ -67639,7 +67640,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       items.push({}, {
         icon: "far-trash-alt",
         text: "i18n:del-checked",
-        action: () => { this.OnRemoveSelected() }
+        action: () => {  console.log('bbbb');this.OnRemoveSelected() }
       })
 
       // Viewsouce 
@@ -67948,6 +67949,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     OnRemoveSelected() {
+      console.log("haha")
       let checked = this.$list.getChecked()
       if (_.isEmpty(checked)) {
         Ti.Toast.Open("i18n:nil-obj", "warn")

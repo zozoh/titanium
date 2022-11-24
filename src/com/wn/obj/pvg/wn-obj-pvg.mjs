@@ -107,7 +107,7 @@ export default {
       items.push({}, {
         icon: "far-trash-alt",
         text: "i18n:del-checked",
-        action: () => { this.OnRemoveSelected() }
+        action: () => {  console.log('bbbb');this.OnRemoveSelected() }
       })
 
       // Viewsouce 
@@ -416,6 +416,7 @@ export default {
     },
     //--------------------------------------
     OnRemoveSelected() {
+      console.log("haha")
       let checked = this.$list.getChecked()
       if (_.isEmpty(checked)) {
         Ti.Toast.Open("i18n:nil-obj", "warn")
