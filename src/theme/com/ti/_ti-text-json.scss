@@ -10,10 +10,8 @@
     @include flex-align-nowrap($ai:stretch);
     position: relative; flex:1 1 auto; 
     //---------------------------------------------
-    > .as-actions {
-      @include pos-abs($t:0,$b:0,$r:0);
+    > .as-actions > .ti-actionbar {
       @include color($color-primary, r, c);
-      padding:SZ(4) SZ(4);
       font-size:.8em; 
       .bar-item-info {
         &.is-enabled:hover {
@@ -26,6 +24,23 @@
       opacity: 0.4;  padding:0 SZ(4);
     }
     //---------------------------------------------
+    > .as-actions {
+      display: none;
+      @include pos-abs($t:0,$b:0,$r:0);
+      padding:SZ(4) SZ(4);
+    }
+    //---------------------------------------------
+    &:hover {
+      > .as-actions {
+        @include flex-center;
+      }
+    }
+    //---------------------------------------------
+  }
+  .table-row.is-current .json-value {
+    > .as-actions {
+      @include flex-center;
+    }
   }
   //-----------------------------------------------
   .ti-label {

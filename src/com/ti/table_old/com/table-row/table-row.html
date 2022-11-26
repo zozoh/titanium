@@ -1,7 +1,5 @@
 <tr class="table-row"
   :class="TopClass"
-  @click.left="OnClickRow"
-  @dblclick.left="OnDblClickRow"
   v-ti-activable>
   <!--
     Group title
@@ -29,7 +27,9 @@
       :row-index="index"
       :is-current="isCurrent"
       :is-checked="isChecked"
-      :data="data">
+      :data="data"
+      @cell:click="OnClickRow"
+      @cell:dblclick="OnDblClickRow">
       <template v-if="fld.index == 0">
         <div class="table-row-head">
           <!--current actived row indicator-->

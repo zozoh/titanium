@@ -42,5 +42,12 @@ export default {
   "keepCustomizedTo": {
     type: String,
     default: undefined
+  },
+  "checkIcons": {
+    type: Object,
+    default: () => ({
+      on: "fas-check-square",
+      off: "far-square"
+    })
   }
 }

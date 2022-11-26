@@ -19,9 +19,12 @@ export default {
   computed : {
     //-----------------------------------------------
     TopClass() {
-      return this.getListItemClass({
+      //console.error("row TopClass begin", this.index, this.rowId, this.tiComId)
+      let re = this.getListItemClass({
         "is-fake"   : this.item.fake
       }, `row-indent-${this.indent}`)
+      //console.log("row TopClass end", this.index, this.rowId, this.tiComId)
+      return re
     },
     //-----------------------------------------------
     hasRealIcon() {

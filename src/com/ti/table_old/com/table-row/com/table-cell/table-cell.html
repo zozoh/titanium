@@ -1,0 +1,22 @@
+<td class="table-cell"
+  :class="TopClass"
+  :col-index="index"
+  v-ti-activable
+  @click.left="OnClickCell"
+  @dblclick.left="OnDblClickCell">
+  <div class="cell-wrapper"
+    :class="WrapperClass">
+    <!--Slot for first column-->
+    <slot></slot>
+    <!--Fields-->
+    <div class="cell-con">
+      <component 
+        v-for="(it, index) in cellItems"
+          :class="'item-'+index"
+          :key="it.uniqKey"
+          :is="it.comType"
+          v-bind="it.comConf"
+          @change="OnItemChanged(it, $event)"/>
+    </div>
+  </div>
+</td>

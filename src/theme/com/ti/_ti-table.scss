@@ -4,6 +4,7 @@
   width: 100%;
   overflow: auto;
   position: relative;
+
   //---------------------------------------------
   &.is-head-frozen {
     th {
@@ -14,91 +15,109 @@
       line-height: $thead;
     }
   }
+
   //---------------------------------------------
-  &.is-head-normal {
-  }
+  &.is-head-normal {}
+
   //---------------------------------------------
-  &.is-head-none {
-  }
+  &.is-head-none {}
+
   //---------------------------------------------
   &.is-border-row {
     td {
       @include border(1px, solid, shallow, bottom);
     }
+
     tbody tr:last-child td {
       border-bottom: 0;
     }
   }
+
   //---------------------------------------------
   &.is-border-column {
     td {
       @include border(1px, solid, shallow, right);
+
       &:last-child {
         border-right: 0;
       }
     }
   }
+
   //---------------------------------------------
   &.is-border-cell {
     td {
       @include border(1px, solid, shallow, right);
       @include border(1px, solid, shallow, bottom);
+
       &:last-child {
         border-right: 0;
       }
     }
+
     tbody tr:last-child td {
       border-bottom: 0;
     }
   }
+
   //---------------------------------------------
   &.is-hoverable {
     tr.no-checked:hover {
       @include color($color-weaktip, r, c);
     }
-    > table > tbody td > .cell-wrapper .table-row-head {
+
+    >table>tbody td>.cell-wrapper .table-row-head {
       .row-handler:hover {
         @include color($color-boldtip, r, c);
       }
+
       .row-checker:hover {
         @include color($color-boldtip, r, c);
       }
     }
   }
+
   //---------------------------------------------
-  &.is-layout-fixed > table {
+  &.is-layout-fixed>table {
     table-layout: fixed;
   }
+
   //---------------------------------------------
-  &.is-layout-auto > table {
+  &.is-layout-auto>table {
     table-layout: auto;
   }
+
   //---------------------------------------------
   //
   //                The Table Part
   //
   //---------------------------------------------
-  > table {
+  >table {
     width: 100%;
     border-spacing: 0;
+
     //-------------------------------------------
-    > thead {
+    >thead {
       @include noselect;
+
       //-----------------------------------------
       th {
         @include color($color-body, r, c);
         @include border(1px, solid, shallow, right);
         @include border(1px, solid, shallow, bottom);
         font-weight: normal;
+
         //---------------------------------------
         &:last-child {
           border-right: 0;
         }
+
         //---------------------------------------
         .th-con {
           position: relative;
           padding: 0 SZ(6);
         }
+
         //---------------------------------------
         .table-head-cell-text {
           font-size: 0.9em;
@@ -108,6 +127,7 @@
           overflow: hidden;
           text-overflow: ellipsis;
         }
+
         //---------------------------------------
         .as-checker {
           @include pos-abs($t: 0, $l: 0, $w: $thead, $h: $thead);
@@ -117,11 +137,13 @@
           cursor: pointer;
           opacity: 0.9;
           z-index: $z-above + 1;
+
           &:hover {
             @include color($color-weaktip, r, c);
             opacity: 1;
           }
         }
+
         //---------------------------------------
         .as-customized-btn {
           @include pos-abs($t: 0, $r: 0);
@@ -134,35 +156,42 @@
           z-index: $z-above + 1;
           opacity: 0;
           transition: opacity 0.3s;
+
           &:hover {
             @include color($color-secondary, r, c);
             opacity: 1;
           }
         }
+
         //---------------------------------------
         .as-column-resize-hdl {
           @include pos-abs($t: 0, $b: 0, $r: SZ(-5), $w: SZ(10));
           z-index: $z-above;
           cursor: ew-resize;
         }
+
         //---------------------------------------
       }
+
       //-----------------------------------------
       &:hover {
-        th > .as-customized-btn {
+        th>.as-customized-btn {
           opacity: 0.8;
         }
       }
     }
+
     //---------------------------------------------
-    > tbody {
+    >tbody {
+
       //-------------------------------------------
       // Table Row
       //-------------------------------------------
-      > tr {
+      >tr {
         &.is-weak {
           opacity: 0.4;
         }
+
         //-----------------------------------------
         &.is-current {
           .table-row-head {
@@ -177,192 +206,270 @@
             }
           }
         }
+
         //-----------------------------------------
         &.is-checked {
           @include color($color-primary, r, c);
+
           a,
           a:hover {
             color: inherit;
           }
+
           //---------------------------------------
           td {
             border-color: map-get($color-primary, r);
+
+            >.cell-wrapper .table-row-head {
+              .row-checker {
+                &.as-checkbox {
+                  >.icon-icon {
+                    i:first-child {
+                      display: block;
+                    }
+
+                    i:last-child {
+                      display: none;
+                    }
+                  }
+                }
+              }
+            }
           }
+
           //---------------------------------------
           .cell-con {
+
             //-------------------------------------
             .ti-tags-item {
               @include color($color-weaktip, r, c);
             }
+
             //-------------------------------------
             .ti-icon {
               &.is-success {
                 @include color($color-success, r);
               }
+
               &.is-warn {
                 @include color($color-warn, r);
               }
+
               &.is-info {
                 @include color($color-info, r);
               }
+
               &.is-error {
                 @include color($color-error, r);
               }
+
               &.is-track {
                 @include color($color-track, r);
               }
+
               &.is-disable {
                 @include color($color-disable, r);
               }
+
               &.is-text {
                 @include color($color-text, r);
               }
+
               &.is-number {
                 @include color($color-number, r);
               }
             }
+
             //-------------------------------------
             .ti-label {
               &.is-success-tag {
                 @include color($color-success, c, r);
               }
+
               &.is-warn-tag {
                 @include color($color-warn, c, r);
               }
+
               &.is-info-tag {
                 @include color($color-info, c, r);
               }
+
               &.is-error-tag {
                 @include color($color-error, c, r);
               }
+
               &.is-track-tag {
                 @include color($color-track, c, r);
               }
+
               &.is-disable-tag {
                 @include color($color-disable, c, r);
               }
+
               &.is-text-tag {
                 @include color($color-text, c, r);
               }
+
               &.is-number-tag {
                 @include color($color-number, c, r);
               }
             }
+
             //-------------------------------------
           }
+
           //---------------------------------------
         }
+
         //-----------------------------------------
         &.is-fake {
           font-size: SZ(10);
           font-style: italic;
           color: map-get($color-track, c);
+
           td {
             padding: SZ(6);
+
             .cell-wrapper {
               @include border(1px, dashed, shallow);
               padding: SZ(4);
+
               .cell-con {
                 opacity: 0.6;
               }
             }
           }
         }
+
         //-----------------------------------------
       }
+
       //-------------------------------------------
       // Group title
       //-------------------------------------------
       td.as-row-group-title {
-        > .row-group-title-con {
+        >.row-group-title-con {
           @include flex-center;
           padding: SZ(8);
           font-weight: bold;
         }
       }
+
       //-------------------------------------------
       // Table Cell
       //-------------------------------------------
       td {
         vertical-align: middle;
-        > .cell-wrapper {
+
+        >.cell-wrapper {
           @include flex($ai: stretch, $wp: nowrap);
+
           //-------------------------------------------
           // Table Row Header
           //-------------------------------------------
           .table-row-head {
             @include flex-align-nowrap;
+
             //-----------------------------------------
             .row-actived-indicator {
               @include flex-center;
               width: 8px;
             }
+
             //-----------------------------------------
             .row-indent,
             .row-icon {
               @include flex-center;
               width: SZ(24);
             }
+
             //-----------------------------------------
             .row-handler {
               padding: SZ(6);
               cursor: pointer;
+
               &:hover {
                 @include color($color-weaktip, r, c);
               }
             }
+
             //-----------------------------------------
             .row-number {
               @include font-fixed;
               font-size: SZ(10);
               opacity: 0.6;
               padding: 0 SZ(6) 0 SZ(3);
+
               &::after {
                 display: inline;
                 content: ".";
               }
             }
+
             //-----------------------------------------
             .row-checker {
               padding: SZ(6);
               cursor: pointer;
+
               &:hover {
                 @include color($color-weaktip, r, c);
               }
+
+              &.as-checkbox {
+                >.icon-icon {
+                  i:first-child {
+                    display: none;
+                  }
+
+                  i:last-child {
+                    display: block;
+                  }
+                }
+              }
             }
+
             //-----------------------------------------
           }
+
           //-----------------------------------------
           &.is-nowrap {
             overflow: hidden;
           }
+
           //-----------------------------------------
           // Cell Container
           //-----------------------------------------
-          > .cell-con {
+          >.cell-con {
             @include flex-align;
+            overflow: hidden;
             flex: 1 1 auto;
             line-height: 2.6em;
             min-height: 2.6em;
+
             //---------------------------------------
-            > .ti-icon.item-0 {
+            >.ti-icon.item-0 {
               width: 1.8em;
               margin-left: 0;
             }
+
             //---------------------------------------
-            > .ti-icon {
+            >.ti-icon {
               margin: 0 0.2em;
             }
+
             .ti-label.item-0 {
               padding: 0 0.3em;
             }
+
             //---------------------------------------
             .ti-tags-item {
               font-size: 0.8em;
             }
+
             //---------------------------------------
             .ti-icon {
               flex: 0 0 auto;
+
               img {
                 width: 32px;
                 height: 32px;
@@ -371,39 +478,50 @@
                 border-radius: 2px;
               }
             }
+
             //---------------------------------------
-            > .ti-icon.img-contain .icon-icon img {
+            >.ti-icon.img-contain .icon-icon img {
               object-fit: contain;
             }
+
             //---------------------------------------
           }
+
           //-----------------------------------------
           .as-drop .ti-list {
             line-height: 1.8em;
           }
+
           //-----------------------------------------
-          &.is-nowrap > .cell-con {
+          &.is-nowrap>.cell-con {
             flex-wrap: nowrap;
           }
+
           //-----------------------------------------
           &.is-editing-mode {
             position: relative;
-            > .cell-con {
+
+            >.cell-con {
               @include pos-abs-full;
             }
           }
+
           //-----------------------------------------
         }
+
         //-------------------------------------------
-        &.align-left > .cell-wrapper > .cell-con {
+        &.align-left>.cell-wrapper>.cell-con {
           justify-content: flex-start;
         }
-        &.align-center > .cell-wrapper > .cell-con {
+
+        &.align-center>.cell-wrapper>.cell-con {
           justify-content: center;
         }
-        &.align-right > .cell-wrapper > .cell-con {
+
+        &.align-right>.cell-wrapper>.cell-con {
           justify-content: flex-end;
         }
+
         //-------------------------------------------
         // &.not-align  > .cell-wrapper > .cell-con {
         //   > .ti-label:last-child {
@@ -411,11 +529,16 @@
         //   }
         // }
         //-------------------------------------------
-      } // .table-cell
+      }
+
+      // .table-cell
     }
-  } // .table-body
+  }
+
+  // .table-body
   //---------------------------------------------
 }
+
 //
 // Column resize indicat bar
 //

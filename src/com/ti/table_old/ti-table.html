@@ -1,0 +1,103 @@
+<div class="ti-table"
+  :class="TopClass"
+  :style="TopStyle"
+  @click="OnClickTop"
+  v-ti-activable>
+  <!--
+    Pending
+  -->
+  <ti-loading 
+    v-if="isDataPending"
+      class="nil-data"
+      v-bind="loadingAs"/>
+  <!--
+    Blank
+  -->
+  <ti-loading 
+    v-else-if="isDataEmpty"
+      class="nil-data"
+      v-bind="BlankLoadingConf"/>
+  <!--
+    Show thead/tbody
+  -->
+  <template v-else>
+    <!--
+      Table
+    -->
+    <table ref="table">
+      <!--
+        Head
+      -->
+      <thead v-if="isShowHead"
+        class="table-head"
+        :style="TableStyle">
+        <!--field titles-->
+        <tr>
+          <th
+            v-for="(fld, index) in TableFields"
+              :style="fld.headStyle"
+              :col-index="fld.index"><div class="th-con">
+            <!--[0] checker-->
+            <div
+              v-if="checkable && multi && isShowHead && fld.isFirst"
+                class="as-checker"
+                @click.left="OnClickHeadChecker">
+                <ti-icon :value="HeadCheckerIcon"/>
+            </div>
+            <!-- field title -->
+            <span class="table-head-cell-text">{{fld.title|i18n}}</span>
+            <!--[-1] customized button-->
+            <div
+              v-if="canCustomizedFields && isShowHead && fld.isLast"
+                class="as-customized-btn"
+                @click.left="OnCustomizeFields">
+                <i class="fas fa-cog"></i>
+            </div>
+            <!--[N] resize column handle-->
+            <div
+              v-if="columnResizable && !fld.isLast"
+                class="as-column-resize-hdl"
+                @mousedown.left="OnColumnResizeBegin(index, fld)"></div>
+          </div></th>
+        </tr>
+      </thead>
+      <!--
+        Body
+      -->
+      <tbody
+        class="table-body"
+        :style="TableStyle">
+        <table-row
+          v-for="row in myData"
+            :class="row.className"
+            :key="row.id"
+            :row-id="row.id"
+            :index="row.index"
+            :display-index="row.displayIndex"
+            :as-group-title="row.asGroupTitle"
+            :group-title-display="RowGroupTitleDisplay"
+            :icon="row.icon"
+            :indent="row.indent"
+            :data="row.rawData"
+            :item="row.item"
+            :rowNumberBase="rowNumberBase"
+            :rowCount="myData.length"
+            :rowNumberWidth="RowNumberWidth"
+
+            :checkable="row.checkable"
+            :selectable="row.selectable"
+            :openable="row.openable"
+
+            :fields="TableFields"
+            :current-id="theCurrentId"
+            :checked-ids="theCheckedIds"
+            :changed-id="changedId"
+
+            @icon="$notify('icon', $event)"
+            @checker="OnRowCheckerClick"
+            @select="OnRowSelect"
+            @open="OnRowOpen"/>
+        </tbody>
+    </table>
+  </template>
+</div>

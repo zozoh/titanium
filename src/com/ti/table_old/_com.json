@@ -9,8 +9,9 @@
   "methods" : "@com:ti/support/field_display.mjs",
   "mixins" : [
     "@com:ti/support/list_mixins.mjs",
-    "./ti-table-cols.mjs",
-    "./ti-table-data.mjs",
     "./ti-table.mjs"
+  ],
+  "components" : [
+    "./com/table-row"
   ]
 }

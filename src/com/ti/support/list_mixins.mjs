@@ -121,7 +121,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     theCurrentId() {
-      return this.puppetMode
+        return this.puppetMode
         ? this.theCurrentRowId
         : this.myCurrentId
     },
@@ -239,8 +239,9 @@ const LIST_MIXINS = {
     //-----------------------------------------------
     async evalListDataWhenMarkChanged(newVal, oldVal) {
       if (!_.isEqual(newVal, oldVal)) {
-        //console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
+       // console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
         await this.evalListData()
+        //console.log("done for await this.evalListData()")
       }
     },
     //-----------------------------------------------
@@ -461,6 +462,8 @@ const LIST_MIXINS = {
         })
         checkedIds = idMap
       }
+      let oldCurrentId = this.theCurrentId
+      let oldCheckedIds = _.cloneDeep(this.theCheckedIds)
       let checked = []
       let current = null
       let currentIndex = -1
@@ -478,7 +481,8 @@ const LIST_MIXINS = {
       return {
         currentIndex, currentDisplayIndex,
         current, currentId,
-        checked, checkedIds
+        checked, checkedIds,
+        oldCurrentId, oldCheckedIds
       }
     },
     //-----------------------------------------------
@@ -528,6 +532,7 @@ const LIST_MIXINS = {
       // Notify Changes
       if (!quiet) {
         _.defaults(emitContext, payload)
+        //console.log("doNotifySelect")
         this.doNotifySelect(emitContext)
       }
     },
@@ -688,6 +693,9 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     doNotifySelect(emitContext) {
+      if (_.isFunction(this.__handle_select)) {
+        this.__handle_select(emitContext)
+      }
       if (this.notifySelectName) {
         this.$notify(this.notifySelectName, emitContext)
       }
@@ -714,7 +722,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     OnRowSelect({ rowId, shift, toggle } = {}) {
-      //console.log("OnRowSelect", rowId)
+      // console.log("OnRowSelect", rowId)
       // Multi + Shift Mode
       if (shift && this.multi) {
         this.selectRowsToCurrent(rowId)
@@ -770,7 +778,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     setRowSelect({ currentId, checkedIds = {}, quiet } = {}) {
-      console.log("setRotSelect", { currentId, checkedIds, quiet })
+      //console.log("setRotSelect", { currentId, checkedIds, quiet })
       let idMap = {}
       if (_.isArray(checkedIds)) {
         for (let id of checkedIds) {
@@ -789,6 +797,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     syncCurrentId() {
+      //console.log("syncCurrentId",this.puppetMode,this.theCurrentRowId)
       if (!this.puppetMode && this.theCurrentId != this.theCurrentRowId) {
         //console.log("syncCurrentId", this.theCurrentRowId, this.checkedIds)
         this.selectRow(this.theCurrentRowId, {
@@ -801,6 +810,7 @@ const LIST_MIXINS = {
       else {
         this.myLastIndex = this.findRowIndexById(this.theCurrentRowId)
       }
+      //console.log("syncCurrentId done",this.puppetMode,this.theCurrentRowId)
     },
     //-----------------------------------------------
     syncCheckedIds() {

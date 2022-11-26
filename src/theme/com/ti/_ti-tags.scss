@@ -19,6 +19,7 @@
 .ti-tags-item {
   @include flex-align-nowrap($ai:stretch);
   @include color($color-primary, r, c);
+  flex:0 0 auto;
   overflow: hidden; padding: 0; 
   border-radius: 6px; margin:SZ(2);
   line-height: 2em; 

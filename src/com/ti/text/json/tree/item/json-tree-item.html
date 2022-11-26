@@ -25,13 +25,14 @@
     :class-name="theValueClassName"
     :format="theValueFormat"
     :editable="true"
+    :hoverCopy="false"
     @change="$notify('change', $event)"/>
   <!--
     Action Menu
   -->
-  <ti-actionbar
-    v-if="showActions"
-      class="as-actions"
-      :items="theActionMenuData"
-      :status="theActionMenuStatus"/>
+  <div class="as-actions">
+    <ti-actionbar
+        :items="theActionMenuData"
+        :status="theActionMenuStatus"/>
+  </div>
 </div>
