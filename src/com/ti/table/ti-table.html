@@ -73,7 +73,8 @@
             class="table-row"
             :class="row.disClassName"
             :key="row.id"
-            @click.left="OnClickRow(row,$event)">
+            @click.left="OnClickRow(row,$event)"
+            @dblclick.left="OnDblClickRow(row,$event)">
             <!--Group Title-->
             <td 
               v-if="row.asGroupTitle && row.groupTitleComs"
@@ -141,6 +142,7 @@
                                 v-if="it.quickLabel.href" 
                                   :target="it.quickLabel.target"
                                   :href="it.quickLabel.href"
+                                  @click.left.prevent
                                   >{{it.quickLabel.text}}</a>
                               <span v-else>{{it.quickLabel.text}}</span>
                             </div>

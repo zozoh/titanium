@@ -148,6 +148,15 @@ const _M = {
       }
     },
     //-----------------------------------------------
+    OnDblClickRow(row,$event={}){
+      if (this.openable) {
+        $event.stopPropagation()
+        this.$notify("open", {
+          rowId: row.id
+        })
+      }
+    },
+    //-----------------------------------------------
     OnCellItemChanged(row, cell, item, payload) {
       this.$notify("cell:item:change", {
         rowId: row.id,

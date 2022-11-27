@@ -109,7 +109,7 @@ export default {
     //--------------------------------------
     async evalOneTableRow(rows, index, it) {
       if (it.asGroupTitle) {
-        it.groupTitleComs = this.genDisplays(it, this.RowGroupTitleDisplay, {
+        it.groupTitleComs = await this.genDisplays(it, this.RowGroupTitleDisplay, {
           autoIgnoreNil: false,
           autoIgnoreBlank: false
         });
