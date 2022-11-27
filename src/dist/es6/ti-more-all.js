@@ -1,4 +1,4 @@
-// Pack At: 2022-11-27 23:08:31
+// Pack At: 2022-11-27 23:10:58
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -81386,7 +81386,7 @@ const _M = {
     //--------------------------------------------
     async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
       state.LOG = () => { }
-      state.LOG = console.log
+      //state.LOG = console.log
       state.LOG("site.reload", state.entry, state.base, state.lang)
       //---------------------------------------
       // Looking for the entry page
