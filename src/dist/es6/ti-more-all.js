@@ -1,4 +1,4 @@
-// Pack At: 2022-11-25 00:27:42
+// Pack At: 2022-11-27 23:08:31
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -10359,6 +10359,248 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'ti-table-data.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/table/ti-table-data.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////
+  data: () => ({
+    tblRows: [/*
+      {
+        groupTitleComs:[{comType,comConf}]
+      }
+      {
+        id,index
+        icon,indent,
+        displayIndex,asGroupTitle,
+        checkable,selectable,openable,cancelable,hoverable,
+        rawData,item,
+        cells:[{
+          index,
+          displayItems:[{comType,comConf}]
+        }]
+      }
+    */],
+    myRows: [/*
+      add className.is-current is-checked for each row of tabRows
+    */],
+    myData: []
+  }),
+  ///////////////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TheData() {
+      return this.myData;
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    async genDisplays(it = {}, display = [], opt = {}) {
+      //console.log("genDisplays", it, display)
+      let { id, index } = it
+      let list = []
+      if (!_.isEmpty(display)) {
+        for (let i = 0; i < display.length; i++) {
+          let disIt = await this.evalDataForFieldDisplayItem({
+            itemData: it.rawData,
+            displayItem: display[i],
+            vars: {
+              rowId: id
+            },
+            ...opt,
+            uniqKey: `row${id}-cell${index}-${i}`
+          })
+          if (disIt) {
+            disIt.className = `item-${i}`
+            // 判断是否可以快速渲染不用真的弄个真控件
+            // 如果就是最朴素的 Label 
+            let { comType, comConf = {} } = disIt
+            if (/^(TiLabel|ti-label)$/.test(comType)) {
+              let { className, hoverCopy, value, newTab, href, dict } = comConf
+              if (false === hoverCopy || _.isUndefined(hoverCopy)) {
+                let text = value
+                if (dict) {
+                  let $d = Ti.DictFactory.CheckDict(dict)
+                  text = await $d.getItemText(value)
+                }
+                disIt.quickLabel = {
+                  className: Ti.Css.mergeClassName(className, disIt.className),
+                  newTab, href,
+                  target: newTab ? "_blank" : undefined,
+                  text
+                }
+              }
+            }
+            else if (/^(TiIcon|ti-icon)$/.test(comType)) {
+              let { value, className } = comConf
+              let icon = Ti.Icons.parseFontIcon(value)
+              if (icon && icon.className) {
+                disIt.quickIcon = {
+                  className: Ti.Css.mergeClassName(className, disIt.className),
+                  iconClass: icon.className
+                }
+              }
+            }
+            list.push(disIt)
+          }
+
+        }
+        return list;
+      }
+    },
+    //--------------------------------------
+    async genTableCells(it = {}) {
+      let cells = []
+      for (let i = 0; i < this.TableFields.length; i++) {
+        let fld = this.TableFields[i]
+        let hasAlign = fld.className && fld.className.indexOf("align-") >= 0;
+        let cell = _.cloneDeep(fld);
+        cell.index = i
+        cell.className = Ti.Css.mergeClassName(cell.className, {
+          "has-align": hasAlign,
+          "not-align": !hasAlign
+        })
+        cell.WrapperClass = {
+          "is-nowrap": fld.nowrap,
+        }
+        cell.displayItems = await this.genDisplays(it, fld.display)
+        cells.push(cell)
+      }
+      return cells
+    },
+    //--------------------------------------
+    async evalOneTableRow(rows, index, it) {
+      if (it.asGroupTitle) {
+        it.groupTitleComs = await this.genDisplays(it, this.RowGroupTitleDisplay, {
+          autoIgnoreNil: false,
+          autoIgnoreBlank: false
+        });
+      } else if (_.isNumber(this.rowNumberBase)) {
+        it.hasRowNumber = true;
+        let rn = this.rowNumberBase + it.displayIndex
+        if (this.rowNumberWidth > 1) {
+          rn = _.padStart(rn, this.rowNumberWidth, '0');
+        }
+        it.RowNumber = rn
+      }
+      it.cells = await this.genTableCells(it)
+      rows[index] = it
+    },
+    //--------------------------------------
+    async evalTableRows(list = []) {
+      let rows = []
+      let loadRows = []
+      for (let i = 0; i < list.length; i++) {
+        var it = list[i];
+        loadRows.push(this.evalOneTableRow(rows, i, it))
+      }
+      await Promise.all(loadRows)
+      this.tblRows = rows
+    },
+    //--------------------------------------
+    evalOneMyRow(rows = [], index, {
+      currentId = this.theCurrentId,
+      checkedIds = this.theCheckedIds
+    } = {}) {
+      let it = rows[index]
+      it.current = (it.id == currentId)
+      it.checked = checkedIds[it.id] ? true : false
+      it.checkerIcon = it.checked
+        ? this.checkIcons.on
+        : this.checkIcons.off;
+      it.disClassName = Ti.Css.mergeClassName(it.className, {
+        "is-current": it.current,
+        "is-checked": it.checked,
+        "no-checked": !it.checked
+      })
+    },
+    //--------------------------------------
+    evalMyRows(opt) {
+      let rows = _.cloneDeep(this.tblRows)
+      //console.log("after clone")
+      for (let i = 0; i < rows.length; i++) {
+        this.evalOneMyRow(rows, i, opt)
+      }
+      this.myRows = rows
+    },
+    //--------------------------------------
+    async evalListData() {
+      let beginMs = Date.now()
+      let list = await this.evalData((it) => {
+        it.icon = this.getRowIcon(it.item)
+        if(it.icon){
+          let ico = Ti.Icons.parseFontIcon(it.icon)
+          if(ico){
+            it.iconClass = ico.className
+          }
+        }
+        it.showIcon = it.icon && _.isString(it.icon)
+        it.indent = this.getRowIndent(it.item)
+      })
+      this.myData = list
+      await this.evalTableRows(list);
+
+      this.evalMyRows();
+      let du = Date.now() - beginMs
+      //console.log("evalListData in", `${du}ms`)
+      //let du = Date.now() - ms
+      //console.log("evalListData", `${du}ms`)
+      // Scroll into view
+      _.delay(() => {
+        this.scrollCurrentIntoView()
+      }, 300)
+    },
+    //--------------------------------------
+    async reEvalRows(ids = {}, { currentId, checkedIds } = {}) {
+      let indexes = []
+      _.forEach(this.myData, it => {
+        if (ids[it.id]) {
+          indexes.push(it.index)
+        }
+      })
+
+      //console.log("theCurrentId ...")
+      let rows = _.cloneDeep(this.myRows)
+      //console.log("cloned")
+      for (let i of indexes) {
+        this.evalOneMyRow(rows, i, { currentId, checkedIds })
+        //console.log("evalOneMyRow", i)
+      }
+      this.myRows = rows
+      //console.log("after evalMyRows")
+    },
+    //--------------------------------------
+    // 采用这个，是为了绕开 VUe 的监听机制能快点得到响应
+    // 因为渲染数据的时间是在省不了
+    __handle_select({ currentId, checkedIds, oldCurrentId, oldCheckedIds }) {
+      //console.log("__handle_select", currentId, checkedIds)
+      let ids = _.assign({}, oldCheckedIds, checkedIds)
+      if (currentId) {
+        ids[currentId] = true
+      }
+      if (oldCurrentId) {
+        ids[oldCurrentId] = true
+      }
+      this.reEvalRows(ids, { currentId, checkedIds })
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch: {
+    "data": "evalListDataWhenMarkChanged",
+    "TableFields": "evalListDataWhenMarkChanged",
+    "selectable": "evalListDataWhenMarkChanged",
+    "checkable": "evalListDataWhenMarkChanged",
+    "hoverable": "evalListDataWhenMarkChanged",
+    "filterValue": "evalListDataWhenMarkChanged"
+  },
+  ///////////////////////////////////////////////////F
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'tiny-wn-attachment.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-attachment.mjs'] = (function(){
@@ -17651,6 +17893,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "keepCustomizedTo": {
     type: String,
     default: undefined
+  },
+  "checkIcons": {
+    type: Object,
+    default: () => ({
+      on: "fas-check-square",
+      off: "far-square"
+    })
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -18275,218 +18524,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: [Number, String],
     default: undefined
   }
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'ti-table-resizes.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/table/ti-table-resizes.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  ///////////////////////////////////////////////////
-  data : ()=>({
-    myViewportWidth : 0,  // Update-in-time, root element width
-    myTableWidth: 0,      // Update-in-time, table width
-    myColSizes: {
-      priHead : [],  // Primary head column sizing
-      priBody : [],  // Primary body column sizing
-      primary : [],  // Primary Max Col-Sizes
-      fixeds  : [],  // Fixed value [480, .23, 'auto', 'stretch']
-                     // Eval when `evalEachColumnSize`
-                     //  - 480 : fixed width
-                     //  - -480 : fixed width and override primary
-                     //  - .23 : as percent eval each time resize
-                     //  - 'auto' : it will keep the primary sizing
-                     //  - 'stretch' : it will join to the auto-remains-assignment
-      amended : []   // The col-size to display in DOM
-    },
-    myCellsReady : false,
-    myCellsReport : {},
-    I_am_in_resizing : false
-  }),
-  ///////////////////////////////////////////////////
-  methods : {
-    //--------------------------------------
-    reportReady(rowIndex=-1, cellIndex=-1, isDone=false) {
-      let key = `R${rowIndex}-C${cellIndex}`
-      //console.log(key, isDone)
-      if(isDone) {
-        delete this.myCellsReport[key]
-      } else {
-        this.myCellsReport[key] = isDone
-      }
-      // Check the status
-      _.delay(()=>{
-        this.myCellsReady = _.isEmpty(this.myCellsReport)
-        // Do resize
-        if(this.myCellsReady) {
-          this.evalEachColumnSize()
-        }
-      })
-    },
-    //--------------------------------------
-    evalEachColumnSize() {
-      // Guard
-      if(this.I_am_in_resizing) {
-        return
-      }
-      //console.log("evalEachColumnSize", this, this.tiComType)
-
-      // Remember the current scrollTop
-      let oldScrollTop = _.get(this.$refs.body, "scrollTop")
-
-      // Reset each column size
-      this.I_am_in_resizing = true
-      this.myTableWidth = 0
-      this.myColSizes = {
-        priHead : [],
-        priBody : [],
-        primary : [],
-        fixeds  : [],
-        amended : []
-      }
-      //.........................................
-      // Eval the fixeds
-      for(let fld of this.TableFields) {
-        let fldWidth = fld.width || "stretch"
-        // Stretch/Auto
-        if(/^(stretch|auto)$/.test(fldWidth)) {
-          this.myColSizes.fixeds.push(fldWidth)
-        }
-        // Fixed or percent
-        else {
-          this.myColSizes.fixeds.push(Ti.Css.toPixel(fldWidth, 1))
-        }
-      }
-      //.........................................
-      // Wait reset applied, and ...
-      this.$nextTick(()=>{
-        // Get original size: head
-        let $heads = Ti.Dom.findAll(".table-head ul li", this.$el)
-        for(let $he of $heads) {
-          let rect = Ti.Rects.createBy($he)
-          this.myColSizes.priHead.push(rect.width)
-        }
-
-        // Get original size: body
-        let $rows = Ti.Dom.findAll(".table-body .table-row", this.$el)
-        for(let $row of $rows) {
-          let $cells = Ti.Dom.findAll(":scope > div", $row)
-          for(let x=0; x<$cells.length; x++) {
-            let $cell = $cells[x]
-            let rect = Ti.Rects.createBy($cell)
-            if(x>= this.myColSizes.priBody.length) {
-              this.myColSizes.priBody[x] = rect.width
-            } else {
-              this.myColSizes.priBody[x] = Math.max(
-                rect.width, this.myColSizes.priBody[x]
-              )
-            }
-          }
-        }
-
-        // Count the primary max sizing for each columns
-        for(let i=0; i<this.myColSizes.priHead.length; i++) {
-          let wHeadCell = this.myColSizes.priHead[i]
-          let wBodyCell = this.myColSizes.priBody[i]
-          let w = Math.max(wHeadCell, wBodyCell)
-          this.myColSizes.primary.push(w)
-        }
-
-        // Resize Table
-        this.onTableResize()
-
-        // Mark back the resizing and restore scrollTop
-        _.delay(()=>{
-          this.I_am_in_resizing = false
-          if(this.$refs.body)
-            this.$refs.body.scrollTop = oldScrollTop
-        }, 10)
-      })
-    },
-    //--------------------------------------
-    onTableResize() {
-      // Guard it
-      let colN = this.myColSizes.primary.length
-      if(colN <= 0) {
-        return
-      }
-
-      // Get the viewport width
-      let viewportWidth = Ti.Rects.createBy(this.$el).width
-      //console.log("onTableResize")
-
-      // Assign the fixed width
-      // And count how many fields to join the remains-assignment
-      let raIndexs = [];
-      let amended = []
-      for(let i=0; i<this.myColSizes.fixeds.length; i++) {
-        let fxW = this.myColSizes.fixeds[i]
-        // Get the primary width
-        let priW = this.myColSizes.primary[i]
-        // join to auto-remains-assignment
-        if("stretch" == fxW) {
-          raIndexs.push(i)
-          amended.push(priW)
-        }
-        // keep primary
-        else if("auto" == fxW) {
-          amended.push(priW)
-        }
-        // Eval percent
-        else if(fxW <= 1 && fxW > 0) {
-          amended.push(fxW * viewportWidth)
-        }
-        // Eval percent and join remains-assignment
-        else if(fxW < 0 && fxW >= -1) {
-          let w = Math.abs(fxW * viewportWidth)
-          amended.push(Math.max(w, priW))
-        }
-        // Fixed width and join remains-assignment
-        else if(fxW < -1) {
-          let w = Math.abs(fxW)
-          amended.push(Math.max(w, priW))
-        }
-        // Fixed width
-        else {
-          amended.push(fxW)
-        }
-      }
-
-      // Count the tableWidth
-      let sumWidth = _.sum(amended)
-      let tableWidth = Math.max(viewportWidth, sumWidth)
-      this.myTableWidth = tableWidth
-
-      // Assign the remain
-      if(raIndexs.length > 0) {
-        let remain = tableWidth - sumWidth
-        if(remain > 0) {
-          let remainCell = remain / raIndexs.length
-          for(let index of raIndexs) {
-            amended[index] += remainCell
-          }
-        }
-      }
-
-      // apply amended
-      this.myColSizes.amended = amended
-    }
-    //--------------------------------------
-  },
-  ///////////////////////////////////////////////////
-  mounted : async function() {
-    //.................................
-    Ti.Viewport.watch(this, {
-      resize : _.debounce(()=>this.onTableResize(), 10)
-    })
-    //.................................
-  },
-  ///////////////////////////////////////////////////
-  beforeDestroy : function(){
-    Ti.Viewport.unwatch(this)
-  }
-  ///////////////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -22366,32 +22403,28 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/text/json/tree/item/json-tree-item.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
-  data : ()=>({
-    
+  data: () => ({
+
   }),
   //////////////////////////////////////////
-  props : {
-    "value" : null,
-    "valueType" : {
-      type : String,
-      default : "Nil"
+  props: {
+    "value": null,
+    "valueType": {
+      type: String,
+      default: "Nil"
     },
-    "valuePath" : {
-      type : [String, Array],
-      default : ()=>[]
-    },
-    "showActions" : {
-      type : Boolean,
-      default : false
+    "valuePath": {
+      type: [String, Array],
+      default: () => []
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
       return Ti.Css.mergeClassName({
-        "is-self-actived" : this.isSelfActived,
-        "is-actived" : this.isActived
+        "is-self-actived": this.isSelfActived,
+        "is-actived": this.isActived
       })
     },
     //--------------------------------------
@@ -22404,20 +22437,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     theLabelDisplayText() {
-      if('Array' == this.valueType) {
+      if ('Array' == this.valueType) {
         return '[..]'
       }
-      if('Object' == this.valueType) {
+      if ('Object' == this.valueType) {
         return '{..}'
       }
       return '???'
     },
     //--------------------------------------
     theValuePath() {
-      if(_.isArray(this.valuePath)) {
+      if (_.isArray(this.valuePath)) {
         return this.valuePath
       }
-      if(_.isString(this.valuePath)) {
+      if (_.isString(this.valuePath)) {
         return _.without(this.valuePath.split(/[\/.]/g), "")
       }
       return []
@@ -22428,9 +22461,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     theValueFormat() {
-      if('String' == this.valueType) {
-        return function(val) {
-          if(val) {
+      if ('String' == this.valueType) {
+        return function (val) {
+          if (val) {
             return `"${val}"`
           }
           return '""'
@@ -22441,120 +22474,117 @@ const __TI_MOD_EXPORT_VAR_NM = {
     theActionMenuData() {
       //................................
       let jvTypes = [{
-        name  : "jvTypeArray",
-        text  : "i18n:json-Array",
-        type  : "action",
-        altDisplay : {
-          icon : "zmdi-check",
-          capture : false
+        name: "jvTypeArray",
+        text: "i18n:json-Array",
+        type: "action",
+        altDisplay: {
+          icon: "zmdi-check",
+          capture: false
         },
-        action : ()=>{
-          this.$notify("change", {jsonMutate:"ChangeValueType", args:"Array"})
+        action: () => {
+          this.$notify("change", { jsonMutate: "ChangeValueType", args: "Array" })
         }
       }, {
-        name  : "jvTypeObject",
-        text  : "i18n:json-Object",
-        type  : "action",
-        altDisplay : {
-          icon : "zmdi-check",
-          capture : false
+        name: "jvTypeObject",
+        text: "i18n:json-Object",
+        type: "action",
+        altDisplay: {
+          icon: "zmdi-check",
+          capture: false
         },
-        action : ()=>{
-          this.$notify("change", {jsonMutate:"ChangeValueType", args:"Object"})
+        action: () => {
+          this.$notify("change", { jsonMutate: "ChangeValueType", args: "Object" })
         }
       }]
       //................................
       // Add
       let menuData = [{
-        name : "jv-add",
-        type : "action",
-        icon : "zmdi-plus",
-        action : ()=>{
-          this.$notify("change", {jsonMutate : "Add"})
+        name: "jv-add",
+        type: "action",
+        icon: "zmdi-plus",
+        action: () => {
+          this.$notify("change", { jsonMutate: "Add" })
         }
       }]
       //................................
       // Remove : If not the top
-      if(!this.isTop) {
+      if (!this.isTop) {
         menuData.push({
-          type : "line"
+          type: "line"
         })
         // Can not remove top node
         menuData.push({
-          name : "jv-remove",
-          type : "action",
-          icon : "zmdi-delete",
-          action : ()=>{
-            this.$notify("change", {jsonMutate : "Remove"})
+          name: "jv-remove",
+          type: "action",
+          icon: "zmdi-delete",
+          action: () => {
+            this.$notify("change", { jsonMutate: "Remove" })
           }
         })
         // Add More Types
-        jvTypes.push({
-          type : "line"
-        })
+        jvTypes.push({})
+
         // AddType: Boolean
         jvTypes.push({
-          name  : "jvTypeBoolean",
-          text  : "i18n:json-Boolean",
-          type  : "action",
-          altDisplay : {
-            icon : "zmdi-check",
-            capture : false
+          name: "jvTypeBoolean",
+          text: "i18n:json-Boolean",
+          type: "action",
+          altDisplay: {
+            icon: "zmdi-check",
+            capture: false
           },
-          action : ()=>{
-            this.$notify("change", {jsonMutate:"ChangeValueType", args:"Boolean"})
+          action: () => {
+            this.$notify("change", { jsonMutate: "ChangeValueType", args: "Boolean" })
           }
         })
         // AddType: Number
         jvTypes.push({
-          name  : "jvTypeNumber",
-          text  : "i18n:json-Number",
-          type  : "action",
-          altDisplay : {
-            icon : "zmdi-check",
-            capture : false
+          name: "jvTypeNumber",
+          text: "i18n:json-Number",
+          type: "action",
+          altDisplay: {
+            icon: "zmdi-check",
+            capture: false
           },
-          action : ()=>{
-            this.$notify("change", {jsonMutate:"ChangeValueType", args:"Number"})
+          action: () => {
+            this.$notify("change", { jsonMutate: "ChangeValueType", args: "Number" })
           }
         })
         // AddType: String
         jvTypes.push({
-          name  : "jvTypeString",
-          text  : "i18n:json-String",
-          type  : "action",
-          altDisplay : {
-            icon : "zmdi-check",
-            capture : false
+          name: "jvTypeString",
+          text: "i18n:json-String",
+          type: "action",
+          altDisplay: {
+            icon: "zmdi-check",
+            capture: false
           },
-          action : ()=>{
-            this.$notify("change", {jsonMutate:"ChangeValueType", args:"String"})
+          action: () => {
+            this.$notify("change", { jsonMutate: "ChangeValueType", args: "String" })
           }
         })
         // AddType: Nil
         jvTypes.push({
-          name  : "jvTypeNil",
-          text  : "i18n:json-Nil",
-          type  : "action",
-          altDisplay : {
-            icon : "zmdi-check",
-            capture : false
+          name: "jvTypeNil",
+          text: "i18n:json-Nil",
+          type: "action",
+          altDisplay: {
+            icon: "zmdi-check",
+            capture: false
           },
-          action : ()=>{
-            this.$notify("change", {jsonMutate:"ChangeValueType", args:"Nil"})
+          action: () => {
+            this.$notify("change", { jsonMutate: "ChangeValueType", args: "Nil" })
           }
         })
       }
       //................................
       // More: Change Type
+      menuData.push({})
       menuData.push({
-        type : "line"
-      })
-      menuData.push({
-        key  : "jv-types",
-        type : "group",
-        icon : "zmdi-more",
-        items : jvTypes
+        key: "jv-types",
+        type: "group",
+        icon: "zmdi-more",
+        items: jvTypes
       })
       // Done
       return menuData
@@ -22562,31 +22592,31 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     theActionMenuStatus() {
       return {
-        jvTypeBoolean : "Boolean" == this.valueType,
-        jvTypeInteger : "Integer" == this.valueType,
-        jvTypeFloat   : "Float"   == this.valueType,
-        jvTypeNumber  : "Number"  == this.valueType,
-        jvTypeString  : "String"  == this.valueType,
-        jvTypeArray   : "Array"   == this.valueType,
-        jvTypeObject  : "Object"  == this.valueType,
-        jvTypeNil     : "Nil"     == this.valueType
+        jvTypeBoolean: "Boolean" == this.valueType,
+        jvTypeInteger: "Integer" == this.valueType,
+        jvTypeFloat: "Float" == this.valueType,
+        jvTypeNumber: "Number" == this.valueType,
+        jvTypeString: "String" == this.valueType,
+        jvTypeArray: "Array" == this.valueType,
+        jvTypeObject: "Object" == this.valueType,
+        jvTypeNil: "Nil" == this.valueType
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
     //--------------------------------------
-    
+
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    
+  watch: {
+
   },
   //////////////////////////////////////////
-  mounted : function() {
-    
+  mounted: function () {
+
   }
   //////////////////////////////////////////
 }
@@ -27785,7 +27815,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     theCurrentId() {
-      return this.puppetMode
+        return this.puppetMode
         ? this.theCurrentRowId
         : this.myCurrentId
     },
@@ -27903,8 +27933,9 @@ const LIST_MIXINS = {
     //-----------------------------------------------
     async evalListDataWhenMarkChanged(newVal, oldVal) {
       if (!_.isEqual(newVal, oldVal)) {
-        //console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
+       // console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
         await this.evalListData()
+        //console.log("done for await this.evalListData()")
       }
     },
     //-----------------------------------------------
@@ -28125,6 +28156,8 @@ const LIST_MIXINS = {
         })
         checkedIds = idMap
       }
+      let oldCurrentId = this.theCurrentId
+      let oldCheckedIds = _.cloneDeep(this.theCheckedIds)
       let checked = []
       let current = null
       let currentIndex = -1
@@ -28142,7 +28175,8 @@ const LIST_MIXINS = {
       return {
         currentIndex, currentDisplayIndex,
         current, currentId,
-        checked, checkedIds
+        checked, checkedIds,
+        oldCurrentId, oldCheckedIds
       }
     },
     //-----------------------------------------------
@@ -28192,6 +28226,7 @@ const LIST_MIXINS = {
       // Notify Changes
       if (!quiet) {
         _.defaults(emitContext, payload)
+        //console.log("doNotifySelect")
         this.doNotifySelect(emitContext)
       }
     },
@@ -28352,6 +28387,9 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     doNotifySelect(emitContext) {
+      if (_.isFunction(this.__handle_select)) {
+        this.__handle_select(emitContext)
+      }
       if (this.notifySelectName) {
         this.$notify(this.notifySelectName, emitContext)
       }
@@ -28378,7 +28416,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     OnRowSelect({ rowId, shift, toggle } = {}) {
-      //console.log("OnRowSelect", rowId)
+      // console.log("OnRowSelect", rowId)
       // Multi + Shift Mode
       if (shift && this.multi) {
         this.selectRowsToCurrent(rowId)
@@ -28434,7 +28472,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     setRowSelect({ currentId, checkedIds = {}, quiet } = {}) {
-      console.log("setRotSelect", { currentId, checkedIds, quiet })
+      //console.log("setRotSelect", { currentId, checkedIds, quiet })
       let idMap = {}
       if (_.isArray(checkedIds)) {
         for (let id of checkedIds) {
@@ -28453,6 +28491,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     syncCurrentId() {
+      //console.log("syncCurrentId",this.puppetMode,this.theCurrentRowId)
       if (!this.puppetMode && this.theCurrentId != this.theCurrentRowId) {
         //console.log("syncCurrentId", this.theCurrentRowId, this.checkedIds)
         this.selectRow(this.theCurrentRowId, {
@@ -28465,6 +28504,7 @@ const LIST_MIXINS = {
       else {
         this.myLastIndex = this.findRowIndexById(this.theCurrentRowId)
       }
+      //console.log("syncCurrentId done",this.puppetMode,this.theCurrentRowId)
     },
     //-----------------------------------------------
     syncCheckedIds() {
@@ -29467,6 +29507,217 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'table-cell.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/table_old/com/table-row/com/table-cell/table-cell.mjs'] = (function(){
+/////////////////////////////////////////////////////
+const _M = {
+  ///////////////////////////////////////////////////
+  inject : ["$table"],
+  ///////////////////////////////////////////////////
+  data: ()=>({
+    isEditingMode : false,
+    cellItems : [],
+    myCellSize : -1
+  }),
+  ///////////////////////////////////////////////////
+  props : {
+    "index" : {
+      type : Number,
+      default : -1
+    },
+    "rowId" : {
+      type : String,
+      default : null
+    },
+    "rowIndex" : {
+      type : Number,
+      default : -1
+    },
+    //..........................
+    "title" : {
+      type : String,
+      default : null
+    },
+    "nowrap" : {
+      type : Boolean,
+      default : true
+    },
+    //..........................
+    "display" : {
+      type : Array,
+      default : ()=>[]
+    },
+    //..........................
+    "name" : {
+      type : [String, Array],
+      default : null
+    },
+    "type" : {
+      type : String,
+      default : "String"
+    },
+    "dict" : {
+      type : String,
+      default : "String"
+    },
+    "comType" : {
+      type : String,
+      default : null
+    },
+    "comConf" : {
+      type : Object,
+      default : ()=>({})
+    },
+    "serializer" : {
+      type : Function,
+      default : _.identity
+    },
+    "transformer" : {
+      type : Function,
+      default : _.identity
+    },
+    //..........................
+    "data" : {
+      type : Object,
+      default : ()=>({})
+    },
+    //..........................
+    "isCurrent" : {
+      type : Boolean,
+      default : false
+    },
+    "isChecked" : {
+      type : Boolean,
+      default : false
+    },
+    //..........................
+    "ignoreNil" : {
+      type : Boolean,
+      default : true
+    },
+    //..........................
+    "focusBy" : {
+      type : String,
+      default : "focus"
+    }
+    //..........................
+  },
+  ///////////////////////////////////////////////////
+  computed : {
+    //-----------------------------------------------
+    TopClass() {
+      let hasAlign = this.className && this.className.indexOf("align-")>=0
+      return this.getTopClass({
+        "has-align" : hasAlign,
+        "not-align" : !hasAlign
+      })
+    },
+    //-----------------------------------------------
+    WrapperClass() {
+      return {
+        "is-nowrap" : this.nowrap,
+        "is-editing-mode" : this.isEditingMode
+      }
+    },
+    //-----------------------------------------------
+    theCurrentDisplayItems() {
+      // Edit Mode
+      if((this.isActived && this.comType) || _.isEmpty(this.display)) {
+        //...........................................
+        this.isEditingMode = true
+        //...........................................
+        let comConf = _.assign({}, this.comConf)
+        if(this.focusBy) {
+          comConf[this.focusBy] = "${=isActived}"
+        }
+        //...........................................
+        return [{
+          comType : this.comType,
+          comConf,
+          key  : this.name,
+          type : this.type,
+          dict : this.dict,
+          transformer : this.transformer,
+          ignoreNil : false
+        }]
+        //...........................................
+      }
+      // Display Mode
+      this.isEditingMode = false
+      return this.display
+    },
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods : {
+    //-----------------------------------------------
+    OnClickCell($event){
+     this.$emit("cell:click",$event)
+    },
+    //-----------------------------------------------
+    OnDblClickCell($event){
+      his.$emit("cell:dblclick",$event)
+    },
+    //-----------------------------------------------
+    async evalCellDisplayItems() {
+      //console.log("evalCellDisplayItems",this.index)
+      let items = []
+      // Eval each items
+      for(let i=0; i<this.theCurrentDisplayItems.length; i++) {
+        let displayItem = this.theCurrentDisplayItems[i]
+        let it = await this.evalDataForFieldDisplayItem({
+            itemData : this.data, 
+            displayItem, 
+            vars : {
+              "rowId"     : this.rowId,
+              "isCurrent" : this.isCurrent
+            },
+            autoIgnoreNil : true,
+            uniqKey: `row${this.rowId}-cell${this.index}-${i}`
+        })
+        if(it) {
+          items.push(it)
+        }
+      }
+      //if(0 == this.rowIndex && 1==this.index) {
+      //console.log("evalCellDisplayItems", this.rowIndex, this.index)
+      //}
+      // Update and return
+      let old = Ti.Util.pureCloneDeep(this.cellItems)
+      let nit = Ti.Util.pureCloneDeep(items)
+      if(!_.isEqual(old, nit)) {
+        //console.log(`-> Cell[${this.rowIndex}-${this.index}]:`, {old, nit})
+        this.cellItems = items
+      }
+    },
+    //-----------------------------------------------
+    OnItemChanged(item, payload) {
+      this.$table.$notify("cell:item:change", {
+        rowId     : this.rowId,
+        rowData   : this.data,
+        cellIndex : this.index,
+        index     : this.rowIndex,
+        name      : item.key,
+        value     : payload
+      })
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch : {
+    "data" : {
+      handler : "evalCellDisplayItems",
+      immediate : true
+    },
+    //"isCurrent" : "evalCellDisplayItems",
+    "display" : "evalCellDisplayItems"
+  }
+  ///////////////////////////////////////////////////
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'ti-text-json-tree.mjs' -> null
@@ -31055,6 +31306,579 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'ti-table.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/table_old/ti-table.mjs'] = (function(){
+const _M = {
+  ///////////////////////////////////////////////////
+  provide: function () {
+    return {
+      "$table": this
+    }
+  },
+  ///////////////////////////////////////////////////
+  data: () => ({
+    //myFieldKeys: undefined,
+    myFieldWidths: undefined,
+
+    allFields: [],
+    myFields: [],
+    myTableRect: null,
+    myData: []
+  }),
+  ///////////////////////////////////////////////////
+  // props -> ti-table-props.mjs
+  ///////////////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TopClass() {
+      let klass = this.getTopClass({
+        // "is-cells-no-ready" : !this.myCellsReady,
+        // "is-layout-ready" : this.myCellsReady,
+        "is-hoverable": this.hoverable
+      }, [
+        `is-border-${this.border}`,
+        `is-head-${this.head || "none"}`
+      ])
+      // Auto judgement table layout
+      if (!klass['is-layout-fixed'] && !klass['is-layout-auto']) {
+        let tableLayout = "auto"
+        for (let i = 0; i < this.myFields.length; i++) {
+          let fld = this.myFields[i]
+          if (!Ti.Util.isNil(fld.width)) {
+            tableLayout = "fixed"
+            break
+          }
+        }
+        klass[`is-layout-${tableLayout}`] = true
+      }
+      return klass
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      })
+    },
+    //--------------------------------------
+    TableStyle() {
+      if (this.myTableWidth > 0) {
+        return Ti.Css.toStyle({
+          "width": this.myTableWidth
+        })
+      }
+    },
+    //--------------------------------------
+    getRowIndent() {
+      if (_.isFunction(this.indentBy)) {
+        return it => this.indentBy(it)
+      }
+      if (_.isString(this.indentBy)) {
+        return it => _.get(it, this.indentBy)
+      }
+      return it => 0
+    },
+    //--------------------------------------
+    getRowIcon() {
+      if (_.isFunction(this.iconBy)) {
+        return it => this.iconBy(it)
+      }
+      if (_.isString(this.iconBy)) {
+        return it => _.get(it, this.iconBy)
+      }
+      return it => null
+    },
+    //--------------------------------------
+    TheData() {
+      return this.myData
+    },
+    //--------------------------------------
+    isShowHead() {
+      return /^(frozen|normal)$/.test(this.head)
+    },
+    //--------------------------------------
+    HeadCheckerIcon() {
+      if (this.isAllChecked) {
+        return "fas-check-square"
+      }
+      if (this.hasChecked) {
+        return "fas-minus-square"
+      }
+      return "far-square"
+    },
+    //--------------------------------------
+    TableFields() {
+      if (!this.myTableRect) {
+        return
+      }
+      let fields = []
+      let lastI = this.myFields.length - 1
+      for (let i = 0; i < this.myFields.length; i++) {
+        let fld = this.myFields[i]
+        //..................................
+        if (_.isBoolean(fld.visible) && !fld.visible) {
+          continue
+        }
+        if (_.isBoolean(fld.hidden) && fld.hidden) {
+          continue
+        }
+        //..................................
+        let display = this.evalFieldDisplay(fld.display, fld.name)
+        //..................................
+        let fldWidth = _.nth(this.myFieldWidths, i)
+        fldWidth = Ti.Util.fallbackNil(fldWidth, fld.width, "stretch")
+        //..................................
+        if (_.isString(fldWidth)) {
+          // Percent
+          if (/^\d+(\.\d+)?%$/.test(fldWidth)) {
+            fldWidth = fldWidth.substring(0, fldWidth.length - 1) / 100;
+          }
+          // Auto or stretch
+          else if (!/^(auto|stretch)$/.test(fldWidth)) {
+            fldWidth = "stretch"
+          }
+        }
+        // Must be number
+        else if (!_.isNumber(fldWidth)) {
+          fldWidth = "stretch"
+        }
+        //..................................
+        let cell = {
+          index: i,
+          isFirst: 0 == i,
+          isLast: lastI == i,
+          title: fld.title,
+          nowrap: fld.nowrap,
+          width: fldWidth,
+          className: fld.className,
+          //.....................
+          name: fld.name,
+          display,
+          //.....................
+          type: fld.type,
+          comType: fld.comType,
+          comConf: fld.comConf,
+          transformer: fld.transformer,
+          serializer: fld.serializer
+        }
+        //..................................
+        cell.headStyle = this.getHeadCellStyle(cell)
+        //..................................
+        fields.push(cell)
+        //..................................
+      }
+      return fields
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    OnClickHeadChecker() {
+      // Cancel All
+      if (this.isAllChecked) {
+        this.cancelRow()
+      }
+      // Check All
+      else {
+        this.checkRow()
+      }
+    },
+    //--------------------------------------
+    OnClickTop($event) {
+      if (this.cancelable) {
+        // Click The body or top to cancel the row selection
+        if (Ti.Dom.hasOneClass($event.target,
+          'ti-table', 'table-body',
+          'table-head-cell',
+          'table-head-cell-text')) {
+          this.cancelRow()
+        }
+      }
+    },
+    //--------------------------------------
+    async OnCustomizeFields() {
+      // Found all avaliable fields
+      let cans = _.map(this.allFields, ({ title, key }) => {
+        return { text: title, value: key }
+      })
+      let vals = _.map(this.myFields, fld => fld.key)
+
+      // Show the dialog
+      let reo = await Ti.App.Open({
+        title: "i18n:choose-fields",
+        width: "6.4rem",
+        height: "90%",
+        position: "top",
+        actions: [
+          {
+            text: "i18n:ok",
+            handler: ({ result }) => result
+          },
+          {
+            icon: "fas-history",
+            text: "i18n:reset",
+            handler: () => []
+          },
+          {
+            text: "i18n:cancel"
+          }
+        ],
+        result: vals,
+        comType: "TiTransfer",
+        comConf: {
+          options: cans
+        },
+        components: [
+          "@com:ti/transfer"
+        ]
+      })
+
+      // User cancel
+      if (!reo) {
+        return
+      }
+
+      // Store to local
+      if (this.keepCustomizedTo) {
+        //this.myFieldKeys = reo
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        cuo.shownFieldKeys = reo
+        // Clear to reset width at same time
+        if(_.isEmpty(reo)) {
+          cuo.setFieldsWidth = []
+        }
+        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
+      }
+
+      // Update the new field key
+      this.updateMyFieldsByKey(reo)
+      if(_.isEmpty(reo)) {
+        this.myFieldWidths = []
+      }
+    },
+    //--------------------------------------
+    OnColumnResizeBegin(index) {
+      // Get Each column width
+      let vm = this;
+      let $doc = this.$el.ownerDocument;
+      let $ths = Ti.Dom.findAll("thead th", this.$refs.table)
+      let colWidths = []
+      for (let $th of $ths) {
+        let w = $th.getBoundingClientRect().width
+        colWidths.push(w)
+      }
+      let TW = _.sum(colWidths)
+      //
+      // Prepare the dragging context
+      //
+      let DRG = {
+        // Sum the column width 
+        viewWidth: TW,
+        // Get a virtual rect (remove the scrollbar width)
+        // so it should be TableRect + SUM(columnsWith)
+        vRect: Ti.Rects.create(_.assign({}, this.myTableRect, {
+          width: TW
+        }, "tlwh")),
+        // Get the current column left
+        left: _.sum(colWidths.slice(0, index + 1))
+      }
+      //
+      // evel the indic-bar rect
+      //
+      let R = 1.5
+      DRG.moveLeft = DRG.left + DRG.vRect.left
+      DRG.indicBarRect = Ti.Rects.create({
+        top: DRG.vRect.top,
+        left: DRG.moveLeft - R,
+        width: R * 2,
+        height: DRG.vRect.height
+      })
+      //
+      // Create indicBar
+      //
+      DRG.$indic = Ti.Dom.createElement({
+        $p: $doc.body,
+        tagName: "DIV",
+        className: "ti-table-resizing-indicbar",
+        style: {
+          zIndex: 99999999,
+          ...DRG.indicBarRect.toCss()
+        }
+      })
+      //
+      // Update indicBar
+      //
+      DRG.updateIndicBar = function () {
+        let mvL = this.moveLeft - R
+        Ti.Dom.setStyleValue(this.$indic, "left", mvL)
+      }
+      // 
+      // Mouse move 
+      //
+      const OnBodyMouseMove = function ({ clientX }) {
+        let { left, right } = DRG.vRect
+        DRG.moveLeft = _.clamp(clientX, left, right)
+        DRG.updateIndicBar()
+      }
+      //
+      // Rlease
+      //
+      const DeposAll = function () {
+        $doc.removeEventListener("mousemove", OnBodyMouseMove, true)
+        $doc.removeEventListener("mouseup", DeposAll, true)
+        Ti.Dom.remove(DRG.$indic)
+        // Is need to update fields width?
+        let rL0 = Math.round(DRG.left)
+        let rL1 = Math.round(DRG.moveLeft - DRG.vRect.left)
+        if (Math.abs(rL0 - rL1) > R) {
+          vm.updateColumnWidth({
+            index, colWidths, left: rL1
+          })
+        }
+      }
+      //
+      // Bind events
+      //
+      $doc.addEventListener("mousemove", OnBodyMouseMove, true)
+      $doc.addEventListener("mouseup", DeposAll, true)
+    },
+    //--------------------------------------
+    updateColumnWidth({ index, colWidths, left }) {
+      let TW = _.sum(colWidths)
+      // Get the ajacent columns
+      let ajColsWs = colWidths.slice(index, index + 2)
+      let ajLeft = _.sum(colWidths.slice(0, index))
+      let ajSumW = _.sum(ajColsWs)
+      // Aj-Columns with after resize
+      let ajColsW2 = []
+      ajColsW2[0] = _.clamp(left - ajLeft, 0, ajSumW)
+      ajColsW2[1] = ajSumW - ajColsW2[0]
+
+      // Merge together
+      let colWs = _.concat(colWidths)
+      colWs[index] = ajColsW2[0]
+      colWs[index + 1] = ajColsW2[1]
+
+      // Eval each coumns percent
+      let sumW = _.sum(colWs)
+      let colPs = _.map(colWs, w => w / sumW)
+      // console.log({
+      //   index,
+      //   before: ajColsWs.join(", "),
+      //   after: ajColsW2.join(", "),
+      //   ps: colPs.join(", "),
+      //   psum: _.sum(colPs)
+      // })
+      this.myFieldWidths = _.map(colPs, p => Ti.S.toPercent(p))
+      // Persistance
+      if (this.keepCustomizedTo) {
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        cuo.setFieldsWidth = this.myFieldWidths
+        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
+      }
+    },
+    //--------------------------------------
+    getHeadCellStyle(fld) {
+      if (fld && !Ti.Util.isNil(fld.width)
+        && this.myTableRect && this.myTableRect.width > 0) {
+        // Copy width
+        let width = fld.width
+
+        // Number
+        if (_.isNumber(width)) {
+          // -100: it will conver to percent
+          if (width < 0) {
+            let per = Math.abs(width / this.myTableRect.width)
+            width = Math.round(per * 100) + "%"
+          }
+          // 0-1: => Percent
+          else if (width >= 0 && width < 1) {
+            width = Math.round(width * 100) + "%"
+          }
+          // 100: => pixcel
+          else {
+            width = `${width}px`
+          }
+        }
+
+        return { width }
+      }
+    },
+    //--------------------------------------
+    scrollCurrentIntoView() {
+      //console.log("scrollCurrentIntoView", this.myLastIndex)
+      if (this.autoScrollIntoView && this.theCurrentId) {
+        let index = this.findRowIndexById(this.theCurrentId)
+        //console.log("scroll", index)
+        let $view = this.$el
+        let $row = Ti.Dom.find(`.table-row:nth-child(${index + 1})`, $view)
+
+        if (!_.isElement($view) || !_.isElement($row)) {
+          return
+        }
+
+        let r_view = Ti.Rects.createBy($view)
+        let r_row = Ti.Rects.createBy($row)
+
+        // test it need to scroll or not
+        if (!r_view.contains(r_row)) {
+          // at bottom
+          if (r_row.bottom > r_view.bottom) {
+            $view.scrollTop += r_row.bottom - r_view.bottom
+          }
+          // at top
+          else {
+            $view.scrollTop += r_row.top - r_view.top
+          }
+        }
+      }
+    },
+    //--------------------------------------
+    OnResize() {
+      this.myTableRect = Ti.Rects.createBy(this.$el)
+    },
+    //--------------------------------------
+    __ti_shortcut(uniqKey) {
+      //console.log("ti-table", uniqKey)
+      if ("ARROWUP" == uniqKey) {
+        this.selectPrevRow({
+          payload: { byKeyboardArrow: true }
+        })
+        this.scrollCurrentIntoView()
+        return { prevent: true, stop: true, quit: true }
+      }
+
+      if ("ARROWDOWN" == uniqKey) {
+        this.selectNextRow({
+          payload: { byKeyboardArrow: true }
+        })
+        this.scrollCurrentIntoView()
+        return { prevent: true, stop: true, quit: true }
+      }
+    },
+    //--------------------------------------
+    async evalListData() {
+      //let ms =Date.now()
+      this.myData = await this.evalData((it) => {
+        it.icon = this.getRowIcon(it.item)
+        it.indent = this.getRowIndent(it.item)
+      })
+      // Check ready 
+      if (_.isEmpty(this.data)) {
+        this.$nextTick(() => {
+          this.myCellsReady = true
+        })
+      }
+
+      // Resize fields
+      this.OnResize()
+
+      //let du = Date.now() - ms
+      //console.log("evalListData", `${du}ms`)
+      // Scroll into view
+      _.delay(() => {
+        this.scrollCurrentIntoView()
+      }, 300)
+    },
+    //--------------------------------------
+    updateMyFieldsByKey(keys = []) {
+      let list;
+      // Empty to all fields
+      if (_.isEmpty(keys)) {
+        list = []
+        _.forEach(this.allFields, fld => {
+          if (!fld.candidate) {
+            list.push(_.cloneDeep(fld))
+          }
+        })
+      }
+      // Pick fields
+      else {
+        // Make Map by all fields
+        let fldMap = {}
+        for (let fld of this.allFields) {
+          fldMap[fld.key] = fld
+        }
+        // Load the field
+        list = _.map(keys, k => _.cloneDeep(fldMap[k]))
+      }
+      // Merge first column display
+      if (list.length > 0 && this.headDisplay) {
+        list[0].display = _.concat(this.headDisplay, list[0].display)
+      }
+      // Up to data
+      this.myFields = _.without(list, undefined, null)
+    },
+    //--------------------------------------
+    setupAllFields(fields = []) {
+      let list = []
+      _.forEach(fields, (fld, i) => {
+        let f2 = _.cloneDeep(fld)
+        f2.key = f2.key || `C${i}`
+        list.push(f2)
+      })
+      this.allFields = list
+    },
+    //--------------------------------------
+    restoreLocalSettings() {
+      if (this.keepCustomizedTo) {
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo) || {}
+        this.myShownFieldKeys = cuo.shownFieldKeys
+        this.myFieldWidths = cuo.setFieldsWidth
+      }
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch: {
+    "data": {
+      handler: "evalListDataWhenMarkChanged",
+      immediate: true
+    },
+    "dict": {
+      handler: "evalListDataWhenMarkChanged",
+      immediate: true
+    },
+    "fields": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
+          this.restoreLocalSettings()
+          this.setupAllFields(newVal)
+          this.updateMyFieldsByKey(this.myShownFieldKeys)
+        }
+      },
+      immediate: true
+    },
+    "selectable": "evalListDataWhenMarkChanged",
+    "checkable": "evalListDataWhenMarkChanged",
+    "hoverable": "evalListDataWhenMarkChanged",
+    "filterValue": "evalListDataWhenMarkChanged"
+  },
+  ///////////////////////////////////////////////////
+  mounted: function () {
+    Ti.Viewport.watch(this, {
+      resize: _.debounce(() => this.OnResize(), 10)
+    })
+    this.$nextTick(() => this.OnResize())
+    if (this.autoScrollIntoView) {
+      _.delay(() => {
+        this.scrollCurrentIntoView()
+      }, 0)
+    }
+    // Eval the table viewport Rect
+    this.myTableRect = Ti.Rects.createBy(this.$el)
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy: function () {
+    Ti.Viewport.unwatch(this)
+  }
+  ///////////////////////////////////////////////////
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'ti-upload-file.mjs' -> null
@@ -34303,57 +35127,6 @@ const _M = {
 return _M;;
 })()
 // ============================================================
-// EXPORT 'table-row.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/table/com/table-row/table-row.mjs'] = (function(){
-/////////////////////////////////////////////////////
-const __TI_MOD_EXPORT_VAR_NM = {
-  ///////////////////////////////////////////////////
-  props : {
-    "indent" : {
-      type : Number,
-      default : 0
-    },
-    "icon" : {
-      type : [Boolean, String],
-      default : null
-    },
-    "fields" : {
-      type : Array,
-      default : ()=>[]
-    }
-  },
-  ///////////////////////////////////////////////////
-  computed : {
-    //-----------------------------------------------
-    TopClass() {
-      return this.getListItemClass({
-        "is-fake"   : this.item.fake
-      }, `row-indent-${this.indent}`)
-    },
-    //-----------------------------------------------
-    hasRealIcon() {
-      return this.icon && _.isString(this.icon)
-    }
-    //-----------------------------------------------
-  },
-  ///////////////////////////////////////////////////
-  methods : {
-    //-----------------------------------------------
-    OnClickIcon($event) {
-      this.$notify("icon", {
-        rowId  : this.rowId,
-        shift  : $event.shiftKey,
-        toggle : ($event.ctrlKey || $event.metaKey)
-      })
-    }
-    //-----------------------------------------------
-  }
-  ///////////////////////////////////////////////////
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
 // EXPORT 'ti-transfer-props.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/transfer/ti-transfer-props.mjs'] = (function(){
@@ -37040,6 +37813,60 @@ const _M = {
   //////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'table-row.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/table_old/com/table-row/table-row.mjs'] = (function(){
+/////////////////////////////////////////////////////
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////
+  props : {
+    "indent" : {
+      type : Number,
+      default : 0
+    },
+    "icon" : {
+      type : [Boolean, String],
+      default : null
+    },
+    "fields" : {
+      type : Array,
+      default : ()=>[]
+    }
+  },
+  ///////////////////////////////////////////////////
+  computed : {
+    //-----------------------------------------------
+    TopClass() {
+      //console.error("row TopClass begin", this.index, this.rowId, this.tiComId)
+      let re = this.getListItemClass({
+        "is-fake"   : this.item.fake
+      }, `row-indent-${this.indent}`)
+      //console.log("row TopClass end", this.index, this.rowId, this.tiComId)
+      return re
+    },
+    //-----------------------------------------------
+    hasRealIcon() {
+      return this.icon && _.isString(this.icon)
+    }
+    //-----------------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods : {
+    //-----------------------------------------------
+    OnClickIcon($event) {
+      this.$notify("icon", {
+        rowId  : this.rowId,
+        shift  : $event.shiftKey,
+        toggle : ($event.ctrlKey || $event.metaKey)
+      })
+    }
+    //-----------------------------------------------
+  }
+  ///////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'wn-manager-methods.mjs' -> null
@@ -41895,20 +42722,7 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/table/ti-table.mjs'] = (function(){
 const _M = {
   ///////////////////////////////////////////////////
-  provide: function () {
-    return {
-      "$table": this
-    }
-  },
-  ///////////////////////////////////////////////////
   data: () => ({
-    //myFieldKeys: undefined,
-    myFieldWidths: undefined,
-
-    allFields: [],
-    myFields: [],
-    myTableRect: null,
-    myData: []
   }),
   ///////////////////////////////////////////////////
   // props -> ti-table-props.mjs
@@ -41954,6 +42768,17 @@ const _M = {
       }
     },
     //--------------------------------------
+    RowCheckIcons() {
+      let re = {}
+      _.forEach(this.checkIcons, (v, k) => {
+        let ico = Ti.Icons.parseFontIcon(v)
+          if(ico){
+            re[k] = ico.className
+          }
+      })
+      return re
+    },
+    //--------------------------------------
     getRowIndent() {
       if (_.isFunction(this.indentBy)) {
         return it => this.indentBy(it)
@@ -41974,10 +42799,6 @@ const _M = {
       return it => null
     },
     //--------------------------------------
-    TheData() {
-      return this.myData
-    },
-    //--------------------------------------
     isShowHead() {
       return /^(frozen|normal)$/.test(this.head)
     },
@@ -41991,69 +42812,7 @@ const _M = {
       }
       return "far-square"
     },
-    //--------------------------------------
-    TableFields() {
-      if (!this.myTableRect) {
-        return
-      }
-      let fields = []
-      let lastI = this.myFields.length - 1
-      for (let i = 0; i < this.myFields.length; i++) {
-        let fld = this.myFields[i]
-        //..................................
-        if (_.isBoolean(fld.visible) && !fld.visible) {
-          continue
-        }
-        if (_.isBoolean(fld.hidden) && fld.hidden) {
-          continue
-        }
-        //..................................
-        let display = this.evalFieldDisplay(fld.display, fld.name)
-        //..................................
-        let fldWidth = _.nth(this.myFieldWidths, i)
-        fldWidth = Ti.Util.fallbackNil(fldWidth, fld.width, "stretch")
-        //..................................
-        if (_.isString(fldWidth)) {
-          // Percent
-          if (/^\d+(\.\d+)?%$/.test(fldWidth)) {
-            fldWidth = fldWidth.substring(0, fldWidth.length - 1) / 100;
-          }
-          // Auto or stretch
-          else if (!/^(auto|stretch)$/.test(fldWidth)) {
-            fldWidth = "stretch"
-          }
-        }
-        // Must be number
-        else if (!_.isNumber(fldWidth)) {
-          fldWidth = "stretch"
-        }
-        //..................................
-        let cell = {
-          index: i,
-          isFirst: 0 == i,
-          isLast: lastI == i,
-          title: fld.title,
-          nowrap: fld.nowrap,
-          width: fldWidth,
-          className: fld.className,
-          //.....................
-          name: fld.name,
-          display,
-          //.....................
-          type: fld.type,
-          comType: fld.comType,
-          comConf: fld.comConf,
-          transformer: fld.transformer,
-          serializer: fld.serializer
-        }
-        //..................................
-        cell.headStyle = this.getHeadCellStyle(cell)
-        //..................................
-        fields.push(cell)
-        //..................................
-      }
-      return fields
-    }
+
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
@@ -42082,246 +42841,58 @@ const _M = {
       }
     },
     //--------------------------------------
-    async OnCustomizeFields() {
-      // Found all avaliable fields
-      let cans = _.map(this.allFields, ({ title, key }) => {
-        return { text: title, value: key }
+    OnClickRowIcon(row, $event) {
+      this.$notify("icon", {
+        rowId: row.id,
+        shift: $event.shiftKey,
+        toggle: ($event.ctrlKey || $event.metaKey)
       })
-      let vals = _.map(this.myFields, fld => fld.key)
-
-      // Show the dialog
-      let reo = await Ti.App.Open({
-        title: "i18n:choose-fields",
-        width: "6.4rem",
-        height: "90%",
-        position: "top",
-        actions: [
-          {
-            text: "i18n:ok",
-            handler: ({ result }) => result
-          },
-          {
-            icon: "fas-history",
-            text: "i18n:reset",
-            handler: () => []
-          },
-          {
-            text: "i18n:cancel"
-          }
-        ],
-        result: vals,
-        comType: "TiTransfer",
-        comConf: {
-          options: cans
-        },
-        components: [
-          "@com:ti/transfer"
-        ]
+    },
+    //--------------------------------------
+    OnClickChecker(row, $event) {
+      if (this.checkable) {
+        this.OnRowCheckerClick({
+          rowId: row.id,
+          shift: $event.shiftKey,
+          toggle: ($event.ctrlKey || $event.metaKey)
+        })
+      }
+    },
+    //--------------------------------------
+    OnClickRow(row, $event = {}) {
+      let toggle = ($event.ctrlKey || $event.metaKey)
+      if (this.selectable && (!row.current || toggle)) {
+        this.OnRowSelect({
+          rowId: row.id,
+          shift: $event.shiftKey,
+          toggle
+        })
+      }
+    },
+    //-----------------------------------------------
+    OnDblClickRow(row,$event={}){
+      if (this.openable) {
+        $event.stopPropagation()
+        this.$notify("open", {
+          rowId: row.id
+        })
+      }
+    },
+    //-----------------------------------------------
+    OnCellItemChanged(row, cell, item, payload) {
+      this.$notify("cell:item:change", {
+        rowId: row.id,
+        rowData: row.rowData,
+        cellIndex: cell.index,
+        index: row.index,
+        name: item.key,
+        value: payload
       })
-
-      // User cancel
-      if (!reo) {
-        return
-      }
-
-      // Store to local
-      if (this.keepCustomizedTo) {
-        //this.myFieldKeys = reo
-        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
-        cuo.shownFieldKeys = reo
-        // Clear to reset width at same time
-        if(_.isEmpty(reo)) {
-          cuo.setFieldsWidth = []
-        }
-        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
-      }
-
-      // Update the new field key
-      this.updateMyFieldsByKey(reo)
-      if(_.isEmpty(reo)) {
-        this.myFieldWidths = []
-      }
     },
     //--------------------------------------
-    OnColumnResizeBegin(index) {
-      // Get Each column width
-      let vm = this;
-      let $doc = this.$el.ownerDocument;
-      let $ths = Ti.Dom.findAll("thead th", this.$refs.table)
-      let colWidths = []
-      for (let $th of $ths) {
-        let w = $th.getBoundingClientRect().width
-        colWidths.push(w)
-      }
-      let TW = _.sum(colWidths)
-      //
-      // Prepare the dragging context
-      //
-      let DRG = {
-        // Sum the column width 
-        viewWidth: TW,
-        // Get a virtual rect (remove the scrollbar width)
-        // so it should be TableRect + SUM(columnsWith)
-        vRect: Ti.Rects.create(_.assign({}, this.myTableRect, {
-          width: TW
-        }, "tlwh")),
-        // Get the current column left
-        left: _.sum(colWidths.slice(0, index + 1))
-      }
-      //
-      // evel the indic-bar rect
-      //
-      let R = 1.5
-      DRG.moveLeft = DRG.left + DRG.vRect.left
-      DRG.indicBarRect = Ti.Rects.create({
-        top: DRG.vRect.top,
-        left: DRG.moveLeft - R,
-        width: R * 2,
-        height: DRG.vRect.height
-      })
-      //
-      // Create indicBar
-      //
-      DRG.$indic = Ti.Dom.createElement({
-        $p: $doc.body,
-        tagName: "DIV",
-        className: "ti-table-resizing-indicbar",
-        style: {
-          zIndex: 99999999,
-          ...DRG.indicBarRect.toCss()
-        }
-      })
-      //
-      // Update indicBar
-      //
-      DRG.updateIndicBar = function () {
-        let mvL = this.moveLeft - R
-        Ti.Dom.setStyleValue(this.$indic, "left", mvL)
-      }
-      // 
-      // Mouse move 
-      //
-      const OnBodyMouseMove = function ({ clientX }) {
-        let { left, right } = DRG.vRect
-        DRG.moveLeft = _.clamp(clientX, left, right)
-        DRG.updateIndicBar()
-      }
-      //
-      // Rlease
-      //
-      const DeposAll = function () {
-        $doc.removeEventListener("mousemove", OnBodyMouseMove, true)
-        $doc.removeEventListener("mouseup", DeposAll, true)
-        Ti.Dom.remove(DRG.$indic)
-        // Is need to update fields width?
-        let rL0 = Math.round(DRG.left)
-        let rL1 = Math.round(DRG.moveLeft - DRG.vRect.left)
-        if (Math.abs(rL0 - rL1) > R) {
-          vm.updateColumnWidth({
-            index, colWidths, left: rL1
-          })
-        }
-      }
-      //
-      // Bind events
-      //
-      $doc.addEventListener("mousemove", OnBodyMouseMove, true)
-      $doc.addEventListener("mouseup", DeposAll, true)
-    },
-    //--------------------------------------
-    updateColumnWidth({ index, colWidths, left }) {
-      let TW = _.sum(colWidths)
-      // Get the ajacent columns
-      let ajColsWs = colWidths.slice(index, index + 2)
-      let ajLeft = _.sum(colWidths.slice(0, index))
-      let ajSumW = _.sum(ajColsWs)
-      // Aj-Columns with after resize
-      let ajColsW2 = []
-      ajColsW2[0] = _.clamp(left - ajLeft, 0, ajSumW)
-      ajColsW2[1] = ajSumW - ajColsW2[0]
-
-      // Merge together
-      let colWs = _.concat(colWidths)
-      colWs[index] = ajColsW2[0]
-      colWs[index + 1] = ajColsW2[1]
-
-      // Eval each coumns percent
-      let sumW = _.sum(colWs)
-      let colPs = _.map(colWs, w => w / sumW)
-      // console.log({
-      //   index,
-      //   before: ajColsWs.join(", "),
-      //   after: ajColsW2.join(", "),
-      //   ps: colPs.join(", "),
-      //   psum: _.sum(colPs)
-      // })
-      this.myFieldWidths = _.map(colPs, p => Ti.S.toPercent(p))
-      // Persistance
-      if (this.keepCustomizedTo) {
-        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
-        cuo.setFieldsWidth = this.myFieldWidths
-        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
-      }
-    },
-    //--------------------------------------
-    getHeadCellStyle(fld) {
-      if (fld && !Ti.Util.isNil(fld.width)
-        && this.myTableRect && this.myTableRect.width > 0) {
-        // Copy width
-        let width = fld.width
-
-        // Number
-        if (_.isNumber(width)) {
-          // -100: it will conver to percent
-          if (width < 0) {
-            let per = Math.abs(width / this.myTableRect.width)
-            width = Math.round(per * 100) + "%"
-          }
-          // 0-1: => Percent
-          else if (width >= 0 && width < 1) {
-            width = Math.round(width * 100) + "%"
-          }
-          // 100: => pixcel
-          else {
-            width = `${width}px`
-          }
-        }
-
-        return { width }
-      }
-    },
-    //--------------------------------------
-    scrollCurrentIntoView() {
-      //console.log("scrollCurrentIntoView", this.myLastIndex)
-      if (this.autoScrollIntoView && this.theCurrentId) {
-        let index = this.findRowIndexById(this.theCurrentId)
-        //console.log("scroll", index)
-        let $view = this.$el
-        let $row = Ti.Dom.find(`.table-row:nth-child(${index + 1})`, $view)
-
-        if (!_.isElement($view) || !_.isElement($row)) {
-          return
-        }
-
-        let r_view = Ti.Rects.createBy($view)
-        let r_row = Ti.Rects.createBy($row)
-
-        // test it need to scroll or not
-        if (!r_view.contains(r_row)) {
-          // at bottom
-          if (r_row.bottom > r_view.bottom) {
-            $view.scrollTop += r_row.bottom - r_view.bottom
-          }
-          // at top
-          else {
-            $view.scrollTop += r_row.top - r_view.top
-          }
-        }
-      }
-    },
-    //--------------------------------------
-    OnResize() {
-      this.myTableRect = Ti.Rects.createBy(this.$el)
+    tryCheckedIds(newVal, oldVal) {
+      let ids = _.assign({}, newVal, oldVal)
+      this.reEvalRows(ids)
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
@@ -42342,81 +42913,12 @@ const _M = {
         return { prevent: true, stop: true, quit: true }
       }
     },
-    //--------------------------------------
-    async evalListData() {
-      this.myData = await this.evalData((it) => {
-        it.icon = this.getRowIcon(it.item)
-        it.indent = this.getRowIndent(it.item)
-      })
-      // Check ready 
-      if (_.isEmpty(this.data)) {
-        this.$nextTick(() => {
-          this.myCellsReady = true
-        })
-      }
-      // Resize fields
-      this.OnResize()
-      // Scroll into view
-      _.delay(() => {
-        this.scrollCurrentIntoView()
-      }, 300)
-    },
-    //--------------------------------------
-    updateMyFieldsByKey(keys = []) {
-      let list;
-      // Empty to all fields
-      if (_.isEmpty(keys)) {
-        list = []
-        _.forEach(this.allFields, fld => {
-          if (!fld.candidate) {
-            list.push(_.cloneDeep(fld))
-          }
-        })
-      }
-      // Pick fields
-      else {
-        // Make Map by all fields
-        let fldMap = {}
-        for (let fld of this.allFields) {
-          fldMap[fld.key] = fld
-        }
-        // Load the field
-        list = _.map(keys, k => _.cloneDeep(fldMap[k]))
-      }
-      // Merge first column display
-      if (list.length > 0 && this.headDisplay) {
-        list[0].display = _.concat(this.headDisplay, list[0].display)
-      }
-      // Up to data
-      this.myFields = _.without(list, undefined, null)
-    },
-    //--------------------------------------
-    setupAllFields(fields = []) {
-      let list = []
-      _.forEach(fields, (fld, i) => {
-        let f2 = _.cloneDeep(fld)
-        f2.key = f2.key || `C${i}`
-        list.push(f2)
-      })
-      this.allFields = list
-    },
-    //--------------------------------------
-    restoreLocalSettings() {
-      if (this.keepCustomizedTo) {
-        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo) || {}
-        this.myShownFieldKeys = cuo.shownFieldKeys
-        this.myFieldWidths = cuo.setFieldsWidth
-      }
-    }
+
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
   watch: {
     "data": {
-      handler: "evalListDataWhenMarkChanged",
-      immediate: true
-    },
-    "dict": {
       handler: "evalListDataWhenMarkChanged",
       immediate: true
     },
@@ -42433,7 +42935,8 @@ const _M = {
     "selectable": "evalListDataWhenMarkChanged",
     "checkable": "evalListDataWhenMarkChanged",
     "hoverable": "evalListDataWhenMarkChanged",
-    "filterValue": "evalListDataWhenMarkChanged"
+    "filterValue": "evalListDataWhenMarkChanged",
+    "checkedIds": "tryCheckedIds",
   },
   ///////////////////////////////////////////////////
   mounted: function () {
@@ -42806,92 +43309,92 @@ window.TI_PACK_EXPORTS['ti/com/ti/support/list_item_mixins.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   inject: ["$vars"],
   ///////////////////////////////////////////////////
-  data: ()=>({
-    groupTitleComs: []
+  data: () => ({
+    groupTitleComs: [],
   }),
   ///////////////////////////////////////////////////
-  props : {
-    "index" : {
-      type : Number,
-      default : -1
+  props: {
+    "index": {
+      type: Number,
+      default: -1
     },
-    "displayIndex" : {
-      type : Number,
-      default : -1
+    "displayIndex": {
+      type: Number,
+      default: -1
     },
-    "rowNumberBase" : {
-      type : Number,
-      default : undefined
+    "rowNumberBase": {
+      type: Number,
+      default: undefined
     },
-    "rowCount" : {
-      type : Number,
-      default : undefined
+    "rowCount": {
+      type: Number,
+      default: undefined
     },
-    "rowNumberWidth" : {
-      type : Number,
-      default : undefined
+    "rowNumberWidth": {
+      type: Number,
+      default: undefined
     },
-    "asGroupTitle" : {
-      type : Boolean,
+    "asGroupTitle": {
+      type: Boolean,
       default: false
     },
-    "groupTitleDisplay" : {
-      type : Array
+    "groupTitleDisplay": {
+      type: Array
     },
-    "rowId" : {
-      type : String,
-      default : undefined
+    "rowId": {
+      type: String,
+      default: undefined
     },
-    "data" : undefined,
-    "item" : {
-      type : Object,
-      default : ()=>({})
+    "data": undefined,
+    "item": {
+      type: Object,
+      default: () => ({})
     },
-    "changedId" : {
-      type : String,
-      default : undefined
+    "changedId": {
+      type: String,
+      default: undefined
     },
-    "currentId" : {
-      type : String,
-      default : undefined
+    "currentId": {
+      type: String,
+      default: undefined
     },
-    "checkedIds" : {
-      type : Object,
-      default : ()=>({})
+    "checkedIds": {
+      type: Object,
+      default: () => ({})
     },
-    "checkable" : {
-      type : Boolean,
-      default : false
+    "checkable": {
+      type: Boolean,
+      default: false
     },
-    "selectable" : {
-      type : Boolean,
-      default : true
+    "selectable": {
+      type: Boolean,
+      default: true
     },
-    "openable" : {
-      type : Boolean,
-      default : true
+    "openable": {
+      type: Boolean,
+      default: true
     },
-    "rowToggleKey" : {
-      type : Array,
-      default : ()=>[]
+    "rowToggleKey": {
+      type: Array,
+      default: () => []
     },
-    "checkIcons" : {
-      type : Object,
-      default : ()=>({
-        on  : "fas-check-square",
-        off : "far-square"
+    "checkIcons": {
+      type: Object,
+      default: () => ({
+        on: "fas-check-square",
+        off: "far-square"
       })
     }
   },
   ///////////////////////////////////////////////////
-  computed : {
+  computed: {
     //-----------------------------------------------
     getListItemClass() {
-      return (...klass)=>this.getTopClass({
-        "is-current" : this.isCurrent,
-        "is-checked" : this.isChecked,
-        "is-changed" : this.isChanged,
-        "no-checked" : !this.isChecked
+      return (...klass) => this.getTopClass({
+        "is-current": this.isCurrent,
+        "is-checked": this.isChecked,
+        "is-changed": this.isChanged,
+        "no-checked": !this.isChecked
       }, klass)
     },
     //-----------------------------------------------
@@ -42900,9 +43403,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-----------------------------------------------
     RowNumber() {
-      if(this.hasRowNumber) {
+      if (this.hasRowNumber) {
         let n = this.rowNumberBase + this.displayIndex
-        if(this.rowNumberWidth > 1) {
+        if (this.rowNumberWidth > 1) {
           return _.padStart(n, this.rowNumberWidth, '0');
         }
         return n
@@ -42918,19 +43421,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-----------------------------------------------
     isCurrent() {
-      return this.hasRowId && this.rowId == this.currentId
+      //let ms = Date.now()
+      let re = this.hasRowId && this.rowId == this.currentId
+      //let du = Date.now() - ms
+      //console.log("row isCurrent", du, this.rowId)
+      return re;
     },
     //-----------------------------------------------
     isChanged() {
+      //console.log("row isChanged", this.rowId)
       return this.hasRowId && this.rowId == this.changedId
     },
     //-----------------------------------------------
     isChecked() {
-      return this.checkedIds[this.rowId] ? true : false
+      //let ms = Date.now()
+      let re = this.checkedIds[this.rowId] ? true : false
+      //let du = Date.now() - ms
+      //console.log("row isChecked", du, this.rowId)
+      return re;
     },
     //-----------------------------------------------
     theCheckIcon() {
-      if(this.checkedIds[this.rowId]) {
+      if (this.checkedIds[this.rowId]) {
         return this.checkIcons.on
       }
       return this.checkIcons.off
@@ -42938,61 +43450,62 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  methods : {
+  methods: {
     //-----------------------------------------------
     isRowToggleKey(uniqKey) {
-      return _.indexOf(this.rowToggleKey, uniqKey)>=0
+      return _.indexOf(this.rowToggleKey, uniqKey) >= 0
     },
     //-----------------------------------------------
-    OnClickChecker($event={}) {
-      if(this.checkable) {
+    OnClickChecker($event = {}) {
+      if (this.checkable) {
         this.$notify("checker", {
-          rowId  : this.rowId,
-          shift  : $event.shiftKey,
-          toggle : ($event.ctrlKey || $event.metaKey)
+          rowId: this.rowId,
+          shift: $event.shiftKey,
+          toggle: ($event.ctrlKey || $event.metaKey)
         })
       }
     },
     //-----------------------------------------------
-    OnClickRow($event={}) {
+    OnClickRow($event = {}) {
+      console.log("row:OnClickRow", this.rowId)
       let toggle = ($event.ctrlKey || $event.metaKey)
-      if(this.selectable && (!this.isCurrent || !this.isChecked || toggle)) {
+      if (this.selectable && (!this.isCurrent || !this.isChecked || toggle)) {
         this.$notify("select", {
-          rowId  : this.rowId,
-          shift  : $event.shiftKey,
+          rowId: this.rowId,
+          shift: $event.shiftKey,
           toggle
         })
         this.doAutoActived()
       }
     },
     //-----------------------------------------------
-    OnDblClickRow($event={}) {
-      if(this.openable) {
+    OnDblClickRow($event = {}) {
+      if (this.openable) {
         $event.stopPropagation()
         this.$notify("open", {
-          rowId  : this.rowId
+          rowId: this.rowId
         })
       }
     },
     //-----------------------------------------------
     doAutoActived() {
-      if(!this.isActived && this.isCurrent) {
+      if (!this.isActived && this.isCurrent) {
         this.setActived()
       }
     },
     //-----------------------------------------------
     async evalGroupTitleDisplayCom() {
-      if(this.asGroupTitle && !_.isEmpty(this.groupTitleDisplay)) {
+      if (this.asGroupTitle && !_.isEmpty(this.groupTitleDisplay)) {
         let coms = []
-        for(let displayItem of this.groupTitleDisplay) {
+        for (let displayItem of this.groupTitleDisplay) {
           let com = await this.$parent.evalDataForFieldDisplayItem({
-            itemData : this.data, 
-            displayItem, 
-            vars : {
-              "rowId"     : this.rowId,
-              "isCurrent" : this.isCurrent
+            itemData: this.data,
+            displayItem,
+            vars: {
+              "rowId": this.rowId,
+              "isCurrent": this.isCurrent
             },
-            autoIgnoreNil : false,
+            autoIgnoreNil: false,
           })
           coms.push(com)
         }
@@ -43002,12 +43515,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  watch : {
-    "data" : "evalGroupTitleDisplayCom",
-    "groupTitleDisplay" : "evalGroupTitleDisplayCom"
+  watch: {
+    "data": "evalGroupTitleDisplayCom",
+    "groupTitleDisplay": "evalGroupTitleDisplayCom"
   },
   ///////////////////////////////////////////////////
-  mounted : async function() {
+  mounted: async function () {
     await this.evalGroupTitleDisplayCom()
   }
   ///////////////////////////////////////////////////
@@ -54842,6 +55355,400 @@ const __TI_MOD_EXPORT_VAR_NM = {
     this.tryReloadList()
   }
   ////////////////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'ti-table-cols.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/table/ti-table-cols.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  ///////////////////////////////////////////////////
+  data: () => ({
+    //myFieldKeys: undefined,
+    myFieldWidths: undefined,
+
+    allFields: [],
+    myShownFieldKeys: [],
+    myFields: [],
+    myTableRect: null
+  }),
+  ///////////////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TableFields() {
+      if (!this.myTableRect) {
+        return []
+      }
+      let fields = []
+      let lastI = this.myFields.length - 1
+      for (let i = 0; i < this.myFields.length; i++) {
+        let fld = this.myFields[i]
+        //..................................
+        if (_.isBoolean(fld.visible) && !fld.visible) {
+          continue
+        }
+        if (_.isBoolean(fld.hidden) && fld.hidden) {
+          continue
+        }
+        //..................................
+        let display = this.evalFieldDisplay(fld.display, fld.name)
+        //..................................
+        let fldWidth = _.nth(this.myFieldWidths, i)
+        fldWidth = Ti.Util.fallbackNil(fldWidth, fld.width, "stretch")
+        //..................................
+        if (_.isString(fldWidth)) {
+          // Percent
+          if (/^\d+(\.\d+)?%$/.test(fldWidth)) {
+            fldWidth = fldWidth.substring(0, fldWidth.length - 1) / 100;
+          }
+          // Auto or stretch
+          else if (!/^(auto|stretch)$/.test(fldWidth)) {
+            fldWidth = "stretch"
+          }
+        }
+        // Must be number
+        else if (!_.isNumber(fldWidth)) {
+          fldWidth = "stretch"
+        }
+        //..................................
+        let cell = {
+          index: i,
+          isFirst: 0 == i,
+          isLast: lastI == i,
+          title: fld.title,
+          nowrap: fld.nowrap,
+          width: fldWidth,
+          className: fld.className,
+          //.....................
+          name: fld.name,
+          display,
+          //.....................
+          type: fld.type,
+          comType: fld.comType,
+          comConf: fld.comConf,
+          transformer: fld.transformer,
+          serializer: fld.serializer
+        }
+        //..................................
+        cell.headStyle = this.getHeadCellStyle(cell)
+        //..................................
+        fields.push(cell)
+        //..................................
+      }
+      return fields
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    OnResize() {
+      if (_.isElement(this.$el)) {
+        this.myTableRect = Ti.Rects.createBy(this.$el)
+      }
+    },
+    //--------------------------------------
+    getHeadCellStyle(fld) {
+      if (fld && !Ti.Util.isNil(fld.width)
+        && this.myTableRect && this.myTableRect.width > 0) {
+        // Copy width
+        let width = fld.width
+
+        // Number
+        if (_.isNumber(width)) {
+          // -100: it will conver to percent
+          if (width < 0) {
+            let per = Math.abs(width / this.myTableRect.width)
+            width = Math.round(per * 100) + "%"
+          }
+          // 0-1: => Percent
+          else if (width >= 0 && width < 1) {
+            width = Math.round(width * 100) + "%"
+          }
+          // 100: => pixcel
+          else {
+            width = `${width}px`
+          }
+        }
+
+        return { width }
+      }
+    },
+    //--------------------------------------
+    async OnCustomizeFields() {
+      // Found all avaliable fields
+      let cans = _.map(this.allFields, ({ title, key }) => {
+        return { text: title, value: key }
+      })
+      let vals = _.map(this.myFields, fld => fld.key)
+
+      // Show the dialog
+      let reo = await Ti.App.Open({
+        title: "i18n:choose-fields",
+        width: "6.4rem",
+        height: "90%",
+        position: "top",
+        actions: [
+          {
+            text: "i18n:ok",
+            handler: ({ result }) => result
+          },
+          {
+            icon: "fas-history",
+            text: "i18n:reset",
+            handler: () => []
+          },
+          {
+            text: "i18n:cancel"
+          }
+        ],
+        result: vals,
+        comType: "TiTransfer",
+        comConf: {
+          options: cans
+        },
+        components: [
+          "@com:ti/transfer"
+        ]
+      })
+
+      // User cancel
+      if (!reo) {
+        return
+      }
+
+      // Store to local
+      if (this.keepCustomizedTo) {
+        //this.myFieldKeys = reo
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        cuo.shownFieldKeys = reo
+        // Clear to reset width at same time
+        if (_.isEmpty(reo)) {
+          cuo.setFieldsWidth = []
+        }
+        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
+      }
+
+      // Update the new field key
+      this.updateMyFieldsByKey(reo)
+      if (_.isEmpty(reo)) {
+        this.myFieldWidths = []
+      }
+    },
+    //--------------------------------------
+    OnColumnResizeBegin(index) {
+      // Get Each column width
+      let vm = this;
+      let $doc = this.$el.ownerDocument;
+      let $ths = Ti.Dom.findAll("thead th", this.$refs.table)
+      let colWidths = []
+      for (let $th of $ths) {
+        let w = $th.getBoundingClientRect().width
+        colWidths.push(w)
+      }
+      let TW = _.sum(colWidths)
+      //
+      // Prepare the dragging context
+      //
+      let DRG = {
+        // Sum the column width 
+        viewWidth: TW,
+        // Get a virtual rect (remove the scrollbar width)
+        // so it should be TableRect + SUM(columnsWith)
+        vRect: Ti.Rects.create(_.assign({}, this.myTableRect, {
+          width: TW
+        }, "tlwh")),
+        // Get the current column left
+        left: _.sum(colWidths.slice(0, index + 1))
+      }
+      //
+      // evel the indic-bar rect
+      //
+      let R = 1.5
+      DRG.moveLeft = DRG.left + DRG.vRect.left
+      DRG.indicBarRect = Ti.Rects.create({
+        top: DRG.vRect.top,
+        left: DRG.moveLeft - R,
+        width: R * 2,
+        height: DRG.vRect.height
+      })
+      //
+      // Create indicBar
+      //
+      DRG.$indic = Ti.Dom.createElement({
+        $p: $doc.body,
+        tagName: "DIV",
+        className: "ti-table-resizing-indicbar",
+        style: {
+          zIndex: 99999999,
+          ...DRG.indicBarRect.toCss()
+        }
+      })
+      //
+      // Update indicBar
+      //
+      DRG.updateIndicBar = function () {
+        let mvL = this.moveLeft - R
+        Ti.Dom.setStyleValue(this.$indic, "left", mvL)
+      }
+      // 
+      // Mouse move 
+      //
+      const OnBodyMouseMove = function ({ clientX }) {
+        let { left, right } = DRG.vRect
+        DRG.moveLeft = _.clamp(clientX, left, right)
+        DRG.updateIndicBar()
+      }
+      //
+      // Rlease
+      //
+      const DeposAll = function () {
+        $doc.removeEventListener("mousemove", OnBodyMouseMove, true)
+        $doc.removeEventListener("mouseup", DeposAll, true)
+        Ti.Dom.remove(DRG.$indic)
+        // Is need to update fields width?
+        let rL0 = Math.round(DRG.left)
+        let rL1 = Math.round(DRG.moveLeft - DRG.vRect.left)
+        if (Math.abs(rL0 - rL1) > R) {
+          vm.updateColumnWidth({
+            index, colWidths, left: rL1
+          })
+        }
+      }
+      //
+      // Bind events
+      //
+      $doc.addEventListener("mousemove", OnBodyMouseMove, true)
+      $doc.addEventListener("mouseup", DeposAll, true)
+    },
+    //--------------------------------------
+    updateColumnWidth({ index, colWidths, left }) {
+      let TW = _.sum(colWidths)
+      // Get the ajacent columns
+      let ajColsWs = colWidths.slice(index, index + 2)
+      let ajLeft = _.sum(colWidths.slice(0, index))
+      let ajSumW = _.sum(ajColsWs)
+      // Aj-Columns with after resize
+      let ajColsW2 = []
+      ajColsW2[0] = _.clamp(left - ajLeft, 0, ajSumW)
+      ajColsW2[1] = ajSumW - ajColsW2[0]
+
+      // Merge together
+      let colWs = _.concat(colWidths)
+      colWs[index] = ajColsW2[0]
+      colWs[index + 1] = ajColsW2[1]
+
+      // Eval each coumns percent
+      let sumW = _.sum(colWs)
+      let colPs = _.map(colWs, w => w / sumW)
+      // console.log({
+      //   index,
+      //   before: ajColsWs.join(", "),
+      //   after: ajColsW2.join(", "),
+      //   ps: colPs.join(", "),
+      //   psum: _.sum(colPs)
+      // })
+      this.myFieldWidths = _.map(colPs, p => Ti.S.toPercent(p))
+      // Persistance
+      if (this.keepCustomizedTo) {
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        cuo.setFieldsWidth = this.myFieldWidths
+        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
+      }
+    },
+    //--------------------------------------
+    scrollCurrentIntoView() {
+      //console.log("scrollCurrentIntoView", this.myLastIndex)
+      if (this.autoScrollIntoView && this.theCurrentId) {
+        let index = this.findRowIndexById(this.theCurrentId)
+        //console.log("scroll", index)
+        let $view = this.$el
+        let $row = Ti.Dom.find(`.table-row:nth-child(${index + 1})`, $view)
+
+        if (!_.isElement($view) || !_.isElement($row)) {
+          return
+        }
+
+        let r_view = Ti.Rects.createBy($view)
+        let r_row = Ti.Rects.createBy($row)
+
+        // test it need to scroll or not
+        if (!r_view.contains(r_row)) {
+          // at bottom
+          if (r_row.bottom > r_view.bottom) {
+            $view.scrollTop += r_row.bottom - r_view.bottom
+          }
+          // at top
+          else {
+            $view.scrollTop += r_row.top - r_view.top
+          }
+        }
+      }
+    },
+    //--------------------------------------
+    updateMyFieldsByKey(keys = []) {
+      let list;
+      // Empty to all fields
+      if (_.isEmpty(keys)) {
+        list = []
+        _.forEach(this.allFields, fld => {
+          if (!fld.candidate) {
+            list.push(_.cloneDeep(fld))
+          }
+        })
+      }
+      // Pick fields
+      else {
+        // Make Map by all fields
+        let fldMap = {}
+        for (let fld of this.allFields) {
+          fldMap[fld.key] = fld
+        }
+        // Load the field
+        list = _.map(keys, k => _.cloneDeep(fldMap[k]))
+      }
+      // Merge first column display
+      if (list.length > 0 && this.headDisplay) {
+        list[0].display = _.concat(this.headDisplay, list[0].display)
+      }
+      // Up to data
+      this.myFields = _.without(list, undefined, null)
+    },
+    //--------------------------------------
+    setupAllFields(fields = []) {
+      let list = []
+      _.forEach(fields, (fld, i) => {
+        let f2 = _.cloneDeep(fld)
+        f2.key = f2.key || `C${i}`
+        list.push(f2)
+      })
+      this.allFields = list
+    },
+    //--------------------------------------
+    restoreLocalSettings() {
+      if (this.keepCustomizedTo) {
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo) || {}
+        this.myShownFieldKeys = cuo.shownFieldKeys
+        this.myFieldWidths = cuo.setFieldsWidth
+      }
+    }
+    //--------------------------------------
+  },
+  ///////////////////////////////////////////////////
+  watch: {
+    "fields": {
+      handler: function (newVal, oldVal) {
+        if (!_.isEqual(newVal, oldVal)) {
+          this.restoreLocalSettings()
+          this.setupAllFields(newVal)
+          this.updateMyFieldsByKey(this.myShownFieldKeys)
+        }
+      },
+      immediate: true
+    }
+  },
+  ///////////////////////////////////////////////////F
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -77980,208 +78887,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
-// EXPORT 'table-cell.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/table/com/table-row/com/table-cell/table-cell.mjs'] = (function(){
-/////////////////////////////////////////////////////
-const _M = {
-  ///////////////////////////////////////////////////
-  inject : ["$table"],
-  ///////////////////////////////////////////////////
-  data: ()=>({
-    isEditingMode : false,
-    cellItems : [],
-    myCellSize : -1
-  }),
-  ///////////////////////////////////////////////////
-  props : {
-    "index" : {
-      type : Number,
-      default : -1
-    },
-    "rowId" : {
-      type : String,
-      default : null
-    },
-    "rowIndex" : {
-      type : Number,
-      default : -1
-    },
-    //..........................
-    "title" : {
-      type : String,
-      default : null
-    },
-    "nowrap" : {
-      type : Boolean,
-      default : true
-    },
-    //..........................
-    "display" : {
-      type : Array,
-      default : ()=>[]
-    },
-    //..........................
-    "name" : {
-      type : [String, Array],
-      default : null
-    },
-    "type" : {
-      type : String,
-      default : "String"
-    },
-    "dict" : {
-      type : String,
-      default : "String"
-    },
-    "comType" : {
-      type : String,
-      default : null
-    },
-    "comConf" : {
-      type : Object,
-      default : ()=>({})
-    },
-    "serializer" : {
-      type : Function,
-      default : _.identity
-    },
-    "transformer" : {
-      type : Function,
-      default : _.identity
-    },
-    //..........................
-    "data" : {
-      type : Object,
-      default : ()=>({})
-    },
-    //..........................
-    "isCurrent" : {
-      type : Boolean,
-      default : false
-    },
-    "isChecked" : {
-      type : Boolean,
-      default : false
-    },
-    //..........................
-    "ignoreNil" : {
-      type : Boolean,
-      default : true
-    },
-    //..........................
-    "focusBy" : {
-      type : String,
-      default : "focus"
-    }
-    //..........................
-  },
-  ///////////////////////////////////////////////////
-  computed : {
-    //-----------------------------------------------
-    TopClass() {
-      let hasAlign = this.className && this.className.indexOf("align-")>=0
-      return this.getTopClass({
-        "has-align" : hasAlign,
-        "not-align" : !hasAlign
-      })
-    },
-    //-----------------------------------------------
-    WrapperClass() {
-      return {
-        "is-nowrap" : this.nowrap,
-        "is-editing-mode" : this.isEditingMode
-      }
-    },
-    //-----------------------------------------------
-    theCurrentDisplayItems() {
-      // Edit Mode
-      if((this.isActived && this.comType) || _.isEmpty(this.display)) {
-        //...........................................
-        this.isEditingMode = true
-        //...........................................
-        let comConf = _.assign({}, this.comConf)
-        if(this.focusBy) {
-          comConf[this.focusBy] = "${=isActived}"
-        }
-        //...........................................
-        return [{
-          comType : this.comType,
-          comConf,
-          key  : this.name,
-          type : this.type,
-          dict : this.dict,
-          transformer : this.transformer,
-          ignoreNil : false
-        }]
-        //...........................................
-      }
-      // Display Mode
-      this.isEditingMode = false
-      return this.display
-    },
-    //-----------------------------------------------
-  },
-  ///////////////////////////////////////////////////
-  methods : {
-    //-----------------------------------------------
-    async evalCellDisplayItems() {
-      let items = []
-      // Eval each items
-      for(let i=0; i<this.theCurrentDisplayItems.length; i++) {
-        let displayItem = this.theCurrentDisplayItems[i]
-        let it = await this.evalDataForFieldDisplayItem({
-            itemData : this.data, 
-            displayItem, 
-            vars : {
-              "rowId"     : this.rowId,
-              "isCurrent" : this.isCurrent
-            },
-            autoIgnoreNil : true,
-            uniqKey: `row${this.rowId}-cell${this.index}-${i}`
-        })
-        if(it) {
-          items.push(it)
-        }
-      }
-      //if(0 == this.rowIndex && 1==this.index) {
-      //console.log("evalCellDisplayItems", this.rowIndex, this.index)
-      //}
-      // Update and return
-      let old = Ti.Util.pureCloneDeep(this.cellItems)
-      let nit = Ti.Util.pureCloneDeep(items)
-      if(!_.isEqual(old, nit)) {
-        //console.log(`-> Cell[${this.rowIndex}-${this.index}]:`, {old, nit})
-        this.cellItems = items
-      }
-    },
-    //-----------------------------------------------
-    OnItemChanged(item, payload) {
-      this.$table.$notify("cell:item:change", {
-        rowId     : this.rowId,
-        rowData   : this.data,
-        cellIndex : this.index,
-        index     : this.rowIndex,
-        name      : item.key,
-        value     : payload
-      })
-    }
-    //-----------------------------------------------
-  },
-  ///////////////////////////////////////////////////
-  watch : {
-    "data" : {
-      handler : "evalCellDisplayItems",
-      immediate : true
-    },
-    "isCurrent" : "evalCellDisplayItems",
-    "display" : "evalCellDisplayItems"
-  }
-  ///////////////////////////////////////////////////
-}
-return _M;;
-})()
-// ============================================================
 // EXPORT 'web-text-article.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/text/article/web-text-article.mjs'] = (function(){
@@ -80681,7 +81386,7 @@ const _M = {
     //--------------------------------------------
     async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
       state.LOG = () => { }
-      //state.LOG = console.log
+      state.LOG = console.log
       state.LOG("site.reload", state.entry, state.base, state.lang)
       //---------------------------------------
       // Looking for the entry page
@@ -82211,6 +82916,58 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------
   }
   /////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'ti-table-props.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/table_old/ti-table-props.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  "iconBy": {
+    type: [String, Function],
+    default: null
+  },
+  "indentBy": {
+    type: [String, Function],
+    default: null
+  },
+  "fields": {
+    type: Array,
+    default: () => []
+  },
+  "head": {
+    type: String,
+    default: "frozen",
+    validator: v =>
+      Ti.Util.isNil(v)
+      || /^(frozen|none|normal)$/.test(v)
+  },
+  "border": {
+    type: String,
+    default: "cell",
+    validator: v => /^(row|column|cell|none)$/.test(v)
+  },
+  "autoScrollIntoView": {
+    type: Boolean,
+    default: true
+  },
+  "headDisplay": {
+    type: [String, Object, Array],
+    default: undefined
+  },
+  "columnResizable": {
+    type: Boolean,
+    default: false
+  },
+  "canCustomizedFields": {
+    type: Boolean,
+    default: false
+  },
+  "keepCustomizedTo": {
+    type: String,
+    default: undefined
+  }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -90059,128 +90816,6 @@ Ti.Preload("ti/com/ti/switcher/_com.json", {
   "mixins" : ["./ti-switcher.mjs"]
 });
 //========================================
-// JOIN <table-cell.html> ti/com/ti/table/com/table-row/com/table-cell/table-cell.html
-//========================================
-Ti.Preload("ti/com/ti/table/com/table-row/com/table-cell/table-cell.html", `<td class="table-cell"
-  :class="TopClass"
-  :col-index="index"
-  v-ti-activable>
-  <div class="cell-wrapper"
-    :class="WrapperClass">
-    <!--Slot for first column-->
-    <slot></slot>
-    <!--Fields-->
-    <div class="cell-con">
-      <component 
-        v-for="(it, index) in cellItems"
-          :class="'item-'+index"
-          :key="it.uniqKey"
-          :is="it.comType"
-          v-bind="it.comConf"
-          @change="OnItemChanged(it, $event)"/>
-    </div>
-  </div>
-</td>`);
-//========================================
-// JOIN <table-cell.mjs> ti/com/ti/table/com/table-row/com/table-cell/table-cell.mjs
-//========================================
-Ti.Preload("ti/com/ti/table/com/table-row/com/table-cell/table-cell.mjs", TI_PACK_EXPORTS['ti/com/ti/table/com/table-row/com/table-cell/table-cell.mjs']);
-//========================================
-// JOIN <_com.json> ti/com/ti/table/com/table-row/com/table-cell/_com.json
-//========================================
-Ti.Preload("ti/com/ti/table/com/table-row/com/table-cell/_com.json", {
-  "name" : "table-cell",
-  "globally" : false,
-  "template" : "./table-cell.html",
-  "methods"  : "@com:ti/support/field_display.mjs",
-  "mixins"   : ["./table-cell.mjs"],
-  "components" : ["@com:ti/label"]
-});
-//========================================
-// JOIN <table-row.html> ti/com/ti/table/com/table-row/table-row.html
-//========================================
-Ti.Preload("ti/com/ti/table/com/table-row/table-row.html", `<tr class="table-row"
-  :class="TopClass"
-  @click.left="OnClickRow"
-  @dblclick.left="OnDblClickRow"
-  v-ti-activable>
-  <!--
-    Group title
-  -->
-  <td 
-    v-if="asGroupTitle && hasGroupTitleComs"
-      class="as-row-group-title"
-      :colspan="fields.length">
-      <div class="row-group-title-con">
-        <component
-          v-for="(it, index) in groupTitleComs"
-            :key="index"
-            :is="it.comType"
-            v-bind="it.comConf"/>
-      </div>
-  </td>
-  <!--
-    Cells
-  -->
-  <template v-else>
-    <table-cell v-for="fld in fields"
-      :key="fld.index"
-      v-bind="fld"
-      :row-id="rowId"
-      :row-index="index"
-      :is-current="isCurrent"
-      :is-checked="isChecked"
-      :data="data">
-      <template v-if="fld.index == 0">
-        <div class="table-row-head">
-          <!--current actived row indicator-->
-          <div class="row-actived-indicator"></div>
-          <!-- Indents -->
-          <div v-for="n in indent"
-              class="row-indent"></div>
-          <!--ICON: Handler-->
-          <template v-if="icon">
-            <ti-icon
-              v-if="hasRealIcon"
-                class="row-icon row-handler"
-                :value="icon"
-                @click.native.left.stop="OnClickIcon"/>
-            <div v-else
-              class="row-icon"></div>
-          </template>
-          <!--ICON: Checker-->
-          <ti-icon v-if="checkable"
-              class="row-checker"
-              :value="theCheckIcon"
-              @click.native.left.stop="OnClickChecker"/>
-          <!--Row Number-->
-          <div 
-            v-if="hasRowNumber"
-              class="row-number">{{RowNumber}}</div>
-        </div>
-      </template>
-    </table-cell>
-  </template>
-</tr>`);
-//========================================
-// JOIN <table-row.mjs> ti/com/ti/table/com/table-row/table-row.mjs
-//========================================
-Ti.Preload("ti/com/ti/table/com/table-row/table-row.mjs", TI_PACK_EXPORTS['ti/com/ti/table/com/table-row/table-row.mjs']);
-//========================================
-// JOIN <_com.json> ti/com/ti/table/com/table-row/_com.json
-//========================================
-Ti.Preload("ti/com/ti/table/com/table-row/_com.json", {
-  "name" : "table-row",
-  "globally" : false,
-  "template" : "./table-row.html",
-  "mixins" : [
-    "@com:ti/support/list_item_mixins.mjs",
-    "./table-row.mjs"],
-  "components" : [
-      "./com/table-cell"
-    ]
-});
-//========================================
 // JOIN <ti-table-quick-action.mjs> ti/com/ti/table/quick/ti-table-quick-action.mjs
 //========================================
 Ti.Preload("ti/com/ti/table/quick/ti-table-quick-action.mjs", TI_PACK_EXPORTS['ti/com/ti/table/quick/ti-table-quick-action.mjs']);
@@ -90321,17 +90956,349 @@ Ti.Preload("ti/com/ti/table/quick/_com.json", {
   "mixins" : "./ti-table-quick.mjs"
 });
 //========================================
+// JOIN <ti-table-cols.mjs> ti/com/ti/table/ti-table-cols.mjs
+//========================================
+Ti.Preload("ti/com/ti/table/ti-table-cols.mjs", TI_PACK_EXPORTS['ti/com/ti/table/ti-table-cols.mjs']);
+//========================================
+// JOIN <ti-table-data.mjs> ti/com/ti/table/ti-table-data.mjs
+//========================================
+Ti.Preload("ti/com/ti/table/ti-table-data.mjs", TI_PACK_EXPORTS['ti/com/ti/table/ti-table-data.mjs']);
+//========================================
 // JOIN <ti-table-props.mjs> ti/com/ti/table/ti-table-props.mjs
 //========================================
 Ti.Preload("ti/com/ti/table/ti-table-props.mjs", TI_PACK_EXPORTS['ti/com/ti/table/ti-table-props.mjs']);
 //========================================
-// JOIN <ti-table-resizes.mjs> ti/com/ti/table/ti-table-resizes.mjs
-//========================================
-Ti.Preload("ti/com/ti/table/ti-table-resizes.mjs", TI_PACK_EXPORTS['ti/com/ti/table/ti-table-resizes.mjs']);
-//========================================
 // JOIN <ti-table.html> ti/com/ti/table/ti-table.html
 //========================================
 Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
+  :class="TopClass"
+  :style="TopStyle"
+  @click="OnClickTop"
+  v-ti-activable>
+  <!--
+    Pending
+  -->
+  <ti-loading 
+    v-if="isDataPending"
+      class="nil-data"
+      v-bind="loadingAs"/>
+  <!--
+    Blank
+  -->
+  <ti-loading 
+    v-else-if="isDataEmpty"
+      class="nil-data"
+      v-bind="BlankLoadingConf"/>
+  <!--
+    Show thead/tbody
+  -->
+  <template v-else>
+    <!--
+      Table
+    -->
+    <table ref="table">
+      <!--
+        Head
+      -->
+      <thead v-if="isShowHead"
+        class="table-head"
+        :style="TableStyle">
+        <!--field titles-->
+        <tr>
+          <th
+            v-for="(fld, index) in TableFields"
+              :style="fld.headStyle"
+              :col-index="fld.index"><div class="th-con">
+            <!--[0] checker-->
+            <div
+              v-if="checkable && multi && isShowHead && fld.isFirst"
+                class="as-checker"
+                @click.left="OnClickHeadChecker">
+                <ti-icon :value="HeadCheckerIcon"/>
+            </div>
+            <!-- field title -->
+            <span class="table-head-cell-text">{{fld.title|i18n}}</span>
+            <!--[-1] customized button-->
+            <div
+              v-if="canCustomizedFields && isShowHead && fld.isLast"
+                class="as-customized-btn"
+                @click.left="OnCustomizeFields">
+                <i class="fas fa-cog"></i>
+            </div>
+            <!--[N] resize column handle-->
+            <div
+              v-if="columnResizable && !fld.isLast"
+                class="as-column-resize-hdl"
+                @mousedown.left="OnColumnResizeBegin(index, fld)"></div>
+          </div></th>
+        </tr>
+      </thead>
+      <!--
+        Body
+      -->
+      <tbody
+        class="table-body"
+        :style="TableStyle">
+        <!--=====================================-->
+        <tr
+          v-for="row in myRows"
+            class="table-row"
+            :class="row.disClassName"
+            :key="row.id"
+            @click.left="OnClickRow(row,$event)"
+            @dblclick.left="OnDblClickRow(row,$event)">
+            <!--Group Title-->
+            <td 
+              v-if="row.asGroupTitle && row.groupTitleComs"
+                class="as-row-group-title"
+                :colspan="row.cells.length">
+                <div class="row-group-title-con">
+                  <component
+                    v-for="(it, index) in row.groupTitleComs"
+                      :key="index"
+                      :is="it.comType"
+                      v-bind="it.comConf"/>
+                </div>
+            </td>
+            <!--Cells-->
+            <template v-else>
+              <td
+                v-for="cell in row.cells"
+                  class="table-cell"
+                  :class="cell.className">
+                  <div class="cell-wrapper" :class="cell.WrapperClass">
+                  <!-- First cell-->
+                  <div v-if="0 == cell.index" class="table-row-head">
+                    <!--current actived row indicator-->
+                    <div class="row-actived-indicator"></div>
+                    <!-- Indents -->
+                    <div v-for="n in row.indent" class="row-indent"></div>
+                      <!--ICON: Handler-->
+                      <template v-if="row.icon">
+                        <div 
+                          v-if="row.showIcon"
+                            class="ti-icon row-checker is-font"
+                            @click.left.stop="OnClickRowIcon(row,$event)">
+                            <div class="icon-icon">
+                              <i :class="row.iconClass"></i>
+                            </div>
+                        </div>
+                        <div v-else
+                          class="row-icon"></div>
+                    </template>
+                    <!--ICON: Checker-->
+                    <div 
+                      v-if="checkable" 
+                        class="ti-icon row-checker is-font as-checkbox"
+                        @click.left.stop="OnClickChecker(row,$event)">
+                        <div class="icon-icon">
+                          <i :class="RowCheckIcons.on"></i>
+                          <i :class="RowCheckIcons.off"></i>
+                        </div>
+                    </div>
+                    <!--Row Number-->
+                    <div 
+                      v-if="row.hasRowNumber"
+                        class="row-number">{{row.RowNumber}}</div>
+                  </div>
+                  <!--Cell Display-->
+                  <div class="cell-con">
+                    <template v-for="(it, index) in cell.displayItems">
+                      <div 
+                        v-if="it.quickLabel"
+                          class="ti-label full-field" 
+                          :class="it.quickLabel.className"
+                          :title="it.quickLabel.text">
+                            <div class="as-value">
+                              <a
+                                v-if="it.quickLabel.href" 
+                                  :target="it.quickLabel.target"
+                                  :href="it.quickLabel.href"
+                                  @click.left.prevent
+                                  >{{it.quickLabel.text}}</a>
+                              <span v-else>{{it.quickLabel.text}}</span>
+                            </div>
+                      </div>
+                      <div
+                        v-else-if="it.quickIcon" 
+                          class="ti-icon is-font"
+                          :class="it.quickIcon.className">
+                          <div class="icon-icon"><i :class="it.quickIcon.iconClass"></i></div>
+                      </div>
+                      <component 
+                        v-else
+                          :class="it.className"
+                          :key="it.uniqKey"
+                          :is="it.comType"
+                          v-bind="it.comConf"
+                          @change="OnCellItemChanged(row, cell, it, $event)"/>
+                    </template>
+                    
+                  </div>
+                </div>
+              </td>
+            </template>
+        </tr>
+        <!--=====================================-->
+      </tbody>
+    </table>
+  </template>
+</div>`);
+//========================================
+// JOIN <ti-table.mjs> ti/com/ti/table/ti-table.mjs
+//========================================
+Ti.Preload("ti/com/ti/table/ti-table.mjs", TI_PACK_EXPORTS['ti/com/ti/table/ti-table.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/table/_com.json
+//========================================
+Ti.Preload("ti/com/ti/table/_com.json", {
+  "name" : "ti-table",
+  "globally" : true,
+  "template" : "./ti-table.html",
+  "props" : [
+    "@com:ti/support/list_props.mjs",
+    "./ti-table-props.mjs"
+  ],
+  "methods" : "@com:ti/support/field_display.mjs",
+  "mixins" : [
+    "@com:ti/support/list_mixins.mjs",
+    "./ti-table-cols.mjs",
+    "./ti-table-data.mjs",
+    "./ti-table.mjs"
+  ]
+});
+//========================================
+// JOIN <table-cell.html> ti/com/ti/table_old/com/table-row/com/table-cell/table-cell.html
+//========================================
+Ti.Preload("ti/com/ti/table_old/com/table-row/com/table-cell/table-cell.html", `<td class="table-cell"
+  :class="TopClass"
+  :col-index="index"
+  v-ti-activable
+  @click.left="OnClickCell"
+  @dblclick.left="OnDblClickCell">
+  <div class="cell-wrapper"
+    :class="WrapperClass">
+    <!--Slot for first column-->
+    <slot></slot>
+    <!--Fields-->
+    <div class="cell-con">
+      <component 
+        v-for="(it, index) in cellItems"
+          :class="'item-'+index"
+          :key="it.uniqKey"
+          :is="it.comType"
+          v-bind="it.comConf"
+          @change="OnItemChanged(it, $event)"/>
+    </div>
+  </div>
+</td>`);
+//========================================
+// JOIN <table-cell.mjs> ti/com/ti/table_old/com/table-row/com/table-cell/table-cell.mjs
+//========================================
+Ti.Preload("ti/com/ti/table_old/com/table-row/com/table-cell/table-cell.mjs", TI_PACK_EXPORTS['ti/com/ti/table_old/com/table-row/com/table-cell/table-cell.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/table_old/com/table-row/com/table-cell/_com.json
+//========================================
+Ti.Preload("ti/com/ti/table_old/com/table-row/com/table-cell/_com.json", {
+  "name" : "table-cell",
+  "globally" : false,
+  "template" : "./table-cell.html",
+  "methods"  : "@com:ti/support/field_display.mjs",
+  "mixins"   : ["./table-cell.mjs"],
+  "components" : ["@com:ti/label"]
+});
+//========================================
+// JOIN <table-row.html> ti/com/ti/table_old/com/table-row/table-row.html
+//========================================
+Ti.Preload("ti/com/ti/table_old/com/table-row/table-row.html", `<tr class="table-row"
+  :class="TopClass"
+  v-ti-activable>
+  <!--
+    Group title
+  -->
+  <td 
+    v-if="asGroupTitle && hasGroupTitleComs"
+      class="as-row-group-title"
+      :colspan="fields.length">
+      <div class="row-group-title-con">
+        <component
+          v-for="(it, index) in groupTitleComs"
+            :key="index"
+            :is="it.comType"
+            v-bind="it.comConf"/>
+      </div>
+  </td>
+  <!--
+    Cells
+  -->
+  <template v-else>
+    <table-cell v-for="fld in fields"
+      :key="fld.index"
+      v-bind="fld"
+      :row-id="rowId"
+      :row-index="index"
+      :is-current="isCurrent"
+      :is-checked="isChecked"
+      :data="data"
+      @cell:click="OnClickRow"
+      @cell:dblclick="OnDblClickRow">
+      <template v-if="fld.index == 0">
+        <div class="table-row-head">
+          <!--current actived row indicator-->
+          <div class="row-actived-indicator"></div>
+          <!-- Indents -->
+          <div v-for="n in indent"
+              class="row-indent"></div>
+          <!--ICON: Handler-->
+          <template v-if="icon">
+            <ti-icon
+              v-if="hasRealIcon"
+                class="row-icon row-handler"
+                :value="icon"
+                @click.native.left.stop="OnClickIcon"/>
+            <div v-else
+              class="row-icon"></div>
+          </template>
+          <!--ICON: Checker-->
+          <ti-icon v-if="checkable"
+              class="row-checker"
+              :value="theCheckIcon"
+              @click.native.left.stop="OnClickChecker"/>
+          <!--Row Number-->
+          <div 
+            v-if="hasRowNumber"
+              class="row-number">{{RowNumber}}</div>
+        </div>
+      </template>
+    </table-cell>
+  </template>
+</tr>`);
+//========================================
+// JOIN <table-row.mjs> ti/com/ti/table_old/com/table-row/table-row.mjs
+//========================================
+Ti.Preload("ti/com/ti/table_old/com/table-row/table-row.mjs", TI_PACK_EXPORTS['ti/com/ti/table_old/com/table-row/table-row.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/table_old/com/table-row/_com.json
+//========================================
+Ti.Preload("ti/com/ti/table_old/com/table-row/_com.json", {
+  "name" : "table-row",
+  "globally" : false,
+  "template" : "./table-row.html",
+  "mixins" : [
+    "@com:ti/support/list_item_mixins.mjs",
+    "./table-row.mjs"],
+  "components" : [
+      "./com/table-cell"
+    ]
+});
+//========================================
+// JOIN <ti-table-props.mjs> ti/com/ti/table_old/ti-table-props.mjs
+//========================================
+Ti.Preload("ti/com/ti/table_old/ti-table-props.mjs", TI_PACK_EXPORTS['ti/com/ti/table_old/ti-table-props.mjs']);
+//========================================
+// JOIN <ti-table.html> ti/com/ti/table_old/ti-table.html
+//========================================
+Ti.Preload("ti/com/ti/table_old/ti-table.html", `<div class="ti-table"
   :class="TopClass"
   :style="TopStyle"
   @click="OnClickTop"
@@ -90435,13 +91402,13 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
   </template>
 </div>`);
 //========================================
-// JOIN <ti-table.mjs> ti/com/ti/table/ti-table.mjs
+// JOIN <ti-table.mjs> ti/com/ti/table_old/ti-table.mjs
 //========================================
-Ti.Preload("ti/com/ti/table/ti-table.mjs", TI_PACK_EXPORTS['ti/com/ti/table/ti-table.mjs']);
+Ti.Preload("ti/com/ti/table_old/ti-table.mjs", TI_PACK_EXPORTS['ti/com/ti/table_old/ti-table.mjs']);
 //========================================
-// JOIN <_com.json> ti/com/ti/table/_com.json
+// JOIN <_com.json> ti/com/ti/table_old/_com.json
 //========================================
-Ti.Preload("ti/com/ti/table/_com.json", {
+Ti.Preload("ti/com/ti/table_old/_com.json", {
   "name" : "ti-table",
   "globally" : true,
   "template" : "./ti-table.html",
@@ -90658,15 +91625,16 @@ Ti.Preload("ti/com/ti/text/json/tree/item/json-tree-item.html", `<div class="jso
     :class-name="theValueClassName"
     :format="theValueFormat"
     :editable="true"
+    :hoverCopy="false"
     @change="$notify('change', $event)"/>
   <!--
     Action Menu
   -->
-  <ti-actionbar
-    v-if="showActions"
-      class="as-actions"
-      :items="theActionMenuData"
-      :status="theActionMenuStatus"/>
+  <div class="as-actions">
+    <ti-actionbar
+        :items="theActionMenuData"
+        :status="theActionMenuStatus"/>
+  </div>
 </div>`);
 //========================================
 // JOIN <json-tree-item.mjs> ti/com/ti/text/json/tree/item/json-tree-item.mjs

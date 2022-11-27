@@ -186,10 +186,10 @@ function EmptyMatch() {
   return re;
 }
 ///////////////////////////////////////
-function ExistsMatch(key, not) {
+function ExistsMatch( not=false) {
   let re = function (val) {
-    let v = _.get(val, key)
-    return (!_.isUndefined(v)) ^ not
+    //let v = _.get(val, key)
+    return (!_.isUndefined(val)) ^ not
   }
   //...............................
   re.explainText = function ({
@@ -347,13 +347,13 @@ function MapMatch(map) {
     if (null != val) {
       // Exists
       if ("[EXISTS]" == val) {
-        m = ExistsMatch(key);
+        m = ExistsMatch();
         explainIgnoreKey = true
       }
       // No Exists
       else if ("![EXISTS]" == val) {
         not = !not;
-        m = new ExistsMatch(key, not);
+        m = ExistsMatch(not);
         explainIgnoreKey = true
       }
     }

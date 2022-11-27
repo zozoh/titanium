@@ -1,4 +1,4 @@
-// Pack At: 2022-11-25 00:27:42
+// Pack At: 2022-11-27 23:08:31
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -8047,10 +8047,10 @@ const {AutoMatch} = (function(){
     return re;
   }
   ///////////////////////////////////////
-  function ExistsMatch(key, not) {
+  function ExistsMatch( not=false) {
     let re = function (val) {
-      let v = _.get(val, key)
-      return (!_.isUndefined(v)) ^ not
+      //let v = _.get(val, key)
+      return (!_.isUndefined(val)) ^ not
     }
     //...............................
     re.explainText = function ({
@@ -8208,13 +8208,13 @@ const {AutoMatch} = (function(){
       if (null != val) {
         // Exists
         if ("[EXISTS]" == val) {
-          m = ExistsMatch(key);
+          m = ExistsMatch();
           explainIgnoreKey = true
         }
         // No Exists
         else if ("![EXISTS]" == val) {
           not = !not;
-          m = new ExistsMatch(key, not);
+          m = ExistsMatch(not);
           explainIgnoreKey = true
         }
       }
@@ -18965,7 +18965,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20221125.002742",
+  "version" : "1.6-20221127.230831",
   "dev" : false,
   "appName" : null,
   "session" : {},
