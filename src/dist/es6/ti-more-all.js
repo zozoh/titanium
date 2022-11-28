@@ -1,4 +1,4 @@
-// Pack At: 2022-11-27 23:10:58
+// Pack At: 2022-11-29 00:37:49
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -10425,6 +10425,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
                   let $d = Ti.DictFactory.CheckDict(dict)
                   text = await $d.getItemText(value)
                 }
+                if(/^i18n:/.test(text)){
+                  text = Ti.I18n.text(text)
+                }
                 disIt.quickLabel = {
                   className: Ti.Css.mergeClassName(className, disIt.className),
                   newTab, href,
@@ -10505,6 +10508,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       checkedIds = this.theCheckedIds
     } = {}) {
       let it = rows[index]
+      if(!it){
+        return
+      }
       it.current = (it.id == currentId)
       it.checked = checkedIds[it.id] ? true : false
       it.checkerIcon = it.checked
@@ -32919,7 +32925,7 @@ const _M = {
         return () => ({ stop: false })
       }
       //if (/select$/.test(name)) {
-      console.log("WnObjAdaptor.__on_events", name, payload)
+      //console.log("WnObjAdaptor.__on_events", name, payload)
       //}
 
       // Try routing

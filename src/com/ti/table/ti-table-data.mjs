@@ -61,6 +61,9 @@ export default {
                   let $d = Ti.DictFactory.CheckDict(dict)
                   text = await $d.getItemText(value)
                 }
+                if(/^i18n:/.test(text)){
+                  text = Ti.I18n.text(text)
+                }
                 disIt.quickLabel = {
                   className: Ti.Css.mergeClassName(className, disIt.className),
                   newTab, href,
@@ -141,6 +144,9 @@ export default {
       checkedIds = this.theCheckedIds
     } = {}) {
       let it = rows[index]
+      if(!it){
+        return
+      }
       it.current = (it.id == currentId)
       it.checked = checkedIds[it.id] ? true : false
       it.checkerIcon = it.checked
