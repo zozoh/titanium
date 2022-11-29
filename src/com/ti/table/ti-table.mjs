@@ -50,9 +50,9 @@ const _M = {
       let re = {}
       _.forEach(this.checkIcons, (v, k) => {
         let ico = Ti.Icons.parseFontIcon(v)
-          if(ico){
-            re[k] = ico.className
-          }
+        if (ico) {
+          re[k] = ico.className
+        }
       })
       return re
     },
@@ -148,12 +148,15 @@ const _M = {
       }
     },
     //-----------------------------------------------
-    OnDblClickRow(row,$event={}){
+    OnDblClickRow(row, $event = {}) {
       if (this.openable) {
         $event.stopPropagation()
-        this.$notify("open", {
-          rowId: row.id
-        })
+        if (this.notifyOpenName) {
+          this.$notify(this.notifyOpenName, row)
+        }
+        if (_.isFunction(this.onOpen)) {
+          this.onOpen(row)
+        }
       }
     },
     //-----------------------------------------------

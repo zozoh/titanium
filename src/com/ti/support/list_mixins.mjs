@@ -239,9 +239,9 @@ const LIST_MIXINS = {
     //-----------------------------------------------
     async evalListDataWhenMarkChanged(newVal, oldVal) {
       if (!_.isEqual(newVal, oldVal)) {
-       // console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
+        console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
         await this.evalListData()
-        //console.log("done for await this.evalListData()")
+        console.log("done for await this.evalListData()")
       }
     },
     //-----------------------------------------------

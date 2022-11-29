@@ -1,4 +1,4 @@
-// Pack At: 2022-11-29 00:37:49
+// Pack At: 2022-11-29 14:58:01
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -27939,9 +27939,9 @@ const LIST_MIXINS = {
     //-----------------------------------------------
     async evalListDataWhenMarkChanged(newVal, oldVal) {
       if (!_.isEqual(newVal, oldVal)) {
-       // console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
+        console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
         await this.evalListData()
-        //console.log("done for await this.evalListData()")
+        console.log("done for await this.evalListData()")
       }
     },
     //-----------------------------------------------
@@ -42778,9 +42778,9 @@ const _M = {
       let re = {}
       _.forEach(this.checkIcons, (v, k) => {
         let ico = Ti.Icons.parseFontIcon(v)
-          if(ico){
-            re[k] = ico.className
-          }
+        if (ico) {
+          re[k] = ico.className
+        }
       })
       return re
     },
@@ -42876,12 +42876,15 @@ const _M = {
       }
     },
     //-----------------------------------------------
-    OnDblClickRow(row,$event={}){
+    OnDblClickRow(row, $event = {}) {
       if (this.openable) {
         $event.stopPropagation()
-        this.$notify("open", {
-          rowId: row.id
-        })
+        if (this.notifyOpenName) {
+          this.$notify(this.notifyOpenName, row)
+        }
+        if (_.isFunction(this.onOpen)) {
+          this.onOpen(row)
+        }
       }
     },
     //-----------------------------------------------
