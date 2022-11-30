@@ -215,7 +215,7 @@ const _M = {
       let schema = {}
       for (let bodyName of names) {
         // Guard
-        if (/^(components)$/.test(bodyName)) {
+        if (/^(components|localBehaviorKeepAt|events)$/.test(bodyName)) {
           continue
         }
         // Merge from std schema

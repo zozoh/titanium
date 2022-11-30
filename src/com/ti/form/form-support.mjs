@@ -448,9 +448,9 @@ const _M = {
             keys.push(..._.concat(fld.name))
           }
           // Join sub-group keys
-          _.forEach(fld.fields, ({ name }) => {
-            if (name) {
-              keys.push(..._.concat(name))
+          _.forEach(fld.fields, (fld) => {
+            if (fld && fld.name) {
+              keys.push(..._.concat(fld.name))
             }
           })
         }

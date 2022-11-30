@@ -72,6 +72,9 @@ const _M = {
     if (!currentId && !_.isEmpty(checkedIds)) {
       currentId = _.first(Ti.Util.truthyKeys(checkedIds))
     }
+    else if (currentId && _.isEmpty(checkedIds)) {
+      checkedIds = [currentId]
+    }
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
     // find <meta> by currentId from <list>

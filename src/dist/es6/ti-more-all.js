@@ -1,4 +1,4 @@
-// Pack At: 2022-11-30 15:37:41
+// Pack At: 2022-12-01 01:20:41
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -60,6 +60,9 @@ const _M = {
     // just pick one as the meta
     if (!currentId && !_.isEmpty(checkedIds)) {
       currentId = _.first(Ti.Util.truthyKeys(checkedIds))
+    }
+    else if (currentId && _.isEmpty(checkedIds)) {
+      checkedIds = [currentId]
     }
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
@@ -5267,8 +5270,7 @@ const _M = {
     let ids
     if (_.isArray(checkedIds)) {
       ids = {}
-      let c2 = _.filter(checkedIds, v => v)
-      _.forEach(c2, v => ids[v] = true)
+      _.forEach(checkedIds, v => ids[v] = true)
     } else {
       ids = _.pickBy(checkedIds, v => v)
     }
@@ -11805,7 +11807,7 @@ const _M = {
     //--------------------------------------
     GuiSchema() {
       let c = this.GuiExplainContext
-      let schema = _.omit(this.schema, "components")
+      let schema = _.omit(this.schema, "components", "events", "behavior", "methods")
       return Ti.Util.explainObj(c, schema)
     },
     //--------------------------------------
@@ -12000,6 +12002,9 @@ const _M = {
     // just pick one as the meta
     if (!currentId && !_.isEmpty(checkedIds)) {
       currentId = _.first(Ti.Util.truthyKeys(checkedIds))
+    }
+    else if (currentId && _.isEmpty(checkedIds)) {
+      checkedIds = [currentId]
     }
     commit("setCurrentId", currentId)
     commit("setCheckedIds", checkedIds)
@@ -13403,9 +13408,9 @@ const _M = {
             keys.push(..._.concat(fld.name))
           }
           // Join sub-group keys
-          _.forEach(fld.fields, ({ name }) => {
-            if (name) {
-              keys.push(..._.concat(name))
+          _.forEach(fld.fields, (fld) => {
+            if (fld && fld.name) {
+              keys.push(..._.concat(fld.name))
             }
           })
         }
@@ -23086,8 +23091,7 @@ const _M = {
     let ids
     if (_.isArray(checkedIds)) {
       ids = {}
-      let c2 = _.filter(checkedIds, v => v)
-      _.forEach(c2, v => ids[v] = true)
+      _.forEach(checkedIds, v => ids[v] = true)
     } else {
       ids = _.pickBy(checkedIds, v => v)
     }
@@ -30880,7 +30884,7 @@ const _M = {
       let schema = {}
       for (let bodyName of names) {
         // Guard
-        if (/^(components)$/.test(bodyName)) {
+        if (/^(components|localBehaviorKeepAt|events)$/.test(bodyName)) {
           continue
         }
         // Merge from std schema
@@ -43481,7 +43485,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-----------------------------------------------
     OnClickRow($event = {}) {
-      console.log("row:OnClickRow", this.rowId)
+      //console.log("row:OnClickRow", this.rowId)
       let toggle = ($event.ctrlKey || $event.metaKey)
       if (this.selectable && (!this.isCurrent || !this.isChecked || toggle)) {
         this.$notify("select", {

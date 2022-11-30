@@ -159,7 +159,7 @@ export default {
     },
     //-----------------------------------------------
     OnClickRow($event = {}) {
-      console.log("row:OnClickRow", this.rowId)
+      //console.log("row:OnClickRow", this.rowId)
       let toggle = ($event.ctrlKey || $event.metaKey)
       if (this.selectable && (!this.isCurrent || !this.isChecked || toggle)) {
         this.$notify("select", {

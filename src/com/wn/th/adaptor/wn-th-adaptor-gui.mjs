@@ -55,7 +55,7 @@ const _M = {
     //--------------------------------------
     GuiSchema() {
       let c = this.GuiExplainContext
-      let schema = _.omit(this.schema, "components")
+      let schema = _.omit(this.schema, "components", "events", "behavior", "methods")
       return Ti.Util.explainObj(c, schema)
     },
     //--------------------------------------

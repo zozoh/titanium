@@ -133,8 +133,7 @@ const _M = {
     let ids
     if (_.isArray(checkedIds)) {
       ids = {}
-      let c2 = _.filter(checkedIds, v => v)
-      _.forEach(c2, v => ids[v] = true)
+      _.forEach(checkedIds, v => ids[v] = true)
     } else {
       ids = _.pickBy(checkedIds, v => v)
     }

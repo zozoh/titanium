@@ -2648,7 +2648,8 @@ i.im {
       flex-wrap: wrap;
       color: #666;
       background-color: #e8e8e8;
-      border-left: 4px solid #2196f3; }
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      font-weight: bold; }
     .ti-form-grid > main.form-main[spacing="tiny"] > section {
       padding: 0.04rem; }
       .ti-form-grid > main.form-main[spacing="tiny"] > section > .group-title {
