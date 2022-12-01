@@ -5,8 +5,8 @@
   //-------------------------------------------
   &.nil-items {
     @include flex-center($jc:flex-start);
-    padding:0; font-size: 0.9em;
-    opacity: 0.4;
+    padding:0 SZ(20); font-size: 0.9em;
+    opacity: 0.4; 
   }
   //-------------------------------------------
   &.is-nowrap {
