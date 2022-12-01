@@ -1,4 +1,4 @@
-// Pack At: 2022-12-01 20:39:43
+// Pack At: 2022-12-02 00:55:16
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -100907,6 +100907,7 @@ Ti.Preload("ti/i18n/en-uk/_ti.i18n.json", {
   "e-obj-invalid": "Path [${val}] invalid",
   "e-obj-noexists": "Object [${val}] not exists",
   "e-ph-noexists": "Path [${val}] not exists",
+  "e-form-incomplete": "Form Incomplete : [${title}]  ${tip}",
   "edit": "Edit",
   "edit-com": "Edit control",
   "edit-content": "Edit Content",
@@ -102509,6 +102510,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "e-obj-invalid": "Path [${val}] invalid",
   "e-obj-noexists": "Object [${val}] not exists",
   "e-ph-noexists": "Path [${val}] not exists",
+  "e-form-incomplete": "Form Incomplete : [${title}]  ${tip}",
   "edit": "Edit",
   "edit-com": "Edit control",
   "edit-content": "Edit Content",
@@ -104111,6 +104113,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-obj-invalid": "路径[${val}]非法",
   "e-obj-noexists": "对象[${val}]不存在",
   "e-ph-noexists": "路径[${val}]不存在",
+  "e-form-incomplete": "表单缺失必要字段: 【${title|name}】 ${tip?}",
   "edit": "编辑",
   "edit-com": "编辑控件",
   "edit-content": "编辑内容",
@@ -105713,6 +105716,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "e-obj-invalid": "路徑[${val}]非法",
    "e-obj-noexists": "對象[${val}]不存在",
    "e-ph-noexists": "路徑[${val}]不存在",
+   "e-form-incomplete": "表單缺失必要字段: 【${title}】 ${tip}",
    "edit": "編輯",
    "edit-com": "編輯控件",
    "edit-content": "編輯內容",
@@ -106167,10 +106171,10 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-md-R": "讀",
    "wn-md-W": "寫",
    "wn-md-X": "用",
-   "wn-md-blend-mode":"混合模式",
-   "wn-md-blend-dft":"默認",
-   "wn-md-blend-strong":"強覆蓋",
-   "wn-md-blend-weak":"弱混合",
+   "wn-md-blend-mode": "混合模式",
+   "wn-md-blend-dft": "默認",
+   "wn-md-blend-strong": "強覆蓋",
+   "wn-md-blend-weak": "弱混合",
    "wn-md-excutable": "可使用",
    "wn-md-member": "成員",
    "wn-md-other": "其他人",

@@ -1,8 +1,9 @@
 import TiPaths from "./util-paths.mjs"
 import TiLink from "./util-link.mjs"
+import TiFormHelper from "./util-form.mjs"
 //---------------------------------------
 const TiUtil = {
-  ...TiPaths, ...TiLink,
+  ...TiPaths, ...TiLink, ...TiFormHelper,
   /**
    * @param {String} comType 
    * @return Upper first camel case com type name

@@ -7741,6 +7741,9 @@ div.ti-input-tags {
       .ti-tabs ul li:hover {
         opacity: 1; }
 
+.ti-input .ti-tags.nil-items {
+  padding-left: 0; }
+
 .ti-tags {
   user-select: none;
   display: flex;
@@ -7755,7 +7758,7 @@ div.ti-input-tags {
     align-items: center;
     align-content: center;
     flex-wrap: wrap;
-    padding: 0 0.2rem;
+    padding-left: 0.08rem;
     font-size: 0.9em;
     opacity: 0.4; }
   .ti-tags.is-nowrap {

@@ -134,6 +134,7 @@
   "e-obj-invalid": "Path [${val}] invalid",
   "e-obj-noexists": "Object [${val}] not exists",
   "e-ph-noexists": "Path [${val}] not exists",
+  "e-form-incomplete": "Form Incomplete : [${title}]  ${tip}",
   "edit": "Edit",
   "edit-com": "Edit control",
   "edit-content": "Edit Content",

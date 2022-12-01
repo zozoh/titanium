@@ -1,3 +1,6 @@
+.ti-input .ti-tags.nil-items {
+  padding-left: 0
+}
 .ti-tags {
   @include noselect;
   @include flex-align($ai:stretch,$ac:stretch);
@@ -5,7 +8,7 @@
   //-------------------------------------------
   &.nil-items {
     @include flex-center($jc:flex-start);
-    padding:0 SZ(20); font-size: 0.9em;
+    padding-left:SZ(8); font-size: 0.9em;
     opacity: 0.4; 
   }
   //-------------------------------------------
