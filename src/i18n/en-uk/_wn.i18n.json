@@ -14,6 +14,8 @@
   "wn-ctt-txt-text": "Pure text",
   "wn-ctt-wnml-text": "WNML File",
   "wn-ctt-xml-text": "XML File",
+  "wn-cmd-panel-tip": "The script may take a while to run, please do not close the window",
+  "wn-cmd-panel-epilog": "The script is finished, you can close the window now ^_^",
   "wn-edit-com-nil": "Default as label control",
   "wn-en-his-ct": "Created",
   "wn-en-his-flt-tip": "Please input user id or name to filtering",

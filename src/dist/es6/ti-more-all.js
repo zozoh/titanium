@@ -1,4 +1,4 @@
-// Pack At: 2022-12-02 00:55:16
+// Pack At: 2022-12-02 23:32:05
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1571,39 +1571,39 @@ return _M;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/tags/com/tags-item/tags-item.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
-  inheritAttrs : false,
+  inheritAttrs: false,
   ////////////////////////////////////////////////////
-  data : ()=>({
+  data: () => ({
     // null / top / del
-    mouseEnter : null,
+    mouseEnter: null,
     // collapse / extended
-    status : "collapse"
+    status: "collapse"
   }),
   ////////////////////////////////////////////////////
-  props : {
-    "index" : {
-      type : Number,
-      default : -1
+  props: {
+    "index": {
+      type: Number,
+      default: -1
     },
-    "atLast" : {
-      type : Boolean,
-      default : false
+    "atLast": {
+      type: Boolean,
+      default: false
     },
-    "icon" : {
-      type : [String, Object],
-      default : null
+    "icon": {
+      type: [String, Object],
+      default: null
     },
-    "text" : {
-      type : String,
-      default : null
+    "text": {
+      type: [String, Number],
+      default: null
     },
-    "href" : {
-      type : String,
-      default : null
+    "href": {
+      type: String,
+      default: null
     },
-    "value" : {
-      type : [String, Number, Boolean, Object],
-      default : null
+    "value": {
+      type: [String, Number, Boolean, Object],
+      default: null
     },
     /***
      * Show drop list for changing the piece value
@@ -1624,53 +1624,53 @@ const __TI_MOD_EXPORT_VAR_NM = {
      * }]
      * ```
      */
-    "options" : {
-      type : Array,
-      default : ()=>[]
+    "options": {
+      type: Array,
+      default: () => []
     },
-    "optionDefaultIcon" : {
-      type : String,
-      default : null
+    "optionDefaultIcon": {
+      type: String,
+      default: null
     },
-    "cancelBubble" : {
-      type : Boolean,
-      default : false
+    "cancelBubble": {
+      type: Boolean,
+      default: false
     },
-    "removable" : {
-      type : Boolean,
-      default : false
+    "removable": {
+      type: Boolean,
+      default: false
     },
-    "readonly" : {
-      type : Boolean,
-      default : false
+    "readonly": {
+      type: Boolean,
+      default: false
     },
-    "removeIcon" : {
-      type : String,
-      default : null
+    "removeIcon": {
+      type: String,
+      default: null
     },
-    "statusIcons" : {
-      type : Object,
-      default : ()=>({
-        collapse : "zmdi-chevron-down",
-        extended : "zmdi-chevron-up"
+    "statusIcons": {
+      type: Object,
+      default: () => ({
+        collapse: "zmdi-chevron-down",
+        extended: "zmdi-chevron-up"
       })
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
-        "has-options"  :  this.hasOptions,
-        "is-enter-top" : 'top' == this.mouseEnter && this.hasOptions,
-        "is-enter-del" : 'del' == this.mouseEnter
+        "has-options": this.hasOptions,
+        "is-enter-top": 'top' == this.mouseEnter && this.hasOptions,
+        "is-enter-del": 'del' == this.mouseEnter
       }, this.className)
     },
     //------------------------------------------------
     textClass() {
       return {
-        "without-icon"    : !this.hasIcon && !this.removable,
-        "without-options" : !this.hasOptions
+        "without-icon": !this.hasIcon && !this.removable,
+        "without-options": !this.hasOptions
       }
     },
     //------------------------------------------------
@@ -1695,25 +1695,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
       * ```
       */
     theOptions() {
-      let list = _.filter(_.concat(this.options), (v)=>!Ti.Util.isNil(v))
+      let list = _.filter(_.concat(this.options), (v) => !Ti.Util.isNil(v))
       let tags = []
-      _.forEach(list, (li, index)=>{
+      _.forEach(list, (li, index) => {
         let tag
         // Object
-        if(_.isPlainObject(li)) {
-          tag = _.assign({icon:this.optionDefaultIcon}, li, {index})
+        if (_.isPlainObject(li)) {
+          tag = _.assign({ icon: this.optionDefaultIcon }, li, { index })
         }
         // String or simple value
         else {
           tag = {
-            index : index,
-            icon  : this.optionDefaultIcon,
-            text  : Ti.Types.toStr(li),
-            value : li
+            index: index,
+            icon: this.optionDefaultIcon,
+            text: Ti.Types.toStr(li),
+            value: li
           }
         }
         // Join to
-        if(!_.isEqual(tag.value, this.value)) {
+        if (!_.isEqual(tag.value, this.value)) {
           tags.push(tag)
         }
       })
@@ -1726,61 +1726,61 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     theData() {
       return {
-        index    : this.index,
-        icon     : this.icon,
-        text     : this.text,
-        value    : this.value,
-        href     : this.href,
-        atLast   : this.atLast,
-        asterisk : this.asterisk
+        index: this.index,
+        icon: this.icon,
+        text: this.text,
+        value: this.value,
+        href: this.href,
+        atLast: this.atLast,
+        asterisk: this.asterisk
       }
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     OnClickDel() {
-      if(this.readonly || !this.removable) {
+      if (this.readonly || !this.removable) {
         return
       }
       this.$notify("remove", this.theData)
     },
     //------------------------------------------------
-    OnClickOption({value,text,icon}={}) {
-      if(this.readonly) {
+    OnClickOption({ value, text, icon } = {}) {
+      if (this.readonly) {
         return
       }
       this.$notify("change", {
-        value,text,icon,
+        value, text, icon,
         index: this.index
       })
       this.closeDrop()
     },
     //------------------------------------------------
     OnClickTop($event) {
-      if(this.readonly) {
+      if (this.readonly) {
         return
       }
       // Show Drop Down
-      if(this.hasOptions) {
+      if (this.hasOptions) {
         $event.stopPropagation()
         this.openDrop()
       }
       // Stop Bubble Up
-      else if(this.cancelBubble) {
+      else if (this.cancelBubble) {
         $event.stopPropagation()
       }
       // Emit event
-      if(this.href) {
+      if (this.href) {
         this.$notify("fire", this.theData)
       }
     },
     //------------------------------------------------
     openDrop() {
-      if(this.hasOptions) {
+      if (this.hasOptions) {
         this.status = "extended"
-        this.$nextTick(()=>{
+        this.$nextTick(() => {
           this.dockDrop()
         })
       }
@@ -1792,25 +1792,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //------------------------------------------------
     dockDrop() {
-      let $drop  = this.$refs.drop
-      let $box   = this.$el
+      let $drop = this.$refs.drop
+      let $box = this.$el
       // Guard the elements
-      if(!_.isElement($drop) || !_.isElement($box)){
+      if (!_.isElement($drop) || !_.isElement($box)) {
         return
       }
       // If drop opened, make the box position fixed
       // to at the top of mask
-      if("extended" == this.status) {
-        let r_box  = Ti.Rects.createBy($box)
+      if ("extended" == this.status) {
+        let r_box = Ti.Rects.createBy($box)
         //..........................................
         // Make drop same width with box
         Ti.Dom.setStyle($drop, {
-          "min-width" : `${r_box.width}px`
+          "min-width": `${r_box.width}px`
         })
         //..........................................
         // Dock drop to box
         Ti.Dom.dockTo($drop, $box, {
-          space:{y:2}, posListX:["left", "right"]
+          space: { y: 2 }, posListX: ["left", "right"]
         })
         //..........................................
       }
@@ -1818,7 +1818,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  mounted : function(){
+  mounted: function () {
     this.dockDrop()
   }
   ////////////////////////////////////////////////////
@@ -39445,6 +39445,10 @@ const _M = {
       }
       let keys = Ti.Util.truthyKeys(this.actionStatus)
       for (let key of keys) {
+        let val = this.actionStatus[key]
+        if(_.isObject(val)){
+          return val
+        }
         if (as[key]) {
           return as[key]
         }
@@ -45748,6 +45752,10 @@ const _M = {
     "canRemoveItem": {
       type: Boolean,
       default: true
+    },
+    "readonly": {
+      type: Boolean,
+      default: false
     },
     //------------------------------------------------
     // Aspect
@@ -64226,7 +64234,8 @@ const _M = {
         return
 
       if (!_.isEmpty(this.preface)) {
-        this.lines.push(..._.concat(this.preface))
+        let preface = Ti.I18n.text(this.preface)
+        this.lines.push(..._.concat(preface))
       }
 
       if (this.showRunTip) {
@@ -64257,7 +64266,8 @@ const _M = {
           this.$notify(this.emitSuccess, this.emitPayload || re)
         }
         if (!_.isEmpty(this.epilog)) {
-          this.lines.push(..._.concat(this.epilog))
+          let epilog = Ti.I18n.text(this.epilog)
+          this.lines.push(..._.concat(epilog))
         }
       }
       // Fail
@@ -88682,7 +88692,7 @@ Ti.Preload("ti/com/ti/input/pair/ti-input-pair.html", `<div class="ti-input-pair
       <div class="pair-grid-item as-name" :style="NameStyle">
         <div class="cell-con">
           <div
-            v-if="canRemoveItem"
+            v-if="canRemoveItem && !readonly"
               class="as-deleter" @click.left="OnDeleteFld(fld)">
             <i class="zmdi zmdi-close"></i>
           </div>
@@ -88691,6 +88701,7 @@ Ti.Preload("ti/com/ti/input/pair/ti-input-pair.html", `<div class="ti-input-pair
             class="as-com"
             v-bind="nameComConf" 
             :value="fld.name"
+            :readonly="readonly"
             @change="OnNameChange(fld, $event)"/>
         </div>
       </div>
@@ -88701,6 +88712,7 @@ Ti.Preload("ti/com/ti/input/pair/ti-input-pair.html", `<div class="ti-input-pair
             class="as-com"
             v-bind="valueComConf"
             :value="fld.value"
+            :readonly="readonly"
             @change="OnValueChange(fld, $event)"/>
         </div>
       </div>
@@ -88708,7 +88720,7 @@ Ti.Preload("ti/com/ti/input/pair/ti-input-pair.html", `<div class="ti-input-pair
   </div>
   <!----------------------------------------->
   <TiButton
-    v-if="canAddNewItem"
+    v-if="canAddNewItem && !readonly"
       class="is-tiny btn-r4"
       :setup="ActionSetup"/>
   <!----------------------------------------->
@@ -101282,6 +101294,8 @@ Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
   "wn-ctt-txt-text": "Pure text",
   "wn-ctt-wnml-text": "WNML File",
   "wn-ctt-xml-text": "XML File",
+  "wn-cmd-panel-tip": "The script may take a while to run, please do not close the window",
+  "wn-cmd-panel-epilog": "The script is finished, you can close the window now ^_^",
   "wn-edit-com-nil": "Default as label control",
   "wn-en-his-ct": "Created",
   "wn-en-his-flt-tip": "Please input user id or name to filtering",
@@ -102885,6 +102899,8 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-ctt-txt-text": "Pure text",
   "wn-ctt-wnml-text": "WNML File",
   "wn-ctt-xml-text": "XML File",
+  "wn-cmd-panel-tip": "The script may take a while to run, please do not close the window",
+  "wn-cmd-panel-epilog": "The script is finished, you can close the window now ^_^",
   "wn-edit-com-nil": "Default as label control",
   "wn-en-his-ct": "Created",
   "wn-en-his-flt-tip": "Please input user id or name to filtering",
@@ -102965,10 +102981,10 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-md-R": "R",
   "wn-md-W": "W",
   "wn-md-X": "X",
-  "wn-md-blend-mode":"Blend Mode",
-  "wn-md-blend-dft":"DEFAILT",
-  "wn-md-blend-strong":"STRONG",
-  "wn-md-blend-weak":"WEAK",
+  "wn-md-blend-mode": "Blend Mode",
+  "wn-md-blend-dft": "DEFAILT",
+  "wn-md-blend-strong": "STRONG",
+  "wn-md-blend-weak": "WEAK",
   "wn-md-excutable": "Excutable",
   "wn-md-member": "Member",
   "wn-md-other": "Other",
@@ -104488,6 +104504,8 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-ctt-txt-text": "纯文本",
   "wn-ctt-wnml-text": "WNML源文件",
   "wn-ctt-xml-text": "XML文本",
+  "wn-cmd-panel-tip": "脚本运行可能需要一点时间，请不要关闭窗口",
+  "wn-cmd-panel-epilog": "脚本执行完毕，您可以关闭本窗口了 ^_^",
   "wn-edit-com-nil": "默认为标签控件",
   "wn-en-his-ct": "创建时间",
   "wn-en-his-flt-tip": "请输入用户ID或者名称过滤",
@@ -104568,10 +104586,10 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-md-R": "读",
   "wn-md-W": "写",
   "wn-md-X": "用",
-  "wn-md-blend-mode":"混合模式",
-  "wn-md-blend-dft":"默认",
-  "wn-md-blend-strong":"强覆盖",
-  "wn-md-blend-weak":"弱混合",
+  "wn-md-blend-mode": "混合模式",
+  "wn-md-blend-dft": "默认",
+  "wn-md-blend-strong": "强覆盖",
+  "wn-md-blend-weak": "弱混合",
   "wn-md-excutable": "可使用",
   "wn-md-member": "成员",
   "wn-md-other": "其他人",
@@ -105716,7 +105734,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "e-obj-invalid": "路徑[${val}]非法",
    "e-obj-noexists": "對象[${val}]不存在",
    "e-ph-noexists": "路徑[${val}]不存在",
-   "e-form-incomplete": "表單缺失必要字段: 【${title}】 ${tip}",
+   "e-form-incomplete": "表單缺失必要字段: 【${title|name}】 ${tip?}",
    "edit": "編輯",
    "edit-com": "編輯控件",
    "edit-content": "編輯內容",
@@ -106091,6 +106109,8 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-ctt-txt-text": "純文本",
    "wn-ctt-wnml-text": "WNML源文件",
    "wn-ctt-xml-text": "XML文本",
+   "wn-cmd-panel-tip": "腳本運行可能需要一點時間，請不要關閉窗口",
+   "wn-cmd-panel-epilog": "腳本執行完畢，您可以關閉本窗口了 ^_^",
    "wn-edit-com-nil": "默認爲標籤控件",
    "wn-en-his-ct": "創建時間",
    "wn-en-his-flt-tip": "請輸入用戶ID或者名稱過濾",

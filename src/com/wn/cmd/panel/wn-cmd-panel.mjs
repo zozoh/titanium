@@ -59,7 +59,8 @@ const _M = {
         return
 
       if (!_.isEmpty(this.preface)) {
-        this.lines.push(..._.concat(this.preface))
+        let preface = Ti.I18n.text(this.preface)
+        this.lines.push(..._.concat(preface))
       }
 
       if (this.showRunTip) {
@@ -90,7 +91,8 @@ const _M = {
           this.$notify(this.emitSuccess, this.emitPayload || re)
         }
         if (!_.isEmpty(this.epilog)) {
-          this.lines.push(..._.concat(this.epilog))
+          let epilog = Ti.I18n.text(this.epilog)
+          this.lines.push(..._.concat(epilog))
         }
       }
       // Fail

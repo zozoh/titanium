@@ -45,6 +45,10 @@ const _M = {
       type: Boolean,
       default: true
     },
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
     //------------------------------------------------
     // Aspect
     //------------------------------------------------

@@ -11,7 +11,7 @@
       <div class="pair-grid-item as-name" :style="NameStyle">
         <div class="cell-con">
           <div
-            v-if="canRemoveItem"
+            v-if="canRemoveItem && !readonly"
               class="as-deleter" @click.left="OnDeleteFld(fld)">
             <i class="zmdi zmdi-close"></i>
           </div>
@@ -20,6 +20,7 @@
             class="as-com"
             v-bind="nameComConf" 
             :value="fld.name"
+            :readonly="readonly"
             @change="OnNameChange(fld, $event)"/>
         </div>
       </div>
@@ -30,6 +31,7 @@
             class="as-com"
             v-bind="valueComConf"
             :value="fld.value"
+            :readonly="readonly"
             @change="OnValueChange(fld, $event)"/>
         </div>
       </div>
@@ -37,7 +39,7 @@
   </div>
   <!----------------------------------------->
   <TiButton
-    v-if="canAddNewItem"
+    v-if="canAddNewItem && !readonly"
       class="is-tiny btn-r4"
       :setup="ActionSetup"/>
   <!----------------------------------------->

@@ -14,6 +14,8 @@
    "wn-ctt-txt-text": "純文本",
    "wn-ctt-wnml-text": "WNML源文件",
    "wn-ctt-xml-text": "XML文本",
+   "wn-cmd-panel-tip": "腳本運行可能需要一點時間，請不要關閉窗口",
+   "wn-cmd-panel-epilog": "腳本執行完畢，您可以關閉本窗口了 ^_^",
    "wn-edit-com-nil": "默認爲標籤控件",
    "wn-en-his-ct": "創建時間",
    "wn-en-his-flt-tip": "請輸入用戶ID或者名稱過濾",

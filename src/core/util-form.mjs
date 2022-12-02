@@ -8,7 +8,7 @@ const TiFormHelper = {
       if (_.isEmpty(fld)) {
         return
       }
-      let { title, name, comType, comConf = {} } = fld
+      let { title, name, type, comType, comConf = {} } = fld
       let { options } = comConf
       // 忽略无法处理的
       if (!name || !_.isString(name) || !title) {
@@ -31,7 +31,26 @@ const TiFormHelper = {
       else if ("TiInputTags" == comType) {
         it.display = {
           key: name,
-          comType: "TiTags"
+          comType: "TiTags",
+          comConf: {
+            className: "is-nowrap"
+          }
+        }
+      }
+      //数组
+      else if ("Array" == type) {
+        it.display = {
+          key: name,
+          comType: "TiLabel",
+          comConf: {
+            className: "is-nowrap",
+            format: (vals) => {
+              if (_.isArray(vals)) {
+                return vals.join(', ')
+              }
+              return vals
+            }
+          }
         }
       }
       // 普通

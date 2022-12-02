@@ -1,37 +1,37 @@
 export default {
-  inheritAttrs : false,
+  inheritAttrs: false,
   ////////////////////////////////////////////////////
-  data : ()=>({
+  data: () => ({
     // null / top / del
-    mouseEnter : null,
+    mouseEnter: null,
     // collapse / extended
-    status : "collapse"
+    status: "collapse"
   }),
   ////////////////////////////////////////////////////
-  props : {
-    "index" : {
-      type : Number,
-      default : -1
+  props: {
+    "index": {
+      type: Number,
+      default: -1
     },
-    "atLast" : {
-      type : Boolean,
-      default : false
+    "atLast": {
+      type: Boolean,
+      default: false
     },
-    "icon" : {
-      type : [String, Object],
-      default : null
+    "icon": {
+      type: [String, Object],
+      default: null
     },
-    "text" : {
-      type : String,
-      default : null
+    "text": {
+      type: [String, Number],
+      default: null
     },
-    "href" : {
-      type : String,
-      default : null
+    "href": {
+      type: String,
+      default: null
     },
-    "value" : {
-      type : [String, Number, Boolean, Object],
-      default : null
+    "value": {
+      type: [String, Number, Boolean, Object],
+      default: null
     },
     /***
      * Show drop list for changing the piece value
@@ -52,53 +52,53 @@ export default {
      * }]
      * ```
      */
-    "options" : {
-      type : Array,
-      default : ()=>[]
+    "options": {
+      type: Array,
+      default: () => []
     },
-    "optionDefaultIcon" : {
-      type : String,
-      default : null
+    "optionDefaultIcon": {
+      type: String,
+      default: null
     },
-    "cancelBubble" : {
-      type : Boolean,
-      default : false
+    "cancelBubble": {
+      type: Boolean,
+      default: false
     },
-    "removable" : {
-      type : Boolean,
-      default : false
+    "removable": {
+      type: Boolean,
+      default: false
     },
-    "readonly" : {
-      type : Boolean,
-      default : false
+    "readonly": {
+      type: Boolean,
+      default: false
     },
-    "removeIcon" : {
-      type : String,
-      default : null
+    "removeIcon": {
+      type: String,
+      default: null
     },
-    "statusIcons" : {
-      type : Object,
-      default : ()=>({
-        collapse : "zmdi-chevron-down",
-        extended : "zmdi-chevron-up"
+    "statusIcons": {
+      type: Object,
+      default: () => ({
+        collapse: "zmdi-chevron-down",
+        extended: "zmdi-chevron-up"
       })
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     topClass() {
       return Ti.Css.mergeClassName({
-        "has-options"  :  this.hasOptions,
-        "is-enter-top" : 'top' == this.mouseEnter && this.hasOptions,
-        "is-enter-del" : 'del' == this.mouseEnter
+        "has-options": this.hasOptions,
+        "is-enter-top": 'top' == this.mouseEnter && this.hasOptions,
+        "is-enter-del": 'del' == this.mouseEnter
       }, this.className)
     },
     //------------------------------------------------
     textClass() {
       return {
-        "without-icon"    : !this.hasIcon && !this.removable,
-        "without-options" : !this.hasOptions
+        "without-icon": !this.hasIcon && !this.removable,
+        "without-options": !this.hasOptions
       }
     },
     //------------------------------------------------
@@ -123,25 +123,25 @@ export default {
       * ```
       */
     theOptions() {
-      let list = _.filter(_.concat(this.options), (v)=>!Ti.Util.isNil(v))
+      let list = _.filter(_.concat(this.options), (v) => !Ti.Util.isNil(v))
       let tags = []
-      _.forEach(list, (li, index)=>{
+      _.forEach(list, (li, index) => {
         let tag
         // Object
-        if(_.isPlainObject(li)) {
-          tag = _.assign({icon:this.optionDefaultIcon}, li, {index})
+        if (_.isPlainObject(li)) {
+          tag = _.assign({ icon: this.optionDefaultIcon }, li, { index })
         }
         // String or simple value
         else {
           tag = {
-            index : index,
-            icon  : this.optionDefaultIcon,
-            text  : Ti.Types.toStr(li),
-            value : li
+            index: index,
+            icon: this.optionDefaultIcon,
+            text: Ti.Types.toStr(li),
+            value: li
           }
         }
         // Join to
-        if(!_.isEqual(tag.value, this.value)) {
+        if (!_.isEqual(tag.value, this.value)) {
           tags.push(tag)
         }
       })
@@ -154,61 +154,61 @@ export default {
     //------------------------------------------------
     theData() {
       return {
-        index    : this.index,
-        icon     : this.icon,
-        text     : this.text,
-        value    : this.value,
-        href     : this.href,
-        atLast   : this.atLast,
-        asterisk : this.asterisk
+        index: this.index,
+        icon: this.icon,
+        text: this.text,
+        value: this.value,
+        href: this.href,
+        atLast: this.atLast,
+        asterisk: this.asterisk
       }
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
     OnClickDel() {
-      if(this.readonly || !this.removable) {
+      if (this.readonly || !this.removable) {
         return
       }
       this.$notify("remove", this.theData)
     },
     //------------------------------------------------
-    OnClickOption({value,text,icon}={}) {
-      if(this.readonly) {
+    OnClickOption({ value, text, icon } = {}) {
+      if (this.readonly) {
         return
       }
       this.$notify("change", {
-        value,text,icon,
+        value, text, icon,
         index: this.index
       })
       this.closeDrop()
     },
     //------------------------------------------------
     OnClickTop($event) {
-      if(this.readonly) {
+      if (this.readonly) {
         return
       }
       // Show Drop Down
-      if(this.hasOptions) {
+      if (this.hasOptions) {
         $event.stopPropagation()
         this.openDrop()
       }
       // Stop Bubble Up
-      else if(this.cancelBubble) {
+      else if (this.cancelBubble) {
         $event.stopPropagation()
       }
       // Emit event
-      if(this.href) {
+      if (this.href) {
         this.$notify("fire", this.theData)
       }
     },
     //------------------------------------------------
     openDrop() {
-      if(this.hasOptions) {
+      if (this.hasOptions) {
         this.status = "extended"
-        this.$nextTick(()=>{
+        this.$nextTick(() => {
           this.dockDrop()
         })
       }
@@ -220,25 +220,25 @@ export default {
     },
     //------------------------------------------------
     dockDrop() {
-      let $drop  = this.$refs.drop
-      let $box   = this.$el
+      let $drop = this.$refs.drop
+      let $box = this.$el
       // Guard the elements
-      if(!_.isElement($drop) || !_.isElement($box)){
+      if (!_.isElement($drop) || !_.isElement($box)) {
         return
       }
       // If drop opened, make the box position fixed
       // to at the top of mask
-      if("extended" == this.status) {
-        let r_box  = Ti.Rects.createBy($box)
+      if ("extended" == this.status) {
+        let r_box = Ti.Rects.createBy($box)
         //..........................................
         // Make drop same width with box
         Ti.Dom.setStyle($drop, {
-          "min-width" : `${r_box.width}px`
+          "min-width": `${r_box.width}px`
         })
         //..........................................
         // Dock drop to box
         Ti.Dom.dockTo($drop, $box, {
-          space:{y:2}, posListX:["left", "right"]
+          space: { y: 2 }, posListX: ["left", "right"]
         })
         //..........................................
       }
@@ -246,7 +246,7 @@ export default {
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  mounted : function(){
+  mounted: function () {
     this.dockDrop()
   }
   ////////////////////////////////////////////////////

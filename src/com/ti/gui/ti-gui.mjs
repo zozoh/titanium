@@ -179,6 +179,10 @@ const _M = {
       }
       let keys = Ti.Util.truthyKeys(this.actionStatus)
       for (let key of keys) {
+        let val = this.actionStatus[key]
+        if(_.isObject(val)){
+          return val
+        }
         if (as[key]) {
           return as[key]
         }

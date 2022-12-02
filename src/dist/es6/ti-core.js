@@ -1,4 +1,4 @@
-// Pack At: 2022-12-02 00:55:16
+// Pack At: 2022-12-02 23:32:05
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10814,7 +10814,7 @@ const {Util} = (function(){
           if (_.isEmpty(fld)) {
             return
           }
-          let { title, name, comType, comConf = {} } = fld
+          let { title, name, type, comType, comConf = {} } = fld
           let { options } = comConf
           // 忽略无法处理的
           if (!name || !_.isString(name) || !title) {
@@ -10837,7 +10837,26 @@ const {Util} = (function(){
           else if ("TiInputTags" == comType) {
             it.display = {
               key: name,
-              comType: "TiTags"
+              comType: "TiTags",
+              comConf: {
+                className: "is-nowrap"
+              }
+            }
+          }
+          //数组
+          else if ("Array" == type) {
+            it.display = {
+              key: name,
+              comType: "TiLabel",
+              comConf: {
+                className: "is-nowrap",
+                format: (vals) => {
+                  if (_.isArray(vals)) {
+                    return vals.join(', ')
+                  }
+                  return vals
+                }
+              }
             }
           }
           // 普通
@@ -19132,7 +19151,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20221202.005516",
+  "version" : "1.6-20221202.233205",
   "dev" : false,
   "appName" : null,
   "session" : {},

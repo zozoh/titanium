@@ -1,4 +1,4 @@
-// Pack At: 2022-12-02 00:55:16
+// Pack At: 2022-12-02 23:32:05
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -4002,9 +4002,10 @@ const OpenCmdPanel = (function(){
     input,
     forceFlushBuffer,
     showRunTip, showTailRunTip,
-    preface, epilog,
-    cmdTipText,
-    cmdTipIcon,
+    preface, 
+    epilog="i18n:wn-cmd-panel-epilog",
+    cmdTipText="i18n:wn-cmd-panel-tip",
+    cmdTipIcon="fad-radiation",
     onBodyReady,
     afterRunCommand,
     whenSuccess,
@@ -4471,7 +4472,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20221202.005517"
+const WALNUT_VERSION = "1.2-20221202.233205"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
