@@ -439,6 +439,9 @@ const _M = {
         //console.log("async evalFormFieldList() x ", this.fields.length)
         for (let index = 0; index < this.fields.length; index++) {
           let fld = this.fields[index]
+          if (_.isEmpty(fld)) {
+            continue
+          }
           let fld2 = await this.evalFormField(fld, [index], { cans, fmap })
           if (fld2) {
             list.push(fld2)

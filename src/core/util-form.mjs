@@ -101,7 +101,7 @@ const TiFormHelper = {
         for (let sub of fld.fields) {
           joinFields(sub)
         }
-      } else if (fld.required) {
+      } else {
         // Visibility
         let { hidden } = Ti.Types.getFormFieldVisibility(fld, data)
         if (hidden) {
