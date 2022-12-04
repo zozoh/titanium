@@ -1,4 +1,4 @@
-// Pack At: 2022-12-02 23:32:05
+// Pack At: 2022-12-04 20:58:22
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10907,7 +10907,7 @@ const {Util} = (function(){
             for (let sub of fld.fields) {
               joinFields(sub)
             }
-          } else if (fld.required) {
+          } else {
             // Visibility
             let { hidden } = Ti.Types.getFormFieldVisibility(fld, data)
             if (hidden) {
@@ -19151,7 +19151,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20221202.233205",
+  "version" : "1.6-20221204.205823",
   "dev" : false,
   "appName" : null,
   "session" : {},
