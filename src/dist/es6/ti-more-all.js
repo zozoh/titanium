@@ -1,4 +1,4 @@
-// Pack At: 2022-12-04 20:58:22
+// Pack At: 2022-12-06 00:07:53
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -10420,19 +10420,22 @@ const __TI_MOD_EXPORT_VAR_NM = {
             // 如果就是最朴素的 Label 
             let { comType, comConf = {} } = disIt
             if (/^(TiLabel|ti-label)$/.test(comType)) {
-              let { className, hoverCopy, value, newTab, href, dict,format } = comConf
+              let { className, hoverCopy, value, newTab, href, dict, format, placeholder } = comConf
               if (false === hoverCopy || _.isUndefined(hoverCopy)) {
                 let text = value
-                if (dict) {
+                if (Ti.Util.isNil(text) || (_.isString(text) && !text)) {
+                  text = placeholder || "i18n:blank"
+                }
+                else if (dict) {
                   let $d = Ti.DictFactory.CheckDict(dict)
                   text = await $d.getItemText(value)
                 }
-                if(format){
-                  if(_.isFunction(format)){
+                if (format) {
+                  if (_.isFunction(format)) {
                     text = format(text)
                   }
                 }
-                if(/^i18n:/.test(text)){
+                if (/^i18n:/.test(text)) {
                   text = Ti.I18n.text(text)
                 }
                 disIt.quickLabel = {
@@ -10515,7 +10518,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       checkedIds = this.theCheckedIds
     } = {}) {
       let it = rows[index]
-      if(!it){
+      if (!it) {
         return
       }
       it.current = (it.id == currentId)
@@ -10543,9 +10546,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let beginMs = Date.now()
       let list = await this.evalData((it) => {
         it.icon = this.getRowIcon(it.item)
-        if(it.icon){
+        if (it.icon) {
           let ico = Ti.Icons.parseFontIcon(it.icon)
-          if(ico){
+          if (ico) {
             it.iconClass = ico.className
           }
         }
@@ -14981,7 +14984,7 @@ const _M = {
     async evalDisplay(val) {
       if (_.isString(val) && Ti.S.isBlank(val)) {
         this.isNilDisplay = true
-        return Ti.I18n.get("blank")
+        return Ti.I18n.text(this.placeholder)
       }
       // By Dict Item
       if (this.Dict) {

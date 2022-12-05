@@ -302,7 +302,7 @@ const _M = {
     async evalDisplay(val) {
       if (_.isString(val) && Ti.S.isBlank(val)) {
         this.isNilDisplay = true
-        return Ti.I18n.get("blank")
+        return Ti.I18n.text(this.placeholder)
       }
       // By Dict Item
       if (this.Dict) {
