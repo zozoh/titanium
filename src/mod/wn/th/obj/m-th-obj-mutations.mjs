@@ -80,6 +80,41 @@ const _M = {
     state.fixedMatch = _.cloneDeep(fm)
   },
   //----------------------------------------
+  /*
+  agg: {
+    "$ResultKey": {
+      ignore: "name",   // AutoMatch filterKey to ignore when agg
+      by: "value=COUNT:id name=name name:DESC" // agg setting
+    }
+  }
+  */
+  setAgg(state, agg) {
+    state.agg = _.cloneDeep(agg)
+  },
+  //----------------------------------------
+  /*
+  aggResult: {
+    "$ResultKey": [{
+        "value": 13,
+        "name": "T111"
+      }, {
+        "value": 18,
+        "name": "T109"
+      }]
+  }
+  */
+  setAggResult(state, { key, result = [] } = {}) {
+    if (key) {
+      let re = _.clone(state.aggResult)
+      re[key] = result
+      state.aggResult = re
+    }
+  },
+  //----------------------------------------
+  setAggQuery(state, aggQuery) {
+    state.aggQuery = aggQuery
+  },
+  //----------------------------------------
   setFilter(state, filter) {
     state.filter = filter
     saveLocalBehavior(state, "filter", filter)

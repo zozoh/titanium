@@ -118,7 +118,43 @@ const _M = {
   // Query
   //
   //----------------------------------------
-  async queryList({ state, commit, getters }, flt = {}) {
+  async queryAggResult({ state, commit }, { aggName, flt = {}, dft = [] } = {}) {
+    aggName = aggName || state.aggQuery
+    if (!aggName) {
+      return dft
+    }
+    state.LOG("async queryAggResult", aggName)
+    let agg = _.get(state.agg, aggName)
+    if (_.isEmpty(agg) || !agg.by) {
+      state.LOG("!! Bad Agg Setting", agg)
+      return
+    }
+    let ignore = Ti.AutoMatch.parse(agg.ignore)
+    let {
+      thingSetId,
+      filter,
+      fixedMatch,
+    } = state
+    // Query
+    let qmeta = _.assign({}, filter, fixedMatch, flt);
+    qmeta = _.omitBy(qmeta, (v, k) => {
+      return ignore(k)
+    })
+    let input = JSON.stringify(qmeta)
+    console.log(input)
+
+    // Prepare the command
+    commit("setStatus", { reloading: true })
+    let cmdText = `o id:${thingSetId}/index @agg ${agg.by} -match -cqn`
+    let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
+
+    // Update
+    commit("setAggResult", { key: aggName, result: reo })
+    // Done
+    commit("setStatus", { reloading: false })
+  },
+  //----------------------------------------
+  async queryList({ state, commit, dispatch, getters }, flt = {}) {
     state.LOG("async queryList")
     let {
       thingSetId,
@@ -128,7 +164,8 @@ const _M = {
       thingObjKeys
     } = state
     // Query
-    let input = JSON.stringify(_.assign({}, filter, fixedMatch, flt))
+    let qmeta = _.assign({}, filter, fixedMatch, flt);
+    let input = JSON.stringify(qmeta)
 
     // Command
     let cmds = [`thing ${thingSetId} query -cqn`]

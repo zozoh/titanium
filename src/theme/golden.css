@@ -2268,10 +2268,20 @@ i.im {
 
 .ti-filterbar {
   padding: 0.04rem; }
-  .ti-filterbar.is-mode-v > .filterbar-part {
-    padding: 0.01rem 0; }
-    .ti-filterbar.is-mode-v > .filterbar-part.ti-droplist:last-child {
-      margin-right: 0; }
+  .ti-filterbar.is-mode-v {
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: stretch;
+    flex-wrap: wrap; }
+    .ti-filterbar.is-mode-v > .filterbar-part {
+      padding: 0.01rem 0; }
+      .ti-filterbar.is-mode-v > .filterbar-part.as-majors {
+        flex: 0 0 auto;
+        width: 100%; }
+      .ti-filterbar.is-mode-v > .filterbar-part.as-filter {
+        flex: 1 1 auto;
+        overflow: hidden; }
   .ti-filterbar.is-mode-h {
     display: flex;
     justify-content: flex-start;

@@ -1,4 +1,4 @@
-// Pack At: 2022-12-06 23:21:29
+// Pack At: 2022-12-07 23:27:13
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5217,6 +5217,41 @@ const _M = {
     state.fixedMatch = _.cloneDeep(fm)
   },
   //----------------------------------------
+  /*
+  agg: {
+    "$ResultKey": {
+      ignore: "name",   // AutoMatch filterKey to ignore when agg
+      by: "value=COUNT:id name=name name:DESC" // agg setting
+    }
+  }
+  */
+  setAgg(state, agg) {
+    state.agg = _.cloneDeep(agg)
+  },
+  //----------------------------------------
+  /*
+  aggResult: {
+    "$ResultKey": [{
+        "value": 13,
+        "name": "T111"
+      }, {
+        "value": 18,
+        "name": "T109"
+      }]
+  }
+  */
+  setAggResult(state, { key, result = [] } = {}) {
+    if (key) {
+      let re = _.clone(state.aggResult)
+      re[key] = result
+      state.aggResult = re
+    }
+  },
+  //----------------------------------------
+  setAggQuery(state, aggQuery) {
+    state.aggQuery = aggQuery
+  },
+  //----------------------------------------
   setFilter(state, filter) {
     state.filter = filter
     saveLocalBehavior(state, "filter", filter)
@@ -7426,6 +7461,8 @@ const _M = {
     let reo = await dispatch("updateMeta", data)
 
     Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+
+    return reo
   },
   //--------------------------------------------
   async updateMeta({ dispatch }, data = {}) {
@@ -11768,6 +11805,9 @@ const _M = {
         thingSetId: this.thingSetId,
         oTs: this.oTs,
         //------------------------------
+        aggQuery: this.aggQuery,
+        agg: this.agg,
+        aggResult: this.aggResult,
         fixedMatch: this.fixedMatch,
         filter: this.filter,
         sorter: this.sorter,
@@ -12052,7 +12092,43 @@ const _M = {
   // Query
   //
   //----------------------------------------
-  async queryList({ state, commit, getters }, flt = {}) {
+  async queryAggResult({ state, commit }, { aggName, flt = {}, dft = [] } = {}) {
+    aggName = aggName || state.aggQuery
+    if (!aggName) {
+      return dft
+    }
+    state.LOG("async queryAggResult", aggName)
+    let agg = _.get(state.agg, aggName)
+    if (_.isEmpty(agg) || !agg.by) {
+      state.LOG("!! Bad Agg Setting", agg)
+      return
+    }
+    let ignore = Ti.AutoMatch.parse(agg.ignore)
+    let {
+      thingSetId,
+      filter,
+      fixedMatch,
+    } = state
+    // Query
+    let qmeta = _.assign({}, filter, fixedMatch, flt);
+    qmeta = _.omitBy(qmeta, (v, k) => {
+      return ignore(k)
+    })
+    let input = JSON.stringify(qmeta)
+    console.log(input)
+
+    // Prepare the command
+    commit("setStatus", { reloading: true })
+    let cmdText = `o id:${thingSetId}/index @agg ${agg.by} -match -cqn`
+    let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
+
+    // Update
+    commit("setAggResult", { key: aggName, result: reo })
+    // Done
+    commit("setStatus", { reloading: false })
+  },
+  //----------------------------------------
+  async queryList({ state, commit, dispatch, getters }, flt = {}) {
     state.LOG("async queryList")
     let {
       thingSetId,
@@ -12062,7 +12138,8 @@ const _M = {
       thingObjKeys
     } = state
     // Query
-    let input = JSON.stringify(_.assign({}, filter, fixedMatch, flt))
+    let qmeta = _.assign({}, filter, fixedMatch, flt);
+    let input = JSON.stringify(qmeta)
 
     // Command
     let cmds = [`thing ${thingSetId} query -cqn`]
@@ -24943,6 +25020,8 @@ const _M = {
     let reo = await dispatch("updateMeta", data)
 
     Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+
+    return reo
   },
   //--------------------------------------------
   async updateMeta({ state, commit }, data = {}) {
@@ -24985,6 +25064,8 @@ const _M = {
     _.forEach(data, (_, name) => {
       Wn.Util.setFieldStatusAfterUpdate({ commit }, name, reo)
     })
+
+    return state.meta
   },
   //--------------------------------------------
   async batchUpdateCheckedItemsField({ state, commit, dispatch }, { name, value } = {}) {
@@ -54539,6 +54620,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // The search list
   //-----------------------------------
+  "aggQuery": String,
+  "agg": Object,
+  "aggResult": Object,
   "fixedMatch": Object,
   "filter": Object,
   "sorter": Object,
@@ -74420,6 +74504,7 @@ const _M = {
     // Eval behavior dynamicly
     let {
       filter, sorter, match,
+      agg, aggQuery,
       currentId, checkedIds,
       pageSize,
       dataDirName,
@@ -74435,6 +74520,14 @@ const _M = {
     // Apply sorter
     if (!_.isEmpty(sorter)) {
       commit("setSorter", sorter)
+    }
+
+    // Apply agg setting
+    if (agg) {
+      commit("setAgg", agg)
+    }
+    if (aggQuery) {
+      commit("setAggQuery", aggQuery)
     }
 
     // Apply fixed match
@@ -74620,6 +74713,7 @@ const _M = {
     // Reload thing list
     if (state.oTs) {
       await dispatch("queryList");
+      await dispatch("queryAggResult")
     }
 
     // Update dataHome
@@ -99206,6 +99300,9 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "thingSetId": null,
   "oTs": null,
   "fixedMatch": {},
+  "agg":{},
+  "aggResult":{},
+  "aggQuery": null,
   "filter": {},
   "sorter": {
     "ct": -1

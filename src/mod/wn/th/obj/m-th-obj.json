@@ -11,6 +11,9 @@
   "thingSetId": null,
   "oTs": null,
   "fixedMatch": {},
+  "agg":{},
+  "aggResult":{},
+  "aggQuery": null,
   "filter": {},
   "sorter": {
     "ct": -1

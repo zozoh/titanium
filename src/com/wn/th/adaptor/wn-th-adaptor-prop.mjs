@@ -16,6 +16,9 @@ export default {
   //-----------------------------------
   // The search list
   //-----------------------------------
+  "aggQuery": String,
+  "agg": Object,
+  "aggResult": Object,
   "fixedMatch": Object,
   "filter": Object,
   "sorter": Object,

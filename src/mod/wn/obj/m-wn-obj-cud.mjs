@@ -475,6 +475,8 @@ const _M = {
     let reo = await dispatch("updateMeta", data)
 
     Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+
+    return reo
   },
   //--------------------------------------------
   async updateMeta({ dispatch }, data = {}) {

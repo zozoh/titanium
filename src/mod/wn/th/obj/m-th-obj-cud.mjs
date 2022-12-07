@@ -256,6 +256,8 @@ const _M = {
     let reo = await dispatch("updateMeta", data)
 
     Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
+
+    return reo
   },
   //--------------------------------------------
   async updateMeta({ state, commit }, data = {}) {
@@ -298,6 +300,8 @@ const _M = {
     _.forEach(data, (_, name) => {
       Wn.Util.setFieldStatusAfterUpdate({ commit }, name, reo)
     })
+
+    return state.meta
   },
   //--------------------------------------------
   async batchUpdateCheckedItemsField({ state, commit, dispatch }, { name, value } = {}) {

@@ -254,6 +254,7 @@ const _M = {
     // Eval behavior dynamicly
     let {
       filter, sorter, match,
+      agg, aggQuery,
       currentId, checkedIds,
       pageSize,
       dataDirName,
@@ -269,6 +270,14 @@ const _M = {
     // Apply sorter
     if (!_.isEmpty(sorter)) {
       commit("setSorter", sorter)
+    }
+
+    // Apply agg setting
+    if (agg) {
+      commit("setAgg", agg)
+    }
+    if (aggQuery) {
+      commit("setAggQuery", aggQuery)
     }
 
     // Apply fixed match
@@ -454,6 +463,7 @@ const _M = {
     // Reload thing list
     if (state.oTs) {
       await dispatch("queryList");
+      await dispatch("queryAggResult")
     }
 
     // Update dataHome

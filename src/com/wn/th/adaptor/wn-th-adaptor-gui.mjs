@@ -13,6 +13,9 @@ const _M = {
         thingSetId: this.thingSetId,
         oTs: this.oTs,
         //------------------------------
+        aggQuery: this.aggQuery,
+        agg: this.agg,
+        aggResult: this.aggResult,
         fixedMatch: this.fixedMatch,
         filter: this.filter,
         sorter: this.sorter,
