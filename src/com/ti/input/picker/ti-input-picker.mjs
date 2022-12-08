@@ -197,13 +197,14 @@ const _M = {
   methods: {
     //------------------------------------------------
     async OnInputChange(value) {
+      console.log("OnInputChange")
       // Guard: only check with dict
       if (!this.Dict) {
         this.tryNotifyChange(value)
         return
       }
       // null
-      if(Ti.Util.isNil(value)){
+      if (Ti.Util.isNil(value)) {
         this.tryNotifyChange(value)
         return
       }
@@ -211,17 +212,25 @@ const _M = {
       if (_.isArray(value)) {
         let vals = []
         for (let val of value) {
-          if (await this.Dict.hasItem(val)) {
+          if (this.mustInList) {
+            if (await this.Dict.hasItem(val)) {
+              vals.push(val)
+            }
+          } else {
             vals.push(val)
           }
         }
         this.tryNotifyChange(vals)
       }
       // Single check
-      else {
+      else if (this.mustInList) {
         if (await this.Dict.hasItem(value)) {
           this.tryNotifyChange(value)
+        } else {
+          this.tryNotifyChange(null)
         }
+      } else {
+        this.tryNotifyChange(value)
       }
     },
     //------------------------------------------------

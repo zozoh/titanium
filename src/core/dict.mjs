@@ -184,7 +184,7 @@ export class Dict {
   //-------------------------------------------
   async hasItem(val) {
     let it = await this.__get_raw_item(val)
-    return !Ti.Util.isNil(it)
+    return !_.isEmpty(it)
   }
   //-------------------------------------------
   // Core Methods

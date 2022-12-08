@@ -22,6 +22,9 @@ const RESP_TRANS = {
   json($req) {
     let content = $req.responseText
     let str = _.trim(content) || null
+    if(!str){
+      return null;
+    }
     try {
       return JSON.parse(str)
     } catch (E) {
@@ -34,6 +37,9 @@ const RESP_TRANS = {
     let content = $req.responseText
     try {
       let str = _.trim(content) || null
+      if(!str){
+        return null;
+      }
       return JSON.parse(str)
     } catch (E) { }
     return content

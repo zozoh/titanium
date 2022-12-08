@@ -264,15 +264,17 @@ const _M = {
     state.LOG("updateMeta", data)
     // Check Necessary
     if (_.isMatchWith(state.meta, data, _.isEqual)) {
-      return
+      return state.meta
     }
 
     if (!state.meta) {
-      return await Ti.Toast.Open("ThObj meta without defined", "warn")
+      await Ti.Toast.Open("ThObj meta without defined", "warn")
+      return state.meta
     }
 
     if (!state.thingSetId) {
-      return await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
+      await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
+      return state.meta
     }
 
     let uniqKey = Ti.Util.anyKey(_.keys(data))

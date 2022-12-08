@@ -495,17 +495,19 @@ const _M = {
 
     // Check Necessary
     if (_.isMatchWith(obj, data, _.isEqual)) {
-      return
+      return obj
     }
 
     if (!obj) {
-      return await Ti.Toast.Open(
+      await Ti.Toast.Open(
         `WnObj ${taName} without defined`,
         "warn")
+      return obj
     }
 
     if (!state.dirId) {
-      return await Ti.Toast.Open("WnObj dirId without defined", "warn")
+      await Ti.Toast.Open("WnObj dirId without defined", "warn")
+      return obj
     }
 
     let uniqKey = Ti.Util.anyKey(_.keys(data))

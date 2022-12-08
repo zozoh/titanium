@@ -702,7 +702,7 @@ const _M = {
           && this.isReadonly
           && !this.isIgnoreAutoReadonly(field)
           && !/^(TiLabel|WnObjId)$/.test(comType)) {
-          let labelConf = {}
+          let labelConf = _.pick(comConf, "placeholder")
           // If options
           if (comConf && comConf.options) {
             let dictName = Ti.DictFactory.DictReferName(comConf.options)
@@ -725,7 +725,7 @@ const _M = {
           return {
             key: name,
             comType: "TiLabel",
-            comConf: labelConf
+            comConf: labelConf,
           }
         }
         return

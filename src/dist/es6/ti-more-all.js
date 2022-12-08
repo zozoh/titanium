@@ -1,4 +1,4 @@
-// Pack At: 2022-12-07 23:27:13
+// Pack At: 2022-12-08 14:33:33
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7481,17 +7481,19 @@ const _M = {
 
     // Check Necessary
     if (_.isMatchWith(obj, data, _.isEqual)) {
-      return
+      return obj
     }
 
     if (!obj) {
-      return await Ti.Toast.Open(
+      await Ti.Toast.Open(
         `WnObj ${taName} without defined`,
         "warn")
+      return obj
     }
 
     if (!state.dirId) {
-      return await Ti.Toast.Open("WnObj dirId without defined", "warn")
+      await Ti.Toast.Open("WnObj dirId without defined", "warn")
+      return obj
     }
 
     let uniqKey = Ti.Util.anyKey(_.keys(data))
@@ -13742,7 +13744,7 @@ const _M = {
           && this.isReadonly
           && !this.isIgnoreAutoReadonly(field)
           && !/^(TiLabel|WnObjId)$/.test(comType)) {
-          let labelConf = {}
+          let labelConf = _.pick(comConf, "placeholder")
           // If options
           if (comConf && comConf.options) {
             let dictName = Ti.DictFactory.DictReferName(comConf.options)
@@ -13765,7 +13767,7 @@ const _M = {
           return {
             key: name,
             comType: "TiLabel",
-            comConf: labelConf
+            comConf: labelConf,
           }
         }
         return
@@ -25028,15 +25030,17 @@ const _M = {
     state.LOG("updateMeta", data)
     // Check Necessary
     if (_.isMatchWith(state.meta, data, _.isEqual)) {
-      return
+      return state.meta
     }
 
     if (!state.meta) {
-      return await Ti.Toast.Open("ThObj meta without defined", "warn")
+      await Ti.Toast.Open("ThObj meta without defined", "warn")
+      return state.meta
     }
 
     if (!state.thingSetId) {
-      return await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
+      await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
+      return state.meta
     }
 
     let uniqKey = Ti.Util.anyKey(_.keys(data))
@@ -80059,13 +80063,14 @@ const _M = {
   methods: {
     //------------------------------------------------
     async OnInputChange(value) {
+      console.log("OnInputChange")
       // Guard: only check with dict
       if (!this.Dict) {
         this.tryNotifyChange(value)
         return
       }
       // null
-      if(Ti.Util.isNil(value)){
+      if (Ti.Util.isNil(value)) {
         this.tryNotifyChange(value)
         return
       }
@@ -80073,17 +80078,25 @@ const _M = {
       if (_.isArray(value)) {
         let vals = []
         for (let val of value) {
-          if (await this.Dict.hasItem(val)) {
+          if (this.mustInList) {
+            if (await this.Dict.hasItem(val)) {
+              vals.push(val)
+            }
+          } else {
             vals.push(val)
           }
         }
         this.tryNotifyChange(vals)
       }
       // Single check
-      else {
+      else if (this.mustInList) {
         if (await this.Dict.hasItem(value)) {
           this.tryNotifyChange(value)
+        } else {
+          this.tryNotifyChange(null)
         }
+      } else {
+        this.tryNotifyChange(value)
       }
     },
     //------------------------------------------------

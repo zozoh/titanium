@@ -1,4 +1,4 @@
-// Pack At: 2022-12-07 23:27:13
+// Pack At: 2022-12-08 14:33:33
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -6549,6 +6549,9 @@ const {Http} = (function(){
     json($req) {
       let content = $req.responseText
       let str = _.trim(content) || null
+      if(!str){
+        return null;
+      }
       try {
         return JSON.parse(str)
       } catch (E) {
@@ -6561,6 +6564,9 @@ const {Http} = (function(){
       let content = $req.responseText
       try {
         let str = _.trim(content) || null
+        if(!str){
+          return null;
+        }
         return JSON.parse(str)
       } catch (E) { }
       return content
@@ -15969,7 +15975,7 @@ const {Dict,DictFactory} = (function(){
     //-------------------------------------------
     async hasItem(val) {
       let it = await this.__get_raw_item(val)
-      return !Ti.Util.isNil(it)
+      return !_.isEmpty(it)
     }
     //-------------------------------------------
     // Core Methods
@@ -19151,7 +19157,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20221207.232714",
+  "version" : "1.6-20221208.143333",
   "dev" : false,
   "appName" : null,
   "session" : {},
