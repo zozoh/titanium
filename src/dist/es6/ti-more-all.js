@@ -1,4 +1,4 @@
-// Pack At: 2022-12-08 14:33:33
+// Pack At: 2022-12-09 17:37:13
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -21546,6 +21546,13 @@ const _M = {
     },
     //--------------------------------------------------
     GridColumnCount() {
+      if (this.isTabMode && this.CurrentTabGroup) {
+        let ch = Ti.Util.fallbackNil(
+          this.CurrentTabGroup.gridColumnHint,
+          this.gridColumnHint)
+          console.log(ch)
+        return this.evalGridColumnCount(ch)
+      }
       return this.evalGridColumnCount(this.gridColumnHint)
     },
     //--------------------------------------------------

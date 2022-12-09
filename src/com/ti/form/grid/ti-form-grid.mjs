@@ -87,6 +87,13 @@ const _M = {
     },
     //--------------------------------------------------
     GridColumnCount() {
+      if (this.isTabMode && this.CurrentTabGroup) {
+        let ch = Ti.Util.fallbackNil(
+          this.CurrentTabGroup.gridColumnHint,
+          this.gridColumnHint)
+          console.log(ch)
+        return this.evalGridColumnCount(ch)
+      }
       return this.evalGridColumnCount(this.gridColumnHint)
     },
     //--------------------------------------------------
