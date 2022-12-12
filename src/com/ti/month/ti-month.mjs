@@ -17,7 +17,7 @@ export default {
     },
     "endYear" : {
       type : [Number, String],
-      default : (new Date().getFullYear()+1)
+      default : (new Date().getFullYear()+2)
     }
   },
   ////////////////////////////////////////////////////

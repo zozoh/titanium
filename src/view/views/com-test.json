@@ -2,7 +2,7 @@
   "comIcon": "im-flask",
   "modType": "@mod:wn/obj",
   "modState": {
-    "contentType": "text/json"
+    "contentType": "<MIME>"
   },
   "comType": "@Test:com-test-case",
   "comConf": {

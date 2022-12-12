@@ -61,11 +61,11 @@ export default {
     },
     "beginYear" : {
       type : [Number, String],
-      default : 1970
+      default : undefined
     },
     "endYear" : {
       type : [Number, String],
-      default : (new Date().getFullYear()+1)
+      default : undefined
     }
   },
   //////////////////////////////////////////

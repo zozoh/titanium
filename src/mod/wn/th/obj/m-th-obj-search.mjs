@@ -141,7 +141,6 @@ const _M = {
       return ignore(k)
     })
     let input = JSON.stringify(qmeta)
-    console.log(input)
 
     // Prepare the command
     commit("setStatus", { reloading: true })
