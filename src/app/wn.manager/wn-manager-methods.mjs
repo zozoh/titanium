@@ -188,6 +188,15 @@ const _M = {
     return Ti.Util.explainObj(meta, title)
   },
   //.........................................
+  updateDocumentTitle(meta) {
+    let title = this.getDocumentTitle(meta)
+    if (title) {
+      title = Ti.I18n.text(title)
+      document.title = title
+    }
+    return title
+  },
+  //.........................................
   pushHistory(meta) {
     // Push history to update the browser address bar
     //console.log("pushHistory", meta.id)
@@ -200,11 +209,7 @@ const _M = {
       }
       // Push to history stack
       let newLink = Wn.Util.getAppLinkStr(meta)
-      let title = this.getDocumentTitle(meta)
-      if (title) {
-        title = Ti.I18n.text(title)
-        document.title = title
-      }
+      let title = this.updateDocumentTitle(meta)
       let obj = _.cloneDeep(meta)
       //console.log(title , "->", newLink)
       his.pushState(obj, title, newLink)

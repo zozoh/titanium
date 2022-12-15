@@ -2,10 +2,14 @@ const _M = {
   /////////////////////////////////////////
   data: () => ({
     myArea: 0,
-    myActionsWidth: 0
+    myActionsWidth: 0,
+    showMoreActions:false
   }),
   /////////////////////////////////////////
   props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
     // The source to display image
     "preview": {
       type: [String, Object],
@@ -27,28 +31,13 @@ const _M = {
       type: Boolean,
       default: false
     },
+    //------------------------------------------------
+    // Behavior
+    //------------------------------------------------
     "previewType": {
       type: String,
       default: "obj",
       validator: v => /^(obj|link)$/.test(v)
-    },
-    "maxWidth": {
-      type: [String, Number],
-      default: undefined
-    },
-    "maxHeight": {
-      type: [String, Number],
-      default: undefined
-    },
-    // Display width
-    "width": {
-      type: [String, Number],
-      default: 120
-    },
-    // Display height
-    "height": {
-      type: [String, Number],
-      default: 120
     },
     // support remove the objects
     "removable": {
@@ -67,6 +56,17 @@ const _M = {
       type: Boolean,
       default: true
     },
+    "actions": {
+      type: Array,
+      default: () => []
+    },
+    //------------------------------------------------
+    // Aspect
+    //------------------------------------------------
+    "actionLimit": {
+      type: Number,
+      default: 3,
+    },
     "areaSize": {
       type: Object,
       default: () => ({
@@ -76,6 +76,27 @@ const _M = {
         md: (400 * 400),
         lg: (600 * 600),
       })
+    },
+    //------------------------------------------------
+    // Measure
+    //------------------------------------------------
+    "maxWidth": {
+      type: [String, Number],
+      default: undefined
+    },
+    "maxHeight": {
+      type: [String, Number],
+      default: undefined
+    },
+    // Display width
+    "width": {
+      type: [String, Number],
+      default: 120
+    },
+    // Display height
+    "height": {
+      type: [String, Number],
+      default: 120
     }
   },
   //////////////////////////////////////////
@@ -127,12 +148,101 @@ const _M = {
     //--------------------------------------
     isShowActions() {
       return this.hasPreview
-        && (
-          this.isShowRemoveIcon
-          || this.isShowOpenIcon
-          || this.isShowExlink
-          || this.isShowDownloadIcon
-        )
+        && !_.isEmpty(this.ActionItems)
+    },
+    //--------------------------------------
+    ActionItems() {
+      let items = [];
+      if (this.isShowRemoveIcon) {
+        items.push({
+          icon: "zmdi-delete",
+          text: "i18n:clear",
+          className: "as-del",
+          handler: () => {
+            this.OnRemove();
+          }
+        })
+      }
+      if (this.openable) {
+        items.push({
+          icon: "zmdi-open-in-new",
+          text: "i18n:open",
+          className: "as-open",
+          handler: () => {
+            this.OnOpen();
+          }
+        })
+      }
+      if (this.isShowExlink) {
+        items.push({
+          icon: "fas-link",
+          text: "i18n:link",
+          className: "as-exlink",
+          handler: () => {
+            this.OnExlink();
+          }
+        })
+      }
+      if (this.downloadable) {
+        items.push({
+          icon: "zmdi-cloud-download",
+          text: "i18n:download",
+          className: "as-download",
+          handler: () => {
+            this.OnDownload();
+          }
+        })
+      }
+      if (_.isArray(this.actions)) {
+        for (let at of this.actions) {
+          let handler;
+          if (_.isString(at.action)) {
+            handler = () => {
+              this.$notify(at.action, at.payload)
+            }
+          }
+          if (_.isFunction(at.action)) {
+            handler = () => {
+              at.action(at.payload, this)
+            }
+          }
+          items.push({
+            icon: at.icon,
+            text: at.text,
+            className: at.className,
+            handler
+          })
+        }
+      }
+      
+
+      return items;
+    },
+    //--------------------------------------
+    TopActionItems(){
+      let items =this.ActionItems;
+      let N = this.actionLimit
+      if (items.length > N) {
+        let I = N - 1;
+        let list = items.slice(0, I)
+        list.push({
+          icon:"zmdi-settings",
+          text:"i18n:more",
+          hoverMore:true
+        })
+        return list;
+      }
+      return items;
+    },
+    //--------------------------------------
+    MoreActionItems(){
+      let items =this.ActionItems;
+      let N = this.actionLimit
+      if (items.length > N) {
+        let I = N - 1;
+        return items.slice(I)
+      }
+      
     },
     //--------------------------------------
     isShowRemoveIcon() {
@@ -169,6 +279,16 @@ const _M = {
   },
   //////////////////////////////////////////
   methods: {
+    //--------------------------------------
+    OnMouseEnter({hoverMore}={}){
+      if(!hoverMore){
+        return;
+      }
+      this.showMoreActions = true;
+      this.$nextTick(()=>{
+
+      })
+    },
     //--------------------------------------
     OnClickToEdit() {
       if ("link" == this.previewType) {

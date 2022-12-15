@@ -8496,25 +8496,30 @@ div.ti-input-tags {
     top: 0;
     right: 0;
     padding: 0.1rem; }
-    .ti-upload-file > .thumb-con > .thumb-actions > .thumb-opt {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      align-content: center;
-      flex-wrap: nowrap;
-      color: #e6e6e8;
-      background-color: #272e48;
-      cursor: pointer;
-      padding: 0.04rem 0.06rem;
-      margin-bottom: 2px;
-      line-height: 1.1em;
-      font-size: 12px; }
-      .ti-upload-file > .thumb-con > .thumb-actions > .thumb-opt .it-text {
-        margin-left: 0.06rem;
-        white-space: nowrap; }
-      .ti-upload-file > .thumb-con > .thumb-actions > .thumb-opt:hover {
-        color: #FFF;
-        background-color: #ff4081; }
+  .ti-upload-file > .thumb-con > .more-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.1rem; }
+  .ti-upload-file > .thumb-con .thumb-opt {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: nowrap;
+    color: #e6e6e8;
+    background-color: #272e48;
+    cursor: pointer;
+    padding: 0.04rem 0.06rem;
+    margin-bottom: 2px;
+    line-height: 1.1em;
+    font-size: 12px; }
+    .ti-upload-file > .thumb-con .thumb-opt .it-text {
+      margin-left: 0.06rem;
+      white-space: nowrap; }
+    .ti-upload-file > .thumb-con .thumb-opt:hover {
+      color: #FFF;
+      background-color: #ff4081; }
 
 .ti-upload-multi-files .as-wrapper {
   position: relative; }

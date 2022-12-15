@@ -58,7 +58,7 @@ export default {
               if (false === hoverCopy || _.isUndefined(hoverCopy)) {
                 let text = value
                 if (Ti.Util.isNil(text) || (_.isString(text) && !text)) {
-                  text = placeholder || "i18n:blank"
+                  text = Ti.Util.fallback(placeholder, "i18n:blank")
                 }
                 else if (dict) {
                   let $d = Ti.DictFactory.CheckDict(dict)

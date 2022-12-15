@@ -383,6 +383,7 @@ const _M = {
       let oldId = _.get(oldVal, "id")
       let isSameId = _.isEqual(newId, oldId)
       if (newVal) {
+        this.updateDocumentTitle(newVal)
         //console.log("metaChanged", newVal, oldVal)
         // Update the ancestors path
         _.delay(async () => {

@@ -14,6 +14,7 @@
   <div ref="thumb"
     class="thumb-con"
     :style="ThumbStyle"
+    @mouseleave="showMoreActions=false"
     @click="OnClickToEdit"
     v-drop-files.mask="OnDropFiles">
     <!--
@@ -33,43 +34,35 @@
           <i v-else-if="'obj'==previewType" class="fas fa-save"></i>
     </div>
     <!--
-      Remove
+      Actions
     -->
     <div ref="actions"
       v-if="isShowActions"
         class="thumb-actions"
         :style="ActionsStyle">
-        <!--remove-->
         <div
-          v-if="isShowRemoveIcon"
-            class="thumb-opt as-del"
-            @click.left.stop="OnRemove">
-            <ti-icon value="zmdi-delete"/>
-            <span class="it-text">{{'clear'|i18n}}</span>
+          v-for="it in TopActionItems"
+            class="thumb-opt"
+            :class="it.className"
+            @click.left.stop="it.handler()"
+            @mouseenter.left="OnMouseEnter(it)">
+            <ti-icon :value="it.icon"/>
+            <span class="it-text">{{it.text|i18n}}</span>
         </div>
-        <!--open-->
+    </div>
+    <!--
+      More Actions
+    -->
+    <div ref="more"
+      v-if="MoreActionItems && showMoreActions"
+        class="more-actions">
         <div
-          v-if="isShowOpenIcon"
-            class="thumb-opt as-open"
-            @click.left.stop="OnOpen">
-            <ti-icon value="zmdi-open-in-new"/>
-            <span class="it-text">{{'open'|i18n}}</span>
-        </div>
-        <!--exlink-->
-        <div
-          v-if="isShowExlink"
-            class="thumb-opt as-exlink"
-            @click.left.stop="OnExlink">
-            <ti-icon value="fas-link"/>
-            <span class="it-text">{{'link'|i18n}}</span>
-        </div>
-        <!--open-->
-        <div
-          v-if="isShowDownloadIcon"
-            class="thumb-opt as-open"
-            @click.left.stop="OnDownload">
-            <ti-icon value="zmdi-cloud-download"/>
-            <span class="it-text">{{'download'|i18n}}</span>
+          v-for="it in MoreActionItems"
+            class="thumb-opt"
+            :class="it.className"
+            @click.left.stop="it.handler()">
+            <ti-icon :value="it.icon"/>
+            <span class="it-text">{{it.text|i18n}}</span>
         </div>
     </div>
     <!--//////-->

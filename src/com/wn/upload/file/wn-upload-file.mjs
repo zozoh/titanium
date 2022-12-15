@@ -89,6 +89,10 @@ const _M = {
       type: Boolean,
       default: false
     },
+    "actions": {
+      type: Array,
+      default: () => []
+    },
     //------------------------------------------------
     // Measure
     //------------------------------------------------
@@ -173,6 +177,10 @@ const _M = {
     //--------------------------------------
     PreviewType() {
       return this.srcAsUrl ? "link" : "obj"
+    },
+    //--------------------------------------
+    TheActions(){
+      return Ti.Util.explainObj(this.oFile||{},this.actions)||[]
     }
     //--------------------------------------
   },
