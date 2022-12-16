@@ -147,8 +147,7 @@ const _M = {
     },
     //--------------------------------------
     isShowActions() {
-      return this.hasPreview
-        && !_.isEmpty(this.ActionItems)
+      return !_.isEmpty(this.ActionItems)
     },
     //--------------------------------------
     ActionItems() {
@@ -163,7 +162,7 @@ const _M = {
           }
         })
       }
-      if (this.openable) {
+      if (this.isShowOpenIcon) {
         items.push({
           icon: "zmdi-open-in-new",
           text: "i18n:open",
@@ -183,7 +182,7 @@ const _M = {
           }
         })
       }
-      if (this.downloadable) {
+      if (this.isShowDownloadIcon) {
         items.push({
           icon: "zmdi-cloud-download",
           text: "i18n:download",
@@ -253,11 +252,11 @@ const _M = {
     },
     //--------------------------------------
     isShowOpenIcon() {
-      return this.openable
+      return this.openable&& this.hasPreview
     },
     //--------------------------------------
     isShowDownloadIcon() {
-      return this.downloadable
+      return this.downloadable &&this.hasPreview
     },
     //--------------------------------------
     isShowExlink() {
