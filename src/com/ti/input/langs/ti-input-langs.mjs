@@ -1,6 +1,7 @@
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
+    myFields:[],
     myTexts: {},
     myValue: {}
   }),
@@ -38,23 +39,9 @@ const _M = {
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
-    "nameWidth": {
-      type: [String, Number],
-      default: null
-    }
   },
   ////////////////////////////////////////////////////
   computed: {
-    //------------------------------------------------
-    NameComConf() {
-      return {
-        hoverCopy: false,
-        format: (v) => {
-          let re = _.get(this.myTexts, v) || v
-          return Ti.I18n.text(re)
-        }
-      }
-    },
     //------------------------------------------------
     OptionItemMapping() {
       if (_.isFunction(this.mapping)) {
@@ -85,17 +72,20 @@ const _M = {
     async evalPairValue() {
       // Eval list
       let list = await this.Dict.getData()
+      let flds =[]
       let vals = {}
-      let txts = {}
       for (let li of list) {
         let it = this.OptionItemMapping(li)
         let key = it.value
         let val = _.get(this.value, key)
         vals[key] = val
-        txts[key] = it.text
+        flds.push({
+          title  : it.text,
+          name : it.value
+        })
       }
+      this.myFields = flds
       this.myValue = vals
-      this.myTexts = txts
     },
     //------------------------------------------------
     tryEvalPairValue(newVal, oldVal) {

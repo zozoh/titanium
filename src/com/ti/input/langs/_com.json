@@ -4,6 +4,6 @@
   "template": "./ti-input-langs.html",
   "mixins": "./ti-input-langs.mjs",
   "components": [
-    "@com:ti/input/pair"
+    "@com:ti/obj/pair"
   ]
 }

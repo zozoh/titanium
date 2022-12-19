@@ -238,7 +238,8 @@ const _M = {
   },
   ////////////////////////////////////////////////
   watch: {
-    "value": "evalThePairList"
+    "value": "evalThePairList",
+    //"fields": "evalThePairList",
   },
   ////////////////////////////////////////////////
   mounted() {

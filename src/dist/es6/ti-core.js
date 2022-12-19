@@ -1,4 +1,4 @@
-// Pack At: 2022-12-09 17:37:13
+// Pack At: 2022-12-20 00:30:25
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -4861,6 +4861,9 @@ const {Dom} = (function(){
     },
     //----------------------------------------------------
     seek($el, filter, by) {
+      if(!_.isElement($el)){
+        return
+      }
       if (!_.isFunction(by)) {
         return $el
       }
@@ -4921,14 +4924,23 @@ const {Dom} = (function(){
     // Closest
     //
     closest($el, filter, { includeSelf = false } = {}) {
+      if(!_.isElement($el)){
+        return
+      }
       let $p = includeSelf ? $el : $el.parentElement
       return TiDom.seek($p, filter, el => el.parentElement)
     },
     closestByTagName($el, tagName, { includeSelf = false } = {}) {
+      if(!_.isElement($el)){
+        return
+      }
       let $p = includeSelf ? $el : $el.parentElement
       return TiDom.seekByTagName($p, tagName, el => el.parentElement)
     },
     parentsUntil($el, selector, setup = {}) {
+      if(!_.isElement($el)){
+        return
+      }
       return TiDom.seekUntil($el, selector, {
         ...setup,
         by: el => el.parentElement
@@ -18556,7 +18568,7 @@ const {PhotoGallery} = (function(){
         // listen events trigger
         //console.log("PhotoGallery bind click")
         $el.addEventListener("click", function (evt) {
-          //console.log(evt, "Photo gallery", this, evt.srcElement)
+          console.log(evt, "Photo gallery", this, evt.srcElement)
           if(_.isFunction(setup.ignoreSrcElement)) {
             if(setup.ignoreSrcElement(evt.srcElement)){
               return
@@ -19157,7 +19169,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20221209.173713",
+  "version" : "1.6-20221220.003025",
   "dev" : false,
   "appName" : null,
   "session" : {},

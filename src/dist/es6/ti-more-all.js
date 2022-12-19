@@ -1,4 +1,4 @@
-// Pack At: 2022-12-09 17:37:13
+// Pack At: 2022-12-20 00:30:25
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -10463,7 +10463,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
               if (false === hoverCopy || _.isUndefined(hoverCopy)) {
                 let text = value
                 if (Ti.Util.isNil(text) || (_.isString(text) && !text)) {
-                  text = placeholder || "i18n:blank"
+                  text = Ti.Util.fallback(placeholder, "i18n:blank")
                 }
                 else if (dict) {
                   let $d = Ti.DictFactory.CheckDict(dict)
@@ -12117,7 +12117,6 @@ const _M = {
       return ignore(k)
     })
     let input = JSON.stringify(qmeta)
-    console.log(input)
 
     // Prepare the command
     commit("setStatus", { reloading: true })
@@ -16834,11 +16833,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     "beginYear" : {
       type : [Number, String],
-      default : 1970
+      default : undefined
     },
     "endYear" : {
       type : [Number, String],
-      default : (new Date().getFullYear()+1)
+      default : undefined
     },
     "statusIcons" : {
       type : Object,
@@ -21550,7 +21549,7 @@ const _M = {
         let ch = Ti.Util.fallbackNil(
           this.CurrentTabGroup.gridColumnHint,
           this.gridColumnHint)
-          console.log(ch)
+          //console.log(ch)
         return this.evalGridColumnCount(ch)
       }
       return this.evalGridColumnCount(this.gridColumnHint)
@@ -32001,10 +32000,14 @@ const _M = {
   /////////////////////////////////////////
   data: () => ({
     myArea: 0,
-    myActionsWidth: 0
+    myActionsWidth: 0,
+    showMoreActions:false
   }),
   /////////////////////////////////////////
   props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
     // The source to display image
     "preview": {
       type: [String, Object],
@@ -32026,28 +32029,13 @@ const _M = {
       type: Boolean,
       default: false
     },
+    //------------------------------------------------
+    // Behavior
+    //------------------------------------------------
     "previewType": {
       type: String,
       default: "obj",
       validator: v => /^(obj|link)$/.test(v)
-    },
-    "maxWidth": {
-      type: [String, Number],
-      default: undefined
-    },
-    "maxHeight": {
-      type: [String, Number],
-      default: undefined
-    },
-    // Display width
-    "width": {
-      type: [String, Number],
-      default: 120
-    },
-    // Display height
-    "height": {
-      type: [String, Number],
-      default: 120
     },
     // support remove the objects
     "removable": {
@@ -32066,6 +32054,17 @@ const _M = {
       type: Boolean,
       default: true
     },
+    "actions": {
+      type: Array,
+      default: () => []
+    },
+    //------------------------------------------------
+    // Aspect
+    //------------------------------------------------
+    "actionLimit": {
+      type: Number,
+      default: 3,
+    },
     "areaSize": {
       type: Object,
       default: () => ({
@@ -32075,6 +32074,27 @@ const _M = {
         md: (400 * 400),
         lg: (600 * 600),
       })
+    },
+    //------------------------------------------------
+    // Measure
+    //------------------------------------------------
+    "maxWidth": {
+      type: [String, Number],
+      default: undefined
+    },
+    "maxHeight": {
+      type: [String, Number],
+      default: undefined
+    },
+    // Display width
+    "width": {
+      type: [String, Number],
+      default: 120
+    },
+    // Display height
+    "height": {
+      type: [String, Number],
+      default: 120
     }
   },
   //////////////////////////////////////////
@@ -32125,13 +32145,101 @@ const _M = {
     },
     //--------------------------------------
     isShowActions() {
-      return this.hasPreview
-        && (
-          this.isShowRemoveIcon
-          || this.isShowOpenIcon
-          || this.isShowExlink
-          || this.isShowDownloadIcon
-        )
+      return !_.isEmpty(this.ActionItems)
+    },
+    //--------------------------------------
+    ActionItems() {
+      let items = [];
+      if (this.isShowRemoveIcon) {
+        items.push({
+          icon: "zmdi-delete",
+          text: "i18n:clear",
+          className: "as-del",
+          handler: () => {
+            this.OnRemove();
+          }
+        })
+      }
+      if (this.isShowOpenIcon) {
+        items.push({
+          icon: "zmdi-open-in-new",
+          text: "i18n:open",
+          className: "as-open",
+          handler: () => {
+            this.OnOpen();
+          }
+        })
+      }
+      if (this.isShowExlink) {
+        items.push({
+          icon: "fas-link",
+          text: "i18n:link",
+          className: "as-exlink",
+          handler: () => {
+            this.OnExlink();
+          }
+        })
+      }
+      if (this.isShowDownloadIcon) {
+        items.push({
+          icon: "zmdi-cloud-download",
+          text: "i18n:download",
+          className: "as-download",
+          handler: () => {
+            this.OnDownload();
+          }
+        })
+      }
+      if (_.isArray(this.actions)) {
+        for (let at of this.actions) {
+          let handler;
+          if (_.isString(at.action)) {
+            handler = () => {
+              this.$notify(at.action, at.payload)
+            }
+          }
+          if (_.isFunction(at.action)) {
+            handler = () => {
+              at.action(at.payload, this)
+            }
+          }
+          items.push({
+            icon: at.icon,
+            text: at.text,
+            className: at.className,
+            handler
+          })
+        }
+      }
+      
+
+      return items;
+    },
+    //--------------------------------------
+    TopActionItems(){
+      let items =this.ActionItems;
+      let N = this.actionLimit
+      if (items.length > N) {
+        let I = N - 1;
+        let list = items.slice(0, I)
+        list.push({
+          icon:"zmdi-settings",
+          text:"i18n:more",
+          hoverMore:true
+        })
+        return list;
+      }
+      return items;
+    },
+    //--------------------------------------
+    MoreActionItems(){
+      let items =this.ActionItems;
+      let N = this.actionLimit
+      if (items.length > N) {
+        let I = N - 1;
+        return items.slice(I)
+      }
+      
     },
     //--------------------------------------
     isShowRemoveIcon() {
@@ -32142,11 +32250,11 @@ const _M = {
     },
     //--------------------------------------
     isShowOpenIcon() {
-      return this.openable
+      return this.openable&& this.hasPreview
     },
     //--------------------------------------
     isShowDownloadIcon() {
-      return this.downloadable
+      return this.downloadable &&this.hasPreview
     },
     //--------------------------------------
     isShowExlink() {
@@ -32168,6 +32276,16 @@ const _M = {
   },
   //////////////////////////////////////////
   methods: {
+    //--------------------------------------
+    OnMouseEnter({hoverMore}={}){
+      if(!hoverMore){
+        return;
+      }
+      this.showMoreActions = true;
+      this.$nextTick(()=>{
+
+      })
+    },
     //--------------------------------------
     OnClickToEdit() {
       if ("link" == this.previewType) {
@@ -33939,11 +34057,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     "beginYear" : {
       type : [Number, String],
-      default : 1970
+      default : undefined
     },
     "endYear" : {
       type : [Number, String],
-      default : (new Date().getFullYear()+1)
+      default : undefined
     }
   },
   //////////////////////////////////////////
@@ -38175,6 +38293,15 @@ const _M = {
     return Ti.Util.explainObj(meta, title)
   },
   //.........................................
+  updateDocumentTitle(meta) {
+    let title = this.getDocumentTitle(meta)
+    if (title) {
+      title = Ti.I18n.text(title)
+      document.title = title
+    }
+    return title
+  },
+  //.........................................
   pushHistory(meta) {
     // Push history to update the browser address bar
     //console.log("pushHistory", meta.id)
@@ -38187,11 +38314,7 @@ const _M = {
       }
       // Push to history stack
       let newLink = Wn.Util.getAppLinkStr(meta)
-      let title = this.getDocumentTitle(meta)
-      if (title) {
-        title = Ti.I18n.text(title)
-        document.title = title
-      }
+      let title = this.updateDocumentTitle(meta)
       let obj = _.cloneDeep(meta)
       //console.log(title , "->", newLink)
       his.pushState(obj, title, newLink)
@@ -67669,6 +67792,7 @@ const _M = {
       let oldId = _.get(oldVal, "id")
       let isSameId = _.isEqual(newId, oldId)
       if (newVal) {
+        this.updateDocumentTitle(newVal)
         //console.log("metaChanged", newVal, oldVal)
         // Update the ancestors path
         _.delay(async () => {
@@ -68123,7 +68247,8 @@ const _M = {
   },
   ////////////////////////////////////////////////
   watch: {
-    "value": "evalThePairList"
+    "value": "evalThePairList",
+    //"fields": "evalThePairList",
   },
   ////////////////////////////////////////////////
   mounted() {
@@ -69396,6 +69521,10 @@ const _M = {
       type: Boolean,
       default: false
     },
+    "actions": {
+      type: Array,
+      default: () => []
+    },
     //------------------------------------------------
     // Measure
     //------------------------------------------------
@@ -69480,6 +69609,10 @@ const _M = {
     //--------------------------------------
     PreviewType() {
       return this.srcAsUrl ? "link" : "obj"
+    },
+    //--------------------------------------
+    TheActions(){
+      return Ti.Util.explainObj(this.oFile||{},this.actions)||[]
     }
     //--------------------------------------
   },
@@ -70639,7 +70772,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     "endYear" : {
       type : [Number, String],
-      default : (new Date().getFullYear()+1)
+      default : (new Date().getFullYear()+2)
     }
   },
   ////////////////////////////////////////////////////
@@ -75884,6 +76017,7 @@ window.TI_PACK_EXPORTS['ti/com/ti/input/langs/ti-input-langs.mjs'] = (function()
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
+    myFields:[],
     myTexts: {},
     myValue: {}
   }),
@@ -75921,23 +76055,9 @@ const _M = {
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
-    "nameWidth": {
-      type: [String, Number],
-      default: null
-    }
   },
   ////////////////////////////////////////////////////
   computed: {
-    //------------------------------------------------
-    NameComConf() {
-      return {
-        hoverCopy: false,
-        format: (v) => {
-          let re = _.get(this.myTexts, v) || v
-          return Ti.I18n.text(re)
-        }
-      }
-    },
     //------------------------------------------------
     OptionItemMapping() {
       if (_.isFunction(this.mapping)) {
@@ -75968,17 +76088,20 @@ const _M = {
     async evalPairValue() {
       // Eval list
       let list = await this.Dict.getData()
+      let flds =[]
       let vals = {}
-      let txts = {}
       for (let li of list) {
         let it = this.OptionItemMapping(li)
         let key = it.value
         let val = _.get(this.value, key)
         vals[key] = val
-        txts[key] = it.text
+        flds.push({
+          title  : it.text,
+          name : it.value
+        })
       }
+      this.myFields = flds
       this.myValue = vals
-      this.myTexts = txts
     },
     //------------------------------------------------
     tryEvalPairValue(newVal, oldVal) {
@@ -88614,13 +88737,20 @@ Ti.Preload("ti/com/ti/input/icon/_com.json", {
 //========================================
 // JOIN <ti-input-langs.html> ti/com/ti/input/langs/ti-input-langs.html
 //========================================
-Ti.Preload("ti/com/ti/input/langs/ti-input-langs.html", `<TiInputPair
+Ti.Preload("ti/com/ti/input/langs/ti-input-langs.html", `<TiObjPair
+  :value="myValue"
+  :canEditValue="true"
+  :showHead="false"
+  :multiLines="true"
+  :fields="myFields"
+  :onlyFields="true"/>
+<!--TiObjPair
   nameComType="TiLabel"
   :nameComConf="NameComConf"
   :value="myValue"
   :nameWidth="nameWidth"
   :canAddNewItem="false"
-  :canRemoveItem="false"/>`);
+  :canRemoveItem="false"/-->`);
 //========================================
 // JOIN <ti-input-langs.mjs> ti/com/ti/input/langs/ti-input-langs.mjs
 //========================================
@@ -88634,7 +88764,7 @@ Ti.Preload("ti/com/ti/input/langs/_com.json", {
   "template": "./ti-input-langs.html",
   "mixins": "./ti-input-langs.mjs",
   "components": [
-    "@com:ti/input/pair"
+    "@com:ti/obj/pair"
   ]
 });
 //========================================
@@ -92441,6 +92571,7 @@ Ti.Preload("ti/com/ti/upload/file/ti-upload-file.html", `<div class="ti-upload-f
   <div ref="thumb"
     class="thumb-con"
     :style="ThumbStyle"
+    @mouseleave="showMoreActions=false"
     @click="OnClickToEdit"
     v-drop-files.mask="OnDropFiles">
     <!--
@@ -92460,43 +92591,35 @@ Ti.Preload("ti/com/ti/upload/file/ti-upload-file.html", `<div class="ti-upload-f
           <i v-else-if="'obj'==previewType" class="fas fa-save"></i>
     </div>
     <!--
-      Remove
+      Actions
     -->
     <div ref="actions"
       v-if="isShowActions"
         class="thumb-actions"
         :style="ActionsStyle">
-        <!--remove-->
         <div
-          v-if="isShowRemoveIcon"
-            class="thumb-opt as-del"
-            @click.left.stop="OnRemove">
-            <ti-icon value="zmdi-delete"/>
-            <span class="it-text">{{'clear'|i18n}}</span>
+          v-for="it in TopActionItems"
+            class="thumb-opt"
+            :class="it.className"
+            @click.left.stop="it.handler()"
+            @mouseenter.left="OnMouseEnter(it)">
+            <ti-icon :value="it.icon"/>
+            <span class="it-text">{{it.text|i18n}}</span>
         </div>
-        <!--open-->
+    </div>
+    <!--
+      More Actions
+    -->
+    <div ref="more"
+      v-if="MoreActionItems && showMoreActions"
+        class="more-actions">
         <div
-          v-if="isShowOpenIcon"
-            class="thumb-opt as-open"
-            @click.left.stop="OnOpen">
-            <ti-icon value="zmdi-open-in-new"/>
-            <span class="it-text">{{'open'|i18n}}</span>
-        </div>
-        <!--exlink-->
-        <div
-          v-if="isShowExlink"
-            class="thumb-opt as-exlink"
-            @click.left.stop="OnExlink">
-            <ti-icon value="fas-link"/>
-            <span class="it-text">{{'link'|i18n}}</span>
-        </div>
-        <!--open-->
-        <div
-          v-if="isShowDownloadIcon"
-            class="thumb-opt as-open"
-            @click.left.stop="OnDownload">
-            <ti-icon value="zmdi-cloud-download"/>
-            <span class="it-text">{{'download'|i18n}}</span>
+          v-for="it in MoreActionItems"
+            class="thumb-opt"
+            :class="it.className"
+            @click.left.stop="it.handler()">
+            <ti-icon :value="it.icon"/>
+            <span class="it-text">{{it.text|i18n}}</span>
         </div>
     </div>
     <!--//////-->
@@ -98550,6 +98673,7 @@ Ti.Preload("ti/com/wn/upload/file/wn-upload-file.html", `<TiUploadFile
   :preview-type="PreviewType"
   :exlink="exlink"
   :readonly="readonly"
+  :actions="TheActions"
   :width="width"
   :height="height"
   :max-width="maxWidth"

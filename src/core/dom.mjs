@@ -447,6 +447,9 @@ const TiDom = {
   },
   //----------------------------------------------------
   seek($el, filter, by) {
+    if(!_.isElement($el)){
+      return
+    }
     if (!_.isFunction(by)) {
       return $el
     }
@@ -507,14 +510,23 @@ const TiDom = {
   // Closest
   //
   closest($el, filter, { includeSelf = false } = {}) {
+    if(!_.isElement($el)){
+      return
+    }
     let $p = includeSelf ? $el : $el.parentElement
     return TiDom.seek($p, filter, el => el.parentElement)
   },
   closestByTagName($el, tagName, { includeSelf = false } = {}) {
+    if(!_.isElement($el)){
+      return
+    }
     let $p = includeSelf ? $el : $el.parentElement
     return TiDom.seekByTagName($p, tagName, el => el.parentElement)
   },
   parentsUntil($el, selector, setup = {}) {
+    if(!_.isElement($el)){
+      return
+    }
     return TiDom.seekUntil($el, selector, {
       ...setup,
       by: el => el.parentElement
