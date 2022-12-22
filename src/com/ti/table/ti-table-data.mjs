@@ -54,21 +54,34 @@ export default {
             // 如果就是最朴素的 Label 
             let { comType, comConf = {} } = disIt
             if (/^(TiLabel|ti-label)$/.test(comType)) {
-              let { className, hoverCopy, value, newTab, href, dict, format, placeholder } = comConf
+              let {
+                className, hoverCopy, value,
+                newTab, href, dict, format,
+                placeholder, autoLoadDictIcon, prefixIcon
+              } = comConf
               if (false === hoverCopy || _.isUndefined(hoverCopy)) {
                 let text = value
+                let icon = prefixIcon;
                 if (Ti.Util.isNil(text) || (_.isString(text) && !text)) {
                   text = Ti.Util.fallback(placeholder, "i18n:blank")
                 }
                 else if (dict) {
+                  if (Ti.Util.isNil(autoLoadDictIcon)) {
+                    autoLoadDictIcon = Ti.Config.getComProp(
+                      "TiLabel", "autoLoadDictIcon", true)
+                  }
                   let $d = Ti.DictFactory.CheckDict(dict)
                   text = await $d.getItemText(value)
+                  if (autoLoadDictIcon) {
+                    icon = await $d.getItemIcon(value)
+                  }
                 }
                 if (format) {
                   if (_.isFunction(format)) {
                     text = format(text)
                   }
                 }
+
                 if (/^i18n:/.test(text)) {
                   text = Ti.I18n.text(text)
                 }
@@ -77,6 +90,9 @@ export default {
                   newTab, href,
                   target: newTab ? "_blank" : undefined,
                   text
+                }
+                if (icon) {
+                  disIt.quickLabel.iconHtml = Ti.Icons.fontIconHtml(icon)
                 }
               }
             }

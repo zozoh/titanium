@@ -1,4 +1,4 @@
-// Pack At: 2022-12-20 00:30:25
+// Pack At: 2022-12-22 23:17:25
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -10459,21 +10459,34 @@ const __TI_MOD_EXPORT_VAR_NM = {
             // 如果就是最朴素的 Label 
             let { comType, comConf = {} } = disIt
             if (/^(TiLabel|ti-label)$/.test(comType)) {
-              let { className, hoverCopy, value, newTab, href, dict, format, placeholder } = comConf
+              let {
+                className, hoverCopy, value,
+                newTab, href, dict, format,
+                placeholder, autoLoadDictIcon, prefixIcon
+              } = comConf
               if (false === hoverCopy || _.isUndefined(hoverCopy)) {
                 let text = value
+                let icon = prefixIcon;
                 if (Ti.Util.isNil(text) || (_.isString(text) && !text)) {
                   text = Ti.Util.fallback(placeholder, "i18n:blank")
                 }
                 else if (dict) {
+                  if (Ti.Util.isNil(autoLoadDictIcon)) {
+                    autoLoadDictIcon = Ti.Config.getComProp(
+                      "TiLabel", "autoLoadDictIcon", true)
+                  }
                   let $d = Ti.DictFactory.CheckDict(dict)
                   text = await $d.getItemText(value)
+                  if (autoLoadDictIcon) {
+                    icon = await $d.getItemIcon(value)
+                  }
                 }
                 if (format) {
                   if (_.isFunction(format)) {
                     text = format(text)
                   }
                 }
+
                 if (/^i18n:/.test(text)) {
                   text = Ti.I18n.text(text)
                 }
@@ -10482,6 +10495,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
                   newTab, href,
                   target: newTab ? "_blank" : undefined,
                   text
+                }
+                if (icon) {
+                  disIt.quickLabel.iconHtml = Ti.Icons.fontIconHtml(icon)
                 }
               }
             }
@@ -74338,6 +74354,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------------------
     OID() {
       return Wn.Io.OID(this.value)
+    },
+    //-----------------------------------------------
+    IDText(){
+      return Ti.I18n.get("view")
     }
     //-----------------------------------------------
   },
@@ -91389,6 +91409,12 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
                           class="ti-label full-field" 
                           :class="it.quickLabel.className"
                           :title="it.quickLabel.text">
+                            <div v-if="it.quickLabel.iconHtml"
+                              class="as-icon at-prefix">
+                              <div class="ti-icon is-font">
+                                <div class="icon-icon" v-html="it.quickLabel.iconHtml"></div>
+                              </div>
+                          </div>
                             <div class="as-value">
                               <a
                                 v-if="it.quickLabel.href" 
@@ -97391,7 +97417,7 @@ Ti.Preload("ti/com/wn/obj/id/wn-obj-id.html", `<div class="wn-obj-id"
     <!--
       ICON
     -->
-    <div class="as-icon"><i class="fas fa-dna"></i></div>
+    <div class="as-icon"><i class="fas fa-info-circle"></i></div>
     <!-- Empty -->
     <div 
       v-if="!value"
@@ -97402,13 +97428,15 @@ Ti.Preload("ti/com/wn/obj/id/wn-obj-id.html", `<div class="wn-obj-id"
     <div
       v-else-if="!OID.homeId"
         class="as-text">
-        <span>{{OID.myId}}</span>
+        <!--span>{{OID.myId}}</span-->
+        <span>{{IDText}}</span>
     </div>
     <!-- Two stage ID-->
     <div 
       v-else
         class="as-text">
-        <span>{{OID.myId}}</span>
+        <!--span>{{OID.myId}}</span-->
+        <span>{{IDText}}</span>
     </div>
   </div>
   <!--

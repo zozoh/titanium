@@ -1,4 +1,4 @@
-// Pack At: 2022-12-20 00:30:25
+// Pack At: 2022-12-22 23:17:25
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10826,10 +10826,11 @@ const {Util} = (function(){
       //---------------------------------
       genTableFieldsByForm(fields = [], {
         isCan = () => false,
+        isIgnore = () => false,
         dataFormat = 'yy-MM-dd',
       } = {}) {
         const joinField = function (fld, list = []) {
-          if (_.isEmpty(fld)) {
+          if (_.isEmpty(fld) || isIgnore(fld)) {
             return
           }
           let { title, name, type, comType, comConf = {} } = fld
@@ -10958,6 +10959,34 @@ const {Util} = (function(){
       },
       //---------------------------------
       // @return "Error Message" or nil for check ok
+      getFormVisibleFields(fields = [], data = {}) {
+        let list = []
+        const joinVisible = function (fld) {
+          if (!fld) {
+            return
+          }
+          if (_.isArray(fld.fields)) {
+            for (let sub of fld.fields) {
+              joinVisible(sub)
+            }
+          } else {
+            // Visibility
+            let { hidden } = Ti.Types.getFormFieldVisibility(fld, data)
+            if (hidden) {
+              return
+            }
+            // Join to result
+            list.push(fld)
+          }
+        }
+        // find the requied fields
+        for (let field of fields) {
+          joinVisible(field)
+        }
+        return list
+      },
+      //---------------------------------
+      // @return "Error Message" or nil for check ok
       checkFormRequiredFields(fields = [], data = {}) {
         let list = []
         const joinRequired = function (fld) {
@@ -10994,7 +11023,7 @@ const {Util} = (function(){
           let keys = _.concat(name)
           for (let key of keys) {
             let val = _.get(data, key)
-            if (Ti.Util.isNil(val)) {
+            if (Ti.Util.isNil(val) || (_.isString(val) && _.isEmpty(val))) {
               return Ti.I18n.getf("e-form-incomplete", { title, name: key, tip })
             }
           }
@@ -19169,7 +19198,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20221220.003025",
+  "version" : "1.6-20221222.231725",
   "dev" : false,
   "appName" : null,
   "session" : {},

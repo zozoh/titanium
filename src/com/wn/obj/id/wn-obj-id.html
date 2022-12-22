@@ -9,7 +9,7 @@
     <!--
       ICON
     -->
-    <div class="as-icon"><i class="fas fa-dna"></i></div>
+    <div class="as-icon"><i class="fas fa-info-circle"></i></div>
     <!-- Empty -->
     <div 
       v-if="!value"
@@ -20,13 +20,15 @@
     <div
       v-else-if="!OID.homeId"
         class="as-text">
-        <span>{{OID.myId}}</span>
+        <!--span>{{OID.myId}}</span-->
+        <span>{{IDText}}</span>
     </div>
     <!-- Two stage ID-->
     <div 
       v-else
         class="as-text">
-        <span>{{OID.myId}}</span>
+        <!--span>{{OID.myId}}</span-->
+        <span>{{IDText}}</span>
     </div>
   </div>
   <!--

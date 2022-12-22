@@ -137,6 +137,12 @@
                           class="ti-label full-field" 
                           :class="it.quickLabel.className"
                           :title="it.quickLabel.text">
+                            <div v-if="it.quickLabel.iconHtml"
+                              class="as-icon at-prefix">
+                              <div class="ti-icon is-font">
+                                <div class="icon-icon" v-html="it.quickLabel.iconHtml"></div>
+                              </div>
+                          </div>
                             <div class="as-value">
                               <a
                                 v-if="it.quickLabel.href" 
