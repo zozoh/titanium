@@ -1,4 +1,4 @@
-// Pack At: 2022-12-22 23:17:25
+// Pack At: 2022-12-23 23:05:19
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13760,6 +13760,7 @@ const _M = {
           && !this.isIgnoreAutoReadonly(field)
           && !/^(TiLabel|WnObjId)$/.test(comType)) {
           let labelConf = _.pick(comConf, "placeholder")
+          labelConf.className = field.labelClass || "is-nowrap"
           // If options
           if (comConf && comConf.options) {
             let dictName = Ti.DictFactory.DictReferName(comConf.options)
@@ -13775,8 +13776,11 @@ const _M = {
             }
           }
           // If AMS
-          if ("AMS" == field.type) {
+          if ("AMS" == field.type || /^TiInputDatetime/.test(comType)) {
             labelConf.format = comConf.format || Ti.DateTime.format
+          }
+          else if (/^TiInputDate$/.test(comType)) {
+            labelConf.format = comConf.format || Ti.Types.formatDate
           }
           // Just pure value
           return {
