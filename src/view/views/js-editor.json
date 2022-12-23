@@ -1,9 +1,9 @@
 {
   "comIcon": "im-edit",
-  "modType" : "@mod:wn/obj",
+  "modType": "@mod:wn/obj",
   "comType": "@com:ti/text/code/ace",
   "comConf": {
-    "value" : "=Main.content"
+    "value": "=Main.content"
   },
   "actions": [
     {
@@ -16,12 +16,10 @@
         "text": "i18n:saving"
       },
       "enabled": "changed",
-      "action": "dispatch:main/save",
+      "action": "dispatch:main/saveContent",
       "shortcut": "CTRL+S"
     },
-    {
-      "type": "line"
-    },
+    {},
     {
       "type": "group",
       "icon": "im-menu",
@@ -38,9 +36,7 @@
           "action": "dispatch:main/reload",
           "shortcut": "CTRL+SHIFT+R"
         },
-        {
-          "type": "line"
-        },
+        {},
         {
           "type": "action",
           "icon": "zmdi-keyboard",
@@ -48,7 +44,7 @@
           "action": "=>Ti.Be.Open('/a/open/wn.console')",
           "shortcut": "ALT+SHIFT+T",
           "visible": {
-            "ENABLE_CONSOLE" : "yes"
+            "ENABLE_CONSOLE": "yes"
           }
         },
         {

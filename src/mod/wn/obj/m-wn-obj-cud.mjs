@@ -679,6 +679,7 @@ const _M = {
   },
   //--------------------------------------------
   async saveContent({ state, commit, getters }) {
+    //console.log("saveContent")
     // Guard: ing
     if (state.status.saving || !state.status.changed) {
       return

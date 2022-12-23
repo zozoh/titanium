@@ -104,6 +104,7 @@ const _M = {
   ///////////////////////////////////////
   methods: {
     OnFired(val) {
+      //console.log("OnFired",val)
       let app = Ti.App(this)
       let argContext = app.$state()
       if (this.$bar.vars) {

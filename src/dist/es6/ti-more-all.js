@@ -1,4 +1,4 @@
-// Pack At: 2022-12-23 23:05:19
+// Pack At: 2022-12-24 02:52:14
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7665,6 +7665,7 @@ const _M = {
   },
   //--------------------------------------------
   async saveContent({ state, commit, getters }) {
+    //console.log("saveContent")
     // Guard: ing
     if (state.status.saving || !state.status.changed) {
       return
@@ -24711,9 +24712,9 @@ const _M = {
     },
     //-----------------------------------------------
     EditorTheme() {
-      if("auto" == this.theme) {
+      if ("auto" == this.theme) {
         let sysTheme = Ti.Env("theme") || "light"
-        if(/dark/.test(sysTheme)) {
+        if (/dark/.test(sysTheme)) {
           return "terminal"
         }
         //return "clouds"
@@ -24723,12 +24724,35 @@ const _M = {
       return this.theme
     },
     //-----------------------------------------------
+    EditorLoadingAs() {
+      return _.assign({
+        className: "as-nil-mask as-big-mask",
+        icon: undefined,
+        text: undefined
+      }, this.loadingAs)
+    },
+    //-----------------------------------------------
+    EditorBlankAs() {
+      return _.assign({
+        className: "as-nil-mask as-big-mask",
+        icon: "far-keyboard",
+        text: "i18n:empty"
+      }, this.blankAs)
+    },
+    //-----------------------------------------------
     BlankComStyle() {
       return {
         position: "absolute",
         top: 0, right: 0, bottom: 0, left: 0,
         zIndex: 10
       }
+    },
+    //-----------------------------------------------
+    isContentBlank() {
+      if (_.isBoolean(this.blank)) {
+        return this.blank
+      }
+      return Ti.Util.isNil(this.value)
     },
     //-----------------------------------------------
     isContentLoading() {
@@ -24750,6 +24774,8 @@ const _M = {
 
       // Events
       editor.session.on("change", (delta) => {
+        if (this.isContentBlank || this.isContentLoading)
+          return
         let str = editor.getValue() || ""
         this.myValue = str
         this.$notify("change", str)
@@ -26463,41 +26489,53 @@ const _M = {
   //...............................................
   // Data
   //...............................................
-  "value" : {
-    type : String,
-    default : undefined
+  "value": {
+    type: String,
+    default: undefined
+  },
+  "blank":{
+    type :Boolean,
+    default: undefined
   },
   //...............................................
   // Behavior
   //...............................................
-  "mode" : {
-    type : String,
-    default : "javascript"
+  "mode": {
+    type: String,
+    default: "javascript"
   },
   //...............................................
   // Aspact
   //...............................................
-  "theme" : {
-    type : String,
-    default : "auto"
+  "theme": {
+    type: String,
+    default: "auto"
     //default : "monokai"
   },
-  "options" : {
-    type : Object,
-    default: ()=>({
+  "options": {
+    type: Object,
+    default: () => ({
       fontFamily: "Consolas, 'Courier New', monospace",
       lineHeight: "1.5em",
       fontSize: "14px"
     })
   },
-  "loadingAs" : {
-    type : Object,
-    default : ()=>({
-      className : "as-nil-mask as-big-mask",
-      icon : undefined,
-      text : undefined
+  "loadingAs": {
+    type: Object,
+    default: () => ({
+      className: "as-nil-mask as-big-mask",
+      icon: undefined,
+      text: undefined
     })
-  }
+  },
+  "blankAs": {
+    type: Object,
+    default: () => ({
+      className: "as-nil-mask as-big-mask",
+      icon: "far-keyboard",
+      text: "i18n:empty"
+    })
+  },
 }
 return _M;;
 })()
@@ -46224,6 +46262,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return _.get(getters, "contentLoadInfo.path")
     },
     //--------------------------------------------
+    hasContentLoadMeta(state, getters) {
+      let path = _.get(getters, "contentLoadPath")
+      if ("<self>" == path) {
+        return state.meta ? true : false
+      }
+      return path ? true : false
+    },
+    //--------------------------------------------
+    notContentLoadMeta(state, getters) {
+      let has = _.get(getters, "hasContentLoadMeta")
+      return !has
+    },
+    //--------------------------------------------
     hasCurrentMeta(state) {
       return state.meta ? true : false
     },
@@ -47839,6 +47890,7 @@ const _M = {
   ///////////////////////////////////////
   methods: {
     OnFired(val) {
+      //console.log("OnFired",val)
       let app = Ti.App(this)
       let argContext = app.$state()
       if (this.$bar.vars) {
@@ -76231,6 +76283,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return _.get(getters, "contentLoadInfo.path")
     },
     //--------------------------------------------
+    hasContentLoadMeta(state, getters) {
+      let path = _.get(getters, "contentLoadPath")
+      if ("<self>" == path) {
+        return state.meta ? true : false
+      }
+      return path ? true : false
+    },
+    //--------------------------------------------
+    notContentLoadMeta(state, getters) {
+      let has = _.get(getters, "hasContentLoadMeta")
+      return !has
+    },
+    //--------------------------------------------
     hasCurrentMeta(state) {
       return state.meta && state.dataHome ? true : false
     },
@@ -91871,7 +91936,15 @@ Ti.Preload("ti/com/ti/text/code/ace/code-ace.html", `<div class="ti-text-code-ac
     v-if="isContentLoading"
       class="as-nil-mask as-big-mask"
       :style="BlankComStyle"
-      v-bind="loadingAs"/>
+      v-bind="EditorLoadingAs"/>
+  <!--
+    Show Blank
+  -->
+  <TiLoading
+    v-else-if="isContentBlank"
+      class="as-nil-mask as-big-mask"
+      :style="BlankComStyle"
+      v-bind="EditorBlankAs"/>
 </div>`);
 //========================================
 // JOIN <code-ace.mjs> ti/com/ti/text/code/ace/code-ace.mjs

@@ -64,6 +64,19 @@ export default {
       return _.get(getters, "contentLoadInfo.path")
     },
     //--------------------------------------------
+    hasContentLoadMeta(state, getters) {
+      let path = _.get(getters, "contentLoadPath")
+      if ("<self>" == path) {
+        return state.meta ? true : false
+      }
+      return path ? true : false
+    },
+    //--------------------------------------------
+    notContentLoadMeta(state, getters) {
+      let has = _.get(getters, "hasContentLoadMeta")
+      return !has
+    },
+    //--------------------------------------------
     hasCurrentMeta(state) {
       return state.meta ? true : false
     },

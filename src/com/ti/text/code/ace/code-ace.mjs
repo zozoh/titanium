@@ -22,9 +22,9 @@ const _M = {
     },
     //-----------------------------------------------
     EditorTheme() {
-      if("auto" == this.theme) {
+      if ("auto" == this.theme) {
         let sysTheme = Ti.Env("theme") || "light"
-        if(/dark/.test(sysTheme)) {
+        if (/dark/.test(sysTheme)) {
           return "terminal"
         }
         //return "clouds"
@@ -34,12 +34,35 @@ const _M = {
       return this.theme
     },
     //-----------------------------------------------
+    EditorLoadingAs() {
+      return _.assign({
+        className: "as-nil-mask as-big-mask",
+        icon: undefined,
+        text: undefined
+      }, this.loadingAs)
+    },
+    //-----------------------------------------------
+    EditorBlankAs() {
+      return _.assign({
+        className: "as-nil-mask as-big-mask",
+        icon: "far-keyboard",
+        text: "i18n:empty"
+      }, this.blankAs)
+    },
+    //-----------------------------------------------
     BlankComStyle() {
       return {
         position: "absolute",
         top: 0, right: 0, bottom: 0, left: 0,
         zIndex: 10
       }
+    },
+    //-----------------------------------------------
+    isContentBlank() {
+      if (_.isBoolean(this.blank)) {
+        return this.blank
+      }
+      return Ti.Util.isNil(this.value)
     },
     //-----------------------------------------------
     isContentLoading() {
@@ -61,6 +84,8 @@ const _M = {
 
       // Events
       editor.session.on("change", (delta) => {
+        if (this.isContentBlank || this.isContentLoading)
+          return
         let str = editor.getValue() || ""
         this.myValue = str
         this.$notify("change", str)

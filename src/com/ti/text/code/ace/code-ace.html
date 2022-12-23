@@ -12,5 +12,13 @@
     v-if="isContentLoading"
       class="as-nil-mask as-big-mask"
       :style="BlankComStyle"
-      v-bind="loadingAs"/>
+      v-bind="EditorLoadingAs"/>
+  <!--
+    Show Blank
+  -->
+  <TiLoading
+    v-else-if="isContentBlank"
+      class="as-nil-mask as-big-mask"
+      :style="BlankComStyle"
+      v-bind="EditorBlankAs"/>
 </div>
