@@ -57,9 +57,10 @@ export default {
               let {
                 className, hoverCopy, value,
                 newTab, href, dict, format,
-                placeholder, autoLoadDictIcon, prefixIcon
+                placeholder, autoLoadDictIcon, prefixIcon,
+                editable
               } = comConf
-              if (false === hoverCopy || _.isUndefined(hoverCopy)) {
+              if (!editable && (false === hoverCopy || _.isUndefined(hoverCopy))) {
                 let text = value
                 let icon = prefixIcon;
                 if (Ti.Util.isNil(text) || (_.isString(text) && !text)) {

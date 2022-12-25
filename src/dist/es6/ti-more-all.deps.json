@@ -6,9 +6,6 @@
    "path": "@deps:antv/v4/g2/g2.min.js"
 }, {
    "type": "js",
-   "path": "@deps:quill/1.3.6/quill.js"
-}, {
-   "type": "js",
    "path": "https://connect.facebook.net/en_US/sdk.js"
 }, {
    "type": "js",
@@ -25,7 +22,4 @@
 }, {
    "type": "js",
    "path": "@deps:tinymce/5.6.2/tinymce.min.js"
-}, {
-   "type": "js",
-   "path": "@deps:highlight/highlight.js"
 }]
