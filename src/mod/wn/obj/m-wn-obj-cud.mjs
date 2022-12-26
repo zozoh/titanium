@@ -383,7 +383,7 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async openCurrentMetaEditor({ state, dispatch }) {
+  async openCurrentMetaEditor({ state, commit, dispatch }) {
     // Guard
     if (!state.meta && !state.oDir) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
@@ -392,8 +392,11 @@ const _M = {
     // For current selected
     //.........................................
     if (state.meta) {
+      let meta = await Wn.Sys.exec2(`o id:${state.meta.id} @json -path -cqn`, {
+        as: "json"
+      })
       // Edit current meta
-      let reo = await Wn.EditObjMeta(state.meta, {
+      let reo = await Wn.EditObjMeta(meta, {
         fields: "default", autoSave: false
       })
 
@@ -412,9 +415,18 @@ const _M = {
     //.........................................
     // For Whole thing thing
     //.........................................
-    return await Wn.EditObjMeta(state.oDir, {
+    let meta = await Wn.Sys.exec2(`o id:${state.oDir.id} @json -path -cqn`, {
+      as: "json"
+    })
+    let reo = await Wn.EditObjMeta(meta, {
       fields: "auto", autoSave: true
     })
+    // Cancel the editing
+    if (!reo) {
+      return
+    }
+    commit("setDir", reo.data)
+    return reo.data
   },
   //--------------------------------------------
   async openCurrentPrivilege({ state, commit, dispatch }) {

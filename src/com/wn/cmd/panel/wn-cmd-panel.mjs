@@ -120,7 +120,10 @@ const _M = {
       if (this.vars) {
         cmdText = Ti.S.renderBy(cmdText, this.vars)
       }
-      if (this.showRunTip || options.showRunTip) {
+      let showRunTip = Ti.Util.fallback(
+        options.showRunTip, this.showRunTip
+      )
+      if (showRunTip) {
         this.printHR()
         this.lines.push("> " + cmdText)
         this.printHR()
@@ -139,8 +142,7 @@ const _M = {
         }
       })
       let showTailRunTip = Ti.Util.fallback(
-        this.showTailRunTip, options.showTailRunTip,
-        this.showRunTip, options.showRunTip
+        options.showTailRunTip, this.showTailRunTip
       )
       if (showTailRunTip) {
         this.printHR()

@@ -26,7 +26,9 @@ export default {
     }
   },
   computed : {
-    
+    MediaTitle(){
+      return Ti.I18n.text(this.title)
+    }
   },
   methods : {
     

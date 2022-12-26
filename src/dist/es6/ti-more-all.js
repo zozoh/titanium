@@ -1,4 +1,4 @@
-// Pack At: 2022-12-26 03:10:39
+// Pack At: 2022-12-27 00:31:55
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -74,7 +74,7 @@ const _M = {
   // Query
   //
   //----------------------------------------
-  async queryList({ state, commit, getters }) {
+  async queryList({ state, commit, getters, rootState }) {
     let {
       dirId,
       filter,
@@ -84,9 +84,14 @@ const _M = {
     } = state
     // Query
     let input = JSON.stringify(_.assign({}, filter, fixedMatch))
+    let exposeHidden = _.get(rootState, "viewport.exposeHidden")
 
     // Command
     let cmds = [`o 'id:${dirId}' @query`]
+
+    if(exposeHidden){
+      cmds.push('-hidden')
+    }
 
     // Eval Pager
     if (getters.isPagerEnabled) {
@@ -94,6 +99,7 @@ const _M = {
       let skip = getters.searchPageSize * (getters.searchPageNumber - 1)
       cmds.push(`-pager -limit ${limit} -skip ${skip}`)
     }
+
 
     // Sorter
     if (!_.isEmpty(sorter)) {
@@ -7338,7 +7344,7 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async openCurrentMetaEditor({ state, dispatch }) {
+  async openCurrentMetaEditor({ state, commit, dispatch }) {
     // Guard
     if (!state.meta && !state.oDir) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
@@ -7347,8 +7353,11 @@ const _M = {
     // For current selected
     //.........................................
     if (state.meta) {
+      let meta = await Wn.Sys.exec2(`o id:${state.meta.id} @json -path -cqn`, {
+        as: "json"
+      })
       // Edit current meta
-      let reo = await Wn.EditObjMeta(state.meta, {
+      let reo = await Wn.EditObjMeta(meta, {
         fields: "default", autoSave: false
       })
 
@@ -7367,9 +7376,18 @@ const _M = {
     //.........................................
     // For Whole thing thing
     //.........................................
-    return await Wn.EditObjMeta(state.oDir, {
+    let meta = await Wn.Sys.exec2(`o id:${state.oDir.id} @json -path -cqn`, {
+      as: "json"
+    })
+    let reo = await Wn.EditObjMeta(meta, {
       fields: "auto", autoSave: true
     })
+    // Cancel the editing
+    if (!reo) {
+      return
+    }
+    commit("setDir", reo.data)
+    return reo.data
   },
   //--------------------------------------------
   async openCurrentPrivilege({ state, commit, dispatch }) {
@@ -60756,7 +60774,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     OnChangedIcon() {
       let icon = _.trim(this.$refs.input.value)
-      console.log("haha", icon)
       this.$notify("change", icon)
     },
     //------------------------------------------------
@@ -63551,7 +63568,10 @@ const _M = {
       if (this.vars) {
         cmdText = Ti.S.renderBy(cmdText, this.vars)
       }
-      if (this.showRunTip || options.showRunTip) {
+      let showRunTip = Ti.Util.fallback(
+        options.showRunTip, this.showRunTip
+      )
+      if (showRunTip) {
         this.printHR()
         this.lines.push("> " + cmdText)
         this.printHR()
@@ -63570,8 +63590,7 @@ const _M = {
         }
       })
       let showTailRunTip = Ti.Util.fallback(
-        this.showTailRunTip, options.showTailRunTip,
-        this.showRunTip, options.showRunTip
+        options.showTailRunTip, this.showTailRunTip
       )
       if (showTailRunTip) {
         this.printHR()
@@ -66773,7 +66792,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     }
   },
   computed : {
-    
+    MediaTitle(){
+      return Ti.I18n.text(this.title)
+    }
   },
   methods : {
     
@@ -88915,7 +88936,7 @@ Ti.Preload("ti/com/ti/media/binary/ti-media-binary.html", `<div class="ti-media-
     <ti-icon v-if="icon" :value="icon" size="1.28rem"/>
   </div>
   <div class="tob-title">
-    {{title}}
+    {{MediaTitle}}
   </div>
   <div 
     v-if="download"

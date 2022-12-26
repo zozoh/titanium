@@ -1,6 +1,6 @@
 {
   "comIcon": "im-edit",
-  "modType": "@mod:wn/obj-content",
+  "modType": "@mod:wn/obj",
   "comType": "@com:ti/text/json",
   "comConf": {
     "value": "=Main.content"
@@ -16,7 +16,7 @@
         "text": "i18n:saving"
       },
       "enabled": "changed",
-      "action": "dispatch:main/save",
+      "action": "dispatch:main/saveContent",
       "shortcut": "CTRL+S"
     },
     {
@@ -35,7 +35,7 @@
             "icon": "zmdi-refresh zmdi-hc-spin",
             "text": "i18n:loading"
           },
-          "action": "dispatch:main/reload",
+          "action": "dispatch:main/reloadData",
           "shortcut": "CTRL+SHIFT+R"
         },
         {
@@ -65,7 +65,7 @@
           "type": "action",
           "icon": "zmdi-info-outline",
           "text": "i18n:properties",
-          "action": "dispatch:current/openMetaEditor",
+          "action": "dispatch:main/openCurrentMetaEditor",
           "shortcut": "ALT+SHIFT+P"
         }
       ]

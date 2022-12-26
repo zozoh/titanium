@@ -101,7 +101,6 @@ export default {
     //------------------------------------------------
     OnChangedIcon() {
       let icon = _.trim(this.$refs.input.value)
-      console.log("haha", icon)
       this.$notify("change", icon)
     },
     //------------------------------------------------

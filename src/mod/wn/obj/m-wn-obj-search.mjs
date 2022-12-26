@@ -58,7 +58,7 @@ const _M = {
   // Query
   //
   //----------------------------------------
-  async queryList({ state, commit, getters }) {
+  async queryList({ state, commit, getters, rootState }) {
     let {
       dirId,
       filter,
@@ -68,9 +68,14 @@ const _M = {
     } = state
     // Query
     let input = JSON.stringify(_.assign({}, filter, fixedMatch))
+    let exposeHidden = _.get(rootState, "viewport.exposeHidden")
 
     // Command
     let cmds = [`o 'id:${dirId}' @query`]
+
+    if(exposeHidden){
+      cmds.push('-hidden')
+    }
 
     // Eval Pager
     if (getters.isPagerEnabled) {
@@ -78,6 +83,7 @@ const _M = {
       let skip = getters.searchPageSize * (getters.searchPageNumber - 1)
       cmds.push(`-pager -limit ${limit} -skip ${skip}`)
     }
+
 
     // Sorter
     if (!_.isEmpty(sorter)) {
