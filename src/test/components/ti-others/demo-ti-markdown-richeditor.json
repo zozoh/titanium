@@ -1,8 +1,0 @@
-{
-  "comType" : "ti-text-markdown-richeditor",
-  "comConf" : {
-    "mediaBase" : "/gu/rs/ti/test/components",
-    "theme"     : "nice",
-    "value"     : "=content"
-  }
-}
