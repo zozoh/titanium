@@ -2492,7 +2492,7 @@ i.im {
       opacity: 0.2;
       filter: grayscale(100%); }
       .ti-form-grid-con > .field-value.is-disabled.is-batch-disabled {
-        filter: grayscale(100%) blur(1px); }
+        filter: grayscale(100%); }
       .ti-form-grid-con > .field-value.is-disabled > .field-value-com::after {
         position: absolute;
         left: 0;

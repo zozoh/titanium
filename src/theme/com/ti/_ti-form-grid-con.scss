@@ -190,7 +190,7 @@
       opacity: 0.2;
       filter: grayscale(100%);
       &.is-batch-disabled {
-        filter: grayscale(100%) blur(1px);
+        filter: grayscale(100%)/*blur(1px)*/;
       }
       //--------------------------------
       > .field-value-com {
