@@ -1,4 +1,4 @@
-// Pack At: 2022-12-27 21:19:27
+// Pack At: 2022-12-31 11:54:30
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -3237,11 +3237,27 @@ const {App} = (function(){
         //..........................................
         let model = "";
         if (this.model) {
-          if (this.model.event) {
-            model += ` @${this.model.event}="OnChange"`
+          let { event, prop } = this.model
+          if (event) {
+            model += ` @${event}="OnChange"`
           }
-          if (this.model.prop) {
-            model += ` :${this.model.prop}="result"`
+          if (prop) {
+            // 简单映射
+            if (_.isString(prop)) {
+              model += ` :${prop}="result"`
+            }
+            // 数组的话，可以映射多个属性
+            else if (_.isArray(prop)) {
+              for (let k of prop) {
+                model += ` :${k}="result.${k}"`
+              }
+            }
+            // 复杂映射： prop:{comProp: resultKey}
+            else if (_.isObject(prop)) {
+              _.forEach(prop, (v, k) => {
+                model += ` :${k}="result.${v}"`
+              })
+            }
           }
         }
         //..........................................
@@ -19198,7 +19214,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20221227.211927",
+  "version" : "1.6-20221231.115430",
   "dev" : false,
   "appName" : null,
   "session" : {},
