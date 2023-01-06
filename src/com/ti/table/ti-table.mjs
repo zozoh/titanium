@@ -127,6 +127,12 @@ const _M = {
       })
     },
     //--------------------------------------
+    OnClickQuickLabelCopy({ text } = {}, $event) {
+      let $l = Ti.Dom.closest($event.srcElement, ".ti-label")
+      Ti.Be.BlinkIt($l)
+      Ti.Be.writeToClipboard(text)
+    },
+    //--------------------------------------
     OnClickChecker(row, $event) {
       if (this.checkable) {
         this.OnRowCheckerClick({
@@ -199,10 +205,7 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   watch: {
-    "data": {
-      handler: "evalListDataWhenMarkChanged",
-      immediate: true
-    },
+    "data":  "evalListDataWhenMarkChanged",
     "fields": {
       handler: function (newVal, oldVal) {
         if (!_.isEqual(newVal, oldVal)) {
@@ -213,6 +216,7 @@ const _M = {
       },
       immediate: true
     },
+    "TableFields": "evalListDataWhenMarkChanged",
     "selectable": "evalListDataWhenMarkChanged",
     "checkable": "evalListDataWhenMarkChanged",
     "hoverable": "evalListDataWhenMarkChanged",
@@ -220,18 +224,21 @@ const _M = {
     "checkedIds": "tryCheckedIds",
   },
   ///////////////////////////////////////////////////
-  mounted: function () {
+  mounted: async function () {
     Ti.Viewport.watch(this, {
       resize: _.debounce(() => this.OnResize(), 10)
     })
     this.$nextTick(() => this.OnResize())
+    
+    // Eval the table viewport Rect
+    this.myTableRect = Ti.Rects.createBy(this.$el)
+    await this.evalListData()
+
     if (this.autoScrollIntoView) {
       _.delay(() => {
         this.scrollCurrentIntoView()
       }, 0)
     }
-    // Eval the table viewport Rect
-    this.myTableRect = Ti.Rects.createBy(this.$el)
   },
   ///////////////////////////////////////////////////
   beforeDestroy: function () {

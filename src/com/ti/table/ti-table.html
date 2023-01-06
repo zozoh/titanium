@@ -132,17 +132,25 @@
                   <!--Cell Display-->
                   <div class="cell-con">
                     <template v-for="(it, index) in cell.displayItems">
+                      <!-- quick label -->
                       <div 
                         v-if="it.quickLabel"
                           class="ti-label full-field" 
                           :class="it.quickLabel.className"
                           :title="it.quickLabel.text">
-                            <div v-if="it.quickLabel.iconHtml"
-                              class="as-icon at-prefix">
-                              <div class="ti-icon is-font">
-                                <div class="icon-icon" v-html="it.quickLabel.iconHtml"></div>
-                              </div>
-                          </div>
+                            <div 
+                              v-if="it.quickLabel.hoverCopy"
+                                class="as-hover-copy"
+                                @click.left.stop="OnClickQuickLabelCopy(it.quickLabel,$event)"><i class="fas fa-copy"></i>
+                            </div>
+                            <div 
+                              v-if="it.quickLabel.iconHtml"
+                                class="as-icon at-prefix">
+                                <div class="ti-icon is-font">
+                                  <div class="icon-icon" v-html="it.quickLabel.iconHtml">
+                                  </div>
+                                </div>
+                            </div>
                             <div class="as-value">
                               <a
                                 v-if="it.quickLabel.href" 
@@ -153,12 +161,14 @@
                               <span v-else>{{it.quickLabel.text}}</span>
                             </div>
                       </div>
+                      <!-- quick icon -->
                       <div
                         v-else-if="it.quickIcon" 
                           class="ti-icon is-font"
                           :class="it.quickIcon.className">
                           <div class="icon-icon"><i :class="it.quickIcon.iconClass"></i></div>
                       </div>
+                      <!-- others -->
                       <component 
                         v-else
                           :class="it.className"

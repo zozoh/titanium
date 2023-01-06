@@ -60,7 +60,7 @@ export default {
                 placeholder, autoLoadDictIcon, prefixIcon,
                 editable
               } = comConf
-              if (!editable && (false === hoverCopy || _.isUndefined(hoverCopy))) {
+              if (!editable) {
                 let text = value
                 let icon = prefixIcon;
                 if (Ti.Util.isNil(text) || (_.isString(text) && !text)) {
@@ -87,7 +87,10 @@ export default {
                   text = Ti.I18n.text(text)
                 }
                 disIt.quickLabel = {
-                  className: Ti.Css.mergeClassName(className, disIt.className),
+                  className: Ti.Css.mergeClassName(className, disIt.className, {
+                    "is-hover-copy": hoverCopy
+                  }),
+                  hoverCopy,
                   newTab, href,
                   target: newTab ? "_blank" : undefined,
                   text
@@ -154,6 +157,7 @@ export default {
     },
     //--------------------------------------
     async evalTableRows(list = []) {
+      //console.log("evalTableRows")
       let rows = []
       let loadRows = []
       for (let i = 0; i < list.length; i++) {
@@ -164,31 +168,32 @@ export default {
       this.tblRows = rows
     },
     //--------------------------------------
-    evalOneMyRow(rows = [], index, {
+    evalOneMyRow(row, {
       currentId = this.theCurrentId,
       checkedIds = this.theCheckedIds
     } = {}) {
-      let it = rows[index]
-      if (!it) {
+      //console.log("evalOneMyRow")
+      if (!row) {
         return
       }
-      it.current = (it.id == currentId)
-      it.checked = checkedIds[it.id] ? true : false
-      it.checkerIcon = it.checked
+      row.current = (row.id == currentId)
+      row.checked = checkedIds[row.id] ? true : false
+      row.checkerIcon = row.checked
         ? this.checkIcons.on
         : this.checkIcons.off;
-      it.disClassName = Ti.Css.mergeClassName(it.className, {
-        "is-current": it.current,
-        "is-checked": it.checked,
-        "no-checked": !it.checked
+      row.disClassName = Ti.Css.mergeClassName(row.className, {
+        "is-current": row.current,
+        "is-checked": row.checked,
+        "no-checked": !row.checked
       })
     },
     //--------------------------------------
     evalMyRows(opt) {
+      console.log("evalMyRows =======================")
       let rows = _.cloneDeep(this.tblRows)
-      //console.log("after clone")
+      console.log("after clone")
       for (let i = 0; i < rows.length; i++) {
-        this.evalOneMyRow(rows, i, opt)
+        this.evalOneMyRow(rows[i], opt)
       }
       this.myRows = rows
     },
@@ -211,9 +216,7 @@ export default {
 
       this.evalMyRows();
       let du = Date.now() - beginMs
-      //console.log("evalListData in", `${du}ms`)
-      //let du = Date.now() - ms
-      //console.log("evalListData", `${du}ms`)
+      console.log("evalListData in", `${du}ms`)
       // Scroll into view
       _.delay(() => {
         this.scrollCurrentIntoView()
@@ -228,15 +231,16 @@ export default {
         }
       })
 
-      //console.log("theCurrentId ...")
-      let rows = _.cloneDeep(this.myRows)
+      console.log("reEvalRows", { currentId, checkedIds })
+      //let rows = _.cloneDeep(this.myRows)
       //console.log("cloned")
       for (let i of indexes) {
-        this.evalOneMyRow(rows, i, { currentId, checkedIds })
-        //console.log("evalOneMyRow", i)
+        let row = this.myRows[i]
+        this.evalOneMyRow(row, { currentId, checkedIds })
+        this.$set(this.myRows, i, row)
+        console.log("evalOneMyRow", i)
       }
-      this.myRows = rows
-      //console.log("after evalMyRows")
+      console.log("after evalMyRows")
     },
     //--------------------------------------
     // 采用这个，是为了绕开 VUe 的监听机制能快点得到响应
@@ -253,15 +257,6 @@ export default {
       this.reEvalRows(ids, { currentId, checkedIds })
     }
     //--------------------------------------
-  },
-  ///////////////////////////////////////////////////
-  watch: {
-    "data": "evalListDataWhenMarkChanged",
-    "TableFields": "evalListDataWhenMarkChanged",
-    "selectable": "evalListDataWhenMarkChanged",
-    "checkable": "evalListDataWhenMarkChanged",
-    "hoverable": "evalListDataWhenMarkChanged",
-    "filterValue": "evalListDataWhenMarkChanged"
-  },
+  }
   ///////////////////////////////////////////////////F
 }
