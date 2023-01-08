@@ -1,4 +1,4 @@
-// Pack At: 2023-01-08 15:38:26
+// Pack At: 2023-01-08 21:48:09
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -10448,6 +10448,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
             let { comType, comConf = {} } = disIt
             if (/^(TiLabel|ti-label)$/.test(comType)) {
               let {
+                style,
                 className, hoverCopy, value,
                 newTab, href, dict, format,
                 placeholder, autoLoadDictIcon, prefixIcon,
@@ -10480,6 +10481,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
                   text = Ti.I18n.text(text)
                 }
                 disIt.quickLabel = {
+                  style,
                   className: Ti.Css.mergeClassName(className, disIt.className, {
                     "is-hover-copy": hoverCopy
                   }),
@@ -90087,7 +90089,8 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
                         v-if="it.quickLabel"
                           class="ti-label full-field" 
                           :class="it.quickLabel.className"
-                          :title="it.quickLabel.text">
+                          :title="it.quickLabel.text"
+                          :style="it.quickLabel.style">
                             <div 
                               v-if="it.quickLabel.hoverCopy"
                                 class="as-hover-copy"
@@ -91931,13 +91934,12 @@ Ti.Preload("ti/com/web/media/image/web-media-image.html", `<a class="web-media-i
   @mouseleave="OnMouseLeave">
   <!--Image-->
   <div class="as-img-con"
-    :style="imageConStyle">
+    :style="imageConStyle"><span :style="imageStyle">
     <img ref="img"
       v-if="TheSrc"
-        :style="imageStyle"
         :src="TheSrc"
         draggable="false"
-        @load="OnImageLoaded"/>
+        @load="OnImageLoaded"/></span>
     <!-- Tags -->
     <div
       v-if="TheTags"

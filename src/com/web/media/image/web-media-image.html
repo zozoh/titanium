@@ -10,13 +10,12 @@
   @mouseleave="OnMouseLeave">
   <!--Image-->
   <div class="as-img-con"
-    :style="imageConStyle">
+    :style="imageConStyle"><span :style="imageStyle">
     <img ref="img"
       v-if="TheSrc"
-        :style="imageStyle"
         :src="TheSrc"
         draggable="false"
-        @load="OnImageLoaded"/>
+        @load="OnImageLoaded"/></span>
     <!-- Tags -->
     <div
       v-if="TheTags"

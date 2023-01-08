@@ -145,7 +145,8 @@
                         v-if="it.quickLabel"
                           class="ti-label full-field" 
                           :class="it.quickLabel.className"
-                          :title="it.quickLabel.text">
+                          :title="it.quickLabel.text"
+                          :style="it.quickLabel.style">
                             <div 
                               v-if="it.quickLabel.hoverCopy"
                                 class="as-hover-copy"

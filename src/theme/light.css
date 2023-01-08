@@ -8904,6 +8904,11 @@ div.ti-input-tags {
   .web-media-image .as-img-con {
     width: 100%;
     overflow: hidden; }
+    .web-media-image .as-img-con > span {
+      display: block;
+      flex: 1 1 auto;
+      width: 100%;
+      height: 100%; }
   .web-media-image img {
     flex: 1 1 auto;
     margin: 0 auto;

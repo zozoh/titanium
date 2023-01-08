@@ -55,6 +55,7 @@ export default {
             let { comType, comConf = {} } = disIt
             if (/^(TiLabel|ti-label)$/.test(comType)) {
               let {
+                style,
                 className, hoverCopy, value,
                 newTab, href, dict, format,
                 placeholder, autoLoadDictIcon, prefixIcon,
@@ -87,6 +88,7 @@ export default {
                   text = Ti.I18n.text(text)
                 }
                 disIt.quickLabel = {
+                  style,
                   className: Ti.Css.mergeClassName(className, disIt.className, {
                     "is-hover-copy": hoverCopy
                   }),
