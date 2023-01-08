@@ -205,7 +205,7 @@ const _M = {
 
           let scope = [
             Math.max(arI - halfVpc, 0),
-            Math.min(arI + halfVpc, this.tblRows.length),
+            Math.min(arI + vpc, this.tblRows.length),
           ]
           this.virtualScopeBegin = scope[0]
           this.virtualScopeEnd = scope[1]
@@ -243,27 +243,34 @@ const _M = {
     //--------------------------------------
     OnScroll($event) {
       let N = this.tblRows.length
-      if(N <=0 || !this.myTableRect){
+      if (N <= 0 || !this.myTableRect) {
         return
       }
       let vH = this.myTableRect.height
+      let sT = this.$el.scrollTop
+      let sH = this.$el.scrollHeight
       let r0H = this.virtualRowHeight
-      let r1H = vH / N
+      let r1H = Math.ceil(sH / N)
       let vpc = this.virtualPageCount
       let vs0 = this.virtualScopeBegin
       let vs1 = this.virtualScopeEnd
-      let sT = this.$el.scrollTop
-      let sH = this.$el.scrollHeight
+      
 
       let halfVpc = Math.round(this.virtualPageCount / 2)
 
       let I0 = parseInt(sT / r0H) - halfVpc
       let vBegin = Math.max(0, Math.min(vs0, I0))
 
-      let I1 = parseInt(sT / r1H) + vpc
+      let I1 = parseInt((sT+vH) / r1H) + vpc
       let vEnd = Math.min(N, Math.max(vs1, I1))
 
-      console.log({ vs0, vs1, I0, I1, s: JSON.stringify([vBegin, vEnd]) })
+      console.log({
+        sT,sH,
+        E1: `${sT} / ${r1H}`,
+        vs: JSON.stringify([vs0, vs1]),
+        I: JSON.stringify([I0, I1]),
+        s: JSON.stringify([vBegin, vEnd])
+      })
       this.virtualScopeBegin = vBegin
       this.virtualScopeEnd = vEnd
     }
