@@ -1,6 +1,9 @@
 const _M = {
   ///////////////////////////////////////////////////
   data: () => ({
+    virtualPageCount: 0,
+    virtualScopeBegin: 0,
+    virtualScopeEnd: -1,
   }),
   ///////////////////////////////////////////////////
   // props -> ti-table-props.mjs
@@ -90,7 +93,12 @@ const _M = {
       }
       return "far-square"
     },
-
+    //--------------------------------------
+    VirtualRowStyle() {
+      return {
+        height: `${this.virtualRowHeight}px`
+      }
+    }
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
@@ -182,6 +190,38 @@ const _M = {
       this.reEvalRows(ids)
     },
     //--------------------------------------
+    evalRenderScope() {
+      if (this.virtualRowHeight > 0 && this.myTableRect) {
+        let vH = this.myTableRect.height
+        let rH = this.virtualRowHeight
+        console.log("evalRenderScope", vH, rH)
+        let vpc = Math.round(vH / rH)
+        let halfVpc = Math.round(vpc / 2)
+        this.virtualPageCount = vpc
+        if (vpc > 0) {
+          // Find the active row 
+          let arI = this.findRowIndexById(this.theCurrentId)
+          arI = Math.max(arI, 0)
+
+          let scope = [
+            Math.max(arI - halfVpc, 0),
+            Math.min(arI + halfVpc, this.tblRows.length),
+          ]
+          this.virtualScopeBegin = scope[0]
+          this.virtualScopeEnd = scope[1]
+        } else {
+          this.virtualScopeBegin = 0
+          this.virtualScopeEnd = 0
+        }
+        console.log("evalRenderScope", { vH, rH, vpc, halfVpc })
+      }
+      // Render all
+      else {
+        this.virtualScopeBegin = 0
+        this.virtualScopeEnd = -1
+      }
+    },
+    //--------------------------------------
     __ti_shortcut(uniqKey) {
       //console.log("ti-table", uniqKey)
       if ("ARROWUP" == uniqKey) {
@@ -200,12 +240,39 @@ const _M = {
         return { prevent: true, stop: true, quit: true }
       }
     },
+    //--------------------------------------
+    OnScroll($event) {
+      let N = this.tblRows.length
+      if(N <=0 || !this.myTableRect){
+        return
+      }
+      let vH = this.myTableRect.height
+      let r0H = this.virtualRowHeight
+      let r1H = vH / N
+      let vpc = this.virtualPageCount
+      let vs0 = this.virtualScopeBegin
+      let vs1 = this.virtualScopeEnd
+      let sT = this.$el.scrollTop
+      let sH = this.$el.scrollHeight
 
+      let halfVpc = Math.round(this.virtualPageCount / 2)
+
+      let I0 = parseInt(sT / r0H) - halfVpc
+      let vBegin = Math.max(0, Math.min(vs0, I0))
+
+      let I1 = parseInt(sT / r1H) + vpc
+      let vEnd = Math.min(N, Math.max(vs1, I1))
+
+      console.log({ vs0, vs1, I0, I1, s: JSON.stringify([vBegin, vEnd]) })
+      this.virtualScopeBegin = vBegin
+      this.virtualScopeEnd = vEnd
+    }
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
   watch: {
-    "data":  "evalListDataWhenMarkChanged",
+    "data": "evalListDataWhenMarkChanged",
+    "tblRows": "evalRenderScope",
     "fields": {
       handler: function (newVal, oldVal) {
         if (!_.isEqual(newVal, oldVal)) {
@@ -226,13 +293,18 @@ const _M = {
   ///////////////////////////////////////////////////
   mounted: async function () {
     Ti.Viewport.watch(this, {
-      resize: _.debounce(() => this.OnResize(), 10)
+      resize: _.debounce(() => this.OnResize(), 10),
     })
-    this.$nextTick(() => this.OnResize())
-    
+    this.debounceScroll = _.throttle(($event) => {
+      this.OnScroll($event)
+    }, 200)
+    this.$el.addEventListener('scroll', this.debounceScroll)
+
     // Eval the table viewport Rect
     this.myTableRect = Ti.Rects.createBy(this.$el)
     await this.evalListData()
+
+    this.evalRenderScope()
 
     if (this.autoScrollIntoView) {
       _.delay(() => {
@@ -242,6 +314,7 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   beforeDestroy: function () {
+    this.$el.removeEventListener('scroll', this.debounceScroll)
     Ti.Viewport.unwatch(this)
   }
   ///////////////////////////////////////////////////

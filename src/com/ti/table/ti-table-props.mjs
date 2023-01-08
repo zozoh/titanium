@@ -27,6 +27,12 @@ export default {
     type: Boolean,
     default: true
   },
+  // Virtual render neccessary rows (subset of the larget list)
+  // we need a hint of row height
+  "virtualRowHeight": {
+    type: Number,
+    default: 40
+  },
   "headDisplay": {
     type: [String, Object, Array],
     default: undefined

@@ -189,9 +189,9 @@ export default {
     },
     //--------------------------------------
     evalMyRows(opt) {
-      console.log("evalMyRows =======================")
+      //console.log("evalMyRows =======================")
       let rows = _.cloneDeep(this.tblRows)
-      console.log("after clone")
+      //console.log("after clone")
       for (let i = 0; i < rows.length; i++) {
         this.evalOneMyRow(rows[i], opt)
       }
@@ -199,7 +199,7 @@ export default {
     },
     //--------------------------------------
     async evalListData() {
-      let beginMs = Date.now()
+      //let beginMs = Date.now()
       let list = await this.evalData((it) => {
         it.icon = this.getRowIcon(it.item)
         if (it.icon) {
@@ -215,8 +215,8 @@ export default {
       await this.evalTableRows(list);
 
       this.evalMyRows();
-      let du = Date.now() - beginMs
-      console.log("evalListData in", `${du}ms`)
+      // let du = Date.now() - beginMs
+      // console.log("evalListData in", `${du}ms`)
       // Scroll into view
       _.delay(() => {
         this.scrollCurrentIntoView()
@@ -231,16 +231,16 @@ export default {
         }
       }) 
 
-      console.log("reEvalRows", { currentId, checkedIds })
+      //console.log("reEvalRows", { currentId, checkedIds })
       //let rows = _.cloneDeep(this.myRows)
       //console.log("cloned")
       for (let i of indexes) {
         let row = this.myRows[i]
         this.evalOneMyRow(row, { currentId, checkedIds })
         this.$set(this.myRows, i, row)
-        console.log("evalOneMyRow", i)
+        //console.log("evalOneMyRow", i)
       }
-      console.log("after evalMyRows")
+      //console.log("after evalMyRows")
     },
     //--------------------------------------
     // 采用这个，是为了绕开 VUe 的监听机制能快点得到响应

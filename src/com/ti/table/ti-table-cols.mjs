@@ -297,10 +297,8 @@ export default {
     scrollCurrentIntoView() {
       //console.log("scrollCurrentIntoView", this.myLastIndex)
       if (this.autoScrollIntoView && this.theCurrentId) {
-        let index = this.findRowIndexById(this.theCurrentId)
-        //console.log("scroll", index)
         let $view = this.$el
-        let $row = Ti.Dom.find(`.table-row:nth-child(${index + 1})`, $view)
+        let $row = Ti.Dom.find(`.table-row[row-id="${this.theCurrentId}"]`, $view)
 
         if (!_.isElement($view) || !_.isElement($row)) {
           return

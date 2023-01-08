@@ -238,11 +238,11 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     async evalListDataWhenMarkChanged(newVal, oldVal) {
-      console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
+      //console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
       if (!_.isEqual(newVal, oldVal)) {
-        console.log("begin for await this.evalListData()")
+        //console.log("begin for await this.evalListData()")
         await this.evalListData()
-        console.log("done for await this.evalListData()")
+        //console.log("done for await this.evalListData()")
       }
     },
     //-----------------------------------------------
