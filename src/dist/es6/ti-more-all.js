@@ -1,4 +1,4 @@
-// Pack At: 2022-12-31 11:54:30
+// Pack At: 2023-01-08 11:34:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -10453,7 +10453,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 placeholder, autoLoadDictIcon, prefixIcon,
                 editable
               } = comConf
-              if (!editable && (false === hoverCopy || _.isUndefined(hoverCopy))) {
+              if (!editable) {
                 let text = value
                 let icon = prefixIcon;
                 if (Ti.Util.isNil(text) || (_.isString(text) && !text)) {
@@ -10480,7 +10480,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
                   text = Ti.I18n.text(text)
                 }
                 disIt.quickLabel = {
-                  className: Ti.Css.mergeClassName(className, disIt.className),
+                  className: Ti.Css.mergeClassName(className, disIt.className, {
+                    "is-hover-copy": hoverCopy
+                  }),
+                  hoverCopy,
                   newTab, href,
                   target: newTab ? "_blank" : undefined,
                   text
@@ -10547,6 +10550,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     async evalTableRows(list = []) {
+      //console.log("evalTableRows")
       let rows = []
       let loadRows = []
       for (let i = 0; i < list.length; i++) {
@@ -10557,31 +10561,32 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.tblRows = rows
     },
     //--------------------------------------
-    evalOneMyRow(rows = [], index, {
+    evalOneMyRow(row, {
       currentId = this.theCurrentId,
       checkedIds = this.theCheckedIds
     } = {}) {
-      let it = rows[index]
-      if (!it) {
+      //console.log("evalOneMyRow")
+      if (!row) {
         return
       }
-      it.current = (it.id == currentId)
-      it.checked = checkedIds[it.id] ? true : false
-      it.checkerIcon = it.checked
+      row.current = (row.id == currentId)
+      row.checked = checkedIds[row.id] ? true : false
+      row.checkerIcon = row.checked
         ? this.checkIcons.on
         : this.checkIcons.off;
-      it.disClassName = Ti.Css.mergeClassName(it.className, {
-        "is-current": it.current,
-        "is-checked": it.checked,
-        "no-checked": !it.checked
+      row.disClassName = Ti.Css.mergeClassName(row.className, {
+        "is-current": row.current,
+        "is-checked": row.checked,
+        "no-checked": !row.checked
       })
     },
     //--------------------------------------
     evalMyRows(opt) {
+      console.log("evalMyRows =======================")
       let rows = _.cloneDeep(this.tblRows)
-      //console.log("after clone")
+      console.log("after clone")
       for (let i = 0; i < rows.length; i++) {
-        this.evalOneMyRow(rows, i, opt)
+        this.evalOneMyRow(rows[i], opt)
       }
       this.myRows = rows
     },
@@ -10604,9 +10609,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       this.evalMyRows();
       let du = Date.now() - beginMs
-      //console.log("evalListData in", `${du}ms`)
-      //let du = Date.now() - ms
-      //console.log("evalListData", `${du}ms`)
+      console.log("evalListData in", `${du}ms`)
       // Scroll into view
       _.delay(() => {
         this.scrollCurrentIntoView()
@@ -10619,17 +10622,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
         if (ids[it.id]) {
           indexes.push(it.index)
         }
-      })
+      }) 
 
-      //console.log("theCurrentId ...")
-      let rows = _.cloneDeep(this.myRows)
+      console.log("reEvalRows", { currentId, checkedIds })
+      //let rows = _.cloneDeep(this.myRows)
       //console.log("cloned")
       for (let i of indexes) {
-        this.evalOneMyRow(rows, i, { currentId, checkedIds })
-        //console.log("evalOneMyRow", i)
+        let row = this.myRows[i]
+        this.evalOneMyRow(row, { currentId, checkedIds })
+        this.$set(this.myRows, i, row)
+        console.log("evalOneMyRow", i)
       }
-      this.myRows = rows
-      //console.log("after evalMyRows")
+      console.log("after evalMyRows")
     },
     //--------------------------------------
     // 采用这个，是为了绕开 VUe 的监听机制能快点得到响应
@@ -10646,16 +10650,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.reEvalRows(ids, { currentId, checkedIds })
     }
     //--------------------------------------
-  },
-  ///////////////////////////////////////////////////
-  watch: {
-    "data": "evalListDataWhenMarkChanged",
-    "TableFields": "evalListDataWhenMarkChanged",
-    "selectable": "evalListDataWhenMarkChanged",
-    "checkable": "evalListDataWhenMarkChanged",
-    "hoverable": "evalListDataWhenMarkChanged",
-    "filterValue": "evalListDataWhenMarkChanged"
-  },
+  }
   ///////////////////////////////////////////////////F
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -27301,10 +27296,11 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     async evalListDataWhenMarkChanged(newVal, oldVal) {
+      console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
       if (!_.isEqual(newVal, oldVal)) {
-        //console.log("evalListDataWhenMarkChanged", {newVal, oldVal})
+        console.log("begin for await this.evalListData()")
         await this.evalListData()
-        //console.log("done for await this.evalListData()")
+        console.log("done for await this.evalListData()")
       }
     },
     //-----------------------------------------------
@@ -42198,6 +42194,12 @@ const _M = {
       })
     },
     //--------------------------------------
+    OnClickQuickLabelCopy({ text } = {}, $event) {
+      let $l = Ti.Dom.closest($event.srcElement, ".ti-label")
+      Ti.Be.BlinkIt($l)
+      Ti.Be.writeToClipboard(text)
+    },
+    //--------------------------------------
     OnClickChecker(row, $event) {
       if (this.checkable) {
         this.OnRowCheckerClick({
@@ -42270,10 +42272,7 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   watch: {
-    "data": {
-      handler: "evalListDataWhenMarkChanged",
-      immediate: true
-    },
+    "data":  "evalListDataWhenMarkChanged",
     "fields": {
       handler: function (newVal, oldVal) {
         if (!_.isEqual(newVal, oldVal)) {
@@ -42284,6 +42283,7 @@ const _M = {
       },
       immediate: true
     },
+    "TableFields": "evalListDataWhenMarkChanged",
     "selectable": "evalListDataWhenMarkChanged",
     "checkable": "evalListDataWhenMarkChanged",
     "hoverable": "evalListDataWhenMarkChanged",
@@ -42291,18 +42291,21 @@ const _M = {
     "checkedIds": "tryCheckedIds",
   },
   ///////////////////////////////////////////////////
-  mounted: function () {
+  mounted: async function () {
     Ti.Viewport.watch(this, {
       resize: _.debounce(() => this.OnResize(), 10)
     })
     this.$nextTick(() => this.OnResize())
+    
+    // Eval the table viewport Rect
+    this.myTableRect = Ti.Rects.createBy(this.$el)
+    await this.evalListData()
+
     if (this.autoScrollIntoView) {
       _.delay(() => {
         this.scrollCurrentIntoView()
       }, 0)
     }
-    // Eval the table viewport Rect
-    this.myTableRect = Ti.Rects.createBy(this.$el)
   },
   ///////////////////////////////////////////////////
   beforeDestroy: function () {
@@ -89949,17 +89952,25 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
                   <!--Cell Display-->
                   <div class="cell-con">
                     <template v-for="(it, index) in cell.displayItems">
+                      <!-- quick label -->
                       <div 
                         v-if="it.quickLabel"
                           class="ti-label full-field" 
                           :class="it.quickLabel.className"
                           :title="it.quickLabel.text">
-                            <div v-if="it.quickLabel.iconHtml"
-                              class="as-icon at-prefix">
-                              <div class="ti-icon is-font">
-                                <div class="icon-icon" v-html="it.quickLabel.iconHtml"></div>
-                              </div>
-                          </div>
+                            <div 
+                              v-if="it.quickLabel.hoverCopy"
+                                class="as-hover-copy"
+                                @click.left.stop="OnClickQuickLabelCopy(it.quickLabel,$event)"><i class="fas fa-copy"></i>
+                            </div>
+                            <div 
+                              v-if="it.quickLabel.iconHtml"
+                                class="as-icon at-prefix">
+                                <div class="ti-icon is-font">
+                                  <div class="icon-icon" v-html="it.quickLabel.iconHtml">
+                                  </div>
+                                </div>
+                            </div>
                             <div class="as-value">
                               <a
                                 v-if="it.quickLabel.href" 
@@ -89970,12 +89981,14 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
                               <span v-else>{{it.quickLabel.text}}</span>
                             </div>
                       </div>
+                      <!-- quick icon -->
                       <div
                         v-else-if="it.quickIcon" 
                           class="ti-icon is-font"
                           :class="it.quickIcon.className">
                           <div class="icon-icon"><i :class="it.quickIcon.iconClass"></i></div>
                       </div>
+                      <!-- others -->
                       <component 
                         v-else
                           :class="it.className"

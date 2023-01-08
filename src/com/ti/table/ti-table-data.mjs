@@ -229,7 +229,7 @@ export default {
         if (ids[it.id]) {
           indexes.push(it.index)
         }
-      })
+      }) 
 
       console.log("reEvalRows", { currentId, checkedIds })
       //let rows = _.cloneDeep(this.myRows)
