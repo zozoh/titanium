@@ -1,4 +1,4 @@
-// Pack At: 2023-01-08 15:08:41
+// Pack At: 2023-01-08 15:38:26
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -10592,6 +10592,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     async evalListData() {
+      if(_.isElement(this.$el)){
+        this.$el.scrollTop = 0
+      }
       //let beginMs = Date.now()
       let list = await this.evalData((it) => {
         it.icon = this.getRowIcon(it.item)
@@ -42171,6 +42174,41 @@ const _M = {
       return {
         height: `${this.virtualRowHeight}px`
       }
+    },
+    //--------------------------------------
+    VirtualRows() {
+      if (this.virtualPageCount > 0) {
+        let I0 = Math.max(0, this.virtualScopeBegin)
+        let I1 = Math.min(this.virtualScopeEnd, this.tblRows.length)
+        if (I1 < 0) {
+          I1 = this.tblRows.length
+        }
+        return this.myRows.slice(I0, I1)
+      }
+      return this.myRows
+    },
+    //--------------------------------------
+    hasVirtualRowHead() {
+      return this.virtualPageCount > 0
+        && this.virtualScopeBegin > 0
+    },
+    //--------------------------------------
+    hasVirtualRowTail() {
+      return this.virtualPageCount > 0
+        && this.virtualScopeEnd > 0
+        && this.virtualScopeEnd < this.tblRows.length
+    },
+    //--------------------------------------
+    VirtualRowHeadStyle() {
+      return {
+        height: `${this.virtualRowHeight * this.virtualScopeBegin}px`
+      }
+    },//--------------------------------------
+    VirtualRowTailStyle() {
+      let N = this.tblRows.length
+      return {
+        height: `${this.virtualRowHeight * (N - this.virtualScopeEnd)}px`
+      }
     }
     //--------------------------------------
   },
@@ -42327,18 +42365,18 @@ const _M = {
       let vpc = this.virtualPageCount
       let vs0 = this.virtualScopeBegin
       let vs1 = this.virtualScopeEnd
-      
+
 
       let halfVpc = Math.round(this.virtualPageCount / 2)
 
       let I0 = parseInt(sT / r0H) - halfVpc
       let vBegin = Math.max(0, Math.min(vs0, I0))
 
-      let I1 = parseInt((sT+vH) / r1H) + vpc
+      let I1 = parseInt((sT + vH) / r1H) + vpc
       let vEnd = Math.min(N, Math.max(vs1, I1))
 
       console.log({
-        sT,sH,
+        sT, sH,
         E1: `${sT} / ${r1H}`,
         vs: JSON.stringify([vs0, vs1]),
         I: JSON.stringify([I0, I1]),
@@ -89973,7 +90011,13 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
         :style="TableStyle">
         <!--=====================================-->
         <tr
-          v-for="row in myRows"
+          v-if="hasVirtualRowHead"
+            class="table-virtual-row at-head">
+            <td :style="VirtualRowHeadStyle">&nbsp;</td>
+        </tr>
+        <!--=====================================-->
+        <tr
+          v-for="row in VirtualRows"
             class="table-row"
             :class="row.disClassName"
             :key="row.id"
@@ -89981,128 +90025,120 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
             @click.left="OnClickRow(row,$event)"
             @dblclick.left="OnDblClickRow(row,$event)">
             <!--...............................................-->
+            <!--Group Title-->
             <td 
-              v-if="virtualPageCount>0 && row.index < virtualScopeBegin"
-                class="as-virtual-row is-virtual-head"
-                :style="VirtualRowStyle"
-                :colspan="row.cells.length"></td>
-            <!--...............................................-->
-            <td 
-              v-else-if="virtualPageCount>0 && row.index >= virtualScopeEnd"
-                class="as-virtual-row is-virtual-tail"
-                :style="VirtualRowStyle"
-                :colspan="row.cells.length"></td>
-            <!--...............................................-->
+              v-if="row.asGroupTitle && row.groupTitleComs"
+                class="as-row-group-title"
+                :colspan="row.cells.length">
+                <div class="row-group-title-con">
+                  <component
+                    v-for="(it, index) in row.groupTitleComs"
+                      :key="index"
+                      :is="it.comType"
+                      v-bind="it.comConf"/>
+                </div>
+            </td>
+            <!--Cells-->
             <template v-else>
-              <!--Group Title-->
-              <td 
-                v-if="row.asGroupTitle && row.groupTitleComs"
-                  class="as-row-group-title"
-                  :colspan="row.cells.length">
-                  <div class="row-group-title-con">
-                    <component
-                      v-for="(it, index) in row.groupTitleComs"
-                        :key="index"
-                        :is="it.comType"
-                        v-bind="it.comConf"/>
-                  </div>
-              </td>
-              <!--Cells-->
-              <template v-else>
-                <td
-                  v-for="cell in row.cells"
-                    class="table-cell"
-                    :class="cell.className">
-                    <div class="cell-wrapper" :class="cell.WrapperClass">
-                    <!-- First cell-->
-                    <div v-if="0 == cell.index" class="table-row-head">
-                      <!--current actived row indicator-->
-                      <div class="row-actived-indicator"></div>
-                      <!-- Indents -->
-                      <div v-for="n in row.indent" class="row-indent"></div>
-                        <!--ICON: Handler-->
-                        <template v-if="row.icon">
-                          <div 
-                            v-if="row.showIcon"
-                              class="ti-icon row-checker is-font"
-                              @click.left.stop="OnClickRowIcon(row,$event)">
-                              <div class="icon-icon">
-                                <i :class="row.iconClass"></i>
-                              </div>
-                          </div>
-                          <div v-else
-                            class="row-icon"></div>
-                      </template>
-                      <!--ICON: Checker-->
-                      <div 
-                        v-if="checkable" 
-                          class="ti-icon row-checker is-font as-checkbox"
-                          @click.left.stop="OnClickChecker(row,$event)">
-                          <div class="icon-icon">
-                            <i :class="RowCheckIcons.on"></i>
-                            <i :class="RowCheckIcons.off"></i>
-                          </div>
-                      </div>
-                      <!--Row Number-->
-                      <div 
-                        v-if="row.hasRowNumber"
-                          class="row-number">{{row.RowNumber}}</div>
-                    </div>
-                    <!--Cell Display-->
-                    <div class="cell-con">
-                      <template v-for="(it, index) in cell.displayItems">
-                        <!-- quick label -->
+              <td
+                v-for="cell in row.cells"
+                  class="table-cell"
+                  :class="cell.className">
+                  <div class="cell-wrapper" :class="cell.WrapperClass">
+                  <!-- First cell-->
+                  <div v-if="0 == cell.index" class="table-row-head">
+                    <!--current actived row indicator-->
+                    <div class="row-actived-indicator"></div>
+                    <!-- Indents -->
+                    <div v-for="n in row.indent" class="row-indent"></div>
+                      <!--ICON: Handler-->
+                      <template v-if="row.icon">
                         <div 
-                          v-if="it.quickLabel"
-                            class="ti-label full-field" 
-                            :class="it.quickLabel.className"
-                            :title="it.quickLabel.text">
-                              <div 
-                                v-if="it.quickLabel.hoverCopy"
-                                  class="as-hover-copy"
-                                  @click.left.stop="OnClickQuickLabelCopy(it.quickLabel,$event)"><i class="fas fa-copy"></i>
-                              </div>
-                              <div 
-                                v-if="it.quickLabel.iconHtml"
-                                  class="as-icon at-prefix">
-                                  <div class="ti-icon is-font">
-                                    <div class="icon-icon" v-html="it.quickLabel.iconHtml">
-                                    </div>
-                                  </div>
-                              </div>
-                              <div class="as-value">
-                                <a
-                                  v-if="it.quickLabel.href" 
-                                    :target="it.quickLabel.target"
-                                    :href="it.quickLabel.href"
-                                    @click.left.prevent
-                                    >{{it.quickLabel.text}}</a>
-                                <span v-else>{{it.quickLabel.text}}</span>
-                              </div>
+                          v-if="row.showIcon"
+                            class="ti-icon row-checker is-font"
+                            @click.left.stop="OnClickRowIcon(row,$event)">
+                            <div class="icon-icon">
+                              <i :class="row.iconClass"></i>
+                            </div>
                         </div>
-                        <!-- quick icon -->
-                        <div
-                          v-else-if="it.quickIcon" 
-                            class="ti-icon is-font"
-                            :class="it.quickIcon.className">
-                            <div class="icon-icon"><i :class="it.quickIcon.iconClass"></i></div>
+                        <div v-else
+                          class="row-icon"></div>
+                    </template>
+                    <!--ICON: Checker-->
+                    <div 
+                      v-if="checkable" 
+                        class="ti-icon row-checker is-font as-checkbox"
+                        @click.left.stop="OnClickChecker(row,$event)">
+                        <div class="icon-icon">
+                          <i :class="RowCheckIcons.on"></i>
+                          <i :class="RowCheckIcons.off"></i>
                         </div>
-                        <!-- others -->
-                        <component 
-                          v-else
-                            :class="it.className"
-                            :key="it.uniqKey"
-                            :is="it.comType"
-                            v-bind="it.comConf"
-                            @change="OnCellItemChanged(row, cell, it, $event)"/>
-                      </template>
-                      
                     </div>
+                    <!--Row Number-->
+                    <div 
+                      v-if="row.hasRowNumber"
+                        class="row-number">{{row.RowNumber}}</div>
                   </div>
-                </td>
-              </template> <!--// end of cell-->
-            </template>
+                  <!--Cell Display-->
+                  <div class="cell-con">
+                    <template v-for="(it, index) in cell.displayItems">
+                      <!-- quick label -->
+                      <div 
+                        v-if="it.quickLabel"
+                          class="ti-label full-field" 
+                          :class="it.quickLabel.className"
+                          :title="it.quickLabel.text">
+                            <div 
+                              v-if="it.quickLabel.hoverCopy"
+                                class="as-hover-copy"
+                                @click.left.stop="OnClickQuickLabelCopy(it.quickLabel,$event)"><i class="fas fa-copy"></i>
+                            </div>
+                            <div 
+                              v-if="it.quickLabel.iconHtml"
+                                class="as-icon at-prefix">
+                                <div class="ti-icon is-font">
+                                  <div class="icon-icon" v-html="it.quickLabel.iconHtml">
+                                  </div>
+                                </div>
+                            </div>
+                            <div class="as-value">
+                              <a
+                                v-if="it.quickLabel.href" 
+                                  :target="it.quickLabel.target"
+                                  :href="it.quickLabel.href"
+                                  @click.left.prevent
+                                  >{{it.quickLabel.text}}</a>
+                              <span v-else>{{it.quickLabel.text}}</span>
+                            </div>
+                      </div>
+                      <!-- quick icon -->
+                      <div
+                        v-else-if="it.quickIcon" 
+                          class="ti-icon is-font"
+                          :class="it.quickIcon.className">
+                          <div class="icon-icon"><i :class="it.quickIcon.iconClass"></i></div>
+                      </div>
+                      <!-- others -->
+                      <component 
+                        v-else
+                          :class="it.className"
+                          :key="it.uniqKey"
+                          :is="it.comType"
+                          v-bind="it.comConf"
+                          @change="OnCellItemChanged(row, cell, it, $event)"/>
+                    </template>
+                    
+                  </div>
+                </div>
+              </td>
+            </template> <!--// end of cell-->
             <!--...............................................-->
+        </tr>
+        <!--=====================================-->
+        <tr
+           v-if="hasVirtualRowTail"
+           class="table-virtual-row at-tail">
+           <td :style="VirtualRowTailStyle">&nbsp;</td>
         </tr>
         <!--=====================================-->
       </tbody>

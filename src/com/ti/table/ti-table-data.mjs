@@ -199,6 +199,9 @@ export default {
     },
     //--------------------------------------
     async evalListData() {
+      if(_.isElement(this.$el)){
+        this.$el.scrollTop = 0
+      }
       //let beginMs = Date.now()
       let list = await this.evalData((it) => {
         it.icon = this.getRowIcon(it.item)

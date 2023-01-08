@@ -98,6 +98,41 @@ const _M = {
       return {
         height: `${this.virtualRowHeight}px`
       }
+    },
+    //--------------------------------------
+    VirtualRows() {
+      if (this.virtualPageCount > 0) {
+        let I0 = Math.max(0, this.virtualScopeBegin)
+        let I1 = Math.min(this.virtualScopeEnd, this.tblRows.length)
+        if (I1 < 0) {
+          I1 = this.tblRows.length
+        }
+        return this.myRows.slice(I0, I1)
+      }
+      return this.myRows
+    },
+    //--------------------------------------
+    hasVirtualRowHead() {
+      return this.virtualPageCount > 0
+        && this.virtualScopeBegin > 0
+    },
+    //--------------------------------------
+    hasVirtualRowTail() {
+      return this.virtualPageCount > 0
+        && this.virtualScopeEnd > 0
+        && this.virtualScopeEnd < this.tblRows.length
+    },
+    //--------------------------------------
+    VirtualRowHeadStyle() {
+      return {
+        height: `${this.virtualRowHeight * this.virtualScopeBegin}px`
+      }
+    },//--------------------------------------
+    VirtualRowTailStyle() {
+      let N = this.tblRows.length
+      return {
+        height: `${this.virtualRowHeight * (N - this.virtualScopeEnd)}px`
+      }
     }
     //--------------------------------------
   },
@@ -254,18 +289,18 @@ const _M = {
       let vpc = this.virtualPageCount
       let vs0 = this.virtualScopeBegin
       let vs1 = this.virtualScopeEnd
-      
+
 
       let halfVpc = Math.round(this.virtualPageCount / 2)
 
       let I0 = parseInt(sT / r0H) - halfVpc
       let vBegin = Math.max(0, Math.min(vs0, I0))
 
-      let I1 = parseInt((sT+vH) / r1H) + vpc
+      let I1 = parseInt((sT + vH) / r1H) + vpc
       let vEnd = Math.min(N, Math.max(vs1, I1))
 
       console.log({
-        sT,sH,
+        sT, sH,
         E1: `${sT} / ${r1H}`,
         vs: JSON.stringify([vs0, vs1]),
         I: JSON.stringify([I0, I1]),
