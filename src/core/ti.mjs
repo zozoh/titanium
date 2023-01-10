@@ -121,7 +121,7 @@ const Ti = {
   },
   //-----------------------------------------------------
   Api : {
-    Facebook
+    Facebook,
   },
   //-----------------------------------------------------
   Preload, MatchCache, AddResourcePrefix, RS_PREFIXs, LOAD_CACHE,
