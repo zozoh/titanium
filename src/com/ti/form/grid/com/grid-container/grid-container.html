@@ -39,6 +39,10 @@
                 v-if="fld.title"
                   class="field-text"
                   :style="fld.nameTextStyle">{{fld.title | i18n}}</div>
+              <div
+                  v-if="fld.tip && fld.tipAsPopIcon"
+                    class="field-pop-tip"
+                    :data-ti-tip="fld.tip"><i class="zmdi zmdi-help-outline"></i></div>
               <!------Show enable switcher ------>
               <div
                 v-if="canShowBatchEditableSwitcher && fld.batchDisabled && !fld.batchReadonly"
@@ -73,7 +77,7 @@
           </div>
           <!--------------------------------->
           <div
-            v-if="fld.tip"
+            v-if="fld.tip && !fld.tipAsPopIcon"
               class="field-value-tip"
               :style="fld.tipStyle">{{fld.tip | i18n}}</div>
           <!------Show tip when Nil-name----->

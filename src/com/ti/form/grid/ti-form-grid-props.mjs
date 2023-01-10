@@ -152,6 +152,10 @@ export default {
     type: Number,
     default: 0
   },
+  "tipAsPopIcon": {
+    type: Boolean,
+    default: false
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

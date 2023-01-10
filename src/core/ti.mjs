@@ -3,6 +3,7 @@ import {Confirm} from "./ti-confirm.mjs"
 import {Prompt}  from "./ti-prompt.mjs"
 import {Captcha} from "./ti-captcha.mjs"
 import {Toast}   from "./ti-toast.mjs"
+import {Toptip}  from "./ti-toptip.mjs"
 import {Be}           from "./behaviors.mjs"
 import {Alg}          from "./algorithm.mjs"
 import {S}            from "./str.mjs"
@@ -133,7 +134,7 @@ const Ti = {
     TiCom       : VueTiCom
   },
   //-----------------------------------------------------
-  Alert, Confirm, Prompt, Toast, Captcha, 
+  Alert, Confirm, Prompt, Toast, Captcha, Toptip,
   //-----------------------------------------------------
   Env(key, val) {
     if(_.isUndefined(key))

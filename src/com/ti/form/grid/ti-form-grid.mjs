@@ -91,7 +91,7 @@ const _M = {
         let ch = Ti.Util.fallbackNil(
           this.CurrentTabGroup.gridColumnHint,
           this.gridColumnHint)
-          //console.log(ch)
+        //console.log(ch)
         return this.evalGridColumnCount(ch)
       }
       return this.evalGridColumnCount(this.gridColumnHint)
@@ -163,6 +163,7 @@ const _M = {
     //--------------------------------------------------
     GridContainerConf() {
       return {
+        tipAsPopIcon: this.tipAsPopIcon,
         data: this.myData,
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,

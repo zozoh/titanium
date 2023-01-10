@@ -22,6 +22,10 @@ const _M = {
     "batchReadonly": {
       type: [Function, Array, Object]
     },
+    "tipAsPopIcon": {
+      type: Boolean,
+      default: false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -233,6 +237,7 @@ const _M = {
         }
         // Normal field
         else {
+          fld.tipAsPopIcon = Ti.Util.fallback(fld.tipAsPopIcon, this.tipAsPopIcon)
           // Grid with field name
           if (fld.showName) {
             nmStyle = {

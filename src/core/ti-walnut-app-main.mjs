@@ -201,6 +201,9 @@ export async function WalnutAppMain({
   await app.dispatch("viewport/reload")
   await app.dispatch("current/reload", basePath)
   //---------------------------------------
+  // watch toptip
+  Ti.Toptip.watch()
+  //---------------------------------------
   // All Done
   return app.get("obj")
 }
