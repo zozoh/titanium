@@ -4,6 +4,7 @@ const _M = {
     virtualPageCount: 0,
     virtualScopeBegin: 0,
     virtualScopeEnd: -1,
+    rowsRenderedAt: 0
   }),
   ///////////////////////////////////////////////////
   // props -> ti-table-props.mjs
@@ -101,15 +102,12 @@ const _M = {
     },
     //--------------------------------------
     VirtualRows() {
-      if (this.virtualPageCount > 0) {
-        let I0 = Math.max(0, this.virtualScopeBegin)
-        let I1 = Math.min(this.virtualScopeEnd, this.tblRows.length)
-        if (I1 < 0) {
-          I1 = this.tblRows.length
-        }
-        return this.myRows.slice(I0, I1)
+      if (this.virtualPageCount > 0 && this.rowsRenderedAt > 0) {
+        let I0 = this.virtualScopeBegin
+        let I1 = this.virtualScopeEnd
+        return this.tblRows.slice(I0, I1)
       }
-      return this.myRows
+      return this.tblRows.slice(0)
     },
     //--------------------------------------
     hasVirtualRowHead() {
@@ -120,7 +118,7 @@ const _M = {
     hasVirtualRowTail() {
       return this.virtualPageCount > 0
         && this.virtualScopeEnd > 0
-        && this.virtualScopeEnd < this.tblRows.length
+        && this.virtualScopeEnd < this.data.length
     },
     //--------------------------------------
     VirtualRowHeadStyle() {
@@ -187,6 +185,7 @@ const _M = {
     },
     //--------------------------------------
     OnClickRow(row, $event = {}) {
+      this.LOG("OnClickRow", row.id)
       let toggle = ($event.ctrlKey || $event.metaKey)
       if (this.selectable && (!row.current || toggle)) {
         this.OnRowSelect({
@@ -221,15 +220,26 @@ const _M = {
     },
     //--------------------------------------
     tryCheckedIds(newVal, oldVal) {
-      let ids = _.assign({}, newVal, oldVal)
-      this.reEvalRows(ids)
+      _.delay(() => {
+        if (!_.isEqual(newVal, oldVal)) {
+          this.LOG("tryCheckedIds", { newVal, oldVal })
+          let ids = {}
+          _.forEach(newVal, (_, k) => {
+            ids[k] = true
+          })
+          _.forEach(oldVal, (_, k) => {
+            ids[k] = true
+          })
+          this.reEvalRows(ids)
+        }
+      })
     },
     //--------------------------------------
     evalRenderScope() {
       if (this.virtualRowHeight > 0 && this.myTableRect) {
         let vH = this.myTableRect.height
         let rH = this.virtualRowHeight
-        console.log("evalRenderScope", vH, rH)
+        this.LOG("evalRenderScope-begin", vH, rH)
         let vpc = Math.round(vH / rH)
         let halfVpc = Math.round(vpc / 2)
         this.virtualPageCount = vpc
@@ -238,27 +248,39 @@ const _M = {
           let arI = this.findRowIndexById(this.theCurrentId)
           arI = Math.max(arI, 0)
 
-          let scope = [
-            Math.max(arI - halfVpc, 0),
-            Math.min(arI + vpc, this.tblRows.length),
-          ]
+          let scope = []
+          // Out of the  first screen
+          if (arI > vpc) {
+            scope[0] = arI - vpc
+            scope[1] = arI + vpc
+          }
+          // In the first screen
+          else {
+            scope[0] = 0
+            scope[1] = vpc + halfVpc
+          }
+          scope[0] = Math.max(0, scope[0])
+          scope[1] = Math.min(scope[1], this.data.length)
           this.virtualScopeBegin = scope[0]
           this.virtualScopeEnd = scope[1]
+          this.LOG("evalRenderScope-end", { vH, rH, vpc, arI, scope: scope.join(":") })
         } else {
           this.virtualScopeBegin = 0
           this.virtualScopeEnd = 0
+          this.LOG("evalRenderScope-end(B)", { vH, rH, vpc, arI, scope: "0:0" })
         }
-        console.log("evalRenderScope", { vH, rH, vpc, halfVpc })
+
       }
       // Render all
       else {
         this.virtualScopeBegin = 0
         this.virtualScopeEnd = -1
+        this.LOG("evalRenderScope-end(C)", { vH, rH, vpc, arI, scope: "0:-1" })
       }
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
-      //console.log("ti-table", uniqKey)
+      //this.LOG("ti-table", uniqKey)
       if ("ARROWUP" == uniqKey) {
         this.selectPrevRow({
           payload: { byKeyboardArrow: true }
@@ -277,7 +299,7 @@ const _M = {
     },
     //--------------------------------------
     OnScroll($event) {
-      let N = this.tblRows.length
+      let N = this.data.length
       if (N <= 0 || !this.myTableRect) {
         return
       }
@@ -298,34 +320,28 @@ const _M = {
 
       let I1 = parseInt((sT + vH) / r1H) + vpc
       let vEnd = Math.min(N, Math.max(vs1, I1))
+      if (vEnd < 0) {
+        vEnd = N
+      }
 
-      console.log({
+
+      this.LOG({
         sT, sH,
-        E1: `${sT} / ${r1H}`,
-        vs: JSON.stringify([vs0, vs1]),
-        I: JSON.stringify([I0, I1]),
+        // E1: `${sT} / ${r1H}`,
+        // vs: JSON.stringify([vs0, vs1]),
+        // I: JSON.stringify([I0, I1]),
         s: JSON.stringify([vBegin, vEnd])
       })
       this.virtualScopeBegin = vBegin
       this.virtualScopeEnd = vEnd
+      this.evalTableRows()
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
   watch: {
     "data": "evalListDataWhenMarkChanged",
-    "tblRows": "evalRenderScope",
-    "fields": {
-      handler: function (newVal, oldVal) {
-        if (!_.isEqual(newVal, oldVal)) {
-          this.restoreLocalSettings()
-          this.setupAllFields(newVal)
-          this.updateMyFieldsByKey(this.myShownFieldKeys)
-        }
-      },
-      immediate: true
-    },
-    "TableFields": "evalListDataWhenMarkChanged",
+    //"TableFields": "evalListDataWhenMarkChanged", //<= it will cause evalListData always
     "selectable": "evalListDataWhenMarkChanged",
     "checkable": "evalListDataWhenMarkChanged",
     "hoverable": "evalListDataWhenMarkChanged",
@@ -333,7 +349,15 @@ const _M = {
     "checkedIds": "tryCheckedIds",
   },
   ///////////////////////////////////////////////////
+  created: function () {
+    this.LOG = () => { }
+    //this.LOG = console.log
+  },
+  ///////////////////////////////////////////////////
   mounted: async function () {
+    // Measure self
+    this.myTableRect = Ti.Rects.createBy(this.$el)
+
     Ti.Viewport.watch(this, {
       resize: _.debounce(() => this.OnResize(), 10),
     })
@@ -342,17 +366,20 @@ const _M = {
     }, 200)
     this.$el.addEventListener('scroll', this.debounceScroll)
 
-    // Eval the table viewport Rect
-    this.myTableRect = Ti.Rects.createBy(this.$el)
+
+
+    // Restore columns setting
+    this.restoreLocalSettings()
+    this.setupAllFields(this.fields)
+    this.updateMyFieldsByKey(this.myShownFieldKeys)
+
     await this.evalListData()
 
-    this.evalRenderScope()
+    // render scope, it need the data for find index
+    this.evalRenderScope();
 
-    if (this.autoScrollIntoView) {
-      _.delay(() => {
-        this.scrollCurrentIntoView()
-      }, 0)
-    }
+    // Eval the table viewport Rect, it need scope
+    await this.__eval_row_after_data()
   },
   ///////////////////////////////////////////////////
   beforeDestroy: function () {

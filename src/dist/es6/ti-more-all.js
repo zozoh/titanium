@@ -1,4 +1,4 @@
-// Pack At: 2023-01-11 13:41:08
+// Pack At: 2023-01-12 00:10:26
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -10396,9 +10396,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   data: () => ({
     tblRows: [/*
       {
-        groupTitleComs:[{comType,comConf}]
+        __processed: true,   // had been evalTableRows
+        groupTitleComs:[{comType,comConf}],
       }
       {
+        __processed: true,   // had been evalTableRows
+        className.is-current is-checked
         id,index
         icon,indent,
         displayIndex,asGroupTitle,
@@ -10410,16 +10413,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }]
       }
     */],
-    myRows: [/*
-      add className.is-current is-checked for each row of tabRows
-    */],
     myData: []
   }),
   ///////////////////////////////////////////////////
   computed: {
     //--------------------------------------
     TheData() {
-      return this.myData;
+      return this.tblRows;
     }
     //--------------------------------------
   },
@@ -10427,7 +10427,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   methods: {
     //--------------------------------------
     async genDisplays(it = {}, display = [], opt = {}) {
-      //console.log("genDisplays", it, display)
+      //this.LOG("genDisplays", it, display)
       let { id, index } = it
       let list = []
       if (!_.isEmpty(display)) {
@@ -10533,13 +10533,30 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return cells
     },
     //--------------------------------------
-    async evalOneTableRow(rows, index, it) {
+    async evalOneTableRow(rows, index, count = {}) {
+      let it = rows[index]
+
+      // Alreay prcessed
+      if (it.__processed) {
+        return
+      }
+
+      // Out of scope
+      let VI0 = this.virtualScopeBegin
+      let VI1 = this.virtualScopeEnd
+      if (index < VI0 || index >= VI1) {
+        return
+      }
+
+      // check group row
       if (it.asGroupTitle) {
         it.groupTitleComs = await this.genDisplays(it, this.RowGroupTitleDisplay, {
           autoIgnoreNil: false,
           autoIgnoreBlank: false
         });
-      } else if (_.isNumber(this.rowNumberBase)) {
+      }
+      // tidy rowNumber
+      else if (_.isNumber(this.rowNumberBase)) {
         it.hasRowNumber = true;
         let rn = this.rowNumberBase + it.displayIndex
         if (this.rowNumberWidth > 1) {
@@ -10547,27 +10564,37 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
         it.RowNumber = rn
       }
+      //
+      // Generate each cells
       it.cells = await this.genTableCells(it)
-      rows[index] = it
+
+      //
+      // Update status
+      this.evalOneRowStatus(it)
+      it.__processed = true
+      count.N++
     },
     //--------------------------------------
-    async evalTableRows(list = []) {
-      //console.log("evalTableRows")
-      let rows = []
-      let loadRows = []
-      for (let i = 0; i < list.length; i++) {
-        var it = list[i];
-        loadRows.push(this.evalOneTableRow(rows, i, it))
+    async evalTableRows() {
+      this.LOG("evalTableRows begin")
+      let rows = this.tblRows
+      let promiseLoadRows = []
+      let count = { N: 0 }
+      for (let i = 0; i < rows.length; i++) {
+        promiseLoadRows.push(this.evalOneTableRow(rows, i, count))
       }
-      await Promise.all(loadRows)
-      this.tblRows = rows
+      await Promise.all(promiseLoadRows)
+      if (count.N > 0) {
+        this.rowsRenderedAt = Date.now()
+      }
+      this.LOG("evalTableRows end")
     },
     //--------------------------------------
-    evalOneMyRow(row, {
+    evalOneRowStatus(row, {
       currentId = this.theCurrentId,
       checkedIds = this.theCheckedIds
     } = {}) {
-      //console.log("evalOneMyRow")
+      //this.LOG("evalOneRowStatus")
       if (!row) {
         return
       }
@@ -10583,21 +10610,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       })
     },
     //--------------------------------------
-    evalMyRows(opt) {
-      //console.log("evalMyRows =======================")
-      let rows = _.cloneDeep(this.tblRows)
-      //console.log("after clone")
-      for (let i = 0; i < rows.length; i++) {
-        this.evalOneMyRow(rows[i], opt)
-      }
-      this.myRows = rows
-    },
-    //--------------------------------------
     async evalListData() {
-      if(_.isElement(this.$el)){
+      if (_.isElement(this.$el)) {
         this.$el.scrollTop = 0
       }
       //let beginMs = Date.now()
+      this.LOG("1. evalListData begin")
       let list = await this.evalData((it) => {
         it.icon = this.getRowIcon(it.item)
         if (it.icon) {
@@ -10609,42 +10627,64 @@ const __TI_MOD_EXPORT_VAR_NM = {
         it.showIcon = it.icon && _.isString(it.icon)
         it.indent = this.getRowIndent(it.item)
       })
-      this.myData = list
-      await this.evalTableRows(list);
+      this.tblRows = list
+      this.LOG("2. evalListData end")
 
-      this.evalMyRows();
+      // this.evalMyRows();
+      // this.LOG("4. evalMyRows end")
       // let du = Date.now() - beginMs
-      // console.log("evalListData in", `${du}ms`)
+      // this.LOG("evalListData in", `${du}ms`)
       // Scroll into view
+    },
+    //--------------------------------------
+    async __eval_row_after_data() {
+      this.LOG("__eval_row_after_data: evalTableRows")
+      await this.evalTableRows()
+
+      this.LOG("__eval_row_after_data: wait for scroll")
       _.delay(() => {
         this.scrollCurrentIntoView()
-      }, 300)
+      }, 0)
+      // make sure it scrolled, maybe dom render so long ..
+      // _.delay(() => {
+      //   this.scrollCurrentIntoView()
+      // }, 300)
     },
     //--------------------------------------
     async reEvalRows(ids = {}, { currentId, checkedIds } = {}) {
       let indexes = []
-      _.forEach(this.myData, it => {
+      _.forEach(this.tblRows, it => {
         if (ids[it.id]) {
           indexes.push(it.index)
         }
-      }) 
+      })
 
-      //console.log("reEvalRows", { currentId, checkedIds })
+      this.LOG("reEvalRows", { currentId, checkedIds })
+      this.LOG("reEvalRows - theCurrentId", this.theCurrentId)
+      this.LOG("reEvalRows - myCurrentId", this.myCurrentId)
+      this.LOG("reEvalRows - currentId", this.currentId)
+      this.LOG("reEvalRows - theCheckedIds", this.theCheckedIds)
+      this.LOG("reEvalRows - myCheckedIds", this.myCheckedIds)
+      this.LOG("reEvalRows - checkedIds", this.checkedIds)
       //let rows = _.cloneDeep(this.myRows)
-      //console.log("cloned")
+      //this.LOG("cloned")
       for (let i of indexes) {
-        let row = this.myRows[i]
-        this.evalOneMyRow(row, { currentId, checkedIds })
-        this.$set(this.myRows, i, row)
-        //console.log("evalOneMyRow", i)
+        let row = this.tblRows[i]
+        this.evalOneRowStatus(row, { currentId, checkedIds })
+        this.$set(this.tblRows, i, row)
+        this.LOG("evalOneRowStatus", i)
       }
-      //console.log("after evalMyRows")
+      this.LOG("reEvalRows done")
+
+      _.delay(() => {
+        this.scrollCurrentIntoView()
+      }, 100)
     },
     //--------------------------------------
     // 采用这个，是为了绕开 VUe 的监听机制能快点得到响应
     // 因为渲染数据的时间是在省不了
     __handle_select({ currentId, checkedIds, oldCurrentId, oldCheckedIds }) {
-      //console.log("__handle_select", currentId, checkedIds)
+      this.LOG("__handle_select", currentId, checkedIds)
       let ids = _.assign({}, oldCheckedIds, checkedIds)
       if (currentId) {
         ids[currentId] = true
@@ -27318,6 +27358,9 @@ const LIST_MIXINS = {
         //console.log("begin for await this.evalListData()")
         await this.evalListData()
         //console.log("done for await this.evalListData()")
+        if(_.isFunction(this.__eval_row_after_data)){
+          await this.__eval_row_after_data()
+        }
       }
     },
     //-----------------------------------------------
@@ -27769,6 +27812,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     doNotifySelect(emitContext) {
+      //console.log("doNotifySelect")
       if (_.isFunction(this.__handle_select)) {
         this.__handle_select(emitContext)
       }
@@ -27798,7 +27842,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     OnRowSelect({ rowId, shift, toggle } = {}) {
-      // console.log("OnRowSelect", rowId)
+      //console.log("OnRowSelect", rowId)
       // Multi + Shift Mode
       if (shift && this.multi) {
         this.selectRowsToCurrent(rowId)
@@ -42092,6 +42136,7 @@ const _M = {
     virtualPageCount: 0,
     virtualScopeBegin: 0,
     virtualScopeEnd: -1,
+    rowsRenderedAt: 0
   }),
   ///////////////////////////////////////////////////
   // props -> ti-table-props.mjs
@@ -42189,15 +42234,12 @@ const _M = {
     },
     //--------------------------------------
     VirtualRows() {
-      if (this.virtualPageCount > 0) {
-        let I0 = Math.max(0, this.virtualScopeBegin)
-        let I1 = Math.min(this.virtualScopeEnd, this.tblRows.length)
-        if (I1 < 0) {
-          I1 = this.tblRows.length
-        }
-        return this.myRows.slice(I0, I1)
+      if (this.virtualPageCount > 0 && this.rowsRenderedAt > 0) {
+        let I0 = this.virtualScopeBegin
+        let I1 = this.virtualScopeEnd
+        return this.tblRows.slice(I0, I1)
       }
-      return this.myRows
+      return this.tblRows.slice(0)
     },
     //--------------------------------------
     hasVirtualRowHead() {
@@ -42208,7 +42250,7 @@ const _M = {
     hasVirtualRowTail() {
       return this.virtualPageCount > 0
         && this.virtualScopeEnd > 0
-        && this.virtualScopeEnd < this.tblRows.length
+        && this.virtualScopeEnd < this.data.length
     },
     //--------------------------------------
     VirtualRowHeadStyle() {
@@ -42275,6 +42317,7 @@ const _M = {
     },
     //--------------------------------------
     OnClickRow(row, $event = {}) {
+      this.LOG("OnClickRow", row.id)
       let toggle = ($event.ctrlKey || $event.metaKey)
       if (this.selectable && (!row.current || toggle)) {
         this.OnRowSelect({
@@ -42309,15 +42352,26 @@ const _M = {
     },
     //--------------------------------------
     tryCheckedIds(newVal, oldVal) {
-      let ids = _.assign({}, newVal, oldVal)
-      this.reEvalRows(ids)
+      _.delay(() => {
+        if (!_.isEqual(newVal, oldVal)) {
+          this.LOG("tryCheckedIds", { newVal, oldVal })
+          let ids = {}
+          _.forEach(newVal, (_, k) => {
+            ids[k] = true
+          })
+          _.forEach(oldVal, (_, k) => {
+            ids[k] = true
+          })
+          this.reEvalRows(ids)
+        }
+      })
     },
     //--------------------------------------
     evalRenderScope() {
       if (this.virtualRowHeight > 0 && this.myTableRect) {
         let vH = this.myTableRect.height
         let rH = this.virtualRowHeight
-        console.log("evalRenderScope", vH, rH)
+        this.LOG("evalRenderScope-begin", vH, rH)
         let vpc = Math.round(vH / rH)
         let halfVpc = Math.round(vpc / 2)
         this.virtualPageCount = vpc
@@ -42326,27 +42380,39 @@ const _M = {
           let arI = this.findRowIndexById(this.theCurrentId)
           arI = Math.max(arI, 0)
 
-          let scope = [
-            Math.max(arI - halfVpc, 0),
-            Math.min(arI + vpc, this.tblRows.length),
-          ]
+          let scope = []
+          // Out of the  first screen
+          if (arI > vpc) {
+            scope[0] = arI - vpc
+            scope[1] = arI + vpc
+          }
+          // In the first screen
+          else {
+            scope[0] = 0
+            scope[1] = vpc + halfVpc
+          }
+          scope[0] = Math.max(0, scope[0])
+          scope[1] = Math.min(scope[1], this.data.length)
           this.virtualScopeBegin = scope[0]
           this.virtualScopeEnd = scope[1]
+          this.LOG("evalRenderScope-end", { vH, rH, vpc, arI, scope: scope.join(":") })
         } else {
           this.virtualScopeBegin = 0
           this.virtualScopeEnd = 0
+          this.LOG("evalRenderScope-end(B)", { vH, rH, vpc, arI, scope: "0:0" })
         }
-        console.log("evalRenderScope", { vH, rH, vpc, halfVpc })
+
       }
       // Render all
       else {
         this.virtualScopeBegin = 0
         this.virtualScopeEnd = -1
+        this.LOG("evalRenderScope-end(C)", { vH, rH, vpc, arI, scope: "0:-1" })
       }
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
-      //console.log("ti-table", uniqKey)
+      //this.LOG("ti-table", uniqKey)
       if ("ARROWUP" == uniqKey) {
         this.selectPrevRow({
           payload: { byKeyboardArrow: true }
@@ -42365,7 +42431,7 @@ const _M = {
     },
     //--------------------------------------
     OnScroll($event) {
-      let N = this.tblRows.length
+      let N = this.data.length
       if (N <= 0 || !this.myTableRect) {
         return
       }
@@ -42386,34 +42452,28 @@ const _M = {
 
       let I1 = parseInt((sT + vH) / r1H) + vpc
       let vEnd = Math.min(N, Math.max(vs1, I1))
+      if (vEnd < 0) {
+        vEnd = N
+      }
 
-      console.log({
+
+      this.LOG({
         sT, sH,
-        E1: `${sT} / ${r1H}`,
-        vs: JSON.stringify([vs0, vs1]),
-        I: JSON.stringify([I0, I1]),
+        // E1: `${sT} / ${r1H}`,
+        // vs: JSON.stringify([vs0, vs1]),
+        // I: JSON.stringify([I0, I1]),
         s: JSON.stringify([vBegin, vEnd])
       })
       this.virtualScopeBegin = vBegin
       this.virtualScopeEnd = vEnd
+      this.evalTableRows()
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
   watch: {
     "data": "evalListDataWhenMarkChanged",
-    "tblRows": "evalRenderScope",
-    "fields": {
-      handler: function (newVal, oldVal) {
-        if (!_.isEqual(newVal, oldVal)) {
-          this.restoreLocalSettings()
-          this.setupAllFields(newVal)
-          this.updateMyFieldsByKey(this.myShownFieldKeys)
-        }
-      },
-      immediate: true
-    },
-    "TableFields": "evalListDataWhenMarkChanged",
+    //"TableFields": "evalListDataWhenMarkChanged", //<= it will cause evalListData always
     "selectable": "evalListDataWhenMarkChanged",
     "checkable": "evalListDataWhenMarkChanged",
     "hoverable": "evalListDataWhenMarkChanged",
@@ -42421,7 +42481,15 @@ const _M = {
     "checkedIds": "tryCheckedIds",
   },
   ///////////////////////////////////////////////////
+  created: function () {
+    this.LOG = () => { }
+    //this.LOG = console.log
+  },
+  ///////////////////////////////////////////////////
   mounted: async function () {
+    // Measure self
+    this.myTableRect = Ti.Rects.createBy(this.$el)
+
     Ti.Viewport.watch(this, {
       resize: _.debounce(() => this.OnResize(), 10),
     })
@@ -42430,17 +42498,20 @@ const _M = {
     }, 200)
     this.$el.addEventListener('scroll', this.debounceScroll)
 
-    // Eval the table viewport Rect
-    this.myTableRect = Ti.Rects.createBy(this.$el)
+
+
+    // Restore columns setting
+    this.restoreLocalSettings()
+    this.setupAllFields(this.fields)
+    this.updateMyFieldsByKey(this.myShownFieldKeys)
+
     await this.evalListData()
 
-    this.evalRenderScope()
+    // render scope, it need the data for find index
+    this.evalRenderScope();
 
-    if (this.autoScrollIntoView) {
-      _.delay(() => {
-        this.scrollCurrentIntoView()
-      }, 0)
-    }
+    // Eval the table viewport Rect, it need scope
+    await this.__eval_row_after_data()
   },
   ///////////////////////////////////////////////////
   beforeDestroy: function () {
@@ -54778,6 +54849,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if (_.isEmpty(reo)) {
         this.myFieldWidths = []
       }
+
+      await this.evalListData()
+
     },
     //--------------------------------------
     OnColumnResizeBegin(index) {
@@ -54885,7 +54959,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Eval each coumns percent
       let sumW = _.sum(colWs)
       let colPs = _.map(colWs, w => w / sumW)
-      // console.log({
+      // this.LOG({
       //   index,
       //   before: ajColsWs.join(", "),
       //   after: ajColsW2.join(", "),
@@ -54902,11 +54976,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     scrollCurrentIntoView() {
-      //console.log("scrollCurrentIntoView", this.myLastIndex)
+      this.LOG("scrollCurrentIntoView", this.myLastIndex, this.theCurrentId)
       if (this.autoScrollIntoView && this.theCurrentId) {
         let $view = this.$el
         let $row = Ti.Dom.find(`.table-row[row-id="${this.theCurrentId}"]`, $view)
-
+        this.LOG("find row", $row)
         if (!_.isElement($view) || !_.isElement($row)) {
           return
         }
@@ -54918,11 +54992,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
         if (!r_view.contains(r_row)) {
           // at bottom
           if (r_row.bottom > r_view.bottom) {
-            $view.scrollTop += r_row.bottom - r_view.bottom
+            this.LOG("at bottom", r_row.bottom - r_view.bottom)
+            $view.scrollTop += r_row.bottom - r_view.bottom + r_view.height/2
           }
           // at top
           else {
             $view.scrollTop += r_row.top - r_view.top
+            this.LOG("at top", r_row.top - r_view.top)
           }
         }
       }
@@ -54975,19 +55051,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     }
     //--------------------------------------
-  },
-  ///////////////////////////////////////////////////
-  watch: {
-    "fields": {
-      handler: function (newVal, oldVal) {
-        if (!_.isEqual(newVal, oldVal)) {
-          this.restoreLocalSettings()
-          this.setupAllFields(newVal)
-          this.updateMyFieldsByKey(this.myShownFieldKeys)
-        }
-      },
-      immediate: true
-    }
   },
   ///////////////////////////////////////////////////F
 }
@@ -61942,7 +62005,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     let idMap = _.cloneDeep(this.myCheckedIds)
     let curId  = this.myCurrentId
     let index = -1
-    //console.log("cancelRow", rowId)
+    //this.LOG("cancelRow", rowId)
     if(_.isUndefined(rowId)) {
       idMap = {}
       curId = null
@@ -62001,7 +62064,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   //-----------------------------------------------
   selectRowByIndex(rowIndex, options) {
-    //console.log(rowIndex)
+    //this.LOG(rowIndex)
     let index = rowIndex
     if(this.scrollIndex) {
       index = Ti.Num.scrollIndex(rowIndex, this.TableData.length)
@@ -62804,7 +62867,7 @@ const _M = {
     //-----------------------------------------------
     moveCheckedRow(offset = 0, idMap = this.myCheckedIds) {
       idMap = this.getCheckedIdsMap(idMap, false)
-      //console.log(idMap)
+      //this.LOG(idMap)
       if (offset == 0 || _.isEmpty(idMap))
         return { rows: this.TheData, nextCheckedIds: idMap }
 
@@ -62872,10 +62935,10 @@ const _M = {
     // Utility
     //--------------------------------------
     scrollCurrentIntoView() {
-      //console.log("scrollCurrentIntoView", this.myLastIndex)
+      //this.LOG("scrollCurrentIntoView", this.myLastIndex)
       if (this.autoScrollIntoView && this.myCurrentId) {
         let index = this.findRowIndexById(this.myCurrentId)
-        //console.log("scroll", index)
+        //this.LOG("scroll", index)
         let $view = this.$el
         let $row = Ti.Dom.find(`.table-row:nth-child(${index + 1})`, $view)
 

@@ -139,7 +139,7 @@ export default {
     let idMap = _.cloneDeep(this.myCheckedIds)
     let curId  = this.myCurrentId
     let index = -1
-    //console.log("cancelRow", rowId)
+    //this.LOG("cancelRow", rowId)
     if(_.isUndefined(rowId)) {
       idMap = {}
       curId = null
@@ -198,7 +198,7 @@ export default {
   },
   //-----------------------------------------------
   selectRowByIndex(rowIndex, options) {
-    //console.log(rowIndex)
+    //this.LOG(rowIndex)
     let index = rowIndex
     if(this.scrollIndex) {
       index = Ti.Num.scrollIndex(rowIndex, this.TableData.length)

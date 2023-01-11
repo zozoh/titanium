@@ -3,9 +3,12 @@ export default {
   data: () => ({
     tblRows: [/*
       {
-        groupTitleComs:[{comType,comConf}]
+        __processed: true,   // had been evalTableRows
+        groupTitleComs:[{comType,comConf}],
       }
       {
+        __processed: true,   // had been evalTableRows
+        className.is-current is-checked
         id,index
         icon,indent,
         displayIndex,asGroupTitle,
@@ -17,16 +20,13 @@ export default {
         }]
       }
     */],
-    myRows: [/*
-      add className.is-current is-checked for each row of tabRows
-    */],
     myData: []
   }),
   ///////////////////////////////////////////////////
   computed: {
     //--------------------------------------
     TheData() {
-      return this.myData;
+      return this.tblRows;
     }
     //--------------------------------------
   },
@@ -34,7 +34,7 @@ export default {
   methods: {
     //--------------------------------------
     async genDisplays(it = {}, display = [], opt = {}) {
-      //console.log("genDisplays", it, display)
+      //this.LOG("genDisplays", it, display)
       let { id, index } = it
       let list = []
       if (!_.isEmpty(display)) {
@@ -140,13 +140,30 @@ export default {
       return cells
     },
     //--------------------------------------
-    async evalOneTableRow(rows, index, it) {
+    async evalOneTableRow(rows, index, count = {}) {
+      let it = rows[index]
+
+      // Alreay prcessed
+      if (it.__processed) {
+        return
+      }
+
+      // Out of scope
+      let VI0 = this.virtualScopeBegin
+      let VI1 = this.virtualScopeEnd
+      if (index < VI0 || index >= VI1) {
+        return
+      }
+
+      // check group row
       if (it.asGroupTitle) {
         it.groupTitleComs = await this.genDisplays(it, this.RowGroupTitleDisplay, {
           autoIgnoreNil: false,
           autoIgnoreBlank: false
         });
-      } else if (_.isNumber(this.rowNumberBase)) {
+      }
+      // tidy rowNumber
+      else if (_.isNumber(this.rowNumberBase)) {
         it.hasRowNumber = true;
         let rn = this.rowNumberBase + it.displayIndex
         if (this.rowNumberWidth > 1) {
@@ -154,27 +171,37 @@ export default {
         }
         it.RowNumber = rn
       }
+      //
+      // Generate each cells
       it.cells = await this.genTableCells(it)
-      rows[index] = it
+
+      //
+      // Update status
+      this.evalOneRowStatus(it)
+      it.__processed = true
+      count.N++
     },
     //--------------------------------------
-    async evalTableRows(list = []) {
-      //console.log("evalTableRows")
-      let rows = []
-      let loadRows = []
-      for (let i = 0; i < list.length; i++) {
-        var it = list[i];
-        loadRows.push(this.evalOneTableRow(rows, i, it))
+    async evalTableRows() {
+      this.LOG("evalTableRows begin")
+      let rows = this.tblRows
+      let promiseLoadRows = []
+      let count = { N: 0 }
+      for (let i = 0; i < rows.length; i++) {
+        promiseLoadRows.push(this.evalOneTableRow(rows, i, count))
       }
-      await Promise.all(loadRows)
-      this.tblRows = rows
+      await Promise.all(promiseLoadRows)
+      if (count.N > 0) {
+        this.rowsRenderedAt = Date.now()
+      }
+      this.LOG("evalTableRows end")
     },
     //--------------------------------------
-    evalOneMyRow(row, {
+    evalOneRowStatus(row, {
       currentId = this.theCurrentId,
       checkedIds = this.theCheckedIds
     } = {}) {
-      //console.log("evalOneMyRow")
+      //this.LOG("evalOneRowStatus")
       if (!row) {
         return
       }
@@ -190,21 +217,12 @@ export default {
       })
     },
     //--------------------------------------
-    evalMyRows(opt) {
-      //console.log("evalMyRows =======================")
-      let rows = _.cloneDeep(this.tblRows)
-      //console.log("after clone")
-      for (let i = 0; i < rows.length; i++) {
-        this.evalOneMyRow(rows[i], opt)
-      }
-      this.myRows = rows
-    },
-    //--------------------------------------
     async evalListData() {
-      if(_.isElement(this.$el)){
+      if (_.isElement(this.$el)) {
         this.$el.scrollTop = 0
       }
       //let beginMs = Date.now()
+      this.LOG("1. evalListData begin")
       let list = await this.evalData((it) => {
         it.icon = this.getRowIcon(it.item)
         if (it.icon) {
@@ -216,42 +234,64 @@ export default {
         it.showIcon = it.icon && _.isString(it.icon)
         it.indent = this.getRowIndent(it.item)
       })
-      this.myData = list
-      await this.evalTableRows(list);
+      this.tblRows = list
+      this.LOG("2. evalListData end")
 
-      this.evalMyRows();
+      // this.evalMyRows();
+      // this.LOG("4. evalMyRows end")
       // let du = Date.now() - beginMs
-      // console.log("evalListData in", `${du}ms`)
+      // this.LOG("evalListData in", `${du}ms`)
       // Scroll into view
+    },
+    //--------------------------------------
+    async __eval_row_after_data() {
+      this.LOG("__eval_row_after_data: evalTableRows")
+      await this.evalTableRows()
+
+      this.LOG("__eval_row_after_data: wait for scroll")
       _.delay(() => {
         this.scrollCurrentIntoView()
-      }, 300)
+      }, 0)
+      // make sure it scrolled, maybe dom render so long ..
+      // _.delay(() => {
+      //   this.scrollCurrentIntoView()
+      // }, 300)
     },
     //--------------------------------------
     async reEvalRows(ids = {}, { currentId, checkedIds } = {}) {
       let indexes = []
-      _.forEach(this.myData, it => {
+      _.forEach(this.tblRows, it => {
         if (ids[it.id]) {
           indexes.push(it.index)
         }
-      }) 
+      })
 
-      //console.log("reEvalRows", { currentId, checkedIds })
+      this.LOG("reEvalRows", { currentId, checkedIds })
+      this.LOG("reEvalRows - theCurrentId", this.theCurrentId)
+      this.LOG("reEvalRows - myCurrentId", this.myCurrentId)
+      this.LOG("reEvalRows - currentId", this.currentId)
+      this.LOG("reEvalRows - theCheckedIds", this.theCheckedIds)
+      this.LOG("reEvalRows - myCheckedIds", this.myCheckedIds)
+      this.LOG("reEvalRows - checkedIds", this.checkedIds)
       //let rows = _.cloneDeep(this.myRows)
-      //console.log("cloned")
+      //this.LOG("cloned")
       for (let i of indexes) {
-        let row = this.myRows[i]
-        this.evalOneMyRow(row, { currentId, checkedIds })
-        this.$set(this.myRows, i, row)
-        //console.log("evalOneMyRow", i)
+        let row = this.tblRows[i]
+        this.evalOneRowStatus(row, { currentId, checkedIds })
+        this.$set(this.tblRows, i, row)
+        this.LOG("evalOneRowStatus", i)
       }
-      //console.log("after evalMyRows")
+      this.LOG("reEvalRows done")
+
+      _.delay(() => {
+        this.scrollCurrentIntoView()
+      }, 100)
     },
     //--------------------------------------
     // 采用这个，是为了绕开 VUe 的监听机制能快点得到响应
     // 因为渲染数据的时间是在省不了
     __handle_select({ currentId, checkedIds, oldCurrentId, oldCheckedIds }) {
-      //console.log("__handle_select", currentId, checkedIds)
+      this.LOG("__handle_select", currentId, checkedIds)
       let ids = _.assign({}, oldCheckedIds, checkedIds)
       if (currentId) {
         ids[currentId] = true

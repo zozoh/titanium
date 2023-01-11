@@ -171,6 +171,9 @@ export default {
       if (_.isEmpty(reo)) {
         this.myFieldWidths = []
       }
+
+      await this.evalListData()
+
     },
     //--------------------------------------
     OnColumnResizeBegin(index) {
@@ -278,7 +281,7 @@ export default {
       // Eval each coumns percent
       let sumW = _.sum(colWs)
       let colPs = _.map(colWs, w => w / sumW)
-      // console.log({
+      // this.LOG({
       //   index,
       //   before: ajColsWs.join(", "),
       //   after: ajColsW2.join(", "),
@@ -295,11 +298,11 @@ export default {
     },
     //--------------------------------------
     scrollCurrentIntoView() {
-      //console.log("scrollCurrentIntoView", this.myLastIndex)
+      this.LOG("scrollCurrentIntoView", this.myLastIndex, this.theCurrentId)
       if (this.autoScrollIntoView && this.theCurrentId) {
         let $view = this.$el
         let $row = Ti.Dom.find(`.table-row[row-id="${this.theCurrentId}"]`, $view)
-
+        this.LOG("find row", $row)
         if (!_.isElement($view) || !_.isElement($row)) {
           return
         }
@@ -311,11 +314,13 @@ export default {
         if (!r_view.contains(r_row)) {
           // at bottom
           if (r_row.bottom > r_view.bottom) {
-            $view.scrollTop += r_row.bottom - r_view.bottom
+            this.LOG("at bottom", r_row.bottom - r_view.bottom)
+            $view.scrollTop += r_row.bottom - r_view.bottom + r_view.height/2
           }
           // at top
           else {
             $view.scrollTop += r_row.top - r_view.top
+            this.LOG("at top", r_row.top - r_view.top)
           }
         }
       }
@@ -368,19 +373,6 @@ export default {
       }
     }
     //--------------------------------------
-  },
-  ///////////////////////////////////////////////////
-  watch: {
-    "fields": {
-      handler: function (newVal, oldVal) {
-        if (!_.isEqual(newVal, oldVal)) {
-          this.restoreLocalSettings()
-          this.setupAllFields(newVal)
-          this.updateMyFieldsByKey(this.myShownFieldKeys)
-        }
-      },
-      immediate: true
-    }
   },
   ///////////////////////////////////////////////////F
 }

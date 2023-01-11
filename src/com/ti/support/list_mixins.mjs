@@ -243,6 +243,9 @@ const LIST_MIXINS = {
         //console.log("begin for await this.evalListData()")
         await this.evalListData()
         //console.log("done for await this.evalListData()")
+        if(_.isFunction(this.__eval_row_after_data)){
+          await this.__eval_row_after_data()
+        }
       }
     },
     //-----------------------------------------------
@@ -694,6 +697,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     doNotifySelect(emitContext) {
+      //console.log("doNotifySelect")
       if (_.isFunction(this.__handle_select)) {
         this.__handle_select(emitContext)
       }
@@ -723,7 +727,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     OnRowSelect({ rowId, shift, toggle } = {}) {
-      // console.log("OnRowSelect", rowId)
+      //console.log("OnRowSelect", rowId)
       // Multi + Shift Mode
       if (shift && this.multi) {
         this.selectRowsToCurrent(rowId)

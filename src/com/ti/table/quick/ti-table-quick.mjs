@@ -343,7 +343,7 @@ const _M = {
     //-----------------------------------------------
     moveCheckedRow(offset = 0, idMap = this.myCheckedIds) {
       idMap = this.getCheckedIdsMap(idMap, false)
-      //console.log(idMap)
+      //this.LOG(idMap)
       if (offset == 0 || _.isEmpty(idMap))
         return { rows: this.TheData, nextCheckedIds: idMap }
 
@@ -411,10 +411,10 @@ const _M = {
     // Utility
     //--------------------------------------
     scrollCurrentIntoView() {
-      //console.log("scrollCurrentIntoView", this.myLastIndex)
+      //this.LOG("scrollCurrentIntoView", this.myLastIndex)
       if (this.autoScrollIntoView && this.myCurrentId) {
         let index = this.findRowIndexById(this.myCurrentId)
-        //console.log("scroll", index)
+        //this.LOG("scroll", index)
         let $view = this.$el
         let $row = Ti.Dom.find(`.table-row:nth-child(${index + 1})`, $view)
 
