@@ -75,6 +75,10 @@ export default {
     type: Object,
     default: () => ({})
   },
+  "rootGetters": {
+    type: Object,
+    default: () => ({})
+  },
   //-----------------------------------
   // Global View Setting
   //-----------------------------------

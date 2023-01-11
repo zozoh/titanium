@@ -142,6 +142,9 @@ const _M = {
     RootState() {
       return this.$store.state
     },
+    RootGetters() {
+      return this.$store.getters
+    },
     //---------------------------------------
     Main() {
       return this.$store.state.main

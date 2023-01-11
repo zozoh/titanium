@@ -188,9 +188,9 @@ const TiToptip = {
   },
   //------------------------------------------
   watch() {
-    document.addEventListener("mouseover", evt => {
-      console.log(evt)
-    })
+    // document.addEventListener("mouseover", evt => {
+    //   console.log(evt)
+    // })
   }
   //------------------------------------------
 }

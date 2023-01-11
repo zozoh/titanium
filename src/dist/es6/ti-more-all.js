@@ -1,4 +1,4 @@
-// Pack At: 2023-01-10 17:10:36
+// Pack At: 2023-01-11 13:41:08
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -16481,6 +16481,10 @@ const _M = {
     "batchReadonly": {
       type: [Function, Array, Object]
     },
+    "tipAsPopIcon": {
+      type: Boolean,
+      default: false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -16692,6 +16696,7 @@ const _M = {
         }
         // Normal field
         else {
+          fld.tipAsPopIcon = Ti.Util.fallback(fld.tipAsPopIcon, this.tipAsPopIcon)
           // Grid with field name
           if (fld.showName) {
             nmStyle = {
@@ -21483,7 +21488,7 @@ const _M = {
         let ch = Ti.Util.fallbackNil(
           this.CurrentTabGroup.gridColumnHint,
           this.gridColumnHint)
-          //console.log(ch)
+        //console.log(ch)
         return this.evalGridColumnCount(ch)
       }
       return this.evalGridColumnCount(this.gridColumnHint)
@@ -21555,6 +21560,7 @@ const _M = {
     //--------------------------------------------------
     GridContainerConf() {
       return {
+        tipAsPopIcon: this.tipAsPopIcon,
         data: this.myData,
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
@@ -29655,6 +29661,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "adjustDelay": {
     type: Number,
     default: 0
+  },
+  "tipAsPopIcon": {
+    type: Boolean,
+    default: false
   },
   //-----------------------------------
   // Aspect
@@ -66224,6 +66234,9 @@ const _M = {
     RootState() {
       return this.$store.state
     },
+    RootGetters() {
+      return this.$store.getters
+    },
     //---------------------------------------
     Main() {
       return this.$store.state.main
@@ -82140,6 +82153,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Object,
     default: () => ({})
   },
+  "rootGetters": {
+    type: Object,
+    default: () => ({})
+  },
   //-----------------------------------
   // Global View Setting
   //-----------------------------------
@@ -85803,6 +85820,10 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
                 v-if="fld.title"
                   class="field-text"
                   :style="fld.nameTextStyle">{{fld.title | i18n}}</div>
+              <div
+                  v-if="fld.tip && fld.tipAsPopIcon"
+                    class="field-pop-tip"
+                    :data-ti-tip="fld.tip"><i class="zmdi zmdi-help-outline"></i></div>
               <!------Show enable switcher ------>
               <div
                 v-if="canShowBatchEditableSwitcher && fld.batchDisabled && !fld.batchReadonly"
@@ -85837,7 +85858,7 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
           </div>
           <!--------------------------------->
           <div
-            v-if="fld.tip"
+            v-if="fld.tip && !fld.tipAsPopIcon"
               class="field-value-tip"
               :style="fld.tipStyle">{{fld.tip | i18n}}</div>
           <!------Show tip when Nil-name----->
