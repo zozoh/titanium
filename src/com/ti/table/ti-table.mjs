@@ -340,7 +340,10 @@ const _M = {
   },
   ///////////////////////////////////////////////////
   watch: {
-    "data": "evalListDataWhenMarkChanged",
+    "data": function (newVal, oldVal) {
+      this.evalRenderScope();
+      this.evalListDataWhenMarkChanged(newVal, oldVal)
+    },
     //"TableFields": "evalListDataWhenMarkChanged", //<= it will cause evalListData always
     "selectable": "evalListDataWhenMarkChanged",
     "checkable": "evalListDataWhenMarkChanged",
@@ -351,7 +354,7 @@ const _M = {
   ///////////////////////////////////////////////////
   created: function () {
     this.LOG = () => { }
-    //this.LOG = console.log
+    this.LOG = console.log
   },
   ///////////////////////////////////////////////////
   mounted: async function () {

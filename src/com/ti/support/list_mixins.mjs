@@ -91,7 +91,7 @@ const LIST_MIXINS = {
     },
     //-----------------------------------------------
     isDataEmpty() {
-      return !_.isArray(this.TheData) || _.isEmpty(this.TheData)
+      return !_.isArray(this.data) || _.isEmpty(this.data)
     },
     //-----------------------------------------------
     isAllChecked() {
