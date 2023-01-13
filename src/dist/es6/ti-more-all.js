@@ -1,4 +1,4 @@
-// Pack At: 2023-01-12 19:20:38
+// Pack At: 2023-01-13 21:55:04
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -54854,7 +54854,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
 
       await this.evalListData()
-
+      await this.evalTableRows()
     },
     //--------------------------------------
     OnColumnResizeBegin(index) {
@@ -54996,7 +54996,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           // at bottom
           if (r_row.bottom > r_view.bottom) {
             this.LOG("at bottom", r_row.bottom - r_view.bottom)
-            $view.scrollTop += r_row.bottom - r_view.bottom + r_view.height/2
+            $view.scrollTop += r_row.bottom - r_view.bottom + r_view.height / 2
           }
           // at top
           else {

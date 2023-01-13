@@ -173,7 +173,7 @@ export default {
       }
 
       await this.evalListData()
-
+      await this.evalTableRows()
     },
     //--------------------------------------
     OnColumnResizeBegin(index) {
@@ -315,7 +315,7 @@ export default {
           // at bottom
           if (r_row.bottom > r_view.bottom) {
             this.LOG("at bottom", r_row.bottom - r_view.bottom)
-            $view.scrollTop += r_row.bottom - r_view.bottom + r_view.height/2
+            $view.scrollTop += r_row.bottom - r_view.bottom + r_view.height / 2
           }
           // at top
           else {
