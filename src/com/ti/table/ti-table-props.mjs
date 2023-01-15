@@ -49,6 +49,10 @@ export default {
     type: String,
     default: undefined
   },
+  "enableScope": {
+    type: Boolean,
+    default: false
+  },
   "checkIcons": {
     type: Object,
     default: () => ({

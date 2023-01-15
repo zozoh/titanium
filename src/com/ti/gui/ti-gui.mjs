@@ -79,6 +79,14 @@ const _M = {
       type: Boolean,
       default: false
     },
+    "hideWhenLoading": {
+      type: Boolean,
+      default: false
+    },
+    "maskWhenLoading": {
+      type: Boolean,
+      default: true
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -180,7 +188,7 @@ const _M = {
       let keys = Ti.Util.truthyKeys(this.actionStatus)
       for (let key of keys) {
         let val = this.actionStatus[key]
-        if(_.isObject(val)){
+        if (_.isObject(val)) {
           return val
         }
         if (as[key]) {

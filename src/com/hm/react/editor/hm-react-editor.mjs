@@ -19,7 +19,13 @@ export default {
     //------------------------------------------------
     "keepStatusTo": {
       type: String
-    }
+    },
+    "blankAs": {
+      type: Object
+    },
+    "blank": {
+      type: Boolean
+    },
   },
   ////////////////////////////////////////////////////
   computed: {

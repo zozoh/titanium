@@ -49,6 +49,21 @@ const CURRENCIES = {
 ///////////////////////////////////////
 const TiBank = {
   //-----------------------------------
+  exchange(val, { from = "RMB", to = "RMB", exrs = {}, dft = -1 } = {}) {
+    if (from == to) {
+      return val
+    }
+    let exr = exrs[`${from}_${to}`]
+    if (exr > 0) {
+      return val * exr
+    }
+    exr = exrs[`${to}_${from}`]
+    if (exr > 0) {
+      return val / exr
+    }
+    return dft
+  },
+  //-----------------------------------
   getCurrencyChar(cur = "RMB") {
     return _.get(CURRENCIES[cur], "token")
   },
@@ -138,6 +153,7 @@ const TiBank = {
   },
   //-----------------------------------
   toYuanText(cent = 0.0, precise = 2) {
+    cent = Math.round(cent)
     let n = Math.round(cent)
     let y = Math.floor(n / 100)
     let c = cent - y * 100
@@ -147,7 +163,8 @@ const TiBank = {
     return `${y}`
   },
   //-----------------------------------
-  toYuanTokenText(cent = 0.0, currency="RMB", precise = 2) {
+  toYuanTokenText(cent = 0.0, currency = "RMB", precise = 2) {
+    cent = Math.round(cent)
     let t = TiBank.getCurrencyToken(currency) || ""
     let n = Math.round(cent)
     let y = Math.floor(n / 100)

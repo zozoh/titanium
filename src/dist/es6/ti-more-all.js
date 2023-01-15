@@ -1,4 +1,4 @@
-// Pack At: 2023-01-13 21:55:04
+// Pack At: 2023-01-16 01:47:58
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -10542,8 +10542,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
 
       // Out of scope
-      let VI0 = this.virtualScopeBegin
-      let VI1 = this.virtualScopeEnd
+      let VI0 = this.RowScopeFrom
+      let VI1 = this.RowScopeTo
       if (index < VI0 || index >= VI1) {
         return
       }
@@ -18053,6 +18053,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "keepCustomizedTo": {
     type: String,
     default: undefined
+  },
+  "enableScope": {
+    type: Boolean,
+    default: false
   },
   "checkIcons": {
     type: Object,
@@ -38736,6 +38740,14 @@ const _M = {
       type: Boolean,
       default: false
     },
+    "hideWhenLoading": {
+      type: Boolean,
+      default: false
+    },
+    "maskWhenLoading": {
+      type: Boolean,
+      default: true
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -38837,7 +38849,7 @@ const _M = {
       let keys = Ti.Util.truthyKeys(this.actionStatus)
       for (let key of keys) {
         let val = this.actionStatus[key]
-        if(_.isObject(val)){
+        if (_.isObject(val)) {
           return val
         }
         if (as[key]) {
@@ -42182,6 +42194,17 @@ const _M = {
       }
     },
     //--------------------------------------
+    RowScopeFrom() {
+      return Math.max(this.virtualScopeBegin, 0)
+    },
+    //--------------------------------------
+    RowScopeTo() {
+      if (this.virtualScopeEnd < 0) {
+        return this.data.length
+      }
+      return Math.min(this.virtualScopeEnd, this.data.length)
+    },
+    //--------------------------------------
     RowCheckIcons() {
       let re = {}
       _.forEach(this.checkIcons, (v, k) => {
@@ -42234,12 +42257,14 @@ const _M = {
     },
     //--------------------------------------
     VirtualRows() {
-      if (this.virtualPageCount > 0 && this.rowsRenderedAt > 0) {
-        let I0 = this.virtualScopeBegin
-        let I1 = this.virtualScopeEnd
-        return this.tblRows.slice(I0, I1)
+      if (this.rowsRenderedAt > 0) {
+        if (this.virtualPageCount > 0) {
+          let I0 = this.RowScopeFrom
+          let I1 = this.RowScopeTo
+          return this.tblRows.slice(I0, I1)
+        }
+        return this.tblRows.slice(0)
       }
-      return this.tblRows.slice(0)
     },
     //--------------------------------------
     hasVirtualRowHead() {
@@ -42368,7 +42393,7 @@ const _M = {
     },
     //--------------------------------------
     evalRenderScope() {
-      if (this.virtualRowHeight > 0 && this.myTableRect) {
+      if (this.enableScope && this.virtualRowHeight > 0 && this.myTableRect) {
         let vH = this.myTableRect.height
         let rH = this.virtualRowHeight
         this.LOG("evalRenderScope-begin", vH, rH)
@@ -42399,7 +42424,7 @@ const _M = {
         } else {
           this.virtualScopeBegin = 0
           this.virtualScopeEnd = 0
-          this.LOG("evalRenderScope-end(B)", { vH, rH, vpc, arI, scope: "0:0" })
+          this.LOG("evalRenderScope-end(B)", { vH, rH, vpc, scope: "0:0" })
         }
 
       }
@@ -42407,7 +42432,7 @@ const _M = {
       else {
         this.virtualScopeBegin = 0
         this.virtualScopeEnd = -1
-        this.LOG("evalRenderScope-end(C)", { vH, rH, vpc, arI, scope: "0:-1" })
+        this.LOG("evalRenderScope-end(C)", { scope: "0:-1" })
       }
     },
     //--------------------------------------
@@ -42441,8 +42466,8 @@ const _M = {
       let r0H = this.virtualRowHeight
       let r1H = Math.ceil(sH / N)
       let vpc = this.virtualPageCount
-      let vs0 = this.virtualScopeBegin
-      let vs1 = this.virtualScopeEnd
+      let vs0 = this.RowScopeFrom
+      let vs1 = this.RowScopeTo
 
 
       let halfVpc = Math.round(this.virtualPageCount / 2)
@@ -42486,7 +42511,7 @@ const _M = {
   ///////////////////////////////////////////////////
   created: function () {
     this.LOG = () => { }
-    this.LOG = console.log
+    //this.LOG = console.log
   },
   ///////////////////////////////////////////////////
   mounted: async function () {
@@ -75247,7 +75272,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     "keepStatusTo": {
       type: String
-    }
+    },
+    "blankAs": {
+      type: Object
+    },
+    "blank": {
+      type: Boolean
+    },
   },
   ////////////////////////////////////////////////////
   computed: {
@@ -83648,7 +83679,11 @@ Ti.Preload("ti/com/hm/react/editor/hm-react-editor.html", `<TiGui
   class="chispo-react-editor"
   :layout="GUILayout"
   :schema="GUISchema"
-  :canLoading="false"
+  :canLoading="blankAs ? true : false"
+  :loading="blank"
+  :loadingAs="blankAs"
+  :hideWhenLoading="true"
+  :maskWhenLoading="false"
   @list::select="OnListSelect"
   @form::change="OnFormChange"
   @form::field::change="OnFormFieldChange"/>`);
@@ -86895,7 +86930,7 @@ Ti.Preload("ti/com/ti/gui/ti-gui.html", `<div class="ti-gui" :class="TopClass">
   <!--===========================================
     All normal layout
   -->
-  <div class="gui-con">
+  <div class="gui-con" v-if="!isLoading || !hideWhenLoading">
     <!--
       Layout as rows
     -->
@@ -86956,10 +86991,16 @@ Ti.Preload("ti/com/ti/gui/ti-gui.html", `<div class="ti-gui" :class="TopClass">
   <!--===========================================
     Loading
   -->
-  <div v-if="isLoading"
-    class="ti-mask-loading">
-    <ti-loading v-bind="TheLoading"/>
-  </div>
+  <template v-if="isLoading">
+    <div
+      v-if="maskWhenLoading"
+        class="ti-mask-loading">
+        <ti-loading v-bind="TheLoading"/>
+    </div>
+    <ti-loading
+      v-else
+        v-bind="TheLoading"/>
+</template>
 </div>`);
 //========================================
 // JOIN <ti-gui.mjs> ti/com/ti/gui/ti-gui.mjs

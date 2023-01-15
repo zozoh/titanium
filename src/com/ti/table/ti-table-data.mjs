@@ -149,8 +149,8 @@ export default {
       }
 
       // Out of scope
-      let VI0 = this.virtualScopeBegin
-      let VI1 = this.virtualScopeEnd
+      let VI0 = this.RowScopeFrom
+      let VI1 = this.RowScopeTo
       if (index < VI0 || index >= VI1) {
         return
       }

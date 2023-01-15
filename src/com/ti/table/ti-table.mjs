@@ -50,6 +50,17 @@ const _M = {
       }
     },
     //--------------------------------------
+    RowScopeFrom() {
+      return Math.max(this.virtualScopeBegin, 0)
+    },
+    //--------------------------------------
+    RowScopeTo() {
+      if (this.virtualScopeEnd < 0) {
+        return this.data.length
+      }
+      return Math.min(this.virtualScopeEnd, this.data.length)
+    },
+    //--------------------------------------
     RowCheckIcons() {
       let re = {}
       _.forEach(this.checkIcons, (v, k) => {
@@ -102,12 +113,14 @@ const _M = {
     },
     //--------------------------------------
     VirtualRows() {
-      if (this.virtualPageCount > 0 && this.rowsRenderedAt > 0) {
-        let I0 = this.virtualScopeBegin
-        let I1 = this.virtualScopeEnd
-        return this.tblRows.slice(I0, I1)
+      if (this.rowsRenderedAt > 0) {
+        if (this.virtualPageCount > 0) {
+          let I0 = this.RowScopeFrom
+          let I1 = this.RowScopeTo
+          return this.tblRows.slice(I0, I1)
+        }
+        return this.tblRows.slice(0)
       }
-      return this.tblRows.slice(0)
     },
     //--------------------------------------
     hasVirtualRowHead() {
@@ -236,7 +249,7 @@ const _M = {
     },
     //--------------------------------------
     evalRenderScope() {
-      if (this.virtualRowHeight > 0 && this.myTableRect) {
+      if (this.enableScope && this.virtualRowHeight > 0 && this.myTableRect) {
         let vH = this.myTableRect.height
         let rH = this.virtualRowHeight
         this.LOG("evalRenderScope-begin", vH, rH)
@@ -267,7 +280,7 @@ const _M = {
         } else {
           this.virtualScopeBegin = 0
           this.virtualScopeEnd = 0
-          this.LOG("evalRenderScope-end(B)", { vH, rH, vpc, arI, scope: "0:0" })
+          this.LOG("evalRenderScope-end(B)", { vH, rH, vpc, scope: "0:0" })
         }
 
       }
@@ -275,7 +288,7 @@ const _M = {
       else {
         this.virtualScopeBegin = 0
         this.virtualScopeEnd = -1
-        this.LOG("evalRenderScope-end(C)", { vH, rH, vpc, arI, scope: "0:-1" })
+        this.LOG("evalRenderScope-end(C)", { scope: "0:-1" })
       }
     },
     //--------------------------------------
@@ -309,8 +322,8 @@ const _M = {
       let r0H = this.virtualRowHeight
       let r1H = Math.ceil(sH / N)
       let vpc = this.virtualPageCount
-      let vs0 = this.virtualScopeBegin
-      let vs1 = this.virtualScopeEnd
+      let vs0 = this.RowScopeFrom
+      let vs1 = this.RowScopeTo
 
 
       let halfVpc = Math.round(this.virtualPageCount / 2)
@@ -354,7 +367,7 @@ const _M = {
   ///////////////////////////////////////////////////
   created: function () {
     this.LOG = () => { }
-    this.LOG = console.log
+    //this.LOG = console.log
   },
   ///////////////////////////////////////////////////
   mounted: async function () {

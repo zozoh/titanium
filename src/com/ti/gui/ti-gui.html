@@ -2,7 +2,7 @@
   <!--===========================================
     All normal layout
   -->
-  <div class="gui-con">
+  <div class="gui-con" v-if="!isLoading || !hideWhenLoading">
     <!--
       Layout as rows
     -->
@@ -63,8 +63,14 @@
   <!--===========================================
     Loading
   -->
-  <div v-if="isLoading"
-    class="ti-mask-loading">
-    <ti-loading v-bind="TheLoading"/>
-  </div>
+  <template v-if="isLoading">
+    <div
+      v-if="maskWhenLoading"
+        class="ti-mask-loading">
+        <ti-loading v-bind="TheLoading"/>
+    </div>
+    <ti-loading
+      v-else
+        v-bind="TheLoading"/>
+</template>
 </div>
