@@ -14,7 +14,9 @@ export default {
   //////////////////////////////////////////
   data: () => ({
     myMajorValues: [],
-    myTags: []
+    myTags: [],
+    mySideMajors: [],
+    myTopMajors: []
   }),
   //////////////////////////////////////////
   computed: {
@@ -30,11 +32,14 @@ export default {
       let list = []
       if (this.majors) {
         if (_.isArray(this.majors)) {
-          list.push(...this.majors)
+          list = _.cloneDeep(this.majors)
         } else {
-          list.push(this.majors)
+          list = [_.cloneDeep(this.majors)]
         }
       }
+      _.forEach(list, (li, index) => {
+        li.index = index
+      })
       return _.filter(list, li => li.key)
     },
     //-------------------------------------
@@ -46,27 +51,12 @@ export default {
       return re
     },
     //-------------------------------------
-    MajorDropList() {
-      let list = []
-      _.forEach(this.MajorItems, (it, index) => {
-        let value = _.get(this.myMajorValues, index)
-        let li = {
-          key: it.key,
-          index,
-          comType: it.comType || "TiDroplist",
-          comConf: _.assign({
-            placeholder: it.placeholder,
-            options: it.options,
-            width: it.width,
-            dropWidth: it.dropWidth,
-            dropDisplay: it.dropDisplay,
-          }, it.comConf, {
-            value
-          })
-        }
-        list.push(li)
-      })
-      return list
+    hasSideMajors() {
+      return !_.isEmpty(this.mySideMajors)
+    },
+    //-------------------------------------
+    hasTopMajors() {
+      return !_.isEmpty(this.myTopMajors)
     },
     //-------------------------------------
     FilterInputConf() {
@@ -90,10 +80,6 @@ export default {
       }
     },
     //-------------------------------------
-    hasMajors() {
-      return !_.isEmpty(this.MajorItems)
-    },
-    //-------------------------------------
     hasFilter() {
       return !_.isEmpty(this.filter)
     },
@@ -115,6 +101,7 @@ export default {
     },
     //-------------------------------------
     OnMajorChange(val, it) {
+      console.log("OnMajorChange", { val, it })
       if (_.isEmpty(val) && (_.isArray(val) || _.isObject(val))) {
         val = null
       }
@@ -166,7 +153,7 @@ export default {
     notifyFilterChange({ newFlt = {}, withTags = true } = {}) {
       let flt = {}
       // Get the majorValue
-      _.forEach(this.MajorDropList, ({ index, key }) => {
+      _.forEach(this.MajorItems, ({ index, key }) => {
         let val = _.get(this.myMajorValues, index)
         if (!Ti.Util.isNil(val)) {
           flt[key] = val
@@ -186,6 +173,42 @@ export default {
       if (!_.isEqual(this.filter, flt)) {
         this.$notify("filter:change", flt)
       }
+    },
+    //-------------------------------------
+    tryEvalMajors(newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
+        this.evalMajors()
+      }
+    },
+    //-------------------------------------
+    evalMajors(items = this.MajorItems) {
+      let isAtTop = Ti.AutoMatch.parse(this.topMajors)
+      let sides = []
+      let tops = []
+      _.forEach(items, (it, index) => {
+        let value = _.get(this.myMajorValues, index)
+        let li = {
+          key: it.key,
+          index,
+          comType: it.comType || "TiDroplist",
+          comConf: _.assign({
+            placeholder: it.placeholder,
+            options: it.options,
+            width: it.width,
+            dropWidth: it.dropWidth,
+            dropDisplay: it.dropDisplay,
+          }, it.comConf, {
+            value
+          })
+        }
+        if (isAtTop(it.key)) {
+          tops.push(li)
+        } else {
+          sides.push(li)
+        }
+      })
+      this.mySideMajors = sides;
+      this.myTopMajors = tops;
     },
     //-------------------------------------
     evalKeywords(input) {
@@ -279,6 +302,7 @@ export default {
       }
       this.myMajorValues = mjvs
       this.myTags = tags
+      this.evalMajors()
     }
     //-------------------------------------
   },
@@ -287,7 +311,13 @@ export default {
     "filter": {
       handler: "evalFilter",
       immediate: true
-    }
+    },
+    "MajorItems": "tryEvalMajors",
+    "topMajors": "tryEvalMajors"
+  },
+  //////////////////////////////////////////
+  mounted() {
+    this.evalMajors()
   }
   //////////////////////////////////////////
 }

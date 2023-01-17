@@ -50,6 +50,10 @@ export default {
     type: [Object, Array],
     default: () => []
   },
+  "topMajors": {
+    type: [Object, Array, String, Boolean],
+    default: false
+  },
   /*
    How to show the filter data as readable tags
    {xyz: Function|Explain|Dict}
@@ -79,11 +83,6 @@ export default {
   "placeholder": {
     type: [String, Number],
     default: "i18n:nil"
-  },
-  "mode": {
-    type: String,
-    default: "H",
-    validator: v => /^[V|H]$/.test(v)
   },
   // Advance search dialog setting
   "dialog": {

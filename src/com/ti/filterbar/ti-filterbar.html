@@ -1,41 +1,57 @@
 <div class="ti-filterbar" :class="TopClass">
   <!--
-    Show marjor filter conditions
+    Top Majors
   -->
   <div
-    v-if="hasMajors"
-      class="filterbar-part as-majors">
+    v-if="hasTopMajors"
+      class="filterbar-part as-majors at-top">
       <component
-        v-for="it in MajorDropList"
+        v-for="it in myTopMajors"
           :is="it.comType"
           :key="it.index"
           class="as-major-item"
           v-bind="it.comConf"
           @change="OnMajorChange($event, it)"/>
   </div>
-  <!--
-    Input and filtered tags
-    +---------------------------------------------+
-    | Tag | Tag | Tag |    Input value      | Adv |
-    +---------------------------------------------+
-  -->
-  <div class="filterbar-part as-filter">
-    <TiInput v-bind="FilterInputConf"
-      @change="OnInputChange"
-      @input:clean="OnInputClean"
-      @open:advance="OnOpenAdvance">
-      <TiTags v-bind="FilterTagConf" :value="myTags" @change="OnTagsChange"/>
-    </TiInput>
-  </div>
-  <!--
-    Sorter
-  -->
-  <div
-    v-if="showSorter"
-      class="filterbar-part as-sorter">
-      <TiComboSorter
-        v-bind="sorterConf"
-        :value="sorter"
-        @change="OnSorterChange"/>
-  </div>
+  <main>
+    <!--
+      Side Majors
+    -->
+    <div
+      v-if="hasSideMajors"
+        class="filterbar-part as-majors at-side">
+        <component
+          v-for="it in mySideMajors"
+            :is="it.comType"
+            :key="it.index"
+            class="as-major-item"
+            v-bind="it.comConf"
+            @change="OnMajorChange($event, it)"/>
+    </div>
+    <!--
+      Input and filtered tags
+      +---------------------------------------------+
+      | Tag | Tag | Tag |    Input value      | Adv |
+      +---------------------------------------------+
+    -->
+    <div class="filterbar-part as-filter">
+      <TiInput v-bind="FilterInputConf"
+        @change="OnInputChange"
+        @input:clean="OnInputClean"
+        @open:advance="OnOpenAdvance">
+        <TiTags v-bind="FilterTagConf" :value="myTags" @change="OnTagsChange"/>
+      </TiInput>
+    </div>
+    <!--
+      Sorter
+    -->
+    <div
+      v-if="showSorter"
+        class="filterbar-part as-sorter">
+        <TiComboSorter
+          v-bind="sorterConf"
+          :value="sorter"
+          @change="OnSorterChange"/>
+    </div>
+  </main>
 </div>

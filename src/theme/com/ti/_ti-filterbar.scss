@@ -1,75 +1,65 @@
 .ti-filterbar {
-  $PP: SZ(1); padding: SZ(4);
+  $PP: SZ(1);
+  padding: SZ(4);
   //-------------------------------------------
-  &.is-mode-v {
+  > .as-majors.at-top {
     @include flex-align;
-    > .filterbar-part {
-      padding: $PP 0;
-      &.as-majors{
-        flex : 0 0 auto;
-        width:100%;
-      }
-      &.as-filter {
-        flex : 1 1 auto;
-        overflow: hidden;
-      }
-    }
+    margin-bottom: SZ(4);
   }
   //-------------------------------------------
-  &.is-mode-h {
+  .as-majors > .as-major-item {
+    margin-right: $PP * 2;
+  }
+  //-------------------------------------------
+  > main {
     @include flex-align-nowrap;
+    //-------------------------------------------
+    > .as-majors.at-side {
+      @include flex-align-nowrap;
+    }
+    //-------------------------------------------
     > .as-filter {
-      flex: 1 1 auto; overflow: hidden;
-    }
-  }
-  //-------------------------------------------
-  > .as-majors {
-    @include flex-align-nowrap;
-    //-----------------------------------------
-    > .as-major-item {
-      margin-right: $PP * 2;
-    }
-  }
-  //-------------------------------------------
-  > .as-filter {
-    //-----------------------------------------
-    > .ti-input {
-      flex-wrap: wrap;
-      //---------------------------------------
-      .ti-tags {
-        overflow: hidden;
-      }
-      //---------------------------------------
-      .as-input-icon,
-      .as-input {
-        min-height: SZ(32);
-      }
-      //---------------------------------------
-    }
-    //-----------------------------------------
-  }
-  //-------------------------------------------
-  &.is-nowrap > .as-filter {
-    //-----------------------------------------
-    > .ti-input {
-      flex-wrap: nowrap;
-      //---------------------------------------
-      .ti-tags {
-        overflow: hidden;
-        flex-wrap: nowrap;
-        .ti-tags-item > .as-text {
-          max-width: 1rem; overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+      flex:1 1 auto;
+      //-----------------------------------------
+      > .ti-input {
+        flex-wrap: wrap;
+        //---------------------------------------
+        .ti-tags {
+          overflow: hidden;
         }
+        //---------------------------------------
+        .as-input-icon,
+        .as-input {
+          min-height: SZ(32);
+        }
+        //---------------------------------------
       }
-      //---------------------------------------
-      .as-input {
-        min-width: SZ(120);
-      }
-      //---------------------------------------
+      //-----------------------------------------
     }
-    //-----------------------------------------
+    //-------------------------------------------
+    &.is-nowrap > .as-filter {
+      //-----------------------------------------
+      > .ti-input {
+        flex-wrap: nowrap;
+        //---------------------------------------
+        .ti-tags {
+          overflow: hidden;
+          flex-wrap: nowrap;
+          .ti-tags-item > .as-text {
+            max-width: 1rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+        //---------------------------------------
+        .as-input {
+          min-width: SZ(120);
+        }
+        //---------------------------------------
+      }
+      //-----------------------------------------
+    }
   }
   //-------------------------------------------
 }

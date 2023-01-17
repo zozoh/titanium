@@ -303,26 +303,7 @@ export default {
         let $view = this.$el
         let $row = Ti.Dom.find(`.table-row[row-id="${this.theCurrentId}"]`, $view)
         this.LOG("find row", $row)
-        if (!_.isElement($view) || !_.isElement($row)) {
-          return
-        }
-
-        let r_view = Ti.Rects.createBy($view)
-        let r_row = Ti.Rects.createBy($row)
-
-        // test it need to scroll or not
-        if (!r_view.contains(r_row)) {
-          // at bottom
-          if (r_row.bottom > r_view.bottom) {
-            this.LOG("at bottom", r_row.bottom - r_view.bottom)
-            $view.scrollTop += r_row.bottom - r_view.bottom + r_view.height / 2
-          }
-          // at top
-          else {
-            $view.scrollTop += r_row.top - r_view.top
-            this.LOG("at top", r_row.top - r_view.top)
-          }
-        }
+        Ti.Dom.scrollIntoView($view, $row)
       }
     },
     //--------------------------------------

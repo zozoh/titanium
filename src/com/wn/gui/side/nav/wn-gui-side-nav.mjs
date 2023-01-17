@@ -109,8 +109,35 @@ const _M = {
     //-------------------------------------
     onItemActived(payload = {}) {
       this.$notify("item:active", payload)
+    },
+    //--------------------------------------
+    scrollCurrentIntoView() {
+      console.log("scrollCurrentIntoView")
+      if (this.theHighlightItemId) {
+        let $view = this.$el
+        let $row = Ti.Dom.find(".side-nav-item.is-highlight", $view)
+        Ti.Dom.scrollIntoView($view, $row)
+      }
+    },
+    //-------------------------------------
+    delayScrollCurrentIntoView(delay=500) {
+      _.delay(() => {
+        this.scrollCurrentIntoView()
+      }, delay)
     }
     //-------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "theHighlightItemId": "delayScrollCurrentIntoView"
+  },
+  //////////////////////////////////////////
+  mounted() {
+    this.$nextTick(() => {
+      this.delayScrollCurrentIntoView(0)
+      this.delayScrollCurrentIntoView(100)
+      this.delayScrollCurrentIntoView(500)
+    })
   }
   //////////////////////////////////////////
 }

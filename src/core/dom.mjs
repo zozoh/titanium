@@ -447,7 +447,7 @@ const TiDom = {
   },
   //----------------------------------------------------
   seek($el, filter, by) {
-    if(!_.isElement($el)){
+    if (!_.isElement($el)) {
       return
     }
     if (!_.isFunction(by)) {
@@ -510,21 +510,21 @@ const TiDom = {
   // Closest
   //
   closest($el, filter, { includeSelf = false } = {}) {
-    if(!_.isElement($el)){
+    if (!_.isElement($el)) {
       return
     }
     let $p = includeSelf ? $el : $el.parentElement
     return TiDom.seek($p, filter, el => el.parentElement)
   },
   closestByTagName($el, tagName, { includeSelf = false } = {}) {
-    if(!_.isElement($el)){
+    if (!_.isElement($el)) {
       return
     }
     let $p = includeSelf ? $el : $el.parentElement
     return TiDom.seekByTagName($p, tagName, el => el.parentElement)
   },
   parentsUntil($el, selector, setup = {}) {
-    if(!_.isElement($el)){
+    if (!_.isElement($el)) {
       return
     }
     return TiDom.seekUntil($el, selector, {
@@ -1039,7 +1039,29 @@ const TiDom = {
       window.SCROLL_BAR_SIZE = scrollSize;
     }
     return window.SCROLL_BAR_SIZE;
-  }
+  },
+  //----------------------------------------------------
+  scrollIntoView($view, $row) {
+    if (!_.isElement($view) || !_.isElement($row)) {
+      return
+    }
+    let r_view = Ti.Rects.createBy($view)
+    let r_row = Ti.Rects.createBy($row)
+
+    // test it need to scroll or not
+    if (!r_view.contains(r_row)) {
+      // at bottom
+      if (r_row.bottom > r_view.bottom) {
+        console.log("at bottom", r_row.bottom - r_view.bottom)
+        $view.scrollTop += r_row.bottom - r_view.bottom + r_view.height / 2
+      }
+      // at top
+      else {
+        $view.scrollTop += r_row.top - r_view.top
+        console.log("at top", r_row.top - r_view.top)
+      }
+    }
+  },
   //----------------------------------------------------
 }
 //---------------------------------------
