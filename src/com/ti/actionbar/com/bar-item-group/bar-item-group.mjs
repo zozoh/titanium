@@ -2,17 +2,18 @@ const _M = {
   ///////////////////////////////////////
   inject: ["$bar"],
   ///////////////////////////////////////////
-  provide : function(){
-    return {depth: this.depth+1}
+  provide: function () {
+    return { depth: this.depth + 1 }
   },
   ///////////////////////////////////////
-  data : ()=>({
-    collapse : true,
-    isDocked : false,
-    barItems : []
+  data: () => ({
+    collapse: true,
+    isDocked: false,
+    barItems: [],
+    IamHoverAt: 0
   }),
   ///////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Same as <bar-item-info>
     //-----------------------------------
@@ -24,7 +25,7 @@ const _M = {
       type: String,
       default: undefined
     },
-    "hideIcon" : {
+    "hideIcon": {
       type: Boolean,
       default: false
     },
@@ -36,9 +37,13 @@ const _M = {
       type: String,
       default: undefined
     },
-    "altDisplay" : {
+    "altDisplay": {
       type: [Object, Array],
-      default: ()=>[]
+      default: () => []
+    },
+    "topHoverOpen": {
+      type: Boolean,
+      default: false
     },
     "enabled": {
       type: [String, Array, Object],
@@ -56,16 +61,16 @@ const _M = {
       type: Number,
       default: 0
     },
-    "status" : {
-      type : Object,
-      default : ()=>({})
+    "status": {
+      type: Object,
+      default: () => ({})
     },
     //-----------------------------------
     // Self Props
     //-----------------------------------
     "items": {
       type: Array,
-      default: ()=>[]
+      default: () => []
     },
     "autoExtend": {
       type: Boolean,
@@ -73,27 +78,27 @@ const _M = {
     }
   },
   ///////////////////////////////////////////
-  computed : {
+  computed: {
     //---------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-collapse" : this.collapse,
-        "is-extended" : !this.collapse,
-        "is-depth-x"  : this.isDepthX,
-      },`is-depth-${this.depth}`)
+        "is-collapse": this.collapse,
+        "is-extended": !this.collapse,
+        "is-depth-x": this.isDepthX,
+      }, `is-depth-${this.depth}`)
     },
     //---------------------------------------
-    isDepth0() {return 0 == this.depth},
-    isDepth1() {return 1 == this.depth},
-    isDepthX() {return this.depth > 1},
+    isDepth0() { return 0 == this.depth },
+    isDepth1() { return 1 == this.depth },
+    isDepthX() { return this.depth > 1 },
     //---------------------------------------
     hasInfo() {
       return this.icon || this.text
     },
     //---------------------------------------
     isChildrenWithoutIcon() {
-      for(let it of this.items) {
-        if(it.comConf && it.comConf.icon) {
+      for (let it of this.items) {
+        if (it.comConf && it.comConf.icon) {
           return false
         }
       }
@@ -105,39 +110,61 @@ const _M = {
     },
     //---------------------------------------
     ItemSuffixIcon() {
-      if(this.isDepthX){
+      if (this.isDepthX) {
         return "im-angle-right"
       }
     },
     //---------------------------------------
     ChildrenStyle() {
-      if(!this.isDepth0) {
-        if(!this.isDocked) {
-          return {"visibility": "hidden"}
+      if (!this.isDepth0) {
+        if (!this.isDocked) {
+          return { "visibility": "hidden" }
         }
       }
     }
     //---------------------------------------
   },
   ///////////////////////////////////////////
-  methods : {
+  methods: {
     //---------------------------------------
     OnMouseEnter() {
-      if(this.isDepthX) {
+      this.IamHoverAt = Date.now()
+      if (this.isDepthX || this.topHoverOpen) {
         this.doExtend()
+      }
+      else if (this.topHoverOpen) {
+        _.delay(() => {
+          this.doExtend()
+        }, 202)
       }
     },
     //---------------------------------------
+    OnMouseHover() {
+      this.IamHoverAt = Date.now()
+    },
+    //---------------------------------------
     OnMouseLeave() {
-      if(this.isDepthX) {
+      if (this.isDepthX) {
         this.doCollapse()
+      }
+      else if (this.topHoverOpen) {
+        _.delay(() => {
+          this.tryCollape()
+        }, 201)
       }
     },
     //---------------------------------------
     OnFired(collapse) {
-      if(collapse) {
+      if (collapse) {
         this.doExtend()
       } else {
+        this.doCollapse()
+      }
+    },
+    //---------------------------------------
+    tryCollape() {
+      let du = Date.now() - this.IamHoverAt
+      if (du > 200) {
         this.doCollapse()
       }
     },
@@ -155,14 +182,14 @@ const _M = {
     //---------------------------------------
     doDockChildren() {
       //console.log("collapse changed", this.collapse)
-      this.$nextTick(()=>{
-        if(this.$refs.children && this.depth>0) {
+      this.$nextTick(() => {
+        if (this.$refs.children && this.depth > 0) {
           Ti.Dom.dockTo(this.$refs.children, this.$el, {
-            mode : this.isDepthX ? "V" : "H",
-            position : "fixed",
-            space: this.isDepthX ? {x:-1} : {y:3}
+            mode: this.isDepthX ? "V" : "H",
+            position: "fixed",
+            space: this.isDepthX ? { x: -1 } : { y: 3 }
           })
-          _.delay(()=>{
+          _.delay(() => {
             this.isDocked = true
           }, 5)
         }
@@ -175,12 +202,12 @@ const _M = {
     "collapse": "doDockChildren"
   },
   ///////////////////////////////////////////
-  mounted: function(){
+  mounted: function () {
     this.doDockChildren()
     this.$bar.allocGroup(this)
   },
   ///////////////////////////////////////////
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     this.$bar.freeGroup(this)
   }
   ///////////////////////////////////////////

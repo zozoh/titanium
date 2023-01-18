@@ -29,10 +29,6 @@ const _M = {
   ////////////////////////////////////////////
   computed: {
     //----------------------------------------
-    ComChanged() {
-      return _.get(this.myCom, "changed") || ".."
-    },
-    //----------------------------------------
     ComStyle() {
       return Ti.Css.toStyle(_.get(this.myCom, "style"))
     },
@@ -44,28 +40,26 @@ const _M = {
     ComConf() {
       let conf = _.get(this.myCom, "comConf")
       return Ti.Util.explainObj(this, conf)
+    },
+    //----------------------------------------
+    ComModel() {
+      return _.assign({
+        'change': {
+          mode: "reset",   // reset | assign | merge
+          data: '=..'
+        }
+      }, _.get(this.myCom, "comModel"))
     }
     //----------------------------------------
   },
   ////////////////////////////////////////////
   methods: {
     //----------------------------------------
-    OnChanged(val) {
-      console.log("Com Test Case:", val)
-      this.setDataValue(val)
-    },
-    //----------------------------------------
     setDataValue(val) {
-      if (".." == this.ComChanged) {
-        if (_.isDate(val)) {
-          val = Ti.Types.formatDateTime(val)
-        }
-        Ti.App(this).dispatch("main/changeContent", val)
-      } else {
-        let da = _.cloneDeep(this.data)
-        _.set(da, this.ComChanged, val)
-        Ti.App(this).dispatch("main/changeContent", da)
+      if (_.isDate(val)) {
+        val = Ti.Types.formatDateTime(val)
       }
+      Ti.App(this).dispatch("main/changeContent", val)
     },
     //----------------------------------------
     async reloadMyCom() {
@@ -93,15 +87,21 @@ const _M = {
     },
     //----------------------------------------
     __on_events(name, payload) {
-      let dataKey = _.get(this.myCom, `dataEvents.${name}`)
-      if (dataKey) {
-        return () => {
-          let data = _.cloneDeep(this.data)
-          data[dataKey] = payload
-          this.setDataValue(data)
+      let model = this.ComModel[name]
+      if (model) {
+        let { mode = "reset", data } = model
+        console.log("Com Test Case", model, name, payload)
+        let val = Ti.Util.explainObj(payload, data)
+        if ("assign" == mode) {
+          val = _.assign({}, this.data, val)
         }
+        else if ("merge" == mode) {
+          val = _.merge({}, this.data, val)
+        }
+        this.setDataValue(val)
+
       }
-    }
+    },
     //----------------------------------------
   },
   ////////////////////////////////////////////

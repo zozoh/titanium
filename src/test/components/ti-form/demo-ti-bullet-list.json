@@ -3,6 +3,7 @@
   "comConf" : {
     "autoShowBlank" : false,
     "data" : "=data",
+    "gridColumnHint":0,
     "fields" : [{
         "title" : "多选列表",
         "name"  : "bc0",

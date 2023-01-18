@@ -28,7 +28,7 @@ export default {
         blocks: [
           {
             name: "filter",
-            size: ".43rem",
+            size: "auto",
             body: "filter"
           },
           {
@@ -49,22 +49,26 @@ export default {
       return {
         //................................
         filter: {
-          comType: "TiFilterbar",
-          comConf: {
-            className: "is-nowrap",
-            filter: this.filter,
-            sorter: this.sorter,
-            placeholder: this.placeholder,
-            dialog: _.assign({
+          comType: this.filterComType,
+          comConf: _.assign({
+            dialog: {
               "icon": "fas-search",
               "title": "i18n:search-adv",
               "position": "top",
               "width": "6.4rem",
               "height": "90%"
-            }, this.dialog),
-            majors: this.majors,
-            matchKeywords: this.matchKeywords,
-            filterTags: _.assign({
+            },
+            matchKeywords: [
+              {
+                "test": "^[\\d\\w:]{26,}$",
+                "key": "id"
+              },
+              {
+                "key": "title",
+                "mode": "~~"
+              }
+            ],
+            filterTags: {
               "th_live": "i18n:thing-recycle-bin",
               "id": "->ID【${val}】",
               "nm": "=val",
@@ -72,16 +76,34 @@ export default {
               "abbr": "=val",
               "ct": "<MsDateRange>",
               "lm": "<MsDateRange>"
-            }, this.filterTags),
-            advanceForm: this.advanceForm,
-            advanceComponents: this.advanceComponents,
-            sorterConf: this.sorterConf
-          }
+            },
+            sorterConf: {
+              options: [
+                {
+                  "value": "nm",
+                  "text": "i18n:wn-key-nm"
+                },
+                {
+                  "value": "ct",
+                  "text": "i18n:wn-key-ct"
+                },
+                {
+                  "value": "lm",
+                  "text": "i18n:wn-key-lm"
+                }
+              ]
+            }
+          }, this.filterComConf, {
+            filter: this.filter,
+            sorter: this.sorter,
+          })
         },
         //................................
         list: {
           comType: this.listComType,
-          comConf: _.assign({}, this.listComConf, {
+          comConf: _.assign({
+            multi: this.multi
+          }, this.listComConf, {
             data: this.list
           })
         },

@@ -4,7 +4,7 @@
   //-------------------------------------------
   > .as-majors.at-top {
     @include flex-align;
-    margin-bottom: SZ(4);
+    > * {margin-bottom: SZ(4);flex:1 1 auto;} 
   }
   //-------------------------------------------
   .as-majors > .as-major-item {

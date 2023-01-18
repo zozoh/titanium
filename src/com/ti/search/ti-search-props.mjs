@@ -31,23 +31,13 @@ export default {
   //------------------------------------------------
   // Behavior
   //------------------------------------------------
-  "majors": {
-    type: Array,
-    default: () => []
+  "filterComType": {
+    type: String,
+    default: "TiFilterbar"
   },
-  "matchKeywords": {
-    type: Array,
-    default: () => []
-  },
-  "advanceForm": {
-    type: Object
-  },
-  "advanceComponents": {
-    type: Array,
-    default: () => []
-  },
-  "sorterConf": {
-    type: Object
+  "filterComConf": {
+    type: Object,
+    default: () => ({})
   },
   "listComType": {
     type: String,
@@ -56,6 +46,9 @@ export default {
   "listComConf": {
     type: Object,
     default: () => ({})
+  },
+  "multi": {
+    type: Boolean,
   },
   //-----------------------------------
   // Aspect

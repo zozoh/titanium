@@ -2273,8 +2273,10 @@ i.im {
     justify-content: flex-start;
     align-items: stretch;
     align-content: stretch;
-    flex-wrap: wrap;
-    margin-bottom: 0.04rem; }
+    flex-wrap: wrap; }
+    .ti-filterbar > .as-majors.at-top > * {
+      margin-bottom: 0.04rem;
+      flex: 1 1 auto; }
   .ti-filterbar .as-majors > .as-major-item {
     margin-right: 0.02rem; }
   .ti-filterbar > main {

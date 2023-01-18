@@ -1,8 +1,18 @@
 {
   "comPath": "@com:ti/filterbar",
-  "dataEvents": {
-    "filter:change": "filter",
-    "sorter:change": "sorter"
+  "comModel": {
+    "filter:change": {
+      "mode": "assign",
+      "data": {
+        "filter": "=.."
+      }
+    },
+    "sorter:change": {
+      "mode": "assign",
+      "data": {
+        "sorter": "=.."
+      }
+    }
   },
   "comType": "ti-filterbar",
   "comConf": {

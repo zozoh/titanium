@@ -57,6 +57,11 @@ const _M = {
 
       let re = {}
 
+      // Array
+      if (_.isArray(v)) {
+        _.forEach(v, k => re[k] = true)
+        return re
+      }
       // Object
       if (_.isObject(v)) {
         return v || {}
@@ -67,11 +72,10 @@ const _M = {
         // Common Sep String
         if (_.isString(v)) {
           list = Ti.S.splitIgnoreBlank(v, this.valueSep);
+        } else {
+          list.push("" + v)
         }
-        // Array
-        else if (_.isArray(v)) {
-          list = v
-        }
+
         // Map
         for (let li of list) {
           re[li] = true

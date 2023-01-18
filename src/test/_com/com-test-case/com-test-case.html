@@ -1,8 +1,4 @@
-<div class="ti-com-test-case ti-fillparent"
-  style="overflow:auto;"
+<div class="ti-com-test-case ti-fillparent" style="overflow:auto;"
   :style="ComStyle">
-  <component
-    :is="ComType"
-      v-bind="ComConf"
-      @change="OnChanged"/>
-  </div>
+  <component :is="ComType" v-bind="ComConf" />
+</div>

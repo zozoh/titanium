@@ -1,6 +1,7 @@
 <div class="bar-item-group"
   :class="TopClass"
   @mouseenter.stop="OnMouseEnter"
+  @mousehover.stop="OnMouseHover"
   @mouseleave.stop="OnMouseLeave">
   <!--
     Info
@@ -20,7 +21,7 @@
       Mask
     -->
     <div 
-      v-if="isDepth1"
+      v-if="isDepth1 && !topHoverOpen"
         class="as-mask"
         @click="doCollapse"></div>
     <!--
