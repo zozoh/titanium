@@ -294,6 +294,7 @@ const OBJ = {
   },
   //--------------------------------------------
   async doUpload(files = []) {
+    //console.log("doUpload", files)
     if (_.isFunction(this.beforeUpload)) {
       await this.beforeUpload()
     }

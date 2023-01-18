@@ -1,4 +1,4 @@
-// Pack At: 2023-01-16 01:47:58
+// Pack At: 2023-01-18 14:59:54
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -3255,6 +3255,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: [Object, Array],
     default: () => []
   },
+  "topMajors": {
+    type: [Object, Array, String, Boolean],
+    default: false
+  },
   /*
    How to show the filter data as readable tags
    {xyz: Function|Explain|Dict}
@@ -3284,11 +3288,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "placeholder": {
     type: [String, Number],
     default: "i18n:nil"
-  },
-  "mode": {
-    type: String,
-    default: "H",
-    validator: v => /^[V|H]$/.test(v)
   },
   // Advance search dialog setting
   "dialog": {
@@ -7893,7 +7892,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
   data: () => ({
     myMajorValues: [],
-    myTags: []
+    myTags: [],
+    mySideMajors: [],
+    myTopMajors: []
   }),
   //////////////////////////////////////////
   computed: {
@@ -7909,11 +7910,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let list = []
       if (this.majors) {
         if (_.isArray(this.majors)) {
-          list.push(...this.majors)
+          list = _.cloneDeep(this.majors)
         } else {
-          list.push(this.majors)
+          list = [_.cloneDeep(this.majors)]
         }
       }
+      _.forEach(list, (li, index) => {
+        li.index = index
+      })
       return _.filter(list, li => li.key)
     },
     //-------------------------------------
@@ -7925,27 +7929,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return re
     },
     //-------------------------------------
-    MajorDropList() {
-      let list = []
-      _.forEach(this.MajorItems, (it, index) => {
-        let value = _.get(this.myMajorValues, index)
-        let li = {
-          key: it.key,
-          index,
-          comType: it.comType || "TiDroplist",
-          comConf: _.assign({
-            placeholder: it.placeholder,
-            options: it.options,
-            width: it.width,
-            dropWidth: it.dropWidth,
-            dropDisplay: it.dropDisplay,
-          }, it.comConf, {
-            value
-          })
-        }
-        list.push(li)
-      })
-      return list
+    hasSideMajors() {
+      return !_.isEmpty(this.mySideMajors)
+    },
+    //-------------------------------------
+    hasTopMajors() {
+      return !_.isEmpty(this.myTopMajors)
     },
     //-------------------------------------
     FilterInputConf() {
@@ -7969,10 +7958,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
     },
     //-------------------------------------
-    hasMajors() {
-      return !_.isEmpty(this.MajorItems)
-    },
-    //-------------------------------------
     hasFilter() {
       return !_.isEmpty(this.filter)
     },
@@ -7994,6 +7979,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-------------------------------------
     OnMajorChange(val, it) {
+      console.log("OnMajorChange", { val, it })
       if (_.isEmpty(val) && (_.isArray(val) || _.isObject(val))) {
         val = null
       }
@@ -8045,7 +8031,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     notifyFilterChange({ newFlt = {}, withTags = true } = {}) {
       let flt = {}
       // Get the majorValue
-      _.forEach(this.MajorDropList, ({ index, key }) => {
+      _.forEach(this.MajorItems, ({ index, key }) => {
         let val = _.get(this.myMajorValues, index)
         if (!Ti.Util.isNil(val)) {
           flt[key] = val
@@ -8065,6 +8051,42 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if (!_.isEqual(this.filter, flt)) {
         this.$notify("filter:change", flt)
       }
+    },
+    //-------------------------------------
+    tryEvalMajors(newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
+        this.evalMajors()
+      }
+    },
+    //-------------------------------------
+    evalMajors(items = this.MajorItems) {
+      let isAtTop = Ti.AutoMatch.parse(this.topMajors)
+      let sides = []
+      let tops = []
+      _.forEach(items, (it, index) => {
+        let value = _.get(this.myMajorValues, index)
+        let li = {
+          key: it.key,
+          index,
+          comType: it.comType || "TiDroplist",
+          comConf: _.assign({
+            placeholder: it.placeholder,
+            options: it.options,
+            width: it.width,
+            dropWidth: it.dropWidth,
+            dropDisplay: it.dropDisplay,
+          }, it.comConf, {
+            value
+          })
+        }
+        if (isAtTop(it.key)) {
+          tops.push(li)
+        } else {
+          sides.push(li)
+        }
+      })
+      this.mySideMajors = sides;
+      this.myTopMajors = tops;
     },
     //-------------------------------------
     evalKeywords(input) {
@@ -8158,6 +8180,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       this.myMajorValues = mjvs
       this.myTags = tags
+      this.evalMajors()
     }
     //-------------------------------------
   },
@@ -8166,7 +8189,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "filter": {
       handler: "evalFilter",
       immediate: true
-    }
+    },
+    "MajorItems": "tryEvalMajors",
+    "topMajors": "tryEvalMajors"
+  },
+  //////////////////////////////////////////
+  mounted() {
+    this.evalMajors()
   }
   //////////////////////////////////////////
 }
@@ -19859,6 +19888,7 @@ const OBJ = {
   },
   //--------------------------------------------
   async doUpload(files = []) {
+    //console.log("doUpload", files)
     if (_.isFunction(this.beforeUpload)) {
       await this.beforeUpload()
     }
@@ -52873,8 +52903,35 @@ const _M = {
     //-------------------------------------
     onItemActived(payload = {}) {
       this.$notify("item:active", payload)
+    },
+    //--------------------------------------
+    scrollCurrentIntoView() {
+      //console.log("scrollCurrentIntoView")
+      if (this.theHighlightItemId) {
+        let $view = this.$el
+        let $row = Ti.Dom.find(".side-nav-item.is-highlight", $view)
+        Ti.Dom.scrollIntoView($view, $row)
+      }
+    },
+    //-------------------------------------
+    delayScrollCurrentIntoView(delay=500) {
+      _.delay(() => {
+        this.scrollCurrentIntoView()
+      }, delay)
     }
     //-------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "theHighlightItemId": "delayScrollCurrentIntoView"
+  },
+  //////////////////////////////////////////
+  mounted() {
+    this.$nextTick(() => {
+      this.delayScrollCurrentIntoView(0)
+      this.delayScrollCurrentIntoView(100)
+      this.delayScrollCurrentIntoView(500)
+    })
   }
   //////////////////////////////////////////
 }
@@ -55009,26 +55066,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         let $view = this.$el
         let $row = Ti.Dom.find(`.table-row[row-id="${this.theCurrentId}"]`, $view)
         this.LOG("find row", $row)
-        if (!_.isElement($view) || !_.isElement($row)) {
-          return
-        }
-
-        let r_view = Ti.Rects.createBy($view)
-        let r_row = Ti.Rects.createBy($row)
-
-        // test it need to scroll or not
-        if (!r_view.contains(r_row)) {
-          // at bottom
-          if (r_row.bottom > r_view.bottom) {
-            this.LOG("at bottom", r_row.bottom - r_view.bottom)
-            $view.scrollTop += r_row.bottom - r_view.bottom + r_view.height / 2
-          }
-          // at top
-          else {
-            $view.scrollTop += r_row.top - r_view.top
-            this.LOG("at top", r_row.top - r_view.top)
-          }
-        }
+        Ti.Dom.scrollIntoView($view, $row)
       }
     },
     //--------------------------------------
@@ -85628,44 +85666,60 @@ Ti.Preload("ti/com/ti/filterbar/ti-filterbar-props.mjs", TI_PACK_EXPORTS['ti/com
 //========================================
 Ti.Preload("ti/com/ti/filterbar/ti-filterbar.html", `<div class="ti-filterbar" :class="TopClass">
   <!--
-    Show marjor filter conditions
+    Top Majors
   -->
   <div
-    v-if="hasMajors"
-      class="filterbar-part as-majors">
+    v-if="hasTopMajors"
+      class="filterbar-part as-majors at-top">
       <component
-        v-for="it in MajorDropList"
+        v-for="it in myTopMajors"
           :is="it.comType"
           :key="it.index"
           class="as-major-item"
           v-bind="it.comConf"
           @change="OnMajorChange($event, it)"/>
   </div>
-  <!--
-    Input and filtered tags
-    +---------------------------------------------+
-    | Tag | Tag | Tag |    Input value      | Adv |
-    +---------------------------------------------+
-  -->
-  <div class="filterbar-part as-filter">
-    <TiInput v-bind="FilterInputConf"
-      @change="OnInputChange"
-      @input:clean="OnInputClean"
-      @open:advance="OnOpenAdvance">
-      <TiTags v-bind="FilterTagConf" :value="myTags" @change="OnTagsChange"/>
-    </TiInput>
-  </div>
-  <!--
-    Sorter
-  -->
-  <div
-    v-if="showSorter"
-      class="filterbar-part as-sorter">
-      <TiComboSorter
-        v-bind="sorterConf"
-        :value="sorter"
-        @change="OnSorterChange"/>
-  </div>
+  <main>
+    <!--
+      Side Majors
+    -->
+    <div
+      v-if="hasSideMajors"
+        class="filterbar-part as-majors at-side">
+        <component
+          v-for="it in mySideMajors"
+            :is="it.comType"
+            :key="it.index"
+            class="as-major-item"
+            v-bind="it.comConf"
+            @change="OnMajorChange($event, it)"/>
+    </div>
+    <!--
+      Input and filtered tags
+      +---------------------------------------------+
+      | Tag | Tag | Tag |    Input value      | Adv |
+      +---------------------------------------------+
+    -->
+    <div class="filterbar-part as-filter">
+      <TiInput v-bind="FilterInputConf"
+        @change="OnInputChange"
+        @input:clean="OnInputClean"
+        @open:advance="OnOpenAdvance">
+        <TiTags v-bind="FilterTagConf" :value="myTags" @change="OnTagsChange"/>
+      </TiInput>
+    </div>
+    <!--
+      Sorter
+    -->
+    <div
+      v-if="showSorter"
+        class="filterbar-part as-sorter">
+        <TiComboSorter
+          v-bind="sorterConf"
+          :value="sorter"
+          @change="OnSorterChange"/>
+    </div>
+  </main>
 </div>`);
 //========================================
 // JOIN <ti-filterbar.mjs> ti/com/ti/filterbar/ti-filterbar.mjs

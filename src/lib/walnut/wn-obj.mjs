@@ -141,7 +141,7 @@ const FORM_FIELDS = {
     title: "i18n:wn-key-title",
     name: "title",
     emptyAs: null,
-    display: "<=ti-label>",
+    display: "<=ti-label>.is-nowrap",
     comType: "ti-input"
   },
   //---------------------------------------------

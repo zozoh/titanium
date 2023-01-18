@@ -1052,13 +1052,13 @@ const TiDom = {
     if (!r_view.contains(r_row)) {
       // at bottom
       if (r_row.bottom > r_view.bottom) {
-        console.log("at bottom", r_row.bottom - r_view.bottom)
+        //console.log("at bottom", r_row.bottom - r_view.bottom)
         $view.scrollTop += r_row.bottom - r_view.bottom + r_view.height / 2
       }
       // at top
       else {
         $view.scrollTop += r_row.top - r_view.top
-        console.log("at top", r_row.top - r_view.top)
+        //console.log("at top", r_row.top - r_view.top)
       }
     }
   },

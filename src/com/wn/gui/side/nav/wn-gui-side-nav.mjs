@@ -112,7 +112,7 @@ const _M = {
     },
     //--------------------------------------
     scrollCurrentIntoView() {
-      console.log("scrollCurrentIntoView")
+      //console.log("scrollCurrentIntoView")
       if (this.theHighlightItemId) {
         let $view = this.$el
         let $row = Ti.Dom.find(".side-nav-item.is-highlight", $view)

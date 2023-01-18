@@ -1,4 +1,4 @@
-// Pack At: 2023-01-16 01:47:58
+// Pack At: 2023-01-18 14:59:54
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -730,7 +730,7 @@ const Obj = (function(){
       title: "i18n:wn-key-title",
       name: "title",
       emptyAs: null,
-      display: "<=ti-label>",
+      display: "<=ti-label>.is-nowrap",
       comType: "ti-input"
     },
     //---------------------------------------------
@@ -4472,7 +4472,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230116.014759"
+const WALNUT_VERSION = "1.2-20230118.145954"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {
