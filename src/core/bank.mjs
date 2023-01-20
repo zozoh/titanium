@@ -175,6 +175,11 @@ const TiBank = {
     return `${t}${y}`
   },
   //-----------------------------------
+  toYuanTokenText2(cent = 0.0, currency = "RMB", precise = 2) {
+    let s = TiBank.toYuanTokenText(cent, currency, precise)
+    return `${s}${currency}`
+  },
+  //-----------------------------------
   isValidPayType(payType) {
     return ({
       "wx.qrcode": true,

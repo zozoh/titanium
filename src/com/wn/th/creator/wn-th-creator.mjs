@@ -61,9 +61,10 @@ export default {
       this.$form = $form
     },
     //--------------------------------------
-    OnFormFieldChange(pair = {}) {
+    OnFormFieldChange({ name, value } = {}) {
       //console.log("OnFormFieldChange", pair)
-      this.myData = this.$form.getData(pair)
+      let data = Ti.Types.toObjByPair({ name, value })
+      this.myData = _.assign({}, this.myData, data)
     },
     //--------------------------------------
     OnFormChange(data) {
@@ -95,7 +96,7 @@ export default {
   },
   ///////////////////////////////////////////
   mounted() {
-    this.myData = this.$form.getData()
+    this.myData = _.cloneDeep(this.data)
   }
   ///////////////////////////////////////////
 }

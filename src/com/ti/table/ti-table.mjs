@@ -363,6 +363,7 @@ const _M = {
     "hoverable": "evalListDataWhenMarkChanged",
     "filterValue": "evalListDataWhenMarkChanged",
     "checkedIds": "tryCheckedIds",
+    "fields": "tryEvalFields"
   },
   ///////////////////////////////////////////////////
   created: function () {
@@ -385,10 +386,9 @@ const _M = {
 
 
     // Restore columns setting
-    this.restoreLocalSettings()
-    this.setupAllFields(this.fields)
-    this.updateMyFieldsByKey(this.myShownFieldKeys)
+    this.evalFields()
 
+    // Eval each row and cells
     await this.evalListData()
 
     // render scope, it need the data for find index

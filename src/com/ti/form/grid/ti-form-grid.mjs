@@ -139,7 +139,9 @@ const _M = {
         let CI = this.FormTabIndex
         for (let li of this.FormFields) {
           if (li.index == CI) {
-            return li
+            let grp = _.cloneDeep(li)
+            grp.bodyStyle = _.assign({},this.TabBodyStyle, li.bodyStyle)
+            return grp
           }
         }
         return {}

@@ -352,6 +352,21 @@ export default {
         this.myShownFieldKeys = cuo.shownFieldKeys
         this.myFieldWidths = cuo.setFieldsWidth
       }
+    },
+    //--------------------------------------
+    evalFields(){
+      this.restoreLocalSettings()
+      this.setupAllFields(this.fields)
+      this.updateMyFieldsByKey(this.myShownFieldKeys)
+    },
+    //--------------------------------------
+    async tryEvalFields(newVal, oldVal){
+      if(!_.isEqual(newVal, oldVal)){
+        this.evalFields()
+        await this.evalListData()
+        this.evalRenderScope();
+        await this.__eval_row_after_data()
+      }
     }
     //--------------------------------------
   },
