@@ -271,27 +271,37 @@ const _M = {
       }, this.filterlist)
 
       // Open the dialog
-      let reo = await Ti.App.Open(_.assign({
-        title: "i18n:select",
-        position: "top",
-        width: "4.8rem",
-        height: "62%",
-      }, this.dialog, {
-        model: { event: "select" },
-        events: {
-          open: function () {
-            this.close(this.result)
-          }
+      let reo = await Ti.App.Open(_.assign(
+        {
+          title: "i18n:select",
+          position: "top",
+          width: "4.8rem",
+          height: "62%",
         },
-        comType: "TiFilterlist",
-        comConf: fltListConf,
-        components: [
-          "@com:ti/filterlist"
-        ],
-        beforeClosed: () => {
-          this.isPicking = false
-        }
-      }))
+        this.dialog,
+        {
+          result: {
+            currentId: listConf.currentId,
+            checkedIds: listConf.checkedIds
+          },
+          model: {
+            event: "select",
+            prop: ['currentId', 'checkedIds']
+          },
+          events: {
+            open: function () {
+              this.close(this.result)
+            }
+          },
+          comType: "TiFilterlist",
+          comConf: fltListConf,
+          components: [
+            "@com:ti/filterlist"
+          ],
+          beforeClosed: () => {
+            this.isPicking = false
+          }
+        }))
 
       // User Cancel
       if (!reo) {

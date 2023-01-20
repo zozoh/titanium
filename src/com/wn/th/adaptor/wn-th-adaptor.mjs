@@ -125,7 +125,7 @@ const _M = {
     // For Event Bubble Dispatching
     __on_events(name, payload) {
       // if (/change$/.test(name))
-      //    console.log("WnThAdaptor.__on_events", name, payload)
+      console.log("WnThAdaptor.__on_events", name, payload)
 
       // ByPass
       if (/^(indicate)$/.test(name)) {
@@ -143,39 +143,59 @@ const _M = {
         return
       }
 
-      // callPath -> Function
-      let func;
-
-      // Prepare context
-      let invokeContext = _.assign({
-        $payload: payload
-      }, this.GuiExplainContext)
 
 
-      // Invoking string
-      if (_.isString(fn)) {
-        func = _.get(this, fn)
-      }
-      // Object call
-      if (!_.isFunction(func)) {
-        if (fn.explain) {
-          fn = Ti.Util.explainObj(invokeContext, fn)
+      const eval_func = (fn) => {
+        let func;
+        // Invoking string
+        if (_.isString(fn)) {
+          func = _.get(this, fn)
         }
-        func = Ti.Util.genInvoking(fn, {
-          context: invokeContext,
-          dft: null,
-          funcSet: this
-        })
-      }
-
-      if (_.isFunction(func)) {
-        if (!_.isUndefined(payload)) {
-          return () => {
-            func(payload)
+        // Batch call
+        if (_.isArray(fn)) {
+          let calls = []
+          for (let f of fn) {
+            let callF = eval_func(f)
+            if (_.isFunction(callF)) {
+              calls.push(callF)
+            }
+          }
+          if (!_.isEmpty(calls)) {
+            return async () => {
+              for (let callF of calls) {
+                await callF(payload)
+              }
+            }
           }
         }
-        return func
+        // Object call
+        if (!_.isFunction(func)) {
+          // Prepare context
+          let invokeContext = _.assign({
+            $payload: payload
+          }, this.GuiExplainContext)
+          if (fn.explain) {
+            fn = Ti.Util.explainObj(invokeContext, fn)
+          }
+          func = Ti.Util.genInvoking(fn, {
+            context: invokeContext,
+            dft: null,
+            funcSet: this
+          })
+        }
+
+        if (_.isFunction(func)) {
+          if (!_.isUndefined(payload)) {
+            return () => {
+              func(payload)
+            }
+          }
+          return func
+        }
       }
+
+      // callPath -> Function
+      return eval_func(fn)
     },
     //--------------------------------------
     // __ti_shortcut(uniqKey) {      

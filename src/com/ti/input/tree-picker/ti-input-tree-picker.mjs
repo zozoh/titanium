@@ -67,7 +67,13 @@ const _M = {
         },
         this.dialog,
         {
-          model: { event: "select" },
+          result: {
+            checkedIds
+          },
+          model: {
+            event: "select",
+            prop: ['currentId', 'checkedIds']
+          },
           events: {
             open: function () {
               this.close(this.result)
@@ -77,7 +83,6 @@ const _M = {
           comConf: _.assign(
             {
               data: treeData,
-              checkedIds,
               display: [
                 "<icon>",
                 "title|text|name|nm|abbr",
@@ -125,7 +130,7 @@ const _M = {
     },
     //--------------------------------------
     tryNotifyChange(vals = []) {
-      if(this.readonly) {
+      if (this.readonly) {
         return
       }
       let v2;

@@ -74,8 +74,10 @@ const _M = {
   //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }, { quiet = false } = {}) {
     // Which content should I load?
+    state.LOG("loadContent", getters.contentLoadPath)
     let path = getters.contentLoadPath
     if (!path) {
+      dispatch("updateContent", null)
       return
     }
 
