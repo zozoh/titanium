@@ -1,4 +1,4 @@
-// Pack At: 2023-01-18 14:59:54
+// Pack At: 2023-01-21 00:22:54
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -21610,7 +21610,9 @@ const _M = {
         let CI = this.FormTabIndex
         for (let li of this.FormFields) {
           if (li.index == CI) {
-            return li
+            let grp = _.cloneDeep(li)
+            grp.bodyStyle = _.assign({},this.TabBodyStyle, li.bodyStyle)
+            return grp
           }
         }
         return {}
@@ -40663,7 +40665,7 @@ const _M = {
     // For Event Bubble Dispatching
     __on_events(name, payload) {
       // if (/change$/.test(name))
-      //    console.log("WnThAdaptor.__on_events", name, payload)
+      //console.log("WnThAdaptor.__on_events", name, payload)
 
       // ByPass
       if (/^(indicate)$/.test(name)) {
@@ -40681,39 +40683,57 @@ const _M = {
         return
       }
 
-      // callPath -> Function
-      let func;
-
-      // Prepare context
-      let invokeContext = _.assign({
-        $payload: payload
-      }, this.GuiExplainContext)
-
-
-      // Invoking string
-      if (_.isString(fn)) {
-        func = _.get(this, fn)
-      }
-      // Object call
-      if (!_.isFunction(func)) {
-        if (fn.explain) {
-          fn = Ti.Util.explainObj(invokeContext, fn)
+      const eval_func = (fn) => {
+        let func;
+        // Invoking string
+        if (_.isString(fn)) {
+          func = _.get(this, fn)
         }
-        func = Ti.Util.genInvoking(fn, {
-          context: invokeContext,
-          dft: null,
-          funcSet: this
-        })
-      }
-
-      if (_.isFunction(func)) {
-        if (!_.isUndefined(payload)) {
-          return () => {
-            func(payload)
+        // Batch call
+        if (_.isArray(fn)) {
+          let calls = []
+          for (let f of fn) {
+            let callF = eval_func(f)
+            if (_.isFunction(callF)) {
+              calls.push(callF)
+            }
+          }
+          if (!_.isEmpty(calls)) {
+            return async () => {
+              for (let callF of calls) {
+                await callF(payload)
+              }
+            }
           }
         }
-        return func
+        // Object call
+        if (!_.isFunction(func)) {
+          // Prepare context
+          let invokeContext = _.assign({
+            $payload: payload
+          }, this.GuiExplainContext)
+          if (fn.explain) {
+            fn = Ti.Util.explainObj(invokeContext, fn)
+          }
+          func = Ti.Util.genInvoking(fn, {
+            context: invokeContext,
+            dft: null,
+            funcSet: this
+          })
+        }
+
+        if (_.isFunction(func)) {
+          if (!_.isUndefined(payload)) {
+            return () => {
+              func(payload)
+            }
+          }
+          return func
+        }
       }
+
+      // callPath -> Function
+      return eval_func(fn)
     },
     //--------------------------------------
     // __ti_shortcut(uniqKey) {      
@@ -40890,58 +40910,58 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/combo/box/ti-combo-box.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////////
-  data : ()=>({
-    box : {
-      "position" : null,
-      "width"  : null,
-      "height" : null,
-      "top"    : null,
-      "left"   : null
+  data: () => ({
+    box: {
+      "position": null,
+      "width": null,
+      "height": null,
+      "top": null,
+      "left": null
     },
-    myDropDockReady : false
+    myDropDockReady: false
   }),
   ////////////////////////////////////////////////////
-  props : {
-    "keepWidthWhenDrop" : {
-      type : Boolean, 
-      default : true
+  props: {
+    "keepWidthWhenDrop": {
+      type: Boolean,
+      default: true
     },
-    "width" : {
-      type : [Number, String],
-      default : null
+    "width": {
+      type: [Number, String],
+      default: null
     },
-    "height" : {
-      type : [Number, String],
-      default : null
+    "height": {
+      type: [Number, String],
+      default: null
     },
     "dropFloat": {
       type: Boolean,
       default: true
     },
-    "dropWidth" : {
-      type : [Number, String],
-      default : "box"
+    "dropWidth": {
+      type: [Number, String],
+      default: "box"
     },
-    "dropHeight" : {
-      type : [Number, String],
-      default : null
+    "dropHeight": {
+      type: [Number, String],
+      default: null
     },
-    "dropOverflow" : {
-      type : [String, Array],
-      default : "auto",
-      validator : (v)=>{
-        if(Ti.Util.isNil(v)) {
+    "dropOverflow": {
+      type: [String, Array],
+      default: "auto",
+      validator: (v) => {
+        if (Ti.Util.isNil(v)) {
           return true
         }
-        if(_.isString(v)) {
+        if (_.isString(v)) {
           v = v.split(" ")
         }
-        if(_.isArray(v)) {
-          if(v.length > 2 || v.length == 0) {
+        if (_.isArray(v)) {
+          if (v.length > 2 || v.length == 0) {
             return false
           }
-          for(let s of v) {
-            if(!/^(auto|hidden|visible|scroll)$/.test(s)) {
+          for (let s of v) {
+            if (!/^(auto|hidden|visible|scroll)$/.test(s)) {
               return false
             }
           }
@@ -40950,14 +40970,14 @@ const _M = {
         return false
       }
     },
-    "status" : {
-      type : String,
-      default : "collapse",
-      validator : (st)=>/^(collapse|extended)$/.test(st)
+    "status": {
+      type: String,
+      default: "collapse",
+      validator: (st) => /^(collapse|extended)$/.test(st)
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     topClass() {
       return this.getTopClass(`is-${this.status}`)
@@ -40965,60 +40985,65 @@ const _M = {
     //------------------------------------------------
     topStyle() {
       let width;
-      if(this.keepWidthWhenDrop)
+      if (this.keepWidthWhenDrop)
         width = Ti.Util.fallback(this.box.width, this.width)
       let height = this.box.height
-      return Ti.Css.toStyle({width, height})
+      if (width || height) {
+        return Ti.Css.toStyle({
+          width, height,
+          flex: "0 0 auto"
+        })
+      }
     },
     //------------------------------------------------
     theBoxStyle() {
-      if(this.dropFloat) {
+      if (this.dropFloat) {
         return Ti.Css.toStyle(this.box)
       }
     },
     //------------------------------------------------
     theDropStyle() {
       return Ti.Css.toStyle({
-        "overflow" : this.dropOverflow,
-        "visibility" : this.myDropDockReady ? "visible" : "hidden"
+        "overflow": this.dropOverflow,
+        "visibility": this.myDropDockReady ? "visible" : "hidden"
       })
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------------------
-    notifyCollapse(escaped=false) {
-      this.$notify("collapse", {escaped})
+    notifyCollapse(escaped = false) {
+      this.$notify("collapse", { escaped })
     },
     //------------------------------------------------
     dockDrop() {
-      let $drop  = this.$refs.drop
-      let $box   = this.$refs.box
+      let $drop = this.$refs.drop
+      let $box = this.$refs.box
       // Guard the elements
-      if(!_.isElement($drop) || !_.isElement($box)){
+      if (!_.isElement($drop) || !_.isElement($box)) {
         return
       }
       //............................................
       // If drop opened, make the box position fixed
       // to at the top of mask
-      if("extended" == this.status) {
+      if ("extended" == this.status) {
         // Wait 1ms for drop content done for drawing
-        _.delay(()=>{
-          let r_box  = Ti.Rects.createBy($box)
+        _.delay(() => {
+          let r_box = Ti.Rects.createBy($box)
           let r_drop = Ti.Rects.createBy($drop)
           //..........................................
           // Mark box to fixed position
-          this.box = _.assign({position:"fixed"}, r_box.raw())
+          this.box = _.assign({ position: "fixed" }, r_box.raw())
           //..........................................
           // Make drop same width with box
           let dropStyle = {}
-          if("box" == this.dropWidth) {
+          if ("box" == this.dropWidth) {
             dropStyle.width = Math.max(r_box.width, r_drop.width)
           }
-          else if(!Ti.Util.isNil(this.dropWidth)) {
+          else if (!Ti.Util.isNil(this.dropWidth)) {
             // The min drop width
-            if(this.dropWidth < 0) {
+            if (this.dropWidth < 0) {
               dropStyle.width = Math.max(r_box.width, Math.abs(this.dropWidth))
             }
             // Fix drop width
@@ -41026,7 +41051,7 @@ const _M = {
               dropStyle.width = this.dropWidth
             }
           }
-          if(!Ti.Util.isNil(this.dropHeight)) {
+          if (!Ti.Util.isNil(this.dropHeight)) {
             dropStyle.height = this.dropHeight
           }
           //..........................................S
@@ -41034,10 +41059,10 @@ const _M = {
           //..........................................
           // Dock drop to box
           Ti.Dom.dockTo($drop, $box, {
-            space:{y:2}
+            space: { y: 2 }
           })
           // Make drop visible
-          _.delay(()=>{
+          _.delay(() => {
             this.myDropDockReady = true
           }, 1)
 
@@ -41049,7 +41074,7 @@ const _M = {
     //------------------------------------------------
     reDockDrop() {
       this.resetBoxStyle()
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.dockDrop()
       })
     },
@@ -41061,18 +41086,18 @@ const _M = {
     },
     //------------------------------------------------
     __ti_shortcut(uniqKey) {
-      if("ESCAPE" == uniqKey) {
+      if ("ESCAPE" == uniqKey) {
         this.notifyCollapse(true)
       }
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
-  watch : {
-    "status" : function(sta){
-      this.$nextTick(()=>{
+  watch: {
+    "status": function (sta) {
+      this.$nextTick(() => {
         // If collapse, it should clean the box styles
-        if("collapse" == sta) {
+        if ("collapse" == sta) {
           this.resetBoxStyle()
         }
         // try docking
@@ -41083,20 +41108,20 @@ const _M = {
     }
   },
   ////////////////////////////////////////////////////
-  mounted : function() {
+  mounted: function () {
     this.dropOpened = this.autoOpenDrop
-    this.box.width  = this.width
+    this.box.width = this.width
     this.box.height = this.height
 
     this.dockDrop()
 
     Ti.Viewport.watch(this, {
-      scroll:()=>this.notifyCollapse(),
-      resize:()=>this.notifyCollapse()
+      scroll: () => this.notifyCollapse(),
+      resize: () => this.notifyCollapse()
     })
   },
   ////////////////////////////////////////////////////
-  beforeDestroy : function() {
+  beforeDestroy: function () {
     Ti.Viewport.unwatch(this)
   }
   ////////////////////////////////////////////////////
@@ -42537,6 +42562,7 @@ const _M = {
     "hoverable": "evalListDataWhenMarkChanged",
     "filterValue": "evalListDataWhenMarkChanged",
     "checkedIds": "tryCheckedIds",
+    "fields": "tryEvalFields"
   },
   ///////////////////////////////////////////////////
   created: function () {
@@ -42559,10 +42585,9 @@ const _M = {
 
 
     // Restore columns setting
-    this.restoreLocalSettings()
-    this.setupAllFields(this.fields)
-    this.updateMyFieldsByKey(this.myShownFieldKeys)
+    this.evalFields()
 
+    // Eval each row and cells
     await this.evalListData()
 
     // render scope, it need the data for find index
@@ -46330,9 +46355,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.$form = $form
     },
     //--------------------------------------
-    OnFormFieldChange(pair = {}) {
+    OnFormFieldChange({ name, value } = {}) {
       //console.log("OnFormFieldChange", pair)
-      this.myData = this.$form.getData(pair)
+      let data = Ti.Types.toObjByPair({ name, value })
+      this.myData = _.assign({}, this.myData, data)
     },
     //--------------------------------------
     OnFormChange(data) {
@@ -46364,7 +46390,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   ///////////////////////////////////////////
   mounted() {
-    this.myData = this.$form.getData()
+    this.myData = _.cloneDeep(this.data)
   }
   ///////////////////////////////////////////
 }
@@ -46788,23 +46814,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //------------------------------------------------
   // Behavior
   //------------------------------------------------
-  "majors": {
-    type: Array,
-    default: () => []
+  "filterComType": {
+    type: String,
+    default: "TiFilterbar"
   },
-  "matchKeywords": {
-    type: Array,
-    default: () => []
-  },
-  "advanceForm": {
-    type: Object
-  },
-  "advanceComponents": {
-    type: Array,
-    default: () => []
-  },
-  "sorterConf": {
-    type: Object
+  "filterComConf": {
+    type: Object,
+    default: () => ({})
   },
   "listComType": {
     type: String,
@@ -46813,6 +46829,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "listComConf": {
     type: Object,
     default: () => ({})
+  },
+  "multi": {
+    type: Boolean,
   },
   //-----------------------------------
   // Aspect
@@ -54197,17 +54216,18 @@ const _M = {
   ///////////////////////////////////////
   inject: ["$bar"],
   ///////////////////////////////////////////
-  provide : function(){
-    return {depth: this.depth+1}
+  provide: function () {
+    return { depth: this.depth + 1 }
   },
   ///////////////////////////////////////
-  data : ()=>({
-    collapse : true,
-    isDocked : false,
-    barItems : []
+  data: () => ({
+    collapse: true,
+    isDocked: false,
+    barItems: [],
+    IamHoverAt: 0
   }),
   ///////////////////////////////////////
-  props : {
+  props: {
     //-----------------------------------
     // Same as <bar-item-info>
     //-----------------------------------
@@ -54219,7 +54239,7 @@ const _M = {
       type: String,
       default: undefined
     },
-    "hideIcon" : {
+    "hideIcon": {
       type: Boolean,
       default: false
     },
@@ -54231,9 +54251,13 @@ const _M = {
       type: String,
       default: undefined
     },
-    "altDisplay" : {
+    "altDisplay": {
       type: [Object, Array],
-      default: ()=>[]
+      default: () => []
+    },
+    "topHoverOpen": {
+      type: Boolean,
+      default: false
     },
     "enabled": {
       type: [String, Array, Object],
@@ -54251,16 +54275,16 @@ const _M = {
       type: Number,
       default: 0
     },
-    "status" : {
-      type : Object,
-      default : ()=>({})
+    "status": {
+      type: Object,
+      default: () => ({})
     },
     //-----------------------------------
     // Self Props
     //-----------------------------------
     "items": {
       type: Array,
-      default: ()=>[]
+      default: () => []
     },
     "autoExtend": {
       type: Boolean,
@@ -54268,27 +54292,27 @@ const _M = {
     }
   },
   ///////////////////////////////////////////
-  computed : {
+  computed: {
     //---------------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-collapse" : this.collapse,
-        "is-extended" : !this.collapse,
-        "is-depth-x"  : this.isDepthX,
-      },`is-depth-${this.depth}`)
+        "is-collapse": this.collapse,
+        "is-extended": !this.collapse,
+        "is-depth-x": this.isDepthX,
+      }, `is-depth-${this.depth}`)
     },
     //---------------------------------------
-    isDepth0() {return 0 == this.depth},
-    isDepth1() {return 1 == this.depth},
-    isDepthX() {return this.depth > 1},
+    isDepth0() { return 0 == this.depth },
+    isDepth1() { return 1 == this.depth },
+    isDepthX() { return this.depth > 1 },
     //---------------------------------------
     hasInfo() {
       return this.icon || this.text
     },
     //---------------------------------------
     isChildrenWithoutIcon() {
-      for(let it of this.items) {
-        if(it.comConf && it.comConf.icon) {
+      for (let it of this.items) {
+        if (it.comConf && it.comConf.icon) {
           return false
         }
       }
@@ -54300,39 +54324,61 @@ const _M = {
     },
     //---------------------------------------
     ItemSuffixIcon() {
-      if(this.isDepthX){
+      if (this.isDepthX) {
         return "im-angle-right"
       }
     },
     //---------------------------------------
     ChildrenStyle() {
-      if(!this.isDepth0) {
-        if(!this.isDocked) {
-          return {"visibility": "hidden"}
+      if (!this.isDepth0) {
+        if (!this.isDocked) {
+          return { "visibility": "hidden" }
         }
       }
     }
     //---------------------------------------
   },
   ///////////////////////////////////////////
-  methods : {
+  methods: {
     //---------------------------------------
     OnMouseEnter() {
-      if(this.isDepthX) {
+      this.IamHoverAt = Date.now()
+      if (this.isDepthX || this.topHoverOpen) {
         this.doExtend()
+      }
+      else if (this.topHoverOpen) {
+        _.delay(() => {
+          this.doExtend()
+        }, 202)
       }
     },
     //---------------------------------------
+    OnMouseHover() {
+      this.IamHoverAt = Date.now()
+    },
+    //---------------------------------------
     OnMouseLeave() {
-      if(this.isDepthX) {
+      if (this.isDepthX) {
         this.doCollapse()
+      }
+      else if (this.topHoverOpen) {
+        _.delay(() => {
+          this.tryCollape()
+        }, 201)
       }
     },
     //---------------------------------------
     OnFired(collapse) {
-      if(collapse) {
+      if (collapse) {
         this.doExtend()
       } else {
+        this.doCollapse()
+      }
+    },
+    //---------------------------------------
+    tryCollape() {
+      let du = Date.now() - this.IamHoverAt
+      if (du > 200) {
         this.doCollapse()
       }
     },
@@ -54350,14 +54396,14 @@ const _M = {
     //---------------------------------------
     doDockChildren() {
       //console.log("collapse changed", this.collapse)
-      this.$nextTick(()=>{
-        if(this.$refs.children && this.depth>0) {
+      this.$nextTick(() => {
+        if (this.$refs.children && this.depth > 0) {
           Ti.Dom.dockTo(this.$refs.children, this.$el, {
-            mode : this.isDepthX ? "V" : "H",
-            position : "fixed",
-            space: this.isDepthX ? {x:-1} : {y:3}
+            mode: this.isDepthX ? "V" : "H",
+            position: "fixed",
+            space: this.isDepthX ? { x: -1 } : { y: 3 }
           })
-          _.delay(()=>{
+          _.delay(() => {
             this.isDocked = true
           }, 5)
         }
@@ -54370,12 +54416,12 @@ const _M = {
     "collapse": "doDockChildren"
   },
   ///////////////////////////////////////////
-  mounted: function(){
+  mounted: function () {
     this.doDockChildren()
     this.$bar.allocGroup(this)
   },
   ///////////////////////////////////////////
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     this.$bar.freeGroup(this)
   }
   ///////////////////////////////////////////
@@ -55114,6 +55160,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
         let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo) || {}
         this.myShownFieldKeys = cuo.shownFieldKeys
         this.myFieldWidths = cuo.setFieldsWidth
+      }
+    },
+    //--------------------------------------
+    evalFields(){
+      this.restoreLocalSettings()
+      this.setupAllFields(this.fields)
+      this.updateMyFieldsByKey(this.myShownFieldKeys)
+    },
+    //--------------------------------------
+    async tryEvalFields(newVal, oldVal){
+      if(!_.isEqual(newVal, oldVal)){
+        this.evalFields()
+        await this.evalListData()
+        this.evalRenderScope();
+        await this.__eval_row_after_data()
       }
     }
     //--------------------------------------
@@ -59196,7 +59257,13 @@ const _M = {
         },
         this.dialog,
         {
-          model: { event: "select" },
+          result: {
+            checkedIds
+          },
+          model: {
+            event: "select",
+            prop: ['currentId', 'checkedIds']
+          },
           events: {
             open: function () {
               this.close(this.result)
@@ -59206,7 +59273,6 @@ const _M = {
           comConf: _.assign(
             {
               data: treeData,
-              checkedIds,
               display: [
                 "<icon>",
                 "title|text|name|nm|abbr",
@@ -59254,7 +59320,7 @@ const _M = {
     },
     //--------------------------------------
     tryNotifyChange(vals = []) {
-      if(this.readonly) {
+      if (this.readonly) {
         return
       }
       let v2;
@@ -73289,8 +73355,10 @@ const _M = {
   //--------------------------------------------
   async loadContent({ state, commit, dispatch, getters }, { quiet = false } = {}) {
     // Which content should I load?
+    state.LOG("loadContent", getters.contentLoadPath)
     let path = getters.contentLoadPath
     if (!path) {
+      dispatch("updateContent", null)
       return
     }
 
@@ -78230,6 +78298,11 @@ const _M = {
 
       let re = {}
 
+      // Array
+      if (_.isArray(v)) {
+        _.forEach(v, k => re[k] = true)
+        return re
+      }
       // Object
       if (_.isObject(v)) {
         return v || {}
@@ -78240,11 +78313,10 @@ const _M = {
         // Common Sep String
         if (_.isString(v)) {
           list = Ti.S.splitIgnoreBlank(v, this.valueSep);
+        } else {
+          list.push("" + v)
         }
-        // Array
-        else if (_.isArray(v)) {
-          list = v
-        }
+
         // Map
         for (let li of list) {
           re[li] = true
@@ -79107,27 +79179,37 @@ const _M = {
       }, this.filterlist)
 
       // Open the dialog
-      let reo = await Ti.App.Open(_.assign({
-        title: "i18n:select",
-        position: "top",
-        width: "4.8rem",
-        height: "62%",
-      }, this.dialog, {
-        model: { event: "select" },
-        events: {
-          open: function () {
-            this.close(this.result)
-          }
+      let reo = await Ti.App.Open(_.assign(
+        {
+          title: "i18n:select",
+          position: "top",
+          width: "4.8rem",
+          height: "62%",
         },
-        comType: "TiFilterlist",
-        comConf: fltListConf,
-        components: [
-          "@com:ti/filterlist"
-        ],
-        beforeClosed: () => {
-          this.isPicking = false
-        }
-      }))
+        this.dialog,
+        {
+          result: {
+            currentId: listConf.currentId,
+            checkedIds: listConf.checkedIds
+          },
+          model: {
+            event: "select",
+            prop: ['currentId', 'checkedIds']
+          },
+          events: {
+            open: function () {
+              this.close(this.result)
+            }
+          },
+          comType: "TiFilterlist",
+          comConf: fltListConf,
+          components: [
+            "@com:ti/filterlist"
+          ],
+          beforeClosed: () => {
+            this.isPicking = false
+          }
+        }))
 
       // User Cancel
       if (!reo) {
@@ -80611,7 +80693,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         blocks: [
           {
             name: "filter",
-            size: ".43rem",
+            size: "auto",
             body: "filter"
           },
           {
@@ -80632,22 +80714,26 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return {
         //................................
         filter: {
-          comType: "TiFilterbar",
-          comConf: {
-            className: "is-nowrap",
-            filter: this.filter,
-            sorter: this.sorter,
-            placeholder: this.placeholder,
-            dialog: _.assign({
+          comType: this.filterComType,
+          comConf: _.assign({
+            dialog: {
               "icon": "fas-search",
               "title": "i18n:search-adv",
               "position": "top",
               "width": "6.4rem",
               "height": "90%"
-            }, this.dialog),
-            majors: this.majors,
-            matchKeywords: this.matchKeywords,
-            filterTags: _.assign({
+            },
+            matchKeywords: [
+              {
+                "test": "^[\\d\\w:]{26,}$",
+                "key": "id"
+              },
+              {
+                "key": "title",
+                "mode": "~~"
+              }
+            ],
+            filterTags: {
               "th_live": "i18n:thing-recycle-bin",
               "id": "->ID【${val}】",
               "nm": "=val",
@@ -80655,16 +80741,34 @@ const __TI_MOD_EXPORT_VAR_NM = {
               "abbr": "=val",
               "ct": "<MsDateRange>",
               "lm": "<MsDateRange>"
-            }, this.filterTags),
-            advanceForm: this.advanceForm,
-            advanceComponents: this.advanceComponents,
-            sorterConf: this.sorterConf
-          }
+            },
+            sorterConf: {
+              options: [
+                {
+                  "value": "nm",
+                  "text": "i18n:wn-key-nm"
+                },
+                {
+                  "value": "ct",
+                  "text": "i18n:wn-key-ct"
+                },
+                {
+                  "value": "lm",
+                  "text": "i18n:wn-key-lm"
+                }
+              ]
+            }
+          }, this.filterComConf, {
+            filter: this.filter,
+            sorter: this.sorter,
+          })
         },
         //................................
         list: {
           comType: this.listComType,
-          comConf: _.assign({}, this.listComConf, {
+          comConf: _.assign({
+            multi: this.multi
+          }, this.listComConf, {
             data: this.list
           })
         },
@@ -84057,6 +84161,7 @@ Ti.Preload("ti/com/ti/actionbar/com/bar-item-action/_com.json", {
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-group/bar-item-group.html", `<div class="bar-item-group"
   :class="TopClass"
   @mouseenter.stop="OnMouseEnter"
+  @mousehover.stop="OnMouseHover"
   @mouseleave.stop="OnMouseLeave">
   <!--
     Info
@@ -84076,7 +84181,7 @@ Ti.Preload("ti/com/ti/actionbar/com/bar-item-group/bar-item-group.html", `<div c
       Mask
     -->
     <div 
-      v-if="isDepth1"
+      v-if="isDepth1 && !topHoverOpen"
         class="as-mask"
         @click="doCollapse"></div>
     <!--
@@ -86171,7 +86276,7 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
           <section
             class="tab-body" 
             :class="CurrentTabGroup.bodyClass"
-            :style="TabBodyStyle">
+            :style="CurrentTabGroup.bodyStyle">
             <grid-container
               v-bind="GridContainerConf"
               :fields="GridFormFields"
@@ -97040,14 +97145,12 @@ Ti.Preload("ti/com/wn/th/search/wn-th-search.html", `<TiSearch
   :sorter="mySorter"
   :pager="myPager"
 
-  :objKeys="objKeys"
-  :majors="majors"
-  :matchKeywords="matchKeywords"
-  :advanceForm="advanceForm"
-  :advanceComponents="advanceComponents"
-  :sorterConf="sorterConf"
+  :filterComType="filterComType"
+  :filterComConf="filterComConf"
   :listComType="listComType"
   :listComConf="listComConf"
+  :multi="multi"
+
   :pagerValueType="pagerValueType"
   :placeholder="placeholder"
   :dialog="dialog"

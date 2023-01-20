@@ -1,15 +1,16 @@
 ////////////////////////////////////////////
+const PVGS = {}
 const ENVS = {}
 const SESSION = {}
 ////////////////////////////////////////////
 const WnSession = {
   //----------------------------------------
   setup({
-    id, uid, unm, me, grp, 
-    by_tp, by_val, envs={}
-  }={}) {
+    id, uid, unm, me, grp,
+    by_tp, by_val, envs = {}
+  } = {}) {
     _.assign(SESSION, {
-      id, uid, unm, me, grp, 
+      id, uid, unm, me, grp,
       by_tp, by_val
     })
     WnSession.env(envs)
@@ -19,46 +20,46 @@ const WnSession = {
   //----------------------------------------
   env(vars) {
     // Set Env
-    if(_.isPlainObject(vars)) {
+    if (_.isPlainObject(vars)) {
       _.assign(ENVS, vars)
     }
     // GET one
-    else if(_.isString(vars)) {
+    else if (_.isString(vars)) {
       return ENVS[vars]
     }
     // Pick
-    else if(_.isArray(vars)) {
+    else if (_.isArray(vars)) {
       return _.pick(ENVS, vars)
     }
     // Get Env
     return _.cloneDeep(ENVS)
   },
   //----------------------------------------
-  getLang(){return WnSession.env("LANG")},
+  getLang() { return WnSession.env("LANG") },
   //----------------------------------------
-  getMyId() {return SESSION.uid},
-  getMyName() {return SESSION.unm},
-  getMyGroup() {return SESSION.grp},
-  getMyJobs() {return SESSION.me.jobs || []},
-  getMyDepts() {return SESSION.me.depts || []},
+  getMyId() { return SESSION.uid },
+  getMyName() { return SESSION.unm },
+  getMyGroup() { return SESSION.grp },
+  getMyJobs() { return SESSION.me.jobs || [] },
+  getMyDepts() { return SESSION.me.depts || [] },
   //----------------------------------------
-  getByType() {return SESSION.by_tp},
+  getByType() { return SESSION.by_tp },
   isByType(type) {
-    if(_.isRegExp(type)) {
+    if (_.isRegExp(type)) {
       return type.test(SESSION.by_tp)
     }
-    if(_.isString(type) && type.startsWith("^")) {
+    if (_.isString(type) && type.startsWith("^")) {
       return new RegExp(type).test(SESSION.by_tp)
     }
     return type == SESSION.by_tp
   },
   //----------------------------------------
-  getByValue() {return SESSION.by_val},
+  getByValue() { return SESSION.by_val },
   isByValue(val) {
-    if(_.isRegExp(val)) {
+    if (_.isRegExp(val)) {
       return val.test(SESSION.by_val)
     }
-    if(_.isString(val) && val.startsWith("^")) {
+    if (_.isString(val) && val.startsWith("^")) {
       return new RegExp(val).test(SESSION.by_val)
     }
     return val == SESSION.by_val
@@ -88,27 +89,61 @@ const WnSession = {
     return /^(ADMIN|MEMEBER)$/.test(rid)
   },
   //----------------------------------------
+  async loadMyPvg() {
+    let pvgs = await Wn.Sys.exec2("www pvg -cqn", { as: "json" })
+    _.assign(PVGS, pvgs)
+    return PVGS
+  },
+  //----------------------------------------
+  getAllPvgs() {
+    return _.cloneDeep(PVGS)
+  },
+  //----------------------------------------
+  isPvgCanOne(...actions) {
+    if(PVGS['$SYS_USR'] && /^(admin|memeber)$/.test(SESSION.me.role)){
+      return true
+    }
+    for (let a of actions) {
+      if (PVGS[a]) {
+        return true
+      }
+    }
+    return false
+  },
+  //----------------------------------------
+  isPvgCanAll(...actions) {
+    if(PVGS['$SYS_USR'] && /^(admin|memeber)$/.test(SESSION.me.role)){
+      return true
+    }
+    for (let a of actions) {
+      if (!PVGS[a]) {
+        return false
+      }
+    }
+    return true
+  },
+  //----------------------------------------
   getHomePath() {
     return WnSession.env("HOME")
   },
   //----------------------------------------
-  getCurrentPath(dft="~") {
+  getCurrentPath(dft = "~") {
     return WnSession.env("PWD") || dft
   },
   //----------------------------------------
   // Analyze the current domain 
   getCurrentDomain() {
     let home = WnSession.getHomePath()
-    if(!home) {
+    if (!home) {
       return
     }
     // For root
-    if("/root" == home)
+    if ("/root" == home)
       return "root"
-    
+
     // Others
     let m = /^\/home\/(.+)$/.exec(home)
-    if(m) {
+    if (m) {
       return m[1]
     }
   },

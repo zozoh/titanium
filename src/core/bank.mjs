@@ -169,10 +169,28 @@ const TiBank = {
     let n = Math.round(cent)
     let y = Math.floor(n / 100)
     let c = cent - y * 100
+
+    // amount text
+    let s;
     if (precise > 0 || c > 0) {
-      return `${t}${y}.${_.padStart(c, precise, '0')}`
+      s = `${y}.${_.padStart(c, precise, '0')}`
+    } else {
+      s = `${y}`
     }
-    return `${t}${y}`
+
+    // Group amount
+    let pos = s.indexOf('.')
+    let ns = s.split("")
+    let i = Ti.Num.scrollIndex(pos, ns.length)
+    for (; i > 0; i -= 3) {
+      if (i < pos) {
+        ns.splice(i, 0, ',')
+      }
+    }
+    s = ns.join("")
+
+    // done
+    return `${t}${s}`
   },
   //-----------------------------------
   toYuanTokenText2(cent = 0.0, currency = "RMB", precise = 2) {

@@ -1,4 +1,4 @@
-// Pack At: 2023-01-18 14:59:54
+// Pack At: 2023-01-21 00:22:54
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -15407,10 +15407,33 @@ const {Bank} = (function(){
       let n = Math.round(cent)
       let y = Math.floor(n / 100)
       let c = cent - y * 100
+  
+      // amount text
+      let s;
       if (precise > 0 || c > 0) {
-        return `${t}${y}.${_.padStart(c, precise, '0')}`
+        s = `${y}.${_.padStart(c, precise, '0')}`
+      } else {
+        s = `${y}`
       }
-      return `${t}${y}`
+  
+      // Group amount
+      let pos = s.indexOf('.')
+      let ns = s.split("")
+      let i = Ti.Num.scrollIndex(pos, ns.length)
+      for (; i > 0; i -= 3) {
+        if (i < pos) {
+          ns.splice(i, 0, ',')
+        }
+      }
+      s = ns.join("")
+  
+      // done
+      return `${t}${s}`
+    },
+    //-----------------------------------
+    toYuanTokenText2(cent = 0.0, currency = "RMB", precise = 2) {
+      let s = TiBank.toYuanTokenText(cent, currency, precise)
+      return `${s}${currency}`
     },
     //-----------------------------------
     isValidPayType(payType) {
@@ -19088,7 +19111,7 @@ const {WalnutAppMain} = (function(){
       "@i18n:hmaker",
       "@i18n:ti-datetime"]))
     //---------------------------------------
-    // Setup dictionary
+    // Setup dictionary & session PVG
     Wn.Dict.setup(tiConf.dictionary)
     //---------------------------------------
     // Initialize the App
@@ -19108,6 +19131,7 @@ const {WalnutAppMain} = (function(){
     // Load session
     app.commit("session/set", _app.session)
     Wn.Session.setup(_app.session)
+    Wn.Session.loadMyPvg()
     // Mount app to DOM 
     app.mountTo("#app")
     // Ti.Session({
@@ -19505,7 +19529,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20230118.145954",
+  "version" : "1.6-20230121.002254",
   "dev" : false,
   "appName" : null,
   "session" : {},

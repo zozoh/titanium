@@ -153,7 +153,7 @@ export async function WalnutAppMain({
     "@i18n:hmaker",
     "@i18n:ti-datetime"]))
   //---------------------------------------
-  // Setup dictionary
+  // Setup dictionary & session PVG
   Wn.Dict.setup(tiConf.dictionary)
   //---------------------------------------
   // Initialize the App
@@ -173,6 +173,7 @@ export async function WalnutAppMain({
   // Load session
   app.commit("session/set", _app.session)
   Wn.Session.setup(_app.session)
+  Wn.Session.loadMyPvg()
   // Mount app to DOM 
   app.mountTo("#app")
   // Ti.Session({
