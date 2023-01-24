@@ -124,6 +124,21 @@ export default {
     }
   },
   //--------------------------------------
+  explainJsHref($div) {
+    let $links = Ti.Dom.findAll("a[href]", $div);
+    for (let $link of $links) {
+      let href = $link.getAttribute("href")
+      let m = /^js:(.+)$/.exec(href)
+      if (m) {
+        if (this.allowJsHref) {
+          $link.setAttribute("href", `javascript:${m[1]}`)
+        } else {
+          $link.removeAttribute("href")
+        }
+      }
+    }
+  },
+  //--------------------------------------
   explainWnImage($div) {
     let $imgs = Ti.Dom.findAll("img[wn-obj-id]", $div);
     for (let $img of $imgs) {
@@ -219,7 +234,7 @@ export default {
           return _.camelCase(key.substring(7))
         }
       })
-      console.log(obj)
+      //console.log(obj)
       // Eval the src
       let src = Ti.WWW.evalObjPreviewSrc(obj, {
         previewKey: "..",
@@ -520,6 +535,9 @@ export default {
 
     // Image
     this.explainWnImage($div)
+ 
+    // Image
+    this.explainJsHref($div)
 
     // Attachment
     this.explainWnAttachment($div)

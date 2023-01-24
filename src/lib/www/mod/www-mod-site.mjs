@@ -576,8 +576,15 @@ const _M = {
     //--------------------------------------------
     async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
       state.LOG = () => { }
-      //state.LOG = console.log
+      state.LOG = console.log
       state.LOG("site.reload", state.entry, state.base, state.lang)
+      let { wxJsSDK } = state
+      //---------------------------------------
+      if (wxJsSDK) {
+        state.LOG("Install WeiXin JS-SDK")
+        let jssdk = await Ti.Load("http://res.wx.qq.com/open/js/jweixin-1.6.0.js");
+        state.LOG("Get JS-SDK", jssdk)
+      }
       //---------------------------------------
       // Looking for the entry page
       // {href,protocol,host,port,path,search,query,hash,anchor}

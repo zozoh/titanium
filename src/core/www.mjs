@@ -333,7 +333,8 @@ const TiWWW = {
   hydrateApi({
     base = "/",
     siteApis = {},
-    apis = {}
+    apis = {},
+    joinSiteGlobal = true
   } = {}) {
     let PageApis = {}
 
@@ -406,14 +407,16 @@ const TiWWW = {
     }  // const _do_hydration = function
 
     // Join site apis
-    _.forEach(siteApis, (api, key) => {
-      if (api.pages) {
-        api = _do_hydration(key, api)
-        if (api) {
-          PageApis[key] = api
+    if (joinSiteGlobal) {
+      _.forEach(siteApis, (api, key) => {
+        if (api.pages) {
+          api = _do_hydration(key, api)
+          if (api) {
+            PageApis[key] = api
+          }
         }
-      }
-    })
+      })
+    }
     // For each api declared in current page
     _.forEach(apis, (pageApi, key) => {
       //..........................................
@@ -632,6 +635,10 @@ const TiWWW = {
       data, reo
     }, ok)
     await doAction(okAction)
+
+    //.....................................
+    // return data
+    return data
   }, // async runApiAndPrcessReturn
   //---------------------------------------
   /**

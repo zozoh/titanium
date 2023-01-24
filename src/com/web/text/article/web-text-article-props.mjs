@@ -89,6 +89,12 @@ export default {
     type: Boolean,
     default: true
   },
+  // You can write js:alert() in @href, it will be 
+  // translate to javascript:alert()
+  "allowJsHref": {
+    type: Boolean,
+    default: false
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

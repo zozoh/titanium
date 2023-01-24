@@ -163,7 +163,6 @@ export async function WebAppMain({
   await app.dispatch("reload", {
     loc, lang
   })
-  
   //---------------------------------------
   // All Done
   return app
