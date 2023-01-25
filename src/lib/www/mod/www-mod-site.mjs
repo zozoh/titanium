@@ -582,7 +582,7 @@ const _M = {
       //---------------------------------------
       if (wxJsSDK) {
         state.LOG("Install WeiXin JS-SDK")
-        let jssdk = await Ti.Load("http://res.wx.qq.com/open/js/jweixin-1.6.0.js");
+        let jssdk = await Ti.Load("//res.wx.qq.com/open/js/jweixin-1.6.0.js");
         state.LOG("Get JS-SDK", jssdk)
       }
       //---------------------------------------

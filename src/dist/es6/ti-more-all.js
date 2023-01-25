@@ -1,4 +1,4 @@
-// Pack At: 2023-01-25 17:24:48
+// Pack At: 2023-01-25 17:42:48
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -80677,7 +80677,7 @@ const _M = {
       //---------------------------------------
       if (wxJsSDK) {
         state.LOG("Install WeiXin JS-SDK")
-        let jssdk = await Ti.Load("http://res.wx.qq.com/open/js/jweixin-1.6.0.js");
+        let jssdk = await Ti.Load("//res.wx.qq.com/open/js/jweixin-1.6.0.js");
         state.LOG("Get JS-SDK", jssdk)
       }
       //---------------------------------------
