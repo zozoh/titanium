@@ -1,4 +1,4 @@
-// Pack At: 2023-01-24 18:04:10
+// Pack At: 2023-01-25 17:24:48
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -14346,7 +14346,8 @@ const {WWW} = (function(){
     hydrateApi({
       base = "/",
       siteApis = {},
-      apis = {}
+      apis = {},
+      joinSiteGlobal = true
     } = {}) {
       let PageApis = {}
   
@@ -14419,14 +14420,16 @@ const {WWW} = (function(){
       }  // const _do_hydration = function
   
       // Join site apis
-      _.forEach(siteApis, (api, key) => {
-        if (api.pages) {
-          api = _do_hydration(key, api)
-          if (api) {
-            PageApis[key] = api
+      if (joinSiteGlobal) {
+        _.forEach(siteApis, (api, key) => {
+          if (api.pages) {
+            api = _do_hydration(key, api)
+            if (api) {
+              PageApis[key] = api
+            }
           }
-        }
-      })
+        })
+      }
       // For each api declared in current page
       _.forEach(apis, (pageApi, key) => {
         //..........................................
@@ -14645,6 +14648,10 @@ const {WWW} = (function(){
         data, reo
       }, ok)
       await doAction(okAction)
+  
+      //.....................................
+      // return data
+      return data
     }, // async runApiAndPrcessReturn
     //---------------------------------------
     /**
@@ -19337,7 +19344,6 @@ const {WebAppMain} = (function(){
     await app.dispatch("reload", {
       loc, lang
     })
-    
     //---------------------------------------
     // All Done
     return app
@@ -19529,7 +19535,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20230124.180410",
+  "version" : "1.6-20230125.172448",
   "dev" : false,
   "appName" : null,
   "session" : {},

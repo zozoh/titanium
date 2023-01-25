@@ -418,13 +418,15 @@ const _M = {
 
       //初始化 jssdk
       let wxConfig = { ...reo ,jsApiList}
-      state.LOG("initWeixinJSSDK: do init", wxConfig)
       wx.ready(()=>{
         state.LOG("initWeixinJSSDK: SDK is ready")
+        window.wxJSApiReady = true
+        dispatch("invokeAction",{ name: "@wxjsapi:ready" }, { root: true })
       })
       wx.error((res)=>{
         state.LOG("initWeixinJSSDK: SDK init failed", res)
       })
+      state.LOG("initWeixinJSSDK: config", wxConfig)
       wx.config(wxConfig)
     },
     //--------------------------------------------

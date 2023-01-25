@@ -1,4 +1,4 @@
-// Pack At: 2023-01-24 18:04:10
+// Pack At: 2023-01-25 17:24:48
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -3956,6 +3956,31 @@ const _M = {
   ////////////////////////////////////////////////
   getters: {
     //--------------------------------------------
+    wxJsApiList(state, getters, rootState) {
+      let { wxJsApiList } = state
+      let { wxJsGlobalApiList } = rootState
+      let list = []
+      if (wxJsApiList) {
+        // If page redefine wxJsApiList=[] it will cancel js-sdk init
+        if (!_.isEmpty(wxJsApiList)) {
+          let [a0, ...apis] = wxJsApiList
+          if ("+" == a0) {
+            if (!_.isEmpty(wxJsGlobalApiList)) {
+              list.push(...wxJsGlobalApiList)
+            }
+            list.push(...apis)
+          } else {
+            list.push(...wxJsApiList)
+          }
+        }
+      }
+      // Use wxJsGlobalApiList defined in site
+      else if (!_.isEmpty(wxJsGlobalApiList)) {
+        list.push(...wxJsGlobalApiList)
+      }
+      return list
+    },
+    //--------------------------------------------
     // 似乎直接采用 pageUri 就好，这个木有必要了
     // 观察一段时间木有用就删了吧
     // pageLink({href, params, anchor}) {
@@ -4314,6 +4339,51 @@ const _M = {
       }
     },
     //--------------------------------------------
+    async initWeixinJSSDK({ rootState, state, getters, dispatch }) {
+      // 站点未配置 JS-SDK
+      let { wxJsSDK } = rootState
+      if (!wxJsSDK) {
+        return
+      }
+
+      // 本页无需js-api 也不用加载了
+      let jsApiList = getters.wxJsApiList
+      if (_.isEmpty(jsApiList)) {
+        state.LOG("initWeixinJSSDK Not Need: Empty jsApiList")
+        return
+      }
+
+      if (!window.wx && !_.isFunction(wx.conifg)) {
+        console.error("!WeiXin JS-SDK Not Installed Yet!!!")
+        return
+      }
+      // 获取页面 URL
+      let url = window.location.href
+      let pos = url.lastIndexOf('#')
+      if (pos > 0) {
+        url = url.substring(0, pos)
+      }
+      state.LOG("initWeixinJSSDK", url)
+      // 获取配置对象
+      let reo = await dispatch("doApi", {
+        key: wxJsSDK,
+        params: { url }
+      })
+
+      //初始化 jssdk
+      let wxConfig = { ...reo ,jsApiList}
+      wx.ready(()=>{
+        state.LOG("initWeixinJSSDK: SDK is ready")
+        window.wxJSApiReady = true
+        dispatch("invokeAction",{ name: "@wxjsapi:ready" }, { root: true })
+      })
+      wx.error((res)=>{
+        state.LOG("initWeixinJSSDK: SDK init failed", res)
+      })
+      state.LOG("initWeixinJSSDK: config", wxConfig)
+      wx.config(wxConfig)
+    },
+    //--------------------------------------------
     async scrollToTop({ state }) {
       Ti.Be.ScrollWindowTo({ y: 0 })
     },
@@ -4335,8 +4405,10 @@ const _M = {
       }
       //.......................................
       commit("setLoading", true, { root: true })
-      await dispatch("__run_api", { api, params, vars, body, ok, fail })
+      let reo = await dispatch("__run_api", { api, params, vars, body, ok, fail })
       commit("setLoading", false, { root: true })
+
+      return reo
     },
     //--------------------------------------------
     async showApiError({ }, {
@@ -4370,7 +4442,7 @@ const _M = {
         }
       }
       //.....................................  
-      await Ti.WWW.runApiAndPrcessReturn(rootState, api, {
+      return await Ti.WWW.runApiAndPrcessReturn(rootState, api, {
         vars,
         params,
         headers,
@@ -4484,7 +4556,7 @@ const _M = {
       params = {}
     } = {}) {
       state.LOG = () => { }
-      //state.LOG = console.log
+      state.LOG = console.log
       state.LOG(" # -> page.reload", { path, params, anchor })
       state.LOG(" == routerList == ", rootGetters.routerList)
       let roInfo;
@@ -4548,9 +4620,8 @@ const _M = {
       //.....................................
       // Load page components
       let { components, extModules } = json
-      state.LOG({ components, extModules })
       let view = await TiWebApp.loadView({ components, extModules })
-      state.LOG(view)
+      state.LOG("loadView", view)
       //.....................................
       // Remove old moudle
       if (state.moduleNames) {
@@ -4682,7 +4753,8 @@ const _M = {
             let dapis = Ti.WWW.hydrateApi({
               base: rootState.apiBase,
               siteApis: rootState.apis,
-              apis: dynapis
+              apis: dynapis,
+              joinSiteGlobal: false
             })
             let dapiLoad = []
             for (let kapi of _.keys(dapis)) {
@@ -4699,6 +4771,8 @@ const _M = {
       //.....................................
       // Scroll window to top
       dispatch("scrollToTop")
+      //.....................................
+      await dispatch("initWeixinJSSDK")
       //.....................................
       // Notify: Ready
       state.LOG("@page:ready ...")
@@ -12604,6 +12678,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
     }
   },
   //--------------------------------------
+  explainJsHref($div) {
+    let $links = Ti.Dom.findAll("a[href]", $div);
+    for (let $link of $links) {
+      let href = $link.getAttribute("href")
+      let m = /^js:(.+)$/.exec(href)
+      if (m) {
+        if (this.allowJsHref) {
+          $link.setAttribute("href", `javascript:${m[1]}`)
+        } else {
+          $link.removeAttribute("href")
+        }
+      }
+    }
+  },
+  //--------------------------------------
   explainWnImage($div) {
     let $imgs = Ti.Dom.findAll("img[wn-obj-id]", $div);
     for (let $img of $imgs) {
@@ -12699,7 +12788,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           return _.camelCase(key.substring(7))
         }
       })
-      console.log(obj)
+      //console.log(obj)
       // Eval the src
       let src = Ti.WWW.evalObjPreviewSrc(obj, {
         previewKey: "..",
@@ -13000,6 +13089,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
     // Image
     this.explainWnImage($div)
+ 
+    // Image
+    this.explainJsHref($div)
 
     // Attachment
     this.explainWnAttachment($div)
@@ -74754,7 +74846,7 @@ const _M = {
     //-------------------------------------
     // Handle by EventBubble
     __on_events(name, ...args) {
-      //console.log("site-main.__on_events", name, ...args)
+      console.log("site-main.__on_events", name, ...args)
       // ShowBlock
       if ("block:show" == name) {
         return blockName => this.showBlock(blockName)
@@ -74856,7 +74948,7 @@ const _M = {
         })
         Ti.Dom.appendToHead($script)
       }
-    }
+    },
     //-------------------------------------
   },
   /////////////////////////////////////////
@@ -80579,8 +80671,15 @@ const _M = {
     //--------------------------------------------
     async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
       state.LOG = () => { }
-      //state.LOG = console.log
+      state.LOG = console.log
       state.LOG("site.reload", state.entry, state.base, state.lang)
+      let { wxJsSDK } = state
+      //---------------------------------------
+      if (wxJsSDK) {
+        state.LOG("Install WeiXin JS-SDK")
+        let jssdk = await Ti.Load("http://res.wx.qq.com/open/js/jweixin-1.6.0.js");
+        state.LOG("Get JS-SDK", jssdk)
+      }
       //---------------------------------------
       // Looking for the entry page
       // {href,protocol,host,port,path,search,query,hash,anchor}
@@ -80889,6 +80988,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "showImageGallery": {
     type: Boolean,
     default: true
+  },
+  // You can write js:alert() in @href, it will be 
+  // translate to javascript:alert()
+  "allowJsHref": {
+    type: Boolean,
+    default: false
   },
   //-----------------------------------
   // Aspect
@@ -98604,6 +98709,9 @@ Ti.Preload("ti/lib/www/mod/page/www-mod-page.json", {
   "dynamicPreloads": {},
   "apis": {},
   "moduleNames": [],
+  "wxJsApiList": [
+    "+"
+  ],
   "data": {},
   "gui": {
     "flex": "nil",
