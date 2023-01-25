@@ -139,7 +139,8 @@ class TiTmplPattern {
 
     // 默认的模板占位符
     if (!regex) {
-      this._P = /((?<![$])[$][{]([^}]+)[}])|([$][$])/g
+      // The Apple don't support (?<!) WTF
+      this._P = /([$][{]([^}]+)[}])|([$][$])/g
     }
     // 直接给的就是正则
     else if (_.isRegExp(regex)) {
@@ -265,9 +266,9 @@ const TiTmpl = {
   } = {}) {
     if (null == input)
       return null;
-    let regex = "((?<!["
-      + startChar
-      + "])["
+
+    // The Apple don't support (?<!) WTF
+    let regex = "(["
       + startChar
       + "]["
       + ("[" == leftBrace ? "\\[" : leftBrace)

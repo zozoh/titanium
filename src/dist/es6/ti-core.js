@@ -1,4 +1,4 @@
-// Pack At: 2023-01-25 17:42:48
+// Pack At: 2023-01-25 20:52:44
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -2394,7 +2394,8 @@ const {Tmpl} = (function(){
   
       // 默认的模板占位符
       if (!regex) {
-        this._P = /((?<![$])[$][{]([^}]+)[}])|([$][$])/g
+        // The Apple don't support (?<!) WTF
+        this._P = /([$][{]([^}]+)[}])|([$][$])/g
       }
       // 直接给的就是正则
       else if (_.isRegExp(regex)) {
@@ -2520,9 +2521,9 @@ const {Tmpl} = (function(){
     } = {}) {
       if (null == input)
         return null;
-      let regex = "((?<!["
-        + startChar
-        + "])["
+  
+      // The Apple don't support (?<!) WTF
+      let regex = "(["
         + startChar
         + "]["
         + ("[" == leftBrace ? "\\[" : leftBrace)
@@ -19535,7 +19536,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20230125.174248",
+  "version" : "1.6-20230125.205244",
   "dev" : false,
   "appName" : null,
   "session" : {},
