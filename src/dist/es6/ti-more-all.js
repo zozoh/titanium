@@ -1,4 +1,4 @@
-// Pack At: 2023-01-25 20:52:44
+// Pack At: 2023-01-25 23:43:53
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -4371,13 +4371,13 @@ const _M = {
       })
 
       //初始化 jssdk
-      let wxConfig = { ...reo ,jsApiList}
-      wx.ready(()=>{
+      let wxConfig = { ...reo, jsApiList }
+      wx.ready(() => {
         state.LOG("initWeixinJSSDK: SDK is ready")
         window.wxJSApiReady = true
-        dispatch("invokeAction",{ name: "@wxjsapi:ready" }, { root: true })
+        dispatch("invokeAction", { name: "@wxjsapi:ready" }, { root: true })
       })
-      wx.error((res)=>{
+      wx.error((res) => {
         state.LOG("initWeixinJSSDK: SDK init failed", res)
       })
       state.LOG("initWeixinJSSDK: config", wxConfig)
@@ -4556,7 +4556,7 @@ const _M = {
       params = {}
     } = {}) {
       state.LOG = () => { }
-      state.LOG = console.log
+      //state.LOG = console.log
       state.LOG(" # -> page.reload", { path, params, anchor })
       state.LOG(" == routerList == ", rootGetters.routerList)
       let roInfo;
@@ -4611,8 +4611,9 @@ const _M = {
       // Load the page json
       let json = Ti.WWW.getSSRData("page-json", { as: "json" })
       if (!json) {
-        let m = /^([^.]+)(\.html?)?$/.exec(pinfo.path)
-        let jsonPath = m[1] + ".json"
+        let m = /^(.+)(\.html?)$/.exec(pinfo.path)
+        let jsonPath = m ? m[1] : pinfo.path;
+        jsonPath += ".json"
         json = await Ti.Load(`@Site:${jsonPath}`)
       }
       //.....................................
@@ -74846,7 +74847,7 @@ const _M = {
     //-------------------------------------
     // Handle by EventBubble
     __on_events(name, ...args) {
-      console.log("site-main.__on_events", name, ...args)
+      //console.log("site-main.__on_events", name, ...args)
       // ShowBlock
       if ("block:show" == name) {
         return blockName => this.showBlock(blockName)
@@ -80671,7 +80672,7 @@ const _M = {
     //--------------------------------------------
     async reload({ state, commit, dispatch, getters }, { loc, lang } = {}) {
       state.LOG = () => { }
-      state.LOG = console.log
+      //state.LOG = console.log
       state.LOG("site.reload", state.entry, state.base, state.lang)
       let { wxJsSDK } = state
       //---------------------------------------

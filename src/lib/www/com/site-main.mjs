@@ -227,7 +227,7 @@ const _M = {
     //-------------------------------------
     // Handle by EventBubble
     __on_events(name, ...args) {
-      console.log("site-main.__on_events", name, ...args)
+      //console.log("site-main.__on_events", name, ...args)
       // ShowBlock
       if ("block:show" == name) {
         return blockName => this.showBlock(blockName)

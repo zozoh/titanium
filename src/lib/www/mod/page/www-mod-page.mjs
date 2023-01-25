@@ -417,13 +417,13 @@ const _M = {
       })
 
       //初始化 jssdk
-      let wxConfig = { ...reo ,jsApiList}
-      wx.ready(()=>{
+      let wxConfig = { ...reo, jsApiList }
+      wx.ready(() => {
         state.LOG("initWeixinJSSDK: SDK is ready")
         window.wxJSApiReady = true
-        dispatch("invokeAction",{ name: "@wxjsapi:ready" }, { root: true })
+        dispatch("invokeAction", { name: "@wxjsapi:ready" }, { root: true })
       })
-      wx.error((res)=>{
+      wx.error((res) => {
         state.LOG("initWeixinJSSDK: SDK init failed", res)
       })
       state.LOG("initWeixinJSSDK: config", wxConfig)
@@ -602,7 +602,7 @@ const _M = {
       params = {}
     } = {}) {
       state.LOG = () => { }
-      state.LOG = console.log
+      //state.LOG = console.log
       state.LOG(" # -> page.reload", { path, params, anchor })
       state.LOG(" == routerList == ", rootGetters.routerList)
       let roInfo;
@@ -657,8 +657,9 @@ const _M = {
       // Load the page json
       let json = Ti.WWW.getSSRData("page-json", { as: "json" })
       if (!json) {
-        let m = /^([^.]+)(\.html?)?$/.exec(pinfo.path)
-        let jsonPath = m[1] + ".json"
+        let m = /^(.+)(\.html?)$/.exec(pinfo.path)
+        let jsonPath = m ? m[1] : pinfo.path;
+        jsonPath += ".json"
         json = await Ti.Load(`@Site:${jsonPath}`)
       }
       //.....................................
