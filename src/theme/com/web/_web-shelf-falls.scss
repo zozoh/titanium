@@ -1,7 +1,7 @@
 .web-shelf-falls {
   //-----------------------------------------
   &.has-data {
-    @include flex-align-nowrap($ai:flex-start);
+    @include flex-align-nowrap($ai:flex-start,$jc:space-around);
   }
   //-----------------------------------------
   .falls-group {

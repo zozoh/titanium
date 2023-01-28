@@ -10294,7 +10294,7 @@ div.ti-input-tags {
 
 .web-shelf-falls.has-data {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-around;
   align-items: flex-start;
   align-content: center;
   flex-wrap: nowrap; }
