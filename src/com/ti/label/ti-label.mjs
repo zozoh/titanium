@@ -370,7 +370,12 @@ const _M = {
       }
       // Auto format
       if (_.isFunction(this.TheFormat)) {
-        return this.TheFormat(val)
+        let rev =  this.TheFormat(val)
+        if(Ti.Util.isNil(rev)){
+          this.isNilDisplay = true
+          return Ti.I18n.text(this.placeholder)
+        }
+        return rev
       }
       // Object
       if (_.isPlainObject(val)) {

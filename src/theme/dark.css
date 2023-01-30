@@ -3503,8 +3503,62 @@ i.im {
     flex: 1 1 auto; }
   .ti-gui-block.is-flex-none {
     flex: 0 0 auto; }
+  .ti-gui-block.gap-box {
+    background-color: #888; }
+    .ti-gui-block.gap-box.gap-S {
+      padding: 0.06rem; }
+    .ti-gui-block.gap-box.gap-M {
+      padding: 0.12rem; }
+    .ti-gui-block.gap-box.gap-B {
+      padding: 0.18rem; }
+    .ti-gui-block.gap-box.gap-no-top {
+      padding-top: 0; }
+    .ti-gui-block.gap-box.gap-no-bottom {
+      padding-bottom: 0; }
+    .ti-gui-block.gap-box.gap-no-left {
+      padding-left: 0; }
+    .ti-gui-block.gap-box.gap-no-right {
+      padding-right: 0; }
+    .ti-gui-block.gap-box > .block-main {
+      background-color: #222; }
+  .ti-gui-block.radius-S.rTL > .block-main {
+    border-top-left-radius: 0.06rem; }
+  .ti-gui-block.radius-S.rTR > .block-main {
+    border-top-right-radius: 0.06rem; }
+  .ti-gui-block.radius-S.rBL > .block-main {
+    border-bottom-left-radius: 0.06rem; }
+  .ti-gui-block.radius-S.rBR > .block-main {
+    border-bottom-right-radius: 0.06rem; }
+  .ti-gui-block.radius-S.rALL > .block-main {
+    border-radius: 0.06rem; }
+  .ti-gui-block.radius-M.rTL > .block-main {
+    border-top-left-radius: 0.12rem; }
+  .ti-gui-block.radius-M.rTR > .block-main {
+    border-top-right-radius: 0.12rem; }
+  .ti-gui-block.radius-M.rBL > .block-main {
+    border-bottom-left-radius: 0.12rem; }
+  .ti-gui-block.radius-M.rBR > .block-main {
+    border-bottom-right-radius: 0.12rem; }
+  .ti-gui-block.radius-M.rALL > .block-main {
+    border-radius: 0.12rem; }
+  .ti-gui-block.radius-B > .block-main.rTL > .block-main {
+    border-top-left-radius: 0.18rem; }
+  .ti-gui-block.radius-B > .block-main.rTR > .block-main {
+    border-top-right-radius: 0.18rem; }
+  .ti-gui-block.radius-B > .block-main.rBL > .block-main {
+    border-bottom-left-radius: 0.18rem; }
+  .ti-gui-block.radius-B > .block-main.rBR > .block-main {
+    border-bottom-right-radius: 0.18rem; }
+  .ti-gui-block.radius-B > .block-main.rALL > .block-main {
+    border-radius: 0.18rem; }
   .ti-gui-block.is-show-header {
     padding-top: 0.43rem; }
+    .ti-gui-block.is-show-header.gap-box.gap-S {
+      padding-top: 0.49rem; }
+    .ti-gui-block.is-show-header.gap-box.gap-M {
+      padding-top: 0.55rem; }
+    .ti-gui-block.is-show-header.gap-box.gap-B {
+      padding-top: 0.61rem; }
     .ti-gui-block.is-show-header > .block-head {
       user-select: none;
       position: absolute;

@@ -1,4 +1,4 @@
-// Pack At: 2023-01-25 23:43:53
+// Pack At: 2023-01-30 22:19:23
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -10423,6 +10423,12 @@ const {Types} = (function(){
       return Ti.DateTime.format(date, fmt)
     },
     //.......................................
+    getDateFormatValue(date, fmt = "yyyy-MM-dd") {
+      if (!date)
+        return
+      return Ti.DateTime.format(date, fmt)
+    },
+    //.......................................
     toAjaxReturn(val, dftData) {
       //console.log("toAjaxReturn", val)
       let reo = val
@@ -16980,7 +16986,7 @@ const {VueTiCom} = (function(){
       // Auto PageMode
       ...Vuex.mapGetters("viewport", [
         "viewportMode",
-        "viewportActivedComIds",
+        //"viewportActivedComIds",
         "isViewportModeDesktop",
         "isViewportModeTablet",
         "isViewportModePhone",
@@ -16994,18 +17000,18 @@ const {VueTiCom} = (function(){
       },
       //-----------------------------------------------
       // Auto detected current com is actived or not.
-      isActived() {
-        return _.indexOf(this.viewportActivedComIds, this.tiComId) >= 0
-      },
-      //-----------------------------------------------
-      isSelfActived() {
-        return _.last(this.viewportActivedComIds) == this.tiComId
-      },
+      // isActived() {
+      //   return _.indexOf(this.viewportActivedComIds, this.tiComId) >= 0
+      // },
+      // //-----------------------------------------------
+      // isSelfActived() {
+      //   return _.last(this.viewportActivedComIds) == this.tiComId
+      // },
       //-----------------------------------------------
       getTopClass() {
         return (...klass) => Ti.Css.mergeClassNameBy(this, {
-          "is-self-actived": this.isSelfActived,
-          "is-actived": this.isActived
+          // "is-self-actived": this.isSelfActived,
+          // "is-actived": this.isActived
         }, klass, this.className)
       }
       //-----------------------------------------------
@@ -17083,11 +17089,11 @@ const {VueTiCom} = (function(){
     },
     //-----------------------------------------------
     setActived() {
-      if (!this.isSelfActived) {
-        //console.log("I am actived", this)
-        Ti.App(this).setActivedVm(this)
-        //this.$notify("com:actived", this)
-      }
+      // if (!this.isSelfActived) {
+      //   //console.log("I am actived", this)
+      //   Ti.App(this).setActivedVm(this)
+      //   //this.$notify("com:actived", this)
+      // }
     },
     //-----------------------------------------------
     findComBy(flt = () => true) {
@@ -19536,7 +19542,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20230125.234353",
+  "version" : "1.6-20230130.221923",
   "dev" : false,
   "appName" : null,
   "session" : {},

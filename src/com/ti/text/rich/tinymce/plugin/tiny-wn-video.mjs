@@ -52,12 +52,13 @@ function GetVideoAttrsByElement(elVideo) {
     naturalWidth: elVideo.getAttribute("wn-obj-width"),
     naturalHeight: elVideo.getAttribute("wn-obj-height"),
     duration: elVideo.getAttribute("wn-obj-duration"),
+    rawSize: elVideo.getAttribute("wn-raw-size"),
     style
   }
 }
 ////////////////////////////////////////////////////
 function GetVideoAttrsByObj(oVideo) {
-  return {
+  return _.pickBy({
     "wn-obj-id": oVideo.id,
     "wn-obj-sha1": oVideo.sha1,
     "wn-obj-mime": oVideo.mime,
@@ -66,8 +67,9 @@ function GetVideoAttrsByObj(oVideo) {
     "wn-obj-video_cover": oVideo.video_cover,
     "wn-obj-width": oVideo.width,
     "wn-obj-height": oVideo.height,
-    "wn-obj-duration": oVideo.duration
-  }
+    "wn-obj-duration": oVideo.duration,
+    "wn-raw-size": oVideo.rawSize,
+  }, (v) => !_.isUndefined(v))
 }
 ////////////////////////////////////////////////////
 function UpdateVideoTagInnerHtml(elVideo) {
@@ -168,44 +170,61 @@ async function CmdShowVideoProp(editor, settings) {
     model: { prop: "data", event: "change" },
     comType: "TiForm",
     comConf: {
-      spacing: "tiny",
-      fields: [{
-        title: "i18n:video",
-        name: "oid",
-        comType: "WnObjPicker",
-        comConf: {
-          valueType: "id",
-          base: settings.base,
-          titleEditable: false
+      spacing: "comfy",
+      fieldNameVAlign: "top",
+      fields: [
+        {
+          title: "i18n:video",
+          name: "oid",
+          rowSpan: 3,
+          comType: "WnObjPicker",
+          comConf: {
+            valueType: "id",
+            base: settings.base,
+            titleEditable: false
+          }
+        },
+        Wn.Hm.getCssPropField("width", {
+          name: "style.width",
+          comConf: {
+            placeholder: `${data.naturalWidth}px`
+          }
+        }),
+        Wn.Hm.getCssPropField("height", {
+          name: "style.height",
+          comConf: {
+            placeholder: `${data.naturalHeight}px`
+          }
+        }),
+        Wn.Hm.getCssPropField("float", {
+          name: "style.float"
+        }),
+        {
+          title: "Raw Size",
+          name: "rawSize",
+          type: "String",
+          defaultAs: 'auto',
+          comType: "TiSwitcher",
+          comConf: {
+            options: ['auto', 'off']
+          }
+        },
+        {
+          title: "i18n:style-more",
+        },
+        {
+          name: "style",
+          type: "Object",
+          colSpan: 10,
+          comType: "HmPropCssRules",
+          comConf: {
+            rules: [
+              /^((min|max)-)?(width|height)$/,
+              /^(margin|border|box-shadow|float)$/
+            ]
+          }
         }
-      },
-      Wn.Hm.getCssPropField("width", {
-        name: "style.width",
-        comConf: {
-          placeholder: `${data.naturalWidth}px`
-        }
-      }),
-      Wn.Hm.getCssPropField("height", {
-        name: "style.height",
-        comConf: {
-          placeholder: `${data.naturalHeight}px`
-        }
-      }),
-      Wn.Hm.getCssPropField("float", {
-        name: "style.float"
-      }),
-      {
-        title: "i18n:style-more",
-        name: "style",
-        type: "Object",
-        comType: "HmPropCssRules",
-        comConf: {
-          rules: [
-            /^((min|max)-)?(width|height)$/,
-            /^(margin|border|box-shadow|float)$/
-          ]
-        }
-      }]
+      ]
     },
     components: [
       "@com:wn/obj/picker"
@@ -234,6 +253,9 @@ async function CmdShowVideoProp(editor, settings) {
     UpdateVideoTagInnerHtml($video)
 
   }
+  let attrs = GetVideoAttrsByObj(reo)
+  console.log(attrs)
+  Ti.Dom.setAttrs($video, attrs)
   //................................................
   // Styling
   let style = Ti.Css.renderCssRule(reo.style)

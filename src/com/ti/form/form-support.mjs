@@ -723,7 +723,8 @@ const _M = {
             labelConf.format = comConf.format || Ti.DateTime.format
           }
           else if (/^TiInputDate$/.test(comType)) {
-            labelConf.format = comConf.format || Ti.Types.formatDate
+            labelConf.format = comConf.format || Ti.Types.getDateFormatValue
+            labelConf.placeholder = comConf.placeholder || "i18n:nil"
           }
           // Just pure value
           return {

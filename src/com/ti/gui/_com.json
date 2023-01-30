@@ -6,6 +6,7 @@
   "mixins": "./ti-gui.mjs",
   "components": [
     "@com:ti/gui/adjustbar",
+    "@com:ti/gui/block",
     "@com:ti/gui/cols",
     "@com:ti/gui/rows",
     "@com:ti/gui/tabs",

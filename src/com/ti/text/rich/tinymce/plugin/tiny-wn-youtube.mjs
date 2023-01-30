@@ -71,6 +71,7 @@ function GetYoutubeAttrsByElement(elYoutube) {
     du_in_str: elYoutube.getAttribute("wn-yt-du_in_str"),
     definition: elYoutube.getAttribute("wn-yt-definition"),
     categoryId: elYoutube.getAttribute("wn-yt-category-id"),
+    rawSize: elYoutube.getAttribute("wn-raw-size"),
     allow,
     allowfullscreen,
     style
@@ -91,7 +92,8 @@ function GetYoutubeAttrsByObj(ytVideo) {
     "wn-yt-definition": ytVideo.definition,
     "wn-yt-category-id": ytVideo.categoryId,
     "wn-yt-allow": allow.join("; ") || null,
-    "wn-yt-allowfullscreen": allowfullscreen || null
+    "wn-yt-allowfullscreen": allowfullscreen || null,
+    "wn-raw-size":ytVideo.rawSize,
   }
 }
 ////////////////////////////////////////////////////
@@ -181,14 +183,19 @@ async function CmdShowYoutubeProp(editor, settings) {
     model: { prop: "data", event: "change" },
     comType: "TiForm",
     comConf: {
-      spacing: "tiny",
+      spacing: "comfy",
+      fieldNameVAlign: "top",
       fields: [
         {
           title: "i18n:hmk-w-edit-yt-video-features",
+        },
+        {
           name: "allow",
           type: "Array",
+          colSpan: 2,
           comType: "TiBulletCheckbox",
           comConf: {
+            autoI18n: true,
             options: [
               { value: "accelerometer", text: "i18n:video-accelerometer" },
               { value: "autoplay", text: "i18n:video-autoplay" },
@@ -205,6 +212,9 @@ async function CmdShowYoutubeProp(editor, settings) {
           type: "Boolean",
           comType: "TiToggle"
         },
+        {
+          title: "i18n:style"
+        },
         Wn.Hm.getCssPropField("width", {
           name: "style.width"
         }),
@@ -215,9 +225,22 @@ async function CmdShowYoutubeProp(editor, settings) {
           name: "style.float"
         }),
         {
-          title: "i18n:style-more",
+          title: "Raw Size",
+          name: "rawSize",
+          type: "String",
+          defaultAs: 'auto',
+          comType: "TiSwitcher",
+          comConf: {
+            options: ['auto', 'off']
+          }
+        },
+        {
+          title: "i18n:style-more"
+        },
+        {
           name: "style",
           type: "Object",
+          colSpan: 10,
           comType: "HmPropCssRules",
           comConf: {
             rules: [

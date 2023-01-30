@@ -115,7 +115,7 @@ const _M = {
         return lay
       //....................................
       // Raw layout
-      if (/^(rows|cols|tabs)$/.test(this.layout.type)) {
+      if (/^(rows|cols|tabs|grid)$/.test(this.layout.type)) {
         lay = this.layout
       }
       //....................................

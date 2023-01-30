@@ -37,7 +37,7 @@ export default {
     "embedIn": {
       type: String,
       default: null,
-      validator: (v) => /^(panel|rows|cols|tabs)$/.test(v)
+      validator: (v) => /^(panel|rows|cols|tabs|grid)$/.test(v)
     },
     "blocks": {
       type: Array,
@@ -94,6 +94,9 @@ export default {
     //-----------------------------------
     // Aspect
     //-----------------------------------
+    "gap": {
+      type: Object
+    },
     "hideTitle": {
       type: Boolean,
       default: false

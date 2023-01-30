@@ -1,13 +1,16 @@
 <div class="ti-gui-rows" :class="topClass">
   <template v-if="hasBlocks">
-    <template v-for="(block, index) in blocks">
+    <template v-for="(block, index) in GuiBlocks">
       <ti-gui-block v-if="!block.hide"
         :key="index"
         embed-in="rows"
         v-bind="block"
         :schema="schema"
         :action-status="block.actionStatus || actionStatus"
-        :shown="shown"/>
+        :size="getBlockSize(index)"
+        :shown="shown"
+        @bar:reset="OnBarReset"
+        @bar:toggle:size="OnBarToggleSize"/>
     </template>
   </template>
 </div>

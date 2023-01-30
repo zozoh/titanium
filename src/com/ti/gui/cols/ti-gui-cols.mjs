@@ -23,6 +23,9 @@ export default {
       type: String,
       default: undefined
     },
+    "gap": {
+      type: Object
+    },
     "border": {
       type: Boolean,
       default: false

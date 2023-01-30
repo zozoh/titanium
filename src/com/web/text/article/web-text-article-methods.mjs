@@ -19,6 +19,10 @@ export default {
   cleanMediaSize($div) {
     let $medias = Ti.Dom.findAll(".wn-media", $div)
     for (let $media of $medias) {
+      // User force keep the style
+      if('off' == $media.getAttribute('wn-raw-size')){
+        continue;
+      }
       let css = { width: "", height: "", margin: "" }
       if ($media.style.float && "none" != $media.style.float) {
         css.float = ""

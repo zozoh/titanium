@@ -10,6 +10,18 @@ export default {
       type: Boolean,
       default: true
     },
+    "adjustMode": {
+      type: String,
+      default: "auto",
+      validator: v => /^(auto|px|%)$/.test(v)
+    },
+    "keepCustomizedTo": {
+      type: String,
+      default: undefined
+    },
+    "gap": {
+      type: Object
+    },
     "border": {
       type: Boolean,
       default: false

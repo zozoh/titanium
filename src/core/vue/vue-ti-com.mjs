@@ -7,7 +7,7 @@ const TiComMixin = {
     // Auto PageMode
     ...Vuex.mapGetters("viewport", [
       "viewportMode",
-      "viewportActivedComIds",
+      //"viewportActivedComIds",
       "isViewportModeDesktop",
       "isViewportModeTablet",
       "isViewportModePhone",
@@ -21,18 +21,18 @@ const TiComMixin = {
     },
     //-----------------------------------------------
     // Auto detected current com is actived or not.
-    isActived() {
-      return _.indexOf(this.viewportActivedComIds, this.tiComId) >= 0
-    },
-    //-----------------------------------------------
-    isSelfActived() {
-      return _.last(this.viewportActivedComIds) == this.tiComId
-    },
+    // isActived() {
+    //   return _.indexOf(this.viewportActivedComIds, this.tiComId) >= 0
+    // },
+    // //-----------------------------------------------
+    // isSelfActived() {
+    //   return _.last(this.viewportActivedComIds) == this.tiComId
+    // },
     //-----------------------------------------------
     getTopClass() {
       return (...klass) => Ti.Css.mergeClassNameBy(this, {
-        "is-self-actived": this.isSelfActived,
-        "is-actived": this.isActived
+        // "is-self-actived": this.isSelfActived,
+        // "is-actived": this.isActived
       }, klass, this.className)
     }
     //-----------------------------------------------
@@ -110,11 +110,11 @@ const TiComMethods = {
   },
   //-----------------------------------------------
   setActived() {
-    if (!this.isSelfActived) {
-      //console.log("I am actived", this)
-      Ti.App(this).setActivedVm(this)
-      //this.$notify("com:actived", this)
-    }
+    // if (!this.isSelfActived) {
+    //   //console.log("I am actived", this)
+    //   Ti.App(this).setActivedVm(this)
+    //   //this.$notify("com:actived", this)
+    // }
   },
   //-----------------------------------------------
   findComBy(flt = () => true) {

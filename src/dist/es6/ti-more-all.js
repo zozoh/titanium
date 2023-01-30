@@ -1,4 +1,4 @@
-// Pack At: 2023-01-25 23:43:53
+// Pack At: 2023-01-30 22:19:23
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1251,6 +1251,376 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'gui-block-support.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/gui/gui-block-support.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  data: () => ({
+    isDragging: false,
+    blockSizes: undefined
+  }),
+  /////////////////////////////////////////
+  props: {
+    "blocks": {
+      type: Array,
+      default: () => []
+    },
+    "adjustable": {
+      type: Boolean,
+      default: true
+    },
+    "adjustMode": {
+      type: String,
+      default: "auto",
+      validator: v => /^(auto|px|%)$/.test(v)
+    },
+    "keepCustomizedTo": {
+      type: String,
+      default: undefined
+    },
+    "gap": {
+      type: Object
+    },
+    "border": {
+      type: Boolean,
+      default: false
+    },
+    "schema": {
+      type: Object,
+      default: () => ({})
+    },
+    "actionStatus": {
+      type: Object,
+      default: () => ({})
+    },
+    "shown": {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    topClass() {
+      return Ti.Css.mergeClassName({
+        "is-adjustable": this.adjustable,
+        "show-border": this.border
+      }, this.className)
+    },
+    //--------------------------------------
+    hasBlocks() {
+      return !_.isEmpty(this.blocks)
+    },
+    //--------------------------------------
+    BlockAdjustMode() {
+      if ("auto" == this.adjustMode) {
+        for (let block of this.blocks) {
+          if (!Ti.Util.isNil(block.size)) {
+            if (/%$/.test(block.size)) {
+              return "%"
+            }
+            return "px"
+          }
+        }
+        return "px"
+      }
+      return this.adjustMode
+    },
+    //--------------------------------------
+    GuiBlocks() {
+      let list = []
+      _.forEach(this.blocks, (block, index) => {
+        let li = _.omit(block, "size")
+        li.index = index
+        li.key = block.name || `B${index}`
+        if (Ti.Util.isNil(li.minSize)) {
+          li.minSize = 50
+        }
+        if(this.gap){
+          li.gap = _.assign({}, this.gap, li.gap)
+        }
+        if (this.adjustable) {
+          li.resizeMode = "col-resize"
+          if (li.index > 0) {
+            let prevI = li.index - 1
+            let selfI = li.index
+            li.adjacentMode = this.getBlockAdjacentMode(prevI, selfI)
+            li.adjustBarAt = "left";
+            li.adjustIndex = [prevI, selfI];
+          }
+        }
+        list.push(li)
+      })
+      return list
+    },
+    //--------------------------------------
+    Draggable() {
+      //....................................
+      const do_dragging = (ctx) => {
+        let { offsetX, orgBlockSizes, prevI, selfI } = ctx
+        //console.log("dragging", { offsetX, orgBlockSizes, prevI, selfI })
+        let sizes = _.cloneDeep(orgBlockSizes)
+
+        // Block minimum size
+        let prevSize = sizes[prevI]
+        let selfSize = sizes[selfI]
+        let sum = prevSize + selfSize
+
+        // Use prev minSize
+        if (offsetX < 0) {
+          let minSize = this.GuiBlocks[prevI].minSize
+          prevSize = Math.max(minSize, prevSize + offsetX)
+          selfSize = sum - prevSize
+        }
+        // Use self minSize
+        else {
+          let minSize = this.GuiBlocks[selfI].minSize
+          selfSize = Math.max(minSize, selfSize - offsetX)
+          prevSize = sum - selfSize
+        }
+
+        // Offset block size
+        sizes[prevI] = prevSize
+        sizes[selfI] = selfSize
+
+        // Depends on bar adjacent-mode
+        this.blockSizes = this.normlizedBlockSize(sizes, ctx)
+      }
+      //....................................
+      return {
+        trigger: ".block-adjust-bar",
+        prepare: (_, evt) => {
+          evt.stopPropagation()
+          this.isDragging = true
+        },
+        actived: (ctx) => {
+          //console.log("actived", ctx)
+          // Get all my blocks and init them rect
+          // Set mark
+          // Prepare sizing
+          let sizes = this.genBlockRealSizes()
+          ctx.orgBlockSizes = sizes
+          ctx.viewportWidth = _.sum(sizes)
+          ctx.prevI = parseInt(ctx.$trigger.getAttribute("adjust-0"));
+          ctx.selfI = parseInt(ctx.$trigger.getAttribute("adjust-1"));
+          ctx.adjacentMode = ctx.$trigger.getAttribute("adjacent-mode")
+        },
+        dragging: do_dragging,
+        done: (ctx) => {
+          // Save customized
+          this.trySaveLocalCustomized()
+          // Notify whole window resizing
+          Ti.Viewport.resize()
+        },
+        finished: (ctx) => {
+          // Reset mark
+          this.isDragging = false
+        }
+      }
+      //....................................
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    OnBarReset() {
+      //console.log("OnBarReset")
+      this.blockSizes = null
+      this.trySaveLocalCustomized()
+    },
+    //--------------------------------------
+    OnBarToggleSize(payload) {
+      console.log("OnBarToggleSize")
+      //..............................
+      let {
+        prevMinimum, selfMinimum, adjacentMode, adjustIndex
+      } = payload
+      //..............................
+      let sizes = this.genBlockRealSizes()
+      let viewportWidth = _.sum(sizes)
+      let prevI = adjustIndex[0]
+      let selfI = adjustIndex[1]
+      //..............................
+      const __toggle_sizes = (sizes = []) => {
+        let prevSize = sizes[prevI]
+        let selfSize = sizes[selfI]
+        let sum = prevSize + selfSize
+
+        let prevMinSize = this.GuiBlocks[prevI].minSize
+        let prevOrgSize = this.blocks[prevI].size
+
+        let selfMinSize = this.GuiBlocks[selfI].minSize
+        let selfOrgSize = this.blocks[selfI].size
+
+        // Prev
+        if ("prev" == adjacentMode || ("both" == adjacentMode && 0 == prevI)) {
+          // => min
+          if (!prevMinimum) {
+            sizes[prevI] = prevMinSize
+            sizes[selfI] = sum - prevMinSize
+          }
+          // => org
+          else {
+            prevSize = Ti.Css.toAbsPixel(prevOrgSize, {
+              base: viewportWidth
+            })
+            sizes[prevI] = prevSize
+            sizes[selfI] = sum - prevSize
+          }
+        }
+        // Self
+        else {
+          // => min
+          if (!selfMinimum) {
+            sizes[selfI] = selfMinSize
+            sizes[prevI] = sum - selfMinSize
+          }
+          // => org
+          else {
+            selfSize = Ti.Css.toAbsPixel(selfOrgSize, {
+              base: viewportWidth
+            })
+            sizes[selfI] = selfSize
+            sizes[prevI] = sum - selfSize
+          }
+        }
+      }
+      //..............................
+      __toggle_sizes(sizes)
+      //..............................
+      this.blockSizes = this.normlizedBlockSize(sizes, {
+        adjacentMode,
+        viewportWidth,
+        prevI,
+        selfI
+      })
+      //..............................
+      this.trySaveLocalCustomized()
+      //..............................
+      this.$nextTick(() => {
+        Ti.Viewport.resize()
+      })
+    },
+    //--------------------------------------
+    normlizedBlockSize(sizes = [], {
+      adjacentMode,
+      viewportWidth,
+      prevI,
+      selfI
+    } = {}) {
+      //console.log("normlizedBlockSize", adjacentMode)
+      // Depends on bar adjacent-mode
+      switch (adjacentMode) {
+        case "prev":
+          sizes[selfI] = null;
+          break;
+        case "self":
+          sizes[prevI] = null;
+          break;
+        case "none":
+          if (0 == prevI) {
+            sizes[selfI] = null
+          } else {
+            sizes[prevI] = null
+          }
+      }
+
+      // Cover to percent
+      if ("%" == this.BlockAdjustMode) {
+        return _.map(sizes, sz => {
+          if (null === sz) {
+            return null
+          }
+          return Ti.S.toPercent(sz / viewportWidth)
+        })
+      }
+
+      return sizes
+    },
+    //--------------------------------------
+    // When click the `min` button, it will shrink which block
+    // ajacent with the bar.
+    //
+    //  [Prev] || [Self]
+    //
+    //  - prev: set prev block to mininum size
+    //  - self: set self block to minimum size
+    //  - both: if prev is head block, set it to minimum size,
+    //          else set the next to minimum size
+    //  - none: do nothing
+    //
+    getBlockAdjacentMode(prevI, selfI) {
+      let prevSize = Ti.Util.fallbackNil(this.blocks[prevI].size, "stretch")
+      let selfSize = Ti.Util.fallbackNil(this.blocks[selfI].size, "stretch")
+      let prevIsStrech = "stretch" == prevSize
+      let selfIsStrech = "stretch" == selfSize
+
+      // .. 40        | <stretch> ..
+      if (!prevIsStrech && selfIsStrech) {
+        return "prev"
+      }
+      // .. <stretch> | 40   ..
+      else if (prevIsStrech && !selfIsStrech) {
+        return "self"
+      }
+      // .. 40        | 80   ..
+      else if (!prevIsStrech && !selfIsStrech) {
+        return "both"
+      }
+      // .. <stretch> | <stretch> ..
+      return "none"
+    },
+    //--------------------------------------
+    genBlockRealSizes() {
+      let $blocks = Ti.Dom.findAll(":scope > .ti-gui-block", this.$el)
+      let sizes = []
+      _.forEach($blocks, ($block) => {
+        sizes.push($block.getBoundingClientRect().width)
+      })
+      return sizes
+    },
+    //--------------------------------------
+    getBlockSize(index) {
+      if (this.blockSizes) {
+        return _.nth(this.blockSizes, index) || null
+      }
+      return (_.nth(this.blocks, index) || {}).size
+    },
+    //--------------------------------------
+    isBlockSizeMinimum(index) {
+      if (index >= 0 && index < this.$children.length) {
+        return this.$children[index].isMinimumSize
+      }
+    },
+    //--------------------------------------
+    trySaveLocalCustomized() {
+      if (this.keepCustomizedTo) {
+        let sizes = _.isEmpty(this.blockSizes) ? null : this.blockSizes
+        Ti.Storage.local.setObject(this.keepCustomizedTo, sizes)
+      }
+    },
+    //--------------------------------------
+    tryRestoreLocalCustomized() {
+      if (this.keepCustomizedTo) {
+        let sizes = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        if (_.isArray(sizes)) {
+          this.blockSizes = sizes
+        }
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  mounted() {
+    this.tryRestoreLocalCustomized()
+  }
+  //////////////////////////////////////////
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-input-text.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/input/text/ti-input-text.mjs'] = (function(){
@@ -1983,6 +2353,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "adjustable": {
       type: Boolean,
       default: true
+    },
+    "adjustMode": {
+      type: String,
+      default: "auto",
+      validator: v => /^(auto|px|%)$/.test(v)
+    },
+    "keepCustomizedTo": {
+      type: String,
+      default: undefined
+    },
+    "gap": {
+      type: Object
     },
     "border": {
       type: Boolean,
@@ -4836,7 +5218,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "embedIn": {
       type: String,
       default: null,
-      validator: (v) => /^(panel|rows|cols|tabs)$/.test(v)
+      validator: (v) => /^(panel|rows|cols|tabs|grid)$/.test(v)
     },
     "blocks": {
       type: Array,
@@ -4893,6 +5275,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------
     // Aspect
     //-----------------------------------
+    "gap": {
+      type: Object
+    },
     "hideTitle": {
       type: Boolean,
       default: false
@@ -6815,7 +7200,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //..............................................
     editor.ui.registry.addContextMenu("wn-web-image", {
       update: function (el) {
-        console.log("wn-web-image context menu", el)
+        //console.log("wn-web-image context menu", el)
         let sel = editor.selection
         let $nd = sel.getNode()
         let IMC = GetElContext($nd)
@@ -12574,6 +12959,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   cleanMediaSize($div) {
     let $medias = Ti.Dom.findAll(".wn-media", $div)
     for (let $media of $medias) {
+      // User force keep the style
+      if('off' == $media.getAttribute('wn-raw-size')){
+        continue;
+      }
       let css = { width: "", height: "", margin: "" }
       if ($media.style.float && "none" != $media.style.float) {
         css.float = ""
@@ -13931,7 +14320,8 @@ const _M = {
             labelConf.format = comConf.format || Ti.DateTime.format
           }
           else if (/^TiInputDate$/.test(comType)) {
-            labelConf.format = comConf.format || Ti.Types.formatDate
+            labelConf.format = comConf.format || Ti.Types.getDateFormatValue
+            labelConf.placeholder = comConf.placeholder || "i18n:nil"
           }
           // Just pure value
           return {
@@ -15301,7 +15691,12 @@ const _M = {
       }
       // Auto format
       if (_.isFunction(this.TheFormat)) {
-        return this.TheFormat(val)
+        let rev =  this.TheFormat(val)
+        if(Ti.Util.isNil(rev)){
+          this.isNilDisplay = true
+          return Ti.I18n.text(this.placeholder)
+        }
+        return rev
       }
       // Object
       if (_.isPlainObject(val)) {
@@ -27055,13 +27450,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
     TheItems() {
       return _.map(this.myOptionsData, (it, index) => {
         let itV = this.Dict.getValue(it)
+        let text = this.Dict.getText(it);
+        text = Ti.I18n.text(text)
         return {
           index,
           className: {
             "is-selected": this.myValueMap[itV],
             "is-focused": index == this.myFocusIndex
           },
-          text: this.Dict.getText(it),
+          text,
           value: itV,
           icon: this.Dict.getIcon(it) || this.defaultIcon
         }
@@ -28579,6 +28976,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "keepCustomizedTo": {
       type: String,
       default: undefined
+    },
+    "gap": {
+      type: Object
     },
     "border": {
       type: Boolean,
@@ -38901,7 +39301,7 @@ const _M = {
         return lay
       //....................................
       // Raw layout
-      if (/^(rows|cols|tabs)$/.test(this.layout.type)) {
+      if (/^(rows|cols|tabs|grid)$/.test(this.layout.type)) {
         lay = this.layout
       }
       //....................................
@@ -55079,6 +55479,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     OnColumnResizeBegin(index) {
+      // Make sure get the table ract 
+      this.OnResize();
       // Get Each column width
       let vm = this;
       let $doc = this.$el.ownerDocument;
@@ -66031,7 +66433,7 @@ const _M = {
 
         // I18n
         if (this.autoI18n) {
-          it.text = Ti.I18n.get(it.text, it.text)
+          it.text = Ti.I18n.text(it.text, it.text)
         }
 
         // Prepare the className
@@ -76458,12 +76860,13 @@ function GetVideoAttrsByElement(elVideo) {
     naturalWidth: elVideo.getAttribute("wn-obj-width"),
     naturalHeight: elVideo.getAttribute("wn-obj-height"),
     duration: elVideo.getAttribute("wn-obj-duration"),
+    rawSize: elVideo.getAttribute("wn-raw-size"),
     style
   }
 }
 ////////////////////////////////////////////////////
 function GetVideoAttrsByObj(oVideo) {
-  return {
+  return _.pickBy({
     "wn-obj-id": oVideo.id,
     "wn-obj-sha1": oVideo.sha1,
     "wn-obj-mime": oVideo.mime,
@@ -76472,8 +76875,9 @@ function GetVideoAttrsByObj(oVideo) {
     "wn-obj-video_cover": oVideo.video_cover,
     "wn-obj-width": oVideo.width,
     "wn-obj-height": oVideo.height,
-    "wn-obj-duration": oVideo.duration
-  }
+    "wn-obj-duration": oVideo.duration,
+    "wn-raw-size": oVideo.rawSize,
+  }, (v) => !_.isUndefined(v))
 }
 ////////////////////////////////////////////////////
 function UpdateVideoTagInnerHtml(elVideo) {
@@ -76574,44 +76978,61 @@ async function CmdShowVideoProp(editor, settings) {
     model: { prop: "data", event: "change" },
     comType: "TiForm",
     comConf: {
-      spacing: "tiny",
-      fields: [{
-        title: "i18n:video",
-        name: "oid",
-        comType: "WnObjPicker",
-        comConf: {
-          valueType: "id",
-          base: settings.base,
-          titleEditable: false
+      spacing: "comfy",
+      fieldNameVAlign: "top",
+      fields: [
+        {
+          title: "i18n:video",
+          name: "oid",
+          rowSpan: 3,
+          comType: "WnObjPicker",
+          comConf: {
+            valueType: "id",
+            base: settings.base,
+            titleEditable: false
+          }
+        },
+        Wn.Hm.getCssPropField("width", {
+          name: "style.width",
+          comConf: {
+            placeholder: `${data.naturalWidth}px`
+          }
+        }),
+        Wn.Hm.getCssPropField("height", {
+          name: "style.height",
+          comConf: {
+            placeholder: `${data.naturalHeight}px`
+          }
+        }),
+        Wn.Hm.getCssPropField("float", {
+          name: "style.float"
+        }),
+        {
+          title: "Raw Size",
+          name: "rawSize",
+          type: "String",
+          defaultAs: 'auto',
+          comType: "TiSwitcher",
+          comConf: {
+            options: ['auto', 'off']
+          }
+        },
+        {
+          title: "i18n:style-more",
+        },
+        {
+          name: "style",
+          type: "Object",
+          colSpan: 10,
+          comType: "HmPropCssRules",
+          comConf: {
+            rules: [
+              /^((min|max)-)?(width|height)$/,
+              /^(margin|border|box-shadow|float)$/
+            ]
+          }
         }
-      },
-      Wn.Hm.getCssPropField("width", {
-        name: "style.width",
-        comConf: {
-          placeholder: `${data.naturalWidth}px`
-        }
-      }),
-      Wn.Hm.getCssPropField("height", {
-        name: "style.height",
-        comConf: {
-          placeholder: `${data.naturalHeight}px`
-        }
-      }),
-      Wn.Hm.getCssPropField("float", {
-        name: "style.float"
-      }),
-      {
-        title: "i18n:style-more",
-        name: "style",
-        type: "Object",
-        comType: "HmPropCssRules",
-        comConf: {
-          rules: [
-            /^((min|max)-)?(width|height)$/,
-            /^(margin|border|box-shadow|float)$/
-          ]
-        }
-      }]
+      ]
     },
     components: [
       "@com:wn/obj/picker"
@@ -76640,6 +77061,9 @@ async function CmdShowVideoProp(editor, settings) {
     UpdateVideoTagInnerHtml($video)
 
   }
+  let attrs = GetVideoAttrsByObj(reo)
+  console.log(attrs)
+  Ti.Dom.setAttrs($video, attrs)
   //................................................
   // Styling
   let style = Ti.Css.renderCssRule(reo.style)
@@ -77608,6 +78032,7 @@ function GetYoutubeAttrsByElement(elYoutube) {
     du_in_str: elYoutube.getAttribute("wn-yt-du_in_str"),
     definition: elYoutube.getAttribute("wn-yt-definition"),
     categoryId: elYoutube.getAttribute("wn-yt-category-id"),
+    rawSize: elYoutube.getAttribute("wn-raw-size"),
     allow,
     allowfullscreen,
     style
@@ -77628,7 +78053,8 @@ function GetYoutubeAttrsByObj(ytVideo) {
     "wn-yt-definition": ytVideo.definition,
     "wn-yt-category-id": ytVideo.categoryId,
     "wn-yt-allow": allow.join("; ") || null,
-    "wn-yt-allowfullscreen": allowfullscreen || null
+    "wn-yt-allowfullscreen": allowfullscreen || null,
+    "wn-raw-size":ytVideo.rawSize,
   }
 }
 ////////////////////////////////////////////////////
@@ -77718,14 +78144,19 @@ async function CmdShowYoutubeProp(editor, settings) {
     model: { prop: "data", event: "change" },
     comType: "TiForm",
     comConf: {
-      spacing: "tiny",
+      spacing: "comfy",
+      fieldNameVAlign: "top",
       fields: [
         {
           title: "i18n:hmk-w-edit-yt-video-features",
+        },
+        {
           name: "allow",
           type: "Array",
+          colSpan: 2,
           comType: "TiBulletCheckbox",
           comConf: {
+            autoI18n: true,
             options: [
               { value: "accelerometer", text: "i18n:video-accelerometer" },
               { value: "autoplay", text: "i18n:video-autoplay" },
@@ -77742,6 +78173,9 @@ async function CmdShowYoutubeProp(editor, settings) {
           type: "Boolean",
           comType: "TiToggle"
         },
+        {
+          title: "i18n:style"
+        },
         Wn.Hm.getCssPropField("width", {
           name: "style.width"
         }),
@@ -77752,9 +78186,22 @@ async function CmdShowYoutubeProp(editor, settings) {
           name: "style.float"
         }),
         {
-          title: "i18n:style-more",
+          title: "Raw Size",
+          name: "rawSize",
+          type: "String",
+          defaultAs: 'auto',
+          comType: "TiSwitcher",
+          comConf: {
+            options: ['auto', 'off']
+          }
+        },
+        {
+          title: "i18n:style-more"
+        },
+        {
           name: "style",
           type: "Object",
+          colSpan: 10,
           comType: "HmPropCssRules",
           comConf: {
             rules: [
@@ -79198,7 +79645,7 @@ const _M = {
   methods: {
     //------------------------------------------------
     async OnInputChange(value) {
-      console.log("OnInputChange")
+      //console.log("OnInputChange")
       // Guard: only check with dict
       if (!this.Dict) {
         this.tryNotifyChange(value)
@@ -87039,11 +87486,12 @@ Ti.Preload("ti/com/ti/gui/cols/_com.json", {
   "name": "ti-gui-cols",
   "globally": true,
   "template": "./ti-gui-cols.html",
-  "mixins": "./ti-gui-cols.mjs",
-  "components": [
-    "@com:ti/gui/block"
-  ]
+  "mixins"   : "@com:ti/gui/gui-block-support.mjs"
 });
+//========================================
+// JOIN <gui-block-support.mjs> ti/com/ti/gui/gui-block-support.mjs
+//========================================
+Ti.Preload("ti/com/ti/gui/gui-block-support.mjs", TI_PACK_EXPORTS['ti/com/ti/gui/gui-block-support.mjs']);
 //========================================
 // JOIN <ti-gui-panel.html> ti/com/ti/gui/panel/ti-gui-panel.html
 //========================================
@@ -87102,22 +87550,24 @@ Ti.Preload("ti/com/ti/gui/panel/_com.json", {
   "name" : "ti-gui-panel",
   "globally" : true,
   "template" : "./ti-gui-panel.html",
-  "mixins"   : ["./ti-gui-panel.mjs"],
-  "components" : ["@com:ti/gui/block"]
+  "mixins"   : "./ti-gui-panel.mjs"
 });
 //========================================
 // JOIN <ti-gui-rows.html> ti/com/ti/gui/rows/ti-gui-rows.html
 //========================================
 Ti.Preload("ti/com/ti/gui/rows/ti-gui-rows.html", `<div class="ti-gui-rows" :class="topClass">
   <template v-if="hasBlocks">
-    <template v-for="(block, index) in blocks">
+    <template v-for="(block, index) in GuiBlocks">
       <ti-gui-block v-if="!block.hide"
         :key="index"
         embed-in="rows"
         v-bind="block"
         :schema="schema"
         :action-status="block.actionStatus || actionStatus"
-        :shown="shown"/>
+        :size="getBlockSize(index)"
+        :shown="shown"
+        @bar:reset="OnBarReset"
+        @bar:toggle:size="OnBarToggleSize"/>
     </template>
   </template>
 </div>`);
@@ -87132,8 +87582,7 @@ Ti.Preload("ti/com/ti/gui/rows/_com.json", {
   "name" : "ti-gui-rows",
   "globally" : true,
   "template" : "./ti-gui-rows.html",
-  "mixins"   : ["./ti-gui-rows.mjs"],
-  "components" : ["@com:ti/gui/block"]
+  "mixins"   : "@com:ti/gui/gui-block-support.mjs"
 });
 //========================================
 // JOIN <ti-gui-tabs.html> ti/com/ti/gui/tabs/ti-gui-tabs.html
@@ -87181,8 +87630,7 @@ Ti.Preload("ti/com/ti/gui/tabs/_com.json", {
   "name" : "ti-gui-tabs",
   "globally" : true,
   "template" : "./ti-gui-tabs.html",
-  "mixins"   : ["./ti-gui-tabs.mjs"],
-  "components" : ["@com:ti/gui/block"]
+  "mixins"   : "./ti-gui-tabs.mjs"
 });
 //========================================
 // JOIN <ti-gui-methods.mjs> ti/com/ti/gui/ti-gui-methods.mjs
@@ -87282,6 +87730,7 @@ Ti.Preload("ti/com/ti/gui/_com.json", {
   "mixins": "./ti-gui.mjs",
   "components": [
     "@com:ti/gui/adjustbar",
+    "@com:ti/gui/block",
     "@com:ti/gui/cols",
     "@com:ti/gui/rows",
     "@com:ti/gui/tabs",
@@ -90161,7 +90610,7 @@ Ti.Preload("ti/com/ti/switcher/ti-switcher.html", `<div class="ti-switcher"
           :value="it.icon"/>
         <span
           v-if="it.text" 
-            class="it-text">{{it.text|i18n}}</span>
+            class="it-text">{{it.text}}</span>
       </li>
     </ul>
   </div>

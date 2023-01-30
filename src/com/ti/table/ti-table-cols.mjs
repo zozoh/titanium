@@ -177,6 +177,8 @@ export default {
     },
     //--------------------------------------
     OnColumnResizeBegin(index) {
+      // Make sure get the table ract 
+      this.OnResize();
       // Get Each column width
       let vm = this;
       let $doc = this.$el.ownerDocument;

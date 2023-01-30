@@ -545,7 +545,7 @@ export default {
     //..............................................
     editor.ui.registry.addContextMenu("wn-web-image", {
       update: function (el) {
-        console.log("wn-web-image context menu", el)
+        //console.log("wn-web-image context menu", el)
         let sel = editor.selection
         let $nd = sel.getNode()
         let IMC = GetElContext($nd)

@@ -1122,6 +1122,12 @@ const TiTypes = {
     return Ti.DateTime.format(date, fmt)
   },
   //.......................................
+  getDateFormatValue(date, fmt = "yyyy-MM-dd") {
+    if (!date)
+      return
+    return Ti.DateTime.format(date, fmt)
+  },
+  //.......................................
   toAjaxReturn(val, dftData) {
     //console.log("toAjaxReturn", val)
     let reo = val

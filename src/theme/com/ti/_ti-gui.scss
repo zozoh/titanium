@@ -407,8 +407,101 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
     flex: 0 0 auto;
   }
   //-------------------------------------
+  &.gap-box {
+    &.gap-S {
+      padding: SZ(6);
+    }
+    &.gap-M {
+      padding: SZ(12);
+    }
+    &.gap-B {
+      padding: SZ(18);
+    }
+    &.gap-no-top {
+      padding-top:0;
+    }
+    &.gap-no-bottom {
+      padding-bottom:0;
+    }
+    &.gap-no-left {
+      padding-left:0;
+    }
+    &.gap-no-right {
+      padding-right:0;
+    }
+    background-color: map-get($color-page, r);
+    > .block-main {
+      background-color: map-get($color-page, c);
+    }
+  }
+  //-------------------------------------
+  &.radius-S {
+    &.rTL > .block-main {
+      border-top-left-radius: SZ(6);
+    }
+    &.rTR > .block-main {
+      border-top-right-radius: SZ(6);
+    }
+    &.rBL > .block-main {
+      border-bottom-left-radius: SZ(6);
+    }
+    &.rBR > .block-main {
+      border-bottom-right-radius: SZ(6);
+    }
+    &.rALL > .block-main {
+      border-radius: SZ(6);
+    }
+  }
+  //-------------------------------------
+  &.radius-M {
+    &.rTL > .block-main {
+      border-top-left-radius: SZ(12);
+    }
+    &.rTR > .block-main {
+      border-top-right-radius: SZ(12);
+    }
+    &.rBL > .block-main {
+      border-bottom-left-radius: SZ(12);
+    }
+    &.rBR > .block-main {
+      border-bottom-right-radius: SZ(12);
+    }
+    &.rALL > .block-main {
+      border-radius: SZ(12);
+    }
+  }
+  //-------------------------------------
+  &.radius-B > .block-main {
+    &.rTL > .block-main {
+      border-top-left-radius: SZ(18);
+    }
+    &.rTR > .block-main {
+      border-top-right-radius: SZ(18);
+    }
+    &.rBL > .block-main {
+      border-bottom-left-radius: SZ(18);
+    }
+    &.rBR > .block-main {
+      border-bottom-right-radius: SZ(18);
+    }
+    &.rALL > .block-main {
+      border-radius: SZ(18);
+    }
+  }
+  //-------------------------------------
   &.is-show-header {
     padding-top: $GUI-BLOCK-HEADER-HEIGHT;
+    &.gap-box {
+      &.gap-S {
+        padding-top: $GUI-BLOCK-HEADER-HEIGHT + SZ(6);
+      }
+      &.gap-M {
+        padding-top: $GUI-BLOCK-HEADER-HEIGHT + SZ(12);
+      }
+      &.gap-B {
+        padding-top: $GUI-BLOCK-HEADER-HEIGHT + SZ(18);
+      }
+    }
     //-------------------------------------
     > .block-head {
       //---------------------------------

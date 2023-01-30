@@ -41,13 +41,15 @@ export default {
     TheItems() {
       return _.map(this.myOptionsData, (it, index) => {
         let itV = this.Dict.getValue(it)
+        let text = this.Dict.getText(it);
+        text = Ti.I18n.text(text)
         return {
           index,
           className: {
             "is-selected": this.myValueMap[itV],
             "is-focused": index == this.myFocusIndex
           },
-          text: this.Dict.getText(it),
+          text,
           value: itV,
           icon: this.Dict.getIcon(it) || this.defaultIcon
         }

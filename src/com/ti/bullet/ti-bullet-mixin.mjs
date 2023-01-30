@@ -341,7 +341,7 @@ const _M = {
 
         // I18n
         if (this.autoI18n) {
-          it.text = Ti.I18n.get(it.text, it.text)
+          it.text = Ti.I18n.text(it.text, it.text)
         }
 
         // Prepare the className
