@@ -18,6 +18,16 @@ const _M = {
     state.moduleName = moduleName
   },
   //----------------------------------------
+  setPvg(state, pvg) {
+    state.pvg = pvg
+  },
+  //----------------------------------------
+  assignPvg(state, pvg) {
+    let po = _.cloneDeep(state.pvg || {})
+    _.assign(po, pvg)
+    state.pvg = po
+  },
+  //----------------------------------------
   setLocalBehaviorKeepAt(state, keyAt) {
     state.localBehaviorKeepAt = keyAt
   },

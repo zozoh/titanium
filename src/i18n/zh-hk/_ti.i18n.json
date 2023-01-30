@@ -134,6 +134,7 @@
    "e-obj-invalid": "路徑[${val}]非法",
    "e-obj-noexists": "對象[${val}]不存在",
    "e-ph-noexists": "路徑[${val}]不存在",
+   "e-pvg-fobidden": "操作被禁止",
    "e-form-incomplete": "表單缺失必要字段: 【${title|name}】 ${tip?}",
    "edit": "編輯",
    "edit-com": "編輯控件",

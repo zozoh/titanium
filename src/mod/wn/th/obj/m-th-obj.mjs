@@ -47,6 +47,28 @@ export default {
       return _.get(state, "schema.behavior.hardRemove")
     },
     //--------------------------------------------
+    isCanRemove(state) {
+      let pvg = _.get(state.pvg, "remove")
+      return Wn.Session.isPvgCan(pvg)
+    },
+    //--------------------------------------------
+    isCanCreate(state) {
+      let pvg = _.get(state.pvg, "create")
+      return Wn.Session.isPvgCan(pvg)
+    },
+    //--------------------------------------------
+    isCanUpdate(state) {
+      let pvg = _.get(state.pvg, "update")
+      return Wn.Session.isPvgCan(pvg)
+    },
+    //--------------------------------------------
+    isCanSave(state) {
+      let pvg = _.get(state.pvg, "save")
+      if (pvg) {
+        return Wn.Session.isPvgCan(pvg)
+      }
+    },
+    //--------------------------------------------
     contentLoadInfo(state) {
       if (state.contentPath) {
         // fixed content path

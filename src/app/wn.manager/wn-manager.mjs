@@ -348,15 +348,15 @@ const _M = {
       if (!_.isString(oid))
         return
 
-      // Guard for changed
-      if (this.isChanged) {
-        await Ti.Toast.Open("i18n:wn-obj-nosaved", "warn", "left")
-        return
-      }
-
       // Guard for fure
       let bombed = await Ti.Fuse.fire()
       if (!bombed) {
+        return
+      }
+
+      // Guard for changed
+      if (this.isChanged) {
+        await Ti.Toast.Open("i18n:wn-obj-nosaved", "warn", "left")
         return
       }
       // Mark view ready

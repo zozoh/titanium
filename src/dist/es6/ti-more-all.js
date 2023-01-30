@@ -1,4 +1,4 @@
-// Pack At: 2023-01-30 22:19:23
+// Pack At: 2023-01-31 01:13:49
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5589,6 +5589,16 @@ const _M = {
     state.moduleName = moduleName
   },
   //----------------------------------------
+  setPvg(state, pvg) {
+    state.pvg = pvg
+  },
+  //----------------------------------------
+  assignPvg(state, pvg) {
+    let po = _.cloneDeep(state.pvg || {})
+    _.assign(po, pvg)
+    state.pvg = po
+  },
+  //----------------------------------------
   setView(state, view) {
     state.view = view
   },
@@ -7531,10 +7541,13 @@ const _M = {
     await dispatch("create", obj)
   },
   //--------------------------------------------
-  async create({ state, commit, dispatch }, obj = {}) {
+  async create({ state, commit, dispatch, getters }, obj = {}) {
     // Guard
+    if (!getters.isCanCreate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.dirId) {
-      return await Ti.Alert('State Has No dirId', "warn")
+      return await Ti.Alert('State Has No dirId', { type: "warn" })
     }
     // Prepare the command
     let json = JSON.stringify(obj)
@@ -7571,8 +7584,11 @@ const _M = {
   //               Rename
   //
   //--------------------------------------------
-  async doRename({ state, commit }) {
+  async doRename({ state, commit, getters }) {
     // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.meta) {
       return await Ti.Toast.Open('i18n:wn-rename-none', "warn")
     }
@@ -7650,6 +7666,9 @@ const _M = {
     warnNotEmpty = true  // If delete none-empty dir, warn it at first
   } = {}) {
     // Guard
+    if (!getters.isCanRemove) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.dirId) {
       throw 'removeChecked: State Has No dirId'
     }
@@ -7744,8 +7763,11 @@ const _M = {
   //               Move to
   //
   //--------------------------------------------
-  async moveTo({ state, commit, dispatch }, setup = {}) {
+  async moveTo({ state, commit, dispatch, getters }, setup = {}) {
     // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.dirId) {
       throw 'moveTo: State Has No dirId'
     }
@@ -7803,7 +7825,7 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async openCurrentMetaEditor({ state, commit, dispatch }) {
+  async openCurrentMetaEditor({ state, commit, dispatch, getters }) {
     // Guard
     if (!state.meta && !state.oDir) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
@@ -7828,6 +7850,9 @@ const _M = {
       // Update the current editing
       let { updates } = reo
       if (!_.isEmpty(updates)) {
+        if (!getters.isCanUpdate) {
+          return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+        }
         return await dispatch("updateMeta", updates)
       }
       return state.meta
@@ -7839,7 +7864,7 @@ const _M = {
       as: "json"
     })
     let reo = await Wn.EditObjMeta(meta, {
-      fields: "auto", autoSave: true
+      fields: "auto", autoSave: getters.isCanUpdate
     })
     // Cancel the editing
     if (!reo) {
@@ -7915,10 +7940,14 @@ const _M = {
     return await dispatch("updateMetaOrDir", { data, forMeta: true })
   },
   //--------------------------------------------
-  async updateMetaOrDir({ state, commit }, {
+  async updateMetaOrDir({ state, commit, getters }, {
     forMeta = true,
     data = {}
   } = {}) {
+    // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     let taName = forMeta ? "meta" : "oDir";
     state.LOG("updateMetaOrDir", `(${taName})`, data)
 
@@ -7988,9 +8017,12 @@ const _M = {
     Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
   },
   //--------------------------------------------
-  async batchUpdateCheckedItems({ state, commit, dispatch }, data = {}) {
+  async batchUpdateCheckedItems({ state, commit, getters }, data = {}) {
     state.LOG("batchUpdateCheckedItems", data)
-
+    // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.dirId) {
       return await Ti.Alert('State Has No dirId', "warn")
     }
@@ -23590,6 +23622,16 @@ const _M = {
     state.moduleName = moduleName
   },
   //----------------------------------------
+  setPvg(state, pvg) {
+    state.pvg = pvg
+  },
+  //----------------------------------------
+  assignPvg(state, pvg) {
+    let po = _.cloneDeep(state.pvg || {})
+    _.assign(po, pvg)
+    state.pvg = po
+  },
+  //----------------------------------------
   setLocalBehaviorKeepAt(state, keyAt) {
     state.localBehaviorKeepAt = keyAt
   },
@@ -25128,11 +25170,15 @@ const _M = {
   //               Create 
   //
   //--------------------------------------------
-  async create({ state, commit, dispatch }, obj = {}) {
+  async create({ state, commit, dispatch, getters }, obj = {}) {
     // Guard
-    if (!state.thingSetId) {
-      return await Ti.Alert('State Has No ThingSetId', "warn")
+    if (!getters.isCanCreate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
     }
+    if (!state.thingSetId) {
+      return await Ti.Alert('State Has No ThingSetId', { type: "warn" })
+    }
+
 
     // Special setting for create
     let beCreate = _.get(state.schema, "behavior.create") || {}
@@ -25194,6 +25240,9 @@ const _M = {
     hardTipMessage = "i18n:del-hard"
   } = {}) {
     // Guard
+    if (!getters.isCanRemove) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.thingSetId) {
       return await Ti.Alert('State Has No ThingSetId', "warn")
     }
@@ -25273,7 +25322,7 @@ const _M = {
     return newContent
   },
   //--------------------------------------------
-  async openCurrentMetaEditor({ state, dispatch }) {
+  async openCurrentMetaEditor({ state, dispatch, getters }) {
     // Guard
     if (!state.meta && !state.oTs) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
@@ -25295,6 +25344,9 @@ const _M = {
       // Update the current editing
       let { updates } = reo
       if (!_.isEmpty(updates)) {
+        if (!getters.isCanUpdate) {
+          return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+        }
         return await dispatch("updateMeta", updates)
       }
       return state.meta
@@ -25303,7 +25355,7 @@ const _M = {
     // For Whole thing thing
     //.........................................
     return await Wn.EditObjMeta(state.oTs, {
-      fields: "auto", autoSave: true
+      fields: "auto", autoSave: getters.isCanUpdate
     })
   },
   //--------------------------------------------
@@ -25351,8 +25403,12 @@ const _M = {
     return reo
   },
   //--------------------------------------------
-  async updateMeta({ state, commit }, data = {}) {
+  async updateMeta({ state, commit, getters }, data = {}) {
     state.LOG("updateMeta", data)
+    // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     // Check Necessary
     if (_.isMatchWith(state.meta, data, _.isEqual)) {
       return state.meta
@@ -25409,9 +25465,12 @@ const _M = {
     Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
   },
   //--------------------------------------------
-  async batchUpdateCheckedItems({ state, commit, dispatch }, data = {}) {
+  async batchUpdateCheckedItems({ state, commit, getters }, data = {}) {
     state.LOG("batchUpdateCheckedItems", data)
-
+    // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.thingSetId) {
       return await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
     }
@@ -37805,6 +37864,7 @@ window.TI_PACK_EXPORTS['/a/load/wn.manager/wn-manager-methods.mjs'] = (function(
 const _M = {
   //.........................................
   async reloadMain() {
+    //console.log("reloadMain")
     // Check meta
     let meta = this.meta
     if (!meta) {
@@ -46053,6 +46113,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------------
     isHardRemove(state) {
       return _.get(state, "oDir.hard_remove")
+    },
+    //--------------------------------------------
+    isCanRemove(state) {
+      let pvg = _.get(state.pvg, "remove")
+      return Wn.Session.isPvgCan(pvg)
+    },
+    //--------------------------------------------
+    isCanCreate(state) {
+      let pvg = _.get(state.pvg, "create")
+      return Wn.Session.isPvgCan(pvg)
+    },
+    //--------------------------------------------
+    isCanUpdate(state) {
+      let pvg = _.get(state.pvg, "update")
+      return Wn.Session.isPvgCan(pvg)
+    },
+    //--------------------------------------------
+    isCanSave(state) {
+      let pvg = _.get(state.pvg, "save")
+      if (pvg) {
+        return Wn.Session.isPvgCan(pvg)
+      }
     },
     //--------------------------------------------
     contentLoadInfo(state) {
@@ -57783,11 +57865,17 @@ const _M = {
   applyBehavior({ state, commit }, be = {}) {
     // Eval behavior dynamicly
     let {
+      pvg,
       filter, sorter, match,
       currentId, checkedIds,
       pageSize,
       guiShown
     } = be
+
+    // Apply Pvg
+    if (!_.isEmpty(pvg)) {
+      commit("assignPvg", pvg)
+    }
 
     // Apply filter
     if (!_.isEmpty(filter)) {
@@ -67130,15 +67218,15 @@ const _M = {
       if (!_.isString(oid))
         return
 
-      // Guard for changed
-      if (this.isChanged) {
-        await Ti.Toast.Open("i18n:wn-obj-nosaved", "warn", "left")
-        return
-      }
-
       // Guard for fure
       let bombed = await Ti.Fuse.fire()
       if (!bombed) {
+        return
+      }
+
+      // Guard for changed
+      if (this.isChanged) {
+        await Ti.Toast.Open("i18n:wn-obj-nosaved", "warn", "left")
         return
       }
       // Mark view ready
@@ -74031,6 +74119,7 @@ const _M = {
   applyBehavior({ state, commit }, be = {}) {
     // Eval behavior dynamicly
     let {
+      pvg,
       filter, sorter, match,
       agg, aggQuery,
       currentId, checkedIds,
@@ -74039,6 +74128,11 @@ const _M = {
       dataDirCurrentId, dataDirCheckedIds,
       guiShown
     } = be
+
+    // Apply Pvg
+    if (!_.isEmpty(pvg)) {
+      commit("assignPvg", pvg)
+    }
 
     // Apply filter
     if (!_.isEmpty(filter)) {
@@ -75559,6 +75653,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------------
     isHardRemove(state) {
       return _.get(state, "schema.behavior.hardRemove")
+    },
+    //--------------------------------------------
+    isCanRemove(state) {
+      let pvg = _.get(state.pvg, "remove")
+      return Wn.Session.isPvgCan(pvg)
+    },
+    //--------------------------------------------
+    isCanCreate(state) {
+      let pvg = _.get(state.pvg, "create")
+      return Wn.Session.isPvgCan(pvg)
+    },
+    //--------------------------------------------
+    isCanUpdate(state) {
+      let pvg = _.get(state.pvg, "update")
+      return Wn.Session.isPvgCan(pvg)
+    },
+    //--------------------------------------------
+    isCanSave(state) {
+      let pvg = _.get(state.pvg, "save")
+      if (pvg) {
+        return Wn.Session.isPvgCan(pvg)
+      }
     },
     //--------------------------------------------
     contentLoadInfo(state) {
@@ -98410,6 +98526,12 @@ Ti.Preload("ti/mod/wn/obj/m-wn-obj-search.mjs", TI_PACK_EXPORTS['ti/mod/wn/obj/m
 //========================================
 Ti.Preload("ti/mod/wn/obj/m-wn-obj.json", {
   "moduleName": "main",
+  "pvg":{
+    "remove":null,
+    "create":null,
+    "update":null,
+    "save":null
+  },
   "localBehaviorKeepAt": "->WnObj-State-${dirId}",
   "localBehaviorIgnore": null,
   "lbkAt": null,
@@ -98770,6 +98892,12 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj-search.mjs", TI_PACK_EXPORTS['ti/mod/wn/th
 //========================================
 Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "moduleName": "main",
+  "pvg":{
+    "remove":null,
+    "create":null,
+    "update":null,
+    "save":null
+  },
   "view": null,
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
   "localBehaviorIgnore": null,
@@ -100506,6 +100634,7 @@ Ti.Preload("ti/i18n/en-uk/_ti.i18n.json", {
   "e-obj-invalid": "Path [${val}] invalid",
   "e-obj-noexists": "Object [${val}] not exists",
   "e-ph-noexists": "Path [${val}] not exists",
+  "e-pvg-fobidden":"Operation prohibited",
   "e-form-incomplete": "Form Incomplete : [${title}]  ${tip}",
   "edit": "Edit",
   "edit-com": "Edit control",
@@ -102111,6 +102240,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "e-obj-invalid": "Path [${val}] invalid",
   "e-obj-noexists": "Object [${val}] not exists",
   "e-ph-noexists": "Path [${val}] not exists",
+  "e-pvg-fobidden":"Operation prohibited",
   "e-form-incomplete": "Form Incomplete : [${title}]  ${tip}",
   "edit": "Edit",
   "edit-com": "Edit control",
@@ -103716,6 +103846,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-obj-invalid": "路径[${val}]非法",
   "e-obj-noexists": "对象[${val}]不存在",
   "e-ph-noexists": "路径[${val}]不存在",
+  "e-pvg-fobidden":"操作被禁止",
   "e-form-incomplete": "表单缺失必要字段: 【${title|name}】 ${tip?}",
   "edit": "编辑",
   "edit-com": "编辑控件",
@@ -105321,6 +105452,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "e-obj-invalid": "路徑[${val}]非法",
    "e-obj-noexists": "對象[${val}]不存在",
    "e-ph-noexists": "路徑[${val}]不存在",
+   "e-pvg-fobidden": "操作被禁止",
    "e-form-incomplete": "表單缺失必要字段: 【${title|name}】 ${tip?}",
    "edit": "編輯",
    "edit-com": "編輯控件",

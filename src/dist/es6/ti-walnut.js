@@ -1,4 +1,4 @@
-// Pack At: 2023-01-30 22:19:23
+// Pack At: 2023-01-31 01:13:49
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -1660,7 +1660,7 @@ const Session = (function(){
     },
     //----------------------------------------
     isPvgCanOne(...actions) {
-      if(PVGS['$SYS_USR'] && /^(admin|memeber)$/.test(SESSION.me.role)){
+      if (PVGS['$SYS_USR'] && /^(admin|memeber)$/.test(SESSION.me.role)) {
         return true
       }
       for (let a of actions) {
@@ -1672,11 +1672,28 @@ const Session = (function(){
     },
     //----------------------------------------
     isPvgCanAll(...actions) {
-      if(PVGS['$SYS_USR'] && /^(admin|memeber)$/.test(SESSION.me.role)){
+      if (PVGS['$SYS_USR'] && /^(admin|memeber)$/.test(SESSION.me.role)) {
         return true
       }
       for (let a of actions) {
         if (!PVGS[a]) {
+          return false
+        }
+      }
+      return true
+    },
+    //----------------------------------------
+    //          AND
+    // pvg: ["A+B+C",...] => or
+    isPvgCan(pvg, dft = true) {
+      if (_.isEmpty(pvg)) {
+        return dft
+      }
+      let list = _.concat(pvg)
+      for (let li of list) {
+        let ss = li.split("+")
+        ss = _.map(ss, s => _.trim(s))
+        if(!WnSession.isPvgCanAll(ss)){
           return false
         }
       }
@@ -4507,7 +4524,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230130.221923"
+const WALNUT_VERSION = "1.2-20230131.011349"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

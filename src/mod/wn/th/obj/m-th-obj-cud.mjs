@@ -37,11 +37,15 @@ const _M = {
   //               Create 
   //
   //--------------------------------------------
-  async create({ state, commit, dispatch }, obj = {}) {
+  async create({ state, commit, dispatch, getters }, obj = {}) {
     // Guard
-    if (!state.thingSetId) {
-      return await Ti.Alert('State Has No ThingSetId', "warn")
+    if (!getters.isCanCreate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
     }
+    if (!state.thingSetId) {
+      return await Ti.Alert('State Has No ThingSetId', { type: "warn" })
+    }
+
 
     // Special setting for create
     let beCreate = _.get(state.schema, "behavior.create") || {}
@@ -103,6 +107,9 @@ const _M = {
     hardTipMessage = "i18n:del-hard"
   } = {}) {
     // Guard
+    if (!getters.isCanRemove) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.thingSetId) {
       return await Ti.Alert('State Has No ThingSetId', "warn")
     }
@@ -182,7 +189,7 @@ const _M = {
     return newContent
   },
   //--------------------------------------------
-  async openCurrentMetaEditor({ state, dispatch }) {
+  async openCurrentMetaEditor({ state, dispatch, getters }) {
     // Guard
     if (!state.meta && !state.oTs) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
@@ -204,6 +211,9 @@ const _M = {
       // Update the current editing
       let { updates } = reo
       if (!_.isEmpty(updates)) {
+        if (!getters.isCanUpdate) {
+          return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+        }
         return await dispatch("updateMeta", updates)
       }
       return state.meta
@@ -212,7 +222,7 @@ const _M = {
     // For Whole thing thing
     //.........................................
     return await Wn.EditObjMeta(state.oTs, {
-      fields: "auto", autoSave: true
+      fields: "auto", autoSave: getters.isCanUpdate
     })
   },
   //--------------------------------------------
@@ -260,8 +270,12 @@ const _M = {
     return reo
   },
   //--------------------------------------------
-  async updateMeta({ state, commit }, data = {}) {
+  async updateMeta({ state, commit, getters }, data = {}) {
     state.LOG("updateMeta", data)
+    // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     // Check Necessary
     if (_.isMatchWith(state.meta, data, _.isEqual)) {
       return state.meta
@@ -318,9 +332,12 @@ const _M = {
     Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
   },
   //--------------------------------------------
-  async batchUpdateCheckedItems({ state, commit, dispatch }, data = {}) {
+  async batchUpdateCheckedItems({ state, commit, getters }, data = {}) {
     state.LOG("batchUpdateCheckedItems", data)
-
+    // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.thingSetId) {
       return await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
     }

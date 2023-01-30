@@ -1,5 +1,11 @@
 {
   "moduleName": "main",
+  "pvg":{
+    "remove":null,
+    "create":null,
+    "update":null,
+    "save":null
+  },
   "localBehaviorKeepAt": "->WnObj-State-${dirId}",
   "localBehaviorIgnore": null,
   "lbkAt": null,

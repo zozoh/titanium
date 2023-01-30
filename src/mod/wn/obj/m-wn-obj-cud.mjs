@@ -111,10 +111,13 @@ const _M = {
     await dispatch("create", obj)
   },
   //--------------------------------------------
-  async create({ state, commit, dispatch }, obj = {}) {
+  async create({ state, commit, dispatch, getters }, obj = {}) {
     // Guard
+    if (!getters.isCanCreate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.dirId) {
-      return await Ti.Alert('State Has No dirId', "warn")
+      return await Ti.Alert('State Has No dirId', { type: "warn" })
     }
     // Prepare the command
     let json = JSON.stringify(obj)
@@ -151,8 +154,11 @@ const _M = {
   //               Rename
   //
   //--------------------------------------------
-  async doRename({ state, commit }) {
+  async doRename({ state, commit, getters }) {
     // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.meta) {
       return await Ti.Toast.Open('i18n:wn-rename-none', "warn")
     }
@@ -230,6 +236,9 @@ const _M = {
     warnNotEmpty = true  // If delete none-empty dir, warn it at first
   } = {}) {
     // Guard
+    if (!getters.isCanRemove) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.dirId) {
       throw 'removeChecked: State Has No dirId'
     }
@@ -324,8 +333,11 @@ const _M = {
   //               Move to
   //
   //--------------------------------------------
-  async moveTo({ state, commit, dispatch }, setup = {}) {
+  async moveTo({ state, commit, dispatch, getters }, setup = {}) {
     // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.dirId) {
       throw 'moveTo: State Has No dirId'
     }
@@ -383,7 +395,7 @@ const _M = {
     commit("syncStatusChanged")
   },
   //--------------------------------------------
-  async openCurrentMetaEditor({ state, commit, dispatch }) {
+  async openCurrentMetaEditor({ state, commit, dispatch, getters }) {
     // Guard
     if (!state.meta && !state.oDir) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")
@@ -408,6 +420,9 @@ const _M = {
       // Update the current editing
       let { updates } = reo
       if (!_.isEmpty(updates)) {
+        if (!getters.isCanUpdate) {
+          return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+        }
         return await dispatch("updateMeta", updates)
       }
       return state.meta
@@ -419,7 +434,7 @@ const _M = {
       as: "json"
     })
     let reo = await Wn.EditObjMeta(meta, {
-      fields: "auto", autoSave: true
+      fields: "auto", autoSave: getters.isCanUpdate
     })
     // Cancel the editing
     if (!reo) {
@@ -495,10 +510,14 @@ const _M = {
     return await dispatch("updateMetaOrDir", { data, forMeta: true })
   },
   //--------------------------------------------
-  async updateMetaOrDir({ state, commit }, {
+  async updateMetaOrDir({ state, commit, getters }, {
     forMeta = true,
     data = {}
   } = {}) {
+    // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     let taName = forMeta ? "meta" : "oDir";
     state.LOG("updateMetaOrDir", `(${taName})`, data)
 
@@ -568,9 +587,12 @@ const _M = {
     Wn.Util.setFieldStatusAfterUpdate({ commit }, uniqKey, reo)
   },
   //--------------------------------------------
-  async batchUpdateCheckedItems({ state, commit, dispatch }, data = {}) {
+  async batchUpdateCheckedItems({ state, commit, getters }, data = {}) {
     state.LOG("batchUpdateCheckedItems", data)
-
+    // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
     if (!state.dirId) {
       return await Ti.Alert('State Has No dirId', "warn")
     }

@@ -100,7 +100,7 @@ const WnSession = {
   },
   //----------------------------------------
   isPvgCanOne(...actions) {
-    if(PVGS['$SYS_USR'] && /^(admin|memeber)$/.test(SESSION.me.role)){
+    if (PVGS['$SYS_USR'] && /^(admin|memeber)$/.test(SESSION.me.role)) {
       return true
     }
     for (let a of actions) {
@@ -112,11 +112,28 @@ const WnSession = {
   },
   //----------------------------------------
   isPvgCanAll(...actions) {
-    if(PVGS['$SYS_USR'] && /^(admin|memeber)$/.test(SESSION.me.role)){
+    if (PVGS['$SYS_USR'] && /^(admin|memeber)$/.test(SESSION.me.role)) {
       return true
     }
     for (let a of actions) {
       if (!PVGS[a]) {
+        return false
+      }
+    }
+    return true
+  },
+  //----------------------------------------
+  //          AND
+  // pvg: ["A+B+C",...] => or
+  isPvgCan(pvg, dft = true) {
+    if (_.isEmpty(pvg)) {
+      return dft
+    }
+    let list = _.concat(pvg)
+    for (let li of list) {
+      let ss = li.split("+")
+      ss = _.map(ss, s => _.trim(s))
+      if(!WnSession.isPvgCanAll(ss)){
         return false
       }
     }

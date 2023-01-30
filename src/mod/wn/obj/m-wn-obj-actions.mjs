@@ -173,11 +173,17 @@ const _M = {
   applyBehavior({ state, commit }, be = {}) {
     // Eval behavior dynamicly
     let {
+      pvg,
       filter, sorter, match,
       currentId, checkedIds,
       pageSize,
       guiShown
     } = be
+
+    // Apply Pvg
+    if (!_.isEmpty(pvg)) {
+      commit("assignPvg", pvg)
+    }
 
     // Apply filter
     if (!_.isEmpty(filter)) {

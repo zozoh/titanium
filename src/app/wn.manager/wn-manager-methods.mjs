@@ -1,6 +1,7 @@
 const _M = {
   //.........................................
   async reloadMain() {
+    //console.log("reloadMain")
     // Check meta
     let meta = this.meta
     if (!meta) {

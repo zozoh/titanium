@@ -1,5 +1,11 @@
 {
   "moduleName": "main",
+  "pvg":{
+    "remove":null,
+    "create":null,
+    "update":null,
+    "save":null
+  },
   "view": null,
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
   "localBehaviorIgnore": null,
