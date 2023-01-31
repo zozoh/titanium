@@ -40,7 +40,7 @@ class TiFuse {
    * @param det : @see #Detonator.constructor
    */
   add(det={}){
-    console.log("FUSE.add",det)
+    //console.log("FUSE.add",det)
     // Ensure the key 
     _.defaults(det, {
       key : "det-" + this.detonators.length

@@ -1,4 +1,4 @@
-// Pack At: 2023-01-31 01:13:49
+// Pack At: 2023-01-31 21:41:16
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -7422,7 +7422,7 @@ const {Fuse} = (function(){
      * @param det : @see #Detonator.constructor
      */
     add(det={}){
-      console.log("FUSE.add",det)
+      //console.log("FUSE.add",det)
       // Ensure the key 
       _.defaults(det, {
         key : "det-" + this.detonators.length
@@ -12056,11 +12056,12 @@ const {Util} = (function(){
               m_dft = m[4]
               // starts with "=" auto covert to JS value
               if (/^=/.test(m_dft)) {
-                m_dft = Ti.S.toJsValue(m_dft)
+                let s = ExplainValue(m_dft)
+                m_dft = Ti.S.toJsValue(s)
               }
               // starts with "!=" or "==" auto covert to Boolean
               else if (/^[!=]=/.test(m_type)) {
-                m_dft = Ti.S.toJsValue(m_dft) || /^[!=]=/.test(m_type)
+                m_dft = Ti.S.toJsValue(m_dft)
               }
               // Others, just trim the value
               else if (m_dft) {
@@ -19543,7 +19544,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20230131.011349",
+  "version" : "1.6-20230131.214116",
   "dev" : false,
   "appName" : null,
   "session" : {},

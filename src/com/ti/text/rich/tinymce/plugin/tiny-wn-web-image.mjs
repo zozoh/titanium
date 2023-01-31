@@ -288,7 +288,7 @@ async function CmdShowWebImageProp(editor, settings) {
     comType: "TiForm",
     comConf: {
       onlyFields: false,
-      spacing: "tiny",
+      spacing: "comfy",
       fields: [{
         title: "i18n:hmk-w-edit-img-info",
         fields: [{
@@ -362,6 +362,7 @@ async function CmdShowWebImageProp(editor, settings) {
     return
 
   // Update image
+  console.log(reo)
   //................................................
   // src
   if (data.id != reo.id) {

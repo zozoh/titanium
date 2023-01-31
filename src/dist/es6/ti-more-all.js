@@ -1,4 +1,4 @@
-// Pack At: 2023-01-31 01:13:49
+// Pack At: 2023-01-31 21:41:16
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6953,7 +6953,7 @@ async function CmdShowWebImageProp(editor, settings) {
     comType: "TiForm",
     comConf: {
       onlyFields: false,
-      spacing: "tiny",
+      spacing: "comfy",
       fields: [{
         title: "i18n:hmk-w-edit-img-info",
         fields: [{
@@ -7027,6 +7027,7 @@ async function CmdShowWebImageProp(editor, settings) {
     return
 
   // Update image
+  console.log(reo)
   //................................................
   // src
   if (data.id != reo.id) {
