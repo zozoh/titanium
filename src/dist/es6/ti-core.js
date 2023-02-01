@@ -1,4 +1,4 @@
-// Pack At: 2023-02-01 18:48:08
+// Pack At: 2023-02-01 23:02:46
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -15445,6 +15445,9 @@ const {Bank} = (function(){
     },
     //-----------------------------------
     toBankText(v, { part = 3, sep = ",", to = "left" } = {}) {
+      if (Ti.Util.isNil(v)) {
+        return v
+      }
       let s = v + "";
       let pos = s.indexOf('.')
       if (pos < 0) {
@@ -19562,7 +19565,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20230201.184808",
+  "version" : "1.6-20230201.230246",
   "dev" : false,
   "appName" : null,
   "session" : {},

@@ -191,6 +191,9 @@ const TiBank = {
   },
   //-----------------------------------
   toBankText(v, { part = 3, sep = ",", to = "left" } = {}) {
+    if (Ti.Util.isNil(v)) {
+      return v
+    }
     let s = v + "";
     let pos = s.indexOf('.')
     if (pos < 0) {
