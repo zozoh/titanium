@@ -179,15 +179,7 @@ const TiBank = {
     }
 
     // Group amount
-    let pos = s.indexOf('.')
-    let ns = s.split("")
-    let i = Ti.Num.scrollIndex(pos, ns.length)
-    for (; i > 0; i -= 3) {
-      if (i < pos) {
-        ns.splice(i, 0, ',')
-      }
-    }
-    s = ns.join("")
+    s = TiBank.toBankText(s)
 
     // done
     return `${t}${s}`
@@ -196,6 +188,32 @@ const TiBank = {
   toYuanTokenText2(cent = 0.0, currency = "RMB", precise = 2) {
     let s = TiBank.toYuanTokenText(cent, currency, precise)
     return `${s}${currency}`
+  },
+  //-----------------------------------
+  toBankText(v, { part = 3, sep = ",", to = "left" } = {}) {
+    let s = v + "";
+    let pos = s.indexOf('.')
+    if (pos < 0) {
+      pos = s.length
+    }
+    let ns = s.split("")
+    if ("left" == to) {
+      for (let i = pos; i > 0; i -= part) {
+        if (i < pos) {
+          ns.splice(i, 0, sep)
+        }
+      }
+    }
+    else if ("right" == to) {
+      let off = 0
+      for (let i = 0; i < pos; i += part) {
+        if (i > 0) {
+          ns.splice(i + off, 0, sep)
+          off += sep.length
+        }
+      }
+    }
+    return ns.join("")
   },
   //-----------------------------------
   isValidPayType(payType) {

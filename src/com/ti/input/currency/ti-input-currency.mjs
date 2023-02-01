@@ -92,12 +92,16 @@ export default {
       })
     },
     //------------------------------------------------
-    ValDisplay() {
+    ValInput() {
       let v = this.ValObj.yuan
       if (isNaN(v)) {
         return
       }
       return v
+    },
+    //------------------------------------------------
+    DisInput() {
+      return Ti.Bank.toBankText(this.ValInput)
     },
     //------------------------------------------------
     ValCurrency() {

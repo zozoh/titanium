@@ -1,4 +1,4 @@
-// Pack At: 2023-01-31 21:41:16
+// Pack At: 2023-02-01 18:48:08
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -51176,12 +51176,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
       })
     },
     //------------------------------------------------
-    ValDisplay() {
+    ValInput() {
       let v = this.ValObj.yuan
       if (isNaN(v)) {
         return
       }
       return v
+    },
+    //------------------------------------------------
+    DisInput() {
+      return Ti.Bank.toBankText(this.ValInput)
     },
     //------------------------------------------------
     ValCurrency() {
@@ -88034,7 +88038,9 @@ Ti.Preload("ti/com/ti/input/color/_com.json", {
 Ti.Preload("ti/com/ti/input/currency/ti-input-currency.html", `<ti-input
   class="ti-input-currency"
   :class="TopClass"
-  :value="ValDisplay"
+  :value="DisInput"
+  :focusValue="ValInput"
+  :autoI18n="false"
   :placeholder="placeholder"
   :prefixIcon="ValIcon"
   :suffixText="ValCurrency"
