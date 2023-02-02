@@ -3641,8 +3641,11 @@ i.im {
       .ti-gui-block > .block-adjust-bar[resize-mode="col-resize"] > .bar-con > .as-action.is-mini {
         width: 0.2rem;
         height: 0.4rem; }
-    .ti-gui-block > .block-adjust-bar[reize-mode="row-resize"] {
+    .ti-gui-block > .block-adjust-bar[resize-mode="row-resize"] {
       cursor: row-resize; }
+      .ti-gui-block > .block-adjust-bar[resize-mode="row-resize"] > .bar-con > .as-action.is-mini {
+        width: 0.4rem;
+        height: 0.2rem; }
     .ti-gui-block > .block-adjust-bar.at-left {
       top: 0;
       bottom: 0;
@@ -3700,6 +3703,22 @@ i.im {
     .ti-gui-block > .block-adjust-bar[arrow-at="right"] > .bar-con .as-action.is-reset {
       right: 0.08rem;
       border-radius: 0 0 0 0.096rem; }
+    .ti-gui-block > .block-adjust-bar[arrow-at="down"] > .bar-con .as-action.is-mini {
+      top: 0.08rem;
+      left: 50%;
+      margin-left: -0.2rem;
+      border-radius: 0 0 0.06rem 0.06rem; }
+    .ti-gui-block > .block-adjust-bar[arrow-at="down"] > .bar-con .as-action.is-reset {
+      top: -0.2rem;
+      border-radius: 0 0.096rem 0 0; }
+    .ti-gui-block > .block-adjust-bar[arrow-at="top"] > .bar-con .as-action.is-mini {
+      top: -0.2rem;
+      left: 50%;
+      margin-left: -0.2rem;
+      border-radius: 0.06rem 0.06rem 0 0; }
+    .ti-gui-block > .block-adjust-bar[arrow-at="top"] > .bar-con .as-action.is-reset {
+      top: 0.08rem;
+      border-radius: 0 0 0.096rem 0; }
 
 .ti-gui-panel-top-enter-active,
 .ti-gui-panel-top-leave-active {
@@ -4447,7 +4466,8 @@ div.ti-input-tags {
   flex-wrap: nowrap;
   color: #CCC;
   background-color: rgba(50, 50, 50, 0.8);
-  min-height: 2.4em; }
+  min-height: 2.4em;
+  min-width: 0.5rem; }
   .ti-input.has-width {
     flex: 0 0 auto; }
   .ti-input.show-border {
@@ -7537,7 +7557,8 @@ div.ti-input-tags {
       padding: 0.08rem;
       font-weight: bold; }
     .ti-table > table > tbody td {
-      vertical-align: middle; }
+      vertical-align: middle;
+      position: relative; }
       .ti-table > table > tbody td > .cell-wrapper {
         display: flex;
         justify-content: flex-start;
@@ -7590,14 +7611,20 @@ div.ti-input-tags {
             .ti-table > table > tbody td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:last-child {
               display: block; }
         .ti-table > table > tbody td > .cell-wrapper.is-nowrap {
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
           overflow: hidden; }
+          .ti-table > table > tbody td > .cell-wrapper.is-nowrap > .cell-con {
+            flex-wrap: nowrap; }
         .ti-table > table > tbody td > .cell-wrapper > .cell-con {
           display: flex;
           justify-content: flex-start;
           align-items: stretch;
           align-content: stretch;
           flex-wrap: wrap;
-          overflow: hidden;
           flex: 1 1 auto;
           line-height: 2.6em;
           min-height: 2.6em; }
@@ -7622,8 +7649,6 @@ div.ti-input-tags {
             object-fit: contain; }
         .ti-table > table > tbody td > .cell-wrapper .as-drop .ti-list {
           line-height: 1.8em; }
-        .ti-table > table > tbody td > .cell-wrapper.is-nowrap > .cell-con {
-          flex-wrap: nowrap; }
         .ti-table > table > tbody td > .cell-wrapper.is-editing-mode {
           position: relative; }
           .ti-table > table > tbody td > .cell-wrapper.is-editing-mode > .cell-con {

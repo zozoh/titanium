@@ -1,4 +1,4 @@
-// Pack At: 2023-02-01 23:02:46
+// Pack At: 2023-02-03 03:44:54
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -123,71 +123,91 @@ const {Confirm} = (function(){
 // # import {Prompt}  from "./ti-prompt.mjs"
 const {Prompt} = (function(){
   ////////////////////////////////////////////////
-  async function TiPrompt(msg="", {
-    title = "i18n:prompt", 
+  async function TiPrompt(msg = "", {
+    title = "i18n:prompt",
     icon,
-    type  = "info", 
+    type = "info",
     position = "center",
     iconOk, iconCancel,
     textOk = "i18n:ok",
-    textCancel  = "i18n:cancel", 
+    textCancel = "i18n:cancel",
     width = 480, height,
     trimed = true,
     placeholder = "",
     valueCase = null,
-    value = ""
-  }={}) {
+    value = "",
+    comType = "TiInput",
+    comConf = {
+      focused: true,
+      autoSelect: true
+    },
+    comModel = {/*event: 'inputing',prop: 'value'*/ }
+  } = {}) {
     //............................................
     let text = Ti.I18n.text(msg)
-    let theIcon  = icon  || "zmdi-keyboard"
+    let theIcon = icon || "zmdi-keyboard"
+    //............................................
+    comModel = comModel || {}
+    if (/^TiInput(Currency)?/.test(comType)) {
+      _.defaults(comModel, {
+        event: 'inputing',
+        prop: 'value'
+      })
+    } else {
+      _.defaults(comModel, {
+        event: 'change',
+        prop: 'value'
+      })
+    }
     //............................................
     return await Ti.App.Open({
       //------------------------------------------
       type, width, height, position,
-      title   : title,
-      closer  : false,
-      result  : value,
+      title: title,
+      closer: false,
+      result: value,
       //------------------------------------------
       textOk, textCancel,
       iconOk, iconCancel,
       //------------------------------------------
-      comType : "modal-inner-body",
+      comType: "modal-inner-body",
       //------------------------------------------
-      components : [{
-        name : "modal-inner-body",
-        globally : false,
-        data : {
+      components: [{
+        name: "modal-inner-body",
+        globally: false,
+        data: {
           // display
-          icon : theIcon, text, 
+          icon: theIcon, text,
           // for input
-          placeholder : placeholder || value,
-          trimed,
-          valueCase
+          comType,
+          comConf: _.assign({
+            placeholder: placeholder || value,
+            trimed,
+            valueCase,
+          }, comConf)
         },
-        props : {
-          value : null
+        props: {
+          value: null
         },
-        template : `<div class="ti-msg-body as-prompt"
+        template: `<div class="ti-msg-body as-prompt"
           v-ti-activable>
           <div class="as-icon"><ti-icon :value="icon"/></div>
           <div class="as-text">
             <div class="as-tip" v-if="text">{{text}}</div>
-            <ti-input
-              :value="value"
-              :trimed="trimed"
-              :placeholder="placeholder"
-              :value-case="valueCase"
-              :focused="true"
-              :auto-select="true"
-              @inputing="onInputing"/>
+            <component 
+              :is="comType"
+              v-bind="comConf"
+              :${comModel.prop}="value"
+              @${comModel.event}="OnComChange"/>
           </div>
         </div>`,
-        methods : {
-          onInputing(val) {
+        methods: {
+          OnComChange(val) {
             this.$emit("change", val)
           },
           __ti_shortcut(uniqKey) {
-            if("ENTER" == uniqKey) {
+            if ("ENTER" == uniqKey) {
+              console.log(this.value)
               Ti.App(this).$vm().close(this.value)
             }
           }
@@ -11123,6 +11143,7 @@ const {Util} = (function(){
         isCan = () => false,
         isIgnore = () => false,
         dataFormat = 'yy-MM-dd',
+        iteratee = fld => fld
       } = {}) {
         const joinField = function (fld, list = []) {
           if (_.isEmpty(fld) || isIgnore(fld)) {
@@ -11177,7 +11198,10 @@ const {Util} = (function(){
           else {
             it.display = name
           }
-          list.push(it)
+    
+          it = iteratee(it)
+          if (it)
+            list.push(it)
         }
         let list = []
         for (let fld of fields) {
@@ -19565,7 +19589,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20230201.230246",
+  "version" : "1.6-20230203.034454",
   "dev" : false,
   "appName" : null,
   "session" : {},

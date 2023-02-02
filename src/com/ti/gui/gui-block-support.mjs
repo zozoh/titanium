@@ -10,10 +10,6 @@ export default {
       type: Array,
       default: () => []
     },
-    "adjustable": {
-      type: Boolean,
-      default: true
-    },
     "adjustMode": {
       type: String,
       default: "auto",
@@ -81,16 +77,17 @@ export default {
         if (Ti.Util.isNil(li.minSize)) {
           li.minSize = 50
         }
-        if(this.gap){
+        if (this.gap) {
           li.gap = _.assign({}, this.gap, li.gap)
         }
         if (this.adjustable) {
-          li.resizeMode = "col-resize"
+          li.resizeMode = this.resize_mode
           if (li.index > 0) {
             let prevI = li.index - 1
             let selfI = li.index
             li.adjacentMode = this.getBlockAdjacentMode(prevI, selfI)
-            li.adjustBarAt = "left";
+            li.adjustBarAt = this.adjust_bar_at;
+            li.resizeMode = this.resize_mode
             li.adjustIndex = [prevI, selfI];
           }
         }
@@ -102,8 +99,9 @@ export default {
     Draggable() {
       //....................................
       const do_dragging = (ctx) => {
-        let { offsetX, orgBlockSizes, prevI, selfI } = ctx
-        //console.log("dragging", { offsetX, orgBlockSizes, prevI, selfI })
+        let { orgBlockSizes, prevI, selfI } = ctx
+        let offset = ctx[this.offset_key]
+        console.log("dragging", { offset, orgBlockSizes, prevI, selfI })
         let sizes = _.cloneDeep(orgBlockSizes)
 
         // Block minimum size
@@ -112,15 +110,15 @@ export default {
         let sum = prevSize + selfSize
 
         // Use prev minSize
-        if (offsetX < 0) {
+        if (offset < 0) {
           let minSize = this.GuiBlocks[prevI].minSize
-          prevSize = Math.max(minSize, prevSize + offsetX)
+          prevSize = Math.max(minSize, prevSize + offset)
           selfSize = sum - prevSize
         }
         // Use self minSize
         else {
           let minSize = this.GuiBlocks[selfI].minSize
-          selfSize = Math.max(minSize, selfSize - offsetX)
+          selfSize = Math.max(minSize, selfSize - offset)
           prevSize = sum - selfSize
         }
 
@@ -129,6 +127,7 @@ export default {
         sizes[selfI] = selfSize
 
         // Depends on bar adjacent-mode
+        console.log(sizes)
         this.blockSizes = this.normlizedBlockSize(sizes, ctx)
       }
       //....................................
@@ -145,7 +144,7 @@ export default {
           // Prepare sizing
           let sizes = this.genBlockRealSizes()
           ctx.orgBlockSizes = sizes
-          ctx.viewportWidth = _.sum(sizes)
+          ctx.viewportSize = _.sum(sizes)
           ctx.prevI = parseInt(ctx.$trigger.getAttribute("adjust-0"));
           ctx.selfI = parseInt(ctx.$trigger.getAttribute("adjust-1"));
           ctx.adjacentMode = ctx.$trigger.getAttribute("adjacent-mode")
@@ -183,7 +182,7 @@ export default {
       } = payload
       //..............................
       let sizes = this.genBlockRealSizes()
-      let viewportWidth = _.sum(sizes)
+      let viewportSize = _.sum(sizes)
       let prevI = adjustIndex[0]
       let selfI = adjustIndex[1]
       //..............................
@@ -208,7 +207,7 @@ export default {
           // => org
           else {
             prevSize = Ti.Css.toAbsPixel(prevOrgSize, {
-              base: viewportWidth
+              base: viewportSize
             })
             sizes[prevI] = prevSize
             sizes[selfI] = sum - prevSize
@@ -224,7 +223,7 @@ export default {
           // => org
           else {
             selfSize = Ti.Css.toAbsPixel(selfOrgSize, {
-              base: viewportWidth
+              base: viewportSize
             })
             sizes[selfI] = selfSize
             sizes[prevI] = sum - selfSize
@@ -236,7 +235,7 @@ export default {
       //..............................
       this.blockSizes = this.normlizedBlockSize(sizes, {
         adjacentMode,
-        viewportWidth,
+        viewportSize,
         prevI,
         selfI
       })
@@ -250,7 +249,7 @@ export default {
     //--------------------------------------
     normlizedBlockSize(sizes = [], {
       adjacentMode,
-      viewportWidth,
+      viewportSize,
       prevI,
       selfI
     } = {}) {
@@ -277,7 +276,7 @@ export default {
           if (null === sz) {
             return null
           }
-          return Ti.S.toPercent(sz / viewportWidth)
+          return Ti.S.toPercent(sz / viewportSize)
         })
       }
 
@@ -321,7 +320,9 @@ export default {
       let $blocks = Ti.Dom.findAll(":scope > .ti-gui-block", this.$el)
       let sizes = []
       _.forEach($blocks, ($block) => {
-        sizes.push($block.getBoundingClientRect().width)
+        let rect = $block.getBoundingClientRect()
+        let sz = rect[this.block_size_by]
+        sizes.push(sz)
       })
       return sizes
     },

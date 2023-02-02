@@ -418,16 +418,16 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
       padding: SZ(18);
     }
     &.gap-no-top {
-      padding-top:0;
+      padding-top: 0;
     }
     &.gap-no-bottom {
-      padding-bottom:0;
+      padding-bottom: 0;
     }
     &.gap-no-left {
-      padding-left:0;
+      padding-left: 0;
     }
     &.gap-no-right {
-      padding-right:0;
+      padding-right: 0;
     }
     background-color: map-get($color-page, r);
     > .block-main {
@@ -592,8 +592,12 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
       }
     }
     //-----------------------------------
-    &[reize-mode="row-resize"] {
+    &[resize-mode="row-resize"] {
       cursor: row-resize;
+      > .bar-con > .as-action.is-mini {
+        width: $BTN_SIZE * 2;
+        height: $BTN_SIZE;
+      }
     }
     //-----------------------------------
     &.at-left {
@@ -672,6 +676,36 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
         &.is-reset {
           right: $BAR_SIZE;
           border-radius: 0 0 0 ($BTN_RADI * 1.6);
+        }
+      }
+    }
+    //-----------------------------------
+    &[arrow-at="down"] {
+      > .bar-con .as-action {
+        &.is-mini {
+          top: $BAR_SIZE;
+          left: 50%;
+          margin-left: $BTN_SIZE * -1;
+          border-radius: 0 0 $BTN_RADI $BTN_RADI;
+        }
+        &.is-reset {
+          top: $BTN_SIZE * -1;
+          border-radius: 0 ($BTN_RADI * 1.6) 0 0;
+        }
+      }
+    }
+    //-----------------------------------
+    &[arrow-at="top"] {
+      > .bar-con .as-action {
+        &.is-mini {
+          top: $BTN_SIZE * -1;
+          left: 50%;
+          margin-left: $BTN_SIZE * -1;
+          border-radius: $BTN_RADI $BTN_RADI 0 0;
+        }
+        &.is-reset {
+          top: $BAR_SIZE;
+          border-radius: 0 0 ($BTN_RADI * 1.6) 0;
         }
       }
     }

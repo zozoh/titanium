@@ -101,6 +101,10 @@ export default {
       type: Boolean,
       default: false
     },
+    "mainStyle": {
+      type: Object,
+      default: undefined
+    },
     "mainConClass": undefined,
     "mainConStyle": {
       type: Object,
@@ -167,6 +171,10 @@ export default {
     //--------------------------------------
     hasAdjustBar() {
       return this.adjustBarAt && "none" != this.adjustBarAt
+    },
+    //--------------------------------------
+    MainStyle() {
+      return Ti.Css.toStyle(this.mainStyle)
     },
     //--------------------------------------
     MainConClass() {

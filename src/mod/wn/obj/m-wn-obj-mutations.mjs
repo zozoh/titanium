@@ -235,6 +235,10 @@ const _M = {
     state.status = _.assign({}, state.status, status)
   },
   //----------------------------------------
+  clearStatus(state) {
+    state.status = {}
+  },
+  //----------------------------------------
   syncStatusChanged(state) {
     if (Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
       state.status.changed = false

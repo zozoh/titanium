@@ -41,6 +41,8 @@
   "status": {
     "reloading": false,
     "doing": false,
+    "preview": false,
+    "publishing": false,
     "saving": false,
     "deleting": false,
     "changed": false,

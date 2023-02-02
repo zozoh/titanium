@@ -2,5 +2,8 @@
   "name": "ti-gui-cols",
   "globally": true,
   "template": "./ti-gui-cols.html",
-  "mixins"   : "@com:ti/gui/gui-block-support.mjs"
+  "mixins"   : [
+    "@com:ti/gui/gui-block-support.mjs",
+    "./ti-gui-cols.mjs"
+  ]
 }

@@ -57,7 +57,8 @@
             <div
               v-if="columnResizable && !fld.isLast"
                 class="as-column-resize-hdl"
-                @mousedown.left="OnColumnResizeBegin(index, fld)"></div>
+                @mousedown.left="OnColumnResizeBegin(index, fld)"
+                @dblclick="OnDblClickColumnResizer(index,fld)"></div>
           </div></th>
         </tr>
       </thead>

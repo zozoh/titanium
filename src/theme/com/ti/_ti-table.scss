@@ -360,10 +360,9 @@
       //-------------------------------------------
       td {
         vertical-align: middle;
-
+        position: relative;
         >.cell-wrapper {
           @include flex($ai: stretch, $wp: nowrap);
-
           //-------------------------------------------
           // Table Row Header
           //-------------------------------------------
@@ -433,7 +432,11 @@
 
           //-----------------------------------------
           &.is-nowrap {
+            @include pos-abs-full;
             overflow: hidden;
+            > .cell-con {
+              flex-wrap: nowrap;
+            }
           }
 
           //-----------------------------------------
@@ -441,11 +444,9 @@
           //-----------------------------------------
           >.cell-con {
             @include flex-align;
-            overflow: hidden;
             flex: 1 1 auto;
             line-height: 2.6em;
             min-height: 2.6em;
-
             //---------------------------------------
             >.ti-icon.item-0 {
               width: 1.8em;
@@ -491,12 +492,6 @@
           .as-drop .ti-list {
             line-height: 1.8em;
           }
-
-          //-----------------------------------------
-          &.is-nowrap>.cell-con {
-            flex-wrap: nowrap;
-          }
-
           //-----------------------------------------
           &.is-editing-mode {
             position: relative;

@@ -237,7 +237,8 @@ const _M = {
   } = {}) {
     // Guard
     if (!getters.isCanRemove) {
-      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+      await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+      return false
     }
     if (!state.dirId) {
       throw 'removeChecked: State Has No dirId'
@@ -245,12 +246,17 @@ const _M = {
 
     let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds)
     if (_.isEmpty(ids)) {
-      return await Ti.Alert('i18n:del-none')
+      await Ti.Alert('i18n:del-none')
+      return false
     }
     state.LOG("removeChecked", ids)
 
     // Config is hard
     hard = Ti.Util.fallback(hard, getters.isHardRemove, false)
+
+    if (_.isUndefined(confirm) && (hard || getters.isInRecycleBin)) {
+      confirm = "i18n:del-hard"
+    }
 
     // If confirm
     if (confirm) {
@@ -258,7 +264,7 @@ const _M = {
         type: "warn",
         vars: { N: ids.length }
       }))) {
-        return
+        return false
       }
     }
 
@@ -285,18 +291,10 @@ const _M = {
           type: "warn",
           vars: { N, tip }
         })) {
-          return
+          return false
         }
       }
     }
-
-    // If hard, warn at first
-    if (hard || getters.isInRecycleBin) {
-      if (!(await Ti.Confirm('i18n:del-hard'))) {
-        return
-      }
-    }
-
 
     let itemStatus = {}
     _.forEach(ids, id => itemStatus[id] = "processing")
@@ -327,6 +325,8 @@ const _M = {
       commit("setStatus", { deleting: false })
       commit("clearItemStatus")
     }, 500)
+
+    return true
   },
   //--------------------------------------------
   //

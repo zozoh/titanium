@@ -10,13 +10,13 @@
   <!--------------------------------------->
   <div class="bar-con">
     <!----------------------------------->
-    <div class="as-action is-reset" @mousedown.stop="OnClickReset">
+    <div class="as-action is-reset" @mouseup.stop="OnClickReset">
       <i class="zmdi zmdi-time-restore"></i></div>
     <!----------------------------------->
     <div
       v-if="hasMiniArrow"
         class="as-action is-mini"
-        @mousedown.stop="OnClickMini"><i :class="MiniArrowClass"></i></div>
+        @mouseup.stop="OnClickMini"><i :class="MiniArrowClass"></i></div>
     <!----------------------------------->
   </div>
   <!--------------------------------------->

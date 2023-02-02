@@ -4,6 +4,7 @@ const TiFormHelper = {
     isCan = () => false,
     isIgnore = () => false,
     dataFormat = 'yy-MM-dd',
+    iteratee = fld => fld
   } = {}) {
     const joinField = function (fld, list = []) {
       if (_.isEmpty(fld) || isIgnore(fld)) {
@@ -58,7 +59,10 @@ const TiFormHelper = {
       else {
         it.display = name
       }
-      list.push(it)
+
+      it = iteratee(it)
+      if (it)
+        list.push(it)
     }
     let list = []
     for (let fld of fields) {

@@ -1,4 +1,7 @@
-<div class="ti-gui-rows" :class="topClass">
+<div 
+  class="ti-gui-rows" 
+  :class="topClass"
+  v-ti-draggable="Draggable">
   <template v-if="hasBlocks">
     <template v-for="(block, index) in GuiBlocks">
       <ti-gui-block v-if="!block.hide"
@@ -13,4 +16,7 @@
         @bar:toggle:size="OnBarToggleSize"/>
     </template>
   </template>
+  <div
+    v-if="isDragging"
+      class="ti-gui-dragging-mask"></div>
 </div>

@@ -176,18 +176,32 @@ export default {
       await this.evalTableRows()
     },
     //--------------------------------------
+    OnDblClickColumnResizer(index) {
+      // Make sure get the table ract 
+      this.OnResize();
+      // Get Each column width
+      let colWidths = this.getTableColumnWidths()
+      // 得到列最大宽度
+      let left = 10
+      let $cells = Ti.Dom.findAll(
+        `:scope > tbody > tr.table-row > td.table-cell:nth-child(${index+1}) > .cell-wrapper`, 
+        this.$refs.table)
+      _.forEach($cells, $cell=>{
+        left = Math.max(left, $cell.scrollWidth)
+      })
+      // 更新
+      this.updateColumnWidth({
+        index, colWidths, left
+      })
+    },
+    //--------------------------------------
     OnColumnResizeBegin(index) {
       // Make sure get the table ract 
       this.OnResize();
       // Get Each column width
       let vm = this;
       let $doc = this.$el.ownerDocument;
-      let $ths = Ti.Dom.findAll("thead th", this.$refs.table)
-      let colWidths = []
-      for (let $th of $ths) {
-        let w = $th.getBoundingClientRect().width
-        colWidths.push(w)
-      }
+      let colWidths = this.getTableColumnWidths()
       let TW = _.sum(colWidths)
       //
       // Prepare the dragging context
@@ -299,6 +313,16 @@ export default {
       }
     },
     //--------------------------------------
+    getTableColumnWidths(){
+      let $ths = Ti.Dom.findAll("thead th", this.$refs.table)
+      let colWidths = []
+      for (let $th of $ths) {
+        let w = $th.getBoundingClientRect().width
+        colWidths.push(w)
+      }
+      return colWidths
+    },
+    //--------------------------------------
     scrollCurrentIntoView() {
       this.LOG("scrollCurrentIntoView", this.myLastIndex, this.theCurrentId)
       if (this.autoScrollIntoView && this.theCurrentId) {
@@ -356,14 +380,14 @@ export default {
       }
     },
     //--------------------------------------
-    evalFields(){
+    evalFields() {
       this.restoreLocalSettings()
       this.setupAllFields(this.fields)
       this.updateMyFieldsByKey(this.myShownFieldKeys)
     },
     //--------------------------------------
-    async tryEvalFields(newVal, oldVal){
-      if(!_.isEqual(newVal, oldVal)){
+    async tryEvalFields(newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
         this.evalFields()
         await this.evalListData()
         this.evalRenderScope();

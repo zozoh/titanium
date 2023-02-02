@@ -104,28 +104,39 @@ const _M = {
   //--------------------------------------------
   async removeChecked({ state, commit, dispatch, getters }, {
     hard,
+    confirm,
     hardTipMessage = "i18n:del-hard"
   } = {}) {
     // Guard
     if (!getters.isCanRemove) {
-      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+      await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+      return false
     }
     if (!state.thingSetId) {
-      return await Ti.Alert('State Has No ThingSetId', "warn")
+      await Ti.Alert('State Has No ThingSetId', "warn")
+      return false
     }
 
     let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds)
     if (_.isEmpty(ids)) {
-      return await Ti.Alert('i18n:del-none')
+      await Ti.Alert('i18n:del-none')
+      return false
     }
 
     // Config is hard
     hard = Ti.Util.fallback(hard, getters.isHardRemove, false)
 
+    if (_.isUndefined(confirm)) {
+      confirm = hard || getters.isInRecycleBin
+    }
+
     // If hard, warn at first
-    if (hard || getters.isInRecycleBin) {
-      if (!(await Ti.Confirm(hardTipMessage))) {
-        return
+    if (confirm) {
+      if (!(await Ti.Confirm(hardTipMessage, {
+        type: "warn",
+        vars: { N: ids.length }
+      }))) {
+        return false
       }
     }
 
@@ -159,6 +170,7 @@ const _M = {
     await dispatch("selectMeta")
 
     commit("setStatus", { deleting: false })
+    return true
   },
   //--------------------------------------------
   //

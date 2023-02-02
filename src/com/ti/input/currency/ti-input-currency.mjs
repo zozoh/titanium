@@ -5,6 +5,9 @@ export default {
   }),
   ////////////////////////////////////////////////////
   props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
     "value": {
       type: [String, Number, Object],
       default: undefined
@@ -14,6 +17,9 @@ export default {
       default: "str",
       validator: v => /^(str|obj|num)$/.test(v)
     },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
     /*
      *  - `100`  : yuan : 元
      *  - `10`   : jiao : 角
@@ -38,10 +44,6 @@ export default {
       type: [String, Array, Function, Ti.Dict],
       default: undefined
     },
-    "placeholder": {
-      type: [String, Number],
-      default: undefined
-    },
     "autoSelect": {
       type: Boolean,
       default: true
@@ -51,6 +53,17 @@ export default {
       default: false
     },
     "focused": {
+      type: Boolean,
+      default: false
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "placeholder": {
+      type: [String, Number],
+      default: undefined
+    },
+    "hideBorder": {
       type: Boolean,
       default: false
     },
@@ -83,6 +96,12 @@ export default {
         hover.push("suffixText")
       }
       return hover
+    },
+    //------------------------------------------------
+    InputPrefixHoverIcon() {
+      return this.readonly
+        ? null
+        : "zmdi-close-circle"
     },
     //------------------------------------------------
     ValObj() {
@@ -118,15 +137,22 @@ export default {
   methods: {
     //------------------------------------------------
     OnInputChange(val) {
-      //console.log("Cu changed", val)
-      // Get value
+      let v = this.tidyValue(val)
+      this.$notify("change", v)
+    },
+    //------------------------------------------------
+    tidyValue(val) {
       let v1 = _.toUpper(_.trim(val))
       let v2 = Ti.Bank.parseCurrency(v1, {
         unit: 100,
         currency: this.ValCurrency
       })
-      let v3 = this.formatValue(v2)
-      this.$notify("change", v3)
+      return this.formatValue(v2)
+    },
+    //------------------------------------------------
+    OnInputing(val) {
+      let v = this.tidyValue(val)
+      this.$notify("inputing", v)
     },
     //------------------------------------------------
     async OnClickSuffix() {

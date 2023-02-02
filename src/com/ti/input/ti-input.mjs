@@ -8,7 +8,8 @@ const _M = {
   data: () => ({
     inputCompositionstart: false,
     isFocused: false,
-    pointerHover: null
+    pointerHover: null,
+    inputingValue: undefined
   }),
   ////////////////////////////////////////////////////
   props: {
@@ -30,9 +31,9 @@ const _M = {
         "hide-border": this.hideBorder,
         "has-width": hasWidth,
         "full-field": !hasWidth,
-        "has-prefix-icon": this.prefixIcon,
+        "has-prefix-icon": this.prefixIcon ? true : false,
         "has-prefix-text": !Ti.Util.isNil(this.prefixText),
-        "has-suffix-icon": this.suffixIcon,
+        "has-suffix-icon": this.suffixIcon ? true : false,
         "has-suffix-text": !Ti.Util.isNil(this.suffixText),
       })
     },
@@ -45,6 +46,9 @@ const _M = {
     },
     //------------------------------------------------
     TheValue() {
+      if (!_.isUndefined(this.inputingValue)) {
+        return this.inputingValue
+      }
       //console.log("input value:", this.value)
       let val = this.value
       if (this.isFocused && !Ti.Util.isNil(this.focusValue)) {
@@ -138,6 +142,7 @@ const _M = {
     doWhenInput() {
       let val = this.getInputValue(false)
       if (!Ti.Util.isNil(val)) {
+        this.inputingValue = val
         this.$notify("inputing", val)
       }
     },
@@ -160,11 +165,15 @@ const _M = {
       }
       //console.log("OnInputChange", JSON.stringify(val))
       this.$notify("change", val)
+      _.delay(() => {
+        this.inputingValue = undefined
+      }, 100)
+
     },
     //------------------------------------------------
-    OnClickInput(){
-      if(!this.readonly){
-        this.isFocused = true  
+    OnClickInput() {
+      if (!this.readonly) {
+        this.isFocused = true
       }
       if (!this.isActived) {
         this.setActived()

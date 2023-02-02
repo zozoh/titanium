@@ -140,7 +140,7 @@ const _M = {
         for (let li of this.FormFields) {
           if (li.index == CI) {
             let grp = _.cloneDeep(li)
-            grp.bodyStyle = _.assign({},this.TabBodyStyle, li.bodyStyle)
+            grp.bodyStyle = _.assign({}, this.TabBodyStyle, li.bodyStyle)
             return grp
           }
         }
@@ -480,10 +480,10 @@ const _M = {
     // Curstomzed Setting
     let cus = this.restoreCustomizedFromLocal()
     // Customized white list will cause prop.blackField be ignored
-    if (_.isEmpty(cus.whiteFields)) {
+    if (_.isEmpty(cus.whiteFields) || !_.isEmpty(this.blackFields)) {
       this.evalFormBlackFieldList()
     }
-    if (this.canCustomizedFields) {
+    if (this.canCustomizedFields || !_.isEmpty(this.whiteFields)) {
       this.evalFormWhiteFieldList(cus.whiteFields)
     }
 

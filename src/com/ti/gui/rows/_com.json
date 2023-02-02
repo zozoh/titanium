@@ -1,6 +1,9 @@
 {
-  "name" : "ti-gui-rows",
-  "globally" : true,
-  "template" : "./ti-gui-rows.html",
-  "mixins"   : "@com:ti/gui/gui-block-support.mjs"
+  "name": "ti-gui-rows",
+  "globally": true,
+  "template": "./ti-gui-rows.html",
+  "mixins": [
+    "@com:ti/gui/gui-block-support.mjs",
+    "./ti-gui-rows.mjs"
+  ]
 }
