@@ -14,7 +14,7 @@ export default {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "meta" : {
+    "oDir" : {
       type : Object
     },
     "domain": {
@@ -43,6 +43,10 @@ export default {
     //---------------------------------------------------
     hasCurrent() {
       return this.myCurrentId ? true : false
+    },
+    //---------------------------------------------------
+    CurrentPlaylist() {
+      return this.getPlaylistObj(this.currentPlayListId)
     },
     //---------------------------------------------------
     CurrentVideo() {
@@ -262,7 +266,6 @@ export default {
         channelId : this.channelId,
         force
       })
-
       let playlists = await Wn.Youtube.getAllPlaylists(config, {force})
       let plId = this.currentPlayListId
       if(playlists.length > 0) {
@@ -282,40 +285,24 @@ export default {
     },
     //--------------------------------------------
     async openCurrentMeta() {
-      let meta = this.CurrentVideo || this.meta
-
-      if(!meta) {
-        await Ti.Toast.Open("i18n:nil-obj")
+      // 显示当前的视频
+      if (this.CurrentVideo) {
+        let json = JSON.stringify(this.CurrentVideo, null, '    ')
+        let re = Ti.EditCode(json,{mode:"json",width:"90%", height:"80%"})
+        console.log(re)
         return
       }
 
-      let fields = "auto"
-      if(this.hasCurrent) {
-        const V_FIELD = (name, title)=>{
-          return {
-            title, name,
-            comType : "TiLabel"
-          }
-        }
-        fields = [
-          V_FIELD("id", "ID"),
-          V_FIELD("title", "Title"),
-          V_FIELD("description", "Description"),
-          V_FIELD("publishedAt", "PublishedAt"),
-          V_FIELD("tags", "Tags"),
-          V_FIELD("duration", "Duration"),
-          V_FIELD("du_in_sec", "Du in sec"),
-          V_FIELD("du_in_str", "Du in str"),
-          V_FIELD("definition", "Definition"),
-          V_FIELD("categoryId", "CategoryId"),
-        ]
+      // 显示当前的视频
+      if (this.CurrentPlaylist) {
+        let json = JSON.stringify(this.CurrentPlaylist, null, '    ')
+        let re = Ti.EditCode(json,{mode:"json",width:"90%", height:"80%"})
+        console.log(re)
+        return
       }
 
-      await Wn.EditObjMeta(meta, {
-        fields,
-        textOk : null,
-        autoSave : false
-      })
+      // 显示集合属性
+      await Ti.App(this).dispatch("main/openCurrentMetaEditor")
     },
     //---------------------------------------------------
   },

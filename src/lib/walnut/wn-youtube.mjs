@@ -1,7 +1,7 @@
 ////////////////////////////////////////////
 const WnYoutube = {
   //----------------------------------------
-  async getVideoDetails(config, videoIds = []) {
+  async getVideoDetails(config, videoIds = [], force = false) {
     // Guard
     if (!config || _.isEmpty(videoIds)) {
       return
@@ -13,14 +13,16 @@ const WnYoutube = {
       id: videoIds.join(","),
       part: config.videoPart
     })
-    let cmdText = `xapi req youtube ${domain} videos -url -vars '${json}'`
-    let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
-    if (!curl) {
-      throw "Fail to get youtube API(videos) URL: " + cmdText
-    }
-    //console.log(curl)
-    // Reload from youtube server
-    let reo = await Ti.Http.get(curl, { as: "json" })
+    // let cmdText = `xapi req youtube ${domain} videos -url -vars '${json}'`
+    // let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
+    // if (!curl) {
+    //   throw "Fail to get youtube API(videos) URL: " + cmdText
+    // }
+    // //console.log(curl)
+    // // Reload from youtube server
+    // let reo = await Ti.Http.get(curl, { as: "json" })
+    let cmdText = `xapi send youtube ${domain} videos ${force ? '-force' : ''} -vars '${json}'`
+    let reo = await Wn.Sys.exec2(cmdText, { as: "json" });
 
     if (!reo || !_.isArray(reo.items)) {
       throw "Fail to load youtube playlists by: " + cmdText
@@ -74,7 +76,7 @@ const WnYoutube = {
   },
   //----------------------------------------
   async getPlaylistVideos(config, playlistId, {
-    pageToken, maxResults = 50
+    pageToken, maxResults = 50, force
   } = {}) {
     // Guard
     if (!config) {
@@ -92,14 +94,16 @@ const WnYoutube = {
     })
 
     // Get api url
-    let cmdText = `xapi req youtube ${domain} playlistItems -url -vars '${json}'`
-    let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
-    if (!curl) {
-      throw "Fail to get youtube API(playlistItems) URL: " + cmdText
-    }
-    //console.log(curl)
-    // Reload from youtube server
-    let reo = await Ti.Http.get(curl, { as: "json" })
+    // let cmdText = `xapi req youtube ${domain} playlistItems -url -vars '${json}'`
+    // let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
+    // if (!curl) {
+    //   throw "Fail to get youtube API(playlistItems) URL: " + cmdText
+    // }
+    // //console.log(curl)
+    // // Reload from youtube server
+    // let reo = await Ti.Http.get(curl, { as: "json" })
+    let cmdText = `xapi send youtube ${domain} playlistItems ${force ? '-force' : ''} -vars '${json}'`
+    let reo = await Wn.Sys.exec2(cmdText, { as: "json" });
 
     if (!reo || !_.isArray(reo.items)) {
       throw "Fail to load youtube playlistItems by: " + cmdText
@@ -128,32 +132,13 @@ const WnYoutube = {
     if (!config) {
       return
     }
-    // load key fields in config
-    let { domain } = config
-    let ytHome = `~/.domain/youtube/${domain}`
-    let list = [];
-    // Load cache file
-    let noexists = true
-    if (!force) {
-      let oFile = await Wn.Io.loadMeta(`${ytHome}/playlists.json`)
-      if (oFile) {
-        list = await Wn.Io.loadContent(oFile, { as: "json" })
-        noexists = false
-      }
-    }
 
-    // force reload
-    if (noexists || force) {
-      let reo = await WnYoutube.getPlaylists(config)
-      list = reo.list || []
-      while (reo.next) {
-        reo = await WnYoutube.getPlaylists(config, { pageToken: reo.next })
-        list = _.concat(list, reo.list)
-      }
-
-      // Save config
-      let json = JSON.stringify(list)
-      await Wn.Sys.exec2(`json -qn > ${ytHome}/playlists.json`, { input: json })
+    // Reload Data
+    let reo = await WnYoutube.getPlaylists(config)
+    let list = reo.list || []
+    while (reo.next) {
+      reo = await WnYoutube.getPlaylists(config, { pageToken: reo.next, force })
+      list = _.concat(list, reo.list)
     }
 
     // Done
@@ -161,7 +146,7 @@ const WnYoutube = {
   },
   //----------------------------------------
   async getPlaylists(config, {
-    pageToken, maxResults = 50
+    pageToken, maxResults = 50, force
   } = {}) {
     // Guard
     if (!config) {
@@ -169,7 +154,6 @@ const WnYoutube = {
     }
     // load key fields in config
     let { domain, channelId, thumbType } = config
-    let ytHome = `~/.domain/youtube/${domain}`
 
     // Reload from youtube
     let json = JSON.stringify({
@@ -177,22 +161,21 @@ const WnYoutube = {
     })
 
     // Get api url
-    let cmdText = `xapi req youtube ${domain} playlists -url -vars '${json}'`
-    let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
-    if (!curl) {
-      throw "Fail to get youtube API(playlist) URL: " + cmdText
-    }
-    //console.log(curl)
-    // Reload from youtube server
-    let reo = await Ti.Http.get(curl, { as: "json" })
+    //let cmdText = `xapi req youtube ${domain} playlists -url -vars '${json}'`
+    // //console.log(cmdText)
+    // let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
+    // if (!curl) {
+    //   throw "Fail to get youtube API(playlist) URL: " + cmdText
+    // }
+    // //console.log(curl)
+    // // Reload from youtube server
+    // let reo = await Ti.Http.get(curl, { as: "json" })
+    let cmdText = `xapi send youtube ${domain} playlists ${force ? '-force' : ''} -vars '${json}'`
+    let reo = await Wn.Sys.exec2(cmdText, { as: "json" });
 
     if (!reo || !_.isArray(reo.items)) {
       throw "Fail to load youtube playlists by: " + cmdText
     }
-    // cache result
-    json = JSON.stringify(reo)
-    let suffix = pageToken ? `_${pageToken}.json` : ".json"
-    await Wn.Sys.exec2(`json -qn > ${ytHome}/results/playlists${suffix}`, { input: json })
 
     // Update uploadPlaylistId for reload all videos in channel
     let list = []
@@ -264,21 +247,20 @@ const WnYoutube = {
       })
 
       // Get api url
-      let cmdText = `xapi req youtube ${domain} channels -url -vars '${json}'`
-      let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
-      if (!curl) {
-        throw "Fail to get youtube API(channels) URL: " + cmdText
-      }
-      //console.log(curl)
-      // Reload from youtube server
-      let reo = await Ti.Http.get(curl, { as: "json" })
+      // let cmdText = `xapi req youtube ${domain} channels -url -vars '${json}'`
+      // let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
+      // if (!curl) {
+      //   throw "Fail to get youtube API(channels) URL: " + cmdText
+      // }
+      // //console.log(curl)
+      // // Reload from youtube server
+      // let reo = await Ti.Http.get(curl, { as: "json" })
+      let cmdText = `xapi send youtube ${domain} channels ${force ? '-force' : ''} -vars '${json}'`
+      let reo = await Wn.Sys.exec2(cmdText, { as: "json" });
 
       if (!reo || !_.isArray(reo.items) || _.isEmpty(reo.items)) {
         throw "Fail to load youtube channels by: " + cmdText
       }
-      // cache result
-      json = JSON.stringify(reo)
-      await Wn.Sys.exec2(`json -qn > ${ytHome}/results/channels.json`, { input: json })
 
       // Update uploadPlaylistId for reload all videos in channel
       config.channelTitle = _.get(reo, "items.0.snippet.title")

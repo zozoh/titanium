@@ -694,5 +694,92 @@ const TiWWW = {
   }
   //---------------------------------------
 }
+////////////////////////////////////////////
+const FB = {
+  //----------------------------------------
+  /***
+ * @param images{Array} : [{height,width,source:"https://xxx"}]
+ * @param thumbMinSize{Integer} :
+ *  The min height, -1 mean the max one, 0 mean the min one.
+ *  If a `>0` number has been given, it will find the closest image
+ */
+  getFbAlumThumbImage(images = [], thumbMinSize = 500) {
+    // Find the closest one
+    let minImg;
+    let maxImg;
+    let fitImg;
+    //console.log("getFbAlumThumbImage", thumbMinSize)
+    for (let img of images) {
+      // Get the key
+      let szKey = "height"
+      if (img.width < img.height) {
+        szKey = "width"
+      }
+      // Min image
+      if (!minImg) {
+        minImg = img
+        fitImg = img
+      }
+      else if (img[szKey] < minImg[szKey]) {
+        minImg = img
+      }
+      // Fit image
+      if (thumbMinSize > 0
+        && fitImg[szKey] > thumbMinSize
+        && img[szKey] <= thumbMinSize) {
+        fitImg = img
+      }
+      // Max Image
+      if (!maxImg) {
+        maxImg = img
+      }
+      else if (img[szKey] > maxImg[szKey]) {
+        maxImg = img
+      }
+    }
+    if (thumbMinSize < 0) {
+      return maxImg
+    }
+    if (thumbMinSize == 0) {
+      return minImg
+    }
+    return fitImg
+  },
+  //----------------------------------------
+  setImages(obj, images = [], {
+    preview = { type: "font", value: "fas-images" },
+    thumbMinSize = 500
+  } = {}) {
+    let thumbImg = FB.getFbAlumThumbImage(images, thumbMinSize)
+    let realImg = FB.getFbAlumThumbImage(images, -1)
+    obj.width = _.get(realImg, "width")
+    obj.height = _.get(realImg, "height")
+    obj.src = _.get(realImg, "source")
+    obj.thumb_src = _.get(thumbImg, "source")
+
+    if (obj.thumb_src) {
+      obj.preview = {
+        type: "image",
+        value: obj.thumb_src
+      }
+    } else {
+      obj.preview = preview
+    }
+  },
+  //----------------------------------------
+  setObjListPreview(objs, options) {
+    _.forEach(objs, obj => {
+      FB.setObjPreview(obj, obj.images, options)
+    })
+  },
+  //----------------------------------------
+  setObjPreview(obj, images, options) {
+    FB.setImages(obj, images, options)
+    return obj
+  },
+  //----------------------------------------
+}
+////////////////////////////////////////////
+TiWWW.FB = FB
 ///////////////////////////////////////////
 export const WWW = TiWWW

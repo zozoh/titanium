@@ -101,7 +101,7 @@ export default {
       const do_dragging = (ctx) => {
         let { orgBlockSizes, prevI, selfI } = ctx
         let offset = ctx[this.offset_key]
-        console.log("dragging", { offset, orgBlockSizes, prevI, selfI })
+        //console.log("dragging", { offset, orgBlockSizes, prevI, selfI })
         let sizes = _.cloneDeep(orgBlockSizes)
 
         // Block minimum size
@@ -127,7 +127,7 @@ export default {
         sizes[selfI] = selfSize
 
         // Depends on bar adjacent-mode
-        console.log(sizes)
+        //console.log(sizes)
         this.blockSizes = this.normlizedBlockSize(sizes, ctx)
       }
       //....................................
@@ -175,7 +175,7 @@ export default {
     },
     //--------------------------------------
     OnBarToggleSize(payload) {
-      console.log("OnBarToggleSize")
+      //console.log("OnBarToggleSize")
       //..............................
       let {
         prevMinimum, selfMinimum, adjacentMode, adjustIndex

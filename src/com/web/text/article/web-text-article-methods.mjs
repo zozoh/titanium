@@ -388,7 +388,7 @@ export default {
         //console.log(url)
         items = await Ti.Http.get(url, { as: "json" })
         //console.log("server items", items)
-        Ti.Api.Facebook.setObjListPreview(items)
+        Ti.WWW.FB.setObjListPreview(items)
       }
       // Get data from album DOM
       else {

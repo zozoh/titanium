@@ -1,0 +1,12 @@
+<TiGui
+  class="net-facebook-albums"
+  :class="TopClass"
+  :layout="GuiLayout"
+  :schema="GuiSchema"
+  :canLoading="true"
+  :loading="isLoadingAlbums"
+  :action-status="GuiActionStatus"
+  @filter::change="OnFilterChange"
+  @albums::select="OnAlbumSelect"
+  @albums::load:more="doLoadMoreAlbums"
+  @photos::load:more="doLoadMorePhotos"/>

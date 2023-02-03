@@ -1,8 +1,4 @@
-import { TiRuntimeStack } from "./ti-runtime-stack.mjs"
 //////////////////////////////////////////////
-const RTSTACK = new TiRuntimeStack()
-const OPTIONS = Symbol("toa-options")
-const _APP_ = Symbol("toa-app-instance")
 //-----------------------------------
 class TiToptipBox {
   //------------------------------------------

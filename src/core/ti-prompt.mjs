@@ -83,7 +83,6 @@ async function TiPrompt(msg = "", {
         },
         __ti_shortcut(uniqKey) {
           if ("ENTER" == uniqKey) {
-            console.log(this.value)
             Ti.App(this).$vm().close(this.value)
           }
         }

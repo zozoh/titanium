@@ -4,6 +4,7 @@ import {Prompt}  from "./ti-prompt.mjs"
 import {Captcha} from "./ti-captcha.mjs"
 import {Toast}   from "./ti-toast.mjs"
 import {Toptip}  from "./ti-toptip.mjs"
+import {EditCode}  from "./ti-editcode.mjs"
 import {Be}           from "./behaviors.mjs"
 import {Alg}          from "./algorithm.mjs"
 import {S}            from "./str.mjs"
@@ -44,8 +45,6 @@ import {PhotoGallery} from "./widget/photo-gallery.mjs"
 //---------------------------------------
 import {WalnutAppMain} from "./ti-walnut-app-main.mjs"
 import {WebAppMain} from "./ti-web-app-main.mjs"
-//---------------------------------------
-import Facebook from "./api-facebook.mjs"
 //---------------------------------------
 const LOAD_CACHE = {}
 function Preload(url, anyObj) {
@@ -121,10 +120,6 @@ const Ti = {
     Album, PhotoGallery
   },
   //-----------------------------------------------------
-  Api : {
-    Facebook,
-  },
-  //-----------------------------------------------------
   Preload, MatchCache, AddResourcePrefix, RS_PREFIXs, LOAD_CACHE,
   //-----------------------------------------------------
   WalnutAppMain, WebAppMain,
@@ -134,7 +129,7 @@ const Ti = {
     TiCom       : VueTiCom
   },
   //-----------------------------------------------------
-  Alert, Confirm, Prompt, Toast, Captcha, Toptip,
+  Alert, Confirm, Prompt, Toast, Captcha, Toptip, EditCode,
   //-----------------------------------------------------
   Env(key, val) {
     if(_.isUndefined(key))
