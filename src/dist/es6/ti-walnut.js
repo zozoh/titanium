@@ -1,4 +1,4 @@
-// Pack At: 2023-02-03 03:44:54
+// Pack At: 2023-02-05 01:57:57
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -4108,7 +4108,7 @@ const Youtube = (function(){
   ////////////////////////////////////////////
   const WnYoutube = {
     //----------------------------------------
-    async getVideoDetails(config, videoIds = []) {
+    async getVideoDetails(config, videoIds = [], force = false) {
       // Guard
       if (!config || _.isEmpty(videoIds)) {
         return
@@ -4120,14 +4120,16 @@ const Youtube = (function(){
         id: videoIds.join(","),
         part: config.videoPart
       })
-      let cmdText = `xapi req youtube ${domain} videos -url -vars '${json}'`
-      let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
-      if (!curl) {
-        throw "Fail to get youtube API(videos) URL: " + cmdText
-      }
-      //console.log(curl)
-      // Reload from youtube server
-      let reo = await Ti.Http.get(curl, { as: "json" })
+      // let cmdText = `xapi req youtube ${domain} videos -url -vars '${json}'`
+      // let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
+      // if (!curl) {
+      //   throw "Fail to get youtube API(videos) URL: " + cmdText
+      // }
+      // //console.log(curl)
+      // // Reload from youtube server
+      // let reo = await Ti.Http.get(curl, { as: "json" })
+      let cmdText = `xapi send youtube ${domain} videos ${force ? '-force' : ''} -vars '${json}'`
+      let reo = await Wn.Sys.exec2(cmdText, { as: "json" });
   
       if (!reo || !_.isArray(reo.items)) {
         throw "Fail to load youtube playlists by: " + cmdText
@@ -4181,7 +4183,7 @@ const Youtube = (function(){
     },
     //----------------------------------------
     async getPlaylistVideos(config, playlistId, {
-      pageToken, maxResults = 50
+      pageToken, maxResults = 50, force
     } = {}) {
       // Guard
       if (!config) {
@@ -4199,14 +4201,16 @@ const Youtube = (function(){
       })
   
       // Get api url
-      let cmdText = `xapi req youtube ${domain} playlistItems -url -vars '${json}'`
-      let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
-      if (!curl) {
-        throw "Fail to get youtube API(playlistItems) URL: " + cmdText
-      }
-      //console.log(curl)
-      // Reload from youtube server
-      let reo = await Ti.Http.get(curl, { as: "json" })
+      // let cmdText = `xapi req youtube ${domain} playlistItems -url -vars '${json}'`
+      // let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
+      // if (!curl) {
+      //   throw "Fail to get youtube API(playlistItems) URL: " + cmdText
+      // }
+      // //console.log(curl)
+      // // Reload from youtube server
+      // let reo = await Ti.Http.get(curl, { as: "json" })
+      let cmdText = `xapi send youtube ${domain} playlistItems ${force ? '-force' : ''} -vars '${json}'`
+      let reo = await Wn.Sys.exec2(cmdText, { as: "json" });
   
       if (!reo || !_.isArray(reo.items)) {
         throw "Fail to load youtube playlistItems by: " + cmdText
@@ -4235,32 +4239,13 @@ const Youtube = (function(){
       if (!config) {
         return
       }
-      // load key fields in config
-      let { domain } = config
-      let ytHome = `~/.domain/youtube/${domain}`
-      let list = [];
-      // Load cache file
-      let noexists = true
-      if (!force) {
-        let oFile = await Wn.Io.loadMeta(`${ytHome}/playlists.json`)
-        if (oFile) {
-          list = await Wn.Io.loadContent(oFile, { as: "json" })
-          noexists = false
-        }
-      }
   
-      // force reload
-      if (noexists || force) {
-        let reo = await WnYoutube.getPlaylists(config)
-        list = reo.list || []
-        while (reo.next) {
-          reo = await WnYoutube.getPlaylists(config, { pageToken: reo.next })
-          list = _.concat(list, reo.list)
-        }
-  
-        // Save config
-        let json = JSON.stringify(list)
-        await Wn.Sys.exec2(`json -qn > ${ytHome}/playlists.json`, { input: json })
+      // Reload Data
+      let reo = await WnYoutube.getPlaylists(config)
+      let list = reo.list || []
+      while (reo.next) {
+        reo = await WnYoutube.getPlaylists(config, { pageToken: reo.next, force })
+        list = _.concat(list, reo.list)
       }
   
       // Done
@@ -4268,7 +4253,7 @@ const Youtube = (function(){
     },
     //----------------------------------------
     async getPlaylists(config, {
-      pageToken, maxResults = 50
+      pageToken, maxResults = 50, force
     } = {}) {
       // Guard
       if (!config) {
@@ -4276,7 +4261,6 @@ const Youtube = (function(){
       }
       // load key fields in config
       let { domain, channelId, thumbType } = config
-      let ytHome = `~/.domain/youtube/${domain}`
   
       // Reload from youtube
       let json = JSON.stringify({
@@ -4284,22 +4268,21 @@ const Youtube = (function(){
       })
   
       // Get api url
-      let cmdText = `xapi req youtube ${domain} playlists -url -vars '${json}'`
-      let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
-      if (!curl) {
-        throw "Fail to get youtube API(playlist) URL: " + cmdText
-      }
-      //console.log(curl)
-      // Reload from youtube server
-      let reo = await Ti.Http.get(curl, { as: "json" })
+      //let cmdText = `xapi req youtube ${domain} playlists -url -vars '${json}'`
+      // //console.log(cmdText)
+      // let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
+      // if (!curl) {
+      //   throw "Fail to get youtube API(playlist) URL: " + cmdText
+      // }
+      // //console.log(curl)
+      // // Reload from youtube server
+      // let reo = await Ti.Http.get(curl, { as: "json" })
+      let cmdText = `xapi send youtube ${domain} playlists ${force ? '-force' : ''} -vars '${json}'`
+      let reo = await Wn.Sys.exec2(cmdText, { as: "json" });
   
       if (!reo || !_.isArray(reo.items)) {
         throw "Fail to load youtube playlists by: " + cmdText
       }
-      // cache result
-      json = JSON.stringify(reo)
-      let suffix = pageToken ? `_${pageToken}.json` : ".json"
-      await Wn.Sys.exec2(`json -qn > ${ytHome}/results/playlists${suffix}`, { input: json })
   
       // Update uploadPlaylistId for reload all videos in channel
       let list = []
@@ -4371,21 +4354,20 @@ const Youtube = (function(){
         })
   
         // Get api url
-        let cmdText = `xapi req youtube ${domain} channels -url -vars '${json}'`
-        let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
-        if (!curl) {
-          throw "Fail to get youtube API(channels) URL: " + cmdText
-        }
-        //console.log(curl)
-        // Reload from youtube server
-        let reo = await Ti.Http.get(curl, { as: "json" })
+        // let cmdText = `xapi req youtube ${domain} channels -url -vars '${json}'`
+        // let curl = await Wn.Sys.exec2(cmdText, { as: "text" });
+        // if (!curl) {
+        //   throw "Fail to get youtube API(channels) URL: " + cmdText
+        // }
+        // //console.log(curl)
+        // // Reload from youtube server
+        // let reo = await Ti.Http.get(curl, { as: "json" })
+        let cmdText = `xapi send youtube ${domain} channels ${force ? '-force' : ''} -vars '${json}'`
+        let reo = await Wn.Sys.exec2(cmdText, { as: "json" });
   
         if (!reo || !_.isArray(reo.items) || _.isEmpty(reo.items)) {
           throw "Fail to load youtube channels by: " + cmdText
         }
-        // cache result
-        json = JSON.stringify(reo)
-        await Wn.Sys.exec2(`json -qn > ${ytHome}/results/channels.json`, { input: json })
   
         // Update uploadPlaylistId for reload all videos in channel
         config.channelTitle = _.get(reo, "items.0.snippet.title")
@@ -4410,113 +4392,51 @@ const Youtube = (function(){
 const FbAlbum = (function(){
   ////////////////////////////////////////////
   const WnFbAlbum = {
-    //----------------------------------------
-    getAlbumPhotoCacheInfo({
-      albumId,
-      domain,
-      accountName
-    }) {
-      let fnm = `${domain}.album.${albumId}.photos.json`
-      let fph = `~/.domain/facebook/${accountName}/${fnm}`
-      return {
-        fileName: fnm,
-        filePath: fph
-      }
-    },
-    //----------------------------------------
-    async reloadAllPhotosInCache({
-      albumId,
-      domain,
-      accountName
-    }={}) {
-      // Reload from cache
-      let re = WnFbAlbum.getAlbumPhotoCacheInfo({
-        albumId,
-        domain,
-        accountName
-      })
-      let fph = re.filePath
-      re.oCache = await Wn.Io.loadMeta(fph)
-      if(re.oCache) {
-        re.photos = await Wn.Io.loadContent(re.oCache, {as:"json"})
-      }
-  
-      // Read the first page
-      return re
-    },
-    //----------------------------------------
     async reloadAllPhotoList({
       albumId,
       domain,
-      accountName,
-      access_token,
-      force= false
-    }={}) {
-      let fph;
-      if(!force) {
-        let {filePath, photos} = await WnFbAlbum.reloadAllPhotosInCache({
-          albumId, domain, accountName
-        })
-        if(!_.isEmpty(photos)) {
-          //console.log("In cache")
-          return photos
-        }
-        fph = filePath
-      } else {
-        let {filePath} = WnFbAlbum.getAlbumPhotoCacheInfo({
-          albumId,
-          domain,
-          accountName
-        })
-        fph = filePath
-      }
-      // Reload
-      //console.log("reload force!!!")
+      force
+    } = {}) {
       let photos = []
   
       // Reload first page
-      let re = await Ti.Api.Facebook.getAlbumPhotoList({albumId, access_token})
-      photos.push(...re.data)
-  
-      // Next pages...
-      let after = _.get(re.paging, "cursors.after")
-      while(after) {
-        re = await Ti.Api.Facebook.getAlbumPhotoList({
-          albumId,
-          access_token,
-          after
-        })
+      let re = await WnFbAlbum.loadPhotos(domain, albumId, { force })
+      if (re && !_.isEmpty(re.data)) {
         photos.push(...re.data)
-        after = _.get(re.paging, "cursors.after")
-      }
   
-      // Save to cache
-      await WnFbAlbum.savePhotoListToCache(photos, {
-        albumId, domain, accountName
-      })
+        // Next pages...
+        while (re && re.after) {
+          re = await await WnFbAlbum.loadPhotos(domain, albumId, { force, after: re.after })
+          if (re && !_.isEmpty(re.data)) {
+            photos.push(...re.data)
+          }
+        }
+      }
   
       // Done 
       return photos
     },
     //----------------------------------------
-    async savePhotoListToCache(photos, {
-      albumId,
-      domain,
-      accountName
-    }) {
-      let {filePath} = WnFbAlbum.getAlbumPhotoCacheInfo({
-        albumId,
-        domain,
-        accountName
-      })
-      if(!_.isEmpty(photos) && domain && filePath) {
-        console.log("save to cache", filePath)
-        let input = JSON.stringify(photos)
-        let cmdText = `str > ${filePath}`
-        await Wn.Sys.exec2(cmdText, {input})
-        await Ti.Toast.Open(`${photos.length} photos cached`, "success");
-      }
-    }
+    async loadPhotos(domain, id, { after, force } = {}) {
+      let vars = JSON.stringify({ id, after })
+      let fmak = force ? '-force' : ''
+      let cmdText = `xapi send fb-graph ${domain} photos ${fmak} -vars '${vars}'`
+      return await Wn.Sys.exec2(cmdText, { as: "json" })
+    },
+    //----------------------------------------
+    async loadAlbums(domain, id, { after, force } = {}) {
+      let vars = JSON.stringify({ id, after })
+      let fmak = force ? '-force' : ''
+      let cmdText = `xapi send fb-graph ${domain} albums ${fmak} -vars '${vars}'`
+      return await Wn.Sys.exec2(cmdText, { as: "json" })
+    },
+    //----------------------------------------
+    async loadPhoto(domain, id, force) {
+      let vars = JSON.stringify({ id })
+      let fmak = force ? '-force' : ''
+      let cmdText = `xapi send fb-graph ${domain} photo ${fmak} -vars '${vars}'`
+      return await Wn.Sys.exec2(cmdText, { as: "json" })
+    },
     //----------------------------------------
   }
   ////////////////////////////////////////////
@@ -4524,7 +4444,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230203.034455"
+const WALNUT_VERSION = "1.2-20230205.015758"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

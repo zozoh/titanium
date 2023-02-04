@@ -1,5 +1,29 @@
 ////////////////////////////////////////////
 const WnFbAlbum = {
+  async reloadAllPhotoList({
+    albumId,
+    domain,
+    force
+  } = {}) {
+    let photos = []
+
+    // Reload first page
+    let re = await WnFbAlbum.loadPhotos(domain, albumId, { force })
+    if (re && !_.isEmpty(re.data)) {
+      photos.push(...re.data)
+
+      // Next pages...
+      while (re && re.after) {
+        re = await await WnFbAlbum.loadPhotos(domain, albumId, { force, after: re.after })
+        if (re && !_.isEmpty(re.data)) {
+          photos.push(...re.data)
+        }
+      }
+    }
+
+    // Done 
+    return photos
+  },
   //----------------------------------------
   async loadPhotos(domain, id, { after, force } = {}) {
     let vars = JSON.stringify({ id, after })

@@ -15,6 +15,8 @@ export default {
     myGrantedScopes: undefined,
     myLongLiveAK: undefined,
 
+    myAlbumCoverCache: undefined,
+
     myAlbumList: undefined,
     myAlbumMoreLoading: false,
     myAlbumCursorAfter: undefined,
@@ -35,6 +37,10 @@ export default {
       return this.currentAlbumId ? true : false
     },
     //---------------------------------------------------
+    AlbumnCoverCachePath() {
+      return `~/.domain/facebook/${this.domain}.cover.json`
+    },
+    //---------------------------------------------------
     AccountName() {
       return _.get(this.oDir, "nm")
     },
@@ -50,7 +56,7 @@ export default {
         if (_.isArray(this.myPhotoList)) {
           count = this.myPhotoList.length
         }
-        return `${count}📷 ${title}`
+        return `(${count}/${this.CurrentAlbum.count})📷 ${title}`
       }
       return "i18n:nil"
     },
@@ -147,7 +153,7 @@ export default {
         this.myAlbumCursorAfter = undefined
       }
       else if (!this.myAlbumCursorAfter) {
-        Ti.Tost.Open("No more data", { position: "bottom", type: "info" })
+        Ti.Toast.Open("No more data", { position: "bottom", type: "info" })
         return false
       }
       this.myAlbumMoreLoading = true
@@ -158,7 +164,7 @@ export default {
     //---------------------------------------------------
     async doLoadMorePhotos(N = 1) {
       if (!this.myPhotoCursorAfter) {
-        Ti.Tost.Open("No more data", { position: "bottom", type: "info" })
+        Ti.Toast.Open("No more data", { position: "bottom", type: "info" })
         return false
       }
       this.myPhotoMoreLoading = true
@@ -209,12 +215,12 @@ export default {
       page = 1
     } = {}) {
       //console.log("reloadNPhotos", N)
-      if (!this.hasCurrentAlbum) {
-        return
-      }
       if (reset) {
         this.myPhotoList = []
         this.myPhotoCursorAfter = undefined
+      }
+      if (!this.hasCurrentAlbum) {
+        return
       }
 
       let results = []
@@ -260,25 +266,62 @@ export default {
     //      加载相册接口
     //
     //---------------------------------------------------
+    async initAlbumCoverCache() {
+      if (Ti.Util.isNil(this.myAlbumCoverCache)) {
+        let ph = this.AlbumnCoverCachePath
+        let re = await Wn.Sys.exec2(`cat -quiet '${ph}'`)
+        let cc = _.trim(re) ? JSON.parse(re) : {}
+        this.myAlbumCoverCache = cc || {}
+      }
+    },
+    //---------------------------------------------------
     async reloadAlbumsCover(albums = [], force = false) {
+      // 确保加载了缓存
+      await this.initAlbumCoverCache()
       // Set photos to each album obj
       let loader = []
+      let cache = {}
       for (let album of albums) {
         if (album && album.cover_photo && album.cover_photo.id) {
           let photoId = album.cover_photo.id
-          // Load from facebook
-          //console.log("Get album photo", album, photoId)
+
+          // match cache
+          // {width,height,src,thumb_src, preview}
+          let objImg = this.myAlbumCoverCache[photoId]
+          if (objImg) {
+            _.assign(album, objImg)
+            continue
+          }
+
+          // load photo
           loader.push(
             Wn.FbAlbum.loadPhoto(this.domain, photoId, force)
               .then(photo => {
                 if (!_.isEmpty(photo.images)) {
-                  Ti.WWW.FB.setObjPreview(album, photo.images)
+                  let objImg = Ti.WWW.FB.setObjPreview(album, photo.images)
+                  cache[photoId] = objImg
                 }
               })
           )
         }
-        await Promise.all(loader)
       }
+      await Promise.all(loader)
+
+      // Save cache 
+      if (!_.isEmpty(cache)) {
+        console.log("save cache")
+        cache = _.defaults(cache, this.myAlbumCoverCache)
+        this.myAlbumCoverCache = cache
+        let ph = this.AlbumnCoverCachePath
+        await Wn.Sys.exec2(`str > ${ph}`, { input: JSON.stringify(cache) })
+      }
+    },
+    //---------------------------------------------------
+    async resetCoverAndLoadAlbums() {
+      let ph = this.AlbumnCoverCachePath
+      await Wn.Sys.exec2(`rm '${ph}'`)
+      this.myAlbumCoverCache = undefined
+      this.loadNAlbums(1, { reset: true })
     },
     //---------------------------------------------------
     async loadNAlbums(N = 1, {

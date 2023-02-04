@@ -112,6 +112,17 @@ const _M = {
     Ti.Util.RemoveStateDataItems(state, items, "..")
   },
   //----------------------------------------
+  listCheckAll(state) {
+    let ids = {}
+    _.forEach(state.list, li => ids[li.id] = true)
+    state.checkedIds = ids
+  },
+  //----------------------------------------
+  listCancelAll(state) {
+    state.currentId = null
+    state.checkedIds = {}
+  },
+  //----------------------------------------
   setCurrentId(state, currentId) {
     state.currentId = currentId
     state.status = _.assign({}, state.status, {

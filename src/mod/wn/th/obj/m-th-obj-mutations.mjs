@@ -166,6 +166,19 @@ const _M = {
     Ti.Util.RemoveStateDataItems(state, items, "..")
   },
   //----------------------------------------
+  listCancelAll(state) {
+    state.currentId = null
+    state.checkedIds = {}
+  },
+  //----------------------------------------
+  setCurrentId(state, currentId) {
+    state.currentId = currentId
+    state.status = _.assign({}, state.status, {
+      hasCurrent: !Ti.Util.isNil(currentId)
+    })
+    saveLocalBehavior(state, "currentId", currentId)
+  },
+  //----------------------------------------
   setCurrentId(state, currentId) {
     state.currentId = currentId
     state.status = _.assign({}, state.status, {

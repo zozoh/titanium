@@ -114,7 +114,7 @@ function UpdateFbAlbumTagInnerHtml(editor, $album, settings, {
         force
       }).then((items) => {
         //console.log(items)
-        Ti.Api.Facebook.setObjListPreview(items)
+        Ti.WWW.FB.setObjListPreview(items)
         AB.renderItems(items)
         // Force sync content
         editor.__rich_tinymce_com.syncContent()

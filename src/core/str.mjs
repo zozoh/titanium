@@ -626,11 +626,12 @@ const TiStr = {
    * 
    * @param input input keywords
    */
-  autoPrefixSearchStr(input, start = false) {
-    let str = _.toLower(_.trim(input))
+  autoPrefixSearchStr(input, caseMode = "lower", start = false) {
+    let str = _.trim(input)
     if (!str) {
       return
     }
+    str = TiStr.toCase(str, caseMode)
     if (!str.startsWith("^")) {
       if (start) {
         return "^" + str

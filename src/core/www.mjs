@@ -752,19 +752,22 @@ const FB = {
   } = {}) {
     let thumbImg = FB.getFbAlumThumbImage(images, thumbMinSize)
     let realImg = FB.getFbAlumThumbImage(images, -1)
-    obj.width = _.get(realImg, "width")
-    obj.height = _.get(realImg, "height")
-    obj.src = _.get(realImg, "source")
-    obj.thumb_src = _.get(thumbImg, "source")
+    let re = {}
+    re.width = _.get(realImg, "width")
+    re.height = _.get(realImg, "height")
+    re.src = _.get(realImg, "source")
+    re.thumb_src = _.get(thumbImg, "source")
 
-    if (obj.thumb_src) {
-      obj.preview = {
+    if (re.thumb_src) {
+      re.preview = {
         type: "image",
-        value: obj.thumb_src
+        value: re.thumb_src
       }
     } else {
-      obj.preview = preview
+      re.preview = preview
     }
+    _.assign(obj, re)
+    return re
   },
   //----------------------------------------
   setObjListPreview(objs, options) {
@@ -774,8 +777,7 @@ const FB = {
   },
   //----------------------------------------
   setObjPreview(obj, images, options) {
-    FB.setImages(obj, images, options)
-    return obj
+    return FB.setImages(obj, images, options)
   },
   //----------------------------------------
 }

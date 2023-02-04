@@ -1,4 +1,4 @@
-// Pack At: 2023-02-03 03:44:54
+// Pack At: 2023-02-05 01:57:57
 //##################################################
 // # import {Alert}   from "./ti-alert.mjs"
 const {Alert} = (function(){
@@ -207,7 +207,6 @@ const {Prompt} = (function(){
           },
           __ti_shortcut(uniqKey) {
             if ("ENTER" == uniqKey) {
-              console.log(this.value)
               Ti.App(this).$vm().close(this.value)
             }
           }
@@ -569,58 +568,7 @@ const {Toast} = (function(){
 //##################################################
 // # import {Toptip}  from "./ti-toptip.mjs"
 const {Toptip} = (function(){
-  //################################################
-  // # import { TiRuntimeStack } from "./ti-runtime-stack.mjs"
-  const { TiRuntimeStack } = (function(){
-    // TODO 
-    // maybe we don't need this anymore, since we get the app.mjs#APP_STACK 
-    class TiRuntimeStack {
-      //------------------------------------------
-      constructor({setItemViewportMode=_.identity}={}) {
-        this.viewportMode = "desktop"
-        this.stack = []
-        this.setItemViewportMode = setItemViewportMode
-      }
-      //------------------------------------------
-      push(item) {
-        if(item) {
-          this.setItemViewportMode(item, this.viewportMode)
-          this.stack.push(item)
-        }
-      }
-      //------------------------------------------
-      remove(item) {
-        let stack = []
-        let re
-        for(let it of this.stack) {
-          if(it === item) {
-            re = it
-          } else {
-            stack.push(it)
-          }
-        }
-        this.stack = stack
-        return re
-      }
-      //------------------------------------------
-      setViewportMode(mode) {
-        this.viewportMode = mode
-        for(let it of this.stack) {
-          this.setItemViewportMode(it, mode)
-        }
-      }
-      //------------------------------------------
-      pop() {
-        return this.stack.pop()
-      }
-      //------------------------------------------
-    }
-    return {TiRuntimeStack};
-  })();
   //////////////////////////////////////////////
-  const RTSTACK = new TiRuntimeStack()
-  const OPTIONS = Symbol("toa-options")
-  const _APP_ = Symbol("toa-app-instance")
   //-----------------------------------
   class TiToptipBox {
     //------------------------------------------
@@ -814,6 +762,35 @@ const {Toptip} = (function(){
   }
   //////////////////////////////////////////////
   return {Toptip: TiToptip};
+})();
+//##################################################
+// # import {EditCode}  from "./ti-editcode.mjs"
+const {EditCode} = (function(){
+  ////////////////////////////////////////////////////
+  async function TiEditCode(code = "", {
+    mode = "text",
+    title = "i18n:view",
+    position = "top",
+    width = "62%",
+    height = "62%",
+  } = {}) {
+    return await Ti.App.Open({
+      title,
+      position,
+      width,
+      height,
+      result: code,
+      comType: "TiTextCodeAce",
+      comConf: {
+        mode
+      },
+      components: [
+        "@com:ti/text/code/ace"
+      ]
+    })
+  }
+  ////////////////////////////////////////////////////
+  return {EditCode: TiEditCode};
 })();
 //##################################################
 // # import {Be}           from "./behaviors.mjs"
@@ -2142,11 +2119,12 @@ const {S} = (function(){
      * 
      * @param input input keywords
      */
-    autoPrefixSearchStr(input, start = false) {
-      let str = _.toLower(_.trim(input))
+    autoPrefixSearchStr(input, caseMode = "lower", start = false) {
+      let str = _.trim(input)
       if (!str) {
         return
       }
+      str = TiStr.toCase(str, caseMode)
       if (!str.startsWith("^")) {
         if (start) {
           return "^" + str
@@ -14740,6 +14718,95 @@ const {WWW} = (function(){
     }
     //---------------------------------------
   }
+  ////////////////////////////////////////////
+  const FB = {
+    //----------------------------------------
+    /***
+   * @param images{Array} : [{height,width,source:"https://xxx"}]
+   * @param thumbMinSize{Integer} :
+   *  The min height, -1 mean the max one, 0 mean the min one.
+   *  If a `>0` number has been given, it will find the closest image
+   */
+    getFbAlumThumbImage(images = [], thumbMinSize = 500) {
+      // Find the closest one
+      let minImg;
+      let maxImg;
+      let fitImg;
+      //console.log("getFbAlumThumbImage", thumbMinSize)
+      for (let img of images) {
+        // Get the key
+        let szKey = "height"
+        if (img.width < img.height) {
+          szKey = "width"
+        }
+        // Min image
+        if (!minImg) {
+          minImg = img
+          fitImg = img
+        }
+        else if (img[szKey] < minImg[szKey]) {
+          minImg = img
+        }
+        // Fit image
+        if (thumbMinSize > 0
+          && fitImg[szKey] > thumbMinSize
+          && img[szKey] <= thumbMinSize) {
+          fitImg = img
+        }
+        // Max Image
+        if (!maxImg) {
+          maxImg = img
+        }
+        else if (img[szKey] > maxImg[szKey]) {
+          maxImg = img
+        }
+      }
+      if (thumbMinSize < 0) {
+        return maxImg
+      }
+      if (thumbMinSize == 0) {
+        return minImg
+      }
+      return fitImg
+    },
+    //----------------------------------------
+    setImages(obj, images = [], {
+      preview = { type: "font", value: "fas-images" },
+      thumbMinSize = 500
+    } = {}) {
+      let thumbImg = FB.getFbAlumThumbImage(images, thumbMinSize)
+      let realImg = FB.getFbAlumThumbImage(images, -1)
+      let re = {}
+      re.width = _.get(realImg, "width")
+      re.height = _.get(realImg, "height")
+      re.src = _.get(realImg, "source")
+      re.thumb_src = _.get(thumbImg, "source")
+  
+      if (re.thumb_src) {
+        re.preview = {
+          type: "image",
+          value: re.thumb_src
+        }
+      } else {
+        re.preview = preview
+      }
+      _.assign(obj, re)
+      return re
+    },
+    //----------------------------------------
+    setObjListPreview(objs, options) {
+      _.forEach(objs, obj => {
+        FB.setObjPreview(obj, obj.images, options)
+      })
+    },
+    //----------------------------------------
+    setObjPreview(obj, images, options) {
+      return FB.setImages(obj, images, options)
+    },
+    //----------------------------------------
+  }
+  ////////////////////////////////////////////
+  TiWWW.FB = FB
   ///////////////////////////////////////////
   return {WWW: TiWWW};
 })();
@@ -19406,154 +19473,6 @@ const {WebAppMain} = (function(){
   return {WebAppMain};
 })();
 //---------------------------------------
-//##################################################
-// # import Facebook from "./api-facebook.mjs"
-const Facebook = (function(){
-  ////////////////////////////////////////////
-  /***
-   * @param images{Array} : [{height,width,source:"https://xxx"}]
-   * @param thumbMinSize{Integer} :
-   *  The min height, -1 mean the max one, 0 mean the min one.
-   *  If a `>0` number has been given, it will find the closest image
-   */
-  function getThumbImage(images=[], thumbMinSize=500) {
-    // Find the closest one
-    let minImg;
-    let maxImg;
-    let fitImg;
-    //console.log("getThumbImage", thumbMinSize)
-    for(let img of images) {
-      // Get the key
-      let szKey = "height"
-      if(img.width < img.height) {
-        szKey = "width"
-      }
-      // Min image
-      if(!minImg) {
-        minImg = img
-        fitImg = img
-      }
-      else if(img[szKey] < minImg[szKey]) {
-        minImg = img
-      }
-      // Fit image
-      if(thumbMinSize > 0
-        && fitImg[szKey] > thumbMinSize
-        && img[szKey] <= thumbMinSize) {
-        fitImg = img
-      }
-      // Max Image
-      if(!maxImg) {
-        maxImg = img
-      }
-      else if(img[szKey] > maxImg[szKey]) {
-        maxImg = img
-      }
-    }
-    if(thumbMinSize < 0) {
-      return maxImg
-    }
-    if(thumbMinSize == 0) {
-      return minImg
-    }
-    return fitImg
-  }
-  //------------------------------------------
-  function setImages(obj, images=[], {
-    preview = {type : "font", value : "fas-images"},
-    thumbMinSize = 500
-  }={}) {
-    let thumbImg = getThumbImage(images, thumbMinSize)
-    let realImg =  getThumbImage(images, -1)
-    obj.width = _.get(realImg, "width")
-    obj.height = _.get(realImg, "height")
-    obj.src = _.get(realImg, "source")
-    obj.thumb_src = _.get(thumbImg, "source")
-  
-    if(obj.thumb_src) {
-      obj.preview = {
-        type : "image",
-        value : obj.thumb_src
-      }
-    } else {
-      obj.preview = preview
-    }
-  }
-  //------------------------------------------
-  function FBAPI(path, version="v10.0") {
-    return `https://graph.facebook.com/${version}/${path}`
-  }
-  ////////////////////////////////////////////
-  const TiApiFacebook = {
-    //----------------------------------------
-    setObjListPreview(objs, options) {
-      _.forEach(objs, obj=>{
-        TiApiFacebook.setObjPreview(obj, obj.images, options)
-      })
-    },
-    //----------------------------------------
-    setObjPreview(obj, images, options) {
-      setImages(obj, images, options)
-      return obj
-    },
-    //----------------------------------------
-    async getAlbumPhotoList({
-      albumId, 
-      access_token,
-      after,
-      fields = "id,link,name,images,width,height"
-    }={}){
-      if(!albumId)
-        return
-      let url = FBAPI(`${albumId}/photos`)
-      let reo = await Ti.Http.get(url, {
-        params : {access_token, fields, after},
-        as : "json"
-      })
-      return reo
-      // let {data, paging} = reo
-  
-      // // Setup thumb src
-      // for(let photo of data) {
-      //   TiApiFacebook.setObjPreview(photo, photo.images)
-      // }
-  
-      // return {data, paging}
-    },
-    //----------------------------------------
-    async getPhoto({
-      photoId, 
-      access_token,
-      fields = "id,link,name,images,width,height"
-    }={}){
-      if(!photoId)
-        return
-      let url = FBAPI(`${photoId}`)
-      let photo = await Ti.Http.get(url, {
-        params : {access_token, fields},
-        as : "json"
-      })
-      return photo
-    },
-    //----------------------------------------
-    async getAlbumList({
-      userId, 
-      access_token,
-      after,
-      fields = "id,name,place,created_time,description,link,count,cover_photo"
-    }={}) {
-      let url = FBAPI(`${userId}/albums`)
-      return await Ti.Http.get(url, {
-        params : {access_token, fields, after},
-        as : "json"
-      })
-    }
-    //----------------------------------------
-  }
-  ////////////////////////////////////////////
-  return TiApiFacebook;
-})();
-//---------------------------------------
 const LOAD_CACHE = {}
 function Preload(url, anyObj) {
   // if(url.indexOf("label")>0)
@@ -19589,7 +19508,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20230203.034454",
+  "version" : "1.6-20230205.015757",
   "dev" : false,
   "appName" : null,
   "session" : {},
@@ -19628,10 +19547,6 @@ const Ti = {
     Album, PhotoGallery
   },
   //-----------------------------------------------------
-  Api : {
-    Facebook,
-  },
-  //-----------------------------------------------------
   Preload, MatchCache, AddResourcePrefix, RS_PREFIXs, LOAD_CACHE,
   //-----------------------------------------------------
   WalnutAppMain, WebAppMain,
@@ -19641,7 +19556,7 @@ const Ti = {
     TiCom       : VueTiCom
   },
   //-----------------------------------------------------
-  Alert, Confirm, Prompt, Toast, Captcha, Toptip,
+  Alert, Confirm, Prompt, Toast, Captcha, Toptip, EditCode,
   //-----------------------------------------------------
   Env(key, val) {
     if(_.isUndefined(key))
