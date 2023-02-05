@@ -1,4 +1,4 @@
-// Pack At: 2023-02-05 01:57:57
+// Pack At: 2023-02-06 00:34:11
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -3845,17 +3845,12 @@ const EditObjContent = (function(){
       title   : theTitle,
       result  : theContent,
       //------------------------------------------
-      comType : "ti-text-raw",
+      comType : "TiTextCodeAce",
       comConf : {
-        readonly, placeholder,
-        icon  : theIcon,
-        title : Wn.Util.getObjDisplayName(meta),
-        content : theContent,
-        showTitle : showEditorTitle,
-        ignoreKeyUp : true,
+        mode : meta.tp,
       },
       //------------------------------------------
-      components : ["@com:ti/text/raw"]
+      components : ["@com:ti/text/code/ace"]
       //------------------------------------------
     })
     //............................................
@@ -4444,7 +4439,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230205.015758"
+const WALNUT_VERSION = "1.2-20230206.003412"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

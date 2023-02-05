@@ -1,4 +1,4 @@
-// Pack At: 2023-02-05 01:57:57
+// Pack At: 2023-02-06 00:34:11
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -24066,7 +24066,7 @@ const _M = {
   //----------------------------------------
   setFieldStatus(state, { name, type, text } = {}) {
     if (name) {
-      let ukey = _.concat(name).join("-")
+      let ukey = Ti.Util.anyKey(name)
       Vue.set(state.fieldStatus, ukey, { type, text })
     }
   },

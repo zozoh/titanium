@@ -275,7 +275,7 @@ const _M = {
   //----------------------------------------
   setFieldStatus(state, { name, type, text } = {}) {
     if (name) {
-      let ukey = _.concat(name).join("-")
+      let ukey = Ti.Util.anyKey(name)
       Vue.set(state.fieldStatus, ukey, { type, text })
     }
   },

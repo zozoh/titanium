@@ -38,17 +38,12 @@ async function EditObjContent(pathOrObj="~", {
     title   : theTitle,
     result  : theContent,
     //------------------------------------------
-    comType : "ti-text-raw",
+    comType : "TiTextCodeAce",
     comConf : {
-      readonly, placeholder,
-      icon  : theIcon,
-      title : Wn.Util.getObjDisplayName(meta),
-      content : theContent,
-      showTitle : showEditorTitle,
-      ignoreKeyUp : true,
+      mode : meta.tp,
     },
     //------------------------------------------
-    components : ["@com:ti/text/raw"]
+    components : ["@com:ti/text/code/ace"]
     //------------------------------------------
   })
   //............................................
