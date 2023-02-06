@@ -7472,82 +7472,84 @@ div.ti-input-tags {
           cursor: ew-resize; }
       .ti-table > table > thead:hover th > .as-customized-btn {
         opacity: 0.8; }
-    .ti-table > table > tbody > tr.is-weak {
-      opacity: 0.4; }
-    .ti-table > table > tbody > tr.is-current .table-row-head .row-actived-indicator:before {
-      display: block;
-      content: "";
-      height: 0.12rem;
-      width: 1px;
-      border-left: 1px dotted #222;
-      border-right: 1px dotted #222;
-      opacity: 0.6; }
-    .ti-table > table > tbody > tr.is-checked {
-      color: #222;
-      background-color: #FC4; }
-      .ti-table > table > tbody > tr.is-checked a,
-      .ti-table > table > tbody > tr.is-checked a:hover {
-        color: inherit; }
-      .ti-table > table > tbody > tr.is-checked td {
-        border-color: #222; }
-        .ti-table > table > tbody > tr.is-checked td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:first-child {
-          display: block; }
-        .ti-table > table > tbody > tr.is-checked td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:last-child {
-          display: none; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-tags-item {
-        color: #DA2;
-        background-color: rgba(100, 100, 100, 0.8); }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-success {
-        color: #CFC; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-warn {
-        color: #620; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-info {
-        color: #FFF; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-error {
-        color: #FFF; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-track {
-        color: #666; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-disable {
-        color: rgba(0, 0, 0, 0.38); }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-text {
-        color: #FFF; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-number {
-        color: #FFF; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-success-tag {
-        color: #5A5;
-        background-color: #CFC; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-warn-tag {
-        color: #FE0;
-        background-color: #620; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-info-tag {
-        color: #44AAFF;
-        background-color: #FFF; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-error-tag {
-        color: #F65;
-        background-color: #FFF; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-track-tag {
-        color: rgba(220, 220, 220, 0.6);
-        background-color: #666; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-disable-tag {
-        color: rgba(160, 160, 160, 0.6);
-        background-color: rgba(0, 0, 0, 0.38); }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-text-tag {
-        color: #00CC00;
-        background-color: #FFF; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-number-tag {
-        color: #44AAFF;
-        background-color: #FFF; }
-    .ti-table > table > tbody > tr.is-fake {
-      font-size: 0.1rem;
-      font-style: italic;
-      color: rgba(220, 220, 220, 0.6); }
-      .ti-table > table > tbody > tr.is-fake td {
-        padding: 0.06rem; }
-        .ti-table > table > tbody > tr.is-fake td .cell-wrapper {
-          border: 1px dashed rgba(210, 210, 210, 0.1);
-          padding: 0.04rem; }
-          .ti-table > table > tbody > tr.is-fake td .cell-wrapper .cell-con {
-            opacity: 0.6; }
+    .ti-table > table > tbody > tr {
+      height: 2.6em; }
+      .ti-table > table > tbody > tr.is-weak {
+        opacity: 0.4; }
+      .ti-table > table > tbody > tr.is-current .table-row-head .row-actived-indicator:before {
+        display: block;
+        content: "";
+        height: 0.12rem;
+        width: 1px;
+        border-left: 1px dotted #222;
+        border-right: 1px dotted #222;
+        opacity: 0.6; }
+      .ti-table > table > tbody > tr.is-checked {
+        color: #222;
+        background-color: #FC4; }
+        .ti-table > table > tbody > tr.is-checked a,
+        .ti-table > table > tbody > tr.is-checked a:hover {
+          color: inherit; }
+        .ti-table > table > tbody > tr.is-checked td {
+          border-color: #222; }
+          .ti-table > table > tbody > tr.is-checked td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:first-child {
+            display: block; }
+          .ti-table > table > tbody > tr.is-checked td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:last-child {
+            display: none; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-tags-item {
+          color: #DA2;
+          background-color: rgba(100, 100, 100, 0.8); }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-success {
+          color: #CFC; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-warn {
+          color: #620; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-info {
+          color: #FFF; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-error {
+          color: #FFF; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-track {
+          color: #666; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-disable {
+          color: rgba(0, 0, 0, 0.38); }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-text {
+          color: #FFF; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-number {
+          color: #FFF; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-success-tag {
+          color: #5A5;
+          background-color: #CFC; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-warn-tag {
+          color: #FE0;
+          background-color: #620; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-info-tag {
+          color: #44AAFF;
+          background-color: #FFF; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-error-tag {
+          color: #F65;
+          background-color: #FFF; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-track-tag {
+          color: rgba(220, 220, 220, 0.6);
+          background-color: #666; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-disable-tag {
+          color: rgba(160, 160, 160, 0.6);
+          background-color: rgba(0, 0, 0, 0.38); }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-text-tag {
+          color: #00CC00;
+          background-color: #FFF; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-number-tag {
+          color: #44AAFF;
+          background-color: #FFF; }
+      .ti-table > table > tbody > tr.is-fake {
+        font-size: 0.1rem;
+        font-style: italic;
+        color: rgba(220, 220, 220, 0.6); }
+        .ti-table > table > tbody > tr.is-fake td {
+          padding: 0.06rem; }
+          .ti-table > table > tbody > tr.is-fake td .cell-wrapper {
+            border: 1px dashed rgba(210, 210, 210, 0.1);
+            padding: 0.04rem; }
+            .ti-table > table > tbody > tr.is-fake td .cell-wrapper .cell-con {
+              opacity: 0.6; }
     .ti-table > table > tbody td.as-row-group-title > .row-group-title-con {
       display: flex;
       justify-content: center;
@@ -7558,7 +7560,8 @@ div.ti-input-tags {
       font-weight: bold; }
     .ti-table > table > tbody td {
       vertical-align: middle;
-      position: relative; }
+      position: relative;
+      min-height: 2.6em; }
       .ti-table > table > tbody td > .cell-wrapper {
         display: flex;
         justify-content: flex-start;

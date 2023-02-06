@@ -7472,82 +7472,84 @@ div.ti-input-tags {
           cursor: ew-resize; }
       .ti-table > table > thead:hover th > .as-customized-btn {
         opacity: 0.8; }
-    .ti-table > table > tbody > tr.is-weak {
-      opacity: 0.4; }
-    .ti-table > table > tbody > tr.is-current .table-row-head .row-actived-indicator:before {
-      display: block;
-      content: "";
-      height: 0.12rem;
-      width: 1px;
-      border-left: 1px dotted #e6e6e8;
-      border-right: 1px dotted #e6e6e8;
-      opacity: 0.6; }
-    .ti-table > table > tbody > tr.is-checked {
-      color: #e6e6e8;
-      background-color: #272e48; }
-      .ti-table > table > tbody > tr.is-checked a,
-      .ti-table > table > tbody > tr.is-checked a:hover {
-        color: inherit; }
-      .ti-table > table > tbody > tr.is-checked td {
-        border-color: #e6e6e8; }
-        .ti-table > table > tbody > tr.is-checked td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:first-child {
-          display: block; }
-        .ti-table > table > tbody > tr.is-checked td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:last-child {
-          display: none; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-tags-item {
-        color: #272e48;
-        background-color: #8a9cdd; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-success {
-        color: #aedbb0; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-warn {
-        color: #ffff8a; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-info {
-        color: #f8e2bd; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-error {
-        color: #ffff00; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-track {
-        color: #dfdbdb; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-disable {
-        color: #dfdbdb; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-text {
-        color: #93aac7; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-number {
-        color: #c891ca; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-success-tag {
-        color: #3fad00;
-        background-color: #aedbb0; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-warn-tag {
-        color: #e69703;
-        background-color: #ffff8a; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-info-tag {
-        color: #000000;
-        background-color: #f8e2bd; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-error-tag {
-        color: #ff0000;
-        background-color: #ffff00; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-track-tag {
-        color: #888888;
-        background-color: #dfdbdb; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-disable-tag {
-        color: #747171;
-        background-color: #dfdbdb; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-text-tag {
-        color: #2035a7;
-        background-color: #93aac7; }
-      .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-number-tag {
-        color: #720c86;
-        background-color: #c891ca; }
-    .ti-table > table > tbody > tr.is-fake {
-      font-size: 0.1rem;
-      font-style: italic;
-      color: #888888; }
-      .ti-table > table > tbody > tr.is-fake td {
-        padding: 0.06rem; }
-        .ti-table > table > tbody > tr.is-fake td .cell-wrapper {
-          border: 1px dashed rgba(20, 20, 20, 0.1);
-          padding: 0.04rem; }
-          .ti-table > table > tbody > tr.is-fake td .cell-wrapper .cell-con {
-            opacity: 0.6; }
+    .ti-table > table > tbody > tr {
+      height: 2.6em; }
+      .ti-table > table > tbody > tr.is-weak {
+        opacity: 0.4; }
+      .ti-table > table > tbody > tr.is-current .table-row-head .row-actived-indicator:before {
+        display: block;
+        content: "";
+        height: 0.12rem;
+        width: 1px;
+        border-left: 1px dotted #e6e6e8;
+        border-right: 1px dotted #e6e6e8;
+        opacity: 0.6; }
+      .ti-table > table > tbody > tr.is-checked {
+        color: #e6e6e8;
+        background-color: #272e48; }
+        .ti-table > table > tbody > tr.is-checked a,
+        .ti-table > table > tbody > tr.is-checked a:hover {
+          color: inherit; }
+        .ti-table > table > tbody > tr.is-checked td {
+          border-color: #e6e6e8; }
+          .ti-table > table > tbody > tr.is-checked td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:first-child {
+            display: block; }
+          .ti-table > table > tbody > tr.is-checked td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:last-child {
+            display: none; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-tags-item {
+          color: #272e48;
+          background-color: #8a9cdd; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-success {
+          color: #aedbb0; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-warn {
+          color: #ffff8a; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-info {
+          color: #f8e2bd; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-error {
+          color: #ffff00; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-track {
+          color: #dfdbdb; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-disable {
+          color: #dfdbdb; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-text {
+          color: #93aac7; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-number {
+          color: #c891ca; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-success-tag {
+          color: #3fad00;
+          background-color: #aedbb0; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-warn-tag {
+          color: #e69703;
+          background-color: #ffff8a; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-info-tag {
+          color: #000000;
+          background-color: #f8e2bd; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-error-tag {
+          color: #ff0000;
+          background-color: #ffff00; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-track-tag {
+          color: #888888;
+          background-color: #dfdbdb; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-disable-tag {
+          color: #747171;
+          background-color: #dfdbdb; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-text-tag {
+          color: #2035a7;
+          background-color: #93aac7; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-number-tag {
+          color: #720c86;
+          background-color: #c891ca; }
+      .ti-table > table > tbody > tr.is-fake {
+        font-size: 0.1rem;
+        font-style: italic;
+        color: #888888; }
+        .ti-table > table > tbody > tr.is-fake td {
+          padding: 0.06rem; }
+          .ti-table > table > tbody > tr.is-fake td .cell-wrapper {
+            border: 1px dashed rgba(20, 20, 20, 0.1);
+            padding: 0.04rem; }
+            .ti-table > table > tbody > tr.is-fake td .cell-wrapper .cell-con {
+              opacity: 0.6; }
     .ti-table > table > tbody td.as-row-group-title > .row-group-title-con {
       display: flex;
       justify-content: center;
@@ -7558,7 +7560,8 @@ div.ti-input-tags {
       font-weight: bold; }
     .ti-table > table > tbody td {
       vertical-align: middle;
-      position: relative; }
+      position: relative;
+      min-height: 2.6em; }
       .ti-table > table > tbody td > .cell-wrapper {
         display: flex;
         justify-content: flex-start;

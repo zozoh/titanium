@@ -188,10 +188,10 @@
       // Table Row
       //-------------------------------------------
       >tr {
+        height: 2.6em;
         &.is-weak {
           opacity: 0.4;
         }
-
         //-----------------------------------------
         &.is-current {
           .table-row-head {
@@ -239,7 +239,6 @@
 
           //---------------------------------------
           .cell-con {
-
             //-------------------------------------
             .ti-tags-item {
               @include color($color-weaktip, r, c);
@@ -317,7 +316,6 @@
 
             //-------------------------------------
           }
-
           //---------------------------------------
         }
 
@@ -326,10 +324,8 @@
           font-size: SZ(10);
           font-style: italic;
           color: map-get($color-track, c);
-
           td {
             padding: SZ(6);
-
             .cell-wrapper {
               @include border(1px, dashed, shallow);
               padding: SZ(4);
@@ -340,7 +336,6 @@
             }
           }
         }
-
         //-----------------------------------------
       }
 
@@ -361,6 +356,7 @@
       td {
         vertical-align: middle;
         position: relative;
+        min-height: 2.6em;
         >.cell-wrapper {
           @include flex($ai: stretch, $wp: nowrap);
           //-------------------------------------------
