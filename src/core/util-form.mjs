@@ -60,7 +60,7 @@ const TiFormHelper = {
         it.display = name
       }
 
-      it = iteratee(it)
+      it = iteratee(it, name)
       if (it)
         list.push(it)
     }
