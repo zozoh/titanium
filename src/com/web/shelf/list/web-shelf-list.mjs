@@ -82,6 +82,7 @@ const _M = {
       if (this.dynamicData) {
         return this.data
       }
+      
       let vars = _.cloneDeep(this.vars)
       let list = []
       for (let i = 0; i < this.data.length; i++) {
