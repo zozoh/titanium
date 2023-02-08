@@ -1,4 +1,4 @@
-// Pack At: 2023-02-07 11:07:01
+// Pack At: 2023-02-09 07:55:55
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6044,6 +6044,10 @@ const _M = {
   //----------------------------------------
   setStatus(state, status) {
     state.status = _.assign({}, state.status, status)
+  },
+  //----------------------------------------
+  clearStatus(state) {
+    state.status = {}
   },
   //----------------------------------------
   syncStatusChanged(state) {
@@ -78106,6 +78110,7 @@ const _M = {
       if (this.dynamicData) {
         return this.data
       }
+      
       let vars = _.cloneDeep(this.vars)
       let list = []
       for (let i = 0; i < this.data.length; i++) {
