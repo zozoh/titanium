@@ -1,3 +1,5 @@
+import Ti from "./ti.mjs"
+
 ///////////////////////////////////////////////
 export async function WalnutAppMain({
   rs = "/gu/rs/", 
@@ -174,6 +176,7 @@ export async function WalnutAppMain({
   app.commit("session/set", _app.session)
   Wn.Session.setup(_app.session)
   Wn.Session.loadMyPvg()
+  Ti.Env(Wn.Session.env())
   // Mount app to DOM 
   app.mountTo("#app")
   // Ti.Session({

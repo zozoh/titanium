@@ -112,7 +112,8 @@
           <section
             class="tab-body" 
             :class="CurrentTabGroup.bodyClass"
-            :style="CurrentTabGroup.bodyStyle">
+            :style="CurrentTabGroup.bodyStyle"
+            @scroll="OnTabBodyScroll">
             <grid-container
               v-bind="GridContainerConf"
               :fields="GridFormFields"

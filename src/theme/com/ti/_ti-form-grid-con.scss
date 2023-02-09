@@ -66,6 +66,22 @@
       opacity: 0.6;
     }
     //----------------------------------
+    .field-pop-tip {
+      display: block;
+      padding: SZ(4);
+      cursor: pointer;
+      > i {
+        transition: transform 0.3s;
+        cursor: pointer;
+      }
+      &:hover {
+        color: map-get($color-primary, c);
+        > i {
+          transform: rotate(360deg) scale(1.2);
+        }
+      }
+    }
+    //----------------------------------
     &.mark-weak {
       @include color($color-bar, r, c);
     }
@@ -147,7 +163,7 @@
       > .field-required {
         font-weight: bold;
         font-size: SZ(20);
-        line-height: .5em;
+        line-height: 0.5em;
         margin-right: SZ(4);
         text-align: left;
         color: map-get($color-secondary, c);
@@ -190,7 +206,7 @@
       opacity: 0.2;
       filter: grayscale(100%);
       &.is-batch-disabled {
-        filter: grayscale(100%)/*blur(1px)*/;
+        filter: grayscale(100%) /*blur(1px)*/;
       }
       //--------------------------------
       > .field-value-com {
@@ -316,6 +332,10 @@
     .field-icon {
       margin-right: SZ(3);
     }
+    .field-pop-tip {
+      display: block;
+      padding: SZ(4);
+    }
   }
   > .field-value {
     padding: SZ(2);
@@ -328,6 +348,10 @@
     padding: SZ(10);
     .field-icon {
       margin-right: SZ(6);
+    }
+    .field-pop-tip {
+      display: block;
+      padding: SZ(4);
     }
   }
   > .field-value {

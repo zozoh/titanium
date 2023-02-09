@@ -39,6 +39,7 @@ class TiViewport {
     }
   }
   scroll(evt = {}) {
+    Ti.Toptip.destroy()
     for (let call of this.scrolling) {
       call.handler.apply(call.context, [evt])
     }

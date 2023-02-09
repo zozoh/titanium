@@ -109,7 +109,7 @@ export class Rect {
   toString(keys="tlwh"){
     let re = PickKeys(this, keys, "NaN")
     let ss = []
-    _.forEach(re, (val)=>ss.push(val))
+    _.forEach(re, (val)=>ss.push(Math.round(val)))
     return ss.join(",")
   }
   valueOf(){

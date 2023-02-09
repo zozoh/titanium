@@ -299,6 +299,9 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   methods: {
+    OnTabBodyScroll(evt){
+      Ti.Viewport.notifyScroll(evt)
+    },
     //--------------------------------------------------
     OnClickFormTop() {
       this.myActivedFieldKey = null

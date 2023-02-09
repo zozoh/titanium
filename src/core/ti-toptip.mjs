@@ -1,192 +1,403 @@
-//////////////////////////////////////////////
-//-----------------------------------
 class TiToptipBox {
   //------------------------------------------
-  constructor(options = {}) {
-    this[OPTIONS] = options
+  constructor({ $el, content, type } = {}) {
+    this.$el = $el;
+    this.content = content;
+    this.type = type;
   }
   //------------------------------------------
   // Open toalog
   async open() {
-    // Extract vars
-    let {
-      // top|left|bottom|right|center
-      // left-top|right-top|bottom-left|bottom-right
-      position = "center",
-      icon = true,
-      content = "i18n:empty",  // message content
-      vars = {},
-      type = "info",           // info|warn|error|success|track
-      spacing = 0,          // spacing
-      duration = 3000,    // Duration of the Toptip
-      closer = true       // Support close manually
-    } = this[OPTIONS]
-    //........................................
-    let $el = Ti.Dom.createElement({
-      $p: document.body,
-      className: "the-stub"
-    })
-    //........................................
-    if (true === icon) {
-      icon = Ti.Icons.get(type)
-    }
     //........................................
     // Setup content
-    let html = `<div class="ti-Toptip"
-      :class="topClass"
-      :style="topStyle"
-      @click="onClose">
-      <transition :name="transName"
-        @after-leave="onAfterLeave">
-        <div v-if="!hidden"
-          class="Toptip-con"
-          @click.stop>
-          <div v-if="icon"
-            class="Toptip-icon">
-            <ti-icon :value="icon"/>
-          </div>
-          <div class="Toptip-body">{{content|i18n(vars)}}</div>
-          <div v-if="closer && 'center'!=position"
-            class="Toptip-closer">
-            <a @click="onClose">{{'close'|i18n}}</a>
-          </div>
-        </div>
-      </transition>
-    </div>`
+    let html = `<WebTextArticle
+    :value="content"
+    :type="type"
+    theme="tipbox"
+    />`
     //........................................
     // Prepare the app info
     let appInfo = {
       template: html,
-      data: {
-        position, icon, content, type, closer, vars,
-        hidden: true
-      },
+      data: _.pick(this, "content", "type"),
       store: {
         modules: {
           "viewport": "@mod:ti/viewport"
         }
       },
       computed: {
-        topClass() {
-          return Ti.Css.mergeClassName({
-            "as-bar": "center" != this.position,
-            "as-block": "center" == this.position,
-          }, [
-            `at-${this.position}`,
-            `is-${this.type}`
-          ])
-        },
-        topStyle() {
-          if ('center' != this.position) {
-            return {
-              "padding": Ti.Css.toSize(spacing)
-            }
-          }
-        },
-        transName() {
-          return `Toptip-trans-at-${this.position}`
-        }
       },
       methods: {
-        onClose() {
-          if (this.closer) {
-            this.hidden = true
-          }
-        },
-        onAfterLeave() {
-          Ti.App(this).$Toptip.close()
-        },
-        doOpen() {
-          this.hidden = false
-        },
-        doClose() {
-          this.hidden = true
-        },
-      }
+      },
+      components: [
+        "@com:web/text/article"
+      ]
     }
     //........................................
     // create TiApp
     // console.log(appInfo)
     let app = await Ti.App(appInfo)
-    this[_APP_] = app
+    this.app = app
     await app.init()
     //........................................
     // Mount to body
-    app.mountTo($el)
-    app.$Toptip = this
-    app.root("doOpen")
-    //........................................
-    // Join to runtime
-    RTSTACK.push(this)
-    //........................................
-    // Delay to remove
-    if (duration > 0) {
-      _.delay(() => {
-        app.root("doClose")
-      }, duration)
-    }
+    app.mountTo(this.$el)
     //........................................
     return this
-  }
-  //------------------------------------------
-  $app() {
-    return this[_APP_]
-  }
-  //------------------------------------------
-  close() {
-    RTSTACK.remove(this)
-    this.$app().destroy(true)
   }
   //------------------------------------------
 }
 //////////////////////////////////////////////
 const TiToptip = {
+  tipBox: null,
+  $target: null,   // the ele which trigger the tip
+  $wrapper: null,  // tip wrapper
+  targetRect: null,
+  tipRect: null,
   //------------------------------------------
-  Open(options, type = "info", position = "top") {
-    if (options instanceof Error) {
-      options = options.errMsg || options + ""
+  closeCheckerIsSet: false,
+  checkDelay: 200,
+  //------------------------------------------
+  /** 
+  @param $target{Element} target Element
+  @param options{Object}  tip box options
+  ```json5
+  {
+    type:"info|error|warn",
+    content : "tip message",
+    contentType: "text|html",
+    size : "auto|small|normal|big|45x98",
+    mode: "H"
+  }
+  ```
+  dynamic content example:
+
+  [html:4rem,3rem]@tip:${lang}/test/abc.html
+  - `@tip` defined in _ti/config.json
+  */
+  async createTip($target, options = {}) {
+    if (this.$target === $target) {
+      return
     }
-    if (_.isString(options)) {
-      // Open("i18n:xxx", {vars})
-      if (_.isPlainObject(type)) {
-        options = _.assign({
-          position,
-          type: "info",
-          content: options,
-          vars: type
-        }, type)
-      }
-      // Open("i18n:xxx", "warn")
-      else {
-        options = {
-          type: type || "info",
-          position: position || "top",
-          content: options
+    this.$target = $target
+    //console.log("createTip")
+    let tip = this.getTipData($target)
+    let {
+      type = "paper",
+      size = "auto",
+      content,
+      contentType = "text",
+      mode = "H"
+    } = _.assign(tip, options);
+    //Quick attrigbute
+    let m = /^\[(([^!]+)!)?(html|text|md)?:([^\]]+)\]\s*(.+)/.exec(content)
+    if (m) {
+      type = m[2] || type
+      contentType = m[4] || contentType
+      size = m[4] || _.trim(size)
+      content = _.trim(m[5])
+    }
+    //
+    // Get/Create wrapper
+    //
+    let { $wrapper, $foot, $stub, $arrow } = this.getTipWarpper(true)
+    // Update tip style
+    Ti.Dom.setAttrs($wrapper, {
+      "tip-size": size,
+      "tip-type": type,
+      "tip-ready": "no"
+    })
+    //
+    // Update Wrapper Measure
+    //
+    let css = this.getTipMeasureStyle(size)
+    Ti.Dom.setStyle($wrapper, css)
+    //
+    // Format content
+    //
+    if (/^i18n:/.test(content)) {
+      content = Ti.I18n.translate(content.substring(5).trim())
+    }
+    // Dynamic Loading
+    if (/^@tip:/.test(content)) {
+      let path = Ti.S.renderBy(content, {
+        lang: _.snakeCase(Ti.Env("LANG") || "zh-cn")
+      })
+      let ftp = Ti.Util.getSuffixName(content)
+      contentType = ({
+        "txt": "text",
+        "html": "html",
+        "md": "text"
+      })[ftp] || "text"
+      content = await Ti.Load(path)
+    }
+    //
+    // Open box
+    //
+    let tipBox = new TiToptipBox({
+      $el: $stub,
+      content,
+      type: contentType
+    })
+    await tipBox.open()
+
+    //
+    // Dock tip to target
+    // Give a little time for dom rendering
+    //
+    let dock = Ti.Dom.dockTo($wrapper, $target, {
+      mode,
+      space: ({
+        "H": { x: 0, y: 12 },
+        "V": { x: 12, y: 0 }
+      })[mode] || 0,
+      posListX: ({
+        "H": ["center"],
+        "V": ["right", "left"]
+      })[mode],
+      posListY: ({
+        "H": ["bottom", "top"],
+        "V": ["center"]
+      })[mode]
+    })
+    Ti.Dom.setAttrs($wrapper, {
+      "tip-at": dock.axis["H" == mode ? 'y' : 'x'],
+    })
+
+    //
+    // Arrow Moving
+    //
+    let arw = Ti.Rects.createBy($arrow)
+    let style = ({
+      H: ({ left }, { x }) => {
+        return {
+          "margin-left": `${Math.round(x - left - arw.width / 2)}px`
+        }
+      },
+      V: ({ top }, { y }) => {
+        return {
+          "margin-top": `${Math.round(y - top - arw.height / 2)}px`
         }
       }
-    }
-    // Format content
-    //console.log("Toptip", options.content)
-    if (!/^i18n:/.test(options.content)) {
-      options.content = Ti.I18n.translate(options.content)
-    }
-    // Open box
-    let toa = new TiToptipBox(options)
-    toa.open()
-    return toa
+    })[mode](dock.srcRect, dock.targetRect)
+    Ti.Dom.setStyle($foot, style)
+
+    // Mark ready
+    _.delay(() => {
+      Ti.Dom.setAttrs($wrapper, { "tip-ready": "yes" })
+    }, 10)
+
+    // Mark Open 
+    this.$target = $target
+    this.tipBox = tipBox
+    this.targetRect = dock.targetRect
+    this.tipRect = dock.srcRect
+
   },
   //------------------------------------------
-  Close() {
-    let toa = RTSTACK.pop()
-    if (toa) {
-      toa.close()
+  getTipMeasureStyle(size) {
+    let css = {}
+    const setTipStyle = (key, val) => {
+      if (/^[0-9]$/.test(val)) {
+        css[key] = `${val}px`
+      } else {
+        css[key] = val
+      }
     }
+    let m = /^(([.0-9]*)(r?em|px)?)[Xx:,-](([.0-9]*)(r?em|px)?)$/.exec(size)
+    if (m) {
+      setTipStyle("width", m[1])
+      setTipStyle("height", m[4])
+    }
+    return css
+  },
+  //------------------------------------------
+  getTipData($target, options) {
+    return Ti.Dom.getData($target, (key, value) => {
+      //console.log(key, value)
+      let m = /^(tiTip)(.*)?$/.exec(key)
+      if (m) {
+        let name = _.camelCase(m[2] || "content")
+        return { name, value }
+      }
+    })
+  },
+  //------------------------------------------
+  isInTargetRect(point) {
+    return this.isInRect('targetRect', point)
+  },
+  //------------------------------------------
+  isInTipRect(point) {
+    return this.isInRect('tipRect', point)
+  },
+  //------------------------------------------
+  // point: {x,y} window client coordinates
+  isInRect(rectKey, point = {}) {
+    let rect = this[rectKey]
+    return rect && rect.hasPoint(point)
+  },
+  //------------------------------------------
+  async OnHoverInTarget($el) {
+    if (this.$target === $el) {
+      return
+    }
+    //console.log("Hover")
+    // Clone prev tip box
+    await this.destroy()
+
+    // Create new one
+    this.createTip($el)
+  },
+  //------------------------------------------
+  OnHoverInBody() {
+    if (this.closeCheckerIsSet || !this.tipBox) {
+      return
+    }
+    let point = this.point
+    if (this.isInTipRect(point) || this.isInTargetRect(point)) {
+      return
+    }
+
+
+    _.delay(() => {
+      this.closeCheckerIsSet = false
+      let point = this.point
+      if (this.isInTipRect(point) || this.isInTargetRect(point)) {
+        return
+      }
+      // console.log("delay OUTSIDE", point,
+      //   "\nTip:", this.isInTipRect(point),
+      //   `X:[${this.tipRect.left}, ${this.tipRect.right}]`,
+      //   `Y:[${this.tipRect.top}, ${this.tipRect.bottom}]`,
+      //   "\nTarget:", this.isInTargetRect(point),
+      //   `X:[${this.targetRect.left}, ${this.targetRect.right}]`,
+      //   `Y:[${this.targetRect.top}, ${this.targetRect.bottom}]`)
+
+      this.destroy()
+      this.tipBox = null
+
+    }, this.checkDelay + 1)
+    this.closeCheckerIsSet = true
+  },
+  //------------------------------------------
+  destroy() {
+    if (!this.tipBox || !this.tipBox.app) {
+      return
+    }
+    let { $wrapper, $main, $foot } = this.getTipWarpper(false)
+    if ($wrapper) {
+      // Removem DOM mark
+      Ti.Dom.setAttrs($wrapper, {
+        "tip-ready": "no"
+      })
+      return new Promise((resolve) => {
+        _.delay(() => {
+          // Destroy app
+          this.$target = null
+          this.targetRect = null
+          this.tipRect = null
+
+          if (this.tipBox && this.tipBox.app) {
+            this.tipBox.app.destroy()
+            this.tipBox = null
+          }
+
+          // Clean DOM
+          $main.innerHTML = "<div></div>"
+          $wrapper.style = null
+          $foot.style = null
+          resolve(true)
+        }, 1000)
+      })
+
+    }
+  },
+  //------------------------------------------
+  getTipWarpper(autoCreate = false) {
+    let $wrapper = this.$wrapper
+    if (!$wrapper) {
+      if (!autoCreate) {
+        return {}
+      }
+      $wrapper = Ti.Dom.find("#ti-tip-wrapper")
+      if (!$wrapper) {
+        $wrapper = Ti.Dom.createElement({ tagName: "div", attrs: { id: 'ti-tip-wrapper' } })
+        Ti.Dom.appendToBody($wrapper)
+        this.$wrapper = $wrapper
+      }
+    }
+    let $tip = Ti.Dom.find(":scope > div.ti-tip-box", $wrapper)
+    if (!$tip) {
+      if (!autoCreate) {
+        return { $wrapper }
+      }
+      $wrapper.innerHTML = `<div class="ti-tip-box">
+        <main><div></div></main>
+        <footer><span class="tip-arrow"></span></footer>
+      </div>`
+      $tip = Ti.Dom.find(":scope > div.ti-tip-box", $wrapper)
+    }
+    let $main = Ti.Dom.find(":scope > main", $tip)
+    let $foot = Ti.Dom.find(":scope > footer", $tip)
+    let $arrow = Ti.Dom.find(":scope > footer > .tip-arrow", $tip)
+    let $stub = Ti.Dom.find(":scope > div", $main)
+    return {
+      $wrapper,
+      $tip,
+      $main,
+      $foot,
+      $arrow,
+      $stub
+    }
+  },
+  //------------------------------------------
+  drawHelper(name, rect) {
+
+    let id = `ti-tip-box-helper-${name}`
+    let $el = Ti.Dom.find(`#${id}`)
+    if (rect) {
+      //console.log("helper", name, rect + "")
+      if (!$el) {
+        $el = Ti.Dom.createElement({
+          attrs: { id },
+          style: {
+            position: "fixed",
+            background: "rgba(255,255,0,0.3)",
+            zIndex: 99999999999
+          }
+        })
+        Ti.Dom.appendToBody($el)
+      }
+      let style = rect.toCss()
+      Ti.Dom.updateStyle($el, style)
+    }
+    // Remove helper
+    else if ($el) {
+      Ti.Dom.remove($el)
+    }
+  },
+  //------------------------------------------
+  drawAllHelpers() {
+    this.drawHelper("tip", this.tipRect)
+    this.drawHelper("tag", this.targetRect)
   },
   //------------------------------------------
   watch() {
-    // document.addEventListener("mouseover", evt => {
-    //   console.log(evt)
-    // })
+    document.addEventListener("mousemove", evt => {
+      let point = {
+        x: evt.clientX,
+        y: evt.clientY
+      }
+      TiToptip.point = point
+      // Get tip Element and tip data
+      let $el = Ti.Dom.closest(evt.target, "[data-ti-tip]", { includeSelf: true })
+      if (!$el) {
+        TiToptip.OnHoverInBody()
+      } else {
+        TiToptip.OnHoverInTarget($el)
+      }
+      //this.drawAllHelpers()
+    })
   }
   //------------------------------------------
 }

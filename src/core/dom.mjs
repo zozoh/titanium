@@ -840,6 +840,8 @@ const TiDom = {
       ta: Ti.Rects.createBy($ta),
       win: Ti.Rects.createBy($src.ownerDocument.defaultView)
     }
+    // console.log("dockSrc",rect.src.width, rect.src+"")
+    // console.log("dockTag",rect.ta.width, rect.ta+"")
 
     // prepare [W, 2W]
     const getAxis = (n, w, list) => {
@@ -888,6 +890,7 @@ const TiDom = {
       viewportBorder,
       wrapCut: true
     })
+    //console.log({ dockMode })
 
     // Translate coord
     if ("target" == coord) {
@@ -910,6 +913,14 @@ const TiDom = {
     _.delay(() => {
       TiDom.applyRect($src, rect.src, dockMode)
     }, 0)
+
+    return {
+      axis,
+      dockMode,
+      srcRect: rect.src,
+      targetRect: rect.ta,
+      viewport
+    }
   },
   //----------------------------------------------------
   getRemBase($doc = document) {
