@@ -72,12 +72,13 @@
       cursor: pointer;
       > i {
         transition: transform 0.3s;
+        font-size: SZ(16);
         cursor: pointer;
       }
       &:hover {
         color: map-get($color-primary, c);
         > i {
-          transform: rotate(360deg) scale(1.2);
+         // transform: scale(1.6);
         }
       }
     }

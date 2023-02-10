@@ -166,6 +166,7 @@ const _M = {
     GridContainerConf() {
       return {
         tipAsPopIcon: this.tipAsPopIcon,
+        autoFieldTip: this.autoFieldTip,
         data: this.myData,
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
@@ -299,7 +300,12 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   methods: {
-    OnTabBodyScroll(evt){
+    //--------------------------------------------------
+    OnMainScroll(evt) {
+      Ti.Viewport.notifyScroll(evt)
+    },
+    //--------------------------------------------------
+    OnTabBodyScroll(evt) {
       Ti.Viewport.notifyScroll(evt)
     },
     //--------------------------------------------------

@@ -1,5 +1,3 @@
-import Ti from "./ti.mjs"
-
 ///////////////////////////////////////////////
 export async function WalnutAppMain({
   rs = "/gu/rs/", 

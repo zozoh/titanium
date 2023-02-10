@@ -2385,11 +2385,10 @@ i.im {
       cursor: pointer; }
       .ti-form-grid-con > .field-name .field-pop-tip > i {
         transition: transform 0.3s;
+        font-size: 0.16rem;
         cursor: pointer; }
       .ti-form-grid-con > .field-name .field-pop-tip:hover {
         color: #FC4; }
-        .ti-form-grid-con > .field-name .field-pop-tip:hover > i {
-          transform: rotate(360deg) scale(1.2); }
     .ti-form-grid-con > .field-name.mark-weak {
       color: #EEE;
       background-color: rgba(50, 50, 50, 0.6); }
@@ -8413,6 +8412,9 @@ div.ti-input-tags {
   .ti-article.is-theme-tipbox blockquote {
     margin: 0;
     padding: 1em; }
+  .ti-article.is-theme-tipbox code {
+    font-family: Monaco, Consolas, Courier New;
+    margin: 0 0.5em; }
 
 .ti-transfer {
   display: flex;

@@ -156,6 +156,10 @@ export default {
     type: Boolean,
     default: false
   },
+  "autoFieldTip": {
+    type: Boolean,
+    default: false
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

@@ -26,6 +26,10 @@ const _M = {
       type: Boolean,
       default: false
     },
+    "autoFieldTip": {
+      type: Boolean,
+      default: false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -220,6 +224,8 @@ const _M = {
 
       // each fields
       for (let fld of list) {
+
+
         // Maybe race="Label"
         if (fld.com) {
           fld.comType = fld.com.comType
@@ -237,9 +243,17 @@ const _M = {
         }
         // Normal field
         else {
+          fld.autoFieldTip = Ti.Util.fallback(fld.autoFieldTip, this.autoFieldTip)
           fld.tipAsPopIcon = Ti.Util.fallback(fld.tipAsPopIcon, this.tipAsPopIcon)
           // Grid with field name
           if (fld.showName) {
+
+            fld.title = Ti.I18n.text(fld.title)
+            if(fld.autoFieldTip){
+              let nameText = _.concat(fld.name).join('</code> <code>')
+              fld.nameTip = `[V:success!html]<p><b>${fld.title}:</b> <code>${nameText}</code>`
+            }
+            
             nmStyle = {
               //"grid-column-start": fld.nameGridStart + 1,
               "grid-column-end": `span ${fld.nameGridSpan}`,

@@ -1,4 +1,4 @@
-// Pack At: 2023-02-09 07:55:55
+// Pack At: 2023-02-10 20:35:06
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -17269,6 +17269,10 @@ const _M = {
       type: Boolean,
       default: false
     },
+    "autoFieldTip": {
+      type: Boolean,
+      default: false
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -17463,6 +17467,8 @@ const _M = {
 
       // each fields
       for (let fld of list) {
+
+
         // Maybe race="Label"
         if (fld.com) {
           fld.comType = fld.com.comType
@@ -17480,9 +17486,17 @@ const _M = {
         }
         // Normal field
         else {
+          fld.autoFieldTip = Ti.Util.fallback(fld.autoFieldTip, this.autoFieldTip)
           fld.tipAsPopIcon = Ti.Util.fallback(fld.tipAsPopIcon, this.tipAsPopIcon)
           // Grid with field name
           if (fld.showName) {
+
+            fld.title = Ti.I18n.text(fld.title)
+            if(fld.autoFieldTip){
+              let nameText = _.concat(fld.name).join('</code> <code>')
+              fld.nameTip = `[V:success!html]<p><b>${fld.title}:</b> <code>${nameText}</code>`
+            }
+            
             nmStyle = {
               //"grid-column-start": fld.nameGridStart + 1,
               "grid-column-end": `span ${fld.nameGridSpan}`,
@@ -21943,11 +21957,13 @@ const _M = {
     },
     //------------------------------------------------
     OnClickSuffixIcon() {
-      if (this.suffixIconNotifyName)
+      if (this.suffixIconNotifyName){
         this.$notify(this.suffixIconNotifyName)
+      }
     },
     //------------------------------------------------
     OnClickSuffixText() {
+      //console.log("suffix")
       if (this.suffixTextNotifyName)
         this.$notify(this.suffixTextNotifyName)
     },
@@ -22348,6 +22364,7 @@ const _M = {
     GridContainerConf() {
       return {
         tipAsPopIcon: this.tipAsPopIcon,
+        autoFieldTip: this.autoFieldTip,
         data: this.myData,
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
@@ -22481,6 +22498,14 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   methods: {
+    //--------------------------------------------------
+    OnMainScroll(evt) {
+      Ti.Viewport.notifyScroll(evt)
+    },
+    //--------------------------------------------------
+    OnTabBodyScroll(evt) {
+      Ti.Viewport.notifyScroll(evt)
+    },
     //--------------------------------------------------
     OnClickFormTop() {
       this.myActivedFieldKey = null
@@ -30179,6 +30204,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default: 0
   },
   "tipAsPopIcon": {
+    type: Boolean,
+    default: false
+  },
+  "autoFieldTip": {
     type: Boolean,
     default: false
   },
@@ -86583,7 +86612,9 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
             :name-v-align="fld.nameVAlign"
             :title="fld.statusText"
             :grid-start="fld.nameGridStart"
-            :grid-span="fld.nameGridSpan">
+            :grid-span="fld.nameGridSpan"
+            :data-ti-tip="fld.nameTip"
+            data-ti-keyboard="ctrl">
             <!--------------------------------->
             <div class="field-name-con">
               <div
@@ -86594,7 +86625,8 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
               <div
                 v-if="fld.title"
                   class="field-text"
-                  :style="fld.nameTextStyle">{{fld.title | i18n}}</div>
+                  :style="fld.nameTextStyle"
+                  >{{fld.title}}</div>
               <div
                   v-if="fld.tip && fld.tipAsPopIcon"
                     class="field-pop-tip"
@@ -86712,7 +86744,8 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
         class="form-main"
         :class="MainClass"
         :spacing="spacing"
-        :mode="FormMode">
+        :mode="FormMode"
+        @scroll="OnMainScroll">
         <!--============================================
           Flat Mode
         -->
@@ -86791,7 +86824,8 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
           <section
             class="tab-body" 
             :class="CurrentTabGroup.bodyClass"
-            :style="CurrentTabGroup.bodyStyle">
+            :style="CurrentTabGroup.bodyStyle"
+            @scroll="OnTabBodyScroll">
             <grid-container
               v-bind="GridContainerConf"
               :fields="GridFormFields"

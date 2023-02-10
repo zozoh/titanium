@@ -1,7 +1,7 @@
-// Pack At: 2023-02-09 07:55:55
+// Pack At: 2023-02-10 20:35:06
 //##################################################
-// # import {Alert}   from "./ti-alert.mjs"
-const {Alert} = (function(){
+// # import { Alert } from "./ti-alert.mjs"
+const { Alert } = (function(){
   ////////////////////////////////////////////////
   async function TiAlert(msg = "", {
     title,
@@ -57,8 +57,8 @@ const {Alert} = (function(){
   return {Alert: TiAlert};
 })();
 //##################################################
-// # import {Confirm} from "./ti-confirm.mjs"
-const {Confirm} = (function(){
+// # import { Confirm } from "./ti-confirm.mjs"
+const { Confirm } = (function(){
   ////////////////////////////////////////////////
   async function TiConfirm(msg = "", {
     title,
@@ -120,8 +120,8 @@ const {Confirm} = (function(){
   return {Confirm: TiConfirm};
 })();
 //##################################################
-// # import {Prompt}  from "./ti-prompt.mjs"
-const {Prompt} = (function(){
+// # import { Prompt } from "./ti-prompt.mjs"
+const { Prompt } = (function(){
   ////////////////////////////////////////////////
   async function TiPrompt(msg = "", {
     title = "i18n:prompt",
@@ -220,8 +220,8 @@ const {Prompt} = (function(){
   return {Prompt: TiPrompt};
 })();
 //##################################################
-// # import {Captcha} from "./ti-captcha.mjs"
-const {Captcha} = (function(){
+// # import { Captcha } from "./ti-captcha.mjs"
+const { Captcha } = (function(){
   ////////////////////////////////////////////////
   async function TiCaptcha(src="", {
     title = "i18n:captcha-tip", 
@@ -323,8 +323,8 @@ const {Captcha} = (function(){
   return {Captcha: TiCaptcha};
 })();
 //##################################################
-// # import {Toast}   from "./ti-toast.mjs"
-const {Toast} = (function(){
+// # import { Toast } from "./ti-toast.mjs"
+const { Toast } = (function(){
   //################################################
   // # import {TiRuntimeStack} from "./ti-runtime-stack.mjs"
   const {TiRuntimeStack} = (function(){
@@ -566,197 +566,424 @@ const {Toast} = (function(){
   return {Toast: TiToast};
 })();
 //##################################################
-// # import {Toptip}  from "./ti-toptip.mjs"
-const {Toptip} = (function(){
-  //////////////////////////////////////////////
-  //-----------------------------------
+// # import { Toptip } from "./ti-toptip.mjs"
+const { Toptip } = (function(){
   class TiToptipBox {
     //------------------------------------------
-    constructor(options = {}) {
-      this[OPTIONS] = options
+    constructor({ $el, content, type } = {}) {
+      this.$el = $el;
+      this.content = content;
+      this.type = type;
     }
     //------------------------------------------
     // Open toalog
     async open() {
-      // Extract vars
-      let {
-        // top|left|bottom|right|center
-        // left-top|right-top|bottom-left|bottom-right
-        position = "center",
-        icon = true,
-        content = "i18n:empty",  // message content
-        vars = {},
-        type = "info",           // info|warn|error|success|track
-        spacing = 0,          // spacing
-        duration = 3000,    // Duration of the Toptip
-        closer = true       // Support close manually
-      } = this[OPTIONS]
-      //........................................
-      let $el = Ti.Dom.createElement({
-        $p: document.body,
-        className: "the-stub"
-      })
-      //........................................
-      if (true === icon) {
-        icon = Ti.Icons.get(type)
-      }
       //........................................
       // Setup content
-      let html = `<div class="ti-Toptip"
-        :class="topClass"
-        :style="topStyle"
-        @click="onClose">
-        <transition :name="transName"
-          @after-leave="onAfterLeave">
-          <div v-if="!hidden"
-            class="Toptip-con"
-            @click.stop>
-            <div v-if="icon"
-              class="Toptip-icon">
-              <ti-icon :value="icon"/>
-            </div>
-            <div class="Toptip-body">{{content|i18n(vars)}}</div>
-            <div v-if="closer && 'center'!=position"
-              class="Toptip-closer">
-              <a @click="onClose">{{'close'|i18n}}</a>
-            </div>
-          </div>
-        </transition>
-      </div>`
+      let html = `<WebTextArticle
+      :value="content"
+      :type="type"
+      theme="tipbox"
+      />`
       //........................................
       // Prepare the app info
       let appInfo = {
         template: html,
-        data: {
-          position, icon, content, type, closer, vars,
-          hidden: true
-        },
+        data: _.pick(this, "content", "type"),
         store: {
           modules: {
             "viewport": "@mod:ti/viewport"
           }
         },
         computed: {
-          topClass() {
-            return Ti.Css.mergeClassName({
-              "as-bar": "center" != this.position,
-              "as-block": "center" == this.position,
-            }, [
-              `at-${this.position}`,
-              `is-${this.type}`
-            ])
-          },
-          topStyle() {
-            if ('center' != this.position) {
-              return {
-                "padding": Ti.Css.toSize(spacing)
-              }
-            }
-          },
-          transName() {
-            return `Toptip-trans-at-${this.position}`
-          }
         },
         methods: {
-          onClose() {
-            if (this.closer) {
-              this.hidden = true
-            }
-          },
-          onAfterLeave() {
-            Ti.App(this).$Toptip.close()
-          },
-          doOpen() {
-            this.hidden = false
-          },
-          doClose() {
-            this.hidden = true
-          },
-        }
+        },
+        components: [
+          "@com:web/text/article"
+        ]
       }
       //........................................
       // create TiApp
       // console.log(appInfo)
       let app = await Ti.App(appInfo)
-      this[_APP_] = app
+      this.app = app
       await app.init()
       //........................................
       // Mount to body
-      app.mountTo($el)
-      app.$Toptip = this
-      app.root("doOpen")
-      //........................................
-      // Join to runtime
-      RTSTACK.push(this)
-      //........................................
-      // Delay to remove
-      if (duration > 0) {
-        _.delay(() => {
-          app.root("doClose")
-        }, duration)
-      }
+      app.mountTo(this.$el)
       //........................................
       return this
-    }
-    //------------------------------------------
-    $app() {
-      return this[_APP_]
-    }
-    //------------------------------------------
-    close() {
-      RTSTACK.remove(this)
-      this.$app().destroy(true)
     }
     //------------------------------------------
   }
   //////////////////////////////////////////////
   const TiToptip = {
+    tipBox: null,
+    $target: null,   // the ele which trigger the tip
+    $wrapper: null,  // tip wrapper
+    targetRect: null,
+    tipRect: null,
     //------------------------------------------
-    Open(options, type = "info", position = "top") {
-      if (options instanceof Error) {
-        options = options.errMsg || options + ""
+    closeCheckerIsSet: false,
+    checkDelay: 200,
+    //------------------------------------------
+    /** 
+    @param $target{Element} target Element
+    @param options{Object}  tip box options
+    ```json5
+    {
+      type:"info|error|warn",
+      content : "tip message",
+      contentType: "text|html",
+      size : "auto|small|normal|big|45x98",
+      mode: "H"
+    }
+    ```
+    dynamic content example:
+  
+    [H:info!html:4rem,3rem]@tip:${lang}/test/abc.html
+    - `@tip` defined in _ti/config.json
+    */
+    async createTip($target, options = {}) {
+      if (this.$target === $target) {
+        return
       }
-      if (_.isString(options)) {
-        // Open("i18n:xxx", {vars})
-        if (_.isPlainObject(type)) {
-          options = _.assign({
-            position,
-            type: "info",
-            content: options,
-            vars: type
-          }, type)
-        }
-        // Open("i18n:xxx", "warn")
-        else {
-          options = {
-            type: type || "info",
-            position: position || "top",
-            content: options
+      this.$target = $target
+      //console.log("createTip")
+      let tip = this.getTipData($target)
+      let {
+        type = "paper",
+        size = "auto",
+        content,
+        contentType = "text",
+        mode = "H"
+      } = _.assign(tip, options);
+      //Quick attrigbute
+      let m = /^\[(([HV]):)?(([^!]+)!)?(html|text|md)?(:([^\]]+))?\]\s*(.+)/.exec(content)
+      if (m) {
+        mode = m[2] || mode
+        type = m[4] || type
+        contentType = m[6] || contentType
+        size = m[7] || _.trim(size)
+        content = _.trim(m[8])
+      }
+      //
+      // Get/Create wrapper
+      //
+      let { $wrapper, $foot, $stub, $arrow } = this.getTipWarpper(true)
+      // Update tip style
+      Ti.Dom.setAttrs($wrapper, {
+        "tip-size": size,
+        "tip-type": type,
+        "tip-ready": "no"
+      })
+      //
+      // Update Wrapper Measure
+      //
+      let css = this.getTipMeasureStyle(size)
+      Ti.Dom.setStyle($wrapper, css)
+      //
+      // Format content
+      //
+      if (/^i18n:/.test(content)) {
+        content = Ti.I18n.translate(content.substring(5).trim())
+      }
+      // Dynamic Loading
+      if (/^@tip:/.test(content)) {
+        let path = Ti.S.renderBy(content, {
+          lang: _.snakeCase(Ti.Env("LANG") || "zh-cn")
+        })
+        let ftp = Ti.Util.getSuffixName(content)
+        contentType = ({
+          "txt": "text",
+          "html": "html",
+          "md": "text"
+        })[ftp] || "text"
+        content = await Ti.Load(path)
+      }
+      //
+      // Open box
+      //
+      let tipBox = new TiToptipBox({
+        $el: $stub,
+        content,
+        type: contentType
+      })
+      await tipBox.open()
+  
+      //
+      // Dock tip to target
+      // Give a little time for dom rendering
+      //
+      let dock = Ti.Dom.dockTo($wrapper, $target, {
+        mode,
+        space: ({
+          "H": { x: 0, y: 12 },
+          "V": { x: 12, y: 0 }
+        })[mode] || 0,
+        posListX: ({
+          "H": ["center"],
+          "V": ["right", "left"]
+        })[mode],
+        posListY: ({
+          "H": ["bottom", "top"],
+          "V": ["center"]
+        })[mode]
+      })
+      Ti.Dom.setAttrs($wrapper, {
+        "tip-at": dock.axis["H" == mode ? 'y' : 'x'],
+      })
+  
+      //
+      // Move Arrow to Target by footer margin
+      //
+      let arw = Ti.Rects.createBy($arrow)
+      let style = ({
+        H: ({ left }, { x }) => {
+          return {
+            "margin-left": `${Math.round(x - left - arw.width / 2)}px`
+          }
+        },
+        V: ({ top }, { y }) => {
+          return {
+            "margin-top": `${Math.round(y - top - arw.height / 2)}px`
           }
         }
-      }
-      // Format content
-      //console.log("Toptip", options.content)
-      if (!/^i18n:/.test(options.content)) {
-        options.content = Ti.I18n.translate(options.content)
-      }
-      // Open box
-      let toa = new TiToptipBox(options)
-      toa.open()
-      return toa
+      })[mode](dock.srcRect, dock.targetRect)
+      Ti.Dom.setStyle($foot, style)
+  
+      // Mark ready
+      _.delay(() => {
+        Ti.Dom.setAttrs($wrapper, { "tip-ready": "yes" })
+      }, 10)
+  
+      // Mark Open 
+      this.$target = $target
+      this.tipBox = tipBox
+      this.targetRect = this.genRectScope(dock.targetRect)
+      this.tipRect = dock.srcRect
+  
     },
     //------------------------------------------
-    Close() {
-      let toa = RTSTACK.pop()
-      if (toa) {
-        toa.close()
+    genRectScope(rect, space = 20) {
+      rect.width += space
+      rect.height += space
+      return rect.updateBy("xywh")
+    },
+    //------------------------------------------
+    getTipMeasureStyle(size) {
+      let css = {}
+      const setTipStyle = (key, val) => {
+        if (/^[0-9]$/.test(val)) {
+          css[key] = `${val}px`
+        } else {
+          css[key] = val
+        }
       }
+      let m = /^(([.0-9]*)(r?em|px)?)[Xx:,-](([.0-9]*)(r?em|px)?)$/.exec(size)
+      if (m) {
+        setTipStyle("width", m[1])
+        setTipStyle("height", m[4])
+      }
+      return css
+    },
+    //------------------------------------------
+    getTipData($target, options) {
+      return Ti.Dom.getData($target, (key, value) => {
+        //console.log(key, value)
+        let m = /^(tiTip)(.*)?$/.exec(key)
+        if (m) {
+          let name = _.camelCase(m[2] || "content")
+          return { name, value }
+        }
+      })
+    },
+    //------------------------------------------
+    isInTargetRect(point) {
+      return this.isInRect('targetRect', point)
+    },
+    //------------------------------------------
+    isInTipRect(point) {
+      return this.isInRect('tipRect', point)
+    },
+    //------------------------------------------
+    // point: {x,y} window client coordinates
+    isInRect(rectKey, point = {}) {
+      let rect = this[rectKey]
+      return rect && rect.hasPoint(point)
+    },
+    //------------------------------------------
+    async OnHoverInTarget($el) {
+      if (this.$target === $el) {
+        return
+      }
+      //console.log("Hover")
+      // Clone prev tip box
+      await this.destroy()
+  
+      // Create new one
+      this.createTip($el)
+    },
+    //------------------------------------------
+    OnHoverInBody() {
+      if (this.closeCheckerIsSet || !this.tipBox) {
+        return
+      }
+      let point = this.point
+      if (this.isInTipRect(point) || this.isInTargetRect(point)) {
+        return
+      }
+  
+  
+      _.delay(() => {
+        this.closeCheckerIsSet = false
+        let point = this.point
+        if (this.isInTipRect(point) || this.isInTargetRect(point)) {
+          return
+        }
+        console.log("delay OUTSIDE", point,
+          "\nTip:", this.isInTipRect(point),
+          `X:[${this.tipRect.left}, ${this.tipRect.right}]`,
+          `Y:[${this.tipRect.top}, ${this.tipRect.bottom}]`,
+          "\nTarget:", this.isInTargetRect(point),
+          `X:[${this.targetRect.left}, ${this.targetRect.right}]`,
+          `Y:[${this.targetRect.top}, ${this.targetRect.bottom}]`)
+  
+        this.destroy()
+        this.tipBox = null
+  
+      }, this.checkDelay + 1)
+      this.closeCheckerIsSet = true
+    },
+    //------------------------------------------
+    destroy() {
+      if (!this.tipBox || !this.tipBox.app) {
+        return
+      }
+      let { $wrapper, $main, $foot } = this.getTipWarpper(false)
+      if ($wrapper) {
+        // Removem DOM mark
+        Ti.Dom.setAttrs($wrapper, {
+          "tip-ready": "no"
+        })
+        return new Promise((resolve) => {
+          _.delay(() => {
+            // Destroy app
+            this.$target = null
+            this.targetRect = null
+            this.tipRect = null
+  
+            if (this.tipBox && this.tipBox.app) {
+              this.tipBox.app.destroy()
+              this.tipBox = null
+            }
+  
+            // Clean DOM
+            $main.innerHTML = "<div></div>"
+            $wrapper.style = null
+            $foot.style = null
+            resolve(true)
+          }, 100)
+        })
+  
+      }
+    },
+    //------------------------------------------
+    getTipWarpper(autoCreate = false) {
+      let $wrapper = this.$wrapper
+      if (!$wrapper) {
+        if (!autoCreate) {
+          return {}
+        }
+        $wrapper = Ti.Dom.find("#ti-tip-wrapper")
+        if (!$wrapper) {
+          $wrapper = Ti.Dom.createElement({ tagName: "div", attrs: { id: 'ti-tip-wrapper' } })
+          Ti.Dom.appendToBody($wrapper)
+          this.$wrapper = $wrapper
+        }
+      }
+      let $tip = Ti.Dom.find(":scope > div.ti-tip-box", $wrapper)
+      if (!$tip) {
+        if (!autoCreate) {
+          return { $wrapper }
+        }
+        $wrapper.innerHTML = `<div class="ti-tip-box">
+          <main><div></div></main>
+          <footer><span class="tip-arrow"></span></footer>
+        </div>`
+        $tip = Ti.Dom.find(":scope > div.ti-tip-box", $wrapper)
+      }
+      let $main = Ti.Dom.find(":scope > main", $tip)
+      let $foot = Ti.Dom.find(":scope > footer", $tip)
+      let $arrow = Ti.Dom.find(":scope > footer > .tip-arrow", $tip)
+      let $stub = Ti.Dom.find(":scope > div", $main)
+      return {
+        $wrapper,
+        $tip,
+        $main,
+        $foot,
+        $arrow,
+        $stub
+      }
+    },
+    //------------------------------------------
+    drawHelper(name, rect) {
+  
+      let id = `ti-tip-box-helper-${name}`
+      let $el = Ti.Dom.find(`#${id}`)
+      if (rect) {
+        //console.log("helper", name, rect + "")
+        if (!$el) {
+          $el = Ti.Dom.createElement({
+            attrs: { id },
+            style: {
+              position: "fixed",
+              background: "rgba(255,255,0,0.3)",
+              zIndex: 99999999999
+            }
+          })
+          Ti.Dom.appendToBody($el)
+        }
+        let style = rect.toCss()
+        Ti.Dom.updateStyle($el, style)
+      }
+      // Remove helper
+      else if ($el) {
+        Ti.Dom.remove($el)
+      }
+    },
+    //------------------------------------------
+    drawAllHelpers() {
+      this.drawHelper("tip", this.tipRect)
+      this.drawHelper("tag", this.targetRect)
     },
     //------------------------------------------
     watch() {
-      // document.addEventListener("mouseover", evt => {
-      //   console.log(evt)
-      // })
+      document.addEventListener("mousemove", evt => {
+        let point = {
+          x: evt.clientX,
+          y: evt.clientY
+        }
+        TiToptip.point = point
+        let $el = Ti.Dom.closest(evt.target, "[data-ti-tip]", { includeSelf: true })
+        if (!$el) {
+          TiToptip.OnHoverInBody()
+        }
+        // Find tip element
+        else {
+          // Get tip Element and tip data
+          let decKey = _.lowerCase($el.getAttribute("data-ti-keyboard"))
+          if (/^(ctrl|alt|shift|meta)$/.test(decKey)) {
+            if (!evt[`${decKey}Key`]) {
+              return
+            }
+          }
+          // Then show the tip
+          TiToptip.OnHoverInTarget($el)
+        }
+        //this.drawAllHelpers()
+      })
     }
     //------------------------------------------
   }
@@ -764,8 +991,8 @@ const {Toptip} = (function(){
   return {Toptip: TiToptip};
 })();
 //##################################################
-// # import {EditCode}  from "./ti-editcode.mjs"
-const {EditCode} = (function(){
+// # import { EditCode } from "./ti-editcode.mjs"
+const { EditCode } = (function(){
   ////////////////////////////////////////////////////
   async function TiEditCode(code = "", {
     mode = "text",
@@ -793,8 +1020,8 @@ const {EditCode} = (function(){
   return {EditCode: TiEditCode};
 })();
 //##################################################
-// # import {Be}           from "./behaviors.mjs"
-const {Be} = (function(){
+// # import { Be } from "./behaviors.mjs"
+const { Be } = (function(){
   //################################################
   // # import Draggable from "./be/draggable.mjs"
   const Draggable = (function(){
@@ -1414,8 +1641,8 @@ const {Be} = (function(){
   return {Be: TiBehaviors};
 })();
 //##################################################
-// # import {Alg}          from "./algorithm.mjs"
-const {Alg} = (function(){
+// # import { Alg } from "./algorithm.mjs"
+const { Alg } = (function(){
   // rquired crypto-js
   ///////////////////////////////////////////
   const TiAlg = {
@@ -1489,8 +1716,8 @@ const {Alg} = (function(){
   return {Alg: TiAlg};
 })();
 //##################################################
-// # import {S}            from "./str.mjs"
-const {S} = (function(){
+// # import { S } from "./str.mjs"
+const { S } = (function(){
   const CN_NC0 = "零一二三四五六七八九";
   const CN_NU0 = "个十百千万亿";
   
@@ -2249,8 +2476,8 @@ const {S} = (function(){
   return {S: TiStr};
 })();
 //##################################################
-// # import {Tmpl}         from "./tmpl.mjs"
-const {Tmpl} = (function(){
+// # import { Tmpl } from "./tmpl.mjs"
+const { Tmpl } = (function(){
   ///////////////////////////////////////////////////
   function TmplStaticEle(s) {
     return (sb = []) => sb.push(s)
@@ -2623,8 +2850,8 @@ const {Tmpl} = (function(){
   return {Tmpl: TiTmpl};
 })();
 //##################################################
-// # import {App}          from "./app.mjs"
-const {App} = (function(){
+// # import { App } from "./app.mjs"
+const { App } = (function(){
   //################################################
   // # import { LoadTiAppInfo, LoadTiLinkedObj } from "./app-info.mjs"
   const { LoadTiAppInfo, LoadTiLinkedObj } = (function(){
@@ -4425,8 +4652,8 @@ const {App} = (function(){
   return {App: TiApp};
 })();
 //##################################################
-// # import {Err}          from "./err.mjs"
-const {Err} = (function(){
+// # import { Err } from "./err.mjs"
+const { Err } = (function(){
   const TiError = {
     make(code = "", data, errMsg) {
       let er = code
@@ -4452,8 +4679,8 @@ const {Err} = (function(){
   return {Err: TiError};
 })();
 //##################################################
-// # import {Config}       from "./config.mjs"
-const {Config} = (function(){
+// # import { Config } from "./config.mjs"
+const { Config } = (function(){
   const CONFIG = {
     prefix: {},
     alias: {},
@@ -4674,8 +4901,8 @@ const {Config} = (function(){
   return {Config: TiConfig};
 })();
 //##################################################
-// # import {Dom}          from "./dom.mjs"
-const {Dom} = (function(){
+// # import { Dom } from "./dom.mjs"
+const { Dom } = (function(){
   ////////////////////////////////////////////////////////
   const TiDom = {
     //----------------------------------------------------
@@ -5518,6 +5745,8 @@ const {Dom} = (function(){
         ta: Ti.Rects.createBy($ta),
         win: Ti.Rects.createBy($src.ownerDocument.defaultView)
       }
+      // console.log("dockSrc",rect.src.width, rect.src+"")
+      // console.log("dockTag",rect.ta.width, rect.ta+"")
   
       // prepare [W, 2W]
       const getAxis = (n, w, list) => {
@@ -5566,6 +5795,7 @@ const {Dom} = (function(){
         viewportBorder,
         wrapCut: true
       })
+      //console.log({ dockMode })
   
       // Translate coord
       if ("target" == coord) {
@@ -5588,6 +5818,14 @@ const {Dom} = (function(){
       _.delay(() => {
         TiDom.applyRect($src, rect.src, dockMode)
       }, 0)
+  
+      return {
+        axis,
+        dockMode,
+        srcRect: rect.src,
+        targetRect: rect.ta,
+        viewport
+      }
     },
     //----------------------------------------------------
     getRemBase($doc = document) {
@@ -5746,8 +5984,8 @@ const {Dom} = (function(){
   return {Dom: TiDom};
 })();
 //##################################################
-// # import {Rect,Rects}   from "./rect.mjs"
-const {Rect,Rects} = (function(){
+// # import { Rect, Rects } from "./rect.mjs"
+const { Rect, Rects } = (function(){
   //--------------------------------------
   class QuickKeyMap {
     constructor() {
@@ -5859,7 +6097,7 @@ const {Rect,Rects} = (function(){
     toString(keys="tlwh"){
       let re = PickKeys(this, keys, "NaN")
       let ss = []
-      _.forEach(re, (val)=>ss.push(val))
+      _.forEach(re, (val)=>ss.push(Math.round(val)))
       return ss.join(",")
     }
     valueOf(){
@@ -6543,8 +6781,8 @@ const {Rect,Rects} = (function(){
   return {Rect, TiRects, Rects: TiRects};
 })();
 //##################################################
-// # import {Load}         from "./load.mjs"
-const {Load} = (function(){
+// # import { Load } from "./load.mjs"
+const { Load } = (function(){
   //################################################
   // # import {importModule} from "./polyfill-dynamic-import.mjs"
   const {importModule} = (function(){
@@ -6821,8 +7059,8 @@ const {Load} = (function(){
   return {Load: TiLoad};
 })();
 //##################################################
-// # import {Http}         from "./http.mjs"
-const {Http} = (function(){
+// # import { Http } from "./http.mjs"
+const { Http } = (function(){
   //-----------------------------------
   const RESP_TRANS = {
     arraybuffer($req) {
@@ -7051,8 +7289,8 @@ const {Http} = (function(){
   return {Http: TiHttp};
 })();
 //##################################################
-// # import {I18n}         from "./i18n.mjs"
-const {I18n} = (function(){
+// # import { I18n } from "./i18n.mjs"
+const { I18n } = (function(){
   //-----------------------------------
   const I18N = {}
   //-----------------------------------
@@ -7175,8 +7413,8 @@ const {I18n} = (function(){
   return {I18n: Ti18n};
 })();
 //##################################################
-// # import {Icons}        from "./icons.mjs"
-const {Icons} = (function(){
+// # import { Icons } from "./icons.mjs"
+const { Icons } = (function(){
   //-----------------------------------
   const TYPES = {
     "7z"   : "fas-file-archive",
@@ -7376,8 +7614,8 @@ const {Icons} = (function(){
   return {Icons: TiIcons};
 })();
 //##################################################
-// # import {Fuse}         from "./fuse.mjs"
-const {Fuse} = (function(){
+// # import { Fuse } from "./fuse.mjs"
+const { Fuse } = (function(){
   class TiDetonator {
     constructor({key, everythingOk, fail, once=false}={}){
       _.assign(this, {
@@ -7483,8 +7721,8 @@ const {Fuse} = (function(){
   return {Fuse: new TiFuseManager()};
 })();
 //##################################################
-// # import {Random}       from "./random.mjs"
-const {Random} = (function(){
+// # import { Random } from "./random.mjs"
+const { Random } = (function(){
   const CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('')
   //---------------------------------------
   const TiRandom = {
@@ -7519,8 +7757,8 @@ const {Random} = (function(){
   return {Random: TiRandom};
 })();
 //##################################################
-// # import {Storage}      from "./storage.mjs"
-const {Storage} = (function(){
+// # import { Storage } from "./storage.mjs"
+const { Storage } = (function(){
   //-----------------------------------
   class TiStorageWrapper {
     constructor(storage){
@@ -7586,8 +7824,8 @@ const {Storage} = (function(){
   return {Storage: TiStorage};
 })();
 //##################################################
-// # import {Shortcut}     from "./shortcut.mjs"
-const {Shortcut} = (function(){
+// # import { Shortcut } from "./shortcut.mjs"
+const { Shortcut } = (function(){
   ///////////////////////////////////////
   const TiShortcut = {
     /***
@@ -7915,8 +8153,8 @@ const {Shortcut} = (function(){
   return {Shortcut: TiShortcut};
 })();
 //##################################################
-// # import {TiWebsocket}  from "./websocket.mjs"
-const {TiWebsocket} = (function(){
+// # import { TiWebsocket } from "./websocket.mjs"
+const { TiWebsocket } = (function(){
   /////////////////////////////////////
   const TiWebsocket = {
     //---------------------------------
@@ -7988,8 +8226,8 @@ const {TiWebsocket} = (function(){
   return {TiWebsocket};
 })();
 //##################################################
-// # import {Validate}     from "./validate.mjs"
-const {Validate} = (function(){
+// # import { Validate } from "./validate.mjs"
+const { Validate } = (function(){
   ///////////////////////////////////////
   const VALIDATORS = {
     "notNil"        : (val)=>!Ti.Util.isNil(val),
@@ -8162,8 +8400,8 @@ const {Validate} = (function(){
   return {Validate: TiValidate};
 })();
 //##################################################
-// # import {AutoMatch}    from "./automatch.mjs"
-const {AutoMatch} = (function(){
+// # import { AutoMatch } from "./automatch.mjs"
+const { AutoMatch } = (function(){
   ///////////////////////////////////////
   function explainKeyDisplay(key, keyDisplayBy) {
     // Translate the key
@@ -8866,8 +9104,8 @@ const {AutoMatch} = (function(){
   return {AutoMatch: TiAutoMatch};
 })();
 //##################################################
-// # import {DateTime}     from "./datetime.mjs"
-const {DateTime} = (function(){
+// # import { DateTime } from "./datetime.mjs"
+const { DateTime } = (function(){
   ///////////////////////////////////////////
   const I_DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
   const I_WEEK = [
@@ -9296,8 +9534,8 @@ const {DateTime} = (function(){
   return {DateTime: TiDateTime};
 })();
 //##################################################
-// # import {Types}        from "./types.mjs"
-const {Types} = (function(){
+// # import { Types } from "./types.mjs"
+const { Types } = (function(){
   ///////////////////////////////////////////
   // Time Object
   class TiMsRange {
@@ -10686,8 +10924,8 @@ const {Types} = (function(){
   return {TiMsRange, TiTime, TiColor, Types: TiTypes};
 })();
 //##################################################
-// # import {Util}         from "./util.mjs"
-const {Util} = (function(){
+// # import { Util } from "./util.mjs"
+const { Util } = (function(){
   //################################################
   // # import TiPaths from "./util-paths.mjs"
   const TiPaths = (function(){
@@ -13188,8 +13426,8 @@ const {Util} = (function(){
   return {Util: TiUtil};
 })();
 //##################################################
-// # import {Trees}        from "./trees.mjs"
-const {Trees} = (function(){
+// # import { Trees } from "./trees.mjs"
+const { Trees } = (function(){
   /*
   Tree Node: 
   {
@@ -13952,8 +14190,8 @@ const {Trees} = (function(){
   return {Trees: TiTrees};
 })();
 //##################################################
-// # import {Viewport}     from "./viewport.mjs"
-const {Viewport} = (function(){
+// # import { Viewport } from "./viewport.mjs"
+const { Viewport } = (function(){
   class TiViewport {
     constructor() {
       this.reset()
@@ -13995,6 +14233,7 @@ const {Viewport} = (function(){
       }
     }
     scroll(evt = {}) {
+      Ti.Toptip.destroy()
       for (let call of this.scrolling) {
         call.handler.apply(call.context, [evt])
       }
@@ -14020,8 +14259,8 @@ const {Viewport} = (function(){
   return {Viewport: new TiViewport()};
 })();
 //##################################################
-// # import {WWW}          from "./www.mjs"
-const {WWW} = (function(){
+// # import { WWW } from "./www.mjs"
+const { WWW } = (function(){
   ///////////////////////////////////////////
   const TiWWW = {
     //---------------------------------------
@@ -14811,8 +15050,8 @@ const {WWW} = (function(){
   return {WWW: TiWWW};
 })();
 //##################################################
-// # import {GPS}          from "./gps.mjs"
-const {GPS} = (function(){
+// # import { GPS } from "./gps.mjs"
+const { GPS } = (function(){
   //const BAIDU_LBS_TYPE = "bd09ll";
   const pi = 3.1415926535897932384626;
   const a  = 6378245.0;
@@ -15056,8 +15295,8 @@ const {GPS} = (function(){
   return {GPS: TiGPS};
 })();
 //##################################################
-// # import {GIS}          from "./gis.mjs"
-const {GIS} = (function(){
+// # import { GIS } from "./gis.mjs"
+const { GIS } = (function(){
   //const BAIDU_LBS_TYPE = "bd09ll";
   const pi = 3.1415926535897932384626;
   const a  = 6378245.0;
@@ -15341,8 +15580,8 @@ const {GIS} = (function(){
   return {GIS: TiGis};
 })();
 //##################################################
-// # import {Bank}         from "./bank.mjs"
-const {Bank} = (function(){
+// # import { Bank } from "./bank.mjs"
+const { Bank } = (function(){
   ///////////////////////////////////////
   const CURRENCIES = {
     "AUD": {
@@ -15599,8 +15838,8 @@ const {Bank} = (function(){
   return {Bank: TiBank};
 })();
 //##################################################
-// # import {Num}          from "./num.mjs"
-const {Num} = (function(){
+// # import { Num } from "./num.mjs"
+const { Num } = (function(){
   //-----------------------------------
   const BASE26 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   //-----------------------------------
@@ -15783,8 +16022,8 @@ const {Num} = (function(){
   return {Num: TiNum};
 })();
 //##################################################
-// # import {Css}          from "./css.mjs"
-const {Css} = (function(){
+// # import { Css } from "./css.mjs"
+const { Css } = (function(){
   ///////////////////////////////////////
   const TiCss = {
     //-----------------------------------
@@ -16184,8 +16423,8 @@ const {Css} = (function(){
   return {Css: TiCss};
 })();
 //##################################################
-// # import {Mapping}      from "./mapping.mjs"
-const {Mapping} = (function(){
+// # import { Mapping } from "./mapping.mjs"
+const { Mapping } = (function(){
   /////////////////////////////////////////////
   class MatchPath {
     constructor(path, data) {
@@ -16283,8 +16522,8 @@ const {Mapping} = (function(){
   return {Mapping: TiMapping};
 })();
 //##################################################
-// # import {Dict,DictFactory} from "./dict.mjs"
-const {Dict,DictFactory} = (function(){
+// # import { Dict, DictFactory } from "./dict.mjs"
+const { Dict, DictFactory } = (function(){
   ///////////////////////////////////////////////
   class DictWrapper {
     constructor($dict, filterArgs) {
@@ -16970,8 +17209,8 @@ const {Dict,DictFactory} = (function(){
   return {DictWrapper, Dict, DictFactory};
 })();
 //##################################################
-// # import {VueEventBubble} from "./vue/vue-event-bubble.mjs"
-const {VueEventBubble} = (function(){
+// # import { VueEventBubble } from "./vue/vue-event-bubble.mjs"
+const { VueEventBubble } = (function(){
   ///////////////////////////////////////////////////
   const TryBubble = function (vm, event, stop = false) {
     if (vm.$parent && !stop) {
@@ -17089,8 +17328,8 @@ const {VueEventBubble} = (function(){
   return {VueEventBubble};
 })();
 //##################################################
-// # import {VueTiCom} from "./vue/vue-ti-com.mjs"
-const {VueTiCom} = (function(){
+// # import { VueTiCom } from "./vue/vue-ti-com.mjs"
+const { VueTiCom } = (function(){
   /////////////////////////////////////////////////////
   const TiComMixin = {
     inheritAttrs: false,
@@ -17419,8 +17658,8 @@ const {VueTiCom} = (function(){
   return {VueTiCom};
 })();
 //##################################################
-// # import {Album} from "./widget/album.mjs"
-const {Album} = (function(){
+// # import { Album } from "./widget/album.mjs"
+const { Album } = (function(){
   const ALBUM_CLASS_NAME = "ti-widget-album"
   const WALL_CLASS_NAME = "photo-wall"
   const DFT_WALL_CLASS = [
@@ -18354,8 +18593,8 @@ const {Album} = (function(){
   return {Album};
 })();
 //##################################################
-// # import {PhotoGallery} from "./widget/photo-gallery.mjs"
-const {PhotoGallery} = (function(){
+// # import { PhotoGallery } from "./widget/photo-gallery.mjs"
+const { PhotoGallery } = (function(){
   ////////////////////////////////////////////////
   /*
   $el
@@ -19082,8 +19321,8 @@ const {PhotoGallery} = (function(){
 })();
 //---------------------------------------
 //##################################################
-// # import {WalnutAppMain} from "./ti-walnut-app-main.mjs"
-const {WalnutAppMain} = (function(){
+// # import { WalnutAppMain } from "./ti-walnut-app-main.mjs"
+const { WalnutAppMain } = (function(){
   ///////////////////////////////////////////////
   async function WalnutAppMain({
     rs = "/gu/rs/", 
@@ -19260,6 +19499,7 @@ const {WalnutAppMain} = (function(){
     app.commit("session/set", _app.session)
     Wn.Session.setup(_app.session)
     Wn.Session.loadMyPvg()
+    Ti.Env(Wn.Session.env())
     // Mount app to DOM 
     app.mountTo("#app")
     // Ti.Session({
@@ -19298,8 +19538,8 @@ const {WalnutAppMain} = (function(){
   return {WalnutAppMain};
 })();
 //##################################################
-// # import {WebAppMain} from "./ti-web-app-main.mjs"
-const {WebAppMain} = (function(){
+// # import { WebAppMain } from "./ti-web-app-main.mjs"
+const { WebAppMain } = (function(){
   ///////////////////////////////////////////////
   async function WebAppMain({
     rs = "/gu/rs/", 
@@ -19483,9 +19723,9 @@ function Preload(url, anyObj) {
 let RS_PREFIXs = [];
 function AddResourcePrefix(...prefixes) {
   let list = _.flattenDeep(prefixes)
-  for(let prefix of list) {
-    if(!Ti.Util.isNil(prefix) && _.indexOf(RS_PREFIXs, prefix)<0) {
-      if(prefix && !prefix.endsWith("/")) {
+  for (let prefix of list) {
+    if (!Ti.Util.isNil(prefix) && _.indexOf(RS_PREFIXs, prefix) < 0) {
+      if (prefix && !prefix.endsWith("/")) {
         RS_PREFIXs.push(prefix + "/")
       } else {
         RS_PREFIXs.push(prefix)
@@ -19495,11 +19735,11 @@ function AddResourcePrefix(...prefixes) {
 }
 //---------------------------------------
 function MatchCache(url) {
-  if(!url) {
+  if (!url) {
     return
   }
-  for(let prefix of RS_PREFIXs) {
-    if(!Ti.Util.isNil(prefix) && url.startsWith(prefix)) {
+  for (let prefix of RS_PREFIXs) {
+    if (!Ti.Util.isNil(prefix) && url.startsWith(prefix)) {
       url = url.substring(prefix.length)
       break
     }
@@ -19508,34 +19748,34 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version" : "1.6-20230209.075555",
-  "dev" : false,
-  "appName" : null,
-  "session" : {},
-  "log" : {
-    "ROOT" : 0
+  "version": "1.6-20230210.203506",
+  "dev": false,
+  "appName": null,
+  "session": {},
+  "log": {
+    "ROOT": 0
   }
 }
-function _IS_LOG(cate="ROOT", lv) {
+function _IS_LOG(cate = "ROOT", lv) {
   let logc = ENV.log[cate]
-  if(_.isUndefined(logc))
+  if (_.isUndefined(logc))
     logc = ENV.log.ROOT
   return logc >= lv
 }
 //---------------------------------------
 const LOG_LEVELS = {
-  "error" : 0,
-  "warn"  : 1,
-  "info"  : 2,
-  "debug" : 3,
-  "trace" : 4,
+  "error": 0,
+  "warn": 1,
+  "info": 2,
+  "debug": 3,
+  "trace": 4,
 }
 //---------------------------------------
 const G_FUNCS = {}
 //---------------------------------------
 const Ti = {
   //-----------------------------------------------------
-  Alg, Be, S, Tmpl, Util, App, Err, Config, Dom, Css, Load, Http, 
+  Alg, Be, S, Tmpl, Util, App, Err, Config, Dom, Css, Load, Http,
   Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
   WWW, GPS, GIS, Validate, DateTime, Num, Trees, Bank,
   Mapping, Dict, DictFactory, Rects, Rect,
@@ -19543,7 +19783,7 @@ const Ti = {
   //-----------------------------------------------------
   Websocket: TiWebsocket,
   //-----------------------------------------------------
-  Widget : {
+  Widget: {
     Album, PhotoGallery
   },
   //-----------------------------------------------------
@@ -19552,67 +19792,72 @@ const Ti = {
   WalnutAppMain, WebAppMain,
   //-----------------------------------------------------
   Vue: {
-    EventBubble : VueEventBubble,
-    TiCom       : VueTiCom
+    EventBubble: VueEventBubble,
+    TiCom: VueTiCom
   },
   //-----------------------------------------------------
   Alert, Confirm, Prompt, Toast, Captcha, Toptip, EditCode,
   //-----------------------------------------------------
   Env(key, val) {
-    if(_.isUndefined(key))
+    if (_.isObject(key)) {
+      _.forEach(key, (v, k) => {
+        _.set(ENV, k, v)
+      })
+    }
+    if (_.isUndefined(key))
       return ENV
     return Ti.Util.geset(ENV, key, val)
   },
   //-----------------------------------------------------
-  Version() {return Ti.Env("version")},
+  Version() { return Ti.Env("version") },
   //-----------------------------------------------------
-  SetForDev(dev=true){Ti.Env({dev})},
-  IsForDev(){return Ti.Env("dev")},
+  SetForDev(dev = true) { Ti.Env({ dev }) },
+  IsForDev() { return Ti.Env("dev") },
   //-----------------------------------------------------
-  SetAppName(appName){Ti.Env({appName})},
-  GetAppName(){return Ti.Env("appName")},
+  SetAppName(appName) { Ti.Env({ appName }) },
+  GetAppName() { return Ti.Env("appName") },
   //-----------------------------------------------------
-  SetLogLevel(lv=0, cate="ROOT"){
+  SetLogLevel(lv = 0, cate = "ROOT") {
     // Get number by name
-    if(_.isString(lv))
+    if (_.isString(lv))
       lv = LOG_LEVELS[lv] || 0
-    
+
     // Set the level
     ENV.log[cate] = lv
   },
-  IsError(cate){return _IS_LOG(cate, LOG_LEVELS.error)},
-  IsWarn (cate){return _IS_LOG(cate, LOG_LEVELS.warn)},
-  IsInfo (cate){return _IS_LOG(cate, LOG_LEVELS.info)},
-  IsDebug(cate){return _IS_LOG(cate, LOG_LEVELS.debug)},
-  IsTrace(cate){return _IS_LOG(cate, LOG_LEVELS.trace)},
+  IsError(cate) { return _IS_LOG(cate, LOG_LEVELS.error) },
+  IsWarn(cate) { return _IS_LOG(cate, LOG_LEVELS.warn) },
+  IsInfo(cate) { return _IS_LOG(cate, LOG_LEVELS.info) },
+  IsDebug(cate) { return _IS_LOG(cate, LOG_LEVELS.debug) },
+  IsTrace(cate) { return _IS_LOG(cate, LOG_LEVELS.trace) },
   //-----------------------------------------------------
-  Invoke(fn, args=[], context) {
-    if(_.isFunction(fn)) {
+  Invoke(fn, args = [], context) {
+    if (_.isFunction(fn)) {
       context = context || this
       return fn.apply(context, args)
     }
   },
   //-----------------------------------------------------
-  InvokeBy(target={}, funcName, args=[], context) {
-    if(target) {
-      return Ti.Invoke(target[funcName], args, context||target)
+  InvokeBy(target = {}, funcName, args = [], context) {
+    if (target) {
+      return Ti.Invoke(target[funcName], args, context || target)
     }
   },
   //-----------------------------------------------------
-  async DoInvoke(fn, args=[], context) {
-    if(_.isFunction(fn)) {
+  async DoInvoke(fn, args = [], context) {
+    if (_.isFunction(fn)) {
       context = context || this
       return await fn.apply(context, args)
     }
   },
   //-----------------------------------------------------
-  async DoInvokeBy(target={}, funcName, args=[], context) {
-    if(target) {
-      return await Ti.DoInvoke(target[funcName], args, context||target)
+  async DoInvokeBy(target = {}, funcName, args = [], context) {
+    if (target) {
+      return await Ti.DoInvoke(target[funcName], args, context || target)
     }
   },
   //-----------------------------------------------------
-  AddGlobalFuncs(funcs){
+  AddGlobalFuncs(funcs) {
     _.assign(G_FUNCS, funcs)
   },
   //-----------------------------------------------------
@@ -19624,7 +19869,7 @@ const Ti = {
 //---------------------------------------
 export default Ti
 //---------------------------------------
-if(window) {
+if (window) {
   window.Ti = Ti
 }
 //---------------------------------------

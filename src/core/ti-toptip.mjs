@@ -72,7 +72,7 @@ const TiToptip = {
   ```
   dynamic content example:
 
-  [html:4rem,3rem]@tip:${lang}/test/abc.html
+  [H:info!html:4rem,3rem]@tip:${lang}/test/abc.html
   - `@tip` defined in _ti/config.json
   */
   async createTip($target, options = {}) {
@@ -90,12 +90,13 @@ const TiToptip = {
       mode = "H"
     } = _.assign(tip, options);
     //Quick attrigbute
-    let m = /^\[(([^!]+)!)?(html|text|md)?:([^\]]+)\]\s*(.+)/.exec(content)
+    let m = /^\[(([HV]):)?(([^!]+)!)?(html|text|md)?(:([^\]]+))?\]\s*(.+)/.exec(content)
     if (m) {
-      type = m[2] || type
-      contentType = m[4] || contentType
-      size = m[4] || _.trim(size)
-      content = _.trim(m[5])
+      mode = m[2] || mode
+      type = m[4] || type
+      contentType = m[6] || contentType
+      size = m[7] || _.trim(size)
+      content = _.trim(m[8])
     }
     //
     // Get/Create wrapper
@@ -165,7 +166,7 @@ const TiToptip = {
     })
 
     //
-    // Arrow Moving
+    // Move Arrow to Target by footer margin
     //
     let arw = Ti.Rects.createBy($arrow)
     let style = ({
@@ -190,9 +191,15 @@ const TiToptip = {
     // Mark Open 
     this.$target = $target
     this.tipBox = tipBox
-    this.targetRect = dock.targetRect
+    this.targetRect = this.genRectScope(dock.targetRect)
     this.tipRect = dock.srcRect
 
+  },
+  //------------------------------------------
+  genRectScope(rect, space = 20) {
+    rect.width += space
+    rect.height += space
+    return rect.updateBy("xywh")
   },
   //------------------------------------------
   getTipMeasureStyle(size) {
@@ -265,13 +272,13 @@ const TiToptip = {
       if (this.isInTipRect(point) || this.isInTargetRect(point)) {
         return
       }
-      // console.log("delay OUTSIDE", point,
-      //   "\nTip:", this.isInTipRect(point),
-      //   `X:[${this.tipRect.left}, ${this.tipRect.right}]`,
-      //   `Y:[${this.tipRect.top}, ${this.tipRect.bottom}]`,
-      //   "\nTarget:", this.isInTargetRect(point),
-      //   `X:[${this.targetRect.left}, ${this.targetRect.right}]`,
-      //   `Y:[${this.targetRect.top}, ${this.targetRect.bottom}]`)
+      console.log("delay OUTSIDE", point,
+        "\nTip:", this.isInTipRect(point),
+        `X:[${this.tipRect.left}, ${this.tipRect.right}]`,
+        `Y:[${this.tipRect.top}, ${this.tipRect.bottom}]`,
+        "\nTarget:", this.isInTargetRect(point),
+        `X:[${this.targetRect.left}, ${this.targetRect.right}]`,
+        `Y:[${this.targetRect.top}, ${this.targetRect.bottom}]`)
 
       this.destroy()
       this.tipBox = null
@@ -307,7 +314,7 @@ const TiToptip = {
           $wrapper.style = null
           $foot.style = null
           resolve(true)
-        }, 1000)
+        }, 100)
       })
 
     }
@@ -389,11 +396,20 @@ const TiToptip = {
         y: evt.clientY
       }
       TiToptip.point = point
-      // Get tip Element and tip data
       let $el = Ti.Dom.closest(evt.target, "[data-ti-tip]", { includeSelf: true })
       if (!$el) {
         TiToptip.OnHoverInBody()
-      } else {
+      }
+      // Find tip element
+      else {
+        // Get tip Element and tip data
+        let decKey = _.lowerCase($el.getAttribute("data-ti-keyboard"))
+        if (/^(ctrl|alt|shift|meta)$/.test(decKey)) {
+          if (!evt[`${decKey}Key`]) {
+            return
+          }
+        }
+        // Then show the tip
         TiToptip.OnHoverInTarget($el)
       }
       //this.drawAllHelpers()

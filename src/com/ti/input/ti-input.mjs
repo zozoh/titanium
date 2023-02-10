@@ -216,11 +216,13 @@ const _M = {
     },
     //------------------------------------------------
     OnClickSuffixIcon() {
-      if (this.suffixIconNotifyName)
+      if (this.suffixIconNotifyName){
         this.$notify(this.suffixIconNotifyName)
+      }
     },
     //------------------------------------------------
     OnClickSuffixText() {
+      //console.log("suffix")
       if (this.suffixTextNotifyName)
         this.$notify(this.suffixTextNotifyName)
     },
