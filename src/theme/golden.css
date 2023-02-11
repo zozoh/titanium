@@ -8283,8 +8283,7 @@ div.ti-input-tags {
   left: -500px;
   opacity: 0;
   transition: opacity 0.5s, transform 0.3s;
-  z-index: 999999;
-  box-shadow: 0.1rem 0.1rem 0.2rem rgba(0, 0, 0, 0.2); }
+  z-index: 999999; }
   #ti-tip-wrapper[tip-ready="no"][tip-at="top"] {
     transform: translateY(20px); }
   #ti-tip-wrapper[tip-ready="no"][tip-at="bottom"] {
@@ -8305,6 +8304,7 @@ div.ti-input-tags {
       padding: 1px;
       min-height: 0.4rem;
       border-radius: 0.06rem;
+      box-shadow: 0.1rem 0.1rem 0.2rem rgba(0, 0, 0, 0.2);
       overflow: auto; }
   #ti-tip-wrapper[tip-size="auto"] {
     min-width: 1rem; }

@@ -5,7 +5,6 @@
   opacity: 0;
   transition: opacity 0.5s, transform 0.3s;
   z-index: $z-top;
-  box-shadow: SZ(10) SZ(10) SZ(20) rgba(0, 0, 0, 0.2);
   //-----------------------------------------
   &[tip-ready="no"] {
     &[tip-at="top"] {
@@ -36,6 +35,7 @@
       padding: 1px;
       min-height: SZ(40);
       border-radius: SZ(6);
+      box-shadow: SZ(10) SZ(10) SZ(20) rgba(0, 0, 0, 0.2);
       overflow: auto;
     }
   }

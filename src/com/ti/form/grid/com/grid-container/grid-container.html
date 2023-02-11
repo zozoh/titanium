@@ -28,8 +28,7 @@
             :title="fld.statusText"
             :grid-start="fld.nameGridStart"
             :grid-span="fld.nameGridSpan"
-            :data-ti-tip="fld.nameTip"
-            data-ti-keyboard="ctrl">
+            >
             <!--------------------------------->
             <div class="field-name-con">
               <div
@@ -41,6 +40,8 @@
                 v-if="fld.title"
                   class="field-text"
                   :style="fld.nameTextStyle"
+                  :data-ti-tip="fld.nameTip"
+                  data-ti-keyboard="ctrl"
                   >{{fld.title}}</div>
               <div
                   v-if="fld.tip && fld.tipAsPopIcon"
