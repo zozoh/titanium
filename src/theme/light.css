@@ -860,6 +860,12 @@ i.im {
     padding: 0 0.06rem; }
   .ti-actionbar.pad-hb {
     padding: 0 0.08rem; }
+  .ti-actionbar.pad-s {
+    padding: 0.04rem; }
+  .ti-actionbar.pad-m {
+    padding: 0.06rem; }
+  .ti-actionbar.pad-b {
+    padding: 0.08rem; }
   .ti-actionbar .bar-item-group.is-depth-0 > .as-children {
     display: flex;
     justify-content: flex-start;
