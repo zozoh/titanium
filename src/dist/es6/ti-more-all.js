@@ -1,4 +1,4 @@
-// Pack At: 2023-02-11 08:38:35
+// Pack At: 2023-02-12 22:10:00
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -25286,6 +25286,14 @@ const _M = {
       }, this.blankAs)
     },
     //-----------------------------------------------
+    ContentMode() {
+      return ({
+        "txt": "text",
+        "js": "javascript",
+        "htm": "html"
+      })[this.mode] || this.mode || "text"
+    },
+    //-----------------------------------------------
     BlankComStyle() {
       return {
         position: "absolute",
@@ -25315,7 +25323,7 @@ const _M = {
       editor.setTheme(`ace/theme/${this.EditorTheme}`)
       //console.log(this.EditorOption)
       editor.setOptions(this.EditorOption)
-      editor.session.setMode(`ace/mode/${this.mode}`)
+      editor.session.setMode(`ace/mode/${this.ContentMode}`)
       editor.session.setValue(this.value || "")
 
       // Events
@@ -86613,8 +86621,7 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
             :title="fld.statusText"
             :grid-start="fld.nameGridStart"
             :grid-span="fld.nameGridSpan"
-            :data-ti-tip="fld.nameTip"
-            data-ti-keyboard="ctrl">
+            >
             <!--------------------------------->
             <div class="field-name-con">
               <div
@@ -86626,6 +86633,8 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
                 v-if="fld.title"
                   class="field-text"
                   :style="fld.nameTextStyle"
+                  :data-ti-tip="fld.nameTip"
+                  data-ti-keyboard="ctrl"
                   >{{fld.title}}</div>
               <div
                   v-if="fld.tip && fld.tipAsPopIcon"

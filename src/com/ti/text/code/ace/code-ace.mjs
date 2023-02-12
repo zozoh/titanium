@@ -50,6 +50,14 @@ const _M = {
       }, this.blankAs)
     },
     //-----------------------------------------------
+    ContentMode() {
+      return ({
+        "txt": "text",
+        "js": "javascript",
+        "htm": "html"
+      })[this.mode] || this.mode || "text"
+    },
+    //-----------------------------------------------
     BlankComStyle() {
       return {
         position: "absolute",
@@ -79,7 +87,7 @@ const _M = {
       editor.setTheme(`ace/theme/${this.EditorTheme}`)
       //console.log(this.EditorOption)
       editor.setOptions(this.EditorOption)
-      editor.session.setMode(`ace/mode/${this.mode}`)
+      editor.session.setMode(`ace/mode/${this.ContentMode}`)
       editor.session.setValue(this.value || "")
 
       // Events

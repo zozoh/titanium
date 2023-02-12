@@ -1,4 +1,4 @@
-// Pack At: 2023-02-11 08:38:35
+// Pack At: 2023-02-12 22:10:00
 //##################################################
 // # import { Alert } from "./ti-alert.mjs"
 const { Alert } = (function(){
@@ -820,7 +820,7 @@ const { Toptip } = (function(){
       }
       //console.log("Hover")
       // Clone prev tip box
-      await this.destroy()
+      await this.destroy(true)
   
       // Create new one
       this.createTip($el)
@@ -842,13 +842,13 @@ const { Toptip } = (function(){
         if (this.isInTipRect(point) || this.isInTargetRect(point)) {
           return
         }
-        console.log("delay OUTSIDE", point,
-          "\nTip:", this.isInTipRect(point),
-          `X:[${this.tipRect.left}, ${this.tipRect.right}]`,
-          `Y:[${this.tipRect.top}, ${this.tipRect.bottom}]`,
-          "\nTarget:", this.isInTargetRect(point),
-          `X:[${this.targetRect.left}, ${this.targetRect.right}]`,
-          `Y:[${this.targetRect.top}, ${this.targetRect.bottom}]`)
+        // console.log("delay OUTSIDE", point,
+        //   "\nTip:", this.isInTipRect(point),
+        //   `X:[${this.tipRect.left}, ${this.tipRect.right}]`,
+        //   `Y:[${this.tipRect.top}, ${this.tipRect.bottom}]`,
+        //   "\nTarget:", this.isInTargetRect(point),
+        //   `X:[${this.targetRect.left}, ${this.targetRect.right}]`,
+        //   `Y:[${this.targetRect.top}, ${this.targetRect.bottom}]`)
   
         this.destroy()
         this.tipBox = null
@@ -857,36 +857,46 @@ const { Toptip } = (function(){
       this.closeCheckerIsSet = true
     },
     //------------------------------------------
-    destroy() {
+    destroy(nodelay = false) {
       if (!this.tipBox || !this.tipBox.app) {
         return
       }
       let { $wrapper, $main, $foot } = this.getTipWarpper(false)
+      const do_destroy = () => {
+        // Destroy app
+        this.$target = null
+        this.targetRect = null
+        this.tipRect = null
+  
+        if (this.tipBox && this.tipBox.app) {
+          this.tipBox.app.destroy()
+          this.tipBox = null
+        }
+  
+        // Clean DOM
+        $main.innerHTML = "<div></div>"
+        $wrapper.style = null
+        $foot.style = null
+      }
+  
       if ($wrapper) {
         // Removem DOM mark
         Ti.Dom.setAttrs($wrapper, {
           "tip-ready": "no"
         })
-        return new Promise((resolve) => {
-          _.delay(() => {
-            // Destroy app
-            this.$target = null
-            this.targetRect = null
-            this.tipRect = null
-  
-            if (this.tipBox && this.tipBox.app) {
-              this.tipBox.app.destroy()
-              this.tipBox = null
-            }
-  
-            // Clean DOM
-            $main.innerHTML = "<div></div>"
-            $wrapper.style = null
-            $foot.style = null
-            resolve(true)
-          }, 100)
-        })
-  
+        // destroy by move in
+        if (nodelay) {
+          do_destroy()
+        }
+        // destroy by move out
+        else {
+          return new Promise((resolve) => {
+            _.delay(() => {
+              do_destroy();
+              resolve(true)
+            }, 100)
+          })
+        }
       }
     },
     //------------------------------------------
@@ -19748,7 +19758,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230211.083835",
+  "version": "1.6-20230212.221000",
   "dev": false,
   "appName": null,
   "session": {},
