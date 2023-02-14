@@ -87,14 +87,26 @@ const TiToptip = {
       size = "auto",
       content,
       contentType = "text",
-      mode = "H"
+      mode = "H",
+      vars= {}
     } = _.assign(tip, options);
     //Quick attrigbute
+    // [
+    // 0  "[V:paper!text:auto]xxxx: xxxx",
+    // 1) "V:",
+    // 2) "V",
+    // 3) "paper!",
+    // 4) "paper",
+    // 5) "text",
+    // 6) ":auto",
+    // 7) "auto",
+    // 8) "xxxx: xxxx"
+    // ]
     let m = /^\[(([HV]):)?(([^!]+)!)?(html|text|md)?(:([^\]]+))?\]\s*(.+)/.exec(content)
     if (m) {
       mode = m[2] || mode
       type = m[4] || type
-      contentType = m[6] || contentType
+      contentType = m[5] || contentType
       size = m[7] || _.trim(size)
       content = _.trim(m[8])
     }
@@ -131,6 +143,10 @@ const TiToptip = {
         "md": "text"
       })[ftp] || "text"
       content = await Ti.Load(path)
+    }
+    // Render content
+    if(!_.isEmpty(vars)){
+      content = Ti.Tmpl.exec(content, vars)
     }
     //
     // Open box
@@ -220,14 +236,24 @@ const TiToptip = {
   },
   //------------------------------------------
   getTipData($target, options) {
-    return Ti.Dom.getData($target, (key, value) => {
+    let vars = {}
+    let tip = Ti.Dom.getData($target, (key, value) => {
       //console.log(key, value)
-      let m = /^(tiTip)(.*)?$/.exec(key)
+      let m = /^(tiTip)(Vars)?(.*)?$/.exec(key)
       if (m) {
-        let name = _.camelCase(m[2] || "content")
-        return { name, value }
+        // Tip Template vars
+        // data-ti-tip-vars-xxx
+        if ("Vars" == m[2]) {
+          vars[_.lowerFirst(m[3])] = value
+          return 
+        }
+        // Tip setting
+        let name = _.camelCase(m[3] || "content")
+        return name
       }
     })
+    tip.vars = vars
+    return tip
   },
   //------------------------------------------
   isInTargetRect(point) {

@@ -3,6 +3,12 @@
   padding: 1px;
   width: 100%;
   //-------------------------------------
+  &.item-noselect {
+    .as-bullet-item.as-option{
+      user-select: none;
+    }
+  }
+  //-------------------------------------
   .as-group-title {
     padding: 0.5em;
     font-size: 0.9em;

@@ -156,8 +156,17 @@ export default {
     type: Boolean,
     default: false
   },
-  "autoFieldTip": {
-    type: Boolean,
+  /*
+  true  => {text: "${title}: ${name}"}
+  "xxx" => {text: "xxx"}
+  {
+    text: "${title}: ${name}",
+    vars: {...},  // more vars, built-in:(title, name)
+    mode: "V"
+  }
+  */
+  "autoFieldNameTip": {
+    type: [Boolean,String,Object],
     default: false
   },
   //-----------------------------------

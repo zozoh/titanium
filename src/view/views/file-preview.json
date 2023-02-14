@@ -5,6 +5,9 @@
     "meta": "=Current.meta",
     "writable": true
   },
+  "events": {
+    "obj:write": "dispatch:current/reload"
+  },
   "actions": [
     {
       "type": "group",
@@ -19,7 +22,7 @@
             "icon": "zmdi-refresh zmdi-hc-spin",
             "text": "i18n:loading"
           },
-          "action": "dispatch:main/reload",
+          "action": "dispatch:current/reload",
           "shortcut": "CTRL+SHIFT+R"
         },
         {

@@ -17,10 +17,12 @@
   }
 
   //---------------------------------------------
-  &.is-head-normal {}
+  &.is-head-normal {
+  }
 
   //---------------------------------------------
-  &.is-head-none {}
+  &.is-head-none {
+  }
 
   //---------------------------------------------
   &.is-border-row {
@@ -66,7 +68,7 @@
       @include color($color-weaktip, r, c);
     }
 
-    >table>tbody td>.cell-wrapper .table-row-head {
+    > table > tbody td > .cell-wrapper .table-row-head {
       .row-handler:hover {
         @include color($color-boldtip, r, c);
       }
@@ -78,12 +80,12 @@
   }
 
   //---------------------------------------------
-  &.is-layout-fixed>table {
+  &.is-layout-fixed > table {
     table-layout: fixed;
   }
 
   //---------------------------------------------
-  &.is-layout-auto>table {
+  &.is-layout-auto > table {
     table-layout: auto;
   }
 
@@ -92,12 +94,12 @@
   //                The Table Part
   //
   //---------------------------------------------
-  >table {
+  > table {
     width: 100%;
     border-spacing: 0;
 
     //-------------------------------------------
-    >thead {
+    > thead {
       @include noselect;
 
       //-----------------------------------------
@@ -175,19 +177,18 @@
 
       //-----------------------------------------
       &:hover {
-        th>.as-customized-btn {
+        th > .as-customized-btn {
           opacity: 0.8;
         }
       }
     }
 
     //---------------------------------------------
-    >tbody {
-
+    > tbody {
       //-------------------------------------------
       // Table Row
       //-------------------------------------------
-      >tr {
+      > tr {
         height: 2.6em;
         &.is-weak {
           opacity: 0.4;
@@ -220,10 +221,10 @@
           td {
             border-color: map-get($color-primary, r);
 
-            >.cell-wrapper .table-row-head {
+            > .cell-wrapper .table-row-head {
               .row-checker {
                 &.as-checkbox {
-                  >.icon-icon {
+                  > .icon-icon {
                     i:first-child {
                       display: block;
                     }
@@ -245,7 +246,8 @@
             }
 
             //-------------------------------------
-            .ti-icon {
+            .ti-icon,
+            .ti-label {
               &.is-success {
                 @include color($color-success, r);
               }
@@ -343,7 +345,7 @@
       // Group title
       //-------------------------------------------
       td.as-row-group-title {
-        >.row-group-title-con {
+        > .row-group-title-con {
           @include flex-center;
           padding: SZ(8);
           font-weight: bold;
@@ -357,7 +359,7 @@
         vertical-align: middle;
         position: relative;
         min-height: 2.6em;
-        >.cell-wrapper {
+        > .cell-wrapper {
           @include flex($ai: stretch, $wp: nowrap);
           //-------------------------------------------
           // Table Row Header
@@ -411,7 +413,7 @@
               }
 
               &.as-checkbox {
-                >.icon-icon {
+                > .icon-icon {
                   i:first-child {
                     display: none;
                   }
@@ -438,19 +440,19 @@
           //-----------------------------------------
           // Cell Container
           //-----------------------------------------
-          >.cell-con {
+          > .cell-con {
             @include flex-align;
             flex: 1 1 auto;
             line-height: 2.6em;
             min-height: 2.6em;
             //---------------------------------------
-            >.ti-icon.item-0 {
+            > .ti-icon.item-0 {
               width: 1.8em;
               margin-left: 0;
             }
 
             //---------------------------------------
-            >.ti-icon {
+            > .ti-icon {
               margin: 0 0.2em;
             }
 
@@ -477,7 +479,7 @@
             }
 
             //---------------------------------------
-            >.ti-icon.img-contain .icon-icon img {
+            > .ti-icon.img-contain .icon-icon img {
               object-fit: contain;
             }
 
@@ -492,7 +494,7 @@
           &.is-editing-mode {
             position: relative;
 
-            >.cell-con {
+            > .cell-con {
               @include pos-abs-full;
             }
           }
@@ -501,15 +503,15 @@
         }
 
         //-------------------------------------------
-        &.align-left>.cell-wrapper>.cell-con {
+        &.align-left > .cell-wrapper > .cell-con {
           justify-content: flex-start;
         }
 
-        &.align-center>.cell-wrapper>.cell-con {
+        &.align-center > .cell-wrapper > .cell-con {
           justify-content: center;
         }
 
-        &.align-right>.cell-wrapper>.cell-con {
+        &.align-right > .cell-wrapper > .cell-con {
           justify-content: flex-end;
         }
 

@@ -166,7 +166,7 @@ const _M = {
     GridContainerConf() {
       return {
         tipAsPopIcon: this.tipAsPopIcon,
-        autoFieldTip: this.autoFieldTip,
+        autoFieldNameTip: this.autoFieldNameTip,
         data: this.myData,
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,

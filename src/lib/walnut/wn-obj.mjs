@@ -69,22 +69,22 @@ const TABLE_FIELDS = {
   //---------------------------------------------
   "sort": {
     title: "i18n:sort",
-    display: "sort"
+    display: "rawData.sort"
   },
   //---------------------------------------------
   "width": {
     title: "i18n:wn-key-width",
-    display: "width"
+    display: "rawData.width"
   },
   //---------------------------------------------
   "height": {
     title: "i18n:wn-key-height",
-    display: "height"
+    display: "rawData.height"
   },
   //---------------------------------------------
   "duration": {
     title: "i18n:wn-key-duration",
-    display: "duration"
+    display: "rawData.duration"
   },
   //---------------------------------------------
   "len": {

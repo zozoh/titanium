@@ -26,8 +26,8 @@ const _M = {
       type: Boolean,
       default: false
     },
-    "autoFieldTip": {
-      type: Boolean,
+    "autoFieldNameTip": {
+      type: [Boolean, String, Object],
       default: false
     },
     //-----------------------------------
@@ -243,17 +243,14 @@ const _M = {
         }
         // Normal field
         else {
-          fld.autoFieldTip = Ti.Util.fallback(fld.autoFieldTip, this.autoFieldTip)
+
           fld.tipAsPopIcon = Ti.Util.fallback(fld.tipAsPopIcon, this.tipAsPopIcon)
           // Grid with field name
           if (fld.showName) {
 
             fld.title = Ti.I18n.text(fld.title)
-            if(fld.autoFieldTip){
-              let nameText = _.concat(fld.name).join('</code> <code>')
-              fld.nameTip = `[V:success!html]<p><b>${fld.title}:</b> <code>${nameText}</code>`
-            }
-            
+            this.setFieldNameTip(fld)
+
             nmStyle = {
               //"grid-column-start": fld.nameGridStart + 1,
               "grid-column-end": `span ${fld.nameGridSpan}`,
@@ -309,6 +306,57 @@ const _M = {
       } // for (let fld of fields) {
 
       this.myFields = list
+    },
+    //--------------------------------------------------
+    setFieldNameTip(fld) {
+      let autoNameTip = Ti.Util.fallback(
+        fld.autoNameTip, this.autoFieldNameTip)
+      if (autoNameTip) {
+        //console.log("setFieldNameTip", fld)
+        let nt = { vars: {}, mode: "V" }
+        // true
+        if (_.isBoolean(autoNameTip)) {
+          nt.text = "${title}: ${name}"
+        }
+        // String as template
+        else if (_.isString(autoNameTip)) {
+          nt.text = autoNameTip
+        }
+        // Full Dedefined
+        else if (_.isObject(autoNameTip)) {
+          _.assign(nt, autoNameTip)
+        }
+        _.defaults(nt, {
+          vars: {},
+          mode: "V",
+          size: "auto",
+          type: "success",
+          contentType: "text",
+          text: "${title}: ${name}"
+        })
+        _.defaults(nt.vars, {
+          title: fld.title,
+          name: _.concat(fld.name).join(', ')
+        })
+        fld.nameTip = {}
+        _.forEach(nt, (v, k) => {
+          // 设置变量
+          if ("vars" == k) {
+            _.forEach(v, (varVal, varName) => {
+              fld.nameTip[`data-ti-tip-vars-${varName}`] = varVal
+            })
+          }
+          // 设置数据
+          else if ("text" == k) {
+            fld.nameTip[`data-ti-tip`] = v
+          }
+          // 普通设置
+          else {
+            fld.nameTip[`data-ti-tip-${k}`] = v
+          }
+        })
+
+      }
     },
     //--------------------------------------------------
     setFieldStatus(fld = {}) {

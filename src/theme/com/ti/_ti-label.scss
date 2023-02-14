@@ -134,6 +134,8 @@
   &.as-lowercase  {text-transform: lowercase;}
   &.as-capitalize {text-transform: capitalize;}
   //------------------------------------------
+  &.is-del   {text-decoration: line-through;}
+  //------------------------------------------
   &.is-success {color: map-get($color-success, c);}
   &.is-warn    {color: map-get($color-warn, c);}
   &.is-info    {color: map-get($color-info, c);} 

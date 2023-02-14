@@ -373,7 +373,7 @@ export default {
         mode: "s",
         progress: ({ loaded = 0 } = {}) => {
           this.uploading = loaded / total
-          console.log(this.uploading)
+          //console.log(this.uploading)
         }
       })
 

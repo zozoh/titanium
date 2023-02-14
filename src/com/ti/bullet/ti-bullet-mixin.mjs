@@ -96,6 +96,10 @@ const _M = {
       type: Boolean,
       default: true
     },
+    "defualItemIcon": {
+      type: [Object, String],
+      default: undefined
+    },
     "blankAs": {
       type: Object
     },
@@ -335,6 +339,9 @@ const _M = {
         }
         // Mapping
         it = this.FnOptionMapping(it)
+        _.defaults(it, {
+          icon: this.defualItemIcon
+        })
 
         // Join value mapping
         itMap[it.value] = it

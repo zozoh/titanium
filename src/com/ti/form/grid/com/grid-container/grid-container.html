@@ -40,7 +40,7 @@
                 v-if="fld.title"
                   class="field-text"
                   :style="fld.nameTextStyle"
-                  :data-ti-tip="fld.nameTip"
+                  v-bind="fld.nameTip"                 
                   data-ti-keyboard="ctrl"
                   >{{fld.title}}</div>
               <div

@@ -714,7 +714,7 @@ const TiUtil = {
 
         let m_type, m_val, m_dft;
         // Match template or function call
-        m = /^(==>>?|=>>?|->)(.*)$/.exec(theValue)
+        m = /^(==?>>?\??|->)(.*)$/.exec(theValue)
         if (m) {
           m_type = m[1]
           m_val = _.trim(m[2])
@@ -753,9 +753,20 @@ const TiUtil = {
               }
               return Ti.Util.genInvoking(val, { context, partial: "left" })
             },
+            "==>?": (val) => {
+              let func = _.get(window, val)
+              if (_.isFunction(func)) {
+                return func
+              }
+              return Ti.Util.genInvoking(val, { context, partial: "left?" })
+            },
             // Just get function: partial right
             "==>>": (val) => {
               return Ti.Util.genInvoking(val, { context, partial: "right" })
+            },
+            // Just get function: partial right
+            "==>>?": (val) => {
+              return Ti.Util.genInvoking(val, { context, partial: "right?" })
             },
             // ==xxx  # Get Boolean value now
             "==": (val) => {
@@ -787,9 +798,17 @@ const TiUtil = {
               let fn = Ti.Util.genInvoking(val, { context, partial: "right" })
               return fn()
             },
+            "=>>?": (val) => {
+              let fn = Ti.Util.genInvoking(val, { context, partial: "right?" })
+              return fn()
+            },
             // =>Ti.Types.toStr(meta)
             "=>": (val) => {
               let fn = Ti.Util.genInvoking(val, { context, partial: "left" })
+              return fn()
+            },
+            "=>?": (val) => {
+              let fn = Ti.Util.genInvoking(val, { context, partial: "left?" })
               return fn()
             },
             // Render template
@@ -1756,6 +1775,14 @@ const TiUtil = {
         }
         // [ ... <-- ?]
         else if ("left" == partial) {
+          return function (...input) {
+            let ins = input
+            let as = _.concat([], invokeArgs, ins);
+            return func.apply(this, as)
+          }
+        }
+        // [ ... <-- ?]
+        else if ("left?" == partial) {
           return function (...input) {
             let ins = _.without(input, undefined)
             let as = _.concat([], invokeArgs, ins);

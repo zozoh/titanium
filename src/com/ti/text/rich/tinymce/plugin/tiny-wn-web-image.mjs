@@ -288,48 +288,56 @@ async function CmdShowWebImageProp(editor, settings) {
     comType: "TiForm",
     comConf: {
       onlyFields: false,
-      spacing: "comfy",
+      spacing: "tiny",
       fields: [{
         title: "i18n:hmk-w-edit-img-info",
-        fields: [{
-          title: "i18n:hmk-w-edit-img-pic",
-          name: "id",
-          comType: "WnObjPicker",
-          comConf: {
-            valueType: "id",
-            base: settings.base,
-            titleEditable: false
+        fields: [
+          {
+            title: "i18n:hmk-w-edit-img-pic",
+            name: "id",
+            rowSpan: 3,
+            comType: "WnObjPicker",
+            comConf: {
+              valueType: "id",
+              base: settings.base,
+              titleEditable: false
+            }
+          },
+          {
+            title: "i18n:hmk-w-edit-img-title",
+            name: "title",
+            comType: "TiInput",
+            comConf: {
+              placeholder: "i18n:hmk-w-edit-img-title-tip"
+            }
+          },
+          {
+            title: "i18n:hmk-w-edit-img-link",
+            name: "link",
+            comType: "TiInput",
+            comConf: {
+              placeholder: "i18n:hmk-w-edit-img-link-tip"
+            }
+          },
+          {
+            title: "i18n:hmk-w-edit-img-newtab",
+            name: "newtab",
+            type: "Boolean",
+            comType: "TiToggle"
           }
-        }, {
-          title: "i18n:hmk-w-edit-img-title",
-          name: "title",
-          comType: "TiInput",
-          comConf: {
-            placeholder: "i18n:hmk-w-edit-img-title-tip"
-          }
-        }, {
-          title: "i18n:hmk-w-edit-img-link",
-          name: "link",
-          comType: "TiInput",
-          comConf: {
-            placeholder: "i18n:hmk-w-edit-img-link-tip"
-          }
-        }, {
-          title: "i18n:hmk-w-edit-img-newtab",
-          name: "newtab",
-          type: "Boolean",
-          comType: "TiToggle"
-        }]
-      }, {
+        ]
+      },
+      {
         title: "i18n:hmk-aspect",
         fields: [
           Wn.Hm.getCssPropField("margin", { name: "imgStyle.margin" }),
+          Wn.Hm.getCssPropField("float", { name: "imgStyle.float" }),
           Wn.Hm.getCssPropField("width", { name: "imgStyle.width" }),
           Wn.Hm.getCssPropField("height", { name: "imgStyle.height" }),
-          Wn.Hm.getCssPropField("float", { name: "imgStyle.float" }),
           Wn.Hm.getCssPropField("object-fit", { name: "imgStyle.objectFit" }),
         ]
-      }, {
+      },
+      {
         title: "i18n:hmk-aspect-more",
         fields: [{
           title: "i18n:hmk-w-edit-img-style",
@@ -340,7 +348,8 @@ async function CmdShowWebImageProp(editor, settings) {
           comConf: {
             rules: "#IMG"
           }
-        }, {
+        },
+        {
           title: "i18n:hmk-w-edit-alt-style",
           name: "altStyle",
           type: "Object",

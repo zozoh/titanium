@@ -22,6 +22,8 @@ function _render_iteratee({
 //////////////////////////////////////////////
 // cx = {vars, itemData, value}
 function __eval_com_conf_item(val, cx = {}) {
+  if(cx && cx.value == "数据可视化")
+    console.log(val, cx)
   // String valu3
   if (_.isString(val)) {
     if (/^:*([-=]|[!=]=|->|==?>)/.test(val)) {

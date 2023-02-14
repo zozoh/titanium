@@ -32,7 +32,7 @@
     > main {
       width: 100%;
       height: 100%;
-      padding: 1px;
+      padding: 1px SZ(6);
       min-height: SZ(40);
       border-radius: SZ(6);
       box-shadow: SZ(10) SZ(10) SZ(20) rgba(0, 0, 0, 0.2);
@@ -213,9 +213,30 @@
     padding: 1em;
   }
   //-----------------------------------------
+  ul,
+  ol {
+    padding: 0;
+    margin: 1em 1em 1em 3em;
+  }
+  ul {
+    list-style: disc;
+    ul {
+      list-style: circle;
+    }
+  }
+  ol {
+    list-style: decimal;
+    ol {
+      list-style: lower-alpha;
+      ol {
+        list-style: lower-roman;
+      }
+    }
+  }
+  //-----------------------------------------
   code {
     @include font-fixed;
-    margin: 0 0.5em
+    margin: 0 0.5em;
   }
   //-----------------------------------------
 }
