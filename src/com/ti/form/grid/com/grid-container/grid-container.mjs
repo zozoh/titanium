@@ -342,7 +342,8 @@ const _M = {
         _.forEach(nt, (v, k) => {
           // 设置变量
           if ("vars" == k) {
-            _.forEach(v, (varVal, varName) => {
+            _.forEach(v, (varVal, key) => {
+              let varName = _.kebabCase(key)
               fld.nameTip[`data-ti-tip-vars-${varName}`] = varVal
             })
           }
