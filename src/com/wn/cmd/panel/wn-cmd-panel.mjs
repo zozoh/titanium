@@ -144,6 +144,7 @@ const _M = {
       let showTailRunTip = Ti.Util.fallback(
         options.showTailRunTip, this.showTailRunTip
       )
+      console.log(showTailRunTip)
       if (showTailRunTip) {
         this.printHR()
         this.lines.push("--> " + cmdText)

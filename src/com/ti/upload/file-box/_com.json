@@ -1,0 +1,6 @@
+{
+  "name": "ti-upload-file-box",
+  "globally": true,
+  "template": "./ti-upload-file-box.html",
+  "mixins": "./ti-upload-file-box.mjs"
+}

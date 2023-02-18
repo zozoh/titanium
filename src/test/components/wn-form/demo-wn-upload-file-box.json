@@ -1,0 +1,21 @@
+{
+  "comType" : "ti-form",
+  "comConf" : {
+    "autoShowBlank" : false,
+    "data" : "=data",
+    "fields" : [{
+        "title" : "单文件上传",
+        "name"  : "myFile",
+        "comType" : "wn-upload-file-box",
+        "comConf" : {
+          "target" : "~/media/",
+          "valueType": "idPath",
+          "width": 300,
+          "height": 300
+        }
+      }]
+  },
+  "components":[
+    "@com:wn/upload/file-box"
+  ]
+}

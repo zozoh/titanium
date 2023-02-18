@@ -1,0 +1,9 @@
+{
+  "name": "wn-upload-file-box",
+  "globally": true,
+  "template": "./wn-upload-file-box.html",
+  "mixins": "@com:wn/upload/file/wn-upload-file.mjs",
+  "components": [
+    "@com:ti/upload/file-box"
+  ]
+}

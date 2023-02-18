@@ -1,0 +1,20 @@
+<div class="ti-upload-file-box full-field"
+  :class="TopClass">
+  <!--
+    Hidden input file to choose files
+  -->
+  <input 
+    type="file" 
+    ref="file" 
+    class="ti-hide"
+    @change.stop.seft="OnSelectLocalFilesToUpload">
+  <!--
+    Major preview zone
+  -->
+  <div class="box-con"
+    @mouseleave="showMoreActions=false"
+    @click="OnClickToEdit"
+    v-drop-files.mask="OnDropFiles">
+    <TiLabel v-bind="LabelConfig"/>
+  </div>
+</div>
