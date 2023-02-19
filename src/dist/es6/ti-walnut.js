@@ -1,4 +1,4 @@
-// Pack At: 2023-02-12 22:10:00
+// Pack At: 2023-02-19 23:56:40
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -658,22 +658,22 @@ const Obj = (function(){
     //---------------------------------------------
     "sort": {
       title: "i18n:sort",
-      display: "sort"
+      display: "rawData.sort"
     },
     //---------------------------------------------
     "width": {
       title: "i18n:wn-key-width",
-      display: "width"
+      display: "rawData.width"
     },
     //---------------------------------------------
     "height": {
       title: "i18n:wn-key-height",
-      display: "height"
+      display: "rawData.height"
     },
     //---------------------------------------------
     "duration": {
       title: "i18n:wn-key-duration",
-      display: "duration"
+      display: "rawData.duration"
     },
     //---------------------------------------------
     "len": {
@@ -4439,7 +4439,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230212.221001"
+const WALNUT_VERSION = "1.2-20230219.235641"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

@@ -1,4 +1,4 @@
-// Pack At: 2023-02-12 22:10:00
+// Pack At: 2023-02-19 23:56:40
 //##################################################
 // # import { Alert } from "./ti-alert.mjs"
 const { Alert } = (function(){
@@ -657,14 +657,26 @@ const { Toptip } = (function(){
         size = "auto",
         content,
         contentType = "text",
-        mode = "H"
+        mode = "H",
+        vars= {}
       } = _.assign(tip, options);
       //Quick attrigbute
+      // [
+      // 0  "[V:paper!text:auto]xxxx: xxxx",
+      // 1) "V:",
+      // 2) "V",
+      // 3) "paper!",
+      // 4) "paper",
+      // 5) "text",
+      // 6) ":auto",
+      // 7) "auto",
+      // 8) "xxxx: xxxx"
+      // ]
       let m = /^\[(([HV]):)?(([^!]+)!)?(html|text|md)?(:([^\]]+))?\]\s*(.+)/.exec(content)
       if (m) {
         mode = m[2] || mode
         type = m[4] || type
-        contentType = m[6] || contentType
+        contentType = m[5] || contentType
         size = m[7] || _.trim(size)
         content = _.trim(m[8])
       }
@@ -701,6 +713,10 @@ const { Toptip } = (function(){
           "md": "text"
         })[ftp] || "text"
         content = await Ti.Load(path)
+      }
+      // Render content
+      if(!_.isEmpty(vars)){
+        content = Ti.Tmpl.exec(content, vars)
       }
       //
       // Open box
@@ -790,14 +806,24 @@ const { Toptip } = (function(){
     },
     //------------------------------------------
     getTipData($target, options) {
-      return Ti.Dom.getData($target, (key, value) => {
+      let vars = {}
+      let tip = Ti.Dom.getData($target, (key, value) => {
         //console.log(key, value)
-        let m = /^(tiTip)(.*)?$/.exec(key)
+        let m = /^(tiTip)(Vars)?(.*)?$/.exec(key)
         if (m) {
-          let name = _.camelCase(m[2] || "content")
-          return { name, value }
+          // Tip Template vars
+          // data-ti-tip-vars-xxx
+          if ("Vars" == m[2]) {
+            vars[_.lowerFirst(m[3])] = value
+            return 
+          }
+          // Tip setting
+          let name = _.camelCase(m[3] || "content")
+          return name
         }
       })
+      tip.vars = vars
+      return tip
     },
     //------------------------------------------
     isInTargetRect(point) {
@@ -12292,7 +12318,7 @@ const { Util } = (function(){
   
           let m_type, m_val, m_dft;
           // Match template or function call
-          m = /^(==>>?|=>>?|->)(.*)$/.exec(theValue)
+          m = /^(==?>>?\??|->)(.*)$/.exec(theValue)
           if (m) {
             m_type = m[1]
             m_val = _.trim(m[2])
@@ -12331,9 +12357,20 @@ const { Util } = (function(){
                 }
                 return Ti.Util.genInvoking(val, { context, partial: "left" })
               },
+              "==>?": (val) => {
+                let func = _.get(window, val)
+                if (_.isFunction(func)) {
+                  return func
+                }
+                return Ti.Util.genInvoking(val, { context, partial: "left?" })
+              },
               // Just get function: partial right
               "==>>": (val) => {
                 return Ti.Util.genInvoking(val, { context, partial: "right" })
+              },
+              // Just get function: partial right
+              "==>>?": (val) => {
+                return Ti.Util.genInvoking(val, { context, partial: "right?" })
               },
               // ==xxx  # Get Boolean value now
               "==": (val) => {
@@ -12365,9 +12402,17 @@ const { Util } = (function(){
                 let fn = Ti.Util.genInvoking(val, { context, partial: "right" })
                 return fn()
               },
+              "=>>?": (val) => {
+                let fn = Ti.Util.genInvoking(val, { context, partial: "right?" })
+                return fn()
+              },
               // =>Ti.Types.toStr(meta)
               "=>": (val) => {
                 let fn = Ti.Util.genInvoking(val, { context, partial: "left" })
+                return fn()
+              },
+              "=>?": (val) => {
+                let fn = Ti.Util.genInvoking(val, { context, partial: "left?" })
                 return fn()
               },
               // Render template
@@ -13334,6 +13379,14 @@ const { Util } = (function(){
           }
           // [ ... <-- ?]
           else if ("left" == partial) {
+            return function (...input) {
+              let ins = input
+              let as = _.concat([], invokeArgs, ins);
+              return func.apply(this, as)
+            }
+          }
+          // [ ... <-- ?]
+          else if ("left?" == partial) {
             return function (...input) {
               let ins = _.without(input, undefined)
               let as = _.concat([], invokeArgs, ins);
@@ -19758,7 +19811,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230212.221000",
+  "version": "1.6-20230219.235640",
   "dev": false,
   "appName": null,
   "session": {},

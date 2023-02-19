@@ -19,6 +19,12 @@ const _M = {
       type: File,
       default: null
     },
+    "text": {
+      type: String,
+    },
+    "href": {
+      type: String,
+    },
     // Show the process `0.0-1.0` during the uploading
     "progress": {
       type: Number,
@@ -86,47 +92,41 @@ const _M = {
       return this.preview ? true : false
     },
     //--------------------------------------
+    hasText() {
+      return this.text ? true : false
+    },
+    //--------------------------------------
+    hasHref() {
+      return this.href ? true : false
+    },
+    //--------------------------------------
     isEditable() {
       return !this.readonly
     },
     //--------------------------------------
-    TopActionItems() {
-      let items = this.ActionItems;
-      let N = this.actionLimit
-      if (items.length > N) {
-        let I = N - 1;
-        let list = items.slice(0, I)
-        list.push({
-          icon: "zmdi-settings",
-          text: "i18n:more",
-          hoverMore: true
-        })
-        return list;
-      }
-      return items;
+    isShowProgress() {
+      return this.progress > 0
     },
     //--------------------------------------
-    isShowRemoveIcon() {
-      if (!this.uploadFile && this.hasPreview && !this.readonly) {
-        return true
-      }
-      return false
+    ProgressTip() {
+      return Ti.S.toPercent(this.progress, { fixed: 1, auto: false })
     },
     //--------------------------------------
-    isShowOpenIcon() {
-      return this.openable && this.hasPreview
-    },
-    //--------------------------------------
-    isShowDownloadIcon() {
-      return this.downloadable && this.hasPreview
+    ProgressStyle() {
+      return { width: this.ProgressTip }
     },
     //--------------------------------------
     PreviewIcon() {
       if (this.uploadFile) {
-        return { type: "localFile", value: this.uploadFile }
+        let file = this.uploadFile
+        return Ti.Icons.get({
+          type: Ti.Util.getSuffixName(file.name),
+          mime: file.type,
+          race: Ti.Util.isNil(file.type) ? "DIR" : "FILE"
+        })
       }
       // Tip Remove
-      if (this.hasPreview && this.mouseEnterPrefix) {
+      if (this.hasText && this.mouseEnterPrefix) {
         return "zmdi-close-circle"
       }
       // Normal image
@@ -138,6 +138,9 @@ const _M = {
     },
     //--------------------------------------
     BoxItemText() {
+      if (this.text) {
+        return this.text
+      }
       return Ti.I18n.text(this.placeholder)
     },
     //--------------------------------------
@@ -147,7 +150,7 @@ const _M = {
 
       let itActions = {
         select: {
-          icon: "zmdi-folder",
+          icon: "fas-upload",
           text: "i18n:select",
           action: () => {
             this.$refs.file.click()
@@ -222,13 +225,17 @@ const _M = {
   methods: {
     //--------------------------------------
     OnMouseEnterPrefix() {
-      this.mouseEnterPrefix = true
-      console.log("enter", this.mouseEnterPrefix)
+      if (this.hasText)
+        this.mouseEnterPrefix = true
     },
     //--------------------------------------
     OnMouseLeaverPrefix() {
       this.mouseEnterPrefix = false
-      console.log("leave", this.mouseEnterPrefix)
+    },
+    //--------------------------------------
+    OnRemove() {
+      this.mouseEnterPrefix = false
+      this.$notify("remove")
     },
     //--------------------------------------
     OnClickToEdit() {

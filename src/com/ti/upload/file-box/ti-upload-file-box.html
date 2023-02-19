@@ -16,12 +16,26 @@
     <!------------Prefix icon------------>
     <div class="box-item-icon"
       @mouseenter.left="OnMouseEnterPrefix"
-      @mouseleave.left="OnMouseLeaverPrefix">
+      @mouseleave.left="OnMouseLeaverPrefix"
+      @click.left="OnRemove">
       <TiIcon  :value="PreviewIcon"/>
     </div>
     <!------------box content------------>
-    <div class="box-item-text">{{BoxItemText}}</div>
+    <div class="box-item-text">
+      <a v-if="hasHref" :href="href" @click.left.prevent>{{BoxItemText}}</a>
+      <span v-else>{{BoxItemText}}</span>
+    </div>
     <!------------Suffix Menu------------>
     <TiActionbar class="box-item-menu" :items="ActionItems"/>
+    <!----------Upload prcessing-------->
+    <div v-if="isShowProgress"
+      class="as-progress ti-progress-bar">
+      <b class="bar-outer">
+        <em class="bar-inner" 
+            :style="ProgressStyle"></em>
+        <span class="bar-tip">{{ProgressTip}}</span>  
+      </b>
+    </div>
   </div>
+
 </div>

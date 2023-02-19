@@ -179,8 +179,28 @@ const _M = {
       return this.srcAsUrl ? "link" : "obj"
     },
     //--------------------------------------
-    TheActions(){
-      return Ti.Util.explainObj(this.oFile||{},this.actions)||[]
+    FileTitle() {
+      if (this.srcAsUrl) {
+        return this.value
+      }
+      //....................................
+      if (this.oFile) {
+        return Ti.Util.getFallback(this.oFile, "title", "nm")
+      }
+      return this.value
+    },
+    //--------------------------------------
+    FileHref() {
+      if(this.srcAsUrl){
+        return this.value
+      }
+      if(this.oFile){
+        return Wn.Util.getAppLinkStr(this.oFile)
+      }
+    },
+    //--------------------------------------
+    TheActions() {
+      return Ti.Util.explainObj(this.oFile || {}, this.actions) || []
     }
     //--------------------------------------
   },
@@ -384,6 +404,7 @@ const _M = {
       if (this.srcAsUrl) {
         return
       }
+      //console.log("reload")
       if (_.isString(this.value)) {
         this.oFile = await Wn.Io.loadMetaBy(this.value)
       }

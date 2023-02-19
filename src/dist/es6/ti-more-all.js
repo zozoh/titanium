@@ -1,4 +1,4 @@
-// Pack At: 2023-02-12 22:10:00
+// Pack At: 2023-02-19 23:56:40
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7147,48 +7147,56 @@ async function CmdShowWebImageProp(editor, settings) {
     comType: "TiForm",
     comConf: {
       onlyFields: false,
-      spacing: "comfy",
+      spacing: "tiny",
       fields: [{
         title: "i18n:hmk-w-edit-img-info",
-        fields: [{
-          title: "i18n:hmk-w-edit-img-pic",
-          name: "id",
-          comType: "WnObjPicker",
-          comConf: {
-            valueType: "id",
-            base: settings.base,
-            titleEditable: false
+        fields: [
+          {
+            title: "i18n:hmk-w-edit-img-pic",
+            name: "id",
+            rowSpan: 3,
+            comType: "WnObjPicker",
+            comConf: {
+              valueType: "id",
+              base: settings.base,
+              titleEditable: false
+            }
+          },
+          {
+            title: "i18n:hmk-w-edit-img-title",
+            name: "title",
+            comType: "TiInput",
+            comConf: {
+              placeholder: "i18n:hmk-w-edit-img-title-tip"
+            }
+          },
+          {
+            title: "i18n:hmk-w-edit-img-link",
+            name: "link",
+            comType: "TiInput",
+            comConf: {
+              placeholder: "i18n:hmk-w-edit-img-link-tip"
+            }
+          },
+          {
+            title: "i18n:hmk-w-edit-img-newtab",
+            name: "newtab",
+            type: "Boolean",
+            comType: "TiToggle"
           }
-        }, {
-          title: "i18n:hmk-w-edit-img-title",
-          name: "title",
-          comType: "TiInput",
-          comConf: {
-            placeholder: "i18n:hmk-w-edit-img-title-tip"
-          }
-        }, {
-          title: "i18n:hmk-w-edit-img-link",
-          name: "link",
-          comType: "TiInput",
-          comConf: {
-            placeholder: "i18n:hmk-w-edit-img-link-tip"
-          }
-        }, {
-          title: "i18n:hmk-w-edit-img-newtab",
-          name: "newtab",
-          type: "Boolean",
-          comType: "TiToggle"
-        }]
-      }, {
+        ]
+      },
+      {
         title: "i18n:hmk-aspect",
         fields: [
           Wn.Hm.getCssPropField("margin", { name: "imgStyle.margin" }),
+          Wn.Hm.getCssPropField("float", { name: "imgStyle.float" }),
           Wn.Hm.getCssPropField("width", { name: "imgStyle.width" }),
           Wn.Hm.getCssPropField("height", { name: "imgStyle.height" }),
-          Wn.Hm.getCssPropField("float", { name: "imgStyle.float" }),
           Wn.Hm.getCssPropField("object-fit", { name: "imgStyle.objectFit" }),
         ]
-      }, {
+      },
+      {
         title: "i18n:hmk-aspect-more",
         fields: [{
           title: "i18n:hmk-w-edit-img-style",
@@ -7199,7 +7207,8 @@ async function CmdShowWebImageProp(editor, settings) {
           comConf: {
             rules: "#IMG"
           }
-        }, {
+        },
+        {
           title: "i18n:hmk-w-edit-alt-style",
           name: "altStyle",
           type: "Object",
@@ -8985,6 +8994,291 @@ const _M = {
       this.$emit("change", {
         address: addr
       })
+    }
+    //--------------------------------------
+  }
+  //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
+// EXPORT 'ti-upload-file-box.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/upload/file-box/ti-upload-file-box.mjs'] = (function(){
+const _M = {
+  /////////////////////////////////////////
+  data: () => ({
+    mouseEnterPrefix: false
+  }),
+  /////////////////////////////////////////
+  props: {
+    //------------------------------------------------
+    // Data
+    //------------------------------------------------
+    // The source to display image
+    "preview": {
+      type: [String, Object],
+      default: null
+    },
+    // The value must be a LocalFile object
+    // to prerender the LocalFile during uploading
+    "uploadFile": {
+      type: File,
+      default: null
+    },
+    "text": {
+      type: String,
+    },
+    "href": {
+      type: String,
+    },
+    // Show the process `0.0-1.0` during the uploading
+    "progress": {
+      type: Number,
+      default: -1
+    },
+    // Input a image link directly
+    "exlink": {
+      type: Boolean,
+      default: false
+    },
+    //------------------------------------------------
+    // Behavior
+    //------------------------------------------------
+    // support remove the objects
+    "removable": {
+      type: Boolean,
+      default: true
+    },
+    "openable": {
+      type: Boolean,
+      default: true
+    },
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
+    "downloadable": {
+      type: Boolean,
+      default: true
+    },
+    "actions": {
+      type: Array,
+      default: () => []
+    },
+    //------------------------------------------------
+    // Aspect
+    //------------------------------------------------
+    "placeholder": {
+      type: String,
+      default: "i18n:select",
+    },
+    "hideBorder": {
+      type: Boolean,
+      default: false
+    },
+    //------------------------------------------------
+    // Measure
+    //------------------------------------------------
+  },
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "hover-prefix": this.mouseEnterPrefix,
+        "has-preview": this.hasPreview,
+        "show-border": !this.hideBorder,
+        "hide-border": this.hideBorder,
+        "is-readonly": this.readonly,
+        "no-readonly": !this.readonly,
+      })
+    },
+    //--------------------------------------
+    hasPreview() {
+      return this.preview ? true : false
+    },
+    //--------------------------------------
+    hasText() {
+      return this.text ? true : false
+    },
+    //--------------------------------------
+    hasHref() {
+      return this.href ? true : false
+    },
+    //--------------------------------------
+    isEditable() {
+      return !this.readonly
+    },
+    //--------------------------------------
+    isShowProgress() {
+      return this.progress > 0
+    },
+    //--------------------------------------
+    ProgressTip() {
+      return Ti.S.toPercent(this.progress, { fixed: 1, auto: false })
+    },
+    //--------------------------------------
+    ProgressStyle() {
+      return { width: this.ProgressTip }
+    },
+    //--------------------------------------
+    PreviewIcon() {
+      if (this.uploadFile) {
+        let file = this.uploadFile
+        return Ti.Icons.get({
+          type: Ti.Util.getSuffixName(file.name),
+          mime: file.type,
+          race: Ti.Util.isNil(file.type) ? "DIR" : "FILE"
+        })
+      }
+      // Tip Remove
+      if (this.hasText && this.mouseEnterPrefix) {
+        return "zmdi-close-circle"
+      }
+      // Normal image
+      if (this.preview) {
+        return this.preview
+      }
+      // Show Icon
+      return "zmdi-plus"
+    },
+    //--------------------------------------
+    BoxItemText() {
+      if (this.text) {
+        return this.text
+      }
+      return Ti.I18n.text(this.placeholder)
+    },
+    //--------------------------------------
+    ActionItems() {
+      let items = [];
+      let mores = [];
+
+      let itActions = {
+        select: {
+          icon: "fas-upload",
+          text: "i18n:select",
+          action: () => {
+            this.$refs.file.click()
+          }
+        },
+        download: {
+          icon: "zmdi-cloud-download",
+          text: "i18n:download",
+          className: "as-download",
+          handler: () => {
+            this.OnDownload();
+          }
+        },
+        open: {
+          icon: "zmdi-open-in-new",
+          text: "i18n:open",
+          className: "as-open",
+          handler: () => {
+            this.OnOpen();
+          }
+        }
+      }
+
+      if (this.isEditable) {
+        items.push(_.omit(itActions.select, "text"))
+        if (this.hasPreview) {
+          mores.push(itActions.download, itActions.open)
+        }
+      }
+      // Readonly
+      else if (this.hasPreview) {
+        items.push(_.omit(itActions.open, "text"))
+        mores.push(itActions.download)
+      }
+
+      // More actions
+      if (_.isArray(this.actions)) {
+        for (let at of this.actions) {
+          let handler;
+          if (_.isString(at.action)) {
+            handler = () => {
+              this.$notify(at.action, at.payload)
+            }
+          }
+          if (_.isFunction(at.action)) {
+            handler = () => {
+              at.action(at.payload, this)
+            }
+          }
+          mores.push({
+            icon: at.icon,
+            text: at.text,
+            className: at.className,
+            handler
+          })
+        }
+      }
+
+      if (!_.isEmpty(mores)) {
+        items.push({
+          icon: 'zmdi-more-vert',
+          topHoverOpen: true,
+          items: mores
+        })
+      }
+
+      return items
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    OnMouseEnterPrefix() {
+      if (this.hasText)
+        this.mouseEnterPrefix = true
+    },
+    //--------------------------------------
+    OnMouseLeaverPrefix() {
+      this.mouseEnterPrefix = false
+    },
+    //--------------------------------------
+    OnRemove() {
+      this.mouseEnterPrefix = false
+      this.$notify("remove")
+    },
+    //--------------------------------------
+    OnClickToEdit() {
+      if (this.readonly) {
+        this.$notify("open")
+      } else {
+        this.$refs.file.click()
+      }
+    },
+    //--------------------------------------
+    async OnDropFiles(files) {
+      let file = _.get(files, 0)
+      if (file && !this.readonly) {
+        this.$notify("upload", file)
+      }
+    },
+    //--------------------------------------
+    async OnSelectLocalFilesToUpload(evt) {
+      await this.OnDropFiles(evt.target.files)
+      this.$refs.file.value = ""
+    },
+    //--------------------------------------
+    OnRemove() {
+      this.$notify("remove")
+    },
+    //--------------------------------------
+    OnOpen() {
+      this.$notify("open")
+    },
+    //--------------------------------------
+    OnExlink() {
+      this.$notify("exlink")
+    },
+    //--------------------------------------
+    OnDownload() {
+      this.$notify("download")
     }
     //--------------------------------------
   }
@@ -17269,8 +17563,8 @@ const _M = {
       type: Boolean,
       default: false
     },
-    "autoFieldTip": {
-      type: Boolean,
+    "autoFieldNameTip": {
+      type: [Boolean, String, Object],
       default: false
     },
     //-----------------------------------
@@ -17486,17 +17780,14 @@ const _M = {
         }
         // Normal field
         else {
-          fld.autoFieldTip = Ti.Util.fallback(fld.autoFieldTip, this.autoFieldTip)
+
           fld.tipAsPopIcon = Ti.Util.fallback(fld.tipAsPopIcon, this.tipAsPopIcon)
           // Grid with field name
           if (fld.showName) {
 
             fld.title = Ti.I18n.text(fld.title)
-            if(fld.autoFieldTip){
-              let nameText = _.concat(fld.name).join('</code> <code>')
-              fld.nameTip = `[V:success!html]<p><b>${fld.title}:</b> <code>${nameText}</code>`
-            }
-            
+            this.setFieldNameTip(fld)
+
             nmStyle = {
               //"grid-column-start": fld.nameGridStart + 1,
               "grid-column-end": `span ${fld.nameGridSpan}`,
@@ -17552,6 +17843,58 @@ const _M = {
       } // for (let fld of fields) {
 
       this.myFields = list
+    },
+    //--------------------------------------------------
+    setFieldNameTip(fld) {
+      let autoNameTip = Ti.Util.fallback(
+        fld.autoNameTip, this.autoFieldNameTip)
+      if (autoNameTip) {
+        //console.log("setFieldNameTip", fld)
+        let nt = { vars: {}, mode: "V" }
+        // true
+        if (_.isBoolean(autoNameTip)) {
+          nt.text = "${title}: ${name}"
+        }
+        // String as template
+        else if (_.isString(autoNameTip)) {
+          nt.text = autoNameTip
+        }
+        // Full Dedefined
+        else if (_.isObject(autoNameTip)) {
+          _.assign(nt, autoNameTip)
+        }
+        _.defaults(nt, {
+          vars: {},
+          mode: "V",
+          size: "auto",
+          type: "success",
+          contentType: "text",
+          text: "${title}: ${name}"
+        })
+        _.defaults(nt.vars, {
+          title: fld.title,
+          name: _.concat(fld.name).join(', ')
+        })
+        fld.nameTip = {}
+        _.forEach(nt, (v, k) => {
+          // 设置变量
+          if ("vars" == k) {
+            _.forEach(v, (varVal, key) => {
+              let varName = _.kebabCase(key)
+              fld.nameTip[`data-ti-tip-vars-${varName}`] = varVal
+            })
+          }
+          // 设置数据
+          else if ("text" == k) {
+            fld.nameTip[`data-ti-tip`] = v
+          }
+          // 普通设置
+          else {
+            fld.nameTip[`data-ti-tip-${k}`] = v
+          }
+        })
+
+      }
     },
     //--------------------------------------------------
     setFieldStatus(fld = {}) {
@@ -19205,7 +19548,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         mode: "s",
         progress: ({ loaded = 0 } = {}) => {
           this.uploading = loaded / total
-          console.log(this.uploading)
+          //console.log(this.uploading)
         }
       })
 
@@ -22364,7 +22707,7 @@ const _M = {
     GridContainerConf() {
       return {
         tipAsPopIcon: this.tipAsPopIcon,
-        autoFieldTip: this.autoFieldTip,
+        autoFieldNameTip: this.autoFieldNameTip,
         data: this.myData,
         status: this.fieldStatus,
         fieldBorder: this.fieldBorder,
@@ -30215,8 +30558,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Boolean,
     default: false
   },
-  "autoFieldTip": {
-    type: Boolean,
+  /*
+  true  => {text: "${title}: ${name}"}
+  "xxx" => {text: "xxx"}
+  {
+    text: "${title}: ${name}",
+    vars: {...},  // more vars, built-in:(title, name)
+    mode: "V"
+  }
+  */
+  "autoFieldNameTip": {
+    type: [Boolean,String,Object],
     default: false
   },
   //-----------------------------------
@@ -44240,7 +44592,7 @@ const _M = {
   ///////////////////////////////////////
   inject: ["$bar"],
   ///////////////////////////////////////
-  props : {
+  props: {
     "name": {
       type: String,
       default: undefined
@@ -44249,7 +44601,7 @@ const _M = {
       type: String,
       default: undefined
     },
-    "hideIcon" : {
+    "hideIcon": {
       type: Boolean,
       default: false
     },
@@ -44265,13 +44617,13 @@ const _M = {
       type: String,
       default: undefined
     },
-    "suffixIcon" : {
+    "suffixIcon": {
       type: String,
       default: undefined
     },
-    "altDisplay" : {
+    "altDisplay": {
       type: [Object, Array],
-      default: ()=>[]
+      default: () => []
     },
     "enabled": {
       type: [Boolean, String, Array, Object],
@@ -44285,7 +44637,7 @@ const _M = {
       type: [Boolean, String, Array, Object],
       default: undefined
     },
-    "value" : {
+    "value": {
       type: [Boolean, String, Number, Array],
       default: undefined
     },
@@ -44293,30 +44645,37 @@ const _M = {
       type: Number,
       default: 0
     },
-    "status" : {
-      type : Object,
-      default : ()=>({})
+    "status": {
+      type: Object,
+      default: () => ({})
     }
   },
   ///////////////////////////////////////
-  computed : {
+  computed: {
     //-----------------------------------
     TopClass() {
       return this.getTopClass({
-        "is-enabled"  : this.isEnabled,
-        "is-disabled" : this.isDisabled,
+        "is-enabled": this.isEnabled,
+        "is-disabled": this.isDisabled,
         "is-highlight": this.isHighlight,
-        "is-top" : this.depth == 1,
-        "is-sub" : this.depth > 1,
-        "has-icon" : this.icon ? true : false,
-        "no-icon"  : this.icon ? false : true,
+        "is-top": this.isTop,
+        "is-sub": this.isSub,
+        "has-icon": this.icon ? true : false,
+        "no-icon": this.icon ? false : true,
         "show-icon": this.isShowIcon,
         "hide-icon": !this.isShowIcon
       }, `is-depth-${this.depth}`)
     },
     //-----------------------------------
+    isTop() { return this.depth == 1 },
+    isSub() { return this.depth > 1 },
+    //-----------------------------------
+    TipMode() {
+      return this.isTop ? 'H' : 'V'
+    },
+    //-----------------------------------
     AltDisplay() {
-      if(_.isArray(this.altDisplay)) {
+      if (_.isArray(this.altDisplay)) {
         return this.altDisplay
       }
       return this.altDisplay
@@ -44325,13 +44684,13 @@ const _M = {
     },
     //-----------------------------------
     isEnabled() {
-      if(!Ti.Util.isNil(this.enabled)) {
-        if(!this.isMatchStatus(this.enabled)){
+      if (!Ti.Util.isNil(this.enabled)) {
+        if (!this.isMatchStatus(this.enabled)) {
           return false
         }
       }
-      if(!Ti.Util.isNil(this.disabled)) {
-        if(this.isMatchStatus(this.disabled)) {
+      if (!Ti.Util.isNil(this.disabled)) {
+        if (this.isMatchStatus(this.disabled)) {
           return false
         }
       }
@@ -44343,7 +44702,7 @@ const _M = {
     },
     //-----------------------------------
     isHighlight() {
-      if(!Ti.Util.isNil(this.highlight)) {
+      if (!Ti.Util.isNil(this.highlight)) {
         return this.isMatchStatus(this.highlight)
       }
       return false
@@ -44365,17 +44724,17 @@ const _M = {
       // if("bold" == this.name)
       //   console.log("CurrentDisplay", this.name)
       // Prepare default
-      let dis =  {
-        icon : this.icon,
-        text : this.text,
-        tip  : this.tip,
+      let dis = {
+        icon: this.icon,
+        text: this.text,
+        tip: this.tip,
         value: this.value
       }
       // Alt Display
-      if(!_.isEmpty(this.AltDisplay)) {
-        for(let alt of this.AltDisplay) {
+      if (!_.isEmpty(this.AltDisplay)) {
+        for (let alt of this.AltDisplay) {
           let mat = alt.match || this.name
-          if(this.isMatchStatus(mat)) {
+          if (this.isMatchStatus(mat)) {
             _.assign(dis, _.pick(alt, [
               "icon", "text", "tip", "value"
             ]))
@@ -44390,11 +44749,11 @@ const _M = {
     TheValues() {
       let val = this.CurrentDisplay.value
       // Bool
-      if(_.isBoolean(val)) {
+      if (_.isBoolean(val)) {
         return [val, !val]
       }
       // Array
-      if(_.isArray(val))
+      if (_.isArray(val))
         return val
       // Normal value
       return [val]
@@ -44402,25 +44761,25 @@ const _M = {
     //-----------------------------------
   },
   ///////////////////////////////////////
-  methods : {
+  methods: {
     //---------------------------------------
     OnClickTop() {
       //console.log("OClickTop")
-      if(!this.isDisabled) {
+      if (!this.isDisabled) {
         let val = this.isHighlight
           ? _.last(this.TheValues)
           : _.first(this.TheValues)
-        
+
         this.$emit('fire', val)
       }
     },
     //---------------------------------------
     isMatchStatus(mat) {
-      if(_.isBoolean(mat)) {
+      if (_.isBoolean(mat)) {
         return mat
       }
       // Key | `"saving"`
-      if(_.isString(mat)) {
+      if (_.isString(mat)) {
         return _.get(this.status, mat) ? true : false
       }
       // Complex match
@@ -48332,6 +48691,8 @@ function _render_iteratee({
 //////////////////////////////////////////////
 // cx = {vars, itemData, value}
 function __eval_com_conf_item(val, cx = {}) {
+  if(cx && cx.value == "数据可视化")
+    console.log(val, cx)
   // String valu3
   if (_.isString(val)) {
     if (/^:*([-=]|[!=]=|->|==?>)/.test(val)) {
@@ -64375,6 +64736,7 @@ const _M = {
       let showTailRunTip = Ti.Util.fallback(
         options.showTailRunTip, this.showTailRunTip
       )
+      console.log(showTailRunTip)
       if (showTailRunTip) {
         this.printHR()
         this.lines.push("--> " + cmdText)
@@ -66822,6 +67184,10 @@ const _M = {
       type: Boolean,
       default: true
     },
+    "defualItemIcon": {
+      type: [Object, String],
+      default: undefined
+    },
     "blankAs": {
       type: Object
     },
@@ -67061,6 +67427,9 @@ const _M = {
         }
         // Mapping
         it = this.FnOptionMapping(it)
+        _.defaults(it, {
+          icon: this.defualItemIcon
+        })
 
         // Join value mapping
         itMap[it.value] = it
@@ -69623,8 +69992,28 @@ const _M = {
       return this.srcAsUrl ? "link" : "obj"
     },
     //--------------------------------------
-    TheActions(){
-      return Ti.Util.explainObj(this.oFile||{},this.actions)||[]
+    FileTitle() {
+      if (this.srcAsUrl) {
+        return this.value
+      }
+      //....................................
+      if (this.oFile) {
+        return Ti.Util.getFallback(this.oFile, "title", "nm")
+      }
+      return this.value
+    },
+    //--------------------------------------
+    FileHref() {
+      if(this.srcAsUrl){
+        return this.value
+      }
+      if(this.oFile){
+        return Wn.Util.getAppLinkStr(this.oFile)
+      }
+    },
+    //--------------------------------------
+    TheActions() {
+      return Ti.Util.explainObj(this.oFile || {}, this.actions) || []
     }
     //--------------------------------------
   },
@@ -69828,6 +70217,7 @@ const _M = {
       if (this.srcAsUrl) {
         return
       }
+      //console.log("reload")
       if (_.isString(this.value)) {
         this.oFile = await Wn.Io.loadMetaBy(this.value)
       }
@@ -84773,6 +85163,8 @@ Ti.Preload("ti/com/ti/actionbar/com/bar-item-group/_com.json", {
 //========================================
 Ti.Preload("ti/com/ti/actionbar/com/bar-item-info/bar-item-info.html", `<div class="bar-item-info"
   :class="TopClass"
+  :data-ti-tip="tip"
+  :data-ti-tip-mode="TipMode"
   @click.left="OnClickTop">
   <!--
     Icon
@@ -86633,7 +87025,7 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
                 v-if="fld.title"
                   class="field-text"
                   :style="fld.nameTextStyle"
-                  :data-ti-tip="fld.nameTip"
+                  v-bind="fld.nameTip"                 
                   data-ti-keyboard="ctrl"
                   >{{fld.title}}</div>
               <div
@@ -92069,6 +92461,63 @@ Ti.Preload("ti/com/ti/upload/file/_com.json", {
   "components": [
     "@com:ti/obj/thumb"
   ]
+});
+//========================================
+// JOIN <ti-upload-file-box.html> ti/com/ti/upload/file-box/ti-upload-file-box.html
+//========================================
+Ti.Preload("ti/com/ti/upload/file-box/ti-upload-file-box.html", `<div class="ti-upload-file-box full-field"
+  :class="TopClass"
+  v-drop-files.mask="OnDropFiles">
+  <!--
+    Hidden input file to choose files
+  -->
+  <input 
+    type="file" 
+    ref="file" 
+    class="ti-hide"
+    @change.stop.seft="OnSelectLocalFilesToUpload">
+  <!--
+    Major preview zone
+  -->
+  <div class="box-item">
+    <!------------Prefix icon------------>
+    <div class="box-item-icon"
+      @mouseenter.left="OnMouseEnterPrefix"
+      @mouseleave.left="OnMouseLeaverPrefix"
+      @click.left="OnRemove">
+      <TiIcon  :value="PreviewIcon"/>
+    </div>
+    <!------------box content------------>
+    <div class="box-item-text">
+      <a v-if="hasHref" :href="href" @click.left.prevent>{{BoxItemText}}</a>
+      <span v-else>{{BoxItemText}}</span>
+    </div>
+    <!------------Suffix Menu------------>
+    <TiActionbar class="box-item-menu" :items="ActionItems"/>
+    <!----------Upload prcessing-------->
+    <div v-if="isShowProgress"
+      class="as-progress ti-progress-bar">
+      <b class="bar-outer">
+        <em class="bar-inner" 
+            :style="ProgressStyle"></em>
+        <span class="bar-tip">{{ProgressTip}}</span>  
+      </b>
+    </div>
+  </div>
+
+</div>`);
+//========================================
+// JOIN <ti-upload-file-box.mjs> ti/com/ti/upload/file-box/ti-upload-file-box.mjs
+//========================================
+Ti.Preload("ti/com/ti/upload/file-box/ti-upload-file-box.mjs", TI_PACK_EXPORTS['ti/com/ti/upload/file-box/ti-upload-file-box.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/upload/file-box/_com.json
+//========================================
+Ti.Preload("ti/com/ti/upload/file-box/_com.json", {
+  "name": "ti-upload-file-box",
+  "globally": true,
+  "template": "./ti-upload-file-box.html",
+  "mixins": "./ti-upload-file-box.mjs"
 });
 //========================================
 // JOIN <ti-upload-multi-files.html> ti/com/ti/upload/multi-files/ti-upload-multi-files.html
@@ -98062,6 +98511,41 @@ Ti.Preload("ti/com/wn/upload/file/_com.json", {
   "mixins" : ["./wn-upload-file.mjs"],
   "components" : [
     "@com:ti/upload/file"
+  ]
+});
+//========================================
+// JOIN <wn-upload-file-box.html> ti/com/wn/upload/file-box/wn-upload-file-box.html
+//========================================
+Ti.Preload("ti/com/wn/upload/file-box/wn-upload-file-box.html", `<TiUploadFileBox
+  :preview="PreviewIcon"
+  :preview-type="PreviewType"
+  :text="FileTitle"
+  :href="FileHref"
+  :exlink="exlink"
+  :readonly="readonly"
+  :actions="TheActions"
+  :width="width"
+  :height="height"
+  :max-width="maxWidth"
+  :max-height="maxHeight"
+  :progress="progress"
+  :upload-file="uploadFile"
+  :removable="removable"
+  @upload="OnUpload"
+  @remove="OnRemove"
+  @exlink="OnExlink"
+  @download="OnDownload"
+  @open="OnOpen"/>`);
+//========================================
+// JOIN <_com.json> ti/com/wn/upload/file-box/_com.json
+//========================================
+Ti.Preload("ti/com/wn/upload/file-box/_com.json", {
+  "name": "wn-upload-file-box",
+  "globally": true,
+  "template": "./wn-upload-file-box.html",
+  "mixins": "@com:wn/upload/file/wn-upload-file.mjs",
+  "components": [
+    "@com:ti/upload/file-box"
   ]
 });
 //========================================
