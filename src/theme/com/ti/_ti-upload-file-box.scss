@@ -1,0 +1,52 @@
+.ti-upload-file-box {
+  position: relative;
+
+  //-----------------------------------------
+  &.show-border {
+    @include border(1px, solid, dark);
+  }
+
+  //---------------------------------------------
+  &.hover-prefix {
+    >.box-item>.box-item-icon {
+      @include color($color-primary, r, c);
+
+      >.ti-icon {
+        transform: rotate(360deg) scale(1.2);
+      }
+    }
+  }
+
+  //---------------------------------------------
+  >.box-item {
+    @include noselect;
+    @include flex-align-nowrap($ai: stretch);
+    min-width: SZ(50);
+
+    //-------------------------------------------
+    >.box-item-icon {
+      @include flex-center;
+      width: 2.4em;
+
+      >.ti-icon {
+        transition: transform .3s;
+      }
+    }
+
+    //-------------------------------------------
+    >.box-item-text {
+      height: 2.4em;
+      line-height: 2.4em;
+      width: 100px;
+      flex: 1 1 auto;
+      padding: 0 1px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    //-------------------------------------------
+  }
+
+  //---------------------------------------------
+}

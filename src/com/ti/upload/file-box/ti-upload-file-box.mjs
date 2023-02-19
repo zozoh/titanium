@@ -1,5 +1,9 @@
 const _M = {
   /////////////////////////////////////////
+  data: () => ({
+    mouseEnterPrefix: false
+  }),
+  /////////////////////////////////////////
   props: {
     //------------------------------------------------
     // Data
@@ -28,11 +32,6 @@ const _M = {
     //------------------------------------------------
     // Behavior
     //------------------------------------------------
-    "previewType": {
-      type: String,
-      default: "obj",
-      validator: v => /^(obj|link)$/.test(v)
-    },
     // support remove the objects
     "removable": {
       type: Boolean,
@@ -61,111 +60,34 @@ const _M = {
       type: String,
       default: "i18n:select",
     },
-    "areaSize": {
-      type: Object,
-      default: () => ({
-        //xl: (800 * 800),
-        xs: (100 * 100),
-        sm: (200 * 200),
-        md: (400 * 400),
-        lg: (600 * 600),
-      })
+    "hideBorder": {
+      type: Boolean,
+      default: false
     },
     //------------------------------------------------
     // Measure
     //------------------------------------------------
-    // Display width
-    "width": {
-      type: [String, Number],
-      default: 120
-    },
-    // Display height
-    "height": {
-      type: [String, Number],
-      default: 120
-    }
   },
   //////////////////////////////////////////
   computed: {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass({
+        "hover-prefix": this.mouseEnterPrefix,
+        "has-preview": this.hasPreview,
+        "show-border": !this.hideBorder,
+        "hide-border": this.hideBorder,
+        "is-readonly": this.readonly,
+        "no-readonly": !this.readonly,
+      })
     },
     //--------------------------------------
     hasPreview() {
       return this.preview ? true : false
     },
     //--------------------------------------
-    isShowActions() {
-      return !_.isEmpty(this.ActionItems)
-    },
-    //--------------------------------------
-    ActionItems() {
-      let items = [];
-      if (this.isShowRemoveIcon) {
-        items.push({
-          icon: "zmdi-delete",
-          text: "i18n:clear",
-          className: "as-del",
-          handler: () => {
-            this.OnRemove();
-          }
-        })
-      }
-      if (this.isShowOpenIcon) {
-        items.push({
-          icon: "zmdi-open-in-new",
-          text: "i18n:open",
-          className: "as-open",
-          handler: () => {
-            this.OnOpen();
-          }
-        })
-      }
-      if (this.isShowExlink) {
-        items.push({
-          icon: "fas-link",
-          text: "i18n:link",
-          className: "as-exlink",
-          handler: () => {
-            this.OnExlink();
-          }
-        })
-      }
-      if (this.isShowDownloadIcon) {
-        items.push({
-          icon: "zmdi-cloud-download",
-          text: "i18n:download",
-          className: "as-download",
-          handler: () => {
-            this.OnDownload();
-          }
-        })
-      }
-      if (_.isArray(this.actions)) {
-        for (let at of this.actions) {
-          let handler;
-          if (_.isString(at.action)) {
-            handler = () => {
-              this.$notify(at.action, at.payload)
-            }
-          }
-          if (_.isFunction(at.action)) {
-            handler = () => {
-              at.action(at.payload, this)
-            }
-          }
-          items.push({
-            icon: at.icon,
-            text: at.text,
-            className: at.className,
-            handler
-          })
-        }
-      }
-
-
-      return items;
+    isEditable() {
+      return !this.readonly
     },
     //--------------------------------------
     TopActionItems() {
@@ -182,16 +104,6 @@ const _M = {
         return list;
       }
       return items;
-    },
-    //--------------------------------------
-    MoreActionItems() {
-      let items = this.ActionItems;
-      let N = this.actionLimit
-      if (items.length > N) {
-        let I = N - 1;
-        return items.slice(I)
-      }
-
     },
     //--------------------------------------
     isShowRemoveIcon() {
@@ -213,6 +125,10 @@ const _M = {
       if (this.uploadFile) {
         return { type: "localFile", value: this.uploadFile }
       }
+      // Tip Remove
+      if (this.hasPreview && this.mouseEnterPrefix) {
+        return "zmdi-close-circle"
+      }
       // Normal image
       if (this.preview) {
         return this.preview
@@ -221,16 +137,99 @@ const _M = {
       return "zmdi-plus"
     },
     //--------------------------------------
-    LabelConfig() {
-      return {
-        prefixIcon: this.PreviewIcon,
-        placeholder: this.placeholder
+    BoxItemText() {
+      return Ti.I18n.text(this.placeholder)
+    },
+    //--------------------------------------
+    ActionItems() {
+      let items = [];
+      let mores = [];
+
+      let itActions = {
+        select: {
+          icon: "zmdi-folder",
+          text: "i18n:select",
+          action: () => {
+            this.$refs.file.click()
+          }
+        },
+        download: {
+          icon: "zmdi-cloud-download",
+          text: "i18n:download",
+          className: "as-download",
+          handler: () => {
+            this.OnDownload();
+          }
+        },
+        open: {
+          icon: "zmdi-open-in-new",
+          text: "i18n:open",
+          className: "as-open",
+          handler: () => {
+            this.OnOpen();
+          }
+        }
       }
+
+      if (this.isEditable) {
+        items.push(_.omit(itActions.select, "text"))
+        if (this.hasPreview) {
+          mores.push(itActions.download, itActions.open)
+        }
+      }
+      // Readonly
+      else if (this.hasPreview) {
+        items.push(_.omit(itActions.open, "text"))
+        mores.push(itActions.download)
+      }
+
+      // More actions
+      if (_.isArray(this.actions)) {
+        for (let at of this.actions) {
+          let handler;
+          if (_.isString(at.action)) {
+            handler = () => {
+              this.$notify(at.action, at.payload)
+            }
+          }
+          if (_.isFunction(at.action)) {
+            handler = () => {
+              at.action(at.payload, this)
+            }
+          }
+          mores.push({
+            icon: at.icon,
+            text: at.text,
+            className: at.className,
+            handler
+          })
+        }
+      }
+
+      if (!_.isEmpty(mores)) {
+        items.push({
+          icon: 'zmdi-more-vert',
+          topHoverOpen: true,
+          items: mores
+        })
+      }
+
+      return items
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods: {
+    //--------------------------------------
+    OnMouseEnterPrefix() {
+      this.mouseEnterPrefix = true
+      console.log("enter", this.mouseEnterPrefix)
+    },
+    //--------------------------------------
+    OnMouseLeaverPrefix() {
+      this.mouseEnterPrefix = false
+      console.log("leave", this.mouseEnterPrefix)
+    },
     //--------------------------------------
     OnClickToEdit() {
       if (this.readonly) {

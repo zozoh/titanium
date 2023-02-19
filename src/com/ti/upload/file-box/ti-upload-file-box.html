@@ -1,5 +1,6 @@
 <div class="ti-upload-file-box full-field"
-  :class="TopClass">
+  :class="TopClass"
+  v-drop-files.mask="OnDropFiles">
   <!--
     Hidden input file to choose files
   -->
@@ -11,10 +12,16 @@
   <!--
     Major preview zone
   -->
-  <div class="box-con"
-    @mouseleave="showMoreActions=false"
-    @click="OnClickToEdit"
-    v-drop-files.mask="OnDropFiles">
-    <TiLabel v-bind="LabelConfig"/>
+  <div class="box-item">
+    <!------------Prefix icon------------>
+    <div class="box-item-icon"
+      @mouseenter.left="OnMouseEnterPrefix"
+      @mouseleave.left="OnMouseLeaverPrefix">
+      <TiIcon  :value="PreviewIcon"/>
+    </div>
+    <!------------box content------------>
+    <div class="box-item-text">{{BoxItemText}}</div>
+    <!------------Suffix Menu------------>
+    <TiActionbar class="box-item-menu" :items="ActionItems"/>
   </div>
 </div>
