@@ -72,7 +72,7 @@ const _M = {
     },
     "blankAs": {
       type: Object,
-      default:()=>({
+      default: () => ({
         className: "as-small-tip align-left",
         icon: "zmdi-attachment-alt",
         text: "i18n:empty-data"
@@ -119,7 +119,7 @@ const _M = {
     FileItems() {
       let list = []
       _.forEach(this.items, (it, index) => {
-        let { id, src, icon, file, value, link, text } = it
+        let { id, src, icon, file, value, link, href, text } = it
         let type = value ? "obj" : "local";
         let thumb;
         // Show local file
@@ -139,12 +139,32 @@ const _M = {
         // Join item
         list.push({
           index,
-          id, src, file, value, link, text,
+          id, src, file, value, link, href, text,
           type, thumb, progress,
           className: `is-${type}`
         })
       })
       return list
+    },
+    //--------------------------------------
+    ItemActions() {
+      return [
+        {
+          icon: "fas fa-trash-alt",
+          tip: "i18n:remove",
+          name: "remove"
+        },
+        {
+          icon: "fas fa-external-link-square-alt",
+          tip: "i18n:open-newtab",
+          name: "open"
+        },
+        {
+          icon: "fas fa-download",
+          tip: "i18n:download-to-local",
+          name: "download"
+        }
+      ]
     },
     //--------------------------------------
     Values() {
@@ -179,13 +199,21 @@ const _M = {
     //--------------------------------------
     isShowActions() {
       return this.removable
-             && !this.readonly
-             && this.hasItems
+        && !this.readonly
+        && this.hasItems
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods: {
+    //--------------------------------------
+    OnMouseEnterPrefix(it) {
+
+    },
+    //--------------------------------------
+    OnMouseLeaverPrefix(it) {
+
+    },
     //--------------------------------------
     async OnClickAdd() {
       this.$refs.file.click()

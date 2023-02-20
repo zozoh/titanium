@@ -249,6 +249,7 @@ const _M = {
         // Add link
         if (obj) {
           it.link = Wn.Util.getAppLink(obj)
+          it.href = it.link ? it.link.toString() : undefined
           if (this.showItemText) {
             it.text = this.GetObjText(obj)
           }

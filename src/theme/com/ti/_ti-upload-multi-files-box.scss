@@ -1,0 +1,98 @@
+.ti-upload-multi-files-box {
+  padding: SZ(4);
+  //---------------------------------------------
+  > .as-main > .file-item {
+    @include border(1px, solid, dark);
+    @include noselect;
+    @include flex-align-nowrap($ai: stretch);
+    border-radius: SZ(4);
+    margin-bottom: SZ(6);
+    min-width: SZ(50);
+    position: relative;
+    //-------------------------------------------
+    &.hover-prefix {
+      > .box-item-icon {
+        @include color($color-primary, r, c);
+
+        > .ti-icon {
+          transform: rotate(360deg) scale(1.2);
+        }
+      }
+    }
+    //-------------------------------------------
+    > .box-item-icon {
+      @include flex-center;
+      width: 2em;
+      overflow: hidden;
+      cursor: pointer;
+
+      > .ti-icon {
+        transition: transform 0.3s;
+      }
+    }
+
+    //-------------------------------------------
+    > .box-item-text {
+      height: 2em;
+      line-height: 2em;
+      width: 100px;
+      flex: 1 1 auto;
+      padding: 0 SZ(6);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    //-------------------------------------------
+    > .box-item-menu {
+      @include border(1px, solid, dark, left);
+      @include flex-align-nowrap($ai: stretch);
+      a {
+        @include flex-center;
+        @include color($color-func, r, c);
+        width: 1.8em;
+        margin: 1px;
+        text-align: center;
+        //---------------------------------------
+        &:last-child {
+          border-radius: 0 SZ(4) SZ(3) 0;
+        }
+        //---------------------------------------
+        > i {
+          transition: transform 0.5s;
+        }
+        //---------------------------------------
+        &:hover {
+          @include color($color-secondary, r, c);
+          > i {
+            transform: scale(0.8);
+          }
+        }
+        //---------------------------------------
+      }
+    }
+
+    //-------------------------------------------
+    > .as-progress {
+      @include pos-abs-full;
+      .bar-outer {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        opacity: 0.8;
+        .bar-inner {
+          height: 100%;
+        }
+        .bar-tip {
+          @include pos-abs-full;
+          @include flex-center;
+          text-align: center;
+          font-style: normal;
+          color: #fff;
+        }
+      }
+    }
+    //-------------------------------------------
+  }
+
+  //---------------------------------------------
+}

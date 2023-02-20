@@ -8319,7 +8319,7 @@ div.ti-input-tags {
       box-shadow: 0.1rem 0.1rem 0.2rem rgba(0, 0, 0, 0.2);
       overflow: auto; }
   #ti-tip-wrapper[tip-size="auto"] {
-    min-width: 1rem; }
+    min-width: 0.5rem; }
   #ti-tip-wrapper[tip-size="small"] {
     width: 1rem; }
   #ti-tip-wrapper[tip-size="normal"] {
@@ -8732,6 +8732,100 @@ div.ti-input-tags {
     .ti-upload-file > .thumb-con .thumb-opt:hover {
       color: #FFF;
       background-color: #F48; }
+
+.ti-upload-multi-files-box {
+  padding: 0.04rem; }
+  .ti-upload-multi-files-box > .as-main > .file-item {
+    border: 1px solid rgba(210, 210, 210, 0.3);
+    user-select: none;
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: center;
+    flex-wrap: nowrap;
+    border-radius: 0.04rem;
+    margin-bottom: 0.06rem;
+    min-width: 0.5rem;
+    position: relative; }
+    .ti-upload-multi-files-box > .as-main > .file-item.hover-prefix > .box-item-icon {
+      color: #222;
+      background-color: #FC4; }
+      .ti-upload-multi-files-box > .as-main > .file-item.hover-prefix > .box-item-icon > .ti-icon {
+        transform: rotate(360deg) scale(1.2); }
+    .ti-upload-multi-files-box > .as-main > .file-item > .box-item-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      width: 2em;
+      overflow: hidden;
+      cursor: pointer; }
+      .ti-upload-multi-files-box > .as-main > .file-item > .box-item-icon > .ti-icon {
+        transition: transform 0.3s; }
+    .ti-upload-multi-files-box > .as-main > .file-item > .box-item-text {
+      height: 2em;
+      line-height: 2em;
+      width: 100px;
+      flex: 1 1 auto;
+      padding: 0 0.06rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis; }
+    .ti-upload-multi-files-box > .as-main > .file-item > .box-item-menu {
+      border-left: 1px solid rgba(210, 210, 210, 0.3);
+      display: flex;
+      justify-content: flex-start;
+      align-items: stretch;
+      align-content: center;
+      flex-wrap: nowrap; }
+      .ti-upload-multi-files-box > .as-main > .file-item > .box-item-menu a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        flex-wrap: wrap;
+        color: #EEE;
+        background-color: rgba(80, 80, 80, 0.4);
+        width: 1.8em;
+        margin: 1px;
+        text-align: center; }
+        .ti-upload-multi-files-box > .as-main > .file-item > .box-item-menu a:last-child {
+          border-radius: 0 0.04rem 0.03rem 0; }
+        .ti-upload-multi-files-box > .as-main > .file-item > .box-item-menu a > i {
+          transition: transform 0.5s; }
+        .ti-upload-multi-files-box > .as-main > .file-item > .box-item-menu a:hover {
+          color: #FFF;
+          background-color: #F48; }
+          .ti-upload-multi-files-box > .as-main > .file-item > .box-item-menu a:hover > i {
+            transform: scale(0.8); }
+    .ti-upload-multi-files-box > .as-main > .file-item > .as-progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0; }
+      .ti-upload-multi-files-box > .as-main > .file-item > .as-progress .bar-outer {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        opacity: 0.8; }
+        .ti-upload-multi-files-box > .as-main > .file-item > .as-progress .bar-outer .bar-inner {
+          height: 100%; }
+        .ti-upload-multi-files-box > .as-main > .file-item > .as-progress .bar-outer .bar-tip {
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          align-content: center;
+          flex-wrap: wrap;
+          text-align: center;
+          font-style: normal;
+          color: #fff; }
 
 .ti-upload-multi-files .as-wrapper {
   position: relative; }
@@ -13565,5 +13659,562 @@ article.ti-article-theme-wiki {
   .wn-thing-files.current-in-recyclebin > .as-header {
     color: #FFF;
     background-color: #F48; }
+
+.ti-widget-album {
+  position: relative; }
+  .ti-widget-album > a.album-ex-link[href] {
+    position: absolute;
+    top: 0.1rem;
+    right: 0.1rem;
+    color: #FFF;
+    background-color: #F48;
+    display: block;
+    padding: 0.08rem 0.14rem;
+    cursor: pointer;
+    opacity: 0.6;
+    border-radius: 0.08rem;
+    text-decoration: none; }
+    .ti-widget-album > a.album-ex-link[href]:hover {
+      opacity: 1; }
+
+.ti-widget-album .album-loading-stub {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  height: 100%;
+  padding: 0.32rem;
+  font-size: 0.32rem; }
+
+.ti-widget-album > .photo-wall {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+  flex-wrap: wrap;
+  padding: 0.1rem; }
+  .ti-widget-album > .photo-wall .wall-tile {
+    display: block;
+    padding: 0.1rem;
+    width: 2rem;
+    height: 2rem;
+    position: relative;
+    color: inherit; }
+    .ti-widget-album > .photo-wall .wall-tile:hover {
+      text-decoration: none;
+      color: inherit; }
+    .ti-widget-album > .photo-wall .wall-tile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block; }
+    .ti-widget-album > .photo-wall .wall-tile .tile-title {
+      display: block;
+      color: #CCC;
+      font-size: 0.12rem;
+      line-height: 1.5em;
+      padding: .5em;
+      transition: 0.5s; }
+    .ti-widget-album > .photo-wall .wall-tile .tile-brief {
+      display: block; }
+  .ti-widget-album > .photo-wall.text-out .wall-tile .tile-title {
+    position: relative; }
+  .ti-widget-album > .photo-wall.text-in .wall-tile .tile-title {
+    position: absolute;
+    left: 0;
+    right: 0; }
+  .ti-widget-album > .photo-wall.at-top .wall-tile .tile-title {
+    top: 0; }
+  .ti-widget-album > .photo-wall.at-center .wall-tile .tile-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    top: 0;
+    bottom: 0; }
+  .ti-widget-album > .photo-wall.at-bottom .wall-tile .tile-title {
+    bottom: 0; }
+  .ti-widget-album > .photo-wall.title-wrap-auto .wall-tile .tile-title {
+    white-space: normal; }
+  .ti-widget-album > .photo-wall.title-wrap-clip .wall-tile .tile-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip; }
+  .ti-widget-album > .photo-wall.title-wrap-ellipsis .wall-tile .tile-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; }
+  .ti-widget-album > .photo-wall.layout-wall.text-in .wall-tile:hover .tile-title {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #FFF;
+    white-space: normal;
+    word-break: break-word; }
+  .ti-widget-album > .photo-wall.layout-falls {
+    flex-wrap: nowrap;
+    align-items: flex-start; }
+    .ti-widget-album > .photo-wall.layout-falls .falls-group {
+      display: flex;
+      justify-content: flex-start;
+      align-items: stretch;
+      align-content: stretch;
+      flex-wrap: nowrap;
+      flex-direction: column; }
+      .ti-widget-album > .photo-wall.layout-falls .falls-group .wall-tile {
+        flex: 1 1 auto;
+        height: unset;
+        width: unset; }
+  .ti-widget-album > .photo-wall.layout-rows {
+    display: block; }
+    .ti-widget-album > .photo-wall.layout-rows .wall-tile {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      align-content: center;
+      flex-wrap: nowrap;
+      border-bottom: 1px solid rgba(210, 210, 210, 0.1);
+      width: unset;
+      height: unset;
+      padding: 0.2rem 0; }
+      .ti-widget-album > .photo-wall.layout-rows .wall-tile .part-left {
+        display: block;
+        overflow: hidden;
+        width: 2.56rem;
+        flex: 0 0 auto;
+        position: relative; }
+      .ti-widget-album > .photo-wall.layout-rows .wall-tile .part-right {
+        display: block;
+        flex: 1 1 auto;
+        padding: 0 0.2rem; }
+      .ti-widget-album > .photo-wall.layout-rows .wall-tile .tile-title, .ti-widget-album > .photo-wall.layout-rows .wall-tile .tile-brief {
+        position: relative; }
+      .ti-widget-album > .photo-wall.layout-rows .wall-tile .tile-title {
+        font-size: 1.4em;
+        color: inherit;
+        padding: 0;
+        white-space: normal; }
+      .ti-widget-album > .photo-wall.layout-rows .wall-tile .tile-brief {
+        font-size: 1em;
+        color: inherit;
+        padding: 0.2rem; }
+    .ti-widget-album > .photo-wall.layout-rows.hover-to-zoom .wall-tile {
+      overflow: unset; }
+  .ti-widget-album > .photo-wall.hover-to-up .wall-tile {
+    transition: transform 0.5s; }
+    .ti-widget-album > .photo-wall.hover-to-up .wall-tile:hover {
+      transform: translateY(-3px);
+      box-shadow: 0.04rem 0.04rem 0.1rem rgba(0, 0, 0, 0.4); }
+  .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile {
+    overflow: hidden; }
+    .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile img {
+      transition: transform 0.3s; }
+    .ti-widget-album > .photo-wall.hover-to-zoom .wall-tile:hover img {
+      transform: scale(1.2); }
+  .ti-widget-album > .photo-wall.hover-to-scale .wall-tile {
+    transition: transform 0.3s; }
+    .ti-widget-album > .photo-wall.hover-to-scale .wall-tile:hover {
+      transform: scale(1.2);
+      box-shadow: 0.04rem 0.04rem 0.1rem rgba(0, 0, 0, 0.4); }
+  .ti-widget-album > .photo-wall.pic-fit-fill .wall-tile img {
+    object-fit: fill; }
+  .ti-widget-album > .photo-wall.pic-fit-cover .wall-tile img {
+    object-fit: cover; }
+  .ti-widget-album > .photo-wall.pic-fit-contain .wall-tile img {
+    object-fit: contain; }
+  .ti-widget-album > .photo-wall.pic-fit-none .wall-tile img {
+    object-fit: none; }
+  .ti-widget-album > .photo-wall.item-margin-xl .wall-tile {
+    margin: 0.3rem; }
+  .ti-widget-album > .photo-wall.item-margin-lg .wall-tile {
+    margin: 0.24rem; }
+  .ti-widget-album > .photo-wall.item-margin-md .wall-tile {
+    margin: 0.16rem; }
+  .ti-widget-album > .photo-wall.item-margin-sm .wall-tile {
+    margin: 0.1rem; }
+  .ti-widget-album > .photo-wall.item-margin-xs .wall-tile {
+    margin: 0.04rem; }
+  .ti-widget-album > .photo-wall.item-margin-no .wall-tile {
+    margin: 0; }
+  .ti-widget-album > .photo-wall.item-padding-xl .wall-tile {
+    padding: 0.3rem; }
+  .ti-widget-album > .photo-wall.item-padding-lg .wall-tile {
+    padding: 0.24rem; }
+  .ti-widget-album > .photo-wall.item-padding-md .wall-tile {
+    padding: 0.16rem; }
+  .ti-widget-album > .photo-wall.item-padding-sm .wall-tile {
+    padding: 0.1rem; }
+  .ti-widget-album > .photo-wall.item-padding-xs .wall-tile {
+    padding: 0.04rem; }
+  .ti-widget-album > .photo-wall.item-padding-no .wall-tile {
+    padding: 0; }
+  .ti-widget-album > .photo-wall.flex-none .wall-tile {
+    flex: 0 0 auto; }
+  .ti-widget-album > .photo-wall.flex-both .wall-tile {
+    flex: 1 1 auto; }
+  .ti-widget-album > .photo-wall.flex-grow .wall-tile {
+    flex: 1 0 auto; }
+  .ti-widget-album > .photo-wall.flex-shrink .wall-tile {
+    flex: 0 1 auto; }
+
+.ti-widget-album.as-yt-playlist .photo-wall .wall-tile:after {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+  z-index: 100;
+  font-family: 'Font Awesome 5 Brands';
+  font-weight: 900;
+  content: "\f167";
+  font-size: 0.48rem;
+  color: #F00;
+  opacity: 0.5;
+  transition: 0.5s; }
+.ti-widget-album.as-yt-playlist .photo-wall .wall-tile:hover::after {
+  opacity: 1; }
+.ti-widget-album.as-yt-playlist .photo-wall.layout-rows .wall-tile:after {
+  display: none;
+  content: unset; }
+.ti-widget-album.as-yt-playlist .photo-wall.layout-rows .wall-tile .part-left:after {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+  z-index: 100;
+  font-family: 'Font Awesome 5 Brands';
+  font-weight: 900;
+  content: "\f167";
+  font-size: 0.48rem;
+  color: #F00;
+  opacity: 0.5;
+  transition: 0.5s; }
+.ti-widget-album.as-yt-playlist .photo-wall.layout-rows .wall-tile:hover .part-left:after {
+  opacity: 1; }
+
+[as="phone"] .ti-widget-album > .photo-wall.layout-rows .wall-tile {
+  display: block; }
+  [as="phone"] .ti-widget-album > .photo-wall.layout-rows .wall-tile .part-left {
+    width: unset; }
+  [as="phone"] .ti-widget-album > .photo-wall.layout-rows .wall-tile .part-right {
+    padding: 0.2rem 0; }
+  [as="phone"] .ti-widget-album > .photo-wall.layout-rows .wall-tile .tile-brief {
+    padding: 0.2rem 0 0 0; }
+
+.ti-widget-photo-gallery {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999999;
+  background: #000;
+  opacity: 0;
+  transition: opacity 0.5s;
+  user-select: none; }
+  .ti-widget-photo-gallery.is-resizing div.as-scroller {
+    transition: none; }
+  .ti-widget-photo-gallery.no-ready div.as-closer span {
+    transform: rotate(180deg) scale(0.6);
+    opacity: 0.3; }
+  .ti-widget-photo-gallery.is-ready {
+    opacity: 1; }
+  .ti-widget-photo-gallery.no-prev div.as-switcher-btn.is-prev {
+    display: none; }
+  .ti-widget-photo-gallery.no-next div.as-switcher-btn.is-next {
+    display: none; }
+  .ti-widget-photo-gallery .photo-gallery-con {
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: stretch;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    position: relative; }
+    .ti-widget-photo-gallery .photo-gallery-con > .as-viewport {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      flex: 1 1 auto;
+      position: relative; }
+    .ti-widget-photo-gallery .photo-gallery-con > .as-indicator {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      align-content: center;
+      flex-wrap: nowrap;
+      padding: 0;
+      position: relative;
+      flex: 0 0 auto;
+      z-index: 1; }
+      .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn {
+        position: absolute;
+        top: 0;
+        width: 0.5rem;
+        bottom: 0;
+        display: none;
+        cursor: pointer; }
+        .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn span {
+          transition: 0.2s; }
+        .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn.to-prev {
+          left: 0; }
+        .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn.to-prev:hover {
+          color: #FFF;
+          background-color: rgba(50, 50, 50, 0.2); }
+          .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn.to-prev:hover span {
+            transform: translateX(-2px) scale(1.1); }
+        .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn.to-next {
+          right: 0; }
+        .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn.to-next:hover {
+          color: #FFF;
+          background-color: rgba(120, 120, 120, 0.4); }
+          .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn.to-next:hover span {
+            transform: translateX(2px) scale(1.1); }
+      .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-con {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        flex-wrap: nowrap;
+        width: 100%;
+        overflow: hidden; }
+      .ti-widget-photo-gallery .photo-gallery-con > .as-indicator ul {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        align-content: center;
+        flex-wrap: nowrap;
+        padding: 0.1rem;
+        flex: 0 1 auto;
+        position: relative;
+        transition: 0.3s; }
+        .ti-widget-photo-gallery .photo-gallery-con > .as-indicator ul img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border: 2px solid transparent;
+          border-radius: 4px; }
+        .ti-widget-photo-gallery .photo-gallery-con > .as-indicator ul a {
+          display: block;
+          flex: 0 0 auto;
+          width: 0.5rem;
+          height: 0.5rem;
+          opacity: 0.6;
+          cursor: pointer;
+          transition: 0.3s;
+          text-decoration: none; }
+          .ti-widget-photo-gallery .photo-gallery-con > .as-indicator ul a[img-nil] {
+            padding: 0.04rem; }
+          .ti-widget-photo-gallery .photo-gallery-con > .as-indicator ul a span.nil-img {
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            border: 1px dashed #CCC;
+            border-radius: 4px; }
+          .ti-widget-photo-gallery .photo-gallery-con > .as-indicator ul a:hover {
+            text-decoration: none;
+            opacity: 1;
+            transform: translateY(-3px) scale(1.2); }
+            .ti-widget-photo-gallery .photo-gallery-con > .as-indicator ul a:hover img {
+              border-color: rgba(255, 255, 255, 0.6); }
+          .ti-widget-photo-gallery .photo-gallery-con > .as-indicator ul a.is-current {
+            opacity: 1; }
+            .ti-widget-photo-gallery .photo-gallery-con > .as-indicator ul a.is-current img {
+              border-color: #FFF; }
+      .ti-widget-photo-gallery .photo-gallery-con > .as-indicator[item-overflow] {
+        padding: 0 0.5rem; }
+        .ti-widget-photo-gallery .photo-gallery-con > .as-indicator[item-overflow] div.as-indi-con {
+          justify-content: flex-start; }
+        .ti-widget-photo-gallery .photo-gallery-con > .as-indicator[item-overflow] div.as-indi-btn {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          align-content: center;
+          flex-wrap: wrap; }
+  .ti-widget-photo-gallery div.as-scroller {
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: center;
+    flex-wrap: nowrap;
+    position: relative;
+    transition: 0.3s;
+    height: 100%; }
+    .ti-widget-photo-gallery div.as-scroller .as-tile {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      position: relative;
+      flex: 0 0 auto;
+      padding: 0.5rem; }
+      .ti-widget-photo-gallery div.as-scroller .as-tile header {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        padding: 0.24rem 0.6rem;
+        font-size: 0.2rem;
+        text-align: justify;
+        color: #FFF;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 1;
+        transition: 0.5s; }
+      .ti-widget-photo-gallery div.as-scroller .as-tile[img-zoom] header {
+        opacity: 0; }
+      .ti-widget-photo-gallery div.as-scroller .as-tile img {
+        border: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: 0.3s;
+        cursor: move;
+        position: relative; }
+      .ti-widget-photo-gallery div.as-scroller .as-tile span.nil-img {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+        height: 100%;
+        background: rgba(100, 100, 100, 0.2);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        font-size: 0.64rem;
+        color: #EEE; }
+      .ti-widget-photo-gallery div.as-scroller .as-tile[img-nil] > img {
+        position: absolute;
+        visibility: hidden; }
+      .ti-widget-photo-gallery div.as-scroller .as-tile[img-loaded] > span.nil-img {
+        display: none; }
+    .ti-widget-photo-gallery div.as-scroller.is-moving .as-tile img {
+      transition: unset; }
+  .ti-widget-photo-gallery a.as-opener {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 0.1rem;
+    z-index: 2;
+    display: none;
+    text-decoration: none; }
+    .ti-widget-photo-gallery a.as-opener[href] {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      width: 0.64rem;
+      height: 0.64rem;
+      color: #FFF;
+      opacity: 0.6;
+      font-size: 0.24rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s; }
+      .ti-widget-photo-gallery a.as-opener[href]:hover {
+        opacity: 1;
+        text-decoration: none; }
+  .ti-widget-photo-gallery div.as-toolbar {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    flex-wrap: nowrap;
+    padding: 0.1rem;
+    z-index: 3; }
+    .ti-widget-photo-gallery div.as-toolbar a {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      width: 0.42rem;
+      height: 0.42rem;
+      color: #FFF;
+      opacity: 0.6;
+      font-size: 0.24rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      text-decoration: none; }
+      .ti-widget-photo-gallery div.as-toolbar a:hover {
+        opacity: 1;
+        transform: scale(1.2);
+        text-decoration: none; }
+  .ti-widget-photo-gallery div.as-switcher-btn {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    padding: 0.1rem; }
+    .ti-widget-photo-gallery div.as-switcher-btn.is-prev {
+      left: 0; }
+    .ti-widget-photo-gallery div.as-switcher-btn.is-next {
+      right: 0; }
+    .ti-widget-photo-gallery div.as-switcher-btn span i {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      display: block;
+      width: 0.64rem;
+      height: 0.64rem;
+      border-radius: 50%;
+      text-align: center;
+      font-size: 0.64rem;
+      cursor: pointer;
+      color: #FFF;
+      opacity: 0.6; }
+      .ti-widget-photo-gallery div.as-switcher-btn span i:hover {
+        background-color: rgba(240, 240, 240, 0.2);
+        opacity: 1; }
+  .ti-widget-photo-gallery div.as-closer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2; }
+    .ti-widget-photo-gallery div.as-closer a {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      text-decoration: none;
+      width: 0.64rem;
+      height: 0.64rem;
+      color: #CCC;
+      font-size: 0.4rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s; }
+      .ti-widget-photo-gallery div.as-closer a:hover {
+        transform: rotate(180deg) scale(1.2);
+        color: #FFF;
+        text-decoration: none; }
 
 /*# sourceMappingURL=dark.css.map */
