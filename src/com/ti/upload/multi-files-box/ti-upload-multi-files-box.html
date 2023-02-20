@@ -1,0 +1,68 @@
+<div 
+  class="ti-upload-multi-files-box full-field"
+  :class="TopClass"><div class="as-wrapper">
+  <!--
+    Hidden input file to choose files
+  -->
+  <input 
+    type="file" 
+    ref="file" 
+    class="ti-hide"
+    multiple
+    @change.stop.seft="OnSelectLocalFilesToUpload">
+  <!--
+    Main container
+  -->
+  <div class="as-main" v-drop-files.mask="OnDropFiles" ref="itemsCon">
+    <!--
+      Show items (Uploaded and Uploading)
+    -->
+    <div
+      v-for="(it,index) in FileItems"
+        :key="it.key || it.id || index"
+        class="file-item as-item"
+        :class="it.className">
+        <!------------Prefix icon------------>
+        <div class="box-item-icon"
+        @mouseenter.left="OnMouseEnterPrefix"
+        @mouseleave.left="OnMouseLeaverPrefix"
+        @click.left="OnRemove">
+        <TiIcon  :value="it.thumb"/>
+      </div>
+      <!------------box content------------>
+      <div class="box-item-text">
+        <a v-if="it.href" :href="it.href" @click.left.prevent>{{it.text}}</a>
+        <span v-else>{{it.text}}</span>
+      </div>
+      <!------------Suffix Menu------------>
+      
+      <!-------------- <end> -------------->
+    </div>
+    <!--
+      Show the new icon
+    -->
+    <div 
+      v-if="isShowAddBtn"
+        class="file-item as-new"
+        :style="ItemStyle"
+        @click.left="OnClickAdd"><i class="zmdi zmdi-plus"></i></div>
+    <!--
+      Show placeholder
+    -->
+    <TiLoading
+      v-if="!isShowAddBtn && !hasItems"
+        v-bind="blankAs"/>
+  </div>
+  <!--
+    Global actions
+  -->
+  <div
+    v-if="isShowActions"
+      class="as-actions">
+      <!--Clean-->
+      <div class="action-item" @click.left="OnClean">
+        <i class="fas fa-trash-alt"></i>
+        <span>{{'i18n:clean'|i18n}}</span>
+      </div>
+  </div>
+</div></div>

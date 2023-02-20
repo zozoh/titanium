@@ -1,0 +1,9 @@
+<TiUploadMultiFilesBox
+  :readonly="readonly"
+  :items="FileItems"
+  :progress="myUploadProgress"
+  :removable="removable"
+  :fileFilter="LocalFileFilter"
+  @upload="OnUploadFiles"
+  @remove="OnRemove"
+  @open="OnOpen"/>

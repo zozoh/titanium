@@ -160,7 +160,7 @@ const _M = {
           icon: "zmdi-cloud-download",
           text: "i18n:download",
           className: "as-download",
-          handler: () => {
+          action: () => {
             this.OnDownload();
           }
         },
@@ -168,7 +168,7 @@ const _M = {
           icon: "zmdi-open-in-new",
           text: "i18n:open",
           className: "as-open",
-          handler: () => {
+          action: () => {
             this.OnOpen();
           }
         }

@@ -1,4 +1,4 @@
-// Pack At: 2023-02-19 23:56:40
+// Pack At: 2023-02-20 22:05:02
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -9167,7 +9167,7 @@ const _M = {
           icon: "zmdi-cloud-download",
           text: "i18n:download",
           className: "as-download",
-          handler: () => {
+          action: () => {
             this.OnDownload();
           }
         },
@@ -9175,7 +9175,7 @@ const _M = {
           icon: "zmdi-open-in-new",
           text: "i18n:open",
           className: "as-open",
-          handler: () => {
+          action: () => {
             this.OnOpen();
           }
         }
@@ -61184,6 +61184,299 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'ti-upload-multi-files-box.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/upload/multi-files-box/ti-upload-multi-files-box.mjs'] = (function(){
+const _M = {
+  /////////////////////////////////////////
+  data: () => ({
+    "loading": false,
+    "dragging": false
+  }),
+  /////////////////////////////////////////
+  props: {
+    //-------------------------------------
+    // Data
+    //-------------------------------------
+    /**
+     * Each item as :
+     * 
+     * ```js
+     * {
+     *    id: "xxx",              // Unique key
+     *    src: "http://xxx...",   // Src to preview
+     *    file: File,             // Local file, for prerender duraing uploading
+     *    value: "id:xxx"         // Value of the item, could be String or Object
+     *    link: "/path/to/open"   // Link to open in newtab
+     * }
+     * ```
+     */
+    "items": {
+      type: Array,
+      default: () => []
+    },
+    /**
+     * Show the process `0.0-1.0` during the uploading
+     * 
+     * ```js
+     * {
+     *    itemId: 0,              // `0.0-1.0` during the uploading
+     * }
+     * ```
+     */
+    "progress": {
+      type: Object,
+      default: () => ({})
+    },
+    // check function => {ok:false, msg:"xxx"}
+    "fileFilter": {
+      type: Function
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "sortable": {
+      type: Boolean,
+      default: true
+    },
+    // support remove the objects
+    "removable": {
+      type: Boolean,
+      default: true
+    },
+    "limit": {
+      type: Number,
+      default: 0
+    },
+    "readonly": {
+      type: Boolean,
+      default: false
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "showItemText": {
+      type: Boolean,
+      default: true
+    },
+    "blankAs": {
+      type: Object,
+      default:()=>({
+        className: "as-small-tip align-left",
+        icon: "zmdi-attachment-alt",
+        text: "i18n:empty-data"
+      })
+    },
+    //-----------------------------------
+    // Measure
+    //-----------------------------------
+    "itemWidth": {
+      type: [Number, String],
+      default: undefined
+    },
+    "itemHeight": {
+      type: [Number, String],
+      default: undefined
+    },
+    "previewStyle": {
+      type: Object
+    }
+  },
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass({
+        "is-dragging": this.dragging,
+        "no-dragging": !this.dragging,
+        "is-show-text": this.showItemText,
+        "no-show-text": !this.showItemText
+      })
+    },
+    //--------------------------------------
+    ItemStyle() {
+      return Ti.Css.toStyle({
+        width: this.itemWidth,
+        height: this.itemHeight
+      })
+    },
+    //--------------------------------------
+    ItemPreviewStyle() {
+      return Ti.Css.toStyle(this.previewStyle)
+    },
+    //--------------------------------------
+    FileItems() {
+      let list = []
+      _.forEach(this.items, (it, index) => {
+        let { id, src, icon, file, value, link, text } = it
+        let type = value ? "obj" : "local";
+        let thumb;
+        // Show local file
+        if (file) {
+          thumb = { type: "localFile", value: file }
+        }
+        // Show icon
+        else if (icon) {
+          thumb = icon
+        }
+        // Show image
+        else {
+          thumb = { type: "image", value: src }
+        }
+        // Get progress
+        let progress = _.get(this.progress, id)
+        // Join item
+        list.push({
+          index,
+          id, src, file, value, link, text,
+          type, thumb, progress,
+          className: `is-${type}`
+        })
+      })
+      return list
+    },
+    //--------------------------------------
+    Values() {
+      let list = []
+      _.forEach(this.items, ({ value }) => {
+        list.push(value)
+      })
+      return list
+    },
+    //--------------------------------------
+    hasItems() {
+      return !_.isEmpty(this.items)
+    },
+    //--------------------------------------
+    isShowItemRemoveBtn() {
+      return this.removable && !this.readonly
+    },
+    //--------------------------------------
+    isShowAddBtn() {
+      return !this.readonly && this.AvaCapCount != 0
+    },
+    //--------------------------------------
+    AvaCapCount() {
+      if (this.dragging) {
+        return 0;
+      }
+      if (this.limit > 0) {
+        return this.limit - this.Values.length
+      }
+      return -1
+    },
+    //--------------------------------------
+    isShowActions() {
+      return this.removable
+             && !this.readonly
+             && this.hasItems
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    async OnClickAdd() {
+      this.$refs.file.click()
+    },
+    //--------------------------------------
+    async OnDropFiles(files) {
+      if (!_.isEmpty(files) && this.isShowAddBtn) {
+        let fs;
+        // Do Filter
+        if (_.isFunction(this.fileFilter)) {
+          fs = []
+          for (let f of files) {
+            let re = this.fileFilter(f)
+            if (re.ok) {
+              fs.push(f)
+            }
+            // Show Error
+            else {
+              return await Ti.Alert(re.msg, { type: "warn" })
+            }
+          }
+        } else {
+          fs = files
+        }
+
+        // Guard
+        if (_.isEmpty(fs)) {
+          return
+        }
+
+        // Auto match the limit
+        if (this.AvaCapCount > 0 && fs.length > this.AvaCapCount) {
+          fs = _.slice(fs, 0, this.AvaCapCount)
+        }
+        this.$notify("upload", fs)
+      }
+    },
+    //--------------------------------------
+    async OnSelectLocalFilesToUpload(evt) {
+      await this.OnDropFiles(evt.target.files)
+      this.$refs.file.value = ""
+    },
+    //--------------------------------------
+    OnRemoveItem(it) {
+      this.$notify("remove", it)
+    },
+    //--------------------------------------
+    OnOpenItem(it) {
+      this.$notify("open", it)
+    },
+    //--------------------------------------
+    OnClean() {
+      this.$notify("clean")
+    },
+    //--------------------------------------
+    switchItem(fromIndex, toIndex) {
+      if (fromIndex != toIndex) {
+        //console.log("switch item", { fromIndex, toIndex })
+        let values = _.map(this.PreviewItems, it => it.value)
+        Ti.Util.moveInArray(values, fromIndex, toIndex)
+        this.$notify("change", values)
+      }
+    },
+    //--------------------------------------
+    initSortable() {
+      if (!this.readonly && this.sortable && this.$refs.itemsCon) {
+        new Sortable(this.$refs.itemsCon, {
+          animation: 300,
+          filter: ".as-new, .as-local",
+          onStart: () => {
+            this.$refs.itemsCon.turnOffTiDropFile = true
+            this.dragging = true
+          },
+          onEnd: ({ oldIndex, newIndex }) => {
+            this.$refs.itemsCon.turnOffTiDropFile = false
+            this.switchItem(oldIndex, newIndex)
+            _.delay(() => {
+              this.dragging = false
+            }, 100)
+          }
+        })
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "isShowAddBtn": function (newVal) {
+      if (this.$refs.itemsCon) {
+        this.$refs.itemsCon.turnOffTiDropFile = !newVal
+      }
+    }
+  },
+  //////////////////////////////////////////
+  mounted: function () {
+    this.initSortable()
+  }
+  //////////////////////////////////////////
+}
+return _M;;
+})()
+// ============================================================
 // EXPORT 'ti-media-audio.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/media/audio/ti-media-audio.mjs'] = (function(){
@@ -92612,6 +92905,90 @@ Ti.Preload("ti/com/ti/upload/multi-files/_com.json", {
   "mixins" : ["./ti-upload-multi-files.mjs"]
 });
 //========================================
+// JOIN <ti-upload-multi-files-box.html> ti/com/ti/upload/multi-files-box/ti-upload-multi-files-box.html
+//========================================
+Ti.Preload("ti/com/ti/upload/multi-files-box/ti-upload-multi-files-box.html", `<div 
+  class="ti-upload-multi-files-box full-field"
+  :class="TopClass"><div class="as-wrapper">
+  <!--
+    Hidden input file to choose files
+  -->
+  <input 
+    type="file" 
+    ref="file" 
+    class="ti-hide"
+    multiple
+    @change.stop.seft="OnSelectLocalFilesToUpload">
+  <!--
+    Main container
+  -->
+  <div class="as-main" v-drop-files.mask="OnDropFiles" ref="itemsCon">
+    <!--
+      Show items (Uploaded and Uploading)
+    -->
+    <div
+      v-for="(it,index) in FileItems"
+        :key="it.key || it.id || index"
+        class="file-item as-item"
+        :class="it.className">
+        <!------------Prefix icon------------>
+        <div class="box-item-icon"
+        @mouseenter.left="OnMouseEnterPrefix"
+        @mouseleave.left="OnMouseLeaverPrefix"
+        @click.left="OnRemove">
+        <TiIcon  :value="it.thumb"/>
+      </div>
+      <!------------box content------------>
+      <div class="box-item-text">
+        <a v-if="it.href" :href="it.href" @click.left.prevent>{{it.text}}</a>
+        <span v-else>{{it.text}}</span>
+      </div>
+      <!------------Suffix Menu------------>
+      
+      <!-------------- <end> -------------->
+    </div>
+    <!--
+      Show the new icon
+    -->
+    <div 
+      v-if="isShowAddBtn"
+        class="file-item as-new"
+        :style="ItemStyle"
+        @click.left="OnClickAdd"><i class="zmdi zmdi-plus"></i></div>
+    <!--
+      Show placeholder
+    -->
+    <TiLoading
+      v-if="!isShowAddBtn && !hasItems"
+        v-bind="blankAs"/>
+  </div>
+  <!--
+    Global actions
+  -->
+  <div
+    v-if="isShowActions"
+      class="as-actions">
+      <!--Clean-->
+      <div class="action-item" @click.left="OnClean">
+        <i class="fas fa-trash-alt"></i>
+        <span>{{'i18n:clean'|i18n}}</span>
+      </div>
+  </div>
+</div></div>`);
+//========================================
+// JOIN <ti-upload-multi-files-box.mjs> ti/com/ti/upload/multi-files-box/ti-upload-multi-files-box.mjs
+//========================================
+Ti.Preload("ti/com/ti/upload/multi-files-box/ti-upload-multi-files-box.mjs", TI_PACK_EXPORTS['ti/com/ti/upload/multi-files-box/ti-upload-multi-files-box.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/upload/multi-files-box/_com.json
+//========================================
+Ti.Preload("ti/com/ti/upload/multi-files-box/_com.json", {
+  "name": "ti-upload-multi-files-box",
+  "globally": true,
+  "template": "./ti-upload-multi-files-box.html",
+  "mixins": "./ti-upload-multi-files-box.mjs"
+});
+//========================================
 // JOIN <wall-tile.html> ti/com/ti/wall/com/wall-tile/wall-tile.html
 //========================================
 Ti.Preload("ti/com/ti/wall/com/wall-tile/wall-tile.html", `<div class="wall-tile"
@@ -98524,10 +98901,6 @@ Ti.Preload("ti/com/wn/upload/file-box/wn-upload-file-box.html", `<TiUploadFileBo
   :exlink="exlink"
   :readonly="readonly"
   :actions="TheActions"
-  :width="width"
-  :height="height"
-  :max-width="maxWidth"
-  :max-height="maxHeight"
   :progress="progress"
   :upload-file="uploadFile"
   :removable="removable"
@@ -98583,6 +98956,30 @@ Ti.Preload("ti/com/wn/upload/multi-files/_com.json", {
     "@com:ti/upload/multi-files"
   ],
   "deps": ["@deps:sortable.js"]
+});
+//========================================
+// JOIN <wn-upload-multi-files-box.html> ti/com/wn/upload/multi-files-box/wn-upload-multi-files-box.html
+//========================================
+Ti.Preload("ti/com/wn/upload/multi-files-box/wn-upload-multi-files-box.html", `<TiUploadMultiFilesBox
+  :readonly="readonly"
+  :items="FileItems"
+  :progress="myUploadProgress"
+  :removable="removable"
+  :fileFilter="LocalFileFilter"
+  @upload="OnUploadFiles"
+  @remove="OnRemove"
+  @open="OnOpen"/>`);
+//========================================
+// JOIN <_com.json> ti/com/wn/upload/multi-files-box/_com.json
+//========================================
+Ti.Preload("ti/com/wn/upload/multi-files-box/_com.json", {
+  "name": "wn-upload-multi-files-box",
+  "globally": true,
+  "template": "./wn-upload-multi-files-box.html",
+  "mixins": "@com:wn/upload/multi-files/wn-upload-multi-files.mjs",
+  "components": [
+    "@com:ti/upload/multi-files-box"
+  ]
 });
 //========================================
 // JOIN <site-config-actions.mjs> ti/mod/hmaker/website/mod/site-config/site-config-actions.mjs

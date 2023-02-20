@@ -1,0 +1,9 @@
+{
+  "name": "wn-upload-multi-files-box",
+  "globally": true,
+  "template": "./wn-upload-multi-files-box.html",
+  "mixins": "@com:wn/upload/multi-files/wn-upload-multi-files.mjs",
+  "components": [
+    "@com:ti/upload/multi-files-box"
+  ]
+}

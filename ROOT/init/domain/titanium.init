@@ -200,6 +200,9 @@
 @FILE mock/components/wn-form/wn-upload-file-box.comt 'UPLOAD-FILE-BOX'
 {com:'/rs/ti/test/components/wn-form/demo-wn-upload-file-box.json'}
 #---------------------------------------------------------
+@FILE mock/components/wn-form/wn-upload-multi-files-box.comt 'UPLOAD-MULTI-FILES-BOX'
+{com:'/rs/ti/test/components/wn-form/demo-wn-upload-multi-files-box.json'}
+#---------------------------------------------------------
 @FILE mock/components/form/ti-form-grid-flat.comt 'GRID-FLAT'
 {com:'/rs/ti/test/components/form/grid-flat.json'}
 #---------------------------------------------------------
