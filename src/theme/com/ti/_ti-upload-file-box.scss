@@ -1,7 +1,14 @@
 .ti-upload-file-box {
+  border-radius: SZ(4);
+  overflow: hidden;
   //-----------------------------------------
   &.show-border {
     @include border(1px, solid, dark);
+  }
+
+  //-----------------------------------------
+  &.is-readonly {
+    @include color($color-bar, r, c);
   }
 
   //---------------------------------------------
@@ -16,6 +23,13 @@
   }
 
   //---------------------------------------------
+  &.no-text {
+    > .box-item > .box-item-text {
+      @include color($color-track, c);
+    }
+  }
+
+  //---------------------------------------------
   > .box-item {
     @include noselect;
     @include flex-align-nowrap($ai: stretch);
@@ -26,6 +40,7 @@
     > .box-item-icon {
       @include flex-center;
       width: 2.4em;
+      height: 2.4em;
       overflow: hidden;
       cursor: pointer;
 
@@ -36,7 +51,6 @@
 
     //-------------------------------------------
     > .box-item-text {
-      height: 2.4em;
       line-height: 2.4em;
       width: 100px;
       flex: 1 1 auto;

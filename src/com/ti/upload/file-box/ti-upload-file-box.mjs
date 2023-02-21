@@ -64,7 +64,7 @@ const _M = {
     //------------------------------------------------
     "placeholder": {
       type: String,
-      default: "i18n:select",
+      default: "i18n:no-selected",
     },
     "hideBorder": {
       type: Boolean,
@@ -81,10 +81,12 @@ const _M = {
       return this.getTopClass({
         "hover-prefix": this.mouseEnterPrefix,
         "has-preview": this.hasPreview,
-        "show-border": !this.hideBorder,
+        "show-border": !this.hideBorder && !this.readonly,
         "hide-border": this.hideBorder,
         "is-readonly": this.readonly,
         "no-readonly": !this.readonly,
+        "has-text": this.hasText,
+        "no-text": !this.hasText
       })
     },
     //--------------------------------------
@@ -134,7 +136,7 @@ const _M = {
         return this.preview
       }
       // Show Icon
-      return "zmdi-plus"
+      return "zmdi-folder-outline"
     },
     //--------------------------------------
     BoxItemText() {

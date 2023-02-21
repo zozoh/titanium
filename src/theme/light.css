@@ -8558,69 +8558,77 @@ div.ti-input-tags {
   min-height: 2em;
   line-height: 2em; }
 
-.ti-upload-file-box.show-border {
-  border: 1px solid rgba(0, 0, 0, 0.2); }
-.ti-upload-file-box.hover-prefix > .box-item > .box-item-icon {
-  color: #FFF;
-  background-color: #2196f3; }
-  .ti-upload-file-box.hover-prefix > .box-item > .box-item-icon > .ti-icon {
-    transform: rotate(360deg) scale(1.2); }
-.ti-upload-file-box > .box-item {
-  user-select: none;
-  display: flex;
-  justify-content: flex-start;
-  align-items: stretch;
-  align-content: center;
-  flex-wrap: nowrap;
-  min-width: 0.5rem;
-  position: relative; }
-  .ti-upload-file-box > .box-item > .box-item-icon {
+.ti-upload-file-box {
+  border-radius: 0.04rem;
+  overflow: hidden; }
+  .ti-upload-file-box.show-border {
+    border: 1px solid rgba(0, 0, 0, 0.2); }
+  .ti-upload-file-box.is-readonly {
+    color: #888;
+    background-color: #F0F0F0; }
+  .ti-upload-file-box.hover-prefix > .box-item > .box-item-icon {
+    color: #FFF;
+    background-color: #2196f3; }
+    .ti-upload-file-box.hover-prefix > .box-item > .box-item-icon > .ti-icon {
+      transform: rotate(360deg) scale(1.2); }
+  .ti-upload-file-box.no-text > .box-item > .box-item-text {
+    color: #888; }
+  .ti-upload-file-box > .box-item {
+    user-select: none;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: stretch;
     align-content: center;
-    flex-wrap: wrap;
-    width: 2.4em;
-    overflow: hidden;
-    cursor: pointer; }
-    .ti-upload-file-box > .box-item > .box-item-icon > .ti-icon {
-      transition: transform 0.3s; }
-  .ti-upload-file-box > .box-item > .box-item-text {
-    height: 2.4em;
-    line-height: 2.4em;
-    width: 100px;
-    flex: 1 1 auto;
-    padding: 0 0.06rem;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis; }
-  .ti-upload-file-box > .box-item > .as-progress {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0; }
-    .ti-upload-file-box > .box-item > .as-progress .bar-outer {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      opacity: 0.8; }
-      .ti-upload-file-box > .box-item > .as-progress .bar-outer .bar-inner {
-        height: 100%; }
-      .ti-upload-file-box > .box-item > .as-progress .bar-outer .bar-tip {
-        position: absolute;
-        left: 0;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        align-content: center;
-        flex-wrap: wrap;
-        text-align: center;
-        font-style: normal;
-        color: #fff; }
+    flex-wrap: nowrap;
+    min-width: 0.5rem;
+    position: relative; }
+    .ti-upload-file-box > .box-item > .box-item-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      width: 2.4em;
+      height: 2.4em;
+      overflow: hidden;
+      cursor: pointer; }
+      .ti-upload-file-box > .box-item > .box-item-icon > .ti-icon {
+        transition: transform 0.3s; }
+    .ti-upload-file-box > .box-item > .box-item-text {
+      line-height: 2.4em;
+      width: 100px;
+      flex: 1 1 auto;
+      padding: 0 0.06rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis; }
+    .ti-upload-file-box > .box-item > .as-progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0; }
+      .ti-upload-file-box > .box-item > .as-progress .bar-outer {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        opacity: 0.8; }
+        .ti-upload-file-box > .box-item > .as-progress .bar-outer .bar-inner {
+          height: 100%; }
+        .ti-upload-file-box > .box-item > .as-progress .bar-outer .bar-tip {
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          align-content: center;
+          flex-wrap: wrap;
+          text-align: center;
+          font-style: normal;
+          color: #fff; }
 
 .ti-upload-file {
   display: flex;

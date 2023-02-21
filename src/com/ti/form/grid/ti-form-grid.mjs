@@ -253,7 +253,7 @@ const _M = {
           setup.push(_.assign(
             {
               icon: "far-check-circle",
-              text: "i18n:confirm-change"
+              text: "i18n:ok"
             },
             this.confirmButton,
             {
