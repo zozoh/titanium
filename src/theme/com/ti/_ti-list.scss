@@ -120,10 +120,12 @@
     > .row-number {
       @include flex-center;
       @include font-fixed;
-      font-size: SZ(10); opacity: 0.6;
+      font-size: SZ(10);
+      opacity: 0.6;
       padding: 0 SZ(2);
       &::after {
-        display: inline; content:".";
+        display: inline;
+        content: ".";
       }
     }
     //----------------------------------------
@@ -139,14 +141,61 @@
         &.is-image {
           height: SZ(26);
         }
-        &.icon-w32 {width: SZ(32);}
-        &.icon-w36 {width: SZ(36);}
-        &.icon-w42 {width: SZ(42);}
-        &.icon-w48 {width: SZ(48);}
+        &.icon-w32 {
+          width: SZ(32);
+        }
+        &.icon-w36 {
+          width: SZ(36);
+        }
+        &.icon-w42 {
+          width: SZ(42);
+        }
+        &.icon-w48 {
+          width: SZ(48);
+        }
       }
       //--------------------------------------
     }
     //----------------------------------------
+  }
+  //------------------------------------------
+  //
+  //  Grid View
+  //
+  //------------------------------------------
+  &.as-grid {
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-rows: auto;
+    grid-auto-flow: row;
+    justify-items: stretch;
+    align-items: stretch;
+    align-content: start; 
+    grid-gap: 1px;
+    //----------------------------------------
+    > .list-row.is-group {
+      grid-column-start: 1;
+      grid-column-end: 3;
+    }
+    //----------------------------------------
+    &.col-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    //----------------------------------------
+    &.col-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    //----------------------------------------
+    &.col-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    //----------------------------------------
+    &.col-5 {
+      grid-template-columns: repeat(5, 1fr);
+    } //----------------------------------------
+    &.col-6 {
+      grid-template-columns: repeat(6, 1fr);
+    }
   }
   //------------------------------------------
 }

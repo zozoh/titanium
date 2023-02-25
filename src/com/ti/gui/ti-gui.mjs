@@ -8,6 +8,7 @@ const _M = {
   /////////////////////////////////////////
   data: () => ({
     $inner: undefined,
+    myLayout: {},
     myShown: {},
     myViewportWidth: 0,
     myViewportHeight: 0,
@@ -109,42 +110,16 @@ const _M = {
       })
     },
     //--------------------------------------
-    TheLayout() {
-      let lay = {}
-      if (_.isEmpty(this.layout))
-        return lay
-      //....................................
-      // Raw layout
-      if (/^(rows|cols|tabs|grid)$/.test(this.layout.type)) {
-        lay = this.layout
-      }
-      //....................................
-      // Auto adapt viewMode
-      else {
-        lay = this.layout[this.viewportMode]
-        // Refer onece
-        if (_.isString(lay)) {
-          lay = this.layout[lay]
-        }
-        // Refer twice (I think it is enough for most of cases)
-        if (_.isString(lay)) {
-          lay = this.layout[lay]
-        }
-      }
-      //....................................
-      // Filter block
-      if (lay) {
-        lay = _.cloneDeep(lay)
-        lay.blocks = this.filterBlocks(lay.blocks, lay.type)
-      }
-      //....................................
-      // Done
-      return lay || {}
+    LayoutType(){
+      return _.get(this.myLayout, "type")
     },
     //--------------------------------------
-    isRowsLayout() { return "rows" == this.TheLayout.type },
-    isColsLayout() { return "cols" == this.TheLayout.type },
-    isTabsLayout() { return "tabs" == this.TheLayout.type },
+    isShowMainArea() {
+      if (this.isLoading && this.hideWhenLoading) {
+        return false
+      }
+      return true
+    },
     //--------------------------------------
     BlockNames() {
       if (!this.layout) {
@@ -160,8 +135,8 @@ const _M = {
       this.joinThePanels(list, this.layout.panels, "G")
 
       // Join Current Mode Panels
-      if (this.layout != this.TheLayout) {
-        this.joinThePanels(list, this.TheLayout.panels, this.viewportMode)
+      if (this.layout != this.myLayout) {
+        this.joinThePanels(list, this.myLayout.panels, this.viewportMode)
       }
 
       // Done
@@ -294,6 +269,40 @@ const _M = {
       }
     },
     //--------------------------------------
+    evalLayout() {
+      //console.log("evalLayout")
+      let lay = {}
+      if (_.isEmpty(this.layout))
+        return lay
+      //....................................
+      // Raw layout
+      if (/^(rows|cols|tabs|grid)$/.test(this.layout.type)) {
+        lay = this.layout
+      }
+      //....................................
+      // Auto adapt viewMode
+      else {
+        lay = this.layout[this.viewportMode]
+        // Refer onece
+        if (_.isString(lay)) {
+          lay = this.layout[lay]
+        }
+        // Refer twice (I think it is enough for most of cases)
+        if (_.isString(lay)) {
+          lay = this.layout[lay]
+        }
+      }
+      //....................................
+      // Filter block
+      if (lay) {
+        lay = _.cloneDeep(lay)
+        lay.blocks = this.filterBlocks(lay.blocks, lay.type)
+      }
+      //....................................
+      // Done
+      return lay || {}
+    },
+    //--------------------------------------
     filterShown(shown = {}) {
       return _.omitBy(shown, (v, k) => {
         if (!v)
@@ -372,6 +381,15 @@ const _M = {
       if (this.myBlockMap[name]) {
         delete this.myBlockMap[name]
       }
+    },
+    //--------------------------------------
+    tryUpdateLayout(newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
+        this.myLayout = this.evalLayout();
+        this.$nextTick(() => {
+          this.syncViewportMeasure()
+        })
+      }
     }
     //--------------------------------------
   },
@@ -391,7 +409,10 @@ const _M = {
     },
     "loadingAs": "syncViewportMeasure",
     "loading": "syncViewportMeasure",
-    "layout": "syncViewportMeasure"
+    "layout": {
+      handler : "tryUpdateLayout",
+      immediate:true
+    }
   },
   //////////////////////////////////////////
   mounted: function () {

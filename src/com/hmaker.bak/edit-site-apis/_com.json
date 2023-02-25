@@ -1,6 +1,0 @@
-{
-  "name" : "hmaker-edit-site-apis",
-  "globally" : true,
-  "template" : "./edit-site-apis.html",
-  "mixins" : ["./edit-site-apis.mjs"]
-}

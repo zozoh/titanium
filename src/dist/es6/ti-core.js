@@ -1,4 +1,4 @@
-// Pack At: 2023-02-20 22:05:02
+// Pack At: 2023-02-25 20:33:46
 //##################################################
 // # import { Alert } from "./ti-alert.mjs"
 const { Alert } = (function(){
@@ -9241,23 +9241,13 @@ const { DateTime } = (function(){
       throw 'i18n:invalid-date'
     },
     //---------------------------------------
-    format(date, fmt = "yyyy-MM-dd HH:mm:ss") {
-      // Date Range or a group of date
-      if (_.isArray(date)) {
-        //console.log("formatDate", date, fmt)
-        let list = []
-        for (let d of date) {
-          list.push(TiDateTime.format(d, fmt))
-        }
-        return list
-      }
-  
+    genFormatContext(date) {
       if (!_.isDate(date)) {
         date = TiDateTime.parse(date)
       }
       // Guard it
       if (!date)
-        return null
+        return {}
   
       // TODO here add another param
       // to format the datetime to "in 5min" like string
@@ -9290,7 +9280,7 @@ const { DateTime } = (function(){
       let dayK1 = _.upperFirst(I_WEEK[day])
       let E = Ti.I18n.get(dayK0)
       let EEEE = Ti.I18n.get(dayK1)
-      let _c = {
+      return {
         yyyy, M, d, H, m, s, S,
         yyy: yyyy,
         yy: ("" + yyyy).substring(2, 4),
@@ -9304,6 +9294,27 @@ const { DateTime } = (function(){
         E, EE: E, EEE: E, EEEE,
         MMM, MMMM
       }
+    },
+    //---------------------------------------
+    format(date, fmt = "yyyy-MM-dd HH:mm:ss") {
+      // Date Range or a group of date
+      if (_.isArray(date)) {
+        //console.log("formatDate", date, fmt)
+        let list = []
+        for (let d of date) {
+          list.push(TiDateTime.format(d, fmt))
+        }
+        return list
+      }
+  
+      if (!_.isDate(date)) {
+        date = TiDateTime.parse(date)
+      }
+      // Guard it
+      if (!date)
+        return null
+  
+      let _c = TiDateTime.genFormatContext(date)
       let regex = /(y{2,4}|M{1,4}|dd?|HH?|mm?|ss?|S{1,3}|E{1,4}|'([^']+)')/g;
       let ma;
       let list = []
@@ -9410,7 +9421,7 @@ const { DateTime } = (function(){
      * @param month {Date} - date object
      * @return how many days the month has
      */
-     countMonthDay(d) {
+    countMonthDay(d) {
       let d1 = new Date(d)
       d1.setDate(32)  // Move to next Month
       d1.setDate(0)   // 0 -> back to prev month last day
@@ -19811,7 +19822,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230220.220502",
+  "version": "1.6-20230225.203346",
   "dev": false,
   "appName": null,
   "session": {},

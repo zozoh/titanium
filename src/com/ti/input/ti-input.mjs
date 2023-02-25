@@ -30,6 +30,7 @@ const _M = {
         "show-border": !this.hideBorder,
         "hide-border": this.hideBorder,
         "has-width": hasWidth,
+        "nil-width": !hasWidth,
         "full-field": !hasWidth,
         "has-prefix-icon": this.prefixIcon ? true : false,
         "has-prefix-text": !Ti.Util.isNil(this.prefixText),

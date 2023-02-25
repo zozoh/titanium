@@ -247,7 +247,9 @@ const _M = {
     //----------------------------------------------
     getStepAction(stepBtn, dftSetting={}) {
       if(stepBtn) {
-        let btn
+        //console.log(stepBtn, this.value)
+        let btn;
+        let enabled = stepBtn.enabled
         // Boolean default
         if(_.isBoolean(stepBtn)) {
           btn = {}
@@ -261,16 +263,16 @@ const _M = {
           btn = _.assign({}, stepBtn)
           //console.log({stepBtn, val: this.value})
           // Customized
-          if(_.isFunction(btn.enabled)) {
-            btn.enabled = btn.enabled()
+          if(_.isFunction(enabled)) {
+            btn.enabled = enabled(this.value)
           }
           // Directly
-          else if(_.isBoolean(btn.enabled)) {
-            btn.enabled = btn.enabled
+          else if(_.isBoolean(enabled)) {
+            btn.enabled = enabled
           }
           // Eval enabled
-          else if(btn.enabled) {
-            btn.enabled = Ti.AutoMatch.test(btn.enabled, this.value)
+          else if(enabled) {
+            btn.enabled = Ti.AutoMatch.test(enabled, this.value)
           }
         }
         // Setup 

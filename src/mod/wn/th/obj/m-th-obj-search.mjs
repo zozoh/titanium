@@ -2,6 +2,48 @@
 const _M = {
   //----------------------------------------
   //
+  // Import / Export
+  //
+  //----------------------------------------
+  async exportData({ state, commit, dispatch, getters }) {
+    // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
+    if (!state.thingSetId) {
+      return await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
+    }
+
+    let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds)
+    if (_.isEmpty(ids)) {
+      return await Ti.Alert('i18n:nil-item')
+    }
+
+    // Open Dialog Wizard to export data
+    let re = await Ti.App.Open({
+      title: "i18n:export-data",
+      position: "top",
+      minWidth: "90%",
+      height: "90%",
+      textOk: null,
+      textCancel: null,
+      result: {},
+      comType: "WnWizardDataExporter",
+      comConf: {
+        "title": "测试文件导出",
+        "mappingPath": `id:${state.thingSetId}/export/`,
+        "defaultMappingName": undefined,
+        "outputName": "export-${now}",
+        "outputTarget": `id:${state.thingSetId}/tmp/export/\${name}.\${type}`
+      },
+      components: [
+        "@com:wn/wizard/data-exporter"
+      ]
+    })
+    console.log(re)
+  },
+  //----------------------------------------
+  //
   // RecycelBin
   //
   //----------------------------------------

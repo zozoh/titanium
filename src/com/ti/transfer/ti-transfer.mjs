@@ -289,6 +289,7 @@ const _M = {
       let list = []
       _.forEach(this.myOptionsData, it => {
         let itV = this.Dict.getValue(it)
+        console.log(itV)
         if (!this.selIdMap[itV]) {
           list.push(it)
         }
@@ -419,8 +420,8 @@ const _M = {
     "sel.data": async function () {
       this.rebuildSelIdMap()
       let val = await this.genValue()
-      if (!_.isEqual(val, this.Values)) {
-        this.$notify("change", val)
+      if (this.changeEventName && !_.isEqual(val, this.Values)) {
+        this.$notify(this.changeEventName, val)
       }
     }
   },

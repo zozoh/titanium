@@ -249,7 +249,9 @@ const _M = {
           if (fld.showName) {
 
             fld.title = Ti.I18n.text(fld.title)
+            this.setFieldTip(fld, "tipObj", fld.tip)
             this.setFieldNameTip(fld)
+
 
             nmStyle = {
               //"grid-column-start": fld.nameGridStart + 1,
@@ -308,56 +310,75 @@ const _M = {
       this.myFields = list
     },
     //--------------------------------------------------
+    setFieldTip(fld, taKey, tip, {
+      mode = "H",
+      size = "auto",
+      type = "paper",
+      contentType = "text",
+      text
+    } = {}) {
+      // Guard
+      if (!taKey || !tip) {
+        return
+      }
+
+      //console.log("setFieldNameTip", fld)
+      let tipObj = { vars: {} }
+      // String as template
+      if (_.isString(tip)) {
+        tipObj.text = tip
+      }
+      // Full Dedefined
+      else if (_.isObject(tip)) {
+        _.assign(tipObj, tip)
+      }
+      _.defaults(tipObj, {
+        vars: {},
+        mode, size, type, contentType, text
+      })
+      // Guard again
+      if (!tipObj.text) {
+        return
+      }
+
+      _.defaults(tipObj.vars, {
+        title: fld.title,
+        name: _.concat(fld.name).join(', ')
+      })
+      let tipAttrs = {}
+      _.forEach(tipObj, (v, k) => {
+        // 设置变量
+        if ("vars" == k) {
+          _.forEach(v, (varVal, key) => {
+            let varName = _.kebabCase(key)
+            tipAttrs[`data-ti-tip-vars-${varName}`] = varVal
+          })
+        }
+        // 设置数据
+        else if ("text" == k) {
+          tipAttrs[`data-ti-tip`] = v
+        }
+        // 普通设置
+        else {
+          tipAttrs[`data-ti-tip-${k}`] = v
+        }
+      })
+      fld[taKey] = tipAttrs
+
+    },
+    //--------------------------------------------------
     setFieldNameTip(fld) {
       let autoNameTip = Ti.Util.fallback(
-        fld.autoNameTip, this.autoFieldNameTip)
-      if (autoNameTip) {
-        //console.log("setFieldNameTip", fld)
-        let nt = { vars: {}, mode: "V" }
-        // true
-        if (_.isBoolean(autoNameTip)) {
-          nt.text = "${title}: ${name}"
-        }
-        // String as template
-        else if (_.isString(autoNameTip)) {
-          nt.text = autoNameTip
-        }
-        // Full Dedefined
-        else if (_.isObject(autoNameTip)) {
-          _.assign(nt, autoNameTip)
-        }
-        _.defaults(nt, {
-          vars: {},
-          mode: "V",
-          size: "auto",
-          type: "success",
-          contentType: "text",
-          text: "${title}: ${name}"
-        })
-        _.defaults(nt.vars, {
-          title: fld.title,
-          name: _.concat(fld.name).join(', ')
-        })
-        fld.nameTip = {}
-        _.forEach(nt, (v, k) => {
-          // 设置变量
-          if ("vars" == k) {
-            _.forEach(v, (varVal, key) => {
-              let varName = _.kebabCase(key)
-              fld.nameTip[`data-ti-tip-vars-${varName}`] = varVal
-            })
-          }
-          // 设置数据
-          else if ("text" == k) {
-            fld.nameTip[`data-ti-tip`] = v
-          }
-          // 普通设置
-          else {
-            fld.nameTip[`data-ti-tip-${k}`] = v
-          }
-        })
-
-      }
+        fld.autoNameTip, this.autoFieldNameTip
+      )
+      this.setFieldTip(fld, "nameTip", autoNameTip, {
+        mode: "V",
+        size: "auto",
+        type: "success",
+        contentType: "text",
+        text: "${title}: ${name}"
+      })
+      
     },
     //--------------------------------------------------
     setFieldStatus(fld = {}) {

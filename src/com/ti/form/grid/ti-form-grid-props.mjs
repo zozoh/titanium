@@ -154,7 +154,7 @@ export default {
   },
   "tipAsPopIcon": {
     type: Boolean,
-    default: false
+    default: true
   },
   /*
   true  => {text: "${title}: ${name}"}

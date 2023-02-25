@@ -46,7 +46,7 @@
               <div
                   v-if="fld.tip && fld.tipAsPopIcon"
                     class="field-pop-tip"
-                    :data-ti-tip="fld.tip"><i class="zmdi zmdi-help-outline"></i></div>
+                    v-bind="fld.tipObj" ><i class="zmdi zmdi-help-outline"></i></div>
               <!------Show enable switcher ------>
               <div
                 v-if="canShowBatchEditableSwitcher && fld.batchDisabled && !fld.batchReadonly"

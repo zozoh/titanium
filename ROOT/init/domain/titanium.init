@@ -220,6 +220,11 @@
 #---------------------------------------------------------
 @FILE mock/components/wn-others/wn-obj-pvgview.comt 'WN-OBJ-PVGVIEW'
 {com:'/rs/ti/test/components/wn-others/demo-wn-obj-pvgview.json'}
+#---------------------------------------------------------
+@FILE mock/components/wn-others/wn-wizard-data-exporter.comt 'WN-WIZARD-DATA-EXPORTER'
+{com:'/rs/ti/test/components/wn-others/demo-wn-wizard-data-exporter.json'}
+@FILE mock/components/wn-others/media.mapping.json 
+%COPY> conf/media.mapping.json
 ##########################################################
 #
 #                    网站工程

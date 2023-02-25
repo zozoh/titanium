@@ -1,4 +1,4 @@
-// Pack At: 2023-02-20 22:05:02
+// Pack At: 2023-02-25 20:33:46
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2580,6 +2580,82 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }
   //////////////////////////////////////////
 }
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'wizard-data-expoter-s2.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s2.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //---------------------------------------------------
+  Step2ChooseFields() {
+    let vm = this
+    //.........................................
+    const _load_fields = async () => {
+      let { mapping } = this.value
+      if (mapping) {
+        let list = await Wn.Sys.exec2(`cat id:${mapping}`, { as: "json" })
+        let cans = []
+        _.forEach(list, (li, key) => {
+          // Group:  "Genaral": "-------------",
+          if (/^[-]{5,}$/.test(li)) {
+            cans.push({ title: key })
+          }
+          // Simple: "nm": "Name",
+          else if (_.isString(li)) {
+            cans.push({
+              text: li,
+              value: key
+            })
+          }
+          // Complex: "race": {...}
+          else if (li.name) {
+            cans.push({
+              text: li.name,
+              value: key,
+              asDefault: li.asDefault
+            })
+          }
+        })
+        this.myCanFields = cans
+      }
+    }
+    //.........................................
+    let listConf = {
+      dftLabelHoverCopy: false,
+      display: ['<:fas-tag>', "text::flex-auto"],
+      rowAsGroupTitle: {
+        "title": "![BLANK]"
+      },
+      rowGroupTitleDisplay: "title"
+    }
+    //.........................................
+    return {
+      title: "i18n:wn-export-choose-fields",
+      comType: "TiTransfer",
+      comConf: {
+        idBy: "value",
+        options: this.myCanFields,
+        value: "=fields",
+        changeEventName: "output:fields",
+        canComConf: _.assign({
+          className: "as-grid col-2",
+          border: false,
+        }, listConf),
+        selComConf: listConf
+      },
+      prepare: async function () {
+        //console.log(this.tiComType, vm.value)
+        await _load_fields()
+      },
+      prev: true,
+      next: {
+        enabled : false
+      }
+    }
+  },
+  //---------------------------------------------------
+} 
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -5617,6 +5693,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //--------------------------------------
     TheCom() {
+      //console.log("block TheCom", this.name)
       //....................................
       // Body -> Component
       if (this.body) {
@@ -6709,6 +6786,7 @@ const _M = {
       let list = []
       _.forEach(this.myOptionsData, it => {
         let itV = this.Dict.getValue(it)
+        console.log(itV)
         if (!this.selIdMap[itV]) {
           list.push(it)
         }
@@ -6839,8 +6917,8 @@ const _M = {
     "sel.data": async function () {
       this.rebuildSelIdMap()
       let val = await this.genValue()
-      if (!_.isEqual(val, this.Values)) {
-        this.$notify("change", val)
+      if (this.changeEventName && !_.isEqual(val, this.Values)) {
+        this.$notify(this.changeEventName, val)
       }
     }
   },
@@ -9071,7 +9149,7 @@ const _M = {
     //------------------------------------------------
     "placeholder": {
       type: String,
-      default: "i18n:select",
+      default: "i18n:no-selected",
     },
     "hideBorder": {
       type: Boolean,
@@ -9088,10 +9166,12 @@ const _M = {
       return this.getTopClass({
         "hover-prefix": this.mouseEnterPrefix,
         "has-preview": this.hasPreview,
-        "show-border": !this.hideBorder,
+        "show-border": !this.hideBorder && !this.readonly,
         "hide-border": this.hideBorder,
         "is-readonly": this.readonly,
         "no-readonly": !this.readonly,
+        "has-text": this.hasText,
+        "no-text": !this.hasText
       })
     },
     //--------------------------------------
@@ -9141,7 +9221,7 @@ const _M = {
         return this.preview
       }
       // Show Icon
-      return "zmdi-plus"
+      return "zmdi-folder-outline"
     },
     //--------------------------------------
     BoxItemText() {
@@ -12591,10 +12671,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Eval modes options
     let modeNames = mode.split(";")
     let modeMap = {
-      xls: { value: "xls", text: "i18n:wn-export-c-mode-xls" },
-      csv: { value: "csv", text: "i18n:wn-export-c-mode-csv" },
-      json: { value: "json", text: "i18n:wn-export-c-mode-json" },
-      zip: { value: "zip", text: "i18n:wn-export-c-mode-zip" }
+      xls: { value: "xls", text: "i18n:wn-export-c-type-xls" },
+      csv: { value: "csv", text: "i18n:wn-export-c-type-csv" },
+      json: { value: "json", text: "i18n:wn-export-c-type-json" },
+      zip: { value: "zip", text: "i18n:wn-export-c-type-zip" }
     }
     let modeOptions = []
     _.forEach(modeNames, nm => {
@@ -12606,9 +12686,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Eval page options
     let pageModes = page.split(";")
     let pageMap = {
-      checked: { value: "checked", text: "i18n:wn-export-c-page-checked" },
-      current: { value: "current", text: "i18n:wn-export-c-page-current" },
-      all: { value: "all", text: "i18n:wn-export-c-page-all" }
+      checked: { value: "checked", text: "i18n:wn-export-c-mode-checked" },
+      current: { value: "current", text: "i18n:wn-export-c-mode-current" },
+      all: { value: "all", text: "i18n:wn-export-c-mode-all" }
     }
     let pageOptions = []
     _.forEach(pageModes, md => {
@@ -12620,7 +12700,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // Make the config form fields
     let formFields = [];
     formFields.push({
-      title: "i18n:wn-export-c-mode",
+      title: "i18n:wn-export-c-type",
       name: "mode",
       comType: "TiSwitcher",
       comConf: {
@@ -12644,7 +12724,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       })
     }
     formFields.push({
-      title: "i18n:wn-export-c-page",
+      title: "i18n:wn-export-c-mode",
       name: "page",
       comType: "TiSwitcher",
       comConf: {
@@ -13031,6 +13111,48 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj-search.mjs'] = (function(){
 ////////////////////////////////////////////////
 const _M = {
+  //----------------------------------------
+  //
+  // Import / Export
+  //
+  //----------------------------------------
+  async exportData({ state, commit, dispatch, getters }) {
+    // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+    }
+    if (!state.thingSetId) {
+      return await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
+    }
+
+    let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds)
+    if (_.isEmpty(ids)) {
+      return await Ti.Alert('i18n:nil-item')
+    }
+
+    // Open Dialog Wizard to export data
+    let re = await Ti.App.Open({
+      title: "i18n:export-data",
+      position: "top",
+      minWidth: "90%",
+      height: "90%",
+      textOk: null,
+      textCancel: null,
+      result: {},
+      comType: "WnWizardDataExporter",
+      comConf: {
+        "title": "测试文件导出",
+        "mappingPath": `id:${state.thingSetId}/export/`,
+        "defaultMappingName": undefined,
+        "outputName": "export-${now}",
+        "outputTarget": `id:${state.thingSetId}/tmp/export/\${name}.\${type}`
+      },
+      components: [
+        "@com:wn/wizard/data-exporter"
+      ]
+    })
+    console.log(re)
+  },
   //----------------------------------------
   //
   // RecycelBin
@@ -17786,7 +17908,9 @@ const _M = {
           if (fld.showName) {
 
             fld.title = Ti.I18n.text(fld.title)
+            this.setFieldTip(fld, "tipObj", fld.tip)
             this.setFieldNameTip(fld)
+
 
             nmStyle = {
               //"grid-column-start": fld.nameGridStart + 1,
@@ -17845,56 +17969,75 @@ const _M = {
       this.myFields = list
     },
     //--------------------------------------------------
+    setFieldTip(fld, taKey, tip, {
+      mode = "H",
+      size = "auto",
+      type = "paper",
+      contentType = "text",
+      text
+    } = {}) {
+      // Guard
+      if (!taKey || !tip) {
+        return
+      }
+
+      //console.log("setFieldNameTip", fld)
+      let tipObj = { vars: {} }
+      // String as template
+      if (_.isString(tip)) {
+        tipObj.text = tip
+      }
+      // Full Dedefined
+      else if (_.isObject(tip)) {
+        _.assign(tipObj, tip)
+      }
+      _.defaults(tipObj, {
+        vars: {},
+        mode, size, type, contentType, text
+      })
+      // Guard again
+      if (!tipObj.text) {
+        return
+      }
+
+      _.defaults(tipObj.vars, {
+        title: fld.title,
+        name: _.concat(fld.name).join(', ')
+      })
+      let tipAttrs = {}
+      _.forEach(tipObj, (v, k) => {
+        // 设置变量
+        if ("vars" == k) {
+          _.forEach(v, (varVal, key) => {
+            let varName = _.kebabCase(key)
+            tipAttrs[`data-ti-tip-vars-${varName}`] = varVal
+          })
+        }
+        // 设置数据
+        else if ("text" == k) {
+          tipAttrs[`data-ti-tip`] = v
+        }
+        // 普通设置
+        else {
+          tipAttrs[`data-ti-tip-${k}`] = v
+        }
+      })
+      fld[taKey] = tipAttrs
+
+    },
+    //--------------------------------------------------
     setFieldNameTip(fld) {
       let autoNameTip = Ti.Util.fallback(
-        fld.autoNameTip, this.autoFieldNameTip)
-      if (autoNameTip) {
-        //console.log("setFieldNameTip", fld)
-        let nt = { vars: {}, mode: "V" }
-        // true
-        if (_.isBoolean(autoNameTip)) {
-          nt.text = "${title}: ${name}"
-        }
-        // String as template
-        else if (_.isString(autoNameTip)) {
-          nt.text = autoNameTip
-        }
-        // Full Dedefined
-        else if (_.isObject(autoNameTip)) {
-          _.assign(nt, autoNameTip)
-        }
-        _.defaults(nt, {
-          vars: {},
-          mode: "V",
-          size: "auto",
-          type: "success",
-          contentType: "text",
-          text: "${title}: ${name}"
-        })
-        _.defaults(nt.vars, {
-          title: fld.title,
-          name: _.concat(fld.name).join(', ')
-        })
-        fld.nameTip = {}
-        _.forEach(nt, (v, k) => {
-          // 设置变量
-          if ("vars" == k) {
-            _.forEach(v, (varVal, key) => {
-              let varName = _.kebabCase(key)
-              fld.nameTip[`data-ti-tip-vars-${varName}`] = varVal
-            })
-          }
-          // 设置数据
-          else if ("text" == k) {
-            fld.nameTip[`data-ti-tip`] = v
-          }
-          // 普通设置
-          else {
-            fld.nameTip[`data-ti-tip-${k}`] = v
-          }
-        })
-
-      }
+        fld.autoNameTip, this.autoFieldNameTip
+      )
+      this.setFieldTip(fld, "nameTip", autoNameTip, {
+        mode: "V",
+        size: "auto",
+        type: "success",
+        contentType: "text",
+        text: "${title}: ${name}"
+      })
+      
     },
     //--------------------------------------------------
     setFieldStatus(fld = {}) {
@@ -19829,6 +19972,27 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : [String, Object],
     default : undefined
   }
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'wizard-data-expoter-s3.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s3.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //---------------------------------------------------
+  Step3Process() {
+    return {
+      title: "i18n:wn-export-ing",
+      comType: "TiTextJson",
+      comConf: {
+        value: ":=.."
+      },
+      prev: false,
+      next: false
+    }
+  },
+  //---------------------------------------------------
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -22114,6 +22278,7 @@ const _M = {
         "show-border": !this.hideBorder,
         "hide-border": this.hideBorder,
         "has-width": hasWidth,
+        "nil-width": !hasWidth,
         "full-field": !hasWidth,
         "has-prefix-icon": this.prefixIcon ? true : false,
         "has-prefix-text": !Ti.Util.isNil(this.prefixText),
@@ -22794,7 +22959,7 @@ const _M = {
           setup.push(_.assign(
             {
               icon: "far-check-circle",
-              text: "i18n:confirm-change"
+              text: "i18n:ok"
             },
             this.confirmButton,
             {
@@ -30556,7 +30721,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "tipAsPopIcon": {
     type: Boolean,
-    default: false
+    default: true
   },
   /*
   true  => {text: "${title}: ${name}"}
@@ -35467,6 +35632,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : Object,
     default : undefined
   },
+  "changeEventName":{
+    type : String,
+    default : "change"
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -39527,6 +39696,7 @@ const _M = {
   /////////////////////////////////////////
   data: () => ({
     $inner: undefined,
+    myLayout: {},
     myShown: {},
     myViewportWidth: 0,
     myViewportHeight: 0,
@@ -39628,42 +39798,16 @@ const _M = {
       })
     },
     //--------------------------------------
-    TheLayout() {
-      let lay = {}
-      if (_.isEmpty(this.layout))
-        return lay
-      //....................................
-      // Raw layout
-      if (/^(rows|cols|tabs|grid)$/.test(this.layout.type)) {
-        lay = this.layout
-      }
-      //....................................
-      // Auto adapt viewMode
-      else {
-        lay = this.layout[this.viewportMode]
-        // Refer onece
-        if (_.isString(lay)) {
-          lay = this.layout[lay]
-        }
-        // Refer twice (I think it is enough for most of cases)
-        if (_.isString(lay)) {
-          lay = this.layout[lay]
-        }
-      }
-      //....................................
-      // Filter block
-      if (lay) {
-        lay = _.cloneDeep(lay)
-        lay.blocks = this.filterBlocks(lay.blocks, lay.type)
-      }
-      //....................................
-      // Done
-      return lay || {}
+    LayoutType(){
+      return _.get(this.myLayout, "type")
     },
     //--------------------------------------
-    isRowsLayout() { return "rows" == this.TheLayout.type },
-    isColsLayout() { return "cols" == this.TheLayout.type },
-    isTabsLayout() { return "tabs" == this.TheLayout.type },
+    isShowMainArea() {
+      if (this.isLoading && this.hideWhenLoading) {
+        return false
+      }
+      return true
+    },
     //--------------------------------------
     BlockNames() {
       if (!this.layout) {
@@ -39679,8 +39823,8 @@ const _M = {
       this.joinThePanels(list, this.layout.panels, "G")
 
       // Join Current Mode Panels
-      if (this.layout != this.TheLayout) {
-        this.joinThePanels(list, this.TheLayout.panels, this.viewportMode)
+      if (this.layout != this.myLayout) {
+        this.joinThePanels(list, this.myLayout.panels, this.viewportMode)
       }
 
       // Done
@@ -39813,6 +39957,40 @@ const _M = {
       }
     },
     //--------------------------------------
+    evalLayout() {
+      //console.log("evalLayout")
+      let lay = {}
+      if (_.isEmpty(this.layout))
+        return lay
+      //....................................
+      // Raw layout
+      if (/^(rows|cols|tabs|grid)$/.test(this.layout.type)) {
+        lay = this.layout
+      }
+      //....................................
+      // Auto adapt viewMode
+      else {
+        lay = this.layout[this.viewportMode]
+        // Refer onece
+        if (_.isString(lay)) {
+          lay = this.layout[lay]
+        }
+        // Refer twice (I think it is enough for most of cases)
+        if (_.isString(lay)) {
+          lay = this.layout[lay]
+        }
+      }
+      //....................................
+      // Filter block
+      if (lay) {
+        lay = _.cloneDeep(lay)
+        lay.blocks = this.filterBlocks(lay.blocks, lay.type)
+      }
+      //....................................
+      // Done
+      return lay || {}
+    },
+    //--------------------------------------
     filterShown(shown = {}) {
       return _.omitBy(shown, (v, k) => {
         if (!v)
@@ -39891,6 +40069,15 @@ const _M = {
       if (this.myBlockMap[name]) {
         delete this.myBlockMap[name]
       }
+    },
+    //--------------------------------------
+    tryUpdateLayout(newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
+        this.myLayout = this.evalLayout();
+        this.$nextTick(() => {
+          this.syncViewportMeasure()
+        })
+      }
     }
     //--------------------------------------
   },
@@ -39910,7 +40097,10 @@ const _M = {
     },
     "loadingAs": "syncViewportMeasure",
     "loading": "syncViewportMeasure",
-    "layout": "syncViewportMeasure"
+    "layout": {
+      handler : "tryUpdateLayout",
+      immediate:true
+    }
   },
   //////////////////////////////////////////
   mounted: function () {
@@ -41490,8 +41680,8 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      // if (/change$/.test(name))
-      //console.log("WnThAdaptor.__on_events", name, payload)
+       if (/change$/.test(name))
+      console.log("WnThAdaptor.__on_events", name, payload)
 
       // ByPass
       if (/^(indicate)$/.test(name)) {
@@ -42958,7 +43148,9 @@ const _M = {
     //----------------------------------------------
     getStepAction(stepBtn, dftSetting={}) {
       if(stepBtn) {
-        let btn
+        //console.log(stepBtn, this.value)
+        let btn;
+        let enabled = stepBtn.enabled
         // Boolean default
         if(_.isBoolean(stepBtn)) {
           btn = {}
@@ -42972,16 +43164,16 @@ const _M = {
           btn = _.assign({}, stepBtn)
           //console.log({stepBtn, val: this.value})
           // Customized
-          if(_.isFunction(btn.enabled)) {
-            btn.enabled = btn.enabled()
+          if(_.isFunction(enabled)) {
+            btn.enabled = enabled(this.value)
           }
           // Directly
-          else if(_.isBoolean(btn.enabled)) {
-            btn.enabled = btn.enabled
+          else if(_.isBoolean(enabled)) {
+            btn.enabled = enabled
           }
           // Eval enabled
-          else if(btn.enabled) {
-            btn.enabled = Ti.AutoMatch.test(btn.enabled, this.value)
+          else if(enabled) {
+            btn.enabled = Ti.AutoMatch.test(enabled, this.value)
           }
         }
         // Setup 
@@ -54430,6 +54622,7 @@ const _M = {
         // Add link
         if (obj) {
           it.link = Wn.Util.getAppLink(obj)
+          it.href = it.link ? it.link.toString() : undefined
           if (this.showItemText) {
             it.text = this.GetObjText(obj)
           }
@@ -61261,7 +61454,7 @@ const _M = {
     },
     "blankAs": {
       type: Object,
-      default:()=>({
+      default: () => ({
         className: "as-small-tip align-left",
         icon: "zmdi-attachment-alt",
         text: "i18n:empty-data"
@@ -61308,7 +61501,7 @@ const _M = {
     FileItems() {
       let list = []
       _.forEach(this.items, (it, index) => {
-        let { id, src, icon, file, value, link, text } = it
+        let { id, src, icon, file, value, link, href, text } = it
         let type = value ? "obj" : "local";
         let thumb;
         // Show local file
@@ -61328,12 +61521,32 @@ const _M = {
         // Join item
         list.push({
           index,
-          id, src, file, value, link, text,
+          id, src, file, value, link, href, text,
           type, thumb, progress,
           className: `is-${type}`
         })
       })
       return list
+    },
+    //--------------------------------------
+    ItemActions() {
+      return [
+        {
+          icon: "fas fa-trash-alt",
+          tip: "i18n:remove",
+          name: "remove"
+        },
+        {
+          icon: "fas fa-external-link-square-alt",
+          tip: "i18n:open-newtab",
+          name: "open"
+        },
+        {
+          icon: "fas fa-download",
+          tip: "i18n:download-to-local",
+          name: "download"
+        }
+      ]
     },
     //--------------------------------------
     Values() {
@@ -61368,13 +61581,21 @@ const _M = {
     //--------------------------------------
     isShowActions() {
       return this.removable
-             && !this.readonly
-             && this.hasItems
+        && !this.readonly
+        && this.hasItems
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods: {
+    //--------------------------------------
+    OnMouseEnterPrefix(it) {
+
+    },
+    //--------------------------------------
+    OnMouseLeaverPrefix(it) {
+
+    },
     //--------------------------------------
     async OnClickAdd() {
       this.$refs.file.click()
@@ -65029,7 +65250,7 @@ const _M = {
       let showTailRunTip = Ti.Util.fallback(
         options.showTailRunTip, this.showTailRunTip
       )
-      console.log(showTailRunTip)
+      //console.log(showTailRunTip)
       if (showTailRunTip) {
         this.printHR()
         this.lines.push("--> " + cmdText)
@@ -68510,6 +68731,52 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'wizard-data-expoter-s4.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s4.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //---------------------------------------------------
+  Step4Finished() {
+    let vm = this
+    return {
+      title: "i18n:wn-export-done",
+      prepare: async function () {
+        let oTa = await vm.LoadTarget(this.value)
+        // just return a path
+        if (_.isString(oTa)) {
+          oTa = await Wn.Io.loadMeta(oTa)
+        }
+        this.$notify("change", {
+          ... this.value,
+          target: oTa
+        })
+      },
+      comType: "WebMetaBadge",
+      comConf: {
+        className: "is-success",
+        value: ":=target",
+        icon: "fas-check-circle",
+        title: "i18n:wn-export-done-ok",
+        brief: "i18n:wn-export-done-tip",
+        links: [{
+          icon: "fas-download",
+          text: ":=target.nm",
+          href: ":->/o/content?str=id:${target.id}&d=true",
+          newtab: true
+        }, {
+          icon: "fas-external-link-alt",
+          text: "i18n:wn-export-open-dir",
+          href: ":=>Wn.Util.getAppLink(target)",
+          newtab: true
+        }]
+      }
+    }
+  }
+  //---------------------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'ti-combo-pair-text.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/combo/pair-text/ti-combo-pair-text.mjs'] = (function(){
@@ -71443,6 +71710,276 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'wn-wizard-data-exporter.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wn-wizard-data-exporter.mjs'] = (function(){
+const _M = {
+  ///////////////////////////////////////////////////////
+  data: () => ({
+    myData: {},
+    myMappingFiles: [],
+    myCanFields:[]
+  }),
+  ///////////////////////////////////////////////////////
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    // candicate mapping files
+    // If DIR, then get all json in it is option mapping files.
+    // It will show drop list when multi mapping files.
+    // Anyway, it need a mapping file, to get all avaliable fields.
+    // [required]
+    "mappingPath": {
+      type: [String, Array]
+    },
+    // If multi mapping paths, the first one(order by name) will 
+    // be used defaultly. But you can indicate it in this prop.
+    // [optional]
+    "defaultMappingName": {
+      type: String
+    },
+    // A Tmpl to get the output target path
+    // the base render context :
+    // {
+    //   type: "xlsx",        // <- this.oututMode
+    //   yy:"2023",MM:"02",dd:"19",HH:"12",mm:"00",ss:"00"
+    //   today:"2023-02-19", now:"2023-02-19_120000"
+    // }
+    // If function, it will be invoke as `(context={}):String`
+    // [required]
+    "outputName": {
+      type: [String, Function]
+    },
+    // Tmpl as target full path
+    // Or async function to load Target Object of path
+    // `(context={}):String|Object`
+    // the context same with command
+    // [required]
+    "outputTarget": {
+      type: [String, Function]
+      // sunc as "~/tmp/${name}"
+    },
+    // additional render vars for output target
+    "vars": {
+      type: Object,
+      default: () => ({})
+    },
+    "value": {
+      type: Object
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    "outputType": {
+      type: String,
+      default: "xlsx"
+    },
+    "outputTypeOptions": {
+      type: Array,
+      default: () => [
+        { value: "xlsx", text: "i18n:wn-export-c-type-xls" },
+        { value: "json", text: "i18n:wn-export-c-type-json" }
+      ]
+    },
+    "outputMode": {
+      type: String,
+      default: "checked"
+    },
+    "outputModeOptions": {
+      type: Array,
+      default: () => [
+        { value: "checked", text: "i18n:wn-export-c-mode-checked" },
+        { value: "current", text: "i18n:wn-export-c-mode-current" },
+        { value: "scope", text: "i18n:wn-export-c-mode-scope" },
+        { value: "all", text: "i18n:wn-export-c-mode-all" }
+      ]
+    },
+    // Auto remove target when expired.
+    // null, never expired
+    "targetExpi": {
+      type: String,
+      default: "1d"
+    },
+    "targetExpiOptions": {
+      type: Array,
+      default: () => [
+        { value: "1d", text: "i18n:wn-export-c-expi-1d" },
+        { value: "3d", text: "i18n:wn-export-c-expi-3d" },
+        { value: "7d", text: "i18n:wn-export-c-expi-7d" },
+        { value: "14d", text: "i18n:wn-export-c-expi-14d" },
+        { value: "30d", text: "i18n:wn-export-c-expi-30d" },
+        { value: null, text: "i18n:wn-export-c-expi-off" },
+      ]
+    },
+    // AutoMatch expression Object, to filter the default mapping fields
+    // if nil, all fields will be selected
+    "defaultFields": {
+      type: [String, Array, Object]
+    },
+    // A Tmpl as export command, which context:
+    /*{
+      ... this.vars,          // <- this.vars
+      type: "xlsx",           // <- this.oututMode
+      mappingId:"89ju...",    // <- this.mappingPath
+      name :"xxx.xlsx",     // <- this.outputName
+      fields: ['a','b'],      // output field white list
+      fieldMatch : "^(a|b)$", // output field AutoMatch String
+      expi: "%ms:now+1d",     // <- this.targetExpi
+    }*/
+    // If function, it will be invoke as `(context={}):String`
+    "command": {
+      type: [String, Function]
+    },
+    // command input, if Array it will auto-stringify to JSON
+    "commandInput": {
+      type: [String, Array]
+    },
+    // additional render vars for output target
+    "vars": {
+      type: Object,
+      default: () => ({})
+    },
+
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "title": {
+      type: String,
+      default: undefined
+    },
+  },
+  ///////////////////////////////////////////////////////
+  computed: {
+    //---------------------------------------------------
+    WizardSteps() {
+      return [
+        this.Step1Config,
+        this.Step2ChooseFields,
+        this.Step3Process,
+        this.Step4Finished
+      ]
+    },
+    //---------------------------------------------------
+    LoadTarget() {
+      let target = this.outputTarget
+      if (_.isFunction(target)) {
+        return target
+      }
+      return Ti.Tmpl.parse(target)
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods: {
+    //---------------------------------------------------
+    OnChange(data) {
+      this.changeData(data)
+    },
+    //---------------------------------------------------
+    OnOutputFieldsChange(fields=[]){
+      this.changeData({fields})
+    },
+    //---------------------------------------------------
+    OnResetTargetName() {
+      let name = this.genOutputName()
+      this.changeData({ name })
+    },
+    //---------------------------------------------------
+    genOutputName(type = this.outputType) {
+      let target = this.outputName
+      //console.log(target)
+      let d = new Date()
+      let payload = Ti.DateTime.genFormatContext(d)
+      payload.today = Ti.DateTime.format(d, "yyyy-MM-dd")
+      payload.now = Ti.DateTime.format(d, "yyyy-MM-dd_HHmmss")
+      payload.type = type
+      if (_.isFunction(target)) {
+        return target(payload)
+      }
+      if (_.isString(target)) {
+        let taTmpl = Ti.Tmpl.parse(target)
+        return taTmpl.render(payload)
+      }
+      throw `Invalid target: [${target}]`
+    },
+    //---------------------------------------------------
+    async reload() {
+      console.log("WDE:reload")
+      // reload all option mapping paths
+      let paths = _.concat(this.mappingPath)
+      let fld = "^(id|race|tp|mime|nm|title)$"
+      let list = []
+      for (let path of paths) {
+        if (!path) {
+          continue
+        }
+        let oF = await Wn.Sys.exec2(`o '${path}' @json '${fld}' -cqn`, { as: "json" })
+        if (oF && oF.id) {
+          if ("DIR" == oF.race) {
+            let files = await Wn.Sys.exec2(`o 'id:${oF.id}' @query 'tp:"json"' @json '${fld}' -cqnl`, { as: "json" })
+            if (_.isArray(files)) {
+              list.push(...files)
+            }
+          }
+          // Just a file
+          else {
+            list.push(oF)
+          }
+        }
+      }
+      // Found the default
+      let mappingId = null
+      if (!_.isEmpty(list)) {
+        mappingId = _.first(list).id
+        if (this.defaultMappingName) {
+          for (let li of list) {
+            if (li.nm == this.defaultMappingName) {
+              mappingId = li.id
+              break;
+            }
+          }
+        }
+      }
+      let data = {
+        type: this.outputType,
+        mode: this.outputMode,
+        mapping: mappingId,
+        name: this.genOutputName()
+      }
+      if (this.targetExpi) {
+        data.expi = `${this.targetExpi}`
+      }
+      if (this.value) {
+        _.assign(data, this.value)
+      }
+      this.changeData(data)
+
+      this.myMappingFiles = list
+    },
+    //---------------------------------------------------
+    changeData(data) {
+      this.myData = _.assign({}, this.myData, data)
+      this.tryNotifyChange(this.myData)
+    },
+    //---------------------------------------------------
+    tryNotifyChange(data) {
+      if (!_.isEqual(this.value, data)) {
+        this.$notify("change", data)
+      }
+    }
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  mounted: async function () {
+    //console.log("mouned")
+    await this.reload()
+  }
+  ///////////////////////////////////////////////////////
+}
+return _M;;
 })()
 // ============================================================
 // EXPORT 'ti-month.mjs' -> null
@@ -80300,6 +80837,130 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'wizard-data-expoter-s1.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s1.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //---------------------------------------------------
+  ConfigFormFields() {
+    let fields = []
+    // Choose mapping file
+    if (this.myMappingFiles.length > 1) {
+      fields.push({
+        title: "i18n:wn-export-c-mapping",
+        name: "mapping",
+        tip: {
+          text: "i18n:wn-export-c-mapping-tip",
+          size: "normal"
+        },
+        comType: "TiDroplist",
+        comConf: {
+          placeholder: "i18n:wn-export-c-mapping-phd",
+          options: this.myMappingFiles,
+          iconBy: "icon",
+          valueBy: "id",
+          textBy: "title|nm",
+          dropDisplay: ['<icon:fas-exchange-alt>', 'title|nm']
+        }
+      })
+    }
+    // choose output type
+    if (this.outputTypeOptions.length > 1) {
+      fields.push({
+        title: "i18n:wn-export-c-type",
+        name: "type",
+        comType: "TiSwitcher",
+        comConf: {
+          allowEmpty: false,
+          options: this.outputTypeOptions
+        }
+      })
+    }
+
+    // Output target mode
+    fields.push(
+      {
+        title: "i18n:wn-export-c-mode",
+        name: "mode",
+        comType: "TiSwitcher",
+        comConf: {
+          allowEmpty: false,
+          options: this.outputModeOptions
+        }
+      },
+      {
+        title: "i18n:wn-export-c-mode-scope",
+        name: "scope",
+        tip: "i18n:wn-export-c-mode-scope-tip",
+        visible: {
+          mode: "scope"
+        },
+        comType: "TiInput",
+        comConf: {
+          placeholder: "i18n:wn-export-c-mode-scope-phd",
+          width: "2rem"
+        }
+      })
+
+    // Output target name
+    fields.push({
+      title: "i18n:wn-export-c-name",
+      name: "name",
+      tip: "i18n:wn-export-c-name-tip",
+      comType: "TiInput",
+      comConf: {
+        placeholder: "i18n:wn-export-c-name-phd",
+        hover: ["prefixIcon", "suffixText"],
+        prefixIcon: "zmdi-minus",
+        suffixText: "i18n:reset",
+        suffixTextNotifyName: "target_name:reset"
+      }
+    })
+
+    if (!_.isEmpty(this.targetExpiOptions)) {
+      fields.push({
+        title: "i18n:wn-export-c-expi",
+        name: "expi",
+        tip: "i18n:wn-export-c-expi-tip",
+        comType: "TiSwitcher",
+        comConf: {
+          allowEmpty: false,
+          options: this.targetExpiOptions
+        }
+      })
+    }
+
+    // done
+    return fields
+  },
+  //---------------------------------------------------
+  Step1Config() {
+    return {
+      title: "i18n:wn-export-setup",
+      comType: "TiForm",
+      comConf: {
+        autoFieldNameTip: true,
+        tipAsPopIcon: true,
+        gridColumnHint: 1,
+        fields: this.ConfigFormFields,
+        data: "=.."
+      },
+      prev: false,
+      next: {
+        enabled: function ({ type, mode, scope, name } = {}) {
+          return type
+            && mode
+            && (mode != "scope" || /^[0-9]+[-][0-9+]$/.test(scope))
+            && name
+        }
+      }
+    }
+  },
+  //---------------------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'wn-browser.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/browser/wn-browser.mjs'] = (function(){
@@ -87324,7 +87985,7 @@ Ti.Preload("ti/com/ti/form/grid/com/grid-container/grid-container.html", `<div c
               <div
                   v-if="fld.tip && fld.tipAsPopIcon"
                     class="field-pop-tip"
-                    :data-ti-tip="fld.tip"><i class="zmdi zmdi-help-outline"></i></div>
+                    v-bind="fld.tipObj" ><i class="zmdi zmdi-help-outline"></i></div>
               <!------Show enable switcher ------>
               <div
                 v-if="canShowBatchEditableSwitcher && fld.batchDisabled && !fld.batchReadonly"
@@ -88345,14 +89006,14 @@ Ti.Preload("ti/com/ti/gui/ti-gui.html", `<div class="ti-gui" :class="TopClass">
   <!--===========================================
     All normal layout
   -->
-  <div class="gui-con" v-if="!isLoading || !hideWhenLoading">
+  <div class="gui-con" v-if="isShowMainArea">
     <!--
       Layout as rows
     -->
     <ti-gui-rows 
-      v-if="isRowsLayout"
+      v-if="'rows' == LayoutType"
         class="ti-fill-parent"
-        v-bind="TheLayout"
+        v-bind="myLayout"
         :schema="schema"
         :shown="TheShown"
         :default-flex="defaultFlex"
@@ -88362,9 +89023,9 @@ Ti.Preload("ti/com/ti/gui/ti-gui.html", `<div class="ti-gui" :class="TopClass">
       Layout as cols
     -->
     <ti-gui-cols 
-      v-else-if="isColsLayout"
+      v-else-if="'cols' == LayoutType"
         class="ti-fill-parent"
-        v-bind="TheLayout"
+        v-bind="myLayout"
         :schema="schema"
         :shown="TheShown"
         :default-flex="defaultFlex"
@@ -88374,9 +89035,9 @@ Ti.Preload("ti/com/ti/gui/ti-gui.html", `<div class="ti-gui" :class="TopClass">
       Layout as tabs
     -->
     <ti-gui-tabs 
-      v-else-if="isTabsLayout"
+      v-else-if="'tabs' == LayoutType"
         class="ti-fill-parent"
-        v-bind="TheLayout"
+        v-bind="myLayout"
         :schema="schema"
         :shown="TheShown"
         :default-flex="defaultFlex"
@@ -92909,7 +93570,7 @@ Ti.Preload("ti/com/ti/upload/multi-files/_com.json", {
 //========================================
 Ti.Preload("ti/com/ti/upload/multi-files-box/ti-upload-multi-files-box.html", `<div 
   class="ti-upload-multi-files-box full-field"
-  :class="TopClass"><div class="as-wrapper">
+  :class="TopClass">
   <!--
     Hidden input file to choose files
   -->
@@ -92932,49 +93593,28 @@ Ti.Preload("ti/com/ti/upload/multi-files-box/ti-upload-multi-files-box.html", `<
         class="file-item as-item"
         :class="it.className">
         <!------------Prefix icon------------>
-        <div class="box-item-icon"
-        @mouseenter.left="OnMouseEnterPrefix"
-        @mouseleave.left="OnMouseLeaverPrefix"
-        @click.left="OnRemove">
-        <TiIcon  :value="it.thumb"/>
-      </div>
-      <!------------box content------------>
-      <div class="box-item-text">
-        <a v-if="it.href" :href="it.href" @click.left.prevent>{{it.text}}</a>
-        <span v-else>{{it.text}}</span>
-      </div>
-      <!------------Suffix Menu------------>
-      
-      <!-------------- <end> -------------->
-    </div>
-    <!--
-      Show the new icon
-    -->
-    <div 
-      v-if="isShowAddBtn"
-        class="file-item as-new"
-        :style="ItemStyle"
-        @click.left="OnClickAdd"><i class="zmdi zmdi-plus"></i></div>
-    <!--
-      Show placeholder
-    -->
-    <TiLoading
-      v-if="!isShowAddBtn && !hasItems"
-        v-bind="blankAs"/>
-  </div>
-  <!--
-    Global actions
-  -->
-  <div
-    v-if="isShowActions"
-      class="as-actions">
-      <!--Clean-->
-      <div class="action-item" @click.left="OnClean">
-        <i class="fas fa-trash-alt"></i>
-        <span>{{'i18n:clean'|i18n}}</span>
+        <div class="box-item-icon">
+          <TiIcon  :value="it.thumb"/>
+        </div>
+        <!------------box content------------>
+        <div class="box-item-text">
+          <a v-if="it.href" :href="it.href" @click.left.prevent>{{it.text}}</a>
+          <span v-else>{{it.text}}</span>
+        </div>
+        <!------------Suffix Menu------------>
+        <div class="box-item-menu">
+          <a
+            v-for="a in ItemActions"
+              :key="a.name"
+              :data-ti-tip="a.tip"
+              data-ti-tip-mode="V">
+              <i :class="a.icon"></i>
+          </a>
+        </div>
+        <!-------------- <end> -------------->
       </div>
   </div>
-</div></div>`);
+</div>`);
 //========================================
 // JOIN <ti-upload-multi-files-box.mjs> ti/com/ti/upload/multi-files-box/ti-upload-multi-files-box.mjs
 //========================================
@@ -98979,6 +99619,60 @@ Ti.Preload("ti/com/wn/upload/multi-files-box/_com.json", {
   "mixins": "@com:wn/upload/multi-files/wn-upload-multi-files.mjs",
   "components": [
     "@com:ti/upload/multi-files-box"
+  ]
+});
+//========================================
+// JOIN <wizard-data-expoter-s1.mjs> ti/com/wn/wizard/data-exporter/wizard-data-expoter-s1.mjs
+//========================================
+Ti.Preload("ti/com/wn/wizard/data-exporter/wizard-data-expoter-s1.mjs", TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s1.mjs']);
+//========================================
+// JOIN <wizard-data-expoter-s2.mjs> ti/com/wn/wizard/data-exporter/wizard-data-expoter-s2.mjs
+//========================================
+Ti.Preload("ti/com/wn/wizard/data-exporter/wizard-data-expoter-s2.mjs", TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s2.mjs']);
+//========================================
+// JOIN <wizard-data-expoter-s3.mjs> ti/com/wn/wizard/data-exporter/wizard-data-expoter-s3.mjs
+//========================================
+Ti.Preload("ti/com/wn/wizard/data-exporter/wizard-data-expoter-s3.mjs", TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s3.mjs']);
+//========================================
+// JOIN <wizard-data-expoter-s4.mjs> ti/com/wn/wizard/data-exporter/wizard-data-expoter-s4.mjs
+//========================================
+Ti.Preload("ti/com/wn/wizard/data-exporter/wizard-data-expoter-s4.mjs", TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s4.mjs']);
+//========================================
+// JOIN <wn-wizard-data-exporter.html> ti/com/wn/wizard/data-exporter/wn-wizard-data-exporter.html
+//========================================
+Ti.Preload("ti/com/wn/wizard/data-exporter/wn-wizard-data-exporter.html", `<TiWizard
+  :title="title"
+  :current="1"
+  :steps="WizardSteps"
+  :value="myData"
+  @target_name:reset="OnResetTargetName"
+  @change="OnChange"
+  @output:fields="OnOutputFieldsChange"
+/>`);
+//========================================
+// JOIN <wn-wizard-data-exporter.mjs> ti/com/wn/wizard/data-exporter/wn-wizard-data-exporter.mjs
+//========================================
+Ti.Preload("ti/com/wn/wizard/data-exporter/wn-wizard-data-exporter.mjs", TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wn-wizard-data-exporter.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/wizard/data-exporter/_com.json
+//========================================
+Ti.Preload("ti/com/wn/wizard/data-exporter/_com.json", {
+  "name": "wn-wizard-data-exporter",
+  "globally": true,
+  "template": "./wn-wizard-data-exporter.html",
+  "computed": [
+    "./wizard-data-expoter-s1.mjs",
+    "./wizard-data-expoter-s2.mjs",
+    "./wizard-data-expoter-s3.mjs",
+    "./wizard-data-expoter-s4.mjs"
+  ],
+  "mixins": "./wn-wizard-data-exporter.mjs",
+  "components": [
+    "@com:ti/wizard",
+    "@com:ti/transfer",
+    "@com:ti/text/json",
+    "@com:wn/cmd/panel",
+    "@com:web/meta/badge"
   ]
 });
 //========================================
@@ -105029,22 +105723,33 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-en-his-usr": "用户",
   "wn-en-his-utp": "用户类型",
   "wn-export-c-expi": "保存时间",
-  "wn-export-c-expi-14d": "十四天",
-  "wn-export-c-expi-3d": "三天",
-  "wn-export-c-expi-7d": "七天",
-  "wn-export-c-expi-off": "永远",
+  "wn-export-c-expi-1d": "1天",
+  "wn-export-c-expi-14d": "14天",
+  "wn-export-c-expi-30d": "30天",
+  "wn-export-c-expi-3d": "3天",
+  "wn-export-c-expi-7d": "7天",
+  "wn-export-c-expi-off": "永不过期",
+  "wn-export-c-expi-tip": "输出的临时文件将在服务器端保留多久",
   "wn-export-c-limit": "数量限制",
   "wn-export-c-mapping": "映射方式",
-  "wn-export-c-mode": "导出模式",
-  "wn-export-c-mode-csv": "CSV文件",
-  "wn-export-c-mode-json": "JSON",
-  "wn-export-c-mode-xls": "电子表格",
-  "wn-export-c-mode-zip": "数据压缩包",
-  "wn-export-c-name": "导出文件名称",
-  "wn-export-c-page": "数据范围",
-  "wn-export-c-page-all": "全部页",
-  "wn-export-c-page-checked": "选中记录",
-  "wn-export-c-page-current": "当前页",
+  "wn-export-c-mapping-tip": "所谓映射方式，就是如何字段输出的规定，包括如何指定字段名称，字段值如何转换等",
+  "wn-export-c-mapping-phd": "选择一种映射方式",
+  "wn-export-c-type": "导出类型",
+  "wn-export-c-type-csv": "CSV文件",
+  "wn-export-c-type-json": "JSON",
+  "wn-export-c-type-xls": "电子表格",
+  "wn-export-c-type-zip": "数据压缩包",
+  "wn-export-c-name": "导出文件名",
+  "wn-export-c-name-tip": "导出文件名，如果没有后缀名，会自动根据【导出类型】补全",
+  "wn-export-c-name-phd": "请输入导出文件名",
+  "wn-export-c-mode": "数据范围",
+  "wn-export-c-mode-all": "全部页",
+  "wn-export-c-mode-checked": "选中记录",
+  "wn-export-c-mode-current": "当前页",
+  "wn-export-c-mode-scope": "指定范围",
+  "wn-export-c-mode-scope-tip": "请输入页码范围，1-5 表示从第1页到第5页（包含）",
+  "wn-export-c-mode-scope-phd": "譬如: 1-5",
+  "wn-export-choose-fields":"选择字段",
   "wn-export-done": "完成",
   "wn-export-done-ok": "导出成功",
   "wn-export-done-tip": "请点击下载链接下载",

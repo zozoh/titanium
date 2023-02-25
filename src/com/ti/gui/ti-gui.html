@@ -2,14 +2,14 @@
   <!--===========================================
     All normal layout
   -->
-  <div class="gui-con" v-if="!isLoading || !hideWhenLoading">
+  <div class="gui-con" v-if="isShowMainArea">
     <!--
       Layout as rows
     -->
     <ti-gui-rows 
-      v-if="isRowsLayout"
+      v-if="'rows' == LayoutType"
         class="ti-fill-parent"
-        v-bind="TheLayout"
+        v-bind="myLayout"
         :schema="schema"
         :shown="TheShown"
         :default-flex="defaultFlex"
@@ -19,9 +19,9 @@
       Layout as cols
     -->
     <ti-gui-cols 
-      v-else-if="isColsLayout"
+      v-else-if="'cols' == LayoutType"
         class="ti-fill-parent"
-        v-bind="TheLayout"
+        v-bind="myLayout"
         :schema="schema"
         :shown="TheShown"
         :default-flex="defaultFlex"
@@ -31,9 +31,9 @@
       Layout as tabs
     -->
     <ti-gui-tabs 
-      v-else-if="isTabsLayout"
+      v-else-if="'tabs' == LayoutType"
         class="ti-fill-parent"
-        v-bind="TheLayout"
+        v-bind="myLayout"
         :schema="schema"
         :shown="TheShown"
         :default-flex="defaultFlex"

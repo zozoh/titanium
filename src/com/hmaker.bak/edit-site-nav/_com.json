@@ -1,6 +1,0 @@
-{
-  "name" : "hmaker-edit-site-nav",
-  "globally" : true,
-  "template" : "./edit-site-nav.html",
-  "mixins" : ["./edit-site-nav.mjs"]
-}

@@ -87,6 +87,7 @@ const _M = {
     },
     //----------------------------------------
     __on_events(name, payload) {
+      //console.log(name,payload)
       let model = this.ComModel[name]
       if (model) {
         let { mode = "reset", data } = model
@@ -106,19 +107,24 @@ const _M = {
   },
   ////////////////////////////////////////////
   watch: {
-    "meta": {
-      handler: function (newVal, oldVal) {
-        if (!_.isEqual(newVal, oldVal)) {
-          if (!newVal || !oldVal || newVal.com != oldVal.com) {
-            this.reloadMyCom()
-          }
-        }
-      },
-      immediate: true
-    }
+    // "meta": {
+    //   handler: function (newVal, oldVal) {
+    //     if (!_.isEqual(newVal, oldVal)) {
+    //       if (!newVal || !oldVal || newVal.com != oldVal.com) {
+    //         this.reloadMyCom()
+    //       }
+    //     }
+    //   },
+    //   immediate: true
+    // }
+  },
+  ////////////////////////////////////////////
+  created: function(){
+    console.log("!!!!!!!! CREATE!")
   },
   ////////////////////////////////////////////
   mounted: function () {
+    console.log("Mounted ComTestCase")
     //----------------------------------------
     Ti.Fuse.getOrCreate().add({
       key: "com-test-case",
@@ -130,6 +136,7 @@ const _M = {
       }
     })
     //----------------------------------------
+    this.reloadMyCom()
   },
   ////////////////////////////////////////////
   beforeDestroy: function () {

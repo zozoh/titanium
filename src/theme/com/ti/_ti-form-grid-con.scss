@@ -78,7 +78,7 @@
       &:hover {
         color: map-get($color-primary, c);
         > i {
-         // transform: scale(1.6);
+          // transform: scale(1.6);
         }
       }
     }
@@ -293,9 +293,6 @@
     > .field-value-com {
       @include flex-align-nowrap($jc: stretch);
       position: relative;
-      > .full-field {
-        flex: 1 1 auto;
-      }
     }
     //----------------------------------
     > .field-value-tip {
@@ -320,6 +317,12 @@
     //----------------------------------
   }
   //--------------------------------------
+  .field-value-com > .full-field {
+    flex: 1 1 auto;
+    &.has-width {
+      flex: 0 0 auto;
+    }
+  }
 }
 //----------------------------------------
 //

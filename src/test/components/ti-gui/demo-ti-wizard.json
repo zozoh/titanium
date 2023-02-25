@@ -80,15 +80,5 @@
           }
         }
       }]
-  },
-  "dispatchActions" : {
-    "change" : "updatePair",
-    "merge" : "update",
-    "goto-step" : {
-      "action" : "updateComConf",
-      "payload" : {
-        "current" : "=$args.index"
-      }
-    }
   }
 }

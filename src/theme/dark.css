@@ -2570,8 +2570,6 @@ i.im {
       align-content: center;
       flex-wrap: nowrap;
       position: relative; }
-      .ti-form-grid-con > .field-value > .field-value-com > .full-field {
-        flex: 1 1 auto; }
     .ti-form-grid-con > .field-value > .field-value-tip {
       font-size: 0.9em;
       opacity: 0.6;
@@ -2591,6 +2589,10 @@ i.im {
       top: 0;
       width: 0.32rem;
       height: 0.32rem; }
+  .ti-form-grid-con .field-value-com > .full-field {
+    flex: 1 1 auto; }
+    .ti-form-grid-con .field-value-com > .full-field.has-width {
+      flex: 0 0 auto; }
 
 .ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-label,
 .ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-name {
@@ -5247,6 +5249,28 @@ div.ti-input-tags {
           width: 0.42rem; }
         .ti-list > .list-row > .row-con .ti-icon.icon-w48 {
           width: 0.48rem; }
+  .ti-list.as-grid {
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-rows: auto;
+    grid-auto-flow: row;
+    justify-items: stretch;
+    align-items: stretch;
+    align-content: start;
+    grid-gap: 1px; }
+    .ti-list.as-grid > .list-row.is-group {
+      grid-column-start: 1;
+      grid-column-end: 3; }
+    .ti-list.as-grid.col-2 {
+      grid-template-columns: repeat(2, 1fr); }
+    .ti-list.as-grid.col-3 {
+      grid-template-columns: repeat(3, 1fr); }
+    .ti-list.as-grid.col-4 {
+      grid-template-columns: repeat(4, 1fr); }
+    .ti-list.as-grid.col-5 {
+      grid-template-columns: repeat(5, 1fr); }
+    .ti-list.as-grid.col-6 {
+      grid-template-columns: repeat(6, 1fr); }
 
 .ti-loading {
   user-select: none;
@@ -8295,7 +8319,7 @@ div.ti-input-tags {
   left: -500px;
   opacity: 0;
   transition: opacity 0.5s, transform 0.3s;
-  z-index: 999999; }
+  z-index: 1999998; }
   #ti-tip-wrapper[tip-ready="no"][tip-at="top"] {
     transform: translateY(20px); }
   #ti-tip-wrapper[tip-ready="no"][tip-at="bottom"] {
@@ -8321,11 +8345,11 @@ div.ti-input-tags {
   #ti-tip-wrapper[tip-size="auto"] {
     min-width: 0.5rem; }
   #ti-tip-wrapper[tip-size="small"] {
-    width: 1rem; }
-  #ti-tip-wrapper[tip-size="normal"] {
     width: 2rem; }
-  #ti-tip-wrapper[tip-size="big"] {
+  #ti-tip-wrapper[tip-size="normal"] {
     width: 4rem; }
+  #ti-tip-wrapper[tip-size="big"] {
+    width: 8rem; }
   #ti-tip-wrapper[tip-type="info"] > .ti-tip-box > main {
     color: #FFF;
     background-color: #44AAFF; }

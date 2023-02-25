@@ -267,6 +267,7 @@ export default {
     },
     //--------------------------------------
     TheCom() {
+      //console.log("block TheCom", this.name)
       //....................................
       // Body -> Component
       if (this.body) {

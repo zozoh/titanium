@@ -73,6 +73,10 @@ export default {
     type : Object,
     default : undefined
   },
+  "changeEventName":{
+    type : String,
+    default : "change"
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

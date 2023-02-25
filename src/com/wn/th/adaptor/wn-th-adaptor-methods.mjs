@@ -80,10 +80,10 @@ export default {
     // Eval modes options
     let modeNames = mode.split(";")
     let modeMap = {
-      xls: { value: "xls", text: "i18n:wn-export-c-mode-xls" },
-      csv: { value: "csv", text: "i18n:wn-export-c-mode-csv" },
-      json: { value: "json", text: "i18n:wn-export-c-mode-json" },
-      zip: { value: "zip", text: "i18n:wn-export-c-mode-zip" }
+      xls: { value: "xls", text: "i18n:wn-export-c-type-xls" },
+      csv: { value: "csv", text: "i18n:wn-export-c-type-csv" },
+      json: { value: "json", text: "i18n:wn-export-c-type-json" },
+      zip: { value: "zip", text: "i18n:wn-export-c-type-zip" }
     }
     let modeOptions = []
     _.forEach(modeNames, nm => {
@@ -95,9 +95,9 @@ export default {
     // Eval page options
     let pageModes = page.split(";")
     let pageMap = {
-      checked: { value: "checked", text: "i18n:wn-export-c-page-checked" },
-      current: { value: "current", text: "i18n:wn-export-c-page-current" },
-      all: { value: "all", text: "i18n:wn-export-c-page-all" }
+      checked: { value: "checked", text: "i18n:wn-export-c-mode-checked" },
+      current: { value: "current", text: "i18n:wn-export-c-mode-current" },
+      all: { value: "all", text: "i18n:wn-export-c-mode-all" }
     }
     let pageOptions = []
     _.forEach(pageModes, md => {
@@ -109,7 +109,7 @@ export default {
     // Make the config form fields
     let formFields = [];
     formFields.push({
-      title: "i18n:wn-export-c-mode",
+      title: "i18n:wn-export-c-type",
       name: "mode",
       comType: "TiSwitcher",
       comConf: {
@@ -133,7 +133,7 @@ export default {
       })
     }
     formFields.push({
-      title: "i18n:wn-export-c-page",
+      title: "i18n:wn-export-c-mode",
       name: "page",
       comType: "TiSwitcher",
       comConf: {

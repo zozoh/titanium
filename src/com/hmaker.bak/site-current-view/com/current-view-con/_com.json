@@ -1,6 +1,0 @@
-{
-  "name" : "current-view-con",
-  "globally" : false,
-  "template" : "./current-view-con.html",
-  "mixins" : ["./current-view-con.mjs"]
-}

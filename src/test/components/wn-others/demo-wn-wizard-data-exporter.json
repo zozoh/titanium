@@ -1,0 +1,15 @@
+{
+  "comPath": "@com:wn/wizard/data-exporter",
+  "comType": "WnWizardDataExporter",
+  "comConf": {
+    "title": "测试文件导出",
+    "mappingPath": [
+      "~/mock/components/wn-others/media.mapping.json",
+      "~/mock/components/wn-others/mapping"
+    ],
+    "defaultMappingName":"b",
+    "outputName":"media-list-${now}",
+    "outputTarget":"~/tmp/${name}.${type}",
+    "value" : "=data"
+  }
+}
