@@ -202,6 +202,7 @@ const _M = {
   },
   //--------------------------------------------
   async openCurrentMetaEditor({ state, dispatch, getters }) {
+    console.log("openCurrentMetaEditor")
     // Guard
     if (!state.meta && !state.oTs) {
       return await Ti.Toast.Open("i18n:empty-data", "warn")

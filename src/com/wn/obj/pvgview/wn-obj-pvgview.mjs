@@ -17,7 +17,7 @@ export default {
   props: {
     "loadObj": {
       type: [Array, String],
-      default: "o ~ @query -sort 'nm:1' @json -cqn"
+      default: "o ~ @query -append -sort 'nm:1' @json -cqn"
     },
     "loadSite": {
       type: [Object, String],
