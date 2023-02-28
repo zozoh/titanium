@@ -28,6 +28,10 @@ export default {
       return true
     },
     //--------------------------------------------
+    exportDataDir(state){
+      return `id:${state.thingSetId}/tmp/export/`;
+    },
+    //--------------------------------------------
     searchPageNumber(state) {
       return Ti.Util.getFallback(state.pager, "pageNumber", "pn") || 1
     },

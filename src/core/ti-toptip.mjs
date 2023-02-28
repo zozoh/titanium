@@ -102,7 +102,7 @@ const TiToptip = {
     // 7) "auto",
     // 8) "xxxx: xxxx"
     // ]
-    let m = /^\[(([HV]):)?(([^!]+)!)?(html|text|md)?(:([^\]]+))?\]\s*(.+)/.exec(content)
+    let m = /^\[(([HV]):?)?(([^!]+)!)?(html|text|md)?(:?([^\]]+))?\]\s*(.+)/.exec(content)
     if (m) {
       mode = m[2] || mode
       type = m[4] || type

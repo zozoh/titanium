@@ -1,73 +1,87 @@
 ////////////////////////////////////////////////
 function saveLocalBehavior(state, key, val) {
   if (state.lbkAt && !state.lbkOff) {
-    // Ignore ? 
+    // Ignore ?
     if (state.lbkIgnore && state.lbkIgnore(key)) {
-      return
+      return;
     }
     // Save to local
-    let be = Ti.Storage.local.getObject(state.lbkAt)
-    be[key] = val
-    Ti.Storage.local.setObject(state.lbkAt, be)
+    let be = Ti.Storage.local.getObject(state.lbkAt);
+    be[key] = val;
+    Ti.Storage.local.setObject(state.lbkAt, be);
   }
 }
 ////////////////////////////////////////////////
 const _M = {
   //----------------------------------------
   setModuleName(state, moduleName) {
-    state.moduleName = moduleName
+    state.moduleName = moduleName;
   },
   //----------------------------------------
   setPvg(state, pvg) {
-    state.pvg = pvg
+    state.pvg = pvg;
   },
   //----------------------------------------
   assignPvg(state, pvg) {
-    let po = _.cloneDeep(state.pvg || {})
-    _.assign(po, pvg)
-    state.pvg = po
+    let po = _.cloneDeep(state.pvg || {});
+    _.assign(po, pvg);
+    state.pvg = po;
   },
   //----------------------------------------
   setView(state, view) {
-    state.view = view
+    state.view = view;
   },
   //----------------------------------------
   setLocalBehaviorKeepAt(state, keyAt) {
-    state.localBehaviorKeepAt = keyAt
+    state.localBehaviorKeepAt = keyAt;
   },
   //----------------------------------------
   explainLocalBehaviorKeepAt(state) {
     let keyAt = state.localBehaviorKeepAt;
-    state.lbkAt = Ti.Util.explainObj(state, keyAt)
-    state.lbkIgnore = Ti.AutoMatch.parse(state.localBehaviorIgnore)
-    state.schemaBeIgnore = Ti.AutoMatch.parse(state.schemaBehaviorIgnore)
+    state.lbkAt = Ti.Util.explainObj(state, keyAt);
+    state.lbkIgnore = Ti.AutoMatch.parse(state.localBehaviorIgnore);
+    state.schemaBeIgnore = Ti.AutoMatch.parse(state.schemaBehaviorIgnore);
   },
   //----------------------------------------
-  setLbkOff(state, off = true) { state.lbkOff = off },
-  setLbkOn(state, on = true) { state.lbkOff = !on },
+  setLbkOff(state, off = true) {
+    state.lbkOff = off;
+  },
+  setLbkOn(state, on = true) {
+    state.lbkOff = !on;
+  },
+  //----------------------------------------
+  setExportSettings(state, settings) {
+    state.exportSettings = settings;
+    saveLocalBehavior(state, "exportSettings", settings);
+  },
+  //----------------------------------------
+  setImportSettings(state, settings) {
+    state.importSettings = settings;
+    saveLocalBehavior(state, "importSettings", settings);
+  },
   //----------------------------------------
   setGuiShown(state, shown) {
-    let guiShown = _.pickBy(shown, v => v)
-    state.guiShown = guiShown
-    saveLocalBehavior(state, "guiShown", guiShown)
+    let guiShown = _.pickBy(shown, (v) => v);
+    state.guiShown = guiShown;
+    saveLocalBehavior(state, "guiShown", guiShown);
   },
   //----------------------------------------
   assignGuiShown(state, shown) {
-    let shown2 = _.cloneDeep(state.guiShown)
-    _.assign(shown2, shown)
-    state.guiShown = _.pickBy(shown2, v => v)
-    saveLocalBehavior(state, "guiShown", state.guiShown)
+    let shown2 = _.cloneDeep(state.guiShown);
+    _.assign(shown2, shown);
+    state.guiShown = _.pickBy(shown2, (v) => v);
+    saveLocalBehavior(state, "guiShown", state.guiShown);
   },
   //----------------------------------------
   assignGuiShownNoKeep(state, shown) {
-    let shown2 = _.cloneDeep(state.guiShown)
-    _.assign(shown2, shown)
-    state.guiShown = _.pickBy(shown2, v => v)
+    let shown2 = _.cloneDeep(state.guiShown);
+    _.assign(shown2, shown);
+    state.guiShown = _.pickBy(shown2, (v) => v);
   },
   //----------------------------------------
   keepShownToLocal(state) {
-    let shown = _.pickBy(state.guiShown, v => v)
-    saveLocalBehavior(state, "guiShown", shown)
+    let shown = _.pickBy(state.guiShown, (v) => v);
+    saveLocalBehavior(state, "guiShown", shown);
   },
   //----------------------------------------
   //
@@ -75,11 +89,11 @@ const _M = {
   //
   //----------------------------------------
   setThingSetId(state, thingSetId) {
-    state.thingSetId = thingSetId
+    state.thingSetId = thingSetId;
   },
   //----------------------------------------
   setThingSet(state, oTs) {
-    state.oTs = oTs
+    state.oTs = oTs;
   },
   //----------------------------------------
   //
@@ -87,7 +101,7 @@ const _M = {
   //
   //----------------------------------------
   setFixedMatch(state, fm) {
-    state.fixedMatch = _.cloneDeep(fm)
+    state.fixedMatch = _.cloneDeep(fm);
   },
   //----------------------------------------
   /*
@@ -99,7 +113,7 @@ const _M = {
   }
   */
   setAgg(state, agg) {
-    state.agg = _.cloneDeep(agg)
+    state.agg = _.cloneDeep(agg);
   },
   //----------------------------------------
   /*
@@ -115,109 +129,109 @@ const _M = {
   */
   setAggResult(state, { key, result = [] } = {}) {
     if (key) {
-      let re = _.clone(state.aggResult)
-      re[key] = result
-      state.aggResult = re
+      let re = _.clone(state.aggResult);
+      re[key] = result;
+      state.aggResult = re;
     }
   },
   //----------------------------------------
   setAggQuery(state, aggQuery) {
-    state.aggQuery = aggQuery
+    state.aggQuery = aggQuery;
   },
   //----------------------------------------
   setFilter(state, filter) {
-    state.filter = filter
-    saveLocalBehavior(state, "filter", filter)
+    state.filter = filter;
+    saveLocalBehavior(state, "filter", filter);
   },
   //----------------------------------------
   setSorter(state, sorter) {
     if ("caseevents" == state.moduleName) {
-      console.log("setSorter", state.moduleName, sorter)
+      console.log("setSorter", state.moduleName, sorter);
     }
-    state.sorter = sorter
-    saveLocalBehavior(state, "sorter", sorter)
+    state.sorter = sorter;
+    saveLocalBehavior(state, "sorter", sorter);
   },
   //----------------------------------------
   setThingObjKeys(state, thingObjKeys) {
-    state.thingObjKeys = thingObjKeys
+    state.thingObjKeys = thingObjKeys;
   },
   //----------------------------------------
   setList(state, list) {
-    state.list = list
+    state.list = list;
   },
   //----------------------------------------
   prependListItem(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "..")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "..");
   },
   //----------------------------------------
   appendListItem(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "..")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "..");
   },
   //----------------------------------------
   setListItem(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "..")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "..");
   },
   //----------------------------------------
   mergeListItem(state, theItem) {
-    Ti.Util.MergeStateDataItem(state, theItem, "..")
+    Ti.Util.MergeStateDataItem(state, theItem, "..");
   },
   //----------------------------------------
   removeListItems(state, items = []) {
-    Ti.Util.RemoveStateDataItems(state, items, "..")
+    Ti.Util.RemoveStateDataItems(state, items, "..");
   },
   //----------------------------------------
   listCancelAll(state) {
-    state.currentId = null
-    state.checkedIds = {}
+    state.currentId = null;
+    state.checkedIds = {};
   },
   //----------------------------------------
   setCurrentId(state, currentId) {
-    state.currentId = currentId
+    state.currentId = currentId;
     state.status = _.assign({}, state.status, {
-      hasCurrent: !Ti.Util.isNil(currentId)
-    })
-    saveLocalBehavior(state, "currentId", currentId)
+      hasCurrent: !Ti.Util.isNil(currentId),
+    });
+    saveLocalBehavior(state, "currentId", currentId);
   },
   //----------------------------------------
   setCurrentId(state, currentId) {
-    state.currentId = currentId
+    state.currentId = currentId;
     state.status = _.assign({}, state.status, {
-      "hasCurrent": !Ti.Util.isNil(currentId)
-    })
-    saveLocalBehavior(state, "currentId", currentId)
+      "hasCurrent": !Ti.Util.isNil(currentId),
+    });
+    saveLocalBehavior(state, "currentId", currentId);
   },
   //----------------------------------------
   setCheckedIds(state, checkedIds) {
-    let ids
+    let ids;
     if (_.isArray(checkedIds)) {
-      ids = {}
-      _.forEach(checkedIds, v => ids[v] = true)
+      ids = {};
+      _.forEach(checkedIds, (v) => (ids[v] = true));
     } else {
-      ids = _.pickBy(checkedIds, v => v)
+      ids = _.pickBy(checkedIds, (v) => v);
     }
-    state.checkedIds = ids
+    state.checkedIds = ids;
     state.status = _.assign({}, state.status, {
-      "hasChecked": !_.isEmpty(ids)
-    })
-    saveLocalBehavior(state, "checkedIds", ids)
+      "hasChecked": !_.isEmpty(ids),
+    });
+    saveLocalBehavior(state, "checkedIds", ids);
   },
   //----------------------------------------
   setPager(state, pager) {
-    state.pager = pager
-    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0
-    saveLocalBehavior(state, "pageSize", pageSize)
+    state.pager = pager;
+    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0;
+    saveLocalBehavior(state, "pageSize", pageSize);
   },
   //----------------------------------------
   assignPager(state, pager) {
-    let pg = _.cloneDeep(state.pager || {})
+    let pg = _.cloneDeep(state.pager || {});
     _.forEach(pager, (v, k) => {
       if (!Ti.Util.isNil(v)) {
-        pg[k] = v
+        pg[k] = v;
       }
-    })
-    state.pager = pg
-    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0
-    saveLocalBehavior(state, "pageSize", pageSize)
+    });
+    state.pager = pg;
+    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0;
+    saveLocalBehavior(state, "pageSize", pageSize);
   },
   //----------------------------------------
   //
@@ -225,39 +239,39 @@ const _M = {
   //
   //----------------------------------------
   setCurrentMeta(state) {
-    let currentId = state.currentId
-    state.LOG("setCurrentMeta", currentId)
-    let hasCurrent = true
+    let currentId = state.currentId;
+    state.LOG("setCurrentMeta", currentId);
+    let hasCurrent = true;
     // Clear current meta
     if (Ti.Util.isNil(currentId) || _.isEmpty(state.list)) {
-      hasCurrent = false
+      hasCurrent = false;
     }
     // Find current meta
     else {
-      hasCurrent = false
+      hasCurrent = false;
       for (let it of state.list) {
         if (it.id == currentId) {
-          state.meta = it
-          hasCurrent = true
-          break
+          state.meta = it;
+          hasCurrent = true;
+          break;
         }
       }
     }
     // Reset current/checkedIds
     if (!hasCurrent) {
-      state.meta = null
-      state.currentId = null
-      state.checkedIds = {}
+      state.meta = null;
+      state.currentId = null;
+      state.checkedIds = {};
       state.status = _.assign({}, state.status, {
         "hasMeta": false,
         "hasCurrent": false,
-        "hasChecked": false
-      })
+        "hasChecked": false,
+      });
     }
   },
   //----------------------------------------
   setMeta(state, meta) {
-    state.meta = meta
+    state.meta = meta;
   },
   //--------------------------------------------
   assignMeta(state, meta) {
@@ -269,62 +283,62 @@ const _M = {
   },
   //----------------------------------------
   setContent(state, content) {
-    state.LOG("setContent", content)
+    state.LOG("setContent", content);
     if (content && !_.isString(content)) {
-      content = JSON.stringify(content, null, '   ')
+      content = JSON.stringify(content, null, "   ");
     }
-    state.content = content
+    state.content = content;
   },
   //----------------------------------------
   setSavedContent(state, content) {
-    state.LOG("setSavedContent", content)
-    state.__saved_content = content
+    state.LOG("setSavedContent", content);
+    state.__saved_content = content;
   },
   //----------------------------------------
   setContentPath(state, contentPath) {
     //console.log("setContentPath", contentPath)
-    state.contentPath = contentPath
+    state.contentPath = contentPath;
   },
   //----------------------------------------
   setContentType(state, contentType) {
-    state.contentType = contentType
+    state.contentType = contentType;
   },
   //----------------------------------------
   setContentData(state, contentData) {
-    state.contentData = contentData
+    state.contentData = contentData;
   },
   //----------------------------------------
   setStatus(state, status) {
-    state.status = _.assign({}, state.status, status)
+    state.status = _.assign({}, state.status, status);
   },
   //----------------------------------------
   clearStatus(state) {
-    state.status = {}
+    state.status = {};
   },
   //----------------------------------------
   syncStatusChanged(state) {
     if (Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
-      state.status.changed = false
+      state.status.changed = false;
     } else {
-      state.status.changed = !_.isEqual(state.content, state.__saved_content)
+      state.status.changed = !_.isEqual(state.content, state.__saved_content);
     }
   },
   //----------------------------------------
   setFieldStatus(state, { name, type, text } = {}) {
     if (name) {
-      let ukey = _.concat(name).join("-")
-      Vue.set(state.fieldStatus, ukey, { type, text })
+      let ukey = _.concat(name).join("-");
+      Vue.set(state.fieldStatus, ukey, { type, text });
     }
   },
   //----------------------------------------
   clearFieldStatus(state, names = []) {
     // Clean All
     if (_.isEmpty(names)) {
-      state.fieldStatus = {}
+      state.fieldStatus = {};
     }
     // Clear one
     else {
-      state.fieldStatus = _.omit(state.fieldStatus, names)
+      state.fieldStatus = _.omit(state.fieldStatus, names);
     }
   },
   //----------------------------------------
@@ -333,17 +347,17 @@ const _M = {
   //
   //----------------------------------------
   setDataDirName(state, dirName) {
-    state.dataDirName = dirName
-    saveLocalBehavior(state, "dataDirName", dirName)
+    state.dataDirName = dirName;
+    saveLocalBehavior(state, "dataDirName", dirName);
   },
   setDataHome(state, dataHome) {
-    state.dataHome = dataHome
+    state.dataHome = dataHome;
   },
   autoDataHome(state) {
     if (state.thingSetId && state.meta && state.meta.id) {
-      state.dataHome = `id:${state.thingSetId}/data/${state.meta.id}/`
+      state.dataHome = `id:${state.thingSetId}/data/${state.meta.id}/`;
     } else {
-      state.dataHome = null
+      state.dataHome = null;
     }
   },
   //----------------------------------------
@@ -352,81 +366,84 @@ const _M = {
   //
   //----------------------------------------
   setActionsPath(state, actionsPath) {
-    state.actionsPath = actionsPath
+    state.actionsPath = actionsPath;
   },
   setLayoutPath(state, layoutPath) {
-    state.layoutPath = layoutPath
+    state.layoutPath = layoutPath;
   },
   setSchemaPath(state, schemaPath) {
-    state.schemaPath = schemaPath
+    state.schemaPath = schemaPath;
   },
   setMethodPaths(state, methodPaths) {
-    state.methodPaths = methodPaths
+    state.methodPaths = methodPaths;
   },
   //----------------------------------------
   setThingActions(state, thingActions = {}) {
-    state.thingActions = thingActions
+    state.thingActions = thingActions;
   },
   setLayout(state, layout = {}) {
-    state.layout = layout
+    state.layout = layout;
   },
   setSchema(state, schema = {}) {
-    state.schema = schema
+    state.schema = schema;
   },
   assignSchema(state, schema = {}) {
-    state.schema = _.assign({}, state.schema, schema)
+    state.schema = _.assign({}, state.schema, schema);
   },
   mergeSchema(state, schema = {}) {
-    let sc = _.cloneDeep(state.schema)
-    state.schema = _.merge(sc, schema)
+    let sc = _.cloneDeep(state.schema);
+    state.schema = _.merge(sc, schema);
   },
   setThingMethods(state, thingMethods = {}) {
-    state.thingMethods = thingMethods
+    state.thingMethods = thingMethods;
   },
   assignThingMethods(state, thingMethods = {}) {
-    state.thingMethods = _.assign({}, state.thingMethods, thingMethods)
+    state.thingMethods = _.assign({}, state.thingMethods, thingMethods);
   },
   //----------------------------------------
   //
   // Operations for dataDirFiles
   //
   //----------------------------------------
-  setDataDirFiles(state, files = {
-    list: [],
-    pager: {}
-  }) {
-    state.dataDirFiles = files
+  setDataDirFiles(
+    state,
+    files = {
+      list: [],
+      pager: {},
+    }
+  ) {
+    state.dataDirFiles = files;
   },
   //----------------------------------------
   setDataDirCurrentId(state, currentId) {
-    state.dataDirCurrentId = currentId
-    saveLocalBehavior(state, "dataDirCurrentId", currentId)
+    state.dataDirCurrentId = currentId;
+    saveLocalBehavior(state, "dataDirCurrentId", currentId);
   },
   //----------------------------------------
   setDataDirCheckedIds(state, checkedIds = {}) {
-    let ids = _.pickBy(checkedIds, v => v)
-    state.dataDirCheckedIds = ids
-    saveLocalBehavior(state, "dataDirCheckedIds", ids)
+    let ids = _.pickBy(checkedIds, (v) => v);
+    state.dataDirCheckedIds = ids;
+    saveLocalBehavior(state, "dataDirCheckedIds", ids);
   },
   //----------------------------------------
   prependDataDirFile(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "dataDirFiles")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "dataDirFiles");
   },
   //----------------------------------------
   appendDataDirFile(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "dataDirFiles")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "dataDirFiles");
   },
   //----------------------------------------
   setDataDirFile(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "dataDirFiles")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "dataDirFiles");
   },
   //----------------------------------------
   mergeDataDirFile(state, theItem) {
-    Ti.Util.MergeStateDataDirFile(state, theItem, "dataDirFiles")
+    Ti.Util.MergeStateDataDirFile(state, theItem, "dataDirFiles");
   },
   //----------------------------------------
   removeDataItems(state, items = []) {
-    Ti.Util.RemoveStateDataItems(state, items, "dataDirFiles")
+    Ti.Util.RemoveStateDataItems(state, items, "dataDirFiles");
   },
   //----------------------------------------
   resetState(state) {
@@ -436,7 +453,7 @@ const _M = {
       "fixedMatch": {},
       "filter": {},
       "sorter": {
-        "ct": -1
+        "ct": -1,
       },
       "thingObjKeys": null,
       "list": [],
@@ -448,7 +465,7 @@ const _M = {
         "pgc": 0,
         "sum": 0,
         "skip": 0,
-        "count": 0
+        "count": 0,
       },
       "meta": null,
       "content": null,
@@ -457,11 +474,11 @@ const _M = {
         {
           "test": {
             "guiShown": {
-              "content": true
-            }
+              "content": true,
+            },
           },
-          "path": "<self>"
-        }
+          "path": "<self>",
+        },
       ],
       "contentType": "<MIME>",
       "contentData": null,
@@ -476,8 +493,8 @@ const _M = {
           "pgc": 0,
           "sum": 0,
           "skip": 0,
-          "count": 0
-        }
+          "count": 0,
+        },
       },
       "dataDirCurrentId": null,
       "dataDirCheckedIds": {},
@@ -489,16 +506,16 @@ const _M = {
         "changed": false,
         "restoring": false,
         "hasChecked": false,
-        "hasCurrent": true
+        "hasCurrent": true,
       },
       "fieldStatus": {},
       "guiShown": {},
       "thingActions": null,
       "layout": {},
       "schema": {},
-      "thingMethods": {}
-    })
+      "thingMethods": {},
+    });
   },
   //----------------------------------------
-}
-export default _M
+};
+export default _M;

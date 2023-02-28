@@ -1,6 +1,6 @@
 {
-  "comPath": "@com:wn/wizard/data-exporter",
-  "comType": "WnWizardDataExporter",
+  "comPath": "@com:wn/data/exporter-form",
+  "comType": "WnDataExporterForm",
   "comConf": {
     "title": "测试文件导出",
     "mappingPath": [
@@ -10,6 +10,6 @@
     "defaultMappingName":"b",
     "outputName":"media-list-${now}",
     "outputTarget":"~/tmp/${name}.${type}",
-    "value" : "=data"
+    "data" : "=data"
   }
 }

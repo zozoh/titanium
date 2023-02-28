@@ -1,4 +1,4 @@
-// Pack At: 2023-02-27 00:15:35
+// Pack At: 2023-02-28 23:04:27
 //##################################################
 // # import { Alert } from "./ti-alert.mjs"
 const { Alert } = (function(){
@@ -672,7 +672,7 @@ const { Toptip } = (function(){
       // 7) "auto",
       // 8) "xxxx: xxxx"
       // ]
-      let m = /^\[(([HV]):)?(([^!]+)!)?(html|text|md)?(:([^\]]+))?\]\s*(.+)/.exec(content)
+      let m = /^\[(([HV]):?)?(([^!]+)!)?(html|text|md)?(:?([^\]]+))?\]\s*(.+)/.exec(content)
       if (m) {
         mode = m[2] || mode
         type = m[4] || type
@@ -3722,7 +3722,7 @@ const { App } = (function(){
       // Methods
       //////////////////////////////////////////////
       async open(resolve = _.identity) {
-        //console.log("dialog", this.model)
+        console.log("dialog", this.className)
         let TheActions = []
         // Customized actions
         if (this.actions) {
@@ -19822,7 +19822,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230227.001535",
+  "version": "1.6-20230228.230427",
   "dev": false,
   "appName": null,
   "session": {},

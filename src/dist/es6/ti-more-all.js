@@ -1,4 +1,4 @@
-// Pack At: 2023-02-27 00:15:35
+// Pack At: 2023-02-28 23:04:27
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -2580,82 +2580,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }
   //////////////////////////////////////////
 }
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'wizard-data-expoter-s2.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s2.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  //---------------------------------------------------
-  Step2ChooseFields() {
-    let vm = this
-    //.........................................
-    const _load_fields = async () => {
-      let { mapping } = this.value
-      if (mapping) {
-        let list = await Wn.Sys.exec2(`cat id:${mapping}`, { as: "json" })
-        let cans = []
-        _.forEach(list, (li, key) => {
-          // Group:  "Genaral": "-------------",
-          if (/^[-]{5,}$/.test(li)) {
-            cans.push({ title: key })
-          }
-          // Simple: "nm": "Name",
-          else if (_.isString(li)) {
-            cans.push({
-              text: li,
-              value: key
-            })
-          }
-          // Complex: "race": {...}
-          else if (li.name) {
-            cans.push({
-              text: li.name,
-              value: key,
-              asDefault: li.asDefault
-            })
-          }
-        })
-        this.myCanFields = cans
-      }
-    }
-    //.........................................
-    let listConf = {
-      dftLabelHoverCopy: false,
-      display: ['<:fas-tag>', "text::flex-auto"],
-      rowAsGroupTitle: {
-        "title": "![BLANK]"
-      },
-      rowGroupTitleDisplay: "title"
-    }
-    //.........................................
-    return {
-      title: "i18n:wn-export-choose-fields",
-      comType: "TiTransfer",
-      comConf: {
-        idBy: "value",
-        options: this.myCanFields,
-        value: "=fields",
-        changeEventName: "output:fields",
-        canComConf: _.assign({
-          className: "as-grid col-2",
-          border: false,
-        }, listConf),
-        selComConf: listConf
-      },
-      prepare: async function () {
-        //console.log(this.tiComType, vm.value)
-        await _load_fields()
-      },
-      prev: true,
-      next: {
-        enabled : false
-      }
-    }
-  },
-  //---------------------------------------------------
-} 
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -5826,73 +5750,87 @@ window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj-mutations.mjs'] = (function(){
 ////////////////////////////////////////////////
 function saveLocalBehavior(state, key, val) {
   if (state.lbkAt && !state.lbkOff) {
-    // Ignore ? 
+    // Ignore ?
     if (state.lbkIgnore && state.lbkIgnore(key)) {
-      return
+      return;
     }
     // Save to local
-    let be = Ti.Storage.local.getObject(state.lbkAt)
-    be[key] = val
-    Ti.Storage.local.setObject(state.lbkAt, be)
+    let be = Ti.Storage.local.getObject(state.lbkAt);
+    be[key] = val;
+    Ti.Storage.local.setObject(state.lbkAt, be);
   }
 }
 ////////////////////////////////////////////////
 const _M = {
   //----------------------------------------
   setModuleName(state, moduleName) {
-    state.moduleName = moduleName
+    state.moduleName = moduleName;
   },
   //----------------------------------------
   setPvg(state, pvg) {
-    state.pvg = pvg
+    state.pvg = pvg;
   },
   //----------------------------------------
   assignPvg(state, pvg) {
-    let po = _.cloneDeep(state.pvg || {})
-    _.assign(po, pvg)
-    state.pvg = po
+    let po = _.cloneDeep(state.pvg || {});
+    _.assign(po, pvg);
+    state.pvg = po;
   },
   //----------------------------------------
   setView(state, view) {
-    state.view = view
+    state.view = view;
   },
   //----------------------------------------
   setLocalBehaviorKeepAt(state, keyAt) {
-    state.localBehaviorKeepAt = keyAt
+    state.localBehaviorKeepAt = keyAt;
   },
   //----------------------------------------
   explainLocalBehaviorKeepAt(state) {
     let keyAt = state.localBehaviorKeepAt;
-    state.lbkAt = Ti.Util.explainObj(state, keyAt)
-    state.lbkIgnore = Ti.AutoMatch.parse(state.localBehaviorIgnore)
-    state.schemaBeIgnore = Ti.AutoMatch.parse(state.schemaBehaviorIgnore)
+    state.lbkAt = Ti.Util.explainObj(state, keyAt);
+    state.lbkIgnore = Ti.AutoMatch.parse(state.localBehaviorIgnore);
+    state.schemaBeIgnore = Ti.AutoMatch.parse(state.schemaBehaviorIgnore);
   },
   //----------------------------------------
-  setLbkOff(state, off = true) { state.lbkOff = off },
-  setLbkOn(state, on = true) { state.lbkOff = !on },
+  setLbkOff(state, off = true) {
+    state.lbkOff = off;
+  },
+  setLbkOn(state, on = true) {
+    state.lbkOff = !on;
+  },
+  //----------------------------------------
+  setExportSettings(state, settings) {
+    state.exportSettings = settings;
+    saveLocalBehavior(state, "exportSettings", settings);
+  },
+  //----------------------------------------
+  setImportSettings(state, settings) {
+    state.importSettings = settings;
+    saveLocalBehavior(state, "importSettings", settings);
+  },
   //----------------------------------------
   setGuiShown(state, shown) {
-    let guiShown = _.pickBy(shown, v => v)
-    state.guiShown = guiShown
-    saveLocalBehavior(state, "guiShown", guiShown)
+    let guiShown = _.pickBy(shown, (v) => v);
+    state.guiShown = guiShown;
+    saveLocalBehavior(state, "guiShown", guiShown);
   },
   //----------------------------------------
   assignGuiShown(state, shown) {
-    let shown2 = _.cloneDeep(state.guiShown)
-    _.assign(shown2, shown)
-    state.guiShown = _.pickBy(shown2, v => v)
-    saveLocalBehavior(state, "guiShown", state.guiShown)
+    let shown2 = _.cloneDeep(state.guiShown);
+    _.assign(shown2, shown);
+    state.guiShown = _.pickBy(shown2, (v) => v);
+    saveLocalBehavior(state, "guiShown", state.guiShown);
   },
   //----------------------------------------
   assignGuiShownNoKeep(state, shown) {
-    let shown2 = _.cloneDeep(state.guiShown)
-    _.assign(shown2, shown)
-    state.guiShown = _.pickBy(shown2, v => v)
+    let shown2 = _.cloneDeep(state.guiShown);
+    _.assign(shown2, shown);
+    state.guiShown = _.pickBy(shown2, (v) => v);
   },
   //----------------------------------------
   keepShownToLocal(state) {
-    let shown = _.pickBy(state.guiShown, v => v)
-    saveLocalBehavior(state, "guiShown", shown)
+    let shown = _.pickBy(state.guiShown, (v) => v);
+    saveLocalBehavior(state, "guiShown", shown);
   },
   //----------------------------------------
   //
@@ -5900,11 +5838,11 @@ const _M = {
   //
   //----------------------------------------
   setThingSetId(state, thingSetId) {
-    state.thingSetId = thingSetId
+    state.thingSetId = thingSetId;
   },
   //----------------------------------------
   setThingSet(state, oTs) {
-    state.oTs = oTs
+    state.oTs = oTs;
   },
   //----------------------------------------
   //
@@ -5912,7 +5850,7 @@ const _M = {
   //
   //----------------------------------------
   setFixedMatch(state, fm) {
-    state.fixedMatch = _.cloneDeep(fm)
+    state.fixedMatch = _.cloneDeep(fm);
   },
   //----------------------------------------
   /*
@@ -5924,7 +5862,7 @@ const _M = {
   }
   */
   setAgg(state, agg) {
-    state.agg = _.cloneDeep(agg)
+    state.agg = _.cloneDeep(agg);
   },
   //----------------------------------------
   /*
@@ -5940,109 +5878,109 @@ const _M = {
   */
   setAggResult(state, { key, result = [] } = {}) {
     if (key) {
-      let re = _.clone(state.aggResult)
-      re[key] = result
-      state.aggResult = re
+      let re = _.clone(state.aggResult);
+      re[key] = result;
+      state.aggResult = re;
     }
   },
   //----------------------------------------
   setAggQuery(state, aggQuery) {
-    state.aggQuery = aggQuery
+    state.aggQuery = aggQuery;
   },
   //----------------------------------------
   setFilter(state, filter) {
-    state.filter = filter
-    saveLocalBehavior(state, "filter", filter)
+    state.filter = filter;
+    saveLocalBehavior(state, "filter", filter);
   },
   //----------------------------------------
   setSorter(state, sorter) {
     if ("caseevents" == state.moduleName) {
-      console.log("setSorter", state.moduleName, sorter)
+      console.log("setSorter", state.moduleName, sorter);
     }
-    state.sorter = sorter
-    saveLocalBehavior(state, "sorter", sorter)
+    state.sorter = sorter;
+    saveLocalBehavior(state, "sorter", sorter);
   },
   //----------------------------------------
   setThingObjKeys(state, thingObjKeys) {
-    state.thingObjKeys = thingObjKeys
+    state.thingObjKeys = thingObjKeys;
   },
   //----------------------------------------
   setList(state, list) {
-    state.list = list
+    state.list = list;
   },
   //----------------------------------------
   prependListItem(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "..")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "..");
   },
   //----------------------------------------
   appendListItem(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "..")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "..");
   },
   //----------------------------------------
   setListItem(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "..")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "..");
   },
   //----------------------------------------
   mergeListItem(state, theItem) {
-    Ti.Util.MergeStateDataItem(state, theItem, "..")
+    Ti.Util.MergeStateDataItem(state, theItem, "..");
   },
   //----------------------------------------
   removeListItems(state, items = []) {
-    Ti.Util.RemoveStateDataItems(state, items, "..")
+    Ti.Util.RemoveStateDataItems(state, items, "..");
   },
   //----------------------------------------
   listCancelAll(state) {
-    state.currentId = null
-    state.checkedIds = {}
+    state.currentId = null;
+    state.checkedIds = {};
   },
   //----------------------------------------
   setCurrentId(state, currentId) {
-    state.currentId = currentId
+    state.currentId = currentId;
     state.status = _.assign({}, state.status, {
-      hasCurrent: !Ti.Util.isNil(currentId)
-    })
-    saveLocalBehavior(state, "currentId", currentId)
+      hasCurrent: !Ti.Util.isNil(currentId),
+    });
+    saveLocalBehavior(state, "currentId", currentId);
   },
   //----------------------------------------
   setCurrentId(state, currentId) {
-    state.currentId = currentId
+    state.currentId = currentId;
     state.status = _.assign({}, state.status, {
-      "hasCurrent": !Ti.Util.isNil(currentId)
-    })
-    saveLocalBehavior(state, "currentId", currentId)
+      "hasCurrent": !Ti.Util.isNil(currentId),
+    });
+    saveLocalBehavior(state, "currentId", currentId);
   },
   //----------------------------------------
   setCheckedIds(state, checkedIds) {
-    let ids
+    let ids;
     if (_.isArray(checkedIds)) {
-      ids = {}
-      _.forEach(checkedIds, v => ids[v] = true)
+      ids = {};
+      _.forEach(checkedIds, (v) => (ids[v] = true));
     } else {
-      ids = _.pickBy(checkedIds, v => v)
+      ids = _.pickBy(checkedIds, (v) => v);
     }
-    state.checkedIds = ids
+    state.checkedIds = ids;
     state.status = _.assign({}, state.status, {
-      "hasChecked": !_.isEmpty(ids)
-    })
-    saveLocalBehavior(state, "checkedIds", ids)
+      "hasChecked": !_.isEmpty(ids),
+    });
+    saveLocalBehavior(state, "checkedIds", ids);
   },
   //----------------------------------------
   setPager(state, pager) {
-    state.pager = pager
-    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0
-    saveLocalBehavior(state, "pageSize", pageSize)
+    state.pager = pager;
+    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0;
+    saveLocalBehavior(state, "pageSize", pageSize);
   },
   //----------------------------------------
   assignPager(state, pager) {
-    let pg = _.cloneDeep(state.pager || {})
+    let pg = _.cloneDeep(state.pager || {});
     _.forEach(pager, (v, k) => {
       if (!Ti.Util.isNil(v)) {
-        pg[k] = v
+        pg[k] = v;
       }
-    })
-    state.pager = pg
-    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0
-    saveLocalBehavior(state, "pageSize", pageSize)
+    });
+    state.pager = pg;
+    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0;
+    saveLocalBehavior(state, "pageSize", pageSize);
   },
   //----------------------------------------
   //
@@ -6050,39 +5988,39 @@ const _M = {
   //
   //----------------------------------------
   setCurrentMeta(state) {
-    let currentId = state.currentId
-    state.LOG("setCurrentMeta", currentId)
-    let hasCurrent = true
+    let currentId = state.currentId;
+    state.LOG("setCurrentMeta", currentId);
+    let hasCurrent = true;
     // Clear current meta
     if (Ti.Util.isNil(currentId) || _.isEmpty(state.list)) {
-      hasCurrent = false
+      hasCurrent = false;
     }
     // Find current meta
     else {
-      hasCurrent = false
+      hasCurrent = false;
       for (let it of state.list) {
         if (it.id == currentId) {
-          state.meta = it
-          hasCurrent = true
-          break
+          state.meta = it;
+          hasCurrent = true;
+          break;
         }
       }
     }
     // Reset current/checkedIds
     if (!hasCurrent) {
-      state.meta = null
-      state.currentId = null
-      state.checkedIds = {}
+      state.meta = null;
+      state.currentId = null;
+      state.checkedIds = {};
       state.status = _.assign({}, state.status, {
         "hasMeta": false,
         "hasCurrent": false,
-        "hasChecked": false
-      })
+        "hasChecked": false,
+      });
     }
   },
   //----------------------------------------
   setMeta(state, meta) {
-    state.meta = meta
+    state.meta = meta;
   },
   //--------------------------------------------
   assignMeta(state, meta) {
@@ -6094,62 +6032,62 @@ const _M = {
   },
   //----------------------------------------
   setContent(state, content) {
-    state.LOG("setContent", content)
+    state.LOG("setContent", content);
     if (content && !_.isString(content)) {
-      content = JSON.stringify(content, null, '   ')
+      content = JSON.stringify(content, null, "   ");
     }
-    state.content = content
+    state.content = content;
   },
   //----------------------------------------
   setSavedContent(state, content) {
-    state.LOG("setSavedContent", content)
-    state.__saved_content = content
+    state.LOG("setSavedContent", content);
+    state.__saved_content = content;
   },
   //----------------------------------------
   setContentPath(state, contentPath) {
     //console.log("setContentPath", contentPath)
-    state.contentPath = contentPath
+    state.contentPath = contentPath;
   },
   //----------------------------------------
   setContentType(state, contentType) {
-    state.contentType = contentType
+    state.contentType = contentType;
   },
   //----------------------------------------
   setContentData(state, contentData) {
-    state.contentData = contentData
+    state.contentData = contentData;
   },
   //----------------------------------------
   setStatus(state, status) {
-    state.status = _.assign({}, state.status, status)
+    state.status = _.assign({}, state.status, status);
   },
   //----------------------------------------
   clearStatus(state) {
-    state.status = {}
+    state.status = {};
   },
   //----------------------------------------
   syncStatusChanged(state) {
     if (Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
-      state.status.changed = false
+      state.status.changed = false;
     } else {
-      state.status.changed = !_.isEqual(state.content, state.__saved_content)
+      state.status.changed = !_.isEqual(state.content, state.__saved_content);
     }
   },
   //----------------------------------------
   setFieldStatus(state, { name, type, text } = {}) {
     if (name) {
-      let ukey = _.concat(name).join("-")
-      Vue.set(state.fieldStatus, ukey, { type, text })
+      let ukey = _.concat(name).join("-");
+      Vue.set(state.fieldStatus, ukey, { type, text });
     }
   },
   //----------------------------------------
   clearFieldStatus(state, names = []) {
     // Clean All
     if (_.isEmpty(names)) {
-      state.fieldStatus = {}
+      state.fieldStatus = {};
     }
     // Clear one
     else {
-      state.fieldStatus = _.omit(state.fieldStatus, names)
+      state.fieldStatus = _.omit(state.fieldStatus, names);
     }
   },
   //----------------------------------------
@@ -6158,17 +6096,17 @@ const _M = {
   //
   //----------------------------------------
   setDataDirName(state, dirName) {
-    state.dataDirName = dirName
-    saveLocalBehavior(state, "dataDirName", dirName)
+    state.dataDirName = dirName;
+    saveLocalBehavior(state, "dataDirName", dirName);
   },
   setDataHome(state, dataHome) {
-    state.dataHome = dataHome
+    state.dataHome = dataHome;
   },
   autoDataHome(state) {
     if (state.thingSetId && state.meta && state.meta.id) {
-      state.dataHome = `id:${state.thingSetId}/data/${state.meta.id}/`
+      state.dataHome = `id:${state.thingSetId}/data/${state.meta.id}/`;
     } else {
-      state.dataHome = null
+      state.dataHome = null;
     }
   },
   //----------------------------------------
@@ -6177,81 +6115,84 @@ const _M = {
   //
   //----------------------------------------
   setActionsPath(state, actionsPath) {
-    state.actionsPath = actionsPath
+    state.actionsPath = actionsPath;
   },
   setLayoutPath(state, layoutPath) {
-    state.layoutPath = layoutPath
+    state.layoutPath = layoutPath;
   },
   setSchemaPath(state, schemaPath) {
-    state.schemaPath = schemaPath
+    state.schemaPath = schemaPath;
   },
   setMethodPaths(state, methodPaths) {
-    state.methodPaths = methodPaths
+    state.methodPaths = methodPaths;
   },
   //----------------------------------------
   setThingActions(state, thingActions = {}) {
-    state.thingActions = thingActions
+    state.thingActions = thingActions;
   },
   setLayout(state, layout = {}) {
-    state.layout = layout
+    state.layout = layout;
   },
   setSchema(state, schema = {}) {
-    state.schema = schema
+    state.schema = schema;
   },
   assignSchema(state, schema = {}) {
-    state.schema = _.assign({}, state.schema, schema)
+    state.schema = _.assign({}, state.schema, schema);
   },
   mergeSchema(state, schema = {}) {
-    let sc = _.cloneDeep(state.schema)
-    state.schema = _.merge(sc, schema)
+    let sc = _.cloneDeep(state.schema);
+    state.schema = _.merge(sc, schema);
   },
   setThingMethods(state, thingMethods = {}) {
-    state.thingMethods = thingMethods
+    state.thingMethods = thingMethods;
   },
   assignThingMethods(state, thingMethods = {}) {
-    state.thingMethods = _.assign({}, state.thingMethods, thingMethods)
+    state.thingMethods = _.assign({}, state.thingMethods, thingMethods);
   },
   //----------------------------------------
   //
   // Operations for dataDirFiles
   //
   //----------------------------------------
-  setDataDirFiles(state, files = {
-    list: [],
-    pager: {}
-  }) {
-    state.dataDirFiles = files
+  setDataDirFiles(
+    state,
+    files = {
+      list: [],
+      pager: {},
+    }
+  ) {
+    state.dataDirFiles = files;
   },
   //----------------------------------------
   setDataDirCurrentId(state, currentId) {
-    state.dataDirCurrentId = currentId
-    saveLocalBehavior(state, "dataDirCurrentId", currentId)
+    state.dataDirCurrentId = currentId;
+    saveLocalBehavior(state, "dataDirCurrentId", currentId);
   },
   //----------------------------------------
   setDataDirCheckedIds(state, checkedIds = {}) {
-    let ids = _.pickBy(checkedIds, v => v)
-    state.dataDirCheckedIds = ids
-    saveLocalBehavior(state, "dataDirCheckedIds", ids)
+    let ids = _.pickBy(checkedIds, (v) => v);
+    state.dataDirCheckedIds = ids;
+    saveLocalBehavior(state, "dataDirCheckedIds", ids);
   },
   //----------------------------------------
   prependDataDirFile(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "dataDirFiles")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "dataDirFiles");
   },
   //----------------------------------------
   appendDataDirFile(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "dataDirFiles")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "dataDirFiles");
   },
   //----------------------------------------
   setDataDirFile(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "dataDirFiles")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "dataDirFiles");
   },
   //----------------------------------------
   mergeDataDirFile(state, theItem) {
-    Ti.Util.MergeStateDataDirFile(state, theItem, "dataDirFiles")
+    Ti.Util.MergeStateDataDirFile(state, theItem, "dataDirFiles");
   },
   //----------------------------------------
   removeDataItems(state, items = []) {
-    Ti.Util.RemoveStateDataItems(state, items, "dataDirFiles")
+    Ti.Util.RemoveStateDataItems(state, items, "dataDirFiles");
   },
   //----------------------------------------
   resetState(state) {
@@ -6261,7 +6202,7 @@ const _M = {
       "fixedMatch": {},
       "filter": {},
       "sorter": {
-        "ct": -1
+        "ct": -1,
       },
       "thingObjKeys": null,
       "list": [],
@@ -6273,7 +6214,7 @@ const _M = {
         "pgc": 0,
         "sum": 0,
         "skip": 0,
-        "count": 0
+        "count": 0,
       },
       "meta": null,
       "content": null,
@@ -6282,11 +6223,11 @@ const _M = {
         {
           "test": {
             "guiShown": {
-              "content": true
-            }
+              "content": true,
+            },
           },
-          "path": "<self>"
-        }
+          "path": "<self>",
+        },
       ],
       "contentType": "<MIME>",
       "contentData": null,
@@ -6301,8 +6242,8 @@ const _M = {
           "pgc": 0,
           "sum": 0,
           "skip": 0,
-          "count": 0
-        }
+          "count": 0,
+        },
       },
       "dataDirCurrentId": null,
       "dataDirCheckedIds": {},
@@ -6314,20 +6255,19 @@ const _M = {
         "changed": false,
         "restoring": false,
         "hasChecked": false,
-        "hasCurrent": true
+        "hasCurrent": true,
       },
       "fieldStatus": {},
       "guiShown": {},
       "thingActions": null,
       "layout": {},
       "schema": {},
-      "thingMethods": {}
-    })
+      "thingMethods": {},
+    });
   },
   //----------------------------------------
-}
-return _M;
-;
+};
+return _M;;
 })()
 // ============================================================
 // EXPORT 'ti-adaptlist-props.mjs' -> null
@@ -13128,19 +13068,27 @@ const _M = {
   // Import / Export
   //
   //----------------------------------------
+  async openExportDataDir({ getters }) {
+    let taDir = getters.exportDataDir;
+    let oDir = await Wn.Io.loadMeta(taDir);
+    let link = Wn.Util.getAppLink(oDir);
+    Ti.Be.Open(link.url, { params: link.params });
+  },
   async exportData({ state, commit, dispatch, getters }) {
     // Guard
     if (!getters.isCanUpdate) {
-      return await Ti.Alert('i18n:e-pvg-fobidden', { type: "warn" })
+      return await Ti.Alert("i18n:e-pvg-fobidden", { type: "warn" });
     }
     if (!state.thingSetId) {
-      return await Ti.Toast.Open("ThObj thingSetId without defined", "warn")
+      return await Ti.Toast.Open("ThObj thingSetId without defined", "warn");
     }
 
-    let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds)
+    let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds);
     if (_.isEmpty(ids)) {
-      return await Ti.Alert('i18n:nil-item')
+      return await Ti.Alert("i18n:nil-item", { type: "warn" });
     }
+
+    let tsName = Ti.Util.getFallback(state.oTs, "title", "nm") || "export";
 
     // Open Dialog Wizard to export data
     let re = await Ti.App.Open({
@@ -13148,22 +13096,255 @@ const _M = {
       position: "top",
       minWidth: "90%",
       height: "90%",
-      textOk: null,
-      textCancel: null,
-      result: {},
-      comType: "WnWizardDataExporter",
+      result: _.cloneDeep(state.exportSettings) || {},
+      model: { event: "change", prop: "data" },
+      comType: "WnDataExporterForm",
       comConf: {
-        "title": "测试文件导出",
         "mappingPath": `id:${state.thingSetId}/export/`,
         "defaultMappingName": undefined,
-        "outputName": "export-${now}",
-        "outputTarget": `id:${state.thingSetId}/tmp/export/\${name}.\${type}`
+        "outputName": `${tsName}-\${now}`,
+        "outputTarget": `id:${state.thingSetId}/tmp/export/\${name}.\${type}`,
       },
-      components: [
-        "@com:wn/wizard/data-exporter"
-      ]
-    })
-    console.log(re)
+      components: ["@com:wn/data/exporter-form"],
+    });
+
+    // User Cancel
+    if (!re) {
+      return;
+    }
+    state.LOG("Export Data By:", re);
+
+    // Prepare command
+    /*
+    expi: "1d",
+    fields: ['title', 'con_name', 'con_phone', 'con_email'],
+    mapping: "0678suw2...",
+    mode: "checked"
+    name: "export-2023-02-28_101858"
+    type: "xlsx|json"
+    */
+    let { type, expi } = re;
+    re.outputPath = Ti.Util.appendPath(getters.exportDataDir, re.name);
+    state.LOG("Export To:", re.outputPath);
+
+    let _gen_command = {
+      //.....................................
+      //
+      //             As XLSX
+      //
+      //.....................................
+      xlsx: async ({
+        mode,
+        scope,
+        mapping,
+        fields = [],
+        outputPath,
+        expi,
+      } = {}) => {
+        let cmds = [`thing id:${state.thingSetId} query -cqn`];
+
+        // Prepare the fields for thing query
+        let fldReg = _.isEmpty(fields) ? null : `^(${fields.join("|")})$`;
+        if (fldReg) {
+          cmds.push(`-e '${fldReg}'`);
+        }
+
+        // Eval Sorter
+        if (!_.isEmpty(state.sorter)) {
+          let sort = JSON.stringify(state.sorter);
+          cmds.push(`-sort '${sort}'`);
+        }
+
+        //
+        // Filter Condition
+        //
+        let fltInput = JSON.stringify(
+          _.assign({}, state.filter, state.fixedMatch)
+        );
+
+        //.........................
+        // Current Page
+        if ("current" == mode) {
+          let limit = getters.searchPageSize || 1000;
+          let skip = Math.max(limit * (getters.searchPageNumber - 1), 0);
+          cmds.push(`-limit ${limit}`);
+          cmds.push(`-skip  ${skip}`);
+        }
+        //.........................
+        // Scope
+        else if ("scope" == mode) {
+          let m = /^([1-9]\d*)[:,_-](\d+)$/.exec(_.trim(scope));
+          if (!m) {
+            throw Ti.Err.make("e.export_data.InvalidScope", scope);
+          }
+          let n0 = Math.max(parseInt(m[1] * 1), 1);
+          let n1 = Math.max(parseInt(m[2]), 0);
+          let from = Math.min(n0, n1);
+          let to = Math.max(n0, n1);
+          let skip = Math.max(0, from - 1);
+          let limit = to - from;
+          console.log(skip, limit);
+
+          if (limit <= 0) {
+            return await Ti.Alert("i18n:e-export_data-InvalidScope", {
+              type: "warn",
+            });
+          }
+
+          if (limit > 1000) {
+            if (
+              !(await Ti.Confirm("i18n:e-exort_data-ConfirmBigLimit", {
+                type: "warn",
+              }))
+            ) {
+              return;
+            }
+          }
+
+          cmds.push(`-limit ${limit}`);
+          cmds.push(`-skip  ${skip}`);
+        }
+        //.........................
+        // Checked ids
+        else if ("checked" == mode) {
+          fltInput = JSON.stringify({
+            id: Ti.Util.getTruthyKeyInArray(state.checkedIds),
+          });
+        }
+        // Invalid Mode
+        else {
+          throw Ti.Err.make("e.export_data.UnknownMode", mode);
+        }
+        state.LOG("Export Filter Input", fltInput);
+
+        // Join the export
+        cmds.push('| sheet -process "<auto>" -tpo xlsx');
+        if (fldReg) {
+          cmds.push(`-keys '${fldReg}'`);
+        }
+
+        // Mapping data
+        if (mapping) {
+          cmds.push(`-mapping id:${mapping}`);
+        }
+
+        // Join output path
+        outputPath = `${outputPath}.xls`;
+        cmds.push(`-out '${outputPath}';\n`);
+
+        return {
+          cmdText: cmds.join(" "),
+          input: fltInput,
+          outputPath,
+        };
+      },
+      //.....................................
+      //
+      //             As JSON
+      //
+      //.....................................
+      //json: async (mode, scope, mapping, fields = []) => {},
+    }[type];
+
+    if (!_.isFunction(_gen_command)) {
+      return await Ti.Alert("i18n:wn-export-c-type-unknown", { type: "warn" });
+    }
+
+    // Then Generated the command
+    let cmdText, input, outputPath;
+    try {
+      let gre = await _gen_command(re);
+
+      // Save Settings
+      let settings = _.omit(re, "name", "mode", "type", "expi", "scope");
+      state.LOG("Store Settings:", settings);
+      commit("setExportSettings", settings);
+
+      // Get Return Params
+      cmdText = gre.cmdText;
+      input = gre.input;
+      outputPath = gre.outputPath;
+      state.LOG("Export Data:", cmdText);
+    } catch (E) {
+      // Fail to Generate the command
+      Ti.Alert(E.toString() ?? "Some Erro Happend IN Gen Command", {
+        type: "error",
+      });
+      throw E;
+    }
+
+    // User cancel
+    if (!cmdText) {
+      return;
+    }
+
+    // Process command
+    commit("setStatus", {
+      doing: {
+        icon: "zmdi-settings fa-spin",
+        text: `i18n:wn-export-ing-tip`,
+      },
+    });
+
+    let oOut;
+    try {
+      re = await Wn.Sys.exec2(cmdText, { input });
+      state.LOG("output done ", re);
+
+      // Fetch back the outputFile
+      let cmds = [`o '${outputPath}'`];
+      if (expi) {
+        cmds.push(`@update 'expi:"%ms:now+${expi}"'`);
+      }
+      cmds.push("@json -cqn");
+      cmdText = cmds.join(" ");
+      state.LOG("Get back ouput file ", cmdText);
+      oOut = await Wn.Sys.exec2(cmdText, { as: "json" });
+    } finally {
+      // Clean the status
+      commit("setStatus", { doing: false });
+    }
+
+    // Tip Done
+    state.LOG("Get Back Output", oOut);
+    let isOK = oOut && !(oOut instanceof Error) ? true : false;
+    await Ti.App.Open({
+      title: "i18n:wn-export-done",
+      type: isOK ? "success" : "error",
+      position: "top",
+      width: "4.8rem",
+      height: "5rem",
+      textOk: null,
+      textCancel: "i18n:close",
+      result: oOut,
+      comType: "WebMetaBadge",
+      comConf: {
+        className: isOK ? "is-success" : "is-error",
+        value: oOut,
+        icon: isOK ? "fas-check-circle" : "zmdi-alert-triangle",
+        title: isOK ? "i18n:wn-export-done-ok" : "i18n:wn-export-done-fail",
+        brief: isOK
+          ? "i18n:wn-export-done-ok-tip"
+          : "i18n:wn-export-done-fail-tip",
+        links: isOK
+          ? [
+              {
+                icon: "fas-download",
+                text: ":=nm",
+                href: ":->/o/content?str=id:${id}&d=true",
+                newtab: true,
+              },
+              {
+                icon: "fas-external-link-alt",
+                text: "i18n:wn-export-open-dir",
+                href: Wn.Util.getAppLink(oOut.pid),
+                newtab: true,
+              },
+            ]
+          : [],
+      },
+      components: ["@com:web/meta/badge"],
+    });
   },
   //----------------------------------------
   //
@@ -13174,81 +13355,81 @@ const _M = {
     // Toggle filter
     let flt;
     if (-1 == _.get(state.filter, "th_live")) {
-      flt = _.omit(state.filter, "th_live")
+      flt = _.omit(state.filter, "th_live");
     } else {
-      flt = _.assign({}, state.filter, { th_live: -1 })
+      flt = _.assign({}, state.filter, { th_live: -1 });
     }
-    commit("setFilter", flt)
+    commit("setFilter", flt);
 
     // Reload Search
-    await dispatch("queryList")
+    await dispatch("queryList");
   },
   //----------------------------------------
   async cleanRecycleBin({ state, commit, dispatch, getters }) {
-    commit("setStatus", { cleaning: true })
+    commit("setStatus", { cleaning: true });
 
     // Run command
-    let th_set = state.thingSetId
-    let cmdText = `thing ${th_set} clean -limit 3000`
-    await Wn.Sys.exec2(cmdText)
+    let th_set = state.thingSetId;
+    let cmdText = `thing ${th_set} clean -limit 3000`;
+    await Wn.Sys.exec2(cmdText);
 
-    commit("setStatus", { cleaning: false })
+    commit("setStatus", { cleaning: false });
 
     if (getters.isInRecycleBin) {
-      await dispatch("queryList")
+      await dispatch("queryList");
     }
   },
   //----------------------------------------
   async restoreRecycleBin({ state, commit, dispatch }) {
     // Require user to select some things at first
-    let ids = state.checkedIds
+    let ids = state.checkedIds;
     if (!_.isArray(ids)) {
-      ids = Ti.Util.truthyKeys(ids)
+      ids = Ti.Util.truthyKeys(ids);
     }
     if (_.isEmpty(ids)) {
-      return await Ti.Alert('i18n:thing-restore-none')
+      return await Ti.Alert("i18n:thing-restore-none");
     }
-    commit("setStatus", { restoring: true })
+    commit("setStatus", { restoring: true });
 
     // Run command
-    let th_set = state.thingSetId
-    let cmdText = `thing ${th_set} restore -quiet -cqn -l ${ids.join(" ")}`
-    await Wn.Sys.exec2(cmdText, { as: "json" })
+    let th_set = state.thingSetId;
+    let cmdText = `thing ${th_set} restore -quiet -cqn -l ${ids.join(" ")}`;
+    await Wn.Sys.exec2(cmdText, { as: "json" });
 
     // Reload
-    await dispatch("queryList")
+    await dispatch("queryList");
 
     // Update current
-    dispatch("selectMeta", { currentId: null, checkedIds: {} })
+    dispatch("selectMeta", { currentId: null, checkedIds: {} });
 
-    commit("setStatus", { restoring: false })
+    commit("setStatus", { restoring: false });
   },
   //----------------------------------------
   //
   // Selection
   //
   //----------------------------------------
-  async selectMeta({ state, commit, dispatch, getters }, {
-    currentId = null, checkedIds = {}
-  } = {}) {
-    state.LOG("selectMeta", currentId, checkedIds)
-    // If current is nil but we got the chekced 
+  async selectMeta(
+    { state, commit, dispatch, getters },
+    { currentId = null, checkedIds = {} } = {}
+  ) {
+    state.LOG("selectMeta", currentId, checkedIds);
+    // If current is nil but we got the chekced
     // just pick one as the meta
     if (!currentId && !_.isEmpty(checkedIds)) {
-      currentId = _.first(Ti.Util.truthyKeys(checkedIds))
+      currentId = _.first(Ti.Util.truthyKeys(checkedIds));
+    } else if (currentId && _.isEmpty(checkedIds)) {
+      checkedIds = [currentId];
     }
-    else if (currentId && _.isEmpty(checkedIds)) {
-      checkedIds = [currentId]
-    }
-    commit("setCurrentId", currentId)
-    commit("setCheckedIds", checkedIds)
+    commit("setCurrentId", currentId);
+    commit("setCheckedIds", checkedIds);
     // find <meta> by currentId from <list>
-    commit("setCurrentMeta")
+    commit("setCurrentMeta");
     // eval data home by <meta>
-    commit("autoDataHome")
+    commit("autoDataHome");
     // ? Load current content
     if (getters.contentLoadPath) {
-      await dispatch("loadContent")
+      await dispatch("loadContent");
     }
     // ? Load current data dir
   },
@@ -13259,119 +13440,111 @@ const _M = {
   //----------------------------------------
   async applyFilter({ commit, getters, dispatch }, filter) {
     //console.log("applyFilter", filter)
-    commit("setFilter", filter)
+    commit("setFilter", filter);
     // If pager enabled, should auto jump to first page
     if (getters.isPagerEnabled) {
-      commit("assignPager", { pn: 1 })
+      commit("assignPager", { pn: 1 });
     }
-    await dispatch("queryList")
+    await dispatch("queryList");
   },
   //----------------------------------------
   async applySorter({ commit, dispatch }, sorter) {
     //console.log("applySorter", sorter)
-    commit("setSorter", sorter)
-    await dispatch("queryList")
+    commit("setSorter", sorter);
+    await dispatch("queryList");
   },
   //----------------------------------------
   async applyPager({ commit, dispatch }, pager) {
     //console.log("applyPager", pager)
-    commit("assignPager", pager)
-    await dispatch("queryList")
+    commit("assignPager", pager);
+    await dispatch("queryList");
   },
   //----------------------------------------
   //
   // Query
   //
   //----------------------------------------
-  async queryAggResult({ state, commit }, { aggName, flt = {}, dft = [] } = {}) {
-    aggName = aggName || state.aggQuery
+  async queryAggResult(
+    { state, commit },
+    { aggName, flt = {}, dft = [] } = {}
+  ) {
+    aggName = aggName || state.aggQuery;
     if (!aggName) {
-      return dft
+      return dft;
     }
-    state.LOG("async queryAggResult", aggName)
-    let agg = _.get(state.agg, aggName)
+    state.LOG("async queryAggResult", aggName);
+    let agg = _.get(state.agg, aggName);
     if (_.isEmpty(agg) || !agg.by) {
-      state.LOG("!! Bad Agg Setting", agg)
-      return
+      state.LOG("!! Bad Agg Setting", agg);
+      return;
     }
-    let ignore = Ti.AutoMatch.parse(agg.ignore)
-    let {
-      thingSetId,
-      filter,
-      fixedMatch,
-    } = state
+    let ignore = Ti.AutoMatch.parse(agg.ignore);
+    let { thingSetId, filter, fixedMatch } = state;
     // Query
     let qmeta = _.assign({}, filter, fixedMatch, flt);
     qmeta = _.omitBy(qmeta, (v, k) => {
-      return ignore(k)
-    })
-    let input = JSON.stringify(qmeta)
+      return ignore(k);
+    });
+    let input = JSON.stringify(qmeta);
 
     // Prepare the command
-    commit("setStatus", { reloading: true })
-    let cmdText = `o id:${thingSetId}/index @agg ${agg.by} -match -cqn`
-    let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
+    commit("setStatus", { reloading: true });
+    let cmdText = `o id:${thingSetId}/index @agg ${agg.by} -match -cqn`;
+    let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" });
 
     // Update
-    commit("setAggResult", { key: aggName, result: reo })
+    commit("setAggResult", { key: aggName, result: reo });
     // Done
-    commit("setStatus", { reloading: false })
+    commit("setStatus", { reloading: false });
   },
   //----------------------------------------
   async queryList({ state, commit, dispatch, getters }, flt = {}) {
-    state.LOG("async queryList")
-    let {
-      thingSetId,
-      filter,
-      fixedMatch,
-      sorter,
-      thingObjKeys
-    } = state
+    state.LOG("async queryList");
+    let { thingSetId, filter, fixedMatch, sorter, thingObjKeys } = state;
     // Query
     let qmeta = _.assign({}, filter, fixedMatch, flt);
-    let input = JSON.stringify(qmeta)
+    let input = JSON.stringify(qmeta);
 
     // Command
-    let cmds = [`thing ${thingSetId} query -cqn`]
+    let cmds = [`thing ${thingSetId} query -cqn`];
 
     // Eval Pager
     if (getters.isPagerEnabled) {
-      let limit = getters.searchPageSize * 1
-      let skip = getters.searchPageSize * (getters.searchPageNumber - 1)
-      cmds.push(`-pager -limit ${limit} -skip ${skip}`)
+      let limit = getters.searchPageSize * 1;
+      let skip = getters.searchPageSize * (getters.searchPageNumber - 1);
+      cmds.push(`-pager -limit ${limit} -skip ${skip}`);
     }
 
     // Sorter
     if (!_.isEmpty(sorter)) {
-      cmds.push(`-sort '${JSON.stringify(sorter)}'`)
+      cmds.push(`-sort '${JSON.stringify(sorter)}'`);
     }
 
     // Show Thing Keys
     if (thingObjKeys) {
-      cmds.push(`-e '${thingObjKeys}'`)
+      cmds.push(`-e '${thingObjKeys}'`);
     }
 
     // Process Query
-    let cmdText = cmds.join(" ")
-    commit("setStatus", { reloading: true })
-    let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
+    let cmdText = cmds.join(" ");
+    commit("setStatus", { reloading: true });
+    let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" });
 
-    state.LOG(" - ", cmdText, input)
+    state.LOG(" - ", cmdText, input);
 
     // Update pager
     if (getters.isPagerEnabled) {
-      commit("setPager", reo.pager)
+      commit("setPager", reo.pager);
     }
-    commit("setList", reo.list)
-    commit("setCurrentMeta")
+    commit("setList", reo.list);
+    commit("setCurrentMeta");
 
-    commit("setStatus", { reloading: false })
-    state.LOG(" - query done:", reo)
+    commit("setStatus", { reloading: false });
+    state.LOG(" - query done:", reo);
   },
   //--------------------------------------------
-}
-return _M;
-;
+};
+return _M;;
 })()
 // ============================================================
 // EXPORT 'mod-address-actions.mjs' -> null
@@ -19988,25 +20161,511 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
-// EXPORT 'wizard-data-expoter-s3.mjs' -> null
+// EXPORT 'wn-exporter-form.mjs' -> null
 // ============================================================
-window.TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s3.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  //---------------------------------------------------
-  Step3Process() {
-    return {
-      title: "i18n:wn-export-ing",
-      comType: "TiTextJson",
-      comConf: {
-        value: ":=.."
-      },
-      prev: false,
-      next: false
-    }
+window.TI_PACK_EXPORTS['ti/com/wn/data/exporter-form/wn-exporter-form.mjs'] = (function(){
+const _M = {
+  ///////////////////////////////////////////////////////
+  data: () => ({
+    myData: {},
+    myMappingFiles: [],
+    myCanFields: {
+      /*mappingName : []*/
+    },
+  }),
+  ///////////////////////////////////////////////////////
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    // candicate mapping files
+    // If DIR, then get all json in it is option mapping files.
+    // It will show drop list when multi mapping files.
+    // Anyway, it need a mapping file, to get all avaliable fields.
+    // [required]
+    mappingPath: {
+      type: [String, Array],
+    },
+    // If multi mapping paths, the first one(order by name) will
+    // be used defaultly. But you can indicate it in this prop.
+    // [optional]
+    defaultMappingName: {
+      type: String,
+    },
+    // A Tmpl to get the output target path
+    // the base render context :
+    // {
+    //   type: "xlsx",        // <- this.oututMode
+    //   yy:"2023",MM:"02",dd:"19",HH:"12",mm:"00",ss:"00"
+    //   today:"2023-02-19", now:"2023-02-19_120000"
+    // }
+    // If function, it will be invoke as `(context={}):String`
+    // [required]
+    outputName: {
+      type: [String, Function],
+    },
+    // TODO: Maybe allow user to choose the output folder in futrue
+    outputTarget: {
+      type: [String, Function],
+      // sunc as "~/tmp/${name}"
+    },
+    // additional render vars for output target
+    vars: {
+      type: Object,
+      default: () => ({}),
+    },
+    data: {
+      type: Object,
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    outputType: {
+      type: String,
+      default: "xlsx",
+    },
+    outputTypeOptions: {
+      type: Array,
+      default: () => ["xlsx", "json"],
+    },
+    outputMode: {
+      type: String,
+      default: "checked",
+    },
+    outputModeOptions: {
+      type: Array,
+      default: () => ["checked", "current", "scope"],
+    },
+    // Auto remove target when expired.
+    // null, never expired
+    targetExpi: {
+      type: String,
+      default: "1h",
+    },
+    targetExpiOptions: {
+      type: Array,
+      default: () => ["1h", "6h", "1d", "never"],
+    },
+    // AutoMatch expression Object, to filter the default mapping fields
+    // if nil, all fields will be selected
+    defaultFields: {
+      type: [String, Array, Object],
+    },
+    // A Tmpl as export command, which context:
+    /*{
+      ... this.vars,          // <- this.vars
+      type: "xlsx",           // <- this.oututMode
+      mappingId:"89ju...",    // <- this.mappingPath
+      name :"xxx.xlsx",     // <- this.outputName
+      fields: ['a','b'],      // output field white list
+      fieldMatch : "^(a|b)$", // output field AutoMatch String
+      expi: "%ms:now+1d",     // <- this.targetExpi
+    }*/
+    // If function, it will be invoke as `(context={}):String`
+    command: {
+      type: [String, Function],
+    },
+    // command input, if Array it will auto-stringify to JSON
+    commandInput: {
+      type: [String, Array],
+    },
+    // additional render vars for output target
+    vars: {
+      type: Object,
+      default: () => ({}),
+    },
+
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    title: {
+      type: String,
+      default: undefined,
+    },
+    gridColumnHint: {
+      type: [String, Array],
+      default: "[[5,1500],[4,1200],[3,900],[2,600],[1,300],0]",
+    },
+    fieldsGridColumnHint: {
+      type: [String, Array],
+      default: "[[6,1500],[5,1250],[4,1000],[3,750],[2,500],1]",
+    },
   },
-  //---------------------------------------------------
-}
-return __TI_MOD_EXPORT_VAR_NM;;
+  ///////////////////////////////////////////////////////
+  computed: {
+    //---------------------------------------------------
+    TopClass() {
+      return this.getTopClass({});
+    },
+    //---------------------------------------------------
+    MappingFileId() {
+      return _.get(this.myData, "mapping");
+    },
+    //---------------------------------------------------
+    MappingFields() {
+      return _.get(this.myCanFields, this.MappingFileId) || [];
+    },
+    //---------------------------------------------------
+    OutputModeOptions() {
+      return this.explainOptions(
+        this.outputModeOptions,
+        this.explainOutputModeOption
+      );
+    },
+    //---------------------------------------------------
+    OutputTypeOptions() {
+      return this.explainOptions(
+        this.outputTypeOptions,
+        this.explainOutputTypeOption
+      );
+    },
+    //---------------------------------------------------
+    TargetExpiOptions() {
+      return this.explainOptions(
+        this.targetExpiOptions,
+        this.explainExpiOption
+      );
+    },
+    //---------------------------------------------------
+    FormFields() {
+      let fields = [];
+
+      //
+      // Choose mapping file
+      //
+      if (this.myMappingFiles.length > 1) {
+        fields.push({
+          title: "i18n:wn-export-c-mapping",
+          name: "mapping",
+          tip: {
+            text: "i18n:wn-export-c-mapping-tip",
+            size: "normal",
+          },
+          comType: "TiDroplist",
+          comConf: {
+            placeholder: "i18n:wn-export-c-mapping-phd",
+            options: this.myMappingFiles,
+            iconBy: "icon",
+            valueBy: "id",
+            textBy: "title|nm",
+            dropDisplay: ["<icon:fas-exchange-alt>", "title|nm"],
+          },
+        });
+      }
+
+      //
+      // Choose Fiels
+      //
+      fields.push(
+        {
+          name: "fields",
+          type: "Array",
+          colSpan: 10,
+          comType: "TiBulletCheckbox",
+          comConf: {
+            title: "i18n:wn-export-choose-fields",
+            options: this.MappingFields,
+            gridColumnHint: this.fieldsGridColumnHint,
+            autoI18n: true,
+          },
+        },
+        {
+          icon: "zmdi-settings",
+          title: "i18n:wn-export-setup",
+        }
+      );
+
+      //
+      // More Setting
+      //
+
+      // choose output type
+      if (this.OutputTypeOptions.length > 1) {
+        fields.push({
+          title: "i18n:wn-export-c-type",
+          name: "type",
+          comType: "TiSwitcher",
+          comConf: {
+            allowEmpty: false,
+            options: this.OutputTypeOptions,
+          },
+        });
+      }
+
+      // Output target mode
+      if (this.OutputModeOptions.length > 1) {
+        fields.push({
+          title: "i18n:wn-export-c-mode",
+          name: "mode",
+          comType: "TiSwitcher",
+          comConf: {
+            allowEmpty: false,
+            options: this.OutputModeOptions,
+          },
+        });
+      }
+      fields.push({
+        title: "i18n:wn-export-c-mode-scope",
+        name: "scope",
+        tip: "[small]i18n:wn-export-c-mode-scope-tip",
+        visible: {
+          mode: "scope",
+        },
+        comType: "TiInput",
+        comConf: {
+          placeholder: "i18n:wn-export-c-mode-scope-phd",
+          width: "2rem",
+        },
+      });
+
+      if (this.TargetExpiOptions.length > 1) {
+        fields.push({
+          title: "i18n:wn-export-c-expi",
+          name: "expi",
+          tip: "i18n:wn-export-c-expi-tip",
+          comType:
+            this.TargetExpiOptions.length > 3 ? "TiDroplist" : "TiSwitcher",
+          comConf: {
+            allowEmpty: false,
+            options: this.TargetExpiOptions,
+          },
+        });
+
+        // Output target name
+        fields.push({
+          title: "i18n:wn-export-c-name",
+          name: "name",
+          tip: "i18n:wn-export-c-name-tip",
+          colSpan: 2,
+          comType: "TiInput",
+          comConf: {
+            placeholder: "i18n:wn-export-c-name-phd",
+            hover: ["prefixIcon", "suffixText"],
+            prefixIcon: "zmdi-minus",
+            suffixText: "i18n:reset",
+            suffixTextNotifyName: "target_name:reset",
+          },
+        });
+      }
+      return fields;
+    },
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods: {
+    //---------------------------------------------------
+    OnChange(data) {
+      this.changeData(data);
+    },
+    //---------------------------------------------------
+    OnOutputFieldsChange(fields = []) {
+      this.changeData({ fields });
+    },
+    //---------------------------------------------------
+    OnResetTargetName() {
+      let name = this.genOutputName();
+      this.changeData({ name });
+    },
+    //---------------------------------------------------
+    genOutputName(target=this.outputName) {
+      //console.log(target)
+      let d = new Date();
+      let payload = Ti.DateTime.genFormatContext(d);
+      payload.today = Ti.DateTime.format(d, "yyyy-MM-dd");
+      payload.now = Ti.DateTime.format(d, "yyyy-MM-dd_HHmmss");
+      if (_.isFunction(target)) {
+        return target(payload);
+      }
+      if (_.isString(target)) {
+        let taTmpl = Ti.Tmpl.parse(target);
+        return taTmpl.render(payload);
+      }
+      throw `Invalid target: [${target}]`;
+    },
+    //---------------------------------------------------
+    explainOptions(options = [], fn = _.identity) {
+      let re = [];
+      if (!_.isEmpty(options)) {
+        for (let it of options) {
+          let li = fn(it);
+          if (!Ti.Util.isNil(li)) {
+            re.push(li);
+          }
+        }
+      }
+      return re;
+    },
+    //---------------------------------------------------
+    explainOutputTypeOption(it) {
+      if (_.isString(it)) {
+        return {
+          "xlsx": { value: "xlsx", text: "i18n:wn-export-c-type-xls" },
+          "json": { value: "json", text: "i18n:wn-export-c-type-json" },
+        }[it];
+      }
+      return it;
+    },
+    //---------------------------------------------------
+    explainOutputModeOption(it) {
+      if (_.isString(it)) {
+        return {
+          "checked": {
+            value: "checked",
+            text: "i18n:wn-export-c-mode-checked",
+          },
+          "current": {
+            value: "current",
+            text: "i18n:wn-export-c-mode-current",
+          },
+          "scope": { value: "scope", text: "i18n:wn-export-c-mode-scope" },
+          "all": { value: "all", text: "i18n:wn-export-c-mode-all" },
+        }[it];
+      }
+      return it;
+    },
+    //---------------------------------------------------
+    explainExpiOption(it) {
+      if (_.isString(it)) {
+        return (
+          {
+            "1h": { value: "1h", text: "i18n:wn-export-c-expi-1h" },
+            "2h": { value: "2h", text: "i18n:wn-export-c-expi-2h" },
+            "6h": { value: "6h", text: "i18n:wn-export-c-expi-6h" },
+            "12h": { value: "12h", text: "i18n:wn-export-c-expi-12h" },
+
+            "1d": { value: "1d", text: "i18n:wn-export-c-expi-1d" },
+            "3d": { value: "3d", text: "i18n:wn-export-c-expi-3d" },
+            "7d": { value: "7d", text: "i18n:wn-export-c-expi-7d" },
+            "14d": { value: "14d", text: "i18n:wn-export-c-expi-14d" },
+            "30d": { value: "30d", text: "i18n:wn-export-c-expi-30d" },
+
+            "never": { value: null, text: "i18n:wn-export-c-expi-off" },
+          }[it] || { text: it, value: it }
+        );
+      }
+      return it;
+    },
+    //---------------------------------------------------
+    async reloadMappingFields(mappingId = this.MappingFileId) {
+      console.log(mappingId);
+      if (mappingId && !this.myCanFields[mappingId]) {
+        // Try Cache
+        let json = await Wn.Sys.exec2(`cat id:${mappingId}`);
+        let cans = [];
+        if (!Ti.S.isBlank(json)) {
+          let list = JSON.parse(json);
+          _.forEach(list, (li, key) => {
+            // Group:  "Genaral": "-------------",
+            if (/^[-]{5,}$/.test(li)) {
+              cans.push({ title: key });
+            }
+            // Simple: "nm": "Name",
+            else if (_.isString(li)) {
+              cans.push({
+                text: li,
+                value: key,
+              });
+            }
+            // Complex: "race": {...}
+            else if (li.name) {
+              cans.push({
+                text: li.name,
+                value: key,
+                asDefault: li.asDefault,
+              });
+            }
+          });
+        }
+        this.myCanFields = _.assign({}, this.myCanFields, {
+          [this.MappingFileId]: cans,
+        });
+      }
+    },
+    //---------------------------------------------------
+    async reload() {
+      console.log("WDE:reload");
+      // reload all option mapping paths
+      let paths = _.concat(this.mappingPath);
+      let fld = "^(id|race|tp|mime|nm|name|title)$";
+      let list = [];
+      for (let path of paths) {
+        if (!path) {
+          continue;
+        }
+        let oF = await Wn.Sys.exec2(`o '${path}' @name @json '${fld}' -cqn`, {
+          as: "json",
+        });
+        if (oF && oF.id) {
+          if ("DIR" == oF.race) {
+            let files = await Wn.Sys.exec2(
+              `o 'id:${oF.id}' @query 'tp:"json"' @name @json '${fld}' -cqnl`,
+              { as: "json" }
+            );
+            if (_.isArray(files)) {
+              list.push(...files);
+            }
+          }
+          // Just a file
+          else {
+            list.push(oF);
+          }
+        }
+      }
+      // Found the default
+      let mappingId = _.get(this.data, "mapping");
+      console.log(mappingId);
+      if (!_.isEmpty(list) && !mappingId && _.isEmpty(this.MappingFields)) {
+        mappingId = _.first(list).id;
+        if (this.defaultMappingName) {
+          for (let li of list) {
+            if (li.name == this.defaultMappingName) {
+              mappingId = li.id;
+              break;
+            }
+          }
+        }
+      }
+      // Try reload mapping fields
+      this.reloadMappingFields(mappingId);
+
+      // Notify change
+      let data = {
+        type: this.outputType,
+        mode: this.outputMode,
+        mapping: mappingId,
+        name: this.genOutputName(_.get(this.data, "outputName") ?? this.outputName),
+      };
+      if (this.targetExpi) {
+        data.expi = `${this.targetExpi}`;
+      }
+      if (this.data) {
+        _.assign(data, this.data);
+      }
+      this.changeData(data);
+
+      this.myMappingFiles = list;
+    },
+    //---------------------------------------------------
+    changeData(data) {
+      this.myData = _.assign({}, this.myData, data);
+      this.tryNotifyChange(this.myData);
+    },
+    //---------------------------------------------------
+    tryNotifyChange(data) {
+      if (!_.isEqual(this.data, data)) {
+        this.$notify("change", data);
+      }
+    },
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  mounted: async function () {
+    //console.log("mouned")
+    await this.reload();
+  },
+  ///////////////////////////////////////////////////////
+};
+return _M;;
 })()
 // ============================================================
 // EXPORT 'web-shelf-gallery.mjs' -> null
@@ -29573,13 +30232,17 @@ const _M = {
   methods: {
     //--------------------------------------
     OnClickOptionItem({ value }) {
-      this.$notify("change", value)
+      this.tryNotifyChange(value)
     },
     //--------------------------------------
     isItemChecked(itValue, val = this.value) {
       return !_.isUndefined(val)
         && !_.isUndefined(itValue)
         && _.isEqual(itValue, val)
+    },
+    //--------------------------------------
+    getItemsCheckMode(items=[]){
+      return "none"
     }
     //--------------------------------------
   }
@@ -67616,10 +68279,12 @@ window.TI_PACK_EXPORTS['ti/com/ti/bullet/ti-bullet-mixin.mjs'] = (function(){
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
+    myRect: undefined,
+
     myDict: undefined,
     myOptionsData: [],
     myOptionsMap: {},
-    loading: false
+    loading: false,
   }),
   ////////////////////////////////////////////////////
   props: {
@@ -67629,15 +68294,15 @@ const _M = {
     "value": undefined,
     "options": {
       type: [String, Array, Function, Ti.Dict],
-      default: () => []
+      default: () => [],
     },
     "optionMapping": {
       type: [Function, Object],
-      default: undefined
+      default: undefined,
     },
     "optionFilter": {
       type: [Function, Object, Array],
-      default: undefined
+      default: undefined,
     },
     // Item ignore by the AutoMatch
     "ignoreBy": undefined,
@@ -67650,30 +68315,34 @@ const _M = {
      */
     "groupBy": {
       type: [Object, Function, Boolean],
-      default: undefined
+      default: undefined,
     },
     "valueBy": {
       type: [String, Function],
-      default: "value|id"
+      default: "value|id",
     },
     "textBy": {
       type: [String, Function],
-      default: "text|name|title"
+      default: "text|name|title",
     },
     "iconeBy": {
       type: [String, Function],
-      default: "icon"
+      default: "icon",
     },
     //-----------------------------------
     // Behaviors
     //-----------------------------------
+    // Default group title
+    "title": {
+      type: String,
+    },
     "isBlank": {
       type: Boolean,
-      default: false
+      default: false,
     },
     "otherEnabled": {
       type: Boolean,
-      default: false
+      default: false,
     },
     "otherText": {
       type: String,
@@ -67684,76 +68353,84 @@ const _M = {
       default: "i18n:no-set",
     },
     "otherInputWidth": {
-      type: [String, Number]
+      type: [String, Number],
     },
     "otherDefaultValue": {
       type: String,
-      default: ""
+      default: "",
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
     "groupStyle": {
-      type: Object
+      type: Object,
     },
     "itemsStyle": {
-      type: Object
+      type: Object,
     },
     "bulletIconOn": {
       type: String,
-      default: "fas-check-circle"
+      default: "fas-check-circle",
     },
     "bulletIconOff": {
       type: String,
-      default: "far-circle"
+      default: "far-circle",
     },
     "autoI18n": {
       type: Boolean,
-      default: true
+      default: true,
     },
     "defualItemIcon": {
       type: [Object, String],
-      default: undefined
+      default: undefined,
     },
     "blankAs": {
-      type: Object
+      type: Object,
     },
     "gridColumnHint": {
       type: [Number, String, Array],
-      default: () => [
-        [4, 1200],
-        [3, 1000],
-        [2, 720],
-        [1]
-      ]
-    }
+      // [[4,1200],[3,900],[2,600],1]
+      default: 1,
+    },
   },
   ////////////////////////////////////////////////////
   computed: {
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass(this.myTypeName)
+      return this.getTopClass(
+        {
+          "as-grid": this.GridColumnCount > 1,
+        },
+        this.myTypeName
+      );
     },
     //------------------------------------------------
-    TopStyle() {
-    },
+    TopStyle() {},
     //-----------------------------------------------
     BlankLoadingConf() {
-      return _.assign({
-        className: "nil-data as-big-mask",
-        icon: "far-list-alt",
-        text: "empty-data"
-      }, this.blankAs)
+      return _.assign(
+        {
+          className: "nil-data as-big-mask",
+          icon: "far-list-alt",
+          text: "empty-data",
+        },
+        this.blankAs
+      );
     },
     //-----------------------------------------------
     BulletGroupStyle() {
-      let style = _.assign({}, this.groupStyle)
-      return style
+      let style = _.assign({}, this.groupStyle);
+      return style;
     },
     //-----------------------------------------------
     BulletItemsStyle() {
-      let style = _.assign({}, this.itemsStyle)
-      return style
+      let style = _.assign({}, this.itemsStyle);
+      if (this.GridColumnCount > 1) {
+        _.assign(style, {
+          "grid-template-columns": _.repeat("1fr ", this.GridColumnCount),
+        });
+      }
+      return style;
     },
     // //--------------------------------------------------
     // GridContext() {
@@ -67779,236 +68456,284 @@ const _M = {
     //-----------------------------------------------
     FnOptionFilter() {
       if (_.isFunction(this.optionFilter)) {
-        return this.optionFilter
+        return this.optionFilter;
       }
       if (this.optionFilter) {
-        return Ti.AutoMatch.parse(this.optionFilter)
+        return Ti.AutoMatch.parse(this.optionFilter);
       }
     },
     //-----------------------------------------------
     FnOptionMapping() {
       if (_.isFunction(this.optionMapping)) {
-        return this.optionMapping
+        return this.optionMapping;
       }
       if (this.optionMapping) {
         return (obj) => {
-          return Ti.Util.translate(obj, this.optionMapping)
-        }
+          return Ti.Util.translate(obj, this.optionMapping);
+        };
       }
-      return _.identity
+      return _.identity;
     },
     //-----------------------------------------------
     Grouping() {
       if (this.groupBy) {
         if (_.isFunction(this.groupBy)) {
-          return this.groupBy
+          return this.groupBy;
         }
         if (_.isPlainObject(this.groupBy)) {
           return (obj) => {
-            let title = _.get(obj, this.groupBy.title)
-            let key = _.get(obj, this.groupBy.key)
-            let items = _.get(obj, this.groupBy.items)
+            let title = _.get(obj, this.groupBy.title);
+            let key = _.get(obj, this.groupBy.key);
+            let items = _.get(obj, this.groupBy.items);
             if (key && !_.isEmpty(items)) {
-              return { title, key, items }
+              return { title, key, items };
             }
-          }
+          };
         }
-        return (obj) => _.pick(obj, "title", "key", "items")
+        return (obj) => _.pick(obj, "title", "key", "items");
       }
     },
     //-----------------------------------------------
     IgnoreItem() {
       if (this.ignoreBy) {
-        return Ti.AutoMatch.parse(this.ignoreBy)
+        return Ti.AutoMatch.parse(this.ignoreBy);
       }
-      return () => false
+      return () => false;
     },
     //-----------------------------------------------
     getItemIcon() {
-      if (this.myDict)
-        return it => this.myDict.getIcon(it)
-      return Ti.Util.genGetterNotNil(this.iconBy)
+      if (this.myDict) return (it) => this.myDict.getIcon(it);
+      return Ti.Util.genGetterNotNil(this.iconBy);
     },
     getItemText() {
-      if (this.myDict)
-        return it => this.myDict.getText(it)
-      return Ti.Util.genGetterNotNil(this.textBy)
+      if (this.myDict) return (it) => this.myDict.getText(it);
+      return Ti.Util.genGetterNotNil(this.textBy);
     },
     getItemValue() {
-      if (this.myDict)
-        return it => this.myDict.getValue(it)
-      return Ti.Util.genGetterNotNil(this.valueBy)
+      if (this.myDict) return (it) => this.myDict.getValue(it);
+      return Ti.Util.genGetterNotNil(this.valueBy);
     },
     //------------------------------------------------
     hasItems() {
-      return !_.isEmpty(this.ItemGroups)
+      return !_.isEmpty(this.ItemGroups);
     },
     //------------------------------------------------
     ItemGroups() {
       if (this.Grouping) {
-        let list = []
-        for (let data of this.myOptionsData) {
-          let { title, key, items } = this.Grouping(data)
+        let list = [];
+        for (let i = 0; i < this.myOptionsData.length; i++) {
+          let data = this.myOptionsData[i];
+          let { title, key, items } = this.Grouping(data);
           if (this.autoI18n) {
-            title = Ti.I18n.get(title, title)
+            title = Ti.I18n.text(title);
           }
-          items = this.evalItems(items)
-          list.push({ title, key, items })
+          items = this.evalItems(items, i);
+          list.push({
+            key,
+            index: i,
+            title,
+            checkMode: this.getItemsCheckMode(items),
+            items,
+          });
         }
-        return list
+        return list;
       }
       // Single Group
       else {
-        let items = this.evalItems(this.myOptionsData)
-        return [{
-          key: "g0",
-          items
-        }]
+        let items = this.evalItems(this.myOptionsData, 0);
+        return [
+          {
+            key: "g0",
+            index: 0,
+            title: this.autoI18n ? Ti.I18n.text(this.title) : this.title,
+            checkMode: this.getItemsCheckMode(items),
+            items,
+          },
+        ];
       }
     },
     //------------------------------------------------
     // If the value not in options, take it as others value
     OtherValue() {
-      let itMap = this.myOptionsMap || {}
+      let itMap = this.myOptionsMap || {};
       // Grouped value
       if (_.isArray(this.value)) {
-        let re = []
+        let re = [];
         for (let v of this.value) {
           if (!itMap[v]) {
-            re.push(v)
+            re.push(v);
           }
         }
-        return re.length > 1 ? re : _.first(re)
+        return re.length > 1 ? re : _.first(re);
       }
       // Single value
       else if (!itMap[this.value]) {
-        return this.value
+        return this.value;
       }
     },
     //------------------------------------------------
     isOtherValue() {
-      return !Ti.Util.isNil(this.OtherValue)
+      return !Ti.Util.isNil(this.OtherValue);
     },
     //------------------------------------------------
     OtherClassName() {
       return {
-        "is-checked": this.isOtherValue
-      }
+        "is-checked": this.isOtherValue,
+      };
     },
     //------------------------------------------------
     OtherBulletIcon() {
       if (this.isOtherValue) {
-        return this.bulletIconOn
+        return this.bulletIconOn;
       }
-      return this.bulletIconOff
+      return this.bulletIconOff;
     },
     //------------------------------------------------
     OtherInputStyle() {
       return {
-        width: Ti.Css.toSize(this.otherInputWidth)
-      }
-    }
+        width: Ti.Css.toSize(this.otherInputWidth),
+      };
+    },
+    //--------------------------------------------------
+    GridColumnCount() {
+      return this.evalGridColumnCount(this.gridColumnHint);
+    },
     //------------------------------------------------
   },
+
   ////////////////////////////////////////////////////
   methods: {
+    //--------------------------------------------------
+    OnResize() {
+      if (_.isElement(this.$el)) {
+        this.myRect = Ti.Rects.createBy(this.$el);
+      }
+    },
     //------------------------------------------------
     OnOtherInputChange($event) {
-      let $input = $event.srcElement
-      let v = _.trim($input.value)
-      this.$notify("change", v)
+      let $input = $event.srcElement;
+      let v = _.trim($input.value);
+      this.tryNotifyChange(v);
     },
     //------------------------------------------------
     OnClickOther() {
       if (!this.isOtherValue) {
-        this.$notify("change", this.otherDefaultValue);
+        this.tryNotifyChange(this.otherDefaultValue);
       }
     },
     //------------------------------------------------
     OnClickItem(it = {}) {
       if ("Option" == it.type) {
-        this.OnClickOptionItem(it)
+        this.OnClickOptionItem(it);
       }
     },
     //------------------------------------------------
-    evalItems(items = []) {
-      let itMap = {}
-      let list = []
-      _.forEach(items, li => {
-        if (this.IgnoreItem(li))
-          return
+    tryNotifyChange(value) {
+      if (!_.isEqual(this.value, value)) {
+        this.$notify("change", value);
+      }
+    },
+    //--------------------------------------------------
+    //
+    //           Utility
+    //
+    //--------------------------------------------------
+    evalGridColumnCount(columnHint, rect = this.myRect) {
+      if (columnHint >= 1) {
+        return columnHint;
+      }
+      //console.log("evalGridColumnCount", columnHint);
+      return Ti.Util.selectValue(rect, columnHint, {
+        by: ([v, m], { width, screen }) => {
+          if (!m || m == screen || width >= m) {
+            return v;
+          }
+        },
+      });
+    },
+    //------------------------------------------------
+    evalItems(items = [], groupIndex=0) {
+      let itMap = {};
+      let list = [];
+      _.forEach(items, (li, index) => {
+        if (this.IgnoreItem(li)) return;
         let it;
         // Pure value
         if (_.isString(li) || _.isNumber(li)) {
           it = {
-            text: li, value: li
-          }
+            groupIndex,
+            index,
+            text: li,
+            value: li,
+          };
         }
         // Object
         else {
           it = {
+            groupIndex,
+            index,
             icon: this.getItemIcon(li),
             text: this.getItemText(li),
-            value: this.getItemValue(li)
-          }
+            value: this.getItemValue(li),
+          };
         }
         // Mapping
-        it = this.FnOptionMapping(it)
+        it = this.FnOptionMapping(it);
         _.defaults(it, {
-          icon: this.defualItemIcon
-        })
+          icon: this.defualItemIcon,
+        });
 
         // Join value mapping
-        itMap[it.value] = it
+        itMap[it.value] = it;
 
         // I18n
         if (this.autoI18n) {
-          it.text = Ti.I18n.text(it.text, it.text)
+          it.text = Ti.I18n.text(it.text, it.text);
         }
 
         // Prepare the className
-        it.className = {}
+        it.className = {};
 
         // Eval type
         if (Ti.Util.isNil(it.value)) {
-          it.type = "Label"
-          it.className["as-label"] = true
+          it.type = "Label";
+          it.className["as-label"] = true;
         } else {
-          it.type = "Option"
-          it.className["as-option"] = true
+          it.type = "Option";
+          it.className["as-option"] = true;
         }
 
         // Mark check
         if (this.isItemChecked(it.value)) {
-          it.className["is-checked"] = true
-          it.checked = true
-          it.bullet = this.bulletIconOn
+          it.className["is-checked"] = true;
+          it.checked = true;
+          it.bullet = this.bulletIconOn;
         } else {
-          it.bullet = this.bulletIconOff
-          it.checked = false
+          it.bullet = this.bulletIconOff;
+          it.checked = false;
         }
 
         // Append to list
-        list.push(it)
-      })
+        list.push(it);
+      });
 
-      this.myOptionsMap = itMap
+      this.myOptionsMap = itMap;
 
-      return list
+      return list;
     },
     //------------------------------------------------
     createDict() {
       // Customized
       if (this.options instanceof Ti.Dict) {
-        return this.options
+        return this.options;
       }
       // Refer dict
       if (_.isString(this.options)) {
-        let dictName = Ti.DictFactory.DictReferName(this.options)
+        let dictName = Ti.DictFactory.DictReferName(this.options);
         if (dictName) {
           return Ti.DictFactory.CheckDict(dictName, ({ loading }) => {
-            this.loading = loading
-          })
+            this.loading = loading;
+          });
         }
       }
       // Auto Create
@@ -68021,38 +68746,38 @@ const _M = {
     },
     //-----------------------------------------------
     async reloadMyOptionData() {
-      this.myDict = this.createDict()
+      this.myDict = this.createDict();
 
       let list;
       if (this.myDict) {
-        this.loading = true
-        list = await this.myDict.getData()
+        this.loading = true;
+        list = await this.myDict.getData();
       } else {
-        list = this.options
+        list = this.options;
       }
 
       if (this.FnOptionFilter) {
-        let list2 = []
+        let list2 = [];
         for (let i = 0; i < list.length; i++) {
-          let li = list[i]
-          let li2 = this.FnOptionFilter(li, i, list)
+          let li = list[i];
+          let li2 = this.FnOptionFilter(li, i, list);
           if (!li2) {
             continue;
           }
           if (_.isBoolean(li2)) {
-            list2.push(li)
+            list2.push(li);
           } else {
-            list2.push(li2)
+            list2.push(li2);
           }
         }
-        list = list2
+        list = list2;
       }
 
-      this.myOptionsData = list
+      this.myOptionsData = list;
 
       this.$nextTick(() => {
-        this.loading = false
-      })
+        this.loading = false;
+      });
     },
     //------------------------------------------------
   },
@@ -68061,14 +68786,29 @@ const _M = {
     "options": {
       handler: async function (newval, oldval) {
         if (!_.isEqual(newval, oldval)) {
-          await this.reloadMyOptionData()
+          await this.reloadMyOptionData();
         }
       },
-      immediate: true
-    }
-  }
+      immediate: true,
+    },
+  },
+  //////////////////////////////////////////////////////
+  mounted: async function () {
+    Ti.Viewport.watch(this, {
+      resize: () => {
+        this.OnResize();
+      },
+    });
+    this.$nextTick(() => {
+      this.OnResize();
+    });
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy: function () {
+    Ti.Viewport.unwatch(this);
+  },
   ////////////////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -68742,52 +69482,6 @@ const _M = {
   ///////////////////////////////////////////
 }
 return _M;;
-})()
-// ============================================================
-// EXPORT 'wizard-data-expoter-s4.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s4.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  //---------------------------------------------------
-  Step4Finished() {
-    let vm = this
-    return {
-      title: "i18n:wn-export-done",
-      prepare: async function () {
-        let oTa = await vm.LoadTarget(this.value)
-        // just return a path
-        if (_.isString(oTa)) {
-          oTa = await Wn.Io.loadMeta(oTa)
-        }
-        this.$notify("change", {
-          ... this.value,
-          target: oTa
-        })
-      },
-      comType: "WebMetaBadge",
-      comConf: {
-        className: "is-success",
-        value: ":=target",
-        icon: "fas-check-circle",
-        title: "i18n:wn-export-done-ok",
-        brief: "i18n:wn-export-done-tip",
-        links: [{
-          icon: "fas-download",
-          text: ":=target.nm",
-          href: ":->/o/content?str=id:${target.id}&d=true",
-          newtab: true
-        }, {
-          icon: "fas-external-link-alt",
-          text: "i18n:wn-export-open-dir",
-          href: ":=>Wn.Util.getAppLink(target)",
-          newtab: true
-        }]
-      }
-    }
-  }
-  //---------------------------------------------------
-}
-return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'ti-combo-pair-text.mjs' -> null
@@ -71731,276 +72425,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'wn-wizard-data-exporter.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wn-wizard-data-exporter.mjs'] = (function(){
-const _M = {
-  ///////////////////////////////////////////////////////
-  data: () => ({
-    myData: {},
-    myMappingFiles: [],
-    myCanFields:[]
-  }),
-  ///////////////////////////////////////////////////////
-  props: {
-    //-----------------------------------
-    // Data
-    //-----------------------------------
-    // candicate mapping files
-    // If DIR, then get all json in it is option mapping files.
-    // It will show drop list when multi mapping files.
-    // Anyway, it need a mapping file, to get all avaliable fields.
-    // [required]
-    "mappingPath": {
-      type: [String, Array]
-    },
-    // If multi mapping paths, the first one(order by name) will 
-    // be used defaultly. But you can indicate it in this prop.
-    // [optional]
-    "defaultMappingName": {
-      type: String
-    },
-    // A Tmpl to get the output target path
-    // the base render context :
-    // {
-    //   type: "xlsx",        // <- this.oututMode
-    //   yy:"2023",MM:"02",dd:"19",HH:"12",mm:"00",ss:"00"
-    //   today:"2023-02-19", now:"2023-02-19_120000"
-    // }
-    // If function, it will be invoke as `(context={}):String`
-    // [required]
-    "outputName": {
-      type: [String, Function]
-    },
-    // Tmpl as target full path
-    // Or async function to load Target Object of path
-    // `(context={}):String|Object`
-    // the context same with command
-    // [required]
-    "outputTarget": {
-      type: [String, Function]
-      // sunc as "~/tmp/${name}"
-    },
-    // additional render vars for output target
-    "vars": {
-      type: Object,
-      default: () => ({})
-    },
-    "value": {
-      type: Object
-    },
-    //-----------------------------------
-    // Behavior
-    //-----------------------------------
-    "outputType": {
-      type: String,
-      default: "xlsx"
-    },
-    "outputTypeOptions": {
-      type: Array,
-      default: () => [
-        { value: "xlsx", text: "i18n:wn-export-c-type-xls" },
-        { value: "json", text: "i18n:wn-export-c-type-json" }
-      ]
-    },
-    "outputMode": {
-      type: String,
-      default: "checked"
-    },
-    "outputModeOptions": {
-      type: Array,
-      default: () => [
-        { value: "checked", text: "i18n:wn-export-c-mode-checked" },
-        { value: "current", text: "i18n:wn-export-c-mode-current" },
-        { value: "scope", text: "i18n:wn-export-c-mode-scope" },
-        { value: "all", text: "i18n:wn-export-c-mode-all" }
-      ]
-    },
-    // Auto remove target when expired.
-    // null, never expired
-    "targetExpi": {
-      type: String,
-      default: "1d"
-    },
-    "targetExpiOptions": {
-      type: Array,
-      default: () => [
-        { value: "1d", text: "i18n:wn-export-c-expi-1d" },
-        { value: "3d", text: "i18n:wn-export-c-expi-3d" },
-        { value: "7d", text: "i18n:wn-export-c-expi-7d" },
-        { value: "14d", text: "i18n:wn-export-c-expi-14d" },
-        { value: "30d", text: "i18n:wn-export-c-expi-30d" },
-        { value: null, text: "i18n:wn-export-c-expi-off" },
-      ]
-    },
-    // AutoMatch expression Object, to filter the default mapping fields
-    // if nil, all fields will be selected
-    "defaultFields": {
-      type: [String, Array, Object]
-    },
-    // A Tmpl as export command, which context:
-    /*{
-      ... this.vars,          // <- this.vars
-      type: "xlsx",           // <- this.oututMode
-      mappingId:"89ju...",    // <- this.mappingPath
-      name :"xxx.xlsx",     // <- this.outputName
-      fields: ['a','b'],      // output field white list
-      fieldMatch : "^(a|b)$", // output field AutoMatch String
-      expi: "%ms:now+1d",     // <- this.targetExpi
-    }*/
-    // If function, it will be invoke as `(context={}):String`
-    "command": {
-      type: [String, Function]
-    },
-    // command input, if Array it will auto-stringify to JSON
-    "commandInput": {
-      type: [String, Array]
-    },
-    // additional render vars for output target
-    "vars": {
-      type: Object,
-      default: () => ({})
-    },
-
-    //-----------------------------------
-    // Aspect
-    //-----------------------------------
-    "title": {
-      type: String,
-      default: undefined
-    },
-  },
-  ///////////////////////////////////////////////////////
-  computed: {
-    //---------------------------------------------------
-    WizardSteps() {
-      return [
-        this.Step1Config,
-        this.Step2ChooseFields,
-        this.Step3Process,
-        this.Step4Finished
-      ]
-    },
-    //---------------------------------------------------
-    LoadTarget() {
-      let target = this.outputTarget
-      if (_.isFunction(target)) {
-        return target
-      }
-      return Ti.Tmpl.parse(target)
-    }
-    //---------------------------------------------------
-  },
-  ///////////////////////////////////////////////////////
-  methods: {
-    //---------------------------------------------------
-    OnChange(data) {
-      this.changeData(data)
-    },
-    //---------------------------------------------------
-    OnOutputFieldsChange(fields=[]){
-      this.changeData({fields})
-    },
-    //---------------------------------------------------
-    OnResetTargetName() {
-      let name = this.genOutputName()
-      this.changeData({ name })
-    },
-    //---------------------------------------------------
-    genOutputName(type = this.outputType) {
-      let target = this.outputName
-      //console.log(target)
-      let d = new Date()
-      let payload = Ti.DateTime.genFormatContext(d)
-      payload.today = Ti.DateTime.format(d, "yyyy-MM-dd")
-      payload.now = Ti.DateTime.format(d, "yyyy-MM-dd_HHmmss")
-      payload.type = type
-      if (_.isFunction(target)) {
-        return target(payload)
-      }
-      if (_.isString(target)) {
-        let taTmpl = Ti.Tmpl.parse(target)
-        return taTmpl.render(payload)
-      }
-      throw `Invalid target: [${target}]`
-    },
-    //---------------------------------------------------
-    async reload() {
-      console.log("WDE:reload")
-      // reload all option mapping paths
-      let paths = _.concat(this.mappingPath)
-      let fld = "^(id|race|tp|mime|nm|title)$"
-      let list = []
-      for (let path of paths) {
-        if (!path) {
-          continue
-        }
-        let oF = await Wn.Sys.exec2(`o '${path}' @json '${fld}' -cqn`, { as: "json" })
-        if (oF && oF.id) {
-          if ("DIR" == oF.race) {
-            let files = await Wn.Sys.exec2(`o 'id:${oF.id}' @query 'tp:"json"' @json '${fld}' -cqnl`, { as: "json" })
-            if (_.isArray(files)) {
-              list.push(...files)
-            }
-          }
-          // Just a file
-          else {
-            list.push(oF)
-          }
-        }
-      }
-      // Found the default
-      let mappingId = null
-      if (!_.isEmpty(list)) {
-        mappingId = _.first(list).id
-        if (this.defaultMappingName) {
-          for (let li of list) {
-            if (li.nm == this.defaultMappingName) {
-              mappingId = li.id
-              break;
-            }
-          }
-        }
-      }
-      let data = {
-        type: this.outputType,
-        mode: this.outputMode,
-        mapping: mappingId,
-        name: this.genOutputName()
-      }
-      if (this.targetExpi) {
-        data.expi = `${this.targetExpi}`
-      }
-      if (this.value) {
-        _.assign(data, this.value)
-      }
-      this.changeData(data)
-
-      this.myMappingFiles = list
-    },
-    //---------------------------------------------------
-    changeData(data) {
-      this.myData = _.assign({}, this.myData, data)
-      this.tryNotifyChange(this.myData)
-    },
-    //---------------------------------------------------
-    tryNotifyChange(data) {
-      if (!_.isEqual(this.value, data)) {
-        this.$notify("change", data)
-      }
-    }
-    //---------------------------------------------------
-  },
-  ///////////////////////////////////////////////////////
-  mounted: async function () {
-    //console.log("mouned")
-    await this.reload()
-  }
-  ///////////////////////////////////////////////////////
-}
-return _M;;
 })()
 // ============================================================
 // EXPORT 'ti-month.mjs' -> null
@@ -75652,26 +76076,26 @@ window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj-actions.mjs'] = (function(){
 ////////////////////////////////////////////////
 async function loadConfigJson(state, key, dft) {
   // Guard
-  let path = state[key]
+  let path = state[key];
   if (!path) {
-    return dft
+    return dft;
   }
   // Load
-  let aph = path
+  let aph = path;
   if (!/^(~\/|id:|\/)/.test(path)) {
-    let tsId = state.thingSetId
-    aph = `id:${tsId}/${path}`
+    let tsId = state.thingSetId;
+    aph = `id:${tsId}/${path}`;
   }
-  let re = await Wn.Sys.exec(`cat ${aph}`)
-  re = _.trim(re)
+  let re = await Wn.Sys.exec(`cat ${aph}`);
+  re = _.trim(re);
 
   // Not exists
   if (!re || /^e\./.test(re)) {
-    return dft
+    return dft;
   }
 
   // Parse As JSON
-  return JSON.parse(re)
+  return JSON.parse(re);
 }
 ////////////////////////////////////////////////
 const _M = {
@@ -75679,227 +76103,233 @@ const _M = {
   applyViewBeforeLoad({ state, commit }, view) {
     // Guard
     if (!state.view) {
-      return
+      return;
     }
     // Update to state
     _.forEach(state.view, (v, k) => {
       // Only set the paths
       if (/^((actions|layout|schema|method)Paths?)$/.test(k)) {
-        let by = _.camelCase("set-" + k)
-        commit(by, v)
+        let by = _.camelCase("set-" + k);
+        commit(by, v);
       }
-    })
+    });
   },
   //--------------------------------------------
   applyViewAfterLoad({ state, commit }, view) {
     // Guard
     if (!state.view) {
-      return
+      return;
     }
     // Update to state
     _.forEach(state.view, (v, k) => {
       // Ignore
       if (/^((actions|layout|schema|method)Paths?)$/.test(k)) {
-        return
+        return;
       }
-      if (/^(view|path|lbkOff|thingSetId|oTs|meta|(__saved_)?content)$/.test(k)) {
-        return
+      if (
+        /^(view|path|lbkOff|thingSetId|oTs|meta|(__saved_)?content)$/.test(k)
+      ) {
+        return;
       }
       // Schema merged in "loadSchema" already
       if (/^(schema|components)$/.test(k)) {
-        return
+        return;
       }
       let by;
       // Assign
       if (/^(pager)$/.test(k)) {
-        by = _.camelCase("assign-" + k)
+        by = _.camelCase("assign-" + k);
       }
       // Others set
       else {
-        by = _.camelCase("set-" + k)
+        by = _.camelCase("set-" + k);
       }
       // Update state by view
-      commit(by, v)
-    })
+      commit(by, v);
+    });
   },
   //--------------------------------------------
-  async loadContent({ state, commit, dispatch, getters }, { quiet = false } = {}) {
+  async loadContent(
+    { state, commit, dispatch, getters },
+    { quiet = false } = {}
+  ) {
     // Which content should I load?
-    state.LOG("loadContent", getters.contentLoadPath)
-    let path = getters.contentLoadPath
+    state.LOG("loadContent", getters.contentLoadPath);
+    let path = getters.contentLoadPath;
     if (!path) {
-      dispatch("updateContent", null)
-      return
+      dispatch("updateContent", null);
+      return;
     }
 
     let meta;
     if (!quiet) {
-      commit("setStatus", { reloading: true })
+      commit("setStatus", { reloading: true });
     }
 
     if ("<self>" != path) {
-      meta = await Wn.Io.loadMeta(path)
+      meta = await Wn.Io.loadMeta(path);
     }
     // Use state
-    else if (state.meta && 'FILE' == state.meta.race) {
-      meta = state.meta
+    else if (state.meta && "FILE" == state.meta.race) {
+      meta = state.meta;
     }
 
     //console.log("load Content:", path)
     // No meta
     if (!meta) {
-      state.LOG("updateContent => null")
-      dispatch("updateContent", null)
+      state.LOG("updateContent => null");
+      dispatch("updateContent", null);
       if (!quiet) {
-        commit("setStatus", { reloading: false })
+        commit("setStatus", { reloading: false });
       }
-      return
+      return;
     }
 
     // Load meta content
-    let content = await Wn.Io.loadContent(meta)
-    dispatch("updateContent", content)
+    let content = await Wn.Io.loadContent(meta);
+    dispatch("updateContent", content);
     //console.log("loadContent:", content)
 
     // All done
     if (!quiet) {
-      commit("setStatus", { reloading: false })
+      commit("setStatus", { reloading: false });
     }
 
-    return content
+    return content;
   },
   //--------------------------------------------
   async loadSchema({ state, commit }) {
-    state.LOG(" - loadSchema")
-    let schema = await loadConfigJson(state, "schemaPath", {})
-    let components = []
+    state.LOG(" - loadSchema");
+    let schema = await loadConfigJson(state, "schemaPath", {});
+    let components = [];
 
     // <Apply view>
     if (state.view && state.view.schema) {
       _.forEach(state.view.schema, (vObj, k) => {
-        let orgCom = schema[k]
-        let { merge, comType, comConf } = vObj
+        let orgCom = schema[k];
+        let { merge, comType, comConf } = vObj;
 
         // Guard
         if (_.isEmpty(orgCom)) {
-          schema[k] = { comType, comConf }
-          return
+          schema[k] = { comType, comConf };
+          return;
         }
 
         // Maybe merge comConf or assign
-        let keyInMerge = Ti.AutoMatch.parse(merge)
+        let keyInMerge = Ti.AutoMatch.parse(merge);
 
         // Com Type
         if (!Ti.Util.isNil(comType)) {
-          orgCom.comType = comType
+          orgCom.comType = comType;
         }
 
         // Com Conf
         if (!_.isEmpty(comConf)) {
           // init comConf in schema
           if (_.isEmpty(orgCom.comConf)) {
-            orgCom.comConf = comConf
+            orgCom.comConf = comConf;
             return;
           }
 
-          let vwKeys = _.keys(comConf)
+          let vwKeys = _.keys(comConf);
           for (let vwKey of vwKeys) {
-            let vwVal = comConf[vwKey]
+            let vwVal = comConf[vwKey];
             if (keyInMerge(vwKey)) {
-              _.merge(orgCom.comConf[vwKey], vwVal)
+              _.merge(orgCom.comConf[vwKey], vwVal);
             } else {
-              orgCom.comConf[vwKey] = vwVal
+              orgCom.comConf[vwKey] = vwVal;
             }
           }
         }
-      })
+      });
       if (!_.isEmpty(state.view.components)) {
-        components = _.concat(components, state.view.components)
+        components = _.concat(components, state.view.components);
       }
     }
     // </Apply view>
 
     if (!_.isEmpty(schema.components)) {
-      components = _.concat(components, schema.components)
+      components = _.concat(components, schema.components);
     }
 
     // Load extends components
     if (!_.isEmpty(components)) {
-      await Ti.App.topInstance().loadView({ components })
+      await Ti.App.topInstance().loadView({ components });
     }
 
     //console.log("setSchema", schema)
     // Should set scheme after All deps components preloaded
-    commit("setSchema", schema)
+    commit("setSchema", schema);
     //console.log("schema", schema)
 
     if (schema.methods) {
-      commit("setMethodPaths", schema.methods)
+      commit("setMethodPaths", schema.methods);
     }
 
     if (schema.localBehaviorKeepAt) {
-      commit("setLocalBehaviorKeepAt", schema.localBehaviorKeepAt)
+      commit("setLocalBehaviorKeepAt", schema.localBehaviorKeepAt);
     }
 
-    let contentPath = _.get(schema, "behavior.contentPath")
+    let contentPath = _.get(schema, "behavior.contentPath");
     if (contentPath) {
-      commit("setContentPath", contentPath)
+      commit("setContentPath", contentPath);
     }
-
   },
   //--------------------------------------------
   async loadLayout({ state, commit }) {
-    state.LOG(" > loadLayout")
-    let reo = await loadConfigJson(state, "layoutPath", {})
-    commit("setLayout", reo)
+    state.LOG(" > loadLayout");
+    let reo = await loadConfigJson(state, "layoutPath", {});
+    commit("setLayout", reo);
   },
   //--------------------------------------------
   async loadThingActions({ state, commit }) {
-    state.LOG(" > loadThingActions")
-    let reo = await loadConfigJson(state, "actionsPath", null)
-    commit("setThingActions", reo)
+    state.LOG(" > loadThingActions");
+    let reo = await loadConfigJson(state, "actionsPath", null);
+    commit("setThingActions", reo);
   },
   //--------------------------------------------
   async loadThingMethods({ state, commit }) {
-    state.LOG(" > loadThingMethods", state.methodPaths)
-    let reo = {}
+    state.LOG(" > loadThingMethods", state.methodPaths);
+    let reo = {};
 
     // Load
     if (state.methodPaths) {
       //let methodsUri = `./${state.methodPaths}`
       let methods = await Ti.Load(state.methodPaths, {
         dynamicAlias: new Ti.Config.AliasMapping({
-          "^\./": `/o/content?str=id:${state.thingSetId}/`
-        })
-      })
+          "^./": `/o/content?str=id:${state.thingSetId}/`,
+        }),
+      });
       // Merge methods
       if (_.isArray(methods)) {
         for (let mt of methods) {
-          _.assign(reo, mt)
+          _.assign(reo, mt);
         }
       } else {
-        _.assign(reo, methods)
+        _.assign(reo, methods);
       }
     }
 
     // Done
-    commit("setThingMethods", reo)
+    commit("setThingMethods", reo);
   },
   //--------------------------------------------
   async loadThingSetId({ state, commit }) {
-    state.LOG("loadThingSetId")
-    let meta = state.meta
+    state.LOG("loadThingSetId");
+    let meta = state.meta;
     if (!meta) {
-      return
+      return;
     }
     if (_.isString(meta.th_set)) {
-      commit("setThingSetId", meta.th_set)
+      commit("setThingSetId", meta.th_set);
     }
     // Load thingset ancestor by meta
-    let ans = await Wn.Sys.exec2(`o id:${meta.id} @ancestors -um '{tp:"thing_set"}' @json -cqnl`)
-    let first = _.first(ans)
+    let ans = await Wn.Sys.exec2(
+      `o id:${meta.id} @ancestors -um '{tp:"thing_set"}' @json -cqnl`
+    );
+    let first = _.first(ans);
     if (first && first.tp == "thing_set") {
-      commit("setThingSetId", first.id)
+      commit("setThingSetId", first.id);
     }
   },
   //--------------------------------------------
@@ -75907,136 +76337,153 @@ const _M = {
     // Eval behavior dynamicly
     let {
       pvg,
-      filter, sorter, match,
-      agg, aggQuery,
-      currentId, checkedIds,
+      filter,
+      sorter,
+      match,
+      exportSettings,
+      importSettings,
+      agg,
+      aggQuery,
+      currentId,
+      checkedIds,
       pageSize,
       dataDirName,
-      dataDirCurrentId, dataDirCheckedIds,
-      guiShown
-    } = be
+      dataDirCurrentId,
+      dataDirCheckedIds,
+      guiShown,
+    } = be;
 
     // Apply Pvg
     if (!_.isEmpty(pvg)) {
-      commit("assignPvg", pvg)
+      commit("assignPvg", pvg);
     }
 
     // Apply filter
     if (!_.isEmpty(filter)) {
-      commit("setFilter", filter)
+      commit("setFilter", filter);
     }
 
     // Apply sorter
     if (!_.isEmpty(sorter)) {
-      commit("setSorter", sorter)
+      commit("setSorter", sorter);
+    }
+
+    // Import/export
+    if (exportSettings) {
+      commit("setExportSettings", exportSettings);
+    }
+    if (importSettings) {
+      commit("setImportSettings", importSettings);
     }
 
     // Apply agg setting
     if (agg) {
-      commit("setAgg", agg)
+      commit("setAgg", agg);
     }
     if (aggQuery) {
-      commit("setAggQuery", aggQuery)
+      commit("setAggQuery", aggQuery);
     }
 
     // Apply fixed match
     if (!_.isEmpty(match)) {
-      commit("setFixedMatch", match)
+      commit("setFixedMatch", match);
     }
 
     // Checked and current
     if (!Ti.Util.isNil(currentId)) {
-      commit("setCurrentId", currentId)
+      commit("setCurrentId", currentId);
     }
     if (!_.isEmpty(checkedIds)) {
-      commit("setCheckedIds", checkedIds)
+      commit("setCheckedIds", checkedIds);
     }
 
     // Data Dir
     if (!Ti.Util.isNil(dataDirName)) {
-      commit("setDataDirName", dataDirName)
+      commit("setDataDirName", dataDirName);
     }
     if (!Ti.Util.isNil(dataDirCurrentId)) {
-      commit("setDataDirCurrentId", dataDirCurrentId)
+      commit("setDataDirCurrentId", dataDirCurrentId);
     }
     if (!Ti.Util.isNil(dataDirCheckedIds)) {
-      commit("setDataDirCheckedIds", dataDirCheckedIds)
+      commit("setDataDirCheckedIds", dataDirCheckedIds);
     }
 
     // Apply shown
     if (!_.isEmpty(guiShown)) {
-      commit("setGuiShown", guiShown)
+      commit("setGuiShown", guiShown);
     }
 
     // Apply pager
     if (pageSize > 0) {
-      let pager = {}
-      pager.pn = 1
-      pager.pgsz = pageSize
-      commit("assignPager", pager)
+      let pager = {};
+      pager.pn = 1;
+      pager.pgsz = pageSize;
+      commit("assignPager", pager);
     }
   },
   //--------------------------------------------
   updateSchemaBehavior({ state, commit, dispatch }) {
-    let be = _.get(state.schema, "behavior") || {}
-    be = Ti.Util.explainObj(state, be)
+    let be = _.get(state.schema, "behavior") || {};
+    be = Ti.Util.explainObj(state, be);
     // Apply Ignore
     if (state.schemaBeIgnore) {
-      let be2 = {}
+      let be2 = {};
       _.forEach(be, (v, k) => {
         if (!state.schemaBeIgnore(k)) {
-          be2[k] = v
+          be2[k] = v;
         }
-      })
-      be = be2
+      });
+      be = be2;
     }
     // Apply schema behaviors
     if (!_.isEmpty(be)) {
-      commit("setLbkOff")
-      dispatch("applyBehavior", be)
-      commit("setLbkOn")
+      commit("setLbkOff");
+      dispatch("applyBehavior", be);
+      commit("setLbkOn");
     }
   },
   //--------------------------------------------
   restoreLocalBehavior({ state, dispatch }) {
     // Guard
     if (!state.lbkAt || state.lbkOff) {
-      return
+      return;
     }
     // Load local setting
-    let be = Ti.Storage.local.getObject(state.lbkAt)
+    let be = Ti.Storage.local.getObject(state.lbkAt);
     // Apply Ignore
     if (state.lbkIgnore) {
-      let be2 = {}
+      let be2 = {};
       _.forEach(be, (v, k) => {
         if (!state.lbkIgnore(k)) {
-          be2[k] = v
+          be2[k] = v;
         }
-      })
-      be = be2
+      });
+      be = be2;
     }
     // Apply behaviors
     if (!_.isEmpty(be)) {
-      dispatch("applyBehavior", be)
+      dispatch("applyBehavior", be);
     }
   },
   //--------------------------------------------
   async reloadData({ state, dispatch, getters }) {
-    state.LOG("reloadData")
+    state.LOG("reloadData");
     // Guard
-    if (state.status.reloading
-      || state.status.saving
-      || state.status.deleting) {
-      state.LOG("reloadData: Guard reject!")
-      return
+    if (
+      state.status.reloading ||
+      state.status.saving ||
+      state.status.deleting
+    ) {
+      state.LOG("reloadData: Guard reject!");
+      return;
     }
     if (state.oTs) {
-      state.LOG("reloadData: queryList")
+      state.LOG("reloadData: queryList");
       await dispatch("queryList");
     }
     if (getters.contentLoadPath) {
-      state.LOG("reloadData: loadContent")
-      await dispatch("loadContent")
+      state.LOG("reloadData: loadContent");
+      await dispatch("loadContent");
     }
   },
   //--------------------------------------------
@@ -76045,102 +76492,103 @@ const _M = {
    */
   async reload({ state, commit, dispatch, getters }, meta) {
     // Guard
-    if (state.status.reloading
-      || state.status.saving
-      || state.status.deleting) {
-      return
+    if (
+      state.status.reloading ||
+      state.status.saving ||
+      state.status.deleting
+    ) {
+      return;
     }
-    state.LOG = () => { }
+    state.LOG = () => {};
     // if ("main" == state.moduleName) {
-    //   state.LOG = console.log
+    //state.LOG = console.log;
     // }
-    state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading)
+    state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading);
     // Guard
     if (_.isString(meta)) {
-      state.LOG("load meta", meta)
-      meta = await Wn.Io.loadMeta(meta)
-      state.LOG("get meta", meta)
+      state.LOG("load meta", meta);
+      meta = await Wn.Io.loadMeta(meta);
+      state.LOG("get meta", meta);
     }
 
     // Guard: Nil meta
     if (!meta) {
-      return await Ti.Toast.Open("Nil Meta", "warn")
+      return await Ti.Toast.Open("Nil Meta", "warn");
     }
     if (!meta.id) {
-      return await Ti.Toast.Open("Meta without ID", "warn")
+      return await Ti.Toast.Open("Meta without ID", "warn");
     }
 
     // Analyze meta : oTs
-    state.LOG("Analyze oTs and thingSetId")
+    state.LOG("Analyze oTs and thingSetId");
     if ("thing_set" == meta.tp && "DIR" == meta.race) {
-      commit("setThingSet", meta)
-      commit("setThingSetId", meta.id)
+      commit("setThingSet", meta);
+      commit("setThingSetId", meta.id);
     }
     // Maybe a thing_view (JSON)
     else if ("thing_view" == meta.tp && "FILE" == meta.race) {
-      let view = await Wn.Io.loadContent(meta, { as: "json" })
-      commit("setView", view)
+      let view = await Wn.Io.loadContent(meta, { as: "json" });
+      commit("setView", view);
       if (view.path) {
-        let oTs = await Wn.Io.loadMeta(view.path)
-        commit("setThingSet", oTs)
-        commit("setThingSetId", oTs.id)
+        let oTs = await Wn.Io.loadMeta(view.path);
+        commit("setThingSet", oTs);
+        commit("setThingSetId", oTs.id);
       }
     }
     // Then meta should be a thing
     else {
       // CheckThingSet ID
-      commit("setMeta", meta)
-      commit("setThingSetId", null)
-      await dispatch("loadThingSetId")
+      commit("setMeta", meta);
+      commit("setThingSetId", null);
+      await dispatch("loadThingSetId");
     }
 
     if (!state.thingSetId) {
-      return await Ti.Toast.Open("Meta OutOfThingSet: " + meta.id, "warn")
+      return await Ti.Toast.Open("Meta OutOfThingSet: " + meta.id, "warn");
     }
 
-    commit("setStatus", { reloading: true })
+    commit("setStatus", { reloading: true });
 
     // Reload Configurations
-    state.LOG("<-------- Reload Config -------->")
-    dispatch("applyViewBeforeLoad")
+    state.LOG("<-------- Reload Config -------->");
+    dispatch("applyViewBeforeLoad");
     await dispatch("loadSchema");
     await Promise.all([
       dispatch("loadLayout"),
       dispatch("loadThingActions"),
-      dispatch("loadThingMethods")
-    ])
-    dispatch("applyViewAfterLoad")
-    state.LOG("<-------- Config Loaded-------->")
+      dispatch("loadThingMethods"),
+    ]);
+    dispatch("applyViewAfterLoad");
+    state.LOG("<-------- Config Loaded-------->");
 
     // Behavior
-    commit("explainLocalBehaviorKeepAt")
-    dispatch("updateSchemaBehavior")
-    dispatch("restoreLocalBehavior")
+    commit("explainLocalBehaviorKeepAt");
+    dispatch("updateSchemaBehavior");
+    dispatch("restoreLocalBehavior");
 
-    state.LOG(" >> Query Data ...")
+    state.LOG(" >> Query Data ...");
 
     // Reload thing list
     if (state.oTs) {
       await dispatch("queryList");
-      await dispatch("queryAggResult")
+      await dispatch("queryAggResult");
     }
 
     // Update dataHome
-    commit("autoDataHome")
+    commit("autoDataHome");
 
     // Reload content if neccessary
     if (getters.contentLoadPath) {
-      await dispatch("loadContent")
+      await dispatch("loadContent");
     }
 
     // All done
-    commit("setStatus", { reloading: false })
-    state.LOG("<<<<<<<<<<<<<<<< done for reload")
-  }
+    commit("setStatus", { reloading: false });
+    state.LOG("<<<<<<<<<<<<<<<< done for reload");
+  },
   //--------------------------------------------
-}
-return _M;
-;
+};
+return _M;;
 })()
 // ============================================================
 // EXPORT 'ti-icon.mjs' -> null
@@ -77421,6 +77869,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
         return false
       }
       return true
+    },
+    //--------------------------------------------
+    exportDataDir(state){
+      return `id:${state.thingSetId}/tmp/export/`;
     },
     //--------------------------------------------
     searchPageNumber(state) {
@@ -80686,14 +81138,14 @@ window.TI_PACK_EXPORTS['ti/com/ti/bullet/checkbox/ti-bullet-checkbox.mjs'] = (fu
 const _M = {
   //////////////////////////////////////////
   data: () => ({
-    myTypeName: "ti-check-list"
+    myTypeName: "ti-check-list",
   }),
   //////////////////////////////////////////
   props: {
     "valueType": {
       type: String,
       default: "Array",
-      validator: v => /^(Array|Object|String|Json(Array|Object))$/.test(v)
+      validator: (v) => /^(Array|Object|String|Json(Array|Object))$/.test(v),
     },
     // Only for valueType=="String"
     "valueSep": {
@@ -80703,16 +81155,20 @@ const _M = {
     // Only for valueType=="Json(Array|Object)"
     "formatJson": {
       type: Boolean,
-      default: false
+      default: false,
     },
     "bulletIconOn": {
       type: String,
-      default: "fas-check-square"
+      default: "fas-check-square",
     },
     "bulletIconOff": {
       type: String,
-      default: "far-square"
-    }
+      default: "far-square",
+    },
+    "groupSelectable": {
+      type: Boolean,
+      default: true,
+    },
   },
   //////////////////////////////////////////
   computed: {
@@ -80720,102 +81176,167 @@ const _M = {
     ToJson() {
       if (this.formatJson) {
         return function (input) {
-          return JSON.stringify(input, null, '   ')
-        }
+          return JSON.stringify(input, null, "   ");
+        };
       }
       return function (input) {
-        return JSON.stringify(input)
-      }
+        return JSON.stringify(input);
+      };
     },
     //--------------------------------------
     ValueMap() {
       let v = this.value;
       // Parse As JSON
       if (/^Json/.test(this.valueType) && _.isString(v)) {
-        let vs = _.trim(v)
+        let vs = _.trim(v);
         if (vs) {
-          v = JSON.parse(vs)
+          v = JSON.parse(vs);
         } else {
-          v = {}
+          v = {};
         }
       }
 
-      let re = {}
+      let re = {};
 
       // Array
       if (_.isArray(v)) {
-        _.forEach(v, k => re[k] = true)
-        return re
+        _.forEach(v, (k) => (re[k] = true));
+        return re;
       }
       // Object
       if (_.isObject(v)) {
-        return v || {}
+        return v || {};
       }
       // Build map
       else if (!_.isEmpty(v)) {
-        let list = []
+        let list = [];
         // Common Sep String
         if (_.isString(v)) {
           list = Ti.S.splitIgnoreBlank(v, this.valueSep);
         } else {
-          list.push("" + v)
+          list.push("" + v);
         }
 
         // Map
         for (let li of list) {
-          re[li] = true
+          re[li] = true;
         }
       }
-      return re
-    }
+      return re;
+    },
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods: {
     //--------------------------------------
     OnClickOptionItem({ value }) {
-      let vals = []
-      _.forEach(this.ItemGroups, grp => {
-        _.forEach(grp.items, it => {
+      let vals = [];
+      _.forEach(this.ItemGroups, (grp) => {
+        _.forEach(grp.items, (it) => {
           if (this.isItemChecked(it.value, this.value)) {
             if (!_.isEqual(value, it.value)) {
-              vals.push(it.value)
+              vals.push(it.value);
             }
           }
           // check it
           else if (_.isEqual(value, it.value)) {
-            vals.push(it.value)
+            vals.push(it.value);
           }
-        })
-      })
-      // Object or JsonObject
-      if (/Object$/.test(this.valueType)) {
-        let map = {}
-        for (let v of vals) {
-          map[v] = true
-        }
-        if ("JsonObject" == this.valueType) {
-          vals = this.ToJson(map)
-        } else {
-          vals = map
-        }
-      }
-      else if ("JsonArray" == this.valueType) {
-        vals = this.ToJson(vals)
-      }
-      else if ("String" == this.valueType) {
-        val = val.join(this.valueSep)
-      }
-      this.$notify("change", vals)
+        });
+      });
+
+      this.formatAndNotifyChange(vals);
     },
     //--------------------------------------
     isItemChecked(itValue) {
-      return this.ValueMap[itValue] || false
-    }
+      return this.ValueMap[itValue] || false;
+    },
     //--------------------------------------
-  }
+    getItemsCheckMode(items = []) {
+      let lbItem = null;
+      let lbSumN = 0;
+      let lbChxN = 0;
+      let sumN = 0;
+      let chxN = 0;
+
+      const _check_mode = (sumN, chxN) => {
+        return chxN == 0 ? "none" : sumN == chxN ? "all" : "part";
+      };
+
+      for (let it of items) {
+        if ("Label" == it.type) {
+          if (lbItem) {
+            lbItem.checkMode = _check_mode(lbSumN, lbChxN);
+            sumN += lbSumN;
+            chxN += lbChxN;
+          }
+          lbItem = it;
+          lbSumN = 0;
+          lbChxN = 0;
+        } else {
+          lbSumN++;
+          if (this.isItemChecked(it.value)) {
+            lbChxN++;
+          }
+        }
+      }
+      if (lbItem) {
+        lbItem.checkMode = _check_mode(lbSumN, lbChxN);
+        sumN += lbSumN;
+        chxN += lbChxN;
+      }
+
+      return _check_mode(sumN, chxN);
+    },
+    //--------------------------------------
+    doSelectToggle({ checkMode = "none", index, groupIndex } = {}) {
+      //console.log("doSelectToggle", checkMode);
+      // Label in group
+      if (groupIndex >= 0) {
+        alert("这个功能实现起来有点难，改天再说吧 ^_^!")
+      }
+      // Whole group
+      else {
+        if ("all" == checkMode) {
+          this.cancelAllValues();
+        } else {
+          this.selectAllValues();
+        }
+      }
+    },
+    //--------------------------------------
+    selectAllValues() {
+      let vals = _.map(this.myOptionsData, (it) => it.value);
+      this.formatAndNotifyChange(_.without(vals, undefined));
+    },
+    //--------------------------------------
+    cancelAllValues() {
+      this.formatAndNotifyChange([]);
+    },
+    //--------------------------------------
+    formatAndNotifyChange(vals) {
+      // Object or JsonObject
+      if (/Object$/.test(this.valueType)) {
+        let map = {};
+        for (let v of vals) {
+          map[v] = true;
+        }
+        if ("JsonObject" == this.valueType) {
+          vals = this.ToJson(map);
+        } else {
+          vals = map;
+        }
+      } else if ("JsonArray" == this.valueType) {
+        vals = this.ToJson(vals);
+      } else if ("String" == this.valueType) {
+        val = val.join(this.valueSep);
+      }
+      this.tryNotifyChange(vals);
+    },
+    //--------------------------------------
+  },
   //////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -80856,130 +81377,6 @@ const _M = {
   //----------------------------------------
 }
 return _M;;
-})()
-// ============================================================
-// EXPORT 'wizard-data-expoter-s1.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s1.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  //---------------------------------------------------
-  ConfigFormFields() {
-    let fields = []
-    // Choose mapping file
-    if (this.myMappingFiles.length > 1) {
-      fields.push({
-        title: "i18n:wn-export-c-mapping",
-        name: "mapping",
-        tip: {
-          text: "i18n:wn-export-c-mapping-tip",
-          size: "normal"
-        },
-        comType: "TiDroplist",
-        comConf: {
-          placeholder: "i18n:wn-export-c-mapping-phd",
-          options: this.myMappingFiles,
-          iconBy: "icon",
-          valueBy: "id",
-          textBy: "title|nm",
-          dropDisplay: ['<icon:fas-exchange-alt>', 'title|nm']
-        }
-      })
-    }
-    // choose output type
-    if (this.outputTypeOptions.length > 1) {
-      fields.push({
-        title: "i18n:wn-export-c-type",
-        name: "type",
-        comType: "TiSwitcher",
-        comConf: {
-          allowEmpty: false,
-          options: this.outputTypeOptions
-        }
-      })
-    }
-
-    // Output target mode
-    fields.push(
-      {
-        title: "i18n:wn-export-c-mode",
-        name: "mode",
-        comType: "TiSwitcher",
-        comConf: {
-          allowEmpty: false,
-          options: this.outputModeOptions
-        }
-      },
-      {
-        title: "i18n:wn-export-c-mode-scope",
-        name: "scope",
-        tip: "i18n:wn-export-c-mode-scope-tip",
-        visible: {
-          mode: "scope"
-        },
-        comType: "TiInput",
-        comConf: {
-          placeholder: "i18n:wn-export-c-mode-scope-phd",
-          width: "2rem"
-        }
-      })
-
-    // Output target name
-    fields.push({
-      title: "i18n:wn-export-c-name",
-      name: "name",
-      tip: "i18n:wn-export-c-name-tip",
-      comType: "TiInput",
-      comConf: {
-        placeholder: "i18n:wn-export-c-name-phd",
-        hover: ["prefixIcon", "suffixText"],
-        prefixIcon: "zmdi-minus",
-        suffixText: "i18n:reset",
-        suffixTextNotifyName: "target_name:reset"
-      }
-    })
-
-    if (!_.isEmpty(this.targetExpiOptions)) {
-      fields.push({
-        title: "i18n:wn-export-c-expi",
-        name: "expi",
-        tip: "i18n:wn-export-c-expi-tip",
-        comType: "TiSwitcher",
-        comConf: {
-          allowEmpty: false,
-          options: this.targetExpiOptions
-        }
-      })
-    }
-
-    // done
-    return fields
-  },
-  //---------------------------------------------------
-  Step1Config() {
-    return {
-      title: "i18n:wn-export-setup",
-      comType: "TiForm",
-      comConf: {
-        autoFieldNameTip: true,
-        tipAsPopIcon: true,
-        gridColumnHint: 1,
-        fields: this.ConfigFormFields,
-        data: "=.."
-      },
-      prev: false,
-      next: {
-        enabled: function ({ type, mode, scope, name } = {}) {
-          return type
-            && mode
-            && (mode != "scope" || /^[0-9]+[-][0-9+]$/.test(scope))
-            && name
-        }
-      }
-    }
-  },
-  //---------------------------------------------------
-}
-return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'wn-browser.mjs' -> null
@@ -84018,6 +84415,52 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
+// EXPORT 'wizard-data-expoter-s4.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/data/exporter-form/wizard-data-expoter-s4.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  //---------------------------------------------------
+  Step4Finished() {
+    let vm = this
+    return {
+      title: "i18n:wn-export-done",
+      prepare: async function () {
+        let oTa = await vm.LoadTarget(this.value)
+        // just return a path
+        if (_.isString(oTa)) {
+          oTa = await Wn.Io.loadMeta(oTa)
+        }
+        this.$notify("change", {
+          ... this.value,
+          target: oTa
+        })
+      },
+      comType: "WebMetaBadge",
+      comConf: {
+        className: "is-success",
+        value: ":=target",
+        icon: "fas-check-circle",
+        title: "i18n:wn-export-done-ok",
+        brief: "i18n:wn-export-done-tip",
+        links: [{
+          icon: "fas-download",
+          text: ":=target.nm",
+          href: ":->/o/content?str=id:${target.id}&d=true",
+          newtab: true
+        }, {
+          icon: "fas-external-link-alt",
+          text: "i18n:wn-export-open-dir",
+          href: ":=>Wn.Util.getAppLink(target)",
+          newtab: true
+        }]
+      }
+    }
+  }
+  //---------------------------------------------------
+}
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'wn-obj-adaptor-methods.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/obj/adaptor/wn-obj-adaptor-methods.mjs'] = (function(){
@@ -86464,76 +86907,105 @@ Ti.Preload("ti/com/ti/bullet/ti-bullet-mixin.mjs", TI_PACK_EXPORTS['ti/com/ti/bu
 //========================================
 // JOIN <ti-bullet.html> ti/com/ti/bullet/ti-bullet.html
 //========================================
-Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list"
-  :class="TopClass"
-  :style="TopStyle">
+Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list" :class="TopClass" :style="TopStyle">
   <!--
     Blank
   -->
-  <ti-loading 
-    v-if="!hasItems || isBlank"
-      v-bind="BlankLoadingConf"/>
+  <ti-loading v-if="!hasItems || isBlank" v-bind="BlankLoadingConf" />
   <!--
     Show Items
   -->
   <template v-else>
+    <!--Show Option Group-->
     <div
       v-for="grp of ItemGroups"
-        :key="grp.key"
-        class="as-bullet-group" :style="BulletGroupStyle">
-        <!-- Group Title -->
-        <div 
-          v-if="grp.title"
-            class="as-group-title">{{grp.title}}</div>
-        <!-- Group Items -->
-        <div class="as-group-items" :style="BulletItemsStyle">
-          <div
-            v-for="it of grp.items"
-              class="as-bullet-item"
-              :class="it.className"
-              @click.left="OnClickItem(it)">
-              <!--
+      :key="grp.key"
+      class="as-bullet-group"
+      :style="BulletGroupStyle"
+    >
+      <!-- Group Title -->
+      <div v-if="grp.title" class="as-group-title">
+        <span
+          v-if="groupSelectable"
+          class="as-grp-checker"
+          :data-ti-tip="'i18n:check-tip-'+grp.checkMode"
+          @click.left="doSelectToggle(grp)"
+        >
+          <i v-if="'all' == grp.checkMode" class="fas fa-check-square"></i>
+          <i
+            v-else-if="'part' == grp.checkMode"
+            class="fas fa-minus-square"
+          ></i>
+          <i v-else class="far fa-square"></i>
+        </span>
+        <span class="as-grp-text">{{grp.title}}</span>
+      </div>
+      <!-- Group Items -->
+      <div class="as-group-items" :style="BulletItemsStyle">
+        <div
+          v-for="it of grp.items"
+          class="as-bullet-item"
+          :class="it.className"
+          @click.left="OnClickItem(it)"
+        >
+          <!--
                 Bullet
               -->
-              <ti-icon 
-                v-if="'Option' == it.type"
-                  class="as-bullet"
-                  :value="it.bullet"/>
-              <!--
+          <ti-icon
+            v-if="'Option' == it.type"
+            class="as-bullet"
+            :value="it.bullet"
+          />
+          <!--
                 Icon
               -->
-              <ti-icon 
-                v-if="it.icon"
-                  class="as-icon"
-                    :value="it.icon"/>
-              <!--
+          <ti-icon v-if="it.icon" class="as-icon" :value="it.icon" />
+          <!--
                 Text
               -->
-              <div class="as-text">{{it.text}}</div>
-              <!--
+          <div class="as-text">{{it.text}}</div>
+          <!--
                 Tip
               -->
-              <div class="as-tip" v-if="it.tip">{{it.tip}}</div>
-          </div>
-          <!-- Other option -->
+          <div class="as-tip" v-if="it.tip">{{it.tip}}</div>
+          <!--
+            Group Checker
+          -->
           <div
-            v-if="otherEnabled"
-              class="as-bullet-item as-option"
-              :class="OtherClassName"
-              @click.left="OnClickOther">
-              <ti-icon class="as-bullet" :value="OtherBulletIcon"/>
-              <div class="as-text">
-                <span>{{otherText | i18n}}</span>
-                <input 
-                  ref="other"
-                  :style="OtherInputStyle"
-                  :value="OtherValue" 
-                  :placeholder="otherPlaceholder|i18n"
-                  @change="OnOtherInputChange"/>
-              </div>
+            v-if="groupSelectable && 'Label'==it.type"
+            class="as-checker"
+            :data-ti-tip="'[V:]i18n:check-tip-'+it.checkMode"
+            @click.left="doSelectToggle(it)"
+          >
+            <i v-if="'all' == it.checkMode" class="fas fa-check-square"></i>
+            <i
+              v-else-if="'part' == it.checkMode"
+              class="fas fa-minus-square"
+            ></i>
+            <i v-else class="far fa-square"></i>
+          </div>
+        </div>
+        <!-- Other option -->
+        <div
+          v-if="otherEnabled"
+          class="as-bullet-item as-option"
+          :class="OtherClassName"
+          @click.left="OnClickOther"
+        >
+          <ti-icon class="as-bullet" :value="OtherBulletIcon" />
+          <div class="as-text">
+            <span>{{otherText | i18n}}</span>
+            <input
+              ref="other"
+              :style="OtherInputStyle"
+              :value="OtherValue"
+              :placeholder="otherPlaceholder|i18n"
+              @change="OnOtherInputChange"
+            />
           </div>
         </div>
       </div>
+    </div>
   </template>
 </div>`);
 //========================================
@@ -97351,6 +97823,44 @@ Ti.Preload("ti/com/wn/combo/multi-input/_com.json", {
     "@com:wn/obj/icon"]
 });
 //========================================
+// JOIN <wizard-data-expoter-s4.mjs> ti/com/wn/data/exporter-form/wizard-data-expoter-s4.mjs
+//========================================
+Ti.Preload("ti/com/wn/data/exporter-form/wizard-data-expoter-s4.mjs", TI_PACK_EXPORTS['ti/com/wn/data/exporter-form/wizard-data-expoter-s4.mjs']);
+//========================================
+// JOIN <wn-exporter-form.html> ti/com/wn/data/exporter-form/wn-exporter-form.html
+//========================================
+Ti.Preload("ti/com/wn/data/exporter-form/wn-exporter-form.html", `<TiForm
+  :className="TopClass"
+  :autoFieldNameTip="true"
+  :tipAsPopIcon="true"
+  :gridColumnHint="gridColumnHint"
+  :fields="FormFields"
+  :data="myData"
+  @target_name:reset="OnResetTargetName"
+  @change="OnChange"
+  @output:fields="OnOutputFieldsChange"
+/>`);
+//========================================
+// JOIN <wn-exporter-form.mjs> ti/com/wn/data/exporter-form/wn-exporter-form.mjs
+//========================================
+Ti.Preload("ti/com/wn/data/exporter-form/wn-exporter-form.mjs", TI_PACK_EXPORTS['ti/com/wn/data/exporter-form/wn-exporter-form.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/data/exporter-form/_com.json
+//========================================
+Ti.Preload("ti/com/wn/data/exporter-form/_com.json", {
+  "name": "wn-data-exporter-form",
+  "globally": true,
+  "template": "./wn-exporter-form.html",
+  "mixins": "./wn-exporter-form.mjs",
+  "components": [
+    "@com:ti/bullet/checkbox",
+    "@com:ti/transfer",
+    "@com:ti/text/json",
+    "@com:wn/cmd/panel",
+    "@com:web/meta/badge"
+  ]
+});
+//========================================
 // JOIN <wn-droplist.html> ti/com/wn/droplist/wn-droplist.html
 //========================================
 Ti.Preload("ti/com/wn/droplist/wn-droplist.html", `<component 
@@ -99676,60 +100186,6 @@ Ti.Preload("ti/com/wn/upload/multi-files-box/_com.json", {
   ]
 });
 //========================================
-// JOIN <wizard-data-expoter-s1.mjs> ti/com/wn/wizard/data-exporter/wizard-data-expoter-s1.mjs
-//========================================
-Ti.Preload("ti/com/wn/wizard/data-exporter/wizard-data-expoter-s1.mjs", TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s1.mjs']);
-//========================================
-// JOIN <wizard-data-expoter-s2.mjs> ti/com/wn/wizard/data-exporter/wizard-data-expoter-s2.mjs
-//========================================
-Ti.Preload("ti/com/wn/wizard/data-exporter/wizard-data-expoter-s2.mjs", TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s2.mjs']);
-//========================================
-// JOIN <wizard-data-expoter-s3.mjs> ti/com/wn/wizard/data-exporter/wizard-data-expoter-s3.mjs
-//========================================
-Ti.Preload("ti/com/wn/wizard/data-exporter/wizard-data-expoter-s3.mjs", TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s3.mjs']);
-//========================================
-// JOIN <wizard-data-expoter-s4.mjs> ti/com/wn/wizard/data-exporter/wizard-data-expoter-s4.mjs
-//========================================
-Ti.Preload("ti/com/wn/wizard/data-exporter/wizard-data-expoter-s4.mjs", TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wizard-data-expoter-s4.mjs']);
-//========================================
-// JOIN <wn-wizard-data-exporter.html> ti/com/wn/wizard/data-exporter/wn-wizard-data-exporter.html
-//========================================
-Ti.Preload("ti/com/wn/wizard/data-exporter/wn-wizard-data-exporter.html", `<TiWizard
-  :title="title"
-  :current="1"
-  :steps="WizardSteps"
-  :value="myData"
-  @target_name:reset="OnResetTargetName"
-  @change="OnChange"
-  @output:fields="OnOutputFieldsChange"
-/>`);
-//========================================
-// JOIN <wn-wizard-data-exporter.mjs> ti/com/wn/wizard/data-exporter/wn-wizard-data-exporter.mjs
-//========================================
-Ti.Preload("ti/com/wn/wizard/data-exporter/wn-wizard-data-exporter.mjs", TI_PACK_EXPORTS['ti/com/wn/wizard/data-exporter/wn-wizard-data-exporter.mjs']);
-//========================================
-// JOIN <_com.json> ti/com/wn/wizard/data-exporter/_com.json
-//========================================
-Ti.Preload("ti/com/wn/wizard/data-exporter/_com.json", {
-  "name": "wn-wizard-data-exporter",
-  "globally": true,
-  "template": "./wn-wizard-data-exporter.html",
-  "computed": [
-    "./wizard-data-expoter-s1.mjs",
-    "./wizard-data-expoter-s2.mjs",
-    "./wizard-data-expoter-s3.mjs",
-    "./wizard-data-expoter-s4.mjs"
-  ],
-  "mixins": "./wn-wizard-data-exporter.mjs",
-  "components": [
-    "@com:ti/wizard",
-    "@com:ti/transfer",
-    "@com:ti/text/json",
-    "@com:wn/cmd/panel",
-    "@com:web/meta/badge"
-  ]
-});
-//========================================
 // JOIN <site-config-actions.mjs> ti/mod/hmaker/website/mod/site-config/site-config-actions.mjs
 //========================================
 Ti.Preload("ti/mod/hmaker/website/mod/site-config/site-config-actions.mjs", TI_PACK_EXPORTS['ti/mod/hmaker/website/mod/site-config/site-config-actions.mjs']);
@@ -100441,6 +100897,8 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
   "localBehaviorIgnore": null,
   "schemaBehaviorIgnore": null,
+  "exportSettings":{},
+  "importSettings":{},
   "lbkAt": null,
   "lbkOff": false,
   "lbkIgnore": null,
@@ -105298,6 +105756,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "chart-line": "折线图",
   "chart-pie": "饼状图",
   "chart-rank": "条状图",
+  "check-tip-all": "全选项目，点击取消全选",
+  "check-tip-part": "部分选中项目，点击全选",
+  "check-tip-none": "点击全选",
   "checked": "已选中",
   "choose": "选择",
   "choose-fields": "选择字段",
@@ -105375,6 +105836,9 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
   "e-auth-login-NoSaltedPasswd": "未设置合法的密码",
   "e-auth-login-invalid-passwd": "账户密码未通过校验",
+  "e-export_data-UnknownMode": "未知的导出模式",
+  "e-export_data-InvalidScope": "你声明的导出范围格式不正确，正确的格式类似：1-20 但是你却输入了：",
+  "e-export_data-ConfirmBigLimit": "你要导出的数据很多，这个操作可能会需要较长时间，你确定要继续导出吗？",
   "e-io-forbidden": "禁止写入",
   "e-io-obj-BlankName": "对象名称不能为空",
   "e-io-obj-InvalidName": "对象名称非法",
@@ -105385,7 +105849,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-obj-invalid": "路径[${val}]非法",
   "e-obj-noexists": "对象[${val}]不存在",
   "e-ph-noexists": "路径[${val}]不存在",
-  "e-pvg-fobidden":"操作被禁止",
+  "e-pvg-fobidden": "操作被禁止",
   "e-form-incomplete": "表单缺失必要字段: 【${title|name}】 ${tip?}",
   "edit": "编辑",
   "edit-com": "编辑控件",
@@ -105782,6 +106246,10 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-export-c-expi-30d": "30天",
   "wn-export-c-expi-3d": "3天",
   "wn-export-c-expi-7d": "7天",
+  "wn-export-c-expi-1h": "1小时",
+  "wn-export-c-expi-2h": "2小时",
+  "wn-export-c-expi-6h": "6小时",
+  "wn-export-c-expi-12h": "12小时",
   "wn-export-c-expi-off": "永不过期",
   "wn-export-c-expi-tip": "输出的临时文件将在服务器端保留多久",
   "wn-export-c-limit": "数量限制",
@@ -105792,6 +106260,7 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-export-c-type-csv": "CSV文件",
   "wn-export-c-type-json": "JSON",
   "wn-export-c-type-xls": "电子表格",
+  "wn-export-c-type-unknown": "未知的导出类型",
   "wn-export-c-type-zip": "数据压缩包",
   "wn-export-c-name": "导出文件名",
   "wn-export-c-name-tip": "导出文件名，如果没有后缀名，会自动根据【导出类型】补全",
@@ -105801,12 +106270,14 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-export-c-mode-checked": "选中记录",
   "wn-export-c-mode-current": "当前页",
   "wn-export-c-mode-scope": "指定范围",
-  "wn-export-c-mode-scope-tip": "请输入页码范围，1-5 表示从第1页到第5页（包含）",
-  "wn-export-c-mode-scope-phd": "譬如: 1-5",
-  "wn-export-choose-fields":"选择字段",
+  "wn-export-c-mode-scope-tip": "要导出的数据范围，1-200 表示从第1条记录到第200条记录（包含）",
+  "wn-export-c-mode-scope-phd": "譬如: 1-100",
+  "wn-export-choose-fields": "选择字段",
   "wn-export-done": "完成",
   "wn-export-done-ok": "导出成功",
-  "wn-export-done-tip": "请点击下载链接下载",
+  "wn-export-done-ok-tip": "请点击下载链接下载",
+  "wn-export-done-fail": "导出失败",
+  "wn-export-done-fail-tip": "请点击查看错误详情",
   "wn-export-ing": "执行导出",
   "wn-export-ing-tip": "正在执行导出脚本，请稍后",
   "wn-export-open-dir": "打开导出历史目录...",

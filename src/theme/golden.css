@@ -1580,11 +1580,42 @@ i.im {
   overflow: auto;
   padding: 1px;
   width: 100%; }
+  .ti-bullet-list.as-grid > .as-bullet-group > .as-group-items {
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-rows: auto;
+    grid-auto-flow: row;
+    justify-items: stretch;
+    align-items: stretch;
+    grid-gap: 1px; }
+    .ti-bullet-list.as-grid > .as-bullet-group > .as-group-items > .as-bullet-item.as-label {
+      grid-column-start: 1;
+      grid-column-end: -1; }
   .ti-bullet-list.item-noselect .as-bullet-item.as-option {
     user-select: none; }
   .ti-bullet-list .as-group-title {
-    padding: 0.5em;
-    font-size: 0.9em; }
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    flex-wrap: nowrap; }
+    .ti-bullet-list .as-group-title > .as-grp-text {
+      font-weight: bold;
+      line-height: 2em;
+      padding: .2em; }
+    .ti-bullet-list .as-group-title > .as-grp-checker {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      width: 2.4em;
+      height: 2.4em;
+      align-self: stretch;
+      cursor: pointer; }
+      .ti-bullet-list .as-group-title > .as-grp-checker:hover {
+        color: #EEE;
+        background-color: #010101; }
   .ti-bullet-list .as-bullet-item {
     display: flex;
     justify-content: flex-start;
@@ -1594,7 +1625,23 @@ i.im {
     .ti-bullet-list .as-bullet-item.as-label {
       color: #888;
       background-color: #F0F0F0;
-      padding: 0.06rem 0.12rem; }
+      padding: 1px; }
+      .ti-bullet-list .as-bullet-item.as-label > .as-text {
+        line-height: 2em;
+        padding: .2em 1em; }
+      .ti-bullet-list .as-bullet-item.as-label > .as-checker {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        flex-wrap: wrap;
+        width: 2.4em;
+        height: 2.4em;
+        align-self: stretch;
+        cursor: pointer; }
+        .ti-bullet-list .as-bullet-item.as-label > .as-checker:hover {
+          color: #EEE;
+          background-color: #010101; }
     .ti-bullet-list .as-bullet-item.as-option {
       cursor: pointer;
       line-height: 1.8em;
@@ -1612,7 +1659,8 @@ i.im {
     .ti-bullet-list .as-bullet-item > .ti-icon {
       width: 0.24rem;
       height: 1.8em;
-      text-align: center; }
+      text-align: center;
+      margin-right: 0.08rem; }
       .ti-bullet-list .as-bullet-item > .ti-icon > i {
         transition: transform 0.5s; }
       .ti-bullet-list .as-bullet-item > .ti-icon.is-image .icon-icon {
@@ -1620,8 +1668,7 @@ i.im {
         .ti-bullet-list .as-bullet-item > .ti-icon.is-image .icon-icon img {
           width: 1.8em; }
     .ti-bullet-list .as-bullet-item > .as-text {
-      flex: 1 1 auto;
-      margin-left: 0.08rem; }
+      flex: 1 1 auto; }
       .ti-bullet-list .as-bullet-item > .as-text input {
         color: #444;
         background-color: #FFF;

@@ -3,15 +3,45 @@
   padding: 1px;
   width: 100%;
   //-------------------------------------
+  &.as-grid {
+    > .as-bullet-group > .as-group-items {
+      display: grid;
+      grid-auto-columns: 1fr;
+      grid-auto-rows: auto;
+      grid-auto-flow: row;
+      justify-items: stretch;
+      align-items: stretch;
+      grid-gap: 1px;
+      > .as-bullet-item.as-label {
+        grid-column-start: 1;
+        grid-column-end: -1;
+      }
+    }
+  }
+  //-------------------------------------
   &.item-noselect {
-    .as-bullet-item.as-option{
+    .as-bullet-item.as-option {
       user-select: none;
     }
   }
   //-------------------------------------
   .as-group-title {
-    padding: 0.5em;
-    font-size: 0.9em;
+    @include flex-align-nowrap;
+    > .as-grp-text {
+      font-weight: bold;
+      line-height: 2em;
+      padding: .2em;
+    }
+    > .as-grp-checker {
+      @include flex-center;
+      width: 2.4em;
+      height: 2.4em;
+      align-self: stretch;
+      cursor: pointer;
+      &:hover {
+        @include color($color-secondary, r, c);
+      }
+    }
   }
   //-------------------------------------
   .as-bullet-item {
@@ -19,7 +49,21 @@
     //-----------------------------------
     &.as-label {
       @include color($color-bar, r, c);
-      padding: SZ(6) SZ(12);
+      padding: 1px;
+      > .as-text {
+        line-height: 2em;
+        padding: .2em 1em;
+      }
+      > .as-checker {
+        @include flex-center;
+        width: 2.4em;
+        height: 2.4em;
+        align-self: stretch;
+        cursor: pointer;
+        &:hover {
+          @include color($color-secondary, r, c);
+        }
+      }
     }
     //-----------------------------------
     &.as-option {
@@ -48,6 +92,7 @@
       width: SZ(24);
       height: 1.8em;
       text-align: center;
+      margin-right: SZ(8);
       > i {
         transition: transform 0.5s;
       }
@@ -61,7 +106,6 @@
     //-----------------------------------
     > .as-text {
       flex: 1 1 auto;
-      margin-left: SZ(8);
       input {
         @include text-input;
         padding: 0.6em;

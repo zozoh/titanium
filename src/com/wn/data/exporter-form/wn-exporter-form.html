@@ -1,0 +1,11 @@
+<TiForm
+  :className="TopClass"
+  :autoFieldNameTip="true"
+  :tipAsPopIcon="true"
+  :gridColumnHint="gridColumnHint"
+  :fields="FormFields"
+  :data="myData"
+  @target_name:reset="OnResetTargetName"
+  @change="OnChange"
+  @output:fields="OnOutputFieldsChange"
+/>

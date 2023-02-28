@@ -1,0 +1,13 @@
+{
+  "name": "wn-data-exporter-form",
+  "globally": true,
+  "template": "./wn-exporter-form.html",
+  "mixins": "./wn-exporter-form.mjs",
+  "components": [
+    "@com:ti/bullet/checkbox",
+    "@com:ti/transfer",
+    "@com:ti/text/json",
+    "@com:wn/cmd/panel",
+    "@com:web/meta/badge"
+  ]
+}

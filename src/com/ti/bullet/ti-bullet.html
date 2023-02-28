@@ -1,72 +1,101 @@
-<div class="ti-bullet-list"
-  :class="TopClass"
-  :style="TopStyle">
+<div class="ti-bullet-list" :class="TopClass" :style="TopStyle">
   <!--
     Blank
   -->
-  <ti-loading 
-    v-if="!hasItems || isBlank"
-      v-bind="BlankLoadingConf"/>
+  <ti-loading v-if="!hasItems || isBlank" v-bind="BlankLoadingConf" />
   <!--
     Show Items
   -->
   <template v-else>
+    <!--Show Option Group-->
     <div
       v-for="grp of ItemGroups"
-        :key="grp.key"
-        class="as-bullet-group" :style="BulletGroupStyle">
-        <!-- Group Title -->
-        <div 
-          v-if="grp.title"
-            class="as-group-title">{{grp.title}}</div>
-        <!-- Group Items -->
-        <div class="as-group-items" :style="BulletItemsStyle">
-          <div
-            v-for="it of grp.items"
-              class="as-bullet-item"
-              :class="it.className"
-              @click.left="OnClickItem(it)">
-              <!--
+      :key="grp.key"
+      class="as-bullet-group"
+      :style="BulletGroupStyle"
+    >
+      <!-- Group Title -->
+      <div v-if="grp.title" class="as-group-title">
+        <span
+          v-if="groupSelectable"
+          class="as-grp-checker"
+          :data-ti-tip="'i18n:check-tip-'+grp.checkMode"
+          @click.left="doSelectToggle(grp)"
+        >
+          <i v-if="'all' == grp.checkMode" class="fas fa-check-square"></i>
+          <i
+            v-else-if="'part' == grp.checkMode"
+            class="fas fa-minus-square"
+          ></i>
+          <i v-else class="far fa-square"></i>
+        </span>
+        <span class="as-grp-text">{{grp.title}}</span>
+      </div>
+      <!-- Group Items -->
+      <div class="as-group-items" :style="BulletItemsStyle">
+        <div
+          v-for="it of grp.items"
+          class="as-bullet-item"
+          :class="it.className"
+          @click.left="OnClickItem(it)"
+        >
+          <!--
                 Bullet
               -->
-              <ti-icon 
-                v-if="'Option' == it.type"
-                  class="as-bullet"
-                  :value="it.bullet"/>
-              <!--
+          <ti-icon
+            v-if="'Option' == it.type"
+            class="as-bullet"
+            :value="it.bullet"
+          />
+          <!--
                 Icon
               -->
-              <ti-icon 
-                v-if="it.icon"
-                  class="as-icon"
-                    :value="it.icon"/>
-              <!--
+          <ti-icon v-if="it.icon" class="as-icon" :value="it.icon" />
+          <!--
                 Text
               -->
-              <div class="as-text">{{it.text}}</div>
-              <!--
+          <div class="as-text">{{it.text}}</div>
+          <!--
                 Tip
               -->
-              <div class="as-tip" v-if="it.tip">{{it.tip}}</div>
-          </div>
-          <!-- Other option -->
+          <div class="as-tip" v-if="it.tip">{{it.tip}}</div>
+          <!--
+            Group Checker
+          -->
           <div
-            v-if="otherEnabled"
-              class="as-bullet-item as-option"
-              :class="OtherClassName"
-              @click.left="OnClickOther">
-              <ti-icon class="as-bullet" :value="OtherBulletIcon"/>
-              <div class="as-text">
-                <span>{{otherText | i18n}}</span>
-                <input 
-                  ref="other"
-                  :style="OtherInputStyle"
-                  :value="OtherValue" 
-                  :placeholder="otherPlaceholder|i18n"
-                  @change="OnOtherInputChange"/>
-              </div>
+            v-if="groupSelectable && 'Label'==it.type"
+            class="as-checker"
+            :data-ti-tip="'[V:]i18n:check-tip-'+it.checkMode"
+            @click.left="doSelectToggle(it)"
+          >
+            <i v-if="'all' == it.checkMode" class="fas fa-check-square"></i>
+            <i
+              v-else-if="'part' == it.checkMode"
+              class="fas fa-minus-square"
+            ></i>
+            <i v-else class="far fa-square"></i>
+          </div>
+        </div>
+        <!-- Other option -->
+        <div
+          v-if="otherEnabled"
+          class="as-bullet-item as-option"
+          :class="OtherClassName"
+          @click.left="OnClickOther"
+        >
+          <ti-icon class="as-bullet" :value="OtherBulletIcon" />
+          <div class="as-text">
+            <span>{{otherText | i18n}}</span>
+            <input
+              ref="other"
+              :style="OtherInputStyle"
+              :value="OtherValue"
+              :placeholder="otherPlaceholder|i18n"
+              @change="OnOtherInputChange"
+            />
           </div>
         </div>
       </div>
+    </div>
   </template>
 </div>

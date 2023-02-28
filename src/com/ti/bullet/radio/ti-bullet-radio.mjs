@@ -18,13 +18,17 @@ const _M = {
   methods: {
     //--------------------------------------
     OnClickOptionItem({ value }) {
-      this.$notify("change", value)
+      this.tryNotifyChange(value)
     },
     //--------------------------------------
     isItemChecked(itValue, val = this.value) {
       return !_.isUndefined(val)
         && !_.isUndefined(itValue)
         && _.isEqual(itValue, val)
+    },
+    //--------------------------------------
+    getItemsCheckMode(items=[]){
+      return "none"
     }
     //--------------------------------------
   }
