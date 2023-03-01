@@ -258,10 +258,55 @@ const _M = {
     }
   },
   //--------------------------------------------
+  async applyLoad({ state, commit }) {
+    let results = {};
+    //
+    // Define Loader
+    const _load_data = async (key, path, asJson = false) => {
+      // Load
+      results[key] = await Wn.Sys.exec2(`cat '${path}'`, {
+        as: asJson ? "json" : "text",
+      });
+    };
+
+    // Load Each Path
+    let loads = [];
+    _.forEach(state.load, (path, key) => {
+      path = _.trim(path);
+      // Guard
+      if (!path) {
+        return;
+      }
+      // Guard path
+      if (path.indexOf("'") >= 0) {
+        throw Ti.Err.make("e.load.path.Invalid", path);
+      }
+
+      // Auto parse Json flag
+      let type = Ti.Util.getSuffixName(path);
+      let asJson = "json" == type;
+
+      // Absolute path
+      if (!/^(~|\/|id:)/.test(path)) {
+        path = `id:${state.thingSetId}/${path}`;
+      }
+
+      // Join Loading
+      loads.push(_load_data(key, path, asJson));
+    });
+
+    // Load them ..
+    await Promise.all(loads);
+
+    // Update state
+    commit("setLoad", results);
+  },
+  //--------------------------------------------
   applyBehavior({ state, commit }, be = {}) {
     // Eval behavior dynamicly
     let {
       pvg,
+      load,
       filter,
       sorter,
       match,
@@ -281,6 +326,11 @@ const _M = {
     // Apply Pvg
     if (!_.isEmpty(pvg)) {
       commit("assignPvg", pvg);
+    }
+
+    // Apply Load
+    if (!_.isEmpty(load)) {
+      commit("assignLoad", load);
     }
 
     // Apply filter
@@ -490,6 +540,9 @@ const _M = {
     commit("explainLocalBehaviorKeepAt");
     dispatch("updateSchemaBehavior");
     dispatch("restoreLocalBehavior");
+
+    // Load more fixed data
+    await dispatch("applyLoad");
 
     state.LOG(" >> Query Data ...");
 

@@ -381,7 +381,6 @@ const _M = {
     },
     //---------------------------------------------------
     async reloadMappingFields(mappingId = this.MappingFileId) {
-      console.log(mappingId);
       if (mappingId && !this.myCanFields[mappingId]) {
         // Try Cache
         let json = await Wn.Sys.exec2(`cat id:${mappingId}`);
@@ -417,7 +416,7 @@ const _M = {
     },
     //---------------------------------------------------
     async reload() {
-      console.log("WDE:reload");
+      //console.log("WDE:reload");
       // reload all option mapping paths
       let paths = _.concat(this.mappingPath);
       let fld = "^(id|race|tp|mime|nm|name|title)$";
@@ -447,7 +446,6 @@ const _M = {
       }
       // Found the default
       let mappingId = _.get(this.data, "mapping");
-      console.log(mappingId);
       if (!_.isEmpty(list) && !mappingId && _.isEmpty(this.MappingFields)) {
         mappingId = _.first(list).id;
         if (this.defaultMappingName) {
@@ -467,7 +465,7 @@ const _M = {
         type: this.outputType,
         mode: this.outputMode,
         mapping: mappingId,
-        name: this.genOutputName(_.get(this.data, "outputName") ?? this.outputName),
+        name: this.genOutputName(_.get(this.data, "outputName") || this.outputName),
       };
       if (this.targetExpi) {
         data.expi = `${this.targetExpi}`;

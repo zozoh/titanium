@@ -56,71 +56,8 @@ const _M = {
     },
     //--------------------------------------
     //
-    //  Show/Hide block
-    //
-    //--------------------------------------
-    updateBlockShown(shown = {}) {
-      let guiShown = {}
-      _.forEach(shown, (v, k) => {
-        if (v) {
-          guiShown[k] = true
-        }
-      })
-      this.commit("setGuiShown", guiShown)
-    },
-    //--------------------------------------
-    showBlock(blockName) {
-      let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
-      //console.log(blockNames)
-      let guiShown = {}
-      _.forEach(blockNames, nm => {
-        guiShown[nm] = true
-      })
-      this.commit("setGuiShown", guiShown)
-    },
-    //--------------------------------------
-    hideBlock(blockName) {
-      let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
-      //console.log(blockNames)
-      let guiShown = _.cloneDeep(this.guiShown) || {}
-      _.forEach(blockNames, nm => {
-        guiShown[nm] = false
-      })
-      this.commit("setGuiShown", guiShown)
-    },
-    //--------------------------------------
-    //
-    //  Utility
-    //
-    //--------------------------------------
-    async dispatch(name, payload) {
-      let path = Ti.Util.appendPath(this.moduleName, name)
-      return await Ti.App(this).dispatch(path, payload)
-    },
-    //--------------------------------------
-    commit(name, payload) {
-      let path = Ti.Util.appendPath(this.moduleName, name)
-      return Ti.App(this).commit(path, payload)
-    },
-    //--------------------------------------
-    getCheckedItems(noneAsAll = false) {
-      let items = this.GuiExplainContext.checkedItems;
-      if (noneAsAll && _.isEmpty(items)) {
-        return this.list || []
-      }
-      return items
-    },
-    //--------------------------------------
-    //
     // Events / Callback
     //
-    //--------------------------------------
-    fire(name, payload) {
-      let func = this.__on_events(name, payload)
-      if (_.isFunction(func)) {
-        func.apply(this, [payload])
-      }
-    },
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {

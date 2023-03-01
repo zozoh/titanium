@@ -11,6 +11,7 @@ const _M = {
     let link = Wn.Util.getAppLink(oDir);
     Ti.Be.Open(link.url, { params: link.params });
   },
+  //----------------------------------------
   async exportData({ state, commit, dispatch, getters }) {
     // Guard
     if (!getters.isCanUpdate) {
@@ -26,6 +27,7 @@ const _M = {
     }
 
     let tsName = Ti.Util.getFallback(state.oTs, "title", "nm") || "export";
+    let tsTitle = Ti.I18n.text(tsName)
 
     // Open Dialog Wizard to export data
     let re = await Ti.App.Open({
@@ -39,7 +41,7 @@ const _M = {
       comConf: {
         "mappingPath": `id:${state.thingSetId}/export/`,
         "defaultMappingName": undefined,
-        "outputName": `${tsName}-\${now}`,
+        "outputName": `${tsTitle}-\${now}`,
         "outputTarget": `id:${state.thingSetId}/tmp/export/\${name}.\${type}`,
       },
       components: ["@com:wn/data/exporter-form"],
@@ -204,7 +206,7 @@ const _M = {
       state.LOG("Export Data:", cmdText);
     } catch (E) {
       // Fail to Generate the command
-      Ti.Alert(E.toString() ?? "Some Erro Happend IN Gen Command", {
+      Ti.Alert(E.toString() || "Some Erro Happend IN Gen Command", {
         type: "error",
       });
       throw E;

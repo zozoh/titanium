@@ -1,17 +1,18 @@
 {
   "moduleName": "main",
-  "pvg":{
-    "remove":null,
-    "create":null,
-    "update":null,
-    "save":null
+  "pvg": {
+    "remove": null,
+    "create": null,
+    "update": null,
+    "save": null
   },
+  "load": {},
   "view": null,
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
   "localBehaviorIgnore": null,
   "schemaBehaviorIgnore": null,
-  "exportSettings":{},
-  "importSettings":{},
+  "exportSettings": {},
+  "importSettings": {},
   "lbkAt": null,
   "lbkOff": false,
   "lbkIgnore": null,
@@ -19,8 +20,8 @@
   "thingSetId": null,
   "oTs": null,
   "fixedMatch": {},
-  "agg":{},
-  "aggResult":{},
+  "agg": {},
+  "aggResult": {},
   "aggQuery": null,
   "filter": {},
   "sorter": {

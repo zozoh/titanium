@@ -28,6 +28,16 @@ const _M = {
     state.pvg = po;
   },
   //----------------------------------------
+  setLoad(state, load = {}) {
+    state.load = load;
+  },
+  //----------------------------------------
+  assignLoad(state, load = {}) {
+    let d = _.cloneDeep(state.load);
+    _.assign(d, load);
+    state.load = d;
+  },
+  //----------------------------------------
   setView(state, view) {
     state.view = view;
   },

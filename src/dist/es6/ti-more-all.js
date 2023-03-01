@@ -1,4 +1,4 @@
-// Pack At: 2023-02-28 23:04:27
+// Pack At: 2023-03-01 11:45:25
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5775,6 +5775,16 @@ const _M = {
     let po = _.cloneDeep(state.pvg || {});
     _.assign(po, pvg);
     state.pvg = po;
+  },
+  //----------------------------------------
+  setLoad(state, load = {}) {
+    state.load = load;
+  },
+  //----------------------------------------
+  assignLoad(state, load = {}) {
+    let d = _.cloneDeep(state.load);
+    _.assign(d, load);
+    state.load = d;
   },
   //----------------------------------------
   setView(state, view) {
@@ -12543,317 +12553,82 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/wn/th/adaptor/wn-th-adaptor-methods.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   //--------------------------------------------
-  doNothing() { },
+  doNothing() {},
+  //--------------------------------------
+  //
+  //  Show/Hide block
+  //
+  //--------------------------------------
+  updateBlockShown(shown = {}) {
+    let guiShown = {};
+    _.forEach(shown, (v, k) => {
+      if (v) {
+        guiShown[k] = true;
+      }
+    });
+    this.commit("setGuiShown", guiShown);
+  },
+  //--------------------------------------
+  showBlock(blockName) {
+    let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g);
+    //console.log(blockNames)
+    let guiShown = {};
+    _.forEach(blockNames, (nm) => {
+      guiShown[nm] = true;
+    });
+    this.commit("setGuiShown", guiShown);
+  },
+  //--------------------------------------
+  hideBlock(blockName) {
+    let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g);
+    //console.log(blockNames)
+    let guiShown = _.cloneDeep(this.guiShown) || {};
+    _.forEach(blockNames, (nm) => {
+      guiShown[nm] = false;
+    });
+    this.commit("setGuiShown", guiShown);
+  },
+  //--------------------------------------------
+  fire(name, payload) {
+    let func = this.__on_events(name, payload);
+    if (_.isFunction(func)) {
+      func.apply(this, [payload]);
+    }
+  },
   //--------------------------------------------
   async invoke(fnName, ...args) {
     //console.log("invoke ", fnName, args)
-    let fn = _.get(this.thingMethods, fnName)
+    let fn = _.get(this.thingMethods, fnName);
     // Invoke the method
     if (_.isFunction(fn)) {
-      return await fn.apply(this, args)
+      return await fn.apply(this, args);
     }
     // Throw the error
     else {
-      throw Ti.Err.make("e.thing.fail-to-invoke", fnName)
+      throw Ti.Err.make("e.thing.fail-to-invoke", fnName);
     }
   },
-  //--------------------------------------------
+  //--------------------------------------
   //
-  // Export
+  //  Utility
   //
-  //--------------------------------------------
-  async openExportDataDir(target) {
-    let taDir = target || `id:${this.thingSetId}/export_data`
-    let oDir = await Wn.Io.loadMeta(taDir)
-    let link = Wn.Util.getAppLink(oDir)
-    Ti.Be.Open(link.url, { params: link.params })
+  //--------------------------------------
+  async dispatch(name, payload) {
+    let path = Ti.Util.appendPath(this.moduleName, name);
+    return await Ti.App(this).dispatch(path, payload);
   },
-  //--------------------------------------------
-  async exportDataByModes(mode = "csv;xls;json;zip", target) {
-    await this.exportData({ target, mode })
+  //--------------------------------------
+  commit(name, payload) {
+    let path = Ti.Util.appendPath(this.moduleName, name);
+    return Ti.App(this).commit(path, payload);
   },
-  //--------------------------------------------
-  async exportData({
-    target,
-    mode = "xls;csv;json;zip",
-    page = "checked;current;all",
-    name = "${title|nm}-${time}",
-    mappingDir = "id:${id}/export/"
-  } = {}) {
-    // Guard
-    if (!this.oTs) {
-      throw `ThingSet[${this.thingSetId}] without oTs`
+  //--------------------------------------
+  getCheckedItems(noneAsAll = false) {
+    let items = this.GuiExplainContext.checkedItems;
+    if (noneAsAll && _.isEmpty(items)) {
+      return this.list || [];
     }
-    //............................................
-    let taDir = target || `id:${this.thingSetId}/export_data`
-    //............................................
-    // Eval default export name
-    let enVars = {
-      ...this.oTs,
-      title: Ti.I18n.text(this.oTs.title || this.oTs.nm),
-      time: Ti.DateTime.format(new Date(), 'yyyy-MM-dd_HHmmss')
-    }
-    let exportName = Ti.S.renderBy(name, enVars)
-    //console.log(exportName)
-    //............................................
-    // Try load export mapping template
-    let phMappingDir = Ti.S.renderBy(mappingDir, this.oTs)
-    let oMappingDir = await Wn.Io.loadMeta(phMappingDir)
-    let oMapplingItems = []
-    if (oMappingDir) {
-      oMapplingItems = (await Wn.Io.loadChildren(oMappingDir)).list;
-    }
-    //............................................
-    // The checked id list
-    let checkedIds = Ti.Util.truthyKeys(this.checkedIds)
-    //............................................
-    // Prepare the result
-    let result = {
-      mode: "xls",
-      page: _.isEmpty(checkedIds) ? "current" : "checked",
-      limit: 1000,
-      name: exportName,
-      expiIn: 3,
-      fltInput: null,
-      cmdText: undefined,
-      outPath: undefined,
-      target: undefined
-    }
-    //............................................
-    // Eval modes options
-    let modeNames = mode.split(";")
-    let modeMap = {
-      xls: { value: "xls", text: "i18n:wn-export-c-type-xls" },
-      csv: { value: "csv", text: "i18n:wn-export-c-type-csv" },
-      json: { value: "json", text: "i18n:wn-export-c-type-json" },
-      zip: { value: "zip", text: "i18n:wn-export-c-type-zip" }
-    }
-    let modeOptions = []
-    _.forEach(modeNames, nm => {
-      if (modeMap[nm])
-        modeOptions.push(modeMap[nm])
-    })
-    //result.mode = _.first(modeOptions).value
-    //............................................
-    // Eval page options
-    let pageModes = page.split(";")
-    let pageMap = {
-      checked: { value: "checked", text: "i18n:wn-export-c-mode-checked" },
-      current: { value: "current", text: "i18n:wn-export-c-mode-current" },
-      all: { value: "all", text: "i18n:wn-export-c-mode-all" }
-    }
-    let pageOptions = []
-    _.forEach(pageModes, md => {
-      if (pageMap[md])
-        pageOptions.push(pageMap[md])
-    })
-    //result.page = _.first(pageOptions).value
-    //............................................
-    // Make the config form fields
-    let formFields = [];
-    formFields.push({
-      title: "i18n:wn-export-c-type",
-      name: "mode",
-      comType: "TiSwitcher",
-      comConf: {
-        allowEmpty: false,
-        options: modeOptions
-      }
-    })
-    if (!_.isEmpty(oMapplingItems)) {
-      result.mapping = _.first(oMapplingItems).id
-      formFields.push({
-        title: "i18n:wn-export-c-mapping",
-        name: "mapping",
-        comType: "TiDroplist",
-        comConf: {
-          options: oMapplingItems,
-          iconBy: "icon",
-          valueBy: "id",
-          textBy: "title|nm",
-          dropDisplay: ['<icon:zmdi-book>', 'title|nm']
-        }
-      })
-    }
-    formFields.push({
-      title: "i18n:wn-export-c-mode",
-      name: "page",
-      comType: "TiSwitcher",
-      comConf: {
-        allowEmpty: false,
-        options: pageOptions
-      }
-    })
-    formFields.push({
-      title: "i18n:wn-export-c-limit",
-      name: "limit",
-      type: "Integer",
-      visible: {
-        "page": "all"
-      },
-      comType: "TiInputNum",
-      comConf: {
-      }
-    })
-    formFields.push({
-      title: "i18n:wn-export-c-name",
-      name: "name",
-      comType: "TiInput",
-      comConf: {
-      }
-    })
-    formFields.push({
-      title: "i18n:wn-export-c-expi",
-      name: "expiIn",
-      comType: "TiSwitcher",
-      comConf: {
-        allowEmpty: false,
-        options: [
-          { value: 3, text: "i18n:wn-export-c-expi-3d" },
-          { value: 7, text: "i18n:wn-export-c-expi-7d" },
-          { value: 14, text: "i18n:wn-export-c-expi-14d" },
-          { value: 0, text: "i18n:wn-export-c-expi-off" }
-        ]
-      }
-    })
-    //............................................
-    // Open the dialog to collection user selection
-    let vm = this
-    await Ti.App.Open({
-      title: "i18n:export-data",
-      width: 640,
-      height: 640,
-      position: "top",
-      textOk: null, textCancel: null,
-      result,
-      comType: "TiWizard",
-      comConf: {
-        style: {
-          padding: ".5em"
-        },
-        steps: [{
-          title: "i18n:wn-export-setup",
-          comType: "TiForm",
-          comConf: {
-            data: ":=..",
-            fields: formFields
-          },
-          prev: false,
-          next: {
-            enabled: {
-              name: "![BLANK]"
-            },
-            handler: function () {
-              let outPath = `${taDir}/${this.value.name}.${this.value.mode}`
-              let cmds = [`thing id:${vm.thingSetId} query -cqn`]
-              //............................................
-              // Eval Sorter
-              if (!_.isEmpty(vm.sorter)) {
-                let sort = JSON.stringify(vm.sorter)
-                cmds.push(`-sort '${sort}'`)
-              }
-              //............................................
-              // Eval filter
-              let fltInput = JSON.stringify(_.assign({}, vm.filter, vm.fixedMatch))
-              // Checked ids
-              if ("checked" == this.value.page) {
-                fltInput = JSON.stringify({
-                  id: checkedIds
-                })
-              }
-              // Join pager
-              else if ("current" == this.value.page) {
-                let limit = vm.getters.searchPageSize || 1000
-                let skip = Math.max(limit * (vm.getters.searchPageNumber - 1), 0)
-                cmds.push(`-limit ${limit}`)
-                cmds.push(`-skip  ${skip}`)
-              }
-              // All pager
-              else if ("all" == this.value.page) {
-                let limit = this.value.limit || 1000
-                cmds.push(`-limit ${limit}`)
-              }
-
-              // Join the export 
-              cmds.push('|', 'sheet -process "${P} : ${id} : ${title} : ${nm}"')
-              cmds.push("-tpo " + this.value.mode)
-              // Mapping
-              if (this.value.mapping) {
-                cmds.push(`-mapping id:${this.value.mapping}`)
-              }
-
-              cmds.push(`-out '${outPath}';\n`)
-
-              // expi time
-              if (this.value.expiIn > 0) {
-                cmds.push(`obj ${outPath} -u 'expi:"%ms:now+${this.value.expiIn}d"';`)
-              }
-
-              // Join command
-              let cmdText = cmds.join(" ")
-
-              // Confirm change
-              this.$notify("change", {
-                ...this.value,
-                outPath,
-                cmdText,
-                fltInput
-              })
-
-              // Go to run command
-              this.gotoFromCurrent(1)
-            }
-          }
-        }, {
-          title: "i18n:wn-export-ing",
-          comType: "WnCmdPanel",
-          comConf: {
-            value: ":=cmdText",
-            input: ":=fltInput",
-            tipText: "i18n:wn-export-ing-tip",
-            tipIcon: "fas-bullhorn",
-            emitName: "step:change",
-            emitPayload: "%next"
-          },
-          prev: false,
-          next: false
-        }, {
-          title: "i18n:wn-export-done",
-          prepare: async function () {
-            let oTa = await Wn.Io.loadMeta(this.value.outPath)
-            this.$notify("change", {
-              ... this.value,
-              target: oTa
-            })
-          },
-          comType: "WebMetaBadge",
-          comConf: {
-            className: "is-success",
-            value: ":=target",
-            icon: "fas-check-circle",
-            title: "i18n:wn-export-done-ok",
-            brief: "i18n:wn-export-done-tip",
-            links: [{
-              icon: "fas-download",
-              text: ":=target.nm",
-              href: ":->/o/content?str=id:${target.id}&d=true",
-              newtab: true
-            }, {
-              icon: "fas-external-link-alt",
-              text: "i18n:wn-export-open-dir",
-              href: Wn.Util.getAppLink(taDir),
-              newtab: true
-            }]
-          }
-        }]
-      },
-      components: [
-        "@com:ti/wizard",
-        "@com:ti/form",
-        "@com:wn/cmd/panel",
-        "@com:web/meta/badge"
-      ]
-    })
+    return items;
   },
   //--------------------------------------------
   //
@@ -12861,18 +12636,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //
   //--------------------------------------------
   async openContentEditor() {
-    return await this.dispatch("openContentEditor")
+    return await this.dispatch("openContentEditor");
   },
   //--------------------------------------------
   async openCurrentMetaEditor() {
-    return await this.dispatch("openCurrentMetaEditor")
+    return await this.dispatch("openCurrentMetaEditor");
   },
   //--------------------------------------------
   async openCurrentPrivilege() {
-    return await this.dispatch("openCurrentPrivilege")
+    return await this.dispatch("openCurrentPrivilege");
   },
   //--------------------------------------------
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -12881,8 +12656,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/wn/th/adaptor/wn-th-adaptor-gui.mjs'] = (function(){
 const _M = {
   ///////////////////////////////////////////
-  data: () => ({
-  }),
+  data: () => ({}),
   ///////////////////////////////////////////
   computed: {
     //--------------------------------------
@@ -12893,6 +12667,8 @@ const _M = {
         //------------------------------
         thingSetId: this.thingSetId,
         oTs: this.oTs,
+        //------------------------------
+        load: this.load,
         //------------------------------
         aggQuery: this.aggQuery,
         agg: this.agg,
@@ -12928,77 +12704,81 @@ const _M = {
         currentDataHomeObj: this.dataHomeObj,
         currentDataDirName: this.dataDirName,
         //------------------------------
-        ...this.getters
-      }
+        ...this.getters,
+      };
     },
     //--------------------------------------
     GuiLayout() {
-      let c = this.GuiExplainContext
-      return Ti.Util.explainObj(c, this.layout)
+      let c = this.GuiExplainContext;
+      return Ti.Util.explainObj(c, this.layout);
     },
     //--------------------------------------
     GuiSchema() {
-      let c = this.GuiExplainContext
-      let schema = _.omit(this.schema, "components", "events", "behavior", "methods")
-      return Ti.Util.explainObj(c, schema)
+      let c = this.GuiExplainContext;
+      let schema = _.omit(
+        this.schema,
+        "components",
+        "events",
+        "behavior",
+        "methods"
+      );
+      return Ti.Util.explainObj(c, schema);
     },
     //--------------------------------------
     GuiVars() {
-      return {}
+      return {};
     },
     //--------------------------------------
     GuiLoadingAs() {
       return {
         "reloading": {
           icon: "fas-spinner fa-spin",
-          text: "i18n:loading"
+          text: "i18n:loading",
         },
         "doing": {
           icon: "zmdi-settings fa-spin",
-          text: "i18n:doing"
+          text: "i18n:doing",
         },
         "saving": {
           icon: "zmdi-settings fa-spin",
-          text: "i18n:saving"
+          text: "i18n:saving",
         },
         "deleting": {
           icon: "zmdi-refresh fa-spin",
-          text: "i18n:del-ing"
+          text: "i18n:del-ing",
         },
         "publishing": {
           icon: "zmdi-settings zmdi-hc-spin",
-          text: "i18n:publishing"
+          text: "i18n:publishing",
         },
         "restoring": {
           icon: "zmdi-time-restore zmdi-hc-spin",
-          text: "i18n:thing-restoring"
+          text: "i18n:thing-restoring",
         },
         "cleaning": {
           icon: "zmdi-settings zmdi-hc-spin",
-          text: "i18n:thing-cleaning"
-        }
-      }
+          text: "i18n:thing-cleaning",
+        },
+      };
     },
     //--------------------------------------
     GuiIsLoading() {
-      return (this.status.reloading
-        || this.status.doing
-        || this.status.saving
-        || this.status.deleting
-        || this.status.publishing
-        || this.status.restoring
-        || this.status.cleaning)
+      return this.status.reloading ||
+        this.status.doing ||
+        this.status.saving ||
+        this.status.deleting ||
+        this.status.publishing ||
+        this.status.restoring ||
+        this.status.cleaning
         ? true
         : false;
-    }
+    },
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  methods: {
-
-  }
+  methods: {},
   ///////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -13074,6 +12854,7 @@ const _M = {
     let link = Wn.Util.getAppLink(oDir);
     Ti.Be.Open(link.url, { params: link.params });
   },
+  //----------------------------------------
   async exportData({ state, commit, dispatch, getters }) {
     // Guard
     if (!getters.isCanUpdate) {
@@ -13089,6 +12870,7 @@ const _M = {
     }
 
     let tsName = Ti.Util.getFallback(state.oTs, "title", "nm") || "export";
+    let tsTitle = Ti.I18n.text(tsName)
 
     // Open Dialog Wizard to export data
     let re = await Ti.App.Open({
@@ -13102,7 +12884,7 @@ const _M = {
       comConf: {
         "mappingPath": `id:${state.thingSetId}/export/`,
         "defaultMappingName": undefined,
-        "outputName": `${tsName}-\${now}`,
+        "outputName": `${tsTitle}-\${now}`,
         "outputTarget": `id:${state.thingSetId}/tmp/export/\${name}.\${type}`,
       },
       components: ["@com:wn/data/exporter-form"],
@@ -13267,7 +13049,7 @@ const _M = {
       state.LOG("Export Data:", cmdText);
     } catch (E) {
       // Fail to Generate the command
-      Ti.Alert(E.toString() ?? "Some Erro Happend IN Gen Command", {
+      Ti.Alert(E.toString() || "Some Erro Happend IN Gen Command", {
         type: "error",
       });
       throw E;
@@ -20547,7 +20329,6 @@ const _M = {
     },
     //---------------------------------------------------
     async reloadMappingFields(mappingId = this.MappingFileId) {
-      console.log(mappingId);
       if (mappingId && !this.myCanFields[mappingId]) {
         // Try Cache
         let json = await Wn.Sys.exec2(`cat id:${mappingId}`);
@@ -20583,7 +20364,7 @@ const _M = {
     },
     //---------------------------------------------------
     async reload() {
-      console.log("WDE:reload");
+      //console.log("WDE:reload");
       // reload all option mapping paths
       let paths = _.concat(this.mappingPath);
       let fld = "^(id|race|tp|mime|nm|name|title)$";
@@ -20613,7 +20394,6 @@ const _M = {
       }
       // Found the default
       let mappingId = _.get(this.data, "mapping");
-      console.log(mappingId);
       if (!_.isEmpty(list) && !mappingId && _.isEmpty(this.MappingFields)) {
         mappingId = _.first(list).id;
         if (this.defaultMappingName) {
@@ -20633,7 +20413,7 @@ const _M = {
         type: this.outputType,
         mode: this.outputMode,
         mapping: mappingId,
-        name: this.genOutputName(_.get(this.data, "outputName") ?? this.outputName),
+        name: this.genOutputName(_.get(this.data, "outputName") || this.outputName),
       };
       if (this.targetExpi) {
         data.expi = `${this.targetExpi}`;
@@ -42288,71 +42068,8 @@ const _M = {
     },
     //--------------------------------------
     //
-    //  Show/Hide block
-    //
-    //--------------------------------------
-    updateBlockShown(shown = {}) {
-      let guiShown = {}
-      _.forEach(shown, (v, k) => {
-        if (v) {
-          guiShown[k] = true
-        }
-      })
-      this.commit("setGuiShown", guiShown)
-    },
-    //--------------------------------------
-    showBlock(blockName) {
-      let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
-      //console.log(blockNames)
-      let guiShown = {}
-      _.forEach(blockNames, nm => {
-        guiShown[nm] = true
-      })
-      this.commit("setGuiShown", guiShown)
-    },
-    //--------------------------------------
-    hideBlock(blockName) {
-      let blockNames = Ti.S.splitIgnoreBlank(blockName, /[;,\s]+/g)
-      //console.log(blockNames)
-      let guiShown = _.cloneDeep(this.guiShown) || {}
-      _.forEach(blockNames, nm => {
-        guiShown[nm] = false
-      })
-      this.commit("setGuiShown", guiShown)
-    },
-    //--------------------------------------
-    //
-    //  Utility
-    //
-    //--------------------------------------
-    async dispatch(name, payload) {
-      let path = Ti.Util.appendPath(this.moduleName, name)
-      return await Ti.App(this).dispatch(path, payload)
-    },
-    //--------------------------------------
-    commit(name, payload) {
-      let path = Ti.Util.appendPath(this.moduleName, name)
-      return Ti.App(this).commit(path, payload)
-    },
-    //--------------------------------------
-    getCheckedItems(noneAsAll = false) {
-      let items = this.GuiExplainContext.checkedItems;
-      if (noneAsAll && _.isEmpty(items)) {
-        return this.list || []
-      }
-      return items
-    },
-    //--------------------------------------
-    //
     // Events / Callback
     //
-    //--------------------------------------
-    fire(name, payload) {
-      let func = this.__on_events(name, payload)
-      if (_.isFunction(func)) {
-        func.apply(this, [payload])
-      }
-    },
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
@@ -55667,7 +55384,7 @@ window.TI_PACK_EXPORTS['ti/com/wn/th/adaptor/wn-th-adaptor-prop.mjs'] = (functio
 const __TI_MOD_EXPORT_VAR_NM = {
   "moduleName": {
     type: String,
-    default: "main"
+    default: "main",
   },
   "guiShown": Object,
   "rootState": Object,
@@ -55675,10 +55392,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // The Thingset
   //-----------------------------------
   "thingSetId": {
-    type: String
+    type: String,
   },
   "oTs": Object,
-  "mappingDirPath": String,
+  "load": Object,
   //-----------------------------------
   // The search list
   //-----------------------------------
@@ -55716,16 +55433,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
         "pgc": 0,
         "sum": 0,
         "skip": 0,
-        "count": 0
-      }
-    })
+        "count": 0,
+      },
+    }),
   },
   "dataDirCurrentId": {
-    type: [String]
+    type: [String],
   },
   "dataDirCheckedIds": {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   //-----------------------------------
   // Gloable Status
@@ -55739,41 +55456,45 @@ const __TI_MOD_EXPORT_VAR_NM = {
       "deleting": false,
       "changed": false,
       "restoring": false,
-      "inRecycleBin": false
-    })
+      "inRecycleBin": false,
+    }),
   },
   "fieldStatus": {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   //-----------------------------------
   // Customized GUI
   //-----------------------------------
   "thingActions": {
-    type: Array, default: () => []
+    type: Array,
+    default: () => [],
   },
   "layout": {
-    type: Object, default: () => ({})
+    type: Object,
+    default: () => ({}),
   },
   "schema": {
-    type: Object, default: () => ({})
+    type: Object,
+    default: () => ({}),
   },
   "thingMethods": {
-    type: Object, default: () => ({})
+    type: Object,
+    default: () => ({}),
   },
   //-----------------------------------
   // Getters
   //-----------------------------------
   "getters": {
     type: Object,
-    default: ()=>({})
+    default: () => ({}),
   },
   //-----------------------------------
   // Global View Setting
   //-----------------------------------
   "viewType": String,
-  "exposeHidden": Boolean
-}
+  "exposeHidden": Boolean,
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -76333,10 +76054,55 @@ const _M = {
     }
   },
   //--------------------------------------------
+  async applyLoad({ state, commit }) {
+    let results = {};
+    //
+    // Define Loader
+    const _load_data = async (key, path, asJson = false) => {
+      // Load
+      results[key] = await Wn.Sys.exec2(`cat '${path}'`, {
+        as: asJson ? "json" : "text",
+      });
+    };
+
+    // Load Each Path
+    let loads = [];
+    _.forEach(state.load, (path, key) => {
+      path = _.trim(path);
+      // Guard
+      if (!path) {
+        return;
+      }
+      // Guard path
+      if (path.indexOf("'") >= 0) {
+        throw Ti.Err.make("e.load.path.Invalid", path);
+      }
+
+      // Auto parse Json flag
+      let type = Ti.Util.getSuffixName(path);
+      let asJson = "json" == type;
+
+      // Absolute path
+      if (!/^(~|\/|id:)/.test(path)) {
+        path = `id:${state.thingSetId}/${path}`;
+      }
+
+      // Join Loading
+      loads.push(_load_data(key, path, asJson));
+    });
+
+    // Load them ..
+    await Promise.all(loads);
+
+    // Update state
+    commit("setLoad", results);
+  },
+  //--------------------------------------------
   applyBehavior({ state, commit }, be = {}) {
     // Eval behavior dynamicly
     let {
       pvg,
+      load,
       filter,
       sorter,
       match,
@@ -76356,6 +76122,11 @@ const _M = {
     // Apply Pvg
     if (!_.isEmpty(pvg)) {
       commit("assignPvg", pvg);
+    }
+
+    // Apply Load
+    if (!_.isEmpty(load)) {
+      commit("assignLoad", load);
     }
 
     // Apply filter
@@ -76565,6 +76336,9 @@ const _M = {
     commit("explainLocalBehaviorKeepAt");
     dispatch("updateSchemaBehavior");
     dispatch("restoreLocalBehavior");
+
+    // Load more fixed data
+    await dispatch("applyLoad");
 
     state.LOG(" >> Query Data ...");
 
@@ -100887,18 +100661,19 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj-search.mjs", TI_PACK_EXPORTS['ti/mod/wn/th
 //========================================
 Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "moduleName": "main",
-  "pvg":{
-    "remove":null,
-    "create":null,
-    "update":null,
-    "save":null
+  "pvg": {
+    "remove": null,
+    "create": null,
+    "update": null,
+    "save": null
   },
+  "load": {},
   "view": null,
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
   "localBehaviorIgnore": null,
   "schemaBehaviorIgnore": null,
-  "exportSettings":{},
-  "importSettings":{},
+  "exportSettings": {},
+  "importSettings": {},
   "lbkAt": null,
   "lbkOff": false,
   "lbkIgnore": null,
@@ -100906,8 +100681,8 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "thingSetId": null,
   "oTs": null,
   "fixedMatch": {},
-  "agg":{},
-  "aggResult":{},
+  "agg": {},
+  "aggResult": {},
   "aggQuery": null,
   "filter": {},
   "sorter": {
@@ -101518,36 +101293,36 @@ Ti.Preload("/a/load/wn.manager/wn-manager.mjs", TI_PACK_EXPORTS['/a/load/wn.mana
 // JOIN <hmaker.i18n.json> ti/i18n/en-uk/hmaker.i18n.json
 //========================================
 Ti.Preload("ti/i18n/en-uk/hmaker.i18n.json", {
-  "am-and": "and",
-  "am-blank": "is blank",
-  "am-boolFalse": "is false",
-  "am-boolTrue": "is true",
-  "am-empty": "is empty",
-  "am-equals": "equal to ${val} ",
-  "am-equalsIgnoreCase": "equal ignore case to \"${val}\"",
-  "am-equalsType": "type equal to \"${val}\"",
-  "am-exists": "has '${val}'",
-  "am-findInArray": "contains a object [${val}]",
-  "am-gt": "greater than ${val}",
-  "am-gte": "greater than or equal to ${val}",
-  "am-lt": "less than ${val}",
-  "am-lte": "less than or equal to ${val}",
-  "am-matchOf": "is matched with '${val}'",
-  "am-must-false": "Must be false",
-  "am-must-true": "Must be true",
-  "am-nil": "is nil",
-  "am-nilOf": "field ${val} is nil",
-  "am-noexists": "not exists '${val}'",
-  "am-not": "NOT",
-  "am-not-sure": "Not sure",
+  "am-and": " and ",
+  "am-blank": " is blank",
+  "am-boolFalse": " is false",
+  "am-boolTrue": " is true",
+  "am-empty": " is empty",
+  "am-equals": " equal to ${val}",
+  "am-equalsIgnoreCase": " equal ignore case to \"${val}\"",
+  "am-equalsType": " type equal to \"${val}\"",
+  "am-exists": " has '${val}'",
+  "am-findInArray": " contains a object [${val}]",
+  "am-gt": " greater than ${val}",
+  "am-gte": " greater than or equal to ${val}",
+  "am-lt": " less than ${val}",
+  "am-lte": " less than or equal to ${val}",
+  "am-matchOf": " is matched with '${val}'",
+  "am-must-false": " must be false",
+  "am-must-true": " must be true",
+  "am-nil": " is nil",
+  "am-nilOf": " field ${val} is nil",
+  "am-noexists": " not exists '${val}'",
+  "am-not": " NOT ",
+  "am-not-sure": "not sure",
   "am-notEquals": "not equals with ${val} ",
   "am-notMatchOf": "unmatch '${FFFval}'",
-  "am-notNil": "not null",
-  "am-notNilOf": "Field ${val} is NOT null",
-  "am-null": "is null",
-  "am-nullOf": "Field ${val} is null",
-  "am-or": "or",
-  "am-undefined": "is undefined",
+  "am-notNil": " not null",
+  "am-notNilOf": " field ${val} is NOT null",
+  "am-null": " is null",
+  "am-nullOf": " field ${val} is null",
+  "am-or": " or ",
+  "am-undefined": " is undefined",
   "am-undefinedOf": "Field ${val} is undefined",
   "com-form": "Form",
   "com-label": "Label",
@@ -101558,6 +101333,12 @@ Ti.Preload("ti/i18n/en-uk/hmaker.i18n.json", {
   "hm-args-partial": "Arg partial",
   "hm-args-partial-left": "Partial Left",
   "hm-args-partial-right": "Partial Right",
+  "hm-form-options-other-dftval": "Other default",
+  "hm-form-options-other-enabled": "Show Other",
+  "hm-form-options-other-ph": "Other tip",
+  "hm-form-options-other-ph-ph": "Enter other options",
+  "hm-form-options-other-text": "Other Text",
+  "hm-form-options-other-width": "Other width",
   "hm-type-Array": "Array",
   "hm-type-Boolean": "Boolean",
   "hm-type-Group": "Group",
@@ -101574,12 +101355,6 @@ Ti.Preload("ti/i18n/en-uk/hmaker.i18n.json", {
     "Object": "Zmdi-toys",
     "String": "Zmdi-translate"
   },
-  "hm-form-options-other-enabled": "Show Other",
-  "hm-form-options-other-text": "Other Text",
-  "hm-form-options-other-ph": "Other tip",
-  "hm-form-options-other-ph-ph": "Enter other options",
-  "hm-form-options-other-width": "Other width",
-  "hm-form-options-other-dftval": "Other default",
   "hmaker-com-conf-blank": "请选择一个控件设置其详情",
   "hmaker-com-type-blank": "选择一个控件",
   "hmaker-edit-form-del-group-all": "组以及全部字段",
@@ -102544,6 +102319,9 @@ Ti.Preload("ti/i18n/en-uk/_ti.i18n.json", {
   "chart-line": "Line Chart",
   "chart-pie": "Pie Chart",
   "chart-rank": "Rank Chart",
+  "check-tip-all": "All selected, click to cancel",
+  "check-tip-none": "Click to select all",
+  "check-tip-part": "Partial selected, click to select all",
   "checked": "Checked",
   "choose": "Select",
   "choose-fields": "Select fields",
@@ -102621,6 +102399,10 @@ Ti.Preload("ti/i18n/en-uk/_ti.i18n.json", {
   "e-auth-login-NoPhoneOrEmail": "Invalid phone number or email address",
   "e-auth-login-NoSaltedPasswd": "Password without salting",
   "e-auth-login-invalid-passwd": "Invalid password",
+  "e-export_data-ConfirmBigLimit": "You want to export a lot of data, it may take a while, should we continue?",
+  "e-export_data-InvalidScope": "The export range you declared is invalid. It should like: 1-20 but you typed:",
+  "e-export_data-UnknownMode": "Unknown Export Mode",
+  "e-form-incomplete": "Form Incomplete : [${title}]  ${tip}",
   "e-io-forbidden": "IO Forbidden",
   "e-io-obj-BlankName": "The object name CANNOT be empty",
   "e-io-obj-InvalidName": "Invalid object name",
@@ -102631,8 +102413,7 @@ Ti.Preload("ti/i18n/en-uk/_ti.i18n.json", {
   "e-obj-invalid": "Path [${val}] invalid",
   "e-obj-noexists": "Object [${val}] not exists",
   "e-ph-noexists": "Path [${val}] not exists",
-  "e-pvg-fobidden":"Operation prohibited",
-  "e-form-incomplete": "Form Incomplete : [${title}]  ${tip}",
+  "e-pvg-fobidden": "Operation prohibited",
   "edit": "Edit",
   "edit-com": "Edit control",
   "edit-content": "Edit Content",
@@ -102994,6 +102775,8 @@ Ti.Preload("ti/i18n/en-uk/_ti.i18n.json", {
 Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
   "wn-admin-check-obj-thumb": "Check obj thumbnails ...",
   "wn-admin-tools": "Admin tools",
+  "wn-cmd-panel-epilog": "The script is finished, you can close the window now ^_^",
+  "wn-cmd-panel-tip": "The script may take a while to run, please do not close the window",
   "wn-ctt-css-text": "CSS File",
   "wn-ctt-folder-text": "Folder",
   "wn-ctt-html-text": "HTML FILE",
@@ -103007,8 +102790,6 @@ Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
   "wn-ctt-txt-text": "Pure text",
   "wn-ctt-wnml-text": "WNML File",
   "wn-ctt-xml-text": "XML File",
-  "wn-cmd-panel-tip": "The script may take a while to run, please do not close the window",
-  "wn-cmd-panel-epilog": "The script is finished, you can close the window now ^_^",
   "wn-edit-com-nil": "Default as label control",
   "wn-en-his-ct": "Created",
   "wn-en-his-flt-tip": "Please input user id or name to filtering",
@@ -103023,25 +102804,43 @@ Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
   "wn-en-his-usr": "User",
   "wn-en-his-utp": "User type",
   "wn-export-c-expi": "Expire in",
+  "wn-export-c-expi-12h": "12Hr.",
   "wn-export-c-expi-14d": "14Days",
+  "wn-export-c-expi-1d": "1Day",
+  "wn-export-c-expi-1h": "1Hr.",
+  "wn-export-c-expi-2h": "2Hr.",
+  "wn-export-c-expi-30d": "30Day",
   "wn-export-c-expi-3d": "3Days",
+  "wn-export-c-expi-6h": "6Hr.",
   "wn-export-c-expi-7d": "7Days",
   "wn-export-c-expi-off": "Never",
+  "wn-export-c-expi-tip": "How long to keep temporary files on the server",
   "wn-export-c-limit": "Limit",
   "wn-export-c-mapping": "Mapping",
-  "wn-export-c-mode": "Export mode",
-  "wn-export-c-mode-csv": "CSV File",
-  "wn-export-c-mode-json": "JSON",
-  "wn-export-c-mode-xls": "Spreadsheet",
-  "wn-export-c-mode-zip": "Zip data",
+  "wn-export-c-mapping-phd": "Choose mapping mode",
+  "wn-export-c-mapping-tip": "The so-called mapping mode, is how to output the field, including how to specify the field name, field value how to convert",
+  "wn-export-c-mode": "Data Range",
+  "wn-export-c-mode-all": "All Pages",
+  "wn-export-c-mode-checked": "Checked",
+  "wn-export-c-mode-current": "Current Page",
+  "wn-export-c-mode-scope": "Scope",
+  "wn-export-c-mode-scope-phd": "Such as: 1-100",
+  "wn-export-c-mode-scope-tip": "Range of data to be exported, 1-200 indicates from Record 1 to record 200 (inclusive)",
   "wn-export-c-name": "Export name",
-  "wn-export-c-page": "Data scope",
-  "wn-export-c-page-all": "All page",
-  "wn-export-c-page-checked": "Checked",
-  "wn-export-c-page-current": "Current page",
+  "wn-export-c-name-phd": "Enter the export file name",
+  "wn-export-c-name-tip": "Export file name. If no suffix is available, it will be auto completed based on Export type",
+  "wn-export-c-type": "Export Type",
+  "wn-export-c-type-csv": "CSV File",
+  "wn-export-c-type-json": "JSON",
+  "wn-export-c-type-unknown": "Unknown Export Type",
+  "wn-export-c-type-xls": "Spreadsheet",
+  "wn-export-c-type-zip": "Zip data",
+  "wn-export-choose-fields": "Choose Fields",
   "wn-export-done": "Finished",
+  "wn-export-done-fail": "Fail To Export",
+  "wn-export-done-fail-tip": "Please click to see the error details",
   "wn-export-done-ok": "Export success",
-  "wn-export-done-tip": "Please click the link below to download",
+  "wn-export-done-ok-tip": "Please click the link below to download",
   "wn-export-ing": "Processing",
   "wn-export-ing-tip": "The export script is running, please wait for a while",
   "wn-export-open-dir": "Open export history dir...",
@@ -103089,10 +102888,10 @@ Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
   "wn-md-R": "R",
   "wn-md-W": "W",
   "wn-md-X": "X",
-  "wn-md-blend-mode":"Blend Mode",
-  "wn-md-blend-dft":"DEFAILT",
-  "wn-md-blend-strong":"STRONG",
-  "wn-md-blend-weak":"WEAK",
+  "wn-md-blend-dft": "DEFAILT",
+  "wn-md-blend-mode": "Blend Mode",
+  "wn-md-blend-strong": "STRONG",
+  "wn-md-blend-weak": "WEAK",
   "wn-md-excutable": "Excutable",
   "wn-md-member": "Member",
   "wn-md-other": "Other",
@@ -103164,6 +102963,12 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
   "hm-args-partial": "Arg partial",
   "hm-args-partial-left": "Partial Left",
   "hm-args-partial-right": "Partial Right",
+  "hm-form-options-other-dftval": "Other default",
+  "hm-form-options-other-enabled": "Show Other",
+  "hm-form-options-other-ph": "Other tip",
+  "hm-form-options-other-ph-ph": "Enter other options",
+  "hm-form-options-other-text": "Other Text",
+  "hm-form-options-other-width": "Other width",
   "hm-type-Array": "Array",
   "hm-type-Boolean": "Boolean",
   "hm-type-Group": "Group",
@@ -103180,12 +102985,6 @@ Ti.Preload("ti/i18n/en-us/hmaker.i18n.json", {
     "Object": "Zmdi-toys",
     "String": "Zmdi-translate"
   },
-  "hm-form-options-other-enabled": "Show Other",
-  "hm-form-options-other-text": "Other Text",
-  "hm-form-options-other-ph": "Other tip",
-  "hm-form-options-other-ph-ph": "Enter other options",
-  "hm-form-options-other-width": "Other width",
-  "hm-form-options-other-dftval": "Other default",
   "hmaker-com-conf-blank": "请选择一个控件设置其详情",
   "hmaker-com-type-blank": "选择一个控件",
   "hmaker-edit-form-del-group-all": "组以及全部字段",
@@ -104150,6 +103949,9 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "chart-line": "Line Chart",
   "chart-pie": "Pie Chart",
   "chart-rank": "Rank Chart",
+  "check-tip-all": "All selected, click to cancel",
+  "check-tip-none": "Click to select all",
+  "check-tip-part": "Partial selected, click to select all",
   "checked": "Checked",
   "choose": "Select",
   "choose-fields": "Select fields",
@@ -104227,6 +104029,10 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "e-auth-login-NoPhoneOrEmail": "Invalid phone number or email address",
   "e-auth-login-NoSaltedPasswd": "Password without salting",
   "e-auth-login-invalid-passwd": "Invalid password",
+  "e-export_data-ConfirmBigLimit": "You want to export a lot of data, it may take a while, should we continue?",
+  "e-export_data-InvalidScope": "The export range you declared is invalid. It should like: 1-20 but you typed:",
+  "e-export_data-UnknownMode": "Unknown Export Mode",
+  "e-form-incomplete": "Form Incomplete : [${title}]  ${tip}",
   "e-io-forbidden": "IO Forbidden",
   "e-io-obj-BlankName": "The object name CANNOT be empty",
   "e-io-obj-InvalidName": "Invalid object name",
@@ -104237,8 +104043,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "e-obj-invalid": "Path [${val}] invalid",
   "e-obj-noexists": "Object [${val}] not exists",
   "e-ph-noexists": "Path [${val}] not exists",
-  "e-pvg-fobidden":"Operation prohibited",
-  "e-form-incomplete": "Form Incomplete : [${title}]  ${tip}",
+  "e-pvg-fobidden": "Operation prohibited",
   "edit": "Edit",
   "edit-com": "Edit control",
   "edit-content": "Edit Content",
@@ -104600,6 +104405,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
 Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-admin-check-obj-thumb": "Check obj thumbnails ...",
   "wn-admin-tools": "Admin tools",
+  "wn-cmd-panel-epilog": "The script is finished, you can close the window now ^_^",
+  "wn-cmd-panel-tip": "The script may take a while to run, please do not close the window",
   "wn-ctt-css-text": "CSS File",
   "wn-ctt-folder-text": "Folder",
   "wn-ctt-html-text": "HTML FILE",
@@ -104613,8 +104420,6 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-ctt-txt-text": "Pure text",
   "wn-ctt-wnml-text": "WNML File",
   "wn-ctt-xml-text": "XML File",
-  "wn-cmd-panel-tip": "The script may take a while to run, please do not close the window",
-  "wn-cmd-panel-epilog": "The script is finished, you can close the window now ^_^",
   "wn-edit-com-nil": "Default as label control",
   "wn-en-his-ct": "Created",
   "wn-en-his-flt-tip": "Please input user id or name to filtering",
@@ -104629,25 +104434,43 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-en-his-usr": "User",
   "wn-en-his-utp": "User type",
   "wn-export-c-expi": "Expire in",
+  "wn-export-c-expi-12h": "12Hr.",
   "wn-export-c-expi-14d": "14Days",
+  "wn-export-c-expi-1d": "1Day",
+  "wn-export-c-expi-1h": "1Hr.",
+  "wn-export-c-expi-2h": "2Hr.",
+  "wn-export-c-expi-30d": "30Day",
   "wn-export-c-expi-3d": "3Days",
+  "wn-export-c-expi-6h": "6Hr.",
   "wn-export-c-expi-7d": "7Days",
   "wn-export-c-expi-off": "Never",
+  "wn-export-c-expi-tip": "How long to keep temporary files on the server",
   "wn-export-c-limit": "Limit",
   "wn-export-c-mapping": "Mapping",
-  "wn-export-c-mode": "Export mode",
-  "wn-export-c-mode-csv": "CSV File",
-  "wn-export-c-mode-json": "JSON",
-  "wn-export-c-mode-xls": "Spreadsheet",
-  "wn-export-c-mode-zip": "Zip data",
+  "wn-export-c-mapping-phd": "Choose mapping mode",
+  "wn-export-c-mapping-tip": "The so-called mapping mode, is how to output the field, including how to specify the field name, field value how to convert",
+  "wn-export-c-mode": "Data Range",
+  "wn-export-c-mode-all": "All Pages",
+  "wn-export-c-mode-checked": "Checked",
+  "wn-export-c-mode-current": "Current Page",
+  "wn-export-c-mode-scope": "Scope",
+  "wn-export-c-mode-scope-phd": "Such as: 1-100",
+  "wn-export-c-mode-scope-tip": "Range of data to be exported, 1-200 indicates from Record 1 to record 200 (inclusive)",
   "wn-export-c-name": "Export name",
-  "wn-export-c-page": "Data scope",
-  "wn-export-c-page-all": "All page",
-  "wn-export-c-page-checked": "Checked",
-  "wn-export-c-page-current": "Current page",
+  "wn-export-c-name-phd": "Enter the export file name",
+  "wn-export-c-name-tip": "Export file name. If no suffix is available, it will be auto completed based on Export type",
+  "wn-export-c-type": "Export Type",
+  "wn-export-c-type-csv": "CSV File",
+  "wn-export-c-type-json": "JSON",
+  "wn-export-c-type-unknown": "Unknown Export Type",
+  "wn-export-c-type-xls": "Spreadsheet",
+  "wn-export-c-type-zip": "Zip data",
+  "wn-export-choose-fields": "Choose Fields",
   "wn-export-done": "Finished",
+  "wn-export-done-fail": "Fail To Export",
+  "wn-export-done-fail-tip": "Please click to see the error details",
   "wn-export-done-ok": "Export success",
-  "wn-export-done-tip": "Please click the link below to download",
+  "wn-export-done-ok-tip": "Please click the link below to download",
   "wn-export-ing": "Processing",
   "wn-export-ing-tip": "The export script is running, please wait for a while",
   "wn-export-open-dir": "Open export history dir...",
@@ -104695,8 +104518,8 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-md-R": "R",
   "wn-md-W": "W",
   "wn-md-X": "X",
-  "wn-md-blend-mode": "Blend Mode",
   "wn-md-blend-dft": "DEFAILT",
+  "wn-md-blend-mode": "Blend Mode",
   "wn-md-blend-strong": "STRONG",
   "wn-md-blend-weak": "WEAK",
   "wn-md-excutable": "Excutable",
@@ -104770,6 +104593,12 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "hm-args-partial": "参数填充",
   "hm-args-partial-left": "左填充",
   "hm-args-partial-right": "右填充",
+  "hm-form-options-other-dftval": "其他·默认值",
+  "hm-form-options-other-enabled": "显示其他",
+  "hm-form-options-other-ph": "其他·提示信息",
+  "hm-form-options-other-ph-ph": "输入其他选项",
+  "hm-form-options-other-text": "其他·文字",
+  "hm-form-options-other-width": "其他·宽度",
   "hm-type-Array": "数组",
   "hm-type-Boolean": "布尔",
   "hm-type-Group": "字段分组",
@@ -104786,12 +104615,6 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
     "Object": "zmdi-toys",
     "String": "zmdi-translate"
   },
-  "hm-form-options-other-enabled": "显示其他",
-  "hm-form-options-other-text": "其他·文字",
-  "hm-form-options-other-ph": "其他·提示信息",
-  "hm-form-options-other-ph-ph": "输入其他选项",
-  "hm-form-options-other-width": "其他·宽度",
-  "hm-form-options-other-dftval": "其他·默认值",
   "hmaker-com-conf-blank": "请选择一个控件设置其详情",
   "hmaker-com-type-blank": "选择一个控件",
   "hmaker-edit-form-del-group-all": "组以及全部字段",
@@ -105757,8 +105580,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "chart-pie": "饼状图",
   "chart-rank": "条状图",
   "check-tip-all": "全选项目，点击取消全选",
-  "check-tip-part": "部分选中项目，点击全选",
   "check-tip-none": "点击全选",
+  "check-tip-part": "部分选中项目，点击全选",
   "checked": "已选中",
   "choose": "选择",
   "choose-fields": "选择字段",
@@ -105836,9 +105659,10 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
   "e-auth-login-NoSaltedPasswd": "未设置合法的密码",
   "e-auth-login-invalid-passwd": "账户密码未通过校验",
-  "e-export_data-UnknownMode": "未知的导出模式",
-  "e-export_data-InvalidScope": "你声明的导出范围格式不正确，正确的格式类似：1-20 但是你却输入了：",
   "e-export_data-ConfirmBigLimit": "你要导出的数据很多，这个操作可能会需要较长时间，你确定要继续导出吗？",
+  "e-export_data-InvalidScope": "你声明的导出范围格式不正确，正确的格式类似：1-20 但是你却输入了：",
+  "e-export_data-UnknownMode": "未知的导出模式",
+  "e-form-incomplete": "表单缺失必要字段: 【${title|name}】 ${tip?}",
   "e-io-forbidden": "禁止写入",
   "e-io-obj-BlankName": "对象名称不能为空",
   "e-io-obj-InvalidName": "对象名称非法",
@@ -105850,7 +105674,6 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-obj-noexists": "对象[${val}]不存在",
   "e-ph-noexists": "路径[${val}]不存在",
   "e-pvg-fobidden": "操作被禁止",
-  "e-form-incomplete": "表单缺失必要字段: 【${title|name}】 ${tip?}",
   "edit": "编辑",
   "edit-com": "编辑控件",
   "edit-content": "编辑内容",
@@ -106212,6 +106035,8 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
 Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-admin-check-obj-thumb": "检查图像缩略图...",
   "wn-admin-tools": "管理工具",
+  "wn-cmd-panel-epilog": "脚本执行完毕，您可以关闭本窗口了 ^_^",
+  "wn-cmd-panel-tip": "脚本运行可能需要一点时间，请不要关闭窗口",
   "wn-ctt-css-text": "CSS样式文件",
   "wn-ctt-folder-text": "文件夹",
   "wn-ctt-html-text": "HTML文本",
@@ -106225,8 +106050,6 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-ctt-txt-text": "纯文本",
   "wn-ctt-wnml-text": "WNML源文件",
   "wn-ctt-xml-text": "XML文本",
-  "wn-cmd-panel-tip": "脚本运行可能需要一点时间，请不要关闭窗口",
-  "wn-cmd-panel-epilog": "脚本执行完毕，您可以关闭本窗口了 ^_^",
   "wn-edit-com-nil": "默认为标签控件",
   "wn-en-his-ct": "创建时间",
   "wn-en-his-flt-tip": "请输入用户ID或者名称过滤",
@@ -106241,43 +106064,43 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-en-his-usr": "用户",
   "wn-en-his-utp": "用户类型",
   "wn-export-c-expi": "保存时间",
-  "wn-export-c-expi-1d": "1天",
+  "wn-export-c-expi-12h": "12小时",
   "wn-export-c-expi-14d": "14天",
-  "wn-export-c-expi-30d": "30天",
-  "wn-export-c-expi-3d": "3天",
-  "wn-export-c-expi-7d": "7天",
+  "wn-export-c-expi-1d": "1天",
   "wn-export-c-expi-1h": "1小时",
   "wn-export-c-expi-2h": "2小时",
+  "wn-export-c-expi-30d": "30天",
+  "wn-export-c-expi-3d": "3天",
   "wn-export-c-expi-6h": "6小时",
-  "wn-export-c-expi-12h": "12小时",
+  "wn-export-c-expi-7d": "7天",
   "wn-export-c-expi-off": "永不过期",
   "wn-export-c-expi-tip": "输出的临时文件将在服务器端保留多久",
   "wn-export-c-limit": "数量限制",
   "wn-export-c-mapping": "映射方式",
-  "wn-export-c-mapping-tip": "所谓映射方式，就是如何字段输出的规定，包括如何指定字段名称，字段值如何转换等",
   "wn-export-c-mapping-phd": "选择一种映射方式",
-  "wn-export-c-type": "导出类型",
-  "wn-export-c-type-csv": "CSV文件",
-  "wn-export-c-type-json": "JSON",
-  "wn-export-c-type-xls": "电子表格",
-  "wn-export-c-type-unknown": "未知的导出类型",
-  "wn-export-c-type-zip": "数据压缩包",
-  "wn-export-c-name": "导出文件名",
-  "wn-export-c-name-tip": "导出文件名，如果没有后缀名，会自动根据【导出类型】补全",
-  "wn-export-c-name-phd": "请输入导出文件名",
+  "wn-export-c-mapping-tip": "所谓映射方式，就是如何字段输出的规定，包括如何指定字段名称，字段值如何转换等",
   "wn-export-c-mode": "数据范围",
   "wn-export-c-mode-all": "全部页",
   "wn-export-c-mode-checked": "选中记录",
   "wn-export-c-mode-current": "当前页",
   "wn-export-c-mode-scope": "指定范围",
-  "wn-export-c-mode-scope-tip": "要导出的数据范围，1-200 表示从第1条记录到第200条记录（包含）",
   "wn-export-c-mode-scope-phd": "譬如: 1-100",
+  "wn-export-c-mode-scope-tip": "要导出的数据范围，1-200 表示从第1条记录到第200条记录（包含）",
+  "wn-export-c-name": "导出文件名",
+  "wn-export-c-name-phd": "请输入导出文件名",
+  "wn-export-c-name-tip": "导出文件名，如果没有后缀名，会自动根据【导出类型】补全",
+  "wn-export-c-type": "导出类型",
+  "wn-export-c-type-csv": "CSV文件",
+  "wn-export-c-type-json": "JSON",
+  "wn-export-c-type-unknown": "未知的导出类型",
+  "wn-export-c-type-xls": "电子表格",
+  "wn-export-c-type-zip": "数据压缩包",
   "wn-export-choose-fields": "选择字段",
   "wn-export-done": "完成",
-  "wn-export-done-ok": "导出成功",
-  "wn-export-done-ok-tip": "请点击下载链接下载",
   "wn-export-done-fail": "导出失败",
   "wn-export-done-fail-tip": "请点击查看错误详情",
+  "wn-export-done-ok": "导出成功",
+  "wn-export-done-ok-tip": "请点击下载链接下载",
   "wn-export-ing": "执行导出",
   "wn-export-ing-tip": "正在执行导出脚本，请稍后",
   "wn-export-open-dir": "打开导出历史目录...",
@@ -106325,8 +106148,8 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-md-R": "读",
   "wn-md-W": "写",
   "wn-md-X": "用",
-  "wn-md-blend-mode": "混合模式",
   "wn-md-blend-dft": "默认",
+  "wn-md-blend-mode": "混合模式",
   "wn-md-blend-strong": "强覆盖",
   "wn-md-blend-weak": "弱混合",
   "wn-md-excutable": "可使用",
@@ -106400,6 +106223,12 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
    "hm-args-partial": "參數填充",
    "hm-args-partial-left": "左填充",
    "hm-args-partial-right": "右填充",
+   "hm-form-options-other-dftval": "其他·默認值",
+   "hm-form-options-other-enabled": "顯示其他",
+   "hm-form-options-other-ph": "其他·提示信息",
+   "hm-form-options-other-ph-ph": "輸入其他選項",
+   "hm-form-options-other-text": "其他·文字",
+   "hm-form-options-other-width": "其他·寬度",
    "hm-type-Array": "數組",
    "hm-type-Boolean": "布爾",
    "hm-type-Group": "字段分組",
@@ -106416,12 +106245,6 @@ Ti.Preload("ti/i18n/zh-hk/hmaker.i18n.json", {
       "Object": "zmdi-toys",
       "String": "zmdi-translate"
    },
-   "hm-form-options-other-enabled": "顯示其他",
-   "hm-form-options-other-text": "其他·文字",
-   "hm-form-options-other-ph": "其他·提示信息",
-   "hm-form-options-other-ph-ph": "輸入其他選項",
-   "hm-form-options-other-width": "其他·寬度",
-   "hm-form-options-other-dftval": "其他·默認值",
    "hmaker-com-conf-blank": "請選擇一個控件設置其詳情",
    "hmaker-com-type-blank": "選擇一個控件",
    "hmaker-edit-form-del-group-all": "組以及全部字段",
@@ -107386,6 +107209,9 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "chart-line": "折線圖",
    "chart-pie": "餅狀圖",
    "chart-rank": "條狀圖",
+   "check-tip-all": "全選項目，點擊取消全選",
+   "check-tip-none": "點擊全選",
+   "check-tip-part": "部分選中項目，點擊全選",
    "checked": "已選中",
    "choose": "選擇",
    "choose-fields": "選擇字段",
@@ -107463,6 +107289,10 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "e-auth-login-NoPhoneOrEmail": "錯誤的手機號或郵箱地址",
    "e-auth-login-NoSaltedPasswd": "未設置合法的密碼",
    "e-auth-login-invalid-passwd": "賬戶密碼未通過校驗",
+   "e-export_data-ConfirmBigLimit": "你要導出的數據很多，這個操作可能會需要較長時間，你確定要繼續導出嗎？",
+   "e-export_data-InvalidScope": "你聲明的導出範圍格式不正確，正確的格式類似：1-20 但是你卻輸入了：",
+   "e-export_data-UnknownMode": "未知的導出模式",
+   "e-form-incomplete": "表單缺失必要字段: 【${title|name}】 ${tip?}",
    "e-io-forbidden": "禁止寫入",
    "e-io-obj-BlankName": "對象名稱不能爲空",
    "e-io-obj-InvalidName": "對象名稱非法",
@@ -107474,7 +107304,6 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "e-obj-noexists": "對象[${val}]不存在",
    "e-ph-noexists": "路徑[${val}]不存在",
    "e-pvg-fobidden": "操作被禁止",
-   "e-form-incomplete": "表單缺失必要字段: 【${title|name}】 ${tip?}",
    "edit": "編輯",
    "edit-com": "編輯控件",
    "edit-content": "編輯內容",
@@ -107836,6 +107665,8 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
 Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-admin-check-obj-thumb": "檢查圖像縮略圖...",
    "wn-admin-tools": "管理工具",
+   "wn-cmd-panel-epilog": "腳本執行完畢，您可以關閉本窗口了 ^_^",
+   "wn-cmd-panel-tip": "腳本運行可能需要一點時間，請不要關閉窗口",
    "wn-ctt-css-text": "CSS樣式文件",
    "wn-ctt-folder-text": "文件夾",
    "wn-ctt-html-text": "HTML文本",
@@ -107849,8 +107680,6 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-ctt-txt-text": "純文本",
    "wn-ctt-wnml-text": "WNML源文件",
    "wn-ctt-xml-text": "XML文本",
-   "wn-cmd-panel-tip": "腳本運行可能需要一點時間，請不要關閉窗口",
-   "wn-cmd-panel-epilog": "腳本執行完畢，您可以關閉本窗口了 ^_^",
    "wn-edit-com-nil": "默認爲標籤控件",
    "wn-en-his-ct": "創建時間",
    "wn-en-his-flt-tip": "請輸入用戶ID或者名稱過濾",
@@ -107865,25 +107694,43 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-en-his-usr": "用戶",
    "wn-en-his-utp": "用戶類型",
    "wn-export-c-expi": "保存時間",
-   "wn-export-c-expi-14d": "十四天",
-   "wn-export-c-expi-3d": "三天",
-   "wn-export-c-expi-7d": "七天",
-   "wn-export-c-expi-off": "永遠",
+   "wn-export-c-expi-12h": "12小時",
+   "wn-export-c-expi-14d": "14天",
+   "wn-export-c-expi-1d": "1天",
+   "wn-export-c-expi-1h": "1小時",
+   "wn-export-c-expi-2h": "2小時",
+   "wn-export-c-expi-30d": "30天",
+   "wn-export-c-expi-3d": "3天",
+   "wn-export-c-expi-6h": "6小時",
+   "wn-export-c-expi-7d": "7天",
+   "wn-export-c-expi-off": "永不過期",
+   "wn-export-c-expi-tip": "輸出的臨時文件將在服務器端保留多久",
    "wn-export-c-limit": "數量限制",
    "wn-export-c-mapping": "映射方式",
-   "wn-export-c-mode": "導出模式",
-   "wn-export-c-mode-csv": "CSV文件",
-   "wn-export-c-mode-json": "JSON",
-   "wn-export-c-mode-xls": "電子表格",
-   "wn-export-c-mode-zip": "數據壓縮包",
-   "wn-export-c-name": "導出文件名稱",
-   "wn-export-c-page": "數據範圍",
-   "wn-export-c-page-all": "全部頁",
-   "wn-export-c-page-checked": "選中記錄",
-   "wn-export-c-page-current": "當前頁",
+   "wn-export-c-mapping-phd": "選擇一種映射方式",
+   "wn-export-c-mapping-tip": "所謂映射方式，就是如何字段輸出的規定，包括如何指定字段名稱，字段值如何轉換等",
+   "wn-export-c-mode": "數據範圍",
+   "wn-export-c-mode-all": "全部頁",
+   "wn-export-c-mode-checked": "選中記錄",
+   "wn-export-c-mode-current": "當前頁",
+   "wn-export-c-mode-scope": "指定範圍",
+   "wn-export-c-mode-scope-phd": "譬如: 1-100",
+   "wn-export-c-mode-scope-tip": "要導出的數據範圍，1-200 表示從第1條記錄到第200條記錄（包含）",
+   "wn-export-c-name": "導出文件名",
+   "wn-export-c-name-phd": "請輸入導出文件名",
+   "wn-export-c-name-tip": "導出文件名，如果沒有後綴名，會自動根據【導出類型】補全",
+   "wn-export-c-type": "導出類型",
+   "wn-export-c-type-csv": "CSV文件",
+   "wn-export-c-type-json": "JSON",
+   "wn-export-c-type-unknown": "未知的導出類型",
+   "wn-export-c-type-xls": "電子表格",
+   "wn-export-c-type-zip": "數據壓縮包",
+   "wn-export-choose-fields": "選擇字段",
    "wn-export-done": "完成",
+   "wn-export-done-fail": "導出失敗",
+   "wn-export-done-fail-tip": "請點擊查看錯誤詳情",
    "wn-export-done-ok": "導出成功",
-   "wn-export-done-tip": "請點擊下載鏈接下載",
+   "wn-export-done-ok-tip": "請點擊下載鏈接下載",
    "wn-export-ing": "執行導出",
    "wn-export-ing-tip": "正在執行導出腳本，請稍後",
    "wn-export-open-dir": "打開導出歷史目錄...",
@@ -107931,8 +107778,8 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-md-R": "讀",
    "wn-md-W": "寫",
    "wn-md-X": "用",
-   "wn-md-blend-mode": "混合模式",
    "wn-md-blend-dft": "默認",
+   "wn-md-blend-mode": "混合模式",
    "wn-md-blend-strong": "強覆蓋",
    "wn-md-blend-weak": "弱混合",
    "wn-md-excutable": "可使用",

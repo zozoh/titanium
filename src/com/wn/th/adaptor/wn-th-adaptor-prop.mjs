@@ -1,7 +1,7 @@
 export default {
   "moduleName": {
     type: String,
-    default: "main"
+    default: "main",
   },
   "guiShown": Object,
   "rootState": Object,
@@ -9,10 +9,10 @@ export default {
   // The Thingset
   //-----------------------------------
   "thingSetId": {
-    type: String
+    type: String,
   },
   "oTs": Object,
-  "mappingDirPath": String,
+  "load": Object,
   //-----------------------------------
   // The search list
   //-----------------------------------
@@ -50,16 +50,16 @@ export default {
         "pgc": 0,
         "sum": 0,
         "skip": 0,
-        "count": 0
-      }
-    })
+        "count": 0,
+      },
+    }),
   },
   "dataDirCurrentId": {
-    type: [String]
+    type: [String],
   },
   "dataDirCheckedIds": {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   //-----------------------------------
   // Gloable Status
@@ -73,38 +73,42 @@ export default {
       "deleting": false,
       "changed": false,
       "restoring": false,
-      "inRecycleBin": false
-    })
+      "inRecycleBin": false,
+    }),
   },
   "fieldStatus": {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   //-----------------------------------
   // Customized GUI
   //-----------------------------------
   "thingActions": {
-    type: Array, default: () => []
+    type: Array,
+    default: () => [],
   },
   "layout": {
-    type: Object, default: () => ({})
+    type: Object,
+    default: () => ({}),
   },
   "schema": {
-    type: Object, default: () => ({})
+    type: Object,
+    default: () => ({}),
   },
   "thingMethods": {
-    type: Object, default: () => ({})
+    type: Object,
+    default: () => ({}),
   },
   //-----------------------------------
   // Getters
   //-----------------------------------
   "getters": {
     type: Object,
-    default: ()=>({})
+    default: () => ({}),
   },
   //-----------------------------------
   // Global View Setting
   //-----------------------------------
   "viewType": String,
-  "exposeHidden": Boolean
-}
+  "exposeHidden": Boolean,
+};
