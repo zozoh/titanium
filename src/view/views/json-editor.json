@@ -19,9 +19,7 @@
       "action": "dispatch:main/saveContent",
       "shortcut": "CTRL+S"
     },
-    {
-      "type": "line"
-    },
+    {},
     {
       "type": "group",
       "icon": "im-menu",
@@ -38,9 +36,7 @@
           "action": "dispatch:main/reloadData",
           "shortcut": "CTRL+SHIFT+R"
         },
-        {
-          "type": "line"
-        },
+        {},
         {
           "type": "action",
           "icon": "zmdi-keyboard",
@@ -48,9 +44,7 @@
           "action": "dispatch:main/openContentEditor",
           "shortcut": "ALT+SHIFT+V"
         },
-        {
-          "type": "line"
-        },
+        {},
         {
           "type": "action",
           "icon": "zmdi-keyboard",
