@@ -1,4 +1,4 @@
-// Pack At: 2023-03-04 02:03:25
+// Pack At: 2023-03-04 03:39:18
 //##################################################
 // # import { Alert } from "./ti-alert.mjs"
 const { Alert } = (function(){
@@ -1030,27 +1030,32 @@ const { Toptip } = (function(){
 // # import { EditCode } from "./ti-editcode.mjs"
 const { EditCode } = (function(){
   ////////////////////////////////////////////////////
-  async function TiEditCode(code = "", {
-    mode = "text",
-    title = "i18n:view",
-    position = "top",
-    width = "62%",
-    height = "62%",
-  } = {}) {
+  async function TiEditCode(
+    code = "",
+    {
+      mode = "text",
+      title = "i18n:view",
+      position = "top",
+      width = "62%",
+      height = "62%",
+      textOk,
+      textCancel,
+    } = {}
+  ) {
     return await Ti.App.Open({
       title,
       position,
       width,
       height,
+      textOk,
+      textCancel,
       result: code,
       comType: "TiTextCodeAce",
       comConf: {
-        mode
+        mode,
       },
-      components: [
-        "@com:ti/text/code/ace"
-      ]
-    })
+      components: ["@com:ti/text/code/ace"],
+    });
   }
   ////////////////////////////////////////////////////
   return {EditCode: TiEditCode};
@@ -19850,7 +19855,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230304.020325",
+  "version": "1.6-20230304.033918",
   "dev": false,
   "appName": null,
   "session": {},
