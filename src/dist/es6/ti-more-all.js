@@ -1,4 +1,4 @@
-// Pack At: 2023-03-02 23:58:00
+// Pack At: 2023-03-04 02:03:25
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -20030,9 +20030,9 @@ const _M = {
     },
     // AutoMatch expression Object, to filter the default mapping fields
     // if nil, all fields will be selected
-    defaultFields: {
-      type: [String, Array, Object],
-    },
+    // defaultFields: {
+    //   type: [String, Array, Object],
+    // },
     // A Tmpl as export command, which context:
     /*{
       ... this.vars,          // <- this.vars
@@ -68262,6 +68262,7 @@ const _M = {
       // Single Group
       else {
         let items = this.evalItems(this.myOptionsData, 0);
+        console.log(items)
         return [
           {
             key: "g0",
@@ -81056,9 +81057,10 @@ const _M = {
       }
       if (lbItem) {
         lbItem.checkMode = _check_mode(lbSumN, lbChxN);
-        sumN += lbSumN;
-        chxN += lbChxN;
       }
+      // Join summary
+      sumN += lbSumN;
+      chxN += lbChxN;
 
       return _check_mode(sumN, chxN);
     },
@@ -84185,52 +84187,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type : [Number, String],
     default : undefined
   }
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'wizard-data-expoter-s4.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/wn/data/exporter-form/wizard-data-expoter-s4.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  //---------------------------------------------------
-  Step4Finished() {
-    let vm = this
-    return {
-      title: "i18n:wn-export-done",
-      prepare: async function () {
-        let oTa = await vm.LoadTarget(this.value)
-        // just return a path
-        if (_.isString(oTa)) {
-          oTa = await Wn.Io.loadMeta(oTa)
-        }
-        this.$notify("change", {
-          ... this.value,
-          target: oTa
-        })
-      },
-      comType: "WebMetaBadge",
-      comConf: {
-        className: "is-success",
-        value: ":=target",
-        icon: "fas-check-circle",
-        title: "i18n:wn-export-done-ok",
-        brief: "i18n:wn-export-done-tip",
-        links: [{
-          icon: "fas-download",
-          text: ":=target.nm",
-          href: ":->/o/content?str=id:${target.id}&d=true",
-          newtab: true
-        }, {
-          icon: "fas-external-link-alt",
-          text: "i18n:wn-export-open-dir",
-          href: ":=>Wn.Util.getAppLink(target)",
-          newtab: true
-        }]
-      }
-    }
-  }
-  //---------------------------------------------------
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -97596,10 +97552,6 @@ Ti.Preload("ti/com/wn/combo/multi-input/_com.json", {
     "@com:wn/list",
     "@com:wn/obj/icon"]
 });
-//========================================
-// JOIN <wizard-data-expoter-s4.mjs> ti/com/wn/data/exporter-form/wizard-data-expoter-s4.mjs
-//========================================
-Ti.Preload("ti/com/wn/data/exporter-form/wizard-data-expoter-s4.mjs", TI_PACK_EXPORTS['ti/com/wn/data/exporter-form/wizard-data-expoter-s4.mjs']);
 //========================================
 // JOIN <wn-exporter-form.html> ti/com/wn/data/exporter-form/wn-exporter-form.html
 //========================================

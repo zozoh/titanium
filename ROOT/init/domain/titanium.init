@@ -222,7 +222,7 @@
 {com:'/rs/ti/test/components/wn-others/demo-wn-obj-pvgview.json'}
 #---------------------------------------------------------
 @FILE mock/components/wn-others/wn-data-exporter-form.comt 'WN-DATA-EXPORTER-FORM'
-{com:'/rs/ti/test/components/wn-others/demo-wn-data-exporter-form.json'}
+{com:'/rs/ti/test/components/wn-others/wn-data-exporter-form.json'}
 @FILE mock/components/wn-others/media.mapping.json 
 %COPY> conf/media.mapping.json
 ##########################################################

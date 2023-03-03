@@ -69,6 +69,9 @@ const _M = {
         comConf: {}
       }
       if (aph) {
+        if(aph.startsWith("./")){
+          aph = `id:${this.meta.pid}/${aph.substring(2)}`
+        }
         // console.log("haha", JSON.stringify({
         //   metaId: this.meta.id,
         //   data  : JSON.stringify(this.data)

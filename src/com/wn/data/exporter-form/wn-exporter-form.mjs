@@ -82,9 +82,9 @@ const _M = {
     },
     // AutoMatch expression Object, to filter the default mapping fields
     // if nil, all fields will be selected
-    defaultFields: {
-      type: [String, Array, Object],
-    },
+    // defaultFields: {
+    //   type: [String, Array, Object],
+    // },
     // A Tmpl as export command, which context:
     /*{
       ... this.vars,          // <- this.vars

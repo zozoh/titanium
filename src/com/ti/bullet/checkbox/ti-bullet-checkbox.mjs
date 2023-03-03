@@ -145,9 +145,10 @@ const _M = {
       }
       if (lbItem) {
         lbItem.checkMode = _check_mode(lbSumN, lbChxN);
-        sumN += lbSumN;
-        chxN += lbChxN;
       }
+      // Join summary
+      sumN += lbSumN;
+      chxN += lbChxN;
 
       return _check_mode(sumN, chxN);
     },

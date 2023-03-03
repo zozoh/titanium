@@ -1,5 +1,14 @@
 const TiFormHelper = {
   //---------------------------------
+  genTableFieldsByForm2(fields=[], dataFormat = 'yy-MM-dd'){
+    return TiFormHelper.genTableFieldsByForm(fields, {
+      isCan :(fld)=>{
+        return fld.candidateInTable ? true:false
+      },
+      dataFormat
+    })
+  },
+  //---------------------------------
   genTableFieldsByForm(fields = [], {
     isCan = () => false,
     isIgnore = () => false,
@@ -23,7 +32,7 @@ const TiFormHelper = {
         it.display = `${options}(${name})`
       }
       // 日期和时间
-      else if ("TiInputDate" == comType) {
+      else if ("TiInputDate" == comType || /^(AMS|Date(Time)?)$/.test(type)) {
         it = Ti.Util.genTableTimeField(title, name, {
           can: isCan(fld),
           format: dataFormat

@@ -263,6 +263,7 @@ const _M = {
       // Single Group
       else {
         let items = this.evalItems(this.myOptionsData, 0);
+        console.log(items)
         return [
           {
             key: "g0",
