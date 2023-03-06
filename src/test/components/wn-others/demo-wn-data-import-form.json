@@ -1,0 +1,13 @@
+{
+  "comPath": "@com:wn/data/importer-form",
+  "comType": "WnDataImporterForm",
+  "comConf": {
+    "title": "测试文件导入",
+    "mappingPath": [
+      "~/mock/components/wn-others/import.mapping.json",
+      "~/mock/components/wn-others/import/"
+    ],
+    "uploadTarget":"~/tmp/test_upload/",
+    "data" : "=data"
+  }
+}

@@ -294,6 +294,9 @@ const TiTmpl = {
     startChar, leftBrace, rightBrace,
     showKey
   } = {}) {
+    if(!input){
+      return input
+    }
     let tmpl = startChar
       ? TiTmpl.parseAs(input, { startChar, leftBrace, rightBrace })
       : TiTmpl.parse(input, { regex, groupIndex, escapeIndex, getEscapeStr })

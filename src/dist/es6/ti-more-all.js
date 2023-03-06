@@ -1,4 +1,4 @@
-// Pack At: 2023-03-04 03:39:18
+// Pack At: 2023-03-06 22:44:11
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12845,7 +12845,7 @@ window.TI_PACK_EXPORTS['ti/mod/wn/th/obj/m-th-obj-search.mjs'] = (function(){
 const _M = {
   //----------------------------------------
   //
-  // Import / Export
+  // Export Data
   //
   //----------------------------------------
   async openExportDataDir({ getters }) {
@@ -12864,16 +12864,19 @@ const _M = {
       return await Ti.Toast.Open("ThObj thingSetId without defined", "warn");
     }
 
+    let modes = ["current", "scope"];
     let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds);
-    if (_.isEmpty(ids)) {
-      return await Ti.Alert("i18n:nil-item", { type: "warn" });
+    if (!_.isEmpty(ids)) {
+      modes.splice(0, 0, "checked");
     }
 
+    console.log(modes);
     let tsName = Ti.Util.getFallback(state.oTs, "title", "nm") || "export";
-    let tsTitle = Ti.I18n.text(tsName)
+    let tsTitle = Ti.I18n.text(tsName);
 
     // Open Dialog Wizard to export data
     let re = await Ti.App.Open({
+      icon: "fas-file-download",
       title: "i18n:export-data",
       position: "top",
       minWidth: "90%",
@@ -12886,6 +12889,8 @@ const _M = {
         "defaultMappingName": undefined,
         "outputName": `${tsTitle}-\${now}`,
         "outputTarget": `id:${state.thingSetId}/tmp/export/\${name}.\${type}`,
+        "outputModeOptions": modes,
+        "outputMode": _.first(modes),
       },
       components: ["@com:wn/data/exporter-form"],
     });
@@ -12955,27 +12960,11 @@ const _M = {
         //.........................
         // Scope
         else if ("scope" == mode) {
-          let m = /^([1-9]\d*)[:,_-](\d+)$/.exec(_.trim(scope));
-          if (!m) {
-            throw Ti.Err.make("e.export_data.InvalidScope", scope);
-          }
-          let n0 = Math.max(parseInt(m[1] * 1), 1);
-          let n1 = Math.max(parseInt(m[2]), 0);
-          let from = Math.min(n0, n1);
-          let to = Math.max(n0, n1);
-          let skip = Math.max(0, from - 1);
-          let limit = to - from;
-          console.log(skip, limit);
-
-          if (limit <= 0) {
-            return await Ti.Alert("i18n:e-export_data-InvalidScope", {
-              type: "warn",
-            });
-          }
+          let { skip, limit } = Ti.Num.scopeToLimit(scope);
 
           if (limit > 1000) {
             if (
-              !(await Ti.Confirm("i18n:e-exort_data-ConfirmBigLimit", {
+              !(await Ti.Confirm("i18n:wn-export-confirm-many", {
                 type: "warn",
               }))
             ) {
@@ -13127,6 +13116,88 @@ const _M = {
       },
       components: ["@com:web/meta/badge"],
     });
+  },
+  //----------------------------------------
+  //
+  // Import Data
+  //
+  //----------------------------------------
+  async importData({ state, commit, dispatch, getters }) {
+    // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert("i18n:e-pvg-fobidden", { type: "warn" });
+    }
+    if (!state.thingSetId) {
+      return await Ti.Toast.Open("ThObj thingSetId without defined", "warn");
+    }
+
+    let reo = await Ti.App.Open({
+      icon: "fas-file-import",
+      title: "i18n:import-data",
+      position: "top",
+      minWidth: "90%",
+      height: "90%",
+      result: _.cloneDeep(state.importSettings) || {},
+      model: { event: "change", prop: "data" },
+      comType: "WnDataImporterForm",
+      comConf: {
+        "mappingPath": `id:${state.thingSetId}/import/`,
+        "defaultMappingName": undefined,
+        "uploadTarget": `id:${state.thingSetId}/tmp/import/`,
+      },
+      components: ["@com:wn/data/importer-form"],
+    });
+
+    // User Cancel
+    if (!reo) {
+      return;
+    }
+
+    let { fileId, mode, scope, fields, mapping } = reo;
+    // Check Import File
+    if (!fileId) {
+      return await Ti.Alert("i18n:wn-import-WithoutInput", { type: "warn" });
+    }
+
+    // Check data Scope
+    let { skip, limit } = Ti.Num.scopeToLimit(scope, { skip: 0, limit: 0 });
+    if (limit > 1000) {
+      if (
+        !(await Ti.Confirm("i18n:wn-import-confirm-many", {
+          type: "warn",
+        }))
+      ) {
+        return;
+      }
+    }
+
+    // Check filtering fields
+    let fldReg = _.isEmpty(fields) ? null : `^(${fields.join("|")})$`;
+    let fnames = fldReg ? `-names '${fldReg}'` : "";
+
+    // From settings
+    let { uniqKey, withHook, process } = state.importSettings || {};
+    let unique = uniqKey ? `-unique ${uniqKey}` : "";
+    let nohook = withHook ? "" : "-nohook";
+
+    // Generate import commands
+    var cmds = [
+      "ooml id:" + fileId,
+      `@xlsx @sheet @mapping -f 'id:${mapping}' ${fnames} -only`,
+      "@beans -limit " + limit + " -skip " + skip,
+      `| thing 'id:${state.thingSetId}' create -fields ${unique} ${nohook} `,
+      `-process '${process || "<auto>"}'`,
+    ];
+    let cmdText = cmds.join(" ");
+    console.log(cmdText);
+
+    // Process in Command panel
+    await Wn.OpenCmdPanel(cmdText, {
+      title: "i18n:import-data",
+    });
+
+    // 刷新主界面
+    await this.dispatch("main/reloadData")
   },
   //----------------------------------------
   //
@@ -20044,18 +20115,18 @@ const _M = {
       expi: "%ms:now+1d",     // <- this.targetExpi
     }*/
     // If function, it will be invoke as `(context={}):String`
-    command: {
-      type: [String, Function],
-    },
-    // command input, if Array it will auto-stringify to JSON
-    commandInput: {
-      type: [String, Array],
-    },
-    // additional render vars for output target
-    vars: {
-      type: Object,
-      default: () => ({}),
-    },
+    // command: {
+    //   type: [String, Function],
+    // },
+    // // command input, if Array it will auto-stringify to JSON
+    // commandInput: {
+    //   type: [String, Array],
+    // },
+    // // additional render vars for output target
+    // vars: {
+    //   type: Object,
+    //   default: () => ({}),
+    // },
 
     //-----------------------------------
     // Aspect
@@ -20089,6 +20160,7 @@ const _M = {
     },
     //---------------------------------------------------
     OutputModeOptions() {
+      console.log("computed OutputModeOptions",this.outputModeOptions)
       return this.explainOptions(
         this.outputModeOptions,
         this.explainOutputModeOption
@@ -20187,15 +20259,15 @@ const _M = {
         });
       }
       fields.push({
-        title: "i18n:wn-export-c-mode-scope",
+        title: "i18n:wn-data-scope",
         name: "scope",
-        tip: "[small]i18n:wn-export-c-mode-scope-tip",
+        tip: "[small]i18n:wn-data-scope-tip",
         visible: {
           mode: "scope",
         },
         comType: "TiInput",
         comConf: {
-          placeholder: "i18n:wn-export-c-mode-scope-phd",
+          placeholder: "i18n:wn-data-scope-phd",
           width: "2rem",
         },
       });
@@ -20249,12 +20321,13 @@ const _M = {
       this.changeData({ name });
     },
     //---------------------------------------------------
-    genOutputName(target=this.outputName) {
+    genOutputName(target = this.outputName) {
       //console.log(target)
       let d = new Date();
       let payload = Ti.DateTime.genFormatContext(d);
       payload.today = Ti.DateTime.format(d, "yyyy-MM-dd");
       payload.now = Ti.DateTime.format(d, "yyyy-MM-dd_HHmmss");
+      _.assign(payload, this.vars)
       if (_.isFunction(target)) {
         return target(payload);
       }
@@ -20299,7 +20372,7 @@ const _M = {
             value: "current",
             text: "i18n:wn-export-c-mode-current",
           },
-          "scope": { value: "scope", text: "i18n:wn-export-c-mode-scope" },
+          "scope": { value: "scope", text: "i18n:wn-data-scope" },
           "all": { value: "all", text: "i18n:wn-export-c-mode-all" },
         }[it];
       }
@@ -20310,18 +20383,18 @@ const _M = {
       if (_.isString(it)) {
         return (
           {
-            "1h": { value: "1h", text: "i18n:wn-export-c-expi-1h" },
-            "2h": { value: "2h", text: "i18n:wn-export-c-expi-2h" },
-            "6h": { value: "6h", text: "i18n:wn-export-c-expi-6h" },
-            "12h": { value: "12h", text: "i18n:wn-export-c-expi-12h" },
+            "1h": { value: "1h", text: "i18n:wn-expi-1h" },
+            "2h": { value: "2h", text: "i18n:wn-expi-2h" },
+            "6h": { value: "6h", text: "i18n:wn-expi-6h" },
+            "12h": { value: "12h", text: "i18n:wn-expi-12h" },
 
-            "1d": { value: "1d", text: "i18n:wn-export-c-expi-1d" },
-            "3d": { value: "3d", text: "i18n:wn-export-c-expi-3d" },
-            "7d": { value: "7d", text: "i18n:wn-export-c-expi-7d" },
-            "14d": { value: "14d", text: "i18n:wn-export-c-expi-14d" },
-            "30d": { value: "30d", text: "i18n:wn-export-c-expi-30d" },
+            "1d": { value: "1d", text: "i18n:wn-expi-1d" },
+            "3d": { value: "3d", text: "i18n:wn-expi-3d" },
+            "7d": { value: "7d", text: "i18n:wn-expi-7d" },
+            "14d": { value: "14d", text: "i18n:wn-expi-14d" },
+            "30d": { value: "30d", text: "i18n:wn-expi-30d" },
 
-            "never": { value: null, text: "i18n:wn-export-c-expi-off" },
+            "never": { value: null, text: "i18n:wn-expi-never" },
           }[it] || { text: it, value: it }
         );
       }
@@ -20413,7 +20486,9 @@ const _M = {
         type: this.outputType,
         mode: this.outputMode,
         mapping: mappingId,
-        name: this.genOutputName(_.get(this.data, "outputName") || this.outputName),
+        name: this.genOutputName(
+          _.get(this.data, "outputName") || this.outputName
+        ),
       };
       if (this.targetExpi) {
         data.expi = `${this.targetExpi}`;
@@ -54433,6 +54508,430 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'wn-importer-form.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/wn/data/importer-form/wn-importer-form.mjs'] = (function(){
+const _M = {
+  ///////////////////////////////////////////////////////
+  data: () => ({
+    myData: {},
+    myMappingFiles: [],
+    myCanFields: {
+      /*mappingName : []*/
+    },
+  }),
+  ///////////////////////////////////////////////////////
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    // candicate mapping files
+    // If DIR, then get all json in it is option mapping files.
+    // It will show drop list when multi mapping files.
+    // Anyway, it need a mapping file, to get all avaliable fields.
+    // [required]
+    mappingPath: {
+      type: [String, Array],
+    },
+    // If multi mapping paths, the first one(order by name) will
+    // be used defaultly. But you can indicate it in this prop.
+    // [optional]
+    defaultMappingName: {
+      type: String,
+    },
+    // TODO: Maybe allow user to choose the output folder in futrue
+    uploadTarget: {
+      type: [String, Function],
+      // sunc as "~/tmp/${name}"
+    },
+    // additional render vars for output target
+    vars: {
+      type: Object,
+      default: () => ({}),
+    },
+    data: {
+      type: Object,
+    },
+    //-----------------------------------
+    // Behavior
+    //-----------------------------------
+    outputMode: {
+      type: String,
+      default: "all",
+    },
+    outputModeOptions: {
+      type: Array,
+      default: () => ["all", "scope"],
+    },
+    // Auto remove target when expired.
+    // null, never expired
+    targetExpi: {
+      type: String,
+      default: "6h",
+    },
+    targetExpiOptions: {
+      type: Array,
+      default: () => ["1h", "6h", "1d"],
+    },
+    uploadTip: {
+      type: [String, Object],
+      default: "i18n:wn-import-upload-xlsx-tip",
+    },
+    uploadValueType: {
+      type: String,
+      default: "id",
+    },
+    uploadSupportTypes: {
+      type: Array,
+      default: () => ["xlsx"],
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    title: {
+      type: String,
+      default: undefined,
+    },
+    gridColumnHint: {
+      type: [String, Array],
+      default: "[[5,1500],[4,1200],[3,900],[2,600],[1,300],0]",
+    },
+    fieldsGridColumnHint: {
+      type: [String, Array],
+      default: "[[6,1500],[5,1250],[4,1000],[3,750],[2,500],1]",
+    },
+  },
+  ///////////////////////////////////////////////////////
+  computed: {
+    //---------------------------------------------------
+    TopClass() {
+      return this.getTopClass({});
+    },
+    //---------------------------------------------------
+    MappingFileId() {
+      return _.get(this.myData, "mapping");
+    },
+    //---------------------------------------------------
+    MappingFields() {
+      return _.get(this.myCanFields, this.MappingFileId) || [];
+    },
+    //---------------------------------------------------
+    FormUploadTarget() {
+      return Ti.Tmpl.exec(this.uploadTarget, this.vars);
+    },
+    //---------------------------------------------------
+    OutputModeOptions() {
+      return this.explainOptions(
+        this.outputModeOptions,
+        this.explainOutputModeOption
+      );
+    },
+    //---------------------------------------------------
+    TargetExpiOptions() {
+      return this.explainOptions(
+        this.targetExpiOptions,
+        this.explainExpiOption
+      );
+    },
+    //---------------------------------------------------
+    FormFields() {
+      let fields = [
+        {
+          title: "i18n:wn-import-upload",
+          name: "fileId",
+          fieldWidth: "100%",
+          tip: this.uploadTip,
+          colSpan: 2,
+          comType: "WnUploadFileBox",
+          comConf: {
+            valueType: this.uploadValueType,
+            target: this.FormUploadTarget,
+            supportTypes: this.uploadSupportTypes,
+          },
+        },
+      ];
+
+      //
+      // Choose mapping file
+      //
+      if (this.myMappingFiles.length > 1) {
+        fields.push({
+          title: "i18n:wn-import-c-mapping",
+          name: "mapping",
+          tip: {
+            text: "i18n:wn-import-c-mapping-tip",
+            size: "normal",
+          },
+          comType: "TiDroplist",
+          comConf: {
+            placeholder: "i18n:wn-import-c-mapping-phd",
+            options: this.myMappingFiles,
+            iconBy: "icon",
+            valueBy: "id",
+            textBy: "title|nm",
+            dropDisplay: ["<icon:fas-exchange-alt>", "title|nm"],
+          },
+        });
+      }
+
+      //
+      // Choose Fiels
+      //
+      fields.push(
+        {
+          name: "fields",
+          type: "Array",
+          colSpan: 10,
+          visible: {
+            mapping: "![BLANK]",
+          },
+          enabled: {
+            fileId: "![BLANK]",
+          },
+          comType: "TiBulletCheckbox",
+          comConf: {
+            title: "i18n:wn-export-choose-fields",
+            options: this.MappingFields,
+            gridColumnHint: this.fieldsGridColumnHint,
+            autoI18n: true,
+          },
+        },
+        {
+          icon: "zmdi-settings",
+          title: "i18n:wn-import-setup",
+        }
+      );
+
+      //
+      // More Setting
+      //
+
+      if (this.TargetExpiOptions.length > 1) {
+        fields.push({
+          title: "i18n:wn-import-c-expi",
+          name: "expi",
+          tip: "i18n:wn-import-c-expi-tip",
+          comType:
+            this.TargetExpiOptions.length > 3 ? "TiDroplist" : "TiSwitcher",
+          comConf: {
+            allowEmpty: false,
+            options: this.TargetExpiOptions,
+          },
+        });
+      }
+
+      // Output target mode
+      if (this.OutputModeOptions.length > 1) {
+        fields.push({
+          title: "i18n:wn-export-c-mode",
+          name: "mode",
+          comType: "TiSwitcher",
+          comConf: {
+            allowEmpty: false,
+            options: this.OutputModeOptions,
+          },
+        });
+      }
+      fields.push({
+        title: "i18n:wn-data-scope",
+        name: "scope",
+        tip: "[small]i18n:wn-data-scope-tip",
+        visible: {
+          mode: "scope",
+        },
+        comType: "TiInput",
+        comConf: {
+          placeholder: "i18n:wn-data-scope-phd",
+          width: "2rem",
+        },
+      });
+
+      return fields;
+    },
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  methods: {
+    //---------------------------------------------------
+    OnChange(data) {
+      this.changeData(data);
+    },
+    //---------------------------------------------------
+    OnOutputFieldsChange(fields = []) {
+      this.changeData({ fields });
+    },
+    //---------------------------------------------------
+    OnResetTargetName() {
+      let name = this.genOutputName();
+      this.changeData({ name });
+    },
+    //---------------------------------------------------
+    explainOptions(options = [], fn = _.identity) {
+      let re = [];
+      if (!_.isEmpty(options)) {
+        for (let it of options) {
+          let li = fn(it);
+          if (!Ti.Util.isNil(li)) {
+            re.push(li);
+          }
+        }
+      }
+      return re;
+    },
+    //---------------------------------------------------
+    explainOutputModeOption(it) {
+      if (_.isString(it)) {
+        return {
+          "scope": { value: "scope", text: "i18n:wn-data-scope" },
+          "all": { value: "all", text: "i18n:wn-import-c-mode-all" },
+        }[it];
+      }
+      return it;
+    },
+    //---------------------------------------------------
+    explainExpiOption(it) {
+      if (_.isString(it)) {
+        return (
+          {
+            "1h": { value: "1h", text: "i18n:wn-expi-1h" },
+            "2h": { value: "2h", text: "i18n:wn-expi-2h" },
+            "6h": { value: "6h", text: "i18n:wn-expi-6h" },
+            "12h": { value: "12h", text: "i18n:wn-expi-12h" },
+
+            "1d": { value: "1d", text: "i18n:wn-expi-1d" },
+            "3d": { value: "3d", text: "i18n:wn-expi-3d" },
+            "7d": { value: "7d", text: "i18n:wn-expi-7d" },
+            "14d": { value: "14d", text: "i18n:wn-expi-14d" },
+            "30d": { value: "30d", text: "i18n:wn-expi-30d" },
+
+            "never": { value: null, text: "i18n:wn-expi-never" },
+          }[it] || { text: it, value: it }
+        );
+      }
+      return it;
+    },
+    //---------------------------------------------------
+    async reloadMappingFields(mappingId = this.MappingFileId) {
+      if (mappingId && !this.myCanFields[mappingId]) {
+        // Try Cache
+        let json = await Wn.Sys.exec2(
+          `cat id:${mappingId} | jsonx -cqn @get mapping `
+        );
+        let cans = [];
+        if (!Ti.S.isBlank(json)) {
+          let list = JSON.parse(json);
+          _.forEach(list, (li, key) => {
+            // Group:  "Genaral": "-------------",
+            if (/^[-]{5,}$/.test(li)) {
+              cans.push({ title: key });
+            }
+            // Simple: "nm": "Name",
+            else if (_.isString(li)) {
+              cans.push({
+                text: key,
+                value: li,
+              });
+            }
+            // Complex: "race": {...}
+            else if (li.name) {
+              cans.push({
+                text: key,
+                value: li.name,
+                asDefault: li.asDefault,
+              });
+            }
+          });
+        }
+        this.myCanFields = _.assign({}, this.myCanFields, {
+          [this.MappingFileId]: cans,
+        });
+      }
+    },
+    //---------------------------------------------------
+    async reload() {
+      //console.log("WDE:reload");
+      // reload all option mapping paths
+      let paths = _.concat(this.mappingPath);
+      let fld = "^(id|race|tp|mime|nm|name|title)$";
+      let list = [];
+      for (let path of paths) {
+        if (!path) {
+          continue;
+        }
+        let oF = await Wn.Sys.exec2(`o '${path}' @name @json '${fld}' -cqn`, {
+          as: "json",
+        });
+        if (oF && oF.id) {
+          if ("DIR" == oF.race) {
+            let files = await Wn.Sys.exec2(
+              `o 'id:${oF.id}' @query 'tp:"json"' @name @json '${fld}' -cqnl`,
+              { as: "json" }
+            );
+            if (_.isArray(files)) {
+              list.push(...files);
+            }
+          }
+          // Just a file
+          else {
+            list.push(oF);
+          }
+        }
+      }
+      // Found the default
+      let mappingId = _.get(this.data, "mapping");
+      if (!_.isEmpty(list) && !mappingId && _.isEmpty(this.MappingFields)) {
+        mappingId = _.first(list).id;
+        if (this.defaultMappingName) {
+          for (let li of list) {
+            if (li.name == this.defaultMappingName) {
+              mappingId = li.id;
+              break;
+            }
+          }
+        }
+      }
+      // Try reload mapping fields
+      this.reloadMappingFields(mappingId);
+
+      // Notify change
+      let data = {
+        type: this.outputType,
+        mode: this.outputMode,
+        mapping: mappingId,
+      };
+      if (this.targetExpi) {
+        data.expi = `${this.targetExpi}`;
+      }
+      if (this.data) {
+        _.assign(data, this.data);
+      }
+      this.changeData(data);
+
+      this.myMappingFiles = list;
+    },
+    //---------------------------------------------------
+    changeData(data) {
+      this.myData = _.assign({}, this.myData, data);
+      this.tryNotifyChange(this.myData);
+    },
+    //---------------------------------------------------
+    tryNotifyChange(data) {
+      if (!_.isEqual(this.data, data)) {
+        this.$notify("change", data);
+      }
+    },
+    //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  mounted: async function () {
+    //console.log("mouned")
+    await this.reload();
+  },
+  ///////////////////////////////////////////////////////
+};
+return _M;;
+})()
+// ============================================================
 // EXPORT 'ti-input-datetime.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/input/datetime/ti-input-datetime.mjs'] = (function(){
@@ -68262,7 +68761,7 @@ const _M = {
       // Single Group
       else {
         let items = this.evalItems(this.myOptionsData, 0);
-        console.log(items)
+        //console.log(items)
         return [
           {
             key: "g0",
@@ -97587,6 +98086,41 @@ Ti.Preload("ti/com/wn/data/exporter-form/_com.json", {
   ]
 });
 //========================================
+// JOIN <wn-importer-form.html> ti/com/wn/data/importer-form/wn-importer-form.html
+//========================================
+Ti.Preload("ti/com/wn/data/importer-form/wn-importer-form.html", `<TiForm
+  :className="TopClass"
+  :autoFieldNameTip="true"
+  :tipAsPopIcon="true"
+  :gridColumnHint="gridColumnHint"
+  :fields="FormFields"
+  :data="myData"
+  @target_name:reset="OnResetTargetName"
+  @change="OnChange"
+  @output:fields="OnOutputFieldsChange"
+/>`);
+//========================================
+// JOIN <wn-importer-form.mjs> ti/com/wn/data/importer-form/wn-importer-form.mjs
+//========================================
+Ti.Preload("ti/com/wn/data/importer-form/wn-importer-form.mjs", TI_PACK_EXPORTS['ti/com/wn/data/importer-form/wn-importer-form.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/wn/data/importer-form/_com.json
+//========================================
+Ti.Preload("ti/com/wn/data/importer-form/_com.json", {
+  "name": "wn-data-importer-form",
+  "globally": true,
+  "template": "./wn-importer-form.html",
+  "mixins": "./wn-importer-form.mjs",
+  "components": [
+    "@com:ti/bullet/checkbox",
+    "@com:ti/transfer",
+    "@com:ti/text/json",
+    "@com:wn/cmd/panel",
+    "@com:wn/upload/file-box",
+    "@com:web/meta/badge"
+  ]
+});
+//========================================
 // JOIN <wn-droplist.html> ti/com/wn/droplist/wn-droplist.html
 //========================================
 Ti.Preload("ti/com/wn/droplist/wn-droplist.html", `<component 
@@ -105611,8 +106145,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-auth-login-NoPhoneOrEmail": "错误的手机号或邮箱地址",
   "e-auth-login-NoSaltedPasswd": "未设置合法的密码",
   "e-auth-login-invalid-passwd": "账户密码未通过校验",
-  "e-export_data-ConfirmBigLimit": "你要导出的数据很多，这个操作可能会需要较长时间，你确定要继续导出吗？",
-  "e-export_data-InvalidScope": "你声明的导出范围格式不正确，正确的格式类似：1-20 但是你却输入了：",
+  "e-data-InvalidScope": "你声明的数据范围格式不正确，正确的格式类似：1-20 但是你却输入了：",
   "e-export_data-UnknownMode": "未知的导出模式",
   "e-form-incomplete": "表单缺失必要字段: 【${title|name}】 ${tip?}",
   "e-io-forbidden": "禁止写入",
@@ -105985,6 +106518,17 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
 // JOIN <_wn.i18n.json> ti/i18n/zh-cn/_wn.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
+  "wn-import-setup": "导入设置",
+  "wn-import-upload": "上传文件",
+  "wn-import-upload-xlsx-tip": "仅支持 'xlsx' 文件，如果是 'xls' 文件，你需要另存为 'xlsx'再上传",
+  "wn-import-c-mode-all": "全部数据",
+  "wn-import-c-mapping": "映射规则",
+  "wn-import-c-mapping-phd": "选择一种字段映射规则",
+  "wn-import-c-mapping-tip": "所谓映射规则，就是字段输出时的转换的规则，包括如何指定字段名称，字段值如何转换等",
+  "wn-import-c-expi": "暂存时间",
+  "wn-import-c-expi-tip": "上传的临时文件将在服务器端保留多久",
+  "wn-import-WithoutInput":"请上传要导入的数据文件",
+  "wn-import-confirm-many":"你要导入的数据很多，这个操作可能会需要花一些时间，你确定要继续导入吗？",
   "wn-admin-check-obj-thumb": "检查图像缩略图...",
   "wn-admin-tools": "管理工具",
   "wn-cmd-panel-epilog": "脚本执行完毕，您可以关闭本窗口了 ^_^",
@@ -106016,28 +106560,30 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-en-his-usr": "用户",
   "wn-en-his-utp": "用户类型",
   "wn-export-c-expi": "保存时间",
-  "wn-export-c-expi-12h": "12小时",
-  "wn-export-c-expi-14d": "14天",
-  "wn-export-c-expi-1d": "1天",
-  "wn-export-c-expi-1h": "1小时",
-  "wn-export-c-expi-2h": "2小时",
-  "wn-export-c-expi-30d": "30天",
-  "wn-export-c-expi-3d": "3天",
-  "wn-export-c-expi-6h": "6小时",
-  "wn-export-c-expi-7d": "7天",
-  "wn-export-c-expi-off": "永不过期",
   "wn-export-c-expi-tip": "输出的临时文件将在服务器端保留多久",
-  "wn-export-c-limit": "数量限制",
-  "wn-export-c-mapping": "映射方式",
-  "wn-export-c-mapping-phd": "选择一种映射方式",
-  "wn-export-c-mapping-tip": "所谓映射方式，就是如何字段输出的规定，包括如何指定字段名称，字段值如何转换等",
+  "wn-expi-12h": "12小时",
+  "wn-expi-14d": "14天",
+  "wn-expi-10m": "10分钟",
+  "wn-expi-1d": "1天",
+  "wn-expi-1h": "1小时",
+  "wn-expi-2h": "2小时",
+  "wn-expi-30d": "30天",
+  "wn-expi-30m": "30分钟",
+  "wn-expi-3d": "3天",
+  "wn-expi-6h": "6小时",
+  "wn-expi-7d": "7天",
+  "wn-expi-never": "永不过期",
+  "wn-export-confirm-many":"你要导出的数据很多，这个操作可能会需要较长时间，你确定要继续导出吗？",
+  "wn-export-c-mapping": "映射规则",
+  "wn-export-c-mapping-phd": "选择一种字段映射规则",
+  "wn-export-c-mapping-tip": "所谓映射规则，就是字段输出时的转换的规则，包括如何指定字段名称，字段值如何转换等",
   "wn-export-c-mode": "数据范围",
   "wn-export-c-mode-all": "全部页",
   "wn-export-c-mode-checked": "选中记录",
   "wn-export-c-mode-current": "当前页",
-  "wn-export-c-mode-scope": "指定范围",
-  "wn-export-c-mode-scope-phd": "譬如: 1-100",
-  "wn-export-c-mode-scope-tip": "要导出的数据范围，1-200 表示从第1条记录到第200条记录（包含）",
+  "wn-data-scope": "指定范围",
+  "wn-data-scope-phd": "譬如: 1-100",
+  "wn-data-scope-tip": "要处理的数据范围，1-200 表示从第1条记录到第200条记录（包含）",
   "wn-export-c-name": "导出文件名",
   "wn-export-c-name-phd": "请输入导出文件名",
   "wn-export-c-name-tip": "导出文件名，如果没有后缀名，会自动根据【导出类型】补全",

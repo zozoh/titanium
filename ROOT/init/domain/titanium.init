@@ -222,9 +222,14 @@
 {com:'/rs/ti/test/components/wn-others/demo-wn-obj-pvgview.json'}
 #---------------------------------------------------------
 @FILE mock/components/wn-others/wn-data-exporter-form.comt 'WN-DATA-EXPORTER-FORM'
-{com:'/rs/ti/test/components/wn-others/wn-data-exporter-form.json'}
-@FILE mock/components/wn-others/media.mapping.json 
-%COPY> conf/media.mapping.json
+{com:'/rs/ti/test/components/wn-others/demo-wn-data-exporter-form.json'}
+@FILE mock/components/wn-others/export.mapping.json 
+%COPY> conf/export.mapping.json
+#---------------------------------------------------------
+@FILE mock/components/wn-others/wn-data-import-form.comt 'WN-DATA-IMPORT-FORM'
+{com:'/rs/ti/test/components/wn-others/demo-wn-data-import-form.json'}
+@FILE mock/components/wn-others/import.mapping.json 
+%COPY> conf/import.mapping.json
 ##########################################################
 #
 #                    网站工程

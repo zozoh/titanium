@@ -4,11 +4,11 @@
   "comConf": {
     "title": "测试文件导出",
     "mappingPath": [
-      "~/mock/components/wn-others/media.mapping.json",
-      "~/mock/components/wn-others/mapping"
+      "~/mock/components/wn-others/export.mapping.json",
+      "~/mock/components/wn-others/export/"
     ],
     "defaultMappingName":"b",
-    "outputName":"media-list-${now}",
+    "outputName":"export-list-${now}",
     "outputTarget":"~/tmp/${name}.${type}",
     "data" : "=data"
   }

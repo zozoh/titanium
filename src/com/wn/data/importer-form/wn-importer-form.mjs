@@ -26,20 +26,8 @@ const _M = {
     defaultMappingName: {
       type: String,
     },
-    // A Tmpl to get the output target path
-    // the base render context :
-    // {
-    //   type: "xlsx",        // <- this.oututMode
-    //   yy:"2023",MM:"02",dd:"19",HH:"12",mm:"00",ss:"00"
-    //   today:"2023-02-19", now:"2023-02-19_120000"
-    // }
-    // If function, it will be invoke as `(context={}):String`
-    // [required]
-    outputName: {
-      type: [String, Function],
-    },
     // TODO: Maybe allow user to choose the output folder in futrue
-    outputTarget: {
+    uploadTarget: {
       type: [String, Function],
       // sunc as "~/tmp/${name}"
     },
@@ -54,61 +42,36 @@ const _M = {
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    outputType: {
-      type: String,
-      default: "xlsx",
-    },
-    outputTypeOptions: {
-      type: Array,
-      default: () => ["xlsx", "json"],
-    },
     outputMode: {
       type: String,
-      default: "checked",
+      default: "all",
     },
     outputModeOptions: {
       type: Array,
-      default: () => ["checked", "current", "scope"],
+      default: () => ["all", "scope"],
     },
     // Auto remove target when expired.
     // null, never expired
     targetExpi: {
       type: String,
-      default: "1h",
+      default: "6h",
     },
     targetExpiOptions: {
       type: Array,
-      default: () => ["1h", "6h", "1d", "never"],
+      default: () => ["1h", "6h", "1d"],
     },
-    // AutoMatch expression Object, to filter the default mapping fields
-    // if nil, all fields will be selected
-    // defaultFields: {
-    //   type: [String, Array, Object],
-    // },
-    // A Tmpl as export command, which context:
-    /*{
-      ... this.vars,          // <- this.vars
-      type: "xlsx",           // <- this.oututMode
-      mappingId:"89ju...",    // <- this.mappingPath
-      name :"xxx.xlsx",     // <- this.outputName
-      fields: ['a','b'],      // output field white list
-      fieldMatch : "^(a|b)$", // output field AutoMatch String
-      expi: "%ms:now+1d",     // <- this.targetExpi
-    }*/
-    // If function, it will be invoke as `(context={}):String`
-    // command: {
-    //   type: [String, Function],
-    // },
-    // // command input, if Array it will auto-stringify to JSON
-    // commandInput: {
-    //   type: [String, Array],
-    // },
-    // // additional render vars for output target
-    // vars: {
-    //   type: Object,
-    //   default: () => ({}),
-    // },
-
+    uploadTip: {
+      type: [String, Object],
+      default: "i18n:wn-import-upload-xlsx-tip",
+    },
+    uploadValueType: {
+      type: String,
+      default: "id",
+    },
+    uploadSupportTypes: {
+      type: Array,
+      default: () => ["xlsx"],
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -140,18 +103,14 @@ const _M = {
       return _.get(this.myCanFields, this.MappingFileId) || [];
     },
     //---------------------------------------------------
+    FormUploadTarget() {
+      return Ti.Tmpl.exec(this.uploadTarget, this.vars);
+    },
+    //---------------------------------------------------
     OutputModeOptions() {
-      console.log("computed OutputModeOptions",this.outputModeOptions)
       return this.explainOptions(
         this.outputModeOptions,
         this.explainOutputModeOption
-      );
-    },
-    //---------------------------------------------------
-    OutputTypeOptions() {
-      return this.explainOptions(
-        this.outputTypeOptions,
-        this.explainOutputTypeOption
       );
     },
     //---------------------------------------------------
@@ -163,22 +122,36 @@ const _M = {
     },
     //---------------------------------------------------
     FormFields() {
-      let fields = [];
+      let fields = [
+        {
+          title: "i18n:wn-import-upload",
+          name: "fileId",
+          fieldWidth: "100%",
+          tip: this.uploadTip,
+          colSpan: 2,
+          comType: "WnUploadFileBox",
+          comConf: {
+            valueType: this.uploadValueType,
+            target: this.FormUploadTarget,
+            supportTypes: this.uploadSupportTypes,
+          },
+        },
+      ];
 
       //
       // Choose mapping file
       //
       if (this.myMappingFiles.length > 1) {
         fields.push({
-          title: "i18n:wn-export-c-mapping",
+          title: "i18n:wn-import-c-mapping",
           name: "mapping",
           tip: {
-            text: "i18n:wn-export-c-mapping-tip",
+            text: "i18n:wn-import-c-mapping-tip",
             size: "normal",
           },
           comType: "TiDroplist",
           comConf: {
-            placeholder: "i18n:wn-export-c-mapping-phd",
+            placeholder: "i18n:wn-import-c-mapping-phd",
             options: this.myMappingFiles,
             iconBy: "icon",
             valueBy: "id",
@@ -196,6 +169,12 @@ const _M = {
           name: "fields",
           type: "Array",
           colSpan: 10,
+          visible: {
+            mapping: "![BLANK]",
+          },
+          enabled: {
+            fileId: "![BLANK]",
+          },
           comType: "TiBulletCheckbox",
           comConf: {
             title: "i18n:wn-export-choose-fields",
@@ -206,7 +185,7 @@ const _M = {
         },
         {
           icon: "zmdi-settings",
-          title: "i18n:wn-export-setup",
+          title: "i18n:wn-import-setup",
         }
       );
 
@@ -214,15 +193,16 @@ const _M = {
       // More Setting
       //
 
-      // choose output type
-      if (this.OutputTypeOptions.length > 1) {
+      if (this.TargetExpiOptions.length > 1) {
         fields.push({
-          title: "i18n:wn-export-c-type",
-          name: "type",
-          comType: "TiSwitcher",
+          title: "i18n:wn-import-c-expi",
+          name: "expi",
+          tip: "i18n:wn-import-c-expi-tip",
+          comType:
+            this.TargetExpiOptions.length > 3 ? "TiDroplist" : "TiSwitcher",
           comConf: {
             allowEmpty: false,
-            options: this.OutputTypeOptions,
+            options: this.TargetExpiOptions,
           },
         });
       }
@@ -253,35 +233,6 @@ const _M = {
         },
       });
 
-      if (this.TargetExpiOptions.length > 1) {
-        fields.push({
-          title: "i18n:wn-export-c-expi",
-          name: "expi",
-          tip: "i18n:wn-export-c-expi-tip",
-          comType:
-            this.TargetExpiOptions.length > 3 ? "TiDroplist" : "TiSwitcher",
-          comConf: {
-            allowEmpty: false,
-            options: this.TargetExpiOptions,
-          },
-        });
-
-        // Output target name
-        fields.push({
-          title: "i18n:wn-export-c-name",
-          name: "name",
-          tip: "i18n:wn-export-c-name-tip",
-          colSpan: 2,
-          comType: "TiInput",
-          comConf: {
-            placeholder: "i18n:wn-export-c-name-phd",
-            hover: ["prefixIcon", "suffixText"],
-            prefixIcon: "zmdi-minus",
-            suffixText: "i18n:reset",
-            suffixTextNotifyName: "target_name:reset",
-          },
-        });
-      }
       return fields;
     },
     //---------------------------------------------------
@@ -302,23 +253,6 @@ const _M = {
       this.changeData({ name });
     },
     //---------------------------------------------------
-    genOutputName(target = this.outputName) {
-      //console.log(target)
-      let d = new Date();
-      let payload = Ti.DateTime.genFormatContext(d);
-      payload.today = Ti.DateTime.format(d, "yyyy-MM-dd");
-      payload.now = Ti.DateTime.format(d, "yyyy-MM-dd_HHmmss");
-      _.assign(payload, this.vars)
-      if (_.isFunction(target)) {
-        return target(payload);
-      }
-      if (_.isString(target)) {
-        let taTmpl = Ti.Tmpl.parse(target);
-        return taTmpl.render(payload);
-      }
-      throw `Invalid target: [${target}]`;
-    },
-    //---------------------------------------------------
     explainOptions(options = [], fn = _.identity) {
       let re = [];
       if (!_.isEmpty(options)) {
@@ -332,29 +266,11 @@ const _M = {
       return re;
     },
     //---------------------------------------------------
-    explainOutputTypeOption(it) {
-      if (_.isString(it)) {
-        return {
-          "xlsx": { value: "xlsx", text: "i18n:wn-export-c-type-xls" },
-          "json": { value: "json", text: "i18n:wn-export-c-type-json" },
-        }[it];
-      }
-      return it;
-    },
-    //---------------------------------------------------
     explainOutputModeOption(it) {
       if (_.isString(it)) {
         return {
-          "checked": {
-            value: "checked",
-            text: "i18n:wn-export-c-mode-checked",
-          },
-          "current": {
-            value: "current",
-            text: "i18n:wn-export-c-mode-current",
-          },
           "scope": { value: "scope", text: "i18n:wn-data-scope" },
-          "all": { value: "all", text: "i18n:wn-export-c-mode-all" },
+          "all": { value: "all", text: "i18n:wn-import-c-mode-all" },
         }[it];
       }
       return it;
@@ -385,7 +301,9 @@ const _M = {
     async reloadMappingFields(mappingId = this.MappingFileId) {
       if (mappingId && !this.myCanFields[mappingId]) {
         // Try Cache
-        let json = await Wn.Sys.exec2(`cat id:${mappingId}`);
+        let json = await Wn.Sys.exec2(
+          `cat id:${mappingId} | jsonx -cqn @get mapping `
+        );
         let cans = [];
         if (!Ti.S.isBlank(json)) {
           let list = JSON.parse(json);
@@ -397,15 +315,15 @@ const _M = {
             // Simple: "nm": "Name",
             else if (_.isString(li)) {
               cans.push({
-                text: li,
-                value: key,
+                text: key,
+                value: li,
               });
             }
             // Complex: "race": {...}
             else if (li.name) {
               cans.push({
-                text: li.name,
-                value: key,
+                text: key,
+                value: li.name,
                 asDefault: li.asDefault,
               });
             }
@@ -467,9 +385,6 @@ const _M = {
         type: this.outputType,
         mode: this.outputMode,
         mapping: mappingId,
-        name: this.genOutputName(
-          _.get(this.data, "outputName") || this.outputName
-        ),
       };
       if (this.targetExpi) {
         data.expi = `${this.targetExpi}`;

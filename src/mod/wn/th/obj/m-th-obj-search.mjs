@@ -2,7 +2,7 @@
 const _M = {
   //----------------------------------------
   //
-  // Import / Export
+  // Export Data
   //
   //----------------------------------------
   async openExportDataDir({ getters }) {
@@ -21,16 +21,19 @@ const _M = {
       return await Ti.Toast.Open("ThObj thingSetId without defined", "warn");
     }
 
+    let modes = ["current", "scope"];
     let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds);
-    if (_.isEmpty(ids)) {
-      return await Ti.Alert("i18n:nil-item", { type: "warn" });
+    if (!_.isEmpty(ids)) {
+      modes.splice(0, 0, "checked");
     }
 
+    console.log(modes);
     let tsName = Ti.Util.getFallback(state.oTs, "title", "nm") || "export";
-    let tsTitle = Ti.I18n.text(tsName)
+    let tsTitle = Ti.I18n.text(tsName);
 
     // Open Dialog Wizard to export data
     let re = await Ti.App.Open({
+      icon: "fas-file-download",
       title: "i18n:export-data",
       position: "top",
       minWidth: "90%",
@@ -43,6 +46,8 @@ const _M = {
         "defaultMappingName": undefined,
         "outputName": `${tsTitle}-\${now}`,
         "outputTarget": `id:${state.thingSetId}/tmp/export/\${name}.\${type}`,
+        "outputModeOptions": modes,
+        "outputMode": _.first(modes),
       },
       components: ["@com:wn/data/exporter-form"],
     });
@@ -112,27 +117,11 @@ const _M = {
         //.........................
         // Scope
         else if ("scope" == mode) {
-          let m = /^([1-9]\d*)[:,_-](\d+)$/.exec(_.trim(scope));
-          if (!m) {
-            throw Ti.Err.make("e.export_data.InvalidScope", scope);
-          }
-          let n0 = Math.max(parseInt(m[1] * 1), 1);
-          let n1 = Math.max(parseInt(m[2]), 0);
-          let from = Math.min(n0, n1);
-          let to = Math.max(n0, n1);
-          let skip = Math.max(0, from - 1);
-          let limit = to - from;
-          console.log(skip, limit);
-
-          if (limit <= 0) {
-            return await Ti.Alert("i18n:e-export_data-InvalidScope", {
-              type: "warn",
-            });
-          }
+          let { skip, limit } = Ti.Num.scopeToLimit(scope);
 
           if (limit > 1000) {
             if (
-              !(await Ti.Confirm("i18n:e-exort_data-ConfirmBigLimit", {
+              !(await Ti.Confirm("i18n:wn-export-confirm-many", {
                 type: "warn",
               }))
             ) {
@@ -284,6 +273,88 @@ const _M = {
       },
       components: ["@com:web/meta/badge"],
     });
+  },
+  //----------------------------------------
+  //
+  // Import Data
+  //
+  //----------------------------------------
+  async importData({ state, commit, dispatch, getters }) {
+    // Guard
+    if (!getters.isCanUpdate) {
+      return await Ti.Alert("i18n:e-pvg-fobidden", { type: "warn" });
+    }
+    if (!state.thingSetId) {
+      return await Ti.Toast.Open("ThObj thingSetId without defined", "warn");
+    }
+
+    let reo = await Ti.App.Open({
+      icon: "fas-file-import",
+      title: "i18n:import-data",
+      position: "top",
+      minWidth: "90%",
+      height: "90%",
+      result: _.cloneDeep(state.importSettings) || {},
+      model: { event: "change", prop: "data" },
+      comType: "WnDataImporterForm",
+      comConf: {
+        "mappingPath": `id:${state.thingSetId}/import/`,
+        "defaultMappingName": undefined,
+        "uploadTarget": `id:${state.thingSetId}/tmp/import/`,
+      },
+      components: ["@com:wn/data/importer-form"],
+    });
+
+    // User Cancel
+    if (!reo) {
+      return;
+    }
+
+    let { fileId, mode, scope, fields, mapping } = reo;
+    // Check Import File
+    if (!fileId) {
+      return await Ti.Alert("i18n:wn-import-WithoutInput", { type: "warn" });
+    }
+
+    // Check data Scope
+    let { skip, limit } = Ti.Num.scopeToLimit(scope, { skip: 0, limit: 0 });
+    if (limit > 1000) {
+      if (
+        !(await Ti.Confirm("i18n:wn-import-confirm-many", {
+          type: "warn",
+        }))
+      ) {
+        return;
+      }
+    }
+
+    // Check filtering fields
+    let fldReg = _.isEmpty(fields) ? null : `^(${fields.join("|")})$`;
+    let fnames = fldReg ? `-names '${fldReg}'` : "";
+
+    // From settings
+    let { uniqKey, withHook, process } = state.importSettings || {};
+    let unique = uniqKey ? `-unique ${uniqKey}` : "";
+    let nohook = withHook ? "" : "-nohook";
+
+    // Generate import commands
+    var cmds = [
+      "ooml id:" + fileId,
+      `@xlsx @sheet @mapping -f 'id:${mapping}' ${fnames} -only`,
+      "@beans -limit " + limit + " -skip " + skip,
+      `| thing 'id:${state.thingSetId}' create -fields ${unique} ${nohook} `,
+      `-process '${process || "<auto>"}'`,
+    ];
+    let cmdText = cmds.join(" ");
+    console.log(cmdText);
+
+    // Process in Command panel
+    await Wn.OpenCmdPanel(cmdText, {
+      title: "i18n:import-data",
+    });
+
+    // 刷新主界面
+    await this.dispatch("main/reloadData")
   },
   //----------------------------------------
   //
