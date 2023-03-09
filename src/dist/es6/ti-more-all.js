@@ -1,4 +1,4 @@
-// Pack At: 2023-03-06 22:44:11
+// Pack At: 2023-03-09 15:01:41
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5904,9 +5904,6 @@ const _M = {
   },
   //----------------------------------------
   setSorter(state, sorter) {
-    if ("caseevents" == state.moduleName) {
-      console.log("setSorter", state.moduleName, sorter);
-    }
     state.sorter = sorter;
     saveLocalBehavior(state, "sorter", sorter);
   },
@@ -33790,7 +33787,7 @@ const _M = {
     },
     //--------------------------------------
     async OnMetaFieldChange(payload) {
-      //console.log("OnMetaFieldChange", payload)
+      //console.log("Adaptor BuiltIn:OnMetaFieldChange", payload)
       await this.dispatch("updateMetaField", payload)
     },
     //--------------------------------------
@@ -106629,7 +106626,7 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-key-icon": "图标",
   "wn-key-id": "ID",
   "wn-key-len": "大小",
-  "wn-key-lm": "修改",
+  "wn-key-lm": "最后修改",
   "wn-key-m": "修改者",
   "wn-key-md": "基本权限",
   "wn-key-mime": "内容类型",
@@ -107787,8 +107784,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "e-auth-login-NoPhoneOrEmail": "錯誤的手機號或郵箱地址",
    "e-auth-login-NoSaltedPasswd": "未設置合法的密碼",
    "e-auth-login-invalid-passwd": "賬戶密碼未通過校驗",
-   "e-export_data-ConfirmBigLimit": "你要導出的數據很多，這個操作可能會需要較長時間，你確定要繼續導出嗎？",
-   "e-export_data-InvalidScope": "你聲明的導出範圍格式不正確，正確的格式類似：1-20 但是你卻輸入了：",
+   "e-data-InvalidScope": "你聲明的數據範圍格式不正確，正確的格式類似：1-20 但是你卻輸入了：",
    "e-export_data-UnknownMode": "未知的導出模式",
    "e-form-incomplete": "表單缺失必要字段: 【${title|name}】 ${tip?}",
    "e-io-forbidden": "禁止寫入",
@@ -108161,6 +108157,17 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
 // JOIN <_wn.i18n.json> ti/i18n/zh-hk/_wn.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
+   "wn-import-setup": "導入設置",
+   "wn-import-upload": "上傳文件",
+   "wn-import-upload-xlsx-tip": "僅支持 'xlsx' 文件，如果是 'xls' 文件，你需要另存爲 'xlsx'再上傳",
+   "wn-import-c-mode-all": "全部數據",
+   "wn-import-c-mapping": "映射規則",
+   "wn-import-c-mapping-phd": "選擇一種字段映射規則",
+   "wn-import-c-mapping-tip": "所謂映射規則，就是字段輸出時的轉換的規則，包括如何指定字段名稱，字段值如何轉換等",
+   "wn-import-c-expi": "暫存時間",
+   "wn-import-c-expi-tip": "上傳的臨時文件將在服務器端保留多久",
+   "wn-import-WithoutInput": "請上傳要導入的數據文件",
+   "wn-import-confirm-many": "你要導入的數據很多，這個操作可能會需要花一些時間，你確定要繼續導入嗎？",
    "wn-admin-check-obj-thumb": "檢查圖像縮略圖...",
    "wn-admin-tools": "管理工具",
    "wn-cmd-panel-epilog": "腳本執行完畢，您可以關閉本窗口了 ^_^",
@@ -108192,28 +108199,30 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-en-his-usr": "用戶",
    "wn-en-his-utp": "用戶類型",
    "wn-export-c-expi": "保存時間",
-   "wn-export-c-expi-12h": "12小時",
-   "wn-export-c-expi-14d": "14天",
-   "wn-export-c-expi-1d": "1天",
-   "wn-export-c-expi-1h": "1小時",
-   "wn-export-c-expi-2h": "2小時",
-   "wn-export-c-expi-30d": "30天",
-   "wn-export-c-expi-3d": "3天",
-   "wn-export-c-expi-6h": "6小時",
-   "wn-export-c-expi-7d": "7天",
-   "wn-export-c-expi-off": "永不過期",
    "wn-export-c-expi-tip": "輸出的臨時文件將在服務器端保留多久",
-   "wn-export-c-limit": "數量限制",
-   "wn-export-c-mapping": "映射方式",
-   "wn-export-c-mapping-phd": "選擇一種映射方式",
-   "wn-export-c-mapping-tip": "所謂映射方式，就是如何字段輸出的規定，包括如何指定字段名稱，字段值如何轉換等",
+   "wn-expi-12h": "12小時",
+   "wn-expi-14d": "14天",
+   "wn-expi-10m": "10分鐘",
+   "wn-expi-1d": "1天",
+   "wn-expi-1h": "1小時",
+   "wn-expi-2h": "2小時",
+   "wn-expi-30d": "30天",
+   "wn-expi-30m": "30分鐘",
+   "wn-expi-3d": "3天",
+   "wn-expi-6h": "6小時",
+   "wn-expi-7d": "7天",
+   "wn-expi-never": "永不過期",
+   "wn-export-confirm-many": "你要導出的數據很多，這個操作可能會需要較長時間，你確定要繼續導出嗎？",
+   "wn-export-c-mapping": "映射規則",
+   "wn-export-c-mapping-phd": "選擇一種字段映射規則",
+   "wn-export-c-mapping-tip": "所謂映射規則，就是字段輸出時的轉換的規則，包括如何指定字段名稱，字段值如何轉換等",
    "wn-export-c-mode": "數據範圍",
    "wn-export-c-mode-all": "全部頁",
    "wn-export-c-mode-checked": "選中記錄",
    "wn-export-c-mode-current": "當前頁",
-   "wn-export-c-mode-scope": "指定範圍",
-   "wn-export-c-mode-scope-phd": "譬如: 1-100",
-   "wn-export-c-mode-scope-tip": "要導出的數據範圍，1-200 表示從第1條記錄到第200條記錄（包含）",
+   "wn-data-scope": "指定範圍",
+   "wn-data-scope-phd": "譬如: 1-100",
+   "wn-data-scope-tip": "要處理的數據範圍，1-200 表示從第1條記錄到第200條記錄（包含）",
    "wn-export-c-name": "導出文件名",
    "wn-export-c-name-phd": "請輸入導出文件名",
    "wn-export-c-name-tip": "導出文件名，如果沒有後綴名，會自動根據【導出類型】補全",
@@ -108259,7 +108268,7 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-key-icon": "圖標",
    "wn-key-id": "ID",
    "wn-key-len": "大小",
-   "wn-key-lm": "修改",
+   "wn-key-lm": "最後修改",
    "wn-key-m": "修改者",
    "wn-key-md": "基本權限",
    "wn-key-mime": "內容類型",

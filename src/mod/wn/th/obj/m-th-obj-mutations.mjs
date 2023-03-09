@@ -155,9 +155,6 @@ const _M = {
   },
   //----------------------------------------
   setSorter(state, sorter) {
-    if ("caseevents" == state.moduleName) {
-      console.log("setSorter", state.moduleName, sorter);
-    }
     state.sorter = sorter;
     saveLocalBehavior(state, "sorter", sorter);
   },
