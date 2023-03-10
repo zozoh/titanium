@@ -325,6 +325,11 @@ const _M = {
         else {
           let it = await this.Dict.getItem(val)
           if (it) {
+            // It very wierd, somethings this function has been re-enter
+            // the Dict will change to undefined here
+            if(!this.Dict){
+              return
+            }
             if (this.autoLoadDictIcon) {
               this.myDisplayIcon = this.Dict.getIcon(it)
             }
