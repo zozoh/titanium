@@ -1,4 +1,4 @@
-// Pack At: 2023-03-09 22:11:52
+// Pack At: 2023-03-12 22:46:17
 //##################################################
 // # import { Alert } from "./ti-alert.mjs"
 const { Alert } = (function(){
@@ -1688,68 +1688,86 @@ const { Alg } = (function(){
   ///////////////////////////////////////////
   const TiAlg = {
     //---------------------------------------
+    fillGrid(cells = [], {
+      flow="row",   // Fill by row, row|column
+      dense=false,  // Debse arrange, try to reuse the space
+      cols = 3,     // Grid columns count
+      rows = 3,     // Grid rows count
+      cellMeasure = cell => ({
+        colStart: _.get(cell, colStart),
+        colSpan: Ti.Util.fallback(_.get(cell, colSpan), 1),
+        rowStart: _.get(cell, colStart),
+        rowSpan: Ti.Util.fallback(_.get(cell, colSpan), 1)
+      })
+    } = {}) {
+      // 准备一个标记矩阵
+      let matrix = []
+      //
+  
+    },
+    //---------------------------------------
     sha1(str) {
-      if(!_.isString(str)) {
-          str = JSON.stringify(str)
+      if (!_.isString(str)) {
+        str = JSON.stringify(str)
       }
       return CryptoJS.SHA1(str).toString();
     },
     //---------------------------------------
     // 获取两个数的最大公约数
     // greatest common divisor(gcd)
-    gcd(a,b){
+    gcd(a, b) {
       a = Math.round(a);
       b = Math.round(b);
-      if(b){
-          return this.gcd(b,a%b);
+      if (b) {
+        return this.gcd(b, a % b);
       }
       return a;
     },
     //---------------------------------------
     gcds() {
-        var args = Array.from(arguments);
-        var list = _.flatten(args);
-        // 没数
-        if(list.length == 0)
-            return NaN;
-        // 一个是自己
-        if(list.length == 1) {
-            return list[0];
-        }
-        // 两个以上
-        var gcd = this.gcd(list[0], list[1]);
-        for(var i=2; i<list.length; i++) {
-            gcd = this.gcd(gcd, list[i]);
-        }
-        // 返回
-        return gcd;
+      var args = Array.from(arguments);
+      var list = _.flatten(args);
+      // 没数
+      if (list.length == 0)
+        return NaN;
+      // 一个是自己
+      if (list.length == 1) {
+        return list[0];
+      }
+      // 两个以上
+      var gcd = this.gcd(list[0], list[1]);
+      for (var i = 2; i < list.length; i++) {
+        gcd = this.gcd(gcd, list[i]);
+      }
+      // 返回
+      return gcd;
     },
     //---------------------------------------
     // 获取两个数的最小公倍数 
     // lowest common multiple (LCM)
     lcm(a, b) {
-        a = Math.round(a);
-        b = Math.round(b);
-        return a * b / this.gcd(a, b);
+      a = Math.round(a);
+      b = Math.round(b);
+      return a * b / this.gcd(a, b);
     },
     //---------------------------------------
     lcms() {
-        var args = Array.from(arguments);
-        var list = _.flatten(args);
-        // 没数
-        if(list.length == 0)
-            return NaN;
-        // 一个是自己
-        if(list.length == 1) {
-            return list[0];
-        }
-        // 两个以上
-        var lcm = this.lcm(list[0], list[1]);
-        for(var i=2; i<list.length; i++) {
-            lcm = this.lcm(lcm, list[i]);
-        }
-        // 返回
-        return lcm;
+      var args = Array.from(arguments);
+      var list = _.flatten(args);
+      // 没数
+      if (list.length == 0)
+        return NaN;
+      // 一个是自己
+      if (list.length == 1) {
+        return list[0];
+      }
+      // 两个以上
+      var lcm = this.lcm(list[0], list[1]);
+      for (var i = 2; i < list.length; i++) {
+        lcm = this.lcm(lcm, list[i]);
+      }
+      // 返回
+      return lcm;
     }
     //---------------------------------------
   }
@@ -19884,7 +19902,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230309.221152",
+  "version": "1.6-20230312.224617",
   "dev": false,
   "appName": null,
   "session": {},
