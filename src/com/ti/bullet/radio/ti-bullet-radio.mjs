@@ -12,7 +12,12 @@ const _M = {
     "bulletIconOff": {
       type: String,
       default: "far-circle"
-    }
+    },
+    // override for checkbox
+    "groupSelectable": {
+      type: Boolean,
+      default: false,
+    },
   },
   //////////////////////////////////////////
   methods: {

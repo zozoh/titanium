@@ -28,10 +28,6 @@ const _M = {
       type: String,
       default: "far-square",
     },
-    "groupSelectable": {
-      type: Boolean,
-      default: true,
-    },
   },
   //////////////////////////////////////////
   computed: {
