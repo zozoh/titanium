@@ -1,4 +1,4 @@
-// Pack At: 2023-03-12 22:46:17
+// Pack At: 2023-03-13 15:21:28
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -1600,183 +1600,203 @@ const Obj = (function(){
 // # import Session from "./wn-session.mjs"
 const Session = (function(){
   ////////////////////////////////////////////
-  const PVGS = {}
-  const ENVS = {}
-  const SESSION = {}
+  const PVGS = {};
+  const ENVS = {};
+  const SESSION = {};
   ////////////////////////////////////////////
   const WnSession = {
     //----------------------------------------
-    setup({
-      id, uid, unm, me, grp,
-      by_tp, by_val, envs = {}
-    } = {}) {
+    async setup({ id, uid, unm, me, grp, by_tp, by_val, envs = {} } = {}) {
       _.assign(SESSION, {
-        id, uid, unm, me, grp,
-        by_tp, by_val
-      })
-      WnSession.env(envs)
+        id,
+        uid,
+        unm,
+        me,
+        grp,
+        by_tp,
+        by_val
+      });
+      WnSession.env(envs);
   
-      Ti.Env("theme", envs.THEME)
+      let offsetInMs = await Wn.Sys.timeOffsetInMs();
+  
+      Ti.Env("theme", envs.THEME);
+      Ti.Env("REMOTE_TIME_OFFSET_IN_MS", offsetInMs);
     },
     //----------------------------------------
     env(vars) {
       // Set Env
       if (_.isPlainObject(vars)) {
-        _.assign(ENVS, vars)
+        _.assign(ENVS, vars);
       }
       // GET one
       else if (_.isString(vars)) {
-        return ENVS[vars]
+        return ENVS[vars];
       }
       // Pick
       else if (_.isArray(vars)) {
-        return _.pick(ENVS, vars)
+        return _.pick(ENVS, vars);
       }
       // Get Env
-      return _.cloneDeep(ENVS)
+      return _.cloneDeep(ENVS);
     },
     //----------------------------------------
-    getLang() { return WnSession.env("LANG") },
+    getLang() {
+      return WnSession.env("LANG");
+    },
     //----------------------------------------
-    getMyId() { return SESSION.uid },
-    getMyName() { return SESSION.unm },
-    getMyGroup() { return SESSION.grp },
-    getMyJobs() { return SESSION.me.jobs || [] },
-    getMyDepts() { return SESSION.me.depts || [] },
+    getMyId() {
+      return SESSION.uid;
+    },
+    getMyName() {
+      return SESSION.unm;
+    },
+    getMyGroup() {
+      return SESSION.grp;
+    },
+    getMyJobs() {
+      return SESSION.me.jobs || [];
+    },
+    getMyDepts() {
+      return SESSION.me.depts || [];
+    },
     //----------------------------------------
-    getByType() { return SESSION.by_tp },
+    getByType() {
+      return SESSION.by_tp;
+    },
     isByType(type) {
       if (_.isRegExp(type)) {
-        return type.test(SESSION.by_tp)
+        return type.test(SESSION.by_tp);
       }
       if (_.isString(type) && type.startsWith("^")) {
-        return new RegExp(type).test(SESSION.by_tp)
+        return new RegExp(type).test(SESSION.by_tp);
       }
-      return type == SESSION.by_tp
+      return type == SESSION.by_tp;
     },
     //----------------------------------------
-    getByValue() { return SESSION.by_val },
+    getByValue() {
+      return SESSION.by_val;
+    },
     isByValue(val) {
       if (_.isRegExp(val)) {
-        return val.test(SESSION.by_val)
+        return val.test(SESSION.by_val);
       }
       if (_.isString(val) && val.startsWith("^")) {
-        return new RegExp(val).test(SESSION.by_val)
+        return new RegExp(val).test(SESSION.by_val);
       }
-      return val == SESSION.by_val
+      return val == SESSION.by_val;
     },
     //----------------------------------------
     getMe() {
-      return SESSION.me
+      return SESSION.me;
     },
     //----------------------------------------
     I_am_domain_ADMIN() {
-      let rid = _.get(SESSION.me, "roleInDomain")
-      return "ADMIN" == rid
+      let rid = _.get(SESSION.me, "roleInDomain");
+      return "ADMIN" == rid;
     },
     //----------------------------------------
     I_am_domain_MEMBER() {
-      let rid = _.get(SESSION.me, "roleInDomain")
-      return /^(ADMIN|MEMEBER)$/.test(rid)
+      let rid = _.get(SESSION.me, "roleInDomain");
+      return /^(ADMIN|MEMEBER)$/.test(rid);
     },
     //----------------------------------------
     I_am_op_ADMIN() {
-      let rid = _.get(SESSION.me, "roleInOp")
-      return "ADMIN" == rid
+      let rid = _.get(SESSION.me, "roleInOp");
+      return "ADMIN" == rid;
     },
     //----------------------------------------
     I_am_op_MEMBER() {
-      let rid = _.get(SESSION.me, "roleInOp")
-      return /^(ADMIN|MEMEBER)$/.test(rid)
+      let rid = _.get(SESSION.me, "roleInOp");
+      return /^(ADMIN|MEMEBER)$/.test(rid);
     },
     //----------------------------------------
     async loadMyPvg() {
-      let pvgs = await Wn.Sys.exec2("www pvg -cqn", { as: "json" })
-      _.assign(PVGS, pvgs)
-      return PVGS
+      let pvgs = await Wn.Sys.exec2("www pvg -cqn", { as: "json" });
+      _.assign(PVGS, pvgs);
+      return PVGS;
     },
     //----------------------------------------
     getAllPvgs() {
-      return _.cloneDeep(PVGS)
+      return _.cloneDeep(PVGS);
     },
     //----------------------------------------
     isPvgCanOne(...actions) {
-      if (PVGS['$SYS_USR'] && /^(admin|memeber)$/.test(SESSION.me.role)) {
-        return true
+      if (PVGS["$SYS_USR"] && /^(admin|memeber)$/.test(SESSION.me.role)) {
+        return true;
       }
       for (let a of actions) {
         if (PVGS[a]) {
-          return true
+          return true;
         }
       }
-      return false
+      return false;
     },
     //----------------------------------------
     isPvgCanAll(...actions) {
-      if (PVGS['$SYS_USR'] && /^(admin|memeber)$/.test(SESSION.me.role)) {
-        return true
+      if (PVGS["$SYS_USR"] && /^(admin|memeber)$/.test(SESSION.me.role)) {
+        return true;
       }
       for (let a of actions) {
         if (!PVGS[a]) {
-          return false
+          return false;
         }
       }
-      return true
+      return true;
     },
     //----------------------------------------
     //          AND
     // pvg: ["A+B+C",...] => or
     isPvgCan(pvg, dft = true) {
       if (_.isEmpty(pvg)) {
-        return dft
+        return dft;
       }
-      let list = _.concat(pvg)
+      let list = _.concat(pvg);
       for (let li of list) {
-        let ss = li.split("+")
-        ss = _.map(ss, s => _.trim(s))
-        if(!WnSession.isPvgCanAll(ss)){
-          return false
+        let ss = li.split("+");
+        ss = _.map(ss, (s) => _.trim(s));
+        if (!WnSession.isPvgCanAll(ss)) {
+          return false;
         }
       }
-      return true
+      return true;
     },
     //----------------------------------------
     getHomePath() {
-      return WnSession.env("HOME")
+      return WnSession.env("HOME");
     },
     //----------------------------------------
     getCurrentPath(dft = "~") {
-      return WnSession.env("PWD") || dft
+      return WnSession.env("PWD") || dft;
     },
     //----------------------------------------
-    // Analyze the current domain 
+    // Analyze the current domain
     getCurrentDomain() {
-      let home = WnSession.getHomePath()
+      let home = WnSession.getHomePath();
       if (!home) {
-        return
+        return;
       }
       // For root
-      if ("/root" == home)
-        return "root"
+      if ("/root" == home) return "root";
   
       // Others
-      let m = /^\/home\/(.+)$/.exec(home)
+      let m = /^\/home\/(.+)$/.exec(home);
       if (m) {
-        return m[1]
+        return m[1];
       }
     },
     //----------------------------------------
     getApiPrefix() {
-      let dmn = WnSession.getCurrentDomain()
-      return `/api/${dmn}`
+      let dmn = WnSession.getCurrentDomain();
+      return `/api/${dmn}`;
     },
     //----------------------------------------
     getApiUrl(url) {
-      let prefix = WnSession.getApiPrefix()
-      return Ti.Util.appendPath(prefix, url)
+      let prefix = WnSession.getApiPrefix();
+      return Ti.Util.appendPath(prefix, url);
     }
     //----------------------------------------
-  }
+  };
   ////////////////////////////////////////////
   return WnSession;
 })();
@@ -1877,129 +1897,138 @@ const Sys = (function(){
     return WnSysRespParsing;
   })();
   ////////////////////////////////////////////
-  const DFT_MACRO_OBJ_SEP = "%%wn.meta." + Ti.Random.str(10) + "%%"
+  const DFT_MACRO_OBJ_SEP = "%%wn.meta." + Ti.Random.str(10) + "%%";
   ////////////////////////////////////////////
   const WnSys = {
     //-------------------------------------
-    async exec(cmdText, {
-      vars = undefined,
-      input = "",
-      appName = Ti.GetAppName(),
-      eachLine = undefined,
-      as = "text",
-      blankAs = "",
-      macroObjSep = DFT_MACRO_OBJ_SEP,
-      autoRunMacro = true,
-      forceFlushBuffer = false,
-      errorBy,
-      PWD = Wn.Session.getCurrentPath()
-    } = {}) {
+    async exec(
+      cmdText,
+      {
+        vars = undefined,
+        input = "",
+        appName = Ti.GetAppName(),
+        eachLine = undefined,
+        as = "text",
+        blankAs = "",
+        macroObjSep = DFT_MACRO_OBJ_SEP,
+        autoRunMacro = true,
+        forceFlushBuffer = false,
+        errorBy,
+        PWD = Wn.Session.getCurrentPath()
+      } = {}
+    ) {
       // Eval command
       if (vars) {
-        cmdText = Ti.S.renderBy(cmdText, vars)
+        cmdText = Ti.S.renderBy(cmdText, vars);
       }
       // Prepare
-      let url = `/a/run/${appName}`
+      let url = `/a/run/${appName}`;
       let params = {
         "mos": macroObjSep,
         "PWD": PWD,
         "cmd": cmdText,
         "in": input,
         "ffb": forceFlushBuffer
-      }
+      };
       // Prepare analyzer
-      let ing = { eachLine, macroObjSep }
+      let ing = { eachLine, macroObjSep };
       if (autoRunMacro) {
         ing.macro = {
           update_envs: (envs) => {
-            Wn.Session.env(envs)
-            Wn.doHook("update_envs", envs)
+            Wn.Session.env(envs);
+            Wn.doHook("update_envs", envs);
           }
-        }
+        };
       }
-      let parsing = new WnSysRespParsing(ing)
+      let parsing = new WnSysRespParsing(ing);
   
       // Watch each line if necessary
-      let readyStateChanged = undefined
+      let readyStateChanged = undefined;
       if (forceFlushBuffer && _.isFunction(eachLine)) {
         readyStateChanged = () => {
-          parsing.updated()
-        }
+          parsing.updated();
+        };
       }
   
       // Request remote
       await Ti.Http.send(url, {
-        method: "POST", params, as: "text",
+        method: "POST",
+        params,
+        as: "text",
         created: ($req) => {
-          parsing.init(() => $req.responseText)
+          parsing.init(() => $req.responseText);
         },
         readyStateChanged
-      }).catch($req => {
-        parsing.isError = true
-      }).finally(() => {
-        parsing.done()
       })
+        .catch(($req) => {
+          parsing.isError = true;
+        })
+        .finally(() => {
+          parsing.done();
+        });
   
       // Get result
-      let re = parsing.getResult()
+      let re = parsing.getResult();
       // Then we got the result
       if (Ti.IsInfo("Wn.Sys")) {
-        console.log("Wn.Sys.exec@return", re)
+        console.log("Wn.Sys.exec@return", re);
       }
   
       // Handle error
       if (parsing.isError) {
-        let str = re.lines.join("\n")
+        let str = re.lines.join("\n");
         if (_.isFunction(errorBy)) {
           let [code, ...datas] = str.split(/ *: */);
-          let data = datas.join(" : ")
-          code = _.trim(code)
-          let msgKey = code.replace(/[.]/g, "-")
+          let data = datas.join(" : ");
+          code = _.trim(code);
+          let msgKey = code.replace(/[.]/g, "-");
           return errorBy({
-            code, msgKey, data
-          })
+            code,
+            msgKey,
+            data
+          });
         }
         // Just throw it
         else {
-          throw str
+          throw str;
         }
       }
   
       // Evaluate the result
-      return ({
+      return {
         raw: () => re,
         lines: () => re.lines,
         macro: () => re.macro,
         text: () => {
-          return re.lines.join("\n")
+          return re.lines.join("\n");
         },
         json: () => {
-          let json = re.lines.join("\n")
+          let json = re.lines.join("\n");
           if (Ti.S.isBlank(json)) {
-            json = blankAs
+            json = blankAs;
           }
           // Try parse json
           try {
-            return JSON.parse(json)
+            return JSON.parse(json);
           } catch (e) {
-            console.error(`Error [${cmdText}] for parse JSON:`, json)
-            throw e
+            console.error(`Error [${cmdText}] for parse JSON:`, json);
+            throw e;
           }
         },
         jso: () => {
-          let json = re.lines.join("\n")
+          let json = re.lines.join("\n");
           if (Ti.S.isBlank(json)) {
-            json = blankAs
+            json = blankAs;
           }
           // Try eval json
           try {
-            return eval('(' + json + ')')
+            return eval("(" + json + ")");
           } catch (e) {
-            console.error(`Error [${cmdText}] for eval JSO:`, json)
-            throw e
+            console.error(`Error [${cmdText}] for eval JSO:`, json);
+            throw e;
           }
         }
-      })[as]()
+      }[as]();
     },
     //-------------------------------------
     async exec2(cmdText, options = {}) {
@@ -2008,35 +2037,46 @@ const Sys = (function(){
         errorBy: async function ({ code, msgKey, data }) {
           //console.log(code, msgKey, data)
           // Eval error message
-          let msg = Ti.I18n.get(msgKey)
+          let msg = Ti.I18n.get(msgKey);
           if (!Ti.Util.isNil(data) && (!_.isString(data) || data)) {
-            msg += " : " + Ti.Types.toStr(data)
+            msg += " : " + Ti.Types.toStr(data);
           }
           // Show it to user
           await Ti.Alert(msg, {
             title: "i18n:warn",
             type: "error"
-          })
+          });
           // Customized processing
           if (_.isFunction(options.errorAs)) {
-            return options.errorAs({ code, msgKey, data })
+            return options.errorAs({ code, msgKey, data });
           }
-          return Ti.Err.make(code, data)
+          return Ti.Err.make(code, data);
         }
-      })
+      });
       // Run command
-      return await Wn.Sys.exec(cmdText, options)
+      return await Wn.Sys.exec(cmdText, options);
     },
     //-------------------------------------
     async execJson(cmdText, options = { as: "json" }) {
-      return await WnSys.exec(cmdText, options)
+      return await WnSys.exec(cmdText, options);
     },
     //-------------------------------------
     async exec2Json(cmdText, options = { as: "json" }) {
-      return await WnSys.exec2(cmdText, options)
+      return await WnSys.exec2(cmdText, options);
+    },
+    //-------------------------------------
+    async nowInMs() {
+      let re = await WnSys.exec2("date -ms");
+      return re * 1;
+    },
+    //-------------------------------------
+    async timeOffsetInMs() {
+      let now = Date.now();
+      let ams = await WnSys.nowInMs();
+      return ams - now;
     }
     //-------------------------------------
-  }
+  };
   ////////////////////////////////////////////
   return WnSys;
 })();
@@ -4498,7 +4538,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230312.224618"
+const WALNUT_VERSION = "1.2-20230313.152128"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

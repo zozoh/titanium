@@ -1,6 +1,6 @@
-// Pack At: 2023-03-12 22:46:17
+// Pack At: 2023-03-13 15:21:28
 //##################################################
-// # import { Alert } from "./ti-alert.mjs"
+// # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
   ////////////////////////////////////////////////
   async function TiAlert(msg = "", {
@@ -57,7 +57,7 @@ const { Alert } = (function(){
   return {Alert: TiAlert};
 })();
 //##################################################
-// # import { Confirm } from "./ti-confirm.mjs"
+// # import { Confirm } from "./ti-confirm.mjs";
 const { Confirm } = (function(){
   ////////////////////////////////////////////////
   async function TiConfirm(msg = "", {
@@ -120,7 +120,7 @@ const { Confirm } = (function(){
   return {Confirm: TiConfirm};
 })();
 //##################################################
-// # import { Prompt } from "./ti-prompt.mjs"
+// # import { Prompt } from "./ti-prompt.mjs";
 const { Prompt } = (function(){
   ////////////////////////////////////////////////
   async function TiPrompt(msg = "", {
@@ -220,7 +220,7 @@ const { Prompt } = (function(){
   return {Prompt: TiPrompt};
 })();
 //##################################################
-// # import { Captcha } from "./ti-captcha.mjs"
+// # import { Captcha } from "./ti-captcha.mjs";
 const { Captcha } = (function(){
   ////////////////////////////////////////////////
   async function TiCaptcha(src="", {
@@ -323,7 +323,7 @@ const { Captcha } = (function(){
   return {Captcha: TiCaptcha};
 })();
 //##################################################
-// # import { Toast } from "./ti-toast.mjs"
+// # import { Toast } from "./ti-toast.mjs";
 const { Toast } = (function(){
   //################################################
   // # import {TiRuntimeStack} from "./ti-runtime-stack.mjs"
@@ -566,7 +566,7 @@ const { Toast } = (function(){
   return {Toast: TiToast};
 })();
 //##################################################
-// # import { Toptip } from "./ti-toptip.mjs"
+// # import { Toptip } from "./ti-toptip.mjs";
 const { Toptip } = (function(){
   class TiToptipBox {
     //------------------------------------------
@@ -1027,7 +1027,7 @@ const { Toptip } = (function(){
   return {Toptip: TiToptip};
 })();
 //##################################################
-// # import { EditCode } from "./ti-editcode.mjs"
+// # import { EditCode } from "./ti-editcode.mjs";
 const { EditCode } = (function(){
   ////////////////////////////////////////////////////
   async function TiEditCode(
@@ -1061,7 +1061,7 @@ const { EditCode } = (function(){
   return {EditCode: TiEditCode};
 })();
 //##################################################
-// # import { Be } from "./behaviors.mjs"
+// # import { Be } from "./behaviors.mjs";
 const { Be } = (function(){
   //################################################
   // # import Draggable from "./be/draggable.mjs"
@@ -1682,7 +1682,7 @@ const { Be } = (function(){
   return {Be: TiBehaviors};
 })();
 //##################################################
-// # import { Alg } from "./algorithm.mjs"
+// # import { Alg } from "./algorithm.mjs";
 const { Alg } = (function(){
   // rquired crypto-js
   ///////////////////////////////////////////
@@ -1775,7 +1775,7 @@ const { Alg } = (function(){
   return {Alg: TiAlg};
 })();
 //##################################################
-// # import { S } from "./str.mjs"
+// # import { S } from "./str.mjs";
 const { S } = (function(){
   const CN_NC0 = "零一二三四五六七八九";
   const CN_NU0 = "个十百千万亿";
@@ -2535,7 +2535,7 @@ const { S } = (function(){
   return {S: TiStr};
 })();
 //##################################################
-// # import { Tmpl } from "./tmpl.mjs"
+// # import { Tmpl } from "./tmpl.mjs";
 const { Tmpl } = (function(){
   ///////////////////////////////////////////////////
   function TmplStaticEle(s) {
@@ -2912,7 +2912,7 @@ const { Tmpl } = (function(){
   return {Tmpl: TiTmpl};
 })();
 //##################################################
-// # import { App } from "./app.mjs"
+// # import { App } from "./app.mjs";
 const { App } = (function(){
   //################################################
   // # import { LoadTiAppInfo, LoadTiLinkedObj } from "./app-info.mjs"
@@ -4714,7 +4714,7 @@ const { App } = (function(){
   return {App: TiApp};
 })();
 //##################################################
-// # import { Err } from "./err.mjs"
+// # import { Err } from "./err.mjs";
 const { Err } = (function(){
   const TiError = {
     make(code = "", data, errMsg) {
@@ -4741,7 +4741,7 @@ const { Err } = (function(){
   return {Err: TiError};
 })();
 //##################################################
-// # import { Config } from "./config.mjs"
+// # import { Config } from "./config.mjs";
 const { Config } = (function(){
   const CONFIG = {
     prefix: {},
@@ -4963,7 +4963,7 @@ const { Config } = (function(){
   return {Config: TiConfig};
 })();
 //##################################################
-// # import { Dom } from "./dom.mjs"
+// # import { Dom } from "./dom.mjs";
 const { Dom } = (function(){
   ////////////////////////////////////////////////////////
   const TiDom = {
@@ -6046,7 +6046,7 @@ const { Dom } = (function(){
   return {Dom: TiDom};
 })();
 //##################################################
-// # import { Rect, Rects } from "./rect.mjs"
+// # import { Rect, Rects } from "./rect.mjs";
 const { Rect, Rects } = (function(){
   //--------------------------------------
   class QuickKeyMap {
@@ -6843,7 +6843,7 @@ const { Rect, Rects } = (function(){
   return {Rect, TiRects, Rects: TiRects};
 })();
 //##################################################
-// # import { Load } from "./load.mjs"
+// # import { Load } from "./load.mjs";
 const { Load } = (function(){
   //################################################
   // # import {importModule} from "./polyfill-dynamic-import.mjs"
@@ -7121,7 +7121,7 @@ const { Load } = (function(){
   return {Load: TiLoad};
 })();
 //##################################################
-// # import { Http } from "./http.mjs"
+// # import { Http } from "./http.mjs";
 const { Http } = (function(){
   //-----------------------------------
   const RESP_TRANS = {
@@ -7351,7 +7351,7 @@ const { Http } = (function(){
   return {Http: TiHttp};
 })();
 //##################################################
-// # import { I18n } from "./i18n.mjs"
+// # import { I18n } from "./i18n.mjs";
 const { I18n } = (function(){
   //-----------------------------------
   const I18N = {}
@@ -7475,7 +7475,7 @@ const { I18n } = (function(){
   return {I18n: Ti18n};
 })();
 //##################################################
-// # import { Icons } from "./icons.mjs"
+// # import { Icons } from "./icons.mjs";
 const { Icons } = (function(){
   //-----------------------------------
   const TYPES = {
@@ -7676,7 +7676,7 @@ const { Icons } = (function(){
   return {Icons: TiIcons};
 })();
 //##################################################
-// # import { Fuse } from "./fuse.mjs"
+// # import { Fuse } from "./fuse.mjs";
 const { Fuse } = (function(){
   class TiDetonator {
     constructor({key, everythingOk, fail, once=false}={}){
@@ -7783,7 +7783,7 @@ const { Fuse } = (function(){
   return {Fuse: new TiFuseManager()};
 })();
 //##################################################
-// # import { Random } from "./random.mjs"
+// # import { Random } from "./random.mjs";
 const { Random } = (function(){
   const CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('')
   //---------------------------------------
@@ -7819,7 +7819,7 @@ const { Random } = (function(){
   return {Random: TiRandom};
 })();
 //##################################################
-// # import { Storage } from "./storage.mjs"
+// # import { Storage } from "./storage.mjs";
 const { Storage } = (function(){
   //-----------------------------------
   class TiStorageWrapper {
@@ -7886,7 +7886,7 @@ const { Storage } = (function(){
   return {Storage: TiStorage};
 })();
 //##################################################
-// # import { Shortcut } from "./shortcut.mjs"
+// # import { Shortcut } from "./shortcut.mjs";
 const { Shortcut } = (function(){
   ///////////////////////////////////////
   const TiShortcut = {
@@ -8215,7 +8215,7 @@ const { Shortcut } = (function(){
   return {Shortcut: TiShortcut};
 })();
 //##################################################
-// # import { TiWebsocket } from "./websocket.mjs"
+// # import { TiWebsocket } from "./websocket.mjs";
 const { TiWebsocket } = (function(){
   /////////////////////////////////////
   const TiWebsocket = {
@@ -8288,7 +8288,7 @@ const { TiWebsocket } = (function(){
   return {TiWebsocket};
 })();
 //##################################################
-// # import { Validate } from "./validate.mjs"
+// # import { Validate } from "./validate.mjs";
 const { Validate } = (function(){
   ///////////////////////////////////////
   const VALIDATORS = {
@@ -8462,7 +8462,7 @@ const { Validate } = (function(){
   return {Validate: TiValidate};
 })();
 //##################################################
-// # import { AutoMatch } from "./automatch.mjs"
+// # import { AutoMatch } from "./automatch.mjs";
 const { AutoMatch } = (function(){
   ///////////////////////////////////////
   function explainKeyDisplay(key, keyDisplayBy) {
@@ -9166,7 +9166,7 @@ const { AutoMatch } = (function(){
   return {AutoMatch: TiAutoMatch};
 })();
 //##################################################
-// # import { DateTime } from "./datetime.mjs"
+// # import { DateTime } from "./datetime.mjs";
 const { DateTime } = (function(){
   ///////////////////////////////////////////
   const I_DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
@@ -9607,7 +9607,7 @@ const { DateTime } = (function(){
   return {DateTime: TiDateTime};
 })();
 //##################################################
-// # import { Types } from "./types.mjs"
+// # import { Types } from "./types.mjs";
 const { Types } = (function(){
   ///////////////////////////////////////////
   // Time Object
@@ -10997,7 +10997,7 @@ const { Types } = (function(){
   return {TiMsRange, TiTime, TiColor, Types: TiTypes};
 })();
 //##################################################
-// # import { Util } from "./util.mjs"
+// # import { Util } from "./util.mjs";
 const { Util } = (function(){
   //################################################
   // # import TiPaths from "./util-paths.mjs";
@@ -13554,7 +13554,7 @@ const { Util } = (function(){
   return {Util: TiUtil};
 })();
 //##################################################
-// # import { Trees } from "./trees.mjs"
+// # import { Trees } from "./trees.mjs";
 const { Trees } = (function(){
   /*
   Tree Node: 
@@ -14318,7 +14318,7 @@ const { Trees } = (function(){
   return {Trees: TiTrees};
 })();
 //##################################################
-// # import { Viewport } from "./viewport.mjs"
+// # import { Viewport } from "./viewport.mjs";
 const { Viewport } = (function(){
   class TiViewport {
     constructor() {
@@ -14387,7 +14387,7 @@ const { Viewport } = (function(){
   return {Viewport: new TiViewport()};
 })();
 //##################################################
-// # import { WWW } from "./www.mjs"
+// # import { WWW } from "./www.mjs";
 const { WWW } = (function(){
   ///////////////////////////////////////////
   const TiWWW = {
@@ -15178,7 +15178,7 @@ const { WWW } = (function(){
   return {WWW: TiWWW};
 })();
 //##################################################
-// # import { GPS } from "./gps.mjs"
+// # import { GPS } from "./gps.mjs";
 const { GPS } = (function(){
   //const BAIDU_LBS_TYPE = "bd09ll";
   const pi = 3.1415926535897932384626;
@@ -15423,7 +15423,7 @@ const { GPS } = (function(){
   return {GPS: TiGPS};
 })();
 //##################################################
-// # import { GIS } from "./gis.mjs"
+// # import { GIS } from "./gis.mjs";
 const { GIS } = (function(){
   //const BAIDU_LBS_TYPE = "bd09ll";
   const pi = 3.1415926535897932384626;
@@ -15708,7 +15708,7 @@ const { GIS } = (function(){
   return {GIS: TiGis};
 })();
 //##################################################
-// # import { Bank } from "./bank.mjs"
+// # import { Bank } from "./bank.mjs";
 const { Bank } = (function(){
   ///////////////////////////////////////
   const CURRENCIES = {
@@ -15966,7 +15966,7 @@ const { Bank } = (function(){
   return {Bank: TiBank};
 })();
 //##################################################
-// # import { Num } from "./num.mjs"
+// # import { Num } from "./num.mjs";
 const { Num } = (function(){
   //-----------------------------------
   const BASE26 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -16176,7 +16176,7 @@ const { Num } = (function(){
   return {Num: TiNum};
 })();
 //##################################################
-// # import { Css } from "./css.mjs"
+// # import { Css } from "./css.mjs";
 const { Css } = (function(){
   ///////////////////////////////////////
   const TiCss = {
@@ -16577,7 +16577,7 @@ const { Css } = (function(){
   return {Css: TiCss};
 })();
 //##################################################
-// # import { Mapping } from "./mapping.mjs"
+// # import { Mapping } from "./mapping.mjs";
 const { Mapping } = (function(){
   /////////////////////////////////////////////
   class MatchPath {
@@ -16676,7 +16676,7 @@ const { Mapping } = (function(){
   return {Mapping: TiMapping};
 })();
 //##################################################
-// # import { Dict, DictFactory } from "./dict.mjs"
+// # import { Dict, DictFactory } from "./dict.mjs";
 const { Dict, DictFactory } = (function(){
   ///////////////////////////////////////////////
   class DictWrapper {
@@ -17363,7 +17363,7 @@ const { Dict, DictFactory } = (function(){
   return {DictWrapper, Dict, DictFactory};
 })();
 //##################################################
-// # import { VueEventBubble } from "./vue/vue-event-bubble.mjs"
+// # import { VueEventBubble } from "./vue/vue-event-bubble.mjs";
 const { VueEventBubble } = (function(){
   ///////////////////////////////////////////////////
   const TryBubble = function (vm, event, stop = false) {
@@ -17482,7 +17482,7 @@ const { VueEventBubble } = (function(){
   return {VueEventBubble};
 })();
 //##################################################
-// # import { VueTiCom } from "./vue/vue-ti-com.mjs"
+// # import { VueTiCom } from "./vue/vue-ti-com.mjs";
 const { VueTiCom } = (function(){
   /////////////////////////////////////////////////////
   const TiComMixin = {
@@ -17812,7 +17812,7 @@ const { VueTiCom } = (function(){
   return {VueTiCom};
 })();
 //##################################################
-// # import { Album } from "./widget/album.mjs"
+// # import { Album } from "./widget/album.mjs";
 const { Album } = (function(){
   const ALBUM_CLASS_NAME = "ti-widget-album"
   const WALL_CLASS_NAME = "photo-wall"
@@ -18747,7 +18747,7 @@ const { Album } = (function(){
   return {Album};
 })();
 //##################################################
-// # import { PhotoGallery } from "./widget/photo-gallery.mjs"
+// # import { PhotoGallery } from "./widget/photo-gallery.mjs";
 const { PhotoGallery } = (function(){
   ////////////////////////////////////////////////
   /*
@@ -19475,7 +19475,7 @@ const { PhotoGallery } = (function(){
 })();
 //---------------------------------------
 //##################################################
-// # import { WalnutAppMain } from "./ti-walnut-app-main.mjs"
+// # import { WalnutAppMain } from "./ti-walnut-app-main.mjs";
 const { WalnutAppMain } = (function(){
   ///////////////////////////////////////////////
   async function WalnutAppMain({
@@ -19651,7 +19651,7 @@ const { WalnutAppMain } = (function(){
     //---------------------------------------
     // Load session
     app.commit("session/set", _app.session)
-    Wn.Session.setup(_app.session)
+    await Wn.Session.setup(_app.session)
     Wn.Session.loadMyPvg()
     Ti.Env(Wn.Session.env())
     // Mount app to DOM 
@@ -19692,7 +19692,7 @@ const { WalnutAppMain } = (function(){
   return {WalnutAppMain};
 })();
 //##################################################
-// # import { WebAppMain } from "./ti-web-app-main.mjs"
+// # import { WebAppMain } from "./ti-web-app-main.mjs";
 const { WebAppMain } = (function(){
   ///////////////////////////////////////////////
   async function WebAppMain({
@@ -19867,22 +19867,22 @@ const { WebAppMain } = (function(){
   return {WebAppMain};
 })();
 //---------------------------------------
-const LOAD_CACHE = {}
+const LOAD_CACHE = {};
 function Preload(url, anyObj) {
   // if(url.indexOf("label")>0)
   //   console.log("Preloaded", url)
-  LOAD_CACHE[url] = anyObj
+  LOAD_CACHE[url] = anyObj;
 }
 //---------------------------------------
 let RS_PREFIXs = [];
 function AddResourcePrefix(...prefixes) {
-  let list = _.flattenDeep(prefixes)
+  let list = _.flattenDeep(prefixes);
   for (let prefix of list) {
     if (!Ti.Util.isNil(prefix) && _.indexOf(RS_PREFIXs, prefix) < 0) {
       if (prefix && !prefix.endsWith("/")) {
-        RS_PREFIXs.push(prefix + "/")
+        RS_PREFIXs.push(prefix + "/");
       } else {
-        RS_PREFIXs.push(prefix)
+        RS_PREFIXs.push(prefix);
       }
     }
   }
@@ -19890,31 +19890,30 @@ function AddResourcePrefix(...prefixes) {
 //---------------------------------------
 function MatchCache(url) {
   if (!url) {
-    return
+    return;
   }
   for (let prefix of RS_PREFIXs) {
     if (!Ti.Util.isNil(prefix) && url.startsWith(prefix)) {
-      url = url.substring(prefix.length)
-      break
+      url = url.substring(prefix.length);
+      break;
     }
   }
-  return LOAD_CACHE[url]
+  return LOAD_CACHE[url];
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230312.224617",
+  "version": "1.6-20230313.152128",
   "dev": false,
   "appName": null,
   "session": {},
   "log": {
     "ROOT": 0
   }
-}
+};
 function _IS_LOG(cate = "ROOT", lv) {
-  let logc = ENV.log[cate]
-  if (_.isUndefined(logc))
-    logc = ENV.log.ROOT
-  return logc >= lv
+  let logc = ENV.log[cate];
+  if (_.isUndefined(logc)) logc = ENV.log.ROOT;
+  return logc >= lv;
 }
 //---------------------------------------
 const LOG_LEVELS = {
@@ -19922,109 +19921,178 @@ const LOG_LEVELS = {
   "warn": 1,
   "info": 2,
   "debug": 3,
-  "trace": 4,
-}
+  "trace": 4
+};
 //---------------------------------------
-const G_FUNCS = {}
+const G_FUNCS = {};
 //---------------------------------------
 const Ti = {
   //-----------------------------------------------------
-  Alg, Be, S, Tmpl, Util, App, Err, Config, Dom, Css, Load, Http,
-  Icons, I18n, Shortcut, Fuse, Random, Storage, Types, Viewport,
-  WWW, GPS, GIS, Validate, DateTime, Num, Trees, Bank,
-  Mapping, Dict, DictFactory, Rects, Rect,
+  Alg,
+  Be,
+  S,
+  Tmpl,
+  Util,
+  App,
+  Err,
+  Config,
+  Dom,
+  Css,
+  Load,
+  Http,
+  Icons,
+  I18n,
+  Shortcut,
+  Fuse,
+  Random,
+  Storage,
+  Types,
+  Viewport,
+  WWW,
+  GPS,
+  GIS,
+  Validate,
+  DateTime,
+  Num,
+  Trees,
+  Bank,
+  Mapping,
+  Dict,
+  DictFactory,
+  Rects,
+  Rect,
   AutoMatch,
   //-----------------------------------------------------
   Websocket: TiWebsocket,
   //-----------------------------------------------------
   Widget: {
-    Album, PhotoGallery
+    Album,
+    PhotoGallery
   },
   //-----------------------------------------------------
-  Preload, MatchCache, AddResourcePrefix, RS_PREFIXs, LOAD_CACHE,
+  Preload,
+  MatchCache,
+  AddResourcePrefix,
+  RS_PREFIXs,
+  LOAD_CACHE,
   //-----------------------------------------------------
-  WalnutAppMain, WebAppMain,
+  WalnutAppMain,
+  WebAppMain,
   //-----------------------------------------------------
   Vue: {
     EventBubble: VueEventBubble,
     TiCom: VueTiCom
   },
   //-----------------------------------------------------
-  Alert, Confirm, Prompt, Toast, Captcha, Toptip, EditCode,
+  Alert,
+  Confirm,
+  Prompt,
+  Toast,
+  Captcha,
+  Toptip,
+  EditCode,
   //-----------------------------------------------------
   Env(key, val) {
     if (_.isObject(key)) {
       _.forEach(key, (v, k) => {
-        _.set(ENV, k, v)
-      })
+        _.set(ENV, k, v);
+      });
     }
-    if (_.isUndefined(key))
-      return ENV
-    return Ti.Util.geset(ENV, key, val)
+    if (_.isUndefined(key)) return ENV;
+    return Ti.Util.geset(ENV, key, val);
   },
   //-----------------------------------------------------
-  Version() { return Ti.Env("version") },
+  RemoteTimeOffsetInMs() {
+    return ENV.REMOTE_TIME_OFFSET_IN_MS || 0;
+  },
   //-----------------------------------------------------
-  SetForDev(dev = true) { Ti.Env({ dev }) },
-  IsForDev() { return Ti.Env("dev") },
+  RemoteTimeInMs() {
+    let off = ENV.REMOTE_TIME_OFFSET_IN_MS || 0;
+    let ms = Date.now();
+    return ms + off;
+  },
   //-----------------------------------------------------
-  SetAppName(appName) { Ti.Env({ appName }) },
-  GetAppName() { return Ti.Env("appName") },
+  Version() {
+    return Ti.Env("version");
+  },
+  //-----------------------------------------------------
+  SetForDev(dev = true) {
+    Ti.Env({ dev });
+  },
+  IsForDev() {
+    return Ti.Env("dev");
+  },
+  //-----------------------------------------------------
+  SetAppName(appName) {
+    Ti.Env({ appName });
+  },
+  GetAppName() {
+    return Ti.Env("appName");
+  },
   //-----------------------------------------------------
   SetLogLevel(lv = 0, cate = "ROOT") {
     // Get number by name
-    if (_.isString(lv))
-      lv = LOG_LEVELS[lv] || 0
+    if (_.isString(lv)) lv = LOG_LEVELS[lv] || 0;
 
     // Set the level
-    ENV.log[cate] = lv
+    ENV.log[cate] = lv;
   },
-  IsError(cate) { return _IS_LOG(cate, LOG_LEVELS.error) },
-  IsWarn(cate) { return _IS_LOG(cate, LOG_LEVELS.warn) },
-  IsInfo(cate) { return _IS_LOG(cate, LOG_LEVELS.info) },
-  IsDebug(cate) { return _IS_LOG(cate, LOG_LEVELS.debug) },
-  IsTrace(cate) { return _IS_LOG(cate, LOG_LEVELS.trace) },
+  IsError(cate) {
+    return _IS_LOG(cate, LOG_LEVELS.error);
+  },
+  IsWarn(cate) {
+    return _IS_LOG(cate, LOG_LEVELS.warn);
+  },
+  IsInfo(cate) {
+    return _IS_LOG(cate, LOG_LEVELS.info);
+  },
+  IsDebug(cate) {
+    return _IS_LOG(cate, LOG_LEVELS.debug);
+  },
+  IsTrace(cate) {
+    return _IS_LOG(cate, LOG_LEVELS.trace);
+  },
   //-----------------------------------------------------
   Invoke(fn, args = [], context) {
     if (_.isFunction(fn)) {
-      context = context || this
-      return fn.apply(context, args)
+      context = context || this;
+      return fn.apply(context, args);
     }
   },
   //-----------------------------------------------------
   InvokeBy(target = {}, funcName, args = [], context) {
     if (target) {
-      return Ti.Invoke(target[funcName], args, context || target)
+      return Ti.Invoke(target[funcName], args, context || target);
     }
   },
   //-----------------------------------------------------
   async DoInvoke(fn, args = [], context) {
     if (_.isFunction(fn)) {
-      context = context || this
-      return await fn.apply(context, args)
+      context = context || this;
+      return await fn.apply(context, args);
     }
   },
   //-----------------------------------------------------
   async DoInvokeBy(target = {}, funcName, args = [], context) {
     if (target) {
-      return await Ti.DoInvoke(target[funcName], args, context || target)
+      return await Ti.DoInvoke(target[funcName], args, context || target);
     }
   },
   //-----------------------------------------------------
   AddGlobalFuncs(funcs) {
-    _.assign(G_FUNCS, funcs)
+    _.assign(G_FUNCS, funcs);
   },
   //-----------------------------------------------------
   GlobalFuncs() {
-    return _.assign({}, Ti.Types, G_FUNCS)
+    return _.assign({}, Ti.Types, G_FUNCS);
   }
   //-----------------------------------------------------
-}
+};
 //---------------------------------------
-export default Ti
+export default Ti;
 //---------------------------------------
 if (window) {
-  window.Ti = Ti
+  window.Ti = Ti;
 }
 //---------------------------------------
-// Ti 
+// Ti

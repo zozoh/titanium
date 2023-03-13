@@ -167,7 +167,7 @@ export default {
   */
   "autoFieldNameTip": {
     type: [Boolean,String,Object],
-    default: false
+    default: true
   },
   //-----------------------------------
   // Aspect

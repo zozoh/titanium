@@ -1,4 +1,4 @@
-// Pack At: 2023-03-12 22:46:17
+// Pack At: 2023-03-13 15:21:28
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6733,7 +6733,7 @@ const _M = {
       let list = []
       _.forEach(this.myOptionsData, it => {
         let itV = this.Dict.getValue(it)
-        console.log(itV)
+        //console.log(itV)
         if (!this.selIdMap[itV]) {
           list.push(it)
         }
@@ -25549,14 +25549,14 @@ const _M = {
   computed: {
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //------------------------------------------------
     TopStyle() {
       return Ti.Css.toStyle({
         width: this.width,
         height: this.height
-      })
+      });
     },
     //------------------------------------------------
     ActionItems() {
@@ -25565,92 +25565,115 @@ const _M = {
           icon: this.newItemIcon,
           text: this.newItemText,
           action: () => {
-            this.doAddNewItem()
+            this.doAddNewItem();
           }
         },
-        { type: "line" },
+        {},
         {
           icon: "far-trash-alt",
           tip: "i18n:del-checked",
           action: () => {
-            this.removeChecked()
+            this.removeChecked();
           }
         }
-      ]
+      ];
       if (this.itemEditable) {
         items.push(
           {
             icon: "far-edit",
             tip: "i18n:edit",
             action: () => {
-              this.doEditCurrentMeta()
+              this.doEditCurrentMeta();
             }
           },
-          { type: "line" }
-        )
+          {}
+        );
       }
       items.push(
         {
           icon: "fas-long-arrow-alt-up",
           tip: "i18n:move-up",
           action: () => {
-            this.moveCheckedUp()
+            this.moveCheckedUp();
           }
         },
         {
           icon: "fas-long-arrow-alt-down",
           tip: "i18n:move-down",
           action: () => {
-            this.moveCheckedDown()
+            this.moveCheckedDown();
           }
         },
-        { type: "line" },
+        {},
         {
           icon: "fas-code",
           tip: "i18n:source",
           action: () => {
-            this.doEditCurrentSource()
+            this.doEditCurrentSource();
           }
         }
-      )
-      return items
+      );
+      if (!_.isEmpty(this.moreActions)) {
+        items.push({})
+        _.forEach(this.moreActions, (ma) => {
+          let handler = ma.action;
+          if (_.isFunction(handler)) {
+            items.push({
+              icon: ma.icon,
+              text: ma.text,
+              tip: ma.tip,
+              altDisplay: ma.altDisplay,
+              enabled: ma.enabled,
+              disabled: ma.disabled,
+              highlight: ma.highlight,
+              action: () => {
+                this.doInvokeAction(handler);
+              }
+            });
+          }
+        });
+      }
+      return items;
     },
     //------------------------------------------------
     TheValue() {
       if (!this.value) {
-        return []
+        return [];
       }
       if (_.isString(this.value)) {
-        return JSON.parse(this.value)
+        return JSON.parse(this.value);
       }
-      return this.value
+      return this.value;
     },
     //------------------------------------------------
     isQuickTable() {
       if (_.isString(this.quickTable)) {
-        return Ti.Util.explainObj(this, this.quickTable)
+        return Ti.Util.explainObj(this, this.quickTable);
       }
-      return Ti.AutoMatch.test(this.quickTable, this.vars)
+      return Ti.AutoMatch.test(this.quickTable, this.vars);
     },
     //------------------------------------------------
     TableConfig() {
-      let config = this.getDataByVars(this.list)
-      config.data = this.TheValue
+      let config = this.getDataByVars(this.list);
+      config.data = this.TheValue;
       _.defaults(config, {
-        blankAs: _.assign({
-          className: "as-mid-tip",
-          icon: "fab-deezer",
-          text: "empty-data"
-        }, this.blankAs),
+        blankAs: _.assign(
+          {
+            className: "as-mid-tip",
+            icon: "fab-deezer",
+            text: "empty-data"
+          },
+          this.blankAs
+        ),
         multi: true,
         checkable: true
-      })
-      return config
+      });
+      return config;
     },
     //------------------------------------------------
     GenNewItemId() {
       if (this.newItemIdBy) {
-        return Ti.Util.genInvoking(this.newItemIdBy)
+        return Ti.Util.genInvoking(this.newItemIdBy);
       }
     }
     //------------------------------------------------
@@ -25659,7 +25682,7 @@ const _M = {
   methods: {
     //-----------------------------------------------
     OnInitTable($table) {
-      this.$table = $table
+      this.$table = $table;
     },
     //-----------------------------------------------
     OnTableRowSelect({ currentId, current, currentIndex, checkedIds }) {
@@ -25673,162 +25696,175 @@ const _M = {
       let reo = await this.openDialogForMeta(rawData);
 
       // User cancel
-      if (_.isUndefined(reo))
-        return
+      if (_.isUndefined(reo)) return;
 
-      // Join to 
-      let list = _.cloneDeep(this.TheValue || [])
-      list.splice(index, 1, reo)
-      this.notifyChange(list)
+      // Join to
+      let list = _.cloneDeep(this.TheValue || []);
+      list.splice(index, 1, reo);
+      this.notifyChange(list);
+    },
+    //-----------------------------------------------
+    async doInvokeAction(handler = _.identity) {
+      let currentId = this.$table.theCurrentId;
+      let checkedIds = this.$table.theCheckedIds;
+      let payload = this.$table.getEmitContext(currentId, checkedIds);
+      let newVal = await handler(payload, this.TheValue);
+      console.log(newVal)
+      if (newVal && _.isArray(newVal)) {
+        this.notifyChange(newVal);
+      }
     },
     //-----------------------------------------------
     async doAddNewItem() {
       //console.log("doAddNewItem")
       let newItHandle;
       if (_.isFunction(this.onAddNewItem)) {
-        newItHandle = this.onAddNewItem
+        newItHandle = this.onAddNewItem;
       }
       // Dynamic string
       else if (_.isString(this.onAddNewItem)) {
-        newItHandle = Ti.Util.genInvoking(this.onAddNewItem)
+        newItHandle = Ti.Util.genInvoking(this.onAddNewItem);
       }
       // Default
       else {
         newItHandle = async () => {
-          let newIt = _.assign({}, _.cloneDeep(this.newItemData))
+          let newIt = _.assign({}, _.cloneDeep(this.newItemData));
           if (this.newItemIdKey && _.isFunction(this.GenNewItemId)) {
-            let newItId = this.GenNewItemId(this.TheValue)
+            let newItId = this.GenNewItemId(this.TheValue);
             if (newItId) {
-              newIt[this.newItemIdKey] = newItId
+              newIt[this.newItemIdKey] = newItId;
             }
           }
           return await this.openDialogForMeta(newIt);
-        }
+        };
       }
 
       // Do add
-      let reo = await newItHandle(this.TheValue)
+      let reo = await newItHandle(this.TheValue);
 
-      console.log(reo)
+      console.log(reo);
       // User cancel
-      if (_.isUndefined(reo))
-        return
+      if (_.isUndefined(reo)) return;
 
-      let newItems = _.concat([], reo)
+      let newItems = _.concat([], reo);
 
       // Assign new ID
       if (_.isFunction(this.GenNewItemId) && !_.isEmpty(newItems)) {
         for (let it of newItems) {
           if (Ti.Util.isNil(it[this.newItemIdKey])) {
-            let itemId = this.GenNewItemId(this.TheValue)
-            _.set(it, this.newItemIdKey, itemId)
+            let itemId = this.GenNewItemId(this.TheValue);
+            _.set(it, this.newItemIdKey, itemId);
           }
         }
       }
 
-      // Join to 
-      let list = _.cloneDeep(this.TheValue || [])
-      let val = _.concat(list || [], newItems)
-      this.notifyChange(val)
+      // Join to
+      let list = _.cloneDeep(this.TheValue || []);
+      let val = _.concat(list || [], newItems);
+      this.notifyChange(val);
     },
     //-----------------------------------------------
     async doEditCurrentMeta() {
-      let row = this.$table.getCurrentRow()
+      let row = this.$table.getCurrentRow();
       if (!row) {
-        return await Ti.Toast.Open("i18n:nil-item", "warn")
+        return await Ti.Toast.Open("i18n:nil-item", "warn");
       }
-      let { rawData, index } = row
+      let { rawData, index } = row;
       let reo = await this.openDialogForMeta(rawData);
 
       // User cancel
-      if (_.isUndefined(reo))
-        return
+      if (_.isUndefined(reo)) return;
 
-      // Join to 
-      let list = _.cloneDeep(this.TheValue || [])
-      list.splice(index, 1, reo)
-      this.notifyChange(list)
+      // Join to
+      let list = _.cloneDeep(this.TheValue || []);
+      list.splice(index, 1, reo);
+      this.notifyChange(list);
     },
     //-----------------------------------------------
     async doEditCurrentSource() {
-      let json = this.value || "[]"
+      let json = this.value || "[]";
       if (!_.isString(json)) {
-        json = JSON.stringify(json, null, '   ')
+        json = JSON.stringify(json, null, "   ");
       }
       json = await this.openDialogForSource(json);
 
       // User cancel
-      if (_.isUndefined(json))
-        return
+      if (_.isUndefined(json)) return;
 
-      // Join to 
+      // Join to
       try {
-        let str = _.trim(json) || '[]'
-        let list = JSON.parse(str)
-        this.notifyChange(list)
-      }
-      // Invalid json
-      catch (E) {
-        await Ti.Toast.Open("" + E)
+        let str = _.trim(json) || "[]";
+        let list = JSON.parse(str);
+        this.notifyChange(list);
+      } catch (E) {
+        // Invalid json
+        await Ti.Toast.Open("" + E);
       }
     },
     //-----------------------------------------------
     removeChecked() {
-      let { checked, remains } = this.$table.removeChecked()
-      if (_.isEmpty(checked))
-        return
+      let { checked, remains } = this.$table.removeChecked();
+      if (_.isEmpty(checked)) return;
 
-      this.notifyChange(remains)
+      this.notifyChange(remains);
     },
     //-----------------------------------------------
     moveCheckedUp() {
-      let { list, nextCheckedIds } = this.$table.moveChecked(-1)
+      let { list, nextCheckedIds } = this.$table.moveChecked(-1);
 
-      this.notifyChange(list)
+      this.notifyChange(list);
       this.$nextTick(() => {
-        this.$table.checkRow(nextCheckedIds)
-      })
+        this.$table.checkRow(nextCheckedIds);
+      });
     },
     //-----------------------------------------------
     moveCheckedDown() {
-      let { list, nextCheckedIds } = this.$table.moveChecked(1)
+      let { list, nextCheckedIds } = this.$table.moveChecked(1);
 
-      this.notifyChange(list)
+      this.notifyChange(list);
       this.$nextTick(() => {
-        this.$table.checkRow(nextCheckedIds)
-      })
+        this.$table.checkRow(nextCheckedIds);
+      });
     },
     //-----------------------------------------------
     async openDialogForMeta(result = {}) {
       //console.log("openDialogForMeta")
-      let dialog = this.getDataByVars(this.dialog)
-      let form = this.getDataByVars(this.form)
-      let dialogSetting = _.assign({
-        title: "i18n:edit",
-        width: 500,
-        height: 500,
-        explainComConf: false
-      }, dialog, {
-        result,
-        model: { prop: "data", event: "change" },
-        comType: "TiForm",
-        comConf: form
-      })
+      let dialog = this.getDataByVars(this.dialog);
+      let form = this.getDataByVars(this.form);
+      let dialogSetting = _.assign(
+        {
+          title: "i18n:edit",
+          width: 500,
+          height: 500,
+          explainComConf: false
+        },
+        dialog,
+        {
+          result,
+          model: { prop: "data", event: "change" },
+          comType: "TiForm",
+          comConf: form
+        }
+      );
       return await Ti.App.Open(dialogSetting);
     },
     //-----------------------------------------------
-    async openDialogForSource(json = '[]') {
-      let dialog = _.assign({
-        title: "i18n:edit",
-        width: 500,
-        height: 500
-      }, this.dialog, {
-        result: json,
-        comType: "TiInputText",
-        comConf: {
-          height: "100%"
+    async openDialogForSource(json = "[]") {
+      let dialog = _.assign(
+        {
+          title: "i18n:edit",
+          width: 500,
+          height: 500
+        },
+        this.dialog,
+        {
+          result: json,
+          comType: "TiInputText",
+          comConf: {
+            height: "100%"
+          }
         }
-      })
+      );
 
       return await Ti.App.Open(dialog);
     },
@@ -25840,31 +25876,31 @@ const _M = {
     getDataByVars(cans = []) {
       if (_.isArray(cans)) {
         for (let can of cans) {
-          let { test, data } = can
+          let { test, data } = can;
           if (Ti.Util.isNil(test) || Ti.AutoMatch.test(test, this.vars)) {
-            return _.cloneDeep(data)
+            return _.cloneDeep(data);
           }
         }
-        return _.cloneDeep(_.last(cans))
+        return _.cloneDeep(_.last(cans));
       }
-      return _.cloneDeep(cans)
+      return _.cloneDeep(cans);
     },
     //-----------------------------------------------
     notifyChange(val = []) {
       if ("String" == this.valueType) {
-        val = JSON.stringify(val, null, '   ')
+        val = JSON.stringify(val, null, "   ");
       }
-      this.$notify("change", val)
+      this.$notify("change", val);
     }
     //-----------------------------------------------
   },
   ////////////////////////////////////////////////////
   watch: {
-    //----------------------------------------------- 
+    //-----------------------------------------------
     //-----------------------------------------------
   }
   ////////////////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -31272,7 +31308,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   */
   "autoFieldNameTip": {
     type: [Boolean,String,Object],
-    default: false
+    default: true
   },
   //-----------------------------------
   // Aspect
@@ -42094,30 +42130,32 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/wn/th/adaptor/wn-th-adaptor.mjs'] = (function(){
 const _M = {
   ///////////////////////////////////////////
-  data: () => ({
-  }),
+  data: () => ({}),
   ///////////////////////////////////////////
   computed: {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //--------------------------------------
     EventRouting() {
-      let routing = _.get(this.schema, "events") || {}
-      return _.assign({
-        "block:shown": "updateBlockShown",
-        "block:show": "showBlock",
-        "block:hide": "hideBlock",
-        "meta::change": "doNothing",
-        "meta::field:change": "dispatch('batchUpdateCheckedItemsField')",
-        "content::change": "OnContentChange",
-        "save:change": "OnSaveChange",
-        "list::select": "OnSearchListSelect",
-        "filter::filter:change": "OnSearchFilterChange",
-        "filter::sorter:change": "OnSearchSorterChange",
-        "pager::change": "OnSearchPagerChange"
-      }, routing)
+      let routing = _.get(this.schema, "events") || {};
+      return _.assign(
+        {
+          "block:shown": "updateBlockShown",
+          "block:show": "showBlock",
+          "block:hide": "hideBlock",
+          "meta::change": "doNothing",
+          "meta::field:change": "dispatch('batchUpdateCheckedItemsField')",
+          "content::change": "OnContentChange",
+          "save:change": "OnSaveChange",
+          "list::select": "OnSearchListSelect",
+          "filter::filter:change": "OnSearchFilterChange",
+          "filter::sorter:change": "OnSearchSorterChange",
+          "pager::change": "OnSearchPagerChange"
+        },
+        routing
+      );
     }
     //--------------------------------------
   },
@@ -42125,28 +42163,28 @@ const _M = {
   methods: {
     //--------------------------------------
     async OnSearchListSelect({ currentId, checkedIds, checked }) {
-      await this.dispatch("selectMeta", { currentId, checkedIds })
-      this.$notify("indicate", `${checked.length} items selected`)
+      await this.dispatch("selectMeta", { currentId, checkedIds });
+      this.$notify("indicate", `${checked.length} items selected`);
     },
     //--------------------------------------
     async OnSearchFilterChange(payload) {
-      await this.dispatch("applyFilter", payload)
+      await this.dispatch("applyFilter", payload);
     },
     //--------------------------------------
     async OnSearchSorterChange(payload) {
-      await this.dispatch("applySorter", payload)
+      await this.dispatch("applySorter", payload);
     },
     //--------------------------------------
     async OnSearchPagerChange(payload) {
-      await this.dispatch("applyPager", payload)
+      await this.dispatch("applyPager", payload);
     },
     //--------------------------------------
     OnContentChange(payload) {
-      this.dispatch("changeContent", payload)
+      this.dispatch("changeContent", payload);
     },
     //--------------------------------------
     async OnSaveChange() {
-      await this.dispatch("saveContent")
+      await this.dispatch("saveContent");
     },
     //--------------------------------------
     //
@@ -42155,79 +42193,82 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-       if (/change$/.test(name))
-      console.log("WnThAdaptor.__on_events", name, payload)
+      //if (/change$/.test(name))
+      //console.log("WnThAdaptor.__on_events", name, payload)
 
       // ByPass
       if (/^(indicate)$/.test(name)) {
-        return () => ({ stop: false })
+        return () => ({ stop: false });
       }
 
       // Try routing
-      let fn = _.get(this.EventRouting, name)
+      let fn = _.get(this.EventRouting, name);
       if (!fn) {
-        fn = this.$tiEventTryFallback(name, this.EventRouting)
+        fn = this.$tiEventTryFallback(name, this.EventRouting);
       }
 
       // Handle without defined
       if (!fn) {
-        return
+        return;
       }
 
       const eval_func = (fn) => {
         let func;
         // Invoking string
         if (_.isString(fn)) {
-          func = _.get(this, fn)
+          func = _.get(this, fn);
         }
         // Batch call
         if (_.isArray(fn)) {
-          let calls = []
+          let calls = [];
           for (let f of fn) {
-            let callF = eval_func(f)
+            let callF = eval_func(f);
             if (_.isFunction(callF)) {
-              calls.push(callF)
+              calls.push(callF);
             }
           }
           if (!_.isEmpty(calls)) {
             return async () => {
               for (let callF of calls) {
-                await callF(payload)
+                await callF(payload);
               }
-            }
+            };
           }
         }
         // Object call
         if (!_.isFunction(func)) {
           // Prepare context
-          let invokeContext = _.assign({
-            $payload: payload
-          }, this.GuiExplainContext)
+          let invokeContext = _.assign(
+            {
+              $payload: payload
+            },
+            this.GuiExplainContext
+          );
           if (fn.explain) {
-            fn = Ti.Util.explainObj(invokeContext, fn)
+            fn = Ti.Util.explainObj(invokeContext, fn);
           }
           func = Ti.Util.genInvoking(fn, {
             context: invokeContext,
             dft: null,
             funcSet: this
-          })
+          });
         }
 
         if (_.isFunction(func)) {
           if (!_.isUndefined(payload)) {
             return () => {
-              func(payload)
-            }
+              func(payload);
+            };
           }
-          return func
+          return func;
         }
-      }
+      };
 
       // callPath -> Function
-      return eval_func(fn)
-    },
+      return eval_func(fn);
+    }
     //--------------------------------------
-    // __ti_shortcut(uniqKey) {      
+    // __ti_shortcut(uniqKey) {
     // }
     //--------------------------------------
   },
@@ -42235,26 +42276,24 @@ const _M = {
   watch: {
     "contentLoadPath": function (newVal, oldVal) {
       if (newVal && !_.isEqual(newVal, oldVal)) {
-        this.dispatch("loadContent")
+        this.dispatch("loadContent");
       }
     }
   },
   ///////////////////////////////////////////
-  created: function () {
-  },
+  created: function () {},
   ///////////////////////////////////////////
   mounted: async function () {
     // Update the customized actions
-    let actions = this.thingActions
+    let actions = this.thingActions;
     if (_.isArray(actions)) {
-      this.$notify("actions:update", actions)
+      this.$notify("actions:update", actions);
     }
   },
   ///////////////////////////////////////////
-  beforeDestroy: function () {
-  }
+  beforeDestroy: function () {}
   ///////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -48781,6 +48820,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "onAddNewItem": {
     type: [String, Function]
   },
+  "moreActions":{
+    type: Array
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -49335,38 +49377,34 @@ return _M;;
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/support/field_display.mjs'] = (function(){
 //////////////////////////////////////////////
-function _render_iteratee({
-  varName,
-  vars,
-  matched
-} = {}) {
+function _render_iteratee({ varName, vars, matched } = {}) {
   if (matched.startsWith("$$")) {
-    return matched.substring(1)
+    return matched.substring(1);
   }
   // ${=xxx}  get value from vars
   // ${pos.x} get value from itemData
-  let m = /^(=)?([^?]+)(\?(.*))?$/.exec(varName)
-  let ctx = "=" == m[1]
-    ? vars.vars
-    : vars.itemData;
+  let m = /^(=)?([^?]+)(\?(.*))?$/.exec(varName);
+  let ctx = "=" == m[1] ? vars.vars : vars.itemData;
 
-  let vkey = _.trim(m[2])
-  let vdft = Ti.Util.fallbackNil(_.trim(m[4]), matched)
-  let rev = Ti.Util.getOrPick(ctx, vkey)
-  return Ti.Util.fallback(rev, vdft)
+  let vkey = _.trim(m[2]);
+  let vdft = Ti.Util.fallbackNil(_.trim(m[4]), matched);
+  let rev = Ti.Util.getOrPick(ctx, vkey);
+  return Ti.Util.fallback(rev, vdft);
 }
 //////////////////////////////////////////////
 // cx = {vars, itemData, value}
 function __eval_com_conf_item(val, cx = {}) {
-  if(cx && cx.value == "数据可视化")
-    console.log(val, cx)
+  if (cx && cx.value == "数据可视化") console.log(val, cx);
   // String valu3
   if (_.isString(val)) {
     if (/^:*([-=]|[!=]=|->|==?>)/.test(val)) {
-      return Ti.Util.explainObj({
-        ...cx,
-        item: cx.itemData
-      }, val)
+      return Ti.Util.explainObj(
+        {
+          ...cx,
+          item: cx.itemData
+        },
+        val
+      );
     }
     //........................................
     // Quick Value
@@ -49375,20 +49413,20 @@ function __eval_com_conf_item(val, cx = {}) {
     //  - "${=value}"
     //  - "${=..}"
     //  - "${=varName}"
-    let m = /^\$\{=([^${}=]+)\}$/.exec(val)
+    let m = /^\$\{=([^${}=]+)\}$/.exec(val);
     if (m) {
-      let varName = _.trim(m[1])
+      let varName = _.trim(m[1]);
       // Whole Context
       if (".." == varName) {
-        return cx.itemData
+        return cx.itemData;
       }
       // Value
       if ("value" == varName) {
-        return cx.value
+        return cx.value;
       }
       // In var set
       else {
-        return Ti.Util.fallback(_.get(cx.vars, varName), val)
+        return Ti.Util.fallback(_.get(cx.vars, varName), val);
       }
     }
     //........................................
@@ -49398,10 +49436,10 @@ function __eval_com_conf_item(val, cx = {}) {
     // the placeholder support:
     //  - "${=varName}"
     //  - "${info.age}"
-    m = /^(\((.+)\)\?)?(.+)$/.exec(val)
+    m = /^(\((.+)\)\?)?(.+)$/.exec(val);
     if (m) {
-      let preKey = _.trim(m[2])
-      let tmpl = _.trim(m[3])
+      let preKey = _.trim(m[2]);
+      let tmpl = _.trim(m[3]);
       // console.log("haha", preKey, tmpl)
       // Only `itemData` contains the preKey, render the value
       if (preKey) {
@@ -49409,99 +49447,98 @@ function __eval_com_conf_item(val, cx = {}) {
         if (_.get(cx.itemData, preKey)) {
           return Ti.S.renderBy(tmpl, cx, {
             iteratee: _render_iteratee
-          })
+          });
         }
-        return null
+        return null;
       }
       // Render the value
       return Ti.S.renderBy(tmpl, cx, {
         iteratee: _render_iteratee
-      })
+      });
     }
     //........................................
     // Primary
     //........................................
-    return val
+    return val;
   }
   // Object Value
   else if (_.isPlainObject(val)) {
     //........................................
     // Nested Objects
     //........................................
-    let obj = {}
+    let obj = {};
     _.forEach(val, (v, k) => {
-      let v2 = __eval_com_conf_item(v, cx)
+      let v2 = __eval_com_conf_item(v, cx);
       if ("..." == k) {
-        _.assign(obj, v2)
+        _.assign(obj, v2);
       } else {
-        obj[k] = v2
+        obj[k] = v2;
       }
-    })
-    return obj
+    });
+    return obj;
   }
   // Array Value
   else if (_.isArray(val)) {
-    let list = []
+    let list = [];
     for (let v of val) {
-      let v2 = __eval_com_conf_item(v, cx)
-      list.push(v2)
+      let v2 = __eval_com_conf_item(v, cx);
+      list.push(v2);
     }
-    return list
+    return list;
   }
   // Keep original value
-  return val
+  return val;
 }
 //////////////////////////////////////////////
 const FieldDisplay = {
   //------------------------------------------
-  evalFieldDisplayItem(displayItem = {}, {
-    defaultKey
-  } = {}) {
+  evalFieldDisplayItem(displayItem = {}, { defaultKey } = {}) {
     //........................................
     const __gen_dis = () => {
       //......................................
       // Guard it
       if (Ti.Util.isNil(displayItem)) {
-        return defaultKey
-          ? { key: defaultKey, comType: "TiLabel" }
-          : null
+        return defaultKey ? { key: defaultKey, comType: "TiLabel" } : null;
       }
       //......................................
       // {key:"xxx", comType:"xxx"}
       if (_.isPlainObject(displayItem)) {
-        let dis = _.assign({
-          key: defaultKey,
-          comType: "TiLabel",
-        }, displayItem)
+        let dis = _.assign(
+          {
+            key: defaultKey,
+            comType: "TiLabel"
+          },
+          displayItem
+        );
         if (dis.transformer) {
           const invokeOpt = {
             context: this,
             partial: "right"
-          }
-          dis.transformer = Ti.Util.genInvoking(dis.transformer, invokeOpt)
+          };
+          dis.transformer = Ti.Util.genInvoking(dis.transformer, invokeOpt);
         }
-        return dis
+        return dis;
       }
       //......................................
       // Array to multi key
       if (_.isArray(displayItem)) {
         return {
           key: displayItem,
-          comType: "TiLabel",
-        }
+          comType: "TiLabel"
+        };
       }
       //......................................
       // Boolean
       if (true === displayItem) {
         return {
           key: defaultKey,
-          comType: "TiLabel",
-        }
+          comType: "TiLabel"
+        };
       }
       //......................................
       if (_.isString(displayItem)) {
         // <icon:zmdi-user:$ClassName>?
-        let m = /^<([^:>=]*)(:([^>:]+))?(:([^>:]+))?>(\?)?$/.exec(displayItem)
+        let m = /^<([^:>=]*)(:([^>:]+))?(:([^>:]+))?>(\?)?$/.exec(displayItem);
         if (m) {
           return {
             key: m[1] || defaultKey || ":ti-icon",
@@ -49511,12 +49548,14 @@ const FieldDisplay = {
             comConf: {
               className: m[5] || undefined
             }
-          }
+          };
         }
         //......................................
         // #DictName(xxx) -> TiLabel
         // just like `#RelayStatus(status):xxx:is-nowrap`
-        m = /^(!)?[@#]([^\(]+)\(([^)]+)\)(:([^:]*)(:([^:]+))?)?$/.exec(displayItem)
+        m = /^(!)?[@#]([^\(]+)\(([^)]+)\)(:([^:]*)(:([^:]+))?)?$/.exec(
+          displayItem
+        );
         if (m) {
           return {
             key: m[3] || defaultKey,
@@ -49527,22 +49566,22 @@ const FieldDisplay = {
               className: m[7] || "is-nowrap",
               autoLoadDictIcon: m[1] == "!" ? false : undefined
             }
-          }
+          };
         }
         //......................................
         // "<=ti-label:key>" or ":<=ti-label>"
         // or <=ti-icon:key>=>Ti.Types.toBoolStr(null,'fas-user')
-        m = /^<=([^:]+)(:(.+))?>(\.([^=]+))?(=>(.+))?$/.exec(displayItem)
+        m = /^<=([^:]+)(:(.+))?>(\.([^=]+))?(=>(.+))?$/.exec(displayItem);
         if (m) {
           // Eval className
-          let className = m[5] || undefined
+          let className = m[5] || undefined;
           // Eval transformer
-          let transformer = undefined
+          let transformer = undefined;
           if (m[7]) {
             transformer = Ti.Util.genInvoking(m[7], {
               context: this,
               partial: "right"
-            })
+            });
           }
           // done for field
           return {
@@ -49552,7 +49591,7 @@ const FieldDisplay = {
             comConf: {
               className
             }
-          }
+          };
         }
         //......................................
         // String -> TiLabel
@@ -49561,12 +49600,14 @@ const FieldDisplay = {
         // - "text+>/a/link?nm=${name}"
         // - "'More'->/a/link?id=${id}"
         // - "name:【${val}】->/a/link?id=${id}"
-        m = /^([^+:>-]+)(:([^+:-]*)(:([^:]+))?)?(([+-])>([^%]*))?$/.exec(displayItem)
+        m = /^([^+:>-]+)(:([^+:-]*)(:([^:]+))?)?(([+-])>([^%]*))?$/.exec(
+          displayItem
+        );
         if (m) {
-          let key = _.trim(m[1] || m[0])
-          let format = m[3] || undefined
-          let newTab = m[7] == "+"
-          let href = _.trim(m[8])
+          let key = _.trim(m[1] || m[0]);
+          let format = m[3] || undefined;
+          let newTab = m[7] == "+";
+          let href = _.trim(m[8]);
           return {
             key,
             comType: "TiLabel",
@@ -49576,38 +49617,38 @@ const FieldDisplay = {
               href,
               format
             }
-          }
+          };
         }
         //......................................
         // Default as lable
         return {
           key: displayItem,
           comType: "TiLabel"
-        }
+        };
         //......................................
       }
       //......................................
-      return displayItem
-    }
+      return displayItem;
+    };
     //........................................
-    let dis = __gen_dis()
+    let dis = __gen_dis();
     //........................................
     if (dis.dict) {
-      let { name, vKey } = Ti.DictFactory.explainDictName(dis.dict)
-      dis.$dict = Ti.DictFactory.CheckDict(name)
-      dis.$dictValueKey = vKey || ".text"
+      let { name, vKey } = Ti.DictFactory.explainDictName(dis.dict);
+      dis.$dict = Ti.DictFactory.CheckDict(name);
+      dis.$dictValueKey = vKey || ".text";
     }
     //........................................
     if (dis.visible) {
-      dis.visibleFn = Ti.AutoMatch.parse(dis.visible)
+      dis.visibleFn = Ti.AutoMatch.parse(dis.visible);
     }
     //........................................
     if (dis.hidden) {
-      dis.hiddenFn = Ti.AutoMatch.parse(dis.hidden)
+      dis.hiddenFn = Ti.AutoMatch.parse(dis.hidden);
     }
     //........................................
     // Then return
-    return dis
+    return dis;
   },
   //------------------------------------------
   /***
@@ -49634,81 +49675,82 @@ const FieldDisplay = {
     uniqKey
   } = {}) {
     let dis = displayItem;
+    //if ("evd_inner" == dis.key) console.log(dis);
     let value = dis.defaultAs;
     //.....................................
     // Array -> Obj
     if (_.isArray(dis.key)) {
-      value = _.pick(itemData, dis.key)
+      value = _.pick(itemData, dis.key);
     }
     // String ...
     else if (_.isString(dis.key)) {
       // Whole data
       if (".." == dis.key) {
-        value = itemData
+        value = itemData;
       }
       // Statci value
       else if (/^'[^']+'$/.test(dis.key)) {
-        value = dis.key.substring(1, dis.key.length - 1)
+        value = dis.key.substring(1, dis.key.length - 1);
       }
       // Template
       else if (/^->(.+)$/.test(dis.key)) {
-        value = Ti.S.renderBy(dis.key.substring(2), itemData)
+        value = Ti.S.renderBy(dis.key.substring(2), itemData);
       }
       // Dynamic value
       else {
         value = Ti.Util.fallbackNil(
           Ti.Util.getOrPickNoBlank(itemData, dis.key),
           value
-        )
+        );
       }
     }
-    // if("id" == dis.key) 
+    // if("id" == dis.key)
     //   console.log(dis, value)
     //.....................................
     // Transformer
     if (_.isFunction(dis.transformer)) {
       // Sometimes, we need transform nil also
       if (!Ti.Util.isNil(value) || dis.transNil) {
-        value = dis.transformer(value)
+        value = dis.transformer(value);
       }
     }
     // Ignore the Blank
     if (autoIgnoreBlank && Ti.S.isBlank(value)) {
       if (Ti.Util.fallback(dis.ignoreBlank, true)) {
-        return
+        return;
       }
     }
     // Ignore the undefined/null
     if (autoIgnoreNil && Ti.Util.isNil(value)) {
       if (Ti.Util.fallback(dis.ignoreNil, true)) {
-        return
+        return;
       }
     }
     //.....................................
     // Visibility
     if (_.isFunction(dis.visibleFn)) {
       if (!dis.visibleFn(itemData)) {
-        return
+        return;
       }
     }
     if (_.isFunction(dis.hiddenFn)) {
       if (dis.hiddenFn(itemData)) {
-        return
+        return;
       }
     }
     //.....................................
     // Translate by dict
     if (dis.$dict) {
-      value = await dis.$dict.getItemAs(dis.$dictValueKey, value)
+      value = await dis.$dict.getItemAs(dis.$dictValueKey, value);
     }
     //.....................................
     // Add value to comConf
-    let reDisplayItem = _.cloneDeep(dis)
+    let reDisplayItem = _.cloneDeep(dis);
     let comConf = {};
     //.....................................
     // Customized comConf
     if (_.isFunction(dis.comConf)) {
-      comConf = _.assign({}, dis.comConf(itemData))
+      comConf = _.assign({}, dis.comConf(itemData));
     }
     //.....................................
     // Eval comConf
@@ -49717,29 +49759,37 @@ const FieldDisplay = {
         vars,
         itemData,
         value
-      })
+      });
     }
     //.....................................
     // Set the default value key
     if (autoValue && _.isUndefined(comConf[autoValue])) {
-      comConf[autoValue] = value
+      comConf[autoValue] = value;
     }
     //.....................................
-    reDisplayItem.comConf = comConf
+    // Auto Eval ClassName
+    if (_.isFunction(comConf.className)) {
+      let className = comConf.className(value, itemData, dis);
+      comConf.className = className;
+    }
+    //.....................................
+    reDisplayItem.comConf = comConf;
     //.....................................
     if (!reDisplayItem.uniqKey) {
       if (uniqKey) {
-        reDisplayItem.uniqKey = uniqKey
+        reDisplayItem.uniqKey = uniqKey;
       } else {
         reDisplayItem.uniqKey = _.concat(
-          reDisplayItem.key, reDisplayItem.comType).join("-")
+          reDisplayItem.key,
+          reDisplayItem.comType
+        ).join("-");
       }
     }
     //.....................................
-    return reDisplayItem
+    return reDisplayItem;
   }
   //------------------------------------------
-}
+};
 //////////////////////////////////////////////
 return FieldDisplay;;
 })()

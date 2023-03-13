@@ -172,7 +172,7 @@ export async function WalnutAppMain({
   //---------------------------------------
   // Load session
   app.commit("session/set", _app.session)
-  Wn.Session.setup(_app.session)
+  await Wn.Session.setup(_app.session)
   Wn.Session.loadMyPvg()
   Ti.Env(Wn.Session.env())
   // Mount app to DOM 

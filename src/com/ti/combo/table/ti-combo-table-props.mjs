@@ -51,6 +51,9 @@ export default {
   "onAddNewItem": {
     type: [String, Function]
   },
+  "moreActions":{
+    type: Array
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
