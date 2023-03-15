@@ -195,15 +195,7 @@ const _M = {
   setCurrentId(state, currentId) {
     state.currentId = currentId;
     state.status = _.assign({}, state.status, {
-      hasCurrent: !Ti.Util.isNil(currentId),
-    });
-    saveLocalBehavior(state, "currentId", currentId);
-  },
-  //----------------------------------------
-  setCurrentId(state, currentId) {
-    state.currentId = currentId;
-    state.status = _.assign({}, state.status, {
-      "hasCurrent": !Ti.Util.isNil(currentId),
+      "hasCurrent": !Ti.Util.isNil(currentId)
     });
     saveLocalBehavior(state, "currentId", currentId);
   },
@@ -218,7 +210,7 @@ const _M = {
     }
     state.checkedIds = ids;
     state.status = _.assign({}, state.status, {
-      "hasChecked": !_.isEmpty(ids),
+      "hasChecked": !_.isEmpty(ids)
     });
     saveLocalBehavior(state, "checkedIds", ids);
   },
@@ -272,7 +264,7 @@ const _M = {
       state.status = _.assign({}, state.status, {
         "hasMeta": false,
         "hasCurrent": false,
-        "hasChecked": false,
+        "hasChecked": false
       });
     }
   },
@@ -416,7 +408,7 @@ const _M = {
     state,
     files = {
       list: [],
-      pager: {},
+      pager: {}
     }
   ) {
     state.dataDirFiles = files;
@@ -460,7 +452,7 @@ const _M = {
       "fixedMatch": {},
       "filter": {},
       "sorter": {
-        "ct": -1,
+        "ct": -1
       },
       "thingObjKeys": null,
       "list": [],
@@ -472,7 +464,7 @@ const _M = {
         "pgc": 0,
         "sum": 0,
         "skip": 0,
-        "count": 0,
+        "count": 0
       },
       "meta": null,
       "content": null,
@@ -481,11 +473,11 @@ const _M = {
         {
           "test": {
             "guiShown": {
-              "content": true,
-            },
+              "content": true
+            }
           },
-          "path": "<self>",
-        },
+          "path": "<self>"
+        }
       ],
       "contentType": "<MIME>",
       "contentData": null,
@@ -500,8 +492,8 @@ const _M = {
           "pgc": 0,
           "sum": 0,
           "skip": 0,
-          "count": 0,
-        },
+          "count": 0
+        }
       },
       "dataDirCurrentId": null,
       "dataDirCheckedIds": {},
@@ -513,16 +505,16 @@ const _M = {
         "changed": false,
         "restoring": false,
         "hasChecked": false,
-        "hasCurrent": true,
+        "hasCurrent": true
       },
       "fieldStatus": {},
       "guiShown": {},
       "thingActions": null,
       "layout": {},
       "schema": {},
-      "thingMethods": {},
+      "thingMethods": {}
     });
-  },
+  }
   //----------------------------------------
 };
 export default _M;

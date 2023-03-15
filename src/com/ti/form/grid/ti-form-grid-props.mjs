@@ -52,14 +52,16 @@ export default {
     default: false
   },
   // When field change, how to notify:
-  // - `immediate` : notify immediately
+  // - `immediate` : notify immediately both field and data
+  // - `data` : notify immediately only data
+  // - `field` : notify immediately only field
   // - `confirm` : show confirm button, and to confirm change
   // - `none` : never notify
-  // - `auto` : `none` if readonly, else as `immediate`
+    // - `auto` : `none` if readonly, else as `immediate`
   "notifyMode": {
     type: String,
     default: "auto",
-    validator: v => /^(immediate|confirm|none|auto)$/.test(v)
+    validator: v => /^(immediate|data|field|confirm|none|auto)$/.test(v)
   },
   "batchNotifyMode": {
     type: String,

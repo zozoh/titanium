@@ -7589,11 +7589,11 @@ div.ti-input-tags {
         .ti-table > table > tbody > tr.is-checked a,
         .ti-table > table > tbody > tr.is-checked a:hover {
           color: inherit; }
-        .ti-table > table > tbody > tr.is-checked td {
+        .ti-table > table > tbody > tr.is-checked > td {
           border-color: #222; }
-          .ti-table > table > tbody > tr.is-checked td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:first-child {
+          .ti-table > table > tbody > tr.is-checked > td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:first-child {
             display: block; }
-          .ti-table > table > tbody > tr.is-checked td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:last-child {
+          .ti-table > table > tbody > tr.is-checked > td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:last-child {
             display: none; }
         .ti-table > table > tbody > tr.is-checked .cell-con .ti-tags-item {
           color: #DA2;
@@ -7646,10 +7646,71 @@ div.ti-input-tags {
         .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-number-tag {
           color: #44AAFF;
           background-color: #FFF; }
-      .ti-table > table > tbody > tr.is-fake {
-        font-size: 0.1rem;
-        font-style: italic;
+      .ti-table > table > tbody > tr.is-success {
+        color: #5A5; }
+        .ti-table > table > tbody > tr.is-success.is-checked {
+          color: #CFC;
+          background-color: #5A5; }
+          .ti-table > table > tbody > tr.is-success.is-checked > td {
+            border-color: #CFC; }
+      .ti-table > table > tbody > tr.is-warn {
+        color: #FE0; }
+        .ti-table > table > tbody > tr.is-warn.is-checked {
+          color: #620;
+          background-color: #FE0; }
+          .ti-table > table > tbody > tr.is-warn.is-checked > td {
+            border-color: #620; }
+      .ti-table > table > tbody > tr.is-info {
+        color: #44AAFF; }
+        .ti-table > table > tbody > tr.is-info.is-checked {
+          color: #FFF;
+          background-color: #44AAFF; }
+          .ti-table > table > tbody > tr.is-info.is-checked > td {
+            border-color: #FFF; }
+      .ti-table > table > tbody > tr.is-error {
+        color: #F65; }
+        .ti-table > table > tbody > tr.is-error.is-checked {
+          color: #FFF;
+          background-color: #F65; }
+          .ti-table > table > tbody > tr.is-error.is-checked > td {
+            border-color: #FFF; }
+      .ti-table > table > tbody > tr.is-track {
         color: rgba(220, 220, 220, 0.6); }
+        .ti-table > table > tbody > tr.is-track.is-checked {
+          color: #666;
+          background-color: rgba(220, 220, 220, 0.6); }
+          .ti-table > table > tbody > tr.is-track.is-checked > td {
+            border-color: #666; }
+      .ti-table > table > tbody > tr.is-disable {
+        color: rgba(160, 160, 160, 0.6); }
+        .ti-table > table > tbody > tr.is-disable.is-checked {
+          color: rgba(0, 0, 0, 0.38);
+          background-color: rgba(160, 160, 160, 0.6); }
+          .ti-table > table > tbody > tr.is-disable.is-checked > td {
+            border-color: rgba(0, 0, 0, 0.38); }
+      .ti-table > table > tbody > tr.is-text {
+        color: #00CC00; }
+        .ti-table > table > tbody > tr.is-text.is-checked {
+          color: #FFF;
+          background-color: #00CC00; }
+          .ti-table > table > tbody > tr.is-text.is-checked > td {
+            border-color: #FFF; }
+      .ti-table > table > tbody > tr.is-number {
+        color: #44AAFF; }
+        .ti-table > table > tbody > tr.is-number.is-checked {
+          color: #FFF;
+          background-color: #44AAFF; }
+          .ti-table > table > tbody > tr.is-number.is-checked > td {
+            border-color: #FFF; }
+      .ti-table > table > tbody > tr.is-fake {
+        color: rgba(220, 220, 220, 0.6);
+        font-size: 0.1rem;
+        font-style: italic; }
+        .ti-table > table > tbody > tr.is-fake.is-checked {
+          color: #666;
+          background-color: rgba(220, 220, 220, 0.6); }
+          .ti-table > table > tbody > tr.is-fake.is-checked > td {
+            border-color: #666; }
         .ti-table > table > tbody > tr.is-fake td {
           padding: 0.06rem; }
           .ti-table > table > tbody > tr.is-fake td .cell-wrapper {
@@ -13196,7 +13257,7 @@ article.ti-article-theme-wiki {
     border-radius: 0.04rem; }
     .wn-obj-id .as-info-brief > .as-icon {
       flex: 0 0 auto;
-      padding: 0 .3em 0 .5em;
+      padding: 0 0.3em 0 0.5em;
       opacity: 0.7; }
     .wn-obj-id .as-info-brief > .as-text {
       flex: 1 1 auto;
@@ -13212,17 +13273,18 @@ article.ti-article-theme-wiki {
     border: 3px dashed rgba(210, 210, 210, 0.3);
     position: fixed;
     transition: opacity 0.5s;
-    padding: 1em;
+    padding: 1px;
     border-radius: 0.05rem;
     box-shadow: 0.03rem 0.03rem 0.06rem rgba(0, 0, 0, 0.4);
     z-index: 10000; }
     .wn-obj-id .as-info-detail table {
-      border-spacing: 8px; }
+      border-spacing: 8px;
+      margin: 1em; }
     .wn-obj-id .as-info-detail td {
       font-family: Monaco, Consolas, Courier New;
       color: #FC4;
       border: 1px solid #FC4;
-      padding: .5em; }
+      padding: 0.5em; }
       .wn-obj-id .as-info-detail td:first-child {
         color: #222;
         background-color: #FC4;
@@ -13235,12 +13297,20 @@ article.ti-article-theme-wiki {
       .wn-obj-id .as-info-detail td.as-copy {
         border-color: transparent; }
     .wn-obj-id .as-info-detail .as-copy a {
-      display: block;
       text-align: center;
       font-size: 0.1rem;
       padding: 0.06rem 0; }
       .wn-obj-id .as-info-detail .as-copy a:hover {
         text-decoration: underline; }
+    .wn-obj-id .as-info-detail > .as-menu {
+      color: #EEE;
+      background-color: rgba(50, 50, 50, 0.6);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      padding: 1em; }
   .wn-obj-id.is-two-stage .as-info-detail tr.is-my-id td {
     border-color: #F48;
     color: #F48; }

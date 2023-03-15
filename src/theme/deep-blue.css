@@ -7589,11 +7589,11 @@ div.ti-input-tags {
         .ti-table > table > tbody > tr.is-checked a,
         .ti-table > table > tbody > tr.is-checked a:hover {
           color: inherit; }
-        .ti-table > table > tbody > tr.is-checked td {
+        .ti-table > table > tbody > tr.is-checked > td {
           border-color: #e6e6e8; }
-          .ti-table > table > tbody > tr.is-checked td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:first-child {
+          .ti-table > table > tbody > tr.is-checked > td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:first-child {
             display: block; }
-          .ti-table > table > tbody > tr.is-checked td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:last-child {
+          .ti-table > table > tbody > tr.is-checked > td > .cell-wrapper .table-row-head .row-checker.as-checkbox > .icon-icon i:last-child {
             display: none; }
         .ti-table > table > tbody > tr.is-checked .cell-con .ti-tags-item {
           color: #272e48;
@@ -7646,10 +7646,71 @@ div.ti-input-tags {
         .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-number-tag {
           color: #720c86;
           background-color: #c891ca; }
-      .ti-table > table > tbody > tr.is-fake {
-        font-size: 0.1rem;
-        font-style: italic;
+      .ti-table > table > tbody > tr.is-success {
+        color: #3fad00; }
+        .ti-table > table > tbody > tr.is-success.is-checked {
+          color: #aedbb0;
+          background-color: #3fad00; }
+          .ti-table > table > tbody > tr.is-success.is-checked > td {
+            border-color: #aedbb0; }
+      .ti-table > table > tbody > tr.is-warn {
+        color: #e69703; }
+        .ti-table > table > tbody > tr.is-warn.is-checked {
+          color: #ffff8a;
+          background-color: #e69703; }
+          .ti-table > table > tbody > tr.is-warn.is-checked > td {
+            border-color: #ffff8a; }
+      .ti-table > table > tbody > tr.is-info {
+        color: #000000; }
+        .ti-table > table > tbody > tr.is-info.is-checked {
+          color: #f8e2bd;
+          background-color: #000000; }
+          .ti-table > table > tbody > tr.is-info.is-checked > td {
+            border-color: #f8e2bd; }
+      .ti-table > table > tbody > tr.is-error {
+        color: #ff0000; }
+        .ti-table > table > tbody > tr.is-error.is-checked {
+          color: #ffff00;
+          background-color: #ff0000; }
+          .ti-table > table > tbody > tr.is-error.is-checked > td {
+            border-color: #ffff00; }
+      .ti-table > table > tbody > tr.is-track {
         color: #888888; }
+        .ti-table > table > tbody > tr.is-track.is-checked {
+          color: #dfdbdb;
+          background-color: #888888; }
+          .ti-table > table > tbody > tr.is-track.is-checked > td {
+            border-color: #dfdbdb; }
+      .ti-table > table > tbody > tr.is-disable {
+        color: #747171; }
+        .ti-table > table > tbody > tr.is-disable.is-checked {
+          color: #dfdbdb;
+          background-color: #747171; }
+          .ti-table > table > tbody > tr.is-disable.is-checked > td {
+            border-color: #dfdbdb; }
+      .ti-table > table > tbody > tr.is-text {
+        color: #2035a7; }
+        .ti-table > table > tbody > tr.is-text.is-checked {
+          color: #93aac7;
+          background-color: #2035a7; }
+          .ti-table > table > tbody > tr.is-text.is-checked > td {
+            border-color: #93aac7; }
+      .ti-table > table > tbody > tr.is-number {
+        color: #720c86; }
+        .ti-table > table > tbody > tr.is-number.is-checked {
+          color: #c891ca;
+          background-color: #720c86; }
+          .ti-table > table > tbody > tr.is-number.is-checked > td {
+            border-color: #c891ca; }
+      .ti-table > table > tbody > tr.is-fake {
+        color: #888888;
+        font-size: 0.1rem;
+        font-style: italic; }
+        .ti-table > table > tbody > tr.is-fake.is-checked {
+          color: #dfdbdb;
+          background-color: #888888; }
+          .ti-table > table > tbody > tr.is-fake.is-checked > td {
+            border-color: #dfdbdb; }
         .ti-table > table > tbody > tr.is-fake td {
           padding: 0.06rem; }
           .ti-table > table > tbody > tr.is-fake td .cell-wrapper {
@@ -13196,7 +13257,7 @@ article.ti-article-theme-wiki {
     border-radius: 0.04rem; }
     .wn-obj-id .as-info-brief > .as-icon {
       flex: 0 0 auto;
-      padding: 0 .3em 0 .5em;
+      padding: 0 0.3em 0 0.5em;
       opacity: 0.7; }
     .wn-obj-id .as-info-brief > .as-text {
       flex: 1 1 auto;
@@ -13212,17 +13273,18 @@ article.ti-article-theme-wiki {
     border: 3px dashed rgba(0, 0, 0, 0.2);
     position: fixed;
     transition: opacity 0.5s;
-    padding: 1em;
+    padding: 1px;
     border-radius: 0.05rem;
     box-shadow: 0.03rem 0.03rem 0.06rem rgba(20, 20, 20, 0.2);
     z-index: 10000; }
     .wn-obj-id .as-info-detail table {
-      border-spacing: 8px; }
+      border-spacing: 8px;
+      margin: 1em; }
     .wn-obj-id .as-info-detail td {
       font-family: Monaco, Consolas, Courier New;
       color: #272e48;
       border: 1px solid #272e48;
-      padding: .5em; }
+      padding: 0.5em; }
       .wn-obj-id .as-info-detail td:first-child {
         color: #e6e6e8;
         background-color: #272e48;
@@ -13235,12 +13297,20 @@ article.ti-article-theme-wiki {
       .wn-obj-id .as-info-detail td.as-copy {
         border-color: transparent; }
     .wn-obj-id .as-info-detail .as-copy a {
-      display: block;
       text-align: center;
       font-size: 0.1rem;
       padding: 0.06rem 0; }
       .wn-obj-id .as-info-detail .as-copy a:hover {
         text-decoration: underline; }
+    .wn-obj-id .as-info-detail > .as-menu {
+      color: #888;
+      background-color: #F0F0F0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      padding: 1em; }
   .wn-obj-id.is-two-stage .as-info-detail tr.is-my-id td {
     border-color: #ff4081;
     color: #ff4081; }

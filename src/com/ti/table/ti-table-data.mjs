@@ -222,7 +222,7 @@ export default {
       row.current = row.id == currentId;
       row.checked = checkedIds[row.id] ? true : false;
       row.checkerIcon = row.checked ? this.checkIcons.on : this.checkIcons.off;
-      row.disClassName = Ti.Css.mergeClassName(row.className, {
+      row.disClassName = Ti.Css.mergeClassNameBy(row, row.className, {
         "is-current": row.current,
         "is-checked": row.checked,
         "no-checked": !row.checked,

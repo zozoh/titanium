@@ -27,173 +27,191 @@ const _M = {
   computed: {
     //--------------------------------------------------
     isReadonly() {
-      return Ti.Util.fallback(this.myReadonly, this.readonly, false)
+      return Ti.Util.fallback(this.myReadonly, this.readonly, false);
     },
     //--------------------------------------------------
     isBatchMode() {
-      return _.isArray(this.batchHint) && this.batchHint.length > 1
+      return _.isArray(this.batchHint) && this.batchHint.length > 1;
     },
     //--------------------------------------------------
     isBatchReadonly() {
       if (this.batchReadonly) {
-        return Ti.AutoMatch.parse(this.batchReadonly)
+        return Ti.AutoMatch.parse(this.batchReadonly);
       }
-      return () => false
+      return () => false;
     },
     //--------------------------------------------------
     isIgnoreAutoReadonly() {
       if (_.isFunction(this.ignoreAutoReadonly)) {
-        return this.ignoreAutoReadonly
+        return this.ignoreAutoReadonly;
       }
       if (_.isString(this.ignoreAutoReadonly)) {
-        let reg = new RegExp(this.ignoreAutoReadonly)
+        let reg = new RegExp(this.ignoreAutoReadonly);
         return ({ comType }) => {
-          return reg.test(comType)
-        }
+          return reg.test(comType);
+        };
       }
-      return () => false
+      return () => false;
     },
     //--------------------------------------------------
     FormNotifyMode() {
       if (this.isBatchMode && this.batchNotifyMode) {
-        return this.batchNotifyMode
+        return this.batchNotifyMode;
       }
       if ("auto" == this.notifyMode) {
-        return this.isReadonly ? "none" : "immediate"
+        return this.isReadonly ? "none" : "immediate";
       }
-      return this.notifyMode
+      return this.notifyMode;
     },
     //--------------------------------------------------
-    isFormNotifyImmediate() { return "immediate" == this.FormNotifyMode },
-    isFormNotifyConfirm() { return "confirm" == this.FormNotifyMode },
-    isFormNotifyNone() { return "none" == this.FormNotifyMode },
+    isFormNotifyImmediate() {
+      return "immediate" == this.FormNotifyMode;
+    },
+    isFormNotifyDataOnly() {
+      return "data" == this.FormNotifyMode;
+    },
+    isFormNotifyFieldOnly() {
+      return "field" == this.FormNotifyMode;
+    },
+    isFormNotifyConfirm() {
+      return "confirm" == this.FormNotifyMode;
+    },
+    isFormNotifyNone() {
+      return "none" == this.FormNotifyMode;
+    },
     //--------------------------------------------------
     FormDataMode() {
       if ("auto" == this.dataMode) {
-        return this.isFormNotifyConfirm ? "diff" : "all"
+        return this.isFormNotifyConfirm ? "diff" : "all";
       }
-      return this.dataMode
+      return this.dataMode;
     },
     //--------------------------------------------------
-    isFormDataModeDiff() { return "diff" == this.FormDataMode },
-    isFormDataModeAll() { return "all" == this.FormDataMode },
+    isFormDataModeDiff() {
+      return "diff" == this.FormDataMode;
+    },
+    isFormDataModeAll() {
+      return "all" == this.FormDataMode;
+    },
     //--------------------------------------------------
     isFormReadonlyConfirm() {
-      return this.readonly && this.isFormNotifyConfirm
+      return this.readonly && this.isFormNotifyConfirm;
     },
     //--------------------------------------------------
     FormData() {
-      return this.filterData(this.myData)
+      return this.filterData(this.myData);
     },
     //--------------------------------------------------
     isFormDataChanged() {
-      return !_.isEmpty(this.getDiffData())
+      return !_.isEmpty(this.getDiffData());
     },
     //--------------------------------------------------
     hasFieldWhiteList() {
-      return !_.isEmpty(this.myFieldWhiteList)
+      return !_.isEmpty(this.myFieldWhiteList);
     },
     //--------------------------------------------------
     hasFieldBlackList() {
-      return !_.isEmpty(this.myFieldBlackList)
+      return !_.isEmpty(this.myFieldBlackList);
     },
     //--------------------------------------------------
     hasCustomizedWhiteFields() {
       if (!this.hasFieldWhiteList) {
-        return false
+        return false;
       }
-      let whites = Ti.Util.truthyKeys(this.myFieldWhiteList)
-      return !_.isEqual(whites, this.whiteFields)
+      let whites = Ti.Util.truthyKeys(this.myFieldWhiteList);
+      return !_.isEqual(whites, this.whiteFields);
     },
     //--------------------------------------------------
     FormLinkFields() {
-      let re = {}
+      let re = {};
       _.forEach(this.linkFields, (lnkFld, key) => {
         // By dict
         if (lnkFld && lnkFld.dict && lnkFld.target) {
-          let { dict, target } = lnkFld
+          let { dict, target } = lnkFld;
           // Guard
           if (!target) {
-            return
+            return;
           }
           // Get dict
-          let { name, dynamic, dictKey } = Ti.DictFactory.explainDictName(dict)
+          let { name, dynamic, dictKey } = Ti.DictFactory.explainDictName(dict);
           //.......................................................
           let getItemFromDict = async function (value, data) {
             let d;
             // Dynamic
             if (dynamic) {
-              let key = _.get(data, dictKey)
-              let vars = Ti.Util.explainObj(data, lnkFld.dictVars || {})
-              d = Ti.DictFactory.GetDynamicDict({ name, key, vars })
+              let key = _.get(data, dictKey);
+              let vars = Ti.Util.explainObj(data, lnkFld.dictVars || {});
+              d = Ti.DictFactory.GetDynamicDict({ name, key, vars });
             }
             // Static Dictionary
             else {
-              d = Ti.DictFactory.CheckDict(name)
+              d = Ti.DictFactory.CheckDict(name);
             }
             // Get item data
             if (d) {
               // Multi value
               if (_.isArray(value)) {
-                let list = []
+                let list = [];
                 for (let v of value) {
-                  let v2 = await d.getItem(v)
-                  list.push(v2)
+                  let v2 = await d.getItem(v);
+                  list.push(v2);
                 }
-                return list
+                return list;
               }
               // Single value
-              return await d.getItem(value)
+              return await d.getItem(value);
             }
-          }
+          };
           //.......................................................
           let fn;
           //.......................................................
           // Pick
           if (_.isArray(target)) {
             fn = async function ({ value }, data) {
-              let it = await getItemFromDict(value, data)
-              return _.pick(it, target)
-            }
+              let it = await getItemFromDict(value, data);
+              return _.pick(it, target);
+            };
           }
           // Explain target
           else if (lnkFld.explainTargetAs) {
             fn = async function ({ value, name }, data) {
-              let it = await getItemFromDict(value, data)
+              let it = await getItemFromDict(value, data);
               let ctx = _.assign({}, data, {
                 [lnkFld.explainTargetAs]: it
-              })
-              let newVal = Ti.Util.explainObj(ctx, target)
+              });
+              let newVal = Ti.Util.explainObj(ctx, target);
               // console.log(name, value, "->", newVal)
-              return newVal
-            }
+              return newVal;
+            };
           }
           // Simple Translate
           else {
             fn = async function ({ value }, data) {
-              let it = await getItemFromDict(value, data)
-              return Ti.Util.translate(it, target, v => Ti.Util.fallback(v, null))
-            }
+              let it = await getItemFromDict(value, data);
+              return Ti.Util.translate(it, target, (v) =>
+                Ti.Util.fallback(v, null)
+              );
+            };
           }
           // join to map
-          re[key] = fn
+          re[key] = fn;
         }
         // Statice value
         else if (lnkFld && lnkFld.target) {
           re[key] = ({ name, value }, data) => {
-            let tc = _.assign({}, { "$update": { name, value } }, data)
+            let tc = _.assign({}, { "$update": { name, value } }, data);
             if (lnkFld.test && !Ti.AutoMatch.test(lnkFld.test, tc)) {
-              return
+              return;
             }
-            return Ti.Util.explainObj(tc, lnkFld.target)
-          }
+            return Ti.Util.explainObj(tc, lnkFld.target);
+          };
         }
         // Customized Function
         else if (_.isFunction(lnkFld)) {
-          re[key] = lnkFld
+          re[key] = lnkFld;
         }
-      })
-      return re
+      });
+      return re;
     }
     //--------------------------------------------------
   },
@@ -212,53 +230,63 @@ const _M = {
       // support name as ".." or [..]
       // Of cause, if name as `[..]`, the value must be a `{..}`
       //console.log("OnFieldChange", { name, value })
-      let data = Ti.Types.toObjByPair({ name, value }, {
-        dft: _.cloneDeep(this.FormData)
-      });
+      let data = Ti.Types.toObjByPair(
+        { name, value },
+        {
+          dft: _.cloneDeep(this.FormData)
+        }
+      );
       let linkdedChanged = await this.applyLinkedFields({
-        name, value, data
+        name,
+        value,
+        data
       });
       // Merge linked change
-      _.assign(data, linkdedChanged)
+      _.assign(data, linkdedChanged);
 
+      // Keep temp data to confirm
+      if (this.isFormNotifyConfirm || this.isFormNotifyNone) {
+        this.myData = data;
+      }
       //
       // Notify change immediately
       //
-      if (this.isFormNotifyImmediate) {
+      else {
         // Notify at first
         //console.log("OnFieldChange", { name, value })
-        this.$notify("field:change", { name, value })
+        if (this.isFormNotifyImmediate || this.isFormNotifyFieldOnly) {
+          this.$notify("field:change", { name, value });
 
-        // Link fields
-        _.forEach(linkdedChanged, (v, k) => {
-          this.$notify("field:change", { name: k, value: v })
-        })
+          // Link fields
+          _.forEach(linkdedChanged, (v, k) => {
+            this.$notify("field:change", { name: k, value: v });
+          });
+        }
 
         // Notify later ...
         // Wait for a tick to give a chance to parent of 'data' updating
-        if (this.notifyDataImmediate) {
+        if (
+          (this.isFormNotifyImmediate && this.notifyDataImmediate) ||
+          this.isFormNotifyDataOnly
+        ) {
           this.$nextTick(() => {
-            let nd = this.getData(data)
+            let nd = this.getData(data);
             //console.log("notify data", nd)
-            this.$notify("change", nd)
-          })
+            this.$notify("change", nd);
+          });
         }
-      }
-      // Keep temp data
-      else {
-        this.myData = data
       }
     },
     //--------------------------------------------------
     async OnToggleForceEditable(fld) {
-      let ids = _.cloneDeep(this.myForceEditableFields)
+      let ids = _.cloneDeep(this.myForceEditableFields);
       if (ids[fld.uniqKey]) {
-        delete ids[fld.uniqKey]
+        delete ids[fld.uniqKey];
       } else {
-        ids[fld.uniqKey] = true
+        ids[fld.uniqKey] = true;
       }
-      this.myForceEditableFields = ids
-      await this.evalFormFieldList()
+      this.myForceEditableFields = ids;
+      await this.evalFormFieldList();
     },
     //--------------------------------------------------
     //
@@ -267,36 +295,36 @@ const _M = {
     //--------------------------------------------------
     getData(data = this.FormData) {
       if (this.isFormDataModeAll) {
-        return _.cloneDeep(data) || {}
+        return _.cloneDeep(data) || {};
       }
-      return this.getDiffData(data)
+      return this.getDiffData(data);
     },
     //--------------------------------------------------
     getDiffData(data = this.FormData) {
-      let diff = {}
+      let diff = {};
       _.forEach(data, (v, k) => {
-        let vOld = _.get(this.data, k)
+        let vOld = _.get(this.data, k);
         if (!_.isEqual(v, vOld)) {
-          diff[k] = v
+          diff[k] = v;
         }
-      })
-      return this.filterData(diff)
+      });
+      return this.filterData(diff);
     },
     //--------------------------------------------------
     filterData(data = {}) {
-      let re = data || {}
+      let re = data || {};
       if (this.onlyFields) {
-        re = _.pick(re, this.myKeysInFields)
+        re = _.pick(re, this.myKeysInFields);
       }
       if (this.omitHiddenFields) {
         re = _.omitBy(re, (v, k) => {
           if (this.myFormFieldMap[k]) {
-            return false
+            return false;
           }
-          return true
-        })
+          return true;
+        });
       }
-      return re
+      return re;
     },
     //--------------------------------------------------
     //
@@ -304,33 +332,33 @@ const _M = {
     //
     //--------------------------------------------------
     getFlattenFormFields(fields = []) {
-      let list = []
+      let list = [];
       const __join_fields = function (fields = []) {
         for (let fld of fields) {
           if ("Group" == fld.race || _.isArray(fld.fields)) {
-            __join_fields(fld.fields)
+            __join_fields(fld.fields);
           }
           // Join normal fields
           else {
             // Replace the last Label
-            let lastFld = _.nth(list, -1)
+            let lastFld = _.nth(list, -1);
             if (lastFld && "Label" == lastFld.race && "Label" == fld.race) {
-              list[list.length - 1] = fld
+              list[list.length - 1] = fld;
             }
-            // Join 
+            // Join
             else {
-              list.push(fld)
+              list.push(fld);
             }
           }
         }
-      }
-      __join_fields(fields)
-      return list
+      };
+      __join_fields(fields);
+      return list;
     },
     //--------------------------------------------------
     getGroupedFormFields(fields = [], otherGroupTitle) {
-      let list = []
-      let otherFields = []
+      let list = [];
+      let otherFields = [];
       for (let fld of fields) {
         if (this.isGroup(fld)) {
           // Join others
@@ -339,17 +367,19 @@ const _M = {
               type: "Group",
               index: list.length,
               fields: otherFields
-            })
-            otherFields = []
+            });
+            otherFields = [];
           }
           // Join self
-          list.push(_.assign({}, fld, {
-            index: list.length
-          }))
+          list.push(
+            _.assign({}, fld, {
+              index: list.length
+            })
+          );
         }
         // Collect to others
         else {
-          otherFields.push(fld)
+          otherFields.push(fld);
         }
       }
       // Join others
@@ -359,7 +389,7 @@ const _M = {
           index: list.length,
           title: otherGroupTitle,
           fields: otherFields
-        })
+        });
       }
       // Done
       return list;
@@ -367,10 +397,10 @@ const _M = {
     //--------------------------------------------------
     evalMyScreenMode() {
       if ("auto" == this.screenMode) {
-        let state = Ti.App(this).$state().viewport
-        this.myScreenMode = _.get(state, "mode") || "desktop"
+        let state = Ti.App(this).$state().viewport;
+        this.myScreenMode = _.get(state, "mode") || "desktop";
       } else {
-        this.myScreenMode = this.screeMode
+        this.myScreenMode = this.screeMode;
       }
     },
     //--------------------------------------------------
@@ -379,17 +409,17 @@ const _M = {
     //
     //--------------------------------------------------
     async applyLinkedFields({ name, value, data = {}, callback }) {
-      let uniqKey = Ti.Util.anyKey(name)
-      let linkFunc = this.FormLinkFields[uniqKey]
+      let uniqKey = Ti.Util.anyKey(name);
+      let linkFunc = this.FormLinkFields[uniqKey];
 
       // Guard
       if (!linkFunc) {
-        return
+        return;
       }
 
-      let obj = await linkFunc({ name, value }, data)
+      let obj = await linkFunc({ name, value }, data);
       if (_.isFunction(callback) && !_.isEmpty(obj)) {
-        callback(obj)
+        callback(obj);
       }
 
       return obj;
@@ -400,17 +430,17 @@ const _M = {
     //
     //--------------------------------------------------
     __eval_form_filter_list(fields = []) {
-      let re = {}
+      let re = {};
       _.forEach(fields, (k) => {
-        re[k] = true
-      })
-      return re
+        re[k] = true;
+      });
+      return re;
     },
     evalFormWhiteFieldList(fields = this.whiteFields) {
-      this.myFieldWhiteList = this.__eval_form_filter_list(fields)
+      this.myFieldWhiteList = this.__eval_form_filter_list(fields);
     },
     evalFormBlackFieldList(fields = this.blackFields) {
-      this.myFieldBlackList = this.__eval_form_filter_list(fields)
+      this.myFieldBlackList = this.__eval_form_filter_list(fields);
     },
     //--------------------------------------------------
     //
@@ -418,79 +448,84 @@ const _M = {
     //
     //--------------------------------------------------
     isGroup(fld) {
-      return "Group" == fld.race || _.isArray(fld.fields)
+      return "Group" == fld.race || _.isArray(fld.fields);
     },
     //--------------------------------------------------
     isLabel(fld) {
-      return "Label" == fld.race || !fld.name
+      return "Label" == fld.race || !fld.name;
     },
     //--------------------------------------------------
     isNormal(fld) {
-      return "Normal" == fld.race || fld.name
+      return "Normal" == fld.race || fld.name;
     },
     //--------------------------------------------------
     async evalFormFieldList() {
-      let list = []
-      let cans = []
-      let keys = []
-      let fmap = {}
+      let list = [];
+      let cans = [];
+      let keys = [];
+      let fmap = {};
       //................................................
       if (_.isArray(this.fields)) {
         //console.log("async evalFormFieldList() x ", this.fields.length)
         for (let index = 0; index < this.fields.length; index++) {
-          let fld = this.fields[index]
+          let fld = this.fields[index];
           if (_.isEmpty(fld)) {
-            continue
+            continue;
           }
-          let fld2 = await this.evalFormField(fld, [index], { cans, fmap })
+          let fld2 = await this.evalFormField(fld, [index], { cans, fmap });
           if (fld2) {
-            list.push(fld2)
+            list.push(fld2);
           }
           // Gather field names
           if (fld.name) {
-            keys.push(..._.concat(fld.name))
+            keys.push(..._.concat(fld.name));
           }
           // Join sub-group keys
           _.forEach(fld.fields, (fld) => {
             if (fld && fld.name) {
-              keys.push(..._.concat(fld.name))
+              keys.push(..._.concat(fld.name));
             }
-          })
+          });
         }
       }
       //................................................
       // Remove the adjacent Label fields
-      let list2 = []
+      let list2 = [];
       for (let i = 0; i < list.length; i++) {
-        let item = list[i]
-        let next = _.nth(list, i + 1)
-        if ('Label' == item.race) {
-          if (!next || 'Label' == next.race) {
+        let item = list[i];
+        let next = _.nth(list, i + 1);
+        if ("Label" == item.race) {
+          if (!next || "Label" == next.race) {
             continue;
           }
         }
-        list2.push(item)
+        list2.push(item);
       }
       //................................................
-      this.myKeysInFields = _.flattenDeep(keys)
+      this.myKeysInFields = _.flattenDeep(keys);
       //................................................
-      this.myFormFields = list2
-      this.myFormFieldMap = fmap
-      this.myCandidateFormFields = cans
+      this.myFormFields = list2;
+      this.myFormFieldMap = fmap;
+      this.myCandidateFormFields = cans;
     },
     //--------------------------------------------------
-    async evalFormField(fld = {}, nbs = [], {
-      cans = [], grp = this, fmap = {}
-    } = {}) {
+    async evalFormField(
+      fld = {},
+      nbs = [],
+      { cans = [], grp = this, fmap = {} } = {}
+    ) {
       // The key
-      let fldKey = Ti.Util.anyKey(fld.name || nbs)
+      let fldKey = Ti.Util.anyKey(fld.name || nbs);
 
       // Visibility
-      let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.myData)
+      let { hidden, disabled } = Ti.Types.getFormFieldVisibility(
+        fld,
+        this.myData
+      );
 
       //............................................
       let field;
-      let omitKeys = ["hidden", "disabled", "enabled", "visible"]
+      let omitKeys = ["hidden", "disabled", "enabled", "visible"];
       // For group
       if (this.isGroup(fld)) {
         let group = _.assign(_.omit(fld, omitKeys), {
@@ -498,24 +533,24 @@ const _M = {
           race: "Group",
           key: fldKey,
           fields: []
-        })
+        });
 
         // Group fields
         if (_.isArray(fld.fields)) {
           for (let index = 0; index < fld.fields.length; index++) {
-            let subfld = fld.fields[index]
-            let newSubFld = await this.evalFormField(
-              subfld,
-              [...nbs, index],
-              { cans, grp: group, fmap }
-            );
+            let subfld = fld.fields[index];
+            let newSubFld = await this.evalFormField(subfld, [...nbs, index], {
+              cans,
+              grp: group,
+              fmap
+            });
             if (newSubFld) {
-              group.fields.push(newSubFld)
+              group.fields.push(newSubFld);
             }
           }
         }
         // Done
-        field = group
+        field = group;
       }
       //............................................
       // Label
@@ -524,13 +559,13 @@ const _M = {
           disabled,
           race: "Label",
           key: fldKey
-        })
+        });
       }
       //............................................
       // For Normal Field
       else if (this.isNormal(fld)) {
         let comType = grp.defaultComType || this.defaultComType || "TiLabel";
-        let comConf = _.cloneDeep(grp.defaultComConf) || {}
+        let comConf = _.cloneDeep(grp.defaultComConf) || {};
         field = _.defaults(_.omit(fld, omitKeys), {
           race: "Normal",
           key: fldKey,
@@ -539,38 +574,49 @@ const _M = {
           comType,
           comConf: {},
           disabled
-        })
-        _.defaults(field.comConf, comConf)
-        field.comType = Ti.S.toComType(field.comType)
+        });
+        _.defaults(field.comConf, comConf);
+        field.comType = Ti.S.toComType(field.comType);
 
         // The UniqKey of field
-        field.uniqKey = Ti.Util.anyKey(field.name)
-        fmap[field.uniqKey] = field
+        field.uniqKey = Ti.Util.anyKey(field.name);
+        fmap[field.uniqKey] = field;
 
         // Batch mode, auto disabled the un-editable fields
         if (this.isBatchMode && !field.disabled) {
           if (_.isUndefined(field.batchReadonly)) {
-            field.batchReadonly = this.isBatchReadonly(field)
+            field.batchReadonly = this.isBatchReadonly(field);
           }
 
           if (field.batchReadonly) {
-            field.disabled = true
+            field.disabled = true;
           }
 
-          if (false === this.myBatchEditableFields[field.uniqKey] && !field.disabled) {
-            field.disabled = this.myForceEditableFields[field.uniqKey] ? false : true;
-            field.batchDisabled = true
+          if (
+            false === this.myBatchEditableFields[field.uniqKey] &&
+            !field.disabled
+          ) {
+            field.disabled = this.myForceEditableFields[field.uniqKey]
+              ? false
+              : true;
+            field.batchDisabled = true;
           }
         }
 
         // Default
         if (!field.serializer) {
-          let fnName = Ti.Types.getFuncByType(field.type || "String", "serializer")
-          field.serializer = `Ti.Types.${fnName}`
+          let fnName = Ti.Types.getFuncByType(
+            field.type || "String",
+            "serializer"
+          );
+          field.serializer = `Ti.Types.${fnName}`;
         }
         if (!field.transformer) {
-          let fnName = Ti.Types.getFuncByType(field.type || "String", "transformer")
-          field.transformer = `Ti.Types.${fnName}`
+          let fnName = Ti.Types.getFuncByType(
+            field.type || "String",
+            "transformer"
+          );
+          field.transformer = `Ti.Types.${fnName}`;
         }
 
         // Tidy form function
@@ -578,48 +624,48 @@ const _M = {
           context: this,
           args: fld.serialArgs,
           partial: "right"
-        })
+        });
         field.transformer = Ti.Util.genInvoking(field.transformer, {
           context: this,
           args: fld.transArgs,
           partial: "right"
-        })
+        });
         if (fld.required) {
           if (_.isBoolean(fld.required)) {
-            field.required = true
+            field.required = true;
           } else {
-            field.required = Ti.AutoMatch.test(fld.required, this.myData)
+            field.required = Ti.AutoMatch.test(fld.required, this.myData);
           }
         }
 
         // Display Com
-        field.com = await this.evalFieldCom(field, grp)
+        field.com = await this.evalFieldCom(field, grp);
 
         // Layout style
-        this.applyFieldDefault(field, grp)
+        this.applyFieldDefault(field, grp);
       }
       //............................................
       // Panice
       else {
-        throw "Invalid field: " + JSON.stringify(fld, null, '   ')
+        throw "Invalid field: " + JSON.stringify(fld, null, "   ");
       }
       //............................................
       // Join to candidate
-      cans.push(field)
+      cans.push(field);
 
       //............................................
-      if ('Normal' == field.race) {
+      if ("Normal" == field.race) {
         // No-In White List
         if (this.hasFieldWhiteList) {
           if (!this.myFieldWhiteList[fldKey]) {
-            return
+            return;
           }
         }
 
         // In Black List
         if (this.hasFieldBlackList) {
           if (this.myFieldBlackList[fldKey]) {
-            return
+            return;
           }
         }
       }
@@ -627,19 +673,19 @@ const _M = {
       //............................................
       // Ignore hidden
       if (hidden) {
-        return
+        return;
       }
 
       //............................................
       // Ignore empty group
-      if ('Group' == field.race) {
+      if ("Group" == field.race) {
         if (_.isEmpty(field.fields)) {
-          return
+          return;
         }
       }
 
       // Done
-      return field
+      return field;
     },
     //--------------------------------------------------
     applyFieldDefault(field, grp = this) {
@@ -654,22 +700,22 @@ const _M = {
         "valueVAlign": grp.fieldValueVAlign || this.fieldValueVAlign,
         "valueWrap": grp.fieldValueWrap || this.fieldValueWrap,
         "rowSpan": grp.fieldRowSpan || this.fieldRowSpan,
-        "colSpan": grp.fieldColSpan || this.fieldColSpan,
-      })
+        "colSpan": grp.fieldColSpan || this.fieldColSpan
+      });
     },
     //--------------------------------------------------
     async evalFieldCom(fld, grp) {
-      let displayItem
+      let displayItem;
       // UnActived try use display
       if (!fld.isActived || this.isReadonly) {
-        displayItem = this.evalFieldDisplay(fld)
+        displayItem = this.evalFieldDisplay(fld);
       }
       // Use default form component
       if (!displayItem) {
         displayItem = {
           key: fld.name,
-          ... (_.omit(fld, "name", "key"))
-        }
+          ..._.omit(fld, "name", "key")
+        };
       }
       // Explain field com
       let com = await this.evalDataForFieldDisplayItem({
@@ -679,143 +725,144 @@ const _M = {
         autoIgnoreNil: false,
         autoIgnoreBlank: false,
         autoValue: fld.autoValue || "value"
-      })
+      });
       // force set readonly
       if (this.isReadonly || fld.disabled) {
         _.assign(com.comConf, {
           readonly: true
-        })
+        });
         if (com.comConf.editable) {
-          com.comConf.editable = false
+          com.comConf.editable = false;
         }
       }
 
-      return com
+      return com;
     },
     //--------------------------------------------------
     evalFieldDisplay(field = {}) {
-      let { name, display, comType, comConf } = field
+      let { name, display, comType, comConf } = field;
       // Guard
       if (!display) {
         // Auto gen display
-        if (this.autoReadonlyDisplay
-          && this.isReadonly
-          && !this.isIgnoreAutoReadonly(field)
-          && !/^(TiLabel|WnObjId)$/.test(comType)) {
-          let labelConf = _.pick(comConf, "placeholder")
-          labelConf.className = field.labelClass || "is-nowrap"
+        if (
+          this.autoReadonlyDisplay &&
+          this.isReadonly &&
+          !this.isIgnoreAutoReadonly(field) &&
+          !/^(TiLabel|WnObjId)$/.test(comType)
+        ) {
+          let labelConf = _.pick(comConf, "placeholder");
+          labelConf.className = field.labelClass || "is-nowrap";
           // If options
           if (comConf && comConf.options) {
-            let dictName = Ti.DictFactory.DictReferName(comConf.options)
+            let dictName = Ti.DictFactory.DictReferName(comConf.options);
             if (dictName) {
-              labelConf.dict = dictName
+              labelConf.dict = dictName;
             }
             // Array to create dict instance
             else if (_.isArray(comConf.options)) {
               let dict = Ti.DictFactory.CreateDict({
                 data: comConf.options
-              })
-              labelConf.dict = dict
+              });
+              labelConf.dict = dict;
             }
           }
           // If AMS
           if ("AMS" == field.type || /^TiInputDatetime/.test(comType)) {
-            labelConf.format = comConf.format || Ti.DateTime.format
-          }
-          else if (/^TiInputDate$/.test(comType)) {
-            labelConf.format = comConf.format || Ti.Types.getDateFormatValue
-            labelConf.placeholder = comConf.placeholder || "i18n:nil"
+            labelConf.format = comConf.format || Ti.DateTime.format;
+          } else if (/^TiInputDate$/.test(comType)) {
+            labelConf.format = comConf.format || Ti.Types.getDateFormatValue;
+            labelConf.placeholder = comConf.placeholder || "i18n:nil";
           }
           // Just pure value
           return {
             key: name,
             comType: "TiLabel",
-            comConf: labelConf,
-          }
+            comConf: labelConf
+          };
         }
-        return
+        return;
       }
       // Eval setting
       if (!_.isBoolean(display) && display) {
         // Call field_display.mjs
         return this.evalFieldDisplayItem(display, {
           defaultKey: name
-        })
+        });
       }
       // return default.
       return {
         key: name,
         comType: "TiLabel",
         comConf: {}
-      }
+      };
     },
     //--------------------------------------------------
     tryEvalFormFieldList(newVal, oldVal) {
       //console.log("tryEvalFormFieldList")
       if (!_.isEqual(newVal, oldVal)) {
         //console.log("  !! do this.evalFormFieldList()")
-        this.evalBatchEditableFields()
-        this.evalFormFieldList()
+        this.evalBatchEditableFields();
+        this.evalFormFieldList();
       }
     },
     //--------------------------------------------------
     evalBatchEditableFields() {
       // conclude each key hint
-      let editables = {}
-      let vals = {}    // Store the first appeared value
-      let keys = {}    // Key of obj is equal
+      let editables = {};
+      let vals = {}; // Store the first appeared value
+      let keys = {}; // Key of obj is equal
       if (this.isBatchMode) {
         for (let it of this.batchHint) {
           _.forEach(it, (v, k) => {
             // Already no equals
             if (false === keys[k]) {
-              return
+              return;
             }
             // Test val
-            let v2 = vals[k]
+            let v2 = vals[k];
             if (_.isUndefined(v2)) {
-              vals[k] = v
-              keys[k] = true
+              vals[k] = v;
+              keys[k] = true;
             }
             // Test
             else if (!_.isEqual(v, v2)) {
-              keys[k] = false
+              keys[k] = false;
             }
-          })
+          });
         }
         // Join flat fields
-        let fields = this.getFlattenFormFields(this.fields)
+        let fields = this.getFlattenFormFields(this.fields);
         //console.log("batch", this.isBatchMode, { keys, vals })
         // Update the batch editable fields
         for (let fld of fields) {
           // Ignore label
           if (!fld.name) {
-            continue
+            continue;
           }
 
-          let editable = true
+          let editable = true;
           // Compose keys
           if (_.isArray(fld.name)) {
             for (let fldName of fld.name) {
               if (false === keys[fldName]) {
-                editable = false
-                break
+                editable = false;
+                break;
               }
             }
           }
           // Simple key
           else {
-            editable = false === keys[fld.name] ? false : true
+            editable = false === keys[fld.name] ? false : true;
           }
-          let uniqKey = Ti.Util.anyKey(fld.name)
-          editables[uniqKey] = editable
+          let uniqKey = Ti.Util.anyKey(fld.name);
+          editables[uniqKey] = editable;
         }
       }
       //console.log("editables", editables)
-      this.myBatchEditableFields = editables
+      this.myBatchEditableFields = editables;
     }
     //--------------------------------------------------
   }
   //////////////////////////////////////////////////////
-}
+};
 export default _M;

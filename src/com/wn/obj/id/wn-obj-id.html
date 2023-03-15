@@ -1,7 +1,9 @@
-<div class="wn-obj-id"
+<div
+  class="wn-obj-id"
   :class="TopClass"
   @mouseenter="OnMouseEnter"
-  @mouseleave="OnMouseLeave">
+  @mouseleave="OnMouseLeave"
+>
   <!--
     Info Brief
   -->
@@ -11,24 +13,18 @@
     -->
     <div class="as-icon"><i class="fas fa-info-circle"></i></div>
     <!-- Empty -->
-    <div 
-      v-if="!value"
-        class="as-text">
-        <em>{{'i18n:blank' | i18n}}</em>
+    <div v-if="!value" class="as-text">
+      <em>{{'i18n:blank' | i18n}}</em>
     </div>
     <!-- Simple ID -->
-    <div
-      v-else-if="!OID.homeId"
-        class="as-text">
-        <!--span>{{OID.myId}}</span-->
-        <span>{{IDText}}</span>
+    <div v-else-if="!OID.homeId" class="as-text">
+      <!--span>{{OID.myId}}</span-->
+      <span>{{IDText}}</span>
     </div>
     <!-- Two stage ID-->
-    <div 
-      v-else
-        class="as-text">
-        <!--span>{{OID.myId}}</span-->
-        <span>{{IDText}}</span>
+    <div v-else class="as-text">
+      <!--span>{{OID.myId}}</span-->
+      <span>{{IDText}}</span>
     </div>
   </div>
   <!--
@@ -36,27 +32,27 @@
   -->
   <div class="as-info-detail" ref="detail">
     <table>
-      <tr v-if="OID.homeId"
-        class="is-home-id">
+      <tr v-if="OID.homeId" class="is-home-id">
         <td>HOME ID</td>
         <td @click.left.stop="OnCopyHomeId">{{OID.homeId}}</td>
         <td class="as-copy">
           <a @click.left="OnCopyHomeId">{{'i18n:copy'|i18n}}</a>
         </td>
       </tr>
-      <tr
-        class="is-my-id">
+      <tr class="is-my-id">
         <td>MY ID</td>
         <td @click.left.stop="OnCopyMyId">{{OID.myId}}</td>
-        <td class="as-copy">
+        <!--td class="as-copy">
           <a @click.left="OnCopyMyId">{{'i18n:copy'|i18n}}</a>
-        </td>
+        </td-->
       </tr>
     </table>
-    <div
-      v-if="OID.homeId" 
-        class="as-copy">
-        <a @click.left="OnCopyAll">{{'i18n:copy'|i18n}}</a>
+    <div class="as-menu">     
+      <a target="_blank" :href="IDHref">
+        <i class="fas fa-external-link-alt"></i>
+        {{'i18n:open-newtab' | i18n}}
+      </a>
+      <a @click.left="OnCopyAll">{{'i18n:copy'|i18n}}</a>
     </div>
   </div>
 </div>

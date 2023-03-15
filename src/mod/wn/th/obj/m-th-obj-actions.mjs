@@ -222,8 +222,8 @@ const _M = {
       //let methodsUri = `./${state.methodPaths}`
       let methods = await Ti.Load(state.methodPaths, {
         dynamicAlias: new Ti.Config.AliasMapping({
-          "^./": `/o/content?str=id:${state.thingSetId}/`,
-        }),
+          "^./": `/o/content?str=id:${state.thingSetId}/`
+        })
       });
       // Merge methods
       if (_.isArray(methods)) {
@@ -265,7 +265,7 @@ const _M = {
     const _load_data = async (key, path, asJson = false) => {
       // Load
       results[key] = await Wn.Sys.exec2(`cat '${path}'`, {
-        as: asJson ? "json" : "text",
+        as: asJson ? "json" : "text"
       });
     };
 
@@ -320,7 +320,7 @@ const _M = {
       dataDirName,
       dataDirCurrentId,
       dataDirCheckedIds,
-      guiShown,
+      guiShown
     } = be;
 
     // Apply Pvg
@@ -494,6 +494,13 @@ const _M = {
       return await Ti.Toast.Open("Meta without ID", "warn");
     }
 
+    // If load meta is a thing record, it will case oTs==null
+    // Then we need set list=[meta] directly
+    // and, set the currentId/checkIds also
+    // we need patch th behavior after local-state loaded
+    // So , this var will indicate if we need override local-state
+    let mockList;
+
     // Analyze meta : oTs
     state.LOG("Analyze oTs and thingSetId");
     if ("thing_set" == meta.tp && "DIR" == meta.race) {
@@ -516,6 +523,7 @@ const _M = {
       commit("setMeta", meta);
       commit("setThingSetId", null);
       await dispatch("loadThingSetId");
+      mockList = [meta];
     }
 
     if (!state.thingSetId) {
@@ -531,7 +539,7 @@ const _M = {
     await Promise.all([
       dispatch("loadLayout"),
       dispatch("loadThingActions"),
-      dispatch("loadThingMethods"),
+      dispatch("loadThingMethods")
     ]);
     dispatch("applyViewAfterLoad");
     state.LOG("<-------- Config Loaded-------->");
@@ -551,6 +559,12 @@ const _M = {
       await dispatch("queryList");
       await dispatch("queryAggResult");
     }
+    // Mock the list loading in thing meta mode
+    else if (!_.isEmpty(mockList)) {
+      commit("setList", mockList);
+      commit("setCurrentId", mockList[0].id);
+      commit("setCheckedIds", [mockList[0].id]);
+    }
 
     // Update dataHome
     commit("autoDataHome");
@@ -563,7 +577,7 @@ const _M = {
     // All done
     commit("setStatus", { reloading: false });
     state.LOG("<<<<<<<<<<<<<<<< done for reload");
-  },
+  }
   //--------------------------------------------
 };
 export default _M;

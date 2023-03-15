@@ -42,6 +42,8 @@ const _M = {
         viewType: this.viewType,
         exposeHidden: this.exposeHidden,
         //------------------------------
+        methods: this.thingMethods,
+        //------------------------------
         // Adapte old thing set data model
         //------------------------------
         currentDataHome: this.dataHome,

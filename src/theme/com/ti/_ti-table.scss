@@ -209,16 +209,18 @@
         }
 
         //-----------------------------------------
+        //
+        //                Checked
+        //
+        //-----------------------------------------
         &.is-checked {
           @include color($color-primary, r, c);
-
           a,
           a:hover {
             color: inherit;
           }
-
           //---------------------------------------
-          td {
+          > td {
             border-color: map-get($color-primary, r);
 
             > .cell-wrapper .table-row-head {
@@ -314,18 +316,68 @@
               &.is-number-tag {
                 @include color($color-number, c, r);
               }
-            }
+            } // ~.ti-label
 
             //-------------------------------------
-          }
+          } // .cell-con
           //---------------------------------------
+        } //&.is-checked
+        //-----------------------------------------
+        @mixin row-status-color($color: null) {
+          @include color($color, c);
+          &.is-checked {
+            @include color($color, r, c);
+            > td {
+              border-color: map-get($color, r);
+            }
+          }
         }
-
+        //-----------------------------------------
+        //
+        //               Status Color
+        //
+        //-----------------------------------------
+        &.is-success {
+          @include row-status-color($color-success);
+        }
+        //-----------------------------------------
+        &.is-warn {
+          @include row-status-color($color-warn);
+        }
+        //-----------------------------------------
+        &.is-info {
+          @include row-status-color($color-info);
+        }
+        //-----------------------------------------
+        &.is-error {
+          @include row-status-color($color-error);
+        }
+        //-----------------------------------------
+        &.is-track {
+          @include row-status-color($color-track);
+        }
+        //-----------------------------------------
+        &.is-disable {
+          @include row-status-color($color-disable);
+        }
+        //-----------------------------------------
+        &.is-text {
+          @include row-status-color($color-text);
+        }
+        //-----------------------------------------
+        &.is-number {
+          @include row-status-color($color-number);
+        }
+        //-----------------------------------------
+        //
+        //             Status Color
+        //
         //-----------------------------------------
         &.is-fake {
+          @include row-status-color($color-track);
           font-size: SZ(10);
           font-style: italic;
-          color: map-get($color-track, c);
+          //color: map-get($color-track, c);
           td {
             padding: SZ(6);
             .cell-wrapper {

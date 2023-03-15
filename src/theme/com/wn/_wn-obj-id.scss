@@ -1,57 +1,73 @@
 .wn-obj-id {
-  width: 100%; 
+  width: 100%;
   //------------------------------------------
-  &.is-none {color: map-get($color-disable, c);}
+  &.is-none {
+    color: map-get($color-disable, c);
+  }
   &.is-simple {
     color: map-get($color-primary, c);
-    &:hover {background: map-get($color-weaktip, c);}
+    &:hover {
+      background: map-get($color-weaktip, c);
+    }
   }
   &.is-two-stage {
     color: map-get($color-secondary, c);
-    &:hover {background: map-get($color-weaktip, c);}
+    &:hover {
+      background: map-get($color-weaktip, c);
+    }
   }
   //------------------------------------------
   .as-info-brief {
-    @include flex-align-nowrap($jc:flex-start);
-    user-select: none; cursor: pointer;
-    width: 100%; padding: 0.3em 0;
+    @include flex-align-nowrap($jc: flex-start);
+    user-select: none;
+    cursor: pointer;
+    width: 100%;
+    padding: 0.3em 0;
     border-radius: SZ(4);
     //----------------------------------------
     > .as-icon {
-      flex:0 0 auto; padding:0 .3em 0 .5em; opacity: 0.7;
+      flex: 0 0 auto;
+      padding: 0 0.3em 0 0.5em;
+      opacity: 0.7;
     }
     //----------------------------------------
     > .as-text {
-      flex:1 1 auto;
-      width:SZ(64); overflow: hidden; 
+      flex: 1 1 auto;
+      width: SZ(64);
+      overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
 
-      span {@include font-fixed;}
+      span {
+        @include font-fixed;
+      }
     }
     //----------------------------------------
   }
   //------------------------------------------
   .as-info-detail {
     @include color($color-body, r, c);
-    border:3px dashed map-get($color-line, dark);
-    position: fixed; transition: opacity 0.5s;
-    padding: 1em; border-radius: SZ(5);
+    border: 3px dashed map-get($color-line, dark);
+    position: fixed;
+    transition: opacity 0.5s;
+    padding: 1px;
+    border-radius: SZ(5);
     box-shadow: SZ(3) SZ(3) SZ(6) map-get($color-shadow, thin);
     z-index: $z-menu;
     //----------------------------------------
     table {
       border-spacing: 8px;
+      margin:1em;
     }
     //----------------------------------------
     td {
       @include font-fixed;
       @include color($color-primary, c);
-      border:1px solid map-get($color-primary, c);
-      padding: .5em; 
+      border: 1px solid map-get($color-primary, c);
+      padding: 0.5em;
       &:first-child {
         @include color($color-primary, r, c);
-        text-align: right; 
+        text-align: right;
       }
       &:nth-child(2) {
         cursor: pointer;
@@ -59,13 +75,24 @@
           @include color($color-weaktip, r, c);
         }
       }
-      &.as-copy {border-color: transparent;}
+      &.as-copy {
+        border-color: transparent;
+      }
     }
     //----------------------------------------
     .as-copy a {
-      display: block; text-align: center;
-      font-size: SZ(10); padding: SZ(6) 0;
-      &:hover {text-decoration: underline;} 
+      text-align: center;
+      font-size: SZ(10);
+      padding: SZ(6) 0;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    //----------------------------------------
+    > .as-menu {
+      @include color($color-bar, r, c);
+      @include flex-center($jc:space-between);
+      padding: 1em;
     }
     //----------------------------------------
   }
@@ -75,22 +102,34 @@
       td {
         border-color: map-get($color-secondary, c);
         color: map-get($color-secondary, c);
-        &:first-child {@include color($color-secondary, r, c);}
-        &.as-copy {border-color: transparent;}
+        &:first-child {
+          @include color($color-secondary, r, c);
+        }
+        &.as-copy {
+          border-color: transparent;
+        }
       }
     }
   }
   //------------------------------------------
   &.is-detail-hide {
-    > .as-info-detail {display: none;}
+    > .as-info-detail {
+      display: none;
+    }
   }
   //------------------------------------------
   &.is-detail-show {
-    > .as-info-detail {display: block; opacity: 0;}
+    > .as-info-detail {
+      display: block;
+      opacity: 0;
+    }
   }
   //------------------------------------------
   &.is-detail-ready {
-    > .as-info-detail {display: block; opacity: 1;}
+    > .as-info-detail {
+      display: block;
+      opacity: 1;
+    }
   }
   //------------------------------------------
 }

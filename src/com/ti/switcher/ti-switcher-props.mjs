@@ -55,7 +55,7 @@ export default {
     type: String,
     default: null
   },
-  "emptylAs": {
+  "emptyAs": {
     default: null
   },
   //-----------------------------------
