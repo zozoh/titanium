@@ -1,46 +1,47 @@
 <div class="ti-input-pair full-field" :class="TopClass">
-  <!--
-  Empty
-  -->
-  <TiLoading
-    v-if="isEmpty"
-      v-bind="blankAs"/>
   <!----------------------------------------->
-  <div class="pair-grid-con" v-else>
+  <div class="pair-grid-con" v-if="!isEmpty">
     <template v-for="fld in PairFields">
       <div class="pair-grid-item as-name" :style="NameStyle">
         <div class="cell-con">
           <div
             v-if="canRemoveItem && !readonly"
-              class="as-deleter" @click.left="OnDeleteFld(fld)">
+            class="as-deleter"
+            @click.left="OnDeleteFld(fld)"
+          >
             <i class="zmdi zmdi-close"></i>
           </div>
-          <component 
-            :is="nameComType" 
+          <component
+            :is="nameComType"
             class="as-com"
-            v-bind="nameComConf" 
+            v-bind="nameComConf"
             :value="fld.name"
             :readonly="readonly"
-            @change="OnNameChange(fld, $event)"/>
+            @change="OnNameChange(fld, $event)"
+          />
         </div>
       </div>
       <div class="pair-grid-item as-value">
         <div class="cell-con">
-          <component 
+          <component
             :is="valueComType"
             class="as-com"
             v-bind="valueComConf"
             :value="fld.value"
             :readonly="readonly"
-            @change="OnValueChange(fld, $event)"/>
+            @change="OnValueChange(fld, $event)"
+          />
         </div>
       </div>
     </template>
   </div>
   <!----------------------------------------->
+  <TiLoading v-else-if="autoShowBlank" v-bind="blankAs" />
+  <!----------------------------------------->
   <TiButton
     v-if="canAddNewItem && !readonly"
-      class="is-tiny btn-r4"
-      :setup="ActionSetup"/>
+    class="is-tiny btn-r4"
+    :setup="ActionSetup"
+  />
   <!----------------------------------------->
 </div>

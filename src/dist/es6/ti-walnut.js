@@ -1,4 +1,4 @@
-// Pack At: 2023-03-15 23:24:35
+// Pack At: 2023-03-17 21:03:22
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -803,12 +803,17 @@ const Obj = (function(){
       name: "mime",
       comConf: {
         className: "is-nowrap",
+        editable:true
       },
     },
     //---------------------------------------------
     tp: {
       title: "i18n:wn-key-tp",
       name: "tp",
+      comConf: {
+        className: "is-nowrap",
+        editable:true
+      },
     },
     //---------------------------------------------
     ct: {
@@ -4529,7 +4534,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230315.232437"
+const WALNUT_VERSION = "1.2-20230317.210322"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

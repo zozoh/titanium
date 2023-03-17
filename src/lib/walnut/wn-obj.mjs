@@ -214,12 +214,17 @@ const FORM_FIELDS = {
     name: "mime",
     comConf: {
       className: "is-nowrap",
+      editable:true
     },
   },
   //---------------------------------------------
   tp: {
     title: "i18n:wn-key-tp",
     name: "tp",
+    comConf: {
+      className: "is-nowrap",
+      editable:true
+    },
   },
   //---------------------------------------------
   ct: {

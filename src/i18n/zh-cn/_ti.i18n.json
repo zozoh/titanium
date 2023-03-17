@@ -239,6 +239,7 @@
   "json-new-key": "请输入一个新键名",
   "json-syntax-err-tip": "语法错误，请切换源码视图检查",
   "key": "键",
+  "keywords": "关键字",
   "label": "标签",
   "lang": "语言",
   "lang-en-uk": "英",

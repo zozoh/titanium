@@ -3,7 +3,8 @@
   "modType": "@mod:wn/obj",
   "comType": "@com:ti/text/code/ace",
   "comConf": {
-    "value": "=Main.content"
+    "value": "=MainContent",
+    "mode": "javascript"
   },
   "actions": [
     {

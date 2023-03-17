@@ -49,6 +49,10 @@ const _M = {
       type: Boolean,
       default: false
     },
+    "autoShowBlank": {
+      type: Boolean,
+      default: false
+    },
     //------------------------------------------------
     // Aspect
     //------------------------------------------------

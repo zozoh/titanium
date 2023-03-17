@@ -1,12 +1,10 @@
 {
   "comIcon": "im-edit",
-  "modType" : "@mod:wn/obj-content",
-  "comType": "@com:ti/text/raw",
+  "modType": "@mod:wn/obj-content",
+  "comType": "@com:ti/text/code/ace",
   "comConf": {
-    "icon": "=>Wn.Util.getObjIcon(meta)",
-    "title": "=meta.title|meta.nm",
     "value": "=MainContent",
-    "status": "=status"
+    "mime": "=Main.meta.mime"
   },
   "actions": [
     {
@@ -51,7 +49,7 @@
           "action": "=>Ti.Be.Open('/a/open/wn.console')",
           "shortcut": "ALT+SHIFT+T",
           "visible": {
-            "ENABLE_CONSOLE" : "yes"
+            "ENABLE_CONSOLE": "yes"
           }
         },
         {

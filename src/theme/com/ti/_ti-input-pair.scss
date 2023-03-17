@@ -57,4 +57,11 @@
     padding-top: SZ(6);
   }
   //-------------------------------------------------
+  &.is-empty > .ti-button {
+    @include border(1px, dashed, shallow);
+    @include color($color-bar, r, c);
+    padding: 1em;
+    border-radius: .5em;
+  }
+  //-------------------------------------------------
 }

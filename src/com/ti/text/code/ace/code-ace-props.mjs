@@ -6,16 +6,18 @@ const _M = {
     type: String,
     default: undefined
   },
-  "blank":{
-    type :Boolean,
+  "blank": {
+    type: Boolean,
     default: undefined
   },
   //...............................................
   // Behavior
   //...............................................
   "mode": {
-    type: String,
-    default: "javascript"
+    type: String
+  },
+  "mime": {
+    type: String
   },
   //...............................................
   // Aspact
@@ -48,6 +50,6 @@ const _M = {
       icon: "far-keyboard",
       text: "i18n:empty"
     })
-  },
-}
+  }
+};
 export default _M;

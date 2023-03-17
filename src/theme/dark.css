@@ -4455,6 +4455,12 @@ i.im {
       width: 100%; }
 .ti-input-pair > .ti-button {
   padding-top: 0.06rem; }
+.ti-input-pair.is-empty > .ti-button {
+  border: 1px dashed rgba(210, 210, 210, 0.1);
+  color: #EEE;
+  background-color: rgba(50, 50, 50, 0.6);
+  padding: 1em;
+  border-radius: .5em; }
 
 div.ti-input-tags {
   flex-wrap: wrap; }

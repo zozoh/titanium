@@ -1,4 +1,4 @@
-// Pack At: 2023-03-15 23:24:35
+// Pack At: 2023-03-17 21:03:22
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -26362,7 +26362,7 @@ return _M;;
 // EXPORT 'code-ace.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/text/code/ace/code-ace.mjs'] = (function(){
-const OPTION_CSS = ["fontSize", "fontFamily", "lineHeight"]
+const OPTION_CSS = ["fontSize", "fontFamily", "lineHeight"];
 /////////////////////////////////////////////////////
 const _M = {
   ///////////////////////////////////////////////////
@@ -26373,72 +26373,97 @@ const _M = {
   computed: {
     //-----------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //-----------------------------------------------
     EditorStyle() {
       let css = _.pick(this.options, OPTION_CSS);
-      return Ti.Css.toStyle(css)
+      return Ti.Css.toStyle(css);
     },
     //-----------------------------------------------
     EditorOption() {
-      return _.omit(this.options, OPTION_CSS)
+      return _.omit(this.options, OPTION_CSS);
     },
     //-----------------------------------------------
     EditorTheme() {
       if ("auto" == this.theme) {
-        let sysTheme = Ti.Env("theme") || "light"
+        let sysTheme = Ti.Env("theme") || "light";
         if (/dark/.test(sysTheme)) {
-          return "terminal"
+          return "terminal";
         }
         //return "clouds"
-        return "chrome"
+        return "chrome";
         //return "github"
       }
-      return this.theme
+      return this.theme;
     },
     //-----------------------------------------------
     EditorLoadingAs() {
-      return _.assign({
-        className: "as-nil-mask as-big-mask",
-        icon: undefined,
-        text: undefined
-      }, this.loadingAs)
+      return _.assign(
+        {
+          className: "as-nil-mask as-big-mask",
+          icon: undefined,
+          text: undefined
+        },
+        this.loadingAs
+      );
     },
     //-----------------------------------------------
     EditorBlankAs() {
-      return _.assign({
-        className: "as-nil-mask as-big-mask",
-        icon: "far-keyboard",
-        text: "i18n:empty"
-      }, this.blankAs)
+      return _.assign(
+        {
+          className: "as-nil-mask as-big-mask",
+          icon: "far-keyboard",
+          text: "i18n:empty"
+        },
+        this.blankAs
+      );
     },
     //-----------------------------------------------
     ContentMode() {
-      return ({
-        "txt": "text",
-        "js": "javascript",
-        "htm": "html"
-      })[this.mode] || this.mode || "text"
+      let mode = this.mode || this.mime;
+      return (
+        {
+          "txt": "text",
+          "md": "markdown",
+          "js": "javascript",
+          "htm": "html",
+          "json": "json",
+          "html":"html",
+          "xml":"xml",
+          "css":"css",
+          "text/json": "json",
+          "text/html": "html",
+          "text/css": "css",
+          "text/xml": "xml",
+          "text/markdown": "markdown",
+          "application/json": "json"
+        }[mode] ||
+        this.mode ||
+        "text"
+      );
     },
     //-----------------------------------------------
     BlankComStyle() {
       return {
         position: "absolute",
-        top: 0, right: 0, bottom: 0, left: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
         zIndex: 10
-      }
+      };
     },
     //-----------------------------------------------
     isContentBlank() {
       if (_.isBoolean(this.blank)) {
-        return this.blank
+        return this.blank;
       }
-      return Ti.Util.isNil(this.value)
+      return Ti.Util.isNil(this.value);
     },
     //-----------------------------------------------
     isContentLoading() {
-      return _.isUndefined(this.value)
+      return _.isUndefined(this.value);
     }
     //-----------------------------------------------
   },
@@ -26448,23 +26473,22 @@ const _M = {
     initEditor() {
       // Create editor
       let editor = ace.edit(this.$refs.edit);
-      editor.setTheme(`ace/theme/${this.EditorTheme}`)
+      editor.setTheme(`ace/theme/${this.EditorTheme}`);
       //console.log(this.EditorOption)
-      editor.setOptions(this.EditorOption)
-      editor.session.setMode(`ace/mode/${this.ContentMode}`)
-      editor.session.setValue(this.value || "")
+      editor.setOptions(this.EditorOption);
+      editor.session.setMode(`ace/mode/${this.ContentMode}`);
+      editor.session.setValue(this.value || "");
 
       // Events
       editor.session.on("change", (delta) => {
-        if (this.isContentBlank || this.isContentLoading)
-          return
-        let str = editor.getValue() || ""
-        this.myValue = str
-        this.$notify("change", str)
-      })
+        if (this.isContentBlank || this.isContentLoading) return;
+        let str = editor.getValue() || "";
+        this.myValue = str;
+        this.$notify("change", str);
+      });
 
       // Save instance
-      this.$editor = editor
+      this.$editor = editor;
     }
     //-----------------------------------------------
   },
@@ -26472,26 +26496,26 @@ const _M = {
   watch: {
     "mode": function (newVal, oldVal) {
       if (newVal && newVal != oldVal) {
-        this.$editor.session.setMode(`ace/mode/${newVal}`)
+        this.$editor.session.setMode(`ace/mode/${newVal}`);
       }
     },
     "theme": function (newVal, oldVal) {
       if (newVal && newVal != oldVal) {
-        this.$editor.setTheme(`ace/theme/${newVal}`)
+        this.$editor.setTheme(`ace/theme/${newVal}`);
       }
     },
     "value": function (newVal) {
       if (Ti.Util.isNil(this.myValue) || newVal != this.myValue) {
-        this.$editor.session.setValue(newVal || "")
+        this.$editor.session.setValue(newVal || "");
       }
     }
   },
   ///////////////////////////////////////////////////
   mounted: async function () {
-    this.initEditor()
+    this.initEditor();
   }
   ///////////////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -27712,16 +27736,18 @@ const _M = {
     type: String,
     default: undefined
   },
-  "blank":{
-    type :Boolean,
+  "blank": {
+    type: Boolean,
     default: undefined
   },
   //...............................................
   // Behavior
   //...............................................
   "mode": {
-    type: String,
-    default: "javascript"
+    type: String
+  },
+  "mime": {
+    type: String
   },
   //...............................................
   // Aspact
@@ -27754,8 +27780,8 @@ const _M = {
       icon: "far-keyboard",
       text: "i18n:empty"
     })
-  },
-}
+  }
+};
 return _M;;
 })()
 // ============================================================
@@ -46968,6 +46994,10 @@ const _M = {
       default: true
     },
     "readonly": {
+      type: Boolean,
+      default: false
+    },
+    "autoShowBlank": {
       type: Boolean,
       default: false
     },
@@ -90731,49 +90761,50 @@ Ti.Preload("ti/com/ti/input/num/_com.json", {
 // JOIN <ti-input-pair.html> ti/com/ti/input/pair/ti-input-pair.html
 //========================================
 Ti.Preload("ti/com/ti/input/pair/ti-input-pair.html", `<div class="ti-input-pair full-field" :class="TopClass">
-  <!--
-  Empty
-  -->
-  <TiLoading
-    v-if="isEmpty"
-      v-bind="blankAs"/>
   <!----------------------------------------->
-  <div class="pair-grid-con" v-else>
+  <div class="pair-grid-con" v-if="!isEmpty">
     <template v-for="fld in PairFields">
       <div class="pair-grid-item as-name" :style="NameStyle">
         <div class="cell-con">
           <div
             v-if="canRemoveItem && !readonly"
-              class="as-deleter" @click.left="OnDeleteFld(fld)">
+            class="as-deleter"
+            @click.left="OnDeleteFld(fld)"
+          >
             <i class="zmdi zmdi-close"></i>
           </div>
-          <component 
-            :is="nameComType" 
+          <component
+            :is="nameComType"
             class="as-com"
-            v-bind="nameComConf" 
+            v-bind="nameComConf"
             :value="fld.name"
             :readonly="readonly"
-            @change="OnNameChange(fld, $event)"/>
+            @change="OnNameChange(fld, $event)"
+          />
         </div>
       </div>
       <div class="pair-grid-item as-value">
         <div class="cell-con">
-          <component 
+          <component
             :is="valueComType"
             class="as-com"
             v-bind="valueComConf"
             :value="fld.value"
             :readonly="readonly"
-            @change="OnValueChange(fld, $event)"/>
+            @change="OnValueChange(fld, $event)"
+          />
         </div>
       </div>
     </template>
   </div>
   <!----------------------------------------->
+  <TiLoading v-else-if="autoShowBlank" v-bind="blankAs" />
+  <!----------------------------------------->
   <TiButton
     v-if="canAddNewItem && !readonly"
-      class="is-tiny btn-r4"
-      :setup="ActionSetup"/>
+    class="is-tiny btn-r4"
+    :setup="ActionSetup"
+  />
   <!----------------------------------------->
 </div>`);
 //========================================
@@ -103138,6 +103169,7 @@ Ti.Preload("ti/i18n/en-uk/_ti.i18n.json", {
   "json-new-key": "Enter a new key",
   "json-syntax-err-tip": "Syntax Error! please switch source view to verify",
   "key": "Key",
+  "keywords": "Keywords",
   "label": "Label",
   "lang": "Language",
   "lang-en-uk": "En",
@@ -104768,6 +104800,7 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "json-new-key": "Enter a new key",
   "json-syntax-err-tip": "Syntax Error! please switch source view to verify",
   "key": "Key",
+  "keywords": "Keywords",
   "label": "Label",
   "lang": "Language",
   "lang-en-uk": "En",
@@ -106397,6 +106430,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "json-new-key": "请输入一个新键名",
   "json-syntax-err-tip": "语法错误，请切换源码视图检查",
   "key": "键",
+  "keywords": "关键字",
   "label": "标签",
   "lang": "语言",
   "lang-en-uk": "英",
@@ -108039,6 +108073,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "json-new-key": "請輸入一個新鍵名",
    "json-syntax-err-tip": "語法錯誤，請切換源碼視圖檢查",
    "key": "鍵",
+   "keywords": "關鍵字",
    "label": "標籤",
    "lang": "語言",
    "lang-en-uk": "英",

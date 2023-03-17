@@ -240,6 +240,7 @@
   "json-new-key": "Enter a new key",
   "json-syntax-err-tip": "Syntax Error! please switch source view to verify",
   "key": "Key",
+  "keywords": "Keywords",
   "label": "Label",
   "lang": "Language",
   "lang-en-uk": "En",
