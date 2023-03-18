@@ -1,4 +1,4 @@
-// Pack At: 2023-03-17 21:03:22
+// Pack At: 2023-03-18 01:49:12
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -7093,6 +7093,9 @@ const { Load } = (function(){
     //
     if(!cooked) {
       let cook = Ti.Config.cookUrl(url , {dynamicPrefix, dynamicAlias})
+      if(!cook) {
+        throw `Fail to cook URL: ${url}`
+      }
       type = cook.type
       url  = cook.url
     }
@@ -19902,7 +19905,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230317.210322",
+  "version": "1.6-20230318.014912",
   "dev": false,
   "appName": null,
   "session": {},

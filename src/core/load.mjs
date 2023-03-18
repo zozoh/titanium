@@ -201,6 +201,9 @@ async function TiLoad(url=[], {dynamicPrefix, dynamicAlias, cooked, type}={}) {
   //
   if(!cooked) {
     let cook = Ti.Config.cookUrl(url , {dynamicPrefix, dynamicAlias})
+    if(!cook) {
+      throw `Fail to cook URL: ${url}`
+    }
     type = cook.type
     url  = cook.url
   }
