@@ -1,4 +1,4 @@
-// Pack At: 2023-03-18 01:49:12
+// Pack At: 2023-03-19 22:07:31
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -33560,6 +33560,17 @@ const _M = {
       this.myOutlineTree = tree
     },
     //-----------------------------------------------
+    resortMediaSrc(){
+      this.$editor.$('img.wn-media[wn-obj-id]').each((index, el) => {
+        let objId = el.getAttribute("wn-obj-id")
+        let src = el.getAttribute("src")
+        let shouldSrc = `/o/content?str=id:${objId}`
+        if (src!=shouldSrc) {
+          el.setAttribute("src", shouldSrc)
+        }
+      })
+    },
+    //-----------------------------------------------
     scrollIntoView(selector) {
       let $ta;
       if (_.isElement(selector)) {
@@ -33750,6 +33761,9 @@ const _M = {
 
         // Then generate the outline
         this.evalOutline()
+
+        // restore src for image element by wn-obj-id
+        this.resortMediaSrc()
       }
       //.............................................
     },
