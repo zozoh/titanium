@@ -1,4 +1,4 @@
-// Pack At: 2023-03-21 21:54:43
+// Pack At: 2023-03-22 01:30:47
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -495,8 +495,14 @@ const Io = (function(){
      *  path will starts by "~/"
      */
     getFormedPath(meta) {
+      if(!meta){
+        return null
+      }
       // Make sure it is meta
-      let ph = meta.ph ? meta.ph : meta;
+      let ph = _.isString(meta) ? meta : meta.ph;
+      if(!ph){
+        return null
+      }
       let homePath = Wn.Session.getHomePath()
       let rph = Ti.Util.getRelativePath(homePath, ph, "")
       return Ti.Util.appendPath("~", rph)
@@ -4534,7 +4540,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230321.215445"
+const WALNUT_VERSION = "1.2-20230322.013047"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

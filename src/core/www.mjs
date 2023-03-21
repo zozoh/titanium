@@ -610,24 +610,12 @@ const TiWWW = {
     }
     //.....................................
     let { reo, data } = apiRe;
+    let dc = { ...state, reo };
     //.....................................
     // Update or merge
     if (api.dataKey) {
-      if (/^->/.test(api.dataKey)) {
-        console.log(api.dataKey);
-      }
-
       // Eval the key
-      let key = Ti.Util.explainObj(
-        {
-          reo,
-          vars,
-          params,
-          headers,
-          data: state.page.data
-        },
-        api.dataKey
-      );
+      let key = Ti.Util.explainObj(dc, api.dataKey);
       // Set to state
       if (key) {
         if (api.dataMerge) {
@@ -648,16 +636,7 @@ const TiWWW = {
     // Update or merge raw
     if (api.rawDataKey) {
       // Eval the key
-      let key = Ti.Util.explainObj(
-        {
-          reo,
-          data,
-          vars,
-          params,
-          headers
-        },
-        api.rawDataKey
-      );
+      let key = Ti.Util.explainObj(dc, api.rawDataKey);
       // Set to state
       if (key) {
         if (api.rawDataMerge) {

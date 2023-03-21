@@ -491,8 +491,14 @@ const WnIo = {
    *  path will starts by "~/"
    */
   getFormedPath(meta) {
+    if(!meta){
+      return null
+    }
     // Make sure it is meta
-    let ph = meta.ph ? meta.ph : meta;
+    let ph = _.isString(meta) ? meta : meta.ph;
+    if(!ph){
+      return null
+    }
     let homePath = Wn.Session.getHomePath()
     let rph = Ti.Util.getRelativePath(homePath, ph, "")
     return Ti.Util.appendPath("~", rph)
